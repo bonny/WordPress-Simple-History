@@ -1,0 +1,376 @@
+# Translation of the WordPress plugin   by .
+# Copyright (C) 2010
+# This file is distributed under the same license as the  package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple History 0.4\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/simple-history\n"
+"POT-Creation-Date: 2012-09-29 16:38:52+00:00\n"
+"PO-Revision-Date: 2012-09-29 22:58+0100\n"
+"Last-Translator: Ralph Stenzel <ralph@klein-aber-fein.de>\n"
+"Language-Team: Ralph Stenzel <ralph@klein-aber-fein.de>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Generator: Poedit 1.5.3\n"
+
+#: index.php:66
+msgid "approved"
+msgstr "genehmigt"
+
+#: index.php:67
+msgid "unapproved"
+msgstr "nicht genehmigt"
+
+#: index.php:68
+msgid "marked as spam"
+msgstr "als Spam gekennzeichnet"
+
+#: index.php:69
+msgid "trashed"
+msgstr "verworfen"
+
+#: index.php:70
+msgid "untrashed"
+msgstr "wiederhergestellt"
+
+#: index.php:71
+msgid "created"
+msgstr "erzeugt"
+
+#: index.php:72
+msgid "deleted"
+msgstr "gelöscht"
+
+#: index.php:73
+msgid "updated"
+msgstr "aktualisiert"
+
+#: index.php:74
+msgid "nav_menu_item"
+msgstr "nav_menu_item"
+
+#: index.php:75 index.php:1419
+msgid "attachment"
+msgstr "Anhang"
+
+#: index.php:76 index.php:1452
+msgid "user"
+msgstr "Benutzer"
+
+#: index.php:77
+msgid "settings page"
+msgstr "Einstellungen"
+
+#: index.php:90 index.php:238 index.php:878
+msgid "History"
+msgstr "Änderungsprotokoll"
+
+#: index.php:150
+msgid "WordPress %1$s"
+msgstr "WordPress %1$s"
+
+#: index.php:163 index.php:253
+msgid "Donate"
+msgstr "Spenden Sie"
+
+#: index.php:224 index.php:245
+msgid "Simple History Settings"
+msgstr "Simple History-Einstellungen"
+
+#: index.php:250
+msgid "Show Simple History"
+msgstr "Zeige Änderungsprotokoll"
+
+#: index.php:251 index.php:1580
+msgid "RSS feed"
+msgstr "RSS-Feed"
+
+#: index.php:252
+msgid "Clear log"
+msgstr "Protokoll zurücksetzen"
+
+#: index.php:293 index.php:336
+msgid "History for %s"
+msgstr "Änderungsprotokoll für %s"
+
+#: index.php:294 index.php:337
+msgid "WordPress History for %s"
+msgstr "WordPress-Änderungsprotokoll für %s"
+
+#: index.php:306
+msgid "By %s"
+msgstr "Von %s"
+
+#: index.php:310
+msgid "%d occasions"
+msgstr "%d Ereignisse"
+
+#: index.php:341
+msgid "Wrong RSS secret"
+msgstr "Falsche RSS-Geheimadresse"
+
+#: index.php:342
+msgid ""
+"Your RSS secret for Simple History RSS feed is wrong. Please see WordPress "
+"settings for current link to the RSS feed."
+msgstr ""
+"Ihre RSS-Geheimadresse für den Simple History RSS-Feed ist falsch. Bitte "
+"überprüfen Sie die WordPress-Einstellungen hinsichtlich des momentanen Links "
+"zum RSS-Feed."
+
+#: index.php:362 index.php:1060
+msgid "By all users"
+msgstr "Alle Benutzer"
+
+#: index.php:411 index.php:1112
+msgid "One item"
+msgid_plural "%1$d items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: index.php:452
+msgid "on the dashboard"
+msgstr "auf dem Armaturenbrett (Dashboard)"
+
+#: index.php:457
+msgid "as a page under the dashboard menu"
+msgstr "als eine Seite im Dashboard-Menü"
+
+#: index.php:472
+msgid "Cleared database"
+msgstr "Datenbank geleert!"
+
+#: index.php:480
+msgid "Items in the database are automatically removed after 60 days."
+msgstr "Einträge in der Datenbank werden nach 60 Tagen automatisch entfernt."
+
+#: index.php:482
+msgid "Clear it now."
+msgstr "Datenbank jetzt leeren."
+
+#: index.php:496
+msgid ""
+"\n"
+"\t\t\tPlease\n"
+"\t\t\t<a href=\"http://eskapism.se/sida/donate/?"
+"utm_source=wordpress&utm_medium=settingpage&utm_campaign=simplehistory\">\n"
+"\t\t\tdonate\n"
+"\t\t\t</a> to support the development of this plugin and to keep it free.\n"
+"\t\t\tThanks!\n"
+"\t\t\t"
+msgstr ""
+"\n"
+"\t\t\tBitte\n"
+"\t\t\t<a href=\"http://eskapism.se/sida/donate/?"
+"utm_source=wordpress&utm_medium=settingpage&utm_campaign=simplehistory\">\n"
+"\t\t\tspenden Sie,\n"
+"\t\t\t</a> um die Weiterentwicklung dieses Plugins zu unterstützen, und "
+"damit es auch in Zukunft kostenlos bleiben kann.\n"
+"\t\t\tDanke!\n"
+"\t\t\t"
+
+#: index.php:532
+msgid "Created new secret RSS adress"
+msgstr "Neue geheime RSS-Adresse erstellt"
+
+#: index.php:543
+msgid ""
+"This is a secret RSS feed for Simple History. Only share the link with "
+"people you trust"
+msgstr ""
+"Dies ist ein geheimer RSS-Feed für Simple History. Teilen Sie das Link nur "
+"mit Menschen Ihres Vertrauens!"
+
+#: index.php:546
+msgid ""
+"You can <a href='%s'>generate a new address</a> for the RSS feed. This is "
+"useful if you think that the address has fallen into the wrong hands."
+msgstr ""
+"Sie können für den RSS-Feed <a href='%s'>eine neue Adresse erstellen</a> "
+"lassen. Dies ist hilfreich, wenn Sie den Verdacht haben, daß die bisherige "
+"Adresse in falsche Hände gekommen sein könnte."
+
+#: index.php:569 index.php:585 index.php:617
+msgid "From %1$s on %2$s"
+msgstr "Von %1$s am %2$s"
+
+#: index.php:971
+msgid "All types"
+msgstr "Alle Arten"
+
+#: index.php:1079
+msgid "Search"
+msgstr "Suche"
+
+#: index.php:1116
+msgid "Go to the first page"
+msgstr "Gehe zur ersten Seite"
+
+#: index.php:1117
+msgid "Go to the previous page"
+msgstr "Gehe zur vorherigen Seite"
+
+#: index.php:1118
+msgid "Current page"
+msgstr "Aktuelle Seite"
+
+#: index.php:1119
+msgid "of"
+msgstr "von"
+
+#: index.php:1120
+msgid "Go to the next page"
+msgstr "Gehe zur nächsten Seite"
+
+#: index.php:1121
+msgid "Go to the last page"
+msgstr "Gehe zur letzten Seite"
+
+#: index.php:1381
+msgid "Unknown or deleted user"
+msgstr "unbekannter oder gelöschter Benutzer"
+
+#: index.php:1502
+msgid "activated"
+msgstr "aktiviert"
+
+#: index.php:1505
+msgid "deactivated"
+msgstr "deaktiviert"
+
+#: index.php:1508
+msgid "enabled"
+msgstr "aktiviert"
+
+#: index.php:1511
+msgid "disabled"
+msgstr "deaktiviert"
+
+#: index.php:1526
+msgid "<span class=\"when\">%1$s ago</span> by %2$s"
+msgstr "<span class=\"when\">vor %1$s</span> durch %2$s"
+
+#: index.php:1528
+msgid "%s at %s"
+msgstr "%s um %s"
+
+#: index.php:1535
+msgid "+ 1 occasion"
+msgstr "+ 1 Ereignis"
+
+#: index.php:1538
+msgid "+ %d occasions"
+msgstr "+ %d Ereignisse"
+
+#: index.php:1546
+msgid "%s ago (%s at %s)"
+msgstr "vor %s (%s um %s)"
+
+#: index.php:1571
+msgid "Show 5 more"
+msgstr "Zeige 5 weitere"
+
+#: index.php:1572
+msgid "Show 15 more"
+msgstr "Zeige 15 weitere"
+
+#: index.php:1573
+msgid "Show 50 more"
+msgstr "Zeige 50 weitere"
+
+#: index.php:1574
+msgid "Show 100 more"
+msgstr "Zeige 100 weitere"
+
+#: index.php:1577
+msgid "Loading..."
+msgstr "Lade..."
+
+#: index.php:1579
+msgid "No matching items found."
+msgstr "Keine passenden Einträge gefunden."
+
+#: index.php:1582
+msgid "Show"
+msgstr "Zeige"
+
+#: index.php:1601
+msgid "No history items found."
+msgstr "Keine Einträge gefunden."
+
+#: index.php:1602
+msgid ""
+"Please note that Simple History only records things that happen after this "
+"plugin have been installed."
+msgstr ""
+"Bitte beachten Sie, daß Simple History nur Vorgänge aufzeichnet, die nach "
+"der Installation des Plugins stattgefunden haben."
+
+#: index.php:1615
+msgid "General Settings"
+msgstr "Allgemeine Einstellungen"
+
+#: index.php:1616
+msgid "Writing Settings"
+msgstr "Schreib-Einstellungen"
+
+#: index.php:1617
+msgid "Reading Settings"
+msgstr "Lese-Einstellungen"
+
+#: index.php:1618
+msgid "Discussion Settings"
+msgstr "Diskussions-Einstellungen"
+
+#: index.php:1619
+msgid "Media Settings"
+msgstr "Medien-Einstellungen"
+
+#: index.php:1620
+msgid "Privacy Settings"
+msgstr "Privatsphären-Einstellungen"
+
+#: index.php:1636
+msgid "Permalink Settings"
+msgstr "Permalink-Einstellungen"
+
+#~ msgid "WordPress Core"
+#~ msgstr "WordPress-Kern"
+
+#~ msgid "Plugin"
+#~ msgstr "Plugins"
+
+#~ msgid "edited"
+#~ msgstr "geändert"
+
+#~ msgid "Comment"
+#~ msgstr "Kommentare"
+
+#~ msgid "added"
+#~ msgstr "hinzugefügt"
+
+#~ msgid "Attachment"
+#~ msgstr "Anhänge"
+
+#~ msgid "User"
+#~ msgstr "Benutzer"
+
+#~ msgid "logged in"
+#~ msgstr "angemeldet"
+
+#~ msgid "logged out"
+#~ msgstr "abgemeldet"
+
+#~ msgid "Post"
+#~ msgstr "Postings"
+
+#~ msgid "modified"
+#~ msgstr "geändert"
+
+#~ msgid "No more history items found."
+#~ msgstr "Keine weiteren Vorfälle gefunden."

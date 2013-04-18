@@ -1,0 +1,415 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple History Extender\n"
+"POT-Creation-Date: 2012-11-27 00:32+0100\n"
+"PO-Revision-Date: 2012-11-27 00:33+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: Dutch\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../simple-history-extender.php:161
+msgid "Settings"
+msgstr ""
+
+#: ../simple-history-extender.php:183
+#, php-format
+msgid ""
+"The Simple History Extender plugin was deactivated because the Simple "
+"History plugin was not found installed or active.<br/><br/><a href=\"%s"
+"\">Return</a>."
+msgstr ""
+"De Simple History Extender plugin is gedeactiveerd omdat de Simple History "
+"plugin niet gevonden is of niet actief is.<br/><br/><a href=\"%s\">Ga terug</"
+"a>."
+
+#: ../simple-history-extender.php:184
+#, php-format
+msgid ""
+"The Simple History Extender plugin was deactivated.<br/><br/><a href=\"%s"
+"\">Return</a>."
+msgstr ""
+"De Simple History Extender plugin is gedeactiveerd.<br/><br/><a href=\"%s"
+"\">Ga terug</a>."
+
+#: ../simple-history-extender.php:213
+msgid "Simple History Extender Modules"
+msgstr ""
+
+#: ../simple-history-extender.php:223
+msgid ""
+"Activate or deactivate the events you want to log. Read the Help tab if you "
+"want to know which actions are supported and which aren't."
+msgstr ""
+"Activeer of deactiveer de momenten die je wilt registreren. Lees de Help tab "
+"als je wilt weten welke acties worden geregistreerd en welke niet."
+
+#: ../simple-history-extender.php:255
+msgid "activated"
+msgstr "geactiveerd"
+
+#: ../simple-history-extender.php:255
+msgid "deactivated"
+msgstr "gedeactiveerd"
+
+#: ../simple-history-extender.php:256
+msgid "Simple History Extender Module"
+msgstr ""
+
+#: ../class.sh-extend.php:68
+#, php-format
+msgid "Log events for the %s plugin."
+msgstr "Registreer momenten voor de %s plugin."
+
+#: ../class.sh-extend.php:69
+#, php-format
+msgid "Log events for %s."
+msgstr "Registreer momenten voor %s."
+
+#: ../class.sh-extend.php:89
+msgid "created"
+msgstr "aangemaakt"
+
+#: ../class.sh-extend.php:90
+msgid "edited"
+msgstr "bewerkt"
+
+#: ../class.sh-extend.php:91
+msgid "deleted"
+msgstr "verwijderd"
+
+#: ../class.sh-extend.php:92
+msgid "marked as spam"
+msgstr "gemarkeerd als spam"
+
+#: ../class.sh-extend.php:93
+msgid "unmarked as spam"
+msgstr "gemarkeerd als geen spam"
+
+#: ../class.sh-extend.php:94
+msgid "trashed"
+msgstr "in de prullenbak gegooid"
+
+#: ../class.sh-extend.php:95
+msgid "untrashed"
+msgstr "uit de prullenbak gehaald"
+
+#: ../class.sh-extend.php:96
+msgid "submitted"
+msgstr "verzonden"
+
+#: ../class.sh-extend.php:150
+#, php-format
+msgid "The %s module logs the following events:"
+msgstr "De %s module registreert de volgende acties:"
+
+#: ../class.sh-extend.php:165
+#, php-format
+msgid "The %s module does not support the following events:"
+msgstr "De %s module registreert niet deze acties:"
+
+#: ../class.sh-extend.php:239
+msgid "updated"
+msgstr "bijgewerkt"
+
+#: ../modules/gravityforms.php:28
+msgid "Gravity Forms"
+msgstr ""
+
+#: ../modules/gravityforms.php:32
+msgid "Creating, editing and deleting a form."
+msgstr "Aanmaken, bewerken en verwijderen van een formulier."
+
+#: ../modules/gravityforms.php:33
+msgid "Deleting a field from an existing form."
+msgstr "Verwijderen van een dataveld van een bestaand formulier."
+
+#: ../modules/gravityforms.php:34
+msgid "Submitting, editing and deleting an entry."
+msgstr "Verzenden, bewerken en verwijderen van een ingevuld formulier."
+
+#: ../modules/gravityforms.php:35
+msgid "Changing the status of an entry, including read/unread and star/unstar."
+msgstr ""
+"Wijzigen van de status van een reactie, inclusief markeren van lezen/"
+"ongelezen en met ster/zonder ster."
+
+#: ../modules/gravityforms.php:38
+msgid "Duplicating a form."
+msgstr "Dupliceren van een formulier."
+
+#: ../modules/gravityforms.php:39
+msgid "Setting a form to active/inactive."
+msgstr "Markeren van een formulier als actief/inactief."
+
+#: ../modules/gravityforms.php:48
+msgid "starred"
+msgstr "gemarkeerd met een ster"
+
+#: ../modules/gravityforms.php:49
+msgid "unstarred"
+msgstr "gemarkeerde ster verwijderd"
+
+#: ../modules/gravityforms.php:50
+msgid "marked as read"
+msgstr "gemarkeerd als gelezen"
+
+#: ../modules/gravityforms.php:51
+msgid "marked as unread"
+msgstr "gemarkeerd als gelezen"
+
+#: ../modules/gravityforms.php:110
+#, php-format
+msgid "from %s"
+msgstr "van %s"
+
+#: ../modules/gravityforms.php:112
+msgid "from unknown"
+msgstr "van onbekend"
+
+#: ../modules/gravityforms.php:120
+msgid "Form"
+msgstr "Formulier"
+
+#: ../modules/gravityforms.php:129
+msgid "Form entry"
+msgstr "Ingevuld formulier"
+
+#: ../modules/gravityforms.php:150
+msgid "without entries deleted"
+msgstr "zonder reacties verwijderd"
+
+#: ../modules/gravityforms.php:151
+#, php-format
+msgid "with %d entries deleted"
+msgstr "met %d reacties verwijderd"
+
+#: ../modules/gravityforms.php:160
+#, php-format
+msgid "field %s deleted"
+msgstr "veld %s verwijderd"
+
+#: ../modules/gravityforms.php:201
+msgid "restored"
+msgstr "hersteld"
+
+#: ../modules/gravityforms.php:206
+msgid "changed status"
+msgstr "status gewijzigd"
+
+#: ../modules/widgets.php:25
+msgid "Widgets"
+msgstr ""
+
+#: ../modules/widgets.php:27
+msgid "Log events for the Widgets section of your WP install."
+msgstr "Registreer momenten voor het Widget onderdeel van je WP installatie."
+
+#: ../modules/widgets.php:30
+msgid "Adding, updating and deleting widgets in/from a sidebar."
+msgstr "Toevoegen, bijwerken en verwijderen van widgets in/uit een sidebar."
+
+#: ../modules/widgets.php:33
+msgid "Moving widgets between sidebars."
+msgstr "Verplaatsen van widgets tussen sidebars."
+
+#: ../modules/widgets.php:34
+msgid "Setting a widget to active/inactive."
+msgstr "Markeren van een widget als actief/inactief."
+
+#: ../modules/widgets.php:86
+#, php-format
+msgid "removed from sidebar %s"
+msgstr "verwijderd van sidebar %s"
+
+#: ../modules/widgets.php:88
+#, php-format
+msgid "updated in sidebar %s"
+msgstr "bijgwerkt in sidebar %s"
+
+#: ../modules/widgets.php:90
+#, php-format
+msgid "added to sidebar %s"
+msgstr "toegevoegd aan sidebar %s"
+
+#: ../modules/widgets.php:95
+msgid "Widget"
+msgstr ""
+
+#: ../modules/bbpress.php:28
+msgid "BBPress"
+msgstr ""
+
+#: ../modules/bbpress.php:32
+msgid "Creating, editing and deleting a forum, topic, reply."
+msgstr "Aanmaken, wijzigen en verwijderen van een forum, onderwerp of reactie."
+
+#: ../modules/bbpress.php:33
+msgid "Setting the type of a forum to category or forum."
+msgstr "Markeren van een forum als type categorie of type forum."
+
+#: ../modules/bbpress.php:34
+msgid "Setting the status of a forum, topic to open or closed."
+msgstr ""
+"Markeren van de status van een forum of onderwerp als open of gesloten."
+
+#: ../modules/bbpress.php:35
+msgid "Setting the forum visibility to public, private or hidden."
+msgstr "Markeren van een forum als publiek of privé zichtbaar of verborgen."
+
+#: ../modules/bbpress.php:36
+msgid "Trashing and untrashing a forum, topic, reply."
+msgstr ""
+"Verplaatsen van een forum, onderwerp of reactie in en uit de prullenbak."
+
+#: ../modules/bbpress.php:37
+msgid "Marking and unmarking a topic, reply as spam."
+msgstr "Markeren van een onderwerp of reactie als spam of geen spam."
+
+#: ../modules/bbpress.php:38
+msgid "Marking and unmarking a topic as sticky."
+msgstr "Markeren van een onderwerp als sticky of niet sticky."
+
+#: ../modules/bbpress.php:39
+msgid "Merging and splitting a topic."
+msgstr "Samenvoegen en splitsen van een ondewerp."
+
+#: ../modules/bbpress.php:40
+msgid "Updating, merging and deleting a topic tag."
+msgstr "Bijwerken, samenvoegen en verwijderen van een onderwerptag."
+
+#: ../modules/bbpress.php:41
+msgid "A user (un)favoriting and (un)subscribing to a topic."
+msgstr ""
+"Een gebruiker markeert een onderwerp als favoriet of abonneert zich op een "
+"onderwerp of maakt dit ongedaan."
+
+#: ../modules/bbpress.php:42
+msgid "A user saving his/her profile."
+msgstr "Een gebruiker bewerkt zijn/haar profiel."
+
+#: ../modules/bbpress.php:53
+msgid "closed"
+msgstr "gesloten"
+
+#: ../modules/bbpress.php:54
+msgid "opened"
+msgstr "geopend"
+
+#: ../modules/bbpress.php:55
+msgid "marked as sticky"
+msgstr "gemarkeerd als sticky"
+
+#: ../modules/bbpress.php:56
+msgid "marked as super sticky"
+msgstr "gemarkeerd als super sticky"
+
+#: ../modules/bbpress.php:57
+msgid "unmarked as sticky"
+msgstr "gemarkeerd als niet sticky"
+
+#: ../modules/bbpress.php:58
+msgid "set to category type"
+msgstr "gewijzigd naar category type"
+
+#: ../modules/bbpress.php:59
+msgid "set to forum type"
+msgstr "gewijzigd naar forum type"
+
+#: ../modules/bbpress.php:60
+msgid "set to public"
+msgstr "publiek zichtbaar"
+
+#: ../modules/bbpress.php:61
+msgid "set to private"
+msgstr "privé zichtbaar"
+
+#: ../modules/bbpress.php:62
+msgid "set to hidden"
+msgstr "verborgen"
+
+#: ../modules/bbpress.php:63
+#, php-format
+msgid "in forum %s merged into %s"
+msgstr "in forum %s samengevoegd in onderwerp %s"
+
+#: ../modules/bbpress.php:64
+#, php-format
+msgid "in forum %s split from reply %s by %s into %s in forum %s"
+msgstr ""
+"in forum %s gesplitst vanaf reactie %s door %s in onderwerp %s in forum %s"
+
+#: ../modules/bbpress.php:131
+msgid "Forum"
+msgstr ""
+
+#: ../modules/bbpress.php:141
+msgid "Topic"
+msgstr ""
+
+#: ../modules/bbpress.php:150
+msgid "Topic Tag"
+msgstr ""
+
+#: ../modules/bbpress.php:161
+#, php-format
+msgid "by %s"
+msgstr "door %s"
+
+#: ../modules/bbpress.php:162
+msgid "Reply"
+msgstr ""
+
+#: ../modules/bbpress.php:173
+msgid "User"
+msgstr ""
+
+#: ../modules/bbpress.php:185
+#, php-format
+msgid "as child of %s"
+msgstr "als subforum van %s"
+
+#: ../modules/bbpress.php:246 ../modules/bbpress.php:256
+#, php-format
+msgid "in forum %s"
+msgstr "in forum %s"
+
+#: ../modules/bbpress.php:369
+msgid "favorited"
+msgstr "gemarkeerd als favoriet"
+
+#: ../modules/bbpress.php:373
+msgid "unfavorited"
+msgstr "niet meer favoriet gemarkeerd"
+
+#: ../modules/bbpress.php:377
+msgid "subscribed"
+msgstr "geabonneerd"
+
+#: ../modules/bbpress.php:381
+msgid "unsubscribed"
+msgstr "abonnement ongedaan gemaakt"
+
+#: ../modules/bbpress.php:385
+msgid "profile updated"
+msgstr "profiel bijgewerkt"
+
+#: ../modules/bbpress.php:389
+msgid "registered"
+msgstr "geregistreerd"
+
+#: ../modules/bbpress.php:397
+#, php-format
+msgid "changed forum role to %s"
+msgstr "forum rol gewijzigd naar %s"
+
+#: ../modules/bbpress.php:397
+msgid "none"
+msgstr "geen"

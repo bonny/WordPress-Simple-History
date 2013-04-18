@@ -1,0 +1,331 @@
+# Copyright (C) 2012 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version:  \n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/simple-history\n"
+"POT-Creation-Date: 2012-10-03 19:20:16+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2012-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: index.php:66
+msgid "approved"
+msgstr ""
+
+#: index.php:67
+msgid "unapproved"
+msgstr ""
+
+#: index.php:68
+msgid "marked as spam"
+msgstr ""
+
+#: index.php:69
+msgid "trashed"
+msgstr ""
+
+#: index.php:70
+msgid "untrashed"
+msgstr ""
+
+#: index.php:71
+msgid "created"
+msgstr ""
+
+#: index.php:72
+msgid "deleted"
+msgstr ""
+
+#: index.php:73
+msgid "updated"
+msgstr ""
+
+#: index.php:74
+msgid "nav_menu_item"
+msgstr ""
+
+#: index.php:75 index.php:1423
+msgid "attachment"
+msgstr ""
+
+#: index.php:76 index.php:1456
+msgid "user"
+msgstr ""
+
+#: index.php:77
+msgid "settings page"
+msgstr ""
+
+#: index.php:78
+msgid "edited"
+msgstr ""
+
+#: index.php:79
+msgid "comment"
+msgstr ""
+
+#: index.php:80
+msgid "logged in"
+msgstr ""
+
+#: index.php:81
+msgid "logged out"
+msgstr ""
+
+#: index.php:94 index.php:242 index.php:882
+msgid "History"
+msgstr ""
+
+#: index.php:154
+msgid "WordPress %1$s"
+msgstr ""
+
+#: index.php:167 index.php:257
+msgid "Donate"
+msgstr ""
+
+#: index.php:228 index.php:249
+msgid "Simple History Settings"
+msgstr ""
+
+#: index.php:254
+msgid "Show Simple History"
+msgstr ""
+
+#: index.php:255 index.php:1584
+msgid "RSS feed"
+msgstr ""
+
+#: index.php:256
+msgid "Clear log"
+msgstr ""
+
+#: index.php:297 index.php:340
+msgid "History for %s"
+msgstr ""
+
+#: index.php:298 index.php:341
+msgid "WordPress History for %s"
+msgstr ""
+
+#: index.php:310
+msgid "By %s"
+msgstr ""
+
+#: index.php:314
+msgid "%d occasions"
+msgstr ""
+
+#: index.php:345
+msgid "Wrong RSS secret"
+msgstr ""
+
+#: index.php:346
+msgid ""
+"Your RSS secret for Simple History RSS feed is wrong. Please see WordPress "
+"settings for current link to the RSS feed."
+msgstr ""
+
+#: index.php:366 index.php:1064
+msgid "By all users"
+msgstr ""
+
+#: index.php:415 index.php:1116
+msgid "One item"
+msgid_plural "%1$d items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: index.php:456
+msgid "on the dashboard"
+msgstr ""
+
+#: index.php:461
+msgid "as a page under the dashboard menu"
+msgstr ""
+
+#: index.php:476
+msgid "Cleared database"
+msgstr ""
+
+#: index.php:484
+msgid "Items in the database are automatically removed after 60 days."
+msgstr ""
+
+#: index.php:486
+msgid "Clear it now."
+msgstr ""
+
+#: index.php:500
+msgid ""
+"\n"
+"\t\t\tPlease\n"
+"\t\t\t<a href=\"http://eskapism.se/sida/donate/?"
+"utm_source=wordpress&utm_medium=settingpage&utm_campaign=simplehistory\">\n"
+"\t\t\tdonate\n"
+"\t\t\t</a> to support the development of this plugin and to keep it free.\n"
+"\t\t\tThanks!\n"
+"\t\t\t"
+msgstr ""
+
+#: index.php:536
+msgid "Created new secret RSS adress"
+msgstr ""
+
+#: index.php:547
+msgid ""
+"This is a secret RSS feed for Simple History. Only share the link with "
+"people you trust"
+msgstr ""
+
+#: index.php:550
+msgid ""
+"You can <a href='%s'>generate a new address</a> for the RSS feed. This is "
+"useful if you think that the address has fallen into the wrong hands."
+msgstr ""
+
+#: index.php:573 index.php:589 index.php:621
+msgid "From %1$s on %2$s"
+msgstr ""
+
+#: index.php:975
+msgid "All types"
+msgstr ""
+
+#: index.php:1083
+msgid "Search"
+msgstr ""
+
+#: index.php:1120
+msgid "Go to the first page"
+msgstr ""
+
+#: index.php:1121
+msgid "Go to the previous page"
+msgstr ""
+
+#: index.php:1122
+msgid "Current page"
+msgstr ""
+
+#: index.php:1123
+msgid "of"
+msgstr ""
+
+#: index.php:1124
+msgid "Go to the next page"
+msgstr ""
+
+#: index.php:1125
+msgid "Go to the last page"
+msgstr ""
+
+#: index.php:1385
+msgid "Unknown or deleted user"
+msgstr ""
+
+#: index.php:1506
+msgid "activated"
+msgstr ""
+
+#: index.php:1509
+msgid "deactivated"
+msgstr ""
+
+#: index.php:1512
+msgid "enabled"
+msgstr ""
+
+#: index.php:1515
+msgid "disabled"
+msgstr ""
+
+#: index.php:1530
+msgid "<span class=\"when\">%1$s ago</span> by %2$s"
+msgstr ""
+
+#: index.php:1532
+msgid "%s at %s"
+msgstr ""
+
+#: index.php:1539
+msgid "+ 1 occasion"
+msgstr ""
+
+#: index.php:1542
+msgid "+ %d occasions"
+msgstr ""
+
+#: index.php:1550
+msgid "%s ago (%s at %s)"
+msgstr ""
+
+#: index.php:1575
+msgid "Show 5 more"
+msgstr ""
+
+#: index.php:1576
+msgid "Show 15 more"
+msgstr ""
+
+#: index.php:1577
+msgid "Show 50 more"
+msgstr ""
+
+#: index.php:1578
+msgid "Show 100 more"
+msgstr ""
+
+#: index.php:1581
+msgid "Loading..."
+msgstr ""
+
+#: index.php:1583
+msgid "No matching items found."
+msgstr ""
+
+#: index.php:1586
+msgid "Show"
+msgstr ""
+
+#: index.php:1605
+msgid "No history items found."
+msgstr ""
+
+#: index.php:1606
+msgid ""
+"Please note that Simple History only records things that happen after this "
+"plugin have been installed."
+msgstr ""
+
+#: index.php:1619
+msgid "General Settings"
+msgstr ""
+
+#: index.php:1620
+msgid "Writing Settings"
+msgstr ""
+
+#: index.php:1621
+msgid "Reading Settings"
+msgstr ""
+
+#: index.php:1622
+msgid "Discussion Settings"
+msgstr ""
+
+#: index.php:1623
+msgid "Media Settings"
+msgstr ""
+
+#: index.php:1624
+msgid "Privacy Settings"
+msgstr ""
+
+#: index.php:1640
+msgid "Permalink Settings"
+msgstr ""

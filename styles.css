@@ -1,0 +1,216 @@
+
+.simple-history-filter {
+	margin-bottom: .5em;
+	margin-top: .5em;
+}
+.simple-history-filter li {
+	display: inline;
+}
+.simple-history-filter a {
+	text-decoration: none;
+}
+.simple-history-filter .selected a {
+	font-weight: bold;
+	text-decoration: none;
+	color: black;
+}
+
+ol.simple-history {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	border-top: 1px solid #DFDFDF;
+}
+#simple_history_dashboard_widget ol.simple-history {
+	margin: 0 -10px;
+}
+ol.simple-history a {
+	text-decoration: none;
+}
+ol.simple-history > li {
+	margin: 0;
+	padding: 10px 10px;
+	position: relative;
+	line-height: 1;
+	border-top: 1px solid white;
+	border-bottom: 1px solid #DFDFDF;
+	background-color: #FCFCFC;
+	min-height: 32px;
+	/* min-height: 50px; */
+	padding-left: 52px;
+}
+ol.simple-history > li:nth-child(odd) {
+	background-color:  #F9F9F9;
+}
+ol.simple-history .first {
+	font-size: 13px;
+	font-family: Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+	margin: 0 0 0.5em;
+}
+
+/* reverse background color order on wiget page so the light one is topmost */
+#simple_history_dashboard_widget ol.simple-history > li {
+	background-color:  #F9F9F9;
+}
+#simple_history_dashboard_widget ol.simple-history > li:nth-child(odd) {
+	background-color: #FCFCFC;
+}
+
+ol.simple-history .second {
+	color: #999;
+}
+
+ol.simple-history .third {
+	margin-top: .5em;
+}
+ol.simple-history .third ul {
+	margin-top: .5em;
+}
+
+li.simple-history-has-attachment-thumnbail {
+	/*min-height: 50px;*/
+}
+ol.simple-history .simple-history-has-attachment-thumnbail .first,
+ol.simple-history .simple-history-has-attachment-thumnbail .second,
+ol.simple-history .simple-history-has-attachment-thumnbail .third
+ {
+	/*margin-left: 60px;*/
+}
+
+.simple-history-who-avatar {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+}
+
+ol.simple-history .when {
+	color: #999;
+ 	cursor: help;
+ 	border-bottom: 1px dotted #bbb;
+}
+ol.simple-history .when_detail {
+	display: none;
+	position: relative;
+	top: 1.75em;
+	left: -2em;
+	padding: .5ex;
+	background-color: #fffdb5;
+	border: 1px solid #eee;
+	color: black;
+	z-index: 1;
+}
+
+.simple-history-attachment-thumbnail {
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	display: none;;
+}
+.simple-history-title {
+	font-weight: bold;
+}
+
+.simple-history-discrete {
+	font-size: 11px;
+	color: #999;
+}
+
+.simple-history-added-by-ajax {
+	border-top: 1px solid #ddd;
+}
+
+ul.simple-history-occasions {
+	margin: 0 0 0 1em;
+	padding: 0;
+	list-style-type: none;
+	color: #999999;
+}
+ul.simple-history-occasions li {
+	margin: 0;
+	padding: 0;
+	line-height: 1.5;
+}
+
+.simple-history-load-more-loading {
+	height: 26px;
+	line-height: 26px;
+}
+.simple-history-load-more-loading img {
+	display: inline-block;
+	position: relative;
+	top: 3px;
+	margin-right: .5em;
+}
+.simple-history-no-more-items {
+	padding: .5em;
+	background-color: #FFFFE0;
+	border: 1px solid #E6DB55;
+	font-weight: bold;
+}
+
+.simple-history-rss-feed-dashboard {
+	display: none;
+}
+
+#simple_history_dashboard_widget .simple-history-rss-feed-dashboard {
+	position: absolute;
+	bottom: 6px;
+	right: 5px;
+	margin: 0;
+	display: block;
+}
+.simple-history-rss-feed-dashboard a,
+.simple-history-rss-feed-page span
+{
+	background: transparent url(http://jquery-ui.googlecode.com/svn/trunk/themes/base/images/ui-icons_888888_256x240.png) no-repeat -17px -176px;
+	display: block;
+	width: 16px;
+	height: 16px;
+	text-indent: -99999px;
+	direction: ltr;
+}
+
+#simple_history_dashboard_widget .simple-history-rss-feed-page {
+	display: none;
+}
+
+.dashboard_page_simple_history_page .wrap {
+	position: relative;
+}
+.simple-history-rss-feed-page {
+	display: block;
+	position: absolute;
+	right: 0;
+	bottom: -3px;
+}
+
+.rtl .simple-history-rss-feed-page {
+	right: auto;
+	left: 0;
+}
+
+.simple-history-rss-feed-page span {
+	float: left;
+}
+
+.simple-history-settings-page-updated {
+	font-weight: bold;
+	margin: 5px 0 15px;
+	background-color: #FFFFE0;
+	border: 1px solid #E6DB55;
+}
+.simple-history-settings-page-updated p {
+	margin: 0.5em !important;
+}
+.simple-history-filter-search input[type=button] {
+	cursor: pointer;
+}
+
+.simple-history-tablenav .tablenav-pages {
+	float: none;
+}
+
+.simple-history-tablenav .displaying-num {
+	display: inline-block;
+}
+

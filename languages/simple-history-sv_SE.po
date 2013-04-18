@@ -1,0 +1,374 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple History\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-02-07 13:48+0100\n"
+"PO-Revision-Date: 2012-02-09 13:50+0100\n"
+"Last-Translator: Jocke Gustin <jocke.gustin@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-Language: Swedish\n"
+"X-Poedit-Country: SWEDEN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: ..\n"
+"X-Textdomain-Support: yes"
+
+#: index.php:132
+#: index.php:174
+#: index_orig.php:132
+#: index_orig.php:174
+#, php-format
+#@ simple-history
+msgid "Simple History for %s"
+msgstr "Historik för %s"
+
+#: index.php:133
+#: index.php:175
+#: index_orig.php:133
+#: index_orig.php:175
+#, php-format
+#@ simple-history
+msgid "WordPress History for %s"
+msgstr "WordPress historik för %s"
+
+#: index.php:145
+#: index.php:1201
+#: index_orig.php:145
+#, php-format
+#@ simple-history
+msgid "By %s"
+msgstr "Av %s"
+
+#: index.php:149
+#: index_orig.php:149
+#, php-format
+#@ simple-history
+msgid "%d occasions"
+msgstr "%d tillfällen"
+
+#: index.php:179
+#: index_orig.php:179
+#@ simple-history
+msgid "Wrong RSS secret"
+msgstr "Fel RSS lösenord"
+
+#: index.php:180
+#: index_orig.php:180
+#@ simple-history
+msgid "Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed."
+msgstr "Ditt RSS lösenord är fel. Vänligen gå till WordPress inställningsmeny för en länk till RSS-feed."
+
+#: index.php:254
+#: index_orig.php:254
+#@ simple-history
+msgid "on the dashboard"
+msgstr "på adminpanelen"
+
+#: index.php:259
+#: index_orig.php:259
+#@ simple-history
+msgid "as a page under the tools menu"
+msgstr "som en sida under verktygsmenyn"
+
+#: index.php:296
+#: index_orig.php:296
+#@ simple-history
+msgid "Created new secret RSS adress"
+msgstr "Skapade en ny hemlig RSS address"
+
+#: index.php:307
+#: index_orig.php:307
+#@ simple-history
+msgid "This is a secret RSS feed for Simple History. Only share the link with people you trust"
+msgstr "Detta är en hemlig RSS feed för \"Webbplatshistorik\". Dela den bara med personer du litar på."
+
+#: index.php:310
+#: index_orig.php:310
+#, fuzzy, php-format, php-format, php-format, php-format, php-format, php-format, php-format, php-format
+#@ simple-history
+msgid "You can <a href='%s#simple-history-settings-page'>generate a new address</a> for the RSS feed. This is useful if you think that the address has fallen into the wrong hands."
+msgstr "Du kan <a href='%s'>generera en ny adress</a> för din hemliga RSS feed. Detta är användbart ifall du tror att adressen kommit i fel händer."
+
+#: index.php:333
+#: index.php:348
+#: index.php:379
+#: index_orig.php:333
+#: index_orig.php:348
+#: index_orig.php:379
+#, php-format
+#@ default
+msgid "From %1$s on %2$s"
+msgstr "Från %1$s klockan %2$s"
+
+#: index.php:45
+#: index.php:792
+#: index_orig.php:786
+#@ simple-history
+msgid "By all users"
+msgstr "Av alla användare"
+
+#: index.php:811
+#: index_orig.php:805
+#@ simple-history
+msgid "Search"
+msgstr "Sök"
+
+#: index.php:1051
+#: index_orig.php:1041
+#@ simple-history
+msgid "Unknown or deleted user"
+msgstr "Okänd eller borttagen användare"
+
+#: index.php:476
+#: index.php:549
+#: index_orig.php:1069
+#@ simple-history
+msgid "created"
+msgstr "skapades"
+
+#: index.php:457
+#: index.php:469
+#: index.php:557
+#: index_orig.php:1071
+#: index_orig.php:1160
+#@ simple-history
+msgid "updated"
+msgstr "uppdaterades"
+
+#: index.php:351
+#: index.php:462
+#: index.php:483
+#: index.php:512
+#: index.php:554
+#: index_orig.php:1073
+#: index_orig.php:1162
+#@ simple-history
+msgid "deleted"
+msgstr "kastades i papperskorgen"
+
+#: index.php:451
+#: index_orig.php:1158
+#@ simple-history
+msgid "added"
+msgstr "lades till"
+
+#: index_orig.php:1164
+#@ simple-history
+msgid "logged in"
+msgstr "loggade in"
+
+#: index_orig.php:1166
+#@ simple-history
+msgid "logged out"
+msgstr "loggade ut"
+
+#: index.php:1203
+#: index_orig.php:1193
+#, php-format
+#@ default
+msgid "%s ago"
+msgstr "%s sedan"
+
+#: index.php:1212
+#: index_orig.php:1202
+#@ simple-history
+msgid "+ 1 occasion"
+msgstr "+1 tillfälle"
+
+#: index.php:1215
+#: index_orig.php:1205
+#, php-format
+#@ simple-history
+msgid "+ %d occasions"
+msgstr "+ %d tillfällen"
+
+#: index.php:1223
+#: index_orig.php:1213
+#, php-format
+#@ simple-history
+msgid "%s ago (%s at %s)"
+msgstr "%s sedan (%s den %s)"
+
+#: index.php:1246
+#: index_orig.php:1236
+#, fuzzy
+#@ simple-history
+msgid "Show 5 more"
+msgstr "Visa 5 till"
+
+#: index.php:1247
+#: index_orig.php:1237
+#, fuzzy
+#@ simple-history
+msgid "Show 15 more"
+msgstr "Visa 15 till"
+
+#: index.php:1248
+#: index_orig.php:1238
+#, fuzzy
+#@ simple-history
+msgid "Show 50 more"
+msgstr "Visa 50 till"
+
+#: index.php:1249
+#: index_orig.php:1239
+#, fuzzy
+#@ simple-history
+msgid "Show 100 more"
+msgstr "Visa 100 till"
+
+#: index.php:1252
+#: index_orig.php:1242
+#@ simple-history
+msgid "Loading..."
+msgstr "Laddar..."
+
+#: index.php:1253
+#: index_orig.php:1243
+#@ simple-history
+msgid "No more history items found."
+msgstr "Ingen historik hittad."
+
+#: index.php:1254
+#: index_orig.php:1244
+#@ simple-history
+msgid "Simple History RSS feed"
+msgstr "Webbplatshistorik RSS feed"
+
+#: index.php:1256
+#: index_orig.php:1246
+#@ simple-history
+msgid "Show"
+msgstr "Visa"
+
+#: index.php:1270
+#: index_orig.php:1260
+#@ simple-history
+msgid "No history items found."
+msgstr "Inga händelser hittade."
+
+#: index.php:1271
+#: index_orig.php:1261
+#@ simple-history
+msgid "Please note that Simple History only records things that happen after this plugin have been installed."
+msgstr "Vänligen notera att \"Webbplatshistorik\" enbart visar händelser efter detta plugin aktiverats."
+
+#: index.php:1095
+#@ simple-history
+msgid "attachment"
+msgstr "bilaga"
+
+#: index.php:1134
+#@ simple-history
+msgid "user"
+msgstr "användare"
+
+#: index.php:29
+#@ simple-history
+msgid "Simple History"
+msgstr "Webbplatshistorik"
+
+#: index.php:317
+#: index.php:321
+#: index.php:691
+#@ default
+msgid "Plugin"
+msgstr ""
+
+#: index.php:336
+#: index.php:351
+#: index.php:382
+#@ default
+msgid "Comment"
+msgstr ""
+
+#: index.php:451
+#: index.php:457
+#: index.php:462
+#@ simple-history
+msgid "Attachment"
+msgstr "Filuppladdning"
+
+#: index.php:469
+#: index.php:476
+#: index.php:483
+#: index.php:497
+#: index.php:504
+#@ simple-history
+msgid "User"
+msgstr "Användare"
+
+#: index.php:512
+#@ default
+msgid "Post"
+msgstr ""
+
+#: index.php:42
+#: index.php:726
+#@ simple-history
+msgid "All types"
+msgstr "All historik"
+
+#: index.php:317
+#: index.php:691
+#@ simple-history
+msgid "activated"
+msgstr "aktiverades"
+
+#: index.php:321
+#@ simple-history
+msgid "deactivated"
+msgstr "inaktiverades"
+
+#: index.php:336
+#@ simple-history
+msgid "edited"
+msgstr "redigerade"
+
+#: index.php:366
+#@ simple-history
+msgid "approved"
+msgstr "godkände"
+
+#: index.php:368
+#@ simple-history
+msgid "unapproved"
+msgstr "nekade"
+
+#: index.php:370
+#@ simple-history
+msgid "marked as spam"
+msgstr "markerade som skräppost"
+
+#: index.php:372
+#@ simple-history
+msgid "trashed"
+msgstr "slängde"
+
+#: index.php:374
+#@ simple-history
+msgid "untrashed"
+msgstr "återställde"
+
+#: index.php:497
+#@ simple-history
+msgid "logged_in"
+msgstr "loggade in"
+
+#: index.php:504
+#@ simple-history
+msgid "logged_out"
+msgstr "loggade ut"
+
+#: index.php:1205
+#, php-format
+#@ simple-history
+msgid "%s at %s"
+msgstr "%s klockan %s"
+
