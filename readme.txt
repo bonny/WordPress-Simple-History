@@ -153,6 +153,7 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 
 = 1.x =
 - Fixed: Plugin name is included when plugins is activated or deactivated. Previosuly only folder name and name of php file was included.
+- Changed: Filters now use dropdowns for type and user. When a site had lots of users and lots of post types, the filter section could be way to big.
 - 
 
 = 1.1 =
