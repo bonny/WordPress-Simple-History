@@ -209,16 +209,19 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		global $wpdb;
 
 		$db_version = get_option("simple_history_db_version");
+		$table_name = $wpdb->prefix . "simple_history";
 		// $db_version = FALSE;
 		
-		if ($db_version === FALSE) {
+		if ( false === $db_version ) {
+
 			// db fix has never been run
 			// user is on version 0.4 or earlier
 			// = database is not using utf-8
 			// so fix that
-			$table_name = $wpdb->prefix . "simple_history";
+			
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			#echo "begin upgrading database";
+			
 			// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
 			$sql = "CREATE TABLE " . $table_name . " (
 			  id int(10) NOT NULL AUTO_INCREMENT,
@@ -245,8 +248,16 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 			#echo "done upgrading database";
 			
 			update_option("simple_history_db_version", 1);
-		} else {
-			// echo "db up to date";
+
+		} // done pre db ver 1 things
+
+		// DB version is 1, upgrade to 2
+		if ( 1 == intval($db_version) ) {
+			
+			// Add column for free text
+			// require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			// update_option("simple_history_db_version", 2);
+
 		}
 		
 	}
