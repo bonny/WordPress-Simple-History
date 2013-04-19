@@ -43,8 +43,12 @@ if ( isset( $network_plugin ) ) {
 if ( isset( $plugin ) ) {
 	$aa = $plugin;
 }
-$plugin_dir_url = plugin_dir_url(basename($aa)) . 'simple-history/';
+
+$plugin_dir_url = plugin_dir_url(basename($aa)) . basename(dirname(__FILE__)) . '/';
 define("SIMPLE_HISTORY_URL", $plugin_dir_url);
+
+// http://playground-nightly.ep/wordpress/wp-content/plugins/simple-history/
+// sf_d( SIMPLE_HISTORY_URL );
 
 /**
  * Let's begin on a class, since they rule so much more than functions.
@@ -617,7 +621,16 @@ function simple_history_settings_field_rss() {
 // @todo: move all add-related stuff to own file? there are so many of them.. kinda confusing, ey.
 
 function simple_history_activated_plugin($plugin_name) {
-	$plugin_name = urlencode($plugin_name);
+
+	// Fetch info about the plugin
+	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
+	
+	if ( is_array( $plugin_data ) && ! empty( $plugin_data["Name"] ) ) {
+		$plugin_name = urlencode( $plugin_data["Name"] );
+	} else {
+		$plugin_name = urlencode($plugin_name);
+	}
+
 	simple_history_add("action=activated&object_type=plugin&object_name=$plugin_name");
 }
 
@@ -1043,6 +1056,9 @@ function simple_history_install() {
 
 }
 
+/**
+ * Output navigation at top with filters for type, users, and free text search input
+ */
 function simple_history_print_nav() {
 
 	global $wpdb;
@@ -1054,6 +1070,7 @@ function simple_history_print_nav() {
 	} else {
 		$simple_history_type_to_show = "";
 	}
+
 	$sql = "SELECT DISTINCT object_type, object_subtype FROM {$tableprefix}simple_history ORDER BY object_type, object_subtype";
 	$arr_types = $wpdb->get_results($sql);
 
@@ -1067,14 +1084,23 @@ function simple_history_print_nav() {
 	$link = esc_html(add_query_arg("simple_history_type_to_show", ""));
 	$str_types_desc = __("All types", 'simple-history');
 	$str_types .= "<li $css><a data-simple-history-filter-type='' href='$link'>" . esc_html($str_types_desc) . "</a> | </li>";
+
+	// Loop through all types
+	// $one_type->object_type = user | post | attachment | comment | plugin | attachment | post | Reply | Topic | Widget | Wordpress_core
+	// $one_type->object_subtype = page | nav_menu_item | ...
 	foreach ($arr_types as $one_type) {
+
 		$css = "";
 		if ($one_type->object_subtype && $simple_history_type_to_show == ($one_type->object_type."/".$one_type->object_subtype)) {
 			$css = "class='selected'";
 		} elseif (!$one_type->object_subtype && $simple_history_type_to_show == $one_type->object_type) {
 			$css = "class='selected'";
 		}
+
+		// Begin LI
 		$str_types .= sprintf('<li %1$s data-simple-history-filter-type="%2$s" data-simple-history-filter-subtype="%3$s" >', $css, $one_type->object_type, $one_type->object_subtype);
+
+		// Create link to filter this type + subtype
 		$arg = "";
 		if ($one_type->object_subtype) {
 			$arg = $one_type->object_type."/".$one_type->object_subtype;
@@ -1085,21 +1111,52 @@ function simple_history_print_nav() {
 		$str_types .= "<a href='$link'>";
 		
 		// Some built in types we translate with built in translation, the others we use simple history for
+		// TODO: use WP-function to get all built in types?
 		$arr_built_in_types_with_translation = array("page", "post");
 		$object_type_translated = "";
 		$object_subtype_translated = "";
-		if ( in_array($one_type->object_type, $arr_built_in_types_with_translation) ) {
-			$object_type_translated = esc_html__(ucfirst($one_type->object_type));
-		} else {
-			$object_type_translated = esc_html__(ucfirst($one_type->object_type), "simple-history");			
+
+		// Get built in post types
+		$arr_built_in_post_types = get_post_types( array("_builtin" => true) );
+
+		$object_type_translated = "";
+		$object_subtype_translated = "";
+		if ( in_array( $one_type->object_type, $arr_built_in_post_types ) ) {
+			
+			$object_post_type_object = get_post_type_object( $one_type->object_type );
+			$object_type_translated = $object_post_type_object->labels->singular_name;
+
+			$object_subtype_post_type_object = get_post_type_object( $one_type->object_subtype );
+			if ( ! is_null( $object_subtype_post_type_object ) ) {
+				$object_subtype_translated = $object_subtype_post_type_object->labels->singular_name;;
+			}
+
 		}
+		
+		if ( empty( $object_type_translated ) ) {
+			$object_type_translated = esc_html__(ucfirst($one_type->object_type), "simple-history");
+		}
+
+		if ( empty( $object_subtype_translated ) ) {
+			$object_subtype_translated = esc_html__(ucfirst($one_type->object_subtype), "simple-history");
+		}
+
+
+		#if ( in_array($one_type->object_type, $arr_built_in_types_with_translation) ) {
+		#	$object_type_translated = esc_html__(ucfirst($one_type->object_type));
+		#} else {
+		#	$object_type_translated = esc_html__(ucfirst($one_type->object_type), "simple-history");			
+		#}
+		/*
 		if (in_array($one_type->object_subtype, $arr_built_in_types_with_translation) ) {
 			$object_subtype_translated = esc_html__(ucfirst($one_type->object_subtype));			
 		} else {
 			$object_subtype_translated = esc_html__(ucfirst($one_type->object_subtype), "simple-history");
-		}
+		}*/
 		
+		// Add name of type (post / attachment / user / etc.)
 		$str_types .= $object_type_translated;
+
 		if ($object_subtype_translated && $object_subtype_translated != $object_type_translated) {
 			$str_types .= "/". $object_subtype_translated;
 		}
