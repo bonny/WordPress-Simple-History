@@ -1361,11 +1361,11 @@ function simple_history_get_pagination() {
 			<div class="tablenav-pages">
 				<span class="displaying-num">%1$s</span>
 				<span class="pagination-links">
-					<a class="first-page disabled" title="%5$s" href="#">«</a>
-					<a class="prev-page disabled" title="%6$s" href="#">‹</a>
+					<a class="first-page disabled" title="%5$s" href="#"><span>«</span></a>
+					<a class="prev-page disabled" title="%6$s" href="#"><span>‹</span></a>
 					<span class="paging-input"><input class="current-page" title="%7$s" type="text" name="paged" value="%2$d" size="2"> %8$s <span class="total-pages">%3$d</span></span>
-					<a class="next-page %4$s" title="%9$s" href="#">›</a>
-					<a class="last-page %4$s" title="%10$s" href="#">»</a>
+					<a class="next-page %4$s" title="%9$s" href="#"><span>›</span></a>
+					<a class="last-page %4$s" title="%10$s" href="#"><span>»</span></a>
 				</span>
 			</div>
 		</div>

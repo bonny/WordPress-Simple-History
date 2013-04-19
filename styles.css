@@ -1,18 +1,9 @@
 
+
 .simple-history-filter {
 	margin-bottom: .5em;
 	margin-top: .5em;
-}
-.simple-history-filter li {
-	display: inline;
-}
-.simple-history-filter a {
-	text-decoration: none;
-}
-.simple-history-filter .selected a {
-	font-weight: bold;
-	text-decoration: none;
-	color: black;
+	margin-right: 1em;
 }
 
 ol.simple-history {
@@ -162,7 +153,7 @@ ul.simple-history-occasions li {
 
 .simple-history-rss-feed-dashboard a,
 .simple-history-rss-feed-page span {
-	background: transparent url(http://jquery-ui.googlecode.com/svn/trunk/themes/base/images/ui-icons_888888_256x240.png) no-repeat -17px -176px;
+	background: transparent url(./img/ui-icons_888888_256x240.png) no-repeat -17px -176px;
 	display: block;
 	width: 16px;
 	height: 16px;
@@ -214,3 +205,33 @@ ul.simple-history-occasions li {
 	display: inline-block;
 }
 
+
+.simple-history-tablenav .tablenav-pages a {
+	background: #eee;
+	display: inline-block;
+}
+
+.simple-history-tablenav .tablenav-pages a:hover {
+	background-color: #e4e4e4;
+}
+
+.simple-history-tablenav .tablenav-pages a span {
+	background: transparent url(./img/ui-icons_888888_256x240.png) no-repeat -240px -48px;
+	display: block;
+	text-indent: -30px;
+	line-height: 1;
+	overflow: hidden;
+	padding: 2px 9px;
+}
+
+.simple-history-tablenav .tablenav-pages .prev-page span {
+	background-position: -96px -16px;
+}
+
+.simple-history-tablenav .tablenav-pages .next-page span {
+	background-position: -32px -16px;
+}
+
+.simple-history-tablenav .tablenav-pages .last-page span {
+	background-position: -208px -48px;
+}
