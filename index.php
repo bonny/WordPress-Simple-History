@@ -90,6 +90,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 	 * There is probably a better way to do this, but this should work anyway
 	 */
 	function add_types_for_translation() {
+		$dummy = __("added", "simple-history");
 		$dummy = __("approved", "simple-history");
 		$dummy = __("unapproved", "simple-history");
 		$dummy = __("marked as spam", "simple-history");
