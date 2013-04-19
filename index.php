@@ -1603,6 +1603,7 @@ function simple_history_print_history($args = null) {
 			$action = $one_row->action;
 			$occasions = $one_row->occasions;
 			$num_occasions = sizeof($occasions);
+			$object_image_out = "";
 
 			$css = "";
 			if ("attachment" == $object_type_lcase) {
@@ -1704,24 +1705,51 @@ function simple_history_print_history($args = null) {
 				$post = get_post($object_id);
 				
 				if ($post) {
+
+					// Post for attachment was found
+
 					$title = esc_html(get_the_title($post->ID));
 					$edit_link = get_edit_post_link($object_id, 'display');
-					$attachment_image_src = wp_get_attachment_image_src($object_id, array(50,50), true);
-					$attachment_image = "";
+					$attachment_metadata = wp_get_attachment_metadata( $object_id );
+
+					#sf_d($attachment_metadata);
+					/*
+					gemensamt
+					file
+
+					bild:
+					width
+					height 
+
+					video
+					mime_type
+					filesize
+					fileformat
+					length_formatted
+
+
+					*/
+
+					// 60 x 60 is the same size as the media overview uses
+					$attachment_image_src = wp_get_attachment_image_src($object_id, array(60, 60), true);
+					
 					if ($attachment_image_src) {
-						$attachment_image = "<a class='simple-history-attachment-thumbnail' href='$edit_link'><img src='{$attachment_image_src[0]}' alt='Attachment icon' width='{$attachment_image_src[1]}' height='{$attachment_image_src[2]}' /></a>";
+						$object_image_out .= "<a class='simple-history-attachment-thumbnail' href='$edit_link'><img src='{$attachment_image_src[0]}' alt='Attachment icon' width='{$attachment_image_src[1]}' height='{$attachment_image_src[2]}' /></a>";
 					}
-					$attachment_out .= $attachment_image;
+					
 					$attachment_out .= " <a href='$edit_link'>";
 					$attachment_out .= "<span class='simple-history-title'>{$title}</span>";
 					$attachment_out .= "</a>";
 					
 				} else {
+
+					// Post for attachment was not found
 					if ($object_name) {
 						$attachment_out .= "<span class='simple-history-title'>\"" . esc_html($object_name) . "\"</span>";
 					} else {
 						$attachment_out .= " <span class='simple-history-title'>&lt;deleted&gt;</span>";
 					}
+
 				}
 
 				$attachment_out .= " " . esc_html__($action, "simple-history") . " ";
@@ -1801,15 +1829,31 @@ function simple_history_print_history($args = null) {
 			}
 			$output .= "</div>";
 			
+			// second div = when and who
 			$output .= "<div class='second'>";
-			// when
+			
 			$date_i18n_date = date_i18n(get_option('date_format'), strtotime($one_row->date), $gmt=false);
 			$date_i18n_time = date_i18n(get_option('time_format'), strtotime($one_row->date), $gmt=false);		
 			$now = strtotime(current_time("mysql"));
 			$diff_str = sprintf( __('<span class="when">%1$s ago</span> by %2$s', "simple-history"), human_time_diff(strtotime($one_row->date), $now), $who );
 			$output .= $diff_str;
 			$output .= "<span class='when_detail'>".sprintf(__('%s at %s', 'simple-history'), $date_i18n_date, $date_i18n_time)."</span>";
+			
 			$output .= "</div>";
+
+			// Object image
+			if ( $object_image_out ) {
+
+				$output .= sprintf(
+					'
+					<div class="simple-history-object-image">
+						%1$s
+					</div>
+					',
+					$object_image_out
+				);
+
+			}
 
 			// occasions
 			if ($num_occasions > 0) {

@@ -1,9 +1,14 @@
 
 
+.simple-history-ol-wrapper {
+	margin-top: .75em;
+}
+
 .simple-history-filter {
 	margin-bottom: .5em;
 	margin-top: .5em;
 	margin-right: 1em;
+	display: inline-block;
 }
 
 ol.simple-history {
@@ -58,16 +63,6 @@ ol.simple-history .third ul {
 	margin-top: .5em;
 }
 
-li.simple-history-has-attachment-thumnbail {
-	/*min-height: 50px;*/
-}
-ol.simple-history .simple-history-has-attachment-thumnbail .first,
-ol.simple-history .simple-history-has-attachment-thumnbail .second,
-ol.simple-history .simple-history-has-attachment-thumnbail .third
- {
-	/*margin-left: 60px;*/
-}
-
 .simple-history-who-avatar {
 	position: absolute;
 	top: 10px;
@@ -92,12 +87,32 @@ ol.simple-history .when_detail {
 	box-shadow: 3px 3px 10px -3px rgba(0,0, 0, .25);
 }
 
-.simple-history-attachment-thumbnail {
-	position: absolute;
-	left: 10px;
-	top: 10px;
-	display: none;;
+
+li.simple-history-has-attachment-thumnbail {
+	/*min-height: 50px;*/
 }
+ol.simple-history .simple-history-has-attachment-thumnbail .first,
+ol.simple-history .simple-history-has-attachment-thumnbail .second,
+ol.simple-history .simple-history-has-attachment-thumnbail .third
+ {
+	/*margin-left: 60px;*/
+}
+
+.simple-history-attachment-thumbnail {
+	/*position: absolute;
+	left: 10px;
+	top: 10px;*/
+	/*display: none;;*/
+}
+
+.simple-history-object-image {
+	margin: 1em 0 0 0;
+}
+.simple-history-object-image img {
+	max-width: 80px;
+	max-height: 60px;
+}
+
 .simple-history-title {
 	font-weight: bold;
 }
