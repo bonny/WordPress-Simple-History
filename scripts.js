@@ -4,6 +4,58 @@
  */
 var simple_history = (function($) {
 
+	function init() {
+		
+		// Only add JS things if Simple History exists on page
+		if (! $("div.simple-history-ol-wrapper").length) {
+			return;
+		}
+
+		addListeners();
+
+	}
+
+	function addListeners() {
+
+		/*
+			Character codes:
+			37 - left
+			38 - up
+			39 - right
+			40 - down
+		*/
+		
+		// Enable keyboard navigation if we are on Simple Historys own page
+		if ( $(".dashboard_page_simple_history_page").length ) {
+			
+			$(document).keydown(function(e) {
+				
+				var link_to_click = null;
+
+				if (e.keyCode == 37) {
+					link_to_click = ".prev-page";
+				} else if (e.keyCode == 39) {
+					link_to_click = ".next-page";
+				}
+
+				if (link_to_click) {
+					console.log("trigger nav", link_to_click);
+					$(".simple-history-tablenav").find(link_to_click).trigger("click");
+				}
+
+			});
+
+		}
+
+		// show occasions
+		$("a.simple-history-occasion-show").live("click", function(e) {
+			$(this).closest("li").find("ul.simple-history-occasions").toggle("fast");
+			e.preventDefault();
+		});
+
+
+	} // function
+
 	/**
 	 * Get currently selected filters
 	 * @return object with type, subtype, user_id
@@ -21,10 +73,15 @@ var simple_history = (function($) {
 	}
 
 	return {
+		"init": init,
 		"get_selected_filters": get_selected_filters
 	};
 
 })(jQuery);
+
+jQuery(function() {
+	simple_history.init();
+});
 
 
 /**
@@ -58,6 +115,7 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		num_added = $ol.find("> li").length,
 		search = jQuery("p.simple-history-filter-search input[type='text']").val(),
 		$target = jQuery(e.target),
+		$target_link = $target.closest("a"),
 		$tablenav = jQuery("div.simple-history-tablenav"),
 		$current_page = $tablenav.find(".current-page"),
 		$total_pages = $tablenav.find(".total-pages"),
@@ -72,17 +130,17 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 	
 	// if target is a child of simple-history-tablenav then this is a click in pagination
 	if ($t.closest("div.simple-history-tablenav").length > 0) {
-
-		if ($target.hasClass("disabled")) {
+	
+		if ($target_link.hasClass("disabled")) {
 			return;
-		} else if ($target.hasClass("first-page")) {
+		} else if ($target_link.hasClass("first-page")) {
 			simple_history_current_page = 0;
-		} else if ($target.hasClass("last-page")) {
-			simple_history_current_page = parseInt($total_pages.text()-1, 10);
-		} else if ($target.hasClass("prev-page")) {
-			simple_history_current_page = parseInt(simple_history_current_page-1, 10);
-		} else if ($target.hasClass("next-page")) {
-			simple_history_current_page = parseInt(simple_history_current_page+1, 10);
+		} else if ($target_link.hasClass("last-page")) {
+			simple_history_current_page = parseInt($total_pages.text(), 10) - 1;
+		} else if ($target_link.hasClass("prev-page")) {
+			simple_history_current_page = simple_history_current_page - 1;
+		} else if ($target_link.hasClass("next-page")) {
+			simple_history_current_page = simple_history_current_page + 1;
 		}
 			
 	} else {
@@ -104,11 +162,8 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 	
 	// so dashboard widget does not collapse when loading new items
 	$wrapper.height($wrapper.height());
+	$wrapper.addClass("simple-history-is-loading");
 
-	$t.closest("ul").find("li").removeClass("selected");
-	$t.closest("li").addClass("selected");
-
-	jQuery(".simple-history-load-more").hide("fast");
 	jQuery(".simple-history-no-more-items").hide();
 	$ol.fadeOut("fast");
 	
@@ -127,8 +182,9 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 
 	jQuery.post(ajaxurl, data, function(data, textStatus, XMLHttpRequest){
 		
+		// If no more can be loaded show message about that
 		if (data.error == "noMoreItems") {
-			// jQuery(".simple-history-load-more,.simple-history-load-more-loading").hide();
+			
 			jQuery(".simple-history-no-more-items").show();
 			jQuery(".simple-history-ol-wrapper").height("auto");
 
@@ -139,6 +195,8 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 
 		} else {
 
+			// Items found, add and show
+
 			// update number of existing items and total pages
 			$displaying_num.html(data.filtered_items_total_count_string);
 			$total_pages.text(data.filtered_items_total_pages);
@@ -146,11 +204,16 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 			$tablenav.show();
 			
 			$ol.html(data.items_li);
+
+			// animate wrapper to the height required to show items
 			$wrapper.animate({
 				height: $ol.height()
 			}, "fast", "swing", function() {
+
+				// when animations is done show the added items
 				$ol.fadeIn("fast");
 				jQuery(".simple-history-ol-wrapper").height("auto");
+
 			});
 
 		}
@@ -181,58 +244,10 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 			$first_page.addClass("disabled");
 		}
 
-	});
-	
-});
-
-/**
- * Click on load more = load more items via AJAX
- */
-jQuery(".simple-history-load-more a, .simple-history-load-more input[type='button']").live("click", function() {
-
-	simple_history_current_page++;
-
-	// the number of new history items to get
-	var num_to_get = jQuery(this).prev("select").find(":selected").val();
-	
-	// the number of added li-items = the number of added history items
-	var num_added = jQuery("ol.simple-history > li").length,
-		search = jQuery("p.simple-history-filter-search input[type='text']").val();
-
-	jQuery(".simple-history-load-more,.simple-history-load-more-loading").toggle();
-	
-	var $ol = jQuery("ol.simple-history:last");
-	
-	var filters = simple_history.get_selected_filters(),
-		type = filters.type,
-		subtype = filters.subtype,
-		user_id = filters.user_id;
-
-	var data = {
-		"action": "simple_history_ajax",
-		"type": filters.type,
-		"user": filters.user_id,
-		"page": simple_history_current_page,
-		"items": num_to_get,
-		"num_added": num_added,
-		"search": search
-	};
-	jQuery.post(ajaxurl, data, function(data, textStatus, XMLHttpRequest){
-	
-		// if data = simpleHistoryNoMoreItems then no more items found, so hide load-more-link
-		if (data == "simpleHistoryNoMoreItems") {
-			jQuery(".simple-history-load-more,.simple-history-load-more-loading").hide();
-			jQuery(".simple-history-no-more-items").show();
-		} else {
-			var $new_lis = jQuery(data);
-			$new_lis.hide();
-			$ol.append($new_lis);
-			$new_lis.fadeIn("fast");
-			jQuery(".simple-history-load-more,.simple-history-load-more-loading").toggle();
-		}
+		$wrapper.removeClass("simple-history-is-loading");
 
 	});
-	return false;
+	
 });
 
 jQuery("ol.simple-history .when").live("mouseover", function() {
@@ -240,10 +255,4 @@ jQuery("ol.simple-history .when").live("mouseover", function() {
 });
 jQuery("ol.simple-history .when").live("mouseout", function() {
 	jQuery(this).closest("li").find(".when_detail").fadeOut("fast");
-});
-
-// show occasions
-jQuery("a.simple-history-occasion-show").live("click", function() {
-	jQuery(this).closest("li").find("ul.simple-history-occasions").toggle("fast");
-	return false;
 });

@@ -154,7 +154,7 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 = 1.x =
 - Fixed: Plugin name is included when plugins is activated or deactivated. Previosuly only folder name and name of php file was included.
 - Changed: Filters now use dropdowns for type and user. When a site had lots of users and lots of post types, the filter section could be way to big.
-- 
+- Added keyboard navigation. Use right and left arrow when you are on Simple History's own page to navigation between next and previous history page.
 
 = 1.1 =
 - Added the Simple History Extender-module/plugin. With this great addon to Simple History it is very easy for other developers to add their own actions to simple history, including a settings panel to check actions on/off. All work on this module was made by Laurens Offereins (lmoffereins@gmail.com). Super thanks!

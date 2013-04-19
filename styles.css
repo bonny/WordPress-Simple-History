@@ -81,14 +81,15 @@ ol.simple-history .when {
 }
 ol.simple-history .when_detail {
 	display: none;
-	position: relative;
-	top: 1.75em;
-	left: -2em;
-	padding: .5ex;
+	position: absolute;
+	top: .4em;
+	left: 5.5em;
+	padding: .75ex;
 	background-color: #fffdb5;
 	border: 1px solid #eee;
 	color: black;
 	z-index: 1;
+	box-shadow: 3px 3px 10px -3px rgba(0,0, 0, .25);
 }
 
 .simple-history-attachment-thumbnail {
@@ -122,16 +123,6 @@ ul.simple-history-occasions li {
 	line-height: 1.5;
 }
 
-.simple-history-load-more-loading {
-	height: 26px;
-	line-height: 26px;
-}
-.simple-history-load-more-loading img {
-	display: inline-block;
-	position: relative;
-	top: 3px;
-	margin-right: .5em;
-}
 .simple-history-no-more-items {
 	padding: .5em;
 	background-color: #FFFFE0;
@@ -238,4 +229,30 @@ ul.simple-history-occasions li {
 
 .simple-history-tablenav .tablenav-pages .last-page span {
 	background-position: -208px -48px;
+}
+
+
+.simple-history-loading {
+	position: absolute;
+	top: 55%;
+	left: 10%;
+	xdisplay: none;
+	opacity: 0;
+}
+#simple_history_dashboard_widget .simple-history-loading {
+	left: 40%;
+}
+.simple-history-loading img {
+	vertical-align: text-bottom;
+}
+
+.simple-history-is-loading {
+	
+}
+
+.simple-history-is-loading .simple-history-loading {
+	transition: all .25s ease-in-out;
+	transition-delay: .25s;
+	xdisplay: block;
+	opacity: .75;
 }

@@ -1833,7 +1833,7 @@ function simple_history_print_history($args = null) {
 			$output .= "noMoreItems";
 		}
 		
-		if (!$args["is_ajax"]) {
+		if ( ! $args["is_ajax"] ) {
 
 			// if not ajax, print the divs and stuff we need
 			$show_more = "<select>";
@@ -1843,23 +1843,27 @@ function simple_history_print_history($args = null) {
 			$show_more .= sprintf('<option value=100 %2$s>%1$s</option>', __("Show 100 more", 'simple-history'), ($args["items"] == 100 ? " selected " : "") );
 			$show_more .= "</select>";
 
-			$loading = __("Loading...", 'simple-history');
-			$loading =  "<img src='".site_url("wp-admin/images/loading.gif")."' width=16 height=16>" . $loading;
 			$no_found = __("No matching items found.", 'simple-history');
 			$view_rss = __("RSS feed", 'simple-history');
 			$view_rss_link = simple_history_get_rss_address();
 			$str_show = __("Show", 'simple-history');
-			$output .= "</ol>
-			</div>
-			<!--
-			<p class='simple-history-load-more'>$show_more<input type='button' value='$str_show' class='button' /></p>
-			<p class='hidden simple-history-load-more-loading'>$loading</p>
-			-->
-			<p class='hidden simple-history-no-more-items'>$no_found</p>
-			
-			<p class='simple-history-rss-feed-dashboard'><a title='$view_rss' href='$view_rss_link'>$view_rss</a></p>
-			<p class='simple-history-rss-feed-page'><a title='$view_rss' href='$view_rss_link'><span></span>$view_rss</a></p>
+			$output .= "</ol>";
+
+			$output .= sprintf( '
+					<div class="simple-history-loading">%2$s %1$s</div>
+					', 
+					__("Loading...", 'simple-history'), // 1
+					"<img src='".site_url("wp-admin/images/loading.gif")."' width=16 height=16>"
+				);
+
+			$output .= "</div>";
+
+			$output .= "
+				<p class='hidden simple-history-no-more-items'>$no_found</p>			
+				<p class='simple-history-rss-feed-dashboard'><a title='$view_rss' href='$view_rss_link'>$view_rss</a></p>
+				<p class='simple-history-rss-feed-page'><a title='$view_rss' href='$view_rss_link'><span></span>$view_rss</a></p>
 			";
+
 		}
 
 	} else {
