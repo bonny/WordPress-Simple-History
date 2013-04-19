@@ -39,7 +39,6 @@ var simple_history = (function($) {
 				}
 
 				if (link_to_click) {
-					console.log("trigger nav", link_to_click);
 					$(".simple-history-tablenav").find(link_to_click).trigger("click");
 				}
 
@@ -84,10 +83,9 @@ jQuery(function() {
 });
 
 
-/**
- *  load history items via ajax
- */
-var simple_history_current_page = 0;
+// the current page
+var simple_history_current_page = 0,
+	simple_history_jqXHR = null;
 
 // search on enter
 jQuery(document).on("keyup", ".simple-history-filter-search input[type='text'], .simple-history-tablenav .current-page", function(e) {
@@ -180,7 +178,12 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		"page": simple_history_current_page
 	};
 
-	jQuery.post(ajaxurl, data, function(data, textStatus, XMLHttpRequest){
+	// If a previous ajax call is ongoing: cancel it
+	if (simple_history_jqXHR) {
+		simple_history_jqXHR.abort();
+	}
+
+	simple_history_jqXHR = jQuery.post(ajaxurl, data, function(data, textStatus, XMLHttpRequest){
 		
 		// If no more can be loaded show message about that
 		if (data.error == "noMoreItems") {
