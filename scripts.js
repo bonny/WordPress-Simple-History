@@ -1,5 +1,33 @@
 
 /**
+ * Object for Simple History
+ */
+var simple_history = (function($) {
+
+	/**
+	 * Get currently selected filters
+	 * @return object with type, subtype, user_id
+	 */
+	function get_selected_filters() {
+
+		var obj = {
+			type:  $("select.simple-history-filter-type option:selected").data("simple-history-filter-type"),
+			subtype: $("select.simple-history-filter-type option:selected").data("simple-history-filter-subtype"),
+			user_id: $("select.simple-history-filter-user option:selected").data("simple-history-filter-user-id")
+		};
+
+		return obj;
+
+	}
+
+	return {
+		"get_selected_filters": get_selected_filters
+	};
+
+})(jQuery);
+
+
+/**
  *  load history items via ajax
  */
 var simple_history_current_page = 0;
@@ -37,7 +65,8 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		$prev_page = $tablenav.find(".prev-page"),
 		$first_page = $tablenav.find(".first-page"),
 		$last_page = $tablenav.find(".last-page"),
-		$displaying_num = $tablenav.find(".displaying-num");
+		$displaying_num = $tablenav.find(".displaying-num"),
+		filters = simple_history.get_selected_filters();
 
 	e.preventDefault();
 	
@@ -49,11 +78,11 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		} else if ($target.hasClass("first-page")) {
 			simple_history_current_page = 0;
 		} else if ($target.hasClass("last-page")) {
-			simple_history_current_page = $total_pages.text()-1;
+			simple_history_current_page = parseInt($total_pages.text()-1, 10);
 		} else if ($target.hasClass("prev-page")) {
-			simple_history_current_page = simple_history_current_page-1;
+			simple_history_current_page = parseInt(simple_history_current_page-1, 10);
 		} else if ($target.hasClass("next-page")) {
-			simple_history_current_page = simple_history_current_page+1;
+			simple_history_current_page = parseInt(simple_history_current_page+1, 10);
 		}
 			
 	} else {
@@ -62,7 +91,7 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 
 		if (extraParams && extraParams.enterType && extraParams.enterType == "goToPage") {
 			// pressed enter on go to page-input
-			simple_history_current_page = parseInt($current_page.val())-1; // -1 because we add one later on. feels kinda wierd, I know.
+			simple_history_current_page = parseInt($current_page.val(), 10)-1; // -1 because we add one later on. feels kinda wierd, I know.
 			if (isNaN(simple_history_current_page)) {
 				simple_history_current_page = 0;
 			}
@@ -85,22 +114,12 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 	
 	// update current page
 	$current_page.val(simple_history_current_page+1);
-	
-	// Get type and subtype from links
-	// var type = jQuery("ul.simple-history-filter-type li.selected").data("simple-history-filter-type");
-	// var subtype = jQuery("ul.simple-history-filter-type li.selected").data("simple-history-filter-subtype");
-	// var user = jQuery("ul.simple-history-filter-user li.selected a").text();
-
-	// Get type and subtype from dropdowns
-	var type = jQuery("select.simple-history-filter-type option:selected").data("simple-history-filter-type");
-	var subtype = jQuery("select.simple-history-filter-type option:selected").data("simple-history-filter-subtype");
-	var user_id = jQuery("select.simple-history-filter-user option:selected").data("simple-history-filter-user-id");
-	
+		
 	var data = {
 		"action": "simple_history_ajax",
-		"type": type,
-		"subtype" : subtype,
-		"user_id": user_id,
+		"type": filters.type,
+		"subtype" : filters.subtype,
+		"user_id": filters.user_id,
 		"search": search,
 		"num_added": num_added,
 		"page": simple_history_current_page
@@ -157,11 +176,10 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		}
 		
 		// if we are at first then disable first + prev
-		if (simple_history_current_page == 0) {
+		if (simple_history_current_page === 0) {
 			$prev_page.addClass("disabled");
 			$first_page.addClass("disabled");
 		}
-
 
 	});
 	
@@ -178,17 +196,22 @@ jQuery(".simple-history-load-more a, .simple-history-load-more input[type='butto
 	var num_to_get = jQuery(this).prev("select").find(":selected").val();
 	
 	// the number of added li-items = the number of added history items
-	var num_added = jQuery("ol.simple-history > li").length;
+	var num_added = jQuery("ol.simple-history > li").length,
+		search = jQuery("p.simple-history-filter-search input[type='text']").val();
 
 	jQuery(".simple-history-load-more,.simple-history-load-more-loading").toggle();
 	
-	var search = jQuery("p.simple-history-filter-search input[type='text']").val();
+	var $ol = jQuery("ol.simple-history:last");
 	
-	$ol = jQuery("ol.simple-history:last");
+	var filters = simple_history.get_selected_filters(),
+		type = filters.type,
+		subtype = filters.subtype,
+		user_id = filters.user_id;
+
 	var data = {
 		"action": "simple_history_ajax",
-		"type": jQuery(".simple-history-filter-type li.selected a").text(),
-		"user": jQuery(".simple-history-filter-user li.selected a").text(),
+		"type": filters.type,
+		"user": filters.user_id,
 		"page": simple_history_current_page,
 		"items": num_to_get,
 		"num_added": num_added,
