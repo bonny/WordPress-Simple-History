@@ -109,6 +109,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		$dummy = __("added", "simple-history");
 		$dummy = __("modified", "simple-history");
 		$dummy = __("upgraded it\'s database", "simple-history");
+		$dummy = __("plugin", "simple-history");
 	}
 
 	function plugin_action_links($actions, $b, $c, $d) {
@@ -403,6 +404,9 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 			exit;
 	} // rss
 
+	/**
+	 * Get history from ajax
+	 */
 	function ajax() {
 	
 		global $simple_history;
@@ -410,8 +414,15 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		$type = isset($_POST["type"]) ? $_POST["type"] : "";
 		$subtype = isset($_POST["subtype"]) ? $_POST["subtype"] : "";
 	
-		$user = $_POST["user"];
-		if ($user == __( "By all users", 'simple-history' )) { $user = "";	}
+		// We get users by username, so get username from id
+		$user_id = (int) $_POST["user_id"];
+		if (empty($user_id)) {
+			$user = "";
+		} else {
+			$user_obj = new WP_User($user_id);
+			if ( ! $user_obj->exists() ) exit;
+			$user = $user_obj->user_login;
+		};
 	
 		// page to show. 1 = first page.
 		$page = 0;
@@ -620,6 +631,10 @@ function simple_history_settings_field_rss() {
 
 // @todo: move all add-related stuff to own file? there are so many of them.. kinda confusing, ey.
 
+/**
+ * Plugin is activated
+ * plugin_name is like admin-menu-tree-page-view/index.php
+ */
 function simple_history_activated_plugin($plugin_name) {
 
 	// Fetch info about the plugin
@@ -1071,30 +1086,56 @@ function simple_history_print_nav() {
 		$simple_history_type_to_show = "";
 	}
 
-	$sql = "SELECT DISTINCT object_type, object_subtype FROM {$tableprefix}simple_history ORDER BY object_type, object_subtype";
+	// Get all object types and object subtypes
+	// order by the number of times they occur
+	$sql = "SELECT 
+				count(object_type) AS object_type_count,
+				object_type, object_subtype 
+			FROM {$tableprefix}simple_history 
+			GROUP BY object_type, object_subtype
+			ORDER BY object_type_count DESC, object_type, object_subtype
+		";
 	$arr_types = $wpdb->get_results($sql);
 
-	$str_types = "";
-	$str_types .= "<ul class='simple-history-filter simple-history-filter-type'>";
 	$css = "";
 	if (empty($simple_history_type_to_show)) {
 		$css = "class='selected'";
 	}
 
+	// Begin list
+	$str_types = "";
+	$str_types .= "<ul class='simple-history-filter simple-history-filter-type'>";
+
+	// Begin select
+	$str_types_select = "";
+	$str_types_select .= "<select name='' class='simple-history-filter simple-history-filter-type'>";
+
+	$total_object_num_count = 0;
+	foreach ( $arr_types as $one_type ) {
+		$total_object_num_count += $one_type->object_type_count;
+	}
+
+	// First filter is "all types"
 	$link = esc_html(add_query_arg("simple_history_type_to_show", ""));
 	$str_types_desc = __("All types", 'simple-history');
-	$str_types .= "<li $css><a data-simple-history-filter-type='' href='$link'>" . esc_html($str_types_desc) . "</a> | </li>";
+	$str_types .= "<li $css><a data-simple-history-filter-type='' href='$link'>" . esc_html($str_types_desc) . " <span>($total_object_num_count)</span></a> | </li>";
+
+	$str_types_select .= sprintf('<option data-simple-history-filter-type="" data-simple-history-filter-subtype="" value="%1$s">%2$s (%3$d)</option>', $link, esc_html($str_types_desc), $total_object_num_count );
 
 	// Loop through all types
 	// $one_type->object_type = user | post | attachment | comment | plugin | attachment | post | Reply | Topic | Widget | Wordpress_core
 	// $one_type->object_subtype = page | nav_menu_item | ...
+	#sf_d($arr_types);
 	foreach ($arr_types as $one_type) {
 
 		$css = "";
+		$option_selected = "";
 		if ($one_type->object_subtype && $simple_history_type_to_show == ($one_type->object_type."/".$one_type->object_subtype)) {
 			$css = "class='selected'";
+			$option_selected = " selected ";
 		} elseif (!$one_type->object_subtype && $simple_history_type_to_show == $one_type->object_type) {
 			$css = "class='selected'";
+			$option_selected = " selected ";
 		}
 
 		// Begin LI
@@ -1109,6 +1150,15 @@ function simple_history_print_nav() {
 		}
 		$link = esc_html(add_query_arg("simple_history_type_to_show", $arg));
 		$str_types .= "<a href='$link'>";
+
+		// Begin option
+		$str_types_select .= sprintf(
+			'<option %1$s data-simple-history-filter-type="%2$s" data-simple-history-filter-subtype="%3$s" value="%4$s">',
+			$option_selected, // 1
+			$one_type->object_type, // 2
+			$one_type->object_subtype, // 3
+			$link // 4
+		);
 		
 		// Some built in types we translate with built in translation, the others we use simple history for
 		// TODO: use WP-function to get all built in types?
@@ -1134,46 +1184,50 @@ function simple_history_print_nav() {
 		}
 		
 		if ( empty( $object_type_translated ) ) {
-			$object_type_translated = esc_html__(ucfirst($one_type->object_type), "simple-history");
+			$object_type_translated = ucfirst( esc_html__( $one_type->object_type, "simple-history") );
 		}
 
 		if ( empty( $object_subtype_translated ) ) {
-			$object_subtype_translated = esc_html__(ucfirst($one_type->object_subtype), "simple-history");
+			$object_subtype_translated = ucfirst( esc_html__( $one_type->object_subtype, "simple-history") );
 		}
-
-
-		#if ( in_array($one_type->object_type, $arr_built_in_types_with_translation) ) {
-		#	$object_type_translated = esc_html__(ucfirst($one_type->object_type));
-		#} else {
-		#	$object_type_translated = esc_html__(ucfirst($one_type->object_type), "simple-history");			
-		#}
-		/*
-		if (in_array($one_type->object_subtype, $arr_built_in_types_with_translation) ) {
-			$object_subtype_translated = esc_html__(ucfirst($one_type->object_subtype));			
-		} else {
-			$object_subtype_translated = esc_html__(ucfirst($one_type->object_subtype), "simple-history");
-		}*/
 		
 		// Add name of type (post / attachment / user / etc.)
 		$str_types .= $object_type_translated;
+		$str_types_select .= $object_type_translated;
 
+		// And subtype, if different from main type
 		if ($object_subtype_translated && $object_subtype_translated != $object_type_translated) {
 			$str_types .= "/". $object_subtype_translated;
+			$str_types_select .= "/" . $object_subtype_translated;
 		}
+
+		// Add object count
+		$str_types .= sprintf(' <span>(%d)</span>', $one_type->object_type_count);
+		$str_types_select .= sprintf(' (%d)', $one_type->object_type_count);
 		
+		// Close link and li
 		$str_types .= "</a> | ";
 		$str_types .= "</li>";
+
+		// Close option
+		$str_types_select .= "\n</option>";
 		
 		// debug
 		#$str_types .= " type: " . $one_type->object_type;
 		#$str_types .= " type: " . ucfirst($one_type->object_type);
 		#$str_types .= " subtype: " . $one_type->object_subtype. " ";
 		
-	}
+	} // foreach arr types
+
 	$str_types .= "</ul>";
 	$str_types = str_replace("| </li></ul>", "</li></ul>", $str_types);
-	if (!empty($arr_types)) {
-		echo $str_types;
+
+	$str_types_select .= "\n</select>";
+
+	// Output filters
+	if ( ! empty( $arr_types ) ) {
+		// echo $str_types;
+		echo $str_types_select;
 	}
 
 	// fetch all users that are in the log
@@ -1182,7 +1236,9 @@ function simple_history_print_nav() {
 	foreach ($arr_users_regular as $one_user) {
 		$arr_users[$one_user->user_id] = array("user_id" => $one_user->user_id);
 	}
-	if (!empty($arr_users)) {
+	
+	if ( ! empty( $arr_users ) ) {
+	
 		foreach ($arr_users as $user_id => $one_user) {
 			$user = get_user_by("id", $user_id);
 			if ($user) {
@@ -1196,41 +1252,87 @@ function simple_history_print_nav() {
 				}
 			}
 		}
+
 	}
 
 	if (isset($arr_users) && $arr_users) {
+
 		if (isset($_GET["simple_history_user_to_show"])) {
 			$simple_history_user_to_show = $_GET["simple_history_user_to_show"];
 		} else {
 			$simple_history_user_to_show = "";
 		}
+
 		$str_users = "";
 		$str_users .= "<ul class='simple-history-filter simple-history-filter-user'>";
+
+		$str_users_select = "";
+		$str_users_select .= "<select name='' class='simple-history-filter simple-history-filter-user'>";
+
 		$css = "";
+		$option_selected = "";
 		if (empty($simple_history_user_to_show)) {
 			$css = " class='selected' ";
+			$option_selected = " selected ";
 		}
+
+		// All users
 		$link = esc_html(add_query_arg("simple_history_user_to_show", ""));
 		$str_users .= "<li $css><a href='$link'>" . __("By all users", 'simple-history') ."</a> | </li>";
+
+		$str_users_select .= sprintf(
+				'<option data-simple-history-filter-user-id="%4$s" value="%3$s" %2$s>%1s</option>', 
+				__("By all users", 'simple-history'), // 1
+				$option_selected, // 2
+				$link, // 3
+				"" // 4
+			);
+
 		foreach ($arr_users as $user_id => $user_info) {
 
 			$user = new WP_User($user_id);
 			if ( ! $user->exists() ) continue;
 
 			$link = esc_html(add_query_arg("simple_history_user_to_show", $user_id));
+			
 			$css = "";
+			$option_selected = "";
+
 			if ($user_id == $simple_history_user_to_show) {
 				$css = " class='selected' ";
+				$option_selected = " selected ";
 			}
+
+			// all users must have username and email
+			$str_user_name = sprintf('%1$s (%2$s)', esc_attr($user->user_login), esc_attr($user->user_email));
+			// if ( ! empty( $user_info["first_name"] )  $user_info["last_name"] );
+
 			$str_users .= "<li $css>";
 			$str_users .= "<a href='$link'>";
-			$str_users .= $user_info["user_nicename"];
+			$str_users .= $str_user_name;
 			$str_users .= "</a> | ";
 			$str_users .= "</li>";
+			
+			$str_users_select .= sprintf(
+				'<option data-simple-history-filter-user-id="%4$s" %2$s value="%1$s">%1$s</option>',
+				$str_user_name, // 1
+				$option_selected, // 2
+				$link, // 3
+				$user_id
+			);
+
 		}
+
 		$str_users .= "</ul>";
 		$str_users = str_replace("| </li></ul>", "</li></ul>", $str_users);
-		echo $str_users;
+
+		$str_users_select .= "</select>";
+
+		if ( ! empty($str_users) ) {
+			// echo $str_users;
+			echo $str_users_select;
+		}
+
 	}
 	
 	// search

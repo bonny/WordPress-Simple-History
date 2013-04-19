@@ -159,9 +159,9 @@ ul.simple-history-occasions li {
 	margin: 0;
 	display: block;
 }
+
 .simple-history-rss-feed-dashboard a,
-.simple-history-rss-feed-page span
-{
+.simple-history-rss-feed-page span {
 	background: transparent url(http://jquery-ui.googlecode.com/svn/trunk/themes/base/images/ui-icons_888888_256x240.png) no-repeat -17px -176px;
 	display: block;
 	width: 16px;

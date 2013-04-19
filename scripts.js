@@ -20,9 +20,9 @@ jQuery(document).on("keyup", ".simple-history-filter-search input[type='text'], 
 	}
 });
 
-// click on filter-link = load new via ajax
+// click on filter-link/change value is filter dropdowns = load new via ajax
 // begin at position 0 unless click on pagination then check pagination page
-jQuery(".simple-history-filter a, .simple-history-filter input[type='button'], .simple-history-tablenav a").live("click", function(e, extraParams) {
+jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-filter input[type='button'], .simple-history-tablenav a").live("click change", function(e, extraParams) {
 
 	var $t = jQuery(this),
 		$ol = jQuery("ol.simple-history"),
@@ -86,18 +86,26 @@ jQuery(".simple-history-filter a, .simple-history-filter input[type='button'], .
 	// update current page
 	$current_page.val(simple_history_current_page+1);
 	
-	var type = jQuery("ul.simple-history-filter-type li.selected").data("simple-history-filter-type");
-	var subtype = jQuery("ul.simple-history-filter-type li.selected").data("simple-history-filter-subtype");
+	// Get type and subtype from links
+	// var type = jQuery("ul.simple-history-filter-type li.selected").data("simple-history-filter-type");
+	// var subtype = jQuery("ul.simple-history-filter-type li.selected").data("simple-history-filter-subtype");
+	// var user = jQuery("ul.simple-history-filter-user li.selected a").text();
+
+	// Get type and subtype from dropdowns
+	var type = jQuery("select.simple-history-filter-type option:selected").data("simple-history-filter-type");
+	var subtype = jQuery("select.simple-history-filter-type option:selected").data("simple-history-filter-subtype");
+	var user_id = jQuery("select.simple-history-filter-user option:selected").data("simple-history-filter-user-id");
 	
 	var data = {
 		"action": "simple_history_ajax",
 		"type": type,
 		"subtype" : subtype,
-		"user": jQuery("ul.simple-history-filter-user li.selected a").text(),
+		"user_id": user_id,
 		"search": search,
 		"num_added": num_added,
 		"page": simple_history_current_page
 	};
+
 	jQuery.post(ajaxurl, data, function(data, textStatus, XMLHttpRequest){
 		
 		if (data.error == "noMoreItems") {
