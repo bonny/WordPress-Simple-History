@@ -224,6 +224,10 @@ ul.simple-history-occasions li {
 	padding: 2px 9px;
 }
 
+.simple-history-tablenav .tablenav-pages a.disabled {
+	opacity: .5;
+}
+
 .simple-history-tablenav .tablenav-pages .prev-page span {
 	background-position: -96px -16px;
 }
