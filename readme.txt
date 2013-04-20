@@ -108,7 +108,7 @@ Available filters if you want to modify any behavior
 * simple_history_db_purge_days_interval
 
 
-####  Translations/Languages
+#### Translations/Languages
 
 This plugin is available in the following languages:
 
@@ -120,6 +120,10 @@ This plugin is available in the following languages:
 * Arabic
 
 Lots of thanks to the translators!
+
+#### Contribute at GitHub
+Development of this plugin takes place at GitHub. Please join in with feature requests, bug reports, or even pull requests!
+https://github.com/bonny/WordPress-Simple-History
 
 #### Donation and more plugins
 * If you like this plugin don't forget to [donate to support further development](http://eskapism.se/sida/donate/).
@@ -134,9 +138,11 @@ Lots of thanks to the translators!
 Now Simple History will be visible in a submenu under the dashboard main menu. You can also show it directly on the dashboard by modified Simple History's settings page.
 
 == Feedback ==
+
 Like the plugin? Dislike it? Got bugs or feature request?
-Great! Contact me at par.thernstrom@gmail.com or at twitter.com/eskapism and hopefully 
+Great! Contact me at par.thernstrom@gmail.com or at https://twitter.com/eskapism and hopefully 
 I can do something about it.
+
 
 == Screenshots ==
 
@@ -148,6 +154,7 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 3. The RSS feed with changes, as shown in Firefox.
 
 4. Widgets can be tracked too!
+
 
 == Changelog ==
 
