@@ -214,6 +214,13 @@ ul.simple-history-occasions li {
 	cursor: pointer;
 }
 
+.simple-history-tablenav {
+	visibility: hidden;
+}
+.simple-history-has-items .simple-history-tablenav {
+	visibility: visible;
+}
+
 .simple-history-tablenav .tablenav-pages {
 	float: none;
 }

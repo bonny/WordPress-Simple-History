@@ -22,7 +22,7 @@ var simple_history = (function($) {
 
 		addListeners();
 
-		elms.wrap.addClass("simple-history-is-ready");
+		elms.wrap.addClass("simple-history-is-ready simple-history-has-items");
 	}
 
 	function addListeners() {
