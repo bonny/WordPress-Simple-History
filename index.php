@@ -1736,15 +1736,16 @@ function simple_history_print_history($args = null) {
 			
 					// Media size, width x height
 					$media_dims = "";
-					if ( isset( $attachment_metadata['width'], $attachment_metadata['height'] ) )
+					if ( ! empty( $attachment_metadata['width'] ) && ! empty( $attachment_metadata['height'] ) ) {
 						$media_dims .= "<span>{$attachment_metadata['width']}&nbsp;&times;&nbsp;{$attachment_metadata['height']}</span>";
-					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Dimensions:"), $media_dims );
+						$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Dimensions:"), $media_dims );
+					}
 					
 					// Media length (video/audio)
 					if ( ! empty( $attachment_metadata["length_formatted"] ) )
 						$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Length:"), $attachment_metadata["length_formatted"] );					
 					
-					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File URL:"), $attachment_url );
+					// $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File URL:"), $attachment_url );
 					
 					$sizes = array( 'KB', 'MB', 'GB' );
 					$attachment_filesize = filesize( $attachment_file );

@@ -110,10 +110,16 @@ ol.simple-history .simple-history-has-attachment-thumnbail .third
 
 .simple-history-attachment-thumbnail {
 	float: left;
+	margin-right: 1em;
+	/*min-width: 60px;*/
 }
 
 .simple-history-attachment-meta {
 	float: left;
+}
+
+.simple-history-attachment-meta p {
+	margin: 0 0 .5em 0;
 }
 
 
