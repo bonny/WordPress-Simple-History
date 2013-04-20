@@ -4,6 +4,8 @@
  */
 var simple_history = (function($) {
 
+	var elms = {};
+
 	function init() {
 		
 		// Only add JS things if Simple History exists on page
@@ -11,8 +13,16 @@ var simple_history = (function($) {
 			return;
 		}
 
+		// setup elements
+		elms.wrap = $(".simple-history-wrap");
+		elms.ol_wrapper = elms.wrap.find(".simple-history-ol-wrapper");
+
+		// so wrapper does not collapse when loading new items
+		elms.ol_wrapper.height( elms.ol_wrapper.height() );
+
 		addListeners();
 
+		elms.wrap.addClass("simple-history-is-ready");
 	}
 
 	function addListeners() {
@@ -122,7 +132,8 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		$first_page = $tablenav.find(".first-page"),
 		$last_page = $tablenav.find(".last-page"),
 		$displaying_num = $tablenav.find(".displaying-num"),
-		filters = simple_history.get_selected_filters();
+		filters = simple_history.get_selected_filters(),
+		$simple_history_wrap = jQuery(".simple-history-wrap");
 
 	e.preventDefault();
 	
@@ -158,12 +169,7 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		}
 	}
 	
-	// so dashboard widget does not collapse when loading new items
-	$wrapper.height($wrapper.height());
-	$wrapper.addClass("simple-history-is-loading");
-
-	jQuery(".simple-history-no-more-items").hide();
-	$ol.fadeOut("fast");
+	$simple_history_wrap.addClass("simple-history-is-loading simple-history-has-items");
 	
 	// update current page
 	$current_page.val(simple_history_current_page+1);
@@ -188,13 +194,11 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		// If no more can be loaded show message about that
 		if (data.error == "noMoreItems") {
 			
-			jQuery(".simple-history-no-more-items").show();
 			jQuery(".simple-history-ol-wrapper").height("auto");
+			$simple_history_wrap.removeClass("simple-history-has-items simple-history-is-loading");
 
 			$displaying_num.html(0);
 			$total_pages.text(1);
-			
-			$tablenav.hide();
 
 		} else {
 
@@ -203,21 +207,12 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 			// update number of existing items and total pages
 			$displaying_num.html(data.filtered_items_total_count_string);
 			$total_pages.text(data.filtered_items_total_pages);
-		
-			$tablenav.show();
-			
+				
 			$ol.html(data.items_li);
 
-			// animate wrapper to the height required to show items
-			$wrapper.animate({
-				height: $ol.height()
-			}, "fast", "swing", function() {
-
-				// when animations is done show the added items
-				$ol.fadeIn("fast");
-				jQuery(".simple-history-ol-wrapper").height("auto");
-
-			});
+			// set wrapper to the height required to show items
+			$wrapper.height( $ol.height() );
+			$simple_history_wrap.removeClass("simple-history-is-loading");
 
 		}
 

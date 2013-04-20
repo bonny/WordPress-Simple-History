@@ -997,9 +997,11 @@ function simple_history_purge_db() {
 // widget on dashboard
 function simple_history_dashboard() {
 	simple_history_purge_db();
+	echo '<div class="wrap simple-history-wrap">';
 	simple_history_print_nav();
 	echo simple_history_print_history();
 	echo simple_history_get_pagination();
+	echo '</div>';
 }
 
 // own page under dashboard
@@ -1011,7 +1013,7 @@ function simple_history_management_page() {
 
 	?>
 
-	<div class="wrap">
+	<div class="wrap simple-history-wrap">
 		<h2><?php echo __("History", 'simple-history') ?></h2>
 		<?php	
 		simple_history_print_nav(array("from_page=1"));
@@ -1724,38 +1726,37 @@ function simple_history_print_history($args = null) {
 					
 					// Begin adding nice to have meta info about to attachment (name, size, mime, etc.)					
 					$object_image_out .= "<div class='simple-history-attachment-meta'>";
-					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File name:"), esc_html( basename( $attachment_file ) ) );;
 
+					// File name
+
+					// Get size in human readable format. Code snippet from media.php
+					$sizes = array( 'KB', 'MB', 'GB' );
+					$attachment_filesize = filesize( $attachment_file );
+					for ( $u = -1; $attachment_filesize > 1024 && $u < count( $sizes ) - 1; $u++ ) {
+						$attachment_filesize /= 1024;
+					}
+
+					// File type
 					$file_type_out = "";
 					if ( preg_match( '/^.*?\.(\w+)$/', $attachment_file, $matches ) )
 						$file_type_out .= esc_html( strtoupper( $matches[1] ) );
 					else
 						$file_type_out .= strtoupper( str_replace( 'image/', '', $post->post_mime_type ) );
-
-					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File type:"), $file_type_out );
 			
 					// Media size, width x height
 					$media_dims = "";
 					if ( ! empty( $attachment_metadata['width'] ) && ! empty( $attachment_metadata['height'] ) ) {
 						$media_dims .= "<span>{$attachment_metadata['width']}&nbsp;&times;&nbsp;{$attachment_metadata['height']}</span>";
-						$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Dimensions:"), $media_dims );
+						
 					}
-					
-					// Media length (video/audio)
-					if ( ! empty( $attachment_metadata["length_formatted"] ) )
-						$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Length:"), $attachment_metadata["length_formatted"] );					
-					
-					// $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File URL:"), $attachment_url );
-					
-					$sizes = array( 'KB', 'MB', 'GB' );
-					$attachment_filesize = filesize( $attachment_file );
 
-					// Get size in human readable format. Code snippet from media.php
-					for ( $u = -1; $attachment_filesize > 1024 && $u < count( $sizes ) - 1; $u++ ) {
-						$attachment_filesize /= 1024;
-					}
+					// Generate string with metainfo
+					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File name:"), esc_html( basename( $attachment_file ) ) );;
 					$object_image_out .= sprintf('<p>%1$s %2$s %3$s</p>', __("File size:", "simple-history"), round( $attachment_filesize, 0 ), $sizes[$u] );
-
+					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File type:"), $file_type_out );
+					if ( ! empty( $media_dims ) ) $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Dimensions:"), $media_dims );					
+					if ( ! empty( $attachment_metadata["length_formatted"] ) ) $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Length:"), $attachment_metadata["length_formatted"] );					
+										
 					// end attachment meta info box output
 					$object_image_out .= "</div>"; // close simple-history-attachment-meta
 

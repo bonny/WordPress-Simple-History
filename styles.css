@@ -116,6 +116,7 @@ ol.simple-history .simple-history-has-attachment-thumnbail .third
 
 .simple-history-attachment-meta {
 	float: left;
+	color: #666;
 }
 
 .simple-history-attachment-meta p {
@@ -261,7 +262,6 @@ ul.simple-history-occasions li {
 	position: absolute;
 	top: 55%;
 	left: 10%;
-	xdisplay: none;
 	opacity: 0;
 }
 #simple_history_dashboard_widget .simple-history-loading {
@@ -275,9 +275,37 @@ ul.simple-history-occasions li {
 	
 }
 
+/* show loading indicator after a short while */
 .simple-history-is-loading .simple-history-loading {
-	transition: all .25s ease-in-out;
-	transition-delay: .25s;
-	xdisplay: block;
+	transition: all .25s ease-out;
+	transition-delay: .75s;
 	opacity: .75;
+}
+
+
+.simple-history-ol-wrapper {
+	overflow: hidden;
+}
+
+.simple-history-wrap,
+.simple-history-ol-wrapper,
+ol.simple-history,
+.simple-history-tablenav
+ {
+	transition: all .15s ease-out;
+}
+
+.simple-history-is-loading ol.simple-history {
+	opacity: 0;
+}
+.simple-history-is-loading .simple-history-tablenav {
+	opacity: .75;
+}
+
+.simple-history-wrap {
+	visibility: hidden;
+}
+
+.simple-history-is-ready {
+	visibility: visible;
 }
