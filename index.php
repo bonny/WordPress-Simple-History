@@ -1711,32 +1711,53 @@ function simple_history_print_history($args = null) {
 					$title = esc_html(get_the_title($post->ID));
 					$edit_link = get_edit_post_link($object_id, 'display');
 					$attachment_metadata = wp_get_attachment_metadata( $object_id );
+					$attachment_file = get_attached_file( $object_id );
+					$attachment_mime = get_post_mime_type( $object_id );
+					$attachment_url = wp_get_attachment_url( $object_id );
 
-					#sf_d($attachment_metadata);
-					/*
-					gemensamt
-					file
-
-					bild:
-					width
-					height 
-
-					video
-					mime_type
-					filesize
-					fileformat
-					length_formatted
-
-
-					*/
-
-					// 60 x 60 is the same size as the media overview uses
-					$attachment_image_src = wp_get_attachment_image_src($object_id, array(60, 60), true);
-					
+					// Get attachment thumbnail. 60 x 60 is the same size as the media overview uses
+					// Is thumbnail of object if image, is wp icon if not
+					$attachment_image_src = wp_get_attachment_image_src($object_id, array(60, 60), true);					
 					if ($attachment_image_src) {
 						$object_image_out .= "<a class='simple-history-attachment-thumbnail' href='$edit_link'><img src='{$attachment_image_src[0]}' alt='Attachment icon' width='{$attachment_image_src[1]}' height='{$attachment_image_src[2]}' /></a>";
 					}
 					
+					// Begin adding nice to have meta info about to attachment (name, size, mime, etc.)					
+					$object_image_out .= "<div class='simple-history-attachment-meta'>";
+					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File name:"), esc_html( basename( $attachment_file ) ) );;
+
+					$file_type_out = "";
+					if ( preg_match( '/^.*?\.(\w+)$/', $attachment_file, $matches ) )
+						$file_type_out .= esc_html( strtoupper( $matches[1] ) );
+					else
+						$file_type_out .= strtoupper( str_replace( 'image/', '', $post->post_mime_type ) );
+
+					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File type:"), $file_type_out );
+			
+					// Media size, width x height
+					$media_dims = "";
+					if ( isset( $attachment_metadata['width'], $attachment_metadata['height'] ) )
+						$media_dims .= "<span>{$attachment_metadata['width']}&nbsp;&times;&nbsp;{$attachment_metadata['height']}</span>";
+					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Dimensions:"), $media_dims );
+					
+					// Media length (video/audio)
+					if ( ! empty( $attachment_metadata["length_formatted"] ) )
+						$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Length:"), $attachment_metadata["length_formatted"] );					
+					
+					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File URL:"), $attachment_url );
+					
+					$sizes = array( 'KB', 'MB', 'GB' );
+					$attachment_filesize = filesize( $attachment_file );
+
+					// Get size in human readable format. Code snippet from media.php
+					for ( $u = -1; $attachment_filesize > 1024 && $u < count( $sizes ) - 1; $u++ ) {
+						$attachment_filesize /= 1024;
+					}
+					$object_image_out .= sprintf('<p>%1$s %2$s %3$s</p>', __("File size:", "simple-history"), round( $attachment_filesize, 0 ), $sizes[$u] );
+
+					// end attachment meta info box output
+					$object_image_out .= "</div>"; // close simple-history-attachment-meta
+
 					$attachment_out .= " <a href='$edit_link'>";
 					$attachment_out .= "<span class='simple-history-title'>{$title}</span>";
 					$attachment_out .= "</a>";
@@ -1786,12 +1807,14 @@ function simple_history_print_history($args = null) {
 					$user_out .= " \"" . esc_html($object_name) . "\"";
 				}
 
+				/*
 				$user_avatar = get_avatar($user->user_email, "50"); 
 				if ($user_link) {
 					$user_out .= "<a class='simple-history-attachment-thumbnail' href='$user_link'>$user_avatar</a>";
 				} else {
 					$user_out .= "<span class='simple-history-attachment-thumbnail' href='$user_link'>$user_avatar</span>";
 				}
+				*/
 
 				$user_out .= " " . esc_html__($action, "simple-history");
 				

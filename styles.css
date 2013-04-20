@@ -98,20 +98,24 @@ ol.simple-history .simple-history-has-attachment-thumnbail .third
 	/*margin-left: 60px;*/
 }
 
-.simple-history-attachment-thumbnail {
-	/*position: absolute;
-	left: 10px;
-	top: 10px;*/
-	/*display: none;;*/
-}
 
 .simple-history-object-image {
 	margin: 1em 0 0 0;
+	overflow: hidden;
 }
 .simple-history-object-image img {
 	max-width: 80px;
 	max-height: 60px;
 }
+
+.simple-history-attachment-thumbnail {
+	float: left;
+}
+
+.simple-history-attachment-meta {
+	float: left;
+}
+
 
 .simple-history-title {
 	font-weight: bold;
