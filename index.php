@@ -3,7 +3,7 @@
 Plugin Name: Simple History
 Plugin URI: http://eskapism.se/code-playground/simple-history/
 Description: Get a log/history/audit log/version history of the changes made by users in WordPress.
-Version: 1.1x
+Version: 1.2
 Author: Pär Thernström
 Author URI: http://eskapism.se/
 License: GPL2
@@ -27,10 +27,8 @@ License: GPL2
 
 load_plugin_textdomain('simple-history', false, "/simple-history/languages");
 
-define( "SIMPLE_HISTORY_VERSION", "1.1");
+define( "SIMPLE_HISTORY_VERSION", "1.2");
 define( "SIMPLE_HISTORY_NAME", "Simple History"); 
-// define( "SIMPLE_HISTORY_URL", WP_PLUGIN_URL . '/simple-history/'); 	// http://playground.ep/wordpress/wp-content/plugins/simple-history/
-// define( "SIMPLE_HISTORY_URL", plugins_url() . '/simple-history/'); 		// http://playground.ep/wordpress/wp-content/plugins/simple-history/
 
 // Find the plugin directory URL
 $aa = __FILE__;
@@ -46,9 +44,6 @@ if ( isset( $plugin ) ) {
 
 $plugin_dir_url = plugin_dir_url(basename($aa)) . basename(dirname(__FILE__)) . '/';
 define("SIMPLE_HISTORY_URL", $plugin_dir_url);
-
-// http://playground-nightly.ep/wordpress/wp-content/plugins/simple-history/
-// sf_d( SIMPLE_HISTORY_URL );
 
 /**
  * Let's begin on a class, since they rule so much more than functions.
@@ -346,7 +341,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 			echo '<?xml version="1.0"?>';
 			$self_link = simple_history_get_rss_address();
 	
-			if ($rss_secret_option == $rss_secret_get) {
+			if ($rss_secret_option === $rss_secret_get) {
 				?>
 				<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 					<channel>
@@ -355,6 +350,16 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 						<link><?php echo get_bloginfo("url") ?></link>
 						<atom:link href="<?php echo $self_link; ?>" rel="self" type="application/atom+xml" />
 						<?php
+
+						// Add filters here
+						/*
+								"page"        => 0,
+								"items"       => $simple_history->get_pager_size(),
+								"filter_type" => "",
+								"filter_user" => "",
+								"search"      => "",
+								"num_added"   => 0
+						*/
 						$arr_items = simple_history_get_items_array("items=10");
 						foreach ($arr_items as $one_item) {
 							$object_type = ucwords($one_item->object_type);
