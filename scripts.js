@@ -7,7 +7,7 @@ var simple_history = (function($) {
 	var elms = {};
 
 	function init() {
-		
+
 		// Only add JS things if Simple History exists on page
 		if (! $("div.simple-history-ol-wrapper").length) {
 			return;

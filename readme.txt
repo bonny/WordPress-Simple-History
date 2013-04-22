@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog
 Requires at least: 3.5.1
 Tested up to: 3.5.1
-Stable tag: 1.1
+Stable tag: 1.2
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -158,11 +158,15 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 
 == Changelog ==
 
-= 1.x =
+= 1.2 =
 - Fixed: Plugin name is included when plugins is activated or deactivated. Previosuly only folder name and name of php file was included.
+- Added: Attachment thumbnails are now visible if history item is an attachment. Also includes some metadata.
 - Changed: Filters now use dropdowns for type and user. When a site had lots of users and lots of post types, the filter section could be way to big.
 - Added keyboard navigation. Use right and left arrow when you are on Simple History's own page to navigation between next and previous history page.
 - Added loading indicator, so you know it's grabbing your history, even if it's taking a while
+- Misc JS and CSS fixes
+- Arabic translation updated
+- POT-file updated
 
 = 1.1 =
 - Added the Simple History Extender-module/plugin. With this great addon to Simple History it is very easy for other developers to add their own actions to simple history, including a settings panel to check actions on/off. All work on this module was made by Laurens Offereins (lmoffereins@gmail.com). Super thanks!
