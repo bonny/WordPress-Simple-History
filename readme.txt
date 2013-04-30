@@ -158,6 +158,11 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 
 == Changelog ==
 
+= x.x =
+- Fixed: box did not change height when clicking on occasions
+- Added: history events can not store plaintext with a more detailed explanation of the history item
+- Added: now logs failed login attempts. Only for accounts that exist for now.
+
 = 1.2 =
 - Fixed: Plugin name is included when plugins is activated or deactivated. Previosuly only folder name and name of php file was included.
 - Added: Attachment thumbnails are now visible if history item is an attachment. Also includes some metadata.

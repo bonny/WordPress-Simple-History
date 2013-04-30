@@ -18,11 +18,13 @@ var simple_history = (function($) {
 		elms.ol_wrapper = elms.wrap.find(".simple-history-ol-wrapper");
 
 		// so wrapper does not collapse when loading new items
-		elms.ol_wrapper.height( elms.ol_wrapper.height() );
+		//elms.ol_wrapper.height( elms.ol_wrapper.height() );
+		elms.ol_wrapper.css("max-height", elms.ol_wrapper.height() );
 
 		addListeners();
 
 		elms.wrap.addClass("simple-history-is-ready simple-history-has-items");
+
 	}
 
 	function addListeners() {
@@ -58,8 +60,16 @@ var simple_history = (function($) {
 
 		// show occasions
 		$("a.simple-history-occasion-show").live("click", function(e) {
-			$(this).closest("li").find("ul.simple-history-occasions").toggle("fast");
+
+			// Let wrapper height be auto again so show occasions works
+
+			$(this).closest("li").find("ul.simple-history-occasions").toggle();
+
+			elms.ol_wrapper.css("max-height", "1000px");
+			//elms.ol_wrapper.height("auto");
+
 			e.preventDefault();
+
 		});
 
 
@@ -211,7 +221,8 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 			$ol.html(data.items_li);
 
 			// set wrapper to the height required to show items
-			$wrapper.height( $ol.height() );
+			//$wrapper.height( $ol.height() );
+			$wrapper.css( "max-height", $ol.height() );
 			$simple_history_wrap.removeClass("simple-history-is-loading");
 
 		}
