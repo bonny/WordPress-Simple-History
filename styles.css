@@ -154,13 +154,6 @@ ul.simple-history-occasions li {
 	line-height: 1.5;
 }
 
-.simple-history-no-more-items {
-	padding: .5em;
-	background-color: #FFFFE0;
-	border: 1px solid #E6DB55;
-	font-weight: bold;
-}
-
 .simple-history-rss-feed-dashboard {
 	display: none;
 }
@@ -224,6 +217,22 @@ ul.simple-history-occasions li {
 }
 .simple-history-has-items .simple-history-tablenav {
 	visibility: visible;
+}
+
+.simple-history-no-more-items {
+	padding: .5em;
+	background-color: #FFFFE0;
+	border: 1px solid #E6DB55;
+	font-weight: bold;
+	display: none;
+}
+
+.simple-history-no-items-found .simple-history-no-more-items {
+	display: block;
+}
+
+.simple-history-no-items-found  .simple-history-ol-wrapper {
+	display: none;
 }
 
 .simple-history-tablenav .tablenav-pages {

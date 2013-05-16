@@ -483,7 +483,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 			if ( ! $user_obj->exists() ) exit;
 			$user = $user_obj->user_login;
 		};
-	
+
 		// page to show. 1 = first page.
 		$page = 0;
 		if (isset($_POST["page"])) {
@@ -1937,7 +1937,10 @@ function simple_history_print_history($args = null) {
 			// action description
 			if ( trim( $action_description ) )  {
 				$output .= sprintf(
-					'<div class="simple-history-action-description">%1$s</div>',
+					'
+					<div><a href="#">Details</a></div>
+					<div class="simple-history-action-description hidden">%1$s</div>
+					',
 					nl2br( esc_attr( $action_description ) )
 				);
 			}
@@ -2023,7 +2026,7 @@ function simple_history_print_history($args = null) {
 			$output .= "</div>";
 
 			$output .= "
-				<p class='hidden simple-history-no-more-items'>$no_found</p>			
+				<p class='simple-history-no-more-items'>$no_found</p>			
 				<p class='simple-history-rss-feed-dashboard'><a title='$view_rss' href='$view_rss_link'>$view_rss</a></p>
 				<p class='simple-history-rss-feed-page'><a title='$view_rss' href='$view_rss_link'><span></span>$view_rss</a></p>
 			";

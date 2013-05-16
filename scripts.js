@@ -200,12 +200,13 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 	}
 
 	simple_history_jqXHR = jQuery.post(ajaxurl, data, function(data, textStatus, XMLHttpRequest){
-		
+
 		// If no more can be loaded show message about that
 		if (data.error == "noMoreItems") {
-			
+
 			jQuery(".simple-history-ol-wrapper").height("auto");
 			$simple_history_wrap.removeClass("simple-history-has-items simple-history-is-loading");
+			$simple_history_wrap.addClass("simple-history-no-items-found");
 
 			$displaying_num.html(0);
 			$total_pages.text(1);
