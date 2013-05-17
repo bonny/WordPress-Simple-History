@@ -1976,7 +1976,11 @@ function simple_history_print_history($args = null) {
 							$date_i18n_date, 
 							$date_i18n_time
 						);
-					$output .= "<a href='#' class='simple-history-occasions-details-toggle'>" . __("Details", "simple-history") . "</a>";
+					
+					if ( trim( $one_occasion->action_description ) )  {
+						$output .= "<a href='#' class='simple-history-occasions-details-toggle'>" . __("Details", "simple-history") . "</a>";
+					}
+					
 					$output .= "</div>";
 
 					if ( trim( $one_occasion->action_description ) )  {
