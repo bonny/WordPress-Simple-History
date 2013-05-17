@@ -23,6 +23,7 @@ Out of the box Simple History has support for:
 * **Plugins** - activation and deactivation
 * **User profiles** - info about added, updated or removed users
 * **User logins** - see when a user login & logut
+* **Failed user logins** - see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 * **bbPress** - view changes to forums and topics and view user changes
 * **Gravity Forms** - see who created, edited or deleted a form, field, or entry
 
