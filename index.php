@@ -1570,6 +1570,8 @@ function simple_history_get_items_array($args = "") {
 						$do_add = TRUE;
 					} else if (strpos(strtolower($one_row->action), $search) !== FALSE) {
 						$do_add = TRUE;
+					} else if (strpos(strtolower($one_row->action_description), $search) !== FALSE) {
+						$do_add = TRUE;
 					}
 		        } else {
 			        $do_add = TRUE;
@@ -1917,6 +1919,20 @@ function simple_history_print_history($args = null) {
 			$diff_str = sprintf( __('<span class="when">%1$s ago</span> by %2$s', "simple-history"), human_time_diff(strtotime($one_row->date), $now), $who );
 			$output .= $diff_str;
 			$output .= "<span class='when_detail'>".sprintf(__('%s at %s', 'simple-history'), $date_i18n_date, $date_i18n_time)."</span>";
+
+			// action description
+			if ( trim( $action_description ) )  {
+				$output .= sprintf(
+					'
+					<a href="#" class="simple-history-item-description-toggler">%2$s</a>
+					<div class="simple-history-item-description-wrap">
+						<div class="simple-history-action-description">%1$s</div>
+					</div>
+					',
+					nl2br( esc_attr( $action_description ) ), // 2
+					__("Details", "simple-history") // 2
+				);
+			}
 			
 			$output .= "</div>";
 
@@ -1932,19 +1948,6 @@ function simple_history_print_history($args = null) {
 					$object_image_out
 				);
 
-			}
-
-			// action description
-			if ( trim( $action_description ) )  {
-				$output .= sprintf(
-					'
-					<div class="simple-history-item-description-wrap">
-						<a href="#" class="simple-history-item-description-toggler">Details</a>
-						<div class="simple-history-action-description">%1$s</div>
-					</div>
-					',
-					nl2br( esc_attr( $action_description ) )
-				);
 			}
 
 			// occasions
@@ -1973,6 +1976,7 @@ function simple_history_print_history($args = null) {
 							$date_i18n_date, 
 							$date_i18n_time
 						);
+					$output .= "<a href='#' class='simple-history-occasions-details-toggle'>" . __("Details", "simple-history") . "</a>";
 					$output .= "</div>";
 
 					if ( trim( $one_occasion->action_description ) )  {

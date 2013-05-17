@@ -159,9 +159,10 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 == Changelog ==
 
 = x.x =
+- Added: history events can store text description with a more detailed explanation of the history item
+- Added: now logs failed login attempts for existing username. Uses the new text description to store more info, for example user agent and remote ip address (REMOTE_ADDR)
 - Fixed: box did not change height when clicking on occasions
-- Added: history events can not store plaintext with a more detailed explanation of the history item
-- Added: now logs failed login attempts. Only for accounts that exist for now.
+- Fixed: use on() instead of live() in JavaScript
 
 = 1.2 =
 - Fixed: Plugin name is included when plugins is activated or deactivated. Previosuly only folder name and name of php file was included.

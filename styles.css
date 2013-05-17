@@ -128,11 +128,20 @@ ol.simple-history .simple-history-has-attachment-thumnbail .third
 	margin: 0.5em 0;
 }
 
-.simple-history-item-description-toggler:before {
-	content: "+ ";
+
+.simple-history-item-description-toggler {
+	border-left: 1px solid #bbb;
+	padding-left: .75em;
+	margin-left: .75em;
+	line-height: 1;
 }
 
-.simple-history-action-description {
+.simple-history-item-description-toggler:before {
+	/*content: "+ ";*/
+}
+
+.simple-history-action-description,
+.simple-history-occasions-one-action-description {
 	margin: .75em 0 .75em .5ex;
 	line-height: 1.4;
 	display: none;
@@ -141,17 +150,31 @@ ol.simple-history .simple-history-has-attachment-thumnbail .third
 }
 
 .simple-history-item-description-wrap-is-open .simple-history-item-description-toggler:before {
-	content: "- ";
+	/*content: "- ";*/
 }
 
 .simple-history-item-description-wrap-is-open .simple-history-action-description{
 	display: block;
 }
 
+.simple-history-occasions-details-toggle {
+	margin-left: .75em;
+	padding-left: .75em;
+	border-left: 1px solid #bbb;
+}
+
+
+.simple-history-occasions-one-description-is-open .simple-history-occasions-one-action-description {
+	display: block;
+	margin-left: 2em;
+}
+
 
 .simple-history-occasions-one-action-description {
 	display: none;
 }
+
+.simple-history-occasions-details-toggle
 
 .simple-history-title {
 	font-weight: bold;

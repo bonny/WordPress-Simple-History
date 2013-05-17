@@ -27,6 +27,10 @@ var simple_history = (function($) {
 
 	}
 
+	function make_wrapper_expandable() {
+		elms.ol_wrapper.css("max-height", "1000px");
+	}
+
 	function addListeners() {
 
 		/*
@@ -63,7 +67,7 @@ var simple_history = (function($) {
 
 			$(this).closest("li").find("ul.simple-history-occasions").toggle();
 
-			elms.ol_wrapper.css("max-height", "1000px");
+			make_wrapper_expandable();
 
 			e.preventDefault();
 
@@ -73,7 +77,16 @@ var simple_history = (function($) {
 		$(document).on("click", ".simple-history-item-description-toggler", function(e) {
 			e.preventDefault();
 			var self = $(this);
-			self.closest(".simple-history-item-description-wrap").toggleClass("simple-history-item-description-wrap-is-open");
+			make_wrapper_expandable();
+			self.closest("li").toggleClass("simple-history-item-description-wrap-is-open");
+		});
+
+		// show details for occasions
+		$(document).on("click", ".simple-history-occasions-details-toggle", function(e) {
+			e.preventDefault;
+			var self = $(this);
+			make_wrapper_expandable();
+			self.closest("li").toggleClass("simple-history-occasions-one-description-is-open");
 		});
 
 
@@ -129,7 +142,8 @@ jQuery(document).on("keyup", ".simple-history-filter-search input[type='text'], 
 
 // click on filter-link/change value is filter dropdowns = load new via ajax
 // begin at position 0 unless click on pagination then check pagination page
-jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-filter input[type='button'], .simple-history-tablenav a").live("click change", function(e, extraParams) {
+//jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-filter input[type='button'], .simple-history-tablenav a").live("click change", function(e, extraParams) {
+jQuery(document).on("click change", "select.simple-history-filter, .simple-history-filter a, .simple-history-filter input[type='button'], .simple-history-tablenav a", function(e, extraParams) {
 
 	var $t = jQuery(this),
 		$ol = jQuery("ol.simple-history"),
