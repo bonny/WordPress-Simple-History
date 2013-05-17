@@ -317,7 +317,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 			$description = "";
 			$description .= "HTTP_USER_AGENT: " . $_SERVER["HTTP_USER_AGENT"];
 			$description .= "\nHTTP_REFERER: " . $_SERVER["HTTP_REFERER"];
-			$description .= "\nREMOTE_ADDR:" . $_SERVER["REMOTE_ADDR"];
+			$description .= "\nREMOTE_ADDR: " . $_SERVER["REMOTE_ADDR"];
 
 			$args = array(
 						"object_type" => "user",
@@ -1938,8 +1938,10 @@ function simple_history_print_history($args = null) {
 			if ( trim( $action_description ) )  {
 				$output .= sprintf(
 					'
-					<div><a href="#">Details</a></div>
-					<div class="simple-history-action-description hidden">%1$s</div>
+					<div class="simple-history-item-description-wrap">
+						<a href="#" class="simple-history-item-description-toggler">Details</a>
+						<div class="simple-history-action-description">%1$s</div>
+					</div>
 					',
 					nl2br( esc_attr( $action_description ) )
 				);

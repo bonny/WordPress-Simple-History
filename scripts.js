@@ -59,17 +59,21 @@ var simple_history = (function($) {
 		}
 
 		// show occasions
-		$("a.simple-history-occasion-show").live("click", function(e) {
-
-			// Let wrapper height be auto again so show occasions works
+		$(document).on("click", "a.simple-history-occasion-show", function(e) {
 
 			$(this).closest("li").find("ul.simple-history-occasions").toggle();
 
 			elms.ol_wrapper.css("max-height", "1000px");
-			//elms.ol_wrapper.height("auto");
 
 			e.preventDefault();
 
+		});
+
+		// show details for main entry
+		$(document).on("click", ".simple-history-item-description-toggler", function(e) {
+			e.preventDefault();
+			var self = $(this);
+			self.closest(".simple-history-item-description-wrap").toggleClass("simple-history-item-description-wrap-is-open");
 		});
 
 
@@ -214,6 +218,7 @@ jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-
 		} else {
 
 			// Items found, add and show
+			$simple_history_wrap.removeClass("simple-history-is-loading simple-history-no-items-found");
 
 			// update number of existing items and total pages
 			$displaying_num.html(data.filtered_items_total_count_string);

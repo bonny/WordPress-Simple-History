@@ -54,6 +54,7 @@ ol.simple-history .first {
 
 ol.simple-history .second {
 	color: #999;
+	margin-top: .5em;
 }
 
 ol.simple-history .third {
@@ -123,10 +124,33 @@ ol.simple-history .simple-history-has-attachment-thumnbail .third
 	margin: 0 0 .5em 0;
 }
 
+.simple-history-item-description-wrap {
+	margin: 0.5em 0;
+}
+
+.simple-history-item-description-toggler:before {
+	content: "+ ";
+}
+
 .simple-history-action-description {
-	margin: .75em 0;
-	/*font-style: italic;*/
+	margin: .75em 0 .75em .5ex;
 	line-height: 1.4;
+	display: none;
+	background-color: #ddd;
+	padding: .5em;
+}
+
+.simple-history-item-description-wrap-is-open .simple-history-item-description-toggler:before {
+	content: "- ";
+}
+
+.simple-history-item-description-wrap-is-open .simple-history-action-description{
+	display: block;
+}
+
+
+.simple-history-occasions-one-action-description {
+	display: none;
 }
 
 .simple-history-title {
