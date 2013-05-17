@@ -16,16 +16,26 @@ The plugin works as a log/history/audit log/version history of the most importan
 
 Out of the box Simple History has support for:
 
-* **Posts and pages** - see who added, updated or deleted a post or page
-* **Attachments** - see who added, updated or deleted an attachment
-* **Comments** - see who edited, approved or removed a comment
-* **Widgets** - get info when someone adds, updates or removes a widget in a sidebar
-* **Plugins** - activation and deactivation
-* **User profiles** - info about added, updated or removed users
-* **User logins** - see when a user login & logut
-* **Failed user logins** - see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
-* **bbPress** - view changes to forums and topics and view user changes
-* **Gravity Forms** - see who created, edited or deleted a form, field, or entry
+* **Posts and pages**<br>
+see who added, updated or deleted a post or page
+* **Attachments**<br>
+see who added, updated or deleted an attachment
+* **Comments**<br>
+see who edited, approved or removed a comment
+* **Widgets**<br>
+get info when someone adds, updates or removes a widget in a sidebar
+* **Plugins**<br>
+activation and deactivation
+* **User profiles**<br>
+info about added, updated or removed users
+* **User logins**<br>
+see when a user login & logut
+* **Failed user logins**<br>
+see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
+* **bbPress**<br>
+view changes to forums and topics and view user changes
+* **Gravity Forms**<br>
+see who created, edited or deleted a form, field, or entry
 
 With it's easy to use Extender system, developers can add their own settings and items to track.
 
