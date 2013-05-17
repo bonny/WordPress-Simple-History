@@ -83,7 +83,7 @@ var simple_history = (function($) {
 
 		// show details for occasions
 		$(document).on("click", ".simple-history-occasions-details-toggle", function(e) {
-			e.preventDefault;
+			e.preventDefault();
 			var self = $(this);
 			make_wrapper_expandable();
 			self.closest("li").toggleClass("simple-history-occasions-one-description-is-open");
