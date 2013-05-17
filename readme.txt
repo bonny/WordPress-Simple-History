@@ -62,8 +62,8 @@ if (function_exists("simple_history_add")) {
 	# Log that an email has been sent
 	simple_history_add(array(
 		"object_type" => "Email",
-		"action" => "sent",
-		"object_name" => "Hi there"
+		"object_name" => "Hi there",
+		"action" => "was sent"
 	));
 
 	# Will show “Plugin your_plugin_name Edited” in the history log
@@ -71,7 +71,15 @@ if (function_exists("simple_history_add")) {
 	
 	# Will show the history item "Starship USS Enterprise repaired"
 	simple_history_add("action=repaired&object_type=Starship&object_name=USS Enterprise");
-	
+
+	# Log with some extra details about the email
+	simple_history_add(array(
+		"object_type" => "Email",
+		"object_name" => "Hi there",
+		"action" => "was sent",
+		"description" => "The database query to generate the email took .3 seconds. This is email number 4 that is sent to this user"
+	));
+
 ?>
 `
 
@@ -146,14 +154,12 @@ I can do something about it.
 
 == Screenshots ==
 
-1. Simple History showing som recent changes to my posts, users and attachments.
+1. Simple History showing som recent changes to my posts, users and attachments. Also showing several failed login attempts to one of my users.
 
 2. Simple History settings. Choose to show the plugin on your dashboard, or as a separately page. Or both. Or none, since you can choose
 to only use the secret RSS feed to keep track of the changes on you web site/WordPress installation.
 
 3. The RSS feed with changes, as shown in Firefox.
-
-4. Widgets can be tracked too!
 
 
 == Changelog ==
