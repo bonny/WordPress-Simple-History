@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  \n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/simple-history\n"
-"POT-Creation-Date: 2013-04-22 06:14:22+00:00\n"
+"POT-Creation-Date: 2013-05-22 13:16:18+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,171 +12,175 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: index.php:93 index.php:110
+#: index.php:88 index.php:105
 msgid "added"
 msgstr ""
 
-#: index.php:94
+#: index.php:89
 msgid "approved"
 msgstr ""
 
-#: index.php:95
+#: index.php:90
 msgid "unapproved"
 msgstr ""
 
-#: index.php:96 simple-history-extender/class.simple-history-extend.php:92
+#: index.php:91 simple-history-extender/class.simple-history-extend.php:92
 msgid "marked as spam"
 msgstr ""
 
-#: index.php:97 simple-history-extender/class.simple-history-extend.php:94
+#: index.php:92 simple-history-extender/class.simple-history-extend.php:94
 msgid "trashed"
 msgstr ""
 
-#: index.php:98 simple-history-extender/class.simple-history-extend.php:95
+#: index.php:93 simple-history-extender/class.simple-history-extend.php:95
 msgid "untrashed"
 msgstr ""
 
-#: index.php:99 simple-history-extender/class.simple-history-extend.php:89
+#: index.php:94 simple-history-extender/class.simple-history-extend.php:89
 msgid "created"
 msgstr ""
 
-#: index.php:100 simple-history-extender/class.simple-history-extend.php:91
+#: index.php:95 simple-history-extender/class.simple-history-extend.php:91
 msgid "deleted"
 msgstr ""
 
-#: index.php:101 simple-history-extender/class.simple-history-extend.php:239
+#: index.php:96 simple-history-extender/class.simple-history-extend.php:239
 msgid "updated"
 msgstr ""
 
-#: index.php:102
+#: index.php:97
 msgid "nav_menu_item"
 msgstr ""
 
-#: index.php:103 index.php:1715
+#: index.php:98 index.php:1770
 msgid "attachment"
 msgstr ""
 
-#: index.php:104 index.php:1796
+#: index.php:99 index.php:1851
 msgid "user"
 msgstr ""
 
-#: index.php:105
+#: index.php:100
 msgid "settings page"
 msgstr ""
 
-#: index.php:106 simple-history-extender/class.simple-history-extend.php:90
+#: index.php:101 simple-history-extender/class.simple-history-extend.php:90
 msgid "edited"
 msgstr ""
 
-#: index.php:107
+#: index.php:102
 msgid "comment"
 msgstr ""
 
-#: index.php:108
+#: index.php:103
 msgid "logged in"
 msgstr ""
 
-#: index.php:109
+#: index.php:104
 msgid "logged out"
 msgstr ""
 
-#: index.php:111
+#: index.php:106
 msgid "modified"
 msgstr ""
 
-#: index.php:112
+#: index.php:107
 msgid "upgraded it\\'s database"
 msgstr ""
 
-#: index.php:113
+#: index.php:108
 msgid "plugin"
 msgstr ""
 
-#: index.php:126 index.php:285 index.php:1027
+#: index.php:121 index.php:283 index.php:1078
 msgid "History"
 msgstr ""
 
-#: index.php:186
+#: index.php:181
 msgid "WordPress %1$s"
 msgstr ""
 
-#: index.php:199 index.php:301
+#: index.php:194 index.php:299
 msgid "Donate"
 msgstr ""
 
-#: index.php:271 index.php:292
+#: index.php:269 index.php:290
 msgid "Simple History Settings"
 msgstr ""
 
-#: index.php:297
+#: index.php:295
 msgid "Show Simple History"
 msgstr ""
 
-#: index.php:298
+#: index.php:296
 msgid "Number of items per page"
 msgstr ""
 
-#: index.php:299 index.php:1938
+#: index.php:297 index.php:2024
 msgid "RSS feed"
 msgstr ""
 
-#: index.php:300
+#: index.php:298
 msgid "Clear log"
 msgstr ""
 
-#: index.php:353 index.php:412
+#: index.php:315
+msgid "failed to log in because they entered the wrong password"
+msgstr ""
+
+#: index.php:391 index.php:450
 msgid "History for %s"
 msgstr ""
 
-#: index.php:354 index.php:413
+#: index.php:392 index.php:451
 msgid "WordPress History for %s"
 msgstr ""
 
-#: index.php:377
+#: index.php:415
 msgid "By %s"
 msgstr ""
 
-#: index.php:381
+#: index.php:419
 msgid "%d occasions"
 msgstr ""
 
-#: index.php:416
+#: index.php:454
 msgid "Wrong RSS secret"
 msgstr ""
 
-#: index.php:417
+#: index.php:455
 msgid ""
 "Your RSS secret for Simple History RSS feed is wrong. Please see WordPress "
 "settings for current link to the RSS feed."
 msgstr ""
 
-#: index.php:496 index.php:1397
+#: index.php:534 index.php:1448
 msgid "One item"
 msgid_plural "%1$d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: index.php:559
+#: index.php:597
 msgid "on the dashboard"
 msgstr ""
 
-#: index.php:564
+#: index.php:602
 msgid "as a page under the dashboard menu"
 msgstr ""
 
-#: index.php:579
+#: index.php:617
 msgid "Cleared database"
 msgstr ""
 
-#: index.php:587
+#: index.php:625
 msgid "Items in the database are automatically removed after 60 days."
 msgstr ""
 
-#: index.php:589
+#: index.php:627
 msgid "Clear it now."
 msgstr ""
 
-#: index.php:603
+#: index.php:641
 msgid ""
 "\n"
 "\t\t\tPlease\n"
@@ -188,181 +192,185 @@ msgid ""
 "\t\t\t"
 msgstr ""
 
-#: index.php:637
+#: index.php:675
 msgid "Created new secret RSS address"
 msgstr ""
 
-#: index.php:648
+#: index.php:686
 msgid ""
 "This is a secret RSS feed for Simple History. Only share the link with "
 "people you trust"
 msgstr ""
 
-#: index.php:651
+#: index.php:689
 msgid ""
 "You can <a href='%s'>generate a new address</a> for the RSS feed. This is "
 "useful if you think that the address has fallen into the wrong hands."
 msgstr ""
 
-#: index.php:702 index.php:718 index.php:750
+#: index.php:740 index.php:756 index.php:788
 msgid "From %1$s on %2$s"
 msgstr ""
 
-#: index.php:1144
+#: index.php:1195
 msgid "All types"
 msgstr ""
 
-#: index.php:1305 index.php:1309
+#: index.php:1356 index.php:1360
 msgid "By all users"
 msgstr ""
 
-#: index.php:1363
+#: index.php:1414
 msgid "Search"
 msgstr ""
 
-#: index.php:1401
+#: index.php:1452
 msgid "Go to the first page"
 msgstr ""
 
-#: index.php:1402
+#: index.php:1453
 msgid "Go to the previous page"
 msgstr ""
 
-#: index.php:1403
+#: index.php:1454
 msgid "Current page"
 msgstr ""
 
-#: index.php:1404
+#: index.php:1455
 msgid "of"
 msgstr ""
 
-#: index.php:1405
+#: index.php:1456
 msgid "Go to the next page"
 msgstr ""
 
-#: index.php:1406
+#: index.php:1457
 msgid "Go to the last page"
 msgstr ""
 
-#: index.php:1669
+#: index.php:1724
 msgid "Unknown or deleted user"
 msgstr ""
 
-#: index.php:1764
+#: index.php:1819
 msgid "File name:"
 msgstr ""
 
-#: index.php:1765
+#: index.php:1820
 msgid "File size:"
 msgstr ""
 
-#: index.php:1767
+#: index.php:1822
 msgid "Dimensions:"
 msgstr ""
 
-#: index.php:1768
+#: index.php:1823
 msgid "Length:"
 msgstr ""
 
-#: index.php:1848 simple-history-extender/simple-history-extender.php:274
+#: index.php:1894 simple-history-extender/simple-history-extender.php:274
 msgid "activated"
 msgstr ""
 
-#: index.php:1851 simple-history-extender/simple-history-extender.php:274
+#: index.php:1897 simple-history-extender/simple-history-extender.php:274
 msgid "deactivated"
 msgstr ""
 
-#: index.php:1854
+#: index.php:1900
 msgid "enabled"
 msgstr ""
 
-#: index.php:1857
+#: index.php:1903
 msgid "disabled"
 msgstr ""
 
-#: index.php:1873
+#: index.php:1919
 msgid "<span class=\"when\">%1$s ago</span> by %2$s"
 msgstr ""
 
-#: index.php:1875
+#: index.php:1921
 msgid "%s at %s"
 msgstr ""
 
-#: index.php:1897
+#: index.php:1933 index.php:1981
+msgid "Details"
+msgstr ""
+
+#: index.php:1957
 msgid "+ 1 occasion"
 msgstr ""
 
-#: index.php:1900
+#: index.php:1960
 msgid "+ %d occasions"
 msgstr ""
 
-#: index.php:1908
+#: index.php:1974
 msgid "%s ago (%s at %s)"
 msgstr ""
 
-#: index.php:1931
+#: index.php:2017
 msgid "Show 5 more"
 msgstr ""
 
-#: index.php:1932
+#: index.php:2018
 msgid "Show 15 more"
 msgstr ""
 
-#: index.php:1933
+#: index.php:2019
 msgid "Show 50 more"
 msgstr ""
 
-#: index.php:1934
+#: index.php:2020
 msgid "Show 100 more"
 msgstr ""
 
-#: index.php:1937
+#: index.php:2023
 msgid "No matching items found."
 msgstr ""
 
-#: index.php:1940
+#: index.php:2026
 msgid "Show"
 msgstr ""
 
-#: index.php:1946
+#: index.php:2032
 msgid "Loading..."
 msgstr ""
 
-#: index.php:1965
+#: index.php:2051
 msgid "No history items found."
 msgstr ""
 
-#: index.php:1966
+#: index.php:2052
 msgid ""
 "Please note that Simple History only records things that happen after this "
 "plugin have been installed."
 msgstr ""
 
-#: index.php:1979
+#: index.php:2065
 msgid "General Settings"
 msgstr ""
 
-#: index.php:1980
+#: index.php:2066
 msgid "Writing Settings"
 msgstr ""
 
-#: index.php:1981
+#: index.php:2067
 msgid "Reading Settings"
 msgstr ""
 
-#: index.php:1982
+#: index.php:2068
 msgid "Discussion Settings"
 msgstr ""
 
-#: index.php:1983
+#: index.php:2069
 msgid "Media Settings"
 msgstr ""
 
-#: index.php:1984
+#: index.php:2070
 msgid "Privacy Settings"
 msgstr ""
 
-#: index.php:2000
+#: index.php:2086
 msgid "Permalink Settings"
 msgstr ""
 
