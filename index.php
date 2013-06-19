@@ -228,6 +228,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 			  user_id int(10) NOT NULL,
 			  object_id int(10) NOT NULL,
 			  object_name VARCHAR(256) NOT NULL COLLATE utf8_general_ci,
+			  action_description longtext,
 			  PRIMARY KEY  (id)
 			) CHARACTER SET=utf8;";
 
@@ -1124,6 +1125,7 @@ function simple_history_install() {
 		  user_id int(10) NOT NULL,
 		  object_id int(10) NOT NULL,
 		  object_name varchar(255) NOT NULL COLLATE utf8_general_ci,
+		  action_description longtext,
 		  PRIMARY KEY  (id)
 		) CHARACTER SET=utf8;";
 
