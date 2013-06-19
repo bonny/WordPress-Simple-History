@@ -53,7 +53,7 @@ ol.simple-history .first {
 }
 
 ol.simple-history .second {
-	color: #999;
+	color: #666;
 	margin-top: .5em;
 }
 
@@ -145,7 +145,7 @@ ol.simple-history .simple-history-has-attachment-thumnbail .third
 	margin: .75em 0 .75em .5ex;
 	line-height: 1.4;
 	display: none;
-	background-color: #ddd;
+	background-color: #eee;
 	padding: .5em;
 }
 
