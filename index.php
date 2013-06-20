@@ -380,8 +380,12 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 	function output_rss() {
 
 			$rss_secret_option = get_option("simple_history_rss_secret");
-			$rss_secret_get = $_GET["rss_secret"];
-	
+			$rss_secret_get = isset( $_GET["rss_secret"] ) ? $_GET["rss_secret"] : "";
+
+			if ( empty($rss_secret_option) || empty($rss_secret_get) ) {
+				die();
+			}
+
 			echo '<?xml version="1.0"?>';
 			$self_link = simple_history_get_rss_address();
 	
