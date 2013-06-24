@@ -3,7 +3,7 @@
 Plugin Name: Simple History
 Plugin URI: http://eskapism.se/code-playground/simple-history/
 Description: Get a log/history/audit log/version history of the changes made by users in WordPress.
-Version: 1.3.2
+Version: 1.3.3
 Author: Pär Thernström
 Author URI: http://eskapism.se/
 License: GPL2
@@ -27,7 +27,7 @@ License: GPL2
 
 load_plugin_textdomain('simple-history', false, "/simple-history/languages");
 
-define( "SIMPLE_HISTORY_VERSION", "1.3.2");
+define( "SIMPLE_HISTORY_VERSION", "1.3.3");
 define( "SIMPLE_HISTORY_NAME", "Simple History");
 
 // Find the plugin directory URL
@@ -52,7 +52,8 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 	 
 	 var
 	 	$plugin_foldername_and_filename,
-	 	$view_history_capability
+	 	$view_history_capability,
+	 	$view_settings_capability
 	 	;
 
 	 function __construct() {
@@ -65,8 +66,12 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		add_filter( 'plugin_action_links_simple-history/index.php', array($this, "plugin_action_links"), 10, 4);
 
 		$this->plugin_foldername_and_filename = basename(dirname(__FILE__)) . "/" . basename(__FILE__);
+		
 		$this->view_history_capability = "edit_pages";
 		$this->view_history_capability = apply_filters("simple_history_view_history_capability", $this->view_history_capability);
+
+		$this->view_settings_capability = "manage_options";
+		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		
 		$this->add_types_for_translation();
 
@@ -288,7 +293,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		$show_settings_page = TRUE;
 		$show_settings_page = apply_filters("simple_history_show_settings_page", $show_settings_page);
 		if ($show_settings_page) {
-			add_options_page(__('Simple History Settings', "simple-history"), SIMPLE_HISTORY_NAME, $this->view_history_capability, "simple_history_settings_menu_slug", array($this, 'settings_page'));
+			add_options_page(__('Simple History Settings', "simple-history"), SIMPLE_HISTORY_NAME, $this->view_settings_capability, "simple_history_settings_menu_slug", array($this, 'settings_page'));
 		}
 
 		add_settings_section("simple_history_settings_section", __("", "simple-history"), "simple_history_settings_page", "simple_history_settings_menu_slug");
