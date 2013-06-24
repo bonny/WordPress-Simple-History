@@ -1823,12 +1823,12 @@ function simple_history_print_history($args = null) {
 					$media_dims = "";
 					if ( ! empty( $attachment_metadata['width'] ) && ! empty( $attachment_metadata['height'] ) ) {
 						$media_dims .= "<span>{$attachment_metadata['width']}&nbsp;&times;&nbsp;{$attachment_metadata['height']}</span>";
-						
 					}
 
 					// Generate string with metainfo
+					$size_unit = ($u == -1) ? __("bytes", "simple-history") : $sizes[$u];
 					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File name:"), esc_html( basename( $attachment_file ) ) );;
-					$object_image_out .= sprintf('<p>%1$s %2$s %3$s</p>', __("File size:", "simple-history"), round( $attachment_filesize, 0 ), $sizes[$u] );
+					$object_image_out .= sprintf('<p>%1$s %2$s %3$s</p>', __("File size:", "simple-history"), round( $attachment_filesize, 0 ), $size_unit );
 					// $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File type:"), $file_type_out );
 					if ( ! empty( $media_dims ) ) $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Dimensions:"), $media_dims );					
 					if ( ! empty( $attachment_metadata["length_formatted"] ) ) $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Length:"), $attachment_metadata["length_formatted"] );					

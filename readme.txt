@@ -175,6 +175,9 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 
 == Changelog ==
 
+= 1.3.x =
+- Added "bytes" to size units that an attachment can have. Also fixes undefined notice warning when attachment had a size less that 1 KB.
+
 = 1.3.3 =
 - Capability for viewing settings changed from edit_pages to the more correct [manage_options](http://codex.wordpress.org/Roles_and_Capabilities#manage_options)
 
