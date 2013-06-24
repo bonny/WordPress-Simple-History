@@ -1188,10 +1188,6 @@ function simple_history_print_nav() {
 		$css = "class='selected'";
 	}
 
-	// Begin list
-	$str_types = "";
-	$str_types .= "<ul class='simple-history-filter simple-history-filter-type'>";
-
 	// Begin select
 	$str_types_select = "";
 	$str_types_select .= "<select name='' class='simple-history-filter simple-history-filter-type'>";
@@ -1204,7 +1200,6 @@ function simple_history_print_nav() {
 	// First filter is "all types"
 	$link = esc_html(add_query_arg("simple_history_type_to_show", ""));
 	$str_types_desc = __("All types", 'simple-history');
-	$str_types .= "<li $css><a data-simple-history-filter-type='' href='$link'>" . esc_html($str_types_desc) . " <span>($total_object_num_count)</span></a> | </li>";
 
 	$str_types_select .= sprintf('<option data-simple-history-filter-type="" data-simple-history-filter-subtype="" value="%1$s">%2$s (%3$d)</option>', $link, esc_html($str_types_desc), $total_object_num_count );
 
@@ -1224,9 +1219,6 @@ function simple_history_print_nav() {
 			$option_selected = " selected ";
 		}
 
-		// Begin LI
-		$str_types .= sprintf('<li %1$s data-simple-history-filter-type="%2$s" data-simple-history-filter-subtype="%3$s" >', $css, $one_type->object_type, $one_type->object_subtype);
-
 		// Create link to filter this type + subtype
 		$arg = "";
 		if ($one_type->object_subtype) {
@@ -1235,7 +1227,6 @@ function simple_history_print_nav() {
 			$arg = $one_type->object_type;
 		}
 		$link = esc_html(add_query_arg("simple_history_type_to_show", $arg));
-		$str_types .= "<a href='$link'>";
 
 		// Begin option
 		$str_types_select .= sprintf(
@@ -1248,7 +1239,6 @@ function simple_history_print_nav() {
 		
 		// Some built in types we translate with built in translation, the others we use simple history for
 		// TODO: use WP-function to get all built in types?
-		$arr_built_in_types_with_translation = array("page", "post");
 		$object_type_translated = "";
 		$object_subtype_translated = "";
 
@@ -1257,6 +1247,8 @@ function simple_history_print_nav() {
 
 		$object_type_translated = "";
 		$object_subtype_translated = "";
+
+		// For built in types..
 		if ( in_array( $one_type->object_type, $arr_built_in_post_types ) ) {
 			
 			$object_post_type_object = get_post_type_object( $one_type->object_type );
@@ -1278,23 +1270,16 @@ function simple_history_print_nav() {
 		}
 		
 		// Add name of type (post / attachment / user / etc.)
-		$str_types .= $object_type_translated;
 		$str_types_select .= $object_type_translated;
 
 		// And subtype, if different from main type
 		if ($object_subtype_translated && $object_subtype_translated != $object_type_translated) {
-			$str_types .= "/". $object_subtype_translated;
 			$str_types_select .= "/" . $object_subtype_translated;
 		}
 
 		// Add object count
-		$str_types .= sprintf(' <span>(%d)</span>', $one_type->object_type_count);
 		$str_types_select .= sprintf(' (%d)', $one_type->object_type_count);
 		
-		// Close link and li
-		$str_types .= "</a> | ";
-		$str_types .= "</li>";
-
 		// Close option
 		$str_types_select .= "\n</option>";
 		
@@ -1304,9 +1289,6 @@ function simple_history_print_nav() {
 		#$str_types .= " subtype: " . $one_type->object_subtype. " ";
 		
 	} // foreach arr types
-
-	$str_types .= "</ul>";
-	$str_types = str_replace("| </li></ul>", "</li></ul>", $str_types);
 
 	$str_types_select .= "\n</select>";
 
@@ -1349,9 +1331,6 @@ function simple_history_print_nav() {
 			$simple_history_user_to_show = "";
 		}
 
-		$str_users = "";
-		$str_users .= "<ul class='simple-history-filter simple-history-filter-user'>";
-
 		$str_users_select = "";
 		$str_users_select .= "<select name='' class='simple-history-filter simple-history-filter-user'>";
 
@@ -1364,7 +1343,6 @@ function simple_history_print_nav() {
 
 		// All users
 		$link = esc_html(add_query_arg("simple_history_user_to_show", ""));
-		$str_users .= "<li $css><a href='$link'>" . __("By all users", 'simple-history') ."</a> | </li>";
 
 		$str_users_select .= sprintf(
 				'<option data-simple-history-filter-user-id="%4$s" value="%3$s" %2$s>%1s</option>', 
@@ -1392,12 +1370,6 @@ function simple_history_print_nav() {
 			// all users must have username and email
 			$str_user_name = sprintf('%1$s (%2$s)', esc_attr($user->user_login), esc_attr($user->user_email));
 			// if ( ! empty( $user_info["first_name"] )  $user_info["last_name"] );
-
-			$str_users .= "<li $css>";
-			$str_users .= "<a href='$link'>";
-			$str_users .= $str_user_name;
-			$str_users .= "</a> | ";
-			$str_users .= "</li>";
 			
 			$str_users_select .= sprintf(
 				'<option data-simple-history-filter-user-id="%4$s" %2$s value="%1$s">%1$s</option>',
@@ -1409,13 +1381,9 @@ function simple_history_print_nav() {
 
 		}
 
-		$str_users .= "</ul>";
-		$str_users = str_replace("| </li></ul>", "</li></ul>", $str_users);
-
 		$str_users_select .= "</select>";
 
-		if ( ! empty($str_users) ) {
-			// echo $str_users;
+		if ( ! empty($str_users_select) ) {
 			echo $str_users_select;
 		}
 
@@ -1428,8 +1396,6 @@ function simple_history_print_nav() {
 		<input type='button' value='$str_search' class='button' />
 	</p>";
 	echo $search;
-
-	// echo simple_history_get_pagination();
 	
 }
 
