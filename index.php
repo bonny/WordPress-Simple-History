@@ -1248,15 +1248,17 @@ function simple_history_print_nav() {
 		$object_type_translated = "";
 		$object_subtype_translated = "";
 
-		// For built in types..
+		// For built in types
 		if ( in_array( $one_type->object_type, $arr_built_in_post_types ) ) {
 			
+			// Get name of main type
 			$object_post_type_object = get_post_type_object( $one_type->object_type );
-			$object_type_translated = $object_post_type_object->labels->singular_name;
-
+			$object_type_translated = $object_post_type_object->labels->name;
+			
+			// Get name of subtype
 			$object_subtype_post_type_object = get_post_type_object( $one_type->object_subtype );
 			if ( ! is_null( $object_subtype_post_type_object ) ) {
-				$object_subtype_translated = $object_subtype_post_type_object->labels->singular_name;;
+				$object_subtype_translated = $object_subtype_post_type_object->labels->name;;
 			}
 
 		}
@@ -1270,13 +1272,22 @@ function simple_history_print_nav() {
 		}
 		
 		// Add name of type (post / attachment / user / etc.)
-		$str_types_select .= $object_type_translated;
+		
+		// built in types use only subtype
+		if ( in_array( $one_type->object_type, $arr_built_in_post_types ) && ! empty($object_subtype_translated) ) {
 
-		// And subtype, if different from main type
-		if ($object_subtype_translated && $object_subtype_translated != $object_type_translated) {
-			$str_types_select .= "/" . $object_subtype_translated;
+			$str_types_select .= $object_subtype_translated;
+
+		} else {
+			
+			$str_types_select .= $object_type_translated;
+
+			// And subtype, if different from main type
+			if ($object_subtype_translated && $object_subtype_translated != $object_type_translated) {
+				$str_types_select .= "/" . $object_subtype_translated;
+			}
+
 		}
-
 		// Add object count
 		$str_types_select .= sprintf(' (%d)', $one_type->object_type_count);
 		
