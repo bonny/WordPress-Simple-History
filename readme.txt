@@ -1,5 +1,5 @@
-=== Simple History ===
-Contributors: eskapism, MarsApril, offereins
+﻿=== Simple History ===
+Contributors: eskapism, MarsApril, Offereins
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog
 Requires at least: 3.5.1

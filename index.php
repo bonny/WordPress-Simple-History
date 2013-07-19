@@ -75,8 +75,8 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		
 		$this->add_types_for_translation();
 
-		// Load Extender
-		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
+		// Load Modules
+		require_once ( dirname(__FILE__) . "/modules/modules.php" );
 
 	}
 	
@@ -132,7 +132,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 	// "admin_init is triggered before any other hook when a user access the admin area"
 	function admin_init() {
 
-		// posts						 
+/*		// posts						 
 		add_action("save_post", "simple_history_save_post");
 		add_action("transition_post_status", "simple_history_transition_post_status", 10, 3);
 		add_action("delete_post", "simple_history_delete_post");
@@ -161,7 +161,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 
 		// core update = wordpress updates
 		add_action( '_core_updated_successfully', array($this, "action_core_updated") );
-
+*/
 		// add donate link to plugin list page
 		add_action("plugin_row_meta", array($this, "action_plugin_row_meta"), 10, 2);
 
@@ -346,7 +346,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 	 */
 	function init() {
 	
-		// user login and logout
+/*		// user login and logout
 		add_action("wp_login", "simple_history_wp_login");
 		add_action("wp_logout", "simple_history_wp_logout");
 
@@ -368,7 +368,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		// plugin
 		add_action("activated_plugin", "simple_history_activated_plugin");
 		add_action("deactivated_plugin", "simple_history_deactivated_plugin");
-	
+*/	
 		// check for RSS
 		// don't know if this is the right way to do this, but it seems to work!
 		if ( isset($_GET["simple_history_get_rss"]) ) {
