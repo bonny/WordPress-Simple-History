@@ -313,8 +313,8 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 								$description .= "<br />";
 							}
 							$description = apply_filters("simple_history_rss_item_description", $description, $one_item);
-	
-							$item_title = esc_html($object_type) . " \"" . esc_html($object_name) . "\" {$one_item->action}";
+
+							$item_title = simple_history_get_event_title( esc_html($object_type), "\"" . esc_html($object_name) . "\"", $one_item->action );
 							$item_title = html_entity_decode($item_title, ENT_COMPAT, "UTF-8");
 							$item_title = apply_filters("simple_history_rss_item_title", $item_title, $one_item);
 
@@ -1311,14 +1311,12 @@ function simple_history_print_history($args = null) {
 			// what and object
 			if ("post" == $object_type_lcase) {
 				
-				$post_out = "";
-				
 				// Get real name for post type (not just the slug for custom post types)
 				$post_type_object = get_post_type_object( $object_subtype );
 				if ( is_null($post_type_object) ) {
-					$post_out .= esc_html__( ucfirst( $object_subtype ) );
+					$post_label = esc_html__( ucfirst( $object_subtype ) );
 				} else {
-					$post_out .= esc_html__( ucfirst( $post_type_object->labels->singular_name ) );
+					$post_label = esc_html__( ucfirst( $post_type_object->labels->singular_name ) );
 				}
 
 				$post = get_post($object_id);
@@ -1327,30 +1325,28 @@ function simple_history_print_history($args = null) {
 					// post does not exist, probably deleted
 					// check if object_name exists
 					if ($object_name) {
-						$post_out .= " <span class='simple-history-title'>\"" . esc_html($object_name) . "\"</span>";
+						$post_title = "<span class='simple-history-title'>\"" . esc_html($object_name) . "\"</span>";
 					} else {
-						$post_out .= " <span class='simple-history-title'>&lt;unknown name&gt;</span>";
+						$post_title = "<span class='simple-history-title'>&lt;unknown name&gt;</span>";
 					}
 				} else {
 					#$title = esc_html($post->post_title);
 					$title = get_the_title($post->ID);
 					$title = esc_html($title);
 					$edit_link = get_edit_post_link($object_id, 'display');
-					$post_out .= " <a href='$edit_link'>";
-					$post_out .= "<span class='simple-history-title'>{$title}</span>";
-					$post_out .= "</a>";
+					$post_title  = "<a href='$edit_link'>";
+					$post_title .= "<span class='simple-history-title'>{$title}</span>";
+					$post_title .= "</a>";
 				}
 
-				$post_out .= " " . esc_html__($action, "simple-history");
+				$post_action = esc_html__($action, "simple-history");
 				
-				$post_out = ucfirst($post_out);
-				$output .= $post_out;
+				$output .= simple_history_get_event_title( $post_label, $post_title, $post_action );
 
 				
 			} elseif ("attachment" == $object_type_lcase) {
 			
-				$attachment_out = "";
-				$attachment_out .= __("attachment", 'simple-history') . " ";
+				$attachment_label = __("attachment", 'simple-history');
 
 				$post = get_post($object_id);
 				
@@ -1408,64 +1404,65 @@ function simple_history_print_history($args = null) {
 					// end attachment meta info box output
 					$object_image_out .= "</div>"; // close simple-history-attachment-meta
 
-					$attachment_out .= " <a href='$edit_link'>";
-					$attachment_out .= "<span class='simple-history-title'>{$title}</span>";
-					$attachment_out .= "</a>";
+					$attachment_title  = "<a href='$edit_link'>";
+					$attachment_title .= "<span class='simple-history-title'>{$title}</span>";
+					$attachment_title .= "</a>";
 					
 				} else {
 
 					// Post for attachment was not found
 					if ($object_name) {
-						$attachment_out .= "<span class='simple-history-title'>\"" . esc_html($object_name) . "\"</span>";
+						$attachment_title = "<span class='simple-history-title'>\"" . esc_html($object_name) . "\"</span>";
 					} else {
-						$attachment_out .= " <span class='simple-history-title'>&lt;deleted&gt;</span>";
+						$attachment_title = "<span class='simple-history-title'>&lt;deleted&gt;</span>";
 					}
 
 				}
 
-				$attachment_out .= " " . esc_html__($action, "simple-history") . " ";
+				$attachment_action = esc_html__($action, "simple-history");
 				
-				$attachment_out = ucfirst($attachment_out);
-				$output .= $attachment_out;
+				$output .= simple_history_get_event_title( $attachment_label, $attachment_title, $attachment_action );
 
 			} elseif ("user" == $object_type_lcase) {
 
-				$user_out = "";
-				$user_out .= __("user", 'simple-history');
+				$user_label = __("user", 'simple-history');
 				$user = get_user_by("id", $object_id);
 				if ($user) {
 					$user_link = "user-edit.php?user_id={$user->ID}";
-					$user_out .= "<span class='simple-history-title'>";
-					$user_out .= " <a href='$user_link'>";
-					$user_out .= $user->user_nicename;
-					$user_out .= "</a>";
+					$user_title  = "<span class='simple-history-title'>";
+					$user_title .= " <a href='$user_link'>";
+					$user_title .= $user->user_nicename;
+					$user_title .= "</a>";
 					if (isset($user->first_name) && isset($user->last_name)) {
 						if ($user->first_name || $user->last_name) {
-							$user_out .= " (";
+							$user_title .= " (";
 							if ($user->first_name && $user->last_name) {
-								$user_out .= esc_html($user->first_name) . " " . esc_html($user->last_name);
+								$user_title .= esc_html($user->first_name) . " " . esc_html($user->last_name);
 							} else {
-								$user_out .= esc_html($user->first_name) . esc_html($user->last_name); // just one of them, no space necessary
+								$user_title .= esc_html($user->first_name) . esc_html($user->last_name); // just one of them, no space necessary
 							}
-							$user_out .= ")";
+							$user_title .= ")";
 						}
 					}
-					$user_out .= "</span>";
+					$user_title .= "</span>";
 				} else {
 					// most likely deleted user
 					$user_link = "";
-					$user_out .= " \"" . esc_html($object_name) . "\"";
+					$user_title = "\"" . esc_html($object_name) . "\"";
 				}
 
-				$user_out .= " " . esc_html__($action, "simple-history");
+				$user_action = esc_html__($action, "simple-history");
 				
-				$user_out = ucfirst($user_out);
-				$output .= $user_out;
+				$output .= simple_history_get_event_title( $user_label, $user_title, $user_action );
 
 			} elseif ("comment" == $object_type_lcase) {
 				
 				$comment_link = get_edit_comment_link($object_id);
-				$output .= ucwords(esc_html__(ucfirst($object_type))) . " " . esc_html($object_subtype) . " <a href='$comment_link'><span class='simple-history-title'>" . esc_html($object_name) . "\"</span></a> " . esc_html__($action, "simple-history");
+				$comment_label = ucwords(esc_html__(ucfirst($object_type))) . " " . esc_html($object_subtype);
+				$comment_title = "<a href='$comment_link'><span class='simple-history-title'>" . esc_html($object_name) . "\"</span></a>";
+				$comment_action = esc_html__($action, "simple-history");
+
+				$output .= simple_history_get_event_title( $comment_label, $comment_title, $comment_action );
 
 			} else {
 
@@ -1488,7 +1485,11 @@ function simple_history_print_history($args = null) {
 					default:
 						$unknown_action = $unknown_action; // dah!
 				}
-				$output .= ucwords(esc_html__($object_type, "simple-history")) . " " . ucwords(esc_html__($object_subtype, "simple-history")) . " <span class='simple-history-title'>\"" . esc_html($object_name) . "\"</span> " . esc_html($unknown_action);
+				$unknown_label = ucwords(esc_html__($object_type, "simple-history")) . " " . ucwords(esc_html__($object_subtype, "simple-history"));
+				$unknown_title = "<span class='simple-history-title'>\"" . esc_html($object_name) . "\"</span>";
+				$unknown_action = esc_html($unknown_action);
+
+				$output .= simple_history_get_event_title( $unknown_label, $unknown_title, $unknown_action );
 
 			}
 			$output .= "</div>";
@@ -1640,3 +1641,29 @@ function simple_history_print_history($args = null) {
 	}
 	return $output;
 }
+
+/**
+ * Return event title string
+ *
+ * @since 1.3.5
+ *
+ * @param string $label Object label
+ * @param string $name Object name
+ * @param string $action Object action
+ * @return string Event title
+ */
+function simple_history_get_event_title( $label, $name, $action ) {
+
+	// Setup title string
+	// Find %1$s and/or %2$s
+	if ( false !== strpos( $action, '%1$s' ) || false !== strpos( $action, '%2$s' ) )
+		$title = sprintf( $action, ucfirst( $label ), $name );
+	
+	// Pre-1.3.5
+	else
+		$title = ucfirst( $label ) .' '. $name .' '. $action;
+
+	// Filtering comes later
+	return $title;
+}
+
