@@ -137,7 +137,7 @@ class Simple_History_Module_GravityForms extends Simple_History_Module {
 	function log_form( $form_id, $action ){
 		$this->log( array(
 			'action' => $action,
-			'type'   => __('Form', 'gravityforms'),
+			'type'   => 'form',
 			'name'   => $this->get_form_title( $form_id ),
 			'id'     => $form_id
 		) );
@@ -171,7 +171,7 @@ class Simple_History_Module_GravityForms extends Simple_History_Module {
 
 		$this->log( array(
 			'action' => $action,
-			'type'   => __('Form entry', 'simple-history'),
+			'type'   => 'form entry',
 			'name'   => $this->get_form_title( $entry['form_id'] ),
 			'id'     => $entry['id']
 		) );

@@ -101,7 +101,7 @@ class Simple_History_Module_Widgets extends Simple_History_Module {
 
 		$this->log( array( 
 			'action' => sprintf( $action, '%1$s', '%2$s', $wp_registered_sidebars[$_POST['sidebar']]['name'] ),
-			'type'   => __('Widget'),
+			'type'   => 'widget',
 			'name'   => $title,
 			'id'     => $_POST['widget-id']
 		) );

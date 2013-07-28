@@ -309,7 +309,7 @@ class Simple_History_Module {
 
 		$this->log( array( 
 			'action' => $action,
-			'type'   => __('User'),
+			'type'   => 'user',
 			'name'   => apply_filters( 'simple_history_log_user_name', $user->user_nicename ),
 			'id'     => $user_id,
 			'desc'   => $desc
@@ -328,11 +328,10 @@ class Simple_History_Module {
 	function log_post( $post, $action, $desc = '' ){
 		$post_id   = is_object( $post ) ? $post->ID        : (int) $post;
 		$post_type = is_object( $post ) ? $post->post_type : get_post_type( $post_id );
-		$cpt       = get_post_type_object( $post_type );
 
 		$this->log( array( 
 			'action' => $action,
-			'type'   => $cpt->labels->singular_name,
+			'type'   => $post_type,
 			'name'   => get_the_title( $post_id ), // Previous or changed title?
 			'id'     => $post_id,
 			'desc'   => $desc
@@ -354,7 +353,7 @@ class Simple_History_Module {
 
 		$this->log( array(
 			'action' => '%1$s: '. $message,
-			'type'   => __('Testing'),
+			'type'   => 'test',
 			'name'   => '', // Empty, internal counter?
 			'id'     => 'test'
 		) );

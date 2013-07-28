@@ -10,7 +10,6 @@
  * @package Simple History
  * @subpackage Modules
  *
- * @todo Log object_type as array( 'type' => 'post', 'label' => __('Post') ) or array( 'post' => __('Post') )
  * @todo Log creating/editing/deleting Menus
  * @todo Log theme customizer editing, custom header, custom background
  * @todo Log file editor changes (plugin/theme)
@@ -136,7 +135,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 
 		$this->log( array(
 			'action' => $action,
-			'type'   => __('Menu'),
+			'type'   => 'menu',
 			'name'   => $menu->name,
 			'id'     => $menu_id,
 			'desc'   => $desc
@@ -166,7 +165,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 
 		$this->log( array(
 			'action' => $action,
-			'type'   => __('Comment'),
+			'type'   => 'comment',
 			'name'   => get_the_title( $comment->comment_post_ID ),
 			'id'     => $comment->comment_ID,
 			'desc'   => $desc
@@ -185,7 +184,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		$this->log( array(
 			// Translators: 1. Type, 2. Name
 			'action' => __('Settings page %2$s updated', 'simple-history'),
-			'type'   => __('Settings', 'simple-history'),
+			'type'   => 'settings',
 			'name'   => current( $page ),
 			'id'     => key( $page ),
 			'desc'   => $desc
@@ -210,7 +209,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 
 		$this->log( array(
 			'action' => $action,
-			'type'   => __('Plugin'),
+			'type'   => 'plugin',
 			'name'   => $plugin->Name,
 			'id'     => sanitize_title( $plugin->Name ), // Or file id?
 			'desc'   => $desc
@@ -232,7 +231,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 
 		$this->log( array(
 			'action' => $action,
-			'type'   => __('Theme'),
+			'type'   => 'theme',
 			'name'   => $theme->Name,
 			'id'     => $theme->Template,
 			'desc'   => $desc

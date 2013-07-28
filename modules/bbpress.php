@@ -13,9 +13,9 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'Simple_History_Module_BBPress' ) ) :
+if ( ! class_exists( 'Simple_History_Module_BBPress' ) ) :
 
 /**
  * Plugin class
@@ -122,7 +122,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	function log_forum( $forum_id, $action, $desc = '' ){
 		$this->log( array( 
 			'action' => $action,
-			'type'   => __('Forum', 'bbpress'),
+			'type'   => bbp_get_forum_post_type(),
 			'name'   => bbp_get_forum_title( $forum_id ),
 			'id'     => $forum_id,
 			'desc'   => $desc
@@ -146,7 +146,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 				'%2$s', // Topic
 				bbp_get_topic_forum_title( $topic_id ) // Forum
 			),
-			'type'   => __('Topic', 'bbpress'),
+			'type'   => bbp_get_topic_post_type(),
 			'name'   => bbp_get_topic_title( $topic_id ),
 			'id'     => $topic_id,
 			'desc'   => $desc
@@ -164,7 +164,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	function log_topic_tag( $tag, $action, $desc = '' ){
 		$this->log( array( 
 			'action' => $action,
-			'type'   => __('Topic Tag', 'bbpress'),
+			'type'   => bbp_get_topic_tag_tax_id(),
 			'name'   => bbp_get_topic_tag_name( $tag ),
 			'id'     => $tag['term_id'],
 			'desc'   => $desc
@@ -187,7 +187,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 				bbp_get_reply_author_display_name( $reply_id ), // User
 				bbp_get_forum_title( bbp_get_reply_forum_id( $reply_id ) ) // Forum
 			),
-			'type'   => __('Reply', 'bbpress'),
+			'type'   => bbp_get_reply_post_type(),
 			'name'   => bbp_get_reply_topic_title( $reply_id ),
 			'id'     => $reply_id,
 			'desc'   => $desc
@@ -663,7 +663,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 			return;
 
 		// Translators: 1. Reply, 2. Topic title, 3. Author name, 4. Forum title
-		$this->log_reply( $reply_id, __('%1$s by %3$s on %2$s in %4$s created', 'simple-history') );
+		$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s created', 'simple-history') );
 	}
 
 	/**
@@ -685,7 +685,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 			return;
 
 		// Translators: 1. Reply, 2. Topic title, 3. Author name, 4. Forum title
-		$this->log_reply( $reply_id, __('%1$s by %3$s on %2$s in %4$s edited', 'simple-history') );
+		$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s edited', 'simple-history') );
 	}
 
 	/**
@@ -699,7 +699,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	 */
 	public function reply_spammed( $reply_id ){
 		// Translators: 1. Reply, 2. Topic title, 3. Author name, 4. Forum title
-		$this->log_reply( $reply_id, __('%1$s by %3$s on %2$s in %4$s marked as spam', 'simple-history') );
+		$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s marked as spam', 'simple-history') );
 	}
 
 	/**
@@ -713,7 +713,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	 */
 	public function reply_unspammed( $reply_id ){
 		// Translators: 1. Reply, 2. Topic title, 3. Author name, 4. Forum title
-		$this->log_reply( $reply_id, __('%1$s by %3$s on %2$s in %4$s unmarked as spam', 'simple-history') );
+		$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s unmarked as spam', 'simple-history') );
 	}
 
 	/**
@@ -727,7 +727,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	 */
 	public function reply_deleted( $reply_id ){
 		// Translators: 1. Reply, 2. Topic title, 3. Author name, 4. Forum title
-		$this->log_reply( $reply_id, __('%1$s by %3$s on %2$s in %4$s deleted', 'simple-history') );
+		$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s deleted', 'simple-history') );
 	}
 
 	/**
@@ -741,7 +741,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	 */
 	public function reply_trashed( $reply_id ){
 		// Translators: 1. Reply, 2. Topic title, 3. Author name, 4. Forum title
-		$this->log_reply( $reply_id, __('%1$s by %3$s on %2$s in %4$s trashed', 'simple-history') );
+		$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s trashed', 'simple-history') );
 	}
 
 	/**
@@ -755,7 +755,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	 */
 	public function reply_untrashed( $reply_id ){
 		// Translators: 1. Reply, 2. Topic title, 3. Author name, 4. Forum title
-		$this->log_reply( $reply_id, __('%1$s by %3$s on %2$s in %4$s untrashed', 'simple-history') );
+		$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s untrashed', 'simple-history') );
 	}
 
 	/** User *********************************************************/
@@ -827,7 +827,7 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	 * @param array $old_user_data Previous user data
 	 */
 	public function user_updated( $user_id, $old_user_data ){
-		$this->log_user( $user_id, __('%1$s %2$s updated his/her profile', 'simple-history') );
+		$this->log_user( $user_id, __('%1$s %2$s profile updated', 'simple-history') );
 	}
 
 	/**
