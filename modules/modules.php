@@ -167,9 +167,11 @@ class Simple_History_Modules {
 		$retval = array();
 
 		// Sanitize input
-		if ( ! is_array($input) ) $input = array();
-		        foreach ( $input as $module => $args )
-			$retval[$module]['active'] = isset( $args['active'] ) ? true : false;
+		if ( ! is_array( $input ) ) 
+			$input = array();
+
+        foreach ( $input as $module => $args )
+			$retval[$module]['active'] = isset( $args['active'] );
 
 		// Log module (de)activation
 		foreach ( $wp_settings_fields[$this->page][$this->modules_section] as $id => $field ){
@@ -178,23 +180,23 @@ class Simple_History_Modules {
 			$module = substr( $id, strpos( $id, '[' ) + 1, -1 );
 
 			// Make sure not set modules are set to false
-			if ( !isset( $retval[$module] ) )
+			if ( ! isset( $retval[$module] ) )
 				$retval[$module]['active'] = false;
 
 			// Only log on change
-			if ( ( !isset( $old[$module] ) && $retval[$module]['active'] ) 
+			if (   ( ! isset( $old[$module] ) && $retval[$module]['active'] ) 
 				|| ( isset( $old[$module] ) && $old[$module]['active'] !== $retval[$module]['active'] )
-				){
+				) {
 
 				// Setup action
 				if ( $retval[$module]['active'] )
-					$action =  __('%1$s %2$s activated',   'simple-history');
+					$action = _x('%1$s %2$s activated',   'Event module activated',   'simple-history');
 				else
-					$action =  __('%1$s %2$s deactivated', 'simple-history');
+					$action = _x('%1$s %2$s deactivated', 'Event module deactivated', 'simple-history');
 
 				simple_history_add( array(
 					'action'      => $action,
-					'object_type' => __('Event Module', 'simple-history'),
+					'object_type' => 'simple-history-module',
 					'object_name' => $field['title'],
 					'object_id'   => $module
 		        ) );

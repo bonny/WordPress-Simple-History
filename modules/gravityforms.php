@@ -315,28 +315,28 @@ class Simple_History_Module_GravityForms extends Simple_History_Module {
 
 		// Entry marked as spam
 		if ( 'spam' == $new )
-			$action = __('%1$s by %3$s for %2$s marked as spam',   'simple-history', 'Spam entry'     );
+			$action = _x('%1$s by %3$s for %2$s marked as spam',   'Spam form entry',      'simple-history');
 
 		// Entry trashed
 		elseif ( 'trash' == $new )
-			$action = __('%1$s by %3$s for %2$s trashed',          'simple-history', 'Entry trashed'  );
+			$action = _x('%1$s by %3$s for %2$s trashed',          'Form entry trashed',   'simple-history');
 
 		// Entry unmarked as spam
 		elseif ( 'spam' == $old )
-			$action = __('%1$s by %3$s for %2$s unmarked as spam', 'simple-history', 'Unspam entry'   );
+			$action = _x('%1$s by %3$s for %2$s unmarked as spam', 'Unspam form entry',    'simple-history');
 
 		// Entry untrashed
 		elseif ( 'trash' == $old )
-			$action = __('%1$s by %3$s for %2$s untrashed',        'simple-history', 'Entry untrashed');
+			$action = _x('%1$s by %3$s for %2$s untrashed',        'Form entry untrashed', 'simple-history');
 
 		// Entry restored
 		elseif ( 'active' == $new )
-			$action = __('%1$s by %3$s for %2$s restored',         'simple-history', 'Entry restored' );
+			$action = _x('%1$s by %3$s for %2$s restored',         'Form entry restored',  'simple-history');
 
 		// Other/custom status change
 		else {
 			$action = sprintf( 	
-				__('%1$s by %3$s on %2$s changed status from %4$s to %5$s', 'simple-history', 'Entry status changed'),
+				_x('%1$s by %3$s on %2$s changed status from %4$s to %5$s', 'Form entry status changed', 'simple-history'),
 				'%1$s', '%2$s', '%3$s', $old, $new
 			);
 		}

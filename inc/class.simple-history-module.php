@@ -89,12 +89,12 @@ class Simple_History_Module {
 		$this->id          = $args['id'];
 		$this->title       = $args['title'];
 		$this->plugin      = isset( $args['plugin'] ) ? $args['plugin'] : false;
-		$this->description = isset( $args['description'] ) 
+		$this->description = ! empty( $args['description'] )
 			? $args['description'] 
-			: ( $this->plugin 
+			: ( ! empty( $this->plugin ) 
 				? sprintf( __('Log events for the %s plugin.', 'simple-history'), $this->title )
-				: sprintf( __('Log events for %s.', 'simple-history'), $this->title )
-				);
+				: sprintf( __('Log events for %s.',            'simple-history'), $this->title )
+			);
 
 		// Set module tab contents
 		$this->supports    = isset( $args['tabs']['supports'] ) ? $args['tabs']['supports'] : $args['tabs'];
@@ -349,7 +349,8 @@ class Simple_History_Module {
 	 * @param string $message Test message
 	 */
 	function log_test( $message ) {
-		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) return;
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) 
+			return;
 
 		$this->log( array(
 			'action' => '%1$s: '. $message,

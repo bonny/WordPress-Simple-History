@@ -727,7 +727,10 @@ class Simple_History_Module_BBPress extends Simple_History_Module {
 	 */
 	public function reply_deleted( $reply_id ){
 		// Translators: 1. Reply, 2. Topic title, 3. Author name, 4. Forum title
-		$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s deleted', 'simple-history') );
+		if ( bbp_is_reply_trash( $reply_id ) )
+			$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s removed from trash', 'simple-history') );
+		else
+			$this->log_reply( $reply_id, __('%1$s by %3$s to %2$s in %4$s deleted', 'simple-history') );
 	}
 
 	/**

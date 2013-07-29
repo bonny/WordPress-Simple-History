@@ -33,7 +33,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 			'_builtin'    => true,
 			'id'          => 'core',
 			'title'       => 'WordPress',
-			'description' => __('Log occurences of the main WP core events', 'simple-history'),
+			'description' => __('Log occurences of the main WP core events.', 'simple-history'),
 			'tabs'        => array(
 				'supports' => array(
 					__('Creating, editing, (un)sticking, restoring and deleting a post.',       'simple-history'),
@@ -241,34 +241,6 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	/** Post *********************************************************/
 
 	/**
-	 * Return post types not to log
-	 *
-	 * @since 1.3.5
-	 *
-	 * @uses apply_filters() Calls 'simple_history_module_core_no_log_post_types'
-	 *                        with post types
-	 * @return array Post types
-	 */
-	private function no_log_post_types() {
-		$post_types = array( 'attachment', 'revision', 'nav_menu_item' );
-		return apply_filters( 'simple_history_module_core_no_log_post_types', $post_types );
-	}
-
-	/**
-	 * Return post statuses not to log
-	 *
-	 * @since 1.3.5
-	 *
-	 * @uses apply_filters() Calls 'simple_history_module_core_no_log_post_stati'
-	 *                        with post statuses
-	 * @return array Post statuses
-	 */
-	private function no_log_post_stati() {
-		$post_stati = array( 'draft' );
-		return apply_filters( 'simple_history_module_core_no_log_post_stati', $post_stati );
-	}
-
-	/**
 	 * Log creating posts
 	 *
 	 * Hooked into wp_insert_post action in favor of save_post action.
@@ -278,15 +250,18 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param int $post_id Post ID
 	 */
 	public function post_created( $post_id ) {
+		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
+			return;
+
 		// Ignore updated posts
 		if ( isset( $GLOBALS['simple_history-update_post'] ) ) {
 			unset( $GLOBALS['simple_history-update_post'] );
 			return;
 		}
 
-		// Filter no log post types
-		if ( in_array( get_post_type( $post_id ), $this->no_log_post_types() ) )
-			return;
+		// Do not log?
+		// if ( simple_history_do_not_log( $post_id, 'core', 'post_created' ) )
+		// 	return;
 
 		$this->log_post( $post_id, $this->events->new );
 	}
@@ -303,10 +278,12 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param object $post_before Previous post data
 	 */
 	public function post_edited( $post_id, $post_after, $post_before ) {
+		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
+			return;
 
 		// Titles changed
 		if ( $post_after->post_title != $post_before->post_title )
-			$action = sprintf( __('%1$s %2$s edited and changed to %3$s', 'simple-history'), '%1$s', $post_before->post_title, '%2$s' );
+			$action = sprintf( __('%1$s %2$s edited and changed to %3$s', 'simple-history'), '%1$s', '"'. $post_before->post_title .'"', '%2$s' );
 		else
 			$action = $this->events->edit;
 
@@ -317,7 +294,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	}
 
 	/**
-	 * Log changing posts status
+	 * Log changing post statuses
 	 * 
 	 * Hooked into transition_post_status action.
 	 * 
@@ -328,7 +305,10 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param object $post Post data
 	 */
 	public function post_status_transition( $new, $old, $post ) {
-		// Bail on no transaction
+		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
+			return;
+
+		// Bail when nothing changed
 		if ( $new === $old )
 			return;
 
@@ -339,12 +319,37 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		// Post untrashed - ignore post_untrashed action
 		elseif ( 'trash' == $old )
 			$action = $this->events->untrash;
+
+		// Post reset to draft
+		elseif ( 'draft' == $new && 'auto-draft' != $old )
+			$action = __('%1$s %2$s saved as draft', 'simple-history');
+		
+		// Post newly drafted
+		elseif ( 'draft' == $new )
+			$action = __('%1$s %2$s drafted', 'simple-history');
+		
+		// Post pending review
+		elseif ( 'pending' == $new )
+			$action = __('%1$s %2$s pending review', 'simple-history');
+		
+		// Post scheduled
+		elseif ( 'future' == $new ) {
+			$action = sprintf( __('%1$s %2$s scheduled for %3$s', 'simple-history'),
+				'%1$s', '%2$s',
+				// Translators: Publish box date format, see http://php.net/date
+				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) )
+			);
+		}
+		
+		// Post published
+		elseif ( 'publish' == $new )
+			$action = __('%1$s %2$s published', 'simple-history');
 		
 		// Other/custom status change
 		else {
 			$action = sprintf( 
-				_x( '%1$s %2$s changed status from %3$s to %4$s', 'simple-history', 'Post status changed'),
-				'%1$s', '%2$s', $old, $new
+				_x( '%1$s %2$s changed status from %3$s to %4$s', 'Post status changed', 'simple-history'),
+				'%1$s', '%2$s', '"'. $old .'"', '"'. $new .'"'
 			);
 		}
 
@@ -366,16 +371,13 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		if ( 'sticky_posts' != $action ) 
 			return;
 
-		// Does $old contain more than $new?
-		$post_id = current( array_diff( $old, $new ) );
-
 		// Stick post
-		if ( empty( $post_id ) )
-			$this->log_post( current( array_diff( $new, $old ) ), __('%1$s %2$s marked as sticky', 'simple-history') );
+		if ( $post_id = current( array_diff( $new, $old ) ) )
+			$this->log_post( $post_id, __('%1$s %2$s marked as sticky', 'simple-history') );
 
 		// Unstick post
 		else
-			$this->log_post( $post_id, __('%1$s %2$s unmarked as sticky', 'simple-history') );
+			$this->log_post( current( array_diff( $old, $new ) ), __('%1$s %2$s unmarked as sticky', 'simple-history') );
 	}
 
 	/**
@@ -437,10 +439,6 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		if ( ! isset( $GLOBALS[$ref] ) ) 
 			return;
 
-		// Filter no log post types
-		if ( in_array( $GLOBALS[$ref]->post_type, $this->no_log_post_types() ) )
-			return;
-
 		$this->log_post( $GLOBALS[$ref], $this->events->delete );
 		unset( $GLOBALS[$ref] );
 	}
@@ -464,7 +462,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		// Find possible post parent
 		if ( 0 != get_post_parent( $post_id ) ) {
 			$action = sprintf( 
-				_x('%1$s %2$s was added to %3$s', 'simple-history', 'Attachment added to post'), 
+				_x('%1$s %2$s was added to %3$s', 'Attachment added to post', 'simple-history'), 
 				'%1$s', '%2$s', get_the_title( $post->post_parent ) 
 			);
 		} else {
@@ -558,7 +556,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param array $menu_data Menu data
 	 */
 	public function menu_edited( $menu_id, $menu_data ) {
-		// Previously passed through wp_update_term( $menu_id, 'nav_menu', $args )
+		// Previous to this point passed through wp_update_term( $menu_id, 'nav_menu', $args )
 	}
 
 	/**
@@ -660,7 +658,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 */
 	public function comment_created( $comment_id, $comment ) {
 		// Translators: 1. Type, 2. Post name
-		$this->log_comment( $comment, _x('%1$s on %2$s created', 'simple-history', 'Comment created') );
+		$this->log_comment( $comment, _x('%1$s to %2$s created', 'Comment created', 'simple-history') );
 	}
 
 	/**
@@ -674,7 +672,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 */
 	public function comment_edited( $comment_id ) {
 		// Translators: 1. Type, 2. Post name, 3. Comment author
-		$this->log_comment( $comment_id, _x('%$1s by %3$s on %2$s edited', 'simple-history', 'Comment edited') );
+		$this->log_comment( $comment_id, _x('%$1s by %3$s to %2$s edited', 'Comment edited', 'simple-history') );
 	}
 
 	/**
@@ -692,33 +690,37 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		// Translators: 1. Type, 2. Post name, 3. Comment author
 
 		// Comment approved
-		if ( in_array( $new, array( '1', 'approve' ) ) )
-			$action = __('%1$s by %3$s on %2$s approved',         'simple-history', 'Comment approved'  );
+		if ( in_array( $new, array( '1', 'approved' ) ) )
+			$action = _x('%1$s by %3$s to %2$s approved',         'Comment approved',   'simple-history');
 
 		// Comment unapproved
-		elseif ( in_array( $old, array( '1', 'approve' ) && in_array( $new, array( '0', 'hold' ) ) ) )
-			$action = __('%1$s by %3$s on %2$s unapproved',       'simple-history', 'Comment unapproved');
+		elseif ( 'unapproved' == $new )
+			$action = _x('%1$s by %3$s to %2$s unapproved',       'Comment unapproved', 'simple-history');
 
-		// Comment marked as spam
+		// Comment marked as spam - ignore spammed_comment action
 		elseif ( 'spam' == $new )
-			$action = __('%1$s by %3$s on %2$s marked as spam',   'simple-history', 'Spam comment'      );
+			$action = _x('%1$s by %3$s to %2$s marked as spam',   'Spam comment',       'simple-history');
 
-		// Comment trashed
+		// Comment trashed - ignore trashed_comment action
 		elseif ( 'trash' == $new )
-			$action = __('%1$s by %3$s on %2$s trashed',          'simple-history', 'Comment trashed'   );
+			$action = _x('%1$s by %3$s to %2$s trashed',          'Comment trashed',    'simple-history');
 		
-		// Comment unmarked as spam
+		// Comment unmarked as spam - ignore unspammed_comment action
 		elseif ( 'spam' == $old )
-			$action = __('%1$s by %3$s on %2$s unmarked as spam', 'simple-history', 'Unspam comment'    );
+			$action = _x('%1$s by %3$s to %2$s unmarked as spam', 'Unspam comment',     'simple-history');
 
-		// Comment untrashed
-		elseif ( 'trash' == $old )
-			$action = __('%1$s by %3$s on %2$s untrashed',        'simple-history', 'Comment untrashed' );
+		// Comment untrashed - ignore untrashed_comment action
+		elseif ( 'trash' == $old ) {
+			// Don't fire when post is deleted
+			if ( ! get_comment( $comment->comment_id ) )
+				return;
+			$action = _x('%1$s by %3$s to %2$s untrashed',        'Comment untrashed',  'simple-history');
+		}
 
 		// Other/custom status change
 		else {
 			$action = sprintf( 
-				__('%1$s by %3$s on %2$s changed status from %4$s to %5$s', 'simple-history', 'Comment status changed'),
+				_x('%1$s by %3$s to %2$s changed status from %4$s to %5$s', 'Comment status changed', 'simple-history'),
 				'%1$s', '%2$s', '%3$s', $old, $new
 			);
 		}
@@ -756,13 +758,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		$ref = 'simple_history-delete_comment-'. $comment_id;
 		
 		// Translators: 1. Type, 2. Post name, 3. Comment author
-		$this->log_comment( $GLOBALS[$ref], _x('%1$s by %3$s on %2$s deleted', 'simple-history', 'Comment deleted') );
+		$this->log_comment( $GLOBALS[$ref], _x('%1$s by %3$s to %2$s deleted', 'Comment deleted', 'simple-history') );
 		unset( $GLOBALS[$ref] ); 
 	}
-
-	// Fired on trashing/untrashing posts:
-	//  trashed_post_comments $post_id
-	//  untrashed_post_comments $post_id
 
 	/** User *********************************************************/
 	
@@ -945,7 +943,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 			$this->log_plugin( 
 				$plugin,
 				// Translators: 1. Type, 2. Name, 3. Version
-				sprintf( _x('%1$s %2$s version %3$s installed', 'simple-history', 'Plugin installed'), '%1$s', '%2$s', $plugin['Version'] )
+				sprintf( _x('%1$s %2$s version %3$s installed', 'Plugin installed', 'simple-history'), '%1$s', '%2$s', $plugin['Version'] )
 				// Event link would be to wp-admin/plugins.php?paged=x#{$destination_name} - despite admin bar
 			);
 		}
@@ -966,9 +964,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	public function plugin_activated( $plugin, $network_wide ) {
 		// Translators: 1. Type, 2. Name
 		if ( $network_wide )
-			$action = _x('%1$s %2$s activated for the network', 'simple-history', 'Plugin activated multisite');
+			$action = _x('%1$s %2$s activated for the network', 'Plugin activated multisite', 'simple-history');
 		else
-			$action = _x('%1$s %2$s activated', 'simple-history', 'Plugin activated');
+			$action = _x('%1$s %2$s activated', 'Plugin activated', 'simple-history');
 
 		$this->log_plugin( $plugin, $action );
 	}
@@ -1011,9 +1009,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	public function plugin_deactivated( $plugin, $network_wide ) {
 		// Translators: 1. Type, 2. Name
 		if ( $network_wide )
-			$action = _x('%1$s %2$s deactivated for the network', 'simple-history', 'Plugin deactivated multisite');
+			$action = _x('%1$s %2$s deactivated for the network', 'Plugin deactivated multisite', 'simple-history');
 		else
-			$action = _x('%1$s %2$s deactivated', 'simple-history', 'Plugin deactivated');
+			$action = _x('%1$s %2$s deactivated', 'Plugin deactivated', 'simple-history');
 
 		$this->log_plugin( $plugin, $action );
 	}
@@ -1074,7 +1072,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		if ( $plugins = get_user_meta( get_current_user_id(), 'simple_history-plugins_delete', true ) && ! empty( $plugins ) ) {
 			// Translators: 1. Type, 2. Name
 			foreach ( $plugins as $plugin )
-				$this->log_plugin( $plugin, _x('%1$s %2$s deleted', 'simple-history', 'Plugin deleted') );
+				$this->log_plugin( $plugin, _x('%1$s %2$s deleted', 'Plugin deleted', 'simple-history') );
 
 			delete_user_meta( get_current_user_id(), 'simple_history-plugins_delete' );
 		}
@@ -1104,7 +1102,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 			$this->log_theme( 
 				$theme,
 				// Translators: 1. Type, 2. Name, 3. Version
-				sprintf( _x('%1$s %2$s version %3$s installed', 'simple-history', 'Theme installed'), '%1$s', '%2$s', $theme->Version ) 
+				sprintf( _x('%1$s %2$s version %3$s installed', 'Theme installed', 'simple-history'), '%1$s', '%2$s', $theme->Version ) 
 			);
 		}
 
@@ -1123,9 +1121,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	public function theme_switched( $old ) {
 		// Translators: 1. Type, 2. Previous theme, 3. New theme, 4. Blog site url
 		if ( is_multisite() )
-			$action = sprintf( _x('%1$s on %4$s changed from %2$s to %3$s', 'simple-history', 'Theme switched multisite'), '%1$s', $old, '%2$s', site_url() );
+			$action = sprintf( _x('%1$s on %4$s changed from %2$s to %3$s', 'Theme switched multisite', 'simple-history'), '%1$s', $old, '%2$s', site_url() );
 		else
-			$action = sprintf( _x('%1$s changed from %2$s to %3$s', 'simple-history', 'Theme switched'), '%1$s', $old, '%2$s' );
+			$action = sprintf( _x('%1$s changed from %2$s to %3$s', 'Theme switched', 'simple-history'), '%1$s', $old, '%2$s' );
 
 		$this->log_theme( wp_get_theme(), $action );
 	}

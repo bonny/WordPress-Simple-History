@@ -73,8 +73,6 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		$this->view_settings_capability = "manage_options";
 		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		
-		$this->add_types_for_translation();
-
 		// Load Modules
 		require_once ( dirname(__FILE__) . "/modules/modules.php" );
 
@@ -1312,9 +1310,10 @@ function simple_history_print_history($args = null) {
 			if ("post" == $object_type_lcase) {
 				
 				// Get real name for post type (not just the slug for custom post types)
-				$post_type_object = get_post_type_object( $object_subtype );
+				$type = ! empty( $object_subtype ) ? $object_subtype : $object_type;
+				$post_type_object = get_post_type_object( $type );
 				if ( is_null($post_type_object) ) {
-					$post_label = esc_html__( ucfirst( $object_subtype ) );
+					$post_label = esc_html__( ucfirst( $type ) );
 				} else {
 					$post_label = esc_html__( ucfirst( $post_type_object->labels->singular_name ) );
 				}
@@ -1335,7 +1334,7 @@ function simple_history_print_history($args = null) {
 					$title = esc_html($title);
 					$edit_link = get_edit_post_link($object_id, 'display');
 					$post_title  = "<a href='$edit_link'>";
-					$post_title .= "<span class='simple-history-title'>{$title}</span>";
+					$post_title .= "<span class='simple-history-title'>\"{$title}\"</span>";
 					$post_title .= "</a>";
 				}
 
@@ -1457,9 +1456,9 @@ function simple_history_print_history($args = null) {
 
 			} elseif ("comment" == $object_type_lcase) {
 				
-				$comment_link = get_edit_comment_link($object_id);
+				$comment_link = get_comment($object_id) ? get_edit_comment_link($object_id) : '';
 				$comment_label = ucwords(esc_html__(ucfirst($object_type))) . " " . esc_html($object_subtype);
-				$comment_title = "<a href='$comment_link'><span class='simple-history-title'>" . esc_html($object_name) . "\"</span></a>";
+				$comment_title = "<a href='$comment_link'><span class='simple-history-title'>\"" . esc_html($object_name) . "\"</span></a>";
 				$comment_action = esc_html__($action, "simple-history");
 
 				$output .= simple_history_get_event_title( $comment_label, $comment_title, $comment_action );

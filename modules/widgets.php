@@ -89,15 +89,15 @@ class Simple_History_Module_Widgets extends Simple_History_Module {
 
 		// Widget removed
 		if ( isset( $_POST['delete_widget'] ) )
-			$action = __('%1$s %2$s removed from sidebar %3$s', 'simple-history', 'Widget removed');
+			$action = _x('%1$s %2$s removed from sidebar %3$s', 'Widget removed', 'simple-history');
 
 		// Widget updated
 		elseif ( isset( $wp_registered_widgets[$_POST['widget-id']] ) )
-			$action = __('%1$s %2$s updated in sidebar %3$s',   'simple-history', 'Widget updated');
+			$action = _x('%1$s %2$s updated in sidebar %3$s',   'Widget updated', 'simple-history');
 		
 		// Widget added
 		else
-			$action = __('%1$s %2$s added to sidebar %3$s',     'simple-history', 'Widget added'  );
+			$action = _x('%1$s %2$s added to sidebar %3$s',     'Widget added',   'simple-history');
 
 		$this->log( array( 
 			'action' => sprintf( $action, '%1$s', '%2$s', $wp_registered_sidebars[$_POST['sidebar']]['name'] ),
