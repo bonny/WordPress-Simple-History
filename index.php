@@ -1189,7 +1189,7 @@ function simple_history_print_nav() {
 	}
 
 	// Reload-button
-	$str_reload_button = sprintf('<a class="simple-fields-reload" title="%1$s" href="#"><span>Reload</span></a>', esc_attr__("Reload history", "simple-history"));
+	$str_reload_button = sprintf('<a class="simple-fields-reload button" title="%1$s" href="#"><span>Reload</span></a>', esc_attr__("Reload history", "simple-history"));
 	echo $str_reload_button;
 
 	// Begin select
