@@ -176,6 +176,7 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 == Changelog ==
 
 = 1.3.x =
+- Added a reload-button at top. Click it to reload the history. No need to refresh page no more!
 - Fixed items being reloaded when just clicking the dropdown (not having selected anything yet)
 
 = 1.3.4 =
