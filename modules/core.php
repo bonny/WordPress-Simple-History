@@ -54,7 +54,8 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	function add_events(){
 		$events = array(
 			// Translators: 1. Type, 2. Name, 3. Version
-			'update_to_version' => __('%1$s %2$s updated to version %3$s',  'simple-history'),
+			'update_to_version'      => __('%1$s %2$s updated to version %3$s',                    'simple-history'),
+			'update_to_version_from' => __('%1$s %2$s updated from version %3$s to version %4$s',  'simple-history'),
 		);
 
 		return $events;
@@ -63,60 +64,61 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	function add_actions() {
 
 		// Post
-		add_action( 'wp_insert_post',            array( $this, 'post_created'              )        );
-		add_action( 'post_updated',              array( $this, 'post_edited'               ), 10, 3 );
-		add_action( 'transition_post_status',    array( $this, 'post_status_transition'    ), 10, 3 );
-		add_action( 'updated_option',            array( $this, 'post_stickies'             ), 10, 3 );
-		add_action( 'wp_restore_post_revision',  array( $this, 'post_restore'              ), 10, 2 );
-		add_action( 'delete_post',               array( $this, 'post_delete'               )        );
-		add_action( 'after_delete_post',         array( $this, 'post_deleted'              )        );
+		add_action( 'wp_insert_post',             array( $this, 'post_created'              )        );
+		add_action( 'post_updated',               array( $this, 'post_edited'               ), 10, 3 );
+		add_action( 'transition_post_status',     array( $this, 'post_status_transition'    ), 10, 3 );
+		add_action( 'updated_option',             array( $this, 'post_stickies'             ), 10, 3 );
+		add_action( 'wp_restore_post_revision',   array( $this, 'post_restore'              ), 10, 2 );
+		add_action( 'delete_post',                array( $this, 'post_delete'               )        );
+		add_action( 'after_delete_post',          array( $this, 'post_deleted'              )        );
 
 		// Attachment
-		add_action( 'add_attachment',            array( $this, 'attachment_added'          )        );
-		add_action( 'edit_attachment',           array( $this, 'attachment_edited'         )        );
-		add_action( 'delete_attachment',         array( $this, 'attachment_delete'         )        );
-		add_action( 'deleted_post',              array( $this, 'attachment_deleted'        )        );
+		add_action( 'add_attachment',             array( $this, 'attachment_added'          )        );
+		add_action( 'edit_attachment',            array( $this, 'attachment_edited'         )        );
+		add_action( 'delete_attachment',          array( $this, 'attachment_delete'         )        );
+		add_action( 'deleted_post',               array( $this, 'attachment_deleted'        )        );
 
 		// Menu
-		add_action( 'updated_option',            array( $this, 'menu_locations_updated'    ), 10, 3 );
+		add_action( 'updated_option',             array( $this, 'menu_locations_updated'    ), 10, 3 );
 
 		// Comment
-		add_action( 'wp_insert_comment',         array( $this, 'comment_created'           ), 10, 2 );
-		add_action( 'edit_comment',              array( $this, 'comment_edited'            )        );
-		add_action( 'transition_comment_status', array( $this, 'comment_status_transition' ), 10, 3 );
-		add_action( 'delete_comment',            array( $this, 'comment_delete'            )        );
-		add_action( 'deleted_comment',           array( $this, 'comment_deleted'           )        );
+		add_action( 'wp_insert_comment',          array( $this, 'comment_created'           ), 10, 2 );
+		add_action( 'edit_comment',               array( $this, 'comment_edited'            )        );
+		add_action( 'transition_comment_status',  array( $this, 'comment_status_transition' ), 10, 3 );
+		add_action( 'delete_comment',             array( $this, 'comment_delete'            )        );
+		add_action( 'deleted_comment',            array( $this, 'comment_deleted'           )        );
 
 		// User
-		add_action( 'wp_login',                  array( $this, 'user_loggedin'             )        );
-		add_filter( 'wp_authenticate_user',      array( $this, 'user_authenticate'         ), 10, 2 );
-		add_action( 'wp_logout',                 array( $this, 'user_loggedout'            )        );
-		add_action( 'user_register',             array( $this, 'user_registered'           )        );
-		add_action( 'profile_update',            array( $this, 'user_updated'              )        );
-		add_action( 'delete_user',               array( $this, 'user_deleted'              )        );
+		add_action( 'wp_login',                   array( $this, 'user_loggedin'             )        );
+		add_filter( 'wp_authenticate_user',       array( $this, 'user_authenticate'         ), 10, 2 );
+		add_action( 'wp_logout',                  array( $this, 'user_loggedout'            )        );
+		add_action( 'user_register',              array( $this, 'user_registered'           )        );
+		add_action( 'profile_update',             array( $this, 'user_updated'              )        );
+		add_action( 'delete_user',                array( $this, 'user_deleted'              )        );
 
 		// Settings
 		foreach ( array( 'general', 'writing', 'reading', 'discussion', 'media', 'privacy' ) as $page )
 			add_filter( 'option_page_capability_'. $page, array( $this, 'settings_updated' ) );
-		add_action( 'check_admin_referer',       array( $this, 'permalinks_updated'        ), 10, 2 );
+		add_action( 'check_admin_referer',        array( $this, 'permalinks_updated'        ), 10, 2 );
 
 		// Plugin
-		add_filter( 'upgrader_post_install',     array( $this, 'plugin_installed'          ), 10, 3 );
-		add_action( 'activated_plugin',          array( $this, 'plugin_activated'          )        );
-		add_filter( 'upgrader_post_install',     array( $this, 'plugin_updated'            ), 10, 3 );
-		add_action( 'deactivated_plugin',        array( $this, 'plugin_deactivated'        )        );
-		add_action( 'check_admin_referer',       array( $this, 'plugin_delete'             ), 10, 2 );
+		add_filter( 'upgrader_post_install',      array( $this, 'plugin_installed'          ), 10, 3 );
+		add_action( 'activated_plugin',           array( $this, 'plugin_activated'          )        );
+		add_filter( 'upgrader_pre_install',       array( $this, 'plugin_update'             ), 10, 2 );
+		add_filter( 'upgrader_post_install',      array( $this, 'plugin_updated'            ), 10, 3 );
+		add_action( 'deactivated_plugin',         array( $this, 'plugin_deactivated'        )        );
+		add_action( 'check_admin_referer',        array( $this, 'plugin_delete'             ), 10, 2 );
 		add_action( 'delete_transient_plugins_delete_result', array( $this, 'plugin_deleted' )      );
 
 		// Theme
-		add_filter( 'upgrader_post_install',     array( $this, 'theme_installed'           ), 10, 3 );
-		add_action( 'after_switch_theme',        array( $this, 'theme_switched'            )        );
-		add_filter( 'upgrader_post_install',     array( $this, 'theme_updated'             ), 10, 3 );
-		add_action( 'check_admin_referer',       array( $this, 'theme_delete'              ), 10, 2 );
-		add_action( 'deleted_site_transient',    array( $this, 'theme_deleted'             )        );
+		add_filter( 'upgrader_post_install',      array( $this, 'theme_installed'           ), 10, 3 );
+		add_action( 'after_switch_theme',         array( $this, 'theme_switched'            )        );
+		add_filter( 'upgrader_post_install',      array( $this, 'theme_updated'             ), 10, 3 );
+		add_action( 'check_admin_referer',        array( $this, 'theme_delete'              ), 10, 2 );
+		add_action( 'deleted_site_transient',     array( $this, 'theme_deleted'             )        );
 
 		// Core
-		add_action( '_core_updated_succesfully', array( $this, 'core_updated'              )        );
+		add_action( '_core_updated_successfully', array( $this, 'core_updated'              )        );
 	}
 
 	/** Helpers ******************************************************/
@@ -404,7 +406,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	}
 
 	/**
-	 * Setup global post reference for $this->post_deleted(). Doesn't
+	 * Setup global post reference for {@link self::post_deleted()}. Doesn't
 	 * log anything by itself.
 	 *
 	 * Hooked into delete_post action.
@@ -486,7 +488,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	}
 
 	/**
-	 * Setup global attachment reference for @link{self::attachment_deleted()}.
+	 * Setup global attachment reference for {@link self::attachment_deleted()}.
 	 * Doesn't log anything by itself.
 	 *
 	 * Hooked into delete_attachment action.
@@ -730,13 +732,14 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	}
 
 	/**
-	 * Setup global comment reference for $this->comment_deleted(). Doesn't
+	 * Setup global comment reference for {@link self::comment_deleted()}. Doesn't
 	 * log anything by itself.
 	 * 
 	 * Hooked into delete_comment action.
 	 * 
 	 * @since 1.3.5
 	 * 
+	 * @global simple_history-delete_comment-{$comment_id}
 	 * @param int $comment_id Comment ID
 	 */
 	public function comment_delete( $comment_id ) {
@@ -748,10 +751,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * 
 	 * Hooked into deleted_comment action.
 	 * 
-	 * Uses global comment reference set with $this->comment_delete()
-	 *
 	 * @since 0.3.3
-	 * 
+	 *
+	 * @global simple_history-delete_comment-{$comment_id}
 	 * @param int $comment_id Comment ID
 	 */
 	public function comment_deleted( $comment_id ) {
@@ -872,7 +874,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	/**
 	 * Log saving settings pages
 	 * 
-	 * Hooked in option_page_capability_$page filter called on wp-admin/options.php
+	 * Hooked in option_page_capability_$page filter called on wp-admin/options.php.
 	 * 
 	 * @since 0.8
 	 * 
@@ -923,7 +925,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	/**
 	 * Log installing plugins by download or upload 
 	 * 
-	 * Hooked into upgrader_post_install filter called in WP_Upgrader->install_package().
+	 * Hooked into upgrader_post_install filter called in {@link WP_Upgrader::install_package()}.
 	 * 
 	 * Does not log uploads through ftp or other server side channels. 
 	 * 
@@ -972,17 +974,43 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	}
 
 	/**
+	 * Setup global version reference for {@link self::plugin_updated()}
+	 *
+	 * Hooked into upgrader_pre_install filter called in {@link WP_Upgrader::install_package()}.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-plugin_update_version
+	 * @param boolean|WP_Error $return Filter return val
+	 * @param array $plugin Plugin name
+	 * @return mixed $return
+	 */
+	public function plugin_update( $return, $plugin ) {
+		if ( is_wp_error( $return ) ) 
+			return $return;
+
+		if ( isset( $plugin['plugin'] ) ) {
+			$plugin = get_plugin_data( WP_PLUGIN_DIR .'/'. $plugin['plugin'] );
+			$GLOBALS['simple_history-plugin_update_version'] = $plugin['Version'];
+		}
+
+		return $return;	
+	}
+
+	/**
 	 * Logs updating plugins
 	 * 
-	 * Hooked into upgrader_post_install filter called in WP_Upgrader->install_package().
+	 * Hooked into upgrader_post_install filter called in {@link WP_Upgrader::install_package()}.
 	 * 
 	 * @since 1.3.5
 	 *
 	 * @todo Implement changelog link
 	 * 
+	 * @global simple_history-plugin_update_version
 	 * @param boolean|WP_Error $return Filter return val
 	 * @param array $plugin Plugin name
 	 * @param array $result Update arguments
+	 * @return mixed $return
 	 */
 	public function plugin_updated( $return, $plugin, $result ) {
 		if ( is_wp_error( $return ) ) 
@@ -990,7 +1018,11 @@ class Simple_History_Module_Core extends Simple_History_Module {
 
 		if ( isset( $plugin['plugin'] ) ) {
 			$plugin = get_plugin_data( WP_PLUGIN_DIR .'/'. $plugin['plugin'] );
-			$this->log_plugin( $plugin, sprintf( $this->events->update_to_version, '%1$s', '%2$s', $plugin['Version'] ) );
+			if ( isset( $GLOBALS['simple_history-plugin_update_version'] ) && $previous = $GLOBALS['simple_history-plugin_update_version'] ) {
+				$this->log_plugin( $plugin, sprintf( $this->events->update_to_version_from, '%1$s', '%2$s', $previous, $plugin['Version'] ) );
+				unset( $GLOBALS['simple_history-plugin_update_version'] );
+			} else
+				$this->log_plugin( $plugin, sprintf( $this->events->update_to_version,      '%1$s', '%2$s', $plugin['Version'] ) );
 		}
 
 		return $return;
@@ -1017,7 +1049,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	}
 
 	/**
-	 * Store user meta as reference for @link{self::plugin_deleted()}
+	 * Store user meta as reference for {@link self::plugin_deleted()}
 	 *
 	 * Hooked into check_admin_referer action called on wp-admin/plugins.php.
 	 * 
@@ -1083,7 +1115,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	/**
 	 * Log installing themes by download or upload
 	 * 
-	 * Hooked into upgrader_post_install filter called in WP_Upgrader->install_package().
+	 * Hooked into upgrader_post_install filter called in {@link WP_Upgrader::install_package()}.
 	 * 
 	 * @since 1.3.5
 	 *
@@ -1092,6 +1124,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param boolean|WP_error $return Filter return val
 	 * @param array $theme Empty on install
 	 * @param array $result Install arguments
+	 * @return mixed $return
 	 */
 	public function theme_installed( $return, $theme, $result ) {
 		if ( is_wp_error( $return ) ) 
@@ -1131,13 +1164,39 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	/**
 	 * Log updating themes
 	 * 
-	 * Hooked into upgrader_post_install filter called in WP_Upgrader->install_package().
+	 * Hooked into upgrader_pre_install filter called in {@link WP_Upgrader::install_package()}.
 	 * 
 	 * @since 1.3.5
 	 *
+	 * @global simple_history-theme_update_version
+	 * @param boolean|WP_Error $return Filter return val
+	 * @param array $theme Theme name
+	 * @return mixed $return
+	 */
+	public function theme_update( $return, $theme ) {
+		if ( is_wp_error( $return ) ) 
+			return $return;
+
+		if ( isset( $theme['theme'] ) ) {
+			$theme = wp_get_theme( $theme['theme'] );
+			$GLOBALS['simple_history-theme_update_version'] = $theme->Version;
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Log updating themes
+	 * 
+	 * Hooked into upgrader_post_install filter called in {@link WP_Upgrader::install_package()}.
+	 * 
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-theme_update_version
 	 * @param boolean|WP_Error $return Filter return val
 	 * @param array $theme Theme name
 	 * @param array $result Update arguments
+	 * @return mixed $return
 	 */
 	public function theme_updated( $return, $theme, $result ) {
 		if ( is_wp_error( $return ) ) 
@@ -1145,14 +1204,18 @@ class Simple_History_Module_Core extends Simple_History_Module {
 
 		if ( isset( $theme['theme'] ) ) {
 			$theme = wp_get_theme( $theme['theme'] );
-			$this->log_theme( $theme, sprintf( $this->events->update_to_version, '%1$s', '%2$s', $theme->Version ) );
+			if ( isset( $GLOBALS['simple_history-theme_update_version'] ) && $previous = $GLOBALS['simple_history-theme_update_version'] ) {
+				$this->log_theme( $theme, sprintf( $this->events->update_to_version_from, '%1$s', '%2$s', $previous, $theme->Version ) );
+				unset( $GLOBALS['simple_history-theme_update_version'] );	
+			} else
+				$this->log_theme( $theme, sprintf( $this->events->update_to_version,      '%1$s', '%2$s', $theme->Version ) );
 		}
 
 		return $return;
 	}
 
 	/**
-	 * Store user meta as reference for @link{self::theme_deleted()}
+	 * Store user meta as reference for {@link self::theme_deleted()}
 	 *
 	 * Hooked into check_admin_referer action called on wp-admin/themes.php.
 	 * 
@@ -1196,17 +1259,22 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	/**
 	 * Log updating WP core
 	 * 
-	 * Hooked into _core_updated_succesfully action.
+	 * Hooked into _core_updated_successfully action.
 	 * 
 	 * @since 1.0.0
 	 *
 	 * @param string $wp_version The new WP version
 	 */
 	public function core_updated( $wp_version ) {
+		if ( $GLOBALS['wp_version'] != $wp_version )
+			$action = sprintf( $this->events->update_to_version_from, '%1$s', '%2$s', $GLOBALS['wp_version'], $wp_version );
+		else
+			$action = sprintf( $this->events->update_to_version,      '%1$s', '%2$s', $wp_version );
+
 		$this->log( array(
-			'action' => sprintf( $this->events->update_to_version, '%1$s', '%2$s', $wp_version ),
-			'type'   => 'WordPress',
-			'name'   => __('Core', 'simple-history'),
+			'action' => $action,
+			'type'   => 'wordpress',
+			'name'   => _x('Core', 'WordPress Core', 'simple-history'),
 			'id'     => 'wordpress-'. $wp_version,
 		) );
 	}
