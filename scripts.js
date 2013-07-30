@@ -18,7 +18,6 @@ var simple_history = (function($) {
 		elms.ol_wrapper = elms.wrap.find(".simple-history-ol-wrapper");
 
 		// so wrapper does not collapse when loading new items
-		//elms.ol_wrapper.height( elms.ol_wrapper.height() );
 		elms.ol_wrapper.css("max-height", elms.ol_wrapper.height() );
 
 		addListeners();
@@ -31,6 +30,9 @@ var simple_history = (function($) {
 		elms.ol_wrapper.css("max-height", "1000px");
 	}
 
+	/**
+	 * Add listeners to enable keyboard navigation and to show/hide things
+	 */
 	function addListeners() {
 
 		/*
@@ -140,9 +142,9 @@ jQuery(document).on("keyup", ".simple-history-filter-search input[type='text'], 
 	}
 });
 
-// click on filter-link/change value is filter dropdowns = load new via ajax
-// begin at position 0 unless click on pagination then check pagination page
-//jQuery("select.simple-history-filter, .simple-history-filter a, .simple-history-filter input[type='button'], .simple-history-tablenav a").live("click change", function(e, extraParams) {
+/**
+ * Load page with history items when click on seach on when selecting someting in the dropdowns
+ */
 jQuery(document).on("click change", "select.simple-history-filter, .simple-history-filter a, .simple-history-filter input[type='button'], .simple-history-tablenav a", function(e, extraParams) {
 
 	var $t = jQuery(this),
@@ -164,6 +166,9 @@ jQuery(document).on("click change", "select.simple-history-filter, .simple-histo
 		$simple_history_wrap = jQuery(".simple-history-wrap");
 
 	e.preventDefault();
+
+	// If event is of type click and called form dropdown then don't continue (only go on when dropdown is changed)
+	if ( "click" === e.type && "SELECT" === e.target.nodeName ) return;
 	
 	// if target is a child of simple-history-tablenav then this is a click in pagination
 	if ($t.closest("div.simple-history-tablenav").length > 0) {

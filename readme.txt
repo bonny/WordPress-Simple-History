@@ -175,6 +175,9 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 
 == Changelog ==
 
+= 1.3.x =
+- Fixed items being reloaded when just clicking the dropdown (not having selected anything yet)
+
 = 1.3.4 =
 - Changed the way post types show in the dropdown. Now uses plural names + not prefixed with main post type. Looks better I think. Thank to Hassan for the suggestion!
 - Added "bytes" to size units that an attachment can have. Also fixes undefined notice warning when attachment had a size less that 1 KB.
