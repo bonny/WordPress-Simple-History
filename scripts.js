@@ -40,6 +40,22 @@ var simple_history = (function($) {
 
 	}
 
+	function keyboardNav(e) {
+				
+		var link_to_click = null;
+
+		if (e.keyCode == 37) {
+			link_to_click = ".prev-page";
+		} else if (e.keyCode == 39) {
+			link_to_click = ".next-page";
+		}
+
+		if (link_to_click) {
+			$(".simple-history-tablenav").find(link_to_click).trigger("click");
+		}
+
+	}
+
 	/**
 	 * Add listeners to enable keyboard navigation and to show/hide things
 	 */
@@ -59,21 +75,7 @@ var simple_history = (function($) {
 		// Enable keyboard navigation if we are on Simple Historys own page
 		if ( $(".dashboard_page_simple_history_page").length ) {
 			
-			$(document).keydown(function(e) {
-				
-				var link_to_click = null;
-
-				if (e.keyCode == 37) {
-					link_to_click = ".prev-page";
-				} else if (e.keyCode == 39) {
-					link_to_click = ".next-page";
-				}
-
-				if (link_to_click) {
-					$(".simple-history-tablenav").find(link_to_click).trigger("click");
-				}
-
-			});
+			$(document).keydown(keyboardNav);
 
 		}
 
@@ -186,6 +188,8 @@ jQuery(document).on("click change", "select.simple-history-filter, .simple-histo
 	// if target is a child of simple-history-tablenav then this is a click in pagination
 	if ($t.closest("div.simple-history-tablenav").length > 0) {
 	
+		var prev_current_page = simple_history_current_page;
+
 		if ($target_link.hasClass("disabled")) {
 			return;
 		} else if ($target_link.hasClass("first-page")) {
@@ -197,7 +201,13 @@ jQuery(document).on("click change", "select.simple-history-filter, .simple-histo
 		} else if ($target_link.hasClass("next-page")) {
 			simple_history_current_page = simple_history_current_page + 1;
 		}
-			
+		
+		// Don't go before page 0 or after total pages. Could happend if you navigated quickly with keyboard.
+		if ( simple_history_current_page < 0 || simple_history_current_page >= $total_pages.text() ) {
+			simple_history_current_page = prev_current_page;
+			return;
+		}
+
 	} else {
 
 		num_added = 0;
