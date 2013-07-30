@@ -31,6 +31,16 @@ var simple_history = (function($) {
 	}
 
 	/**
+	 * Reload history, starting at page 1
+	 */
+	function reload(e) {
+
+		e.preventDefault();
+		jQuery(".simple-history-filter input[type='button']").trigger("click", [ {} ]);
+
+	}
+
+	/**
 	 * Add listeners to enable keyboard navigation and to show/hide things
 	 */
 	function addListeners() {
@@ -42,6 +52,9 @@ var simple_history = (function($) {
 			39 - right
 			40 - down
 		*/
+
+		// Reload history when clicking reload-button
+		$(document).on("click", ".simple-fields-reload", reload);
 		
 		// Enable keyboard navigation if we are on Simple Historys own page
 		if ( $(".dashboard_page_simple_history_page").length ) {

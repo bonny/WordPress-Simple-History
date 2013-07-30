@@ -1188,6 +1188,10 @@ function simple_history_print_nav() {
 		$css = "class='selected'";
 	}
 
+	// Reload-button
+	$str_reload_button = sprintf('<a class="simple-fields-reload" title="%1$s" href="#"><span>Reload</span></a>', esc_attr__("Reload history", "simple-history"));
+	echo $str_reload_button;
+
 	// Begin select
 	$str_types_select = "";
 	$str_types_select .= "<select name='' class='simple-history-filter simple-history-filter-type'>";
