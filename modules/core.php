@@ -88,11 +88,13 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		add_action( 'check_admin_referer',        array( $this, 'menu_update'               ), 10, 2 );
 		add_action( 'wp_update_nav_menu',         array( $this, 'menu_edited'               ), 10, 2 );
 		add_action( 'updated_option',             array( $this, 'menu_locations_edited'     ), 10, 3 );
+		add_action( 'check_admin_referer',        array( $this, 'menu_delete'               ), 10, 2 );
 		add_action( 'wp_delete_nav_menu',         array( $this, 'menu_deleted'              )        );
 		add_action( 'post_updated',               array( $this, 'menu_item_edited'          ), 10, 3 );
 		add_action( 'wp_update_nav_menu_item',    array( $this, 'menu_item_updated'         ), 10, 3 );
 		add_action( 'before_delete_post',         array( $this, 'menu_item_delete'          )        );
 		add_action( 'after_delete_post',          array( $this, 'menu_item_deleted'         )        );
+		add_action( 'simple_history_dont_log',    array( $this, 'menu_dont_log'             ), 10, 3 );
 
 		// Comment
 		add_action( 'wp_insert_comment',          array( $this, 'comment_created'           ), 10, 2 );
@@ -156,9 +158,8 @@ class Simple_History_Module_Core extends Simple_History_Module {
 			return;
 		}
 
-		// Do not log?
-		// if ( simple_history_do_not_log( $post_id, 'core.post_created' ) )
-		// 	return;
+		if ( simple_history_dont_log( 'post.post_created', array( 'post_id' => $post_id ) ) )
+			return;
 
 		$this->log_post( $post_id, $this->events->new );
 	}
@@ -176,6 +177,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 */
 	public function post_edited( $post_id, $post_after, $post_before ) {
 		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
+			return;
+
+		if ( simple_history_dont_log( 'post.post_edited', compact( 'post_id', 'post_after', 'post_before' ) ) )
 			return;
 
 		// Titles changed
@@ -207,6 +211,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 
 		// Bail when nothing changed
 		if ( $new === $old )
+			return;
+
+		if ( simple_history_dont_log( 'post.post_status_transition', compact( 'old', 'new', 'post' ) ) )
 			return;
 
 		// Post trashed - ignore post_trashed action
@@ -290,6 +297,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param int $revision_id Revision ID
 	 */
 	public function post_restore( $post_id, $revision_id ) {
+		if ( simple_history_dont_log( 'post.post_restore', compact( 'post_id', 'revision_id' ) ) )
+			return;
+
 		$this->log_post( 
 			$post_id, 
 			sprintf( 
@@ -310,11 +320,11 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * 
 	 * @since 1.3.5
 	 *
-	 * @global simple_history-delete_post_{$post_id}
+	 * @global simple_history-delete_post
 	 * @param int $post_id Post ID
 	 */
 	public function post_delete( $post_id ) {
-		$GLOBALS['simple_history-delete_post_'. $post_id] = get_post( $post_id );
+		$GLOBALS['simple_history-delete_post'] = get_post( $post_id );
 	}
 
 	/**
@@ -326,14 +336,17 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * 
 	 * @since 1.0.0
 	 *
-	 * @global simple_history-delete_post_{$post_id}
+	 * @global simple_history-delete_post
 	 * @param int $post_id Post ID
 	 */
 	public function post_deleted( $post_id ) {
-		$global = 'simple_history-delete_post_'. $post_id;
+		$global = 'simple_history-delete_post';
 
 		// Check if global post reference exists
 		if ( ! isset( $GLOBALS[$global] ) ) 
+			return;
+
+		if ( simple_history_dont_log( 'post.post_deleted', array( 'post_id' => $post_id, 'post' => $GLOBALS[$global] ) ) )
 			return;
 
 		$this->log_post( $GLOBALS[$global], $this->events->delete );
@@ -414,7 +427,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @since 1.3.5
 	 *
 	 * @global simple_history-delete_attachment
-	 * @global simple_history-delete_post_{$post_id}
+	 * @global simple_history-delete_post
 	 * @param int $post_id Post ID
 	 */
 	public function attachment_deleted( $post_id ) {
@@ -422,8 +435,8 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		if ( ! isset( $GLOBALS['simple_history-delete_attachment'] ) ) 
 			return;
 
-		$this->log_post( $GLOBALS['simple_history-delete_post_'. $post_id], $this->events->delete );
-		unset( $GLOBALS['simple_history-delete_attachment'], $GLOBALS['simple_history-delete_post_'. $post_id] );
+		$this->log_post( $GLOBALS['simple_history-delete_post'], $this->events->delete );
+		unset( $GLOBALS['simple_history-delete_attachment'], $GLOBALS['simple_history-delete_post'] );
 	}
 
 	/** Term *********************************************************/
@@ -463,6 +476,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param string $taxonomy Taxonomy name
 	 */
 	public function term_created( $term_id, $tt_id, $taxonomy ) {
+		if ( simple_history_dont_log( 'term.term_created', compact( 'term_id', 'tt_id', 'taxonomy' ) ) )
+			return;
+
 		$this->log_term( $term_id, $taxonomy, $this->events->new );
 	}
 
@@ -495,6 +511,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param string $taxonomy Taxonomy name
 	 */
 	public function term_edited( $term_id, $tt_id, $taxonomy ) {
+		if ( simple_history_dont_log( 'term.term_edited', compact( 'term_id', 'tt_id', 'taxonomy' ) ) )
+			return;
+
 		$term   = get_term( $term_id, $taxonomy );
 		$global = 'simple_history-update_term_'. $term_id;
 
@@ -522,28 +541,32 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param array $the_term Deleted term
 	 */
 	public function term_deleted( $term_id, $tt_id, $taxonomy, $the_term ) {
+		if ( simple_history_dont_log( 'term.term_deleted', compact( 'term_id', 'tt_id', 'taxonomy', 'the_term' ) ) )
+			return;
+
 		$this->log_term( $the_term, $taxonomy, $this->events->delete );
 	}
 
 	/** Menu *********************************************************/
 
 	/**
-	 * Menu logger. Requires a menu ID
+	 * Menu logger. Requires a menu ID or menu object
 	 *
 	 * @since 1.3.5
 	 * 
-	 * @param int $menu_id Menu ID
+	 * @param int|object $menu Menu ID or menu object
 	 * @param string $action Log message
 	 * @param string $desc Optional. Additional event description
 	 */
-	function log_menu( $menu_id, $action, $desc = '' ) {
-		$menu = wp_get_nav_menu_object( $menu_id );
+	function log_menu( $menu, $action, $desc = '' ) {
+		if ( is_numeric( $menu ) )
+			$menu = wp_get_nav_menu_object( $menu );
 
 		$this->log( array(
 			'action' => $action,
 			'type'   => 'menu',
 			'name'   => $menu->name,
-			'id'     => $menu_id,
+			'id'     => $menu->term_id,
 			'desc'   => $desc
 		) );
 	}
@@ -635,6 +658,24 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	}
 
 	/**
+	 * Setup global menu reference for {@link self::menu_deleted()}
+	 *
+	 * Hooked into check_admin_referer action called in wp-admin/nav-menus.php.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-update_menu
+	 * @param string $action Referer action
+	 * @param boolean $result User passes referer
+	 */
+	public function menu_delete( $action, $result ) {
+		if ( ! $result || false === strpos( $action, 'delete-nav_menu-' ) )
+			return;
+
+		$GLOBALS['simple_history-delete_menu'] = wp_get_nav_menu_object( substr( $action, 16 ) );
+	}
+
+	/**
 	 * Log deleting menus
 	 *
 	 * Hooked into wp_delete_nav_menu action.
@@ -644,7 +685,11 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param int $menu_id Menu ID
 	 */
 	public function menu_deleted( $menu_id ) {
-		$this->log_menu( $menu_id, $this->events->delete );
+		if ( ! isset( $GLOBALS['simple_history-delete_menu'] ) )
+			return;
+
+		$this->log_menu( $GLOBALS['simple_history-delete_menu'], $this->events->delete );
+		unset( $GLOBALS['simple_history-delete_menu'] );
 	}
 
 	/**
@@ -697,7 +742,8 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * NOTE: Auto-added pages run through this filter.
 	 *
 	 * @since 1.3.5
-	 * 
+	 *
+	 * @todo Fires somehow twice during update: before and after edit of menu items.
 	 * @todo Log item changes more exact. Now on every update items log as 'edited' 
 	 *        while mostly they are not. Real item changes are in update_post_meta 
 	 *        calls before this hook fires.
@@ -737,7 +783,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		} else
 			$action = $this->events->edit;
 
-		$this->log_menu_item( (object) $item, $menu_id, $action, maybe_serialize( array_merge( $item, array( 'menu_id' => $menu_id ) ) ) );
+		$this->log_menu_item( (object) $item, $menu_id, $action );
 	}
 
 	/**
@@ -770,11 +816,50 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 */
 	public function menu_item_deleted( $item_id ) {
 		// Only log on menu update, not on menu delete or reference object (post or term) delete
-		if ( ! isset( $GLOBALS['simple_history-update_menu'] ) )
+		if ( ! isset( $GLOBALS['simple_history-update_menu'] ) || isset( $GLOBALS['simple_history-delete_menu'] ) )
 			return;
 
 		$this->log_menu_item( $GLOBALS['simple_history-delete_menu_item'], $GLOBALS['simple_history-update_menu'], _x('%1$s %2$s removed', 'Nav menu item deleted', 'simple-history') ); 
 		unset( $GLOBALS['simple_history-delete_menu_item'] );
+	}
+
+	/**
+	 * Prevent other loggers from firing for menus and menu items
+	 *
+	 * @since 1.3.5
+	 * 
+	 * @param boolean $dont To log or not to log 
+	 * @param string $event Event name
+	 * @param array $args Event arguments
+	 * @return boolean $dont
+	 */
+	public function menu_dont_log( $dont, $event, $args ) {
+		switch ( $event ) {
+
+			// Menu created
+			case 'term.term_created' :
+			// Menu edited
+			case 'term.term_edited' :
+			// Menu deleted
+			case 'term.term_deleted' :
+				$dont = 'nav_menu' == $args['taxonomy'];
+				break;
+
+			// Menu item added
+			case 'post.post_created' :
+			case 'post.post_status_transition' :
+			// Menu item edited
+			case 'post.post_edited' :
+				$dont = is_nav_menu_item( isset( $args['post'] ) ? $args['post']->ID : $args['post_id'] );
+				break;
+
+			// Menu item deleted
+			case 'post.post_deleted' :
+				$dont = 'nav_menu_item' == $args['post']->post_type;
+				break;
+		}
+
+		return $dont;
 	}
 
 	/** Comment ******************************************************/

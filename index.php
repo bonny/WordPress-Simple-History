@@ -1656,7 +1656,7 @@ function simple_history_get_event_title( $label, $name, $action ) {
 	// Setup title string
 	// Find %1$s and/or %2$s
 	if ( false !== strpos( $action, '%1$s' ) || false !== strpos( $action, '%2$s' ) )
-		$title = sprintf( $action, ucfirst( $label ), $name );
+		$title = sprintf( $action, ucfirst( $label ), $name, 'X' );
 	
 	// Pre-1.3.5
 	else
@@ -1664,5 +1664,23 @@ function simple_history_get_event_title( $label, $name, $action ) {
 
 	// Filtering comes later
 	return $title;
+}
+
+/**
+ * Return whether not to log the given event
+ *
+ * Providing a generic filter for cancelling event logging in case an
+ * event gets logged more than once by different functions.
+ * 
+ * @since 1.3.5
+ * 
+ * @param string $event Event name
+ * @param array $args Event arguments
+ * @uses apply_filters() Calls 'simple_history_dont_log' with the
+ *                        result, event name and event arguments
+ * @return boolean Whether not to log
+ */
+function simple_history_dont_log( $event, $args = array() ) {
+	return apply_filters( 'simple_history_dont_log', false, $event, (array) $args );
 }
 
