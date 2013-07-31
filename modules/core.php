@@ -10,7 +10,6 @@
  * @package Simple History
  * @subpackage Modules
  *
- * @todo Log creating/editing/deleting Menus
  * @todo Log theme customizer editing, custom header, custom background
  * @todo Log file editor changes (plugin/theme)
  * @todo Log import/export data
@@ -55,7 +54,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		$events = array(
 			// Translators: 1. Type, 2. Name, 3. Version
 			'update_to_version'      => __('%1$s %2$s updated to version %3$s',                    'simple-history'),
-			'update_to_version_from' => __('%1$s %2$s updated from version %3$s to version %4$s',  'simple-history'),
+			'update_from_version' => __('%1$s %2$s updated from version %3$s to version %4$s',  'simple-history'),
 		);
 
 		return $events;
@@ -78,8 +77,22 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		add_action( 'delete_attachment',          array( $this, 'attachment_delete'         )        );
 		add_action( 'deleted_post',               array( $this, 'attachment_deleted'        )        );
 
+		// Term
+		add_action( 'created_term',               array( $this, 'term_created'              ), 10, 3 );
+		add_action( 'edit_term',                  array( $this, 'term_edit'                 ), 10, 3 );
+		add_action( 'edited_term',                array( $this, 'term_edited'               ), 10, 3 );
+		add_action( 'delete_term',                array( $this, 'term_deleted'              ), 10, 4 );
+
 		// Menu
-		add_action( 'updated_option',             array( $this, 'menu_locations_updated'    ), 10, 3 );
+		add_action( 'wp_create_nav_menu',         array( $this, 'menu_created'              ), 10, 2 );
+		add_action( 'check_admin_referer',        array( $this, 'menu_update'               ), 10, 2 );
+		add_action( 'wp_update_nav_menu',         array( $this, 'menu_edited'               ), 10, 2 );
+		add_action( 'updated_option',             array( $this, 'menu_locations_edited'     ), 10, 3 );
+		add_action( 'wp_delete_nav_menu',         array( $this, 'menu_deleted'              )        );
+		add_action( 'post_updated',               array( $this, 'menu_item_edited'          ), 10, 3 );
+		add_action( 'wp_update_nav_menu_item',    array( $this, 'menu_item_updated'         ), 10, 3 );
+		add_action( 'before_delete_post',         array( $this, 'menu_item_delete'          )        );
+		add_action( 'after_delete_post',          array( $this, 'menu_item_deleted'         )        );
 
 		// Comment
 		add_action( 'wp_insert_comment',          array( $this, 'comment_created'           ), 10, 2 );
@@ -113,131 +126,13 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		// Theme
 		add_filter( 'upgrader_post_install',      array( $this, 'theme_installed'           ), 10, 3 );
 		add_action( 'after_switch_theme',         array( $this, 'theme_switched'            )        );
+		add_filter( 'upgrader_pre_install',       array( $this, 'theme_update'              ), 10, 3 );
 		add_filter( 'upgrader_post_install',      array( $this, 'theme_updated'             ), 10, 3 );
 		add_action( 'check_admin_referer',        array( $this, 'theme_delete'              ), 10, 2 );
 		add_action( 'deleted_site_transient',     array( $this, 'theme_deleted'             )        );
 
 		// Core
 		add_action( '_core_updated_successfully', array( $this, 'core_updated'              )        );
-	}
-
-	/** Helpers ******************************************************/
-
-	/**
-	 * Menu logger. Requires a menu ID
-	 *
-	 * @since 1.3.5
-	 * 
-	 * @param int $menu_id Menu ID
-	 * @param string $action Log action
-	 * @param string $desc Optional. Additional event description
-	 */
-	function log_menu( $menu_id, $action, $desc = '' ) {
-		$menu = wp_get_nav_menu_object( $menu_id );
-
-		$this->log( array(
-			'action' => $action,
-			'type'   => 'menu',
-			'name'   => $menu->name,
-			'id'     => $menu_id,
-			'desc'   => $desc
-		) );
-	}
-
-	/**
-	 * Comment logger. Requires a comment ID or comment object
-	 * 
-	 * @since 1.3.5
-	 *
-	 * @param int|object $comment Comment ID or object from get_comment()
-	 * @param string $action Log message
-	 * @param string $desc Optional. Additional event description
-	 */
-	function log_comment( $comment, $action, $desc = '' ) {
-		if ( is_numeric( $comment ) )
-			$comment = get_comment( $comment );
-
-		// Provide action with comment author
-		if ( false !== strpos( $action, '%3$s' ) )
-			$action = sprintf( $action, '%1$s', '%2$s', $comment->comment_author );
-
-		// Set empty description to comment content
-		if ( empty( $desc ) )
-			$desc = $comment->comment_content; // Use raw or filter?
-
-		$this->log( array(
-			'action' => $action,
-			'type'   => 'comment',
-			'name'   => get_the_title( $comment->comment_post_ID ),
-			'id'     => $comment->comment_ID,
-			'desc'   => $desc
-		) );
-	}
-
-	/**
-	 * Settings page logger.
-	 * 
-	 * @since 1.3.5
-	 *
-	 * @param array $page Settings page identifier => Settings page title
-	 * @param string $desc Optional. Additional event description
-	 */
-	function log_settings( $page, $desc = '' ) {
-		$this->log( array(
-			// Translators: 1. Type, 2. Name
-			'action' => __('Settings page %2$s updated', 'simple-history'),
-			'type'   => 'settings',
-			'name'   => current( $page ),
-			'id'     => key( $page ),
-			'desc'   => $desc
-		) );
-	}
-
-	/**
-	 * Plugin logger. Requires a plugin data array or plugin file id
-	 * 
-	 * @since 1.3.5
-	 *
-	 * @param string|array|object $plugin Plugin file id or data array or data object
-	 * @param string $action Log message
-	 * @param string $desc Optional. Additional event description
-	 */
-	function log_plugin( $plugin, $action, $desc = '' ) {
-		if ( is_string( $plugin ) )
-			$plugin = get_plugin_data( WP_PLUGIN_DIR .'/'. $plugin );
-
-		if ( ! is_object( $plugin ) )
-			$plugin = (object) $plugin;
-
-		$this->log( array(
-			'action' => $action,
-			'type'   => 'plugin',
-			'name'   => $plugin->Name,
-			'id'     => sanitize_title( $plugin->Name ), // Or file id?
-			'desc'   => $desc
-		) );
-	}
-
-	/**
-	 * Theme logger. Requires a WP_Theme object or theme template id
-	 * 
-	 * @since 1.3.5
-	 *
-	 * @param string|WP_Theme $theme Theme file id or object from wp_get_theme()
-	 * @param string $action Log message
-	 * @param string $desc Optional. Additional event description
-	 */
-	function log_theme( $theme, $action, $desc = '' ) {
-		if ( is_string( $theme ) )
-			$theme = wp_get_theme( $theme );
-
-		$this->log( array(
-			'action' => $action,
-			'type'   => 'theme',
-			'name'   => $theme->Name,
-			'id'     => $theme->Template,
-			'desc'   => $desc
-		) );
 	}
 
 	/** Post *********************************************************/
@@ -262,7 +157,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		}
 
 		// Do not log?
-		// if ( simple_history_do_not_log( $post_id, 'core', 'post_created' ) )
+		// if ( simple_history_do_not_log( $post_id, 'core.post_created' ) )
 		// 	return;
 
 		$this->log_post( $post_id, $this->events->new );
@@ -435,14 +330,14 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param int $post_id Post ID
 	 */
 	public function post_deleted( $post_id ) {
-		$ref = 'simple_history-delete_post_'. $post_id;
+		$global = 'simple_history-delete_post_'. $post_id;
 
 		// Check if global post reference exists
-		if ( ! isset( $GLOBALS[$ref] ) ) 
+		if ( ! isset( $GLOBALS[$global] ) ) 
 			return;
 
-		$this->log_post( $GLOBALS[$ref], $this->events->delete );
-		unset( $GLOBALS[$ref] );
+		$this->log_post( $GLOBALS[$global], $this->events->delete );
+		unset( $GLOBALS[$global] );
 	}
 
 	/** Attachment ***************************************************/
@@ -531,72 +426,177 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		unset( $GLOBALS['simple_history-delete_attachment'], $GLOBALS['simple_history-delete_post_'. $post_id] );
 	}
 
-	/** Nav Menu *****************************************************/
+	/** Term *********************************************************/
 
 	/**
-	 * Under construction...
+	 * Term logger. Requires term ID or term object and taxonomy name
+	 *
+	 * @since 1.3.5
+	 * 
+	 * @param int|object $term Term ID or term object
+	 * @param string $taxonomy Taxonomy name
+	 * @param string $action Log message
+	 * @param string $desc Optional. Additional event description
 	 */
+	public function log_term( $term, $taxonomy, $action, $desc = '' ) {
+		if ( is_numeric( $term ) )
+			$term = get_term( $term, $taxonomy );
+
+		$this->log( array(
+			'action' => $action,
+			'type'   => $taxonomy,
+			'name'   => $term->name,
+			'id'     => $term->term_taxonomy_id,
+			'desc'   => $desc
+		) );
+	}
+
+	/**
+	 * Log creating terms
+	 *
+	 * Hooked into created_term action.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @param int $term_id Term ID
+	 * @param int $tt_id Term taxonomy ID
+	 * @param string $taxonomy Taxonomy name
+	 */
+	public function term_created( $term_id, $tt_id, $taxonomy ) {
+		$this->log_term( $term_id, $taxonomy, $this->events->new );
+	}
+
+	/**
+	 * Setup global term reference for {@link self::term_edited()}
+	 *
+	 * Hooked into edit_term action.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-update_term_{$term_id}
+	 * @param int $term_id Term ID
+	 * @param int $tt_id Term taxonomy ID
+	 * @param string $taxonomy Taxonomy name
+	 */
+	public function term_edit( $term_id, $tt_id, $taxonomy ) {
+		$GLOBALS['simple_history-update_term_'. $term_id] = get_term( $term_id, $taxonomy );
+	}
+
+	/**
+	 * Log editing terms
+	 *
+	 * Hooked into edited_term action.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-update_term_{$term_id}
+	 * @param int $term_id Term ID
+	 * @param int $tt_id Term taxonomy ID
+	 * @param string $taxonomy Taxonomy name
+	 */
+	public function term_edited( $term_id, $tt_id, $taxonomy ) {
+		$term   = get_term( $term_id, $taxonomy );
+		$global = 'simple_history-update_term_'. $term_id;
+
+		// Compare term names
+		if ( isset( $GLOBALS[$global] ) && $GLOBALS[$global]->name != $term->name ) {
+			$this->log_term( $term, $taxonomy, sprintf( 
+				__('%1$s %2$s edited and changed to %3$s', 'simple-history'),
+				'%1$s', $GLOBALS[$global]->name, '%2$s' 
+			) );
+			unset( $GLOBALS[$global] );
+		} else
+			$this->log_term( $term, $taxonomy, $this->events->edit );
+	}
+
+	/**
+	 * Log deleting terms
+	 *
+	 * Hooked into delete_term action.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @param int $term_id Term ID
+	 * @param int $tt_id Term taxonomy ID
+	 * @param string $taxonomy Taxonomy name
+	 * @param array $the_term Deleted term
+	 */
+	public function term_deleted( $term_id, $tt_id, $taxonomy, $the_term ) {
+		$this->log_term( $the_term, $taxonomy, $this->events->delete );
+	}
+
+	/** Menu *********************************************************/
+
+	/**
+	 * Menu logger. Requires a menu ID
+	 *
+	 * @since 1.3.5
+	 * 
+	 * @param int $menu_id Menu ID
+	 * @param string $action Log message
+	 * @param string $desc Optional. Additional event description
+	 */
+	function log_menu( $menu_id, $action, $desc = '' ) {
+		$menu = wp_get_nav_menu_object( $menu_id );
+
+		$this->log( array(
+			'action' => $action,
+			'type'   => 'menu',
+			'name'   => $menu->name,
+			'id'     => $menu_id,
+			'desc'   => $desc
+		) );
+	}
 
 	/**
 	 * Log creating menus
 	 *
-	 * @todo Hookable into wp_create_nav_menu action.
+	 * Hooked into wp_create_nav_menu action.
 	 *
+	 * @since 1.3.5
+	 * 
 	 * @param int $menu_id Menu ID
 	 * @param array $menu_data Menu data
 	 */
 	public function menu_created( $menu_id, $menu_data ) {
-		// $this->log_menu();
+		$this->log_menu( $menu_id, $this->events->new );
+	}
+
+	/**
+	 * Setup global menu reference for menu update functions
+	 *
+	 * Hooked into check_admin_referer action called in wp-admin/nav-menus.php.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-update_menu
+	 * @param string $action Referer action
+	 * @param boolean $result User passes referer
+	 */
+	public function menu_update( $action, $result ) {
+		if ( ! $result || 'update-nav_menu' != $action ) 
+			return;
+
+		$GLOBALS['simple_history-update_menu'] = isset( $_REQUEST['menu'] ) ? (int) $_REQUEST['menu'] : 0;
 	}
 
 	/**
 	 * Log editing menus
 	 *
-	 * @todo Hookable into wp_update_nav_menu action.
+	 * Hooked into wp_update_nav_menu action.
 	 *
+	 * @since 1.3.5
+	 * 
 	 * @param int $menu_id Menu ID
 	 * @param array $menu_data Menu data
 	 */
-	public function menu_edited( $menu_id, $menu_data ) {
+	public function menu_edited( $menu_id, $menu_data = array() ) {
 		// Previous to this point passed through wp_update_term( $menu_id, 'nav_menu', $args )
+		$this->log_menu( $menu_id, $this->events->edit );
 	}
 
 	/**
-	 * Log creating menu items
-	 *
-	 * @todo Hookable into wp_update_nav_menu_item action.
-	 *
-	 * @todo Ensure logging auto-addition pages to nav menu
-	 * 
-	 * @param int $menu_id Menu ID
-	 * @param int $menu_item_db_id Menu item database ID
-	 * @param array $args Update arguments
-	 */
-	public function menu_item_created_or_edited( $menu_id, $menu_item_db_id, $args ) {
-		// Updating menu item runs wp_update_post(), creating does not.
-	}
-
-	/**
-	 * Log deleting menu items
-	 *
-	 * @todo Hookable into after_delete_post action.
-	 *
-	 * @global simple_history-delete_post_{$post_id}
-	 * @param int $post_id Menu item ID
-	 */
-	public function menu_item_deleted( $post_id ) {
-		$ref = 'simple_history-delete_post_'. $post_id;
-
-		// Check if global post reference exists
-		if ( ! isset( $GLOBALS[$ref] ) ) 
-			return;
-
-		// $this->log_menu_item( $GLOBALS[$ref], $this->events->delete ); ?
-		unset( $GLOBALS[$ref] );
-	}
-
-	/**
-	 * Log updating menu locations
+	 * Log editing menu locations
 	 *
 	 * Hooked into updated_option action called in set_theme_mod().
 	 *
@@ -606,7 +606,7 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param array $old Previous stickies
 	 * @param array $new New stickies
 	 */
-	public function menu_locations_updated( $action, $old, $new ) {
+	public function menu_locations_edited( $action, $old, $new ) {
 		$theme = get_option('stylesheet'); // Not to heavy on every action call?
 		if ( "theme_mods_$theme" != $action )
 			return;
@@ -637,16 +637,177 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	/**
 	 * Log deleting menus
 	 *
-	 * @todo Hookable into wp_delete_nav_menu action, but better to do it 
-	 * correctly with wp_delete_term( $menu_id, 'nav_menu' ).
+	 * Hooked into wp_delete_nav_menu action.
+	 *
+	 * @since 1.3.5
 	 * 
 	 * @param int $menu_id Menu ID
 	 */
 	public function menu_deleted( $menu_id ) {
-		// $this->log_menu();
+		$this->log_menu( $menu_id, $this->events->delete );
+	}
+
+	/**
+	 * Menu item logger. Requires a menu item ID or item setup object
+	 *
+	 * @since 1.3.5
+	 * 
+	 * @param int $menu_id Menu ID
+	 * @param string $action Log message
+	 * @param string $desc Optional. Additional event description
+	 */
+	function log_menu_item( $item, $menu_id, $action, $desc = '' ) {
+		if ( is_numeric( $item ) )
+			$item = wp_setup_nav_menu_item( get_post( $item ) );
+
+		// Find menu item menu ID
+		if ( empty( $menu_id ) ) {
+			$terms   = wp_get_object_terms( $item->db_id, 'nav_menu', array( 'fields' => 'ids' ) );
+			$menu_id = current( $terms );
+		}
+
+		// Setup log message like 'Menu "x" edited: nav menu item added'
+		$action = $this->events->edit .': '. sprintf( $action, _x('item', 'Navigation Menu Item', 'simple-history'), '"'. $item->title .'"' );
+
+		$this->log_menu( $menu_id, $action, $desc );
+	}
+
+	/**
+	 * Setup global item reference for {@link self::menu_item_updated()}
+	 *
+	 * Hooked into post_updated action.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-edit_menu_item
+	 * @param int $item_id Menu item ID
+	 * @param object $item_after Menu item after update
+	 * @param object $item_before Menu item before update
+	 */
+	public function menu_item_edited( $item_id, $item_after, $item_before ) {
+		if ( is_nav_menu_item( $item_id ) )
+			$GLOBALS['simple_history-edit_menu_item'] = $item_before;
+	}
+
+	/**
+	 * Log creating or editing menu items
+	 *
+	 * Hooked into wp_update_nav_menu_item action.
+	 *
+	 * NOTE: Auto-added pages run through this filter.
+	 *
+	 * @since 1.3.5
+	 * 
+	 * @todo Log item changes more exact. Now on every update items log as 'edited' 
+	 *        while mostly they are not. Real item changes are in update_post_meta 
+	 *        calls before this hook fires.
+	 *
+	 * @global simple_history-edit_menu_item
+	 * @param int $menu_id Menu ID
+	 * @param int $menu_item_db_id Menu item database ID
+	 * @param array $args Update arguments
+	 */
+	public function menu_item_updated( $menu_id, $menu_item_db_id, $args ) {
+		// Don't log drafted items
+		if ( 'draft' == get_post_status( $menu_item_db_id ) || 0 == $menu_id )
+			return;
+
+		// Build nav item setup from args
+		$item = array();
+		foreach ( $args as $key => $value ) {
+			$item_key = str_replace( '-', '_', substr( $key, 10 ) ); // Strip 'menu-item-' and change - into _
+
+			// Provide original title if empty
+			if ( 'title' == $item_key && empty( $value ) ) {
+				if ( 'taxonomy' == $args['menu-item-type'] )
+					$value = get_term_field( 'name', $args['menu-item-object-id'], $args['menu-item-object'], 'raw' );
+				elseif ( 'post_type' == $args['menu-item-type'] )
+					$value = get_the_title( $args['menu-item-object-id'] );
+			}
+
+			$item[$item_key] = $value;
+		}
+
+		// Item created
+		if ( isset( $GLOBALS['simple_history-edit_menu_item'] ) && 'draft' == $GLOBALS['simple_history-edit_menu_item']->post_status ) {
+			$action = $this->events->add;
+			unset( $GLOBALS['simple_history-edit_menu_item'] );
+		
+		// Item updated 
+		} else
+			$action = $this->events->edit;
+
+		$this->log_menu_item( (object) $item, $menu_id, $action, maybe_serialize( array_merge( $item, array( 'menu_id' => $menu_id ) ) ) );
+	}
+
+	/**
+	 * Setup global menu item reference for {@link self::menu_item_deleted()}
+	 *
+	 * Hooked into before_delete_post action.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-delete_menu_item
+	 * @param int $item_id Menu item ID
+	 */
+	public function menu_item_delete( $item_id ) {
+		$GLOBALS['simple_history-delete_menu_item'] = wp_setup_nav_menu_item( get_post( $item_id ) );
+	}
+
+	/**
+	 * Log deleting menu items
+	 *
+	 * Hooked into after_delete_post action.
+	 *
+	 * NOTE: Menu items get also deleted when their reference post
+	 * or taxonomy term is deleted from those respective places.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @global simple_history-update_menu
+	 * @global simple_history-delete_menu_item
+	 * @param int $item_id Menu item ID
+	 */
+	public function menu_item_deleted( $item_id ) {
+		// Only log on menu update, not on menu delete or reference object (post or term) delete
+		if ( ! isset( $GLOBALS['simple_history-update_menu'] ) )
+			return;
+
+		$this->log_menu_item( $GLOBALS['simple_history-delete_menu_item'], $GLOBALS['simple_history-update_menu'], _x('%1$s %2$s removed', 'Nav menu item deleted', 'simple-history') ); 
+		unset( $GLOBALS['simple_history-delete_menu_item'] );
 	}
 
 	/** Comment ******************************************************/
+
+	/**
+	 * Comment logger. Requires a comment ID or comment object
+	 * 
+	 * @since 1.3.5
+	 *
+	 * @param int|object $comment Comment ID or object from get_comment()
+	 * @param string $action Log message
+	 * @param string $desc Optional. Additional event description
+	 */
+	function log_comment( $comment, $action, $desc = '' ) {
+		if ( is_numeric( $comment ) )
+			$comment = get_comment( $comment );
+
+		// Provide action with comment author
+		if ( false !== strpos( $action, '%3$s' ) )
+			$action = sprintf( $action, '%1$s', '%2$s', $comment->comment_author );
+
+		// Set empty description to comment content
+		if ( empty( $desc ) )
+			$desc = $comment->comment_content; // Use raw or filter?
+
+		$this->log( array(
+			'action' => $action,
+			'type'   => 'comment',
+			'name'   => get_the_title( $comment->comment_post_ID ),
+			'id'     => $comment->comment_ID,
+			'desc'   => $desc
+		) );
+	}
 
 	/**
 	 * Log creating comments
@@ -757,11 +918,11 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 * @param int $comment_id Comment ID
 	 */
 	public function comment_deleted( $comment_id ) {
-		$ref = 'simple_history-delete_comment-'. $comment_id;
+		$global = 'simple_history-delete_comment-'. $comment_id;
 		
 		// Translators: 1. Type, 2. Post name, 3. Comment author
-		$this->log_comment( $GLOBALS[$ref], _x('%1$s by %3$s to %2$s deleted', 'Comment deleted', 'simple-history') );
-		unset( $GLOBALS[$ref] ); 
+		$this->log_comment( $GLOBALS[$global], _x('%1$s by %3$s to %2$s deleted', 'Comment deleted', 'simple-history') );
+		unset( $GLOBALS[$global] ); 
 	}
 
 	/** User *********************************************************/
@@ -872,6 +1033,25 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	/** Settings *****************************************************/
 
 	/**
+	 * Settings page logger.
+	 * 
+	 * @since 1.3.5
+	 *
+	 * @param array $page Settings page identifier => Settings page title
+	 * @param string $desc Optional. Additional event description
+	 */
+	function log_settings( $page, $desc = '' ) {
+		$this->log( array(
+			// Translators: 1. Type, 2. Name
+			'action' => __('Settings page %2$s updated', 'simple-history'),
+			'type'   => 'settings',
+			'name'   => current( $page ),
+			'id'     => key( $page ),
+			'desc'   => $desc
+		) );
+	}
+
+	/**
 	 * Log saving settings pages
 	 * 
 	 * Hooked in option_page_capability_$page filter called on wp-admin/options.php.
@@ -922,6 +1102,33 @@ class Simple_History_Module_Core extends Simple_History_Module {
 
 	/** Plugin *******************************************************/
 	
+	/**
+	 * Plugin logger. Requires a plugin data array or plugin file id
+	 * 
+	 * @since 1.3.5
+	 *
+	 * @todo Use file id as object ID
+	 *
+	 * @param string|array|object $plugin Plugin file id or data array or data object
+	 * @param string $action Log message
+	 * @param string $desc Optional. Additional event description
+	 */
+	function log_plugin( $plugin, $action, $desc = '' ) {
+		if ( is_string( $plugin ) )
+			$plugin = get_plugin_data( WP_PLUGIN_DIR .'/'. $plugin );
+
+		if ( ! is_object( $plugin ) )
+			$plugin = (object) $plugin;
+
+		$this->log( array(
+			'action' => $action,
+			'type'   => 'plugin',
+			'name'   => $plugin->Name,
+			'id'     => sanitize_title( $plugin->Name ), // Prefer file id
+			'desc'   => $desc
+		) );
+	}
+
 	/**
 	 * Log installing plugins by download or upload 
 	 * 
@@ -1019,10 +1226,10 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		if ( isset( $plugin['plugin'] ) ) {
 			$plugin = get_plugin_data( WP_PLUGIN_DIR .'/'. $plugin['plugin'] );
 			if ( isset( $GLOBALS['simple_history-plugin_update_version'] ) && $previous = $GLOBALS['simple_history-plugin_update_version'] ) {
-				$this->log_plugin( $plugin, sprintf( $this->events->update_to_version_from, '%1$s', '%2$s', $previous, $plugin['Version'] ) );
+				$this->log_plugin( $plugin, sprintf( $this->events->update_from_version, '%1$s', '%2$s', $previous, $plugin['Version'] ) );
 				unset( $GLOBALS['simple_history-plugin_update_version'] );
 			} else
-				$this->log_plugin( $plugin, sprintf( $this->events->update_to_version,      '%1$s', '%2$s', $plugin['Version'] ) );
+				$this->log_plugin( $plugin, sprintf( $this->events->update_to_version,   '%1$s', '%2$s', $plugin['Version'] ) );
 		}
 
 		return $return;
@@ -1111,6 +1318,28 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	}
 
 	/** Theme ********************************************************/
+
+	/**
+	 * Theme logger. Requires a WP_Theme object or theme template id
+	 * 
+	 * @since 1.3.5
+	 *
+	 * @param string|WP_Theme $theme Theme file id or object from wp_get_theme()
+	 * @param string $action Log message
+	 * @param string $desc Optional. Additional event description
+	 */
+	function log_theme( $theme, $action, $desc = '' ) {
+		if ( is_string( $theme ) )
+			$theme = wp_get_theme( $theme );
+
+		$this->log( array(
+			'action' => $action,
+			'type'   => 'theme',
+			'name'   => $theme->Name,
+			'id'     => $theme->Template,
+			'desc'   => $desc
+		) );
+	}
 
 	/**
 	 * Log installing themes by download or upload
@@ -1205,10 +1434,10 @@ class Simple_History_Module_Core extends Simple_History_Module {
 		if ( isset( $theme['theme'] ) ) {
 			$theme = wp_get_theme( $theme['theme'] );
 			if ( isset( $GLOBALS['simple_history-theme_update_version'] ) && $previous = $GLOBALS['simple_history-theme_update_version'] ) {
-				$this->log_theme( $theme, sprintf( $this->events->update_to_version_from, '%1$s', '%2$s', $previous, $theme->Version ) );
+				$this->log_theme( $theme, sprintf( $this->events->update_from_version, '%1$s', '%2$s', $previous, $theme->Version ) );
 				unset( $GLOBALS['simple_history-theme_update_version'] );	
 			} else
-				$this->log_theme( $theme, sprintf( $this->events->update_to_version,      '%1$s', '%2$s', $theme->Version ) );
+				$this->log_theme( $theme, sprintf( $this->events->update_to_version,   '%1$s', '%2$s', $theme->Version ) );
 		}
 
 		return $return;
@@ -1267,9 +1496,9 @@ class Simple_History_Module_Core extends Simple_History_Module {
 	 */
 	public function core_updated( $wp_version ) {
 		if ( $GLOBALS['wp_version'] != $wp_version )
-			$action = sprintf( $this->events->update_to_version_from, '%1$s', '%2$s', $GLOBALS['wp_version'], $wp_version );
+			$action = sprintf( $this->events->update_from_version, '%1$s', '%2$s', $GLOBALS['wp_version'], $wp_version );
 		else
-			$action = sprintf( $this->events->update_to_version,      '%1$s', '%2$s', $wp_version );
+			$action = sprintf( $this->events->update_to_version,   '%1$s', '%2$s', $wp_version );
 
 		$this->log( array(
 			'action' => $action,

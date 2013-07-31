@@ -115,6 +115,7 @@ class Simple_History_Module {
 		$events = array( 
 			// Translators: 1. Type, 2. Name
 			'new'     => __('%1$s %2$s created',          'simple-history'),
+			'add'     => __('%1$s %2$s added',            'simple-history'),
 			'edit'    => __('%1$s %2$s edited',           'simple-history'),
 			'delete'  => __('%1$s %2$s deleted',          'simple-history'),
 			'spam'    => __('%1$s %2$s marked as spam',   'simple-history'),
@@ -348,15 +349,16 @@ class Simple_History_Module {
 	 * 
 	 * @param string $message Test message
 	 */
-	function log_test( $message ) {
+	function log_test( $message, $desc = '' ) {
 		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) 
 			return;
 
 		$this->log( array(
 			'action' => '%1$s: '. $message,
 			'type'   => 'test',
-			'name'   => '', // Empty, internal counter?
-			'id'     => 'test'
+			'name'   => '', // Empty or internal counter?
+			'id'     => 0, // Empty or internal counter?
+			'desc'   => $desc
 		) );
 	}
 }
