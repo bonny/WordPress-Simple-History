@@ -597,13 +597,13 @@ function simple_history_add($args) {
 
 	$args = wp_parse_args( $args, $defaults );
 
-	$action = mysql_real_escape_string($args["action"]);
-	$object_type = mysql_real_escape_string($args["object_type"]);
-	$object_subtype = mysql_real_escape_string($args["object_subtype"]);
-	$object_id = mysql_real_escape_string($args["object_id"]);
-	$object_name = mysql_real_escape_string($args["object_name"]);
+	$action = esc_sql( $args["action"] );
+	$object_type = esc_sql( $args["object_type"] );
+	$object_subtype = esc_sql( $args["object_subtype"] );
+	$object_id = esc_sql( $args["object_id"] );
+	$object_name = esc_sql( $args["object_name"] );
 	$user_id = $args["user_id"];
-	$description = mysql_real_escape_string($args["description"]);
+	$description = esc_sql( $args["description"] );
 
 	global $wpdb;
 	$tableprefix = $wpdb->prefix;
@@ -1079,10 +1079,10 @@ function simple_history_get_items_array($args = "") {
 			$filter_type = $simple_history_type_to_show;
 		}
 		if ($filter_type) {
-			$where .= " AND lower(object_type) = '" . $wpdb->escape(strtolower($filter_type)) . "' ";		
+			$where .= " AND lower(object_type) = '" . esc_sql( strtolower($filter_type) ) . "' ";		
 		}
 		if ($filter_subtype) {
-			$where .= " AND lower(object_subtype) = '" . $wpdb->escape(strtolower($filter_subtype)) . "' ";
+			$where .= " AND lower(object_subtype) = '" . esc_sql( strtolower($filter_subtype) ) . "' ";
 		}
 	}
 	if ($simple_history_user_to_show) {
