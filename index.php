@@ -1098,7 +1098,7 @@ function simple_history_get_items_array($args = "") {
 	$tableprefix = $wpdb->prefix;
 
 	$sql = "SELECT * FROM {$tableprefix}simple_history $where ORDER BY date DESC, id DESC ";
-        $sql .= "LIMIT " . ($args['page']+1) * $args['items'] . ',' . $args['items'];
+        $sql .= "LIMIT " . ($args['page'] * $args['items']) . ',' . $args['items'];
         $sql .= ';';
 	#sf_d($args);
 	#echo "\n$sql\n";
