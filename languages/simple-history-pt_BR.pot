@@ -1,0 +1,704 @@
+# Copyright (C) 2013 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Tradução\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/simple-history\n"
+"POT-Creation-Date: 2013-05-22 13:16:18+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2013-12-12 09:40-0300\n"
+"Last-Translator: Tiago <webtiagodias@gmail.com>\n"
+"Language-Team: X6Web <suporte@x6web.com>\n"
+"X-Generator: Poedit 1.5.7\n"
+"Language: Português\n"
+
+#: index.php:88 index.php:105
+msgid "added"
+msgstr "adicionado"
+
+#: index.php:89
+msgid "approved"
+msgstr "aprovado"
+
+#: index.php:90
+msgid "unapproved"
+msgstr "não aprovado"
+
+#: index.php:91 simple-history-extender/class.simple-history-extend.php:92
+msgid "marked as spam"
+msgstr "marcado como spam"
+
+#: index.php:92 simple-history-extender/class.simple-history-extend.php:94
+msgid "trashed"
+msgstr "lixeira"
+
+#: index.php:93 simple-history-extender/class.simple-history-extend.php:95
+msgid "untrashed"
+msgstr "remover da lixeira"
+
+#: index.php:94 simple-history-extender/class.simple-history-extend.php:89
+msgid "created"
+msgstr "criado"
+
+#: index.php:95 simple-history-extender/class.simple-history-extend.php:91
+msgid "deleted"
+msgstr "excluída"
+
+#: index.php:96 simple-history-extender/class.simple-history-extend.php:239
+msgid "updated"
+msgstr "atualizado"
+
+#: index.php:97
+msgid "nav_menu_item"
+msgstr "nav_menu_item"
+
+#: index.php:98 index.php:1770
+msgid "attachment"
+msgstr "acessório"
+
+#: index.php:99 index.php:1851
+msgid "user"
+msgstr "Usuário"
+
+#: index.php:100
+msgid "settings page"
+msgstr "página de configurações"
+
+#: index.php:101 simple-history-extender/class.simple-history-extend.php:90
+msgid "edited"
+msgstr "editado"
+
+#: index.php:102
+msgid "comment"
+msgstr "comentário"
+
+#: index.php:103
+msgid "logged in"
+msgstr "logado"
+
+#: index.php:104
+msgid "logged out"
+msgstr "desconectou"
+
+#: index.php:106
+msgid "modified"
+msgstr "modificado"
+
+#: index.php:107
+msgid "upgraded it\\'s database"
+msgstr "atualizou seu banco de dados"
+
+#: index.php:108
+msgid "plugin"
+msgstr "plugin"
+
+#: index.php:121 index.php:283 index.php:1078
+msgid "History"
+msgstr "Histórico"
+
+#: index.php:181
+msgid "WordPress %1$s"
+msgstr "WordPress %1$s"
+
+#: index.php:194 index.php:299
+msgid "Donate"
+msgstr "Doar"
+
+#: index.php:269 index.php:290
+msgid "Simple History Settings"
+msgstr "Configurações Simple History"
+
+#: index.php:295
+msgid "Show Simple History"
+msgstr "Exibir Simple History"
+
+#: index.php:296
+msgid "Number of items per page"
+msgstr "Número de itens por página"
+
+#: index.php:297 index.php:2024
+msgid "RSS feed"
+msgstr "RSS feed"
+
+#: index.php:298
+msgid "Clear log"
+msgstr "Limpar Log"
+
+#: index.php:315
+msgid "failed to log in because they entered the wrong password"
+msgstr "não conseguiu entrar porque digitou a senha errada"
+
+#: index.php:391 index.php:450
+msgid "History for %s"
+msgstr "Histórico para %s"
+
+#: index.php:392 index.php:451
+msgid "WordPress History for %s"
+msgstr "WordPress Histórico para %s"
+
+#: index.php:415
+msgid "By %s"
+msgstr "por %s"
+
+#: index.php:419
+msgid "%d occasions"
+msgstr "%d ocasiões"
+
+#: index.php:454
+msgid "Wrong RSS secret"
+msgstr "Errado RSS segredo"
+
+#: index.php:455
+msgid "Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed."
+msgstr "Seu segredo para alimentação RSS RSS História Simples é errado. Por favor, veja as configurações do WordPress para o link atual para o feed RSS."
+
+#: index.php:534 index.php:1448
+msgid "One item"
+msgid_plural "%1$d items"
+msgstr[0] "Um item"
+
+#: index.php:597
+msgid "on the dashboard"
+msgstr "no painel de instrumentos"
+
+#: index.php:602
+msgid "as a page under the dashboard menu"
+msgstr "como uma página no menu do painel"
+
+#: index.php:617
+msgid "Cleared database"
+msgstr "Banco de Dados Limpado"
+
+#: index.php:625
+msgid "Items in the database are automatically removed after 60 days."
+msgstr "Os itens no banco de dados são automaticamente removidos após 60 dias."
+
+#: index.php:627
+msgid "Clear it now."
+msgstr "Limpe-o agora."
+
+#: index.php:641
+msgid ""
+"\n"
+"\t\t\tPlease\n"
+"\t\t\t<a href=\"http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=settingpage&utm_campaign=simplehistory\">\n"
+"\t\t\tdonate\n"
+"\t\t\t</a> to support the development of this plugin and to keep it free.\n"
+"\t\t\tThanks!\n"
+"\t\t\t"
+msgstr ""
+"\n"
+"\t\t\Por Favor\n"
+"\t\t\t<a href=\"http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=settingpage&utm_campaign=simplehistory\">\n"
+"\t\t\tdoar\n"
+"\t\t\t</a> para apoiar o desenvolvimento deste plugin e para mantê-lo livre.\n"
+"\t\t\Obrigado!\n"
+"\t\t\t"
+
+#: index.php:675
+msgid "Created new secret RSS address"
+msgstr "Criado novo endereço RSS segredo"
+
+#: index.php:686
+msgid "This is a secret RSS feed for Simple History. Only share the link with people you trust"
+msgstr "Este é um feed RSS segredo para a Simple History. Só compartilhar o link com as pessoas que você confia"
+
+#: index.php:689
+msgid "You can <a href='%s'>generate a new address</a> for the RSS feed. This is useful if you think that the address has fallen into the wrong hands."
+msgstr "Você pode <a href='%s'> gerar um novo endereço </ a> para o feed RSS. Isto é útil se você acha que o endereço tenha caído em mãos erradas."
+
+#: index.php:740 index.php:756 index.php:788
+msgid "From %1$s on %2$s"
+msgstr "De %1$s em %2$s"
+
+#: index.php:1195
+msgid "All types"
+msgstr "Todos os tipos"
+
+#: index.php:1356 index.php:1360
+msgid "By all users"
+msgstr "Por todos os usuários"
+
+#: index.php:1414
+msgid "Search"
+msgstr "Pesquisa"
+
+#: index.php:1452
+msgid "Go to the first page"
+msgstr "Ir para a primeira página"
+
+#: index.php:1453
+msgid "Go to the previous page"
+msgstr "Vá para a página anterior"
+
+#: index.php:1454
+msgid "Current page"
+msgstr "Página atual"
+
+#: index.php:1455
+msgid "of"
+msgstr "de"
+
+#: index.php:1456
+msgid "Go to the next page"
+msgstr "Ir para a próxima página"
+
+#: index.php:1457
+msgid "Go to the last page"
+msgstr "Ir para a última página"
+
+#: index.php:1724
+msgid "Unknown or deleted user"
+msgstr "Usuário desconhecido ou excluído"
+
+#: index.php:1819
+msgid "File name:"
+msgstr "O nome do arquivo:"
+
+#: index.php:1820
+msgid "File size:"
+msgstr "O tamanho do arquivo:"
+
+#: index.php:1822
+msgid "Dimensions:"
+msgstr "Dimensões:"
+
+#: index.php:1823
+msgid "Length:"
+msgstr "Comprimento:"
+
+#: index.php:1894 simple-history-extender/simple-history-extender.php:274
+msgid "activated"
+msgstr "ativado"
+
+#: index.php:1897 simple-history-extender/simple-history-extender.php:274
+msgid "deactivated"
+msgstr "desativado"
+
+#: index.php:1900
+msgid "enabled"
+msgstr "ativado"
+
+#: index.php:1903
+msgid "disabled"
+msgstr "desabilitado"
+
+#: index.php:1919
+msgid "<span class=\"when\">%1$s ago</span> by %2$s"
+msgstr "<span class=\"when\">%1$s atrás</span> by %2$s"
+
+#: index.php:1921
+msgid "%s at %s"
+msgstr "%s em %s"
+
+#: index.php:1933 index.php:1981
+msgid "Details"
+msgstr "Detalhes"
+
+#: index.php:1957
+msgid "+ 1 occasion"
+msgstr "+ 1 vez"
+
+#: index.php:1960
+msgid "+ %d occasions"
+msgstr "+ %d ocasiões"
+
+#: index.php:1974
+msgid "%s ago (%s at %s)"
+msgstr "%s atrás (%s em %s)"
+
+#: index.php:2017
+msgid "Show 5 more"
+msgstr "Mostrar mais 5"
+
+#: index.php:2018
+msgid "Show 15 more"
+msgstr "Mostrar mais 15"
+
+#: index.php:2019
+msgid "Show 50 more"
+msgstr "Mostrar mais 50"
+
+#: index.php:2020
+msgid "Show 100 more"
+msgstr "Mostrar mais 100"
+
+#: index.php:2023
+msgid "No matching items found."
+msgstr "Não há itens correspondentes encontrado."
+
+#: index.php:2026
+msgid "Show"
+msgstr "Exibir"
+
+#: index.php:2032
+msgid "Loading..."
+msgstr "Carregando..."
+
+#: index.php:2051
+msgid "No history items found."
+msgstr "Nenhum item de história encontrados."
+
+#: index.php:2052
+msgid "Please note that Simple History only records things that happen after this plugin have been installed."
+msgstr "Por favor, note que a história simples só grava coisas que acontecem depois de este plugin foram instalados."
+
+#: index.php:2065
+msgid "General Settings"
+msgstr "Configurações Gerais"
+
+#: index.php:2066
+msgid "Writing Settings"
+msgstr "Configurações de Escrita"
+
+#: index.php:2067
+msgid "Reading Settings"
+msgstr "Configurações de Leitura"
+
+#: index.php:2068
+msgid "Discussion Settings"
+msgstr "Configurações de Discussão"
+
+#: index.php:2069
+msgid "Media Settings"
+msgstr "Configurações de Mídia"
+
+#: index.php:2070
+msgid "Privacy Settings"
+msgstr "Configurações de privacidade"
+
+#: index.php:2086
+msgid "Permalink Settings"
+msgstr "Configurações de Link permanente"
+
+#: simple-history-extender/class.simple-history-extend.php:68
+msgid "Log events for the %s plugin."
+msgstr "Log de ​​eventos para o plugin %s."
+
+#: simple-history-extender/class.simple-history-extend.php:69
+msgid "Log events for %s."
+msgstr "Logs de Eventos para %s."
+
+#: simple-history-extender/class.simple-history-extend.php:93
+msgid "unmarked as spam"
+msgstr "não marcado como spam"
+
+#: simple-history-extender/class.simple-history-extend.php:96
+msgid "submitted"
+msgstr "submetidas"
+
+#: simple-history-extender/class.simple-history-extend.php:150
+msgid "The %s module logs the following events:"
+msgstr "O módulo %s registra os seguintes eventos:"
+
+#: simple-history-extender/class.simple-history-extend.php:165
+msgid "The %s module does not support the following events:"
+msgstr "O módulo %s não suporta os seguintes eventos:"
+
+#: simple-history-extender/class.simple-history-extend.php:263
+msgid "User"
+msgstr "Usuario"
+
+#: simple-history-extender/modules/bbpress.php:28
+msgid "BBPress"
+msgstr "BBPress"
+
+#: simple-history-extender/modules/bbpress.php:32
+msgid "Creating, editing and deleting a forum, topic, reply."
+msgstr "A criação, edição e exclusão de um fórum, o tópico, respondeu."
+
+#: simple-history-extender/modules/bbpress.php:33
+msgid "Setting the type of a forum to category or forum."
+msgstr "Definir o tipo de um fórum para a categoria ou fórum."
+
+#: simple-history-extender/modules/bbpress.php:34
+msgid "Setting the status of a forum, topic to open or closed."
+msgstr "A definição do status de um fórum, o tópico para abrir ou fechar."
+
+#: simple-history-extender/modules/bbpress.php:35
+msgid "Setting the forum visibility to public, private or hidden."
+msgstr "Definir a visibilidade fórum para público, privado ou oculto."
+
+#: simple-history-extender/modules/bbpress.php:36
+msgid "Trashing and untrashing a forum, topic, reply."
+msgstr "Trashing e não estragar um fórum, o tópico, a resposta."
+
+#: simple-history-extender/modules/bbpress.php:37
+msgid "Marking and unmarking a topic, reply as spam."
+msgstr "Marcação e desmarcar um tópico, responder como spam."
+
+#: simple-history-extender/modules/bbpress.php:38
+msgid "Marking and unmarking a topic as sticky."
+msgstr "Marcação e desmarcar um tópico tão pegajoso."
+
+#: simple-history-extender/modules/bbpress.php:39
+msgid "Merging and splitting a topic."
+msgstr "Mesclando e dividindo um tópico."
+
+#: simple-history-extender/modules/bbpress.php:40
+msgid "Updating, merging and deleting a topic tag."
+msgstr "Atualizando, fusão e exclusão de uma tag tópico."
+
+#: simple-history-extender/modules/bbpress.php:41
+msgid "A user (un)favoriting and (un)subscribing to a topic."
+msgstr "Um usuario em farito e desassociação de um tópico."
+
+#: simple-history-extender/modules/bbpress.php:42
+msgid "A user saving his/her profile."
+msgstr "Um usuário salvar sua / seu perfil."
+
+#: simple-history-extender/modules/bbpress.php:53
+msgid "closed"
+msgstr "fechado"
+
+#: simple-history-extender/modules/bbpress.php:54
+msgid "opened"
+msgstr "abriu"
+
+#: simple-history-extender/modules/bbpress.php:55
+msgid "marked as sticky"
+msgstr "marcado como pegajoso"
+
+#: simple-history-extender/modules/bbpress.php:56
+msgid "marked as super sticky"
+msgstr "marcado como super pegajosa"
+
+#: simple-history-extender/modules/bbpress.php:57
+msgid "unmarked as sticky"
+msgstr "não marcado como sticky"
+
+#: simple-history-extender/modules/bbpress.php:58
+msgid "set to category type"
+msgstr "definir o tipo de categoria"
+
+#: simple-history-extender/modules/bbpress.php:59
+msgid "set to forum type"
+msgstr "definir o tipo de fórum"
+
+#: simple-history-extender/modules/bbpress.php:60
+msgid "set to public"
+msgstr "definido como público"
+
+#: simple-history-extender/modules/bbpress.php:61
+msgid "set to private"
+msgstr "definido como privado"
+
+#: simple-history-extender/modules/bbpress.php:62
+msgid "set to hidden"
+msgstr "definido para escondido"
+
+#: simple-history-extender/modules/bbpress.php:63
+msgid "in forum %s merged into %s"
+msgstr "no fórum %s fundidos em %s"
+
+#: simple-history-extender/modules/bbpress.php:64
+msgid "in forum %s split from reply %s by %s into %s in forum %s"
+msgstr "no fórum %s divisão de resposta %s por %s em %s em %s fórum"
+
+#: simple-history-extender/modules/bbpress.php:131
+msgid "Forum"
+msgstr "Forum"
+
+#: simple-history-extender/modules/bbpress.php:141
+msgid "Topic"
+msgstr "Tópico"
+
+#: simple-history-extender/modules/bbpress.php:150
+msgid "Topic Tag"
+msgstr "Tag Tópico"
+
+#: simple-history-extender/modules/bbpress.php:161
+msgid "by %s"
+msgstr "por %s"
+
+#: simple-history-extender/modules/bbpress.php:162
+msgid "Reply"
+msgstr "Responder"
+
+#: simple-history-extender/modules/bbpress.php:174
+msgid "as child of %s"
+msgstr "como filho de %s"
+
+#: simple-history-extender/modules/bbpress.php:235
+#: simple-history-extender/modules/bbpress.php:245
+msgid "in forum %s"
+msgstr "no fórum %s"
+
+#: simple-history-extender/modules/bbpress.php:358
+msgid "favorited"
+msgstr "favorito"
+
+#: simple-history-extender/modules/bbpress.php:362
+msgid "unfavorited"
+msgstr "não favorito"
+
+#: simple-history-extender/modules/bbpress.php:366
+msgid "subscribed"
+msgstr "subscrito"
+
+#: simple-history-extender/modules/bbpress.php:370
+msgid "unsubscribed"
+msgstr "não inscrito"
+
+#: simple-history-extender/modules/bbpress.php:374
+msgid "profile updated"
+msgstr "perfil atualizado"
+
+#: simple-history-extender/modules/bbpress.php:378
+msgid "registered"
+msgstr "registrado"
+
+#: simple-history-extender/modules/bbpress.php:390
+msgid "changed forum role to %s"
+msgstr "papel fórum alterado para %s"
+
+#: simple-history-extender/modules/bbpress.php:390
+msgid "none"
+msgstr "nenhum"
+
+#: simple-history-extender/modules/gravityforms.php:28
+msgid "Gravity Forms"
+msgstr "Gravity Forms"
+
+#: simple-history-extender/modules/gravityforms.php:32
+msgid "Creating, editing and deleting a form."
+msgstr "A criação, edição e exclusão de um formulário."
+
+#: simple-history-extender/modules/gravityforms.php:33
+msgid "Deleting a field from an existing form."
+msgstr "A exclusão de um campo de um formulário existente."
+
+#: simple-history-extender/modules/gravityforms.php:34
+msgid "Submitting, editing and deleting an entry."
+msgstr "Submissão, edição e exclusão de uma entrada."
+
+#: simple-history-extender/modules/gravityforms.php:35
+msgid "Changing the status of an entry, including read/unread and star/unstar."
+msgstr "Alterar o estado de uma entrada, incluindo lido/não lido e estrela/remover estrela."
+
+#: simple-history-extender/modules/gravityforms.php:38
+msgid "Duplicating a form."
+msgstr "Duplicação de um formulário."
+
+#: simple-history-extender/modules/gravityforms.php:39
+msgid "Setting a form to active/inactive."
+msgstr "A definição de um formulário para ativo / inativo."
+
+#: simple-history-extender/modules/gravityforms.php:48
+msgid "starred"
+msgstr "estrelou"
+
+#: simple-history-extender/modules/gravityforms.php:49
+msgid "unstarred"
+msgstr "sem estrela"
+
+#: simple-history-extender/modules/gravityforms.php:50
+msgid "marked as read"
+msgstr "marcada como lida"
+
+#: simple-history-extender/modules/gravityforms.php:51
+msgid "marked as unread"
+msgstr "marcado como não lido"
+
+#: simple-history-extender/modules/gravityforms.php:110
+msgid "from %s"
+msgstr "de %s"
+
+#: simple-history-extender/modules/gravityforms.php:112
+msgid "from unknown"
+msgstr "de desconhecido"
+
+#: simple-history-extender/modules/gravityforms.php:120
+msgid "Form"
+msgstr "Forma"
+
+#: simple-history-extender/modules/gravityforms.php:129
+msgid "Form entry"
+msgstr "Inscrição"
+
+#: simple-history-extender/modules/gravityforms.php:150
+msgid "without entries deleted"
+msgstr "sem entradas suprimidas"
+
+#: simple-history-extender/modules/gravityforms.php:151
+msgid "with %d entries deleted"
+msgstr "com %d entradas excluídos"
+
+#: simple-history-extender/modules/gravityforms.php:160
+msgid "field %s deleted"
+msgstr "campo %s apagado"
+
+#: simple-history-extender/modules/gravityforms.php:201
+msgid "restored"
+msgstr "restaurado"
+
+#: simple-history-extender/modules/gravityforms.php:206
+msgid "changed status"
+msgstr "status alterado"
+
+#: simple-history-extender/modules/widgets.php:25
+msgid "Widgets"
+msgstr "Widgets"
+
+#: simple-history-extender/modules/widgets.php:27
+msgid "Log events for the Widgets section of your WP install."
+msgstr "Log de ​​eventos para a seção Widgets do seu WP instalar."
+
+#: simple-history-extender/modules/widgets.php:30
+msgid "Adding, updating and deleting widgets in/from a sidebar."
+msgstr "Adicionar, atualizar e excluir os widgets em / de uma barra lateral."
+
+#: simple-history-extender/modules/widgets.php:33
+msgid "Moving widgets between sidebars."
+msgstr "Movendo-se entre os widgets laterais."
+
+#: simple-history-extender/modules/widgets.php:34
+msgid "Setting a widget to active/inactive."
+msgstr "Definindo um widget para ativo / inativo."
+
+#: simple-history-extender/modules/widgets.php:86
+msgid "removed from sidebar %s"
+msgstr "removido da barra lateral %s"
+
+#: simple-history-extender/modules/widgets.php:88
+msgid "updated in sidebar %s"
+msgstr "atualizada em barra lateral %s"
+
+#: simple-history-extender/modules/widgets.php:90
+msgid "added to sidebar %s"
+msgstr "adicionado para a sidebar %s"
+
+#: simple-history-extender/modules/widgets.php:95
+msgid "Widget"
+msgstr "Widget"
+
+#: simple-history-extender/simple-history-extender.php:139
+msgid "Settings"
+msgstr "Configurações"
+
+#: simple-history-extender/simple-history-extender.php:162
+msgid "The Simple History Extender plugin was deactivated because the Simple History plugin was not found installed or active."
+msgstr "O simples plugin History Extender foi desativada porque a Simple History plugin não foi encontrada instalado ou ativo."
+
+#: simple-history-extender/simple-history-extender.php:163
+msgid "The Simple History Extender plugin was deactivated."
+msgstr "O plugin Simple History Extender foi desativado."
+
+#: simple-history-extender/simple-history-extender.php:167
+msgid "Return"
+msgstr "Retorno"
+
+#: simple-history-extender/simple-history-extender.php:226
+msgid "Simple History Extender Modules"
+msgstr "Simple History Extender Modulos"
+
+#: simple-history-extender/simple-history-extender.php:236
+msgid "Activate or deactivate the events you want to log. Read the Help tab if you want to know which actions are supported and which aren't."
+msgstr "Ativar ou desativar os eventos que você deseja registrar. Leia o guia Ajuda se você quer saber quais ações são suportadas e quais não são."
+
+#: simple-history-extender/simple-history-extender.php:275
+msgid "Simple History Extender Module"
+msgstr "Simple History Extender Modulo"
+
