@@ -2,9 +2,9 @@
 Contributors: eskapism, MarsApril, Offereins
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog
-Requires at least: 3.5.1
-Tested up to: 3.5.1
-Stable tag: 1.3.4
+Requires at least: 3.8.0
+Tested up to: 3.8.1
+Stable tag: 1.3.5
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -175,11 +175,12 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 
 == Changelog ==
 
-= 1.3.x =
+= 1.3.5 =
 - Added a reload-button at top. Click it to reload the history. No need to refresh page no more!
 - Fixed items being reloaded when just clicking the dropdown (not having selected anything yet)
 - Fixed bug with keyboard navigation
 - Added Portuguese translation by [X6Web](http://x6web.com)
+- Use less SQL queries
 
 = 1.3.4 =
 - Changed the way post types show in the dropdown. Now uses plural names + not prefixed with main post type. Looks better I think. Thank to Hassan for the suggestion!
