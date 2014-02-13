@@ -384,16 +384,36 @@ ol.simple-history,
 	visibility: visible;
 }
 
-.button.simple-fields-reload {
+.simple-fields-reload {
+	-webkit-appearance: none;
+	background: #f3f3f3;
+	background-image: -webkit-gradient(linear, 0 100%, 0 0, from(#fff), to(#f3f3f3));
+	background-image: -webkit-linear-gradient(#fff, #f3f3f3);
+	background-image: -moz-linear-gradient(#fff, #f3f3f3);
+	background-image: -o-linear-gradient(#fff, #f3f3f3);
+	background-image: linear-gradient(#fff, #f3f3f3);
+	border: 1px solid #bbb;
+	-webkit-border-radius: 3px;
+	    	border-radius: 3px;
+	-webkit-box-shadow: inset 0 1px 0 #fff;
+			box-shadow: inset 0 1px 0 #fff;
+	display: inline-block;
+	padding: 5px 6px;
+	text-indent: -9999px;
 	margin-right: 1em;
+	vertical-align: middle;
+}
+.simple-fields-reload:hover {
+	background-color: #e4e4e4;
+	border-color: #999;
 }
 
 .simple-fields-reload span {
-	background: transparent url(./img/ui-icons_888888_256x240.png) no-repeat -64px -78px;
+	background: transparent url(./img/ui-icons_888888_256x240.png) no-repeat -64px -81px;
 	width: 16px;
 	height: 16px;
 	display: block;
-	text-indent: -999px;
+	text-indent: -9999px;
 	direction: ltr;	
 	border: 0;
 }
