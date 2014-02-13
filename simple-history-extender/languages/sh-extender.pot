@@ -1,0 +1,396 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple History Extender\n"
+"POT-Creation-Date: 2012-11-26 12:31+0100\n"
+"PO-Revision-Date: 2012-11-26 12:32+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../simple-history-extender.php:161
+msgid "Settings"
+msgstr ""
+
+#: ../simple-history-extender.php:183
+#, php-format
+msgid ""
+"The Simple History Extender plugin was deactivated because the Simple "
+"History plugin was not found installed or active.<br/><br/><a href=\"%s"
+"\">Return</a>."
+msgstr ""
+
+#: ../simple-history-extender.php:184
+#, php-format
+msgid ""
+"The Simple History Extender plugin was deactivated.<br/><br/><a href=\"%s"
+"\">Return</a>."
+msgstr ""
+
+#: ../simple-history-extender.php:213
+msgid "Simple History Extender Modules"
+msgstr ""
+
+#: ../simple-history-extender.php:223
+msgid ""
+"Activate or deactivate the events you want to log. Read the Help tab if you "
+"want to know which actions are supported and which aren't."
+msgstr ""
+
+#: ../simple-history-extender.php:255
+msgid "activated"
+msgstr ""
+
+#: ../simple-history-extender.php:255
+msgid "deactivated"
+msgstr ""
+
+#: ../simple-history-extender.php:256
+msgid "Simple History Extender Module"
+msgstr ""
+
+#: ../class.sh-extend.php:68
+#, php-format
+msgid "Log events for the %s plugin."
+msgstr ""
+
+#: ../class.sh-extend.php:69
+#, php-format
+msgid "Log events for %s."
+msgstr ""
+
+#: ../class.sh-extend.php:89
+msgid "created"
+msgstr ""
+
+#: ../class.sh-extend.php:90
+msgid "edited"
+msgstr ""
+
+#: ../class.sh-extend.php:91
+msgid "deleted"
+msgstr ""
+
+#: ../class.sh-extend.php:92
+msgid "marked as spam"
+msgstr ""
+
+#: ../class.sh-extend.php:93
+msgid "unmarked as spam"
+msgstr ""
+
+#: ../class.sh-extend.php:94
+msgid "trashed"
+msgstr ""
+
+#: ../class.sh-extend.php:95
+msgid "untrashed"
+msgstr ""
+
+#: ../class.sh-extend.php:96
+msgid "submitted"
+msgstr ""
+
+#: ../class.sh-extend.php:150
+#, php-format
+msgid "The %s module logs the following events:"
+msgstr ""
+
+#: ../class.sh-extend.php:157
+#, php-format
+msgid "The %s module does not support the following events:"
+msgstr ""
+
+#: ../class.sh-extend.php:226
+msgid "updated"
+msgstr ""
+
+#: ../modules/gravityforms.php:28
+msgid "Gravity Forms"
+msgstr ""
+
+#: ../modules/gravityforms.php:32
+msgid "Creating, editing and deleting a form."
+msgstr ""
+
+#: ../modules/gravityforms.php:33
+msgid "Deleting a field from an existing form."
+msgstr ""
+
+#: ../modules/gravityforms.php:34
+msgid "Submitting, editing and deleting an entry."
+msgstr ""
+
+#: ../modules/gravityforms.php:35
+msgid "Changing the status of an entry, including read/unread and star/unstar."
+msgstr ""
+
+#: ../modules/gravityforms.php:38
+msgid "Duplicating a form."
+msgstr ""
+
+#: ../modules/gravityforms.php:39
+msgid "Setting a form to active/inactive."
+msgstr ""
+
+#: ../modules/gravityforms.php:48
+msgid "starred"
+msgstr ""
+
+#: ../modules/gravityforms.php:49
+msgid "unstarred"
+msgstr ""
+
+#: ../modules/gravityforms.php:50
+msgid "marked as read"
+msgstr ""
+
+#: ../modules/gravityforms.php:51
+msgid "marked as unread"
+msgstr ""
+
+#: ../modules/gravityforms.php:110
+#, php-format
+msgid "from %s"
+msgstr ""
+
+#: ../modules/gravityforms.php:112
+msgid "from unknown"
+msgstr ""
+
+#: ../modules/gravityforms.php:120
+msgid "Form"
+msgstr ""
+
+#: ../modules/gravityforms.php:129
+msgid "Form entry"
+msgstr ""
+
+#: ../modules/gravityforms.php:150
+msgid "without entries deleted"
+msgstr ""
+
+#: ../modules/gravityforms.php:151
+#, php-format
+msgid "with %d entries deleted"
+msgstr ""
+
+#: ../modules/gravityforms.php:160
+#, php-format
+msgid "field %s deleted"
+msgstr ""
+
+#: ../modules/gravityforms.php:201
+msgid "restored"
+msgstr ""
+
+#: ../modules/gravityforms.php:206
+msgid "changed status"
+msgstr ""
+
+#: ../modules/widgets.php:25
+msgid "Widgets"
+msgstr ""
+
+#: ../modules/widgets.php:27
+msgid "Log events for the Widgets section of your WP install."
+msgstr ""
+
+#: ../modules/widgets.php:30
+msgid "Adding, updating and deleting widgets in/from a sidebar."
+msgstr ""
+
+#: ../modules/widgets.php:33
+msgid "Moving widgets between sidebars."
+msgstr ""
+
+#: ../modules/widgets.php:34
+msgid "Setting a widget to active/inactive."
+msgstr ""
+
+#: ../modules/widgets.php:86
+#, php-format
+msgid "removed from sidebar %s"
+msgstr ""
+
+#: ../modules/widgets.php:88
+#, php-format
+msgid "updated in sidebar %s"
+msgstr ""
+
+#: ../modules/widgets.php:90
+#, php-format
+msgid "added to sidebar %s"
+msgstr ""
+
+#: ../modules/widgets.php:95
+msgid "Widget"
+msgstr ""
+
+#: ../modules/bbpress.php:28
+msgid "BBPress"
+msgstr ""
+
+#: ../modules/bbpress.php:32
+msgid "Creating, editing and deleting a forum, topic, reply."
+msgstr ""
+
+#: ../modules/bbpress.php:33
+msgid "Setting the type of a forum to category or forum."
+msgstr ""
+
+#: ../modules/bbpress.php:34
+msgid "Setting the status of a forum, topic to open or closed."
+msgstr ""
+
+#: ../modules/bbpress.php:35
+msgid "Setting the forum visibility to public, private or hidden."
+msgstr ""
+
+#: ../modules/bbpress.php:36
+msgid "Trashing and untrashing a forum, topic, reply."
+msgstr ""
+
+#: ../modules/bbpress.php:37
+msgid "Marking and unmarking a topic, reply as spam."
+msgstr ""
+
+#: ../modules/bbpress.php:38
+msgid "Marking and unmarking a topic as sticky."
+msgstr ""
+
+#: ../modules/bbpress.php:39
+msgid "Merging and splitting a topic."
+msgstr ""
+
+#: ../modules/bbpress.php:40
+msgid "Updating, merging and deleting a topic tag."
+msgstr ""
+
+#: ../modules/bbpress.php:41
+msgid "A user (un)favoriting and (un)subscribing to a topic."
+msgstr ""
+
+#: ../modules/bbpress.php:42
+msgid "A user saving his/her profile."
+msgstr ""
+
+#: ../modules/bbpress.php:53
+msgid "closed"
+msgstr ""
+
+#: ../modules/bbpress.php:54
+msgid "opened"
+msgstr ""
+
+#: ../modules/bbpress.php:55
+msgid "marked as sticky"
+msgstr ""
+
+#: ../modules/bbpress.php:56
+msgid "marked as super sticky"
+msgstr ""
+
+#: ../modules/bbpress.php:57
+msgid "unmarked as sticky"
+msgstr ""
+
+#: ../modules/bbpress.php:58
+msgid "set to category type"
+msgstr ""
+
+#: ../modules/bbpress.php:59
+msgid "set to forum type"
+msgstr ""
+
+#: ../modules/bbpress.php:60
+msgid "set to public"
+msgstr ""
+
+#: ../modules/bbpress.php:61
+msgid "set to private"
+msgstr ""
+
+#: ../modules/bbpress.php:62
+msgid "set to hidden"
+msgstr ""
+
+#: ../modules/bbpress.php:63
+#, php-format
+msgid "in forum %s merged into %s"
+msgstr ""
+
+#: ../modules/bbpress.php:64
+#, php-format
+msgid "in forum %s split from reply %s by %s into %s in forum %s"
+msgstr ""
+
+#: ../modules/bbpress.php:131
+msgid "Forum"
+msgstr ""
+
+#: ../modules/bbpress.php:141
+msgid "Topic"
+msgstr ""
+
+#: ../modules/bbpress.php:150
+msgid "Topic Tag"
+msgstr ""
+
+#: ../modules/bbpress.php:161
+#, php-format
+msgid "by %s"
+msgstr ""
+
+#: ../modules/bbpress.php:162
+msgid "Reply"
+msgstr ""
+
+#: ../modules/bbpress.php:173
+msgid "User"
+msgstr ""
+
+#: ../modules/bbpress.php:185
+#, php-format
+msgid "as child of %s"
+msgstr ""
+
+#: ../modules/bbpress.php:246 ../modules/bbpress.php:256
+#, php-format
+msgid "in forum %s"
+msgstr ""
+
+#: ../modules/bbpress.php:369
+msgid "favorited"
+msgstr ""
+
+#: ../modules/bbpress.php:373
+msgid "unfavorited"
+msgstr ""
+
+#: ../modules/bbpress.php:377
+msgid "subscribed"
+msgstr ""
+
+#: ../modules/bbpress.php:381
+msgid "unsubscribed"
+msgstr ""
+
+#: ../modules/bbpress.php:385
+msgid "profile updated"
+msgstr ""
+
+#: ../modules/bbpress.php:389
+msgid "registered"
+msgstr ""
+
+#: ../modules/bbpress.php:397
+#, php-format
+msgid "changed forum role to %s"
+msgstr ""
