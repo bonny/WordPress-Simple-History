@@ -418,7 +418,8 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 				die();
 			}
 
-			echo '<?xml version="1.0"?>';
+			header ("Content-Type:text/xml");
+			echo '<?xml version="1.0" encoding="UTF-8"?>';
 			$self_link = simple_history_get_rss_address();
 	
 			if ($rss_secret_option === $rss_secret_get) {
