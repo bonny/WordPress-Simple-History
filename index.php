@@ -3,7 +3,7 @@
 Plugin Name: Simple History
 Plugin URI: http://eskapism.se/code-playground/simple-history/
 Description: Get a log/history/audit log/version history of the changes made by users in WordPress.
-Version: 1.3.5
+Version: 1.3.6
 Author: Pär Thernström
 Author URI: http://eskapism.se/
 License: GPL2
@@ -27,7 +27,7 @@ License: GPL2
 
 load_plugin_textdomain('simple-history', false, "/simple-history/languages");
 
-define( "SIMPLE_HISTORY_VERSION", "1.3.5");
+define( "SIMPLE_HISTORY_VERSION", "1.3.6");
 define( "SIMPLE_HISTORY_NAME", "Simple History");
 
 // Find the plugin directory URL
@@ -1802,11 +1802,16 @@ function simple_history_print_history($args = null) {
 					$attachment_mime = get_post_mime_type( $object_id );
 					$attachment_url = wp_get_attachment_url( $object_id );
 
+                                        // Check that file exists. It may not due to local dev vs remove dev etc.
+                                        $file_exists = file_exists($attachment_file);
+
 					// Get attachment thumbnail. 60 x 60 is the same size as the media overview uses
 					// Is thumbnail of object if image, is wp icon if not
 					$attachment_image_src = wp_get_attachment_image_src($object_id, array(60, 60), true);					
-					if ($attachment_image_src) {
+                                        if ($attachment_image_src && $file_exists) {
 						$object_image_out .= "<a class='simple-history-attachment-thumbnail' href='$edit_link'><img src='{$attachment_image_src[0]}' alt='Attachment icon' width='{$attachment_image_src[1]}' height='{$attachment_image_src[2]}' /></a>";
+                                        } else {
+                                                $object_image_out .= "<a class='simple-history-attachment-thumbnail' href='$edit_link'></a>";
 					}
 					
 					// Begin adding nice to have meta info about to attachment (name, size, mime, etc.)					
@@ -1816,9 +1821,20 @@ function simple_history_print_history($args = null) {
 
 					// Get size in human readable format. Code snippet from media.php
 					$sizes = array( 'KB', 'MB', 'GB' );
-					$attachment_filesize = filesize( $attachment_file );
-					for ( $u = -1; $attachment_filesize > 1024 && $u < count( $sizes ) - 1; $u++ ) {
-						$attachment_filesize /= 1024;
+
+                                        $attachment_filesize = "";
+                                        if ( $file_exists ) {
+                                                $attachment_filesize = filesize( $attachment_file );
+                                                for ( $u = -1; $attachment_filesize > 1024 && $u < count( $sizes ) - 1; $u++ ) {
+                                                        $attachment_filesize /= 1024;
+                                                }
+                                        }
+
+                                        if (empty($attachment_filesize)) {
+                                                $str_attachment_size = "<p>" . __("File size: Unknown ", "simple-history") . "</p>";
+                                        } else {
+                                                $size_unit = ($u == -1) ? __("bytes", "simple-history") : $sizes[$u];
+                                                $str_attachment_size = sprintf('<p>%1$s %2$s %3$s</p>', __("File size:", "simple-history"), round( $attachment_filesize, 0 ), $size_unit );
 					}
 
 					// File type
@@ -1835,10 +1851,8 @@ function simple_history_print_history($args = null) {
 					}
 
 					// Generate string with metainfo
-					$size_unit = ($u == -1) ? __("bytes", "simple-history") : $sizes[$u];
-					$object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File name:"), esc_html( basename( $attachment_file ) ) );;
-					$object_image_out .= sprintf('<p>%1$s %2$s %3$s</p>', __("File size:", "simple-history"), round( $attachment_filesize, 0 ), $size_unit );
-					// $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File type:"), $file_type_out );
+                                        $object_image_out .= $str_attachment_size;
+                                        $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("File type:"), $file_type_out );
 					if ( ! empty( $media_dims ) ) $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Dimensions:"), $media_dims );					
 					if ( ! empty( $attachment_metadata["length_formatted"] ) ) $object_image_out .= sprintf('<p>%1$s %2$s</p>', __("Length:"), $attachment_metadata["length_formatted"] );					
 										
