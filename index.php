@@ -27,15 +27,11 @@ License: GPL2
 
 require_once ( dirname(__FILE__) . "/old-functions.php");
 require_once ( dirname(__FILE__) . "/old-stuff.php");
-#require_once ( dirname(__FILE__) . "/SimpleLogger.php");
-#require_once ( dirname(__FILE__) . "/SimpleLegacyLogger.php");
-
-// http://geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
-load_plugin_textdomain('simple-history', false, "/simple-history/languages");
-
 
 define( "SIMPLE_HISTORY_VERSION", "2");
+
 define( "SIMPLE_HISTORY_NAME", "Simple History");
+
 // For example http://playground-root.ep/assets/plugins/simple-history/
 define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 
@@ -48,21 +44,24 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 	 /**
 	  * Plugin folder name and filename, for example 'Simple-History/index.php'
 	  */
-	 var $plugin_foldername_and_filename;
+	 private $plugin_foldername_and_filename;
 
 	 /**
-	  * Capability required to view the history
+	  * Capability required to view the history log
 	  */
-	 var $view_history_capability;
+	 private $view_history_capability;
 	 
 	 /**
 	  * Capability required to view and edit the settings page
 	  */
-	 var $view_settings_capability;
+	 private $view_settings_capability;
 
 	 function __construct() {
 	 
+	 	$this->setupVariables();
 	 	$this->loadLoggers();
+		
+		add_action('init', array($this, 'loadPluginTextdomain'));
 
 		add_action( 'admin_init', array($this, 'admin_init') );
 		add_action( 'init', array($this, 'init') );
@@ -71,17 +70,46 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 		add_filter( 'plugin_action_links_simple-history/index.php', array($this, "plugin_action_links"), 10, 4);
 
+		$this->add_types_for_translation();
+
+		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
+
+	}
+
+	/**
+	 * Load language files.
+	 * Uses the method described here:
+	 * http://geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
+	 * 
+	 * @since 2.0
+	 */
+	public function loadPluginTextdomain() {
+
+		load_textdomain( 'bbpress', WP_LANG_DIR . '/bbpress/bbpress-' . get_locale() . '.mo' );
+		load_plugin_textdomain( 'bbpress', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
+		$domain = 'simple-history';
+		
+		// The "plugin_locale" filter is also used in load_plugin_textdomain()
+		$locale = apply_filters('plugin_locale', get_locale(), $domain);
+
+		load_textdomain($domain, WP_LANG_DIR.'/simple-history/'.$domain.'-'.$locale.'.mo');
+		load_plugin_textdomain($domain, FALSE, dirname(plugin_basename(__FILE__)).'/languages/');
+
+	}
+
+	/**
+	 * Setup variables and things
+	 */
+	function setupVariables() {
+
 		$this->plugin_foldername_and_filename = basename(dirname(__FILE__)) . "/" . basename(__FILE__);
 		
 		$this->view_history_capability = "edit_pages";
 		$this->view_history_capability = apply_filters("simple_history_view_history_capability", $this->view_history_capability);
 
 		$this->view_settings_capability = "manage_options";
-		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
-		
-		$this->add_types_for_translation();
-
-		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
+		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);		
 
 	}
 
