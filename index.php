@@ -56,15 +56,20 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 	  */
 	 private $view_settings_capability;
 
+	 /**
+	  * Array with all instantiated loggers
+	  */
+	 private $instantiatedLoggers;
+
 	 function __construct() {
 	 
 	 	$this->setupVariables();
 	 	$this->loadLoggers();
-		
+	
 		add_action('init', array($this, 'loadPluginTextdomain'));
 
-		add_action( 'admin_init', array($this, 'admin_init') );
 		add_action( 'init', array($this, 'init') );
+		add_action( 'admin_init', array($this, 'admin_init') );
 		add_action( 'admin_menu', array($this, 'admin_menu') );
 		add_action( 'wp_dashboard_setup', array($this, 'wp_dashboard_setup') );
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
@@ -84,9 +89,6 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 	 * @since 2.0
 	 */
 	public function loadPluginTextdomain() {
-
-		load_textdomain( 'bbpress', WP_LANG_DIR . '/bbpress/bbpress-' . get_locale() . '.mo' );
-		load_plugin_textdomain( 'bbpress', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
 		$domain = 'simple-history';
 		
@@ -166,7 +168,11 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 
 		// Instantiate each logger
 		foreach ($arrLoggersToInstantiate as $oneLoggerName ) {
-			new $oneLoggerName();
+			
+			$this->instantiatedLoggers[] = array(
+				"name" => $oneLoggerName,
+				"instance" => new $oneLoggerName()
+			);
 		}
 
 	}
@@ -211,11 +217,17 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 		
 	}
 
+	/**
+	 * Maybe add a dashboard widget,
+	 * requires current user to have view history capability
+	 * and a setting to show dashboard to be set
+	 */
 	function wp_dashboard_setup() {
-		if (simple_history_setting_show_on_dashboard()) {
-			if (current_user_can($this->view_history_capability)) {
-				wp_add_dashboard_widget("simple_history_dashboard_widget", __("History", 'simple-history'), "simple_history_dashboard");
-			}
+		
+		if ( simple_history_setting_show_on_dashboard() && current_user_can($this->view_history_capability) ) {
+		
+			wp_add_dashboard_widget("simple_history_dashboard_widget", __("History", 'simple-history'), "simple_history_dashboard");
+			
 		}
 	}
 	

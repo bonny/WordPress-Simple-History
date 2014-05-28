@@ -761,14 +761,19 @@ function simple_history_purge_db() {
 
 }
 
-// widget on dashboard
+/**
+ * Output html for the dashboard widget
+ */
 function simple_history_dashboard() {
+
 	simple_history_purge_db();
+	
 	echo '<div class="wrap simple-history-wrap">';
 	simple_history_print_nav();
 	echo simple_history_print_history();
 	echo simple_history_get_pagination();
 	echo '</div>';
+
 }
 
 // own page under dashboard

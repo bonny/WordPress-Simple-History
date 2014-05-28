@@ -1,5 +1,46 @@
 <?php
 
+/*
+@TODO:
+
+In old code this was how we detected occasions:
+
+&& $one_row->action == $prev_row->action
+&& $one_row->object_type == $prev_row->object_type
+&& $one_row->object_type == $prev_row->object_type
+&& $one_row->object_subtype == $prev_row->object_subtype
+&& $one_row->user_id == $prev_row->user_id
+&& (
+		(!empty($one_row->object_id) && !empty($prev_row->object_id))
+		&& ($one_row->object_id == $prev_row->object_id)
+		|| ($one_row->object_name == $prev_row->object_name)
+)
+
+How should we do that in the new version?
+
+Common keys include:
+ - level (notice)
+ - logger (SimplePostsLogger)
+ - message (Post {postname} was updated by user {username})
+ - userID (13) @TODO: add this when saving
+
+Example: post edited: the same post, should be edited by the same user, with no other entried logged between
+Currently that can not be determined. Solution: each logger stores a "key" that determines if an
+event and another event can be considered the same. 
+
+For example posts: create a key that is a combination of:
+userID + postID + status changed
+
+Login attempts:
+loginUserEmail + status failed
+
+Logga 404-errors
+status404 + document URI
+
+
+
+*/
+
 /**
  * Helper function with same name as our class
  * Makes call like this possible:
@@ -10,6 +51,7 @@ function SimpleLogger() {
 }
 
 // Example usage
+SimpleLogger()->info("This is a message sent to the log")->withOccasionID("user" . 56423 . "edited" . "post" . 45346);
 #SimpleLogger()->info("This is a message sent to the log");
 #SimpleLogger()->info("User admin edited page 'About our company'");
 
@@ -32,8 +74,17 @@ class SimpleLogger
 	 * Will be saved in DB and used to associate each log row with its logger
 	 */
 	public $slug = "SimpleLogger";
+
+	/**
+	 * Name of tables to use. Will be prefixed with $wpdb->prefix before use.
+	 */
 	public $db_table = "simple_history";
 	public $db_table_contexts = "simple_history_contexts";
+
+	/**
+	 * ID of last inserted row. Used when chaining methods.
+	 */
+	private $lastInsertID = null;
 
 	public function __construct() {
 		
@@ -71,7 +122,7 @@ class SimpleLogger
 	public static function emergency($message, array $context = array())
 	{
 
-		$this->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
+		return $this->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 
 	}
 	
@@ -86,9 +137,8 @@ class SimpleLogger
 	 * @return null
 	 */
 	public static function alert($message, array $context = array())
-
 	{
-		$this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
+		return $this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
 		
 	}
 	
@@ -104,7 +154,7 @@ class SimpleLogger
 	public static function critical($message, array $context = array())
 	{
 
-		$this->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
+		return $this->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
 
 	}
 	
@@ -119,7 +169,7 @@ class SimpleLogger
 	public function error($message, array $context = array())
 	{
 
-		$this->log(SimpleLoggerLogLevels::ERROR, $message, $context);
+		return $this->log(SimpleLoggerLogLevels::ERROR, $message, $context);
 		
 	}
 	
@@ -136,7 +186,7 @@ class SimpleLogger
 	public function warning($message, array $context = array())
 	{
 		
-		$this->log(SimpleLoggerLogLevels::WARNING, $message, $context);
+		return $this->log(SimpleLoggerLogLevels::WARNING, $message, $context);
 
 	}
 	
@@ -150,7 +200,7 @@ class SimpleLogger
 	public function notice($message, array $context = array())
 	{
 
-		$this->log(SimpleLoggerLogLevels::NOTICE, $message, $context);
+		return $this->log(SimpleLoggerLogLevels::NOTICE, $message, $context);
 
 	}
 	
@@ -166,7 +216,7 @@ class SimpleLogger
 	public function info($message, array $context = array())
 	{
 
-		$this->log(SimpleLoggerLogLevels::INFO, $message, $context);
+		return $this->log(SimpleLoggerLogLevels::INFO, $message, $context);
 		
 	}
 	
@@ -180,7 +230,7 @@ class SimpleLogger
 	public function debug($message, array $context = array())
 	{
 
-		$this->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
+		return $this->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
 		
 	}
 	
@@ -217,32 +267,64 @@ class SimpleLogger
 
 		$result = $wpdb->insert( $db_table, $data );
 
-		// If unable to store log then just return
+		// Only save context if able to store row
 		if ( false === $result ) {
-			return;
-		}
 
-		$history_inserted_id = $wpdb->insert_id; 
+			$history_inserted_id = null;
 
-		// Add context
-		$db_table_contexts = $wpdb->prefix . $this->db_table_contexts;
-		$db_table_contexts = apply_filters("simple_logger_db_table_contexts", $db_table_contexts);
+		} else {
+		
+			$history_inserted_id = $wpdb->insert_id; 
 
-		if ( is_array($context) ) {
+			// Add context
+			$db_table_contexts = $wpdb->prefix . $this->db_table_contexts;
+			$db_table_contexts = apply_filters("simple_logger_db_table_contexts", $db_table_contexts);
 
-			foreach ($context as $key => $value) {
+			if ( is_array($context) ) {
 
-				$data = array(
-					"history_id" => $history_inserted_id,
-					"key" => $key,
-					"value" => $value,
-				);
+				foreach ($context as $key => $value) {
 
-				$result = $wpdb->insert( $db_table_contexts, $data );
+					$data = array(
+						"history_id" => $history_inserted_id,
+						"key" => $key,
+						"value" => $value,
+					);
+
+					$result = $wpdb->insert( $db_table_contexts, $data );
+
+				}
 
 			}
-
 		}
+		
+		$this->lastInsertID = $history_inserted_id;
+
+		// Return $this so we can chain methods
+		return $this;
+
+	} // log
+
+	/**
+	 * Store an occasion id for the last inserted log row
+	 */
+	public function withOccasionID($idString) {
+
+		// sf_d( $this->lastInsertID );
+		global $wpdb;
+		//  <?php $wpdb->update( $table, $data, $where, $format = null, $where_format = null ); 
+
+		$db_table = $wpdb->prefix . $this->db_table;
+		$db_table = apply_filters("simple_logger_db_table", $db_table);
+
+		$data = array(
+			"occasionID" => $idString
+		);
+
+		$where = array(
+			"id" => $this->lastInsertID
+		);
+
+		$wpdb->update($db_table, $data, $where);
 
 	}
 	
