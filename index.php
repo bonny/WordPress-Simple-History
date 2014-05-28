@@ -93,13 +93,13 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 		$loggersDir = trailingslashit(__DIR__) . "loggers/";
 
 		/**
-		 * The directory to load loggers from
+		 * Filter the directory to load loggers from
 		 *
 		 * @since 2.0
 		 *
 		 * @param string $loggersDir Full directory path
 		 */
-		$loggersDir = apply_filters("simple_history_loggers_dir", $loggersDir);
+		$loggersDir = apply_filters("simple_history/loggers_dir", $loggersDir);
 
 		$loggersFiles = glob( $loggersDir . "*.php");
 
@@ -107,7 +107,7 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 		require_once($loggersDir . "SimpleLogger.php");
 
 		/**
-		 * Array with absolute paths to files as returned by glob function.
+		 * Filter the array with absolute paths to files as returned by glob function.
 		 * Each file will be loaded and will be assumed to be a logger with a classname
 		 * the same as the filename.
 		 *
@@ -115,7 +115,7 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 		 *
 		 * @param array $loggersFiles Array with filenames
 		 */		
-		$loggersFiles = apply_filters("simple_history_loggers_files", $loggersFiles);
+		$loggersFiles = apply_filters("simple_history/loggers_files", $loggersFiles);
 		
 		$arrLoggersToInstantiate = array();
 
@@ -128,13 +128,13 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 		}
 
 		/**
-		 * Array with names of loggers to instantiate.
+		 * Filter the array with names of loggers to instantiate.
 		 *
 		 * @since 2.0
 		 *
 		 * @param array $arrLoggersToInstantiate Array with class names
 		 */		
-		$arrLoggersToInstantiate = apply_filters("simple_history_loggers_to_instantiate", $arrLoggersToInstantiate);
+		$arrLoggersToInstantiate = apply_filters("simple_history/loggers_to_instantiate", $arrLoggersToInstantiate);
 
 		// Instantiate each logger
 		foreach ($arrLoggersToInstantiate as $oneLoggerName ) {
