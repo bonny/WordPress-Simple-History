@@ -1,10 +1,14 @@
 <?php
 
-SimpleLogger::info("User {username} edited page {pagename}");
+// Example usage
+SimpleLogger::info("User admin edited page 'About our company'");
+
+// Example usage with context
 SimpleLogger::notice("User {username} edited page {pagename}", array("username" => "bonnyerden", "pagename" => "My test page"));
 
 /**
- * 
+ * A PSR-3 inspired logger class
+ * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md PSR-3 specification
  */
 class SimpleLogger
 {
@@ -165,15 +169,16 @@ class SimpleLogger
 		
 		global $wpdb;
 
+		/* Store date at utc or local time
+		 * anything is better than now() anyway!
+		 * WP seems to use the local time, so I will go with that too I think
+		 * GMT/UTC-time is: date_i18n($timezone_format, false, 'gmt')); 
+		 * local time is: date_i18n($timezone_format));
+		 */
+		$localtime = current_time("mysql");
+
 		$db_table = $wpdb->prefix . $this->db_table;
 		$db_table = apply_filters("simple_logger_db_table", $db_table);
-
-		// date, store at utc or local time
-		// anything is better than now() anyway!
-		// WP seems to use the local time, so I will go with that too I think
-		// GMT/UTC-time is: date_i18n($timezone_format, false, 'gmt')); 
-		// local time is: date_i18n($timezone_format));
-		$localtime = current_time("mysql");
 		
 		$data = array(
 			"logger" => $this->slug,
@@ -184,6 +189,7 @@ class SimpleLogger
 
 		$result = $wpdb->insert( $db_table, $data );
 
+		// If unable to store log then just return
 		if ( false === $result ) {
 			return;
 		}
@@ -209,11 +215,6 @@ class SimpleLogger
 			}
 
 		}
-
-		echo "\nlogger: $this->slug";
-		echo "\nlog level: $level";
-		echo "\nlog message: $message";
-		echo "\nlog context: " . print_r($context, true);
 
 	}
 	
