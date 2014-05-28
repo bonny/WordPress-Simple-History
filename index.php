@@ -28,6 +28,7 @@ License: GPL2
 require_once ( dirname(__FILE__) . "/old-functions.php");
 require_once ( dirname(__FILE__) . "/old-stuff.php");
 require_once ( dirname(__FILE__) . "/SimpleLogger.php");
+require_once ( dirname(__FILE__) . "/SimpleLegacyLogger.php");
 
 // http://geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
 load_plugin_textdomain('simple-history', false, "/simple-history/languages");

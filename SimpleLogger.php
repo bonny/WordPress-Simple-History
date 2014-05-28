@@ -1,13 +1,27 @@
 <?php
 
+/**
+ * Helper function with same name as our class
+ * Makes call like this possible:
+ * SimpleLogger()->info("This is a message sent to the log");
+ */
+function SimpleLogger() {
+	return new SimpleLogger();
+}
+
 // Example usage
-SimpleLogger::info("User admin edited page 'About our company'");
+SimpleLogger()->info("This is a message sent to the log");
+SimpleLogger()->info("User admin edited page 'About our company'");
 
 // Example usage with context
-SimpleLogger::notice("User {username} edited page {pagename}", array("username" => "bonnyerden", "pagename" => "My test page"));
+SimpleLogger()->notice("User {username} edited page {pagename}", array("username" => "bonnyerden", "pagename" => "My test page"));
 
 /**
  * A PSR-3 inspired logger class
+ * This class logs + formats logs for display in the Simple History GUI/Viewer
+ *
+ * Extend this class to make your own logger
+ *
  * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md PSR-3 specification
  */
 class SimpleLogger
@@ -26,6 +40,28 @@ class SimpleLogger
 	}
 
 	/**
+	 * Returns the plain text version of this entry
+	 * Used in for example CSV-exports.
+	 * Defaults to log message with context interpolated
+	 */
+	public function getLogRowPlainTextOutput($level, $message, array $context = array()) {
+
+	}
+
+	/**
+	 * Generate and return output for a row in the Simple History GUI
+	 * User, date, and plain text message is outputed automatically,
+	 * but extra info can be outputed here. Example: if a log is about an image, 
+	 * an thumbnail of the image can be outputed here.
+	 * See @TODO add link to site here for example/guidelines.
+	 *
+	 * @return string Formatted HTML
+	 */
+	public function getLogRowHTMLOutput($level, $message, array $context = array()) {
+
+	}
+
+	/**
 	 * System is unusable.
 	 *
 	 * @param string $message
@@ -35,8 +71,7 @@ class SimpleLogger
 	public static function emergency($message, array $context = array())
 	{
 
-		$Logger = new SimpleLogger();
-		$Logger->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
+		$this->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 
 	}
 	
@@ -53,8 +88,7 @@ class SimpleLogger
 	public static function alert($message, array $context = array())
 
 	{
-		$Logger = new SimpleLogger();
-		$Logger->log(SimpleLoggerLogLevels::ALERT, $message, $context);
+		$this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
 		
 	}
 	
@@ -70,8 +104,7 @@ class SimpleLogger
 	public static function critical($message, array $context = array())
 	{
 
-		$Logger = new SimpleLogger();
-		$Logger->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
+		$this->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
 
 	}
 	
@@ -86,8 +119,7 @@ class SimpleLogger
 	public function error($message, array $context = array())
 	{
 
-		$Logger = new SimpleLogger();
-		$Logger->log(SimpleLoggerLogLevels::ERROR, $message, $context);
+		$this->log(SimpleLoggerLogLevels::ERROR, $message, $context);
 		
 	}
 	
@@ -104,8 +136,7 @@ class SimpleLogger
 	public function warning($message, array $context = array())
 	{
 		
-		$Logger = new SimpleLogger();
-		$Logger->log(SimpleLoggerLogLevels::WARNING, $message, $context);
+		$this->log(SimpleLoggerLogLevels::WARNING, $message, $context);
 
 	}
 	
@@ -119,8 +150,7 @@ class SimpleLogger
 	public function notice($message, array $context = array())
 	{
 
-		$Logger = new SimpleLogger();
-		$Logger->log(SimpleLoggerLogLevels::NOTICE, $message, $context);
+		$this->log(SimpleLoggerLogLevels::NOTICE, $message, $context);
 
 	}
 	
@@ -136,8 +166,7 @@ class SimpleLogger
 	public function info($message, array $context = array())
 	{
 
-		$Logger = new SimpleLogger();
-		$Logger->log(SimpleLoggerLogLevels::INFO, $message, $context);
+		$this->log(SimpleLoggerLogLevels::INFO, $message, $context);
 		
 	}
 	
@@ -151,8 +180,7 @@ class SimpleLogger
 	public function debug($message, array $context = array())
 	{
 
-		$Logger = new SimpleLogger();
-		$Logger->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
+		$this->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
 		
 	}
 	
