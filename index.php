@@ -27,48 +27,48 @@ License: GPL2
 
 require_once ( dirname(__FILE__) . "/old-functions.php");
 require_once ( dirname(__FILE__) . "/old-stuff.php");
-require_once ( dirname(__FILE__) . "/SimpleLogger.php");
-require_once ( dirname(__FILE__) . "/SimpleLegacyLogger.php");
+#require_once ( dirname(__FILE__) . "/SimpleLogger.php");
+#require_once ( dirname(__FILE__) . "/SimpleLegacyLogger.php");
 
 // http://geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
 load_plugin_textdomain('simple-history', false, "/simple-history/languages");
 
+
 define( "SIMPLE_HISTORY_VERSION", "2");
 define( "SIMPLE_HISTORY_NAME", "Simple History");
+// For example http://playground-root.ep/assets/plugins/simple-history/
+define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 
-// Find the plugin directory URL
-$aa = __FILE__;
-if ( isset( $mu_plugin ) ) {
-	$aa = $mu_plugin;
-}
-if ( isset( $network_plugin ) ) {
-	$aa = $network_plugin;
-}
-if ( isset( $plugin ) ) {
-	$aa = $plugin;
-}
-
-$plugin_dir_url = plugin_dir_url(basename($aa)) . basename(dirname(__FILE__)) . '/';
-define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 
 /**
- * Let's begin on a class, since they rule so much more than functions.
+ * Simple History
  */ 
  class simple_history {
 	 
-	 var
-	 	$plugin_foldername_and_filename,
-	 	$view_history_capability,
-	 	$view_settings_capability
-	 	;
+	 /**
+	  * Plugin folder name and filename, for example 'Simple-History/index.php'
+	  */
+	 var $plugin_foldername_and_filename;
+
+	 /**
+	  * Capability required to view the history
+	  */
+	 var $view_history_capability;
+	 
+	 /**
+	  * Capability required to view and edit the settings page
+	  */
+	 var $view_settings_capability;
 
 	 function __construct() {
 	 
-		add_action( 'admin_init', 					array($this, 'admin_init') );
-		add_action( 'init', 						array($this, 'init') );
-		add_action( 'admin_menu', 					array($this, 'admin_menu') );
-		add_action( 'wp_dashboard_setup', 			array($this, 'wp_dashboard_setup') );
-		add_action( 'wp_ajax_simple_history_ajax',  array($this, 'ajax') );
+	 	$this->loadLoggers();
+
+		add_action( 'admin_init', array($this, 'admin_init') );
+		add_action( 'init', array($this, 'init') );
+		add_action( 'admin_menu', array($this, 'admin_menu') );
+		add_action( 'wp_dashboard_setup', array($this, 'wp_dashboard_setup') );
+		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 		add_filter( 'plugin_action_links_simple-history/index.php', array($this, "plugin_action_links"), 10, 4);
 
 		$this->plugin_foldername_and_filename = basename(dirname(__FILE__)) . "/" . basename(__FILE__);
@@ -81,8 +81,65 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		
 		$this->add_types_for_translation();
 
-		// Load Extender
 		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
+
+	}
+
+	/**
+	 * Load built in loggers
+	 */
+	private function loadLoggers() {
+		
+		$loggersDir = trailingslashit(__DIR__) . "loggers/";
+
+		/**
+		 * The directory to load loggers from
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $loggersDir Full directory path
+		 */
+		$loggersDir = apply_filters("simple_history_loggers_dir", $loggersDir);
+
+		$loggersFiles = glob( $loggersDir . "*.php");
+
+		// SimpleLogger.php must be loaded first
+		require_once($loggersDir . "SimpleLogger.php");
+
+		/**
+		 * Array with absolute paths to files as returned by glob function.
+		 * Each file will be loaded and will be assumed to be a logger with a classname
+		 * the same as the filename.
+		 *
+		 * @since 2.0
+		 *
+		 * @param array $loggersFiles Array with filenames
+		 */		
+		$loggersFiles = apply_filters("simple_history_loggers_files", $loggersFiles);
+		
+		$arrLoggersToInstantiate = array();
+
+		foreach ( $loggersFiles as $oneLoggerFile) {
+		
+			include_once($oneLoggerFile);
+
+			$arrLoggersToInstantiate[] = basename($oneLoggerFile, ".php");
+		
+		}
+
+		/**
+		 * Array with names of loggers to instantiate.
+		 *
+		 * @since 2.0
+		 *
+		 * @param array $arrLoggersToInstantiate Array with class names
+		 */		
+		$arrLoggersToInstantiate = apply_filters("simple_history_loggers_to_instantiate", $arrLoggersToInstantiate);
+
+		// Instantiate each logger
+		foreach ($arrLoggersToInstantiate as $oneLoggerName ) {
+			new $oneLoggerName();
+		}
 
 	}
 	
