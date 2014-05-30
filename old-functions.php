@@ -1229,3 +1229,9 @@ function simple_history_settings_field_clear_log() {
 	printf(' <a href="%2$s">%1$s</a>', __('Clear it now.', 'simple-history'), $update_link);
 }
 
+
+// WordPress Core updated
+function action_core_updated($wp_version) {
+	simple_history_add("action=updated&object_type=wordpress_core&object_id=wordpress_core&object_name=".sprintf(__('WordPress %1$s', 'simple-history'), $wp_version));
+}
+

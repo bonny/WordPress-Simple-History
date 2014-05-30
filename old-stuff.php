@@ -1,5 +1,84 @@
 <?php
 
+
+
+/*
+old actions and filters, to move into own loggers
+*/
+function old_logger_inits() {
+
+		/** called on init: */
+
+		// user login and logout
+		add_action("wp_login", "simple_history_wp_login");
+		add_action("wp_logout", "simple_history_wp_logout");
+
+		// user failed login attempt to username that exists
+		#$user = apply_filters('wp_authenticate_user', $user, $password);
+		add_action("wp_authenticate_user", "sh_log_wp_authenticate_user", 10, 2);
+
+		// user profile page modifications
+		add_action("delete_user", "simple_history_delete_user");
+		add_action("user_register", "simple_history_user_register");
+		add_action("profile_update", "simple_history_profile_update");
+	
+		// options
+		#add_action("updated_option", "simple_history_updated_option", 10, 3);
+		#add_action("updated_option", "simple_history_updated_option2", 10, 2);
+		#add_action("updated_option", "simple_history_updated_option3", 10, 1);
+		#add_action("update_option", "simple_history_update_option", 10, 3);
+	
+		// plugin
+		add_action("activated_plugin", "simple_history_activated_plugin");
+		add_action("deactivated_plugin", "simple_history_deactivated_plugin");
+
+
+
+		/** called on admin_init */
+		// posts						 
+		add_action("save_post", "simple_history_save_post");
+		add_action("transition_post_status", "simple_history_transition_post_status", 10, 3);
+		add_action("delete_post", "simple_history_delete_post");
+										 
+		// attachments/media			 
+		add_action("add_attachment", "simple_history_add_attachment");
+		add_action("edit_attachment", "simple_history_edit_attachment");
+		add_action("delete_attachment", "simple_history_delete_attachment");
+		
+		// comments
+		add_action("edit_comment", "simple_history_edit_comment");
+		add_action("delete_comment", "simple_history_delete_comment");
+		add_action("wp_set_comment_status", "simple_history_set_comment_status", 10, 2);
+
+		// settings (all built in except permalinks)
+		$arr_option_pages = array("general", "writing", "reading", "discussion", "media", "privacy");
+		foreach ($arr_option_pages as $one_option_page_name) {
+			$new_func = create_function('$capability', '
+					return simple_history_add_update_option_page($capability, "'.$one_option_page_name.'");
+				');
+			add_filter("option_page_capability_{$one_option_page_name}", $new_func);
+		}
+
+		// settings page for permalinks
+		add_action('check_admin_referer', "simple_history_add_update_option_page_permalinks", 10, 2);
+
+		// core update = wordpress updates
+		add_action( '_core_updated_successfully', array($this, "action_core_updated") );
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
 /**
  * Old loggers/hooks are here
  * All things here are to be moved into own SimpleLogger classes

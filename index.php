@@ -28,12 +28,10 @@ License: GPL2
 require_once ( dirname(__FILE__) . "/old-functions.php");
 require_once ( dirname(__FILE__) . "/old-stuff.php");
 
-define( "SIMPLE_HISTORY_VERSION", "2");
-
-define( "SIMPLE_HISTORY_NAME", "Simple History");
-
-// For example http://playground-root.ep/assets/plugins/simple-history/
-define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
+// when activating plugin: create tables
+// __FILE__ doesnt work for me because of soft linkes directories
+// @TODO: check with wp 3.9 that have symlink support
+register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_history_install' );
 
 
 /**
@@ -67,9 +65,10 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 	 	$this->loadLoggers();
 	
 		add_action('init', array($this, 'loadPluginTextdomain'));
+		add_action( 'init', array($this, 'checkForRSSFeedRequest') );
 
-		add_action( 'init', array($this, 'init') );
 		add_action( 'admin_init', array($this, 'admin_init') );
+
 		add_action( 'admin_menu', array($this, 'admin_menu') );
 		add_action( 'wp_dashboard_setup', array($this, 'wp_dashboard_setup') );
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
@@ -103,7 +102,14 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 	/**
 	 * Setup variables and things
 	 */
-	function setupVariables() {
+	public function setupVariables() {
+
+		define( "SIMPLE_HISTORY_VERSION", "2");
+
+		define( "SIMPLE_HISTORY_NAME", "Simple History");
+
+		// For example http://playground-root.ep/assets/plugins/simple-history/
+		define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 
 		$this->plugin_foldername_and_filename = basename(dirname(__FILE__)) . "/" . basename(__FILE__);
 		
@@ -235,36 +241,6 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 	// "admin_init is triggered before any other hook when a user access the admin area"
 	function admin_init() {
 
-		// posts						 
-		add_action("save_post", "simple_history_save_post");
-		add_action("transition_post_status", "simple_history_transition_post_status", 10, 3);
-		add_action("delete_post", "simple_history_delete_post");
-										 
-		// attachments/media			 
-		add_action("add_attachment", "simple_history_add_attachment");
-		add_action("edit_attachment", "simple_history_edit_attachment");
-		add_action("delete_attachment", "simple_history_delete_attachment");
-		
-		// comments
-		add_action("edit_comment", "simple_history_edit_comment");
-		add_action("delete_comment", "simple_history_delete_comment");
-		add_action("wp_set_comment_status", "simple_history_set_comment_status", 10, 2);
-
-		// settings (all built in except permalinks)
-		$arr_option_pages = array("general", "writing", "reading", "discussion", "media", "privacy");
-		foreach ($arr_option_pages as $one_option_page_name) {
-			$new_func = create_function('$capability', '
-					return simple_history_add_update_option_page($capability, "'.$one_option_page_name.'");
-				');
-			add_filter("option_page_capability_{$one_option_page_name}", $new_func);
-		}
-
-		// settings page for permalinks
-		add_action('check_admin_referer', "simple_history_add_update_option_page_permalinks", 10, 2);
-
-		// core update = wordpress updates
-		add_action( '_core_updated_successfully', array($this, "action_core_updated") );
-
 		// add donate link to plugin list page
 		add_action("plugin_row_meta", array($this, "action_plugin_row_meta"), 10, 2);
 
@@ -284,16 +260,12 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 		}
 	}
 
-	// WordPress Core updated
-	function action_core_updated($wp_version) {
-		simple_history_add("action=updated&object_type=wordpress_core&object_id=wordpress_core&object_name=".sprintf(__('WordPress %1$s', 'simple-history'), $wp_version));
-	}
-
 	function filter_option_page_capability($capability) {
 		return $capability;
 	}
 
-	// Add link to donate page. Note to self: does not work on dev install because of dir being trunk and not "simple-history"
+	// Add link to donate page. 
+	// Note to self: does not work on dev install because of dir being trunk and not "simple-history"
 	function action_plugin_row_meta($links, $file) {
 
 		if ($file == $this->plugin_foldername_and_filename) {
@@ -445,31 +417,8 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 	/**
 	 * Init for both public and admin
 	 */
-	function init() {
-	
-		// user login and logout
-		add_action("wp_login", "simple_history_wp_login");
-		add_action("wp_logout", "simple_history_wp_logout");
-
-		// user failed login attempt to username that exists
-		#$user = apply_filters('wp_authenticate_user', $user, $password);
-		add_action("wp_authenticate_user", "sh_log_wp_authenticate_user", 10, 2);
-
-		// user profile page modifications
-		add_action("delete_user", "simple_history_delete_user");
-		add_action("user_register", "simple_history_user_register");
-		add_action("profile_update", "simple_history_profile_update");
-	
-		// options
-		#add_action("updated_option", "simple_history_updated_option", 10, 3);
-		#add_action("updated_option", "simple_history_updated_option2", 10, 2);
-		#add_action("updated_option", "simple_history_updated_option3", 10, 1);
-		#add_action("update_option", "simple_history_update_option", 10, 3);
-	
-		// plugin
-		add_action("activated_plugin", "simple_history_activated_plugin");
-		add_action("deactivated_plugin", "simple_history_deactivated_plugin");
-	
+	function checkForRSSFeedRequest() {
+		
 		// check for RSS
 		// don't know if this is the right way to do this, but it seems to work!
 		if ( isset($_GET["simple_history_get_rss"]) ) {
@@ -658,16 +607,4 @@ define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
 
 // Boot up
 $simple_history = new simple_history;
-
-
-
-
-
-
-
-// when activating plugin: create tables
-// __FILE__ doesnt work for me because of soft linkes directories
-register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_history_install' );
-
-
 
