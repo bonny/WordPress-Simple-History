@@ -497,8 +497,9 @@ function simple_history_get_items_array($args = "") {
 	}
 
 	$tableprefix = $wpdb->prefix;
+	$simple_history_table = SimpleHistory::DBTABLE;
 
-	$sql = "SELECT * FROM {$tableprefix}simple_history $where ORDER BY date DESC, id DESC ";
+	$sql = "SELECT * FROM {$tableprefix}{$simple_history_table} $where ORDER BY date DESC, id DESC ";
 	#sf_d($args);
 	#echo "\n$sql\n";
 	$rows = $wpdb->get_results($sql);
@@ -620,7 +621,8 @@ function simple_history_get_items_array($args = "") {
 function simple_history_clear_log() {
 	global $wpdb;
 	$tableprefix = $wpdb->prefix;
-	$sql = "DELETE FROM {$tableprefix}simple_history";
+	$simple_history_table = SimpleHistory::DBTABLE;
+	$sql = "DELETE FROM {$tableprefix}{$simple_history_table}";
 	$wpdb->query($sql);
 }
 
@@ -753,7 +755,8 @@ function simple_history_purge_db() {
 	$days = 60;
 	$days = (int) apply_filters("simple_history_db_purge_days_interval", $days);
 
-	$sql = "DELETE FROM {$tableprefix}simple_history WHERE DATE_ADD(date, INTERVAL $days DAY) < now()";
+	$simple_history_table = SimpleHistory::DBTABLE;
+	$sql = "DELETE FROM {$tableprefix}{$simple_history_table} WHERE DATE_ADD(date, INTERVAL $days DAY) < now()";
 
 	if ($do_purge_history) {
 		$wpdb->query($sql);
@@ -806,54 +809,6 @@ if (!function_exists("bonny_d")) {
 	}
 }
 
-/*
-The theory behind the right way to do this. The proper way to handle an upgrade path is to only
-run an upgrade procedure when you need to. Ideally, you would store a “version” in your
-plugin’s database option, and then a version in the code. If they do not match, you
-would fire your upgrade procedure, and then set the database option to equal the version in 
-the code. This is how many plugins handle upgrades, and this is how core works as well.	
-*/
-
-// when installing plugin: create table
-function simple_history_install() {
-
-	global $wpdb;
-
-	$table_name = $wpdb->prefix . "simple_history";
-	#if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-
-		$sql = "CREATE TABLE " . $table_name . " (
-		  id int(10) NOT NULL AUTO_INCREMENT,
-		  date datetime NOT NULL,
-		  action varchar(255) NOT NULL COLLATE utf8_general_ci,
-		  object_type varchar(255) NOT NULL COLLATE utf8_general_ci,
-		  object_subtype VARCHAR(255) NOT NULL COLLATE utf8_general_ci,
-		  user_id int(10) NOT NULL,
-		  object_id int(10) NOT NULL,
-		  object_name varchar(255) NOT NULL COLLATE utf8_general_ci,
-		  action_description longtext,
-		  PRIMARY KEY  (id)
-		) CHARACTER SET=utf8;";
-
-		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-		dbDelta($sql);
-
-		// add ourself as a history item.
-		$plugin_name = urlencode(SIMPLE_HISTORY_NAME);
-	
-	#}
-
-	simple_history_add("action=activated&object_type=plugin&object_name=$plugin_name");
-
-	// also generate a rss secret, if it does not exist
-	if (!get_option("simple_history_rss_secret")) {
-		simple_history_update_rss_secret();
-	}
-	
-	update_option("simple_history_version", SIMPLE_HISTORY_VERSION);
-
-}
-
 /**
  * Output navigation at top with filters for type, users, and free text search input
  */
@@ -861,6 +816,7 @@ function simple_history_print_nav() {
 
 	global $wpdb;
 	$tableprefix = $wpdb->prefix;
+	$simple_history_table = SimpleHistory::DBTABLE;
 	
 	// fetch all types that are in the log
 	if (isset($_GET["simple_history_type_to_show"])) {
@@ -871,10 +827,11 @@ function simple_history_print_nav() {
 
 	// Get all object types and object subtypes
 	// order by the number of times they occur
+
 	$sql = "SELECT 
 				count(object_type) AS object_type_count,
 				object_type, object_subtype 
-			FROM {$tableprefix}simple_history 
+			FROM {$tableprefix}{$simple_history_table}
 			GROUP BY object_type, object_subtype
 			ORDER BY object_type_count DESC, object_type, object_subtype
 		";
@@ -1011,7 +968,8 @@ function simple_history_print_nav() {
 	}
 
 	// fetch all users that are in the log
-	$sql = "SELECT DISTINCT user_id FROM {$tableprefix}simple_history WHERE user_id <> 0";
+	$simple_history_table = SimpleHistory::DBTABLE;
+	$sql = "SELECT DISTINCT user_id FROM {$tableprefix}{$simple_history_table} WHERE user_id <> 0";
 	$arr_users_regular = $wpdb->get_results($sql);
 	foreach ($arr_users_regular as $one_user) {
 		$arr_users[$one_user->user_id] = array("user_id" => $one_user->user_id);

@@ -78,7 +78,7 @@ class SimpleLogger
 	/**
 	 * Name of tables to use. Will be prefixed with $wpdb->prefix before use.
 	 */
-	public $db_table = "simple_history";
+	public $db_table = SimpleHistory::DBTABLE;
 	public $db_table_contexts = "simple_history_contexts";
 
 	/**

@@ -28,51 +28,63 @@ License: GPL2
 require_once ( dirname(__FILE__) . "/old-functions.php");
 require_once ( dirname(__FILE__) . "/old-stuff.php");
 
-// when activating plugin: create tables
-// __FILE__ doesnt work for me because of soft linkes directories
-// @TODO: check with wp 3.9 that have symlink support
-register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_history_install' );
+/**
+ * Register function that is called when plugin is installed
+ * @TODO: check that this works with wp 3.9 that have symlink support
+ * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
+ */
+register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "onPluginActivate" ) );
 
 
 /**
- * Simple History
+ * Main class for Simple History
  */ 
- class simple_history {
+ class SimpleHistory {
 	 
-	 /**
-	  * Plugin folder name and filename, for example 'Simple-History/index.php'
-	  */
-	 private $plugin_foldername_and_filename;
-
-	 /**
-	  * Capability required to view the history log
-	  */
+	/**
+	 * Capability required to view the history log
+	 */
 	 private $view_history_capability;
 	 
-	 /**
-	  * Capability required to view and edit the settings page
-	  */
-	 private $view_settings_capability;
+	/**
+	 * Capability required to view and edit the settings page
+	 */
+	private $view_settings_capability;
 
-	 /**
-	  * Array with all instantiated loggers
-	  */
-	 private $instantiatedLoggers;
+	/**
+	 * Array with all instantiated loggers
+	 */
+	private $instantiatedLoggers;
 
-	 function __construct() {
-	 
-	 	$this->setupVariables();
-	 	$this->loadLoggers();
-	
-		add_action('init', array($this, 'loadPluginTextdomain'));
+	const NAME = "Simple History";
+	const VERSION = "2.0";
+	const DBTABLE = "simple_history";
+
+	function __construct() {
+
+		$this->setupVariables();
+		$this->loadLoggers();
+
+		add_action( 'init', array($this, 'loadPluginTextdomain') );
 		add_action( 'init', array($this, 'checkForRSSFeedRequest') );
 
-		add_action( 'admin_init', array($this, 'admin_init') );
+		add_action( 'admin_init', array($this, 'checkForUpgrade') );
+
+		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
+
+		add_action( 'plugin_row_meta', array($this, 'action_plugin_row_meta'), 10, 2);
+
+		add_action( 'admin_enqueue_scripts', array($this, 'admin_enqueue'));
+
+
+
+
+
+
 
 		add_action( 'admin_menu', array($this, 'admin_menu') );
 		add_action( 'wp_dashboard_setup', array($this, 'wp_dashboard_setup') );
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
-		add_filter( 'plugin_action_links_simple-history/index.php', array($this, "plugin_action_links"), 10, 4);
 
 		$this->add_types_for_translation();
 
@@ -104,14 +116,8 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 	 */
 	public function setupVariables() {
 
-		define( "SIMPLE_HISTORY_VERSION", "2");
-
-		define( "SIMPLE_HISTORY_NAME", "Simple History");
-
 		// For example http://playground-root.ep/assets/plugins/simple-history/
 		define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
-
-		$this->plugin_foldername_and_filename = basename(dirname(__FILE__)) . "/" . basename(__FILE__);
 		
 		$this->view_history_capability = "edit_pages";
 		$this->view_history_capability = apply_filters("simple_history_view_history_capability", $this->view_history_capability);
@@ -122,7 +128,8 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 	}
 
 	/**
-	 * Load built in loggers
+	 * Load built in loggers from all files in /loggers
+	 * and instantiates them
 	 */
 	private function loadLoggers() {
 		
@@ -184,8 +191,10 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 	}
 	
 	function get_pager_size() {
+
 		$pager_size = get_option("simple_history_pager_size", 5);
 		return $pager_size;
+
 	}
 	
 	/**
@@ -216,9 +225,20 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 		$dummy = __("plugin", "simple-history");
 	}
 
+	/**
+	 * Show a link to our settings page on the Plugins -> Installed Plugins screen
+	 */
 	function plugin_action_links($actions, $b, $c, $d) {
+		
+		// Only add link if user has the right to view the settings page
+		if ( ! current_user_can($this->view_settings_capability) ) {
+			return $actions;
+		}
+
 		$settings_page_url = menu_page_url("simple_history_settings_menu_slug", 0);
-		$actions[] = "<a href='$settings_page_url'>Settings</a>";
+		
+		$actions[] = "<a href='$settings_page_url'>" . __("Settings", "simple-history") . "</a>";
+
 		return $actions;
 		
 	}
@@ -237,66 +257,59 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 		}
 	}
 	
-	// stuff that happens in the admin
-	// "admin_init is triggered before any other hook when a user access the admin area"
-	function admin_init() {
-
-		// add donate link to plugin list page
-		add_action("plugin_row_meta", array($this, "action_plugin_row_meta"), 10, 2);
-
-		// check if database needs upgrade
-		$this->check_upgrade_stuff();
-
-		// add scripts and styles
-		add_action("admin_enqueue_scripts", array($this, "admin_enqueue"));
-										 
-	}
-
 	// enqueue styles and scripts, but only to our own pages
 	function admin_enqueue($hook) {
+		
 		if ( ($hook == "settings_page_simple_history_settings_menu_slug") || (simple_history_setting_show_on_dashboard() && $hook == "index.php") || (simple_history_setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
-			wp_enqueue_style( "simple_history_styles", SIMPLE_HISTORY_URL . "styles.css", false, SIMPLE_HISTORY_VERSION );	
-			wp_enqueue_script("simple_history", SIMPLE_HISTORY_URL . "scripts.js", array("jquery"), SIMPLE_HISTORY_VERSION);
+		
+			wp_enqueue_style( "simple_history_styles", SIMPLE_HISTORY_URL . "styles.css", false, SimpleHistory::VERSION );	
+			wp_enqueue_script("simple_history", SIMPLE_HISTORY_URL . "scripts.js", array("jquery"), SimpleHistory::VERSION);
+		
 		}
+
 	}
 
 	function filter_option_page_capability($capability) {
 		return $capability;
 	}
 
-	// Add link to donate page. 
-	// Note to self: does not work on dev install because of dir being trunk and not "simple-history"
+	/**
+	 * Add link to the donate page in the Plugins » Installed plugins screen
+	 * Called from filter 'plugin_row_meta'
+	 */
 	function action_plugin_row_meta($links, $file) {
 
-		if ($file == $this->plugin_foldername_and_filename) {
-			return array_merge(
+		if ($file == plugin_basename(__FILE__)) {
+
+			$links = array_merge(
 				$links,
 				array( sprintf( '<a href="http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=pluginpage&utm_campaign=simplehistory">%1$s</a>', __('Donate', "simple-history") ) )
 			);
+
 		}
+		
 		return $links;
 
 	}
 
 	
-	// check some things regarding update
-	function check_upgrade_stuff() {
+	/**
+	 * Check if plugin version have changed, i.e. has been upgraded
+	 * If upgrade is detected then maybe modify database and so on for that version
+	 */
+	function checkForUpgrade() {
 
 		global $wpdb;
 
 		$db_version = get_option("simple_history_db_version");
-		$table_name = $wpdb->prefix . "simple_history";
-		// $db_version = FALSE;
-		
-		if ( false === $db_version ) {
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 
-			// db fix has never been run
-			// user is on version 0.4 or earlier
-			// = database is not using utf-8
-			// so fix that
+		// If no db_version is set then this 
+		// is a version of Simple History < 0.4
+		// Fix database not using UTF-8
+		if ( false === $db_version ) {
 			
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-			#echo "begin upgrading database";
 			
 			// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
 			$sql = "CREATE TABLE " . $table_name . " (
@@ -320,28 +333,31 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 			$wpdb->query($sql);
 			
 			// Store this upgrade in ourself :)
-			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SIMPLE_HISTORY_NAME);
-
-			#echo "done upgrading database";
+			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SimpleHistory::NAME);
 			
-			update_option("simple_history_db_version", 1);
+			$db_version = 1;
+			update_option("simple_history_db_version", $db_version);
 
 		} // done pre db ver 1 things
 
-		// DB version is 1, upgrade to 2
+
+		// If db version is 1 then upgrade to 2
+		// Version 2 added the action_description column
 		if ( 1 == intval($db_version) ) {
 
 			// Add column for action description in non-translateable free text
 			$sql = "ALTER TABLE {$table_name} ADD COLUMN action_description longtext";
 			mysql_query($sql);
 
-			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SIMPLE_HISTORY_NAME . "&description=Database version is now version 2");
-			update_option("simple_history_db_version", 2);
+			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SimpleHistory::NAME . "&description=Database version is now version 2");
+
+			$db_version = 2;
+			update_option("simple_history_db_version", $db_version);
 
 		}
 
 		// Check that all options we use are set to their defaults, if they miss value
-		// Each option that is missing a value will make a sql cal otherwise = unnecessary
+		// Each option that is missing a value will make a sql call otherwise = unnecessary
 		$arr_options = array(
 			array(
 				"name" => "sh_extender_modules",
@@ -353,7 +369,7 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 			),
 			array(
 				"name" => "simple_history_show_on_dashboard",
-				"default_value" => 0
+				"default_value" => 1
 			)
 		);
 
@@ -367,18 +383,28 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 			}
 		}
 		
-	}
-							 
+	} // end checkForUpgrade
+	
+	/**
+	 * Output HTML for the settings page
+	 */		 
 	function settings_page() {
 		
 		?>
 		<div class="wrap">
+
 			<form method="post" action="options.php">
+			
 				<h2><?php _e("Simple History Settings", "simple-history") ?></h2>
+			
 				<?php do_settings_sections("simple_history_settings_menu_slug"); ?>
+
 				<?php settings_fields("simple_history_settings_group"); ?>
+
 				<?php submit_button(); ?>
+
 			</form>
+
 		</div>
 		<?php
 		
@@ -388,14 +414,14 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 	
 		// show as page?
 		if (simple_history_setting_show_as_page()) {
-			add_dashboard_page(SIMPLE_HISTORY_NAME, __("History", 'simple-history'), $this->view_history_capability, "simple_history_page", "simple_history_management_page");
+			add_dashboard_page(SimpleHistory::NAME, __("History", 'simple-history'), $this->view_history_capability, "simple_history_page", "simple_history_management_page");
 		}
 
 		// add page for settings
 		$show_settings_page = TRUE;
 		$show_settings_page = apply_filters("simple_history_show_settings_page", $show_settings_page);
 		if ($show_settings_page) {
-			add_options_page(__('Simple History Settings', "simple-history"), SIMPLE_HISTORY_NAME, $this->view_settings_capability, "simple_history_settings_menu_slug", array($this, 'settings_page'));
+			add_options_page(__('Simple History Settings', "simple-history"), SimpleHistory::NAME, $this->view_settings_capability, "simple_history_settings_menu_slug", array($this, 'settings_page'));
 		}
 
 		add_settings_section("simple_history_settings_section", __("", "simple-history"), "simple_history_settings_page", "simple_history_settings_menu_slug");
@@ -603,8 +629,54 @@ register_activation_hook( WP_PLUGIN_DIR . "/simple-history/index.php" , 'simple_
 	
 	}
 
+
+	/**
+	 * Function that is called when plugin is activated
+	 * Create database tables if they don't exist
+	 * and also create some defaults
+	 */
+	public static function onPluginActivate() {
+
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+		#if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
+
+			$sql = "CREATE TABLE " . $table_name . " (
+			  id int(10) NOT NULL AUTO_INCREMENT,
+			  date datetime NOT NULL,
+			  action varchar(255) NOT NULL COLLATE utf8_general_ci,
+			  object_type varchar(255) NOT NULL COLLATE utf8_general_ci,
+			  object_subtype VARCHAR(255) NOT NULL COLLATE utf8_general_ci,
+			  user_id int(10) NOT NULL,
+			  object_id int(10) NOT NULL,
+			  object_name varchar(255) NOT NULL COLLATE utf8_general_ci,
+			  action_description longtext,
+			  PRIMARY KEY  (id)
+			) CHARACTER SET=utf8;";
+
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			dbDelta($sql);
+
+			// add ourself as a history item.
+			$plugin_name = urlencode(SimpleHistory::NAME);
+		
+		#}
+
+		simple_history_add("action=activated&object_type=plugin&object_name=$plugin_name");
+
+		// also generate a rss secret, if it does not exist
+		if ( ! get_option("simple_history_rss_secret") ) {
+			simple_history_update_rss_secret();
+		}
+		
+		update_option("simple_history_version", SimpleHistory::VERSION);
+
+
+	}
+
 } // class
 
 // Boot up
-$simple_history = new simple_history;
+$simple_history = new SimpleHistory;
 
