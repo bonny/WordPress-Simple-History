@@ -497,6 +497,10 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 			$settings_section_general_id
 		);
 
+		// Nonces for show where inputs
+		register_setting("simple_history_settings_group", "simple_history_show_on_dashboard");
+		register_setting("simple_history_settings_group", "simple_history_show_as_page");
+
 		// Dropdown number if items to show
 		add_settings_field(
 			"simple_history_number_of_items", 
@@ -505,6 +509,9 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 			SimpleHistory::SETTINGS_MENU_SLUG,
 			$settings_section_general_id
 		);
+
+		// Nonces for number of items inputs
+		register_setting("simple_history_settings_group", "simple_history_pager_size");
 
 		// Settings regarding the RSS feed
 		add_settings_field(
@@ -533,10 +540,6 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 			$settings_section_general_id
 		);
 
-		// Register settings and their sanitization callbacks
-		register_setting("simple_history_settings_group", "simple_history_show_on_dashboard");
-		register_setting("simple_history_settings_group", "simple_history_show_as_page");
-		register_setting("simple_history_settings_group", "simple_history_pager_size");
 	
 	}
 
@@ -563,6 +566,7 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 			echo simple_history_get_pagination();
 			
 			?>
+
 		</div>
 
 		<?php
