@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simple History
-Plugin URI: http://eskapism.se/code-playground/simple-history/
+Plugin URI: http://simple-history.com
 Description: Get a log/history/audit log/version history of the changes made by users in WordPress.
 Version: 2
 Author: Pär Thernström
@@ -25,15 +25,12 @@ License: GPL2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-require_once ( dirname(__FILE__) . "/old-functions.php");
-require_once ( dirname(__FILE__) . "/old-stuff.php");
-
 /**
  * Register function that is called when plugin is installed
  * @TODO: check that this works with wp 3.9 that have symlink support
  * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
  */
-register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "onPluginActivate" ) );
+register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
 
 /**
@@ -60,34 +57,35 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 	const VERSION = "2.0";
 	const DBTABLE = "simple_history";
 
+	/** Slug for the settings menu */
+	const SETTINGS_MENU_SLUG = "simple_history_settings_menu_slug";
+
 	function __construct() {
 
 		$this->setupVariables();
 		$this->loadLoggers();
 
-		add_action( 'init', array($this, 'loadPluginTextdomain') );
-		add_action( 'init', array($this, 'checkForRSSFeedRequest') );
+		add_action( 'init', array($this, 'load_plugin_textdomain') );
+		add_action( 'init', array($this, 'check_for_rss_feed_request') );
 
-		add_action( 'admin_init', array($this, 'checkForUpgrade') );
+		add_action( 'admin_init', array($this, 'check_for_upgrade') );
 
 		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
 
 		add_action( 'plugin_row_meta', array($this, 'action_plugin_row_meta'), 10, 2);
 
-		add_action( 'admin_enqueue_scripts', array($this, 'admin_enqueue'));
+		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
 
+		add_action( 'admin_menu', array($this, 'add_admin_menus') );
 
-
-
-
-
-		add_action( 'admin_menu', array($this, 'admin_menu') );
 		add_action( 'wp_dashboard_setup', array($this, 'wp_dashboard_setup') );
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 
 		$this->add_types_for_translation();
 
+		require_once ( dirname(__FILE__) . "/old-functions.php");
+		require_once ( dirname(__FILE__) . "/old-stuff.php");
 		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
 
 	}
@@ -99,7 +97,7 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 	 * 
 	 * @since 2.0
 	 */
-	public function loadPluginTextdomain() {
+	public function load_plugin_textdomain() {
 
 		$domain = 'simple-history';
 		
@@ -115,15 +113,14 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 	 * Setup variables and things
 	 */
 	public function setupVariables() {
-
-		// For example http://playground-root.ep/assets/plugins/simple-history/
-		define( "SIMPLE_HISTORY_URL", plugin_dir_url(__FILE__) );
-		
+	
 		$this->view_history_capability = "edit_pages";
 		$this->view_history_capability = apply_filters("simple_history_view_history_capability", $this->view_history_capability);
+		$this->view_history_capability = apply_filters("simple_history/view_history_capability", $this->view_history_capability);
 
 		$this->view_settings_capability = "manage_options";
-		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);		
+		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
+		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
 
 	}
 
@@ -235,7 +232,7 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 			return $actions;
 		}
 
-		$settings_page_url = menu_page_url("simple_history_settings_menu_slug", 0);
+		$settings_page_url = menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0);
 		
 		$actions[] = "<a href='$settings_page_url'>" . __("Settings", "simple-history") . "</a>";
 
@@ -257,13 +254,18 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 		}
 	}
 	
-	// enqueue styles and scripts, but only to our own pages
-	function admin_enqueue($hook) {
+	/**
+	 * Enqueue styles and scripts for Simple History but only to our own pages.
+	 *
+	 * Only adds scripts to pages where the log is shown or the settings page.
+	 */
+	function enqueue_admin_scripts($hook) {
 		
-		if ( ($hook == "settings_page_simple_history_settings_menu_slug") || (simple_history_setting_show_on_dashboard() && $hook == "index.php") || (simple_history_setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
-		
-			wp_enqueue_style( "simple_history_styles", SIMPLE_HISTORY_URL . "styles.css", false, SimpleHistory::VERSION );	
-			wp_enqueue_script("simple_history", SIMPLE_HISTORY_URL . "scripts.js", array("jquery"), SimpleHistory::VERSION);
+		if ( ($hook == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) || (simple_history_setting_show_on_dashboard() && $hook == "index.php") || (simple_history_setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
+			
+			$plugin_url = plugin_dir_url(__FILE__);
+			wp_enqueue_style( "simple_history_styles", $plugin_url . "styles.css", false, SimpleHistory::VERSION );	
+			wp_enqueue_script("simple_history", $plugin_url . "scripts.js", array("jquery"), SimpleHistory::VERSION);
 		
 		}
 
@@ -297,7 +299,7 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 	 * Check if plugin version have changed, i.e. has been upgraded
 	 * If upgrade is detected then maybe modify database and so on for that version
 	 */
-	function checkForUpgrade() {
+	function check_for_upgrade() {
 
 		global $wpdb;
 
@@ -383,12 +385,13 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 			}
 		}
 		
-	} // end checkForUpgrade
+	} // end check_for_upgrade
 	
 	/**
 	 * Output HTML for the settings page
+	 * Called from add_options_page
 	 */		 
-	function settings_page() {
+	function settings_page_output() {
 		
 		?>
 		<div class="wrap">
@@ -397,9 +400,15 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 			
 				<h2><?php _e("Simple History Settings", "simple-history") ?></h2>
 			
-				<?php do_settings_sections("simple_history_settings_menu_slug"); ?>
+				<?php 
+				// Prints out all settings sections added to a particular settings page
+				do_settings_sections(SimpleHistory::SETTINGS_MENU_SLUG);
+				?>
 
-				<?php settings_fields("simple_history_settings_group"); ?>
+				<?php 
+				// Output nonce, action, and option_page fields
+				settings_fields("simple_history_settings_group");
+				?>
 
 				<?php submit_button(); ?>
 
@@ -410,28 +419,121 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 		
 	}
 
-	function admin_menu() {
+
+	/**
+	 * Content for section intro. Leave it be, even if empty.
+	 * Called from add_sections_setting.
+	 */
+	function settings_section_output() {
+		
+	}
+
+
+	/**
+	 * Add pages (history page and settings page)
+	 */
+	function add_admin_menus() {
 	
-		// show as page?
+		// Add a history page as a sub-page below the Dashboard menu item
 		if (simple_history_setting_show_as_page()) {
-			add_dashboard_page(SimpleHistory::NAME, __("History", 'simple-history'), $this->view_history_capability, "simple_history_page", "simple_history_management_page");
+			
+			add_dashboard_page(
+					SimpleHistory::NAME, 
+					_x("History", 'dashboard menu name', 'simple-history'),
+					$this->view_history_capability, 
+					"simple_history_page", 
+					array($this, "history_page_output")
+				);
+
 		}
 
-		// add page for settings
-		$show_settings_page = TRUE;
+		// Add a settings page
+		$show_settings_page = true;
 		$show_settings_page = apply_filters("simple_history_show_settings_page", $show_settings_page);
+		$show_settings_page = apply_filters("simple_history/show_settings_page", $show_settings_page);
 		if ($show_settings_page) {
-			add_options_page(__('Simple History Settings', "simple-history"), SimpleHistory::NAME, $this->view_settings_capability, "simple_history_settings_menu_slug", array($this, 'settings_page'));
+
+			add_options_page(
+					__('Simple History Settings', "simple-history"), 
+					SimpleHistory::NAME, 
+					$this->view_settings_capability, 
+					SimpleHistory::SETTINGS_MENU_SLUG, 
+					array($this, 'settings_page_output')
+				);
+
 		}
 
-		add_settings_section("simple_history_settings_section", __("", "simple-history"), "simple_history_settings_page", "simple_history_settings_menu_slug");
+		/*
+		 * Add setting sections and settings for the settings page
+		 *
+		 * From codex:
+		 * Settings Sections are the groups of settings you see on WordPress settings pages 
+		 * with a shared heading. In your plugin you can add new sections to existing 
+		 * settings pages rather than creating a whole new page. This makes your plugin 
+		 * simpler to maintain and creates less new pages for users to learn. You just 
+		 * tell them to change your setting on the relevant existing page.
+		 */
 
-		add_settings_field("simple_history_settings_field_1", __("Show Simple History", "simple-history"), 	"simple_history_settings_field", 							"simple_history_settings_menu_slug", "simple_history_settings_section");
-		add_settings_field("simple_history_settings_field_5", __("Number of items per page", "simple-history"), 		"simple_history_settings_field_number_of_items", 			"simple_history_settings_menu_slug", "simple_history_settings_section");
-		add_settings_field("simple_history_settings_field_2", __("RSS feed", "simple-history"), 			"simple_history_settings_field_rss", 						"simple_history_settings_menu_slug", "simple_history_settings_section");
-		add_settings_field("simple_history_settings_field_4", __("Clear log", "simple-history"), 			"simple_history_settings_field_clear_log",					"simple_history_settings_menu_slug", "simple_history_settings_section");
-		add_settings_field("simple_history_settings_field_3", __("Donate", "simple-history"), 				"simple_history_settings_field_donate",						"simple_history_settings_menu_slug", "simple_history_settings_section");
+		// Section for general options
+		// Will contain settings like where to show simple history and number of items
+		$settings_section_general_id = "simple_history_settings_section_general";
+		add_settings_section(
+			$settings_section_general_id, 
+			"", // No title __("General", "simple-history"), 
+			array($this, "settings_section_output"), 
+			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
+		);
 
+		// Settings for the general settings section
+		// Each setting = one row in the settings section
+		// add_settings_field( $id, $title, $callback, $page, $section, $args );
+
+		// Checkboxes for where to show simple history
+		add_settings_field(
+			"simple_history_show_where", 
+			__("Show history", "simple-history"),
+			"simple_history_settings_field",
+			SimpleHistory::SETTINGS_MENU_SLUG,
+			$settings_section_general_id
+		);
+
+		// Dropdown number if items to show
+		add_settings_field(
+			"simple_history_number_of_items", 
+			__("Number of items per page", "simple-history"),
+			"simple_history_settings_field_number_of_items",
+			SimpleHistory::SETTINGS_MENU_SLUG,
+			$settings_section_general_id
+		);
+
+		// Settings regarding the RSS feed
+		add_settings_field(
+			"simple_history_rss_feed", 
+			__("RSS feed", "simple-history"),
+			"simple_history_settings_field_rss",
+			SimpleHistory::SETTINGS_MENU_SLUG,
+			$settings_section_general_id
+		);
+
+		// Link to clear log
+		add_settings_field(
+			"simple_history_clear_log",
+			__("Clear log", "simple-history"),
+			"simple_history_settings_field_clear_log",
+			SimpleHistory::SETTINGS_MENU_SLUG,
+			$settings_section_general_id
+		);
+
+		// The donate-link, that no one ever uses
+		add_settings_field(
+			"simple_history_settings_donate",
+			__("Donate", "simple-history"),
+			"simple_history_settings_field_donate",
+			SimpleHistory::SETTINGS_MENU_SLUG,
+			$settings_section_general_id
+		);
+
+		// Register settings and their sanitization callbacks
 		register_setting("simple_history_settings_group", "simple_history_show_on_dashboard");
 		register_setting("simple_history_settings_group", "simple_history_show_as_page");
 		register_setting("simple_history_settings_group", "simple_history_pager_size");
@@ -439,11 +541,40 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 	}
 
 
+	/**
+	 * Output for page with the history
+	 */
+	function history_page_output() {
+
+		global $simple_history;
+
+		simple_history_purge_db();
+
+		?>
+
+		<div class="wrap simple-history-wrap">
+			
+			<h2><?php echo _x("History", 'history page headline', 'simple-history') ?></h2>
+			
+			<?php	
+			
+			simple_history_print_nav(array("from_page=1"));
+			echo simple_history_print_history(array("items" => $simple_history->get_pager_size(), "from_page" => "1"));
+			echo simple_history_get_pagination();
+			
+			?>
+		</div>
+
+		<?php
+
+	}
+
+
 
 	/**
 	 * Init for both public and admin
 	 */
-	function checkForRSSFeedRequest() {
+	function check_for_rss_feed_request() {
 		
 		// check for RSS
 		// don't know if this is the right way to do this, but it seems to work!
@@ -634,8 +765,11 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
 	 * Function that is called when plugin is activated
 	 * Create database tables if they don't exist
 	 * and also create some defaults
+	 *
+	 * Some good info:
+	 * http://wordpress.stackexchange.com/questions/25910/uninstall-activate-deactivate-a-plugin-typical-features-how-to
 	 */
-	public static function onPluginActivate() {
+	public static function on_plugin_activate() {
 
 		global $wpdb;
 

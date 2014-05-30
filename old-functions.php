@@ -779,27 +779,6 @@ function simple_history_dashboard() {
 
 }
 
-// own page under dashboard
-function simple_history_management_page() {
-
-	global $simple_history;
-
-	simple_history_purge_db();
-
-	?>
-
-	<div class="wrap simple-history-wrap">
-		<h2><?php echo __("History", 'simple-history') ?></h2>
-		<?php	
-		simple_history_print_nav(array("from_page=1"));
-		echo simple_history_print_history(array("items" => $simple_history->get_pager_size(), "from_page" => "1"));
-		echo simple_history_get_pagination();
-		?>
-	</div>
-
-	<?php
-
-}
 
 if (!function_exists("bonny_d")) {
 	function bonny_d($var) {
@@ -1108,10 +1087,6 @@ function simple_history_get_pagination() {
 	
 }
 
-function simple_history_settings_page() {
-	// never remove this function, it must exist.	
-	// echo "Please choose options for simple history ...";
-}
 
 // get settings if plugin should be visible on dasboard. default in no since 0.7
 function simple_history_setting_show_on_dashboard() {
@@ -1149,6 +1124,7 @@ function simple_history_settings_field_number_of_items() {
 }
 
 function simple_history_settings_field() {
+
 	$show_on_dashboard = simple_history_setting_show_on_dashboard();
 	$show_as_page = simple_history_setting_show_as_page();
 	?>
