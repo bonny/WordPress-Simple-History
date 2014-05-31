@@ -634,8 +634,7 @@ function simple_history_settings_field_donate() {
 			Please
 			<a href="http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=settingpage&utm_campaign=simplehistory">
 			donate
-			</a> to support the development of this plugin and to keep it free.
-			Thanks!
+			</a> to support the development of this plugin.
 			', "simple-history")
 		?>
 	</p>
@@ -643,43 +642,6 @@ function simple_history_settings_field_donate() {
 }
 
 
-function simple_history_get_rss_address() {
-	$rss_secret = get_option("simple_history_rss_secret");
-	$rss_address = add_query_arg(array("simple_history_get_rss" => "1", "rss_secret" => $rss_secret), get_bloginfo("url") . "/");
-	$rss_address = htmlspecialchars($rss_address, ENT_COMPAT, "UTF-8");
-	return $rss_address;
-}
-
-function simple_history_update_rss_secret() {
-	$rss_secret = "";
-	for ($i=0; $i<20; $i++) {
-		$rss_secret .= chr(rand(97,122));
-	}
-	update_option("simple_history_rss_secret", $rss_secret);
-	return $rss_secret;
-}
-
-function simple_history_settings_field_rss() {
-	$create_new_secret = false;
-	if (isset($_GET["simple_history_rss_update_secret"]) && $_GET["simple_history_rss_update_secret"]) {
-		$create_new_secret = true;
-		echo "<div class='simple-history-settings-page-updated'><p>";
-		_e("Created new secret RSS address", 'simple-history');
-		echo "</p></div>";
-	}
-	
-	if ($create_new_secret) {
-		simple_history_update_rss_secret();
-	}
-	
-	$rss_address = simple_history_get_rss_address();
-	echo "<code><a href='$rss_address'>$rss_address</a></code>";
-	echo "<br />";
-	_e("This is a secret RSS feed for Simple History. Only share the link with people you trust", 'simple-history');
-	echo "<br />";
-	$update_link = add_query_arg("simple_history_rss_update_secret", "1");
-	printf(__("You can <a href='%s'>generate a new address</a> for the RSS feed. This is useful if you think that the address has fallen into the wrong hands.", 'simple-history'), $update_link);
-}
 
 
 /**
@@ -1088,12 +1050,23 @@ function simple_history_get_pagination() {
 }
 
 
-// get settings if plugin should be visible on dasboard. default in no since 0.7
+/**
+ * Get setting if plugin should be visible on dasboard. 
+ * Defaults to false
+ *
+ * @return bool
+ */
 function simple_history_setting_show_on_dashboard() {
 	$show_on_dashboard = get_option("simple_history_show_on_dashboard", 0);
 	$show_on_dashboard = apply_filters("simple_history_show_on_dashboard", $show_on_dashboard);
 	return (bool) $show_on_dashboard;
 }
+
+/**
+ * Should simple history be shown as a page
+ * Defaults to true
+ * @return bool
+ */
 function simple_history_setting_show_as_page() {
 	$setting = get_option("simple_history_show_as_page", 1);
 	$setting = apply_filters("simple_history_show_as_page", $setting);
