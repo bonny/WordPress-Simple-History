@@ -59,7 +59,7 @@ class SimpleHistoryRSSDropin {
 	    if ( isset( $_GET[$create_secret_nonce_name] ) && wp_verify_nonce( $_GET[$create_secret_nonce_name], 'simple_history_rss_update_secret')) {
 
 			$create_new_secret = true;
-			$this->simple_history_update_rss_secret();
+			$this->update_rss_secret();
 
 			// Add updated-message and store in transient and then redirect
 			// This is the way options.php does it.
