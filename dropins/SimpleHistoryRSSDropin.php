@@ -29,7 +29,7 @@ class SimpleHistoryRSSDropin {
 
 		add_settings_section(
 			$settings_section_rss_id, 
-			_x("RSS", "rss settings headline", "simple-history"), // No title __("General", "simple-history"), 
+			_x("RSS feed", "rss settings headline", "simple-history"), // No title __("General", "simple-history"), 
 			array($this, "settings_section_output"), 
 			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
@@ -37,7 +37,7 @@ class SimpleHistoryRSSDropin {
 		// RSS address
 		add_settings_field(
 			"simple_history_rss_feed", 
-			__("Feed address", "simple-history"),
+			__("Web address", "simple-history"),
 			array($this, "settings_field_rss"),
 			SimpleHistory::SETTINGS_MENU_SLUG,
 			$settings_section_rss_id
@@ -46,7 +46,7 @@ class SimpleHistoryRSSDropin {
 		// Regnerate address
 		add_settings_field(
 			"simple_history_rss_feed_regenerate_secret", 
-			__("Regnereate address", "simple-history"),
+			__("Regenerate", "simple-history"),
 			array($this, "settings_field_rss_regenerate"),
 			SimpleHistory::SETTINGS_MENU_SLUG,
 			$settings_section_rss_id
@@ -212,9 +212,6 @@ class SimpleHistoryRSSDropin {
 
 		$rss_address = $this->get_rss_address();
 
-		echo "<p>";
-		_e("This is a secret RSS feed for Simple History. Only share the link with people you trust.", 'simple-history');
-		echo "</p>";
 		echo "<p><code><a href='$rss_address'>$rss_address</a></code></p>";
 
 	}
@@ -256,7 +253,11 @@ class SimpleHistoryRSSDropin {
 	 * Called from add_sections_setting.
 	 */
 	function settings_section_output() {
-		
+
+		echo "<p>";
+		_e("Simple History has a RSS feed which you can subscribe to and receive log updates. Make sure you only share the feed with people you trust, since it can contain sensitive or confidential information.", 'simple-history');
+		echo "</p>";
+
 	}
 
 } // end rss class

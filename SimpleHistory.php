@@ -28,6 +28,7 @@ class SimpleHistory {
 	const NAME = "Simple History";
 	const VERSION = "2.0";
 	const DBTABLE = "simple_history";
+	const SETTINGS_SECTION_GENERAL_ID = "simple_history_settings_section_general";
 
 	/** Slug for the settings menu */
 	const SETTINGS_MENU_SLUG = "simple_history_settings_menu_slug";
@@ -43,8 +44,6 @@ class SimpleHistory {
 		add_action( 'admin_init', array($this, 'check_for_upgrade') );
 
 		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
-
-		add_action( 'plugin_row_meta', array($this, 'action_plugin_row_meta'), 10, 2);
 
 		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
@@ -311,26 +310,6 @@ class SimpleHistory {
 	function filter_option_page_capability($capability) {
 		return $capability;
 	}
-
-	/**
-	 * Add link to the donate page in the Plugins » Installed plugins screen
-	 * Called from filter 'plugin_row_meta'
-	 */
-	function action_plugin_row_meta($links, $file) {
-
-		if ($file == plugin_basename(__FILE__)) {
-
-			$links = array_merge(
-				$links,
-				array( sprintf( '<a href="http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=pluginpage&utm_campaign=simplehistory">%1$s</a>', __('Donate', "simple-history") ) )
-			);
-
-		}
-		
-		return $links;
-
-	}
-
 	
 	/**
 	 * Check if plugin version have changed, i.e. has been upgraded
@@ -513,7 +492,7 @@ class SimpleHistory {
 
 		// Section for general options
 		// Will contain settings like where to show simple history and number of items
-		$settings_section_general_id = "simple_history_settings_section_general";
+		$settings_section_general_id = self::SETTINGS_SECTION_GENERAL_ID;
 		add_settings_section(
 			$settings_section_general_id, 
 			"", // No title __("General", "simple-history"), 
@@ -555,15 +534,6 @@ class SimpleHistory {
 			"simple_history_clear_log",
 			__("Clear log", "simple-history"),
 			"simple_history_settings_field_clear_log",
-			SimpleHistory::SETTINGS_MENU_SLUG,
-			$settings_section_general_id
-		);
-
-		// The donate-link, that no one ever uses
-		add_settings_field(
-			"simple_history_settings_donate",
-			__("Donate", "simple-history"),
-			"simple_history_settings_field_donate",
 			SimpleHistory::SETTINGS_MENU_SLUG,
 			$settings_section_general_id
 		);

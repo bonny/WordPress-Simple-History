@@ -626,23 +626,6 @@ function simple_history_clear_log() {
 	$wpdb->query($sql);
 }
 
-function simple_history_settings_field_donate() {
-	?>
-	<p>
-		<?php
-		_e('
-			Please
-			<a href="http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=settingpage&utm_campaign=simplehistory">
-			donate
-			</a> to support the development of this plugin.
-			', "simple-history")
-		?>
-	</p>
-	<?php
-}
-
-
-
 
 /**
  * add event to history table
