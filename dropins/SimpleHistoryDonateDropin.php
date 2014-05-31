@@ -12,8 +12,12 @@ Author: Pär Thernström
  */
 class SimpleHistoryDonateDropin {
 
-	function __construct() {
+	// Simple History instance
+	private $sh;
+
+	function __construct($sh) {
 		
+		$this->sh = $sh;
 		add_action( 'admin_menu', array($this, 'add_settings'), 50 );
 		add_action( 'plugin_row_meta', array($this, 'action_plugin_row_meta'), 10, 2);
 
@@ -24,8 +28,8 @@ class SimpleHistoryDonateDropin {
 	 * Called from filter 'plugin_row_meta'
 	 */
 	function action_plugin_row_meta($links, $file) {
-
-		if ($file == plugin_basename(__FILE__)) {
+		
+		if ($file == $this->sh->plugin_basename) {
 
 			$links = array_merge(
 				$links,

@@ -36,5 +36,16 @@ require_once(__DIR__ . "/SimpleHistory.php");
  */
 register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
+/**
+ * Helper function with same name as the SimpleLogger-class
+ *
+ * Makes call like this possible:
+ * SimpleLogger()->info("This is a message sent to the log");
+ */
+function SimpleLogger() {
+	return new SimpleLogger();
+}
+
 /** Boot up */
 $simple_history = new SimpleHistory();
+

@@ -25,6 +25,8 @@ class SimpleHistory {
 	 */
 	private $instantiatedDropins;
 
+	public $pluginBasename;
+
 	const NAME = "Simple History";
 	const VERSION = "2.0";
 	const DBTABLE = "simple_history";
@@ -36,6 +38,15 @@ class SimpleHistory {
 	const SETTINGS_SECTION_GENERAL_ID = "simple_history_settings_section_general";
 
 	function __construct() {
+
+		/**
+	     * Fires before Simple History does it's init stuff
+	     *
+	     * @since 2.0
+	     *
+	     * @param SimpleHistory $SimpleHistory This class.
+	     */
+		do_action( "simple_history/before_init", $this );
 
 		$this->setupVariables();
 		$this->loadLoggers();
@@ -57,10 +68,18 @@ class SimpleHistory {
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 
 		$this->add_types_for_translation();
-
 		require_once ( dirname(__FILE__) . "/old-functions.php");
 		require_once ( dirname(__FILE__) . "/old-stuff.php");
 		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
+
+		/**
+	     * Fires after Simple History has done it's init stuff
+	     *
+	     * @since 2.0
+	     *
+	     * @param SimpleHistory $SimpleHistory This class.
+	     */
+		do_action( "simple_history/after_init", $this );
 
 	}
 
@@ -79,7 +98,7 @@ class SimpleHistory {
 		$locale = apply_filters('plugin_locale', get_locale(), $domain);
 
 		load_textdomain($domain, WP_LANG_DIR.'/simple-history/'.$domain.'-'.$locale.'.mo');
-		load_plugin_textdomain($domain, FALSE, dirname(plugin_basename(__FILE__)).'/languages/');
+		load_plugin_textdomain($domain, FALSE, dirname( $this->plugin_basename ).'/languages/');
 
 	}
 
@@ -95,6 +114,8 @@ class SimpleHistory {
 		$this->view_settings_capability = "manage_options";
 		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
+
+		$this->plugin_basename = plugin_basename(__DIR__ . "/index.php");
 
 	}
 
@@ -155,7 +176,7 @@ class SimpleHistory {
 			
 			$this->instantiatedLoggers[$oneLoggerName] = array(
 				"name" => $oneLoggerName,
-				"instance" => new $oneLoggerName()
+				"instance" => new $oneLoggerName($this)
 			);
 		}
 
@@ -202,7 +223,7 @@ class SimpleHistory {
 		}
 
 		/**
-		 * Filter the array with names of loggers to instantiate.
+		 * Filter the array with names of dropin to instantiate.
 		 *
 		 * @since 2.0
 		 *
@@ -210,12 +231,12 @@ class SimpleHistory {
 		 */		
 		$arrDropinsToInstantiate = apply_filters("simple_history/dropins_to_instantiate", $arrDropinsToInstantiate);
 
-		// Instantiate each logger
+		// Instantiate each dropin
 		foreach ($arrDropinsToInstantiate as $oneDropinName ) {
 			
 			$this->instantiatedDropins[$oneDropinName] = array(
 				"name" => $oneDropinName,
-				"instance" => new $oneDropinName()
+				"instance" => new $oneDropinName($this)
 			);
 		}
 
@@ -239,27 +260,29 @@ class SimpleHistory {
 	 * There is probably a better way to do this, but this should work anyway
 	 */
 	function add_types_for_translation() {
-		$dummy = __("added", "simple-history");
-		$dummy = __("approved", "simple-history");
-		$dummy = __("unapproved", "simple-history");
-		$dummy = __("marked as spam", "simple-history");
-		$dummy = __("trashed", "simple-history");
-		$dummy = __("untrashed", "simple-history");
-		$dummy = __("created", "simple-history");
-		$dummy = __("deleted", "simple-history");
-		$dummy = __("updated", "simple-history");
-		$dummy = __("nav_menu_item", "simple-history");
-		$dummy = __("attachment", "simple-history");
-		$dummy = __("user", "simple-history");
-		$dummy = __("settings page", "simple-history");
-		$dummy = __("edited", "simple-history");
-		$dummy = __("comment", "simple-history");
-		$dummy = __("logged in", "simple-history");
-		$dummy = __("logged out", "simple-history");
-		$dummy = __("added", "simple-history");
-		$dummy = __("modified", "simple-history");
-		$dummy = __("upgraded it\'s database", "simple-history");
-		$dummy = __("plugin", "simple-history");
+
+		__("added", "simple-history");
+		__("approved", "simple-history");
+		__("unapproved", "simple-history");
+		__("marked as spam", "simple-history");
+		__("trashed", "simple-history");
+		__("untrashed", "simple-history");
+		__("created", "simple-history");
+		__("deleted", "simple-history");
+		__("updated", "simple-history");
+		__("nav_menu_item", "simple-history");
+		__("attachment", "simple-history");
+		__("user", "simple-history");
+		__("settings page", "simple-history");
+		__("edited", "simple-history");
+		__("comment", "simple-history");
+		__("logged in", "simple-history");
+		__("logged out", "simple-history");
+		__("added", "simple-history");
+		__("modified", "simple-history");
+		__("upgraded it\'s database", "simple-history");
+		__("plugin", "simple-history");
+
 	}
 
 	/**
@@ -712,16 +735,20 @@ class SimpleHistory {
 	/**
 	 * Should simple history be shown as a page
 	 * Defaults to true
+	 *
 	 * @return bool
 	 */
 	function setting_show_as_page() {
+
 		$setting = get_option("simple_history_show_as_page", 1);
 		$setting = apply_filters("simple_history_show_as_page", $setting);
 		return (bool) $setting;
 
 	}
 
-
+	/**
+	 * Settings field for how many rows/items to show in log
+	 */
 	function settings_field_number_of_items() {
 		
 		$current_pager_size = $this->get_pager_size();
@@ -743,6 +770,9 @@ class SimpleHistory {
 
 	}
 
+	/**
+	 * Settings field for where to show the log, page or dashboard
+	 */
 	function settings_field_where_to_show() {
 
 		$show_on_dashboard = $this->setting_show_on_dashboard();

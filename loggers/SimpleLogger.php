@@ -37,26 +37,29 @@ loginUserEmail + status failed
 Logga 404-errors
 status404 + document URI
 
-
-
 */
 
-/**
- * Helper function with same name as our class
- * Makes call like this possible:
- * SimpleLogger()->info("This is a message sent to the log");
- */
-function SimpleLogger() {
-	return new SimpleLogger();
-}
 
 // Example usage
-SimpleLogger()->info("This is a message sent to the log")->withOccasionID("user" . 56423 . "edited" . "post" . 45346);
-#SimpleLogger()->info("This is a message sent to the log");
-#SimpleLogger()->info("User admin edited page 'About our company'");
+SimpleLogger()->info("This is a message sent to the log");
+SimpleLogger()->info("User admin edited page 'About our company'");
 
 // Example usage with context
-#SimpleLogger()->notice("User {username} edited page {pagename}", array("username" => "bonnyerden", "pagename" => "My test page"));
+SimpleLogger()->notice("User {username} edited page {pagename}", array("username" => "bonnyerden", "pagename" => "My test page"));
+
+// Example usage with occasionsID / groupID / commonID
+function testlogOccasions() {
+SimpleLogger()->notice("User {username} edited page {pagename}", array(
+	"username" => "admin", 
+	"pagename" => "My test page",
+	// context keys used internally are prefixed with "_" (underscore)
+	"_occasionsID" => "username:1,postID:24884,action:edited"
+));
+}
+testlogOccasions(); testlogOccasions(); testlogOccasions();
+testlogOccasions(); testlogOccasions(); testlogOccasions();
+testlogOccasions(); testlogOccasions(); testlogOccasions();
+testlogOccasions(); testlogOccasions(); testlogOccasions();
 
 /**
  * A PSR-3 inspired logger class
@@ -282,6 +285,40 @@ class SimpleLogger
 
 			if ( is_array($context) ) {
 
+				// Check for keys that begin with "_" = special/internal ones
+				$found_occasions_id = false;
+				foreach ($context as $key => $value) {
+				
+					if ('_' === mb_substr($key, 0, 1) ) {
+
+						if ("_occasionsID" == $key) {
+
+							$value = md5( $value );
+							$context[$key] = $value;
+							$found_occasions_id = true;
+
+						}
+
+					}
+
+				}
+
+				// If no occasions id found then generate one automagically
+				// using the data we stored
+				if ( ! $found_occasions_id ) {
+					
+					$occasions_data = array(
+						"logger" => $this->slug,
+						"level" => $level,
+						"message" => $message,
+						"context" => $context
+					);
+					
+					$context["_occasionsID"] = md5( json_encode($occasions_data) );
+
+				}
+
+				// Save each context value
 				foreach ($context as $key => $value) {
 
 					$data = array(
@@ -304,29 +341,6 @@ class SimpleLogger
 
 	} // log
 
-	/**
-	 * Store an occasion id for the last inserted log row
-	 */
-	public function withOccasionID($idString) {
-
-		// sf_d( $this->lastInsertID );
-		global $wpdb;
-		//  <?php $wpdb->update( $table, $data, $where, $format = null, $where_format = null ); 
-
-		$db_table = $wpdb->prefix . $this->db_table;
-		$db_table = apply_filters("simple_logger_db_table", $db_table);
-
-		$data = array(
-			"occasionID" => $idString
-		);
-
-		$where = array(
-			"id" => $this->lastInsertID
-		);
-
-		$wpdb->update($db_table, $data, $where);
-
-	}
 	
 }
 

@@ -408,31 +408,3 @@ function simple_history_deactivated_plugin($plugin_name) {
 	simple_history_add("action=deactivated&object_type=plugin&object_name=$plugin_name");
 
 }
-
-
-
-function simple_history_updated_option($option, $oldval, $newval) {
-/*
-	echo "<br><br>simple_history_updated_option()";
-	echo "<br>Updated option $option";
-	echo "<br>oldval: ";
-	bonny_d($oldval);
-	echo "<br>newval:";
-	bonny_d($newval);
-*/
-
-}
-
-
-/*
-function simple_history_updated_option2($option, $oldval) {
-	echo "<br><br>xxx_simple_history_updated_option2";
-	bonny_d($option);
-	bonny_d($oldval);
-}
-function simple_history_updated_option3($option) {
-	echo "<br><br>xxx_simple_history_updated_option3";
-	echo "<br>option: $option";
-}
-*/
-
