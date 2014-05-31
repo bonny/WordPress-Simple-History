@@ -28,10 +28,12 @@ class SimpleHistory {
 	const NAME = "Simple History";
 	const VERSION = "2.0";
 	const DBTABLE = "simple_history";
-	const SETTINGS_SECTION_GENERAL_ID = "simple_history_settings_section_general";
 
 	/** Slug for the settings menu */
 	const SETTINGS_MENU_SLUG = "simple_history_settings_menu_slug";
+
+	/** ID for the general settings section */
+	const SETTINGS_SECTION_GENERAL_ID = "simple_history_settings_section_general";
 
 	function __construct() {
 
@@ -47,9 +49,11 @@ class SimpleHistory {
 
 		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
-		add_action( 'admin_menu', array($this, 'add_admin_menus') );
+		add_action( 'admin_menu', array($this, 'add_admin_pages') );
+		add_action( 'admin_menu', array($this, 'add_settings') );
 
-		add_action( 'wp_dashboard_setup', array($this, 'wp_dashboard_setup') );
+		add_action( 'wp_dashboard_setup', array($this, 'add_dashboard_widget') );
+
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 
 		$this->add_types_for_translation();
@@ -281,9 +285,9 @@ class SimpleHistory {
 	 * requires current user to have view history capability
 	 * and a setting to show dashboard to be set
 	 */
-	function wp_dashboard_setup() {
+	function add_dashboard_widget() {
 		
-		if ( simple_history_setting_show_on_dashboard() && current_user_can($this->view_history_capability) ) {
+		if ( $this->setting_show_on_dashboard() && current_user_can($this->view_history_capability) ) {
 		
 			wp_add_dashboard_widget("simple_history_dashboard_widget", __("History", 'simple-history'), "simple_history_dashboard");
 			
@@ -297,7 +301,7 @@ class SimpleHistory {
 	 */
 	function enqueue_admin_scripts($hook) {
 		
-		if ( ($hook == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) || (simple_history_setting_show_on_dashboard() && $hook == "index.php") || (simple_history_setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
+		if ( ($hook == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) || ($this->setting_show_on_dashboard() && $hook == "index.php") || ($this->setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
 			
 			$plugin_url = plugin_dir_url(__FILE__);
 			wp_enqueue_style( "simple_history_styles", $plugin_url . "styles.css", false, SimpleHistory::VERSION );	
@@ -448,10 +452,10 @@ class SimpleHistory {
 	/**
 	 * Add pages (history page and settings page)
 	 */
-	function add_admin_menus() {
+	function add_admin_pages() {
 	
 		// Add a history page as a sub-page below the Dashboard menu item
-		if (simple_history_setting_show_as_page()) {
+		if ($this->setting_show_as_page()) {
 			
 			add_dashboard_page(
 					SimpleHistory::NAME, 
@@ -479,16 +483,13 @@ class SimpleHistory {
 
 		}
 
-		/*
-		 * Add setting sections and settings for the settings page
-		 *
-		 * From codex:
-		 * Settings Sections are the groups of settings you see on WordPress settings pages 
-		 * with a shared heading. In your plugin you can add new sections to existing 
-		 * settings pages rather than creating a whole new page. This makes your plugin 
-		 * simpler to maintain and creates less new pages for users to learn. You just 
-		 * tell them to change your setting on the relevant existing page.
-		 */
+	}
+
+	/*
+	 * Add setting sections and settings for the settings page
+	 *
+	 */
+	function add_settings() {
 
 		// Section for general options
 		// Will contain settings like where to show simple history and number of items
@@ -508,7 +509,7 @@ class SimpleHistory {
 		add_settings_field(
 			"simple_history_show_where", 
 			__("Show history", "simple-history"),
-			"simple_history_settings_field",
+			array($this, "settings_field_where_to_show"),
 			SimpleHistory::SETTINGS_MENU_SLUG,
 			$settings_section_general_id
 		);
@@ -521,7 +522,7 @@ class SimpleHistory {
 		add_settings_field(
 			"simple_history_number_of_items", 
 			__("Number of items per page", "simple-history"),
-			"simple_history_settings_field_number_of_items",
+			array($this, "settings_field_number_of_items"),
 			SimpleHistory::SETTINGS_MENU_SLUG,
 			$settings_section_general_id
 		);
@@ -533,7 +534,7 @@ class SimpleHistory {
 		add_settings_field(
 			"simple_history_clear_log",
 			__("Clear log", "simple-history"),
-			"simple_history_settings_field_clear_log",
+			array($this, "settings_field_clear_log"),
 			SimpleHistory::SETTINGS_MENU_SLUG,
 			$settings_section_general_id
 		);
@@ -693,6 +694,107 @@ class SimpleHistory {
 		}
 		
 		update_option("simple_history_version", SimpleHistory::VERSION);
+
+	}
+
+	/**
+	 * Get setting if plugin should be visible on dasboard. 
+	 * Defaults to false
+	 *
+	 * @return bool
+	 */
+	function setting_show_on_dashboard() {
+		$show_on_dashboard = get_option("simple_history_show_on_dashboard", 0);
+		$show_on_dashboard = apply_filters("simple_history_show_on_dashboard", $show_on_dashboard);
+		return (bool) $show_on_dashboard;
+	}
+
+	/**
+	 * Should simple history be shown as a page
+	 * Defaults to true
+	 * @return bool
+	 */
+	function setting_show_as_page() {
+		$setting = get_option("simple_history_show_as_page", 1);
+		$setting = apply_filters("simple_history_show_as_page", $setting);
+		return (bool) $setting;
+
+	}
+
+
+	function settings_field_number_of_items() {
+		
+		$current_pager_size = $this->get_pager_size();
+
+		?>
+		<select name="simple_history_pager_size">
+			<option <?php echo $current_pager_size == 5 ? "selected" : "" ?> value="5">5</option>
+			<option <?php echo $current_pager_size == 10 ? "selected" : "" ?> value="10">10</option>
+			<option <?php echo $current_pager_size == 15 ? "selected" : "" ?> value="15">15</option>
+			<option <?php echo $current_pager_size == 20 ? "selected" : "" ?> value="20">20</option>
+			<option <?php echo $current_pager_size == 25 ? "selected" : "" ?> value="25">25</option>
+			<option <?php echo $current_pager_size == 30 ? "selected" : "" ?> value="30">30</option>
+			<option <?php echo $current_pager_size == 40 ? "selected" : "" ?> value="40">40</option>
+			<option <?php echo $current_pager_size == 50 ? "selected" : "" ?> value="50">50</option>
+			<option <?php echo $current_pager_size == 75 ? "selected" : "" ?> value="75">75</option>
+			<option <?php echo $current_pager_size == 100 ? "selected" : "" ?> value="100">100</option>
+		</select>
+		<?php
+
+	}
+
+	function settings_field_where_to_show() {
+
+		$show_on_dashboard = $this->setting_show_on_dashboard();
+		$show_as_page = $this->setting_show_as_page();
+		?>
+		
+		<input <?php echo $show_on_dashboard ? "checked='checked'" : "" ?> type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
+		<label for="simple_history_show_on_dashboard"><?php _e("on the dashboard", 'simple-history') ?></label>
+
+		<br />
+		
+		<input <?php echo $show_as_page ? "checked='checked'" : "" ?> type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
+		<label for="simple_history_show_as_page"><?php _e("as a page under the dashboard menu", 'simple-history') ?></label>
+		
+		<?php
+	}
+
+	/**
+	 * Settings section to clear database
+	 */
+	function settings_field_clear_log() {
+
+		$clear_log = false;
+
+		if (isset($_GET["simple_history_clear_log"]) && $_GET["simple_history_clear_log"]) {
+			$clear_log = true;
+			echo "<div class='simple-history-settings-page-updated'><p>";
+			_e("Cleared database", 'simple-history');
+			echo "</p></div>";
+		}
+		
+		if ($clear_log) {
+			$this->clear_log();
+		}
+		
+		_e("Items in the database are automatically removed after 60 days.", 'simple-history');
+		$update_link = add_query_arg("simple_history_clear_log", "1");
+		printf(' <a href="%2$s">%1$s</a>', __('Clear it now.', 'simple-history'), $update_link);
+	}
+
+	/**
+	 * Removes all items from the log
+	 */
+	function clear_log() {
+
+		global $wpdb;
+		
+		$tableprefix = $wpdb->prefix;
+		$simple_history_table = SimpleHistory::DBTABLE;
+		
+		$sql = "DELETE FROM {$tableprefix}{$simple_history_table}";
+		$wpdb->query($sql);
 
 	}
 

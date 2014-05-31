@@ -410,8 +410,8 @@ function simple_history_print_history($args = null) {
 			$show_more .= "</select>";
 
 			$no_found = __("No matching items found.", 'simple-history');
-			$view_rss = __("RSS feed", 'simple-history');
-			$view_rss_link = simple_history_get_rss_address();
+			//$view_rss = __("RSS feed", 'simple-history');
+			//$view_rss_link = simple_history_get_rss_address();
 			$str_show = __("Show", 'simple-history');
 			$output .= "</ol>";
 
@@ -426,9 +426,10 @@ function simple_history_print_history($args = null) {
 
 			$output .= "
 				<p class='simple-history-no-more-items'>$no_found</p>			
-				<p class='simple-history-rss-feed-dashboard'><a title='$view_rss' href='$view_rss_link'>$view_rss</a></p>
-				<p class='simple-history-rss-feed-page'><a title='$view_rss' href='$view_rss_link'><span></span>$view_rss</a></p>
 			";
+			
+			// <p class='simple-history-rss-feed-dashboard'><a title='$view_rss' href='$view_rss_link'>$view_rss</a></p>
+			// <p class='simple-history-rss-feed-page'><a title='$view_rss' href='$view_rss_link'><span></span>$view_rss</a></p>
 
 		}
 
@@ -617,14 +618,6 @@ function simple_history_get_items_array($args = "") {
 }
 
 
-
-function simple_history_clear_log() {
-	global $wpdb;
-	$tableprefix = $wpdb->prefix;
-	$simple_history_table = SimpleHistory::DBTABLE;
-	$sql = "DELETE FROM {$tableprefix}{$simple_history_table}";
-	$wpdb->query($sql);
-}
 
 
 /**
@@ -1032,92 +1025,6 @@ function simple_history_get_pagination() {
 	
 }
 
-
-/**
- * Get setting if plugin should be visible on dasboard. 
- * Defaults to false
- *
- * @return bool
- */
-function simple_history_setting_show_on_dashboard() {
-	$show_on_dashboard = get_option("simple_history_show_on_dashboard", 0);
-	$show_on_dashboard = apply_filters("simple_history_show_on_dashboard", $show_on_dashboard);
-	return (bool) $show_on_dashboard;
-}
-
-/**
- * Should simple history be shown as a page
- * Defaults to true
- * @return bool
- */
-function simple_history_setting_show_as_page() {
-	$setting = get_option("simple_history_show_as_page", 1);
-	$setting = apply_filters("simple_history_show_as_page", $setting);
-	return (bool) $setting;
-
-}
-
-function simple_history_settings_field_number_of_items() {
-	
-	global $simple_history;
-	$current_pager_size = $simple_history->get_pager_size();
-
-	?>
-	<select name="simple_history_pager_size">
-		<option <?php echo $current_pager_size == 5 ? "selected" : "" ?> value="5">5</option>
-		<option <?php echo $current_pager_size == 10 ? "selected" : "" ?> value="10">10</option>
-		<option <?php echo $current_pager_size == 15 ? "selected" : "" ?> value="15">15</option>
-		<option <?php echo $current_pager_size == 20 ? "selected" : "" ?> value="20">20</option>
-		<option <?php echo $current_pager_size == 25 ? "selected" : "" ?> value="25">25</option>
-		<option <?php echo $current_pager_size == 30 ? "selected" : "" ?> value="30">30</option>
-		<option <?php echo $current_pager_size == 40 ? "selected" : "" ?> value="40">40</option>
-		<option <?php echo $current_pager_size == 50 ? "selected" : "" ?> value="50">50</option>
-		<option <?php echo $current_pager_size == 75 ? "selected" : "" ?> value="75">75</option>
-		<option <?php echo $current_pager_size == 100 ? "selected" : "" ?> value="100">100</option>
-	</select>
-	<?php
-
-}
-
-function simple_history_settings_field() {
-
-	$show_on_dashboard = simple_history_setting_show_on_dashboard();
-	$show_as_page = simple_history_setting_show_as_page();
-	?>
-	
-	<input <?php echo $show_on_dashboard ? "checked='checked'" : "" ?> type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
-	<label for="simple_history_show_on_dashboard"><?php _e("on the dashboard", 'simple-history') ?></label>
-
-	<br />
-	
-	<input <?php echo $show_as_page ? "checked='checked'" : "" ?> type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
-	<label for="simple_history_show_as_page"><?php _e("as a page under the dashboard menu", 'simple-history') ?></label>
-	
-	<?php
-}
-
-/**
- * Settings section to clear database
- */
-function simple_history_settings_field_clear_log() {
-
-	$clear_log = false;
-
-	if (isset($_GET["simple_history_clear_log"]) && $_GET["simple_history_clear_log"]) {
-		$clear_log = true;
-		echo "<div class='simple-history-settings-page-updated'><p>";
-		_e("Cleared database", 'simple-history');
-		echo "</p></div>";
-	}
-	
-	if ($clear_log) {
-		simple_history_clear_log();
-	}
-	
-	_e("Items in the database are automatically removed after 60 days.", 'simple-history');
-	$update_link = add_query_arg("simple_history_clear_log", "1");
-	printf(' <a href="%2$s">%1$s</a>', __('Clear it now.', 'simple-history'), $update_link);
-}
 
 
 // WordPress Core updated
