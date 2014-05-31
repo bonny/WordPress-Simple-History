@@ -157,16 +157,16 @@ function simple_history_print_history($args = null) {
 					$attachment_mime = get_post_mime_type( $object_id );
 					$attachment_url = wp_get_attachment_url( $object_id );
 
-                                        // Check that file exists. It may not due to local dev vs remove dev etc.
-                                        $file_exists = file_exists($attachment_file);
+					// Check that file exists. It may not due to local dev vs remove dev etc.
+					$file_exists = file_exists($attachment_file);
 
 					// Get attachment thumbnail. 60 x 60 is the same size as the media overview uses
 					// Is thumbnail of object if image, is wp icon if not
 					$attachment_image_src = wp_get_attachment_image_src($object_id, array(60, 60), true);					
-                                        if ($attachment_image_src && $file_exists) {
+					if ($attachment_image_src && $file_exists) {
 						$object_image_out .= "<a class='simple-history-attachment-thumbnail' href='$edit_link'><img src='{$attachment_image_src[0]}' alt='Attachment icon' width='{$attachment_image_src[1]}' height='{$attachment_image_src[2]}' /></a>";
-                                        } else {
-                                                $object_image_out .= "<a class='simple-history-attachment-thumbnail' href='$edit_link'></a>";
+					} else {
+						$object_image_out .= "<a class='simple-history-attachment-thumbnail' href='$edit_link'></a>";
 					}
 					
 					// Begin adding nice to have meta info about to attachment (name, size, mime, etc.)					
@@ -621,7 +621,11 @@ function simple_history_get_items_array($args = "") {
 
 
 /**
- * add event to history table
+ * Add event to history table
+ * This is here for backwards compatibility
+ * If you use this please consider using
+ * SimpleHistory()->info();
+ * instead
  */
 function simple_history_add($args) {
 
@@ -678,53 +682,6 @@ function simple_history_add($args) {
 
 
 
-/**
- * Removes old entries from the db
- * @todo: let user set value, if any
- */
-function simple_history_purge_db() {
-
-	$do_purge_history = TRUE;
-	$do_purge_history = apply_filters("simple_history_allow_db_purge", $do_purge_history);
-
-	global $wpdb;
-	$tableprefix = $wpdb->prefix;
-
-	$days = 60;
-	$days = (int) apply_filters("simple_history_db_purge_days_interval", $days);
-
-	$simple_history_table = SimpleHistory::DBTABLE;
-	$sql = "DELETE FROM {$tableprefix}{$simple_history_table} WHERE DATE_ADD(date, INTERVAL $days DAY) < now()";
-
-	if ($do_purge_history) {
-		$wpdb->query($sql);
-	}
-
-}
-
-/**
- * Output html for the dashboard widget
- */
-function simple_history_dashboard() {
-
-	simple_history_purge_db();
-	
-	echo '<div class="wrap simple-history-wrap">';
-	simple_history_print_nav();
-	echo simple_history_print_history();
-	echo simple_history_get_pagination();
-	echo '</div>';
-
-}
-
-
-if (!function_exists("bonny_d")) {
-	function bonny_d($var) {
-		echo "<pre>";
-		print_r($var);
-		echo "</pre>";
-	}
-}
 
 /**
  * Output navigation at top with filters for type, users, and free text search input

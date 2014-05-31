@@ -1,5 +1,34 @@
 <?php
 
+/*
+
+
+# Subequent occations query thanks to this Stack Overflow thread:
+# http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
+# Similar questions that I didn't manage to understart, work, or did try:
+# - http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
+# - http://stackoverflow.com/questions/17651868/mysql-group-by-subsequent
+# - http://stackoverflow.com/questions/4495242/mysql-number-of-subsequent-occurrences
+# - http://stackoverflow.com/questions/20446242/postgresql-group-subsequent-rows
+# - http://stackoverflow.com/questions/17061156/mysql-group-by-range
+# - http://stackoverflow.com/questions/6602006/complicated-query-with-group-by-and-range-of-prices-in-mysql
+
+SET @counter:=1;
+SET @groupby:=0;
+
+SELECT 
+	*, count(REPEATED) AS subsequentOccations
+FROM 
+	(SELECT logger, LEVEL, message, occasionsID, DATE, IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
+	IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
+	@a:=occasionsID TYPE FROM wp_simple_history) AS t 
+GROUP BY repeated
+ORDER BY DATE DESC;
+
+
+
+*/
+
 /**
  * Main class for Simple History
  */ 
@@ -312,9 +341,24 @@ class SimpleHistory {
 		
 		if ( $this->setting_show_on_dashboard() && current_user_can($this->view_history_capability) ) {
 		
-			wp_add_dashboard_widget("simple_history_dashboard_widget", __("History", 'simple-history'), "simple_history_dashboard");
+			wp_add_dashboard_widget("simple_history_dashboard_widget", __("History", 'simple-history'), array($this, "dashboard_widget_output"));
 			
 		}
+	}
+
+	/**
+	 * Output html for the dashboard widget
+	 */
+	function dashboard_widget_output() {
+
+		$this->purge_db();
+		
+		echo '<div class="wrap simple-history-wrap">';
+		simple_history_print_nav();
+		echo simple_history_print_history();
+		echo simple_history_get_pagination();
+		echo '</div>';
+
 	}
 	
 	/**
@@ -323,12 +367,16 @@ class SimpleHistory {
 	 * Only adds scripts to pages where the log is shown or the settings page.
 	 */
 	function enqueue_admin_scripts($hook) {
-		
+	
 		if ( ($hook == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) || ($this->setting_show_on_dashboard() && $hook == "index.php") || ($this->setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
-			
+	
 			$plugin_url = plugin_dir_url(__FILE__);
 			wp_enqueue_style( "simple_history_styles", $plugin_url . "styles.css", false, SimpleHistory::VERSION );	
-			wp_enqueue_script("simple_history", $plugin_url . "scripts.js", array("jquery"), SimpleHistory::VERSION);
+			wp_enqueue_script("simple_history_script", $plugin_url . "scripts.js", array("jquery"), SimpleHistory::VERSION);
+
+			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(
+				'settingsConfirmClearLog' => __("Remove all log items?", 'simple-history')
+			));
 		
 		}
 
@@ -510,9 +558,23 @@ class SimpleHistory {
 
 	/*
 	 * Add setting sections and settings for the settings page
-	 *
+	 * Also maybe save some settings before outputing them
 	 */
 	function add_settings() {
+
+		// Clear the log if clear button was clicked in settings
+	    if ( isset( $_GET["simple_history_clear_log_nonce"] ) && wp_verify_nonce( $_GET["simple_history_clear_log_nonce"], 'simple_history_clear_log')) {
+		
+			$this->clear_log();
+			$msg = __("Cleared database", 'simple-history');
+			add_settings_error( "simple_history_rss_feed_regenerate_secret", "simple_history_rss_feed_regenerate_secret", $msg, "updated" );
+			set_transient('settings_errors', get_settings_errors(), 30);
+
+			$goback = add_query_arg( 'settings-updated', 'true',  wp_get_referer() );
+			wp_redirect( $goback );
+			exit;
+
+		}
 
 		// Section for general options
 		// Will contain settings like where to show simple history and number of items
@@ -572,7 +634,7 @@ class SimpleHistory {
 
 		global $simple_history;
 
-		simple_history_purge_db();
+		$this->purge_db();
 
 		?>
 
@@ -794,23 +856,36 @@ class SimpleHistory {
 	 * Settings section to clear database
 	 */
 	function settings_field_clear_log() {
-
-		$clear_log = false;
-
-		if (isset($_GET["simple_history_clear_log"]) && $_GET["simple_history_clear_log"]) {
-			$clear_log = true;
-			echo "<div class='simple-history-settings-page-updated'><p>";
-			_e("Cleared database", 'simple-history');
-			echo "</p></div>";
-		}
 		
-		if ($clear_log) {
-			$this->clear_log();
+		$clear_link = add_query_arg("", "");
+		$clear_link = wp_nonce_url( $clear_link, "simple_history_clear_log", "simple_history_clear_log_nonce" );
+		$clear_days = $this->get_clear_history_interval();
+
+		echo "<p>";
+		if ( $clear_days > 0 ) {
+			_e(  sprintf('Items in the database are automatically removed after %1$s days.', $clear_days), 'simple-history');
+		} else {
+			_e( 'Items in the database are kept forever.', 'simple-history');
 		}
-		
-		_e("Items in the database are automatically removed after 60 days.", 'simple-history');
-		$update_link = add_query_arg("simple_history_clear_log", "1");
-		printf(' <a href="%2$s">%1$s</a>', __('Clear it now.', 'simple-history'), $update_link);
+		echo "</p>";
+
+		printf('<p><a class="button js-SimpleHistory-Settings-ClearLog" href="%2$s">%1$s</a></p>', __('Clear log now', 'simple-history'), $clear_link);
+	}
+
+	/**
+	 * How old log entried are allowed to be. 
+	 * 0 = don't delete old entries.
+	 * @return int Number of days.
+	 */
+	function get_clear_history_interval() {
+
+		$days = 60;
+
+		$days = (int) apply_filters("simple_history_db_purge_days_interval", $days);
+		$days = (int) apply_filters("simple_history/db_purge_days_interval", $days);
+
+		return $days;
+
 	}
 
 	/**
@@ -827,5 +902,37 @@ class SimpleHistory {
 		$wpdb->query($sql);
 
 	}
+
+	/**
+	 * Removes old entries from the db
+	 */
+	function purge_db() {
+
+		$do_purge_history = true;
+		$do_purge_history = apply_filters("simple_history_allow_db_purge", $do_purge_history);
+		$do_purge_history = apply_filters("simple_history/allow_db_purge", $do_purge_history);
+		if ( ! $do_purge_history ) {
+			return;
+		}
+
+		$days = $this->get_clear_history_interval();
+
+		// Never clear log if days = 0
+		if (0 == $days) {
+			return;
+		}
+
+		global $wpdb;
+		$tableprefix = $wpdb->prefix;
+		$simple_history_table = SimpleHistory::DBTABLE;
+
+
+		$sql = "DELETE FROM {$tableprefix}{$simple_history_table} WHERE DATE_ADD(date, INTERVAL $days DAY) < now()";
+
+		$wpdb->query($sql);
+
+	}
+
+
 
 } // class

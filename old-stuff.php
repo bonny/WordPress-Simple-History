@@ -226,10 +226,6 @@ function simple_history_save_post($post_id) {
 		// it should also not be of type auto draft
 		$post = get_post($post_id);
 		if ($post->post_status != "auto-draft") {
-			// bonny_d($post);
-			#echo "save";
-			// [post_title] => neu
-			// [post_type] => page
 		}
 		
 	}

@@ -49,3 +49,37 @@ function SimpleLogger() {
 /** Boot up */
 $simple_history = new SimpleHistory();
 
+/*
+// Never clear the log (default is 60 days)
+add_filter("simple_history/db_purge_days_interval", function($days) {
+	return "0";
+});
+*/
+
+// Test logging
+// Example usage
+/*
+SimpleLogger()->info("This is a message sent to the log");
+// Second log entry with same info will make these two become an occasionGroup,
+// collapsing their entries into one expandable
+SimpleLogger()->info("This is a message sent to the log");
+
+// Log entries can be of different severity
+SimpleLogger()->info("User admin edited page 'About our company'");
+SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
+SimpleLogger()->debug("Ok, cron job is running!");
+
+// Log entries can have placeholders and context
+// This makes log entried translatable and filterable
+SimpleLogger()->notice("User {username} edited page {pagename}", array("username" => "bonnyerden", "pagename" => "My test page"));
+
+// Example usage with custom occasionsID
+function testMany() {
+SimpleLogger()->notice("User {username} edited page {pagename}", array(
+	"username" => "admin", 
+	"pagename" => "My test page",
+	"_occasionsID" => "username:1,postID:24884,action:edited"
+));
+}
+testMany();testMany();testMany();testMany();testMany();testMany();
+*/

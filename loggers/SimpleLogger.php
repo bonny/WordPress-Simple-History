@@ -1,66 +1,5 @@
 <?php
 
-/*
-@TODO:
-
-In old code this was how we detected occasions:
-
-&& $one_row->action == $prev_row->action
-&& $one_row->object_type == $prev_row->object_type
-&& $one_row->object_type == $prev_row->object_type
-&& $one_row->object_subtype == $prev_row->object_subtype
-&& $one_row->user_id == $prev_row->user_id
-&& (
-		(!empty($one_row->object_id) && !empty($prev_row->object_id))
-		&& ($one_row->object_id == $prev_row->object_id)
-		|| ($one_row->object_name == $prev_row->object_name)
-)
-
-How should we do that in the new version?
-
-Common keys include:
- - level (notice)
- - logger (SimplePostsLogger)
- - message (Post {postname} was updated by user {username})
- - userID (13) @TODO: add this when saving
-
-Example: post edited: the same post, should be edited by the same user, with no other entried logged between
-Currently that can not be determined. Solution: each logger stores a "key" that determines if an
-event and another event can be considered the same. 
-
-For example posts: create a key that is a combination of:
-userID + postID + status changed
-
-Login attempts:
-loginUserEmail + status failed
-
-Logga 404-errors
-status404 + document URI
-
-*/
-
-
-// Example usage
-SimpleLogger()->info("This is a message sent to the log");
-SimpleLogger()->info("User admin edited page 'About our company'");
-
-// Example usage with context
-SimpleLogger()->notice("User {username} edited page {pagename}", array("username" => "bonnyerden", "pagename" => "My test page"));
-
-// Example usage with occasionsID / groupID / commonID
-function testlogOccasions() {
-SimpleLogger()->notice("User {username} edited page {pagename}", array(
-	"username" => "admin", 
-	"pagename" => "My test page",
-	// context keys used internally are prefixed with "_" (underscore)
-	"_occasionsID" => "username:1,postID:24884,action:edited"
-));
-}
-testlogOccasions(); testlogOccasions(); testlogOccasions();
-testlogOccasions(); testlogOccasions(); testlogOccasions();
-testlogOccasions(); testlogOccasions(); testlogOccasions();
-testlogOccasions(); testlogOccasions(); testlogOccasions();
-
 /**
  * A PSR-3 inspired logger class
  * This class logs + formats logs for display in the Simple History GUI/Viewer
@@ -268,6 +207,30 @@ class SimpleLogger
 			"message" => $message,
 		);
 
+		// Setup occasions id
+		$found_occasions_id = false;
+		$occasions_id = null;
+		if (isset($context["_occasionsID"])) {
+		
+			$occasions_id = md5( $context["_occasionsID"] );
+			unset( $context["_occasionsID"] );
+
+		} else {
+
+			// No occasions id specified, create one
+			$occasions_data = array(
+				"logger" => $this->slug,
+				"level" => $level,
+				"message" => $message,
+				"context" => $context
+			);
+			
+			$occasions_id = md5( json_encode($occasions_data) );
+
+		}
+
+		$data["occasionsID"] = $occasions_id;
+
 		$result = $wpdb->insert( $db_table, $data );
 
 		// Only save context if able to store row
@@ -284,39 +247,6 @@ class SimpleLogger
 			$db_table_contexts = apply_filters("simple_logger_db_table_contexts", $db_table_contexts);
 
 			if ( is_array($context) ) {
-
-				// Check for keys that begin with "_" = special/internal ones
-				$found_occasions_id = false;
-				foreach ($context as $key => $value) {
-				
-					if ('_' === mb_substr($key, 0, 1) ) {
-
-						if ("_occasionsID" == $key) {
-
-							$value = md5( $value );
-							$context[$key] = $value;
-							$found_occasions_id = true;
-
-						}
-
-					}
-
-				}
-
-				// If no occasions id found then generate one automagically
-				// using the data we stored
-				if ( ! $found_occasions_id ) {
-					
-					$occasions_data = array(
-						"logger" => $this->slug,
-						"level" => $level,
-						"message" => $message,
-						"context" => $context
-					);
-					
-					$context["_occasionsID"] = md5( json_encode($occasions_data) );
-
-				}
 
 				// Save each context value
 				foreach ($context as $key => $value) {

@@ -9,7 +9,7 @@ var simple_history = (function($) {
 	function init() {
 
 		// Only add JS things if Simple History exists on page
-		if (! $("div.simple-history-ol-wrapper").length) {
+		if ( ! $("div.simple-history-ol-wrapper").length && pagenow != 'settings_page_simple_history_settings_menu_slug' ) {
 			return;
 		}
 
@@ -104,6 +104,13 @@ var simple_history = (function($) {
 			var self = $(this);
 			make_wrapper_expandable();
 			self.closest("li").toggleClass("simple-history-occasions-one-description-is-open");
+		});
+
+		// Add a confirm-prompt to the clear log-button in settings
+		$(".js-SimpleHistory-Settings-ClearLog").on("click", function(e) {
+			if ( ! confirm(simple_history_script_vars.settingsConfirmClearLog) ) {
+				e.preventDefault();
+			}
 		});
 
 
