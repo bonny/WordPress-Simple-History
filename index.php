@@ -28,6 +28,7 @@ License: GPL2
 
 /** Load required files */
 require_once(__DIR__ . "/SimpleHistory.php");
+require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
 
 /**
  * Register function that is called when plugin is installed
@@ -82,4 +83,4 @@ SimpleLogger()->notice("User {username} edited page {pagename}", array(
 ));
 }
 testMany();testMany();testMany();testMany();testMany();testMany();
-*/
+//*/

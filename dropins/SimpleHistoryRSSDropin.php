@@ -20,6 +20,10 @@ class SimpleHistoryRSSDropin {
 
 	}
 
+	/**
+	 * Add settings for the RSS feed 
+	 * + also regenerates the secret if requested
+	 */
 	public function add_settings() {
 
 		/**
@@ -37,7 +41,7 @@ class SimpleHistoryRSSDropin {
 		// RSS address
 		add_settings_field(
 			"simple_history_rss_feed", 
-			__("Web address", "simple-history"),
+			__("Address", "simple-history"),
 			array($this, "settings_field_rss"),
 			SimpleHistory::SETTINGS_MENU_SLUG,
 			$settings_section_rss_id

@@ -582,30 +582,6 @@ function simple_history_get_items_array($args = "") {
 
 	}
 
-	// arr_events is now all events
-	// but we only want some of them
-	// limit by using 
-	// num_added = number of prev added items
-	// items = number of items to get
-	/*sf_d($args["num_added"]);
-	sf_d($args["items"]);
-	sf_d($arr_events);
-	// */
-	// 
-	//$offset = $args["num_added"]; // old way when we appended
-/*
-<pre class='sf_box_debug'>Array
-(
-    [page] =&gt; 1
-    [items] =&gt; 5
-    [filter_type] =&gt; /
-    [filter_user] =&gt; 
-    [is_ajax] =&gt; 1
-    [search] =&gt; 
-    [num_added] =&gt; 5
-)
-*/
-
 	if (is_numeric($args["items"]) && $args["items"] > 0) {
 		#sf_d($args);
 		$offset = ($args["page"] * $args["items"]);
@@ -983,9 +959,4 @@ function simple_history_get_pagination() {
 }
 
 
-
-// WordPress Core updated
-function action_core_updated($wp_version) {
-	simple_history_add("action=updated&object_type=wordpress_core&object_id=wordpress_core&object_name=".sprintf(__('WordPress %1$s', 'simple-history'), $wp_version));
-}
 

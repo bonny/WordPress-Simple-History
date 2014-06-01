@@ -404,3 +404,9 @@ function simple_history_deactivated_plugin($plugin_name) {
 	simple_history_add("action=deactivated&object_type=plugin&object_name=$plugin_name");
 
 }
+
+// WordPress Core updated
+function action_core_updated($wp_version) {
+	simple_history_add("action=updated&object_type=wordpress_core&object_id=wordpress_core&object_name=".sprintf(__('WordPress %1$s', 'simple-history'), $wp_version));
+}
+

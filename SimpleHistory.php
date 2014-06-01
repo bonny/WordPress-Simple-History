@@ -1,34 +1,5 @@
 <?php
 
-/*
-
-
-# Subequent occations query thanks to this Stack Overflow thread:
-# http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
-# Similar questions that I didn't manage to understart, work, or did try:
-# - http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
-# - http://stackoverflow.com/questions/17651868/mysql-group-by-subsequent
-# - http://stackoverflow.com/questions/4495242/mysql-number-of-subsequent-occurrences
-# - http://stackoverflow.com/questions/20446242/postgresql-group-subsequent-rows
-# - http://stackoverflow.com/questions/17061156/mysql-group-by-range
-# - http://stackoverflow.com/questions/6602006/complicated-query-with-group-by-and-range-of-prices-in-mysql
-
-SET @counter:=1;
-SET @groupby:=0;
-
-SELECT 
-	*, count(REPEATED) AS subsequentOccations
-FROM 
-	(SELECT logger, LEVEL, message, occasionsID, DATE, IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
-	IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
-	@a:=occasionsID TYPE FROM wp_simple_history) AS t 
-GROUP BY repeated
-ORDER BY DATE DESC;
-
-
-
-*/
-
 /**
  * Main class for Simple History
  */ 
@@ -932,7 +903,5 @@ class SimpleHistory {
 		$wpdb->query($sql);
 
 	}
-
-
 
 } // class
