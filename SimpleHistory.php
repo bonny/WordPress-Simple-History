@@ -458,23 +458,33 @@ class SimpleHistory {
 		?>
 		<div class="wrap">
 
-			<form method="post" action="options.php">
+			<h2><?php _e("Simple History Settings", "simple-history") ?></h2>
 			
-				<h2><?php _e("Simple History Settings", "simple-history") ?></h2>
-			
-				<?php 
-				// Prints out all settings sections added to a particular settings page
-				do_settings_sections(SimpleHistory::SETTINGS_MENU_SLUG);
-				?>
+			<?php
+			$active_tab = isset( $_GET["selected-tab"] ) ? $_GET["selected-tab"] : "$active_tab";
+			$settings_base_url = menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0);
 
-				<?php 
-				// Output nonce, action, and option_page fields
-				settings_fields("simple_history_settings_group");
-				?>
+			?>
 
-				<?php submit_button(); ?>
+			<h3 class="nav-tab-wrapper">
+				<a href="<?php echo add_query_arg("selected-tab", "general", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "general") ? "nav-tab-active" : "" ?>">Tab 1</a>
+				<a href="<?php echo add_query_arg("selected-tab", "test", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "test") ? "nav-tab-active" : "" ?>">Test page</a>
+			</h3>
 
-			</form>
+			<?php
+			switch ( $active_tab ) {
+
+				case "test":
+					include( __DIR__ . "/templates/settings-test.php" );
+					break;
+
+				case "general":
+				default:
+
+					include( __DIR__ . "/templates/settings-general.php" );
+					break;
+			}
+			?>
 
 		</div>
 		<?php
@@ -902,6 +912,22 @@ class SimpleHistory {
 
 		$wpdb->query($sql);
 
+	}
+
+	private function getLogRowPlainTextOutput($row) {
+
+		$row_logger = $row->logger;
+		$logger = null;
+	
+		// Fallback to SimpleLogger if no logger exists for row
+		if ( ! isset( $this->instantiatedLoggers[$row_logger] ) ) {
+			$row_logger = "SimpleLogger";
+		}
+
+		$logger = $this->instantiatedLoggers[$row_logger]["instance"];		
+
+		$logger->getLogRowPlainTextOutput( $row );
+		
 	}
 
 } // class

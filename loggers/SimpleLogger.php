@@ -37,8 +37,13 @@ class SimpleLogger
 	 * Used in for example CSV-exports.
 	 * Defaults to log message with context interpolated
 	 */
-	public function getLogRowPlainTextOutput($level, $message, array $context = array()) {
-
+	public function getLogRowPlainTextOutput($row) {
+		sf_d(__FUNCTION__);
+		sf_d($row->date);
+		sf_d($row->level);
+		sf_d($row->message);
+		sf_d($row->subsequentOccations);
+		sf_d($row->contexts);
 	}
 
 	/**
@@ -50,7 +55,7 @@ class SimpleLogger
 	 *
 	 * @return string Formatted HTML
 	 */
-	public function getLogRowHTMLOutput($level, $message, array $context = array()) {
+	public function getLogRowHTMLOutput($row) {
 
 	}
 
