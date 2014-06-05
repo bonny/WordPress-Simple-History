@@ -35,10 +35,6 @@ function old_logger_inits() {
 
 
 		/** called on admin_init */
-		// posts						 
-		add_action("save_post", "simple_history_save_post");
-		add_action("transition_post_status", "simple_history_transition_post_status", 10, 3);
-		add_action("delete_post", "simple_history_delete_post");
 										 
 		// attachments/media			 
 		add_action("add_attachment", "simple_history_add_attachment");
@@ -209,79 +205,6 @@ function simple_history_wp_logout() {
 	simple_history_add("action=logged out&object_type=user&object_id=$current_user_id&object_name=$user_nicename");
 }
 
-function simple_history_delete_post($post_id) {
-	if (wp_is_post_revision($post_id) == false) {
-		$post = get_post($post_id);
-		if ($post->post_status != "auto-draft" && $post->post_status != "inherit") {
-			$post_title = urlencode(get_the_title($post->ID));
-			simple_history_add("action=deleted&object_type=post&object_subtype=" . $post->post_type . "&object_id=$post_id&object_name=$post_title");
-		}
-	}
-}
-
-function simple_history_save_post($post_id) {
-
-	if (wp_is_post_revision($post_id) == false) {
-		// not a revision
-		// it should also not be of type auto draft
-		$post = get_post($post_id);
-		if ($post->post_status != "auto-draft") {
-		}
-		
-	}
-}
-
-// post has changed status
-function simple_history_transition_post_status($new_status, $old_status, $post) {
-
-	#echo "<br>From $old_status to $new_status";
-
-	// From new to auto-draft <- ignore
-	// From new to inherit <- ignore
-	// From auto-draft to draft <- page/post created
-	// From draft to draft
-	// From draft to pending
-	// From pending to publish
-	# From pending to trash
-	// if not from & to = same, then user has changed something
-	//bonny_d($post); // regular post object
-	if ($old_status == "auto-draft" && ($new_status != "auto-draft" && $new_status != "inherit")) {
-		// page created
-		$action = "created";
-	} elseif ($new_status == "auto-draft" || ($old_status == "new" && $new_status == "inherit")) {
-		// page...eh.. just leave it.
-		return;
-	} elseif ($new_status == "trash") {
-		$action = "deleted";
-	} else {
-		// page updated. i guess.
-		$action = "updated";
-	}
-	$object_type = "post";
-	$object_subtype = $post->post_type;
-
-	// Attempt to auto-translate post types*/
-	// no, no longer, do it at presentation instead
-	#$object_type = __( ucfirst ( $object_type ) );
-	#$object_subtype = __( ucfirst ( $object_subtype ) );
-
-	if ($object_subtype == "revision") {
-		// don't log revisions
-		return;
-	}
-	
-	if (wp_is_post_revision($post->ID) === false) {
-		// ok, no revision
-		$object_id = $post->ID;
-	} else {
-		return; 
-	}
-	
-	$post_title = get_the_title($post->ID);
-	$post_title = urlencode($post_title);
-	
-	simple_history_add("action=$action&object_type=$object_type&object_subtype=$object_subtype&object_id=$object_id&object_name=$post_title");
-}
 
 // called when saving an options page
 function simple_history_add_update_option_page($capability = NULL, $option_page = NULL) {

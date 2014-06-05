@@ -62,7 +62,7 @@ class SimpleLogger
 		
 		// HTML for sender
 		$sender_html = "";
-		$user_id = isset($row->contexts["_userID"]) ? $row->contexts["_userID"] : null;
+		$user_id = isset($row->contexts["_user_id"]) ? $row->contexts["_user_id"] : null;
 
 		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
 
@@ -185,7 +185,7 @@ class SimpleLogger
 		$sender_image_html = "";
 		$sender_image_size = 38; // 32
 
-		$user_id = isset($row->contexts["_userID"]) ? $row->contexts["_userID"] : null;
+		$user_id = isset($row->contexts["_user_id"]) ? $row->contexts["_user_id"] : null;
 
 		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
 
@@ -436,22 +436,45 @@ class SimpleLogger
 			$db_table_contexts = $wpdb->prefix . $this->db_table_contexts;
 			$db_table_contexts = apply_filters("simple_logger_db_table_contexts", $db_table_contexts);
 
-			if ( is_array($context) ) {
+			if ( ! is_array($context) ) {
+				$context = array();
+			}
 
-				// Save each context value
-				foreach ($context as $key => $value) {
-
-					$data = array(
-						"history_id" => $history_inserted_id,
-						"key" => $key,
-						"value" => $value,
-					);
-
-					$result = $wpdb->insert( $db_table_contexts, $data );
-
+			// Automatically append some contexts
+			// If they are not already set
+			$current_user = wp_get_current_user();
+			
+			if ( ! isset( $context["_user_id"] ) ) {
+				
+				if ( isset($current_user->ID) && $current_user->ID) {
+					$context["_user_id"] = $current_user->ID;
+					$context["_user_login"] = $current_user->user_login;
+					$context["_user_email"] = $current_user->user_email;
 				}
 
 			}
+
+			if ( ! isset( $context["_user_agent"] ) ) {
+				$context["_http_user_agent"] = $_SERVER["HTTP_USER_AGENT"];
+			}
+
+			if ( ! isset( $context["_remote_addr"] ) ) {
+				$context["_remote_addr"] = $_SERVER["REMOTE_ADDR"];
+			}
+
+			// Save each context value
+			foreach ($context as $key => $value) {
+
+				$data = array(
+					"history_id" => $history_inserted_id,
+					"key" => $key,
+					"value" => $value,
+				);
+
+				$result = $wpdb->insert( $db_table_contexts, $data );
+
+			}
+
 		}
 		
 		$this->lastInsertID = $history_inserted_id;
