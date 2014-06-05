@@ -115,17 +115,20 @@ class SimpleLogger
 
 		$date_localized = date_i18n( $datef, $date_datetime->getTimestamp() );
 		$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
+		
+		/* translators: 1: last modified date and time in human time diff-format */
+		$str_time_ago = sprintf( __( '%1$s ago', 'simple-history/log-header-output-time-ago' ), $date_human_time_diff );
 
 		$date_html = sprintf(
 			'
 				<time datetime="%1$s">
 					%2$s
-					<!-- (%3$s ago) -->
+					(%3$s)
 				</time>
 			',
 			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
 			$date_localized,
-			$date_human_time_diff
+			$str_time_ago
 		);
 
 		// Glue together final result
@@ -168,9 +171,7 @@ class SimpleLogger
 		$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
 
 		$output = sprintf(
-			'
-				%1$s
-			',
+			'%1$s',
 			$message,
 			$date_human_time_diff
 		);

@@ -1,3 +1,45 @@
+<style>
+
+	.simple-history-logitems {
+		background: #fff;
+		border: 1px solid rgb(229, 229, 229);
+	}
+
+	.simple-history-logitem {
+		margin: 0;
+		padding: 1em 1em;
+		border-bottom: 1px solid rgb(229, 229, 229);
+	}
+
+	.simple-history-logitem:hover {
+		background: rgb(245, 248, 250); /* same bg color as twitter uses on hover */
+	}
+
+	/*
+	.simple-history-logitem:nth-child(odd) {
+		background: rgb(249, 249, 249);
+	}
+	*/
+
+	.simple-history-logitem__firstcol {
+		float: left;
+	}
+
+	.simple-history-logitem__senderImage {
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		overflow: hidden;
+	}
+	.simple-history-logitem__senderImage img {
+		display: block;
+	}
+
+	.simple-history-logitem__secondcol {
+		margin-left: 42px;
+	}
+
+</style>
 <?php
 
 $logQuery = new SimpleHistoryLogQuery();
@@ -26,22 +68,28 @@ stdClass Object
 )
 */
 
+echo "<ul class='simple-history-logitems'>";
 foreach ($logRows as $oneLogRow) {
 	
-	$header = $this->getLogRowHeaderOutput($oneLogRow);	
-	$sender_image = $this->getLogRowSenderImageOutput($oneLogRow);
+	$header_html = $this->getLogRowHeaderOutput($oneLogRow);	
 	$plain_text_html = $this->getLogRowPlainTextOutput($oneLogRow);
+	$sender_image_html = $this->getLogRowSenderImageOutput($oneLogRow);
 	
 	printf(
 		'
-		<hr>
-		%3$s
-		<div>%1$s</div>
-		<p>%2$s</p>
+			<li class="simple-history-logitem">
+				<div class="simple-history-logitem__firstcol">
+					<div class="simple-history-logitem__senderImage">%3$s</div>
+				</div>
+				<div class="simple-history-logitem__secondcol">
+					<div class="simple-history-logitem__header">%1$s</div>
+					<div class="simple-history-logitem__text">%2$s</div>
+				</div>
+			</li>
 		',
-		$header,
-		$plain_text_html,
-		$sender_image
+		$header_html, // 1
+		$plain_text_html, // 2
+		$sender_image_html // 3
 	);
 
 	// Get the main message row.
@@ -54,3 +102,4 @@ foreach ($logRows as $oneLogRow) {
 	#SimpleLoggerFormatter::getRowHTMLOutput($oneLogRow);
 
 }
+echo "</ul>";
