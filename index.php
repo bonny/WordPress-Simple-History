@@ -84,3 +84,16 @@ SimpleLogger()->notice("User {username} edited page {pagename}", array(
 }
 testMany();testMany();testMany();testMany();testMany();testMany();
 //*/
+
+// SimpleLogger()->notice("Edited product {pagename}", array(
+// 	"pagename" => "We are hiring!",
+// 	"_postType" => "product",
+// 	"_userID" => 1,
+// 	"_userLogin" => "jessie",
+// 	"_userEmail" => "jessie@example.com",
+// 	"_occasionsID" => "username:1,postID:24885,action:edited"
+// ));
+/*SimpleLogger()->debug("Ran cron job '{cron_name}'", array(
+	"cron_name" => "check orders",
+	"_userID" => -1
+));*/

@@ -4,7 +4,7 @@
 
 $logQuery = new SimpleHistoryLogQuery();
 $logRows = $logQuery->query(array(
-	
+	"posts_per_page" => 20
 ));
 
 /*
@@ -30,8 +30,19 @@ stdClass Object
 
 foreach ($logRows as $oneLogRow) {
 	
-	$this->getLogRowPlainTextOutput($oneLogRow);
+	$header = $this->getLogRowHeaderOutput($oneLogRow);
+	$plainText = $this->getLogRowPlainTextOutput($oneLogRow);
 	
+	printf(
+		'
+		<hr>
+		<div>%1$s</div>
+		<p>%2$s</p>
+		',
+		$header,
+		$plainText
+	);
+
 	// Get the main message row.
 	// Should be as plain as possible, like plain text 
 	// but with links to for example users and posts

@@ -33,17 +33,122 @@ class SimpleLogger
 	}
 
 	/**
+	* Interpolates context values into the message placeholders.
+	*/
+	function interpolate($message, $context = array())
+	{
+
+		if ( ! is_array($context)) {
+			return $message;
+		}
+
+		// build a replacement array with braces around the context keys
+		$replace = array();
+		foreach ($context as $key => $val) {
+			$replace['{' . $key . '}'] = $val;
+		}
+
+		// interpolate replacement values into the message and return
+		return strtr($message, $replace);
+
+	}
+
+	/**
+	 * Returns header output for a log row
+	 * Format should be common for all log rows and should be like:
+	 * Username (user role) · Date
+	 */
+	function getLogRowHeaderOutput($row) {
+		
+		// HTML for sender
+		$sender_html = "";
+		
+		$user_id = isset($row->contexts["_userID"]) ? $row->contexts["_userID"] : null;
+
+		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
+
+			// get user role, as done in user-edit.php
+			$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
+			$user_role  = array_shift( $user_roles );
+
+			$sender_html = sprintf(
+				'
+				<strong>%1$s</strong>
+				<span class="discrete">(%2$s)</span>
+				',
+				$user->user_login,
+				$user->user_email
+			);
+
+		} else if ($user_id > 0) {
+				
+			// was a user, but user is deleted now
+			$sender_html = sprintf(
+				'<strong>Deleted user</strong>'
+			);
+
+		} else {
+
+			// not a user
+			$sender_html = sprintf(
+				'<strong>System</strong>'
+			);
+
+		}
+
+
+		// HTML for date
+		// Date (should...) always exist
+		// http://developers.whatwg.org/text-level-semantics.html#the-time-element
+		$date_html = "";
+		$date = $row->date;
+		$date_datetime = new DateTime($date);
+		$date_format = get_option( 'date_format' );
+		$date_localized = date_i18n( $date_format, $date_datetime->getTimestamp() );
+		$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
+
+		$date_html = sprintf(
+			'
+				<time datetime="%1$s">%2$s (%3$s ago)</time>
+			',
+			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
+			$date_localized,
+			$date_human_time_diff
+		);
+
+		// Glue together final result
+		$html = sprintf(
+			'
+			%1$s · %2$s
+			'
+		, $sender_html, $date_html);
+
+		return $html;
+
+	}
+
+	/**
 	 * Returns the plain text version of this entry
 	 * Used in for example CSV-exports.
-	 * Defaults to log message with context interpolated
+	 * Defaults to log message with context interpolated.
+	 * Keep format as plain and simple as possible.
+	 * Links are ok, for example to link to users or posts.
+	 * Tags will be stripped when text is used for CSV-exports and so on.
+	 * Keep it on a single line. No <p> or <br> and so on.
+	 *
+	 * Example output:
+	 * Edited post "About the company"
+	 *
+	 * Message should sound like it's coming from the user.
+	 * Image that the name of the user is added in front of the text:
+	 * Jessie James: Edited post "About the company"
 	 */
 	public function getLogRowPlainTextOutput($row) {
-		sf_d(__FUNCTION__);
-		sf_d($row->date);
-		sf_d($row->level);
-		sf_d($row->message);
-		sf_d($row->subsequentOccations);
-		sf_d($row->contexts);
+
+		$contexts = isset( $row->contexts ) && is_array( $row->contexts ) ? $row->contexts : array();
+		
+		return $this->interpolate($row->message, $contexts);
+
 	}
 
 	/**

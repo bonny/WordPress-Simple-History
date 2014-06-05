@@ -926,8 +926,25 @@ class SimpleHistory {
 
 		$logger = $this->instantiatedLoggers[$row_logger]["instance"];		
 
-		$logger->getLogRowPlainTextOutput( $row );
+		return $logger->getLogRowPlainTextOutput( $row );
 		
+	}
+
+
+	private function getLogRowHeaderOutput($row) {
+
+		$row_logger = $row->logger;
+		$logger = null;
+	
+		// Fallback to SimpleLogger if no logger exists for row
+		if ( ! isset( $this->instantiatedLoggers[$row_logger] ) ) {
+			$row_logger = "SimpleLogger";
+		}
+
+		$logger = $this->instantiatedLoggers[$row_logger]["instance"];		
+
+		return $logger->getLogRowHeaderOutput( $row );
+
 	}
 
 } // class
