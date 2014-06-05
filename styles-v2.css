@@ -1,0 +1,62 @@
+
+.simple-history-logitems {
+	background: #fff;
+	border: 1px solid rgb(229, 229, 229);
+	max-width: 650px;
+}
+
+.simple-history-logitem {
+	margin: 0;
+	padding: 15px;
+	border-bottom: 1px solid rgb(229, 229, 229);
+	border-right: 4px solid transparent;
+}
+
+.simple-history-logitem--loglevel-warning {
+	border-right-color: rgb(202, 172, 15);
+}
+
+.simple-history-logitem--loglevel-error {
+	border-right-color: rgb(194, 71, 71);
+}
+
+.simple-history-logitem:hover {
+	background: rgb(245, 248, 250); /* same bg color as twitter uses on hover */
+}
+
+.simple-history-logitem__firstcol {
+	float: left;
+}
+
+.simple-history-logitem__senderImage {
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	overflow: hidden;
+}
+.simple-history-logitem__senderImage img {
+	display: block;
+}
+
+.simple-history-logitem__secondcol {
+	margin-left: 48px;
+}
+
+.simple-history-logitem__header {
+	line-height: 1;
+	margin-top: 2px;
+}
+
+.simple-history-logitem__header time {
+	color: rgb(137, 143, 156);
+}
+
+.simple-history-logitem__text {
+	margin-top: 0.4em;
+}
+
+.simple-history-logitem__occasions {
+	color: rgb(137, 143, 156);
+	margin-top: 0.4em;
+	line-height: 1;
+}

@@ -38,7 +38,7 @@ class SimpleHistoryLogQuery {
 		#sf_d($args, "Run log query with args");
 
 		/*
-		Subequent occations query thanks to this Stack Overflow thread:
+		Subequent occasions query thanks to this Stack Overflow thread:
 		http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
 		Similar questions that I didn't manage to understart, work, or did try:
 		- http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
@@ -64,7 +64,7 @@ class SimpleHistoryLogQuery {
 				t.level,
 				t.message,
 				t.occasionsID,
-				count(REPEATED) AS subsequentOccations,
+				count(REPEATED) AS subsequentOccasions,
 				t.date,
 				t.rep,
 				t.repeated,

@@ -183,7 +183,7 @@ class SimpleLogger
 	public function getLogRowSenderImageOutput($row) {
 
 		$sender_image_html = "";
-		$sender_image_size = 32;
+		$sender_image_size = 38; // 32
 
 		$user_id = isset($row->contexts["_userID"]) ? $row->contexts["_userID"] : null;
 

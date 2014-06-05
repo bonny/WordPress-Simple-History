@@ -93,9 +93,12 @@ testMany();testMany();testMany();testMany();testMany();testMany();
 // 	"_userEmail" => "jessie@example.com",
 // 	"_occasionsID" => "username:1,postID:24885,action:edited"
 // ));
+
 /*
-SimpleLogger()->debug("Installed plugin '{pluginName}'", array(
-	"pluginName" => "CMS Tree Page View",
-	"_userID" => 7
+
+SimpleLogger()->info('User "{user_login}" failed to login because they did not enter a correct password', array(
+	"user_login" => "admin",
+	"_userID" => null
 ));
-*/
+
+//*/
