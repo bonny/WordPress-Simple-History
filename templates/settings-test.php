@@ -39,6 +39,18 @@
 		margin-left: 42px;
 	}
 
+	.simple-history-logitem__header {
+		line-height: 1;
+	}
+
+	.simple-history-logitem__header time {
+		color: rgb(137, 143, 156);
+	}
+
+	.simple-history-logitem__text {
+		/*font-size: 1.5em;*/
+	}
+
 </style>
 <?php
 

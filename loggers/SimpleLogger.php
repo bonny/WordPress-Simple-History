@@ -105,30 +105,30 @@ class SimpleLogger
 		// Date (should...) always exist
 		// http://developers.whatwg.org/text-level-semantics.html#the-time-element
 		$date_html = "";
+		$str_when = "";
 		$date_datetime = new DateTime($row->date);
-
-		//$date_format = get_option( 'date_format' );
-		//$time_format = get_option( 'time_format' );
-
-		/* translators: Publish box date format, see http://php.net/date */
-		$datef = __( 'M j, Y @ G:i' );
-
-		$date_localized = date_i18n( $datef, $date_datetime->getTimestamp() );
-		$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
 		
-		/* translators: 1: last modified date and time in human time diff-format */
-		$str_time_ago = sprintf( __( '%1$s ago', 'simple-history/log-header-output-time-ago' ), $date_human_time_diff );
+		// Show "ago"-time when event is xx seconds ago or earlier
+		$time_ago_max_time = DAY_IN_SECONDS * 2;
+		if ( time() - $date_datetime->getTimestamp() > $time_ago_max_time ) {
+			/* translators: Publish box date format, see http://php.net/date */
+			$datef = __( 'M j, Y @ G:i' );
+			$str_when = date_i18n( $datef, $date_datetime->getTimestamp() );
+
+		} else {
+			$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
+			/* translators: 1: last modified date and time in human time diff-format */
+			$str_when = sprintf( __( '%1$s ago', 'simple-history/log-header-output-time-ago' ), $date_human_time_diff );
+		}
 
 		$date_html = sprintf(
 			'
 				<time datetime="%1$s">
 					%2$s
-					(%3$s)
 				</time>
 			',
 			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
-			$date_localized,
-			$str_time_ago
+			$str_when
 		);
 
 		// Glue together final result
