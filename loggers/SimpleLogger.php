@@ -62,34 +62,38 @@ class SimpleLogger
 		
 		// HTML for sender
 		$sender_html = "";
-		
 		$user_id = isset($row->contexts["_userID"]) ? $row->contexts["_userID"] : null;
 
 		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
 
+			// Sender is user and user still exists
+
 			// get user role, as done in user-edit.php
 			$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
 			$user_role  = array_shift( $user_roles );
+			$user_display_name = $user->display_name;
+
 
 			$sender_html = sprintf(
 				'
-				<strong>%1$s</strong>
-				<span class="discrete">(%2$s)</span>
+				<strong>%3$s</strong>
+				<!-- <span class="discrete">(%2$s)</span> -->
 				',
 				$user->user_login,
-				$user->user_email
+				$user->user_email,
+				$user_display_name
 			);
 
 		} else if ($user_id > 0) {
 				
-			// was a user, but user is deleted now
+			// Sender was a user, but user is deleted now
 			$sender_html = sprintf(
 				'<strong>Deleted user</strong>'
 			);
 
 		} else {
 
-			// not a user
+			// Not a user
 			$sender_html = sprintf(
 				'<strong>System</strong>'
 			);
@@ -101,15 +105,23 @@ class SimpleLogger
 		// Date (should...) always exist
 		// http://developers.whatwg.org/text-level-semantics.html#the-time-element
 		$date_html = "";
-		$date = $row->date;
-		$date_datetime = new DateTime($date);
-		$date_format = get_option( 'date_format' );
-		$date_localized = date_i18n( $date_format, $date_datetime->getTimestamp() );
+		$date_datetime = new DateTime($row->date);
+
+		//$date_format = get_option( 'date_format' );
+		//$time_format = get_option( 'time_format' );
+
+		/* translators: Publish box date format, see http://php.net/date */
+		$datef = __( 'M j, Y @ G:i' );
+
+		$date_localized = date_i18n( $datef, $date_datetime->getTimestamp() );
 		$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
 
 		$date_html = sprintf(
 			'
-				<time datetime="%1$s">%2$s (%3$s ago)</time>
+				<time datetime="%1$s">
+					%2$s
+					<!-- (%3$s ago) -->
+				</time>
 			',
 			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
 			$date_localized,
@@ -121,7 +133,10 @@ class SimpleLogger
 			'
 			%1$s · %2$s
 			'
-		, $sender_html, $date_html);
+			,
+			$sender_html,
+			$date_html
+		);
 
 		return $html;
 
@@ -147,7 +162,48 @@ class SimpleLogger
 
 		$contexts = isset( $row->contexts ) && is_array( $row->contexts ) ? $row->contexts : array();
 		
-		return $this->interpolate($row->message, $contexts);
+		$message = $this->interpolate($row->message, $contexts);
+
+		$date_datetime = new DateTime($row->date);
+		$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
+
+		$output = sprintf(
+			'
+				%1$s
+			',
+			$message,
+			$date_human_time_diff
+		);
+
+		return $output;
+
+	}
+
+	public function getLogRowSenderImageOutput($row) {
+
+		$sender_image_html = "";
+		$sender_image_size = 32;
+
+		$user_id = isset($row->contexts["_userID"]) ? $row->contexts["_userID"] : null;
+
+		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
+
+			// Sender was user
+			$sender_image_html = get_avatar( $user->user_email, $sender_image_size );	
+
+		} else if ($user_id > 0) {
+				
+			// Sender was a user, but user is deleted now
+			$sender_image_html = get_avatar( "", $sender_image_size );	
+
+		} else {
+
+			$sender_image_html = get_avatar( "", $sender_image_size );	
+
+		}
+	
+
+		return $sender_image_html;
 
 	}
 

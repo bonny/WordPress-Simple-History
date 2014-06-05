@@ -1,5 +1,3 @@
-<h4>Test</h4>
-
 <?php
 
 $logQuery = new SimpleHistoryLogQuery();
@@ -30,17 +28,20 @@ stdClass Object
 
 foreach ($logRows as $oneLogRow) {
 	
-	$header = $this->getLogRowHeaderOutput($oneLogRow);
-	$plainText = $this->getLogRowPlainTextOutput($oneLogRow);
+	$header = $this->getLogRowHeaderOutput($oneLogRow);	
+	$sender_image = $this->getLogRowSenderImageOutput($oneLogRow);
+	$plain_text_html = $this->getLogRowPlainTextOutput($oneLogRow);
 	
 	printf(
 		'
 		<hr>
+		%3$s
 		<div>%1$s</div>
 		<p>%2$s</p>
 		',
 		$header,
-		$plainText
+		$plain_text_html,
+		$sender_image
 	);
 
 	// Get the main message row.

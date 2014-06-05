@@ -93,7 +93,9 @@ testMany();testMany();testMany();testMany();testMany();testMany();
 // 	"_userEmail" => "jessie@example.com",
 // 	"_occasionsID" => "username:1,postID:24885,action:edited"
 // ));
-/*SimpleLogger()->debug("Ran cron job '{cron_name}'", array(
-	"cron_name" => "check orders",
-	"_userID" => -1
-));*/
+/*
+SimpleLogger()->debug("Installed plugin '{pluginName}'", array(
+	"pluginName" => "CMS Tree Page View",
+	"_userID" => 7
+));
+*/

@@ -461,9 +461,8 @@ class SimpleHistory {
 			<h2><?php _e("Simple History Settings", "simple-history") ?></h2>
 			
 			<?php
-			$active_tab = isset( $_GET["selected-tab"] ) ? $_GET["selected-tab"] : "$active_tab";
+			$active_tab = isset( $_GET["selected-tab"] ) ? $_GET["selected-tab"] : "general";
 			$settings_base_url = menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0);
-
 			?>
 
 			<h3 class="nav-tab-wrapper">
@@ -944,6 +943,22 @@ class SimpleHistory {
 		$logger = $this->instantiatedLoggers[$row_logger]["instance"];		
 
 		return $logger->getLogRowHeaderOutput( $row );
+
+	}
+
+	private function getLogRowSenderImageOutput($row) {
+
+		$row_logger = $row->logger;
+		$logger = null;
+	
+		// Fallback to SimpleLogger if no logger exists for row
+		if ( ! isset( $this->instantiatedLoggers[$row_logger] ) ) {
+			$row_logger = "SimpleLogger";
+		}
+
+		$logger = $this->instantiatedLoggers[$row_logger]["instance"];		
+
+		return $logger->getLogRowSenderImageOutput( $row );
 
 	}
 
