@@ -203,8 +203,31 @@ class SimpleLogger
 
 		}
 	
-
 		return $sender_image_html;
+
+	}
+
+	/**
+	 * Use this method to output detailed output for a log row
+	 * Example usage is if a user has uploaded an image then a
+	 * thumbnail of that image can bo outputed here
+	 *
+	 * @param object $row 
+	 * @return string HTML-formatted output
+	 */
+	public function getLogRowDetailsOutput($row) {
+
+		$html = "";
+
+		/*
+		$html .= sprintf(
+			'
+				<img src="http://placekitten.com/200/150">
+			'
+		);
+		*/
+
+		return $html;
 
 	}
 

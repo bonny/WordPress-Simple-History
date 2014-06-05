@@ -32,6 +32,16 @@ foreach ($logRows as $oneLogRow) {
 	$header_html = $this->getLogRowHeaderOutput($oneLogRow);	
 	$plain_text_html = $this->getLogRowPlainTextOutput($oneLogRow);
 	$sender_image_html = $this->getLogRowSenderImageOutput($oneLogRow);
+	
+
+	$details_html = $this->getLogRowDetailsOutput($oneLogRow);
+	$details_html = trim($details_html);
+	if ($details_html) {
+		$details_html = sprintf(
+			'<div class="simple-history-logitem__details">%1$s</div>',
+			$details_html
+		);
+	}
 
 	// subsequentOccasions = including the current one
 	$occasions_count = $oneLogRow->subsequentOccasions - 1;
@@ -59,6 +69,7 @@ foreach ($logRows as $oneLogRow) {
 					<div class="simple-history-logitem__header">%1$s</div>
 					<div class="simple-history-logitem__text">%2$s</div>
 					%4$s
+					%6$s
 				</div>
 			</li>
 		',
@@ -66,7 +77,8 @@ foreach ($logRows as $oneLogRow) {
 		$plain_text_html, // 2
 		$sender_image_html, // 3
 		$occasions_html, // 4
-		$loglevel // 5
+		$loglevel, // 5 // 6
+		$details_html
 	);
 
 	// Get the main message row.
