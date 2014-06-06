@@ -36,10 +36,6 @@ function old_logger_inits() {
 
 		/** called on admin_init */
 										 
-		// attachments/media			 
-		add_action("add_attachment", "simple_history_add_attachment");
-		add_action("edit_attachment", "simple_history_edit_attachment");
-		add_action("delete_attachment", "simple_history_delete_attachment");
 		
 		// comments
 		add_action("edit_comment", "simple_history_edit_comment");
@@ -145,23 +141,7 @@ function simple_history_set_comment_status($comment_id, $new_status) {
 }
 
 
-function simple_history_add_attachment($attachment_id) {
-	$post = get_post($attachment_id);
-	$post_title = urlencode(get_the_title($post->ID));
-	simple_history_add("action=added&object_type=attachment&object_id=$attachment_id&object_name=$post_title");
 
-}
-function simple_history_edit_attachment($attachment_id) {
-	// is this only being called if the title of the attachment is changed?!
-	$post = get_post($attachment_id);
-	$post_title = urlencode(get_the_title($post->ID));
-	simple_history_add("action=updated&object_type=attachment&object_id=$attachment_id&object_name=$post_title");
-}
-function simple_history_delete_attachment($attachment_id) {
-	$post = get_post($attachment_id);
-	$post_title = urlencode(get_the_title($post->ID));
-	simple_history_add("action=deleted&object_type=attachment&object_id=$attachment_id&object_name=$post_title");
-}
 
 // user is updated
 function simple_history_profile_update($user_id) {
