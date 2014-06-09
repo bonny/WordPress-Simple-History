@@ -38,7 +38,7 @@ class SimpleLogger
 	function interpolate($message, $context = array())
 	{
 
-		if ( ! is_array($context)) {
+		if ( ! is_array($context) ) {
 			return $message;
 		}
 
@@ -62,7 +62,7 @@ class SimpleLogger
 		
 		// HTML for sender
 		$sender_html = "";
-		$user_id = isset($row->contexts["_user_id"]) ? $row->contexts["_user_id"] : null;
+		$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
 
 		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
 
@@ -72,7 +72,6 @@ class SimpleLogger
 			$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
 			$user_role  = array_shift( $user_roles );
 			$user_display_name = $user->display_name;
-
 
 			$sender_html = sprintf(
 				'
@@ -99,7 +98,6 @@ class SimpleLogger
 			);
 
 		}
-
 
 		// HTML for date
 		// Date (should...) always exist
@@ -162,30 +160,29 @@ class SimpleLogger
 	 * Jessie James: Edited post "About the company"
 	 */
 	public function getLogRowPlainTextOutput($row) {
-
-		$contexts = isset( $row->contexts ) && is_array( $row->contexts ) ? $row->contexts : array();
-		
-		$message = $this->interpolate($row->message, $contexts);
-
-		$date_datetime = new DateTime($row->date);
-		$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
+	
+		$message = $this->interpolate($row->message, $row->context);
 
 		$output = sprintf(
 			'%1$s',
-			$message,
-			$date_human_time_diff
+			$message
 		);
 
 		return $output;
 
 	}
 
+	/**
+	 * Get output for image
+	 * Image can be for example gravar if sender is user,
+	 * or other images if sender i system, wordpress, and so on
+	 */
 	public function getLogRowSenderImageOutput($row) {
 
 		$sender_image_html = "";
 		$sender_image_size = 38; // 32
 
-		$user_id = isset($row->contexts["_user_id"]) ? $row->contexts["_user_id"] : null;
+		$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
 
 		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
 
@@ -218,31 +215,10 @@ class SimpleLogger
 	public function getLogRowDetailsOutput($row) {
 
 		$html = "";
-
-		/*
-		$html .= sprintf(
-			'
-				<img src="http://placekitten.com/200/150">
-			'
-		);
-		*/
-
 		return $html;
 
 	}
 
-	/**
-	 * Generate and return output for a row in the Simple History GUI
-	 * User, date, and plain text message is outputed automatically,
-	 * but extra info can be outputed here. Example: if a log is about an image, 
-	 * an thumbnail of the image can be outputed here.
-	 * See @TODO add link to site here for example/guidelines.
-	 *
-	 * @return string Formatted HTML
-	 */
-	public function getLogRowHTMLOutput($row) {
-
-	}
 
 	/**
 	 * System is unusable.
@@ -440,7 +416,7 @@ class SimpleLogger
 				$context = array();
 			}
 
-			// Automatically append some contexts
+			// Automatically append some context
 			// If they are not already set
 			$current_user = wp_get_current_user();
 			

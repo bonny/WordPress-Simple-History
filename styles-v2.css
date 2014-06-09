@@ -24,14 +24,22 @@
 	background: rgb(245, 248, 250); /* same bg color as twitter uses on hover */
 }
 
+.simple-history-logitem a {
+	text-decoration: none;
+}
+
+.simple-history-logitem a:hover {
+	text-decoration: underline;
+}
+
 .simple-history-logitem__firstcol {
 	float: left;
 }
 
 .simple-history-logitem__senderImage {
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
 	overflow: hidden;
 }
 .simple-history-logitem__senderImage img {

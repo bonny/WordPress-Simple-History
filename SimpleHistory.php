@@ -918,6 +918,7 @@ class SimpleHistory {
 
 		$row_logger = $row->logger;
 		$logger = null;
+		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 	
 		// Fallback to SimpleLogger if no logger exists for row
 		if ( ! isset( $this->instantiatedLoggers[$row_logger] ) ) {
@@ -935,6 +936,7 @@ class SimpleHistory {
 
 		$row_logger = $row->logger;
 		$logger = null;
+		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 	
 		// Fallback to SimpleLogger if no logger exists for row
 		if ( ! isset( $this->instantiatedLoggers[$row_logger] ) ) {
@@ -951,6 +953,7 @@ class SimpleHistory {
 
 		$row_logger = $row->logger;
 		$logger = null;
+		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 	
 		// Fallback to SimpleLogger if no logger exists for row
 		if ( ! isset( $this->instantiatedLoggers[$row_logger] ) ) {
@@ -967,6 +970,7 @@ class SimpleHistory {
 
 		$row_logger = $row->logger;
 		$logger = null;
+		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 	
 		// Fallback to SimpleLogger if no logger exists for row
 		if ( ! isset( $this->instantiatedLoggers[$row_logger] ) ) {

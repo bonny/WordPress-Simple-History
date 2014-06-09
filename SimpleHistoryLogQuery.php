@@ -115,19 +115,19 @@ class SimpleHistoryLogQuery {
 		$log_rows = $wpdb->get_results($sql, OBJECT_K);
 		$num_rows = sizeof($log_rows);
 		
-		// Add contexts
+		// Add context
 		$post_ids = wp_list_pluck( $log_rows, "id" );
 
-		$sql_contexts = sprintf('SELECT * FROM wp_simple_history_contexts WHERE history_id IN (%1$s)', join(",", $post_ids));
-		$contexts_results = $wpdb->get_results($sql_contexts);
+		$sql_context = sprintf('SELECT * FROM wp_simple_history_contexts WHERE history_id IN (%1$s)', join(",", $post_ids));
+		$context_results = $wpdb->get_results($sql_context);
 
-		foreach ( $contexts_results as $context_row ) {
+		foreach ( $context_results as $context_row ) {
 
-			if ( ! isset( $log_rows[ $context_row->history_id ]->contexts ) ) {
-				$log_rows[ $context_row->history_id ]->contexts = array();
+			if ( ! isset( $log_rows[ $context_row->history_id ]->context ) ) {
+				$log_rows[ $context_row->history_id ]->context = array();
 			}
 
-			$log_rows[ $context_row->history_id ]->contexts[ $context_row->key ] = $context_row->value;
+			$log_rows[ $context_row->history_id ]->context[ $context_row->key ] = $context_row->value;
 
 		}
 
