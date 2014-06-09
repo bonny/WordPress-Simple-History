@@ -9,10 +9,6 @@ function old_logger_inits() {
 
 		/** called on init: */
 
-		// user login and logout
-		add_action("wp_login", "simple_history_wp_login");
-		add_action("wp_logout", "simple_history_wp_logout");
-
 		// user failed login attempt to username that exists
 		#$user = apply_filters('wp_authenticate_user', $user, $password);
 		add_action("wp_authenticate_user", "sh_log_wp_authenticate_user", 10, 2);
@@ -164,26 +160,6 @@ function simple_history_delete_user($user_id) {
 	simple_history_add("action=deleted&object_type=user&object_id=$user_id&object_name=$user_nicename");
 }
 
-// user logs in
-function simple_history_wp_login($user) {
-	$current_user = wp_get_current_user();
-	$user = get_user_by("login", $user);
-	$user_nicename = urlencode($user->user_nicename);
-	// if user id = null then it's because we are logged out and then no one is acutally loggin in.. like a.. ghost-user!
-	if ($current_user->ID == 0) {
-		$user_id = $user->ID;
-	} else {
-		$user_id = $current_user->ID;
-	}
-	simple_history_add("action=logged in&object_type=user&object_id=".$user->ID."&user_id=$user_id&object_name=$user_nicename");
-}
-// user logs out
-function simple_history_wp_logout() {
-	$current_user = wp_get_current_user();
-	$current_user_id = $current_user->ID;
-	$user_nicename = urlencode($current_user->user_nicename);
-	simple_history_add("action=logged out&object_type=user&object_id=$current_user_id&object_name=$user_nicename");
-}
 
 
 // called when saving an options page
