@@ -93,30 +93,21 @@ class SimpleMediaLogger extends SimpleLogger
 	 */
 	function getLogRowDetailsOutput($row) {
 
-		/*
-		[post_type] => attachment
-		[attachment_title] => placebeppe
-		[attachment_filename] => placebeppe.jpg
-		[attachment_mime] => image/jpeg
-		[attachment_filesize] => 85946
-		*/
-
 		$context = $row->context;
 
 		$attachment_id = $context["attachment_id"];
-		$is_image = wp_attachment_is_image( $attachment_id );
 		$filetype = wp_check_filetype( $context["attachment_filename"] );
 		$file_url = wp_get_attachment_url( $attachment_id );
 		$edit_link = get_edit_post_link( $attachment_id );
 		$message = "";
 		$full_src = false;
 
+		$is_image = wp_attachment_is_image( $attachment_id );
 		$is_video = strpos($filetype["type"], "video/") !== false;
 		$is_audio = strpos($filetype["type"], "audio/") !== false;
 
 		if ( $is_image ) {
 
-			//$thumb_src = wp_get_attachment_thumb_url( $context["attachment_id"] );
 			$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
 			$full_src = wp_get_attachment_image_src($attachment_id, "full");
 			$context["full_image_width"] = $full_src[1];
@@ -134,10 +125,6 @@ class SimpleMediaLogger extends SimpleLogger
 			$context["attachment_thumb"] .= do_shortcode( $content );
 
 		}
-
-		// plain icon
-		//$thumb_src = wp_mime_type_icon( $context["attachment_mime"] );
-		//$context["attachment_thumb"] = sprintf('<div class="simple-history-logitem--logger-SimpleMediaLogger--attachment-icon"><img src="%1$s"></div>', $thumb_src );
 		
 		$context["attachment_size_format"] = size_format( $row->context["attachment_filesize"] );
 		$context["filetype"] = $filetype["ext"];
