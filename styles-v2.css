@@ -63,6 +63,18 @@
 	margin-top: 0.4em;
 }
 
+.simple-history-logitem__text,
+.simple-history-logitem__details,
+.simple-history-logitem__details p {
+	xfont-size: 16px;
+	line-height: 1.4;
+}
+
+.simple-history-logitem__details p {
+	margin-top: .5em;
+	margin-bottom: .5em;
+}
+
 .simple-history-logitem__occasions {
 	color: rgb(137, 143, 156);
 	margin-top: 0.4em;

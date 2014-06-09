@@ -163,12 +163,7 @@ class SimpleLogger
 	
 		$message = $this->interpolate($row->message, $row->context);
 
-		$output = sprintf(
-			'%1$s',
-			$message
-		);
-
-		return $output;
+		return $message;
 
 	}
 

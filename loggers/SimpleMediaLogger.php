@@ -68,8 +68,29 @@ class SimpleMediaLogger extends SimpleLogger
 
 	}
 
+	/*
+	public function getLogRowPlainTextOutput($row) {
+
+		$context = $row->context;
+		$context["attachment_size_format"] = size_format( $context["attachment_filesize"] );	
+
+		$message = $this->interpolate(
+			'Uploaded {post_type} "{attachment_filename}" <strong>({attachment_size_format})</strong>',
+			$context
+		);
+
+		$output = sprintf(
+			'%1$s',
+			$message
+		);
+
+		return $output;
+
+	}
+	*/
+	
 	/**
-	 * Get output
+	 * Get output with details
 	 */
 	function getLogRowDetailsOutput($row) {
 
@@ -98,7 +119,6 @@ class SimpleMediaLogger extends SimpleLogger
 			$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
 			$context["attachment_thumb"] = sprintf('<div class="simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb"><img src="%1$s"></div>', $thumb_src[0] );
 
-
 		} else if ($is_audio) {
 
 			$content = sprintf('[audio src="%1$s"]', $file_url);
@@ -118,13 +138,15 @@ class SimpleMediaLogger extends SimpleLogger
 		$context["attachment_size_format"] = size_format( $row->context["attachment_filesize"] );
 		$context["filetype"] = $filetype["ext"];
 
-		$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-meta-size'>" . __('{attachment_size_format}') . "</p>";
 
 		if ( ! empty( $context["attachment_thumb"] ) ) {
 			$message .= "" . __('{attachment_thumb}') . "";
 		}
 
-		$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-open'>" . __('<a href="#">Open original</a> | <a href="#">Edit attachment</a> ') . "</p>";
+		$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-meta'>";
+		$message .= __('{attachment_size_format} | ');
+		$message .= __('<a href="#">Edit attachment</a> ');
+		$message .= "</p>";
 
 		$output = $this->interpolate($message, $context);
 
