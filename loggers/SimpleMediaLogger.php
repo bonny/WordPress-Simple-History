@@ -73,6 +73,22 @@ class SimpleMediaLogger extends SimpleLogger
 	}
 
 	/**
+	 * Modify plain output to inlcude link to post
+	 */
+	public function getLogRowPlainTextOutput($row) {
+	
+		$message = __('Uploaded {post_type} <a href="{edit_link}">"{attachment_filename}"</a>');
+
+		$context = $row->context;
+		$context["post_type"] = esc_html( $context["post_type"] );
+		$context["attachment_filename"] = esc_html( $context["attachment_filename"] );
+		$context["edit_link"] = get_edit_post_link( $context["attachment_id"] );
+
+		return $this->interpolate($message, $context);
+
+	}
+
+	/**
 	 * Get output with details
 	 */
 	function getLogRowDetailsOutput($row) {

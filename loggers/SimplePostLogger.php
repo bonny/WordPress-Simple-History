@@ -32,6 +32,7 @@ class SimplePostLogger extends SimpleLogger
 		$this->info(
 			'Restored {post_type} "{post_title}" from trash',
 			array(
+				"post_id" => $post_id,
 				"post_type" => get_post_type($post),
 				"post_title" => get_the_title($post)
 			)
@@ -57,6 +58,7 @@ class SimplePostLogger extends SimpleLogger
 		$this->info(
 			'Deleted {post_type} "{post_title}"',
 			array(
+				"post_id" => $post_id,
 				"post_type" => get_post_type($post),
 				"post_title" => get_the_title($post)
 			)
@@ -87,6 +89,7 @@ class SimplePostLogger extends SimpleLogger
 		*/
 
 		$context = array(
+			"post_id" => $post->ID,
 			"post_type" => get_post_type($post),
 			"post_title" => get_the_title($post)
 		);
@@ -123,5 +126,22 @@ class SimplePostLogger extends SimpleLogger
 		}
 
 	}	
+
+	/**
+	 * Modify plain output to inlcude link to post
+	 */
+	public function getLogRowPlainTextOutput($row) {
+	
+		$message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>');
+
+		$context = $row->context;
+		$context["post_type"] = esc_html( $context["post_type"] );
+		$context["post_title"] = esc_html( $context["post_title"] );
+		$context["edit_link"] = get_edit_post_link( $context["post_id"] );
+
+		return $this->interpolate($message, $context);
+
+	}
+
 
 }

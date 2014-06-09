@@ -163,6 +163,11 @@ class SimpleLogger
 	
 		$message = $this->interpolate($row->message, $row->context);
 
+		// All messages are escaped by default. 
+		// If you need unescaped output override this method
+		// in your own logger
+		$message = esc_html($message);
+
 		return $message;
 
 	}
