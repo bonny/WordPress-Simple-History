@@ -80,25 +80,31 @@ class SimpleMediaLogger extends SimpleLogger
 	 */
 	public function getLogRowPlainTextOutput($row) {
 		
+		$message = $row->message;
 		$context = $row->context;
-		#sf_d($row);
-		if ( "update" == $context["action_type"] ) {
 
-			$message = __('Edited {post_type} <a href="{edit_link}">"{attachment_filename}"</a>', "simple-history");
+		$attachment_id = $context["attachment_id"];
+		$attachment_post = get_post( $attachment_id );
+		$attachment_is_available = is_a($attachment_post, "WP_Post");
+		
+		// Only link to attachment if it is still available
+		if ( $attachment_is_available && "update" == $context["action_type"] ) {
 
-		} else if ( "delete" == $context["action_type"] ) {
+			$message = __('Edited {post_type} <a href="{edit_link}">"{attachment_title}"</a>', "simple-history");
 
-			$message = __('Deleted {post_type} "{attachment_filename}"', "simple-history");
+		} else if ( $attachment_is_available && "delete" == $context["action_type"] ) {
 
-		} else if ( "create" == $context["action_type"] ) {
+			$message = __('Deleted {post_type} "{attachment_title}"', "simple-history");
 
-			$message = __('Uploaded {post_type} <a href="{edit_link}">"{attachment_filename}"</a>', "simple-history");
+		} else if ( $attachment_is_available && "create" == $context["action_type"] ) {
+
+			$message = __('Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a>', "simple-history");
 		
 		}
 
 		$context["post_type"] = esc_html( $context["post_type"] );
 		$context["attachment_filename"] = esc_html( $context["attachment_filename"] );
-		$context["edit_link"] = get_edit_post_link( $context["attachment_id"] );
+		$context["edit_link"] = get_edit_post_link( $attachment_id );
 
 		return $this->interpolate($message, $context);
 
