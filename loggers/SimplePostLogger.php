@@ -120,6 +120,7 @@ class SimplePostLogger extends SimpleLogger
 
 			// Post trashed
 			__('Moved {post_type} "{post_title}" to the trash', "simple-history");
+			$context["action_type"] = "trash";
 			$this->info(
 				'Moved {post_type} "{post_title}" to the trash',
 				$context
@@ -145,26 +146,40 @@ class SimplePostLogger extends SimpleLogger
 	public function getLogRowPlainTextOutput($row) {
 	
 		$context = $row->context;
+		$post_id = $context["post_id"];
+
+		// Default to original log message
 		$message = $row->message;
 
-		// Since this message is generated during output it's ok to translate directly
-		if ( "update" == $context["action_type"] ) {
+		// Check if post still is available
+		// It wil return a WP_Post Object if post still is in system
+		// If post is deleted from trash (not just moved there), then null is returned
+		$post = get_post( $post_id );
+		$post_is_available = is_a($post, "WP_Post");
 
-			$message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>');
+		// If post is not available any longer then we can't link to it, so keep plain message then
+		if ( $post_is_available && "update" == $context["action_type"] ) {
 
-		} else if ( "delete" == $context["action_type"] ) {
+			$message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>', "simple-history");
 
-			$message = __('Deleted {post_type} <a href="{edit_link}">"{post_title}"</a>');
+		} else if ( $post_is_available && "delete" == $context["action_type"] ) {
 
-		} else if ( "create" == $context["action_type"] ) {
+			$message = __('Deleted {post_type} "{post_title}"');
 
-			$message = __('Created {post_type} <a href="{edit_link}">"{post_title}"</a>');
+		} else if ( $post_is_available && "create" == $context["action_type"] ) {
+
+			$message = __('Created {post_type} <a href="{edit_link}">"{post_title}"</a>', "simple-history");
+
+		} else if ( $post_is_available && "trash" == $context["action_type"] ) {
+
+			// while in trash we can still get actions to delete or resore if we follow edit link
+			$message = __('Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash', "simple-history");
 
 		}
 
 		$context["post_type"] = esc_html( $context["post_type"] );
 		$context["post_title"] = esc_html( $context["post_title"] );
-		$context["edit_link"] = get_edit_post_link( $context["post_id"] );
+		$context["edit_link"] = get_edit_post_link( $post_id );
 
 		return $this->interpolate($message, $context);
 
