@@ -118,8 +118,12 @@ class SimpleHistoryLogQuery {
 		// Add context
 		$post_ids = wp_list_pluck( $log_rows, "id" );
 
-		$sql_context = sprintf('SELECT * FROM wp_simple_history_contexts WHERE history_id IN (%1$s)', join(",", $post_ids));
-		$context_results = $wpdb->get_results($sql_context);
+		if ( empty($post_ids) ) {
+			$context_results = array();
+		} else {
+			$sql_context = sprintf('SELECT * FROM wp_simple_history_contexts WHERE history_id IN (%1$s)', join(",", $post_ids));
+			$context_results = $wpdb->get_results($sql_context);
+		}
 
 		foreach ( $context_results as $context_row ) {
 
