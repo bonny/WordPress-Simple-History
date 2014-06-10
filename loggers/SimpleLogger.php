@@ -106,17 +106,27 @@ class SimpleLogger
 		$str_when = "";
 		$date_datetime = new DateTime($row->date);
 		
-		// Show "ago"-time when event is xx seconds ago or earlier
+		/**
+	     * Filter how many seconds as most that can pass since an
+	     * event occured to show "nn minutes ago" (human diff time-format) instead of exact date
+	     *
+	     * @since 2.0
+	     *
+	     * @param int $time_ago_max_time Seconds
+	     */		
 		$time_ago_max_time = DAY_IN_SECONDS * 2;
+		$time_ago_max_time = apply_filters("simple_history/header_time_ago_max_time", $time_ago_max_time);
+
+		// Show "ago"-time when event is xx seconds ago or earlier
 		if ( time() - $date_datetime->getTimestamp() > $time_ago_max_time ) {
-			/* translators: Publish box date format, see http://php.net/date */
-			$datef = __( 'M j, Y @ G:i' );
+			/* translators: Date format for log row header, see http://php.net/date */
+			$datef = __( 'M j, Y @ G:i', "simple-history" );
 			$str_when = date_i18n( $datef, $date_datetime->getTimestamp() );
 
 		} else {
 			$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
 			/* translators: 1: last modified date and time in human time diff-format */
-			$str_when = sprintf( __( '%1$s ago', 'simple-history/log-header-output-time-ago' ), $date_human_time_diff );
+			$str_when = sprintf( __( '%1$s ago', 'simple-history' ), $date_human_time_diff );
 		}
 
 		$date_html = sprintf(
@@ -138,6 +148,16 @@ class SimpleLogger
 			$sender_html,
 			$date_html
 		);
+
+		/**
+	     * Filter generated html for the log row header
+	     *
+	     * @since 2.0
+	     *
+	     * @param string $html
+	     * @param object $row Log row
+	     */		
+		$html = apply_filters("simple_history/row_header_output", $html, $row);
 
 		return $html;
 
@@ -161,14 +181,30 @@ class SimpleLogger
 	 */
 	public function getLogRowPlainTextOutput($row) {
 	
-		$message = $this->interpolate($row->message, $row->context);
+		$message = $row->message;
+
+		// Message is translated here, but translation must be added in
+		// plain text before
+		$message = __( $message, "simple-history" );
+
+		$html = $this->interpolate($message, $row->context);
 
 		// All messages are escaped by default. 
 		// If you need unescaped output override this method
 		// in your own logger
-		$message = esc_html($message);
+		$html = esc_html($html);
 
-		return $message;
+		/**
+	     * Filter generated output for plain text output
+	     *
+	     * @since 2.0
+	     *
+	     * @param string $html
+	     * @param object $row Log row
+	     */		
+		$html = apply_filters("simple_history/row_plain_text_output", $html, $row);
+
+		return $html;
 
 	}
 
@@ -198,8 +234,18 @@ class SimpleLogger
 
 			$sender_image_html = get_avatar( "", $sender_image_size );	
 
-		}
-	
+		}	
+
+		/**
+	     * Filter generated output for row image (sender image)
+	     *
+	     * @since 2.0
+	     *
+	     * @param string $sender_image_html
+	     * @param object $row Log row
+	     */		
+		$sender_image_html = apply_filters("simple_history/row_sender_image_output", $sender_image_html, $row);
+
 		return $sender_image_html;
 
 	}
@@ -215,6 +261,17 @@ class SimpleLogger
 	public function getLogRowDetailsOutput($row) {
 
 		$html = "";
+
+		/**
+	     * Filter generated output for row image (sender image)
+	     *
+	     * @since 2.0
+	     *
+	     * @param string $html
+	     * @param object $row Log row
+	     */		
+		$html = apply_filters("simple_history/row_details_output", $html, $row);
+
 		return $html;
 
 	}
@@ -355,6 +412,17 @@ class SimpleLogger
 		
 		global $wpdb;
 
+		/**
+	     * Filter arguments passed to log funtion
+	     *
+	     * @since 2.0
+	     *
+	     * @param string $level
+	     * @param string $message
+	     * @param array $context
+	     */		
+		apply_filters("simple_history/log_arguments", $level, $message, $context);
+
 		/* Store date at utc or local time
 		 * anything is better than now() anyway!
 		 * WP seems to use the local time, so I will go with that too I think
@@ -397,6 +465,15 @@ class SimpleLogger
 
 		$data["occasionsID"] = $occasions_id;
 
+		/**
+	     * Filter data arguments to be saved to db
+	     *
+	     * @since 2.0
+	     *
+	     * @param array $data
+	     */		
+		$data = apply_filters("simple_history/log_insert_data", $data);
+
 		$result = $wpdb->insert( $db_table, $data );
 
 		// Only save context if able to store row
@@ -410,7 +487,15 @@ class SimpleLogger
 
 			// Add context
 			$db_table_contexts = $wpdb->prefix . $this->db_table_contexts;
-			$db_table_contexts = apply_filters("simple_logger_db_table_contexts", $db_table_contexts);
+
+			/**
+		     * Filter table name for contexts
+		     *
+		     * @since 2.0
+		     *
+		     * @param string $db_table_contexts
+		     */		
+			$db_table_contexts = apply_filters("simple_history/logger_db_table_contexts", $db_table_contexts);
 
 			if ( ! is_array($context) ) {
 				$context = array();
@@ -418,10 +503,15 @@ class SimpleLogger
 
 			// Automatically append some context
 			// If they are not already set
-			$current_user = wp_get_current_user();
+
+			if ( isset( $context["_user_id"] ) ) {
 			
-			if ( ! isset( $context["_user_id"] ) ) {
+				// user id is set, don't try to add anything
+			
+			} else {
 				
+				$current_user = wp_get_current_user();
+
 				if ( isset($current_user->ID) && $current_user->ID) {
 					$context["_user_id"] = $current_user->ID;
 					$context["_user_login"] = $current_user->user_login;
@@ -429,7 +519,7 @@ class SimpleLogger
 				}
 
 			}
-
+			
 			if ( ! isset( $context["_user_agent"] ) ) {
 				$context["_http_user_agent"] = $_SERVER["HTTP_USER_AGENT"];
 			}

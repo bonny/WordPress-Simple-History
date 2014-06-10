@@ -29,9 +29,12 @@ class SimplePostLogger extends SimpleLogger
 
 		$post = get_post($post_id);
 
+		__('Restored {post_type} "{post_title}" from trash', "simple-history");
+
 		$this->info(
 			'Restored {post_type} "{post_title}" from trash',
 			array(
+				"action_type" => "other",
 				"post_id" => $post_id,
 				"post_type" => get_post_type($post),
 				"post_title" => get_the_title($post)
@@ -55,9 +58,12 @@ class SimplePostLogger extends SimpleLogger
 			return;
 		}
 
+		__('Deleted {post_type} "{post_title}"', "simple-history");
+
 		$this->info(
 			'Deleted {post_type} "{post_title}"',
 			array(
+				"action_type" => "delete",
 				"post_id" => $post_id,
 				"post_type" => get_post_type($post),
 				"post_title" => get_the_title($post)
@@ -89,6 +95,7 @@ class SimplePostLogger extends SimpleLogger
 		*/
 
 		$context = array(
+			"action_type" => "other",
 			"post_id" => $post->ID,
 			"post_type" => get_post_type($post),
 			"post_title" => get_the_title($post)
@@ -97,6 +104,8 @@ class SimplePostLogger extends SimpleLogger
 		if ($old_status == "auto-draft" && ($new_status != "auto-draft" && $new_status != "inherit")) {
 
 			// Post created
+			__('Created {post_type} "{post_title}"', "simple-history");
+			$context["action_type"] = "create";
 			$this->info(
 				'Created {post_type} "{post_title}"',
 				$context
@@ -110,6 +119,7 @@ class SimplePostLogger extends SimpleLogger
 		} elseif ($new_status == "trash") {
 
 			// Post trashed
+			__('Moved {post_type} "{post_title}" to the trash', "simple-history");
 			$this->info(
 				'Moved {post_type} "{post_title}" to the trash',
 				$context
@@ -118,6 +128,8 @@ class SimplePostLogger extends SimpleLogger
 		} else {
 
 			// Post updated
+			__('Updated {post_type} "{post_title}"', "simple-history");
+			$context["action_type"] = "update";
 			$this->info(
 				'Updated {post_type} "{post_title}"',
 				$context
@@ -132,9 +144,24 @@ class SimplePostLogger extends SimpleLogger
 	 */
 	public function getLogRowPlainTextOutput($row) {
 	
-		$message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>');
-
 		$context = $row->context;
+		$message = $row->message;
+
+		// Since this message is generated during output it's ok to translate directly
+		if ( "update" == $context["action_type"] ) {
+
+			$message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>');
+
+		} else if ( "delete" == $context["action_type"] ) {
+
+			$message = __('Deleted {post_type} <a href="{edit_link}">"{post_title}"</a>');
+
+		} else if ( "create" == $context["action_type"] ) {
+
+			$message = __('Created {post_type} <a href="{edit_link}">"{post_title}"</a>');
+
+		}
+
 		$context["post_type"] = esc_html( $context["post_type"] );
 		$context["post_title"] = esc_html( $context["post_title"] );
 		$context["edit_link"] = get_edit_post_link( $context["post_id"] );
@@ -142,6 +169,5 @@ class SimplePostLogger extends SimpleLogger
 		return $this->interpolate($message, $context);
 
 	}
-
 
 }

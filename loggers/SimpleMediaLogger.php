@@ -24,6 +24,9 @@ class SimpleMediaLogger extends SimpleLogger
 		
 	}
 
+	/**
+	 * Outputs styles for this logger
+	 */
 	function output_styles() {
 		
 		?>
@@ -76,10 +79,23 @@ class SimpleMediaLogger extends SimpleLogger
 	 * Modify plain output to inlcude link to post
 	 */
 	public function getLogRowPlainTextOutput($row) {
-	
-		$message = __('Uploaded {post_type} <a href="{edit_link}">"{attachment_filename}"</a>');
-
+		
 		$context = $row->context;
+		#sf_d($row);
+		if ( "update" == $context["action_type"] ) {
+
+			$message = __('Edited {post_type} <a href="{edit_link}">"{attachment_filename}"</a>', "simple-history");
+
+		} else if ( "delete" == $context["action_type"] ) {
+
+			$message = __('Deleted {post_type} "{attachment_filename}"', "simple-history");
+
+		} else if ( "create" == $context["action_type"] ) {
+
+			$message = __('Uploaded {post_type} <a href="{edit_link}">"{attachment_filename}"</a>', "simple-history");
+		
+		}
+
 		$context["post_type"] = esc_html( $context["post_type"] );
 		$context["attachment_filename"] = esc_html( $context["attachment_filename"] );
 		$context["edit_link"] = get_edit_post_link( $context["attachment_id"] );
@@ -94,66 +110,84 @@ class SimpleMediaLogger extends SimpleLogger
 	function getLogRowDetailsOutput($row) {
 
 		$context = $row->context;
+		$output = "";
 
-		$attachment_id = $context["attachment_id"];
-		$filetype = wp_check_filetype( $context["attachment_filename"] );
-		$file_url = wp_get_attachment_url( $attachment_id );
-		$edit_link = get_edit_post_link( $attachment_id );
-		$message = "";
-		$full_src = false;
+		if ( "update" == $context["action_type"] ) {
+			
+			// Attachment is changed = don't show thumbs and all
 
-		$is_image = wp_attachment_is_image( $attachment_id );
-		$is_video = strpos($filetype["type"], "video/") !== false;
-		$is_audio = strpos($filetype["type"], "audio/") !== false;
+		} else if ( "delete" == $context["action_type"] ) {
+			
+			// Attachment is deleted = don't show thumbs and all
 
-		if ( $is_image ) {
+		} else if ( "create" == $context["action_type"] ) {
 
-			$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
-			$full_src = wp_get_attachment_image_src($attachment_id, "full");
-			$context["full_image_width"] = $full_src[1];
-			$context["full_image_height"] = $full_src[2];
-			$context["attachment_thumb"] = sprintf('<div class="simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb"><img src="%1$s"></div>', $thumb_src[0] );
+			// Attachment is created/uploaded = show details with image thumbnail
 
-		} else if ($is_audio) {
+			$attachment_id = $context["attachment_id"];
+			$filetype = wp_check_filetype( $context["attachment_filename"] );
+			$file_url = wp_get_attachment_url( $attachment_id );
+			$edit_link = get_edit_post_link( $attachment_id );
+			$message = "";
+			$full_src = false;
 
-			$content = sprintf('[audio src="%1$s"]', $file_url);
-			$context["attachment_thumb"] .= do_shortcode( $content );
+			$is_image = wp_attachment_is_image( $attachment_id );
+			$is_video = strpos($filetype["type"], "video/") !== false;
+			$is_audio = strpos($filetype["type"], "audio/") !== false;
 
-		} else if ($is_video) {
+			if ( $is_image ) {
 
-			$content = sprintf('[video src="%1$s"]', $file_url);
-			$context["attachment_thumb"] .= do_shortcode( $content );
+				$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
+				$full_src = wp_get_attachment_image_src($attachment_id, "full");
+				$context["full_image_width"] = $full_src[1];
+				$context["full_image_height"] = $full_src[2];
+				$context["attachment_thumb"] = sprintf('<div class="simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb"><img src="%1$s"></div>', $thumb_src[0] );
 
-		}
-		
-		$context["attachment_size_format"] = size_format( $row->context["attachment_filesize"] );
-		$context["filetype"] = $filetype["ext"];
+			} else if ($is_audio) {
 
-		if ( ! empty( $context["attachment_thumb"] ) ) {
-			if ($is_image) {
-				$message .= "<a href='".$edit_link."'>";
+				$content = sprintf('[audio src="%1$s"]', $file_url);
+				$context["attachment_thumb"] .= do_shortcode( $content );
+
+			} else if ($is_video) {
+
+				$content = sprintf('[video src="%1$s"]', $file_url);
+				$context["attachment_thumb"] .= do_shortcode( $content );
+
 			}
-			$message .= __('{attachment_thumb}');
-			if ($is_image) {
-				$message .= "</a>";
+			
+			$context["attachment_size_format"] = size_format( $row->context["attachment_filesize"] );
+			$context["filetype"] = $filetype["ext"];
+
+			if ( ! empty( $context["attachment_thumb"] ) ) {
+				if ($is_image) {
+					$message .= "<a href='".$edit_link."'>";
+				}
+				$message .= __('{attachment_thumb}', 'simple-history');
+				if ($is_image) {
+					$message .= "</a>";
+				}
+
 			}
 
-		}
+			$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-meta'>";
+			$message .= __('{attachment_size_format} | ', "simple-history");
+			if ($full_src) {
+				$message .= __('{full_image_width} × {full_image_height} | ');
+			}
+			$message .= sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link );
+			$message .= "</p>";
 
-		$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-meta'>";
-		$message .= __('{attachment_size_format} | ');
-		if ($full_src) {
-			$message .= __('{full_image_width} × {full_image_height} | ');
-		}
-		$message .= sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link );
-		$message .= "</p>";
+			$output .= $this->interpolate($message, $context);
 
-		$output = $this->interpolate($message, $context);
+		}
 
 		return $output;
 
 	}
 
+	/**
+	 * Called when an attachment is added
+	 */
 	function on_add_attachment($attachment_id) {
 
 		$attachment_post = get_post( $attachment_id );
@@ -165,10 +199,13 @@ class SimpleMediaLogger extends SimpleLogger
 		if ( file_exists( $file ) ) {
 			$file_size = filesize( $file );
 		}
+		
+		__('Uploaded {post_type} "{attachment_filename}"', "simple-history");
 
 		$this->info(
 			'Uploaded {post_type} "{attachment_filename}"',
 			array(
+				"action_type" => "create",
 				"post_type" => get_post_type($attachment_post),
 				"attachment_id" => $attachment_id,
 				"attachment_title" => get_the_title($attachment_post),
@@ -179,17 +216,60 @@ class SimpleMediaLogger extends SimpleLogger
 		);
 
 	}
-	/*
+	
+	/**
+	 * An attachmet is changed
+	 * is this only being called if the title of the attachment is changed?!
+	 *
+	 * @param int $attachment_id
+	 */
 	function on_edit_attachment($attachment_id) {
-		// is this only being called if the title of the attachment is changed?!
-		$post = get_post($attachment_id);
-		$post_title = urlencode(get_the_title($post->ID));
-		add("action=updated&object_type=attachment&object_id=$attachment_id&object_name=$post_title");
+		
+		$attachment_post = get_post( $attachment_id );
+		$filename = esc_html( wp_basename( $attachment_post->guid ) );
+		$mime = get_post_mime_type( $attachment_post );
+		$file  = get_attached_file( $attachment_id );
+
+		__('Modified {post_type} "{attachment_filename}"', "simple-history");
+
+		$this->info(
+			'Modified {post_type} "{attachment_filename}"',
+			array(
+				"action_type" => "update",
+				"post_type" => get_post_type( $attachment_post ),
+				"attachment_id" => $attachment_id,
+				"attachment_title" => get_the_title( $attachment_post ),
+				"attachment_filename" => $filename,
+				"attachment_mime" => $mime
+			)
+		);
+
 	}
+
+	/** 
+	 * Called when an attachment is deleted
+	 */
 	function on_delete_attachment($attachment_id) {
-		$post = get_post($attachment_id);
-		$post_title = urlencode(get_the_title($post->ID));
-		add("action=deleted&object_type=attachment&object_id=$attachment_id&object_name=$post_title");
-	}*/
+		
+		$attachment_post = get_post( $attachment_id );
+		$filename = esc_html( wp_basename( $attachment_post->guid ) );
+		$mime = get_post_mime_type( $attachment_post );
+		$file  = get_attached_file( $attachment_id );
+
+		__('Deleted {post_type} "{attachment_filename}"', "simple-history");
+
+		$this->info(
+			'Deleted {post_type} "{attachment_filename}"',
+			array(
+				"action_type" => "delete",
+				"post_type" => get_post_type( $attachment_post ),
+				"attachment_id" => $attachment_id,
+				"attachment_title" => get_the_title( $attachment_post ),
+				"attachment_filename" => $filename,
+				"attachment_mime" => $mime
+			)
+		);
+
+	}
 
 }

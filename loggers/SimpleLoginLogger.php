@@ -31,7 +31,7 @@ class SimpleLoginLogger extends SimpleLogger
 			
 			// Overwrite some vars that Simple History set automagically
 			$context = array(
-				"_user_id" => null,
+				"_user_id" => 0,
 				"_user_login" => null,
 				"_user_email" => null,
 				"login_user_id" => $user->ID,
@@ -39,10 +39,16 @@ class SimpleLoginLogger extends SimpleLogger
 				"login_user_login" => $user->user_login
 			);
 
-			$message = 'A user failed to log in because wrong password was entered';
-			$message = 'Failed to login user "{login_user_email}"';
-			$message = 'Login failed for user "{login_user_email}"';
-			$message = 'A login attempt was made for user "{login_user_email}"';
+			#$message = 'A user failed to log in because wrong password was entered';
+			#$message = 'Login failed for user "{login_user_email}"';
+			#$message = 'A login attempt was made for user "{login_user_email}"';
+			#$message = 'Failed to login user "{login_user_email}"';
+
+			// For translation. Will be used when log entry is fetched. Don't pass into logger at this step.
+			__('User "{login_user_email}" failed to login because incorrect password was entered', "simple-history");
+			// Actual message to put into logger. Same as above. Always goes untranslated in english in the log.
+			$message = 'User "{login_user_email}" failed to login because incorrect password was entered';
+
 			$this->warning(
 				$message,
 				$context
@@ -78,12 +84,18 @@ class SimpleLoginLogger extends SimpleLogger
 			$context["_user_login"] = $user->user_login;
 			$context["_user_email"] = $user->user_email;
 
+			// For translation
+			__("Logged in", "simple-history");
+
 			$this->info(
 				'Logged in',
 				$context
 			);		
 
 		} else {
+
+			// For translation
+			__("Unknown user logged in", "simple-history");
 
 			// when does this happen?
 			$this->info(
@@ -110,6 +122,9 @@ class SimpleLoginLogger extends SimpleLogger
 			"user_email" => $current_user->user_email,
 			"user_login" => $current_user->user_login
 		);
+
+		// For translation
+		__("Logged out", "simple-history");
 
 		$this->info(
 			'Logged out',
