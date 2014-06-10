@@ -13,6 +13,46 @@ class SimpleLoginLogger extends SimpleLogger
 		add_action("wp_login", array($this, "on_wp_login" ), 10, 3 );
 		add_action("wp_logout", array($this, "on_wp_logout" ) );
 
+		// Failed login attempt to username that exists
+		add_action("wp_authenticate_user", array($this, "on_wp_authenticate_user"), 10, 2);
+
+	}
+
+	/**
+	 * Log failed login attempt to username that exists
+	 *
+	 * @param object $user user object that was tried to gain access to
+	 * @param string password used
+	 */
+	function on_wp_authenticate_user($user, $password) {
+
+		// Only log failed attempts
+		if ( ! wp_check_password($password, $user->user_pass, $user->ID) ) {
+			
+			// Overwrite some vars that Simple History set automagically
+			$context = array(
+				"_user_id" => null,
+				"_user_login" => null,
+				"_user_email" => null,
+				"login_user_id" => $user->ID,
+				"login_user_email" => $user->user_email,
+				"login_user_login" => $user->user_login
+			);
+
+			$message = 'A user failed to log in because wrong password was entered';
+			$message = 'Failed to login user "{login_user_email}"';
+			$message = 'Login failed for user "{login_user_email}"';
+			$message = 'A login attempt was made for user "{login_user_email}"';
+			$this->warning(
+				$message,
+				$context
+			);		
+
+
+		}
+
+		return $user;
+
 	}
 
 	/**

@@ -9,10 +9,6 @@ function old_logger_inits() {
 
 		/** called on init: */
 
-		// user failed login attempt to username that exists
-		#$user = apply_filters('wp_authenticate_user', $user, $password);
-		add_action("wp_authenticate_user", "sh_log_wp_authenticate_user", 10, 2);
-
 		// user profile page modifications
 		add_action("delete_user", "simple_history_delete_user");
 		add_action("user_register", "simple_history_user_register");
@@ -194,36 +190,6 @@ function simple_history_add_update_option_page_permalinks($action, $result) {
 
 }
 
-/**
- * Log failed login attempt to username that exists
- */
-function sh_log_wp_authenticate_user($user, $password) {
-
-	if ( ! wp_check_password($password, $user->user_pass, $user->ID) ) {
-		
-		// call __() to make translation exist
-		__("failed to log in because they entered the wrong password", "simple-history");
-
-		$description = "";
-		$description .= "HTTP_USER_AGENT: " . $_SERVER["HTTP_USER_AGENT"];
-		$description .= "\nHTTP_REFERER: " . $_SERVER["HTTP_REFERER"];
-		$description .= "\nREMOTE_ADDR: " . $_SERVER["REMOTE_ADDR"];
-
-		$args = array(
-					"object_type" => "user",
-					"object_name" => $user->user_login,
-					"action" => "failed to log in because they entered the wrong password",
-					"object_id" => $user->ID,
-					"description" => $description
-				);
-		
-		simple_history_add($args);
-
-	}
-
-	return $user;
-
-}
 
 function simple_history_update_option($option, $oldval, $newval) {
 
