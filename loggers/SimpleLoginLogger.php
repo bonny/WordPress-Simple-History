@@ -45,9 +45,9 @@ class SimpleLoginLogger extends SimpleLogger
 			#$message = 'Failed to login user "{login_user_email}"';
 
 			// For translation. Will be used when log entry is fetched. Don't pass into logger at this step.
-			__('User "{login_user_email}" failed to login because incorrect password was entered', "simple-history");
+			__('User "{login_user_email}" failed to login because an incorrect password was entered', "simple-history");
 			// Actual message to put into logger. Same as above. Always goes untranslated in english in the log.
-			$message = 'User "{login_user_email}" failed to login because incorrect password was entered';
+			$message = 'User "{login_user_email}" failed to login because an incorrect password was entered';
 
 			$this->warning(
 				$message,

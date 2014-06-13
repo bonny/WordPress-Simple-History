@@ -510,6 +510,9 @@ class SimpleLogger
 			
 			} else {
 				
+				// wp_get_current_user
+				// http://codex.wordpress.org/Function_Reference/wp_get_current_user
+				// https://core.trac.wordpress.org/ticket/14024
 				$current_user = wp_get_current_user();
 
 				if ( isset($current_user->ID) && $current_user->ID) {

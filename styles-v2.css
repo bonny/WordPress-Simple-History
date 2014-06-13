@@ -7,17 +7,23 @@
 
 .simple-history-logitem {
 	margin: 0;
-	padding: 15px;
+	padding: 15px 15px 15px 11px;
 	border-bottom: 1px solid rgb(229, 229, 229);
-	border-right: 4px solid transparent;
+	border-left: 4px solid transparent;
 }
 
+/*
+Style different log levels.
+There is always a 4px left border, just with differents colors
+ */
 .simple-history-logitem--loglevel-warning {
-	border-right-color: rgb(202, 172, 15);
+	background-color: rgba(202, 172, 15, .1);
+	border-left-color: rgb(202, 172, 15);
 }
 
 .simple-history-logitem--loglevel-error {
-	border-right-color: rgb(194, 71, 71);
+	background-color: rgba(194, 71, 71, .1);
+	border-left-color: rgb(194, 71, 71);
 }
 
 .simple-history-logitem:hover {
@@ -83,4 +89,12 @@
 
 .simple-history-logitem__details {
 	margin-top: 0.4em;
+}
+
+/*
+Styles for filter
+*/
+.simple-history-filters {
+	float: right;
+	width: 400px;
 }

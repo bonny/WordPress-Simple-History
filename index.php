@@ -103,3 +103,11 @@ SimpleLogger()->info('User "{user_login}" failed to login because they did not e
 
 //*/
 
+/*
+// This does not work outside init due to wp_get_current_user() not working early. FIXME
+add_action("init", function() {
+    SimpleLogger()->warning("This is a warning log entry");
+    SimpleLogger()->error("This is an error log entry");
+    SimpleLogger()->debug("This is a debug log entry");
+});
+//*/

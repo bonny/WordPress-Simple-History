@@ -1,31 +1,39 @@
 <?php
 
+// Get nn latest log entries
 $logQuery = new SimpleHistoryLogQuery();
 $logRows = $logQuery->query(array(
-	"posts_per_page" => 100
+	"posts_per_page" => 50
 ));
 
-/*
-Each row looks like:
-stdClass Object
-(
-    [id] => 6004
-    [logger] => SimpleLogger
-    [message] => User {username} edited page {pagename}
-    [occasionsID] => 35afb82ac2eafcced80ed16ea83234c0
-    [subsequentOccasions] => 5286
-    [date] => 2014-06-01 18:08:57
-    [rep] => 1
-    [repeated] => 1
-    [type] => 35afb82ac2eafcced80ed16ea83234c0
-    [context] => Array
-        (
-            [username] => admin
-            [pagename] => My test page
-        )
-)
-*/
+// Output filters
+echo "<div class='simple-history-filters'>";
+echo "<h2>Filter log</h2>";
 
+// Output all loggers
+echo "<b>Loggers</b>";
+foreach ( $this->instantiatedLoggers as $oneLogger ) {
+	// sf_d($oneLogger["name"]);
+	echo "<li>" . $oneLogger["instance"]->slug . "</li>";
+}
+
+// Output users
+echo "<b>Users</b>";
+$sql_users = '
+	SELECT DISTINCT VALUE, wp_users.* FROM wp_simple_history_contexts
+	LEFT JOIN wp_users ON wp_users.id = wp_simple_history_contexts.value
+	WHERE `KEY` = "_user_id"
+	GROUP BY VALUE
+';
+global $wpdb;
+$user_results = $wpdb->get_results($sql_users);
+foreach ($user_results as $one_user_result) {
+	printf('<li>%3$s</li>', $one_user_result->id, $one_user_result->user_login, $one_user_result->user_email);
+}
+
+echo "</div>";
+
+// Output items
 echo "<ul class='simple-history-logitems'>";
 foreach ($logRows as $oneLogRow) {
 	
