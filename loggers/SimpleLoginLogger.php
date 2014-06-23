@@ -31,12 +31,14 @@ class SimpleLoginLogger extends SimpleLogger
 			
 			// Overwrite some vars that Simple History set automagically
 			$context = array(
-				"_user_id" => 0,
+				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
+				"_user_id" => null,
 				"_user_login" => null,
 				"_user_email" => null,
 				"login_user_id" => $user->ID,
 				"login_user_email" => $user->user_email,
-				"login_user_login" => $user->user_login
+				"login_user_login" => $user->user_login,
+				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
 			);
 
 			#$message = 'A user failed to log in because wrong password was entered';
@@ -80,6 +82,7 @@ class SimpleLoginLogger extends SimpleLogger
 
 			// Override some data that is usually set automagically by Simple History
 			// Because wp_get_current_user() does not return any data yet at this point
+			$context["_initiator"] = SimpleLoggerLogInitiators::WP_USER;
 			$context["_user_id"] = $user->ID;
 			$context["_user_login"] = $user->user_login;
 			$context["_user_email"] = $user->user_email;
@@ -112,22 +115,23 @@ class SimpleLoginLogger extends SimpleLogger
 
 	/**
 	 * User logs out
+	 * http://codex.wordpress.org/Plugin_API/Action_Reference/wp_logout
 	 */
 	function on_wp_logout() {
 
 		$current_user = wp_get_current_user();
 
 		$context = array(
-			"user_id" => $current_user->ID,
-			"user_email" => $current_user->user_email,
-			"user_login" => $current_user->user_login
+			"_user_id" => $current_user->ID,
+			"_user_email" => $current_user->user_email,
+			"_user_login" => $current_user->user_login
 		);
 
-		// For translation
 		__("Logged out", "simple-history");
+		$message = "Logged out";
 
 		$this->info(
-			'Logged out',
+			$message,
 			$context
 		);		
 

@@ -60,8 +60,68 @@ class SimpleLogger
 	 */
 	function getLogRowHeaderOutput($row) {
 		
-		// HTML for sender
-		$sender_html = "";
+		// HTML for initiator
+		$initiator_html = "";
+		
+		// Determine initiator type
+		$initiator = $row->initiator;
+
+		switch ( $initiator ) {
+
+			case "wp":
+				$initiator_html .= "<strong>WordPress</strong>";
+				break;
+
+			// wp_user = wordpress uses, but user may have been deleted since log entry was added
+			case "wp_user":
+
+				$user_id = isset( $row->context["_user_id"] ) ? $row->context["_user_id"] : null;
+
+				if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
+
+					// Sender is user and user still exists
+
+					// get user role, as done in user-edit.php
+					$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
+					$user_role  = array_shift( $user_roles );
+					$user_display_name = $user->display_name;
+
+					$initiator_html = sprintf(
+						'
+						<strong>%3$s</strong>
+						<span class="discrete">(%2$s)</span>
+						',
+						$user->user_login,
+						$user->user_email,
+						$user_display_name
+					);
+
+				} else if ($user_id > 0) {
+						
+					// Sender was a user, but user is deleted now
+					$initiator_html = sprintf(
+						'<strong>Deleted user</strong>'
+					);
+
+				}
+
+				break;
+
+			case "web_user":
+				$initiator_html .= "<strong>Web User</strong>";
+				break;
+
+			case "other":
+				$initiator_html .= "<strong>Other</strong>";
+				break;
+
+			default:
+				$initiator_html .= "<strong>" . esc_html($initiator) . "</strong>";
+
+		}
+
+	
+		/*
 		$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
 
 		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
@@ -98,6 +158,7 @@ class SimpleLogger
 			);
 
 		}
+		*/
 
 		// HTML for date
 		// Date (should...) always exist
@@ -145,7 +206,7 @@ class SimpleLogger
 			%1$s · %2$s
 			'
 			,
-			$sender_html,
+			$initiator_html,
 			$date_html
 		);
 
@@ -432,41 +493,72 @@ class SimpleLogger
 		$localtime = current_time("mysql");
 
 		$db_table = $wpdb->prefix . $this->db_table;
-		$db_table = apply_filters("simple_logger_db_table", $db_table);
+
+		/**
+	     * Filter db table used for simple history events
+	     *
+	     * @since 2.0
+	     *
+	     * @param string $db_table
+	     */	
+		$db_table = apply_filters("simple_history/db_table", $db_table);
 		
 		$data = array(
 			"logger" => $this->slug,
-			"date" => $localtime,
 			"level" => $level,
+			"date" => $localtime,
 			"message" => $message,
 		);
 
-		// Setup occasions id
-		$found_occasions_id = false;
-		$occasions_id = null;
-		if (isset($context["_occasionsID"])) {
-		
+		// Add occasions id
+		$occasions_id = null;		
+		if ( isset( $context["_occasionsID"] ) ) {
+
 			$occasions_id = md5( $context["_occasionsID"] );
 			unset( $context["_occasionsID"] );
 
 		} else {
 
-			// No occasions id specified, create one
-			$occasions_data = array(
-				"logger" => $this->slug,
-				"level" => $level,
-				"message" => $message,
-				"context" => $context
-			);
-			
-			$occasions_id = md5( json_encode($occasions_data) );
+			// No occasions id specified, create one bases on the data array
+			$occasions_id = md5( json_encode($data) );
 
 		}
 
 		$data["occasionsID"] = $occasions_id;
 
+		// Log event type, defaults to other if not set
+		if ( isset( $context["_type"] ) ) {
+			$data["type"] = $context["_type"];
+			unset( $context["_type"] );
+		} else {
+			$data["type"] = SimpleLoggerLogTypes::OTHER;
+		}
+
+		// Log initiator, defaults to current user if exists, or other if not user exist
+		if ( isset( $context["_initiator"] ) ) {
+			$data["initiator"] = $context["_initiator"];
+			unset( $context["_initiator"] );
+		} else {
+			
+			$data["initiator"] = SimpleLoggerLogInitiators::OTHER;
+						
+			if ( function_exists("wp_get_current_user") ) {
+
+				$current_user = wp_get_current_user();
+
+				if ( isset( $current_user->ID ) && $current_user->ID) {
+					$data["initiator"] = SimpleLoggerLogInitiators::WP_USER;;
+					$context["_user_id"] = $current_user->ID;
+					$context["_user_login"] = $current_user->user_login;
+					$context["_user_email"] = $current_user->user_email;
+				}
+
+			}
+
+		}
+
 		/**
-	     * Filter data arguments to be saved to db
+	     * Filter data to be saved to db
 	     *
 	     * @since 2.0
 	     *
@@ -474,6 +566,7 @@ class SimpleLogger
 	     */		
 		$data = apply_filters("simple_history/log_insert_data", $data);
 
+		// Insert data into db
 		$result = $wpdb->insert( $db_table, $data );
 
 		// Only save context if able to store row
@@ -485,7 +578,6 @@ class SimpleLogger
 		
 			$history_inserted_id = $wpdb->insert_id; 
 
-			// Add context
 			$db_table_contexts = $wpdb->prefix . $this->db_table_contexts;
 
 			/**
@@ -501,38 +593,34 @@ class SimpleLogger
 				$context = array();
 			}
 
-			// Automatically append some context
-			// If they are not already set
-
-			if ( isset( $context["_user_id"] ) ) {
+			// Append user id to context, if not already added
+			if ( ! isset( $context["_user_id"] ) ) {
 			
-				// user id is set, don't try to add anything
-			
-			} else {
-				
-				// wp_get_current_user
+				// wp_get_current_user is ont available early
 				// http://codex.wordpress.org/Function_Reference/wp_get_current_user
 				// https://core.trac.wordpress.org/ticket/14024
-				$current_user = wp_get_current_user();
+				if ( function_exists("wp_get_current_user") ) {
 
-				if ( isset($current_user->ID) && $current_user->ID) {
-					$context["_user_id"] = $current_user->ID;
-					$context["_user_login"] = $current_user->user_login;
-					$context["_user_email"] = $current_user->user_email;
+					$current_user = wp_get_current_user();
+
+					if ( isset( $current_user->ID ) && $current_user->ID) {
+						$context["_user_id"] = $current_user->ID;
+						$context["_user_login"] = $current_user->user_login;
+						$context["_user_email"] = $current_user->user_email;
+					}
+
 				}
 
 			}
 			
-			if ( ! isset( $context["_user_agent"] ) ) {
-				$context["_http_user_agent"] = $_SERVER["HTTP_USER_AGENT"];
-			}
-
+			// Append remote addr to context
+			// Good to always have
 			if ( ! isset( $context["_remote_addr"] ) ) {
 				$context["_remote_addr"] = $_SERVER["REMOTE_ADDR"];
 			}
 
-			// Save each context value
-			foreach ($context as $key => $value) {
+			// Insert all context values into db
+			foreach ( $context as $key => $value ) {
 
 				$data = array(
 					"history_id" => $history_inserted_id,
@@ -554,6 +642,44 @@ class SimpleLogger
 	} // log
 
 	
+}
+
+/**
+ * Describes log initiator, i.e. who caused to log event to happend
+ */
+class SimpleLoggerLogInitiators
+{
+	
+	// A wordpress user that at the log event created did exist in the wp database
+	// May have been deleted when the log is viewed
+	const WP_USER = 'wp_user';
+
+	// Cron job run = wordpress initiated
+	// Email sent to customer on webshop = system/wordpress/anonymous web user
+	// Javascript error occured on website = anonymous web user
+	const WEB_USER = 'web_user';
+
+	// WordPress core or plugins updated automatically via wp-cron
+	const WORDPRESS = "wp";
+
+	// I dunno
+	const OTHER = 'other';
+}
+
+
+/**
+ * Describes log event type
+ * Based on the CRUD-types
+ * http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+ * More may be added later on if needed
+ */
+class SimpleLoggerLogTypes
+{
+	const CREATE = 'create';
+	const READ = 'read';
+	const UPDATE = 'update';
+	const DELETE = 'delete';
+	const OTHER = 'other';
 }
 
 /**

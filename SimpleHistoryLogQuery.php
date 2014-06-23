@@ -62,13 +62,15 @@ class SimpleHistoryLogQuery {
 				t.id,
 				t.logger,
 				t.level,
+				t.date,
 				t.message,
+				t.type,
+				t.initiator,
 				t.occasionsID,
 				count(REPEATED) AS subsequentOccasions,
-				t.date,
 				t.rep,
 				t.repeated,
-				t.type
+				t.occasionsIDType
 			FROM 
 				(
 					SELECT 
@@ -76,11 +78,13 @@ class SimpleHistoryLogQuery {
 						logger, 
 						level, 
 						message, 
+						type,
+						initiator,
 						occasionsID, 
 						date, 
 						IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
 						IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
-						@a:=occasionsID type 
+						@a:=occasionsID occasionsIDType 
 					FROM wp_simple_history
 
 					#Add where here?

@@ -1,5 +1,8 @@
 <?php
 
+global $wpdb;
+$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+
 // Get nn latest log entries
 $logQuery = new SimpleHistoryLogQuery();
 $logRows = $logQuery->query(array(
@@ -9,6 +12,10 @@ $logRows = $logQuery->query(array(
 // Output filters
 echo "<div class='simple-history-filters'>";
 echo "<h2>Filter log</h2>";
+
+// Total number of log rows
+$total_num_rows = $wpdb->get_var("select count(*) FROM {$table_name}");
+echo "<p>Total $total_num_rows log rows in db</p>";
 
 // Output all loggers
 echo "<b>Loggers</b>";
@@ -25,10 +32,9 @@ $sql_users = '
 	WHERE `KEY` = "_user_id"
 	GROUP BY VALUE
 ';
-global $wpdb;
 $user_results = $wpdb->get_results($sql_users);
 foreach ($user_results as $one_user_result) {
-	printf('<li>%3$s</li>', $one_user_result->id, $one_user_result->user_login, $one_user_result->user_email);
+	printf('<li>%3$s</li>', $one_user_result->ID, $one_user_result->user_login, $one_user_result->user_email);
 }
 
 echo "</div>";

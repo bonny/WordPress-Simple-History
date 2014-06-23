@@ -17,12 +17,12 @@ Style different log levels.
 There is always a 4px left border, just with differents colors
  */
 .simple-history-logitem--loglevel-warning {
-	background-color: rgba(202, 172, 15, .1);
+	/*background-color: rgba(202, 172, 15, .1);*/
 	border-left-color: rgb(202, 172, 15);
 }
 
 .simple-history-logitem--loglevel-error {
-	background-color: rgba(194, 71, 71, .1);
+	/*background-color: rgba(194, 71, 71, .1);*/
 	border-left-color: rgb(194, 71, 71);
 }
 
