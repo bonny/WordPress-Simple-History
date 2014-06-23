@@ -63,8 +63,8 @@ class SimpleLogger
 		// HTML for initiator
 		$initiator_html = "";
 		
-		// Determine initiator type
 		$initiator = $row->initiator;
+		$context = $row->context;
 
 		switch ( $initiator ) {
 
@@ -86,7 +86,7 @@ class SimpleLogger
 					$user_role  = array_shift( $user_roles );
 					$user_display_name = $user->display_name;
 
-					$initiator_html = sprintf(
+					$initiator_html .= sprintf(
 						'
 						<strong>%3$s</strong>
 						<span class="discrete">(%2$s)</span>
@@ -99,8 +99,16 @@ class SimpleLogger
 				} else if ($user_id > 0) {
 						
 					// Sender was a user, but user is deleted now
-					$initiator_html = sprintf(
-						'<strong>Deleted user</strong>'
+					// output all info we have
+					// _user_id
+					// _username
+					// _user_login
+					// _user_email
+					$initiator_html .= sprintf( 
+						__('<strong>Deleted user</strong> (had id %1$s, email %2$s, login %3$s)', "simple-history"),
+						esc_html($context["_user_id"]),
+						esc_html($context["_user_email"]),
+						esc_html($context["_user_login"])
 					);
 
 				}
@@ -108,57 +116,17 @@ class SimpleLogger
 				break;
 
 			case "web_user":
-				$initiator_html .= "<strong>Web User</strong>";
+				// $initiator_html .= "<strong>Web User</strong>";
 				break;
 
 			case "other":
-				$initiator_html .= "<strong>Other</strong>";
+				// $initiator_html .= "<strong>Other</strong>";
 				break;
 
 			default:
 				$initiator_html .= "<strong>" . esc_html($initiator) . "</strong>";
 
 		}
-
-	
-		/*
-		$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
-
-		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
-
-			// Sender is user and user still exists
-
-			// get user role, as done in user-edit.php
-			$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
-			$user_role  = array_shift( $user_roles );
-			$user_display_name = $user->display_name;
-
-			$sender_html = sprintf(
-				'
-				<strong>%3$s</strong>
-				<!-- <span class="discrete">(%2$s)</span> -->
-				',
-				$user->user_login,
-				$user->user_email,
-				$user_display_name
-			);
-
-		} else if ($user_id > 0) {
-				
-			// Sender was a user, but user is deleted now
-			$sender_html = sprintf(
-				'<strong>Deleted user</strong>'
-			);
-
-		} else {
-
-			// Not a user
-			$sender_html = sprintf(
-				'<strong>System</strong>'
-			);
-
-		}
-		*/
 
 		// HTML for date
 		// Date (should...) always exist
@@ -279,24 +247,34 @@ class SimpleLogger
 		$sender_image_html = "";
 		$sender_image_size = 38; // 32
 
-		$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
+		$initiator = $row->initiator;
 
-		if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
+		switch ( $initiator ) {
 
-			// Sender was user
-			$sender_image_html = get_avatar( $user->user_email, $sender_image_size );	
+			// wp_user = wordpress uses, but user may have been deleted since log entry was added
+			case "wp_user":
 
-		} else if ($user_id > 0) {
-				
-			// Sender was a user, but user is deleted now
-			$sender_image_html = get_avatar( "", $sender_image_size );	
+				$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
 
-		} else {
+				if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
 
-			$sender_image_html = get_avatar( "", $sender_image_size );	
+					// Sender was user
+					$sender_image_html = get_avatar( $user->user_email, $sender_image_size );	
 
-		}	
+				} else if ($user_id > 0) {
+						
+					// Sender was a user, but user is deleted now
+					$sender_image_html = get_avatar( "", $sender_image_size );	
 
+				} else {
+
+					$sender_image_html = get_avatar( "", $sender_image_size );	
+
+				}	
+
+				break;
+
+		}
 		/**
 	     * Filter generated output for row image (sender image)
 	     *
@@ -520,7 +498,8 @@ class SimpleLogger
 		} else {
 
 			// No occasions id specified, create one bases on the data array
-			$occasions_id = md5( json_encode($data) );
+			$occasions_data = $data + $context;
+			$occasions_id = md5( json_encode($occasions_data) );
 
 		}
 

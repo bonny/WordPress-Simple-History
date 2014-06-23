@@ -1,7 +1,8 @@
 <?php
-return;
+#return;
 //*
 
+/*
 SimpleLogger()->info("This is a message sent to the log");
 
 // Second log entry with same info will make these two become an occasionGroup,
@@ -12,6 +13,7 @@ SimpleLogger()->info("This is a message sent to the log");
 SimpleLogger()->info("User admin edited page 'About our company'");
 SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
 SimpleLogger()->debug("Ok, cron job is running!");
+*/
 
 // Log entries can have placeholders and context
 // This makes log entried translatable and filterable
@@ -20,10 +22,15 @@ for ($i = 0; $i < rand(1, 50); $i++) {
 		"User {username} edited page {pagename}", 
 		array(
 			"username" => "bonnyerden",
-			"pagename" => "My test page"
+			"pagename" => "My test page",
+			"_initiator" => SimpleLoggerLogInitiators::WP_USER,
+			"_user_id" => rand(1,20),
+			"_user_login" => "loginname" . rand(1,20),
+			"_user_email" => "user" . rand(1,20) . "@example.com"
 		)
 	);
 }
+#return;
 
 // Log entried can have custom occasionsID
 // This will group items together and a log entry will only be shown once
@@ -70,6 +77,36 @@ add_action("init", function() {
     		"from_version" => "3.8",
     		"to_version" => "3.8.1",
     		"_initiator" => SimpleLoggerLogInitiators::WORDPRESS
+    	)
+    );
+
+    SimpleLogger()->info(
+    	"Plugin {plugin_name} was updated from version {plugin_from_version} to version {plugin_to_version}",
+    	array(
+    		"plugin_name" => "CMS Tree Page View",
+    		"plugin_from_version" => "4.0",
+    		"plugin_to_version" => "4.2",
+    		"_initiator" => SimpleLoggerLogInitiators::WORDPRESS
+    	)
+    );
+
+    SimpleLogger()->info(
+    	"Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}",
+    	array(
+    		"plugin_name" => "Simple Fields",
+    		"plugin_from_version" => "1.3.7",
+    		"plugin_to_version" => "1.3.8",
+    		"_initiator" => SimpleLoggerLogInitiators::WP_USER
+    	)
+    );
+
+    SimpleLogger()->info(
+    	"Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}",
+    	array(
+    		"plugin_name" => "Ninja Forms",
+    		"plugin_from_version" => "1.1",
+    		"plugin_to_version" => "1.1.2",
+    		"_initiator" => SimpleLoggerLogInitiators::WP_USER
     	)
     );
 
