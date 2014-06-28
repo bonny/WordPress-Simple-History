@@ -129,7 +129,14 @@ class SimpleHistoryRSSDropin {
 								"search"      => "",
 								"num_added"   => 0
 						*/
-						$arr_items = simple_history_get_items_array("items=10");
+						$args = array(
+							"items" => "10"
+						);
+
+						$args = apply_filters("simple_history/rss_feed_args", $args);
+
+						$arr_items = simple_history_get_items_array($args);
+
 						foreach ($arr_items as $one_item) {
 							$object_type = ucwords($one_item->object_type);
 							$object_name = esc_html($one_item->object_name);
