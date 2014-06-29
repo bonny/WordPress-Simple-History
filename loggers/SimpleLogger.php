@@ -123,6 +123,10 @@ class SimpleLogger
 				// $initiator_html .= "<strong>Other</strong>";
 				break;
 
+			// no initiator
+			case null:
+				break;
+
 			default:
 				$initiator_html .= "<strong>" . esc_html($initiator) . "</strong>";
 
@@ -169,13 +173,15 @@ class SimpleLogger
 		);
 
 		// Glue together final result
+		$template = '%1$s · %2$s';
+		if ( ! $initiator_html ) {
+			$template = '%2$s';
+		}
+
 		$html = sprintf(
-			'
-			%1$s · %2$s
-			'
-			,
-			$initiator_html,
-			$date_html
+			$template,
+			$initiator_html, // 1
+			$date_html // 2
 		);
 
 		/**
