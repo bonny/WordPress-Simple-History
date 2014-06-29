@@ -89,6 +89,7 @@ class SimpleHistoryRSSDropin {
 		if ( isset($_GET["simple_history_get_rss"]) ) {
 
 			$this->output_rss();
+			exit;
 
 		}
 		
@@ -194,7 +195,7 @@ class SimpleHistoryRSSDropin {
 				<?php
 	
 			}
-			exit;
+
 	} // rss
 
 
