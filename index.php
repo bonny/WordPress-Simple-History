@@ -32,6 +32,7 @@ require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
 
 /**
  * Register function that is called when plugin is installed
+ *
  * @TODO: check that this works with wp 3.9 that have symlink support
  * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
  */
@@ -48,14 +49,7 @@ function SimpleLogger() {
 }
 
 /** Boot up */
-$simple_history = new SimpleHistory();
-
-/*
-// Never clear the log (default is 60 days)
-add_filter("simple_history/db_purge_days_interval", function($days) {
-	return "0";
-});
-*/
+$GLOBALS["simple_history"] = new SimpleHistory();
 
 // Test logging
 // Example usage
