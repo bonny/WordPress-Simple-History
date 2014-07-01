@@ -107,6 +107,12 @@ class SimpleHistoryRSSDropin {
 				die();
 			}
 
+			$rss_show = true;
+			$rss_show = apply_filters("simple_history/rss_feed_show", $rss_show);
+			if( ! $rss_show ) {
+				wp_die( 'Nothing here.' );
+			}
+
 			header ("Content-Type:text/xml");
 			echo '<?xml version="1.0" encoding="UTF-8"?>';
 			$self_link = $this->get_rss_address();
