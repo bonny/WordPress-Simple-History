@@ -33,6 +33,28 @@ class SimpleLogger
 	}
 
 	/**
+	 * Get array with information about this logger
+	 * 
+	 * @return array
+	 */
+	function getInfo() {
+
+		$arr_info = array(
+			// The logger slug. Defaulting to the class name is nice and logical I think
+			"slug" => __CLASS__,
+			"name" => "SimpleLogger",
+			"description" => "The built in logger for Simple History",
+			"capability" => array("manage_options", "read_pages"),
+			"messages" => array(
+				// No pre-defined variants
+			)
+		);
+
+		return $arr_info;
+
+	}
+
+	/**
 	* Interpolates context values into the message placeholders.
 	*/
 	function interpolate($message, $context = array())

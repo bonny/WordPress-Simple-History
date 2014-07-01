@@ -14,6 +14,46 @@ class SimplePostLogger extends SimpleLogger
 
 	}
 
+	/**
+	 * Get array with information about this logger
+	 * 
+	 * @return array
+	 */
+	function getInfo() {
+
+		$arr_info = array(
+			
+			// The logger slug. Defaulting to the class name is nice and logical I think
+			"slug" => __CLASS__,
+
+			// Shown on the info-tab in settings, use these fields to tell
+			// an admin what your logger is used for
+			"name" => "Post Logger",
+			"description" => "Logs the created and modification of posts and pages",
+
+			// Capability required to view log entries from this logger
+			"capability" => "edit_pages",
+
+			// Messages that this logger will log
+			// By adding your messages here they will be stored both translated and non-translated
+			// You then log something like this:
+			// $this->log( $this->messages->POST_UPDATED );
+			// which results in the original, untranslated, string being added to the log and database
+			// the translated string are then only used when showing the log in the GUI
+			"messages" => array(
+				'POST_UPDATED' => _('Updated {post_type} "{post_title}"', 'simple-history'),
+				'POST_RESTORED' => _('Restored {post_type} "{post_title}" from trash', 'simple-history'),
+				'POST_DELETED' => _('Deleted {post_type} "{post_title}"', 'simple-history'),
+				'POST_CREATED' => _('Created {post_type} "{post_title}"', 'simple-history'),
+				'POST_TRASHED' => _('Moved {post_type} "{post_title}" to the trash', 'simple-history'),
+			)
+		);
+		
+		return $arr_info;
+
+	}
+
+
 	function on_admin_init() {
 
 		add_action("transition_post_status", array($this, "on_transition_post_status"), 10, 3);
