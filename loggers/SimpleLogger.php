@@ -24,12 +24,27 @@ class SimpleLogger
 	public $db_table_contexts = "simple_history_contexts";
 
 	/**
+	 * Will contain the untranslated messages from getInfo()
+	 */
+	public $messages = array();
+
+	/**
 	 * ID of last inserted row. Used when chaining methods.
 	 */
 	private $lastInsertID = null;
 
-	public function __construct() {
+	public function __construct($simpleHistory) {
 		
+		$this->simpleHistory = $simpleHistory;
+
+	}
+
+	/**
+	 * Method that is called automagically when logger is loaded by Simple History
+	 * Add your init stuff here
+	 */
+	public function loaded() {
+
 	}
 
 	/**
