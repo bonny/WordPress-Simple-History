@@ -8,7 +8,7 @@ class SimplePostLogger extends SimpleLogger
 
 	public $slug = "SimplePostLogger";
 
-	public function __construct() {
+	public function loaded() {
 		
 		add_action("admin_init", array($this, "on_admin_init"));
 
@@ -37,15 +37,16 @@ class SimplePostLogger extends SimpleLogger
 			// Messages that this logger will log
 			// By adding your messages here they will be stored both translated and non-translated
 			// You then log something like this:
-			// $this->log( $this->messages->POST_UPDATED );
+			// $this->info( $this->messages->POST_UPDATED );
+			// $this->infoMessage( "POST_UPDATED" );
 			// which results in the original, untranslated, string being added to the log and database
 			// the translated string are then only used when showing the log in the GUI
 			"messages" => array(
-				'POST_UPDATED' => _('Updated {post_type} "{post_title}"', 'simple-history'),
-				'POST_RESTORED' => _('Restored {post_type} "{post_title}" from trash', 'simple-history'),
-				'POST_DELETED' => _('Deleted {post_type} "{post_title}"', 'simple-history'),
-				'POST_CREATED' => _('Created {post_type} "{post_title}"', 'simple-history'),
-				'POST_TRASHED' => _('Moved {post_type} "{post_title}" to the trash', 'simple-history'),
+				'POST_UPDATED' => __('Updated {post_type} "{post_title}"', 'simple-history'),
+				'POST_RESTORED' => __('Restored {post_type} "{post_title}" from trash', 'simple-history'),
+				'POST_DELETED' => __('Deleted {post_type} "{post_title}"', 'simple-history'),
+				'POST_CREATED' => __('Created {post_type} "{post_title}"', 'simple-history'),
+				'POST_TRASHED' => __('Moved {post_type} "{post_title}" to the trash', 'simple-history')
 			)
 		);
 		

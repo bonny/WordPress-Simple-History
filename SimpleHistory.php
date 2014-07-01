@@ -27,6 +27,9 @@ class SimpleHistory {
 
 	public $pluginBasename;
 
+	private $doFilterGettext = false;
+	private $doFilterGettext_currentLogger = null;
+
 	const NAME = "Simple History";
 	const VERSION = "2.0";
 	const DBTABLE = "simple_history";
@@ -48,6 +51,8 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/before_init", $this );
 
+		add_filter("gettext", array($this, 'filter_gettext'), 20, 3);
+
 		$this->setupVariables();
 		$this->loadLoggers();
 		$this->loadDropins();
@@ -67,7 +72,6 @@ class SimpleHistory {
 
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 
-		$this->add_types_for_translation();
 		require_once ( dirname(__FILE__) . "/old-functions.php");
 		require_once ( dirname(__FILE__) . "/old-stuff.php");
 		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
@@ -81,6 +85,18 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/after_init", $this );
 
+	}
+
+	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
+
+		if ( isset( $this->doFilterGettext ) && $this->doFilterGettext ) {
+
+			$this->doFilterGettext_currentLogger->messages[] = $untranslated_text;
+
+		}
+
+		return $translated_text;
+		
 	}
 
 	/**
@@ -138,7 +154,7 @@ class SimpleHistory {
 
 		$loggersFiles = glob( $loggersDir . "*.php");
 
-		// SimpleLogger.php must be loaded first
+		// SimpleLogger.php must be loaded first since the other loggers extend it
 		require_once($loggersDir . "SimpleLogger.php");
 
 		/**
@@ -153,7 +169,6 @@ class SimpleHistory {
 		$loggersFiles = apply_filters("simple_history/loggers_files", $loggersFiles);
 		
 		$arrLoggersToInstantiate = array();
-
 		foreach ( $loggersFiles as $oneLoggerFile) {
 		
 			include_once($oneLoggerFile);
@@ -170,15 +185,37 @@ class SimpleHistory {
 		 * @param array $arrLoggersToInstantiate Array with class names
 		 */		
 		$arrLoggersToInstantiate = apply_filters("simple_history/loggers_to_instantiate", $arrLoggersToInstantiate);
-
 		// Instantiate each logger
 		foreach ($arrLoggersToInstantiate as $oneLoggerName ) {
 			
+			$loggerInstance = new $oneLoggerName($this);
+			$loggerInstance->loaded();
+			
+			// Tell gettext-filter to add untraslated messages
+			$this->doFilterGettext = true;
+			$this->doFilterGettext_currentLogger = $loggerInstance;
+
+			$loggerInfo = $loggerInstance->getInfo();
+
+			// Un-tell gettext filter
+			$this->doFilterGettext = false;
+			$this->doFilterGettext_currentLogger = null;
+
+			// Add message slugs to the untranslated messages
+			$loopNum = 0;
+			foreach ($loggerInfo["messages"] as $key => $message) {
+				$loggerInstance->messages[$key] = $loggerInstance->messages[$loopNum];
+				unset( $loggerInstance->messages[$loopNum] );
+				$loopNum++;
+			}
+
 			$this->instantiatedLoggers[$oneLoggerName] = array(
 				"name" => $oneLoggerName,
-				"instance" => new $oneLoggerName($this)
+				"instance" => $loggerInstance
 			);
 		}
+		sf_d($this->instantiatedLoggers, 'instantiatedLoggers');
+		#exit;
 
 	}
 
@@ -255,35 +292,6 @@ class SimpleHistory {
 
 	}
 	
-	/**
-	 * Some post types etc are added as variables from the log, so to catch these for translation I just add them as dummy stuff here.
-	 * There is probably a better way to do this, but this should work anyway
-	 */
-	function add_types_for_translation() {
-
-		__("added", "simple-history");
-		__("approved", "simple-history");
-		__("unapproved", "simple-history");
-		__("marked as spam", "simple-history");
-		__("trashed", "simple-history");
-		__("untrashed", "simple-history");
-		__("created", "simple-history");
-		__("deleted", "simple-history");
-		__("updated", "simple-history");
-		__("nav_menu_item", "simple-history");
-		__("attachment", "simple-history");
-		__("user", "simple-history");
-		__("settings page", "simple-history");
-		__("edited", "simple-history");
-		__("comment", "simple-history");
-		__("logged in", "simple-history");
-		__("logged out", "simple-history");
-		__("added", "simple-history");
-		__("modified", "simple-history");
-		__("upgraded it\'s database", "simple-history");
-		__("plugin", "simple-history");
-
-	}
 
 	/**
 	 * Show a link to our settings page on the Plugins -> Installed Plugins screen
