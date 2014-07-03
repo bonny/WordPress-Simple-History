@@ -16,6 +16,9 @@ class SimpleLoginLogger extends SimpleLogger
 		// Failed login attempt to username that exists
 		add_action("wp_authenticate_user", array($this, "on_wp_authenticate_user"), 10, 2);
 
+		// Failed to login to user that did not exist (perhaps brute force)
+		add_filter( 'authenticate', array($this, "on_authenticate"), 10, 3);
+
 		// User is changed
 		add_action("profile_update", array($this, "on_profile_update"), 10, 2);
 
@@ -33,7 +36,8 @@ class SimpleLoginLogger extends SimpleLogger
 			"description" => "Logs user logins, logouts, and failed logins",
 			"capability" => "edit_users",
 			"messages" => array(
-				'user_login_failed' => __('"{login_user_email}" failed to login because an incorrect password was entered', "simple-history"),
+				'user_login_failed' => __('{login_user_login} ({login_user_email}) failed to login because an incorrect password was entered', "simple-history"),
+				'user_unknown_login_failed' => __('"{failed_login_username}" failed to login because login did not exist in system', "simple-history"),
 				'user_logged_in' => __('Logged in', "simple-history"),
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
@@ -151,6 +155,35 @@ class SimpleLoginLogger extends SimpleLogger
 		);
 
 		$this->infoMessage("user_updated_profile", $context);		
+
+	}
+
+	/**
+	 * Attempt to login to user that does not exist
+	 */
+	function on_authenticate($user, $username, $password) {
+
+		// Don't log empty usernames
+		if ( ! trim($username)) {
+			return $user;
+		}
+		
+		// If username is not a user in the system then this
+		// is consideraded a failed login attempt
+		$wp_user = get_user_by( "login", $username );
+		
+		if (false === $wp_user) {
+
+			$context = array(
+				"failed_login_username" => $username,
+			);
+
+			$this->infoMessage("user_unknown_login_failed", $context);		
+
+		}
+
+		return $user;
+
 
 	}
 
