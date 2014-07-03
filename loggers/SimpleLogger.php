@@ -19,6 +19,18 @@ class SimpleLogger
 
 	/**
 	 * Will contain the untranslated messages from getInfo()
+	 *
+	 * By adding your messages here they will be stored both translated and non-translated
+	 * You then log something like this:
+	 * <code>
+	 *   $this->info( $this->messages["POST_UPDATED"] );
+	 * </code>
+	 * or with the shortcut
+	 * <code>
+	 *   $this->infoMessage("POST_UPDATED");
+	 * </code>
+	 * which results in the original, untranslated, string being added to the log and database
+	 * the translated string are then only used when showing the log in the GUI
 	 */
 	public $messages;
 
@@ -51,12 +63,27 @@ class SimpleLogger
 		$arr_info = array(
 			// The logger slug. Defaulting to the class name is nice and logical I think
 			"slug" => __CLASS__,
+
+			// Shown on the info-tab in settings, use these fields to tell
+			// an admin what your logger is used for
 			"name" => "SimpleLogger",
 			"description" => "The built in logger for Simple History",
+			
+			// Capability required to view log entries from this logger
 			"capability" => array("manage_options", "read_pages"),
 			"messages" => array(
 				// No pre-defined variants
 			)
+
+			// TODO: meta info about the messages?
+			/*
+			"messages_meta" => array(
+				"post_updated" => array(
+					"logType" => SimpleLoggerLogTypes::UPDATE
+				)
+			)
+			*/
+
 		);
 
 		return $arr_info;
@@ -721,8 +748,10 @@ class SimpleLogger
 
 		// Log initiator, defaults to current user if exists, or other if not user exist
 		if ( isset( $context["_initiator"] ) ) {
+
 			$data["initiator"] = $context["_initiator"];
 			unset( $context["_initiator"] );
+			
 		} else {
 			
 			$data["initiator"] = SimpleLoggerLogInitiators::OTHER;

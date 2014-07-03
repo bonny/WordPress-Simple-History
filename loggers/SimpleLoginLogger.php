@@ -6,15 +6,42 @@
 class SimpleLoginLogger extends SimpleLogger
 {
 
-	public $slug = "SimpleLoginLogger";
+	public $slug = __CLASS__;
 
-	public function __construct() {
+	public function loaded() {
 		
 		add_action("wp_login", array($this, "on_wp_login" ), 10, 3 );
 		add_action("wp_logout", array($this, "on_wp_logout" ) );
 
 		// Failed login attempt to username that exists
 		add_action("wp_authenticate_user", array($this, "on_wp_authenticate_user"), 10, 2);
+
+		// User is changed
+		add_action("profile_update", array($this, "on_profile_update"), 10, 2);
+
+	}
+
+	/**
+	 * Get array with information about this logger
+	 * 
+	 * @return array
+	 */
+	function getInfo() {
+
+		$arr_info = array(			
+			"name" => "User Logger",
+			"description" => "Logs user logins, logouts, and failed logins",
+			"capability" => "edit_users",
+			"messages" => array(
+				'user_login_failed' => __('"{login_user_email}" failed to login because an incorrect password was entered', "simple-history"),
+				'user_logged_in' => __('Logged in', "simple-history"),
+				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
+				'user_logged_out' => __("Logged out", "simple-history"),
+				'user_updated_profile' => __("Edited the profile for user {edited_user_login} ({edited_user_email})", "simple-history"),
+			)
+		);
+		
+		return $arr_info;
 
 	}
 
@@ -41,21 +68,7 @@ class SimpleLoginLogger extends SimpleLogger
 				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
 			);
 
-			#$message = 'A user failed to log in because wrong password was entered';
-			#$message = 'Login failed for user "{login_user_email}"';
-			#$message = 'A login attempt was made for user "{login_user_email}"';
-			#$message = 'Failed to login user "{login_user_email}"';
-
-			// For translation. Will be used when log entry is fetched. Don't pass into logger at this step.
-			__('User "{login_user_email}" failed to login because an incorrect password was entered', "simple-history");
-			// Actual message to put into logger. Same as above. Always goes untranslated in english in the log.
-			$message = 'User "{login_user_email}" failed to login because an incorrect password was entered';
-
-			$this->warning(
-				$message,
-				$context
-			);		
-
+			$this->warningMessage("user_login_failed", $context);		
 
 		}
 
@@ -65,6 +78,7 @@ class SimpleLoginLogger extends SimpleLogger
 
 	/**
 	 * User logs in
+	 *
 	 * @param string $user_login
 	 * @param object $user
 	 */
@@ -90,26 +104,15 @@ class SimpleLoginLogger extends SimpleLogger
 			// For translation
 			__("Logged in", "simple-history");
 
-			$this->info(
-				'Logged in',
-				$context
-			);		
+			$this->infoMessage("user_logged_in", $context);		
 
 		} else {
 
-			// For translation
-			__("Unknown user logged in", "simple-history");
-
 			// when does this happen?
-			$this->info(
-				'Unknown user logged in',
-				$context
-			);		
+			$this->warningMessage("user_unknown_logged_in", $context );		
 
 
 		}
-
-		
 
 	}
 
@@ -121,19 +124,33 @@ class SimpleLoginLogger extends SimpleLogger
 
 		$current_user = wp_get_current_user();
 
-		$context = array(
+		/*$context = array(
 			"_user_id" => $current_user->ID,
 			"_user_email" => $current_user->user_email,
 			"_user_login" => $current_user->user_login
+		);*/
+
+		$this->infoMessage("user_logged_out");
+
+	}
+
+	/**
+	 * User is edited
+	 */
+	function on_profile_update($user_id) {
+		
+		if ( ! $user_id || ! is_numeric($user_id))
+			return;
+
+		$wp_user_edited = get_userdata( $user_id );
+
+		$context = array(
+			"edited_user_id" => $wp_user_edited->ID,
+			"edited_user_email" => $wp_user_edited->user_email,
+			"edited_user_login" => $wp_user_edited->user_login
 		);
 
-		__("Logged out", "simple-history");
-		$message = "Logged out";
-
-		$this->info(
-			$message,
-			$context
-		);		
+		$this->infoMessage("user_updated_profile", $context);		
 
 	}
 

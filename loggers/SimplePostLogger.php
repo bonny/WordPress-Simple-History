@@ -22,23 +22,10 @@ class SimplePostLogger extends SimpleLogger
 	 */
 	function getInfo() {
 
-		$arr_info = array(
-			
-			// Shown on the info-tab in settings, use these fields to tell
-			// an admin what your logger is used for
+		$arr_info = array(			
 			"name" => "Post Logger",
 			"description" => "Logs the created and modification of posts and pages",
-
-			// Capability required to view log entries from this logger
 			"capability" => "edit_pages",
-
-			// Messages that this logger will log
-			// By adding your messages here they will be stored both translated and non-translated
-			// You then log something like this:
-			// $this->info( $this->messages->POST_UPDATED );
-			// $this->infoMessage( "POST_UPDATED" );
-			// which results in the original, untranslated, string being added to the log and database
-			// the translated string are then only used when showing the log in the GUI
 			"messages" => array(
 				'post_updated' => __('Updated {post_type} "{post_title}"', 'simple-history'),
 				'post_restored' => __('Restored {post_type} "{post_title}" from trash', 'simple-history'),
@@ -46,16 +33,6 @@ class SimplePostLogger extends SimpleLogger
 				'post_created' => __('Created {post_type} "{post_title}"', 'simple-history'),
 				'post_trashed' => __('Moved {post_type} "{post_title}" to the trash', 'simple-history')
 			)
-
-			// TODO: meta info about these messages?
-			/*
-			"messages_meta" => array(
-				"post_updated" => array(
-					"logType" => SimpleLoggerLogTypes::UPDATE
-				)
-			)
-			*/
-
 		);
 		
 		return $arr_info;
@@ -196,7 +173,7 @@ class SimplePostLogger extends SimpleLogger
 		$post = get_post( $post_id );
 		$post_is_available = is_a($post, "WP_Post");
 
-		$message_key = $context["_message_key"];
+		$message_key = isset($context["_message_key"]) ? $context["_message_key"] : null;
 
 		// If post is not available any longer then we can't link to it, so keep plain message then
 		if ( $post_is_available && "post_updated" == $message_key ) {
