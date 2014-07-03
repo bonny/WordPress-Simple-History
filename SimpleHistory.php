@@ -212,12 +212,14 @@ class SimpleHistory {
 			}
 
 			// Add logger to array of loggers
-			$this->instantiatedLoggers[ $loggerInfo["slug"] ] = array(
+			$this->instantiatedLoggers[ $loggerInstance->slug ] = array(
 				"name" => $loggerInfo["name"],
 				"instance" => $loggerInstance
 			);
 
 		}
+
+		#sf_d($this->instantiatedLoggers);exit;
 
 	}
 

@@ -15,7 +15,7 @@ class SimpleLogger
 	 * Unique slug for this logger
 	 * Will be saved in DB and used to associate each log row with its logger
 	 */
-	public $slug = "SimpleLogger";
+	public $slug = __CLASS__;
 
 	/**
 	 * Will contain the untranslated messages from getInfo()
@@ -380,6 +380,8 @@ class SimpleLogger
 		if ( ! isset( $this->messages[ $message ] ) )
 			return;
 
+		$context["_message_key"] = $message;
+
 		$this->log(SimpleLoggerLogLevels::EMERGENCY, $this->messages[ $message ], $context);
 		
 	}
@@ -410,6 +412,8 @@ class SimpleLogger
 
 		if ( ! isset( $this->messages[ $message ] ) )
 			return;
+
+		$context["_message_key"] = $message;
 
 		$this->log(SimpleLoggerLogLevels::ALERT, $this->messages[ $message ], $context);
 		
@@ -445,6 +449,8 @@ class SimpleLogger
 		if ( ! isset( $this->messages[ $message ] ) )
 			return;
 
+		$context["_message_key"] = $message;
+
 		$this->log(SimpleLoggerLogLevels::CRITICAL, $this->messages[ $message ], $context);
 		
 	}
@@ -478,6 +484,8 @@ class SimpleLogger
 
 		if ( ! isset( $this->messages[ $message ] ) )
 			return;
+
+		$context["_message_key"] = $message;
 
 		$this->log(SimpleLoggerLogLevels::ERROR, $this->messages[ $message ], $context);
 		
@@ -514,6 +522,8 @@ class SimpleLogger
 		if ( ! isset( $this->messages[ $message ] ) )
 			return;
 
+		$context["_message_key"] = $message;
+
 		$this->log(SimpleLoggerLogLevels::WARNING, $this->messages[ $message ], $context);
 		
 	}
@@ -545,6 +555,8 @@ class SimpleLogger
 
 		if ( ! isset( $this->messages[ $message ] ) )
 			return;
+
+		$context["_message_key"] = $message;
 
 		$this->log(SimpleLoggerLogLevels::NOTICE, $this->messages[ $message ], $context);
 		
@@ -582,6 +594,8 @@ class SimpleLogger
 		if ( ! isset( $this->messages[ $message ] ) )
 			return;
 
+		$context["_message_key"] = $message;
+
 		$this->log(SimpleLoggerLogLevels::INFO, $this->messages[ $message ], $context);
 		
 	}
@@ -612,6 +626,8 @@ class SimpleLogger
 
 		if ( ! isset( $this->messages[ $message ] ) )
 			return;
+
+		$context["_message_key"] = $message;
 
 		$this->log(SimpleLoggerLogLevels::DEBUG, $this->messages[ $message ], $context);
 		
@@ -671,13 +687,24 @@ class SimpleLogger
 		$occasions_id = null;		
 		if ( isset( $context["_occasionsID"] ) ) {
 
-			$occasions_id = md5( $context["_occasionsID"] );
+			// Minimize risk of similar loggers logging same messages and such and resulting in same occasions id
+			// by always adding logger slug
+			$occasions_data = array(
+				"_occasionsID" => $context["_occasionsID"],
+				"_loggerSlug" => $this->slug
+			);
+			$occasions_id = md5( json_encode($occasions_data) );
 			unset( $context["_occasionsID"] );
 
 		} else {
 
 			// No occasions id specified, create one bases on the data array
 			$occasions_data = $data + $context;
+
+			// Don't include date in context data
+			unset($occasions_data["date"]);
+
+			//sf_d($occasions_data);exit;
 			$occasions_id = md5( json_encode($occasions_data) );
 
 		}

@@ -6,7 +6,8 @@
 class SimplePostLogger extends SimpleLogger
 {
 
-	public $slug = "SimplePostLogger";
+	// The logger slug. Defaulting to the class name is nice and logical I think
+	public $slug = __CLASS__;
 
 	public function loaded() {
 		
@@ -23,9 +24,6 @@ class SimplePostLogger extends SimpleLogger
 
 		$arr_info = array(
 			
-			// The logger slug. Defaulting to the class name is nice and logical I think
-			"slug" => __CLASS__,
-
 			// Shown on the info-tab in settings, use these fields to tell
 			// an admin what your logger is used for
 			"name" => "Post Logger",
@@ -83,7 +81,6 @@ class SimplePostLogger extends SimpleLogger
 		$this->info(
 			$this->messages["post_restored"],
 			array(
-				"action_type" => "other",
 				"post_id" => $post_id,
 				"post_type" => get_post_type($post),
 				"post_title" => get_the_title($post)
@@ -110,7 +107,6 @@ class SimplePostLogger extends SimpleLogger
 		$this->info(
 			$this->messages["post_deleted"],
 			array(
-				"action_type" => "delete",
 				"post_id" => $post_id,
 				"post_type" => get_post_type($post),
 				"post_title" => get_the_title($post)
@@ -143,7 +139,6 @@ class SimplePostLogger extends SimpleLogger
 		*/
 
 		$context = array(
-			"action_type" => "other",
 			"post_id" => $post->ID,
 			"post_type" => get_post_type($post),
 			"post_title" => get_the_title($post),
@@ -154,8 +149,6 @@ class SimplePostLogger extends SimpleLogger
 		if ($old_status == "auto-draft" && ($new_status != "auto-draft" && $new_status != "inherit")) {
 
 			// Post created
-			$context["action_type"] = "create";
-
 			$this->info(
 				$this->messages["post_created"],
 				$context
@@ -169,8 +162,6 @@ class SimplePostLogger extends SimpleLogger
 		} elseif ($new_status == "trash") {
 
 			// Post trashed
-			$context["action_type"] = "trash";
-
 			$this->info(
 				$this->messages["post_trashed"],
 				$context
@@ -179,7 +170,6 @@ class SimplePostLogger extends SimpleLogger
 		} else {
 
 			// Post updated		
-			$context["action_type"] = "update";
 			$this->infoMessage(
 				"post_updated",
 				$context
@@ -199,27 +189,29 @@ class SimplePostLogger extends SimpleLogger
 
 		// Default to original log message
 		$message = $row->message;
-
+		
 		// Check if post still is available
 		// It wil return a WP_Post Object if post still is in system
 		// If post is deleted from trash (not just moved there), then null is returned
 		$post = get_post( $post_id );
 		$post_is_available = is_a($post, "WP_Post");
 
+		$message_key = $context["_message_key"];
+
 		// If post is not available any longer then we can't link to it, so keep plain message then
-		if ( $post_is_available && "update" == $context["action_type"] ) {
+		if ( $post_is_available && "post_updated" == $message_key ) {
 
 			$message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>', "simple-history");
 
-		} else if ( $post_is_available && "delete" == $context["action_type"] ) {
+		} else if ( $post_is_available && "post_deletet" == $message_key ) {
 
 			$message = __('Deleted {post_type} "{post_title}"');
 
-		} else if ( $post_is_available && "create" == $context["action_type"] ) {
+		} else if ( $post_is_available && "post_created" == $message_key ) {
 
 			$message = __('Created {post_type} <a href="{edit_link}">"{post_title}"</a>', "simple-history");
 
-		} else if ( $post_is_available && "trash" == $context["action_type"] ) {
+		} else if ( $post_is_available && "post_trashed" == $message_key ) {
 
 			// while in trash we can still get actions to delete or resore if we follow edit link
 			$message = __('Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash', "simple-history");
