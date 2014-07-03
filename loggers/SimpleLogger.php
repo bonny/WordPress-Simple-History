@@ -18,20 +18,14 @@ class SimpleLogger
 	public $slug = "SimpleLogger";
 
 	/**
-	 * Name of tables to use. Will be prefixed with $wpdb->prefix before use.
-	 */
-	public $db_table = SimpleHistory::DBTABLE;
-	public $db_table_contexts = "simple_history_contexts";
-
-	/**
 	 * Will contain the untranslated messages from getInfo()
 	 */
-	public $messages = array();
+	public $messages;
 
 	/**
 	 * ID of last inserted row. Used when chaining methods.
 	 */
-	private $lastInsertID = null;
+	private $lastInsertID;
 
 	public function __construct($simpleHistory) {
 		
@@ -374,10 +368,25 @@ class SimpleLogger
 	}
 	
 	/**
-	 * Action must be taken immediately.
+	 * System is unusable.
 	 *
-	 * Example: Entire website down, database unavailable, etc. This should
-	 * trigger the SMS alerts and wake you up.
+	 * @param string $message key from getInfo messages array
+	 * @param array $context
+	 * @return null
+	 */
+	public function emergencyMessage($message, array $context = array())
+	{
+
+		if ( ! isset( $this->messages[ $message ] ) )
+			return;
+
+		$this->log(SimpleLoggerLogLevels::EMERGENCY, $this->messages[ $message ], $context);
+		
+	}
+
+
+	/**
+	 * Action must be taken immediately.
 	 *
 	 * @param string $message
 	 * @param array $context
@@ -388,6 +397,24 @@ class SimpleLogger
 		return $this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
 		
 	}
+
+	/**
+	 * Action must be taken immediately.
+	 *
+	 * @param string $message key from getInfo messages array
+	 * @param array $context
+	 * @return null
+	 */
+	public function alertMessage($message, array $context = array())
+	{
+
+		if ( ! isset( $this->messages[ $message ] ) )
+			return;
+
+		$this->log(SimpleLoggerLogLevels::ALERT, $this->messages[ $message ], $context);
+		
+	}
+
 	
 	/**
 	 * Critical conditions.
@@ -404,7 +431,25 @@ class SimpleLogger
 		return $this->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
 
 	}
-	
+
+	/**
+	 * Critical conditions.
+	 *
+	 * @param string $message key from getInfo messages array
+	 * @param array $context
+	 * @return null
+	 */
+	public function criticalMessage($message, array $context = array())
+	{
+
+		if ( ! isset( $this->messages[ $message ] ) )
+			return;
+
+		$this->log(SimpleLoggerLogLevels::CRITICAL, $this->messages[ $message ], $context);
+		
+	}
+
+
 	/**
 	 * Runtime errors that do not require immediate action but should typically
 	 * be logged and monitored.
@@ -419,6 +464,25 @@ class SimpleLogger
 		return $this->log(SimpleLoggerLogLevels::ERROR, $message, $context);
 		
 	}
+
+	/**
+	 * Runtime errors that do not require immediate action but should typically
+	 * be logged and monitored.
+	 *
+	 * @param string $message key from getInfo messages array
+	 * @param array $context
+	 * @return null
+	 */
+	public function errorMessage($message, array $context = array())
+	{
+
+		if ( ! isset( $this->messages[ $message ] ) )
+			return;
+
+		$this->log(SimpleLoggerLogLevels::ERROR, $this->messages[ $message ], $context);
+		
+	}
+
 	
 	/**
 	 * Exceptional occurrences that are not errors.
@@ -438,6 +502,24 @@ class SimpleLogger
 	}
 	
 	/**
+	 * Exceptional occurrences that are not errors.
+	 *
+	 * @param string $message key from getInfo messages array
+	 * @param array $context
+	 * @return null
+	 */
+	public function warningMessage($message, array $context = array())
+	{
+
+		if ( ! isset( $this->messages[ $message ] ) )
+			return;
+
+		$this->log(SimpleLoggerLogLevels::WARNING, $this->messages[ $message ], $context);
+		
+	}
+
+
+	/**
 	 * Normal but significant events.
 	 *
 	 * @param string $message
@@ -452,6 +534,24 @@ class SimpleLogger
 	}
 	
 	/**
+	 * Normal but significant events.
+	 *
+	 * @param string $message key from getInfo messages array
+	 * @param array $context
+	 * @return null
+	 */
+	public function noticeMessage($message, array $context = array())
+	{
+
+		if ( ! isset( $this->messages[ $message ] ) )
+			return;
+
+		$this->log(SimpleLoggerLogLevels::NOTICE, $this->messages[ $message ], $context);
+		
+	}
+
+
+	/**
 	 * Interesting events.
 	 *
 	 * Example: User logs in, SQL logs.
@@ -464,6 +564,25 @@ class SimpleLogger
 	{
 
 		return $this->log(SimpleLoggerLogLevels::INFO, $message, $context);
+		
+	}
+
+	/**
+	 * Interesting events.
+	 *
+	 * Example: User logs in, SQL logs.
+	 *
+	 * @param string $message key from getInfo messages array
+	 * @param array $context
+	 * @return null
+	 */
+	public function infoMessage($message, array $context = array())
+	{
+
+		if ( ! isset( $this->messages[ $message ] ) )
+			return;
+
+		$this->log(SimpleLoggerLogLevels::INFO, $this->messages[ $message ], $context);
 		
 	}
 	
@@ -480,6 +599,23 @@ class SimpleLogger
 		return $this->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
 		
 	}
+
+	/**
+	 * Detailed debug information.
+	 *
+	 * @param string $message key from getInfo messages array
+	 * @param array $context
+	 * @return null
+	 */
+	public function debugMessage($message, array $context = array())
+	{
+
+		if ( ! isset( $this->messages[ $message ] ) )
+			return;
+
+		$this->log(SimpleLoggerLogLevels::DEBUG, $this->messages[ $message ], $context);
+		
+	}
 	
 	/**
 	 * Logs with an arbitrary level.
@@ -491,7 +627,7 @@ class SimpleLogger
 	 */
 	public function log($level, $message, array $context = array())
 	{
-		
+	
 		global $wpdb;
 
 		/**
@@ -513,7 +649,7 @@ class SimpleLogger
 		 */
 		$localtime = current_time("mysql");
 
-		$db_table = $wpdb->prefix . $this->db_table;
+		$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
 
 		/**
 	     * Filter db table used for simple history events
@@ -589,6 +725,7 @@ class SimpleLogger
 		$data = apply_filters("simple_history/log_insert_data", $data);
 
 		// Insert data into db
+		// sf_d($db_table, '$db_table');exit;
 		$result = $wpdb->insert( $db_table, $data );
 
 		// Only save context if able to store row
@@ -600,7 +737,7 @@ class SimpleLogger
 		
 			$history_inserted_id = $wpdb->insert_id; 
 
-			$db_table_contexts = $wpdb->prefix . $this->db_table_contexts;
+			$db_table_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
 			/**
 		     * Filter table name for contexts

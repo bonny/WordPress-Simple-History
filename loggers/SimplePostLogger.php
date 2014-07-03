@@ -42,12 +42,22 @@ class SimplePostLogger extends SimpleLogger
 			// which results in the original, untranslated, string being added to the log and database
 			// the translated string are then only used when showing the log in the GUI
 			"messages" => array(
-				'POST_UPDATED' => __('Updated {post_type} "{post_title}"', 'simple-history'),
-				'POST_RESTORED' => __('Restored {post_type} "{post_title}" from trash', 'simple-history'),
-				'POST_DELETED' => __('Deleted {post_type} "{post_title}"', 'simple-history'),
-				'POST_CREATED' => __('Created {post_type} "{post_title}"', 'simple-history'),
-				'POST_TRASHED' => __('Moved {post_type} "{post_title}" to the trash', 'simple-history')
+				'post_updated' => __('Updated {post_type} "{post_title}"', 'simple-history'),
+				'post_restored' => __('Restored {post_type} "{post_title}" from trash', 'simple-history'),
+				'post_deleted' => __('Deleted {post_type} "{post_title}"', 'simple-history'),
+				'post_created' => __('Created {post_type} "{post_title}"', 'simple-history'),
+				'post_trashed' => __('Moved {post_type} "{post_title}" to the trash', 'simple-history')
 			)
+
+			// TODO: meta info about these messages?
+			/*
+			"messages_meta" => array(
+				"post_updated" => array(
+					"logType" => SimpleLoggerLogTypes::UPDATE
+				)
+			)
+			*/
+
 		);
 		
 		return $arr_info;
@@ -70,10 +80,8 @@ class SimplePostLogger extends SimpleLogger
 
 		$post = get_post($post_id);
 
-		__('Restored {post_type} "{post_title}" from trash', "simple-history");
-
 		$this->info(
-			'Restored {post_type} "{post_title}" from trash',
+			$this->messages["post_restored"],
 			array(
 				"action_type" => "other",
 				"post_id" => $post_id,
@@ -99,10 +107,8 @@ class SimplePostLogger extends SimpleLogger
 			return;
 		}
 
-		__('Deleted {post_type} "{post_title}"', "simple-history");
-
 		$this->info(
-			'Deleted {post_type} "{post_title}"',
+			$this->messages["post_deleted"],
 			array(
 				"action_type" => "delete",
 				"post_id" => $post_id,
@@ -132,6 +138,7 @@ class SimplePostLogger extends SimpleLogger
 		From draft to pending
 		From pending to publish
 		From pending to trash
+		From something to publish = post published
 		if not from & to = same, then user has changed something
 		*/
 
@@ -139,41 +146,42 @@ class SimplePostLogger extends SimpleLogger
 			"action_type" => "other",
 			"post_id" => $post->ID,
 			"post_type" => get_post_type($post),
-			"post_title" => get_the_title($post)
+			"post_title" => get_the_title($post),
+			"post_new_status" => $new_status,
+			"post_old_status" => $old_status
 		);
 
 		if ($old_status == "auto-draft" && ($new_status != "auto-draft" && $new_status != "inherit")) {
 
 			// Post created
-			__('Created {post_type} "{post_title}"', "simple-history");
 			$context["action_type"] = "create";
+
 			$this->info(
-				'Created {post_type} "{post_title}"',
+				$this->messages["post_created"],
 				$context
 			);		
 
 		} elseif ($new_status == "auto-draft" || ($old_status == "new" && $new_status == "inherit")) {
 
-			// Hm... Not sure.
+			// Post was automagically saved by WordPress
 			return;
 
 		} elseif ($new_status == "trash") {
 
 			// Post trashed
-			__('Moved {post_type} "{post_title}" to the trash', "simple-history");
 			$context["action_type"] = "trash";
+
 			$this->info(
-				'Moved {post_type} "{post_title}" to the trash',
+				$this->messages["post_trashed"],
 				$context
 			);		
 
 		} else {
 
-			// Post updated
-			__('Updated {post_type} "{post_title}"', "simple-history");
+			// Post updated		
 			$context["action_type"] = "update";
-			$this->info(
-				'Updated {post_type} "{post_title}"',
+			$this->infoMessage(
+				"post_updated",
 				$context
 			);		
 

@@ -5,6 +5,9 @@
  */ 
 class SimpleHistory {
 	 
+ 	const NAME = "Simple History";
+	const VERSION = "2.0";
+
 	/**
 	 * Capability required to view the history log
 	 */
@@ -30,9 +33,8 @@ class SimpleHistory {
 	private $doFilterGettext = false;
 	private $doFilterGettext_currentLogger = null;
 
-	const NAME = "Simple History";
-	const VERSION = "2.0";
 	const DBTABLE = "simple_history";
+	const DBTABLE_CONTEXTS = "simple_history_contexts";
 
 	/** Slug for the settings menu */
 	const SETTINGS_MENU_SLUG = "simple_history_settings_menu_slug";
@@ -209,13 +211,13 @@ class SimpleHistory {
 				$loopNum++;
 			}
 
-			$this->instantiatedLoggers[$oneLoggerName] = array(
-				"name" => $oneLoggerName,
+			// Add logger to array of loggers
+			$this->instantiatedLoggers[ $loggerInfo["slug"] ] = array(
+				"name" => $loggerInfo["name"],
 				"instance" => $loggerInstance
 			);
+
 		}
-		sf_d($this->instantiatedLoggers, 'instantiatedLoggers');
-		#exit;
 
 	}
 
