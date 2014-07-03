@@ -3,7 +3,7 @@
 /**
  * Logs changes to user logins (and logouts)
  */
-class SimpleLoginLogger extends SimpleLogger
+class SimpleUserLogger extends SimpleLogger
 {
 
 	public $slug = __CLASS__;
