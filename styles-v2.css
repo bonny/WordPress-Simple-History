@@ -43,11 +43,17 @@ There is always a 4px left border, just with differents colors
 }
 
 .simple-history-logitem__senderImage {
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
 	overflow: hidden;
+	opacity: .8;
 }
+
+.simple-history-logitem:hover .simple-history-logitem__senderImage {
+	opacity: 1;
+}
+
 .simple-history-logitem__senderImage img {
 	display: block;
 }
