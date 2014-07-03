@@ -190,6 +190,10 @@ class SimpleHistory {
 		// Instantiate each logger
 		foreach ($arrLoggersToInstantiate as $oneLoggerName ) {
 			
+			if ( ! class_exists($oneLoggerName) ) {
+				continue;
+			}
+
 			$loggerInstance = new $oneLoggerName($this);
 			$loggerInstance->loaded();
 			
