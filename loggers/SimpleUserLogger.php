@@ -8,22 +8,6 @@ class SimpleUserLogger extends SimpleLogger
 
 	public $slug = __CLASS__;
 
-	public function loaded() {
-		
-		add_action("wp_login", array($this, "on_wp_login" ), 10, 3 );
-		add_action("wp_logout", array($this, "on_wp_logout" ) );
-
-		// Failed login attempt to username that exists
-		add_action("wp_authenticate_user", array($this, "on_wp_authenticate_user"), 10, 2);
-
-		// Failed to login to user that did not exist (perhaps brute force)
-		add_filter( 'authenticate', array($this, "on_authenticate"), 10, 3);
-
-		// User is changed
-		add_action("profile_update", array($this, "on_profile_update"), 10, 2);
-
-	}
-
 	/**
 	 * Get array with information about this logger
 	 * 
@@ -48,6 +32,82 @@ class SimpleUserLogger extends SimpleLogger
 		return $arr_info;
 
 	}
+
+	/**
+	 * Add actions and filters when logger is loaded by Simple History
+	 */
+	public function loaded() {
+
+		// Plain logins and logouts
+		add_action("wp_login", array($this, "on_wp_login" ), 10, 3 );
+		add_action("wp_logout", array($this, "on_wp_logout" ) );
+
+		// Failed login attempt to username that exists
+		add_action("wp_authenticate_user", array($this, "on_wp_authenticate_user"), 10, 2);
+
+		// Failed to login to user that did not exist (perhaps brute force)
+		add_filter( 'authenticate', array($this, "on_authenticate"), 10, 3);
+
+		// User is changed
+		add_action("profile_update", array($this, "on_profile_update"), 10, 2);
+
+	}
+
+	/**
+	 * Modify row output
+	 */
+	public function getLogRowPlainTextOutput($row) {
+
+		$context = $row->context;
+		
+		$output = parent::getLogRowPlainTextOutput($row);
+
+		if ( "user_updated_profile" == $context["_message_key"]) {
+
+			$wp_user = get_user_by( "id", $context["edited_user_id"] );
+
+			// If edited_user_id and _user_id is the same then a user edited their own profile
+			if ( $context["edited_user_id"] === $context["_user_id"] ) {
+
+				if ($wp_user) {
+
+					// User still exist, so link to their profile
+					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
+					$msg = __('Edited <a href="{edit_profile_link}">their profile</a>', "simple-history");
+					$output = $this->interpolate($msg, $context);
+
+				} else {
+
+					// User does not exist any longer
+					$output = __("Edited their profile", "simple-history");
+
+				}
+
+			} else {
+
+				// User edited another users profile
+				if ($wp_user) {
+
+					// Edited user still exist, so link to their profile
+					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
+					$msg = __('Edited <a href="{edit_profile_link}">the profile for user {edited_user_login} ({edited_user_email})</a>', "simple-history");
+					$output = $this->interpolate( $msg, $context );
+
+				} else {
+
+					// Edited user does not exist any longer
+
+				}
+
+
+			}
+
+
+		} // if ueder_updated_profile
+				
+		return $output;
+	}
+
 
 	/**
 	 * Log failed login attempt to username that exists
@@ -125,14 +185,6 @@ class SimpleUserLogger extends SimpleLogger
 	 * http://codex.wordpress.org/Plugin_API/Action_Reference/wp_logout
 	 */
 	function on_wp_logout() {
-
-		$current_user = wp_get_current_user();
-
-		/*$context = array(
-			"_user_id" => $current_user->ID,
-			"_user_email" => $current_user->user_email,
-			"_user_login" => $current_user->user_login
-		);*/
 
 		$this->infoMessage("user_logged_out");
 
