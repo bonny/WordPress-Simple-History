@@ -147,11 +147,11 @@ class SimpleLogger
 					$initiator_html .= sprintf(
 						'
 						<strong>%3$s</strong>
-						<span class="discrete">(%2$s)</span>
+						· <span class="simple-history-logitem__headerEmail">%2$s</span>
 						',
-						$user->user_login,
-						$user->user_email,
-						$user_display_name
+						esc_html( $user->user_login ),
+						esc_html( $user->user_email ),
+						esc_html( $user_display_name )
 					);
 
 				} else if ($user_id > 0) {
@@ -164,9 +164,9 @@ class SimpleLogger
 					// _user_email
 					$initiator_html .= sprintf( 
 						__('<strong>Deleted user</strong> (had id %1$s, email %2$s, login %3$s)', "simple-history"),
-						esc_html($context["_user_id"]),
-						esc_html($context["_user_email"]),
-						esc_html($context["_user_login"])
+						esc_html( $context["_user_id"] ),
+						esc_html( $context["_user_email"] ),
+						esc_html( $context["_user_login"] )
 					);
 
 				}
@@ -186,7 +186,7 @@ class SimpleLogger
 				break;
 
 			default:
-				$initiator_html .= "<strong>" . esc_html($initiator) . "</strong>";
+				$initiator_html .= "<strong>" . esc_html( $initiator ) . "</strong>";
 
 		}
 
