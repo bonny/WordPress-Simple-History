@@ -26,7 +26,7 @@ class SimpleUserLogger extends SimpleLogger
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
 				'user_updated_profile' => __("Edited the profile for user {edited_user_login} ({edited_user_email})", "simple-history"),
-				'user_created' => __("Created user {created_user_login} ({created_user_email})", "simple-history"),				
+				'user_created' => __("Added user {created_user_login} ({created_user_email}) with role {created_user_role}", "simple-history"),				
 			)
 		);
 		
@@ -222,12 +222,19 @@ class SimpleUserLogger extends SimpleLogger
 		if ( ! $user_id || ! is_numeric($user_id))
 			return;
 
-		$wp_user_edited = get_userdata( $user_id );
+		$wp_user_added = get_userdata( $user_id );
+
+		// wp_user->roles (array) - the roles the user is part of.
+		$role = null;
+		if ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
+			$role = $wp_user_added->roles[0];
+		}
 
 		$context = array(
-			"created_user_id" => $wp_user_edited->ID,
-			"created_user_email" => $wp_user_edited->user_email,
-			"created_user_login" => $wp_user_edited->user_login
+			"created_user_id" => $wp_user_added->ID,
+			"created_user_email" => $wp_user_added->user_email,
+			"created_user_login" => $wp_user_added->user_login,
+			"created_user_role" => $role
 		);
 
 		$this->infoMessage("user_created", $context);		
