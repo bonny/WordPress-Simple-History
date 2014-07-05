@@ -126,10 +126,7 @@ class SimplePostLogger extends SimpleLogger
 		if ($old_status == "auto-draft" && ($new_status != "auto-draft" && $new_status != "inherit")) {
 
 			// Post created
-			$this->info(
-				$this->messages["post_created"],
-				$context
-			);		
+			$this->infoMessage( "post_created", $context );
 
 		} elseif ($new_status == "auto-draft" || ($old_status == "new" && $new_status == "inherit")) {
 
@@ -139,18 +136,12 @@ class SimplePostLogger extends SimpleLogger
 		} elseif ($new_status == "trash") {
 
 			// Post trashed
-			$this->info(
-				$this->messages["post_trashed"],
-				$context
-			);		
+			$this->infoMessage( "post_trashed", $context );		
 
 		} else {
 
-			// Post updated		
-			$this->infoMessage(
-				"post_updated",
-				$context
-			);		
+			// Post updated
+			$this->infoMessage( "post_updated", $context );		
 
 		}
 
@@ -173,7 +164,20 @@ class SimplePostLogger extends SimpleLogger
 		$post = get_post( $post_id );
 		$post_is_available = is_a($post, "WP_Post");
 
+		#sf_d($post_is_available, '$post_is_available');
+		#sf_d($message_key, '$message_key');
+
 		$message_key = isset($context["_message_key"]) ? $context["_message_key"] : null;
+
+		// Try to get singular name
+		$post_type_obj = get_post_type_object( $context["post_type"] );
+		if ( ! is_null( $post_type_obj ) ) {
+
+			if ( ! empty ($post_type_obj->labels->singular_name) ) {
+				$context["post_type"] = $post_type_obj->labels->singular_name;
+			}
+
+		}
 
 		// If post is not available any longer then we can't link to it, so keep plain message then
 		if ( $post_is_available && "post_updated" == $message_key ) {
