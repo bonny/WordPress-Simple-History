@@ -195,6 +195,11 @@ class SimpleHistory {
 			}
 
 			$loggerInstance = new $oneLoggerName($this);
+
+			if ( ! is_subclass_of($loggerInstance, "SimpleLogger") && ! is_a($loggerInstance, "SimpleLogger")  ) {
+				continue;
+			}
+
 			$loggerInstance->loaded();
 			
 			// Tell gettext-filter to add untraslated messages
