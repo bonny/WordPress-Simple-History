@@ -142,6 +142,9 @@ class SimpleMediaLogger extends SimpleLogger
 			$is_video = strpos($filetype["type"], "video/") !== false;
 			$is_audio = strpos($filetype["type"], "audio/") !== false;
 
+			$full_image_width = null;
+			$full_image_height = null;
+
 			if ( $is_image ) {
 
 				$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
@@ -165,12 +168,12 @@ class SimpleMediaLogger extends SimpleLogger
 			} else if ($is_audio) {
 
 				$content = sprintf('[audio src="%1$s"]', $file_url);
-				$context["attachment_thumb"] .= do_shortcode( $content );
+				$context["attachment_thumb"] = do_shortcode( $content );
 
 			} else if ($is_video) {
 
 				$content = sprintf('[video src="%1$s"]', $file_url);
-				$context["attachment_thumb"] .= do_shortcode( $content );
+				$context["attachment_thumb"] = do_shortcode( $content );
 
 			}
 			
@@ -197,7 +200,7 @@ class SimpleMediaLogger extends SimpleLogger
 			if ($full_image_width && $full_image_height) {
 				$message .= " <span class='simple-history-logitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}') . "</span>";
 			}
-			$message .= " <span class='simple-history-logitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
+			//$message .= " <span class='simple-history-logitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
 			$message .= "</p>";
 
 			$output .= $this->interpolate($message, $context);
