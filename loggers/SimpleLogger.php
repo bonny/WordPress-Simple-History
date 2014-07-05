@@ -146,8 +146,8 @@ class SimpleLogger
 
 					$initiator_html .= sprintf(
 						'
-						<strong>%3$s</strong>
-						· <span class="simple-history-logitem__headerEmail">%2$s</span>
+						<strong class="simple-history-logitem__inlineDivided">%3$s</strong>
+						<span class="simple-history-logitem__inlineDivided simple-history-logitem__headerEmail">%2$s</span>
 						',
 						esc_html( $user->user_login ),
 						esc_html( $user->user_email ),
@@ -222,19 +222,17 @@ class SimpleLogger
 
 		$date_html = sprintf(
 			'
-				<time datetime="%1$s">
-					%2$s
-				</time>
+				<time datetime="%1$s" class="simple-history-logitem__inlineDivided">%2$s</time>
 			',
 			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
 			$str_when
 		);
 
 		// Glue together final result
-		$template = '%1$s · %2$s';
-		if ( ! $initiator_html ) {
-			$template = '%2$s';
-		}
+		$template = '%1$s%2$s';
+		#if ( ! $initiator_html ) {
+		#	$template = '%2$s';
+		#}
 
 		$html = sprintf(
 			$template,

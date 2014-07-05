@@ -99,6 +99,18 @@ There is always a 4px left border, just with differents colors
 	margin-top: 0.4em;
 }
 
+/* wrap span.simple-history-logitem__inlineDivided around things that should have a bullet between them */
+.simple-history-logitem__inlineDivided:before {
+	/* \b7 = middot, \a0 = space */
+	content: '\a0\b7\a0\a0';
+	/* \2022 = bullet */
+	/*content: '\a0\a0\2022\a0\a0';*/
+	color: rgb(137, 143, 156);
+}
+
+.simple-history-logitem__inlineDivided:first-child:before {
+	content: '';
+}
 /*
 Styles for filter
 */

@@ -59,6 +59,7 @@ class SimpleMediaLogger extends SimpleLogger
 				background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
 				max-width: 100%;
 				max-height: 300px;
+				max-height: 200px;
 				height: auto;
 			}
 
@@ -145,9 +146,22 @@ class SimpleMediaLogger extends SimpleLogger
 
 				$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
 				$full_src = wp_get_attachment_image_src($attachment_id, "full");
-				$context["full_image_width"] = $full_src[1];
-				$context["full_image_height"] = $full_src[2];
-				$context["attachment_thumb"] = sprintf('<div class="simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb"><img src="%1$s"></div>', $thumb_src[0] );
+				#sf_d($thumb_src, '$thumb_src');
+				#sf_d($full_src, '$full_src');
+
+				$full_image_width = $full_src[1];
+				$full_image_height = $full_src[2];
+
+				// is_image is also true for mime types that WP can't create thumbs for
+				// so we need to check that wp got an resized version
+				
+				if ( $full_image_width && $full_image_height ) {
+
+					$context["full_image_width"] = $full_image_width;
+					$context["full_image_height"] = $full_image_width;
+					$context["attachment_thumb"] = sprintf('<div class="simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb"><img src="%1$s"></div>', $thumb_src[0] );
+				
+				}
 
 			} else if ($is_audio) {
 
@@ -176,11 +190,11 @@ class SimpleMediaLogger extends SimpleLogger
 			}
 
 			$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-meta'>";
-			$message .= __('{attachment_size_format} | ', "simple-history");
-			if ($full_src) {
-				$message .= __('{full_image_width} × {full_image_height} | ');
+			$message .= "<span class='simple-history-logitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span>";
+			if ($full_image_width && $full_image_height) {
+				$message .= " <span class='simple-history-logitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}') . "</span>";
 			}
-			$message .= sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link );
+			$message .= " <span class='simple-history-logitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
 			$message .= "</p>";
 
 			$output .= $this->interpolate($message, $context);
