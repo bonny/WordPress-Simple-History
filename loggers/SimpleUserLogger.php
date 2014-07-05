@@ -26,6 +26,7 @@ class SimpleUserLogger extends SimpleLogger
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
 				'user_updated_profile' => __("Edited the profile for user {edited_user_login} ({edited_user_email})", "simple-history"),
+				'user_created' => __("Created user {created_user_login} ({created_user_email})", "simple-history"),				
 			)
 		);
 		
@@ -50,6 +51,9 @@ class SimpleUserLogger extends SimpleLogger
 
 		// User is changed
 		add_action("profile_update", array($this, "on_profile_update"), 10, 2);
+
+		// User is created
+		add_action("user_register", array($this, "on_user_register"), 10, 2);		
 
 	}
 
@@ -207,6 +211,26 @@ class SimpleUserLogger extends SimpleLogger
 		);
 
 		$this->infoMessage("user_updated_profile", $context);		
+
+	}
+
+	/**
+	 * User is created
+	 */
+	function on_user_register($user_id) {
+		
+		if ( ! $user_id || ! is_numeric($user_id))
+			return;
+
+		$wp_user_edited = get_userdata( $user_id );
+
+		$context = array(
+			"created_user_id" => $wp_user_edited->ID,
+			"created_user_email" => $wp_user_edited->user_email,
+			"created_user_login" => $wp_user_edited->user_login
+		);
+
+		$this->infoMessage("user_created", $context);		
 
 	}
 
