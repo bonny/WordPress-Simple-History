@@ -154,7 +154,6 @@ class SimpleMediaLogger extends SimpleLogger
 
 				// is_image is also true for mime types that WP can't create thumbs for
 				// so we need to check that wp got an resized version
-				
 				if ( $full_image_width && $full_image_height ) {
 
 					$context["full_image_width"] = $full_image_width;
@@ -176,13 +175,16 @@ class SimpleMediaLogger extends SimpleLogger
 			}
 			
 			$context["attachment_size_format"] = size_format( $row->context["attachment_filesize"] );
-			$context["filetype"] = $filetype["ext"];
+			$context["attachment_filetype_extension"] = strtoupper( $filetype["ext"] );
 
 			if ( ! empty( $context["attachment_thumb"] ) ) {
+				
 				if ($is_image) {
 					$message .= "<a href='".$edit_link."'>";
 				}
+				
 				$message .= __('{attachment_thumb}', 'simple-history');
+				
 				if ($is_image) {
 					$message .= "</a>";
 				}
@@ -191,6 +193,7 @@ class SimpleMediaLogger extends SimpleLogger
 
 			$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-meta'>";
 			$message .= "<span class='simple-history-logitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span>";
+			$message .= "<span class='simple-history-logitem__inlineDivided'>" . __('{attachment_filetype_extension}', "simple-history") . "</span>";
 			if ($full_image_width && $full_image_height) {
 				$message .= " <span class='simple-history-logitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}') . "</span>";
 			}
