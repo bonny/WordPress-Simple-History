@@ -174,30 +174,34 @@ class SimplePostLogger extends SimpleLogger
 		if ( ! is_null( $post_type_obj ) ) {
 
 			if ( ! empty ($post_type_obj->labels->singular_name) ) {
-				$context["post_type"] = $post_type_obj->labels->singular_name;
+				$context["post_type"] = strtolower( $post_type_obj->labels->singular_name );
 			}
 
 		}
 
 		// If post is not available any longer then we can't link to it, so keep plain message then
-		if ( $post_is_available && "post_updated" == $message_key ) {
+		if ( $post_is_available ) {
 
-			$message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>', "simple-history");
+			if ( "post_updated" == $message_key ) {
 
-		} else if ( $post_is_available && "post_deletet" == $message_key ) {
+				$message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>', "simple-history");
 
-			$message = __('Deleted {post_type} "{post_title}"');
+			} else if ( "post_deleted" == $message_key ) {
 
-		} else if ( $post_is_available && "post_created" == $message_key ) {
+				$message = __('Deleted {post_type} "{post_title}"');
 
-			$message = __('Created {post_type} <a href="{edit_link}">"{post_title}"</a>', "simple-history");
+			} else if ( "post_created" == $message_key ) {
 
-		} else if ( $post_is_available && "post_trashed" == $message_key ) {
+				$message = __('Created {post_type} <a href="{edit_link}">"{post_title}"</a>', "simple-history");
 
-			// while in trash we can still get actions to delete or resore if we follow edit link
-			$message = __('Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash', "simple-history");
+			} else if ( "post_trashed" == $message_key ) {
 
-		}
+				// while in trash we can still get actions to delete or restore if we follow the edit link
+				$message = __('Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash', "simple-history");
+
+			}
+
+		} // post still available
 
 		$context["post_type"] = esc_html( $context["post_type"] );
 		$context["post_title"] = esc_html( $context["post_title"] );

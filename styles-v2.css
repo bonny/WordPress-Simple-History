@@ -67,7 +67,9 @@ There is always a 4px left border, just with differents colors
 	margin-top: 2px;
 }
 
-.simple-history-logitem__header time {
+.simple-history-logitem__header time,
+.simple-history-logitem__headerEmail
+ {
 	color: rgb(137, 143, 156);
 }
 
