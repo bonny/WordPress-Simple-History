@@ -8,7 +8,29 @@ class SimpleMediaLogger extends SimpleLogger
 
 	public $slug = "SimpleMediaLogger";
 
-	public function __construct() {
+	/**
+	 * Get array with information about this logger
+	 * 
+	 * @return array
+	 */
+	function getInfo() {
+
+		$arr_info = array(			
+			"name" => "Media/Attachments Logger",
+			"description" => "Logs media uploads and edits",
+			"capability" => "edit_pages",
+			"messages" => array(
+				'attachment_created' => __('Created {post_type} "{attachment_title}"', 'simple-history'),
+				'attachment_updated' => __('Edited {post_type} "{attachment_title}"', 'simple-history'),
+				'attachment_deleted' => __('Deleted {post_type} "{attachment_title}" ("{attachment_filename}")', 'simple-history')
+			)
+		);
+		
+		return $arr_info;
+
+	}
+
+	public function loaded() {
 		
 		add_action("admin_init", array($this, "on_admin_init"));
 
@@ -83,24 +105,25 @@ class SimpleMediaLogger extends SimpleLogger
 		
 		$message = $row->message;
 		$context = $row->context;
+		$message_key = $context["_message_key"];
 
 		$attachment_id = $context["attachment_id"];
 		$attachment_post = get_post( $attachment_id );
 		$attachment_is_available = is_a($attachment_post, "WP_Post");
 		
 		// Only link to attachment if it is still available
-		if ( $attachment_is_available && "update" == $context["action_type"] ) {
+		if ( $attachment_is_available ) {
 
-			$message = __('Edited {post_type} <a href="{edit_link}">"{attachment_title}"</a>', "simple-history");
+			if ( "attachment_updated" == $message_key ) {
 
-		} else if ( $attachment_is_available && "delete" == $context["action_type"] ) {
+				$message = __('Edited {post_type} <a href="{edit_link}">"{attachment_title}"</a>', "simple-history");
 
-			$message = __('Deleted {post_type} "{attachment_title}"', "simple-history");
+			} else if ( "attachment_created" == $message_key ) {
 
-		} else if ( $attachment_is_available && "create" == $context["action_type"] ) {
+				$message = __('Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a>', "simple-history");
+			
+			}
 
-			$message = __('Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a>', "simple-history");
-		
 		}
 
 		$context["post_type"] = esc_html( $context["post_type"] );
@@ -112,22 +135,23 @@ class SimpleMediaLogger extends SimpleLogger
 	}
 
 	/**
-	 * Get output with details
+	 * Get output for detailed log section
 	 */
 	function getLogRowDetailsOutput($row) {
 
 		$context = $row->context;
+		$message_key = $context["_message_key"];
 		$output = "";
 
-		if ( "update" == $context["action_type"] ) {
+		if ( "attachment_updated" == $message_key ) {
 			
 			// Attachment is changed = don't show thumbs and all
 
-		} else if ( "delete" == $context["action_type"] ) {
+		} else if ( "attachment_deleted" == $message_key ) {
 			
 			// Attachment is deleted = don't show thumbs and all
 
-		} else if ( "create" == $context["action_type"] ) {
+		} else if ( "attachment_created" == $message_key ) {
 
 			// Attachment is created/uploaded = show details with image thumbnail
 
@@ -226,15 +250,12 @@ class SimpleMediaLogger extends SimpleLogger
 			$file_size = filesize( $file );
 		}
 		
-		__('Uploaded {post_type} "{attachment_filename}"', "simple-history");
-
-		$this->info(
-			'Uploaded {post_type} "{attachment_filename}"',
+		$this->infoMessage(
+			'attachment_created',
 			array(
-				"action_type" => "create",
-				"post_type" => get_post_type($attachment_post),
+				"post_type" => get_post_type( $attachment_post ),
 				"attachment_id" => $attachment_id,
-				"attachment_title" => get_the_title($attachment_post),
+				"attachment_title" => get_the_title( $attachment_post ),
 				"attachment_filename" => $filename,
 				"attachment_mime" => $mime,
 				"attachment_filesize" => $file_size
@@ -256,12 +277,9 @@ class SimpleMediaLogger extends SimpleLogger
 		$mime = get_post_mime_type( $attachment_post );
 		$file  = get_attached_file( $attachment_id );
 
-		__('Modified {post_type} "{attachment_filename}"', "simple-history");
-
-		$this->info(
-			'Modified {post_type} "{attachment_filename}"',
+		$this->infoMessage(
+			"attachment_updated",
 			array(
-				"action_type" => "update",
 				"post_type" => get_post_type( $attachment_post ),
 				"attachment_id" => $attachment_id,
 				"attachment_title" => get_the_title( $attachment_post ),
@@ -282,12 +300,9 @@ class SimpleMediaLogger extends SimpleLogger
 		$mime = get_post_mime_type( $attachment_post );
 		$file  = get_attached_file( $attachment_id );
 
-		__('Deleted {post_type} "{attachment_filename}"', "simple-history");
-
-		$this->info(
-			'Deleted {post_type} "{attachment_filename}"',
+		$this->infoMessage(
+			"attachment_deleted",
 			array(
-				"action_type" => "delete",
 				"post_type" => get_post_type( $attachment_post ),
 				"attachment_id" => $attachment_id,
 				"attachment_title" => get_the_title( $attachment_post ),

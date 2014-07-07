@@ -935,6 +935,14 @@ class SimpleHistory {
 
 	}
 
+	/**
+	 * Return plain text output for a log row
+	 * Uses the getLogRowPlainTextOutput of the logger that logged the row
+	 * with fallback to SimpleLogger if logger is not available
+	 *
+	 * @param array $row 
+	 * @return string
+	 */
 	private function getLogRowPlainTextOutput($row) {
 
 		$row_logger = $row->logger;
@@ -952,7 +960,17 @@ class SimpleHistory {
 		
 	}
 
-
+	/**
+	 * Return header output for a log row
+	 * Uses the getLogRowHeaderOutput of the logger that logged the row
+	 * with fallback to SimpleLogger if logger is not available
+	 *
+	 * Loggers are discouraged to override this in the loggers, 
+	 * because the output should be the same for all items in the gui
+	 * 
+	 * @param array $row
+	 * @return string
+	 */
 	private function getLogRowHeaderOutput($row) {
 
 		$row_logger = $row->logger;
@@ -970,6 +988,12 @@ class SimpleHistory {
 
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param array $row
+	 * @return string
+	 */
 	private function getLogRowSenderImageOutput($row) {
 
 		$row_logger = $row->logger;

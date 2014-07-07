@@ -75,15 +75,6 @@ class SimpleLogger
 				// No pre-defined variants
 			)
 
-			// TODO: meta info about the messages?
-			/*
-			"messages_meta" => array(
-				"post_updated" => array(
-					"logType" => SimpleLoggerLogTypes::UPDATE
-				)
-			)
-			*/
-
 		);
 
 		return $arr_info;
@@ -737,12 +728,14 @@ class SimpleLogger
 		$data["occasionsID"] = $occasions_id;
 
 		// Log event type, defaults to other if not set
+		/*
 		if ( isset( $context["_type"] ) ) {
 			$data["type"] = $context["_type"];
 			unset( $context["_type"] );
 		} else {
 			$data["type"] = SimpleLoggerLogTypes::OTHER;
 		}
+		*/
 
 		// Log initiator, defaults to current user if exists, or other if not user exist
 		if ( isset( $context["_initiator"] ) ) {
@@ -885,6 +878,7 @@ class SimpleLoggerLogInitiators
  * Based on the CRUD-types
  * http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
  * More may be added later on if needed
+ * Note: not in use at the moment
  */
 class SimpleLoggerLogTypes
 {

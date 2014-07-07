@@ -24,7 +24,7 @@ class SimplePostLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Post Logger",
-			"description" => "Logs the created and modification of posts and pages",
+			"description" => "Logs the creation and modification of posts and pages",
 			"capability" => "edit_pages",
 			"messages" => array(
 				'post_updated' => __('Updated {post_type} "{post_title}"', 'simple-history'),
@@ -38,7 +38,6 @@ class SimplePostLogger extends SimpleLogger
 		return $arr_info;
 
 	}
-
 
 	function on_admin_init() {
 
