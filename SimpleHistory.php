@@ -30,7 +30,15 @@ class SimpleHistory {
 
 	public $pluginBasename;
 
+	/**
+	 * Bool if gettext filter function should be active
+	 * Should only be active during the load of a logger
+	 */
 	private $doFilterGettext = false;
+
+	/**
+	 * Used by gettext filter to temporarily store current logger
+	 */
 	private $doFilterGettext_currentLogger = null;
 
 	const DBTABLE = "simple_history";
@@ -54,6 +62,7 @@ class SimpleHistory {
 		do_action( "simple_history/before_init", $this );
 
 		add_filter("gettext", array($this, 'filter_gettext'), 20, 3);
+		add_filter("gettext_with_context", array($this, 'filter_gettext_with_context'), 20, 4);
 
 		$this->setupVariables();
 		$this->loadLoggers();
@@ -89,11 +98,21 @@ class SimpleHistory {
 
 	}
 
+	/**
+	 * During the load of info for a logger we want to get a reference
+	 * to the untranslated text too, because that's the version we want to store
+	 * in the database.
+	 */
 	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
 
 		if ( isset( $this->doFilterGettext ) && $this->doFilterGettext ) {
 
-			$this->doFilterGettext_currentLogger->messages[] = $untranslated_text;
+			$this->doFilterGettext_currentLogger->messages[] = array(
+				"untranslated_text" => $untranslated_text,
+				"translated_text" => $translated_text,
+				"domain" => $domain,
+				"context" => null,
+			);
 
 		}
 
@@ -101,6 +120,26 @@ class SimpleHistory {
 		
 	}
 
+	/**
+	 * Store messages with context
+	 */
+	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
+
+		if ( isset( $this->doFilterGettext ) && $this->doFilterGettext ) {
+
+			$this->doFilterGettext_currentLogger->messages[] = array(
+				"untranslated_text" => $untranslated_text,
+				"translated_text" => $translated_text,
+				"domain" => $domain,
+				"context" => $context,
+			);
+
+		}
+
+		return $translated_text;
+		
+	}
+	
 	/**
 	 * Load language files.
 	 * Uses the method described here:
@@ -212,12 +251,19 @@ class SimpleHistory {
 			$this->doFilterGettext = false;
 			$this->doFilterGettext_currentLogger = null;
 
-			// Add message slugs to the untranslated messages
+			// Add message slugs and translated text to the message array
 			$loopNum = 0;
-			foreach ($loggerInfo["messages"] as $key => $message) {
-				$loggerInstance->messages[$key] = $loggerInstance->messages[$loopNum];
-				unset( $loggerInstance->messages[$loopNum] );
+			foreach ( $loggerInfo["messages"] as $key => $message ) {
+
+				$loggerInstance->messages[ $key ] = $loggerInstance->messages[ $loopNum ];
+
+				// message was not added using __ or _x
+				//$loggerInstance->messages[ $key ] = "apa";
+
+
+				unset( $loggerInstance->messages[ $loopNum ] );
 				$loopNum++;
+
 			}
 
 			// Add logger to array of loggers
@@ -948,6 +994,10 @@ class SimpleHistory {
 		$row_logger = $row->logger;
 		$logger = null;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
+
+		if ( ! isset( $row->context["_message_key"] ) ) {
+			$row->context["_message_key"] = null;
+		}
 	
 		// Fallback to SimpleLogger if no logger exists for row
 		if ( ! isset( $this->instantiatedLoggers[$row_logger] ) ) {
