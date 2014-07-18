@@ -2,19 +2,6 @@
 
 /*
 
-# Logga installs av plugins manuellt
-
-do_action( 'activate_plugin', $plugin, $network_wide );
-do_action( 'activated_plugin', $plugin, $network_wide );
-Action: activated_plugin
-If a plugin is silently activated (such as during an update),
-this hook does not fire.
-
-Action: deactivated_plugin
-Fires after a plugin is deactivated.
-If a plugin is silently deactivated (such as during an update),
-this hook does not fire.
-
 
 # logga installs/updates av plugins som är silent
 
@@ -49,18 +36,20 @@ class SimplePluginLogger extends SimpleLogger
 	public $slug = __CLASS__;
 
 	public function loaded() {
+
+		/**
+		 * Manual plugin activation and de-activation
+		 */
+
+		// Fires after a plugin has been activated.
+		// If a plugin is silently activated (such as during an update),
+		// this hook does not fire.
+		add_action( 'activated_plugin', array( $this, "on_activated_plugin" ), 10, 2 );
 		
-		// add_action("admin_init", array($this, "on_admin_init"));
-		
-		add_action("admin_init", function() {
-
-			#sf_d( $this );
-
-			$this->info("Simple log message");
-			$this->infoMessage("plugin_activated");
-
-		});
-
+		// Fires after a plugin is deactivated.
+		// If a plugin is silently deactivated (such as during an update),
+		// this hook does not fire.
+		add_action( 'deactivated_plugin', array( $this, "on_deactivated_plugin" ), 10, 2 );
 
 	}
 
@@ -77,16 +66,15 @@ class SimplePluginLogger extends SimpleLogger
 			"capability" => "activate_plugins", // install_plugins, activate_plugins, 
 			"messages" => array(
 				'plugin_activated' => _x(
-					'Activated plugin {plugin_name} (version {plugin_version})', 
+					'Activated plugin "{plugin_name}"', 
 					'Plugin was non-silently activated by a user',
 					'simple-history'
 				),
 				'plugin_deactivated' => _x(
-					'Deactivated plugin {plugin_name} from {plugin_old_version} to {plugin_new_version}', 
+					'Deactivated plugin "{plugin_name}"', 
 					'Plugin was non-silently deactivated by a user',
 					'simple-history'
 				),
-				'plugin_message_with_no_context' => __('This is the message', 'simple-history'),
 			)
 		);
 		
@@ -116,36 +104,54 @@ class SimplePluginLogger extends SimpleLogger
 	 * Plugin is activated
 	 * plugin_name is like admin-menu-tree-page-view/index.php
 	 */
-	function simple_history_activated_plugin($plugin_name) {
+	function on_activated_plugin($plugin_name, $network_wide) {
 
-		// Fetch info about the plugin
+		/*
+		Plugin data returned array contains the following:
+		'Name' - Name of the plugin, must be unique.
+		'Title' - Title of the plugin and the link to the plugin's web site.
+		'Description' - Description of what the plugin does and/or notes from the author.
+		'Author' - The author's name
+		'AuthorURI' - The authors web site address.
+		'Version' - The plugin version number.
+		'PluginURI' - Plugin web site address.
+		'TextDomain' - Plugin's text domain for localization.
+		'DomainPath' - Plugin's relative directory path to .mo files.
+		'Network' - Boolean. Whether the plugin can only be activated network wide.
+		*/
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
 		
-		if ( is_array( $plugin_data ) && ! empty( $plugin_data["Name"] ) ) {
-			$plugin_name = urlencode( $plugin_data["Name"] );
-		} else {
-			$plugin_name = urlencode($plugin_name);
-		}
+		$context = array(
+			"plugin_name" => $plugin_data["Name"],
+			"plugin_title" => $plugin_data["Title"],
+			"plugin_description" => $plugin_data["Description"],
+			"plugin_author" => $plugin_data["Author"],
+			"plugin_version" => $plugin_data["Version"],
+			"plugin_url" => $plugin_data["PluginURI"],
+		);
 
-		simple_history_add("action=activated&object_type=plugin&object_name=$plugin_name");
+		$this->infoMessage( 'plugin_activated', $context );
+		
 	}
 
 	/**
 	 * Plugin is deactivated
 	 * plugin_name is like admin-menu-tree-page-view/index.php
 	 */
-	function simple_history_deactivated_plugin($plugin_name) {
+	function on_deactivated_plugin($plugin_name) {
 
-		// Fetch info about the plugin
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
 		
-		if ( is_array( $plugin_data ) && ! empty( $plugin_data["Name"] ) ) {
-			$plugin_name = urlencode( $plugin_data["Name"] );
-		} else {
-			$plugin_name = urlencode($plugin_name);
-		}
-		
-		simple_history_add("action=deactivated&object_type=plugin&object_name=$plugin_name");
+		$context = array(
+			"plugin_name" => $plugin_data["Name"],
+			"plugin_title" => $plugin_data["Title"],
+			"plugin_description" => $plugin_data["Description"],
+			"plugin_author" => $plugin_data["Author"],
+			"plugin_version" => $plugin_data["Version"],
+			"plugin_url" => $plugin_data["PluginURI"],
+		);
+
+		$this->infoMessage( 'plugin_deactivated', $context );
 
 	}
 
