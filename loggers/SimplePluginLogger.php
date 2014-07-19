@@ -78,6 +78,12 @@ class SimplePluginLogger extends SimpleLogger
 					'simple-history'
 				),
 
+				'plugin_file_edited' => _x(
+					'Edited plugin file "{plugin_edited_file}"', 
+					'Plugin file edited',
+					'simple-history'
+				),
+
 			)
 		);
 		
@@ -107,7 +113,8 @@ class SimplePluginLogger extends SimpleLogger
 		add_action( 'upgrader_post_install', array( $this, "on_upgrader_post_install" ), 10, 3 );
 		add_action( 'upgrader_process_complete', array( $this, "on_upgrader_process_complete" ), 10, 2 );
 
-
+		// Dirty check for things that we can't catch using filters or actions
+		add_action( 'admin_init', array( $this, "check_filterless_things" ) );
 
 		/*
 		do_action( 'automatic_updates_complete', $this->update_results );
@@ -117,6 +124,38 @@ class SimplePluginLogger extends SimpleLogger
 		 *
 		 * @param array $update_results The results of all attempted updates.
 		*/
+
+	}
+
+	function check_filterless_things() {
+
+		// Var is string with length 113: /wp-admin/plugin-editor.php?file=my-plugin%2Fviews%2Fplugin-file.php
+		$referer = wp_get_referer();
+		
+		// contains key "path" with value like "/wp-admin/plugin-editor.php"
+		$referer_info = parse_url($referer);
+
+		if ( "/wp-admin/plugin-editor.php" === $referer_info["path"] ) {
+
+			// We are in plugin editor
+			// Check for plugin edit saved
+		
+			if ( isset( $_POST["newcontent"] ) && isset( $_POST["action"] ) && "update" == $_POST["action"] && isset( $_POST["file"] ) && ! empty( $_POST["file"] ) ) {
+
+				// A file was edited
+				$file = $_POST["file"];
+
+				$this->infoMessage(
+					'plugin_file_edited',
+					array(
+						"plugin_edited_file" => $file
+					)
+				);
+
+			}
+
+		}
+
 
 	}
 
