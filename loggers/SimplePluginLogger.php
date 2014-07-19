@@ -138,19 +138,45 @@ class SimplePluginLogger extends SimpleLogger
 		if ( "/wp-admin/plugin-editor.php" === $referer_info["path"] ) {
 
 			// We are in plugin editor
-			// Check for plugin edit saved
-		
+			// Check for plugin edit saved		
 			if ( isset( $_POST["newcontent"] ) && isset( $_POST["action"] ) && "update" == $_POST["action"] && isset( $_POST["file"] ) && ! empty( $_POST["file"] ) ) {
 
 				// A file was edited
 				$file = $_POST["file"];
 
+				// $plugins = get_plugins();
+				// http://codex.wordpress.org/Function_Reference/wp_text_diff
+				
+				// Generate a diff of changes
+				if ( ! class_exists( 'WP_Text_Diff_Renderer_Table' ) ) {
+					require( ABSPATH . WPINC . '/wp-diff.php' );
+				}
+
+				$original_file_contents = file_get_contents( WP_PLUGIN_DIR . "/" . $file );
+				$new_file_contents = wp_unslash( $_POST["newcontent"] );
+
+				$left_lines  = explode("\n", $original_file_contents);
+				$right_lines = explode("\n", $new_file_contents);
+				$text_diff = new Text_Diff($left_lines, $right_lines);
+
+				$num_added_lines = $text_diff->countAddedLines();
+				$num_removed_lines = $text_diff->countDeletedLines();
+
+				// Generate a diff in classic diff format
+				$renderer  = new Text_Diff_Renderer();
+				$diff = $renderer->render($text_diff);
+
 				$this->infoMessage(
 					'plugin_file_edited',
 					array(
-						"plugin_edited_file" => $file
+						"plugin_edited_file" => $file,
+						"plugin_edit_diff" => $diff,
+						"plugin_edit_num_added_lines" => $num_added_lines,
+						"plugin_edit_num_removed_lines" => $num_removed_lines,
 					)
 				);
+
+				$did_log = true;
 
 			}
 
