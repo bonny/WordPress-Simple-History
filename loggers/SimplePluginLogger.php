@@ -90,6 +90,12 @@ class SimplePluginLogger extends SimpleLogger
 					'simple-history'
 				),
 
+				'plugin_deleted' => _x(
+					'Deleted plugin "{plugin_name}"', 
+					'Plugin files was deleted',
+					'simple-history'
+				),
+
 				// bulk versions
 				'plugin_bulk_updated' => _x(
 					'Updated plugin "{plugin_name}" from {plugin_prev_version} to {plugin_version}', 
@@ -133,6 +139,9 @@ class SimplePluginLogger extends SimpleLogger
 		// Dirty check for things that we can't catch using filters or actions
 		add_action( 'admin_init', array( $this, "check_filterless_things" ) );
 
+		// Detect files removed
+		add_action( 'setted_transient', array( $this, 'on_setted_transient_for_remove_files' ), 10, 2 );
+
 		/*
 		do_action( 'automatic_updates_complete', $this->update_results );
 		 * Fires after all automatic updates have run.
@@ -145,8 +154,73 @@ class SimplePluginLogger extends SimpleLogger
 	}
 
 	/**
-	 * Save the version numbers before a plugin is updated.
-	 * This way we can know both the old (pre updated) and the current version of the plugin
+	 * Detect plugin being deleted
+	 * When WP is done deleting a plugin it sets a transient called plugins_delete_result:
+	 * set_transient('plugins_delete_result_' . $user_ID, $delete_result);
+	 *
+	 * We detect when that transient is set and then we have all info needed to log the plugin delete
+	 *	 
+	 */
+	public function on_setted_transient_for_remove_files($transient, $value) {
+
+		if ( ! $user_id = get_current_user_id() ) {
+			return;
+		}
+
+		$transient_name = '_transient_plugins_delete_result_' . $user_id;
+		if ( $transient_name !== $transient ) {
+			return;
+		}
+
+		// We found the transient we were looking for
+		if ( 
+				isset( $_POST["action"] )
+				&& "delete-selected" == $_POST["action"]
+				&& isset( $_POST["checked"] )
+				&& is_array( $_POST["checked"] )
+				) {
+
+			/*
+		    [checked] => Array
+		        (
+		            [0] => the-events-calendar/the-events-calendar.php
+		        )
+		    */
+
+			$plugins_deleted = $_POST["checked"];
+			$plugins_before_update = json_decode( get_option( $this->slug . "_plugin_info_before_update", false ), true );
+
+			foreach ($plugins_deleted as $plugin) {
+				
+				$context = array(
+					"plugin" => $plugin
+				);
+
+				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin ] ) ) {
+					$context["plugin_name"] = $plugins_before_update[ $plugin ]["Name"];
+					$context["plugin_title"] = $plugins_before_update[ $plugin ]["Title"];
+					$context["plugin_description"] = $plugins_before_update[ $plugin ]["Description"];
+					$context["plugin_author"] = $plugins_before_update[ $plugin ]["Author"];
+					$context["plugin_version"] = $plugins_before_update[ $plugin ]["Version"];
+					$context["plugin_url"] = $plugins_before_update[ $plugin ]["PluginURI"];
+				}
+
+				$this->infoMessage(
+					"plugin_deleted",
+					$context
+				);
+
+			}
+
+		}
+		
+		$this->remove_saved_versions();
+
+	}
+
+	/**
+	 * Save all plugin information before a plugin is updated or removed.
+	 * This way we can know both the old (pre updated/removed) and the current version of the plugin
 	 */
 	public function save_versions_before_update() {
 		
@@ -154,11 +228,31 @@ class SimplePluginLogger extends SimpleLogger
 		$request_uri = $_SERVER["SCRIPT_NAME"];
 
 		// Only add option on pages where needed
-		if ( ( "/wp-admin/update.php" == $request_uri ) && isset( $current_screen->base ) && "update" == $current_screen->base ) {
+		$do_store = false;
+
+		if ( 
+				( "/wp-admin/update.php" == $request_uri ) 
+				&& isset( $current_screen->base ) 
+				&& "update" == $current_screen->base 
+			) {
 			
 			// Plugin update screen
-			update_option( $this->slug . "_plugin_info_before_update", SimpleHistory::json_encode( get_plugins() ) );
+			$do_store = true;
 
+		} else if ( 
+				( "/wp-admin/plugins.php" == $request_uri ) 
+				&& isset( $current_screen->base ) 
+				&& "plugins" == $current_screen->base
+				&& ( isset( $_POST["action"] ) && "delete-selected" == $_POST["action"] )
+			) {
+			
+			// Plugin delete screen, during delete
+			$do_store = true;
+
+		}
+
+		if ( $do_store ) {
+			update_option( $this->slug . "_plugin_info_before_update", SimpleHistory::json_encode( get_plugins() ) );
 		}
 
 	}
@@ -436,9 +530,9 @@ class SimplePluginLogger extends SimpleLogger
 		} // if plugin
 
 		if ( ! $did_log ) {
-			echo "on_upgrader_process_complete";
-			sf_d( $plugin_upgrader_instance, '$plugin_upgrader_instance' );
-			sf_d( $arr_data, '$arr_data' );
+			#echo "on_upgrader_process_complete";
+			#sf_d( $plugin_upgrader_instance, '$plugin_upgrader_instance' );
+			#sf_d( $arr_data, '$arr_data' );
 			#exit;
 		}
 
