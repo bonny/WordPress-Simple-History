@@ -73,7 +73,7 @@ class SimplePluginLogger extends SimpleLogger
 				),
 
 				'plugin_updated' => _x(
-					'Updated plugin "{plugin_name}"', 
+					'Updated plugin "{plugin_name}" from {plugin_prev_version} to {plugin_version}', 
 					'Plugin was updated',
 					'simple-history'
 				),
@@ -92,7 +92,7 @@ class SimplePluginLogger extends SimpleLogger
 
 				// bulk versions
 				'plugin_bulk_updated' => _x(
-					'Updated plugin "{plugin_name}"', 
+					'Updated plugin "{plugin_name}" from {plugin_prev_version} to {plugin_version}', 
 					'Plugin was updated in bulk',
 					'simple-history'
 				),
@@ -106,6 +106,8 @@ class SimplePluginLogger extends SimpleLogger
 	}
 
 	public function loaded() {
+
+		#sf_d(get_plugins(), 'get_plugins()');
 
 		//do_action( 'current_screen', $current_screen );
 		// The first hook where current screen is available
@@ -289,6 +291,7 @@ class SimplePluginLogger extends SimpleLogger
 			// Single plugin install
 			if ( isset( $arr_data["action"] ) && "install" == $arr_data["action"] && ! $plugin_upgrader_instance->bulk ) {
 
+				// Upgrader contains current info
 				$context = array(
 					"plugin_name" => $plugin_upgrader_instance->skin->api->name,
 					"plugin_slug" => $plugin_upgrader_instance->skin->api->slug,
@@ -326,11 +329,9 @@ class SimplePluginLogger extends SimpleLogger
 			} // install single
 
 			// Single plugin update
-			if ( isset( $arr_data["action"] ) && "update" == $arr_data["action"] ) {
+			if ( isset( $arr_data["action"] ) && "update" == $arr_data["action"] && ! $plugin_upgrader_instance->bulk ) {
 
 				// No plugin info in instance, so get it ourself
-				#sf_d( $plugin_upgrader_instance, '$plugin_upgrader_instance' );
-				#sf_d( $arr_data, '$arr_data' );
 				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data["plugin"] );
 				
 				$context = array(
@@ -342,6 +343,14 @@ class SimplePluginLogger extends SimpleLogger
 					"plugin_url" => $plugin_data["PluginURI"],
 					"plugin_source_files" => json_encode( $plugin_upgrader_instance->result["source_files"] )
 				);
+
+				// To get old version we use our option
+				$plugins_before_update = json_decode( get_option( $this->slug . "_plugin_info_before_update", false ), true );
+				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $arr_data["plugin"] ] ) ) {
+
+					$context["plugin_prev_version"] = $plugins_before_update[ $arr_data["plugin"] ]["Version"];
+
+				}
 
 				if ( is_a( $plugin_upgrader_instance->skin->result, "WP_Error" ) ) {
 
@@ -364,9 +373,9 @@ class SimplePluginLogger extends SimpleLogger
 						$context
 					);
 
-					echo "on_upgrader_process_complete";
-					sf_d( $plugin_upgrader_instance, '$plugin_upgrader_instance' );
-					sf_d( $arr_data, '$arr_data' );
+					#echo "on_upgrader_process_complete";
+					#sf_d( $plugin_upgrader_instance, '$plugin_upgrader_instance' );
+					#sf_d( $arr_data, '$arr_data' );
 
 					$did_log = true;
 
@@ -405,6 +414,14 @@ class SimplePluginLogger extends SimpleLogger
 						"plugin_version" => $plugin_data["Version"],
 						"plugin_url" => $plugin_data["PluginURI"],
 					);
+
+					// To get old version we use our option
+					$plugins_before_update = json_decode( get_option( $this->slug . "_plugin_info_before_update", false ), true );
+					if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_name ] ) ) {
+
+						$context["plugin_prev_version"] = $plugins_before_update[ $plugin_name ]["Version"];
+
+					}
 
 					$this->infoMessage(
 						'plugin_bulk_updated',
@@ -482,9 +499,9 @@ class SimplePluginLogger extends SimpleLogger
 
 		}
 
-		sf_d($response, '$response');
-		sf_d($hook_extra, '$hook_extra');
-		sf_d($result, '$result');
+		#sf_d($response, '$response');
+		#sf_d($hook_extra, '$hook_extra');
+		#sf_d($result, '$result');
 		#exit;
 
 		return $response;
