@@ -139,7 +139,7 @@ class SimpleHistory {
 		return $translated_text;
 		
 	}
-	
+
 	/**
 	 * Load language files.
 	 * Uses the method described here:
@@ -1075,6 +1075,18 @@ class SimpleHistory {
 		$logger = $this->instantiatedLoggers[$row_logger]["instance"];		
 
 		return $logger->getLogRowDetailsOutput( $row );
+
+	}
+
+	/**
+	 * Works like json_encode, but adds JSON_PRETTY_PRINT if the current php version supports it
+	 * i.e. PHP is 5.4.0 or greated
+	 * 
+	 * @param $value array|object|string|whatever that is json_encode'able
+	 */
+	public static function json_encode($value) {
+
+		return version_compare(PHP_VERSION, '5.4.0') ? json_encode($value, JSON_PRETTY_PRINT) : json_encode($value);
 
 	}
 

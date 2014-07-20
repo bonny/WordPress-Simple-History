@@ -107,9 +107,10 @@ class SimplePluginLogger extends SimpleLogger
 
 	public function loaded() {
 
-		/**
-		 * Manual plugin activation and de-activation
-		 */
+		//do_action( 'current_screen', $current_screen );
+		// The first hook where current screen is available
+		add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
+		add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
 
 		// Fires after a plugin has been activated.
 		// If a plugin is silently activated (such as during an update),
@@ -138,6 +139,38 @@ class SimplePluginLogger extends SimpleLogger
 		 *
 		 * @param array $update_results The results of all attempted updates.
 		*/
+
+	}
+
+	/**
+	 * Save the version numbers before a plugin is updated.
+	 * This way we can know both the old (pre updated) and the current version of the plugin
+	 */
+	public function save_versions_before_update() {
+		
+		$current_screen = get_current_screen();
+		$request_uri = $_SERVER["SCRIPT_NAME"];
+
+		// Only add option on pages where needed
+		if ( ( "/wp-admin/update.php" == $request_uri ) && isset( $current_screen->base ) && "update" == $current_screen->base ) {
+			
+			// Plugin update screen
+			update_option( $this->slug . "_plugin_info_before_update", SimpleHistory::json_encode( get_plugins() ) );
+
+		}
+
+	}
+
+	/**
+	  * when plugin updates are done wp_clean_plugins_cache() is called,
+	  * which in it's turn run:
+	  * delete_site_transient( 'update_plugins' );
+	  * do_action( 'delete_site_transient_' . $transient, $transient );
+	  * delete_site_transient_update_plugins
+	  */
+	public function remove_saved_versions() {
+		
+		delete_option( $this->slug . "_plugin_info_before_update" );
 
 	}
 
