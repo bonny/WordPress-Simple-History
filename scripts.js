@@ -20,7 +20,7 @@ var simple_history2 = (function($) {
 			this.min_id = resp.data.min_id;
 
 			var arrRows = [];
-			_.each(resp.data.logRows, function(row) {
+			_.each(resp.data.log_rows, function(row) {
 				arrRows.push({
 					html: row
 				});

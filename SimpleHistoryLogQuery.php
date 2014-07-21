@@ -61,6 +61,7 @@ class SimpleHistoryLogQuery {
 		// 2 = limit
 		$sql_tmpl = '
 			SELECT 
+				SQL_CALC_FOUND_ROWS
 				t.id,
 				t.logger,
 				t.level,
@@ -144,7 +145,58 @@ class SimpleHistoryLogQuery {
 		// Remove id from keys, because they are cumbersome when working with JSON
 		$log_rows = array_values($log_rows);
 
-		return $log_rows;
+		// Find total number of rows that we would have gotten without pagination
+		$sql_found_rows = 'SELECT FOUND_ROWS()';
+		$found_rows = $wpdb->get_var( $sql_found_rows );
+
+		// Max id is simply the id of the first row
+		$max_id = reset($log_rows)->id;
+
+		// Min id = to find the lowest id we must take occasions into consideration
+		$min_id = null;
+		$last_row = end($log_rows);
+		$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
+		if ($last_row_occasions_count === 0) {
+
+			// Last row did not have any more occasions, so get min_id directly from the row
+			$min_id = $last_row->id;
+
+		} else {
+			
+			// Last row did have occaions, so fetch all occasions, and find id of last one
+			$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
+			$sql = sprintf(
+				'
+					SELECT id, date, occasionsID
+					FROM %1$s 
+					WHERE id <= %2$s
+					ORDER BY id DESC
+					LIMIT %3$s
+				',
+				$db_table,
+				$last_row->id,
+				$last_row_occasions_count + 1
+			);
+			
+			$results = $wpdb->get_results( $sql );
+
+			// the last occassion has the id we consider last in this paged result
+			$min_id = end($results)->id;
+
+		}
+
+		// Create array to return
+		// Make all rows a sub key because we want to add some meta info too
+		$arr_return = array(
+			"found_rows" => $found_rows,
+			"max_id" => $max_id,
+			"min_id" => $min_id,
+			"log_rows" => $log_rows,
+		);
+
+		#sf_d($arr_return, '$arr_return');exit;
+		
+		return $arr_return;
 	
 	} // query
 

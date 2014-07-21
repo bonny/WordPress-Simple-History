@@ -134,52 +134,15 @@ class SimpleHistory {
 
 				// API use SimpleHistoryLogQuery, so simply pass args on to that
 				$logQuery = new SimpleHistoryLogQuery();
-				$logRows = $logQuery->query($args);
-
-				// To find the lowest id we must take occasions into consideration
-				$min_id = null;
-				$last_row = $logRows[ sizeof($logRows)-1 ];
-				$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
-				if ($last_row_occasions_count === 0) {
-					// Last row did not have any more occasions, so get min_id directly from the row
-					$min_id = $last_row->id;
-				} else {
-					// Last row did have occaions, so fetch all occasions, and find id of last one
-					$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
-					$sql = sprintf(
-						'
-							SELECT id, date, occasionsID
-							FROM %1$s 
-							WHERE id <= %2$s
-							ORDER BY id DESC
-							LIMIT %3$s
-						',
-						$db_table,
-						$last_row->id,
-						$last_row_occasions_count + 1
-					);
-					
-					$results = $wpdb->get_results( $sql );
-
-					// the last occassion has the id we consider last in this paged result
-					$min_id = end($results)->id;
-
-				}
-
-				$data = array(
-					"args" => $args,
-					"max_id" => $logRows[0]->id,
-					// min id is not quite correct, because if it has accasions...
-					// so we must get the last id of all the occasions
-					"min_id" => $min_id,
-					"logRows" => array()
-				);
+				$data = $logQuery->query($args);
+				
+				$data["api_args"] = $args;
 
 				// Output can be array or HMTL
 				if ( isset( $args["format"] ) && "html" === $args["format"] ) {
 					
-					foreach ($logRows as $key => $val) {
-						$data["logRows"][] = $this->getLogRowHTMLOutput( $val );
+					foreach ($data["log_rows"] as $key => $val) {
+						$data["log_rows"][$key] = $this->getLogRowHTMLOutput( $val );
 					}
 
 				} else {
