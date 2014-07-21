@@ -87,6 +87,8 @@ class SimpleHistory {
 		require_once ( dirname(__FILE__) . "/old-stuff.php");
 		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
 
+		add_action( 'wp_ajax_simple_history_api', array($this, 'api') );
+
 		/**
 	     * Fires after Simple History has done it's init stuff
 	     *
@@ -95,6 +97,104 @@ class SimpleHistory {
 	     * @param SimpleHistory $SimpleHistory This class.
 	     */
 		do_action( "simple_history/after_init", $this );
+
+	}
+
+	/**
+	 * Base url is:
+	 * /wp-admin/admin-ajax.php?action=simple_history_api
+	 *
+	 * Examples:
+	 * http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&posts_per_page=5&paged=1&format=html
+	 *
+	 */
+	public function api() {
+		
+		global $wpdb;
+
+		$args = $_GET;
+		unset($args["action"]);
+
+		// Type = overview | ...
+		$type = isset( $_GET["type"] ) ? $_GET["type"] : null;
+
+		if ( empty( $args ) || ! $type ) {
+
+			wp_send_json_error( array(
+				_x("Not enough args specified", "API: not enought arguments passed", "simple-history")
+			) );
+
+		}
+
+		$data = array();
+
+		switch ($type) {
+
+			case "overview":
+
+				// API use SimpleHistoryLogQuery, so simply pass args on to that
+				$logQuery = new SimpleHistoryLogQuery();
+				$logRows = $logQuery->query($args);
+
+				// To find the lowest id we must take occasions into consideration
+				$min_id = null;
+				$last_row = $logRows[ sizeof($logRows)-1 ];
+				$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
+				if ($last_row_occasions_count === 0) {
+					// Last row did not have any more occasions, so get min_id directly from the row
+					$min_id = $last_row->id;
+				} else {
+					// Last row did have occaions, so fetch all occasions, and find id of last one
+					$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
+					$sql = sprintf(
+						'
+							SELECT id, date, occasionsID
+							FROM %1$s 
+							WHERE id <= %2$s
+							ORDER BY id DESC
+							LIMIT %3$s
+						',
+						$db_table,
+						$last_row->id,
+						$last_row_occasions_count + 1
+					);
+					
+					$results = $wpdb->get_results( $sql );
+
+					// the last occassion has the id we consider last in this paged result
+					$min_id = end($results)->id;
+
+				}
+
+				$data = array(
+					"args" => $args,
+					"max_id" => $logRows[0]->id,
+					// min id is not quite correct, because if it has accasions...
+					// so we must get the last id of all the occasions
+					"min_id" => $min_id,
+					"logRows" => array()
+				);
+
+				// Output can be array or HMTL
+				if ( isset( $args["format"] ) && "html" === $args["format"] ) {
+					
+					foreach ($logRows as $key => $val) {
+						$data["logRows"][] = $this->getLogRowHTMLOutput( $val );
+					}
+
+				} else {
+					
+					$data["logRows"] = $logRows;
+				}
+
+				break;
+
+			default:
+				$data[] = "Nah.";
+
+		}
+
+		wp_send_json_success( $data );
 
 	}
 
@@ -411,7 +511,7 @@ class SimpleHistory {
 			$plugin_url = plugin_dir_url(__FILE__);
 			wp_enqueue_style( "simple_history_styles", $plugin_url . "styles.css", false, SimpleHistory::VERSION );	
 			wp_enqueue_style( "simple_history_2_styles", $plugin_url . "styles-v2.css", false, SimpleHistory::VERSION );	
-			wp_enqueue_script("simple_history_script", $plugin_url . "scripts.js", array("jquery"), SimpleHistory::VERSION);
+			wp_enqueue_script("simple_history_script", $plugin_url . "scripts.js", array("jquery", "backbone"), SimpleHistory::VERSION, true);
 
 			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(
 				'settingsConfirmClearLog' => __("Remove all log items?", 'simple-history')
@@ -534,18 +634,18 @@ class SimpleHistory {
 			?>
 
 			<h3 class="nav-tab-wrapper">
-				<a href="<?php echo add_query_arg("selected-tab", "general", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "general") ? "nav-tab-active" : "" ?>">Tab 1</a>
-				<a href="<?php echo add_query_arg("selected-tab", "test", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "test") ? "nav-tab-active" : "" ?>">Test page</a>
+				<a href="<?php echo add_query_arg("selected-tab", "settings", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "settings") ? "nav-tab-active" : "" ?>">Settings</a>
+				<a href="<?php echo add_query_arg("selected-tab", "log", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "log") ? "nav-tab-active" : "" ?>">Log</a>
 			</h3>
 
 			<?php
 			switch ( $active_tab ) {
 
-				case "test":
-					include( __DIR__ . "/templates/settings-test.php" );
+				case "log":
+					include( __DIR__ . "/templates/settings-log.php" );
 					break;
 
-				case "general":
+				case "settings":
 				default:
 
 					include( __DIR__ . "/templates/settings-general.php" );
@@ -974,7 +1074,6 @@ class SimpleHistory {
 		$tableprefix = $wpdb->prefix;
 		$simple_history_table = SimpleHistory::DBTABLE;
 
-
 		$sql = "DELETE FROM {$tableprefix}{$simple_history_table} WHERE DATE_ADD(date, INTERVAL $days DAY) < now()";
 
 		$wpdb->query($sql);
@@ -1087,6 +1186,79 @@ class SimpleHistory {
 	public static function json_encode($value) {
 
 		return version_compare(PHP_VERSION, '5.4.0') ? json_encode($value, JSON_PRETTY_PRINT) : json_encode($value);
+
+	}
+
+	/**
+	 * Returns the HTML output for a log row, to be used in the GUI/Activity Feed
+	 *
+	 * @param array $oneLogRow SimpleHistoryLogQuery array with data from SimpleHistoryLogQuery
+	 */
+	public function getLogRowHTMLOutput($oneLogRow) {
+
+		$header_html = $this->getLogRowHeaderOutput($oneLogRow);	
+		$plain_text_html = $this->getLogRowPlainTextOutput($oneLogRow);
+		$sender_image_html = $this->getLogRowSenderImageOutput($oneLogRow);
+		
+		$details_html = trim( $this->getLogRowDetailsOutput($oneLogRow) );
+
+		if ($details_html) {
+
+			$details_html = sprintf(
+				'<div class="simple-history-logitem__details">%1$s</div>',
+				$details_html
+			);
+
+		}
+
+		// subsequentOccasions = including the current one
+		$occasions_count = $oneLogRow->subsequentOccasions - 1;
+		$occasions_html = "";
+		if ($occasions_count > 0) {
+			$occasions_html = sprintf(
+				'
+				<div class="simple-history-logitem__occasions">
+					%1$s more occasions
+				</div>
+				',
+				$occasions_count
+			);
+		}
+
+		// Generate the HTML output for a row
+		$output = sprintf(
+			'
+				<li class="simple-history-logitem simple-history-logitem--loglevel-%5$s simple-history-logitem--logger-%7$s">
+					<div class="simple-history-logitem__firstcol">
+						<div class="simple-history-logitem__senderImage">%3$s</div>
+					</div>
+					<div class="simple-history-logitem__secondcol">
+						<div class="simple-history-logitem__header">%1$s</div>
+						<div class="simple-history-logitem__text">%2$s</div>
+						%4$s
+						%6$s
+					</div>
+				</li>
+			',
+			$header_html, // 1
+			$plain_text_html, // 2
+			$sender_image_html, // 3
+			$occasions_html, // 4
+			$oneLogRow->level, // 5
+			$details_html, // 6
+			$oneLogRow->logger // 7
+		);
+
+		// Get the main message row.
+		// Should be as plain as possible, like plain text 
+		// but with links to for example users and posts
+		#SimpleLoggerFormatter::getRowTextOutput($oneLogRow);
+
+		// Get detailed HTML-based output
+		// May include images, lists, any cool stuff needed to view
+		#SimpleLoggerFormatter::getRowHTMLOutput($oneLogRow);
+
+		return trim($output);
 
 	}
 

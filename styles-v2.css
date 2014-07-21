@@ -1,7 +1,9 @@
 
 .simple-history-logitems {
+	float: left;
 	background: #fff;
 	border: 1px solid rgb(229, 229, 229);
+	width: 650px;
 	max-width: 650px;
 }
 
@@ -116,6 +118,7 @@ There is always a 4px left border, just with differents colors
 Styles for filter
 */
 .simple-history-filters {
-	float: right;
+	float: left;
 	width: 400px;
+	margin-left: 50px;
 }

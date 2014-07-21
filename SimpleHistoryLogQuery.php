@@ -30,7 +30,9 @@ class SimpleHistoryLogQuery {
 			// array with loglevels to get, as specified in SimpleLoggerLogLevels
 			"loglevel" => null,
 			// Array. Only get posts that are in array.
-			"post__in" => null
+			"post__in" => null,
+			// array or html
+			"format" => "array" 
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -138,6 +140,9 @@ class SimpleHistoryLogQuery {
 			$log_rows[ $context_row->history_id ]->context[ $context_row->key ] = $context_row->value;
 
 		}
+
+		// Remove id from keys, because they are cumbersome when working with JSON
+		$log_rows = array_values($log_rows);
 
 		return $log_rows;
 	

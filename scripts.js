@@ -1,4 +1,117 @@
 
+/*
+V2 begins here
+*/
+var simple_history2 = (function($) {
+
+	var api_base_url = window.ajaxurl + "?action=simple_history_api";
+
+	var debug = function(what) {
+		$(".simple-history-logitems-debug").append("<br>" + what);
+	}
+
+	var LogRowsCollection = Backbone.Collection.extend({
+
+		// Turn wp json respsonse into backbone format
+		parse: function(resp, xhr) {
+
+			this.args = resp.data.args;
+			this.max_id = resp.data.max_id;
+			this.min_id = resp.data.min_id;
+
+			var arrRows = [];
+			_.each(resp.data.logRows, function(row) {
+				arrRows.push({
+					html: row
+				});
+			});
+			
+			debug("Parsed fetch response");
+			debug("number of rows: " + arrRows.length);
+			debug("max_id: " + this.max_id);
+			debug("min_id: " + this.min_id);
+
+			return arrRows;
+		}
+
+	});
+
+	var RowsView = Backbone.View.extend({
+
+		el: ".simple-history-logitems",
+		
+		initialize: function() {
+			
+			var that = this;
+			
+			// When rows are added then append them to the list
+			this.collection.on("add", function(model) {
+				that.$el.append( model.get("html") );
+			});
+
+		}
+
+	});
+
+	var MainView = Backbone.View.extend({
+		
+		el: ".simple-history-gui",
+
+		initialize: function() {
+
+			this.addNeededElements();
+			
+			this.logRows = new LogRowsCollection;
+			this.logRows.url = api_base_url + "&type=overview&format=html&posts_per_page=5";
+			this.logRows.fetch();
+
+			this.rowsView = new RowsView({
+				collection: this.logRows
+			});
+				
+			this.render();
+
+		},
+
+		/**
+		 * Add the elements needed for the GUI
+		 */
+		addNeededElements: function() {
+
+			var html = ' \
+				<div class="simple-history-logitems-wrap"> \
+					<ul class="simple-history-logitems"></ul> \
+				</div> \
+				<div class="simple-history-filters"></div> \
+				<div class="simple-history-logitems-debug"></div> \
+			';
+
+			this.$el.html( html );
+
+		},
+
+		render: function() {
+
+			console.log(this.logRows);
+
+		}
+
+	});
+
+	// The view with the log rows
+	var LogRowsView = Backbone.View.extend({
+
+	});
+
+	var logRowsView = new LogRowsView();
+
+	var mainView = new MainView();
+
+})(jQuery);
+
+/* end v2 */
+
+
 /**
  * Object for Simple History
  */
