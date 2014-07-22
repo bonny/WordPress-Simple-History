@@ -213,43 +213,6 @@ function simple_history_update_option($option, $oldval, $newval) {
 }
 
 
-/**
- * Plugin is activated
- * plugin_name is like admin-menu-tree-page-view/index.php
- */
-function simple_history_activated_plugin($plugin_name) {
-
-	// Fetch info about the plugin
-	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
-	
-	if ( is_array( $plugin_data ) && ! empty( $plugin_data["Name"] ) ) {
-		$plugin_name = urlencode( $plugin_data["Name"] );
-	} else {
-		$plugin_name = urlencode($plugin_name);
-	}
-
-	simple_history_add("action=activated&object_type=plugin&object_name=$plugin_name");
-}
-
-/**
- * Plugin is deactivated
- * plugin_name is like admin-menu-tree-page-view/index.php
- */
-function simple_history_deactivated_plugin($plugin_name) {
-
-	// Fetch info about the plugin
-	$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
-	
-	if ( is_array( $plugin_data ) && ! empty( $plugin_data["Name"] ) ) {
-		$plugin_name = urlencode( $plugin_data["Name"] );
-	} else {
-		$plugin_name = urlencode($plugin_name);
-	}
-	
-	simple_history_add("action=deactivated&object_type=plugin&object_name=$plugin_name");
-
-}
-
 // WordPress Core updated
 function action_core_updated($wp_version) {
 	simple_history_add("action=updated&object_type=wordpress_core&object_id=wordpress_core&object_name=".sprintf(__('WordPress %1$s', 'simple-history'), $wp_version));
