@@ -402,7 +402,7 @@ class SimpleLogger
 		$context["_message_key"] = $message;
 		$message = $this->messages[ $message ]["untranslated_text"];
 
-		$this->log(SimpleLoggerLogLevels::EMERGENCY, $this->messages[ $message ], $context);
+		$this->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 		
 	}
 
@@ -437,7 +437,7 @@ class SimpleLogger
 		$context["_message_key"] = $message;
 		$message = $this->messages[ $message ]["untranslated_text"];
 
-		$this->log(SimpleLoggerLogLevels::ALERT, $this->messages[ $message ], $context);
+		$this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
 		
 	}
 
@@ -475,7 +475,7 @@ class SimpleLogger
 		$context["_message_key"] = $message;
 		$message = $this->messages[ $message ]["untranslated_text"];
 
-		$this->log(SimpleLoggerLogLevels::CRITICAL, $this->messages[ $message ], $context);
+		$this->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
 		
 	}
 
@@ -513,7 +513,7 @@ class SimpleLogger
 		$context["_message_key"] = $message;
 		$message = $this->messages[ $message ]["untranslated_text"];
 
-		$this->log(SimpleLoggerLogLevels::ERROR, $this->messages[ $message ], $context);
+		$this->log(SimpleLoggerLogLevels::ERROR, $message, $context);
 		
 	}
 
@@ -552,7 +552,7 @@ class SimpleLogger
 		$context["_message_key"] = $message;
 		$message = $this->messages[ $message ]["untranslated_text"];
 
-		$this->log(SimpleLoggerLogLevels::WARNING, $this->messages[ $message ], $context);
+		$this->log(SimpleLoggerLogLevels::WARNING, $message, $context);
 		
 	}
 
@@ -588,7 +588,7 @@ class SimpleLogger
 		$context["_message_key"] = $message;
 		$message = $this->messages[ $message ]["untranslated_text"];
 
-		$this->log(SimpleLoggerLogLevels::NOTICE, $this->messages[ $message ], $context);
+		$this->log(SimpleLoggerLogLevels::NOTICE, $message, $context);
 		
 	}
 
@@ -663,7 +663,7 @@ class SimpleLogger
 		$context["_message_key"] = $message;
 		$message = $this->messages[ $message ]["untranslated_text"];
 
-		$this->log(SimpleLoggerLogLevels::DEBUG, $this->messages[ $message ], $context);
+		$this->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
 		
 	}
 	
