@@ -121,6 +121,11 @@ class SimpleHistoryLogQuery {
 
 		$log_rows = $wpdb->get_results($sql, OBJECT_K);
 		$num_rows = sizeof($log_rows);
+
+		// Find total number of rows that we would have gotten without pagination
+		// This is the number of rows with occasions taken into consideration
+		$sql_found_rows = 'SELECT FOUND_ROWS()';
+		$total_found_rows = (int) $wpdb->get_var( $sql_found_rows );
 		
 		// Add context
 		$post_ids = wp_list_pluck( $log_rows, "id" );
@@ -144,10 +149,6 @@ class SimpleHistoryLogQuery {
 
 		// Remove id from keys, because they are cumbersome when working with JSON
 		$log_rows = array_values($log_rows);
-
-		// Find total number of rows that we would have gotten without pagination
-		$sql_found_rows = 'SELECT FOUND_ROWS()';
-		$found_rows = $wpdb->get_var( $sql_found_rows );
 
 		// Max id is simply the id of the first row
 		$max_id = reset($log_rows)->id;
@@ -185,17 +186,21 @@ class SimpleHistoryLogQuery {
 
 		}
 
+		// Calc pages
+		$pages_count = Ceil ( $total_found_rows / (int) $args["posts_per_page"] );
+
 		// Create array to return
 		// Make all rows a sub key because we want to add some meta info too
 		$arr_return = array(
-			"found_rows" => $found_rows,
+			"total_row_count" => $total_found_rows,
+			"pages_count" => $pages_count,
 			"max_id" => $max_id,
 			"min_id" => $min_id,
 			"log_rows" => $log_rows,
 		);
 
 		#sf_d($arr_return, '$arr_return');exit;
-		
+
 		return $arr_return;
 	
 	} // query

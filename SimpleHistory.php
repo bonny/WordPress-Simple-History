@@ -89,6 +89,8 @@ class SimpleHistory {
 
 		add_action( 'wp_ajax_simple_history_api', array($this, 'api') );
 
+		add_action( 'admin_footer', array( $this, "add_templates" ) );
+
 		/**
 	     * Fires after Simple History has done it's init stuff
 	     *
@@ -97,6 +99,61 @@ class SimpleHistory {
 	     * @param SimpleHistory $SimpleHistory This class.
 	     */
 		do_action( "simple_history/after_init", $this );
+
+	}
+
+	/**
+	 * Output JS templated into footer
+	 */
+	public function add_templates($hook) {
+		
+		if ( $this->is_on_our_own_pages() ) {
+
+			?>
+			<script type="text/html" id="tmpl-simple-history-logitems-pagination">
+				
+				<!-- this uses the (almost) the same html as WP does -->
+				<div class="tablenav-pages">
+					<span class="displaying-num"><%= total_row_count %> rows</span>
+					<span class="pagination-links">
+						<a 	
+							data-direction="first" 
+							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--firstPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
+							title="<%= strings.goToTheFirstPage %>" 
+							href="#">«</a>
+						<a 
+							data-direction="prev" 
+							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--prevPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
+							title="<%= strings.goToThePrevPage %>"
+							href="#">‹</a>
+						<span class="paging-input">
+							<input class="current-page" title="<%= strings.currentPage %>" type="text" name="paged" value="<%= api_args.paged %>" size="1">
+							of 
+							<span class="total-pages"><%= pages_count %></span>
+						</span>
+						<a 
+							data-direction="next" 
+							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--nextPage <% if ( api_args.paged >= pages_count ) { %> disabled <% } %>" 
+							title="<%= strings.goToTheNextPage %>"
+							href="#">›</a>
+						<a 
+							data-direction="last" 
+							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--lastPage <% if ( api_args.paged >= pages_count ) { %> disabled <% } %>" 
+							title="<%= strings.goToTheLastPage %>"
+							href="#">»</a>
+					</span>
+				</div>
+
+				<!--
+				<br>min_id: <%= min_id %>
+				<br>max_id: <%= max_id %>
+				<br>posts_per_page: <%= api_args.posts_per_page %>
+				-->
+
+			</script>
+			<?php
+
+		}
 
 	}
 
@@ -111,6 +168,9 @@ class SimpleHistory {
 	public function api() {
 		
 		global $wpdb;
+
+		// Fake slow answers
+		// sleep(1);
 
 		$args = $_GET;
 		unset($args["action"]);
@@ -462,6 +522,23 @@ class SimpleHistory {
 
 	}
 	
+	function is_on_our_own_pages($hook = "") {
+
+		$current_screen = get_current_screen();
+
+		if ($current_screen && $current_screen->base == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) {
+
+			return true;
+
+		} else if ( ($hook == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) || ($this->setting_show_on_dashboard() && $hook == "index.php") || ($this->setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
+
+			return true;
+
+		}
+
+		return false;
+	}
+
 	/**
 	 * Enqueue styles and scripts for Simple History but only to our own pages.
 	 *
@@ -469,15 +546,23 @@ class SimpleHistory {
 	 */
 	function enqueue_admin_scripts($hook) {
 	
-		if ( ($hook == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) || ($this->setting_show_on_dashboard() && $hook == "index.php") || ($this->setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
+		if ($this->is_on_our_own_pages()) {
 	
 			$plugin_url = plugin_dir_url(__FILE__);
 			wp_enqueue_style( "simple_history_styles", $plugin_url . "styles.css", false, SimpleHistory::VERSION );	
 			wp_enqueue_style( "simple_history_2_styles", $plugin_url . "styles-v2.css", false, SimpleHistory::VERSION );	
 			wp_enqueue_script("simple_history_script", $plugin_url . "scripts.js", array("jquery", "backbone"), SimpleHistory::VERSION, true);
 
-			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(
-				'settingsConfirmClearLog' => __("Remove all log items?", 'simple-history')
+			// Translations that we use in JavaScript
+			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(				
+				'settingsConfirmClearLog' => __("Remove all log items?", 'simple-history'),
+				'pagination' => array(
+					'goToTheFirstPage' => __("Go to the first page", 'simple-history'),
+					'goToThePrevPage' => __("Go to the previous page", 'simple-history'),
+					'goToTheNextPage' => __("Go to the next page", 'simple-history'),
+					'goToTheLastPage' => __("Go to the last page", 'simple-history'),
+					'currentPage' => __("Current page", 'simple-history'),
+				)
 			));
 		
 		}
@@ -1178,14 +1263,18 @@ class SimpleHistory {
 		$occasions_count = $oneLogRow->subsequentOccasions - 1;
 		$occasions_html = "";
 		if ($occasions_count > 0) {
-			$occasions_html = sprintf(
-				'
-				<div class="simple-history-logitem__occasions">
-					%1$s more occasions
-				</div>
-				',
+
+			$occasions_html = '<div class="simple-history-logitem__occasions">';
+			$occasions_html .= '<a href="#">';
+			
+			$occasions_html .= sprintf(
+				'+%1$s more',
 				$occasions_count
 			);
+
+			$occasions_html .= '</a>';
+			$occasions_html .= '</div>';
+
 		}
 
 		// Generate the HTML output for a row

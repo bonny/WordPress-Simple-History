@@ -1,10 +1,21 @@
 
-.simple-history-logitems {
+/*
+
+The spinner that wp uses:;
+/wp-includes/images/spinner.gif
+
+*/
+
+/* wrap around the log items and the pagination */
+.simple-history-logitems-wrap {
 	float: left;
-	background: #fff;
-	border: 1px solid rgb(229, 229, 229);
 	width: 650px;
 	max-width: 650px;
+}
+
+.simple-history-logitems {
+	background: #fff;
+	border: 1px solid rgb(229, 229, 229);
 }
 
 .simple-history-logitem {
@@ -121,4 +132,33 @@ Styles for filter
 	float: left;
 	width: 400px;
 	margin-left: 50px;
+}
+
+.simple-history-logitems-debug {
+	font-family: monospace;
+	white-space: pre;
+}
+
+/*
+Pagination, below logRows
+*/
+.SimpleHistoryPaginationLink.SimpleHistoryPaginationLink {
+	line-height: 30px;
+	background: rgb(238, 238, 238);
+	background: rgba(0, 0, 0, 0.05);
+	padding: 0 10px 3px;
+	text-decoration: none;
+	font-size: 16px;
+}
+
+.SimpleHistoryPaginationLink.SimpleHistoryPaginationLink:hover {
+	color: rgb(255, 255, 255);
+	background: rgb(46, 162, 204);
+}
+
+.SimpleHistoryPaginationLink.SimpleHistoryPaginationLink.disabled {
+	color: rgb(170, 170, 170);
+	background: rgb(238, 238, 238);
+	background: rgba(0, 0, 0, 0.05);
+	cursor: default;
 }

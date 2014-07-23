@@ -7,17 +7,46 @@ var simple_history2 = (function($) {
 	var api_base_url = window.ajaxurl + "?action=simple_history_api";
 
 	var debug = function(what) {
+
+		if (typeof what == "object") {
+		
+			var newWhat = "";
+		
+			_.each(what, function(val, key) {
+				newWhat += key + ": " + val + "\n";
+			});
+		
+			what = newWhat;
+		
+		}
+
 		$(".simple-history-logitems-debug").append("<br>" + what);
+
 	}
 
 	var LogRowsCollection = Backbone.Collection.extend({
 
+		initialize: function() {
+
+			this.url = api_base_url + "&type=overview&format=html&posts_per_page=5";
+
+			this.fetch({
+				reset: true,
+				data: {
+					paged: 1
+				}
+			});
+
+		},
+
 		// Turn wp json respsonse into backbone format
 		parse: function(resp, xhr) {
 
-			this.args = resp.data.args;
+			this.api_args = resp.data.api_args;
 			this.max_id = resp.data.max_id;
 			this.min_id = resp.data.min_id;
+			this.pages_count = resp.data.pages_count;
+			this.total_row_count = resp.data.total_row_count;
 
 			var arrRows = [];
 			_.each(resp.data.log_rows, function(row) {
@@ -26,10 +55,10 @@ var simple_history2 = (function($) {
 				});
 			});
 			
-			debug("Parsed fetch response");
-			debug("number of rows: " + arrRows.length);
-			debug("max_id: " + this.max_id);
-			debug("min_id: " + this.min_id);
+			// debug("Parsed fetch response");
+			// debug( _.omit(resp.data, ["log_rows", "api_args"]) );
+			// debug("api args");
+			// debug( this.api_args );
 
 			return arrRows;
 		}
@@ -37,17 +66,99 @@ var simple_history2 = (function($) {
 	});
 
 	var RowsView = Backbone.View.extend({
-
-		el: ".simple-history-logitems",
-		
+	
 		initialize: function() {
 			
-			var that = this;
-			
-			// When rows are added then append them to the list
-			this.collection.on("add", function(model) {
-				that.$el.append( model.get("html") );
+			this.collection.on("reset", this.render, this);
+
+		},
+
+		render: function() {
+
+			console.log("Render RowsView");
+
+			var html = "";
+			this.collection.each(function(model) {
+				html += model.get("html");
 			});
+			
+			this.$el.html( html );
+
+		}
+
+	});
+
+	var PaginationView = Backbone.View.extend({
+
+		initialize: function() {
+			
+			this.template = $("#tmpl-simple-history-logitems-pagination").html();
+
+			// this.render();
+			this.collection.on("reset", this.render, this);
+
+		},
+
+		events: {
+			"click .SimpleHistoryPaginationLink": "navigate",
+		},
+
+		navigate: function(e) {
+			
+			e.preventDefault();
+			var $target = $(e.target);
+
+			// if link has class disabled then don't nav away
+			if ($target.is(".disabled")) {
+				return;
+			}
+
+			// direction = first|prev|next|last
+			var direction = $target.data("direction");
+
+			var paged;
+			switch (direction) {
+
+				case "first":
+					paged = 1;
+					break;
+
+				case "last":
+					paged = this.collection.pages_count;
+					break;
+
+				case "prev":
+					paged = +this.collection.api_args.paged - 1;
+					break;
+
+				case "next":
+					paged = +this.collection.api_args.paged + 1;
+					break;
+
+			}
+			
+			// nav = fetch collection items again
+			this.collection.fetch({
+				reset: true,
+				data: {
+					paged: paged
+				}
+			});
+
+		},
+
+		render: function() {
+
+			var compiled = _.template(this.template);
+			
+			this.$el.html( compiled({
+				min_id: this.collection.min_id,
+				max_id: this.collection.max_id,
+				pages_count: this.collection.pages_count,
+				total_row_count: this.collection.total_row_count,
+				api_args: this.collection.api_args,
+				strings: simple_history_script_vars.pagination
+			}) );
 
 		}
 
@@ -60,13 +171,17 @@ var simple_history2 = (function($) {
 		initialize: function() {
 
 			this.addNeededElements();
-			
-			this.logRows = new LogRowsCollection;
-			this.logRows.url = api_base_url + "&type=overview&format=html&posts_per_page=5";
-			this.logRows.fetch();
 
+			this.logRowsCollection = new LogRowsCollection;
+			
 			this.rowsView = new RowsView({
-				collection: this.logRows
+				el: this.$el.find(".simple-history-logitems"),
+				collection: this.logRowsCollection
+			});
+
+			this.paginationView = new PaginationView({
+				el: this.$el.find(".simple-history-logitems-pagination"),
+				collection: this.logRowsCollection
 			});
 				
 			this.render();
@@ -81,6 +196,7 @@ var simple_history2 = (function($) {
 			var html = ' \
 				<div class="simple-history-logitems-wrap"> \
 					<ul class="simple-history-logitems"></ul> \
+					<div class="simple-history-logitems-pagination"></div> \
 				</div> \
 				<div class="simple-history-filters"></div> \
 				<div class="simple-history-logitems-debug"></div> \
@@ -92,7 +208,7 @@ var simple_history2 = (function($) {
 
 		render: function() {
 
-			console.log(this.logRows);
+			//console.log(this.logRows);
 
 		}
 
