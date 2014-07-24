@@ -259,6 +259,9 @@ class SimpleUserLogger extends SimpleLogger
 
 			$context = array(
 				"failed_login_username" => $username,
+				// count all failed logins to unknown users as the same occasions, to prevent log being flooded
+				// with login/hack attempts
+				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__
 			);
 
 			$this->infoMessage("user_unknown_login_failed", $context);		
