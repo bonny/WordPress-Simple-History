@@ -96,13 +96,34 @@ var simple_history2 = (function($) {
 			
 			this.template = $("#tmpl-simple-history-logitems-pagination").html();
 
+			$(document).keydown({ view: this }, this.keyboardNav);
+
 			this.collection.on("reset", this.render, this);
 
 		},
 
 		events: {
 			"click .SimpleHistoryPaginationLink": "navigateArrow",
-			"keyup .SimpleHistoryPaginationCurrentPage": "navigateToPage"
+			"keyup .SimpleHistoryPaginationCurrentPage": "navigateToPage",
+			"keydown": "keydown"
+		},
+
+		keyboardNav: function(e) {
+
+			var paged;
+
+			if (e.keyCode == 37) {
+				// prev page
+				paged = +e.data.view.collection.api_args.paged - 1;
+			} else if (e.keyCode == 39) {
+				// next page
+				paged = +e.data.view.collection.api_args.paged + 1;
+			}
+
+			if (paged) {
+				e.data.view.fetchPage(paged);
+			}
+
 		},
 
 		navigateToPage: function(e) {
@@ -259,6 +280,7 @@ var simple_history2 = (function($) {
 })(jQuery);
 
 /* end v2 */
+
 
 
 /**
