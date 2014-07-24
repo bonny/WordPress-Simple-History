@@ -192,6 +192,7 @@ class SimpleHistory {
 		switch ($type) {
 
 			case "overview":
+			case "occasions":
 
 				// API use SimpleHistoryLogQuery, so simply pass args on to that
 				$logQuery = new SimpleHistoryLogQuery();
@@ -1238,6 +1239,7 @@ class SimpleHistory {
 	 * Returns the HTML output for a log row, to be used in the GUI/Activity Feed
 	 *
 	 * @param array $oneLogRow SimpleHistoryLogQuery array with data from SimpleHistoryLogQuery
+	 * @return string
 	 */
 	public function getLogRowHTMLOutput($oneLogRow) {
 
@@ -1277,6 +1279,7 @@ class SimpleHistory {
 		$data_attrs = "";
 		$data_attrs .= sprintf(' data-row-id="%1$d" ', $oneLogRow->id );
 		$data_attrs .= sprintf(' data-occasions-count="%1$d" ', $occasions_count );
+		$data_attrs .= sprintf(' data-occasions-id="%1$s" ', $oneLogRow->occasionsID );
 		
 		// Generate the HTML output for a row
 		$output = sprintf(

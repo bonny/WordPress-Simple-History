@@ -18,8 +18,10 @@ class SimpleHistoryLogQuery {
 	public function query($args) {
 		
 		$defaults = array(
-			// Number of posts to show per page. -1 to show all.
-			"posts_per_page" => 5,
+			// overview | occasions
+			"type" => "overview",
+			// Number of posts to show per page. 0 to show all.
+			"posts_per_page" => 0,
 			// Page to show. 1 = first page
 			"paged" => 1,
 			// Free text search
@@ -32,17 +34,16 @@ class SimpleHistoryLogQuery {
 			// Array. Only get posts that are in array.
 			"post__in" => null,
 			// array or html
-			"format" => "array" 
+			"format" => "array"
 		);
 
 		$args = wp_parse_args( $args, $defaults );
-
 		#sf_d($args, "Run log query with args");
 
 		/*
 		Subequent occasions query thanks to this Stack Overflow thread:
 		http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
-		Similar questions that I didn't manage to understart, work, or did try:
+		Similar questions that I didn't manage to understand, work, or did try:
 		- http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
 		- http://stackoverflow.com/questions/17651868/mysql-group-by-subsequent
 		- http://stackoverflow.com/questions/4495242/mysql-number-of-subsequent-occurrences
@@ -53,58 +54,91 @@ class SimpleHistoryLogQuery {
 
 		global $wpdb;
 
-		// Set variables used by query
-		$wpdb->query("SET @a:='', @counter:=1, @groupby:=0");
-
-		// Query template
-		// 1 = where
-		// 2 = limit
-		$sql_tmpl = '
-			SELECT 
-				SQL_CALC_FOUND_ROWS
-				t.id,
-				t.logger,
-				t.level,
-				t.date,
-				t.message,
-				t.type,
-				t.initiator,
-				t.occasionsID,
-				count(REPEATED) AS subsequentOccasions,
-				t.rep,
-				t.repeated,
-				t.occasionsIDType
-			FROM 
-				(
-					SELECT 
-						id, 
-						logger, 
-						level, 
-						message, 
-						type,
-						initiator,
-						occasionsID, 
-						date, 
-						IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
-						IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
-						@a:=occasionsID occasionsIDType 
-					FROM wp_simple_history
-
-					#Add where here?
-					#WHERE 
-					#	( logger = "SimpleLogger" AND message LIKE "%cron%")
-
-					ORDER BY id DESC
-				) AS t
-			WHERE %1$s
-			GROUP BY repeated
-			ORDER BY id DESC
-			%2$s
-		';
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 
 		$where = "1 = 1";
 		$limit = "";
 
+		if ( "overview" === $args["type"] ) {
+
+			// Set variables used by query
+			$sql_set_var = "SET @a:='', @counter:=1, @groupby:=0";
+			$wpdb->query( $sql_set_var );
+
+			// Query template
+			// 1 = where
+			// 2 = limit
+			// 3 = db name
+			$sql_tmpl = '
+				SELECT 
+					SQL_CALC_FOUND_ROWS
+					t.id,
+					t.logger,
+					t.level,
+					t.date,
+					t.message,
+					t.type,
+					t.initiator,
+					t.occasionsID,
+					count(REPEATED) AS subsequentOccasions,
+					t.rep,
+					t.repeated,
+					t.occasionsIDType
+				FROM 
+					(
+						SELECT 
+							id, 
+							logger, 
+							level, 
+							message, 
+							type,
+							initiator,
+							occasionsID, 
+							date, 
+							IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
+							IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
+							@a:=occasionsID occasionsIDType 
+						FROM %3$s
+
+						#Add where here?
+						#WHERE 
+						#	( logger = "SimpleLogger" AND message LIKE "%cron%")
+
+						ORDER BY id DESC
+					) AS t
+				WHERE %1$s
+				GROUP BY repeated
+				ORDER BY id DESC
+				%2$s
+			';
+
+		} else if ( "occasions" === $args["type"] ) {
+
+			// Query template
+			// 1 = where
+			// 2 = limit
+			// 3 = db name
+			$sql_tmpl = '
+				SELECT h.*,
+					# fake columns that exist in overview query
+					1 as subsequentOccasions
+				FROM %3$s AS h
+				WHERE %1$s
+				ORDER BY id DESC
+				%2$s
+			';
+
+			$where .= " AND h.id <= " . (int) $args["logRowID"];
+			$where .= " AND h.occasionsID = '" . esc_sql( $args["occasionsID"] ) . "'";
+
+			$limit = "LIMIT " . (int) $args["occasionsCount"];
+
+			// [logRowID] =&gt; 353
+			// [occasionsID] =&gt; 73b06d5740d15e35079b6aa024255cb3
+			// [occasionsCount] =&gt; 18
+
+		}
+		
 		// Determine where-conditions
 
 		// Determine limit
@@ -116,8 +150,15 @@ class SimpleHistoryLogQuery {
 			$limit .= sprintf('LIMIT %1$d, %2$d', $limit_offset, $args["posts_per_page"] );
 		}
 
-		$sql = sprintf($sql_tmpl, $where, $limit);
-		#sf_d($sql, '$sql');
+		$sql = sprintf($sql_tmpl, $where, $limit, $table_name);
+
+		if (isset($_GET["SimpleHistoryLogQuery-showDebug"]) && $_GET["SimpleHistoryLogQuery-showDebug"]) {
+
+			echo $sql_set_var;
+			echo $sql;
+			exit;
+
+		}
 
 		$log_rows = $wpdb->get_results($sql, OBJECT_K);
 		$num_rows = sizeof($log_rows);
@@ -187,7 +228,11 @@ class SimpleHistoryLogQuery {
 		}
 
 		// Calc pages
-		$pages_count = Ceil ( $total_found_rows / (int) $args["posts_per_page"] );
+		if ( $args["posts_per_page"] ) {
+			$pages_count = Ceil ( $total_found_rows / (int) $args["posts_per_page"] );
+		} else {
+			$pages_count = 1;
+		}
 
 		// Create array to return
 		// Make all rows a sub key because we want to add some meta info too

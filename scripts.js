@@ -22,13 +22,13 @@ var simple_history2 = (function($) {
 
 		$(".simple-history-logitems-debug").append("<br>" + what);
 
-	}
+	};
 
 	var LogRowsCollection = Backbone.Collection.extend({
 
 		initialize: function() {
 
-			this.url = api_base_url + "&type=overview&format=html&posts_per_page=5";
+			this.url = api_base_url + "&type=overview&format=html&posts_per_page=20";
 
 			this.fetch({
 				reset: true,
@@ -56,13 +56,97 @@ var simple_history2 = (function($) {
 					html: row
 				});
 			});
-			
-			// debug("Parsed fetch response");
-			// debug( _.omit(resp.data, ["log_rows", "api_args"]) );
-			// debug("api args");
-			// debug( this.api_args );
 
 			return arrRows;
+		}
+
+	});
+
+	var OccasionsLogRowsCollection = Backbone.Collection.extend({
+
+		initialize: function(models, options) {
+
+			console.log("init OccasionsLogRowsCollection this", this, options);
+
+			this.url = api_base_url + "&type=occasions&format=html";
+
+			this.fetch({
+				reset: true,
+				data: {
+					logRowID: options.logRowID,
+					occasionsID: options.occasionsID,
+					occasionsCount: options.occasionsCount
+				}
+			});
+
+		},
+
+		parse: function(resp, xhr) {
+
+			this.api_args = resp.data.api_args;
+			this.max_id = resp.data.max_id;
+			this.min_id = resp.data.min_id;
+			this.pages_count = resp.data.pages_count;
+			this.total_row_count = resp.data.total_row_count;
+			this.page_rows_from = resp.data.page_rows_from;
+			this.page_rows_to = resp.data.page_rows_to;
+
+			var arrRows = [];
+			_.each(resp.data.log_rows, function(row) {
+				arrRows.push({
+					html: row
+				});
+			});
+
+			return arrRows;
+		}
+
+	});
+
+	var OccasionsView = Backbone.View.extend({
+
+		initialize: function() {
+
+			console.log("init OccasionsRowsView", this);
+
+			// this.$el.html("Loading...");
+
+			var logRowID = this.attributes.logRow.data("rowId");
+			var occasionsCount = this.attributes.logRow.data("occasionsCount");
+			var occasionsID = this.attributes.logRow.data("occasionsId");
+
+			this.logRows = new OccasionsLogRowsCollection([], {
+				logRow: this.attributes.logRow,
+				logRowID: logRowID,
+				occasionsID: occasionsID,
+				occasionsCount: occasionsCount
+			});
+
+			this.logRows.on("reset", this.render, this);
+
+			// Change "+2 more" to "Loading..."
+			this.$el.find(".simple-history-logitem__occasions").html( "Loading..." );
+
+		},
+
+		render: function() {
+			
+			var $html = $([]);
+			
+			this.logRows.each(function(model) {
+				var $li = $(model.get("html"));
+				$li.addClass("simple-history-logitem--occasion");
+				// $li.addClass("simple-history-logitem--occasion");
+				$html = $html.add($li);
+			});
+
+			this.$el.after($html);
+			this.$el.addClass("simple-history-logitem--occasionsOpened");
+
+			// Force repain before adding class
+			var redraw = $html.get(0).offsetHeight;
+			$html.addClass("simple-history-logitem--occasionAdded");
+
 		}
 
 	});
@@ -93,9 +177,29 @@ var simple_history2 = (function($) {
 
 			var $target = $(e.target);
 			var $logRow = $target.closest(".simple-history-logitem");
-			var logRowID = $logRow.data("rowId");
 
-			console.log("show occasions", logRowID, $target);
+			//console.log("show occasions", logRowID, $target);
+
+			/*
+			to get occasions for an id:
+			get all rows that have a lower id than logRowID and have the same occasions id
+			but limit to occasions-count
+			*/
+			/*
+			var $occasionsElm = $("<ul />", {
+				class: "simple-history-logitem__occasionsItems"
+			});
+			
+			$logRow.append($occasionsElm);
+			*/
+
+			this.occasionsView = new OccasionsView({
+				//el: $occasionsElm,
+				el: $logRow,
+				attributes: {
+					logRow: $logRow
+				}
+			});
 
 		},
 
