@@ -11,9 +11,11 @@ The spinner that wp uses:;
 	float: left;
 	width: 650px;
 	max-width: 650px;
+	transition: opacity .1s ease-out;
 }
 
 .simple-history-logitems {
+	margin: 0;
 	background: #fff;
 	border: 1px solid rgb(229, 229, 229);
 }
@@ -142,6 +144,17 @@ Styles for filter
 /*
 Pagination, below logRows
 */
+
+.simple-history-logitems-pagination {}
+
+.SimpleHistoryPaginationPages {
+	text-align: center;
+	background: white;
+	border: 1px solid rgb(229, 229, 229);
+	padding: 10px 0;
+	margin-top: -1px;
+}
+
 .SimpleHistoryPaginationLink.SimpleHistoryPaginationLink {
 	line-height: 30px;
 	background: rgb(238, 238, 238);
@@ -161,4 +174,16 @@ Pagination, below logRows
 	background: rgb(238, 238, 238);
 	background: rgba(0, 0, 0, 0.05);
 	cursor: default;
+}
+
+.SimpleHistoryPaginationCurrentPage {
+	padding-top: 0;
+	text-align: center;
+}
+
+/*
+animations/effects
+*/
+.SimpleHistory-isLoadingPage .simple-history-logitems-wrap {
+	opacity: .5;
 }

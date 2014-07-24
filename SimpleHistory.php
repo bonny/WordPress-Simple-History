@@ -113,9 +113,10 @@ class SimpleHistory {
 			<script type="text/html" id="tmpl-simple-history-logitems-pagination">
 				
 				<!-- this uses the (almost) the same html as WP does -->
-				<div class="tablenav-pages">
-					<span class="displaying-num"><%= total_row_count %> rows</span>
-					<span class="pagination-links">
+				<div class="SimpleHistoryPaginationPages">
+					<%= page_rows_from %>–<%= page_rows_to %>
+					<span class="SimpleHistoryPaginationDisplayNum"> of <%= total_row_count %></span>
+					<span class="SimpleHistoryPaginationLinks">
 						<a 	
 							data-direction="first" 
 							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--firstPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
@@ -126,8 +127,8 @@ class SimpleHistory {
 							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--prevPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
 							title="<%= strings.goToThePrevPage %>"
 							href="#">‹</a>
-						<span class="paging-input">
-							<input class="current-page" title="<%= strings.currentPage %>" type="text" name="paged" value="<%= api_args.paged %>" size="1">
+						<span class="SimpleHistoryPaginationInput">
+							<input class="SimpleHistoryPaginationCurrentPage" title="<%= strings.currentPage %>" type="text" name="paged" value="<%= api_args.paged %>" size="1">
 							of 
 							<span class="total-pages"><%= pages_count %></span>
 						</span>

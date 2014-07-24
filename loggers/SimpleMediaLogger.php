@@ -219,7 +219,7 @@ class SimpleMediaLogger extends SimpleLogger
 			}
 
 			$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-meta'>";
-			$message .= "<span class='simple-history-logitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span>";
+			$message .= "<span class='simple-history-logitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span> ";
 			$message .= "<span class='simple-history-logitem__inlineDivided'>" . __('{attachment_filetype_extension}', "simple-history") . "</span>";
 			if ($full_image_width && $full_image_height) {
 				$message .= " <span class='simple-history-logitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}') . "</span>";

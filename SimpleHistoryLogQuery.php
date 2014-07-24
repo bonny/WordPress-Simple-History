@@ -191,11 +191,18 @@ class SimpleHistoryLogQuery {
 
 		// Create array to return
 		// Make all rows a sub key because we want to add some meta info too
+		$log_rows_count = sizeof( $log_rows );
+		$page_rows_from = ( (int) $args["paged"] * (int) $args["posts_per_page"] ) - (int) $args["posts_per_page"] + 1;
+		$page_rows_to = $page_rows_from + $log_rows_count - 1;
 		$arr_return = array(
 			"total_row_count" => $total_found_rows,
 			"pages_count" => $pages_count,
-			"max_id" => $max_id,
-			"min_id" => $min_id,
+			"page_current" => (int) $args["paged"],
+			"page_rows_from" => $page_rows_from,
+			"page_rows_to" => $page_rows_to,
+			"max_id" => (int) $max_id,
+			"min_id" => (int) $min_id,
+			"log_rows_count" => $log_rows_count,
 			"log_rows" => $log_rows,
 		);
 

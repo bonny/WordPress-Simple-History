@@ -47,6 +47,8 @@ var simple_history2 = (function($) {
 			this.min_id = resp.data.min_id;
 			this.pages_count = resp.data.pages_count;
 			this.total_row_count = resp.data.total_row_count;
+			this.page_rows_from = resp.data.page_rows_from;
+			this.page_rows_to = resp.data.page_rows_to;
 
 			var arrRows = [];
 			_.each(resp.data.log_rows, function(row) {
@@ -94,16 +96,28 @@ var simple_history2 = (function($) {
 			
 			this.template = $("#tmpl-simple-history-logitems-pagination").html();
 
-			// this.render();
 			this.collection.on("reset", this.render, this);
 
 		},
 
 		events: {
-			"click .SimpleHistoryPaginationLink": "navigate",
+			"click .SimpleHistoryPaginationLink": "navigateArrow",
+			"keyup .SimpleHistoryPaginationCurrentPage": "navigateToPage"
 		},
 
-		navigate: function(e) {
+		navigateToPage: function(e) {
+
+			// keycode 13 = enter
+			if (e.keyCode == 13) {
+				
+				var $target = $(e.target);
+				this.fetchPage( parseInt( $target.val() ) );
+
+			}
+
+		},
+
+		navigateArrow: function(e) {
 			
 			e.preventDefault();
 			var $target = $(e.target);
@@ -136,14 +150,30 @@ var simple_history2 = (function($) {
 					break;
 
 			}
+
+			this.fetchPage(paged);
 			
+		},
+
+		fetchPage: function(paged) {
+
+			$("html").addClass("SimpleHistory-isLoadingPage");
+
 			// nav = fetch collection items again
 			this.collection.fetch({
 				reset: true,
 				data: {
 					paged: paged
+				},
+				success: function() {
+					$("html").removeClass("SimpleHistory-isLoadingPage");
 				}
 			});
+
+			$("html, body").animate({
+				scrollTop: 0
+			}, 350);
+
 
 		},
 
@@ -156,6 +186,8 @@ var simple_history2 = (function($) {
 				max_id: this.collection.max_id,
 				pages_count: this.collection.pages_count,
 				total_row_count: this.collection.total_row_count,
+				page_rows_from: this.collection.page_rows_from,
+				page_rows_to: this.collection.page_rows_to,
 				api_args: this.collection.api_args,
 				strings: simple_history_script_vars.pagination
 			}) );
@@ -195,6 +227,7 @@ var simple_history2 = (function($) {
 
 			var html = ' \
 				<div class="simple-history-logitems-wrap"> \
+					<div class="simple-history-logitems-pagination"></div> \
 					<ul class="simple-history-logitems"></ul> \
 					<div class="simple-history-logitems-pagination"></div> \
 				</div> \
