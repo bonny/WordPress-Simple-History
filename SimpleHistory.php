@@ -1274,10 +1274,14 @@ class SimpleHistory {
 
 		}
 
+		$data_attrs = "";
+		$data_attrs .= sprintf(' data-row-id="%1$d" ', $oneLogRow->id );
+		$data_attrs .= sprintf(' data-occasions-count="%1$d" ', $occasions_count );
+		
 		// Generate the HTML output for a row
 		$output = sprintf(
 			'
-				<li class="simple-history-logitem simple-history-logitem--loglevel-%5$s simple-history-logitem--logger-%7$s">
+				<li %8$s class="simple-history-logitem simple-history-logitem--loglevel-%5$s simple-history-logitem--logger-%7$s">
 					<div class="simple-history-logitem__firstcol">
 						<div class="simple-history-logitem__senderImage">%3$s</div>
 					</div>
@@ -1295,7 +1299,8 @@ class SimpleHistory {
 			$occasions_html, // 4
 			$oneLogRow->level, // 5
 			$details_html, // 6
-			$oneLogRow->logger // 7
+			$oneLogRow->logger, // 7
+			$data_attrs // 8 data attributes
 		);
 
 		// Get the main message row.

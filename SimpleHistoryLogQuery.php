@@ -181,7 +181,7 @@ class SimpleHistoryLogQuery {
 			
 			$results = $wpdb->get_results( $sql );
 
-			// the last occassion has the id we consider last in this paged result
+			// the last occasion has the id we consider last in this paged result
 			$min_id = end($results)->id;
 
 		}

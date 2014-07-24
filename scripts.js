@@ -75,6 +75,30 @@ var simple_history2 = (function($) {
 
 		},
 
+		events: {
+			"click .simple-history-logitem__occasions a": "showOccasions",
+			"click .simple-history-logitem__permalink": "permalink"
+		},
+
+		permalink: function(e) {
+
+			e.preventDefault();
+			console.log("permalink");
+
+		},
+
+		showOccasions: function(e) {
+
+			e.preventDefault();
+
+			var $target = $(e.target);
+			var $logRow = $target.closest(".simple-history-logitem");
+			var logRowID = $logRow.data("rowId");
+
+			console.log("show occasions", logRowID, $target);
+
+		},
+
 		render: function() {
 
 			var html = "";
