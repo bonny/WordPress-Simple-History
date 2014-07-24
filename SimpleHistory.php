@@ -527,7 +527,10 @@ class SimpleHistory {
 
 		$current_screen = get_current_screen();
 
-		if ($current_screen && $current_screen->base == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) {
+		if ( $current_screen && $current_screen->base == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG ) {
+			return true;
+
+		} else if ( $current_screen && $current_screen->base == "dashboard_page_simple_history_page" ) {
 
 			return true;
 
@@ -551,7 +554,6 @@ class SimpleHistory {
 	
 			$plugin_url = plugin_dir_url(__FILE__);
 			wp_enqueue_style( "simple_history_styles", $plugin_url . "styles.css", false, SimpleHistory::VERSION );	
-			wp_enqueue_style( "simple_history_2_styles", $plugin_url . "styles-v2.css", false, SimpleHistory::VERSION );	
 			wp_enqueue_script("simple_history_script", $plugin_url . "scripts.js", array("jquery", "backbone"), SimpleHistory::VERSION, true);
 
 			// Translations that we use in JavaScript
@@ -678,7 +680,7 @@ class SimpleHistory {
 			<h2><?php _e("Simple History Settings", "simple-history") ?></h2>
 			
 			<?php
-			$active_tab = isset( $_GET["selected-tab"] ) ? $_GET["selected-tab"] : "general";
+			$active_tab = isset( $_GET["selected-tab"] ) ? $_GET["selected-tab"] : "settings";
 			$settings_base_url = menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0);
 			?>
 
@@ -829,23 +831,17 @@ class SimpleHistory {
 	 */
 	function history_page_output() {
 
-		global $simple_history;
+		//global $simple_history;
 
-		$this->purge_db();
+		//$this->purge_db();
 
 		?>
 
 		<div class="wrap simple-history-wrap">
 			
 			<h2><?php echo _x("History", 'history page headline', 'simple-history') ?></h2>
-			
-			<?php	
-			
-			simple_history_print_nav(array("from_page=1"));
-			echo simple_history_print_history(array("items" => $simple_history->get_pager_size(), "from_page" => "1"));
-			echo simple_history_get_pagination();
-			
-			?>
+	
+			<div class="simple-history-gui"></div>
 
 		</div>
 
