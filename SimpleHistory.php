@@ -155,7 +155,9 @@ class SimpleHistory {
 						<div class="SimpleHistory-modal__contentInner">
 							<img class="SimpleHistory-modal__contentSpinner" src="<?php echo admin_url("/images/spinner.gif");?>" alt="">
 						</div>
-						<div class="SimpleHistory-modal__contentClose"></div>
+						<div class="SimpleHistory-modal__contentClose">
+							<button class="button">✕</button>
+						</div>
 					</div>
 				</div>
 

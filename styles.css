@@ -311,6 +311,16 @@ Modal window with detailss
 	margin-top: 20px;
 }
 
+.SimpleHistory-modal__contentClose {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+}
+
+.SimpleHistory-modal__contentClose button {
+	cursor: pointer;
+}
+
 /* if wp left meny is collapsed .folded is added and meny width is 36 px */
 .folded .SimpleHistory-modal__content {
 	left: 156px; /* admin meny width is 160 px*/

@@ -182,7 +182,8 @@ var simple_history2 = (function($) {
 		},
 
 		events: {
-			"click .SimpleHistory-modal__background": "close"
+			"click .SimpleHistory-modal__background": "close",
+			"click .SimpleHistory-modal__contentClose": "close"
 		},
 
 		show: function() {
