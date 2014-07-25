@@ -125,7 +125,8 @@ var simple_history2 = (function($) {
 			this.logRows.on("reset", this.render, this);
 
 			// Change "+2 more" to "Loading..."
-			this.$el.find(".simple-history-logitem__occasions").html( "Loading..." );
+			//this.attributes.logRow.find(".simple-history-logitem__occasions").html( "Loading..." );
+			this.attributes.logRow.addClass("simple-history-logitem--occasionsOpening");
 
 		},
 
@@ -140,12 +141,15 @@ var simple_history2 = (function($) {
 				$html = $html.add($li);
 			});
 
-			this.$el.after($html);
-			this.$el.addClass("simple-history-logitem--occasionsOpened");
+			this.$el.html($html);
+			
+			//this.$el.addClass("simple-history-logitem--occasionsOpened");
+			this.attributes.logRow.removeClass("simple-history-logitem--occasionsOpening").addClass("simple-history-logitem--occasionsOpened");
 
 			// Force repain before adding class
-			var redraw = $html.get(0).offsetHeight;
-			$html.addClass("simple-history-logitem--occasionAdded");
+			//var redraw = $html.get(0).offsetHeight;
+			//$html.addClass("simple-history-logitem--occasionAdded");
+			this.$el.addClass("haveOccasionsAdded");
 
 		}
 
@@ -185,17 +189,14 @@ var simple_history2 = (function($) {
 			get all rows that have a lower id than logRowID and have the same occasions id
 			but limit to occasions-count
 			*/
-			/*
-			var $occasionsElm = $("<ul />", {
-				class: "simple-history-logitem__occasionsItems"
-			});
 			
-			$logRow.append($occasionsElm);
-			*/
+			var $occasionsElm = $("<li class='simple-history-logitem__occasionsItemsWrap'><ul class='simple-history-logitem__occasionsItems'/></li>");
+			
+			$logRow.after($occasionsElm);
 
 			this.occasionsView = new OccasionsView({
-				//el: $occasionsElm,
-				el: $logRow,
+				el: $occasionsElm.find(".simple-history-logitem__occasionsItems"),
+				//el: $logRow,
 				attributes: {
 					logRow: $logRow
 				}

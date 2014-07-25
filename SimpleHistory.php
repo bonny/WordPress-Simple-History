@@ -1264,14 +1264,28 @@ class SimpleHistory {
 		if ($occasions_count > 0) {
 
 			$occasions_html = '<div class="simple-history-logitem__occasions">';
-			$occasions_html .= '<a href="#">';
 			
+			$occasions_html .= '<a href="#" class="simple-history-logitem__occasionsLink">';
 			$occasions_html .= sprintf(
-				'+%1$s more',
+				__('+%1$s more', "simple-history"),
 				$occasions_count
 			);
-
 			$occasions_html .= '</a>';
+
+			$occasions_html .= '<span class="simple-history-logitem__occasionsLoading">';
+			$occasions_html .= sprintf(
+				__('Loading…', "simple-history"),
+				$occasions_count
+			);
+			$occasions_html .= '</span>';
+
+			$occasions_html .= '<span class="simple-history-logitem__occasionsLoaded">';
+			$occasions_html .= sprintf(
+				__('Showing %1$s more', "simple-history"),
+				$occasions_count
+			);
+			$occasions_html .= '</span>';
+			
 			$occasions_html .= '</div>';
 
 		}

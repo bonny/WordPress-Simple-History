@@ -21,10 +21,12 @@ The spinner that wp uses:;
 }
 
 .simple-history-logitem {
+	position: relative;
 	margin: 0;
 	padding: 15px 15px 15px 11px;
 	border-bottom: 1px solid rgb(229, 229, 229);
 	border-left: 4px solid transparent;
+	overflow: hidden;
 }
 
 /*
@@ -130,16 +132,45 @@ There is always a 4px left border, just with differents colors
 }
 
 /*
-when occasions are clicked in a row
+when occasions are added
 */
-.simple-history-logitem--occasionsOpened .simple-history-logitem__occasions {
-	/*display: none;*/
-	opacity: 0;
-/*	max-height: 0;
-	overflow: hidden;
-*/	
-	transition: all .25s ease-in-out;
+
+/* when occasions is loaded and have loaded hide the "show occasions"-link*/
+.simple-history-logitem--occasionsOpening .simple-history-logitem__occasionsLink,
+.simple-history-logitem--occasionsOpened .simple-history-logitem__occasionsLink {
+	display: none;
 }
+
+/* hide the "loading" and "loaded occasions" text */
+.simple-history-logitem__occasionsLoading,
+.simple-history-logitem__occasionsLoaded {
+	display: none;
+}
+
+/* show texts during load and when load is done */
+.simple-history-logitem--occasionsOpening .simple-history-logitem__occasionsLoading,
+.simple-history-logitem--occasionsOpened .simple-history-logitem__occasionsLoaded {
+	display: block;
+}
+
+/* occasions are added to a wrapper element */
+.simple-history-logitem__occasionsItemsWrap {
+	margin: 0;
+	padding: 0;
+}
+
+.simple-history-logitem__occasionsItems {
+	opacity: 0;
+	max-height: 0;
+	transition: all .5s ease-in-out;
+}
+
+.simple-history-logitem__occasionsItems.haveOccasionsAdded {
+	opacity: 1;
+	max-height: 10000px;
+}
+
+/*
 
 .simple-history-logitem--occasion {
 	opacity: 0;
@@ -148,8 +179,22 @@ when occasions are clicked in a row
 	max-height: 0;
 	border-top-width : 0;
 	border-bottom-width : 0;
-	overflow: hidden;
 }
+*/
+
+/*
+.simple-history-logitem--occasionsOpened:after,
+.simple-history-logitem--occasion:after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	bottom: 3px;
+	left: 20px;
+	width: 2px;
+	background: rgba(0,0,0,0.3);
+	border-radius: 3px / 7px;
+}
+*/
 
 /* when the occasions log rows have been added show them in some kinda fancy way */
 .simple-history-logitem--occasionAdded {
@@ -159,9 +204,9 @@ when occasions are clicked in a row
 	border-bottom-width : 1px;
 	padding-top: 15px;
 	padding-bottom: 15px;
-	transition: all .80s ease-out;
+	transition: all .4s ease-out;
+	/*padding-left: 40px;*/
 }
-
 
 /*
 Styles for filter
