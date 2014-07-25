@@ -215,7 +215,7 @@ class SimpleLogger
 
 		$date_html = "<a class='simple-history-logitem__permalink simple-history-logitem__when simple-history-logitem__inlineDivided' href=''>";
 		$date_html .= sprintf(
-			'<time datetime="%1$s" class="">%2$s</time>',
+			'<time datetime="%1$s" title="%1$s" class="">%2$s</time>',
 			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
 			$str_when
 		);

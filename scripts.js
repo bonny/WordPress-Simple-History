@@ -107,10 +107,6 @@ var simple_history2 = (function($) {
 
 		initialize: function() {
 
-			console.log("init OccasionsRowsView", this);
-
-			// this.$el.html("Loading...");
-
 			var logRowID = this.attributes.logRow.data("rowId");
 			var occasionsCount = this.attributes.logRow.data("occasionsCount");
 			var occasionsID = this.attributes.logRow.data("occasionsId");
@@ -124,8 +120,11 @@ var simple_history2 = (function($) {
 
 			this.logRows.on("reset", this.render, this);
 
-			// Change "+2 more" to "Loading..."
-			//this.attributes.logRow.find(".simple-history-logitem__occasions").html( "Loading..." );
+			// Trigger event for plugins
+			this.collection.on("reset", function() {
+				$(document).trigger("SimpleHistory:occasionsLoaded");
+			}, this);
+
 			this.attributes.logRow.addClass("simple-history-logitem--occasionsOpening");
 
 		},
@@ -137,18 +136,13 @@ var simple_history2 = (function($) {
 			this.logRows.each(function(model) {
 				var $li = $(model.get("html"));
 				$li.addClass("simple-history-logitem--occasion");
-				// $li.addClass("simple-history-logitem--occasion");
 				$html = $html.add($li);
 			});
 
 			this.$el.html($html);
 			
-			//this.$el.addClass("simple-history-logitem--occasionsOpened");
 			this.attributes.logRow.removeClass("simple-history-logitem--occasionsOpening").addClass("simple-history-logitem--occasionsOpened");
 
-			// Force repain before adding class
-			//var redraw = $html.get(0).offsetHeight;
-			//$html.addClass("simple-history-logitem--occasionAdded");
 			this.$el.addClass("haveOccasionsAdded");
 
 		}
@@ -160,6 +154,11 @@ var simple_history2 = (function($) {
 		initialize: function() {
 			
 			this.collection.on("reset", this.render, this);
+
+			// Trigger event for plugins
+			this.collection.on("reset", function() {
+				$(document).trigger("SimpleHistory:logLoaded");
+			}, this);
 
 		},
 
@@ -180,23 +179,13 @@ var simple_history2 = (function($) {
 			e.preventDefault();
 
 			var $target = $(e.target);
-			var $logRow = $target.closest(".simple-history-logitem");
-
-			//console.log("show occasions", logRowID, $target);
-
-			/*
-			to get occasions for an id:
-			get all rows that have a lower id than logRowID and have the same occasions id
-			but limit to occasions-count
-			*/
-			
+			var $logRow = $target.closest(".simple-history-logitem");	
 			var $occasionsElm = $("<li class='simple-history-logitem__occasionsItemsWrap'><ul class='simple-history-logitem__occasionsItems'/></li>");
 			
 			$logRow.after($occasionsElm);
 
 			this.occasionsView = new OccasionsView({
 				el: $occasionsElm.find(".simple-history-logitem__occasionsItems"),
-				//el: $logRow,
 				attributes: {
 					logRow: $logRow
 				}
@@ -396,5 +385,7 @@ var simple_history2 = (function($) {
 	});
 
 	var mainView = new MainView();
+
+	return mainView;
 
 })(jQuery);
