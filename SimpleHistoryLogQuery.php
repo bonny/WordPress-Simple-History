@@ -59,7 +59,7 @@ class SimpleHistoryLogQuery {
 		$where = "1 = 1";
 		$limit = "";
 
-		if ( "overview" === $args["type"] ) {
+		if ( "overview" === $args["type"] || "single" === $args["type"] ) {
 
 			// Set variables used by query
 			$sql_set_var = "SET @a:='', @counter:=1, @groupby:=0";
@@ -100,9 +100,7 @@ class SimpleHistoryLogQuery {
 							@a:=occasionsID occasionsIDType 
 						FROM %3$s
 
-						#Add where here?
-						#WHERE 
-						#	( logger = "SimpleLogger" AND message LIKE "%cron%")
+						#Add where here
 
 						ORDER BY id DESC
 					) AS t
@@ -148,6 +146,13 @@ class SimpleHistoryLogQuery {
 		if ($is_limit_query) {
 			$limit_offset = ($args["paged"] - 1) * $args["posts_per_page"];
 			$limit .= sprintf('LIMIT %1$d, %2$d', $limit_offset, $args["posts_per_page"] );
+		}
+
+		// Determine where
+		if ( $args["post__in"] && is_array( $args["post__in"] ) ) {
+
+			$where .= sprintf(' AND t.id IN (%1$s)', implode(",", $args["post__in"]));
+
 		}
 
 		$sql = sprintf($sql_tmpl, $where, $limit, $table_name);

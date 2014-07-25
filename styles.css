@@ -22,6 +22,7 @@ The spinner that wp uses:;
 
 .simple-history-logitem {
 	position: relative;
+	list-style-type: none;
 	margin: 0;
 	padding: 15px 15px 15px 11px;
 	border-bottom: 1px solid rgb(229, 229, 229);
@@ -274,3 +275,57 @@ animations/effects
 .SimpleHistory-isLoadingPage .simple-history-logitems-wrap {
 	opacity: .5;
 }
+
+/*
+Modal window with detailss
+*/
+.SimpleHistory-modal {
+}
+
+
+.SimpleHistory-modal__background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.2);
+	z-index: 10;
+}
+
+.SimpleHistory-modal__content {
+	background: white;
+	border-radius: 4px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	bottom: 60px;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+	left: 280px; /* admin meny width is 160 px*/
+	position: fixed;
+	right: 120px;
+	top: 60px;
+	z-index: 15;
+}
+
+.SimpleHistory-modal__content--enter {
+	-webkit-transition: all .15s ease-out;
+	        transition: all .159 ease-out;
+	-webkit-transform: scale(0.95);
+	        transform: scale(0.95);
+	opacity: 0;
+}
+
+.SimpleHistory-modal__content--enter-active {
+	opacity: 1;
+	-webkit-transform: scale(1);
+	        transform: scale(1);
+}
+
+.admin-bar .SimpleHistory-modal__content {
+	top: 92px; /* admin bar height is 32 px*/
+}
+
+/* if wp left meny is collapsed .folded is added */
+.folded {
+
+}
+

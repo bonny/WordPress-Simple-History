@@ -110,7 +110,9 @@ var simple_history2 = (function($) {
 			var logRowID = this.attributes.logRow.data("rowId");
 			var occasionsCount = this.attributes.logRow.data("occasionsCount");
 			var occasionsID = this.attributes.logRow.data("occasionsId");
-
+			
+			this.attributes.logRow.addClass("simple-history-logitem--occasionsOpening");
+			
 			this.logRows = new OccasionsLogRowsCollection([], {
 				logRow: this.attributes.logRow,
 				logRowID: logRowID,
@@ -121,11 +123,9 @@ var simple_history2 = (function($) {
 			this.logRows.on("reset", this.render, this);
 
 			// Trigger event for plugins
-			this.collection.on("reset", function() {
+			this.logRows.on("reset", function() {
 				$(document).trigger("SimpleHistory:occasionsLoaded");
 			}, this);
-
-			this.attributes.logRow.addClass("simple-history-logitem--occasionsOpening");
 
 		},
 
@@ -144,6 +144,56 @@ var simple_history2 = (function($) {
 			this.attributes.logRow.removeClass("simple-history-logitem--occasionsOpening").addClass("simple-history-logitem--occasionsOpened");
 
 			this.$el.addClass("haveOccasionsAdded");
+
+		}
+
+	});
+
+	var DetailsModel = Backbone.Model.extend({
+		url: api_base_url + "&type=single&format=html"
+	});
+
+	/**
+	 * DetailsView is a modal popup thingie with all info about a LogRow
+	 */
+	var DetailsView = Backbone.View.extend({
+
+		initialize: function(attributes) {
+			
+			this.model.fetch({
+				data: {
+					id: this.model.get("id")
+				}
+			});
+			
+			this.listenTo(this.model, "change", this.render);
+
+		},
+
+		render: function() {
+			
+			var modalClass = "SimpleHistory-modal";
+			var $modalEl = $("." + modalClass);
+
+			$modalEl = $("<div>", {
+				class: modalClass
+			});
+
+			$modalEl.append("<div class='SimpleHistory-modal__background'></div>");
+			
+			var $modalContentEl = $("<div>", {
+				class: "SimpleHistory-modal__content SimpleHistory-modal__content--enter"
+			});
+		
+			var logRowLI = this.model.get("data").log_rows[0];
+			// $modalContentEl.html();
+			$modalContentEl.append(logRowLI);
+			$modalEl.append($modalContentEl);
+			$modalEl.appendTo("body");
+
+			// Force repaint before adding active class
+			var offsetHeight = $modalContentEl.get(0).offsetHeight;
+			$modalContentEl.addClass("SimpleHistory-modal__content--enter-active");
 
 		}
 
@@ -170,7 +220,21 @@ var simple_history2 = (function($) {
 		permalink: function(e) {
 
 			e.preventDefault();
-			console.log("permalink");
+
+			var $target = $(e.target);
+			var $logRow = $target.closest(".simple-history-logitem");
+			var logRowID = $logRow.data("rowId");
+		
+			var detailsModel = new DetailsModel({
+				id: logRowID
+			});
+
+			var detailsView = new DetailsView({
+				model: detailsModel,
+				attributes: {
+					logRow: $logRow
+				}
+			});
 
 		},
 
@@ -339,6 +403,10 @@ var simple_history2 = (function($) {
 
 		initialize: function() {
 
+			this.logRouter = new LogRouter();
+			Backbone.history.start();
+
+
 			this.addNeededElements();
 
 			this.logRowsCollection = new LogRowsCollection;
@@ -380,6 +448,18 @@ var simple_history2 = (function($) {
 
 			//console.log(this.logRows);
 
+		}
+
+	});
+
+	var LogRouter = Backbone.Router.extend({
+
+		routes: {
+			"help": "help"
+		},
+
+		help: function() {
+			console.log("help");
 		}
 
 	});

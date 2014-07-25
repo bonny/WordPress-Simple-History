@@ -187,12 +187,20 @@ class SimpleHistory {
 
 		}
 
+		if (isset($args["id"])) {
+			$args["post__in"] = array(
+				$args["id"]
+			);
+		}
+
+
 		$data = array();
 
 		switch ($type) {
 
 			case "overview":
 			case "occasions":
+			case "single":
 
 				// API use SimpleHistoryLogQuery, so simply pass args on to that
 				$logQuery = new SimpleHistoryLogQuery();
@@ -213,6 +221,7 @@ class SimpleHistory {
 				}
 
 				break;
+
 
 			default:
 				$data[] = "Nah.";
