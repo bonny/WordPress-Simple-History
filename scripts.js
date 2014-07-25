@@ -165,31 +165,54 @@ var simple_history2 = (function($) {
 					id: this.model.get("id")
 				}
 			});
+
+			this.template = $("#tmpl-simple-history-logitems-modal").html();
 			
 			this.listenTo(this.model, "change", this.render);
 
 		},
 
+		events: {
+			"click .SimpleHistory-modal__background": "hide"
+		},
+
+		hide: function() {
+			
+			console.log("hide");
+			var $modalContentEl = this.$el.find(".SimpleHistory-modal__content");
+			$modalContentEl.addClass("SimpleHistory-modal__content--leave");
+			
+			// Force repaint before adding active class
+			var offsetHeight = $modalContentEl.get(0).offsetHeight;
+			
+			$modalContentEl.addClass("SimpleHistory-modal__content--leave-active");
+			this.$el.addClass("SimpleHistory-modal__leave-active");
+
+			// Remove element after fade out so we can show another one
+			var $el = this.$el;
+			setTimeout(function() {
+				$el.remove();
+			}, 400);
+
+
+		},
+
 		render: function() {
 			
-			var modalClass = "SimpleHistory-modal";
-			var $modalEl = $("." + modalClass);
-
-			$modalEl = $("<div>", {
-				class: modalClass
-			});
-
-			$modalEl.append("<div class='SimpleHistory-modal__background'></div>");
+			var $modalEl = $(".SimpleHistory-modal");
 			
-			var $modalContentEl = $("<div>", {
-				class: "SimpleHistory-modal__content SimpleHistory-modal__content--enter"
-			});
+			if (!$modalEl.length) {
+				$modalEl = $(this.template);
+				$modalEl.appendTo("body");
+			}
+
+			this.setElement($modalEl);
+	
+			var $modalContentEl = $modalEl.find(".SimpleHistory-modal__content");
+			$modalContentEl.addClass("SimpleHistory-modal__content--enter");
 		
 			var logRowLI = this.model.get("data").log_rows[0];
-			// $modalContentEl.html();
 			$modalContentEl.append(logRowLI);
-			$modalEl.append($modalContentEl);
-			$modalEl.appendTo("body");
 
 			// Force repaint before adding active class
 			var offsetHeight = $modalContentEl.get(0).offsetHeight;

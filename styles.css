@@ -306,9 +306,21 @@ Modal window with detailss
 	z-index: 15;
 }
 
+/* if wp left meny is collapsed .folded is added and meny width is 36 px */
+.folded .SimpleHistory-modal__content {
+	left: 156px; /* admin meny width is 160 px*/
+}
+@media only screen and (max-width: 900px) {
+	.SimpleHistory-modal__content {
+		left: 156px; /* admin meny width is 160 px*/
+	}
+}
+
+
+
 .SimpleHistory-modal__content--enter {
 	-webkit-transition: all .15s ease-out;
-	        transition: all .159 ease-out;
+	        transition: all .15s ease-out;
 	-webkit-transform: scale(0.95);
 	        transform: scale(0.95);
 	opacity: 0;
@@ -320,12 +332,22 @@ Modal window with detailss
 	        transform: scale(1);
 }
 
-.admin-bar .SimpleHistory-modal__content {
-	top: 92px; /* admin bar height is 32 px*/
+.SimpleHistory-modal__content--leave-active {
+	opacity: 0;
+	-webkit-transform: scale(0.95);
+	        transform: scale(0.95);
 }
 
-/* if wp left meny is collapsed .folded is added */
-.folded {
+.SimpleHistory-modal__leave-active {
+	
+	-webkit-transition: all .15s .15s ease-out, visibility 0s .30s;
+	        transition: all .15s .15s ease-out, visibility 0s .30s;
 
+	opacity: 0;
+	visibility: hidden;
+}
+
+.admin-bar .SimpleHistory-modal__content {
+	top: 92px; /* admin bar height is 32 px*/
 }
 

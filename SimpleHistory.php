@@ -89,7 +89,7 @@ class SimpleHistory {
 
 		add_action( 'wp_ajax_simple_history_api', array($this, 'api') );
 
-		add_action( 'admin_footer', array( $this, "add_templates" ) );
+		add_action( 'admin_footer', array( $this, "add_js_templates" ) );
 
 		/**
 	     * Fires after Simple History has done it's init stuff
@@ -105,7 +105,7 @@ class SimpleHistory {
 	/**
 	 * Output JS templated into footer
 	 */
-	public function add_templates($hook) {
+	public function add_js_templates($hook) {
 		
 		if ( $this->is_on_our_own_pages() ) {
 
@@ -145,15 +145,18 @@ class SimpleHistory {
 					</span>
 				</div>
 
-				<!--
-				<br>min_id: <%= min_id %>
-				<br>max_id: <%= max_id %>
-				<br>posts_per_page: <%= api_args.posts_per_page %>
-				-->
+			</script>
+
+			<script type="text/html" id="tmpl-simple-history-logitems-modal">
+
+				<div class="SimpleHistory-modal">
+					<div class="SimpleHistory-modal__background"></div>
+					<div class="SimpleHistory-modal__content"></div>
+				</div>
 
 			</script>
-			<?php
 
+			<?php
 		}
 
 	}
@@ -1256,8 +1259,8 @@ class SimpleHistory {
 		$plain_text_html = $this->getLogRowPlainTextOutput($oneLogRow);
 		$sender_image_html = $this->getLogRowSenderImageOutput($oneLogRow);
 		
+		// Details = for example thumbnail of media
 		$details_html = trim( $this->getLogRowDetailsOutput($oneLogRow) );
-
 		if ($details_html) {
 
 			$details_html = sprintf(
