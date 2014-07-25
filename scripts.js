@@ -222,7 +222,7 @@ var simple_history2 = (function($) {
 				view.$el.remove();
 				$(document).off("keyup.simplehistory.modal");
 				view.remove();
-				Backbone.history.navigate("");
+				Backbone.history.navigate("overview");
 			}, 400);
 
 		},
@@ -263,7 +263,7 @@ var simple_history2 = (function($) {
 			var $logRow = $target.closest(".simple-history-logitem");
 			var logRowID = $logRow.data("rowId");
 			
-			Backbone.history.navigate("itemDetails/" + logRowID, { trigger: true });
+			Backbone.history.navigate("item/" + logRowID, { trigger: true });
 
 		},
 
@@ -486,10 +486,11 @@ var simple_history2 = (function($) {
 	var LogRouter = Backbone.Router.extend({
 
 		routes: {
-			"itemDetails/:number": "itemDetails"
+			"item/:number": "item",
+			'*default': 'default'
 		},
 
-		itemDetails: function(logRowID) {
+		item: function(logRowID) {
 			
 			var detailsModel = new DetailsModel({
 				id: logRowID
@@ -498,6 +499,13 @@ var simple_history2 = (function($) {
 			var detailsView = new DetailsView({
 				model: detailsModel
 			});
+
+		},
+
+		default: function() {
+
+			console.log("Default router");
+			return false;
 
 		}
 

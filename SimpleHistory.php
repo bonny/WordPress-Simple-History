@@ -221,8 +221,17 @@ class SimpleHistory {
 				// Output can be array or HMTL
 				if ( isset( $args["format"] ) && "html" === $args["format"] ) {
 					
-					foreach ($data["log_rows"] as $key => $val) {
-						$data["log_rows"][$key] = $this->getLogRowHTMLOutput( $val );
+					$data["log_rows_raw"] = array();
+
+					foreach ($data["log_rows"] as $key => $oneLogRow) {
+						
+						$args = array();
+						if ($type == "single") {
+							$args["type"] = "single";
+						}
+
+						$data["log_rows"][$key] = $this->getLogRowHTMLOutput( $oneLogRow, $args);
+
 					}
 
 				} else {
@@ -1260,7 +1269,13 @@ class SimpleHistory {
 	 * @param array $oneLogRow SimpleHistoryLogQuery array with data from SimpleHistoryLogQuery
 	 * @return string
 	 */
-	public function getLogRowHTMLOutput($oneLogRow) {
+	public function getLogRowHTMLOutput($oneLogRow, $args) {
+
+		$defaults = array(
+			"type" => "overview" // or "single" to include more stuff
+		);
+
+		$args = wp_parse_args( $args, $defaults );
 
 		$header_html = $this->getLogRowHeaderOutput($oneLogRow);	
 		$plain_text_html = $this->getLogRowPlainTextOutput($oneLogRow);
@@ -1314,6 +1329,42 @@ class SimpleHistory {
 		$data_attrs .= sprintf(' data-occasions-count="%1$d" ', $occasions_count );
 		$data_attrs .= sprintf(' data-occasions-id="%1$s" ', $oneLogRow->occasionsID );
 		
+		// If type is single then include more details
+		$more_details_html = "";
+		if ( $args["type"] == "single" ) {
+
+			$more_details_html .= sprintf('<h2>%1$s</h2>', __("Raw context data", "simple-history"));
+			$more_details_html .= "<table class='simple-history-logitem__moreDetailsContext'>";
+			$more_details_html .= sprintf(
+				'<tr>
+					<th>%1$s</th>
+					<th>%2$s</th>
+				</tr>',
+				"Key",
+				"Value"
+			);
+
+			foreach ($oneLogRow->context as $contextKey => $contextVal) {
+
+				$more_details_html .= sprintf(
+					'<tr>
+						<td>%1$s</td>
+						<td>%2$s</td>
+					</tr>',
+					esc_html( $contextKey ),
+					esc_html( $contextVal )
+				);
+
+			}
+			$more_details_html .= "</table>";
+
+			$more_details_html = sprintf(
+				'<div class="simple-history-logitem__moreDetails">%1$s</div>',
+				$more_details_html
+			);
+
+		}
+
 		// Generate the HTML output for a row
 		$output = sprintf(
 			'
@@ -1326,6 +1377,7 @@ class SimpleHistory {
 						<div class="simple-history-logitem__text">%2$s</div>
 						%4$s
 						%6$s
+						%9$s
 					</div>
 				</li>
 			',
@@ -1336,7 +1388,8 @@ class SimpleHistory {
 			$oneLogRow->level, // 5
 			$details_html, // 6
 			$oneLogRow->logger, // 7
-			$data_attrs // 8 data attributes
+			$data_attrs, // 8 data attributes
+			$more_details_html // 9
 		);
 
 		// Get the main message row.

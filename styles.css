@@ -301,6 +301,7 @@ Modal window with detailss
 	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 	left: 280px; /* admin meny width is 160 px*/
 	position: fixed;
+	overflow: auto;
 	right: 120px;
 	top: 60px;
 	z-index: 15;
@@ -373,6 +374,33 @@ Modal window with detailss
 
 .SimpleHistory-modal .simple-history-logitem__text,
 .SimpleHistory-modal .simple-history-logitem__details,
-.SimpleHistory-modal .simple-history-logitem__details p {
+.SimpleHistory-modal .simple-history-logitem__details p,
+.SimpleHistory-modal .simple-history-logitem__moreDetails,
+.SimpleHistory-modal .simple-history-logitem__moreDetails p {
 	font-size: 18px;
+}
+
+.SimpleHistory-modal .simple-history-logitem:hover {
+	background: inherit;
+}
+
+.SimpleHistory-modal .simple-history-logitem__senderImage {
+	opacity: 1;
+}
+
+.simple-history-logitem__moreDetailsContext {
+	font-family: monospace;
+	white-space: pre-line;
+	font-size: 14px;
+	border-collapse: collapse;
+}
+
+.simple-history-logitem__moreDetailsContext th,
+.simple-history-logitem__moreDetailsContext td {
+	padding: 4px;
+	padding-right: 20px;
+}
+
+.simple-history-logitem__moreDetailsContext tr:nth-child(odd) {
+	background-color: #eee;
 }
