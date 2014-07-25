@@ -366,3 +366,13 @@ Modal window with detailss
 	top: 92px; /* admin bar height is 32 px*/
 }
 
+/* style the logRow a bit more when shown in modal */
+.SimpleHistory-modal  .simple-history-logitem__header {
+	font-size: 16px;
+}
+
+.SimpleHistory-modal .simple-history-logitem__text,
+.SimpleHistory-modal .simple-history-logitem__details,
+.SimpleHistory-modal .simple-history-logitem__details p {
+	font-size: 18px;
+}
