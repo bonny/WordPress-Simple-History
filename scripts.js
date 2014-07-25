@@ -222,6 +222,7 @@ var simple_history2 = (function($) {
 				view.$el.remove();
 				$(document).off("keyup.simplehistory.modal");
 				view.remove();
+				Backbone.history.navigate("");
 			}, 400);
 
 		},
