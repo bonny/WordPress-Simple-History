@@ -1,3 +1,4 @@
+/*jshint multistr: true */
 
 /*
 V2 begins here
@@ -65,8 +66,6 @@ var simple_history2 = (function($) {
 	var OccasionsLogRowsCollection = Backbone.Collection.extend({
 
 		initialize: function(models, options) {
-
-			console.log("init OccasionsLogRowsCollection this", this, options);
 
 			this.url = api_base_url + "&type=occasions&format=html";
 
@@ -262,17 +261,8 @@ var simple_history2 = (function($) {
 			var $target = $(e.target);
 			var $logRow = $target.closest(".simple-history-logitem");
 			var logRowID = $logRow.data("rowId");
-		
-			var detailsModel = new DetailsModel({
-				id: logRowID
-			});
-
-			var detailsView = new DetailsView({
-				model: detailsModel,
-				attributes: {
-					logRow: $logRow
-				}
-			});
+			
+			Backbone.history.navigate("itemDetails/" + logRowID, { trigger: true });
 
 		},
 
@@ -444,10 +434,9 @@ var simple_history2 = (function($) {
 			this.logRouter = new LogRouter();
 			Backbone.history.start();
 
-
 			this.addNeededElements();
 
-			this.logRowsCollection = new LogRowsCollection;
+			this.logRowsCollection = new LogRowsCollection();
 			
 			this.rowsView = new RowsView({
 				el: this.$el.find(".simple-history-logitems"),
@@ -484,8 +473,6 @@ var simple_history2 = (function($) {
 
 		render: function() {
 
-			//console.log(this.logRows);
-
 		}
 
 	});
@@ -493,11 +480,19 @@ var simple_history2 = (function($) {
 	var LogRouter = Backbone.Router.extend({
 
 		routes: {
-			"help": "help"
+			"itemDetails/:number": "itemDetails"
 		},
 
-		help: function() {
-			console.log("help");
+		itemDetails: function(logRowID) {
+			
+			var detailsModel = new DetailsModel({
+				id: logRowID
+			});
+
+			var detailsView = new DetailsView({
+				model: detailsModel
+			});
+
 		}
 
 	});
