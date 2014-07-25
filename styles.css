@@ -134,6 +134,10 @@ There is always a 4px left border, just with differents colors
 /*
 when occasions are added
 */
+.simple-history-logitem--occasionsOpened {
+	box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
+	z-index: 1;
+}
 
 /* when occasions is loaded and have loaded hide the "show occasions"-link*/
 .simple-history-logitem--occasionsOpening .simple-history-logitem__occasionsLink,
