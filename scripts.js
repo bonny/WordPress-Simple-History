@@ -318,6 +318,11 @@ var simple_history2 = (function($) {
 
 		keyboardNav: function(e) {
 
+			// if modal with details is open then don't nav away
+			if ($(".SimpleHistory-modal").length) {
+				return;
+			}
+
 			var paged;
 
 			if (e.keyCode == 37) {
