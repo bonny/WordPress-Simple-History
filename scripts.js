@@ -159,7 +159,7 @@ var simple_history2 = (function($) {
 	var DetailsView = Backbone.View.extend({
 
 		initialize: function(attributes) {
-			
+
 			this.model.fetch({
 				data: {
 					id: this.model.get("id")
@@ -167,38 +167,26 @@ var simple_history2 = (function($) {
 			});
 
 			this.template = $("#tmpl-simple-history-logitems-modal").html();
+			this.show();
 			
 			this.listenTo(this.model, "change", this.render);
+
+			// also close on esc
+			var view = this;
+			$(document).on("keydown.simplehistory.modal", function(e) {
+				if (e.keyCode == 27) {
+					view.close();
+				}
+			});
 
 		},
 
 		events: {
-			"click .SimpleHistory-modal__background": "hide"
+			"click .SimpleHistory-modal__background": "close"
 		},
 
-		hide: function() {
-			
-			console.log("hide");
-			var $modalContentEl = this.$el.find(".SimpleHistory-modal__content");
-			$modalContentEl.addClass("SimpleHistory-modal__content--leave");
-			
-			// Force repaint before adding active class
-			var offsetHeight = $modalContentEl.get(0).offsetHeight;
-			
-			$modalContentEl.addClass("SimpleHistory-modal__content--leave-active");
-			this.$el.addClass("SimpleHistory-modal__leave-active");
+		show: function() {
 
-			// Remove element after fade out so we can show another one
-			var $el = this.$el;
-			setTimeout(function() {
-				$el.remove();
-			}, 400);
-
-
-		},
-
-		render: function() {
-			
 			var $modalEl = $(".SimpleHistory-modal");
 			
 			if (!$modalEl.length) {
@@ -210,13 +198,39 @@ var simple_history2 = (function($) {
 	
 			var $modalContentEl = $modalEl.find(".SimpleHistory-modal__content");
 			$modalContentEl.addClass("SimpleHistory-modal__content--enter");
-		
-			var logRowLI = this.model.get("data").log_rows[0];
-			$modalContentEl.append(logRowLI);
 
 			// Force repaint before adding active class
 			var offsetHeight = $modalContentEl.get(0).offsetHeight;
 			$modalContentEl.addClass("SimpleHistory-modal__content--enter-active");
+
+		},
+
+		close: function() {
+			
+			var $modalContentEl = this.$el.find(".SimpleHistory-modal__content");
+			$modalContentEl.addClass("SimpleHistory-modal__content--leave");
+			
+			// Force repaint before adding active class
+			var offsetHeight = $modalContentEl.get(0).offsetHeight;
+			
+			$modalContentEl.addClass("SimpleHistory-modal__content--leave-active");
+			this.$el.addClass("SimpleHistory-modal__leave-active");
+
+			// Cleanup
+			var view = this;
+			setTimeout(function() {
+				view.$el.remove();
+				$(document).off("keyup.simplehistory.modal");
+				view.remove();
+			}, 400);
+
+		},
+
+		render: function() {
+			
+			var $modalContentInnerEl = this.$el.find(".SimpleHistory-modal__contentInner");
+			var logRowLI = this.model.get("data").log_rows[0];
+			$modalContentInnerEl.html(logRowLI);
 
 		}
 

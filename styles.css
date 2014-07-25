@@ -306,6 +306,11 @@ Modal window with detailss
 	z-index: 15;
 }
 
+.SimpleHistory-modal__contentSpinner {
+	margin-left: 20px;
+	margin-top: 20px;
+}
+
 /* if wp left meny is collapsed .folded is added and meny width is 36 px */
 .folded .SimpleHistory-modal__content {
 	left: 156px; /* admin meny width is 160 px*/
