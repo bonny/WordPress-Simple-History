@@ -212,8 +212,10 @@ class SimpleLogger
 			/* translators: 1: last modified date and time in human time diff-format */
 			$str_when = sprintf( __( '%1$s ago', 'simple-history' ), $date_human_time_diff );
 		}
+		$item_permalink = admin_url("index.php?page=simple_history_page");
+		$item_permalink .= "#item/{$row->id}";
 
-		$date_html = "<a class='simple-history-logitem__permalink simple-history-logitem__when simple-history-logitem__inlineDivided' href=''>";
+		$date_html = "<a class='simple-history-logitem__permalink simple-history-logitem__when simple-history-logitem__inlineDivided' href='{$item_permalink}'>";
 		$date_html .= sprintf(
 			'<time datetime="%1$s" title="%1$s" class="">%2$s</time>',
 			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
