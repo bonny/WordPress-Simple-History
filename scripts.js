@@ -257,6 +257,12 @@ var simple_history2 = (function($) {
 
 		permalink: function(e) {
 
+			// If cmd is pressed then don't show modal because then user wants
+			// to open modal in new window/tab
+			if (e.metaKey) {
+				return true;
+			}
+
 			e.preventDefault();
 
 			var $target = $(e.target);
@@ -504,7 +510,6 @@ var simple_history2 = (function($) {
 
 		default: function() {
 
-			console.log("Default router");
 			return false;
 
 		}
