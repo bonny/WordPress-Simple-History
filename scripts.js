@@ -31,6 +31,8 @@ var simple_history2 = (function($) {
 
 			this.url = api_base_url + "&type=overview&format=html&posts_per_page=20";
 
+			// Get first page
+			// We don't have max_id yet
 			this.fetch({
 				reset: true,
 				data: {
@@ -40,7 +42,9 @@ var simple_history2 = (function($) {
 
 		},
 
-		// Turn wp json respsonse into backbone format
+		/*
+		 * Parse ajax response to make it fit to format used by backbone
+		 */
 		parse: function(resp, xhr) {
 
 			this.api_args = resp.data.api_args;
@@ -50,6 +54,12 @@ var simple_history2 = (function($) {
 			this.total_row_count = resp.data.total_row_count;
 			this.page_rows_from = resp.data.page_rows_from;
 			this.page_rows_to = resp.data.page_rows_to;
+
+			// Store first max_id found, since that's the max id we use for
+			// all subsequent pagnations
+			if ( ! this.max_id_first_page ) {
+				this.max_id_first_page = this.max_id;
+			}
 
 			var arrRows = [];
 			_.each(resp.data.log_rows, function(row) {
@@ -396,6 +406,10 @@ var simple_history2 = (function($) {
 			
 		},
 
+		/**
+		 * Fetch a page from the server
+		 * Calls collection.fetch with the page we want to view as argument
+		 */
 		fetchPage: function(paged) {
 
 			$("html").addClass("SimpleHistory-isLoadingPage");
@@ -404,7 +418,8 @@ var simple_history2 = (function($) {
 			this.collection.fetch({
 				reset: true,
 				data: {
-					paged: paged
+					paged: paged,
+					max_id_first_page: this.collection.max_id_first_page
 				},
 				success: function() {
 					$("html").removeClass("SimpleHistory-isLoadingPage");
@@ -414,7 +429,6 @@ var simple_history2 = (function($) {
 			$("html, body").animate({
 				scrollTop: 0
 			}, 350);
-
 
 		},
 
