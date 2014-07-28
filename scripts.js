@@ -504,20 +504,8 @@ var simple_history2 = (function($) {
 		 */
 		addNeededElements: function() {
 
-			var html = ' \
-				<div class="simple-history-logitems-wrap"> \
-					<div class="simple-history-logitems-before-top-pagination"></div> \
-					<div class="SimpleHhistoryLogitems-above"></div> \
-					<ul class="simple-history-logitems"></ul> \
-					<div class="SimpleHhistoryLogitems-below"></div> \
-					<div class="simple-history-logitems-pagination"></div> \
-					<div class="simple-history-logitems-after-bottom-pagination"></div> \
-				</div> \
-				<div class="simple-history-filters"></div> \
-				<div class="simple-history-logitems-debug"></div> \
-			';
-
-			this.$el.html( html );
+			var template = $("#tmpl-simple-history-base").html();
+			this.$el.html( template );
 
 		},
 
