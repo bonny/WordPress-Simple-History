@@ -1334,8 +1334,9 @@ class SimpleHistory {
 		$more_details_html = "";
 		if ( $args["type"] == "single" ) {
 
-			$more_details_html .= sprintf('<h2>%1$s</h2>', __("Raw context data", "simple-history"));
-			$more_details_html .= "<table class='simple-history-logitem__moreDetailsContext'>";
+			$more_details_html .= sprintf('<h2 class="SimpleHistoryLogitem__moreDetailsHeadline">%1$s</h2>', __("Context data", "simple-history"));
+			$more_details_html .= "<p>" . __("This is potentially useful meta data that a logger have saved.", "simple-history") . "</p>";
+			$more_details_html .= "<table class='SimpleHistoryLogitem__moreDetailsContext'>";
 			$more_details_html .= sprintf(
 				'<tr>
 					<th>%1$s</th>
@@ -1360,16 +1361,21 @@ class SimpleHistory {
 			$more_details_html .= "</table>";
 
 			$more_details_html = sprintf(
-				'<div class="simple-history-logitem__moreDetails">%1$s</div>',
+				'<div class="SimpleHistoryLogitem__moreDetails">%1$s</div>',
 				$more_details_html
 			);
 
 		}
 
+		$class_sender = "";
+		if (isset($oneLogRow->initiator) && !empty($oneLogRow->initiator)) {
+			$class_sender .= "SimpleHistoryLogitem--initiator-" . esc_attr($oneLogRow->initiator);
+		}
+
 		// Generate the HTML output for a row
 		$output = sprintf(
 			'
-				<li %8$s class="simple-history-logitem simple-history-logitem--loglevel-%5$s simple-history-logitem--logger-%7$s">
+				<li %8$s class="simple-history-logitem simple-history-logitem--loglevel-%5$s simple-history-logitem--logger-%7$s %10$s">
 					<div class="simple-history-logitem__firstcol">
 						<div class="simple-history-logitem__senderImage">%3$s</div>
 					</div>
@@ -1390,7 +1396,8 @@ class SimpleHistory {
 			$details_html, // 6
 			$oneLogRow->logger, // 7
 			$data_attrs, // 8 data attributes
-			$more_details_html // 9
+			$more_details_html, // 9
+			$class_sender // 10
 		);
 
 		// Get the main message row.

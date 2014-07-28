@@ -136,8 +136,8 @@ There is always a 4px left border, just with differents colors
 when occasions are added
 */
 .simple-history-logitem--occasionsOpened {
-	box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
-	z-index: 1;
+	/*box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
+	z-index: 1;*/
 }
 
 /* when occasions is loaded and have loaded hide the "show occasions"-link*/
@@ -307,6 +307,10 @@ Modal window with detailss
 	z-index: 15;
 }
 
+.SimpleHistory-modal__contentInner {
+	padding: 15px;
+}
+
 .SimpleHistory-modal__contentSpinner {
 	margin-left: 20px;
 	margin-top: 20px;
@@ -375,8 +379,8 @@ Modal window with detailss
 .SimpleHistory-modal .simple-history-logitem__text,
 .SimpleHistory-modal .simple-history-logitem__details,
 .SimpleHistory-modal .simple-history-logitem__details p,
-.SimpleHistory-modal .simple-history-logitem__moreDetails,
-.SimpleHistory-modal .simple-history-logitem__moreDetails p {
+.SimpleHistory-modal .SimpleHistoryLogitem__moreDetails,
+.SimpleHistory-modal .SimpleHistoryLogitem__moreDetails p {
 	font-size: 18px;
 }
 
@@ -388,20 +392,40 @@ Modal window with detailss
 	opacity: 1;
 }
 
-.simple-history-logitem__moreDetailsContext {
+.SimpleHistoryLogitem__moreDetails {
+	border-top: 1px solid rgb(229, 229, 229);
+	margin-top: 20px;
+}
+
+.SimpleHistoryLogitem__moreDetailsHeadline {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 0;
+	margin-top: 20px;
+	margin-bottom: 0;
+}
+
+.SimpleHistory-modal .SimpleHistoryLogitem__moreDetails p {
+	font-size: 14px;
+}
+
+.SimpleHistoryLogitem__moreDetailsContext {
 	font-family: monospace;
 	white-space: pre-line;
-	font-size: 14px;
+	font-size: 12px;
 	border-collapse: collapse;
 }
 
-.simple-history-logitem__moreDetailsContext th,
-.simple-history-logitem__moreDetailsContext td {
+.SimpleHistoryLogitem__moreDetailsContext th,
+.SimpleHistoryLogitem__moreDetailsContext td {
 	padding: 4px;
 	padding-right: 20px;
 }
 
-.simple-history-logitem__moreDetailsContext tr:nth-child(odd) {
+.SimpleHistoryLogitem__moreDetailsContext tr:nth-child(odd) {
 	background-color: #eee;
 }
 
+.SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .simple-history-logitem__secondcol {
+	margin-left: 0;
+}
