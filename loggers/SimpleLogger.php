@@ -841,8 +841,14 @@ class SimpleLogger
 			
 			// Append remote addr to context
 			// Good to always have
-			if ( ! isset( $context["_remote_addr"] ) ) {
-				$context["_remote_addr"] = $_SERVER["REMOTE_ADDR"];
+			if ( ! isset( $context["_server_remote_addr"] ) ) {
+				$context["_server_remote_addr"] = $_SERVER["REMOTE_ADDR"];
+			}
+
+			// Append http referer
+			// Also good to always have!
+			if ( ! isset( $context["_server_http_referer"] ) ) {
+				$context["_server_http_referer"] = $_SERVER["HTTP_REFERER"];
 			}
 
 			// Insert all context values into db
