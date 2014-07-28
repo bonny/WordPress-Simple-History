@@ -71,7 +71,7 @@ class SimpleLogger
 			"description" => "The built in logger for Simple History",
 			
 			// Capability required to view log entries from this logger
-			"capability" => array("manage_options", "read_pages"),
+			"capability" => "edit_pages",
 			"messages" => array(
 				// No pre-defined variants
 				// when adding messages __() or _x() must be used
@@ -80,6 +80,19 @@ class SimpleLogger
 		);
 
 		return $arr_info;
+
+	}
+
+	/**
+	 * Returns the capability required to read log rows from this logger
+	 *
+	 * @return $string capability
+	 */
+	public function getCapability() {
+
+		$arr_info = $this->getInfo();
+
+		return $arr_info["capability"];
 
 	}
 

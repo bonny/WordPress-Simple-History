@@ -1415,4 +1415,36 @@ class SimpleHistory {
 
 	}
 
+	public function getInstantiatedLoggers() {
+
+		return $this->instantiatedLoggers;
+
+	}
+
+	/**
+	 * Check which loggers a user has the right to read and return an array
+	 * with all loggers they are allowed to read
+	 *
+	 * @param int $user_id Id of user to get loggers for
+	 * @return array
+	 */
+	public function getLoggersThatUserCanRead($user_id) {
+
+		$arr_loggers_user_can_view = array();
+
+		$loggers = $this->getInstantiatedLoggers();
+		foreach ($loggers as $one_logger) {
+
+			$logger_capability = $one_logger["instance"]->getCapability();
+
+			if ( user_can( $user_id, $logger_capability ) ) {
+				$arr_loggers_user_can_view[] = $one_logger;
+			}
+
+		}
+
+		return $arr_loggers_user_can_view;
+
+	}
+
 } // class

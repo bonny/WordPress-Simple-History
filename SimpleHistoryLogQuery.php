@@ -62,6 +62,7 @@ class SimpleHistoryLogQuery {
 
 		$where = "1 = 1";
 		$limit = "";
+		$inner_where = "";
 
 		if ( "overview" === $args["type"] || "single" === $args["type"] ) {
 
@@ -73,6 +74,7 @@ class SimpleHistoryLogQuery {
 			// 1 = where
 			// 2 = limit
 			// 3 = db name
+			// 4 = where for inner calc sql query thingie
 			$sql_tmpl = '
 				SELECT 
 					SQL_CALC_FOUND_ROWS
@@ -104,7 +106,9 @@ class SimpleHistoryLogQuery {
 							@a:=occasionsID occasionsIDType 
 						FROM %3$s
 
-						#Add where here
+						# Add where here
+						WHERE 1 = 1 
+						%4$s
 
 						ORDER BY id DESC
 					) AS t
@@ -113,6 +117,24 @@ class SimpleHistoryLogQuery {
 				ORDER BY id DESC
 				%2$s
 			';
+
+			$sh = $GLOBALS["simple_history"];
+
+			// Array with the loggers that the current user can view		
+			$arr_loggers_user_can_view = $sh->getLoggersThatUserCanRead(get_current_user_id());
+			$arr_logger_slugs = array();
+			$inner_where = " AND logger IN (";
+			foreach ($arr_loggers_user_can_view as $one_logger) {
+				
+				$inner_where .= sprintf(
+					'"%1$s", ',
+					$one_logger["instance"]->slug
+				);
+
+			}
+			$inner_where = rtrim($inner_where, " ,");
+			$inner_where .= ")";
+
 
 		} else if ( "occasions" === $args["type"] ) {
 
@@ -141,8 +163,6 @@ class SimpleHistoryLogQuery {
 
 		}
 		
-		// Determine where-conditions
-
 		// Determine limit
 		// Both posts_per_pae and paged must be set
 		$is_limit_query = ( is_numeric( $args["posts_per_page"] ) && $args["posts_per_page"] > 0 );
@@ -198,7 +218,17 @@ class SimpleHistoryLogQuery {
 		 */
 		$limit = apply_filters("simple_history/log_query_limit", $limit);
 
-		$sql = sprintf($sql_tmpl, $where, $limit, $table_name);
+		/**
+		 * Filter the sql template limit
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $limit
+		 */
+		$inner_where = apply_filters("simple_history/log_query_inner_where", $inner_where);
+
+		$sql = sprintf($sql_tmpl, $where, $limit, $table_name, $inner_where);
+		#echo($sql);exit;
 
 		/**
 		 * Filter the final sql query
