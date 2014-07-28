@@ -33,7 +33,6 @@ require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
 /**
  * Register function that is called when plugin is installed
  *
- * @TODO: check that this works with wp 3.9 that have symlink support
  * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
  */
 register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );

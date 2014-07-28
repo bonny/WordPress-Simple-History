@@ -234,21 +234,18 @@ Pagination, below logRows
 .simple-history-logitems-pagination {}
 
 .SimpleHistoryPaginationPages {
-	/*
 	text-align: center;
-	background: white;
-	border: 1px solid rgb(229, 229, 229);
-	padding: 10px 0;
-	margin-top: -1px;
-	*/
+	/*padding: 10px 0;*/
+	margin-top: 20px;
+	
 }
 
 .SimpleHistoryPaginationLink.SimpleHistoryPaginationLink {
-	line-height: 30px;
-	background: rgb(238, 238, 238);
-	background: rgba(0, 0, 0, 0.05);
-	padding: 0 10px 3px;
-	text-decoration: none;
+	/*line-height: 30px;*/
+	/*background: rgb(238, 238, 238);*/
+	/*background: rgba(0, 0, 0, 0.05);*/
+	/*padding: 0 10px 3px;
+	text-decoration: none;*/
 	font-size: 16px;
 }
 
@@ -265,7 +262,7 @@ Pagination, below logRows
 }
 
 .SimpleHistoryPaginationCurrentPage {
-	padding-top: 0;
+	/*padding-top: 0;*/
 	text-align: center;
 }
 

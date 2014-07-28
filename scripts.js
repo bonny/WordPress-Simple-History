@@ -371,7 +371,18 @@ var simple_history2 = (function($) {
 			if (e.keyCode == 13) {
 				
 				var $target = $(e.target);
-				this.fetchPage( parseInt( $target.val() ) );
+				var paged = parseInt( $target.val() );
+
+				// We must go to a page more than zero and max total_row_count
+				if (paged < 1) {
+					paged = 1;
+				}
+
+				if ( paged > this.collection.pages_count ) {
+					paged = this.collection.pages_count;
+				}
+
+				this.fetchPage(paged);
 
 			}
 
@@ -496,10 +507,9 @@ var simple_history2 = (function($) {
 			var html = ' \
 				<div class="simple-history-logitems-wrap"> \
 					<div class="simple-history-logitems-before-top-pagination"></div> \
-					<div class="simple-history-logitems-pagination"></div> \
-					<div class="simple-history-logitems-after-top-pagination"></div> \
+					<div class="SimpleHhistoryLogitems-above"></div> \
 					<ul class="simple-history-logitems"></ul> \
-					<div class="simple-history-logitems-before-bottom-pagination"></div> \
+					<div class="SimpleHhistoryLogitems-below"></div> \
 					<div class="simple-history-logitems-pagination"></div> \
 					<div class="simple-history-logitems-after-bottom-pagination"></div> \
 				</div> \

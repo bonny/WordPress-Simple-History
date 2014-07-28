@@ -114,17 +114,19 @@ class SimpleHistory {
 				
 				<!-- this uses the (almost) the same html as WP does -->
 				<div class="SimpleHistoryPaginationPages">
-					<%= page_rows_from %>–<%= page_rows_to %>
+					<!-- 
+					<%= page_rows_from %>–<%= page_rows_to %> 
 					<span class="SimpleHistoryPaginationDisplayNum"> of <%= total_row_count %></span>
+					-->
 					<span class="SimpleHistoryPaginationLinks">
 						<a 	
 							data-direction="first" 
-							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--firstPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
+							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--firstPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
 							title="<%= strings.goToTheFirstPage %>" 
 							href="#">«</a>
 						<a 
 							data-direction="prev" 
-							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--prevPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
+							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--prevPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
 							title="<%= strings.goToThePrevPage %>"
 							href="#">‹</a>
 						<span class="SimpleHistoryPaginationInput">
@@ -134,12 +136,12 @@ class SimpleHistory {
 						</span>
 						<a 
 							data-direction="next" 
-							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--nextPage <% if ( api_args.paged >= pages_count ) { %> disabled <% } %>" 
+							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--nextPage <% if ( api_args.paged >= pages_count ) { %> disabled <% } %>" 
 							title="<%= strings.goToTheNextPage %>"
 							href="#">›</a>
 						<a 
 							data-direction="last" 
-							class="SimpleHistoryPaginationLink SimpleHistoryPaginationLink--lastPage <% if ( api_args.paged >= pages_count ) { %> disabled <% } %>" 
+							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--lastPage <% if ( api_args.paged >= pages_count ) { %> disabled <% } %>" 
 							title="<%= strings.goToTheLastPage %>"
 							href="#">»</a>
 					</span>
