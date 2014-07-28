@@ -215,13 +215,15 @@ class SimpleLogger
 		$item_permalink = admin_url("index.php?page=simple_history_page");
 		$item_permalink .= "#item/{$row->id}";
 
-		$date_html = "<a class='simple-history-logitem__permalink simple-history-logitem__when simple-history-logitem__inlineDivided' href='{$item_permalink}'>";
+		$date_html = "<span class='simple-history-logitem__permalink simple-history-logitem__when simple-history-logitem__inlineDivided'>";
+		$date_html .= "<a class='' href='{$item_permalink}'>";
 		$date_html .= sprintf(
 			'<time datetime="%1$s" title="%1$s" class="">%2$s</time>',
 			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
 			$str_when
 		);
 		$date_html .= "</a>";
+		$date_html .= "</span>";
 
 		// Glue together final result
 		$template = '%1$s%2$s';
