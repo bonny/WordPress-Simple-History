@@ -103,11 +103,9 @@ class SimpleUserLogger extends SimpleLogger
 
 				}
 
-
 			}
 
-
-		} // if ueder_updated_profile
+		} // if user_updated_profile
 				
 		return $output;
 	}
