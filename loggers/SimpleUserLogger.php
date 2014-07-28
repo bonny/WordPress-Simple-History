@@ -133,6 +133,7 @@ class SimpleUserLogger extends SimpleLogger
 				"login_user_id" => $user->ID,
 				"login_user_email" => $user->user_email,
 				"login_user_login" => $user->user_login,
+				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
 			);
 
@@ -168,6 +169,7 @@ class SimpleUserLogger extends SimpleLogger
 			$context["_user_id"] = $user->ID;
 			$context["_user_login"] = $user->user_login;
 			$context["_user_email"] = $user->user_email;
+			$context["server_http_user_agent"] = $_SERVER["HTTP_USER_AGENT"];
 
 			// For translation
 			__("Logged in", "simple-history");
@@ -207,7 +209,8 @@ class SimpleUserLogger extends SimpleLogger
 		$context = array(
 			"edited_user_id" => $wp_user_edited->ID,
 			"edited_user_email" => $wp_user_edited->user_email,
-			"edited_user_login" => $wp_user_edited->user_login
+			"edited_user_login" => $wp_user_edited->user_login,
+			"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 		);
 
 		$this->infoMessage("user_updated_profile", $context);		
@@ -234,7 +237,8 @@ class SimpleUserLogger extends SimpleLogger
 			"created_user_id" => $wp_user_added->ID,
 			"created_user_email" => $wp_user_added->user_email,
 			"created_user_login" => $wp_user_added->user_login,
-			"created_user_role" => $role
+			"created_user_role" => $role,
+			"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 		);
 
 		$this->infoMessage("user_created", $context);		
@@ -259,6 +263,7 @@ class SimpleUserLogger extends SimpleLogger
 
 			$context = array(
 				"failed_login_username" => $username,
+				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 				// count all failed logins to unknown users as the same occasions, to prevent log being flooded
 				// with login/hack attempts
 				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__
