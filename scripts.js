@@ -37,6 +37,10 @@ var simple_history2 = (function($) {
 				reset: true,
 				data: {
 					paged: 1
+				},
+				// called on 404 and similar
+				error: function() {
+					alert(simple_history_script_vars.loadLogAPIError);
 				}
 			});
 
@@ -46,6 +50,11 @@ var simple_history2 = (function($) {
 		 * Parse ajax response to make it fit to format used by backbone
 		 */
 		parse: function(resp, xhr) {
+
+			if (!resp || !resp.data) {
+				alert("Error in response, could not parse");
+				return;
+			}
 
 			this.api_args = resp.data.api_args;
 			this.max_id = resp.data.max_id;
@@ -480,14 +489,19 @@ var simple_history2 = (function($) {
 
 		/**
 		 * Add the elements needed for the GUI
+		 * @TODO: move to template
 		 */
 		addNeededElements: function() {
 
 			var html = ' \
 				<div class="simple-history-logitems-wrap"> \
+					<div class="simple-history-logitems-before-top-pagination"></div> \
 					<div class="simple-history-logitems-pagination"></div> \
+					<div class="simple-history-logitems-after-top-pagination"></div> \
 					<ul class="simple-history-logitems"></ul> \
+					<div class="simple-history-logitems-before-bottom-pagination"></div> \
 					<div class="simple-history-logitems-pagination"></div> \
+					<div class="simple-history-logitems-after-bottom-pagination"></div> \
 				</div> \
 				<div class="simple-history-filters"></div> \
 				<div class="simple-history-logitems-debug"></div> \

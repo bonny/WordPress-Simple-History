@@ -181,8 +181,8 @@ class SimpleHistory {
 		global $wpdb;
 
 		// Fake slow answers
-		// sleep(1);
-
+		//sleep(rand(0,3));
+		//sleep(5);
 		$args = $_GET;
 		unset($args["action"]);
 
@@ -594,7 +594,8 @@ class SimpleHistory {
 					'goToTheNextPage' => __("Go to the next page", 'simple-history'),
 					'goToTheLastPage' => __("Go to the last page", 'simple-history'),
 					'currentPage' => __("Current page", 'simple-history'),
-				)
+				),
+				"loadLogAPIError" => __("Oups, the log could not be loaded right now.", 'simple-history'),
 			));
 		
 		}
