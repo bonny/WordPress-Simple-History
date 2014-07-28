@@ -199,6 +199,14 @@ class SimpleHistoryLogQuery {
 		$limit = apply_filters("simple_history/log_query_limit", $limit);
 
 		$sql = sprintf($sql_tmpl, $where, $limit, $table_name);
+
+		/**
+		 * Filter the final sql query
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $sql
+		 */
 		$sql = apply_filters("simple_history/log_query_sql", $sql);
 
 		if (isset($_GET["SimpleHistoryLogQuery-showDebug"]) && $_GET["SimpleHistoryLogQuery-showDebug"]) {
