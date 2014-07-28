@@ -171,8 +171,31 @@ class SimpleHistoryLogQuery {
 
 		}
 
+		/**
+		 * Filter the sql template
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $sql_tmpl
+		 */
 		$sql_tmpl = apply_filters("simple_history/log_query_sql_template", $sql_tmpl);
+
+		/**
+		 * Filter the sql template where clause
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $where
+		 */
 		$where = apply_filters("simple_history/log_query_sql_where", $where);
+
+		/**
+		 * Filter the sql template limit
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $limit
+		 */
 		$limit = apply_filters("simple_history/log_query_limit", $limit);
 
 		$sql = sprintf($sql_tmpl, $where, $limit, $table_name);
