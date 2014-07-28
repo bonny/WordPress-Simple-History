@@ -34,11 +34,15 @@ class SimpleHistoryLogQuery {
 			// Array. Only get posts that are in array.
 			"post__in" => null,
 			// array or html
-			"format" => "array"
+			"format" => "array",
+			// If first_page_max_id is set then only get rows
+			// that have id equal or lower than this, to make
+			// 
+			"first_page_max_id" => null
 		);
 
 		$args = wp_parse_args( $args, $defaults );
-		#sf_d($args, "Run log query with args");
+		// sf_d($args, "Run log query with args");
 
 		/*
 		Subequent occasions query thanks to this Stack Overflow thread:
@@ -155,7 +159,24 @@ class SimpleHistoryLogQuery {
 
 		}
 
+		// If max_id_first_page is then then only include rows
+		// with id equal to or earlier
+		if ( isset($args["max_id_first_page"]) && is_numeric($args["max_id_first_page"]) ) {
+			
+			$max_id_first_page = (int) $args["max_id_first_page"];
+			$where .= sprintf(
+				' AND t.id <= %1$d',
+				$max_id_first_page
+			);
+
+		}
+
+		$sql_tmpl = apply_filters("simple_history/log_query_sql_template", $sql_tmpl);
+		$where = apply_filters("simple_history/log_query_sql_where", $where);
+		$limit = apply_filters("simple_history/log_query_limit", $limit);
+
 		$sql = sprintf($sql_tmpl, $where, $limit, $table_name);
+		$sql = apply_filters("simple_history/log_query_sql", $sql);
 
 		if (isset($_GET["SimpleHistoryLogQuery-showDebug"]) && $_GET["SimpleHistoryLogQuery-showDebug"]) {
 
