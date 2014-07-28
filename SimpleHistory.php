@@ -110,6 +110,22 @@ class SimpleHistory {
 		if ( $this->is_on_our_own_pages() ) {
 
 			?>
+			
+			<script type="text/html" id="tmpl-simple-history-base">
+
+				<div class="simple-history-logitems-wrap">
+					<div class="simple-history-logitems-before-top-pagination"></div>
+					<div class="SimpleHhistoryLogitems-above"></div>
+					<ul class="simple-history-logitems"></ul>
+					<div class="SimpleHhistoryLogitems-below"></div>
+					<div class="simple-history-logitems-pagination"></div>
+					<div class="simple-history-logitems-after-bottom-pagination"></div>
+				</div>
+				<div class="simple-history-filters"></div>
+				<div class="simple-history-logitems-debug"></div>
+
+			</script>
+
 			<script type="text/html" id="tmpl-simple-history-logitems-pagination">
 				
 				<!-- this uses the (almost) the same html as WP does -->
