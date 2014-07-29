@@ -67,7 +67,10 @@ var simple_history2 = (function($) {
 			// Store first max_id found, since that's the max id we use for
 			// all subsequent pagnations
 			if ( ! this.max_id_first_page ) {
+
 				this.max_id_first_page = this.max_id;
+				$(document).trigger("SimpleHistory:logLoadedFirst");
+
 			}
 
 			var arrRows = [];

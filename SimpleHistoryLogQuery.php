@@ -35,10 +35,10 @@ class SimpleHistoryLogQuery {
 			"post__in" => null,
 			// array or html
 			"format" => "array",
-			// If first_page_max_id is set then only get rows
+			// If max_id_first_page is set then only get rows
 			// that have id equal or lower than this, to make
 			// 
-			"first_page_max_id" => null
+			"max_id_first_page" => null
 		);
 
 		$args = wp_parse_args( $args, $defaults );
