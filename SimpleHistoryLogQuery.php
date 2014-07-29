@@ -37,8 +37,9 @@ class SimpleHistoryLogQuery {
 			"format" => "array",
 			// If max_id_first_page is set then only get rows
 			// that have id equal or lower than this, to make
-			// 
-			"max_id_first_page" => null
+			"max_id_first_page" => null,
+			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id
+			"since_id" => null
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -191,6 +192,16 @@ class SimpleHistoryLogQuery {
 
 		}
 
+		if ( isset($args["since_id"]) && is_numeric($args["since_id"]) ) {
+			
+			$since_id = (int) $args["since_id"];
+			$where .= sprintf(
+				' AND t.id > %1$d',
+				$since_id
+			);
+
+		}
+
 		/**
 		 * Filter the sql template
 		 *
@@ -228,7 +239,8 @@ class SimpleHistoryLogQuery {
 		$inner_where = apply_filters("simple_history/log_query_inner_where", $inner_where);
 
 		$sql = sprintf($sql_tmpl, $where, $limit, $table_name, $inner_where);
-		#echo($sql);exit;
+		#echo $sql;
+		#exit;
 
 		/**
 		 * Filter the final sql query
@@ -277,41 +289,46 @@ class SimpleHistoryLogQuery {
 
 		// Remove id from keys, because they are cumbersome when working with JSON
 		$log_rows = array_values($log_rows);
-
-		// Max id is simply the id of the first row
-		$max_id = reset($log_rows)->id;
-
-		// Min id = to find the lowest id we must take occasions into consideration
 		$min_id = null;
-		$last_row = end($log_rows);
-		$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
-		if ($last_row_occasions_count === 0) {
+		$max_id = null;
 
-			// Last row did not have any more occasions, so get min_id directly from the row
-			$min_id = $last_row->id;
+		if ( sizeof($log_rows) ) {
 
-		} else {
-			
-			// Last row did have occaions, so fetch all occasions, and find id of last one
-			$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
-			$sql = sprintf(
-				'
-					SELECT id, date, occasionsID
-					FROM %1$s 
-					WHERE id <= %2$s
-					ORDER BY id DESC
-					LIMIT %3$s
-				',
-				$db_table,
-				$last_row->id,
-				$last_row_occasions_count + 1
-			);
-			
-			$results = $wpdb->get_results( $sql );
+			// Max id is simply the id of the first row
+			$max_id = reset($log_rows)->id;
 
-			// the last occasion has the id we consider last in this paged result
-			$min_id = end($results)->id;
+			// Min id = to find the lowest id we must take occasions into consideration
+			$last_row = end($log_rows);
+			$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
+			if ($last_row_occasions_count === 0) {
 
+				// Last row did not have any more occasions, so get min_id directly from the row
+				$min_id = $last_row->id;
+
+			} else {
+				
+				// Last row did have occaions, so fetch all occasions, and find id of last one
+				$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
+				$sql = sprintf(
+					'
+						SELECT id, date, occasionsID
+						FROM %1$s 
+						WHERE id <= %2$s
+						ORDER BY id DESC
+						LIMIT %3$s
+					',
+					$db_table,
+					$last_row->id,
+					$last_row_occasions_count + 1
+				);
+				
+				$results = $wpdb->get_results( $sql );
+
+				// the last occasion has the id we consider last in this paged result
+				$min_id = end($results)->id;
+
+			}
+		
 		}
 
 		// Calc pages

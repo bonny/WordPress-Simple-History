@@ -6,7 +6,7 @@ Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
 
-class SimpleHistoryNewrowsNotifier {
+class SimpleHistoryNewRowsNotifier {
 
 	// Simple History instance
 	private $sh;
@@ -16,61 +16,93 @@ class SimpleHistoryNewrowsNotifier {
 		$this->sh = $sh;
 
 		add_action( 'admin_head', array($this, 'on_admin_head'));
-		add_action( 'wp_ajax_SimpleHistoryNewrowsNotifier', array($this, 'ajax') );
+		add_action( 'wp_ajax_SimpleHistoryNewRowsNotifier', array($this, 'ajax') );
 
 	}
 
 	public function ajax() {
 
-		$firstPageMaxID = isset( $_GET["firstPageMaxID"] ) ? absint($_GET["firstPageMaxID"]) : null;
+		$since_id = isset( $_GET["since_id"] ) ? absint($_GET["since_id"]) : null;
 
-		if ( ! $firstPageMaxID ) {
+		if ( ! $since_id ) {
 			exit;
 		}
 
 		$logQuery = new SimpleHistoryLogQuery();
 		$answer = $logQuery->query(array(
-
+			"since_id" => $since_id
 		));
+		#sf_d($answer);
 
-		sf_d($answer);
+		// Append strings
+		$numNewRows = isset( $answer["total_row_count"] ) ? $answer["total_row_count"] : 0;
+		$textRowsFound = sprintf( _n( '1 new row found', '%d new rows found', $numNewRows, 'simple-history' ), $numNewRows );
+		$answer["SimpleHistoryNewRowsNotifier"] = array(
+			"strings" => array(
+				"newRowsFound" => $textRowsFound
+			)
+		);
 
+		wp_send_json_success( $answer );
 
 	}
 
 	public function on_admin_head() {
 
 		?>
+		<style>
+			.SimpleHistoryDropin__NewRowsNotifier {
+				max-height: 0;
+				overflow: hidden;
+				text-align: center;
+				background: white;
+				-webkit-transition: all 1s ease-in-out;
+				        transition: all 1s ease-in-out;
+			}
+			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
+				max-height: 100px;
+			}
+		</style>
 		<script>
 			
 			(function($) {
 				
-				var elmClass = ".SimpleHhistoryLogitems-above";
+				var elmWrapperClass = ".SimpleHhistoryLogitems-above";
+				var $elmWrapper;
 				var $elm;
 				var ajaxurl = window.ajaxurl;
 
 				var checkForUpdates = function() {
 
 					var firstPageMaxID = simple_history2.logRowsCollection.max_id_first_page;
-					console.log("Checking for updates after maxID " + firstPageMaxID);
 					
 					$.get(ajaxurl, {
-						action: "SimpleHistoryNewrowsNotifier",
-						firstPageMaxID: firstPageMaxID
-					}).done(function(data) {
-						console.log("done");
-					});
+						action: "SimpleHistoryNewRowsNotifier",
+						since_id: firstPageMaxID
+					}).done(function(response) {
 
-					//console.log(simple_history2.logRowsCollection);
-					//$elm.append("<br>Checking for updates after maxID " + firstPageMaxID);
+						// If new rows have been added then max_id is not 0 and larger than previos max id
+						// Also total_row_count shows the number of added rows
+						if (response.data.total_row_count) {
+							// console.log("Found new rows!!!", response.data.total_row_count);
+							$elm.html( response.data.SimpleHistoryNewRowsNotifier.strings.newRowsFound );
+							$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
+						}
+
+					});
 
 				};
 
 				// WHen the log is loaded the first time
 				$(document).on("SimpleHistory:logLoadedFirst", function() {
 					
-					// console.log("loaded first", simple_history2.logRowsCollection);
-					$elm = $(elmClass);
+					if (!$elmWrapper) {
+						$elmWrapper = $(elmWrapperClass);
+						$elm = $("<div />",{
+							class: "SimpleHistoryDropin__NewRowsNotifier"
+						});
+						$elm.appendTo($elmWrapper);
+					}
 
 					setInterval(checkForUpdates, 2000);
 

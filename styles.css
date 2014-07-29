@@ -423,6 +423,7 @@ Modal window with detailss
 	background-color: #eee;
 }
 
-.SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .simple-history-logitem__secondcol {
+.SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .simple-history-logitem__secondcol,
+.SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .simple-history-logitem__secondcol {
 	margin-left: 0;
 }
