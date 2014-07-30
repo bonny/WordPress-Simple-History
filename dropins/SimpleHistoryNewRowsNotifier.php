@@ -32,18 +32,26 @@ class SimpleHistoryNewRowsNotifier {
 		$answer = $logQuery->query(array(
 			"since_id" => $since_id
 		));
-		#sf_d($answer);
 
-		// Append strings
+		// Use our own repsonse array instead of $answer to keep size down
+		$json_data = array();
+		
 		$numNewRows = isset( $answer["total_row_count"] ) ? $answer["total_row_count"] : 0;
-		$textRowsFound = sprintf( _n( '1 new row found', '%d new rows found', $numNewRows, 'simple-history' ), $numNewRows );
-		$answer["SimpleHistoryNewRowsNotifier"] = array(
-			"strings" => array(
-				"newRowsFound" => $textRowsFound
-			)
-		);
+		$json_data["num_new_rows"] = $numNewRows;
 
-		wp_send_json_success( $answer );
+		if ($numNewRows) {
+	
+			// We have new rows
+
+			// Append strings
+			$textRowsFound = sprintf( _n( '1 new row', '%d new rows', $numNewRows, 'simple-history' ), $numNewRows );
+			$json_data["strings"] = array(
+				"newRowsFound" => $textRowsFound
+			);
+
+		}
+
+		wp_send_json_success( $json_data );
 
 	}
 
@@ -56,11 +64,32 @@ class SimpleHistoryNewRowsNotifier {
 				overflow: hidden;
 				text-align: center;
 				background: white;
-				-webkit-transition: all 1s ease-in-out;
-				        transition: all 1s ease-in-out;
+				line-height: 40px;
+				background: rgba(0, 255, 30, 0.15);
+				-webkit-transition: max-height 1s ease-in-out, background 0s;
+				        transition: max-height 1s ease-in-out, background 0s;
 			}
+			
 			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
 				max-height: 100px;
+				cursor: pointer;
+			}
+
+			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:hover {
+				/*text-decoration: underline;*/
+				background: rgba(0, 255, 30, 0.5);
+			}
+
+			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:before {
+				content: "";
+				background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0ZWQgYnkgSWNvTW9vbi5pbyAtLT4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj4KPGcgaWQ9Imljb21vb24taWdub3JlIj4KCTxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IiIgeTE9IiIgeDI9IiIgeTI9IiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIiPjwvbGluZT4KPC9nPgoJPHBhdGggZD0iTTMwLjU0NSAxNS4yNzNsLTEwLjE4Mi00LjM2NCA0LjA3MC0yLjkwOGMtMi4xMjEtMi4yMzQtNS4xMS0zLjYzOC04LjQzMy0zLjYzOC01LjYzNiAwLTEwLjMzMyA0LjAwNy0xMS40MDUgOS4zMjdsLTIuNzE2LTEuMTI0YzEuNTQ1LTYuMzcyIDcuMjczLTExLjExMSAxNC4xMjEtMTEuMTExIDQuMzAxIDAgOC4xNTEgMS44NzkgMTAuODE2IDQuODQ3bDMuNzI5LTIuNjY1djExLjYzNnpNNy41NjcgMjMuOTk5YzIuMTE5IDIuMjM0IDUuMTEgMy42MzggOC40MzMgMy42MzggNS42NTggMCAxMC4zNjgtNC4wMzggMTEuNDE1LTkuMzg5bDIuNzEzIDEuMTYxYy0xLjUzNiA2LjM4NS03LjI3IDExLjEzNy0xNC4xMjggMTEuMTM3LTQuMzAxIDAtOC4xNTMtMS44NzktMTAuODE2LTQuODQ3bC0zLjcyOSAyLjY2NXYtMTEuNjM2bDEwLjE4MiA0LjM2NC00LjA3MCAyLjkwOHoiIGZpbGw9InVuZGVmaW5lZCI+PC9wYXRoPgo8L3N2Zz4K);
+				background-repeat: no-repeat;
+				background-size: 13px;
+				width: 13px;
+				height: 13px;
+				display: inline-block;
+				vertical-align: middle;
+				margin-right: .5em;
 			}
 		</style>
 		<script>
@@ -83,9 +112,8 @@ class SimpleHistoryNewRowsNotifier {
 
 						// If new rows have been added then max_id is not 0 and larger than previos max id
 						// Also total_row_count shows the number of added rows
-						if (response.data.total_row_count) {
-							// console.log("Found new rows!!!", response.data.total_row_count);
-							$elm.html( response.data.SimpleHistoryNewRowsNotifier.strings.newRowsFound );
+						if (response.data.num_new_rows) {
+							$elm.html( response.data.strings.newRowsFound );
 							$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
 						}
 
@@ -104,7 +132,14 @@ class SimpleHistoryNewRowsNotifier {
 						$elm.appendTo($elmWrapper);
 					}
 
-					setInterval(checkForUpdates, 2000);
+					setInterval(checkForUpdates, 3000);
+
+				});
+
+				// When we click on the div 
+				$(document).on("click", ".SimpleHistoryDropin__NewRowsNotifier", function(e) {
+
+					console.log(e);
 
 				});
 
