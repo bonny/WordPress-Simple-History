@@ -8,10 +8,24 @@ The spinner that wp uses:;
 
 /* wrap around the log items and the pagination */
 .simple-history-logitems-wrap {
+	transition: opacity .1s ease-out;
+}
+
+/* on it's own page */
+.dashboard_page_simple_history_page .simple-history-logitems-wrap {
 	float: left;
 	width: 650px;
 	max-width: 650px;
-	transition: opacity .1s ease-out;
+}
+
+/* on the dashboard */
+.postbox .simple-history-logitems {
+	border: none;
+}
+
+#simple_history_dashboard_widget .inside {
+	padding: 0;
+	margin-top: 0;
 }
 
 .simple-history-logitems {
@@ -235,8 +249,8 @@ Pagination, below logRows
 
 .SimpleHistoryPaginationPages {
 	text-align: center;
-	/*padding: 10px 0;*/
 	margin-top: 20px;
+	margin-bottom: 20px;
 	
 }
 
