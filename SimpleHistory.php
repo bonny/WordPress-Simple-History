@@ -113,7 +113,11 @@ class SimpleHistory {
 			
 			<script type="text/html" id="tmpl-simple-history-base">
 
-				<div class="simple-history-logitems-wrap">
+				<div class="SimpleHistory__waitingForFirstLoad">
+				<img src="<?php echo admin_url("/images/spinner.gif");?>" alt="" width="20" height="20">
+					<?php echo _x("Loading...", "Message visible while waiting for log to load from server the first time", "simple-history") ?>
+				</div>
+				<div class="SimpleHistoryLogitemsWrap">
 					<div class="simple-history-logitems-before-top-pagination"></div>
 					<div class="SimpleHhistoryLogitems-above"></div>
 					<ul class="simple-history-logitems"></ul>
@@ -199,8 +203,8 @@ class SimpleHistory {
 		global $wpdb;
 
 		// Fake slow answers
+		sleep(2);
 		//sleep(rand(0,3));
-		//sleep(5);
 		$args = $_GET;
 		unset($args["action"]);
 

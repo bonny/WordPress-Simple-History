@@ -87,6 +87,8 @@ var simple_history2 = (function($) {
 				this.max_id_first_page = this.max_id;
 				$(document).trigger("SimpleHistory:logRowsCollectionFirstLoad");
 
+				$(".SimpleHistory__waitingForFirstLoad").addClass("SimpleHistory__waitingForFirstLoad--isLoaded");
+
 			}
 
 			var arrRows = [];
@@ -522,8 +524,6 @@ var simple_history2 = (function($) {
 				collection: this.logRowsCollection,
 			});
 			this.paginationView.mainView = this;
-				
-			this.render();
 
 		},
 
@@ -538,9 +538,6 @@ var simple_history2 = (function($) {
 
 		},
 
-		render: function() {
-
-		}
 
 	});
 

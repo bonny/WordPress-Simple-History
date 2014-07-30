@@ -6,13 +6,31 @@ The spinner that wp uses:;
 
 */
 
+.simple-history-gui {
+	position: relative;
+}
+
+.SimpleHistory__waitingForFirstLoad {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+}
+
+.SimpleHistory__waitingForFirstLoad img {
+	vertical-align: text-bottom;
+}
+
+.SimpleHistory__waitingForFirstLoad--isLoaded {
+	display: none;
+}
+
 /* wrap around the log items and the pagination */
-.simple-history-logitems-wrap {
+.SimpleHistoryLogitemsWrap {
 	transition: opacity .1s ease-out;
 }
 
 /* on it's own page */
-.dashboard_page_simple_history_page .simple-history-logitems-wrap {
+.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {
 	float: left;
 	width: 650px;
 	max-width: 650px;
@@ -283,7 +301,7 @@ Pagination, below logRows
 /*
 animations/effects
 */
-.SimpleHistory-isLoadingPage .simple-history-logitems-wrap {
+.SimpleHistory-isLoadingPage .SimpleHistoryLogitemsWrap {
 	opacity: .5;
 }
 
