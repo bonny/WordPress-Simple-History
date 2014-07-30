@@ -473,9 +473,8 @@ var simple_history2 = (function($) {
 			});
 
 			// Scroll to top of el
-
 			$("html, body").animate({
-				scrollTop: this.mainView.$el.offset().top - 85
+				scrollTop: this.attributes.mainView.$el.offset().top - 85
 			}, 350);
 
 		},
@@ -522,8 +521,10 @@ var simple_history2 = (function($) {
 			this.paginationView = new PaginationView({
 				el: this.$el.find(".simple-history-logitems-pagination"),
 				collection: this.logRowsCollection,
+				attributes: {
+					mainView: this
+				}
 			});
-			this.paginationView.mainView = this;
 
 		},
 

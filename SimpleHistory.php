@@ -203,7 +203,7 @@ class SimpleHistory {
 		global $wpdb;
 
 		// Fake slow answers
-		sleep(2);
+		//sleep(2);
 		//sleep(rand(0,3));
 		$args = $_GET;
 		unset($args["action"]);
