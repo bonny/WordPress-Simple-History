@@ -364,6 +364,11 @@ var simple_history2 = (function($) {
 				return;
 			}
 
+			// Only go on if on own page
+			if (!$(".dashboard_page_simple_history_page").length) {
+				return;
+			}
+
 			var paged;
 
 			if (e.keyCode == 37) {
@@ -461,8 +466,10 @@ var simple_history2 = (function($) {
 				}
 			});
 
+			// Scroll to top of el
+
 			$("html, body").animate({
-				scrollTop: 0
+				scrollTop: this.mainView.$el.offset().top - 75
 			}, 350);
 
 		},
@@ -506,8 +513,9 @@ var simple_history2 = (function($) {
 
 			this.paginationView = new PaginationView({
 				el: this.$el.find(".simple-history-logitems-pagination"),
-				collection: this.logRowsCollection
+				collection: this.logRowsCollection,
 			});
+			this.paginationView.mainView = this;
 				
 			this.render();
 
