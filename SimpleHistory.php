@@ -518,6 +518,16 @@ class SimpleHistory {
 	function get_pager_size() {
 
 		$pager_size = get_option("simple_history_pager_size", 5);
+
+		/**
+		 * Filter the pager size setting
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $pager_size
+		 */
+		$pager_size = apply_filters("simple_history/pager_size", $pager_size);
+
 		return $pager_size;
 
 	}
@@ -561,6 +571,16 @@ class SimpleHistory {
 	function dashboard_widget_output() {
 	
 		$pager_size = $this->get_pager_size();
+
+		/**
+		 * Filter the pager size setting for the dashboard
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $pager_size
+		 */
+		$pager_size = apply_filters("simple_history/dashboard_pager_size", $pager_size);
+
 		?>
 		<div class="simple-history-gui"
 			 data-pager-size='<?php echo $pager_size ?>'
@@ -888,6 +908,16 @@ class SimpleHistory {
 		//$this->purge_db();
 
 		$pager_size = $this->get_pager_size();
+
+		/**
+		 * Filter the pager size setting for the history page
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $pager_size
+		 */
+		$pager_size = apply_filters("simple_history/page_pager_size", $pager_size);
+
 		?>
 
 		<div class="wrap simple-history-wrap">
