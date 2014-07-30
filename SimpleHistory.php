@@ -559,14 +559,10 @@ class SimpleHistory {
 	 * Output html for the dashboard widget
 	 */
 	function dashboard_widget_output() {
-
-		$this->purge_db();
-		
-		echo '<div class="wrap simple-history-wrap">';
-		simple_history_print_nav();
-		echo simple_history_print_history();
-		echo simple_history_get_pagination();
-		echo '</div>';
+	
+		?>
+		<div class="simple-history-gui"></div>
+		<?php
 
 	}
 	
@@ -575,6 +571,7 @@ class SimpleHistory {
 		$current_screen = get_current_screen();
 
 		if ( $current_screen && $current_screen->base == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG ) {
+			
 			return true;
 
 		} else if ( $current_screen && $current_screen->base == "dashboard_page_simple_history_page" ) {
@@ -582,6 +579,10 @@ class SimpleHistory {
 			return true;
 
 		} else if ( ($hook == "settings_page_" . SimpleHistory::SETTINGS_MENU_SLUG) || ($this->setting_show_on_dashboard() && $hook == "index.php") || ($this->setting_show_as_page() && $hook == "dashboard_page_simple_history_page")) {
+
+			return true;
+
+		} else if ( $current_screen && $current_screen->base == "dashboard" && $this->setting_show_on_dashboard() ) {
 
 			return true;
 
@@ -596,7 +597,7 @@ class SimpleHistory {
 	 * Only adds scripts to pages where the log is shown or the settings page.
 	 */
 	function enqueue_admin_scripts($hook) {
-	
+		
 		if ($this->is_on_our_own_pages()) {
 	
 			$plugin_url = plugin_dir_url(__FILE__);

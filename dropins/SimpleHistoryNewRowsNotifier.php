@@ -143,7 +143,6 @@ class SimpleHistoryNewRowsNotifier {
 				$(document).on("click", ".SimpleHistoryDropin__NewRowsNotifier", function(e) {
 
 					// Just re-init the logcollection?
-					// @TODO: muse cancel the previos setinterval because on each reload we will get another interval running
 					clearInterval(intervalID);
 					simple_history2.logRowsCollection.initialize();
 
