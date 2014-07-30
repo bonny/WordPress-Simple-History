@@ -29,7 +29,19 @@ var simple_history2 = (function($) {
 
 		initialize: function() {
 
+			$(document).trigger("SimpleHistory:logRowsCollectionInitialize");
+
 			this.url = api_base_url + "&type=overview&format=html&posts_per_page=20";
+
+			// Reset some vars
+			this.api_args = null;
+			this.max_id = null;
+			this.min_id = null;
+			this.pages_count = null;
+			this.total_row_count = null;
+			this.page_rows_from = null;
+			this.page_rows_to = null;
+			this.max_id_first_page = null;
 
 			// Get first page
 			// We don't have max_id yet
@@ -69,7 +81,7 @@ var simple_history2 = (function($) {
 			if ( ! this.max_id_first_page ) {
 
 				this.max_id_first_page = this.max_id;
-				$(document).trigger("SimpleHistory:logLoadedFirst");
+				$(document).trigger("SimpleHistory:logRowsCollectionFirstLoad");
 
 			}
 
@@ -145,7 +157,7 @@ var simple_history2 = (function($) {
 
 			// Trigger event for plugins
 			this.logRows.on("reset", function() {
-				$(document).trigger("SimpleHistory:occasionsLoaded");
+				$(document).trigger("SimpleHistory:logRowsCollectionOccasionsLoaded");
 			}, this);
 
 		},

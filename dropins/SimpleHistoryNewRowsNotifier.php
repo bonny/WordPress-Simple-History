@@ -121,26 +121,39 @@ class SimpleHistoryNewRowsNotifier {
 
 				};
 
-				// WHen the log is loaded the first time
-				$(document).on("SimpleHistory:logLoadedFirst", function() {
+				// When the log is loaded the first time
+				$(document).on("SimpleHistory:logRowsCollectionFirstLoad", function() {
 					
 					if (!$elmWrapper) {
+
 						$elmWrapper = $(elmWrapperClass);
 						$elm = $("<div />",{
 							class: "SimpleHistoryDropin__NewRowsNotifier"
 						});
 						$elm.appendTo($elmWrapper);
+
 					}
 
-					setInterval(checkForUpdates, 3000);
+					setInterval(checkForUpdates, 5000);
 
 				});
 
 				// When we click on the div 
 				$(document).on("click", ".SimpleHistoryDropin__NewRowsNotifier", function(e) {
 
-					console.log(e);
+					// Just re-init the logcollection?
+					// @TODO: muse cancel the previos setinterval because on each reload we will get another interval running
+					simple_history2.logRowsCollection.initialize();
 
+				});
+
+				$(document).on("SimpleHistory:logRowsCollectionInitialize", function() {
+					
+					if (!$elm) {
+						return;
+					}
+
+					$elm.removeClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
 				});
 
 			}(jQuery));
