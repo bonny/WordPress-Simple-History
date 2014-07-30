@@ -100,6 +100,7 @@ class SimpleHistoryNewRowsNotifier {
 				var $elmWrapper;
 				var $elm;
 				var ajaxurl = window.ajaxurl;
+				var intervalID;
 
 				var checkForUpdates = function() {
 
@@ -134,7 +135,7 @@ class SimpleHistoryNewRowsNotifier {
 
 					}
 
-					setInterval(checkForUpdates, 5000);
+					intervalID = setInterval(checkForUpdates, 5000);
 
 				});
 
@@ -143,6 +144,7 @@ class SimpleHistoryNewRowsNotifier {
 
 					// Just re-init the logcollection?
 					// @TODO: muse cancel the previos setinterval because on each reload we will get another interval running
+					clearInterval(intervalID);
 					simple_history2.logRowsCollection.initialize();
 
 				});
