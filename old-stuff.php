@@ -7,32 +7,14 @@ old actions and filters, to move into own loggers
 */
 function old_logger_inits() {
 
-		/** called on init: */
-
-		// user profile page modifications
-		add_action("delete_user", "simple_history_delete_user");
-		add_action("user_register", "simple_history_user_register");
-		add_action("profile_update", "simple_history_profile_update");
-	
 		// options
 		#add_action("updated_option", "simple_history_updated_option", 10, 3);
 		#add_action("updated_option", "simple_history_updated_option2", 10, 2);
 		#add_action("updated_option", "simple_history_updated_option3", 10, 1);
 		#add_action("update_option", "simple_history_update_option", 10, 3);
 	
-		// plugin
-		add_action("activated_plugin", "simple_history_activated_plugin");
-		add_action("deactivated_plugin", "simple_history_deactivated_plugin");
 
-
-
-		/** called on admin_init */
-										 
-		
 		// comments
-		add_action("edit_comment", "simple_history_edit_comment");
-		add_action("delete_comment", "simple_history_delete_comment");
-		add_action("wp_set_comment_status", "simple_history_set_comment_status", 10, 2);
 
 		// settings (all built in except permalinks)
 		$arr_option_pages = array("general", "writing", "reading", "discussion", "media", "privacy");
@@ -45,11 +27,6 @@ function old_logger_inits() {
 
 		// settings page for permalinks
 		add_action('check_admin_referer', "simple_history_add_update_option_page_permalinks", 10, 2);
-
-		// core update = wordpress updates
-		add_action( '_core_updated_successfully', array($this, "action_core_updated") );
-
-
 
 
 }
@@ -210,11 +187,5 @@ function simple_history_update_option($option, $oldval, $newval) {
 		$debug .= "\ndiff_added: " . print_r($diff_added, true);
 		$debug .= "\ndiff_removed: " . print_r($diff_removed, true);
 	}
-}
-
-
-// WordPress Core updated
-function action_core_updated($wp_version) {
-	simple_history_add("action=updated&object_type=wordpress_core&object_id=wordpress_core&object_name=".sprintf(__('WordPress %1$s', 'simple-history'), $wp_version));
 }
 
