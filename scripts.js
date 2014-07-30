@@ -27,11 +27,15 @@ var simple_history2 = (function($) {
 
 	var LogRowsCollection = Backbone.Collection.extend({
 
-		initialize: function() {
+		initialize: function(models, options) {
+
+			this.mainView = options.mainView;
 
 			$(document).trigger("SimpleHistory:logRowsCollectionInitialize");
 
-			this.url = api_base_url + "&type=overview&format=html&posts_per_page=20";
+			var pager_size = this.mainView.$el.data("pagerSize");
+			this.url = api_base_url + "&type=overview&format=html";
+			this.url += "&posts_per_page=" + pager_size;
 
 			// Reset some vars
 			this.api_args = null;
@@ -504,7 +508,9 @@ var simple_history2 = (function($) {
 
 			this.addNeededElements();
 
-			this.logRowsCollection = new LogRowsCollection();
+			this.logRowsCollection = new LogRowsCollection([], {
+				mainView: this,
+			});
 			
 			this.rowsView = new RowsView({
 				el: this.$el.find(".simple-history-logitems"),

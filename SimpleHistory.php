@@ -560,8 +560,11 @@ class SimpleHistory {
 	 */
 	function dashboard_widget_output() {
 	
+		$pager_size = $this->get_pager_size();
 		?>
-		<div class="simple-history-gui"></div>
+		<div class="simple-history-gui"
+			 data-pager-size='<?php echo $pager_size ?>'
+			 ></div>
 		<?php
 
 	}
@@ -884,13 +887,16 @@ class SimpleHistory {
 
 		//$this->purge_db();
 
+		$pager_size = $this->get_pager_size();
 		?>
 
 		<div class="wrap simple-history-wrap">
 			
 			<h2><?php echo _x("History", 'history page headline', 'simple-history') ?></h2>
 	
-			<div class="simple-history-gui"></div>
+			<div class="simple-history-gui"
+				 data-pager-size='<?php echo $pager_size ?>'
+				 ></div>
 
 		</div>
 
