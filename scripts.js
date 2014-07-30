@@ -40,6 +40,7 @@ var simple_history2 = (function($) {
 		reload: function() {
 
 			$(document).trigger("SimpleHistory:logRowsCollectionReload");
+			$("html").addClass("SimpleHistory-isLoadingPage");
 
 			var pager_size = this.mainView.$el.data("pagerSize");
 			this.url = api_base_url + "&type=overview&format=html";
@@ -65,6 +66,9 @@ var simple_history2 = (function($) {
 				// called on 404 and similar
 				error: function() {
 					alert(simple_history_script_vars.loadLogAPIError);
+				},
+				success: function() {
+					$("html").removeClass("SimpleHistory-isLoadingPage");
 				}
 			});
 
