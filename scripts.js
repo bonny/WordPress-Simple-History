@@ -473,7 +473,7 @@ var simple_history2 = (function($) {
 			// Scroll to top of el
 
 			$("html, body").animate({
-				scrollTop: this.mainView.$el.offset().top - 75
+				scrollTop: this.mainView.$el.offset().top - 85
 			}, 350);
 
 		},
