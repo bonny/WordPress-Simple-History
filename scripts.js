@@ -33,6 +33,14 @@ var simple_history2 = (function($) {
 
 			$(document).trigger("SimpleHistory:logRowsCollectionInitialize");
 
+			this.reload();
+
+		},
+
+		reload: function() {
+
+			$(document).trigger("SimpleHistory:logRowsCollectionReload");
+
 			var pager_size = this.mainView.$el.data("pagerSize");
 			this.url = api_base_url + "&type=overview&format=html";
 			this.url += "&posts_per_page=" + pager_size;

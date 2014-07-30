@@ -144,11 +144,11 @@ class SimpleHistoryNewRowsNotifier {
 
 					// Just re-init the logcollection?
 					clearInterval(intervalID);
-					simple_history2.logRowsCollection.initialize();
+					simple_history2.logRowsCollection.reload();
 
 				});
 
-				$(document).on("SimpleHistory:logRowsCollectionInitialize", function() {
+				$(document).on("SimpleHistory:logRowsCollectionReload", function() {
 					
 					if (!$elm) {
 						return;
