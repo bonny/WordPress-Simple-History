@@ -22,20 +22,20 @@ class SimpleCommentsLogger extends SimpleLogger
 			"messages" => array(
 
 				'anon_comment_added' => _x(
-					'{comment_author} ({comment_author_email}) made a comment to post "{comment_post_title}"', 
-					'A comment was added to the database by an anonymous internet user',
+					'{comment_author} ({comment_author_email}) added a comment to "{comment_post_title}"', 
+					'A comment was added to the database by a non-logged in internet user',
 					'simple-history'
 				),
 
 				'user_comment_added' => _x(
-					'Added a comment to post "{comment_post_title}"', 
+					'Added a comment to "{comment_post_title}"', 
 					'A comment was added to the database by a logged in user',
 					'simple-history'
 				),
 
 				// approve, spam, trash, hold
 				'comment_status_approve' => _x(
-					'Approved a comment for post "{comment_post_title}"', 
+					'Approved a comment to "{comment_post_title}"', 
 					'A comment was approved',
 					'simple-history'
 				),
@@ -115,16 +115,20 @@ class SimpleCommentsLogger extends SimpleLogger
 		
 	}
 
-	public function on_edit_comment($comment_ID) {
+	/**
+	 * Get comments context
+	 * 
+	 * @param int $comment_ID
+	 * @return mixed array with context if comment found, false if comment not found
+	 */
+	public function get_context_for_comment($comment_ID) {
 
 		$comment_data = get_comment( $comment_ID );
 
 		if ( is_null( $comment_data ) ) {
-			return;
+			return false;
 		}
 
-		#sf_d($comment_data);exit;
-		
 		$comment_parent_post = get_post( $comment_data->comment_post_ID );
 
 		$context = array(
@@ -141,6 +145,17 @@ class SimpleCommentsLogger extends SimpleLogger
 			"comment_post_ID" => $comment_data->comment_post_ID,
 			"comment_post_title" => $comment_parent_post->post_title,
 		);
+
+		return $context;
+
+	}
+
+	public function on_edit_comment($comment_ID) {
+
+		$context = $this->get_context_for_comment($comment_ID);
+		if ( ! $context ) {
+			return;
+		}
 
 		$this->infoMessage(
 			"comment_edited",
@@ -151,28 +166,10 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	public function on_delete_comment($comment_ID) {
 
-		$comment_data = get_comment( $comment_ID );
-
-		if ( is_null( $comment_data ) ) {
+		$context = $this->get_context_for_comment($comment_ID);
+		if ( ! $context ) {
 			return;
 		}
-		
-		$comment_parent_post = get_post( $comment_data->comment_post_ID );
-
-		$context = array(
-			"comment_ID" => $comment_ID,
-			"comment_author" => $comment_data->comment_author,
-			"comment_author_email" => $comment_data->comment_author_email,
-			"comment_author_url" => $comment_data->comment_author_url,
-			"comment_author_IP" => $comment_data->comment_author_IP,
-			"comment_content" => $comment_data->comment_content,
-			"comment_approved" => $comment_data->comment_approved,
-			"comment_agent" => $comment_data->comment_agent,
-			"comment_type" => $comment_data->comment_type,
-			"comment_parent" => $comment_data->comment_parent,
-			"comment_post_ID" => $comment_data->comment_post_ID,
-			"comment_post_title" => $comment_parent_post->post_title,
-		);
 
 		$this->infoMessage(
 			"comment_deleted",
@@ -183,28 +180,10 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	public function on_untrashed_comment($comment_ID) {
 
-		$comment_data = get_comment( $comment_ID );
-
-		if ( is_null( $comment_data ) ) {
+		$context = $this->get_context_for_comment($comment_ID);
+		if ( ! $context ) {
 			return;
 		}
-		
-		$comment_parent_post = get_post( $comment_data->comment_post_ID );
-
-		$context = array(
-			"comment_ID" => $comment_ID,
-			"comment_author" => $comment_data->comment_author,
-			"comment_author_email" => $comment_data->comment_author_email,
-			"comment_author_url" => $comment_data->comment_author_url,
-			"comment_author_IP" => $comment_data->comment_author_IP,
-			"comment_content" => $comment_data->comment_content,
-			"comment_approved" => $comment_data->comment_approved,
-			"comment_agent" => $comment_data->comment_agent,
-			"comment_type" => $comment_data->comment_type,
-			"comment_parent" => $comment_data->comment_parent,
-			"comment_post_ID" => $comment_data->comment_post_ID,
-			"comment_post_title" => $comment_parent_post->post_title,
-		);
 
 		$this->infoMessage(
 			"comment_untrashed",
@@ -223,14 +202,10 @@ class SimpleCommentsLogger extends SimpleLogger
 	 */	
 	public function on_wp_set_comment_status($comment_ID, $comment_status) {
 
-		$comment_data = get_comment( $comment_ID );
-
-		if ( is_null( $comment_data ) ) {
+		$context = $this->get_context_for_comment($comment_ID);
+		if ( ! $context ) {
 			return;
 		}
-
-		// WP_Post object
-		$comment_parent_post = get_post( $comment_data->comment_post_ID );
 
 		/*
 		$comment_status:
@@ -246,22 +221,6 @@ class SimpleCommentsLogger extends SimpleLogger
 		// sf_d($comment_status);exit;
 		$message = "comment_status_{$comment_status}";
 
-		$context = array(
-			"comment_ID" => $comment_ID,
-			"comment_author" => $comment_data->comment_author,
-			"comment_author_email" => $comment_data->comment_author_email,
-			"comment_author_url" => $comment_data->comment_author_url,
-			"comment_author_IP" => $comment_data->comment_author_IP,
-			"comment_content" => $comment_data->comment_content,
-			"comment_approved" => $comment_data->comment_approved,
-			"comment_agent" => $comment_data->comment_agent,
-			"comment_type" => $comment_data->comment_type,
-			"comment_parent" => $comment_data->comment_parent,
-			"comment_post_ID" => $comment_data->comment_post_ID,
-			// the post that this is a comment to
-			"comment_post_title" => $comment_parent_post->post_title,
-		);
-
 		$this->infoMessage(
 			$message,
 			$context
@@ -271,29 +230,15 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	public function on_comment_post($comment_ID, $comment_approved) {
 
+		$context = $this->get_context_for_comment($comment_ID);
+		if ( ! $context ) {
+			return;
+		}
+
 		$comment_data = get_comment( $comment_ID );
 
-		// WP_Post object
-		$comment_parent_post = get_post( $comment_data->comment_post_ID );
-
-		$context = array(
-			"comment_ID" => $comment_ID,
-			"comment_author" => $comment_data->comment_author,
-			"comment_author_email" => $comment_data->comment_author_email,
-			"comment_author_url" => $comment_data->comment_author_url,
-			"comment_author_IP" => $comment_data->comment_author_IP,
-			"comment_content" => $comment_data->comment_content,
-			"comment_approved" => $comment_data->comment_approved,
-			"comment_agent" => $comment_data->comment_agent,
-			"comment_type" => $comment_data->comment_type,
-			"comment_parent" => $comment_data->comment_parent,
-			"comment_post_ID" => $comment_data->comment_post_ID,
-			// the post that this is a comment to
-			"comment_post_title" => $comment_parent_post->post_title,
-		);
-
 		$message = "";
-		if ($comment_data->user_id) {
+		if ( $comment_data->user_id ) {
 			// comment was from a logged in user
 			$message = "user_comment_added";
 
