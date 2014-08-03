@@ -35,13 +35,16 @@ class SimpleCommentsLogger extends SimpleLogger
 
 				// approve, spam, trash, hold
 				'comment_status_approve' => _x(
-					'Approved a comment to "{comment_post_title}"', 
+					#'Approved a comment to "{comment_post_title}"', 
+					'Approved a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
 					'A comment was approved',
 					'simple-history'
 				),
 
 				'comment_status_hold' => _x(
-					'Unapproved a comment for post "{comment_post_title}"', 
+					'Unapproved a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					#'Unapproved the comment for "{comment_post_title}" from {comment_author} ({comment_author_email})',
+					#'Unapproved a comment from {comment_author} ({comment_author_email}) to "{comment_post_title}"', 	
 					'A comment was was unapproved',
 					'simple-history'
 				),
@@ -53,25 +56,28 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'comment_status_trash' => _x(
-					'Moved a comment to post "{comment_post_title}" to the trash', 
+					#'Moved a comment to post "{comment_post_title}" to the trash', 
+					'Trashed a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
 					'A comment was marked moved to the trash',
 					'simple-history'
 				),
 
 				'comment_untrashed' => _x(
-					'Restored a comment to post "{comment_post_title}" from the trash', 
+					'Restored a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email}) from the trash', 
 					'A comment was restored from the trash',
 					'simple-history'
 				),
 
 				'comment_deleted' => _x(
-					'Deleted a comment to post "{comment_post_title}"', 
+					#'Deleted a comment to post "{comment_post_title}"', 
+					'Deleted a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
 					'A comment was deleted',
 					'simple-history'
 				),
 
 				'comment_edited' => _x(
-					'Edited a comment to post "{comment_post_title}"', 
+					#'Edited a comment to post "{comment_post_title}"', 
+					'Edited a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
 					'A comment was edited',
 					'simple-history'
 				),
