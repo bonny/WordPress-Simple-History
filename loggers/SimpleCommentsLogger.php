@@ -293,4 +293,34 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	}
 
+
+	/**
+	 * Get output for detailed log section
+	 */
+	function getLogRowDetailsOutput($row) {
+
+		$context = $row->context;
+		$message_key = $context["_message_key"];
+		$output = "";
+		
+		if ( isset( $context["comment_approved"] ) && $context["comment_approved"] ) {
+			$output .= "<br>comment was automatically approved";
+		} else {
+			$output .= "<br>comment was not automatically approved";
+		}
+
+		if ( isset( $context["comment_author_IP"] ) && $context["comment_author_IP"] ) {
+			$output .= "<br>comment was made from IP number " . $context["comment_author_IP"];
+		}
+
+		if ( isset( $context["comment_content"] ) && $context["comment_content"] ) {
+			$comment_text = $context["comment_content"];
+			$comment_text = wp_trim_words( $comment_text, 20 );
+			$output .= "<br>comment text: " . wpautop( $comment_text );
+		}
+
+		return $output;
+
+	}
+
 }
