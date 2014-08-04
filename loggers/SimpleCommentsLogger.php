@@ -261,4 +261,36 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	}
 
+
+	/**
+	 * Modify plain output to inlcude link to post
+	 */
+	public function getLogRowPlainTextOutput($row) {
+		
+		$message = $row->message;
+		$context = $row->context;
+		$message_key = $context["_message_key"];
+
+		// @TODO: wrap links around {comment_post_title}
+		$comment_post_ID = isset( $context["comment_post_ID"] ) ? (int) $context["comment_post_ID"] : null;
+		if ( $comment_post_ID && $comment_post = get_post( $comment_post_ID ) ) {
+
+			$edit_post_link = get_edit_post_link( $comment_post_ID );
+	
+			if ( $edit_post_link ) {
+			
+				$message = str_replace(
+					'"{comment_post_title}"',
+					"<a href='{$edit_post_link}'>\"{comment_post_title}\"</a>",
+					$message
+				);
+
+			}
+
+		}
+
+		return $this->interpolate($message, $context);
+
+	}
+
 }
