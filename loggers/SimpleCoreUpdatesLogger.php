@@ -14,12 +14,14 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 
 	}
 
-	public function on_core_updated($wp_version_old) {
+	public function on_core_updated($new_wp_version) {
 		
-		global $pagenow, $wp_version;
+		global $pagenow;
+
+		$old_wp_version = $GLOBALS['wp_version'];
 
 		$auto_update = true;		
-		if ( $pagenow == 'update-core.php' ) {
+		if ( $GLOBALS['pagenow'] == 'update-core.php' ) {
 			$auto_update = false;
 		}
 
@@ -32,8 +34,8 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 		$this->noticeMessage(
 			$message,
 			array(
-				"prev_version" => $wp_version_old,
-				"new_version" => $wp_version
+				"prev_version" => $old_wp_version,
+				"new_version" => $new_wp_version
 			)
 		);
 
