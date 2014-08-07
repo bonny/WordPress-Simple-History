@@ -114,7 +114,7 @@ class SimpleHistory {
 			<script type="text/html" id="tmpl-simple-history-base">
 
 				<div class="SimpleHistory__waitingForFirstLoad">
-				<img src="<?php echo admin_url("/images/spinner.gif");?>" alt="" width="20" height="20">
+					<img src="<?php echo admin_url("/images/spinner.gif");?>" alt="" width="20" height="20">
 					<?php echo _x("Loading...", "Message visible while waiting for log to load from server the first time", "simple-history") ?>
 				</div>
 				<div class="SimpleHistoryLogitemsWrap">

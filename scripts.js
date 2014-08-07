@@ -33,14 +33,12 @@ var simple_history2 = (function($) {
 
 			$(document).trigger("SimpleHistory:logRowsCollectionInitialize");
 
-			this.reload();
-
 		},
 
 		reload: function() {
 
+			this.trigger("reload");
 			$(document).trigger("SimpleHistory:logRowsCollectionReload");
-			$("html").addClass("SimpleHistory-isLoadingPage");
 
 			var pager_size = this.mainView.$el.data("pagerSize");
 			this.url = api_base_url + "&type=overview&format=html";
@@ -58,17 +56,20 @@ var simple_history2 = (function($) {
 
 			// Get first page
 			// We don't have max_id yet
+			var that = this;
 			this.fetch({
 				reset: true,
 				data: {
 					paged: 1
 				},
 				// called on 404 and similar
-				error: function() {
-					alert(simple_history_script_vars.loadLogAPIError);
+				error: function(collection, response, options) {
+					collection.trigger("reloadError");
+					$(document).trigger("SimpleHistory:logRowsCollectionReloadError");
 				},
-				success: function() {
-					$("html").removeClass("SimpleHistory-isLoadingPage");
+				success: function(collection, response, options) {
+					collection.trigger("reloadDone");
+					$(document).trigger("SimpleHistory:logRowsCollectionReloadDone");
 				}
 			});
 
@@ -294,12 +295,26 @@ var simple_history2 = (function($) {
 		initialize: function() {
 			
 			this.collection.on("reset", this.render, this);
+			this.collection.on("reload", this.onReload, this);
+			this.collection.on("reloadDone", this.onReloadDone, this);
 
 			// Trigger event for plugins
 			this.collection.on("reset", function() {
 				$(document).trigger("SimpleHistory:logLoaded");
 			}, this);
 
+		},
+
+		onReload: function() {
+
+			$("html").addClass("SimpleHistory-isLoadingPage");
+
+		},
+
+		onReloadDone: function() {
+
+			$("html").removeClass("SimpleHistory-isLoadingPage");
+		
 		},
 
 		events: {
@@ -529,6 +544,9 @@ var simple_history2 = (function($) {
 				el: this.$el.find(".simple-history-logitems"),
 				collection: this.logRowsCollection
 			});
+
+			// Load log first time
+			this.logRowsCollection.reload();
 
 			this.paginationView = new PaginationView({
 				el: this.$el.find(".simple-history-logitems-pagination"),
