@@ -63,6 +63,6 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 			)
 		);
 
-
+	}
 
 }
