@@ -14,10 +14,34 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 
 	}
 
+	/**
+	 * Get array with information about this logger
+	 * 
+	 * @return array
+	 */
+	function getInfo() {
+
+		$arr_info = array(			
+			"name" => "Core Updates Logger",
+			"description" => "Logs the update of WordPress (manual and automatic updates)",
+			"capability" => "update_core",
+			"messages" => array(
+				'core_updated' => __('Updated WordPress from {prev_version} to {new_version}', 'simple-history'),
+				'core_auto_updated' => __('WordPress updated from {prev_version} to {new_version}', 'simple-history')
+			)
+		);
+		
+		return $arr_info;
+
+	}
+
+	/**
+	 * Called when WordPress is updated
+	 *
+	 * @param string $new_wp_version
+	 */
 	public function on_core_updated($new_wp_version) {
 		
-		global $pagenow;
-
 		$old_wp_version = $GLOBALS['wp_version'];
 
 		$auto_update = true;		
@@ -39,27 +63,6 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 			)
 		);
 
-	}
 
-	/**
-	 * Get array with information about this logger
-	 * 
-	 * @return array
-	 */
-	function getInfo() {
-
-		$arr_info = array(			
-			"name" => "Core Updates Logger",
-			"description" => "Logs the update of WordPress (manual and automatic updates)",
-			"capability" => "update_core",
-			"messages" => array(
-				'core_updated' => __('Updated WordPress from {prev_version} to {new_version}', 'simple-history'),
-				'core_auto_updated' => __('WordPress updated from {prev_version} to {new_version}', 'simple-history')
-			)
-		);
-		
-		return $arr_info;
-
-	}
 
 }
