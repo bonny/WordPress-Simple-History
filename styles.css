@@ -125,6 +125,8 @@ There is always a 4px left border, just with differents colors
 
 .simple-history-logitem__text {
 	margin-top: 0.4em;
+	font-size: 16px;
+	color: #333;
 }
 
 .simple-history-logitem__text,
@@ -149,6 +151,20 @@ There is always a 4px left border, just with differents colors
 .simple-history-logitem__details {
 	margin-top: 0.4em;
 }
+
+
+/* table with keys and values */
+.SimpleHistoryLogitem__keyValueTable {
+
+}
+
+.SimpleHistoryLogitem__keyValueTable tr > td:first-child {
+	text-align: right;
+	/*font-weight: bold;*/
+	padding-right: 1em;
+	color: #777;
+}
+
 
 /* wrap span.simple-history-logitem__inlineDivided around things that should have a bullet between them */
 .simple-history-logitem__inlineDivided:before {

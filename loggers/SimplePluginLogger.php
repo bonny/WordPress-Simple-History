@@ -392,15 +392,22 @@ class SimplePluginLogger extends SimpleLogger
 					"plugin_version" => $plugin_upgrader_instance->skin->api->version,
 					"plugin_author" => $plugin_upgrader_instance->skin->api->author,
 					"plugin_last_updated" => $plugin_upgrader_instance->skin->api->last_updated,
-					"plugin_source_files" => json_encode( $plugin_upgrader_instance->result["source_files"] )
+					"plugin_requires" => $plugin_upgrader_instance->skin->api->requires,
+					"plugin_tested" => $plugin_upgrader_instance->skin->api->tested,
+					"plugin_rating" => $plugin_upgrader_instance->skin->api->rating,
+					"plugin_num_ratings" => $plugin_upgrader_instance->skin->api->num_ratings,
+					"plugin_downloaded" => $plugin_upgrader_instance->skin->api->downloaded,
+					"plugin_added" => $plugin_upgrader_instance->skin->api->added,
+					"plugin_source_files" => $this->simpleHistory->json_encode( $plugin_upgrader_instance->result["source_files"] ),
+					//"upgrader_skin_api" => $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->api )
 				);
 
 				if ( is_a( $plugin_upgrader_instance->skin->result, "WP_Error" ) ) {
 
 					// Add errors
 					// Errors is in original wp admin language
-					$context["error_messages"] = json_encode( $plugin_upgrader_instance->skin->result->errors );
-					$context["error_data"] = json_encode( $plugin_upgrader_instance->skin->result->error_data );
+					$context["error_messages"] = $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->result->errors );
+					$context["error_data"] = $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
 					$this->infoMessage(
 						'plugin_installed_failed',
@@ -410,6 +417,19 @@ class SimplePluginLogger extends SimpleLogger
 					$did_log = true;
 					
 				} else {
+
+					// Plugin was successfully installed
+					// Try to grab more info from the readme
+					// Would be nice to grab a screenshot, but that is difficult since they often are stored remotely
+					$plugin_destination = isset( $plugin_upgrader_instance->result["destination"] ) ? $plugin_upgrader_instance->result["destination"] : null;
+					if ($plugin_destination) {
+
+						$plugin_info = $plugin_upgrader_instance->plugin_info();
+						$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info );
+						$context["plugin_description"] = $plugin_data["Description"];
+						$context["plugin_url"] = $plugin_data["PluginURI"];
+
+					}
 
 					$this->infoMessage(
 						'plugin_installed',
@@ -699,5 +719,198 @@ class SimplePluginLogger extends SimpleLogger
 		$this->infoMessage( 'plugin_deactivated', $context );
 
 	}
+
+
+	/**
+	 * Get output for detailed log section
+	 */
+	function getLogRowDetailsOutput($row) {
+
+		$context = $row->context;
+		$message_key = $context["_message_key"];
+		$output = "";
+
+		// When a plugin is installed we show a bit more information
+		// We do it only on install because we don't want to clutter to log,
+		// and when something is installed the description is most useul for other 
+		// admins on the site
+		if ( "plugin_installed" === $message_key ) {
+	
+			if ( isset($context["plugin_description"]) ) {
+
+				// Description includes a link to author, remove that, i.e. all text after and including <cite>
+				$plugin_description = $context["plugin_description"];
+				$cite_pos = mb_strpos($plugin_description, "<cite>");
+				if ($cite_pos) {
+					$plugin_description = mb_strcut( $plugin_description, 0, $cite_pos );
+				}
+
+				$output .= sprintf(
+					'<p>%1$s</p>',
+					$plugin_description
+				);
+
+				// Start lots a meta info
+				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
+				$output .= "<tr>";
+
+				$output .= "<td>";
+				$output .= sprintf(
+					'Author</td><td>%1$s',
+					$context["plugin_author"]
+				);
+
+				$output .= "</td>";
+				$output .= "</tr>";
+
+				$output .= "<tr>";
+				$output .= "<td>";
+
+				if ( ! empty($context["plugin_url"]) ) {	
+					$output .= sprintf(
+						'URL</td><td><a href="%1$s">%1$s</a>',
+						esc_attr( $context["plugin_url"] )
+					);
+				}
+
+				$output .= "</td>";
+				$output .= "</tr>";
+
+				$output .= "<tr>";
+				$output .= "<td>";
+
+				$output .= sprintf(
+					'Version</td><td>%1$s',
+					$context["plugin_version"]
+				);
+				$output .= "</td>";
+				$output .= "</tr>";
+
+				$output .= "<tr>";
+				$output .= "<td>";
+				
+				$output .= sprintf(
+					'Updated</td><td>%1$s',
+					$context["plugin_last_updated"]
+				);
+
+				$output .= "</td>";
+				$output .= "</tr>";
+
+				$output .= "<tr>";
+				$output .= "<td>";
+
+				if ( ! empty($context["plugin_requires"]) ) {
+					$output .= sprintf(
+						'Requires</td><td>%1$s',
+						esc_attr( $context["plugin_requires"] )
+					);
+				}
+
+				$output .= "</td>";
+				$output .= "</tr>";
+
+				$output .= "<tr>";
+				$output .= "<td>";
+				
+
+				if ( ! empty($context["plugin_tested"]) ) {
+					$output .= sprintf(
+						'Compatible up to</td><td> %1$s',
+						esc_attr( $context["plugin_tested"] )
+					);
+				}
+
+				$output .= "</td>";
+				$output .= "</tr>";
+
+				/*
+				if ( ! empty($context["plugin_rating"]) ) {
+					$output .= sprintf(
+						'<span class="simple-history-logitem__inlineDivided">
+							Rating %1$s
+						</span> ',
+						esc_attr( $context["plugin_rating"] )
+					);
+				}
+
+				// Out of 5 the rating is : (rating / 100) * 5
+				if ( ! empty($context["plugin_num_ratings"]) ) {
+					$output .= sprintf(
+						'<span class="simple-history-logitem__inlineDivided">
+							Num ratings %1$s
+						</span> ',
+						esc_attr( $context["plugin_num_ratings"] )
+					);
+				}
+				*/
+
+				$output .= "<tr>";
+				$output .= "<td>";
+
+				if ( ! empty($context["plugin_downloaded"]) ) {
+					$output .= sprintf(
+						'Downloads</td><td>%1$s',
+						esc_attr( number_format_i18n($context["plugin_downloaded"]) )
+					);
+				}
+
+				$output .= "</td>";
+				$output .= "</tr>";
+
+				/*
+				if ( ! empty($context["plugin_added"]) ) {
+					$output .= sprintf(
+						'<span class="simple-history-logitem__inlineDivided">
+							Added %1$s
+						</span> ',
+						esc_attr( $context["plugin_added"] )
+					);
+				}
+				*/
+
+				// End meta info
+				$output .= "</table>";
+
+				// hard code test
+				/*
+				$output .= '
+					<style>
+						.yolo tr > td:first-child {
+							text-align: right;
+							font-weight: bold;
+							padding-right: 1em;
+							color: rgba(0, 0, 0, 0.5);
+						}
+					</style>
+					<table class="yolo">
+						<tr>
+							<td>Version</td>
+							<td>2.5.4</td>
+						</tr>
+						<tr>
+							<td>Author</td>
+							<td>The bbPress Community</td>
+						</tr>
+						<tr><td>Last updated</td><td>014-07-15</td></tr>
+						<tr><td>URL</td><td>http://bbpress.org</td></tr>
+						<tr><td>Requires</td><td>3.6</td></tr>
+						<tr><td>Tested</td><td>3.9.2</td></tr>
+						<tr><td>Rating</td><td>86.4</td></tr>
+						<tr><td>Num ratings</td><td>338</td></tr>
+						<tr><td>Downloaded</td><td>1392515</td></tr>
+						<!-- <tr><td>Added</td><td>2010-01-13</td></tr> -->
+					</table>
+				';
+				*/
+
+			}
+
+		}
+
+		return $output;
+
+	}
+
 
 }
