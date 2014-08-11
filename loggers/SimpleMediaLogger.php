@@ -85,10 +85,12 @@ class SimpleMediaLogger extends SimpleLogger
 				height: auto;
 			}
 
+			/*
 			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta-size,
 			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-open {
 				margin: .5em 0 0 0;
 			}
+			*/
 
 			.SimpleHistoryLogitem--logger-SimpleMediaLogger .SimpleHistoryLogitem__details {
 				max-width: 70%;

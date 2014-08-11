@@ -1,7 +1,20 @@
+<?php
 
-<!-- This this will get it's contents populated by JavaScript -->
-<div class="SimpleHistoryGui"></div>
+$pager_size = $this->get_pager_size();
 
+/**
+ * Filter the pager size setting for the dashboard
+ *
+ * @since 2.0
+ *
+ * @param int $pager_size
+ */
+$pager_size = apply_filters("simple_history/settings_page_pager_size", $pager_size);
+
+?>
+<div class="SimpleHistoryGui"
+	 data-pager-size='<?php echo $pager_size ?>'
+	 ></div>
 <?php
 
 global $wpdb;

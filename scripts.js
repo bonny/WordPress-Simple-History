@@ -531,6 +531,11 @@ var simple_history2 = (function($) {
 
 		initialize: function() {
 
+			// Don't try to init if our element does not exist
+			if (!this.$el.length) {
+				return;
+			}
+
 			this.logRouter = new LogRouter();
 			Backbone.history.start();
 

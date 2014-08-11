@@ -6,7 +6,8 @@ The spinner that wp uses:;
 
 */
 
-.SimpleHistoryGui {
+.SimpleHistoryGui, 
+.SimpleHistoryGuiExample {
 	position: relative;
 }
 
@@ -157,6 +158,15 @@ There is always a 4px left border, just with differents colors
 
 
 /* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
+.SimpleHistoryLogitem__inlineDivided {
+	white-space: nowrap;
+}
+
+.SimpleHistoryLogitem__inlineDivided em {
+	color: rgb(119, 119, 119);
+	font-style: normal;
+}
+
 .SimpleHistoryLogitem__inlineDivided:before {
 	/* \b7 = middot, \a0 = space */
 	/*content: '\a0\b7\a0\a0';*/
