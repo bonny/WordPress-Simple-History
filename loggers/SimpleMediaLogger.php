@@ -53,18 +53,18 @@ class SimpleMediaLogger extends SimpleLogger
 		
 		?>
 		<style>
-			.simple-history-logitem--logger-SimpleMediaLogger--attachment-icon,
-			.simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb {
+			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-icon,
+			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb {
 				display: inline-block;
 				margin: .5em 0 0 0;
 			}
 
-			.simple-history-logitem--logger-SimpleMediaLogger--attachment-icon {
+			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-icon {
 				max-width: 40px;
 				max-height: 32px;
 			}
 
-			.simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb {
+			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb {
 				padding: 5px;
 				border: 1px solid #ddd;
 				-webkit-border-radius: 2px;
@@ -72,7 +72,7 @@ class SimpleMediaLogger extends SimpleLogger
 				border-radius: 2px;
 			}
 
-			.simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb img {
+			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb img {
 				/*
 				photoshop-like background that represents tranpsarency
 				so user can see that an image have transparency
@@ -85,12 +85,12 @@ class SimpleMediaLogger extends SimpleLogger
 				height: auto;
 			}
 
-			.simple-history-logitem--logger-SimpleMediaLogger--attachment-meta-size,
-			.simple-history-logitem--logger-SimpleMediaLogger--attachment-open {
+			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta-size,
+			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-open {
 				margin: .5em 0 0 0;
 			}
 
-			.simple-history-logitem--logger-SimpleMediaLogger .simple-history-logitem__details {
+			.SimpleHistoryLogitem--logger-SimpleMediaLogger .SimpleHistoryLogitem__details {
 				max-width: 70%;
 			}
 		</style>
@@ -185,7 +185,7 @@ class SimpleMediaLogger extends SimpleLogger
 
 					$context["full_image_width"] = $full_image_width;
 					$context["full_image_height"] = $full_image_width;
-					$context["attachment_thumb"] = sprintf('<div class="simple-history-logitem--logger-SimpleMediaLogger--attachment-thumb"><img src="%1$s"></div>', $thumb_src[0] );
+					$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb"><img src="%1$s"></div>', $thumb_src[0] );
 				
 				}
 
@@ -218,13 +218,13 @@ class SimpleMediaLogger extends SimpleLogger
 
 			}
 
-			$message .= "<p class='simple-history-logitem--logger-SimpleMediaLogger--attachment-meta'>";
-			$message .= "<span class='simple-history-logitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span> ";
-			$message .= "<span class='simple-history-logitem__inlineDivided'>" . __('{attachment_filetype_extension}', "simple-history") . "</span>";
+			$message .= "<p class='SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta'>";
+			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span> ";
+			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_filetype_extension}', "simple-history") . "</span>";
 			if ($full_image_width && $full_image_height) {
-				$message .= " <span class='simple-history-logitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}') . "</span>";
+				$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}') . "</span>";
 			}
-			//$message .= " <span class='simple-history-logitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
+			//$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
 			$message .= "</p>";
 
 			$output .= $this->interpolate($message, $context);

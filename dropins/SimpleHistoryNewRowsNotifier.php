@@ -97,7 +97,7 @@ class SimpleHistoryNewRowsNotifier {
 			
 			(function($) {
 				
-				var elmWrapperClass = ".SimpleHhistoryLogitems-above";
+				var elmWrapperClass = ".SimpleHistoryLogitems__above";
 				var $elmWrapper;
 				var $elm;
 				var ajaxurl = window.ajaxurl;

@@ -118,15 +118,15 @@ class SimpleHistory {
 					<?php echo _x("Loading...", "Message visible while waiting for log to load from server the first time", "simple-history") ?>
 				</div>
 				<div class="SimpleHistoryLogitemsWrap">
-					<div class="simple-history-logitems-before-top-pagination"></div>
-					<div class="SimpleHhistoryLogitems-above"></div>
-					<ul class="simple-history-logitems"></ul>
-					<div class="SimpleHhistoryLogitems-below"></div>
-					<div class="simple-history-logitems-pagination"></div>
-					<div class="simple-history-logitems-after-bottom-pagination"></div>
+					<div class="SimpleHistoryLogitems__beforeTopPagination"></div>
+					<div class="SimpleHistoryLogitems__above"></div>
+					<ul class="SimpleHistoryLogitems"></ul>
+					<div class="SimpleHistoryLogitems__below"></div>
+					<div class="SimpleHistoryLogitems__pagination"></div>
+					<div class="SimpleHistoryLogitems__afterBottomPagination"></div>
 				</div>
-				<div class="simple-history-filters"></div>
-				<div class="simple-history-logitems-debug"></div>
+				<div class="SimpleHistory__filters"></div>
+				<div class="SimpleHistoryLogitems__debug"></div>
 
 			</script>
 
@@ -586,7 +586,7 @@ class SimpleHistory {
 		$pager_size = apply_filters("simple_history/dashboard_pager_size", $pager_size);
 
 		?>
-		<div class="simple-history-gui"
+		<div class="SimpleHistoryGui"
 			 data-pager-size='<?php echo $pager_size ?>'
 			 ></div>
 		<?php
@@ -924,11 +924,11 @@ class SimpleHistory {
 
 		?>
 
-		<div class="wrap simple-history-wrap">
+		<div class="wrap SimpleHistoryWrap">
 			
 			<h2><?php echo _x("History", 'history page headline', 'simple-history') ?></h2>
 	
-			<div class="simple-history-gui"
+			<div class="SimpleHistoryGui"
 				 data-pager-size='<?php echo $pager_size ?>'
 				 ></div>
 
@@ -1346,7 +1346,7 @@ class SimpleHistory {
 		if ($details_html) {
 
 			$details_html = sprintf(
-				'<div class="simple-history-logitem__details">%1$s</div>',
+				'<div class="SimpleHistoryLogitem__details">%1$s</div>',
 				$details_html
 			);
 
@@ -1357,23 +1357,23 @@ class SimpleHistory {
 		$occasions_html = "";
 		if ($occasions_count > 0) {
 
-			$occasions_html = '<div class="simple-history-logitem__occasions">';
+			$occasions_html = '<div class="SimpleHistoryLogitem__occasions">';
 			
-			$occasions_html .= '<a href="#" class="simple-history-logitem__occasionsLink">';
+			$occasions_html .= '<a href="#" class="SimpleHistoryLogitem__occasionsLink">';
 			$occasions_html .= sprintf(
 				__('+%1$s more', "simple-history"),
 				$occasions_count
 			);
 			$occasions_html .= '</a>';
 
-			$occasions_html .= '<span class="simple-history-logitem__occasionsLoading">';
+			$occasions_html .= '<span class="SimpleHistoryLogitem__occasionsLoading">';
 			$occasions_html .= sprintf(
 				__('Loading…', "simple-history"),
 				$occasions_count
 			);
 			$occasions_html .= '</span>';
 
-			$occasions_html .= '<span class="simple-history-logitem__occasionsLoaded">';
+			$occasions_html .= '<span class="SimpleHistoryLogitem__occasionsLoaded">';
 			$occasions_html .= sprintf(
 				__('Showing %1$s more', "simple-history"),
 				$occasions_count
@@ -1434,13 +1434,13 @@ class SimpleHistory {
 		// Generate the HTML output for a row
 		$output = sprintf(
 			'
-				<li %8$s class="simple-history-logitem simple-history-logitem--loglevel-%5$s simple-history-logitem--logger-%7$s %10$s">
-					<div class="simple-history-logitem__firstcol">
-						<div class="simple-history-logitem__senderImage">%3$s</div>
+				<li %8$s class="SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-%5$s SimpleHistoryLogitem--logger-%7$s %10$s">
+					<div class="SimpleHistoryLogitem__firstcol">
+						<div class="SimpleHistoryLogitem__senderImage">%3$s</div>
 					</div>
-					<div class="simple-history-logitem__secondcol">
-						<div class="simple-history-logitem__header">%1$s</div>
-						<div class="simple-history-logitem__text">%2$s</div>
+					<div class="SimpleHistoryLogitem__secondcol">
+						<div class="SimpleHistoryLogitem__header">%1$s</div>
+						<div class="SimpleHistoryLogitem__text">%2$s</div>
 						%4$s
 						%6$s
 						%9$s

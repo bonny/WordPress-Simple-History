@@ -21,7 +21,7 @@ var simple_history2 = (function($) {
 		
 		}
 
-		$(".simple-history-logitems-debug").append("<br>" + what);
+		$(".SimpleHistoryLogitems__debug").append("<br>" + what);
 
 	};
 
@@ -163,7 +163,7 @@ var simple_history2 = (function($) {
 			var occasionsCount = this.attributes.logRow.data("occasionsCount");
 			var occasionsID = this.attributes.logRow.data("occasionsId");
 			
-			this.attributes.logRow.addClass("simple-history-logitem--occasionsOpening");
+			this.attributes.logRow.addClass("SimpleHistoryLogitem--occasionsOpening");
 			
 			this.logRows = new OccasionsLogRowsCollection([], {
 				logRow: this.attributes.logRow,
@@ -187,13 +187,13 @@ var simple_history2 = (function($) {
 			
 			this.logRows.each(function(model) {
 				var $li = $(model.get("html"));
-				$li.addClass("simple-history-logitem--occasion");
+				$li.addClass("SimpleHistoryLogitem--occasion");
 				$html = $html.add($li);
 			});
 
 			this.$el.html($html);
 			
-			this.attributes.logRow.removeClass("simple-history-logitem--occasionsOpening").addClass("simple-history-logitem--occasionsOpened");
+			this.attributes.logRow.removeClass("SimpleHistoryLogitem--occasionsOpening").addClass("SimpleHistoryLogitem--occasionsOpened");
 
 			this.$el.addClass("haveOccasionsAdded");
 
@@ -318,8 +318,8 @@ var simple_history2 = (function($) {
 		},
 
 		events: {
-			"click .simple-history-logitem__occasions a": "showOccasions",
-			"click .simple-history-logitem__permalink": "permalink"
+			"click .SimpleHistoryLogitem__occasions a": "showOccasions",
+			"click .SimpleHistoryLogitem__permalink": "permalink"
 		},
 
 		permalink: function(e) {
@@ -333,7 +333,7 @@ var simple_history2 = (function($) {
 			e.preventDefault();
 
 			var $target = $(e.target);
-			var $logRow = $target.closest(".simple-history-logitem");
+			var $logRow = $target.closest(".SimpleHistoryLogitem");
 			var logRowID = $logRow.data("rowId");
 			
 			Backbone.history.navigate("item/" + logRowID, { trigger: true });
@@ -345,13 +345,13 @@ var simple_history2 = (function($) {
 			e.preventDefault();
 
 			var $target = $(e.target);
-			var $logRow = $target.closest(".simple-history-logitem");	
-			var $occasionsElm = $("<li class='simple-history-logitem__occasionsItemsWrap'><ul class='simple-history-logitem__occasionsItems'/></li>");
+			var $logRow = $target.closest(".SimpleHistoryLogitem");
+			var $occasionsElm = $("<li class='SimpleHistoryLogitem__occasionsItemsWrap'><ul class='SimpleHistoryLogitem__occasionsItems'/></li>");
 			
 			$logRow.after($occasionsElm);
 
 			this.occasionsView = new OccasionsView({
-				el: $occasionsElm.find(".simple-history-logitem__occasionsItems"),
+				el: $occasionsElm.find(".SimpleHistoryLogitem__occasionsItems"),
 				attributes: {
 					logRow: $logRow
 				}
@@ -527,7 +527,7 @@ var simple_history2 = (function($) {
 
 	var MainView = Backbone.View.extend({
 		
-		el: ".simple-history-gui",
+		el: ".SimpleHistoryGui",
 
 		initialize: function() {
 
@@ -541,7 +541,7 @@ var simple_history2 = (function($) {
 			});
 			
 			this.rowsView = new RowsView({
-				el: this.$el.find(".simple-history-logitems"),
+				el: this.$el.find(".SimpleHistoryLogitems"),
 				collection: this.logRowsCollection
 			});
 
@@ -549,7 +549,7 @@ var simple_history2 = (function($) {
 			this.logRowsCollection.reload();
 
 			this.paginationView = new PaginationView({
-				el: this.$el.find(".simple-history-logitems-pagination"),
+				el: this.$el.find(".SimpleHistoryLogitems__pagination"),
 				collection: this.logRowsCollection,
 				attributes: {
 					mainView: this

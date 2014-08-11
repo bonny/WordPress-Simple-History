@@ -1,6 +1,6 @@
 
 <!-- This this will get it's contents populated by JavaScript -->
-<div class="simple-history-gui"></div>
+<div class="SimpleHistoryGui"></div>
 
 <?php
 

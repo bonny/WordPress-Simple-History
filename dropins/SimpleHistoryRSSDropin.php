@@ -165,7 +165,7 @@ class SimpleHistoryRSSDropin {
 							$item_title = html_entity_decode($item_title, ENT_COMPAT, "UTF-8");
 							$item_title = apply_filters("simple_history_rss_item_title", $item_title, $one_item);
 
-							$item_guid = home_url() . "?simple-history-guid=" . $one_item->id;
+							$item_guid = home_url() . "?SimpleHistoryGuid=" . $one_item->id;
 
 							?>
 							  <item>
@@ -194,7 +194,7 @@ class SimpleHistoryRSSDropin {
 							<title><?php _e("Wrong RSS secret", 'simple-history')?></title>
 							<description><?php _e("Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed.", 'simple-history')?></description>
 							<pubDate><?php echo date("D, d M Y H:i:s", time()) ?> GMT</pubDate>
-							<guid><?php echo home_url() . "?simple-history-guid=wrong-secret" ?></guid>
+							<guid><?php echo home_url() . "?SimpleHistoryGuid=wrong-secret" ?></guid>
 						</item>
 					</channel>
 				</rss>

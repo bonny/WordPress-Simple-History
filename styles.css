@@ -6,7 +6,7 @@ The spinner that wp uses:;
 
 */
 
-.simple-history-gui {
+.SimpleHistoryGui {
 	position: relative;
 }
 
@@ -36,23 +36,13 @@ The spinner that wp uses:;
 	max-width: 650px;
 }
 
-/* on the dashboard */
-.postbox .simple-history-logitems {
-	border: none;
-}
-
-#simple_history_dashboard_widget .inside {
-	padding: 0;
-	margin-top: 0;
-}
-
-.simple-history-logitems {
+.SimpleHistoryLogitems {
 	margin: 0;
 	background: #fff;
 	border: 1px solid rgb(229, 229, 229);
 }
 
-.simple-history-logitem {
+.SimpleHistoryLogitem {
 	position: relative;
 	list-style-type: none;
 	margin: 0;
@@ -66,33 +56,33 @@ The spinner that wp uses:;
 Style different log levels.
 There is always a 4px left border, just with differents colors
  */
-.simple-history-logitem--loglevel-warning {
+.SimpleHistoryLogitem--loglevel-warning {
 	/*background-color: rgba(202, 172, 15, .1);*/
 	border-left-color: rgb(202, 172, 15);
 }
 
-.simple-history-logitem--loglevel-error {
+.SimpleHistoryLogitem--loglevel-error {
 	/*background-color: rgba(194, 71, 71, .1);*/
 	border-left-color: rgb(194, 71, 71);
 }
 
-.simple-history-logitem:hover {
+.SimpleHistoryLogitem:hover {
 	background: rgb(245, 248, 250); /* same bg color as twitter uses on hover */
 }
 
-.simple-history-logitem a {
+.SimpleHistoryLogitem a {
 	text-decoration: none;
 }
 
-.simple-history-logitem a:hover {
+.SimpleHistoryLogitem a:hover {
 	text-decoration: underline;
 }
 
-.simple-history-logitem__firstcol {
+.SimpleHistoryLogitem__firstcol {
 	float: left;
 }
 
-.simple-history-logitem__senderImage {
+.SimpleHistoryLogitem__senderImage {
 	-webkit-border-radius: 50%;
 	-moz-border-radius: 50%;
 	border-radius: 50%;
@@ -100,55 +90,55 @@ There is always a 4px left border, just with differents colors
 	opacity: .8;
 }
 
-.simple-history-logitem:hover .simple-history-logitem__senderImage {
+.SimpleHistoryLogitem:hover .SimpleHistoryLogitem__senderImage {
 	opacity: 1;
 }
 
-.simple-history-logitem__senderImage img {
+.SimpleHistoryLogitem__senderImage img {
 	display: block;
 }
 
-.simple-history-logitem__secondcol {
+.SimpleHistoryLogitem__secondcol {
 	margin-left: 50px;
 }
 
-.simple-history-logitem__header {
+.SimpleHistoryLogitem__header {
 	line-height: 1;
 	margin-top: 2px;
 }
 
-.simple-history-logitem__header time,
-.simple-history-logitem__headerEmail
+.SimpleHistoryLogitem__header time,
+.SimpleHistoryLogitem__headerEmail
  {
 	color: rgb(137, 143, 156);
 }
 
-.simple-history-logitem__text {
+.SimpleHistoryLogitem__text {
 	margin-top: 0.4em;
 	font-size: 16px;
 	color: #333;
 }
 
-.simple-history-logitem__text,
-.simple-history-logitem__details,
-.simple-history-logitem__details p {
+.SimpleHistoryLogitem__text,
+.SimpleHistoryLogitem__details,
+.SimpleHistoryLogitem__details p {
 	xfont-size: 16px;
 	line-height: 1.4;
 }
 
-.simple-history-logitem__details p {
+.SimpleHistoryLogitem__details p {
 	margin-top: .4em;
 	margin-bottom: .4em;
 }
 
-.simple-history-logitem__occasions {
+.SimpleHistoryLogitem__occasions {
 	color: rgb(137, 143, 156);
 	margin-top: 0.4em;
 	line-height: 1;
 	max-height: 1em;
 }
 
-.simple-history-logitem__details {
+.SimpleHistoryLogitem__details {
 	margin-top: 0.4em;
 }
 
@@ -166,8 +156,8 @@ There is always a 4px left border, just with differents colors
 }
 
 
-/* wrap span.simple-history-logitem__inlineDivided around things that should have a bullet between them */
-.simple-history-logitem__inlineDivided:before {
+/* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
+.SimpleHistoryLogitem__inlineDivided:before {
 	/* \b7 = middot, \a0 = space */
 	/*content: '\a0\b7\a0\a0';*/
 	content: '\b7\a0';
@@ -176,56 +166,56 @@ There is always a 4px left border, just with differents colors
 	color: rgb(137, 143, 156);
 }
 
-.simple-history-logitem__inlineDivided:first-child:before {
+.SimpleHistoryLogitem__inlineDivided:first-child:before {
 	content: '';
 }
 
 /*
 when occasions are added
 */
-.simple-history-logitem--occasionsOpened {
+.SimpleHistoryLogitem--occasionsOpened {
 	/*box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
 	z-index: 1;*/
 }
 
 /* when occasions is loaded and have loaded hide the "show occasions"-link*/
-.simple-history-logitem--occasionsOpening .simple-history-logitem__occasionsLink,
-.simple-history-logitem--occasionsOpened .simple-history-logitem__occasionsLink {
+.SimpleHistoryLogitem--occasionsOpening .SimpleHistoryLogitem__occasionsLink,
+.SimpleHistoryLogitem--occasionsOpened .SimpleHistoryLogitem__occasionsLink {
 	display: none;
 }
 
 /* hide the "loading" and "loaded occasions" text */
-.simple-history-logitem__occasionsLoading,
-.simple-history-logitem__occasionsLoaded {
+.SimpleHistoryLogitem__occasionsLoading,
+.SimpleHistoryLogitem__occasionsLoaded {
 	display: none;
 }
 
 /* show texts during load and when load is done */
-.simple-history-logitem--occasionsOpening .simple-history-logitem__occasionsLoading,
-.simple-history-logitem--occasionsOpened .simple-history-logitem__occasionsLoaded {
+.SimpleHistoryLogitem--occasionsOpening .SimpleHistoryLogitem__occasionsLoading,
+.SimpleHistoryLogitem--occasionsOpened .SimpleHistoryLogitem__occasionsLoaded {
 	display: block;
 }
 
 /* occasions are added to a wrapper element */
-.simple-history-logitem__occasionsItemsWrap {
+.SimpleHistoryLogitem__occasionsItemsWrap {
 	margin: 0;
 	padding: 0;
 }
 
-.simple-history-logitem__occasionsItems {
+.SimpleHistoryLogitem__occasionsItems {
 	opacity: 0;
 	max-height: 0;
 	transition: all .5s ease-in-out;
 }
 
-.simple-history-logitem__occasionsItems.haveOccasionsAdded {
+.SimpleHistoryLogitem__occasionsItems.haveOccasionsAdded {
 	opacity: 1;
 	max-height: 10000px;
 }
 
 /*
 
-.simple-history-logitem--occasion {
+.SimpleHistoryLogitem--occasion {
 	opacity: 0;
 	padding-top: 0;
 	padding-bottom: 0;
@@ -236,8 +226,8 @@ when occasions are added
 */
 
 /*
-.simple-history-logitem--occasionsOpened:after,
-.simple-history-logitem--occasion:after {
+.SimpleHistoryLogitem--occasionsOpened:after,
+.SimpleHistoryLogitem--occasion:after {
 	content: "";
 	position: absolute;
 	top: 3px;
@@ -250,7 +240,7 @@ when occasions are added
 */
 
 /* when the occasions log rows have been added show them in some kinda fancy way */
-.simple-history-logitem--occasionAdded {
+.SimpleHistoryLogitem--occasionAdded {
 	max-height: 1000px;
 	opacity: 1;
 	border-top-width : 1px;
@@ -261,6 +251,32 @@ when occasions are added
 	/*padding-left: 40px;*/
 }
 
+
+/* customizations for the dashboard */
+.postbox .SimpleHistoryLogitems {
+	border: none;
+}
+
+
+#simple_history_dashboard_widget .inside {
+	padding: 0;
+	margin-top: 0;
+}
+
+.postbox .SimpleHistoryLogitem__text {
+	font-size: 1em;
+}
+
+/*
+.postbox .SimpleHistoryLogitem__details {
+	display: none;
+}
+*/
+
+/* // end dashboard */
+
+
+
 /*
 Styles for filter
 */
@@ -270,7 +286,7 @@ Styles for filter
 	margin-left: 50px;
 }
 
-.simple-history-logitems-debug {
+.SimpleHistoryLogitems__debug {
 	font-family: monospace;
 	white-space: pre;
 }
@@ -279,7 +295,7 @@ Styles for filter
 Pagination, below logRows
 */
 
-.simple-history-logitems-pagination {}
+.SimpleHistoryLogitems__pagination {}
 
 .SimpleHistoryPaginationPages {
 	text-align: center;
@@ -421,23 +437,23 @@ Modal window with detailss
 }
 
 /* style the logRow a bit more when shown in modal */
-.SimpleHistory-modal  .simple-history-logitem__header {
+.SimpleHistory-modal  .SimpleHistoryLogitem__header {
 	font-size: 16px;
 }
 
-.SimpleHistory-modal .simple-history-logitem__text,
-.SimpleHistory-modal .simple-history-logitem__details,
-.SimpleHistory-modal .simple-history-logitem__details p,
+.SimpleHistory-modal .SimpleHistoryLogitem__text,
+.SimpleHistory-modal .SimpleHistoryLogitem__details,
+.SimpleHistory-modal .SimpleHistoryLogitem__details p,
 .SimpleHistory-modal .SimpleHistoryLogitem__moreDetails,
 .SimpleHistory-modal .SimpleHistoryLogitem__moreDetails p {
 	font-size: 18px;
 }
 
-.SimpleHistory-modal .simple-history-logitem:hover {
+.SimpleHistory-modal .SimpleHistoryLogitem:hover {
 	background: inherit;
 }
 
-.SimpleHistory-modal .simple-history-logitem__senderImage {
+.SimpleHistory-modal .SimpleHistoryLogitem__senderImage {
 	opacity: 1;
 }
 
@@ -475,7 +491,7 @@ Modal window with detailss
 	background-color: #eee;
 }
 
-.SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .simple-history-logitem__secondcol,
-.SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .simple-history-logitem__secondcol {
+.SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__secondcol,
+.SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .SimpleHistoryLogitem__secondcol {
 	margin-left: 0;
 }

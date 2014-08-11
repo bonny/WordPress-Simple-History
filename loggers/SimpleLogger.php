@@ -152,8 +152,8 @@ class SimpleLogger
 
 					$initiator_html .= sprintf(
 						'
-						<strong class="simple-history-logitem__inlineDivided">%3$s</strong>
-						<span class="simple-history-logitem__inlineDivided simple-history-logitem__headerEmail">%2$s</span>
+						<strong class="SimpleHistoryLogitem__inlineDivided">%3$s</strong>
+						<span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">%2$s</span>
 						',
 						esc_html( $user->user_login ),
 						esc_html( $user->user_email ),
@@ -228,7 +228,7 @@ class SimpleLogger
 		$item_permalink = admin_url("index.php?page=simple_history_page");
 		$item_permalink .= "#item/{$row->id}";
 
-		$date_html = "<span class='simple-history-logitem__permalink simple-history-logitem__when simple-history-logitem__inlineDivided'>";
+		$date_html = "<span class='SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided'>";
 		$date_html .= "<a class='' href='{$item_permalink}'>";
 		$date_html .= sprintf(
 			'<time datetime="%1$s" title="%1$s" class="">%2$s</time>',
