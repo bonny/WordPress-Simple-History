@@ -29,11 +29,11 @@
                 	<p>Some build in styles you can use:</p>
 					
 					<p>
-                    <a href="http://playground-root.ep/wp-admin/post.php?post=25097&amp;action=edit&amp;lang=en">
-                        <div class="SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb">
-                            <img src="http://placehold.it/250x250&text=Image">
-                        </div>
-                    </a>
+                        <a href="http://playground-root.ep/wp-admin/post.php?post=25097&amp;action=edit&amp;lang=en">
+                            <div class="SimpleHistoryLogitemThumbnail">
+                                <img src="http://placehold.it/250x250&text=Image">
+                            </div>
+                        </a>
                     </p>
 
                     <p>The <code>inlineDivided</code> class is used to group short pieces of information together, for example meta data:</p>

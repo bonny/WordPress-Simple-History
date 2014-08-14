@@ -42,62 +42,6 @@ class SimpleMediaLogger extends SimpleLogger
 		add_action("edit_attachment", array($this, "on_edit_attachment"));
 		add_action("delete_attachment", array($this, "on_delete_attachment"));
 
-		add_action("admin_head", array($this, "output_styles"));
-		
-	}
-
-	/**
-	 * Outputs styles for this logger
-	 */
-	function output_styles() {
-		
-		?>
-		<style>
-			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-icon,
-			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb {
-				display: inline-block;
-				margin: .5em 0 0 0;
-			}
-
-			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-icon {
-				max-width: 40px;
-				max-height: 32px;
-			}
-
-			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb {
-				padding: 5px;
-				border: 1px solid #ddd;
-				-webkit-border-radius: 2px;
-				-moz-border-radius: 2px;
-				border-radius: 2px;
-			}
-
-			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb img {
-				/*
-				photoshop-like background that represents tranpsarency
-				so user can see that an image have transparency
-				*/
-				display: block;
-				background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
-				max-width: 100%;
-				max-height: 300px;
-				max-height: 200px;
-				height: auto;
-			}
-
-			/*
-			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta-size,
-			.SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-open {
-				margin: .5em 0 0 0;
-			}
-			*/
-
-			.SimpleHistoryLogitem--logger-SimpleMediaLogger .SimpleHistoryLogitem__details {
-				max-width: 70%;
-			}
-		</style>
-		<?php
-
 	}
 
 	/**
@@ -187,7 +131,7 @@ class SimpleMediaLogger extends SimpleLogger
 
 					$context["full_image_width"] = $full_image_width;
 					$context["full_image_height"] = $full_image_width;
-					$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-thumb"><img src="%1$s"></div>', $thumb_src[0] );
+					$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s"></div>', $thumb_src[0] );
 				
 				}
 
@@ -200,6 +144,11 @@ class SimpleMediaLogger extends SimpleLogger
 
 				$content = sprintf('[video src="%1$s"]', $file_url);
 				$context["attachment_thumb"] = do_shortcode( $content );
+
+			} else {
+
+				// use wordpress icon for other media types
+				$context["attachment_thumb"] = wp_get_attachment_image( $attachment_id, null, true );
 
 			}
 			
