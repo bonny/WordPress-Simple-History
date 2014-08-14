@@ -745,164 +745,69 @@ class SimplePluginLogger extends SimpleLogger
 					$plugin_description = mb_strcut( $plugin_description, 0, $cite_pos );
 				}
 
-				$output .= sprintf(
+				/*$output .= sprintf(
 					'<p>%1$s</p>',
 					$plugin_description
+				);*/
+
+				// Keys to show
+				$arr_plugin_keys = array(
+					"plugin_description" => "Description",
+					"plugin_author" => _x("Author", "plugin logger - detailed output author", "simple-history"),
+					"plugin_url" => _x("URL", "plugin logger - detailed output url", "simple-history"),
+					"plugin_version" => _x("Version", "plugin logger - detailed output version", "simple-history"),
+					"plugin_requires" => _x("Requires", "plugin logger - detailed output author", "simple-history"),
+					"plugin_tested" => _x("Compatible up to", "plugin logger - detailed output compatible", "simple-history"),
+					"plugin_downloaded" => _x("Downloads", "plugin logger - detailed output downloaded", "simple-history"),
+					// also available :plugin_rating, plugin_num_ratings
 				);
 
-				// Start lots a meta info
+				$arr_plugin_keys = apply_filters("simple_history/plugin_logger_row_details_plugin_info_keys", $arr_plugin_keys);
+
+				// Start output of plugin meta data table
 				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
-				$output .= "<tr>";
 
-				$output .= "<td>";
-				$output .= sprintf(
-					'Author</td><td>%1$s',
-					$context["plugin_author"]
-				);
+				foreach ( $arr_plugin_keys as $key => $desc ) {
+					
+					switch ($key) {
 
-				$output .= "</td>";
-				$output .= "</tr>";
+						case "plugin_downloaded":
+							$desc_output = esc_attr( number_format_i18n( $context[ $key ] ) );
+							break;
 
-				$output .= "<tr>";
-				$output .= "<td>";
+						// author is already formatted
+						case "plugin_author":
+							$desc_output = $context[ $key ];
+							break;
 
-				if ( ! empty($context["plugin_url"]) ) {	
+						// URL needs a link
+						case "plugin_url":
+							$desc_output = sprintf('<a href="%1$s">%1$s</a>', esc_attr( $context["plugin_url"] ));
+							break;			
+
+						case "plugin_description":
+							$desc_output = $plugin_description;
+							break;
+
+						default;
+							$desc_output = esc_html( $context[ $key ] );
+							break;
+					}
+
 					$output .= sprintf(
-						'URL</td><td><a href="%1$s">%1$s</a>',
-						esc_attr( $context["plugin_url"] )
+						'
+						<tr>
+							<td>%1$s</td>
+							<td>%2$s</td>
+						</tr>
+						',
+						esc_html($desc),
+						$desc_output
 					);
+
 				}
 
-				$output .= "</td>";
-				$output .= "</tr>";
-
-				$output .= "<tr>";
-				$output .= "<td>";
-
-				$output .= sprintf(
-					'Version</td><td>%1$s',
-					$context["plugin_version"]
-				);
-				$output .= "</td>";
-				$output .= "</tr>";
-
-				$output .= "<tr>";
-				$output .= "<td>";
-				
-				$output .= sprintf(
-					'Updated</td><td>%1$s',
-					$context["plugin_last_updated"]
-				);
-
-				$output .= "</td>";
-				$output .= "</tr>";
-
-				$output .= "<tr>";
-				$output .= "<td>";
-
-				if ( ! empty($context["plugin_requires"]) ) {
-					$output .= sprintf(
-						'Requires</td><td>%1$s',
-						esc_attr( $context["plugin_requires"] )
-					);
-				}
-
-				$output .= "</td>";
-				$output .= "</tr>";
-
-				$output .= "<tr>";
-				$output .= "<td>";
-				
-
-				if ( ! empty($context["plugin_tested"]) ) {
-					$output .= sprintf(
-						'Compatible up to</td><td> %1$s',
-						esc_attr( $context["plugin_tested"] )
-					);
-				}
-
-				$output .= "</td>";
-				$output .= "</tr>";
-
-				/*
-				if ( ! empty($context["plugin_rating"]) ) {
-					$output .= sprintf(
-						'<span class="simple-history-logitem__inlineDivided">
-							Rating %1$s
-						</span> ',
-						esc_attr( $context["plugin_rating"] )
-					);
-				}
-
-				// Out of 5 the rating is : (rating / 100) * 5
-				if ( ! empty($context["plugin_num_ratings"]) ) {
-					$output .= sprintf(
-						'<span class="simple-history-logitem__inlineDivided">
-							Num ratings %1$s
-						</span> ',
-						esc_attr( $context["plugin_num_ratings"] )
-					);
-				}
-				*/
-
-				$output .= "<tr>";
-				$output .= "<td>";
-
-				if ( ! empty($context["plugin_downloaded"]) ) {
-					$output .= sprintf(
-						'Downloads</td><td>%1$s',
-						esc_attr( number_format_i18n($context["plugin_downloaded"]) )
-					);
-				}
-
-				$output .= "</td>";
-				$output .= "</tr>";
-
-				/*
-				if ( ! empty($context["plugin_added"]) ) {
-					$output .= sprintf(
-						'<span class="simple-history-logitem__inlineDivided">
-							Added %1$s
-						</span> ',
-						esc_attr( $context["plugin_added"] )
-					);
-				}
-				*/
-
-				// End meta info
 				$output .= "</table>";
-
-				// hard code test
-				/*
-				$output .= '
-					<style>
-						.yolo tr > td:first-child {
-							text-align: right;
-							font-weight: bold;
-							padding-right: 1em;
-							color: rgba(0, 0, 0, 0.5);
-						}
-					</style>
-					<table class="yolo">
-						<tr>
-							<td>Version</td>
-							<td>2.5.4</td>
-						</tr>
-						<tr>
-							<td>Author</td>
-							<td>The bbPress Community</td>
-						</tr>
-						<tr><td>Last updated</td><td>014-07-15</td></tr>
-						<tr><td>URL</td><td>http://bbpress.org</td></tr>
-						<tr><td>Requires</td><td>3.6</td></tr>
-						<tr><td>Tested</td><td>3.9.2</td></tr>
-						<tr><td>Rating</td><td>86.4</td></tr>
-						<tr><td>Num ratings</td><td>338</td></tr>
-						<tr><td>Downloaded</td><td>1392515</td></tr>
-						<!-- <tr><td>Added</td><td>2010-01-13</td></tr> -->
-					</table>
-				';
-				*/
 
 			}
 

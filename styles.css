@@ -146,7 +146,12 @@ There is always a 4px left border, just with differents colors
 
 /* table with keys and values */
 .SimpleHistoryLogitem__keyValueTable {
+	
+}
 
+.SimpleHistoryLogitem__keyValueTable th,
+.SimpleHistoryLogitem__keyValueTable td {
+	vertical-align: top;
 }
 
 .SimpleHistoryLogitem__keyValueTable tr > td:first-child {
