@@ -37,6 +37,9 @@ require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
  */
 register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
+/** Boot up */
+$GLOBALS["simple_history"] = new SimpleHistory();
+
 /**
  * Helper function with same name as the SimpleLogger-class
  *
@@ -44,11 +47,8 @@ register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plug
  * SimpleLogger()->info("This is a message sent to the log");
  */
 function SimpleLogger() {
-	return new SimpleLogger();
+    return new SimpleLogger( $GLOBALS["simple_history"] );
 }
-
-/** Boot up */
-$GLOBALS["simple_history"] = new SimpleHistory();
 
 // Test logging
 // Example usage
