@@ -144,20 +144,42 @@ class SimpleLogger
 				if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
 
 					// Sender is user and user still exists
+					$is_current_user = ( $user_id == get_current_user_id() ) ? true : false;
 
 					// get user role, as done in user-edit.php
 					$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
 					$user_role  = array_shift( $user_roles );
 					$user_display_name = $user->display_name;
 
-					$initiator_html .= sprintf(
-						'
+					$tmpl_initiator_html = '
 						<strong class="SimpleHistoryLogitem__inlineDivided">%3$s</strong>
 						<span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">%2$s</span>
-						',
-						esc_html( $user->user_login ),
-						esc_html( $user->user_email ),
-						esc_html( $user_display_name )
+					';
+
+					// If user who logged this is the currently logged in user
+					// we replace name and email with just "You"
+					if ($is_current_user) {
+						$tmpl_initiator_html = '
+							<strong class="SimpleHistoryLogitem__inlineDivided">%5$s</strong>
+						';
+					}
+
+					/**
+				     * Filter the format for the user output
+				     *
+				     * @since 2.0
+				     *
+				     * @param string $format. 
+				     */
+					$$tmpl_initiator_html = apply_filters("simple_history/header_initiator_html_existing_user", $tmpl_initiator_html);
+
+					$initiator_html .= sprintf(
+						$tmpl_initiator_html,
+						esc_html( $user->user_login ), // 1
+						esc_html( $user->user_email ), // 2
+						esc_html( $user_display_name ), // 3
+						$user_role, // 4
+						_x("You", "header output when initiator is the currently logged in user", "simple-history") // 5
 					);
 
 				} else if ($user_id > 0) {
