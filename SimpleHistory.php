@@ -662,6 +662,7 @@ class SimpleHistory {
 
 		$db_version = get_option("simple_history_db_version");
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
 		// If no db_version is set then this 
 		// is a version of Simple History < 0.4
@@ -706,7 +707,7 @@ class SimpleHistory {
 
 			// Add column for action description in non-translateable free text
 			$sql = "ALTER TABLE {$table_name} ADD COLUMN action_description longtext";
-			mysql_query($sql);
+			$wpdb->query($sql);
 
 			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SimpleHistory::NAME . "&description=Database version is now version 2");
 
@@ -740,6 +741,67 @@ class SimpleHistory {
 				update_option( $one_option["name"], $one_option["default_value"] );
 
 			}
+		}
+
+		/**
+		 * If db_version is 2 then upgrade to 3:
+		 * - Add some fields to existing table wp_simple_history_contexts
+		 * - Add all new table wp_simple_history_contexts
+		 */
+		if ( 2 == intval($db_version) ) {
+
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+			// Update old table
+			$sql = "
+				CREATE TABLE `{$table_name}` (
+				  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+				  `date` datetime NOT NULL,
+				  `logger` varchar(30) DEFAULT NULL,
+				  `level` varchar(20) DEFAULT NULL,
+				  `message` varchar(255) DEFAULT NULL,
+				  `occasionsID` varchar(32) DEFAULT NULL,
+				  `type` varchar(16) DEFAULT NULL,
+				  `initiator` varchar(16) DEFAULT NULL,
+				  `action` varchar(255) NOT NULL,
+				  `object_type` varchar(255) NOT NULL,
+				  `object_subtype` varchar(255) NOT NULL,
+				  `user_id` int(10) NOT NULL,
+				  `object_id` int(10) NOT NULL,
+				  `object_name` varchar(255) NOT NULL,
+				  `action_description` longtext,
+				  PRIMARY KEY (`id`)
+				) CHARSET=utf8;";
+			
+			dbDelta($sql);
+
+			// Add context table
+			$sql = "
+				CREATE TABLE `{$table_name_contexts}` (
+				  `context_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				  `history_id` bigint(20) unsigned NOT NULL,
+				  `key` varchar(255) DEFAULT NULL,
+				  `value` longtext,
+				  PRIMARY KEY (`context_id`),
+				  KEY `history_id` (`history_id`),
+				  KEY `key` (`key`)
+				) CHARSET=utf8;
+			";
+
+			$wpdb->query($sql);
+
+			$db_version_prev = $db_version;
+			$db_version = 3;
+			update_option("simple_history_db_version", $db_version);
+
+			SimpleLogger()->info(
+				"Simple History updated it's database from version {from_version} to {to_version}",
+				array(
+					"from_version" => $db_version_prev,
+					"to_version" => $db_version
+				)
+			);
+
 		}
 		
 	} // end check_for_upgrade

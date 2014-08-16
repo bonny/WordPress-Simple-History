@@ -60,6 +60,7 @@ class SimpleHistoryLogQuery {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
 		$where = "1 = 1";
 		$limit = "";
@@ -273,7 +274,7 @@ class SimpleHistoryLogQuery {
 		if ( empty($post_ids) ) {
 			$context_results = array();
 		} else {
-			$sql_context = sprintf('SELECT * FROM wp_simple_history_contexts WHERE history_id IN (%1$s)', join(",", $post_ids));
+			$sql_context = sprintf('SELECT * FROM %2$s WHERE history_id IN (%1$s)', join(",", $post_ids), $table_name_contexts);
 			$context_results = $wpdb->get_results($sql_context);
 		}
 
