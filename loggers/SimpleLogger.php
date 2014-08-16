@@ -708,13 +708,16 @@ class SimpleLogger
 	     */		
 		apply_filters("simple_history/log_arguments", $level, $message, $context);
 
-		/* Store date at utc or local time
+		/* Store date at utc or local time?
+		 * Some info here:
+		 * http://www.skyverge.com/blog/down-the-rabbit-hole-wordpress-and-timezones/
+		 * UNIX timestamp = no timezone = UTC
 		 * anything is better than now() anyway!
 		 * WP seems to use the local time, so I will go with that too I think
 		 * GMT/UTC-time is: date_i18n($timezone_format, false, 'gmt')); 
 		 * local time is: date_i18n($timezone_format));
 		 */
-		$localtime = current_time("mysql");
+		$localtime = current_time("mysql", 1);
 
 		$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
 
