@@ -161,6 +161,11 @@ There is always a 4px left border, just with differents colors
 	color: #777;
 }
 
+.SimpleHistoryLogitem__keyValueTable p {
+	margin: 0;
+}
+
+
 
 /* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
 .SimpleHistoryLogitem__inlineDivided {

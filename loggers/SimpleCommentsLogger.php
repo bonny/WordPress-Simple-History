@@ -302,22 +302,66 @@ class SimpleCommentsLogger extends SimpleLogger
 		$context = $row->context;
 		$message_key = $context["_message_key"];
 		$output = "";
-		
-		if ( isset( $context["comment_approved"] ) && $context["comment_approved"] ) {
+	
+		/*	
+		if ( 'spam' !== $commentdata['comment_approved'] ) { // If it's spam save it silently for later crunching
+				if ( '0' == $commentdata['comment_approved'] ) { // comment not spam, but not auto-approved
+					wp_notify_moderator( $comment_ID );
+		*/
+		/*if ( isset( $context["comment_approved"] ) && $context["comment_approved"] == '0' ) {
 			$output .= "<br>comment was automatically approved";
 		} else {
 			$output .= "<br>comment was not automatically approved";
-		}
+		}*/
 
-		if ( isset( $context["comment_author_IP"] ) && $context["comment_author_IP"] ) {
-			$output .= "<br>comment was made from IP number " . $context["comment_author_IP"];
-		}
-
+		$comment_text = "";
 		if ( isset( $context["comment_content"] ) && $context["comment_content"] ) {
 			$comment_text = $context["comment_content"];
 			$comment_text = wp_trim_words( $comment_text, 20 );
-			$output .= "<br>comment text: " . wpautop( $comment_text );
+			$comment_text = wpautop( $comment_text );
 		}
+	
+		// Keys to show
+		$arr_plugin_keys = array(
+			"comment_content" => _x("Comment", "comments logger - detailed output author", "simple-history"),
+			"comment_author" => _x("Author", "comments logger - detailed output version", "simple-history"),
+			"comment_author_email" => _x("Author email", "comments logger - detailed output url", "simple-history"),
+			//"comment_author_url" => _x("Author URL", "comments logger - detailed output author", "simple-history"),
+			//"comment_author_IP" => _x("IP number", "comments logger - detailed output IP", "simple-history"),
+		);
+
+		$arr_plugin_keys = apply_filters("simple_history/comments_logger_row_details_plugin_info_keys", $arr_plugin_keys);
+
+		// Start output of plugin meta data table
+		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
+
+		foreach ( $arr_plugin_keys as $key => $desc ) {
+			
+			switch ($key) {
+
+				case "comment_content":
+					$desc_output = $comment_text;
+					break;
+
+				default;
+					$desc_output = esc_html( $context[ $key ] );
+					break;
+			}
+
+			$output .= sprintf(
+				'
+				<tr>
+					<td>%1$s</td>
+					<td>%2$s</td>
+				</tr>
+				',
+				esc_html($desc),
+				$desc_output
+			);
+
+		}
+		// End table
+		$output .= "</table>";
 
 		return $output;
 
