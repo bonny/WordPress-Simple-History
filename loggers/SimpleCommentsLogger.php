@@ -344,6 +344,23 @@ class SimpleCommentsLogger extends SimpleLogger
 					$desc_output = $comment_text;
 					break;
 
+				case "comment_author":
+					
+					$desc_output = "";
+
+					$desc_output .= esc_html( $context[ $key ] );
+
+					if ( isset( $context["comment_author_email"] ) ) {
+						
+						$gravatar_email = $context["comment_author_email"];
+						$avatar = get_avatar( $gravatar_email, 14 );
+						$desc_output .= "<span class='SimpleCommentsLogger__gravatar'>{$avatar}</span>";
+						
+					}
+
+
+					break;
+
 				default;
 					$desc_output = esc_html( $context[ $key ] );
 					break;
@@ -392,6 +409,24 @@ class SimpleCommentsLogger extends SimpleLogger
 
 		return $output;
 
+	}
+
+	function adminCSS() {
+		?>
+		<style>
+			.SimpleCommentsLogger__gravatar {
+				line-height: 1;
+				border-radius: 50%;
+				overflow: hidden;
+				margin-right: .5em;
+				margin-left: .5em;
+				display: inline-block;
+			}
+			.SimpleCommentsLogger__gravatar img {
+				display: block;
+			}
+		</style>
+		<?php
 	}
 
 }
