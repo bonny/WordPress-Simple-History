@@ -186,6 +186,14 @@ class SimpleHistory {
 			</script>
 
 			<?php
+
+			// Call plugins so they can add their js
+			foreach ( $this->instantiatedLoggers as $one_logger ) {
+				if( method_exists($one_logger["instance"], "adminJS" ) ) {
+					$one_logger["instance"]->adminJS();
+				}
+			}
+
 		}
 
 	}
@@ -435,7 +443,6 @@ class SimpleHistory {
 				// message was not added using __ or _x
 				//$loggerInstance->messages[ $key ] = "apa";
 
-
 				unset( $loggerInstance->messages[ $loopNum ] );
 				$loopNum++;
 
@@ -643,6 +650,13 @@ class SimpleHistory {
 				),
 				"loadLogAPIError" => __("Oups, the log could not be loaded right now.", 'simple-history'),
 			));
+
+			// Call plugins so they can add their css
+			foreach ( $this->instantiatedLoggers as $one_logger ) {
+				if( method_exists($one_logger["instance"], "adminCSS" ) ) {
+					$one_logger["instance"]->adminCSS();
+				}
+			}
 		
 		}
 

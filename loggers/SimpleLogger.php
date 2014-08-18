@@ -913,6 +913,37 @@ class SimpleLogger
 
 	} // log
 
+	/**
+	 * Override this to add CSS in <head> for your logger.
+	 * The CSS that you output will only be outputed 
+	 * on pages where Simple History is used.
+	 */
+	function adminCSS() {
+		/*
+		?>
+		<style>
+			body {
+				border: 2px solid red;
+			}
+		</style>
+		<?php
+		*/
+	}
+
+	/**
+	 * Override this to add JavaScript in the footer for your logger.
+	 * The JS that you output will only be outputed 
+	 * on pages where Simple History is used.
+	 */
+	function adminJS() {
+		/*
+		?>
+		<script>
+			console.log("This is outputed in the footer");
+		</script>
+		<?php
+		*/
+	}
 	
 }
 
