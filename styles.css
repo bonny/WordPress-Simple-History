@@ -159,6 +159,7 @@ There is always a 4px left border, just with differents colors
 	/*font-weight: bold;*/
 	padding-right: 1em;
 	color: #777;
+	white-space: nowrap;
 }
 
 .SimpleHistoryLogitem__keyValueTable p {

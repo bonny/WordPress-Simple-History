@@ -264,6 +264,7 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	/**
 	 * Modify plain output to inlcude link to post
+	 * and link to comment
 	 */
 	public function getLogRowPlainTextOutput($row) {
 		
@@ -271,12 +272,12 @@ class SimpleCommentsLogger extends SimpleLogger
 		$context = $row->context;
 		$message_key = $context["_message_key"];
 
-		// @TODO: wrap links around {comment_post_title}
+		// Wrap links around {comment_post_title}
 		$comment_post_ID = isset( $context["comment_post_ID"] ) ? (int) $context["comment_post_ID"] : null;
 		if ( $comment_post_ID && $comment_post = get_post( $comment_post_ID ) ) {
 
 			$edit_post_link = get_edit_post_link( $comment_post_ID );
-	
+
 			if ( $edit_post_link ) {
 			
 				$message = str_replace(
@@ -286,6 +287,21 @@ class SimpleCommentsLogger extends SimpleLogger
 				);
 
 			}
+	
+			/*
+			// Gah, what a moron I am, this won't work when texts are translated to other languages...
+			$edit_comment_link = get_edit_comment_link( $comment_id );
+
+			if ( $edit_comment_link ) {
+
+				$message = str_replace(
+					'"{comment_post_title}"',
+					"<a href='{$edit_post_link}'>\"{comment_post_title}\"</a>",
+					$message
+				);
+
+			}
+			*/
 
 		}
 
@@ -360,6 +376,32 @@ class SimpleCommentsLogger extends SimpleLogger
 			);
 
 		}
+
+		// Add link to edit comment
+		$comment_ID = isset( $context["comment_ID"] ) && is_numeric( $context["comment_ID"] ) ? (int) $context["comment_ID"] : false;
+		
+		if ($comment_ID) {
+	
+			$edit_comment_link = get_edit_comment_link( $comment_ID );
+			
+			if ($edit_comment_link) {
+			
+				$output .= sprintf(
+					'
+					<tr>
+						<td></td>
+						<td><a href="%2$s">%1$s</a></td>
+					</tr>
+					',
+					_x("Edit comment", "comments logger - edit comment", "simple-history"),
+					$edit_comment_link
+				);
+
+			}
+
+		}
+
+
 		// End table
 		$output .= "</table>";
 
