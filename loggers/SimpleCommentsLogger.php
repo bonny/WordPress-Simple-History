@@ -288,21 +288,6 @@ class SimpleCommentsLogger extends SimpleLogger
 
 			}
 	
-			/*
-			// Gah, what a moron I am, this won't work when texts are translated to other languages...
-			$edit_comment_link = get_edit_comment_link( $comment_id );
-
-			if ( $edit_comment_link ) {
-
-				$message = str_replace(
-					'"{comment_post_title}"',
-					"<a href='{$edit_post_link}'>\"{comment_post_title}\"</a>",
-					$message
-				);
-
-			}
-			*/
-
 		}
 
 		return $this->interpolate($message, $context);
