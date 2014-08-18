@@ -692,10 +692,17 @@ class SimpleHistory {
 			$sql = sprintf('alter table %1$s charset=utf8;', $table_name);
 			$wpdb->query($sql);
 			
-			// Store this upgrade in ourself :)
-			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SimpleHistory::NAME);
-			
+			$db_version_prev = $db_version;
 			$db_version = 1;
+
+			SimpleLogger()->debug(
+				"Simple History updated its database from version {from_version} to {to_version}",
+				array(
+					"from_version" => $db_version_prev,
+					"to_version" => $db_version
+				)
+			);
+			
 			update_option("simple_history_db_version", $db_version);
 
 		} // done pre db ver 1 things
@@ -709,9 +716,17 @@ class SimpleHistory {
 			$sql = "ALTER TABLE {$table_name} ADD COLUMN action_description longtext";
 			$wpdb->query($sql);
 
-			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SimpleHistory::NAME . "&description=Database version is now version 2");
-
+			$db_version_prev = $db_version;
 			$db_version = 2;
+
+			SimpleLogger()->debug(
+				"Simple History updated its database from version {from_version} to {to_version}",
+				array(
+					"from_version" => $db_version_prev,
+					"to_version" => $db_version
+				)
+			);
+
 			update_option("simple_history_db_version", $db_version);
 
 		}
@@ -794,8 +809,9 @@ class SimpleHistory {
 			$db_version = 3;
 			update_option("simple_history_db_version", $db_version);
 
-			SimpleLogger()->info(
-				"Simple History updated it's database from version {from_version} to {to_version}",
+			// How to translate this?
+			SimpleLogger()->debug(
+				"Simple History updated its database from version {from_version} to {to_version}",
 				array(
 					"from_version" => $db_version_prev,
 					"to_version" => $db_version
