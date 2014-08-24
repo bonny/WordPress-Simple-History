@@ -192,7 +192,7 @@ class SimpleLogger
 					// _user_login
 					// _user_email
 					$initiator_html .= sprintf( 
-						__('<strong>Deleted user</strong> (had id %1$s, email %2$s, login %3$s)', "simple-history"),
+						__('<strong class="SimpleHistoryLogitem__inlineDivided">Deleted user</strong> (had id %1$s, email %2$s, login %3$s)', "simple-history"),
 						esc_html( $context["_user_id"] ),
 						esc_html( $context["_user_email"] ),
 						esc_html( $context["_user_login"] )
@@ -206,11 +206,11 @@ class SimpleLogger
 
 				if ( empty( $context["_server_remote_addr"] ) ) {
 
-					$initiator_html .= "<strong>" . __("Anonymous web user") . "</strong>";
+					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . __("Anonymous web user") . "</strong> ";
 
 				} else {
 
-					$initiator_html .= "<strong>" . __( sprintf( 'Anonymous user from %1$s', esc_attr( $context["_server_remote_addr"] ) ) ) . "</strong>";
+					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . __( sprintf( 'Anonymous user from %1$s', esc_attr( $context["_server_remote_addr"] ) ) ) . "</strong> ";
 					// $initiator_html .= "<strong>" . __("<br><br>Unknown user from {$context["_server_remote_addr"]}") . "</strong>";
 					// $initiator_html .= "<strong>" . __("<br><br>{$context["_server_remote_addr"]}") . "</strong>";
 					// $initiator_html .= "<strong>" . __("<br><br>User from IP {$context["_server_remote_addr"]}") . "</strong>";
@@ -221,16 +221,16 @@ class SimpleLogger
 				break;
 
 			case "other":
-				$initiator_html .= "<strong>Other</strong>";
+				$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>Other</strong>";
 				break;
 
 			// no initiator
 			case null:
-				$initiator_html .= "<strong>Null</strong>";
+				// $initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>Null</strong>";
 				break;
 
 			default:
-				$initiator_html .= "<strong>" . esc_html( $initiator ) . "</strong>";
+				$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . esc_html( $initiator ) . "</strong>";
 
 		}
 
