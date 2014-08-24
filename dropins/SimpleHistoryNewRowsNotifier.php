@@ -76,15 +76,19 @@ class SimpleHistoryNewRowsNotifier {
 			}
 
 			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:before {
-				content: "";
+				content: '\f463';
+				font: 400 20px/1 dashicons;
+				-webkit-font-smoothing: antialiased;
+				display: inline-block;
+				vertical-align: middle;
+				margin-right: .5em;
+				/*
 				background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0ZWQgYnkgSWNvTW9vbi5pbyAtLT4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj4KPGcgaWQ9Imljb21vb24taWdub3JlIj4KCTxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IiIgeTE9IiIgeDI9IiIgeTI9IiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIiPjwvbGluZT4KPC9nPgoJPHBhdGggZD0iTTMwLjU0NSAxNS4yNzNsLTEwLjE4Mi00LjM2NCA0LjA3MC0yLjkwOGMtMi4xMjEtMi4yMzQtNS4xMS0zLjYzOC04LjQzMy0zLjYzOC01LjYzNiAwLTEwLjMzMyA0LjAwNy0xMS40MDUgOS4zMjdsLTIuNzE2LTEuMTI0YzEuNTQ1LTYuMzcyIDcuMjczLTExLjExMSAxNC4xMjEtMTEuMTExIDQuMzAxIDAgOC4xNTEgMS44NzkgMTAuODE2IDQuODQ3bDMuNzI5LTIuNjY1djExLjYzNnpNNy41NjcgMjMuOTk5YzIuMTE5IDIuMjM0IDUuMTEgMy42MzggOC40MzMgMy42MzggNS42NTggMCAxMC4zNjgtNC4wMzggMTEuNDE1LTkuMzg5bDIuNzEzIDEuMTYxYy0xLjUzNiA2LjM4NS03LjI3IDExLjEzNy0xNC4xMjggMTEuMTM3LTQuMzAxIDAtOC4xNTMtMS44NzktMTAuODE2LTQuODQ3bC0zLjcyOSAyLjY2NXYtMTEuNjM2bDEwLjE4MiA0LjM2NC00LjA3MCAyLjkwOHoiIGZpbGw9InVuZGVmaW5lZCI+PC9wYXRoPgo8L3N2Zz4K);
 				background-repeat: no-repeat;
 				background-size: 13px;
 				width: 13px;
 				height: 13px;
-				display: inline-block;
-				vertical-align: middle;
-				margin-right: .5em;
+				*/
 			}
 
 			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:hover {
@@ -121,7 +125,7 @@ class SimpleHistoryNewRowsNotifier {
 						action: "SimpleHistoryNewRowsNotifier",
 						since_id: firstPageMaxID
 					}, function() {}, "json").done(function(response) {
-						
+
 						// Always remove possible error class
 						$elm.removeClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
 
