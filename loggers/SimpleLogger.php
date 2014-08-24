@@ -121,6 +121,7 @@ class SimpleLogger
 	 * Returns header output for a log row
 	 * Format should be common for all log rows and should be like:
 	 * Username (user role) · Date
+	 * @return string HTML
 	 */
 	function getLogRowHeaderOutput($row) {
 		
@@ -217,6 +218,17 @@ class SimpleLogger
 				$initiator_html .= "<strong>" . esc_html( $initiator ) . "</strong>";
 
 		}
+
+		/**
+	     * Filter generated html for the initiator row header html
+	     *
+	     * @since 2.0
+	     *
+	     * @param string $initiator_html
+	     * @param object $row Log row
+	     */		
+		$initiator_html = apply_filters("simple_history/row_header_initiator_output", $initiator_html, $row);
+
 
 		// HTML for date
 		// Date (should...) always exist
