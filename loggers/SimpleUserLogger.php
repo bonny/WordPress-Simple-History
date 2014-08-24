@@ -26,7 +26,7 @@ class SimpleUserLogger extends SimpleLogger
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
 				'user_updated_profile' => __("Edited the profile for user {edited_user_login} ({edited_user_email})", "simple-history"),
-				'user_created' => __("Added user {created_user_login} ({created_user_email}) with role {created_user_role}", "simple-history"),				
+				'user_created' => __("Created user {created_user_login} ({created_user_email}) with role {created_user_role}", "simple-history"),				
 			)
 		);
 		
