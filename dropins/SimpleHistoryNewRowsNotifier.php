@@ -66,11 +66,16 @@ class SimpleHistoryNewRowsNotifier {
 				background: white;
 				line-height: 40px;
 				background: rgba(0, 255, 30, 0.15);
-				-webkit-transition: max-height 1s ease-in-out, background 0s;
-				        transition: max-height 1s ease-in-out, background 0s;
+				-webkit-transition: max-height .75s ease-out, background 0s;
+				        transition: max-height .75s ease-out, background 0s;
+			}
+		
+			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
+				max-height: 50px;
+				cursor: pointer;
 			}
 
-			.SimpleHistoryDropin__NewRowsNotifier:before {
+			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:before {
 				content: "";
 				background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0ZWQgYnkgSWNvTW9vbi5pbyAtLT4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj4KPGcgaWQ9Imljb21vb24taWdub3JlIj4KCTxsaW5lIHN0cm9rZS13aWR0aD0iMSIgeDE9IiIgeTE9IiIgeDI9IiIgeTI9IiIgc3Ryb2tlPSIjNDQ5RkRCIiBvcGFjaXR5PSIiPjwvbGluZT4KPC9nPgoJPHBhdGggZD0iTTMwLjU0NSAxNS4yNzNsLTEwLjE4Mi00LjM2NCA0LjA3MC0yLjkwOGMtMi4xMjEtMi4yMzQtNS4xMS0zLjYzOC04LjQzMy0zLjYzOC01LjYzNiAwLTEwLjMzMyA0LjAwNy0xMS40MDUgOS4zMjdsLTIuNzE2LTEuMTI0YzEuNTQ1LTYuMzcyIDcuMjczLTExLjExMSAxNC4xMjEtMTEuMTExIDQuMzAxIDAgOC4xNTEgMS44NzkgMTAuODE2IDQuODQ3bDMuNzI5LTIuNjY1djExLjYzNnpNNy41NjcgMjMuOTk5YzIuMTE5IDIuMjM0IDUuMTEgMy42MzggOC40MzMgMy42MzggNS42NTggMCAxMC4zNjgtNC4wMzggMTEuNDE1LTkuMzg5bDIuNzEzIDEuMTYxYy0xLjUzNiA2LjM4NS03LjI3IDExLjEzNy0xNC4xMjggMTEuMTM3LTQuMzAxIDAtOC4xNTMtMS44NzktMTAuODE2LTQuODQ3bC0zLjcyOSAyLjY2NXYtMTEuNjM2bDEwLjE4MiA0LjM2NC00LjA3MCAyLjkwOHoiIGZpbGw9InVuZGVmaW5lZCI+PC9wYXRoPgo8L3N2Zz4K);
 				background-repeat: no-repeat;
@@ -81,15 +86,16 @@ class SimpleHistoryNewRowsNotifier {
 				vertical-align: middle;
 				margin-right: .5em;
 			}
-			
-			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
-				max-height: 100px;
-				cursor: pointer;
-			}
 
 			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:hover {
 				/*text-decoration: underline;*/
 				background: rgba(0, 255, 30, 0.5);
+			}
+
+			/* when there is a remote error or server down etc */
+			.SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck {
+				max-height: 50px;
+				background: rgb(254, 247, 241);
 			}
 
 		</style>
@@ -103,6 +109,10 @@ class SimpleHistoryNewRowsNotifier {
 				var ajaxurl = window.ajaxurl;
 				var intervalID;
 
+				var strings = {
+					"errorCheck": "<?php _ex('An error occured while checking for new log rows', 'New rows notifier: error while checking for new rows', 'simple-history') ?>"
+				};
+
 				var checkForUpdates = function() {
 
 					var firstPageMaxID = simple_history2.logRowsCollection.max_id_first_page;
@@ -112,14 +122,26 @@ class SimpleHistoryNewRowsNotifier {
 						since_id: firstPageMaxID
 					}).done(function(response) {
 
+						// Always remove possible error class
+						$elm.removeClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
+
 						// If new rows have been added then max_id is not 0 and larger than previos max id
 						// Also total_row_count shows the number of added rows
-						if (response.data.num_new_rows) {
+						if (response && response.data && response.data.num_new_rows) {
 							$elm.html( response.data.strings.newRowsFound );
 							$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
 						}
 
+					}).fail(function(jqXHR, textStatus, errorThrown) {
+
+						console.log("strings", strings);
+						$elm.html( strings.errorCheck );
+						$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
+
 					});
+
+					// @TODO: onerror, like network down or other failure show a warning message to 
+					// let the user know whe try to pull but are unsuccessfull
 
 				};
 
@@ -159,11 +181,12 @@ class SimpleHistoryNewRowsNotifier {
 				});
 
 			}(jQuery));
-
 			
 		</script>
+
 		<?php
 
 	}
 
-}
+} // class
+

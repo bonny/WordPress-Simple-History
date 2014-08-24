@@ -254,12 +254,13 @@ when occasions are added
 .SimpleHistoryLogitem__occasionsItems {
 	opacity: 0;
 	max-height: 0;
-	transition: all .5s ease-in-out;
+	-webkit-transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s;
+	        transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s;
 }
 
 .SimpleHistoryLogitem__occasionsItems.haveOccasionsAdded {
 	opacity: 1;
-	max-height: 10000px;
+	max-height: 2000px;
 }
 
 /*
@@ -296,7 +297,6 @@ when occasions are added
 	border-bottom-width : 1px;
 	padding-top: 15px;
 	padding-bottom: 15px;
-	transition: all .4s ease-out;
 	/*padding-left: 40px;*/
 }
 
