@@ -120,8 +120,8 @@ class SimpleHistoryNewRowsNotifier {
 					$.get(ajaxurl, {
 						action: "SimpleHistoryNewRowsNotifier",
 						since_id: firstPageMaxID
-					}).done(function(response) {
-
+					}, function() {}, "json").done(function(response) {
+						
 						// Always remove possible error class
 						$elm.removeClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
 
