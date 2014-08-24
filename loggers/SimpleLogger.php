@@ -423,7 +423,7 @@ class SimpleLogger
 		$html = "";
 
 		/**
-	     * Filter generated output for row image (sender image)
+	     * Filter generated output for details
 	     *
 	     * @since 2.0
 	     *
