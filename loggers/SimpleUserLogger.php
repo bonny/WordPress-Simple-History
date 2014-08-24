@@ -260,10 +260,11 @@ class SimpleUserLogger extends SimpleLogger
 		if (false === $wp_user) {
 
 			$context = array(
+				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
 				"failed_login_username" => $username,
 				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
-				// count all failed logins to unknown users as the same occasions, to prevent log being flooded
-				// with login/hack attempts
+				// count all failed logins to unknown users as the same occasions, 
+				// to prevent log being flooded with login/hack attempts
 				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__
 			);
 
