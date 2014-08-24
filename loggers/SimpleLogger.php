@@ -203,15 +203,30 @@ class SimpleLogger
 				break;
 
 			case "web_user":
-				// $initiator_html .= "<strong>Web User</strong>";
+
+				if ( empty( $context["_server_remote_addr"] ) ) {
+
+					$initiator_html .= "<strong>" . __("Anonymous web user") . "</strong>";
+
+				} else {
+
+					$initiator_html .= "<strong>" . __( sprintf( 'Anonymous user from %1$s', esc_attr( $context["_server_remote_addr"] ) ) ) . "</strong>";
+					// $initiator_html .= "<strong>" . __("<br><br>Unknown user from {$context["_server_remote_addr"]}") . "</strong>";
+					// $initiator_html .= "<strong>" . __("<br><br>{$context["_server_remote_addr"]}") . "</strong>";
+					// $initiator_html .= "<strong>" . __("<br><br>User from IP {$context["_server_remote_addr"]}") . "</strong>";
+					// $initiator_html .= "<strong>" . __("<br><br>Non-logged in user from IP  {$context["_server_remote_addr"]}") . "</strong>";
+
+				}
+
 				break;
 
 			case "other":
-				// $initiator_html .= "<strong>Other</strong>";
+				$initiator_html .= "<strong>Other</strong>";
 				break;
 
 			// no initiator
 			case null:
+				$initiator_html .= "<strong>Null</strong>";
 				break;
 
 			default:
