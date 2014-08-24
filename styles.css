@@ -33,7 +33,7 @@ The spinner that wp uses:;
 /* on it's own page */
 .dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {
 	float: left;
-	width: 650px;
+	min-width: 10px;
 	max-width: 650px;
 }
 
@@ -114,17 +114,18 @@ There is always a 4px left border, just with differents colors
 	color: rgb(137, 143, 156);
 }
 
-.SimpleHistoryLogitem__text {
-	margin-top: 0.4em;
-	font-size: 16px;
-	color: #333;
-}
-
 .SimpleHistoryLogitem__text,
 .SimpleHistoryLogitem__details,
 .SimpleHistoryLogitem__details p {
 	xfont-size: 16px;
 	line-height: 1.4;
+}
+
+.SimpleHistoryLogitem__text {
+	margin-top: 0.4em;
+	font-size: 16px;
+	color: #333;
+	line-height: 1.2;
 }
 
 .SimpleHistoryLogitem__details p {
