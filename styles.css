@@ -34,6 +34,7 @@ The spinner that wp uses:;
 .dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {
 	float: left;
 	min-width: 10px;
+	width: 650px;
 	max-width: 650px;
 }
 
