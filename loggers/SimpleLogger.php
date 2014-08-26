@@ -380,16 +380,16 @@ class SimpleLogger
 				if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
 
 					// Sender was user
-					$sender_image_html = get_avatar( $user->user_email, $sender_image_size );	
+					$sender_image_html = $this->simpleHistory->get_avatar( $user->user_email, $sender_image_size );
 
 				} else if ($user_id > 0) {
 						
 					// Sender was a user, but user is deleted now
-					$sender_image_html = get_avatar( "", $sender_image_size );	
+					$sender_image_html = $this->simpleHistory->get_avatar( "", $sender_image_size );	
 
 				} else {
 
-					$sender_image_html = get_avatar( "", $sender_image_size );	
+					$sender_image_html = $this->simpleHistory->get_avatar( "", $sender_image_size );	
 
 				}	
 
