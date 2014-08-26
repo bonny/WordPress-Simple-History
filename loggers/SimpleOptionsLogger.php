@@ -243,7 +243,7 @@ class SimpleOptionsLogger extends SimpleLogger
 			}
 
 			// If option = permalink_structure then we did it from permalink page
-			if ( ! empty( $context["option"] ) && "permalink_structure" == $context["option"] ) {
+			if ( ! empty( $context["option"] ) && ( "permalink_structure" == $context["option"] || "tag_base" == $context["option"] || "category_base" == $context["option"] ) ) {
 
 				$output .= sprintf(
 					'
