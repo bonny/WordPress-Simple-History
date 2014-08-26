@@ -102,6 +102,25 @@ class SimplePostLogger extends SimpleLogger
 			return;
 		}
 
+		// Don't log nav_menu_updates
+		/*
+		$post_types = get_post_types();
+		Array
+		(
+		    [post] => post
+		    [page] => page
+		    [attachment] => attachment
+		    [revision] => revision
+		    [nav_menu_item] => nav_menu_item
+		    [texts] => texts
+		    [products] => products
+		    [book] => book
+		)
+		*/
+		if ( "nav_menu_item" === get_post_type( $post ) ) {
+			return;
+		}
+
 		/*
 		From new to auto-draft <- ignore
 		From new to inherit <- ignore
