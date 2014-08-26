@@ -136,7 +136,14 @@ class SimpleOptionsLogger extends SimpleLogger
 			"description" => "Logs updates to WordPress settings",
 			"capability" => "manage_options",
 			"messages" => array(
-				'option_updated' => __('Updated option {option}', "simple-history"),
+				'option_updated' => __('Updated option "{option}" on settings page "{option_page}"', "simple-history"),
+                /*
+
+                Updated option "default_comment_status" on settings page "discussion"
+                Edited option "default_comment_status" on settings page "discussion"
+                Modified option "default_comment_status" on settings page "discussion"
+    
+                */
 			)
 		);
 		
@@ -167,7 +174,7 @@ class SimpleOptionsLogger extends SimpleLogger
 			"new_value" => $new_value,
 			"REQUEST_URI" => $_SERVER["REQUEST_URI"],
 			"referer" => wp_get_referer(),
-			"option_page" => isset( $_REQUEST["option_page"] ) ? $_REQUEST["option_page"] : "" // general | 
+			"option_page" => isset( $_REQUEST["option_page"] ) ? $_REQUEST["option_page"] : "" // general | discussion | 
 			// "r" => print_r($_REQUEST, true),
 		) );
 
