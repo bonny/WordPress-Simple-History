@@ -80,6 +80,10 @@ class SimplePostLogger extends SimpleLogger
 			return;
 		}
 
+		if ( "nav_menu_item" == get_post_type( $post ) ) {
+			return;
+		}
+
 		$this->info(
 			$this->messages["post_deleted"],
 			array(
@@ -117,7 +121,7 @@ class SimplePostLogger extends SimpleLogger
 		    [book] => book
 		)
 		*/
-		if ( "nav_menu_item" === get_post_type( $post ) ) {
+		if ( "nav_menu_item" == get_post_type( $post ) ) {
 			return;
 		}
 

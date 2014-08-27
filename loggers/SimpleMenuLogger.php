@@ -20,7 +20,7 @@ class SimpleMenuLogger extends SimpleLogger
 			"description" => "Logs menu edits",
 			"capability" => "edit_theme_options",
 			"messages" => array(
-				'edited_menu' => __('Edited a menu', "simple-history"),
+				'edited_menu' => __('Edited menu "{menu_name}"', "simple-history"),
 				'created_menu' => __('Created menu "{menu_name}"', "simple-history"),
 				'deleted_menu' => __('Deleted menu "{menu_name}"', "simple-history"),
 				'edited_menu_item' => __('Edited a menu item', "simple-history"),
@@ -68,7 +68,10 @@ class SimpleMenuLogger extends SimpleLogger
 		 * @param array $args            An array of arguments used to update a menu item.
 		do_action( 'wp_update_nav_menu_item', $menu_id, $menu_item_db_id, $args );
 		*/
-		add_action("wp_update_nav_menu_item", array($this, "on_wp_update_nav_menu_item"), 10, 3 );
+
+		// This is fired when adding nav items in the editor, not at save, so not
+		// good to log because user might not end up saving the changes
+		// add_action("wp_update_nav_menu_item", array($this, "on_wp_update_nav_menu_item"), 10, 3 );
 
 
 		/*
@@ -163,25 +166,42 @@ class SimpleMenuLogger extends SimpleLogger
 
 	}
 
+	/*
 	function on_wp_update_nav_menu_item($menu_id, $menu_item_db_id, $args) {
+		
 		$this->infoMessage(
 			"edited_menu_item",
 			array(
 				"menu_id" => $menu_id,
 				"menu_item_db_id" => $menu_item_db_id,
-				"args" => print_r($args, true)
+				"args" => $this->simpleHistory->json_encode($args),
+				"request" => $this->simpleHistory->json_encode($_REQUEST)
 			)
 		);
-	}
 
-	function on_wp_update_nav_menu($menu_id, $menu_data) {
+	}
+	*/
+
+	/** 
+	 * This seems to get called twice
+	 * one time with menu_data, a second without
+	 */
+	function on_wp_update_nav_menu($menu_id, $menu_data = array()) {
+		
+		if (empty($menu_data)) {
+			return;
+		}
+
 		$this->infoMessage(
 			"edited_menu",
 			array(
 				"menu_id" => $menu_id,
-				"menu_data" => $menu_data
+				"menu_name" => $menu_data["menu-name"],
+				"menu_data" => $this->simpleHistory->json_encode($menu_data),
+				"request" => $this->simpleHistory->json_encode($_REQUEST)
 			)
 		);
+
 	}
 
 	/**
