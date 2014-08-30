@@ -188,7 +188,7 @@ class SimpleOptionsLogger extends SimpleLogger
 			'writing',
 		);
 
-		if ( ! in_array($option_page, $arr_valid_option_pages) ) {
+		if ( $option_page && ! in_array($option_page, $arr_valid_option_pages) ) {
 			return;
 		}
 
