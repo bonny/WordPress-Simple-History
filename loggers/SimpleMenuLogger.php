@@ -42,7 +42,7 @@ class SimpleMenuLogger extends SimpleLogger
 		do_action( 'wp_delete_nav_menu', $menu->term_id );
 		*/
 		//add_action("wp_delete_nav_menu", array($this, "on_wp_delete_nav_menu"), 10, 1 );
-		add_action("load-nav-menus.php", array($this, "on_load_nav_menus_page"));
+		add_action("load-nav-menus.php", array($this, "on_load_nav_menus_page_detect_delete"));
 
 		/*
 		 * Fires after a navigation menu is successfully created.
@@ -73,6 +73,9 @@ class SimpleMenuLogger extends SimpleLogger
 		// good to log because user might not end up saving the changes
 		// add_action("wp_update_nav_menu_item", array($this, "on_wp_update_nav_menu_item"), 10, 3 );
 
+		// Fired before "wp_update_nav_menu" below, to remember menu layput before it's updated
+		// so we can't detect changes
+		add_action("load-nav-menus.php", array($this, "on_load_nav_menus_page_detect_update"));
 
 		/*
 		 * Fires after a navigation menu has been successfully updated.
@@ -83,11 +86,15 @@ class SimpleMenuLogger extends SimpleLogger
 		 * @param array $menu_data An array of menu data.
 		do_action( 'wp_update_nav_menu', $menu_id, $menu_data );
 		*/
-		add_action("wp_update_nav_menu", array($this, "on_wp_update_nav_menu"), 10, 2 );
+		//add_action("wp_update_nav_menu", array($this, "on_wp_update_nav_menu"), 10, 2 );
 
 	}
 
-	function on_load_nav_menus_page() {
+	/**
+	 * Can't use action "wp_delete_nav_menu" beacuse
+	 * it's fired after menu is deleted, so we don't have the name in this action
+	 */
+	function on_load_nav_menus_page_detect_delete() {
 		
 		/*
 		http://playground-root.ep/wp-admin/nav-menus.php?menu=22&action=delete&0=http%3A%2F%2Fplayground-root.ep%2Fwp-admin%2F&_wpnonce=f52e8a31ba
@@ -102,7 +109,6 @@ class SimpleMenuLogger extends SimpleLogger
 		*/
 
 		// Check that needed vars are set
-		#echo 111;exit;
 		if ( ! isset( $_REQUEST["menu"], $_REQUEST["action"] ) ) {
 			return;
 		}
@@ -182,10 +188,89 @@ class SimpleMenuLogger extends SimpleLogger
 	}
 	*/
 
+	function on_load_nav_menus_page_detect_update() {
+
+		/*
+		This is the data to be saved
+		$_REQUEST:
+		Array
+		(
+		    [action] => update
+		    [menu] => 25
+		    [menu-name] => Main menu edit
+		    [menu-item-title] => Array
+		        (
+		            [25243] => My new page edited
+		            [25244] => My new page
+		            [25245] => This is my new page. How does it look in the logs? <h1>Hej!</h1>
+		            [25264] => This page have revisions
+		            [25265] => Lorem ipsum dolor sit amet
+		        )
+		    [menu-locations] => Array
+		        (
+		            [primary] => 25
+		        )
+		)
+		*/
+
+		// Check that needed vars are set
+		if ( ! isset( $_REQUEST["menu"], $_REQUEST["action"], $_REQUEST["menu-name"], $_REQUEST["menu-item-db-id"] ) ) {
+			return;
+		}
+
+		// Only go on for update action
+		if ( "update" !== $_REQUEST["action"]) {
+			return;
+		}
+
+		// Make sure we got the id of a menu
+		$menu_id = $_REQUEST["menu"];
+		if ( ! is_nav_menu( $menu_id) ) {
+			return;
+		}
+
+		// Get saved menu
+		// $menu = wp_get_nav_menu_object( $menu_id );
+		$arr_prev_menu_items = wp_get_nav_menu_items( $menu_id );
+
+		if ( false == $arr_prev_menu_items ) {
+			return;
+		}
+
+		// Compare new items to be saved with old version
+		$old_ids = wp_list_pluck( $arr_prev_menu_items, "db_id" );
+		$new_ids = array_values($_POST["menu-item-db-id"]);
+		
+		#sf_d($old_ids, '$old_ids');
+		#sf_d($new_ids, '$new_ids');
+
+		// Get ids of added and removed	post ids
+		$arr_removed = array_diff($old_ids, $new_ids);
+		$arr_added = array_diff($new_ids, $old_ids);
+
+		#sf_d($arr_removed, '$arr_removed');
+		#sf_d($arr_added, '$arr_added');
+
+		#exit;
+
+		$this->infoMessage(
+			"edited_menu",
+			array(
+				"menu_id" => $menu_id,
+				"menu_name" => $_POST["menu-name"],
+				"menu_items_added" => sizeof($arr_added),
+				"menu_items_removed" => sizeof($arr_removed),
+				//"request" => $this->simpleHistory->json_encode($_REQUEST)
+			)
+		);
+
+	}
+
 	/** 
 	 * This seems to get called twice
 	 * one time with menu_data, a second without
 	 */
+	/*
 	function on_wp_update_nav_menu($menu_id, $menu_data = array()) {
 		
 		if (empty($menu_data)) {
@@ -203,20 +288,46 @@ class SimpleMenuLogger extends SimpleLogger
 		);
 
 	}
+	*/
 
 	/**
 	 * Get detailed output
 	 */
-	/*
 	function getLogRowDetailsOutput($row) {
 	
 		$context = $row->context;
 		$message_key = $context["_message_key"];
 		$output = "";
 
+		if ( "edited_menu" == $message_key ) {
+
+			if ( ! empty( $context["menu_items_added"] ) || ! empty( $context["menu_items_removed"] ) )  {
+
+				$output .= "<p>";
+
+				$output .= '<span class="SimpleHistoryLogitem__inlineDivided">';
+				$output .= sprintf(
+					_nx( '%1$s menu item added', '%1$s menu items added', $context["menu_items_added"], "menu logger", "simple-history" ),
+					esc_attr( $context["menu_items_added"] )
+				);
+				$output .= '</span> ';
+
+				$output .= '<span class="SimpleHistoryLogitem__inlineDivided">';
+				$output .= sprintf(
+					_nx( '%1$s menu item removed', '%1$s menu items removed', $context["menu_items_removed"], "menu logger", "simple-history" ),
+					esc_attr( $context["menu_items_removed"] )
+				);
+				$output .= '</span> ';
+
+				$output .= "</p>";
+
+			}
+
+
+		}
+
 		return $output;
 
 	}
-	*/
 
 }
