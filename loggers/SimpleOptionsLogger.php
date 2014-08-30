@@ -171,18 +171,34 @@ class SimpleOptionsLogger extends SimpleLogger
 			1 => "options-permalink.php"
 		);
 
-		// We only want to log options being added via pgaes in $arr_option_pages
+		// We only want to log options being added via pages in $arr_option_pages
 		if ( ! in_array( basename( $_SERVER["REQUEST_URI"] ), $arr_option_pages ) || basename( dirname( $_SERVER["REQUEST_URI"] ) ) !== "wp-admin" ) {
 			return;
 		}
-		#echo "save";exit;
+
+		// Also only if "option_page" is set to one of these "built in" ones
+		// We don't wanna start loging things from other plugins, like EDD
+		$option_page = isset( $_REQUEST["option_page"] ) ? $_REQUEST["option_page"] : ""; // general | discussion | ...
+		
+		$arr_valid_option_pages = array(
+			'general',
+			'discussion',
+			'media',
+			'reading',
+			'writing',
+		);
+
+		if ( ! in_array($option_page, $arr_valid_option_pages) ) {
+			return;
+		}
+
 		$this->debugMessage( "option_updated", array(
 			"option" => $option,
 			"old_value" => $old_value,
 			"new_value" => $new_value,
 			"REQUEST_URI" => $_SERVER["REQUEST_URI"],
 			"referer" => wp_get_referer(),
-			"option_page" => isset( $_REQUEST["option_page"] ) ? $_REQUEST["option_page"] : "", // general | discussion | 
+			"option_page" => $option_page,
 			"$_REQUEST" => print_r($_REQUEST, true),
 		) );
 

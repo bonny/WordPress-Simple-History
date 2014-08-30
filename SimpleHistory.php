@@ -1254,6 +1254,7 @@ class SimpleHistory {
 	/**
 	 * How old log entried are allowed to be. 
 	 * 0 = don't delete old entries.
+	 *
 	 * @return int Number of days.
 	 */
 	function get_clear_history_interval() {
