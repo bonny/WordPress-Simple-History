@@ -77,13 +77,13 @@ class SimpleUserLogger extends SimpleLogger
 
 					// User still exist, so link to their profile
 					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
-					$msg = __('Edited <a href="{edit_profile_link}">their profile</a>', "simple-history");
+					$msg = __('Edited <a href="{edit_profile_link}">your profile</a>', "simple-history");
 					$output = $this->interpolate($msg, $context);
 
 				} else {
 
 					// User does not exist any longer
-					$output = __("Edited their profile", "simple-history");
+					$output = __("Edited your profile", "simple-history");
 
 				}
 
