@@ -230,7 +230,6 @@ class SimpleMenuLogger extends SimpleLogger
 		}
 
 		// Get saved menu
-		// $menu = wp_get_nav_menu_object( $menu_id );
 		$arr_prev_menu_items = wp_get_nav_menu_items( $menu_id );
 
 		if ( false == $arr_prev_menu_items ) {
@@ -241,17 +240,14 @@ class SimpleMenuLogger extends SimpleLogger
 		$old_ids = wp_list_pluck( $arr_prev_menu_items, "db_id" );
 		$new_ids = array_values($_POST["menu-item-db-id"]);
 		
-		#sf_d($old_ids, '$old_ids');
-		#sf_d($new_ids, '$new_ids');
-
 		// Get ids of added and removed	post ids
 		$arr_removed = array_diff($old_ids, $new_ids);
 		$arr_added = array_diff($new_ids, $old_ids);
 
-		#sf_d($arr_removed, '$arr_removed');
-		#sf_d($arr_added, '$arr_added');
-
-		#exit;
+		// Get old version location
+		// $prev_menu = wp_get_nav_menu_object( $menu_id );
+		// $locations = get_registered_nav_menus();
+		// $menu_locations = get_nav_menu_locations();
 
 		$this->infoMessage(
 			"edited_menu",
