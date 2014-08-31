@@ -24,6 +24,7 @@ class SimpleMenuLogger extends SimpleLogger
 				'created_menu' => __('Created menu "{menu_name}"', "simple-history"),
 				'deleted_menu' => __('Deleted menu "{menu_name}"', "simple-history"),
 				'edited_menu_item' => __('Edited a menu item', "simple-history"),
+				'edited_menu_locations' => __('Updated menu locations', "simple-history"),
 			)
 		);
 		
@@ -88,6 +89,8 @@ class SimpleMenuLogger extends SimpleLogger
 		*/
 		//add_action("wp_update_nav_menu", array($this, "on_wp_update_nav_menu"), 10, 2 );
 
+		// Detect meny location change in "manage locations"
+		add_action("load-nav-menus.php", array($this, "on_load_nav_menus_page_detect_locations_upddate"));
 	}
 
 	/**
@@ -326,4 +329,37 @@ class SimpleMenuLogger extends SimpleLogger
 
 	}
 
+	/**
+	 * Log updates to theme menu locations
+	 */
+	function on_load_nav_menus_page_detect_locations_upddate() {	
+
+		// Check that needed vars are set
+		if ( ! isset( $_REQUEST["menu"], $_REQUEST["action"] ) ) {
+			return;
+		}
+
+		if ( "locations" !== $_REQUEST["action"]) {
+			return;
+		}
+
+		/*
+		Array
+		(
+		    [menu-locations] => Array
+		        (
+		            [primary] => 25
+		        )
+		)
+		*/
+		$menu_locations = $_POST["menu-locations"];
+
+		$this->infoMessage(
+			"edited_menu_locations",
+			array(
+				"menu_locations" => $this->simpleHistory->json_encode($menu_locations)
+			)
+		);
+
+	}
 }
