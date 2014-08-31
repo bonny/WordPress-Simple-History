@@ -90,7 +90,7 @@ class SimpleMenuLogger extends SimpleLogger
 		//add_action("wp_update_nav_menu", array($this, "on_wp_update_nav_menu"), 10, 2 );
 
 		// Detect meny location change in "manage locations"
-		add_action("load-nav-menus.php", array($this, "on_load_nav_menus_page_detect_locations_upddate"));
+		add_action("load-nav-menus.php", array($this, "on_load_nav_menus_page_detect_locations_update"));
 	}
 
 	/**
@@ -191,6 +191,9 @@ class SimpleMenuLogger extends SimpleLogger
 	}
 	*/
 
+	/**
+	 * Detect menu being saved
+	 */
 	function on_load_nav_menus_page_detect_update() {
 
 		/*
@@ -217,7 +220,7 @@ class SimpleMenuLogger extends SimpleLogger
 		*/
 
 		// Check that needed vars are set
-		if ( ! isset( $_REQUEST["menu"], $_REQUEST["action"], $_REQUEST["menu-name"], $_REQUEST["menu-item-db-id"] ) ) {
+		if ( ! isset( $_REQUEST["menu"], $_REQUEST["action"], $_REQUEST["menu-name"] ) ) {
 			return;
 		}
 
@@ -231,17 +234,13 @@ class SimpleMenuLogger extends SimpleLogger
 		if ( ! is_nav_menu( $menu_id) ) {
 			return;
 		}
-
-		// Get saved menu
+		
+		// Get saved menu. May be empty if this is the first time we save the menu
 		$arr_prev_menu_items = wp_get_nav_menu_items( $menu_id );
-
-		if ( false == $arr_prev_menu_items ) {
-			return;
-		}
 
 		// Compare new items to be saved with old version
 		$old_ids = wp_list_pluck( $arr_prev_menu_items, "db_id" );
-		$new_ids = array_values($_POST["menu-item-db-id"]);
+		$new_ids = array_values( isset( $_POST["menu-item-db-id"] ) ? $_POST["menu-item-db-id"] : array() );
 		
 		// Get ids of added and removed	post ids
 		$arr_removed = array_diff($old_ids, $new_ids);
@@ -332,7 +331,7 @@ class SimpleMenuLogger extends SimpleLogger
 	/**
 	 * Log updates to theme menu locations
 	 */
-	function on_load_nav_menus_page_detect_locations_upddate() {	
+	function on_load_nav_menus_page_detect_locations_update() {	
 
 		// Check that needed vars are set
 		if ( ! isset( $_REQUEST["menu"], $_REQUEST["action"] ) ) {
