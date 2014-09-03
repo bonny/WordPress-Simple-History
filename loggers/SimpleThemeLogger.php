@@ -346,26 +346,47 @@ class SimpleThemeLogger extends SimpleLogger
 				if ( empty( $context["setting_old_value"] ) && empty( $context["setting_new_value"] ) ) {
 				} else {
 
+					// if control is color let's be fancy and output as color
+					$control_type = isset( $context["control_type"] ) ? $context["control_type"] : "";
+					$str_old_value_prepend = "";
+					$str_new_value_prepend = "";
+
+					if ("color" == $control_type) {
+
+						$str_old_value_prepend .= sprintf(
+							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
+							esc_attr( $context["setting_old_value"] )
+						);
+
+						$str_new_value_prepend .= sprintf(
+							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
+							esc_attr( $context["setting_new_value"] )
+						);
+
+					}
+
 					$output .= sprintf(
 						'
 						<tr>
 							<td>%1$s</td>
-							<td>%2$s</td>
+							<td>%3$s%2$s</td>
 						</tr>
 						',
 						__("New value", "simple-history"),
-						esc_html( $context["setting_new_value"] )
+						esc_html( $context["setting_new_value"] ),
+						$str_new_value_prepend
 					);
 
 					$output .= sprintf(
 						'
 						<tr>
 							<td>%1$s</td>
-							<td>%2$s</td>
+							<td>%3$s%2$s</td>
 						</tr>
 						',
 						__("Old value", "simple-history"),
-						esc_html( $context["setting_old_value"] )
+						esc_html( $context["setting_old_value"] ),
+						$str_old_value_prepend
 					);
 
 				
