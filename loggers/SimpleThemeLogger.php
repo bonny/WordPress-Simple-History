@@ -27,7 +27,8 @@ class SimpleThemeLogger extends SimpleLogger
 			"messages" => array(
 				'theme_switched' => __('Switched theme to from "{prev_theme_name}" to "{theme_name}"', "simple-history"),
 				// Appearance" → "Customize
-				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history")
+				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
+				'widget_deleted' => __("Deleted widget {widget_id_base} from sidebar {sidebar_id}", "simple-history")
 			)
 		);
 		
@@ -48,6 +49,8 @@ class SimpleThemeLogger extends SimpleLogger
 		add_action("customize_save", array( $this, "on_action_customize_save" ));
 		// do_action( 'customize_save', $this );
 		// do_action( 'customize_save_after', $this );
+
+		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup") );
 
 	}
 
@@ -404,5 +407,117 @@ class SimpleThemeLogger extends SimpleLogger
 
 	}
 
+
+	/*
+	Log Widget Changes in Apperance » Widgets
+	
+	# adding widget:
+	only 1 widget
+
+	widget-archives[5][title]:
+	widget-id:archives-5
+	id_base:archives
+	widget-width:250
+	widget-height:200
+	widget_number:2
+	multi_number:5
+	add_new:multi
+	action:save-widget
+	savewidgets:b4b438fa4f
+	sidebar:sidebar-3
+
+
+	# saving widget
+	only 1 widget
+
+	widget-archives[5][title]:xxxxxxxx
+	widget-id:archives-5
+	id_base:archives
+	widget-width:250
+	widget-height:200
+	widget_number:2
+	multi_number:5
+	add_new:
+	action:save-widget
+	savewidgets:b4b438fa4f
+	sidebar:sidebar-3
+
+	
+	# changing order
+	action:widgets-order
+	savewidgets:b4b438fa4f
+	sidebars[wp_inactive_widgets]:
+	sidebars[sidebar-1]:widget-19_recent-posts-2,widget-20_search-2,widget-21_recent-comments-2,widget-22_archives-2,widget-23_categories-2,widget-24_meta-2
+	sidebars[sidebar-2]:
+	sidebars[sidebar-3]:widget-3_calendar-2,widget-1_archives-5,widget-3_calendar-3,widget-7_icl_lang_sel_widget-2
+
+	
+
+	*/
+
+
+	// widget_deleted
+	function on_action_sidebar_admin_setup() {
+
+		/*
+	
+		# deleting widget
+		widget-meta[3][title]:
+		widget-id:meta-3
+		id_base:meta
+		widget-width:250
+		widget-height:200
+		widget_number:2
+		multi_number:3
+		add_new:
+		action:save-widget
+		savewidgets:b4b438fa4f
+		sidebar:sidebar-3
+		delete_widget:1
+
+		*/
+
+		if ( isset( $_POST["delete_widget"] ) ) {
+		
+			// Widget was deleted
+
+			$context = array(
+				"widget_id_base" => $_POST["id_base"]
+			);
+
+			// id_base: id på widget
+			// sidebar: sidebar som den togs bort från
+			//$widgets = wp_get_sidebars_widgets();
+			$sidebars = $GLOBALS['wp_registered_sidebars'];
+			$sidebar_deleted_from = null;
+
+			$registered_widgets = $GLOBALS["wp_registered_widgets"];
+			
+			#sf_d($registered_widgets);
+			$widget_factory = $GLOBALS["wp_widget_factory"];
+			foreach ($widget_factory->widgets as $one_widget) {
+				
+				sf_d($one_widget, '$one_widget');
+				// check id_base for our widget
+				// make this into function
+
+			}
+
+			$context["registered_widgets"] = $this->simpleHistory->json_encode( $registered_widgets );
+			
+			if ( isset( $sidebars[ $_POST["sidebar"] ] ) ) {
+				$sidebar_deleted_from = $sidebars[ $_POST["sidebar"] ];
+				$context["sidebar_id"] = $sidebar_deleted_from["id"];
+				$context["sidebar_name"] = $sidebar_deleted_from["name"];
+			}
+
+			$this->infoMessage(
+				"widget_deleted",
+				$context
+			);
+
+		}
+
+	}
 
 }
