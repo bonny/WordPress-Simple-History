@@ -55,7 +55,7 @@ class SimpleThemeLogger extends SimpleLogger
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_add") );
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change") );
-		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
+		//add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
 
 		add_filter( 'widget_update_callback', array( $this, "on_widget_update_callback" ), 10, 4 );
 
@@ -561,7 +561,36 @@ class SimpleThemeLogger extends SimpleLogger
 		    [option_name] => widget_nav_menu
 		)
 		*/
-		
+	
+		$widget_id_base = $widget_instance->id_base;
+
+		$context = array();
+
+		// Add widget info
+		$context["widget_id_base"] = $widget_id_base;
+		$widget = $this->getWidgetByIdBase( $widget_id_base );
+		if ($widget) {
+			$context["widget_name_translated"] = $widget->name;
+		}
+
+		// Add sidebar info
+		$sidebar_id = $_POST["sidebar"];
+		$context["sidebar_id"] = $sidebar_id;
+		$sidebar = $this->getSidebarById( $sidebar_id );
+		if ($sidebar) {
+			$context["sidebar_name_translated"] = $sidebar["name"];
+		}
+
+		// Calculate changes
+		$context["old_instance"] = $this->simpleHistory->json_encode( $old_instance );
+		$context["new_instance"] = $this->simpleHistory->json_encode( $new_instance );
+
+		$this->infoMessage(
+			"widget_edited",
+			$context
+		);
+
+
 		return $instance;
 
 	}
