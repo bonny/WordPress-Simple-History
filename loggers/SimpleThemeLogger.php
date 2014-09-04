@@ -26,10 +26,11 @@ class SimpleThemeLogger extends SimpleLogger
 			"capability" => "edit_theme_options",
 			"messages" => array(
 				'theme_switched' => __('Switched theme to from "{prev_theme_name}" to "{theme_name}"', "simple-history"),
-				// Appearance" → "Customize
 				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
 				'widget_removed' => __('Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', "simple-history"),
-				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history")
+				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
+				'widget_order_changed' => __('Changed widget order "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
+				'widget_edited' => __('Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
 			)
 		);
 		
@@ -53,6 +54,10 @@ class SimpleThemeLogger extends SimpleLogger
 
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_add") );
+		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change") );
+		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
+
+		add_filter( 'widget_update_callback', array( $this, "on_widget_update_callback" ), 10, 4 );
 
 	}
 
@@ -413,20 +418,6 @@ class SimpleThemeLogger extends SimpleLogger
 	/*
 	Log Widget Changes in Apperance » Widgets
 	
-	# saving widget
-	only 1 widget
-
-	widget-archives[5][title]:xxxxxxxx
-	widget-id:archives-5
-	id_base:archives
-	widget-width:250
-	widget-height:200
-	widget_number:2
-	multi_number:5
-	add_new:
-	action:save-widget
-	savewidgets:b4b438fa4f
-	sidebar:sidebar-3
 
 	
 	# changing order
@@ -441,13 +432,151 @@ class SimpleThemeLogger extends SimpleLogger
 
 	*/
 
+	function on_action_sidebar_admin_setup__detect_widget_edit() {
+
+		// # saving widget
+		// only 1 widget
+
+		// widget-archives[5][title]:xxxxxxxx
+		// widget-id:archives-5
+		// id_base:archives
+		// widget-width:250
+		// widget-height:200
+		// widget_number:2
+		// multi_number:5
+		// add_new:
+		// action:save-widget
+		// savewidgets:b4b438fa4f
+		// sidebar:sidebar-3
+		
+
+		if ( isset( $_REQUEST["action"] ) && ( $_REQUEST["action"] == "save-widget" ) && isset( $_POST["sidebar"] ) && isset( $_POST["id_base"] ) ) {
+
+			$widget_id_base = $_POST["id_base"];
+
+			// a key with widget-{$widget_id_base} exists if we are saving
+			if ( ! isset( $_POST["widget-{$widget_id_base}"] ) ) {
+				return;
+			}
+
+			$context = array();
+
+			$widget_save_data = $_POST["widget-{$widget_id_base}"];
+			$context["widget_save_data"] = $this->simpleHistory->json_encode( $widget_save_data );
+
+			// Add widget info
+			$context["widget_id_base"] = $widget_id_base;
+			$widget = $this->getWidgetByIdBase( $widget_id_base );
+			if ($widget) {
+				$context["widget_name_translated"] = $widget->name;
+			}
+
+			// Add sidebar info
+			$sidebar_id = $_POST["sidebar"];
+			$context["sidebar_id"] = $sidebar_id;
+			$sidebar = $this->getSidebarById( $sidebar_id );
+			if ($sidebar) {
+				$context["sidebar_name_translated"] = $sidebar["name"];
+			}
+
+			$this->infoMessage(
+				"widget_edited",
+				$context
+			);
+
+		}
+
+
+	}
+
+	/*
+				/**
+				 * Filter a widget's settings before saving.
+				 *
+				 * Returning false will effectively short-circuit the widget's ability
+				 * to update settings.
+				 *
+				 * @since 2.8.0
+				 *
+				 * @param array     $instance     The current widget instance's settings.
+				 * @param array     $new_instance Array of new widget settings.
+				 * @param array     $old_instance Array of old widget settings.
+				 * @param WP_Widget $this         The current widget instance.
+				$instance = apply_filters( 'widget_update_callback', $instance, $new_instance, $old_instance, $this );
+	*/
+
+	function on_widget_update_callback($instance, $new_instance, $old_instance, $widget_instance) {
+		
+		#sf_d("on_widget_update_callback");
+		
+		#sf_d($instance);
+		/*
+		Array
+		(
+		    [title] => Custom menu I am abc
+		    [nav_menu] => 0
+		)
+
+		*/
+
+		#sf_d($new_instance);
+		/*
+		Custom Menu
+		Array
+		(
+		    [title] => Custom menu I am abc
+		    [nav_menu] => 0
+		)
+		*/
+
+		#sf_d($old_instance);
+		/*
+		Array
+		(
+		    [title] => Custom menu I am
+		    [nav_menu] => 0
+		)
+		*/
+
+		#sf_d($widget_instance);
+		/*
+		WP_Nav_Menu_Widget Object
+		(
+		    [id_base] => nav_menu
+		    [name] => Custom Menu
+		    [widget_options] => Array
+		        (
+		            [classname] => widget_nav_menu
+		            [description] => Add a custom menu to your sidebar.
+		        )
+
+		    [control_options] => Array
+		        (
+		            [id_base] => nav_menu
+		        )
+
+		    [number] => 2
+		    [id] => nav_menu-2
+		    [updated] => 
+		    [option_name] => widget_nav_menu
+		)
+		*/
+		
+		return $instance;
+
+	}
+
+
+	function on_action_sidebar_admin_setup__detect_widget_order_change() {
+		// widget_order_changed	
+	}
 
 	/**
 	 * Widget added
 	 */
 	function on_action_sidebar_admin_setup__detect_widget_add() {
 	
-		if ( isset( $_POST["add_new"] ) && isset( $_POST["sidebar"] ) && isset( $_POST["id_base"] ) ) {
+		if ( isset( $_POST["add_new"] ) && ! empty( $_POST["add_new"] ) && isset( $_POST["sidebar"] ) && isset( $_POST["id_base"] ) ) {
 
 			// Add widget info
 			$widget_id_base = $_POST["id_base"];
@@ -471,26 +600,6 @@ class SimpleThemeLogger extends SimpleLogger
 			);
 
 		}
-
-		/*
-
-		# adding widget:
-		only 1 widget
-
-		widget-archives[5][title]:
-		widget-id:archives-5
-		id_base:archives
-		widget-width:250
-		widget-height:200
-		widget_number:2
-		multi_number:5
-		add_new:multi
-		action:save-widget
-		savewidgets:b4b438fa4f
-		sidebar:sidebar-3
-
-		*/
-
 
 	}
 	/* 
