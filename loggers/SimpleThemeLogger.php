@@ -477,46 +477,86 @@ class SimpleThemeLogger extends SimpleLogger
 
 		*/
 
+		// Widget was deleted
 		if ( isset( $_POST["delete_widget"] ) ) {
-		
-			// Widget was deleted
-
-			$context = array(
-				"widget_id_base" => $_POST["id_base"]
-			);
-
-			// id_base: id på widget
-			// sidebar: sidebar som den togs bort från
-			//$widgets = wp_get_sidebars_widgets();
-			$sidebars = $GLOBALS['wp_registered_sidebars'];
-			$sidebar_deleted_from = null;
-
-			$registered_widgets = $GLOBALS["wp_registered_widgets"];
 			
-			#sf_d($registered_widgets);
-			$widget_factory = $GLOBALS["wp_widget_factory"];
-			foreach ($widget_factory->widgets as $one_widget) {
-				
-				sf_d($one_widget, '$one_widget');
-				// check id_base for our widget
-				// make this into function
+			$context = array();
 
+			// Add widget info
+			$widget_id_base = $_POST["id_base"];
+			$context["widget_id_base"] = $widget_id_base;
+			$widget = $this->getWidgetByIdBase( $widget_id_base );
+			if ($widget) {
+				$context["widget_name_translated"] = $widget->name;
 			}
 
-			$context["registered_widgets"] = $this->simpleHistory->json_encode( $registered_widgets );
-			
-			if ( isset( $sidebars[ $_POST["sidebar"] ] ) ) {
-				$sidebar_deleted_from = $sidebars[ $_POST["sidebar"] ];
-				$context["sidebar_id"] = $sidebar_deleted_from["id"];
-				$context["sidebar_name"] = $sidebar_deleted_from["name"];
+			// Add sidebar info
+			$sidebar_id = $_POST["sidebar"];
+			$context["sidebar_id"] = $sidebar_id;
+			$sidebar = $this->getSidebarById( $sidebar_id );
+			if ($sidebar) {
+				$context["sidebar_name_translated"] = $sidebar["name"];
 			}
-
+			
 			$this->infoMessage(
 				"widget_deleted",
 				$context
 			);
 
 		}
+
+	}
+
+	/**
+	 * Get a sidebar by id
+	 *
+	 * @param string $sidebar_id
+	 * @return sidebar info or false on failure
+	 */
+	function getSidebarById($sidebar_id) {
+
+		$sidebars = isset( $GLOBALS['wp_registered_sidebars'] ) ? $GLOBALS['wp_registered_sidebars'] : false;
+
+		if ( ! $sidebars ) {
+			return false;
+		}
+				
+		// Add sidebar info
+		if ( isset( $sidebars[ $sidebar_id ] ) ) {
+			
+			return $sidebars[ $sidebar_id ];
+		
+		}
+
+		return false;
+
+	}
+
+	/**
+	 * Get an widget by id's id_base
+	 *
+	 * @param string $id_base
+	 * @return wp_widget object or false on failure
+	 */
+	function getWidgetByIdBase($widget_id_base) {
+
+		$widget_factory = isset( $GLOBALS["wp_widget_factory"] ) ? $GLOBALS["wp_widget_factory"] : false;
+
+		if ( ! $widget_factory ) {
+			return false;
+		}
+
+		foreach ($widget_factory->widgets as $one_widget) {
+			
+			if ( $one_widget->id_base == $widget_id_base ) {
+
+				return $one_widget;
+
+			}
+
+		}
+
+		return false;
 
 	}
 
