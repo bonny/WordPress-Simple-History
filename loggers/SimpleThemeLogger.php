@@ -28,7 +28,8 @@ class SimpleThemeLogger extends SimpleLogger
 				'theme_switched' => __('Switched theme to from "{prev_theme_name}" to "{theme_name}"', "simple-history"),
 				// Appearance" → "Customize
 				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
-				'widget_deleted' => __("Deleted widget {widget_id_base} from sidebar {sidebar_id}", "simple-history")
+				'widget_removed' => __('Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', "simple-history"),
+				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history")
 			)
 		);
 		
@@ -50,7 +51,8 @@ class SimpleThemeLogger extends SimpleLogger
 		// do_action( 'customize_save', $this );
 		// do_action( 'customize_save_after', $this );
 
-		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup") );
+		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
+		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_add") );
 
 	}
 
@@ -411,22 +413,6 @@ class SimpleThemeLogger extends SimpleLogger
 	/*
 	Log Widget Changes in Apperance » Widgets
 	
-	# adding widget:
-	only 1 widget
-
-	widget-archives[5][title]:
-	widget-id:archives-5
-	id_base:archives
-	widget-width:250
-	widget-height:200
-	widget_number:2
-	multi_number:5
-	add_new:multi
-	action:save-widget
-	savewidgets:b4b438fa4f
-	sidebar:sidebar-3
-
-
 	# saving widget
 	only 1 widget
 
@@ -456,26 +442,61 @@ class SimpleThemeLogger extends SimpleLogger
 	*/
 
 
-	// widget_deleted
-	function on_action_sidebar_admin_setup() {
+	/**
+	 * Widget added
+	 */
+	function on_action_sidebar_admin_setup__detect_widget_add() {
+	
+		if ( isset( $_POST["add_new"] ) && isset( $_POST["sidebar"] ) && isset( $_POST["id_base"] ) ) {
+
+			// Add widget info
+			$widget_id_base = $_POST["id_base"];
+			$context["widget_id_base"] = $widget_id_base;
+			$widget = $this->getWidgetByIdBase( $widget_id_base );
+			if ($widget) {
+				$context["widget_name_translated"] = $widget->name;
+			}
+
+			// Add sidebar info
+			$sidebar_id = $_POST["sidebar"];
+			$context["sidebar_id"] = $sidebar_id;
+			$sidebar = $this->getSidebarById( $sidebar_id );
+			if ($sidebar) {
+				$context["sidebar_name_translated"] = $sidebar["name"];
+			}
+
+			$this->infoMessage(
+				"widget_added",
+				$context
+			);
+
+		}
 
 		/*
-	
-		# deleting widget
-		widget-meta[3][title]:
-		widget-id:meta-3
-		id_base:meta
+
+		# adding widget:
+		only 1 widget
+
+		widget-archives[5][title]:
+		widget-id:archives-5
+		id_base:archives
 		widget-width:250
 		widget-height:200
 		widget_number:2
-		multi_number:3
-		add_new:
+		multi_number:5
+		add_new:multi
 		action:save-widget
 		savewidgets:b4b438fa4f
 		sidebar:sidebar-3
-		delete_widget:1
 
 		*/
+
+
+	}
+	/* 
+	 * widget deleted
+	 */
+	function on_action_sidebar_admin_setup__detect_widget_delete() {
 
 		// Widget was deleted
 		if ( isset( $_POST["delete_widget"] ) ) {
@@ -499,7 +520,7 @@ class SimpleThemeLogger extends SimpleLogger
 			}
 			
 			$this->infoMessage(
-				"widget_deleted",
+				"widget_removed",
 				$context
 			);
 
