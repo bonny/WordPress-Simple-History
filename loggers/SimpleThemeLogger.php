@@ -334,6 +334,7 @@ class SimpleThemeLogger extends SimpleLogger
 		$message_key = $context["_message_key"];
 		$output = "";
 
+		// Theme customizer
 		if ( "appearance_customized" == $message_key ) {
 			
 			//$output .= "<pre>" . print_r($context, true);
@@ -407,13 +408,41 @@ class SimpleThemeLogger extends SimpleLogger
 			}
 			
 
-
 		}
 
 		return $output;
 
 	}
 
+	function getLogRowPlainTextOutput($row) {
+
+		$context = $row->context;
+		$message_key = $context["_message_key"];
+		$output = "";
+
+		// Widget changed or added or removed
+		// Simple replace widget_id_base and sidebar_id with widget name and sidebar name
+		if ( in_array($message_key, array("widget_added", "widget_edited", "widget_removed") ) ) {
+						
+			$widget = $this->getWidgetByIdBase( $context["widget_id_base"] );
+			$sidebar = $this->getSidebarById( $context["sidebar_id"] );
+
+			if ( $widget && $sidebar ) {
+
+				$message = $this->interpolate( $row->message, array(
+					"widget_id_base" => $widget->name,
+					"sidebar_id" => $sidebar["name"],
+				) );
+
+				$output .= $message;
+
+			}
+			
+		}
+
+		return $output;
+
+	}
 
 	/*
 	Log Widget Changes in Apperance » Widgets
