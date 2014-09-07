@@ -135,6 +135,20 @@ class SimpleUserLogger extends SimpleLogger
 				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
 			);
 
+			/**
+			 * Maybe store password too
+			 * Default is to not do this because of privacy and security
+			 *
+			 * @since 2.0
+			 *
+			 * @param bool $log_password
+			 */
+			$log_password = false;
+			$log_password = apply_filters("simple_history/comments_logger/log_failed_password", $log_password);
+			if ($log_password) {
+				$context["login_user_password"] = $password;
+			}
+
 			$this->warningMessage("user_login_failed", $context);		
 
 		}
