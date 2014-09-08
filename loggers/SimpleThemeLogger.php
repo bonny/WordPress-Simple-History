@@ -49,8 +49,6 @@ class SimpleThemeLogger extends SimpleLogger
 		add_action( 'load-themes.php', array( $this, "on_page_load_themes" ) );
 	
 		add_action("customize_save", array( $this, "on_action_customize_save" ));
-		// do_action( 'customize_save', $this );
-		// do_action( 'customize_save_after', $this );
 
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_add") );
@@ -86,27 +84,138 @@ class SimpleThemeLogger extends SimpleLogger
 		nav - Navigation
 		static_front_page - Static Front Page
 		*/
+/*
+Array
+(
+    [wp_customize] => on
+    [theme] => make
+    [customized] => {\"widget_pages[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_calendar[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_calendar[6]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjE3OiJTZWUgd2hhdCBoYXBwZW5zISI7fQ==\",\"title\":\"See what happens!\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"ca37c1913982fa69bce33f77cef871cd\"},\"widget_calendar[7]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjg6IkthbGVuZGVyIjt9\",\"title\":\"Kalender\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"c602d6d891e3f7addb11ca21ac142b49\"},\"widget_archives[4]\":{\"encoded_serialized_instance\":\"YTozOntzOjU6InRpdGxlIjtzOjA6IiI7czo1OiJjb3VudCI7aTowO3M6ODoiZHJvcGRvd24iO2k6MDt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"3480afa3934342872c740122c4988ab5\"},\"widget_archives[6]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_meta[2]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjA6IiI7fQ==\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"b518e607928dcfc07867f25e07a3a875\"},\"widget_search[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_text[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_categories[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_recent-posts[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_recent-comments[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_rss[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_tag_cloud[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_nav_menu[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_caldera_forms_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_cart_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_categories_tags_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_categories_tags_widget[2]\":{\"encoded_serialized_instance\":\"YTo0OntzOjU6InRpdGxlIjtzOjA6IiI7czo4OiJ0YXhvbm9teSI7czoxNzoiZG93bmxvYWRfY2F0ZWdvcnkiO3M6NToiY291bnQiO3M6MDoiIjtzOjEwOiJoaWRlX2VtcHR5IjtzOjA6IiI7fQ==\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"afb767ddd896180593a758ba3228a6a4\"},\"widget_edd_product_details[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_icl_lang_sel_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"sidebars_widgets[wp_inactive_widgets]\":[\"calendar-6\",\"calendar-7\",\"archives-4\",\"archives-6\",\"edd_categories_tags_widget-2\"],\"sidebars_widgets[sidebar-left]\":[\"meta-2\"],\"sidebars_widgets[sidebar-right]\":[],\"sidebars_widgets[footer-1]\":[],\"sidebars_widgets[footer-2]\":[],\"sidebars_widgets[footer-3]\":[],\"sidebars_widgets[footer-4]\":[],\"blogname\":\"My test sitexxxxx\",\"blogdescription\":\"hej\",\"header_textcolor\":false,\"background_color\":\"#30d132\",\"header_image\":false,\"header_image_data\":\"\",\"background_image\":\"http://playground-root.ep/assets/uploads/2014/09/small-image.gif\",\"background_image_thumb\":\"\",\"background_repeat\":\"repeat-y\",\"background_position_x\":\"right\",\"background_attachment\":\"scroll\",\"nav_menu_locations[primary]\":\"31\",\"nav_menu_locations[social]\":0,\"nav_menu_locations[header-bar]\":\"32\",\"show_on_front\":\"page\",\"page_on_front\":\"24851\",\"page_for_posts\":\"25253\",\"logo-regular\":\"\",\"logo-retina\":\"\",\"logo-favicon\":\"\",\"logo-apple-touch\":\"\",\"social-facebook\":\"\",\"social-twitter\":\"\",\"social-google-plus-square\":\"\",\"social-linkedin\":\"\",\"social-instagram\":\"\",\"social-flickr\":\"\",\"social-youtube\":\"\",\"social-vimeo-square\":\"\",\"social-pinterest\":\"\",\"social-email\":\"\",\"social-hide-rss\":0,\"social-custom-rss\":\"\",\"font-subset\":\"latin\",\"font-family-site-title\":\"Dawning of a New Day\",\"font-size-site-title\":32,\"font-family-site-tagline\":\"Open Sans\",\"font-size-site-tagline\":12,\"font-family-nav\":\"Open Sans\",\"font-size-nav\":14,\"font-family-subnav\":\"Open Sans\",\"font-size-subnav\":13,\"font-subnav-mobile\":1,\"font-family-widget\":\"Open Sans\",\"font-size-widget\":13,\"font-family-h1\":\"monospace\",\"font-size-h1\":50,\"font-family-h2\":\"monospace\",\"font-size-h2\":37,\"font-family-h3\":\"monospace\",\"font-size-h3\":26,\"font-family-h4\":\"monospace\",\"font-size-h4\":26,\"font-family-h5\":\"monospace\",\"font-size-h5\":18,\"font-family-h6\":\"monospace\",\"font-size-h6\":15,\"font-family-body\":\"Open Sans\",\"font-size-body\":17,\"color-primary\":\"#2fce6f\",\"color-secondary\":\"#35c904\",\"color-text\":\"#969696\",\"color-detail\":\"#b9bcbf\",\"main-background-color\":\"#ffffff\",\"header-bar-background-color\":\"#171717\",\"header-bar-text-color\":\"#16dd66\",\"header-bar-border-color\":\"#171717\",\"header-background-color\":\"#ffffff\",\"header-text-color\":\"#171717\",\"color-site-title\":\"#1a6aba\",\"footer-background-color\":\"#eaecee\",\"footer-text-color\":\"#464849\",\"footer-border-color\":\"#b9bcbf\",\"header-background-image\":\"\",\"header-background-repeat\":\"no-repeat\",\"header-background-position\":\"center\",\"header-background-size\":\"cover\",\"header-layout\":1,\"header-branding-position\":\"left\",\"header-bar-content-layout\":\"flipped\",\"header-text\":\"text\",\"header-show-social\":0,\"header-show-search\":1,\"general-layout\":\"boxed\",\"general-sticky-label\":\"sticky name\",\"main-content-link-underline\":0,\"layout-blog-hide-header\":0,\"layout-blog-hide-footer\":0,\"layout-blog-sidebar-left\":0,\"layout-blog-sidebar-right\":1,\"layout-blog-featured-images\":\"post-header\",\"layout-blog-featured-images-alignment\":\"center\",\"layout-blog-post-date\":\"absolute\",\"layout-blog-post-date-location\":\"top\",\"layout-blog-post-author\":\"avatar\",\"layout-blog-post-author-location\":\"post-footer\",\"layout-blog-auto-excerpt\":0,\"layout-blog-show-categories\":1,\"layout-blog-show-tags\":1,\"layout-blog-comment-count\":\"none\",\"layout-blog-comment-count-location\":\"before-content\",\"layout-archive-hide-header\":0,\"layout-archive-hide-footer\":0,\"layout-archive-sidebar-left\":0,\"layout-archive-sidebar-right\":1,\"layout-archive-featured-images\":\"post-header\",\"layout-archive-featured-images-alignment\":\"center\",\"layout-archive-post-date\":\"absolute\",\"layout-archive-post-date-location\":\"top\",\"layout-archive-post-author\":\"avatar\",\"layout-archive-post-author-location\":\"post-footer\",\"layout-archive-auto-excerpt\":0,\"layout-archive-show-categories\":1,\"layout-archive-show-tags\":1,\"layout-archive-comment-count\":\"none\",\"layout-archive-comment-count-location\":\"before-content\",\"layout-search-hide-header\":0,\"layout-search-hide-footer\":0,\"layout-search-sidebar-left\":true,\"layout-search-sidebar-right\":1,\"layout-search-featured-images\":\"thumbnail\",\"layout-search-featured-images-alignment\":\"center\",\"layout-search-post-date\":\"absolute\",\"layout-search-post-date-location\":\"top\",\"layout-search-post-author\":\"name\",\"layout-search-post-author-location\":\"post-footer\",\"layout-search-auto-excerpt\":1,\"layout-search-show-categories\":1,\"layout-search-show-tags\":1,\"layout-search-comment-count\":\"none\",\"layout-search-comment-count-location\":\"before-content\",\"layout-post-hide-header\":0,\"layout-post-hide-footer\":0,\"layout-post-sidebar-left\":0,\"layout-post-sidebar-right\":0,\"layout-post-featured-images\":\"post-header\",\"layout-post-featured-images-alignment\":\"center\",\"layout-post-post-date\":\"absolute\",\"layout-post-post-date-location\":\"top\",\"layout-post-post-author\":\"name\",\"layout-post-post-author-location\":\"post-footer\",\"layout-post-show-categories\":0,\"layout-post-show-tags\":0,\"layout-post-comment-count\":\"none\",\"layout-post-comment-count-location\":\"before-content\",\"layout-page-hide-header\":0,\"layout-page-hide-footer\":0,\"layout-page-sidebar-left\":0,\"layout-page-sidebar-right\":0,\"layout-page-hide-title\":1,\"layout-page-featured-images\":\"none\",\"layout-page-featured-images-alignment\":\"center\",\"layout-page-post-date\":\"none\",\"layout-page-post-date-location\":\"top\",\"layout-page-post-author\":\"none\",\"layout-page-post-author-location\":\"post-footer\",\"layout-page-comment-count\":\"none\",\"layout-page-comment-count-location\":\"before-content\",\"footer-background-image\":\"\",\"footer-background-repeat\":\"no-repeat\",\"footer-background-position\":\"center\",\"footer-background-size\":\"cover\",\"footer-widget-areas\":3,\"footer-layout\":1,\"footer-text\":\"\",\"footer-show-social\":1,\"background_size\":\"auto\",\"main-background-image\":\"\",\"main-background-repeat\":\"repeat\",\"main-background-position\":\"left\",\"main-background-size\":\"auto\",\"navigation-mobile-label\":\"Menuxx\",\"hide-site-title\":0,\"hide-tagline\":0}
+    [nonce] => e983bc7d41
+    [action] => customize_save
+)
+*/
+
+/*
+keys in customized = settings id
+*/
+#print_r($_REQUEST);
+
+// Needed to get sections and controls in sorted order
+$customize_manager->prepare_controls();
+
+$settings = $customize_manager->settings();
+$sections = $customize_manager->sections();
+$controls = $customize_manager->controls();
+
+$customized = json_decode( wp_unslash( $_REQUEST["customized"] ) );
+
+foreach ($customized as $setting_id => $posted_values) {
+
+	foreach ($settings as $one_setting) {
+
+		if ($one_setting->id == $setting_id) {
+			
+			// sf_d("MATCH");
+			$old_value = $one_setting->value();
+			$new_value = $one_setting->post_value();
+
+			if ($old_value != $new_value) {
+
+				$context = array(
+					"setting_id" => $one_setting->id,
+					"setting_old_value" => $old_value,
+					"setting_new_value" => $new_value,
+					#"control_id" => $section_control->id,
+					#"control_label" => $section_control->label,
+					#"control_type" => $section_control->type,
+					#"section_id" => $section->id,
+					#"section_title" => $section->title,
+				);
+				
+				// value is changed
+				// find which control it belongs to
+				#foreach ($sections as $section) {
+				foreach ($controls as $one_control) {
+
+					foreach ($one_control->settings as $section_control_setting) {
+							
+						if ( $section_control_setting->id == $setting_id) {
+
+							#echo "\n" . $one_control->id;
+							#echo "\n" . $one_control->label;
+							#echo "\n" . $one_control->type;
+							$context["control_id"] = $one_control->id;
+							$context["control_label"] = $one_control->label;
+							$context["control_type"] = $one_control->type;
+
+						}
+
+					}
+
+				}
+				#}
+
+				$this->infoMessage(
+					"appearance_customized",
+					$context
+				);
+
+			}
+
+		}
+
+	}
+
+}
+
+return;
+#print_r( json_decode( $customized ) );
+#exit;
+
+
+
+
 
 		// Set to true to echo some info about stuff 
 		// that can be views in console when saving
-		$debug = false;
+		$debug = 0;
 
 		$arr_changed_settings = array();
 		$arr_changed_settings_ids = array();
 
-		// Needed to get sections and controls in sorted order
-		$customize_manager->prepare_controls();
-
-		$sections = $customize_manager->sections();
+		
 	
-		foreach ($sections as $section ) {
+/*
 
+
+foreach ($settings as $setting) {
+	
+	#echo "\n\nsetting";
+	#sf_d( $setting->id );
+	#sf_d( $setting->value() );
+	#sf_d( $setting->post_value() );
+
+	// Get control for this settings
+	foreach ($sections as $section) {
+		foreach ($section->controls as $control) {
+			foreach ($control->settings as $one_setting) {
+				sf_d( $one_setting->id );
+			}
+		}
+	}
+
+
+}
+return;
+*/
+		foreach ($sections as $section ) {
+#echo "Section: " . $section->id . " (".$section->title.")";
 			// Id is unique slug
 			// Can't use title because that's translated
 			if ($debug) {
 
 				echo "\n-------\n";
-				echo "Section: " . $sectionion->id . " (".$section->title.")";
+				echo "Section: " . $section->id . " (".$section->title.")";
 
 			}
 
@@ -336,25 +445,36 @@ class SimpleThemeLogger extends SimpleLogger
 
 		// Theme customizer
 		if ( "appearance_customized" == $message_key ) {
+
+			#if ( ! class_exists("WP_Customize_Manager") ) {
+			#	require_once( ABSPATH . WPINC . '/class-wp-customize-manager.php' );
+			#	$wp_customize = new WP_Customize_Manager;
+			#}
 			
 			//$output .= "<pre>" . print_r($context, true);
 			if ( isset( $context["setting_old_value"] ) && isset( $context["setting_new_value"] ) ) {
 
 				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
-				$output .= sprintf(
-					'
-					<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>
-					',
-					__("Section", "simple-history"),
-					esc_html( $context["section_id"] )
-				);
+				// Output section, if saved
+				if ( ! empty( $context["section_id"] ) ) {
+					$output .= sprintf(
+						'
+						<tr>
+							<td>%1$s</td>
+							<td>%2$s</td>
+						</tr>
+						',
+						__("Section", "simple-history"),
+						esc_html( $context["section_id"] )
+					);
+				}
 
 				// Don't output prev and new value if none exist
 				if ( empty( $context["setting_old_value"] ) && empty( $context["setting_new_value"] ) ) {
+					
+					// empty, so skip
+
 				} else {
 
 					// if control is color let's be fancy and output as color
@@ -366,12 +486,12 @@ class SimpleThemeLogger extends SimpleLogger
 
 						$str_old_value_prepend .= sprintf(
 							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
-							esc_attr( $context["setting_old_value"] )
+							esc_attr( ltrim( $context["setting_old_value"], " #" ) )
 						);
 
 						$str_new_value_prepend .= sprintf(
 							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
-							esc_attr( $context["setting_new_value"] )
+							esc_attr( ltrim( $context["setting_new_value"], "#" ) )
 						);
 
 					}
@@ -414,6 +534,9 @@ class SimpleThemeLogger extends SimpleLogger
 
 	}
 
+	/**
+	 * Add widget name and sidebar name to output
+	 */
 	function getLogRowPlainTextOutput($row) {
 
 		$context = $row->context;
