@@ -29,7 +29,7 @@ class SimpleThemeLogger extends SimpleLogger
 				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
 				'widget_removed' => __('Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', "simple-history"),
 				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
-				'widget_order_changed' => __('Changed widget order "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
+				'widget_order_changed' => __('Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
 				'widget_edited' => __('Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
 			)
 		);
@@ -54,7 +54,7 @@ class SimpleThemeLogger extends SimpleLogger
 
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_add") );
-		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change") );
+		add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
 		//add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
 
 		add_filter( 'widget_update_callback', array( $this, "on_widget_update_callback" ), 10, 4 );
@@ -438,6 +438,14 @@ class SimpleThemeLogger extends SimpleLogger
 
 			}
 			
+
+		}
+
+		// Fallback to default/parent output
+		if ( ! $output ) {
+
+			$output .= parent::getLogRowPlainTextOutput($row);
+
 		}
 
 		return $output;
@@ -445,39 +453,7 @@ class SimpleThemeLogger extends SimpleLogger
 	}
 
 	/*
-	Log Widget Changes in Apperance » Widgets
-	
-
-	
-	# changing order
-	action:widgets-order
-	savewidgets:b4b438fa4f
-	sidebars[wp_inactive_widgets]:
-	sidebars[sidebar-1]:widget-19_recent-posts-2,widget-20_search-2,widget-21_recent-comments-2,widget-22_archives-2,widget-23_categories-2,widget-24_meta-2
-	sidebars[sidebar-2]:
-	sidebars[sidebar-3]:widget-3_calendar-2,widget-1_archives-5,widget-3_calendar-3,widget-7_icl_lang_sel_widget-2
-
-	
-
-	*/
-
 	function on_action_sidebar_admin_setup__detect_widget_edit() {
-
-		// # saving widget
-		// only 1 widget
-
-		// widget-archives[5][title]:xxxxxxxx
-		// widget-id:archives-5
-		// id_base:archives
-		// widget-width:250
-		// widget-height:200
-		// widget_number:2
-		// multi_number:5
-		// add_new:
-		// action:save-widget
-		// savewidgets:b4b438fa4f
-		// sidebar:sidebar-3
-		
 
 		if ( isset( $_REQUEST["action"] ) && ( $_REQUEST["action"] == "save-widget" ) && isset( $_POST["sidebar"] ) && isset( $_POST["id_base"] ) ) {
 
@@ -515,29 +491,15 @@ class SimpleThemeLogger extends SimpleLogger
 
 		}
 
-
 	}
+		*/
 
-	/*
-				/**
-				 * Filter a widget's settings before saving.
-				 *
-				 * Returning false will effectively short-circuit the widget's ability
-				 * to update settings.
-				 *
-				 * @since 2.8.0
-				 *
-				 * @param array     $instance     The current widget instance's settings.
-				 * @param array     $new_instance Array of new widget settings.
-				 * @param array     $old_instance Array of old widget settings.
-				 * @param WP_Widget $this         The current widget instance.
-				$instance = apply_filters( 'widget_update_callback', $instance, $new_instance, $old_instance, $this );
-	*/
-
+	/**
+	 * A widget is changed, i.e. new values are saved
+	 * @TODO: first time a widget is added it seems to call this and we get double edit logs that are confusing
+	 */
 	function on_widget_update_callback($instance, $new_instance, $old_instance, $widget_instance) {
-		
-		#sf_d("on_widget_update_callback");
-		
+			
 		#sf_d($instance);
 		/*
 		Array
@@ -590,6 +552,12 @@ class SimpleThemeLogger extends SimpleLogger
 		    [option_name] => widget_nav_menu
 		)
 		*/
+
+		// If old_instance is empty then this widget has just been added
+		// and we log that as "Added" not "Edited"
+		if ( empty( $old_instance ) ) {
+			return $instance;
+		}
 	
 		$widget_id_base = $widget_instance->id_base;
 
@@ -624,9 +592,43 @@ class SimpleThemeLogger extends SimpleLogger
 
 	}
 
-
+	/**
+	 * Change Widgets order
+	 * action=widgets-order is also called after deleting a widget
+	 * to many log entries with changed, just confusing.
+	 * need to rethink this
+	 */
 	function on_action_sidebar_admin_setup__detect_widget_order_change() {
-		// widget_order_changed	
+		
+		/*
+		if ( isset( $_REQUEST["action"] ) && ( $_REQUEST["action"] == "widgets-order" ) ) {
+
+			$context = array();
+
+			// Get old order
+			$sidebars = isset( $GLOBALS['wp_registered_sidebars'] ) ? $GLOBALS['wp_registered_sidebars'] : false;
+			if ($sidebars) {
+				$context["sidebars_from"] = $this->simpleHistory->json_encode( $sidebars );
+			}
+
+			$new_sidebars = $_POST["sidebars"];
+			$context["sidebars_to"] = $this->simpleHistory->json_encode( $new_sidebars );
+
+			$widget_factory = isset( $GLOBALS["wp_widget_factory"] ) ? $GLOBALS["wp_widget_factory"] : false;
+			$context["widgets_from"] = $this->simpleHistory->json_encode( $widget_factory->widgets );
+
+    		//$wp_registered_widgets, $wp_registered_sidebars, $sidebars_widgets;
+    		$sidebars_widgets = isset( $GLOBALS["sidebars_widgets"] ) ? $GLOBALS["sidebars_widgets"] : false;
+    		$context["sidebars_widgets"] = $this->simpleHistory->json_encode( $sidebars_widgets );
+
+			$this->infoMessage(
+				"widget_order_changed",
+				$context
+			);
+
+		}
+		*/
+
 	}
 
 	/**
