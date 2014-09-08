@@ -31,6 +31,7 @@ class SimpleThemeLogger extends SimpleLogger
 				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
 				'widget_order_changed' => __('Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
 				'widget_edited' => __('Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
+				"custom_background_changed" => __("Changed settings for the theme custom background", "simple_history")
 			)
 		);
 		
@@ -56,6 +57,42 @@ class SimpleThemeLogger extends SimpleLogger
 		//add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
 
 		add_filter( 'widget_update_callback', array( $this, "on_widget_update_callback" ), 10, 4 );
+
+		add_action( "load-appearance_page_custom-background", array( $this, "on_page_load_custom_background" ) );
+		
+
+	}
+
+	function on_page_load_custom_background() {
+
+		if ( empty( $_POST ) ) {
+			return;
+		}
+
+		$arr_valid_post_keys = array(
+			"reset-background" => 1,
+			"remove-background" => 1,
+			"background-repeat" => 1,
+			"background-position-x" => 1,
+			"background-attachment" => 1,
+			"background-color" => 1
+		);
+
+		$valid_post_key_exists = array_intersect_key($arr_valid_post_keys, $_POST);
+
+		if ( ! empty( $valid_post_key_exists) ) {
+
+			$context = array();
+			// $context["POST"] = $this->simpleHistory->json_encode( $_POST );
+
+			$this->infoMessage(
+				"custom_background_changed",
+				$context
+			);
+
+		}
+
+
 
 	}
 
