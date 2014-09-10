@@ -447,16 +447,59 @@ class SimplePluginLogger extends SimpleLogger
 
 				// No plugin info in instance, so get it ourself
 				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data["plugin"] );
-				
+
+				// autoptimize/autoptimize.php
+
+				$plugin_slug = dirname( $arr_data["plugin"] );
+
+				// Get remote plugin data
+				// Needed to get changelog
+				/*
+				include_once ( ABSPATH . 'wp-admin/includes/plugin-install.php' );
+				$api = plugins_api( 'plugin_information', array(
+					'slug' => $plugin_slug,
+					'is_ssl' => is_ssl(),
+					'fields' => array( 'banners' => false, 'reviews' => false )
+				) );
+				*/
+
+				#if ( is_wp_error( $api ) ) {
+				#	wp_die( $api );
+				#}
+			
 				$context = array(
+					"plugin_slug" => $plugin_slug,
+					#"api" => $this->simpleHistory->json_encode( $api ),
+					"request" => $this->simpleHistory->json_encode( $_REQUEST ),
+					"update_plugins" => $this->simpleHistory->json_encode( $update_plugins ),
 					"plugin_name" => $plugin_data["Name"],
 					"plugin_title" => $plugin_data["Title"],
 					"plugin_description" => $plugin_data["Description"],
 					"plugin_author" => $plugin_data["Author"],
 					"plugin_version" => $plugin_data["Version"],
 					"plugin_url" => $plugin_data["PluginURI"],
-					"plugin_source_files" => json_encode( $plugin_upgrader_instance->result["source_files"] )
+					"plugin_source_files" => $this->simpleHistory->json_encode( $plugin_upgrader_instance->result["source_files"] )
 				);
+
+				// update status for plugins are in response
+				// plugin folder + index file = key
+				// use this transient to get url and package
+				$update_plugins = get_site_transient( 'update_plugins' );
+				if ( isset( $update_plugins->response[ $arr_data["plugin"] ] ) ) {
+					/*
+					{
+						"id": "8986",
+						"slug": "autoptimize",
+						"plugin": "autoptimize/autoptimize.php",
+						"new_version": "1.9.1",
+						"url": "https://wordpress.org/plugins/autoptimize/",
+						"package": "https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip"
+					}
+					*/
+					// @TODO: if url is on wordpess.org then we can link to changelog directly
+					$context["plugin_update_info"] = $this->simpleHistory->json_encode( $update_plugins->response[ $arr_data["plugin"] ] );
+
+				}
 
 				// To get old version we use our option
 				$plugins_before_update = json_decode( get_option( $this->slug . "_plugin_info_before_update", false ), true );
