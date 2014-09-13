@@ -2,6 +2,7 @@
 
 global $wpdb;
 $table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
 // Output filters
 echo "<div class='simple-history-filters'>";
@@ -22,6 +23,40 @@ $total_accassions_rows_count = $rows["total_row_count"];
 $total_num_rows = $wpdb->get_var("select count(*) FROM {$table_name}");
 echo "<p>Total $total_num_rows log rows in db.</p>";
 echo "<p>Total $total_accassions_rows_count rows, when grouped by occasion id.</p>";
+
+$sql_table_size = sprintf('
+	SELECT table_name AS "table_name", 
+	round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb" 
+	FROM information_schema.TABLES 
+	WHERE table_schema = "%1$s"
+	AND table_name IN ("%2$s", "%3$s");
+	', 
+	DB_NAME, // 1
+	$table_name, // 2
+	$table_name_contexts
+);
+
+$table_size_result = $wpdb->get_results($sql_table_size);
+
+echo "<table>";
+echo "<tr>
+	<th>Table name</th>
+	<th>Table size (MB)</th>
+</tr>";
+
+foreach ($table_size_result as $one_table) {
+
+	printf('<tr>
+			<td>%1$s</td>
+			<td>%2$s</td>
+		</tr>',
+		$one_table->table_name,
+		$one_table->size_in_mb
+	);
+}
+
+echo "</table>";
+
 
 // Output all available (instantiated) loggers
 echo "<h3>Loggers</h3>";
@@ -58,7 +93,8 @@ echo "</table>";
 // Output users
 echo "<h3>Users that have logged things</h3>";
 
-echo "<ul>";
+echo "<p>Deleted users are also included.";
+
 $sql_users = '
 	SELECT 
 		DISTINCT value, 
@@ -68,10 +104,39 @@ $sql_users = '
 	WHERE `KEY` = "_user_id"
 	GROUP BY value
 ';
-$user_results = $wpdb->get_results($sql_users);
-foreach ($user_results as $one_user_result) {
-	printf('<li>%3$s</li>', $one_user_result->ID, $one_user_result->user_login, $one_user_result->user_email);
-}
-echo "</ul>";
 
-echo "</div>";
+$user_results = $wpdb->get_results($sql_users);
+
+printf('<p>Total %1$s users found.</p>', sizeof( $user_results ));
+
+echo "<table class='' cellpadding=2>";
+echo "<tr>
+		<th>ID</th>
+		<th>login</th>
+		<th>email</th>
+		<th>deleted</th>
+	</tr>";
+
+foreach ($user_results as $one_user_result) {
+	
+	$str_deleted = empty($one_user_result->user_login) ? "yes" : "";
+
+	printf('
+		<tr>
+			<td>%1$s</td>
+			<td>%2$s</td>
+			<td>%3$s</td>
+			<td>%4$s</td>
+		</tr>
+		', 
+		$one_user_result->value, 
+		$one_user_result->user_login, 
+		$one_user_result->user_email,
+		$str_deleted
+	);
+
+}
+
+echo "</table>";
+
+echo "</div>"; // div.simple-history-filters
