@@ -485,8 +485,10 @@ class SimplePluginLogger extends SimpleLogger
 				// plugin folder + index file = key
 				// use this transient to get url and package
 				$update_plugins = get_site_transient( 'update_plugins' );
-				if ( isset( $update_plugins->response[ $arr_data["plugin"] ] ) ) {
+				if ( $update_plugins && isset( $update_plugins->response[ $arr_data["plugin"] ] ) ) {
+					
 					/*
+					$update_plugins[plugin_path/slug]:
 					{
 						"id": "8986",
 						"slug": "autoptimize",
@@ -496,8 +498,18 @@ class SimplePluginLogger extends SimpleLogger
 						"package": "https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip"
 					}
 					*/
-					// @TODO: if url is on wordpess.org then we can link to changelog directly
-					$context["plugin_update_info"] = $this->simpleHistory->json_encode( $update_plugins->response[ $arr_data["plugin"] ] );
+
+					$plugin_update_info = $update_plugins->response[ $arr_data["plugin"] ];
+
+					// autoptimize/autoptimize.php
+					if ( isset( $plugin_update_info->plugin ) ) {
+						$context["plugin_update_info_plugin"] = $plugin_update_info->plugin;
+					}
+
+					// https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip
+					if ( isset( $plugin_update_info->package ) ) {
+						$context["plugin_update_info_package"] = $plugin_update_info->package;
+					}
 
 				}
 
@@ -805,7 +817,7 @@ class SimplePluginLogger extends SimpleLogger
 					// also available :plugin_rating, plugin_num_ratings
 				);
 
-				$arr_plugin_keys = apply_filters("simple_history/plugin_logger_row_details_plugin_info_keys", $arr_plugin_keys);
+				$arr_plugin_keys = apply_filters("simple_history/plugin_logger/row_details_plugin_info_keys", $arr_plugin_keys);
 
 				// Start output of plugin meta data table
 				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
@@ -854,7 +866,56 @@ class SimplePluginLogger extends SimpleLogger
 
 			}
 
-		}
+		} elseif ( "plugin_updated" === $message_key ) {
+
+			/*
+			// @TODO: if url is on wordpess.org then we can link to changelog directly
+			// http://playground-root.ep/wp-admin/plugin-install.php?tab=plugin-information&plugin=autoptimize&section=changelog&
+			// tb_show(123, "http://playground-root.ep/wp-admin/plugin-install.php?tab=plugin-information&plugin=admin-menu-tree-page-view&section=changelog&TB_iframe=true&width=600&height=550")
+			#$context["plugin_update_info"] = $this->simpleHistory->json_encode( $update_plugins->response[ $arr_data["plugin"] ] );
+			*/
+			add_thickbox();
+
+			// Start output of plugin meta data table
+			#$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
+
+			/*
+			if ( ! empty( $context["plugin_update_info_package"] ) ) {
+
+				$output .= sprintf(
+					'
+					<tr>
+						<td>%1$s</td>
+						<td>%2$s</td>
+					</tr>
+					',
+					esc_html( _x("Package URL", "plugin logger: plugin package downloaded from", "simple-history") ),
+					esc_html( $context["plugin_update_info_package"] )
+				);
+
+			}
+			*/
+
+			if ( ! empty( $context["plugin_update_info_package"] ) ) {
+
+				$plugin_slug = !empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
+
+				if ($plugin_slug) {
+					
+					$output .= sprintf(
+						'<p><a title="%3$s" class="thickbox" href="%2$s">%3$s</a></p>',
+						"",
+						admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=600&amp;height=550" ),
+						esc_html_x("View changelog", "plugin logger: plugin info thickbox title", "simple-history")
+					);
+
+				}
+
+			}
+
+			#$output .= "</table>";
+
+		} // if plugin_updated
 
 		return $output;
 
