@@ -331,11 +331,12 @@ when occasions are added
 /*
 Styles for filter
 */
-.simple-history-filters {
+/*.simple-history-filters {
 	float: left;
 	width: 400px;
 	margin-left: 50px;
 }
+*/
 
 .SimpleHistoryLogitems__debug {
 	font-family: monospace;

@@ -855,6 +855,7 @@ class SimpleHistory {
 			<h3 class="nav-tab-wrapper">
 				<a href="<?php echo add_query_arg("selected-tab", "settings", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "settings") ? "nav-tab-active" : "" ?>">Settings</a>
 				<a href="<?php echo add_query_arg("selected-tab", "log", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "log") ? "nav-tab-active" : "" ?>">Log</a>
+				<a href="<?php echo add_query_arg("selected-tab", "stats", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "stats") ? "nav-tab-active" : "" ?>">Stats</a>
 				<a href="<?php echo add_query_arg("selected-tab", "style-example", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "style-example") ? "nav-tab-active" : "" ?>">Styles example</a>
 			</h3>
 
@@ -863,6 +864,10 @@ class SimpleHistory {
 
 				case "log":
 					include( __DIR__ . "/templates/settings-log.php" );
+					break;
+
+				case "stats":
+					include( __DIR__ . "/templates/settings-stats.php" );
 					break;
 
 				case "style-example":
