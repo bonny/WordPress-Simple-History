@@ -196,10 +196,18 @@ class SimpleHistoryLogQuery {
 		if ( isset($args["since_id"]) && is_numeric($args["since_id"]) ) {
 			
 			$since_id = (int) $args["since_id"];
+			/*
 			$where .= sprintf(
 				' AND t.id > %1$d',
 				$since_id
 			);
+			*/
+			// Add where to inner because that's faster
+			$inner_where .= sprintf(
+				' AND id > %1$d',
+				$since_id
+			);
+
 
 		}
 
@@ -239,9 +247,14 @@ class SimpleHistoryLogQuery {
 		 */
 		$inner_where = apply_filters("simple_history/log_query_inner_where", $inner_where);
 
-		$sql = sprintf($sql_tmpl, $where, $limit, $table_name, $inner_where);
-		#echo $sql;
-		#exit;
+		$sql = sprintf(
+			$sql_tmpl, // sprintf template
+			$where,  // 1 
+			$limit, // 2
+			$table_name, // 3
+			$inner_where // 4
+		);
+		
 
 		/**
 		 * Filter the final sql query
@@ -252,8 +265,11 @@ class SimpleHistoryLogQuery {
 		 */
 		$sql = apply_filters("simple_history/log_query_sql", $sql);
 
+		// Remove comments below to debug query (includes query in json result)
+		// $include_query_in_result = true;
 		if (isset($_GET["SimpleHistoryLogQuery-showDebug"]) && $_GET["SimpleHistoryLogQuery-showDebug"]) {
 
+			echo "<pre>";
 			echo $sql_set_var;
 			echo $sql;
 			exit;
