@@ -2,6 +2,7 @@
 
 /*
 Dropin Name: New Items Notifier
+Dropin Description: Checks for new rows and displays a info bar when new items are available
 Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
