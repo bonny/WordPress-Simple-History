@@ -26,7 +26,8 @@ class SimpleUserLogger extends SimpleLogger
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
 				'user_updated_profile' => __("Edited the profile for user {edited_user_login} ({edited_user_email})", "simple-history"),
-				'user_created' => __("Created user {created_user_login} ({created_user_email}) with role {created_user_role}", "simple-history"),				
+				'user_created' => __("Created user {created_user_login} ({created_user_email}) with role {created_user_role}", "simple-history"),
+				'user_deleted' => __("Deleted user {deleted_user_login} ({deleted_user_email})", "simple-history"),
 			)
 		);
 		
@@ -55,6 +56,40 @@ class SimpleUserLogger extends SimpleLogger
 		// User is created
 		add_action("user_register", array($this, "on_user_register"), 10, 2);		
 
+		// user is deleted
+		add_action( 'delete_user', array($this, "on_delete_user"), 10, 2 );
+
+	}
+
+	/**
+	 * Fires before a user is deleted from the database.
+	 *
+	 * @param int      $user_id  ID of the deleted user.
+	 * @param int|null $reassign ID of the user to reassign posts and links to.
+	 *                           Default null, for no reassignment.
+	 */
+	public function on_delete_user($user_id, $reassign) {
+
+		$wp_user_to_delete = get_userdata( $user_id );
+
+		// wp_user->roles (array) - the roles the user is part of.
+		$role = null;
+		if ( is_array( $wp_user_to_delete->roles ) && ! empty( $wp_user_to_delete->roles[0] ) ) {
+			$role = $wp_user_to_delete->roles[0];
+		}
+
+		$context = array(
+			"deleted_user_id" => $wp_user_to_delete->ID,
+			"deleted_user_email" => $wp_user_to_delete->user_email,
+			"deleted_user_login" => $wp_user_to_delete->user_login,
+			"deleted_user_role" => $role,
+			"reassign_user_id" => $reassign,
+			"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
+		);
+
+		// Let's log this as a little bit more significant that just "message"
+		$this->noticeMessage("user_deleted", $context);	
+
 	}
 
 	/**
@@ -65,19 +100,32 @@ class SimpleUserLogger extends SimpleLogger
 		$context = $row->context;
 		
 		$output = parent::getLogRowPlainTextOutput($row);
+		$current_user_id = get_current_user_id();
 
 		if ( "user_updated_profile" == $context["_message_key"]) {
 
 			$wp_user = get_user_by( "id", $context["edited_user_id"] );
 
 			// If edited_user_id and _user_id is the same then a user edited their own profile
+			// Note: it's not the same thing as the currently logged in user (but.. it can be!)
 			if ( $context["edited_user_id"] === $context["_user_id"] ) {
 
 				if ($wp_user) {
 
+					$context["edit_profile_link"] = get_edit_user_link( $wp_user->ID );
+
 					// User still exist, so link to their profile
-					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
-					$msg = __('Edited <a href="{edit_profile_link}">your profile</a>', "simple-history");
+					if ( $current_user_id === $context["_user_id"] ) {
+						
+						// User that is viewing the log is the same as the edited user
+						$msg = __('Edited <a href="{edit_profile_link}">your profile</a>', "simple-history");
+
+					} else {
+
+						$msg = __('Edited <a href="{edit_profile_link}">their profile</a>', "simple-history");
+
+					}
+					
 					$output = $this->interpolate($msg, $context);
 
 				} else {
