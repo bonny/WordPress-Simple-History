@@ -452,24 +452,8 @@ class SimplePluginLogger extends SimpleLogger
 
 				$plugin_slug = dirname( $arr_data["plugin"] );
 
-				// Get remote plugin data
-				// Needed to get changelog
-				/*
-				include_once ( ABSPATH . 'wp-admin/includes/plugin-install.php' );
-				$api = plugins_api( 'plugin_information', array(
-					'slug' => $plugin_slug,
-					'is_ssl' => is_ssl(),
-					'fields' => array( 'banners' => false, 'reviews' => false )
-				) );
-				*/
-
-				#if ( is_wp_error( $api ) ) {
-				#	wp_die( $api );
-				#}
-			
 				$context = array(
 					"plugin_slug" => $plugin_slug,
-					#"api" => $this->simpleHistory->json_encode( $api ),
 					"request" => $this->simpleHistory->json_encode( $_REQUEST ),
 					"update_plugins" => $this->simpleHistory->json_encode( $update_plugins ),
 					"plugin_name" => $plugin_data["Name"],
@@ -741,8 +725,11 @@ class SimplePluginLogger extends SimpleLogger
 		*/
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
 		
+		$plugin_slug = dirname( $plugin_name );
+
 		$context = array(
 			"plugin_name" => $plugin_data["Name"],
+			"plugin_slug" => $plugin_slug,
 			"plugin_title" => $plugin_data["Title"],
 			"plugin_description" => $plugin_data["Description"],
 			"plugin_author" => $plugin_data["Author"],
@@ -761,9 +748,11 @@ class SimplePluginLogger extends SimpleLogger
 	function on_deactivated_plugin($plugin_name) {
 
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
+		$plugin_slug = dirname( $plugin_name );
 		
 		$context = array(
 			"plugin_name" => $plugin_data["Name"],
+			"plugin_slug" => $plugin_slug,
 			"plugin_title" => $plugin_data["Title"],
 			"plugin_description" => $plugin_data["Description"],
 			"plugin_author" => $plugin_data["Author"],
@@ -800,21 +789,16 @@ class SimplePluginLogger extends SimpleLogger
 					$plugin_description = mb_strcut( $plugin_description, 0, $cite_pos );
 				}
 
-				/*$output .= sprintf(
-					'<p>%1$s</p>',
-					$plugin_description
-				);*/
-
 				// Keys to show
 				$arr_plugin_keys = array(
+					"plugin_version" => _x("Version", "plugin logger - detailed output version", "simple-history"),
 					"plugin_description" => "Description",
 					"plugin_author" => _x("Author", "plugin logger - detailed output author", "simple-history"),
 					"plugin_url" => _x("URL", "plugin logger - detailed output url", "simple-history"),
-					"plugin_version" => _x("Version", "plugin logger - detailed output version", "simple-history"),
 					"plugin_requires" => _x("Requires", "plugin logger - detailed output author", "simple-history"),
 					"plugin_tested" => _x("Compatible up to", "plugin logger - detailed output compatible", "simple-history"),
 					"plugin_downloaded" => _x("Downloads", "plugin logger - detailed output downloaded", "simple-history"),
-					// also available :plugin_rating, plugin_num_ratings
+					// also available: plugin_rating, plugin_num_ratings
 				);
 
 				$arr_plugin_keys = apply_filters("simple_history/plugin_logger/row_details_plugin_info_keys", $arr_plugin_keys);
@@ -862,58 +846,51 @@ class SimplePluginLogger extends SimpleLogger
 
 				}
 
-				$output .= "</table>";
+				$plugin_slug = ! empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
+				if ( $plugin_slug ) {
+				
+					add_thickbox();
 
-			}
-
-		} elseif ( "plugin_updated" === $message_key ) {
-
-			/*
-			// @TODO: if url is on wordpess.org then we can link to changelog directly
-			// http://playground-root.ep/wp-admin/plugin-install.php?tab=plugin-information&plugin=autoptimize&section=changelog&
-			// tb_show(123, "http://playground-root.ep/wp-admin/plugin-install.php?tab=plugin-information&plugin=admin-menu-tree-page-view&section=changelog&TB_iframe=true&width=600&height=550")
-			#$context["plugin_update_info"] = $this->simpleHistory->json_encode( $update_plugins->response[ $arr_data["plugin"] ] );
-			*/
-			add_thickbox();
-
-			// Start output of plugin meta data table
-			#$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
-
-			/*
-			if ( ! empty( $context["plugin_update_info_package"] ) ) {
-
-				$output .= sprintf(
-					'
-					<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>
-					',
-					esc_html( _x("Package URL", "plugin logger: plugin package downloaded from", "simple-history") ),
-					esc_html( $context["plugin_update_info_package"] )
-				);
-
-			}
-			*/
-
-			if ( ! empty( $context["plugin_update_info_package"] ) ) {
-
-				$plugin_slug = !empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
-
-				if ($plugin_slug) {
-					
 					$output .= sprintf(
-						'<p><a title="%3$s" class="thickbox" href="%2$s">%3$s</a></p>',
-						"",
-						admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=600&amp;height=550" ),
-						esc_html_x("View changelog", "plugin logger: plugin info thickbox title", "simple-history")
+						'
+						<tr>
+							<td></td>
+							<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
+						</tr>
+						',
+						admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=600&amp;height=550" ),
+						esc_html_x("View plugin info", "plugin logger: plugin info thickbox title view all info", "simple-history")
 					);
 
 				}
 
+				$output .= "</table>";
+
 			}
 
-			#$output .= "</table>";
+		} elseif ( "plugin_updated" === $message_key || "plugin_activated" === $message_key || "plugin_deactivated" === $message_key ) {
+
+			$plugin_slug = !empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
+
+			if ($plugin_slug) {
+	
+				add_thickbox();
+
+				$link_title = esc_html_x("View plugin info", "plugin logger: plugin info thickbox title", "simple-history");
+				$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=600&amp;height=550" );
+				
+				if ("plugin_updated" === $message_key) {
+					$link_title = esc_html_x("View changelog", "plugin logger: plugin info thickbox title", "simple-history");
+					$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=600&amp;height=550" );
+				}
+				
+				$output .= sprintf(
+					'<p><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></p>',
+					$url,
+					$link_title	
+				);
+
+			}
 
 		} // if plugin_updated
 
