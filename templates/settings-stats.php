@@ -59,6 +59,7 @@ echo "</table>";
 
 
 // Output all available (instantiated) loggers
+// @TODO: order by number of rows
 echo "<h3>Loggers</h3>";
 echo "<p>All instantiated loggers.</p>";
 
@@ -69,6 +70,7 @@ echo "<tr>
 		<th>Capability</th>
 		<th>Rows</th>
 	</tr>";
+
 foreach ( $this->instantiatedLoggers as $oneLogger ) {
 
 	$logger_info = $oneLogger["instance"]->getInfo();
