@@ -101,8 +101,81 @@ foreach ( $this->instantiatedLoggers as $oneLogger ) {
 }
 echo "</table>";
 
-// @TODO: stats for logged events by message type, by key perhaps
-// 
+// Stats på level (notice, warning, debug, etc.)
+$sql = sprintf('
+	SELECT 
+		level,
+		count(level) as count
+	FROM %1$s
+	GROUP BY level
+	ORDER BY count DESC
+	', $table_name
+);
+
+$level_counts = $wpdb->get_results($sql);
+
+echo "<h3>Log levels</h3>";
+echo "<table>";
+echo "<tr>
+		<th>Log level</th>
+		<th>Count</th>
+	</tr>";
+
+foreach ( $level_counts as $row ) {
+		
+		printf('
+		<tr>
+			<td>%1$s</td>
+			<td>%2$s</td>
+		</tr>
+		', 
+		$row->level, 
+		$row->count 
+	);
+
+}
+
+echo "</table>";
+
+// Stats based by initiator
+
+// Stats på level (notice, warning, debug, etc.)
+$sql = sprintf('
+	SELECT 
+		initiator,
+		count(initiator) as count
+	FROM %1$s
+	GROUP BY initiator
+	ORDER BY count DESC
+	', $table_name
+);
+
+$level_counts = $wpdb->get_results($sql);
+
+echo "<h3>Initiators</h3>";
+echo "<table>";
+echo "<tr>
+		<th>Initiator</th>
+		<th>Count</th>
+	</tr>";
+
+foreach ( $level_counts as $row ) {
+		
+		printf('
+		<tr>
+			<td>%1$s</td>
+			<td>%2$s</td>
+		</tr>
+		', 
+		$row->initiator, 
+		$row->count 
+	);
+
+}
+
+echo "</table>";
+
+
 
 // Output users
 echo "<h3>Users that have logged things</h3>";
