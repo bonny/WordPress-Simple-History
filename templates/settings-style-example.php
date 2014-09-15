@@ -126,11 +126,67 @@
             </div>
         </li>
 
-		<li class="SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-warning SimpleHistoryLogitem--logger-SimpleMediaLogger SimpleHistoryLogitem--initiator-wp_user">
+<style>       
+
+    .SimpleHistoryLogitem--loglevel-debug {
+        background-color: lightyellow;
+    }
+
+    .SimpleHistoryLogitem--loglevel-info {
+        background-color: white;
+    }
+
+    .SimpleHistoryLogitem--loglevel-notice {
+        background-color: #CEF6D8;
+    }
+
+    .SimpleHistoryLogitem--loglevel-warning {
+        background-color: #F7D358;
+    }
+
+    .SimpleHistoryLogitem--loglevel-error {
+        background-color: #F79F81;
+    }
+
+    .SimpleHistoryLogitem--loglevel-critical {
+        background-color: #FA5858;
+    }
+
+    .SimpleHistoryLogitem--loglevel-alert {
+        background-color: #DF0101;
+    }
+
+    .SimpleHistoryLogitem--loglevel-emergency {
+        background-color: #610B0B;
+    }
+/*    
+    colors: {
+        debug: 'cyan',
+        info: 'green',
+        warning: 'yellow',
+        error: 'red'
+    }
+
+var LevelColors = map[Level]Color{
+    CRITICAL: MAGENTA,
+    ERROR:    RED,
+    WARNING:  YELLOW,
+    NOTICE:   GREEN,
+    INFO:     WHITE,
+    DEBUG:    CYAN,
+}
+*/
+</style>
+
+
+        <?php
+        // All debug levels
+        $template = '
+        <li class="SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-%1$s SimpleHistoryLogitem--logger-SimpleMediaLogger SimpleHistoryLogitem--initiator-wp_user">
 
             <div class="SimpleHistoryLogitem__firstcol">
                 <div class="SimpleHistoryLogitem__senderImage">
-                    <img src="http://0.gravatar.com/avatar/eabcdc5ce4112ee4bceff4d7567d43a5?s=38&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D38&amp;r=G" class="avatar avatar-38 photo" height="38" width="38">
+                    <img src="http://0.gravatar.com/avatar/eabcdc5ce4112ee4bceff4d7567d43a5?s=38&amp;d=http%%3A%%2F%%2F0.gravatar.com%%2Favatar%%2Fad516503a11cd5ca435acc9bb6523536%%3Fs%%3D38&amp;r=G" class="avatar avatar-38 photo" height="38" width="38">
                 </div>
             </div>
 
@@ -143,49 +199,28 @@
                 </div>
 
                 <div class="SimpleHistoryLogitem__text">
-                	Warning messages get a slightly different styling.
+                    This is a message with loglevel "%1$s"
                 </div>
 
-                <div class="SimpleHistoryLogitem__details">
+                <!-- <div class="SimpleHistoryLogitem__details">
 
-                	<p>Optional more information....</p>
+                    <p>Optional more information....</p>
 
-                </div>
+                </div> -->
 
             </div>
 
         </li>
+        ';
 
+        $refl = new ReflectionClass('SimpleLoggerLogLevels');
+        foreach ( $refl->getConstants() as $key => $val ) {
 
-		<li class="SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-error SimpleHistoryLogitem--logger-SimpleMediaLogger SimpleHistoryLogitem--initiator-wp_user">
+            echo sprintf($template, $val, 123);
 
-            <div class="SimpleHistoryLogitem__firstcol">
-                <div class="SimpleHistoryLogitem__senderImage">
-                    <img src="http://0.gravatar.com/avatar/eabcdc5ce4112ee4bceff4d7567d43a5?s=38&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D38&amp;r=G" class="avatar avatar-38 photo" height="38" width="38">
-                </div>
-            </div>
+        }
 
-            <div class="SimpleHistoryLogitem__secondcol">
-
-                <div class="SimpleHistoryLogitem__header">
-                    <strong class="SimpleHistoryLogitem__inlineDivided">Pär</strong>
-                    <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">par@earthpeople.se</span>
-                    <span class="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"><a class="" href="http://playground-root.ep/wp-admin/index.php?page=simple_history_page#item/665"><time datetime="2014-08-11T21:08:44+00:00" title="2014-08-11T21:08:44+00:00" class="">1 min ago</time></a></span>
-                </div>
-
-                <div class="SimpleHistoryLogitem__text">
-                	Error messages get a slightly different styling.
-                </div>
-
-                <div class="SimpleHistoryLogitem__details">
-
-                	<p>Optional more information....</p>
-
-                </div>
-
-            </div>
-
-        </li>
+        ?>
 
     </ul>
 </div>

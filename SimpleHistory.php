@@ -1581,6 +1581,24 @@ class SimpleHistory {
 
 	}
 
+	public function getInstantiatedLoggerBySlug($slug = "") {
+		
+		if (empty( $slug )) {
+			return false;
+		}
+		
+		foreach ($this->getInstantiatedLoggers() as $one_logger) {
+			
+			if ( $slug == $one_logger["instance"]->slug ) {
+				return $one_logger["instance"];
+			}
+
+		}
+
+		return false;
+
+	}
+
 	/**
 	 * Check which loggers a user has the right to read and return an array
 	 * with all loggers they are allowed to read
