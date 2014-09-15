@@ -65,24 +65,37 @@ echo "<p>All instantiated loggers.</p>";
 
 echo "<table class='' cellpadding=2>";
 echo "<tr>
+		<th>Count</th>
+		<th>Slug</th>
 		<th>Name</th>
 		<th>Description</th>
 		<th>Capability</th>
-		<th>Rows</th>
 	</tr>";
 
-foreach ( $this->instantiatedLoggers as $oneLogger ) {
 
-	$logger_info = $oneLogger["instance"]->getInfo();
+$arr_logger_slugs = array();
+foreach ( $this->getInstantiatedLoggers() as $oneLogger ) {
+	$arr_logger_slugs[] = $oneLogger["instance"]->slug;
+}
 
-	// get number of rows this logger is responsible for
-	$sql_logger_count = sprintf('
-		SELECT count(id) as count
-		FROM %1$s
-		WHERE logger = "%2$s"
-	', $table_name, $oneLogger["instance"]->slug);
+$sql_logger_counts = sprintf('
+	SELECT logger, count(id) as count
+	FROM %1$s
+	WHERE logger IN ("%2$s")
+	GROUP BY logger
+	ORDER BY count DESC
+', $table_name, join($arr_logger_slugs, '","'));
 
-	$logger_rows_count = $wpdb->get_var( $sql_logger_count );
+$logger_rows_count = $wpdb->get_results( $sql_logger_counts );
+
+foreach ( $logger_rows_count as $one_logger_count ) {
+
+	$logger = $this->getInstantiatedLoggerBySlug( $one_logger_count->logger );
+	if (!$logger) {
+		continue;
+	}
+	#sf_d($logger);
+	$logger_info = $logger->getInfo();
 
 	printf(
 		'
@@ -91,13 +104,14 @@ foreach ( $this->instantiatedLoggers as $oneLogger ) {
 			<td>%2$s</td>
 			<td>%3$s</td>
 			<td>%4$s</td>
+			<td>%5$s</td>
 		</tr>
 		',
+		$one_logger_count->count,
+		$one_logger_count->logger,
 		esc_html( $logger_info["name"]),
 		esc_html( $logger_info["description"]),
-		esc_html( $logger_info["capability"]),
-		$logger_rows_count
-
+		esc_html( $logger_info["capability"])
 	);
 
 }
