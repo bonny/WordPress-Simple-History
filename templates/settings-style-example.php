@@ -126,59 +126,6 @@
             </div>
         </li>
 
-<style>       
-
-    .SimpleHistoryLogitem--loglevel-debug {
-        background-color: lightyellow;
-    }
-
-    .SimpleHistoryLogitem--loglevel-info {
-        background-color: white;
-    }
-
-    .SimpleHistoryLogitem--loglevel-notice {
-        background-color: #CEF6D8;
-    }
-
-    .SimpleHistoryLogitem--loglevel-warning {
-        background-color: #F7D358;
-    }
-
-    .SimpleHistoryLogitem--loglevel-error {
-        background-color: #F79F81;
-    }
-
-    .SimpleHistoryLogitem--loglevel-critical {
-        background-color: #FA5858;
-    }
-
-    .SimpleHistoryLogitem--loglevel-alert {
-        background-color: #DF0101;
-    }
-
-    .SimpleHistoryLogitem--loglevel-emergency {
-        background-color: #610B0B;
-    }
-/*    
-    colors: {
-        debug: 'cyan',
-        info: 'green',
-        warning: 'yellow',
-        error: 'red'
-    }
-
-var LevelColors = map[Level]Color{
-    CRITICAL: MAGENTA,
-    ERROR:    RED,
-    WARNING:  YELLOW,
-    NOTICE:   GREEN,
-    INFO:     WHITE,
-    DEBUG:    CYAN,
-}
-*/
-</style>
-
-
         <?php
         // All debug levels
         $template = '

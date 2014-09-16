@@ -68,6 +68,40 @@ There is always a 4px left border, just with differents colors
 	border-left-color: rgb(194, 71, 71);
 }
 
+.SimpleHistoryLogitem--loglevel-debug {
+    background-color: lightyellow;
+}
+
+.SimpleHistoryLogitem--loglevel-info {
+    background-color: white;
+}
+
+.SimpleHistoryLogitem--loglevel-notice {
+    background-color: #CEF6D8;
+}
+
+.SimpleHistoryLogitem--loglevel-warning {
+    background-color: #F7D358;
+}
+
+.SimpleHistoryLogitem--loglevel-error {
+    background-color: #F79F81;
+}
+
+.SimpleHistoryLogitem--loglevel-critical {
+    background-color: #FA5858;
+}
+
+.SimpleHistoryLogitem--loglevel-alert {
+    background-color: #DF0101;
+}
+
+.SimpleHistoryLogitem--loglevel-emergency {
+    background-color: #610B0B;
+}
+
+
+
 .SimpleHistoryLogitem:hover {
 	background: rgb(245, 248, 250); /* same bg color as twitter uses on hover */
 }
