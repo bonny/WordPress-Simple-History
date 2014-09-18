@@ -287,8 +287,16 @@ class SimpleLogger
 		$date_html .= "</a>";
 		$date_html .= "</span>";
 
+		// Loglevel
+		// SimpleHistoryLogitem--loglevel-warning
+		$level_html = sprintf(
+			'<span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>',
+			$row->level
+		);
+
+
 		// Glue together final result
-		$template = '%1$s%2$s';
+		$template = '%1$s%2$s%3$s';
 		#if ( ! $initiator_html ) {
 		#	$template = '%2$s';
 		#}
@@ -296,7 +304,8 @@ class SimpleLogger
 		$html = sprintf(
 			$template,
 			$initiator_html, // 1
-			$date_html // 2
+			$date_html, // 2
+			$level_html // 3
 		);
 
 		/**
