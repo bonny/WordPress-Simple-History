@@ -98,7 +98,8 @@ There is always a 4px left border, just with differents colors
 	border-left-color: #F7D358;
 }
  .SimpleHistoryLogitem--logleveltag-warning {
- 	color: #333;
+ 	background-color: #F7D358;
+ 	color: #111;
  }
 
 
