@@ -60,44 +60,40 @@ There is always a 4px left border, just with differents colors
  */
 .SimpleHistoryLogitem--loglevel-warning {
 	/*background-color: rgba(202, 172, 15, .1);*/
-	border-left-color: rgb(202, 172, 15);
+	/*border-left-color: rgb(202, 172, 15);*/
 }
 
-.SimpleHistoryLogitem--loglevel-error {
-	/*background-color: rgba(194, 71, 71, .1);*/
-	border-left-color: rgb(194, 71, 71);
-}
 
 .SimpleHistoryLogitem--loglevel-debug {
-    background-color: lightyellow;
+	border-left-color: #CEF6D8;
 }
 
 .SimpleHistoryLogitem--loglevel-info {
-    background-color: white;
+	border-left-color: white;
 }
 
 .SimpleHistoryLogitem--loglevel-notice {
-    background-color: #CEF6D8;
+	border-left-color: #FFFFE0;
 }
 
 .SimpleHistoryLogitem--loglevel-warning {
-    background-color: #F7D358;
+	border-left-color: #F7D358;
 }
 
 .SimpleHistoryLogitem--loglevel-error {
-    background-color: #F79F81;
+	border-left-color: #F79F81;
 }
 
 .SimpleHistoryLogitem--loglevel-critical {
-    background-color: #FA5858;
+	border-left-color: #FA5858;
 }
 
 .SimpleHistoryLogitem--loglevel-alert {
-    background-color: #DF0101;
+	border-left-color: #DF0101;
 }
 
 .SimpleHistoryLogitem--loglevel-emergency {
-    background-color: #610B0B;
+	border-left-color: #610B0B;
 }
 
 
@@ -291,7 +287,7 @@ when occasions are added
 	opacity: 0;
 	max-height: 0;
 	-webkit-transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s;
-	        transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s;
+			transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s;
 }
 
 .SimpleHistoryLogitem__occasionsItems.haveOccasionsAdded {
@@ -491,28 +487,28 @@ Modal window with detailss
 
 .SimpleHistory-modal__content--enter {
 	-webkit-transition: all .15s ease-out;
-	        transition: all .15s ease-out;
+			transition: all .15s ease-out;
 	-webkit-transform: scale(0.95);
-	        transform: scale(0.95);
+			transform: scale(0.95);
 	opacity: 0;
 }
 
 .SimpleHistory-modal__content--enter-active {
 	opacity: 1;
 	-webkit-transform: scale(1);
-	        transform: scale(1);
+			transform: scale(1);
 }
 
 .SimpleHistory-modal__content--leave-active {
 	opacity: 0;
 	-webkit-transform: scale(0.95);
-	        transform: scale(0.95);
+			transform: scale(0.95);
 }
 
 .SimpleHistory-modal__leave-active {
 	
 	-webkit-transition: all .15s .15s ease-out, visibility 0s .30s;
-	        transition: all .15s .15s ease-out, visibility 0s .30s;
+			transition: all .15s .15s ease-out, visibility 0s .30s;
 
 	opacity: 0;
 	visibility: hidden;
