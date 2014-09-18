@@ -74,6 +74,7 @@ There is always a 4px left border, just with differents colors
 
 .SimpleHistoryLogitem--loglevel-notice {
 	border-left-color: #FFFFE0;
+	border-left-color: rgb(219, 219, 183);
 }
 
 .SimpleHistoryLogitem--loglevel-warning {

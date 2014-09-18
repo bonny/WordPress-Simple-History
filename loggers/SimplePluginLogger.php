@@ -558,15 +558,48 @@ class SimplePluginLogger extends SimpleLogger
 				foreach ($plugins_updated as $plugin_name) {
 
 					$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
+
+					$plugin_slug = dirname( $plugin_name );
 			
 					$context = array(
+						"plugin_slug" => $plugin_slug,
 						"plugin_name" => $plugin_data["Name"],
 						"plugin_title" => $plugin_data["Title"],
 						"plugin_description" => $plugin_data["Description"],
 						"plugin_author" => $plugin_data["Author"],
 						"plugin_version" => $plugin_data["Version"],
-						"plugin_url" => $plugin_data["PluginURI"],
+						"plugin_url" => $plugin_data["PluginURI"]
 					);
+
+					// get url and package
+					$update_plugins = get_site_transient( 'update_plugins' );
+					if ( $update_plugins && isset( $update_plugins->response[ $plugin_name ] ) ) {
+						
+						/*
+						$update_plugins[plugin_path/slug]:
+						{
+							"id": "8986",
+							"slug": "autoptimize",
+							"plugin": "autoptimize/autoptimize.php",
+							"new_version": "1.9.1",
+							"url": "https://wordpress.org/plugins/autoptimize/",
+							"package": "https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip"
+						}
+						*/
+
+						$plugin_update_info = $update_plugins->response[ $plugin_name ];
+
+						// autoptimize/autoptimize.php
+						if ( isset( $plugin_update_info->plugin ) ) {
+							$context["plugin_update_info_plugin"] = $plugin_update_info->plugin;
+						}
+
+						// https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip
+						if ( isset( $plugin_update_info->package ) ) {
+							$context["plugin_update_info_package"] = $plugin_update_info->package;
+						}
+
+					}
 
 					// To get old version we use our option
 					$plugins_before_update = json_decode( get_option( $this->slug . "_plugin_info_before_update", false ), true );
@@ -868,7 +901,7 @@ class SimplePluginLogger extends SimpleLogger
 
 			}
 
-		} elseif ( "plugin_updated" === $message_key || "plugin_activated" === $message_key || "plugin_deactivated" === $message_key ) {
+		} elseif ( "plugin_bulk_updated" === $message_key || "plugin_updated" === $message_key || "plugin_activated" === $message_key || "plugin_deactivated" === $message_key ) {
 
 			$plugin_slug = !empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
 

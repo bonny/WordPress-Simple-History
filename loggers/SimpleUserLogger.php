@@ -330,7 +330,7 @@ class SimpleUserLogger extends SimpleLogger
 				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__
 			);
 
-			$this->infoMessage("user_unknown_login_failed", $context);		
+			$this->warningMessage("user_unknown_login_failed", $context);		
 
 		}
 

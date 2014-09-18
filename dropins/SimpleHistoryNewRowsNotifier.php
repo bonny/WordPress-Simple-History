@@ -67,8 +67,8 @@ class SimpleHistoryNewRowsNotifier {
 				background: white;
 				line-height: 40px;
 				background: rgba(0, 255, 30, 0.15);
-				-webkit-transition: max-height .75s ease-out, background 0s;
-				        transition: max-height .75s ease-out, background 0s;
+				-webkit-transition: max-height .5s ease-out, background 0s;
+				        transition: max-height .5s ease-out, background 0s;
 			}
 		
 			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
