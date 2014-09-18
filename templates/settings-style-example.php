@@ -143,6 +143,7 @@
                     <strong class="SimpleHistoryLogitem__inlineDivided">Pär</strong>
                     <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">par@earthpeople.se</span>
                     <span class="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"><a class="" href="http://playground-root.ep/wp-admin/index.php?page=simple_history_page#item/665"><time datetime="2014-08-11T21:08:44+00:00" title="2014-08-11T21:08:44+00:00" class="">1 min ago</time></a></span>
+                    <span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>
                 </div>
 
                 <div class="SimpleHistoryLogitem__text">

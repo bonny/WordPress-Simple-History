@@ -72,6 +72,11 @@ There is always a 4px left border, just with differents colors
 .SimpleHistoryLogitem--loglevel-debug {
 	border-left-color: #CEF6D8;
 }
+.SimpleHistoryLogitem--logleveltag-debug {
+	background-color: #CEF6D8;
+	color: #111;
+}
+
 
 .SimpleHistoryLogitem--loglevel-info {
 	border-left-color: white;
@@ -86,14 +91,13 @@ There is always a 4px left border, just with differents colors
 }
 .SimpleHistoryLogitem--logleveltag-notice {
 	background-color: rgb(219, 219, 183);
+	color: #111
 }
 
 .SimpleHistoryLogitem--loglevel-warning {
 	border-left-color: #F7D358;
 }
-
  .SimpleHistoryLogitem--logleveltag-warning {
- 	background: rgba(247, 211, 88, 1);
  	color: #333;
  }
 
@@ -101,17 +105,35 @@ There is always a 4px left border, just with differents colors
 .SimpleHistoryLogitem--loglevel-error {
 	border-left-color: #F79F81;
 }
+.SimpleHistoryLogitem--logleveltag-error {
+	background-color: #F79F81;
+	color: #000;
+}
+
 
 .SimpleHistoryLogitem--loglevel-critical {
 	border-left-color: #FA5858;
+}
+.SimpleHistoryLogitem--logleveltag-critical {
+	background-color: #FA5858;
+	color: #fff;
 }
 
 .SimpleHistoryLogitem--loglevel-alert {
 	border-left-color: #DF0101;
 }
+.SimpleHistoryLogitem--logleveltag-alert {
+	background-color: #DF0101;
+	color: #eee;
+}
+
 
 .SimpleHistoryLogitem--loglevel-emergency {
 	border-left-color: #610B0B;
+}
+.SimpleHistoryLogitem--logleveltag-emergency {
+	background-color: #610B0B;
+	color: #eee;
 }
 
 .SimpleHistoryLogitem:hover {
