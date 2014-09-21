@@ -1534,6 +1534,19 @@ class SimpleHistory {
 			$class_sender .= "SimpleHistoryLogitem--initiator-" . esc_attr($oneLogRow->initiator);
 		}
 
+		/*$level_html = sprintf(
+			'<span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>',
+			$row->level
+		);*/
+
+		// Always append the log level tag
+		$log_level_tag_html = sprintf(
+			' <span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>',
+			$oneLogRow->level
+		);
+
+		$plain_text_html .= $log_level_tag_html;
+
 		// Generate the HTML output for a row
 		$output = sprintf(
 			'
