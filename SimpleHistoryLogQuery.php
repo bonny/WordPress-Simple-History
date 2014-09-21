@@ -39,7 +39,11 @@ class SimpleHistoryLogQuery {
 			// that have id equal or lower than this, to make
 			"max_id_first_page" => null,
 			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id
-			"since_id" => null
+			"since_id" => null,
+			// date range
+			// must be in unix datetime
+			"date_from" => null,
+			"date_to" => null
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -208,7 +212,15 @@ class SimpleHistoryLogQuery {
 				$since_id
 			);
 
+		}
 
+		// Append date where
+		if ( ! empty( $args["date_from"] ) ) {
+			$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) >= %1$d', $args["date_from"] );
+		}
+
+		if ( ! empty( $args["date_to"] ) ) {
+			$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) <= %1$d', $args["date_to"] );
 		}
 
 		/**
