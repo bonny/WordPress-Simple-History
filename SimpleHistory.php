@@ -632,11 +632,15 @@ class SimpleHistory {
 	 */
 	function enqueue_admin_scripts($hook) {
 		
-		if ($this->is_on_our_own_pages()) {
+		if ( $this->is_on_our_own_pages() ) {
 	
 			$plugin_url = plugin_dir_url(__FILE__);
 			wp_enqueue_style( "simple_history_styles", $plugin_url . "styles.css", false, SimpleHistory::VERSION );	
 			wp_enqueue_script("simple_history_script", $plugin_url . "scripts.js", array("jquery", "backbone"), SimpleHistory::VERSION, true);
+
+			// Load chartist, for charts
+			wp_enqueue_script("chartist", $plugin_url . "/chartist-js/chartist.min.js", array("jquery"), SimpleHistory::VERSION, true);
+			wp_enqueue_style("chartist", $plugin_url . "/chartist-js/chartist.min.css", false, SimpleHistory::VERSION);
 
 			// Translations that we use in JavaScript
 			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(				
