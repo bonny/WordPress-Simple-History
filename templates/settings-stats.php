@@ -75,7 +75,7 @@ echo '<div class="ct-chart ct-major-twelfth SimpleHistoryChart__rowsPerDay"></di
 
 // Loop from $period_start_date to $period_end_date
 $interval = DateInterval::createFromDateString('1 day');
-$period = new DatePeriod($period_start_date, $interval, $period_end_date);
+$period = new DatePeriod($period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string('1 days') ) );
 $str_js_chart_labels = "";
 $str_js_chart_data = "";
 
