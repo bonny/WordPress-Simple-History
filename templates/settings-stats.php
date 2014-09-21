@@ -4,15 +4,160 @@ global $wpdb;
 $table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 $table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
+$period_days = (int) 28;
+$period_start_date = DateTime::createFromFormat('U', strtotime("-$period_days days"));
+$period_end_date = DateTime::createFromFormat('U', time());
+
+?>
+<style>
+	.SimpleHistoryStats__intro {
+		font-size: 1.4em;
+	}
+</style>
+<?php
+
 // Output filters
 echo "<div class='simple-history-filters'>";
 
-echo "<h2>Statistics</h2>";
+// echo "<h2>Statistics</h2>";
 
+
+// Number of rows the last n days
+function get_num_rows_last_n_days($period_days) {
+
+	global $wpdb;
+
+	$sql = sprintf(
+		'select count(*) FROM %1$s WHERE UNIX_TIMESTAMP(date) >= %2$d',
+		$wpdb->prefix . SimpleHistory::DBTABLE,
+		strtotime("-$period_days days")
+	);
+	
+	return $wpdb->get_var($sql);
+
+}
+
+
+
+
+echo "<p class='SimpleHistoryStats__intro'>";
+printf(
+	__('<b>%1$s rows</b> have been logged the last <b>%2$s days</b>', "simple-history"),
+	get_num_rows_last_n_days($period_days),
+	$period_days
+);
+echo "</p>";
+
+
+echo "<p class=''>";
+echo __("Rows per day", "simple-history");
+echo "</p>";
+
+$sql = sprintf(
+	'
+		SELECT 
+			date_format(date, "%%Y-%%m-%%d") AS yearDate,
+			count(date) AS count
+		FROM  
+			%1$s
+		WHERE UNIX_TIMESTAMP(date) >= %2$d
+		GROUP BY yearDate
+		ORDER BY yearDate ASC
+	',
+	$wpdb->prefix . SimpleHistory::DBTABLE,
+	strtotime("-$period_days days")
+);
+
+$dates = $wpdb->get_results( $sql );
+#sf_d($dates, '$dates');
+
+echo '<div class="ct-chart ct-major-twelfth SimpleHistoryChart__rowsPerDay"></div>';
+
+// Loop from $period_start_date to $period_end_date
+$interval = DateInterval::createFromDateString('1 day');
+$period = new DatePeriod($period_start_date, $interval, $period_end_date);
+$str_js_chart_labels = "";
+$str_js_chart_data = "";
+
+foreach ( $period as $dt ) {
+	
+	$datef = _x( 'M j', "stats: date in rows per day chart", "simple-history" );
+	$str_date = date_i18n( $datef, $dt->getTimestamp() );
+	$str_js_chart_labels .= sprintf(
+		'"%1$s",', 
+		$str_date
+	);
+
+	// Get data for this day, if exist
+	// Day in object is in format '2014-09-07'
+	$day_data = wp_filter_object_list( $dates, array("yearDate" => $dt->format( "Y-m-d" )) );
+	$day_data_value = 0;
+	if ($day_data) {
+		$day_data_value = (int) current($day_data)->count;
+	}
+
+	$str_js_chart_data .= sprintf(
+		'%1$s,',
+		$day_data_value
+	);
+
+}
+$str_js_chart_labels = rtrim($str_js_chart_labels, ",");
+$str_js_chart_data = rtrim($str_js_chart_data, ",");
+
+?>
+
+<script>
+//SimpleHistoryChart__rowsPerDay
+	
+	jQuery(function($) {
+		
+		var data = {
+			// A labels array that can contain any sort of values
+			labels: [<?php echo $str_js_chart_labels ?>],
+			// Our series array that contains series objects or in this case series data arrays
+			series: [
+				[<?php echo $str_js_chart_data ?>]
+			]
+		};
+		
+		var options = {
+			// the name of the dates at bottom
+			axisX: {
+				// If the axis grid should be drawn or not
+				showGrid: false,
+				// Interpolation function that allows you to intercept the value from the axis label
+				labelInterpolationFnc: function(value, i) {
+
+					// If it's the last value then always show
+					if (i === data.series[0].length-1) {
+						return value;
+					}
+
+					// only return every n value
+					if ( i % 7 ) {
+						return "";
+					}
+					
+					return value;
+				}
+			}
+		};
+
+		Chartist.Bar(".SimpleHistoryChart__rowsPerDay", data, options);
+
+	});
+
+</script>
+
+<?php
+
+echo "<hr>";
 echo "<h3>Database size + rows count</h3>";
 $logQuery = new SimpleHistoryLogQuery();
 $rows = $logQuery->query(array(
-	"posts_per_page" => 1
+	"posts_per_page" => 1,
+	"date_from" => strtotime("-$period_days days")
 ));
 
 // This is the number of rows with occasions taken into consideration
