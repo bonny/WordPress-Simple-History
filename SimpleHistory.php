@@ -642,6 +642,9 @@ class SimpleHistory {
 			wp_enqueue_script("chartist", $plugin_url . "/chartist-js/chartist.min.js", array("jquery"), SimpleHistory::VERSION, true);
 			wp_enqueue_style("chartist", $plugin_url . "/chartist-js/chartist.min.css", false, SimpleHistory::VERSION);
 
+			// Load chart.js
+			wp_enqueue_script("chartjs", $plugin_url . "/chartjs/Chart.min.js", array("jquery"), SimpleHistory::VERSION, true);
+			
 			// Translations that we use in JavaScript
 			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(				
 				'settingsConfirmClearLog' => __("Remove all log items?", 'simple-history'),

@@ -13,6 +13,88 @@ $period_end_date = DateTime::createFromFormat('U', time());
 	.SimpleHistoryStats__intro {
 		font-size: 1.4em;
 	}
+	.SimpleHistoryStats__graphs {
+		overflow: auto;
+	}
+	.SimpleHistoryStats__graph {
+		float: left;
+		width: 50%;
+	}
+
+	.SimpleHistoryChart__loggersPie2 {
+		width: 100%;
+		position: relative;
+		/*height: 300px;*/
+	}
+
+	.SimpleHistoryChart__loggersPie2__canvasHolder {
+		width: 70%;
+		height: 0;
+		xtop: 0;
+		xright: 0;
+		position: relative;
+		padding-bottom: 50%;
+		float: left;
+		background: #eee;
+	}
+	
+	.SimpleHistoryChart__loggersPie2__canvas {
+		xposition: absolute;
+		xtop: 0;
+		xright: 0;
+	}
+
+	.SimpleHistoryChart__loggersPie2 ul {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+
+	.SimpleHistoryChart__loggersPie2 span {
+		width: 10px;
+		height: 10px;
+		display: inline-block;
+		margin-right: 5px;
+	}
+
+	.ct-chart .ct-bar {
+		stroke-width: 15px;
+		box-shadow: 1px 1px 1px black;
+	}
+
+	.ct-chart .ct-series.ct-series-d .ct-slice:not(.ct-donut) {
+		fill: #666;
+	}
+
+	.ct-chart .ct-series.ct-series-e .ct-slice:not(.ct-donut) {
+		fill: #999;
+	}
+
+	.ct-chart .ct-series.ct-series-f .ct-slice:not(.ct-donut) {
+		fill: blue;
+	}
+
+	.ct-chart .ct-series.ct-series-g .ct-slice:not(.ct-donut) {
+		fill: yellow;
+	}
+
+	.ct-chart .ct-series.ct-series-h .ct-slice:not(.ct-donut) {
+		fill: red;
+	}
+
+	.ct-chart .ct-series.ct-series-i .ct-slice:not(.ct-donut) {
+		fill: pink;
+	}
+
+	.ct-chart .ct-series.ct-series-j .ct-slice:not(.ct-donut) {
+		fill: green;
+	}
+
+	.ct-chart .ct-series.ct-series-k .ct-slice:not(.ct-donut) {
+		fill: purple;
+	}
+
+
 </style>
 <?php
 
@@ -39,7 +121,7 @@ function get_num_rows_last_n_days($period_days) {
 
 
 
-
+// Overview, larger text
 echo "<p class='SimpleHistoryStats__intro'>";
 printf(
 	__('<b>%1$s rows</b> have been logged the last <b>%2$s days</b>', "simple-history"),
@@ -48,10 +130,13 @@ printf(
 );
 echo "</p>";
 
+// Bar chart with rows per day
+echo "<div class='SimpleHistoryStats__graphs'>";
 
-echo "<p class=''>";
+echo "<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--rowsPerDay'>";
+echo "<h4 class=''>";
 echo __("Rows per day", "simple-history");
-echo "</p>";
+echo "</h4>";
 
 $sql = sprintf(
 	'
@@ -69,9 +154,8 @@ $sql = sprintf(
 );
 
 $dates = $wpdb->get_results( $sql );
-#sf_d($dates, '$dates');
 
-echo '<div class="ct-chart ct-major-twelfth SimpleHistoryChart__rowsPerDay"></div>';
+echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__rowsPerDay"></div>';
 
 // Loop from $period_start_date to $period_end_date
 $interval = DateInterval::createFromDateString('1 day');
@@ -108,8 +192,10 @@ $str_js_chart_data = rtrim($str_js_chart_data, ",");
 ?>
 
 <script>
-//SimpleHistoryChart__rowsPerDay
 	
+	/**
+	 * Bar chart with rows per day
+	 */
 	jQuery(function($) {
 		
 		var data = {
@@ -149,8 +235,172 @@ $str_js_chart_data = rtrim($str_js_chart_data, ",");
 	});
 
 </script>
-
 <?php
+
+echo "</div>";
+// end bar chart rows per day
+
+echo "<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--loggersPie'>";
+
+echo "<h4 class=''>";
+echo __("Loggers", "simple-history");
+echo "</h4>";
+
+#echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersPie"></div>';
+?>
+<div class="SimpleHistoryChart__loggersPie2">
+	<div class="SimpleHistoryChart__loggersPie2__canvasHolder">
+		<canvas class="SimpleHistoryChart__loggersPie2__canvas"></canvas>
+	</div>
+</div>
+<?php
+
+$arr_logger_slugs = array();
+foreach ( $this->getInstantiatedLoggers() as $oneLogger ) {
+	$arr_logger_slugs[] = $oneLogger["instance"]->slug;
+}
+
+$sql_logger_counts = sprintf('
+	SELECT logger, count(id) as count
+	FROM %1$s
+	WHERE logger IN ("%2$s")
+	GROUP BY logger
+	ORDER BY count DESC
+', $table_name, join($arr_logger_slugs, '","'));
+
+$logger_rows_count = $wpdb->get_results( $sql_logger_counts );
+
+$str_js_chart_labels = "";
+$str_js_chart_data = "";
+$i = 0;
+$max_loggers_in_chart = 10;
+$arr_pie_colors = array(
+	0 => array(
+		"color" => "#F7464A",
+		"highlight" => "#FF5A5E"
+	),
+	1 => array(
+        "color" => "#46BFBD",
+        "highlight" => "#5AD3D1"
+    ),
+    2 => array(
+    	"color" => "#FDB45C",
+		"highlight" => "#FFC870"
+	)
+);
+
+foreach ( $logger_rows_count as $one_logger_count ) {
+
+	$logger = $this->getInstantiatedLoggerBySlug( $one_logger_count->logger );
+	if ( ! $logger) {
+		continue;
+	}
+
+	if ($i > $max_loggers_in_chart) {
+		break;
+	}
+
+	$logger_info = $logger->getInfo();
+
+	$color = $arr_pie_colors[$i];
+	
+	$str_js_chart_data .= sprintf(
+		'
+			{
+				value: %1$d,
+				color:"%3$s",
+				xhighlight: "%4$s",
+				label: "%2$s"
+			},',
+		$one_logger_count->count,
+		$logger_info["name"],
+		$color["color"],
+		$color["highlight"]
+	);
+
+	$i++;
+
+}
+$str_js_chart_data = rtrim($str_js_chart_data, ",");
+$str_js_chart_labels = rtrim($str_js_chart_labels, ",");
+
+echo "</div>"; // graph loggers pie
+
+?>
+<script>
+	
+	/**
+	 * Pie chart with loggers distribution
+	 */
+	jQuery(function($) {
+		
+		/*
+		var data = {
+			series: [<?php echo $str_js_chart_data ?>],
+			labels: [<?php echo $str_js_chart_labels ?>]
+		};		
+		
+		var options = {
+			//chartPadding: 0,
+			//labelOffset: 100,
+			//labelDirection: 'explode'
+		};
+
+		Chartist.Pie(".SimpleHistoryChart__loggersPie", data, options);
+		*/
+
+		var ctx = $(".SimpleHistoryChart__loggersPie2 canvas").get(0).getContext("2d");
+
+		var data = [
+			<?php echo $str_js_chart_data; ?>
+		];
+
+		var options = {
+		    //Boolean - Whether we should show a stroke on each segment
+		    segmentShowStroke : true,
+
+		    //String - The colour of each segment stroke
+		    segmentStrokeColor : "#fff",
+
+		    //Number - The width of each segment stroke
+		    segmentStrokeWidth : 1,
+
+		    responsive: true,
+
+		    //Number - The percentage of the chart that we cut out of the middle
+		    //percentageInnerCutout : 50,
+
+		    //Number - Amount of animation steps
+		    animationSteps : 25,
+
+		    //String - Animation easing effect
+		    animationEasing : "easeOutExpo",
+
+		    //Boolean - Whether we animate the rotation of the Doughnut
+		    animateRotate : true,
+
+		    //Boolean - Whether we animate scaling the Doughnut from the centre
+		    animateScale : true,
+
+	        scaleShowLabels: true,
+
+		    //String - A legend template
+		    legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+
+		}
+
+		var myPieChart = new Chart(ctx).Pie(data, options);
+		var legendHTML = myPieChart.generateLegend();
+
+		$(".SimpleHistoryChart__loggersPie2").append(legendHTML);
+
+	});
+
+</script>
+<?php
+
+echo "</div>"; // wrap charts
+
 
 echo "<hr>";
 echo "<h3>Database size + rows count</h3>";
