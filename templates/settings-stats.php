@@ -28,14 +28,9 @@ $period_end_date = DateTime::createFromFormat('U', time());
 	}
 
 	.SimpleHistoryChart__loggersPie2__canvasHolder {
-		width: 70%;
-		height: 0;
-		xtop: 0;
-		xright: 0;
 		position: relative;
-		padding-bottom: 50%;
-		float: left;
-		background: #eee;
+		xbackground: #aaa;
+		margin-right: 100px;
 	}
 	
 	.SimpleHistoryChart__loggersPie2__canvas {
