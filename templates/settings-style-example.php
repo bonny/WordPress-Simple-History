@@ -13,8 +13,8 @@
             <div class="SimpleHistoryLogitem__secondcol">
 
                 <div class="SimpleHistoryLogitem__header">
-                    <strong class="SimpleHistoryLogitem__inlineDivided">Pär</strong>
-                    <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">par@earthpeople.se</span>
+                    <strong class="SimpleHistoryLogitem__inlineDivided">Jessie</strong>
+                    <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">admin@example.com</span>
                     <span class="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"><a class="" href="http://playground-root.ep/wp-admin/index.php?page=simple_history_page#item/665"><time datetime="2014-08-11T21:08:44+00:00" title="2014-08-11T21:08:44+00:00" class="">1 min ago</time></a></span>
                 </div>
 
@@ -140,14 +140,14 @@
             <div class="SimpleHistoryLogitem__secondcol">
 
                 <div class="SimpleHistoryLogitem__header">
-                    <strong class="SimpleHistoryLogitem__inlineDivided">Pär</strong>
-                    <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">par@earthpeople.se</span>
+                    <strong class="SimpleHistoryLogitem__inlineDivided">Jessie</strong>
+                    <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">admin@example.com</span>
                     <span class="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"><a class="" href="http://playground-root.ep/wp-admin/index.php?page=simple_history_page#item/665"><time datetime="2014-08-11T21:08:44+00:00" title="2014-08-11T21:08:44+00:00" class="">1 min ago</time></a></span>
-                    <span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>
                 </div>
 
                 <div class="SimpleHistoryLogitem__text">
-                    This is a message with loglevel "%1$s"
+                    %2$s
+                    <span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>
                 </div>
 
                 <!-- <div class="SimpleHistoryLogitem__details">
@@ -161,10 +161,22 @@
         </li>
         ';
 
+        $arr_messages = array(
+            "emergency" => "Harddrive on VPS 1 has errors",
+            "alert" => "The WordPress installation on VPS 2 is running out of memory",
+            "critical" => "There are 21 security updates available for your site",
+            "error" => "A JavaScript error was detected on page <code>example.com/about-us/contact/</code>",
+            "warning" => "A user attempted to login to your site with username \"admin\"",
+            "notice" => "User Jessie logged in",
+            "info" => "Page \"about us\" was updated",
+            "debug" => "The variable <code>\$heyhey</code> had value <code>'abc123'</code> and the hash of the user values is <code>'1f3870be274f6c49b3e31a0c6728957f'</code>",
+        );
+
         $refl = new ReflectionClass('SimpleLoggerLogLevels');
         foreach ( $refl->getConstants() as $key => $val ) {
 
-            echo sprintf($template, $val, 123);
+            $msg = isset($arr_messages[$val]) ? $arr_messages[$val] : "This is a message with loglevel";
+            echo sprintf($template, $val, $msg);
 
         }
 
