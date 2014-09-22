@@ -8,6 +8,10 @@ $period_days = (int) 28;
 $period_start_date = DateTime::createFromFormat('U', strtotime("-$period_days days"));
 $period_end_date = DateTime::createFromFormat('U', time());
 
+// Colors taken from the gogole chart example that was found in this Stack Overflow thread:
+// http://stackoverflow.com/questions/236936/how-pick-colors-for-a-pie-chart
+$arr_colors = explode(",", "8a56e2,cf56e2,e256ae,e25668,e28956,e2cf56,aee256,68e256,56e289,56e2cf,56aee2,5668e2");
+
 ?>
 <style>
 	.SimpleHistoryStats__intro {
@@ -51,45 +55,34 @@ $period_end_date = DateTime::createFromFormat('U', time());
 		display: inline-block;
 		margin-right: 5px;
 	}
-
+	
+	/* chartist bar */
 	.ct-chart .ct-bar {
 		stroke-width: 15px;
 		box-shadow: 1px 1px 1px black;
 	}
-
-	.ct-chart .ct-series.ct-series-d .ct-slice:not(.ct-donut) {
-		fill: #666;
+	.ct-chart .ct-series.ct-series-a .ct-bar {
+		stroke: rgb(226, 86, 104);
+		stroke: rgb(226, 86, 174);
 	}
-
-	.ct-chart .ct-series.ct-series-e .ct-slice:not(.ct-donut) {
-		fill: #999;
+	
+	/* chartist chart */
+	<?php
+	$arr_chars = str_split("abcdefghijkl");
+	$i = 0;
+	foreach ($arr_chars as $one_char) {
+		printf('
+			.ct-chart .ct-series.ct-series-%1$s .ct-slice:not(.ct-donut) {
+				fill: #%2$s;
+			}
+			', 
+			$one_char, // 1
+			$arr_colors[$i] // 2
+		);
+		$i++;
 	}
-
-	.ct-chart .ct-series.ct-series-f .ct-slice:not(.ct-donut) {
-		fill: blue;
-	}
-
-	.ct-chart .ct-series.ct-series-g .ct-slice:not(.ct-donut) {
-		fill: yellow;
-	}
-
-	.ct-chart .ct-series.ct-series-h .ct-slice:not(.ct-donut) {
-		fill: red;
-	}
-
-	.ct-chart .ct-series.ct-series-i .ct-slice:not(.ct-donut) {
-		fill: pink;
-	}
-
-	.ct-chart .ct-series.ct-series-j .ct-slice:not(.ct-donut) {
-		fill: green;
-	}
-
-	.ct-chart .ct-series.ct-series-k .ct-slice:not(.ct-donut) {
-		fill: purple;
-	}
-
-
+	?>
+	
 </style>
 <?php
 
@@ -151,6 +144,7 @@ $sql = sprintf(
 $dates = $wpdb->get_results( $sql );
 
 echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__rowsPerDay"></div>';
+echo '<div class="SimpleHistoryChart__rowsPerDay"><canvas class="SimpleHistoryChart__rowsPerDay__canvas"></canvas></div>';
 
 // Loop from $period_start_date to $period_end_date
 $interval = DateInterval::createFromDateString('1 day');
@@ -192,6 +186,27 @@ $str_js_chart_data = rtrim($str_js_chart_data, ",");
 	 * Bar chart with rows per day
 	 */
 	jQuery(function($) {
+		
+		var data = {
+			labels: [<?php echo $str_js_chart_labels ?>],
+			datasets: [
+				{
+					label: "",
+					fillColor: "rgba(138, 86, 226, 0.5)",
+					strokeColor: "rgba(220,220,220,0.8)",
+					highlightFill: "rgba(220,220,220,0.75)",
+					highlightStroke: "rgba(220,220,220,1)",
+					data: [<?php echo $str_js_chart_data ?>]
+				}
+			]
+		};
+
+		var options = {
+			responsive: true
+		};
+
+		var ctx = $(".SimpleHistoryChart__rowsPerDay__canvas").get(0).getContext("2d");
+		var myBarChart = new Chart(ctx).Bar(data, options);
 		
 		var data = {
 			// A labels array that can contain any sort of values
@@ -241,7 +256,7 @@ echo "<h4 class=''>";
 echo __("Loggers", "simple-history");
 echo "</h4>";
 
-#echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersPie"></div>';
+echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersPie"></div>';
 ?>
 <div class="SimpleHistoryChart__loggersPie2">
 	<div class="SimpleHistoryChart__loggersPie2__canvasHolder">
@@ -267,26 +282,16 @@ $logger_rows_count = $wpdb->get_results( $sql_logger_counts );
 
 $str_js_chart_labels = "";
 $str_js_chart_data = "";
+$str_js_chart_data_chartist = "";
 $i = 0;
-$max_loggers_in_chart = 10;
-$arr_pie_colors = array(
-	0 => array(
-		"color" => "#F7464A",
-		"highlight" => "#FF5A5E"
-	),
-	1 => array(
-        "color" => "#46BFBD",
-        "highlight" => "#5AD3D1"
-    ),
-    2 => array(
-    	"color" => "#FDB45C",
-		"highlight" => "#FFC870"
-	)
-);
+
+//shuffle($arr_colors);
+$max_loggers_in_chart = sizeof( $arr_colors );
 
 foreach ( $logger_rows_count as $one_logger_count ) {
 
 	$logger = $this->getInstantiatedLoggerBySlug( $one_logger_count->logger );
+
 	if ( ! $logger) {
 		continue;
 	}
@@ -297,26 +302,33 @@ foreach ( $logger_rows_count as $one_logger_count ) {
 
 	$logger_info = $logger->getInfo();
 
-	$color = $arr_pie_colors[$i];
-	
 	$str_js_chart_data .= sprintf(
 		'
 			{
 				value: %1$d,
-				color:"%3$s",
-				xhighlight: "%4$s",
+				color:"#%3$s",
 				label: "%2$s"
 			},',
-		$one_logger_count->count,
-		$logger_info["name"],
-		$color["color"],
-		$color["highlight"]
+		$one_logger_count->count, // 1
+		$logger_info["name"], // 2
+		$arr_colors[$i] // 3
+	);
+
+	$str_js_chart_data_chartist .= sprintf(
+		'%1$d,',
+		$one_logger_count->count // 1
+	);
+
+	$str_js_chart_labels .= sprintf(
+		'"%1$s",',
+		$logger_info["name"]
 	);
 
 	$i++;
 
 }
 $str_js_chart_data = rtrim($str_js_chart_data, ",");
+$str_js_chart_data_chartist = rtrim($str_js_chart_data_chartist, ",");
 $str_js_chart_labels = rtrim($str_js_chart_labels, ",");
 
 echo "</div>"; // graph loggers pie
@@ -329,9 +341,8 @@ echo "</div>"; // graph loggers pie
 	 */
 	jQuery(function($) {
 		
-		/*
 		var data = {
-			series: [<?php echo $str_js_chart_data ?>],
+			series: [<?php echo $str_js_chart_data_chartist ?>],
 			labels: [<?php echo $str_js_chart_labels ?>]
 		};		
 		
@@ -342,7 +353,7 @@ echo "</div>"; // graph loggers pie
 		};
 
 		Chartist.Pie(".SimpleHistoryChart__loggersPie", data, options);
-		*/
+
 
 		var ctx = $(".SimpleHistoryChart__loggersPie2 canvas").get(0).getContext("2d");
 
