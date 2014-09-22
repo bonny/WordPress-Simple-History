@@ -12,85 +12,53 @@ $period_end_date = DateTime::createFromFormat('U', time());
 // http://stackoverflow.com/questions/236936/how-pick-colors-for-a-pie-chart
 $arr_colors = explode(",", "8a56e2,cf56e2,e256ae,e25668,e28956,e2cf56,aee256,68e256,56e289,56e2cf,56aee2,5668e2");
 
-?>
-<style>
-	.SimpleHistoryStats__intro {
-		font-size: 1.4em;
-	}
-	.SimpleHistoryStats__graphs {
-		overflow: auto;
-	}
-	.SimpleHistoryStats__graph {
-		float: left;
-		width: 50%;
-	}
-
-	.SimpleHistoryChart__loggersPie2 {
-		width: 100%;
-		position: relative;
-		/*height: 300px;*/
-	}
-
-	.SimpleHistoryChart__loggersPie2__canvasHolder {
-		position: relative;
-		xbackground: #aaa;
-		margin-right: 100px;
-	}
+// Generate CSS classes for chartist, based on $arr_colors
+$str_chartist_css_colors = "";
+$arr_chars = str_split("abcdefghijkl");
+$i = 0;
+foreach ($arr_chars as $one_char) {
 	
-	.SimpleHistoryChart__loggersPie2__canvas {
-		xposition: absolute;
-		xtop: 0;
-		xright: 0;
-	}
+	$str_chartist_css_colors .= sprintf('
+		.ct-chart .ct-series.ct-series-%1$s .ct-slice:not(.ct-donut) {
+			fill: #%2$s;
+		}
+		', 
+		$one_char, // 1
+		$arr_colors[$i] // 2
+	);
+	$i++;
 
-	.SimpleHistoryChart__loggersPie2 ul {
-		position: absolute;
-		top: 0;
-		right: 0;
-	}
+}
 
-	.SimpleHistoryChart__loggersPie2 span {
-		width: 10px;
-		height: 10px;
-		display: inline-block;
-		margin-right: 5px;
-	}
-	
-	/* chartist bar */
-	.ct-chart .ct-bar {
-		stroke-width: 15px;
-		box-shadow: 1px 1px 1px black;
-	}
-	.ct-chart .ct-series.ct-series-a .ct-bar {
-		stroke: rgb(226, 86, 104);
-		stroke: rgb(226, 86, 174);
-	}
-	
-	/* chartist chart */
-	<?php
-	$arr_chars = str_split("abcdefghijkl");
-	$i = 0;
-	foreach ($arr_chars as $one_char) {
-		printf('
-			.ct-chart .ct-series.ct-series-%1$s .ct-slice:not(.ct-donut) {
-				fill: #%2$s;
-			}
-			', 
-			$one_char, // 1
-			$arr_colors[$i] // 2
-		);
-		$i++;
-	}
-	?>
-	
-</style>
-<?php
+// Echo styles like this because syntax highlighter in sublime goes bananas 
+// if I try to do it in any other way...
+echo "
+	<style>
+		.SimpleHistoryStats__intro {
+			font-size: 1.4em;
+		}
+		.SimpleHistoryStats__graphs {
+			overflow: auto;
+		}
+		.SimpleHistoryStats__graph {
+			float: left;
+			width: 50%;
+		}
 
-// Output filters
-echo "<div class='simple-history-filters'>";
-
-// echo "<h2>Statistics</h2>";
-
+		/* chartist bar */
+		.ct-chart .ct-bar {
+			stroke-width: 15px;
+			box-shadow: 1px 1px 1px black;
+		}
+		.ct-chart .ct-series.ct-series-a .ct-bar {
+			stroke: rgb(226, 86, 174);
+		}
+		
+		/* chartist chart */
+		{$str_chartist_css_colors}
+		
+	</style>
+";
 
 // Number of rows the last n days
 function get_num_rows_last_n_days($period_days) {
@@ -118,8 +86,11 @@ printf(
 );
 echo "</p>";
 
-// Bar chart with rows per day
-echo "<div class='SimpleHistoryStats__graphs'>";
+?>
+<!-- Start charts wrap -->
+<div class='SimpleHistoryStats__graphs'>
+
+<?php
 
 echo "<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--rowsPerDay'>";
 echo "<h4 class=''>";
@@ -144,7 +115,6 @@ $sql = sprintf(
 $dates = $wpdb->get_results( $sql );
 
 echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__rowsPerDay"></div>';
-echo '<div class="SimpleHistoryChart__rowsPerDay"><canvas class="SimpleHistoryChart__rowsPerDay__canvas"></canvas></div>';
 
 // Loop from $period_start_date to $period_end_date
 $interval = DateInterval::createFromDateString('1 day');
@@ -186,27 +156,6 @@ $str_js_chart_data = rtrim($str_js_chart_data, ",");
 	 * Bar chart with rows per day
 	 */
 	jQuery(function($) {
-		
-		var data = {
-			labels: [<?php echo $str_js_chart_labels ?>],
-			datasets: [
-				{
-					label: "",
-					fillColor: "rgba(138, 86, 226, 0.5)",
-					strokeColor: "rgba(220,220,220,0.8)",
-					highlightFill: "rgba(220,220,220,0.75)",
-					highlightStroke: "rgba(220,220,220,1)",
-					data: [<?php echo $str_js_chart_data ?>]
-				}
-			]
-		};
-
-		var options = {
-			responsive: true
-		};
-
-		var ctx = $(".SimpleHistoryChart__rowsPerDay__canvas").get(0).getContext("2d");
-		var myBarChart = new Chart(ctx).Bar(data, options);
 		
 		var data = {
 			// A labels array that can contain any sort of values
@@ -257,13 +206,6 @@ echo __("Loggers", "simple-history");
 echo "</h4>";
 
 echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersPie"></div>';
-?>
-<div class="SimpleHistoryChart__loggersPie2">
-	<div class="SimpleHistoryChart__loggersPie2__canvasHolder">
-		<canvas class="SimpleHistoryChart__loggersPie2__canvas"></canvas>
-	</div>
-</div>
-<?php
 
 $arr_logger_slugs = array();
 foreach ( $this->getInstantiatedLoggers() as $oneLogger ) {
@@ -346,177 +288,15 @@ echo "</div>"; // graph loggers pie
 			labels: [<?php echo $str_js_chart_labels ?>]
 		};		
 		
-		var options = {
-			//chartPadding: 0,
-			//labelOffset: 100,
-			//labelDirection: 'explode'
-		};
+		var options = {};
 
 		Chartist.Pie(".SimpleHistoryChart__loggersPie", data, options);
-
-
-		var ctx = $(".SimpleHistoryChart__loggersPie2 canvas").get(0).getContext("2d");
-
-		var data = [
-			<?php echo $str_js_chart_data; ?>
-		];
-
-		var options = {
-		    //Boolean - Whether we should show a stroke on each segment
-		    segmentShowStroke : true,
-
-		    //String - The colour of each segment stroke
-		    segmentStrokeColor : "#fff",
-
-		    //Number - The width of each segment stroke
-		    segmentStrokeWidth : 1,
-
-		    responsive: true,
-
-		    //Number - The percentage of the chart that we cut out of the middle
-		    //percentageInnerCutout : 50,
-
-		    //Number - Amount of animation steps
-		    animationSteps : 25,
-
-		    //String - Animation easing effect
-		    animationEasing : "easeOutExpo",
-
-		    //Boolean - Whether we animate the rotation of the Doughnut
-		    animateRotate : true,
-
-		    //Boolean - Whether we animate scaling the Doughnut from the centre
-		    animateScale : true,
-
-	        scaleShowLabels: true,
-
-		    //String - A legend template
-		    legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
-
-		}
-
-		var myPieChart = new Chart(ctx).Pie(data, options);
-		var legendHTML = myPieChart.generateLegend();
-
-		$(".SimpleHistoryChart__loggersPie2").append(legendHTML);
 
 	});
 
 </script>
 <?php
 
-echo "</div>"; // wrap charts
-
-
-echo "<hr>";
-echo "<h3>Database size + rows count</h3>";
-$logQuery = new SimpleHistoryLogQuery();
-$rows = $logQuery->query(array(
-	"posts_per_page" => 1,
-	"date_from" => strtotime("-$period_days days")
-));
-
-// This is the number of rows with occasions taken into consideration
-$total_accassions_rows_count = $rows["total_row_count"];
-
-// Total number of log rows
-// Not caring about occasions, this number = all occasions
-$total_num_rows = $wpdb->get_var("select count(*) FROM {$table_name}");
-echo "<p>Total $total_num_rows log rows in db.</p>";
-echo "<p>Total $total_accassions_rows_count rows, when grouped by occasion id.</p>";
-
-$sql_table_size = sprintf('
-	SELECT table_name AS "table_name", 
-	round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb" 
-	FROM information_schema.TABLES 
-	WHERE table_schema = "%1$s"
-	AND table_name IN ("%2$s", "%3$s");
-	', 
-	DB_NAME, // 1
-	$table_name, // 2
-	$table_name_contexts
-);
-
-$table_size_result = $wpdb->get_results($sql_table_size);
-
-echo "<table>";
-echo "<tr>
-	<th>Table name</th>
-	<th>Table size (MB)</th>
-</tr>";
-
-foreach ($table_size_result as $one_table) {
-
-	printf('<tr>
-			<td>%1$s</td>
-			<td>%2$s</td>
-		</tr>',
-		$one_table->table_name,
-		$one_table->size_in_mb
-	);
-}
-
-echo "</table>";
-
-
-// Output all available (instantiated) loggers
-// @TODO: order by number of rows
-echo "<h3>Loggers</h3>";
-echo "<p>All instantiated loggers.</p>";
-
-echo "<table class='' cellpadding=2>";
-echo "<tr>
-		<th>Count</th>
-		<th>Slug</th>
-		<th>Name</th>
-		<th>Description</th>
-		<th>Capability</th>
-	</tr>";
-
-
-$arr_logger_slugs = array();
-foreach ( $this->getInstantiatedLoggers() as $oneLogger ) {
-	$arr_logger_slugs[] = $oneLogger["instance"]->slug;
-}
-
-$sql_logger_counts = sprintf('
-	SELECT logger, count(id) as count
-	FROM %1$s
-	WHERE logger IN ("%2$s")
-	GROUP BY logger
-	ORDER BY count DESC
-', $table_name, join($arr_logger_slugs, '","'));
-
-$logger_rows_count = $wpdb->get_results( $sql_logger_counts );
-
-foreach ( $logger_rows_count as $one_logger_count ) {
-
-	$logger = $this->getInstantiatedLoggerBySlug( $one_logger_count->logger );
-	if (!$logger) {
-		continue;
-	}
-	#sf_d($logger);
-	$logger_info = $logger->getInfo();
-
-	printf(
-		'
-		<tr>
-			<td>%1$s</td>
-			<td>%2$s</td>
-			<td>%3$s</td>
-			<td>%4$s</td>
-			<td>%5$s</td>
-		</tr>
-		',
-		$one_logger_count->count,
-		$one_logger_count->logger,
-		esc_html( $logger_info["name"]),
-		esc_html( $logger_info["description"]),
-		esc_html( $logger_info["capability"])
-	);
-
-}
-echo "</table>";
 
 // Stats på level (notice, warning, debug, etc.)
 $sql = sprintf('
@@ -531,6 +311,11 @@ $sql = sprintf('
 
 $level_counts = $wpdb->get_results($sql);
 
+
+?>
+<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--logLevels'>
+<?php
+
 echo "<h3>Log levels</h3>";
 echo "<table>";
 echo "<tr>
@@ -538,9 +323,16 @@ echo "<tr>
 		<th>Count</th>
 	</tr>";
 
+$arr_chart_data = array();
+$arr_chart_labels = array();
+
 foreach ( $level_counts as $row ) {
+
+	if ( empty($row->level) ) {
+		continue;
+	}
 		
-		printf('
+	printf('
 		<tr>
 			<td>%1$s</td>
 			<td>%2$s</td>
@@ -550,9 +342,45 @@ foreach ( $level_counts as $row ) {
 		$row->count 
 	);
 
+	$arr_chart_data[] = $row->count;
+	$arr_chart_labels[] = $row->level;
+
 }
 
 echo "</table>";
+
+echo "<div class='ct-chart ct-minor-seventh SimpleHistoryChart__logLevels'></div>";
+
+?>
+<script>
+	
+	/**
+	 * Bar chart with log levels
+	 */
+	jQuery(function($) {
+		
+		var data = {
+			labels: ["<?php echo implode('", "', $arr_chart_labels) ?>"],
+			series: [
+				[<?php echo implode(",", $arr_chart_data) ?>]
+			]
+		};		
+		
+		var options = {
+		};
+
+		Chartist.Bar(".SimpleHistoryChart__logLevels", data, options);
+
+	});
+
+</script>
+
+</div>
+
+<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--initiators'>
+
+<?php
+
 
 // Stats based by initiator
 
@@ -577,8 +405,12 @@ echo "<tr>
 	</tr>";
 
 foreach ( $level_counts as $row ) {
+
+	if ( empty($row->initiator) ) {
+		continue;
+	}
 		
-		printf('
+	printf('
 		<tr>
 			<td>%1$s</td>
 			<td>%2$s</td>
@@ -592,7 +424,14 @@ foreach ( $level_counts as $row ) {
 
 echo "</table>";
 
+?>
 
+</div><!-- // end initiators -->
+
+
+</div><!-- // end charts wrapper -->
+
+<?php
 
 // Output users
 echo "<h3>Users that have logged things</h3>";
@@ -665,4 +504,6 @@ foreach ($user_results as $one_user_result) {
 
 echo "</table>";
 
-echo "</div>"; // div.simple-history-filters
+
+include(dirname(__FILE__) . "/settings-statsForGeeks.php");
+
