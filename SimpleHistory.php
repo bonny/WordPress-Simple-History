@@ -41,6 +41,11 @@ class SimpleHistory {
 	 */
 	private $doFilterGettext_currentLogger = null;
 
+	/**
+	 * All registered settings tabs
+	 */
+	private $arr_settings_tabs = array();
+
 	const DBTABLE = "simple_history";
 	const DBTABLE_CONTEXTS = "simple_history_contexts";
 
@@ -357,6 +362,27 @@ class SimpleHistory {
 
 		$this->plugin_basename = plugin_basename(__DIR__ . "/index.php");
 
+		// Add default settings tabs
+		$this->arr_settings_tabs = array(
+				
+			array(
+				"slug" => "settings",
+				"name" => __("Settings", "simple-history"),
+				"function" => array($this, "settings_output_general")
+			),
+			array(
+				"slug" => "log",
+				"name" => __("Log", "simple-history"),
+				"function" => array($this, "settings_output_log")
+			),
+			array(
+				"slug" => "styles-example",
+				"name" => __("Styles example", "simple-history"),
+				"function" => array($this, "settings_output_styles_example")
+			)
+
+		);
+
 	}
 
 	/**
@@ -512,9 +538,13 @@ class SimpleHistory {
 		// Instantiate each dropin
 		foreach ($arrDropinsToInstantiate as $oneDropinName ) {
 			
+			if ( ! class_exists( $oneDropinName ) ) {
+				continue;
+			}
+
 			$this->instantiatedDropins[$oneDropinName] = array(
 				"name" => $oneDropinName,
-				"instance" => new $oneDropinName($this)
+				"instance" => new $oneDropinName( $this )
 			);
 		}
 
@@ -843,12 +873,27 @@ class SimpleHistory {
 		
 	} // end check_for_upgrade
 	
+
+	public function registerSettingsTab($arr_tab_settings) {
+
+		$this->arr_settings_tabs[] = $arr_tab_settings;
+
+	}
+
+	public function getSettingsTabs() {
+
+		return $this->arr_settings_tabs;
+
+	}
+
 	/**
 	 * Output HTML for the settings page
 	 * Called from add_options_page
 	 */		 
 	function settings_page_output() {
 		
+		$arr_settings_tabs = $this->getSettingsTabs();
+
 		?>
 		<div class="wrap">
 
@@ -860,38 +905,63 @@ class SimpleHistory {
 			?>
 
 			<h3 class="nav-tab-wrapper">
-				<a href="<?php echo add_query_arg("selected-tab", "settings", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "settings") ? "nav-tab-active" : "" ?>">Settings</a>
-				<a href="<?php echo add_query_arg("selected-tab", "log", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "log") ? "nav-tab-active" : "" ?>">Log</a>
-				<a href="<?php echo add_query_arg("selected-tab", "stats", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "stats") ? "nav-tab-active" : "" ?>">Stats</a>
-				<a href="<?php echo add_query_arg("selected-tab", "style-example", $settings_base_url) ?>" class="nav-tab <?php echo ($active_tab === "style-example") ? "nav-tab-active" : "" ?>">Styles example</a>
+				<?php
+				foreach ( $arr_settings_tabs as $one_tab ) {
+
+					$tab_slug = $one_tab["slug"];
+					
+					printf(
+						'<a href="%3$s" class="nav-tab %4$s">%1$s</a>', 
+						$one_tab["name"], // 1
+						$tab_slug, // 2
+						add_query_arg("selected-tab", $tab_slug, $settings_base_url), // 3
+						$active_tab == $tab_slug ? "nav-tab-active" : "" // 4
+					);
+
+				}
+				?>
 			</h3>
 
 			<?php
-			switch ( $active_tab ) {
-
-				case "log":
-					include( __DIR__ . "/templates/settings-log.php" );
-					break;
-
-				case "stats":
-					include( __DIR__ . "/templates/settings-stats.php" );
-					break;
-
-				case "style-example":
-					include( __DIR__ . "/templates/settings-style-example.php" );
-					break;
-
-				case "settings":
-				default:
-
-					include( __DIR__ . "/templates/settings-general.php" );
-					break;
+			
+			// Output contents for selected tab
+			$arr_active_tab = wp_filter_object_list( $arr_settings_tabs, array("slug" => $active_tab));
+			$arr_active_tab = current($arr_active_tab);
+			
+			// We must have found an active tab and it must have a callable function
+			if ( ! $arr_active_tab || ! is_callable( $arr_active_tab["function"] ) ) {
+				wp_die( __("No valid callback found", "simple-history") );
 			}
+
+			$args = array(
+				"arr_active_tab" => $arr_active_tab
+			);
+
+			call_user_func_array( $arr_active_tab["function"], $args );
+
 			?>
 
 		</div>
 		<?php
 		
+	}
+
+	public function settings_output_log() {
+		
+		include( __DIR__ . "/templates/settings-log.php" );
+
+	}
+
+	public function settings_output_general() {
+		
+		include( __DIR__ . "/templates/settings-general.php" );
+
+	}
+
+	public function settings_output_styles_example() {
+		
+		include( __DIR__ . "/templates/settings-style-example.php" );
+
 	}
 
 

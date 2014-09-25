@@ -67,7 +67,7 @@ echo "<tr>
 
 
 $arr_logger_slugs = array();
-foreach ( $this->getInstantiatedLoggers() as $oneLogger ) {
+foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
 	$arr_logger_slugs[] = $oneLogger["instance"]->slug;
 }
 
@@ -83,8 +83,9 @@ $logger_rows_count = $wpdb->get_results( $sql_logger_counts );
 
 foreach ( $logger_rows_count as $one_logger_count ) {
 
-	$logger = $this->getInstantiatedLoggerBySlug( $one_logger_count->logger );
-	if (!$logger) {
+	$logger = $this->sh->getInstantiatedLoggerBySlug( $one_logger_count->logger );
+	
+	if ( ! $logger ) {
 		continue;
 	}
 	
