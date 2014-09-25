@@ -24,6 +24,7 @@ class SimpleHistorySettingsStatsDropin {
 		));
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'on_admin_enqueue_scripts') );
+		#add_action( 'admin_footer', array( $this, "on_admin_footer" ) );
 
 	}
 
@@ -39,7 +40,8 @@ class SimpleHistorySettingsStatsDropin {
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
-		$period_days = (int) 28;
+		#$period_days = (int) 28;
+		$period_days = (int) 14;
 		$period_start_date = DateTime::createFromFormat('U', strtotime("-$period_days days"));
 		$period_end_date = DateTime::createFromFormat('U', time());
 
@@ -95,6 +97,12 @@ class SimpleHistorySettingsStatsDropin {
 			</style>
 		";
 
+		// Load google charts libraries
+		?>
+		<script>
+			google.load('visualization', '1', {'packages':['corechart']});
+		</script>
+		<?php
 
 		?>
 		<!-- Overview, larger text -->

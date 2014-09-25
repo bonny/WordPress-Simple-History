@@ -21,18 +21,21 @@ $sql = sprintf(
 
 $dates = $wpdb->get_results( $sql );
 
-echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__rowsPerDay"></div>';
+#echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__rowsPerDay"></div>';
+echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__rowsPerDayGoogleChart"></div>';
 
 // Loop from $period_start_date to $period_end_date
 $interval = DateInterval::createFromDateString('1 day');
 $period = new DatePeriod($period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string('1 days') ) );
 $str_js_chart_labels = "";
 $str_js_chart_data = "";
+$str_js_google_chart_data = "";
 
 foreach ( $period as $dt ) {
 	
 	$datef = _x( 'M j', "stats: date in rows per day chart", "simple-history" );
 	$str_date = date_i18n( $datef, $dt->getTimestamp() );
+
 	$str_js_chart_labels .= sprintf(
 		'"%1$s",', 
 		$str_date
@@ -42,7 +45,7 @@ foreach ( $period as $dt ) {
 	// Day in object is in format '2014-09-07'
 	$day_data = wp_filter_object_list( $dates, array("yearDate" => $dt->format( "Y-m-d" )) );
 	$day_data_value = 0;
-	if ($day_data) {
+	if ( $day_data ) {
 		$day_data_value = (int) current($day_data)->count;
 	}
 
@@ -51,9 +54,17 @@ foreach ( $period as $dt ) {
 		$day_data_value
 	);
 
+	$str_js_google_chart_data .= sprintf(
+		'["%2$s", %1$d], ',
+		$day_data_value, // 1
+		$str_date // 2
+	);
+
 }
+
 $str_js_chart_labels = rtrim($str_js_chart_labels, ",");
 $str_js_chart_data = rtrim($str_js_chart_data, ",");
+$str_js_google_chart_data = rtrim($str_js_google_chart_data, ",");
 
 ?>
 
@@ -64,6 +75,7 @@ $str_js_chart_data = rtrim($str_js_chart_data, ",");
 	 */
 	jQuery(function($) {
 		
+		/*
 		var data = {
 			// A labels array that can contain any sort of values
 			labels: [<?php echo $str_js_chart_labels ?>],
@@ -97,6 +109,34 @@ $str_js_chart_data = rtrim($str_js_chart_data, ",");
 		};
 
 		Chartist.Bar(".SimpleHistoryChart__rowsPerDay", data, options);
+		*/
+
+		// Google Bar Chart
+
+		var data = google.visualization.arrayToDataTable([
+			['Date', 'Number of rows'],
+			<?php echo $str_js_google_chart_data ?>
+		]);
+
+		var options = {
+			xtitle: 'Company Performance',
+			xhAxis: {
+				title: 'Year', 
+				titleTextStyle: {
+					color: 'red'
+				}
+			},
+			xlegend: { position: "none" },
+			backgroundColor: "transparent",
+			xchartArea: { left: 0, width: "80%" },
+			xchartArea2: {'width': '100%', 'xheight': '80%'},
+			xxlegend: {'position': 'bottom'}
+
+		};
+
+		var chart = new google.visualization.ColumnChart( $(".SimpleHistoryChart__rowsPerDayGoogleChart").get(0) );
+
+		chart.draw(data, options);
 
 	});
 
