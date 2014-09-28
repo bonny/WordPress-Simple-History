@@ -7,6 +7,7 @@ Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
 
+
 class SimpleHistoryNewRowsNotifier {
 
 	// Simple History instance

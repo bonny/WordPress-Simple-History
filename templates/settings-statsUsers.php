@@ -1,9 +1,10 @@
 <?php
 
 // Output users
-echo "<h3>Users that have logged things</h3>";
+echo "<h3>Users</h3>";
 
-echo "<p>Deleted users are also included.";
+echo "<p>Number of logged items for each user.</p>";
+echo "<p>Deleted users are also included.</p>";
 
 $sql_users = '
 	SELECT 
@@ -16,18 +17,19 @@ $sql_users = '
 ';
 
 $user_results = $wpdb->get_results($sql_users);
+#sf_d($user_results);
+#printf('<p>Total %1$s users found.</p>', sizeof( $user_results ));
 
-printf('<p>Total %1$s users found.</p>', sizeof( $user_results ));
-
-echo "<table class='' cellpadding=2>";
-echo "<tr>
+echo "<table class='widefat' cellpadding=2>";
+echo "<thead><tr>
 		<th>ID</th>
 		<th>login</th>
 		<th>email</th>
 		<th>logged items</th>
 		<th>deleted</th>
-	</tr>";
+	</tr></thead>";
 
+$loopnum = 0;
 foreach ($user_results as $one_user_result) {
 	
 	$user_id = $one_user_result->user_id;
@@ -52,7 +54,7 @@ foreach ($user_results as $one_user_result) {
 	}
 
 	printf('
-		<tr>
+		<tr class="%6$s">
 			<td>%1$s</td>
 			<td>%2$s</td>
 			<td>%3$s</td>
@@ -64,8 +66,11 @@ foreach ($user_results as $one_user_result) {
 		$one_user_result->user_login, 
 		$one_user_result->user_email,
 		$str_deleted,
-		$user_rows_count
+		$user_rows_count,
+		$loopnum % 2 ? " alternate " : "" // 6
 	);
+
+	$loopnum++;
 
 }
 

@@ -75,7 +75,7 @@ class SimpleHistorySettingsStatsDropin {
 					font-size: 1.4em;
 				}
 				.SimpleHistoryStats__graphs {
-					overflow: auto;
+					
 				}
 				.SimpleHistoryStats__graph {
 					float: left;
@@ -113,7 +113,7 @@ class SimpleHistorySettingsStatsDropin {
 		</div>
 
 		<!-- Start charts wrap -->
-		<div class='SimpleHistoryStats__graphs'>
+		<div class='SimpleHistoryStats__graphs SimpleHistory__cf'>
 
 			<!-- bar chart with rows per day -->
 			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--rowsPerDay'>
@@ -128,13 +128,15 @@ class SimpleHistorySettingsStatsDropin {
 				<?php include(dirname(__FILE__) . "/../templates/settings-statsLogLevels.php") ?>
 			</div>
 
-			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--initiators'>
-				<?php include(dirname(__FILE__) . "/../templates/settings-statsInitiators.php") ?>
-			</div>
-
 			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--users'>
 				<?php include(dirname(__FILE__) . "/../templates/settings-statsUsers.php") ?>
 			</div>
+
+			<!--
+			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--initiators'>
+				<?php include(dirname(__FILE__) . "/../templates/settings-statsInitiators.php") ?>
+			</div>
+			-->
 
 
 		</div><!-- // end charts wrapper -->

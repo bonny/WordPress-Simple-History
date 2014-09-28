@@ -1,6 +1,17 @@
 <?php
 
 // Stats på level (notice, warning, debug, etc.)
+echo "<h3>Log levels</h3>";
+
+echo "<p>Number of rows logged for each log level.</p>";
+
+/*
+echo "<table>";
+echo "<tr>
+		<th>Log level</th>
+		<th>Count</th>
+	</tr>";
+*/
 $sql = sprintf('
 	SELECT 
 		level,
@@ -13,17 +24,9 @@ $sql = sprintf('
 
 $level_counts = $wpdb->get_results($sql);
 
-
-
-echo "<h3>Log levels</h3>";
-echo "<table>";
-echo "<tr>
-		<th>Log level</th>
-		<th>Count</th>
-	</tr>";
-
 $arr_chart_data = array();
 $arr_chart_labels = array();
+$str_js_google_chart_data = '["Log level", "Count"], ';
 
 foreach ( $level_counts as $row ) {
 
@@ -31,6 +34,7 @@ foreach ( $level_counts as $row ) {
 		continue;
 	}
 		
+	/*
 	printf('
 		<tr>
 			<td>%1$s</td>
@@ -40,15 +44,24 @@ foreach ( $level_counts as $row ) {
 		$row->level, 
 		$row->count 
 	);
+	*/
 
 	$arr_chart_data[] = $row->count;
 	$arr_chart_labels[] = $row->level;
 
+	$str_js_google_chart_data .= sprintf(
+		'["%1$s", %2$d], ',
+		$row->level,
+		$row->count
+	);
+
 }
+
+$str_js_google_chart_data = rtrim($str_js_google_chart_data, ", ");
 
 echo "</table>";
 
-echo "<div class='ct-chart ct-minor-seventh SimpleHistoryChart__logLevels'></div>";
+echo "<div class='ct-chart ct-minor-seventh SimpleHistoryChart__logLevelsPie'></div>";
 
 ?>
 <script>
@@ -56,6 +69,7 @@ echo "<div class='ct-chart ct-minor-seventh SimpleHistoryChart__logLevels'></div
 	/**
 	 * Bar chart with log levels
 	 */
+	/*
 	jQuery(function($) {
 		
 		var data = {
@@ -71,5 +85,26 @@ echo "<div class='ct-chart ct-minor-seventh SimpleHistoryChart__logLevels'></div
 		Chartist.Bar(".SimpleHistoryChart__logLevels", data, options);
 
 	});
+	*/
+
+	jQuery(function($) {
+		var data = google.visualization.arrayToDataTable([
+			<?php echo $str_js_google_chart_data ?>
+		]);
+
+		var options = {
+			xtitle: 'My Daily Activities',
+			backgroundColor: "transparent",
+			is3D: true,
+	        legend: { 
+	        	xposition: 'top',
+	        	alignment: 'center'
+	        }
+		};
+
+		var chart = new google.visualization.PieChart( $(".SimpleHistoryChart__logLevelsPie").get(0) );
+
+		chart.draw(data, options);
+	});	
 
 </script>

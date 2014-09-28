@@ -6,6 +6,7 @@ echo "</h4>";
 
 #echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersPie"></div>';
 echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersPieGoogleChart"></div>';
+#echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersGoogleBarChart"></div>';
 
 $arr_logger_slugs = array();
 foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
@@ -25,7 +26,7 @@ $logger_rows_count = $wpdb->get_results( $sql_logger_counts );
 $str_js_chart_labels = "";
 $str_js_chart_data = "";
 $str_js_chart_data_chartist = "";
-$str_js_google_chart_data = "['Logger', 'Count'],";
+$str_js_google_chart_data = "['Logger name', 'Logged rows'],";
 $i = 0;
 
 //shuffle($arr_colors);
@@ -107,13 +108,19 @@ $str_js_google_chart_data = rtrim($str_js_google_chart_data, ",");
 		var options = {
 			xtitle: 'My Daily Activities',
 			backgroundColor: "transparent",
-			is3D: true
+			is3D: true,
+	        legend: { 
+	        	xposition: 'top',
+	        	alignment: 'center'
+	        }
+
 		};
 
 		var chart = new google.visualization.PieChart( $(".SimpleHistoryChart__loggersPieGoogleChart").get(0) );
-
 		chart.draw(data, options);
 		
+		//var chart2 = new google.visualization.BarChart( $(".SimpleHistoryChart__loggersGoogleBarChart").get(0) );
+		//chart2.draw(data, options);
 
 	});
 

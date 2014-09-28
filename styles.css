@@ -6,6 +6,11 @@ The spinner that wp uses:;
 
 */
 
+/* clearfix */
+.SimpleHistory__cf:before, .SimpleHistory__cf:after { content:""; display:table; }
+.SimpleHistory__cf:after { clear:both; }
+.SimpleHistory__cf { zoom:1; } /* For IE 6/7 (trigger hasLayout) */
+
 .SimpleHistoryGui, 
 .SimpleHistoryGuiExample {
 	position: relative;

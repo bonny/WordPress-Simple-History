@@ -130,7 +130,12 @@ $str_js_google_chart_data = rtrim($str_js_google_chart_data, ",");
 			backgroundColor: "transparent",
 			xchartArea: { left: 0, width: "80%" },
 			xchartArea2: {'width': '100%', 'xheight': '80%'},
-			xxlegend: {'position': 'bottom'}
+			xxlegend: {'position': 'bottom'},
+	        legend: { 
+	        	xposition: 'top',
+	        	alignment: 'center'
+	        }
+
 
 		};
 
