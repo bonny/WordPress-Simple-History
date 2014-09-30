@@ -201,7 +201,8 @@ class SimpleHistorySettingsLogtestDropin {
             SimpleLogger()->warning(
                 'An attempt to login as user "{user_login}" failed to login because the wrong password was entered', array(
                 "user_login" => "admin",
-                "_userID" => null
+                "_userID" => null,
+                "_initiator" => SimpleLoggerLogInitiators::WEB_USER
             ));
         }
 
