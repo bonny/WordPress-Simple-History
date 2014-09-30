@@ -796,6 +796,13 @@ class SimpleLogger
 			"message" => $message,
 		);
 
+		// Allow date to be override
+		// Date must be in format 'Y-m-d H:i:s'
+		if ( isset( $context["_date"] ) ) {
+			$data["date"] = $context["_date"];
+			unset($context["_date"]);
+		}
+
 		// Add occasions id
 		$occasions_id = null;		
 		if ( isset( $context["_occasionsID"] ) ) {

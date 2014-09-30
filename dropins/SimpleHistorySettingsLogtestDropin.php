@@ -12,7 +12,7 @@ class SimpleHistorySettingsLogtestDropin {
         // How do we register this to the settings array?
         $sh->registerSettingsTab(array(
             "slug" => "testLog",
-            "name" => __("Test log", "simple-history"),
+            "name" => __("Test data", "simple-history"),
             "function" => array($this, "output")
         ));
 
@@ -72,9 +72,9 @@ class SimpleHistorySettingsLogtestDropin {
     public function output() {
         
         ?>
-        <h2>Log tests</h2>
+        <h2>Test data</h2>
 
-        <p>Add lots of test information to the log database.</p>
+        <p>Add lots of test data to the log database.</p>
 
         <p>
             <button class="button js-SimpleHistorySettingsLogtestDropin-addStuff">Ok, add lots of stuff to the log!</button>
@@ -94,6 +94,18 @@ class SimpleHistorySettingsLogtestDropin {
 
     public function doLogTestThings() {
 
+        // Add some data random back in time, to fill up the log to test much data
+        for ($j = 0; $j < 500; $j++) {
+            // between yesteday and a month back in time
+            for ($i = 0; $i < rand(1,30); $i++) {
+                $str_date = date('Y-m-d H:i:s', strtotime("now -{$i}days"));
+                SimpleLogger()->info(
+                    'Entry with date in the past', array(
+                    "_date" => $str_date,
+                    "_occasionsID" => "past_date:{$str_date}"
+                ));
+            }
+        }
 
         SimpleLogger()->info("This is a message sent to the log");
 
@@ -156,16 +168,6 @@ class SimpleHistorySettingsLogtestDropin {
         SimpleLogger()->info(
             "Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}",
             array(
-                "plugin_name" => "Simple Fields",
-                "plugin_from_version" => "1.3.7",
-                "plugin_to_version" => "1.3.8",
-                "_initiator" => SimpleLoggerLogInitiators::WP_USER
-            )
-        );
-
-        SimpleLogger()->info(
-            "Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}",
-            array(
                 "plugin_name" => "Ninja Forms",
                 "plugin_from_version" => "1.1",
                 "plugin_to_version" => "1.1.2",
@@ -177,6 +179,16 @@ class SimpleHistorySettingsLogtestDropin {
             "_initiator" => SimpleLoggerLogInitiators::WEB_USER
         ));
 
+        SimpleLogger()->info(
+            "Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}",
+            array(
+                "plugin_name" => "Simple Fields",
+                "plugin_from_version" => "1.3.7",
+                "plugin_to_version" => "1.3.8",
+                "_initiator" => SimpleLoggerLogInitiators::WP_USER
+            )
+        );
+
         SimpleLogger()->error("A JavaScript error was detected on page 'About us'", array(
             "_initiator" => SimpleLoggerLogInitiators::WEB_USER
         ));
@@ -187,7 +199,7 @@ class SimpleHistorySettingsLogtestDropin {
 
         for ($i = 0; $i < rand(50,1000); $i++) {
             SimpleLogger()->warning(
-                'An attempt to login as user {user_login} failed to login because the wrong password was entered', array(
+                'An attempt to login as user "{user_login}" failed to login because the wrong password was entered', array(
                 "user_login" => "admin",
                 "_userID" => null
             ));
