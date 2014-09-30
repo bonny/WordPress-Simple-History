@@ -22,7 +22,8 @@ $user_results = $wpdb->get_results($sql_users);
 
 echo "<table class='widefat' cellpadding=2>";
 echo "<thead><tr>
-		<th>ID</th>
+		<th></th>
+		<th>User ID</th>
 		<th>login</th>
 		<th>email</th>
 		<th>logged items</th>
@@ -55,6 +56,7 @@ foreach ($user_results as $one_user_result) {
 
 	printf('
 		<tr class="%6$s">
+			<td>%7$s</td>
 			<td>%1$s</td>
 			<td>%2$s</td>
 			<td>%3$s</td>
@@ -64,10 +66,11 @@ foreach ($user_results as $one_user_result) {
 		', 
 		$user_id, 
 		$one_user_result->user_login, 
-		$one_user_result->user_email,
+		$one_user_result->user_email, // 3
 		$str_deleted,
 		$user_rows_count,
-		$loopnum % 2 ? " alternate " : "" // 6
+		$loopnum % 2 ? " alternate " : "", // 6
+		$this->sh->get_avatar( $one_user_result->user_email, 38 ) // 7
 	);
 
 	$loopnum++;
