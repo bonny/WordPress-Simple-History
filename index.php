@@ -109,7 +109,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 		$dummy = __("logged out", "simple-history");
 		$dummy = __("added", "simple-history");
 		$dummy = __("modified", "simple-history");
-		$dummy = __("upgraded it\'s database", "simple-history");
+		$dummy = __("upgraded its database", "simple-history");
 		$dummy = __("plugin", "simple-history");
 	}
 
@@ -245,7 +245,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 			$wpdb->query($sql);
 			
 			// Store this upgrade in ourself :)
-			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SIMPLE_HISTORY_NAME);
+			simple_history_add("action=" . 'upgraded its database' . "&object_type=plugin&object_name=" . SIMPLE_HISTORY_NAME);
 
 			#echo "done upgrading database";
 			
@@ -260,7 +260,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 			$sql = "ALTER TABLE {$table_name} ADD COLUMN action_description longtext";
 			mysql_query($sql);
 
-			simple_history_add("action=" . 'upgraded it\'s database' . "&object_type=plugin&object_name=" . SIMPLE_HISTORY_NAME . "&description=Database version is now version 2");
+			simple_history_add("action=" . 'upgraded its database' . "&object_type=plugin&object_name=" . SIMPLE_HISTORY_NAME . "&description=Database version is now version 2");
 			update_option("simple_history_db_version", 2);
 
 		}

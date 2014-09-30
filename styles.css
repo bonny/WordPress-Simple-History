@@ -40,7 +40,7 @@ ol.simple-history > li:nth-child(odd) {
 }
 ol.simple-history .first {
 	font-size: 13px;
-	font-family: Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+	/*font-family: Georgia,"Times New Roman","Bitstream Charter",Times,serif;*/
 	margin: 0 0 0.5em;
 }
 
