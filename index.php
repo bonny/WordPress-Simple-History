@@ -49,7 +49,3 @@ $GLOBALS["simple_history"] = new SimpleHistory();
 function SimpleLogger() {
     return new SimpleLogger( $GLOBALS["simple_history"] );
 }
-
-// Test logging
-// Example usage
-include( __DIR__ . "/log-tests.php" );

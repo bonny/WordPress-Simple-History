@@ -3,7 +3,7 @@
 // Output users
 echo "<h3>Users</h3>";
 
-echo "<p>Number of logged items for each user.</p>";
+echo "<p>Number of logged items for the 5 users with most logged rows.</p>";
 echo "<p>Deleted users are also included.</p>";
 
 $sql_users = '
@@ -30,7 +30,7 @@ echo "<thead><tr>
 		<th>deleted</th>
 	</tr></thead>";
 
-$loopnum = 0;
+	$arr_users = array();
 foreach ($user_results as $one_user_result) {
 	
 	$user_id = $one_user_result->user_id;
@@ -54,6 +54,27 @@ foreach ($user_results as $one_user_result) {
 
 	}
 
+	$arr_users[] = array(
+		"user_id" => $user_id, 
+		"user_login" => $one_user_result->user_login, 
+		"user_email" => $one_user_result->user_email, // 3
+		"str_deleted" => $str_deleted,
+		"user_rows_count" => $user_rows_count
+	);
+
+}
+
+// order users by count
+usort($arr_users, function($a, $b) {
+	return $a["user_rows_count"] < $b["user_rows_count"];
+});
+
+// only keep the top 10
+$arr_users = array_slice($arr_users, 0, 5);
+
+$loopnum = 0;
+foreach ($arr_users as $one_user) {
+
 	printf('
 		<tr class="%6$s">
 			<td>%7$s</td>
@@ -64,13 +85,13 @@ foreach ($user_results as $one_user_result) {
 			<td>%4$s</td>
 		</tr>
 		', 
-		$user_id, 
-		$one_user_result->user_login, 
-		$one_user_result->user_email, // 3
-		$str_deleted,
-		$user_rows_count,
+		$one_user["user_id"], 
+		$one_user["user_login"], 
+		$one_user["user_email"], // 3
+		$one_user["str_deleted"],
+		$one_user["user_rows_count"],
 		$loopnum % 2 ? " alternate " : "", // 6
-		$this->sh->get_avatar( $one_user_result->user_email, 38 ) // 7
+		$this->sh->get_avatar( $one_user["user_email"], 38 ) // 7
 	);
 
 	$loopnum++;
