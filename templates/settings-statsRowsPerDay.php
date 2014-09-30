@@ -139,7 +139,7 @@ $str_js_google_chart_data = rtrim($str_js_google_chart_data, ",");
 
 		};
 
-		var chart = new google.visualization.ColumnChart( $(".SimpleHistoryChart__rowsPerDayGoogleChart").get(0) );
+		var chart = new google.visualization.LineChart( $(".SimpleHistoryChart__rowsPerDayGoogleChart").get(0) );
 
 		chart.draw(data, options);
 

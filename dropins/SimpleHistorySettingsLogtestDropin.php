@@ -95,7 +95,7 @@ class SimpleHistorySettingsLogtestDropin {
     public function doLogTestThings() {
 
         // Add some data random back in time, to fill up the log to test much data
-        for ($j = 0; $j < 500; $j++) {
+        for ($j = 0; $j < 50; $j++) {
             // between yesteday and a month back in time
             for ($i = 0; $i < rand(1,30); $i++) {
                 $str_date = date('Y-m-d H:i:s', strtotime("now -{$i}days"));
