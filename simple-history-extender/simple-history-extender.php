@@ -270,7 +270,7 @@ class SimpleHistoryExtender {
 				|| ( isset( $old[$module] ) && $old[$module]['active'] !== $retval[$module]['active'] )
 				){
 
-				Simple_History_Extend::extend( array(
+				Simple_History_Extend::extendStatic( array(
 					'action' => $retval[$module]['active'] ? __('activated', 'sh-extender') : __('deactivated', 'sh-extender'),
 					'type'   => __('Simple History Extender Module', 'sh-extender'),
 					'name'   => $field['title'],

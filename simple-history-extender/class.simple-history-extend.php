@@ -248,6 +248,20 @@ class Simple_History_Extend {
 		simple_history_add( $args );
 	}
 
+	static function extendStatic( $r ){
+		$args = array(
+			'action'         => isset( $r['action']  ) ? $r['action']  : __('updated'),
+			'object_type'    => isset( $r['type']    ) ? $r['type']    : null,
+			'object_subtype' => isset( $r['subtype'] ) ? $r['subtype'] : null,
+			'object_name'    => isset( $r['name']    ) ? $r['name']    : null,
+			'object_id'      => isset( $r['id']      ) ? $r['id']      : null,
+			'user_id'        => isset( $r['user_id'] ) ? $r['user_id'] : null
+			);
+
+		// Do the magic
+		simple_history_add( $args );
+	}
+
 	/**
 	 * Extend Simple History shortcut for User type
 	 * 
