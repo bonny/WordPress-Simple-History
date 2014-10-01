@@ -126,21 +126,9 @@ class SimpleHistoryLogQuery {
 
 			$sh = $GLOBALS["simple_history"];
 
-			// Array with the loggers that the current user can view		
-			$arr_loggers_user_can_view = $sh->getLoggersThatUserCanRead(get_current_user_id());
-			$arr_logger_slugs = array();
-			$inner_where = " AND logger IN (";
-			foreach ($arr_loggers_user_can_view as $one_logger) {
-				
-				$inner_where .= sprintf(
-					'"%1$s", ',
-					$one_logger["instance"]->slug
-				);
-
-			}
-			$inner_where = rtrim($inner_where, " ,");
-			$inner_where .= ")";
-
+			// Only include loggers that the current user can view		
+			$sql_loggers_user_can_view = $sh->getLoggersThatUserCanRead(get_current_user_id(), "sql");
+			$inner_where = " AND logger IN {$sql_loggers_user_can_view}";
 
 		} else if ( "occasions" === $args["type"] ) {
 
@@ -216,11 +204,13 @@ class SimpleHistoryLogQuery {
 
 		// Append date where
 		if ( ! empty( $args["date_from"] ) ) {
-			$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) >= %1$d', $args["date_from"] );
+			#$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) >= %1$d', $args["date_from"] );
+			$inner_where .= sprintf(' AND UNIX_TIMESTAMP(date) >= %1$d', $args["date_from"] );
 		}
 
 		if ( ! empty( $args["date_to"] ) ) {
-			$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) <= %1$d', $args["date_to"] );
+			#$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) <= %1$d', $args["date_to"] );
+			$inner_where .= sprintf(' AND UNIX_TIMESTAMP(date) <= %1$d', $args["date_to"] );
 		}
 
 		/**

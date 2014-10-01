@@ -1090,6 +1090,8 @@ class SimpleHistory {
 
 		//$this->purge_db();
 
+		global $wpdb;
+
 		$pager_size = $this->get_pager_size();
 
 		/**
@@ -1106,7 +1108,56 @@ class SimpleHistory {
 		<div class="wrap SimpleHistoryWrap">
 			
 			<h2><?php echo _x("History", 'history page headline', 'simple-history') ?></h2>
+
+			<?php
+			// Quick stats above the log
+			$logQuery = new SimpleHistoryLogQuery();
+			$logResults = $logQuery->query(array(
+				"posts_per_page" => 1,
+				"date_from" => strtotime("today")
+			));
+
+			$sql_loggers_in = $this->getLoggersThatUserCanRead(get_current_user_id(), "sql");
+			$sql_users_today = sprintf('
+				SELECT 
+					DISTINCT(c.value) AS user_id
+					#h.id, h.logger, h.level, h.initiator, h.date
+					FROM wp_simple_history AS h
+				INNER JOIN wp_simple_history_contexts AS c 
+				ON c.history_id = h.id AND c.key = "_user_id"
+				WHERE 
+					initiator = "wp_user"
+					AND logger IN %1$s
+					AND date > "%2$s"
+				', 
+				$sql_loggers_in,
+				date("Y-m-d H:i", strtotime("today"))
+			);
+
+			$results_users_today = $wpdb->get_results($sql_users_today);
+
+			?>
+			<style>
+				.SimpleHistoryQuickStats {
+					font-size: 16px;
+				}
+			</style>
+			<p class="SimpleHistoryQuickStats">
+				<?php
+				printf(
+					__('%1$d events today from %2$d users', "simple-history"),
+					$logResults["total_row_count"],
+					sizeof( $results_users_today )
+				);
+				?>
+
+			</p>
+			<!-- <p class="SimpleHistoryQuickStats">1 warning, 2 errors, 13 notices.</p> -->
 	
+			<?php
+			do_action( "simple_history/history_page/before_gui", $this );
+			?>
+
 			<div class="SimpleHistoryGui"
 				 data-pager-size='<?php echo $pager_size ?>'
 				 ></div>
@@ -1694,9 +1745,10 @@ class SimpleHistory {
 	 * with all loggers they are allowed to read
 	 *
 	 * @param int $user_id Id of user to get loggers for
+	 * @param string $format format to return loggers in. Default is array.
 	 * @return array
 	 */
-	public function getLoggersThatUserCanRead($user_id) {
+	public function getLoggersThatUserCanRead($user_id, $format = "array") {
 
 		$arr_loggers_user_can_view = array();
 
@@ -1710,6 +1762,28 @@ class SimpleHistory {
 			}
 
 		}
+
+		// just return array with slugs in parenthesis suitable for sql-where
+		if ( "sql" == $format ) {
+
+			$str_return = "(";
+			
+			foreach ($arr_loggers_user_can_view as $one_logger) {
+				
+				$str_return .= sprintf(
+					'"%1$s", ',
+					$one_logger["instance"]->slug
+				);
+
+			}
+			
+			$str_return = rtrim($str_return, " ,");
+			$str_return .= ")";
+
+			return $str_return;
+
+		}
+
 
 		return $arr_loggers_user_can_view;
 
