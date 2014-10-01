@@ -263,17 +263,37 @@ class SimpleLogger
 		$time_ago_max_time = DAY_IN_SECONDS * 2;
 		$time_ago_max_time = apply_filters("simple_history/header_time_ago_max_time", $time_ago_max_time);
 
-		// Show "ago"-time when event is xx seconds ago or earlier
-		if ( time() - $date_datetime->getTimestamp() > $time_ago_max_time ) {
+		/**
+	     * Filter how many seconds as most that can pass since an
+	     * event occured to show "just now" instead of exact date
+	     *
+	     * @since 2.0
+	     *
+	     * @param int $time_ago_max_time Seconds
+	     */		
+		$time_ago_just_now_max_time = 30;
+		$time_ago_just_now_max_time = apply_filters("simple_history/header_just_now_max_time", $time_ago_just_now_max_time);
+
+		if ( time() - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time ) {
+
+			// show "just now" if event is very recent
+			$str_when = __("Just now", "simple-history");
+
+		} else if ( time() - $date_datetime->getTimestamp() > $time_ago_max_time ) {
+			
 			/* translators: Date format for log row header, see http://php.net/date */
 			$datef = __( 'M j, Y \a\t G:i', "simple-history" );
 			$str_when = date_i18n( $datef, $date_datetime->getTimestamp() );
 
 		} else {
+		
+			// Show "nn minutes ago" when event is xx seconds ago or earlier
 			$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
 			/* translators: 1: last modified date and time in human time diff-format */
 			$str_when = sprintf( __( '%1$s ago', 'simple-history' ), $date_human_time_diff );
+
 		}
+
 		$item_permalink = admin_url("index.php?page=simple_history_page");
 		$item_permalink .= "#item/{$row->id}";
 
