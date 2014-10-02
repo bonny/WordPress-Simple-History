@@ -133,7 +133,48 @@ class SimpleHistory {
 					<div class="SimpleHistoryLogitems__pagination"></div>
 					<div class="SimpleHistoryLogitems__afterBottomPagination"></div>
 				</div>
-				<div class="SimpleHistory__filters"></div>
+				<div class="SimpleHistory__filters">
+				
+					<p>Filters</p>
+
+					<p>
+						<select class="SimpleHistory__filters__filter" style="width: 300px" placeholder="User">
+							<option value="0">All users</option>
+							<option value="a">Admin (par@earthpeople.se)</option>
+							<option value="b">Jessie (jessie@example.com)</option>
+							<option value="c">Kim (kim@example.com)</option>
+							<option value="d">...</option>
+						</select>						
+					</p>
+					
+					<p>
+						<select class="SimpleHistory__filters__filter" style="width: 300px" placeholder="Logger">
+							<option value="0">All loggers</option>
+							<option value="a">Core updater</option>
+							<option value="b">Posts and pages</option>
+							<option value="c">Plugins</option>
+							<option value="d">Users</option>
+							<option value="e">Comments</option>
+							<option value="f">Menus</option>
+							<option value="g">Themes</option>
+						</select>						
+					</p>
+					
+					<p>
+						<select class="SimpleHistory__filters__filter" style="width: 300px" placeholder="Dates">
+							<option value="a">All dates</option>
+							<option value="b">October 2014</option>
+							<option value="c">September 2014</option>
+							<option value="d">August 2014</option>
+							<option value="e">...</option>
+						</select>						
+					</p>
+						
+					<p>
+						<input type="search" placeholder="Search">
+					</p>
+
+				</div>
 				<div class="SimpleHistoryLogitems__debug"></div>
 
 			</script>
@@ -678,8 +719,11 @@ class SimpleHistory {
 			wp_enqueue_style("chartist", $plugin_url . "/chartist-js/chartist.min.css", false, SimpleHistory::VERSION);
 
 			// Load chart.js
-			wp_enqueue_script("chartjs", $plugin_url . "/chartjs/Chart.min.js", array("jquery"), SimpleHistory::VERSION, true);
+			//wp_enqueue_script("chartjs", $plugin_url . "/chartjs/Chart.min.js", array("jquery"), SimpleHistory::VERSION, true);
 			
+			wp_enqueue_script("select2", $plugin_url . "/js/select2/select2.min.js", array("jquery"));
+			wp_enqueue_style("select2", $plugin_url . "/js/select2/select2.css");
+
 			// Translations that we use in JavaScript
 			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(				
 				'settingsConfirmClearLog' => __("Remove all log items?", 'simple-history'),

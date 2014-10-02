@@ -41,6 +41,11 @@ The spinner that wp uses:;
 	min-width: 10px;
 	width: 650px;
 	max-width: 650px;
+	min-height: 1px;
+}
+
+.SimpleHistory__filters {
+	float: left;
 }
 
 .SimpleHistoryLogitems {
