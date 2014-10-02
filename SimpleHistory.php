@@ -97,6 +97,7 @@ class SimpleHistory {
 		add_action( 'admin_footer', array( $this, "add_js_templates" ) );
 
 		add_action( 'simple_history/history_page/before_gui', array( $this, "output_quick_stats" ) );
+		add_action( 'simple_history/dashboard/before_gui', array( $this, "output_quick_stats" ) );
 
 		/**
 	     * Fires after Simple History has done it's init stuff
@@ -157,7 +158,7 @@ class SimpleHistory {
 							title="<%= strings.goToThePrevPage %>"
 							href="#">‹</a>
 						<span class="SimpleHistoryPaginationInput">
-							<input class="SimpleHistoryPaginationCurrentPage" title="<%= strings.currentPage %>" type="text" name="paged" value="<%= api_args.paged %>" size="1">
+							<input class="SimpleHistoryPaginationCurrentPage" title="<%= strings.currentPage %>" type="text" name="paged" value="<%= api_args.paged %>" size="4">
 							of 
 							<span class="total-pages"><%= pages_count %></span>
 						</span>
@@ -623,6 +624,8 @@ class SimpleHistory {
 		 * @param int $pager_size
 		 */
 		$pager_size = apply_filters("simple_history/dashboard_pager_size", $pager_size);
+
+		do_action( "simple_history/dashboard/before_gui", $this );
 
 		?>
 		<div class="SimpleHistoryGui"
