@@ -58,9 +58,19 @@ The spinner that wp uses:;
 	list-style-type: none;
 	margin: 0;
 	padding: 20px 20px 20px 16px;
-	border-bottom: 1px solid rgb(229, 229, 229);
+	/*border-bottom: 1px solid rgb(229, 229, 229);*/
 	border-left: 4px solid transparent;
 	overflow: hidden;
+}
+
+.SimpleHistoryLogitem::before {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 66px;
+	height: 1px;
+	right: 0;
+	background: rgb(229, 229, 229);
 }
 
 /*
@@ -148,7 +158,8 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem:hover {
-	background: rgb(245, 248, 250); /* same bg color as twitter uses on hover */
+	/* same bg color as twitter uses on hover */
+	/*background: rgb(245, 248, 250);*/
 }
 
 .SimpleHistoryLogitem a {
@@ -168,11 +179,12 @@ Style different log levels.
 	-moz-border-radius: 50%;
 	border-radius: 50%;
 	overflow: hidden;
-	opacity: .8;
+	/*opacity: .8;*/
+	margin-top: 5px;
 }
 
 .SimpleHistoryLogitem:hover .SimpleHistoryLogitem__senderImage {
-	opacity: 1;
+	/*opacity: 1;*/
 }
 
 .SimpleHistoryLogitem__senderImage img {
@@ -585,7 +597,7 @@ Modal window with detailss
 }
 
 .SimpleHistory-modal .SimpleHistoryLogitem__senderImage {
-	opacity: 1;
+	/*opacity: 1;*/
 }
 
 .SimpleHistoryLogitem__moreDetails {
