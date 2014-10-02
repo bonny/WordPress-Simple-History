@@ -912,7 +912,7 @@ class SimplePluginLogger extends SimpleLogger
 				$link_title = esc_html_x("View plugin info", "plugin logger: plugin info thickbox title", "simple-history");
 				$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=600&amp;height=550" );
 				
-				if ("plugin_updated" === $message_key) {
+				if ( "plugin_updated" == $message_key || "plugin_bulk_updated" == $message_key ) {
 					$link_title = esc_html_x("View changelog", "plugin logger: plugin info thickbox title", "simple-history");
 					$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=600&amp;height=550" );
 				}
