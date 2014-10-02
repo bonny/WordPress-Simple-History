@@ -1138,20 +1138,37 @@ class SimpleHistory {
 
 			?>
 			<style>
-				.SimpleHistoryQuickStats {
+				.SimpleHistoryQuickStats,
+				.SimpleHistoryQuickStats p {
 					font-size: 16px;
 				}
 			</style>
-			<p class="SimpleHistoryQuickStats">
-				<?php
-				printf(
-					__('%1$d events today from %2$d users', "simple-history"),
-					$logResults["total_row_count"],
-					sizeof( $results_users_today )
-				);
-				?>
+			<div class="SimpleHistoryQuickStats">
+				<p>
+					<?php
 
-			</p>
+					if ( $logResults["total_row_count"] == 0 ) {
+						
+						$msg_tmpl = __("No events today so far.", "simple-history");
+
+					} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) > 1 ) {
+
+						$msg_tmpl = __('%1$d events today from %2$d users.', "simple-history");
+
+					} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) == 1 ) {
+						
+						$msg_tmpl = __('%1$d events today from one user.', "simple-history");						
+
+					}
+
+					printf(
+						$msg_tmpl,
+						$logResults["total_row_count"],
+						sizeof( $results_users_today )
+					);
+					?>
+				</p>
+			</div>
 			<!-- <p class="SimpleHistoryQuickStats">1 warning, 2 errors, 13 notices.</p> -->
 	
 			<?php
