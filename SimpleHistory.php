@@ -96,6 +96,8 @@ class SimpleHistory {
 
 		add_action( 'admin_footer', array( $this, "add_js_templates" ) );
 
+		add_action( 'simple_history/history_page/before_gui', array( $this, "output_quick_stats" ) );
+
 		/**
 	     * Fires after Simple History has done it's init stuff
 	     *
@@ -1110,68 +1112,6 @@ class SimpleHistory {
 			<h2><?php echo _x("History", 'history page headline', 'simple-history') ?></h2>
 
 			<?php
-			// Quick stats above the log
-			$logQuery = new SimpleHistoryLogQuery();
-			$logResults = $logQuery->query(array(
-				"posts_per_page" => 1,
-				"date_from" => strtotime("today")
-			));
-
-			$sql_loggers_in = $this->getLoggersThatUserCanRead(get_current_user_id(), "sql");
-			$sql_users_today = sprintf('
-				SELECT 
-					DISTINCT(c.value) AS user_id
-					#h.id, h.logger, h.level, h.initiator, h.date
-					FROM wp_simple_history AS h
-				INNER JOIN wp_simple_history_contexts AS c 
-				ON c.history_id = h.id AND c.key = "_user_id"
-				WHERE 
-					initiator = "wp_user"
-					AND logger IN %1$s
-					AND date > "%2$s"
-				', 
-				$sql_loggers_in,
-				date("Y-m-d H:i", strtotime("today"))
-			);
-
-			$results_users_today = $wpdb->get_results($sql_users_today);
-
-			?>
-			<style>
-				.SimpleHistoryQuickStats,
-				.SimpleHistoryQuickStats p {
-					font-size: 16px;
-				}
-			</style>
-			<div class="SimpleHistoryQuickStats">
-				<p>
-					<?php
-
-					if ( $logResults["total_row_count"] == 0 ) {
-						
-						$msg_tmpl = __("No events today so far.", "simple-history");
-
-					} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) > 1 ) {
-
-						$msg_tmpl = __('%1$d events today from %2$d users.', "simple-history");
-
-					} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) == 1 ) {
-						
-						$msg_tmpl = __('%1$d events today from one user.', "simple-history");						
-
-					}
-
-					printf(
-						$msg_tmpl,
-						$logResults["total_row_count"],
-						sizeof( $results_users_today )
-					);
-					?>
-				</p>
-			</div>
-			<!-- <p class="SimpleHistoryQuickStats">1 warning, 2 errors, 13 notices.</p> -->
-	
-			<?php
 			do_action( "simple_history/history_page/before_gui", $this );
 			?>
 
@@ -1880,6 +1820,80 @@ class SimpleHistory {
 		}
 
 		return $avatar;
+	}
+
+	/**
+	 * Quick stats above the log
+	 * Uses filter "simple_history/history_page/before_gui" to output its contents
+	 */
+	public function output_quick_stats() {
+		
+		global $wpdb;
+
+		$logQuery = new SimpleHistoryLogQuery();
+		$logResults = $logQuery->query(array(
+			"posts_per_page" => 1,
+			"date_from" => strtotime("today")
+		));
+
+		$sql_loggers_in = $this->getLoggersThatUserCanRead(get_current_user_id(), "sql");
+		$sql_users_today = sprintf('
+			SELECT 
+				DISTINCT(c.value) AS user_id
+				#h.id, h.logger, h.level, h.initiator, h.date
+				FROM wp_simple_history AS h
+			INNER JOIN wp_simple_history_contexts AS c 
+			ON c.history_id = h.id AND c.key = "_user_id"
+			WHERE 
+				initiator = "wp_user"
+				AND logger IN %1$s
+				AND date > "%2$s"
+			', 
+			$sql_loggers_in,
+			date("Y-m-d H:i", strtotime("today"))
+		);
+
+		$results_users_today = $wpdb->get_results($sql_users_today);
+
+		?>
+		<div class="SimpleHistoryQuickStats">
+			<p>
+				<?php
+
+				if ( $logResults["total_row_count"] == 0 ) {
+					
+					$msg_tmpl = __("No events today so far.", "simple-history");
+
+				} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) > 1 ) {
+
+					$msg_tmpl = __('%1$d events today from %2$d users.', "simple-history");
+
+				} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) == 1 ) {
+					
+					$msg_tmpl = __('%1$d events today from one user.', "simple-history");						
+
+				}
+
+				printf(
+					$msg_tmpl,
+					$logResults["total_row_count"],
+					sizeof( $results_users_today )
+				);
+
+				// Space between texts
+				echo " ";
+
+				// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
+				printf(
+					'<a href="%1$s">View more stats</a>.',
+					add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
+				);
+	
+				?>
+			</p>
+		</div>	
+		<?php
+
 	}
 
 } // class

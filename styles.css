@@ -638,3 +638,14 @@ Modal window with detailss
 .SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .SimpleHistoryLogitem__secondcol {
 	margin-left: 0;
 }
+
+/** quick stats = stats above log gui */
+.SimpleHistoryQuickStats,
+.SimpleHistoryQuickStats p {
+	font-size: 16px;
+}
+
+.SimpleHistoryQuickStats a {
+	text-decoration: none;
+}
+
