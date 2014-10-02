@@ -649,3 +649,13 @@ Modal window with detailss
 	text-decoration: none;
 }
 
+/* in dashboard add margin and smaller fonts */
+.postbox .SimpleHistoryQuickStats {
+	margin-left: 13px;
+	margin-right: 13px;
+	font-size: 14px;
+}
+
+.postbox .SimpleHistoryQuickStats p {
+	font-size: 14px;
+}
