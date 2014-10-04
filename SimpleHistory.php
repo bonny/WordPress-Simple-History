@@ -1911,6 +1911,10 @@ class SimpleHistory {
 					
 					$msg_tmpl = __("No events today so far.", "simple-history");
 
+				} elseif ( $logResults["total_row_count"] == 1 ) {
+
+					$msg_tmpl = __('%1$d event today from one user.', "simple-history");
+
 				} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) > 1 ) {
 
 					$msg_tmpl = __('%1$d events today from %2$d users.', "simple-history");
