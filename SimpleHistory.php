@@ -138,8 +138,40 @@ class SimpleHistory {
 					<p>Filters</p>
 
 					<p>
-						<select class="SimpleHistory__filters__filter" style="width: 300px" placeholder="User">
-							<option value="0">All users</option>
+						<input type="search" placeholder="Search">
+					</p>
+
+					<p>
+						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="All log levels" multiple>
+							<option value="warnings" data-color="#CEF6D8">debug</option>
+							<option value="info" data-color="white">info</option>
+							<option value="notice" data-color="rgb(219, 219, 183)">notice</option>
+							<option value="warning" data-color="#F7D358">warning</option>
+							<option value="error" data-color="#F79F81">error</option>
+							<option value="critical" data-color="#FA5858">critical</option>
+							<option value="alert" data-color="rgb(199, 69, 69)">alert</option>
+							<option value="emergency" data-color="#DF0101">emergency</option>
+						</select>						
+					</p>
+				
+					<p>
+						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px" placeholder="All loggers" multiple>
+							<?php
+							$loggers = $this->getLoggersThatUserCanRead();
+							foreach ($loggers as $logger) {
+								printf(
+									'<option value="%2$s">%1$s</option>',
+									$logger["name"], // 1
+									$logger["instance"]->slug // 2
+								);
+							}
+							?>
+						</select>						
+					</p>
+
+					<p>
+						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user" style="width: 300px" placeholder="All users" multiple>
+							<option></option>
 							<option value="a">Admin (par@earthpeople.se)</option>
 							<option value="b">Jessie (jessie@example.com)</option>
 							<option value="c">Kim (kim@example.com)</option>
@@ -148,31 +180,52 @@ class SimpleHistory {
 					</p>
 					
 					<p>
-						<select class="SimpleHistory__filters__filter" style="width: 300px" placeholder="Logger">
-							<option value="0">All loggers</option>
-							<option value="a">Core updater</option>
-							<option value="b">Posts and pages</option>
-							<option value="c">Plugins</option>
-							<option value="d">Users</option>
-							<option value="e">Comments</option>
-							<option value="f">Menus</option>
-							<option value="g">Themes</option>
-						</select>						
-					</p>
-					
-					<p>
-						<select class="SimpleHistory__filters__filter" style="width: 300px" placeholder="Dates">
-							<option value="a">All dates</option>
+						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date" style="width: 300px" placeholder="All dates" multiple>
 							<option value="b">October 2014</option>
 							<option value="c">September 2014</option>
 							<option value="d">August 2014</option>
 							<option value="e">...</option>
 						</select>						
 					</p>
-						
+					
 					<p>
-						<input type="search" placeholder="Search">
+						<button class="button">Filter history</button>
 					</p>
+
+					<script>
+						jQuery(function($) {
+							$(".SimpleHistory__filters__filter--user").select2({
+								minimumInputLength: 2,
+								allowClear: true,
+								placeholder: "All users"
+							});
+
+							$(".SimpleHistory__filters__filter--logger").select2({
+							});
+
+							$(".SimpleHistory__filters__filter--date").select2({
+							});
+
+							$(".SimpleHistory__filters__filter--loglevel").select2({
+								formatResult: format,
+								formatSelection: format,
+							    escapeMarkup: function(m) { return m; }
+							});
+
+
+							function format(loglevel) {
+								
+								var originalOption = loglevel.element;
+								var $originalOption = $(originalOption);
+								var color = $originalOption.data("color");
+								console.log("color", color);
+								
+								var html = "<span style=\"border: 1px solid rgba(0,0,0,.1); margin-right: 10px; width: 1em; height: 1em; line-height: 1; display: inline-block; background-color: " + $originalOption.data('color') + "; '\"></span>" + loglevel.text;
+								return html;
+
+							}
+						});
+					</script>
 
 				</div>
 				<div class="SimpleHistoryLogitems__debug"></div>
@@ -1748,13 +1801,17 @@ class SimpleHistory {
 	 * Check which loggers a user has the right to read and return an array
 	 * with all loggers they are allowed to read
 	 *
-	 * @param int $user_id Id of user to get loggers for
+	 * @param int $user_id Id of user to get loggers for. Defaults to current user id.
 	 * @param string $format format to return loggers in. Default is array.
 	 * @return array
 	 */
-	public function getLoggersThatUserCanRead($user_id, $format = "array") {
+	public function getLoggersThatUserCanRead($user_id = "", $format = "array") {
 
 		$arr_loggers_user_can_view = array();
+
+		if ( ! is_numeric($user_id) ) {
+			$user_id = get_current_user_id();
+		}
 
 		$loggers = $this->getInstantiatedLoggers();
 		foreach ($loggers as $one_logger) {
