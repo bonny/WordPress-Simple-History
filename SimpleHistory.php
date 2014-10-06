@@ -517,7 +517,12 @@ class SimpleHistory {
 		
 		$arrLoggersToInstantiate = array();
 		foreach ( $loggersFiles as $oneLoggerFile) {
-		
+			
+			// SimpleLogger is already loaded
+			if ( basename($oneLoggerFile) == "SimpleLogger.php" ) {
+				continue;
+			}
+
 			include_once($oneLoggerFile);
 
 			$arrLoggersToInstantiate[] = basename($oneLoggerFile, ".php");
