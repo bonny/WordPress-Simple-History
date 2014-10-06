@@ -16,7 +16,8 @@ class SimpleMenuLogger extends SimpleLogger
 	function getInfo() {
 
 		$arr_info = array(			
-			"name" => "Export Logger",
+			"name" => "Menu Logger",
+			"search_label" => "Menu edits",
 			"description" => "Logs menu edits",
 			"capability" => "edit_theme_options",
 			"messages" => array(

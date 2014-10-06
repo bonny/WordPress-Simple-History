@@ -133,6 +133,7 @@ class SimpleOptionsLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Options Logger",
+			"search_label" => "WordPress options",
 			"description" => "Logs updates to WordPress settings",
 			"capability" => "manage_options",
 			"messages" => array(

@@ -44,6 +44,7 @@ class SimplePluginLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Plugin Logger",
+			"search_label" => "Plugin changes",
 			"description" => "Logs plugin installs, uninstalls and updates",
 			"capability" => "activate_plugins", // install_plugins, activate_plugins, 
 			"messages" => array(

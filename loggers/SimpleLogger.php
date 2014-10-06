@@ -68,6 +68,7 @@ class SimpleLogger
 			// Shown on the info-tab in settings, use these fields to tell
 			// an admin what your logger is used for
 			"name" => "SimpleLogger",
+			"search_label" => "Misc",
 			"description" => "The built in logger for Simple History",
 			
 			// Capability required to view log entries from this logger

@@ -18,6 +18,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$arr_info = array(			
 			"name" => "Comments Logger",
 			"description" => "Logs comments, and modifications to them",
+			"search_label" => "Comments",
 			"capability" => "moderate_comments",
 			"messages" => array(
 

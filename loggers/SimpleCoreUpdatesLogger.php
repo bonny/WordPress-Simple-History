@@ -23,6 +23,7 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Core Updates Logger",
+			"search_label" => "WordPress (core updates)",
 			"description" => "Logs the update of WordPress (manual and automatic updates)",
 			"capability" => "update_core",
 			"messages" => array(

@@ -17,6 +17,7 @@ class SimpleUserLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "User Logger",
+			"search_label" => "Users",
 			"description" => "Logs user logins, logouts, and failed logins",
 			"capability" => "edit_users",
 			"messages" => array(

@@ -17,6 +17,7 @@ class SimpleMediaLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Media/Attachments Logger",
+			"search_label" => "Media changes",
 			"description" => "Logs media uploads and edits",
 			"capability" => "edit_pages",
 			"messages" => array(

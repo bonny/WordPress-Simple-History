@@ -155,14 +155,17 @@ class SimpleHistory {
 					</p>
 				
 					<p>
-						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px" placeholder="All loggers" multiple>
+						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px" 
+								placeholder="All messages" multiple>
 							<?php
 							$loggers = $this->getLoggersThatUserCanRead();
 							foreach ($loggers as $logger) {
+								$logger_info = $logger["instance"]->getInfo();
 								printf(
-									'<option value="%2$s">%1$s</option>',
+									'<option value="%2$s">%3$s</option>',
 									$logger["name"], // 1
-									$logger["instance"]->slug // 2
+									$logger["instance"]->slug, // 2
+									$logger_info["search_label"]
 								);
 							}
 							?>
@@ -773,8 +776,8 @@ class SimpleHistory {
 			wp_enqueue_script("simple_history_script", $plugin_url . "scripts.js", array("jquery", "backbone"), SimpleHistory::VERSION, true);
 
 			// Load chartist, for charts
-			wp_enqueue_script("chartist", $plugin_url . "/chartist-js/chartist.min.js", array("jquery"), SimpleHistory::VERSION, true);
-			wp_enqueue_style("chartist", $plugin_url . "/chartist-js/chartist.min.css", false, SimpleHistory::VERSION);
+			//wp_enqueue_script("chartist", $plugin_url . "/chartist-js/chartist.min.js", array("jquery"), SimpleHistory::VERSION, true);
+			//wp_enqueue_style("chartist", $plugin_url . "/chartist-js/chartist.min.css", false, SimpleHistory::VERSION);
 
 			// Load chart.js
 			//wp_enqueue_script("chartjs", $plugin_url . "/chartjs/Chart.min.js", array("jquery"), SimpleHistory::VERSION, true);

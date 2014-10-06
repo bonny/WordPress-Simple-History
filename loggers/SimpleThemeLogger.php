@@ -21,6 +21,7 @@ class SimpleThemeLogger extends SimpleLogger
 		$arr_info = array(			
 			//"name" => __("Theme Logger", "simple-history"),
 			"name" => "Theme Logger",
+			"search_label" => "Themes",
 			//"description" => __("Logs theme edits", "simple-history"),
 			"description" => "Logs theme edits",
 			"capability" => "edit_theme_options",
