@@ -133,6 +133,10 @@ class SimpleHistory {
 					<div class="SimpleHistoryLogitems__pagination"></div>
 					<div class="SimpleHistoryLogitems__afterBottomPagination"></div>
 				</div>
+
+				<?php
+				$loggers_user_can_read = $this->getLoggersThatUserCanRead();
+				?>
 				<div class="SimpleHistory__filters">
 				
 					<p>Filters</p>
@@ -158,8 +162,7 @@ class SimpleHistory {
 						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px" 
 								placeholder="All messages" multiple>
 							<?php
-							$loggers = $this->getLoggersThatUserCanRead();
-							foreach ($loggers as $logger) {
+							foreach ($loggers_user_can_read as $logger) {
 								$logger_info = $logger["instance"]->getInfo();
 								printf(
 									'<option value="%2$s">%3$s</option>',
@@ -182,12 +185,33 @@ class SimpleHistory {
 						</select>						
 					</p>
 					
+					<?php
+					global $wpdb;
+					$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+					$loggers_user_can_read_sql_in = $this->getLoggersThatUserCanRead(null, "sql");
+					$sql_dates = sprintf('
+						SELECT DISTINCT ( date_format(DATE, "%%Y-%%m") ) AS yearMonth
+						FROM %s
+						WHERE logger IN %s
+						ORDER BY yearMonth DESC
+						', $table_name, // 1
+						$loggers_user_can_read_sql_in // 2
+					);
+					
+					$result_months = $wpdb->get_results($sql_dates);
+					?>
 					<p>
-						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date" style="width: 300px" placeholder="All dates" multiple>
-							<option value="b">October 2014</option>
-							<option value="c">September 2014</option>
-							<option value="d">August 2014</option>
-							<option value="e">...</option>
+						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date" style="width: 300px" 
+								placeholder="All dates" multiple>
+							<?php
+							foreach ($result_months as $row) {
+								printf(
+									'<option value="%1$s">%2$s</option>',
+									$row->yearMonth,
+									$row->yearMonth
+								);
+							}
+							?>
 						</select>						
 					</p>
 					
