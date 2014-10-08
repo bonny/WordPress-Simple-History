@@ -108,6 +108,66 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/after_init", $this );
 
+		add_action("wp_ajax_simple_history_filters_search_user", array($this, "ajax_simple_history_filters_search_user"));
+
+	}
+
+	public function ajax_simple_history_filters_search_user() {
+
+		$q = isset( $_GET["q"] ) ? $_GET["q"] : "";
+		$page_limit = isset( $_GET["page_limit"] ) ? (int) $_GET["page_limit"] : "";
+
+		if ( ! $q || ! $page_limit ) {
+			return;
+		}
+
+		// Search both current users and all logged rows,
+		// because a user can change email
+		// search in context: user_id, user_email, user_login
+		// search in wp_users: login, nicename, user_email
+
+		// Can't get this simple query to work, so using my own query instead
+		/*
+		$wp_users = get_users( array(
+			"search" => "*{$q}*"
+		));
+		*/
+		global $wpdb;
+		$sql_users = $wpdb->prepare(
+			'SELECT ID as id, user_login, user_nicename, user_email, display_name FROM %1$s
+			WHERE 
+				user_login LIKE "%%%2$s%%"
+				OR user_nicename LIKE "%%%2$s%%"
+				OR user_email LIKE "%%%2$s%%"
+				OR display_name LIKE "%%%2$s%%"
+			',
+			$wpdb->users,
+			$wpdb->esc_like( $q )
+		);
+		
+		$results_user = $wpdb->get_results( $sql_users );
+
+		array_walk($results_user, function(& $val, $index) {
+			
+			$val->text = sprintf(
+				'%1$s - %2$s',
+				$val->user_login,
+				$val->user_email
+			);
+
+		});
+
+		$data = array(
+			"results" => array(
+			),
+			"more" => false,
+			"context" => array()
+		);
+
+		$data["results"] = array_merge( $data["results"], $results_user );
+
+		wp_send_json_success( $data );
+
 	}
 
 	/**
@@ -176,13 +236,10 @@ class SimpleHistory {
 					</p>
 
 					<p>
-						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user" style="width: 300px" placeholder="All users" multiple>
-							<option></option>
-							<option value="a">Admin (par@earthpeople.se)</option>
-							<option value="b">Jessie (jessie@example.com)</option>
-							<option value="c">Kim (kim@example.com)</option>
-							<option value="d">...</option>
-						</select>						
+						<input type="text"
+								class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user" 
+								style="width: 300px" 
+								placeholder="All users" />
 					</p>
 					
 					<?php
@@ -208,7 +265,7 @@ class SimpleHistory {
 								printf(
 									'<option value="%1$s">%2$s</option>',
 									$row->yearMonth,
-									$row->yearMonth
+									date_i18n( "F Y", strtotime($row->yearMonth) )
 								);
 							}
 							?>
@@ -224,7 +281,23 @@ class SimpleHistory {
 							$(".SimpleHistory__filters__filter--user").select2({
 								minimumInputLength: 2,
 								allowClear: true,
-								placeholder: "All users"
+								placeholder: "All users",
+								ajax: {
+									url: ajaxurl,
+									dataType: "json",
+									data: function (term, page) {
+										return {
+											q: term, // search term
+											page_limit: 10,
+											action: "simple_history_filters_search_user"
+										};
+									},
+									results: function (data, page) { // parse the results into the format expected by Select2.
+										// since we are using custom formatting functions we do not need to alter remote JSON data
+										//console.log("resuts", data.data);
+										return data.data
+									}
+								}
 							});
 
 							$(".SimpleHistory__filters__filter--logger").select2({
