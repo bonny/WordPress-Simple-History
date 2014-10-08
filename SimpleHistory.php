@@ -155,6 +155,8 @@ class SimpleHistory {
 				$val->user_email
 			);
 
+			$val->gravatar = $this->get_avatar( $val->user_email, "18", "mm");
+
 		});
 
 		$data = array(
@@ -297,8 +299,30 @@ class SimpleHistory {
 										//console.log("resuts", data.data);
 										return data.data
 									}
-								}
+								},
+								formatResult: formatUsers,
+								formatSelection: formatUsers,
+								escapeMarkup: function(m) { return m; }
 							});
+
+							function formatUsers(userdata) {
+								
+								console.log("userdata", userdata);
+								
+								var html = "";
+								html += "<div class='SimpleHistory__filters__userfilter__gravatar'>";
+								html += userdata.gravatar;
+								html += "</div>";
+								html += "<div class='SimpleHistory__filters__userfilter__primary'>";
+								html += userdata.user_email;
+								html += "</div>";
+								html += "<div class='SimpleHistory__filters__userfilter__secondary'>";
+								html += userdata.user_login;
+								html += "</div>";
+								return html;
+
+							}
+
 
 							$(".SimpleHistory__filters__filter--logger").select2({
 							});
@@ -324,6 +348,7 @@ class SimpleHistory {
 								return html;
 
 							}
+
 						});
 					</script>
 
@@ -1333,6 +1358,7 @@ class SimpleHistory {
 	/**
 	 * Get history from ajax
 	 */
+	/*
 	function ajax() {
 	
 		global $simple_history;
@@ -1407,6 +1433,7 @@ class SimpleHistory {
 		exit;
 	
 	}
+	*/
 
 
 	/**
