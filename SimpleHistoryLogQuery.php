@@ -43,7 +43,11 @@ class SimpleHistoryLogQuery {
 			// date range
 			// must be in unix datetime
 			"date_from" => null,
-			"date_to" => null
+			"date_to" => null,
+			// search
+			"search" => null,
+			// log levels to include. comma separated. defaults to alll
+			"loglevels" => null
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -212,6 +216,67 @@ class SimpleHistoryLogQuery {
 			#$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) <= %1$d', $args["date_to"] );
 			$inner_where .= sprintf(' AND UNIX_TIMESTAMP(date) <= %1$d', $args["date_to"] );
 		}
+
+		// ssearch
+		if ( ! empty( $args["search"] ) ) {
+			
+			$search_words = $args["search"];
+			$str_search_conditions = "";
+			$arr_search_words = preg_split("/[\s,]+/", $search_words);
+			
+			// create array of all searched words
+			// split both spaces and commas and such
+			$arr_sql_like_cols = array("message", "logger", "level");
+
+			foreach ($arr_sql_like_cols as $one_col) {
+	
+				$str_sql_search_words = "";
+	
+				foreach ($arr_search_words as $one_search_word) {
+					$str_sql_search_words .= sprintf(
+						' AND %1$s LIKE "%2$s" ',
+						$one_col,
+						"%" . esc_sql( $wpdb->esc_like( $one_search_word ) ) . "%"
+					);
+				}
+
+				$str_sql_search_words = ltrim($str_sql_search_words, ' AND ');
+	
+				$str_search_conditions .= "\n" . sprintf(
+					' OR ( %1$s ) ',
+					$str_sql_search_words
+				);
+
+			}
+
+			$str_search_conditions = preg_replace('/^OR /', " ", trim($str_search_conditions));
+
+			$inner_where .= "\n AND (\n {$str_search_conditions} ) ";
+
+		}
+
+		// log levels
+		// comma separated
+		//http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loglevel=error,warn
+		if ( ! empty( $args["loglevels"] ) ) {
+			
+			$arr_loglevels = explode(",", $args["loglevels"]);
+			
+			foreach ( $arr_loglevels as $one_loglevel ) {
+				
+				$sql_loglevels .= sprintf(' "%s", ', esc_sql( $one_loglevel ));
+
+			}
+
+			if ( $sql_loglevels ) {
+				$sql_loglevels = rtrim( $sql_loglevels, " ," );
+				$sql_loglevels = "\n AND level IN ({$sql_loglevels}) ";
+			}
+
+			$inner_where .= $sql_loglevels;;
+			
+		}
+
 
 		/**
 		 * Filter the sql template
