@@ -15,7 +15,7 @@ class SimpleHistoryFilterDropin {
 		
 		$this->sh = $sh;
 		
-		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+		add_action("simple_history/enqueue_admin_scripts", array($this, "enqueue_admin_scripts"));
 		add_action("simple_history/history_page/after_gui", array( $this, "gui_page_filters") );	
 		add_action("wp_ajax_simple_history_filters_search_user", array( $this, "ajax_simple_history_filters_search_user") );
 

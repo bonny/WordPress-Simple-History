@@ -703,12 +703,22 @@ class SimpleHistory {
 				"loadLogAPIError" => __("Oups, the log could not be loaded right now.", 'simple-history'),
 			));
 
-			// Call plugins so they can add their css
+			// Call plugins adminCSS-method, so they can add their CSS
 			foreach ( $this->instantiatedLoggers as $one_logger ) {
-				if( method_exists($one_logger["instance"], "adminCSS" ) ) {
+				if ( method_exists($one_logger["instance"], "adminCSS" ) ) {
 					$one_logger["instance"]->adminCSS();
 				}
 			}
+
+			/**
+		     * Fires when the admin scripts have been enqueued.
+		     * Only fires on any of the pages where Simple History is used
+		     *
+		     * @since 2.0
+		     *
+		     * @param SimpleHistory $SimpleHistory This class.
+		     */
+			do_action("simple_history/enqueue_admin_scripts", $this);
 		
 		}
 
@@ -1125,6 +1135,13 @@ class SimpleHistory {
 			<h2><?php echo _x("History", 'history page headline', 'simple-history') ?></h2>
 
 			<?php
+			/**
+		     * Fires before the gui div
+		     *
+		     * @since 2.0
+		     *
+		     * @param SimpleHistory $SimpleHistory This class.
+		     */
 			do_action( "simple_history/history_page/before_gui", $this );
 			?>
 
@@ -1133,7 +1150,16 @@ class SimpleHistory {
 				 ></div>
 
 			<?php
+
+			/**
+		     * Fires after the gui div
+		     *
+		     * @since 2.0
+		     *
+		     * @param SimpleHistory $SimpleHistory This class.
+		     */
 			do_action( "simple_history/history_page/after_gui", $this );
+
 			?>
 
 		</div>
