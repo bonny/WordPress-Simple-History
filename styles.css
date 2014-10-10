@@ -64,7 +64,10 @@ The spinner that wp uses:;
 	margin: 0;
 	padding: 20px 20px 20px 16px;
 	/*border-bottom: 1px solid rgb(229, 229, 229);*/
-	border-left: 4px solid transparent;
+	
+	/* uncomment to show border with log color */
+	/*border-left: 4px solid transparent;*/
+
 	overflow: hidden;
 }
 
@@ -86,10 +89,11 @@ Style different log levels.
 	display: inline-block;
 	background-color: rgba(238, 238, 238, 1);
 	font-size: 10px;
-	padding: 2px 3px;
+	padding: 3px 4px;
 	border-radius: 3px;
 	/*opacity: .75;*/
 	vertical-align: 1px;
+	line-height: 1;
 }
 
 
@@ -222,7 +226,7 @@ Style different log levels.
 	margin-top: 0.4em;
 	font-size: 15px;
 	color: #333;
-	line-height: 1.2;
+	line-height: 1.3;
 }
 
 .SimpleHistoryLogitem__details p {
