@@ -26,11 +26,6 @@ class SimpleHistoryLogQuery {
 			"paged" => 1,
 			// Free text search
 			"s" => null,
-			// Array with logger names, to show only items from those loggers
-			// Default = null = all loggers.
-			"logger" => null,
-			// array with loglevels to get, as specified in SimpleLoggerLogLevels
-			"loglevel" => null,
 			// Array. Only get posts that are in array.
 			"post__in" => null,
 			// array or html
@@ -46,8 +41,10 @@ class SimpleHistoryLogQuery {
 			"date_to" => null,
 			// search
 			"search" => null,
-			// log levels to include. comma separated. defaults to alll
-			"loglevels" => null
+			// log levels to include. comma separated. defaults to all
+			"loglevels" => null,
+			// loggers to include. comma separated. defaults to all the user can read
+			"loggers" => null
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -257,15 +254,14 @@ class SimpleHistoryLogQuery {
 
 		// log levels
 		// comma separated
-		//http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loglevel=error,warn
+		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loglevel=error,warn
 		if ( ! empty( $args["loglevels"] ) ) {
 			
+			$sql_loglevels = "";
 			$arr_loglevels = explode(",", $args["loglevels"]);
 			
 			foreach ( $arr_loglevels as $one_loglevel ) {
-				
 				$sql_loglevels .= sprintf(' "%s", ', esc_sql( $one_loglevel ));
-
 			}
 
 			if ( $sql_loglevels ) {
@@ -274,6 +270,27 @@ class SimpleHistoryLogQuery {
 			}
 
 			$inner_where .= $sql_loglevels;;
+			
+		}
+
+		// loggers
+		// comma separated
+		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger
+		if ( ! empty( $args["loggers"] ) ) {
+			
+			$sql_loggers = "";
+			$arr_loggers = explode(",", $args["loggers"]);
+			
+			foreach ( $arr_loggers as $one_logger ) {
+				$sql_loggers .= sprintf(' "%s", ', esc_sql( $one_logger ));
+			}
+
+			if ( $sql_loggers ) {
+				$sql_loggers = rtrim( $sql_loggers, " ," );
+				$sql_loggers = "\n AND logger IN ({$sql_loggers}) ";
+			}
+
+			$inner_where .= $sql_loggers;;
 			
 		}
 
