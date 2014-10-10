@@ -35,10 +35,12 @@ class SimpleHistoryLogQuery {
 			"max_id_first_page" => null,
 			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id
 			"since_id" => null,
+			
 			// date range
-			// must be in unix datetime
+			// in unix datetime or Y-m-d H:i (or format compatible with strtotime())
 			"date_from" => null,
 			"date_to" => null,
+
 			// search
 			"search" => null,
 			// log levels to include. comma separated. defaults to all
@@ -203,15 +205,31 @@ class SimpleHistoryLogQuery {
 
 		}
 
-		// Append date where
+		// Append date where		
 		if ( ! empty( $args["date_from"] ) ) {
-			#$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) >= %1$d', $args["date_from"] );
-			$inner_where .= sprintf(' AND UNIX_TIMESTAMP(date) >= %1$d', $args["date_from"] );
+			
+			// date_to=2014-08-01
+			// if date is not numeric assume Y-m-d H:i-format
+			$date_from = $args["date_from"];
+			if ( ! is_numeric( $date_from ) ) {
+				$date_from = strtotime( $date_from );
+			}
+
+			$inner_where .= "\n" . sprintf(' AND UNIX_TIMESTAMP(date) >= %1$d', esc_sql( $date_from ) );
+
 		}
 
 		if ( ! empty( $args["date_to"] ) ) {
-			#$where .= sprintf(' AND UNIX_TIMESTAMP(t.date) <= %1$d', $args["date_to"] );
-			$inner_where .= sprintf(' AND UNIX_TIMESTAMP(date) <= %1$d', $args["date_to"] );
+
+			// date_to=2014-08-01
+			// if date is not numeric assume Y-m-d H:i-format
+			$date_to = $args["date_to"];
+			if ( ! is_numeric( $date_to ) ) {
+				$date_to = strtotime( $date_to );
+			}
+
+			$inner_where .= "\n" . sprintf(' AND UNIX_TIMESTAMP(date) <= %1$d', esc_sql( $date_to ) );
+
 		}
 
 		// ssearch
