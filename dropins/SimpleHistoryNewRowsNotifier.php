@@ -13,9 +13,15 @@ class SimpleHistoryNewRowsNotifier {
 	// Simple History instance
 	private $sh;
 
+	// How often we should check for new rows, in ms
+	private $interval = 10000;
+
 	function __construct($sh) {
 		
 		$this->sh = $sh;
+		
+		// How often the script checks for new rows
+		$this->interval = (int) apply_filters("SimpleHistoryNewRowsNotifier/interval", $this->interval);
 
 		add_action( 'admin_head', array($this, 'on_admin_head'));
 		add_action( 'wp_ajax_SimpleHistoryNewRowsNotifier', array($this, 'ajax') );
@@ -154,7 +160,7 @@ class SimpleHistoryNewRowsNotifier {
 
 					}
 
-					intervalID = setInterval(checkForUpdates, 5000);
+					intervalID = setInterval(checkForUpdates, <?php echo $this->interval ?>);
 
 				});
 

@@ -94,7 +94,7 @@ var simple_history2 = (function($) {
 			this.page_rows_to = resp.data.page_rows_to;
 
 			// Store first max_id found, since that's the max id we use for
-			// all subsequent pagnations
+			// all subsequent paginations
 			if ( ! this.max_id_first_page ) {
 
 				this.max_id_first_page = this.max_id;
@@ -565,7 +565,6 @@ var simple_history2 = (function($) {
 
 		/**
 		 * Add the elements needed for the GUI
-		 * @TODO: move to template
 		 */
 		addNeededElements: function() {
 
