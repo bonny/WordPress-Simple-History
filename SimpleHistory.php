@@ -1906,11 +1906,13 @@ class SimpleHistory {
 		);
 
 		$results_users_today = $wpdb->get_results($sql_users_today);
-
+		
 		?>
 		<div class="SimpleHistoryQuickStats">
 			<p>
 				<?php
+				
+				$msg_tmpl = "";
 
 				if ( $logResults["total_row_count"] == 0 ) {
 					
@@ -1930,20 +1932,25 @@ class SimpleHistory {
 
 				}
 
-				printf(
-					$msg_tmpl,
-					$logResults["total_row_count"],
-					sizeof( $results_users_today )
-				);
+				// only show stats if we have something to output
+				if ( $msg_tmpl ) {
 
-				// Space between texts
-				echo " ";
+					printf(
+						$msg_tmpl,
+						$logResults["total_row_count"],
+						sizeof( $results_users_today )
+					);
 
-				// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
-				printf(
-					'<a href="%1$s">View more stats</a>.',
-					add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
-				);
+					// Space between texts
+					echo " ";
+
+					// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
+					printf(
+						'<a href="%1$s">View more stats</a>.',
+						add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
+					);
+
+				}
 	
 				?>
 			</p>

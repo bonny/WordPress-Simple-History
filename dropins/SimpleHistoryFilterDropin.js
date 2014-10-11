@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 jQuery(function($) {
 
 	$(".SimpleHistory__filters__filter--user").select2({
@@ -62,11 +65,22 @@ jQuery(function($) {
 		var originalOption = loglevel.element;
 		var $originalOption = $(originalOption);
 		var color = $originalOption.data("color");
-		console.log("color", color);
 		
 		var html = "<span style=\"border: 1px solid rgba(0,0,0,.1); margin-right: 10px; width: 1em; height: 1em; line-height: 1; display: inline-block; background-color: " + $originalOption.data('color') + "; '\"></span>" + loglevel.text;
 		return html;
 
 	}
+
+
+});
+
+// jQuery(document).on("SimpleHistory:init", function() {
+jQuery(document).on("SimpleHistory:mainViewInitBeforeLoadRows", function() {
+
+	// Modify query string parameters before the log rows collection fetches/syncs
+	simple_history2.logRowsCollection.on("before_fetch", function(collection, url_data) {
+//		console.log("on before_fetch", url_data);
+//		url_data.search = "updated";
+	});
 
 });

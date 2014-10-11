@@ -57,11 +57,17 @@ var simple_history2 = (function($) {
 			// Get first page
 			// We don't have max_id yet
 			var that = this;
+			var url_data = {
+				paged: 1,
+				// here we want to append custom args/data for filters
+			};
+
+			// trigger so plugins can modify url parameters
+			this.trigger("before_fetch", this, url_data);
+
 			this.fetch({
 				reset: true,
-				data: {
-					paged: 1
-				},
+				data: url_data,
 				// called on 404 and similar
 				error: function(collection, response, options) {
 					collection.trigger("reloadError");
@@ -529,7 +535,7 @@ var simple_history2 = (function($) {
 		
 		el: ".SimpleHistoryGui",
 
-		initialize: function() {
+		manualInitialize: function() {
 
 			// Don't try to init if our element does not exist
 			if (!this.$el.length) {
@@ -550,8 +556,12 @@ var simple_history2 = (function($) {
 				collection: this.logRowsCollection
 			});
 
+			$(document).trigger("SimpleHistory:mainViewInitBeforeLoadRows");
+
 			// Load log first time
 			this.logRowsCollection.reload();
+
+			$(document).trigger("SimpleHistory:mainViewInitAfterLoadRows");
 
 			this.paginationView = new PaginationView({
 				el: this.$el.find(".SimpleHistoryLogitems__pagination"),
@@ -560,6 +570,8 @@ var simple_history2 = (function($) {
 					mainView: this
 				}
 			});
+
+			$(document).trigger("SimpleHistory:init");
 
 		},
 
@@ -604,6 +616,14 @@ var simple_history2 = (function($) {
 	});
 
 	var mainView = new MainView();
+
+	// Init MainView on domReady
+	// This is to make sure dropins and plugins have been loaded
+	$(document).ready(function() {
+		
+		mainView.manualInitialize();
+		
+	});
 
 	return mainView;
 
