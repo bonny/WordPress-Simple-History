@@ -3,7 +3,7 @@
 /*
 V2 begins here
 */
-var simple_history2 = (function($) {
+var simple_history = (function($) {
 
 	var api_base_url = window.ajaxurl + "?action=simple_history_api";
 
@@ -493,13 +493,18 @@ var simple_history2 = (function($) {
 
 			$("html").addClass("SimpleHistory-isLoadingPage");
 
+			var url_data = {
+				paged: paged,
+				max_id_first_page: this.collection.max_id_first_page
+			};
+
+			this.collection.trigger("before_fetch", this.collection, url_data);
+
 			// nav = fetch collection items again
+			console.log("fetch page");
 			this.collection.fetch({
 				reset: true,
-				data: {
-					paged: paged,
-					max_id_first_page: this.collection.max_id_first_page
-				},
+				data: url_data,
 				success: function() {
 					$("html").removeClass("SimpleHistory-isLoadingPage");
 				}

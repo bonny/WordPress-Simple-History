@@ -43,8 +43,10 @@ class SimpleHistoryLogQuery {
 
 			// search
 			"search" => null,
-			// log levels to include. comma separated. defaults to all
+			
+			// log levels to include. comma separated or as array. defaults to all.
 			"loglevels" => null,
+			
 			// loggers to include. comma separated. defaults to all the user can read
 			"loggers" => null,
 
@@ -279,7 +281,12 @@ class SimpleHistoryLogQuery {
 		if ( ! empty( $args["loglevels"] ) ) {
 			
 			$sql_loglevels = "";
-			$arr_loglevels = explode(",", $args["loglevels"]);
+
+			if ( is_array( $args["loglevels"] ) ) {
+				$arr_loglevels = $args["loglevels"];
+			} else {
+				$arr_loglevels = explode(",", $args["loglevels"]);
+			}
 			
 			foreach ( $arr_loglevels as $one_loglevel ) {
 				$sql_loglevels .= sprintf(' "%s", ', esc_sql( $one_loglevel ));
@@ -300,7 +307,11 @@ class SimpleHistoryLogQuery {
 		if ( ! empty( $args["loggers"] ) ) {
 			
 			$sql_loggers = "";
-			$arr_loggers = explode(",", $args["loggers"]);
+			if ( is_array( $args["loggers"] ) ) {
+				$arr_loggers = $args["loggers"];
+			} else {
+				$arr_loggers = explode(",", $args["loggers"]);
+			}
 			
 			foreach ( $arr_loggers as $one_logger ) {
 				$sql_loggers .= sprintf(' "%s", ', esc_sql( $one_logger ));

@@ -6,6 +6,7 @@ var SimpleHistoryFilterDropin = (function($) {
 
 	var $elms = {};
 	var isFilteringActive = false;
+	var activeFilters = {};
 
 	function init() {
 
@@ -47,30 +48,38 @@ var SimpleHistoryFilterDropin = (function($) {
 
 		// If any of our search boxes are filled in we consider ourself to be in search mode
 		isFilteringActive = false;
+		activeFilters = {};
 		
 		if ( $.trim( $search.val() )) {
 			isFilteringActive = true;
+			activeFilters.search = $search.val();
 		}
 		
 		if ( $loglevels.val() && $loglevels.val().length ) {
 			isFilteringActive = true;
+			activeFilters.loglevels = $loglevels.val();
 		}
 
 		if ( $loggers.val() && $loggers.val().length ) {
 			isFilteringActive = true;
+			activeFilters.loggers = $loggers.val();
 		}
 
 		if ( $.trim( $user.val() )) {
 			isFilteringActive = true;
+			activeFilters.user = $user.val();
 		}
 
 		if ( $months.val() && $months.val().length ) {
 			isFilteringActive = true;
+			activeFilters.months = $months.val();
 		}
 
 		console.log( "filtering is active:", isFilteringActive );
 		console.log($search.val(), $loglevels.val(), $loggers.val(), $user.val(), $months.val());
 
+		// Reload the log rows collection
+		simple_history.logRowsCollection.reload();
 
 	}
 
@@ -79,13 +88,23 @@ var SimpleHistoryFilterDropin = (function($) {
 		$(document).on("SimpleHistory:mainViewInitBeforeLoadRows", function() {
 
 			// Modify query string parameters before the log rows collection fetches/syncs
-			simple_history2.logRowsCollection.on("before_fetch", function(collection, url_data) {
-				console.log("on before_fetch", url_data);
-				url_data.apa = "gorilla";
-			});
+			console.log("addFetchListener");
+			simple_history.logRowsCollection.on("before_fetch", modifyFetchData);
 
 		});
 
+	}
+
+	function modifyFetchData(collection, url_data) {
+
+		console.log("before_fetch", isFilteringActive);
+		if (isFilteringActive) {		
+
+			url_data = _.extend(url_data, activeFilters);
+			console.log("url_data", url_data);
+
+		}
+		
 	}
 
 	function enhanceSelects() {

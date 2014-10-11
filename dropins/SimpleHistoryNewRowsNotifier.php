@@ -120,7 +120,7 @@ class SimpleHistoryNewRowsNotifier {
 
 				var checkForUpdates = function() {
 
-					var firstPageMaxID = simple_history2.logRowsCollection.max_id_first_page;
+					var firstPageMaxID = simple_history.logRowsCollection.max_id_first_page;
 					
 					$.get(ajaxurl, {
 						action: "SimpleHistoryNewRowsNotifier",
@@ -169,7 +169,7 @@ class SimpleHistoryNewRowsNotifier {
 
 					// Just re-init the logcollection?
 					clearInterval(intervalID);
-					simple_history2.logRowsCollection.reload();
+					simple_history.logRowsCollection.reload();
 
 				});
 

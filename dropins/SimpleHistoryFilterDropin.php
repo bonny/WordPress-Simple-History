@@ -89,7 +89,7 @@ class SimpleHistoryFilterDropin {
 
 			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
 		
-				<p>Filters</p>
+				<h2>Filter history</h2>
 
 				<p>
 					<input type="search" placeholder="Search" name="search">
@@ -97,7 +97,7 @@ class SimpleHistoryFilterDropin {
 
 				<p>
 					<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="All log levels" multiple>
-						<option value="warnings" data-color="#CEF6D8">debug</option>
+						<option value="debug" data-color="#CEF6D8">debug</option>
 						<option value="info" data-color="white">info</option>
 						<option value="notice" data-color="rgb(219, 219, 183)">notice</option>
 						<option value="warning" data-color="#F7D358">warning</option>
@@ -165,7 +165,7 @@ class SimpleHistoryFilterDropin {
 				</p>
 				
 				<p>
-					<button class="button js-SimpleHistoryFilterDropin-doFilter">Filter history</button>
+					<button class="button js-SimpleHistoryFilterDropin-doFilter">Filter</button>
 				</p>
 			
 			</form>
