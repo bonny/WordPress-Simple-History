@@ -44,9 +44,6 @@ The spinner that wp uses:;
 	min-height: 1px;
 }
 
-.SimpleHistory__filters {
-	float: left;
-}
 
 .SimpleHistoryLogitems {
 	margin: 0;
@@ -667,28 +664,5 @@ Modal window with detailss
 
 .postbox .SimpleHistoryQuickStats p {
 	font-size: 14px;
-}
-
-/**
- * Search results in filter
- */
-.SimpleHistory__filters__userfilter__gravatar,
-.SimpleHistory__filters__userfilter__primary,
-.SimpleHistory__filters__userfilter__secondary {
-	display: inline-block;
-	vertical-align: middle;
-	line-height: 1;
-}
-
-.SimpleHistory__filters__userfilter__primary {
-	margin-right: 5px;
-}
-
-.SimpleHistory__filters__userfilter__secondary {
-	color: #999;
-}
-
-.SimpleHistory__filters__userfilter__gravatar {
-	margin-right: 10px;
 }
 

@@ -1,37 +1,137 @@
 /**
  * 
  */
-jQuery(function($) {
 
-	$(".SimpleHistory__filters__filter--user").select2({
-		minimumInputLength: 2,
-		allowClear: true,
-		placeholder: "All users",
-		ajax: {
-			url: ajaxurl,
-			dataType: "json",
-			data: function (term, page) {
-				return {
-					q: term, // search term
-					page_limit: 10,
-					action: "simple_history_filters_search_user"
-				};
+var SimpleHistoryFilterDropin = (function($) {
+
+	var $elms = {};
+	var isFilteringActive = false;
+
+	function init() {
+
+		addFetchListener();
+
+	}
+
+	function onDomReadyInit() {
+
+		$elms.filter_container = $(".SimpleHistory__filters");
+		$elms.filter_user = $elms.filter_container.find(".SimpleHistory__filters__filter--user");
+		$elms.filter_button = $elms.filter_container.find(".js-SimpleHistoryFilterDropin-doFilter");
+		$elms.filter_form = $elms.filter_container.find(".js-SimpleHistory__filters__form");
+		
+		enhanceSelects();
+		addListeners();
+
+	}
+
+	function addListeners() {
+
+		$elms.filter_form.on("submit", onSubmitForm);
+
+	}
+
+	function onSubmitForm(e) {
+		
+		e.preventDefault();
+
+		console.log("submit filter form");
+		
+		// form serialize
+		// search=apa&loglevels=critical&loglevels=alert&loggers=SimpleMediaLogger&loggers=SimpleMenuLogger&user=1&months=2014-09 SimpleHistoryFilterDropin.js?ver=2.0:40
+		var $search = $elms.filter_form.find("[name='search']");
+		var $loglevels = $elms.filter_form.find("[name='loglevels']");
+		var $loggers = $elms.filter_form.find("[name='loggers']");
+		var $user = $elms.filter_form.find("[name='user']");
+		var $months = $elms.filter_form.find("[name='months']");
+
+		// If any of our search boxes are filled in we consider ourself to be in search mode
+		isFilteringActive = false;
+		
+		if ( $.trim( $search.val() )) {
+			isFilteringActive = true;
+		}
+		
+		if ( $loglevels.val() && $loglevels.val().length ) {
+			isFilteringActive = true;
+		}
+
+		if ( $loggers.val() && $loggers.val().length ) {
+			isFilteringActive = true;
+		}
+
+		if ( $.trim( $user.val() )) {
+			isFilteringActive = true;
+		}
+
+		if ( $months.val() && $months.val().length ) {
+			isFilteringActive = true;
+		}
+
+		console.log( "filtering is active:", isFilteringActive );
+		console.log($search.val(), $loglevels.val(), $loggers.val(), $user.val(), $months.val());
+
+
+	}
+
+	function addFetchListener() {
+
+		$(document).on("SimpleHistory:mainViewInitBeforeLoadRows", function() {
+
+			// Modify query string parameters before the log rows collection fetches/syncs
+			simple_history2.logRowsCollection.on("before_fetch", function(collection, url_data) {
+				console.log("on before_fetch", url_data);
+				url_data.apa = "gorilla";
+			});
+
+		});
+
+	}
+
+	function enhanceSelects() {
+
+		$elms.filter_user.select2({
+			minimumInputLength: 2,
+			allowClear: true,
+			placeholder: "All users",
+			ajax: {
+				url: ajaxurl,
+				dataType: "json",
+				data: function (term, page) {
+					return {
+						q: term, // search term
+						page_limit: 10,
+						action: "simple_history_filters_search_user"
+					};
+				},
+				results: function (data, page) { // parse the results into the format expected by Select2.
+					// since we are using custom formatting functions we do not need to alter remote JSON data
+					//console.log("resuts", data.data);
+					return data.data;
+				}
 			},
-			results: function (data, page) { // parse the results into the format expected by Select2.
-				// since we are using custom formatting functions we do not need to alter remote JSON data
-				//console.log("resuts", data.data);
-				return data.data;
-			}
-		},
-		formatResult: formatUsers,
-		formatSelection: formatUsers,
-		escapeMarkup: function(m) { return m; }
-	});
+			formatResult: formatUsers,
+			formatSelection: formatUsers,
+			escapeMarkup: function(m) { return m; }
+		});
+
+		$(".SimpleHistory__filters__filter--logger").select2({
+		});
+
+		$(".SimpleHistory__filters__filter--date").select2({
+			width: "element"
+		});
+
+		$(".SimpleHistory__filters__filter--loglevel").select2({
+			formatResult: formatLoglevel,
+			formatSelection: formatLoglevel,
+		    escapeMarkup: function(m) { return m; }
+		});
+
+	}
 
 	function formatUsers(userdata) {
-		
-		console.log("userdata", userdata);
-		
+			
 		var html = "";
 		html += "<div class='SimpleHistory__filters__userfilter__gravatar'>";
 		html += userdata.gravatar;
@@ -46,21 +146,7 @@ jQuery(function($) {
 
 	}
 
-
-	$(".SimpleHistory__filters__filter--logger").select2({
-	});
-
-	$(".SimpleHistory__filters__filter--date").select2({
-	});
-
-	$(".SimpleHistory__filters__filter--loglevel").select2({
-		formatResult: format,
-		formatSelection: format,
-	    escapeMarkup: function(m) { return m; }
-	});
-
-
-	function format(loglevel) {
+	function formatLoglevel(loglevel) {
 		
 		var originalOption = loglevel.element;
 		var $originalOption = $(originalOption);
@@ -71,16 +157,16 @@ jQuery(function($) {
 
 	}
 
+	return {
+		init: init,
+		onDomReadyInit: onDomReadyInit
+	};
 
+})(jQuery);
+
+SimpleHistoryFilterDropin.init();
+
+jQuery(document).ready(function() {
+	SimpleHistoryFilterDropin.onDomReadyInit();
 });
 
-// jQuery(document).on("SimpleHistory:init", function() {
-jQuery(document).on("SimpleHistory:mainViewInitBeforeLoadRows", function() {
-
-	// Modify query string parameters before the log rows collection fetches/syncs
-	simple_history2.logRowsCollection.on("before_fetch", function(collection, url_data) {
-//		console.log("on before_fetch", url_data);
-//		url_data.search = "updated";
-	});
-
-});

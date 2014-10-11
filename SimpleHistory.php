@@ -99,6 +99,8 @@ class SimpleHistory {
 		add_action( 'simple_history/history_page/before_gui', array( $this, "output_quick_stats" ) );
 		add_action( 'simple_history/dashboard/before_gui', array( $this, "output_quick_stats" ) );
 
+		add_action(  'admin_head', array( $this, "onAdminHead" ) );
+
 		/**
 	     * Fires after Simple History has done it's init stuff
 	     *
@@ -110,6 +112,13 @@ class SimpleHistory {
 
 	}
 
+	public function onAdminHead() {
+
+		if ( $this->is_on_our_own_pages() ) {
+			do_action( "simple_history/admin_head", $this );
+		}
+
+	}
 
 	/**
 	 * Output JS templated into footer

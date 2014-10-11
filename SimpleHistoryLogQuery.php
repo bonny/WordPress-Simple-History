@@ -46,7 +46,10 @@ class SimpleHistoryLogQuery {
 			// log levels to include. comma separated. defaults to all
 			"loglevels" => null,
 			// loggers to include. comma separated. defaults to all the user can read
-			"loggers" => null
+			"loggers" => null,
+
+			// @TODO: filter by userID
+			"userID" => null
 		);
 
 		$args = wp_parse_args( $args, $defaults );

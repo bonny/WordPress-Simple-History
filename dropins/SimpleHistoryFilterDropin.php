@@ -19,6 +19,53 @@ class SimpleHistoryFilterDropin {
 		add_action("simple_history/history_page/after_gui", array( $this, "gui_page_filters") );	
 		add_action("wp_ajax_simple_history_filters_search_user", array( $this, "ajax_simple_history_filters_search_user") );
 
+		add_action("simple_history/admin_head", array($this, "admin_head"));
+
+	}
+
+	public function admin_head() {
+		?>
+		<style>
+
+			.SimpleHistory__filters {
+				float: left;
+			}
+
+			.SimpleHistory__filters__form select {
+				width: 100%;
+			}
+
+			.SimpleHistory__filters__form input[type=text], 
+			.SimpleHistory__filters__form input[type=search] {
+				width: 100%;
+			}
+
+			/**
+			 * Search results in filter
+			 */
+			.SimpleHistory__filters__userfilter__gravatar,
+			.SimpleHistory__filters__userfilter__primary,
+			.SimpleHistory__filters__userfilter__secondary {
+				display: inline-block;
+				vertical-align: middle;
+				line-height: 1;
+			}
+
+			.SimpleHistory__filters__userfilter__primary {
+				margin-right: 5px;
+			}
+
+			.SimpleHistory__filters__userfilter__secondary {
+				color: #999;
+			}
+
+			.SimpleHistory__filters__userfilter__gravatar {
+				margin-right: 10px;
+			}
+
+
+		</style>
+		<?php
 	}
 
 	public function enqueue_admin_scripts() {
@@ -39,83 +86,89 @@ class SimpleHistoryFilterDropin {
 		
 		?>
 		<div class="SimpleHistory__filters">
+
+			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
 		
-			<p>Filters</p>
+				<p>Filters</p>
 
-			<p>
-				<input type="search" placeholder="Search">
-			</p>
+				<p>
+					<input type="search" placeholder="Search" name="search">
+				</p>
 
-			<p>
-				<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="All log levels" multiple>
-					<option value="warnings" data-color="#CEF6D8">debug</option>
-					<option value="info" data-color="white">info</option>
-					<option value="notice" data-color="rgb(219, 219, 183)">notice</option>
-					<option value="warning" data-color="#F7D358">warning</option>
-					<option value="error" data-color="#F79F81">error</option>
-					<option value="critical" data-color="#FA5858">critical</option>
-					<option value="alert" data-color="rgb(199, 69, 69)">alert</option>
-					<option value="emergency" data-color="#DF0101">emergency</option>
-				</select>						
-			</p>
-		
-			<p>
-				<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px" 
-						placeholder="All messages" multiple>
-					<?php
-					foreach ($loggers_user_can_read as $logger) {
-						$logger_info = $logger["instance"]->getInfo();
-						printf(
-							'<option value="%2$s">%3$s</option>',
-							$logger["name"], // 1
-							$logger["instance"]->slug, // 2
-							$logger_info["search_label"]
-						);
-					}
-					?>
-				</select>						
-			</p>
+				<p>
+					<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="All log levels" multiple>
+						<option value="warnings" data-color="#CEF6D8">debug</option>
+						<option value="info" data-color="white">info</option>
+						<option value="notice" data-color="rgb(219, 219, 183)">notice</option>
+						<option value="warning" data-color="#F7D358">warning</option>
+						<option value="error" data-color="#F79F81">error</option>
+						<option value="critical" data-color="#FA5858">critical</option>
+						<option value="alert" data-color="rgb(199, 69, 69)">alert</option>
+						<option value="emergency" data-color="#DF0101">emergency</option>
+					</select>						
+				</p>
+			
+				<p>
+					<select name="loggers" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px" 
+							placeholder="All messages" multiple>
+						<?php
+						foreach ($loggers_user_can_read as $logger) {
+							$logger_info = $logger["instance"]->getInfo();
+							printf(
+								'<option value="%2$s">%3$s</option>',
+								$logger["name"], // 1
+								$logger["instance"]->slug, // 2
+								$logger_info["search_label"]
+							);
+						}
+						?>
+					</select>						
+				</p>
 
-			<p>
-				<input type="text"
-						class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user" 
-						style="width: 300px" 
-						placeholder="All users" />
-			</p>
+				<p>
+					<input type="text"
+							name = "user"
+							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user" 
+							style="width: 300px" 
+							placeholder="All users" />
+				</p>
+				
+				<?php
+				global $wpdb;
+				$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+				$loggers_user_can_read_sql_in = $this->sh->getLoggersThatUserCanRead(null, "sql");
+				$sql_dates = sprintf('
+					SELECT DISTINCT ( date_format(DATE, "%%Y-%%m") ) AS yearMonth
+					FROM %s
+					WHERE logger IN %s
+					ORDER BY yearMonth DESC
+					', $table_name, // 1
+					$loggers_user_can_read_sql_in // 2
+				);
+				
+				$result_months = $wpdb->get_results($sql_dates);
+				?>
+				<p>
+					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date" 
+							name="months"
+							placeholder="All dates" multiple>
+						<?php
+						foreach ($result_months as $row) {
+							printf(
+								'<option value="%1$s">%2$s</option>',
+								$row->yearMonth,
+								date_i18n( "F Y", strtotime($row->yearMonth) )
+							);
+						}
+						?>
+					</select>						
+				</p>
+				
+				<p>
+					<button class="button js-SimpleHistoryFilterDropin-doFilter">Filter history</button>
+				</p>
 			
-			<?php
-			global $wpdb;
-			$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-			$loggers_user_can_read_sql_in = $this->sh->getLoggersThatUserCanRead(null, "sql");
-			$sql_dates = sprintf('
-				SELECT DISTINCT ( date_format(DATE, "%%Y-%%m") ) AS yearMonth
-				FROM %s
-				WHERE logger IN %s
-				ORDER BY yearMonth DESC
-				', $table_name, // 1
-				$loggers_user_can_read_sql_in // 2
-			);
-			
-			$result_months = $wpdb->get_results($sql_dates);
-			?>
-			<p>
-				<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date" style="width: 300px" 
-						placeholder="All dates" multiple>
-					<?php
-					foreach ($result_months as $row) {
-						printf(
-							'<option value="%1$s">%2$s</option>',
-							$row->yearMonth,
-							date_i18n( "F Y", strtotime($row->yearMonth) )
-						);
-					}
-					?>
-				</select>						
-			</p>
-			
-			<p>
-				<button class="button">Filter history</button>
-			</p>
+			</form>
 
 		</div>
 		<?
