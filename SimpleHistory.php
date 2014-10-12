@@ -89,8 +89,6 @@ class SimpleHistory {
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 
 		require_once ( dirname(__FILE__) . "/old-functions.php");
-		require_once ( dirname(__FILE__) . "/old-stuff.php");
-		require_once ( dirname(__FILE__) . "/simple-history-extender/simple-history-extender.php" );
 
 		add_action( 'wp_ajax_simple_history_api', array($this, 'api') );
 
@@ -824,10 +822,6 @@ class SimpleHistory {
 		// Check that all options we use are set to their defaults, if they miss value
 		// Each option that is missing a value will make a sql call otherwise = unnecessary
 		$arr_options = array(
-			array(
-				"name" => "sh_extender_modules",
-				"default_value" => ""
-			),
 			array(
 				"name" => "simple_history_show_as_page",
 				"default_value" => 1	

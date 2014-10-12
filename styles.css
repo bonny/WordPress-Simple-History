@@ -94,9 +94,12 @@ The spinner that wp uses:;
 	        transition: all .25s ease-out;
 }
 
-.SimpleHistory--isLoaded .SimpleHistoryLogitems {
+.SimpleHistory--isLoaded .SimpleHistoryLogitems,
+.SimpleHistoryGuiExample .SimpleHistoryLogitems {
 	opacity: 1;
 }
+
+
 
 /**
  * Log items
