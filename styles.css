@@ -36,12 +36,23 @@ The spinner that wp uses:;
 }
 
 /* on it's own page */
-.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {
+/*.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {*/
+.dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
+	/*float: left;*/
+	position: relative;
+	margin-right: 340px;
+	min-height: 100px;
+}
+
+.dashboard_page_simple_history_page .SimpleHistoryGui {
+	width: 100%;
 	float: left;
-	min-width: 10px;
-	width: 650px;
-	max-width: 650px;
-	min-height: 1px;
+}
+
+.SimpleHistory__filters {
+	float: right;
+	width: 300px;
+	margin-right: -340px;
 }
 
 

@@ -28,7 +28,7 @@ class SimpleHistoryFilterDropin {
 		<style>
 
 			.SimpleHistory__filters {
-				float: left;
+				/*float: left;*/
 			}
 
 			.SimpleHistory__filters__form select {

@@ -1164,22 +1164,26 @@ class SimpleHistory {
 			do_action( "simple_history/history_page/before_gui", $this );
 			?>
 
-			<div class="SimpleHistoryGui"
-				 data-pager-size='<?php echo $pager_size ?>'
-				 ></div>
+			<div class="SimpleHistoryGuiWrap">
 
-			<?php
+				<div class="SimpleHistoryGui"
+					 data-pager-size='<?php echo $pager_size ?>'
+					 ></div>
 
-			/**
-		     * Fires after the gui div
-		     *
-		     * @since 2.0
-		     *
-		     * @param SimpleHistory $SimpleHistory This class.
-		     */
-			do_action( "simple_history/history_page/after_gui", $this );
+				<?php
 
-			?>
+				/**
+			     * Fires after the gui div
+			     *
+			     * @since 2.0
+			     *
+			     * @param SimpleHistory $SimpleHistory This class.
+			     */
+				do_action( "simple_history/history_page/after_gui", $this );
+
+				?>
+			
+			</div>
 
 		</div>
 
