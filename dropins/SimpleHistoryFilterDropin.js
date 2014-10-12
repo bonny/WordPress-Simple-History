@@ -116,6 +116,7 @@ var SimpleHistoryFilterDropin = (function($) {
 			ajax: {
 				url: ajaxurl,
 				dataType: "json",
+				cache: true,
 				data: function (term, page) {
 					return {
 						q: term, // search term

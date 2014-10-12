@@ -51,7 +51,7 @@ class SimpleHistoryLogQuery {
 			"loggers" => null,
 
 			// @TODO: filter by userID
-			"userID" => null
+			"user" => null
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -322,8 +322,24 @@ class SimpleHistoryLogQuery {
 				$sql_loggers = "\n AND logger IN ({$sql_loggers}) ";
 			}
 
-			$inner_where .= $sql_loggers;;
+			$inner_where .= $sql_loggers;
 			
+		}
+
+		// user, a single userID
+		if ( ! empty( $args["user"] ) && is_numeric( $args["user"] ) ) {
+			
+			$userID = (int) $args["user"];
+			$sql_user = sprintf(
+				'
+				AND id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )
+				',
+				$table_name_contexts, // 1
+				$userID // 2
+			);
+
+			$inner_where .= $sql_user;
+
 		}
 
 
