@@ -89,7 +89,7 @@ class SimpleHistoryFilterDropin {
 
 			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
 		
-				<h2>Filter history</h2>
+				<h3>Filter history</h3>
 
 				<p>
 					<input type="search" placeholder="Search" name="search">
