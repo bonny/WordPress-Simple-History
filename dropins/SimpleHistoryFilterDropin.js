@@ -93,12 +93,23 @@ var SimpleHistoryFilterDropin = (function($) {
 
 		});
 
+		// Alter api args used by new log rows notifier
+		$(document).on("SimpleHistory:NewRowsNotifier:apiArgs", modifyNewRowsNotifierApiArgs);
+
+
 	}
 
-	/*
-	// Alter api args used by new log rows notifier
-	$(document).trigger("SimpleHistory:NewRowsNotifier:apiArgs", apiArgs);
-	*/
+	function modifyNewRowsNotifierApiArgs(e, apiArgs) {
+
+		console.log(e.type, apiArgs);
+		if (isFilteringActive) {
+			
+			apiArgs = _.extend(apiArgs, activeFilters);
+			console.log("apiArgs is now", apiArgs);
+
+		}
+
+	}
 
 	function modifyFetchData(collection, url_data) {
 

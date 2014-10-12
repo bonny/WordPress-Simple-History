@@ -1,12 +1,11 @@
 <?php
 
-/*
-Dropin Name: New Items Notifier
-Dropin Description: Checks for new rows and displays a info bar when new items are available
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
+/**
+ * Dropin Name: New Items Notifier
+ * Dropin Description: Checks for new rows and displays a info bar when new items are available
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
 */
-
 
 class SimpleHistoryNewRowsNotifier {
 
@@ -27,22 +26,6 @@ class SimpleHistoryNewRowsNotifier {
 		add_action( 'wp_ajax_SimpleHistoryNewRowsNotifier', array($this, 'ajax') );
 
 	}
-
-	/*
-
-	Regular check:
-	http://playground-root.ep/wp-admin/admin-ajax.php?action=SimpleHistoryNewRowsNotifier&since_id=27301
-
-	Check when filtering is active:
-	http://playground-root.ep/wp-admin/admin-ajax.php?action=SimpleHistoryNewRowsNotifier&since_id=27301
-	== same url
-	should take filter into consideration
-	i.e.
-	http://playground-root.ep/wp-admin/admin-ajax.php?action=SimpleHistoryNewRowsNotifier&since_id=27301&user=17
-
-
-
-	*/
 
 	public function ajax() {
 
