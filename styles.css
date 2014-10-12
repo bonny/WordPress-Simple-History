@@ -666,3 +666,10 @@ Modal window with detailss
 	font-size: 14px;
 }
 
+/* icon on log page*/
+.SimpleHistoryPageHeadline__icon {
+	font-size: 24px;
+	line-height: 30px;
+	width: 24px;
+}
+

@@ -366,10 +366,12 @@ class SimpleHistory {
 	 */
 	public function setupVariables() {
 	
+		// Capability required to view history = for who will the History page be added
 		$this->view_history_capability = "edit_pages";
 		$this->view_history_capability = apply_filters("simple_history_view_history_capability", $this->view_history_capability);
 		$this->view_history_capability = apply_filters("simple_history/view_history_capability", $this->view_history_capability);
 
+		// Capability required to view settings
 		$this->view_settings_capability = "manage_options";
 		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
@@ -1017,7 +1019,7 @@ class SimpleHistory {
 	function add_admin_pages() {
 	
 		// Add a history page as a sub-page below the Dashboard menu item
-		if ($this->setting_show_as_page()) {
+		if ( $this->setting_show_as_page() ) {
 			
 			add_dashboard_page(
 					SimpleHistory::NAME, 
@@ -1144,7 +1146,12 @@ class SimpleHistory {
 
 		<div class="wrap SimpleHistoryWrap">
 			
-			<h2><?php echo _x("History", 'history page headline', 'simple-history') ?></h2>
+			<h2 class="SimpleHistoryPageHeadline">
+				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
+				<!-- <div class="dashicons dashicons-exerpt-view"></div>
+				<div class="dashicons dashicons-editor-alignleft"></div> -->
+				<?php echo _x("History", 'history page headline', 'simple-history') ?>
+			</h2>
 
 			<?php
 			/**
