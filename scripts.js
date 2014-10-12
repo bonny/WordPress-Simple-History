@@ -108,6 +108,9 @@ var simple_history = (function($) {
 
 				$(".SimpleHistory__waitingForFirstLoad").addClass("SimpleHistory__waitingForFirstLoad--isLoaded");
 
+				// Add class to body to so we can catch loaded log everywhere in CSS
+				$("body").addClass("SimpleHistory--isLoaded");
+
 			}
 
 			var arrRows = [];

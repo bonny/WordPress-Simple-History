@@ -41,18 +41,47 @@ The spinner that wp uses:;
 	/*float: left;*/
 	position: relative;
 	margin-right: 340px;
-	min-height: 100px;
+	min-height: 200px;
+	background-color: rgba(255,255,255,.75);
+}
+
+.SimpleHistory--isLoaded.dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
+	background-color: transparent;
 }
 
 .dashboard_page_simple_history_page .SimpleHistoryGui {
 	width: 100%;
-	float: left;
+	float: left;background: tran
 }
+
+/*
+.SimpleHistoryGui:after {
+	content: "\f206";
+	font-family: dashicons;
+	font-size: 510px;
+	position: relative;
+	line-height: 1;
+	color: #ddd;
+	z-index: 0;
+}
+
+.SimpleHistory--isLoaded .SimpleHistoryGui:after {
+	display: none;
+}
+*/
 
 .SimpleHistory__filters {
 	float: right;
 	width: 300px;
 	margin-right: -340px;
+	/* hide by default while log is loading */
+	opacity: 0;
+	-webkit-transition: all .25s ease-out;
+	        transition: all .25s ease-out;
+}
+
+.SimpleHistory--isLoaded .SimpleHistory__filters {
+	opacity: 1;
 }
 
 
@@ -60,6 +89,13 @@ The spinner that wp uses:;
 	margin: 0;
 	background: #fff;
 	border: 1px solid rgb(229, 229, 229);
+	opacity: 0;
+	-webkit-transition: all .25s ease-out;
+	        transition: all .25s ease-out;
+}
+
+.SimpleHistory--isLoaded .SimpleHistoryLogitems {
+	opacity: 1;
 }
 
 /**
