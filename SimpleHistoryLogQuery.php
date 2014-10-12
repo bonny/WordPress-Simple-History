@@ -42,6 +42,7 @@ class SimpleHistoryLogQuery {
 			"date_to" => null,
 
 			// months in format "Y-m"
+			// array or comma separated
 			"months" => null,
 
 			// search
@@ -53,7 +54,7 @@ class SimpleHistoryLogQuery {
 			// loggers to include. comma separated. defaults to all the user can read
 			"loggers" => null,
 
-			// @TODO: filter by userID
+			// userID as number
 			"user" => null
 		);
 

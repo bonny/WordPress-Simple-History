@@ -95,6 +95,11 @@ var SimpleHistoryFilterDropin = (function($) {
 
 	}
 
+	/*
+	// Alter api args used by new log rows notifier
+	$(document).trigger("SimpleHistory:NewRowsNotifier:apiArgs", apiArgs);
+	*/
+
 	function modifyFetchData(collection, url_data) {
 
 		console.log("before_fetch", isFilteringActive);

@@ -28,18 +28,41 @@ class SimpleHistoryNewRowsNotifier {
 
 	}
 
+	/*
+
+	Regular check:
+	http://playground-root.ep/wp-admin/admin-ajax.php?action=SimpleHistoryNewRowsNotifier&since_id=27301
+
+	Check when filtering is active:
+	http://playground-root.ep/wp-admin/admin-ajax.php?action=SimpleHistoryNewRowsNotifier&since_id=27301
+	== same url
+	should take filter into consideration
+	i.e.
+	http://playground-root.ep/wp-admin/admin-ajax.php?action=SimpleHistoryNewRowsNotifier&since_id=27301&user=17
+
+
+
+	*/
+
 	public function ajax() {
 
-		$since_id = isset( $_GET["since_id"] ) ? absint($_GET["since_id"]) : null;
+		$apiArgs = isset( $_GET["apiArgs"] ) ? $_GET["apiArgs"] : array();
 
-		if ( ! $since_id ) {
+		if ( ! $apiArgs ) {
 			exit;
 		}
 
+		if ( empty( $apiArgs["since_id"] ) || ! is_numeric( $apiArgs["since_id"] ) ) {
+			exit;
+		}
+
+		// $since_id = isset( $_GET["since_id"] ) ? absint($_GET["since_id"]) : null;
+
+		$logQueryArgs = $apiArgs;
+
 		$logQuery = new SimpleHistoryLogQuery();
-		$answer = $logQuery->query(array(
-			"since_id" => $since_id
-		));
+
+		$answer = $logQuery->query( $logQueryArgs );
 
 		// Use our own repsonse array instead of $answer to keep size down
 		$json_data = array();
@@ -121,10 +144,16 @@ class SimpleHistoryNewRowsNotifier {
 				var checkForUpdates = function() {
 
 					var firstPageMaxID = simple_history.logRowsCollection.max_id_first_page;
+					var apiArgs = {
+						since_id: firstPageMaxID
+					};
 					
+					// Let plugins filter the API args
+					$(document).trigger("SimpleHistory:NewRowsNotifier:apiArgs", apiArgs);
+
 					$.get(ajaxurl, {
 						action: "SimpleHistoryNewRowsNotifier",
-						since_id: firstPageMaxID
+						apiArgs: apiArgs
 					}, function() {}, "json").done(function(response) {
 
 						// Always remove possible error class
