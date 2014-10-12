@@ -1951,6 +1951,7 @@ class SimpleHistory {
 					);
 
 					// Space between texts
+					/*
 					echo " ";
 
 					// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
@@ -1958,6 +1959,7 @@ class SimpleHistory {
 						'<a href="%1$s">View more stats</a>.',
 						add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
 					);
+					*/
 
 				}
 	
