@@ -151,7 +151,6 @@ class SimpleHistoryNewRowsNotifier {
 
 					}).fail(function(jqXHR, textStatus, errorThrown) {
 
-						console.log("strings", strings);
 						$elm.html( strings.errorCheck );
 						$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
 

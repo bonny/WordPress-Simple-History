@@ -35,9 +35,7 @@ var SimpleHistoryFilterDropin = (function($) {
 	function onSubmitForm(e) {
 		
 		e.preventDefault();
-
-		console.log("submit filter form");
-		
+	
 		// form serialize
 		// search=apa&loglevels=critical&loglevels=alert&loggers=SimpleMediaLogger&loggers=SimpleMenuLogger&user=1&months=2014-09 SimpleHistoryFilterDropin.js?ver=2.0:40
 		var $search = $elms.filter_form.find("[name='search']");
@@ -75,8 +73,8 @@ var SimpleHistoryFilterDropin = (function($) {
 			activeFilters.months = $months.val();
 		}
 
-		console.log( "filtering is active:", isFilteringActive );
-		console.log($search.val(), $loglevels.val(), $loggers.val(), $user.val(), $months.val());
+		// console.log( "filtering is active:", isFilteringActive );
+		// console.log($search.val(), $loglevels.val(), $loggers.val(), $user.val(), $months.val());
 
 		// Reload the log rows collection
 		simple_history.logRowsCollection.reload();
@@ -88,7 +86,6 @@ var SimpleHistoryFilterDropin = (function($) {
 		$(document).on("SimpleHistory:mainViewInitBeforeLoadRows", function() {
 
 			// Modify query string parameters before the log rows collection fetches/syncs
-			console.log("addFetchListener");
 			simple_history.logRowsCollection.on("before_fetch", modifyFetchData);
 
 		});
@@ -101,11 +98,9 @@ var SimpleHistoryFilterDropin = (function($) {
 
 	function modifyNewRowsNotifierApiArgs(e, apiArgs) {
 
-		console.log(e.type, apiArgs);
 		if (isFilteringActive) {
 			
 			apiArgs = _.extend(apiArgs, activeFilters);
-			console.log("apiArgs is now", apiArgs);
 
 		}
 
@@ -113,11 +108,9 @@ var SimpleHistoryFilterDropin = (function($) {
 
 	function modifyFetchData(collection, url_data) {
 
-		console.log("before_fetch", isFilteringActive);
 		if (isFilteringActive) {		
 
 			url_data = _.extend(url_data, activeFilters);
-			console.log("url_data", url_data);
 
 		}
 		
@@ -142,7 +135,6 @@ var SimpleHistoryFilterDropin = (function($) {
 				},
 				results: function (data, page) { // parse the results into the format expected by Select2.
 					// since we are using custom formatting functions we do not need to alter remote JSON data
-					//console.log("resuts", data.data);
 					return data.data;
 				}
 			},

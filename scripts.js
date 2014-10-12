@@ -501,7 +501,6 @@ var simple_history = (function($) {
 			this.collection.trigger("before_fetch", this.collection, url_data);
 
 			// nav = fetch collection items again
-			console.log("fetch page");
 			this.collection.fetch({
 				reset: true,
 				data: url_data,
