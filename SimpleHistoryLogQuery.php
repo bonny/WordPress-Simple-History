@@ -41,6 +41,9 @@ class SimpleHistoryLogQuery {
 			"date_from" => null,
 			"date_to" => null,
 
+			// months in format "Y-m"
+			"months" => null,
+
 			// search
 			"search" => null,
 			
@@ -237,6 +240,61 @@ class SimpleHistoryLogQuery {
 
 		}
 
+		// months, in format "Y-m"
+		if ( ! empty( $args["months"] ) ) {
+
+			if ( is_array( $args["months"] ) ) {
+				$arr_months = $args["months"];
+			} else {
+				$arr_months = explode(",", $args["months"]);
+			}
+
+			$sql_months = '
+				# sql_months
+				AND ( 
+			';
+
+			foreach ( $arr_months as $one_month ) {
+				
+				// beginning of month
+				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08") ) . "\n";
+				// >> 2014-08-01 00:00
+				$date_month_beginning = strtotime( $one_month );
+
+				// end of month
+				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08 + 1 month") ) . "\n";'
+				// >> 2014-09-01 00:00
+				$date_month_end = strtotime( "{$one_month} + 1 month" );
+	
+				$sql_months .= sprintf(
+					'
+					(
+						UNIX_TIMESTAMP(date) >=%1$d
+						AND UNIX_TIMESTAMP(date) <= %2$d
+					)
+
+					OR 
+					', 
+					$date_month_beginning, // 1
+					$date_month_end // 2
+
+				);
+
+			}
+
+			$sql_months = trim($sql_months);
+			$sql_months = rtrim($sql_months, " OR ");
+
+			$sql_months .= '
+				# end sql_months and wrap
+				)
+			';
+
+			$inner_where .= $sql_months;
+			// echo $inner_where;exit;
+
+		}
+
 		// ssearch
 		if ( ! empty( $args["search"] ) ) {
 			
@@ -297,7 +355,7 @@ class SimpleHistoryLogQuery {
 				$sql_loglevels = "\n AND level IN ({$sql_loglevels}) ";
 			}
 
-			$inner_where .= $sql_loglevels;;
+			$inner_where .= $sql_loglevels;
 			
 		}
 
