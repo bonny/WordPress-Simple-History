@@ -5,13 +5,15 @@
  */ 
 class SimpleHistoryLogQuery {
 	
-	public function __construct($args = array()) {
+	public function __construct() {
 
+		/*
 		if ( is_array($args) && ! empty($args) ) {
 
-			$this->query($args);
+			return $this->query($args);
 
 		}
+		*/
 
 	}
 
