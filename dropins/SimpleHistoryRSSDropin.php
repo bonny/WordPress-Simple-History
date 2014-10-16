@@ -11,8 +11,14 @@ Author: Pär Thernström
  */
 class SimpleHistoryRSSDropin {
 
-	function __construct() {
+	function __construct($sh) {
 		
+		$this->sh = $sh;
+
+		if ( ! function_exists('get_editable_roles') ) {
+			require_once( ABSPATH . '/wp-admin/includes/user.php' );
+		}
+
 		add_action( 'init', array($this, 'check_for_rss_feed_request') );
 
 		// Add settings with prio 11 so it' added after the main Simple History settings
@@ -86,7 +92,7 @@ class SimpleHistoryRSSDropin {
 		
 		// check for RSS
 		// don't know if this is the right way to do this, but it seems to work!
-		if ( isset($_GET["simple_history_get_rss"]) ) {
+		if ( isset( $_GET["simple_history_get_rss"] ) ) {
 
 			$this->output_rss();
 			exit;
@@ -103,7 +109,7 @@ class SimpleHistoryRSSDropin {
 			$rss_secret_option = get_option("simple_history_rss_secret");
 			$rss_secret_get = isset( $_GET["rss_secret"] ) ? $_GET["rss_secret"] : "";
 
-			if ( empty($rss_secret_option) || empty($rss_secret_get) ) {
+			if ( empty( $rss_secret_option ) || empty( $rss_secret_get ) ) {
 				die();
 			}
 
@@ -127,23 +133,84 @@ class SimpleHistoryRSSDropin {
 						<atom:link href="<?php echo $self_link; ?>" rel="self" type="application/atom+xml" />
 						<?php
 
-						// Add filters here
-						/*
-								"page"        => 0,
-								"items"       => $simple_history->get_pager_size(),
-								"filter_type" => "",
-								"filter_user" => "",
-								"search"      => "",
-								"num_added"   => 0
-						*/
+						// Get log rows
 						$args = array(
-							"items" => "10"
+							"posts_per_page" => 10
 						);
 
 						$args = apply_filters("simple_history/rss_feed_args", $args);
+						
+						$logQuery = new SimpleHistoryLogQuery();
+						$queryResults = $logQuery->query($args);
+						foreach ($queryResults["log_rows"] as $row) {
+							
+							$header_output = $this->sh->getLogRowHeaderOutput( $row );
+							$text_output = $this->sh->getLogRowPlainTextOutput( $row );
+							$details_output = $this->sh->getLogRowDetailsOutput( $row );
+							$item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;
+							
+							?>
+							<item>
+								<title><![CDATA[<?php echo $item_title; ?>]]></title>
+								<description><![CDATA[
+									<p><?php echo $header_output ?></p>
+									<p><?php echo $text_output ?></p>
+									<div><?php echo $details_output ?></div>
+									<?php
+									$occasions = $row->subsequentOccasions - 1;
+									if ( $occasions ) {
+										printf( _n('+%1$s occasion', '+%1$s occasions', "simple-history"), $occasions );
+									}
+									?>
+								]]></description>
+								<author><?php echo $row->initiator ?></author>
+								<pubDate><?php echo date("D, d M Y H:i:s", strtotime($row->date)) ?> GMT</pubDate>
+								<guid isPermaLink="false"><?php echo $item_guid ?></guid>
+								<link><?php echo $item_guid ?></link>
+							</item>
+							<?php
+							/*
+				            [0] =&gt; stdClass Object
+				                (
+				                    [id] =&gt; 27324
+				                    [logger] =&gt; SimplePluginLogger
+				                    [level] =&gt; info
+				                    [date] =&gt; 2014-10-15 06:50:01
+				                    [message] =&gt; Updated plugin &quot;{plugin_name}&quot; from {plugin_prev_version} to {plugin_version}
+				                    [type] =&gt; 
+				                    [initiator] =&gt; wp_user
+				                    [occasionsID] =&gt; 75e8aeab3e43b37f8a458f3744c4995f
+				                    [subsequentOccasions] =&gt; 1
+				                    [rep] =&gt; 1
+				                    [repeated] =&gt; 1
+				                    [occasionsIDType] =&gt; 75e8aeab3e43b37f8a458f3744c4995f
+				                    [context] =&gt; Array
+				                        (
+				                            [plugin_slug] =&gt; google-analytics-for-wordpress
+				                            [plugin_name] =&gt; Google Analytics by Yoast
+				                            [plugin_title] =&gt; &lt;a href=&quot;https://yoast.com/wordpress/plugins/google-analytics/#utm_source=wordpress&amp;#038;utm_medium=plugin&amp;#038;utm_campaign=wpgaplugin&amp;#038;utm_content=v504&quot;&gt;Google Analytics by Yoast&lt;/a&gt;
+				                            [plugin_description] =&gt; This plugin makes it simple to add Google Analytics to your WordPress blog, adding lots of features, eg. error page, search result and automatic clickout and download tracking. &lt;cite&gt;By &lt;a href=&quot;https://yoast.com/&quot;&gt;Team Yoast&lt;/a&gt;.&lt;/cite&gt;
+				                            [plugin_author] =&gt; &lt;a href=&quot;https://yoast.com/&quot;&gt;Team Yoast&lt;/a&gt;
+				                            [plugin_version] =&gt; 5.0.7
+				                            [plugin_url] =&gt; https://yoast.com/wordpress/plugins/google-analytics/#utm_source=wordpress&amp;#038;utm_medium=plugin&amp;#038;utm_campaign=wpgaplugin&amp;#038;utm_content=v504
+				                            [plugin_update_info_plugin] =&gt; google-analytics-for-wordpress/googleanalytics.php
+				                            [plugin_update_info_package] =&gt; https://downloads.wordpress.org/plugin/google-analytics-for-wordpress.5.0.7.zip
+				                            [plugin_prev_version] =&gt; 5.0.6
+				                            [_message_key] =&gt; plugin_bulk_updated
+				                            [_user_id] =&gt; 1
+				                            [_user_login] =&gt; admin
+				                            [_user_email] =&gt; par.thernstrom@gmail.com
+				                            [_server_remote_addr] =&gt; ::1
+				                            [_server_http_referer] =&gt; http://playground-root.ep/wp-admin/update-core.php?action=do-plugin-upgrade
+				                        )
 
+				                )
+							*/
+
+						}
+
+						/*
 						$arr_items = simple_history_get_items_array($args);
-
 						foreach ($arr_items as $one_item) {
 							$object_type = ucwords($one_item->object_type);
 							$object_name = esc_html($one_item->object_name);
@@ -178,12 +245,14 @@ class SimpleHistoryRSSDropin {
 							  </item>
 							<?php
 						}
+						*/
 						?>
 					</channel>
 				</rss>
 				<?php
 			} else {
-				// not ok rss secret
+
+				// RSS secret was not ok
 				?>
 				<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 					<channel>
