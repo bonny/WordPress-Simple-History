@@ -1472,7 +1472,7 @@ class SimpleHistory {
 	 * @param array $row 
 	 * @return string
 	 */
-	private function getLogRowPlainTextOutput($row) {
+	public function getLogRowPlainTextOutput($row) {
 
 		$row_logger = $row->logger;
 		$logger = null;
@@ -1504,7 +1504,7 @@ class SimpleHistory {
 	 * @param array $row
 	 * @return string
 	 */
-	private function getLogRowHeaderOutput($row) {
+	public function getLogRowHeaderOutput($row) {
 
 		$row_logger = $row->logger;
 		$logger = null;
@@ -1544,7 +1544,7 @@ class SimpleHistory {
 
 	}
 
-	private function getLogRowDetailsOutput($row) {
+	public function getLogRowDetailsOutput($row) {
 
 		$row_logger = $row->logger;
 		$logger = null;
