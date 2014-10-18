@@ -32,10 +32,12 @@ class SimpleHistoryNewRowsNotifier {
 		$apiArgs = isset( $_GET["apiArgs"] ) ? $_GET["apiArgs"] : array();
 
 		if ( ! $apiArgs ) {
+			wp_send_json_error( array("error" => "MISSING_APIARGS") );
 			exit;
 		}
 
 		if ( empty( $apiArgs["since_id"] ) || ! is_numeric( $apiArgs["since_id"] ) ) {
+			wp_send_json_error( array("error" => "MISSING_SINCE_ID") );
 			exit;
 		}
 
