@@ -6,15 +6,17 @@ echo "<h3>Users</h3>";
 echo "<p>Number of logged items for the 5 users with most logged rows.</p>";
 echo "<p>Deleted users are also included.</p>";
 
-$sql_users = '
-	SELECT 
-		DISTINCT value as user_id, 
-		wp_users.* 
-	FROM wp_simple_history_contexts
-	LEFT JOIN wp_users ON wp_users.id = wp_simple_history_contexts.value
-	WHERE `KEY` = "_user_id"
-	GROUP BY value
-';
+$sql_users = sprintf('
+		SELECT 
+			DISTINCT value as user_id, 
+			wp_users.* 
+		FROM %1$s AS c
+		LEFT JOIN wp_users ON wp_users.id = c.value
+		WHERE c.key = "_user_id"
+		GROUP BY c.value
+		',
+		$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS // 1
+	);
 
 $user_results = $wpdb->get_results($sql_users);
 #sf_d($user_results);
@@ -44,11 +46,18 @@ foreach ($user_results as $one_user_result) {
 	if ($user_id) {
 
 		$sql_user_count = sprintf('
-			SELECT count(value) as count
-			FROM wp_simple_history_contexts
-			WHERE `KEY` = "_user_id"
-			AND value = %1$s
-		', $user_id);
+			SELECT count(VALUE) AS count
+			FROM %1$s AS c
+			INNER JOIN %2$s AS h ON h.id = c.history_id
+			WHERE c.key = "_user_id"
+			AND c.value = %3$s
+			AND UNIX_TIMESTAMP(h.date) >= %4$s
+					',
+			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS, // 1
+			$wpdb->prefix . SimpleHistory::DBTABLE, // 2
+			$user_id, // 3
+			strtotime("-$period_days days") // 4
+		);
 
 		$user_rows_count = $wpdb->get_var( $sql_user_count );
 

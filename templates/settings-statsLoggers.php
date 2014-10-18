@@ -13,7 +13,6 @@ foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
 	$arr_logger_slugs[] = $oneLogger["instance"]->slug;
 }
 
-echo $period_days;
 $sql_logger_counts = sprintf('
 	SELECT logger, count(id) as count
 	FROM %1$s

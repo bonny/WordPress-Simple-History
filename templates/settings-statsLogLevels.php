@@ -17,10 +17,14 @@ $sql = sprintf('
 		level,
 		count(level) as count
 	FROM %1$s
+	WHERE UNIX_TIMESTAMP(date) >= %2$d
 	GROUP BY level
 	ORDER BY count DESC
-	', $table_name
+	', 
+	$table_name, // 1
+	strtotime("-$period_days days") // 2
 );
+
 
 $level_counts = $wpdb->get_results($sql);
 
