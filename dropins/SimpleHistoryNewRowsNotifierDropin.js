@@ -45,7 +45,8 @@
 	};
 
 	// When the log is loaded the first time
-	$(document).on("SimpleHistory:logRowsCollectionFirstLoad", function() {
+	// Actually it's also called when log is reloaded, so use one() instead of on() here
+	$(document).one("SimpleHistory:logRowsCollectionFirstLoad", function() {
 		
 		if (!$elmWrapper) {
 
