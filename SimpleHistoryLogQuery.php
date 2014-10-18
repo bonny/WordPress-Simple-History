@@ -20,21 +20,26 @@ class SimpleHistoryLogQuery {
 	public function query($args) {
 		
 		$defaults = array(
+
 			// overview | occasions
 			"type" => "overview",
+
 			// Number of posts to show per page. 0 to show all.
 			"posts_per_page" => 0,
+
 			// Page to show. 1 = first page
 			"paged" => 1,
-			// Free text search
-			"s" => null,
+
 			// Array. Only get posts that are in array.
 			"post__in" => null,
+
 			// array or html
 			"format" => "array",
+
 			// If max_id_first_page is set then only get rows
 			// that have id equal or lower than this, to make
 			"max_id_first_page" => null,
+
 			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id
 			"since_id" => null,
 			
@@ -324,7 +329,7 @@ class SimpleHistoryLogQuery {
 				$str_sql_search_words = ltrim($str_sql_search_words, ' AND ');
 	
 				$str_search_conditions .= "\n" . sprintf(
-					' OR ( %1$s ) ',
+					'   OR ( %1$s ) ',
 					$str_sql_search_words
 				);
 
@@ -332,7 +337,24 @@ class SimpleHistoryLogQuery {
 
 			$str_search_conditions = preg_replace('/^OR /', " ", trim($str_search_conditions));
 
-			$inner_where .= "\n AND (\n {$str_search_conditions} ) ";
+			// also search contexts
+			$str_search_conditions .= "\n   OR ( ";
+			foreach ($arr_search_words as $one_search_word) {
+
+				$str_search_conditions .= "\n" . sprintf(
+					'	id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
+					$table_name_contexts, // 1
+					"%" . esc_sql( $wpdb->esc_like( $one_search_word ) ) . "%" // 2
+				);
+
+			}
+			$str_search_conditions = preg_replace('/ AND $/', "", $str_search_conditions);
+
+			$str_search_conditions .= "\n   ) "; // end or for contexts
+
+			$inner_where .= "\n AND \n(\n {$str_search_conditions} \n ) ";
+
+			#echo $inner_where;exit;
 
 		}
 
