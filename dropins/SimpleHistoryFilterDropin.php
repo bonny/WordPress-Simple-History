@@ -19,59 +19,14 @@ class SimpleHistoryFilterDropin {
 		add_action("simple_history/history_page/after_gui", array( $this, "gui_page_filters") );	
 		add_action("wp_ajax_simple_history_filters_search_user", array( $this, "ajax_simple_history_filters_search_user") );
 
-		add_action("simple_history/admin_head", array($this, "admin_head"));
-
-	}
-
-	public function admin_head() {
-		?>
-		<style>
-
-			.SimpleHistory__filters {
-				/*float: left;*/
-			}
-
-			.SimpleHistory__filters__form select {
-				width: 100%;
-			}
-
-			.SimpleHistory__filters__form input[type=text], 
-			.SimpleHistory__filters__form input[type=search] {
-				width: 100%;
-			}
-
-			/**
-			 * Search results in filter
-			 */
-			.SimpleHistory__filters__userfilter__gravatar,
-			.SimpleHistory__filters__userfilter__primary,
-			.SimpleHistory__filters__userfilter__secondary {
-				display: inline-block;
-				vertical-align: middle;
-				line-height: 1;
-			}
-
-			.SimpleHistory__filters__userfilter__primary {
-				margin-right: 5px;
-			}
-
-			.SimpleHistory__filters__userfilter__secondary {
-				color: #999;
-			}
-
-			.SimpleHistory__filters__userfilter__gravatar {
-				margin-right: 10px;
-			}
-
-
-		</style>
-		<?php
 	}
 
 	public function enqueue_admin_scripts() {
 
 		$file_url = plugin_dir_url(__FILE__);
 		wp_enqueue_script("simple_history_FilterDropin", $file_url . "SimpleHistoryFilterDropin.js", array("jquery"), SimpleHistory::VERSION, true);
+		
+		wp_enqueue_style("simple_history_FilterDropin", $file_url . "SimpleHistoryFilterDropin.css", null, SimpleHistory::VERSION);
 
 	}
 

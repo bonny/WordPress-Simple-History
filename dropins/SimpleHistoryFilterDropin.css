@@ -1,0 +1,37 @@
+
+/*.SimpleHistory__filters {
+
+}*/
+
+.SimpleHistory__filters__form select {
+	width: 100%;
+}
+
+.SimpleHistory__filters__form input[type=text], 
+.SimpleHistory__filters__form input[type=search] {
+	width: 100%;
+}
+
+/**
+ * Search results in filter
+ */
+.SimpleHistory__filters__userfilter__gravatar,
+.SimpleHistory__filters__userfilter__primary,
+.SimpleHistory__filters__userfilter__secondary {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 1;
+}
+
+.SimpleHistory__filters__userfilter__primary {
+	margin-right: 5px;
+}
+
+.SimpleHistory__filters__userfilter__secondary {
+	color: #999;
+}
+
+.SimpleHistory__filters__userfilter__gravatar {
+	margin-right: 10px;
+}
+

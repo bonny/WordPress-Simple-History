@@ -39,7 +39,7 @@ class SimpleHistoryNewRowsNotifier {
 
 		wp_localize_script( "simple_history_NewRowsNotifierDropin", "simple_history_NewRowsNotifierDropin", $arr_localize_data );
 
-		wp_enqueue_style( "simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.css");
+		wp_enqueue_style( "simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.css", null, SimpleHistory::VERSION);
 
 	}
 
