@@ -102,6 +102,17 @@ class SimpleHistoryRSSDropin {
 	}
 
 	/**
+	 * Modify capability check so all users reading rss feed (logged in or not) can read all loggers
+	 */
+	public function on_can_read_single_logger( $user_can_read_logger, $logger_instance, $user_id ) {
+
+		$user_can_read_logger = true;
+
+		return $user_can_read_logger;
+
+	}
+
+	/**
 	 * Output RSS
 	 */
 	function output_rss() {
@@ -123,7 +134,8 @@ class SimpleHistoryRSSDropin {
 			echo '<?xml version="1.0" encoding="UTF-8"?>';
 			$self_link = $this->get_rss_address();
 	
-			if ($rss_secret_option === $rss_secret_get) {
+			if ( $rss_secret_option === $rss_secret_get ) {
+				
 				?>
 				<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 					<channel>
@@ -132,6 +144,18 @@ class SimpleHistoryRSSDropin {
 						<link><?php echo get_bloginfo("url") ?></link>
 						<atom:link href="<?php echo $self_link; ?>" rel="self" type="application/atom+xml" />
 						<?php
+
+						// Override capability check: if you have a valid rss_secret_key you can read it all
+						$action_tag = "simple_history/loggers_user_can_read/can_read_single_logger";
+						add_action( $action_tag, array($this, "on_can_read_single_logger") );					
+
+						/*add_action("simple_history/header_just_now_max_time", function($time_ago_just_now_max_time) {
+							return 2;
+						});*/
+						
+						// Modify header time output so it does not show relative date or time ago-format
+						// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate
+						add_action("simple_history/header_time_ago_max_time", "'__return_zero'");
 
 						// Get log rows
 						$args = array(
@@ -142,12 +166,18 @@ class SimpleHistoryRSSDropin {
 						
 						$logQuery = new SimpleHistoryLogQuery();
 						$queryResults = $logQuery->query($args);
+
+						// Remove capability override after query is done
+						remove_action( $action_tag, array($this, "on_can_read_single_logger") );
+
 						foreach ($queryResults["log_rows"] as $row) {
 							
 							$header_output = $this->sh->getLogRowHeaderOutput( $row );
 							$text_output = $this->sh->getLogRowPlainTextOutput( $row );
 							$details_output = $this->sh->getLogRowDetailsOutput( $row );
 							$item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;
+
+							$item_title = wp_kses( $header_output . ": " . $text_output, array() );
 							
 							?>
 							<item>
