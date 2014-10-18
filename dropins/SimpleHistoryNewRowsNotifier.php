@@ -22,7 +22,6 @@ class SimpleHistoryNewRowsNotifier {
 		// How often the script checks for new rows
 		$this->interval = (int) apply_filters("SimpleHistoryNewRowsNotifier/interval", $this->interval);
 
-		add_action( 'admin_head', array($this, 'on_admin_head'));
 		add_action( 'wp_ajax_SimpleHistoryNewRowsNotifier', array($this, 'ajax') );
 		add_action( "simple_history/enqueue_admin_scripts", array($this, "enqueue_admin_scripts") );
 
@@ -31,13 +30,16 @@ class SimpleHistoryNewRowsNotifier {
 	public function enqueue_admin_scripts() {
 
 		$file_url = plugin_dir_url(__FILE__);
+
 		wp_enqueue_script("simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.js", array("jquery"), SimpleHistory::VERSION, true);
 
 		$arr_localize_data = array(
 			"interval" => $this->interval
 		);
+
 		wp_localize_script( "simple_history_NewRowsNotifierDropin", "simple_history_NewRowsNotifierDropin", $arr_localize_data );
-		
+
+		wp_enqueue_style( "simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.css");
 
 	}
 
@@ -82,52 +84,6 @@ class SimpleHistoryNewRowsNotifier {
 		}
 
 		wp_send_json_success( $json_data );
-
-	}
-
-	public function on_admin_head() {
-
-		?>
-		<style>
-			.SimpleHistoryDropin__NewRowsNotifier {
-				max-height: 0;
-				overflow: hidden;
-				text-align: center;
-				background: white;
-				line-height: 40px;
-				background: rgba(0, 255, 30, 0.15);
-				-webkit-transition: max-height .5s ease-out, background 0s;
-				        transition: max-height .5s ease-out, background 0s;
-			}
-		
-			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
-				max-height: 50px;
-				cursor: pointer;
-			}
-
-			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:before {
-				content: '\f463';
-				font: 400 20px/1 dashicons;
-				-webkit-font-smoothing: antialiased;
-				display: inline-block;
-				vertical-align: middle;
-				margin-right: .5em;
-			}
-
-			.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:hover {
-				/*text-decoration: underline;*/
-				background: rgba(0, 255, 30, 0.5);
-			}
-
-			/* when there is a remote error or server down etc */
-			.SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck {
-				max-height: 50px;
-				background: rgb(254, 247, 241);
-			}
-
-		</style>
-
-		<?php
 
 	}
 
