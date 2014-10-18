@@ -542,6 +542,12 @@ var simple_history = (function($) {
 		
 		el: ".SimpleHistoryGui",
 
+		initialize: function() {
+
+			this.addNeededElements();
+
+		},
+
 		manualInitialize: function() {
 
 			// Don't try to init if our element does not exist
@@ -551,8 +557,6 @@ var simple_history = (function($) {
 
 			this.logRouter = new LogRouter();
 			Backbone.history.start();
-
-			this.addNeededElements();
 
 			this.logRowsCollection = new LogRowsCollection([], {
 				mainView: this,
@@ -627,7 +631,7 @@ var simple_history = (function($) {
 	// Init MainView on domReady
 	// This is to make sure dropins and plugins have been loaded
 	$(document).ready(function() {
-		
+	
 		mainView.manualInitialize();
 		
 	});
