@@ -108,6 +108,35 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/after_init", $this );
 
+		#add_action("init", array($this, "testlog_old"));
+
+
+	}
+
+	public function testlog_old() {
+
+		# Log that an email has been sent
+		simple_history_add(array(
+		    "object_type" => "Email",
+		    "object_name" => "Hi there",
+		    "action" => "was sent"
+		));
+
+		# Will show “Plugin your_plugin_name Edited” in the history log
+		simple_history_add("action=edited&object_type=plugin&object_name=your_plugin_name");
+
+		# Will show the history item "Starship USS Enterprise repaired"
+		simple_history_add("action=repaired&object_type=Starship&object_name=USS Enterprise");
+
+		# Log with some extra details about the email
+		simple_history_add(array(
+		    "object_type" => "Email",
+		    "object_name" => "Hi there",
+		    "action" => "was sent",
+		    "description" => "The database query to generate the email took .3 seconds. This is email number 4 that is sent to this user"
+		));
+
+
 	}
 
 	public function onAdminHead() {
@@ -845,6 +874,7 @@ class SimpleHistory {
 		}
 
 		/**
+		 * @since 2.0
 		 * If db_version is 2 then upgrade to 3:
 		 * - Add some fields to existing table wp_simple_history_contexts
 		 * - Add all new table wp_simple_history_contexts
@@ -912,6 +942,18 @@ class SimpleHistory {
 					"_initiator" => SimpleLoggerLogInitiators::WORDPRESS
 				)
 			);
+
+			// Update old items to use SimpleLegacyLogger
+			$sql = sprintf('
+					UPDATE %1$s
+					SET 
+						logger = "SimpleLegacyLogger",
+						level = "info"
+					WHERE logger IS NULL
+				', 
+				$table_name
+			);
+			$wpdb->query( $sql );
 
 		}
 		
