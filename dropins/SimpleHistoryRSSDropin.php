@@ -149,13 +149,10 @@ class SimpleHistoryRSSDropin {
 						$action_tag = "simple_history/loggers_user_can_read/can_read_single_logger";
 						add_action( $action_tag, array($this, "on_can_read_single_logger") );					
 
-						/*add_action("simple_history/header_just_now_max_time", function($time_ago_just_now_max_time) {
-							return 2;
-						});*/
-						
 						// Modify header time output so it does not show relative date or time ago-format
 						// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate
-						add_action("simple_history/header_time_ago_max_time", "'__return_zero'");
+						add_action("simple_history/header_just_now_max_time", "__return_zero");
+						add_action("simple_history/header_time_ago_max_time", "__return_zero");
 
 						// Get log rows
 						$args = array(
@@ -168,7 +165,7 @@ class SimpleHistoryRSSDropin {
 						$queryResults = $logQuery->query($args);
 
 						// Remove capability override after query is done
-						remove_action( $action_tag, array($this, "on_can_read_single_logger") );
+						// remove_action( $action_tag, array($this, "on_can_read_single_logger") );
 
 						foreach ($queryResults["log_rows"] as $row) {
 							
