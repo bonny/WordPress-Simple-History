@@ -115,7 +115,7 @@ class SimpleHistory {
 		if ( $this->is_on_our_own_pages() ) {
 			
 			do_action( "simple_history/admin_head", $this );
-			
+
 		}
 
 	}
@@ -763,7 +763,7 @@ class SimpleHistory {
 			
 			// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
 			$sql = "CREATE TABLE " . $table_name . " (
-			  id int(10) NOT NULL AUTO_INCREMENT,
+			  id bigint(20) NOT NULL AUTO_INCREMENT,
 			  date datetime NOT NULL,
 			  action VARCHAR(256) NOT NULL COLLATE utf8_general_ci,
 			  object_type VARCHAR(256) NOT NULL COLLATE utf8_general_ci,
@@ -895,12 +895,21 @@ class SimpleHistory {
 			$db_version = 3;
 			update_option("simple_history_db_version", $db_version);
 
-			// How to translate this?
+			// @TODO: How to translate this?
+			// own logger for custom messages or what?
 			SimpleLogger()->debug(
 				"Simple History updated its database from version {from_version} to {to_version}",
 				array(
 					"from_version" => $db_version_prev,
 					"to_version" => $db_version
+				)
+			);
+
+			SimpleLogger()->info(
+				"Welcome to Simple History 2! Hope you will enjoy this new version. 
+				Found bugs? Got great ideas? Send them to the plugin developer at par.thernstrom@gmail.com.",
+				array(
+					"_initiator" => SimpleLoggerLogInitiators::WORDPRESS
 				)
 			);
 
