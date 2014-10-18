@@ -135,7 +135,7 @@ class SimpleLogger
 		switch ( $initiator ) {
 
 			case "wp":
-				$initiator_html .= "<strong>WordPress</strong>";
+				$initiator_html .= '<strong class="SimpleHistoryLogitem__inlineDivided">WordPress</strong> ';
 				break;
 
 			// wp_user = wordpress uses, but user may have been deleted since log entry was added
