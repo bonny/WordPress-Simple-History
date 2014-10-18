@@ -214,7 +214,7 @@ class SimpleHistoryFilterDropin {
 		$results_user = $wpdb->get_results( $sql_users );
 
 		// add gravatars to user array
-		array_walk( $results_user, add_gravatar_to_user_array( & $val, $index ) );
+		array_walk( $results_user, array($this, "add_gravatar_to_user_array") );
 
 		$data = array(
 			"results" => array(
