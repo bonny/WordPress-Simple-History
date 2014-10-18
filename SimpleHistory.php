@@ -1780,11 +1780,25 @@ class SimpleHistory {
 
 			$logger_capability = $one_logger["instance"]->getCapability();
 
-			if ( user_can( $user_id, $logger_capability ) ) {
+			//$arr_loggers_user_can_view = apply_filters("simple_history/loggers_user_can_read", $user_id, $arr_loggers_user_can_view);
+			$user_can_read_logger = user_can( $user_id, $logger_capability );			
+			$user_can_read_logger = apply_filters("simple_history/loggers_user_can_read/can_read_single_logger", $user_can_read_logger, $one_logger["instance"], $user_id);
+
+			if ( $user_can_read_logger ) {
 				$arr_loggers_user_can_view[] = $one_logger;
 			}
 
 		}
+
+		/**
+	     * Fires before Simple History does it's init stuff
+	     *
+	     * @since 2.0
+	     *
+	     * @param array $arr_loggers_user_can_view Array with loggers that user $user_id can read
+	     * @param int user_id ID of user to check read capability for
+	     */
+		$arr_loggers_user_can_view = apply_filters("simple_history/loggers_user_can_read", $arr_loggers_user_can_view, $user_id);
 
 		// just return array with slugs in parenthesis suitable for sql-where
 		if ( "sql" == $format ) {
