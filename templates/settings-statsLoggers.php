@@ -13,13 +13,20 @@ foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
 	$arr_logger_slugs[] = $oneLogger["instance"]->slug;
 }
 
+echo $period_days;
 $sql_logger_counts = sprintf('
 	SELECT logger, count(id) as count
 	FROM %1$s
-	WHERE logger IN ("%2$s")
+	WHERE 
+		logger IN ("%2$s")
+		AND UNIX_TIMESTAMP(date) >= %3$d
 	GROUP BY logger
 	ORDER BY count DESC
-', $table_name, join($arr_logger_slugs, '","'));
+	', 
+	$table_name, // 1
+	join($arr_logger_slugs, '","'), // 2
+	strtotime("-$period_days days")
+);
 
 $logger_rows_count = $wpdb->get_results( $sql_logger_counts );
 
