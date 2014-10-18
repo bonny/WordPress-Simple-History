@@ -121,7 +121,7 @@ class SimpleHistoryFilterDropin {
 			</form>
 
 		</div>
-		<?
+		<?php
 
 	} // function
 
