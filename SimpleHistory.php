@@ -113,7 +113,9 @@ class SimpleHistory {
 	public function onAdminHead() {
 
 		if ( $this->is_on_our_own_pages() ) {
+			
 			do_action( "simple_history/admin_head", $this );
+			
 		}
 
 	}
