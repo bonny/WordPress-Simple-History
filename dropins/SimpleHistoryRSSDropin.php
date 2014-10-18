@@ -174,11 +174,12 @@ class SimpleHistoryRSSDropin {
 							$details_output = $this->sh->getLogRowDetailsOutput( $row );
 							$item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;
 
-							$item_title = wp_kses( $header_output . ": " . $text_output, array() );
+							#$item_title = wp_kses( $header_output . ": " . $text_output, array() );
+							$item_title = wp_kses( $text_output, array() );
 							
 							?>
 							<item>
-								<title><![CDATA[<?php echo $item_title; ?>]]></title>
+								<title><?php echo $item_title; ?></title>
 								<description><![CDATA[
 									<p><?php echo $header_output ?></p>
 									<p><?php echo $text_output ?></p>
