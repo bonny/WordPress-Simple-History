@@ -213,17 +213,8 @@ class SimpleHistoryFilterDropin {
 		
 		$results_user = $wpdb->get_results( $sql_users );
 
-		array_walk($results_user, function(& $val, $index) {
-			
-			$val->text = sprintf(
-				'%1$s - %2$s',
-				$val->user_login,
-				$val->user_email
-			);
-
-			$val->gravatar = $this->sh->get_avatar( $val->user_email, "18", "mm");
-
-		});
+		// add gravatars to user array
+		array_walk( $results_user, add_gravatar_to_user_array( & $val, $index ) );
 
 		$data = array(
 			"results" => array(
@@ -237,6 +228,18 @@ class SimpleHistoryFilterDropin {
 		wp_send_json_success( $data );
 
 	} // function
+
+	function add_gravatar_to_user_array(& $val, $index) {
+			
+		$val->text = sprintf(
+			'%1$s - %2$s',
+			$val->user_login,
+			$val->user_email
+		);
+
+		$val->gravatar = $this->sh->get_avatar( $val->user_email, "18", "mm");
+
+	}
 
 } // end class
 

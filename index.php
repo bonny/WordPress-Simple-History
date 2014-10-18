@@ -27,15 +27,15 @@ License: GPL2
 
 
 /** Load required files */
-require_once(__DIR__ . "/SimpleHistory.php");
-require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
+require_once(dirname(__FILE__) . "/SimpleHistory.php");
+require_once(dirname(__FILE__) . "/SimpleHistoryLogQuery.php");
 
 /**
  * Register function that is called when plugin is installed
  *
  * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
  */
-register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
+register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(dirname(__FILE__)) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
 /** Boot up */
 $GLOBALS["simple_history"] = new SimpleHistory();

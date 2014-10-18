@@ -8,9 +8,5 @@ exit;
 
 
 // Never clear the log (default is 60 days)
-add_filter("simple_history/db_purge_days_interval", function($days) {
-
-	return "0";
-
-});
+add_filter("simple_history/db_purge_days_interval", "__return_zero");
 

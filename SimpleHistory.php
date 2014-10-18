@@ -374,7 +374,7 @@ class SimpleHistory {
 		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
 
-		$this->plugin_basename = plugin_basename(__DIR__ . "/index.php");
+		$this->plugin_basename = plugin_basename(dirname(__FILE__) . "/index.php");
 
 		// Add default settings tabs
 		$this->arr_settings_tabs = array(
@@ -405,7 +405,7 @@ class SimpleHistory {
 	 */
 	private function loadLoggers() {
 		
-		$loggersDir = __DIR__ . "/loggers/";
+		$loggersDir = dirname(__FILE__) . "/loggers/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -514,7 +514,7 @@ class SimpleHistory {
 	 */
 	private function loadDropins() {
 		
-		$dropinsDir = __DIR__ . "/dropins/";
+		$dropinsDir = dirname(__FILE__) . "/dropins/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -981,19 +981,19 @@ class SimpleHistory {
 
 	public function settings_output_log() {
 		
-		include( __DIR__ . "/templates/settings-log.php" );
+		include( dirname(__FILE__) . "/templates/settings-log.php" );
 
 	}
 
 	public function settings_output_general() {
 		
-		include( __DIR__ . "/templates/settings-general.php" );
+		include( dirname(__FILE__) . "/templates/settings-general.php" );
 
 	}
 
 	public function settings_output_styles_example() {
 		
-		include( __DIR__ . "/templates/settings-style-example.php" );
+		include( dirname(__FILE__) . "/templates/settings-style-example.php" );
 
 	}
 
