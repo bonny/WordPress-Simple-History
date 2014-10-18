@@ -294,11 +294,19 @@ Style different log levels.
 	margin-top: 0.4em;
 }
 
+/* make video embeds responsive */
+.SimpleHistoryLogitem__details .wp-video {
+	max-width: 100%;
+}
+
+/*.SimpleHistoryLogitem__details .wp-video-shortcode {
+
+}*/
 
 /* table with keys and values */
-.SimpleHistoryLogitem__keyValueTable {
+/*.SimpleHistoryLogitem__keyValueTable {
 	
-}
+}*/
 
 .SimpleHistoryLogitem__keyValueTable th,
 .SimpleHistoryLogitem__keyValueTable td {
