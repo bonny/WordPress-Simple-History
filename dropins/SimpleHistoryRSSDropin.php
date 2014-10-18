@@ -237,43 +237,6 @@ class SimpleHistoryRSSDropin {
 
 						}
 
-						/*
-						$arr_items = simple_history_get_items_array($args);
-						foreach ($arr_items as $one_item) {
-							$object_type = ucwords($one_item->object_type);
-							$object_name = esc_html($one_item->object_name);
-							$user = get_user_by("id", $one_item->user_id);
-							$user_nicename = esc_html(@$user->user_nicename);
-							$user_email = esc_html(@$user->user_email);
-							$description = "";
-							if ($user_nicename) {
-								$description .= sprintf(__("By %s", 'simple-history'), $user_nicename);
-								$description .= "<br />";
-							}
-							if ($one_item->occasions) {
-								$description .= sprintf(__("%d occasions", 'simple-history'), sizeof($one_item->occasions));
-								$description .= "<br />";
-							}
-							$description = apply_filters("simple_history_rss_item_description", $description, $one_item);
-	
-							$item_title = esc_html($object_type) . " \"" . esc_html($object_name) . "\" {$one_item->action}";
-							$item_title = html_entity_decode($item_title, ENT_COMPAT, "UTF-8");
-							$item_title = apply_filters("simple_history_rss_item_title", $item_title, $one_item);
-
-							$item_guid = home_url() . "?SimpleHistoryGuid=" . $one_item->id;
-
-							?>
-							  <item>
-								 <title><![CDATA[<?php echo $item_title; ?>]]></title>
-								 <description><![CDATA[<?php echo $description ?>]]></description>
-								 <author><?php echo $user_email . ' (' . $user_nicename . ')' ?></author>
-								 <pubDate><?php echo date("D, d M Y H:i:s", strtotime($one_item->date)) ?> GMT</pubDate>
-								 <guid isPermaLink="false"><?php echo $item_guid ?></guid>
-								 <link><?php echo $item_guid ?></link>
-							  </item>
-							<?php
-						}
-						*/
 						?>
 					</channel>
 				</rss>
