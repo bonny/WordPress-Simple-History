@@ -88,7 +88,7 @@ class SimpleHistory {
 
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 
-		require_once ( dirname(__FILE__) . "/old-functions.php");
+		require_once ( __DIR__ . "/old-functions.php");
 
 		add_action( 'wp_ajax_simple_history_api', array($this, 'api') );
 
@@ -374,7 +374,7 @@ class SimpleHistory {
 		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
 
-		$this->plugin_basename = plugin_basename(dirname(__FILE__) . "/index.php");
+		$this->plugin_basename = plugin_basename(__DIR__ . "/index.php");
 
 		// Add default settings tabs
 		$this->arr_settings_tabs = array(
@@ -405,7 +405,7 @@ class SimpleHistory {
 	 */
 	private function loadLoggers() {
 		
-		$loggersDir = dirname(__FILE__) . "/loggers/";
+		$loggersDir = __DIR__ . "/loggers/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -514,7 +514,7 @@ class SimpleHistory {
 	 */
 	private function loadDropins() {
 		
-		$dropinsDir = dirname(__FILE__) . "/dropins/";
+		$dropinsDir = __DIR__ . "/dropins/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -981,19 +981,19 @@ class SimpleHistory {
 
 	public function settings_output_log() {
 		
-		include( dirname(__FILE__) . "/templates/settings-log.php" );
+		include( __DIR__ . "/templates/settings-log.php" );
 
 	}
 
 	public function settings_output_general() {
 		
-		include( dirname(__FILE__) . "/templates/settings-general.php" );
+		include( __DIR__ . "/templates/settings-general.php" );
 
 	}
 
 	public function settings_output_styles_example() {
 		
-		include( dirname(__FILE__) . "/templates/settings-style-example.php" );
+		include( __DIR__ . "/templates/settings-style-example.php" );
 
 	}
 
