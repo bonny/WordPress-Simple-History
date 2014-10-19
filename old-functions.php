@@ -63,6 +63,7 @@ function simple_history_add($args) {
 
 
 // called when saving an options page
+/*
 function simple_history_add_update_option_page($capability = NULL, $option_page = NULL) {
 
 	$arr_options_names = array(
@@ -82,5 +83,4 @@ function simple_history_add_update_option_page($capability = NULL, $option_page 
 
 	return $capability;
 }
-
-
+*/

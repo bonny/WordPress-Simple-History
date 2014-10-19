@@ -76,7 +76,7 @@ class SimpleLegacyLogger extends SimpleLogger
 
 		}
 
-		if ($one_item->occasions) {
+		if ( isset( $one_item->occasions ) ) {
 			$description .= sprintf(__("%d occasions", 'simple-history'), sizeof($one_item->occasions));
 
 		}
