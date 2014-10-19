@@ -936,7 +936,7 @@ class SimpleHistory {
 			);
 
 			SimpleLogger()->info(
-				"Welcome to Simple History 2! Hope you will enjoy this new version. 
+				"Welcome to Simple History 2! Hope you will enjoy this plugin. 
 				Found bugs? Got great ideas? Send them to the plugin developer at par.thernstrom@gmail.com.",
 				array(
 					"_initiator" => SimpleLoggerLogInitiators::WORDPRESS
