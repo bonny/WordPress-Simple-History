@@ -125,7 +125,14 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 			continue;
 		}
 
-		$one_logger_count = $logger_rows_count[ $one_logger_slug ];
+		if ( isset( $logger_rows_count[ $one_logger_slug ] ) ) {
+			$one_logger_count = $logger_rows_count[ $one_logger_slug ];
+		} else {
+			// logger was not is sql result, so fake result
+			$one_logger_count = array(
+				"count" => 0
+			);
+		}
 		
 		$logger_info = $logger->getInfo();
 
@@ -140,7 +147,7 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 			</tr>
 			',
 			$one_logger_count->count,
-			$one_logger_count->logger,
+			$one_logger_slug,
 			esc_html( $logger_info["name"]),
 			esc_html( $logger_info["description"]),
 			esc_html( $logger_info["capability"]),
