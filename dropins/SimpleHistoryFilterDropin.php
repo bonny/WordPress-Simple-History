@@ -149,6 +149,13 @@ class SimpleHistoryFilterDropin {
 		));
 		*/
 		global $wpdb;
+
+		if ( method_exists($wpdb, "esc_like") ) {
+			$str_like = $wpdb->esc_like( $q );
+		} else {
+			$str_like = like_escape( esc_sql( $q ) );
+		}
+		
 		$sql_users = $wpdb->prepare(
 			'SELECT ID as id, user_login, user_nicename, user_email, display_name FROM %1$s
 			WHERE 
@@ -158,7 +165,7 @@ class SimpleHistoryFilterDropin {
 				OR display_name LIKE "%%%2$s%%"
 			',
 			$wpdb->users,
-			$wpdb->esc_like( $q )
+			$str_like
 		);
 		
 		$results_user = $wpdb->get_results( $sql_users );
