@@ -303,7 +303,7 @@ class SimpleHistoryLogQuery {
 
 		}
 
-		// ssearch
+		// search
 		if ( ! empty( $args["search"] ) ) {
 			
 			$search_words = $args["search"];
@@ -317,13 +317,22 @@ class SimpleHistoryLogQuery {
 			foreach ($arr_sql_like_cols as $one_col) {
 	
 				$str_sql_search_words = "";
-	
+
+
 				foreach ($arr_search_words as $one_search_word) {
+					
+					if ( method_exists($wpdb, "esc_like") ) {
+						$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
+					} else {
+						$str_like = like_escape( esc_sql( $one_search_word ) );
+					}
+
 					$str_sql_search_words .= sprintf(
 						' AND %1$s LIKE "%2$s" ',
 						$one_col,
-						"%" . esc_sql( $wpdb->esc_like( $one_search_word ) ) . "%"
+						"%{$str_like}%"
 					);
+
 				}
 
 				$str_sql_search_words = ltrim($str_sql_search_words, ' AND ');
@@ -341,10 +350,16 @@ class SimpleHistoryLogQuery {
 			$str_search_conditions .= "\n   OR ( ";
 			foreach ($arr_search_words as $one_search_word) {
 
+				if ( method_exists($wpdb, "esc_like") ) {
+					$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
+				} else {
+					$str_like = like_escape( esc_sql( $one_search_word ) );
+				}
+
 				$str_search_conditions .= "\n" . sprintf(
 					'	id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
 					$table_name_contexts, // 1
-					"%" . esc_sql( $wpdb->esc_like( $one_search_word ) ) . "%" // 2
+					"%" . $str_like . "%" // 2
 				);
 
 			}
