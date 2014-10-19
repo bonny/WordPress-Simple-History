@@ -129,9 +129,8 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 			$one_logger_count = $logger_rows_count[ $one_logger_slug ];
 		} else {
 			// logger was not is sql result, so fake result
-			$one_logger_count = array(
-				"count" => 0
-			);
+			$one_logger_count = new stdclass;
+			$one_logger_count->count = 0;
 		}
 		
 		$logger_info = $logger->getInfo();
