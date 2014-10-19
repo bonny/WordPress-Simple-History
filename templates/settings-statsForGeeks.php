@@ -82,6 +82,8 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 
 	echo "</table>";
 
+	// @TODO: this does actually only show all loggers that have logged rows, 
+	// not all loggers!
 	echo "<h4>Loggers</h4>";
 	echo "<p>All instantiated loggers.</p>";
 
@@ -98,7 +100,6 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 		</thead>
 	";
 
-
 	$arr_logger_slugs = array();
 	foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
 		$arr_logger_slugs[] = $oneLogger["instance"]->slug;
@@ -112,16 +113,19 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 		ORDER BY count DESC
 	', $table_name, join($arr_logger_slugs, '","'));
 
-	$logger_rows_count = $wpdb->get_results( $sql_logger_counts );
+	$logger_rows_count = $wpdb->get_results( $sql_logger_counts, OBJECT_K );
 
 	$loopnum = 0;
-	foreach ( $logger_rows_count as $one_logger_count ) {
+	// foreach ( $logger_rows_count as $one_logger_count ) {
+	foreach ( $arr_logger_slugs as $one_logger_slug ) {
 
-		$logger = $this->sh->getInstantiatedLoggerBySlug( $one_logger_count->logger );
+		$logger = $this->sh->getInstantiatedLoggerBySlug( $one_logger_slug );
 		
 		if ( ! $logger ) {
 			continue;
 		}
+
+		$one_logger_count = $logger_rows_count[ $one_logger_slug ];
 		
 		$logger_info = $logger->getInfo();
 
