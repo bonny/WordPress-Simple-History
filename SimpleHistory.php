@@ -983,7 +983,10 @@ class SimpleHistory {
 		?>
 		<div class="wrap">
 
-			<h2><?php _e("Simple History Settings", "simple-history") ?></h2>
+			<h2 class="SimpleHistoryPageHeadline">
+				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
+				<?php _e("Simple History Settings", "simple-history") ?>
+			</h2>
 			
 			<?php
 			$active_tab = isset( $_GET["selected-tab"] ) ? $_GET["selected-tab"] : "settings";
@@ -1195,8 +1198,6 @@ class SimpleHistory {
 			
 			<h2 class="SimpleHistoryPageHeadline">
 				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
-				<!-- <div class="dashicons dashicons-exerpt-view"></div>
-				<div class="dashicons dashicons-editor-alignleft"></div> -->
 				<?php echo _x("History", 'history page headline', 'simple-history') ?>
 			</h2>
 
@@ -1368,14 +1369,16 @@ class SimpleHistory {
 
 	/**
 	 * Get setting if plugin should be visible on dasboard. 
-	 * Defaults to false
+	 * Defaults to true
 	 *
 	 * @return bool
 	 */
 	function setting_show_on_dashboard() {
-		$show_on_dashboard = get_option("simple_history_show_on_dashboard", 0);
+		
+		$show_on_dashboard = get_option("simple_history_show_on_dashboard", 1);
 		$show_on_dashboard = apply_filters("simple_history_show_on_dashboard", $show_on_dashboard);
 		return (bool) $show_on_dashboard;
+
 	}
 
 	/**
