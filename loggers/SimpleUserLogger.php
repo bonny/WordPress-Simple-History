@@ -21,8 +21,14 @@ class SimpleUserLogger extends SimpleLogger
 			"description" => "Logs user logins, logouts, and failed logins",
 			"capability" => "edit_users",
 			"messages" => array(
-				'user_login_failed' => __('{login_user_login} ({login_user_email}) failed to login because an incorrect password was entered', "simple-history"),
-				'user_unknown_login_failed' => __('"{failed_login_username}" failed to login because login did not exist in system', "simple-history"),
+				
+				//'user_login_failed' => __('{login_user_login} ({login_user_email}) failed to login because an incorrect password was entered', "simple-history"),
+				'user_login_failed' => __('Failed to login to account with username "{login_user_login}" because an incorrect password was entered', "simple-history"),
+
+				//'user_unknown_login_failed' => __('"{failed_login_username}" failed to login because login did not exist in system', "simple-history"),
+				//'user_unknown_login_failed' => __('Failed to login with username "{failed_login_username}" (no user with that username exist)', "simple-history"),
+				'user_unknown_login_failed' => __('Failed to login with username "{failed_login_username}" because no user with that username exist', "simple-history"),
+
 				'user_logged_in' => __('Logged in', "simple-history"),
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
