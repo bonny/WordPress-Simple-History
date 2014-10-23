@@ -346,7 +346,7 @@ class SimpleCommentsLogger extends SimpleLogger
 	
 		// Keys to show
 		$arr_plugin_keys = array(
-			"comment_status" => _x("Status", "comments logger - detailed output url", "simple-history"),
+			"comment_status" => _x("Comment status", "comments logger - detailed output url", "simple-history"),
 			"comment_author" => _x("Author name", "comments logger - detailed output version", "simple-history"),
 			"comment_author_email" => _x("Author email", "comments logger - detailed output url", "simple-history"),
 			"comment_content" => _x("Comment", "comments logger - detailed output author", "simple-history"),
