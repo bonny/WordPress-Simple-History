@@ -23,13 +23,14 @@ class SimpleCommentsLogger extends SimpleLogger
 			"messages" => array(
 
 				'anon_comment_added' => _x(
-					'{comment_author} ({comment_author_email}) added a comment to "{comment_post_title}"', 
+					//'{comment_author} ({comment_author_email}) added a comment to "{comment_post_title}"', 
+					'Added a comment to {comment_post_type} "{comment_post_title}"',
 					'A comment was added to the database by a non-logged in internet user',
 					'simple-history'
 				),
 
 				'user_comment_added' => _x(
-					'Added a comment to "{comment_post_title}"', 
+					'Added a comment to {comment_post_type} "{comment_post_title}"', 
 					'A comment was added to the database by a logged in user',
 					'simple-history'
 				),
@@ -151,6 +152,7 @@ class SimpleCommentsLogger extends SimpleLogger
 			"comment_parent" => $comment_data->comment_parent,
 			"comment_post_ID" => $comment_data->comment_post_ID,
 			"comment_post_title" => $comment_parent_post->post_title,
+			"comment_post_type" => $comment_parent_post->post_type,
 		);
 
 		return $context;
@@ -238,6 +240,7 @@ class SimpleCommentsLogger extends SimpleLogger
 	public function on_comment_post($comment_ID, $comment_approved) {
 
 		$context = $this->get_context_for_comment($comment_ID);
+		
 		if ( ! $context ) {
 			return;
 		}
@@ -245,14 +248,18 @@ class SimpleCommentsLogger extends SimpleLogger
 		$comment_data = get_comment( $comment_ID );
 
 		$message = "";
+		
 		if ( $comment_data->user_id ) {
+		
 			// comment was from a logged in user
 			$message = "user_comment_added";
 
 		} else {
+		
 			// comment was from a non-logged in user
 			$message = "anon_comment_added";
 			$context["_initiator"] = SimpleLoggerLogInitiators::WEB_USER;
+
 		}
 
 		$this->infoMessage(
