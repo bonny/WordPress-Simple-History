@@ -262,6 +262,20 @@ class SimpleCommentsLogger extends SimpleLogger
 
 		}
 
+		/*
+		if ( 'spam' !== $commentdata['comment_approved'] ) { // If it's spam save it silently for later crunching
+				if ( '0' == $commentdata['comment_approved'] ) { // comment not spam, but not auto-approved
+					wp_notify_moderator( $comment_ID );
+		
+		if ( isset( $context["comment_approved"] ) && $context["comment_approved"] == '0' ) {
+			$output .= "<br>comment was automatically approved";
+		} else {
+			$output .= "<br>comment was not automatically approved";
+		*/
+
+		// comment_approved = 0, 1, or spam
+		// "_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
+
 		$this->infoMessage(
 			$message,
 			$context
@@ -332,9 +346,10 @@ class SimpleCommentsLogger extends SimpleLogger
 	
 		// Keys to show
 		$arr_plugin_keys = array(
-			"comment_content" => _x("Comment", "comments logger - detailed output author", "simple-history"),
-			"comment_author" => _x("Author", "comments logger - detailed output version", "simple-history"),
+			"comment_status" => _x("Status", "comments logger - detailed output url", "simple-history"),
+			"comment_author" => _x("Author name", "comments logger - detailed output version", "simple-history"),
 			"comment_author_email" => _x("Author email", "comments logger - detailed output url", "simple-history"),
+			"comment_content" => _x("Comment", "comments logger - detailed output author", "simple-history"),
 			//"comment_author_url" => _x("Author URL", "comments logger - detailed output author", "simple-history"),
 			//"comment_author_IP" => _x("IP number", "comments logger - detailed output IP", "simple-history"),
 		);
@@ -346,7 +361,7 @@ class SimpleCommentsLogger extends SimpleLogger
 
 		foreach ( $arr_plugin_keys as $key => $desc ) {
 			
-			switch ($key) {
+			switch ( $key ) {
 
 				case "comment_content":
 					$desc_output = $comment_text;
@@ -358,6 +373,7 @@ class SimpleCommentsLogger extends SimpleLogger
 
 					$desc_output .= esc_html( $context[ $key ] );
 
+					/*
 					if ( isset( $context["comment_author_email"] ) ) {
 						
 						$gravatar_email = $context["comment_author_email"];
@@ -365,7 +381,22 @@ class SimpleCommentsLogger extends SimpleLogger
 						$desc_output .= "<span class='SimpleCommentsLogger__gravatar'>{$avatar}</span>";
 						
 					}
+					*/
 
+					break;
+
+				case "comment_status":
+
+					if ( isset( $context["comment_approved"] ) ) {
+						// $desc_output = esc_html( "apa" );
+						if ( $context["comment_approved"] === "spam" ) {
+							$desc_output = "Spam";
+						} else if ( $context["comment_approved"] == 1 ) {
+							$desc_output = "Approved";
+						} else if ( $context["comment_approved"] == 0 ) {
+							$desc_output = "Pending";
+						}
+					}
 					break;
 
 				default;
