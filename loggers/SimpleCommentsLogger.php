@@ -260,21 +260,13 @@ class SimpleCommentsLogger extends SimpleLogger
 			$message = "anon_comment_added";
 			$context["_initiator"] = SimpleLoggerLogInitiators::WEB_USER;
 
+			// @TODO: add occasions if comment is considered spam
+			// if not added, spam comments can easily flood the log
+			if ( isset( $comment_data["comment_approved"] ) && "spam" === $comment_data["comment_approved"] ) {
+				$context["_occasionsID"] = __CLASSNAME__  . '/' . __FUNCTION__ . "/spam_comment_added/commentID:{$comment_ID}";
+			}
+
 		}
-
-		/*
-		if ( 'spam' !== $commentdata['comment_approved'] ) { // If it's spam save it silently for later crunching
-				if ( '0' == $commentdata['comment_approved'] ) { // comment not spam, but not auto-approved
-					wp_notify_moderator( $comment_ID );
-		
-		if ( isset( $context["comment_approved"] ) && $context["comment_approved"] == '0' ) {
-			$output .= "<br>comment was automatically approved";
-		} else {
-			$output .= "<br>comment was not automatically approved";
-		*/
-
-		// comment_approved = 0, 1, or spam
-		// "_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
 
 		$this->infoMessage(
 			$message,
