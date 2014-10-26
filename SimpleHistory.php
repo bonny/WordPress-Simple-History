@@ -1977,8 +1977,8 @@ class SimpleHistory {
 			SELECT 
 				DISTINCT(c.value) AS user_id
 				#h.id, h.logger, h.level, h.initiator, h.date
-				FROM wp_simple_history AS h
-			INNER JOIN wp_simple_history_contexts AS c 
+				FROM %3$s AS h
+			INNER JOIN %4$s AS c 
 			ON c.history_id = h.id AND c.key = "_user_id"
 			WHERE 
 				initiator = "wp_user"
@@ -1986,7 +1986,9 @@ class SimpleHistory {
 				AND date > "%2$s"
 			', 
 			$sql_loggers_in,
-			date("Y-m-d H:i", strtotime("today"))
+			date("Y-m-d H:i", strtotime("today")),
+			$wpdb->prefix . SimpleHistory::DBTABLE,
+			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS
 		);
 
 		$results_users_today = $wpdb->get_results($sql_users_today);
