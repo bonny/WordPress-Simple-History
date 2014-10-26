@@ -262,7 +262,7 @@ class SimpleCommentsLogger extends SimpleLogger
 
 			// @TODO: add occasions if comment is considered spam
 			// if not added, spam comments can easily flood the log
-			if ( isset( $comment_data["comment_approved"] ) && "spam" === $comment_data["comment_approved"] ) {
+			if ( isset( $comment_data->comment_approved ) && "spam" === $comment_data->comment_approved ) {
 				$context["_occasionsID"] = __CLASSNAME__  . '/' . __FUNCTION__ . "/anon_comment_added/type:spam";
 			}
 
