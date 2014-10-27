@@ -131,6 +131,8 @@ class SimpleCommentsLogger extends SimpleLogger
 	 */
 	public function get_context_for_comment($comment_ID) {
 
+		// get_comment passes comment_ID by reference, so it can be unset by that function
+		$comment_ID_original = $comment_ID;
 		$comment_data = get_comment( $comment_ID );
 
 		if ( is_null( $comment_data ) ) {
@@ -140,7 +142,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$comment_parent_post = get_post( $comment_data->comment_post_ID );
 
 		$context = array(
-			"comment_ID" => $comment_ID,
+			"comment_ID" => $comment_ID_original,
 			"comment_author" => $comment_data->comment_author,
 			"comment_author_email" => $comment_data->comment_author_email,
 			"comment_author_url" => $comment_data->comment_author_url,
