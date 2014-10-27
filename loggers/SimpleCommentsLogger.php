@@ -399,11 +399,11 @@ class SimpleCommentsLogger extends SimpleLogger
 					if ( isset( $context["comment_type"] ) ) {
 
 						if ( $context["comment_type"] === "trackback" ) {
-							$desc_output = "Spam";
-						} else if ( $context["comment_type"] === "pingkback" ) {
-							$desc_output = "Approved";
+							$desc_output = "Trackback";
+						} else if ( $context["comment_type"] === "pingback" ) {
+							$desc_output = "Pingback";
 						} else if ( $context["comment_type"] === "comment" ) {
-							$desc_output = "Pending";
+							$desc_output = "Comment";
 						} else {
 							$desc_output = "";
 						}
