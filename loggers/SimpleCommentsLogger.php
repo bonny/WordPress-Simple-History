@@ -385,11 +385,11 @@ class SimpleCommentsLogger extends SimpleLogger
 					if ( isset( $context["comment_approved"] ) ) {
 
 						if ( $context["comment_approved"] === "spam" ) {
-							$desc_output = "Spam";
+							$desc_output = __("Spam", "simple-history");
 						} else if ( $context["comment_approved"] == 1 ) {
-							$desc_output = "Approved";
+							$desc_output = __("Approved", "simple-history");
 						} else if ( $context["comment_approved"] == 0 ) {
-							$desc_output = "Pending";
+							$desc_output = __("Pending", "simple-history");
 						}
 
 					}
@@ -401,11 +401,11 @@ class SimpleCommentsLogger extends SimpleLogger
 					if ( isset( $context["comment_type"] ) ) {
 
 						if ( $context["comment_type"] === "trackback" ) {
-							$desc_output = "Trackback";
+							$desc_output = __("Trackback", "simple-history");
 						} else if ( $context["comment_type"] === "pingback" ) {
-							$desc_output = "Pingback";
+							$desc_output = __("Pingback", "simple-history");
 						} else if ( $context["comment_type"] === "comment" ) {
-							$desc_output = "Comment";
+							$desc_output = __("Comment", "simple-history");
 						} else {
 							$desc_output = "";
 						}
