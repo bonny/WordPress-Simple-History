@@ -338,7 +338,8 @@ class SimpleCommentsLogger extends SimpleLogger
 	
 		// Keys to show
 		$arr_plugin_keys = array(
-			"comment_status" => _x("Comment status", "comments logger - detailed output url", "simple-history"),
+			"comment_status" => _x("Comment status", "comments logger - detailed output comment status", "simple-history"),
+			"comment_type" => _x("Comment type", "comments logger - detailed output comment type", "simple-history"),
 			"comment_author" => _x("Author name", "comments logger - detailed output version", "simple-history"),
 			"comment_author_email" => _x("Author email", "comments logger - detailed output url", "simple-history"),
 			"comment_content" => _x("Comment", "comments logger - detailed output author", "simple-history"),
@@ -380,7 +381,7 @@ class SimpleCommentsLogger extends SimpleLogger
 				case "comment_status":
 
 					if ( isset( $context["comment_approved"] ) ) {
-						// $desc_output = esc_html( "apa" );
+
 						if ( $context["comment_approved"] === "spam" ) {
 							$desc_output = "Spam";
 						} else if ( $context["comment_approved"] == 1 ) {
@@ -388,7 +389,27 @@ class SimpleCommentsLogger extends SimpleLogger
 						} else if ( $context["comment_approved"] == 0 ) {
 							$desc_output = "Pending";
 						}
+
 					}
+
+					break;
+
+				case "comment_type":
+
+					if ( isset( $context["comment_type"] ) ) {
+
+						if ( $context["comment_type"] === "trackback" ) {
+							$desc_output = "Spam";
+						} else if ( $context["comment_type"] === "pingkback" ) {
+							$desc_output = "Approved";
+						} else if ( $context["comment_type"] === "comment" ) {
+							$desc_output = "Pending";
+						} else {
+							$desc_output = "";
+						}
+
+					}
+
 					break;
 
 				default;
