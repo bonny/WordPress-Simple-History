@@ -1762,9 +1762,9 @@ class SimpleHistory {
 					<div class="SimpleHistoryLogitem__secondcol">
 						<div class="SimpleHistoryLogitem__header">%1$s</div>
 						<div class="SimpleHistoryLogitem__text">%2$s</div>
-						%4$s
-						%6$s
-						%9$s
+						%6$s <!-- details_html -->
+						%9$s <!-- more details html -->
+						%4$s <!-- occasions -->
 					</div>
 				</li>
 			',
