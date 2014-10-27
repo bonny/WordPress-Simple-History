@@ -883,8 +883,6 @@ class SimplePluginLogger extends SimpleLogger
 				$plugin_slug = ! empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
 				if ( $plugin_slug ) {
 				
-					add_thickbox();
-
 					$output .= sprintf(
 						'
 						<tr>
@@ -908,8 +906,6 @@ class SimplePluginLogger extends SimpleLogger
 
 			if ($plugin_slug) {
 	
-				add_thickbox();
-
 				$link_title = esc_html_x("View plugin info", "plugin logger: plugin info thickbox title", "simple-history");
 				$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=600&amp;height=550" );
 				
