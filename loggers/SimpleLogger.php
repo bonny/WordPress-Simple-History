@@ -865,23 +865,34 @@ class SimpleLogger
 		// Log initiator, defaults to current user if exists, or other if not user exist
 		if ( isset( $context["_initiator"] ) ) {
 
+			// Manually set in context
 			$data["initiator"] = $context["_initiator"];
 			unset( $context["_initiator"] );
 			
 		} else {
 			
+			// No initiator set.
+
 			$data["initiator"] = SimpleLoggerLogInitiators::OTHER;
-						
+			
+			// Check if user is responsible.
 			if ( function_exists("wp_get_current_user") ) {
 
 				$current_user = wp_get_current_user();
 
 				if ( isset( $current_user->ID ) && $current_user->ID) {
+
 					$data["initiator"] = SimpleLoggerLogInitiators::WP_USER;;
 					$context["_user_id"] = $current_user->ID;
 					$context["_user_login"] = $current_user->user_login;
 					$context["_user_email"] = $current_user->user_email;
+
 				}
+
+			} else if( defined('DOING_CRON') && DOING_CRON ) {
+
+				// Seems to be wp cron running and doing this
+				$data["initiator"] = SimpleLoggerLogInitiators::WORDPRESS;
 
 			}
 
