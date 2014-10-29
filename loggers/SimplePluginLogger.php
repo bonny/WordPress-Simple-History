@@ -134,7 +134,7 @@ class SimplePluginLogger extends SimpleLogger
 
 		// Fires after the upgrades has done it's thing
 		// Check hook extra for upgrader initiator
-		add_action( 'upgrader_post_install', array( $this, "on_upgrader_post_install" ), 10, 3 );
+		//add_action( 'upgrader_post_install', array( $this, "on_upgrader_post_install" ), 10, 3 );
 		add_action( 'upgrader_process_complete', array( $this, "on_upgrader_process_complete" ), 10, 2 );
 
 		// Dirty check for things that we can't catch using filters or actions
@@ -453,6 +453,11 @@ class SimplePluginLogger extends SimpleLogger
 
 				$plugin_slug = dirname( $arr_data["plugin"] );
 
+/*
+@TODO
+efter update:
+Undefined variable: update_plugins
+*/
 				$context = array(
 					"plugin_slug" => $plugin_slug,
 					"request" => $this->simpleHistory->json_encode( $_REQUEST ),
@@ -678,11 +683,11 @@ class SimplePluginLogger extends SimpleLogger
 			
 			// It's a plugin upgrade
 			#echo "plugin update!";
-			error_log("plugin update");
+			//error_log("plugin update");
 
 		} else {
 
-			error_log("other");
+			//error_log("other");
 
 		}
 
