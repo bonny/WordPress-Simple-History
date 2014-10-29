@@ -874,7 +874,7 @@ class SimpleLogger
 			// No initiator set.
 
 			$data["initiator"] = SimpleLoggerLogInitiators::OTHER;
-			
+		
 			// Check if user is responsible.
 			if ( function_exists("wp_get_current_user") ) {
 
@@ -889,7 +889,10 @@ class SimpleLogger
 
 				}
 
-			} else if( defined('DOING_CRON') && DOING_CRON ) {
+			}
+
+			// If cron then set WordPress as responsible
+			if ( defined('DOING_CRON') && DOING_CRON ) {
 
 				// Seems to be wp cron running and doing this
 				$data["initiator"] = SimpleLoggerLogInitiators::WORDPRESS;
