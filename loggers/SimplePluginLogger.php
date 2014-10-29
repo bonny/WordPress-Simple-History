@@ -232,7 +232,7 @@ class SimplePluginLogger extends SimpleLogger
 		$do_store = false;
 
 		if ( 
-				( "/wp-admin/update.php" == $request_uri ) 
+				SimpleHistory::ends_with( $request_uri, "/wp-admin/update.php" )
 				&& isset( $current_screen->base ) 
 				&& "update" == $current_screen->base 
 			) {
@@ -241,7 +241,7 @@ class SimplePluginLogger extends SimpleLogger
 			$do_store = true;
 
 		} else if ( 
-				( "/wp-admin/plugins.php" == $request_uri ) 
+				SimpleHistory::ends_with( $request_uri, "/wp-admin/plugins.php" )
 				&& isset( $current_screen->base ) 
 				&& "plugins" == $current_screen->base
 				&& ( isset( $_POST["action"] ) && "delete-selected" == $_POST["action"] )
@@ -608,6 +608,7 @@ Undefined variable: update_plugins
 					}
 
 					// To get old version we use our option
+					// @TODO: this does not always work, why?
 					$plugins_before_update = json_decode( get_option( $this->slug . "_plugin_info_before_update", false ), true );
 					if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_name ] ) ) {
 
