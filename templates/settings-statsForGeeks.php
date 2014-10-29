@@ -25,7 +25,7 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 <div class="SimpleHistory__statsForGeeksInner hide-if-js">
 	<?php
 
-	echo "<h4>Database size + rows count</h4>";
+	echo "<h4>Rows count</h4>";
 	$logQuery = new SimpleHistoryLogQuery();
 	$rows = $logQuery->query(array(
 		"posts_per_page" => 1,
@@ -54,6 +54,9 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 	);
 
 	$table_size_result = $wpdb->get_results($sql_table_size);
+
+
+	echo "<h4>Database size</h4>";
 
 	echo "<table class='widefat'>";
 	echo "
@@ -85,17 +88,18 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 	// @TODO: this does actually only show all loggers that have logged rows, 
 	// not all loggers!
 	echo "<h4>Loggers</h4>";
+
 	echo "<p>All instantiated loggers.</p>";
 
 	echo "<table class='widefat' cellpadding=2>";
 	echo "
 		<thead>
 			<tr>
-				<th>Count</th>
 				<th>Slug</th>
 				<th>Name</th>
 				<th>Description</th>
 				<th>Capability</th>
+				<th>Rows count</th>
 			</tr>
 		</thead>
 	";
@@ -138,11 +142,11 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 		printf(
 			'
 			<tr class="%6$s">
-				<td>%1$s</td>
 				<td>%2$s</td>
 				<td>%3$s</td>
 				<td>%4$s</td>
 				<td>%5$s</td>
+				<td>%1$s</td>
 			</tr>
 			',
 			$one_logger_count->count,
