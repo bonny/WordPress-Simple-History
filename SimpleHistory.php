@@ -1713,6 +1713,24 @@ class SimpleHistory {
 				"Value"
 			);
 
+			foreach ($oneLogRow as $rowKey => $rowVal) {
+
+				// skip arrays and objects and such
+				if ( is_array( $rowVal ) || is_object( $rowVal ) ) {
+					continue;
+				}
+
+				$more_details_html .= sprintf(
+					'<tr>
+						<td>%1$s</td>
+						<td>%2$s</td>
+					</tr>',
+					esc_html( $rowKey ),
+					esc_html( $rowVal )
+				);
+
+			}
+
 			foreach ($oneLogRow->context as $contextKey => $contextVal) {
 
 				$more_details_html .= sprintf(
@@ -1725,6 +1743,7 @@ class SimpleHistory {
 				);
 
 			}
+
 			$more_details_html .= "</table>";
 
 			$more_details_html = sprintf(
