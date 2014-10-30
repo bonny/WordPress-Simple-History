@@ -1636,7 +1636,7 @@ class SimpleHistory {
 	 * @param string $haystack
 	 * @param string $needle
 	 */
-	function ends_with( $haystack, $needle ) {
+	public static function ends_with( $haystack, $needle ) {
 		return $needle === substr( $haystack, -strlen( $needle ) );
 	}
 
