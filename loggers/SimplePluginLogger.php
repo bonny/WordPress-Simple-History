@@ -896,7 +896,7 @@ Undefined variable: update_plugins
 							<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
 						</tr>
 						',
-						admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=600&amp;height=550" ),
+						admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" ),
 						esc_html_x("View plugin info", "plugin logger: plugin info thickbox title view all info", "simple-history")
 					);
 
@@ -913,11 +913,11 @@ Undefined variable: update_plugins
 			if ($plugin_slug) {
 	
 				$link_title = esc_html_x("View plugin info", "plugin logger: plugin info thickbox title", "simple-history");
-				$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=600&amp;height=550" );
+				$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" );
 				
 				if ( "plugin_updated" == $message_key || "plugin_bulk_updated" == $message_key ) {
 					$link_title = esc_html_x("View changelog", "plugin logger: plugin info thickbox title", "simple-history");
-					$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=600&amp;height=550" );
+					$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
 				}
 				
 				$output .= sprintf(
