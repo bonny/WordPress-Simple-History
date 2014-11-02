@@ -33,3 +33,8 @@
 	max-height: 50px;
 	background: rgb(254, 247, 241);
 }
+
+.SimpleHistoryLogitem--newRowSinceReload {
+	background: yellow;
+	background: rgba(254, 255, 0, 0.1);
+}

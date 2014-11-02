@@ -34,7 +34,8 @@ class SimpleHistoryNewRowsNotifier {
 		wp_enqueue_script("simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.js", array("jquery"), SimpleHistory::VERSION, true);
 
 		$arr_localize_data = array(
-			"interval" => $this->interval
+			"interval" => $this->interval,
+			"errorCheck" =>_x('An error occured while checking for new log rows', 'New rows notifier: error while checking for new rows', 'simple-history')
 		);
 
 		wp_localize_script( "simple_history_NewRowsNotifierDropin", "simple_history_NewRowsNotifierDropin", $arr_localize_data );

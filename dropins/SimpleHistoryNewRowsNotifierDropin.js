@@ -5,10 +5,7 @@
 	var $elm;
 	var ajaxurl = window.ajaxurl;
 	var intervalID;
-
-	var strings = {
-		"errorCheck": "<?php _ex('An error occured while checking for new log rows', 'New rows notifier: error while checking for new rows', 'simple-history') ?>"
-	};
+	var ajax_jqXHR;
 
 	var checkForUpdates = function() {
 
@@ -20,7 +17,7 @@
 		// Let plugins filter the API args
 		$(document).trigger("SimpleHistory:NewRowsNotifier:apiArgs", apiArgs);
 
-		$.get(ajaxurl, {
+		ajax_jqXHR = $.get(ajaxurl, {
 			action: "SimpleHistoryNewRowsNotifier",
 			apiArgs: apiArgs
 		}, function() {}, "json").done(function(response) {
@@ -28,16 +25,18 @@
 			// Always remove possible error class
 			$elm.removeClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
 
-			// If new rows have been added then max_id is not 0 and larger than previos max id
+			// If new rows have been added then max_id is not 0 and larger than previous max id
 			// Also total_row_count shows the number of added rows
 			if (response && response.data && response.data.num_new_rows) {
+			
 				$elm.html( response.data.strings.newRowsFound );
 				$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
+
 			}
 
 		}).fail(function(jqXHR, textStatus, errorThrown) {
 
-			$elm.html( strings.errorCheck );
+			$elm.html( simple_history_NewRowsNotifierDropin.errorCheck );
 			$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
 
 		});
@@ -45,8 +44,8 @@
 	};
 
 	// When the log is loaded the first time
-	// Actually it's also called when log is reloaded, so use one() instead of on() here
-	$(document).one("SimpleHistory:logRowsCollectionFirstLoad", function() {
+	// Actually it's also called when log is reloaded
+	$(document).on("SimpleHistory:logRowsCollectionFirstLoad", function() {
 		
 		if (!$elmWrapper) {
 
@@ -62,11 +61,30 @@
 
 	});
 
-	// When we click on the div 
+	// Reload the log When we click on the div with info about new rows
 	$(document).on("click", ".SimpleHistoryDropin__NewRowsNotifier", function(e) {
 
-		// Just re-init the logcollection?
+		// Stop polling and stop any outgoing ajax request
 		clearInterval(intervalID);
+		ajax_jqXHR.abort();
+
+		var prev_max_id = simple_history.rowsView.collection.max_id;
+		
+		simple_history.rowsView.once("renderDone", function() {
+			
+			var new_max_id = this.collection.max_id;
+
+			var $logItems = jQuery(".SimpleHistoryLogitems li");
+			var $newLogItems = $logItems.filter(function(i, elm) {
+				var $elm = $(elm);
+				var rowID = parseInt( $elm.data("row-id"), 10 );
+				return (rowID > prev_max_id);
+			});
+			
+			$newLogItems.addClass("SimpleHistoryLogitem--newRowSinceReload");
+
+		});
+		
 		simple_history.logRowsCollection.reload();
 
 	});

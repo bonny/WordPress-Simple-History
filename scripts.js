@@ -345,7 +345,7 @@ var simple_history = (function($) {
 					;
 
 			} // add msg
-		
+	
 		},
 
 		events: {
@@ -398,6 +398,9 @@ var simple_history = (function($) {
 			});
 			
 			this.$el.html( html );
+
+			// Rendering of log rows items is done
+			this.trigger("renderDone");
 
 		}
 
