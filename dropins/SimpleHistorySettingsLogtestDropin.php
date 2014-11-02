@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined("SIMPLE_HISTORY_DEV") || ! SIMPLE_HISTORY_DEV ) {
+    return;
+}
+
 class SimpleHistorySettingsLogtestDropin {
 
     // Simple History instance

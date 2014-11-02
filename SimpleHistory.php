@@ -415,18 +415,28 @@ class SimpleHistory {
 				"name" => __("Settings", "simple-history"),
 				"function" => array($this, "settings_output_general")
 			),
-			array(
-				"slug" => "log",
-				"name" => __("Log", "simple-history"),
-				"function" => array($this, "settings_output_log")
-			),
-			array(
-				"slug" => "styles-example",
-				"name" => __("Styles example", "simple-history"),
-				"function" => array($this, "settings_output_styles_example")
-			)
 
 		);
+
+		if ( defined("SIMPLE_HISTORY_DEV") && SIMPLE_HISTORY_DEV ) {
+			
+			$arr_dev_tabs = array(
+				array(
+					"slug" => "log",
+					"name" => __("Log", "simple-history"),
+					"function" => array($this, "settings_output_log")
+				),
+				array(
+					"slug" => "styles-example",
+					"name" => __("Styles example", "simple-history"),
+					"function" => array($this, "settings_output_styles_example")
+				)
+
+			);
+
+			$this->arr_settings_tabs = array_merge( $this->arr_settings_tabs, $arr_dev_tabs );
+
+		}
 
 	}
 
@@ -724,13 +734,6 @@ class SimpleHistory {
 			$plugin_url = plugin_dir_url(__FILE__);
 			wp_enqueue_style( "simple_history_styles", $plugin_url . "styles.css", false, SimpleHistory::VERSION );	
 			wp_enqueue_script("simple_history_script", $plugin_url . "scripts.js", array("jquery", "backbone"), SimpleHistory::VERSION, true);
-
-			// Load chartist, for charts
-			//wp_enqueue_script("chartist", $plugin_url . "/chartist-js/chartist.min.js", array("jquery"), SimpleHistory::VERSION, true);
-			//wp_enqueue_style("chartist", $plugin_url . "/chartist-js/chartist.min.css", false, SimpleHistory::VERSION);
-
-			// Load chart.js
-			//wp_enqueue_script("chartjs", $plugin_url . "/chartjs/Chart.min.js", array("jquery"), SimpleHistory::VERSION, true);
 			
 			wp_enqueue_script("select2", $plugin_url . "/js/select2/select2.min.js", array("jquery"));
 			wp_enqueue_style("select2", $plugin_url . "/js/select2/select2.css");
