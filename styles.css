@@ -732,3 +732,23 @@ Modal window with detailss
 	width: 24px;
 }
 
+/* if not hits when using filter function */
+.SimpleHistory--hasNoHits {
+}
+
+.SimpleHistory--hasNoHits .SimpleHistoryLogitems__pagination {
+	display: none;
+}
+
+.SimpleHistory--hasNoHits .SimpleHistoryLogitems {
+	display: none;
+}
+
+.SimpleHistoryLogitems__noHits {
+	display: none;
+}
+
+.SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
+	display: block;
+}
+

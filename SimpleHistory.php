@@ -749,6 +749,7 @@ class SimpleHistory {
 					'currentPage' => __("Current page", 'simple-history'),
 				),
 				"loadLogAPIError" => __("Oups, the log could not be loaded right now.", 'simple-history'),
+				"logNoHits" => __("Your search did not match any history events.", "simple-history")
 			));
 
 			// Call plugins adminCSS-method, so they can add their CSS

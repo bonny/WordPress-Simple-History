@@ -323,6 +323,28 @@ var simple_history = (function($) {
 		onReloadDone: function() {
 
 			$("html").removeClass("SimpleHistory-isLoadingPage");
+
+			var $mainViewElm = this.collection.mainView.$el;
+
+			// Add message if no hits
+			$mainViewElm.removeClass("SimpleHistory--hasNoHits");
+			if (! this.collection.length ) {
+				
+				$mainViewElm.addClass("SimpleHistory--hasNoHits");
+
+				var noHitsClass = "SimpleHistoryLogitems__noHits";
+
+				// Remove maybe previos div with message
+				$mainViewElm.find("." + noHitsClass).remove();
+
+				// Add div with message
+				var $noHitsElm = $("<div />")
+					.html( simple_history_script_vars.logNoHits )
+					.addClass(noHitsClass)
+					.appendTo( $mainViewElm.find(".SimpleHistoryLogitems__above") )
+					;
+
+			} // add msg
 		
 		},
 
