@@ -23,14 +23,16 @@ class SimpleHistorySettingsStatsDropin {
 			"function" => array($this, "output")
 		));
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'on_admin_enqueue_scripts') );
-		#add_action( 'admin_footer', array( $this, "on_admin_footer" ) );
+		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts') );
 
 	}
 
 	public function on_admin_enqueue_scripts() {
 		
+		$file_url = plugin_dir_url(__FILE__);
+
 		wp_enqueue_script( "google-ajax-api", "https://www.google.com/jsapi");
+		wp_enqueue_style( "simple_history_SettingsStatsDropin", $file_url . "SimpleHistorySettingsStatsDropin.css", null, SimpleHistory::VERSION);
 		
 	}
 
@@ -48,54 +50,6 @@ class SimpleHistorySettingsStatsDropin {
 		// Colors taken from the gogole chart example that was found in this Stack Overflow thread:
 		// http://stackoverflow.com/questions/236936/how-pick-colors-for-a-pie-chart
 		$arr_colors = explode(",", "8a56e2,cf56e2,e256ae,e25668,e28956,e2cf56,aee256,68e256,56e289,56e2cf,56aee2,5668e2");
-
-		// Generate CSS classes for chartist, based on $arr_colors
-		$str_chartist_css_colors = "";
-		$arr_chars = str_split("abcdefghijkl");
-		$i = 0;
-		foreach ($arr_chars as $one_char) {
-			
-			$str_chartist_css_colors .= sprintf('
-				.ct-chart .ct-series.ct-series-%1$s .ct-slice:not(.ct-donut) {
-					fill: #%2$s;
-				}
-				', 
-				$one_char, // 1
-				$arr_colors[$i] // 2
-			);
-			$i++;
-
-		}
-
-		// Echo styles like this because syntax highlighter in sublime goes bananas 
-		// if I try to do it in any other way...
-		echo "
-			<style>
-				.SimpleHistoryStats__intro {
-					font-size: 1.4em;
-				}
-				.SimpleHistoryStats__graphs {
-					
-				}
-				.SimpleHistoryStats__graph {
-					float: left;
-					width: 50%;
-				}
-
-				/* chartist bar */
-				.ct-chart .ct-bar {
-					stroke-width: 15px;
-					box-shadow: 1px 1px 1px black;
-				}
-				.ct-chart .ct-series.ct-series-a .ct-bar {
-					stroke: rgb(226, 86, 174);
-				}
-				
-				/* chartist chart */
-				{$str_chartist_css_colors}
-				
-			</style>
-		";
 
 		// Load google charts libraries
 		?>

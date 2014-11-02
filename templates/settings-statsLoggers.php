@@ -4,9 +4,9 @@ echo "<h4 class=''>";
 echo __("Loggers", "simple-history");
 echo "</h4>";
 
-#echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersPie"></div>';
-echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersPieGoogleChart"></div>';
-#echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__loggersGoogleBarChart"></div>';
+#echo '<div class="SimpleHistoryChart__loggersPie"></div>';
+echo '<div class="SimpleHistoryChart__loggersPieGoogleChart"></div>';
+#echo '<div class="SimpleHistoryChart__loggersGoogleBarChart"></div>';
 
 $arr_logger_slugs = array();
 foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
@@ -28,7 +28,7 @@ $sql_logger_counts = sprintf('
 );
 
 $logger_rows_count = $wpdb->get_results( $sql_logger_counts );
-
+#sf_d($logger_rows_count);
 $str_js_chart_labels = "";
 $str_js_chart_data = "";
 $str_js_chart_data_chartist = "";

@@ -1,0 +1,11 @@
+.SimpleHistoryStats__intro {
+	font-size: 1.4em;
+}
+
+.SimpleHistoryStats__graphs {
+	
+}
+.SimpleHistoryStats__graph {
+	float: left;
+	width: 50%;
+}

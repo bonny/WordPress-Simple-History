@@ -65,7 +65,7 @@ $str_js_google_chart_data = rtrim($str_js_google_chart_data, ", ");
 
 echo "</table>";
 
-echo "<div class='ct-chart ct-minor-seventh SimpleHistoryChart__logLevelsPie'></div>";
+echo "<div class='SimpleHistoryChart__logLevelsPie'></div>";
 
 ?>
 <script>

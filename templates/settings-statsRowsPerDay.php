@@ -21,8 +21,8 @@ $sql = sprintf(
 
 $dates = $wpdb->get_results( $sql );
 
-#echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__rowsPerDay"></div>';
-echo '<div class="ct-chart ct-minor-seventh SimpleHistoryChart__rowsPerDayGoogleChart"></div>';
+#echo '<div class="SimpleHistoryChart__rowsPerDay"></div>';
+echo '<div class="SimpleHistoryChart__rowsPerDayGoogleChart"></div>';
 
 // Loop from $period_start_date to $period_end_date
 $interval = DateInterval::createFromDateString('1 day');
