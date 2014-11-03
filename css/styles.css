@@ -120,6 +120,7 @@ The spinner that wp uses:;
 	overflow: hidden;
 }
 
+/* add border below items */
 .SimpleHistoryLogitem::before {
 	content: "";
 	position: absolute;
@@ -128,6 +129,10 @@ The spinner that wp uses:;
 	height: 1px;
 	right: 0;
 	background: rgb(229, 229, 229);
+}
+
+.SimpleHistoryLogitem:last-of-type:before {
+	background: none;
 }
 
 /*
@@ -464,6 +469,10 @@ when occasions are added
 	border: none;
 }
 
+.postbox .SimpleHistoryLogitem {
+	/*padding-top: 10px;
+	padding-bottom: 10px;*/
+}
 
 #simple_history_dashboard_widget .inside {
 	padding: 0;
