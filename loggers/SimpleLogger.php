@@ -966,7 +966,7 @@ class SimpleLogger
 
 			// Append http referer
 			// Also good to always have!
-			if ( ! isset( $context["_server_http_referer"] ) ) {
+			if ( ! isset( $context["_server_http_referer"] ) && isset( $_SERVER["HTTP_REFERER"] ) ) {
 				$context["_server_http_referer"] = $_SERVER["HTTP_REFERER"];
 			}
 
