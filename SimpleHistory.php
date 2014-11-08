@@ -891,37 +891,37 @@ class SimpleHistory {
 
 			// Update old table
 			$sql = "
-				CREATE TABLE `{$table_name}` (
-				  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-				  `date` datetime NOT NULL,
-				  `logger` varchar(30) DEFAULT NULL,
-				  `level` varchar(20) DEFAULT NULL,
-				  `message` varchar(255) DEFAULT NULL,
-				  `occasionsID` varchar(32) DEFAULT NULL,
-				  `type` varchar(16) DEFAULT NULL,
-				  `initiator` varchar(16) DEFAULT NULL,
-				  `action` varchar(255) NOT NULL,
-				  `object_type` varchar(255) NOT NULL,
-				  `object_subtype` varchar(255) NOT NULL,
-				  `user_id` int(10) NOT NULL,
-				  `object_id` int(10) NOT NULL,
-				  `object_name` varchar(255) NOT NULL,
-				  `action_description` longtext,
-				  PRIMARY KEY (`id`)
+				CREATE TABLE {$table_name} (
+				  id bigint(20) NOT NULL AUTO_INCREMENT,
+				  date datetime NOT NULL,
+				  logger varchar(30) DEFAULT NULL,
+				  level varchar(20) DEFAULT NULL,
+				  message varchar(255) DEFAULT NULL,
+				  occasionsID varchar(32) DEFAULT NULL,
+				  type varchar(16) DEFAULT NULL,
+				  initiator varchar(16) DEFAULT NULL,
+				  action varchar(255) NOT NULL,
+				  object_type varchar(255) NOT NULL,
+				  object_subtype varchar(255) NOT NULL,
+				  user_id int(10) NOT NULL,
+				  object_id int(10) NOT NULL,
+				  object_name varchar(255) NOT NULL,
+				  action_description longtext,
+				  PRIMARY KEY  (id)
 				) CHARSET=utf8;";
 			
 			dbDelta($sql);
 
 			// Add context table
 			$sql = "
-				CREATE TABLE `{$table_name_contexts}` (
-				  `context_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-				  `history_id` bigint(20) unsigned NOT NULL,
-				  `key` varchar(255) DEFAULT NULL,
-				  `value` longtext,
-				  PRIMARY KEY (`context_id`),
-				  KEY `history_id` (`history_id`),
-				  KEY `key` (`key`)
+				CREATE TABLE {$table_name_contexts} (
+				  context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				  history_id bigint(20) unsigned NOT NULL,
+				  key varchar(255) DEFAULT NULL,
+				  value longtext,
+				  PRIMARY KEY  (context_id),
+				  KEY history_id (history_id),
+				  KEY key (key)
 				) CHARSET=utf8;
 			";
 
