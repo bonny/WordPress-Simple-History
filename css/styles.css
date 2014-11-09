@@ -714,8 +714,9 @@ Modal window with detailss
 }
 
 /** wordpress as initiator = add wordpress icon */
-.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before {
-	content: "\f120";
+/** anonymous user as initiator = plain user image */
+.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
 	font: normal 32px/1 'dashicons';
@@ -723,13 +724,12 @@ Modal window with detailss
 	color: #999;
 }
 
-/** anonymous user as initiator = plain user image */
+.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before {
+	content: "\f120";
+}
+
 .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
 	content: "\f110";
-	display: inline-block;
-	-webkit-font-smoothing: antialiased;
-	font: normal 20px/1 'dashicons';
-	vertical-align: top;
 }
 
 /** quick stats = stats above log gui */
