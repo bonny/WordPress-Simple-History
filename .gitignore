@@ -1,2 +1,11 @@
 
 log-tests.php
+
+## Ignore SASS cache files
+styles/.sass-cache
+styles/.sass-cache/*
+
+## Ignore Grunt / NPM files
+node_modules
+.npm-debug.log
+tmp
