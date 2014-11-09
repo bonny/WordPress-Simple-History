@@ -1,10 +1,10 @@
 <?php
 
 // Output users
-echo "<h3>Users</h3>";
+echo "<h3>" . __("Users", "simple-history") . "</h3>";
 
-echo "<p>Number of logged items for the 5 users with most logged rows.</p>";
-echo "<p>Deleted users are also included.</p>";
+echo "<p>" . __("Number of logged items for the 5 users with most logged rows.", "simple-history") . "</p>";
+echo "<p>" . __("Deleted users are also included.", "simple-history") . "</p>";
 
 $sql_users = sprintf('
 		SELECT 

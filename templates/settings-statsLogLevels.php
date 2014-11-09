@@ -1,9 +1,9 @@
 <?php
 
 // Stats på level (notice, warning, debug, etc.)
-echo "<h3>Log levels</h3>";
+echo "<h3>" . __("Log levels", "simple-history") . "</h3>";
 
-echo "<p>Number of rows logged for each log level.</p>";
+echo "<p>" . __("Number of rows logged for each log level.", "simple-history") . "</p>";
 
 /*
 echo "<table>";

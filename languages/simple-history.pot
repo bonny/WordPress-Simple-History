@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-09 22:38:23+00:00\n"
+"POT-Creation-Date: 2014-11-09 22:56:49+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -29,11 +29,11 @@ msgid "Settings"
 msgstr ""
 
 #: SimpleHistory.php:434
-msgid "Log"
+msgid "Log (debug)"
 msgstr ""
 
 #: SimpleHistory.php:439
-msgid "Styles example"
+msgid "Styles example (debug)"
 msgstr ""
 
 #: SimpleHistory.php:675
@@ -248,7 +248,7 @@ msgid ""
 msgstr ""
 
 #: dropins/SimpleHistorySettingsLogtestDropin.php:19
-msgid "Test data"
+msgid "Test data (debug)"
 msgstr ""
 
 #: dropins/SimpleHistorySettingsStatsDropin.php:22
@@ -544,12 +544,32 @@ msgstr ""
 msgid "<b>%1$s rows</b> have been logged the last <b>%2$s days</b>"
 msgstr ""
 
+#: templates/settings-statsLogLevels.php:4
+msgid "Log levels"
+msgstr ""
+
+#: templates/settings-statsLogLevels.php:6
+msgid "Number of rows logged for each log level."
+msgstr ""
+
 #: templates/settings-statsLoggers.php:4
 msgid "Loggers"
 msgstr ""
 
 #: templates/settings-statsRowsPerDay.php:4
 msgid "Rows per day"
+msgstr ""
+
+#: templates/settings-statsUsers.php:4
+msgid "Users"
+msgstr ""
+
+#: templates/settings-statsUsers.php:6
+msgid "Number of logged items for the 5 users with most logged rows."
+msgstr ""
+
+#: templates/settings-statsUsers.php:7
+msgid "Deleted users are also included."
 msgstr ""
 
 #. Plugin Name of the plugin/theme

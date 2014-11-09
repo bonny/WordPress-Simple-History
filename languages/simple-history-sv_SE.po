@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
 "POT-Creation-Date: 2014-11-09 22:38:23+00:00\n"
-"PO-Revision-Date: 2014-11-09 23:48+0100\n"
+"PO-Revision-Date: 2014-11-09 23:49+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -567,12 +567,11 @@ msgstr "<b>%1$s händelser</b> har loggats de senaste <b>%2$s dagarna</b>"
 
 #: templates/settings-statsLoggers.php:4
 msgid "Loggers"
-msgstr ""
+msgstr "Loggare"
 
 #: templates/settings-statsRowsPerDay.php:4
-#, fuzzy
 msgid "Rows per day"
-msgstr "Antal händelser per sida"
+msgstr "Händelser per dag"
 
 #. Plugin Name of the plugin/theme
 #, fuzzy
