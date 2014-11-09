@@ -713,6 +713,16 @@ Modal window with detailss
 	margin-left: 0;
 }
 
+/** wordpress as initiator = add wordpress icon */
+.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before {
+	content: "\f120";
+	display: inline-block;
+	-webkit-font-smoothing: antialiased;
+	font: normal 32px/1 'dashicons';
+	vertical-align: top;
+	color: #999;
+}
+
 /** quick stats = stats above log gui */
 .SimpleHistoryQuickStats,
 .SimpleHistoryQuickStats p {
