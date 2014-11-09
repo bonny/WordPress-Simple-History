@@ -211,7 +211,7 @@ class SimpleLogger
 
 				} else {
 
-					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . __( sprintf( 'Anonymous user from %1$s', esc_attr( $context["_server_remote_addr"] ) ) ) . "</strong> ";
+					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . sprintf( __('Anonymous user from %1$s', "simple-history"), esc_attr( $context["_server_remote_addr"] ) ) . "</strong> ";
 					// $initiator_html .= "<strong>" . __("<br><br>Unknown user from {$context["_server_remote_addr"]}") . "</strong>";
 					// $initiator_html .= "<strong>" . __("<br><br>{$context["_server_remote_addr"]}") . "</strong>";
 					// $initiator_html .= "<strong>" . __("<br><br>User from IP {$context["_server_remote_addr"]}") . "</strong>";

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-09 22:31:22+00:00\n"
-"PO-Revision-Date: 2014-11-09 23:33+0100\n"
+"POT-Creation-Date: 2014-11-09 22:38:23+00:00\n"
+"PO-Revision-Date: 2014-11-09 23:48+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -115,9 +115,8 @@ msgid "Clear log now"
 msgstr "Rensa loggen nu"
 
 #: SimpleHistory.php:1696
-#, fuzzy
 msgid "+%1$s more"
-msgstr "%1$s sedan"
+msgstr "+%1$s fler"
 
 #: SimpleHistory.php:1703
 #, fuzzy
@@ -131,11 +130,11 @@ msgstr "%1$s sedan"
 
 #: SimpleHistory.php:1728
 msgid "Context data"
-msgstr ""
+msgstr "Kontextuell data"
 
 #: SimpleHistory.php:1729
 msgid "This is potentially useful meta data that a logger have saved."
-msgstr ""
+msgstr "Detta eventuellt användbar metadata som en logger har sparat."
 
 #: SimpleHistory.php:2050
 msgid "No events today so far."
@@ -192,8 +191,8 @@ msgstr "Filtrera"
 #: dropins/SimpleHistoryNewRowsNotifier.php:80
 msgid "1 new row"
 msgid_plural "%d new rows"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "1 ny rad"
+msgstr[1] "%d nya rader"
 
 #: dropins/SimpleHistoryRSSDropin.php:50
 msgid "Address"
@@ -205,7 +204,7 @@ msgstr "Skapa ny"
 
 #: dropins/SimpleHistoryRSSDropin.php:76
 msgid "Created new secret RSS address"
-msgstr ""
+msgstr "Skapade en ny hemlig RSS-adress"
 
 #: dropins/SimpleHistoryRSSDropin.php:142
 #: dropins/SimpleHistoryRSSDropin.php:250
@@ -222,18 +221,20 @@ msgstr "Historik"
 #: dropins/SimpleHistoryRSSDropin.php:190
 msgid "+%1$s occasion"
 msgid_plural "+%1$s occasions"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "+%1$s tillfälle"
+msgstr[1] "+%1$s tillfällen"
 
 #: dropins/SimpleHistoryRSSDropin.php:254
 msgid "Wrong RSS secret"
-msgstr ""
+msgstr "Fel RSS-lösenord"
 
 #: dropins/SimpleHistoryRSSDropin.php:255
 msgid ""
 "Your RSS secret for Simple History RSS feed is wrong. Please see WordPress "
 "settings for current link to the RSS feed."
 msgstr ""
+"Ditt RSS-lösenord för RSS-flödet för Simple History är felaktigt. Gå till "
+"WordPress-inställningarna för att få en aktuell länk till RSS-flöded."
 
 #: dropins/SimpleHistoryRSSDropin.php:306
 msgid ""
@@ -259,7 +260,7 @@ msgstr ""
 
 #: dropins/SimpleHistorySettingsLogtestDropin.php:19
 msgid "Test data"
-msgstr ""
+msgstr "Testdata"
 
 #: dropins/SimpleHistorySettingsStatsDropin.php:22
 msgid "Stats"
@@ -324,12 +325,15 @@ msgstr ""
 
 #: loggers/SimpleLogger.php:210
 msgid "Anonymous web user"
-msgstr ""
+msgstr "Anonym webbanvändare"
+
+#: loggers/SimpleLogger.php:214
+msgid "Anonymous user from %1$s"
+msgstr "Anonym användare från %1$s"
 
 #: loggers/SimpleLogger.php:281
-#, fuzzy
 msgid "Just now"
-msgstr "Rensa loggen nu"
+msgstr "Just nu"
 
 #. translators: Date format for log row header, see http:php.net/date
 #: loggers/SimpleLogger.php:286
@@ -502,8 +506,9 @@ msgid "Logged in"
 msgstr ""
 
 #: loggers/SimpleUserLogger.php:33
+#, fuzzy
 msgid "Unknown user logged in"
-msgstr ""
+msgstr "Anonym webbanvändare"
 
 #: loggers/SimpleUserLogger.php:34
 msgid "Logged out"
@@ -558,7 +563,7 @@ msgstr ""
 
 #: templates/settings-statsIntro.php:19
 msgid "<b>%1$s rows</b> have been logged the last <b>%2$s days</b>"
-msgstr ""
+msgstr "<b>%1$s händelser</b> har loggats de senaste <b>%2$s dagarna</b>"
 
 #: templates/settings-statsLoggers.php:4
 msgid "Loggers"

@@ -16,7 +16,7 @@ class SimpleHistorySettingsLogtestDropin {
         // How do we register this to the settings array?
         $sh->registerSettingsTab(array(
             "slug" => "testLog",
-            "name" => __("Test data", "simple-history"),
+            "name" => __("Test data (debug)", "simple-history"),
             "function" => array($this, "output")
         ));
 

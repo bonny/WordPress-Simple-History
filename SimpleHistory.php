@@ -75,8 +75,8 @@ class SimpleHistory {
 		add_action( 'plugins_loaded', array($this, 'load_plugin_textdomain') );
 		add_action( 'plugins_loaded', array($this, 'add_default_settings_tabs') );
 		
-		$this->loadLoggers();
-		$this->loadDropins();
+		add_action( 'plugins_loaded', array($this, 'loadLoggers') );
+		add_action( 'plugins_loaded', array($this, 'loadDropins') );
 
 		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
 
@@ -431,12 +431,12 @@ class SimpleHistory {
 			$arr_dev_tabs = array(
 				array(
 					"slug" => "log",
-					"name" => __("Log", "simple-history"),
+					"name" => __("Log (debug)", "simple-history"),
 					"function" => array($this, "settings_output_log")
 				),
 				array(
 					"slug" => "styles-example",
-					"name" => __("Styles example", "simple-history"),
+					"name" => __("Styles example (debug)", "simple-history"),
 					"function" => array($this, "settings_output_styles_example")
 				)
 
@@ -452,7 +452,7 @@ class SimpleHistory {
 	 * Load built in loggers from all files in /loggers
 	 * and instantiates them
 	 */
-	private function loadLoggers() {
+	public function loadLoggers() {
 		
 		$loggersDir = __DIR__ . "/loggers/";
 
@@ -561,7 +561,7 @@ class SimpleHistory {
 	 * Load built in dropins from all files in /dropins
 	 * and instantiates them
 	 */
-	private function loadDropins() {
+	public function loadDropins() {
 		
 		$dropinsDir = __DIR__ . "/dropins/";
 
