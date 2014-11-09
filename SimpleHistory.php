@@ -881,10 +881,11 @@ class SimpleHistory {
 		}
 
 		/**
-		 * @since 2.0
 		 * If db_version is 2 then upgrade to 3:
 		 * - Add some fields to existing table wp_simple_history_contexts
 		 * - Add all new table wp_simple_history_contexts
+		 *
+		 * @since 2.0
 		 */
 		if ( 2 == intval($db_version) ) {
 
@@ -932,8 +933,6 @@ class SimpleHistory {
 			$db_version = 3;
 			update_option("simple_history_db_version", $db_version);
 
-			// @TODO: How to translate this?
-			// own logger for custom messages or what?
 			SimpleLogger()->debug(
 				"Simple History updated its database from version {from_version} to {to_version}",
 				array(
@@ -962,7 +961,57 @@ class SimpleHistory {
 			);
 			$wpdb->query( $sql );
 
-		}
+		} // db version 2 » 3
+
+		/**
+		 * If db_version is 3 then upgrade to 4:
+		 * - Add indexes
+		 * 
+		 * @since 2.0
+		 */
+		if ( 3 == intval($db_version) ) {
+
+			$db_version_prev = $db_version;
+			$db_version = 4;
+			update_option("simple_history_db_version", $db_version);
+
+			// Update old table, adding indexes
+			$sql = "
+				CREATE TABLE {$table_name} (
+				  id bigint(20) NOT NULL AUTO_INCREMENT,
+				  date datetime NOT NULL,
+				  logger varchar(30) DEFAULT NULL,
+				  level varchar(20) DEFAULT NULL,
+				  message varchar(255) DEFAULT NULL,
+				  occasionsID varchar(32) DEFAULT NULL,
+				  type varchar(16) DEFAULT NULL,
+				  initiator varchar(16) DEFAULT NULL,
+				  action varchar(255) NOT NULL,
+				  object_type varchar(255) NOT NULL,
+				  object_subtype varchar(255) NOT NULL,
+				  user_id int(10) NOT NULL,
+				  object_id int(10) NOT NULL,
+				  object_name varchar(255) NOT NULL,
+				  action_description longtext,
+				  PRIMARY KEY  (id),
+				  KEY date (date),
+				  KEY loggerdate (logger, date)
+				) CHARSET=utf8;";
+			
+			dbDelta($sql);
+
+			SimpleLogger()->debug(
+				"Simple History updated its database from version {from_version} to {to_version}",
+				array(
+					"from_version" => $db_version_prev,
+					"to_version" => $db_version
+				)
+			);
+
+		} // db version 3 » 4
+
+
+
 		
 	} // end check_for_upgrade
 	
