@@ -1460,7 +1460,7 @@ class SimpleHistory {
 
 		echo "<p>";
 		if ( $clear_days > 0 ) {
-			_e(  sprintf('Items in the database are automatically removed after %1$s days.', $clear_days), 'simple-history');
+			_e(  sprintf( __('Items in the database are automatically removed after %1$s days.', "simple-history"), $clear_days), 'simple-history');
 		} else {
 			_e( 'Items in the database are kept forever.', 'simple-history');
 		}
