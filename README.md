@@ -1,7 +1,6 @@
-WordPress Simple History 2
-==========================
+# Simple History 2 – a simple, lightweight, extendable logger for WordPress
 
-A WordPress plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
+Simple History is a WordPress plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
 
 Download from WordPress.org:  
 http://wordpress.org/extend/plugins/simple-history/
