@@ -42,13 +42,13 @@ With it's easy to use Extender system, developers can add their own settings and
 There is also a **RSS feed of changes** available, so you can keep track of the changes made
 via your favorite RSS reader on your phone, on your iPad, or on your computer.
 
-It’s a plugin that is good to have on websites where several people are 
+It’s a plugin that is good to have on websites where several people are
 involved in editing the content.
 
 #### Example scenarios
 
 Keep track of what other people are doing:
-_"Has someone done anything today? Ah, Sarah uploaded 
+_"Has someone done anything today? Ah, Sarah uploaded
 the new press release and created an article for it. Great! Now I don't have to do that."_
 
 Or for debug purposes:
@@ -66,114 +66,66 @@ If you are a plugin developer and would like to add your own things/events to Si
 you can do that by calling the function simple_history_add like this:
 `<?php
 
-# Check that function exists before trying to use it
-# Just in case someone disabled the history plugin or similar
-if (function_exists("simple_history_add")) {
+if ( function_exists("SimpleLogger") ) {
 
-	# Log that an email has been sent
-	simple_history_add(array(
-		"object_type" => "Email",
-		"object_name" => "Hi there",
-		"action" => "was sent"
-	));
+	// Most basic example: just add some information to the log
+	SimpleLogger()->info("This is a message sent to the log");
 
-	# Will show “Plugin your_plugin_name Edited” in the history log
-	simple_history_add("action=edited&object_type=plugin&object_name=your_plugin_name");
-	
-	# Will show the history item "Starship USS Enterprise repaired"
-	simple_history_add("action=repaired&object_type=Starship&object_name=USS Enterprise");
+	// A bit more advanced: log events with different severities
+	SimpleLogger()->info("User admin edited page 'About our company'");
+	SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
+	SimpleLogger()->debug("Ok, cron job is running!");
 
-	# Log with some extra details about the email
-	simple_history_add(array(
-		"object_type" => "Email",
-		"object_name" => "Hi there",
-		"action" => "was sent",
-		"description" => "The database query to generate the email took .3 seconds. This is email number 4 that is sent to this user"
-	));
-
-?>
-`
-
-#### Add support for your own custom events
-
-There's also a simple class that you can extend to add support for custom history items. It's super simple to use! Take a look at `class.simple-history-extend.php` to get started, and then extending Simple_History_Extend and fill the required methods with their events and log messages.
-
-#### Never clear the history
-
-By default the items in the history log is cleared automatically afer 60 days. 
-You can override this behaviour by using a filter, like this:
+}
 
 `
-<?php
-// Never clear the database
-add_action("simple_history_allow_db_purge", function($bool) {
-	return false;
-});
-?>
-`
-
-#### Filters
-
-Available filters if you want to modify any behavior
-
-* simple_history_rss_item_title
-* simple_history_view_history_capability
-* simple_history_show_settings_page
-* simple_history_rss_item_description
-* simple_history_rss_item_title
-* simple_history_show_on_dashboard
-* simple_history_show_as_page
-* simple_history_allow_db_purge
-* simple_history_db_purge_days_interval
-
 
 #### Translations/Languages
 
-This plugin is available in the following languages:
+I'm looking for translations of Simple History!
 
-* English
-* German
-* Simplified Chinese
-* Swedish
-* French
-* Arabic
-
-Lots of thanks to the translators!
+Check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/tree/v2).
 
 #### Contribute at GitHub
+
 Development of this plugin takes place at GitHub. Please join in with feature requests, bug reports, or even pull requests!
 https://github.com/bonny/WordPress-Simple-History
 
-#### Donation and more plugins
+#### Donation & more plugins
+
 * If you like this plugin don't forget to [donate to support further development](http://eskapism.se/sida/donate/).
 * More [WordPress CMS plugins](http://wordpress.org/extend/plugins/profile/eskapism) by the same author.
-
-== Installation ==
-
-1. Upload the folder "simple-history" to "/wp-content/plugins/"
-1. Activate the plugin through the "Plugins" menu in WordPress
-1. Done!
-
-Now Simple History will be visible in a submenu under the dashboard main menu. You can also show it directly on the dashboard by modified Simple History's settings page.
-
-== Feedback ==
-
-Like the plugin? Dislike it? Got bugs or feature request?
-Great! Contact me at par.thernstrom@gmail.com or at https://twitter.com/eskapism and hopefully 
-I can do something about it.
 
 
 == Screenshots ==
 
-1. Simple History showing som recent changes to my posts, users and attachments. Also showing several failed login attempts to one of my users.
+1. The log view + it also shows the filter function in use - the log only shows event that
+are of type post and pages and media (i.e. images & other uploads), and only events
+initiated by a specific user.
 
-2. Simple History settings. Choose to show the plugin on your dashboard, or as a separately page. Or both. Or none, since you can choose
-to only use the secret RSS feed to keep track of the changes on you web site/WordPress installation.
+2. Events with different severity – Simple History uses the log levels specified in the PHP PSR-3 standard.
 
-3. The RSS feed with changes, as shown in Firefox.
+3. Events have context with extra details - Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
 
 == Changelog ==
+
+= 2.0 (november 2014) =
+
+Major update - Simple History is now better and nicer than ever before! :)
+I've spend hundreds of hours making this update, so if you use it and like it please [donate to keep my spirit up](http://eskapism.se/sida/donate/) or [give it a nice review](https://wordpress.org/support/view/plugin-reviews/simple-history).
+
+- Code cleanup and modularization
+- Support for log contexts
+- Kinda PSR-3-compatible :)
+- Can handle larger logs (doesn't load whole log into memory any more)
+- Use nonces at more places
+- More filters and hooks to make it easier to customize
+- Better looking! well, at least I think so ;)
+- Much better logging system to make it much easier to create new loggers and to translate logs into different languages
+- Features as plugins: more things are moved into modules/its own file
+- Users see different logs depending on their capability, for example an administrator will see what plugins have been installed, but an editor will not see any plugin related logs
+- Much much more.
 
 = 1.3.6 =
 - Added Polish translation
@@ -377,5 +329,3 @@ by admin (John Doe), just now
 
 = 0.1 =
 * First public version. It works!
-
-
