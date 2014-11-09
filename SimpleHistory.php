@@ -66,6 +66,8 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/before_init", $this );
 
+		add_action( 'admin_init', array($this, 'check_for_upgrade') );
+
 		add_filter("gettext", array($this, 'filter_gettext'), 20, 3);
 		add_filter("gettext_with_context", array($this, 'filter_gettext_with_context'), 20, 4);
 
@@ -75,7 +77,6 @@ class SimpleHistory {
 
 		add_action( 'init', array($this, 'load_plugin_textdomain') );
 
-		add_action( 'admin_init', array($this, 'check_for_upgrade') );
 
 		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
 
