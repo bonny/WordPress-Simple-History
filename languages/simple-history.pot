@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-09 21:45:28+00:00\n"
+"POT-Creation-Date: 2014-11-09 22:31:22+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,131 +24,131 @@ msgstr ""
 "X-Poedit-Bookmarks: \n"
 "X-Textdomain-Support: yes\n"
 
-#: SimpleHistory.php:416 SimpleHistory.php:653
+#: SimpleHistory.php:423 SimpleHistory.php:660
 msgid "Settings"
 msgstr ""
 
-#: SimpleHistory.php:427
+#: SimpleHistory.php:434
 msgid "Log"
 msgstr ""
 
-#: SimpleHistory.php:432
+#: SimpleHistory.php:439
 msgid "Styles example"
 msgstr ""
 
-#: SimpleHistory.php:668
+#: SimpleHistory.php:675
 msgid "History"
 msgstr ""
 
-#: SimpleHistory.php:744
+#: SimpleHistory.php:751
 msgid "Remove all log items?"
 msgstr ""
 
-#: SimpleHistory.php:746
+#: SimpleHistory.php:753
 msgid "Go to the first page"
 msgstr ""
 
-#: SimpleHistory.php:747
+#: SimpleHistory.php:754
 msgid "Go to the previous page"
 msgstr ""
 
-#: SimpleHistory.php:748
+#: SimpleHistory.php:755
 msgid "Go to the next page"
 msgstr ""
 
-#: SimpleHistory.php:749
+#: SimpleHistory.php:756
 msgid "Go to the last page"
 msgstr ""
 
-#: SimpleHistory.php:750
+#: SimpleHistory.php:757
 msgid "Current page"
 msgstr ""
 
-#: SimpleHistory.php:752
+#: SimpleHistory.php:759
 msgid "Oups, the log could not be loaded right now."
 msgstr ""
 
-#: SimpleHistory.php:753
+#: SimpleHistory.php:760
 msgid "Your search did not match any history events."
 msgstr ""
 
-#: SimpleHistory.php:998 SimpleHistory.php:1101
+#: SimpleHistory.php:1005 SimpleHistory.php:1108
 msgid "Simple History Settings"
 msgstr ""
 
-#: SimpleHistory.php:1032
+#: SimpleHistory.php:1039
 msgid "No valid callback found"
 msgstr ""
 
-#: SimpleHistory.php:1122
+#: SimpleHistory.php:1129
 msgid "Cleared database"
 msgstr ""
 
-#: SimpleHistory.php:1149
+#: SimpleHistory.php:1156
 msgid "Show history"
 msgstr ""
 
-#: SimpleHistory.php:1162
+#: SimpleHistory.php:1169
 msgid "Number of items per page"
 msgstr ""
 
-#: SimpleHistory.php:1174
+#: SimpleHistory.php:1181
 msgid "Clear log"
 msgstr ""
 
-#: SimpleHistory.php:1442
+#: SimpleHistory.php:1449
 msgid "on the dashboard"
 msgstr ""
 
-#: SimpleHistory.php:1447
+#: SimpleHistory.php:1454
 msgid "as a page under the dashboard menu"
 msgstr ""
 
-#: SimpleHistory.php:1463
+#: SimpleHistory.php:1470
 msgid "Items in the database are automatically removed after %1$s days."
 msgstr ""
 
-#: SimpleHistory.php:1465
+#: SimpleHistory.php:1472
 msgid "Items in the database are kept forever."
 msgstr ""
 
-#: SimpleHistory.php:1469
+#: SimpleHistory.php:1476
 msgid "Clear log now"
 msgstr ""
 
-#: SimpleHistory.php:1689
+#: SimpleHistory.php:1696
 msgid "+%1$s more"
 msgstr ""
 
-#: SimpleHistory.php:1696
+#: SimpleHistory.php:1703
 msgid "Loading…"
 msgstr ""
 
-#: SimpleHistory.php:1703
+#: SimpleHistory.php:1710
 msgid "Showing %1$s more"
 msgstr ""
 
-#: SimpleHistory.php:1721
+#: SimpleHistory.php:1728
 msgid "Context data"
 msgstr ""
 
-#: SimpleHistory.php:1722
+#: SimpleHistory.php:1729
 msgid "This is potentially useful meta data that a logger have saved."
 msgstr ""
 
-#: SimpleHistory.php:2043
+#: SimpleHistory.php:2050
 msgid "No events today so far."
 msgstr ""
 
-#: SimpleHistory.php:2047
+#: SimpleHistory.php:2054
 msgid "%1$d event today from one user."
 msgstr ""
 
-#: SimpleHistory.php:2051
+#: SimpleHistory.php:2058
 msgid "%1$d events today from %2$d users."
 msgstr ""
 
-#: SimpleHistory.php:2055
+#: SimpleHistory.php:2062
 msgid "%1$d events today from one user."
 msgstr ""
 
@@ -156,10 +156,34 @@ msgstr ""
 msgid "Donate"
 msgstr ""
 
-#: dropins/SimpleHistoryDonateDropin.php:71
+#: dropins/SimpleHistoryDonateDropin.php:72
 msgid ""
 "If you find Simple History useful please <a href=\"%1$s\">donate</a> or <a "
 "href=\"%2$s\">buy me something from my Amazon wish list</a>."
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:42
+msgid "Filter history"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:49
+msgid "All log levels"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:63
+msgid "All messages"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:83
+msgid "All users"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:104
+msgid "All dates"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:118
+msgid "Filter"
 msgstr ""
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:80
@@ -551,17 +575,22 @@ msgctxt "Message visible while waiting for log to load from server the first tim
 msgid "Loading history..."
 msgstr ""
 
+#: SimpleHistory.php:203
+msgctxt "page n of n"
+msgid "of"
+msgstr ""
+
 #: SimpleHistory.php:274
 msgctxt "API: not enought arguments passed"
 msgid "Not enough args specified"
 msgstr ""
 
-#: SimpleHistory.php:1086
+#: SimpleHistory.php:1093
 msgctxt "dashboard menu name"
 msgid "History"
 msgstr ""
 
-#: SimpleHistory.php:1211
+#: SimpleHistory.php:1218
 msgctxt "history page headline"
 msgid "History"
 msgstr ""

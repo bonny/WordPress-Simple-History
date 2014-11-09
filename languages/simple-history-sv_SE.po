@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-09 21:45:28+00:00\n"
-"PO-Revision-Date: 2014-11-09 22:48+0100\n"
+"POT-Creation-Date: 2014-11-09 22:31:22+00:00\n"
+"PO-Revision-Date: 2014-11-09 23:33+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -22,152 +22,172 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: SimpleHistory.php:416 SimpleHistory.php:653
+#: SimpleHistory.php:423 SimpleHistory.php:660
 msgid "Settings"
 msgstr "Inställningar"
 
-#: SimpleHistory.php:427
+#: SimpleHistory.php:434
 msgid "Log"
 msgstr "Logg"
 
-#: SimpleHistory.php:432
+#: SimpleHistory.php:439
 msgid "Styles example"
 msgstr "Stilexempel"
 
-#: SimpleHistory.php:668
+#: SimpleHistory.php:675
 msgid "History"
 msgstr "Historik"
 
-#: SimpleHistory.php:744
+#: SimpleHistory.php:751
 msgid "Remove all log items?"
-msgstr ""
-
-#: SimpleHistory.php:746
-#, fuzzy
-msgid "Go to the first page"
-msgstr "Antal händelser per sida"
-
-#: SimpleHistory.php:747
-#, fuzzy
-msgid "Go to the previous page"
-msgstr "Antal händelser per sida"
-
-#: SimpleHistory.php:748
-#, fuzzy
-msgid "Go to the next page"
-msgstr "Antal händelser per sida"
-
-#: SimpleHistory.php:749
-#, fuzzy
-msgid "Go to the last page"
-msgstr "Antal händelser per sida"
-
-#: SimpleHistory.php:750
-#, fuzzy
-msgid "Current page"
-msgstr "Antal händelser per sida"
-
-#: SimpleHistory.php:752
-msgid "Oups, the log could not be loaded right now."
-msgstr ""
+msgstr "Ta bort alla händelser?"
 
 #: SimpleHistory.php:753
+msgid "Go to the first page"
+msgstr "Gå till första sidan"
+
+#: SimpleHistory.php:754
+msgid "Go to the previous page"
+msgstr "Gå till föregående sida"
+
+#: SimpleHistory.php:755
+msgid "Go to the next page"
+msgstr "Gå till nästa sida"
+
+#: SimpleHistory.php:756
+msgid "Go to the last page"
+msgstr "Gå till sista sidan"
+
+#: SimpleHistory.php:757
+msgid "Current page"
+msgstr "Aktuell sida"
+
+#: SimpleHistory.php:759
+msgid "Oups, the log could not be loaded right now."
+msgstr "Hoppsan, historiken kunde inte laddas just nu."
+
+#: SimpleHistory.php:760
 msgid "Your search did not match any history events."
-msgstr ""
+msgstr "Din sökning matchade inte några händelser i historiken."
 
-#: SimpleHistory.php:998 SimpleHistory.php:1101
-#, fuzzy
+#: SimpleHistory.php:1005 SimpleHistory.php:1108
 msgid "Simple History Settings"
-msgstr "Inställningar"
+msgstr "Inställningar för Simple History"
 
-#: SimpleHistory.php:1032
+#: SimpleHistory.php:1039
 msgid "No valid callback found"
-msgstr ""
+msgstr "Inget giltigt callback hittades."
 
-#: SimpleHistory.php:1122
-#, fuzzy
+#: SimpleHistory.php:1129
 msgid "Cleared database"
-msgstr "Händelser i databasen lagras för evigt."
+msgstr "Databasen rensades"
 
-#: SimpleHistory.php:1149
+#: SimpleHistory.php:1156
 msgid "Show history"
 msgstr "Visa historik"
 
-#: SimpleHistory.php:1162
+#: SimpleHistory.php:1169
 msgid "Number of items per page"
 msgstr "Antal händelser per sida"
 
-#: SimpleHistory.php:1174
+#: SimpleHistory.php:1181
 msgid "Clear log"
 msgstr "Rensa logg"
 
-#: SimpleHistory.php:1442
+#: SimpleHistory.php:1449
 msgid "on the dashboard"
 msgstr "i panelen"
 
-#: SimpleHistory.php:1447
+#: SimpleHistory.php:1454
 msgid "as a page under the dashboard menu"
 msgstr "som en sida under panel-menyn"
 
-#: SimpleHistory.php:1463
+#: SimpleHistory.php:1470
 msgid "Items in the database are automatically removed after %1$s days."
 msgstr "Händelser i databasen tas automatiskt bort efter %1$s dagar."
 
-#: SimpleHistory.php:1465
+#: SimpleHistory.php:1472
 msgid "Items in the database are kept forever."
 msgstr "Händelser i databasen lagras för evigt."
 
-#: SimpleHistory.php:1469
+#: SimpleHistory.php:1476
 msgid "Clear log now"
 msgstr "Rensa loggen nu"
 
-#: SimpleHistory.php:1689
-msgid "+%1$s more"
-msgstr ""
-
 #: SimpleHistory.php:1696
-msgid "Loading…"
-msgstr ""
+#, fuzzy
+msgid "+%1$s more"
+msgstr "%1$s sedan"
 
 #: SimpleHistory.php:1703
-msgid "Showing %1$s more"
-msgstr ""
+#, fuzzy
+msgid "Loading…"
+msgstr "Laddar historik..."
 
-#: SimpleHistory.php:1721
+#: SimpleHistory.php:1710
+#, fuzzy
+msgid "Showing %1$s more"
+msgstr "%1$s sedan"
+
+#: SimpleHistory.php:1728
 msgid "Context data"
 msgstr ""
 
-#: SimpleHistory.php:1722
+#: SimpleHistory.php:1729
 msgid "This is potentially useful meta data that a logger have saved."
 msgstr ""
 
-#: SimpleHistory.php:2043
+#: SimpleHistory.php:2050
 msgid "No events today so far."
-msgstr ""
+msgstr "Inga händelser idag ännu."
 
-#: SimpleHistory.php:2047
+#: SimpleHistory.php:2054
 msgid "%1$d event today from one user."
-msgstr ""
+msgstr "%1$d händelse idag från en användare."
 
-#: SimpleHistory.php:2051
+#: SimpleHistory.php:2058
 msgid "%1$d events today from %2$d users."
-msgstr ""
+msgstr "%1$d händelser idag från %2$d användare."
 
-#: SimpleHistory.php:2055
+#: SimpleHistory.php:2062
 msgid "%1$d events today from one user."
-msgstr ""
+msgstr "%1$d händelser idag från en användare."
 
 #: dropins/SimpleHistoryDonateDropin.php:36
 msgid "Donate"
 msgstr "Donera"
 
-#: dropins/SimpleHistoryDonateDropin.php:71
+#: dropins/SimpleHistoryDonateDropin.php:72
 msgid ""
 "If you find Simple History useful please <a href=\"%1$s\">donate</a> or <a "
 "href=\"%2$s\">buy me something from my Amazon wish list</a>."
 msgstr ""
 "Om Simple History är användbar för dig så <a href=\"%1$s\">donera</a> eller "
 "<a href=\"%2$s\">köp mig något från min Amazon wish list</a>."
+
+#: dropins/SimpleHistoryFilterDropin.php:42
+msgid "Filter history"
+msgstr "Filtrera historik"
+
+#: dropins/SimpleHistoryFilterDropin.php:49
+msgid "All log levels"
+msgstr "Alla loggnivåer"
+
+#: dropins/SimpleHistoryFilterDropin.php:63
+msgid "All messages"
+msgstr "Alla meddelanden"
+
+#: dropins/SimpleHistoryFilterDropin.php:83
+msgid "All users"
+msgstr "Alla användare"
+
+#: dropins/SimpleHistoryFilterDropin.php:104
+msgid "All dates"
+msgstr "Alla datum"
+
+#: dropins/SimpleHistoryFilterDropin.php:118
+msgid "Filter"
+msgstr "Filtrera"
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:80
 msgid "1 new row"
@@ -290,7 +310,7 @@ msgstr ""
 #: loggers/SimpleLegacyLogger.php:75
 #, fuzzy
 msgid "By %s"
-msgstr "Händelser i databasen tas automatiskt bort efter %1$s dagar."
+msgstr "%1$s sedan"
 
 #: loggers/SimpleLegacyLogger.php:80
 msgid "%d occasions"
@@ -319,7 +339,7 @@ msgstr ""
 #. translators: 1: last modified date and time in human time diff-format
 #: loggers/SimpleLogger.php:294
 msgid "%1$s ago"
-msgstr ""
+msgstr "%1$s sedan"
 
 #: loggers/SimpleMediaLogger.php:24
 msgid "Created {post_type} \"{attachment_title}\""
@@ -358,24 +378,29 @@ msgid "{full_image_width} × {full_image_height}"
 msgstr ""
 
 #: loggers/SimpleMenuLogger.php:24
+#, fuzzy
 msgid "Edited menu \"{menu_name}\""
-msgstr ""
+msgstr "som en sida under panel-menyn"
 
 #: loggers/SimpleMenuLogger.php:25
+#, fuzzy
 msgid "Created menu \"{menu_name}\""
-msgstr ""
+msgstr "som en sida under panel-menyn"
 
 #: loggers/SimpleMenuLogger.php:26
+#, fuzzy
 msgid "Deleted menu \"{menu_name}\""
-msgstr ""
+msgstr "som en sida under panel-menyn"
 
 #: loggers/SimpleMenuLogger.php:27
+#, fuzzy
 msgid "Edited a menu item"
-msgstr ""
+msgstr "som en sida under panel-menyn"
 
 #: loggers/SimpleMenuLogger.php:28
+#, fuzzy
 msgid "Updated menu locations"
-msgstr ""
+msgstr "som en sida under panel-menyn"
 
 #: loggers/SimpleOptionsLogger.php:141
 msgid "Updated option \"{option}\""
@@ -547,13 +572,12 @@ msgstr "Antal händelser per sida"
 #. Plugin Name of the plugin/theme
 #, fuzzy
 msgid "Simple History"
-msgstr ""
-"Om Simple History är användbar för dig så <a href=\"%1$s\">donera</a> eller "
-"<a href=\"%2$s\">köp mig något från min Amazon wish list</a>."
+msgstr "Inställningar för Simple History"
 
 #. Plugin URI of the plugin/theme
+#, fuzzy
 msgid "http://simple-history.com"
-msgstr ""
+msgstr "Inställningar för Simple History"
 
 #. Description of the plugin/theme
 msgid ""
@@ -566,28 +590,33 @@ msgid "Pär Thernström"
 msgstr ""
 
 #. Author URI of the plugin/theme
+#, fuzzy
 msgid "http://simple-history.com/"
-msgstr ""
+msgstr "Inställningar för Simple History"
 
 #: SimpleHistory.php:166
-#, fuzzy
 msgctxt ""
 "Message visible while waiting for log to load from server the first time"
 msgid "Loading history..."
-msgstr "Historik"
+msgstr "Laddar historik..."
+
+#: SimpleHistory.php:203
+msgctxt "page n of n"
+msgid "of"
+msgstr "av"
 
 #: SimpleHistory.php:274
 msgctxt "API: not enought arguments passed"
 msgid "Not enough args specified"
 msgstr ""
 
-#: SimpleHistory.php:1086
+#: SimpleHistory.php:1093
 #, fuzzy
 msgctxt "dashboard menu name"
 msgid "History"
 msgstr "Historik"
 
-#: SimpleHistory.php:1211
+#: SimpleHistory.php:1218
 #, fuzzy
 msgctxt "history page headline"
 msgid "History"
@@ -657,12 +686,9 @@ msgid "Edit comment"
 msgstr ""
 
 #: loggers/SimpleLogger.php:184
-#, fuzzy
 msgctxt "header output when initiator is the currently logged in user"
 msgid "You"
-msgstr ""
-"Du kan skapa en ny adress för RSS-flödet. Detta är användbart om du "
-"misstänker att adressen kommit i orätta händer."
+msgstr "Du"
 
 #: loggers/SimpleMenuLogger.php:309
 msgctxt "menu logger"

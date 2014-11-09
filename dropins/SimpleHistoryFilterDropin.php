@@ -39,14 +39,14 @@ class SimpleHistoryFilterDropin {
 
 			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
 		
-				<h3>Filter history</h3>
+				<h3><?php _e("Filter history", "simple-history") ?></h3>
 
 				<p>
 					<input type="search" placeholder="Search" name="search">
 				</p>
 
 				<p>
-					<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="All log levels" multiple>
+					<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e("All log levels", "simple-history") ?>" multiple>
 						<option value="debug" data-color="#CEF6D8">debug</option>
 						<option value="info" data-color="white">info</option>
 						<option value="notice" data-color="rgb(219, 219, 183)">notice</option>
@@ -60,7 +60,7 @@ class SimpleHistoryFilterDropin {
 			
 				<p>
 					<select name="loggers" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px" 
-							placeholder="All messages" multiple>
+							placeholder="<?php _e("All messages", "simple-history") ?>" multiple>
 						<?php
 						foreach ($loggers_user_can_read as $logger) {
 							$logger_info = $logger["instance"]->getInfo();
@@ -80,7 +80,7 @@ class SimpleHistoryFilterDropin {
 							name = "user"
 							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user" 
 							style="width: 300px" 
-							placeholder="All users" />
+							placeholder="<?php _e("All users", "simple-history") ?>" />
 				</p>
 				
 				<?php
@@ -101,7 +101,7 @@ class SimpleHistoryFilterDropin {
 				<p>
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date" 
 							name="months"
-							placeholder="All dates" multiple>
+							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
 						<?php
 						foreach ($result_months as $row) {
 							printf(
@@ -115,7 +115,7 @@ class SimpleHistoryFilterDropin {
 				</p>
 				
 				<p>
-					<button class="button js-SimpleHistoryFilterDropin-doFilter">Filter</button>
+					<button class="button js-SimpleHistoryFilterDropin-doFilter"><?php _e("Filter", "simple-history") ?></button>
 				</p>
 			
 			</form>

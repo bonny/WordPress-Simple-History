@@ -200,7 +200,7 @@ class SimpleHistory {
 							href="#">‹</a>
 						<span class="SimpleHistoryPaginationInput">
 							<input class="SimpleHistoryPaginationCurrentPage" title="<%= strings.currentPage %>" type="text" name="paged" value="<%= api_args.paged %>" size="4">
-							of 
+							<?php _x("of", "page n of n", "simple-history") ?>
 							<span class="total-pages"><%= pages_count %></span>
 						</span>
 						<a 
