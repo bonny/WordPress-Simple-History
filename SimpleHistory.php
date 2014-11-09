@@ -1366,14 +1366,14 @@ class SimpleHistory {
 		
 		#}
 
-		simple_history_add("action=activated&object_type=plugin&object_name=$plugin_name");
+		// simple_history_add("action=activated&object_type=plugin&object_name=$plugin_name");
 
 		// also generate a rss secret, if it does not exist
 		if ( ! get_option("simple_history_rss_secret") ) {
 			$this->instantiatedDropins["SimpleHistoryRSSDropin"]["instance"]->update_rss_secret();
 		}
 		
-		update_option("simple_history_version", SimpleHistory::VERSION);
+		// update_option("simple_history_version", SimpleHistory::VERSION);
 
 	}
 
