@@ -1,9 +1,9 @@
 WordPress Simple History 2
 ==========================
 
-WordPress plugin to viewing changes made in WordPress by site users.
+A WordPress plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
 
-Download from WordPress.org:
+Download from WordPress.org:  
 http://wordpress.org/extend/plugins/simple-history/
 
 # Screenshots
@@ -27,3 +27,21 @@ Simple History uses the log levels specified in the [PHP PSR-3 standard](http://
 Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
 ![Simple History screenshot](https://raw.githubusercontent.com/bonny/WordPress-Simple-History/v2/screenshot-3.png)
+
+# Plugin API
+
+Developers can easily log their own things using a simple API:
+
+```php
+<?php
+// Most basic example: just add some information to the log
+SimpleLogger()->info("This is a message sent to the log");
+
+// Log entries of different severity
+SimpleLogger()->info("User admin edited page 'About our company'");
+SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
+SimpleLogger()->debug("Ok, cron job is running!");
+
+```
+
+See more examples at  [simple-history.com/docs](http://simple-history.com/docs).
