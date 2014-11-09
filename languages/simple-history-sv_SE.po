@@ -4,13 +4,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-09 20:22:56+00:00\n"
+"POT-Creation-Date: 2014-11-09 21:45:28+00:00\n"
+"PO-Revision-Date: 2014-11-09 22:48+0100\n"
+"Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
+"Language-Team: \n"
+"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2014-11-09 21:52+0100\n"
-"Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
-"Language-Team: \n"
 "X-Generator: Poedit 1.6.10\n"
 "X-Poedit-KeywordsList: __;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;"
 "_nx_noop:1,2,3c;esc_attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;"
@@ -19,7 +20,6 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: ../\n"
 "X-Textdomain-Support: yes\n"
-"Language: sv\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: SimpleHistory.php:416 SimpleHistory.php:653
@@ -43,24 +43,29 @@ msgid "Remove all log items?"
 msgstr ""
 
 #: SimpleHistory.php:746
+#, fuzzy
 msgid "Go to the first page"
-msgstr ""
+msgstr "Antal händelser per sida"
 
 #: SimpleHistory.php:747
+#, fuzzy
 msgid "Go to the previous page"
-msgstr ""
+msgstr "Antal händelser per sida"
 
 #: SimpleHistory.php:748
+#, fuzzy
 msgid "Go to the next page"
-msgstr ""
+msgstr "Antal händelser per sida"
 
 #: SimpleHistory.php:749
+#, fuzzy
 msgid "Go to the last page"
-msgstr ""
+msgstr "Antal händelser per sida"
 
 #: SimpleHistory.php:750
+#, fuzzy
 msgid "Current page"
-msgstr ""
+msgstr "Antal händelser per sida"
 
 #: SimpleHistory.php:752
 msgid "Oups, the log could not be loaded right now."
@@ -71,16 +76,18 @@ msgid "Your search did not match any history events."
 msgstr ""
 
 #: SimpleHistory.php:998 SimpleHistory.php:1101
+#, fuzzy
 msgid "Simple History Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #: SimpleHistory.php:1032
 msgid "No valid callback found"
 msgstr ""
 
 #: SimpleHistory.php:1122
+#, fuzzy
 msgid "Cleared database"
-msgstr ""
+msgstr "Händelser i databasen lagras för evigt."
 
 #: SimpleHistory.php:1149
 msgid "Show history"
@@ -96,11 +103,15 @@ msgstr "Rensa logg"
 
 #: SimpleHistory.php:1442
 msgid "on the dashboard"
-msgstr ""
+msgstr "i panelen"
 
 #: SimpleHistory.php:1447
 msgid "as a page under the dashboard menu"
-msgstr ""
+msgstr "som en sida under panel-menyn"
+
+#: SimpleHistory.php:1463
+msgid "Items in the database are automatically removed after %1$s days."
+msgstr "Händelser i databasen tas automatiskt bort efter %1$s dagar."
 
 #: SimpleHistory.php:1465
 msgid "Items in the database are kept forever."
@@ -108,7 +119,7 @@ msgstr "Händelser i databasen lagras för evigt."
 
 #: SimpleHistory.php:1469
 msgid "Clear log now"
-msgstr ""
+msgstr "Rensa loggen nu"
 
 #: SimpleHistory.php:1689
 msgid "+%1$s more"
@@ -148,7 +159,15 @@ msgstr ""
 
 #: dropins/SimpleHistoryDonateDropin.php:36
 msgid "Donate"
+msgstr "Donera"
+
+#: dropins/SimpleHistoryDonateDropin.php:71
+msgid ""
+"If you find Simple History useful please <a href=\"%1$s\">donate</a> or <a "
+"href=\"%2$s\">buy me something from my Amazon wish list</a>."
 msgstr ""
+"Om Simple History är användbar för dig så <a href=\"%1$s\">donera</a> eller "
+"<a href=\"%2$s\">köp mig något från min Amazon wish list</a>."
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:80
 msgid "1 new row"
@@ -158,11 +177,11 @@ msgstr[1] ""
 
 #: dropins/SimpleHistoryRSSDropin.php:50
 msgid "Address"
-msgstr ""
+msgstr "Adress"
 
 #: dropins/SimpleHistoryRSSDropin.php:59
 msgid "Regenerate"
-msgstr ""
+msgstr "Skapa ny"
 
 #: dropins/SimpleHistoryRSSDropin.php:76
 msgid "Created new secret RSS address"
@@ -170,13 +189,15 @@ msgstr ""
 
 #: dropins/SimpleHistoryRSSDropin.php:142
 #: dropins/SimpleHistoryRSSDropin.php:250
+#, fuzzy
 msgid "History for %s"
-msgstr ""
+msgstr "Historik"
 
 #: dropins/SimpleHistoryRSSDropin.php:143
 #: dropins/SimpleHistoryRSSDropin.php:251
+#, fuzzy
 msgid "WordPress History for %s"
-msgstr ""
+msgstr "Historik"
 
 #: dropins/SimpleHistoryRSSDropin.php:190
 msgid "+%1$s occasion"
@@ -199,17 +220,22 @@ msgid ""
 "You can generate a new address for the RSS feed. This is useful if you think "
 "that the address has fallen into the wrong hands."
 msgstr ""
+"Du kan skapa en ny adress för RSS-flödet. Detta är användbart om du "
+"misstänker att adressen kommit i orätta händer."
 
 #: dropins/SimpleHistoryRSSDropin.php:309
-msgid "<a class=\"button\" href=\"%s\">Generate new address</a>"
-msgstr ""
+msgid "Generate new address"
+msgstr "Skapa ny adress"
 
-#: dropins/SimpleHistoryRSSDropin.php:336
+#: dropins/SimpleHistoryRSSDropin.php:337
 msgid ""
 "Simple History has a RSS feed which you can subscribe to and receive log "
 "updates. Make sure you only share the feed with people you trust, since it "
 "can contain sensitive or confidential information."
 msgstr ""
+"Simple History har ett RSS-flöde som du kan prenumerera på. Dela bara RSS-"
+"adressen med personer du litar på, eftersom den kan innehåll känslig eller "
+"konfidentiell information."
 
 #: dropins/SimpleHistorySettingsLogtestDropin.php:19
 msgid "Test data"
@@ -262,8 +288,9 @@ msgid "Created XML export"
 msgstr ""
 
 #: loggers/SimpleLegacyLogger.php:75
+#, fuzzy
 msgid "By %s"
-msgstr ""
+msgstr "Händelser i databasen tas automatiskt bort efter %1$s dagar."
 
 #: loggers/SimpleLegacyLogger.php:80
 msgid "%d occasions"
@@ -280,8 +307,9 @@ msgid "Anonymous web user"
 msgstr ""
 
 #: loggers/SimpleLogger.php:281
+#, fuzzy
 msgid "Just now"
-msgstr ""
+msgstr "Rensa loggen nu"
 
 #. translators: Date format for log row header, see http:php.net/date
 #: loggers/SimpleLogger.php:286
@@ -354,16 +382,18 @@ msgid "Updated option \"{option}\""
 msgstr ""
 
 #: loggers/SimpleOptionsLogger.php:230 loggers/SimpleThemeLogger.php:544
+#, fuzzy
 msgid "New value"
-msgstr ""
+msgstr "Skapa ny adress"
 
 #: loggers/SimpleOptionsLogger.php:241 loggers/SimpleThemeLogger.php:556
 msgid "Old value"
 msgstr ""
 
 #: loggers/SimpleOptionsLogger.php:255 loggers/SimpleOptionsLogger.php:272
+#, fuzzy
 msgid "Settings page"
-msgstr ""
+msgstr "Inställningar"
 
 #: loggers/SimplePostLogger.php:31
 msgid "Updated {post_type} \"{post_title}\""
@@ -510,12 +540,16 @@ msgid "Loggers"
 msgstr ""
 
 #: templates/settings-statsRowsPerDay.php:4
+#, fuzzy
 msgid "Rows per day"
-msgstr ""
+msgstr "Antal händelser per sida"
 
 #. Plugin Name of the plugin/theme
+#, fuzzy
 msgid "Simple History"
 msgstr ""
+"Om Simple History är användbar för dig så <a href=\"%1$s\">donera</a> eller "
+"<a href=\"%2$s\">köp mig något från min Amazon wish list</a>."
 
 #. Plugin URI of the plugin/theme
 msgid "http://simple-history.com"
@@ -536,10 +570,11 @@ msgid "http://simple-history.com/"
 msgstr ""
 
 #: SimpleHistory.php:166
+#, fuzzy
 msgctxt ""
 "Message visible while waiting for log to load from server the first time"
 msgid "Loading history..."
-msgstr ""
+msgstr "Historik"
 
 #: SimpleHistory.php:274
 msgctxt "API: not enought arguments passed"
@@ -547,19 +582,22 @@ msgid "Not enough args specified"
 msgstr ""
 
 #: SimpleHistory.php:1086
+#, fuzzy
 msgctxt "dashboard menu name"
 msgid "History"
-msgstr ""
+msgstr "Historik"
 
 #: SimpleHistory.php:1211
+#, fuzzy
 msgctxt "history page headline"
 msgid "History"
-msgstr ""
+msgstr "Historik"
 
 #: dropins/SimpleHistoryDonateDropin.php:51
+#, fuzzy
 msgctxt "donate settings headline"
 msgid "Donate"
-msgstr ""
+msgstr "Donera"
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:38
 msgctxt "New rows notifier: error while checking for new rows"
@@ -569,7 +607,7 @@ msgstr ""
 #: dropins/SimpleHistoryRSSDropin.php:42
 msgctxt "rss settings headline"
 msgid "RSS feed"
-msgstr ""
+msgstr "RSS-flöde"
 
 #: loggers/SimpleCommentsLogger.php:32
 msgctxt "A comment was added to the database by a logged in user"
@@ -619,9 +657,12 @@ msgid "Edit comment"
 msgstr ""
 
 #: loggers/SimpleLogger.php:184
+#, fuzzy
 msgctxt "header output when initiator is the currently logged in user"
 msgid "You"
 msgstr ""
+"Du kan skapa en ny adress för RSS-flödet. Detta är användbart om du "
+"misstänker att adressen kommit i orätta händer."
 
 #: loggers/SimpleMenuLogger.php:309
 msgctxt "menu logger"

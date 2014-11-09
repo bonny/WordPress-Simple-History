@@ -306,7 +306,8 @@ class SimpleHistoryRSSDropin {
 		_e("You can generate a new address for the RSS feed. This is useful if you think that the address has fallen into the wrong hands.", 'simple-history');
 		echo "</p>";
 		echo "<p>";
-		printf( __('<a class="button" href="%s">Generate new address</a>'), $update_link );
+		printf( '<a class="button" href="%1$s">%2$s</a>', $update_link, __('Generate new address', "simple-history") );
+
 		echo "</p>";
 
 	}

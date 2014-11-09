@@ -72,11 +72,11 @@ class SimpleHistory {
 		add_filter("gettext_with_context", array($this, 'filter_gettext_with_context'), 20, 4);
 
 		$this->setupVariables();
+		add_action( 'plugins_loaded', array($this, 'load_plugin_textdomain') );
+		add_action( 'plugins_loaded', array($this, 'add_default_settings_tabs') );
+		
 		$this->loadLoggers();
 		$this->loadDropins();
-
-		add_action( 'init', array($this, 'load_plugin_textdomain') );
-
 
 		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
 
@@ -408,6 +408,13 @@ class SimpleHistory {
 
 		$this->plugin_basename = plugin_basename(__DIR__ . "/index.php");
 
+	}
+
+	/**
+	 * Adds default tabs to settings
+	 */
+	public function add_default_settings_tabs() {
+		
 		// Add default settings tabs
 		$this->arr_settings_tabs = array(
 				
@@ -1460,7 +1467,7 @@ class SimpleHistory {
 
 		echo "<p>";
 		if ( $clear_days > 0 ) {
-			_e(  sprintf( __('Items in the database are automatically removed after %1$s days.', "simple-history"), $clear_days), 'simple-history');
+			echo sprintf( __('Items in the database are automatically removed after %1$s days.', "simple-history"), $clear_days);
 		} else {
 			_e( 'Items in the database are kept forever.', 'simple-history');
 		}

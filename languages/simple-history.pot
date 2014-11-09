@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-09 21:24:43+00:00\n"
+"POT-Creation-Date: 2014-11-09 21:45:28+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -104,6 +104,10 @@ msgstr ""
 msgid "as a page under the dashboard menu"
 msgstr ""
 
+#: SimpleHistory.php:1463
+msgid "Items in the database are automatically removed after %1$s days."
+msgstr ""
+
 #: SimpleHistory.php:1465
 msgid "Items in the database are kept forever."
 msgstr ""
@@ -150,6 +154,12 @@ msgstr ""
 
 #: dropins/SimpleHistoryDonateDropin.php:36
 msgid "Donate"
+msgstr ""
+
+#: dropins/SimpleHistoryDonateDropin.php:71
+msgid ""
+"If you find Simple History useful please <a href=\"%1$s\">donate</a> or <a "
+"href=\"%2$s\">buy me something from my Amazon wish list</a>."
 msgstr ""
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:80
@@ -203,10 +213,10 @@ msgid ""
 msgstr ""
 
 #: dropins/SimpleHistoryRSSDropin.php:309
-msgid "<a class=\"button\" href=\"%s\">Generate new address</a>"
+msgid "Generate new address"
 msgstr ""
 
-#: dropins/SimpleHistoryRSSDropin.php:336
+#: dropins/SimpleHistoryRSSDropin.php:337
 msgid ""
 "Simple History has a RSS feed which you can subscribe to and receive log "
 "updates. Make sure you only share the feed with people you trust, since it "
