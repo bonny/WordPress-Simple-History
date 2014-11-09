@@ -164,7 +164,7 @@
         $arr_messages = array(
             "emergency" => "Harddrive on VPS 1 has errors",
             "alert" => "The WordPress installation on VPS 2 is running out of memory",
-            "critical" => "There are 21 security updates available for your site",
+            "critical" => "There is 21 security updates available for your site",
             "error" => "A JavaScript error was detected on page <code>example.com/about-us/contact/</code>",
             "warning" => "A user attempted to login to your site with username \"admin\"",
             "notice" => "User Jessie logged in",
