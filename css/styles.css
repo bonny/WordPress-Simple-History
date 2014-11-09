@@ -723,6 +723,15 @@ Modal window with detailss
 	color: #999;
 }
 
+/** anonymous user as initiator = plain user image */
+.SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
+	content: "\f110";
+	display: inline-block;
+	-webkit-font-smoothing: antialiased;
+	font: normal 20px/1 'dashicons';
+	vertical-align: top;
+}
+
 /** quick stats = stats above log gui */
 .SimpleHistoryQuickStats,
 .SimpleHistoryQuickStats p {
