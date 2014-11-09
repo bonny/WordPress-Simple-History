@@ -917,11 +917,11 @@ class SimpleHistory {
 				CREATE TABLE {$table_name_contexts} (
 				  context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				  history_id bigint(20) unsigned NOT NULL,
-				  key varchar(255) DEFAULT NULL,
+				  `key` varchar(255) DEFAULT NULL,
 				  value longtext,
 				  PRIMARY KEY  (context_id),
 				  KEY history_id (history_id),
-				  KEY key (key)
+				  KEY `key` (`key`)
 				) CHARSET=utf8;
 			";
 
