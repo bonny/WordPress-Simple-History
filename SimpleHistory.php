@@ -1546,7 +1546,7 @@ class SimpleHistory {
 	 * @return string
 	 */
 	public function getLogRowPlainTextOutput($row) {
-
+		
 		$row_logger = $row->logger;
 		$logger = null;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
@@ -1560,7 +1560,7 @@ class SimpleHistory {
 			$row_logger = "SimpleLogger";
 		}
 
-		$logger = $this->instantiatedLoggers[$row_logger]["instance"];		
+		$logger = $this->instantiatedLoggers[ $row_logger ]["instance"];
 
 		return $logger->getLogRowPlainTextOutput( $row );
 		

@@ -365,12 +365,14 @@ class SimpleLogger
 	public function getLogRowPlainTextOutput($row) {
 	
 		$message = $row->message;
+		$message_key = $row->context["_message_key"];
 
 		// Message is translated here, but translation must be added in
 		// plain text before
-		$message = __( $message, "simple-history" );
+		
+		$message_translated = $this->messages[ $message_key ]["translated_text"];
 
-		$html = $this->interpolate($message, $row->context);
+		$html = $this->interpolate( $message_translated, $row->context );
 
 		// All messages are escaped by default. 
 		// If you need unescaped output override this method
