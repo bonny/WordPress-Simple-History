@@ -2,7 +2,7 @@
 /*
 Plugin Name: Simple History
 Plugin URI: http://simple-history.com
-Description: Get a log/history/audit log/version history of the changes made by users in WordPress.
+Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
 Version: 2
 Author: Pär Thernström
 Author URI: http://simple-history.com/
