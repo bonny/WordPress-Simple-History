@@ -220,27 +220,31 @@ class SimpleOptionsLogger extends SimpleLogger
 			//$message = 'Old value was {old_value} and new value is {new_value}';
 			$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
-			$output .= sprintf(
-				'
-				<tr>
-					<td>%1$s</td>
-					<td>%2$s</td>
-				</tr>
-				',
-				__("New value", "simple-history"),
-				esc_html( $context["new_value"] )
-			);
+			// Output old and new values
+			if ( $context["new_value"] || $context["old_value"] ) {
+	
+				$output .= sprintf(
+					'
+					<tr>
+						<td>%1$s</td>
+						<td>%2$s</td>
+					</tr>
+					',
+					__("New value", "simple-history"),
+					esc_html( $context["new_value"] )
+				);
 
-			$output .= sprintf(
-				'
-				<tr>
-					<td>%1$s</td>
-					<td>%2$s</td>
-				</tr>
-				',
-				__("Old value", "simple-history"),
-				esc_html( $context["old_value"] )
-			);
+				$output .= sprintf(
+					'
+					<tr>
+						<td>%1$s</td>
+						<td>%2$s</td>
+					</tr>
+					',
+					__("Old value", "simple-history"),
+					esc_html( $context["old_value"] )
+				);
+			}
 
 			// If key option_page this was saved from regular settings pages
 			if ( ! empty( $context["option_page"] ) ) {

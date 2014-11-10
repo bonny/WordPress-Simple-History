@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-09 22:38:23+00:00\n"
-"PO-Revision-Date: 2014-11-09 23:49+0100\n"
+"POT-Creation-Date: 2014-11-10 07:45:35+00:00\n"
+"PO-Revision-Date: 2014-11-10 08:50+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -27,11 +27,13 @@ msgid "Settings"
 msgstr "Inställningar"
 
 #: SimpleHistory.php:434
-msgid "Log"
+#, fuzzy
+msgid "Log (debug)"
 msgstr "Logg"
 
 #: SimpleHistory.php:439
-msgid "Styles example"
+#, fuzzy
+msgid "Styles example (debug)"
 msgstr "Stilexempel"
 
 #: SimpleHistory.php:675
@@ -126,7 +128,7 @@ msgstr "Laddar historik..."
 #: SimpleHistory.php:1710
 #, fuzzy
 msgid "Showing %1$s more"
-msgstr "%1$s sedan"
+msgstr "+%1$s fler"
 
 #: SimpleHistory.php:1728
 msgid "Context data"
@@ -259,127 +261,133 @@ msgstr ""
 "konfidentiell information."
 
 #: dropins/SimpleHistorySettingsLogtestDropin.php:19
-msgid "Test data"
+#, fuzzy
+msgid "Test data (debug)"
 msgstr "Testdata"
 
-#: dropins/SimpleHistorySettingsStatsDropin.php:22
+#: dropins/SimpleHistorySettingsStatsDropin.php:27
 msgid "Stats"
-msgstr ""
+msgstr "Statistik"
 
 #: index.php:63
 msgid ""
 "Simple History is a great plugin, but to use it your server must have at "
 "least PHP 5.3 installed."
 msgstr ""
+"Simple History är en rackarns bra plugin, men för att använda den måste din "
+"server ha minst PHP 5.3 installerat."
 
 #: loggers/SimpleCommentsLogger.php:388
 msgid "Spam"
-msgstr ""
+msgstr "Skräp"
 
 #: loggers/SimpleCommentsLogger.php:390
 msgid "Approved"
-msgstr ""
+msgstr "Godkänd"
 
 #: loggers/SimpleCommentsLogger.php:392
 msgid "Pending"
-msgstr ""
+msgstr "Väntande"
 
 #: loggers/SimpleCommentsLogger.php:404
 msgid "Trackback"
-msgstr ""
+msgstr "Trackback"
 
 #: loggers/SimpleCommentsLogger.php:406
 msgid "Pingback"
-msgstr ""
+msgstr "Pingback"
 
 #: loggers/SimpleCommentsLogger.php:408
 msgid "Comment"
-msgstr ""
+msgstr "Kommentar"
 
 #: loggers/SimpleCoreUpdatesLogger.php:30
 msgid "Updated WordPress from {prev_version} to {new_version}"
-msgstr ""
+msgstr "Uppdaterade WordPress från {prev_version} till {new_version}"
 
 #: loggers/SimpleCoreUpdatesLogger.php:31
 msgid "WordPress auto-updated from {prev_version} to {new_version}"
 msgstr ""
+"WordPress uppdaterades automatiskt från {prev_version} till {new_version}"
 
 #: loggers/SimpleExportLogger.php:24
+#, fuzzy
 msgid "Created XML export"
-msgstr ""
+msgstr "Skapade ny hemlig RSS-adress"
 
 #: loggers/SimpleLegacyLogger.php:75
 #, fuzzy
 msgid "By %s"
-msgstr "%1$s sedan"
+msgstr "+%1$s fler"
 
 #: loggers/SimpleLegacyLogger.php:80
 msgid "%d occasions"
-msgstr ""
+msgstr "%d tillfällen"
 
-#: loggers/SimpleLogger.php:196
-msgid ""
-"<strong class=\"SimpleHistoryLogitem__inlineDivided\">Deleted user</strong> "
-"(had id %1$s, email %2$s, login %3$s)"
-msgstr ""
+#: loggers/SimpleLogger.php:197
+msgid "Deleted user (had id %1$s, email %2$s, login %3$s)"
+msgstr "Raderad användare (hade id %1$s, epost %2$s, login %3$s)"
 
-#: loggers/SimpleLogger.php:210
+#: loggers/SimpleLogger.php:212
 msgid "Anonymous web user"
 msgstr "Anonym webbanvändare"
 
-#: loggers/SimpleLogger.php:214
+#: loggers/SimpleLogger.php:216
 msgid "Anonymous user from %1$s"
 msgstr "Anonym användare från %1$s"
 
-#: loggers/SimpleLogger.php:281
+#: loggers/SimpleLogger.php:283
 msgid "Just now"
 msgstr "Just nu"
 
 #. translators: Date format for log row header, see http:php.net/date
-#: loggers/SimpleLogger.php:286
+#: loggers/SimpleLogger.php:288
 msgid "M j, Y \\a\\t G:i"
-msgstr ""
+msgstr "M j, Y \\a\\t G:i"
 
 #. translators: 1: last modified date and time in human time diff-format
-#: loggers/SimpleLogger.php:294
+#: loggers/SimpleLogger.php:296
 msgid "%1$s ago"
 msgstr "%1$s sedan"
 
 #: loggers/SimpleMediaLogger.php:24
 msgid "Created {post_type} \"{attachment_title}\""
-msgstr ""
+msgstr "Skapade {post_type} \"{attachment_title}\""
 
 #: loggers/SimpleMediaLogger.php:25
 msgid "Edited {post_type} \"{attachment_title}\""
-msgstr ""
+msgstr "Redigerade {post_type} \"{attachment_title}\""
 
 #: loggers/SimpleMediaLogger.php:26
 msgid "Deleted {post_type} \"{attachment_title}\" (\"{attachment_filename}\")"
 msgstr ""
+"Raderade {post_type} \"{attachment_title}\" (\"{attachment_filename}\")"
 
 #: loggers/SimpleMediaLogger.php:66
 msgid "Edited {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
+"Redigerade {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 
 #: loggers/SimpleMediaLogger.php:70
 msgid "Uploaded {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
+"Laddade upp {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 
 #: loggers/SimpleMediaLogger.php:165
 msgid "{attachment_thumb}"
-msgstr ""
+msgstr "{attachment_thumb}"
 
 #: loggers/SimpleMediaLogger.php:174
 msgid "{attachment_size_format}"
-msgstr ""
+msgstr "{attachment_size_format}"
 
 #: loggers/SimpleMediaLogger.php:175
 msgid "{attachment_filetype_extension}"
-msgstr ""
+msgstr "{attachment_filetype_extension}"
 
 #: loggers/SimpleMediaLogger.php:177
 msgid "{full_image_width} × {full_image_height}"
-msgstr ""
+msgstr "{full_image_width} × {full_image_height}"
 
 #: loggers/SimpleMenuLogger.php:24
 #, fuzzy
@@ -408,62 +416,62 @@ msgstr "som en sida under panel-menyn"
 
 #: loggers/SimpleOptionsLogger.php:141
 msgid "Updated option \"{option}\""
-msgstr ""
+msgstr "Uppdaterade inställningen \"{option}\""
 
-#: loggers/SimpleOptionsLogger.php:230 loggers/SimpleThemeLogger.php:544
-#, fuzzy
+#: loggers/SimpleOptionsLogger.php:233 loggers/SimpleThemeLogger.php:544
 msgid "New value"
-msgstr "Skapa ny adress"
+msgstr "Nytt värde"
 
-#: loggers/SimpleOptionsLogger.php:241 loggers/SimpleThemeLogger.php:556
+#: loggers/SimpleOptionsLogger.php:244 loggers/SimpleThemeLogger.php:556
 msgid "Old value"
-msgstr ""
+msgstr "Gammalt värde"
 
-#: loggers/SimpleOptionsLogger.php:255 loggers/SimpleOptionsLogger.php:272
-#, fuzzy
+#: loggers/SimpleOptionsLogger.php:259 loggers/SimpleOptionsLogger.php:276
 msgid "Settings page"
-msgstr "Inställningar"
+msgstr "Inställningssida"
 
 #: loggers/SimplePostLogger.php:31
 msgid "Updated {post_type} \"{post_title}\""
-msgstr ""
+msgstr "Uppdaterade {post_type} \"{post_title}\""
 
 #: loggers/SimplePostLogger.php:32
 msgid "Restored {post_type} \"{post_title}\" from trash"
-msgstr ""
+msgstr "Återställde {post_type} \"{post_title}\" från papperskorgen"
 
 #: loggers/SimplePostLogger.php:33 loggers/SimplePostLogger.php:214
 msgid "Deleted {post_type} \"{post_title}\""
-msgstr ""
+msgstr "Raderade {post_type} \"{post_title}\""
 
 #: loggers/SimplePostLogger.php:34
 msgid "Created {post_type} \"{post_title}\""
-msgstr ""
+msgstr "Skapade {post_type} \"{post_title}\""
 
 #: loggers/SimplePostLogger.php:35
 msgid "Moved {post_type} \"{post_title}\" to the trash"
-msgstr ""
+msgstr "Flyttade {post_type} \"{post_title}\" till papperskorgen"
 
 #: loggers/SimplePostLogger.php:210
 msgid "Updated {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
-msgstr ""
+msgstr "Uppdaterade {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 
 #: loggers/SimplePostLogger.php:218
 msgid "Created {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
-msgstr ""
+msgstr "Skapade {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 
 #: loggers/SimplePostLogger.php:223
 msgid ""
 "Moved {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> to the trash"
 msgstr ""
+"Flyttade {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> till "
+"papperskorgen"
 
 #: loggers/SimpleThemeLogger.php:29
 msgid "Switched theme to from \"{prev_theme_name}\" to \"{theme_name}\""
-msgstr ""
+msgstr "Bytte tema från \"{prev_theme_name}\" till \"{theme_name}\""
 
 #: loggers/SimpleThemeLogger.php:30
 msgid "Customized theme appearance \"{setting_id}\""
-msgstr ""
+msgstr "Ändrade temats utseende \"{setting_id}\""
 
 #: loggers/SimpleThemeLogger.php:31
 msgid "Removed widget \"{widget_id_base}\" from sidebar \"{sidebar_id}\""
@@ -494,29 +502,34 @@ msgid ""
 "Failed to login to account with username \"{login_user_login}\" because an "
 "incorrect password was entered"
 msgstr ""
+"Misslyckades att logga in på kontot med användarnamnet "
+"\"{login_user_login}\" eftersom ett felaktigt lösenord angavs"
 
 #: loggers/SimpleUserLogger.php:30
 msgid ""
 "Failed to login with username \"{failed_login_username}\" because no user "
 "with that username exist"
 msgstr ""
+"Misslyckades att logga in med användarnamn \"{failed_login_username}\" "
+"eftersom ingen användare med det användarnamnet finns"
 
-#: loggers/SimpleUserLogger.php:32 loggers/SimpleUserLogger.php:242
+#: loggers/SimpleUserLogger.php:32
 msgid "Logged in"
-msgstr ""
+msgstr "Loggade in"
 
 #: loggers/SimpleUserLogger.php:33
 #, fuzzy
 msgid "Unknown user logged in"
-msgstr "Anonym webbanvändare"
+msgstr "Logga in"
 
 #: loggers/SimpleUserLogger.php:34
 msgid "Logged out"
-msgstr ""
+msgstr "Loggade ut"
 
 #: loggers/SimpleUserLogger.php:35
 msgid "Edited the profile for user {edited_user_login} ({edited_user_email})"
 msgstr ""
+"Redigerade profilen för användaren {edited_user_login} ({edited_user_email})"
 
 #: loggers/SimpleUserLogger.php:36
 msgid ""
@@ -542,9 +555,11 @@ msgstr ""
 
 #: loggers/SimpleUserLogger.php:152
 msgid ""
-"Edited <a href=\"{edit_profile_link}\">the profile for user "
-"{edited_user_login} ({edited_user_email})</a>"
+"Edited the profile for user <a href="
+"\"{edit_profile_link}\">{edited_user_login} ({edited_user_email})</a>"
 msgstr ""
+"Redigerade profilen för användaren <a href="
+"\"{edit_profile_link}\">{edited_user_login} ({edited_user_email})</a>"
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3
 #: node_modules/grunt-wp-i18n/test/fixtures/plugin-include/plugin-include.php:6
@@ -565,6 +580,15 @@ msgstr ""
 msgid "<b>%1$s rows</b> have been logged the last <b>%2$s days</b>"
 msgstr "<b>%1$s händelser</b> har loggats de senaste <b>%2$s dagarna</b>"
 
+#: templates/settings-statsLogLevels.php:4
+#, fuzzy
+msgid "Log levels"
+msgstr "Alla loggnivåer"
+
+#: templates/settings-statsLogLevels.php:6
+msgid "Number of rows logged for each log level."
+msgstr ""
+
 #: templates/settings-statsLoggers.php:4
 msgid "Loggers"
 msgstr "Loggare"
@@ -572,6 +596,19 @@ msgstr "Loggare"
 #: templates/settings-statsRowsPerDay.php:4
 msgid "Rows per day"
 msgstr "Händelser per dag"
+
+#: templates/settings-statsUsers.php:4
+#, fuzzy
+msgid "Users"
+msgstr "Alla användare"
+
+#: templates/settings-statsUsers.php:6
+msgid "Number of logged items for the 5 users with most logged rows."
+msgstr ""
+
+#: templates/settings-statsUsers.php:7
+msgid "Deleted users are also included."
+msgstr ""
 
 #. Plugin Name of the plugin/theme
 #, fuzzy
@@ -660,14 +697,16 @@ msgid ""
 msgstr ""
 
 #: loggers/SimpleCommentsLogger.php:343
+#, fuzzy
 msgctxt "comments logger - detailed output comment status"
 msgid "Comment status"
-msgstr ""
+msgstr "Kommentar"
 
 #: loggers/SimpleCommentsLogger.php:344
+#, fuzzy
 msgctxt "comments logger - detailed output comment type"
 msgid "Comment type"
-msgstr ""
+msgstr "Kommentar"
 
 #: loggers/SimpleCommentsLogger.php:345
 msgctxt "comments logger - detailed output version"
@@ -680,14 +719,16 @@ msgid "Author email"
 msgstr ""
 
 #: loggers/SimpleCommentsLogger.php:347
+#, fuzzy
 msgctxt "comments logger - detailed output author"
 msgid "Comment"
-msgstr ""
+msgstr "Kommentar"
 
 #: loggers/SimpleCommentsLogger.php:456
+#, fuzzy
 msgctxt "comments logger - edit comment"
 msgid "Edit comment"
-msgstr ""
+msgstr "Kommentar"
 
 #: loggers/SimpleLogger.php:184
 msgctxt "header output when initiator is the currently logged in user"
@@ -709,24 +750,27 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: loggers/SimplePluginLogger.php:52
+#, fuzzy
 msgctxt "Plugin was non-silently activated by a user"
 msgid "Activated plugin \"{plugin_name}\""
-msgstr ""
+msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:58
+#, fuzzy
 msgctxt "Plugin was non-silently deactivated by a user"
 msgid "Deactivated plugin \"{plugin_name}\""
-msgstr ""
+msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:64
+#, fuzzy
 msgctxt "Plugin was installed"
 msgid "Installed plugin \"{plugin_name}\""
-msgstr ""
+msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:70
 msgctxt "Plugin failed to install"
 msgid "Failed to install plugin \"{plugin_name}\""
-msgstr ""
+msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:76
 msgctxt "Plugin was updated"
@@ -736,9 +780,10 @@ msgid ""
 msgstr ""
 
 #: loggers/SimplePluginLogger.php:82
+#, fuzzy
 msgctxt "Plugin update failed"
 msgid "Updated plugin \"{plugin_name}\""
-msgstr ""
+msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:88
 msgctxt "Plugin file edited"
@@ -746,9 +791,10 @@ msgid "Edited plugin file \"{plugin_edited_file}\""
 msgstr ""
 
 #: loggers/SimplePluginLogger.php:94
+#, fuzzy
 msgctxt "Plugin files was deleted"
 msgid "Deleted plugin \"{plugin_name}\""
-msgstr ""
+msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:101
 msgctxt "Plugin was updated in bulk"
@@ -758,9 +804,10 @@ msgid ""
 msgstr ""
 
 #: loggers/SimplePluginLogger.php:834
+#, fuzzy
 msgctxt "plugin logger - detailed output version"
 msgid "Version"
-msgstr ""
+msgstr "Uppdaterade WordPress från {prev_version} till {new_version}"
 
 #: loggers/SimplePluginLogger.php:836
 msgctxt "plugin logger - detailed output author"
@@ -788,14 +835,16 @@ msgid "Downloads"
 msgstr ""
 
 #: loggers/SimplePluginLogger.php:900
+#, fuzzy
 msgctxt "plugin logger: plugin info thickbox title view all info"
 msgid "View plugin info"
-msgstr ""
+msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:915
+#, fuzzy
 msgctxt "plugin logger: plugin info thickbox title"
 msgid "View plugin info"
-msgstr ""
+msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:919
 msgctxt "plugin logger: plugin info thickbox title"
@@ -806,3 +855,6 @@ msgstr ""
 msgctxt "stats: date in rows per day chart"
 msgid "M j"
 msgstr ""
+
+#~ msgid "Log"
+#~ msgstr "Logg"

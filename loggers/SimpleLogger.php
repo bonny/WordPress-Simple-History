@@ -193,7 +193,9 @@ class SimpleLogger
 					// _user_login
 					// _user_email
 					$initiator_html .= sprintf( 
-						__('<strong class="SimpleHistoryLogitem__inlineDivided">Deleted user</strong> (had id %1$s, email %2$s, login %3$s)', "simple-history"),
+						'<strong class="SimpleHistoryLogitem__inlineDivided">' . 
+							__('Deleted user (had id %1$s, email %2$s, login %3$s)', "simple-history") .
+							'</strong>',
 						esc_html( $context["_user_id"] ),
 						esc_html( $context["_user_email"] ),
 						esc_html( $context["_user_login"] )
@@ -896,6 +898,7 @@ class SimpleLogger
 
 				// Seems to be wp cron running and doing this
 				$data["initiator"] = SimpleLoggerLogInitiators::WORDPRESS;
+				$context["_wordpress_cron_running"] = true;
 
 			}
 

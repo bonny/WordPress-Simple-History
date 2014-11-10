@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-09 22:56:49+00:00\n"
+"POT-Creation-Date: 2014-11-10 07:45:35+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -251,7 +251,7 @@ msgstr ""
 msgid "Test data (debug)"
 msgstr ""
 
-#: dropins/SimpleHistorySettingsStatsDropin.php:22
+#: dropins/SimpleHistorySettingsStatsDropin.php:27
 msgid "Stats"
 msgstr ""
 
@@ -305,30 +305,28 @@ msgstr ""
 msgid "%d occasions"
 msgstr ""
 
-#: loggers/SimpleLogger.php:196
-msgid ""
-"<strong class=\"SimpleHistoryLogitem__inlineDivided\">Deleted user</strong> "
-"(had id %1$s, email %2$s, login %3$s)"
+#: loggers/SimpleLogger.php:197
+msgid "Deleted user (had id %1$s, email %2$s, login %3$s)"
 msgstr ""
 
-#: loggers/SimpleLogger.php:210
+#: loggers/SimpleLogger.php:212
 msgid "Anonymous web user"
 msgstr ""
 
-#: loggers/SimpleLogger.php:214
+#: loggers/SimpleLogger.php:216
 msgid "Anonymous user from %1$s"
 msgstr ""
 
-#: loggers/SimpleLogger.php:281
+#: loggers/SimpleLogger.php:283
 msgid "Just now"
 msgstr ""
 
-#: loggers/SimpleLogger.php:286
+#: loggers/SimpleLogger.php:288
 #. translators: Date format for log row header, see http:php.net/date
 msgid "M j, Y \\a\\t G:i"
 msgstr ""
 
-#: loggers/SimpleLogger.php:294
+#: loggers/SimpleLogger.php:296
 #. translators: 1: last modified date and time in human time diff-format
 msgid "%1$s ago"
 msgstr ""
@@ -393,15 +391,15 @@ msgstr ""
 msgid "Updated option \"{option}\""
 msgstr ""
 
-#: loggers/SimpleOptionsLogger.php:230 loggers/SimpleThemeLogger.php:544
+#: loggers/SimpleOptionsLogger.php:233 loggers/SimpleThemeLogger.php:544
 msgid "New value"
 msgstr ""
 
-#: loggers/SimpleOptionsLogger.php:241 loggers/SimpleThemeLogger.php:556
+#: loggers/SimpleOptionsLogger.php:244 loggers/SimpleThemeLogger.php:556
 msgid "Old value"
 msgstr ""
 
-#: loggers/SimpleOptionsLogger.php:255 loggers/SimpleOptionsLogger.php:272
+#: loggers/SimpleOptionsLogger.php:259 loggers/SimpleOptionsLogger.php:276
 msgid "Settings page"
 msgstr ""
 
@@ -481,7 +479,7 @@ msgid ""
 "with that username exist"
 msgstr ""
 
-#: loggers/SimpleUserLogger.php:32 loggers/SimpleUserLogger.php:242
+#: loggers/SimpleUserLogger.php:32
 msgid "Logged in"
 msgstr ""
 
@@ -521,8 +519,8 @@ msgstr ""
 
 #: loggers/SimpleUserLogger.php:152
 msgid ""
-"Edited <a href=\"{edit_profile_link}\">the profile for user "
-"{edited_user_login} ({edited_user_email})</a>"
+"Edited the profile for user <a "
+"href=\"{edit_profile_link}\">{edited_user_login} ({edited_user_email})</a>"
 msgstr ""
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3

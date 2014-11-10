@@ -7,6 +7,11 @@ Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
 
+// Since it's not quite done yet, it's for da devs only for now
+if ( ! defined("SIMPLE_HISTORY_DEV") || ! SIMPLE_HISTORY_DEV ) {
+    return;
+}
+
 class SimpleHistorySettingsStatsDropin {
 
 	// Simple History instance
