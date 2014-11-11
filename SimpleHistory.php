@@ -827,6 +827,7 @@ class SimpleHistory {
 			*/
 
 			// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
+			// This table is missing action_description, but we add that later on
 			$sql = "CREATE TABLE " . $table_name . " (
 			  id bigint(20) NOT NULL AUTO_INCREMENT,
 			  date datetime NOT NULL,
@@ -836,7 +837,6 @@ class SimpleHistory {
 			  user_id int(10) NOT NULL,
 			  object_id int(10) NOT NULL,
 			  object_name VARCHAR(256) NOT NULL COLLATE utf8_general_ci,
-			  action_description longtext,
 			  PRIMARY KEY  (id)
 			) CHARACTER SET=utf8;";
 
