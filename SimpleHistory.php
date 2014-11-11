@@ -75,10 +75,12 @@ class SimpleHistory {
 		add_action( 'plugins_loaded', array($this, 'loadLoggers') );
 		add_action( 'plugins_loaded', array($this, 'loadDropins') );
 
+		// Run before loading of loggers and before menu items are added
+		add_action( 'plugins_loaded', array($this, 'check_for_upgrade'), 5 );
+
 		add_action( 'admin_menu', array($this, 'add_admin_pages') );
 		add_action( 'admin_menu', array($this, 'add_settings') );
 
-		add_action( 'admin_init', array($this, 'check_for_upgrade') );
 
 		add_action( 'admin_footer', array( $this, "add_js_templates" ) );
 		
@@ -796,6 +798,7 @@ class SimpleHistory {
 		$db_version = get_option("simple_history_db_version");
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+		$first_install = false;
 
 		// If no db_version is set then this 
 		// is a version of Simple History < 0.4
@@ -846,15 +849,19 @@ class SimpleHistory {
 			$db_version_prev = $db_version;
 			$db_version = 1;
 
-			SimpleLogger()->debug(
+			/*SimpleLogger()->debug(
 				"Simple History updated its database from version {from_version} to {to_version}",
 				array(
 					"from_version" => $db_version_prev,
 					"to_version" => $db_version
 				)
-			);
+			);*/
 			
 			update_option("simple_history_db_version", $db_version);
+
+			// We are not 100% sure that this is a first install, 
+			// but it is at least a very old version that is being updated
+			$first_install = true;
 
 		} // done pre db ver 1 things
 
@@ -870,13 +877,13 @@ class SimpleHistory {
 			$db_version_prev = $db_version;
 			$db_version = 2;
 
-			SimpleLogger()->debug(
+			/*SimpleLogger()->debug(
 				"Simple History updated its database from version {from_version} to {to_version}",
 				array(
 					"from_version" => $db_version_prev,
 					"to_version" => $db_version
 				)
-			);
+			);*/
 
 			update_option("simple_history_db_version", $db_version);
 
