@@ -103,3 +103,12 @@ add_action("init", function() {
 
 }, 100);
 */
+
+
+//*
+add_action("init", function() {
+
+	#SimpleLogger()->info("This is a regular info message" . time());
+
+}, 100);
+// */

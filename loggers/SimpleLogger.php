@@ -369,10 +369,18 @@ class SimpleLogger
 
 		// Message is translated here, but translation must be added in
 		// plain text before
-		
-		$message_translated = $this->messages[ $message_key ]["translated_text"];
 
-		$html = $this->interpolate( $message_translated, $row->context );
+		if ( empty( $message_key ) ) {
+
+			// Leave message alone
+
+		} else {
+
+			$message = $this->messages[ $message_key ]["translated_text"];
+			
+		}
+		
+		$html = $this->interpolate( $message, $row->context );
 
 		// All messages are escaped by default. 
 		// If you need unescaped output override this method
