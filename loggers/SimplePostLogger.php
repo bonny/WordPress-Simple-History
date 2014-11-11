@@ -85,8 +85,8 @@ class SimplePostLogger extends SimpleLogger
 			return;
 		}
 
-		$this->info(
-			$this->messages["post_deleted"],
+		$this->infoMessage(
+			"post_deleted",
 			array(
 				"post_id" => $post_id,
 				"post_type" => get_post_type($post),
