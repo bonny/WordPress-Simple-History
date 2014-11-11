@@ -81,7 +81,6 @@ class SimpleHistory {
 		add_action( 'admin_menu', array($this, 'add_admin_pages') );
 		add_action( 'admin_menu', array($this, 'add_settings') );
 
-
 		add_action( 'admin_footer', array( $this, "add_js_templates" ) );
 		
 		add_action( 'wp_dashboard_setup', array($this, 'add_dashboard_widget') );
@@ -555,6 +554,8 @@ class SimpleHistory {
 
 		}
 
+		do_action( "simple_history/loggers_loaded" );
+
 		#sf_d($this->instantiatedLoggers);exit;
 
 	}
@@ -967,21 +968,13 @@ class SimpleHistory {
 			$db_version = 3;
 			update_option("simple_history_db_version", $db_version);
 
-			SimpleLogger()->debug(
+			/*SimpleLogger()->debug(
 				"Simple History updated its database from version {from_version} to {to_version}",
 				array(
 					"from_version" => $db_version_prev,
 					"to_version" => $db_version
 				)
-			);
-
-			SimpleLogger()->info(
-				"Welcome to Simple History 2! Hope you will enjoy this plugin. 
-				Found bugs? Got great ideas? Send them to the plugin developer at par.thernstrom@gmail.com.",
-				array(
-					"_initiator" => SimpleLoggerLogInitiators::WORDPRESS
-				)
-			);
+			);*/
 
 			// Update old items to use SimpleLegacyLogger
 			$sql = sprintf('
@@ -995,11 +988,29 @@ class SimpleHistory {
 			);
 			$wpdb->query( $sql );
 
+			// Say welcome, however loggers are not added this early so we need to
+			// use a filter to load it later
+			add_action("simple_history/loggers_loaded", array( $this, "addWelcomeLogMessage" ));
+
 		} // db version 2 » 3
 
 		
 	} // end check_for_upgrade
 	
+	/**
+	 * Greet users to version 2!
+	 */
+	public function addWelcomeLogMessage() {
+
+		SimpleLogger()->info(
+			"Welcome to Simple History 2! Hope you will enjoy this plugin. 
+			Found bugs? Got great ideas? Send them to the plugin developer at par.thernstrom@gmail.com.",
+			array(
+				"_initiator" => SimpleLoggerLogInitiators::WORDPRESS
+			)
+		);
+
+	}
 
 	public function registerSettingsTab($arr_tab_settings) {
 
