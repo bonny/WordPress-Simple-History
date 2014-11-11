@@ -4,8 +4,8 @@
  * Main class for Simple History
  */ 
 class SimpleHistory {
-	 
- 	const NAME = "Simple History";
+
+	const NAME = "Simple History";
 	const VERSION = "2.0";
 
 	/**
@@ -799,11 +799,29 @@ class SimpleHistory {
 
 		// If no db_version is set then this 
 		// is a version of Simple History < 0.4
+		// or it's a first install
 		// Fix database not using UTF-8
 		if ( false === $db_version ) {
 			
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-			
+
+			// Table creation, used to be in register_activation_hook
+			$sql = "CREATE TABLE " . $table_name . " (
+			  id int(10) NOT NULL AUTO_INCREMENT,
+			  date datetime NOT NULL,
+			  action varchar(255) NOT NULL COLLATE utf8_general_ci,
+			  object_type varchar(255) NOT NULL COLLATE utf8_general_ci,
+			  object_subtype VARCHAR(255) NOT NULL COLLATE utf8_general_ci,
+			  user_id int(10) NOT NULL,
+			  object_id int(10) NOT NULL,
+			  object_name varchar(255) NOT NULL COLLATE utf8_general_ci,
+			  action_description longtext,
+			  PRIMARY KEY  (id)
+			) CHARACTER SET=utf8;";
+
+			dbDelta($sql);
+
+
 			// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
 			$sql = "CREATE TABLE " . $table_name . " (
 			  id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -971,7 +989,6 @@ class SimpleHistory {
 			$wpdb->query( $sql );
 
 		} // db version 2 » 3
-
 
 		
 	} // end check_for_upgrade
@@ -1335,54 +1352,6 @@ class SimpleHistory {
 	
 	}
 	*/
-
-
-	/**
-	 * Function that is called when plugin is activated
-	 * Create database tables if they don't exist
-	 * and also create some defaults
-	 *
-	 * Some good info:
-	 * http://wordpress.stackexchange.com/questions/25910/uninstall-activate-deactivate-a-plugin-typical-features-how-to
-	 */
-	public static function on_plugin_activate() {
-
-		global $wpdb;
-
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-		#if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-
-			$sql = "CREATE TABLE " . $table_name . " (
-			  id int(10) NOT NULL AUTO_INCREMENT,
-			  date datetime NOT NULL,
-			  action varchar(255) NOT NULL COLLATE utf8_general_ci,
-			  object_type varchar(255) NOT NULL COLLATE utf8_general_ci,
-			  object_subtype VARCHAR(255) NOT NULL COLLATE utf8_general_ci,
-			  user_id int(10) NOT NULL,
-			  object_id int(10) NOT NULL,
-			  object_name varchar(255) NOT NULL COLLATE utf8_general_ci,
-			  action_description longtext,
-			  PRIMARY KEY  (id)
-			) CHARACTER SET=utf8;";
-
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-			dbDelta($sql);
-
-			// add ourself as a history item.
-			$plugin_name = urlencode(SimpleHistory::NAME);
-		
-		#}
-
-		// simple_history_add("action=activated&object_type=plugin&object_name=$plugin_name");
-
-		// also generate a rss secret, if it does not exist
-		if ( ! get_option("simple_history_rss_secret") ) {
-			$this->instantiatedDropins["SimpleHistoryRSSDropin"]["instance"]->update_rss_secret();
-		}
-		
-		// update_option("simple_history_version", SimpleHistory::VERSION);
-
-	}
 
 	/**
 	 * Get setting if plugin should be visible on dasboard. 

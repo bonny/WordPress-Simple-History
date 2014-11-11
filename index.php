@@ -37,7 +37,7 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	 *
 	 * @TODO: make activatigon multi site aware, as in https://github.com/scribu/wp-proper-network-activation
 	 */
-	register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
+	// register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
 	/** Boot up */
 	$GLOBALS["simple_history"] = new SimpleHistory();

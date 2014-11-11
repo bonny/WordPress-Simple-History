@@ -19,6 +19,11 @@ class SimpleHistoryRSSDropin {
 			require_once( ABSPATH . '/wp-admin/includes/user.php' );
 		}
 
+		// Generate a rss secret, if it does not exist
+		if ( ! get_option("simple_history_rss_secret") ) {
+			$this->update_rss_secret();
+		}
+
 		add_action( 'init', array($this, 'check_for_rss_feed_request') );
 
 		// Add settings with prio 11 so it' added after the main Simple History settings
@@ -84,6 +89,7 @@ class SimpleHistoryRSSDropin {
 		}
 
 	} // settings
+
 
 	/**
 	 * Check if current request is a request for the RSS feed
