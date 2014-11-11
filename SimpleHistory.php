@@ -810,6 +810,7 @@ class SimpleHistory {
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
 			// Table creation, used to be in register_activation_hook
+			/* 
 			$sql = "CREATE TABLE " . $table_name . " (
 			  id int(10) NOT NULL AUTO_INCREMENT,
 			  date datetime NOT NULL,
@@ -822,9 +823,8 @@ class SimpleHistory {
 			  action_description longtext,
 			  PRIMARY KEY  (id)
 			) CHARACTER SET=utf8;";
-
 			dbDelta($sql);
-
+			*/
 
 			// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
 			$sql = "CREATE TABLE " . $table_name . " (
