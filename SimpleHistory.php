@@ -66,39 +66,39 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/before_init", $this );
 
-		add_action( 'admin_init', array($this, 'check_for_upgrade') );
-
-		add_filter("gettext", array($this, 'filter_gettext'), 20, 3);
-		add_filter("gettext_with_context", array($this, 'filter_gettext_with_context'), 20, 4);
-
 		$this->setupVariables();
+		require_once ( __DIR__ . "/old-functions.php");
+
+		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
 		add_action( 'plugins_loaded', array($this, 'load_plugin_textdomain') );
 		add_action( 'plugins_loaded', array($this, 'add_default_settings_tabs') );
-		
 		add_action( 'plugins_loaded', array($this, 'loadLoggers') );
 		add_action( 'plugins_loaded', array($this, 'loadDropins') );
-
-		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
-
-		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
 		add_action( 'admin_menu', array($this, 'add_admin_pages') );
 		add_action( 'admin_menu', array($this, 'add_settings') );
 
-		add_action( 'wp_dashboard_setup', array($this, 'add_dashboard_widget') );
-
-		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
-
-		require_once ( __DIR__ . "/old-functions.php");
-
-		add_action( 'wp_ajax_simple_history_api', array($this, 'api') );
+		add_action( 'admin_init', array($this, 'check_for_upgrade') );
 
 		add_action( 'admin_footer', array( $this, "add_js_templates" ) );
+		
+		add_action( 'wp_dashboard_setup', array($this, 'add_dashboard_widget') );
+
+		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+
+		add_action( 'admin_head', array( $this, "onAdminHead" ) );
+
+		// Filters and actions not called during regular boot
+		add_filter("gettext", array($this, 'filter_gettext'), 20, 3);
+		add_filter("gettext_with_context", array($this, 'filter_gettext_with_context'), 20, 4);
 
 		add_action( 'simple_history/history_page/before_gui', array( $this, "output_quick_stats" ) );
 		add_action( 'simple_history/dashboard/before_gui', array( $this, "output_quick_stats" ) );
 
-		add_action(  'admin_head', array( $this, "onAdminHead" ) );
+		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
+		add_action( 'wp_ajax_simple_history_api', array($this, 'api') );
+
+		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
 
 		/**
 	     * Fires after Simple History has done it's init stuff
