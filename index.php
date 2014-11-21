@@ -258,7 +258,7 @@ define("SIMPLE_HISTORY_URL", $plugin_dir_url);
 
 			// Add column for action description in non-translateable free text
 			$sql = "ALTER TABLE {$table_name} ADD COLUMN action_description longtext";
-			mysql_query($sql);
+			$wpdb->query($sql);
 
 			simple_history_add("action=" . 'upgraded its database' . "&object_type=plugin&object_name=" . SIMPLE_HISTORY_NAME . "&description=Database version is now version 2");
 			update_option("simple_history_db_version", 2);
