@@ -782,7 +782,7 @@ function simple_history_deactivated_plugin($plugin_name) {
 
 function simple_history_edit_comment($comment_id) {
 	
-	$comment_data = get_commentdata($comment_id, 0, true);
+	$comment_data = get_comment($comment_id, ARRAY_A);
 	$comment_post_ID = $comment_data["comment_post_ID"];
 	$post = get_post($comment_post_ID);
 	$post_title = get_the_title($comment_post_ID);
@@ -798,7 +798,7 @@ function simple_history_edit_comment($comment_id) {
 
 function simple_history_delete_comment($comment_id) {
 	
-	$comment_data = get_commentdata($comment_id, 0, true);
+	$comment_data = get_comment($comment_id, ARRAY_A);
 	$comment_post_ID = $comment_data["comment_post_ID"];
 	$post = get_post($comment_post_ID);
 	$post_title = get_the_title($comment_post_ID);
@@ -815,7 +815,7 @@ function simple_history_delete_comment($comment_id) {
 function simple_history_set_comment_status($comment_id, $new_status) {
 	#echo "<br>new status: $new_status<br>"; // 0
 	// $new_status hold (unapproved), approve, spam, trash
-	$comment_data = get_commentdata($comment_id, 0, true);
+	$comment_data = get_comment($comment_id, ARRAY_A);
 	$comment_post_ID = $comment_data["comment_post_ID"];
 	$post = get_post($comment_post_ID);
 	$post_title = get_the_title($comment_post_ID);
