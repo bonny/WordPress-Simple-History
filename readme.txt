@@ -178,6 +178,7 @@ to only use the secret RSS feed to keep track of the changes on you web site/Wor
 = 1.3.11 =
 - Don't use deprecated function get_commentdata(). Fixes https://wordpress.org/support/topic/get_commentdata-function-is-deprecated.
 - Don't use mysql_query() directly. Fixes https://wordpress.org/support/topic/deprecated-mysql-warning.
+- Beta testers wanted! I'm working on the next version of Simple History and now I need some beta testers. If you want to try out the shiny new and cool version please download the [v2 branch](https://github.com/bonny/WordPress-Simple-History/tree/v2) over at GitHub. Thanks!
 
 = 1.3.10 =
 - Fix: correct usage of "its"
