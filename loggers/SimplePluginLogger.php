@@ -851,7 +851,7 @@ Undefined variable: update_plugins
 					switch ($key) {
 
 						case "plugin_downloaded":
-							$desc_output = esc_attr( number_format_i18n( $context[ $key ] ) );
+							$desc_output = esc_attr( number_format_i18n( (int) $context[ $key ] ) );
 							break;
 
 						// author is already formatted
