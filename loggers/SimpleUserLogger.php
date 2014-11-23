@@ -345,7 +345,7 @@ class SimpleUserLogger extends SimpleLogger
 			$log_password = false;
 			$log_password = apply_filters("simple_history/comments_logger/log_not_existing_user_password", $log_password);
 			if ($log_password) {
-				$context["login_user_password"] = $password;
+				$context["failed_login_password"] = $password;
 			}
 
 			$this->warningMessage("user_unknown_login_failed", $context);		
