@@ -994,6 +994,36 @@ class SimpleHistory {
 
 		} // db version 2 » 3
 
+		/**
+		 * If db version = 3 
+		 * then we need to update database to allow null values for some old columns
+		 * that used to work in pre wp 4.1 beta, but since 4.1 wp uses STRICT_ALL_TABLES
+		 *
+		 * @since 2.0
+		 */
+		if ( 3 == intval($db_version) ) {
+
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+			$sql = sprintf('
+					ALTER TABLE %1$s
+					MODIFY `action` varchar(255) NULL,
+					MODIFY `object_type` varchar(255) NULL,
+					MODIFY `object_subtype` varchar(255) NULL,
+					MODIFY `user_id` int(10) NULL,
+					MODIFY `object_id` int(10) NULL,
+					MODIFY `object_name` varchar(255) NULL
+				', 
+				$table_name
+			);
+			$wpdb->query( $sql );
+
+			$db_version_prev = $db_version;
+			$db_version = 4;
+			update_option("simple_history_db_version", $db_version);
+
+		} // end db version 3 » 4
+
 		
 	} // end check_for_upgrade
 	
