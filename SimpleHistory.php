@@ -998,7 +998,8 @@ class SimpleHistory {
 		 * If db version = 3 
 		 * then we need to update database to allow null values for some old columns
 		 * that used to work in pre wp 4.1 beta, but since 4.1 wp uses STRICT_ALL_TABLES
-		 *
+		 * WordPress Commit: https://github.com/WordPress/WordPress/commit/f17d168a0f72211a9bfd9d3fa680713069871bb6
+		 * 
 		 * @since 2.0
 		 */
 		if ( 3 == intval($db_version) ) {
