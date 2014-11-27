@@ -26,7 +26,7 @@ class SimpleThemeLogger extends SimpleLogger
 			"description" => "Logs theme edits",
 			"capability" => "edit_theme_options",
 			"messages" => array(
-				'theme_switched' => __('Switched theme to from "{prev_theme_name}" to "{theme_name}"', "simple-history"),
+				'theme_switched' => __('Switched theme to "{theme_name}" from "{prev_theme_name}"', "simple-history"),
 				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
 				'widget_removed' => __('Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', "simple-history"),
 				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
