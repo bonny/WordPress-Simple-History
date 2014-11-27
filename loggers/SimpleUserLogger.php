@@ -187,7 +187,7 @@ class SimpleUserLogger extends SimpleLogger
 				"login_user_email" => $user->user_email,
 				"login_user_login" => $user->user_login,
 				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
-				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
+				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
 			);
 
 			/**
