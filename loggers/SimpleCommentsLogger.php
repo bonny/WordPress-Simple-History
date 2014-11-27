@@ -239,6 +239,9 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	}
 
+	/**
+	 * Fires immediately after a comment is inserted into the database.
+	 */
 	public function on_comment_post($comment_ID, $comment_approved) {
 
 		$context = $this->get_context_for_comment($comment_ID);
@@ -267,6 +270,15 @@ class SimpleCommentsLogger extends SimpleLogger
 			if ( isset( $comment_data->comment_approved ) && "spam" === $comment_data->comment_approved ) {
 				$context["_occasionsID"] = __CLASSNAME__  . '/' . __FUNCTION__ . "/anon_comment_added/type:spam";
 			}
+
+		}
+
+		// @TODO: group comments by comment_type comment | trackback | pingback
+		// OR: different messages for different comment types?
+		if ( isset( $comment_data["comment_type"] ) ) {
+			
+			$comment_type = $comment_data["comment_type"];
+			
 
 		}
 
