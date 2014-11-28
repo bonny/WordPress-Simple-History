@@ -37,10 +37,7 @@ view changes to forums and topics and view user changes
 * **Gravity Forms**<br>
 see who created, edited or deleted a form, field, or entry
 
-With it's easy to use Extender system, developers can add their own settings and items to track.
-
-There is also a **RSS feed of changes** available, so you can keep track of the changes made
-via your favorite RSS reader on your phone, on your iPad, or on your computer.
+There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
 
 It’s a plugin that is good to have on websites where several people are
 involved in editing the content.
@@ -60,25 +57,26 @@ that must be it."_
 See the plugin in action with this short screencast:
 [youtube http://www.youtube.com/watch?v=4cu4kooJBzs]
 
-#### Add your own events to simple history
+#### API so you can add your own events to Simple History
 
-If you are a plugin developer and would like to add your own things/events to Simple History
-you can do that by calling the function simple_history_add like this:
-`<?php
+If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by calling the function `simple_history_add()` like this:
+
+```
+<?php
 
 if ( function_exists("SimpleLogger") ) {
 
-	// Most basic example: just add some information to the log
-	SimpleLogger()->info("This is a message sent to the log");
+    // Most basic example: just add some information to the log
+    SimpleLogger()->info("This is a message sent to the log");
 
-	// A bit more advanced: log events with different severities
-	SimpleLogger()->info("User admin edited page 'About our company'");
-	SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
-	SimpleLogger()->debug("Ok, cron job is running!");
+    // A bit more advanced: log events with different severities
+    SimpleLogger()->info("User admin edited page 'About our company'");
+    SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
+    SimpleLogger()->debug("Ok, cron job is running!");
 
 }
 
-`
+```
 
 #### Translations/Languages
 
