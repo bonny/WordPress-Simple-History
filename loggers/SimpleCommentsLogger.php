@@ -454,32 +454,54 @@ class SimpleCommentsLogger extends SimpleLogger
 		}
 	
 		// Keys to show
-		$arr_plugin_keys = array(
+		$arr_plugin_keys = array();
+		$comment_type = isset( $context["comment_type"] ) ? $context["comment_type"] : "";
 
-			// Comments
-			"comment_status" => _x("Comment status", "comments logger - detailed output comment status", "simple-history"),
-			"comment_type" => _x("Comment type", "comments logger - detailed output comment type", "simple-history"),
-			"comment_author" => _x("Author name", "comments logger - detailed output author", "simple-history"),
-			"comment_author_email" => _x("Author email", "comments logger - detailed output email", "simple-history"),
-			"comment_content" => _x("Comment", "comments logger - detailed output content", "simple-history"),
+		switch ( $comment_type ) {
 
-			// Trackbacks
-			"trackback_status" => _x("Trackback status", "comments logger - detailed output comment status", "simple-history"),
-			"trackback_type" => _x("Trackback type", "comments logger - detailed output comment type", "simple-history"),
-			"trackback_author" => _x("Trackback name", "comments logger - detailed output author", "simple-history"),
-			"trackback_author_email" => _x("Trackback email", "comments logger - detailed output email", "simple-history"),
-			"trackback_content" => _x("Trackback conrent", "comments logger - detailed output content", "simple-history"),
+			case "trackback";
 
-			// Pingbacks
-			"pingback_status" => _x("Pingback status", "comments logger - detailed output comment status", "simple-history"),
-			"pingback_type" => _x("Pingback type", "comments logger - detailed output comment type", "simple-history"),
-			"pingback_author" => _x("Pingback name", "comments logger - detailed output author", "simple-history"),
-			"pingback_author_email" => _x("Pingback email", "comments logger - detailed output email", "simple-history"),
-			"pingback_content" => _x("Pingback content", "comments logger - detailed output content", "simple-history"),
+				$arr_plugin_keys = array(
+					"trackback_status" => _x("Trackback status", "comments logger - detailed output comment status", "simple-history"),
+					#"trackback_type" => _x("Trackback type", "comments logger - detailed output comment type", "simple-history"),
+					"trackback_author" => _x("Trackback name", "comments logger - detailed output author", "simple-history"),
+					"trackback_author_email" => _x("Trackback email", "comments logger - detailed output email", "simple-history"),
+					"trackback_content" => _x("Trackback conrent", "comments logger - detailed output content", "simple-history"),
+				);
 
-			//"comment_author_url" => _x("Author URL", "comments logger - detailed output author", "simple-history"),
-			//"comment_author_IP" => _x("IP number", "comments logger - detailed output IP", "simple-history"),
-		);
+				break;
+
+			case "pingback";
+
+				$arr_plugin_keys = array(
+
+					"pingback_status" => _x("Pingback status", "comments logger - detailed output comment status", "simple-history"),
+					#"pingback_type" => _x("Pingback type", "comments logger - detailed output comment type", "simple-history"),
+					"pingback_author" => _x("Pingback name", "comments logger - detailed output author", "simple-history"),
+					"pingback_author_email" => _x("Pingback email", "comments logger - detailed output email", "simple-history"),
+					"pingback_content" => _x("Pingback content", "comments logger - detailed output content", "simple-history"),
+
+				);
+
+				break;
+
+			case "comment";
+			default;
+				
+				$arr_plugin_keys = array(
+					"comment_status" => _x("Comment status", "comments logger - detailed output comment status", "simple-history"),
+					#"comment_type" => _x("Comment type", "comments logger - detailed output comment type", "simple-history"),
+					"comment_author" => _x("Author name", "comments logger - detailed output author", "simple-history"),
+					"comment_author_email" => _x("Author email", "comments logger - detailed output email", "simple-history"),
+					"comment_content" => _x("Comment", "comments logger - detailed output content", "simple-history")
+				);
+
+				break;
+
+				//"comment_author_url" => _x("Author URL", "comments logger - detailed output author", "simple-history"),
+				//"comment_author_IP" => _x("IP number", "comments logger - detailed output IP", "simple-history"),
+
+		}
 
 		$arr_plugin_keys = apply_filters("simple_history/comments_logger_row_details_plugin_info_keys", $arr_plugin_keys);
 
