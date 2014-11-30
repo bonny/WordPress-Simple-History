@@ -36,13 +36,13 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'comment_status_approve' => _x(
-					'Approved a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Approved a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A comment was approved',
 					'simple-history'
 				),
 
 				'comment_status_hold' => _x(
-					'Unapproved a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Unapproved a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A comment was was unapproved',
 					'simple-history'
 				),
@@ -54,25 +54,25 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'comment_status_trash' => _x(
-					'Trashed a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Trashed a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A comment was marked moved to the trash',
 					'simple-history'
 				),
 
 				'comment_untrashed' => _x(
-					'Restored a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email}) from the trash', 
+					'Restored a comment to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash', 
 					'A comment was restored from the trash',
 					'simple-history'
 				),
 
 				'comment_deleted' => _x(
-					'Deleted a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Deleted a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A comment was deleted',
 					'simple-history'
 				),
 
 				'comment_edited' => _x(
-					'Edited a comment to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Edited a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A comment was edited',
 					'simple-history'
 				),
@@ -91,13 +91,13 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'trackback_status_approve' => _x(
-					'Approved a trackback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Approved a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A trackback was approved',
 					'simple-history'
 				),
 
 				'trackback_status_hold' => _x(
-					'Unapproved a trackback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Unapproved a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A trackback was was unapproved',
 					'simple-history'
 				),
@@ -109,25 +109,25 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'trackback_status_trash' => _x(
-					'Trashed a trackback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Trashed a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A trackback was marked moved to the trash',
 					'simple-history'
 				),
 
 				'trackback_untrashed' => _x(
-					'Restored a trackback to "{comment_post_title}" made by {comment_author} ({comment_author_email}) from the trash', 
+					'Restored a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash', 
 					'A trackback was restored from the trash',
 					'simple-history'
 				),
 
 				'trackback_deleted' => _x(
-					'Deleted a trackback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Deleted a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A trackback was deleted',
 					'simple-history'
 				),
 
 				'trackback_edited' => _x(
-					'Edited a trackback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Edited a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A trackback was edited',
 					'simple-history'
 				),
