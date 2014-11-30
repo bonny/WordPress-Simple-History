@@ -63,13 +63,33 @@ class SimpleHistoryFilterDropin {
 							placeholder="<?php _e("All messages", "simple-history") ?>" multiple>
 						<?php
 						foreach ($loggers_user_can_read as $logger) {
+							
 							$logger_info = $logger["instance"]->getInfo();
+							
+							// Old way, just the logger names
+							/*
 							printf(
 								'<option value="%2$s">%3$s</option>',
 								$logger["name"], // 1
 								$logger["instance"]->slug, // 2
 								$logger_info["search_label"]
 							);
+							*/
+
+							// Get labels for logger
+							if ( isset( $logger_info["labels"]["search"] ) ) {
+								
+								printf('<optgroup label="%1$s">', esc_attr( $logger_info["labels"]["search"]["label"] ) );
+
+								foreach ( $logger_info["labels"]["search"]["options"] as $option_key => $option_messages ) {
+									$str_option_messages = implode(",", $option_messages);
+									printf('<option value="%2$s">%1$s</option>', esc_attr($option_key), esc_attr($str_option_messages));
+								}
+
+								printf('</optgroup>');
+
+							}
+
 						}
 						?>
 					</select>						

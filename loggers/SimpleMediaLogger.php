@@ -24,7 +24,23 @@ class SimpleMediaLogger extends SimpleLogger
 				'attachment_created' => __('Created {post_type} "{attachment_title}"', 'simple-history'),
 				'attachment_updated' => __('Edited {post_type} "{attachment_title}"', 'simple-history'),
 				'attachment_deleted' => __('Deleted {post_type} "{attachment_title}" ("{attachment_filename}")', 'simple-history')
-			)
+			),
+			"labels" => array(
+				"search" => array(
+					"label" => _x("Media & Attachments", "Media logger: search", "simple-history"),
+					"options" => array(
+						_x("Added/Uploaded", "Media logger: search", "simple-history") => array(
+							"attachment_created"
+						),						
+						_x("Updated", "Media logger: search", "simple-history") => array(
+							"attachment_updated"
+						),						
+						_x("Deleted", "Media logger: search", "simple-history") => array(
+							"attachment_deleted"
+						),						
+					)
+				) // end search array
+			) // end labels
 		);
 		
 		return $arr_info;

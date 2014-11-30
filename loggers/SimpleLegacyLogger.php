@@ -34,7 +34,21 @@ class SimpleLegacyLogger extends SimpleLogger
 			"description" => "Formats old events",
 			"capability" => "edit_pages",
 			"messages" => array(
-			)
+			),
+			/*
+			
+			 "labels" => array(
+				"search" => array(
+					"label" => _x("Export", "Export logger: search", "simple-history"),
+					"options" => array(
+						_x("Exports created", "Core updates logger: search", "simple-history") => array(
+							"created_export"
+						),						
+					)
+				) // end search array
+			) // end labels
+			*/
+
 		);
 		
 		return $arr_info;

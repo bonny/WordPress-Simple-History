@@ -148,7 +148,17 @@ class SimpleOptionsLogger extends SimpleLogger
 				Edited settings page "discussion" and the "default_comment_status" options
 	
 				*/
-			)
+			),
+			"labels" => array(
+				"search" => array(
+					"label" => _x("Options", "Options logger: search", "simple-history"),
+					"options" => array(
+						_x("Options changed", "Options logger: search", "simple-history") => array(
+							"option_updated"
+						),						
+					)
+				) // end search array
+			) // end labels
 		);
 		
 		return $arr_info;

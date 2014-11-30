@@ -13,12 +13,12 @@ class SimpleThemeLogger extends SimpleLogger
 
 	/**
 	 * Get array with information about this logger
-	 * 
+	 *
 	 * @return array
 	 */
 	function getInfo() {
 
-		$arr_info = array(			
+		$arr_info = array(
 			//"name" => __("Theme Logger", "simple-history"),
 			"name" => "Theme Logger",
 			"search_label" => "Themes",
@@ -33,9 +33,38 @@ class SimpleThemeLogger extends SimpleLogger
 				'widget_order_changed' => __('Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
 				'widget_edited' => __('Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
 				"custom_background_changed" => __("Changed settings for the theme custom background", "simple_history")
-			)
+			),
+			"labels" => array(
+				"search" => array(
+					"label" => _x("Themes & Widgets", "Theme logger: search", "simple-history"),
+					"options" => array(
+						_x("Themes switched", "Theme logger: search", "simple-history") => array(
+							"theme_switched"
+						),
+						_x("Themes appearance", "Theme logger: search", "simple-history") => array(
+							"appearance_customized"
+						),
+						_x("Widgets added", "Theme logger: search", "simple-history") => array(
+							"widget_added"
+						),
+						_x("Widgets removed", "Theme logger: search", "simple-history") => array(
+							"widget_removed"
+						),
+						_x("Widgets order changed", "Theme logger: search", "simple-history") => array(
+							"widget_order_changed"
+						),
+						_x("Widgets edited", "Theme logger: search", "simple-history") => array(
+							"widget_edited"
+						),
+						_x("Theme background changed", "Theme logger: search", "simple-history") => array(
+							"custom_background_changed"
+						),
+					)
+				) // end search array
+			) // end labels
+
 		);
-		
+
 		return $arr_info;
 
 	}
@@ -49,7 +78,7 @@ class SimpleThemeLogger extends SimpleLogger
 		 */
 		add_action( 'switch_theme', array( $this, "on_switch_theme" ), 10, 2 );
 		add_action( 'load-themes.php', array( $this, "on_page_load_themes" ) );
-	
+
 		add_action("customize_save", array( $this, "on_action_customize_save" ));
 
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
@@ -60,7 +89,7 @@ class SimpleThemeLogger extends SimpleLogger
 		add_filter( 'widget_update_callback', array( $this, "on_widget_update_callback" ), 10, 4 );
 
 		add_action( "load-appearance_page_custom-background", array( $this, "on_page_load_custom_background" ) );
-		
+
 
 	}
 
@@ -101,7 +130,7 @@ class SimpleThemeLogger extends SimpleLogger
 	WP_Customize_Manager $this WP_Customize_Manager instance.
 	*/
 	function on_action_customize_save($customize_manager) {
-		
+
 		/*
 		- Loop through all sections
 		  - And then through all controls in section
@@ -152,7 +181,7 @@ foreach ($customized as $setting_id => $posted_values) {
 	foreach ($settings as $one_setting) {
 
 		if ($one_setting->id == $setting_id) {
-			
+
 			// sf_d("MATCH");
 			$old_value = $one_setting->value();
 			$new_value = $one_setting->post_value();
@@ -169,14 +198,14 @@ foreach ($customized as $setting_id => $posted_values) {
 					#"section_id" => $section->id,
 					#"section_title" => $section->title,
 				);
-				
+
 				// value is changed
 				// find which control it belongs to
 				#foreach ($sections as $section) {
 				foreach ($controls as $one_control) {
 
 					foreach ($one_control->settings as $section_control_setting) {
-							
+
 						if ( $section_control_setting->id == $setting_id) {
 
 							#echo "\n" . $one_control->id;
@@ -214,20 +243,20 @@ return;
 
 
 
-		// Set to true to echo some info about stuff 
+		// Set to true to echo some info about stuff
 		// that can be views in console when saving
 		$debug = 0;
 
 		$arr_changed_settings = array();
 		$arr_changed_settings_ids = array();
 
-		
-	
+
+
 /*
 
 
 foreach ($settings as $setting) {
-	
+
 	#echo "\n\nsetting";
 	#sf_d( $setting->id );
 	#sf_d( $setting->value() );
@@ -302,7 +331,7 @@ return;
 						// hm.. nope, does not work. in this case theme "make" is using blogname in their own control
 						echo "\nsetting id " . $one_setting->id;
 					}
-				
+
 					$old_value = $one_setting->value();
 					$new_value = $one_setting->post_value();
 
@@ -380,14 +409,14 @@ return;
 			// problems when outputing formatted output (too many things to show at once)
 			// or when gathering stats
 			foreach ( $arr_changed_settings as $one_changed_setting ) {
-				
+
 				$this->infoMessage(
 					"appearance_customized",
 					$one_changed_setting
 				);
 
 			}
-			
+
 		}
 
 	}
@@ -428,21 +457,21 @@ return;
 		            [Author] => the WordPress team
 		            [AuthorURI] => http://wordpress.org/
 		            [Version] => 1.8
-		            [Template] => 
-		            [Status] => 
+		            [Template] =>
+		            [Status] =>
 		            [Tags] => dark, light, white, black, gray, one-column, two-columns, left-sidebar, right-sidebar, fixed-layout, responsive-layout, custom-background, custom-colors, custom-header, custom-menu, editor-style, featured-image-header, featured-images, flexible-header, full-width-template, microformats, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready
 		            [TextDomain] => twentyeleven
-		            [DomainPath] => 
+		            [DomainPath] =>
 		        )
 
-		    [headers_sanitized:WP_Theme:private] => 
-		    [name_translated:WP_Theme:private] => 
-		    [errors:WP_Theme:private] => 
+		    [headers_sanitized:WP_Theme:private] =>
+		    [name_translated:WP_Theme:private] =>
+		    [errors:WP_Theme:private] =>
 		    [stylesheet:WP_Theme:private] => twentyeleven
 		    [template:WP_Theme:private] => twentyeleven
-		    [parent:WP_Theme:private] => 
-		    [theme_root_uri:WP_Theme:private] => 
-		    [textdomain_loaded:WP_Theme:private] => 
+		    [parent:WP_Theme:private] =>
+		    [theme_root_uri:WP_Theme:private] =>
+		    [textdomain_loaded:WP_Theme:private] =>
 		    [cache_hash:WP_Theme:private] => 797bf456e43982f41d5477883a6815da
 		)
 
@@ -462,7 +491,7 @@ return;
 	function on_switch_theme($new_name, $new_theme) {
 
 		$prev_theme_data = $this->prev_theme_data;
-		
+
 		$this->infoMessage(
 			"theme_switched",
 			array(
@@ -488,7 +517,7 @@ return;
 			#	require_once( ABSPATH . WPINC . '/class-wp-customize-manager.php' );
 			#	$wp_customize = new WP_Customize_Manager;
 			#}
-			
+
 			//$output .= "<pre>" . print_r($context, true);
 			if ( isset( $context["setting_old_value"] ) && isset( $context["setting_new_value"] ) ) {
 
@@ -510,7 +539,7 @@ return;
 
 				// Don't output prev and new value if none exist
 				if ( empty( $context["setting_old_value"] ) && empty( $context["setting_new_value"] ) ) {
-					
+
 					// empty, so skip
 
 				} else {
@@ -558,13 +587,13 @@ return;
 						$str_old_value_prepend
 					);
 
-				
+
 				}
-				
+
 				$output .= "</table>";
 
 			}
-			
+
 
 		}
 
@@ -584,7 +613,7 @@ return;
 		// Widget changed or added or removed
 		// Simple replace widget_id_base and sidebar_id with widget name and sidebar name
 		if ( in_array($message_key, array("widget_added", "widget_edited", "widget_removed") ) ) {
-						
+
 			$widget = $this->getWidgetByIdBase( $context["widget_id_base"] );
 			$sidebar = $this->getSidebarById( $context["sidebar_id"] );
 
@@ -598,7 +627,7 @@ return;
 				$output .= $message;
 
 			}
-			
+
 
 		}
 
@@ -660,7 +689,7 @@ return;
 	 * @TODO: first time a widget is added it seems to call this and we get double edit logs that are confusing
 	 */
 	function on_widget_update_callback($instance, $new_instance, $old_instance, $widget_instance) {
-			
+
 		#sf_d($instance);
 		/*
 		Array
@@ -709,7 +738,7 @@ return;
 
 		    [number] => 2
 		    [id] => nav_menu-2
-		    [updated] => 
+		    [updated] =>
 		    [option_name] => widget_nav_menu
 		)
 		*/
@@ -719,7 +748,7 @@ return;
 		if ( empty( $old_instance ) ) {
 			return $instance;
 		}
-	
+
 		$widget_id_base = $widget_instance->id_base;
 
 		$context = array();
@@ -760,7 +789,7 @@ return;
 	 * need to rethink this
 	 */
 	function on_action_sidebar_admin_setup__detect_widget_order_change() {
-		
+
 		/*
 		if ( isset( $_REQUEST["action"] ) && ( $_REQUEST["action"] == "widgets-order" ) ) {
 
@@ -796,7 +825,7 @@ return;
 	 * Widget added
 	 */
 	function on_action_sidebar_admin_setup__detect_widget_add() {
-	
+
 		if ( isset( $_POST["add_new"] ) && ! empty( $_POST["add_new"] ) && isset( $_POST["sidebar"] ) && isset( $_POST["id_base"] ) ) {
 
 			// Add widget info
@@ -823,14 +852,14 @@ return;
 		}
 
 	}
-	/* 
+	/*
 	 * widget deleted
 	 */
 	function on_action_sidebar_admin_setup__detect_widget_delete() {
 
 		// Widget was deleted
 		if ( isset( $_POST["delete_widget"] ) ) {
-			
+
 			$context = array();
 
 			// Add widget info
@@ -848,7 +877,7 @@ return;
 			if ($sidebar) {
 				$context["sidebar_name_translated"] = $sidebar["name"];
 			}
-			
+
 			$this->infoMessage(
 				"widget_removed",
 				$context
@@ -871,12 +900,12 @@ return;
 		if ( ! $sidebars ) {
 			return false;
 		}
-				
+
 		// Add sidebar info
 		if ( isset( $sidebars[ $sidebar_id ] ) ) {
-			
+
 			return $sidebars[ $sidebar_id ];
-		
+
 		}
 
 		return false;
@@ -898,7 +927,7 @@ return;
 		}
 
 		foreach ($widget_factory->widgets as $one_widget) {
-			
+
 			if ( $one_widget->id_base == $widget_id_base ) {
 
 				return $one_widget;

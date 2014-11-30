@@ -10,32 +10,55 @@ class SimplePostLogger extends SimpleLogger
 	public $slug = __CLASS__;
 
 	public function loaded() {
-		
+
 		add_action("admin_init", array($this, "on_admin_init"));
 
 	}
 
 	/**
 	 * Get array with information about this logger
-	 * 
+	 *
 	 * @return array
 	 */
 	function getInfo() {
 
-		$arr_info = array(			
+		$arr_info = array(
 			"name" => "Post Logger",
 			"search_label" => "Posts and Pages",
 			"description" => "Logs the creation and modification of posts and pages",
 			"capability" => "edit_pages",
 			"messages" => array(
+				'post_created' => __('Created {post_type} "{post_title}"', 'simple-history'),
 				'post_updated' => __('Updated {post_type} "{post_title}"', 'simple-history'),
 				'post_restored' => __('Restored {post_type} "{post_title}" from trash', 'simple-history'),
 				'post_deleted' => __('Deleted {post_type} "{post_title}"', 'simple-history'),
-				'post_created' => __('Created {post_type} "{post_title}"', 'simple-history'),
 				'post_trashed' => __('Moved {post_type} "{post_title}" to the trash', 'simple-history')
-			)
+			),
+			"labels" => array(
+				"search" => array(
+					"label" => _x("Posts & Pages", "Post logger: search", "simple-history"),
+					"options" => array(
+						_x("Posts created", "Post logger: search", "simple-history") => array(
+							"post_created"
+						),
+						_x("Posts updated", "Post logger: search", "simple-history") => array(
+							"post_updated"
+						),
+						_x("Posts trashed", "Post logger: search", "simple-history") => array(
+							"post_trashed"
+						),
+						_x("Posts deleted", "Post logger: search", "simple-history") => array(
+							"post_deleted"
+						),
+						_x("Posts restored", "Post logger: search", "simple-history") => array(
+							"post_restored"
+						),
+					)
+				) // end search array
+			) // end labels
+
 		);
-		
+
 		return $arr_info;
 
 	}
@@ -45,7 +68,7 @@ class SimplePostLogger extends SimpleLogger
 		add_action("transition_post_status", array($this, "on_transition_post_status"), 10, 3);
 		add_action("delete_post", array($this, "on_delete_post"));
 		add_action("untrash_post", array($this, "on_untrash_post"));
-		
+
 	}
 
 	/**
@@ -70,7 +93,7 @@ class SimplePostLogger extends SimpleLogger
 	 * Called when a post is deleted from the trash
 	 */
 	function on_delete_post($post_id) {
-		
+
 		$post = get_post($post_id);
 
 		if ( wp_is_post_revision($post_id) ) {
@@ -159,28 +182,28 @@ class SimplePostLogger extends SimpleLogger
 		} elseif ($new_status == "trash") {
 
 			// Post trashed
-			$this->infoMessage( "post_trashed", $context );		
+			$this->infoMessage( "post_trashed", $context );
 
 		} else {
 
 			// Post updated
-			$this->infoMessage( "post_updated", $context );		
+			$this->infoMessage( "post_updated", $context );
 
 		}
 
-	}	
+	}
 
 	/**
 	 * Modify plain output to inlcude link to post
 	 */
 	public function getLogRowPlainTextOutput($row) {
-	
+
 		$context = $row->context;
 		$post_id = $context["post_id"];
 
 		// Default to original log message
 		$message = $row->message;
-		
+
 		// Check if post still is available
 		// It wil return a WP_Post Object if post still is in system
 		// If post is deleted from trash (not just moved there), then null is returned

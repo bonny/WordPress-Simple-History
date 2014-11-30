@@ -35,9 +35,40 @@ class SimpleUserLogger extends SimpleLogger
 				'user_updated_profile' => __("Edited the profile for user {edited_user_login} ({edited_user_email})", "simple-history"),
 				'user_created' => __("Created user {created_user_login} ({created_user_email}) with role {created_user_role}", "simple-history"),
 				'user_deleted' => __("Deleted user {deleted_user_login} ({deleted_user_email})", "simple-history"),
-			)
+			),
+
+			"labels" => array(
+				"search" => array(
+					"label" => _x("Users", "User logger: search", "simple-history"),
+					"options" => array(
+						_x("Logins", "User logger: search", "simple-history") => array(
+							"user_logged_in",
+							"user_unknown_logged_in"
+						),
+						_x("Failed logins", "User logger: search", "simple-history") => array(
+							'user_login_failed',
+							'user_unknown_login_failed'
+						),
+						_x('Log outs',  'User logger: search', 'simple-history') => array(
+							"user_logged_out"
+						),
+						_x('Created users',  'User logger: search', 'simple-history') => array(
+							"user_created"
+						),
+						_x("User profile updates", "User logger: search", "simple-history") => array(
+							"user_updated_profile"
+						),
+						_x('Deleted users',  'User logger: search', 'simple-history') => array(
+							"user_deleted"
+						)
+						
+					)
+				) // end search
+
+			) // end labels
+
 		);
-		
+		#sf_d($arr_info);exit;
 		return $arr_info;
 
 	}

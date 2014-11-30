@@ -22,7 +22,17 @@ class SimpleExportLogger extends SimpleLogger
 			"capability" => "export",
 			"messages" => array(
 				'created_export' => __('Created XML export', "simple-history"),
-			)
+			),
+			"labels" => array(
+				"search" => array(
+					"label" => _x("Export", "Export logger: search", "simple-history"),
+					"options" => array(
+						_x("Exports created", "Export logger: search", "simple-history") => array(
+							"created_export"
+						),						
+					)
+				) // end search array
+			) // end labels
 		);
 		
 		return $arr_info;

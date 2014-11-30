@@ -21,12 +21,33 @@ class SimpleMenuLogger extends SimpleLogger
 			"description" => "Logs menu edits",
 			"capability" => "edit_theme_options",
 			"messages" => array(
-				'edited_menu' => __('Edited menu "{menu_name}"', "simple-history"),
 				'created_menu' => __('Created menu "{menu_name}"', "simple-history"),
+				'edited_menu' => __('Edited menu "{menu_name}"', "simple-history"),
 				'deleted_menu' => __('Deleted menu "{menu_name}"', "simple-history"),
 				'edited_menu_item' => __('Edited a menu item', "simple-history"),
 				'edited_menu_locations' => __('Updated menu locations', "simple-history"),
-			)
+			),
+			"labels" => array(
+				"search" => array(
+					"label" => _x("Menu", "Menu logger: search", "simple-history"),
+					"options" => array(
+						_x("Created", "Menu updates logger: search", "simple-history") => array(
+							"created_menu"
+						),
+						_x("Edited", "Menu updates logger: search", "simple-history") => array(
+							"edited_menu",
+							"edited_menu_item",
+							"edited_menu_locations"
+						),
+						_x("Deleted", "Menu updates logger: search", "simple-history") => array(
+							"deleted_menu"
+						),
+						_x("Deleted", "Menu updates logger: search", "simple-history") => array(
+							"deleted_menu"
+						)
+					)
+				) // end search array
+			) // end labels
 		);
 		
 		return $arr_info;

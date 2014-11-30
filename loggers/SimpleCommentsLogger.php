@@ -255,7 +255,61 @@ class SimpleCommentsLogger extends SimpleLogger
 					'simple-history'
 				),
 
-			)
+			), // end messages
+
+			"labels" => array(
+
+				"search" => array(
+					"label" => _x("Comments", "Comments logger: search", "simple-history"),
+					"options" => array(
+						_x("Added", "Comments logger: search", "simple-history") => array(
+							"anon_comment_added",
+							"user_comment_added",
+							"anon_trackback_added",
+							"user_trackback_added",
+							"anon_pingback_added",
+							"user_pingback_added"
+						),
+						_x("Edited", "Comments logger: search", "simple-history") => array(
+							"comment_edited",
+							"trackback_edited",
+							"pingback_edited"
+						),
+						_x("Approved", "Comments logger: search", "simple-history") => array(
+							"comment_status_approve",
+							"trackback_status_approve",
+							"pingback_status_approve"
+						),
+						_x("Status set to hold", "Comments logger: search", "simple-history") => array(
+							"comment_status_hold",
+							"trackback_status_hold",
+							"pingback_status_hold"
+						),
+						_x("Status set to spam", "Comments logger: search", "simple-history") => array(
+							"comment_status_spam",
+							"trackback_status_spam",
+							"pingback_status_spam"
+						),
+						_x("Trashed", "Comments logger: search", "simple-history") => array(
+							"comment_status_trash",
+							"trackback_status_trash",
+							"pingback_status_trash"
+						),
+						_x("Untrashed", "Comments logger: search", "simple-history") => array(
+							"comment_untrashed",
+							"trackback_untrashed",
+							"pingback_untrashed"
+						),
+						_x("Deleted", "Comments logger: search", "simple-history") => array(
+							"comment_deleted",
+							"trackback_deleted",
+							"pingback_deleted"
+						),
+					)
+				) // end search
+
+			) // labels
+
 		);
 		
 		return $arr_info;

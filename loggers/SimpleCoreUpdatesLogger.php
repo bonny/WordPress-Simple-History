@@ -29,7 +29,18 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 			"messages" => array(
 				'core_updated' => __('Updated WordPress from {prev_version} to {new_version}', 'simple-history'),
 				'core_auto_updated' => __('WordPress auto-updated from {prev_version} to {new_version}', 'simple-history')
-			)
+			),
+			"labels" => array(
+				"search" => array(
+					"label" => _x("WordPress Core", "User logger: search", "simple-history"),
+					"options" => array(
+						_x("Updates", "User logger: search", "simple-history") => array(
+							"core_updated",
+							"core_auto_updated"
+						),						
+					)
+				) // end search array
+			) // end labels
 		);
 		
 		return $arr_info;
