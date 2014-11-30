@@ -363,7 +363,7 @@ class SimpleUserLogger extends SimpleLogger
 				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 				// count all failed logins to unknown users as the same occasions, 
 				// to prevent log being flooded with login/hack attempts
-				"_occasionsID" => __CLASSNAME__  . '/' . __FUNCTION__
+				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__
 			);
 
 			/**
