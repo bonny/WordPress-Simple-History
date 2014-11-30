@@ -285,6 +285,16 @@ class SimpleCommentsLogger extends SimpleLogger
 			return;
 		}
 
+
+		$comment_data = get_comment( $comment_ID );
+
+		// add occasions if comment was considered spam
+		// if not added, spam comments can easily flood the log
+		// Deletions of spam easiy flood log
+		if ( isset( $comment_data->comment_approved ) && "spam" === $comment_data->comment_approved ) {
+			$context["_occasionsID"] = __CLASSNAME__  . '/' . __FUNCTION__ . "/anon_{$context["comment_type"]}_deleted/type:spam";
+		}
+
 		$this->infoMessage(
 			"{$context["comment_type"]}_deleted",
 			$context
@@ -371,7 +381,7 @@ class SimpleCommentsLogger extends SimpleLogger
 			// add occasions if comment is considered spam
 			// if not added, spam comments can easily flood the log
 			if ( isset( $comment_data->comment_approved ) && "spam" === $comment_data->comment_approved ) {
-				$context["_occasionsID"] = __CLASSNAME__  . '/' . __FUNCTION__ . "/anon_comment_added/type:spam";
+				$context["_occasionsID"] = __CLASSNAME__  . '/' . __FUNCTION__ . "/anon_{$context["comment_type"]}_added/type:spam";
 			}
 
 		}
