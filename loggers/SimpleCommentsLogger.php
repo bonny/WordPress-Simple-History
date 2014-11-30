@@ -261,6 +261,7 @@ class SimpleCommentsLogger extends SimpleLogger
 
 				"search" => array(
 					"label" => _x("Comments", "Comments logger: search", "simple-history"),
+					"label_all" => _x("All comments activity", "Comments logger: search", "simple-history"),
 					"options" => array(
 						_x("Added", "Comments logger: search", "simple-history") => array(
 							"anon_comment_added",

@@ -40,6 +40,7 @@ class SimpleUserLogger extends SimpleLogger
 			"labels" => array(
 				"search" => array(
 					"label" => _x("Users", "User logger: search", "simple-history"),
+					"label_all" => _x("All user activity", "User logger: search", "simple-history"),
 					"options" => array(
 						_x("Logins", "User logger: search", "simple-history") => array(
 							"user_logged_in",

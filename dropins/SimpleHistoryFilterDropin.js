@@ -180,7 +180,7 @@ var SimpleHistoryFilterDropin = (function($) {
 		var $originalOption = $(originalOption);
 		var color = $originalOption.data("color");
 		
-		var html = "<span style=\"border: 1px solid rgba(0,0,0,.1); margin-right: 10px; width: 1em; height: 1em; line-height: 1; display: inline-block; background-color: " + $originalOption.data('color') + "; '\"></span>" + loglevel.text;
+		var html = "<span style=\"border-radius: 50%; border: 1px solid rgba(0,0,0,.1); margin-right: 5px; width: .75em; height: .75em; line-height: 1; display: inline-block; background-color: " + $originalOption.data('color') + "; '\"></span>" + loglevel.text;
 		return html;
 
 	}

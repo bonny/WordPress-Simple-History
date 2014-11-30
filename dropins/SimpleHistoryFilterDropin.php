@@ -12,11 +12,11 @@ class SimpleHistoryFilterDropin {
 	private $sh;
 
 	function __construct($sh) {
-		
+
 		$this->sh = $sh;
-		
+
 		add_action("simple_history/enqueue_admin_scripts", array($this, "enqueue_admin_scripts"));
-		add_action("simple_history/history_page/after_gui", array( $this, "gui_page_filters") );	
+		add_action("simple_history/history_page/after_gui", array( $this, "gui_page_filters") );
 		add_action("wp_ajax_simple_history_filters_search_user", array( $this, "ajax_simple_history_filters_search_user") );
 
 	}
@@ -25,7 +25,7 @@ class SimpleHistoryFilterDropin {
 
 		$file_url = plugin_dir_url(__FILE__);
 		wp_enqueue_script("simple_history_FilterDropin", $file_url . "SimpleHistoryFilterDropin.js", array("jquery"), SimpleHistory::VERSION, true);
-		
+
 		wp_enqueue_style("simple_history_FilterDropin", $file_url . "SimpleHistoryFilterDropin.css", null, SimpleHistory::VERSION);
 
 	}
@@ -33,12 +33,12 @@ class SimpleHistoryFilterDropin {
 	public function gui_page_filters() {
 
 		$loggers_user_can_read = $this->sh->getLoggersThatUserCanRead();
-		
+
 		?>
 		<div class="SimpleHistory__filters">
 
 			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
-		
+
 				<h3><?php _e("Filter history", "simple-history") ?></h3>
 
 				<p>
@@ -47,25 +47,25 @@ class SimpleHistoryFilterDropin {
 
 				<p>
 					<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e("All log levels", "simple-history") ?>" multiple>
-						<option value="debug" data-color="#CEF6D8">debug</option>
-						<option value="info" data-color="white">info</option>
-						<option value="notice" data-color="rgb(219, 219, 183)">notice</option>
-						<option value="warning" data-color="#F7D358">warning</option>
-						<option value="error" data-color="#F79F81">error</option>
-						<option value="critical" data-color="#FA5858">critical</option>
-						<option value="alert" data-color="rgb(199, 69, 69)">alert</option>
-						<option value="emergency" data-color="#DF0101">emergency</option>
-					</select>						
+						<option value="debug" data-color="#CEF6D8">Debug</option>
+						<option value="info" data-color="white">Info</option>
+						<option value="notice" data-color="rgb(219, 219, 183)">Notice</option>
+						<option value="warning" data-color="#F7D358">Warning</option>
+						<option value="error" data-color="#F79F81">Error</option>
+						<option value="critical" data-color="#FA5858">Critical</option>
+						<option value="alert" data-color="rgb(199, 69, 69)">Alert</option>
+						<option value="emergency" data-color="#DF0101">Emergency</option>
+					</select>
 				</p>
-			
+
 				<p>
-					<select name="loggers" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px" 
+					<select name="loggers" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px"
 							placeholder="<?php _e("All messages", "simple-history") ?>" multiple>
 						<?php
 						foreach ($loggers_user_can_read as $logger) {
-							
+
 							$logger_info = $logger["instance"]->getInfo();
-							
+
 							// Old way, just the logger names
 							/*
 							printf(
@@ -78,12 +78,25 @@ class SimpleHistoryFilterDropin {
 
 							// Get labels for logger
 							if ( isset( $logger_info["labels"]["search"] ) ) {
-								
+
 								printf('<optgroup label="%1$s">', esc_attr( $logger_info["labels"]["search"]["label"] ) );
 
+								// If all activity
+								if ( ! empty( $logger_info["labels"]["search"]["label_all"] ) ) {
+
+									$arr_all_search_messages = array();
+									foreach ( $logger_info["labels"]["search"]["options"] as $option_key => $option_messages ) {
+										$arr_all_search_messages = array_merge($arr_all_search_messages, $option_messages);
+									}
+
+									printf('<option value="%2$s">%1$s</option>', esc_attr( $logger_info["labels"]["search"]["label_all"] ), esc_attr( implode(",", $arr_all_search_messages) ));
+
+								}
+
+								// For each specific search option
 								foreach ( $logger_info["labels"]["search"]["options"] as $option_key => $option_messages ) {
 									$str_option_messages = implode(",", $option_messages);
-									printf('<option value="%2$s">%1$s</option>', esc_attr($option_key), esc_attr($str_option_messages));
+									printf('<option value="%2$s">%1$s</option>', esc_attr( $option_key ), esc_attr( $str_option_messages ));
 								}
 
 								printf('</optgroup>');
@@ -92,17 +105,17 @@ class SimpleHistoryFilterDropin {
 
 						}
 						?>
-					</select>						
+					</select>
 				</p>
 
 				<p>
 					<input type="text"
 							name = "user"
-							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user" 
-							style="width: 300px" 
+							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
+							style="width: 300px"
 							placeholder="<?php _e("All users", "simple-history") ?>" />
 				</p>
-				
+
 				<?php
 				global $wpdb;
 				$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
@@ -115,11 +128,11 @@ class SimpleHistoryFilterDropin {
 					', $table_name, // 1
 					$loggers_user_can_read_sql_in // 2
 				);
-				
+
 				$result_months = $wpdb->get_results($sql_dates);
 				?>
 				<p>
-					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date" 
+					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
 							name="months"
 							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
 						<?php
@@ -131,13 +144,13 @@ class SimpleHistoryFilterDropin {
 							);
 						}
 						?>
-					</select>						
+					</select>
 				</p>
-				
+
 				<p>
 					<button class="button js-SimpleHistoryFilterDropin-doFilter"><?php _e("Filter", "simple-history") ?></button>
 				</p>
-			
+
 			</form>
 
 		</div>
@@ -146,7 +159,7 @@ class SimpleHistoryFilterDropin {
 	} // function
 
 	/**
-	 * Return users 
+	 * Return users
 	 */
 	public function ajax_simple_history_filters_search_user() {
 
@@ -175,10 +188,10 @@ class SimpleHistoryFilterDropin {
 		} else {
 			$str_like = like_escape( esc_sql( $q ) );
 		}
-		
+
 		$sql_users = $wpdb->prepare(
 			'SELECT ID as id, user_login, user_nicename, user_email, display_name FROM %1$s
-			WHERE 
+			WHERE
 				user_login LIKE "%%%2$s%%"
 				OR user_nicename LIKE "%%%2$s%%"
 				OR user_email LIKE "%%%2$s%%"
@@ -187,7 +200,7 @@ class SimpleHistoryFilterDropin {
 			$wpdb->users,
 			$str_like
 		);
-		
+
 		$results_user = $wpdb->get_results( $sql_users );
 
 		// add gravatars to user array
@@ -207,7 +220,7 @@ class SimpleHistoryFilterDropin {
 	} // function
 
 	function add_gravatar_to_user_array(& $val, $index) {
-			
+
 		$val->text = sprintf(
 			'%1$s - %2$s',
 			$val->user_login,
