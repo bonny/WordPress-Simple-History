@@ -61,6 +61,8 @@ class SimpleHistoryLogQuery {
 			// loggers to include. comma separated. defaults to all the user can read
 			"loggers" => null,
 
+			"messages" => null,
+
 			// userID as number
 			"user" => null
 		);
@@ -399,6 +401,101 @@ class SimpleHistoryLogQuery {
 			
 		}
 
+		// messages
+		if ( ! empty( $args["messages"] ) ) {
+			
+			#print_r( $args["messages"] );exit;
+			/*
+			
+
+			Array
+			(
+			    [0] => SimpleCommentsLogger:anon_comment_added,SimpleCommentsLogger:user_comment_added,SimpleCommentsLogger:anon_trackback_added,SimpleCommentsLogger:user_trackback_added,SimpleCommentsLogger:anon_pingback_added,SimpleCommentsLogger:user_pingback_added,SimpleCommentsLogger:comment_edited,SimpleCommentsLogger:trackback_edited,SimpleCommentsLogger:pingback_edited,SimpleCommentsLogger:comment_status_approve,SimpleCommentsLogger:trackback_status_approve,SimpleCommentsLogger:pingback_status_approve,SimpleCommentsLogger:comment_status_hold,SimpleCommentsLogger:trackback_status_hold,SimpleCommentsLogger:pingback_status_hold,SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam,SimpleCommentsLogger:comment_status_trash,SimpleCommentsLogger:trackback_status_trash,SimpleCommentsLogger:pingback_status_trash,SimpleCommentsLogger:comment_untrashed,SimpleCommentsLogger:trackback_untrashed,SimpleCommentsLogger:pingback_untrashed,SimpleCommentsLogger:comment_deleted,SimpleCommentsLogger:trackback_deleted,SimpleCommentsLogger:pingback_deleted
+			    [1] => SimpleCommentsLogger:SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam
+			)
+
+			*/
+		
+			// Array with loggers and messages
+			$arr_loggers_and_messages = array();
+
+			// Tranform from get'et format to our own internal format
+			foreach ( (array) $args["messages"] as $one_arr_messages_row ) {
+
+				$arr_row_messages = explode(",", $one_arr_messages_row);
+				/*
+				print_r($arr_row_messages);exit;
+
+				Array
+				(
+				    [0] => SimpleCommentsLogger:anon_comment_added
+				    [1] => SimpleCommentsLogger:user_comment_added
+				    [2] => SimpleCommentsLogger:anon_trackback_added
+				*/
+				foreach ($arr_row_messages as $one_row_logger_and_message) {
+
+					$arr_one_logger_and_message = explode(":", $one_row_logger_and_message);
+
+					if ( ! isset( $arr_loggers_and_messages[$arr_one_logger_and_message[0]] ) ) {
+						$arr_loggers_and_messages[$arr_one_logger_and_message[0]] = array();
+					}
+
+					$arr_loggers_and_messages[ $arr_one_logger_and_message[0] ][] = $arr_one_logger_and_message[1];
+
+				}
+
+			}
+
+			// Now create sql where based on loggers and messages
+			
+
+			/*
+			print_r($arr_loggers_and_messages);exit;
+			Array
+			(
+			    [SimpleCommentsLogger] => Array
+			        (
+			            [0] => anon_comment_added
+			            [1] => user_comment_added
+			            [2] => anon_trackback_added
+			            [3] => user_trackback_added
+			            [4] => anon_pingback_added
+			            [5] => user_pingback_added
+			            [6] => comment_edited
+			            [7] => trackback_edited
+			            [8] => pingback_edited
+			            [9] => comment_status_approve
+			            [10] => trackback_status_approve
+			            [11] => pingback_status_approve
+			            [12] => comment_status_hold
+			            [13] => trackback_status_hold
+			            [14] => pingback_status_hold
+			            [15] => comment_status_spam
+			            [16] => trackback_status_spam
+			            [17] => pingback_status_spam
+			            [18] => comment_status_trash
+			            [19] => trackback_status_trash
+			            [20] => pingback_status_trash
+			            [21] => comment_untrashed
+			            [22] => trackback_untrashed
+			            [23] => pingback_untrashed
+			            [24] => comment_deleted
+			            [25] => trackback_deleted
+			            [26] => pingback_deleted
+			        )
+
+			    [SimpleUserLogger] => Array
+			        (
+			            [0] => SimpleUserLogger
+			            [1] => SimpleUserLogger
+			        )
+
+			)
+
+			*/
+
+		}
+
 		// loggers
 		// comma separated
 		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger
@@ -410,6 +507,17 @@ class SimpleHistoryLogQuery {
 			} else {
 				$arr_loggers = explode(",", $args["loggers"]);
 			}
+
+			#print_r($args["loggers"]);exit;
+			#print_r($arr_loggers);exit;
+			/*
+			Example of version with logger + message keys
+			Array
+			(
+			    [0] => SimpleUserLogger:user_created
+			    [1] => SimpleUserLogger:user_deleted
+			)
+			*/
 			
 			foreach ( $arr_loggers as $one_logger ) {
 				$sql_loggers .= sprintf(' "%s", ', esc_sql( $one_logger ));

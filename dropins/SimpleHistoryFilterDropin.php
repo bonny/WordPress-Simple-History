@@ -59,12 +59,13 @@ class SimpleHistoryFilterDropin {
 				</p>
 
 				<p>
-					<select name="loggers" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px"
+					<select name="messages" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px"
 							placeholder="<?php _e("All messages", "simple-history") ?>" multiple>
 						<?php
 						foreach ($loggers_user_can_read as $logger) {
 
 							$logger_info = $logger["instance"]->getInfo();
+							$logger_slug = $logger["instance"]->slug;
 
 							// Old way, just the logger names
 							/*
@@ -89,14 +90,24 @@ class SimpleHistoryFilterDropin {
 										$arr_all_search_messages = array_merge($arr_all_search_messages, $option_messages);
 									}
 
+									foreach ($arr_all_search_messages as $key => $val) {
+										$arr_all_search_messages[ $key ] = $logger_slug . ":" . $val;
+									}
+
 									printf('<option value="%2$s">%1$s</option>', esc_attr( $logger_info["labels"]["search"]["label_all"] ), esc_attr( implode(",", $arr_all_search_messages) ));
 
 								}
 
 								// For each specific search option
 								foreach ( $logger_info["labels"]["search"]["options"] as $option_key => $option_messages ) {
+
+									foreach ($option_messages as $key => $val) {
+										$option_messages[ $key ] = $logger_slug . ":" . $val;
+									}
+
 									$str_option_messages = implode(",", $option_messages);
-									printf('<option value="%2$s">%1$s</option>', esc_attr( $option_key ), esc_attr( $str_option_messages ));
+									printf('<option value="%2$s">%1$s</option>', esc_attr( $option_key ), esc_attr( $logger_slug . ":" . $str_option_messages ));
+
 								}
 
 								printf('</optgroup>');

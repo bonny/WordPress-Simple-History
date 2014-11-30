@@ -40,7 +40,7 @@ var SimpleHistoryFilterDropin = (function($) {
 		// search=apa&loglevels=critical&loglevels=alert&loggers=SimpleMediaLogger&loggers=SimpleMenuLogger&user=1&months=2014-09 SimpleHistoryFilterDropin.js?ver=2.0:40
 		var $search = $elms.filter_form.find("[name='search']");
 		var $loglevels = $elms.filter_form.find("[name='loglevels']");
-		var $loggers = $elms.filter_form.find("[name='loggers']");
+		var $messages = $elms.filter_form.find("[name='messages']");
 		var $user = $elms.filter_form.find("[name='user']");
 		var $months = $elms.filter_form.find("[name='months']");
 
@@ -58,9 +58,9 @@ var SimpleHistoryFilterDropin = (function($) {
 			activeFilters.loglevels = $loglevels.val();
 		}
 
-		if ( $loggers.val() && $loggers.val().length ) {
+		if ( $messages.val() && $messages.val().length ) {
 			isFilteringActive = true;
-			activeFilters.loggers = $loggers.val();
+			activeFilters.messages = $messages.val();
 		}
 
 		if ( $.trim( $user.val() )) {
@@ -73,7 +73,7 @@ var SimpleHistoryFilterDropin = (function($) {
 			activeFilters.months = $months.val();
 		}
 
-		// console.log( "filtering is active:", isFilteringActive );
+		//console.log( "filtering is active:", isFilteringActive );
 		// console.log($search.val(), $loglevels.val(), $loggers.val(), $user.val(), $months.val());
 
 		// Reload the log rows collection
