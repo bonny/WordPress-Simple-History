@@ -102,6 +102,7 @@ class SimpleHistoryLogQuery {
 			// 2 = limit
 			// 3 = db name
 			// 4 = where for inner calc sql query thingie
+			// 5 = db name contexts
 			$sql_tmpl = '
 				SELECT 
 					SQL_CALC_FOUND_ROWS
@@ -116,7 +117,8 @@ class SimpleHistoryLogQuery {
 					count(REPEATED) AS subsequentOccasions,
 					t.rep,
 					t.repeated,
-					t.occasionsIDType
+					t.occasionsIDType,
+					c1.value AS context_message_key
 				FROM 
 					(
 						SELECT 
@@ -139,6 +141,9 @@ class SimpleHistoryLogQuery {
 
 						ORDER BY id DESC
 					) AS t
+		
+				LEFT OUTER JOIN %5$s AS c1 ON c1.history_id = t.id AND c1.key = "_message_key"
+
 				WHERE %1$s
 				GROUP BY repeated
 				ORDER BY id DESC
@@ -404,16 +409,13 @@ class SimpleHistoryLogQuery {
 		// messages
 		if ( ! empty( $args["messages"] ) ) {
 			
-			#print_r( $args["messages"] );exit;
+			#print_r($args["messages"]);exit;
 			/*
-			
-
 			Array
 			(
 			    [0] => SimpleCommentsLogger:anon_comment_added,SimpleCommentsLogger:user_comment_added,SimpleCommentsLogger:anon_trackback_added,SimpleCommentsLogger:user_trackback_added,SimpleCommentsLogger:anon_pingback_added,SimpleCommentsLogger:user_pingback_added,SimpleCommentsLogger:comment_edited,SimpleCommentsLogger:trackback_edited,SimpleCommentsLogger:pingback_edited,SimpleCommentsLogger:comment_status_approve,SimpleCommentsLogger:trackback_status_approve,SimpleCommentsLogger:pingback_status_approve,SimpleCommentsLogger:comment_status_hold,SimpleCommentsLogger:trackback_status_hold,SimpleCommentsLogger:pingback_status_hold,SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam,SimpleCommentsLogger:comment_status_trash,SimpleCommentsLogger:trackback_status_trash,SimpleCommentsLogger:pingback_status_trash,SimpleCommentsLogger:comment_untrashed,SimpleCommentsLogger:trackback_untrashed,SimpleCommentsLogger:pingback_untrashed,SimpleCommentsLogger:comment_deleted,SimpleCommentsLogger:trackback_deleted,SimpleCommentsLogger:pingback_deleted
 			    [1] => SimpleCommentsLogger:SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam
 			)
-
 			*/
 		
 			// Array with loggers and messages
@@ -423,8 +425,8 @@ class SimpleHistoryLogQuery {
 			foreach ( (array) $args["messages"] as $one_arr_messages_row ) {
 
 				$arr_row_messages = explode(",", $one_arr_messages_row);
+				#print_r($arr_row_messages);#exit;
 				/*
-				print_r($arr_row_messages);exit;
 
 				Array
 				(
@@ -447,7 +449,26 @@ class SimpleHistoryLogQuery {
 			}
 
 			// Now create sql where based on loggers and messages
+			$sql_messages_where = " AND (";
+			#print_r($arr_loggers_and_messages);exit;
+			foreach ($arr_loggers_and_messages as $logger_slug => $logger_messages) {
+				$sql_messages_where .= sprintf(
+					'
+					(
+						logger = "%1$s"
+						AND c1.value IN (%2$s)
+					)
+					OR ',
+					esc_sql( $logger_slug ),
+					"'" . implode("','", $logger_messages) . "'"
+				);
+			}
+			// remove last or
+			$sql_messages_where = preg_replace('/OR $/', "", $sql_messages_where);
 			
+			$sql_messages_where .= "\n )";
+			#echo $sql_messages_where;exit;
+			$where .= $sql_messages_where;
 
 			/*
 			print_r($arr_loggers_and_messages);exit;
@@ -590,7 +611,8 @@ class SimpleHistoryLogQuery {
 			$where,  // 1 
 			$limit, // 2
 			$table_name, // 3
-			$inner_where // 4
+			$inner_where,// 4
+			$table_name_contexts // 5
 		);
 		
 

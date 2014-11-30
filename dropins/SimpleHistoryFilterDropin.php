@@ -106,7 +106,7 @@ class SimpleHistoryFilterDropin {
 									}
 
 									$str_option_messages = implode(",", $option_messages);
-									printf('<option value="%2$s">%1$s</option>', esc_attr( $option_key ), esc_attr( $logger_slug . ":" . $str_option_messages ));
+									printf('<option value="%2$s">%1$s</option>', esc_attr( $option_key ), esc_attr( $str_option_messages ));
 
 								}
 
