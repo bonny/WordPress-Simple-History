@@ -462,11 +462,11 @@ class SimpleCommentsLogger extends SimpleLogger
 			case "trackback";
 
 				$arr_plugin_keys = array(
-					"trackback_status" => _x("Trackback status", "comments logger - detailed output comment status", "simple-history"),
+					"trackback_status" => _x("Status", "comments logger - detailed output comment status", "simple-history"),
 					#"trackback_type" => _x("Trackback type", "comments logger - detailed output comment type", "simple-history"),
-					"trackback_author" => _x("Trackback name", "comments logger - detailed output author", "simple-history"),
-					"trackback_author_email" => _x("Trackback email", "comments logger - detailed output email", "simple-history"),
-					"trackback_content" => _x("Trackback conrent", "comments logger - detailed output content", "simple-history"),
+					"trackback_author" => _x("Name", "comments logger - detailed output author", "simple-history"),
+					"trackback_author_email" => _x("Email", "comments logger - detailed output email", "simple-history"),
+					"trackback_content" => _x("Content", "comments logger - detailed output content", "simple-history"),
 				);
 
 				break;
@@ -475,11 +475,11 @@ class SimpleCommentsLogger extends SimpleLogger
 
 				$arr_plugin_keys = array(
 
-					"pingback_status" => _x("Pingback status", "comments logger - detailed output comment status", "simple-history"),
+					"pingback_status" => _x("Status", "comments logger - detailed output comment status", "simple-history"),
 					#"pingback_type" => _x("Pingback type", "comments logger - detailed output comment type", "simple-history"),
-					"pingback_author" => _x("Pingback name", "comments logger - detailed output author", "simple-history"),
-					"pingback_author_email" => _x("Pingback email", "comments logger - detailed output email", "simple-history"),
-					"pingback_content" => _x("Pingback content", "comments logger - detailed output content", "simple-history"),
+					"pingback_author" => _x("Name", "comments logger - detailed output author", "simple-history"),
+					"pingback_author_email" => _x("Email", "comments logger - detailed output email", "simple-history"),
+					"pingback_content" => _x("Content", "comments logger - detailed output content", "simple-history"),
 
 				);
 
@@ -489,10 +489,10 @@ class SimpleCommentsLogger extends SimpleLogger
 			default;
 				
 				$arr_plugin_keys = array(
-					"comment_status" => _x("Comment status", "comments logger - detailed output comment status", "simple-history"),
+					"comment_status" => _x("Status", "comments logger - detailed output comment status", "simple-history"),
 					#"comment_type" => _x("Comment type", "comments logger - detailed output comment type", "simple-history"),
-					"comment_author" => _x("Author name", "comments logger - detailed output author", "simple-history"),
-					"comment_author_email" => _x("Author email", "comments logger - detailed output email", "simple-history"),
+					"comment_author" => _x("Name", "comments logger - detailed output author", "simple-history"),
+					"comment_author_email" => _x("Email", "comments logger - detailed output email", "simple-history"),
 					"comment_content" => _x("Comment", "comments logger - detailed output content", "simple-history")
 				);
 
