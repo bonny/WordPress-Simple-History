@@ -18,7 +18,8 @@ class SimpleCommentsLogger extends SimpleLogger
 	}
 
 	/**
-	 * Modify sql query to exclude comment of type spam
+	 * Modify sql query to exclude comments of type spam
+	 *
 	 * @param string $where sql query where
 	 */
 	function maybe_modify_log_query_sql_where($where) {
@@ -36,7 +37,14 @@ class SimpleCommentsLogger extends SimpleLogger
 				INNER JOIN wp_simple_history_contexts AS c1 
 					ON c1.history_id = h.id 
 					AND c1.key = "_message_key" 
-					AND c1.value IN ("comment_deleted", "pingback_deleted", "trackback_deleted")
+					AND c1.value IN (
+						"comment_deleted", 
+						"pingback_deleted", 
+						"trackback_deleted",
+						"comment_added", 
+						"pingback_added", 
+						"trackback_added"
+					)
 
 				INNER JOIN wp_simple_history_contexts AS c2 
 					ON c2.history_id = h.id 
