@@ -368,7 +368,7 @@ class SimpleCommentsLogger extends SimpleLogger
 			$message = "anon_{$context["comment_type"]}_added";
 			$context["_initiator"] = SimpleLoggerLogInitiators::WEB_USER;
 
-			// @TODO: add occasions if comment is considered spam
+			// add occasions if comment is considered spam
 			// if not added, spam comments can easily flood the log
 			if ( isset( $comment_data->comment_approved ) && "spam" === $comment_data->comment_approved ) {
 				$context["_occasionsID"] = __CLASSNAME__  . '/' . __FUNCTION__ . "/anon_comment_added/type:spam";
@@ -603,10 +603,14 @@ class SimpleCommentsLogger extends SimpleLogger
 		$comment_ID = isset( $context["comment_ID"] ) && is_numeric( $context["comment_ID"] ) ? (int) $context["comment_ID"] : false;
 		
 		if ( $comment_ID ) {
-	
+		
+			// http://site.local/wp/wp-admin/comment.php?action=editcomment&c=
 			$edit_comment_link = get_edit_comment_link( $comment_ID );
 			
-			if ($edit_comment_link) {
+			// Edit link sometimes does not contain comment ID
+			// Probably because comment has been removed or something
+			// So only continue if link does not end with "=""
+			if ( $edit_comment_link && $edit_comment_link[strlen($edit_comment_link)-1] !== "=" ) {
 			
 				$output .= sprintf(
 					'
