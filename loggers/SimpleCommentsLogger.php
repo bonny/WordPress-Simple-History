@@ -8,10 +8,10 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	public $slug = __CLASS__;
 
-	function __construct() {
+	function __construct($sh) {
 
-		parent::__construct();
-		
+		parent::__construct($sh);
+
 		// Add option to not show spam comments, because to much things getting logged
 		add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
 
