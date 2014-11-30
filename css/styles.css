@@ -516,13 +516,14 @@ Pagination, below logRows
 
 .SimpleHistoryPaginationPages {
 	text-align: center;
-	margin-top: 20px;
-	margin-bottom: 20px;	
+	padding-top: 20px;
+	padding-bottom: 20px;
+	background: white;
 }
 
 .postbox .SimpleHistoryPaginationPages {
-	margin-top: 8px;
-	margin-bottom: 8px;
+	padding-top: 8px;
+	padding-bottom: 8px;
 }
 
 .SimpleHistoryPaginationLink.SimpleHistoryPaginationLink {
