@@ -39,7 +39,16 @@ class SimpleLogger
 	 */
 	private $lastInsertID;
 
+	/**
+	 * Constructor. Remember to call this as parent constructor if making a childlogger
+	 * @param $simpleHistory history class  objectinstance
+	 */
 	public function __construct($simpleHistory) {
+
+		global $wpdb;
+		
+		$this->db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$this->db_table_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 		
 		$this->simpleHistory = $simpleHistory;
 
