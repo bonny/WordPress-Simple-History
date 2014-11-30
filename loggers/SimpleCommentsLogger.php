@@ -33,7 +33,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		 *
 		 * @since 2.0
 		 *
-		 * @param bool $include_spam
+		 * @param bool $include_spam Default false
 		 */
 		$include_spam = apply_filters("simple_history/comments_logger/include_spam", $include_spam);
 
