@@ -41,14 +41,14 @@ class SimpleCommentsLogger extends SimpleLogger
 			return $where;
 		}
 
-		$where .= '
+		$where .= sprintf('
 			AND t.id NOT IN (
 			
 				SELECT id
 					# , c1.history_id, c2.history_id 
-				FROM wp_simple_history AS h
+				FROM %1$s AS h
 
-				INNER JOIN wp_simple_history_contexts AS c1 
+				INNER JOIN %2$s AS c1 
 					ON c1.history_id = h.id 
 					AND c1.key = "_message_key" 
 					AND c1.value IN (
@@ -60,15 +60,15 @@ class SimpleCommentsLogger extends SimpleLogger
 						"anon_trackback_added"
 					)
 
-				INNER JOIN wp_simple_history_contexts AS c2 
+				INNER JOIN %2$s AS c2 
 					ON c2.history_id = h.id 
 					AND c2.key = "comment_approved" 
 					AND c2.value = "spam"
 
-				WHERE logger = "SimpleCommentsLogger" 
+				WHERE logger = "%3$s" 
 
 			)
-		';
+		', $this->db_table, $this->db_table_contexts, $this->slug);
 
 		#echo $where;
 
