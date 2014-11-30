@@ -41,9 +41,9 @@ class SimpleCommentsLogger extends SimpleLogger
 						"comment_deleted", 
 						"pingback_deleted", 
 						"trackback_deleted",
-						"comment_added", 
-						"pingback_added", 
-						"trackback_added"
+						"anon_comment_added", 
+						"anon_pingback_added", 
+						"anon_trackback_added"
 					)
 
 				INNER JOIN wp_simple_history_contexts AS c2 
