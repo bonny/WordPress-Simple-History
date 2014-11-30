@@ -8,6 +8,50 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	public $slug = __CLASS__;
 
+	function __construct() {
+		
+		// Add option to not show spam comments, because to much things getting logged
+		add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
+
+	}
+
+	/**
+	 * Modify sql query to exclude comment of type spam
+	 * @param string $where sql query where
+	 */
+	function maybe_modify_log_query_sql_where($where) {
+		
+		// 1 = 1 AND t.id <= 189
+		// echo $where;
+
+		$where .= '
+			AND t.id NOT IN (
+			
+				SELECT id
+					# , c1.history_id, c2.history_id 
+				FROM wp_simple_history AS h
+
+				INNER JOIN wp_simple_history_contexts AS c1 
+					ON c1.history_id = h.id 
+					AND c1.key = "_message_key" 
+					AND c1.value IN ("comment_deleted", "pingback_deleted", "trackback_deleted")
+
+				INNER JOIN wp_simple_history_contexts AS c2 
+					ON c2.history_id = h.id 
+					AND c2.key = "comment_approved" 
+					AND c2.value = "spam"
+
+				WHERE logger = "SimpleCommentsLogger" 
+
+			)
+		';
+
+		#echo $where;
+
+		return $where;
+
+	}
+
 	/**
 	 * Get array with information about this logger
 	 * 
