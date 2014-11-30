@@ -24,8 +24,22 @@ class SimpleCommentsLogger extends SimpleLogger
 	 */
 	function maybe_modify_log_query_sql_where($where) {
 		
-		// 1 = 1 AND t.id <= 189
-		// echo $where;
+		$include_spam = false;
+		
+		/**
+		 * Filter option to include spam or not in the gui
+		 * By default spam is not included, because it can fill the log
+		 * with too much events
+		 *
+		 * @since 2.0
+		 *
+		 * @param bool $include_spam
+		 */
+		$include_spam = apply_filters("simple_history/comments_logger/include_spam", $include_spam);
+
+		if ( $include_spam ) {
+			return $where;
+		}
 
 		$where .= '
 			AND t.id NOT IN (
@@ -567,7 +581,7 @@ class SimpleCommentsLogger extends SimpleLogger
 
 		}
 
-		$arr_plugin_keys = apply_filters("simple_history/comments_logger_row_details_plugin_info_keys", $arr_plugin_keys);
+		$arr_plugin_keys = apply_filters("simple_history/comments_logger/row_details_plugin_info_keys", $arr_plugin_keys);
 
 		// Start output of plugin meta data table
 		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
