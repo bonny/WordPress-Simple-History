@@ -213,13 +213,13 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'pingback_status_approve' => _x(
-					'Approved a pingback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Approved a pingback to "{comment_post_title}" by "{comment_author}"" ({comment_author_email})', 
 					'A pingback was approved',
 					'simple-history'
 				),
 
 				'pingback_status_hold' => _x(
-					'Unapproved a pingback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Unapproved a pingback to "{comment_post_title}" by "{comment_author}" ({comment_author_email})', 
 					'A pingback was was unapproved',
 					'simple-history'
 				),
@@ -231,25 +231,25 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'pingback_status_trash' => _x(
-					'Trashed a pingback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Trashed a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A pingback was marked moved to the trash',
 					'simple-history'
 				),
 
 				'pingback_untrashed' => _x(
-					'Restored a pingback to "{comment_post_title}" made by {comment_author} ({comment_author_email}) from the trash', 
+					'Restored a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash', 
 					'A pingback was restored from the trash',
 					'simple-history'
 				),
 
 				'pingback_deleted' => _x(
-					'Deleted a pingback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Deleted a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A pingback was deleted',
 					'simple-history'
 				),
 
 				'pingback_edited' => _x(
-					'Edited a pingback to "{comment_post_title}" made by {comment_author} ({comment_author_email})', 
+					'Edited a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
 					'A pingback was edited',
 					'simple-history'
 				),
