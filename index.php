@@ -31,6 +31,7 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	/** Load required files */
 	require_once(__DIR__ . "/SimpleHistory.php");
 	require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
+	require_once(__DIR__ . "/SimpleHistoryFunctions.php");
 
 	/**
 	 * Register function that is called when plugin is installed
@@ -41,16 +42,6 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 
 	/** Boot up */
 	$GLOBALS["simple_history"] = new SimpleHistory();
-
-	/**
-	 * Helper function with same name as the SimpleLogger-class
-	 *
-	 * Makes call like this possible:
-	 * SimpleLogger()->info("This is a message sent to the log");
-	 */
-	function SimpleLogger() {
-		return new SimpleLogger( $GLOBALS["simple_history"] );
-	}
 
 } else {
 	

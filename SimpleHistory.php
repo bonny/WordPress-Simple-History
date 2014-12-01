@@ -67,7 +67,6 @@ class SimpleHistory {
 		do_action( "simple_history/before_init", $this );
 
 		$this->setupVariables();
-		require_once ( __DIR__ . "/old-functions.php");
 
 		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
 		add_action( 'plugins_loaded', array($this, 'load_plugin_textdomain') );
@@ -2111,3 +2110,4 @@ class SimpleHistory {
 	}
 
 } // class
+

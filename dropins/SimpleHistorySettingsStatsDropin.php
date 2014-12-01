@@ -7,18 +7,18 @@ Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
 
-// Since it's not quite done yet, it's for da devs only for now
-if ( ! defined("SIMPLE_HISTORY_DEV") || ! SIMPLE_HISTORY_DEV ) {
-    return;
-}
-
 class SimpleHistorySettingsStatsDropin {
 
 	// Simple History instance
 	private $sh;
 
 	public function __construct($sh) {
-		
+
+		// Since it's not quite done yet, it's for da devs only for now
+		if ( ! defined("SIMPLE_HISTORY_DEV") || ! SIMPLE_HISTORY_DEV ) {
+			return;
+		}
+
 		$this->sh = $sh;
 
 		// How do we register this to the settings array?
@@ -33,12 +33,12 @@ class SimpleHistorySettingsStatsDropin {
 	}
 
 	public function on_admin_enqueue_scripts() {
-		
+
 		$file_url = plugin_dir_url(__FILE__);
 
 		wp_enqueue_script( "google-ajax-api", "https://www.google.com/jsapi");
 		wp_enqueue_style( "simple_history_SettingsStatsDropin", $file_url . "SimpleHistorySettingsStatsDropin.css", null, SimpleHistory::VERSION);
-		
+
 	}
 
 	public function output() {
@@ -102,7 +102,7 @@ class SimpleHistorySettingsStatsDropin {
 
 		<?php
 
-		include(__DIR__ . "/../templates/settings-statsForGeeks.php");		
+		include(__DIR__ . "/../templates/settings-statsForGeeks.php");
 
 	}
 
