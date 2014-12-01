@@ -1,0 +1,7 @@
+.SimpleHistoryLogitem__anonUserWithIp {
+}
+
+.SimpleHistoryLogitem__anonUserWithIp:hover {
+	cursor: pointer;
+	text-decoration: underline;;
+}

@@ -24,6 +24,7 @@ class SimpleHistoryFilterDropin {
 	public function enqueue_admin_scripts() {
 
 		$file_url = plugin_dir_url(__FILE__);
+
 		wp_enqueue_script("simple_history_FilterDropin", $file_url . "SimpleHistoryFilterDropin.js", array("jquery"), SimpleHistory::VERSION, true);
 
 		wp_enqueue_style("simple_history_FilterDropin", $file_url . "SimpleHistoryFilterDropin.css", null, SimpleHistory::VERSION);
