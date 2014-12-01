@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-11-27 10:15:57+00:00\n"
-"PO-Revision-Date: 2014-11-27 11:24+0100\n"
+"POT-Creation-Date: 2014-12-01 19:54:25+00:00\n"
+"PO-Revision-Date: 2014-12-01 21:09+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -22,131 +22,131 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: SimpleHistory.php:424 SimpleHistory.php:663
+#: SimpleHistory.php:423 SimpleHistory.php:662
 msgid "Settings"
 msgstr "Inställningar"
 
-#: SimpleHistory.php:435
+#: SimpleHistory.php:434
 msgid "Log (debug)"
 msgstr "Logg (debug)"
 
-#: SimpleHistory.php:440
+#: SimpleHistory.php:439
 msgid "Styles example (debug)"
 msgstr "Stilexempel (debug)"
 
-#: SimpleHistory.php:678
+#: SimpleHistory.php:677
 msgid "History"
 msgstr "Historik"
 
-#: SimpleHistory.php:754
+#: SimpleHistory.php:753
 msgid "Remove all log items?"
 msgstr "Ta bort alla händelser?"
 
-#: SimpleHistory.php:756
+#: SimpleHistory.php:755
 msgid "Go to the first page"
 msgstr "Gå till första sidan"
 
-#: SimpleHistory.php:757
+#: SimpleHistory.php:756
 msgid "Go to the previous page"
 msgstr "Gå till föregående sida"
 
-#: SimpleHistory.php:758
+#: SimpleHistory.php:757
 msgid "Go to the next page"
 msgstr "Gå till nästa sida"
 
-#: SimpleHistory.php:759
+#: SimpleHistory.php:758
 msgid "Go to the last page"
 msgstr "Gå till sista sidan"
 
-#: SimpleHistory.php:760
+#: SimpleHistory.php:759
 msgid "Current page"
 msgstr "Aktuell sida"
 
-#: SimpleHistory.php:762
+#: SimpleHistory.php:761
 msgid "Oups, the log could not be loaded right now."
 msgstr "Hoppsan, historiken kunde inte laddas just nu."
 
-#: SimpleHistory.php:763
+#: SimpleHistory.php:762
 msgid "Your search did not match any history events."
 msgstr "Din sökning matchade inte några händelser i historiken."
 
-#: SimpleHistory.php:1071 SimpleHistory.php:1174
+#: SimpleHistory.php:1070 SimpleHistory.php:1173
 msgid "Simple History Settings"
 msgstr "Inställningar för Simple History"
 
-#: SimpleHistory.php:1105
+#: SimpleHistory.php:1104
 msgid "No valid callback found"
 msgstr "Inget giltigt callback hittades."
 
-#: SimpleHistory.php:1195
+#: SimpleHistory.php:1194
 msgid "Cleared database"
 msgstr "Databasen rensades"
 
-#: SimpleHistory.php:1222
+#: SimpleHistory.php:1221
 msgid "Show history"
 msgstr "Visa historik"
 
-#: SimpleHistory.php:1235
+#: SimpleHistory.php:1234
 msgid "Number of items per page"
 msgstr "Antal händelser per sida"
 
-#: SimpleHistory.php:1247
+#: SimpleHistory.php:1246
 msgid "Clear log"
 msgstr "Rensa logg"
 
-#: SimpleHistory.php:1467
+#: SimpleHistory.php:1466
 msgid "on the dashboard"
 msgstr "i panelen"
 
-#: SimpleHistory.php:1472
+#: SimpleHistory.php:1471
 msgid "as a page under the dashboard menu"
 msgstr "som en sida under panel-menyn"
 
-#: SimpleHistory.php:1488
+#: SimpleHistory.php:1487
 msgid "Items in the database are automatically removed after %1$s days."
 msgstr "Händelser i databasen tas automatiskt bort efter %1$s dagar."
 
-#: SimpleHistory.php:1490
+#: SimpleHistory.php:1489
 msgid "Items in the database are kept forever."
 msgstr "Händelser i databasen lagras för evigt."
 
-#: SimpleHistory.php:1494
+#: SimpleHistory.php:1493
 msgid "Clear log now"
 msgstr "Rensa loggen nu"
 
-#: SimpleHistory.php:1714
+#: SimpleHistory.php:1713
 msgid "+%1$s more"
 msgstr "+%1$s fler"
 
-#: SimpleHistory.php:1721
+#: SimpleHistory.php:1720
 msgid "Loading…"
 msgstr "Laddar historik..."
 
-#: SimpleHistory.php:1728
+#: SimpleHistory.php:1727
 msgid "Showing %1$s more"
 msgstr "+%1$s fler"
 
-#: SimpleHistory.php:1746
+#: SimpleHistory.php:1745
 msgid "Context data"
 msgstr "Kontextuell data"
 
-#: SimpleHistory.php:1747
+#: SimpleHistory.php:1746
 msgid "This is potentially useful meta data that a logger have saved."
 msgstr "Detta eventuellt användbar metadata som en logger har sparat."
 
-#: SimpleHistory.php:2068
+#: SimpleHistory.php:2067
 msgid "No events today so far."
 msgstr "Inga händelser idag ännu."
 
-#: SimpleHistory.php:2072
+#: SimpleHistory.php:2071
 msgid "%1$d event today from one user."
 msgstr "%1$d händelse idag från en användare."
 
-#: SimpleHistory.php:2076
+#: SimpleHistory.php:2075
 msgid "%1$d events today from %2$d users."
 msgstr "%1$d händelser idag från %2$d användare."
 
-#: SimpleHistory.php:2080
+#: SimpleHistory.php:2079
 msgid "%1$d events today from one user."
 msgstr "%1$d händelser idag från en användare."
 
@@ -174,15 +174,15 @@ msgstr "Alla loggnivåer"
 msgid "All messages"
 msgstr "Alla meddelanden"
 
-#: dropins/SimpleHistoryFilterDropin.php:83
+#: dropins/SimpleHistoryFilterDropin.php:117
 msgid "All users"
 msgstr "Alla användare"
 
-#: dropins/SimpleHistoryFilterDropin.php:104
+#: dropins/SimpleHistoryFilterDropin.php:138
 msgid "All dates"
 msgstr "Alla datum"
 
-#: dropins/SimpleHistoryFilterDropin.php:118
+#: dropins/SimpleHistoryFilterDropin.php:152
 msgid "Filter"
 msgstr "Filtrera"
 
@@ -254,7 +254,7 @@ msgstr ""
 "adressen med personer du litar på, eftersom den kan innehåll känslig eller "
 "konfidentiell information."
 
-#: dropins/SimpleHistorySettingsLogtestDropin.php:19
+#: dropins/SimpleHistorySettingsLogtestDropin.php:20
 msgid "Test data (debug)"
 msgstr "Testdata (debug)"
 
@@ -262,7 +262,7 @@ msgstr "Testdata (debug)"
 msgid "Stats"
 msgstr "Statistik"
 
-#: index.php:63
+#: index.php:54
 msgid ""
 "Simple History is a great plugin, but to use it your server must have at "
 "least PHP 5.3 installed."
@@ -270,151 +270,155 @@ msgstr ""
 "Simple History är en rackarns bra plugin, men för att använda den måste din "
 "server ha minst PHP 5.3 installerat."
 
-#: loggers/SimpleCommentsLogger.php:400
+#: loggers/SimpleCommentsLogger.php:680
 msgid "Spam"
 msgstr "Skräp"
 
-#: loggers/SimpleCommentsLogger.php:402
+#: loggers/SimpleCommentsLogger.php:682
 msgid "Approved"
 msgstr "Godkänd"
 
-#: loggers/SimpleCommentsLogger.php:404
+#: loggers/SimpleCommentsLogger.php:684
 msgid "Pending"
 msgstr "Väntande"
 
-#: loggers/SimpleCommentsLogger.php:416
+#: loggers/SimpleCommentsLogger.php:698
 msgid "Trackback"
 msgstr "Trackback"
 
-#: loggers/SimpleCommentsLogger.php:418
+#: loggers/SimpleCommentsLogger.php:700
 msgid "Pingback"
 msgstr "Pingback"
 
-#: loggers/SimpleCommentsLogger.php:420
+#: loggers/SimpleCommentsLogger.php:702
 msgid "Comment"
 msgstr "Kommentar"
 
-#: loggers/SimpleCoreUpdatesLogger.php:30
+#: loggers/SimpleCoreUpdatesLogger.php:29
 msgid "Updated WordPress from {prev_version} to {new_version}"
 msgstr "Uppdaterade WordPress från {prev_version} till {new_version}"
 
-#: loggers/SimpleCoreUpdatesLogger.php:31
+#: loggers/SimpleCoreUpdatesLogger.php:30
 msgid "WordPress auto-updated from {prev_version} to {new_version}"
 msgstr ""
 "WordPress uppdaterades automatiskt från {prev_version} till {new_version}"
 
-#: loggers/SimpleExportLogger.php:24
+#: loggers/SimpleExportLogger.php:23
 msgid "Created XML export"
 msgstr "Skapade XML-export"
 
-#: loggers/SimpleLegacyLogger.php:75
+#: loggers/SimpleLegacyLogger.php:88
 msgid "By %s"
 msgstr "Av %s"
 
-#: loggers/SimpleLegacyLogger.php:80
+#: loggers/SimpleLegacyLogger.php:93
 msgid "%d occasions"
 msgstr "%d tillfällen"
 
-#: loggers/SimpleLogger.php:197
+#: loggers/SimpleLogger.php:205
 msgid "Deleted user (had id %1$s, email %2$s, login %3$s)"
 msgstr "Raderad användare (hade id %1$s, epost %2$s, login %3$s)"
 
-#: loggers/SimpleLogger.php:212
+#: loggers/SimpleLogger.php:220
 msgid "Anonymous web user"
 msgstr "Anonym webbanvändare"
 
-#: loggers/SimpleLogger.php:216
+#: loggers/SimpleLogger.php:224
 msgid "Anonymous user from %1$s"
 msgstr "Anonym användare från %1$s"
 
-#: loggers/SimpleLogger.php:283
+#: loggers/SimpleLogger.php:291
 msgid "Just now"
 msgstr "Just nu"
 
 #. translators: Date format for log row header, see http:php.net/date
-#: loggers/SimpleLogger.php:288
+#: loggers/SimpleLogger.php:296
 msgid "M j, Y \\a\\t G:i"
 msgstr "M j, Y \\a\\t G:i"
 
 #. translators: 1: last modified date and time in human time diff-format
-#: loggers/SimpleLogger.php:296
+#: loggers/SimpleLogger.php:304
 msgid "%1$s ago"
 msgstr "%1$s sedan"
 
-#: loggers/SimpleMediaLogger.php:24
+#: loggers/SimpleMediaLogger.php:23
 msgid "Created {post_type} \"{attachment_title}\""
 msgstr "Skapade {post_type} \"{attachment_title}\""
 
-#: loggers/SimpleMediaLogger.php:25
+#: loggers/SimpleMediaLogger.php:24
 msgid "Edited {post_type} \"{attachment_title}\""
 msgstr "Redigerade {post_type} \"{attachment_title}\""
 
-#: loggers/SimpleMediaLogger.php:26
+#: loggers/SimpleMediaLogger.php:25
 msgid "Deleted {post_type} \"{attachment_title}\" (\"{attachment_filename}\")"
 msgstr ""
 "Raderade {post_type} \"{attachment_title}\" (\"{attachment_filename}\")"
 
-#: loggers/SimpleMediaLogger.php:66
+#: loggers/SimpleMediaLogger.php:81
 msgid "Edited {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
 "Redigerade {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 
-#: loggers/SimpleMediaLogger.php:70
+#: loggers/SimpleMediaLogger.php:85
 msgid "Uploaded {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
 "Laddade upp {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 
-#: loggers/SimpleMediaLogger.php:165
+#: loggers/SimpleMediaLogger.php:180
 msgid "{attachment_thumb}"
 msgstr "{attachment_thumb}"
 
-#: loggers/SimpleMediaLogger.php:174
+#: loggers/SimpleMediaLogger.php:189
 msgid "{attachment_size_format}"
 msgstr "{attachment_size_format}"
 
-#: loggers/SimpleMediaLogger.php:175
+#: loggers/SimpleMediaLogger.php:190
 msgid "{attachment_filetype_extension}"
 msgstr "{attachment_filetype_extension}"
 
-#: loggers/SimpleMediaLogger.php:177
+#: loggers/SimpleMediaLogger.php:192
 msgid "{full_image_width} × {full_image_height}"
 msgstr "{full_image_width} × {full_image_height}"
+
+#: loggers/SimpleMenuLogger.php:23
+msgid "Created menu \"{menu_name}\""
+msgstr "Skapade meny \"{menu_name}\""
 
 #: loggers/SimpleMenuLogger.php:24
 msgid "Edited menu \"{menu_name}\""
 msgstr "Redigerade menyn \"{menu_name}\""
 
 #: loggers/SimpleMenuLogger.php:25
-msgid "Created menu \"{menu_name}\""
-msgstr "Skapade meny \"{menu_name}\""
-
-#: loggers/SimpleMenuLogger.php:26
 msgid "Deleted menu \"{menu_name}\""
 msgstr "Raderade meny \"{menu_name}\""
 
-#: loggers/SimpleMenuLogger.php:27
+#: loggers/SimpleMenuLogger.php:26
 msgid "Edited a menu item"
 msgstr "Redigerade ett menyalternativ"
 
-#: loggers/SimpleMenuLogger.php:28
+#: loggers/SimpleMenuLogger.php:27
 msgid "Updated menu locations"
 msgstr "Uppdaterade meny-platser"
 
-#: loggers/SimpleOptionsLogger.php:141
+#: loggers/SimpleOptionsLogger.php:140
 msgid "Updated option \"{option}\""
 msgstr "Uppdaterade inställningen \"{option}\""
 
-#: loggers/SimpleOptionsLogger.php:233 loggers/SimpleThemeLogger.php:544
+#: loggers/SimpleOptionsLogger.php:242 loggers/SimpleThemeLogger.php:570
 msgid "New value"
 msgstr "Nytt värde"
 
-#: loggers/SimpleOptionsLogger.php:244 loggers/SimpleThemeLogger.php:556
+#: loggers/SimpleOptionsLogger.php:253 loggers/SimpleThemeLogger.php:582
 msgid "Old value"
 msgstr "Gammalt värde"
 
-#: loggers/SimpleOptionsLogger.php:259 loggers/SimpleOptionsLogger.php:276
+#: loggers/SimpleOptionsLogger.php:268 loggers/SimpleOptionsLogger.php:285
 msgid "Settings page"
 msgstr "Inställningssida"
+
+#: loggers/SimplePostLogger.php:30
+msgid "Created {post_type} \"{post_title}\""
+msgstr "Skapade {post_type} \"{post_title}\""
 
 #: loggers/SimplePostLogger.php:31
 msgid "Updated {post_type} \"{post_title}\""
@@ -424,67 +428,63 @@ msgstr "Uppdaterade {post_type} \"{post_title}\""
 msgid "Restored {post_type} \"{post_title}\" from trash"
 msgstr "Återställde {post_type} \"{post_title}\" från papperskorgen"
 
-#: loggers/SimplePostLogger.php:33 loggers/SimplePostLogger.php:214
+#: loggers/SimplePostLogger.php:33 loggers/SimplePostLogger.php:236
 msgid "Deleted {post_type} \"{post_title}\""
 msgstr "Raderade {post_type} \"{post_title}\""
 
 #: loggers/SimplePostLogger.php:34
-msgid "Created {post_type} \"{post_title}\""
-msgstr "Skapade {post_type} \"{post_title}\""
-
-#: loggers/SimplePostLogger.php:35
 msgid "Moved {post_type} \"{post_title}\" to the trash"
 msgstr "Flyttade {post_type} \"{post_title}\" till papperskorgen"
 
-#: loggers/SimplePostLogger.php:210
+#: loggers/SimplePostLogger.php:232
 msgid "Updated {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 msgstr "Uppdaterade {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 
-#: loggers/SimplePostLogger.php:218
+#: loggers/SimplePostLogger.php:240
 msgid "Created {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 msgstr "Skapade {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 
-#: loggers/SimplePostLogger.php:223
+#: loggers/SimplePostLogger.php:245
 msgid ""
 "Moved {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> to the trash"
 msgstr ""
 "Flyttade {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> till "
 "papperskorgen"
 
-#: loggers/SimpleThemeLogger.php:29
+#: loggers/SimpleThemeLogger.php:26
 msgid "Switched theme to \"{theme_name}\" from \"{prev_theme_name}\""
 msgstr "Bytte tema till \"{theme_name}\" från \"{prev_theme_name}\""
 
-#: loggers/SimpleThemeLogger.php:30
+#: loggers/SimpleThemeLogger.php:27
 msgid "Customized theme appearance \"{setting_id}\""
-msgstr "Ändrade temats utseende \"{setting_id}\""
+msgstr "Ändrade temats inställning för \"{setting_id}\""
 
-#: loggers/SimpleThemeLogger.php:31
+#: loggers/SimpleThemeLogger.php:28
 msgid "Removed widget \"{widget_id_base}\" from sidebar \"{sidebar_id}\""
 msgstr "Tog bort widget \"{widget_id_base}\" från sidebar \"{sidebar_id}\""
 
-#: loggers/SimpleThemeLogger.php:32
+#: loggers/SimpleThemeLogger.php:29
 msgid "Added widget \"{widget_id_base}\" to sidebar \"{sidebar_id}\""
 msgstr "Lade till widget \"{widget_id_base}\" till sidebar \"{sidebar_id}\""
 
-#: loggers/SimpleThemeLogger.php:33
+#: loggers/SimpleThemeLogger.php:30
 msgid "Changed widget order \"{widget_id_base}\" in sidebar \"{sidebar_id}\""
 msgstr ""
 "Ändrade ordningen på widgeten \"{widget_id_base}\" i sidebar \"{sidebar_id}\""
 
-#: loggers/SimpleThemeLogger.php:34
+#: loggers/SimpleThemeLogger.php:31
 msgid "Changed widget \"{widget_id_base}\" in sidebar \"{sidebar_id}\""
 msgstr "Ändrade widgeten \"{widget_id_base}\" i sidebar \"{sidebar_id}\""
 
-#: loggers/SimpleThemeLogger.php:35
+#: loggers/SimpleThemeLogger.php:32
 msgid "Changed settings for the theme custom background"
 msgstr "Ändrade inställningar för temats anpassade bakgrund"
 
-#: loggers/SimpleThemeLogger.php:506
+#: loggers/SimpleThemeLogger.php:532
 msgid "Section"
 msgstr "Sektion"
 
-#: loggers/SimpleUserLogger.php:26
+#: loggers/SimpleUserLogger.php:23
 msgid ""
 "Failed to login to account with username \"{login_user_login}\" because an "
 "incorrect password was entered"
@@ -492,7 +492,7 @@ msgstr ""
 "Misslyckades att logga in på kontot med användarnamnet "
 "\"{login_user_login}\" eftersom ett felaktigt lösenord angavs"
 
-#: loggers/SimpleUserLogger.php:30
+#: loggers/SimpleUserLogger.php:24
 msgid ""
 "Failed to login with username \"{failed_login_username}\" because no user "
 "with that username exist"
@@ -500,24 +500,24 @@ msgstr ""
 "Misslyckades att logga in med användarnamn \"{failed_login_username}\" "
 "eftersom ingen användare med det användarnamnet finns"
 
-#: loggers/SimpleUserLogger.php:32
+#: loggers/SimpleUserLogger.php:25
 msgid "Logged in"
 msgstr "Loggade in"
 
-#: loggers/SimpleUserLogger.php:33
+#: loggers/SimpleUserLogger.php:26
 msgid "Unknown user logged in"
 msgstr "Okänd användare loggade in"
 
-#: loggers/SimpleUserLogger.php:34
+#: loggers/SimpleUserLogger.php:27
 msgid "Logged out"
 msgstr "Loggade ut"
 
-#: loggers/SimpleUserLogger.php:35
+#: loggers/SimpleUserLogger.php:28
 msgid "Edited the profile for user {edited_user_login} ({edited_user_email})"
 msgstr ""
 "Redigerade profilen för användaren {edited_user_login} ({edited_user_email})"
 
-#: loggers/SimpleUserLogger.php:36
+#: loggers/SimpleUserLogger.php:29
 msgid ""
 "Created user {created_user_login} ({created_user_email}) with role "
 "{created_user_role}"
@@ -525,23 +525,23 @@ msgstr ""
 "Skapade användare {created_user_login} ({created_user_email}) med rollen "
 "{created_user_role}"
 
-#: loggers/SimpleUserLogger.php:37
+#: loggers/SimpleUserLogger.php:30
 msgid "Deleted user {deleted_user_login} ({deleted_user_email})"
 msgstr "Raderade användaren {deleted_user_login} ({deleted_user_email})"
 
-#: loggers/SimpleUserLogger.php:128
+#: loggers/SimpleUserLogger.php:153
 msgid "Edited <a href=\"{edit_profile_link}\">your profile</a>"
 msgstr "Redigerade <a href=\"{edit_profile_link}\">din profl</a>"
 
-#: loggers/SimpleUserLogger.php:132
+#: loggers/SimpleUserLogger.php:157
 msgid "Edited <a href=\"{edit_profile_link}\">their profile</a>"
 msgstr "Redigerade <a href=\"{edit_profile_link}\">sin profil</a>"
 
-#: loggers/SimpleUserLogger.php:141
+#: loggers/SimpleUserLogger.php:166
 msgid "Edited your profile"
 msgstr "Redigerade din profil"
 
-#: loggers/SimpleUserLogger.php:152
+#: loggers/SimpleUserLogger.php:177
 msgid ""
 "Edited the profile for user <a href="
 "\"{edit_profile_link}\">{edited_user_login} ({edited_user_email})</a>"
@@ -621,31 +621,31 @@ msgstr "Pär Thernström"
 msgid "http://simple-history.com/"
 msgstr "http://simple-history.com"
 
-#: SimpleHistory.php:167
+#: SimpleHistory.php:166
 msgctxt ""
 "Message visible while waiting for log to load from server the first time"
 msgid "Loading history..."
 msgstr "Laddar historik..."
 
-#: SimpleHistory.php:204
+#: SimpleHistory.php:203
 msgctxt "page n of n"
 msgid "of"
 msgstr "av"
 
-#: SimpleHistory.php:275
+#: SimpleHistory.php:274
 msgctxt "API: not enought arguments passed"
 msgid "Not enough args specified"
 msgstr "Inte tillräckligt med arguments specifierade"
 
-#: SimpleHistory.php:1159
+#: SimpleHistory.php:1158
 msgctxt "dashboard menu name"
-msgid "History"
-msgstr "Historik"
+msgid "Simple History"
+msgstr "Simple History"
 
-#: SimpleHistory.php:1284
+#: SimpleHistory.php:1283
 msgctxt "history page headline"
-msgid "History"
-msgstr "Historik"
+msgid "Simple History"
+msgstr "Simple History"
 
 #: dropins/SimpleHistoryDonateDropin.php:51
 msgctxt "donate settings headline"
@@ -662,96 +662,454 @@ msgctxt "rss settings headline"
 msgid "RSS feed"
 msgstr "RSS-flöde"
 
-#: loggers/SimpleCommentsLogger.php:32
+#: loggers/SimpleCommentsLogger.php:93
+msgctxt "A comment was added to the database by a non-logged in internet user"
+msgid "Added a comment to {comment_post_type} \"{comment_post_title}\""
+msgstr ""
+"Lade till en kommentar till {comment_post_type} \"{comment_post_title}\""
+
+#: loggers/SimpleCommentsLogger.php:99
 msgctxt "A comment was added to the database by a logged in user"
 msgid "Added a comment to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
 "Lade till en kommentar till {comment_post_type} \"{comment_post_title}\""
 
-#: loggers/SimpleCommentsLogger.php:54
+#: loggers/SimpleCommentsLogger.php:105
+msgctxt "A comment was approved"
+msgid ""
+"Approved a comment to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Godkände en kommentar till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:111
+msgctxt "A comment was was unapproved"
+msgid ""
+"Unapproved a comment to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Godkände inte en kommentar till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:117
 msgctxt "A comment was marked as spam"
 msgid "Marked a comment to post \"{comment_post_title}\" as spam"
 msgstr "Markerade en kommentar till \"{comment_post_title}\" som spam"
 
-#: loggers/SimpleCommentsLogger.php:67
+#: loggers/SimpleCommentsLogger.php:123
+msgctxt "A comment was marked moved to the trash"
+msgid ""
+"Trashed a comment to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Kastade en kommentar till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email}) i papperskorgen"
+
+#: loggers/SimpleCommentsLogger.php:129
 msgctxt "A comment was restored from the trash"
 msgid ""
-"Restored a comment to \"{comment_post_title}\" made by {comment_author} "
+"Restored a comment to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) from the trash"
 msgstr ""
 "Återställde en kommentar till \"{comment_post_title}\" av {comment_author} "
 "({comment_author_email}) från papperskorgen"
 
-#: loggers/SimpleCommentsLogger.php:355
+#: loggers/SimpleCommentsLogger.php:135
+msgctxt "A comment was deleted"
+msgid ""
+"Deleted a comment to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Raderade en kommentar kommentar till \"{comment_post_title}\" av "
+"{comment_author} ({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:141
+msgctxt "A comment was edited"
+msgid ""
+"Edited a comment to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Redigerade en kommentar till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:148
+msgctxt ""
+"A trackback was added to the database by a non-logged in internet user"
+msgid "Added a trackback to {comment_post_type} \"{comment_post_title}\""
+msgstr ""
+"Lade till en trackback till {comment_post_type} \"{comment_post_title}\""
+
+#: loggers/SimpleCommentsLogger.php:203
+msgctxt ""
+"A trackback was added to the database by a non-logged in internet user"
+msgid "Added a pingback to {comment_post_type} \"{comment_post_title}\""
+msgstr ""
+"Lade till en pingback till {comment_post_type} \"{comment_post_title}\""
+
+#: loggers/SimpleCommentsLogger.php:154
+msgctxt "A trackback was added to the database by a logged in user"
+msgid "Added a trackback to {comment_post_type} \"{comment_post_title}\""
+msgstr ""
+"Lade till en trackback till {comment_post_type} \"{comment_post_title}\""
+
+#: loggers/SimpleCommentsLogger.php:160
+msgctxt "A trackback was approved"
+msgid ""
+"Approved a trackback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Godkände en trackback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:166
+msgctxt "A trackback was was unapproved"
+msgid ""
+"Unapproved a trackback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Godkände inte en trackback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:172
+msgctxt "A trackback was marked as spam"
+msgid "Marked a trackback to post \"{comment_post_title}\" as spam"
+msgstr "Markerade en trackback till \"{comment_post_title}\" som spam"
+
+#: loggers/SimpleCommentsLogger.php:178
+msgctxt "A trackback was marked moved to the trash"
+msgid ""
+"Trashed a trackback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Kastade en trackback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email}) i papperskorgen"
+
+#: loggers/SimpleCommentsLogger.php:184
+msgctxt "A trackback was restored from the trash"
+msgid ""
+"Restored a trackback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email}) from the trash"
+msgstr ""
+"Återställde en trackback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email}) från papperskorgen"
+
+#: loggers/SimpleCommentsLogger.php:190
+msgctxt "A trackback was deleted"
+msgid ""
+"Deleted a trackback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Raderade en trackback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:196
+msgctxt "A trackback was edited"
+msgid ""
+"Edited a trackback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Redigerade en trackback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:209
+msgctxt "A pingback was added to the database by a logged in user"
+msgid "Added a pingback to {comment_post_type} \"{comment_post_title}\""
+msgstr ""
+"Lade till en pingback till {comment_post_type} \"{comment_post_title}\""
+
+#: loggers/SimpleCommentsLogger.php:215
+msgctxt "A pingback was approved"
+msgid ""
+"Approved a pingback to \"{comment_post_title}\" by "
+"\"{comment_author}\"\" ({comment_author_email})"
+msgstr ""
+"Godkände en pingback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email}) från papperskorgen"
+
+#: loggers/SimpleCommentsLogger.php:221
+msgctxt "A pingback was was unapproved"
+msgid ""
+"Unapproved a pingback to \"{comment_post_title}\" by "
+"\"{comment_author}\" ({comment_author_email})"
+msgstr ""
+"Ångrade godkännande av en pingack till \"{comment_post_title}\" av "
+"{comment_author} ({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:227
+msgctxt "A pingback was marked as spam"
+msgid "Marked a pingback to post \"{comment_post_title}\" as spam"
+msgstr "Markerade en pingback till \"{comment_post_title}\" som spam"
+
+#: loggers/SimpleCommentsLogger.php:233
+msgctxt "A pingback was marked moved to the trash"
+msgid ""
+"Trashed a pingback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Kastade en pingback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email}) i papperskorgen"
+
+#: loggers/SimpleCommentsLogger.php:239
+msgctxt "A pingback was restored from the trash"
+msgid ""
+"Restored a pingback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email}) from the trash"
+msgstr ""
+"Ångrade godkännandet av en kommentar till \"{comment_post_title}\" av "
+"{comment_author} ({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:245
+msgctxt "A pingback was deleted"
+msgid ""
+"Deleted a pingback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Raderade en pingback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:251
+msgctxt "A pingback was edited"
+msgid ""
+"Edited a pingback to \"{comment_post_title}\" by {comment_author} "
+"({comment_author_email})"
+msgstr ""
+"Redigerade en pingback till \"{comment_post_title}\" av {comment_author} "
+"({comment_author_email})"
+
+#: loggers/SimpleCommentsLogger.php:262
+msgctxt "Comments logger: search"
+msgid "Comments"
+msgstr "Kommentarer"
+
+#: loggers/SimpleCommentsLogger.php:263
+msgctxt "Comments logger: search"
+msgid "All comments activity"
+msgstr "Alla kommentarshändelser"
+
+#: loggers/SimpleCommentsLogger.php:265
+msgctxt "Comments logger: search"
+msgid "Added comments"
+msgstr "Tillagda kommentarer"
+
+#: loggers/SimpleCommentsLogger.php:273
+msgctxt "Comments logger: search"
+msgid "Edited comments"
+msgstr "Redigerade kommentarer"
+
+#: loggers/SimpleCommentsLogger.php:278
+msgctxt "Comments logger: search"
+msgid "Approved  comments"
+msgstr "Godkända kommentarer"
+
+#: loggers/SimpleCommentsLogger.php:283
+msgctxt "Comments logger: search"
+msgid "Held comments"
+msgstr "Tillbakahållna kommentar"
+
+#: loggers/SimpleCommentsLogger.php:288
+msgctxt "Comments logger: search"
+msgid "Comments status changed to spam"
+msgstr "Status på kommentar ändrad till spam"
+
+#: loggers/SimpleCommentsLogger.php:293
+msgctxt "Comments logger: search"
+msgid "Trashed comments"
+msgstr "Kastade kommentarer"
+
+#: loggers/SimpleCommentsLogger.php:298
+msgctxt "Comments logger: search"
+msgid "Untrashed comments"
+msgstr "Kommentarer tillbakatagna från papperskorgen"
+
+#: loggers/SimpleCommentsLogger.php:303
+msgctxt "Comments logger: search"
+msgid "Deleted comments"
+msgstr "Borttagna kommentarer"
+
+#: loggers/SimpleCommentsLogger.php:597 loggers/SimpleCommentsLogger.php:610
+#: loggers/SimpleCommentsLogger.php:624
 msgctxt "comments logger - detailed output comment status"
-msgid "Comment status"
-msgstr "Status på kommentar"
+msgid "Status"
+msgstr "Status"
 
-#: loggers/SimpleCommentsLogger.php:356
-msgctxt "comments logger - detailed output comment type"
-msgid "Comment type"
-msgstr "Typ av kommentar"
-
-#: loggers/SimpleCommentsLogger.php:357
-msgctxt "comments logger - detailed output version"
-msgid "Author name"
-msgstr "Författarens namn"
-
-#: loggers/SimpleCommentsLogger.php:358
-msgctxt "comments logger - detailed output url"
-msgid "Author email"
-msgstr "Författarens epost"
-
-#: loggers/SimpleCommentsLogger.php:359
+#: loggers/SimpleCommentsLogger.php:599 loggers/SimpleCommentsLogger.php:612
+#: loggers/SimpleCommentsLogger.php:626
 msgctxt "comments logger - detailed output author"
+msgid "Name"
+msgstr "Namn"
+
+#: loggers/SimpleCommentsLogger.php:600 loggers/SimpleCommentsLogger.php:613
+#: loggers/SimpleCommentsLogger.php:627
+msgctxt "comments logger - detailed output email"
+msgid "Email"
+msgstr "E-post"
+
+#: loggers/SimpleCommentsLogger.php:601 loggers/SimpleCommentsLogger.php:614
+msgctxt "comments logger - detailed output content"
+msgid "Content"
+msgstr "Innehåll"
+
+#: loggers/SimpleCommentsLogger.php:628
+msgctxt "comments logger - detailed output content"
 msgid "Comment"
 msgstr "Kommentar"
 
-#: loggers/SimpleCommentsLogger.php:468
+#: loggers/SimpleCommentsLogger.php:754
 msgctxt "comments logger - edit comment"
-msgid "Edit comment"
-msgstr "Redigera kommentar"
+msgid "View/Edit"
+msgstr "Visa/Redigera"
 
-#: loggers/SimpleLogger.php:184
+#: loggers/SimpleCoreUpdatesLogger.php:34
+msgctxt "User logger: search"
+msgid "WordPress Core"
+msgstr "WordPress Core"
+
+#: loggers/SimpleCoreUpdatesLogger.php:36
+msgctxt "User logger: search"
+msgid "WordPress core updates"
+msgstr "WordPress core uppdateringar"
+
+#: loggers/SimpleUserLogger.php:35
+msgctxt "User logger: search"
+msgid "Users"
+msgstr "Användare"
+
+#: loggers/SimpleUserLogger.php:36
+msgctxt "User logger: search"
+msgid "All user activity"
+msgstr "All användaraktivitet"
+
+#: loggers/SimpleUserLogger.php:38
+msgctxt "User logger: search"
+msgid "Successful user logins"
+msgstr "Lyckade inloggningar av användare"
+
+#: loggers/SimpleUserLogger.php:42
+msgctxt "User logger: search"
+msgid "Failed user logins"
+msgstr "Misslyckade inloggningar av användare"
+
+#: loggers/SimpleUserLogger.php:46
+msgctxt "User logger: search"
+msgid "User logouts"
+msgstr "Utloggning av användare"
+
+#: loggers/SimpleUserLogger.php:49
+msgctxt "User logger: search"
+msgid "Created users"
+msgstr "Skapade användare"
+
+#: loggers/SimpleUserLogger.php:52
+msgctxt "User logger: search"
+msgid "User profile updates"
+msgstr "Uppdateringar av användarprofiler"
+
+#: loggers/SimpleUserLogger.php:55
+msgctxt "User logger: search"
+msgid "User deletions"
+msgstr "Radering av användare"
+
+#: loggers/SimpleExportLogger.php:27
+msgctxt "Export logger: search"
+msgid "Export"
+msgstr "Export"
+
+#: loggers/SimpleExportLogger.php:29
+msgctxt "Export logger: search"
+msgid "Created exports"
+msgstr "Skapade exporter"
+
+#: loggers/SimpleLogger.php:192
 msgctxt "header output when initiator is the currently logged in user"
 msgid "You"
 msgstr "Du"
 
-#: loggers/SimpleMenuLogger.php:309
+#: loggers/SimpleMediaLogger.php:29
+msgctxt "Media logger: search"
+msgid "Media"
+msgstr "Media"
+
+#: loggers/SimpleMediaLogger.php:31
+msgctxt "Media logger: search"
+msgid "Added media"
+msgstr "Tillagda media"
+
+#: loggers/SimpleMediaLogger.php:34
+msgctxt "Media logger: search"
+msgid "Updated media"
+msgstr "Uppdaterade medier"
+
+#: loggers/SimpleMediaLogger.php:37
+msgctxt "Media logger: search"
+msgid "Deleted media"
+msgstr "Raderade media"
+
+#: loggers/SimpleMenuLogger.php:31
+msgctxt "Menu logger: search"
+msgid "Menus"
+msgstr "Menyer"
+
+#: loggers/SimpleMenuLogger.php:33
+msgctxt "Menu updates logger: search"
+msgid "Created menus"
+msgstr "Skapade menyer"
+
+#: loggers/SimpleMenuLogger.php:36
+msgctxt "Menu updates logger: search"
+msgid "Edited menus"
+msgstr "Ändrade menyer"
+
+#: loggers/SimpleMenuLogger.php:41
+msgctxt "Menu updates logger: search"
+msgid "Deleted menus"
+msgstr "Raderade menyer"
+
+#: loggers/SimpleMenuLogger.php:326
 msgctxt "menu logger"
 msgid "%1$s menu item added"
 msgid_plural "%1$s menu items added"
 msgstr[0] "%1$s menyval tillagt"
 msgstr[1] "%1$s menyval tillagda"
 
-#: loggers/SimpleMenuLogger.php:316
+#: loggers/SimpleMenuLogger.php:333
 msgctxt "menu logger"
 msgid "%1$s menu item removed"
 msgid_plural "%1$s menu items removed"
 msgstr[0] "%1$s menyval borttaget"
 msgstr[1] "%1$s menyval borttagna"
 
-#: loggers/SimplePluginLogger.php:52
+#: loggers/SimpleOptionsLogger.php:153
+msgctxt "Options logger: search"
+msgid "Options"
+msgstr "Inställningar"
+
+#: loggers/SimpleOptionsLogger.php:155
+msgctxt "Options logger: search"
+msgid "Changed options"
+msgstr "Ändrade inställningar"
+
+#: loggers/SimplePluginLogger.php:51
 msgctxt "Plugin was non-silently activated by a user"
 msgid "Activated plugin \"{plugin_name}\""
 msgstr "Aktiverade plugin \"{plugin_name}\""
 
-#: loggers/SimplePluginLogger.php:58
+#: loggers/SimplePluginLogger.php:57
 msgctxt "Plugin was non-silently deactivated by a user"
 msgid "Deactivated plugin \"{plugin_name}\""
 msgstr "Inaktiverade plugin \"{plugin_name}\""
 
-#: loggers/SimplePluginLogger.php:64
+#: loggers/SimplePluginLogger.php:63
 msgctxt "Plugin was installed"
 msgid "Installed plugin \"{plugin_name}\""
 msgstr "Installerade plugin \"{plugin_name}\""
 
-#: loggers/SimplePluginLogger.php:70
+#: loggers/SimplePluginLogger.php:69
 msgctxt "Plugin failed to install"
 msgid "Failed to install plugin \"{plugin_name}\""
 msgstr "Misslyckades med att installera pluginen \"{plugin_name}\""
 
-#: loggers/SimplePluginLogger.php:76
+#: loggers/SimplePluginLogger.php:75
 msgctxt "Plugin was updated"
 msgid ""
 "Updated plugin \"{plugin_name}\" from {plugin_prev_version} to "
@@ -760,22 +1118,22 @@ msgstr ""
 "Uppdaterade plugin \"{plugin_name}\" från {plugin_prev_version} till "
 "{plugin_version}"
 
-#: loggers/SimplePluginLogger.php:82
+#: loggers/SimplePluginLogger.php:81
 msgctxt "Plugin update failed"
 msgid "Updated plugin \"{plugin_name}\""
 msgstr "Uppdaterade plugin \"{plugin_name}\""
 
-#: loggers/SimplePluginLogger.php:88
+#: loggers/SimplePluginLogger.php:87
 msgctxt "Plugin file edited"
 msgid "Edited plugin file \"{plugin_edited_file}\""
 msgstr "Redigerade plugin-filen \"{plugin_edited_file}\""
 
-#: loggers/SimplePluginLogger.php:94
+#: loggers/SimplePluginLogger.php:93
 msgctxt "Plugin files was deleted"
 msgid "Deleted plugin \"{plugin_name}\""
-msgstr "Radera plugin \"{plugin_name}\""
+msgstr "Raderade plugin \"{plugin_name}\""
 
-#: loggers/SimplePluginLogger.php:101
+#: loggers/SimplePluginLogger.php:100
 msgctxt "Plugin was updated in bulk"
 msgid ""
 "Updated plugin \"{plugin_name}\" from {plugin_prev_version} to "
@@ -784,55 +1142,194 @@ msgstr ""
 "Uppdaterade plugin \"{plugin_name}\" från {plugin_prev_version} till "
 "{plugin_version}"
 
-#: loggers/SimplePluginLogger.php:834
+#: loggers/SimplePluginLogger.php:108
+msgctxt "Plugin logger: search"
+msgid "Plugins"
+msgstr "Tillägg"
+
+#: loggers/SimplePluginLogger.php:110
+msgctxt "Plugin logger: search"
+msgid "Activated plugins"
+msgstr "Aktiverade plugins"
+
+#: loggers/SimplePluginLogger.php:113
+msgctxt "Plugin logger: search"
+msgid "Deactivated plugins"
+msgstr "Inaktiverade plugins"
+
+#: loggers/SimplePluginLogger.php:116
+msgctxt "Plugin logger: search"
+msgid "Installed plugins"
+msgstr "Installerade plugins"
+
+#: loggers/SimplePluginLogger.php:119
+msgctxt "Plugin logger: search"
+msgid "Failed plugin installs"
+msgstr "Misslyckade installationer av plugins"
+
+#: loggers/SimplePluginLogger.php:122
+msgctxt "Plugin logger: search"
+msgid "Updated plugins"
+msgstr "Uppdaterade plugins"
+
+#: loggers/SimplePluginLogger.php:126
+msgctxt "Plugin logger: search"
+msgid "Failed plugin updates"
+msgstr "Misslyckades uppdateringar av plugins"
+
+#: loggers/SimplePluginLogger.php:129
+msgctxt "Plugin logger: search"
+msgid "Edited plugin files"
+msgstr "Redigerade pluginfiler"
+
+#: loggers/SimplePluginLogger.php:132
+msgctxt "Plugin logger: search"
+msgid "Deleted plugins"
+msgstr "Raderade plugins"
+
+#: loggers/SimplePluginLogger.php:863
 msgctxt "plugin logger - detailed output version"
 msgid "Version"
 msgstr "Version"
 
-#: loggers/SimplePluginLogger.php:836
+#: loggers/SimplePluginLogger.php:865
 msgctxt "plugin logger - detailed output author"
 msgid "Author"
 msgstr "Författare"
 
-#: loggers/SimplePluginLogger.php:838
+#: loggers/SimplePluginLogger.php:867
 msgctxt "plugin logger - detailed output author"
 msgid "Requires"
 msgstr "Kräver"
 
-#: loggers/SimplePluginLogger.php:837
+#: loggers/SimplePluginLogger.php:866
 msgctxt "plugin logger - detailed output url"
 msgid "URL"
 msgstr "URL"
 
-#: loggers/SimplePluginLogger.php:839
+#: loggers/SimplePluginLogger.php:868
 msgctxt "plugin logger - detailed output compatible"
 msgid "Compatible up to"
 msgstr "Kompatibel upp till"
 
-#: loggers/SimplePluginLogger.php:840
+#: loggers/SimplePluginLogger.php:869
 msgctxt "plugin logger - detailed output downloaded"
 msgid "Downloads"
 msgstr "Nedladdningar"
 
-#: loggers/SimplePluginLogger.php:900
+#: loggers/SimplePluginLogger.php:929
 msgctxt "plugin logger: plugin info thickbox title view all info"
 msgid "View plugin info"
 msgstr "Visa information om plugin"
 
-#: loggers/SimplePluginLogger.php:915
+#: loggers/SimplePluginLogger.php:944
 msgctxt "plugin logger: plugin info thickbox title"
 msgid "View plugin info"
 msgstr "Visa information om plugin"
 
-#: loggers/SimplePluginLogger.php:919
+#: loggers/SimplePluginLogger.php:948
 msgctxt "plugin logger: plugin info thickbox title"
 msgid "View changelog"
 msgstr "Visa ändringslogg"
+
+#: loggers/SimplePostLogger.php:38
+msgctxt "Post logger: search"
+msgid "Posts & Pages"
+msgstr "Poster & sidor"
+
+#: loggers/SimplePostLogger.php:40
+msgctxt "Post logger: search"
+msgid "Posts created"
+msgstr "Poster skapade"
+
+#: loggers/SimplePostLogger.php:43
+msgctxt "Post logger: search"
+msgid "Posts updated"
+msgstr "Poster uppdaterade"
+
+#: loggers/SimplePostLogger.php:46
+msgctxt "Post logger: search"
+msgid "Posts trashed"
+msgstr "Poster kastade"
+
+#: loggers/SimplePostLogger.php:49
+msgctxt "Post logger: search"
+msgid "Posts deleted"
+msgstr "Poster raderade"
+
+#: loggers/SimplePostLogger.php:52
+msgctxt "Post logger: search"
+msgid "Posts restored"
+msgstr "Posterar återställda"
+
+#: loggers/SimpleThemeLogger.php:36
+msgctxt "Theme logger: search"
+msgid "Themes & Widgets"
+msgstr "Teman & Widgets"
+
+#: loggers/SimpleThemeLogger.php:38
+msgctxt "Theme logger: search"
+msgid "Switched themes"
+msgstr "Byten av teman"
+
+#: loggers/SimpleThemeLogger.php:41
+msgctxt "Theme logger: search"
+msgid "Changed appearance of themes"
+msgstr "Ändrade utseende av teman"
+
+#: loggers/SimpleThemeLogger.php:44
+msgctxt "Theme logger: search"
+msgid "Added widgets"
+msgstr "Tillagda widgets"
+
+#: loggers/SimpleThemeLogger.php:47
+msgctxt "Theme logger: search"
+msgid "Removed widgets"
+msgstr "Borttagna widgets"
+
+#: loggers/SimpleThemeLogger.php:50
+msgctxt "Theme logger: search"
+msgid "Changed widgets order"
+msgstr "Ändrad ordning av widgets"
+
+#: loggers/SimpleThemeLogger.php:53
+msgctxt "Theme logger: search"
+msgid "Edited widgets"
+msgstr "Ändrade widgets"
+
+#: loggers/SimpleThemeLogger.php:56
+msgctxt "Theme logger: search"
+msgid "Background of themes changed"
+msgstr "Ändrade bakgrunder för teman"
 
 #: templates/settings-statsRowsPerDay.php:36
 msgctxt "stats: date in rows per day chart"
 msgid "M j"
 msgstr "M j"
+
+#~ msgctxt "dashboard menu name"
+#~ msgid "History"
+#~ msgstr "Historik"
+
+#~ msgctxt "history page headline"
+#~ msgid "History"
+#~ msgstr "Historik"
+
+#~ msgctxt "comments logger - detailed output comment type"
+#~ msgid "Comment type"
+#~ msgstr "Typ av kommentar"
+
+#~ msgctxt "comments logger - detailed output version"
+#~ msgid "Author name"
+#~ msgstr "Författarens namn"
+
+#~ msgctxt "comments logger - detailed output url"
+#~ msgid "Author email"
+#~ msgstr "Författarens epost"
+
+#~ msgctxt "comments logger - detailed output author"
+#~ msgid "Comment"
+#~ msgstr "Kommentar"
 
 #~ msgid ""
 #~ "Get a log/history/audit log/version history of the changes made by users "
