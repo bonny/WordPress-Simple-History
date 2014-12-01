@@ -17,18 +17,11 @@ class SimpleUserLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "User Logger",
-			"search_label" => "Users",
 			"description" => "Logs user logins, logouts, and failed logins",
 			"capability" => "edit_users",
-			"messages" => array(
-				
-				//'user_login_failed' => __('{login_user_login} ({login_user_email}) failed to login because an incorrect password was entered', "simple-history"),
+			"messages" => array(				
 				'user_login_failed' => __('Failed to login to account with username "{login_user_login}" because an incorrect password was entered', "simple-history"),
-
-				//'user_unknown_login_failed' => __('"{failed_login_username}" failed to login because login did not exist in system', "simple-history"),
-				//'user_unknown_login_failed' => __('Failed to login with username "{failed_login_username}" (no user with that username exist)', "simple-history"),
 				'user_unknown_login_failed' => __('Failed to login with username "{failed_login_username}" because no user with that username exist', "simple-history"),
-
 				'user_logged_in' => __('Logged in', "simple-history"),
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
@@ -42,15 +35,15 @@ class SimpleUserLogger extends SimpleLogger
 					"label" => _x("Users", "User logger: search", "simple-history"),
 					"label_all" => _x("All user activity", "User logger: search", "simple-history"),
 					"options" => array(
-						_x("Logins", "User logger: search", "simple-history") => array(
+						_x("Successful user logins", "User logger: search", "simple-history") => array(
 							"user_logged_in",
 							"user_unknown_logged_in"
 						),
-						_x("Failed logins", "User logger: search", "simple-history") => array(
+						_x("Failed user logins", "User logger: search", "simple-history") => array(
 							'user_login_failed',
 							'user_unknown_login_failed'
 						),
-						_x('Log outs',  'User logger: search', 'simple-history') => array(
+						_x('User logouts',  'User logger: search', 'simple-history') => array(
 							"user_logged_out"
 						),
 						_x('Created users',  'User logger: search', 'simple-history') => array(
@@ -59,7 +52,7 @@ class SimpleUserLogger extends SimpleLogger
 						_x("User profile updates", "User logger: search", "simple-history") => array(
 							"user_updated_profile"
 						),
-						_x('Deleted users',  'User logger: search', 'simple-history') => array(
+						_x('User deletions',  'User logger: search', 'simple-history') => array(
 							"user_deleted"
 						)
 						

@@ -24,7 +24,6 @@ class SimplePostLogger extends SimpleLogger
 
 		$arr_info = array(
 			"name" => "Post Logger",
-			"search_label" => "Posts and Pages",
 			"description" => "Logs the creation and modification of posts and pages",
 			"capability" => "edit_pages",
 			"messages" => array(

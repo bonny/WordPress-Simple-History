@@ -86,7 +86,6 @@ class SimpleCommentsLogger extends SimpleLogger
 		$arr_info = array(			
 			"name" => "Comments Logger",
 			"description" => "Logs comments, and modifications to them",
-			"search_label" => "Comments",
 			"capability" => "moderate_comments",
 			"messages" => array(
 
@@ -263,7 +262,7 @@ class SimpleCommentsLogger extends SimpleLogger
 					"label" => _x("Comments", "Comments logger: search", "simple-history"),
 					"label_all" => _x("All comments activity", "Comments logger: search", "simple-history"),
 					"options" => array(
-						_x("Added", "Comments logger: search", "simple-history") => array(
+						_x("Added comments", "Comments logger: search", "simple-history") => array(
 							"anon_comment_added",
 							"user_comment_added",
 							"anon_trackback_added",
@@ -271,37 +270,37 @@ class SimpleCommentsLogger extends SimpleLogger
 							"anon_pingback_added",
 							"user_pingback_added"
 						),
-						_x("Edited", "Comments logger: search", "simple-history") => array(
+						_x("Edited comments", "Comments logger: search", "simple-history") => array(
 							"comment_edited",
 							"trackback_edited",
 							"pingback_edited"
 						),
-						_x("Approved", "Comments logger: search", "simple-history") => array(
+						_x("Approved  comments", "Comments logger: search", "simple-history") => array(
 							"comment_status_approve",
 							"trackback_status_approve",
 							"pingback_status_approve"
 						),
-						_x("Status set to hold", "Comments logger: search", "simple-history") => array(
+						_x("Held comments", "Comments logger: search", "simple-history") => array(
 							"comment_status_hold",
 							"trackback_status_hold",
 							"pingback_status_hold"
 						),
-						_x("Status set to spam", "Comments logger: search", "simple-history") => array(
+						_x("Comments status changed to spam", "Comments logger: search", "simple-history") => array(
 							"comment_status_spam",
 							"trackback_status_spam",
 							"pingback_status_spam"
 						),
-						_x("Trashed", "Comments logger: search", "simple-history") => array(
+						_x("Trashed comments", "Comments logger: search", "simple-history") => array(
 							"comment_status_trash",
 							"trackback_status_trash",
 							"pingback_status_trash"
 						),
-						_x("Untrashed", "Comments logger: search", "simple-history") => array(
+						_x("Untrashed comments", "Comments logger: search", "simple-history") => array(
 							"comment_untrashed",
 							"trackback_untrashed",
 							"pingback_untrashed"
 						),
-						_x("Deleted", "Comments logger: search", "simple-history") => array(
+						_x("Deleted comments", "Comments logger: search", "simple-history") => array(
 							"comment_deleted",
 							"trackback_deleted",
 							"pingback_deleted"

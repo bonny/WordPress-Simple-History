@@ -17,7 +17,6 @@ class SimpleMenuLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Menu Logger",
-			"search_label" => "Menu edits",
 			"description" => "Logs menu edits",
 			"capability" => "edit_theme_options",
 			"messages" => array(
@@ -29,20 +28,17 @@ class SimpleMenuLogger extends SimpleLogger
 			),
 			"labels" => array(
 				"search" => array(
-					"label" => _x("Menu", "Menu logger: search", "simple-history"),
+					"label" => _x("Menus", "Menu logger: search", "simple-history"),
 					"options" => array(
-						_x("Created", "Menu updates logger: search", "simple-history") => array(
+						_x("Created menus", "Menu updates logger: search", "simple-history") => array(
 							"created_menu"
 						),
-						_x("Edited", "Menu updates logger: search", "simple-history") => array(
+						_x("Edited menus", "Menu updates logger: search", "simple-history") => array(
 							"edited_menu",
 							"edited_menu_item",
 							"edited_menu_locations"
 						),
-						_x("Deleted", "Menu updates logger: search", "simple-history") => array(
-							"deleted_menu"
-						),
-						_x("Deleted", "Menu updates logger: search", "simple-history") => array(
+						_x("Deleted menus", "Menu updates logger: search", "simple-history") => array(
 							"deleted_menu"
 						)
 					)

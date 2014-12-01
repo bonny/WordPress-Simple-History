@@ -23,7 +23,6 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Core Updates Logger",
-			"search_label" => "WordPress (core updates)",
 			"description" => "Logs the update of WordPress (manual and automatic updates)",
 			"capability" => "update_core",
 			"messages" => array(
@@ -34,7 +33,7 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 				"search" => array(
 					"label" => _x("WordPress Core", "User logger: search", "simple-history"),
 					"options" => array(
-						_x("Updates", "User logger: search", "simple-history") => array(
+						_x("WordPress core updates", "User logger: search", "simple-history") => array(
 							"core_updated",
 							"core_auto_updated"
 						),						

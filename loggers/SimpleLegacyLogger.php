@@ -30,7 +30,6 @@ class SimpleLegacyLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Legacy Logger",
-			"search_label" => "Events from previous version",
 			"description" => "Formats old events",
 			"capability" => "edit_pages",
 			"messages" => array(

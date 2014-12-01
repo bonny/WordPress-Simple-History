@@ -1156,7 +1156,7 @@ class SimpleHistory {
 			
 			add_dashboard_page(
 					SimpleHistory::NAME, 
-					_x("History", 'dashboard menu name', 'simple-history'),
+					_x("Simple History", 'dashboard menu name', 'simple-history'),
 					$this->view_history_capability, 
 					"simple_history_page", 
 					array($this, "history_page_output")
@@ -1281,7 +1281,7 @@ class SimpleHistory {
 			
 			<h2 class="SimpleHistoryPageHeadline">
 				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
-				<?php echo _x("History", 'history page headline', 'simple-history') ?>
+				<?php echo _x("Simple History", 'history page headline', 'simple-history') ?>
 			</h2>
 
 			<?php

@@ -44,7 +44,6 @@ class SimplePluginLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Plugin Logger",
-			"search_label" => "Plugin changes",
 			"description" => "Logs plugin installs, uninstalls and updates",
 			"capability" => "activate_plugins", // install_plugins, activate_plugins, 
 			"messages" => array(
@@ -108,29 +107,29 @@ class SimplePluginLogger extends SimpleLogger
 				"search" => array(
 					"label" => _x("Plugins", "Plugin logger: search", "simple-history"),
 					"options" => array(
-						_x("Plugin activated", "Plugin logger: search", "simple-history") => array(
+						_x("Activated plugins", "Plugin logger: search", "simple-history") => array(
 							'plugin_activated'
 						),
-						_x("Plugin deactivated", "Plugin logger: search", "simple-history") => array(
+						_x("Deactivated plugins", "Plugin logger: search", "simple-history") => array(
 							'plugin_deactivated'
 						),
-						_x("Plugin installed", "Plugin logger: search", "simple-history") => array(
+						_x("Installed plugins", "Plugin logger: search", "simple-history") => array(
 							'plugin_installed'
 						),
-						_x("Plugin installation failure", "Plugin logger: search", "simple-history") => array(
+						_x("Failed plugin installs", "Plugin logger: search", "simple-history") => array(
 							'plugin_installed_failed'
 						),
-						_x("Plugin updated", "Plugin logger: search", "simple-history") => array(
+						_x("Updated plugins", "Plugin logger: search", "simple-history") => array(
 							'plugin_updated',
 							'plugin_bulk_updated'
 						),
-						_x("Plugin update failure", "Plugin logger: search", "simple-history") => array(
+						_x("Failed plugin updates", "Plugin logger: search", "simple-history") => array(
 							'plugin_update_failed'
 						),
-						_x("Plugin file edited", "Plugin logger: search", "simple-history") => array(
+						_x("Edited plugin files", "Plugin logger: search", "simple-history") => array(
 							'plugin_file_edited'
 						),
-						_x("Plugin deleted", "Plugin logger: search", "simple-history") => array(
+						_x("Deleted plugins", "Plugin logger: search", "simple-history") => array(
 							'plugin_deleted'
 						),
 					)

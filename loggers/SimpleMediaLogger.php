@@ -17,7 +17,6 @@ class SimpleMediaLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Media/Attachments Logger",
-			"search_label" => "Media changes",
 			"description" => "Logs media uploads and edits",
 			"capability" => "edit_pages",
 			"messages" => array(
@@ -27,15 +26,15 @@ class SimpleMediaLogger extends SimpleLogger
 			),
 			"labels" => array(
 				"search" => array(
-					"label" => _x("Media & Attachments", "Media logger: search", "simple-history"),
+					"label" => _x("Media", "Media logger: search", "simple-history"),
 					"options" => array(
-						_x("Added/Uploaded", "Media logger: search", "simple-history") => array(
+						_x("Added media", "Media logger: search", "simple-history") => array(
 							"attachment_created"
 						),						
-						_x("Updated", "Media logger: search", "simple-history") => array(
+						_x("Updated media", "Media logger: search", "simple-history") => array(
 							"attachment_updated"
 						),						
-						_x("Deleted", "Media logger: search", "simple-history") => array(
+						_x("Deleted media", "Media logger: search", "simple-history") => array(
 							"attachment_deleted"
 						),						
 					)

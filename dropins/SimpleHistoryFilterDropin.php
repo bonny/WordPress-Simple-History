@@ -67,16 +67,6 @@ class SimpleHistoryFilterDropin {
 							$logger_info = $logger["instance"]->getInfo();
 							$logger_slug = $logger["instance"]->slug;
 
-							// Old way, just the logger names
-							/*
-							printf(
-								'<option value="%2$s">%3$s</option>',
-								$logger["name"], // 1
-								$logger["instance"]->slug, // 2
-								$logger_info["search_label"]
-							);
-							*/
-
 							// Get labels for logger
 							if ( isset( $logger_info["labels"]["search"] ) ) {
 

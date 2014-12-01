@@ -17,7 +17,6 @@ class SimpleExportLogger extends SimpleLogger
 
 		$arr_info = array(			
 			"name" => "Export Logger",
-			"search_label" => "WordPress data exports",
 			"description" => "Logs updates to WordPress export",
 			"capability" => "export",
 			"messages" => array(
@@ -27,7 +26,7 @@ class SimpleExportLogger extends SimpleLogger
 				"search" => array(
 					"label" => _x("Export", "Export logger: search", "simple-history"),
 					"options" => array(
-						_x("Exports created", "Export logger: search", "simple-history") => array(
+						_x("Created exports", "Export logger: search", "simple-history") => array(
 							"created_export"
 						),						
 					)

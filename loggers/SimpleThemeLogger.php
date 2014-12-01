@@ -19,10 +19,7 @@ class SimpleThemeLogger extends SimpleLogger
 	function getInfo() {
 
 		$arr_info = array(
-			//"name" => __("Theme Logger", "simple-history"),
 			"name" => "Theme Logger",
-			"search_label" => "Themes",
-			//"description" => __("Logs theme edits", "simple-history"),
 			"description" => "Logs theme edits",
 			"capability" => "edit_theme_options",
 			"messages" => array(
@@ -38,25 +35,25 @@ class SimpleThemeLogger extends SimpleLogger
 				"search" => array(
 					"label" => _x("Themes & Widgets", "Theme logger: search", "simple-history"),
 					"options" => array(
-						_x("Themes switched", "Theme logger: search", "simple-history") => array(
+						_x("Switched themes", "Theme logger: search", "simple-history") => array(
 							"theme_switched"
 						),
-						_x("Themes appearance", "Theme logger: search", "simple-history") => array(
+						_x("Changed appearance of themes", "Theme logger: search", "simple-history") => array(
 							"appearance_customized"
 						),
-						_x("Widgets added", "Theme logger: search", "simple-history") => array(
+						_x("Added widgets", "Theme logger: search", "simple-history") => array(
 							"widget_added"
 						),
-						_x("Widgets removed", "Theme logger: search", "simple-history") => array(
+						_x("Removed widgets", "Theme logger: search", "simple-history") => array(
 							"widget_removed"
 						),
-						_x("Widgets order changed", "Theme logger: search", "simple-history") => array(
+						_x("Changed widgets order", "Theme logger: search", "simple-history") => array(
 							"widget_order_changed"
 						),
-						_x("Widgets edited", "Theme logger: search", "simple-history") => array(
+						_x("Edited widgets", "Theme logger: search", "simple-history") => array(
 							"widget_edited"
 						),
-						_x("Theme background changed", "Theme logger: search", "simple-history") => array(
+						_x("Background of themes changed", "Theme logger: search", "simple-history") => array(
 							"custom_background_changed"
 						),
 					)
