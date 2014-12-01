@@ -163,17 +163,17 @@ class SimpleHistoryLogQuery {
 			// 2 = limit
 			// 3 = db name
 			$sql_tmpl = '
-				SELECT h.*,
+				SELECT t.*,
 					# fake columns that exist in overview query
 					1 as subsequentOccasions
-				FROM %3$s AS h
+				FROM %3$s AS t
 				WHERE %1$s
 				ORDER BY id DESC
 				%2$s
 			';
 
-			$where .= " AND h.id <= " . (int) $args["logRowID"];
-			$where .= " AND h.occasionsID = '" . esc_sql( $args["occasionsID"] ) . "'";
+			$where .= " AND t.id <= " . (int) $args["logRowID"];
+			$where .= " AND t.occasionsID = '" . esc_sql( $args["occasionsID"] ) . "'";
 
 			$limit = "LIMIT " . (int) $args["occasionsCount"];
 
