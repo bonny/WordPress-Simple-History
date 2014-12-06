@@ -5,7 +5,6 @@
 
 	$logItems.on("click", ".SimpleHistoryLogitem__anonUserWithIp", function(e) {
 
-		// Find IP address in text
 		var $elm = $(this);
 		var ipAddress = $elm.data("ipAddress");
 
@@ -24,7 +23,9 @@
 	}
 
 	function onIpAddressLookupkResponse(d) {
+
 		console.log("got data", d);
+
 	}
 
 })(jQuery);

@@ -13,7 +13,8 @@ class SimpleCommentsLogger extends SimpleLogger
 		parent::__construct($sh);
 
 		// Add option to not show spam comments, because to much things getting logged
-		add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
+		#add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
+		add_filter("simple_history/log_query_inner_where", array($this, "maybe_modify_log_query_sql_where"));
 
 	}
 
@@ -42,7 +43,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		}
 
 		$where .= sprintf('
-			AND t.id NOT IN (
+			AND id NOT IN (
 			
 				SELECT id
 					# , c1.history_id, c2.history_id 
