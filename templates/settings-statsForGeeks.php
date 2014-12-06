@@ -38,8 +38,13 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 	// Total number of log rows
 	// Not caring about occasions, this number = all occasions
 	$total_num_rows = $wpdb->get_var("select count(*) FROM {$table_name}");
-	echo "<p>Total $total_num_rows log rows in db.</p>";
-	echo "<p>Total $total_accassions_rows_count rows, when grouped by occasion id.</p>";
+	echo "<ul>";
+	echo "<li>Total $total_num_rows log rows in db.</li>";
+	echo "<li>Total $total_accassions_rows_count rows, when grouped by occasion id.</li>";
+	echo "</ul>";
+
+	echo "<h4>Clear history interval</h4>";
+	echo "<p>" . $this->sh->get_clear_history_interval() . "</p>";
 
 	$sql_table_size = sprintf('
 		SELECT table_name AS "table_name", 

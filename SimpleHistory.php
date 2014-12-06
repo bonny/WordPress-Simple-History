@@ -1519,14 +1519,19 @@ class SimpleHistory {
 		
 		$tableprefix = $wpdb->prefix;
 		$simple_history_table = SimpleHistory::DBTABLE;
+		$simple_history_context_table = SimpleHistory::DBTABLE_CONTEXTS;
 		
 		$sql = "DELETE FROM {$tableprefix}{$simple_history_table}";
+		$wpdb->query($sql);
+
+		$sql = "DELETE FROM {$tableprefix}{$simple_history_context_table}";
 		$wpdb->query($sql);
 
 	}
 
 	/**
 	 * Removes old entries from the db
+	 * @TODO this function does not remove old entries from context table
 	 */
 	function purge_db() {
 

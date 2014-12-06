@@ -1,8 +1,5 @@
 /*jshint multistr: true */
 
-/*
-V2 begins here
-*/
 var simple_history = (function($) {
 
 	var api_base_url = window.ajaxurl + "?action=simple_history_api";
@@ -664,3 +661,14 @@ var simple_history = (function($) {
 	return mainView;
 
 })(jQuery);
+
+jQuery(".js-SimpleHistory-Settings-ClearLog").on("click", function(e) {
+	
+	if (confirm(simple_history_script_vars.settingsConfirmClearLog)) {
+		return;
+	} else {
+		e.preventDefault();
+	}
+
+});
+
