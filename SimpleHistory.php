@@ -1742,7 +1742,8 @@ class SimpleHistory {
 		$data_attrs .= sprintf(' data-row-id="%1$d" ', $oneLogRow->id );
 		$data_attrs .= sprintf(' data-occasions-count="%1$d" ', $occasions_count );
 		$data_attrs .= sprintf(' data-occasions-id="%1$s" ', $oneLogRow->occasionsID );
-		
+		$data_attrs .= sprintf(' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context["_server_remote_addr"] ) );
+
 		// If type is single then include more details
 		$more_details_html = "";
 		if ( $args["type"] == "single" ) {

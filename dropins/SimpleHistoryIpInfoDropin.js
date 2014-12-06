@@ -3,10 +3,10 @@
 
 	var $logItems = $(".SimpleHistoryLogitems");
 
-	$logItems.on("click", ".SimpleHistoryLogitem__anonUserWithIp", function(e) {
+	$logItems.on("click", ".SimpleHistoryLogitem__anonUserWithIp__theIp", function(e) {
 
 		var $elm = $(this);
-		var ipAddress = $elm.data("ipAddress");
+		var ipAddress = $elm.closest(".SimpleHistoryLogitem").data("ipAddress");
 
 		if (! ipAddress) {
 			return;
