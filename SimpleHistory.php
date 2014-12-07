@@ -521,7 +521,7 @@ class SimpleHistory {
 
 			$loggerInstance->loaded();
 			
-			// Tell gettext-filter to add untraslated messages
+			// Tell gettext-filter to add untranslated messages
 			$this->doFilterGettext = true;
 			$this->doFilterGettext_currentLogger = $loggerInstance;
 
@@ -531,20 +531,25 @@ class SimpleHistory {
 			$this->doFilterGettext = false;
 			$this->doFilterGettext_currentLogger = null;
 
-			// Add message slugs and translated text to the message array
+			// LoggerInfo contains all messages, both translated an not, by key. 
+			// Add messages to the loggerInstance
 			$loopNum = 0;
-			foreach ( $loggerInfo["messages"] as $key => $message ) {
-
-				$loggerInstance->messages[ $key ] = $loggerInstance->messages[ $loopNum ];
-
-				// message was not added using __ or _x
-				//$loggerInstance->messages[ $key ] = "apa";
-
-				unset( $loggerInstance->messages[ $loopNum ] );
+			foreach ( $loggerInfo["messages"] as $message_key => $message ) {
+				
+				$loggerInstance->messages[ $message_key ] = $loggerInstance->messages[ $loopNum ];
 				$loopNum++;
 
 			}
 
+			// Remove index keys, only keeping slug keys
+			if (is_array($loggerInstance->messages)) {
+				foreach ( $loggerInstance->messages as $key => $val ) {
+					if  ( is_int($key) ) {
+						unset( $loggerInstance->messages[$key] );
+					}
+				}
+			}			
+			
 			// Add logger to array of loggers
 			$this->instantiatedLoggers[ $loggerInstance->slug ] = array(
 				"name" => $loggerInfo["name"],
