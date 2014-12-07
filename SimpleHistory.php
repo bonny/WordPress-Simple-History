@@ -2039,6 +2039,7 @@ class SimpleHistory {
 		
 		global $wpdb;
 
+		// Get number of events today
 		$logQuery = new SimpleHistoryLogQuery();
 		$logResults = $logQuery->query(array(
 			"posts_per_page" => 1,
