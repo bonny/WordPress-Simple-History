@@ -78,8 +78,7 @@ The spinner that wp uses:;
 	margin-right: -340px;
 	/* hide by default while log is loading */
 	opacity: 0;
-	-webkit-transition: all .25s ease-out;
-	        transition: all .25s ease-out;
+	transition: all .25s ease-out;
 }
 
 .SimpleHistory--isLoaded .SimpleHistory__filters {
@@ -92,8 +91,7 @@ The spinner that wp uses:;
 	background: #fff;
 	border: 1px solid rgb(229, 229, 229);
 	opacity: 0;
-	-webkit-transition: all .25s ease-out;
-	        transition: all .25s ease-out;
+	transition: all .25s ease-out;
 }
 
 .SimpleHistory--isLoaded .SimpleHistoryLogitems,
@@ -238,8 +236,6 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem__senderImage {
-	-webkit-border-radius: 50%;
-	-moz-border-radius: 50%;
 	border-radius: 50%;
 	overflow: hidden;
 	/*opacity: .8;*/
@@ -362,8 +358,6 @@ Images/thumbs can be styles nicely
 				margin: .5em 0 0 0;
 					padding: 5px;
 				border: 1px solid #ddd;
-				-webkit-border-radius: 2px;
-				-moz-border-radius: 2px;
 				border-radius: 2px;
 
 }
@@ -388,6 +382,11 @@ when occasions are added
 .SimpleHistoryLogitem--occasionsOpened {
 	/*box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
 	z-index: 1;*/
+}
+
+/* remove border below */
+.SimpleHistoryLogitem--occasionsOpened::before {
+	opacity: 0;
 }
 
 /* when occasions is loaded and have loaded hide the "show occasions"-link*/
@@ -417,13 +416,16 @@ when occasions are added
 .SimpleHistoryLogitem__occasionsItems {
 	opacity: 0;
 	max-height: 0;
-	-webkit-transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s;
-			transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s;
+	transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s, margin .25s .0s ease-out;
+	background-color: white;
+	box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
 }
 
 .SimpleHistoryLogitem__occasionsItems.haveOccasionsAdded {
 	opacity: 1;
 	max-height: 2000px;
+	margin-left: -5px;
+	margin-right: -5px;;
 }
 
 /*
@@ -459,7 +461,7 @@ when occasions are added
 	border-top-width : 1px;
 	border-bottom-width : 1px;
 	padding-top: 15px;
-	padding-bottom: 15px;
+	padding-bottom: 15px
 	/*padding-left: 40px;*/
 }
 
@@ -611,19 +613,18 @@ Modal window with detailss
 
 /* if wp left meny is collapsed .folded is added and meny width is 36 px */
 .folded .SimpleHistory-modal__content {
-	left: 156px; /* admin meny width is 160 px*/
+	left: 156px /* admin meny width is 160 px*/
 }
 @media only screen and (max-width: 900px) {
 	.SimpleHistory-modal__content {
-		left: 156px; /* admin meny width is 160 px*/
+		left: 156px /* admin meny width is 160 px*/
 	}
 }
 
 
 
 .SimpleHistory-modal__content--enter {
-	-webkit-transition: all .15s ease-out;
-			transition: all .15s ease-out;
+	transition: all .15s ease-out;
 	-webkit-transform: scale(0.95);
 			transform: scale(0.95);
 	opacity: 0;
@@ -642,16 +643,14 @@ Modal window with detailss
 }
 
 .SimpleHistory-modal__leave-active {
-	
-	-webkit-transition: all .15s .15s ease-out, visibility 0s .30s;
-			transition: all .15s .15s ease-out, visibility 0s .30s;
+	transition: all .15s .15s ease-out, visibility 0s .30s;
 
 	opacity: 0;
 	visibility: hidden;
 }
 
 .admin-bar .SimpleHistory-modal__content {
-	top: 92px; /* admin bar height is 32 px*/
+	top: 92px /* admin bar height is 32 px*/
 }
 
 /* style the logRow a bit more when shown in modal */
