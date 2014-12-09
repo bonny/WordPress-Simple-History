@@ -73,7 +73,7 @@ class SimplePluginLogger extends SimpleLogger
 				),
 
 				'plugin_updated' => _x(
-					'Updated plugin "{plugin_name}" from {plugin_prev_version} to {plugin_version}', 
+					'Updated plugin "{plugin_name}" to version {plugin_version} from {plugin_prev_version}', 
 					'Plugin was updated',
 					'simple-history'
 				),
