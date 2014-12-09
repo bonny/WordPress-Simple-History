@@ -260,7 +260,7 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem__header,
-.SimpleHistoryLogitem__header time,
+/*.SimpleHistoryLogitem__header time,*/
 .SimpleHistoryLogitem__headerEmail {
 	color: rgb(137, 143, 156);
 }

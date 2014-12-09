@@ -12,13 +12,15 @@
 			return;
 		}
 
-		lookupIpAddress(ipAddress);
+		return lookupIpAddress(ipAddress);
 
 	});
 
 	function lookupIpAddress(ipAddress) {
 
 		$.get("http://ipinfo.io/" + ipAddress, onIpAddressLookupkResponse, "jsonp");
+
+		return false;
 
 	}
 
