@@ -311,6 +311,7 @@ Style different log levels.
 .SimpleHistoryLogitem__keyValueTable th,
 .SimpleHistoryLogitem__keyValueTable td {
 	vertical-align: top;
+	word-break: break-word;
 }
 
 .SimpleHistoryLogitem__keyValueTable tr > td:first-child {
