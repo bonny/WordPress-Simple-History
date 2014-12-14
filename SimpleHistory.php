@@ -1010,6 +1010,7 @@ class SimpleHistory {
 
 			$db_version_prev = $db_version;
 			$db_version = 4;
+			
 			update_option("simple_history_db_version", $db_version);
 
 		} // end db version 3 » 4
