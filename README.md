@@ -33,10 +33,10 @@ Developers can easily log their own things using a simple API:
 
 ```php
 <?php
-// Most basic example: just add some information to the log
+// Add events to the log
 SimpleLogger()->info("This is a message sent to the log");
 
-// Log entries of different severity
+// Add events of different severity
 SimpleLogger()->info("User admin edited page 'About our company'");
 SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
 SimpleLogger()->debug("Ok, cron job is running!");
