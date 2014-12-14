@@ -23,11 +23,10 @@ SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
 SimpleLogger()->debug("Ok, cron job is running!");
 
 // Add a message to the history log
-SimpleLogger()->info("This is a message sent to the log");
-
-// Add a second log entry with same info and Simple History
+// and then add a second log entry with same info and Simple History
 // will make these two become an "occasionGroup",
 // i.e. collapsing their entries into one expandable log item
+SimpleLogger()->info("This is a message sent to the log");
 SimpleLogger()->info("This is a message sent to the log");
 		
 // Log entries can have placeholders and context
