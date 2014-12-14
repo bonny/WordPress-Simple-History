@@ -882,14 +882,6 @@ class SimpleHistory {
 			$db_version_prev = $db_version;
 			$db_version = 2;
 
-			/*SimpleLogger()->debug(
-				"Simple History updated its database from version {from_version} to {to_version}",
-				array(
-					"from_version" => $db_version_prev,
-					"to_version" => $db_version
-				)
-			);*/
-
 			update_option("simple_history_db_version", $db_version);
 
 		}
@@ -972,14 +964,6 @@ class SimpleHistory {
 			$db_version = 3;
 			update_option("simple_history_db_version", $db_version);
 
-			/*SimpleLogger()->debug(
-				"Simple History updated its database from version {from_version} to {to_version}",
-				array(
-					"from_version" => $db_version_prev,
-					"to_version" => $db_version
-				)
-			);*/
-
 			// Update old items to use SimpleLegacyLogger
 			$sql = sprintf('
 					UPDATE %1$s
@@ -990,6 +974,7 @@ class SimpleHistory {
 				', 
 				$table_name
 			);
+
 			$wpdb->query( $sql );
 
 			// Say welcome, however loggers are not added this early so we need to
