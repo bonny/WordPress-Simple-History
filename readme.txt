@@ -3,8 +3,8 @@ Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
-Tested up to: 4.0
-Stable tag: 1.3.6
+Tested up to: 4.0.1
+Stable tag: 2.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -32,10 +32,6 @@ info about added, updated or removed users
 see when a user login & logut
 * **Failed user logins**<br>
 see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
-* **bbPress**<br>
-view changes to forums and topics and view user changes
-* **Gravity Forms**<br>
-see who created, edited or deleted a form, field, or entry
 
 There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
 
