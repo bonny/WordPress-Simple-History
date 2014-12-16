@@ -51,7 +51,12 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	function simple_history_old_version_admin_notice() {
 		?>
 		<div class="updated error">
-			<p><?php _e( 'Simple History is a great plugin, but to use it your server must have at least PHP 5.3 installed.', 'simple-history' ); ?></p>
+			<p><?php 
+				printf( 
+					__( 'Simple History is a great plugin, but to use it your server must have at least PHP 5.3 installed (you have version %s).', 'simple-history' ), 
+					phpversion() 
+				); 
+				?></p>
 		</div>
 		<?php		
 	}
