@@ -153,7 +153,7 @@ class SimpleHistoryRSSDropin {
 
 						// Override capability check: if you have a valid rss_secret_key you can read it all
 						$action_tag = "simple_history/loggers_user_can_read/can_read_single_logger";
-						add_action( $action_tag, array($this, "on_can_read_single_logger") );					
+						add_action( $action_tag, array($this, "on_can_read_single_logger"), 10, 3 );
 
 						// Modify header time output so it does not show relative date or time ago-format
 						// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate
