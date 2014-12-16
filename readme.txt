@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.0.1
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -103,6 +103,10 @@ initiated by a specific user.
 
 
 == Changelog ==
+
+= 2.0.3 (November 2014) =
+
+- Show the version of PHP that the user is running, when the PHP requirement of >= 5.3 is not met
 
 = 2.0.2 (November 2014) =
 
