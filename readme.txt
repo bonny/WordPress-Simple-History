@@ -57,7 +57,7 @@ See the plugin in action with this short screencast:
 
 If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by calling the function `simple_history_add()` like this:
 
-```
+`
 <?php
 
 if ( function_exists("SimpleLogger") ) {
@@ -71,8 +71,8 @@ if ( function_exists("SimpleLogger") ) {
     SimpleLogger()->debug("Ok, cron job is running!");
 
 }
-
-```
+?>
+`
 
 #### Translations/Languages
 
