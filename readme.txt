@@ -106,7 +106,7 @@ initiated by a specific user.
 
 = 2.0.2 (November 2014) =
 
-- Fixed wrong number of arguments used in filter on RSS-feed
+- Fixed wrong number of arguments used in filter in RSS-feed
 
 = 2.0.1 (November 2014) =
 
