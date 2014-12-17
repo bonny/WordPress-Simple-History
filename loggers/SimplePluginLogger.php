@@ -98,7 +98,7 @@ class SimplePluginLogger extends SimpleLogger
 
 				// bulk versions
 				'plugin_bulk_updated' => _x(
-					'Updated plugin "{plugin_name}" from {plugin_prev_version} to {plugin_version}', 
+					'Updated plugin "{plugin_name}" to {plugin_version} from {plugin_prev_version}', 
 					'Plugin was updated in bulk',
 					'simple-history'
 				),
@@ -479,18 +479,11 @@ class SimplePluginLogger extends SimpleLogger
 				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data["plugin"] );
 
 				// autoptimize/autoptimize.php
-
 				$plugin_slug = dirname( $arr_data["plugin"] );
 
-/*
-@TODO
-efter update:
-Undefined variable: update_plugins
-*/
 				$context = array(
 					"plugin_slug" => $plugin_slug,
 					"request" => $this->simpleHistory->json_encode( $_REQUEST ),
-					"update_plugins" => $this->simpleHistory->json_encode( $update_plugins ),
 					"plugin_name" => $plugin_data["Name"],
 					"plugin_title" => $plugin_data["Title"],
 					"plugin_description" => $plugin_data["Description"],
@@ -502,7 +495,7 @@ Undefined variable: update_plugins
 
 				// update status for plugins are in response
 				// plugin folder + index file = key
-				// use this transient to get url and package
+				// use transient to get url and package
 				$update_plugins = get_site_transient( 'update_plugins' );
 				if ( $update_plugins && isset( $update_plugins->response[ $arr_data["plugin"] ] ) ) {
 					
@@ -517,6 +510,8 @@ Undefined variable: update_plugins
 						"package": "https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip"
 					}
 					*/
+					// for debug purposes the update_plugins key can be added
+					// $context["update_plugins"] = $this->simpleHistory->json_encode( $update_plugins );
 
 					$plugin_update_info = $update_plugins->response[ $arr_data["plugin"] ];
 
