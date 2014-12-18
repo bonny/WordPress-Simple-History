@@ -248,6 +248,8 @@ Style different log levels.
 
 .SimpleHistoryLogitem__senderImage img {
 	display: block;
+	max-width: 100%;
+	max-height: 100%;
 }
 
 .SimpleHistoryLogitem__secondcol {
@@ -462,35 +464,67 @@ when occasions are added
 	border-top-width : 1px;
 	border-bottom-width : 1px;
 	padding-top: 15px;
-	padding-bottom: 15px
-	/*padding-left: 40px;*/
+	padding-bottom: 15px;
 }
 
-
-/* customizations for the dashboard */
-.postbox .SimpleHistoryLogitems {
-	border: none;
-}
-
-.postbox .SimpleHistoryLogitem {
-	/*padding-top: 10px;
-	padding-bottom: 10px;*/
-}
-
-#simple_history_dashboard_widget .inside {
-	padding: 0;
-	margin-top: 0;
-}
-
-.postbox .SimpleHistoryLogitem__text {
-	font-size: 1em;
-}
 
 /*
-.postbox .SimpleHistoryLogitem__details {
-	display: none;
-}
+customizations for the dashboard 
+i.e. the log is inside a .postbox element
 */
+
+.postbox {
+}
+	.postbox .SimpleHistoryLogitems {
+		border: none;
+	}
+
+	.postbox .inside {
+		padding: 0;
+		margin-top: 0;
+	}
+
+	.postbox .SimpleHistoryLogitem {
+		padding: 12px 5px 12px 16px;
+	}
+
+	.postbox .SimpleHistoryLogitem:first-child {
+		padding-top: 0;
+	}
+
+	.postbox .SimpleHistoryLogitem::before {
+		left: 55px;
+	}
+
+	.postbox .SimpleHistoryLogitem__senderImage {
+		width: 24px;
+		height: 24px;;
+	}
+
+	.postbox .SimpleHistoryLogitem__secondcol {
+		margin-left: 40px;
+	}
+
+	.postbox .SimpleHistoryLogitem__text {
+		font-size: 1em;
+	}
+
+	.postbox .SimpleHistoryLogitem__details p {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+
+	.postbox .SimpleHistoryLogitem__text, 
+	.postbox .SimpleHistoryLogitem__details, 
+	.postbox .SimpleHistoryLogitem__details p {
+		line-height: 1.1;
+	}
+
+	/*
+	.postbox .SimpleHistoryLogitem__details {
+		display: none;
+	}
+	*/
 
 /* // end dashboard */
 
@@ -759,6 +793,7 @@ Modal window with detailss
 	font-size: 24px;
 	line-height: 30px;
 	width: 24px;
+	color: rgb(63, 147, 73);
 }
 
 /* if not hits when using filter function */

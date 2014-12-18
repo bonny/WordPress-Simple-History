@@ -679,7 +679,7 @@ class SimpleHistory {
 		
 		if ( $this->setting_show_on_dashboard() && current_user_can($this->view_history_capability) ) {
 		
-			wp_add_dashboard_widget("simple_history_dashboard_widget", __("History", 'simple-history'), array($this, "dashboard_widget_output"));
+			wp_add_dashboard_widget("simple_history_dashboard_widget", __("Simple History", 'simple-history'), array($this, "dashboard_widget_output"));
 			
 		}
 	}

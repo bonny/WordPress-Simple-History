@@ -107,6 +107,7 @@ initiated by a specific user.
 = 2.0.x (November 2014) =
 
 - Fix undefined variable in plugin logger. Fixes https://wordpress.org/support/topic/simple-history-201-is-not-working?replies=8#post-6343684.
+- Made the dashboard smaller Misc small GUI changes
 
 = 2.0.4 (November 2014) =
 
