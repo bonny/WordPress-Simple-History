@@ -104,6 +104,10 @@ initiated by a specific user.
 
 == Changelog ==
 
+= 2.0.x (November 2014) =
+
+- Fix undefined variable in plugin logger. Fixes https://wordpress.org/support/topic/simple-history-201-is-not-working?replies=8#post-6343684.
+
 = 2.0.4 (November 2014) =
 
 - Make messages for manually updated plugins and bulk updated plugins more similar
