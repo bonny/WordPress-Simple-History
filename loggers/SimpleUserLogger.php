@@ -88,10 +88,63 @@ class SimpleUserLogger extends SimpleLogger
 		// User is created
 		add_action("user_register", array($this, "on_user_register"), 10, 2);		
 
-		// user is deleted
+		// User is deleted
 		add_action( 'delete_user', array($this, "on_delete_user"), 10, 2 );
 
+		// User sessions is destroyed. AJAX call that we hook onto early.
+		add_action("wp_ajax_destroy-sessions", array($this, "on_destroy_user_session"), 0);
+
 	}
+
+		
+	/**
+	 * Called when user dessions are destroyed from admin
+	 * Can be called for current logged in user = destroy all other sessions
+	 * or for another user = destroy alla sessions for that user
+	 * Fires from AJAX call
+	 */
+	// SimpleLogger()->info("Testar");
+	function on_destroy_user_session() {
+		
+		/*
+		Post params:
+			nonce: a14df12195
+			user_id: 1
+			action: destroy-sessions
+		*/
+
+		$user = get_userdata( (int) $_POST['user_id'] );
+		
+		if ( $user ) {
+			if ( ! current_user_can( 'edit_user', $user->ID ) ) {
+				$user = false;
+			} elseif ( ! wp_verify_nonce( $_POST['nonce'], 'update-user_' . $user->ID ) ) {
+				$user = false;
+			}
+		}
+
+		if ( ! $user ) {
+			// Could not log out user sessions. Please try again.
+			return;
+		}
+
+		$sessions = WP_Session_Tokens::get_instance( $user->ID );
+
+		if ( $user->ID === get_current_user_id() ) {
+			#$message = __( 'You are now logged out everywhere else.' );
+			//$sessions->destroy_others( wp_get_session_token() );
+			SimpleLogger()->info("Logged out everywhere except on current computer and browser");
+		} else {
+			//$sessions->destroy_all();
+			SimpleLogger()->info("Logged out everywhere");
+			#$message = sprintf( __( '%s has been logged out.' ), $user->display_name );
+		}
+
+	}
+	
+	/*
+	update_user_meta( $this->user_id, 'session_tokens', $sessions );
+	*/
 
 	/**
 	 * Fires before a user is deleted from the database.
