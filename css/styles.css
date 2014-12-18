@@ -475,13 +475,23 @@ i.e. the log is inside a .postbox element
 
 .postbox {
 }
-	.postbox .SimpleHistoryLogitems {
-		border: none;
-	}
-
-	.postbox .inside {
+	#simple_history_dashboard_widget .inside {
 		padding: 0;
 		margin-top: 0;
+	}
+
+	.postbox .SimpleHistoryQuickStats {
+		margin-left: 13px;
+		margin-right: 13px;
+		font-size: 14px;
+	}
+
+	.postbox .SimpleHistoryQuickStats p {
+		font-size: 14px;
+	}
+
+	.postbox .SimpleHistoryLogitems {
+		border: none;
 	}
 
 	.postbox .SimpleHistoryLogitem {
@@ -773,19 +783,14 @@ Modal window with detailss
 	font-size: 16px;
 }
 
+.SimpleHistoryQuickStats p {
+	line-height: 1;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
 .SimpleHistoryQuickStats a {
 	text-decoration: none;
-}
-
-/* in dashboard add margin and smaller fonts */
-.postbox .SimpleHistoryQuickStats {
-	margin-left: 13px;
-	margin-right: 13px;
-	font-size: 14px;
-}
-
-.postbox .SimpleHistoryQuickStats p {
-	font-size: 14px;
 }
 
 /* icon on log page*/
