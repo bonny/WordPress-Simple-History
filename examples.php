@@ -10,6 +10,11 @@ exit;
 // Never clear the log (default is 60 days)
 add_filter("simple_history/db_purge_days_interval", "__return_zero");
 
+// Don't let anyone - even with the correct secret - view the RSS feed
+add_filter("simple_history/rss_feed_show", "__return_false");
+
+// Skip loading of a dropin completely (in this case the RSS dropin)
+add_filter("simple_history/dropin/load_dropin_SimpleHistoryRSSDropin", "__return_false");
 
 /**
  * Example of logging

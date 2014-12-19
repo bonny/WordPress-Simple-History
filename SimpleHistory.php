@@ -596,11 +596,29 @@ class SimpleHistory {
 		
 		$arrDropinsToInstantiate = array();
 
-		foreach ( $dropinsFiles as $oneDropinFile) {
-		
+		foreach ( $dropinsFiles as $oneDropinFile ) {
+			
+			// path/path/simplehistory/dropins/SimpleHistoryDonateDropin.php => SimpleHistoryDonateDropin
+			$oneDropinFileBasename = basename($oneDropinFile, ".php");
+
+			/**
+			 * Filter to completely skip loading of dropin
+			 * complete filer name will be like:
+			 * simple_history/dropin/load_dropin_SimpleHistoryRSSDropin
+			 *
+			 * @since 2.0.6
+			 *
+			 * @param bool if to load the dropin. return false to not load it.
+			 */
+			$load_dropin = apply_filters( "simple_history/dropin/load_dropin_{$oneDropinFileBasename}", true );
+
+			if ( ! $load_dropin ) {
+				continue;
+			}
+
 			include_once($oneDropinFile);
 
-			$arrDropinsToInstantiate[] = basename($oneDropinFile, ".php");
+			$arrDropinsToInstantiate[] = $oneDropinFileBasename;
 		
 		}
 
