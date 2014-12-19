@@ -28,6 +28,22 @@ class SimpleUserLogger extends SimpleLogger
 				'user_updated_profile' => __("Edited the profile for user {edited_user_login} ({edited_user_email})", "simple-history"),
 				'user_created' => __("Created user {created_user_login} ({created_user_email}) with role {created_user_role}", "simple-history"),
 				'user_deleted' => __("Deleted user {deleted_user_login} ({deleted_user_email})", "simple-history"),
+
+				/*
+				@TODO: 
+				- when logging out all sessions for a user we must save the user so we know who we logged out
+				- make it more clear that it's the "clear session"-thingie
+				*/
+				'user_session_destroy_others' => _x(
+					'Logged out everywhere except on current computer and browser', 
+					'User destroys other login sessions',
+					'simple-history'
+				),
+				'user_session_destroy_everywhere' => _x(
+					'Logged out everywhere', 
+					'User destroys all login sessions for a user',
+					'simple-history'
+				),
 			),
 
 			"labels" => array(
@@ -132,10 +148,10 @@ class SimpleUserLogger extends SimpleLogger
 		if ( $user->ID === get_current_user_id() ) {
 			#$message = __( 'You are now logged out everywhere else.' );
 			//$sessions->destroy_others( wp_get_session_token() );
-			SimpleLogger()->info("Logged out everywhere except on current computer and browser");
+			$this->infoMessage("user_session_destroy_others");
 		} else {
 			//$sessions->destroy_all();
-			SimpleLogger()->info("Logged out everywhere");
+			$this->infoMessage("user_session_destroy_everywhere");
 			#$message = sprintf( __( '%s has been logged out.' ), $user->display_name );
 		}
 
