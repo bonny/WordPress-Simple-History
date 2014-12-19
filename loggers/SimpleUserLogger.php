@@ -103,7 +103,6 @@ class SimpleUserLogger extends SimpleLogger
 	 * or for another user = destroy alla sessions for that user
 	 * Fires from AJAX call
 	 */
-	// SimpleLogger()->info("Testar");
 	function on_destroy_user_session() {
 		
 		/*
