@@ -1,6 +1,7 @@
 <?php
 /**
  * File that is run during plugin uninstall (not just de-activate)
+ * @TODO: delete all tables in network if on multisite
  */
 
 // If uninstall not called from WordPress exit

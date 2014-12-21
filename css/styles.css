@@ -1,0 +1,823 @@
+
+/*
+
+The spinner that wp uses:;
+/wp-includes/images/spinner.gif
+
+*/
+
+/* clearfix */
+.SimpleHistory__cf:before, .SimpleHistory__cf:after { content:""; display:table; }
+.SimpleHistory__cf:after { clear:both; }
+.SimpleHistory__cf { zoom:1; } /* For IE 6/7 (trigger hasLayout) */
+
+.SimpleHistoryGui, 
+.SimpleHistoryGuiExample {
+	position: relative;
+	/* must have a height so "loading..." will be visible in dashboard */
+	min-height: 6em;
+}
+
+.SimpleHistory__waitingForFirstLoad {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+}
+
+.SimpleHistory__waitingForFirstLoad img {
+	vertical-align: text-bottom;
+}
+
+.SimpleHistory__waitingForFirstLoad--isLoaded {
+	display: none;
+}
+
+/* wrap around the log items and the pagination */
+.SimpleHistoryLogitemsWrap {
+	transition: opacity .1s ease-out;
+}
+
+/* on it's own page */
+/*.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {*/
+.dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
+	/*float: left;*/
+	position: relative;
+	margin-right: 340px;
+	min-height: 200px;
+	background-color: rgba(255,255,255,.75);
+}
+
+.SimpleHistory--isLoaded.dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
+	background-color: transparent;
+}
+
+.dashboard_page_simple_history_page .SimpleHistoryGui {
+	width: 100%;
+	float: left;background: tran
+}
+
+/*
+.SimpleHistoryGui:after {
+	content: "\f206";
+	font-family: dashicons;
+	font-size: 510px;
+	position: relative;
+	line-height: 1;
+	color: #ddd;
+	z-index: 0;
+}
+
+.SimpleHistory--isLoaded .SimpleHistoryGui:after {
+	display: none;
+}
+*/
+
+.SimpleHistory__filters {
+	float: right;
+	width: 300px;
+	margin-right: -340px;
+	/* hide by default while log is loading */
+	opacity: 0;
+	transition: all .25s ease-out;
+}
+
+.SimpleHistory--isLoaded .SimpleHistory__filters {
+	opacity: 1;
+}
+
+
+.SimpleHistoryLogitems {
+	margin: 0;
+	background: #fff;
+	border: 1px solid rgb(229, 229, 229);
+	opacity: 0;
+	transition: all .25s ease-out;
+}
+
+.SimpleHistory--isLoaded .SimpleHistoryLogitems,
+.SimpleHistoryGuiExample .SimpleHistoryLogitems {
+	opacity: 1;
+}
+
+
+
+/**
+ * Log items
+ * There is always a 4px left border, just with differents colors 
+ */
+.SimpleHistoryLogitem {
+	position: relative;
+	list-style-type: none;
+	margin: 0;
+	padding: 20px 20px 20px 16px;
+	/*border-bottom: 1px solid rgb(229, 229, 229);*/
+	
+	/* uncomment to show border with log color */
+	/*border-left: 4px solid transparent;*/
+
+	overflow: hidden;
+}
+
+/* add border below items */
+.SimpleHistoryLogitem::before {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 66px;
+	height: 1px;
+	right: 0;
+	background: rgb(229, 229, 229);
+}
+
+.SimpleHistoryLogitem:last-of-type:before {
+	background: none;
+}
+
+/*
+Style different log levels.
+*/
+
+ .SimpleHistoryLogitem--logleveltag {
+	display: inline-block;
+	background-color: rgba(238, 238, 238, 1);
+	font-size: 10px;
+	padding: 3px 4px;
+	border-radius: 3px;
+	/*opacity: .75;*/
+	vertical-align: 1px;
+	line-height: 1;
+}
+
+
+.SimpleHistoryLogitem--loglevel-debug {
+	border-left-color: #CEF6D8;
+}
+.SimpleHistoryLogitem--logleveltag-debug {
+	background-color: #CEF6D8;
+	color: #111;
+}
+
+
+.SimpleHistoryLogitem--loglevel-info {
+	border-left-color: white;
+}
+.SimpleHistoryLogitem--logleveltag-info {
+	display: none;
+}
+
+.SimpleHistoryLogitem--loglevel-notice {
+	border-left-color: #FFFFE0;
+	border-left-color: rgb(219, 219, 183);
+}
+.SimpleHistoryLogitem--logleveltag-notice {
+	background-color: rgb(219, 219, 183);
+	color: #111
+}
+
+.SimpleHistoryLogitem--loglevel-warning {
+	border-left-color: #F7D358;
+}
+ .SimpleHistoryLogitem--logleveltag-warning {
+ 	background-color: #F7D358;
+ 	color: #111;
+ }
+
+
+.SimpleHistoryLogitem--loglevel-error {
+	border-left-color: #F79F81;
+}
+.SimpleHistoryLogitem--logleveltag-error {
+	background-color: #F79F81;
+	color: #000;
+}
+
+
+.SimpleHistoryLogitem--loglevel-critical {
+	border-left-color: #FA5858;
+}
+.SimpleHistoryLogitem--logleveltag-critical {
+	background-color: #FA5858;
+	color: #fff;
+}
+
+.SimpleHistoryLogitem--loglevel-alert {
+	border-left-color: rgb(199, 69, 69);
+}
+.SimpleHistoryLogitem--logleveltag-alert {
+	background-color: rgb(199, 69, 69);
+	color: #eee;
+}
+
+.SimpleHistoryLogitem--loglevel-emergency {
+	border-left-color: #610B0B;
+	border-left-color: #DF0101;
+}
+.SimpleHistoryLogitem--logleveltag-emergency {
+	background-color: #610B0B;
+	background-color: #DF0101;
+	color: #eee;
+}
+
+.SimpleHistoryLogitem:hover {
+	/* same bg color as twitter uses on hover */
+	/*background: rgb(245, 248, 250);*/
+}
+
+.SimpleHistoryLogitem a {
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem a:hover {
+	text-decoration: underline;
+}
+
+.SimpleHistoryLogitem__firstcol {
+	float: left;
+}
+
+.SimpleHistoryLogitem__senderImage {
+	border-radius: 50%;
+	overflow: hidden;
+	/*opacity: .8;*/
+	margin-top: 5px;
+}
+
+.SimpleHistoryLogitem:hover .SimpleHistoryLogitem__senderImage {
+	/*opacity: 1;*/
+}
+
+.SimpleHistoryLogitem__senderImage img {
+	display: block;
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.SimpleHistoryLogitem__secondcol {
+	margin-left: 50px;
+}
+
+.SimpleHistoryLogitem__header {
+	line-height: 1.2;
+	margin-top: 2px;
+}
+
+.SimpleHistoryLogitem__header,
+/*.SimpleHistoryLogitem__header time,*/
+.SimpleHistoryLogitem__headerEmail {
+	color: rgb(137, 143, 156);
+}
+
+.SimpleHistoryLogitem__text,
+.SimpleHistoryLogitem__details,
+.SimpleHistoryLogitem__details p {
+	xfont-size: 16px;
+	line-height: 1.4;
+}
+
+.SimpleHistoryLogitem__text {
+	margin-top: 0.4em;
+	font-size: 15px;
+	color: #333;
+}
+
+.SimpleHistoryLogitem__details p {
+	margin-top: .4em;
+	margin-bottom: .4em;
+}
+
+.SimpleHistoryLogitem__occasions {
+	color: rgb(137, 143, 156);
+	margin-top: 0.4em;
+	line-height: 1;
+	max-height: 1em;
+}
+
+.SimpleHistoryLogitem__details {
+	margin-top: 0.4em;
+}
+
+/* make video embeds responsive */
+.SimpleHistoryLogitem__details .wp-video {
+	max-width: 100%;
+}
+
+/*.SimpleHistoryLogitem__details .wp-video-shortcode {
+
+}*/
+
+/* table with keys and values */
+/*.SimpleHistoryLogitem__keyValueTable {
+	
+}*/
+
+.SimpleHistoryLogitem__keyValueTable th,
+.SimpleHistoryLogitem__keyValueTable td {
+	vertical-align: top;
+	word-break: break-word;
+}
+
+.SimpleHistoryLogitem__keyValueTable tr > td:first-child {
+	text-align: right;
+	/*font-weight: bold;*/
+	padding-right: 1em;
+	color: #aaa;
+	white-space: nowrap;
+}
+
+.SimpleHistoryLogitem__keyValueTable p {
+	margin: 0;
+}
+
+
+
+/* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
+.SimpleHistoryLogitem__inlineDivided {
+	white-space: nowrap;
+}
+
+.SimpleHistoryLogitem__inlineDivided em {
+	color: rgb(119, 119, 119);
+	font-style: normal;
+}
+
+.SimpleHistoryLogitem__inlineDivided:before {
+	/* \b7 = middot, \a0 = space */
+	/*content: '\a0\b7\a0\a0';*/
+	content: '\b7\a0';
+	/* \2022 = bullet */
+	/*content: '\a0\a0\2022\a0\a0';*/
+	color: rgb(137, 143, 156);
+}
+
+.SimpleHistoryLogitem__inlineDivided:first-child:before {
+	content: '';
+}
+
+/*
+Images/thumbs can be styles nicely
+*/
+.SimpleHistoryLogitemThumbnail {
+				display: inline-block;
+				margin: .5em 0 0 0;
+					padding: 5px;
+				border: 1px solid #ddd;
+				border-radius: 2px;
+
+}
+
+.SimpleHistoryLogitemThumbnail img {
+				/*
+				photoshop-like background that represents tranpsarency
+				so user can see that an image have transparency
+				*/
+				display: block;
+				background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
+				max-width: 100%;
+				max-height: 300px;
+				max-height: 200px;
+				height: auto;
+}
+
+
+/*
+when occasions are added
+*/
+.SimpleHistoryLogitem--occasionsOpened {
+	/*box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
+	z-index: 1;*/
+}
+
+/* remove border below */
+.SimpleHistoryLogitem--occasionsOpened::before {
+	opacity: 0;
+}
+
+/* when occasions is loaded and have loaded hide the "show occasions"-link*/
+.SimpleHistoryLogitem--occasionsOpening .SimpleHistoryLogitem__occasionsLink,
+.SimpleHistoryLogitem--occasionsOpened .SimpleHistoryLogitem__occasionsLink {
+	display: none;
+}
+
+/* hide the "loading" and "loaded occasions" text */
+.SimpleHistoryLogitem__occasionsLoading,
+.SimpleHistoryLogitem__occasionsLoaded {
+	display: none;
+}
+
+/* show texts during load and when load is done */
+.SimpleHistoryLogitem--occasionsOpening .SimpleHistoryLogitem__occasionsLoading,
+.SimpleHistoryLogitem--occasionsOpened .SimpleHistoryLogitem__occasionsLoaded {
+	display: block;
+}
+
+/* occasions are added to a wrapper element */
+.SimpleHistoryLogitem__occasionsItemsWrap {
+	margin: 0;
+	padding: 0;
+}
+
+.SimpleHistoryLogitem__occasionsItems {
+	opacity: 0;
+	max-height: 0;
+	transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s, margin .25s .0s ease-out;
+	background-color: white;
+	box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
+}
+
+.SimpleHistoryLogitem__occasionsItems.haveOccasionsAdded {
+	opacity: 1;
+	max-height: 2000px;
+	margin-left: -5px;
+	margin-right: -5px;;
+}
+
+/*
+
+.SimpleHistoryLogitem--occasion {
+	opacity: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	max-height: 0;
+	border-top-width : 0;
+	border-bottom-width : 0;
+}
+*/
+
+/*
+.SimpleHistoryLogitem--occasionsOpened:after,
+.SimpleHistoryLogitem--occasion:after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	bottom: 3px;
+	left: 20px;
+	width: 2px;
+	background: rgba(0,0,0,0.3);
+	border-radius: 3px / 7px;
+}
+*/
+
+/* when the occasions log rows have been added show them in some kinda fancy way */
+.SimpleHistoryLogitem--occasionAdded {
+	max-height: 1000px;
+	opacity: 1;
+	border-top-width : 1px;
+	border-bottom-width : 1px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+
+/*
+customizations for the dashboard 
+i.e. the log is inside a .postbox element
+*/
+
+.postbox {
+}
+	#simple_history_dashboard_widget .inside {
+		padding: 0;
+		margin-top: 0;
+	}
+
+	.postbox .SimpleHistoryQuickStats {
+		margin-left: 13px;
+		margin-right: 13px;
+		font-size: 14px;
+	}
+
+	.postbox .SimpleHistoryQuickStats p {
+		font-size: 14px;
+	}
+
+	.postbox .SimpleHistoryLogitems {
+		border: none;
+	}
+
+	.postbox .SimpleHistoryLogitem {
+		padding: 12px 5px 12px 16px;
+	}
+
+	.postbox .SimpleHistoryLogitem:first-child {
+		padding-top: 0;
+	}
+
+	.postbox .SimpleHistoryLogitem::before {
+		left: 55px;
+	}
+
+	.postbox .SimpleHistoryLogitem__senderImage {
+		width: 24px;
+		height: 24px;;
+	}
+
+	.postbox .SimpleHistoryLogitem__secondcol {
+		margin-left: 40px;
+	}
+
+	.postbox .SimpleHistoryLogitem__text {
+		font-size: 1em;
+	}
+
+	.postbox .SimpleHistoryLogitem__details p {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+
+	.postbox .SimpleHistoryLogitem__text, 
+	.postbox .SimpleHistoryLogitem__details, 
+	.postbox .SimpleHistoryLogitem__details p {
+		line-height: 1.1;
+	}
+
+	/*
+	.postbox .SimpleHistoryLogitem__details {
+		display: none;
+	}
+	*/
+
+/* // end dashboard */
+
+
+
+/*
+Styles for filter
+*/
+/*.simple-history-filters {
+	float: left;
+	width: 400px;
+	margin-left: 50px;
+}
+*/
+
+.SimpleHistoryLogitems__debug {
+	font-family: monospace;
+	white-space: pre;
+}
+
+/*
+Pagination, below logRows
+*/
+
+.SimpleHistoryLogitems__pagination {}
+
+.SimpleHistoryPaginationPages {
+	text-align: center;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	background: white;
+}
+
+.postbox .SimpleHistoryPaginationPages {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.SimpleHistoryPaginationLink.SimpleHistoryPaginationLink {
+	/*line-height: 30px;*/
+	/*background: rgb(238, 238, 238);*/
+	/*background: rgba(0, 0, 0, 0.05);*/
+	/*padding: 0 10px 3px;
+	text-decoration: none;*/
+	font-size: 16px;
+}
+
+.SimpleHistoryPaginationLink.SimpleHistoryPaginationLink:hover {
+	color: rgb(255, 255, 255);
+	background: rgb(46, 162, 204);
+}
+
+.SimpleHistoryPaginationLink.SimpleHistoryPaginationLink.disabled {
+	color: rgb(170, 170, 170);
+	background: rgb(238, 238, 238);
+	background: rgba(0, 0, 0, 0.05);
+	cursor: default;
+}
+
+.SimpleHistoryPaginationCurrentPage {
+	/*padding-top: 0;*/
+	text-align: center;
+}
+
+/*
+animations/effects
+*/
+.SimpleHistory-isLoadingPage .SimpleHistoryLogitemsWrap {
+	opacity: .5;
+}
+
+/*
+Modal window with detailss
+*/
+.SimpleHistory-modal {
+}
+
+
+.SimpleHistory-modal__background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.2);
+	z-index: 10;
+}
+
+.SimpleHistory-modal__content {
+	background: white;
+	border-radius: 4px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	bottom: 60px;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+	left: 280px; /* admin meny width is 160 px*/
+	position: fixed;
+	overflow: auto;
+	right: 120px;
+	top: 60px;
+	z-index: 15;
+}
+
+.SimpleHistory-modal__contentInner {
+	padding: 15px;
+}
+
+.SimpleHistory-modal__contentSpinner {
+	margin-left: 20px;
+	margin-top: 20px;
+}
+
+.SimpleHistory-modal__contentClose {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+}
+
+.SimpleHistory-modal__contentClose button {
+	cursor: pointer;
+}
+
+/* if wp left meny is collapsed .folded is added and meny width is 36 px */
+.folded .SimpleHistory-modal__content {
+	left: 156px /* admin meny width is 160 px*/
+}
+@media only screen and (max-width: 900px) {
+	.SimpleHistory-modal__content {
+		left: 156px /* admin meny width is 160 px*/
+	}
+}
+
+
+
+.SimpleHistory-modal__content--enter {
+	transition: all .15s ease-out;
+	-webkit-transform: scale(0.95);
+			transform: scale(0.95);
+	opacity: 0;
+}
+
+.SimpleHistory-modal__content--enter-active {
+	opacity: 1;
+	-webkit-transform: scale(1);
+			transform: scale(1);
+}
+
+.SimpleHistory-modal__content--leave-active {
+	opacity: 0;
+	-webkit-transform: scale(0.95);
+			transform: scale(0.95);
+}
+
+.SimpleHistory-modal__leave-active {
+	transition: all .15s .15s ease-out, visibility 0s .30s;
+
+	opacity: 0;
+	visibility: hidden;
+}
+
+.admin-bar .SimpleHistory-modal__content {
+	top: 92px /* admin bar height is 32 px*/
+}
+
+/* style the logRow a bit more when shown in modal */
+.SimpleHistory-modal  .SimpleHistoryLogitem__header {
+	font-size: 16px;
+}
+
+.SimpleHistory-modal .SimpleHistoryLogitem__text,
+.SimpleHistory-modal .SimpleHistoryLogitem__details,
+.SimpleHistory-modal .SimpleHistoryLogitem__details p,
+.SimpleHistory-modal .SimpleHistoryLogitem__moreDetails,
+.SimpleHistory-modal .SimpleHistoryLogitem__moreDetails p {
+	font-size: 18px;
+}
+
+.SimpleHistory-modal .SimpleHistoryLogitem:hover {
+	background: inherit;
+}
+
+.SimpleHistory-modal .SimpleHistoryLogitem__senderImage {
+	/*opacity: 1;*/
+}
+
+.SimpleHistoryLogitem__moreDetails {
+	border-top: 1px solid rgb(229, 229, 229);
+	margin-top: 20px;
+}
+
+.SimpleHistoryLogitem__moreDetailsHeadline {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 0;
+	margin-top: 20px;
+	margin-bottom: 0;
+}
+
+.SimpleHistory-modal .SimpleHistoryLogitem__moreDetails p {
+	font-size: 14px;
+}
+
+.SimpleHistoryLogitem__moreDetailsContext {
+	font-family: monospace;
+	white-space: pre-line;
+	font-size: 12px;
+	border-collapse: collapse;
+}
+
+.SimpleHistoryLogitem__moreDetailsContext th,
+.SimpleHistoryLogitem__moreDetailsContext td {
+	padding: 4px;
+	padding-right: 20px;
+}
+
+.SimpleHistoryLogitem__moreDetailsContext tr:nth-child(odd) {
+	background-color: #eee;
+}
+
+.SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__secondcol,
+.SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .SimpleHistoryLogitem__secondcol {
+	margin-left: 0;
+}
+
+/** wordpress as initiator = add wordpress icon */
+/** anonymous user as initiator = plain user image */
+.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
+	display: inline-block;
+	-webkit-font-smoothing: antialiased;
+	font: normal 32px/1 'dashicons';
+	vertical-align: top;
+	color: #999;
+}
+
+.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before {
+	content: "\f120";
+}
+
+.SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
+	content: "\f110";
+}
+
+/** quick stats = stats above log gui */
+.SimpleHistoryQuickStats,
+.SimpleHistoryQuickStats p {
+	font-size: 16px;
+}
+
+.SimpleHistoryQuickStats p {
+	line-height: 1;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.SimpleHistoryQuickStats a {
+	text-decoration: none;
+}
+
+/* icon on log page*/
+.SimpleHistoryPageHeadline__icon {
+	font-size: 24px;
+	line-height: 30px;
+	width: 24px;
+	color: rgb(63, 147, 73);
+}
+
+/* if not hits when using filter function */
+.SimpleHistory--hasNoHits {
+}
+
+.SimpleHistory--hasNoHits .SimpleHistoryLogitems__pagination {
+	display: none;
+}
+
+.SimpleHistory--hasNoHits .SimpleHistoryLogitems {
+	display: none;
+}
+
+.SimpleHistoryLogitems__noHits {
+	display: none;
+}
+
+.SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
+	display: block;
+}
+
