@@ -6,7 +6,7 @@
 class SimpleHistory {
 
 	const NAME = "Simple History";
-	const VERSION = "2.0.5";
+	const VERSION = "2.0.6";
 
 	/**
 	 * Capability required to view the history log
@@ -596,11 +596,29 @@ class SimpleHistory {
 		
 		$arrDropinsToInstantiate = array();
 
-		foreach ( $dropinsFiles as $oneDropinFile) {
-		
+		foreach ( $dropinsFiles as $oneDropinFile ) {
+			
+			// path/path/simplehistory/dropins/SimpleHistoryDonateDropin.php => SimpleHistoryDonateDropin
+			$oneDropinFileBasename = basename($oneDropinFile, ".php");
+
+			/**
+			 * Filter to completely skip loading of dropin
+			 * complete filer name will be like:
+			 * simple_history/dropin/load_dropin_SimpleHistoryRSSDropin
+			 *
+			 * @since 2.0.6
+			 *
+			 * @param bool if to load the dropin. return false to not load it.
+			 */
+			$load_dropin = apply_filters( "simple_history/dropin/load_dropin_{$oneDropinFileBasename}", true );
+
+			if ( ! $load_dropin ) {
+				continue;
+			}
+
 			include_once($oneDropinFile);
 
-			$arrDropinsToInstantiate[] = basename($oneDropinFile, ".php");
+			$arrDropinsToInstantiate[] = $oneDropinFileBasename;
 		
 		}
 
@@ -1311,86 +1329,6 @@ class SimpleHistory {
 		<?php
 
 	}
-
-	/**
-	 * Get history from ajax
-	 */
-	/*
-	function ajax() {
-	
-		global $simple_history;
-	
-		$type = isset($_POST["type"]) ? $_POST["type"] : "";
-		$subtype = isset($_POST["subtype"]) ? $_POST["subtype"] : "";
-	
-		// We get users by username, so get username from id
-		$user_id = (int) $_POST["user_id"];
-		if (empty($user_id)) {
-			$user = "";
-		} else {
-			$user_obj = new WP_User($user_id);
-			if ( ! $user_obj->exists() ) exit;
-			$user = $user_obj->user_login;
-		};
-
-		// page to show. 1 = first page.
-		$page = 0;
-		if (isset($_POST["page"])) {
-			$page = (int) $_POST["page"];
-		}
-	
-		// number of items to get
-		$items = (int) (isset($_POST["items"])) ? $_POST["items"] : $simple_history->get_pager_size();
-
-		// number of prev added items = number of items to skip before starting to add $items num of new items
-		$num_added = (int) (isset($_POST["num_added"])) ? $_POST["num_added"] : $simple_history->get_pager_size();
-	
-		$search = (isset($_POST["search"])) ? $_POST["search"] : "";
-	
-		$filter_type = $type . "/" . $subtype;
-
-		$args = array(
-			"is_ajax" => true,
-			"filter_type" => $filter_type,
-			"filter_user" => $user,
-			"page" => $page,
-			"items" => $items,
-			"num_added" => $num_added,
-			"search" => $search 
-		);
-		
-		$arr_json = array(
-			"status" => "ok",
-			"error"	=> "",
-			"items_li" => "",
-			"filtered_items_total_count" => 0,
-			"filtered_items_total_count_string" => "",
-			"filtered_items_total_pages" => 0
-		);
-		
-		// ob_start();
-		$return = simple_history_print_history($args);
-		// $return = ob_get_clean();
-		if ("noMoreItems" == $return) {
-			$arr_json["status"] = "error";
-			$arr_json["error"] = "noMoreItems";
-		} else {
-			$arr_json["items_li"] = $return;
-			// total number of event. really bad way since we get them all again. need to fix this :/
-			$args["items"] = "all";
-			$all_items = simple_history_get_items_array($args);
-			$arr_json["filtered_items_total_count"] = sizeof($all_items);
-			$arr_json["filtered_items_total_count_string"] = sprintf(_n('One item', '%1$d items', sizeof($all_items), "simple-history"), sizeof($all_items));
-			$arr_json["filtered_items_total_pages"] = ceil($arr_json["filtered_items_total_count"] / $simple_history->get_pager_size());
-		}
-		
-		header("Content-type: application/json");
-		echo json_encode($arr_json);
-		
-		exit;
-	
-	}
-	*/
 
 	/**
 	 * Get setting if plugin should be visible on dasboard. 
