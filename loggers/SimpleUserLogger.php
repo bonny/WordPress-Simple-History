@@ -34,13 +34,22 @@ class SimpleUserLogger extends SimpleLogger
 				- when logging out all sessions for a user we must save the user so we know who we logged out
 				- make it more clear that it's the "clear session"-thingie
 				*/
+				/*
+				Text used in admin:
+				Log Out of All Other Sessions
+				Left your account logged in at a public computer? Lost your phone? This will log you out everywhere except your current browser
+				*/
 				'user_session_destroy_others' => _x(
-					'Logged out everywhere except on current computer and browser', 
-					'User destroys other login sessions',
+					'Logged out from all other sessions', 
+					'User destroys other login sessions for themself',
 					'simple-history'
 				),
+				/*
+				Text used in admin:
+				'Log %s out of all sessions' ), $profileuser->display_name );
+				*/
 				'user_session_destroy_everywhere' => _x(
-					'Logged out everywhere', 
+					'Logged out "{user_display_name}" from all sessions', 
 					'User destroys all login sessions for a user',
 					'simple-history'
 				),
@@ -118,6 +127,8 @@ class SimpleUserLogger extends SimpleLogger
 	 * Can be called for current logged in user = destroy all other sessions
 	 * or for another user = destroy alla sessions for that user
 	 * Fires from AJAX call
+	 *
+	 * @since 2.0.6
 	 */
 	function on_destroy_user_session() {
 		
@@ -145,22 +156,24 @@ class SimpleUserLogger extends SimpleLogger
 
 		$sessions = WP_Session_Tokens::get_instance( $user->ID );
 
+		$context = array();
+
 		if ( $user->ID === get_current_user_id() ) {
-			#$message = __( 'You are now logged out everywhere else.' );
-			//$sessions->destroy_others( wp_get_session_token() );
+
 			$this->infoMessage("user_session_destroy_others");
+
 		} else {
-			//$sessions->destroy_all();
-			$this->infoMessage("user_session_destroy_everywhere");
-			#$message = sprintf( __( '%s has been logged out.' ), $user->display_name );
+
+			$context["user_id"] = $user->ID;
+			$context["user_login"] = $user->user_login;
+			$context["user_display_name"] = $user->display_name;
+			
+			$this->infoMessage("user_session_destroy_everywhere", $context);
+
 		}
 
 	}
 	
-	/*
-	update_user_meta( $this->user_id, 'session_tokens', $sessions );
-	*/
-
 	/**
 	 * Fires before a user is deleted from the database.
 	 *
