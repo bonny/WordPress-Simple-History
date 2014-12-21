@@ -106,8 +106,11 @@ initiated by a specific user.
 
 = 2.0.6 (November 2014) =
 
-- Added: [WordPress 4.1 added the feature to log out a user from all their sessions](http://codex.wordpress.org/Version_4.1#Users). Simple History now logs when a user is logged out from all their sessions except the current browser, or if an admin destroys all sessions for a user.
+- Added: [WordPress 4.1 added the feature to log out a user from all their sessions](http://codex.wordpress.org/Version_4.1#Users). Simple History now logs when a user is logged out from all their sessions except the current browser, or if an admin destroys all sessions for a user.  
 ![Screenshot of new session logout log item](https://dl.dropboxusercontent.com/s/k4cmfmncekmfiib/2014-12-simple-history-changelog-user-sessions.png)
+
+- Added: filter to shortcut loading of a dropin. Example that completely skips loading the RSS-feed-dropin:
+`add_filter("simple_history/dropin/load_dropin_SimpleHistoryRSSDropin", "__return_false");`
 
 = 2.0.5 (November 2014) =
 
