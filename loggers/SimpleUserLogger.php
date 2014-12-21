@@ -10,16 +10,16 @@ class SimpleUserLogger extends SimpleLogger
 
 	/**
 	 * Get array with information about this logger
-	 * 
+	 *
 	 * @return array
 	 */
 	function getInfo() {
 
-		$arr_info = array(			
+		$arr_info = array(
 			"name" => "User Logger",
 			"description" => "Logs user logins, logouts, and failed logins",
 			"capability" => "edit_users",
-			"messages" => array(				
+			"messages" => array(
 				'user_login_failed' => __('Failed to login to account with username "{login_user_login}" because an incorrect password was entered', "simple-history"),
 				'user_unknown_login_failed' => __('Failed to login with username "{failed_login_username}" because no user with that username exist', "simple-history"),
 				'user_logged_in' => __('Logged in', "simple-history"),
@@ -30,17 +30,12 @@ class SimpleUserLogger extends SimpleLogger
 				'user_deleted' => __("Deleted user {deleted_user_login} ({deleted_user_email})", "simple-history"),
 
 				/*
-				@TODO: 
-				- when logging out all sessions for a user we must save the user so we know who we logged out
-				- make it more clear that it's the "clear session"-thingie
-				*/
-				/*
 				Text used in admin:
 				Log Out of All Other Sessions
 				Left your account logged in at a public computer? Lost your phone? This will log you out everywhere except your current browser
 				*/
 				'user_session_destroy_others' => _x(
-					'Logged out from all other sessions', 
+					'Logged out from all other sessions',
 					'User destroys other login sessions for themself',
 					'simple-history'
 				),
@@ -49,7 +44,7 @@ class SimpleUserLogger extends SimpleLogger
 				'Log %s out of all sessions' ), $profileuser->display_name );
 				*/
 				'user_session_destroy_everywhere' => _x(
-					'Logged out "{user_display_name}" from all sessions', 
+					'Logged out "{user_display_name}" from all sessions',
 					'User destroys all login sessions for a user',
 					'simple-history'
 				),
@@ -80,7 +75,7 @@ class SimpleUserLogger extends SimpleLogger
 						_x('User deletions',  'User logger: search', 'simple-history') => array(
 							"user_deleted"
 						)
-						
+
 					)
 				) // end search
 
@@ -111,7 +106,7 @@ class SimpleUserLogger extends SimpleLogger
 		add_action("profile_update", array($this, "on_profile_update"), 10, 2);
 
 		// User is created
-		add_action("user_register", array($this, "on_user_register"), 10, 2);		
+		add_action("user_register", array($this, "on_user_register"), 10, 2);
 
 		// User is deleted
 		add_action( 'delete_user', array($this, "on_delete_user"), 10, 2 );
@@ -121,7 +116,7 @@ class SimpleUserLogger extends SimpleLogger
 
 	}
 
-		
+
 	/**
 	 * Called when user dessions are destroyed from admin
 	 * Can be called for current logged in user = destroy all other sessions
@@ -131,7 +126,7 @@ class SimpleUserLogger extends SimpleLogger
 	 * @since 2.0.6
 	 */
 	function on_destroy_user_session() {
-		
+
 		/*
 		Post params:
 			nonce: a14df12195
@@ -140,7 +135,7 @@ class SimpleUserLogger extends SimpleLogger
 		*/
 
 		$user = get_userdata( (int) $_POST['user_id'] );
-		
+
 		if ( $user ) {
 			if ( ! current_user_can( 'edit_user', $user->ID ) ) {
 				$user = false;
@@ -167,13 +162,13 @@ class SimpleUserLogger extends SimpleLogger
 			$context["user_id"] = $user->ID;
 			$context["user_login"] = $user->user_login;
 			$context["user_display_name"] = $user->display_name;
-			
+
 			$this->infoMessage("user_session_destroy_everywhere", $context);
 
 		}
 
 	}
-	
+
 	/**
 	 * Fires before a user is deleted from the database.
 	 *
@@ -201,7 +196,7 @@ class SimpleUserLogger extends SimpleLogger
 		);
 
 		// Let's log this as a little bit more significant that just "message"
-		$this->noticeMessage("user_deleted", $context);	
+		$this->noticeMessage("user_deleted", $context);
 
 	}
 
@@ -211,7 +206,7 @@ class SimpleUserLogger extends SimpleLogger
 	public function getLogRowPlainTextOutput($row) {
 
 		$context = $row->context;
-		
+
 		$output = parent::getLogRowPlainTextOutput($row);
 		$current_user_id = get_current_user_id();
 
@@ -229,7 +224,7 @@ class SimpleUserLogger extends SimpleLogger
 
 					// User still exist, so link to their profile
 					if ( $current_user_id === $context["_user_id"] ) {
-						
+
 						// User that is viewing the log is the same as the edited user
 						$msg = __('Edited <a href="{edit_profile_link}">your profile</a>', "simple-history");
 
@@ -238,7 +233,7 @@ class SimpleUserLogger extends SimpleLogger
 						$msg = __('Edited <a href="{edit_profile_link}">their profile</a>', "simple-history");
 
 					}
-					
+
 					$output = $this->interpolate($msg, $context);
 
 				} else {
@@ -267,7 +262,7 @@ class SimpleUserLogger extends SimpleLogger
 			}
 
 		} // if user_updated_profile
-				
+
 		return $output;
 	}
 
@@ -282,7 +277,7 @@ class SimpleUserLogger extends SimpleLogger
 
 		// Only log failed attempts
 		if ( ! wp_check_password($password, $user->user_pass, $user->ID) ) {
-			
+
 			// Overwrite some vars that Simple History set automagically
 			$context = array(
 				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
@@ -310,7 +305,7 @@ class SimpleUserLogger extends SimpleLogger
 				$context["login_user_password"] = $password;
 			}
 
-			$this->warningMessage("user_login_failed", $context);		
+			$this->warningMessage("user_login_failed", $context);
 
 		}
 
@@ -344,12 +339,12 @@ class SimpleUserLogger extends SimpleLogger
 			$context["_user_email"] = $user->user_email;
 			$context["server_http_user_agent"] = $_SERVER["HTTP_USER_AGENT"];
 
-			$this->infoMessage("user_logged_in", $context);		
+			$this->infoMessage("user_logged_in", $context);
 
 		} else {
 
 			// when does this happen?
-			$this->warningMessage("user_unknown_logged_in", $context );		
+			$this->warningMessage("user_unknown_logged_in", $context );
 
 
 		}
@@ -370,7 +365,7 @@ class SimpleUserLogger extends SimpleLogger
 	 * User is edited
 	 */
 	function on_profile_update($user_id) {
-		
+
 		if ( ! $user_id || ! is_numeric($user_id))
 			return;
 
@@ -383,7 +378,7 @@ class SimpleUserLogger extends SimpleLogger
 			"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 		);
 
-		$this->infoMessage("user_updated_profile", $context);		
+		$this->infoMessage("user_updated_profile", $context);
 
 	}
 
@@ -391,7 +386,7 @@ class SimpleUserLogger extends SimpleLogger
 	 * User is created
 	 */
 	function on_user_register($user_id) {
-		
+
 		if ( ! $user_id || ! is_numeric($user_id))
 			return;
 
@@ -411,7 +406,7 @@ class SimpleUserLogger extends SimpleLogger
 			"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 		);
 
-		$this->infoMessage("user_created", $context);		
+		$this->infoMessage("user_created", $context);
 
 	}
 
@@ -424,18 +419,18 @@ class SimpleUserLogger extends SimpleLogger
 		if ( ! trim($username)) {
 			return $user;
 		}
-		
+
 		// If username is not a user in the system then this
 		// is consideraded a failed login attempt
 		$wp_user = get_user_by( "login", $username );
-		
+
 		if (false === $wp_user) {
 
 			$context = array(
 				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
 				"failed_login_username" => $username,
 				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
-				// count all failed logins to unknown users as the same occasions, 
+				// count all failed logins to unknown users as the same occasions,
 				// to prevent log being flooded with login/hack attempts
 				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__
 			);
@@ -454,7 +449,7 @@ class SimpleUserLogger extends SimpleLogger
 				$context["failed_login_password"] = $password;
 			}
 
-			$this->warningMessage("user_unknown_login_failed", $context);		
+			$this->warningMessage("user_unknown_login_failed", $context);
 
 		}
 
