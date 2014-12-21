@@ -104,6 +104,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Fix: use correct width for media attachment
+
 = 2.0.6 (November 2014) =
 
 - Added: [WordPress 4.1 added the feature to log out a user from all their sessions](http://codex.wordpress.org/Version_4.1#Users). Simple History now logs when a user is logged out from all their sessions except the current browser, or if an admin destroys all sessions for a user. [View screenshot of new session logout log item](https://dl.dropboxusercontent.com/s/k4cmfmncekmfiib/2014-12-simple-history-changelog-user-sessions.png)

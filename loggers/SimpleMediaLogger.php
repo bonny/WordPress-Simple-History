@@ -146,7 +146,7 @@ class SimpleMediaLogger extends SimpleLogger
 				if ( $full_image_width && $full_image_height ) {
 
 					$context["full_image_width"] = $full_image_width;
-					$context["full_image_height"] = $full_image_width;
+					$context["full_image_height"] = $full_image_height;
 					$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s"></div>', $thumb_src[0] );
 				
 				}
