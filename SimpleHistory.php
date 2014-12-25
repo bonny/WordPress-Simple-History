@@ -1729,9 +1729,9 @@ class SimpleHistory {
 
 		}
 
-		$class_sender = "";
-		if (isset($oneLogRow->initiator) && !empty($oneLogRow->initiator)) {
-			$class_sender .= "SimpleHistoryLogitem--initiator-" . esc_attr($oneLogRow->initiator);
+		$classes = array();
+		if ( isset( $oneLogRow->initiator ) && ! empty( $oneLogRow->initiator ) ) {
+			$classes[] = "SimpleHistoryLogitem--initiator-" . esc_attr($oneLogRow->initiator);
 		}
 
 		/*$level_html = sprintf(
@@ -1772,7 +1772,7 @@ class SimpleHistory {
 			$oneLogRow->logger, // 7
 			$data_attrs, // 8 data attributes
 			$more_details_html, // 9
-			$class_sender // 10
+			join(" ", $classes) // 10
 		);
 
 		// Get the main message row.
