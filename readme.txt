@@ -105,6 +105,7 @@ initiated by a specific user.
 == Changelog ==
 
 - Fix: use correct width for media attachment
+- Add: filter `simple_history/logrowhtmloutput/classes`, to modify HTML classes added to each log row item
 
 = 2.0.6 (November 2014) =
 
