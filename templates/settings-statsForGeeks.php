@@ -100,9 +100,9 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 	echo "
 		<thead>
 			<tr>
-				<th>Slug</th>
-				<th>Name</th>
+				<th>Name + Slug</th>
 				<th>Description</th>
+				<th>Messages</th>
 				<th>Capability</th>
 				<th>Rows count</th>
 			</tr>
@@ -143,23 +143,36 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 		}
 		
 		$logger_info = $logger->getInfo();
+		$logger_messages = $logger_info["messages"];
+		
+		$html_logger_messages = "";
+		foreach ($logger_messages as $message_key => $message) {
+			$html_logger_messages .= sprintf('<li>%1$s</li>', esc_html($message));
+		}
+		if ($html_logger_messages) {
+			$html_logger_messages = "<ul>{$html_logger_messages}</ul>";
+		}
 
 		printf(
 			'
 			<tr class="%6$s">
-				<td>%2$s</td>
-				<td>%3$s</td>
-				<td>%4$s</td>
-				<td>%5$s</td>
-				<td>%1$s</td>
+				<td>
+					<p><strong>%3$s</strong>
+					<br><code>%2$s</code></p>
+				</td>
+				<td><p>%4$s</p></td>
+				<td>%7$s</td>
+				<td><p>%5$s</p></td>
+				<td><p>%1$s</p></td>
 			</tr>
 			',
 			$one_logger_count->count,
 			$one_logger_slug,
 			esc_html( $logger_info["name"]),
-			esc_html( $logger_info["description"]),
+			esc_html( $logger_info["description"]), // 4
 			esc_html( $logger_info["capability"]),
-			$loopnum % 2 ? " alt " : "" // 6
+			$loopnum % 2 ? " alt " : "", // 6
+			$html_logger_messages // 7
 		);
 
 		$loopnum++;
