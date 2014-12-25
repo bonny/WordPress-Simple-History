@@ -1729,7 +1729,13 @@ class SimpleHistory {
 
 		}
 
-		$classes = array();
+		// Classes to add to log item li element
+		$classes = array(
+			"SimpleHistoryLogitem",
+			"SimpleHistoryLogitem--loglevel-{$oneLogRow->level}",
+			"SimpleHistoryLogitem--logger-{$oneLogRow->logger}"
+		);
+
 		if ( isset( $oneLogRow->initiator ) && ! empty( $oneLogRow->initiator ) ) {
 			$classes[] = "SimpleHistoryLogitem--initiator-" . esc_attr($oneLogRow->initiator);
 		}
@@ -1747,10 +1753,19 @@ class SimpleHistory {
 
 		$plain_text_html .= $log_level_tag_html;
 
+		/**
+	     * Filter to modify classes added to item li element
+	     *
+	     * @since 2.0.7
+	     *
+	     * @param $classes Array with classes
+	     */
+		$classes = apply_filters("simple_history/logrowhtmloutput/classes", $classes);
+
 		// Generate the HTML output for a row
 		$output = sprintf(
 			'
-				<li %8$s class="SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-%5$s SimpleHistoryLogitem--logger-%7$s %10$s">
+				<li %8$s class="%10$s">
 					<div class="SimpleHistoryLogitem__firstcol">
 						<div class="SimpleHistoryLogitem__senderImage">%3$s</div>
 					</div>
