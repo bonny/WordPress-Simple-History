@@ -38,35 +38,45 @@ class SimpleHistoryExportDropin {
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
+		if ( isset($_POST["simple-history-action"]) && $_POST["simple-history-action"] === "export-history" ) {
+			sf_d($_POST);
+		}
+
 		?>
 		<!-- <h2>Export</h2> -->
 
 		<p>The export function will export the full history.</p>
 
-		<h3>Format</h3>
-	
-		<p>
-			<label>
-				<input type="radio" name="format" value="csv" checked>
-				CSV
-			</label>
-			<br>
+		<form method="post">
 
-			<label>
-				<input type="radio" name="format" value="json">
-				JSON
-			</label>
-			<br>
+			<h3>Format</h3>
+		
+			<p>
+				<label>
+					<input type="radio" name="format" value="csv" checked>
+					CSV
+				</label>
+				<br>
 
-			<label>
-				<input type="radio" name="format" value="html">
-				HTML
-			</label>
-		</p>
+				<label>
+					<input type="radio" name="format" value="json">
+					JSON
+				</label>
+				<br>
 
-		<p>
-			<button type="submit" class="button button-primary">Export</button>
-		</p>
+				<label>
+					<input type="radio" name="format" value="html">
+					HTML
+				</label>
+			</p>
+
+			<p>
+				<button type="submit" class="button button-primary">Export</button>
+				<input type="hidden" name="simple-history-action" value="export-history">
+			</p>
+
+		</form>
+
 		<?php
 
 	}
