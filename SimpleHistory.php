@@ -6,7 +6,7 @@
 class SimpleHistory {
 
 	const NAME = "Simple History";
-	const VERSION = "2.0.6";
+	const VERSION = "2.0.7";
 
 	/**
 	 * Capability required to view the history log

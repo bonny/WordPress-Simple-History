@@ -75,14 +75,14 @@ class SimplePostLogger extends SimpleLogger
 	 */
 	function on_untrash_post($post_id) {
 
-		$post = get_post($post_id);
+		$post = get_post( $post_id );
 
-		$this->info(
-			$this->messages["post_restored"],
+		$this->infoMessage(
+			"post_restored",
 			array(
 				"post_id" => $post_id,
-				"post_type" => get_post_type($post),
-				"post_title" => get_the_title($post)
+				"post_type" => get_post_type( $post ),
+				"post_title" => get_the_title( $post )
 			)
 		);
 
