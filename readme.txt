@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.6
+Stable tag: 2.0.7
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -104,6 +104,9 @@ initiated by a specific user.
 
 == Changelog ==
 
+= 2.0.7 (December 2014) =
+
+- Fix: no message when restoring page from trash
 - Fix: use correct width for media attachment
 - Add: filter `simple_history/logrowhtmloutput/classes`, to modify HTML classes added to each log row item
 
