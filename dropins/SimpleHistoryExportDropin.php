@@ -68,6 +68,12 @@ class SimpleHistoryExportDropin {
 					<input type="radio" name="format" value="html">
 					HTML
 				</label>
+				<br>
+
+				<label>
+					<input type="radio" name="format" value="xml">
+					XML
+				</label>
 			</p>
 
 			<p>
