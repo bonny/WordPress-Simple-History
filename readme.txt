@@ -104,6 +104,9 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Update: Swedish translation updated
+- Add: new action `simple_history/admin_footer`, to output HTML and JavaScript in footer on pages that belong to Simple History
+
 = 2.0.7 (December 2014) =
 
 - Fix: no message when restoring page from trash
