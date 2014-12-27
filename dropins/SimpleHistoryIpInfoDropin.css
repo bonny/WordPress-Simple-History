@@ -5,3 +5,100 @@
 /*	cursor: pointer;
 	text-decoration: underline;*/
 }
+
+.SimpleHistoryIpInfoDropin__popup {
+	position: absolute;
+	display: none;
+	top: 200px;
+	left: 200px;
+	width: 300px;
+	/*height: 245px;*/
+	margin-left: -20px;
+	border: 1px solid #ccc;
+	background-color: rgba(255, 255, 255, 1);
+	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+	padding: 10px;
+	z-index: 5;
+}
+
+.SimpleHistoryIpInfoDropin__popup p {
+	margin: 0;
+}
+
+.SimpleHistoryIpInfoDropin__popup.is-visible {
+	display: block;;
+}
+
+.SimpleHistoryIpInfoDropin__popupArrow {
+	/*width: 40px;
+	height: 40px;
+	font-size: 40px;
+	position: absolute;
+	top: -25px;
+	left: 0;*/
+}
+
+.SimpleHistoryIpInfoDropin__popupArrow {
+	position: absolute;
+	background: #fff;
+	border: none;
+	top: 0;
+	left: 40px;
+}
+
+.SimpleHistoryIpInfoDropin__popupArrow:after, .SimpleHistoryIpInfoDropin__popupArrow:before {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.SimpleHistoryIpInfoDropin__popupArrow:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-bottom-color: #fff;
+	border-width: 10px;
+	margin-left: -10px;
+}
+.SimpleHistoryIpInfoDropin__popupArrow:before {
+	border-color: rgba(204, 204, 204, 0);
+	border-bottom-color: #ccc;
+	border-width: 11px;
+	margin-left: -11px;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable tr {
+
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable th,
+.SimpleHistoryIpInfoDropin__ipInfoTable td {
+	vertical-align: top;
+	text-align: left;
+	padding: 5px 5px;
+	border-top: 1px solid #eee;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable tr:first-of-type th,
+.SimpleHistoryIpInfoDropin__ipInfoTable tr:first-of-type td {
+	border-top: 0;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable__mapRow td {
+	padding: 0;
+}
+
+.SimpleHistoryIpInfoDropin__provider {
+	text-align: right;
+	font-size: 12px;
+	color: #888;
+	margin-top: .5em;
+}
