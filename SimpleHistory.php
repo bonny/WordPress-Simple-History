@@ -87,6 +87,7 @@ class SimpleHistory {
 		add_action( 'admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
 		add_action( 'admin_head', array( $this, "onAdminHead" ) );
+		add_action( 'admin_footer', array( $this, "onAdminFooter" ) );
 
 		// Filters and actions not called during regular boot
 		add_filter("gettext", array($this, 'filter_gettext'), 20, 3);
@@ -145,6 +146,16 @@ class SimpleHistory {
 		if ( $this->is_on_our_own_pages() ) {
 			
 			do_action( "simple_history/admin_head", $this );
+
+		}
+
+	}
+
+	public function onAdminFooter() {
+
+		if ( $this->is_on_our_own_pages() ) {
+			
+			do_action( "simple_history/admin_footer", $this );
 
 		}
 
