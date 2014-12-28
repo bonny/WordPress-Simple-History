@@ -545,7 +545,6 @@ var simple_history = (function($) {
 
 		render: function() {
 
-			// var compiled = _.template(this.template);
 			var compiled = wp.template("simple-history-logitems-pagination");
 			
 			this.$el.html( compiled({
