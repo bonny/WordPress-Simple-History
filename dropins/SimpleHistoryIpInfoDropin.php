@@ -39,7 +39,8 @@ class SimpleHistoryIpInfoDropin {
 		?>
 
 		<div class="SimpleHistoryIpInfoDropin__popup">
-			<div class="xdashicons xdashicons-arrow-up SimpleHistoryIpInfoDropin__popupArrow"></div>
+			<div class="SimpleHistoryIpInfoDropin__popupArrow"></div>
+			<div class="SimpleHistoryIpInfoDropin__popupClose"><button class="SimpleHistoryIpInfoDropin__popupCloseButton">×</button></div>
 			<div class="SimpleHistoryIpInfoDropin__popupContent"></div>
 		</div>
 

@@ -9,8 +9,8 @@
 .SimpleHistoryIpInfoDropin__popup {
 	position: absolute;
 	display: none;
-	top: 200px;
-	left: 200px;
+	top: 0;
+	left: 0;
 	width: 350px;
 	/*height: 245px;*/
 	margin-left: -20px;
@@ -101,4 +101,26 @@
 	font-size: 12px;
 	color: #888;
 	margin-top: .5em;
+}
+
+.SimpleHistoryIpInfoDropin__popupClose {
+	position: absolute;
+	top: 0;
+	right: 0;
+	line-height: 1;
+	font-size: 30px;
+}
+
+.SimpleHistoryIpInfoDropin__popupCloseButton {
+	padding: 0 5px;
+	margin: 0;
+	background: none;
+	border: 0;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.SimpleHistoryIpInfoDropin__popupCloseButton:hover {
+	/* same color as wp popups close on hover */
+	color: rgb(46, 162, 204);
 }

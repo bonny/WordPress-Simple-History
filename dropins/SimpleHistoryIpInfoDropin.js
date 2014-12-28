@@ -24,6 +24,10 @@
 
 	});
 
+	// Close popup
+	$popup.on("click", ".SimpleHistoryIpInfoDropin__popupCloseButton", hidePopup);
+	$(window).on("click", maybeHidePopup);
+
 	// Position and then show popup.
 	// Content is not added yet
 	function showPopup($elm) {
@@ -39,6 +43,26 @@
 		$popupContent.html(templateLoading());
 
 		$popup.addClass("is-visible");
+
+	}
+
+	function hidePopup(e) {
+
+		$popup.removeClass("is-visible");
+
+	}
+
+	function maybeHidePopup(e) {
+
+		var $target = (e.target);
+
+		// Don't hide if click inside popup
+		if ($.contains($popup.get(0), $target) ) {
+			return true;
+		}
+
+		// Else it should be ok to hide
+		hidePopup();
 
 	}
 
