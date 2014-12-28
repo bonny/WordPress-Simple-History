@@ -70,13 +70,13 @@ class SimpleHistoryIpInfoDropin {
 
 					<tr class="SimpleHistoryIpInfoDropin__ipInfoTable__mapRow">
 						<td colspan="2">
-							<% if ( typeof(loc) != "undefined" ) { %>
+							<% if ( typeof(loc) != "undefined" && loc ) { %>
 								<img src="https://maps.googleapis.com/maps/api/staticmap?center=<%= loc %>&zoom=7&size=350x100&sensor=false" width="350" height="100" alt="Google Map">
 							<% } %>
 						</td>
 					</tr>
 
-					<% if ( typeof(ip) != "undefined" ) { %>
+					<% if ( typeof(ip) != "undefined" && ip ) { %>
 					<tr>
 						<td>
 							IP address
@@ -87,7 +87,7 @@ class SimpleHistoryIpInfoDropin {
 					</tr>
 					<% } %>
 
-					<% if ( typeof(hostname) != "undefined" ) { %>
+					<% if ( typeof(hostname) != "undefined" && hostname ) { %>
 					<tr>
 						<td>
 							Hostname
@@ -98,7 +98,7 @@ class SimpleHistoryIpInfoDropin {
 					</tr>
 					<% } %>
 
-					<% if ( typeof(org) != "undefined" ) { %>
+					<% if ( typeof(org) != "undefined" && org ) { %>
 					<tr>
 						<td>
 							Network
@@ -109,7 +109,7 @@ class SimpleHistoryIpInfoDropin {
 					</tr>
 					<% } %>
 
-					<% if ( typeof(network) != "undefined" ) { %>
+					<% if ( typeof(network) != "undefined" && network ) { %>
 					<tr>
 						<td>
 							Network
@@ -120,7 +120,7 @@ class SimpleHistoryIpInfoDropin {
 					</tr>
 					<% } %>
 
-					<% if ( typeof(city) != "undefined" ) { %>
+					<% if ( typeof(city) != "undefined" && city ) { %>
 					<tr>
 						<td>
 							City
@@ -131,7 +131,7 @@ class SimpleHistoryIpInfoDropin {
 					</tr>
 					<% } %>			
 
-					<% if ( typeof(region) != "undefined" ) { %>
+					<% if ( typeof(region) != "undefined" && region ) { %>
 					<tr>
 						<td>
 							Region
@@ -142,7 +142,7 @@ class SimpleHistoryIpInfoDropin {
 					</tr>
 					<% } %>
 
-					<% if ( typeof(country) != "undefined" ) { %>
+					<% if ( typeof(country) != "undefined" && country ) { %>
 					<tr>
 						<td>
 							Country
