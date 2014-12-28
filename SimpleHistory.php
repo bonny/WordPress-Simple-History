@@ -777,7 +777,7 @@ class SimpleHistory {
 
 			$plugin_url = plugin_dir_url(__FILE__);
 			wp_enqueue_style( "simple_history_styles", $plugin_url . "css/styles.css", false, SimpleHistory::VERSION );	
-			wp_enqueue_script("simple_history_script", $plugin_url . "js/scripts.js", array("jquery", "backbone"), SimpleHistory::VERSION, true);
+			wp_enqueue_script("simple_history_script", $plugin_url . "js/scripts.js", array("jquery", "backbone", "wp-util"), SimpleHistory::VERSION, true);
 			
 			wp_enqueue_script("select2", $plugin_url . "/js/select2/select2.min.js", array("jquery"));
 			wp_enqueue_style("select2", $plugin_url . "/js/select2/select2.css");

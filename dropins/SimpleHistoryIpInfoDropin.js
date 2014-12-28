@@ -5,8 +5,8 @@
 	var $popup = $(".SimpleHistoryIpInfoDropin__popup");
 	var $popupContent = $popup.find(".SimpleHistoryIpInfoDropin__popupContent");
 
-	var templateLoading = _.template( $("#tmpl-simple-history-ipinfodropin-popup-loading").text() );
-	var templateLoaded = _.template( $("#tmpl-simple-history-ipinfodropin-popup-loaded").text() );
+	var templateLoading = wp.template("simple-history-ipinfodropin-popup-loading");
+	var templateLoaded = wp.template("simple-history-ipinfodropin-popup-loaded");
 
 	// Click on link with IP-number
 	$logItems.on("click", ".SimpleHistoryLogitem__anonUserWithIp__theIp", function(e) {

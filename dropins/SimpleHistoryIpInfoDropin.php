@@ -61,121 +61,108 @@ class SimpleHistoryIpInfoDropin {
 			  "postal": "94035"
 			}
 			-->
-			<% if ( typeof(bogon) != "undefined" ) { %>
+			<# if ( typeof(data.bogon) != "undefined" ) { #>
 
 				<p><?php _ex("That IP address does not seem like a public one.", "IP Info Dropin", "simple-history"); ?></p>
 				
-			<% } else { %>
+			<# } else { #>
 				
 				<table class="SimpleHistoryIpInfoDropin__ipInfoTable">
 
 					<tr class="SimpleHistoryIpInfoDropin__ipInfoTable__mapRow">
 						<td colspan="2">
-							<% if ( typeof(loc) != "undefined" && loc ) { %>
-								<a href="https://www.google.com/maps/place/<%= loc %>/@<%= loc %>,6z" target="_blank">
-									<img src="https://maps.googleapis.com/maps/api/staticmap?center=<%= loc %>&zoom=7&size=350x100&sensor=false" width="350" height="100" alt="Google Map">
+							<# if ( typeof(data.loc) != "undefined" && data.loc ) { #>
+								<a href="https://www.google.com/maps/place/{{ data.loc }}/@{{ data.loc }},6z" target="_blank">
+									<img src="https://maps.googleapis.com/maps/api/staticmap?center={{ data.loc }}&zoom=7&size=350x100&sensor=false" width="350" height="100" alt="Google Map">
 								</a>
-							<% } %>
+							<# } #>
 						</td>
 					</tr>
 
-					<% if ( typeof(ip) != "undefined" && ip ) { %>
+					<# if ( typeof(data.ip) != "undefined" && data.ip ) { #>
 					<tr>
 						<td>
 							<?php _ex("IP address", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
-							<%= ip %>
+							{{ data.ip }}
 						</td>
 					</tr>
-					<% } %>
+					<# } #>
 
-					<% if ( typeof(hostname) != "undefined" && hostname ) { %>
+					<# if ( typeof(data.hostname) != "undefined" && data.hostname ) { #>
 					<tr>
 						<td>
 							<?php _ex("Hostname", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
-							<%= hostname %>
+							{{ data.hostname }}
 						</td>
 					</tr>
-					<% } %>
+					<# } #>
 
-					<% if ( typeof(org) != "undefined" && org ) { %>
+					<# if ( typeof(data.org) != "undefined" && data.org ) { #>
 					<tr>
 						<td>
 							<?php _ex("Network", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
-							<%= org %>
+							{{ data.org }}
 						</td>
 					</tr>
-					<% } %>
+					<# } #>
 
-					<% if ( typeof(network) != "undefined" && network ) { %>
+					<# if ( typeof(data.network) != "undefined" && data.network ) { #>
 					<tr>
 						<td>
 							<?php _ex("Network", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
-							<%= network %>
+							{{ data.network }}
 						</td>
 					</tr>
-					<% } %>
+					<# } #>
 
-					<% if ( typeof(city) != "undefined" && city ) { %>
+					<# if ( typeof(data.city) != "undefined" && data.city ) { #>
 					<tr>
 						<td>
 							<?php _ex("City", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
-							<%= city %>
+							{{ data.city }}
 						</td>
 					</tr>
-					<% } %>			
+					<# } #>			
 
-					<% if ( typeof(region) != "undefined" && region ) { %>
+					<# if ( typeof(data.region) != "undefined" && data.region ) { #>
 					<tr>
 						<td>
 							<?php _ex("Region", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
-							<%= region %>
+							{{ data.region }}
 						</td>
 					</tr>
-					<% } %>
+					<# } #>
 
-					<% if ( typeof(country) != "undefined" && country ) { %>
+					<# if ( typeof(data.country) != "undefined" && data.country ) { #>
 					<tr>
 						<td>
 							<?php _ex("Country", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
-							<%= country %>
+							{{ data.country }}
 						</td>
 					</tr>
-					<% } %>
-
-					<!--
-					<% if ( typeof(loc) != "undefined" ) { %>
-					<tr>
-						<td>
-							loc
-						</td>
-						<td>
-							<%= loc %>
-						</td>
-					</tr>
-					<% } %>
-					-->
+					<# } #>
 
 				</table>
 
 				<p class="SimpleHistoryIpInfoDropin__provider">
-					<?php printf( _x('IP info provided by %1$s ipinfo.io %2$s', "IP Info Dropin", "simple-history"), "<a href='http://ipinfo.io/<%= ip %>' target='_blank'>", "</a>" ); ?>
+					<?php printf( _x('IP info provided by %1$s ipinfo.io %2$s', "IP Info Dropin", "simple-history"), "<a href='http://ipinfo.io/{{ data.ip }}' target='_blank'>", "</a>" ); ?>
 				</p>
 
-			<% } %>
+			<# } #>
 
 		</script>
 		<?php
