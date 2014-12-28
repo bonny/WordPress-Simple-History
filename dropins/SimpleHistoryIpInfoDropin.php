@@ -15,9 +15,9 @@ class SimpleHistoryIpInfoDropin {
 		$this->sh = $sh;
 
 		// Since it's not quite done yet, it's for da devs only for now
-		if ( ! defined("SIMPLE_HISTORY_DEV") || ! SIMPLE_HISTORY_DEV ) {
+		/*if ( ! defined("SIMPLE_HISTORY_DEV") || ! SIMPLE_HISTORY_DEV ) {
 			return;
-		}
+		}*/
 
 		add_action("simple_history/enqueue_admin_scripts", array($this, "enqueue_admin_scripts"));
 		add_action("simple_history/admin_footer", array($this, "add_js_template"));
