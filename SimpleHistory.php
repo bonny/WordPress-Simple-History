@@ -195,34 +195,34 @@ class SimpleHistory {
 				<!-- this uses the (almost) the same html as WP does -->
 				<div class="SimpleHistoryPaginationPages">
 					<!-- 
-					<%= page_rows_from %>–<%= page_rows_to %> 
-					<span class="SimpleHistoryPaginationDisplayNum"> of <%= total_row_count %></span>
+					{{ data.page_rows_from }}–{{ data.page_rows_to }} 
+					<span class="SimpleHistoryPaginationDisplayNum"> of {{ data.total_row_count }} </span>
 					-->
 					<span class="SimpleHistoryPaginationLinks">
 						<a 	
 							data-direction="first" 
-							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--firstPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
-							title="<%= strings.goToTheFirstPage %>" 
+							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--firstPage <# if ( data.api_args.paged <= 1 ) { #> disabled <# } #>" 
+							title="{{ data.strings.goToTheFirstPage }}" 
 							href="#">«</a>
 						<a 
 							data-direction="prev" 
-							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--prevPage <% if ( api_args.paged <= 1 ) { %> disabled <% } %>" 
-							title="<%= strings.goToThePrevPage %>"
+							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--prevPage <# if ( data.api_args.paged <= 1 ) { #> disabled <# } #>" 
+							title="{{ data.strings.goToThePrevPage }}"
 							href="#">‹</a>
 						<span class="SimpleHistoryPaginationInput">
-							<input class="SimpleHistoryPaginationCurrentPage" title="<%= strings.currentPage %>" type="text" name="paged" value="<%= api_args.paged %>" size="4">
+							<input class="SimpleHistoryPaginationCurrentPage" title="{{ data.strings.currentPage }}" type="text" name="paged" value="{{ data.api_args.paged }}" size="4">
 							<?php _x("of", "page n of n", "simple-history") ?>
-							<span class="total-pages"><%= pages_count %></span>
+							<span class="total-pages">{{ data.pages_count }}</span>
 						</span>
 						<a 
 							data-direction="next" 
-							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--nextPage <% if ( api_args.paged >= pages_count ) { %> disabled <% } %>" 
-							title="<%= strings.goToTheNextPage %>"
+							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--nextPage <# if ( data.api_args.paged >= data.pages_count ) { #> disabled <# } #>" 
+							title="{{ data.strings.goToTheNextPage }}"
 							href="#">›</a>
 						<a 
 							data-direction="last" 
-							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--lastPage <% if ( api_args.paged >= pages_count ) { %> disabled <% } %>" 
-							title="<%= strings.goToTheLastPage %>"
+							class="button SimpleHistoryPaginationLink SimpleHistoryPaginationLink--lastPage <# if ( data.api_args.paged >= data.pages_count ) { #> disabled <# } #>" 
+							title="{{ data.strings.goToTheLastPage }}"
 							href="#">»</a>
 					</span>
 				</div>
