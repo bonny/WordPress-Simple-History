@@ -104,8 +104,9 @@ initiated by a specific user.
 
 == Changelog ==
 
-- Update: Swedish translation updated
-- Add: new action `simple_history/admin_footer`, to output HTML and JavaScript in footer on pages that belong to Simple History
+- Added: IP addresse can now be clicked to view IP address info from [ipinfo.io](http://ipinfo.io). This will get you the location and network of an IP address and help you determine from where for example a failed login attempt originates from.
+- Added: new action `simple_history/admin_footer`, to output HTML and JavaScript in footer on pages that belong to Simple History
+- Updated: Swedish translation updated
 
 = 2.0.7 (December 2014) =
 
