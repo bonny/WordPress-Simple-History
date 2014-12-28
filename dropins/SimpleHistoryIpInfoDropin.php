@@ -63,7 +63,7 @@ class SimpleHistoryIpInfoDropin {
 			-->
 			<% if ( typeof(bogon) != "undefined" ) { %>
 
-				<p>Does not seem like a public IP address</p>
+				<p><?php _ex("That IP address does not seem like a public one.", "IP Info Dropin", "simple-history"); ?></p>
 				
 			<% } else { %>
 				
@@ -82,7 +82,7 @@ class SimpleHistoryIpInfoDropin {
 					<% if ( typeof(ip) != "undefined" && ip ) { %>
 					<tr>
 						<td>
-							IP address
+							<?php _ex("IP address", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
 							<%= ip %>
@@ -93,7 +93,7 @@ class SimpleHistoryIpInfoDropin {
 					<% if ( typeof(hostname) != "undefined" && hostname ) { %>
 					<tr>
 						<td>
-							Hostname
+							<?php _ex("Hostname", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
 							<%= hostname %>
@@ -104,7 +104,7 @@ class SimpleHistoryIpInfoDropin {
 					<% if ( typeof(org) != "undefined" && org ) { %>
 					<tr>
 						<td>
-							Network
+							<?php _ex("Network", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
 							<%= org %>
@@ -115,7 +115,7 @@ class SimpleHistoryIpInfoDropin {
 					<% if ( typeof(network) != "undefined" && network ) { %>
 					<tr>
 						<td>
-							Network
+							<?php _ex("Network", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
 							<%= network %>
@@ -126,7 +126,7 @@ class SimpleHistoryIpInfoDropin {
 					<% if ( typeof(city) != "undefined" && city ) { %>
 					<tr>
 						<td>
-							City
+							<?php _ex("City", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
 							<%= city %>
@@ -137,7 +137,7 @@ class SimpleHistoryIpInfoDropin {
 					<% if ( typeof(region) != "undefined" && region ) { %>
 					<tr>
 						<td>
-							Region
+							<?php _ex("Region", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
 							<%= region %>
@@ -148,7 +148,7 @@ class SimpleHistoryIpInfoDropin {
 					<% if ( typeof(country) != "undefined" && country ) { %>
 					<tr>
 						<td>
-							Country
+							<?php _ex("Country", "IP Info Dropin", "simple-history"); ?>
 						</td>
 						<td>
 							<%= country %>
@@ -171,7 +171,9 @@ class SimpleHistoryIpInfoDropin {
 
 				</table>
 
-				<p class="SimpleHistoryIpInfoDropin__provider">IP info provided by <a href="http://ipinfo.io/<%= ip %>" target="_blank">ipinfo.io</a>.</p>
+				<p class="SimpleHistoryIpInfoDropin__provider">
+					<?php printf( _x('IP info provided by %1$s ipinfo.io %2$s', "IP Info Dropin", "simple-history"), "<a href='http://ipinfo.io/<%= ip %>' target='_blank'>", "</a>" ); ?>
+				</p>
 
 			<% } %>
 

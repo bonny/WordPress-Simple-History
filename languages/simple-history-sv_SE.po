@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-12-27 19:28:30+00:00\n"
-"PO-Revision-Date: 2014-12-27 20:30+0100\n"
+"POT-Creation-Date: 2014-12-28 20:36:33+00:00\n"
+"PO-Revision-Date: 2014-12-28 21:37+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -22,132 +22,132 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: SimpleHistory.php:423 SimpleHistory.php:685
+#: SimpleHistory.php:434 SimpleHistory.php:696
 msgid "Settings"
 msgstr "Inställningar"
 
-#: SimpleHistory.php:434
+#: SimpleHistory.php:445
 msgid "Log (debug)"
 msgstr "Logg (debug)"
 
-#: SimpleHistory.php:439
+#: SimpleHistory.php:450
 msgid "Styles example (debug)"
 msgstr "Stilexempel (debug)"
 
 #. Plugin Name of the plugin/theme
-#: SimpleHistory.php:700
+#: SimpleHistory.php:711
 msgid "Simple History"
 msgstr "Simple History"
 
-#: SimpleHistory.php:776
+#: SimpleHistory.php:787
 msgid "Remove all log items?"
 msgstr "Ta bort alla händelser?"
 
-#: SimpleHistory.php:778
+#: SimpleHistory.php:789
 msgid "Go to the first page"
 msgstr "Gå till första sidan"
 
-#: SimpleHistory.php:779
+#: SimpleHistory.php:790
 msgid "Go to the previous page"
 msgstr "Gå till föregående sida"
 
-#: SimpleHistory.php:780
+#: SimpleHistory.php:791
 msgid "Go to the next page"
 msgstr "Gå till nästa sida"
 
-#: SimpleHistory.php:781
+#: SimpleHistory.php:792
 msgid "Go to the last page"
 msgstr "Gå till sista sidan"
 
-#: SimpleHistory.php:782
+#: SimpleHistory.php:793
 msgid "Current page"
 msgstr "Aktuell sida"
 
-#: SimpleHistory.php:784
+#: SimpleHistory.php:795
 msgid "Oups, the log could not be loaded right now."
 msgstr "Hoppsan, historiken kunde inte laddas just nu."
 
-#: SimpleHistory.php:785
+#: SimpleHistory.php:796
 msgid "Your search did not match any history events."
 msgstr "Din sökning matchade inte några händelser i historiken."
 
-#: SimpleHistory.php:1079 SimpleHistory.php:1182
+#: SimpleHistory.php:1090 SimpleHistory.php:1193
 msgid "Simple History Settings"
 msgstr "Inställningar för Simple History"
 
-#: SimpleHistory.php:1113
+#: SimpleHistory.php:1124
 msgid "No valid callback found"
 msgstr "Inget giltigt callback hittades."
 
-#: SimpleHistory.php:1203
+#: SimpleHistory.php:1214
 msgid "Cleared database"
 msgstr "Databasen rensades"
 
-#: SimpleHistory.php:1230
+#: SimpleHistory.php:1241
 msgid "Show history"
 msgstr "Visa historik"
 
-#: SimpleHistory.php:1243
+#: SimpleHistory.php:1254
 msgid "Number of items per page"
 msgstr "Antal händelser per sida"
 
-#: SimpleHistory.php:1255
+#: SimpleHistory.php:1266
 msgid "Clear log"
 msgstr "Rensa logg"
 
-#: SimpleHistory.php:1395
+#: SimpleHistory.php:1406
 msgid "on the dashboard"
 msgstr "i panelen"
 
-#: SimpleHistory.php:1400
+#: SimpleHistory.php:1411
 msgid "as a page under the dashboard menu"
 msgstr "som en sida under panel-menyn"
 
-#: SimpleHistory.php:1416
+#: SimpleHistory.php:1427
 msgid "Items in the database are automatically removed after %1$s days."
 msgstr "Händelser i databasen tas automatiskt bort efter %1$s dagar."
 
-#: SimpleHistory.php:1418
+#: SimpleHistory.php:1429
 msgid "Items in the database are kept forever."
 msgstr "Händelser i databasen lagras för evigt."
 
-#: SimpleHistory.php:1422
+#: SimpleHistory.php:1433
 msgid "Clear log now"
 msgstr "Rensa loggen nu"
 
-#: SimpleHistory.php:1647
+#: SimpleHistory.php:1658
 msgid "+%1$s more"
 msgstr "+%1$s fler"
 
-#: SimpleHistory.php:1654
+#: SimpleHistory.php:1665
 msgid "Loading…"
 msgstr "Laddar historik..."
 
-#: SimpleHistory.php:1661
+#: SimpleHistory.php:1672
 msgid "Showing %1$s more"
 msgstr "+%1$s fler"
 
-#: SimpleHistory.php:1680
+#: SimpleHistory.php:1691
 msgid "Context data"
 msgstr "Kontextuell data"
 
-#: SimpleHistory.php:1681
+#: SimpleHistory.php:1692
 msgid "This is potentially useful meta data that a logger have saved."
 msgstr "Detta eventuellt användbar metadata som en logger har sparat."
 
-#: SimpleHistory.php:2018
+#: SimpleHistory.php:2029
 msgid "No events today so far."
 msgstr "Inga händelser idag ännu."
 
-#: SimpleHistory.php:2022
+#: SimpleHistory.php:2033
 msgid "%1$d event today from one user."
 msgstr "%1$d händelse idag från en användare."
 
-#: SimpleHistory.php:2026
+#: SimpleHistory.php:2037
 msgid "%1$d events today from %2$d users."
 msgstr "%1$d händelser idag från %2$d användare."
 
-#: SimpleHistory.php:2030
+#: SimpleHistory.php:2041
 msgid "%1$d events today from one user."
 msgstr "%1$d händelser idag från en användare."
 
@@ -617,28 +617,28 @@ msgstr "Pär Thernström"
 msgid "http://simple-history.com/"
 msgstr "http://simple-history.com"
 
-#: SimpleHistory.php:166
+#: SimpleHistory.php:177
 msgctxt ""
 "Message visible while waiting for log to load from server the first time"
 msgid "Loading history..."
 msgstr "Laddar historik..."
 
-#: SimpleHistory.php:203
+#: SimpleHistory.php:214
 msgctxt "page n of n"
 msgid "of"
 msgstr "av"
 
-#: SimpleHistory.php:274
+#: SimpleHistory.php:285
 msgctxt "API: not enought arguments passed"
 msgid "Not enough args specified"
 msgstr "Inte tillräckligt med arguments specifierade"
 
-#: SimpleHistory.php:1167
+#: SimpleHistory.php:1178
 msgctxt "dashboard menu name"
 msgid "Simple History"
 msgstr "Simple History"
 
-#: SimpleHistory.php:1292
+#: SimpleHistory.php:1303
 msgctxt "history page headline"
 msgid "Simple History"
 msgstr "Simple History"
@@ -647,6 +647,47 @@ msgstr "Simple History"
 msgctxt "donate settings headline"
 msgid "Donate"
 msgstr "Donera"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:66
+msgctxt "IP Info Dropin"
+msgid "That IP address does not seem like a public one."
+msgstr "Det IP-numret verkar inte vara publikt."
+
+#: dropins/SimpleHistoryIpInfoDropin.php:85
+msgctxt "IP Info Dropin"
+msgid "IP address"
+msgstr "IP-adress"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:96
+msgctxt "IP Info Dropin"
+msgid "Hostname"
+msgstr "Värdnamn"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:107
+#: dropins/SimpleHistoryIpInfoDropin.php:118
+msgctxt "IP Info Dropin"
+msgid "Network"
+msgstr "Nätverk"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:129
+msgctxt "IP Info Dropin"
+msgid "City"
+msgstr "Stad"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:140
+msgctxt "IP Info Dropin"
+msgid "Region"
+msgstr "Region"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:151
+msgctxt "IP Info Dropin"
+msgid "Country"
+msgstr "Land"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:175
+msgctxt "IP Info Dropin"
+msgid "IP info provided by %1$s ipinfo.io %2$s"
+msgstr "IP-informationen kommer från %1$s ipinfo.io %2$s"
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:38
 msgctxt "New rows notifier: error while checking for new rows"
