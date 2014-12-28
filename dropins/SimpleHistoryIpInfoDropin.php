@@ -72,7 +72,9 @@ class SimpleHistoryIpInfoDropin {
 					<tr class="SimpleHistoryIpInfoDropin__ipInfoTable__mapRow">
 						<td colspan="2">
 							<% if ( typeof(loc) != "undefined" && loc ) { %>
-								<img src="https://maps.googleapis.com/maps/api/staticmap?center=<%= loc %>&zoom=7&size=350x100&sensor=false" width="350" height="100" alt="Google Map">
+								<a href="https://www.google.com/maps/place/<%= loc %>/@<%= loc %>,6z" target="_blank">
+									<img src="https://maps.googleapis.com/maps/api/staticmap?center=<%= loc %>&zoom=7&size=350x100&sensor=false" width="350" height="100" alt="Google Map">
+								</a>
 							<% } %>
 						</td>
 					</tr>
