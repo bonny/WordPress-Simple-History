@@ -27,6 +27,7 @@
 	// Close popup
 	$popup.on("click", ".SimpleHistoryIpInfoDropin__popupCloseButton", hidePopup);
 	$(window).on("click", maybeHidePopup);
+	$(document).on("SimpleHistory:logReloadStart", hidePopup);
 
 	// Position and then show popup.
 	// Content is not added yet
@@ -75,11 +76,9 @@
 
 	}
 
-	// Functin called when ip adress lookup succeeded
+	// Function called when ip adress lookup succeeded
 	function onIpAddressLookupkResponse(d) {
-
-		console.log("got data", d);
-		
+	
 		$popupContent.html(templateLoaded(d));
 
 	}

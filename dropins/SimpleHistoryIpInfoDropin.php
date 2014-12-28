@@ -45,7 +45,7 @@ class SimpleHistoryIpInfoDropin {
 		</div>
 
 		<script type="text/html" id="tmpl-simple-history-ipinfodropin-popup-loading">
-			<p>Getting IP info ...</p>
+			<!-- <p>Getting IP info ...</p> -->
 		</script>
 
 		<script type="text/html" id="tmpl-simple-history-ipinfodropin-popup-loaded">

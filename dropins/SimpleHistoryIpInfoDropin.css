@@ -8,11 +8,12 @@
 
 .SimpleHistoryIpInfoDropin__popup {
 	position: absolute;
-	display: none;
+	visibility: hidden;
+	opacity: 0;
 	top: 0;
 	left: 0;
 	width: 350px;
-	/*height: 245px;*/
+	min-height: 200px;
 	margin-left: -20px;
 	margin-top: -5px;
 	border: 1px solid #ccc;
@@ -20,6 +21,8 @@
 	box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
 	padding: 10px;
 	z-index: 5;
+	/* fade out then hide visibility */
+	transition: visibility 0 .25s, opacity .25s;
 }
 
 .SimpleHistoryIpInfoDropin__popup p {
@@ -27,7 +30,10 @@
 }
 
 .SimpleHistoryIpInfoDropin__popup.is-visible {
-	display: block;;
+	visibility: visible;
+	opacity: 1;
+	/* make visible immediately and start opacity directly */
+	transition: visibility 0, opacity .25s 0s;
 }
 
 .SimpleHistoryIpInfoDropin__popupArrow {
