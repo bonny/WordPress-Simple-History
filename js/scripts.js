@@ -313,6 +313,8 @@ var simple_history = (function($) {
 
 		onReload: function() {
 
+			$(document).trigger("SimpleHistory:logReloadStart");
+
 			$("html").addClass("SimpleHistory-isLoadingPage");
 
 		},
@@ -516,6 +518,8 @@ var simple_history = (function($) {
 		 */
 		fetchPage: function(paged) {
 
+			$(document).trigger("SimpleHistory:logReloadStart");
+			
 			$("html").addClass("SimpleHistory-isLoadingPage");
 
 			var url_data = {
