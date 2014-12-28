@@ -112,10 +112,15 @@
 
 .SimpleHistoryIpInfoDropin__popupClose {
 	position: absolute;
-	top: 0;
-	right: 0;
+	width: 21px;
+	height: 20px;
+	background-color: rgba(200, 200, 200, .75);
+	border-radius: 50%;
+	top: 5px;
+	right: 5px;
 	line-height: 1;
-	font-size: 30px;
+	font-size: 20px;
+	text-align: center;
 }
 
 .SimpleHistoryIpInfoDropin__popupCloseButton {
