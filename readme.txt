@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.8
+Stable tag: 2.0.9
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -103,6 +103,10 @@ initiated by a specific user.
 
 
 == Changelog ==
+
+= 2.0.9 (December 2014) =
+
+- Actually enable IP address lookup for all users. Sorry for missing to do that! ;)
 
 = 2.0.8 (December 2014) =
 
