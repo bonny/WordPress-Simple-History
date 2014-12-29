@@ -104,6 +104,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Updated: Polish translation updated. Thanks [https://github.com/m-czardybon](m-czardybon)!
+
 = 2.0.9 (December 2014) =
 
 - Actually enable IP address lookup for all users. Sorry for missing to do that! ;)
