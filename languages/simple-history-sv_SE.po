@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-12-28 20:36:33+00:00\n"
-"PO-Revision-Date: 2014-12-28 21:37+0100\n"
+"POT-Creation-Date: 2014-12-31 10:41:42+00:00\n"
+"PO-Revision-Date: 2014-12-31 11:42+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -132,7 +132,7 @@ msgid "Context data"
 msgstr "Kontextuell data"
 
 #: SimpleHistory.php:1692
-msgid "This is potentially useful meta data that a logger have saved."
+msgid "This is potentially useful meta data that a logger has saved."
 msgstr "Detta eventuellt användbar metadata som en logger har sparat."
 
 #: SimpleHistory.php:2029
@@ -495,10 +495,10 @@ msgstr ""
 #: loggers/SimpleUserLogger.php:24
 msgid ""
 "Failed to login with username \"{failed_login_username}\" because no user "
-"with that username exist"
+"with that username exists"
 msgstr ""
-"Misslyckades att logga in med användarnamn \"{failed_login_username}\" "
-"eftersom ingen användare med det användarnamnet finns"
+"﻿Det gick inte att logga in med användarnamn \"{failed_login_username}\" "
+"eftersom ingen användare med det användarnamnet existerar"
 
 #: loggers/SimpleUserLogger.php:25
 msgid "Logged in"
@@ -684,7 +684,7 @@ msgctxt "IP Info Dropin"
 msgid "Country"
 msgstr "Land"
 
-#: dropins/SimpleHistoryIpInfoDropin.php:175
+#: dropins/SimpleHistoryIpInfoDropin.php:162
 msgctxt "IP Info Dropin"
 msgid "IP info provided by %1$s ipinfo.io %2$s"
 msgstr "IP-informationen kommer från %1$s ipinfo.io %2$s"
