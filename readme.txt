@@ -105,6 +105,7 @@ initiated by a specific user.
 == Changelog ==
 
 - Updated: Polish translation updated. Thanks [https://github.com/m-czardybon](m-czardybon)!
+- Updated: German translation updated. Thanks [http://klein-aber-fein.de/](Ralph)!
 
 = 2.0.9 (December 2014) =
 
