@@ -106,6 +106,7 @@ initiated by a specific user.
 
 - Updated: Polish translation updated. Thanks [https://github.com/m-czardybon](m-czardybon)!
 - Updated: German translation updated. Thanks [http://klein-aber-fein.de/](Ralph)!
+- Updated: Swedish translation updated.
 
 = 2.0.9 (December 2014) =
 
