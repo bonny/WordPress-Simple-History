@@ -383,6 +383,11 @@ class SimpleCommentsLogger extends SimpleLogger
 			"comment_post_type" => $comment_parent_post->post_type,
 		);
 
+		// Note: comment type is empty for normal comments
+		if (empty( $context["comment_type"] ) ) {
+			$context["comment_type"] = "comment";
+		}
+
 		return $context;
 
 	}
@@ -481,7 +486,7 @@ class SimpleCommentsLogger extends SimpleLogger
 	public function on_comment_post($comment_ID, $comment_approved) {
 
 		$context = $this->get_context_for_comment($comment_ID);
-		
+
 		if ( ! $context ) {
 			return;
 		}
@@ -489,7 +494,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$comment_data = get_comment( $comment_ID );
 
 		$message = "";
-		
+
 		if ( $comment_data->user_id ) {
 		
 			// comment was from a logged in user
