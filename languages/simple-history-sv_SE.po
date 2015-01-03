@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-12-31 10:41:42+00:00\n"
-"PO-Revision-Date: 2014-12-31 11:42+0100\n"
+"POT-Creation-Date: 2015-01-03 11:33:40+00:00\n"
+"PO-Revision-Date: 2015-01-03 12:34+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -271,27 +271,27 @@ msgstr ""
 "Simple History är en rackarns bra plugin, men för att använda den måste din "
 "server ha minst PHP 5.3 installerat (du har version %s)."
 
-#: loggers/SimpleCommentsLogger.php:682
+#: loggers/SimpleCommentsLogger.php:687
 msgid "Spam"
 msgstr "Skräp"
 
-#: loggers/SimpleCommentsLogger.php:684
+#: loggers/SimpleCommentsLogger.php:689
 msgid "Approved"
 msgstr "Godkänd"
 
-#: loggers/SimpleCommentsLogger.php:686
+#: loggers/SimpleCommentsLogger.php:691
 msgid "Pending"
 msgstr "Väntande"
 
-#: loggers/SimpleCommentsLogger.php:700
+#: loggers/SimpleCommentsLogger.php:705
 msgid "Trackback"
 msgstr "Trackback"
 
-#: loggers/SimpleCommentsLogger.php:702
+#: loggers/SimpleCommentsLogger.php:707
 msgid "Pingback"
 msgstr "Pingback"
 
-#: loggers/SimpleCommentsLogger.php:704
+#: loggers/SimpleCommentsLogger.php:709
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -960,35 +960,35 @@ msgctxt "Comments logger: search"
 msgid "Deleted comments"
 msgstr "Borttagna kommentarer"
 
-#: loggers/SimpleCommentsLogger.php:599 loggers/SimpleCommentsLogger.php:612
-#: loggers/SimpleCommentsLogger.php:626
+#: loggers/SimpleCommentsLogger.php:604 loggers/SimpleCommentsLogger.php:617
+#: loggers/SimpleCommentsLogger.php:631
 msgctxt "comments logger - detailed output comment status"
 msgid "Status"
 msgstr "Status"
 
-#: loggers/SimpleCommentsLogger.php:601 loggers/SimpleCommentsLogger.php:614
-#: loggers/SimpleCommentsLogger.php:628
+#: loggers/SimpleCommentsLogger.php:606 loggers/SimpleCommentsLogger.php:619
+#: loggers/SimpleCommentsLogger.php:633
 msgctxt "comments logger - detailed output author"
 msgid "Name"
 msgstr "Namn"
 
-#: loggers/SimpleCommentsLogger.php:602 loggers/SimpleCommentsLogger.php:615
-#: loggers/SimpleCommentsLogger.php:629
+#: loggers/SimpleCommentsLogger.php:607 loggers/SimpleCommentsLogger.php:620
+#: loggers/SimpleCommentsLogger.php:634
 msgctxt "comments logger - detailed output email"
 msgid "Email"
 msgstr "E-post"
 
-#: loggers/SimpleCommentsLogger.php:603 loggers/SimpleCommentsLogger.php:616
+#: loggers/SimpleCommentsLogger.php:608 loggers/SimpleCommentsLogger.php:621
 msgctxt "comments logger - detailed output content"
 msgid "Content"
 msgstr "Innehåll"
 
-#: loggers/SimpleCommentsLogger.php:630
+#: loggers/SimpleCommentsLogger.php:635
 msgctxt "comments logger - detailed output content"
 msgid "Comment"
 msgstr "Kommentar"
 
-#: loggers/SimpleCommentsLogger.php:756
+#: loggers/SimpleCommentsLogger.php:761
 msgctxt "comments logger - edit comment"
 msgid "View/Edit"
 msgstr "Visa/Redigera"
