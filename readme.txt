@@ -111,6 +111,7 @@ initiated by a specific user.
 = 2.0.11 (January 2015) =
 
 - Fixed: Comments where not logged correctly.
+- Fixed: Comments where not translated correctly.
 - Updated: German translation updated.
 
 = 2.0.10 (January 2015) =
