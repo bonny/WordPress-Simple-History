@@ -112,6 +112,10 @@ class SimpleMediaLogger extends SimpleLogger
 		$message_key = $context["_message_key"];
 		$output = "";
 
+		$attachment_id = $context["attachment_id"];
+		$attachment_post = get_post( $attachment_id );
+		$attachment_is_available = is_a($attachment_post, "WP_Post");
+
 		if ( "attachment_updated" == $message_key ) {
 
 			// Attachment is changed = don't show thumbs and all
@@ -171,7 +175,13 @@ class SimpleMediaLogger extends SimpleLogger
 			} else {
 
 				// use wordpress icon for other media types
-				$context["attachment_thumb"] = wp_get_attachment_image( $attachment_id, null, true );
+				if ( $attachment_is_available ) {
+					$context["attachment_thumb"] = wp_get_attachment_image( $attachment_id, null, true );
+				}
+				/*else {
+				  // Add icon for deleted media?
+					$context["attachment_thumb"] = "thumb";
+				}*/
 
 			}
 
@@ -180,13 +190,13 @@ class SimpleMediaLogger extends SimpleLogger
 
 			if ( ! empty( $context["attachment_thumb"] ) ) {
 
-				if ($is_image) {
+				if ( $is_image ) {
 					$message .= "<a href='".$edit_link."'>";
 				}
 
 				$message .= __('{attachment_thumb}', 'simple-history');
 
-				if ($is_image) {
+				if ( $is_image ) {
 					$message .= "</a>";
 				}
 
