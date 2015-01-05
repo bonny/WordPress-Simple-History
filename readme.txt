@@ -105,6 +105,7 @@ initiated by a specific user.
 
 3. Events have context with extra details - Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
+4. Click on the IP address of an entry to view the location of for example a failed login attempt.
 
 == Changelog ==
 
