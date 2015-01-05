@@ -206,7 +206,7 @@ class SimpleMediaLogger extends SimpleLogger
 			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span> ";
 			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_filetype_extension}', "simple-history") . "</span>";
 			if ($full_image_width && $full_image_height) {
-				$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}') . "</span>";
+				$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}', "simple-history") . "</span>";
 			}
 			//$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
 			$message .= "</p>";
