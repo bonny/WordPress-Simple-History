@@ -29,7 +29,7 @@ class SimpleThemeLogger extends SimpleLogger
 				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
 				'widget_order_changed' => __('Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
 				'widget_edited' => __('Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
-				"custom_background_changed" => __("Changed settings for the theme custom background", "simple_history")
+				"custom_background_changed" => __("Changed settings for the theme custom background", "simple-history")
 			),
 			"labels" => array(
 				"search" => array(
