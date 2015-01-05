@@ -109,6 +109,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Translation fixes. Thanks [ThomasDK81](https://github.com/ThomasDK81)!
+
 = 2.0.12 (January 2015) =
 
 - Fixed: Deleted attachments did not get translations.
