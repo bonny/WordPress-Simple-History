@@ -193,7 +193,7 @@ class SimpleHistoryRSSDropin {
 									<?php
 									$occasions = $row->subsequentOccasions - 1;
 									if ( $occasions ) {
-										printf( _n('+%1$s occasion', '+%1$s occasions', "simple-history"), $occasions );
+										printf( _n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' ), $occasions );
 									}
 									?>
 								]]></description>
