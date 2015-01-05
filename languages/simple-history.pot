@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Simple History package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple History 2.0.11\n"
+"Project-Id-Version: Simple History 2.0.12\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-01-03 11:33:40+00:00\n"
+"POT-Creation-Date: 2015-01-05 14:25:26+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -37,7 +37,7 @@ msgid "Styles example (debug)"
 msgstr ""
 
 #: SimpleHistory.php:711
-#. #-#-#-#-#  Simple-History.pot (Simple History 2.0.11)  #-#-#-#-#
+#. #-#-#-#-#  Simple-History.pot (Simple History 2.0.12)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 msgid "Simple History"
 msgstr ""
@@ -263,27 +263,27 @@ msgid ""
 "least PHP 5.3 installed (you have version %s)."
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:687
+#: loggers/SimpleCommentsLogger.php:694
 msgid "Spam"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:689
+#: loggers/SimpleCommentsLogger.php:696
 msgid "Approved"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:691
+#: loggers/SimpleCommentsLogger.php:698
 msgid "Pending"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:705
+#: loggers/SimpleCommentsLogger.php:712
 msgid "Trackback"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:707
+#: loggers/SimpleCommentsLogger.php:714
 msgid "Pingback"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:709
+#: loggers/SimpleCommentsLogger.php:716
 msgid "Comment"
 msgstr ""
 
@@ -353,19 +353,19 @@ msgstr ""
 msgid "Uploaded {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:180
+#: loggers/SimpleMediaLogger.php:197
 msgid "{attachment_thumb}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:189
+#: loggers/SimpleMediaLogger.php:206
 msgid "{attachment_size_format}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:190
+#: loggers/SimpleMediaLogger.php:207
 msgid "{attachment_filetype_extension}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:192
+#: loggers/SimpleMediaLogger.php:209
 msgid "{full_image_width} × {full_image_height}"
 msgstr ""
 
@@ -892,35 +892,35 @@ msgctxt "Comments logger: search"
 msgid "Deleted comments"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:604 loggers/SimpleCommentsLogger.php:617
-#: loggers/SimpleCommentsLogger.php:631
+#: loggers/SimpleCommentsLogger.php:611 loggers/SimpleCommentsLogger.php:624
+#: loggers/SimpleCommentsLogger.php:638
 msgctxt "comments logger - detailed output comment status"
 msgid "Status"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:606 loggers/SimpleCommentsLogger.php:619
-#: loggers/SimpleCommentsLogger.php:633
+#: loggers/SimpleCommentsLogger.php:613 loggers/SimpleCommentsLogger.php:626
+#: loggers/SimpleCommentsLogger.php:640
 msgctxt "comments logger - detailed output author"
 msgid "Name"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:607 loggers/SimpleCommentsLogger.php:620
-#: loggers/SimpleCommentsLogger.php:634
+#: loggers/SimpleCommentsLogger.php:614 loggers/SimpleCommentsLogger.php:627
+#: loggers/SimpleCommentsLogger.php:641
 msgctxt "comments logger - detailed output email"
 msgid "Email"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:608 loggers/SimpleCommentsLogger.php:621
+#: loggers/SimpleCommentsLogger.php:615 loggers/SimpleCommentsLogger.php:628
 msgctxt "comments logger - detailed output content"
 msgid "Content"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:635
+#: loggers/SimpleCommentsLogger.php:642
 msgctxt "comments logger - detailed output content"
 msgid "Comment"
 msgstr ""
 
-#: loggers/SimpleCommentsLogger.php:761
+#: loggers/SimpleCommentsLogger.php:768
 msgctxt "comments logger - edit comment"
 msgid "View/Edit"
 msgstr ""
