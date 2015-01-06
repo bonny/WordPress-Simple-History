@@ -43,11 +43,11 @@ class SimpleHistoryFilterDropin {
 				<h3><?php _e("Filter history", "simple-history") ?></h3>
 
 				<p>
-					<input type="search" placeholder="<?php _e("Search", "simple-history") ?>" name="search">
+					<input type="search" placeholder="<?php _e("Search", "simple-history"); ?>" name="search">
 				</p>
 
 				<p>
-					<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e("All log levels", "simple-history") ?>" multiple>
+					<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e("All log levels", "simple-history"); ?>" multiple>
 						<option value="debug" data-color="#CEF6D8">Debug</option>
 						<option value="info" data-color="white">Info</option>
 						<option value="notice" data-color="rgb(219, 219, 183)">Notice</option>
