@@ -109,6 +109,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Misc translation fixes, for example the log levels are not translateable (it may be a good idea to keep the original English ones however because they are the ones that are common in other software).
+
 = 2.0.13 (January 2015) =
 
 - Fixed: RSS feed is now valid according to http://validator.w3.org/. Fixes https://wordpress.org/support/topic/a-feed-which-was-valid-under-v206-is-no-longer-under-v209-latest.

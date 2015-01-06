@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-01-03 11:33:40+00:00\n"
-"PO-Revision-Date: 2015-01-03 12:34+0100\n"
+"POT-Creation-Date: 2015-01-06 18:26:23+00:00\n"
+"PO-Revision-Date: 2015-01-06 19:28+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -135,19 +135,19 @@ msgstr "Kontextuell data"
 msgid "This is potentially useful meta data that a logger has saved."
 msgstr "Detta eventuellt användbar metadata som en logger har sparat."
 
-#: SimpleHistory.php:2029
+#: SimpleHistory.php:2113
 msgid "No events today so far."
 msgstr "Inga händelser idag ännu."
 
-#: SimpleHistory.php:2033
+#: SimpleHistory.php:2117
 msgid "%1$d event today from one user."
 msgstr "%1$d händelse idag från en användare."
 
-#: SimpleHistory.php:2037
+#: SimpleHistory.php:2121
 msgid "%1$d events today from %2$d users."
 msgstr "%1$d händelser idag från %2$d användare."
 
-#: SimpleHistory.php:2041
+#: SimpleHistory.php:2125
 msgid "%1$d events today from one user."
 msgstr "%1$d händelser idag från en användare."
 
@@ -206,12 +206,12 @@ msgid "Created new secret RSS address"
 msgstr "Skapade en ny hemlig RSS-adress"
 
 #: dropins/SimpleHistoryRSSDropin.php:148
-#: dropins/SimpleHistoryRSSDropin.php:256
+#: dropins/SimpleHistoryRSSDropin.php:259
 msgid "History for %s"
 msgstr "Historik för %s"
 
 #: dropins/SimpleHistoryRSSDropin.php:149
-#: dropins/SimpleHistoryRSSDropin.php:257
+#: dropins/SimpleHistoryRSSDropin.php:260
 msgid "WordPress History for %s"
 msgstr "WordPress-historik för %s"
 
@@ -221,11 +221,11 @@ msgid_plural "+%1$s occasions"
 msgstr[0] "+%1$s tillfälle"
 msgstr[1] "+%1$s tillfällen"
 
-#: dropins/SimpleHistoryRSSDropin.php:260
+#: dropins/SimpleHistoryRSSDropin.php:263
 msgid "Wrong RSS secret"
 msgstr "Fel RSS-lösenord"
 
-#: dropins/SimpleHistoryRSSDropin.php:261
+#: dropins/SimpleHistoryRSSDropin.php:264
 msgid ""
 "Your RSS secret for Simple History RSS feed is wrong. Please see WordPress "
 "settings for current link to the RSS feed."
@@ -233,7 +233,7 @@ msgstr ""
 "Ditt RSS-lösenord för RSS-flödet för Simple History är felaktigt. Gå till "
 "WordPress-inställningarna för att få en aktuell länk till RSS-flöded."
 
-#: dropins/SimpleHistoryRSSDropin.php:312
+#: dropins/SimpleHistoryRSSDropin.php:315
 msgid ""
 "You can generate a new address for the RSS feed. This is useful if you think "
 "that the address has fallen into the wrong hands."
@@ -241,11 +241,11 @@ msgstr ""
 "Du kan skapa en ny adress för RSS-flödet. Detta är användbart om du "
 "misstänker att adressen kommit i orätta händer."
 
-#: dropins/SimpleHistoryRSSDropin.php:315
+#: dropins/SimpleHistoryRSSDropin.php:318
 msgid "Generate new address"
 msgstr "Skapa ny adress"
 
-#: dropins/SimpleHistoryRSSDropin.php:343
+#: dropins/SimpleHistoryRSSDropin.php:346
 msgid ""
 "Simple History has a RSS feed which you can subscribe to and receive log "
 "updates. Make sure you only share the feed with people you trust, since it "
@@ -271,27 +271,27 @@ msgstr ""
 "Simple History är en rackarns bra plugin, men för att använda den måste din "
 "server ha minst PHP 5.3 installerat (du har version %s)."
 
-#: loggers/SimpleCommentsLogger.php:687
+#: loggers/SimpleCommentsLogger.php:694
 msgid "Spam"
 msgstr "Skräp"
 
-#: loggers/SimpleCommentsLogger.php:689
+#: loggers/SimpleCommentsLogger.php:696
 msgid "Approved"
 msgstr "Godkänd"
 
-#: loggers/SimpleCommentsLogger.php:691
+#: loggers/SimpleCommentsLogger.php:698
 msgid "Pending"
 msgstr "Väntande"
 
-#: loggers/SimpleCommentsLogger.php:705
+#: loggers/SimpleCommentsLogger.php:712
 msgid "Trackback"
 msgstr "Trackback"
 
-#: loggers/SimpleCommentsLogger.php:707
+#: loggers/SimpleCommentsLogger.php:714
 msgid "Pingback"
 msgstr "Pingback"
 
-#: loggers/SimpleCommentsLogger.php:709
+#: loggers/SimpleCommentsLogger.php:716
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -364,19 +364,19 @@ msgid "Uploaded {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
 "Laddade upp {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 
-#: loggers/SimpleMediaLogger.php:180
+#: loggers/SimpleMediaLogger.php:197
 msgid "{attachment_thumb}"
 msgstr "{attachment_thumb}"
 
-#: loggers/SimpleMediaLogger.php:189
+#: loggers/SimpleMediaLogger.php:206
 msgid "{attachment_size_format}"
 msgstr "{attachment_size_format}"
 
-#: loggers/SimpleMediaLogger.php:190
+#: loggers/SimpleMediaLogger.php:207
 msgid "{attachment_filetype_extension}"
 msgstr "{attachment_filetype_extension}"
 
-#: loggers/SimpleMediaLogger.php:192
+#: loggers/SimpleMediaLogger.php:209
 msgid "{full_image_width} × {full_image_height}"
 msgstr "{full_image_width} × {full_image_height}"
 
@@ -642,6 +642,86 @@ msgstr "Simple History"
 msgctxt "history page headline"
 msgid "Simple History"
 msgstr "Simple History"
+
+#: SimpleHistory.php:1828
+msgctxt "Log level in gui"
+msgid "emergency"
+msgstr "kritiskt"
+
+#: SimpleHistory.php:1832
+msgctxt "Log level in gui"
+msgid "alert"
+msgstr "alert"
+
+#: SimpleHistory.php:1836
+msgctxt "Log level in gui"
+msgid "critical"
+msgstr "kritiskt"
+
+#: SimpleHistory.php:1840
+msgctxt "Log level in gui"
+msgid "error"
+msgstr "error"
+
+#: SimpleHistory.php:1844
+msgctxt "Log level in gui"
+msgid "warning"
+msgstr "warning"
+
+#: SimpleHistory.php:1848
+msgctxt "Log level in gui"
+msgid "notice"
+msgstr "notice"
+
+#: SimpleHistory.php:1852
+msgctxt "Log level in gui"
+msgid "info"
+msgstr "info"
+
+#: SimpleHistory.php:1856
+msgctxt "Log level in gui"
+msgid "debug"
+msgstr "debug"
+
+#: SimpleHistory.php:1861
+msgctxt "Log level in gui"
+msgid "Emergency"
+msgstr "Emergency"
+
+#: SimpleHistory.php:1865
+msgctxt "Log level in gui"
+msgid "Alert"
+msgstr "Alert"
+
+#: SimpleHistory.php:1869
+msgctxt "Log level in gui"
+msgid "Critical"
+msgstr "Critical"
+
+#: SimpleHistory.php:1873
+msgctxt "Log level in gui"
+msgid "Error"
+msgstr "Error"
+
+#: SimpleHistory.php:1877
+msgctxt "Log level in gui"
+msgid "Warning"
+msgstr "Warning"
+
+#: SimpleHistory.php:1881
+msgctxt "Log level in gui"
+msgid "Notice"
+msgstr "Notice"
+
+#: SimpleHistory.php:1885
+msgctxt "Log level in gui"
+msgid "Info"
+msgstr "Info"
+
+#: SimpleHistory.php:1889
+msgctxt "Log level in gui"
+msgid "Debug"
+msgstr "Debug"
 
 #: dropins/SimpleHistoryDonateDropin.php:51
 msgctxt "donate settings headline"
@@ -960,35 +1040,35 @@ msgctxt "Comments logger: search"
 msgid "Deleted comments"
 msgstr "Borttagna kommentarer"
 
-#: loggers/SimpleCommentsLogger.php:604 loggers/SimpleCommentsLogger.php:617
-#: loggers/SimpleCommentsLogger.php:631
+#: loggers/SimpleCommentsLogger.php:611 loggers/SimpleCommentsLogger.php:624
+#: loggers/SimpleCommentsLogger.php:638
 msgctxt "comments logger - detailed output comment status"
 msgid "Status"
 msgstr "Status"
 
-#: loggers/SimpleCommentsLogger.php:606 loggers/SimpleCommentsLogger.php:619
-#: loggers/SimpleCommentsLogger.php:633
+#: loggers/SimpleCommentsLogger.php:613 loggers/SimpleCommentsLogger.php:626
+#: loggers/SimpleCommentsLogger.php:640
 msgctxt "comments logger - detailed output author"
 msgid "Name"
 msgstr "Namn"
 
-#: loggers/SimpleCommentsLogger.php:607 loggers/SimpleCommentsLogger.php:620
-#: loggers/SimpleCommentsLogger.php:634
+#: loggers/SimpleCommentsLogger.php:614 loggers/SimpleCommentsLogger.php:627
+#: loggers/SimpleCommentsLogger.php:641
 msgctxt "comments logger - detailed output email"
 msgid "Email"
 msgstr "E-post"
 
-#: loggers/SimpleCommentsLogger.php:608 loggers/SimpleCommentsLogger.php:621
+#: loggers/SimpleCommentsLogger.php:615 loggers/SimpleCommentsLogger.php:628
 msgctxt "comments logger - detailed output content"
 msgid "Content"
 msgstr "Innehåll"
 
-#: loggers/SimpleCommentsLogger.php:635
+#: loggers/SimpleCommentsLogger.php:642
 msgctxt "comments logger - detailed output content"
 msgid "Comment"
 msgstr "Kommentar"
 
-#: loggers/SimpleCommentsLogger.php:761
+#: loggers/SimpleCommentsLogger.php:768
 msgctxt "comments logger - edit comment"
 msgid "View/Edit"
 msgstr "Visa/Redigera"
