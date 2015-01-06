@@ -201,7 +201,6 @@ class SimpleHistoryRSSDropin {
 								// author must be email to validate, but the field is optional, so we skip it
 								/* <author><?php echo $row->initiator ?></author> */
 								?>
-								<author><name><?php echo $row->initiator ?></name></author>
 								<pubDate><?php echo date("D, d M Y H:i:s", strtotime($row->date)) ?> GMT</pubDate>
 								<guid isPermaLink="false"><?php echo $item_guid ?></guid>
 								<link><?php echo $item_guid ?></link>
