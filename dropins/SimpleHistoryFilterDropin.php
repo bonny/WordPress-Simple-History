@@ -43,7 +43,7 @@ class SimpleHistoryFilterDropin {
 				<h3><?php _e("Filter history", "simple-history") ?></h3>
 
 				<p>
-					<input type="search" placeholder="Search" name="search">
+					<input type="search" placeholder="<?php _e("Search", "simple-history"); ?>" name="search">
 				</p>
 
 				<p>

@@ -110,6 +110,7 @@ initiated by a specific user.
 == Changelog ==
 
 - Misc translation fixes, for example the log levels are not translateable (it may be a good idea to keep the original English ones however because they are the ones that are common in other software).
+- Added: Danish translation added. Thanks [ThomasDK81](https://github.com/ThomasDK81)!
 
 = 2.0.13 (January 2015) =
 
