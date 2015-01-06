@@ -136,7 +136,7 @@ class SimpleHistoryRSSDropin {
 				wp_die( 'Nothing here.' );
 			}
 
-			header ("Content-Type:text/xml");
+			header("Content-Type: text/xml; charset=utf-8");
 			echo '<?xml version="1.0" encoding="UTF-8"?>';
 			$self_link = $this->get_rss_address();
 
