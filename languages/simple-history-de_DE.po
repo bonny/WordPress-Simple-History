@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2.0.3\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-12-31 10:41:42+00:00\n"
-"PO-Revision-Date: 2015-01-02 15:52+0100\n"
+"POT-Creation-Date: 2015-01-06 09:40:58+00:00\n"
+"PO-Revision-Date: 2015-01-06 17:25+0100\n"
 "Last-Translator: Ralph Stenzel <ralph@klein-aber-fein.de>\n"
 "Language-Team: Ralph Stenzel <ralph@klein-aber-fein.de>\n"
 "Language: de_DE\n"
@@ -207,12 +207,12 @@ msgid "Created new secret RSS address"
 msgstr "Neue RSS-Geheim-Adresse erzeugt"
 
 #: dropins/SimpleHistoryRSSDropin.php:148
-#: dropins/SimpleHistoryRSSDropin.php:256
+#: dropins/SimpleHistoryRSSDropin.php:259
 msgid "History for %s"
 msgstr "Historie für"
 
 #: dropins/SimpleHistoryRSSDropin.php:149
-#: dropins/SimpleHistoryRSSDropin.php:257
+#: dropins/SimpleHistoryRSSDropin.php:260
 msgid "WordPress History for %s"
 msgstr "WordPress Historie für %s"
 
@@ -222,11 +222,11 @@ msgid_plural "+%1$s occasions"
 msgstr[0] "+%1$s Vorkommnis"
 msgstr[1] "+%1$s Vorkommnisse"
 
-#: dropins/SimpleHistoryRSSDropin.php:260
+#: dropins/SimpleHistoryRSSDropin.php:263
 msgid "Wrong RSS secret"
 msgstr "Falsche RSS-Geheimadresse"
 
-#: dropins/SimpleHistoryRSSDropin.php:261
+#: dropins/SimpleHistoryRSSDropin.php:264
 msgid ""
 "Your RSS secret for Simple History RSS feed is wrong. Please see WordPress "
 "settings for current link to the RSS feed."
@@ -235,7 +235,7 @@ msgstr ""
 "schlage in den WordPress-Einstellungen die aktuelle Verlinkung des RSS-Feeds "
 "nach."
 
-#: dropins/SimpleHistoryRSSDropin.php:312
+#: dropins/SimpleHistoryRSSDropin.php:315
 msgid ""
 "You can generate a new address for the RSS feed. This is useful if you think "
 "that the address has fallen into the wrong hands."
@@ -243,11 +243,11 @@ msgstr ""
 "Du kannst eine neue Adresse für den RSS-Feed erzeugen. Dies ist hilfreich "
 "falls Du denkst, daß die Adresse in die falschen Hände geraten sein könnte."
 
-#: dropins/SimpleHistoryRSSDropin.php:315
+#: dropins/SimpleHistoryRSSDropin.php:318
 msgid "Generate new address"
 msgstr "Erzeuge neue Adresse"
 
-#: dropins/SimpleHistoryRSSDropin.php:343
+#: dropins/SimpleHistoryRSSDropin.php:346
 msgid ""
 "Simple History has a RSS feed which you can subscribe to and receive log "
 "updates. Make sure you only share the feed with people you trust, since it "
@@ -274,27 +274,27 @@ msgstr ""
 "Simple History ist ein großartiges Plugin, aber zu seiner Benutzung muß Dein "
 "Server mindestens PHP 5.3 installiert haben (Du hast Version %s)."
 
-#: loggers/SimpleCommentsLogger.php:682
+#: loggers/SimpleCommentsLogger.php:694
 msgid "Spam"
 msgstr "Spam"
 
-#: loggers/SimpleCommentsLogger.php:684
+#: loggers/SimpleCommentsLogger.php:696
 msgid "Approved"
-msgstr "Genehmigt"
+msgstr "genehmigt"
 
-#: loggers/SimpleCommentsLogger.php:686
+#: loggers/SimpleCommentsLogger.php:698
 msgid "Pending"
-msgstr "In Bearbeitung"
+msgstr "schwebend"
 
-#: loggers/SimpleCommentsLogger.php:700
+#: loggers/SimpleCommentsLogger.php:712
 msgid "Trackback"
 msgstr "Trackback"
 
-#: loggers/SimpleCommentsLogger.php:702
+#: loggers/SimpleCommentsLogger.php:714
 msgid "Pingback"
 msgstr "Pingback"
 
-#: loggers/SimpleCommentsLogger.php:704
+#: loggers/SimpleCommentsLogger.php:716
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -320,19 +320,19 @@ msgstr "%d Vorkommnisse"
 
 #: loggers/SimpleLogger.php:205
 msgid "Deleted user (had id %1$s, email %2$s, login %3$s)"
-msgstr "Gelöschter Benutzer (hatte ID %1$s, E-Mail %2$s, Login %3$s)"
+msgstr "gelöschter Benutzer (hatte ID %1$s, E-Mail %2$s, Login %3$s)"
 
 #: loggers/SimpleLogger.php:220
 msgid "Anonymous web user"
-msgstr "Anonymer Netz-Nutzer"
+msgstr "anonymer Netz-Nutzer"
 
 #: loggers/SimpleLogger.php:228
 msgid "Anonymous user from %1$s"
-msgstr "Anonymer Benutzer von %1$s"
+msgstr "anonymer Benutzer von %1$s"
 
 #: loggers/SimpleLogger.php:299
 msgid "Just now"
-msgstr "Nur diesmal"
+msgstr "gerade eben"
 
 #. translators: Date format for log row header, see http:php.net/date
 #: loggers/SimpleLogger.php:304
@@ -346,74 +346,74 @@ msgstr "vor %1$s"
 
 #: loggers/SimpleMediaLogger.php:23
 msgid "Created {post_type} \"{attachment_title}\""
-msgstr "Hat {post_type} \"{attachment_title}\" erzeugt"
+msgstr "hat {post_type} \"{attachment_title}\" erzeugt"
 
 #: loggers/SimpleMediaLogger.php:24
 msgid "Edited {post_type} \"{attachment_title}\""
-msgstr "Hat {post_type} \"{attachment_title}\" geändert"
+msgstr "hat {post_type} \"{attachment_title}\" geändert"
 
 #: loggers/SimpleMediaLogger.php:25
 msgid "Deleted {post_type} \"{attachment_title}\" (\"{attachment_filename}\")"
 msgstr ""
-"Hat {post_type} \"{attachment_title}\" (\"{attachment_filename}\") gelöscht"
+"hat {post_type} \"{attachment_title}\" (\"{attachment_filename}\") gelöscht"
 
 #: loggers/SimpleMediaLogger.php:81
 msgid "Edited {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
-"Hat {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a> geändert"
+"hat {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a> geändert"
 
 #: loggers/SimpleMediaLogger.php:85
 msgid "Uploaded {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
-"Hat {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a> hochgeladen"
+"hat {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a> hochgeladen"
 
-#: loggers/SimpleMediaLogger.php:180
+#: loggers/SimpleMediaLogger.php:197
 msgid "{attachment_thumb}"
 msgstr "{attachment_thumb}"
 
-#: loggers/SimpleMediaLogger.php:189
+#: loggers/SimpleMediaLogger.php:206
 msgid "{attachment_size_format}"
 msgstr "{attachment_size_format}"
 
-#: loggers/SimpleMediaLogger.php:190
+#: loggers/SimpleMediaLogger.php:207
 msgid "{attachment_filetype_extension}"
 msgstr "{attachment_filetype_extension}"
 
-#: loggers/SimpleMediaLogger.php:192
+#: loggers/SimpleMediaLogger.php:209
 msgid "{full_image_width} × {full_image_height}"
 msgstr "{full_image_width} × {full_image_height}"
 
 #: loggers/SimpleMenuLogger.php:23
 msgid "Created menu \"{menu_name}\""
-msgstr "Hat Menü \"{menu_name}\" erzeugt"
+msgstr "hat Menü \"{menu_name}\" erzeugt"
 
 #: loggers/SimpleMenuLogger.php:24
 msgid "Edited menu \"{menu_name}\""
-msgstr "Hat Menü \"{menu_name}\" geändert"
+msgstr "hat Menü \"{menu_name}\" geändert"
 
 #: loggers/SimpleMenuLogger.php:25
 msgid "Deleted menu \"{menu_name}\""
-msgstr "Hat Menü \"{menu_name}\" gelöscht"
+msgstr "hat Menü \"{menu_name}\" gelöscht"
 
 #: loggers/SimpleMenuLogger.php:26
 msgid "Edited a menu item"
-msgstr "Hat Menü-Eintrag geändert"
+msgstr "hat Menü-Eintrag geändert"
 
 #: loggers/SimpleMenuLogger.php:27
 msgid "Updated menu locations"
-msgstr "Hat Menü-Positionen aktualisiert"
+msgstr "hat Menü-Positionen aktualisiert"
 
 #: loggers/SimpleOptionsLogger.php:140
 msgid "Updated option \"{option}\""
-msgstr "Hat Option \"{option}\" aktualisiert"
+msgstr "hat Option \"{option}\" aktualisiert"
 
 #: loggers/SimpleOptionsLogger.php:242 loggers/SimpleThemeLogger.php:570
 msgid "New value"
-msgstr "Neuer Wert"
+msgstr "neuer Wert"
 
 #: loggers/SimpleOptionsLogger.php:253 loggers/SimpleThemeLogger.php:582
 msgid "Old value"
-msgstr "Alter Wert"
+msgstr "alter Wert"
 
 #: loggers/SimpleOptionsLogger.php:268 loggers/SimpleOptionsLogger.php:285
 msgid "Settings page"
@@ -421,74 +421,74 @@ msgstr "Einstellungs-Seite"
 
 #: loggers/SimplePostLogger.php:30
 msgid "Created {post_type} \"{post_title}\""
-msgstr "Hat {post_type} \"{post_title}\" erzeugt"
+msgstr "hat {post_type} \"{post_title}\" erzeugt"
 
 #: loggers/SimplePostLogger.php:31
 msgid "Updated {post_type} \"{post_title}\""
-msgstr "Hat {post_type} \"{post_title}\" aktualisiert"
+msgstr "hat {post_type} \"{post_title}\" aktualisiert"
 
 #: loggers/SimplePostLogger.php:32
 msgid "Restored {post_type} \"{post_title}\" from trash"
-msgstr "Hat {post_type} \"{post_title}\" aus dem Papierkorb wiederhergestellt"
+msgstr "hat {post_type} \"{post_title}\" aus dem Papierkorb wiederhergestellt"
 
 #: loggers/SimplePostLogger.php:33 loggers/SimplePostLogger.php:236
 msgid "Deleted {post_type} \"{post_title}\""
-msgstr "Hat {post_type} \"{post_title}\" gelöscht"
+msgstr "hat {post_type} \"{post_title}\" gelöscht"
 
 #: loggers/SimplePostLogger.php:34
 msgid "Moved {post_type} \"{post_title}\" to the trash"
-msgstr "Hat {post_type} \"{post_title}\" in den Papierkorb verschoben"
+msgstr "hat {post_type} \"{post_title}\" in den Papierkorb verschoben"
 
 #: loggers/SimplePostLogger.php:232
 msgid "Updated {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 msgstr ""
-"Hat {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> aktualisiert"
+"hat {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> aktualisiert"
 
 #: loggers/SimplePostLogger.php:240
 msgid "Created {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
-msgstr "Hat {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> erzeugt"
+msgstr "hat {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> erzeugt"
 
 #: loggers/SimplePostLogger.php:245
 msgid ""
 "Moved {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> to the trash"
 msgstr ""
-"Hat {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> in den "
+"hat {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> in den "
 "Papierkorb verschoben"
 
 #: loggers/SimpleThemeLogger.php:26
 msgid "Switched theme to \"{theme_name}\" from \"{prev_theme_name}\""
 msgstr ""
-"Hat zum Theme \"{theme_name}\" umgeschaltet von \"{prev_theme_name}\" aus"
+"hat zum Theme \"{theme_name}\" umgeschaltet von \"{prev_theme_name}\" aus"
 
 #: loggers/SimpleThemeLogger.php:27
 msgid "Customized theme appearance \"{setting_id}\""
-msgstr "Hat Theme-Erscheinungsbild \"{setting_id}\" individualisiert"
+msgstr "hat Theme-Erscheinungsbild \"{setting_id}\" individualisiert"
 
 #: loggers/SimpleThemeLogger.php:28
 msgid "Removed widget \"{widget_id_base}\" from sidebar \"{sidebar_id}\""
 msgstr ""
-"Hat Widget \"{widget_id_base}\" aus der Sidebar \"{sidebar_id}\" entfernt"
+"hat Widget \"{widget_id_base}\" aus der Sidebar \"{sidebar_id}\" entfernt"
 
 #: loggers/SimpleThemeLogger.php:29
 msgid "Added widget \"{widget_id_base}\" to sidebar \"{sidebar_id}\""
 msgstr ""
-"Hat Widget \"{widget_id_base}\" zur Sidebar \"{sidebar_id}\" hinzugefügt"
+"hat Widget \"{widget_id_base}\" zur Sidebar \"{sidebar_id}\" hinzugefügt"
 
 #: loggers/SimpleThemeLogger.php:30
 msgid "Changed widget order \"{widget_id_base}\" in sidebar \"{sidebar_id}\""
 msgstr ""
-"Hat Widget-Sortierung \"{widget_id_base}\" in der Sidebar \"{sidebar_id}\" "
+"hat Widget-Sortierung \"{widget_id_base}\" in der Sidebar \"{sidebar_id}\" "
 "geändert"
 
 #: loggers/SimpleThemeLogger.php:31
 msgid "Changed widget \"{widget_id_base}\" in sidebar \"{sidebar_id}\""
 msgstr ""
-"Hat Widget \"{widget_id_base}\" in der Sidebar \"{sidebar_id}\" geändert"
+"hat Widget \"{widget_id_base}\" in der Sidebar \"{sidebar_id}\" geändert"
 
 #: loggers/SimpleThemeLogger.php:32
 msgid "Changed settings for the theme custom background"
 msgstr ""
-"Hat Einstellungen für den selbstdefinierten Hintergrund des Themes geändert"
+"hat Einstellungen für den selbstdefinierten Hintergrund des Themes geändert"
 
 #: loggers/SimpleThemeLogger.php:532
 msgid "Section"
@@ -512,20 +512,20 @@ msgstr ""
 
 #: loggers/SimpleUserLogger.php:25
 msgid "Logged in"
-msgstr "meldete sich an"
+msgstr "hat sich angemeldet"
 
 #: loggers/SimpleUserLogger.php:26
 msgid "Unknown user logged in"
-msgstr "Unbekannter Benutzer meldete sich an"
+msgstr "unbekannter Benutzer hat sich angemeldet"
 
 #: loggers/SimpleUserLogger.php:27
 msgid "Logged out"
-msgstr "meldete sich ab"
+msgstr "hat sich abgemeldet"
 
 #: loggers/SimpleUserLogger.php:28
 msgid "Edited the profile for user {edited_user_login} ({edited_user_email})"
 msgstr ""
-"Hat das Profil des Benutzers {edited_user_login} ({edited_user_email}) "
+"hat das Profil des Benutzers {edited_user_login} ({edited_user_email}) "
 "geändert"
 
 #: loggers/SimpleUserLogger.php:29
@@ -533,31 +533,31 @@ msgid ""
 "Created user {created_user_login} ({created_user_email}) with role "
 "{created_user_role}"
 msgstr ""
-"Hat Benutzer {created_user_login} ({created_user_email}) mit der Rolle "
+"hat Benutzer {created_user_login} ({created_user_email}) mit der Rolle "
 "{created_user_role} erzeugt"
 
 #: loggers/SimpleUserLogger.php:30
 msgid "Deleted user {deleted_user_login} ({deleted_user_email})"
-msgstr "Hat den Benutzer {deleted_user_login} ({deleted_user_email}) gelöscht"
+msgstr "hat den Benutzer {deleted_user_login} ({deleted_user_email}) gelöscht"
 
 #: loggers/SimpleUserLogger.php:229
 msgid "Edited <a href=\"{edit_profile_link}\">your profile</a>"
-msgstr "Hat <a href=\"{edit_profile_link}\">Dein Profil</a> geändert"
+msgstr "hat <a href=\"{edit_profile_link}\">Dein Profil</a> geändert"
 
 #: loggers/SimpleUserLogger.php:233
 msgid "Edited <a href=\"{edit_profile_link}\">their profile</a>"
-msgstr "Hat <a href=\"{edit_profile_link}\">deren Profil</a> geändert"
+msgstr "hat <a href=\"{edit_profile_link}\">deren Profil</a> geändert"
 
 #: loggers/SimpleUserLogger.php:242
 msgid "Edited your profile"
-msgstr "Hat Dein Profil geändert"
+msgstr "hat Dein Profil geändert"
 
 #: loggers/SimpleUserLogger.php:253
 msgid ""
 "Edited the profile for user <a href="
 "\"{edit_profile_link}\">{edited_user_login} ({edited_user_email})</a>"
 msgstr ""
-"Hat das Profil für den Benutzer <a href="
+"hat das Profil für den Benutzer <a href="
 "\"{edit_profile_link}\">{edited_user_login} ({edited_user_email})</a> geändert"
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3
@@ -718,14 +718,14 @@ msgstr "RSS-Feed"
 msgctxt "A comment was added to the database by a non-logged in internet user"
 msgid "Added a comment to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
-"Hat einen Kommentar zu {comment_post_type} \"{comment_post_title}\" "
+"hat einen Kommentar zu {comment_post_type} \"{comment_post_title}\" "
 "hinzugefügt"
 
 #: loggers/SimpleCommentsLogger.php:100
 msgctxt "A comment was added to the database by a logged in user"
 msgid "Added a comment to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
-"Hat einen Kommentar zu {comment_post_type} \"{comment_post_title}\" "
+"hat einen Kommentar zu {comment_post_type} \"{comment_post_title}\" "
 "hinzugefügt"
 
 #: loggers/SimpleCommentsLogger.php:106
@@ -734,7 +734,7 @@ msgid ""
 "Approved a comment to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) genehmigt"
 
 #: loggers/SimpleCommentsLogger.php:112
@@ -743,14 +743,14 @@ msgid ""
 "Unapproved a comment to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) verworfen"
 
 #: loggers/SimpleCommentsLogger.php:118
 msgctxt "A comment was marked as spam"
 msgid "Marked a comment to post \"{comment_post_title}\" as spam"
 msgstr ""
-"Hat einen Kommentar zum Beitrag \"{comment_post_title}\" als Spam "
+"hat einen Kommentar zum Beitrag \"{comment_post_title}\" als Spam "
 "gekennzeichnet"
 
 #: loggers/SimpleCommentsLogger.php:124
@@ -759,7 +759,7 @@ msgid ""
 "Trashed a comment to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) in den Papierkorb verschoben"
 
 #: loggers/SimpleCommentsLogger.php:130
@@ -768,7 +768,7 @@ msgid ""
 "Restored a comment to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) from the trash"
 msgstr ""
-"Hat einen Kommentar zu \"{comment_post_title}\" von {comment_author} "
+"hat einen Kommentar zu \"{comment_post_title}\" von {comment_author} "
 "({comment_author_email}) aus dem Papierkorb wiederhergestellt"
 
 #: loggers/SimpleCommentsLogger.php:136
@@ -777,7 +777,7 @@ msgid ""
 "Deleted a comment to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) gelöscht"
 
 #: loggers/SimpleCommentsLogger.php:142
@@ -786,27 +786,27 @@ msgid ""
 "Edited a comment to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) geändert"
 
 #: loggers/SimpleCommentsLogger.php:149
 msgctxt "A trackback was added to the database by a non-logged in internet user"
 msgid "Added a trackback to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
-"Hat einen Trackback zu {comment_post_type} \"{comment_post_title}\" "
+"hat einen Trackback zu {comment_post_type} \"{comment_post_title}\" "
 "hinzugefügt"
 
 #: loggers/SimpleCommentsLogger.php:204
 msgctxt "A trackback was added to the database by a non-logged in internet user"
 msgid "Added a pingback to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
-"Hat ein Pingback zu {comment_post_type} \"{comment_post_title}\" hinzugefügt"
+"hat ein Pingback zu {comment_post_type} \"{comment_post_title}\" hinzugefügt"
 
 #: loggers/SimpleCommentsLogger.php:155
 msgctxt "A trackback was added to the database by a logged in user"
 msgid "Added a trackback to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
-"Hat einen Trackback zu {comment_post_type} \"{comment_post_title}\" "
+"hat einen Trackback zu {comment_post_type} \"{comment_post_title}\" "
 "hinzugefügt"
 
 #: loggers/SimpleCommentsLogger.php:161
@@ -815,7 +815,7 @@ msgid ""
 "Approved a trackback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) genehmigt"
 
 #: loggers/SimpleCommentsLogger.php:167
@@ -824,14 +824,14 @@ msgid ""
 "Unapproved a trackback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) verworfen"
 
 #: loggers/SimpleCommentsLogger.php:173
 msgctxt "A trackback was marked as spam"
 msgid "Marked a trackback to post \"{comment_post_title}\" as spam"
 msgstr ""
-"Hat einen Trackback zum Beitrag \"{comment_post_title}\" als Spam "
+"hat einen Trackback zum Beitrag \"{comment_post_title}\" als Spam "
 "gekennzeichnet"
 
 #: loggers/SimpleCommentsLogger.php:179
@@ -840,7 +840,7 @@ msgid ""
 "Trashed a trackback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) in den Papierkorb verschoben"
 
 #: loggers/SimpleCommentsLogger.php:185
@@ -849,7 +849,7 @@ msgid ""
 "Restored a trackback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) from the trash"
 msgstr ""
-"Hat einen Trackback zu \"{comment_post_title}\" von {comment_author} "
+"hat einen Trackback zu \"{comment_post_title}\" von {comment_author} "
 "({comment_author_email}) aus dem Papierkorb wiederhergestellt"
 
 #: loggers/SimpleCommentsLogger.php:191
@@ -858,7 +858,7 @@ msgid ""
 "Deleted a trackback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) gelöscht"
 
 #: loggers/SimpleCommentsLogger.php:197
@@ -867,14 +867,14 @@ msgid ""
 "Edited a trackback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
+"hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) geändert"
 
 #: loggers/SimpleCommentsLogger.php:210
 msgctxt "A pingback was added to the database by a logged in user"
 msgid "Added a pingback to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
-"Hat ein Pingback zu {comment_post_type} \"{comment_post_title}\" hinzugefügt"
+"hat ein Pingback zu {comment_post_type} \"{comment_post_title}\" hinzugefügt"
 
 #: loggers/SimpleCommentsLogger.php:216
 msgctxt "A pingback was approved"
@@ -882,7 +882,7 @@ msgid ""
 "Approved a pingback to \"{comment_post_title}\" by "
 "\"{comment_author}\"\" ({comment_author_email})"
 msgstr ""
-"Hat ein Pingback zu \"{comment_post_title}\" by "
+"hat ein Pingback zu \"{comment_post_title}\" by "
 "\"{comment_author}\"\" ({comment_author_email}) genehmigt"
 
 #: loggers/SimpleCommentsLogger.php:222
@@ -891,14 +891,14 @@ msgid ""
 "Unapproved a pingback to \"{comment_post_title}\" by "
 "\"{comment_author}\" ({comment_author_email})"
 msgstr ""
-"Hat ein Pingback zu \"{comment_post_title}\" by "
+"hat ein Pingback zu \"{comment_post_title}\" by "
 "\"{comment_author}\" ({comment_author_email}) verworfen"
 
 #: loggers/SimpleCommentsLogger.php:228
 msgctxt "A pingback was marked as spam"
 msgid "Marked a pingback to post \"{comment_post_title}\" as spam"
 msgstr ""
-"Hat ein Pingback zum Beitrag \"{comment_post_title}\" als Spam gekennzeichnet"
+"hat ein Pingback zum Beitrag \"{comment_post_title}\" als Spam gekennzeichnet"
 
 #: loggers/SimpleCommentsLogger.php:234
 msgctxt "A pingback was marked moved to the trash"
@@ -906,7 +906,7 @@ msgid ""
 "Trashed a pingback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
+"hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) in den Papierkorb verschoben"
 
 #: loggers/SimpleCommentsLogger.php:240
@@ -915,7 +915,7 @@ msgid ""
 "Restored a pingback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) from the trash"
 msgstr ""
-"Hat ein Pingback zu \"{comment_post_title}\" von {comment_author} "
+"hat ein Pingback zu \"{comment_post_title}\" von {comment_author} "
 "({comment_author_email}) aus dem Papierkorb wiederhergestellt"
 
 #: loggers/SimpleCommentsLogger.php:246
@@ -924,7 +924,7 @@ msgid ""
 "Deleted a pingback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
+"hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) gelöscht"
 
 #: loggers/SimpleCommentsLogger.php:252
@@ -933,7 +933,7 @@ msgid ""
 "Edited a pingback to \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email})"
 msgstr ""
-"Hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
+"hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) geändert"
 
 #: loggers/SimpleCommentsLogger.php:263
@@ -949,72 +949,72 @@ msgstr "Alle Kommentar-Aktivitäten"
 #: loggers/SimpleCommentsLogger.php:266
 msgctxt "Comments logger: search"
 msgid "Added comments"
-msgstr "Hat Kommentare hinzugefügt"
+msgstr "hinzugefügte Kommentare"
 
 #: loggers/SimpleCommentsLogger.php:274
 msgctxt "Comments logger: search"
 msgid "Edited comments"
-msgstr "Hat Kommentare geändert"
+msgstr "geänderte Kommentare"
 
 #: loggers/SimpleCommentsLogger.php:279
 msgctxt "Comments logger: search"
 msgid "Approved  comments"
-msgstr "Hat Kommentare genehmigt"
+msgstr "genehmigte Kommentare"
 
 #: loggers/SimpleCommentsLogger.php:284
 msgctxt "Comments logger: search"
 msgid "Held comments"
-msgstr "Hat Kommentare zurückgehalten"
+msgstr "zurückgehaltene Kommentare"
 
 #: loggers/SimpleCommentsLogger.php:289
 msgctxt "Comments logger: search"
 msgid "Comments status changed to spam"
-msgstr "Hat Kommentar-Status zu Spam geändert"
+msgstr "als Spam markierte Kommentare"
 
 #: loggers/SimpleCommentsLogger.php:294
 msgctxt "Comments logger: search"
 msgid "Trashed comments"
-msgstr "Hat Kommentare in den Papierkorb verschoben"
+msgstr "in den Papierkorb verschobene Kommentare "
 
 #: loggers/SimpleCommentsLogger.php:299
 msgctxt "Comments logger: search"
 msgid "Untrashed comments"
-msgstr "Hat Kommentare wiederhergestellt"
+msgstr "wiederhergestellte Kommentare"
 
 #: loggers/SimpleCommentsLogger.php:304
 msgctxt "Comments logger: search"
 msgid "Deleted comments"
-msgstr "Hat Kommentare gelöscht"
+msgstr "gelöschte Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:599 loggers/SimpleCommentsLogger.php:612
-#: loggers/SimpleCommentsLogger.php:626
+#: loggers/SimpleCommentsLogger.php:611 loggers/SimpleCommentsLogger.php:624
+#: loggers/SimpleCommentsLogger.php:638
 msgctxt "comments logger - detailed output comment status"
 msgid "Status"
 msgstr "Status"
 
-#: loggers/SimpleCommentsLogger.php:601 loggers/SimpleCommentsLogger.php:614
-#: loggers/SimpleCommentsLogger.php:628
+#: loggers/SimpleCommentsLogger.php:613 loggers/SimpleCommentsLogger.php:626
+#: loggers/SimpleCommentsLogger.php:640
 msgctxt "comments logger - detailed output author"
 msgid "Name"
 msgstr "Name"
 
-#: loggers/SimpleCommentsLogger.php:602 loggers/SimpleCommentsLogger.php:615
-#: loggers/SimpleCommentsLogger.php:629
+#: loggers/SimpleCommentsLogger.php:614 loggers/SimpleCommentsLogger.php:627
+#: loggers/SimpleCommentsLogger.php:641
 msgctxt "comments logger - detailed output email"
 msgid "Email"
 msgstr "E-Mail"
 
-#: loggers/SimpleCommentsLogger.php:603 loggers/SimpleCommentsLogger.php:616
+#: loggers/SimpleCommentsLogger.php:615 loggers/SimpleCommentsLogger.php:628
 msgctxt "comments logger - detailed output content"
 msgid "Content"
 msgstr "Inhalt"
 
-#: loggers/SimpleCommentsLogger.php:630
+#: loggers/SimpleCommentsLogger.php:642
 msgctxt "comments logger - detailed output content"
 msgid "Comment"
 msgstr "Kommentar"
 
-#: loggers/SimpleCommentsLogger.php:756
+#: loggers/SimpleCommentsLogger.php:768
 msgctxt "comments logger - edit comment"
 msgid "View/Edit"
 msgstr "Betrachte/Ändere"
@@ -1042,12 +1042,12 @@ msgstr "Alle Benutzer-Aktivitäten"
 #: loggers/SimpleUserLogger.php:58
 msgctxt "User logger: search"
 msgid "Successful user logins"
-msgstr "Erfolgreiche Benutzer-Anmeldungen"
+msgstr "erfolgreiche Benutzer-Anmeldungen"
 
 #: loggers/SimpleUserLogger.php:62
 msgctxt "User logger: search"
 msgid "Failed user logins"
-msgstr "Fehlgeschlagene Benutzer-Anmeldungen"
+msgstr "fehlgeschlagene Benutzer-Anmeldungen"
 
 #: loggers/SimpleUserLogger.php:66
 msgctxt "User logger: search"
@@ -1077,12 +1077,12 @@ msgstr "Export"
 #: loggers/SimpleExportLogger.php:29
 msgctxt "Export logger: search"
 msgid "Created exports"
-msgstr "Erzeugte Exporte"
+msgstr "erstellte Exporte"
 
 #: loggers/SimpleLogger.php:192
 msgctxt "header output when initiator is the currently logged in user"
 msgid "You"
-msgstr "Du selbst"
+msgstr "Dein eigener Benutzername"
 
 #: loggers/SimpleMediaLogger.php:29
 msgctxt "Media logger: search"
@@ -1092,17 +1092,17 @@ msgstr "Medien-Dateien"
 #: loggers/SimpleMediaLogger.php:31
 msgctxt "Media logger: search"
 msgid "Added media"
-msgstr "Hinzugefügte Medien-Dateien"
+msgstr "hinzugefügte Medien-Dateien"
 
 #: loggers/SimpleMediaLogger.php:34
 msgctxt "Media logger: search"
 msgid "Updated media"
-msgstr "Aktualsierte Medien-Dateien"
+msgstr "aktualsierte Medien-Dateien"
 
 #: loggers/SimpleMediaLogger.php:37
 msgctxt "Media logger: search"
 msgid "Deleted media"
-msgstr "Gelöschte Medien-Dateien"
+msgstr "gelöschte Medien-Dateien"
 
 #: loggers/SimpleMenuLogger.php:31
 msgctxt "Menu logger: search"
@@ -1112,31 +1112,31 @@ msgstr "Menüs"
 #: loggers/SimpleMenuLogger.php:33
 msgctxt "Menu updates logger: search"
 msgid "Created menus"
-msgstr "Hat Menüs erzeugt"
+msgstr "erstellte Menüs"
 
 #: loggers/SimpleMenuLogger.php:36
 msgctxt "Menu updates logger: search"
 msgid "Edited menus"
-msgstr "Geänderte Menüs"
+msgstr "geänderte Menüs"
 
 #: loggers/SimpleMenuLogger.php:41
 msgctxt "Menu updates logger: search"
 msgid "Deleted menus"
-msgstr "Gelöschte Menüs"
+msgstr "gelöschte Menüs"
 
 #: loggers/SimpleMenuLogger.php:326
 msgctxt "menu logger"
 msgid "%1$s menu item added"
 msgid_plural "%1$s menu items added"
-msgstr[0] "%1$s Menü-Eintrag hinzugefügt"
-msgstr[1] "%1$s Menü-Einträge hinzugefügt"
+msgstr[0] "%1$s hinzugefügter Menü-Eintrag"
+msgstr[1] "%1$s hinzugefügte Menü-Einträge"
 
 #: loggers/SimpleMenuLogger.php:333
 msgctxt "menu logger"
 msgid "%1$s menu item removed"
 msgid_plural "%1$s menu items removed"
-msgstr[0] "%1$s Menü-Eintrag entfernt"
-msgstr[1] "%1$s Menü-Einträge entfernt"
+msgstr[0] "%1$s entfernter Menü-Eintrag"
+msgstr[1] "%1$s entfernte Menü-Einträge"
 
 #: loggers/SimpleOptionsLogger.php:153
 msgctxt "Options logger: search"
@@ -1146,27 +1146,27 @@ msgstr "Optionen"
 #: loggers/SimpleOptionsLogger.php:155
 msgctxt "Options logger: search"
 msgid "Changed options"
-msgstr "Geänderte Optionen"
+msgstr "geänderte Optionen"
 
 #: loggers/SimplePluginLogger.php:51
 msgctxt "Plugin was non-silently activated by a user"
 msgid "Activated plugin \"{plugin_name}\""
-msgstr "Hat Plugin \"{plugin_name}\" aktiviert"
+msgstr "hat Plugin \"{plugin_name}\" aktiviert"
 
 #: loggers/SimplePluginLogger.php:57
 msgctxt "Plugin was non-silently deactivated by a user"
 msgid "Deactivated plugin \"{plugin_name}\""
-msgstr "Hat Plugin \"{plugin_name}\" deaktiviert"
+msgstr "hat Plugin \"{plugin_name}\" deaktiviert"
 
 #: loggers/SimplePluginLogger.php:63
 msgctxt "Plugin was installed"
 msgid "Installed plugin \"{plugin_name}\""
-msgstr "Hat Plugin \"{plugin_name}\" installiert"
+msgstr "hat Plugin \"{plugin_name}\" installiert"
 
 #: loggers/SimplePluginLogger.php:69
 msgctxt "Plugin failed to install"
 msgid "Failed to install plugin \"{plugin_name}\""
-msgstr "Hat vergeblich versucht, das Plugin \"{plugin_name}\" zu installieren"
+msgstr "hat vergeblich versucht, das Plugin \"{plugin_name}\" zu installieren"
 
 #: loggers/SimplePluginLogger.php:75
 msgctxt "Plugin was updated"
@@ -1174,23 +1174,23 @@ msgid ""
 "Updated plugin \"{plugin_name}\" to version {plugin_version} from "
 "{plugin_prev_version}"
 msgstr ""
-"Hat Plugin \"{plugin_name}\" auf Version {plugin_version} von "
+"hat Plugin \"{plugin_name}\" auf Version {plugin_version} von "
 "{plugin_prev_version} aktualisiert"
 
 #: loggers/SimplePluginLogger.php:81
 msgctxt "Plugin update failed"
 msgid "Updated plugin \"{plugin_name}\""
-msgstr "Hat Plugin \"{plugin_name}\" aktualisiert"
+msgstr "hat Plugin \"{plugin_name}\" aktualisiert"
 
 #: loggers/SimplePluginLogger.php:87
 msgctxt "Plugin file edited"
 msgid "Edited plugin file \"{plugin_edited_file}\""
-msgstr "Hat die Plugin-Datei \"{plugin_edited_file}\" geändert"
+msgstr "hat die Plugin-Datei \"{plugin_edited_file}\" geändert"
 
 #: loggers/SimplePluginLogger.php:93
 msgctxt "Plugin files was deleted"
 msgid "Deleted plugin \"{plugin_name}\""
-msgstr "Hat Plugin \"{plugin_name}\" gelöscht"
+msgstr "hat Plugin \"{plugin_name}\" gelöscht"
 
 #: loggers/SimplePluginLogger.php:100
 msgctxt "Plugin was updated in bulk"
@@ -1198,7 +1198,7 @@ msgid ""
 "Updated plugin \"{plugin_name}\" to {plugin_version} from "
 "{plugin_prev_version}"
 msgstr ""
-"Hat Plugin \"{plugin_name}\" auf {plugin_version} von {plugin_prev_version} "
+"hat Plugin \"{plugin_name}\" auf {plugin_version} von {plugin_prev_version} "
 "aktualisiert"
 
 #: loggers/SimplePluginLogger.php:108
@@ -1209,42 +1209,42 @@ msgstr "Plugins"
 #: loggers/SimplePluginLogger.php:110
 msgctxt "Plugin logger: search"
 msgid "Activated plugins"
-msgstr "Aktivierte Plugins"
+msgstr "aktivierte Plugins"
 
 #: loggers/SimplePluginLogger.php:113
 msgctxt "Plugin logger: search"
 msgid "Deactivated plugins"
-msgstr "Deaktivierte Plugins"
+msgstr "deaktivierte Plugins"
 
 #: loggers/SimplePluginLogger.php:116
 msgctxt "Plugin logger: search"
 msgid "Installed plugins"
-msgstr "Installierte Plugins"
+msgstr "installierte Plugins"
 
 #: loggers/SimplePluginLogger.php:119
 msgctxt "Plugin logger: search"
 msgid "Failed plugin installs"
-msgstr "Fehlgeschlagene Plugin-Installationen"
+msgstr "fehlgeschlagene Plugin-Installationen"
 
 #: loggers/SimplePluginLogger.php:122
 msgctxt "Plugin logger: search"
 msgid "Updated plugins"
-msgstr "Aktualisierte Plugins"
+msgstr "aktualisierte Plugins"
 
 #: loggers/SimplePluginLogger.php:126
 msgctxt "Plugin logger: search"
 msgid "Failed plugin updates"
-msgstr "Fehlgeschlagene Plugin-Updates"
+msgstr "fehlgeschlagene Plugin-Updates"
 
 #: loggers/SimplePluginLogger.php:129
 msgctxt "Plugin logger: search"
 msgid "Edited plugin files"
-msgstr "Geänderte Plugin-Dateien"
+msgstr "geänderte Plugin-Dateien"
 
 #: loggers/SimplePluginLogger.php:132
 msgctxt "Plugin logger: search"
 msgid "Deleted plugins"
-msgstr "Gelöschte Plugins"
+msgstr "gelöschte Plugins"
 
 #: loggers/SimplePluginLogger.php:858
 msgctxt "plugin logger - detailed output version"
@@ -1299,12 +1299,12 @@ msgstr "Beiträge & Seiten"
 #: loggers/SimplePostLogger.php:40
 msgctxt "Post logger: search"
 msgid "Posts created"
-msgstr "Erzeugte Beiträge"
+msgstr "erzeugte Beiträge"
 
 #: loggers/SimplePostLogger.php:43
 msgctxt "Post logger: search"
 msgid "Posts updated"
-msgstr "Aktualisierte Beiträge"
+msgstr "aktualisierte Beiträge"
 
 #: loggers/SimplePostLogger.php:46
 msgctxt "Post logger: search"
@@ -1314,12 +1314,12 @@ msgstr "In den Papierkorb verschobene Beiträge"
 #: loggers/SimplePostLogger.php:49
 msgctxt "Post logger: search"
 msgid "Posts deleted"
-msgstr "Gelöschte Beiträge"
+msgstr "gelöschte Beiträge"
 
 #: loggers/SimplePostLogger.php:52
 msgctxt "Post logger: search"
 msgid "Posts restored"
-msgstr "Wiederhergestellte Beiträge"
+msgstr "wiederhergestellte Beiträge"
 
 #: loggers/SimpleThemeLogger.php:36
 msgctxt "Theme logger: search"
@@ -1329,47 +1329,47 @@ msgstr "Themes & Widgets"
 #: loggers/SimpleThemeLogger.php:38
 msgctxt "Theme logger: search"
 msgid "Switched themes"
-msgstr "Gewechselte Themes"
+msgstr "gewechselte Themes"
 
 #: loggers/SimpleThemeLogger.php:41
 msgctxt "Theme logger: search"
 msgid "Changed appearance of themes"
-msgstr "Geänderte Erscheinungsbilder von Themes"
+msgstr "geänderte Erscheinungsbilder von Themes"
 
 #: loggers/SimpleThemeLogger.php:44
 msgctxt "Theme logger: search"
 msgid "Added widgets"
-msgstr "Hinzugefügte Widgets"
+msgstr "hinzugefügte Widgets"
 
 #: loggers/SimpleThemeLogger.php:47
 msgctxt "Theme logger: search"
 msgid "Removed widgets"
-msgstr "Entfernte Widgets"
+msgstr "entfernte Widgets"
 
 #: loggers/SimpleThemeLogger.php:50
 msgctxt "Theme logger: search"
 msgid "Changed widgets order"
-msgstr "Umsortierte Widgets"
+msgstr "umsortierte Widgets"
 
 #: loggers/SimpleThemeLogger.php:53
 msgctxt "Theme logger: search"
 msgid "Edited widgets"
-msgstr "Geänderte Widgets"
+msgstr "geänderte Widgets"
 
 #: loggers/SimpleThemeLogger.php:56
 msgctxt "Theme logger: search"
 msgid "Background of themes changed"
-msgstr "Geänderte Theme-Hintergründe"
+msgstr "geänderte Theme-Hintergründe"
 
 #: loggers/SimpleUserLogger.php:37
 msgctxt "User destroys other login sessions for themself"
 msgid "Logged out from all other sessions"
-msgstr "Hat sich von allen anderen Sitzungen abgemeldet"
+msgstr "hat sich von allen anderen Sitzungen abgemeldet"
 
 #: loggers/SimpleUserLogger.php:46
 msgctxt "User destroys all login sessions for a user"
 msgid "Logged out \"{user_display_name}\" from all sessions"
-msgstr "Hat den Benutzer \"{user_display_name}\" von allen Sitzungen abgemeldet"
+msgstr "hat den Benutzer \"{user_display_name}\" von allen Sitzungen abgemeldet"
 
 #: templates/settings-statsRowsPerDay.php:36
 msgctxt "stats: date in rows per day chart"

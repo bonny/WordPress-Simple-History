@@ -81,6 +81,7 @@ So far Simple History is translated to:
 * Swedish
 * German
 * Polish
+* Danish
 
 I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/tree/v2).
 
@@ -110,7 +111,7 @@ initiated by a specific user.
 == Changelog ==
 
 - Fixed: Widget changes where not always translated.
-- Updated: 
+- Updated: German translation updated
 
 = 2.0.14 (January 2015) =
 
