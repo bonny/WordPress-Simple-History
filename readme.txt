@@ -109,6 +109,9 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Fixed: Widget changes where not always translated.
+- Updated: 
+
 = 2.0.14 (January 2015) =
 
 - Added: Danish translation added. Thanks [ThomasDK81](https://github.com/ThomasDK81)!
