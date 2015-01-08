@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.14
+Stable tag: 2.0.15
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -110,8 +110,11 @@ initiated by a specific user.
 
 == Changelog ==
 
+= 2.0.15 (January 2015) =
+
 - Fixed: Widget changes where not always translated.
-- Updated: German translation updated
+- Fixed: More RSS fixes to make feed valid. Maybe even for real this time.
+- Updated: German translation updated.
 
 = 2.0.14 (January 2015) =
 

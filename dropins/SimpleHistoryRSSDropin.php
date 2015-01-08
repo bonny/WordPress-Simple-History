@@ -145,8 +145,8 @@ class SimpleHistoryRSSDropin {
 				?>
 				<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 					<channel>
-						<title><?php printf(__("History for %s", 'simple-history'), get_bloginfo("name")) ?></title>
-						<description><?php printf(__("WordPress History for %s", 'simple-history'), get_bloginfo("name")) ?></description>
+						<title><![CDATA[<?php printf(__("History for %s", 'simple-history'), get_bloginfo("name")) ?>]]></title>
+						<description><![CDATA[<?php printf(__("WordPress History for %s", 'simple-history'), get_bloginfo("name")) ?>]]></description>
 						<link><?php echo get_bloginfo("url") ?></link>
 						<atom:link href="<?php echo $self_link; ?>" rel="self" type="application/atom+xml" />
 						<?php
@@ -185,7 +185,7 @@ class SimpleHistoryRSSDropin {
 
 							?>
 							<item>
-								<title><?php echo $item_title; ?></title>
+								<title><![CDATA[<?php echo $item_title; ?>]]></title>
 								<description><![CDATA[
 									<p><?php echo $header_output ?></p>
 									<p><?php echo $text_output ?></p>
