@@ -43,19 +43,19 @@ class SimpleHistoryFilterDropin {
 				<h3><?php _e("Filter history", "simple-history") ?></h3>
 
 				<p>
-					<input type="search" placeholder="Search" name="search">
+					<input type="search" placeholder="<?php _e("Search", "simple-history"); ?>" name="search">
 				</p>
 
 				<p>
 					<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e("All log levels", "simple-history") ?>" multiple>
-						<option value="debug" data-color="#CEF6D8">Debug</option>
-						<option value="info" data-color="white">Info</option>
-						<option value="notice" data-color="rgb(219, 219, 183)">Notice</option>
-						<option value="warning" data-color="#F7D358">Warning</option>
-						<option value="error" data-color="#F79F81">Error</option>
-						<option value="critical" data-color="#FA5858">Critical</option>
-						<option value="alert" data-color="rgb(199, 69, 69)">Alert</option>
-						<option value="emergency" data-color="#DF0101">Emergency</option>
+						<option value="debug" data-color="#CEF6D8"><?php echo $this->sh->getLogLevelTranslated("Debug") ?></option>
+						<option value="info" data-color="white"><?php echo $this->sh->getLogLevelTranslated("Info") ?></option>
+						<option value="notice" data-color="rgb(219, 219, 183)"><?php echo $this->sh->getLogLevelTranslated("Notice") ?></option>
+						<option value="warning" data-color="#F7D358"><?php echo $this->sh->getLogLevelTranslated("Warning") ?></option>
+						<option value="error" data-color="#F79F81"><?php echo $this->sh->getLogLevelTranslated("Error") ?></option>
+						<option value="critical" data-color="#FA5858"><?php echo $this->sh->getLogLevelTranslated("Critical") ?></option>
+						<option value="alert" data-color="rgb(199, 69, 69)"><?php echo $this->sh->getLogLevelTranslated("Alert") ?></option>
+						<option value="emergency" data-color="#DF0101"><?php echo $this->sh->getLogLevelTranslated("Emergency") ?></option>
 					</select>
 				</p>
 
@@ -234,4 +234,3 @@ class SimpleHistoryFilterDropin {
 	}
 
 } // end class
-

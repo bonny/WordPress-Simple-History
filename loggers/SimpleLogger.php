@@ -217,7 +217,7 @@ class SimpleLogger
 
 				if ( empty( $context["_server_remote_addr"] ) ) {
 
-					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . __("Anonymous web user") . "</strong> ";
+					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . __("Anonymous web user", "simple-history") . "</strong> ";
 
 				} else {
 

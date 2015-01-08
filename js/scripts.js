@@ -313,6 +313,8 @@ var simple_history = (function($) {
 
 		onReload: function() {
 
+			$(document).trigger("SimpleHistory:logReloadStart");
+
 			$("html").addClass("SimpleHistory-isLoadingPage");
 
 		},
@@ -407,8 +409,6 @@ var simple_history = (function($) {
 
 		initialize: function() {
 			
-			this.template = $("#tmpl-simple-history-logitems-pagination").html();
-
 			$(document).keydown({ view: this }, this.keyboardNav);
 
 			this.collection.on("reset", this.render, this);
@@ -516,6 +516,8 @@ var simple_history = (function($) {
 		 */
 		fetchPage: function(paged) {
 
+			$(document).trigger("SimpleHistory:logReloadStart");
+			
 			$("html").addClass("SimpleHistory-isLoadingPage");
 
 			var url_data = {
@@ -543,7 +545,7 @@ var simple_history = (function($) {
 
 		render: function() {
 
-			var compiled = _.template(this.template);
+			var compiled = wp.template("simple-history-logitems-pagination");
 			
 			this.$el.html( compiled({
 				min_id: this.collection.min_id,

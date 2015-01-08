@@ -10,12 +10,12 @@ class SimpleMediaLogger extends SimpleLogger
 
 	/**
 	 * Get array with information about this logger
-	 * 
+	 *
 	 * @return array
 	 */
 	function getInfo() {
 
-		$arr_info = array(			
+		$arr_info = array(
 			"name" => "Media/Attachments Logger",
 			"description" => "Logs media uploads and edits",
 			"capability" => "edit_pages",
@@ -30,24 +30,24 @@ class SimpleMediaLogger extends SimpleLogger
 					"options" => array(
 						_x("Added media", "Media logger: search", "simple-history") => array(
 							"attachment_created"
-						),						
+						),
 						_x("Updated media", "Media logger: search", "simple-history") => array(
 							"attachment_updated"
-						),						
+						),
 						_x("Deleted media", "Media logger: search", "simple-history") => array(
 							"attachment_deleted"
-						),						
+						),
 					)
 				) // end search array
 			) // end labels
 		);
-		
+
 		return $arr_info;
 
 	}
 
 	public function loaded() {
-		
+
 		add_action("admin_init", array($this, "on_admin_init"));
 
 	}
@@ -64,7 +64,7 @@ class SimpleMediaLogger extends SimpleLogger
 	 * Modify plain output to inlcude link to post
 	 */
 	public function getLogRowPlainTextOutput($row) {
-		
+
 		$message = $row->message;
 		$context = $row->context;
 		$message_key = $context["_message_key"];
@@ -72,7 +72,7 @@ class SimpleMediaLogger extends SimpleLogger
 		$attachment_id = $context["attachment_id"];
 		$attachment_post = get_post( $attachment_id );
 		$attachment_is_available = is_a($attachment_post, "WP_Post");
-		
+
 		// Only link to attachment if it is still available
 		if ( $attachment_is_available ) {
 
@@ -83,16 +83,23 @@ class SimpleMediaLogger extends SimpleLogger
 			} else if ( "attachment_created" == $message_key ) {
 
 				$message = __('Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a>', "simple-history");
-			
+
 			}
+
+			$context["post_type"] = esc_html( $context["post_type"] );
+			$context["attachment_filename"] = esc_html( $context["attachment_filename"] );
+			$context["edit_link"] = get_edit_post_link( $attachment_id );
+
+			$message = $this->interpolate($message, $context);
+
+		} else {
+
+			// Attachment post is not available, attachment has probably been deleted
+			$message = parent::getLogRowPlainTextOutput( $row );
 
 		}
 
-		$context["post_type"] = esc_html( $context["post_type"] );
-		$context["attachment_filename"] = esc_html( $context["attachment_filename"] );
-		$context["edit_link"] = get_edit_post_link( $attachment_id );
-
-		return $this->interpolate($message, $context);
+		return $message;
 
 	}
 
@@ -105,12 +112,16 @@ class SimpleMediaLogger extends SimpleLogger
 		$message_key = $context["_message_key"];
 		$output = "";
 
+		$attachment_id = $context["attachment_id"];
+		$attachment_post = get_post( $attachment_id );
+		$attachment_is_available = is_a($attachment_post, "WP_Post");
+
 		if ( "attachment_updated" == $message_key ) {
-			
+
 			// Attachment is changed = don't show thumbs and all
 
 		} else if ( "attachment_deleted" == $message_key ) {
-			
+
 			// Attachment is deleted = don't show thumbs and all
 
 		} else if ( "attachment_created" == $message_key ) {
@@ -148,7 +159,7 @@ class SimpleMediaLogger extends SimpleLogger
 					$context["full_image_width"] = $full_image_width;
 					$context["full_image_height"] = $full_image_height;
 					$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s"></div>', $thumb_src[0] );
-				
+
 				}
 
 			} else if ($is_audio) {
@@ -164,22 +175,28 @@ class SimpleMediaLogger extends SimpleLogger
 			} else {
 
 				// use wordpress icon for other media types
-				$context["attachment_thumb"] = wp_get_attachment_image( $attachment_id, null, true );
+				if ( $attachment_is_available ) {
+					$context["attachment_thumb"] = wp_get_attachment_image( $attachment_id, null, true );
+				}
+				/*else {
+				  // Add icon for deleted media?
+					$context["attachment_thumb"] = "thumb";
+				}*/
 
 			}
-			
+
 			$context["attachment_size_format"] = size_format( $row->context["attachment_filesize"] );
 			$context["attachment_filetype_extension"] = strtoupper( $filetype["ext"] );
 
 			if ( ! empty( $context["attachment_thumb"] ) ) {
-				
-				if ($is_image) {
+
+				if ( $is_image ) {
 					$message .= "<a href='".$edit_link."'>";
 				}
-				
+
 				$message .= __('{attachment_thumb}', 'simple-history');
-				
-				if ($is_image) {
+
+				if ( $is_image ) {
 					$message .= "</a>";
 				}
 
@@ -189,7 +206,7 @@ class SimpleMediaLogger extends SimpleLogger
 			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span> ";
 			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_filetype_extension}', "simple-history") . "</span>";
 			if ($full_image_width && $full_image_height) {
-				$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}') . "</span>";
+				$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}', "simple-history") . "</span>";
 			}
 			//$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
 			$message .= "</p>";
@@ -216,7 +233,7 @@ class SimpleMediaLogger extends SimpleLogger
 		if ( file_exists( $file ) ) {
 			$file_size = filesize( $file );
 		}
-		
+
 		$this->infoMessage(
 			'attachment_created',
 			array(
@@ -230,7 +247,7 @@ class SimpleMediaLogger extends SimpleLogger
 		);
 
 	}
-	
+
 	/**
 	 * An attachmet is changed
 	 * is this only being called if the title of the attachment is changed?!
@@ -238,7 +255,7 @@ class SimpleMediaLogger extends SimpleLogger
 	 * @param int $attachment_id
 	 */
 	function on_edit_attachment($attachment_id) {
-		
+
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
@@ -257,11 +274,11 @@ class SimpleMediaLogger extends SimpleLogger
 
 	}
 
-	/** 
+	/**
 	 * Called when an attachment is deleted
 	 */
 	function on_delete_attachment($attachment_id) {
-		
+
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );

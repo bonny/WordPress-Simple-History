@@ -3,7 +3,7 @@
 Plugin Name: Simple History
 Plugin URI: http://simple-history.com
 Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
-Version: 2.0.7
+Version: 2.0.15
 Author: Pär Thernström
 Author URI: http://simple-history.com/
 License: GPL2
@@ -12,7 +12,7 @@ License: GPL2
 /*  Copyright 2014  Pär Thernström (email: par.thernstrom@gmail.com)
 
 	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License, version 2, as 
+	it under the terms of the GNU General Public License, version 2, as
 	published by the Free Software Foundation.
 
 	This program is distributed in the hope that it will be useful,
@@ -26,7 +26,7 @@ License: GPL2
 */
 
 if ( version_compare( phpversion(), "5.3", ">=") ) {
-	
+
 	/** Load required files */
 	require_once(__DIR__ . "/SimpleHistory.php");
 	require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
@@ -43,21 +43,21 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	$GLOBALS["simple_history"] = new SimpleHistory();
 
 } else {
-	
+
 	// user is running to old version of php, add admin notice about that
-	add_action( 'admin_notices', 'simple_history_old_version_admin_notice' );   
+	add_action( 'admin_notices', 'simple_history_old_version_admin_notice' );
 
 	function simple_history_old_version_admin_notice() {
 		?>
 		<div class="updated error">
-			<p><?php 
-				printf( 
-					__( 'Simple History is a great plugin, but to use it your server must have at least PHP 5.3 installed (you have version %s).', 'simple-history' ), 
-					phpversion() 
-				); 
+			<p><?php
+				printf(
+					__( 'Simple History is a great plugin, but to use it your server must have at least PHP 5.3 installed (you have version %s).', 'simple-history' ),
+					phpversion()
+				);
 				?></p>
 		</div>
-		<?php		
+		<?php
 
 	}
 

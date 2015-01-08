@@ -233,7 +233,7 @@ class SimplePostLogger extends SimpleLogger
 
 			} else if ( "post_deleted" == $message_key ) {
 
-				$message = __('Deleted {post_type} "{post_title}"');
+				$message = __('Deleted {post_type} "{post_title}"', 'simple-history');
 
 			} else if ( "post_created" == $message_key ) {
 

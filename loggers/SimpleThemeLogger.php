@@ -29,7 +29,7 @@ class SimpleThemeLogger extends SimpleLogger
 				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
 				'widget_order_changed' => __('Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
 				'widget_edited' => __('Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
-				"custom_background_changed" => __("Changed settings for the theme custom background", "simple_history")
+				"custom_background_changed" => __("Changed settings for the theme custom background", "simple-history")
 			),
 			"labels" => array(
 				"search" => array(
@@ -605,6 +605,7 @@ return;
 
 		$context = $row->context;
 		$message_key = $context["_message_key"];
+		$message = $row->message;
 		$output = "";
 
 		// Widget changed or added or removed
@@ -616,7 +617,10 @@ return;
 
 			if ( $widget && $sidebar ) {
 
-				$message = $this->interpolate( $row->message, array(
+				// Translate message first
+				$message = $this->messages[ $message_key ]["translated_text"];
+
+				$message = $this->interpolate( $message, array(
 					"widget_id_base" => $widget->name,
 					"sidebar_id" => $sidebar["name"],
 				) );
@@ -628,9 +632,9 @@ return;
 
 		}
 
-		// Fallback to default/parent output
+		// Fallback to default/parent output if nothing was added to output
 		if ( ! $output ) {
-
+	
 			$output .= parent::getLogRowPlainTextOutput($row);
 
 		}

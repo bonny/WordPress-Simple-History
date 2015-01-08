@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.7
+Stable tag: 2.0.15
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -76,9 +76,14 @@ if ( function_exists("SimpleLogger") ) {
 
 #### Translations/Languages
 
-I'm looking for translations of Simple History!
+So far Simple History is translated to:
 
-Check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/tree/v2).
+* Swedish
+* German
+* Polish
+* Danish
+
+I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/tree/v2).
 
 #### Contribute at GitHub
 
@@ -101,8 +106,54 @@ initiated by a specific user.
 
 3. Events have context with extra details - Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
+4. Click on the IP address of an entry to view the location of for example a failed login attempt.
 
 == Changelog ==
+
+= 2.0.15 (January 2015) =
+
+- Fixed: Widget changes where not always translated.
+- Fixed: More RSS fixes to make feed valid. Maybe even for real this time.
+- Updated: German translation updated.
+
+= 2.0.14 (January 2015) =
+
+- Added: Danish translation added. Thanks [ThomasDK81](https://github.com/ThomasDK81)!
+- Misc translation fixes, for example the log levels where not translateable (it may be a good idea to keep the original English ones however because they are the ones that are common in other software).
+
+= 2.0.13 (January 2015) =
+
+- Fixed: RSS feed is now valid according to http://validator.w3.org/. Fixes https://wordpress.org/support/topic/a-feed-which-was-valid-under-v206-is-no-longer-under-v209-latest.
+- Translation fixes. Thanks [ThomasDK81](https://github.com/ThomasDK81)!
+
+= 2.0.12 (January 2015) =
+
+- Fixed: Deleted attachments did not get translations.
+- Fixed: A notice when showing details for a deleted attachment.
+
+= 2.0.11 (January 2015) =
+
+- Fixed: Comments where not logged correctly.
+- Fixed: Comments where not translated correctly.
+- Updated: German translation updated.
+
+= 2.0.10 (January 2015) =
+
+- Updated: Polish translation updated. Thanks [https://github.com/m-czardybon](m-czardybon)!
+- Updated: German translation updated. Thanks [http://klein-aber-fein.de/](Ralph)!
+- Updated: Swedish translation updated.
+
+= 2.0.9 (December 2014) =
+
+- Actually enable IP address lookup for all users. Sorry for missing to do that! ;)
+
+= 2.0.8 (December 2014) =
+
+- Added: IP addresses can now be clicked to view IP address info from [ipinfo.io](http://ipinfo.io). This will get you the location and network of an IP address and help you determine from where for example a failed login attempt originates from. [See screenshot of IP address info in action](http://glui.me/?d=y89nbgmvmfnxl4r/ip%20address%20information%20popup.png/).
+- Added: new action `simple_history/admin_footer`, to output HTML and JavaScript in footer on pages that belong to Simple History
+- Added: new trigger for JavaScript: `SimpleHistory:logReloadStart`. Fired when the log starts to reload, like when using the pagination or using the filter function.
+- Fixed: use Mustache-inspired template tags instead of Underscore default ones, because they don't work with PHP with asp_tags on.
+- Updated: Swedish translation updated
 
 = 2.0.7 (December 2014) =
 
@@ -171,7 +222,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 
 = 1.3.8 =
 - Added filter for rss feed: `simple_history/rss_feed_show`. Fixes more things in this thread: http://wordpress.org/support/topic/more-rss-feed-items.
- 
+
 = 1.3.7 =
 - Added filter for rss feed: `simple_history/rss_feed_args`. Fixes http://wordpress.org/support/topic/more-rss-feed-items.
 

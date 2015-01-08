@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2014-12-17 06:57:05+00:00\n"
-"PO-Revision-Date: 2014-12-17 07:59+0100\n"
+"POT-Creation-Date: 2015-01-06 18:26:23+00:00\n"
+"PO-Revision-Date: 2015-01-06 19:28+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -22,131 +22,132 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: SimpleHistory.php:423 SimpleHistory.php:667
+#: SimpleHistory.php:434 SimpleHistory.php:696
 msgid "Settings"
 msgstr "Inställningar"
 
-#: SimpleHistory.php:434
+#: SimpleHistory.php:445
 msgid "Log (debug)"
 msgstr "Logg (debug)"
 
-#: SimpleHistory.php:439
+#: SimpleHistory.php:450
 msgid "Styles example (debug)"
 msgstr "Stilexempel (debug)"
 
-#: SimpleHistory.php:682
-msgid "History"
-msgstr "Historik"
+#. Plugin Name of the plugin/theme
+#: SimpleHistory.php:711
+msgid "Simple History"
+msgstr "Simple History"
 
-#: SimpleHistory.php:758
+#: SimpleHistory.php:787
 msgid "Remove all log items?"
 msgstr "Ta bort alla händelser?"
 
-#: SimpleHistory.php:760
+#: SimpleHistory.php:789
 msgid "Go to the first page"
 msgstr "Gå till första sidan"
 
-#: SimpleHistory.php:761
+#: SimpleHistory.php:790
 msgid "Go to the previous page"
 msgstr "Gå till föregående sida"
 
-#: SimpleHistory.php:762
+#: SimpleHistory.php:791
 msgid "Go to the next page"
 msgstr "Gå till nästa sida"
 
-#: SimpleHistory.php:763
+#: SimpleHistory.php:792
 msgid "Go to the last page"
 msgstr "Gå till sista sidan"
 
-#: SimpleHistory.php:764
+#: SimpleHistory.php:793
 msgid "Current page"
 msgstr "Aktuell sida"
 
-#: SimpleHistory.php:766
+#: SimpleHistory.php:795
 msgid "Oups, the log could not be loaded right now."
 msgstr "Hoppsan, historiken kunde inte laddas just nu."
 
-#: SimpleHistory.php:767
+#: SimpleHistory.php:796
 msgid "Your search did not match any history events."
 msgstr "Din sökning matchade inte några händelser i historiken."
 
-#: SimpleHistory.php:1061 SimpleHistory.php:1164
+#: SimpleHistory.php:1090 SimpleHistory.php:1193
 msgid "Simple History Settings"
 msgstr "Inställningar för Simple History"
 
-#: SimpleHistory.php:1095
+#: SimpleHistory.php:1124
 msgid "No valid callback found"
 msgstr "Inget giltigt callback hittades."
 
-#: SimpleHistory.php:1185
+#: SimpleHistory.php:1214
 msgid "Cleared database"
 msgstr "Databasen rensades"
 
-#: SimpleHistory.php:1212
+#: SimpleHistory.php:1241
 msgid "Show history"
 msgstr "Visa historik"
 
-#: SimpleHistory.php:1225
+#: SimpleHistory.php:1254
 msgid "Number of items per page"
 msgstr "Antal händelser per sida"
 
-#: SimpleHistory.php:1237
+#: SimpleHistory.php:1266
 msgid "Clear log"
 msgstr "Rensa logg"
 
-#: SimpleHistory.php:1457
+#: SimpleHistory.php:1406
 msgid "on the dashboard"
 msgstr "i panelen"
 
-#: SimpleHistory.php:1462
+#: SimpleHistory.php:1411
 msgid "as a page under the dashboard menu"
 msgstr "som en sida under panel-menyn"
 
-#: SimpleHistory.php:1478
+#: SimpleHistory.php:1427
 msgid "Items in the database are automatically removed after %1$s days."
 msgstr "Händelser i databasen tas automatiskt bort efter %1$s dagar."
 
-#: SimpleHistory.php:1480
+#: SimpleHistory.php:1429
 msgid "Items in the database are kept forever."
 msgstr "Händelser i databasen lagras för evigt."
 
-#: SimpleHistory.php:1484
+#: SimpleHistory.php:1433
 msgid "Clear log now"
 msgstr "Rensa loggen nu"
 
-#: SimpleHistory.php:1709
+#: SimpleHistory.php:1658
 msgid "+%1$s more"
 msgstr "+%1$s fler"
 
-#: SimpleHistory.php:1716
+#: SimpleHistory.php:1665
 msgid "Loading…"
 msgstr "Laddar historik..."
 
-#: SimpleHistory.php:1723
+#: SimpleHistory.php:1672
 msgid "Showing %1$s more"
 msgstr "+%1$s fler"
 
-#: SimpleHistory.php:1742
+#: SimpleHistory.php:1691
 msgid "Context data"
 msgstr "Kontextuell data"
 
-#: SimpleHistory.php:1743
-msgid "This is potentially useful meta data that a logger have saved."
+#: SimpleHistory.php:1692
+msgid "This is potentially useful meta data that a logger has saved."
 msgstr "Detta eventuellt användbar metadata som en logger har sparat."
 
-#: SimpleHistory.php:2065
+#: SimpleHistory.php:2113
 msgid "No events today so far."
 msgstr "Inga händelser idag ännu."
 
-#: SimpleHistory.php:2069
+#: SimpleHistory.php:2117
 msgid "%1$d event today from one user."
 msgstr "%1$d händelse idag från en användare."
 
-#: SimpleHistory.php:2073
+#: SimpleHistory.php:2121
 msgid "%1$d events today from %2$d users."
 msgstr "%1$d händelser idag från %2$d användare."
 
-#: SimpleHistory.php:2077
+#: SimpleHistory.php:2125
 msgid "%1$d events today from one user."
 msgstr "%1$d händelser idag från en användare."
 
@@ -205,12 +206,12 @@ msgid "Created new secret RSS address"
 msgstr "Skapade en ny hemlig RSS-adress"
 
 #: dropins/SimpleHistoryRSSDropin.php:148
-#: dropins/SimpleHistoryRSSDropin.php:256
+#: dropins/SimpleHistoryRSSDropin.php:259
 msgid "History for %s"
 msgstr "Historik för %s"
 
 #: dropins/SimpleHistoryRSSDropin.php:149
-#: dropins/SimpleHistoryRSSDropin.php:257
+#: dropins/SimpleHistoryRSSDropin.php:260
 msgid "WordPress History for %s"
 msgstr "WordPress-historik för %s"
 
@@ -220,11 +221,11 @@ msgid_plural "+%1$s occasions"
 msgstr[0] "+%1$s tillfälle"
 msgstr[1] "+%1$s tillfällen"
 
-#: dropins/SimpleHistoryRSSDropin.php:260
+#: dropins/SimpleHistoryRSSDropin.php:263
 msgid "Wrong RSS secret"
 msgstr "Fel RSS-lösenord"
 
-#: dropins/SimpleHistoryRSSDropin.php:261
+#: dropins/SimpleHistoryRSSDropin.php:264
 msgid ""
 "Your RSS secret for Simple History RSS feed is wrong. Please see WordPress "
 "settings for current link to the RSS feed."
@@ -232,7 +233,7 @@ msgstr ""
 "Ditt RSS-lösenord för RSS-flödet för Simple History är felaktigt. Gå till "
 "WordPress-inställningarna för att få en aktuell länk till RSS-flöded."
 
-#: dropins/SimpleHistoryRSSDropin.php:312
+#: dropins/SimpleHistoryRSSDropin.php:315
 msgid ""
 "You can generate a new address for the RSS feed. This is useful if you think "
 "that the address has fallen into the wrong hands."
@@ -240,11 +241,11 @@ msgstr ""
 "Du kan skapa en ny adress för RSS-flödet. Detta är användbart om du "
 "misstänker att adressen kommit i orätta händer."
 
-#: dropins/SimpleHistoryRSSDropin.php:315
+#: dropins/SimpleHistoryRSSDropin.php:318
 msgid "Generate new address"
 msgstr "Skapa ny adress"
 
-#: dropins/SimpleHistoryRSSDropin.php:343
+#: dropins/SimpleHistoryRSSDropin.php:346
 msgid ""
 "Simple History has a RSS feed which you can subscribe to and receive log "
 "updates. Make sure you only share the feed with people you trust, since it "
@@ -262,7 +263,7 @@ msgstr "Testdata (debug)"
 msgid "Stats"
 msgstr "Statistik"
 
-#: index.php:56
+#: index.php:55
 msgid ""
 "Simple History is a great plugin, but to use it your server must have at "
 "least PHP 5.3 installed (you have version %s)."
@@ -270,27 +271,27 @@ msgstr ""
 "Simple History är en rackarns bra plugin, men för att använda den måste din "
 "server ha minst PHP 5.3 installerat (du har version %s)."
 
-#: loggers/SimpleCommentsLogger.php:682
+#: loggers/SimpleCommentsLogger.php:694
 msgid "Spam"
 msgstr "Skräp"
 
-#: loggers/SimpleCommentsLogger.php:684
+#: loggers/SimpleCommentsLogger.php:696
 msgid "Approved"
 msgstr "Godkänd"
 
-#: loggers/SimpleCommentsLogger.php:686
+#: loggers/SimpleCommentsLogger.php:698
 msgid "Pending"
 msgstr "Väntande"
 
-#: loggers/SimpleCommentsLogger.php:700
+#: loggers/SimpleCommentsLogger.php:712
 msgid "Trackback"
 msgstr "Trackback"
 
-#: loggers/SimpleCommentsLogger.php:702
+#: loggers/SimpleCommentsLogger.php:714
 msgid "Pingback"
 msgstr "Pingback"
 
-#: loggers/SimpleCommentsLogger.php:704
+#: loggers/SimpleCommentsLogger.php:716
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -363,19 +364,19 @@ msgid "Uploaded {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
 "Laddade upp {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 
-#: loggers/SimpleMediaLogger.php:180
+#: loggers/SimpleMediaLogger.php:197
 msgid "{attachment_thumb}"
 msgstr "{attachment_thumb}"
 
-#: loggers/SimpleMediaLogger.php:189
+#: loggers/SimpleMediaLogger.php:206
 msgid "{attachment_size_format}"
 msgstr "{attachment_size_format}"
 
-#: loggers/SimpleMediaLogger.php:190
+#: loggers/SimpleMediaLogger.php:207
 msgid "{attachment_filetype_extension}"
 msgstr "{attachment_filetype_extension}"
 
-#: loggers/SimpleMediaLogger.php:192
+#: loggers/SimpleMediaLogger.php:209
 msgid "{full_image_width} × {full_image_height}"
 msgstr "{full_image_width} × {full_image_height}"
 
@@ -494,10 +495,10 @@ msgstr ""
 #: loggers/SimpleUserLogger.php:24
 msgid ""
 "Failed to login with username \"{failed_login_username}\" because no user "
-"with that username exist"
+"with that username exists"
 msgstr ""
-"Misslyckades att logga in med användarnamn \"{failed_login_username}\" "
-"eftersom ingen användare med det användarnamnet finns"
+"﻿Det gick inte att logga in med användarnamn \"{failed_login_username}\" "
+"eftersom ingen användare med det användarnamnet existerar"
 
 #: loggers/SimpleUserLogger.php:25
 msgid "Logged in"
@@ -528,19 +529,19 @@ msgstr ""
 msgid "Deleted user {deleted_user_login} ({deleted_user_email})"
 msgstr "Raderade användaren {deleted_user_login} ({deleted_user_email})"
 
-#: loggers/SimpleUserLogger.php:153
+#: loggers/SimpleUserLogger.php:229
 msgid "Edited <a href=\"{edit_profile_link}\">your profile</a>"
 msgstr "Redigerade <a href=\"{edit_profile_link}\">din profl</a>"
 
-#: loggers/SimpleUserLogger.php:157
+#: loggers/SimpleUserLogger.php:233
 msgid "Edited <a href=\"{edit_profile_link}\">their profile</a>"
 msgstr "Redigerade <a href=\"{edit_profile_link}\">sin profil</a>"
 
-#: loggers/SimpleUserLogger.php:166
+#: loggers/SimpleUserLogger.php:242
 msgid "Edited your profile"
 msgstr "Redigerade din profil"
 
-#: loggers/SimpleUserLogger.php:177
+#: loggers/SimpleUserLogger.php:253
 msgid ""
 "Edited the profile for user <a href="
 "\"{edit_profile_link}\">{edited_user_login} ({edited_user_email})</a>"
@@ -596,10 +597,6 @@ msgstr ""
 msgid "Deleted users are also included."
 msgstr "Raderade användare är också inkluderade."
 
-#. Plugin Name of the plugin/theme
-msgid "Simple History"
-msgstr "Simple History"
-
 #. Plugin URI of the plugin/theme
 msgid "http://simple-history.com"
 msgstr "http://simple-history.com"
@@ -620,36 +617,157 @@ msgstr "Pär Thernström"
 msgid "http://simple-history.com/"
 msgstr "http://simple-history.com"
 
-#: SimpleHistory.php:166
+#: SimpleHistory.php:177
 msgctxt ""
 "Message visible while waiting for log to load from server the first time"
 msgid "Loading history..."
 msgstr "Laddar historik..."
 
-#: SimpleHistory.php:203
+#: SimpleHistory.php:214
 msgctxt "page n of n"
 msgid "of"
 msgstr "av"
 
-#: SimpleHistory.php:274
+#: SimpleHistory.php:285
 msgctxt "API: not enought arguments passed"
 msgid "Not enough args specified"
 msgstr "Inte tillräckligt med arguments specifierade"
 
-#: SimpleHistory.php:1149
+#: SimpleHistory.php:1178
 msgctxt "dashboard menu name"
 msgid "Simple History"
 msgstr "Simple History"
 
-#: SimpleHistory.php:1274
+#: SimpleHistory.php:1303
 msgctxt "history page headline"
 msgid "Simple History"
 msgstr "Simple History"
+
+#: SimpleHistory.php:1828
+msgctxt "Log level in gui"
+msgid "emergency"
+msgstr "kritiskt"
+
+#: SimpleHistory.php:1832
+msgctxt "Log level in gui"
+msgid "alert"
+msgstr "alert"
+
+#: SimpleHistory.php:1836
+msgctxt "Log level in gui"
+msgid "critical"
+msgstr "kritiskt"
+
+#: SimpleHistory.php:1840
+msgctxt "Log level in gui"
+msgid "error"
+msgstr "error"
+
+#: SimpleHistory.php:1844
+msgctxt "Log level in gui"
+msgid "warning"
+msgstr "warning"
+
+#: SimpleHistory.php:1848
+msgctxt "Log level in gui"
+msgid "notice"
+msgstr "notice"
+
+#: SimpleHistory.php:1852
+msgctxt "Log level in gui"
+msgid "info"
+msgstr "info"
+
+#: SimpleHistory.php:1856
+msgctxt "Log level in gui"
+msgid "debug"
+msgstr "debug"
+
+#: SimpleHistory.php:1861
+msgctxt "Log level in gui"
+msgid "Emergency"
+msgstr "Emergency"
+
+#: SimpleHistory.php:1865
+msgctxt "Log level in gui"
+msgid "Alert"
+msgstr "Alert"
+
+#: SimpleHistory.php:1869
+msgctxt "Log level in gui"
+msgid "Critical"
+msgstr "Critical"
+
+#: SimpleHistory.php:1873
+msgctxt "Log level in gui"
+msgid "Error"
+msgstr "Error"
+
+#: SimpleHistory.php:1877
+msgctxt "Log level in gui"
+msgid "Warning"
+msgstr "Warning"
+
+#: SimpleHistory.php:1881
+msgctxt "Log level in gui"
+msgid "Notice"
+msgstr "Notice"
+
+#: SimpleHistory.php:1885
+msgctxt "Log level in gui"
+msgid "Info"
+msgstr "Info"
+
+#: SimpleHistory.php:1889
+msgctxt "Log level in gui"
+msgid "Debug"
+msgstr "Debug"
 
 #: dropins/SimpleHistoryDonateDropin.php:51
 msgctxt "donate settings headline"
 msgid "Donate"
 msgstr "Donera"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:66
+msgctxt "IP Info Dropin"
+msgid "That IP address does not seem like a public one."
+msgstr "Det IP-numret verkar inte vara publikt."
+
+#: dropins/SimpleHistoryIpInfoDropin.php:85
+msgctxt "IP Info Dropin"
+msgid "IP address"
+msgstr "IP-adress"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:96
+msgctxt "IP Info Dropin"
+msgid "Hostname"
+msgstr "Värdnamn"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:107
+#: dropins/SimpleHistoryIpInfoDropin.php:118
+msgctxt "IP Info Dropin"
+msgid "Network"
+msgstr "Nätverk"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:129
+msgctxt "IP Info Dropin"
+msgid "City"
+msgstr "Stad"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:140
+msgctxt "IP Info Dropin"
+msgid "Region"
+msgstr "Region"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:151
+msgctxt "IP Info Dropin"
+msgid "Country"
+msgstr "Land"
+
+#: dropins/SimpleHistoryIpInfoDropin.php:162
+msgctxt "IP Info Dropin"
+msgid "IP info provided by %1$s ipinfo.io %2$s"
+msgstr "IP-informationen kommer från %1$s ipinfo.io %2$s"
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:38
 msgctxt "New rows notifier: error while checking for new rows"
@@ -922,35 +1040,35 @@ msgctxt "Comments logger: search"
 msgid "Deleted comments"
 msgstr "Borttagna kommentarer"
 
-#: loggers/SimpleCommentsLogger.php:599 loggers/SimpleCommentsLogger.php:612
-#: loggers/SimpleCommentsLogger.php:626
+#: loggers/SimpleCommentsLogger.php:611 loggers/SimpleCommentsLogger.php:624
+#: loggers/SimpleCommentsLogger.php:638
 msgctxt "comments logger - detailed output comment status"
 msgid "Status"
 msgstr "Status"
 
-#: loggers/SimpleCommentsLogger.php:601 loggers/SimpleCommentsLogger.php:614
-#: loggers/SimpleCommentsLogger.php:628
+#: loggers/SimpleCommentsLogger.php:613 loggers/SimpleCommentsLogger.php:626
+#: loggers/SimpleCommentsLogger.php:640
 msgctxt "comments logger - detailed output author"
 msgid "Name"
 msgstr "Namn"
 
-#: loggers/SimpleCommentsLogger.php:602 loggers/SimpleCommentsLogger.php:615
-#: loggers/SimpleCommentsLogger.php:629
+#: loggers/SimpleCommentsLogger.php:614 loggers/SimpleCommentsLogger.php:627
+#: loggers/SimpleCommentsLogger.php:641
 msgctxt "comments logger - detailed output email"
 msgid "Email"
 msgstr "E-post"
 
-#: loggers/SimpleCommentsLogger.php:603 loggers/SimpleCommentsLogger.php:616
+#: loggers/SimpleCommentsLogger.php:615 loggers/SimpleCommentsLogger.php:628
 msgctxt "comments logger - detailed output content"
 msgid "Content"
 msgstr "Innehåll"
 
-#: loggers/SimpleCommentsLogger.php:630
+#: loggers/SimpleCommentsLogger.php:642
 msgctxt "comments logger - detailed output content"
 msgid "Comment"
 msgstr "Kommentar"
 
-#: loggers/SimpleCommentsLogger.php:756
+#: loggers/SimpleCommentsLogger.php:768
 msgctxt "comments logger - edit comment"
 msgid "View/Edit"
 msgstr "Visa/Redigera"
@@ -965,42 +1083,42 @@ msgctxt "User logger: search"
 msgid "WordPress core updates"
 msgstr "WordPress core uppdateringar"
 
-#: loggers/SimpleUserLogger.php:35
+#: loggers/SimpleUserLogger.php:55
 msgctxt "User logger: search"
 msgid "Users"
 msgstr "Användare"
 
-#: loggers/SimpleUserLogger.php:36
+#: loggers/SimpleUserLogger.php:56
 msgctxt "User logger: search"
 msgid "All user activity"
 msgstr "All användaraktivitet"
 
-#: loggers/SimpleUserLogger.php:38
+#: loggers/SimpleUserLogger.php:58
 msgctxt "User logger: search"
 msgid "Successful user logins"
 msgstr "Lyckade inloggningar av användare"
 
-#: loggers/SimpleUserLogger.php:42
+#: loggers/SimpleUserLogger.php:62
 msgctxt "User logger: search"
 msgid "Failed user logins"
 msgstr "Misslyckade inloggningar av användare"
 
-#: loggers/SimpleUserLogger.php:46
+#: loggers/SimpleUserLogger.php:66
 msgctxt "User logger: search"
 msgid "User logouts"
 msgstr "Utloggning av användare"
 
-#: loggers/SimpleUserLogger.php:49
+#: loggers/SimpleUserLogger.php:69
 msgctxt "User logger: search"
 msgid "Created users"
 msgstr "Skapade användare"
 
-#: loggers/SimpleUserLogger.php:52
+#: loggers/SimpleUserLogger.php:72
 msgctxt "User logger: search"
 msgid "User profile updates"
 msgstr "Uppdateringar av användarprofiler"
 
-#: loggers/SimpleUserLogger.php:55
+#: loggers/SimpleUserLogger.php:75
 msgctxt "User logger: search"
 msgid "User deletions"
 msgstr "Radering av användare"
@@ -1182,47 +1300,47 @@ msgctxt "Plugin logger: search"
 msgid "Deleted plugins"
 msgstr "Raderade plugins"
 
-#: loggers/SimplePluginLogger.php:863
+#: loggers/SimplePluginLogger.php:858
 msgctxt "plugin logger - detailed output version"
 msgid "Version"
 msgstr "Version"
 
-#: loggers/SimplePluginLogger.php:865
+#: loggers/SimplePluginLogger.php:860
 msgctxt "plugin logger - detailed output author"
 msgid "Author"
 msgstr "Författare"
 
-#: loggers/SimplePluginLogger.php:867
+#: loggers/SimplePluginLogger.php:862
 msgctxt "plugin logger - detailed output author"
 msgid "Requires"
 msgstr "Kräver"
 
-#: loggers/SimplePluginLogger.php:866
+#: loggers/SimplePluginLogger.php:861
 msgctxt "plugin logger - detailed output url"
 msgid "URL"
 msgstr "URL"
 
-#: loggers/SimplePluginLogger.php:868
+#: loggers/SimplePluginLogger.php:863
 msgctxt "plugin logger - detailed output compatible"
 msgid "Compatible up to"
 msgstr "Kompatibel upp till"
 
-#: loggers/SimplePluginLogger.php:869
+#: loggers/SimplePluginLogger.php:864
 msgctxt "plugin logger - detailed output downloaded"
 msgid "Downloads"
 msgstr "Nedladdningar"
 
-#: loggers/SimplePluginLogger.php:929
+#: loggers/SimplePluginLogger.php:924
 msgctxt "plugin logger: plugin info thickbox title view all info"
 msgid "View plugin info"
 msgstr "Visa information om plugin"
 
-#: loggers/SimplePluginLogger.php:944
+#: loggers/SimplePluginLogger.php:939
 msgctxt "plugin logger: plugin info thickbox title"
 msgid "View plugin info"
 msgstr "Visa information om plugin"
 
-#: loggers/SimplePluginLogger.php:948
+#: loggers/SimplePluginLogger.php:943
 msgctxt "plugin logger: plugin info thickbox title"
 msgid "View changelog"
 msgstr "Visa ändringslogg"
@@ -1297,10 +1415,23 @@ msgctxt "Theme logger: search"
 msgid "Background of themes changed"
 msgstr "Ändrade bakgrunder för teman"
 
+#: loggers/SimpleUserLogger.php:37
+msgctxt "User destroys other login sessions for themself"
+msgid "Logged out from all other sessions"
+msgstr "Loggade ut från alla andra sessioner"
+
+#: loggers/SimpleUserLogger.php:46
+msgctxt "User destroys all login sessions for a user"
+msgid "Logged out \"{user_display_name}\" from all sessions"
+msgstr "Loggade ut \"{user_display_name}\" från alla sessioner"
+
 #: templates/settings-statsRowsPerDay.php:36
 msgctxt "stats: date in rows per day chart"
 msgid "M j"
 msgstr "M j"
+
+#~ msgid "History"
+#~ msgstr "Historik"
 
 #~ msgctxt "dashboard menu name"
 #~ msgid "History"

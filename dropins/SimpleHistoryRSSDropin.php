@@ -12,7 +12,7 @@ Author: Pär Thernström
 class SimpleHistoryRSSDropin {
 
 	function __construct($sh) {
-		
+
 		$this->sh = $sh;
 
 		if ( ! function_exists('get_editable_roles') ) {
@@ -32,7 +32,7 @@ class SimpleHistoryRSSDropin {
 	}
 
 	/**
-	 * Add settings for the RSS feed 
+	 * Add settings for the RSS feed
 	 * + also regenerates the secret if requested
 	 */
 	public function add_settings() {
@@ -43,15 +43,15 @@ class SimpleHistoryRSSDropin {
 		$settings_section_rss_id = "simple_history_settings_section_rss";
 
 		add_settings_section(
-			$settings_section_rss_id, 
-			_x("RSS feed", "rss settings headline", "simple-history"), // No title __("General", "simple-history"), 
-			array($this, "settings_section_output"), 
+			$settings_section_rss_id,
+			_x("RSS feed", "rss settings headline", "simple-history"), // No title __("General", "simple-history"),
+			array($this, "settings_section_output"),
 			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
 
 		// RSS address
 		add_settings_field(
-			"simple_history_rss_feed", 
+			"simple_history_rss_feed",
 			__("Address", "simple-history"),
 			array($this, "settings_field_rss"),
 			SimpleHistory::SETTINGS_MENU_SLUG,
@@ -60,7 +60,7 @@ class SimpleHistoryRSSDropin {
 
 		// Regnerate address
 		add_settings_field(
-			"simple_history_rss_feed_regenerate_secret", 
+			"simple_history_rss_feed_regenerate_secret",
 			__("Regenerate", "simple-history"),
 			array($this, "settings_field_rss_regenerate"),
 			SimpleHistory::SETTINGS_MENU_SLUG,
@@ -70,7 +70,7 @@ class SimpleHistoryRSSDropin {
 		// Create new RSS secret
 		$create_new_secret = false;
 		$create_secret_nonce_name = "simple_history_rss_secret_regenerate_nonce";
-		
+
 	    if ( isset( $_GET[$create_secret_nonce_name] ) && wp_verify_nonce( $_GET[$create_secret_nonce_name], 'simple_history_rss_update_secret')) {
 
 			$create_new_secret = true;
@@ -95,7 +95,7 @@ class SimpleHistoryRSSDropin {
 	 * Check if current request is a request for the RSS feed
 	 */
 	function check_for_rss_feed_request() {
-		
+
 		// check for RSS
 		// don't know if this is the right way to do this, but it seems to work!
 		if ( isset( $_GET["simple_history_get_rss"] ) ) {
@@ -104,7 +104,7 @@ class SimpleHistoryRSSDropin {
 			exit;
 
 		}
-		
+
 	}
 
 	/**
@@ -136,17 +136,17 @@ class SimpleHistoryRSSDropin {
 				wp_die( 'Nothing here.' );
 			}
 
-			header ("Content-Type:text/xml");
+			header("Content-Type: text/xml; charset=utf-8");
 			echo '<?xml version="1.0" encoding="UTF-8"?>';
 			$self_link = $this->get_rss_address();
-	
+
 			if ( $rss_secret_option === $rss_secret_get ) {
-				
+
 				?>
 				<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 					<channel>
-						<title><?php printf(__("History for %s", 'simple-history'), get_bloginfo("name")) ?></title>
-						<description><?php printf(__("WordPress History for %s", 'simple-history'), get_bloginfo("name")) ?></description>
+						<title><![CDATA[<?php printf(__("History for %s", 'simple-history'), get_bloginfo("name")) ?>]]></title>
+						<description><![CDATA[<?php printf(__("WordPress History for %s", 'simple-history'), get_bloginfo("name")) ?>]]></description>
 						<link><?php echo get_bloginfo("url") ?></link>
 						<atom:link href="<?php echo $self_link; ?>" rel="self" type="application/atom+xml" />
 						<?php
@@ -166,7 +166,7 @@ class SimpleHistoryRSSDropin {
 						);
 
 						$args = apply_filters("simple_history/rss_feed_args", $args);
-						
+
 						$logQuery = new SimpleHistoryLogQuery();
 						$queryResults = $logQuery->query($args);
 
@@ -174,7 +174,7 @@ class SimpleHistoryRSSDropin {
 						// remove_action( $action_tag, array($this, "on_can_read_single_logger") );
 
 						foreach ($queryResults["log_rows"] as $row) {
-							
+
 							$header_output = $this->sh->getLogRowHeaderOutput( $row );
 							$text_output = $this->sh->getLogRowPlainTextOutput( $row );
 							$details_output = $this->sh->getLogRowDetailsOutput( $row );
@@ -182,10 +182,10 @@ class SimpleHistoryRSSDropin {
 
 							#$item_title = wp_kses( $header_output . ": " . $text_output, array() );
 							$item_title = wp_kses( $text_output, array() );
-							
+
 							?>
 							<item>
-								<title><?php echo $item_title; ?></title>
+								<title><![CDATA[<?php echo $item_title; ?>]]></title>
 								<description><![CDATA[
 									<p><?php echo $header_output ?></p>
 									<p><?php echo $text_output ?></p>
@@ -193,11 +193,14 @@ class SimpleHistoryRSSDropin {
 									<?php
 									$occasions = $row->subsequentOccasions - 1;
 									if ( $occasions ) {
-										printf( _n('+%1$s occasion', '+%1$s occasions', "simple-history"), $occasions );
+										printf( _n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' ), $occasions );
 									}
 									?>
 								]]></description>
-								<author><?php echo $row->initiator ?></author>
+								<?php
+								// author must be email to validate, but the field is optional, so we skip it
+								/* <author><?php echo $row->initiator ?></author> */
+								?>
 								<pubDate><?php echo date("D, d M Y H:i:s", strtotime($row->date)) ?> GMT</pubDate>
 								<guid isPermaLink="false"><?php echo $item_guid ?></guid>
 								<link><?php echo $item_guid ?></link>
@@ -211,7 +214,7 @@ class SimpleHistoryRSSDropin {
 				                    [level] =&gt; info
 				                    [date] =&gt; 2014-10-15 06:50:01
 				                    [message] =&gt; Updated plugin &quot;{plugin_name}&quot; from {plugin_prev_version} to {plugin_version}
-				                    [type] =&gt; 
+				                    [type] =&gt;
 				                    [initiator] =&gt; wp_user
 				                    [occasionsID] =&gt; 75e8aeab3e43b37f8a458f3744c4995f
 				                    [subsequentOccasions] =&gt; 1
@@ -265,7 +268,7 @@ class SimpleHistoryRSSDropin {
 					</channel>
 				</rss>
 				<?php
-	
+
 			}
 
 	} // rss
@@ -277,9 +280,9 @@ class SimpleHistoryRSSDropin {
 	 * @return string new secret
 	 */
 	function update_rss_secret() {
-		
+
 		$rss_secret = "";
-		
+
 		for ($i=0; $i<20; $i++) {
 			$rss_secret .= chr(rand(97,122));
 		}
@@ -304,7 +307,7 @@ class SimpleHistoryRSSDropin {
 	 * Output for settings field that regenerates the RSS adress/secret
 	 */
 	function settings_field_rss_regenerate() {
-			
+
 		$update_link = add_query_arg("", "");
 		$update_link = wp_nonce_url( $update_link, "simple_history_rss_update_secret", "simple_history_rss_secret_regenerate_nonce" );
 
@@ -324,7 +327,7 @@ class SimpleHistoryRSSDropin {
 	 * @return string URL
 	 */
 	function get_rss_address() {
-		
+
 		$rss_secret = get_option("simple_history_rss_secret");
 		$rss_address = add_query_arg(array("simple_history_get_rss" => "1", "rss_secret" => $rss_secret), get_bloginfo("url") . "/");
 		$rss_address = htmlspecialchars($rss_address, ENT_COMPAT, "UTF-8");

@@ -383,6 +383,11 @@ class SimpleCommentsLogger extends SimpleLogger
 			"comment_post_type" => $comment_parent_post->post_type,
 		);
 
+		// Note: comment type is empty for normal comments
+		if (empty( $context["comment_type"] ) ) {
+			$context["comment_type"] = "comment";
+		}
+
 		return $context;
 
 	}
@@ -481,7 +486,7 @@ class SimpleCommentsLogger extends SimpleLogger
 	public function on_comment_post($comment_ID, $comment_approved) {
 
 		$context = $this->get_context_for_comment($comment_ID);
-		
+
 		if ( ! $context ) {
 			return;
 		}
@@ -489,7 +494,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$comment_data = get_comment( $comment_ID );
 
 		$message = "";
-		
+
 		if ( $comment_data->user_id ) {
 		
 			// comment was from a logged in user
@@ -537,6 +542,12 @@ class SimpleCommentsLogger extends SimpleLogger
 		$context = $row->context;
 		$message_key = $context["_message_key"];
 
+		// Message is untranslated here, so get translated text
+		// Can't call parent __FUNCTION__ because it will interpolate too, which we don't want
+		if ( ! empty( $message_key ) ) {
+			$message = $this->messages[ $message_key ]["translated_text"];
+		}
+
 		// Wrap links around {comment_post_title}
 		$comment_post_ID = isset( $context["comment_post_ID"] ) ? (int) $context["comment_post_ID"] : null;
 		if ( $comment_post_ID && $comment_post = get_post( $comment_post_ID ) ) {
@@ -555,6 +566,7 @@ class SimpleCommentsLogger extends SimpleLogger
 	
 		}
 
+
 		return $this->interpolate($message, $context);
 
 	}
@@ -568,7 +580,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$context = $row->context;
 		$message_key = $context["_message_key"];
 		$output = "";
-	
+		#print_r($row);exit;
 		/*	
 		if ( 'spam' !== $commentdata['comment_approved'] ) { // If it's spam save it silently for later crunching
 				if ( '0' == $commentdata['comment_approved'] ) { // comment not spam, but not auto-approved

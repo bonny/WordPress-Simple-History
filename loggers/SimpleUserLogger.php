@@ -21,7 +21,7 @@ class SimpleUserLogger extends SimpleLogger
 			"capability" => "edit_users",
 			"messages" => array(
 				'user_login_failed' => __('Failed to login to account with username "{login_user_login}" because an incorrect password was entered', "simple-history"),
-				'user_unknown_login_failed' => __('Failed to login with username "{failed_login_username}" because no user with that username exist', "simple-history"),
+				'user_unknown_login_failed' => __('Failed to login with username "{failed_login_username}" because no user with that username exists', "simple-history"),
 				'user_logged_in' => __('Logged in', "simple-history"),
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
@@ -268,52 +268,6 @@ class SimpleUserLogger extends SimpleLogger
 
 
 	/**
-	 * Log failed login attempt to username that exists
-	 *
-	 * @param object $user user object that was tried to gain access to
-	 * @param string password used
-	 */
-	function on_wp_authenticate_user($user, $password) {
-
-		// Only log failed attempts
-		if ( ! wp_check_password($password, $user->user_pass, $user->ID) ) {
-
-			// Overwrite some vars that Simple History set automagically
-			$context = array(
-				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
-				"_user_id" => null,
-				"_user_login" => null,
-				"_user_email" => null,
-				"login_user_id" => $user->ID,
-				"login_user_email" => $user->user_email,
-				"login_user_login" => $user->user_login,
-				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
-				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
-			);
-
-			/**
-			 * Maybe store password too
-			 * Default is to not do this because of privacy and security
-			 *
-			 * @since 2.0
-			 *
-			 * @param bool $log_password
-			 */
-			$log_password = false;
-			$log_password = apply_filters("simple_history/comments_logger/log_failed_password", $log_password);
-			if ($log_password) {
-				$context["login_user_password"] = $password;
-			}
-
-			$this->warningMessage("user_login_failed", $context);
-
-		}
-
-		return $user;
-
-	}
-
-	/**
 	 * User logs in
 	 *
 	 * @param string $user_login
@@ -410,6 +364,53 @@ class SimpleUserLogger extends SimpleLogger
 
 	}
 
+	/**
+	 * Log failed login attempt to username that exists
+	 *
+	 * @param object $user user object that was tried to gain access to
+	 * @param string password used
+	 */
+	function on_wp_authenticate_user($user, $password) {
+
+		// Only log failed attempts
+		if ( ! wp_check_password($password, $user->user_pass, $user->ID) ) {
+
+			// Overwrite some vars that Simple History set automagically
+			$context = array(
+				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
+				"_user_id" => null,
+				"_user_login" => null,
+				"_user_email" => null,
+				"login_user_id" => $user->ID,
+				"login_user_email" => $user->user_email,
+				"login_user_login" => $user->user_login,
+				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
+				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
+			);
+
+			/**
+			 * Maybe store password too
+			 * Default is to not do this because of privacy and security
+			 *
+			 * @since 2.0
+			 *
+			 * @param bool $log_password
+			 */
+			$log_password = false;
+			$log_password = apply_filters("simple_history/comments_logger/log_failed_password", $log_password);
+			if ($log_password) {
+				$context["login_user_password"] = $password;
+			}
+
+			$this->warningMessage("user_login_failed", $context);
+
+		}
+
+		return $user;
+
+	}
+
+	
 	/**
 	 * Attempt to login to user that does not exist
 	 */
