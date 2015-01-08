@@ -39,7 +39,12 @@ class SimpleHistoryExportDropin {
 		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
 		if ( isset($_POST["simple-history-action"]) && $_POST["simple-history-action"] === "export-history" ) {
+
+			// Will die if nonce not valid
+			check_admin_referer( __CLASS__ . "-action-export" );
+
 			sf_d($_POST);
+
 		}
 
 		?>
@@ -50,7 +55,7 @@ class SimpleHistoryExportDropin {
 		<form method="post">
 
 			<h3>Format</h3>
-		
+
 			<p>
 				<label>
 					<input type="radio" name="format" value="csv" checked>
@@ -81,6 +86,10 @@ class SimpleHistoryExportDropin {
 				<input type="hidden" name="simple-history-action" value="export-history">
 			</p>
 
+			<?php
+			wp_nonce_field( __CLASS__ . "-action-export" );
+			?>
+
 		</form>
 
 		<?php
@@ -88,4 +97,3 @@ class SimpleHistoryExportDropin {
 	}
 
 }
-
