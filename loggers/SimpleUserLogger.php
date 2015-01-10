@@ -385,7 +385,8 @@ class SimpleUserLogger extends SimpleLogger
 				"login_user_email" => $user->user_email,
 				"login_user_login" => $user->user_login,
 				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
-				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
+				//"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
+				"_occasionsID" => __CLASS__  . '/failed_user_login'
 			);
 
 			/**
@@ -410,7 +411,7 @@ class SimpleUserLogger extends SimpleLogger
 
 	}
 
-	
+
 	/**
 	 * Attempt to login to user that does not exist
 	 */
@@ -433,7 +434,11 @@ class SimpleUserLogger extends SimpleLogger
 				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 				// count all failed logins to unknown users as the same occasions,
 				// to prevent log being flooded with login/hack attempts
-				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__
+				// "_occasionsID" => __CLASS__  . '/' . __FUNCTION__
+				// Use same occasionsID as for failed login attempts to existing users,
+				// because log can flood otherwise if hacker is rotating existing and non-existing usernames
+				//"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
+				"_occasionsID" => __CLASS__  . '/failed_user_login'
 			);
 
 			/**
@@ -455,7 +460,6 @@ class SimpleUserLogger extends SimpleLogger
 		}
 
 		return $user;
-
 
 	}
 
