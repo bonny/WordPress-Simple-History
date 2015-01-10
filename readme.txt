@@ -110,6 +110,9 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Changed: Failed login attempts from unknown and known users are now grouped together. This change was made because a hacker could make many login attempts to a site and rotate the logins, so they would try with both existing and non existing user names, which would make the log flood with failed login attempts.
+- Changed: use "n similar events" instead of "n more", to more cleary mark that the grouped events are not necessary exactly the same kind.
+
 = 2.0.15 (January 2015) =
 
 - Fixed: Widget changes where not always translated.

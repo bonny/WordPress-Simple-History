@@ -1649,13 +1649,14 @@ class SimpleHistory {
 		// subsequentOccasions = including the current one
 		$occasions_count = $oneLogRow->subsequentOccasions - 1;
 		$occasions_html = "";
+
 		if ($occasions_count > 0) {
 
 			$occasions_html = '<div class="SimpleHistoryLogitem__occasions">';
 
 			$occasions_html .= '<a href="#" class="SimpleHistoryLogitem__occasionsLink">';
 			$occasions_html .= sprintf(
-				__('+%1$s more', "simple-history"),
+				_n('+%1$s similar event', '+%1$s similar events', $occasions_count, "simple-history"),
 				$occasions_count
 			);
 			$occasions_html .= '</a>';
