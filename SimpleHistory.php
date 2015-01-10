@@ -2081,7 +2081,10 @@ class SimpleHistory {
 			"date_from" => strtotime("today")
 		));
 
+		// Get sql query for where to read only loggers current user is allowed to read/view
 		$sql_loggers_in = $this->getLoggersThatUserCanRead(get_current_user_id(), "sql");
+
+		// Get number of users today, i.e. events with wp_user as initiator
 		$sql_users_today = sprintf('
 			SELECT
 				DISTINCT(c.value) AS user_id
@@ -2101,6 +2104,28 @@ class SimpleHistory {
 		);
 
 		$results_users_today = $wpdb->get_results($sql_users_today);
+
+		sf_d($results_users_today, '$sql_users_today');
+
+		// Get number of other sources (not wp_user)
+		$sql_other_sources = sprintf('
+			SELECT
+				DISTINCT(h.initiator) AS initiator
+			FROM %3$s AS h
+			WHERE
+				initiator <> "wp_user"
+				AND logger IN %1$s
+				AND date > "%2$s"
+			',
+			$sql_loggers_in,
+			date("Y-m-d H:i", strtotime("today")),
+			$wpdb->prefix . SimpleHistory::DBTABLE,
+			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS
+		);
+
+		$results_other_sources_today = $wpdb->get_results($sql_other_sources);
+
+		sf_d($results_other_sources_today, '$results_other_sources_today');
 
 		?>
 		<div class="SimpleHistoryQuickStats">
