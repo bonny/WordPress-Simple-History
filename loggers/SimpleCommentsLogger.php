@@ -15,6 +15,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		// Add option to not show spam comments, because to much things getting logged
 		#add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
 		add_filter("simple_history/log_query_inner_where", array($this, "maybe_modify_log_query_sql_where"));
+		add_filter("simple_history/quick_stats_where", array($this, "maybe_modify_log_query_sql_where"));
 
 	}
 
@@ -24,9 +25,9 @@ class SimpleCommentsLogger extends SimpleLogger
 	 * @param string $where sql query where
 	 */
 	function maybe_modify_log_query_sql_where($where) {
-		
+
 		$include_spam = false;
-		
+
 		/**
 		 * Filter option to include spam or not in the gui
 		 * By default spam is not included, because it can fill the log
@@ -44,29 +45,29 @@ class SimpleCommentsLogger extends SimpleLogger
 
 		$where .= sprintf('
 			AND id NOT IN (
-			
+
 				SELECT id
-					# , c1.history_id, c2.history_id 
+					# , c1.history_id, c2.history_id
 				FROM %1$s AS h
 
-				INNER JOIN %2$s AS c1 
-					ON c1.history_id = h.id 
-					AND c1.key = "_message_key" 
+				INNER JOIN %2$s AS c1
+					ON c1.history_id = h.id
+					AND c1.key = "_message_key"
 					AND c1.value IN (
-						"comment_deleted", 
-						"pingback_deleted", 
+						"comment_deleted",
+						"pingback_deleted",
 						"trackback_deleted",
-						"anon_comment_added", 
-						"anon_pingback_added", 
+						"anon_comment_added",
+						"anon_pingback_added",
 						"anon_trackback_added"
 					)
 
-				INNER JOIN %2$s AS c2 
-					ON c2.history_id = h.id 
-					AND c2.key = "comment_approved" 
+				INNER JOIN %2$s AS c2
+					ON c2.history_id = h.id
+					AND c2.key = "comment_approved"
 					AND c2.value = "spam"
 
-				WHERE logger = "%3$s" 
+				WHERE logger = "%3$s"
 
 			)
 		', $this->db_table, $this->db_table_contexts, $this->slug);
@@ -79,12 +80,12 @@ class SimpleCommentsLogger extends SimpleLogger
 
 	/**
 	 * Get array with information about this logger
-	 * 
+	 *
 	 * @return array
 	 */
 	function getInfo() {
 
-		$arr_info = array(			
+		$arr_info = array(
 			"name" => "Comments Logger",
 			"description" => "Logs comments, and modifications to them",
 			"capability" => "moderate_comments",
@@ -98,49 +99,49 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'user_comment_added' => _x(
-					'Added a comment to {comment_post_type} "{comment_post_title}"', 
+					'Added a comment to {comment_post_type} "{comment_post_title}"',
 					'A comment was added to the database by a logged in user',
 					'simple-history'
 				),
 
 				'comment_status_approve' => _x(
-					'Approved a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Approved a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was approved',
 					'simple-history'
 				),
 
 				'comment_status_hold' => _x(
-					'Unapproved a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Unapproved a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was was unapproved',
 					'simple-history'
 				),
 
 				'comment_status_spam' => _x(
-					'Marked a comment to post "{comment_post_title}" as spam', 
+					'Marked a comment to post "{comment_post_title}" as spam',
 					'A comment was marked as spam',
 					'simple-history'
 				),
 
 				'comment_status_trash' => _x(
-					'Trashed a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Trashed a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was marked moved to the trash',
 					'simple-history'
 				),
 
 				'comment_untrashed' => _x(
-					'Restored a comment to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash', 
+					'Restored a comment to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash',
 					'A comment was restored from the trash',
 					'simple-history'
 				),
 
 				'comment_deleted' => _x(
-					'Deleted a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Deleted a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was deleted',
 					'simple-history'
 				),
 
 				'comment_edited' => _x(
-					'Edited a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Edited a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was edited',
 					'simple-history'
 				),
@@ -153,49 +154,49 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'user_trackback_added' => _x(
-					'Added a trackback to {comment_post_type} "{comment_post_title}"', 
+					'Added a trackback to {comment_post_type} "{comment_post_title}"',
 					'A trackback was added to the database by a logged in user',
 					'simple-history'
 				),
 
 				'trackback_status_approve' => _x(
-					'Approved a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Approved a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was approved',
 					'simple-history'
 				),
 
 				'trackback_status_hold' => _x(
-					'Unapproved a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Unapproved a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was was unapproved',
 					'simple-history'
 				),
 
 				'trackback_status_spam' => _x(
-					'Marked a trackback to post "{comment_post_title}" as spam', 
+					'Marked a trackback to post "{comment_post_title}" as spam',
 					'A trackback was marked as spam',
 					'simple-history'
 				),
 
 				'trackback_status_trash' => _x(
-					'Trashed a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Trashed a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was marked moved to the trash',
 					'simple-history'
 				),
 
 				'trackback_untrashed' => _x(
-					'Restored a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash', 
+					'Restored a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash',
 					'A trackback was restored from the trash',
 					'simple-history'
 				),
 
 				'trackback_deleted' => _x(
-					'Deleted a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Deleted a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was deleted',
 					'simple-history'
 				),
 
 				'trackback_edited' => _x(
-					'Edited a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Edited a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was edited',
 					'simple-history'
 				),
@@ -208,49 +209,49 @@ class SimpleCommentsLogger extends SimpleLogger
 				),
 
 				'user_pingback_added' => _x(
-					'Added a pingback to {comment_post_type} "{comment_post_title}"', 
+					'Added a pingback to {comment_post_type} "{comment_post_title}"',
 					'A pingback was added to the database by a logged in user',
 					'simple-history'
 				),
 
 				'pingback_status_approve' => _x(
-					'Approved a pingback to "{comment_post_title}" by "{comment_author}"" ({comment_author_email})', 
+					'Approved a pingback to "{comment_post_title}" by "{comment_author}"" ({comment_author_email})',
 					'A pingback was approved',
 					'simple-history'
 				),
 
 				'pingback_status_hold' => _x(
-					'Unapproved a pingback to "{comment_post_title}" by "{comment_author}" ({comment_author_email})', 
+					'Unapproved a pingback to "{comment_post_title}" by "{comment_author}" ({comment_author_email})',
 					'A pingback was was unapproved',
 					'simple-history'
 				),
 
 				'pingback_status_spam' => _x(
-					'Marked a pingback to post "{comment_post_title}" as spam', 
+					'Marked a pingback to post "{comment_post_title}" as spam',
 					'A pingback was marked as spam',
 					'simple-history'
 				),
 
 				'pingback_status_trash' => _x(
-					'Trashed a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Trashed a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A pingback was marked moved to the trash',
 					'simple-history'
 				),
 
 				'pingback_untrashed' => _x(
-					'Restored a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash', 
+					'Restored a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash',
 					'A pingback was restored from the trash',
 					'simple-history'
 				),
 
 				'pingback_deleted' => _x(
-					'Deleted a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Deleted a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A pingback was deleted',
 					'simple-history'
 				),
 
 				'pingback_edited' => _x(
-					'Edited a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})', 
+					'Edited a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A pingback was edited',
 					'simple-history'
 				),
@@ -312,7 +313,7 @@ class SimpleCommentsLogger extends SimpleLogger
 			) // labels
 
 		);
-		
+
 		return $arr_info;
 
 	}
@@ -346,12 +347,12 @@ class SimpleCommentsLogger extends SimpleLogger
 	 	 */
 		add_action( "edit_comment", array( $this, 'on_edit_comment'), 10, 1 );
 
-		
+
 	}
 
 	/**
 	 * Get comments context
-	 * 
+	 *
 	 * @param int $comment_ID
 	 * @return mixed array with context if comment found, false if comment not found
 	 */
@@ -402,7 +403,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$this->infoMessage(
 			"{$context["comment_type"]}_edited",
 			$context
-		);		
+		);
 
 	}
 
@@ -426,7 +427,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$this->infoMessage(
 			"{$context["comment_type"]}_deleted",
 			$context
-		);		
+		);
 
 	}
 
@@ -440,7 +441,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$this->infoMessage(
 			"{$context["comment_type"]}_untrashed",
 			$context
-		);		
+		);
 
 	}
 
@@ -451,7 +452,7 @@ class SimpleCommentsLogger extends SimpleLogger
 	 * @param string|bool $comment_status The comment status. Possible values include 'hold',
 	 *                                    'approve', 'spam', 'trash', or false.
 	 * do_action( 'wp_set_comment_status', $comment_id, $comment_status );
-	 */	
+	 */
 	public function on_wp_set_comment_status($comment_ID, $comment_status) {
 
 		$context = $this->get_context_for_comment($comment_ID);
@@ -496,12 +497,12 @@ class SimpleCommentsLogger extends SimpleLogger
 		$message = "";
 
 		if ( $comment_data->user_id ) {
-		
+
 			// comment was from a logged in user
 			$message = "user_{$context["comment_type"]}_added";
 
 		} else {
-		
+
 			// comment was from a non-logged in user
 			$message = "anon_{$context["comment_type"]}_added";
 			$context["_initiator"] = SimpleLoggerLogInitiators::WEB_USER;
@@ -518,8 +519,8 @@ class SimpleCommentsLogger extends SimpleLogger
 		// OR: different messages for different comment types?
 		/*
 		if ( isset( $comment_data["comment_type"] ) ) {
-			
-			$comment_type = $comment_data["comment_type"];		
+
+			$comment_type = $comment_data["comment_type"];
 
 		}
 		*/
@@ -537,7 +538,7 @@ class SimpleCommentsLogger extends SimpleLogger
 	 * and link to comment
 	 */
 	public function getLogRowPlainTextOutput($row) {
-		
+
 		$message = $row->message;
 		$context = $row->context;
 		$message_key = $context["_message_key"];
@@ -555,7 +556,7 @@ class SimpleCommentsLogger extends SimpleLogger
 			$edit_post_link = get_edit_post_link( $comment_post_ID );
 
 			if ( $edit_post_link ) {
-			
+
 				$message = str_replace(
 					'"{comment_post_title}"',
 					"<a href='{$edit_post_link}'>\"{comment_post_title}\"</a>",
@@ -563,7 +564,7 @@ class SimpleCommentsLogger extends SimpleLogger
 				);
 
 			}
-	
+
 		}
 
 
@@ -581,7 +582,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$message_key = $context["_message_key"];
 		$output = "";
 		#print_r($row);exit;
-		/*	
+		/*
 		if ( 'spam' !== $commentdata['comment_approved'] ) { // If it's spam save it silently for later crunching
 				if ( '0' == $commentdata['comment_approved'] ) { // comment not spam, but not auto-approved
 					wp_notify_moderator( $comment_ID );
@@ -598,7 +599,7 @@ class SimpleCommentsLogger extends SimpleLogger
 			$comment_text = wp_trim_words( $comment_text, 20 );
 			$comment_text = wpautop( $comment_text );
 		}
-	
+
 		// Keys to show
 		$arr_plugin_keys = array();
 		$comment_type = isset( $context["comment_type"] ) ? $context["comment_type"] : "";
@@ -633,7 +634,7 @@ class SimpleCommentsLogger extends SimpleLogger
 
 			case "comment";
 			default;
-				
+
 				$arr_plugin_keys = array(
 					"comment_status" => _x("Status", "comments logger - detailed output comment status", "simple-history"),
 					#"comment_type" => _x("Comment type", "comments logger - detailed output comment type", "simple-history"),
@@ -655,7 +656,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
 		foreach ( $arr_plugin_keys as $key => $desc ) {
-			
+
 			switch ( $key ) {
 
 				case "comment_content":
@@ -667,18 +668,18 @@ class SimpleCommentsLogger extends SimpleLogger
 				case "comment_author":
 				case "trackback_author":
 				case "pingback_author":
-					
+
 					$desc_output = "";
 
 					$desc_output .= esc_html( $context[ $key ] );
 
 					/*
 					if ( isset( $context["comment_author_email"] ) ) {
-						
+
 						$gravatar_email = $context["comment_author_email"];
 						$avatar = $this->simpleHistory->get_avatar( $gravatar_email, 14, "blank" );
 						$desc_output .= "<span class='SimpleCommentsLogger__gravatar'>{$avatar}</span>";
-						
+
 					}
 					*/
 
@@ -747,17 +748,17 @@ class SimpleCommentsLogger extends SimpleLogger
 
 		// Add link to edit comment
 		$comment_ID = isset( $context["comment_ID"] ) && is_numeric( $context["comment_ID"] ) ? (int) $context["comment_ID"] : false;
-		
+
 		if ( $comment_ID ) {
-		
+
 			// http://site.local/wp/wp-admin/comment.php?action=editcomment&c=
 			$edit_comment_link = get_edit_comment_link( $comment_ID );
-			
+
 			// Edit link sometimes does not contain comment ID
 			// Probably because comment has been removed or something
 			// So only continue if link does not end with "=""
 			if ( $edit_comment_link && $edit_comment_link[strlen($edit_comment_link)-1] !== "=" ) {
-			
+
 				$output .= sprintf(
 					'
 					<tr>

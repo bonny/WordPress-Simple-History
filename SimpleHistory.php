@@ -2107,11 +2107,8 @@ class SimpleHistory {
 		$count_users_today = sizeof( $results_users_today );
 
 		// Get number of other sources (not wp_user)
-		$sql_other_sources = sprintf('
-			SELECT
-				DISTINCT(h.initiator) AS initiator
-			FROM %3$s AS h
-			WHERE
+		$sql_other_sources_where = sprintf(
+			'
 				initiator <> "wp_user"
 				AND logger IN %1$s
 				AND date > "%2$s"
@@ -2121,6 +2118,23 @@ class SimpleHistory {
 			$wpdb->prefix . SimpleHistory::DBTABLE,
 			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS
 		);
+
+		$sql_other_sources_where = apply_filters("simple_history/quick_stats_where", $sql_other_sources_where);
+
+		$sql_other_sources = sprintf('
+			SELECT
+				DISTINCT(h.initiator) AS initiator
+			FROM %3$s AS h
+			WHERE
+				%5$s
+			',
+			$sql_loggers_in,
+			date("Y-m-d H:i", strtotime("today")),
+			$wpdb->prefix . SimpleHistory::DBTABLE,
+			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS,
+			$sql_other_sources_where // 5
+		);
+		// sf_d($sql_other_sources, '$sql_other_sources');
 
 		$results_other_sources_today = $wpdb->get_results($sql_other_sources);
 		$count_other_sources = sizeof( $results_other_sources_today );
