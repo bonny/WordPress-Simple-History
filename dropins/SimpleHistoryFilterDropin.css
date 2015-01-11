@@ -6,7 +6,7 @@
 	margin-right: -340px;
 	*/
 	/* hide by default while log is loading */
-	opacity: 0;
+	opacity: .5;
 	transition: all .25s ease-out;
 }
 
@@ -14,14 +14,19 @@
 	opacity: 1;
 }
 
-
 .SimpleHistory__filters__form select {
 	/* width: 100%; */
+	width: 310px;
 }
 
 .SimpleHistory__filters__form input[type=text],
 .SimpleHistory__filters__form input[type=search] {
 	/* width: 100%; */
+	/* width: 310px; */
+}
+
+.SimpleHistory__filters__filter--date {
+	width: 310px;
 }
 
 /**
@@ -47,9 +52,24 @@
 	margin-right: 10px;
 }
 
-/* more fitlers are hidden by default */
+.SimpleHistoryFilterDropin-showMoreFilters {
+	border: 0;
+	background: none;
+	color: rgb(0, 116, 162);
+	cursor: pointer;
+}
+
+.SimpleHistoryFilterDropin-showMoreFilters:hover {
+	color: rgb(46, 162, 204);
+}
+
+/* more filters are hidden by default */
 .SimpleHistory__filters__moreFilters {
 	display: none;
+}
+
+.SimpleHistory__filters__moreFilters.is-visible {
+	display: block;
 }
 
 /* dashboard */
