@@ -1,13 +1,20 @@
 
-/*.SimpleHistory__filters {
+.SimpleHistory__filters {
 
-}*/
+	float: right;
+	width: 300px;
+	margin-right: -340px;
+
+	/* hide by default while log is loading */
+	opacity: 0;
+
+}
 
 .SimpleHistory__filters__form select {
 	width: 100%;
 }
 
-.SimpleHistory__filters__form input[type=text], 
+.SimpleHistory__filters__form input[type=text],
 .SimpleHistory__filters__form input[type=search] {
 	width: 100%;
 }
@@ -34,4 +41,3 @@
 .SimpleHistory__filters__userfilter__gravatar {
 	margin-right: 10px;
 }
-
