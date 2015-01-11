@@ -2140,8 +2140,8 @@ class SimpleHistory {
 		$count_other_sources = sizeof( $results_other_sources_today );
 
 		#sf_d($logResults, '$logResults');
-		sf_d($results_users_today, '$sql_users_today');
-		sf_d($results_other_sources_today, '$results_other_sources_today');
+		#sf_d($results_users_today, '$sql_users_today');
+		#sf_d($results_other_sources_today, '$results_other_sources_today');
 
 		?>
 		<div class="SimpleHistoryQuickStats">
