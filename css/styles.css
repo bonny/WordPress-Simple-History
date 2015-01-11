@@ -11,7 +11,7 @@ The spinner that wp uses:;
 .SimpleHistory__cf:after { clear:both; }
 .SimpleHistory__cf { zoom:1; } /* For IE 6/7 (trigger hasLayout) */
 
-.SimpleHistoryGui, 
+.SimpleHistoryGui,
 .SimpleHistoryGuiExample {
 	position: relative;
 	/* must have a height so "loading..." will be visible in dashboard */
@@ -72,20 +72,6 @@ The spinner that wp uses:;
 }
 */
 
-.SimpleHistory__filters {
-	float: right;
-	width: 300px;
-	margin-right: -340px;
-	/* hide by default while log is loading */
-	opacity: 0;
-	transition: all .25s ease-out;
-}
-
-.SimpleHistory--isLoaded .SimpleHistory__filters {
-	opacity: 1;
-}
-
-
 .SimpleHistoryLogitems {
 	margin: 0;
 	background: #fff;
@@ -103,7 +89,7 @@ The spinner that wp uses:;
 
 /**
  * Log items
- * There is always a 4px left border, just with differents colors 
+ * There is always a 4px left border, just with differents colors
  */
 .SimpleHistoryLogitem {
 	position: relative;
@@ -111,7 +97,7 @@ The spinner that wp uses:;
 	margin: 0;
 	padding: 20px 20px 20px 16px;
 	/*border-bottom: 1px solid rgb(229, 229, 229);*/
-	
+
 	/* uncomment to show border with log color */
 	/*border-left: 4px solid transparent;*/
 
@@ -307,7 +293,7 @@ Style different log levels.
 
 /* table with keys and values */
 /*.SimpleHistoryLogitem__keyValueTable {
-	
+
 }*/
 
 .SimpleHistoryLogitem__keyValueTable th,
@@ -469,7 +455,7 @@ when occasions are added
 
 
 /*
-customizations for the dashboard 
+customizations for the dashboard
 i.e. the log is inside a .postbox element
 */
 
@@ -524,8 +510,8 @@ i.e. the log is inside a .postbox element
 		margin-bottom: 0;
 	}
 
-	.postbox .SimpleHistoryLogitem__text, 
-	.postbox .SimpleHistoryLogitem__details, 
+	.postbox .SimpleHistoryLogitem__text,
+	.postbox .SimpleHistoryLogitem__details,
 	.postbox .SimpleHistoryLogitem__details p {
 		line-height: 1.1;
 	}
@@ -820,4 +806,3 @@ Modal window with detailss
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
 	display: block;
 }
-

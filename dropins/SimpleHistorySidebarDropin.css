@@ -1,0 +1,14 @@
+
+.SimpleHistory__pageSidebar {
+	float: right;
+	width: 300px;
+	margin-right: -340px;
+}
+
+.SimpleHistory__pageSidebar .inside {
+	margin-bottom: 0;
+}
+
+.SimpleHistory__pageSidebar .metabox-holder {
+	padding-top: 0 !important;
+}
