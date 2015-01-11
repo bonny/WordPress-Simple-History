@@ -2180,13 +2180,13 @@ class SimpleHistory {
 
 						// Multiple events from multple users but from only 1 single other source
 						// 3 events today from 2 users and 1 other source.
-						if ( $logResults["total_row_count"] && $count_users_today > 1 && $count_other_sources == 1 ) {
+						if ( $logResults["total_row_count"] > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
 							$msg_tmpl .= __('%1$d events today from one user and %3$d other source.', "simple-history");
 						}
 
 						// Multiple events from 1 user but from multiple  other source
 						// 3 events today from 1 user and 2 other sources.
-						if ( $logResults["total_row_count"] && 1 == $count_users_today && $count_other_sources > 1 ) {
+						if ( $logResults["total_row_count"] > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
 							$msg_tmpl .= __('%1$d events today from one user and %3$d other sources.', "simple-history");
 						}
 
