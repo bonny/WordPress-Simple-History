@@ -46,3 +46,8 @@
 .SimpleHistory__filters__userfilter__gravatar {
 	margin-right: 10px;
 }
+
+/* more fitlers are hidden by default */
+.SimpleHistory__filters__moreFilters {
+	display: none;
+}
