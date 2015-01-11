@@ -2106,9 +2106,6 @@ class SimpleHistory {
 		$results_users_today = $wpdb->get_results($sql_users_today);
 		$count_users_today = sizeof( $results_users_today );
 
-		#sf_d($results_users_today, '$sql_users_today');
-		#sf_d($logResults, '$logResults');
-
 		// Get number of other sources (not wp_user)
 		$sql_other_sources = sprintf('
 			SELECT
@@ -2128,7 +2125,9 @@ class SimpleHistory {
 		$results_other_sources_today = $wpdb->get_results($sql_other_sources);
 		$count_other_sources = sizeof( $results_other_sources_today );
 
-		#sf_d($results_other_sources_today, '$results_other_sources_today');
+		#sf_d($logResults, '$logResults');
+		sf_d($results_users_today, '$sql_users_today');
+		sf_d($results_other_sources_today, '$results_other_sources_today');
 
 		?>
 		<div class="SimpleHistoryQuickStats">
