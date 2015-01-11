@@ -12,3 +12,7 @@
 .SimpleHistory__pageSidebar .metabox-holder {
 	padding-top: 0 !important;
 }
+
+.SimpleHistory__pageSidebar .postbox .hndle {
+	cursor: auto;
+}
