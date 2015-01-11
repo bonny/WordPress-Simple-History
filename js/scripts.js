@@ -7,15 +7,15 @@ var simple_history = (function($) {
 	var debug = function(what) {
 
 		if (typeof what == "object") {
-		
+
 			var newWhat = "";
-		
+
 			_.each(what, function(val, key) {
 				newWhat += key + ": " + val + "\n";
 			});
-		
+
 			what = newWhat;
-		
+
 		}
 
 		$(".SimpleHistoryLogitems__debug").append("<br>" + what);
@@ -168,9 +168,9 @@ var simple_history = (function($) {
 			var logRowID = this.attributes.logRow.data("rowId");
 			var occasionsCount = this.attributes.logRow.data("occasionsCount");
 			var occasionsID = this.attributes.logRow.data("occasionsId");
-			
+
 			this.attributes.logRow.addClass("SimpleHistoryLogitem--occasionsOpening");
-			
+
 			this.logRows = new OccasionsLogRowsCollection([], {
 				logRow: this.attributes.logRow,
 				logRowID: logRowID,
@@ -188,9 +188,9 @@ var simple_history = (function($) {
 		},
 
 		render: function() {
-			
+
 			var $html = $([]);
-			
+
 			this.logRows.each(function(model) {
 				var $li = $(model.get("html"));
 				$li.addClass("SimpleHistoryLogitem--occasion");
@@ -198,7 +198,7 @@ var simple_history = (function($) {
 			});
 
 			this.$el.html($html);
-			
+
 			this.attributes.logRow.removeClass("SimpleHistoryLogitem--occasionsOpening").addClass("SimpleHistoryLogitem--occasionsOpened");
 
 			this.$el.addClass("haveOccasionsAdded");
@@ -226,7 +226,7 @@ var simple_history = (function($) {
 
 			this.template = $("#tmpl-simple-history-logitems-modal").html();
 			this.show();
-			
+
 			this.listenTo(this.model, "change", this.render);
 
 			// also close on esc
@@ -247,14 +247,14 @@ var simple_history = (function($) {
 		show: function() {
 
 			var $modalEl = $(".SimpleHistory-modal");
-			
+
 			if (!$modalEl.length) {
 				$modalEl = $(this.template);
 				$modalEl.appendTo("body");
 			}
 
 			this.setElement($modalEl);
-	
+
 			var $modalContentEl = $modalEl.find(".SimpleHistory-modal__content");
 			$modalContentEl.addClass("SimpleHistory-modal__content--enter");
 
@@ -265,13 +265,13 @@ var simple_history = (function($) {
 		},
 
 		close: function() {
-			
+
 			var $modalContentEl = this.$el.find(".SimpleHistory-modal__content");
 			$modalContentEl.addClass("SimpleHistory-modal__content--leave");
-			
+
 			// Force repaint before adding active class
 			var offsetHeight = $modalContentEl.get(0).offsetHeight;
-			
+
 			$modalContentEl.addClass("SimpleHistory-modal__content--leave-active");
 			this.$el.addClass("SimpleHistory-modal__leave-active");
 
@@ -287,7 +287,7 @@ var simple_history = (function($) {
 		},
 
 		render: function() {
-			
+
 			var $modalContentInnerEl = this.$el.find(".SimpleHistory-modal__contentInner");
 			var logRowLI = this.model.get("data").log_rows[0];
 			$modalContentInnerEl.html(logRowLI);
@@ -297,9 +297,9 @@ var simple_history = (function($) {
 	});
 
 	var RowsView = Backbone.View.extend({
-	
+
 		initialize: function() {
-			
+
 			this.collection.on("reset", this.render, this);
 			this.collection.on("reload", this.onReload, this);
 			this.collection.on("reloadDone", this.onReloadDone, this);
@@ -328,7 +328,7 @@ var simple_history = (function($) {
 			// Add message if no hits
 			$mainViewElm.removeClass("SimpleHistory--hasNoHits");
 			if (! this.collection.length ) {
-				
+
 				$mainViewElm.addClass("SimpleHistory--hasNoHits");
 
 				var noHitsClass = "SimpleHistoryLogitems__noHits";
@@ -344,7 +344,7 @@ var simple_history = (function($) {
 					;
 
 			} // add msg
-	
+
 		},
 
 		events: {
@@ -365,7 +365,7 @@ var simple_history = (function($) {
 			var $target = $(e.target);
 			var $logRow = $target.closest(".SimpleHistoryLogitem");
 			var logRowID = $logRow.data("rowId");
-			
+
 			Backbone.history.navigate("item/" + logRowID, { trigger: true });
 
 		},
@@ -377,7 +377,7 @@ var simple_history = (function($) {
 			var $target = $(e.target);
 			var $logRow = $target.closest(".SimpleHistoryLogitem");
 			var $occasionsElm = $("<li class='SimpleHistoryLogitem__occasionsItemsWrap'><ul class='SimpleHistoryLogitem__occasionsItems'/></li>");
-			
+
 			$logRow.after($occasionsElm);
 
 			this.occasionsView = new OccasionsView({
@@ -395,7 +395,7 @@ var simple_history = (function($) {
 			this.collection.each(function(model) {
 				html += model.get("html");
 			});
-			
+
 			this.$el.html( html );
 
 			// Rendering of log rows items is done
@@ -408,7 +408,7 @@ var simple_history = (function($) {
 	var PaginationView = Backbone.View.extend({
 
 		initialize: function() {
-			
+
 			$(document).keydown({ view: this }, this.keyboardNav);
 
 			this.collection.on("reset", this.render, this);
@@ -433,6 +433,12 @@ var simple_history = (function($) {
 				return;
 			}
 
+			// Don't nav away if a text input (like the search box) is selected
+			var $target = $(e.target);
+			if ($target.is("input")) {
+				return;
+			}
+
 			var paged;
 
 			if (e.keyCode == 37) {
@@ -453,7 +459,7 @@ var simple_history = (function($) {
 
 			// keycode 13 = enter
 			if (e.keyCode == 13) {
-				
+
 				var $target = $(e.target);
 				var paged = parseInt( $target.val() );
 
@@ -473,7 +479,7 @@ var simple_history = (function($) {
 		},
 
 		navigateArrow: function(e) {
-			
+
 			e.preventDefault();
 			var $target = $(e.target);
 
@@ -507,7 +513,7 @@ var simple_history = (function($) {
 			}
 
 			this.fetchPage(paged);
-			
+
 		},
 
 		/**
@@ -517,7 +523,7 @@ var simple_history = (function($) {
 		fetchPage: function(paged) {
 
 			$(document).trigger("SimpleHistory:logReloadStart");
-			
+
 			$("html").addClass("SimpleHistory-isLoadingPage");
 
 			var url_data = {
@@ -546,7 +552,7 @@ var simple_history = (function($) {
 		render: function() {
 
 			var compiled = wp.template("simple-history-logitems-pagination");
-			
+
 			this.$el.html( compiled({
 				min_id: this.collection.min_id,
 				max_id: this.collection.max_id,
@@ -563,7 +569,7 @@ var simple_history = (function($) {
 	});
 
 	var MainView = Backbone.View.extend({
-		
+
 		el: ".SimpleHistoryGui",
 
 		initialize: function() {
@@ -585,7 +591,7 @@ var simple_history = (function($) {
 			this.logRowsCollection = new LogRowsCollection([], {
 				mainView: this,
 			});
-			
+
 			this.rowsView = new RowsView({
 				el: this.$el.find(".SimpleHistoryLogitems"),
 				collection: this.logRowsCollection
@@ -631,7 +637,7 @@ var simple_history = (function($) {
 		},
 
 		item: function(logRowID) {
-			
+
 			var detailsModel = new DetailsModel({
 				id: logRowID
 			});
@@ -655,9 +661,9 @@ var simple_history = (function($) {
 	// Init MainView on domReady
 	// This is to make sure dropins and plugins have been loaded
 	$(document).ready(function() {
-	
+
 		mainView.manualInitialize();
-		
+
 	});
 
 	return mainView;
@@ -665,7 +671,7 @@ var simple_history = (function($) {
 })(jQuery);
 
 jQuery(".js-SimpleHistory-Settings-ClearLog").on("click", function(e) {
-	
+
 	if (confirm(simple_history_script_vars.settingsConfirmClearLog)) {
 		return;
 	} else {
@@ -673,4 +679,3 @@ jQuery(".js-SimpleHistory-Settings-ClearLog").on("click", function(e) {
 	}
 
 });
-

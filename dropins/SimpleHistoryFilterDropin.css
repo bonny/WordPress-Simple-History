@@ -51,3 +51,9 @@
 .SimpleHistory__filters__moreFilters {
 	display: none;
 }
+
+/* dashboard */
+.postbox .SimpleHistory__filters {
+	margin-left: 13px;
+	margin-right: 13px;
+}

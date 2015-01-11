@@ -17,6 +17,7 @@ class SimpleHistoryFilterDropin {
 
 		add_action("simple_history/enqueue_admin_scripts", array($this, "enqueue_admin_scripts"));
 		add_action("simple_history/history_page/before_gui", array( $this, "gui_page_filters") );
+		add_action("simple_history/dashboard/before_gui", array( $this, "gui_page_filters") );
 		add_action("wp_ajax_simple_history_filters_search_user", array( $this, "ajax_simple_history_filters_search_user") );
 
 	}
@@ -40,10 +41,11 @@ class SimpleHistoryFilterDropin {
 
 			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
 
-				<h3><?php _e("Filter history", "simple-history") ?></h3>
+				<!-- <h3><?php _e("Filter history", "simple-history") ?></h3> -->
 
 				<p>
-					<input type="search" placeholder="<?php _e("Search", "simple-history"); ?>" name="search">
+					<input type="search" placeholder="<?php _e("", "simple-history"); ?>" name="search">
+					<button class="button js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search", "simple-history") ?></button>
 				</p>
 
 				<div class="SimpleHistory__filters__moreFilters">
@@ -152,9 +154,11 @@ class SimpleHistoryFilterDropin {
 
 				</div>
 
+				<!--
 				<p>
-					<button class="button js-SimpleHistoryFilterDropin-doFilter"><?php _e("Filter", "simple-history") ?></button>
+					<button class="button js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search", "simple-history") ?></button>
 				</p>
+				-->
 
 			</form>
 

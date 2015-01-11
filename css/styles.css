@@ -806,3 +806,8 @@ Modal window with detailss
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
 	display: block;
 }
+
+.postbox .SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
+	margin-left: 13px;
+	margin-right: 13px;
+}
