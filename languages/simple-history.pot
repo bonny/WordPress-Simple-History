@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2.0.15\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-01-11 15:07:53+00:00\n"
+"POT-Creation-Date: 2015-01-11 15:18:18+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -156,12 +156,8 @@ msgstr ""
 msgid "%1$d events today from %2$d users."
 msgstr ""
 
-#: SimpleHistory.php:2192
+#: SimpleHistory.php:2192 SimpleHistory.php:2198
 msgid "%1$d events today from one user and one other source."
-msgstr ""
-
-#: SimpleHistory.php:2198
-msgid "%1$d events today from one user and %3$d other source."
 msgstr ""
 
 #: SimpleHistory.php:2204
