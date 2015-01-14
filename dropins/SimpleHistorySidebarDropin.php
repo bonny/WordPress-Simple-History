@@ -16,9 +16,68 @@ class SimpleHistorySidebarDropin {
 
 		add_action("simple_history/enqueue_admin_scripts", array($this, "enqueue_admin_scripts"));
 		add_action("simple_history/history_page/after_gui", array( $this, "output_sidebar_html") );
-		#add_action("wp_ajax_simple_history_filters_search_user", array( $this, "ajax_simple_history_filters_search_user") );
 
-		add_action("simple_history/dropin/sidebar/sidebar_html", array($this, "example_output"));
+		// add_action("simple_history/dropin/sidebar/sidebar_html", array($this, "example_output"));
+		
+		add_action("simple_history/dropin/sidebar/sidebar_html", array($this, "default_sidebar_contents"));
+
+	}
+
+	public function default_sidebar_contents() {
+
+		$boxDonate = '
+			<div class="postbox">
+				<h3 class="hndle">Donate</h3>
+				<div class="inside">
+					<p>Please donate yo.</p>
+				</div>
+			</div>
+		';
+
+		$boxReview = '
+			<div class="postbox">
+				<h3 class="hndle">Review</h3>
+				<div class="inside">
+					<p>Give it a nice review yo.</p>
+				</div>
+			</div>
+		';
+
+		$boxSocial = '
+			<div class="postbox">
+				<h3 class="hndle">Blog or tweet</h3>
+				<div class="inside">
+					<p>Yeah, how about that yo.</p>
+				</div>
+			</div>
+		';
+
+		$arrBoxes = array($boxDonate, $boxReview, $boxSocial);
+
+		echo $arrBoxes[array_rand($arrBoxes)];
+
+		$boxTranslation = '
+			<div class="postbox">
+				<h3 class="hndle">Missing a translation</h3>
+				<div class="inside">
+					<p>Help out by translating yourself!</p>
+				</div>
+			</div>
+		';
+
+		echo $boxTranslation;
+
+		$boxMissingEvents = '
+			<div class="postbox">
+				<h3 class="hndle">Missing events?</h3>
+				<div class="inside">
+					<p>Do you think things are missing in the log? Let me know about it.</p>
+				</div>
+			</div>
+		';
+
+		echo $boxMissingEvents;
+
 
 	}
 
