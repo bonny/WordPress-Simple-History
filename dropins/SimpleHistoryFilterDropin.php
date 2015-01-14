@@ -44,13 +44,14 @@ class SimpleHistoryFilterDropin {
 				<!-- <h3><?php _e("Filter history", "simple-history") ?></h3> -->
 
 				<p>
-					<input type="search" placeholder="<?php _e("", "simple-history"); ?>" name="search">
-					<button class="button js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
+					<input type="search" class="SimpleHistoryFilterDropin-searchInput" placeholder="<?php _e("", "simple-history"); ?>" name="search">
+					<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--first js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
 					<!-- <br> -->
-					<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters js-SimpleHistoryFilterDropin-showMoreFilters">More options</button>
+					<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Show options", "Filter dropin: button to show more search options", "simple-history") ?></button>
 				</p>
 
 				<div class="SimpleHistory__filters__moreFilters js-SimpleHistory__filters__moreFilters">
+					
 					<p>
 						<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e("All log levels", "simple-history") ?>" multiple>
 							<option value="debug" data-color="#CEF6D8"><?php echo $this->sh->getLogLevelTranslated("Debug") ?></option>
@@ -154,7 +155,13 @@ class SimpleHistoryFilterDropin {
 						</select>
 					</p>
 
-				</div>
+					<p>
+						<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
+						<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Hide options", "Filter dropin: button to hide more search options", "simple-history") ?></button>
+					</p>
+
+
+				</div><!-- // more filters -->
 
 				<!--
 				<p>

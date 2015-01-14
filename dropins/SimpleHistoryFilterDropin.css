@@ -66,11 +66,30 @@
 /* more filters are hidden by default */
 .SimpleHistory__filters__moreFilters {
 	display: none;
+	margin-bottom: 20px;
 }
 
-.SimpleHistory__filters__moreFilters.is-visible {
+/* when showing more filters */
+.SimpleHistory__filters.is-showingMoreFilters {
+
+}
+
+.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-searchInput {
+	width: 310px;
+}
+
+.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-showMoreFilters--first {
+	display: none;
+}
+
+.SimpleHistory__filters.is-showingMoreFilters .SimpleHistory__filters__moreFilters {
 	display: block;
 }
+
+.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-doFilterButton--first {
+	display: none;
+}
+
 
 /* dashboard */
 .postbox .SimpleHistory__filters {

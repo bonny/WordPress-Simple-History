@@ -36,7 +36,10 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function onClickMoreFilters() {
-		$elms.more_filters_container.toggleClass("is-visible");
+		
+		//$elms.more_filters_container.toggleClass("is-visible");
+		$elms.filter_container.toggleClass("is-showingMoreFilters");
+
 	}
 
 	function onSubmitForm(e) {
