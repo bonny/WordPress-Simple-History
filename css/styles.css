@@ -37,7 +37,7 @@ The spinner that wp uses:;
 	transition: opacity .1s ease-out;
 }
 
-/* on it's own page */
+/* on its own page */
 /*.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {*/
 .dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
 	/*float: left;*/
@@ -55,6 +55,8 @@ The spinner that wp uses:;
 	width: 100%;
 	float: left;background: tran
 }
+
+
 
 /*
 .SimpleHistoryGui:after {
@@ -516,6 +518,13 @@ i.e. the log is inside a .postbox element
 		line-height: 1.1;
 	}
 
+	.postbox .SimpleHistoryPaginationLink,
+	.postbox .SimpleHistoryPaginationCurrentPage {
+		font-size: 13px;
+		line-height: 19px;
+		height: 24px;
+	}
+
 	/*
 	.postbox .SimpleHistoryLogitem__details {
 		display: none;
@@ -646,6 +655,7 @@ Modal window with detailss
 .folded .SimpleHistory-modal__content {
 	left: 156px /* admin meny width is 160 px*/
 }
+
 @media only screen and (max-width: 900px) {
 	.SimpleHistory-modal__content {
 		left: 156px /* admin meny width is 160 px*/
