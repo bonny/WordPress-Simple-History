@@ -110,6 +110,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Fixed: Quick stats could show two messages sometimes.
+
 = 2.0.16 (January 2015) =
 
 - Fixed: Use the [X-Forwarded-For header](http://en.wikipedia.org/wiki/X-Forwarded-For), if it is set, to determine remote IP address. Should now correctly store IP addresses for servers behind load balancers or for clients going through proxies. Fixes https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr.
