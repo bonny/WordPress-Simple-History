@@ -3,7 +3,7 @@
 Plugin Name: Simple History
 Plugin URI: http://simple-history.com
 Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
-Version: 2.0.15
+Version: 2.0.16
 Author: Pär Thernström
 Author URI: http://simple-history.com/
 License: GPL2
@@ -24,6 +24,10 @@ License: GPL2
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
 
 if ( version_compare( phpversion(), "5.3", ">=") ) {
 

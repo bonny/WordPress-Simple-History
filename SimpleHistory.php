@@ -6,7 +6,7 @@
 class SimpleHistory {
 
 	const NAME = "Simple History";
-	const VERSION = "2.0.15";
+	const VERSION = "2.0.16";
 
 	/**
 	 * Capability required to view the history log
@@ -2182,7 +2182,7 @@ class SimpleHistory {
 
 						// Multiple events from only users
 						// 2 events today from 2 users.
-						if ( $logResults["total_row_count"] && $count_users_today == $logResults["total_row_count"] ) {
+						if ( $logResults["total_row_count"] > 1 && $count_users_today == $logResults["total_row_count"] ) {
 							$msg_tmpl .= __('%1$d events today from %2$d users.', "simple-history");
 						}
 
