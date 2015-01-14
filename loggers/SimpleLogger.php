@@ -994,6 +994,8 @@ class SimpleLogger
 				// If web server is behind a load balancer then the ip address will always be the same
 				// apache_request_headers
 				// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
+				// @TODO: apparently x-forwarded-for can contain multiple ips
+				// @TODO: also the header can be faked: http://stackoverflow.com/questions/753645/how-do-i-get-the-correct-ip-from-http-x-forwarded-for-if-it-contains-multiple-ip
 				if ( function_exists("getallheaders") ) {
 					
 					$all_headers = getallheaders();
