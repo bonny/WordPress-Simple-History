@@ -110,7 +110,11 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Changed: Search now shows only the search box by default, with a link to show all search options.
+- Fixed: Search is now available at the dashboard again. Hooray!
 - Fixed: Quick stats could show two messages sometimes.
+- Changed: A funky sidebar is now at place at the history page.
+- Notice: Do you read these messages? Then you must love this plugin! Come on then, [go and give it a nice review](https://wordpress.org/support/view/plugin-reviews/simple-history).
 
 = 2.0.16 (January 2015) =
 
