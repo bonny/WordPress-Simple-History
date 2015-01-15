@@ -991,23 +991,46 @@ class SimpleLogger
 			// Good to always have
 			if ( ! isset( $context["_server_remote_addr"] ) ) {
 
+				$context["_server_remote_addr"] = $_SERVER["REMOTE_ADDR"];
+
 				// If web server is behind a load balancer then the ip address will always be the same
-				// apache_request_headers
 				// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
-				// @TODO: apparently x-forwarded-for can contain multiple ips
-				// @TODO: also the header can be faked: http://stackoverflow.com/questions/753645/how-do-i-get-the-correct-ip-from-http-x-forwarded-for-if-it-contains-multiple-ip
-				if ( function_exists("getallheaders") ) {
-					
-					$all_headers = getallheaders();
-					if ( ! empty( $all_headers["X-Forwarded-For"] ) ) {
-						$context["_server_remote_addr"] = $all_headers["X-Forwarded-For"];
-					}
+				// Note that the x-forwarded-for header can contain multiple ips
+				// Also note that the header can be faked
+				// Ref: http://stackoverflow.com/questions/753645/how-do-i-get-the-correct-ip-from-http-x-forwarded-for-if-it-contains-multiple-ip
+				// Ref: http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
 
-				}
+				// Check for IP in lots of headers
+				// Based on code found here:
+				// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
+				$ip_keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED');
+				
+				foreach ($ip_keys as $key) {
 
-				// Still no remote addr? Then simply add remote addr
-				if ( empty( $context["_server_remote_addr"] ) ) {
-					$context["_server_remote_addr"] = $_SERVER["REMOTE_ADDR"];
+				    if (array_key_exists($key, $_SERVER) === true) {
+
+				    	// Loop through all IPs
+				    	$ip_loop_num = 0;
+				        foreach (explode(',', $_SERVER[$key]) as $ip) {
+
+				            // trim for safety measures
+				            $ip = trim($ip);
+
+				            // attempt to validate IP
+				            if ( $this->validate_ip( $ip ) ) {
+				                
+				                // valid, add to context
+				               	$key_lower = strtolower($key);
+								$context["_server_{$key_lower}_{$ip_loop_num}"] = $ip;
+
+				            }
+
+				            $ip_loop_num++;
+
+				        }
+
+				    }
+
 				}
 
 			}
@@ -1039,6 +1062,21 @@ class SimpleLogger
 		return $this;
 
 	} // log
+
+
+	/**
+	 * Ensures an ip address is both a valid IP and does not fall within
+	 * a private network range.
+	 */
+	function validate_ip($ip) {
+
+	    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+	        return false;
+	    }
+
+	    return true;
+
+	}
 
 	/**
 	 * Override this to add CSS in <head> for your logger.
