@@ -4,15 +4,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2.0.3\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-01-06 09:40:58+00:00\n"
-"PO-Revision-Date: 2015-01-06 17:25+0100\n"
+"POT-Creation-Date: 2015-01-14 20:50:40+00:00\n"
+"PO-Revision-Date: 2015-01-15 08:35+0100\n"
 "Last-Translator: Ralph Stenzel <ralph@klein-aber-fein.de>\n"
 "Language-Team: Ralph Stenzel <ralph@klein-aber-fein.de>\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.7.1\n"
+"X-Generator: Poedit 1.7.3\n"
 "X-Poedit-KeywordsList: __;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;"
 "_nx_noop:1,2,3c;esc_attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;"
 "esc_html_x:1,2c\n"
@@ -115,42 +115,56 @@ msgstr "Einträge in der Datenbank werden auf ewig behalten."
 msgid "Clear log now"
 msgstr "Logbuch jetzt leeren"
 
-#: SimpleHistory.php:1658
-msgid "+%1$s more"
-msgstr "+%1$s mehr"
+#: SimpleHistory.php:1659
+msgid "+%1$s similar event"
+msgid_plural "+%1$s similar events"
+msgstr[0] "+%1$s gleichartiges Ereignis"
+msgstr[1] "+%1$s gleichartige Ereignisse"
 
-#: SimpleHistory.php:1665
+#: SimpleHistory.php:1666
 msgid "Loading…"
 msgstr "Lade..."
 
-#: SimpleHistory.php:1672
+#: SimpleHistory.php:1673
 msgid "Showing %1$s more"
 msgstr "Zeige %1$s mehr"
 
-#: SimpleHistory.php:1691
+#: SimpleHistory.php:1692
 msgid "Context data"
 msgstr "Kontext-Daten"
 
-#: SimpleHistory.php:1692
+#: SimpleHistory.php:1693
 msgid "This is potentially useful meta data that a logger has saved."
 msgstr ""
 "Dies sind potentiell nützliche Meta-Daten, die ein Logger abgespeichert hat."
 
-#: SimpleHistory.php:2029
+#: SimpleHistory.php:2156
 msgid "No events today so far."
 msgstr "Heute sind noch keine Ereignisse aufgetreten."
 
-#: SimpleHistory.php:2033
-msgid "%1$d event today from one user."
-msgstr "%1$d Ereignis heute von einem Benutzer."
+#: SimpleHistory.php:2174
+msgid "One event today from one user."
+msgstr "Ein Ereignis heute von einem Benutzer."
 
-#: SimpleHistory.php:2037
+#: SimpleHistory.php:2180
+msgid "One event today from one source."
+msgstr "Ein Ereignis heute aus einer Quelle."
+
+#: SimpleHistory.php:2186
 msgid "%1$d events today from %2$d users."
 msgstr "%1$d Ereignisse heute von %2$d Benutzern."
 
-#: SimpleHistory.php:2041
-msgid "%1$d events today from one user."
-msgstr "%1$d Ereignisse heute von einem Benutzer."
+#: SimpleHistory.php:2192 SimpleHistory.php:2198
+msgid "%1$d events today from one user and one other source."
+msgstr "%1$d Ereignisse heute von einem Benutzer und einer anderen Quelle."
+
+#: SimpleHistory.php:2204
+msgid "%1$d events today from one user and %3$d other sources."
+msgstr "%1$d Ereignisse heute von einem Benutzer und %3$d anderen Quellen."
+
+#: SimpleHistory.php:2210
+msgid "%1$s events today from %2$d users and %3$d other sources."
+msgstr "%1$s Ereignisse heute von %2$d Benutzern und %3$d anderen Quellen."
 
 #: dropins/SimpleHistoryDonateDropin.php:36
 msgid "Donate"
@@ -167,6 +181,10 @@ msgstr ""
 #: dropins/SimpleHistoryFilterDropin.php:43
 msgid "Filter history"
 msgstr "Filter-Historie"
+
+#: dropins/SimpleHistoryFilterDropin.php:46
+msgid "Search"
+msgstr "Suche"
 
 #: dropins/SimpleHistoryFilterDropin.php:50
 msgid "All log levels"
@@ -266,7 +284,7 @@ msgstr "Test-Daten (Fehlersuche)"
 msgid "Stats"
 msgstr "Statistiken"
 
-#: index.php:55
+#: index.php:59
 msgid ""
 "Simple History is a great plugin, but to use it your server must have at "
 "least PHP 5.3 installed (you have version %s)."
@@ -274,27 +292,27 @@ msgstr ""
 "Simple History ist ein großartiges Plugin, aber zu seiner Benutzung muß Dein "
 "Server mindestens PHP 5.3 installiert haben (Du hast Version %s)."
 
-#: loggers/SimpleCommentsLogger.php:694
+#: loggers/SimpleCommentsLogger.php:695
 msgid "Spam"
 msgstr "Spam"
 
-#: loggers/SimpleCommentsLogger.php:696
+#: loggers/SimpleCommentsLogger.php:697
 msgid "Approved"
 msgstr "genehmigt"
 
-#: loggers/SimpleCommentsLogger.php:698
+#: loggers/SimpleCommentsLogger.php:699
 msgid "Pending"
 msgstr "schwebend"
 
-#: loggers/SimpleCommentsLogger.php:712
+#: loggers/SimpleCommentsLogger.php:713
 msgid "Trackback"
 msgstr "Trackback"
 
-#: loggers/SimpleCommentsLogger.php:714
+#: loggers/SimpleCommentsLogger.php:715
 msgid "Pingback"
 msgstr "Pingback"
 
-#: loggers/SimpleCommentsLogger.php:716
+#: loggers/SimpleCommentsLogger.php:717
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -324,11 +342,11 @@ msgstr "gelöschter Benutzer (hatte ID %1$s, E-Mail %2$s, Login %3$s)"
 
 #: loggers/SimpleLogger.php:220
 msgid "Anonymous web user"
-msgstr "anonymer Netz-Nutzer"
+msgstr "Anonymer Netz-Nutzer"
 
 #: loggers/SimpleLogger.php:228
 msgid "Anonymous user from %1$s"
-msgstr "anonymer Benutzer von %1$s"
+msgstr "Anonymer Benutzer von %1$s"
 
 #: loggers/SimpleLogger.php:299
 msgid "Just now"
@@ -516,7 +534,7 @@ msgstr "hat sich angemeldet"
 
 #: loggers/SimpleUserLogger.php:26
 msgid "Unknown user logged in"
-msgstr "unbekannter Benutzer hat sich angemeldet"
+msgstr "Unbekannter Benutzer hat sich angemeldet"
 
 #: loggers/SimpleUserLogger.php:27
 msgid "Logged out"
@@ -657,6 +675,86 @@ msgctxt "history page headline"
 msgid "Simple History"
 msgstr "Simple History"
 
+#: SimpleHistory.php:1829
+msgctxt "Log level in gui"
+msgid "emergency"
+msgstr "Notfall"
+
+#: SimpleHistory.php:1833
+msgctxt "Log level in gui"
+msgid "alert"
+msgstr "Alarm"
+
+#: SimpleHistory.php:1837
+msgctxt "Log level in gui"
+msgid "critical"
+msgstr "Kritisch"
+
+#: SimpleHistory.php:1841
+msgctxt "Log level in gui"
+msgid "error"
+msgstr "Fehler"
+
+#: SimpleHistory.php:1845
+msgctxt "Log level in gui"
+msgid "warning"
+msgstr "Warnung"
+
+#: SimpleHistory.php:1849
+msgctxt "Log level in gui"
+msgid "notice"
+msgstr "Hinweis"
+
+#: SimpleHistory.php:1853
+msgctxt "Log level in gui"
+msgid "info"
+msgstr "Information"
+
+#: SimpleHistory.php:1857
+msgctxt "Log level in gui"
+msgid "debug"
+msgstr "Fehlersuche"
+
+#: SimpleHistory.php:1862
+msgctxt "Log level in gui"
+msgid "Emergency"
+msgstr "Notfall"
+
+#: SimpleHistory.php:1866
+msgctxt "Log level in gui"
+msgid "Alert"
+msgstr "Alarm"
+
+#: SimpleHistory.php:1870
+msgctxt "Log level in gui"
+msgid "Critical"
+msgstr "Kritisch"
+
+#: SimpleHistory.php:1874
+msgctxt "Log level in gui"
+msgid "Error"
+msgstr "Fehler"
+
+#: SimpleHistory.php:1878
+msgctxt "Log level in gui"
+msgid "Warning"
+msgstr "Warnung"
+
+#: SimpleHistory.php:1882
+msgctxt "Log level in gui"
+msgid "Notice"
+msgstr "Hinweis"
+
+#: SimpleHistory.php:1886
+msgctxt "Log level in gui"
+msgid "Info"
+msgstr "Information"
+
+#: SimpleHistory.php:1890
+msgctxt "Log level in gui"
+msgid "Debug"
+msgstr "Fehlersuche"
+
 #: dropins/SimpleHistoryDonateDropin.php:51
 msgctxt "donate settings headline"
 msgid "Donate"
@@ -714,21 +812,21 @@ msgctxt "rss settings headline"
 msgid "RSS feed"
 msgstr "RSS-Feed"
 
-#: loggers/SimpleCommentsLogger.php:94
+#: loggers/SimpleCommentsLogger.php:95
 msgctxt "A comment was added to the database by a non-logged in internet user"
 msgid "Added a comment to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
 "hat einen Kommentar zu {comment_post_type} \"{comment_post_title}\" "
 "hinzugefügt"
 
-#: loggers/SimpleCommentsLogger.php:100
+#: loggers/SimpleCommentsLogger.php:101
 msgctxt "A comment was added to the database by a logged in user"
 msgid "Added a comment to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
 "hat einen Kommentar zu {comment_post_type} \"{comment_post_title}\" "
 "hinzugefügt"
 
-#: loggers/SimpleCommentsLogger.php:106
+#: loggers/SimpleCommentsLogger.php:107
 msgctxt "A comment was approved"
 msgid ""
 "Approved a comment to \"{comment_post_title}\" by {comment_author} "
@@ -737,7 +835,7 @@ msgstr ""
 "hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) genehmigt"
 
-#: loggers/SimpleCommentsLogger.php:112
+#: loggers/SimpleCommentsLogger.php:113
 msgctxt "A comment was was unapproved"
 msgid ""
 "Unapproved a comment to \"{comment_post_title}\" by {comment_author} "
@@ -746,14 +844,14 @@ msgstr ""
 "hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) verworfen"
 
-#: loggers/SimpleCommentsLogger.php:118
+#: loggers/SimpleCommentsLogger.php:119
 msgctxt "A comment was marked as spam"
 msgid "Marked a comment to post \"{comment_post_title}\" as spam"
 msgstr ""
 "hat einen Kommentar zum Beitrag \"{comment_post_title}\" als Spam "
 "gekennzeichnet"
 
-#: loggers/SimpleCommentsLogger.php:124
+#: loggers/SimpleCommentsLogger.php:125
 msgctxt "A comment was marked moved to the trash"
 msgid ""
 "Trashed a comment to \"{comment_post_title}\" by {comment_author} "
@@ -762,7 +860,7 @@ msgstr ""
 "hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) in den Papierkorb verschoben"
 
-#: loggers/SimpleCommentsLogger.php:130
+#: loggers/SimpleCommentsLogger.php:131
 msgctxt "A comment was restored from the trash"
 msgid ""
 "Restored a comment to \"{comment_post_title}\" by {comment_author} "
@@ -771,7 +869,7 @@ msgstr ""
 "hat einen Kommentar zu \"{comment_post_title}\" von {comment_author} "
 "({comment_author_email}) aus dem Papierkorb wiederhergestellt"
 
-#: loggers/SimpleCommentsLogger.php:136
+#: loggers/SimpleCommentsLogger.php:137
 msgctxt "A comment was deleted"
 msgid ""
 "Deleted a comment to \"{comment_post_title}\" by {comment_author} "
@@ -780,7 +878,7 @@ msgstr ""
 "hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) gelöscht"
 
-#: loggers/SimpleCommentsLogger.php:142
+#: loggers/SimpleCommentsLogger.php:143
 msgctxt "A comment was edited"
 msgid ""
 "Edited a comment to \"{comment_post_title}\" by {comment_author} "
@@ -789,27 +887,27 @@ msgstr ""
 "hat einen Kommentar zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) geändert"
 
-#: loggers/SimpleCommentsLogger.php:149
+#: loggers/SimpleCommentsLogger.php:150
 msgctxt "A trackback was added to the database by a non-logged in internet user"
 msgid "Added a trackback to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
 "hat einen Trackback zu {comment_post_type} \"{comment_post_title}\" "
 "hinzugefügt"
 
-#: loggers/SimpleCommentsLogger.php:204
+#: loggers/SimpleCommentsLogger.php:205
 msgctxt "A trackback was added to the database by a non-logged in internet user"
 msgid "Added a pingback to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
 "hat ein Pingback zu {comment_post_type} \"{comment_post_title}\" hinzugefügt"
 
-#: loggers/SimpleCommentsLogger.php:155
+#: loggers/SimpleCommentsLogger.php:156
 msgctxt "A trackback was added to the database by a logged in user"
 msgid "Added a trackback to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
 "hat einen Trackback zu {comment_post_type} \"{comment_post_title}\" "
 "hinzugefügt"
 
-#: loggers/SimpleCommentsLogger.php:161
+#: loggers/SimpleCommentsLogger.php:162
 msgctxt "A trackback was approved"
 msgid ""
 "Approved a trackback to \"{comment_post_title}\" by {comment_author} "
@@ -818,7 +916,7 @@ msgstr ""
 "hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) genehmigt"
 
-#: loggers/SimpleCommentsLogger.php:167
+#: loggers/SimpleCommentsLogger.php:168
 msgctxt "A trackback was was unapproved"
 msgid ""
 "Unapproved a trackback to \"{comment_post_title}\" by {comment_author} "
@@ -827,14 +925,14 @@ msgstr ""
 "hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) verworfen"
 
-#: loggers/SimpleCommentsLogger.php:173
+#: loggers/SimpleCommentsLogger.php:174
 msgctxt "A trackback was marked as spam"
 msgid "Marked a trackback to post \"{comment_post_title}\" as spam"
 msgstr ""
 "hat einen Trackback zum Beitrag \"{comment_post_title}\" als Spam "
 "gekennzeichnet"
 
-#: loggers/SimpleCommentsLogger.php:179
+#: loggers/SimpleCommentsLogger.php:180
 msgctxt "A trackback was marked moved to the trash"
 msgid ""
 "Trashed a trackback to \"{comment_post_title}\" by {comment_author} "
@@ -843,7 +941,7 @@ msgstr ""
 "hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) in den Papierkorb verschoben"
 
-#: loggers/SimpleCommentsLogger.php:185
+#: loggers/SimpleCommentsLogger.php:186
 msgctxt "A trackback was restored from the trash"
 msgid ""
 "Restored a trackback to \"{comment_post_title}\" by {comment_author} "
@@ -852,7 +950,7 @@ msgstr ""
 "hat einen Trackback zu \"{comment_post_title}\" von {comment_author} "
 "({comment_author_email}) aus dem Papierkorb wiederhergestellt"
 
-#: loggers/SimpleCommentsLogger.php:191
+#: loggers/SimpleCommentsLogger.php:192
 msgctxt "A trackback was deleted"
 msgid ""
 "Deleted a trackback to \"{comment_post_title}\" by {comment_author} "
@@ -861,7 +959,7 @@ msgstr ""
 "hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) gelöscht"
 
-#: loggers/SimpleCommentsLogger.php:197
+#: loggers/SimpleCommentsLogger.php:198
 msgctxt "A trackback was edited"
 msgid ""
 "Edited a trackback to \"{comment_post_title}\" by {comment_author} "
@@ -870,13 +968,13 @@ msgstr ""
 "hat einen Trackback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) geändert"
 
-#: loggers/SimpleCommentsLogger.php:210
+#: loggers/SimpleCommentsLogger.php:211
 msgctxt "A pingback was added to the database by a logged in user"
 msgid "Added a pingback to {comment_post_type} \"{comment_post_title}\""
 msgstr ""
 "hat ein Pingback zu {comment_post_type} \"{comment_post_title}\" hinzugefügt"
 
-#: loggers/SimpleCommentsLogger.php:216
+#: loggers/SimpleCommentsLogger.php:217
 msgctxt "A pingback was approved"
 msgid ""
 "Approved a pingback to \"{comment_post_title}\" by "
@@ -885,7 +983,7 @@ msgstr ""
 "hat ein Pingback zu \"{comment_post_title}\" by "
 "\"{comment_author}\"\" ({comment_author_email}) genehmigt"
 
-#: loggers/SimpleCommentsLogger.php:222
+#: loggers/SimpleCommentsLogger.php:223
 msgctxt "A pingback was was unapproved"
 msgid ""
 "Unapproved a pingback to \"{comment_post_title}\" by "
@@ -894,13 +992,13 @@ msgstr ""
 "hat ein Pingback zu \"{comment_post_title}\" by "
 "\"{comment_author}\" ({comment_author_email}) verworfen"
 
-#: loggers/SimpleCommentsLogger.php:228
+#: loggers/SimpleCommentsLogger.php:229
 msgctxt "A pingback was marked as spam"
 msgid "Marked a pingback to post \"{comment_post_title}\" as spam"
 msgstr ""
 "hat ein Pingback zum Beitrag \"{comment_post_title}\" als Spam gekennzeichnet"
 
-#: loggers/SimpleCommentsLogger.php:234
+#: loggers/SimpleCommentsLogger.php:235
 msgctxt "A pingback was marked moved to the trash"
 msgid ""
 "Trashed a pingback to \"{comment_post_title}\" by {comment_author} "
@@ -909,7 +1007,7 @@ msgstr ""
 "hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) in den Papierkorb verschoben"
 
-#: loggers/SimpleCommentsLogger.php:240
+#: loggers/SimpleCommentsLogger.php:241
 msgctxt "A pingback was restored from the trash"
 msgid ""
 "Restored a pingback to \"{comment_post_title}\" by {comment_author} "
@@ -918,7 +1016,7 @@ msgstr ""
 "hat ein Pingback zu \"{comment_post_title}\" von {comment_author} "
 "({comment_author_email}) aus dem Papierkorb wiederhergestellt"
 
-#: loggers/SimpleCommentsLogger.php:246
+#: loggers/SimpleCommentsLogger.php:247
 msgctxt "A pingback was deleted"
 msgid ""
 "Deleted a pingback to \"{comment_post_title}\" by {comment_author} "
@@ -927,7 +1025,7 @@ msgstr ""
 "hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) gelöscht"
 
-#: loggers/SimpleCommentsLogger.php:252
+#: loggers/SimpleCommentsLogger.php:253
 msgctxt "A pingback was edited"
 msgid ""
 "Edited a pingback to \"{comment_post_title}\" by {comment_author} "
@@ -936,85 +1034,85 @@ msgstr ""
 "hat ein Pingback zu \"{comment_post_title}\" by {comment_author} "
 "({comment_author_email}) geändert"
 
-#: loggers/SimpleCommentsLogger.php:263
+#: loggers/SimpleCommentsLogger.php:264
 msgctxt "Comments logger: search"
 msgid "Comments"
 msgstr "Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:264
+#: loggers/SimpleCommentsLogger.php:265
 msgctxt "Comments logger: search"
 msgid "All comments activity"
 msgstr "Alle Kommentar-Aktivitäten"
 
-#: loggers/SimpleCommentsLogger.php:266
+#: loggers/SimpleCommentsLogger.php:267
 msgctxt "Comments logger: search"
 msgid "Added comments"
 msgstr "hinzugefügte Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:274
+#: loggers/SimpleCommentsLogger.php:275
 msgctxt "Comments logger: search"
 msgid "Edited comments"
 msgstr "geänderte Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:279
+#: loggers/SimpleCommentsLogger.php:280
 msgctxt "Comments logger: search"
 msgid "Approved  comments"
 msgstr "genehmigte Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:284
+#: loggers/SimpleCommentsLogger.php:285
 msgctxt "Comments logger: search"
 msgid "Held comments"
 msgstr "zurückgehaltene Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:289
+#: loggers/SimpleCommentsLogger.php:290
 msgctxt "Comments logger: search"
 msgid "Comments status changed to spam"
 msgstr "als Spam markierte Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:294
+#: loggers/SimpleCommentsLogger.php:295
 msgctxt "Comments logger: search"
 msgid "Trashed comments"
 msgstr "in den Papierkorb verschobene Kommentare "
 
-#: loggers/SimpleCommentsLogger.php:299
+#: loggers/SimpleCommentsLogger.php:300
 msgctxt "Comments logger: search"
 msgid "Untrashed comments"
 msgstr "wiederhergestellte Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:304
+#: loggers/SimpleCommentsLogger.php:305
 msgctxt "Comments logger: search"
 msgid "Deleted comments"
 msgstr "gelöschte Kommentare"
 
-#: loggers/SimpleCommentsLogger.php:611 loggers/SimpleCommentsLogger.php:624
-#: loggers/SimpleCommentsLogger.php:638
+#: loggers/SimpleCommentsLogger.php:612 loggers/SimpleCommentsLogger.php:625
+#: loggers/SimpleCommentsLogger.php:639
 msgctxt "comments logger - detailed output comment status"
 msgid "Status"
 msgstr "Status"
 
-#: loggers/SimpleCommentsLogger.php:613 loggers/SimpleCommentsLogger.php:626
-#: loggers/SimpleCommentsLogger.php:640
+#: loggers/SimpleCommentsLogger.php:614 loggers/SimpleCommentsLogger.php:627
+#: loggers/SimpleCommentsLogger.php:641
 msgctxt "comments logger - detailed output author"
 msgid "Name"
 msgstr "Name"
 
-#: loggers/SimpleCommentsLogger.php:614 loggers/SimpleCommentsLogger.php:627
-#: loggers/SimpleCommentsLogger.php:641
+#: loggers/SimpleCommentsLogger.php:615 loggers/SimpleCommentsLogger.php:628
+#: loggers/SimpleCommentsLogger.php:642
 msgctxt "comments logger - detailed output email"
 msgid "Email"
 msgstr "E-Mail"
 
-#: loggers/SimpleCommentsLogger.php:615 loggers/SimpleCommentsLogger.php:628
+#: loggers/SimpleCommentsLogger.php:616 loggers/SimpleCommentsLogger.php:629
 msgctxt "comments logger - detailed output content"
 msgid "Content"
 msgstr "Inhalt"
 
-#: loggers/SimpleCommentsLogger.php:642
+#: loggers/SimpleCommentsLogger.php:643
 msgctxt "comments logger - detailed output content"
 msgid "Comment"
 msgstr "Kommentar"
 
-#: loggers/SimpleCommentsLogger.php:768
+#: loggers/SimpleCommentsLogger.php:769
 msgctxt "comments logger - edit comment"
 msgid "View/Edit"
 msgstr "Betrachte/Ändere"
@@ -1375,6 +1473,15 @@ msgstr "hat den Benutzer \"{user_display_name}\" von allen Sitzungen abgemeldet"
 msgctxt "stats: date in rows per day chart"
 msgid "M j"
 msgstr "M j"
+
+#~ msgid "+%1$s more"
+#~ msgstr "+%1$s mehr"
+
+#~ msgid "%1$d event today from one user."
+#~ msgstr "%1$d Ereignis heute von einem Benutzer."
+
+#~ msgid "%1$d events today from one user."
+#~ msgstr "%1$d Ereignisse heute von einem Benutzer."
 
 #~ msgid "History"
 #~ msgstr "Historie"

@@ -114,6 +114,7 @@ initiated by a specific user.
 - Fixed: Search is now available at the dashboard again. Hooray!
 - Fixed: Quick stats could show two messages sometimes.
 - Changed: A funky sidebar is now at place at the history page.
+- Updated: German translation updated.
 - Notice: Do you read these messages? Then you must love this plugin! Come on then, [go and give it a nice review](https://wordpress.org/support/view/plugin-reviews/simple-history).
 
 = 2.0.16 (January 2015) =
