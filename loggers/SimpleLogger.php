@@ -1007,29 +1007,29 @@ class SimpleLogger
 				
 				foreach ($ip_keys as $key) {
 
-				    if (array_key_exists($key, $_SERVER) === true) {
+					if (array_key_exists($key, $_SERVER) === true) {
 
-				    	// Loop through all IPs
-				    	$ip_loop_num = 0;
-				        foreach (explode(',', $_SERVER[$key]) as $ip) {
+						// Loop through all IPs
+						$ip_loop_num = 0;
+						foreach (explode(',', $_SERVER[$key]) as $ip) {
 
-				            // trim for safety measures
-				            $ip = trim($ip);
+							// trim for safety measures
+							$ip = trim($ip);
 
-				            // attempt to validate IP
-				            if ( $this->validate_ip( $ip ) ) {
-				                
-				                // valid, add to context
-				               	$key_lower = strtolower($key);
+							// attempt to validate IP
+							if ( $this->validate_ip( $ip ) ) {
+
+								// valid, add to context, with loop index appended so we can store many IPs
+								$key_lower = strtolower($key);
 								$context["_server_{$key_lower}_{$ip_loop_num}"] = $ip;
 
-				            }
+							}
 
-				            $ip_loop_num++;
+							$ip_loop_num++;
 
-				        }
+						}
 
-				    }
+					}
 
 				}
 
