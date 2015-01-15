@@ -83,7 +83,7 @@ So far Simple History is translated to:
 * Polish
 * Danish
 
-I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/tree/v2).
+I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/).
 
 #### Contribute at GitHub
 
@@ -111,9 +111,10 @@ initiated by a specific user.
 == Changelog ==
 
 - Changed: Search now shows only the search box by default, with a link to show all search options.
+- Changed: A funky sidebar is now at place at the history page.
 - Fixed: Search is now available at the dashboard again. Hooray!
 - Fixed: Quick stats could show two messages sometimes.
-- Changed: A funky sidebar is now at place at the history page.
+- Fixed: When headers like `HTTP_X_FORWARDED_FOR` exists all valid IPs in that header is now stored.
 - Updated: German translation updated.
 - Notice: Do you read these messages? Then you must love this plugin! Come on then, [go and give it a nice review](https://wordpress.org/support/view/plugin-reviews/simple-history).
 
