@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-01-11 15:18:18+00:00\n"
-"PO-Revision-Date: 2015-01-11 16:18+0100\n"
+"POT-Creation-Date: 2015-01-17 14:08:52+00:00\n"
+"PO-Revision-Date: 2015-01-17 15:15+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -177,33 +177,34 @@ msgstr ""
 "Om Simple History är användbar för dig så <a href=\"%1$s\">donera</a> eller "
 "<a href=\"%2$s\">köp mig något från min Amazon wish list</a>."
 
-#: dropins/SimpleHistoryFilterDropin.php:43
+#: dropins/SimpleHistoryFilterDropin.php:44
 msgid "Filter history"
 msgstr "Filtrera historik"
 
-#: dropins/SimpleHistoryFilterDropin.php:46
-msgid "Search"
-msgstr "Sök"
+#: dropins/SimpleHistoryFilterDropin.php:48
+#: dropins/SimpleHistoryFilterDropin.php:159
+msgid "Search events"
+msgstr "Sök händelser"
 
-#: dropins/SimpleHistoryFilterDropin.php:50
+#: dropins/SimpleHistoryFilterDropin.php:56
 msgid "All log levels"
 msgstr "Alla loggnivåer"
 
-#: dropins/SimpleHistoryFilterDropin.php:64
+#: dropins/SimpleHistoryFilterDropin.php:70
 msgid "All messages"
 msgstr "Alla meddelanden"
 
-#: dropins/SimpleHistoryFilterDropin.php:118
+#: dropins/SimpleHistoryFilterDropin.php:124
 msgid "All users"
 msgstr "Alla användare"
 
-#: dropins/SimpleHistoryFilterDropin.php:139
+#: dropins/SimpleHistoryFilterDropin.php:145
 msgid "All dates"
 msgstr "Alla datum"
 
-#: dropins/SimpleHistoryFilterDropin.php:153
-msgid "Filter"
-msgstr "Filtrera"
+#: dropins/SimpleHistoryFilterDropin.php:168
+msgid "Search"
+msgstr "Sök"
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:80
 msgid "1 new row"
@@ -281,7 +282,11 @@ msgstr "Testdata (debug)"
 msgid "Stats"
 msgstr "Statistik"
 
-#: index.php:55
+#: dropins/SimpleHistorySidebarDropin.php:146 loggers/SimpleLogger.php:299
+msgid "Just now"
+msgstr "Just nu"
+
+#: index.php:59
 msgid ""
 "Simple History is a great plugin, but to use it your server must have at "
 "least PHP 5.3 installed (you have version %s)."
@@ -345,10 +350,6 @@ msgstr "Anonym webbanvändare"
 #: loggers/SimpleLogger.php:228
 msgid "Anonymous user from %1$s"
 msgstr "Anonym användare från %1$s"
-
-#: loggers/SimpleLogger.php:299
-msgid "Just now"
-msgstr "Just nu"
 
 #. translators: Date format for log row header, see http:php.net/date
 #: loggers/SimpleLogger.php:304
@@ -746,6 +747,16 @@ msgctxt "donate settings headline"
 msgid "Donate"
 msgstr "Donera"
 
+#: dropins/SimpleHistoryFilterDropin.php:50
+msgctxt "Filter dropin: button to show more search options"
+msgid "Show options"
+msgstr "Visa alternativ"
+
+#: dropins/SimpleHistoryFilterDropin.php:160
+msgctxt "Filter dropin: button to hide more search options"
+msgid "Hide options"
+msgstr "Göm alternativ"
+
 #: dropins/SimpleHistoryIpInfoDropin.php:66
 msgctxt "IP Info Dropin"
 msgid "That IP address does not seem like a public one."
@@ -796,6 +807,57 @@ msgstr "Ett fel uppstod vid uppdatering av nya händelser"
 msgctxt "rss settings headline"
 msgid "RSS feed"
 msgstr "RSS-flöde"
+
+#: dropins/SimpleHistorySidebarDropin.php:31
+msgctxt "Sidebar box"
+msgid "Simple History is on GitHub"
+msgstr "Simple History finns på GitHub"
+
+#: dropins/SimpleHistorySidebarDropin.php:34
+msgctxt "Sidebar box"
+msgid ""
+"You can star, fork, or report issues with this plugin over at the <a href="
+"\"%1$s\">GitHub page</a>."
+msgstr ""
+"Du kan stjärnmärka, forka, eller rapportera problem med pluginen på dess sida "
+"på <a href=\"%1$s\">GitHub</a>."
+
+#: dropins/SimpleHistorySidebarDropin.php:48
+msgctxt "Sidebar box"
+msgid "Donate to support development"
+msgstr "Donera för att stöda utvecklingen"
+
+#: dropins/SimpleHistorySidebarDropin.php:51
+msgctxt "Sidebar box"
+msgid ""
+"If you like and use Simple History you should <a href=\"%1$s\">donate to keep "
+"this plugin free</a>."
+msgstr ""
+"Om du gillar och använder Simple History så <a href=\"%1$s\">donera för att "
+"behålla den här pluginen gratis</a>."
+
+#: dropins/SimpleHistorySidebarDropin.php:65
+msgctxt "Sidebar box"
+msgid "Review this plugin if you like it"
+msgstr "Recensera den här pluginen om du gillar den"
+
+#: dropins/SimpleHistorySidebarDropin.php:68
+msgctxt "Sidebar box"
+msgid ""
+"If you like Simple History then please <a href=\"%1$s\">give it a nice review "
+"over at wordpress.org</a>."
+msgstr ""
+"Om du gillar Simple History så <a href=\"%1$s\">ge den gärna en positiv "
+"recension på wordpress.org</a>."
+
+#: dropins/SimpleHistorySidebarDropin.php:72
+msgctxt "Sidebar box"
+msgid ""
+"A good review can help new users find this plugin. And it will boost the ego "
+"of the author."
+msgstr ""
+"En bra recension kan hjälpa nya användare att hitta pluginen. Och det kommer "
+"boosta egot hos skaparen."
 
 #: loggers/SimpleCommentsLogger.php:95
 msgctxt "A comment was added to the database by a non-logged in internet user"
@@ -1447,6 +1509,9 @@ msgstr "Loggade ut \"{user_display_name}\" från alla sessioner"
 msgctxt "stats: date in rows per day chart"
 msgid "M j"
 msgstr "M j"
+
+#~ msgid "Filter"
+#~ msgstr "Filtrera"
 
 #~ msgid "%1$d events today from one user and %3$d other source."
 #~ msgstr "%1$d händelser idag från en användare och från en annan källa."
