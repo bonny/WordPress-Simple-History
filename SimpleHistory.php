@@ -904,7 +904,7 @@ class SimpleHistory {
 		// Version 2 added the action_description column
 		if ( 1 == intval($db_version) ) {
 
-			// Add column for action description in non-translateable free text
+			// Add column for action description in non-translatable free text
 			$sql = "ALTER TABLE {$table_name} ADD COLUMN action_description longtext";
 			$wpdb->query($sql);
 
