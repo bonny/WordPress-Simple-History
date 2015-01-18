@@ -76,7 +76,8 @@ class SimpleHistory {
 
 		// Run before loading of loggers and before menu items are added
 		add_action( 'plugins_loaded', array($this, 'check_for_upgrade'), 5 );
-
+		
+		add_action( 'plugins_loaded', array($this, 'setup_cron') );
 
 		add_action( 'admin_menu', array($this, 'add_admin_pages') );
 		add_action( 'admin_menu', array($this, 'add_settings') );
@@ -100,7 +101,7 @@ class SimpleHistory {
 		add_action( 'wp_ajax_simple_history_ajax', array($this, 'ajax') );
 		add_action( 'wp_ajax_simple_history_api', array($this, 'api') );
 
-		add_filter( 'plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
+		add_filter( 'plugin_action_links_simple-history/index.php', array( $this, 'plugin_action_links' ), 10, 4);
 
 		/**
 	     * Fires after Simple History has done it's init stuff
@@ -111,7 +112,20 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/after_init", $this );
 
-		add_action("simple_history/loggers_loaded", array( $this, "purge_db" ));
+	}
+
+	function setup_cron() {
+		
+		//add_action("simple_history/loggers_loaded", array( $this, "maybe_purge_db" ));
+		add_filter("simple_history/purge_db", array( $this, "purge_db" ));
+
+		if ( ! wp_next_scheduled( 'simple_history/purge_db' ) ) {
+			wp_schedule_event( time(), 'hourly', 'simple_history/purge_db');
+			#error_log("not scheduled, so do schedule");
+		} else {
+			#error_log("is scheduled");
+		}
+
 	}
 
 	public function testlog_old() {
@@ -1469,10 +1483,32 @@ class SimpleHistory {
 	}
 
 	/**
-	 * Removes old entries from the db
-	 * @TODO this function does not remove old entries from context table
+	 * Runs the purge_db() method sometimes
+	 * We don't want to call it each time because it performs SQL queries
+	 * 
+	 * @since 2.0.17
 	 */
-	public function purge_db() {
+	/*
+	function maybe_purge_db() {
+
+		if ( ! is_admin() ) {
+			return;
+		}
+
+
+		$this->purge_db();
+
+	}
+	*/
+
+	/**
+	 * Removes old entries from the db
+	 */
+	function purge_db() {
+
+		error_log("purge_db()");
+
+		SimpleLogger()->debug("Simple History is running purge_db()");
 
 		$do_purge_history = true;
 		
