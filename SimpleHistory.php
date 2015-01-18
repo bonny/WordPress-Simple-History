@@ -120,7 +120,7 @@ class SimpleHistory {
 		add_filter("simple_history/purge_db", array( $this, "purge_db" ));
 
 		if ( ! wp_next_scheduled( 'simple_history/purge_db' ) ) {
-			wp_schedule_event( time(), 'hourly', 'simple_history/purge_db');
+			wp_schedule_event( time(), 'daily', 'simple_history/purge_db');
 			#error_log("not scheduled, so do schedule");
 		} else {
 			#error_log("is scheduled");
@@ -1520,9 +1520,7 @@ class SimpleHistory {
 	 */
 	function purge_db() {
 
-		error_log("purge_db()");
-
-		SimpleLogger()->debug("Simple History is running purge_db()");
+		// SimpleLogger()->debug("Simple History is running purge_db()");
 
 		$do_purge_history = true;
 		
@@ -1566,7 +1564,7 @@ class SimpleHistory {
 		$wpdb->query($sql_delete_history);
 		$wpdb->query($sql_delete_history_context);
 
-		SimpleLogger()->debug(
+		SimpleLogger()->info(
 			"Simple History removed {num_rows} events that were older than {days} days", 
 			array(
 				"days" => $days,
