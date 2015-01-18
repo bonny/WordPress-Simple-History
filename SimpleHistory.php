@@ -77,6 +77,7 @@ class SimpleHistory {
 		// Run before loading of loggers and before menu items are added
 		add_action( 'plugins_loaded', array($this, 'check_for_upgrade'), 5 );
 
+
 		add_action( 'admin_menu', array($this, 'add_admin_pages') );
 		add_action( 'admin_menu', array($this, 'add_settings') );
 
@@ -110,9 +111,7 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/after_init", $this );
 
-		#add_action("init", array($this, "testlog_old"));
-
-
+		add_action("simple_history/loggers_loaded", array( $this, "purge_db" ));
 	}
 
 	public function testlog_old() {
@@ -1473,29 +1472,57 @@ class SimpleHistory {
 	 * Removes old entries from the db
 	 * @TODO this function does not remove old entries from context table
 	 */
-	function purge_db() {
+	public function purge_db() {
 
 		$do_purge_history = true;
+		
 		$do_purge_history = apply_filters("simple_history_allow_db_purge", $do_purge_history);
 		$do_purge_history = apply_filters("simple_history/allow_db_purge", $do_purge_history);
+
 		if ( ! $do_purge_history ) {
 			return;
 		}
 
 		$days = $this->get_clear_history_interval();
-
+		
 		// Never clear log if days = 0
 		if (0 == $days) {
 			return;
 		}
 
 		global $wpdb;
-		$tableprefix = $wpdb->prefix;
-		$simple_history_table = SimpleHistory::DBTABLE;
 
-		$sql = "DELETE FROM {$tableprefix}{$simple_history_table} WHERE DATE_ADD(date, INTERVAL $days DAY) < now()";
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
-		$wpdb->query($sql);
+		// Get id of rows to delete
+		$sql = "SELECT id FROM {$table_name} WHERE DATE_ADD(date, INTERVAL $days DAY) < now()";
+
+		$ids_to_delete = $wpdb->get_col($sql);
+
+		if ( empty( $ids_to_delete ) ) {
+			// Nothing to delete
+			return;
+		}
+
+		$sql_ids_in = implode(",", $ids_to_delete);
+		
+		// Add number of deleted rows to total_count option
+
+		// Remove rows + contexts
+		$sql_delete_history = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
+		$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
+
+		$wpdb->query($sql_delete_history);
+		$wpdb->query($sql_delete_history_context);
+
+		SimpleLogger()->debug(
+			"Simple History removed {num_rows} events that were older than {days} days", 
+			array(
+				"days" => $days,
+				"num_rows" => sizeof($ids_to_delete)
+			)
+		);
 
 	}
 
