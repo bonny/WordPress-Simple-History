@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
 "POT-Creation-Date: 2015-01-18 10:47:39+00:00\n"
-"PO-Revision-Date: 2015-01-18 11:50+0100\n"
+"PO-Revision-Date: 2015-01-18 12:37+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -1314,7 +1314,7 @@ msgstr ""
 #: loggers/SimplePluginLogger.php:81
 msgctxt "Plugin update failed"
 msgid "Updated plugin \"{plugin_name}\""
-msgstr "Uppdaterade plugin \"{plugin_name}\""
+msgstr "Uppdaterade tillägget \"{plugin_name}\""
 
 #: loggers/SimplePluginLogger.php:87
 msgctxt "Plugin file edited"
@@ -1332,7 +1332,7 @@ msgid ""
 "Updated plugin \"{plugin_name}\" to {plugin_version} from "
 "{plugin_prev_version}"
 msgstr ""
-"Uppdaterade plugin \"{plugin_name}\" till {plugin_version} från "
+"Uppdaterade tillägget \"{plugin_name}\" till {plugin_version} från "
 "{plugin_prev_version}"
 
 #: loggers/SimplePluginLogger.php:108

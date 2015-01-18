@@ -104,8 +104,20 @@ class SimpleHistorySidebarDropin {
 		';
 		//echo $boxMissingEvents;
 
+		$arrBoxes = array(
+			"boxReview" => $boxReview, 
+			"boxDonate" => $boxDonate,
+			"boxGithub" => $boxGithub,
+		);
 
-		$arrBoxes = array($boxGithub, $boxDonate, $boxReview);
+		/**
+		 * Filter the default boxes to output in the sidebar
+		 *
+		 * @since 2.0.17
+		 *
+		 * @param array $arrBoxes array with boxes to output. Check the key to determine which box is which.
+		 */
+		$arrBoxes = apply_filters("simple_history/SidebarDropin/default_sidebar_boxes", $arrBoxes);
 
 		//echo $arrBoxes[array_rand($arrBoxes)];
 		echo implode("", $arrBoxes); // show all
@@ -134,7 +146,8 @@ class SimpleHistorySidebarDropin {
 						</p>
 
 						<p>
-							When you\'re done with your translation email it to me at <a href="mailto:par.thernstrom@gmail.com" rel="nofollow">par.thernstrom@gmail.com</a>, or <a href="https://github.com/bonny/WordPress-Simple-History/" rel="nofollow">add a pull request</a>.
+							When you\'re done with your translation email it to me at <a href="mailto:par.thernstrom@gmail.com" rel="nofollow">par.thernstrom@gmail.com</a> 
+							or <a href="https://github.com/bonny/WordPress-Simple-History/" rel="nofollow">add a pull request</a>.
 						</p>
 					</div>
 				</div>
