@@ -1471,14 +1471,28 @@ class SimpleHistory {
 		global $wpdb;
 
 		$tableprefix = $wpdb->prefix;
+
 		$simple_history_table = SimpleHistory::DBTABLE;
 		$simple_history_context_table = SimpleHistory::DBTABLE_CONTEXTS;
+
+		// Get number of rows before delete
+		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$tableprefix}{$simple_history_table}";
+		$num_rows = $wpdb->get_var($sql_num_rows, 0);
 
 		$sql = "DELETE FROM {$tableprefix}{$simple_history_table}";
 		$wpdb->query($sql);
 
 		$sql = "DELETE FROM {$tableprefix}{$simple_history_context_table}";
 		$wpdb->query($sql);
+
+		// Zero state sucks
+		SimpleLogger()->info(
+			"The log for Simple History was cleared ({num_rows} rows were removed).", 
+			array(
+				"num_rows" => $num_rows
+			)
+		);
+
 
 	}
 
