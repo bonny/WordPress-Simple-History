@@ -69,7 +69,7 @@ class SimpleHistorySidebarDropin {
 					'https://wordpress.org/support/view/plugin-reviews/simple-history'
 				);
 
-		$body2 = _x('A good review can help new users find this plugin. And it will boost the ego of the author.', 'Sidebar box', 'simple-history');
+		$body2 = _x('A good review will help new users find this plugin. And it will make the plugin author very happy :)', 'Sidebar box', 'simple-history');
 
 		$boxReview = '
 			<div class="postbox">
