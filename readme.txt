@@ -113,6 +113,7 @@ initiated by a specific user.
 - Changed: Search now shows only the search box by default, with a link to show all search options.
 - Changed: A funky sidebar is now at place at the history page.
 - Fixed: Search is now available at the dashboard again. Hooray!
+- Fixed: Old entries were not cleared automatically. Now it correctly removes old events, so your database will not risk growing to large.
 - Fixed: Quick stats could show two messages sometimes.
 - Fixed: When headers like `HTTP_X_FORWARDED_FOR` exists all valid IPs in that header is now stored.
 - Updated: German translation updated.
