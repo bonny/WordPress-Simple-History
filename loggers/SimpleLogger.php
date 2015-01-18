@@ -924,7 +924,7 @@ class SimpleLogger
 
 				// Seems to be wp cron running and doing this
 				$data["initiator"] = SimpleLoggerLogInitiators::WORDPRESS;
-				$context["_wordpress_cron_running"] = true;
+				$context["_wp_cron_running"] = true;
 
 			}
 
