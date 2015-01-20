@@ -2216,6 +2216,7 @@ class SimpleHistory {
 
 		$results_other_sources_today = $wpdb->get_results($sql_other_sources);
 		$count_other_sources = sizeof( $results_other_sources_today );
+		$total_row_count = (int) $logResults["total_row_count"];
 
 		#sf_d($logResults, '$logResults');
 		#sf_d($results_users_today, '$sql_users_today');
@@ -2229,7 +2230,7 @@ class SimpleHistory {
 				$msg_tmpl = "";
 
 				// No results today at all
-				if ( $logResults["total_row_count"] == 0 ) {
+				if ( $total_row_count == 0 ) {
 
 					$msg_tmpl = __("No events today so far.", "simple-history");
 
@@ -2249,49 +2250,49 @@ class SimpleHistory {
 
 					// A single event existed and was from a user
 					// 1 event today from 1 user.
-				 	if ( $logResults["total_row_count"] == 1 && $count_users_today ) {
+				 	if ( $total_row_count == 1 && $count_users_today ) {
 						$msg_tmpl .= __('One event today from one user.', "simple-history");
 					}
 
 					// A single event existed and was from another source
 					// 1 event today from 1 source.
-					if ( $logResults["total_row_count"] == 1 && ! $count_users_today ) {
+					if ( $total_row_count == 1 && ! $count_users_today ) {
 						$msg_tmpl .= __('One event today from one source.', "simple-history");
 					}
 
 					// Multiple events from a single
 					// 3 events today from one user.
-					if ( $logResults["total_row_count"] > 1 && $count_users_today == 1 ) {
+					if ( $total_row_count > 1 && $count_users_today == 1 ) {
 						$msg_tmpl .= __('%1$d events today from one user.', "simple-history");
 					}
 
 					// Multiple events from only users
 					// 2 events today from 2 users.
-					if ( $logResults["total_row_count"] > 1 && $count_users_today == $logResults["total_row_count"] ) {
+					if ( $total_row_count > 1 && $count_users_today == $total_row_count ) {
 						$msg_tmpl .= __('%1$d events today from %2$d users.', "simple-history");
 					}
 
 					// Multiple events from 1 single user and 1 single other source
 					// 2 events today from 1 user and 1 other source.
-					if ( $logResults["total_row_count"] && 1 == $count_users_today && 1 == $count_other_sources ) {
+					if ( $total_row_count && 1 == $count_users_today && 1 == $count_other_sources ) {
 						$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
 					}
 
 					// Multiple events from multple users but from only 1 single other source
 					// 3 events today from 2 users and 1 other source.
-					if ( $logResults["total_row_count"] > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
+					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
 						$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
 					}
 
 					// Multiple events from 1 user but from multiple  other source
 					// 3 events today from 1 user and 2 other sources.
-					if ( $logResults["total_row_count"] > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
+					if ( $total_row_count > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
 						$msg_tmpl .= __('%1$d events today from one user and %3$d other sources.', "simple-history");
 					}
 
 					// Multiple events from multiple user and from multiple other sources
 					// 4 events today from 2 users and 2 other sources.
-					if ( $logResults["total_row_count"] && 1 == $count_users_today && $count_other_sources > 1 ) {
+					if ( $total_row_count && 1 == $count_users_today && $count_other_sources > 1 ) {
 						$msg_tmpl .= __('%1$s events today from %2$d users and %3$d other sources.', "simple-history");
 					}
 
