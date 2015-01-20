@@ -2293,7 +2293,7 @@ class SimpleHistory {
 
 					// Multiple events from multiple user and from multiple other sources
 					// 4 events today from 2 users and 2 other sources.
-					if ( $total_row_count && 1 == $count_users_today && $count_other_sources > 1 ) {
+					if ( $total_row_count > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
 						$msg_tmpl .= __('%1$s events today from %2$d users and %3$d other sources.', "simple-history");
 					}
 
