@@ -2159,6 +2159,8 @@ class SimpleHistory {
 			"date_from" => strtotime("today")
 		));
 
+		$total_row_count = (int) $logResults["total_row_count"];
+
 		// Get sql query for where to read only loggers current user is allowed to read/view
 		$sql_loggers_in = $this->getLoggersThatUserCanRead(get_current_user_id(), "sql");
 
@@ -2216,7 +2218,6 @@ class SimpleHistory {
 
 		$results_other_sources_today = $wpdb->get_results($sql_other_sources);
 		$count_other_sources = sizeof( $results_other_sources_today );
-		$total_row_count = (int) $logResults["total_row_count"];
 
 		#sf_d($logResults, '$logResults');
 		#sf_d($results_users_today, '$sql_users_today');
