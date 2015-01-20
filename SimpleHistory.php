@@ -1555,7 +1555,10 @@ class SimpleHistory {
 
 		$sql_ids_in = implode(",", $ids_to_delete);
 		
-		// Add number of deleted rows to total_count option
+		// Add number of deleted rows to total_rows option
+		$prev_total_rows = (int) get_option( "simple_history_total_rows", 0 );
+		$total_rows = $prev_total_rows + sizeof( $ids_to_delete );
+		update_option( "simple_history_total_rows", $total_rows );
 
 		// Remove rows + contexts
 		$sql_delete_history = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
@@ -1565,7 +1568,7 @@ class SimpleHistory {
 		$wpdb->query($sql_delete_history_context);
 
 		SimpleLogger()->info(
-			"Simple History removed {num_rows} events that were older than {days} days", 
+			"Simple History removed {num_rows} event(s) that were older than {days} days", 
 			array(
 				"days" => $days,
 				"num_rows" => sizeof($ids_to_delete)
