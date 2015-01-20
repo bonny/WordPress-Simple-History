@@ -298,6 +298,13 @@ class SimpleUserLogger extends SimpleLogger
 		} else {
 
 			// when does this happen?
+			// Aha! I can happen when a plugin is logging in the user, for example the "WP-OAuth"-plugin:
+			// https://github.com/bonny/WordPress-Simple-History/issues/40
+
+			// Some temp debug things
+			$context["_debug_user_login"] = $user_login;
+			$context["_debug_user"] = $user;
+
 			$this->warningMessage("user_unknown_logged_in", $context );
 
 
