@@ -1567,8 +1567,15 @@ class SimpleHistory {
 		$wpdb->query( $sql_delete_history );
 		$wpdb->query( $sql_delete_history_context );
 
-		SimpleLogger()->debug(
-			__( "Simple History removed {num_rows} event(s) that were older than {days} days", "simple-history" ), 
+		$message = _nx(
+			"Simple History removed one event that were older than {days} days",
+			"Simple History removed {num_rows} events that were older than {days} days", 
+			"Database is being cleared automagically",
+			"simple-history"
+		);
+
+		SimpleLogger()->info(
+			$message,
 			array(
 				"days" => $days,
 				"num_rows" => sizeof($ids_to_delete)
