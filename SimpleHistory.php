@@ -1564,11 +1564,11 @@ class SimpleHistory {
 		$sql_delete_history = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
 		$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
 
-		$wpdb->query($sql_delete_history);
-		$wpdb->query($sql_delete_history_context);
+		$wpdb->query( $sql_delete_history );
+		$wpdb->query( $sql_delete_history_context );
 
-		SimpleLogger()->info(
-			"Simple History removed {num_rows} event(s) that were older than {days} days", 
+		SimpleLogger()->debug(
+			__( "Simple History removed {num_rows} event(s) that were older than {days} days", "simple-history" ), 
 			array(
 				"days" => $days,
 				"num_rows" => sizeof($ids_to_delete)
