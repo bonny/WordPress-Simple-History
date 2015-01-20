@@ -303,11 +303,11 @@ class SimpleUserLogger extends SimpleLogger
 
 			// Some temp debug things
 			$context["_debug_user_login"] = $user_login;
-			$context["_debug_user"] = $user;
-			$context["_debug_server"] = $_SERVER;
-			$context["_debug_get"] = $_GET;
-			$context["_debug_get"] = $_POST;
-			$context["_debug_cookies"] = $_COOKIES;
+			$context["_debug_user"] = simpleHistory::json_encode($user);
+			$context["_debug_server"] = simpleHistory::json_encode($_SERVER);
+			$context["_debug_get"] = simpleHistory::json_encode($_GET);
+			$context["_debug_get"] = simpleHistory::json_encode($_POST);
+			$context["_debug_cookies"] = simpleHistory::json_encode($_COOKIES);
 
 			$this->warningMessage("user_unknown_logged_in", $context );
 
