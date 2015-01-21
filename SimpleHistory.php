@@ -92,8 +92,8 @@ class SimpleHistory {
 		add_action( 'admin_footer', array( $this, "onAdminFooter" ) );
 
 		// Filters and actions not called during regular boot
-		add_filter("gettext", array($this, 'filter_gettext'), 20, 3);
-		add_filter("gettext_with_context", array($this, 'filter_gettext_with_context'), 20, 4);
+		add_filter( "gettext", array($this, 'filter_gettext'), 20, 3);
+		add_filter( "gettext_with_context", array($this, 'filter_gettext_with_context'), 20, 4);
 
 		add_action( 'simple_history/history_page/before_gui', array( $this, "output_quick_stats" ) );
 		add_action( 'simple_history/dashboard/before_gui', array( $this, "output_quick_stats" ) );
@@ -112,11 +112,72 @@ class SimpleHistory {
 	     */
 		do_action( "simple_history/after_init", $this );
 
+
+		// @TODO: not use global variable
+		global $sh_latest_translations;
+		$sh_latest_translations = array();
+		add_filter( 'gettext', function($translation, $text, $domain) {
+
+			$array_max_size = 5;
+
+			// Keep a listing of the n latest translation
+			// when SimpleLogger->log() is called from anywhere we can then search for the 
+			// translated string among our n latest things and find it there, if it's translated
+			global $sh_latest_translations;
+
+			$sh_latest_translations[$translation] = array(
+				"translation" => $translation,
+				"text" => $text,
+				"domain" => $domain
+			);
+
+			$arr_length = sizeof( $sh_latest_translations );
+			if ( $arr_length > $array_max_size ) {
+				$sh_latest_translations = array_slice($sh_latest_translations, $arr_length - $array_max_size);
+			}
+
+			return $translation;
+
+		}, 10, 3);
+
+		// test to translate automagically during logging
+		add_action("init", function() {
+
+			if ( defined('DOING_AJAX') && DOING_AJAX ) {
+				return;
+			}
+
+			$message = __(
+				#"Simple History removed one event that were older than {days} days",
+				"Go to the first page",
+				"simple-history"
+			);
+
+			SimpleLogger()->info(
+				$message,
+				array(
+					"days" => 123,
+					"num_rows" => 321
+				)
+			);
+
+			SimpleLogger()->debug( "Just a plain text string" );
+			SimpleLogger()->debug( __("Edit") );
+			SimpleLogger()->debug( __("Publish") );
+			SimpleLogger()->debug( __("Plugin") );
+			SimpleLogger()->debug( __("Search", "simple-history") );
+			SimpleLogger()->debug( __("Search", "cms-tree-page-view") );
+			SimpleLogger()->debug( __("Edit", "cms-tree-page-view") );
+			SimpleLogger()->debug( __("Tree view", "cms-tree-page-view") );
+			SimpleLogger()->debug( __("Enter title of new page", "cms-tree-page-view") );
+
+		});
+
+
 	}
 
 	function setup_cron() {
 		
-		//add_action("simple_history/loggers_loaded", array( $this, "maybe_purge_db" ));
 		add_filter("simple_history/purge_db", array( $this, "purge_db" ));
 
 		if ( ! wp_next_scheduled( 'simple_history/purge_db' ) ) {

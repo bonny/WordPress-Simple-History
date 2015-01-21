@@ -805,6 +805,20 @@ class SimpleLogger
 
 		global $wpdb;
 
+// Check if $message is a translated message, and if so then fetch original
+global $sh_latest_translations;
+if ( isset( $sh_latest_translations[ $message ] ) ) {
+	// Translation of this phrase was found, so use original phrase instead of translated one
+	#echo "xxx";
+	#sf_d($sh_latest_translations[ $message ]);
+	$context["_gettext_domain"] = $sh_latest_translations[ $message ]["domain"];
+	$context["_gettext_org_message"] = $sh_latest_translations[ $message ]["text"];
+	$context["_gettext_translated_message"] = $sh_latest_translations[ $message ]["translation"];
+	$message = $sh_latest_translations[ $message ]["text"];
+}
+
+
+
 		/**
 	     * Filter arguments passed to log funtion
 	     *

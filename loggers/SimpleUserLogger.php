@@ -301,6 +301,9 @@ class SimpleUserLogger extends SimpleLogger
 			// Aha! I can happen when a plugin is logging in the user, for example the "WP-OAuth"-plugin:
 			// https://github.com/bonny/WordPress-Simple-History/issues/40
 
+			// @TODO: does this still count as a valid login?
+			// It should be valid right, because this action should not be called otherwise
+
 			// Some temp debug things
 			$context["_debug_user_login"] = $user_login;
 			$context["_debug_user"] = simpleHistory::json_encode($user);

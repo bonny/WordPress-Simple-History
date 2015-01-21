@@ -515,16 +515,6 @@ class SimpleCommentsLogger extends SimpleLogger
 
 		}
 
-		// @TODO: group comments by comment_type comment | trackback | pingback
-		// OR: different messages for different comment types?
-		/*
-		if ( isset( $comment_data["comment_type"] ) ) {
-
-			$comment_type = $comment_data["comment_type"];
-
-		}
-		*/
-
 		$this->infoMessage(
 			$message,
 			$context

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-01-19 17:03:25+00:00\n"
-"PO-Revision-Date: 2015-01-19 18:05+0100\n"
+"POT-Creation-Date: 2015-01-20 21:16:38+00:00\n"
+"PO-Revision-Date: 2015-01-20 22:17+0100\n"
 "Last-Translator: Pär Thernström <par.thernstrom@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -115,57 +115,57 @@ msgstr "Händelser i databasen lagras för evigt."
 msgid "Clear log now"
 msgstr "Rensa loggen nu"
 
-#: SimpleHistory.php:1734
+#: SimpleHistory.php:1744
 msgid "+%1$s similar event"
 msgid_plural "+%1$s similar events"
 msgstr[0] "+%1$s liknande händelse"
 msgstr[1] "+%1$s liknande händelser"
 
-#: SimpleHistory.php:1741
+#: SimpleHistory.php:1751
 msgid "Loading…"
 msgstr "Laddar historik..."
 
-#: SimpleHistory.php:1748
+#: SimpleHistory.php:1758
 msgid "Showing %1$s more"
 msgstr "+%1$s fler"
 
-#: SimpleHistory.php:1767
+#: SimpleHistory.php:1777
 msgid "Context data"
 msgstr "Kontextuell data"
 
-#: SimpleHistory.php:1768
+#: SimpleHistory.php:1778
 msgid "This is potentially useful meta data that a logger has saved."
 msgstr "Detta eventuellt användbar metadata som en logger har sparat."
 
-#: SimpleHistory.php:2231
+#: SimpleHistory.php:2243
 msgid "No events today so far."
 msgstr "Inga händelser idag ännu."
 
-#: SimpleHistory.php:2250
+#: SimpleHistory.php:2262
 msgid "One event today from one user."
 msgstr "En händelse idag från en användare."
 
-#: SimpleHistory.php:2256
+#: SimpleHistory.php:2268
 msgid "One event today from one source."
 msgstr "En händelse idag från en källa."
 
-#: SimpleHistory.php:2262
+#: SimpleHistory.php:2274
 msgid "%1$d events today from one user."
 msgstr "%1$d händelser idag från en användare."
 
-#: SimpleHistory.php:2268
+#: SimpleHistory.php:2280
 msgid "%1$d events today from %2$d users."
 msgstr "%1$d händelser idag från %2$d användare."
 
-#: SimpleHistory.php:2274 SimpleHistory.php:2280
+#: SimpleHistory.php:2286 SimpleHistory.php:2292
 msgid "%1$d events today from one user and one other source."
 msgstr "%1$d händelser idag från en användare och från en annan källa."
 
-#: SimpleHistory.php:2286
+#: SimpleHistory.php:2298
 msgid "%1$d events today from one user and %3$d other sources."
 msgstr "%1$d händelser idag från en användare och från %3$d andra källor."
 
-#: SimpleHistory.php:2292
+#: SimpleHistory.php:2304
 msgid "%1$s events today from %2$d users and %3$d other sources."
 msgstr "%1$s händelser idag från %2$d användare och %3$d andra källor."
 
@@ -666,82 +666,91 @@ msgctxt "history page headline"
 msgid "Simple History"
 msgstr "Simple History"
 
-#: SimpleHistory.php:1904
+#: SimpleHistory.php:1570
+msgctxt "simple-history"
+msgid "Simple History removed one event that were older than {days} days"
+msgid_plural ""
+"Simple History removed {num_rows} events that were older than {days} days"
+msgstr[0] "Simple History raderade en händelse som var äldre än {days} dagar."
+msgstr[1] ""
+"Simple History radera {num_rows} händelser som var äldre än {days} dagar"
+
+#: SimpleHistory.php:1914
 msgctxt "Log level in gui"
 msgid "emergency"
 msgstr "kritiskt"
 
-#: SimpleHistory.php:1908
+#: SimpleHistory.php:1918
 msgctxt "Log level in gui"
 msgid "alert"
 msgstr "alert"
 
-#: SimpleHistory.php:1912
+#: SimpleHistory.php:1922
 msgctxt "Log level in gui"
 msgid "critical"
 msgstr "kritiskt"
 
-#: SimpleHistory.php:1916
+#: SimpleHistory.php:1926
 msgctxt "Log level in gui"
 msgid "error"
 msgstr "error"
 
-#: SimpleHistory.php:1920
+#: SimpleHistory.php:1930
 msgctxt "Log level in gui"
 msgid "warning"
 msgstr "warning"
 
-#: SimpleHistory.php:1924
+#: SimpleHistory.php:1934
 msgctxt "Log level in gui"
 msgid "notice"
 msgstr "notice"
 
-#: SimpleHistory.php:1928
+#: SimpleHistory.php:1938
 msgctxt "Log level in gui"
 msgid "info"
 msgstr "info"
 
-#: SimpleHistory.php:1932
+#: SimpleHistory.php:1942
 msgctxt "Log level in gui"
 msgid "debug"
 msgstr "debug"
 
-#: SimpleHistory.php:1937
+#: SimpleHistory.php:1947
 msgctxt "Log level in gui"
 msgid "Emergency"
 msgstr "Emergency"
 
-#: SimpleHistory.php:1941
+#: SimpleHistory.php:1951
 msgctxt "Log level in gui"
 msgid "Alert"
 msgstr "Alert"
 
-#: SimpleHistory.php:1945
+#: SimpleHistory.php:1955
 msgctxt "Log level in gui"
 msgid "Critical"
 msgstr "Critical"
 
-#: SimpleHistory.php:1949
+#: SimpleHistory.php:1959
 msgctxt "Log level in gui"
 msgid "Error"
 msgstr "Error"
 
-#: SimpleHistory.php:1953
+#: SimpleHistory.php:1963
 msgctxt "Log level in gui"
 msgid "Warning"
 msgstr "Warning"
 
-#: SimpleHistory.php:1957
+#: SimpleHistory.php:1967
 msgctxt "Log level in gui"
 msgid "Notice"
 msgstr "Notice"
 
-#: SimpleHistory.php:1961
+#: SimpleHistory.php:1971
 msgctxt "Log level in gui"
 msgid "Info"
 msgstr "Info"
 
-#: SimpleHistory.php:1965
+#: SimpleHistory.php:1975
 msgctxt "Log level in gui"
 msgid "Debug"
 msgstr "Debug"
