@@ -110,6 +110,7 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Added: a funky translation thingie
 - Changed: Search now shows only the search box by default, with a link to show all search options.
 - Changed: A funky sidebar is now at place at the history page.
 - Fixed: Search is now available at the dashboard again. Hooray!
