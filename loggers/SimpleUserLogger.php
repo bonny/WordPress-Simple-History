@@ -3,8 +3,7 @@
 /**
  * Logs changes to user logins (and logouts)
  */
-class SimpleUserLogger extends SimpleLogger
-{
+class SimpleUserLogger extends SimpleLogger {
 
 	public $slug = __CLASS__;
 
@@ -33,7 +32,7 @@ class SimpleUserLogger extends SimpleLogger
 				Text used in admin:
 				Log Out of All Other Sessions
 				Left your account logged in at a public computer? Lost your phone? This will log you out everywhere except your current browser
-				*/
+				 */
 				'user_session_destroy_others' => _x(
 					'Logged out from all other sessions',
 					'User destroys other login sessions for themself',
@@ -42,7 +41,7 @@ class SimpleUserLogger extends SimpleLogger
 				/*
 				Text used in admin:
 				'Log %s out of all sessions' ), $profileuser->display_name );
-				*/
+				 */
 				'user_session_destroy_everywhere' => _x(
 					'Logged out "{user_display_name}" from all sessions',
 					'User destroys all login sessions for a user',
@@ -57,29 +56,29 @@ class SimpleUserLogger extends SimpleLogger
 					"options" => array(
 						_x("Successful user logins", "User logger: search", "simple-history") => array(
 							"user_logged_in",
-							"user_unknown_logged_in"
+							"user_unknown_logged_in",
 						),
 						_x("Failed user logins", "User logger: search", "simple-history") => array(
 							'user_login_failed',
-							'user_unknown_login_failed'
+							'user_unknown_login_failed',
 						),
-						_x('User logouts',  'User logger: search', 'simple-history') => array(
-							"user_logged_out"
+						_x('User logouts', 'User logger: search', 'simple-history') => array(
+							"user_logged_out",
 						),
-						_x('Created users',  'User logger: search', 'simple-history') => array(
-							"user_created"
+						_x('Created users', 'User logger: search', 'simple-history') => array(
+							"user_created",
 						),
 						_x("User profile updates", "User logger: search", "simple-history") => array(
-							"user_updated_profile"
+							"user_updated_profile",
 						),
-						_x('User deletions',  'User logger: search', 'simple-history') => array(
-							"user_deleted"
-						)
+						_x('User deletions', 'User logger: search', 'simple-history') => array(
+							"user_deleted",
+						),
 
-					)
-				) // end search
+					),
+				), // end search
 
-			) // end labels
+			), // end labels
 
 		);
 		#sf_d($arr_info);exit;
@@ -93,14 +92,14 @@ class SimpleUserLogger extends SimpleLogger
 	public function loaded() {
 
 		// Plain logins and logouts
-		add_action("wp_login", array($this, "on_wp_login" ), 10, 3 );
-		add_action("wp_logout", array($this, "on_wp_logout" ) );
+		add_action("wp_login", array($this, "on_wp_login"), 10, 3);
+		add_action("wp_logout", array($this, "on_wp_logout"));
 
 		// Failed login attempt to username that exists
 		add_action("wp_authenticate_user", array($this, "on_wp_authenticate_user"), 10, 2);
 
 		// Failed to login to user that did not exist (perhaps brute force)
-		add_filter( 'authenticate', array($this, "on_authenticate"), 10, 3);
+		add_filter('authenticate', array($this, "on_authenticate"), 10, 3);
 
 		// User is changed
 		add_action("profile_update", array($this, "on_profile_update"), 10, 2);
@@ -109,13 +108,12 @@ class SimpleUserLogger extends SimpleLogger
 		add_action("user_register", array($this, "on_user_register"), 10, 2);
 
 		// User is deleted
-		add_action( 'delete_user', array($this, "on_delete_user"), 10, 2 );
+		add_action('delete_user', array($this, "on_delete_user"), 10, 2);
 
 		// User sessions is destroyed. AJAX call that we hook onto early.
 		add_action("wp_ajax_destroy-sessions", array($this, "on_destroy_user_session"), 0);
 
 	}
-
 
 	/**
 	 * Called when user dessions are destroyed from admin
@@ -129,31 +127,31 @@ class SimpleUserLogger extends SimpleLogger
 
 		/*
 		Post params:
-			nonce: a14df12195
-			user_id: 1
-			action: destroy-sessions
-		*/
+		nonce: a14df12195
+		user_id: 1
+		action: destroy-sessions
+		 */
 
-		$user = get_userdata( (int) $_POST['user_id'] );
+		$user = get_userdata((int) $_POST['user_id']);
 
-		if ( $user ) {
-			if ( ! current_user_can( 'edit_user', $user->ID ) ) {
+		if ($user) {
+			if (!current_user_can('edit_user', $user->ID)) {
 				$user = false;
-			} elseif ( ! wp_verify_nonce( $_POST['nonce'], 'update-user_' . $user->ID ) ) {
+			} elseif (!wp_verify_nonce($_POST['nonce'], 'update-user_' . $user->ID)) {
 				$user = false;
 			}
 		}
 
-		if ( ! $user ) {
+		if (!$user) {
 			// Could not log out user sessions. Please try again.
 			return;
 		}
 
-		$sessions = WP_Session_Tokens::get_instance( $user->ID );
+		$sessions = WP_Session_Tokens::get_instance($user->ID);
 
 		$context = array();
 
-		if ( $user->ID === get_current_user_id() ) {
+		if ($user->ID === get_current_user_id()) {
 
 			$this->infoMessage("user_session_destroy_others");
 
@@ -178,11 +176,11 @@ class SimpleUserLogger extends SimpleLogger
 	 */
 	public function on_delete_user($user_id, $reassign) {
 
-		$wp_user_to_delete = get_userdata( $user_id );
+		$wp_user_to_delete = get_userdata($user_id);
 
 		// wp_user->roles (array) - the roles the user is part of.
 		$role = null;
-		if ( is_array( $wp_user_to_delete->roles ) && ! empty( $wp_user_to_delete->roles[0] ) ) {
+		if (is_array($wp_user_to_delete->roles) && !empty($wp_user_to_delete->roles[0])) {
 			$role = $wp_user_to_delete->roles[0];
 		}
 
@@ -210,20 +208,20 @@ class SimpleUserLogger extends SimpleLogger
 		$output = parent::getLogRowPlainTextOutput($row);
 		$current_user_id = get_current_user_id();
 
-		if ( "user_updated_profile" == $context["_message_key"]) {
+		if ("user_updated_profile" == $context["_message_key"]) {
 
-			$wp_user = get_user_by( "id", $context["edited_user_id"] );
+			$wp_user = get_user_by("id", $context["edited_user_id"]);
 
 			// If edited_user_id and _user_id is the same then a user edited their own profile
 			// Note: it's not the same thing as the currently logged in user (but.. it can be!)
-			if ( $context["edited_user_id"] === $context["_user_id"] ) {
+			if ($context["edited_user_id"] === $context["_user_id"]) {
 
 				if ($wp_user) {
 
-					$context["edit_profile_link"] = get_edit_user_link( $wp_user->ID );
+					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
 
 					// User still exist, so link to their profile
-					if ( $current_user_id === $context["_user_id"] ) {
+					if ($current_user_id === $context["_user_id"]) {
 
 						// User that is viewing the log is the same as the edited user
 						$msg = __('Edited <a href="{edit_profile_link}">your profile</a>', "simple-history");
@@ -251,7 +249,7 @@ class SimpleUserLogger extends SimpleLogger
 					// Edited user still exist, so link to their profile
 					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
 					$msg = __('Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', "simple-history");
-					$output = $this->interpolate( $msg, $context );
+					$output = $this->interpolate($msg, $context);
 
 				} else {
 
@@ -261,11 +259,10 @@ class SimpleUserLogger extends SimpleLogger
 
 			}
 
-		} // if user_updated_profile
+		}// if user_updated_profile
 
 		return $output;
 	}
-
 
 	/**
 	 * User logs in
@@ -277,12 +274,12 @@ class SimpleUserLogger extends SimpleLogger
 
 		$context = array();
 
-		if ( $user->ID ) {
+		if ($user->ID) {
 
 			$context = array(
 				"user_id" => $user->ID,
 				"user_email" => $user->user_email,
-				"user_login" => $user->user_login
+				"user_login" => $user->user_login,
 			);
 
 			// Override some data that is usually set automagically by Simple History
@@ -305,15 +302,16 @@ class SimpleUserLogger extends SimpleLogger
 			// It should be valid right, because this action should not be called otherwise
 
 			// Some temp debug things
+			/*
 			$context["_debug_user_login"] = $user_login;
 			$context["_debug_user"] = simpleHistory::json_encode($user);
 			$context["_debug_server"] = simpleHistory::json_encode($_SERVER);
 			$context["_debug_get"] = simpleHistory::json_encode($_GET);
 			$context["_debug_get"] = simpleHistory::json_encode($_POST);
 			$context["_debug_cookies"] = simpleHistory::json_encode($_COOKIES);
+			 */
 
-			$this->warningMessage("user_unknown_logged_in", $context );
-
+			$this->warningMessage("user_unknown_logged_in", $context);
 
 		}
 
@@ -334,10 +332,11 @@ class SimpleUserLogger extends SimpleLogger
 	 */
 	function on_profile_update($user_id) {
 
-		if ( ! $user_id || ! is_numeric($user_id))
+		if (!$user_id || !is_numeric($user_id)) {
 			return;
+		}
 
-		$wp_user_edited = get_userdata( $user_id );
+		$wp_user_edited = get_userdata($user_id);
 
 		$context = array(
 			"edited_user_id" => $wp_user_edited->ID,
@@ -355,14 +354,15 @@ class SimpleUserLogger extends SimpleLogger
 	 */
 	function on_user_register($user_id) {
 
-		if ( ! $user_id || ! is_numeric($user_id))
+		if (!$user_id || !is_numeric($user_id)) {
 			return;
+		}
 
-		$wp_user_added = get_userdata( $user_id );
+		$wp_user_added = get_userdata($user_id);
 
 		// wp_user->roles (array) - the roles the user is part of.
 		$role = null;
-		if ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
+		if (is_array($wp_user_added->roles) && !empty($wp_user_added->roles[0])) {
 			$role = $wp_user_added->roles[0];
 		}
 
@@ -387,7 +387,7 @@ class SimpleUserLogger extends SimpleLogger
 	function on_wp_authenticate_user($user, $password) {
 
 		// Only log failed attempts
-		if ( ! wp_check_password($password, $user->user_pass, $user->ID) ) {
+		if (!wp_check_password($password, $user->user_pass, $user->ID)) {
 
 			// Overwrite some vars that Simple History set automagically
 			$context = array(
@@ -400,7 +400,7 @@ class SimpleUserLogger extends SimpleLogger
 				"login_user_login" => $user->user_login,
 				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
 				//"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
-				"_occasionsID" => __CLASS__  . '/failed_user_login'
+				"_occasionsID" => __CLASS__ . '/failed_user_login',
 			);
 
 			/**
@@ -425,20 +425,19 @@ class SimpleUserLogger extends SimpleLogger
 
 	}
 
-
 	/**
 	 * Attempt to login to user that does not exist
 	 */
 	function on_authenticate($user, $username, $password) {
 
 		// Don't log empty usernames
-		if ( ! trim($username)) {
+		if (!trim($username)) {
 			return $user;
 		}
 
 		// If username is not a user in the system then this
 		// is consideraded a failed login attempt
-		$wp_user = get_user_by( "login", $username );
+		$wp_user = get_user_by("login", $username);
 
 		if (false === $wp_user) {
 
@@ -452,7 +451,7 @@ class SimpleUserLogger extends SimpleLogger
 				// Use same occasionsID as for failed login attempts to existing users,
 				// because log can flood otherwise if hacker is rotating existing and non-existing usernames
 				//"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
-				"_occasionsID" => __CLASS__  . '/failed_user_login'
+				"_occasionsID" => __CLASS__ . '/failed_user_login',
 			);
 
 			/**

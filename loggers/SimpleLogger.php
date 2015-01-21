@@ -8,8 +8,7 @@
  *
  * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md PSR-3 specification
  */
-class SimpleLogger
-{
+class SimpleLogger {
 
 	/**
 	 * Unique slug for this logger
@@ -84,7 +83,7 @@ class SimpleLogger
 			"messages" => array(
 				// No pre-defined variants
 				// when adding messages __() or _x() must be used
-			)
+			),
 
 		);
 
@@ -106,12 +105,11 @@ class SimpleLogger
 	}
 
 	/**
-	* Interpolates context values into the message placeholders.
-	*/
-	function interpolate($message, $context = array())
-	{
+	 * Interpolates context values into the message placeholders.
+	 */
+	function interpolate($message, $context = array()) {
 
-		if ( ! is_array($context) ) {
+		if (!is_array($context)) {
 			return $message;
 		}
 
@@ -140,7 +138,7 @@ class SimpleLogger
 		$initiator = $row->initiator;
 		$context = $row->context;
 
-		switch ( $initiator ) {
+		switch ($initiator) {
 
 			case "wp":
 				$initiator_html .= '<strong class="SimpleHistoryLogitem__inlineDivided">WordPress</strong> ';
@@ -149,47 +147,47 @@ class SimpleLogger
 			// wp_user = wordpress uses, but user may have been deleted since log entry was added
 			case "wp_user":
 
-				$user_id = isset( $row->context["_user_id"] ) ? $row->context["_user_id"] : null;
+				$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
 
-				if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
+				if ($user_id > 0 && $user = get_user_by("id", $user_id)) {
 
 					// Sender is user and user still exists
-					$is_current_user = ( $user_id == get_current_user_id() ) ? true : false;
+					$is_current_user = ($user_id == get_current_user_id()) ? true : false;
 
 					// get user role, as done in user-edit.php
-					$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
-					$user_role  = array_shift( $user_roles );
+					$user_roles = array_intersect(array_values($user->roles), array_keys(get_editable_roles()));
+					$user_role = array_shift($user_roles);
 					$user_display_name = $user->display_name;
 
 					$tmpl_initiator_html = '
 						<strong class="SimpleHistoryLogitem__inlineDivided">%3$s</strong>
 						<span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">%2$s</span>
-					';
+					'	;
 
 					// If user who logged this is the currently logged in user
 					// we replace name and email with just "You"
 					if ($is_current_user) {
 						$tmpl_initiator_html = '
 							<strong class="SimpleHistoryLogitem__inlineDivided">%5$s</strong>
-						';
+						'	;
 					}
 
-					/**
-				     * Filter the format for the user output
-				     *
-				     * @since 2.0
-				     *
-				     * @param string $format.
-				     */
+				/**
+				 * Filter the format for the user output
+				 *
+				 * @since 2.0
+				 *
+				 * @param string $format.
+				 */
 					$$tmpl_initiator_html = apply_filters("simple_history/header_initiator_html_existing_user", $tmpl_initiator_html);
 
 					$initiator_html .= sprintf(
 						$tmpl_initiator_html,
-						esc_html( $user->user_login ), // 1
-						esc_html( $user->user_email ), // 2
-						esc_html( $user_display_name ), // 3
-						$user_role, // 4
-						_x("You", "header output when initiator is the currently logged in user", "simple-history") // 5
+						esc_html($user->user_login), 	// 1
+						esc_html($user->user_email), 	// 2
+						esc_html($user_display_name), 	// 3
+						$user_role, 	// 4
+						_x("You", "header output when initiator is the currently logged in user", "simple-history") 	// 5
 					);
 
 				} else if ($user_id > 0) {
@@ -202,11 +200,11 @@ class SimpleLogger
 					// _user_email
 					$initiator_html .= sprintf(
 						'<strong class="SimpleHistoryLogitem__inlineDivided">' .
-							__('Deleted user (had id %1$s, email %2$s, login %3$s)', "simple-history") .
-							'</strong>',
-						esc_html( $context["_user_id"] ),
-						esc_html( $context["_user_email"] ),
-						esc_html( $context["_user_login"] )
+						__('Deleted user (had id %1$s, email %2$s, login %3$s)', "simple-history") .
+						'</strong>',
+						esc_html($context["_user_id"]),
+						esc_html($context["_user_email"]),
+						esc_html($context["_user_login"])
 					);
 
 				}
@@ -215,19 +213,19 @@ class SimpleLogger
 
 			case "web_user":
 
-				if ( empty( $context["_server_remote_addr"] ) ) {
+				if (empty($context["_server_remote_addr"])) {
 
 					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . __("Anonymous web user", "simple-history") . "</strong> ";
 
 				} else {
 
-					$iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr( $context["_server_remote_addr"] ));
+					$iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr($context["_server_remote_addr"]));
 
 					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__anonUserWithIp'>";
 					$initiator_html .= sprintf(
-											__('Anonymous user from %1$s', "simple-history"),
-											"<a target='_blank' href={$iplookup_link} class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" . esc_attr( $context["_server_remote_addr"] ) . "</a>"
-										);
+						__('Anonymous user from %1$s', "simple-history"),
+						"<a target='_blank' href={$iplookup_link} class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" . esc_attr($context["_server_remote_addr"]) . "</a>"
+					);
 					$initiator_html .= "</strong> ";
 
 					// $initiator_html .= "<strong>" . __("<br><br>Unknown user from {$context["_server_remote_addr"]}") . "</strong>";
@@ -249,20 +247,19 @@ class SimpleLogger
 				break;
 
 			default:
-				$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . esc_html( $initiator ) . "</strong>";
+				$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . esc_html($initiator) . "</strong>";
 
 		}
 
 		/**
-	     * Filter generated html for the initiator row header html
-	     *
-	     * @since 2.0
-	     *
-	     * @param string $initiator_html
-	     * @param object $row Log row
-	     */
+		 * Filter generated html for the initiator row header html
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $initiator_html
+		 * @param object $row Log row
+		 */
 		$initiator_html = apply_filters("simple_history/row_header_initiator_output", $initiator_html, $row);
-
 
 		// HTML for date
 		// Date (should...) always exist
@@ -272,44 +269,44 @@ class SimpleLogger
 		$date_datetime = new DateTime($row->date);
 
 		/**
-	     * Filter how many seconds as most that can pass since an
-	     * event occured to show "nn minutes ago" (human diff time-format) instead of exact date
-	     *
-	     * @since 2.0
-	     *
-	     * @param int $time_ago_max_time Seconds
-	     */
+		 * Filter how many seconds as most that can pass since an
+		 * event occured to show "nn minutes ago" (human diff time-format) instead of exact date
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $time_ago_max_time Seconds
+		 */
 		$time_ago_max_time = DAY_IN_SECONDS * 2;
 		$time_ago_max_time = apply_filters("simple_history/header_time_ago_max_time", $time_ago_max_time);
 
 		/**
-	     * Filter how many seconds as most that can pass since an
-	     * event occured to show "just now" instead of exact date
-	     *
-	     * @since 2.0
-	     *
-	     * @param int $time_ago_max_time Seconds
-	     */
+		 * Filter how many seconds as most that can pass since an
+		 * event occured to show "just now" instead of exact date
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $time_ago_max_time Seconds
+		 */
 		$time_ago_just_now_max_time = 30;
 		$time_ago_just_now_max_time = apply_filters("simple_history/header_just_now_max_time", $time_ago_just_now_max_time);
 
-		if ( time() - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time ) {
+		if (time() - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time) {
 
 			// show "just now" if event is very recent
 			$str_when = __("Just now", "simple-history");
 
-		} else if ( time() - $date_datetime->getTimestamp() > $time_ago_max_time ) {
+		} else if (time() - $date_datetime->getTimestamp() > $time_ago_max_time) {
 
 			/* translators: Date format for log row header, see http://php.net/date */
-			$datef = __( 'M j, Y \a\t G:i', "simple-history" );
-			$str_when = date_i18n( $datef, $date_datetime->getTimestamp() );
+			$datef = __('M j, Y \a\t G:i', "simple-history");
+			$str_when = date_i18n($datef, $date_datetime->getTimestamp());
 
 		} else {
 
 			// Show "nn minutes ago" when event is xx seconds ago or earlier
-			$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), time() );
+			$date_human_time_diff = human_time_diff($date_datetime->getTimestamp(), time());
 			/* translators: 1: last modified date and time in human time diff-format */
-			$str_when = sprintf( __( '%1$s ago', 'simple-history' ), $date_human_time_diff );
+			$str_when = sprintf(__('%1$s ago', 'simple-history'), $date_human_time_diff);
 
 		}
 
@@ -330,10 +327,10 @@ class SimpleLogger
 		// SimpleHistoryLogitem--loglevel-warning
 		/*
 		$level_html = sprintf(
-			'<span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>',
-			$row->level
+		'<span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>',
+		$row->level
 		);
-		*/
+		 */
 
 		// Glue together final result
 		$template = '%1$s%2$s';
@@ -349,13 +346,13 @@ class SimpleLogger
 		);
 
 		/**
-	     * Filter generated html for the log row header
-	     *
-	     * @since 2.0
-	     *
-	     * @param string $html
-	     * @param object $row Log row
-	     */
+		 * Filter generated html for the log row header
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $html
+		 * @param object $row Log row
+		 */
 		$html = apply_filters("simple_history/row_header_output", $html, $row);
 
 		return $html;
@@ -386,17 +383,17 @@ class SimpleLogger
 		// Message is translated here, but translation must be added in
 		// plain text before
 
-		if ( empty( $message_key ) ) {
+		if (empty($message_key)) {
 
 			// Leave message alone
 
 		} else {
 
-			$message = $this->messages[ $message_key ]["translated_text"];
+			$message = $this->messages[$message_key]["translated_text"];
 
 		}
 
-		$html = $this->interpolate( $message, $row->context );
+		$html = $this->interpolate($message, $row->context);
 
 		// All messages are escaped by default.
 		// If you need unescaped output override this method
@@ -404,13 +401,13 @@ class SimpleLogger
 		$html = esc_html($html);
 
 		/**
-	     * Filter generated output for plain text output
-	     *
-	     * @since 2.0
-	     *
-	     * @param string $html
-	     * @param object $row Log row
-	     */
+		 * Filter generated output for plain text output
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $html
+		 * @param object $row Log row
+		 */
 		$html = apply_filters("simple_history/row_plain_text_output", $html, $row);
 
 		return $html;
@@ -429,26 +426,26 @@ class SimpleLogger
 
 		$initiator = $row->initiator;
 
-		switch ( $initiator ) {
+		switch ($initiator) {
 
 			// wp_user = wordpress uses, but user may have been deleted since log entry was added
 			case "wp_user":
 
 				$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
 
-				if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
+				if ($user_id > 0 && $user = get_user_by("id", $user_id)) {
 
 					// Sender was user
-					$sender_image_html = $this->simpleHistory->get_avatar( $user->user_email, $sender_image_size );
+					$sender_image_html = $this->simpleHistory->get_avatar($user->user_email, $sender_image_size);
 
 				} else if ($user_id > 0) {
 
 					// Sender was a user, but user is deleted now
-					$sender_image_html = $this->simpleHistory->get_avatar( "", $sender_image_size );
+					$sender_image_html = $this->simpleHistory->get_avatar("", $sender_image_size);
 
 				} else {
 
-					$sender_image_html = $this->simpleHistory->get_avatar( "", $sender_image_size );
+					$sender_image_html = $this->simpleHistory->get_avatar("", $sender_image_size);
 
 				}
 
@@ -456,13 +453,13 @@ class SimpleLogger
 
 		}
 		/**
-	     * Filter generated output for row image (sender image)
-	     *
-	     * @since 2.0
-	     *
-	     * @param string $sender_image_html
-	     * @param object $row Log row
-	     */
+		 * Filter generated output for row image (sender image)
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $sender_image_html
+		 * @param object $row Log row
+		 */
 		$sender_image_html = apply_filters("simple_history/row_sender_image_output", $sender_image_html, $row);
 
 		return $sender_image_html;
@@ -482,19 +479,18 @@ class SimpleLogger
 		$html = "";
 
 		/**
-	     * Filter generated output for details
-	     *
-	     * @since 2.0
-	     *
-	     * @param string $html
-	     * @param object $row Log row
-	     */
+		 * Filter generated output for details
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $html
+		 * @param object $row Log row
+		 */
 		$html = apply_filters("simple_history/row_details_output", $html, $row);
 
 		return $html;
 
 	}
-
 
 	/**
 	 * System is unusable.
@@ -503,8 +499,7 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public static function emergency($message, array $context = array())
-	{
+	public static function emergency($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 
@@ -517,20 +512,18 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function emergencyMessage($message, array $context = array())
-	{
+	public function emergencyMessage($message, array $context = array()) {
 
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if (!isset($this->messages[$message]["untranslated_text"])) {
 			return;
 		}
 
 		$context["_message_key"] = $message;
-		$message = $this->messages[ $message ]["untranslated_text"];
+		$message = $this->messages[$message]["untranslated_text"];
 
 		$this->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 
 	}
-
 
 	/**
 	 * Action must be taken immediately.
@@ -539,8 +532,7 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public static function alert($message, array $context = array())
-	{
+	public static function alert($message, array $context = array()) {
 		return $this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
 
 	}
@@ -552,20 +544,18 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function alertMessage($message, array $context = array())
-	{
+	public function alertMessage($message, array $context = array()) {
 
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if (!isset($this->messages[$message]["untranslated_text"])) {
 			return;
 		}
 
 		$context["_message_key"] = $message;
-		$message = $this->messages[ $message ]["untranslated_text"];
+		$message = $this->messages[$message]["untranslated_text"];
 
 		$this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
 
 	}
-
 
 	/**
 	 * Critical conditions.
@@ -576,8 +566,7 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public static function critical($message, array $context = array())
-	{
+	public static function critical($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
 
@@ -590,20 +579,18 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function criticalMessage($message, array $context = array())
-	{
+	public function criticalMessage($message, array $context = array()) {
 
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if (!isset($this->messages[$message]["untranslated_text"])) {
 			return;
 		}
 
 		$context["_message_key"] = $message;
-		$message = $this->messages[ $message ]["untranslated_text"];
+		$message = $this->messages[$message]["untranslated_text"];
 
 		$this->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
 
 	}
-
 
 	/**
 	 * Runtime errors that do not require immediate action but should typically
@@ -613,8 +600,7 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function error($message, array $context = array())
-	{
+	public function error($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::ERROR, $message, $context);
 
@@ -628,20 +614,18 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function errorMessage($message, array $context = array())
-	{
+	public function errorMessage($message, array $context = array()) {
 
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if (!isset($this->messages[$message]["untranslated_text"])) {
 			return;
 		}
 
 		$context["_message_key"] = $message;
-		$message = $this->messages[ $message ]["untranslated_text"];
+		$message = $this->messages[$message]["untranslated_text"];
 
 		$this->log(SimpleLoggerLogLevels::ERROR, $message, $context);
 
 	}
-
 
 	/**
 	 * Exceptional occurrences that are not errors.
@@ -653,8 +637,7 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function warning($message, array $context = array())
-	{
+	public function warning($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::WARNING, $message, $context);
 
@@ -667,20 +650,18 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function warningMessage($message, array $context = array())
-	{
+	public function warningMessage($message, array $context = array()) {
 
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if (!isset($this->messages[$message]["untranslated_text"])) {
 			return;
 		}
 
 		$context["_message_key"] = $message;
-		$message = $this->messages[ $message ]["untranslated_text"];
+		$message = $this->messages[$message]["untranslated_text"];
 
 		$this->log(SimpleLoggerLogLevels::WARNING, $message, $context);
 
 	}
-
 
 	/**
 	 * Normal but significant events.
@@ -689,8 +670,7 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function notice($message, array $context = array())
-	{
+	public function notice($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::NOTICE, $message, $context);
 
@@ -703,20 +683,18 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function noticeMessage($message, array $context = array())
-	{
+	public function noticeMessage($message, array $context = array()) {
 
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if (!isset($this->messages[$message]["untranslated_text"])) {
 			return;
 		}
 
 		$context["_message_key"] = $message;
-		$message = $this->messages[ $message ]["untranslated_text"];
+		$message = $this->messages[$message]["untranslated_text"];
 
 		$this->log(SimpleLoggerLogLevels::NOTICE, $message, $context);
 
 	}
-
 
 	/**
 	 * Interesting events.
@@ -727,8 +705,7 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function info($message, array $context = array())
-	{
+	public function info($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::INFO, $message, $context);
 
@@ -743,15 +720,14 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function infoMessage($message, array $context = array())
-	{
+	public function infoMessage($message, array $context = array()) {
 
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if (!isset($this->messages[$message]["untranslated_text"])) {
 			return;
 		}
 
 		$context["_message_key"] = $message;
-		$message = $this->messages[ $message ]["untranslated_text"];
+		$message = $this->messages[$message]["untranslated_text"];
 
 		$this->log(SimpleLoggerLogLevels::INFO, $message, $context);
 
@@ -764,8 +740,7 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function debug($message, array $context = array())
-	{
+	public function debug($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
 
@@ -778,15 +753,14 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function debugMessage($message, array $context = array())
-	{
+	public function debugMessage($message, array $context = array()) {
 
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if (!isset($this->messages[$message]["untranslated_text"])) {
 			return;
 		}
 
 		$context["_message_key"] = $message;
-		$message = $this->messages[ $message ]["untranslated_text"];
+		$message = $this->messages[$message]["untranslated_text"];
 
 		$this->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
 
@@ -800,34 +774,36 @@ class SimpleLogger
 	 * @param array $context
 	 * @return null
 	 */
-	public function log($level, $message, array $context = array())
-	{
+	public function log($level, $message, array $context = array()) {
 
 		global $wpdb;
 
-// Check if $message is a translated message, and if so then fetch original
-global $sh_latest_translations;
-if ( isset( $sh_latest_translations[ $message ] ) ) {
-	// Translation of this phrase was found, so use original phrase instead of translated one
-	#echo "xxx";
-	#sf_d($sh_latest_translations[ $message ]);
-	$context["_gettext_domain"] = $sh_latest_translations[ $message ]["domain"];
-	$context["_gettext_org_message"] = $sh_latest_translations[ $message ]["text"];
-	$context["_gettext_translated_message"] = $sh_latest_translations[ $message ]["translation"];
-	$message = $sh_latest_translations[ $message ]["text"];
-}
+		// Check if $message is a translated message, and if so then fetch original
+		$sh_latest_translations = $this->simpleHistory->gettextLatestTranslations;
+		if (!empty($sh_latest_translations)) {
 
+			if (isset($sh_latest_translations[$message])) {
+				// Translation of this phrase was found, so use original phrase instead of translated one
+				#echo "xxx";
+				#sf_d($sh_latest_translations[ $message ]);
+				//$this->simpleHistory
+				$context["_gettext_domain"] = $sh_latest_translations[$message]["domain"];
+				$context["_gettext_org_message"] = $sh_latest_translations[$message]["text"];
+				$context["_gettext_translated_message"] = $sh_latest_translations[$message]["translation"];
+				$message = $sh_latest_translations[$message]["text"];
+			}
 
+		}
 
 		/**
-	     * Filter arguments passed to log funtion
-	     *
-	     * @since 2.0
-	     *
-	     * @param string $level
-	     * @param string $message
-	     * @param array $context
-	     */
+		 * Filter arguments passed to log funtion
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $level
+		 * @param string $message
+		 * @param array $context
+		 */
 		apply_filters("simple_history/log_arguments", $level, $message, $context);
 
 		/* Store date at utc or local time?
@@ -844,12 +820,12 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 		$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
 
 		/**
-	     * Filter db table used for simple history events
-	     *
-	     * @since 2.0
-	     *
-	     * @param string $db_table
-	     */
+		 * Filter db table used for simple history events
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $db_table
+		 */
 		$db_table = apply_filters("simple_history/db_table", $db_table);
 
 		$data = array(
@@ -861,23 +837,23 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 
 		// Allow date to be override
 		// Date must be in format 'Y-m-d H:i:s'
-		if ( isset( $context["_date"] ) ) {
+		if (isset($context["_date"])) {
 			$data["date"] = $context["_date"];
 			unset($context["_date"]);
 		}
 
 		// Add occasions id
 		$occasions_id = null;
-		if ( isset( $context["_occasionsID"] ) ) {
+		if (isset($context["_occasionsID"])) {
 
 			// Minimize risk of similar loggers logging same messages and such and resulting in same occasions id
 			// by always adding logger slug
 			$occasions_data = array(
 				"_occasionsID" => $context["_occasionsID"],
-				"_loggerSlug" => $this->slug
+				"_loggerSlug" => $this->slug,
 			);
-			$occasions_id = md5( json_encode($occasions_data) );
-			unset( $context["_occasionsID"] );
+			$occasions_id = md5(json_encode($occasions_data));
+			unset($context["_occasionsID"]);
 
 		} else {
 
@@ -888,7 +864,7 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 			unset($occasions_data["date"]);
 
 			//sf_d($occasions_data);exit;
-			$occasions_id = md5( json_encode($occasions_data) );
+			$occasions_id = md5(json_encode($occasions_data));
 
 		}
 
@@ -897,19 +873,19 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 		// Log event type, defaults to other if not set
 		/*
 		if ( isset( $context["_type"] ) ) {
-			$data["type"] = $context["_type"];
-			unset( $context["_type"] );
+		$data["type"] = $context["_type"];
+		unset( $context["_type"] );
 		} else {
-			$data["type"] = SimpleLoggerLogTypes::OTHER;
+		$data["type"] = SimpleLoggerLogTypes::OTHER;
 		}
-		*/
+		 */
 
 		// Log initiator, defaults to current user if exists, or other if not user exist
-		if ( isset( $context["_initiator"] ) ) {
+		if (isset($context["_initiator"])) {
 
 			// Manually set in context
 			$data["initiator"] = $context["_initiator"];
-			unset( $context["_initiator"] );
+			unset($context["_initiator"]);
 
 		} else {
 
@@ -918,13 +894,13 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 			$data["initiator"] = SimpleLoggerLogInitiators::OTHER;
 
 			// Check if user is responsible.
-			if ( function_exists("wp_get_current_user") ) {
+			if (function_exists("wp_get_current_user")) {
 
 				$current_user = wp_get_current_user();
 
-				if ( isset( $current_user->ID ) && $current_user->ID) {
+				if (isset($current_user->ID) && $current_user->ID) {
 
-					$data["initiator"] = SimpleLoggerLogInitiators::WP_USER;;
+					$data["initiator"] = SimpleLoggerLogInitiators::WP_USER;
 					$context["_user_id"] = $current_user->ID;
 					$context["_user_login"] = $current_user->user_login;
 					$context["_user_email"] = $current_user->user_email;
@@ -934,7 +910,7 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 			}
 
 			// If cron then set WordPress as responsible
-			if ( defined('DOING_CRON') && DOING_CRON ) {
+			if (defined('DOING_CRON') && DOING_CRON) {
 
 				// Seems to be wp cron running and doing this
 				$data["initiator"] = SimpleLoggerLogInitiators::WORDPRESS;
@@ -945,20 +921,20 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 		}
 
 		/**
-	     * Filter data to be saved to db
-	     *
-	     * @since 2.0
-	     *
-	     * @param array $data
-	     */
+		 * Filter data to be saved to db
+		 *
+		 * @since 2.0
+		 *
+		 * @param array $data
+		 */
 		$data = apply_filters("simple_history/log_insert_data", $data);
 
 		// Insert data into db
 		// sf_d($db_table, '$db_table');exit;
-		$result = $wpdb->insert( $db_table, $data );
+		$result = $wpdb->insert($db_table, $data);
 
 		// Only save context if able to store row
-		if ( false === $result ) {
+		if (false === $result) {
 
 			$history_inserted_id = null;
 
@@ -969,29 +945,29 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 			$db_table_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
 			/**
-		     * Filter table name for contexts
-		     *
-		     * @since 2.0
-		     *
-		     * @param string $db_table_contexts
-		     */
+			 * Filter table name for contexts
+			 *
+			 * @since 2.0
+			 *
+			 * @param string $db_table_contexts
+			 */
 			$db_table_contexts = apply_filters("simple_history/logger_db_table_contexts", $db_table_contexts);
 
-			if ( ! is_array($context) ) {
+			if (!is_array($context)) {
 				$context = array();
 			}
 
 			// Append user id to context, if not already added
-			if ( ! isset( $context["_user_id"] ) ) {
+			if (!isset($context["_user_id"])) {
 
 				// wp_get_current_user is ont available early
 				// http://codex.wordpress.org/Function_Reference/wp_get_current_user
 				// https://core.trac.wordpress.org/ticket/14024
-				if ( function_exists("wp_get_current_user") ) {
+				if (function_exists("wp_get_current_user")) {
 
 					$current_user = wp_get_current_user();
 
-					if ( isset( $current_user->ID ) && $current_user->ID) {
+					if (isset($current_user->ID) && $current_user->ID) {
 						$context["_user_id"] = $current_user->ID;
 						$context["_user_login"] = $current_user->user_login;
 						$context["_user_email"] = $current_user->user_email;
@@ -1003,7 +979,7 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 
 			// Add remote addr to context
 			// Good to always have
-			if ( ! isset( $context["_server_remote_addr"] ) ) {
+			if (!isset($context["_server_remote_addr"])) {
 
 				$context["_server_remote_addr"] = $_SERVER["REMOTE_ADDR"];
 
@@ -1018,7 +994,7 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 				// Based on code found here:
 				// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
 				$ip_keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED');
-				
+
 				foreach ($ip_keys as $key) {
 
 					if (array_key_exists($key, $_SERVER) === true) {
@@ -1031,7 +1007,7 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 							$ip = trim($ip);
 
 							// attempt to validate IP
-							if ( $this->validate_ip( $ip ) ) {
+							if ($this->validate_ip($ip)) {
 
 								// valid, add to context, with loop index appended so we can store many IPs
 								$key_lower = strtolower($key);
@@ -1051,12 +1027,12 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 
 			// Append http referer
 			// Also good to always have!
-			if ( ! isset( $context["_server_http_referer"] ) && isset( $_SERVER["HTTP_REFERER"] ) ) {
+			if (!isset($context["_server_http_referer"]) && isset($_SERVER["HTTP_REFERER"])) {
 				$context["_server_http_referer"] = $_SERVER["HTTP_REFERER"];
 			}
 
 			// Insert all context values into db
-			foreach ( $context as $key => $value ) {
+			foreach ($context as $key => $value) {
 
 				$data = array(
 					"history_id" => $history_inserted_id,
@@ -1064,7 +1040,7 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 					"value" => $value,
 				);
 
-				$result = $wpdb->insert( $db_table_contexts, $data );
+				$result = $wpdb->insert($db_table_contexts, $data);
 
 			}
 
@@ -1075,8 +1051,7 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 		// Return $this so we can chain methods
 		return $this;
 
-	} // log
-
+	}// log
 
 	/**
 	 * Ensures an ip address is both a valid IP and does not fall within
@@ -1084,11 +1059,11 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 	 */
 	function validate_ip($ip) {
 
-	    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-	        return false;
-	    }
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4|FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE) === false) {
+			return false;
+		}
 
-	    return true;
+		return true;
 
 	}
 
@@ -1099,14 +1074,14 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 	 */
 	function adminCSS() {
 		/*
-		?>
-		<style>
-			body {
-				border: 2px solid red;
-			}
-		</style>
-		<?php
-		*/
+	?>
+	<style>
+	body {
+	border: 2px solid red;
+	}
+	</style>
+	<?php
+	 */
 	}
 
 	/**
@@ -1116,12 +1091,12 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 	 */
 	function adminJS() {
 		/*
-		?>
-		<script>
-			console.log("This is outputed in the footer");
-		</script>
-		<?php
-		*/
+	?>
+	<script>
+	console.log("This is outputed in the footer");
+	</script>
+	<?php
+	 */
 	}
 
 }
@@ -1129,8 +1104,7 @@ if ( isset( $sh_latest_translations[ $message ] ) ) {
 /**
  * Describes log initiator, i.e. who caused to log event to happend
  */
-class SimpleLoggerLogInitiators
-{
+class SimpleLoggerLogInitiators {
 
 	// A wordpress user that at the log event created did exist in the wp database
 	// May have been deleted when the log is viewed
@@ -1148,7 +1122,6 @@ class SimpleLoggerLogInitiators
 	const OTHER = 'other';
 }
 
-
 /**
  * Describes log event type
  * Based on the CRUD-types
@@ -1156,8 +1129,7 @@ class SimpleLoggerLogInitiators
  * More may be added later on if needed
  * Note: not in use at the moment
  */
-class SimpleLoggerLogTypes
-{
+class SimpleLoggerLogTypes {
 	const CREATE = 'create';
 	const READ = 'read';
 	const UPDATE = 'update';
@@ -1168,8 +1140,7 @@ class SimpleLoggerLogTypes
 /**
  * Describes log levels
  */
-class SimpleLoggerLogLevels
-{
+class SimpleLoggerLogLevels {
 	const EMERGENCY = 'emergency';
 	const ALERT = 'alert';
 	const CRITICAL = 'critical';
