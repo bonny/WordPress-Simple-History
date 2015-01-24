@@ -147,7 +147,15 @@ class SimplePluginLogger extends SimpleLogger
 
 		//do_action( 'current_screen', $current_screen );
 		// The first hook where current screen is available
-		//add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
+		add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
+
+		/**
+		 * At least the plugin bulk upgrades fires this action before upgrade
+		 * We use it to fetch the current version of all plugins, before they are upgraded
+		 */
+		add_filter( 'upgrader_pre_install', array( $this, "save_versions_before_update2"), 10, 2);
+
+		// Clear our transient after an update is done
 		add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
 
 		// Fires after a plugin has been activated.
@@ -159,7 +167,6 @@ class SimplePluginLogger extends SimpleLogger
 		// If a plugin is silently deactivated (such as during an update),
 		// this hook does not fire.
 		add_action( 'deactivated_plugin', array( $this, "on_deactivated_plugin" ), 10, 2 );
-
 
 		// Fires after the upgrades has done it's thing
 		// Check hook extra for upgrader initiator
@@ -181,25 +188,6 @@ class SimplePluginLogger extends SimpleLogger
 		 * @param array $update_results The results of all attempted updates.
 		*/
 
-
-		#$current = get_site_transient( 'update_plugins' );
-		// $pre = apply_filters( 'pre_site_transient_' . $transient, false );
-		#add_filter('upgrader_clear_destination', array($this, 'delete_old_plugin'), 10, 4);
-
-		// less calls in code, so lets go with it
-		##add_filter('upgrader_clear_destination', array($this, 'delete_old_plugin'), 10, 4);
-		#add_filter('upgrader_clear_destination', function($a, $b, $c, $d) {
-
-		#}, 10, 4);
-
-		// $res = apply_filters( 'upgrader_pre_install', true, $args['hook_extra'] );
-		// Seems to work
-		/**
-		 * At least the plugin bulk upgrades fires this action before upgrade
-		 * We use it to fetch the current version of all plugins, before they are upgraded
-		 */
-		add_filter( 'upgrader_pre_install', array( $this, "save_versions_before_update2"), 10, 2);
-
 	}
 
 	function save_versions_before_update2($bool, $hook_extra) {
@@ -207,18 +195,6 @@ class SimplePluginLogger extends SimpleLogger
 		$plugins = get_plugins();
 
 		update_option( $this->slug . "_plugin_info_before_update", SimpleHistory::json_encode( $plugins ) );
-
-        /*
-        parse_str(file_get_contents('php://input'), $requestData);
-		SimpleLogger()->debug("plugin_debug", array(
-			"_debug_get_plugins_upgrader_pre_install" => SimpleHistory::json_encode( $plugs ),
-			"_GET" => SimpleHistory::json_encode( $_GET ),
-			"_POST" => SimpleHistory::json_encode( $_POST ),
-			"_REQUEST" => SimpleHistory::json_encode( $_REQUEST ),
-			"_request_data" => SimpleHistory::json_encode( $requestData ),
-			"_SERVER" => SimpleHistory::json_encode( $_SERVER ),
-		));
-		*/
 
 		return $bool;
 
@@ -293,7 +269,7 @@ class SimplePluginLogger extends SimpleLogger
 	 * Save all plugin information before a plugin is updated or removed.
 	 * This way we can know both the old (pre updated/removed) and the current version of the plugin
 	 */
-	public function save_versions_before_update() {
+	/*public function save_versions_before_update() {
 		
 		$current_screen = get_current_screen();
 		$request_uri = $_SERVER["SCRIPT_NAME"];
@@ -327,6 +303,7 @@ class SimplePluginLogger extends SimpleLogger
 		}
 
 	}
+	*/
 
 	/**
 	  * when plugin updates are done wp_clean_plugins_cache() is called,
