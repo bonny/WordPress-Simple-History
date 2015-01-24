@@ -195,7 +195,7 @@ class SimplePluginLogger extends SimpleLogger
 		// $res = apply_filters( 'upgrader_pre_install', true, $args['hook_extra'] );
 		add_filter( 'upgrader_pre_install', function($bool, $hook_extra) {
 			$plugs = get_plugins();
-			SimpleLogger()->debug(array(
+			SimpleLogger()->debug("plugin_debug", array(
 				"_debug_get_plugins_upgrader_pre_install" => SimpleHistory::json_encode( $plugs )
 			));
 			return $bool;
