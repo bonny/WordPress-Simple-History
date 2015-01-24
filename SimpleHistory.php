@@ -183,13 +183,19 @@ class SimpleHistory {
 
 	function setup_cron() {
 
-		add_filter("simple_history/purge_db", array($this, "purge_db"));
+		add_filter("simple_history/maybe_purge_db", array( $this, "maybe_purge_db") );
 
-		if (!wp_next_scheduled('simple_history/purge_db')) {
-			wp_schedule_event(time(), 'daily', 'simple_history/purge_db');
+		if ( ! wp_next_scheduled('simple_history/maybe_purge_db') ) {
+			wp_schedule_event(time(), 'daily', 'simple_history/maybe_purge_db');
 			#error_log("not scheduled, so do schedule");
 		} else {
 			#error_log("is scheduled");
+		}
+
+		// Remove old schedule (only author dev sites should have it)
+		$old_next_scheduled = wp_next_scheduled('simple_history/purge_db');
+		if ( $old_next_scheduled ) {
+			wp_unschedule_event($old_next_scheduled, 'simple_history/purge_db');
 		}
 
 	}
@@ -1558,18 +1564,15 @@ foreach ($arr_settings_tabs as $one_tab) {
 	 *
 	 * @since 2.0.17
 	 */
-	/*
 	function maybe_purge_db() {
 
-	if ( ! is_admin() ) {
-	return;
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		$this->purge_db();
+
 	}
-
-
-	$this->purge_db();
-
-	}
-	 */
 
 	/**
 	 * Removes old entries from the db
