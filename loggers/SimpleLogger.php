@@ -780,9 +780,10 @@ class SimpleLogger {
 
 		// Check if $message is a translated message, and if so then fetch original
 		$sh_latest_translations = $this->simpleHistory->gettextLatestTranslations;
-		if (!empty($sh_latest_translations)) {
+		
+		if ( ! empty( $sh_latest_translations ) ) {
 
-			if (isset($sh_latest_translations[$message])) {
+			if ( isset( $sh_latest_translations[ $message ] ) ) {
 				// Translation of this phrase was found, so use original phrase instead of translated one
 				#echo "xxx";
 				#sf_d($sh_latest_translations[ $message ]);
