@@ -1566,11 +1566,21 @@ foreach ($arr_settings_tabs as $one_tab) {
 	 */
 	function maybe_purge_db() {
 
-		if ( ! is_admin() ) {
+		/*if ( ! is_admin() ) {
 			return;
-		}
+		}*/
 
-		$this->purge_db();
+		// How often should we try to do this?
+		// Once a day = a bit tiresome
+		// Let's go with sundays; purge the log on sundays
+
+		// day of week, 1 = mon, 7 = sun
+		$day_of_week = date('N');
+		if ( 7 === (int) $day_of_week ) {
+
+			$this->purge_db();
+			
+		}
 
 	}
 
