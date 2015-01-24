@@ -359,8 +359,7 @@ class SimplePluginLogger extends SimpleLogger
 	}
 
 	/**
-	 * Called when a single plugin is updated or installed
-	 * (not bulk)
+	 * Called when plugins is updated or installed
 	 */
 	function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
 
@@ -600,6 +599,10 @@ class SimplePluginLogger extends SimpleLogger
 						"plugin_version" => $plugin_data["Version"],
 						"plugin_url" => $plugin_data["PluginURI"]
 					);
+
+// @DEBUG: Will this get old or existing?
+$plugs = get_plugins();
+$context["_debug_get_plugins"] = SimpleHistory::json_encode( $plugs );
 
 					// get url and package
 					$update_plugins = get_site_transient( 'update_plugins' );
