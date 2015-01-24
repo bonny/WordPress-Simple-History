@@ -105,7 +105,7 @@ class SimpleHistory {
 		add_action('simple_history/history_page/before_gui', array($this, "output_quick_stats"));
 		add_action('simple_history/dashboard/before_gui', array($this, "output_quick_stats"));
 
-		add_action('wp_ajax_simple_history_ajax', array($this, 'ajax'));
+		//add_action('wp_ajax_simple_history_ajax', array($this, 'ajax'));
 		add_action('wp_ajax_simple_history_api', array($this, 'api'));
 
 		add_filter('plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
