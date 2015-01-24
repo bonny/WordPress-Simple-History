@@ -147,13 +147,13 @@ class SimplePluginLogger extends SimpleLogger
 
 		//do_action( 'current_screen', $current_screen );
 		// The first hook where current screen is available
-		add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
+		//add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
 
 		/**
 		 * At least the plugin bulk upgrades fires this action before upgrade
 		 * We use it to fetch the current version of all plugins, before they are upgraded
 		 */
-		add_filter( 'upgrader_pre_install', array( $this, "save_versions_before_update2"), 10, 2);
+		add_filter( 'upgrader_pre_install', array( $this, "save_versions_before_update"), 10, 2);
 
 		// Clear our transient after an update is done
 		add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
