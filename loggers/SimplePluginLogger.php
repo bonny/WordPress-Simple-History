@@ -201,11 +201,14 @@ class SimplePluginLogger extends SimpleLogger
 		add_filter( 'upgrader_pre_install', function($bool, $hook_extra) {
 
 			$plugs = get_plugins();
+	        parse_str(file_get_contents('php://input'), $requestData);
 
 			SimpleLogger()->debug("plugin_debug", array(
 				"_debug_get_plugins_upgrader_pre_install" => SimpleHistory::json_encode( $plugs ),
 				"_GET" => SimpleHistory::json_encode( $_GET ),
 				"_POST" => SimpleHistory::json_encode( $_POST ),
+				"_REQUEST" => SimpleHistory::json_encode( $_REQUEST ),
+				"_request_data" => SimpleHistory::json_encode( $requestData ),
 				"_SERVER" => SimpleHistory::json_encode( $_SERVER ),
 			));
 
