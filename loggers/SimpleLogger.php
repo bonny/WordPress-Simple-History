@@ -387,7 +387,7 @@ class SimpleLogger {
 
 			// Message key did not exist, so check if we should translate using textdomain
 			if ( ! empty( $row->context["_gettext_domain"] ) ) {
-				$message = __( $message );
+				$message = __( $message, $row->context["_gettext_domain"] );
 			}
 
 		} else {
