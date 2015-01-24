@@ -181,6 +181,27 @@ class SimplePluginLogger extends SimpleLogger
 		 * @param array $update_results The results of all attempted updates.
 		*/
 
+
+		#$current = get_site_transient( 'update_plugins' );
+		// $pre = apply_filters( 'pre_site_transient_' . $transient, false );
+		#add_filter('upgrader_clear_destination', array($this, 'delete_old_plugin'), 10, 4);
+
+		// less calls in code, so lets go with it
+		##add_filter('upgrader_clear_destination', array($this, 'delete_old_plugin'), 10, 4);
+		#add_filter('upgrader_clear_destination', function($a, $b, $c, $d) {
+
+		#}, 10, 4);
+
+		// $res = apply_filters( 'upgrader_pre_install', true, $args['hook_extra'] );
+		add_filter( 'upgrader_pre_install', function($bool, $hook_extra) {
+			$plugs = get_plugins();
+			SimpleLogger()->debug(array(
+				"_debug_get_plugins_upgrader_pre_install" => SimpleHistory::json_encode( $plugs )
+			));
+			return $bool;
+		}, 10, 2);
+
+
 	}
 
 	/**
@@ -363,8 +384,20 @@ class SimplePluginLogger extends SimpleLogger
 	 */
 	function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
 
+		// Can't use get_plugins() here to get version of plugins updated from
+		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..)
+		// $plugs = get_plugins();
+		// $context["_debug_get_plugins"] = SimpleHistory::json_encode( $plugs );
 		/*
-		
+
+		Try with these instead:
+		$current = get_site_transient( 'update_plugins' );
+		add_filter('upgrader_clear_destination', array($this, 'delete_old_plugin'), 10, 4);
+
+		*/
+
+		/*	
+
 		# WordPress core update
 		
 		$arr_data:
@@ -599,10 +632,6 @@ class SimplePluginLogger extends SimpleLogger
 						"plugin_version" => $plugin_data["Version"],
 						"plugin_url" => $plugin_data["PluginURI"]
 					);
-
-// @DEBUG: Will this get old or existing?
-$plugs = get_plugins();
-$context["_debug_get_plugins"] = SimpleHistory::json_encode( $plugs );
 
 					// get url and package
 					$update_plugins = get_site_transient( 'update_plugins' );
