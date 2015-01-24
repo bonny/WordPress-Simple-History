@@ -383,9 +383,12 @@ class SimpleLogger {
 		// Message is translated here, but translation must be added in
 		// plain text before
 
-		if (empty($message_key)) {
+		if (empty( $message_key )) {
 
-			// Leave message alone
+			// Message key did not exist, so check if we should translate using textdomain
+			if ( ! empty( $row->context["_gettext_domain"] ) ) {
+				$message = __( $message );
+			}
 
 		} else {
 
@@ -784,14 +787,17 @@ class SimpleLogger {
 		if ( ! empty( $sh_latest_translations ) ) {
 
 			if ( isset( $sh_latest_translations[ $message ] ) ) {
+				
 				// Translation of this phrase was found, so use original phrase instead of translated one
-				#echo "xxx";
-				#sf_d($sh_latest_translations[ $message ]);
-				//$this->simpleHistory
+
+				// Store textdomain since it's required to translate
 				$context["_gettext_domain"] = $sh_latest_translations[$message]["domain"];
-				$context["_gettext_org_message"] = $sh_latest_translations[$message]["text"];
-				$context["_gettext_translated_message"] = $sh_latest_translations[$message]["translation"];
-				$message = $sh_latest_translations[$message]["text"];
+				
+				// These are good to keep when debugging
+				// $context["_gettext_org_message"] = $sh_latest_translations[$message]["text"];
+				// $context["_gettext_translated_message"] = $sh_latest_translations[$message]["translation"];
+
+				$message = $sh_latest_translations[ $message ]["text"];
 			}
 
 		}
