@@ -117,6 +117,7 @@ initiated by a specific user.
 - Fixed: Old entries were not cleared automatically. Now it correctly removes old events, so your database will not risk growing to large.
 - Fixed: Quick stats could show two messages sometimes.
 - Fixed: When headers like `HTTP_X_FORWARDED_FOR` exists all valid IPs in that header is now stored.
+- Fixed: Plugin updates via third party software like [InfiniteWP](http://infinitewp.com/) should now correctly show the version number of the previos version.
 - Updated: German translation updated.
 - Notice: Do you read these messages? Then you must love this plugin! Come on then, [go and give it a nice review](https://wordpress.org/support/view/plugin-reviews/simple-history).
 
