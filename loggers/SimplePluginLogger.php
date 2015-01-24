@@ -147,7 +147,7 @@ class SimplePluginLogger extends SimpleLogger
 
 		//do_action( 'current_screen', $current_screen );
 		// The first hook where current screen is available
-		add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
+		//add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
 		add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
 
 		// Fires after a plugin has been activated.
@@ -198,24 +198,29 @@ class SimplePluginLogger extends SimpleLogger
 		 * At least the plugin bulk upgrades fires this action before upgrade
 		 * We use it to fetch the current version of all plugins, before they are upgraded
 		 */
-		add_filter( 'upgrader_pre_install', function($bool, $hook_extra) {
+		add_filter( 'upgrader_pre_install', array( $this, "save_versions_before_update2"), 10, 2);
 
-			$plugs = get_plugins();
-	        parse_str(file_get_contents('php://input'), $requestData);
+	}
 
-			SimpleLogger()->debug("plugin_debug", array(
-				"_debug_get_plugins_upgrader_pre_install" => SimpleHistory::json_encode( $plugs ),
-				"_GET" => SimpleHistory::json_encode( $_GET ),
-				"_POST" => SimpleHistory::json_encode( $_POST ),
-				"_REQUEST" => SimpleHistory::json_encode( $_REQUEST ),
-				"_request_data" => SimpleHistory::json_encode( $requestData ),
-				"_SERVER" => SimpleHistory::json_encode( $_SERVER ),
-			));
+	function save_versions_before_update2($bool, $hook_extra) {
 
-			return $bool;
+		$plugins = get_plugins();
 
-		}, 10, 2);
+		update_option( $this->slug . "_plugin_info_before_update", SimpleHistory::json_encode( $plugins ) );
 
+        /*
+        parse_str(file_get_contents('php://input'), $requestData);
+		SimpleLogger()->debug("plugin_debug", array(
+			"_debug_get_plugins_upgrader_pre_install" => SimpleHistory::json_encode( $plugs ),
+			"_GET" => SimpleHistory::json_encode( $_GET ),
+			"_POST" => SimpleHistory::json_encode( $_POST ),
+			"_REQUEST" => SimpleHistory::json_encode( $_REQUEST ),
+			"_request_data" => SimpleHistory::json_encode( $requestData ),
+			"_SERVER" => SimpleHistory::json_encode( $_SERVER ),
+		));
+		*/
+
+		return $bool;
 
 	}
 
