@@ -126,6 +126,10 @@ class SimpleHistory {
 				return;
 			}
 
+			if (!isset($_GET["sh-test"])) {
+				return;
+			}
+
 			/*$message = __(
 				#"Simple History removed one event that were older than {days} days",
 				"Go to the first page",
@@ -140,15 +144,9 @@ class SimpleHistory {
 				)
 			);*/
 
-			SimpleLogger()->debug( "Just a plain text string" );
-			#SimpleLogger()->debug( __("Edit") );
-			#SimpleLogger()->debug( __("Publish") );
-			SimpleLogger()->debug( __("Plugin") );
-			#SimpleLogger()->debug( __("Search", "simple-history") );
-			#SimpleLogger()->debug( __("Search", "cms-tree-page-view") );
-			#SimpleLogger()->debug( __("Edit", "cms-tree-page-view") );
-			#SimpleLogger()->debug( __("Tree view", "cms-tree-page-view") );
-			SimpleLogger()->debug(__("Enter title of new page", "cms-tree-page-view"));
+			SimpleLogger()->debug( "This is a message with no translation" );
+			SimpleLogger()->debug( __("Plugin"), array( "comment" => "This message is 'Plugin' and should contain text domain 'default' since it's a translation that comes with WordPress" ) );
+			SimpleLogger()->debug( __("Enter title of new page", "cms-tree-page-view"), array("comment" => "A translation used in CMS Tree Page View"));
 
 		});
 
