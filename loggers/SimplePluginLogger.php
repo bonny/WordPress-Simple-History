@@ -194,6 +194,10 @@ class SimplePluginLogger extends SimpleLogger
 
 		// $res = apply_filters( 'upgrader_pre_install', true, $args['hook_extra'] );
 		// Seems to work
+		/**
+		 * At least the plugin bulk upgrades fires this action before upgrade
+		 * We use it to fetch the current version of all plugins, before they are upgraded
+		 */
 		add_filter( 'upgrader_pre_install', function($bool, $hook_extra) {
 
 			$plugs = get_plugins();
