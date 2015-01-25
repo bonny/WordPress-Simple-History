@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.17
+Stable tag: 2.0.18
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -110,6 +110,10 @@ initiated by a specific user.
 
 == Changelog ==
 
+= 2.0.18 (January 2015) =
+
+- Fixed: really correctly show the version number of the previous version!
+
 = 2.0.17 (January 2015) =
 
 - Added: messages added using for example `SimpleLogger()->info( __("My log message") )` that have translations now auto translated the message back to english before storing the message (together with the text domain). Then upon retrieval it uses the english message + the text domain to translate the message to the currently selected language. This makes it easier to make multilingual log entries. (Yeah, I know its hard to understand what the heck this does, but it's something good and cool, trust me!)
@@ -119,7 +123,7 @@ initiated by a specific user.
 - Fixed: Old entries were not cleared automatically. Now it correctly removes old events, so your database will not risk growing to large.
 - Fixed: Quick stats could show two messages sometimes.
 - Fixed: When headers like `HTTP_X_FORWARDED_FOR` exists all valid IPs in that header is now stored.
-- Fixed: Plugin updates via third party software like [InfiniteWP](http://infinitewp.com/) should now correctly show the version number of the previos version.
+- Fixed: Plugin updates via third party software like [InfiniteWP](http://infinitewp.com/) should now correctly show the version number of the previous version.
 - Updated: German translation updated.
 - Notice: Do you read these messages? Then you must love this plugin! Come on then, [go and give it a nice review](https://wordpress.org/support/view/plugin-reviews/simple-history).
 

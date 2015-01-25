@@ -190,7 +190,7 @@ class SimplePluginLogger extends SimpleLogger
 
 	}
 
-	function save_versions_before_update2($bool, $hook_extra) {
+	function save_versions_before_update($bool, $hook_extra) {
 
 		$plugins = get_plugins();
 
