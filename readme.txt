@@ -110,9 +110,11 @@ initiated by a specific user.
 
 == Changelog ==
 
+= 2.0.17 (January 2015) =
+
 - Added: messages added using for example `SimpleLogger()->info( __("My log message") )` that have translations now auto translated the message back to english before storing the message (together with the text domain). Then upon retrieval it uses the english message + the text domain to translate the message to the currently selected language. This makes it easier to make multilingual log entries. (Yeah, I know its hard to understand what the heck this does, but it's something good and cool, trust me!)
+- Added: A sidebar with text contents on the history page.
 - Changed: Search now shows only the search box by default, with a link to show all search options.
-- Changed: A funky sidebar is now at place at the history page.
 - Fixed: Search is now available at the dashboard again. Hooray!
 - Fixed: Old entries were not cleared automatically. Now it correctly removes old events, so your database will not risk growing to large.
 - Fixed: Quick stats could show two messages sometimes.
