@@ -120,6 +120,7 @@ class SimpleHistory {
 		do_action("simple_history/after_init", $this);
 
 		// test to translate automagically during logging
+		/*
 		add_action("init", function () {
 
 			if (defined('DOING_AJAX') && DOING_AJAX) {
@@ -130,25 +131,12 @@ class SimpleHistory {
 				return;
 			}
 
-			/*$message = __(
-				#"Simple History removed one event that were older than {days} days",
-				"Go to the first page",
-				"simple-history"
-			);
-
-			SimpleLogger()->info(
-				$message,
-				array(
-					"days" => 123,
-					"num_rows" => 321,
-				)
-			);*/
-
 			SimpleLogger()->debug( "This is a message with no translation" );
 			SimpleLogger()->debug( __("Plugin"), array( "comment" => "This message is 'Plugin' and should contain text domain 'default' since it's a translation that comes with WordPress" ) );
 			SimpleLogger()->debug( __("Enter title of new page", "cms-tree-page-view"), array("comment" => "A translation used in CMS Tree Page View"));
 
 		});
+		*/
 
 		add_filter('gettext', array( $this, "filter_gettext_storeLatestTranslations" ), 10, 3 );
 
@@ -963,14 +951,6 @@ class SimpleHistory {
 
 			$db_version_prev = $db_version;
 			$db_version = 1;
-
-			/*SimpleLogger()->debug(
-			"Simple History updated its database from version {from_version} to {to_version}",
-			array(
-			"from_version" => $db_version_prev,
-			"to_version" => $db_version
-			)
-			);*/
 
 			update_option("simple_history_db_version", $db_version);
 
