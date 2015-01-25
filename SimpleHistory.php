@@ -1530,7 +1530,7 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 		// Zero state sucks
 		SimpleLogger()->info(
-			"The log for Simple History was cleared ({num_rows} rows were removed).",
+			__("The log for Simple History was cleared ({num_rows} rows were removed).", "simple-history"),
 			array(
 				"num_rows" => $num_rows,
 			)
