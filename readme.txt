@@ -110,6 +110,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Changed: better compatibilty with plugins like [WP User Avatar](https://wordpress.org/plugins/wp-user-avatar/).
+
 = 2.0.18 (January 2015) =
 
 - Fixed: really correctly show the version number of the previous version!

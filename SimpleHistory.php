@@ -2138,76 +2138,104 @@ foreach ($arr_settings_tabs as $one_tab) {
 	 */
 	function get_avatar($email, $size = '96', $default = '', $alt = false) {
 
-		if (false === $alt) {
-			$safe_alt = '';
+		// WP setting for avatars is to show, so just use the built in function
+		if ( get_option('show_avatars') ) {
+
+			$avatar = get_avatar($email, $size, $default, $alt);
+			
+			return $avatar;
+
 		} else {
-			$safe_alt = esc_attr($alt);
-		}
 
-		if (!is_numeric($size)) {
-			$size = '96';
-		}
+			// WP setting for avatar was to not show, but we do it anyway, using the same code as get_avatar() would have used
 
-		if (empty($default)) {
-			$avatar_default = get_option('avatar_default');
-			if (empty($avatar_default)) {
-				$default = 'mystery';
+			if (false === $alt) {
+				$safe_alt = '';
 			} else {
-				$default = $avatar_default;
+				$safe_alt = esc_attr($alt);
 			}
 
-		}
+			if (!is_numeric($size)) {
+				$size = '96';
+			}
 
-		if (!empty($email)) {
-			$email_hash = md5(strtolower(trim($email)));
-		}
+			if (empty($default)) {
+				$avatar_default = get_option('avatar_default');
+				if (empty($avatar_default)) {
+					$default = 'mystery';
+				} else {
+					$default = $avatar_default;
+				}
 
-		if (is_ssl()) {
-			$host = 'https://secure.gravatar.com';
-		} else {
+			}
+
 			if (!empty($email)) {
-				$host = sprintf("http://%d.gravatar.com", (hexdec($email_hash[0]) % 2));
+				$email_hash = md5(strtolower(trim($email)));
+			}
+
+			if (is_ssl()) {
+				$host = 'https://secure.gravatar.com';
 			} else {
-				$host = 'http://0.gravatar.com';
+				if (!empty($email)) {
+					$host = sprintf("http://%d.gravatar.com", (hexdec($email_hash[0]) % 2));
+				} else {
+					$host = 'http://0.gravatar.com';
+				}
+
 			}
 
-		}
-
-		if ('mystery' == $default) {
-			$default = "$host/avatar/ad516503a11cd5ca435acc9bb6523536?s={$size}";
-		}
-		// ad516503a11cd5ca435acc9bb6523536 == md5('unknown@gravatar.com')
-		elseif ('blank' == $default) {
-			$default = $email ? 'blank' : includes_url('images/blank.gif');
-		} elseif (!empty($email) && 'gravatar_default' == $default) {
-			$default = '';
-		} elseif ('gravatar_default' == $default) {
-			$default = "$host/avatar/?s={$size}";
-		} elseif (empty($email)) {
-			$default = "$host/avatar/?d=$default&amp;s={$size}";
-		} elseif (strpos($default, 'http://') === 0) {
-			$default = add_query_arg('s', $size, $default);
-		}
-
-		if (!empty($email)) {
-			$out = "$host/avatar/";
-			$out .= $email_hash;
-			$out .= '?s=' . $size;
-			$out .= '&amp;d=' . urlencode($default);
-
-			$rating = get_option('avatar_rating');
-			if (!empty($rating)) {
-				$out .= "&amp;r={$rating}";
+			if ('mystery' == $default) {
+				$default = "$host/avatar/ad516503a11cd5ca435acc9bb6523536?s={$size}";
+			}
+			// ad516503a11cd5ca435acc9bb6523536 == md5('unknown@gravatar.com')
+			elseif ('blank' == $default) {
+				$default = $email ? 'blank' : includes_url('images/blank.gif');
+			} elseif (!empty($email) && 'gravatar_default' == $default) {
+				$default = '';
+			} elseif ('gravatar_default' == $default) {
+				$default = "$host/avatar/?s={$size}";
+			} elseif (empty($email)) {
+				$default = "$host/avatar/?d=$default&amp;s={$size}";
+			} elseif (strpos($default, 'http://') === 0) {
+				$default = add_query_arg('s', $size, $default);
 			}
 
-			$out = str_replace('&#038;', '&amp;', esc_url($out));
-			$avatar = "<img alt='{$safe_alt}' src='{$out}' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' />";
-		} else {
-			$out = esc_url($default);
-			$avatar = "<img alt='{$safe_alt}' src='{$out}' class='avatar avatar-{$size} photo avatar-default' height='{$size}' width='{$size}' />";
-		}
+			if (!empty($email)) {
+				$out = "$host/avatar/";
+				$out .= $email_hash;
+				$out .= '?s=' . $size;
+				$out .= '&amp;d=' . urlencode($default);
 
-		return $avatar;
+				$rating = get_option('avatar_rating');
+				if (!empty($rating)) {
+					$out .= "&amp;r={$rating}";
+				}
+
+				$out = str_replace('&#038;', '&amp;', esc_url($out));
+				$avatar = "<img alt='{$safe_alt}' src='{$out}' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' />";
+			} else {
+				$out = esc_url($default);
+				$avatar = "<img alt='{$safe_alt}' src='{$out}' class='avatar avatar-{$size} photo avatar-default' height='{$size}' width='{$size}' />";
+			}
+
+			/**
+			 * Filter the avatar to retrieve.
+			 * Same filter WordPress uses
+			 *
+			 * @since 2.0.19
+			 *
+			 * @param string            $avatar      Image tag for the user's avatar.
+			 * @param int|object|string $id_or_email A user ID, email address, or comment object.
+			 * @param int               $size        Square avatar width and height in pixels to retrieve.
+			 * @param string            $alt         Alternative text to use in the avatar image tag.
+			 *                                       Default empty.
+			 */
+			$avatar = apply_filters( 'get_avatar', $avatar, $id_or_email, $size, $default, $alt );
+
+			return $avatar;
+
+		} // else
+
 	}
 
 	/**
