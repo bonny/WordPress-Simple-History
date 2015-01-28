@@ -110,6 +110,7 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Added: Dutch translation by (https://github.com/niknetniko)[https://github.com/niknetniko]. Thanks!
 - Changed: better compatibilty with plugins like [WP User Avatar](https://wordpress.org/plugins/wp-user-avatar/).
 
 = 2.0.18 (January 2015) =
