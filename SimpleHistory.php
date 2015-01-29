@@ -102,10 +102,11 @@ class SimpleHistory {
 		add_filter("gettext", array($this, 'filter_gettext'), 20, 3);
 		add_filter("gettext_with_context", array($this, 'filter_gettext_with_context'), 20, 4);
 
+		add_filter('gettext', array( $this, "filter_gettext_storeLatestTranslations" ), 10, 3 );
+
 		add_action('simple_history/history_page/before_gui', array($this, "output_quick_stats"));
 		add_action('simple_history/dashboard/before_gui', array($this, "output_quick_stats"));
 
-		//add_action('wp_ajax_simple_history_ajax', array($this, 'ajax'));
 		add_action('wp_ajax_simple_history_api', array($this, 'api'));
 
 		add_filter('plugin_action_links_simple-history/index.php', array($this, 'plugin_action_links'), 10, 4);
@@ -118,27 +119,6 @@ class SimpleHistory {
 		 * @param SimpleHistory $SimpleHistory This class.
 		 */
 		do_action("simple_history/after_init", $this);
-
-		// test to translate automagically during logging
-		/*
-		add_action("init", function () {
-
-			if (defined('DOING_AJAX') && DOING_AJAX) {
-				return;
-			}
-
-			if (!isset($_GET["sh-test"])) {
-				return;
-			}
-
-			SimpleLogger()->debug( "This is a message with no translation" );
-			SimpleLogger()->debug( __("Plugin"), array( "comment" => "This message is 'Plugin' and should contain text domain 'default' since it's a translation that comes with WordPress" ) );
-			SimpleLogger()->debug( __("Enter title of new page", "cms-tree-page-view"), array("comment" => "A translation used in CMS Tree Page View"));
-
-		});
-		*/
-
-		add_filter('gettext', array( $this, "filter_gettext_storeLatestTranslations" ), 10, 3 );
 
 	}
 
@@ -1559,7 +1539,7 @@ foreach ($arr_settings_tabs as $one_tab) {
 		if ( 7 === (int) $day_of_week ) {
 
 			$this->purge_db();
-			
+
 		}
 
 	}
@@ -2142,7 +2122,7 @@ foreach ($arr_settings_tabs as $one_tab) {
 		if ( get_option('show_avatars') ) {
 
 			$avatar = get_avatar($email, $size, $default, $alt);
-			
+
 			return $avatar;
 
 		} else {
