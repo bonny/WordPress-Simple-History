@@ -202,14 +202,14 @@ class SimpleOptionsLogger extends SimpleLogger
 			return;
 		}
 
-		$this->debugMessage( "option_updated", array(
-			"option" => $option,
-			"old_value" => $old_value,
-			"new_value" => $new_value,
-			"REQUEST_URI" => $_SERVER["REQUEST_URI"],
-			"referer" => wp_get_referer(),
-			"option_page" => $option_page,
-			"$_REQUEST" => print_r($_REQUEST, true),
+		$this->debugMessage( 'option_updated', array(
+			'option' => $option,
+			'old_value' => $old_value,
+			'new_value' => $new_value,
+			'REQUEST_URI' => $_SERVER['REQUEST_URI'],
+			'referer' => wp_get_referer(),
+			'option_page' => $option_page,
+			'$_REQUEST' => print_r($_REQUEST, true),
 		) );
 
 
