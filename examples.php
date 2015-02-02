@@ -146,22 +146,3 @@ add_action("init", function() {
 
 }, 100);
 // */
-
-// test to translate automagically during logging
-/*
-add_action("init", function () {
-
-	if (defined('DOING_AJAX') && DOING_AJAX) {
-		return;
-	}
-
-	if (!isset($_GET["sh-test"])) {
-		return;
-	}
-
-	SimpleLogger()->debug( "This is a message with no translation" );
-	SimpleLogger()->debug( __("Plugin"), array( "comment" => "This message is 'Plugin' and should contain text domain 'default' since it's a translation that comes with WordPress" ) );
-	SimpleLogger()->debug( __("Enter title of new page", "cms-tree-page-view"), array("comment" => "A translation used in CMS Tree Page View"));
-
-});
-*/

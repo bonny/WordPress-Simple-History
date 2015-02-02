@@ -11,7 +11,7 @@ class SimpleHistorySettingsLogtestDropin {
 		if ( ! defined("SIMPLE_HISTORY_DEV") || ! SIMPLE_HISTORY_DEV ) {
 			return;
 		}
-		
+
 		$this->sh = $sh;
 
 		// How do we register this to the settings array?
@@ -40,10 +40,10 @@ class SimpleHistorySettingsLogtestDropin {
 	}
 
 	public function on_admin_head() {
-		
+
 		?>
 		<script>
-			
+
 			jQuery(function($) {
 
 				var button = $(".js-SimpleHistorySettingsLogtestDropin-addStuff");
@@ -51,14 +51,14 @@ class SimpleHistorySettingsLogtestDropin {
 				var messageWorking = $(".js-SimpleHistorySettingsLogtestDropin-addStuffWorking");
 
 				button.on("click", function(e) {
-					
+
 					messageWorking.show();
 					messageDone.hide();
 
 					$.post(ajaxurl, {
 						action: "SimpleHistoryAddLogTest"
 					}).done(function(r) {
-						
+
 						messageWorking.hide();
 						messageDone.show();
 
@@ -75,7 +75,7 @@ class SimpleHistorySettingsLogtestDropin {
 	}
 
 	public function output() {
-		
+
 		?>
 		<h2>Test data</h2>
 
@@ -122,12 +122,12 @@ class SimpleHistorySettingsLogtestDropin {
 		SimpleLogger()->info("User admin edited page 'About our company'");
 		SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
 		SimpleLogger()->debug("Ok, cron job is running!");
-				
+
 		// Log entries can have placeholders and context
 		// This makes log entried translatable and filterable
 		for ($i = 0; $i < rand(1, 50); $i++) {
 			SimpleLogger()->notice(
-				"User {username} edited page {pagename}", 
+				"User {username} edited page {pagename}",
 				array(
 					"username" => "bonnyerden",
 					"pagename" => "My test page",
@@ -145,7 +145,7 @@ class SimpleHistorySettingsLogtestDropin {
 		// in the log overview
 		for ($i = 0; $i < rand(1, 50); $i++) {
 			SimpleLogger()->notice("User {username} edited page {pagename}", array(
-				"username" => "admin", 
+				"username" => "admin",
 				"pagename" => "My test page",
 				"_occasionsID" => "username:1,postID:24884,action:edited"
 			));
@@ -220,6 +220,10 @@ class SimpleHistorySettingsLogtestDropin {
 			"_userEmail" => "jessie@example.com",
 			"_occasionsID" => "username:1,postID:24885,action:edited"
 		));
+
+		SimpleLogger()->debug( "This is a message with no translation" );
+		SimpleLogger()->debug( __("Plugin"), array( "comment" => "This message is 'Plugin' and should contain text domain 'default' since it's a translation that comes with WordPress" ) );
+		SimpleLogger()->debug( __("Enter title of new page", "cms-tree-page-view"), array("comment" => "A translation used in CMS Tree Page View"));
 
 	}
 
