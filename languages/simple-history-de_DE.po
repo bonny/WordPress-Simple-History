@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Simple History 2.0.3\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-01-14 20:50:40+00:00\n"
-"PO-Revision-Date: 2015-01-15 08:35+0100\n"
+"POT-Creation-Date: 2015-01-20 21:16:38+00:00\n"
+"PO-Revision-Date: 2015-01-26 17:14+0100\n"
 "Last-Translator: Ralph Stenzel <ralph@klein-aber-fein.de>\n"
 "Language-Team: Ralph Stenzel <ralph@klein-aber-fein.de>\n"
 "Language: de_DE\n"
@@ -22,147 +22,151 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: SimpleHistory.php:434 SimpleHistory.php:696
+#: SimpleHistory.php:447 SimpleHistory.php:709
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: SimpleHistory.php:445
+#: SimpleHistory.php:458
 msgid "Log (debug)"
 msgstr "Logbuch (Fehlersuche)"
 
-#: SimpleHistory.php:450
+#: SimpleHistory.php:463
 msgid "Styles example (debug)"
 msgstr "Stil-Beispiel (Fehlersuche)"
 
 #. Plugin Name of the plugin/theme
-#: SimpleHistory.php:711
+#: SimpleHistory.php:724
 msgid "Simple History"
 msgstr "Simple History"
 
-#: SimpleHistory.php:787
+#: SimpleHistory.php:800
 msgid "Remove all log items?"
 msgstr "Alle Einträge im Logbuch entfernen?"
 
-#: SimpleHistory.php:789
+#: SimpleHistory.php:802
 msgid "Go to the first page"
 msgstr "Gehe zur ersten Seite"
 
-#: SimpleHistory.php:790
+#: SimpleHistory.php:803
 msgid "Go to the previous page"
 msgstr "Gehe zur vorherigen Seite"
 
-#: SimpleHistory.php:791
+#: SimpleHistory.php:804
 msgid "Go to the next page"
 msgstr "Gehe zur nächsten Seite"
 
-#: SimpleHistory.php:792
+#: SimpleHistory.php:805
 msgid "Go to the last page"
 msgstr "Gehe zur letzten Seite"
 
-#: SimpleHistory.php:793
+#: SimpleHistory.php:806
 msgid "Current page"
 msgstr "Aktuelle Seite"
 
-#: SimpleHistory.php:795
+#: SimpleHistory.php:808
 msgid "Oups, the log could not be loaded right now."
 msgstr "Hoppla, das Logbuch konnte eben nicht geladen werden."
 
-#: SimpleHistory.php:796
+#: SimpleHistory.php:809
 msgid "Your search did not match any history events."
 msgstr "Deine Suche erbrachte keine Übereinstimmungen mit Ereignissen."
 
-#: SimpleHistory.php:1090 SimpleHistory.php:1193
+#: SimpleHistory.php:1103 SimpleHistory.php:1206
 msgid "Simple History Settings"
 msgstr "Simple History Einstellungen"
 
-#: SimpleHistory.php:1124
+#: SimpleHistory.php:1137
 msgid "No valid callback found"
 msgstr "Kein valider Rückruf gefunden"
 
-#: SimpleHistory.php:1214
+#: SimpleHistory.php:1227
 msgid "Cleared database"
 msgstr "Datenbank geleert"
 
-#: SimpleHistory.php:1241
+#: SimpleHistory.php:1254
 msgid "Show history"
 msgstr "Zeige Logbuch"
 
-#: SimpleHistory.php:1254
+#: SimpleHistory.php:1267
 msgid "Number of items per page"
 msgstr "Zahl der Einträge pro Seite"
 
-#: SimpleHistory.php:1266
+#: SimpleHistory.php:1279
 msgid "Clear log"
 msgstr "Logbuch leeren"
 
-#: SimpleHistory.php:1406
+#: SimpleHistory.php:1419
 msgid "on the dashboard"
 msgstr "auf dem Dashboard"
 
-#: SimpleHistory.php:1411
+#: SimpleHistory.php:1424
 msgid "as a page under the dashboard menu"
 msgstr "als eine Seite im Dashboard-Menü"
 
-#: SimpleHistory.php:1427
+#: SimpleHistory.php:1440
 msgid "Items in the database are automatically removed after %1$s days."
 msgstr "Einträge in der Datenbank werden nach %1$s Tagen automatisch entfernt."
 
-#: SimpleHistory.php:1429
+#: SimpleHistory.php:1442
 msgid "Items in the database are kept forever."
 msgstr "Einträge in der Datenbank werden auf ewig behalten."
 
-#: SimpleHistory.php:1433
+#: SimpleHistory.php:1446
 msgid "Clear log now"
 msgstr "Logbuch jetzt leeren"
 
-#: SimpleHistory.php:1659
+#: SimpleHistory.php:1744
 msgid "+%1$s similar event"
 msgid_plural "+%1$s similar events"
 msgstr[0] "+%1$s gleichartiges Ereignis"
 msgstr[1] "+%1$s gleichartige Ereignisse"
 
-#: SimpleHistory.php:1666
+#: SimpleHistory.php:1751
 msgid "Loading…"
 msgstr "Lade..."
 
-#: SimpleHistory.php:1673
+#: SimpleHistory.php:1758
 msgid "Showing %1$s more"
 msgstr "Zeige %1$s mehr"
 
-#: SimpleHistory.php:1692
+#: SimpleHistory.php:1777
 msgid "Context data"
 msgstr "Kontext-Daten"
 
-#: SimpleHistory.php:1693
+#: SimpleHistory.php:1778
 msgid "This is potentially useful meta data that a logger has saved."
 msgstr ""
 "Dies sind potentiell nützliche Meta-Daten, die ein Logger abgespeichert hat."
 
-#: SimpleHistory.php:2156
+#: SimpleHistory.php:2243
 msgid "No events today so far."
 msgstr "Heute sind noch keine Ereignisse aufgetreten."
 
-#: SimpleHistory.php:2174
+#: SimpleHistory.php:2262
 msgid "One event today from one user."
 msgstr "Ein Ereignis heute von einem Benutzer."
 
-#: SimpleHistory.php:2180
+#: SimpleHistory.php:2268
 msgid "One event today from one source."
 msgstr "Ein Ereignis heute aus einer Quelle."
 
-#: SimpleHistory.php:2186
+#: SimpleHistory.php:2274
+msgid "%1$d events today from one user."
+msgstr "%1$d Ereignisse heute von einem Benutzer."
+
+#: SimpleHistory.php:2280
 msgid "%1$d events today from %2$d users."
 msgstr "%1$d Ereignisse heute von %2$d Benutzern."
 
-#: SimpleHistory.php:2192 SimpleHistory.php:2198
+#: SimpleHistory.php:2286 SimpleHistory.php:2292
 msgid "%1$d events today from one user and one other source."
 msgstr "%1$d Ereignisse heute von einem Benutzer und einer anderen Quelle."
 
-#: SimpleHistory.php:2204
+#: SimpleHistory.php:2298
 msgid "%1$d events today from one user and %3$d other sources."
 msgstr "%1$d Ereignisse heute von einem Benutzer und %3$d anderen Quellen."
 
-#: SimpleHistory.php:2210
+#: SimpleHistory.php:2304
 msgid "%1$s events today from %2$d users and %3$d other sources."
 msgstr "%1$s Ereignisse heute von %2$d Benutzern und %3$d anderen Quellen."
 
@@ -178,33 +182,34 @@ msgstr ""
 "Falls Du Simple History nützlich findest, <a href=\"%1$s\">spende</a> bitte "
 "oder <a href=\"%2$s\">kaufe mir etwas von meinem Amazon-Wunschzettel</a>."
 
-#: dropins/SimpleHistoryFilterDropin.php:43
+#: dropins/SimpleHistoryFilterDropin.php:44
 msgid "Filter history"
 msgstr "Filter-Historie"
 
-#: dropins/SimpleHistoryFilterDropin.php:46
-msgid "Search"
-msgstr "Suche"
+#: dropins/SimpleHistoryFilterDropin.php:48
+#: dropins/SimpleHistoryFilterDropin.php:159
+msgid "Search events"
+msgstr "Durchsuche Ereignisse"
 
-#: dropins/SimpleHistoryFilterDropin.php:50
+#: dropins/SimpleHistoryFilterDropin.php:56
 msgid "All log levels"
 msgstr "Alle Logbuch-Ebenen"
 
-#: dropins/SimpleHistoryFilterDropin.php:64
+#: dropins/SimpleHistoryFilterDropin.php:70
 msgid "All messages"
 msgstr "Alle Nachrichten"
 
-#: dropins/SimpleHistoryFilterDropin.php:118
+#: dropins/SimpleHistoryFilterDropin.php:124
 msgid "All users"
 msgstr "Alle Benutzer"
 
-#: dropins/SimpleHistoryFilterDropin.php:139
+#: dropins/SimpleHistoryFilterDropin.php:145
 msgid "All dates"
 msgstr "Alle Tage"
 
-#: dropins/SimpleHistoryFilterDropin.php:153
-msgid "Filter"
-msgstr "Filter"
+#: dropins/SimpleHistoryFilterDropin.php:168
+msgid "Search"
+msgstr "Suche"
 
 #: dropins/SimpleHistoryNewRowsNotifier.php:80
 msgid "1 new row"
@@ -284,6 +289,10 @@ msgstr "Test-Daten (Fehlersuche)"
 msgid "Stats"
 msgstr "Statistiken"
 
+#: dropins/SimpleHistorySidebarDropin.php:159 loggers/SimpleLogger.php:299
+msgid "Just now"
+msgstr "gerade eben"
+
 #: index.php:59
 msgid ""
 "Simple History is a great plugin, but to use it your server must have at "
@@ -347,10 +356,6 @@ msgstr "Anonymer Netz-Nutzer"
 #: loggers/SimpleLogger.php:228
 msgid "Anonymous user from %1$s"
 msgstr "Anonymer Benutzer von %1$s"
-
-#: loggers/SimpleLogger.php:299
-msgid "Just now"
-msgstr "gerade eben"
 
 #. translators: Date format for log row header, see http:php.net/date
 #: loggers/SimpleLogger.php:304
@@ -649,108 +654,119 @@ msgstr "Pär Thernström"
 msgid "http://simple-history.com/"
 msgstr "http://simple-history.com/"
 
-#: SimpleHistory.php:177
+#: SimpleHistory.php:190
 msgctxt ""
 "Message visible while waiting for log to load from server the first time"
 msgid "Loading history..."
 msgstr "Lade Historie..."
 
-#: SimpleHistory.php:214
+#: SimpleHistory.php:227
 msgctxt "page n of n"
 msgid "of"
 msgstr "von"
 
-#: SimpleHistory.php:285
+#: SimpleHistory.php:298
 msgctxt "API: not enought arguments passed"
 msgid "Not enough args specified"
 msgstr "Nicht genügend Argumente angegeben"
 
-#: SimpleHistory.php:1178
+#: SimpleHistory.php:1191
 msgctxt "dashboard menu name"
 msgid "Simple History"
 msgstr "Simple History"
 
-#: SimpleHistory.php:1303
+#: SimpleHistory.php:1316
 msgctxt "history page headline"
 msgid "Simple History"
 msgstr "Simple History"
 
-#: SimpleHistory.php:1829
+#: SimpleHistory.php:1570
+msgctxt "simple-history"
+msgid "Simple History removed one event that were older than {days} days"
+msgid_plural ""
+"Simple History removed {num_rows} events that were older than {days} days"
+msgstr[0] ""
+"Simple History hat 1 Ereignis entfernt welches älter als {days} Tage war"
+msgstr[1] ""
+"Simple History hat  {num_rows} Ereignisse entfernt welche älter als {days} "
+"Tage waren"
+
+#: SimpleHistory.php:1914
 msgctxt "Log level in gui"
 msgid "emergency"
 msgstr "Notfall"
 
-#: SimpleHistory.php:1833
+#: SimpleHistory.php:1918
 msgctxt "Log level in gui"
 msgid "alert"
 msgstr "Alarm"
 
-#: SimpleHistory.php:1837
+#: SimpleHistory.php:1922
 msgctxt "Log level in gui"
 msgid "critical"
 msgstr "Kritisch"
 
-#: SimpleHistory.php:1841
+#: SimpleHistory.php:1926
 msgctxt "Log level in gui"
 msgid "error"
 msgstr "Fehler"
 
-#: SimpleHistory.php:1845
+#: SimpleHistory.php:1930
 msgctxt "Log level in gui"
 msgid "warning"
 msgstr "Warnung"
 
-#: SimpleHistory.php:1849
+#: SimpleHistory.php:1934
 msgctxt "Log level in gui"
 msgid "notice"
 msgstr "Hinweis"
 
-#: SimpleHistory.php:1853
+#: SimpleHistory.php:1938
 msgctxt "Log level in gui"
 msgid "info"
 msgstr "Information"
 
-#: SimpleHistory.php:1857
+#: SimpleHistory.php:1942
 msgctxt "Log level in gui"
 msgid "debug"
 msgstr "Fehlersuche"
 
-#: SimpleHistory.php:1862
+#: SimpleHistory.php:1947
 msgctxt "Log level in gui"
 msgid "Emergency"
 msgstr "Notfall"
 
-#: SimpleHistory.php:1866
+#: SimpleHistory.php:1951
 msgctxt "Log level in gui"
 msgid "Alert"
 msgstr "Alarm"
 
-#: SimpleHistory.php:1870
+#: SimpleHistory.php:1955
 msgctxt "Log level in gui"
 msgid "Critical"
 msgstr "Kritisch"
 
-#: SimpleHistory.php:1874
+#: SimpleHistory.php:1959
 msgctxt "Log level in gui"
 msgid "Error"
 msgstr "Fehler"
 
-#: SimpleHistory.php:1878
+#: SimpleHistory.php:1963
 msgctxt "Log level in gui"
 msgid "Warning"
 msgstr "Warnung"
 
-#: SimpleHistory.php:1882
+#: SimpleHistory.php:1967
 msgctxt "Log level in gui"
 msgid "Notice"
 msgstr "Hinweis"
 
-#: SimpleHistory.php:1886
+#: SimpleHistory.php:1971
 msgctxt "Log level in gui"
 msgid "Info"
 msgstr "Information"
 
-#: SimpleHistory.php:1890
+#: SimpleHistory.php:1975
 msgctxt "Log level in gui"
 msgid "Debug"
 msgstr "Fehlersuche"
@@ -759,6 +775,16 @@ msgstr "Fehlersuche"
 msgctxt "donate settings headline"
 msgid "Donate"
 msgstr "Spende"
+
+#: dropins/SimpleHistoryFilterDropin.php:50
+msgctxt "Filter dropin: button to show more search options"
+msgid "Show options"
+msgstr "Zeige Optionen"
+
+#: dropins/SimpleHistoryFilterDropin.php:160
+msgctxt "Filter dropin: button to hide more search options"
+msgid "Hide options"
+msgstr "Verberge Optionen"
 
 #: dropins/SimpleHistoryIpInfoDropin.php:66
 msgctxt "IP Info Dropin"
@@ -811,6 +837,57 @@ msgstr ""
 msgctxt "rss settings headline"
 msgid "RSS feed"
 msgstr "RSS-Feed"
+
+#: dropins/SimpleHistorySidebarDropin.php:31
+msgctxt "Sidebar box"
+msgid "Simple History is on GitHub"
+msgstr "Simple History ist auf GitHub"
+
+#: dropins/SimpleHistorySidebarDropin.php:34
+msgctxt "Sidebar box"
+msgid ""
+"You can star, fork, or report issues with this plugin over at the <a href="
+"\"%1$s\">GitHub page</a>."
+msgstr ""
+"Drüben auf der <a href=\"%1$s\">GitHub-Website</a> kannst Du dieses Plugin "
+"bewerten, einen Fork abspalten oder Probleme melden."
+
+#: dropins/SimpleHistorySidebarDropin.php:48
+msgctxt "Sidebar box"
+msgid "Donate to support development"
+msgstr "Spende zur Unterstützung der weiteren Entwicklung"
+
+#: dropins/SimpleHistorySidebarDropin.php:51
+msgctxt "Sidebar box"
+msgid ""
+"If you like and use Simple History you should <a href=\"%1$s\">donate to keep "
+"this plugin free</a>."
+msgstr ""
+"Falls Dir dieses Plugin gefällt und Du es benutzt, solltest Du <a href=\"%1$s"
+"\">spenden, um das Plugin weiterhin kostenlos zu halten</a>."
+
+#: dropins/SimpleHistorySidebarDropin.php:65
+msgctxt "Sidebar box"
+msgid "Review this plugin if you like it"
+msgstr "Bespreche dieses Plugin, wenn es Dir gefällt"
+
+#: dropins/SimpleHistorySidebarDropin.php:68
+msgctxt "Sidebar box"
+msgid ""
+"If you like Simple History then please <a href=\"%1$s\">give it a nice review "
+"over at wordpress.org</a>."
+msgstr ""
+"Wenn Du Simple History magst, bitte <a href=\"%1$s\">verfasse drüben bei "
+"wordpress.org eine nette Besprechung darüber</a>."
+
+#: dropins/SimpleHistorySidebarDropin.php:72
+msgctxt "Sidebar box"
+msgid ""
+"A good review will help new users find this plugin. And it will make the "
+"plugin author very happy :)"
+msgstr ""
+"Eine positive Besprechung hilft neuen Benutzern, auf dieses Plugin aufmerksam "
+"zu werden. Und sie macht seinen Autor sehr glücklich! :)"
 
 #: loggers/SimpleCommentsLogger.php:95
 msgctxt "A comment was added to the database by a non-logged in internet user"
@@ -1474,14 +1551,14 @@ msgctxt "stats: date in rows per day chart"
 msgid "M j"
 msgstr "M j"
 
+#~ msgid "Filter"
+#~ msgstr "Filter"
+
 #~ msgid "+%1$s more"
 #~ msgstr "+%1$s mehr"
 
 #~ msgid "%1$d event today from one user."
 #~ msgstr "%1$d Ereignis heute von einem Benutzer."
-
-#~ msgid "%1$d events today from one user."
-#~ msgstr "%1$d Ereignisse heute von einem Benutzer."
 
 #~ msgid "History"
 #~ msgstr "Historie"
