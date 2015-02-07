@@ -113,7 +113,7 @@ initiated by a specific user.
 
 = 2.0.19 (February 2015) =
 
-- Added: Dutch translation by (https://github.com/niknetniko)[https://github.com/niknetniko]. Thanks!
+- Added: Dutch translation by [https://github.com/niknetniko](https://github.com/niknetniko). Thanks!
 - Changed: better compatibilty with plugins like [WP User Avatar](https://wordpress.org/plugins/wp-user-avatar/).
 - Updated: German translation update.
 
