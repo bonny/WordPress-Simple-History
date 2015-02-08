@@ -111,6 +111,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Changed the way user login is logged. Should fix https://github.com/bonny/WordPress-Simple-History/issues/40 + possible more related issues.
+
 = 2.0.19 (February 2015) =
 
 - Added: Dutch translation by [https://github.com/niknetniko](https://github.com/niknetniko). Thanks!

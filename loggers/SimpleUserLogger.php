@@ -272,49 +272,44 @@ class SimpleUserLogger extends SimpleLogger {
 	 */
 	function on_wp_login($user_login, $user) {
 
-		$context = array();
+		$context = array(
+			"user_login" => $user_login
+		);
 
-		if ($user->ID) {
+		if ( isset( $user_login ) ) {
+
+			$user_obj = get_user_by( "login", $user_login );
+			
+		} else if ( isset( $user ) && isset( $user->ID ) ) {
+			
+			$user_obj = get_user_by( "id", $user->ID );
+
+		}
+
+		if ( is_a( $user_obj, "WP_User" ) ) {
 
 			$context = array(
-				"user_id" => $user->ID,
-				"user_email" => $user->user_email,
-				"user_login" => $user->user_login,
+				"user_id" => $user_obj->ID,
+				"user_email" => $user_obj->user_email,
+				"user_login" => $user_obj->user_login,
 			);
 
 			// Override some data that is usually set automagically by Simple History
 			// Because wp_get_current_user() does not return any data yet at this point
 			$context["_initiator"] = SimpleLoggerLogInitiators::WP_USER;
-			$context["_user_id"] = $user->ID;
-			$context["_user_login"] = $user->user_login;
-			$context["_user_email"] = $user->user_email;
+			$context["_user_id"] = $user_obj->ID;
+			$context["_user_login"] = $user_obj->user_login;
+			$context["_user_email"] = $user_obj->user_email;
 			$context["server_http_user_agent"] = $_SERVER["HTTP_USER_AGENT"];
 
 			$this->infoMessage("user_logged_in", $context);
 
 		} else {
 
-			// when does this happen?
-			// Aha! I can happen when a plugin is logging in the user, for example the "WP-OAuth"-plugin:
-			// https://github.com/bonny/WordPress-Simple-History/issues/40
-
-			// @TODO: does this still count as a valid login?
-			// It should be valid right, because this action should not be called otherwise
-
-			// Some temp debug things
-			/*
-			$context["_debug_user_login"] = $user_login;
-			$context["_debug_user"] = simpleHistory::json_encode($user);
-			$context["_debug_server"] = simpleHistory::json_encode($_SERVER);
-			$context["_debug_get"] = simpleHistory::json_encode($_GET);
-			$context["_debug_get"] = simpleHistory::json_encode($_POST);
-			$context["_debug_cookies"] = simpleHistory::json_encode($_COOKIES);
-			 */
-
+			// Could not get any info about the user logging in
 			$this->warningMessage("user_unknown_logged_in", $context);
-
 		}
-
+		
 	}
 
 	/**
