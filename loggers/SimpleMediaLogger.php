@@ -191,7 +191,7 @@ class SimpleMediaLogger extends SimpleLogger
 			if ( ! empty( $context["attachment_thumb"] ) ) {
 
 				if ( $is_image ) {
-					$message .= "<a href='".$edit_link."'>";
+					$message .= "<a class='SimpleHistoryLogitemThumbnailLink' href='".$edit_link."'>";
 				}
 
 				$message .= __('{attachment_thumb}', 'simple-history');

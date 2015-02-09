@@ -345,25 +345,29 @@ Style different log levels.
 Images/thumbs can be styles nicely
 */
 .SimpleHistoryLogitemThumbnail {
-				display: inline-block;
-				margin: .5em 0 0 0;
-					padding: 5px;
-				border: 1px solid #ddd;
-				border-radius: 2px;
+	display: inline-block;
+	margin: .5em 0 0 0;
+	padding: 5px;
+	border: 1px solid #ddd;
+	border-radius: 2px;
 
 }
 
+.SimpleHistoryLogitemThumbnailLink {
+	display: inline-block;
+}
+
 .SimpleHistoryLogitemThumbnail img {
-				/*
-				photoshop-like background that represents tranpsarency
-				so user can see that an image have transparency
-				*/
-				display: block;
-				background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
-				max-width: 100%;
-				max-height: 300px;
-				max-height: 200px;
-				height: auto;
+	/*
+	photoshop-like background that represents transparency
+	so user can see that an image have transparency
+	*/
+	display: block;
+	background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
+	max-width: 100%;
+	max-height: 300px;
+	max-height: 200px;
+	height: auto;
 }
 
 
