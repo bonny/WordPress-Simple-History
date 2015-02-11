@@ -53,7 +53,17 @@ The spinner that wp uses:;
 
 .dashboard_page_simple_history_page .SimpleHistoryGui {
 	width: 100%;
-	float: left;background: tran
+	float: left;
+}
+
+@media only screen and (max-width: 850px) {
+	.dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
+		float: none;
+		margin-right: auto;
+	}
+	.dashboard_page_simple_history_page .SimpleHistoryGui {
+		float: none;
+	}
 }
 
 
@@ -825,3 +835,4 @@ Modal window with detailss
 	margin-left: 13px;
 	margin-right: 13px;
 }
+

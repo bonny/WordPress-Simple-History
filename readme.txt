@@ -112,6 +112,8 @@ initiated by a specific user.
 == Changelog ==
 
 - Changed the way user login is logged. Should fix https://github.com/bonny/WordPress-Simple-History/issues/40 + possible more related issues.
+- Fixed: IP info popup can now be closed with `esc`.
+- Fixed: works better on small screens + misc other style related fixes.
 
 = 2.0.19 (February 2015) =
 
