@@ -548,7 +548,7 @@ class SimpleLogger {
 		 * @param array context
 		 * @return bool false to abort logging
 		 */
-		$doLog = apply_filters(true, $this->slug, $messageKey, $SimpleLoggerLogLevelsLevel, $context);
+		$doLog = apply_filters("simple_history/simple_logger/log_message_key", true, $this->slug, $messageKey, $SimpleLoggerLogLevelsLevel, $context);
 		if ( ! $doLog ) {
 			return;
 		}

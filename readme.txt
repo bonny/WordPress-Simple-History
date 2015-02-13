@@ -114,6 +114,7 @@ initiated by a specific user.
 - Changed the way user login is logged. Should fix https://github.com/bonny/WordPress-Simple-History/issues/40 + possible more related issues.
 - Fixed: IP info popup can now be closed with `esc`.
 - Fixed: works better on small screens + misc other style related fixes.
+- Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage.
 
 = 2.0.19 (February 2015) =
 
