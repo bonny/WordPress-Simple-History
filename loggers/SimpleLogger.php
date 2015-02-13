@@ -172,14 +172,14 @@ class SimpleLogger {
 						'	;
 					}
 
-				/**
-				 * Filter the format for the user output
-				 *
-				 * @since 2.0
-				 *
-				 * @param string $format.
-				 */
-					$$tmpl_initiator_html = apply_filters("simple_history/header_initiator_html_existing_user", $tmpl_initiator_html);
+					/**
+					 * Filter the format for the user output
+					 *
+					 * @since 2.0
+					 *
+					 * @param string $format.
+					 */
+					$tmpl_initiator_html = apply_filters("simple_history/header_initiator_html_existing_user", $tmpl_initiator_html);
 
 					$initiator_html .= sprintf(
 						$tmpl_initiator_html,
@@ -536,14 +536,32 @@ class SimpleLogger {
 	 *
 	 *   return $this->logByMessageKey(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 	 */
-	private function logByMessageKey($SimpleLoggerLogLevelsLevel, $message, $context) {
-		
+	private function logByMessageKey($SimpleLoggerLogLevelsLevel, $messageKey, $context) {
+	
+		// When logging by message then the key must exist	
 		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
 			return;
 		}
 
-		$context["_message_key"] = $message;
-		$message = $this->messages[$message]["untranslated_text"];
+		/**
+		 * Filter so plugins etc. can shortut logging
+		 *
+		 * @since 2.0.20
+		 *
+		 * @param true yes, we default to do the logging
+		 * @param string logger slug
+		 * @param string messageKey
+		 * @param string log level
+		 * @param array context
+		 * @return bool false to abort logging
+		 */
+		$doLog = apply_filters(true, $this->slug, $messageKey, $SimpleLoggerLogLevelsLevel, $context);
+		if ( ! $doLog ) {
+			return;
+		}
+
+		$context["_message_key"] = $messageKey;
+		$message = $this->messages[ $messageKey ]["untranslated_text"];
 
 		$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
 
