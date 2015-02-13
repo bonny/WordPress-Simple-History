@@ -517,14 +517,7 @@ class SimpleLogger {
 	 */
 	public function emergencyMessage($message, array $context = array()) {
 
-		if (!isset($this->messages[$message]["untranslated_text"])) {
-			return;
-		}
-
-		$context["_message_key"] = $message;
-		$message = $this->messages[$message]["untranslated_text"];
-
-		$this->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
+		return $this->logByMessageKey(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 
 	}
 
@@ -539,7 +532,7 @@ class SimpleLogger {
 	private function logByMessageKey($SimpleLoggerLogLevelsLevel, $messageKey, $context) {
 	
 		// When logging by message then the key must exist	
-		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+		if ( ! isset( $this->messages[ $messageKey ]["untranslated_text"] ) ) {
 			return;
 		}
 
