@@ -529,6 +529,28 @@ class SimpleLogger {
 	}
 
 	/**
+	 * Log with message
+	 * Called from infoMessage(), errorMessage(), and so on
+	 *
+	 * Call like this:
+	 *
+	 *   return $this->logByMessageKey(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
+	 */
+	private function logByMessageKey($SimpleLoggerLogLevelsLevel, $message, $context) {
+		
+		if ( ! isset( $this->messages[ $message ]["untranslated_text"] ) ) {
+			return;
+		}
+
+		$context["_message_key"] = $message;
+		$message = $this->messages[$message]["untranslated_text"];
+
+		$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
+
+	}
+
+
+	/**
 	 * Action must be taken immediately.
 	 *
 	 * @param string $message
@@ -549,14 +571,7 @@ class SimpleLogger {
 	 */
 	public function alertMessage($message, array $context = array()) {
 
-		if (!isset($this->messages[$message]["untranslated_text"])) {
-			return;
-		}
-
-		$context["_message_key"] = $message;
-		$message = $this->messages[$message]["untranslated_text"];
-
-		$this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
+		return $this->logByMessageKey(SimpleLoggerLogLevels::ALERT, $message, $context);
 
 	}
 
@@ -619,14 +634,7 @@ class SimpleLogger {
 	 */
 	public function errorMessage($message, array $context = array()) {
 
-		if (!isset($this->messages[$message]["untranslated_text"])) {
-			return;
-		}
-
-		$context["_message_key"] = $message;
-		$message = $this->messages[$message]["untranslated_text"];
-
-		$this->log(SimpleLoggerLogLevels::ERROR, $message, $context);
+		return $this->logByMessageKey(SimpleLoggerLogLevels::ERROR, $message, $context);
 
 	}
 
@@ -655,14 +663,7 @@ class SimpleLogger {
 	 */
 	public function warningMessage($message, array $context = array()) {
 
-		if (!isset($this->messages[$message]["untranslated_text"])) {
-			return;
-		}
-
-		$context["_message_key"] = $message;
-		$message = $this->messages[$message]["untranslated_text"];
-
-		$this->log(SimpleLoggerLogLevels::WARNING, $message, $context);
+		return $this->logByMessageKey(SimpleLoggerLogLevels::WARNING, $message, $context);
 
 	}
 
@@ -688,14 +689,7 @@ class SimpleLogger {
 	 */
 	public function noticeMessage($message, array $context = array()) {
 
-		if (!isset($this->messages[$message]["untranslated_text"])) {
-			return;
-		}
-
-		$context["_message_key"] = $message;
-		$message = $this->messages[$message]["untranslated_text"];
-
-		$this->log(SimpleLoggerLogLevels::NOTICE, $message, $context);
+		return $this->logByMessageKey(SimpleLoggerLogLevels::NOTICE, $message, $context);
 
 	}
 
@@ -725,14 +719,7 @@ class SimpleLogger {
 	 */
 	public function infoMessage($message, array $context = array()) {
 
-		if (!isset($this->messages[$message]["untranslated_text"])) {
-			return;
-		}
-
-		$context["_message_key"] = $message;
-		$message = $this->messages[$message]["untranslated_text"];
-
-		$this->log(SimpleLoggerLogLevels::INFO, $message, $context);
+		return $this->logByMessageKey(SimpleLoggerLogLevels::INFO, $message, $context);
 
 	}
 
@@ -758,14 +745,7 @@ class SimpleLogger {
 	 */
 	public function debugMessage($message, array $context = array()) {
 
-		if (!isset($this->messages[$message]["untranslated_text"])) {
-			return;
-		}
-
-		$context["_message_key"] = $message;
-		$message = $this->messages[$message]["untranslated_text"];
-
-		$this->log(SimpleLoggerLogLevels::DEBUG, $message, $context);
+		return $this->logByMessageKey(SimpleLoggerLogLevels::DEBUG, $message, $context);
 
 	}
 
