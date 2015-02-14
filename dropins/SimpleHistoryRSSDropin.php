@@ -183,6 +183,8 @@ class SimpleHistoryRSSDropin {
 							#$item_title = wp_kses( $header_output . ": " . $text_output, array() );
 							$item_title = wp_kses( $text_output, array() );
 
+							$level_output = sprintf( __('Severity level: %1$s'), $this->sh->getLogLevelTranslated( $row->level ));
+
 							?>
 							<item>
 								<title><![CDATA[<?php echo $item_title; ?>]]></title>
@@ -190,6 +192,7 @@ class SimpleHistoryRSSDropin {
 									<p><?php echo $header_output ?></p>
 									<p><?php echo $text_output ?></p>
 									<div><?php echo $details_output ?></div>
+									<p><?php echo $level_output ?></p>
 									<?php
 									$occasions = $row->subsequentOccasions - 1;
 									if ( $occasions ) {
