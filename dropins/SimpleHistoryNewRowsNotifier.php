@@ -63,7 +63,6 @@ class SimpleHistoryNewRowsNotifier {
 		$logQueryArgs = $apiArgs;
 
 		$logQuery = new SimpleHistoryLogQuery();
-
 		$answer = $logQuery->query( $logQueryArgs );
 
 		// Use our own repsonse array instead of $answer to keep size down
@@ -71,6 +70,7 @@ class SimpleHistoryNewRowsNotifier {
 		
 		$numNewRows = isset( $answer["total_row_count"] ) ? $answer["total_row_count"] : 0;
 		$json_data["num_new_rows"] = $numNewRows;
+		$json_data["num_mysql_queries"] = get_num_queries();
 
 		if ($numNewRows) {
 	

@@ -6,7 +6,7 @@
 class SimpleHistory {
 
 	const NAME = "Simple History";
-        const VERSION = "2.0.19";
+	const VERSION = "2.0.19";
 
 	/**
 	 * Capability required to view the history log
@@ -372,6 +372,7 @@ class SimpleHistory {
 						}
 
 						$data["log_rows"][$key] = $this->getLogRowHTMLOutput($oneLogRow, $args);
+						$data["num_queries"] = get_num_queries();
 
 					}
 
@@ -2257,8 +2258,16 @@ foreach ($arr_settings_tabs as $one_tab) {
 			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS
 		);
 
-		$results_users_today = $wpdb->get_results($sql_users_today);
-		$count_users_today = sizeof($results_users_today);
+		$cache_key = "quick_stats_users_today_" . md5( serialize( $sql_loggers_in ) );
+		$cache_group = "simple-history-" . $this->get_cache_incrementor();
+		$results_users_today = wp_cache_get($cache_key, $cache_group );
+
+		if ( false === $results_users_today ) {
+			$results_users_today = $wpdb->get_results($sql_users_today);
+			wp_cache_set($cache_key, $results_users_today, $cache_group );
+		}
+
+		$count_users_today = sizeof( $results_users_today );
 
 		// Get number of other sources (not wp_user)
 		$sql_other_sources_where = sprintf(
@@ -2290,7 +2299,16 @@ foreach ($arr_settings_tabs as $one_tab) {
 		);
 		// sf_d($sql_other_sources, '$sql_other_sources');
 
-		$results_other_sources_today = $wpdb->get_results($sql_other_sources);
+		$cache_key = "quick_stats_results_other_sources_today_" . md5( serialize($sql_other_sources) );
+		$results_other_sources_today = wp_cache_get($cache_key, $cache_group);
+
+		if ( false === $results_other_sources_today ) {
+
+			$results_other_sources_today = $wpdb->get_results($sql_other_sources);
+			wp_cache_set($cache_key, $results_other_sources_today, $cache_group);
+		
+		}
+
 		$count_other_sources = sizeof($results_other_sources_today);
 
 		#sf_d($logResults, '$logResults');
@@ -2302,125 +2320,126 @@ foreach ($arr_settings_tabs as $one_tab) {
 			<p>
 				<?php
 
-		$msg_tmpl = "";
+				$msg_tmpl = "";
 
-		// No results today at all
-		if ($total_row_count == 0) {
+				// No results today at all
+				if ( $total_row_count == 0 ) {
 
-			$msg_tmpl = __("No events today so far.", "simple-history");
+					$msg_tmpl = __("No events today so far.", "simple-history");
 
-		} else {
+				} else {
 
-			/*
-			Type of results
-			x1 event today from 1 user.
-			x1 event today from 1 source.
-			3 events today from 1 user.
-			x2 events today from 2 users.
-			x2 events today from 1 user and 1 other source.
-			x3 events today from 2 users and 1 other source.
-			x3 events today from 1 user and 2 other sources.
-			x4 events today from 2 users and 2 other sources.
-			 */
+					/*
+					Type of results
+					x1 event today from 1 user.
+					x1 event today from 1 source.
+					3 events today from 1 user.
+					x2 events today from 2 users.
+					x2 events today from 1 user and 1 other source.
+					x3 events today from 2 users and 1 other source.
+					x3 events today from 1 user and 2 other sources.
+					x4 events today from 2 users and 2 other sources.
+					 */
 
-			// A single event existed and was from a user
-			// 1 event today from 1 user.
-			if ($total_row_count == 1 && $count_users_today == 1) {
-				$msg_tmpl .= __('One event today from one user.', "simple-history");
-			}
+					// A single event existed and was from a user
+					// 1 event today from 1 user.
+					if ( $total_row_count == 1 && $count_users_today == 1 ) {
+						$msg_tmpl .= __('One event today from one user.', "simple-history");
+					}
 
-			// A single event existed and was from another source
-			// 1 event today from 1 source.
-			if ($total_row_count == 1 && !$count_users_today) {
-				$msg_tmpl .= __('One event today from one source.', "simple-history");
-			}
+					// A single event existed and was from another source
+					// 1 event today from 1 source.
+					if ( $total_row_count == 1 && !$count_users_today ) {
+						$msg_tmpl .= __('One event today from one source.', "simple-history");
+					}
 
-			// Multiple events from a single user
-			// 3 events today from one user.
-			if ($total_row_count > 1 && $count_users_today == 1 && !$count_other_sources) {
-				$msg_tmpl .= __('%1$d events today from one user.', "simple-history");
-			}
+					// Multiple events from a single user
+					// 3 events today from one user.
+					if ( $total_row_count > 1 && $count_users_today == 1 && !$count_other_sources ) {
+						$msg_tmpl .= __('%1$d events today from one user.', "simple-history");
+					}
 
-			// Multiple events from only users
-			// 2 events today from 2 users.
-			if ($total_row_count > 1 && $count_users_today == $total_row_count) {
-				$msg_tmpl .= __('%1$d events today from %2$d users.', "simple-history");
-			}
+					// Multiple events from only users
+					// 2 events today from 2 users.
+					if ( $total_row_count > 1 && $count_users_today == $total_row_count ) {
+						$msg_tmpl .= __('%1$d events today from %2$d users.', "simple-history");
+					}
 
-			// Multiple events from 1 single user and 1 single other source
-			// 2 events today from 1 user and 1 other source.
-			if ($total_row_count && 1 == $count_users_today && 1 == $count_other_sources) {
-				$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
-			}
+					// Multiple events from 1 single user and 1 single other source
+					// 2 events today from 1 user and 1 other source.
+					if ( $total_row_count && 1 == $count_users_today && 1 == $count_other_sources ) {
+						$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
+					}
 
-			// Multiple events from multple users but from only 1 single other source
-			// 3 events today from 2 users and 1 other source.
-			if ($total_row_count > 1 && $count_users_today > 1 && $count_other_sources == 1) {
-				$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
-			}
+					// Multiple events from multple users but from only 1 single other source
+					// 3 events today from 2 users and 1 other source.
+					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
+						$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
+					}
 
-			// Multiple events from 1 user but from multiple  other source
-			// 3 events today from 1 user and 2 other sources.
-			if ($total_row_count > 1 && 1 == $count_users_today && $count_other_sources > 1) {
-				$msg_tmpl .= __('%1$d events today from one user and %3$d other sources.', "simple-history");
-			}
+					// Multiple events from 1 user but from multiple  other source
+					// 3 events today from 1 user and 2 other sources.
+					if ( $total_row_count > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
+						$msg_tmpl .= __('%1$d events today from one user and %3$d other sources.', "simple-history");
+					}
 
-			// Multiple events from multiple user and from multiple other sources
-			// 4 events today from 2 users and 2 other sources.
-			if ($total_row_count > 1 && $count_users_today > 1 && $count_other_sources > 1) {
-				$msg_tmpl .= __('%1$s events today from %2$d users and %3$d other sources.', "simple-history");
-			}
+					// Multiple events from multiple user and from multiple other sources
+					// 4 events today from 2 users and 2 other sources.
+					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources > 1 ) {
+						$msg_tmpl .= __('%1$s events today from %2$d users and %3$d other sources.', "simple-history");
+					}
 
-		}
+				}
 
-		/*
-		if ( $logResults["total_row_count"] == 0 ) {
+				// only show stats if we have something to output
+				if ( $msg_tmpl ) {
 
-		$msg_tmpl = __("No events today so far.", "simple-history");
+					printf(
+						$msg_tmpl,
+						$logResults["total_row_count"], // 1
+						$count_users_today, // 2
+						$count_other_sources // 3
+					);
 
-		} elseif ( $logResults["total_row_count"] == 1 ) {
+					// Space between texts
+					/*
+				echo " ";
 
-		$msg_tmpl = __('%1$d event today from one user.', "simple-history");
+				// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
+				printf(
+				'<a href="%1$s">View more stats</a>.',
+				add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
+				);
+				 */
 
-		} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) > 1 ) {
+				}
 
-		$msg_tmpl = __('%1$d events today from %2$d users.', "simple-history");
-
-		} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) == 1 ) {
-
-		$msg_tmpl = __('%1$d events today from one user.', "simple-history");
-
-		}
-		 */
-
-		// only show stats if we have something to output
-		if ($msg_tmpl) {
-
-			printf(
-				$msg_tmpl,
-				$logResults["total_row_count"], // 1
-				$count_users_today, // 2
-				$count_other_sources // 3
-			);
-
-			// Space between texts
-			/*
-		echo " ";
-
-		// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
-		printf(
-		'<a href="%1$s">View more stats</a>.',
-		add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
-		);
-		 */
-
-		}
-
-		?>
+				?>
 			</p>
 		</div>
 		<?php
 
+	} // output_quick_stats
+
+	/**
+	 * https://www.tollmanz.com/invalidation-schemes/
+	 * 
+	 * @param $refresh bool
+	 * @return string
+	 */
+	public static function get_cache_incrementor( $refresh = false ) {
+
+		$incrementor_key = 'simple_history_incrementor';
+		$incrementor_value = wp_cache_get( $incrementor_key );
+
+		if ( false === $incrementor_value || true === $refresh ) {
+			$incrementor_value = time();
+			wp_cache_set( $incrementor_key, $incrementor_value );
+		}
+
+		//echo "<br>incrementor_value: $incrementor_value";
+		return $incrementor_value;
+
 	}
 
-}// class
+} // class
