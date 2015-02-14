@@ -27,7 +27,7 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 			"capability" => "update_core",
 			"messages" => array(
 				'core_updated' => __('Updated WordPress from {prev_version} to {new_version}', 'simple-history'),
-				'core_auto_updated' => __('WordPress auto-updated from {prev_version} to {new_version}', 'simple-history')
+				'core_auto_updated' => __('WordPress auto-updated to {new_version} from {prev_version}', 'simple-history')
 			),
 			"labels" => array(
 				"search" => array(
