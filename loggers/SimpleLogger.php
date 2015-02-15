@@ -144,6 +144,10 @@ class SimpleLogger {
 				$initiator_html .= '<strong class="SimpleHistoryLogitem__inlineDivided">WordPress</strong> ';
 				break;
 
+			case "wp_cli":
+				$initiator_html .= '<strong class="SimpleHistoryLogitem__inlineDivided">WP-CLI</strong> ';
+				break;
+
 			// wp_user = wordpress uses, but user may have been deleted since log entry was added
 			case "wp_user":
 
@@ -802,8 +806,12 @@ class SimpleLogger {
 		 * @param string $level
 		 * @param string $message
 		 * @param array $context
+		 * @param object SimpleLogger object
 		 */
-		apply_filters("simple_history/log_arguments", $level, $message, $context);
+		apply_filters("simple_history/log_arguments", $level, $message, $context, $this);
+		$context = apply_filters("simple_history/log_argument/context", $context, $level, $message, $this);
+		$level = apply_filters("simple_history/log_argument/level", $level, $context, $message, $this);
+		$message = apply_filters("simple_history/log_argument/message", $message, $level, $context, $this);
 
 		/* Store date at utc or local time?
 		 * Some info here:
@@ -880,24 +888,25 @@ class SimpleLogger {
 		 */
 
 		// Log initiator, defaults to current user if exists, or other if not user exist
-		if (isset($context["_initiator"])) {
+		if ( isset( $context["_initiator"] ) ) {
 
 			// Manually set in context
 			$data["initiator"] = $context["_initiator"];
-			unset($context["_initiator"]);
+			unset( $context["_initiator"] );
 
 		} else {
 
-			// No initiator set.
+			// No initiator set, try to determine
 
+			// Default to other
 			$data["initiator"] = SimpleLoggerLogInitiators::OTHER;
 
 			// Check if user is responsible.
-			if (function_exists("wp_get_current_user")) {
+			if ( function_exists("wp_get_current_user") ) {
 
 				$current_user = wp_get_current_user();
 
-				if (isset($current_user->ID) && $current_user->ID) {
+				if ( isset( $current_user->ID ) && $current_user->ID ) {
 
 					$data["initiator"] = SimpleLoggerLogInitiators::WP_USER;
 					$context["_user_id"] = $current_user->ID;
@@ -909,11 +918,23 @@ class SimpleLogger {
 			}
 
 			// If cron then set WordPress as responsible
-			if (defined('DOING_CRON') && DOING_CRON) {
+			if ( defined('DOING_CRON') && DOING_CRON ) {
 
 				// Seems to be wp cron running and doing this
 				$data["initiator"] = SimpleLoggerLogInitiators::WORDPRESS;
 				$context["_wp_cron_running"] = true;
+
+			}
+
+			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it
+			// How to log this? Is this a user, is it WordPress, or what?
+			// I'm thinking: 
+			//  - it is a user that is manually doing this, on purpose, with intent, so not auto wordpress
+			//  - it is a specific user, but we don't know who
+			// - sounds like a special case, set initiator to wp_cli
+			if ( isset( $_SERVER["WP_CLI_PHP_USED"] ) && "cli" == php_sapi_name() ) {
+				
+				$data["initiator"] = SimpleLoggerLogInitiators::WP_CLI;
 
 			}
 
@@ -1118,6 +1139,9 @@ class SimpleLoggerLogInitiators {
 
 	// WordPress core or plugins updated automatically via wp-cron
 	const WORDPRESS = "wp";
+
+	// WP CLI / terminal
+	const WP_CLI = "wp_cli";
 
 	// I dunno
 	const OTHER = 'other';

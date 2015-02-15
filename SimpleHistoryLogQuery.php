@@ -77,7 +77,6 @@ class SimpleHistoryLogQuery {
 		if ( false !== $arr_return ) {
 			return $arr_return;
 		}
-		#var_dump($arr_return);
 
 		/*
 		Subequent occasions query thanks to this Stack Overflow thread:

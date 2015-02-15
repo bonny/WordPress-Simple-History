@@ -234,6 +234,7 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem__senderImage {
+	position: relative;
 	border-radius: 50%;
 	overflow: hidden;
 	/*opacity: .8;*/
@@ -771,6 +772,7 @@ Modal window with detailss
 /** wordpress as initiator = add wordpress icon */
 /** anonymous user as initiator = plain user image */
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
@@ -779,8 +781,23 @@ Modal window with detailss
 	color: #999;
 }
 
-.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before {
+.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before {
 	content: "\f120";
+}
+
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:after {
+	content: "CLI";
+	position: absolute;
+	background: rgba(255, 255, 255, 0.7);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	line-height: 36px;
+	text-align: center;
+	font-family: monospace;
+	font-sIze: 12px;
 }
 
 .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {

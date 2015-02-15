@@ -119,6 +119,49 @@ class SimpleHistory {
 		 * @param SimpleHistory $SimpleHistory This class.
 		 */
 		do_action("simple_history/after_init", $this);
+		
+		/*add_filter("simple_history/log_arguments", function( $level, & $message, & $context, $logger ) {
+
+			// var_dump($logger->slug);
+			$context["_debug_get"] = $_GET;
+			$context["_debug_post"] = $_POST;
+			$message = "apa";
+
+		}, 10, 4);*/
+
+		// @todo run this when a debug const is defined and true
+		add_filter("simple_history/log_argument/context", function($context, $level, $message, $logger) {
+
+			$context["_debug_get"] = $this->json_encode( $_GET );
+			$context["_debug_post"] = $this->json_encode( $_POST );
+			$context["_debug_server"] = $this->json_encode( $_SERVER );
+			$context["_debug_php_sapi_name"] = php_sapi_name();
+
+			global $argv;
+			$context["_debug_argv"] = $this->json_encode( $argv );
+
+			// $context["_debug_env"] = $this->json_encode( $_ENV );
+			
+			$context["_debug_constants"] = $this->json_encode( get_defined_constants(true) );
+
+			/*
+			When WP CLI is used then these seems to be available:
+			"WP_CLI_PHP_USED": "\/Applications\/MAMP\/bin\/php\/php5.6.2\/bin\/\/php", 
+			"PHP_SELF": "\/Users\/bonny\/.composer\/vendor\/wp-cli\/wp-cli\/bin\/..\/php\/boot-fs.php",
+			"SCRIPT_NAME": "\/Users\/bonny\/.composer\/vendor\/wp-cli\/wp-cli\/bin\/..\/php\/boot-fs.php",
+			"SCRIPT_FILENAME": "\/Users\/bonny\/.composer\/vendor\/wp-cli\/wp-cli\/bin\/..\/php\/boot-fs.php",
+			"PATH_TRANSLATED": "\/Users\/bonny\/.composer\/vendor\/wp-cli\/wp-cli\/bin\/..\/php\/boot-fs.php",
+			"DOCUMENT_ROOT": "\/Users\/bonny\/Documents\/Sites\/wp-playground-root.ep", 
+			"argv": [ "\/Users\/bonny\/.composer\/vendor\/wp-cli\/wp-cli\/bin\/..\/php\/boot-fs.php", "plugin", "toggle", "jetpack" ],
+
+			// When running from command line then sapi name = "cli"
+			_debug_php_sapi_name	cli
+
+			*/
+
+			return $context;
+
+		}, 10, 4);
 
 	}
 
