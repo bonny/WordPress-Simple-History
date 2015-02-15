@@ -99,6 +99,10 @@
 	border-top: 0;
 }
 
+.SimpleHistoryIpInfoDropin__ipInfoTable__mapRow a {
+	display: inline-block;
+}
+
 .SimpleHistoryIpInfoDropin__ipInfoTable__mapRow td {
 	padding: 0;
 }

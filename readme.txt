@@ -111,9 +111,10 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Added: changes via [WP-CLI](http://wp-cli.org) is now detected (was previously shown as "other").
 - Added: severity level (info, warning, debug, etc.) of event is includes in the RSS output.
 - Changed the way user login is logged. Should fix https://github.com/bonny/WordPress-Simple-History/issues/40 + possible more related issues.
-- Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage.
+- Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage. Fixes https://wordpress.org/support/topic/stop-logging-certain-types-of-activity.
 - Added: now uses object caching at some places. Should speed up some parts of the plugin for users with caching enabled.
 - Fixed: IP info popup can now be closed with `esc`.
 - Fixed: works better on small screens + misc other style related fixes.
