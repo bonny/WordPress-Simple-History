@@ -3,7 +3,7 @@
 Plugin Name: Simple History
 Plugin URI: http://simple-history.com
 Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
-Version: 2.0.19
+Version: 2.0.20
 Author: Pär Thernström
 Author URI: http://simple-history.com/
 License: GPL2

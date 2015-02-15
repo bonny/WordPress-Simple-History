@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.19
+Stable tag: 2.0.20
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -110,6 +110,8 @@ initiated by a specific user.
 4. Click on the IP address of an entry to view the location of for example a failed login attempt.
 
 == Changelog ==
+
+= 2.0.20 (February 2015) =
 
 - Added: changes via [WP-CLI](http://wp-cli.org) is now detected (was previously shown as "other").
 - Added: severity level (info, warning, debug, etc.) of event is includes in the RSS output.
