@@ -117,7 +117,7 @@ initiated by a specific user.
 - Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage. Fixes https://wordpress.org/support/topic/stop-logging-certain-types-of-activity.
 - Added: now uses object caching at some places. Should speed up some parts of the plugin for users with caching enabled.
 - Fixed: IP info popup can now be closed with `esc`.
-- Fixed: works better on small screens + misc other style related fixes.
+- Fixed: works better on small screens (like mobile phones) + misc other style related fixes.
 
 = 2.0.19 (February 2015) =
 
