@@ -1047,10 +1047,12 @@ class SimpleLogger {
 
 		$this->lastInsertID = $history_inserted_id;
 
+		$this->simpleHistory->get_cache_incrementor(true);
+
 		// Return $this so we can chain methods
 		return $this;
 
-	}// log
+	} // log
 
 	/**
 	 * Ensures an ip address is both a valid IP and does not fall within

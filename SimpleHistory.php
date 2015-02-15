@@ -1517,6 +1517,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 			)
 		);
 
+		$this->get_cache_incrementor(true);
+
 	}
 
 	/**
@@ -1611,6 +1613,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 				"num_rows" => sizeof($ids_to_delete),
 			)
 		);
+
+		$this->get_cache_incrementor(true);
 
 	}
 
