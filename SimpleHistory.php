@@ -134,7 +134,9 @@ class SimpleHistory {
 				global $argv;
 				$context["_debug_argv"] = $sh->json_encode( $argv );
 
-				$context["_debug_constants"] = $sh->json_encode( get_defined_constants(true) );
+				$consts = get_defined_constants(true);
+				$consts = $consts["user"];
+				$context["_debug_user_constants"] = $sh->json_encode( $consts );
 
 				return $context;
 
