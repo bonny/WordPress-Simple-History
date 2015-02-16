@@ -111,6 +111,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Changed: RSS feed now has loglevel of event prepended to the title.
+
 = 2.0.20 (February 2015) =
 
 - Added: changes via [WP-CLI](http://wp-cli.org) is now detected (was previously shown as "other").
