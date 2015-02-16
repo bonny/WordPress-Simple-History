@@ -138,6 +138,8 @@ class SimpleHistory {
 				$consts = $consts["user"];
 				$context["_debug_user_constants"] = $sh->json_encode( $consts );
 
+				$context["_debug_http_raw_post_data"] = $sh->json_encode( $HTTP_RAW_POST_DATA );
+
 				return $context;
 
 			}, 10, 4);
