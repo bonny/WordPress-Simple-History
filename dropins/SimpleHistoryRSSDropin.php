@@ -181,7 +181,7 @@ class SimpleHistoryRSSDropin {
 							$item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;
 
 							#$item_title = wp_kses( $header_output . ": " . $text_output, array() );
-							$item_title = wp_kses( $text_output, array() );
+							$item_title = $this->sh->getLogLevelTranslated( $row->level ) . ": " . wp_kses( $text_output, array() );
 
 							$level_output = sprintf( __('Severity level: %1$s'), $this->sh->getLogLevelTranslated( $row->level ));
 
