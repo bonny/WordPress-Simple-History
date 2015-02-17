@@ -112,6 +112,7 @@ initiated by a specific user.
 == Changelog ==
 
 - Changed: RSS feed now has loglevel of event prepended to the title.
+- Changed: Options logger: show only first 250 chars of new and old option value.
 
 = 2.0.20 (February 2015) =
 
