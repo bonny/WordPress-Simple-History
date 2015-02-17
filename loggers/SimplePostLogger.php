@@ -117,6 +117,7 @@ class SimplePostLogger extends SimpleLogger
 
 		add_action('xmlrpc_call_success_blogger_deletePost', array($this, "on_xmlrpc_deletePost"), 10, 2);
 		add_action('xmlrpc_call_success_wp_deletePage', array($this, "on_xmlrpc_deletePost"), 10, 2);
+		// wp.deletePost'
 
 	}
 
@@ -184,6 +185,8 @@ class SimplePostLogger extends SimpleLogger
 	 * @param array $args    An array of arguments to delete the post.
 	 */
 	function on_xmlrpc_deletePost($post_ID, $args) {
+
+		$this->debug('on_xmlrpc_deletePost');
 
 		$post = get_post( $post_ID );
 
