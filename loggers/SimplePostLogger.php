@@ -157,6 +157,14 @@ class SimplePostLogger extends SimpleLogger
 		add_action('xmlrpc_call_success_blogger_deletePost', array($this, "on_xmlrpc_deletePost"), 10, 2);
 		add_action('xmlrpc_call_success_wp_deletePage', array($this, "on_xmlrpc_deletePost"), 10, 2);
 
+		//add_action( 'xmlrpc_call', 'metaWeblog.editPost' );
+		//SimpleLogger()->debug("yo 16");
+		//SimpleLogger()->debug("yo 16");
+		add_action('xmlrpc_call_success_mw_editPost', function($a, $b) {
+			SimpleLogger()->debug("inside xmlrpc_call_success_mw_editPost");
+		}, 10, 2);
+
+
 	}
 
 	/**
