@@ -92,6 +92,14 @@ class SimplePostLogger extends SimpleLogger
 	public function loaded() {
 
 		add_action("admin_init", array($this, "on_admin_init"));
+		add_action("plugins_loaded", array($this, "on_plugins_loaded"));
+
+	}
+
+	/**
+	 * Filters to XML RPC calls needs to be added earlier
+	 */
+	function on_plugins_loaded() {
 
 		add_action('xmlrpc_call_success_mw_editPost', function($a, $b) {
 
@@ -99,6 +107,16 @@ class SimplePostLogger extends SimpleLogger
 			SimpleLogger()->debug("inside xmlrpc_call_success_mw_editPost");
 
 		}, 10, 2);
+
+		add_action('xmlrpc_call_success_blogger_newPost', array($this, "on_xmlrpc_newPost"), 10, 2);
+		add_action('xmlrpc_call_success_mw_newPost', array($this, "on_xmlrpc_newPost"), 10,2 );
+
+		add_action('xmlrpc_call_success_blogger_editPost', array($this, "on_xmlrpc_editPost"), 10, 2);
+		add_action('xmlrpc_call_success_mw_editPost', array($this, "on_xmlrpc_editPost"), 10, 2);
+
+		add_action('xmlrpc_call_success_blogger_deletePost', array($this, "on_xmlrpc_deletePost"), 10, 2);
+		add_action('xmlrpc_call_success_wp_deletePage', array($this, "on_xmlrpc_deletePost"), 10, 2);
+
 
 	}
 
@@ -154,19 +172,6 @@ class SimplePostLogger extends SimpleLogger
 		add_action("transition_post_status", array($this, "on_transition_post_status"), 10, 3);
 		add_action("delete_post", array($this, "on_delete_post"));
 		add_action("untrash_post", array($this, "on_untrash_post"));
-
-		#add_action('xmlrpc_call_success_blogger_newPost', array($this, "on_xmlrpc_newPost"), 10, 2);
-		#add_action('xmlrpc_call_success_mw_newPost', array($this, "on_xmlrpc_newPost"), 10,2 );
-
-		#add_action('xmlrpc_call_success_blogger_editPost', array($this, "on_xmlrpc_editPost"), 10, 2);
-		#add_action('xmlrpc_call_success_mw_editPost', array($this, "on_xmlrpc_editPost"), 10, 2);
-
-		#add_action('xmlrpc_call_success_blogger_deletePost', array($this, "on_xmlrpc_deletePost"), 10, 2);
-		#add_action('xmlrpc_call_success_wp_deletePage', array($this, "on_xmlrpc_deletePost"), 10, 2);
-
-		//add_action( 'xmlrpc_call', 'metaWeblog.editPost' );
-		//SimpleLogger()->debug("yo 16");
-		//SimpleLogger()->debug("yo 16");
 
 	}
 
