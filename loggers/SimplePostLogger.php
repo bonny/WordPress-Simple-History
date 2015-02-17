@@ -92,15 +92,10 @@ class SimplePostLogger extends SimpleLogger
 	public function loaded() {
 
 		add_action("admin_init", array($this, "on_admin_init"));
-		add_action("plugins_loaded", array($this, "on_plugins_loaded"));
 
-	}
-
-	/**
-	 * Filters to XML RPC calls needs to be added earlier
-	 */
-	function on_plugins_loaded() {
-
+		/**
+		 * Filters to XML RPC calls needs to be added earlier
+		 */
 		add_action('xmlrpc_call_success_mw_editPost', function($a, $b) {
 
 			error_log("yo!");
@@ -116,7 +111,6 @@ class SimplePostLogger extends SimpleLogger
 
 		add_action('xmlrpc_call_success_blogger_deletePost', array($this, "on_xmlrpc_deletePost"), 10, 2);
 		add_action('xmlrpc_call_success_wp_deletePage', array($this, "on_xmlrpc_deletePost"), 10, 2);
-
 
 	}
 
