@@ -93,6 +93,13 @@ class SimplePostLogger extends SimpleLogger
 
 		add_action("admin_init", array($this, "on_admin_init"));
 
+		add_action('xmlrpc_call_success_mw_editPost', function($a, $b) {
+
+			error_log("yo!");
+			SimpleLogger()->debug("inside xmlrpc_call_success_mw_editPost");
+
+		}, 10, 2);
+
 	}
 
 	/**
@@ -160,13 +167,6 @@ class SimplePostLogger extends SimpleLogger
 		//add_action( 'xmlrpc_call', 'metaWeblog.editPost' );
 		//SimpleLogger()->debug("yo 16");
 		//SimpleLogger()->debug("yo 16");
-		add_action('xmlrpc_call_success_mw_editPost', function($a, $b) {
-
-			error_log("yo!");
-			SimpleLogger()->debug("inside xmlrpc_call_success_mw_editPost");
-
-		}, 10, 2);
-
 
 	}
 
