@@ -111,6 +111,7 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Added: Updates via XML RPC are not logged, for example when using the WordPress app for iOS or Android.
 - Changed: RSS feed now has loglevel of event prepended to the title.
 - Changed: Options logger: show only first 250 chars of new and old option value.
 
