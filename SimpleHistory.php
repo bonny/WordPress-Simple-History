@@ -147,12 +147,6 @@ class SimpleHistory {
 
 		}
 
-
-		// Test: log XML-RPC requests
-		add_action("xmlrpc_call", function($method) {
-			SimpleLogger()->debug("XML-RPC call for method '{method}'", array("method" => $method));
-		}, 10, 1);
-
 	}
 
 	function filter_gettext_storeLatestTranslations($translation, $text, $domain) {
