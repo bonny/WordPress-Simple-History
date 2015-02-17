@@ -103,11 +103,11 @@ class SimplePostLogger extends SimpleLogger
 	function add_xml_rpc_hooks() {
 
 		// Debug: log all XML-RPC requests
-		/*
+		
 		add_action("xmlrpc_call", function($method) {
 			SimpleLogger()->debug("XML-RPC call for method '{method}'", array("method" => $method));
 		}, 10, 1);
-		*/
+		
 
 		add_action('xmlrpc_call_success_blogger_newPost', array($this, "on_xmlrpc_newPost"), 10, 2);
 		add_action('xmlrpc_call_success_mw_newPost', array($this, "on_xmlrpc_newPost"), 10,2 );
