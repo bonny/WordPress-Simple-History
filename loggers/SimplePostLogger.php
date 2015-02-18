@@ -126,16 +126,18 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	function on_xmlrpc_call($method) {
+		
+		$sh = $GLOBALS["simple_history"];
 
 		if ( "wp.deletePost" == $method ) {
 
-			if ( isset( $_SERVER["REQUEST_METHOD"] ) && $_SERVER["REQUEST_METHOD"] == "POST") {
+			#if ( isset( $_SERVER["REQUEST_METHOD"] ) && $_SERVER["REQUEST_METHOD"] == "POST") {
 
 				$raw_post_data = file_get_contents("php://input");
 				$context["wp.deletePost.xmldata"] = $sh->json_encode( $raw_post_data );
 				$context["wp.deletePost.xmldata_decoded"] = $sh->json_encode( xmlrpc_decode( $raw_post_data, 'UTF-8' ) );
 				
-			}
+			#}
 
 			/*
 			"<?xml version=\"1.0\"?><methodCall><methodName>wp.deletePost<\/methodName><params><param><value><i4>0<\/i4><\/value><\/param><param><value><string>par<\/string><\/value><\/param><param><value><string>filippa<\/string><\/value><\/param><param><value><i4>6750<\/i4><\/value><\/param><\/params><\/methodCall>"
