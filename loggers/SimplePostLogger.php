@@ -117,9 +117,24 @@ class SimplePostLogger extends SimpleLogger
 
 		add_action('xmlrpc_call_success_blogger_deletePost', array($this, "on_xmlrpc_deletePost"), 10, 2);
 		add_action('xmlrpc_call_success_wp_deletePage', array($this, "on_xmlrpc_deletePost"), 10, 2);
-		// wp.deletePost'
+		
+		// detect "raw" calls
+		// wp.deletePost' because mv_deletePost does not exist
+		// use raw xmlrpc method calls to filter instead of the above?
+		add_action("xmlrpc_call", array($this, "on_xmlrpc_call"), 10, 1);
 
 	}
+
+	function on_xmlrpc_call($method) {
+
+		if ( "wp.deletePost" == $method ) {
+
+			SimpleLogger()->info("hey there wp.deletePost");
+			
+		}
+
+	}
+
 
 	/**
 	 * Get array with information about this logger
@@ -185,8 +200,6 @@ class SimplePostLogger extends SimpleLogger
 	 * @param array $args    An array of arguments to delete the post.
 	 */
 	function on_xmlrpc_deletePost($post_ID, $args) {
-
-		$this->debug('on_xmlrpc_deletePost');
 
 		$post = get_post( $post_ID );
 
