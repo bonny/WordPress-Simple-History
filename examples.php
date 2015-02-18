@@ -3,6 +3,15 @@
 // No external calls allowed
 exit;
 
+
+/**
+ * Misc
+ */
+
+// Add $_GET, $_POST, and more info to each logged event
+define("SIMPLE_HISTORY_LOG_DEBUG", true);
+
+
 /**
  * Some examples of filter usage and so on
  */
