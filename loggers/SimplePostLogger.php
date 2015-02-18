@@ -138,7 +138,7 @@ class SimplePostLogger extends SimpleLogger
 				#$context["wp.deletePost.xmldata_decoded"] = $sh->json_encode( xmlrpc_decode( $raw_post_data, 'UTF-8' ) );
 
 				$message = new IXR_Message( $raw_post_data );
-				if ( $this->message->parse() ) {
+				if ( $message->parse() ) {
 					
 					$context["wp.deletePost.xmlrpc_message"] = $sh->json_encode( $message );
 
