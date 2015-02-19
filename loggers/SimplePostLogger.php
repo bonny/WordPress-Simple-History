@@ -151,7 +151,7 @@ class SimplePostLogger extends SimpleLogger
 			"<?xml version=\"1.0\"?><methodCall><methodName>wp.deletePost<\/methodName><params><param><value><i4>0<\/i4><\/value><\/param><param><value><string>par<\/string><\/value><\/param><param><value><string>filippa<\/string><\/value><\/param><param><value><i4>6750<\/i4><\/value><\/param><\/params><\/methodCall>"
 			*/
 
-			SimpleLogger()->info("hey there wp.deletePost");
+			SimpleLogger()->info("hey there wp.deletePost", $context);
 
 		}
 
