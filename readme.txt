@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.20
+Stable tag: 2.0.21
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -110,6 +110,8 @@ initiated by a specific user.
 4. Click on the IP address of an entry to view the location of for example a failed login attempt.
 
 == Changelog ==
+
+= 2.0.21 (February 2015) =
 
 - Added: Updates via XML RPC are now logged, for example when using the WordPress app for iOS or Android. Supported actions for now is post/page created, edited, deleted, and media uploads.
 - Added: `_xmlrpc_request` is added to context of event when an event is initiated through a XML-RPC all.
