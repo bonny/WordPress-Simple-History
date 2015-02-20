@@ -92,11 +92,11 @@ class SimplePostLogger extends SimpleLogger
 	function add_xml_rpc_hooks() {
 
 		// Debug: log all XML-RPC requests
-		
+		/*
 		add_action("xmlrpc_call", function($method) {
 			SimpleLogger()->debug("XML-RPC call for method '{method}'", array("method" => $method));
 		}, 10, 1);
-		
+		*/
 
 		add_action('xmlrpc_call_success_blogger_newPost', array($this, "on_xmlrpc_newPost"), 10, 2);
 		add_action('xmlrpc_call_success_mw_newPost', array($this, "on_xmlrpc_newPost"), 10,2 );
@@ -107,17 +107,12 @@ class SimplePostLogger extends SimpleLogger
 		add_action('xmlrpc_call_success_blogger_deletePost', array($this, "on_xmlrpc_deletePost"), 10, 2);
 		add_action('xmlrpc_call_success_wp_deletePage', array($this, "on_xmlrpc_deletePost"), 10, 2);
 
-		// detect "raw" calls
-		// wp.deletePost' because mv_deletePost does not exist
-		// use raw xmlrpc method calls to filter instead of the above?
 		add_action("xmlrpc_call", array($this, "on_xmlrpc_call"), 10, 1);
 
 	}
 
 	function on_xmlrpc_call($method) {
 		
-		#$sh = $GLOBALS["simple_history"];
-
 		$arr_methods_to_act_on = array(
 			"wp.deletePost"
 		);
@@ -165,9 +160,7 @@ class SimplePostLogger extends SimpleLogger
 
 			} // if delete post
 
-
 		}
-
 
 	}
 
