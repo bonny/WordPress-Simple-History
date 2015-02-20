@@ -127,7 +127,7 @@ class SimplePostLogger extends SimpleLogger
 
 	function on_xmlrpc_call($method) {
 		
-		$sh = $GLOBALS["simple_history"];
+		#$sh = $GLOBALS["simple_history"];
 
 		$arr_methods_to_act_on = array(
 			"wp.deletePost"
@@ -141,12 +141,17 @@ class SimplePostLogger extends SimpleLogger
 
 			// Setup common stuff
 			$raw_post_data = file_get_contents("php://input");
-			$context["wp.deletePost.xmldata"] = $sh->json_encode( $raw_post_data );
+			$context["wp.deletePost.xmldata"] = $this->simpleHistory->json_encode( $raw_post_data );
 			$message = new IXR_Message( $raw_post_data );
 
 			if ( ! $message->parse() ) {
 				return;
 			}
+
+			$context["wp.deletePost.xmlrpc_message"] = $this->simpleHistory->json_encode( $message );
+			$context["wp.deletePost.xmlrpc_message.messageType"] = $this->simpleHistory->json_encode( $message->messageType );
+			$context["wp.deletePost.xmlrpc_message.methodName"] = $this->simpleHistory->json_encode( $message->methodName );
+			$context["wp.deletePost.xmlrpc_message.messageParams"] = $this->simpleHistory->json_encode( $message->params );
 
 			// Actions for delete post
 			if ( "wp.deletePost" == $method ) {
@@ -166,16 +171,10 @@ class SimplePostLogger extends SimpleLogger
 					"post_title" => get_the_title( $post )
 				);
 
-				$this->infoMessage( "post_deleted", $context );
+				$this->infoMessage( "post_trashed", $context );
 				
-				$context["wp.deletePost.xmlrpc_message"] = $sh->json_encode( $message );
-				$context["wp.deletePost.xmlrpc_message.messageType"] = $sh->json_encode( $message->messageType );
-				$context["wp.deletePost.xmlrpc_message.methodName"] = $sh->json_encode( $message->methodName );
-				$context["wp.deletePost.xmlrpc_message.messageParams"] = $sh->json_encode( $message->params );
 
-				// SimpleLogger()->info("hey there wp.deletePost", $context);
-
-			}
+			} // if delete post
 
 
 		}
