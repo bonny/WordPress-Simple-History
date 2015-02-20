@@ -111,9 +111,11 @@ initiated by a specific user.
 
 == Changelog ==
 
-- Added: Updates via XML RPC are not logged, for example when using the WordPress app for iOS or Android.
+- Added: Updates via XML RPC are now logged, for example when using the WordPress app for iOS or Android.
+- Added: `_xmlrpc_request` is added to context of event when an event is initiated through a XML-RPC all.
 - Changed: RSS feed now has loglevel of event prepended to the title.
 - Changed: Options logger: show only first 250 chars of new and old option value.
+- Added: If constant SIMPLE_HISTORY_LOG_DEBUG is defined and true automatically adds $_GET, $_POST, and more info to each logged event. Mostly useful for the developer, but maybe some of you are a bit paranoid and want it too.
 
 = 2.0.20 (February 2015) =
 
