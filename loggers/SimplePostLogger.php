@@ -68,17 +68,6 @@
 
 
 
-		/**
-		 * Fires after a new attachment has been added via the XML-RPC MovableType API.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param int   $id   ID of the new attachment.
-		 * @param array $args An array of arguments to add the attachment.
-		 */
-#		do_action( 'xmlrpc_call_success_mw_newMediaObject', $id, $args );
-
-
 
 /**
  * Logs changes to posts and pages, including custom post types
@@ -117,7 +106,7 @@ class SimplePostLogger extends SimpleLogger
 
 		add_action('xmlrpc_call_success_blogger_deletePost', array($this, "on_xmlrpc_deletePost"), 10, 2);
 		add_action('xmlrpc_call_success_wp_deletePage', array($this, "on_xmlrpc_deletePost"), 10, 2);
-		
+
 		// detect "raw" calls
 		// wp.deletePost' because mv_deletePost does not exist
 		// use raw xmlrpc method calls to filter instead of the above?
