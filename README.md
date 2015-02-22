@@ -13,7 +13,7 @@ This screenshot show the log view + it also shows the filter function in use: th
 are of type post and pages and media (i.e. images & other uploads), and only events
 initiated by a specific user.
 
-![Simple History screenshot](https://raw.githubusercontent.com/bonny/WordPress-Simple-History/master/screenshot-1.png)
+![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-1.png)
 
 ## Events with different severity
 
