@@ -43,7 +43,7 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	// register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
 	/** Boot up */
-	$GLOBALS["simple_history"] = new SimpleHistory();
+	SimpleHistory::get_instance();
 
 } else {
 

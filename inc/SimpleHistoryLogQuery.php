@@ -158,7 +158,7 @@ class SimpleHistoryLogQuery {
 				%2$s
 			';
 
-			$sh = $GLOBALS["simple_history"];
+			$sh = SimpleHistory::get_instance();
 
 			// Only include loggers that the current user can view		
 			$sql_loggers_user_can_view = $sh->getLoggersThatUserCanRead(get_current_user_id(), "sql");

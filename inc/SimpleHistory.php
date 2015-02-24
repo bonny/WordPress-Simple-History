@@ -9,6 +9,11 @@ class SimpleHistory {
 	const VERSION = "2.0.21";
 
 	/**
+	 * For singleton
+	 */
+	private static $instance;
+
+	/**
 	 * Capability required to view the history log
 	 */
 	private $view_history_capability;
@@ -125,7 +130,7 @@ class SimpleHistory {
 
 			add_filter("simple_history/log_argument/context", function($context, $level, $message, $logger) {
 
-				$sh = $GLOBALS["simple_history"];
+				$sh = SimpleHistory::get_instance();
 				$context["_debug_get"] = $sh->json_encode( $_GET );
 				$context["_debug_post"] = $sh->json_encode( $_POST );
 				$context["_debug_server"] = $sh->json_encode( $_SERVER );
@@ -146,6 +151,22 @@ class SimpleHistory {
 			}, 10, 4);
 
 		}
+
+	}
+
+	/**
+	 * Get singleton intance
+	 * @return SimpleHistory instance
+	 */
+	public static function get_instance() {
+
+		if ( ! isset( self::$instance ) ) {
+			
+			self::$instance = new SimpleHistory();
+
+		}
+
+		return self::$instance;
 
 	}
 
@@ -2483,7 +2504,7 @@ foreach ($arr_settings_tabs as $one_tab) {
  * SimpleLogger()->info("This is a message sent to the log");
  */
 function SimpleLogger() {
-        return new SimpleLogger( $GLOBALS["simple_history"] );
+	return new SimpleLogger( SimpleHistory::get_instance() );
 }
 
 
@@ -2496,20 +2517,20 @@ function SimpleLogger() {
  */
 function simple_history_add($args) {
 
-        $defaults = array(
-                "action" => null,
-                "object_type" => null,
-                "object_subtype" => null,
-                "object_id" => null,
-                "object_name" => null,
-                "user_id" => null,
-                "description" => null
-        );
+	$defaults = array(
+		"action"         => null,
+		"object_type"    => null,
+		"object_subtype" => null,
+		"object_id"      => null,
+		"object_name"    => null,
+		"user_id"        => null,
+		"description"    => null
+	);
 
-        $context = wp_parse_args( $args, $defaults );
+	$context = wp_parse_args( $args, $defaults );
 
-        $message = "{$context["object_type"]} {$context["object_name"]} {$context["action"]}";
+	$message = "{$context["object_type"]} {$context["object_name"]} {$context["action"]}";
 
-        SimpleLogger()->info($message, $context);
+	SimpleLogger()->info($message, $context);
 
 } // simple_history_add
