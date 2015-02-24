@@ -1,0 +1,28 @@
+
+.SimpleHistory__pageSidebar {
+	float: right;
+	width: 300px;
+	margin-right: -340px;
+}
+
+@media only screen and (max-width: 850px) {
+	.SimpleHistory__pageSidebar {
+		width: 100%;
+		float: none;
+		margin-right: auto;
+		margin-top: 20px;
+	}	
+}
+
+.SimpleHistory__pageSidebar .inside {
+	margin-bottom: 0;
+}
+
+.SimpleHistory__pageSidebar .metabox-holder {
+	padding-top: 0 !important;
+}
+
+.SimpleHistory__pageSidebar .postbox .hndle {
+	cursor: auto;
+}
+

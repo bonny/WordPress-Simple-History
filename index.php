@@ -3,7 +3,7 @@
 Plugin Name: Simple History
 Plugin URI: http://simple-history.com
 Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
-Version: 2.0.15
+Version: 2.0.21
 Author: Pär Thernström
 Author URI: http://simple-history.com/
 License: GPL2
@@ -25,12 +25,15 @@ License: GPL2
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
+
 if ( version_compare( phpversion(), "5.3", ">=") ) {
 
 	/** Load required files */
-	require_once(__DIR__ . "/SimpleHistory.php");
-	require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
-	require_once(__DIR__ . "/SimpleHistoryFunctions.php");
+	require_once(__DIR__ . "/inc/SimpleHistory.php");
+	require_once(__DIR__ . "/inc/SimpleHistoryLogQuery.php");
 
 	/**
 	 * Register function that is called when plugin is installed
@@ -62,49 +65,3 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	}
 
 }
-
-// Test log cron things
-/*
-wp_schedule_event( time(), "hourly", "simple_history_cron_testhook");
-*/
-/*
-wp_clear_scheduled_hook("simple_history_cron_testhook");
-add_action( 'simple_history_cron_testhook', 'simple_history_cron_testhook_function' );
-function simple_history_cron_testhook_function() {
-	SimpleLogger()->info("This is a message inside a cron function");
-}
-*/
-
-/*
-add_action("init", function() {
-
-	global $wp_current_filter;
-
-	$doing_cron = get_transient( 'doing_cron' );
-	$const_doing_cron = defined('DOING_CRON') && DOING_CRON;
-
-	if ($const_doing_cron) {
-
-		$current_filter = current_filter();
-
-		SimpleLogger()->info("This is a message inside init, trying to log crons", array(
-			"doing_cron" => simpleHistory::json_encode($doing_cron),
-			"current_filter" => $current_filter,
-			"wp_current_filter" => $wp_current_filter,
-			"wp_current_filter" => simpleHistory::json_encode( $wp_current_filter ),
-			"const_doing_cron" => simpleHistory::json_encode($const_doing_cron)
-		));
-
-	}
-
-}, 100);
-*/
-
-
-/*
-add_action("init", function() {
-
-	#SimpleLogger()->info("This is a regular info message" . time());
-
-}, 100);
-// */

@@ -11,7 +11,7 @@ The spinner that wp uses:;
 .SimpleHistory__cf:after { clear:both; }
 .SimpleHistory__cf { zoom:1; } /* For IE 6/7 (trigger hasLayout) */
 
-.SimpleHistoryGui, 
+.SimpleHistoryGui,
 .SimpleHistoryGuiExample {
 	position: relative;
 	/* must have a height so "loading..." will be visible in dashboard */
@@ -37,7 +37,7 @@ The spinner that wp uses:;
 	transition: opacity .1s ease-out;
 }
 
-/* on it's own page */
+/* on its own page */
 /*.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {*/
 .dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
 	/*float: left;*/
@@ -53,8 +53,20 @@ The spinner that wp uses:;
 
 .dashboard_page_simple_history_page .SimpleHistoryGui {
 	width: 100%;
-	float: left;background: tran
+	float: left;
 }
+
+@media only screen and (max-width: 850px) {
+	.dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
+		float: none;
+		margin-right: auto;
+	}
+	.dashboard_page_simple_history_page .SimpleHistoryGui {
+		float: none;
+	}
+}
+
+
 
 /*
 .SimpleHistoryGui:after {
@@ -71,20 +83,6 @@ The spinner that wp uses:;
 	display: none;
 }
 */
-
-.SimpleHistory__filters {
-	float: right;
-	width: 300px;
-	margin-right: -340px;
-	/* hide by default while log is loading */
-	opacity: 0;
-	transition: all .25s ease-out;
-}
-
-.SimpleHistory--isLoaded .SimpleHistory__filters {
-	opacity: 1;
-}
-
 
 .SimpleHistoryLogitems {
 	margin: 0;
@@ -103,7 +101,7 @@ The spinner that wp uses:;
 
 /**
  * Log items
- * There is always a 4px left border, just with differents colors 
+ * There is always a 4px left border, just with differents colors
  */
 .SimpleHistoryLogitem {
 	position: relative;
@@ -111,7 +109,7 @@ The spinner that wp uses:;
 	margin: 0;
 	padding: 20px 20px 20px 16px;
 	/*border-bottom: 1px solid rgb(229, 229, 229);*/
-	
+
 	/* uncomment to show border with log color */
 	/*border-left: 4px solid transparent;*/
 
@@ -236,6 +234,7 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem__senderImage {
+	position: relative;
 	border-radius: 50%;
 	overflow: hidden;
 	/*opacity: .8;*/
@@ -307,7 +306,7 @@ Style different log levels.
 
 /* table with keys and values */
 /*.SimpleHistoryLogitem__keyValueTable {
-	
+
 }*/
 
 .SimpleHistoryLogitem__keyValueTable th,
@@ -357,25 +356,29 @@ Style different log levels.
 Images/thumbs can be styles nicely
 */
 .SimpleHistoryLogitemThumbnail {
-				display: inline-block;
-				margin: .5em 0 0 0;
-					padding: 5px;
-				border: 1px solid #ddd;
-				border-radius: 2px;
+	display: inline-block;
+	margin: .5em 0 0 0;
+	padding: 5px;
+	border: 1px solid #ddd;
+	border-radius: 2px;
 
 }
 
+.SimpleHistoryLogitemThumbnailLink {
+	display: inline-block;
+}
+
 .SimpleHistoryLogitemThumbnail img {
-				/*
-				photoshop-like background that represents tranpsarency
-				so user can see that an image have transparency
-				*/
-				display: block;
-				background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
-				max-width: 100%;
-				max-height: 300px;
-				max-height: 200px;
-				height: auto;
+	/*
+	photoshop-like background that represents transparency
+	so user can see that an image have transparency
+	*/
+	display: block;
+	background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
+	max-width: 100%;
+	max-height: 300px;
+	max-height: 200px;
+	height: auto;
 }
 
 
@@ -469,7 +472,7 @@ when occasions are added
 
 
 /*
-customizations for the dashboard 
+customizations for the dashboard
 i.e. the log is inside a .postbox element
 */
 
@@ -524,10 +527,17 @@ i.e. the log is inside a .postbox element
 		margin-bottom: 0;
 	}
 
-	.postbox .SimpleHistoryLogitem__text, 
-	.postbox .SimpleHistoryLogitem__details, 
+	.postbox .SimpleHistoryLogitem__text,
+	.postbox .SimpleHistoryLogitem__details,
 	.postbox .SimpleHistoryLogitem__details p {
 		line-height: 1.1;
+	}
+
+	.postbox .SimpleHistoryPaginationLink,
+	.postbox .SimpleHistoryPaginationCurrentPage {
+		font-size: 13px;
+		line-height: 19px;
+		height: 24px;
 	}
 
 	/*
@@ -660,6 +670,7 @@ Modal window with detailss
 .folded .SimpleHistory-modal__content {
 	left: 156px /* admin meny width is 160 px*/
 }
+
 @media only screen and (max-width: 900px) {
 	.SimpleHistory-modal__content {
 		left: 156px /* admin meny width is 160 px*/
@@ -761,6 +772,7 @@ Modal window with detailss
 /** wordpress as initiator = add wordpress icon */
 /** anonymous user as initiator = plain user image */
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
@@ -769,8 +781,23 @@ Modal window with detailss
 	color: #999;
 }
 
-.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before {
+.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before {
 	content: "\f120";
+}
+
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:after {
+	content: "CLI";
+	position: absolute;
+	background: rgba(255, 255, 255, 0.7);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	line-height: 36px;
+	text-align: center;
+	font-family: monospace;
+	font-sIze: 12px;
 }
 
 .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
@@ -819,5 +846,10 @@ Modal window with detailss
 
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
 	display: block;
+}
+
+.postbox .SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
+	margin-left: 13px;
+	margin-right: 13px;
 }
 

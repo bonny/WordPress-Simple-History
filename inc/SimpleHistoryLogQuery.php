@@ -70,6 +70,14 @@ class SimpleHistoryLogQuery {
 		$args = wp_parse_args( $args, $defaults );
 		// sf_d($args, "Run log query with args");
 
+		$cache_key = "SimpleHistoryLogQuery_" . md5(serialize( $args )) . "_get_" . md5(serialize( $_GET )) . "_userid_" . get_current_user_id();
+		$cache_group =  "simple-history-" . SimpleHistory::get_cache_incrementor();
+		$arr_return = wp_cache_get($cache_key, $cache_group);
+		
+		if ( false !== $arr_return ) {
+			return $arr_return;
+		}
+
 		/*
 		Subequent occasions query thanks to this Stack Overflow thread:
 		http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
@@ -733,6 +741,8 @@ class SimpleHistoryLogQuery {
 		);
 
 		#sf_d($arr_return, '$arr_return');exit;
+
+		wp_cache_set($cache_key, $arr_return, $cache_group);
 
 		return $arr_return;
 	

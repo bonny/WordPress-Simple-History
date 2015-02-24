@@ -147,7 +147,15 @@ class SimplePluginLogger extends SimpleLogger
 
 		//do_action( 'current_screen', $current_screen );
 		// The first hook where current screen is available
-		add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
+		//add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
+
+		/**
+		 * At least the plugin bulk upgrades fires this action before upgrade
+		 * We use it to fetch the current version of all plugins, before they are upgraded
+		 */
+		add_filter( 'upgrader_pre_install', array( $this, "save_versions_before_update"), 10, 2);
+
+		// Clear our transient after an update is done
 		add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
 
 		// Fires after a plugin has been activated.
@@ -159,7 +167,6 @@ class SimplePluginLogger extends SimpleLogger
 		// If a plugin is silently deactivated (such as during an update),
 		// this hook does not fire.
 		add_action( 'deactivated_plugin', array( $this, "on_deactivated_plugin" ), 10, 2 );
-
 
 		// Fires after the upgrades has done it's thing
 		// Check hook extra for upgrader initiator
@@ -180,6 +187,16 @@ class SimplePluginLogger extends SimpleLogger
 		 *
 		 * @param array $update_results The results of all attempted updates.
 		*/
+
+	}
+
+	function save_versions_before_update($bool, $hook_extra) {
+
+		$plugins = get_plugins();
+
+		update_option( $this->slug . "_plugin_info_before_update", SimpleHistory::json_encode( $plugins ) );
+
+		return $bool;
 
 	}
 
@@ -252,7 +269,7 @@ class SimplePluginLogger extends SimpleLogger
 	 * Save all plugin information before a plugin is updated or removed.
 	 * This way we can know both the old (pre updated/removed) and the current version of the plugin
 	 */
-	public function save_versions_before_update() {
+	/*public function save_versions_before_update() {
 		
 		$current_screen = get_current_screen();
 		$request_uri = $_SERVER["SCRIPT_NAME"];
@@ -286,6 +303,7 @@ class SimplePluginLogger extends SimpleLogger
 		}
 
 	}
+	*/
 
 	/**
 	  * when plugin updates are done wp_clean_plugins_cache() is called,
@@ -359,13 +377,24 @@ class SimplePluginLogger extends SimpleLogger
 	}
 
 	/**
-	 * Called when a single plugin is updated or installed
-	 * (not bulk)
+	 * Called when plugins is updated or installed
 	 */
 	function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
 
+		// Can't use get_plugins() here to get version of plugins updated from
+		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..)
+		// $plugs = get_plugins();
+		// $context["_debug_get_plugins"] = SimpleHistory::json_encode( $plugs );
 		/*
-		
+
+		Try with these instead:
+		$current = get_site_transient( 'update_plugins' );
+		add_filter('upgrader_clear_destination', array($this, 'delete_old_plugin'), 10, 4);
+
+		*/
+
+		/*	
+
 		# WordPress core update
 		
 		$arr_data:

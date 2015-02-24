@@ -202,14 +202,14 @@ class SimpleOptionsLogger extends SimpleLogger
 			return;
 		}
 
-		$this->debugMessage( "option_updated", array(
-			"option" => $option,
-			"old_value" => $old_value,
-			"new_value" => $new_value,
-			"REQUEST_URI" => $_SERVER["REQUEST_URI"],
-			"referer" => wp_get_referer(),
-			"option_page" => $option_page,
-			"$_REQUEST" => print_r($_REQUEST, true),
+		$this->debugMessage( 'option_updated', array(
+			'option' => $option,
+			'old_value' => $old_value,
+			'new_value' => $new_value,
+			'REQUEST_URI' => $_SERVER['REQUEST_URI'],
+			'referer' => wp_get_referer(),
+			'option_page' => $option_page,
+			'$_REQUEST' => print_r($_REQUEST, true),
 		) );
 
 
@@ -240,7 +240,7 @@ class SimpleOptionsLogger extends SimpleLogger
 					</tr>
 					',
 					__("New value", "simple-history"),
-					esc_html( $context["new_value"] )
+					esc_html( mb_strimwidth( $context["new_value"], 0, 250, "..." ) )
 				);
 
 				$output .= sprintf(
@@ -251,7 +251,7 @@ class SimpleOptionsLogger extends SimpleLogger
 					</tr>
 					',
 					__("Old value", "simple-history"),
-					esc_html( $context["old_value"] )
+					esc_html( mb_strimwidth( $context["old_value"], 0, 250, "..." ) )
 				);
 			}
 

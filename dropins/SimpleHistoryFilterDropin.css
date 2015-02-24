@@ -1,15 +1,32 @@
 
-/*.SimpleHistory__filters {
 
-}*/
-
-.SimpleHistory__filters__form select {
-	width: 100%;
+.SimpleHistory__filters {
+	/*float: right;
+	width: 300px;
+	margin-right: -340px;
+	*/
+	/* hide by default while log is loading */
+	opacity: .5;
+	transition: all .25s ease-out;
 }
 
-.SimpleHistory__filters__form input[type=text], 
+.SimpleHistory--isLoaded .SimpleHistory__filters {
+	opacity: 1;
+}
+
+.SimpleHistory__filters__form select {
+	/* width: 100%; */
+	width: 310px;
+}
+
+.SimpleHistory__filters__form input[type=text],
 .SimpleHistory__filters__form input[type=search] {
-	width: 100%;
+	/* width: 100%; */
+	/* width: 310px; */
+}
+
+.SimpleHistory__filters__filter--date {
+	width: 310px;
 }
 
 /**
@@ -35,3 +52,47 @@
 	margin-right: 10px;
 }
 
+.SimpleHistoryFilterDropin-showMoreFilters {
+	border: 0;
+	background: none;
+	color: rgb(0, 116, 162);
+	cursor: pointer;
+}
+
+.SimpleHistoryFilterDropin-showMoreFilters:hover {
+	color: rgb(46, 162, 204);
+}
+
+/* more filters are hidden by default */
+.SimpleHistory__filters__moreFilters {
+	display: none;
+	margin-bottom: 20px;
+}
+
+/* when showing more filters */
+.SimpleHistory__filters.is-showingMoreFilters {
+
+}
+
+.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-searchInput {
+	width: 310px;
+}
+
+.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-showMoreFilters--first {
+	display: none;
+}
+
+.SimpleHistory__filters.is-showingMoreFilters .SimpleHistory__filters__moreFilters {
+	display: block;
+}
+
+.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-doFilterButton--first {
+	display: none;
+}
+
+
+/* dashboard */
+.postbox .SimpleHistory__filters {
+	margin-left: 13px;
+	margin-right: 13px;
+}

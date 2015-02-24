@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.15
+Stable tag: 2.0.21
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -82,8 +82,9 @@ So far Simple History is translated to:
 * German
 * Polish
 * Danish
+* Dutch
 
-I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/tree/v2).
+I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/).
 
 #### Contribute at GitHub
 
@@ -109,6 +110,55 @@ initiated by a specific user.
 4. Click on the IP address of an entry to view the location of for example a failed login attempt.
 
 == Changelog ==
+
+= 2.0.21 (February 2015) =
+
+- Added: Updates via XML RPC are now logged, for example when using the WordPress app for iOS or Android. Supported actions for now is post/page created, edited, deleted, and media uploads.
+- Added: `_xmlrpc_request` is added to context of event when an event is initiated through a XML-RPC all.
+- Changed: RSS feed now has loglevel of event prepended to the title.
+- Changed: Options logger now only shows the first 250 chars of new and old option values. Really long values could make the log look strange.
+- Added: If constant SIMPLE_HISTORY_LOG_DEBUG is defined and true automatically adds $_GET, $_POST, and more info to each logged event. Mostly useful for the developer, but maybe some of you are a bit paranoid and want it too.
+- Updated: German translation updated.
+
+= 2.0.20 (February 2015) =
+
+- Added: changes via [WP-CLI](http://wp-cli.org) is now detected (was previously shown as "other").
+- Added: severity level (info, warning, debug, etc.) of event is includes in the RSS output.
+- Changed the way user login is logged. Should fix https://github.com/bonny/WordPress-Simple-History/issues/40 + possible more related issues.
+- Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage. Fixes https://wordpress.org/support/topic/stop-logging-certain-types-of-activity.
+- Added: now uses object caching at some places. Should speed up some parts of the plugin for users with caching enabled.
+- Fixed: IP info popup can now be closed with `esc`.
+- Fixed: works better on small screens (like mobile phones) + misc other style related fixes.
+
+= 2.0.19 (February 2015) =
+
+- Added: Dutch translation by [https://github.com/niknetniko](https://github.com/niknetniko). Thanks!
+- Changed: better compatibilty with plugins like [WP User Avatar](https://wordpress.org/plugins/wp-user-avatar/).
+- Updated: German translation update.
+
+= 2.0.18 (January 2015) =
+
+- Fixed: really correctly show the version number of the previous version!
+
+= 2.0.17 (January 2015) =
+
+- Added: messages added using for example `SimpleLogger()->info( __("My log message") )` that have translations now auto translated the message back to english before storing the message (together with the text domain). Then upon retrieval it uses the english message + the text domain to translate the message to the currently selected language. This makes it easier to make multilingual log entries. (Yeah, I know its hard to understand what the heck this does, but it's something good and cool, trust me!)
+- Added: A sidebar with text contents on the history page.
+- Changed: Search now shows only the search box by default, with a link to show all search options.
+- Fixed: Search is now available at the dashboard again. Hooray!
+- Fixed: Old entries were not cleared automatically. Now it correctly removes old events, so your database will not risk growing to large.
+- Fixed: Quick stats could show two messages sometimes.
+- Fixed: When headers like `HTTP_X_FORWARDED_FOR` exists all valid IPs in that header is now stored.
+- Fixed: Plugin updates via third party software like [InfiniteWP](http://infinitewp.com/) should now correctly show the version number of the previous version.
+- Updated: German translation updated.
+- Notice: Do you read these messages? Then you must love this plugin! Come on then, [go and give it a nice review](https://wordpress.org/support/view/plugin-reviews/simple-history).
+
+= 2.0.16 (January 2015) =
+
+- Fixed: Use the [X-Forwarded-For header](http://en.wikipedia.org/wiki/X-Forwarded-For), if it is set, to determine remote IP address. Should now correctly store IP addresses for servers behind load balancers or for clients going through proxies. Fixes https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr.
+- Changed: Failed login attempts from unknown and known users are now grouped together. This change was made because a hacker could make many login attempts to a site and rotate the logins, so they would try with both existing and non existing user names, which would make the log flood with failed login attempts.
+- Changed: use "n similar events" instead of "n more", to more cleary mark that the grouped events are not necessary exactly the same kind.
+- Changed: Quick stats text changed, to also include other sources. Previous behavior was to only include events from WordPress users, but now also events from anonymous users and WordPress (like from WP-Cron) are included.
 
 = 2.0.15 (January 2015) =
 

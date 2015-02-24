@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 
 var SimpleHistoryFilterDropin = (function($) {
@@ -20,7 +20,9 @@ var SimpleHistoryFilterDropin = (function($) {
 		$elms.filter_user = $elms.filter_container.find(".SimpleHistory__filters__filter--user");
 		$elms.filter_button = $elms.filter_container.find(".js-SimpleHistoryFilterDropin-doFilter");
 		$elms.filter_form = $elms.filter_container.find(".js-SimpleHistory__filters__form");
-		
+		$elms.show_more_filters_button = $elms.filter_container.find(".js-SimpleHistoryFilterDropin-showMoreFilters");
+		$elms.more_filters_container = $elms.filter_container.find(".js-SimpleHistory__filters__moreFilters");
+
 		enhanceSelects();
 		addListeners();
 
@@ -29,13 +31,21 @@ var SimpleHistoryFilterDropin = (function($) {
 	function addListeners() {
 
 		$elms.filter_form.on("submit", onSubmitForm);
+		$elms.show_more_filters_button.on("click", onClickMoreFilters);
+
+	}
+
+	function onClickMoreFilters() {
+		
+		//$elms.more_filters_container.toggleClass("is-visible");
+		$elms.filter_container.toggleClass("is-showingMoreFilters");
 
 	}
 
 	function onSubmitForm(e) {
-		
+
 		e.preventDefault();
-	
+
 		// form serialize
 		// search=apa&loglevels=critical&loglevels=alert&loggers=SimpleMediaLogger&loggers=SimpleMenuLogger&user=1&months=2014-09 SimpleHistoryFilterDropin.js?ver=2.0:40
 		var $search = $elms.filter_form.find("[name='search']");
@@ -47,12 +57,12 @@ var SimpleHistoryFilterDropin = (function($) {
 		// If any of our search boxes are filled in we consider ourself to be in search mode
 		isFilteringActive = false;
 		activeFilters = {};
-		
+
 		if ( $.trim( $search.val() )) {
 			isFilteringActive = true;
 			activeFilters.search = $search.val();
 		}
-		
+
 		if ( $loglevels.val() && $loglevels.val().length ) {
 			isFilteringActive = true;
 			activeFilters.loglevels = $loglevels.val();
@@ -99,7 +109,7 @@ var SimpleHistoryFilterDropin = (function($) {
 	function modifyNewRowsNotifierApiArgs(e, apiArgs) {
 
 		if (isFilteringActive) {
-			
+
 			apiArgs = _.extend(apiArgs, activeFilters);
 
 		}
@@ -108,12 +118,12 @@ var SimpleHistoryFilterDropin = (function($) {
 
 	function modifyFetchData(collection, url_data) {
 
-		if (isFilteringActive) {		
+		if (isFilteringActive) {
 
 			url_data = _.extend(url_data, activeFilters);
 
 		}
-		
+
 	}
 
 	function enhanceSelects() {
@@ -147,7 +157,7 @@ var SimpleHistoryFilterDropin = (function($) {
 		});
 
 		$(".SimpleHistory__filters__filter--date").select2({
-			width: "element"
+			//width: "element"
 		});
 
 		$(".SimpleHistory__filters__filter--loglevel").select2({
@@ -159,7 +169,7 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function formatUsers(userdata) {
-			
+
 		var html = "";
 		html += "<div class='SimpleHistory__filters__userfilter__gravatar'>";
 		html += userdata.gravatar;
@@ -175,11 +185,11 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function formatLoglevel(loglevel) {
-		
+
 		var originalOption = loglevel.element;
 		var $originalOption = $(originalOption);
 		var color = $originalOption.data("color");
-		
+
 		var html = "<span style=\"border-radius: 50%; border: 1px solid rgba(0,0,0,.1); margin-right: 5px; width: .75em; height: .75em; line-height: 1; display: inline-block; background-color: " + $originalOption.data('color') + "; '\"></span>" + loglevel.text;
 		return html;
 
@@ -197,4 +207,3 @@ SimpleHistoryFilterDropin.init();
 jQuery(document).ready(function() {
 	SimpleHistoryFilterDropin.onDomReadyInit();
 });
-
