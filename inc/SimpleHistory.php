@@ -495,7 +495,7 @@ class SimpleHistory {
 		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
 
-		$this->plugin_basename = plugin_basename(__DIR__ . "/index.php");
+		$this->plugin_basename = plugin_basename(__DIR__ . "/../index.php");
 
 	}
 
@@ -543,7 +543,7 @@ class SimpleHistory {
 	 */
 	public function loadLoggers() {
 
-		$loggersDir = __DIR__ . "/loggers/";
+		$loggersDir = __DIR__ . "/../loggers/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -852,7 +852,7 @@ class SimpleHistory {
 
 			add_thickbox();
 
-			$plugin_url = plugin_dir_url(__FILE__);
+			$plugin_url = plugin_dir_url(__DIR__ . "/../index.php");
 			wp_enqueue_style("simple_history_styles", $plugin_url . "css/styles.css", false, SimpleHistory::VERSION);
 			wp_enqueue_script("simple_history_script", $plugin_url . "js/scripts.js", array("jquery", "backbone", "wp-util"), SimpleHistory::VERSION, true);
 
@@ -1206,19 +1206,19 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 	public function settings_output_log() {
 
-		include __DIR__ . "/templates/settings-log.php";
+		include __DIR__ . "/../templates/settings-log.php";
 
 	}
 
 	public function settings_output_general() {
 
-		include __DIR__ . "/templates/settings-general.php";
+		include __DIR__ . "/../templates/settings-general.php";
 
 	}
 
 	public function settings_output_styles_example() {
 
-		include __DIR__ . "/templates/settings-style-example.php";
+		include __DIR__ . "/../templates/settings-style-example.php";
 
 	}
 

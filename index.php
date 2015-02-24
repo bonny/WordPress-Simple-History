@@ -32,8 +32,8 @@ if ( ! defined( 'WPINC' ) ) {
 if ( version_compare( phpversion(), "5.3", ">=") ) {
 
 	/** Load required files */
-	require_once(__DIR__ . "/SimpleHistory.php");
-	require_once(__DIR__ . "/SimpleHistoryLogQuery.php");
+	require_once(__DIR__ . "/inc/SimpleHistory.php");
+	require_once(__DIR__ . "/inc/SimpleHistoryLogQuery.php");
 
 	/**
 	 * Register function that is called when plugin is installed
