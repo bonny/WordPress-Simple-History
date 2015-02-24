@@ -659,7 +659,7 @@ class SimpleHistory {
 	 */
 	public function loadDropins() {
 
-		$dropinsDir = __DIR__ . "/dropins/";
+		$dropinsDir = __DIR__ . "/../dropins/";
 
 		/**
 		 * Filter the directory to load loggers from
