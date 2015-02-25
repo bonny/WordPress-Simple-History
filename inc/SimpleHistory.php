@@ -592,9 +592,28 @@ class SimpleHistory {
 		$loggersFiles = apply_filters("simple_history/loggers_files", $loggersFiles);
 
 		$arrLoggersToInstantiate = array();
-		foreach ($loggersFiles as $oneLoggerFile) {
 
-			if (basename($oneLoggerFile) == "SimpleLogger.php") {
+		foreach ( $loggersFiles as $oneLoggerFile ) {
+
+			$load_logger = true;
+
+			$basename_no_suffix = basename($oneLoggerFile, ".php");
+
+			/**
+			 * Filter to completely skip loading of a logger
+			 *
+			 * @since 2.0.22
+			 *
+			 * @param bool if to load the logger. return false to not load it.
+			 * @param srting slug of logger
+			 */
+			$load_logger = apply_filters("simple_history/logger/load_logger", $load_logger, $basename_no_suffix );
+
+			if ( ! $load_logger ) {
+				continue;
+			}
+
+			if ( basename( $oneLoggerFile ) == "SimpleLogger.php") {
 
 				// SimpleLogger is already loaded
 
@@ -604,7 +623,7 @@ class SimpleHistory {
 
 			}
 
-			$arrLoggersToInstantiate[] = basename($oneLoggerFile, ".php");
+			$arrLoggersToInstantiate[] = $basename_no_suffix;
 
 		}
 
@@ -616,6 +635,7 @@ class SimpleHistory {
 		 * @param array $arrLoggersToInstantiate Array with class names
 		 */
 		$arrLoggersToInstantiate = apply_filters("simple_history/loggers_to_instantiate", $arrLoggersToInstantiate);
+		
 		// Instantiate each logger
 		foreach ($arrLoggersToInstantiate as $oneLoggerName) {
 
@@ -711,6 +731,8 @@ class SimpleHistory {
 			// path/path/simplehistory/dropins/SimpleHistoryDonateDropin.php => SimpleHistoryDonateDropin
 			$oneDropinFileBasename = basename($oneDropinFile, ".php");
 
+			$load_dropin = true;
+
 			/**
 			 * Filter to completely skip loading of dropin
 			 * complete filer name will be like:
@@ -720,9 +742,19 @@ class SimpleHistory {
 			 *
 			 * @param bool if to load the dropin. return false to not load it.
 			 */
-			$load_dropin = apply_filters("simple_history/dropin/load_dropin_{$oneDropinFileBasename}", true);
+			$load_dropin = apply_filters("simple_history/dropin/load_dropin_{$oneDropinFileBasename}", $load_dropin);
 
-			if (!$load_dropin) {
+			/**
+			 * Filter to completely skip loading of a dropin
+			 *
+			 * @since 2.0.22
+			 *
+			 * @param bool if to load the dropin. return false to not load it.
+			 * @param string slug of dropin
+			 */
+			$load_dropin = apply_filters("simple_history/dropin/load_dropin", $load_dropin, $oneDropinFileBasename);
+
+			if ( ! $load_dropin ) {
 				continue;
 			}
 

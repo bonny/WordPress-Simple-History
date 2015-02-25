@@ -111,6 +111,9 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Changed: Misc internal changes
+- Added: Filter `simple_history/logger/load_logger` and `simple_history/dropin/load_dropin` that can be used to control the loading of each logger or dropin. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage examples.
+
 = 2.0.21 (February 2015) =
 
 - Added: Updates via XML RPC are now logged, for example when using the WordPress app for iOS or Android. Supported actions for now is post/page created, edited, deleted, and media uploads.
