@@ -17,7 +17,20 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
  */
 
 
-// Skip the loading of some dropins
+// Skip loading of loggers
+add_filter("simple_history/logger/load_logger", function($load_logger, $oneLoggerFile) {
+
+	// Don't load loggers for comments or menus, i.e. don't log changes to comments or to menus
+	if ( in_array($oneLoggerFile, array("SimpleCommentsLogger", "SimpleMenuLogger")) ) {
+		$load_logger = false;
+	}
+
+	return $load_logger;
+
+}, 10, 2);
+
+
+// Skip the loading of dropins
 add_filter("simple_history/dropin/load_dropin", function($load_dropin, $dropinFileBasename) {
 	
 	// Don't load the RSS feed dropin
