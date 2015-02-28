@@ -684,18 +684,15 @@ Modal window with detailss
 
 /* if wp left meny is collapsed .folded is added and meny width is 36 px */
 .folded .SimpleHistory-modal__content {
-	left: 156px /* admin meny width is 160 px*/
+	left: 156px /* admin meny width is 160 px */
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 850px) {
+	
 	.SimpleHistory-modal__content {
-		left: 156px /* admin meny width is 160 px*/
+		left: 10px /* admin meny width is 160 px */
 	}
-}
-@media only screen and (max-width: 960px) {
-	.SimpleHistory-modal__content {
-		left: 10px /* admin meny width is 160 px*/
-	}	
+
 }
 
 
@@ -790,6 +787,30 @@ Modal window with detailss
 .SimpleHistoryLogitem__moreDetailsContext tr:nth-child(odd) {
 	background-color: #eee;
 }
+
+
+@media only screen and (max-width: 850px) {
+	
+	.SimpleHistoryLogitem__moreDetails {
+		margin-left: -60px;
+	}
+
+	/* make table less table-like on small screens by putting tds below/after each other
+	   instead of next to each other */
+	.SimpleHistoryLogitem__moreDetailsContext th:first-child,
+	.SimpleHistoryLogitem__moreDetailsContext td:first-child {
+		display: block;
+		font-weight: bold;
+	}
+
+	.SimpleHistoryLogitem__moreDetailsContext th:nth-child(2),
+	.SimpleHistoryLogitem__moreDetailsContext td:nth-child(2) {
+		display: block;
+		margin-bottom: 1em;
+	}
+
+}
+
 
 .SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__secondcol,
 .SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .SimpleHistoryLogitem__secondcol {
