@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.21
+Stable tag: 2.0.22
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -110,6 +110,8 @@ initiated by a specific user.
 4. Click on the IP address of an entry to view the location of for example a failed login attempt.
 
 == Changelog ==
+
+= 2.0.22 (February 2015) =
 
 - Fixed: Deleted plugins were not logged correctly (name and other info was missing).
 - Added: Filter `simple_history/logger/load_logger` and `simple_history/dropin/load_dropin` that can be used to control the loading of each logger or dropin. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage examples.

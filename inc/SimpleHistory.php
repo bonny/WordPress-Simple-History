@@ -6,7 +6,7 @@
 class SimpleHistory {
 
 	const NAME = "Simple History";
-	const VERSION = "2.0.21";
+	const VERSION = "2.0.22";
 
 	/**
 	 * For singleton
