@@ -647,6 +647,22 @@ Modal window with detailss
 	z-index: 15;
 }
 
+@media only screen and (max-width: 960px) {
+
+	.SimpleHistory-modal__background {
+		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
+	}
+
+	.SimpleHistory-modal__content {
+		top: 10px;
+		left: 10px;
+		right: 10px;
+		bottom: 10px;
+		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
+	}
+
+}
+
 .SimpleHistory-modal__contentInner {
 	padding: 15px;
 }
@@ -676,7 +692,11 @@ Modal window with detailss
 		left: 156px /* admin meny width is 160 px*/
 	}
 }
-
+@media only screen and (max-width: 960px) {
+	.SimpleHistory-modal__content {
+		left: 10px /* admin meny width is 160 px*/
+	}	
+}
 
 
 .SimpleHistory-modal__content--enter {
@@ -707,6 +727,13 @@ Modal window with detailss
 
 .admin-bar .SimpleHistory-modal__content {
 	top: 92px /* admin bar height is 32 px*/
+}
+
+@media only screen and (max-width: 960px) {
+	.admin-bar .SimpleHistory-modal__content {
+		top: 10px;
+		z-index: 100000;
+	}
 }
 
 /* style the logRow a bit more when shown in modal */
