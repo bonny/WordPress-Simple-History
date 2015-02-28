@@ -113,8 +113,8 @@ initiated by a specific user.
 
 - Fixed: Deleted plugins were not logged correctly (name and other info was missing).
 - Added: Filter `simple_history/logger/load_logger` and `simple_history/dropin/load_dropin` that can be used to control the loading of each logger or dropin. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage examples.
-- Fixed: context window/modal now works better on small screen.
-- Changed: Misc internal changes
+- Fixed: modal window with context data now works better on small screens.
+- Changed: Misc internal changes.
 
 = 2.0.21 (February 2015) =
 

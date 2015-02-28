@@ -645,6 +645,7 @@ Modal window with detailss
 	right: 120px;
 	top: 60px;
 	z-index: 15;
+	-webkit-overflow-scrolling: touch;
 }
 
 @media only screen and (max-width: 960px) {
