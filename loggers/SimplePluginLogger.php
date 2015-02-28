@@ -1,33 +1,7 @@
 <?php
 
-/*
-
-
-# logga installs/updates av plugins som är silent
-
-// Innan update körs en av dessa
-$current = get_site_option( 'active_sitewide_plugins', array() );
-$current = get_option( 'active_plugins', array() );
-
-// efter update körs en av dessa
-update_site_option( 'active_sitewide_plugins', $current );
-update_option('active_plugins', $current);
-
-// så: jämför om arrayen har ändrats, och om den har det = ny plugin aktiverats
-
-
-
-
-# extra stuff
-vid aktivering/installation av plugin: spara resultat från
-get_plugin_files($plugin)
-så vid ev intrång/skadlig kod uppladdad så kan man analysera lite
-
-*/
-
-
 /**
- * Logs plugins installs and updates
+ * Logs plugin installs, updates, and deletions
  */
 class SimplePluginLogger extends SimpleLogger
 {
@@ -170,7 +144,6 @@ class SimplePluginLogger extends SimpleLogger
 
 		// Fires after the upgrades has done it's thing
 		// Check hook extra for upgrader initiator
-		//add_action( 'upgrader_post_install', array( $this, "on_upgrader_post_install" ), 10, 3 );
 		add_action( 'upgrader_process_complete', array( $this, "on_upgrader_process_complete" ), 10, 2 );
 
 		// Dirty check for things that we can't catch using filters or actions
@@ -179,17 +152,48 @@ class SimplePluginLogger extends SimpleLogger
 		// Detect files removed
 		add_action( 'setted_transient', array( $this, 'on_setted_transient_for_remove_files' ), 10, 2 );
 
-		/*
-		do_action( 'automatic_updates_complete', $this->update_results );
-		 * Fires after all automatic updates have run.
-		 *
-		 * @since 3.8.0
-		 *
-		 * @param array $update_results The results of all attempted updates.
-		*/
+		add_action("admin_action_delete-selected", array($this, "on_action_delete_selected"), 10, 1);
+
 
 	}
 
+	/*
+	 * When a plugin has been deleted there is no way for us to get
+	 * the real name of the plugin, only the dir and main index file.
+	 * So before a plugin is deleted we save all needed info in a transient
+	 */
+	function on_action_delete_selected() {
+			
+		// Same as in plugins.php
+		if ( ! current_user_can('delete_plugins') ) {
+			wp_die(__('You do not have sufficient permissions to delete plugins for this site.'));
+		}
+
+		// Same as in plugins.php
+		check_admin_referer('bulk-plugins');
+
+		// Verify delete must be set
+		if ( ! isset( $_POST["verify-delete"] ) || ! $_POST["verify-delete"] ) {
+			return;
+		}
+
+		// An arr of plugins must be set
+		if ( ! isset( $_POST["checked"] ) || ! is_array( $_POST["checked"] ) ) {
+			return;
+		}
+
+		// If we get this far it looks like a plugin is begin deleted
+		// Get and save info about it
+
+		$this->save_versions_before_update();
+
+
+	}
+
+	/**
+	 * Saves info about all installed plugins to an option.
+	 * When we are done logging then we remove the option.
+	 */
 	function save_versions_before_update($bool, $hook_extra) {
 
 		$plugins = get_plugins();
@@ -237,10 +241,10 @@ class SimplePluginLogger extends SimpleLogger
 			$plugins_deleted = $_POST["checked"];
 			$plugins_before_update = json_decode( get_option( $this->slug . "_plugin_info_before_update", false ), true );
 
-			foreach ($plugins_deleted as $plugin) {
+			foreach ( $plugins_deleted as $plugin ) {
 				
 				$context = array(
-					"plugin" => $plugin
+					"plugin" => $plugin // plugin-name-folder/plugin-main-file.php
 				);
 
 				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin ] ) ) {
@@ -307,7 +311,7 @@ class SimplePluginLogger extends SimpleLogger
 
 	/**
 	  * when plugin updates are done wp_clean_plugins_cache() is called,
-	  * which in it's turn run:
+	  * which in its turn run:
 	  * delete_site_transient( 'update_plugins' );
 	  * do_action( 'delete_site_transient_' . $transient, $transient );
 	  * delete_site_transient_update_plugins
