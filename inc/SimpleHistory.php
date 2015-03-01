@@ -6,6 +6,8 @@
 class SimpleHistory {
 
 	const NAME = "Simple History";
+
+	// Dont use this any more! Will be removed in future versions. Use global SIMPLE_HISTORY_VERSION instead.
 	const VERSION = "2.0.22";
 
 	/**
