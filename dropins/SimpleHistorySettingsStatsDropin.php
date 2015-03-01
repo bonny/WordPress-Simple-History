@@ -67,7 +67,7 @@ class SimpleHistorySettingsStatsDropin {
 		<!-- Overview, larger text -->
 		<div class='SimpleHistoryStats__intro'>
 			<?php
-			include(__DIR__ . "/../templates/settings-statsIntro.php");
+			include(SIMPLE_HISTORY_PATH . "templates/settings-statsIntro.php");
 			?>
 		</div>
 
@@ -76,24 +76,24 @@ class SimpleHistorySettingsStatsDropin {
 
 			<!-- bar chart with rows per day -->
 			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--rowsPerDay'>
-				<?php include(__DIR__ . "/../templates/settings-statsRowsPerDay.php") ?>
+				<?php include(SIMPLE_HISTORY_PATH . "templates/settings-statsRowsPerDay.php") ?>
 			</div><!-- // end bar chart rows per day -->
 
 			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--loggersPie'>
-				<?php include(__DIR__ . "/../templates/settings-statsLoggers.php") ?>
+				<?php include(SIMPLE_HISTORY_PATH . "templates/settings-statsLoggers.php") ?>
 			</div>
 
 			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--logLevels'>
-				<?php include(__DIR__ . "/../templates/settings-statsLogLevels.php") ?>
+				<?php include(SIMPLE_HISTORY_PATH . "templates/settings-statsLogLevels.php") ?>
 			</div>
 
 			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--users'>
-				<?php include(__DIR__ . "/../templates/settings-statsUsers.php") ?>
+				<?php include(SIMPLE_HISTORY_PATH . "templates/settings-statsUsers.php") ?>
 			</div>
 
 			<!--
 			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--initiators'>
-				<?php include(__DIR__ . "/../templates/settings-statsInitiators.php") ?>
+				<?php include(SIMPLE_HISTORY_PATH . "templates/settings-statsInitiators.php") ?>
 			</div>
 			-->
 
@@ -102,7 +102,7 @@ class SimpleHistorySettingsStatsDropin {
 
 		<?php
 
-		include(__DIR__ . "/../templates/settings-statsForGeeks.php");
+		include(SIMPLE_HISTORY_PATH . "templates/settings-statsForGeeks.php");
 
 	}
 

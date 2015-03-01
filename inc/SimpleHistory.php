@@ -516,7 +516,7 @@ class SimpleHistory {
 		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
 
-		$this->plugin_basename = plugin_basename(__DIR__ . "/../index.php");
+		$this->plugin_basename = SIMPLE_HISTORY_BASENAME;
 
 	}
 
@@ -564,7 +564,7 @@ class SimpleHistory {
 	 */
 	public function loadLoggers() {
 
-		$loggersDir = __DIR__ . "/../loggers/";
+		$loggersDir = SIMPLE_HISTORY_PATH . "loggers/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -690,8 +690,6 @@ class SimpleHistory {
 
 		do_action("simple_history/loggers_loaded");
 
-		#sf_d($this->instantiatedLoggers);exit;
-
 	}
 
 	/**
@@ -700,7 +698,7 @@ class SimpleHistory {
 	 */
 	public function loadDropins() {
 
-		$dropinsDir = __DIR__ . "/../dropins/";
+		$dropinsDir = SIMPLE_HISTORY_PATH . "dropins/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -916,7 +914,8 @@ class SimpleHistory {
 
 			add_thickbox();
 
-			$plugin_url = plugin_dir_url(__DIR__ . "/../index.php");
+			$plugin_url = plugin_dir_url(SIMPLE_HISTORY_BASENAME);
+
 			wp_enqueue_style("simple_history_styles", $plugin_url . "css/styles.css", false, SimpleHistory::VERSION);
 			wp_enqueue_script("simple_history_script", $plugin_url . "js/scripts.js", array("jquery", "backbone", "wp-util"), SimpleHistory::VERSION, true);
 
@@ -1270,19 +1269,19 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 	public function settings_output_log() {
 
-		include __DIR__ . "/../templates/settings-log.php";
+		include SIMPLE_HISTORY_PATH . "templates/settings-log.php";
 
 	}
 
 	public function settings_output_general() {
 
-		include __DIR__ . "/../templates/settings-general.php";
+		include SIMPLE_HISTORY_PATH . "templates/settings-general.php";
 
 	}
 
 	public function settings_output_styles_example() {
 
-		include __DIR__ . "/../templates/settings-style-example.php";
+		include SIMPLE_HISTORY_PATH . "templates/settings-style-example.php";
 
 	}
 

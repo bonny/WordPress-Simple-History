@@ -42,6 +42,20 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	 */
 	// register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
+	define( 'SIMPLE_HISTORY_FILE', __FILE__ );
+	define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( SIMPLE_HISTORY_FILE ) );
+	define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( SIMPLE_HISTORY_FILE ) );
+	
+	// Constants will be like:
+	/*
+	SIMPLE_HISTORY_FILE:
+	Var is string with length 57: /Users/username/GIT/Simple-History/index.php
+	SIMPLE_HISTORY_PATH:
+	Var is string with length 48: /Users/username/GIT/Simple-History/
+	SIMPLE_HISTORY_BASENAME:
+	Var is string with length 24: simple-history/index.php
+	*/
+
 	/** Boot up */
 	SimpleHistory::get_instance();
 
