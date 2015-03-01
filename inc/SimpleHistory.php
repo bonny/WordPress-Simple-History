@@ -1586,6 +1586,12 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 		$days = 60;
 
+		/**
+		 * Filter to modify number of days of history to keep.
+		 * Default is 60 days.
+		 *
+		 * @param $days Number of days of history to keep
+		 */
 		$days = (int) apply_filters("simple_history_db_purge_days_interval", $days);
 		$days = (int) apply_filters("simple_history/db_purge_days_interval", $days);
 
