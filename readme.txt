@@ -111,6 +111,8 @@ initiated by a specific user.
 
 == Changelog ==
 
+- Added: Filters to hide history dashboard widget and history dashboard page. Filters are `simple_history/show_dashboard_widget` and `simple_history/show_dashboard_page`.
+
 = 2.0.22 (February 2015) =
 
 - Fixed: Deleted plugins were not logged correctly (name and other info was missing).

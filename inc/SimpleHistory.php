@@ -836,9 +836,20 @@ class SimpleHistory {
 	 */
 	function add_dashboard_widget() {
 
-		if ($this->setting_show_on_dashboard() && current_user_can($this->view_history_capability)) {
+		if ( $this->setting_show_on_dashboard() && current_user_can( $this->view_history_capability ) ) {
 
-			wp_add_dashboard_widget("simple_history_dashboard_widget", __("Simple History", 'simple-history'), array($this, "dashboard_widget_output"));
+			/**
+			 * Filter to determine if history page should be added to page below dashboard or not
+			 *
+			 * @since 2.0.23
+			 *
+			 * @param bool Show the page or not
+			 */
+			$show_dasboard_widget = apply_filters("simple_history/show_dashboard_page", true);
+			
+			if ( $show_dashboard_widget ) {
+				wp_add_dashboard_widget("simple_history_dashboard_widget", __("Simple History", 'simple-history'), array($this, "dashboard_widget_output"));
+			}
 
 		}
 	}
@@ -1289,23 +1300,37 @@ foreach ($arr_settings_tabs as $one_tab) {
 	function add_admin_pages() {
 
 		// Add a history page as a sub-page below the Dashboard menu item
-		if ($this->setting_show_as_page()) {
+		if ( $this->setting_show_as_page() ) {
 
-			add_dashboard_page(
-				SimpleHistory::NAME,
-				_x("Simple History", 'dashboard menu name', 'simple-history'),
-				$this->view_history_capability,
-				"simple_history_page",
-				array($this, "history_page_output")
-			);
+			/**
+			 * Filter to determine if history page should be added to page below dashboard or not
+			 *
+			 * @since 2.0.23
+			 *
+			 * @param bool Show the page or not
+			 */
+			$show_dasboard_page = apply_filters("simple_history/show_dashboard_page", true);
+
+			if ( $show_dashboard_page ) {
+			
+				add_dashboard_page(
+					SimpleHistory::NAME,
+					_x("Simple History", 'dashboard menu name', 'simple-history'),
+					$this->view_history_capability,
+					"simple_history_page",
+					array($this, "history_page_output")
+				);
+
+			}
 
 		}
 
 		// Add a settings page
 		$show_settings_page = true;
 		$show_settings_page = apply_filters("simple_history_show_settings_page", $show_settings_page);
-		$show_settings_page = apply_filters("simple_history/show_settings_page", $show_settings_page);
-		if ($show_settings_page) {
+		$show_settings_page = apply_filters("simple_history/show_settings_page", $show_settings_page);		
+
+		if ( $show_settings_page ) {
 
 			add_options_page(
 				__('Simple History Settings', "simple-history"),
