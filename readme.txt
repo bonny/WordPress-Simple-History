@@ -114,7 +114,7 @@ initiated by a specific user.
 = 2.0.22 (February 2015) =
 
 - Fixed: Deleted plugins were not logged correctly (name and other info was missing).
-- Added: Filter `simple_history/logger/load_logger` and `simple_history/dropin/load_dropin` that can be used to control the loading of each logger or dropin. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage examples.
+- Added: Filter `simple_history/logger/load_logger` and `simple_history/dropin/load_dropin` that can be used to control the loading of each logger or dropin. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for usage examples.
 - Fixed: modal window with context data now works better on small screens.
 - Changed: Misc internal changes.
 
@@ -132,7 +132,7 @@ initiated by a specific user.
 - Added: changes via [WP-CLI](http://wp-cli.org) is now detected (was previously shown as "other").
 - Added: severity level (info, warning, debug, etc.) of event is includes in the RSS output.
 - Changed the way user login is logged. Should fix https://github.com/bonny/WordPress-Simple-History/issues/40 + possible more related issues.
-- Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage. Fixes https://wordpress.org/support/topic/stop-logging-certain-types-of-activity.
+- Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for usage. Fixes https://wordpress.org/support/topic/stop-logging-certain-types-of-activity.
 - Added: now uses object caching at some places. Should speed up some parts of the plugin for users with caching enabled.
 - Fixed: IP info popup can now be closed with `esc`.
 - Fixed: works better on small screens (like mobile phones) + misc other style related fixes.
