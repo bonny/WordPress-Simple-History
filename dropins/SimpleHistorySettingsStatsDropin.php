@@ -37,7 +37,7 @@ class SimpleHistorySettingsStatsDropin {
 		$file_url = plugin_dir_url(__FILE__);
 
 		wp_enqueue_script( "google-ajax-api", "https://www.google.com/jsapi");
-		wp_enqueue_style( "simple_history_SettingsStatsDropin", $file_url . "SimpleHistorySettingsStatsDropin.css", null, SimpleHistory::VERSION);
+		wp_enqueue_style( "simple_history_SettingsStatsDropin", $file_url . "SimpleHistorySettingsStatsDropin.css", null, SIMPLE_HISTORY_VERSION);
 
 	}
 

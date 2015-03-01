@@ -31,7 +31,7 @@ class SimpleHistoryNewRowsNotifier {
 
 		$file_url = plugin_dir_url(__FILE__);
 
-		wp_enqueue_script("simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.js", array("jquery"), SimpleHistory::VERSION, true);
+		wp_enqueue_script("simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.js", array("jquery"), SIMPLE_HISTORY_VERSION, true);
 
 		$arr_localize_data = array(
 			"interval" => $this->interval,
@@ -40,7 +40,7 @@ class SimpleHistoryNewRowsNotifier {
 
 		wp_localize_script( "simple_history_NewRowsNotifierDropin", "simple_history_NewRowsNotifierDropin", $arr_localize_data );
 
-		wp_enqueue_style( "simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.css", null, SimpleHistory::VERSION);
+		wp_enqueue_style( "simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.css", null, SIMPLE_HISTORY_VERSION);
 
 	}
 

@@ -183,7 +183,7 @@ class SimpleHistorySidebarDropin {
 
 		$file_url = plugin_dir_url(__FILE__);
 
-		wp_enqueue_style("simple_history_SidebarDropin", $file_url . "SimpleHistorySidebarDropin.css", null, SimpleHistory::VERSION);
+		wp_enqueue_style("simple_history_SidebarDropin", $file_url . "SimpleHistorySidebarDropin.css", null, SIMPLE_HISTORY_VERSION);
 
 	}
 
