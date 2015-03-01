@@ -845,7 +845,7 @@ class SimpleHistory {
 			 *
 			 * @param bool Show the page or not
 			 */
-			$show_dasboard_widget = apply_filters("simple_history/show_dashboard_page", true);
+			$show_dashboard_widget = apply_filters("simple_history/show_dashboard_widget", true);
 			
 			if ( $show_dashboard_widget ) {
 				wp_add_dashboard_widget("simple_history_dashboard_widget", __("Simple History", 'simple-history'), array($this, "dashboard_widget_output"));
@@ -1309,7 +1309,7 @@ foreach ($arr_settings_tabs as $one_tab) {
 			 *
 			 * @param bool Show the page or not
 			 */
-			$show_dasboard_page = apply_filters("simple_history/show_dashboard_page", true);
+			$show_dashboard_page = apply_filters("simple_history/show_dashboard_page", true);
 
 			if ( $show_dashboard_page ) {
 			
