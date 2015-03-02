@@ -43,4 +43,4 @@ SimpleLogger()->debug("Ok, cron job is running!");
 
 ```
 
-You will find more examples in the [examples.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) file.
+You will find more examples in the [examples.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) file.
