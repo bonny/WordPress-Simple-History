@@ -112,6 +112,7 @@ initiated by a specific user.
 == Changelog ==
 
 - Added: Filters to hide history dashboard widget and history dashboard page. Filters are `simple_history/show_dashboard_widget` and `simple_history/show_dashboard_page`.
+- Fixed: A missing argument error when deleting a plugin. Fixes https://wordpress.org/support/topic/warning-missing-argument-1-for-simplepluginlogger.
 
 = 2.0.22 (February 2015) =
 
