@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.22
+Stable tag: 2.0.23
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -113,7 +113,7 @@ initiated by a specific user.
 
 == Changelog ==
 
-= trunk = 
+= 2.0.23 = 
 
 - Added: Filter `simple_history/rss_item_link`, so plugins can modify the link used in the RSS feed.
 - Added: Links for changed posts and attachments in RSS feed now links directly to WordPress admin, making is easier to follow things from your RSS reeder.
