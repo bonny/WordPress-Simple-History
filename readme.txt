@@ -111,6 +111,10 @@ initiated by a specific user.
 
 == Changelog ==
 
+= trunk = 
+
+- Added: Filter `simple_history/rss_item_link`, so plugins can modify the link used in the RSS feed.
+- Added: Links for changed posts and attachments in RSS feed now links directly to WordPress admin, making is easier to follow things from your RSS reeder.
 - Added: Filters to hide history dashboard widget and history dashboard page. Filters are `simple_history/show_dashboard_widget` and `simple_history/show_dashboard_page`.
 - Fixed: A missing argument error when deleting a plugin. Fixes https://wordpress.org/support/topic/warning-missing-argument-1-for-simplepluginlogger.
 

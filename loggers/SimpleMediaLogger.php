@@ -50,7 +50,9 @@ class SimpleMediaLogger extends SimpleLogger
 
 		add_action("admin_init", array($this, "on_admin_init"));
 
-		add_action( 'xmlrpc_call_success_mw_newMediaObject', array($this, "on_mw_newMediaObject"), 10, 2 );
+		add_action("xmlrpc_call_success_mw_newMediaObject", array($this, "on_mw_newMediaObject"), 10, 2);
+
+		add_filter("simple_history/rss_item_link", array($this, "filter_rss_item_link"), 10, 2);
 
 	}
 
@@ -330,6 +332,33 @@ class SimpleMediaLogger extends SimpleLogger
 				"attachment_mime" => $mime
 			)
 		);
+
+	}
+
+	/**
+	 * Modify RSS links to they go directly to the correct media in wp admin
+	 * 
+	 * @since 2.0.23
+	 * @param string $link
+	 * @param array $row
+	 */
+	public function filter_rss_item_link($link, $row) {
+
+		if ( $row->logger != $this->slug ) {
+			return $link;
+		}
+
+		if ( isset( $row->context["attachment_id"] ) ) {
+
+			$permalink = add_query_arg(array("action" => "edit", "post" => $row->context["attachment_id"]), admin_url( "post.php" ) );
+			
+			if ( $permalink ) {
+				$link = $permalink;
+			}
+
+		}
+
+		return $link;
 
 	}
 
