@@ -38,6 +38,8 @@ There is also a **RSS feed of changes** available, so you can keep track of the 
 It’s a plugin that is good to have on websites where several people are
 involved in editing the content.
 
+The plugin works fine on [multisite installations of WordPress](http://codex.wordpress.org/Glossary#Multisite) too.
+
 #### Example scenarios
 
 Keep track of what other people are doing:
