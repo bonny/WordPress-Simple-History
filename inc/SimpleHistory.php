@@ -83,15 +83,15 @@ class SimpleHistory {
 		$this->setupVariables();
 
 		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
-		add_action('plugins_loaded', array($this, 'load_plugin_textdomain'));
-		add_action('plugins_loaded', array($this, 'add_default_settings_tabs'));
-		add_action('plugins_loaded', array($this, 'loadLoggers'));
-		add_action('plugins_loaded', array($this, 'loadDropins'));
+		add_action('after_setup_theme', array($this, 'load_plugin_textdomain'));
+		add_action('after_setup_theme', array($this, 'add_default_settings_tabs'));
+		add_action('after_setup_theme', array($this, 'loadLoggers'));
+		add_action('after_setup_theme', array($this, 'loadDropins'));
 
 		// Run before loading of loggers and before menu items are added
-		add_action('plugins_loaded', array($this, 'check_for_upgrade'), 5);
+		add_action('after_setup_theme', array($this, 'check_for_upgrade'), 5);
 
-		add_action('plugins_loaded', array($this, 'setup_cron'));
+		add_action('after_setup_theme', array($this, 'setup_cron'));
 
 		add_action('admin_menu', array($this, 'add_admin_pages'));
 		add_action('admin_menu', array($this, 'add_settings'));
