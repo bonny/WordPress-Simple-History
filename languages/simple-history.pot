@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Simple History package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple History 2.0.22\n"
+"Project-Id-Version: Simple History 2.0.23\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-02-28 22:22:18+00:00\n"
+"POT-Creation-Date: 2015-03-12 22:36:43+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -82,46 +82,46 @@ msgid "Created new secret RSS address"
 msgstr ""
 
 #: dropins/SimpleHistoryRSSDropin.php:148
-#: dropins/SimpleHistoryRSSDropin.php:262
+#: dropins/SimpleHistoryRSSDropin.php:275
 msgid "History for %s"
 msgstr ""
 
 #: dropins/SimpleHistoryRSSDropin.php:149
-#: dropins/SimpleHistoryRSSDropin.php:263
+#: dropins/SimpleHistoryRSSDropin.php:276
 msgid "WordPress History for %s"
 msgstr ""
 
-#: dropins/SimpleHistoryRSSDropin.php:186
+#: dropins/SimpleHistoryRSSDropin.php:199
 msgid "Severity level: %1$s"
 msgstr ""
 
-#: dropins/SimpleHistoryRSSDropin.php:199
+#: dropins/SimpleHistoryRSSDropin.php:212
 msgid "+%1$s occasion"
 msgid_plural "+%1$s occasions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: dropins/SimpleHistoryRSSDropin.php:266
+#: dropins/SimpleHistoryRSSDropin.php:279
 msgid "Wrong RSS secret"
 msgstr ""
 
-#: dropins/SimpleHistoryRSSDropin.php:267
+#: dropins/SimpleHistoryRSSDropin.php:280
 msgid ""
 "Your RSS secret for Simple History RSS feed is wrong. Please see WordPress "
 "settings for current link to the RSS feed."
 msgstr ""
 
-#: dropins/SimpleHistoryRSSDropin.php:318
+#: dropins/SimpleHistoryRSSDropin.php:331
 msgid ""
 "You can generate a new address for the RSS feed. This is useful if you "
 "think that the address has fallen into the wrong hands."
 msgstr ""
 
-#: dropins/SimpleHistoryRSSDropin.php:321
+#: dropins/SimpleHistoryRSSDropin.php:334
 msgid "Generate new address"
 msgstr ""
 
-#: dropins/SimpleHistoryRSSDropin.php:349
+#: dropins/SimpleHistoryRSSDropin.php:362
 msgid ""
 "Simple History has a RSS feed which you can subscribe to and receive log "
 "updates. Make sure you only share the feed with people you trust, since it "
@@ -148,159 +148,159 @@ msgstr ""
 msgid "Just now"
 msgstr ""
 
-#: inc/SimpleHistory.php:533 inc/SimpleHistory.php:826
+#: inc/SimpleHistory.php:535 inc/SimpleHistory.php:826
 msgid "Settings"
 msgstr ""
 
-#: inc/SimpleHistory.php:544
+#: inc/SimpleHistory.php:546
 msgid "Log (debug)"
 msgstr ""
 
-#: inc/SimpleHistory.php:549
+#: inc/SimpleHistory.php:551
 msgid "Styles example (debug)"
 msgstr ""
 
-#: inc/SimpleHistory.php:841
-#. #-#-#-#-#  Simple-History.pot (Simple History 2.0.22)  #-#-#-#-#
+#: inc/SimpleHistory.php:851
+#. #-#-#-#-#  Simple-History.pot (Simple History 2.0.23)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 msgid "Simple History"
 msgstr ""
 
-#: inc/SimpleHistory.php:917
+#: inc/SimpleHistory.php:929
 msgid "Remove all log items?"
 msgstr ""
 
-#: inc/SimpleHistory.php:919
+#: inc/SimpleHistory.php:931
 msgid "Go to the first page"
 msgstr ""
 
-#: inc/SimpleHistory.php:920
+#: inc/SimpleHistory.php:932
 msgid "Go to the previous page"
 msgstr ""
 
-#: inc/SimpleHistory.php:921
+#: inc/SimpleHistory.php:933
 msgid "Go to the next page"
 msgstr ""
 
-#: inc/SimpleHistory.php:922
+#: inc/SimpleHistory.php:934
 msgid "Go to the last page"
 msgstr ""
 
-#: inc/SimpleHistory.php:923
+#: inc/SimpleHistory.php:935
 msgid "Current page"
 msgstr ""
 
-#: inc/SimpleHistory.php:925
+#: inc/SimpleHistory.php:937
 msgid "Oups, the log could not be loaded right now."
 msgstr ""
 
-#: inc/SimpleHistory.php:926
+#: inc/SimpleHistory.php:938
 msgid "Your search did not match any history events."
 msgstr ""
 
-#: inc/SimpleHistory.php:1210 inc/SimpleHistory.php:1311
+#: inc/SimpleHistory.php:1222 inc/SimpleHistory.php:1337
 msgid "Simple History Settings"
 msgstr ""
 
-#: inc/SimpleHistory.php:1244
+#: inc/SimpleHistory.php:1256
 msgid "No valid callback found"
 msgstr ""
 
-#: inc/SimpleHistory.php:1332
+#: inc/SimpleHistory.php:1358
 msgid "Cleared database"
 msgstr ""
 
-#: inc/SimpleHistory.php:1359
+#: inc/SimpleHistory.php:1385
 msgid "Show history"
 msgstr ""
 
-#: inc/SimpleHistory.php:1372
+#: inc/SimpleHistory.php:1398
 msgid "Number of items per page"
 msgstr ""
 
-#: inc/SimpleHistory.php:1384
+#: inc/SimpleHistory.php:1410
 msgid "Clear log"
 msgstr ""
 
-#: inc/SimpleHistory.php:1523
+#: inc/SimpleHistory.php:1549
 msgid "on the dashboard"
 msgstr ""
 
-#: inc/SimpleHistory.php:1528
+#: inc/SimpleHistory.php:1554
 msgid "as a page under the dashboard menu"
 msgstr ""
 
-#: inc/SimpleHistory.php:1544
+#: inc/SimpleHistory.php:1570
 msgid "Items in the database are automatically removed after %1$s days."
 msgstr ""
 
-#: inc/SimpleHistory.php:1546
+#: inc/SimpleHistory.php:1572
 msgid "Items in the database are kept forever."
 msgstr ""
 
-#: inc/SimpleHistory.php:1550
+#: inc/SimpleHistory.php:1576
 msgid "Clear log now"
 msgstr ""
 
-#: inc/SimpleHistory.php:1594
+#: inc/SimpleHistory.php:1626
 msgid "The log for Simple History was cleared ({num_rows} rows were removed)."
 msgstr ""
 
-#: inc/SimpleHistory.php:1858
+#: inc/SimpleHistory.php:1890
 msgid "+%1$s similar event"
 msgid_plural "+%1$s similar events"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/SimpleHistory.php:1865
+#: inc/SimpleHistory.php:1897
 msgid "Loading…"
 msgstr ""
 
-#: inc/SimpleHistory.php:1872
+#: inc/SimpleHistory.php:1904
 msgid "Showing %1$s more"
 msgstr ""
 
-#: inc/SimpleHistory.php:1891
+#: inc/SimpleHistory.php:1923
 msgid "Context data"
 msgstr ""
 
-#: inc/SimpleHistory.php:1892
+#: inc/SimpleHistory.php:1924
 msgid "This is potentially useful meta data that a logger has saved."
 msgstr ""
 
-#: inc/SimpleHistory.php:2412
+#: inc/SimpleHistory.php:2444
 msgid "No events today so far."
 msgstr ""
 
-#: inc/SimpleHistory.php:2431
+#: inc/SimpleHistory.php:2463
 msgid "One event today from one user."
 msgstr ""
 
-#: inc/SimpleHistory.php:2437
+#: inc/SimpleHistory.php:2469
 msgid "One event today from one source."
 msgstr ""
 
-#: inc/SimpleHistory.php:2443
+#: inc/SimpleHistory.php:2475
 msgid "%1$d events today from one user."
 msgstr ""
 
-#: inc/SimpleHistory.php:2449
+#: inc/SimpleHistory.php:2481
 msgid "%1$d events today from %2$d users."
 msgstr ""
 
-#: inc/SimpleHistory.php:2455 inc/SimpleHistory.php:2461
+#: inc/SimpleHistory.php:2487 inc/SimpleHistory.php:2493
 msgid "%1$d events today from one user and one other source."
 msgstr ""
 
-#: inc/SimpleHistory.php:2467
+#: inc/SimpleHistory.php:2499
 msgid "%1$d events today from one user and %3$d other sources."
 msgstr ""
 
-#: inc/SimpleHistory.php:2473
+#: inc/SimpleHistory.php:2505
 msgid "%1$s events today from %2$d users and %3$d other sources."
 msgstr ""
 
-#: index.php:58
+#: index.php:74
 msgid ""
 "Simple History is a great plugin, but to use it your server must have at "
 "least PHP 5.3 installed (you have version %s)."
@@ -384,27 +384,27 @@ msgstr ""
 msgid "Deleted {post_type} \"{attachment_title}\" (\"{attachment_filename}\")"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:117
+#: loggers/SimpleMediaLogger.php:119
 msgid "Edited {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:121
+#: loggers/SimpleMediaLogger.php:123
 msgid "Uploaded {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:233
+#: loggers/SimpleMediaLogger.php:235
 msgid "{attachment_thumb}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:242
+#: loggers/SimpleMediaLogger.php:244
 msgid "{attachment_size_format}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:243
+#: loggers/SimpleMediaLogger.php:245
 msgid "{attachment_filetype_extension}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:245
+#: loggers/SimpleMediaLogger.php:247
 msgid "{full_image_width} × {full_image_height}"
 msgstr ""
 
@@ -448,35 +448,35 @@ msgstr ""
 msgid "You do not have sufficient permissions to delete plugins for this site."
 msgstr ""
 
-#: loggers/SimplePostLogger.php:180
+#: loggers/SimplePostLogger.php:182
 msgid "Created {post_type} \"{post_title}\""
 msgstr ""
 
-#: loggers/SimplePostLogger.php:181
+#: loggers/SimplePostLogger.php:183
 msgid "Updated {post_type} \"{post_title}\""
 msgstr ""
 
-#: loggers/SimplePostLogger.php:182
+#: loggers/SimplePostLogger.php:184
 msgid "Restored {post_type} \"{post_title}\" from trash"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:183 loggers/SimplePostLogger.php:452
+#: loggers/SimplePostLogger.php:185 loggers/SimplePostLogger.php:454
 msgid "Deleted {post_type} \"{post_title}\""
 msgstr ""
 
-#: loggers/SimplePostLogger.php:184
+#: loggers/SimplePostLogger.php:186
 msgid "Moved {post_type} \"{post_title}\" to the trash"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:448
+#: loggers/SimplePostLogger.php:450
 msgid "Updated {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:456
+#: loggers/SimplePostLogger.php:458
 msgid "Created {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a>"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:461
+#: loggers/SimplePostLogger.php:463
 msgid "Moved {post_type} <a href=\"{edit_link}\">\"{post_title}\"</a> to the trash"
 msgstr ""
 
@@ -742,114 +742,114 @@ msgid ""
 "plugin author very happy :)"
 msgstr ""
 
-#: inc/SimpleHistory.php:277
+#: inc/SimpleHistory.php:279
 msgctxt "Message visible while waiting for log to load from server the first time"
 msgid "Loading history..."
 msgstr ""
 
-#: inc/SimpleHistory.php:314
+#: inc/SimpleHistory.php:316
 msgctxt "page n of n"
 msgid "of"
 msgstr ""
 
-#: inc/SimpleHistory.php:385
+#: inc/SimpleHistory.php:387
 msgctxt "API: not enought arguments passed"
 msgid "Not enough args specified"
 msgstr ""
 
-#: inc/SimpleHistory.php:1296
+#: inc/SimpleHistory.php:1319
 msgctxt "dashboard menu name"
 msgid "Simple History"
 msgstr ""
 
-#: inc/SimpleHistory.php:1420
+#: inc/SimpleHistory.php:1446
 msgctxt "history page headline"
 msgid "Simple History"
 msgstr ""
 
-#: inc/SimpleHistory.php:1682
+#: inc/SimpleHistory.php:1714
 msgctxt "simple-history"
 msgid "Simple History removed one event that were older than {days} days"
 msgid_plural "Simple History removed {num_rows} events that were older than {days} days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/SimpleHistory.php:2028
+#: inc/SimpleHistory.php:2060
 msgctxt "Log level in gui"
 msgid "emergency"
 msgstr ""
 
-#: inc/SimpleHistory.php:2032
+#: inc/SimpleHistory.php:2064
 msgctxt "Log level in gui"
 msgid "alert"
 msgstr ""
 
-#: inc/SimpleHistory.php:2036
+#: inc/SimpleHistory.php:2068
 msgctxt "Log level in gui"
 msgid "critical"
 msgstr ""
 
-#: inc/SimpleHistory.php:2040
+#: inc/SimpleHistory.php:2072
 msgctxt "Log level in gui"
 msgid "error"
 msgstr ""
 
-#: inc/SimpleHistory.php:2044
+#: inc/SimpleHistory.php:2076
 msgctxt "Log level in gui"
 msgid "warning"
 msgstr ""
 
-#: inc/SimpleHistory.php:2048
+#: inc/SimpleHistory.php:2080
 msgctxt "Log level in gui"
 msgid "notice"
 msgstr ""
 
-#: inc/SimpleHistory.php:2052
+#: inc/SimpleHistory.php:2084
 msgctxt "Log level in gui"
 msgid "info"
 msgstr ""
 
-#: inc/SimpleHistory.php:2056
+#: inc/SimpleHistory.php:2088
 msgctxt "Log level in gui"
 msgid "debug"
 msgstr ""
 
-#: inc/SimpleHistory.php:2061
+#: inc/SimpleHistory.php:2093
 msgctxt "Log level in gui"
 msgid "Emergency"
 msgstr ""
 
-#: inc/SimpleHistory.php:2065
+#: inc/SimpleHistory.php:2097
 msgctxt "Log level in gui"
 msgid "Alert"
 msgstr ""
 
-#: inc/SimpleHistory.php:2069
+#: inc/SimpleHistory.php:2101
 msgctxt "Log level in gui"
 msgid "Critical"
 msgstr ""
 
-#: inc/SimpleHistory.php:2073
+#: inc/SimpleHistory.php:2105
 msgctxt "Log level in gui"
 msgid "Error"
 msgstr ""
 
-#: inc/SimpleHistory.php:2077
+#: inc/SimpleHistory.php:2109
 msgctxt "Log level in gui"
 msgid "Warning"
 msgstr ""
 
-#: inc/SimpleHistory.php:2081
+#: inc/SimpleHistory.php:2113
 msgctxt "Log level in gui"
 msgid "Notice"
 msgstr ""
 
-#: inc/SimpleHistory.php:2085
+#: inc/SimpleHistory.php:2117
 msgctxt "Log level in gui"
 msgid "Info"
 msgstr ""
 
-#: inc/SimpleHistory.php:2089
+#: inc/SimpleHistory.php:2121
 msgctxt "Log level in gui"
 msgid "Debug"
 msgstr ""
@@ -1376,32 +1376,32 @@ msgctxt "plugin logger: plugin info thickbox title"
 msgid "View changelog"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:188
+#: loggers/SimplePostLogger.php:190
 msgctxt "Post logger: search"
 msgid "Posts & Pages"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:190
+#: loggers/SimplePostLogger.php:192
 msgctxt "Post logger: search"
 msgid "Posts created"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:193
+#: loggers/SimplePostLogger.php:195
 msgctxt "Post logger: search"
 msgid "Posts updated"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:196
+#: loggers/SimplePostLogger.php:198
 msgctxt "Post logger: search"
 msgid "Posts trashed"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:199
+#: loggers/SimplePostLogger.php:201
 msgctxt "Post logger: search"
 msgid "Posts deleted"
 msgstr ""
 
-#: loggers/SimplePostLogger.php:202
+#: loggers/SimplePostLogger.php:204
 msgctxt "Post logger: search"
 msgid "Posts restored"
 msgstr ""

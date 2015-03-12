@@ -113,6 +113,10 @@ initiated by a specific user.
 
 == Changelog ==
 
+= trunk =
+
+- Updated: German translation updated.
+
 = 2.0.23 = 
 
 - Added: Filter `simple_history/rss_item_link`, so plugins can modify the link used in the RSS feed.
