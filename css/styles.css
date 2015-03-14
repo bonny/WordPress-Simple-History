@@ -691,7 +691,7 @@ Modal window with detailss
 @media only screen and (max-width: 850px) {
 	
 	.SimpleHistory-modal__content {
-		left: 10px /* admin meny width is 160 px */
+		left: 10px; /* admin meny width is 160 px */
 	}
 
 }
