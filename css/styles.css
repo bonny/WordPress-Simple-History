@@ -774,7 +774,7 @@ Modal window with detailss
 
 .SimpleHistoryLogitem__moreDetailsContext {
 	font-family: monospace;
-	white-space: pre-line;
+	white-space: pre-wrap;
 	font-size: 12px;
 	border-collapse: collapse;
 }
