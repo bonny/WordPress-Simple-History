@@ -47,7 +47,7 @@ _"Has someone done anything today? Ah, Sarah uploaded
 the new press release and created an article for it. Great! Now I don't have to do that."_
 
 Or for debug purposes:
-_"The site feels very slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughy-plugin-x',
+_"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughy-plugin-x',
 that must be it."_
 
 #### See it in action
