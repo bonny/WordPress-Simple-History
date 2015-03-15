@@ -29,7 +29,7 @@ activation and deactivation
 * **User profiles**<br>
 info about added, updated or removed users
 * **User logins**<br>
-see when a user login & logut
+see when a user login & logout
 * **Failed user logins**<br>
 see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 
