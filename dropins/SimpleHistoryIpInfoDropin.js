@@ -56,11 +56,21 @@
 
 	function maybeHidePopup(e) {
 
+		// Make sure variable and properties exist before trying to work on them
+		if (!e || !e.target) {
+			return;
+		}
+
 		var $target = (e.target);
 
 		// Don't hide if click inside popup
 		if ($.contains($popup.get(0), $target) ) {
 			return true;
+		}
+
+		// Make sure variable and properties exist before trying to work on them
+		if (!e.originalEvent || e.originalEvent.type || e.originalEvent.keyCode) {
+			return;
 		}
 
 		// If initiated by keyboard but not esc, then don't close
