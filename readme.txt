@@ -115,6 +115,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= trunk =
+
+- Fixed: Messages for disabled loggers was not shown.
+
 = 2.0.24 =
 
 - Fixed: Plugin installs from uploaded ZIP files are now logged correctly. Fixes https://github.com/bonny/WordPress-Simple-History/issues/59.
