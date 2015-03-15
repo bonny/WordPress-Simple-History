@@ -396,7 +396,14 @@ class SimpleLogger {
 
 		} else {
 
-			$message = $this->messages[$message_key]["translated_text"];
+			// Check that messages does exist
+			// If we for example disable a Logger we may have references
+			// to message keys that are unavailable. If so then fallback to message.
+			if ( isset( $this->messages[$message_key]["translated_text"] ) ) {
+				$message = $this->messages[$message_key]["translated_text"];
+			} else {
+				// Not message exists for message key. Just keep using message.
+			}
 
 		}
 
