@@ -514,6 +514,12 @@ i.e. the log is inside a .postbox element
 		height: 24px;;
 	}
 
+	.postbox .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+	.postbox .SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before,
+	.postbox .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
+		font-size: 24px;
+	}
+
 	.postbox .SimpleHistoryLogitem__secondcol {
 		margin-left: 40px;
 	}
@@ -829,6 +835,7 @@ Modal window with detailss
 	vertical-align: top;
 	color: #999;
 }
+
 
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before {

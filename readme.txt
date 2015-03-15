@@ -117,9 +117,11 @@ initiated by a specific user.
 
 = trunk =
 
+- Fixed: Plugin installs from uploaded ZIP files are now logged correctly. Fixes https://github.com/bonny/WordPress-Simple-History/issues/59.
 - Fixed: Check that JavaScript variables it set and that the object have properties set. Fixes https://wordpress.org/support/topic/firefox-37-js-error-generated-by-simplehistoryipinfodropinjs.
-- Changed: Loading of loggers, dropins, and so one are moved from action `plugins_loaded` to `after_setup_theme` so themes can actually use for example the load_dropin_*-filters...
 - Updated: German translation updated.
+- Changed: Loading of loggers, dropins, and so one are moved from action `plugins_loaded` to `after_setup_theme` so themes can actually use for example the load_dropin_*-filters...
+- Changed: Misc small design fixes.
 
 = 2.0.23 = 
 
