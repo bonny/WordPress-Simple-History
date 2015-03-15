@@ -470,8 +470,8 @@ class SimplePluginLogger extends SimpleLogger
 					"plugin_source_files" => $this->simpleHistory->json_encode( $plugin_upgrader_instance->result["source_files"] ),
 					
 					// To debug comment out these:
-					"debug_skin_options" => $this->simpleHistory->json_encode( $upgrader_skin_options ),
-					"debug_skin_result" => $this->simpleHistory->json_encode( $upgrader_skin_result ),
+					// "debug_skin_options" => $this->simpleHistory->json_encode( $upgrader_skin_options ),
+					// "debug_skin_result" => $this->simpleHistory->json_encode( $upgrader_skin_result ),
 
 				);
 
