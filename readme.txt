@@ -113,8 +113,11 @@ initiated by a specific user.
 
 == Changelog ==
 
+## Changelog
+
 = trunk =
 
+- Fixed: Check that JavaScript variables it set and that the object have properties set. Fixes https://wordpress.org/support/topic/firefox-37-js-error-generated-by-simplehistoryipinfodropinjs.
 - Changed: Loading of loggers, dropins, and so one are moved from action `plugins_loaded` to `after_setup_theme` so themes can actually use for example the load_dropin_*-filters...
 - Updated: German translation updated.
 
