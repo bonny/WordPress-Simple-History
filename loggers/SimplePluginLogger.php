@@ -454,7 +454,6 @@ class SimplePluginLogger extends SimpleLogger
 
 				$plugin_slug = isset( $upgrader_skin_result["destination_name"] ) ? $upgrader_skin_result["destination_name"] : "";
 
-
 				// Upgrader contains current info
 				$context = array(
 					"plugin_slug" => $plugin_slug,
@@ -914,13 +913,13 @@ class SimplePluginLogger extends SimpleLogger
 
 				// Keys to show
 				$arr_plugin_keys = array(
-					"plugin_version" => _x("Version", "plugin logger - detailed output version", "simple-history"),
 					"plugin_description" => "Description",
+					"plugin_version" => _x("Version", "plugin logger - detailed output version", "simple-history"),
 					"plugin_author" => _x("Author", "plugin logger - detailed output author", "simple-history"),
 					"plugin_url" => _x("URL", "plugin logger - detailed output url", "simple-history"),
-					"plugin_requires" => _x("Requires", "plugin logger - detailed output author", "simple-history"),
-					"plugin_tested" => _x("Compatible up to", "plugin logger - detailed output compatible", "simple-history"),
-					"plugin_downloaded" => _x("Downloads", "plugin logger - detailed output downloaded", "simple-history"),
+					#"plugin_downloaded" => _x("Downloads", "plugin logger - detailed output downloaded", "simple-history"),
+					#"plugin_requires" => _x("Requires", "plugin logger - detailed output author", "simple-history"),
+					#"plugin_tested" => _x("Compatible up to", "plugin logger - detailed output compatible", "simple-history"),
 					// also available: plugin_rating, plugin_num_ratings
 				);
 
