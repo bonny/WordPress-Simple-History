@@ -448,22 +448,43 @@ class SimplePluginLogger extends SimpleLogger
 			// Single plugin install
 			if ( isset( $arr_data["action"] ) && "install" == $arr_data["action"] && ! $plugin_upgrader_instance->bulk ) {
 
+				$upgrader_skin_options = isset( $plugin_upgrader_instance->skin->options ) && is_array( $plugin_upgrader_instance->skin->options ) ? $plugin_upgrader_instance->skin->options : array();
+				$upgrader_skin_result = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
+				$upgrader_skin_api = isset( $plugin_upgrader_instance->skin->api ) ? $plugin_upgrader_instance->skin->api : (object) array();
+
+				$plugin_slug = isset( $upgrader_skin_result["destination_name"] ) ? $upgrader_skin_result["destination_name"] : "";
+
+
 				// Upgrader contains current info
 				$context = array(
-					"plugin_name" => $plugin_upgrader_instance->skin->api->name,
-					"plugin_slug" => $plugin_upgrader_instance->skin->api->slug,
-					"plugin_version" => $plugin_upgrader_instance->skin->api->version,
-					"plugin_author" => $plugin_upgrader_instance->skin->api->author,
-					"plugin_last_updated" => $plugin_upgrader_instance->skin->api->last_updated,
-					"plugin_requires" => $plugin_upgrader_instance->skin->api->requires,
-					"plugin_tested" => $plugin_upgrader_instance->skin->api->tested,
-					"plugin_rating" => $plugin_upgrader_instance->skin->api->rating,
-					"plugin_num_ratings" => $plugin_upgrader_instance->skin->api->num_ratings,
-					"plugin_downloaded" => $plugin_upgrader_instance->skin->api->downloaded,
-					"plugin_added" => $plugin_upgrader_instance->skin->api->added,
+					"plugin_slug" => $plugin_slug,
+					"plugin_name" => isset( $upgrader_skin_api->name ) ? $upgrader_skin_api->name : "",
+					"plugin_version" => isset( $upgrader_skin_api->version ) ? $upgrader_skin_api->version : "",
+					"plugin_author" => isset( $upgrader_skin_api->author ) ? $upgrader_skin_api->author : "",
+					"plugin_last_updated" => isset( $upgrader_skin_api->last_updated ) ? $upgrader_skin_api->last_updated : "",
+					"plugin_requires" => isset( $upgrader_skin_api->requires ) ? $upgrader_skin_api->requires : "",
+					"plugin_tested" => isset( $upgrader_skin_api->tested ) ? $upgrader_skin_api->tested : "",
+					"plugin_rating" => isset( $upgrader_skin_api->rating ) ? $upgrader_skin_api->rating : "",
+					"plugin_num_ratings" => isset( $upgrader_skin_api->num_ratings ) ? $upgrader_skin_api->num_ratings : "",
+					"plugin_downloaded" => isset( $upgrader_skin_api->downloaded ) ? $upgrader_skin_api->downloaded : "",
+					"plugin_added" => isset( $upgrader_skin_api->added ) ? $upgrader_skin_api->added : "",
 					"plugin_source_files" => $this->simpleHistory->json_encode( $plugin_upgrader_instance->result["source_files"] ),
-					//"upgrader_skin_api" => $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->api )
+					
+					// To debug comment out these:
+					"debug_skin_options" => $this->simpleHistory->json_encode( $upgrader_skin_options ),
+					"debug_skin_result" => $this->simpleHistory->json_encode( $upgrader_skin_result ),
+
 				);
+
+				/*
+				Detect install plugin from wordpress.org
+					- options[type] = "web"
+					- options[api] contains all we need
+
+				Detect install from upload ZIP
+					- options[type] = "upload"
+
+				*/
 
 				if ( is_a( $plugin_upgrader_instance->skin->result, "WP_Error" ) ) {
 
@@ -485,12 +506,17 @@ class SimplePluginLogger extends SimpleLogger
 					// Try to grab more info from the readme
 					// Would be nice to grab a screenshot, but that is difficult since they often are stored remotely
 					$plugin_destination = isset( $plugin_upgrader_instance->result["destination"] ) ? $plugin_upgrader_instance->result["destination"] : null;
+					
 					if ($plugin_destination) {
 
 						$plugin_info = $plugin_upgrader_instance->plugin_info();
 						$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info );
-						$context["plugin_description"] = $plugin_data["Description"];
-						$context["plugin_url"] = $plugin_data["PluginURI"];
+						$context["plugin_name"] = isset( $plugin_data["Name"] ) ? $plugin_data["Name"] : "";
+						$context["plugin_description"] = isset( $plugin_data["Description"] ) ? $plugin_data["Description"] : "";
+						$context["plugin_url"] = isset( $plugin_data["PluginURI"] ) ? $plugin_data["PluginURI"] : "";
+						$context["plugin_version"] = isset( $plugin_data["Version"] ) ? $plugin_data["Version"] : "";
+						$context["plugin_author"] = isset( $plugin_data["AuthorName"] ) ? $plugin_data["AuthorName"] : "";
+						#$context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
 
 					}
 
