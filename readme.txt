@@ -118,6 +118,7 @@ initiated by a specific user.
 = trunk =
 
 - Fixed: Messages for disabled loggers was not shown.
+- Fixed: An error when trying to show edit link for deleted comments.
 
 = 2.0.24 =
 

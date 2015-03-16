@@ -741,28 +741,34 @@ class SimpleCommentsLogger extends SimpleLogger
 
 		if ( $comment_ID ) {
 
-			// http://site.local/wp/wp-admin/comment.php?action=editcomment&c=
-			$edit_comment_link = get_edit_comment_link( $comment_ID );
+			$comment = get_comment( $comment_ID );
 
-			// Edit link sometimes does not contain comment ID
-			// Probably because comment has been removed or something
-			// So only continue if link does not end with "=""
-			if ( $edit_comment_link && $edit_comment_link[strlen($edit_comment_link)-1] !== "=" ) {
+			if ( $comment ) {
 
-				$output .= sprintf(
-					'
-					<tr>
-						<td></td>
-						<td><a href="%2$s">%1$s</a></td>
-					</tr>
-					',
-					_x("View/Edit", "comments logger - edit comment", "simple-history"),
-					$edit_comment_link
-				);
+				// http://site.local/wp/wp-admin/comment.php?action=editcomment&c=
+				$edit_comment_link = get_edit_comment_link( $comment_ID );
 
-			}
+				// Edit link sometimes does not contain comment ID
+				// Probably because comment has been removed or something
+				// So only continue if link does not end with "=""
+				if ( $edit_comment_link && $edit_comment_link[strlen($edit_comment_link)-1] !== "=" ) {
 
-		}
+					$output .= sprintf(
+						'
+						<tr>
+							<td></td>
+							<td><a href="%2$s">%1$s</a></td>
+						</tr>
+						',
+						_x("View/Edit", "comments logger - edit comment", "simple-history"),
+						$edit_comment_link
+					);
+
+				}
+
+			} // if comment
+
+		} // if comment id
 
 		// End table
 		$output .= "</table>";
