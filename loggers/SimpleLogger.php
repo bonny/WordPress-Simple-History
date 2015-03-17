@@ -159,8 +159,11 @@ class SimpleLogger {
 					$is_current_user = ($user_id == get_current_user_id()) ? true : false;
 
 					// get user role, as done in user-edit.php
-					$user_roles = array_intersect(array_values($user->roles), array_keys(get_editable_roles()));
-					$user_role = array_shift($user_roles);
+					global $wp_roles;
+					$all_roles = (array) $wp_roles->roles;
+					$user_roles = array_intersect( array_values( (array) $user->roles ), array_keys( (array) $wp_roles->roles ));
+					$user_role = array_shift( $user_roles );
+
 					$user_display_name = $user->display_name;
 
 					$tmpl_initiator_html = '
