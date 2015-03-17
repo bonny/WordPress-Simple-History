@@ -119,6 +119,7 @@ initiated by a specific user.
 
 - Fixed: Messages for disabled loggers was not shown.
 - Fixed: An error when trying to show edit link for deleted comments.
+- Fixed: Use a safer way to get editable roles. Hopefully fixes https://wordpress.org/support/topic/php-warnings-simpleloggerphp-on-line-162.
 
 = 2.0.24 =
 

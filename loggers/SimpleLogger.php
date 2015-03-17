@@ -159,7 +159,7 @@ class SimpleLogger {
 					$is_current_user = ($user_id == get_current_user_id()) ? true : false;
 
 					// get user role, as done in user-edit.php
-					global $wp_roles;
+					$wp_roles = $GLOBALS["wp_roles"];
 					$all_roles = (array) $wp_roles->roles;
 					$user_roles = array_intersect( array_values( (array) $user->roles ), array_keys( (array) $wp_roles->roles ));
 					$user_role = array_shift( $user_roles );
