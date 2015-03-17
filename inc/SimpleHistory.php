@@ -1910,15 +1910,24 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 		}
 
+		// Add data atributes to log row, so plugins can do stuff
 		$data_attrs = "";
 		$data_attrs .= sprintf(' data-row-id="%1$d" ', $oneLogRow->id);
 		$data_attrs .= sprintf(' data-occasions-count="%1$d" ', $occasions_count);
-		$data_attrs .= sprintf(' data-occasions-id="%1$s" ', $oneLogRow->occasionsID);
-		$data_attrs .= sprintf(' data-ip-address="%1$s" ', esc_attr($oneLogRow->context["_server_remote_addr"]));
+		$data_attrs .= sprintf(' data-occasions-id="%1$s" ', esc_attr( $oneLogRow->occasionsID ));
+		$data_attrs .= sprintf(' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context["_server_remote_addr"] ) );
+		$data_attrs .= sprintf(' data-logger="%1$s" ', esc_attr( $oneLogRow->logger ) );
+		$data_attrs .= sprintf(' data-level="%1$s" ', esc_attr( $oneLogRow->level ) );
+		$data_attrs .= sprintf(' data-date="%1$s" ', esc_attr( $oneLogRow->date ) );
+		$data_attrs .= sprintf(' data-initiator="%1$s" ', esc_attr( $oneLogRow->initiator ) );
+		
+		if ( isset( $oneLogRow->context["_user_id"] ) ) {
+			$data_attrs .= sprintf(' data-initiator-user-id="%1$d" ', $oneLogRow->context["_user_id"] );
+		}
 
 		// If type is single then include more details
 		$more_details_html = "";
-		if ($args["type"] == "single") {
+		if ( $args["type"] == "single" ) {
 
 			$more_details_html .= sprintf('<h2 class="SimpleHistoryLogitem__moreDetailsHeadline">%1$s</h2>', __("Context data", "simple-history"));
 			$more_details_html .= "<p>" . __("This is potentially useful meta data that a logger has saved.", "simple-history") . "</p>";
