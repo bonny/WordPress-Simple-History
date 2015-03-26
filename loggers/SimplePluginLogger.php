@@ -154,6 +154,57 @@ class SimplePluginLogger extends SimpleLogger
 
 		add_action("admin_action_delete-selected", array($this, "on_action_delete_selected"), 10, 1);
 
+		// Ajax function to get info from GitHub repo. Used by "View plugin info"-link for plugin installs
+		add_action("wp_ajax_SimplePluginLogger_GetGitHubPluginInfo", array($this, "ajax_GetGitHubPluginInfo"));
+
+	}
+
+	function ajax_GetGitHubPluginInfo() {
+		
+		$repo = isset( $_GET["repo"] ) ? (string) $_GET["repo"] : "";
+		
+		if ( ! $repo ) {
+			wp_die( "Nah" );
+		}
+
+		$repo_parts = explode("/", $repo);
+		if ( count($repo_parts) !== 5 ) {
+			wp_die("nah");
+		}
+
+		$repo_username = $repo_parts[3];
+		$repo_repo = $repo_parts[4];
+
+		// https://api.github.com/repos/<username>/<repo>/readme
+		$api_url = sprintf('https://api.github.com/repos/%1$s/%2$s/readme', urlencode( $repo_username ), urlencode( $repo_repo ));
+
+		// Get file. Use accept-header to get file as HTML instead of JSON 
+		$response = wp_remote_get( $api_url, array(
+			"headers" => array(
+				"accept" => "application/vnd.github.VERSION.html"
+			)
+		) );
+
+		$response_body = wp_remote_retrieve_body( $response );
+		
+		printf(
+			'
+				<!doctype html>
+				<style>
+					body {
+						font-family: sans-serif;
+					}
+				</style>
+				<!-- <base href="%1$s/blob/master/"> -->
+				%2$s
+			',
+			esc_url( $repo ),
+			$response_body
+		);
+		
+		#echo($response_body);
+		
+		exit;
 
 	}
 
@@ -517,14 +568,24 @@ class SimplePluginLogger extends SimpleLogger
 					
 					if ( $plugin_destination ) {
 
+// If plugin Github Update is not installed we will not get its extra fields
+// So need to hook filter below ourself
+add_filter( "extra_plugin_headers", function($arr_headers) {
+	$arr_headers[] = "GitHub Plugin URI";
+	return $arr_headers;
+} );
 						$plugin_info = $plugin_upgrader_instance->plugin_info();
 						$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info );
+
 						$context["plugin_name"] = isset( $plugin_data["Name"] ) ? $plugin_data["Name"] : "";
 						$context["plugin_description"] = isset( $plugin_data["Description"] ) ? $plugin_data["Description"] : "";
 						$context["plugin_url"] = isset( $plugin_data["PluginURI"] ) ? $plugin_data["PluginURI"] : "";
 						$context["plugin_version"] = isset( $plugin_data["Version"] ) ? $plugin_data["Version"] : "";
 						$context["plugin_author"] = isset( $plugin_data["AuthorName"] ) ? $plugin_data["AuthorName"] : "";
-						//$context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
+						
+						// Comment out these to debug plugin installs
+						$context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
+						$context["debug_plugin_info"] = $this->simpleHistory->json_encode( $plugin_info );
 						
 						if ( isset( $plugin_data["GitHub Plugin URI"] ) ) {
 							$context["plugin_github_url"] = $plugin_data["GitHub Plugin URI"];
@@ -1034,7 +1095,7 @@ class SimplePluginLogger extends SimpleLogger
 							<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
 						</tr>
 						',
-						sprintf('%1$s?amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url($context["plugin_github_url"]) ),
+						admin_url(sprintf('admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&amp;repo=%1$s&amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url_raw( $context["plugin_github_url"] ) ) ),
 						esc_html_x("View plugin info", "plugin logger: plugin info thickbox title view all info", "simple-history")
 					);
 
