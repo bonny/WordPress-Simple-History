@@ -475,13 +475,7 @@ class SimplePluginLogger extends SimpleLogger
 
 				);
 
-				$install_source = "unknown";
-				if ( isset( $upgrader_skin_options["type"] ) ) {
-					$install_source = (string) $upgrader_skin_options["type"];
-				}
-
-				$context["plugin_install_source"] = $install_source;
-
+				
 				/*
 				Detect install plugin from wordpress.org
 					- options[type] = "web"
@@ -490,7 +484,15 @@ class SimplePluginLogger extends SimpleLogger
 				Detect install from upload ZIP
 					- options[type] = "upload"
 
+				Also: plugins hosted at GitHub have a de-facto standard field of "GitHub Plugin URI"
 				*/
+				$install_source = "unknown";
+				if ( isset( $upgrader_skin_options["type"] ) ) {
+					$install_source = (string) $upgrader_skin_options["type"];
+				}
+
+				$context["plugin_install_source"] = $install_source;
+
 
 				if ( is_a( $plugin_upgrader_instance->skin->result, "WP_Error" ) ) {
 
@@ -513,7 +515,7 @@ class SimplePluginLogger extends SimpleLogger
 					// Would be nice to grab a screenshot, but that is difficult since they often are stored remotely
 					$plugin_destination = isset( $plugin_upgrader_instance->result["destination"] ) ? $plugin_upgrader_instance->result["destination"] : null;
 					
-					if ($plugin_destination) {
+					if ( $plugin_destination ) {
 
 						$plugin_info = $plugin_upgrader_instance->plugin_info();
 						$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info );
@@ -522,8 +524,12 @@ class SimplePluginLogger extends SimpleLogger
 						$context["plugin_url"] = isset( $plugin_data["PluginURI"] ) ? $plugin_data["PluginURI"] : "";
 						$context["plugin_version"] = isset( $plugin_data["Version"] ) ? $plugin_data["Version"] : "";
 						$context["plugin_author"] = isset( $plugin_data["AuthorName"] ) ? $plugin_data["AuthorName"] : "";
-						#$context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
-
+						//$context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
+						
+						if ( isset( $plugin_data["GitHub Plugin URI"] ) ) {
+							$context["plugin_github_url"] = $plugin_data["GitHub Plugin URI"];
+						}
+						
 					}
 
 					$this->infoMessage(
@@ -533,7 +539,7 @@ class SimplePluginLogger extends SimpleLogger
 
 					$did_log = true;
 
-				}
+				} // if error or not
 
 			} // install single
 
@@ -988,7 +994,13 @@ class SimplePluginLogger extends SimpleLogger
 
 				}
 
+				// Add link with more info about the plugin
+				// If plugin_install_source	= web then it should be a wordpress.org-plugin
+				// If plugin_github_url is set then it's a zip from a github thingie
+				// so use link to that.
+
 				$plugin_slug = ! empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
+
 				if ( $plugin_slug ) {
 				
 					$output .= sprintf(
