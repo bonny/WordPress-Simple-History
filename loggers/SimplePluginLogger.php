@@ -475,6 +475,13 @@ class SimplePluginLogger extends SimpleLogger
 
 				);
 
+				$install_source = "unknown";
+				if ( isset( $upgrader_skin_options["type"] ) ) {
+					$install_source = (string) $upgrader_skin_options["type"];
+				}
+
+				$context["plugin_install_source"] = $install_source;
+
 				/*
 				Detect install plugin from wordpress.org
 					- options[type] = "web"
@@ -913,6 +920,7 @@ class SimplePluginLogger extends SimpleLogger
 
 				// Keys to show
 				$arr_plugin_keys = array(
+					"plugin_install_source" => _x("Install source", "plugin logger - detailed output install source", "simple-history"),
 					"plugin_description" => "Description",
 					"plugin_version" => _x("Version", "plugin logger - detailed output version", "simple-history"),
 					"plugin_author" => _x("Author", "plugin logger - detailed output author", "simple-history"),
@@ -933,7 +941,7 @@ class SimplePluginLogger extends SimpleLogger
 					switch ($key) {
 
 						case "plugin_downloaded":
-							$desc_output = esc_attr( number_format_i18n( (int) $context[ $key ] ) );
+							$desc_output = esc_html( number_format_i18n( (int) $context[ $key ] ) );
 							break;
 
 						// author is already formatted
@@ -943,11 +951,23 @@ class SimplePluginLogger extends SimpleLogger
 
 						// URL needs a link
 						case "plugin_url":
-							$desc_output = sprintf('<a href="%1$s">%1$s</a>', esc_attr( $context["plugin_url"] ));
+							$desc_output = sprintf('<a href="%1$s">%2$s</a>', esc_attr( $context["plugin_url"] ), esc_html( $context["plugin_url"] ));
 							break;			
 
 						case "plugin_description":
 							$desc_output = $plugin_description;
+							break;
+
+						case "plugin_install_source":
+
+							if ( "web" == $context[ $key ] ) {
+								$desc_output = esc_html( __("WordPress Plugin Repository") );
+							} else if ( "upload" == $context[ $key ] ) {
+								$desc_output = esc_html( __("Uploaded ZIP archive") );
+							} else {
+								$desc_output = esc_html( $context[ $key ] );
+							}
+
 							break;
 
 						default;
