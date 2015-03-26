@@ -117,6 +117,8 @@ initiated by a specific user.
 
 = trunk =
 
+- Added: Plugin installs now shows the source of the plugin. Supported sources are "WordPress plugin repository" and "uploaded ZIP archives".
+- Added: Support for showing plugin info-link for plugins from GitHub, installed with uploaded ZIP-archive.
 - Fixed: Messages for disabled loggers was not shown.
 - Fixed: An error when trying to show edit link for deleted comments.
 - Fixed: Use a safer way to get editable roles. Hopefully fixes https://wordpress.org/support/topic/php-warnings-simpleloggerphp-on-line-162.
