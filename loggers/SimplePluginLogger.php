@@ -966,6 +966,10 @@ class SimplePluginLogger extends SimpleLogger
 
 						case "plugin_install_source":
 
+							if ( ! isset( $context[ $key ] ) ) {
+								continue;
+							}
+
 							if ( "web" == $context[ $key ] ) {
 								$desc_output = esc_html( __("WordPress Plugin Repository") );
 							} else if ( "upload" == $context[ $key ] ) {
@@ -999,9 +1003,10 @@ class SimplePluginLogger extends SimpleLogger
 				// If plugin_github_url is set then it's a zip from a github thingie
 				// so use link to that.
 
-				$plugin_slug = ! empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
+				$plugin_slug = ! empty( $context["plugin_slug"] ) ? $context["plugin_slug"] : "";
 
-				if ( $plugin_slug ) {
+				// Slug + web as install source = show link to wordpress.org
+				if ( $plugin_slug && isset( $context["plugin_install_source"] ) && $context["plugin_install_source"] == "web" ) {
 				
 					$output .= sprintf(
 						'
@@ -1014,7 +1019,27 @@ class SimplePluginLogger extends SimpleLogger
 						esc_html_x("View plugin info", "plugin logger: plugin info thickbox title view all info", "simple-history")
 					);
 
-				}
+				} 
+				// GitHub plugin url set = show link to github repo
+				else if ( isset( $context["plugin_install_source"] ) && $context["plugin_install_source"] == "upload" && ! empty( $context["plugin_github_url"] ) ) {
+					
+					// Can't embed iframe
+					// Must use API instead
+					// https://api.github.com/repos/<username>/<repo>/readme?callback=<callbackname>
+
+					$output .= sprintf(
+						'
+						<tr>
+							<td></td>
+							<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
+						</tr>
+						',
+						sprintf('%1$s?amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url($context["plugin_github_url"]) ),
+						esc_html_x("View plugin info", "plugin logger: plugin info thickbox title view all info", "simple-history")
+					);
+
+				} 
+
 
 				$output .= "</table>";
 
