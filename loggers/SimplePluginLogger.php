@@ -920,8 +920,8 @@ class SimplePluginLogger extends SimpleLogger
 
 				// Keys to show
 				$arr_plugin_keys = array(
-					"plugin_install_source" => _x("Install source", "plugin logger - detailed output install source", "simple-history"),
 					"plugin_description" => "Description",
+					"plugin_install_source" => _x("Source", "plugin logger - detailed output install source", "simple-history"),
 					"plugin_version" => _x("Version", "plugin logger - detailed output version", "simple-history"),
 					"plugin_author" => _x("Author", "plugin logger - detailed output author", "simple-history"),
 					"plugin_url" => _x("URL", "plugin logger - detailed output url", "simple-history"),
