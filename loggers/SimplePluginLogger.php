@@ -194,6 +194,15 @@ class SimplePluginLogger extends SimpleLogger
 					body {
 						font-family: sans-serif;
 					}
+					pre code {
+						white-space: pre-line;
+					}
+					.highlight {
+						white-space: pre-line;
+					}
+					.highlight span {
+						white-space: pre-line;
+					}
 				</style>
 				<!-- <base href="%1$s/blob/master/"> -->
 				%2$s
