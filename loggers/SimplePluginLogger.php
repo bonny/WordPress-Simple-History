@@ -620,14 +620,20 @@ class SimplePluginLogger extends SimpleLogger
 					
 					if ( $plugin_destination ) {
 
-// If plugin Github Update is not installed we will not get its extra fields
-// So need to hook filter below ourself
+// If the Github Update plugin is not installed we will not get extra fields used by it.
+// So need to hook filter "extra_plugin_headers" ourself.
 add_filter( "extra_plugin_headers", function($arr_headers) {
 	$arr_headers[] = "GitHub Plugin URI";
 	return $arr_headers;
 } );
+// @todo: get_plugin_data returns error if file does not exist, which is case when updating github plugins..
+// also: what if plugin has both wordpress url and github url?
 						$plugin_info = $plugin_upgrader_instance->plugin_info();
-						$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info );
+
+						$plugin_data = array();
+						if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin_info ) ) {
+							$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info );
+						}
 
 						$context["plugin_name"] = isset( $plugin_data["Name"] ) ? $plugin_data["Name"] : "";
 						$context["plugin_description"] = isset( $plugin_data["Description"] ) ? $plugin_data["Description"] : "";
@@ -660,7 +666,10 @@ add_filter( "extra_plugin_headers", function($arr_headers) {
 			if ( isset( $arr_data["action"] ) && "update" == $arr_data["action"] && ! $plugin_upgrader_instance->bulk ) {
 
 				// No plugin info in instance, so get it ourself
-				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data["plugin"] );
+				$plugin_data = array();
+				if ( file_exists( WP_PLUGIN_DIR . '/' . $arr_data["plugin"] ) ) {
+					$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data["plugin"] );
+				}
 
 				// autoptimize/autoptimize.php
 				$plugin_slug = dirname( $arr_data["plugin"] );
