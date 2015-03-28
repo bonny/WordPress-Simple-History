@@ -596,6 +596,28 @@ class SimplePluginLogger extends SimpleLogger
 
 				$context["plugin_install_source"] = $install_source;
 
+				// If uploaded plugin store name of ZIP
+				if ( "upload" == $install_source ) {
+
+					/*_debug_files
+					{
+					    "pluginzip": {
+					        "name": "WPThumb-master.zip",
+					        "type": "application\/zip",
+					        "tmp_name": "\/Applications\/MAMP\/tmp\/php\/phpnThImc",
+					        "error": 0,
+					        "size": 2394625
+					    }
+					}
+					*/
+					
+					if ( isset( $_FILES["pluginzip"]["name"] ) ) {
+						$plugin_upload_name = $_FILES["pluginzip"]["name"];
+						$context["plugin_upload_name"] = $plugin_upload_name;
+					}
+
+				}
+
 
 				if ( is_a( $plugin_upgrader_instance->skin->result, "WP_Error" ) ) {
 
@@ -620,14 +642,13 @@ class SimplePluginLogger extends SimpleLogger
 					
 					if ( $plugin_destination ) {
 
-// If the Github Update plugin is not installed we will not get extra fields used by it.
-// So need to hook filter "extra_plugin_headers" ourself.
-add_filter( "extra_plugin_headers", function($arr_headers) {
-	$arr_headers[] = "GitHub Plugin URI";
-	return $arr_headers;
-} );
-// @todo: get_plugin_data returns error if file does not exist, which is case when updating github plugins..
-// also: what if plugin has both wordpress url and github url?
+						// If the Github Update plugin is not installed we will not get extra fields used by it.
+						// So need to hook filter "extra_plugin_headers" ourself.
+						add_filter( "extra_plugin_headers", function($arr_headers) {
+							$arr_headers[] = "GitHub Plugin URI";
+							return $arr_headers;
+						} );
+
 						$plugin_info = $plugin_upgrader_instance->plugin_info();
 
 						$plugin_data = array();
@@ -642,8 +663,8 @@ add_filter( "extra_plugin_headers", function($arr_headers) {
 						$context["plugin_author"] = isset( $plugin_data["AuthorName"] ) ? $plugin_data["AuthorName"] : "";
 						
 						// Comment out these to debug plugin installs
-						$context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
-						$context["debug_plugin_info"] = $this->simpleHistory->json_encode( $plugin_info );
+						#$context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
+						#$context["debug_plugin_info"] = $this->simpleHistory->json_encode( $plugin_info );
 						
 						if ( isset( $plugin_data["GitHub Plugin URI"] ) ) {
 							$context["plugin_github_url"] = $plugin_data["GitHub Plugin URI"];
@@ -1050,6 +1071,7 @@ add_filter( "extra_plugin_headers", function($arr_headers) {
 				$arr_plugin_keys = array(
 					"plugin_description" => "Description",
 					"plugin_install_source" => _x("Source", "plugin logger - detailed output install source", "simple-history"),
+					"plugin_install_source_file" => _x("Source file name", "plugin logger - detailed output install source", "simple-history"),
 					"plugin_version" => _x("Version", "plugin logger - detailed output version", "simple-history"),
 					"plugin_author" => _x("Author", "plugin logger - detailed output author", "simple-history"),
 					"plugin_url" => _x("URL", "plugin logger - detailed output url", "simple-history"),
@@ -1093,11 +1115,29 @@ add_filter( "extra_plugin_headers", function($arr_headers) {
 							}
 
 							if ( "web" == $context[ $key ] ) {
-								$desc_output = esc_html( __("WordPress Plugin Repository") );
+								$desc_output = esc_html( __("WordPress Plugin Repository", "simple-history") );
 							} else if ( "upload" == $context[ $key ] ) {
-								$desc_output = esc_html( __("Uploaded ZIP archive") );
+								#$plugin_upload_name = isset( $context["plugin_upload_name"] ) ? $context["plugin_upload_name"] : __("Unknown archive name", "simple-history");
+								$desc_output = esc_html( __('Uploaded ZIP archive', "simple-history") );
+								#$desc_output = esc_html( sprintf( __('Uploaded ZIP archive (%1$s)', "simple-history"), $plugin_upload_name ) );
+								#$desc_output = esc_html( sprintf( __('%1$s (uploaded ZIP archive)', "simple-history"), $plugin_upload_name ) );
 							} else {
 								$desc_output = esc_html( $context[ $key ] );
+							}
+
+							break;
+
+						case "plugin_install_source_file":
+
+							if ( ! isset( $context["plugin_upload_name"] ) || ! isset( $context["plugin_install_source"] ) ) {
+								continue;
+							}
+
+							if ( "upload" == $context["plugin_install_source"] ) {
+								$plugin_upload_name = $context["plugin_upload_name"];
+								$desc_output = esc_html( sprintf( __('a %1$s', "simple-history"), $plugin_upload_name ) );
+								$desc_output .= esc_html( sprintf( __('b %1$s (uploaded ZIP archive)', "simple-history"), $plugin_upload_name ) );
+								$desc_output = $plugin_upload_name;
 							}
 
 							break;
