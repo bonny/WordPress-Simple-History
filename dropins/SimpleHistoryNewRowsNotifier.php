@@ -35,7 +35,7 @@ class SimpleHistoryNewRowsNotifier {
 
 		$arr_localize_data = array(
 			"interval" => $this->interval,
-			"errorCheck" =>_x('An error occured while checking for new log rows', 'New rows notifier: error while checking for new rows', 'simple-history')
+			"errorCheck" =>_x('An error occured while checking for new events', 'New rows notifier: error while checking for new rows', 'simple-history')
 		);
 
 		wp_localize_script( "simple_history_NewRowsNotifierDropin", "simple_history_NewRowsNotifierDropin", $arr_localize_data );
@@ -77,7 +77,7 @@ class SimpleHistoryNewRowsNotifier {
 			// We have new rows
 
 			// Append strings
-			$textRowsFound = sprintf( _n( '1 new row', '%d new rows', $numNewRows, 'simple-history' ), $numNewRows );
+			$textRowsFound = sprintf( _n( '1 new event', '%d new events', $numNewRows, 'simple-history' ), $numNewRows );
 			$json_data["strings"] = array(
 				"newRowsFound" => $textRowsFound
 			);
