@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Logs things related to comments
  */

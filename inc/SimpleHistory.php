@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Main class for Simple History
  */

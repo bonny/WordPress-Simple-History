@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /*
     - vid start av app: login, körs titt som tätt
     - XMLRPC_REQUEST": true

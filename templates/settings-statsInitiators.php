@@ -1,4 +1,9 @@
 <?php
+defined( 'ABSPATH' ) or die();
+?>
+
+
+<?php
 // Stats based by initiator
 
 // Stats på level (notice, warning, debug, etc.)

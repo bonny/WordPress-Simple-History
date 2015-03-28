@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Logs changes to user logins (and logouts)
  */

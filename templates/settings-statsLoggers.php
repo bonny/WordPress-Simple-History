@@ -1,4 +1,5 @@
 <?php
+defined( 'ABSPATH' ) or die();
 
 echo "<h4 class=''>";
 echo __("Loggers", "simple-history");

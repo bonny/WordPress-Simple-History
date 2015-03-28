@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /*
 Dropin Name: Settings stats
 Dropin Description: Adds a tab with stats

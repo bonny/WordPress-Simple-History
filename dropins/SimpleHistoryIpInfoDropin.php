@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /*
 Dropin Name: IP Info
 Dropin URI: http://simple-history.com/

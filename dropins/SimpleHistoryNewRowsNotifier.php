@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Dropin Name: New Items Notifier
  * Dropin Description: Checks for new rows and displays a info bar when new items are available

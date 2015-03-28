@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * A PSR-3 inspired logger class
  * This class logs + formats logs for display in the Simple History GUI/Viewer

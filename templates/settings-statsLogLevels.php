@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 // Stats på level (notice, warning, debug, etc.)
 echo "<h3>" . __("Log levels", "simple-history") . "</h3>";
 

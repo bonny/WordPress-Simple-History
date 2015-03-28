@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /*
 Dropin Name: Filter GUI
 Dropin URI: http://simple-history.com/

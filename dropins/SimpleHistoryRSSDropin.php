@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /*
 Dropin Name: Global RSS Feed
 Dropin URI: http://simple-history.com/

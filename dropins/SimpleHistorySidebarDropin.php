@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) or die();
+
 /*
 Dropin Name: Sidebar
 Drop Description: Outputs HTML and filters for a sidebar
