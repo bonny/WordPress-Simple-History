@@ -118,6 +118,7 @@ initiated by a specific user.
 = trunk =
 
 - Added: Plugin installs now shows the source of the plugin. Supported sources are "WordPress plugin repository" and "uploaded ZIP archives".
+- Added: Plugin installs via upload now shows the uploaded file name.
 - Added: Support for showing plugin info-link for plugins from GitHub, installed with uploaded ZIP-archive. Only tested with a few plugins. Please let me know if it works or not!
 - Fixed: Messages for disabled loggers was not shown.
 - Fixed: An error when trying to show edit link for deleted comments.

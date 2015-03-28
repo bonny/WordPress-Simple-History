@@ -1135,9 +1135,7 @@ class SimplePluginLogger extends SimpleLogger
 
 							if ( "upload" == $context["plugin_install_source"] ) {
 								$plugin_upload_name = $context["plugin_upload_name"];
-								$desc_output = esc_html( sprintf( __('a %1$s', "simple-history"), $plugin_upload_name ) );
-								$desc_output .= esc_html( sprintf( __('b %1$s (uploaded ZIP archive)', "simple-history"), $plugin_upload_name ) );
-								$desc_output = $plugin_upload_name;
+								$desc_output = esc_html( $plugin_upload_name );
 							}
 
 							break;
