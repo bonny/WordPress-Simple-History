@@ -136,6 +136,7 @@ class SimpleHistory {
 				$context["_debug_get"] = $sh->json_encode( $_GET );
 				$context["_debug_post"] = $sh->json_encode( $_POST );
 				$context["_debug_server"] = $sh->json_encode( $_SERVER );
+				$context["_debug_files"] = $sh->json_encode( $_FILES );
 				$context["_debug_php_sapi_name"] = php_sapi_name();
 
 				global $argv;
