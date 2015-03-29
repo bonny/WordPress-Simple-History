@@ -16,6 +16,26 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
  * Some examples of filter usage and so on
  */
 
+// Allow only the users specified in $allowed_users to show the history page, the history widget on the dashboard, or the history settings page
+add_filter("simple_history/show_dashboard_page", "function_show_history_dashboard_or_page");
+add_filter("simple_history/show_dashboard_widget", "function_show_history_dashboard_or_page");
+add_filter("simple_history/show_settings_page", "function_show_history_dashboard_or_page");
+function function_show_history_dashboard_or_page($show) {
+
+	$allowed_users = array(
+		"user1@example.com",
+		"anotheruser@example.com"
+	);
+
+	$user = wp_get_current_user();
+	
+	if ( ! in_array( $user->user_email, $allowed_users ) ) {
+		$show = false;
+	}
+
+	return $show;
+
+}
 
 
 // Skip loading of loggers
