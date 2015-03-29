@@ -117,6 +117,7 @@ initiated by a specific user.
 
 = Trunk =
 
+- Added: `composer.json` added, so Simple History can be pulled in to other projects via [Composer](https://getcomposer.org/). Actually untested, but at least the file is there. Please let me know if it works! :)
 - Fixed: Plugin installs from wordpress.org would show "wordpress plugin directory" as their source file. Looked stupid. Fixed now!
 
 = 2.0.25 =
