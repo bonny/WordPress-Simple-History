@@ -663,7 +663,9 @@ class SimpleCommentsLogger extends SimpleLogger
 
 					$desc_output = "";
 
-					$desc_output .= esc_html( $context[ $key ] );
+					if ( isset( $context[ $key ] ) ) {
+						$desc_output .= esc_html( $context[ $key ] );
+					}
 
 					/*
 					if ( isset( $context["comment_author_email"] ) ) {
