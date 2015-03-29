@@ -716,12 +716,16 @@ class SimpleCommentsLogger extends SimpleLogger
 					break;
 
 				default;
-					$desc_output = esc_html( $context[ $key ] );
+					
+					if ( isset( $context[ $key ] ) ) {
+						$desc_output = esc_html( $context[ $key ] );
+					}
+
 					break;
 			}
 
 			// Skip empty rows
-			if (empty( $desc_output )) {
+			if ( empty( $desc_output ) ) {
 				continue;
 			}
 
