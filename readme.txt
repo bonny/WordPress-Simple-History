@@ -115,6 +115,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= Trunk =
+
+- Fixed: Plugin installs from wordpress.org would show "wordpress plugin directory" as their source file. Looked stupid. Fixed now!
+
 = 2.0.25 =
 
 - Added: Plugin installs now shows the source of the plugin. Supported sources are "WordPress plugin repository" and "uploaded ZIP archives".

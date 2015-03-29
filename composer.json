@@ -1,0 +1,12 @@
+{
+    "name": "bonny/WordPress-Simple-History/",
+    "type": "wordpress-plugin",
+    "minimum-stability": "dev",
+    "require-dev": {},
+    "require": {},
+    "version": "2.0.25",
+    "dist": {
+        "url": "https://downloads.wordpress.org/plugin/simple-history.2.0.25.zip",
+        "type": "zip"
+    }
+}

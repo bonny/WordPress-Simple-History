@@ -1090,7 +1090,9 @@ class SimplePluginLogger extends SimpleLogger
 
 				foreach ( $arr_plugin_keys as $key => $desc ) {
 					
-					switch ($key) {
+                                        $desc_output = "";
+
+                                        switch ( $key ) {
 
 						case "plugin_downloaded":
 							$desc_output = esc_html( number_format_i18n( (int) $context[ $key ] ) );
@@ -1146,6 +1148,10 @@ class SimplePluginLogger extends SimpleLogger
 							$desc_output = esc_html( $context[ $key ] );
 							break;
 					}
+
+                                        if ( ! trim( $desc_output ) ) {
+                                                continue;
+                                        }
 
 					$output .= sprintf(
 						'
