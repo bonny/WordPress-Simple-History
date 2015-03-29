@@ -42,7 +42,7 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	 */
 	// register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
-	define( 'SIMPLE_HISTORY_VERSION', '2.0.24' );
+	define( 'SIMPLE_HISTORY_VERSION', '2.0.25' );
 
 	define( 'SIMPLE_HISTORY_FILE', __FILE__ );
 	define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( SIMPLE_HISTORY_FILE ) );

@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.24
+Stable tag: 2.0.25
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -115,7 +115,7 @@ initiated by a specific user.
 
 ## Changelog
 
-= trunk =
+= 2.0.25 =
 
 - Added: Plugin installs now shows the source of the plugin. Supported sources are "WordPress plugin repository" and "uploaded ZIP archives".
 - Added: Plugin installs via upload now shows the uploaded file name.
@@ -123,6 +123,8 @@ initiated by a specific user.
 - Fixed: Messages for disabled loggers was not shown.
 - Fixed: An error when trying to show edit link for deleted comments.
 - Fixed: Use a safer way to get editable roles. Hopefully fixes https://wordpress.org/support/topic/php-warnings-simpleloggerphp-on-line-162.
+- Fixed: Some notice warnings from the comments logger.
+- Changed: Some other small things too.
 
 = 2.0.24 =
 
