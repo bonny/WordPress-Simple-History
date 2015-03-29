@@ -583,7 +583,7 @@ class SimpleHistory {
 		$loggersFiles = glob($loggersDir . "*.php");
 
 		// SimpleLogger.php must be loaded first since the other loggers extend it
-		require_once $loggersDir . "SimpleLogger.php";
+		include_once $loggersDir . "SimpleLogger.php";
 
 		/**
 		 * Filter the array with absolute paths to files as returned by glob function.
@@ -618,15 +618,7 @@ class SimpleHistory {
 				continue;
 			}
 
-			if ( basename( $oneLoggerFile ) == "SimpleLogger.php") {
-
-				// SimpleLogger is already loaded
-
-			} else {
-
-				include_once $oneLoggerFile;
-
-			}
+			include_once $oneLoggerFile;
 
 			$arrLoggersToInstantiate[] = $basename_no_suffix;
 
