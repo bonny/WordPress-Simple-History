@@ -667,7 +667,7 @@ class SimplePluginLogger extends SimpleLogger
 						#$context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
 						#$context["debug_plugin_info"] = $this->simpleHistory->json_encode( $plugin_info );
 						
-						if ( isset( $plugin_data["GitHub Plugin URI"] ) ) {
+						if ( ! empty( $plugin_data["GitHub Plugin URI"] ) ) {
 							$context["plugin_github_url"] = $plugin_data["GitHub Plugin URI"];
 						}
 						
@@ -1016,7 +1016,7 @@ class SimplePluginLogger extends SimpleLogger
 			"plugin_url" => $plugin_data["PluginURI"],
 		);
 
-		if ( isset( $plugin_data["GitHub Plugin URI"] ) ) {
+		if ( ! empty( $plugin_data["GitHub Plugin URI"] ) ) {
 			$context["plugin_github_url"] = $plugin_data["GitHub Plugin URI"];
 		}
 
@@ -1043,7 +1043,7 @@ class SimplePluginLogger extends SimpleLogger
 			"plugin_url" => $plugin_data["PluginURI"],
 		);
 
-		if ( isset( $plugin_data["GitHub Plugin URI"] ) ) {
+		if ( ! empty( $plugin_data["GitHub Plugin URI"] ) ) {
 			$context["plugin_github_url"] = $plugin_data["GitHub Plugin URI"];
 		}
 
@@ -1221,9 +1221,9 @@ class SimplePluginLogger extends SimpleLogger
 
 		} elseif ( "plugin_bulk_updated" === $message_key || "plugin_updated" === $message_key || "plugin_activated" === $message_key || "plugin_deactivated" === $message_key ) {
 
-			$plugin_slug = !empty($context["plugin_slug"]) ? $context["plugin_slug"] : "";
+			$plugin_slug = ! empty( $context["plugin_slug"] ) ? $context["plugin_slug"] : "";
 
-			if ( $plugin_slug ) {
+			if ( $plugin_slug && empty( $context["plugin_github_url"] ) ) {
 	
 				$link_title = esc_html_x("View plugin info", "plugin logger: plugin info thickbox title", "simple-history");
 				$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" );
@@ -1239,29 +1239,21 @@ class SimplePluginLogger extends SimpleLogger
 					$link_title	
 				);
 
-			}
-
-/*
-				else if ( isset( $context["plugin_install_source"] ) && $context["plugin_install_source"] == "upload" && ! empty( $context["plugin_github_url"] ) ) {
+			} else if ( ! empty( $context["plugin_github_url"] ) ) {
 					
-					// Can't embed iframe
-					// Must use API instead
-					// https://api.github.com/repos/<username>/<repo>/readme?callback=<callbackname>
+				$output .= sprintf(
+					'
+					<tr>
+						<td></td>
+						<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
+					</tr>
+					',
+					admin_url(sprintf('admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&amp;repo=%1$s&amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url_raw( $context["plugin_github_url"] ) ) ),
+					esc_html_x("View plugin info", "plugin logger: plugin info thickbox title view all info", "simple-history")
+				);
 
-					$output .= sprintf(
-						'
-						<tr>
-							<td></td>
-							<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
-						</tr>
-						',
-						admin_url(sprintf('admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&amp;repo=%1$s&amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url_raw( $context["plugin_github_url"] ) ) ),
-						esc_html_x("View plugin info", "plugin logger: plugin info thickbox title view all info", "simple-history")
-					);
+			} 
 
-				} 
-
-*/
 
 		} // if plugin_updated
 
