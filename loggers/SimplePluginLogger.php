@@ -240,8 +240,7 @@ class SimplePluginLogger extends SimpleLogger
 					%3$s
 					
 				</style>
-				<!-- <base href="%1$s/blob/master/"> -->
-				
+                                <!-- <base href="%4$s/blob/master/"> -->
 				
 				<header class="repo-info">
 					%1$s
@@ -253,7 +252,8 @@ class SimplePluginLogger extends SimpleLogger
 			',
 			$repo_info,
 			$response_body,
-			$github_markdown_css
+                        $github_markdown_css,
+                        esc_url( $repo ) // 4
 		);
 		
 		#echo($response_body);
@@ -1153,9 +1153,9 @@ class SimplePluginLogger extends SimpleLogger
                                                 continue;
                                         }
 
-					$output .= sprintf(
-						'
-						<tr>
+                                        $output .= sprintf(
+                                                '
+                                                <tr>
 							<td>%1$s</td>
 							<td>%2$s</td>
 						</tr>
