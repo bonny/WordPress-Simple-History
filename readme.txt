@@ -115,6 +115,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= trunk =
+
+- Fixed: Even better support for plugins from GitHub with the `GitHub Plugin URI` header. Plugin install, deactivations, and activations should have correct view-info-links now.
+
 = 2.0.26 =
 
 - Fixed: Plugin installs from wordpress.org would show "wordpress plugin directory" as their source file. Looked stupid. Fixed now!
