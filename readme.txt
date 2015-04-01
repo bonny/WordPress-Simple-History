@@ -115,6 +115,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= trunk =
+
+- Updated: German translation updated.
+
 = 2.0.27 (April 2015) =
 
 - Fixed: Even better support for plugins from GitHub with the `GitHub Plugin URI` header. Plugin install, deactivations, and activations should have correct view-info-links now.
@@ -145,7 +149,7 @@ initiated by a specific user.
 - Changed: Loading of loggers, dropins, and so one are moved from action `plugins_loaded` to `after_setup_theme` so themes can actually use for example the load_dropin_*-filters...
 - Changed: Misc small design fixes.
 
-= 2.0.23 (March 2015) = 
+= 2.0.23 (March 2015) =
 
 - Added: Filter `simple_history/rss_item_link`, so plugins can modify the link used in the RSS feed.
 - Added: Links for changed posts and attachments in RSS feed now links directly to WordPress admin, making is easier to follow things from your RSS reeder.
