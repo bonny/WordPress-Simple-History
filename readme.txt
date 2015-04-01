@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.26
+Stable tag: 2.0.27
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -115,16 +115,16 @@ initiated by a specific user.
 
 ## Changelog
 
-= trunk =
+= 2.0.27 (April 2015) =
 
 - Fixed: Even better support for plugins from GitHub with the `GitHub Plugin URI` header. Plugin install, deactivations, and activations should have correct view-info-links now.
 
-= 2.0.26 =
+= 2.0.26 (March 2015) =
 
 - Fixed: Plugin installs from wordpress.org would show "wordpress plugin directory" as their source file. Looked stupid. Fixed now!
 - Added: `composer.json` added, so Simple History can be pulled in to other projects via [Composer](https://getcomposer.org/). Actually untested, but at least the file is there. Please let me know if it works! :)
 
-= 2.0.25 =
+= 2.0.25 (March 2015) =
 
 - Added: Plugin installs now shows the source of the plugin. Supported sources are "WordPress plugin repository" and "uploaded ZIP archives".
 - Added: Plugin installs via upload now shows the uploaded file name.
@@ -135,7 +135,7 @@ initiated by a specific user.
 - Fixed: Some notice warnings from the comments logger.
 - Changed: Some other small things too.
 
-= 2.0.24 =
+= 2.0.24 (March 2015) =
 
 - Fixed: Plugin installs from uploaded ZIP files are now logged correctly. Fixes https://github.com/bonny/WordPress-Simple-History/issues/59.
 - Fixed: Check that JavaScript variables it set and that the object have properties set. Fixes https://wordpress.org/support/topic/firefox-37-js-error-generated-by-simplehistoryipinfodropinjs.
@@ -143,7 +143,7 @@ initiated by a specific user.
 - Changed: Loading of loggers, dropins, and so one are moved from action `plugins_loaded` to `after_setup_theme` so themes can actually use for example the load_dropin_*-filters...
 - Changed: Misc small design fixes.
 
-= 2.0.23 = 
+= 2.0.23 (March 2015) = 
 
 - Added: Filter `simple_history/rss_item_link`, so plugins can modify the link used in the RSS feed.
 - Added: Links for changed posts and attachments in RSS feed now links directly to WordPress admin, making is easier to follow things from your RSS reeder.
