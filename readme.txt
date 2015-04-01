@@ -118,6 +118,8 @@ initiated by a specific user.
 = 2.0.27 (April 2015) =
 
 - Fixed: Even better support for plugins from GitHub with the `GitHub Plugin URI` header. Plugin install, deactivations, and activations should have correct view-info-links now.
+- Updated: German translation updated.
+- Updated: Swedish translation updated.
 
 = 2.0.26 (March 2015) =
 
