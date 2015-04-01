@@ -117,6 +117,7 @@ initiated by a specific user.
 
 = trunk =
 
+- Fixed: Do not try to load the Translation Install API. Fixes https://github.com/bonny/WordPress-Simple-History/issues/67.
 - Updated: German translation updated.
 
 = 2.0.27 (April 2015) =
