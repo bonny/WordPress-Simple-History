@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.1
-Stable tag: 2.0.27
+Stable tag: 2.0.28
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -115,7 +115,7 @@ initiated by a specific user.
 
 ## Changelog
 
-= trunk =
+= 2.0.28 =
 
 - Fixed: Do not try to load the Translation Install API. Fixes https://github.com/bonny/WordPress-Simple-History/issues/67.
 - Updated: German translation updated.
