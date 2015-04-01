@@ -115,9 +115,9 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.0.28 =
+= 2.0.28 (April 2015) =
 
-- Fixed: Do not try to load the Translation Install API. Fixes https://github.com/bonny/WordPress-Simple-History/issues/67.
+- Fixed: Do not try to load the Translation Install API if using WordPress before 4.0. Fixes https://github.com/bonny/WordPress-Simple-History/issues/67.
 - Updated: German translation updated.
 
 = 2.0.27 (April 2015) =
