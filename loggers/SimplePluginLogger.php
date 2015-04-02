@@ -238,7 +238,8 @@ class SimplePluginLogger extends SimpleLogger
 					@import url("%3$s");
 					
 				</style>
-				<!-- <base href="%4$s/blob/master/"> -->
+				
+				<base href="%4$s/raw/master/">
 				
 				<header class="repo-info">
 					%1$s
