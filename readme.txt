@@ -115,6 +115,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= trunk =
+- Fixed: Images in GitHub readme files are now displayed correctly.
+- Fixed: Readme files to GitHub repositories ending with slash (/) now works correctly too.
+
 = 2.0.28 (April 2015) =
 
 - Fixed: Do not try to load the Translation Install API if using WordPress before 4.0. Fixes https://github.com/bonny/WordPress-Simple-History/issues/67.

@@ -183,7 +183,7 @@ class SimplePluginLogger extends SimpleLogger
 			wp_die( __("Could not find GitHub repository.", "simple-history" ));
 		}
 
-		$repo_parts = explode("/", $repo);
+		$repo_parts = explode("/", rtrim($repo, "/"));
 		if ( count($repo_parts) !== 5 ) {
 			wp_die( __("Could not find GitHub repository.", "simple-history" ));
 		}
