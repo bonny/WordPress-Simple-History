@@ -80,6 +80,9 @@ class SimplePostLogger extends SimpleLogger
 	// The logger slug. Defaulting to the class name is nice and logical I think
 	public $slug = __CLASS__;
 
+	// Array that will contain previous post data, before data is updated
+	private $old_post_data = array();
+
 	public function loaded() {
 
 		add_action("admin_init", array($this, "on_admin_init"));
@@ -218,10 +221,40 @@ class SimplePostLogger extends SimpleLogger
 
 	function on_admin_init() {
 
+		#add_action("pre_post_update", array($this, "on_pre_post_update"), 10, 2);
+		add_action("admin_action_editpost", array($this, "on_pre_post_update"));
+
 		add_action("transition_post_status", array($this, "on_transition_post_status"), 10, 3);
 		add_action("delete_post", array($this, "on_delete_post"));
 		add_action("untrash_post", array($this, "on_untrash_post"));
 
+	}
+
+	/**
+	 * Get old info about a post that is being edited.
+	 * Can't use the regular filters like "pre_post_update" because custom fields are already written then
+	 *
+	 * @since 2.x
+	 */
+	function on_pre_post_update() {
+		
+		$post_ID = isset( $_POST["post_ID"] ) ? (int) $_POST["post_ID"] : 0;
+
+		if ( ! $post_ID ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_ID ) ) {
+			return;
+		};
+	
+		$prev_post_data = get_post( $post_ID );
+
+		$this->old_post_data[$post_ID] = array(
+			"post_data" => $prev_post_data,
+			"post_meta" => get_post_custom( $post_ID )
+		);
+		
 	}
 
 	/**
@@ -388,17 +421,17 @@ class SimplePostLogger extends SimpleLogger
 			"post_old_status" => $old_status
 		);
 
-		if ($old_status == "auto-draft" && ($new_status != "auto-draft" && $new_status != "inherit")) {
+		if ( $old_status == "auto-draft" && ($new_status != "auto-draft" && $new_status != "inherit") ) {
 
 			// Post created
 			$this->infoMessage( "post_created", $context );
 
-		} elseif ($new_status == "auto-draft" || ($old_status == "new" && $new_status == "inherit")) {
+		} elseif ( $new_status == "auto-draft" || ($old_status == "new" && $new_status == "inherit") ) {
 
 			// Post was automagically saved by WordPress
 			return;
 
-		} elseif ($new_status == "trash") {
+		} elseif ( $new_status == "trash" ) {
 
 			// Post trashed
 			$this->infoMessage( "post_trashed", $context );
@@ -406,9 +439,78 @@ class SimplePostLogger extends SimpleLogger
 		} else {
 
 			// Post updated
+			// Also add diff between previod saved data and new data
+			if ( isset( $this->old_post_data[$post->ID] ) ) {
+
+				$old_post_data = $this->old_post_data[$post->ID];
+
+				$new_post_data = array(
+					"post_data" => $post,
+					"post_meta" => get_post_custom($post->ID)
+				);
+
+				// Now we have both old and new post data, including custom fields, in the same format
+				// So let's compare!
+				$context = $this->add_post_data_diff_to_context($context, $old_post_data, $new_post_data);
+
+			}
+
 			$this->infoMessage( "post_updated", $context );
 
 		}
+
+	}
+
+	/*
+	To detect:
+		- post author
+		- template
+		- menu order
+	*/
+	function add_post_data_diff_to_context($context, $old_post_data, $new_post_data) {
+		
+		$old_post_data["post_data"] = (array) $old_post_data["post_data"];
+		$old_post_data["post_meta"] = (array) $old_post_data["post_meta"];
+
+		$new_post_data["post_data"] = (array) $new_post_data["post_data"];
+		$new_post_data["post_meta"] = (array) $new_post_data["post_meta"];
+
+		// @todo: make sure no array values inside above anywhere (array_diff will give notices)
+
+		#$post_data_diff = array_diff_assoc( $old_post_data["post_data"], $new_post_data["post_data"]);
+		$post_data_diff = array_diff_assoc( $new_post_data["post_data"], $old_post_data["post_data"] );
+
+		if ( $post_data_diff ) {
+			$context["post_data_changed"] = simpleHistory::json_encode( array_keys($post_data_diff) );
+		}
+		/*
+		$post_data_diff = array with valyes changes
+		Array
+		(
+		    [post_date] => 2015-04-09 20:56:44
+		    [post_date_gmt] => 2015-04-09 18:56:44
+		    [post_content] => Lorem ipsum dolor sit amet, consectetur adipiscing elit. Deinde disputat, quod cuiusque generis animantium statui deceat extremum. Longum est enim ad omnia respondere, quae a te dicta sunt. Duo Reges: constructio interrete. Non igitur bene. Nam ante Aristippus, et ille melius. Praeclarae mortes sunt imperatoriae; abc added text
+		    [post_title] => Test av post details changed
+		    [post_status] => publish
+		    [post_modified] => 2015-04-09 21:58:17
+		    [post_modified_gmt] => 2015-04-09 19:58:17
+		)
+		*/
+
+		#ep_d($post_data_diff);exit;
+		#ep_d($old_post_data["post_meta"]);
+		#ep_d($new_post_data["post_meta"]);
+		
+		// Custom meta diff is for later
+		#$post_meta_diff = array_diff( $old_post_data["post_meta"], $new_post_data["post_meta"]);
+		#ep_d($post_data_diff);
+
+		// deep diff
+		// http://stackoverflow.com/a/16359538/336044
+		// 
+
+
+		return $context;
 
 	}
 
