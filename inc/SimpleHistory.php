@@ -1936,7 +1936,35 @@ foreach ($arr_settings_tabs as $one_tab) {
 				"Value"
 			);
 
-			foreach ($oneLogRow as $rowKey => $rowVal) {
+			$logRowKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow), true);
+
+			/**
+			 * Filter what keys to show from oneLogRow
+			 *
+			 * Array is in format
+			 *
+ 			 *   Array
+ 			 *   (
+ 			 *       [id] => 1
+ 			 *       [logger] => 1
+ 			 *       [level] => 1
+ 			 *       ...
+ 			 *   )
+ 			 *
+			 *
+			 * @since 2.0.29
+			 *
+			 * @param array with keys to show. key to show = key. value = boolean to show or not.
+			 * @param object log row to show details from
+			 */
+			$logRowKeysToShow = apply_filters("simple_history/log_html_output_details_table/row_keys_to_show", $logRowKeysToShow, $oneLogRow);
+
+			foreach ( $oneLogRow as $rowKey => $rowVal ) {
+
+				// Only columns from oneLogRow that exist in logRowKeysToShow will be outputed
+				if ( ! array_key_exists($rowKey, $logRowKeysToShow) || ! $logRowKeysToShow[$rowKey] ) {
+					continue;
+				}				
 
 				// skip arrays and objects and such
 				if (is_array($rowVal) || is_object($rowVal)) {
@@ -1954,7 +1982,39 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 			}
 
-			foreach ($oneLogRow->context as $contextKey => $contextVal) {
+
+			$logRowContextKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow->context), true);
+
+			/**
+			 * Filter what keys to show from the row context
+			 *
+			 * Array is in format
+			 *
+ 			 *   Array
+ 			 *   (
+			 *       [plugin_slug] => 1
+			 *       [plugin_name] => 1
+			 *       [plugin_title] => 1
+			 *       [plugin_description] => 1
+			 *       [plugin_author] => 1
+			 *       [plugin_version] => 1
+ 			 *       ...
+ 			 *   )
+ 			 *
+			 *
+			 * @since 2.0.29
+			 *
+			 * @param array with keys to show. key to show = key. value = boolean to show or not.
+			 * @param object log row to show details from
+			 */
+			$logRowContextKeysToShow = apply_filters("simple_history/log_html_output_details_table/context_keys_to_show", $logRowContextKeysToShow, $oneLogRow);
+
+			foreach ( $oneLogRow->context as $contextKey => $contextVal ) {
+
+				// Only columns from context that exist in logRowContextKeysToShow will be outputed
+				if ( ! array_key_exists($contextKey, $logRowContextKeysToShow) || ! $logRowContextKeysToShow[$contextKey] ) {
+					continue;
+				}				
 
 				$more_details_html .= sprintf(
 					'<tr>

@@ -16,6 +16,33 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
  * Some examples of filter usage and so on
  */
 
+// Hide some columns from the detailed context view popup window
+add_filter("simple_history/log_html_output_details_table/row_keys_to_show", function($logRowKeysToShow, $oneLogRow) {
+	
+	$logRowKeysToShow["id"] = false;
+	$logRowKeysToShow["logger"] = false;
+	$logRowKeysToShow["level"] = false;
+	$logRowKeysToShow["message"] = false;
+
+	return $logRowKeysToShow;
+
+}, 10, 2);
+
+
+// Hide some more columns from the detailed context view popup window
+add_filter("simple_history/log_html_output_details_table/context_keys_to_show", function($logRowContextKeysToShow, $oneLogRow) {
+	
+	$logRowContextKeysToShow["plugin_slug"] = false;
+	$logRowContextKeysToShow["plugin_name"] = false;
+	$logRowContextKeysToShow["plugin_title"] = false;
+	$logRowContextKeysToShow["plugin_description"] = false;
+
+	return $logRowContextKeysToShow;
+
+}, 10, 2);
+
+
+
 // Allow only the users specified in $allowed_users to show the history page, the history widget on the dashboard, or the history settings page
 add_filter("simple_history/show_dashboard_page", "function_show_history_dashboard_or_page");
 add_filter("simple_history/show_dashboard_widget", "function_show_history_dashboard_or_page");
