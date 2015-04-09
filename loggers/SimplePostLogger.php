@@ -462,27 +462,86 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	/*
-	To detect:
-		- post author
-		- template
-		- menu order
+	To detect*
+		- post thumb (part of custom fields)
 	*/
 	function add_post_data_diff_to_context($context, $old_post_data, $new_post_data) {
 		
-		$old_post_data["post_data"] = (array) $old_post_data["post_data"];
-		$old_post_data["post_meta"] = (array) $old_post_data["post_meta"];
+		$old_data = $old_post_data["post_data"];
+		$new_data = $new_post_data["post_data"];
 
-		$new_post_data["post_data"] = (array) $new_post_data["post_data"];
-		$new_post_data["post_meta"] = (array) $new_post_data["post_meta"];
+		#$old_post_data["post_data"] = (array) $old_post_data["post_data"];
+		#$old_post_data["post_meta"] = (array) $old_post_data["post_meta"];
+
+		#$new_post_data["post_data"] = (array) $new_post_data["post_data"];
+		#$new_post_data["post_meta"] = (array) $new_post_data["post_meta"];
 
 		// @todo: make sure no array values inside above anywhere (array_diff will give notices)
 
 		#$post_data_diff = array_diff_assoc( $old_post_data["post_data"], $new_post_data["post_data"]);
-		$post_data_diff = array_diff_assoc( $new_post_data["post_data"], $old_post_data["post_data"] );
+		// $post_data_diff = array_diff_assoc( $new_post_data["post_data"], $old_post_data["post_data"] );
 
-		if ( $post_data_diff ) {
-			$context["post_data_changed"] = simpleHistory::json_encode( array_keys($post_data_diff) );
+		// Will contain the difference
+		$post_data_diff = array();
+
+		if ( ! class_exists( 'WP_Text_Diff_Renderer_Table' ) ) {
+			require_once( ABSPATH . WPINC . '/wp-diff.php' );
 		}
+
+		/*
+		$original_file_contents = file_get_contents( WP_PLUGIN_DIR . "/" . $file );
+		$new_file_contents = wp_unslash( $_POST["newcontent"] );
+
+		$left_lines  = explode("\n", $original_file_contents);
+		$right_lines = explode("\n", $new_file_contents);
+		$text_diff = new Text_Diff($left_lines, $right_lines);
+
+		$num_added_lines = $text_diff->countAddedLines();
+		$num_removed_lines = $text_diff->countDeletedLines();
+
+		// Generate a diff in classic diff format
+		$renderer  = new Text_Diff_Renderer();
+		$diff = $renderer->render($text_diff);
+		*/
+
+		if ( isset( $old_data->post_title ) && isset( $new_data->post_title ) && $old_data->post_title != $new_data->post_title ) {
+			
+			$left_lines  = explode("\n", $old_data->post_title);
+			$right_lines = explode("\n", $new_data->post_title);
+			$text_diff = new Text_Diff($left_lines, $right_lines);
+
+			#$num_added_lines = $text_diff->countAddedLines();
+			#$num_removed_lines = $text_diff->countDeletedLines();
+
+			#echo "$num_added_lines added lines, $num_removed_lines removed lines";
+
+			// Classic diff format
+			/*$renderer  = new Text_Diff_Renderer();
+			$diff = $renderer->render($text_diff);
+
+			$wp_diff = wp_text_diff($old_data->post_title, $new_data->post_title, array( "title" => "Differences", "title_left" => "Old version", "title_right" => "New version" ));
+			print_r($wp_diff);
+
+			echo "<hr>";
+			$renderer  = new WP_Text_Diff_Renderer_Table( array() );
+			$diff_yo = $renderer->render($text_diff);
+			print_r($diff_yo);echo "\n\n";
+			*/
+
+			$post_data_diff["post_title"] = "yeah";
+
+		}
+
+		if ($post_data_diff) {
+			echo "<pre>";print_r($post_data_diff);exit;
+		}
+
+
+
+		#if ( $post_data_diff ) {
+		#	$context["post_data_changed"] = simpleHistory::json_encode( array_keys($post_data_diff) );
+		#	echo "<pre>";print_r($post_data_diff);exit;
+		#}
 		/*
 		$post_data_diff = array with valyes changes
 		Array
