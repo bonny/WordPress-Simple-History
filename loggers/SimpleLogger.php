@@ -1070,6 +1070,17 @@ class SimpleLogger {
 				$context["_server_http_referer"] = $_SERVER["HTTP_REFERER"];
 			}
 
+
+			/**
+			 * Filter the context to store for this event/row
+			 *
+			 * @since 2.0.29
+			 *
+			 * @param array $context Array with all context data to store. Modify and return this.
+			 * @param array $data Array with data used for parent row.
+			 */
+			$context = apply_filters("simple_history/log_insert_context", $context, $data);
+			
 			// Insert all context values into db
 			foreach ($context as $key => $value) {
 

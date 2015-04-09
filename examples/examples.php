@@ -16,6 +16,20 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
  * Some examples of filter usage and so on
  */
 
+// Skip adding things to the context table during logging. 
+// Useful if you don't want to add cool and possible super useful info to your logged events.
+// Also nice to have if you want to make sure your database does not grow.
+add_filter("simple_history/log_insert_context", function($context, $data) {
+
+	unset($context["_user_id"]);
+	unset($context["_user_login"]);
+	unset($context["_user_email"]);
+	unset($context["server_http_user_agent"]);
+
+	return $context;
+
+}, 10, 2);
+
 // Hide some columns from the detailed context view popup window
 add_filter("simple_history/log_html_output_details_table/row_keys_to_show", function($logRowKeysToShow, $oneLogRow) {
 	
