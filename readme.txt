@@ -119,6 +119,7 @@ initiated by a specific user.
 - Fixed: Images in GitHub readme files are now displayed correctly.
 - Fixed: Readme files to GitHub repositories ending with slash (/) now works correctly too.
 - Fixed: IP Info popup is now again closeable with `ESC` key or with a click outside it.
+- Fixed: Some enqueued scripts had double slashes in them.
 
 = 2.0.28 (April 2015) =
 
