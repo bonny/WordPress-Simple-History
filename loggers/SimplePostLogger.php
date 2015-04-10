@@ -417,9 +417,7 @@ class SimplePostLogger extends SimpleLogger
 		$context = array(
 			"post_id" => $post->ID,
 			"post_type" => get_post_type($post),
-			"post_title" => get_the_title($post),
-			"post_new_status" => $new_status,
-			"post_old_status" => $old_status
+			"post_title" => get_the_title($post)
 		);
 
 		if ( $old_status == "auto-draft" && ($new_status != "auto-draft" && $new_status != "inherit") ) {
@@ -505,7 +503,11 @@ class SimplePostLogger extends SimpleLogger
 		}
 
 		if ( $post_data_diff ) {
-			$context["_post_data_diff"] = $this->simpleHistory->json_encode( $post_data_diff );
+			//$context["_post_data_diff"] = $this->simpleHistory->json_encode( $post_data_diff );
+			foreach ( $post_data_diff as $diff_key => $diff_values ) {
+				$context["post_prev_{$diff_key}"] = $diff_values["old"];
+				$context["post_new_{$diff_key}"] = $diff_values["new"];
+			}
 		}
 
 		return $context;
@@ -590,6 +592,89 @@ class SimplePostLogger extends SimpleLogger
 		$context["edit_link"] = get_edit_post_link( $post_id );
 
 		return $this->interpolate($message, $context);
+
+	}
+
+	public function getLogRowDetailsOutput($row) {
+
+		$context = $row->context;
+		$message_key = $context["_message_key"];
+		$post_id = $context["post_id"];
+
+		$out = "";
+
+		if ( "post_updated" == $message_key) {
+
+			// Check for keys like "post_prev_post_title" and "post_new_post_title"
+			foreach ( $context as $key => $val ) {
+
+				if ( strpos($key, "post_prev_") !== false ) {
+					
+					// Old value exists, new value must also exist for diff to be calculates
+					$key_to_diff = substr($key, strlen("post_prev_"));
+
+					$key_for_new_val = "post_new_{$key_to_diff}";
+
+					if ( isset($context[$key_for_new_val] ) ) {
+
+						#$out .= "<br>Key: $key_to_diff";
+						#$out .= "<br>Key for old val: $key";
+						#$out .= "<br>Key for new val: $key_for_new_val";
+						$post_old_value = $context[$key];
+						$post_new_value = $context[$key_for_new_val];
+
+						if ( $post_old_value != $post_new_value ) {
+							
+							require_once( SIMPLE_HISTORY_PATH . "inc/finediff.php" );
+							$out .= '
+							<style>
+								ins {
+									color: green;
+									background: #dfd;
+									text-decoration: none;
+								}
+								del {
+									color: red;
+									background: #fdd;
+									text-decoration: none;
+									xtext-decoration: line-through;
+								}
+							</style>
+							';
+							/*
+							*   // FineDiff::$paragraphGranularity = paragraph/line level
+							*   // FineDiff::$sentenceGranularity = sentence level
+							*   // FineDiff::$wordGranularity = word level
+							*   // FineDiff::$characterGranularity = character level [default]
+							*/
+							#$out .= sprintf('<br>Changed "%3$s" from "%1$s" » "%2$s"', $post_old_value, $post_new_value, $key_to_diff);
+
+							$out .= wp_text_diff($post_old_value, $post_new_value);
+
+							#$diff = new FineDiff($post_old_value, $post_new_value);
+							#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+
+							$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+							$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+
+							#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$paragraphGranularity);
+							#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+
+							#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$sentenceGranularity);
+							#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+
+						}
+
+					}
+
+				}
+
+
+			}
+
+		}
+
+		return $out;
 
 	}
 
