@@ -221,8 +221,7 @@ class SimplePostLogger extends SimpleLogger
 
 	function on_admin_init() {
 
-		#add_action("pre_post_update", array($this, "on_pre_post_update"), 10, 2);
-		add_action("admin_action_editpost", array($this, "on_pre_post_update"));
+		add_action("admin_action_editpost", array($this, "on_admin_action_editpost"));
 
 		add_action("transition_post_status", array($this, "on_transition_post_status"), 10, 3);
 		add_action("delete_post", array($this, "on_delete_post"));
@@ -231,12 +230,14 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	/**
-	 * Get old info about a post that is being edited.
-	 * Can't use the regular filters like "pre_post_update" because custom fields are already written then
+	 * Get and store old info about a post that is being edited.
+	 * Needed to later compare old data with new data, to detect differences.
 	 *
-	 * @since 2.x
+	 * Can't use the regular filters like "pre_post_update" because custom fields are already written by then.
+	 *
+	 * @since 2.0.x
 	 */
-	function on_pre_post_update() {
+	function on_admin_action_editpost() {
 		
 		$post_ID = isset( $_POST["post_ID"] ) ? (int) $_POST["post_ID"] : 0;
 
@@ -462,12 +463,15 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	/*
+	* Since 2.0.x
+
 	To detect*
 		- post thumb (part of custom fields)
 
 	Interesting diff libs:
 		- https://github.com/gorhill/PHP-FineDiff
 		- 
+
 	*/
 	function add_post_data_diff_to_context($context, $old_post_data, $new_post_data) {
 		
@@ -507,7 +511,9 @@ class SimplePostLogger extends SimpleLogger
 		return $context;
 
 	}
-
+	/**
+	 * Since 2.0.x
+	 */
 	function add_diff($post_data_diff, $key, $old_value, $new_value) {
 
 		if ( $old_value != $new_value ) {
