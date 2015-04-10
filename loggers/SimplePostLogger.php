@@ -464,112 +464,60 @@ class SimplePostLogger extends SimpleLogger
 	/*
 	To detect*
 		- post thumb (part of custom fields)
+
+	Interesting diff libs:
+		- https://github.com/gorhill/PHP-FineDiff
+		- 
 	*/
 	function add_post_data_diff_to_context($context, $old_post_data, $new_post_data) {
 		
 		$old_data = $old_post_data["post_data"];
 		$new_data = $new_post_data["post_data"];
 
-		#$old_post_data["post_data"] = (array) $old_post_data["post_data"];
-		#$old_post_data["post_meta"] = (array) $old_post_data["post_meta"];
-
-		#$new_post_data["post_data"] = (array) $new_post_data["post_data"];
-		#$new_post_data["post_meta"] = (array) $new_post_data["post_meta"];
-
-		// @todo: make sure no array values inside above anywhere (array_diff will give notices)
-
-		#$post_data_diff = array_diff_assoc( $old_post_data["post_data"], $new_post_data["post_data"]);
-		// $post_data_diff = array_diff_assoc( $new_post_data["post_data"], $old_post_data["post_data"] );
-
-		// Will contain the difference
+		// Will contain the differences
 		$post_data_diff = array();
 
-		if ( ! class_exists( 'WP_Text_Diff_Renderer_Table' ) ) {
-			require_once( ABSPATH . WPINC . '/wp-diff.php' );
-		}
+		$arr_keys_to_diff = array(
+			"post_title",
+			"post_name",
+			"post_content",
+			"post_status",
+			"menu_order",
+			"post_date",
+			"post_date_gmt",
+			"post_excerpt",
+			"post_parent", // only id, need to get context for that, like name of parent at least?
+			"post_author" // only id, need to get context for that, like name, login, email at least?
+		);
 
-		/*
-		$original_file_contents = file_get_contents( WP_PLUGIN_DIR . "/" . $file );
-		$new_file_contents = wp_unslash( $_POST["newcontent"] );
+		foreach ( $arr_keys_to_diff as $key ) {
 
-		$left_lines  = explode("\n", $original_file_contents);
-		$right_lines = explode("\n", $new_file_contents);
-		$text_diff = new Text_Diff($left_lines, $right_lines);
-
-		$num_added_lines = $text_diff->countAddedLines();
-		$num_removed_lines = $text_diff->countDeletedLines();
-
-		// Generate a diff in classic diff format
-		$renderer  = new Text_Diff_Renderer();
-		$diff = $renderer->render($text_diff);
-		*/
-
-		if ( isset( $old_data->post_title ) && isset( $new_data->post_title ) && $old_data->post_title != $new_data->post_title ) {
-			
-			$left_lines  = explode("\n", $old_data->post_title);
-			$right_lines = explode("\n", $new_data->post_title);
-			$text_diff = new Text_Diff($left_lines, $right_lines);
-
-			#$num_added_lines = $text_diff->countAddedLines();
-			#$num_removed_lines = $text_diff->countDeletedLines();
-
-			#echo "$num_added_lines added lines, $num_removed_lines removed lines";
-
-			// Classic diff format
-			/*$renderer  = new Text_Diff_Renderer();
-			$diff = $renderer->render($text_diff);
-
-			$wp_diff = wp_text_diff($old_data->post_title, $new_data->post_title, array( "title" => "Differences", "title_left" => "Old version", "title_right" => "New version" ));
-			print_r($wp_diff);
-
-			echo "<hr>";
-			$renderer  = new WP_Text_Diff_Renderer_Table( array() );
-			$diff_yo = $renderer->render($text_diff);
-			print_r($diff_yo);echo "\n\n";
-			*/
-
-			$post_data_diff["post_title"] = "yeah";
+			if ( isset( $old_data->$key ) && isset( $new_data->$key ) ) {
+				$post_data_diff = $this->add_diff($post_data_diff, $key, $old_data->$key, $new_data->$key);
+			}
 
 		}
 
-		if ($post_data_diff) {
-			echo "<pre>";print_r($post_data_diff);exit;
+		if ( $post_data_diff ) {
+			$context["_post_data_diff"] = $this->simpleHistory->json_encode( $post_data_diff );
 		}
-
-
-
-		#if ( $post_data_diff ) {
-		#	$context["post_data_changed"] = simpleHistory::json_encode( array_keys($post_data_diff) );
-		#	echo "<pre>";print_r($post_data_diff);exit;
-		#}
-		/*
-		$post_data_diff = array with valyes changes
-		Array
-		(
-		    [post_date] => 2015-04-09 20:56:44
-		    [post_date_gmt] => 2015-04-09 18:56:44
-		    [post_content] => Lorem ipsum dolor sit amet, consectetur adipiscing elit. Deinde disputat, quod cuiusque generis animantium statui deceat extremum. Longum est enim ad omnia respondere, quae a te dicta sunt. Duo Reges: constructio interrete. Non igitur bene. Nam ante Aristippus, et ille melius. Praeclarae mortes sunt imperatoriae; abc added text
-		    [post_title] => Test av post details changed
-		    [post_status] => publish
-		    [post_modified] => 2015-04-09 21:58:17
-		    [post_modified_gmt] => 2015-04-09 19:58:17
-		)
-		*/
-
-		#ep_d($post_data_diff);exit;
-		#ep_d($old_post_data["post_meta"]);
-		#ep_d($new_post_data["post_meta"]);
-		
-		// Custom meta diff is for later
-		#$post_meta_diff = array_diff( $old_post_data["post_meta"], $new_post_data["post_meta"]);
-		#ep_d($post_data_diff);
-
-		// deep diff
-		// http://stackoverflow.com/a/16359538/336044
-		// 
-
 
 		return $context;
+
+	}
+
+	function add_diff($post_data_diff, $key, $old_value, $new_value) {
+
+		if ( $old_value != $new_value ) {
+
+			$post_data_diff[$key] = array(
+				"old" => $old_value,
+				"new" => $new_value
+			);
+
+		}
+
+		return $post_data_diff;
 
 	}
 
