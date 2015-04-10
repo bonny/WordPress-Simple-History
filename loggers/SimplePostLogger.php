@@ -486,6 +486,8 @@ class SimplePostLogger extends SimpleLogger
 			"post_date",
 			"post_date_gmt",
 			"post_excerpt",
+			"comment_status",
+			"ping_status",
 			"post_parent", // only id, need to get context for that, like name of parent at least?
 			"post_author" // only id, need to get context for that, like name, login, email at least?
 		);
