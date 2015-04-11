@@ -649,19 +649,27 @@ class SimplePostLogger extends SimpleLogger
 							*/
 							#$out .= sprintf('<br>Changed "%3$s" from "%1$s" » "%2$s"', $post_old_value, $post_new_value, $key_to_diff);
 
-							$out .= wp_text_diff($post_old_value, $post_new_value);
+							// Different diffs for different keys
+							if ( "post_title" == $key_to_diff ) {
 
-							#$diff = new FineDiff($post_old_value, $post_new_value);
-							#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								$out .= "<p>".$diff->renderDiffToHTML()."</p>";
 
-							$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
-							$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+								$diff = new FineDiff($post_old_value, $post_new_value);
+								$out .= "<p>".$diff->renderDiffToHTML()."</p>";
 
-							#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$paragraphGranularity);
-							#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$paragraphGranularity);
+								$out .= "<p>".$diff->renderDiffToHTML()."</p>";
 
-							#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$sentenceGranularity);
-							#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$sentenceGranularity);
+								$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+
+
+							} else if ( "post_content" == $key_to_diff ) {
+
+								$out .= wp_text_diff($post_old_value, $post_new_value);
+
+							}
 
 						}
 
