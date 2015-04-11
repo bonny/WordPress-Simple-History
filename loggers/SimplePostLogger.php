@@ -465,6 +465,8 @@ class SimplePostLogger extends SimpleLogger
 
 	To detect*
 		- post thumb (part of custom fields)
+		- categories
+		- tags
 
 	Interesting diff libs:
 		- https://github.com/gorhill/PHP-FineDiff
@@ -606,6 +608,8 @@ class SimplePostLogger extends SimpleLogger
 		if ( "post_updated" == $message_key) {
 
 			// Check for keys like "post_prev_post_title" and "post_new_post_title"
+			$diff_table_output = "";
+			$has_diff_values = false;
 			foreach ( $context as $key => $val ) {
 
 				if ( strpos($key, "post_prev_") !== false ) {
@@ -652,22 +656,112 @@ class SimplePostLogger extends SimpleLogger
 							// Different diffs for different keys
 							if ( "post_title" == $key_to_diff ) {
 
+								$has_diff_values = true;
+
 								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
-								$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+								$diff_table_output .= sprintf(
+									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
+									__("Post title", "simple-history"), 
+									$diff->renderDiffToHTML()
+								);
 
-								$diff = new FineDiff($post_old_value, $post_new_value);
-								$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+								#$diff = new FineDiff($post_old_value, $post_new_value);
+								#$diff_table_output .= sprintf('<tr><td>%1$s</td><td>%2$s</td></tr>', __("Post title", "simple-history"), $diff->renderDiffToHTML() );
 
-								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$paragraphGranularity);
-								$out .= "<p>".$diff->renderDiffToHTML()."</p>";
+								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$paragraphGranularity);
+								#$diff_table_output .= sprintf('<tr><td>%1$s</td><td>%2$s</td></tr>', __("Post title", "simple-history"), $diff->renderDiffToHTML() );
 
-								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$sentenceGranularity);
-								$out .= "<p>".$diff->renderDiffToHTML()."</p>";
-
+								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$sentenceGranularity);
+								#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
 
 							} else if ( "post_content" == $key_to_diff ) {
 
-								$out .= wp_text_diff($post_old_value, $post_new_value);
+								// Problem: to much text/content
+								// Risks to fill the visual output
+
+								$has_diff_values = true;
+
+								$diff_table_output .= sprintf(
+									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
+									__("Post content", "simple-history"), 
+									wp_text_diff($post_old_value, $post_new_value)
+								);
+
+							} else if ( "post_status" == $key_to_diff ) {
+
+								$has_diff_values = true;
+
+								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								$diff_table_output .= sprintf(
+									'<tr>
+										<td>%1$s</td>
+										<td>Changed from %2$s to %3$s</td>
+									</tr>', 
+									__("Post status", "simple-history"), 
+									esc_html($post_old_value),
+									esc_html($post_new_value)
+
+								);
+
+							} else if ( "post_date" == $key_to_diff ) {
+
+								$has_diff_values = true;
+
+								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								$diff_table_output .= sprintf(
+									'<tr>
+										<td>%1$s</td>
+										<td>Changed from %2$s to %3$s</td>
+									</tr>', 
+									__("Publish date", "simple-history"), 
+									esc_html($post_old_value),
+									esc_html($post_new_value)
+								);
+
+							} else if ( "post_name" == $key_to_diff ) {
+
+								$has_diff_values = true;
+
+								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								$diff_table_output .= sprintf(
+									'<tr>
+										<td>%1$s</td>
+										<td>Changed from %2$s to %3$s</td>
+									</tr>', 
+									__("Permalink", "simple-history"), 
+									esc_html($post_old_value),
+									esc_html($post_new_value)
+								);
+
+							} else if ( "comment_status" == $key_to_diff ) {
+
+								$has_diff_values = true;
+
+								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								$diff_table_output .= sprintf(
+									'<tr>
+										<td>%1$s</td>
+										<td>Changed from %2$s to %3$s</td>
+									</tr>', 
+									__("Comment status", "simple-history"), 
+									esc_html($post_old_value),
+									esc_html($post_new_value)
+								);
+
+							} else if ( "post_author" == $key_to_diff ) {
+
+								$has_diff_values = true;
+
+								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								$diff_table_output .= sprintf(
+									'<tr>
+										<td>%1$s</td>
+										<td>Changed from %2$s to %3$s</td>
+									</tr>', 
+									__("Author", "simple-history"), 
+									esc_html($post_old_value),
+									esc_html($post_new_value)
+								);
 
 							}
 
@@ -677,8 +771,15 @@ class SimplePostLogger extends SimpleLogger
 
 				}
 
+			} // for each context key
+
+			if ( $has_diff_values ) {
+
+				$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
 
 			}
+
+			$out .= $diff_table_output;
 
 		}
 
