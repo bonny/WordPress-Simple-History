@@ -1928,6 +1928,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 		$more_details_html = "";
 		if ( $args["type"] == "single" ) {
 
+			$more_details_html = apply_filters("simple_history/log_html_output_details_single/html_before_context_table", $more_details_html);
+
 			$more_details_html .= sprintf('<h2 class="SimpleHistoryLogitem__moreDetailsHeadline">%1$s</h2>', __("Context data", "simple-history"));
 			$more_details_html .= "<p>" . __("This is potentially useful meta data that a logger has saved.", "simple-history") . "</p>";
 			$more_details_html .= "<table class='SimpleHistoryLogitem__moreDetailsContext'>";
@@ -2032,6 +2034,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 			}
 
 			$more_details_html .= "</table>";
+
+			$more_details_html = apply_filters("simple_history/log_html_output_details_single/html_after_context_table", $more_details_html);
 
 			$more_details_html = sprintf(
 				'<div class="SimpleHistoryLogitem__moreDetails">%1$s</div>',
