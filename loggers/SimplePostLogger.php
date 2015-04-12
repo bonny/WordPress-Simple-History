@@ -461,16 +461,12 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	/*
-	* Since 2.0.x
+	 * Since 2.0.x
 
-	To detect*
+	 To detect
 		- post thumb (part of custom fields)
 		- categories
 		- tags
-
-	Interesting diff libs:
-		- https://github.com/gorhill/PHP-FineDiff
-		- 
 
 	*/
 	function add_post_data_diff_to_context($context, $old_post_data, $new_post_data) {
@@ -613,13 +609,13 @@ class SimplePostLogger extends SimpleLogger
 			foreach ( $context as $key => $val ) {
 
 				if ( strpos($key, "post_prev_") !== false ) {
-					
+				
 					// Old value exists, new value must also exist for diff to be calculates
 					$key_to_diff = substr($key, strlen("post_prev_"));
 
 					$key_for_new_val = "post_new_{$key_to_diff}";
 
-					if ( isset($context[$key_for_new_val] ) ) {
+					if ( isset( $context[ $key_for_new_val ] ) ) {
 
 						#$out .= "<br>Key: $key_to_diff";
 						#$out .= "<br>Key for old val: $key";
@@ -629,22 +625,8 @@ class SimplePostLogger extends SimpleLogger
 
 						if ( $post_old_value != $post_new_value ) {
 							
-							require_once( SIMPLE_HISTORY_PATH . "inc/finediff.php" );
-							$out .= '
-							<style>
-								ins {
-									color: green;
-									background: #dfd;
-									text-decoration: none;
-								}
-								del {
-									color: red;
-									background: #fdd;
-									text-decoration: none;
-									xtext-decoration: line-through;
-								}
-							</style>
-							';
+							#require_once( SIMPLE_HISTORY_PATH . "inc/finediff.php" );
+							
 							/*
 							*   // FineDiff::$paragraphGranularity = paragraph/line level
 							*   // FineDiff::$sentenceGranularity = sentence level
@@ -658,11 +640,17 @@ class SimplePostLogger extends SimpleLogger
 
 								$has_diff_values = true;
 
-								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								/*$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
-									__("Post title", "simple-history"), 
+									__("Post title 1", "simple-history"), 
 									$diff->renderDiffToHTML()
+								);*/
+
+								$diff_table_output .= sprintf(
+									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
+									__("Title", "simple-history"), 
+									wp_text_diff($post_old_value, $post_new_value)
 								);
 
 								#$diff = new FineDiff($post_old_value, $post_new_value);
@@ -674,6 +662,14 @@ class SimplePostLogger extends SimpleLogger
 								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$sentenceGranularity);
 								#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
 
+								// This will look the same as the output of the finediff class
+								#$left_lines  = explode("\n", normalize_whitespace($post_old_value));
+								#$right_lines = explode("\n", normalize_whitespace($post_new_value));
+								#$text_diff = new Text_Diff($left_lines, $right_lines);
+								#$renderer = new WP_Text_Diff_Renderer_inline();
+								#$diff = $renderer->render($text_diff);
+								#$diff_table_output .= "<tr><td>Post title 3</td><td>" . $diff . "</td></tr>";
+
 							} else if ( "post_content" == $key_to_diff ) {
 
 								// Problem: to much text/content
@@ -683,21 +679,48 @@ class SimplePostLogger extends SimpleLogger
 
 								$diff_table_output .= sprintf(
 									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
-									__("Post content", "simple-history"), 
+									__("Content", "simple-history"), 
 									wp_text_diff($post_old_value, $post_new_value)
 								);
+
+								#$left_lines  = explode("\n", normalize_whitespace($post_old_value));
+								#$right_lines = explode("\n", normalize_whitespace($post_new_value));
+
+								#$text_diff = new Text_Diff($left_lines, $right_lines);
+								#$diff_table_output .= "<tr><td>Added lines</td><td>" . $text_diff->countAddedLines() . "</td></tr>";
+								#$diff_table_output .= "<tr><td>Removed lines</td><td>" . $text_diff->countDeletedLines() . "</td></tr>";
+
+								#$renderer = new WP_Text_Diff_Renderer_inline();
+								#$diff = $renderer->render($text_diff);
+								#$diff_table_output .= "<tr><td>text diff inline</td><td>" . $diff . "</td></tr>";
+
+								// Text_MappedDiff
+								#$text_diff = new Text_MappedDiff($left_lines, $right_lines);
+								#$diff_table_output .= print_r($text_diff, true);
+
+								//
+								#$renderer  = new Text_Diff_Renderer();
+								#$diff = $renderer->render($text_diff);
+								#$diff_table_output .= "<br><br>" . print_r($diff, true);
+
+								#$renderer = new WP_Text_Diff_Renderer_table();
+								#$diff = $renderer->render($text_diff);
+								#var_dump($renderer->_changed($left_lines, $right_lines));
+								#$diff_table_output .= "<tr><td><span>diff table:</span></td><td><table> " . $renderer->_changed($left_lines, $right_lines) . "</table></td></tr>";
+								#$diff_table_output .= "<br>diff table end";
+
 
 							} else if ( "post_status" == $key_to_diff ) {
 
 								$has_diff_values = true;
 
-								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
 										<td>Changed from %2$s to %3$s</td>
 									</tr>', 
-									__("Post status", "simple-history"), 
+									__("Status", "simple-history"), 
 									esc_html($post_old_value),
 									esc_html($post_new_value)
 
@@ -707,7 +730,7 @@ class SimplePostLogger extends SimpleLogger
 
 								$has_diff_values = true;
 
-								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -722,7 +745,7 @@ class SimplePostLogger extends SimpleLogger
 
 								$has_diff_values = true;
 
-								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -737,7 +760,7 @@ class SimplePostLogger extends SimpleLogger
 
 								$has_diff_values = true;
 
-								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -752,7 +775,7 @@ class SimplePostLogger extends SimpleLogger
 
 								$has_diff_values = true;
 
-								$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -772,6 +795,19 @@ class SimplePostLogger extends SimpleLogger
 				}
 
 			} // for each context key
+
+			/*
+			$diff_table_output .= "
+				<p>
+					<span class='SimpleHistoryLogitem__inlineDivided'><em>Title</em> Hey there » Yo there</span>
+					<span class='SimpleHistoryLogitem__inlineDivided'><em>Permalink</em> /my-permalink/ » /permalinks-rule/</span>
+				</p>
+				<p>
+					<span class='SimpleHistoryLogitem__inlineDivided'><em>Status</em> draft » publish</span>
+					<span class='SimpleHistoryLogitem__inlineDivided'><em>Publish date</em> 23:31:24 to 2015-04-11 23:31:40</span>
+				</p>
+			";
+			*/
 
 			if ( $has_diff_values ) {
 
@@ -811,6 +847,31 @@ class SimplePostLogger extends SimpleLogger
 		}
 
 		return $link;
+
+	}
+
+	public function adminCSS() {
+
+		?>
+		<style>
+
+			/* format diff output */
+			.SimpleHistoryLogitem__details .diff td,
+			.SimpleHistoryLogitem__details .diff td:first-child {
+				text-align: left;
+				white-space: normal;
+				font-size: 13px;
+				line-height: 1.1;
+				padding: 0.25em 0.5em;
+				color: rgb(68, 68, 68);
+			}
+			
+			.SimpleHistoryLogitem__details .diff {
+				border-spacing: 1px;
+			}
+
+		</style>	
+		<?php
 
 	}
 
