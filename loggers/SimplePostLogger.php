@@ -749,11 +749,10 @@ class SimplePostLogger extends SimpleLogger
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
-										<td>Changed from %2$s to %3$s</td>
+										<td>%2$s</td>
 									</tr>', 
 									__("Permalink", "simple-history"), 
-									esc_html($post_old_value),
-									esc_html($post_new_value)
+									wp_text_diff($post_old_value, $post_new_value)
 								);
 
 							} else if ( "comment_status" == $key_to_diff ) {
