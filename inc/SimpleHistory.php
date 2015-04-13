@@ -1910,7 +1910,11 @@ foreach ($arr_settings_tabs as $one_tab) {
 		$data_attrs .= sprintf(' data-row-id="%1$d" ', $oneLogRow->id);
 		$data_attrs .= sprintf(' data-occasions-count="%1$d" ', $occasions_count);
 		$data_attrs .= sprintf(' data-occasions-id="%1$s" ', esc_attr( $oneLogRow->occasionsID ));
-		$data_attrs .= sprintf(' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context["_server_remote_addr"] ) );
+
+		if ( isset($oneLogRow->context["_server_remote_addr"]) ) {
+			$data_attrs .= sprintf(' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context["_server_remote_addr"] ) );
+		}
+
 		$data_attrs .= sprintf(' data-logger="%1$s" ', esc_attr( $oneLogRow->logger ) );
 		$data_attrs .= sprintf(' data-level="%1$s" ', esc_attr( $oneLogRow->level ) );
 		$data_attrs .= sprintf(' data-date="%1$s" ', esc_attr( $oneLogRow->date ) );
@@ -1923,6 +1927,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 		// If type is single then include more details
 		$more_details_html = "";
 		if ( $args["type"] == "single" ) {
+
+			$more_details_html = apply_filters("simple_history/log_html_output_details_single/html_before_context_table", $more_details_html);
 
 			$more_details_html .= sprintf('<h2 class="SimpleHistoryLogitem__moreDetailsHeadline">%1$s</h2>', __("Context data", "simple-history"));
 			$more_details_html .= "<p>" . __("This is potentially useful meta data that a logger has saved.", "simple-history") . "</p>";
@@ -2028,6 +2034,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 			}
 
 			$more_details_html .= "</table>";
+
+			$more_details_html = apply_filters("simple_history/log_html_output_details_single/html_after_context_table", $more_details_html);
 
 			$more_details_html = sprintf(
 				'<div class="SimpleHistoryLogitem__moreDetails">%1$s</div>',

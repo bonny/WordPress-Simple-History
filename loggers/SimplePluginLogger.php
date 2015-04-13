@@ -448,7 +448,7 @@ class SimplePluginLogger extends SimpleLogger
 				
 				// Generate a diff of changes
 				if ( ! class_exists( 'WP_Text_Diff_Renderer_Table' ) ) {
-					require( ABSPATH . WPINC . '/wp-diff.php' );
+					require_once( ABSPATH . WPINC . '/wp-diff.php' );
 				}
 
 				$original_file_contents = file_get_contents( WP_PLUGIN_DIR . "/" . $file );
