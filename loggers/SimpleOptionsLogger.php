@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /*
 
 <form> is posted to options.php
@@ -240,7 +242,7 @@ class SimpleOptionsLogger extends SimpleLogger
 					</tr>
 					',
 					__("New value", "simple-history"),
-					esc_html( $context["new_value"] )
+					esc_html( mb_strimwidth( $context["new_value"], 0, 250, "..." ) )
 				);
 
 				$output .= sprintf(
@@ -251,7 +253,7 @@ class SimpleOptionsLogger extends SimpleLogger
 					</tr>
 					',
 					__("Old value", "simple-history"),
-					esc_html( $context["old_value"] )
+					esc_html( mb_strimwidth( $context["old_value"], 0, 250, "..." ) )
 				);
 			}
 

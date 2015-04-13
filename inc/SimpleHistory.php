@@ -1,12 +1,21 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Main class for Simple History
  */
 class SimpleHistory {
 
 	const NAME = "Simple History";
-	const VERSION = "2.0.18";
+
+	// Dont use this any more! Will be removed in future versions. Use global SIMPLE_HISTORY_VERSION instead.
+	const VERSION = "2.0.28";
+
+	/**
+	 * For singleton
+	 */
+	private static $instance;
 
 	/**
 	 * Capability required to view the history log
@@ -76,15 +85,15 @@ class SimpleHistory {
 		$this->setupVariables();
 
 		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
-		add_action('plugins_loaded', array($this, 'load_plugin_textdomain'));
-		add_action('plugins_loaded', array($this, 'add_default_settings_tabs'));
-		add_action('plugins_loaded', array($this, 'loadLoggers'));
-		add_action('plugins_loaded', array($this, 'loadDropins'));
+		add_action('after_setup_theme', array($this, 'load_plugin_textdomain'));
+		add_action('after_setup_theme', array($this, 'add_default_settings_tabs'));
+		add_action('after_setup_theme', array($this, 'loadLoggers'));
+		add_action('after_setup_theme', array($this, 'loadDropins'));
 
 		// Run before loading of loggers and before menu items are added
-		add_action('plugins_loaded', array($this, 'check_for_upgrade'), 5);
+		add_action('after_setup_theme', array($this, 'check_for_upgrade'), 5);
 
-		add_action('plugins_loaded', array($this, 'setup_cron'));
+		add_action('after_setup_theme', array($this, 'setup_cron'));
 
 		add_action('admin_menu', array($this, 'add_admin_pages'));
 		add_action('admin_menu', array($this, 'add_settings'));
@@ -119,6 +128,50 @@ class SimpleHistory {
 		 * @param SimpleHistory $SimpleHistory This class.
 		 */
 		do_action("simple_history/after_init", $this);
+
+		// Add some extra info to each logged context when SIMPLE_HISTORY_LOG_DEBUG is set and true
+		if ( defined("SIMPLE_HISTORY_LOG_DEBUG") && SIMPLE_HISTORY_LOG_DEBUG ) {
+
+			add_filter("simple_history/log_argument/context", function($context, $level, $message, $logger) {
+
+				$sh = SimpleHistory::get_instance();
+				$context["_debug_get"] = $sh->json_encode( $_GET );
+				$context["_debug_post"] = $sh->json_encode( $_POST );
+				$context["_debug_server"] = $sh->json_encode( $_SERVER );
+				$context["_debug_files"] = $sh->json_encode( $_FILES );
+				$context["_debug_php_sapi_name"] = php_sapi_name();
+
+				global $argv;
+				$context["_debug_argv"] = $sh->json_encode( $argv );
+
+				$consts = get_defined_constants(true);
+				$consts = $consts["user"];
+				$context["_debug_user_constants"] = $sh->json_encode( $consts );
+
+				$postdata = file_get_contents("php://input");
+				$context["_debug_http_raw_post_data"] = $sh->json_encode( $postdata );
+
+				return $context;
+
+			}, 10, 4);
+
+		}
+
+	}
+
+	/**
+	 * Get singleton intance
+	 * @return SimpleHistory instance
+	 */
+	public static function get_instance() {
+
+		if ( ! isset( self::$instance ) ) {
+			
+			self::$instance = new SimpleHistory();
+
+		}
+
+		return self::$instance;
 
 	}
 
@@ -372,6 +425,7 @@ class SimpleHistory {
 						}
 
 						$data["log_rows"][$key] = $this->getLogRowHTMLOutput($oneLogRow, $args);
+						$data["num_queries"] = get_num_queries();
 
 					}
 
@@ -467,7 +521,7 @@ class SimpleHistory {
 		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
 		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
 
-		$this->plugin_basename = plugin_basename(__DIR__ . "/index.php");
+		$this->plugin_basename = SIMPLE_HISTORY_BASENAME;
 
 	}
 
@@ -515,7 +569,7 @@ class SimpleHistory {
 	 */
 	public function loadLoggers() {
 
-		$loggersDir = __DIR__ . "/loggers/";
+		$loggersDir = SIMPLE_HISTORY_PATH . "loggers/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -529,7 +583,7 @@ class SimpleHistory {
 		$loggersFiles = glob($loggersDir . "*.php");
 
 		// SimpleLogger.php must be loaded first since the other loggers extend it
-		require_once $loggersDir . "SimpleLogger.php";
+		include_once $loggersDir . "SimpleLogger.php";
 
 		/**
 		 * Filter the array with absolute paths to files as returned by glob function.
@@ -543,19 +597,30 @@ class SimpleHistory {
 		$loggersFiles = apply_filters("simple_history/loggers_files", $loggersFiles);
 
 		$arrLoggersToInstantiate = array();
-		foreach ($loggersFiles as $oneLoggerFile) {
 
-			if (basename($oneLoggerFile) == "SimpleLogger.php") {
+		foreach ( $loggersFiles as $oneLoggerFile ) {
 
-				// SimpleLogger is already loaded
+			$load_logger = true;
 
-			} else {
+			$basename_no_suffix = basename($oneLoggerFile, ".php");
 
-				include_once $oneLoggerFile;
+			/**
+			 * Filter to completely skip loading of a logger
+			 *
+			 * @since 2.0.22
+			 *
+			 * @param bool if to load the logger. return false to not load it.
+			 * @param srting slug of logger
+			 */
+			$load_logger = apply_filters("simple_history/logger/load_logger", $load_logger, $basename_no_suffix );
 
+			if ( ! $load_logger ) {
+				continue;
 			}
 
-			$arrLoggersToInstantiate[] = basename($oneLoggerFile, ".php");
+			include_once $oneLoggerFile;
+
+			$arrLoggersToInstantiate[] = $basename_no_suffix;
 
 		}
 
@@ -567,6 +632,7 @@ class SimpleHistory {
 		 * @param array $arrLoggersToInstantiate Array with class names
 		 */
 		$arrLoggersToInstantiate = apply_filters("simple_history/loggers_to_instantiate", $arrLoggersToInstantiate);
+		
 		// Instantiate each logger
 		foreach ($arrLoggersToInstantiate as $oneLoggerName) {
 
@@ -621,8 +687,6 @@ class SimpleHistory {
 
 		do_action("simple_history/loggers_loaded");
 
-		#sf_d($this->instantiatedLoggers);exit;
-
 	}
 
 	/**
@@ -631,7 +695,7 @@ class SimpleHistory {
 	 */
 	public function loadDropins() {
 
-		$dropinsDir = __DIR__ . "/dropins/";
+		$dropinsDir = SIMPLE_HISTORY_PATH . "dropins/";
 
 		/**
 		 * Filter the directory to load loggers from
@@ -662,6 +726,8 @@ class SimpleHistory {
 			// path/path/simplehistory/dropins/SimpleHistoryDonateDropin.php => SimpleHistoryDonateDropin
 			$oneDropinFileBasename = basename($oneDropinFile, ".php");
 
+			$load_dropin = true;
+
 			/**
 			 * Filter to completely skip loading of dropin
 			 * complete filer name will be like:
@@ -671,9 +737,19 @@ class SimpleHistory {
 			 *
 			 * @param bool if to load the dropin. return false to not load it.
 			 */
-			$load_dropin = apply_filters("simple_history/dropin/load_dropin_{$oneDropinFileBasename}", true);
+			$load_dropin = apply_filters("simple_history/dropin/load_dropin_{$oneDropinFileBasename}", $load_dropin);
 
-			if (!$load_dropin) {
+			/**
+			 * Filter to completely skip loading of a dropin
+			 *
+			 * @since 2.0.22
+			 *
+			 * @param bool if to load the dropin. return false to not load it.
+			 * @param string slug of dropin
+			 */
+			$load_dropin = apply_filters("simple_history/dropin/load_dropin", $load_dropin, $oneDropinFileBasename);
+
+			if ( ! $load_dropin ) {
 				continue;
 			}
 
@@ -755,9 +831,20 @@ class SimpleHistory {
 	 */
 	function add_dashboard_widget() {
 
-		if ($this->setting_show_on_dashboard() && current_user_can($this->view_history_capability)) {
+		if ( $this->setting_show_on_dashboard() && current_user_can( $this->view_history_capability ) ) {
 
-			wp_add_dashboard_widget("simple_history_dashboard_widget", __("Simple History", 'simple-history'), array($this, "dashboard_widget_output"));
+			/**
+			 * Filter to determine if history page should be added to page below dashboard or not
+			 *
+			 * @since 2.0.23
+			 *
+			 * @param bool Show the page or not
+			 */
+			$show_dashboard_widget = apply_filters("simple_history/show_dashboard_widget", true);
+			
+			if ( $show_dashboard_widget ) {
+				wp_add_dashboard_widget("simple_history_dashboard_widget", __("Simple History", 'simple-history'), array($this, "dashboard_widget_output"));
+			}
 
 		}
 	}
@@ -824,12 +911,13 @@ class SimpleHistory {
 
 			add_thickbox();
 
-			$plugin_url = plugin_dir_url(__FILE__);
-			wp_enqueue_style("simple_history_styles", $plugin_url . "css/styles.css", false, SimpleHistory::VERSION);
-			wp_enqueue_script("simple_history_script", $plugin_url . "js/scripts.js", array("jquery", "backbone", "wp-util"), SimpleHistory::VERSION, true);
+			$plugin_url = plugin_dir_url(SIMPLE_HISTORY_BASENAME);
 
-			wp_enqueue_script("select2", $plugin_url . "/js/select2/select2.min.js", array("jquery"));
-			wp_enqueue_style("select2", $plugin_url . "/js/select2/select2.css");
+			wp_enqueue_style("simple_history_styles", $plugin_url . "css/styles.css", false, SIMPLE_HISTORY_VERSION);
+			wp_enqueue_script("simple_history_script", $plugin_url . "js/scripts.js", array("jquery", "backbone", "wp-util"), SIMPLE_HISTORY_VERSION, true);
+
+			wp_enqueue_script("select2", $plugin_url . "js/select2/select2.min.js", array("jquery"));
+			wp_enqueue_style("select2", $plugin_url . "js/select2/select2.css");
 
 			// Translations that we use in JavaScript
 			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(
@@ -1178,19 +1266,19 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 	public function settings_output_log() {
 
-		include __DIR__ . "/templates/settings-log.php";
+		include SIMPLE_HISTORY_PATH . "templates/settings-log.php";
 
 	}
 
 	public function settings_output_general() {
 
-		include __DIR__ . "/templates/settings-general.php";
+		include SIMPLE_HISTORY_PATH . "templates/settings-general.php";
 
 	}
 
 	public function settings_output_styles_example() {
 
-		include __DIR__ . "/templates/settings-style-example.php";
+		include SIMPLE_HISTORY_PATH . "templates/settings-style-example.php";
 
 	}
 
@@ -1208,23 +1296,37 @@ foreach ($arr_settings_tabs as $one_tab) {
 	function add_admin_pages() {
 
 		// Add a history page as a sub-page below the Dashboard menu item
-		if ($this->setting_show_as_page()) {
+		if ( $this->setting_show_as_page() ) {
 
-			add_dashboard_page(
-				SimpleHistory::NAME,
-				_x("Simple History", 'dashboard menu name', 'simple-history'),
-				$this->view_history_capability,
-				"simple_history_page",
-				array($this, "history_page_output")
-			);
+			/**
+			 * Filter to determine if history page should be added to page below dashboard or not
+			 *
+			 * @since 2.0.23
+			 *
+			 * @param bool Show the page or not
+			 */
+			$show_dashboard_page = apply_filters("simple_history/show_dashboard_page", true);
+
+			if ( $show_dashboard_page ) {
+			
+				add_dashboard_page(
+					SimpleHistory::NAME,
+					_x("Simple History", 'dashboard menu name', 'simple-history'),
+					$this->view_history_capability,
+					"simple_history_page",
+					array($this, "history_page_output")
+				);
+
+			}
 
 		}
 
 		// Add a settings page
 		$show_settings_page = true;
 		$show_settings_page = apply_filters("simple_history_show_settings_page", $show_settings_page);
-		$show_settings_page = apply_filters("simple_history/show_settings_page", $show_settings_page);
-		if ($show_settings_page) {
+		$show_settings_page = apply_filters("simple_history/show_settings_page", $show_settings_page);		
+
+		if ( $show_settings_page ) {
 
 			add_options_page(
 				__('Simple History Settings', "simple-history"),
@@ -1479,6 +1581,12 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 		$days = 60;
 
+		/**
+		 * Filter to modify number of days of history to keep.
+		 * Default is 60 days.
+		 *
+		 * @param $days Number of days of history to keep
+		 */
 		$days = (int) apply_filters("simple_history_db_purge_days_interval", $days);
 		$days = (int) apply_filters("simple_history/db_purge_days_interval", $days);
 
@@ -1515,6 +1623,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 				"num_rows" => $num_rows,
 			)
 		);
+
+		$this->get_cache_incrementor(true);
 
 	}
 
@@ -1610,6 +1720,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 				"num_rows" => sizeof($ids_to_delete),
 			)
 		);
+
+		$this->get_cache_incrementor(true);
 
 	}
 
@@ -1793,15 +1905,30 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 		}
 
+		// Add data atributes to log row, so plugins can do stuff
 		$data_attrs = "";
 		$data_attrs .= sprintf(' data-row-id="%1$d" ', $oneLogRow->id);
 		$data_attrs .= sprintf(' data-occasions-count="%1$d" ', $occasions_count);
-		$data_attrs .= sprintf(' data-occasions-id="%1$s" ', $oneLogRow->occasionsID);
-		$data_attrs .= sprintf(' data-ip-address="%1$s" ', esc_attr($oneLogRow->context["_server_remote_addr"]));
+		$data_attrs .= sprintf(' data-occasions-id="%1$s" ', esc_attr( $oneLogRow->occasionsID ));
+
+		if ( isset($oneLogRow->context["_server_remote_addr"]) ) {
+			$data_attrs .= sprintf(' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context["_server_remote_addr"] ) );
+		}
+
+		$data_attrs .= sprintf(' data-logger="%1$s" ', esc_attr( $oneLogRow->logger ) );
+		$data_attrs .= sprintf(' data-level="%1$s" ', esc_attr( $oneLogRow->level ) );
+		$data_attrs .= sprintf(' data-date="%1$s" ', esc_attr( $oneLogRow->date ) );
+		$data_attrs .= sprintf(' data-initiator="%1$s" ', esc_attr( $oneLogRow->initiator ) );
+		
+		if ( isset( $oneLogRow->context["_user_id"] ) ) {
+			$data_attrs .= sprintf(' data-initiator-user-id="%1$d" ', $oneLogRow->context["_user_id"] );
+		}
 
 		// If type is single then include more details
 		$more_details_html = "";
-		if ($args["type"] == "single") {
+		if ( $args["type"] == "single" ) {
+
+			$more_details_html = apply_filters("simple_history/log_html_output_details_single/html_before_context_table", $more_details_html, $oneLogRow);
 
 			$more_details_html .= sprintf('<h2 class="SimpleHistoryLogitem__moreDetailsHeadline">%1$s</h2>', __("Context data", "simple-history"));
 			$more_details_html .= "<p>" . __("This is potentially useful meta data that a logger has saved.", "simple-history") . "</p>";
@@ -1815,7 +1942,35 @@ foreach ($arr_settings_tabs as $one_tab) {
 				"Value"
 			);
 
-			foreach ($oneLogRow as $rowKey => $rowVal) {
+			$logRowKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow), true);
+
+			/**
+			 * Filter what keys to show from oneLogRow
+			 *
+			 * Array is in format
+			 *
+ 			 *   Array
+ 			 *   (
+ 			 *       [id] => 1
+ 			 *       [logger] => 1
+ 			 *       [level] => 1
+ 			 *       ...
+ 			 *   )
+ 			 *
+			 *
+			 * @since 2.0.29
+			 *
+			 * @param array with keys to show. key to show = key. value = boolean to show or not.
+			 * @param object log row to show details from
+			 */
+			$logRowKeysToShow = apply_filters("simple_history/log_html_output_details_table/row_keys_to_show", $logRowKeysToShow, $oneLogRow);
+
+			foreach ( $oneLogRow as $rowKey => $rowVal ) {
+
+				// Only columns from oneLogRow that exist in logRowKeysToShow will be outputed
+				if ( ! array_key_exists($rowKey, $logRowKeysToShow) || ! $logRowKeysToShow[$rowKey] ) {
+					continue;
+				}				
 
 				// skip arrays and objects and such
 				if (is_array($rowVal) || is_object($rowVal)) {
@@ -1833,7 +1988,39 @@ foreach ($arr_settings_tabs as $one_tab) {
 
 			}
 
-			foreach ($oneLogRow->context as $contextKey => $contextVal) {
+
+			$logRowContextKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow->context), true);
+
+			/**
+			 * Filter what keys to show from the row context
+			 *
+			 * Array is in format
+			 *
+ 			 *   Array
+ 			 *   (
+			 *       [plugin_slug] => 1
+			 *       [plugin_name] => 1
+			 *       [plugin_title] => 1
+			 *       [plugin_description] => 1
+			 *       [plugin_author] => 1
+			 *       [plugin_version] => 1
+ 			 *       ...
+ 			 *   )
+ 			 *
+			 *
+			 * @since 2.0.29
+			 *
+			 * @param array with keys to show. key to show = key. value = boolean to show or not.
+			 * @param object log row to show details from
+			 */
+			$logRowContextKeysToShow = apply_filters("simple_history/log_html_output_details_table/context_keys_to_show", $logRowContextKeysToShow, $oneLogRow);
+
+			foreach ( $oneLogRow->context as $contextKey => $contextVal ) {
+
+				// Only columns from context that exist in logRowContextKeysToShow will be outputed
+				if ( ! array_key_exists($contextKey, $logRowContextKeysToShow) || ! $logRowContextKeysToShow[$contextKey] ) {
+					continue;
+				}				
 
 				$more_details_html .= sprintf(
 					'<tr>
@@ -1847,6 +2034,8 @@ foreach ($arr_settings_tabs as $one_tab) {
 			}
 
 			$more_details_html .= "</table>";
+
+			$more_details_html = apply_filters("simple_history/log_html_output_details_single/html_after_context_table", $more_details_html, $oneLogRow);
 
 			$more_details_html = sprintf(
 				'<div class="SimpleHistoryLogitem__moreDetails">%1$s</div>',
@@ -2257,8 +2446,16 @@ foreach ($arr_settings_tabs as $one_tab) {
 			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS
 		);
 
-		$results_users_today = $wpdb->get_results($sql_users_today);
-		$count_users_today = sizeof($results_users_today);
+		$cache_key = "quick_stats_users_today_" . md5( serialize( $sql_loggers_in ) );
+		$cache_group = "simple-history-" . $this->get_cache_incrementor();
+		$results_users_today = wp_cache_get($cache_key, $cache_group );
+
+		if ( false === $results_users_today ) {
+			$results_users_today = $wpdb->get_results($sql_users_today);
+			wp_cache_set($cache_key, $results_users_today, $cache_group );
+		}
+
+		$count_users_today = sizeof( $results_users_today );
 
 		// Get number of other sources (not wp_user)
 		$sql_other_sources_where = sprintf(
@@ -2290,7 +2487,16 @@ foreach ($arr_settings_tabs as $one_tab) {
 		);
 		// sf_d($sql_other_sources, '$sql_other_sources');
 
-		$results_other_sources_today = $wpdb->get_results($sql_other_sources);
+		$cache_key = "quick_stats_results_other_sources_today_" . md5( serialize($sql_other_sources) );
+		$results_other_sources_today = wp_cache_get($cache_key, $cache_group);
+
+		if ( false === $results_other_sources_today ) {
+
+			$results_other_sources_today = $wpdb->get_results($sql_other_sources);
+			wp_cache_set($cache_key, $results_other_sources_today, $cache_group);
+
+		}
+
 		$count_other_sources = sizeof($results_other_sources_today);
 
 		#sf_d($logResults, '$logResults');
@@ -2302,125 +2508,165 @@ foreach ($arr_settings_tabs as $one_tab) {
 			<p>
 				<?php
 
-		$msg_tmpl = "";
+				$msg_tmpl = "";
 
-		// No results today at all
-		if ($total_row_count == 0) {
+				// No results today at all
+				if ( $total_row_count == 0 ) {
 
-			$msg_tmpl = __("No events today so far.", "simple-history");
+					$msg_tmpl = __("No events today so far.", "simple-history");
 
-		} else {
+				} else {
 
-			/*
-			Type of results
-			x1 event today from 1 user.
-			x1 event today from 1 source.
-			3 events today from 1 user.
-			x2 events today from 2 users.
-			x2 events today from 1 user and 1 other source.
-			x3 events today from 2 users and 1 other source.
-			x3 events today from 1 user and 2 other sources.
-			x4 events today from 2 users and 2 other sources.
-			 */
+					/*
+					Type of results
+					x1 event today from 1 user.
+					x1 event today from 1 source.
+					3 events today from 1 user.
+					x2 events today from 2 users.
+					x2 events today from 1 user and 1 other source.
+					x3 events today from 2 users and 1 other source.
+					x3 events today from 1 user and 2 other sources.
+					x4 events today from 2 users and 2 other sources.
+					 */
 
-			// A single event existed and was from a user
-			// 1 event today from 1 user.
-			if ($total_row_count == 1 && $count_users_today == 1) {
-				$msg_tmpl .= __('One event today from one user.', "simple-history");
-			}
+					// A single event existed and was from a user
+					// 1 event today from 1 user.
+					if ( $total_row_count == 1 && $count_users_today == 1 ) {
+						$msg_tmpl .= __('One event today from one user.', "simple-history");
+					}
 
-			// A single event existed and was from another source
-			// 1 event today from 1 source.
-			if ($total_row_count == 1 && !$count_users_today) {
-				$msg_tmpl .= __('One event today from one source.', "simple-history");
-			}
+					// A single event existed and was from another source
+					// 1 event today from 1 source.
+					if ( $total_row_count == 1 && !$count_users_today ) {
+						$msg_tmpl .= __('One event today from one source.', "simple-history");
+					}
 
-			// Multiple events from a single user
-			// 3 events today from one user.
-			if ($total_row_count > 1 && $count_users_today == 1 && !$count_other_sources) {
-				$msg_tmpl .= __('%1$d events today from one user.', "simple-history");
-			}
+					// Multiple events from a single user
+					// 3 events today from one user.
+					if ( $total_row_count > 1 && $count_users_today == 1 && !$count_other_sources ) {
+						$msg_tmpl .= __('%1$d events today from one user.', "simple-history");
+					}
 
-			// Multiple events from only users
-			// 2 events today from 2 users.
-			if ($total_row_count > 1 && $count_users_today == $total_row_count) {
-				$msg_tmpl .= __('%1$d events today from %2$d users.', "simple-history");
-			}
+					// Multiple events from only users
+					// 2 events today from 2 users.
+					if ( $total_row_count > 1 && $count_users_today == $total_row_count ) {
+						$msg_tmpl .= __('%1$d events today from %2$d users.', "simple-history");
+					}
 
-			// Multiple events from 1 single user and 1 single other source
-			// 2 events today from 1 user and 1 other source.
-			if ($total_row_count && 1 == $count_users_today && 1 == $count_other_sources) {
-				$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
-			}
+					// Multiple events from 1 single user and 1 single other source
+					// 2 events today from 1 user and 1 other source.
+					if ( $total_row_count && 1 == $count_users_today && 1 == $count_other_sources ) {
+						$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
+					}
 
-			// Multiple events from multple users but from only 1 single other source
-			// 3 events today from 2 users and 1 other source.
-			if ($total_row_count > 1 && $count_users_today > 1 && $count_other_sources == 1) {
-				$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
-			}
+					// Multiple events from multple users but from only 1 single other source
+					// 3 events today from 2 users and 1 other source.
+					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
+						$msg_tmpl .= __('%1$d events today from one user and one other source.', "simple-history");
+					}
 
-			// Multiple events from 1 user but from multiple  other source
-			// 3 events today from 1 user and 2 other sources.
-			if ($total_row_count > 1 && 1 == $count_users_today && $count_other_sources > 1) {
-				$msg_tmpl .= __('%1$d events today from one user and %3$d other sources.', "simple-history");
-			}
+					// Multiple events from 1 user but from multiple  other source
+					// 3 events today from 1 user and 2 other sources.
+					if ( $total_row_count > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
+						$msg_tmpl .= __('%1$d events today from one user and %3$d other sources.', "simple-history");
+					}
 
-			// Multiple events from multiple user and from multiple other sources
-			// 4 events today from 2 users and 2 other sources.
-			if ($total_row_count > 1 && $count_users_today > 1 && $count_other_sources > 1) {
-				$msg_tmpl .= __('%1$s events today from %2$d users and %3$d other sources.', "simple-history");
-			}
+					// Multiple events from multiple user and from multiple other sources
+					// 4 events today from 2 users and 2 other sources.
+					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources > 1 ) {
+						$msg_tmpl .= __('%1$s events today from %2$d users and %3$d other sources.', "simple-history");
+					}
 
-		}
+				}
 
-		/*
-		if ( $logResults["total_row_count"] == 0 ) {
+				// only show stats if we have something to output
+				if ( $msg_tmpl ) {
 
-		$msg_tmpl = __("No events today so far.", "simple-history");
+					printf(
+						$msg_tmpl,
+						$logResults["total_row_count"], // 1
+						$count_users_today, // 2
+						$count_other_sources // 3
+					);
 
-		} elseif ( $logResults["total_row_count"] == 1 ) {
+					// Space between texts
+					/*
+				echo " ";
 
-		$msg_tmpl = __('%1$d event today from one user.', "simple-history");
+				// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
+				printf(
+				'<a href="%1$s">View more stats</a>.',
+				add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
+				);
+				 */
 
-		} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) > 1 ) {
+				}
 
-		$msg_tmpl = __('%1$d events today from %2$d users.', "simple-history");
-
-		} elseif ( $logResults["total_row_count"] > 0 && sizeof( $results_users_today ) == 1 ) {
-
-		$msg_tmpl = __('%1$d events today from one user.', "simple-history");
-
-		}
-		 */
-
-		// only show stats if we have something to output
-		if ($msg_tmpl) {
-
-			printf(
-				$msg_tmpl,
-				$logResults["total_row_count"], // 1
-				$count_users_today, // 2
-				$count_other_sources // 3
-			);
-
-			// Space between texts
-			/*
-		echo " ";
-
-		// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
-		printf(
-		'<a href="%1$s">View more stats</a>.',
-		add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
-		);
-		 */
-
-		}
-
-		?>
+				?>
 			</p>
 		</div>
 		<?php
 
+	} // output_quick_stats
+
+	/**
+	 * https://www.tollmanz.com/invalidation-schemes/
+	 *
+	 * @param $refresh bool
+	 * @return string
+	 */
+	public static function get_cache_incrementor( $refresh = false ) {
+
+		$incrementor_key = 'simple_history_incrementor';
+		$incrementor_value = wp_cache_get( $incrementor_key );
+
+		if ( false === $incrementor_value || true === $refresh ) {
+			$incrementor_value = time();
+			wp_cache_set( $incrementor_key, $incrementor_value );
+		}
+
+		//echo "<br>incrementor_value: $incrementor_value";
+		return $incrementor_value;
+
 	}
 
-}// class
+} // class
+
+
+/**
+ * Helper function with same name as the SimpleLogger-class
+ *
+ * Makes call like this possible:
+ * SimpleLogger()->info("This is a message sent to the log");
+ */
+function SimpleLogger() {
+	return new SimpleLogger( SimpleHistory::get_instance() );
+}
+
+
+/**
+ * Add event to history table
+ * This is here for backwards compatibility
+ * If you use this please consider using
+ * SimpleHistory()->info();
+ * instead
+ */
+function simple_history_add($args) {
+
+	$defaults = array(
+		"action"         => null,
+		"object_type"    => null,
+		"object_subtype" => null,
+		"object_id"      => null,
+		"object_name"    => null,
+		"user_id"        => null,
+		"description"    => null
+	);
+
+	$context = wp_parse_args( $args, $defaults );
+
+	$message = "{$context["object_type"]} {$context["object_name"]} {$context["action"]}";
+
+	SimpleLogger()->info($message, $context);
+
+} // simple_history_add

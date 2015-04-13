@@ -1,3 +1,7 @@
+<?php
+defined( 'ABSPATH' ) or die();
+?>
+
 <form method="post" action="options.php">
 
 	<?php 

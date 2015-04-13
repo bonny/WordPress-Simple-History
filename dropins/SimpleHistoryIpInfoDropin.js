@@ -27,6 +27,7 @@
 	// Close popup
 	$popup.on("click", ".SimpleHistoryIpInfoDropin__popupCloseButton", hidePopup);
 	$(window).on("click", maybeHidePopup);
+	$(window).on("keyup", maybeHidePopup);
 	$(document).on("SimpleHistory:logReloadStart", hidePopup);
 
 	// Position and then show popup.
@@ -55,11 +56,21 @@
 
 	function maybeHidePopup(e) {
 
+		// Make sure variable and properties exist before trying to work on them
+		if (!e || !e.target) {
+			return;
+		}
+
 		var $target = (e.target);
 
 		// Don't hide if click inside popup
 		if ($.contains($popup.get(0), $target) ) {
 			return true;
+		}
+
+		// If initiated by keyboard but not esc, then don't close
+		if (e.originalEvent && e.originalEvent.type == "keyup" && e.originalEvent.keyCode && e.originalEvent.keyCode != 27) {
+			return;
 		}
 
 		// Else it should be ok to hide

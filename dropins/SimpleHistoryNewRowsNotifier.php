@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Dropin Name: New Items Notifier
  * Dropin Description: Checks for new rows and displays a info bar when new items are available
@@ -31,16 +33,16 @@ class SimpleHistoryNewRowsNotifier {
 
 		$file_url = plugin_dir_url(__FILE__);
 
-		wp_enqueue_script("simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.js", array("jquery"), SimpleHistory::VERSION, true);
+		wp_enqueue_script("simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.js", array("jquery"), SIMPLE_HISTORY_VERSION, true);
 
 		$arr_localize_data = array(
 			"interval" => $this->interval,
-			"errorCheck" =>_x('An error occured while checking for new log rows', 'New rows notifier: error while checking for new rows', 'simple-history')
+			"errorCheck" =>_x('An error occured while checking for new events', 'New rows notifier: error while checking for new rows', 'simple-history')
 		);
 
 		wp_localize_script( "simple_history_NewRowsNotifierDropin", "simple_history_NewRowsNotifierDropin", $arr_localize_data );
 
-		wp_enqueue_style( "simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.css", null, SimpleHistory::VERSION);
+		wp_enqueue_style( "simple_history_NewRowsNotifierDropin", $file_url . "SimpleHistoryNewRowsNotifierDropin.css", null, SIMPLE_HISTORY_VERSION);
 
 	}
 
@@ -63,7 +65,6 @@ class SimpleHistoryNewRowsNotifier {
 		$logQueryArgs = $apiArgs;
 
 		$logQuery = new SimpleHistoryLogQuery();
-
 		$answer = $logQuery->query( $logQueryArgs );
 
 		// Use our own repsonse array instead of $answer to keep size down
@@ -71,13 +72,14 @@ class SimpleHistoryNewRowsNotifier {
 		
 		$numNewRows = isset( $answer["total_row_count"] ) ? $answer["total_row_count"] : 0;
 		$json_data["num_new_rows"] = $numNewRows;
+		$json_data["num_mysql_queries"] = get_num_queries();
 
 		if ($numNewRows) {
 	
 			// We have new rows
 
 			// Append strings
-			$textRowsFound = sprintf( _n( '1 new row', '%d new rows', $numNewRows, 'simple-history' ), $numNewRows );
+			$textRowsFound = sprintf( _n( '1 new event', '%d new events', $numNewRows, 'simple-history' ), $numNewRows );
 			$json_data["strings"] = array(
 				"newRowsFound" => $textRowsFound
 			);

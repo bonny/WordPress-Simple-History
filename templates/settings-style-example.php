@@ -1,3 +1,7 @@
+<?php
+defined( 'ABSPATH' ) or die();
+?>
+
 <div class="SimpleHistoryGuiExample">
 
     <ul class="SimpleHistoryLogitems">

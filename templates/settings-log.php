@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 $pager_size = $this->get_pager_size();
 
 /**

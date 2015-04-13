@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Logger for events stored earlier than v2
  * and for events added via simple_history_add

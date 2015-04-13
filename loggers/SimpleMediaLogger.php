@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Logs media uploads
  */
@@ -50,6 +52,10 @@ class SimpleMediaLogger extends SimpleLogger
 
 		add_action("admin_init", array($this, "on_admin_init"));
 
+		add_action("xmlrpc_call_success_mw_newMediaObject", array($this, "on_mw_newMediaObject"), 10, 2);
+
+		add_filter("simple_history/rss_item_link", array($this, "filter_rss_item_link"), 10, 2);
+
 	}
 
 	function on_admin_init() {
@@ -57,6 +63,40 @@ class SimpleMediaLogger extends SimpleLogger
 		add_action("add_attachment", array($this, "on_add_attachment"));
 		add_action("edit_attachment", array($this, "on_edit_attachment"));
 		add_action("delete_attachment", array($this, "on_delete_attachment"));
+
+	}
+
+	/**
+	 * Filter that fires after a new attachment has been added via the XML-RPC MovableType API.
+	 *
+	 * @since 2.0.21
+	 *
+	 * @param int   $id   ID of the new attachment.
+	 * @param array $args An array of arguments to add the attachment.
+	 */
+	function on_mw_newMediaObject($attachment_id, $args) {
+
+		$attachment_post = get_post( $attachment_id );
+		$filename = esc_html( wp_basename( $attachment_post->guid ) );
+		$mime = get_post_mime_type( $attachment_post );
+		$file  = get_attached_file( $attachment_id );
+		$file_size = false;
+
+		if ( file_exists( $file ) ) {
+			$file_size = filesize( $file );
+		}
+
+		$this->infoMessage(
+			'attachment_created',
+			array(
+				"post_type" => get_post_type( $attachment_post ),
+				"attachment_id" => $attachment_id,
+				"attachment_title" => get_the_title( $attachment_post ),
+				"attachment_filename" => $filename,
+				"attachment_mime" => $mime,
+				"attachment_filesize" => $file_size
+			)
+		);
 
 	}
 
@@ -191,7 +231,7 @@ class SimpleMediaLogger extends SimpleLogger
 			if ( ! empty( $context["attachment_thumb"] ) ) {
 
 				if ( $is_image ) {
-					$message .= "<a href='".$edit_link."'>";
+					$message .= "<a class='SimpleHistoryLogitemThumbnailLink' href='".$edit_link."'>";
 				}
 
 				$message .= __('{attachment_thumb}', 'simple-history');
@@ -294,6 +334,33 @@ class SimpleMediaLogger extends SimpleLogger
 				"attachment_mime" => $mime
 			)
 		);
+
+	}
+
+	/**
+	 * Modify RSS links to they go directly to the correct media in wp admin
+	 * 
+	 * @since 2.0.23
+	 * @param string $link
+	 * @param array $row
+	 */
+	public function filter_rss_item_link($link, $row) {
+
+		if ( $row->logger != $this->slug ) {
+			return $link;
+		}
+
+		if ( isset( $row->context["attachment_id"] ) ) {
+
+			$permalink = add_query_arg(array("action" => "edit", "post" => $row->context["attachment_id"]), admin_url( "post.php" ) );
+			
+			if ( $permalink ) {
+				$link = $permalink;
+			}
+
+		}
+
+		return $link;
 
 	}
 

@@ -53,7 +53,17 @@ The spinner that wp uses:;
 
 .dashboard_page_simple_history_page .SimpleHistoryGui {
 	width: 100%;
-	float: left;background: tran
+	float: left;
+}
+
+@media only screen and (max-width: 850px) {
+	.dashboard_page_simple_history_page .SimpleHistoryGuiWrap {
+		float: none;
+		margin-right: auto;
+	}
+	.dashboard_page_simple_history_page .SimpleHistoryGui {
+		float: none;
+	}
 }
 
 
@@ -224,6 +234,7 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem__senderImage {
+	position: relative;
 	border-radius: 50%;
 	overflow: hidden;
 	/*opacity: .8;*/
@@ -345,25 +356,29 @@ Style different log levels.
 Images/thumbs can be styles nicely
 */
 .SimpleHistoryLogitemThumbnail {
-				display: inline-block;
-				margin: .5em 0 0 0;
-					padding: 5px;
-				border: 1px solid #ddd;
-				border-radius: 2px;
+	display: inline-block;
+	margin: .5em 0 0 0;
+	padding: 5px;
+	border: 1px solid #ddd;
+	border-radius: 2px;
 
 }
 
+.SimpleHistoryLogitemThumbnailLink {
+	display: inline-block;
+}
+
 .SimpleHistoryLogitemThumbnail img {
-				/*
-				photoshop-like background that represents tranpsarency
-				so user can see that an image have transparency
-				*/
-				display: block;
-				background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
-				max-width: 100%;
-				max-height: 300px;
-				max-height: 200px;
-				height: auto;
+	/*
+	photoshop-like background that represents transparency
+	so user can see that an image have transparency
+	*/
+	display: block;
+	background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
+	max-width: 100%;
+	max-height: 300px;
+	max-height: 200px;
+	height: auto;
 }
 
 
@@ -499,6 +514,12 @@ i.e. the log is inside a .postbox element
 		height: 24px;;
 	}
 
+	.postbox .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+	.postbox .SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before,
+	.postbox .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
+		font-size: 24px;
+	}
+
 	.postbox .SimpleHistoryLogitem__secondcol {
 		margin-left: 40px;
 	}
@@ -630,6 +651,23 @@ Modal window with detailss
 	right: 120px;
 	top: 60px;
 	z-index: 15;
+	-webkit-overflow-scrolling: touch;
+}
+
+@media only screen and (max-width: 960px) {
+
+	.SimpleHistory-modal__background {
+		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
+	}
+
+	.SimpleHistory-modal__content {
+		top: 10px;
+		left: 10px;
+		right: 10px;
+		bottom: 10px;
+		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
+	}
+
 }
 
 .SimpleHistory-modal__contentInner {
@@ -653,15 +691,16 @@ Modal window with detailss
 
 /* if wp left meny is collapsed .folded is added and meny width is 36 px */
 .folded .SimpleHistory-modal__content {
-	left: 156px /* admin meny width is 160 px*/
+	left: 156px /* admin meny width is 160 px */
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 850px) {
+	
 	.SimpleHistory-modal__content {
-		left: 156px /* admin meny width is 160 px*/
+		left: 10px; /* admin meny width is 160 px */
 	}
-}
 
+}
 
 
 .SimpleHistory-modal__content--enter {
@@ -692,6 +731,13 @@ Modal window with detailss
 
 .admin-bar .SimpleHistory-modal__content {
 	top: 92px /* admin bar height is 32 px*/
+}
+
+@media only screen and (max-width: 960px) {
+	.admin-bar .SimpleHistory-modal__content {
+		top: 10px;
+		z-index: 100000;
+	}
 }
 
 /* style the logRow a bit more when shown in modal */
@@ -734,7 +780,7 @@ Modal window with detailss
 
 .SimpleHistoryLogitem__moreDetailsContext {
 	font-family: monospace;
-	white-space: pre-line;
+	white-space: pre-wrap;
 	font-size: 12px;
 	border-collapse: collapse;
 }
@@ -749,6 +795,30 @@ Modal window with detailss
 	background-color: #eee;
 }
 
+
+@media only screen and (max-width: 850px) {
+	
+	.SimpleHistoryLogitem__moreDetails {
+		margin-left: -60px;
+	}
+
+	/* make table less table-like on small screens by putting tds below/after each other
+	   instead of next to each other */
+	.SimpleHistoryLogitem__moreDetailsContext th:first-child,
+	.SimpleHistoryLogitem__moreDetailsContext td:first-child {
+		display: block;
+		font-weight: bold;
+	}
+
+	.SimpleHistoryLogitem__moreDetailsContext th:nth-child(2),
+	.SimpleHistoryLogitem__moreDetailsContext td:nth-child(2) {
+		display: block;
+		margin-bottom: 1em;
+	}
+
+}
+
+
 .SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__secondcol,
 .SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .SimpleHistoryLogitem__secondcol {
 	margin-left: 0;
@@ -757,6 +827,7 @@ Modal window with detailss
 /** wordpress as initiator = add wordpress icon */
 /** anonymous user as initiator = plain user image */
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
@@ -765,8 +836,24 @@ Modal window with detailss
 	color: #999;
 }
 
-.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before {
+
+.SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before {
 	content: "\f120";
+}
+
+.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:after {
+	content: "CLI";
+	position: absolute;
+	background: rgba(255, 255, 255, 0.7);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	line-height: 36px;
+	text-align: center;
+	font-family: monospace;
+	font-sIze: 12px;
 }
 
 .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
@@ -821,3 +908,4 @@ Modal window with detailss
 	margin-left: 13px;
 	margin-right: 13px;
 }
+

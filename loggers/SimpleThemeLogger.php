@@ -1,10 +1,11 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Logs WordPress theme edits
  */
-class SimpleThemeLogger extends SimpleLogger
-{
+class SimpleThemeLogger extends SimpleLogger {
 
 	public $slug = __CLASS__;
 

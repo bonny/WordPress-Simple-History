@@ -3,9 +3,145 @@
 // No external calls allowed
 exit;
 
+
+/**
+ * Misc
+ */
+
+// Add $_GET, $_POST, and more info to each logged event
+define("SIMPLE_HISTORY_LOG_DEBUG", true);
+
+
 /**
  * Some examples of filter usage and so on
  */
+
+// Skip adding things to the context table during logging. 
+// Useful if you don't want to add cool and possible super useful info to your logged events.
+// Also nice to have if you want to make sure your database does not grow.
+add_filter("simple_history/log_insert_context", function($context, $data) {
+
+	unset($context["_user_id"]);
+	unset($context["_user_login"]);
+	unset($context["_user_email"]);
+	unset($context["server_http_user_agent"]);
+
+	return $context;
+
+}, 10, 2);
+
+// Hide some columns from the detailed context view popup window
+add_filter("simple_history/log_html_output_details_table/row_keys_to_show", function($logRowKeysToShow, $oneLogRow) {
+	
+	$logRowKeysToShow["id"] = false;
+	$logRowKeysToShow["logger"] = false;
+	$logRowKeysToShow["level"] = false;
+	$logRowKeysToShow["message"] = false;
+
+	return $logRowKeysToShow;
+
+}, 10, 2);
+
+
+// Hide some more columns from the detailed context view popup window
+add_filter("simple_history/log_html_output_details_table/context_keys_to_show", function($logRowContextKeysToShow, $oneLogRow) {
+	
+	$logRowContextKeysToShow["plugin_slug"] = false;
+	$logRowContextKeysToShow["plugin_name"] = false;
+	$logRowContextKeysToShow["plugin_title"] = false;
+	$logRowContextKeysToShow["plugin_description"] = false;
+
+	return $logRowContextKeysToShow;
+
+}, 10, 2);
+
+
+
+// Allow only the users specified in $allowed_users to show the history page, the history widget on the dashboard, or the history settings page
+add_filter("simple_history/show_dashboard_page", "function_show_history_dashboard_or_page");
+add_filter("simple_history/show_dashboard_widget", "function_show_history_dashboard_or_page");
+add_filter("simple_history/show_settings_page", "function_show_history_dashboard_or_page");
+function function_show_history_dashboard_or_page($show) {
+
+	$allowed_users = array(
+		"user1@example.com",
+		"anotheruser@example.com"
+	);
+
+	$user = wp_get_current_user();
+	
+	if ( ! in_array( $user->user_email, $allowed_users ) ) {
+		$show = false;
+	}
+
+	return $show;
+
+}
+
+
+// Skip loading of loggers
+add_filter("simple_history/logger/load_logger", function($load_logger, $oneLoggerFile) {
+
+	// Don't load loggers for comments or menus, i.e. don't log changes to comments or to menus
+	if ( in_array($oneLoggerFile, array("SimpleCommentsLogger", "SimpleMenuLogger")) ) {
+		$load_logger = false;
+	}
+
+	return $load_logger;
+
+}, 10, 2);
+
+/**
+ * Load only the loggers that are specified in the $do_log_us array
+ */
+add_filter("simple_history/logger/load_logger", function($load_logger, $logger_basename) {
+
+	$load_logger = false;
+	$do_log_us = array("SimplePostLogger", "SimplePluginLogger", "SimpleLogger");
+
+	if ( in_array( $logger_basename, $do_log_us ) ) {
+		$load_logger = true;
+	}
+
+	return $load_logger;
+
+}, 10, 2 );
+
+
+// Skip the loading of dropins
+add_filter("simple_history/dropin/load_dropin", function($load_dropin, $dropinFileBasename) {
+	
+	// Don't load the RSS feed dropin
+	if ( $dropinFileBasename == "SimpleHistoryRSSDropin" ) {
+		$load_dropin = false;
+	}
+
+	// Don't load the dropin that polls for changes
+	if ( $dropinFileBasename == "SimpleHistoryNewRowsNotifier" ) {
+		$load_dropin = false;
+	}
+
+	return $load_dropin;
+
+}, 10, 2);
+
+
+// Don't log failed logins
+add_filter("simple_history/simple_logger/log_message_key", function($doLog, $loggerSlug, $messageKey, $SimpleLoggerLogLevelsLevel, $context) {
+
+	// Don't log login attempts to non existing users
+	if ( "SimpleUserLogger" == $loggerSlug && "user_unknown_login_failed" == $messageKey ) {
+		$doLog = false;
+	}
+
+	// Don't log failed logins to existing users
+	if ( "SimpleUserLogger" == $loggerSlug && "user_login_failed" == $messageKey ) {
+		$doLog = false;
+	}
+
+	return $doLog;
+
+}, 10, 5);
 
 // Never clear the log (default is 60 days)
 add_filter("simple_history/db_purge_days_interval", "__return_zero");

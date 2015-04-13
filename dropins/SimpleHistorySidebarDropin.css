@@ -5,6 +5,15 @@
 	margin-right: -340px;
 }
 
+@media only screen and (max-width: 850px) {
+	.SimpleHistory__pageSidebar {
+		width: 100%;
+		float: none;
+		margin-right: auto;
+		margin-top: 20px;
+	}	
+}
+
 .SimpleHistory__pageSidebar .inside {
 	margin-bottom: 0;
 }
@@ -16,3 +25,4 @@
 .SimpleHistory__pageSidebar .postbox .hndle {
 	cursor: auto;
 }
+

@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Queries the Simple History Log
  */ 
@@ -69,6 +71,14 @@ class SimpleHistoryLogQuery {
 
 		$args = wp_parse_args( $args, $defaults );
 		// sf_d($args, "Run log query with args");
+
+		$cache_key = "SimpleHistoryLogQuery_" . md5(serialize( $args )) . "_get_" . md5(serialize( $_GET )) . "_userid_" . get_current_user_id();
+		$cache_group =  "simple-history-" . SimpleHistory::get_cache_incrementor();
+		$arr_return = wp_cache_get($cache_key, $cache_group);
+		
+		if ( false !== $arr_return ) {
+			return $arr_return;
+		}
 
 		/*
 		Subequent occasions query thanks to this Stack Overflow thread:
@@ -150,7 +160,7 @@ class SimpleHistoryLogQuery {
 				%2$s
 			';
 
-			$sh = $GLOBALS["simple_history"];
+			$sh = SimpleHistory::get_instance();
 
 			// Only include loggers that the current user can view		
 			$sql_loggers_user_can_view = $sh->getLoggersThatUserCanRead(get_current_user_id(), "sql");
@@ -733,6 +743,8 @@ class SimpleHistoryLogQuery {
 		);
 
 		#sf_d($arr_return, '$arr_return');exit;
+
+		wp_cache_set($cache_key, $arr_return, $cache_group);
 
 		return $arr_return;
 	
