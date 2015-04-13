@@ -125,6 +125,7 @@ initiated by a specific user.
 - Fixed: IP Info popup is now again closeable with `ESC` key or with a click outside it.
 - Fixed: Some enqueued scripts had double slashes in them.
 - Fixed: Some other small things.
+- Updated: Danish translation updated.
 
 = 2.0.28 (April 2015) =
 
