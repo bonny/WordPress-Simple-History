@@ -454,6 +454,8 @@ class SimplePostLogger extends SimpleLogger
 
 			}
 
+			$context["_occasionsID"] = __CLASS__  . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
+
 			$this->infoMessage( "post_updated", $context );
 
 		}
