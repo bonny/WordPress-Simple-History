@@ -2,74 +2,6 @@
 
 defined( 'ABSPATH' ) or die();
 
-/*
-    - vid start av app: login, körs titt som tätt
-    - XMLRPC_REQUEST": true
-    do_action( 'xmlrpc_call', 'wp.editPost' );
-
-         * All built-in XML-RPC methods use the action xmlrpc_call, with a parameter
-         * equal to the method's name, e.g., wp.getUsersBlogs, wp.newPost, etc.
-        do_action( 'xmlrpc_call', 'wp.getUsersBlogs' );    
-*/    
-    
-    
-
-		/**
-		 * Fires after a new category has been successfully created via XML-RPC.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param int   $cat_id ID of the new category.
-		 * @param array $args   An array of new category arguments.
-		 */
-#		do_action( 'xmlrpc_call_success_wp_newCategory', $cat_id, $args );
-
-
-			/**
-			 * Fires after a category has been successfully deleted via XML-RPC.
-			 *
-			 * @since 3.4.0
-			 *
-			 * @param int   $category_id ID of the deleted category.
-			 * @param array $args        An array of arguments to delete the category.
-			 */
-#			do_action( 'xmlrpc_call_success_wp_deleteCategory', $category_id, $args );
-
-
-			/**
-			 * Fires after a comment has been successfully deleted via XML-RPC.
-			 *
-			 * @since 3.4.0
-			 *
-			 * @param int   $comment_ID ID of the deleted comment.
-			 * @param array $args       An array of arguments to delete the comment.
-			 */
-#			do_action( 'xmlrpc_call_success_wp_deleteComment', $comment_ID, $args );
-
-
-		/**
-		 * Fires after a comment has been successfully updated via XML-RPC.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param int   $comment_ID ID of the updated comment.
-		 * @param array $args       An array of arguments to update the comment.
-		 */
-#		do_action( 'xmlrpc_call_success_wp_editComment', $comment_ID, $args );
-
-
-		/**
-		 * Fires after a new comment has been successfully created via XML-RPC.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param int   $comment_ID ID of the new comment.
-		 * @param array $args       An array of new comment arguments.
-		 */
-#		do_action( 'xmlrpc_call_success_wp_newComment', $comment_ID, $args );
-
-
-
 
 /**
  * Logs changes to posts and pages, including custom post types
@@ -619,104 +551,41 @@ class SimplePostLogger extends SimpleLogger
 
 					if ( isset( $context[ $key_for_new_val ] ) ) {
 
-						#$out .= "<br>Key: $key_to_diff";
-						#$out .= "<br>Key for old val: $key";
-						#$out .= "<br>Key for new val: $key_for_new_val";
 						$post_old_value = $context[$key];
 						$post_new_value = $context[$key_for_new_val];
 
 						if ( $post_old_value != $post_new_value ) {
-							
-							#require_once( SIMPLE_HISTORY_PATH . "inc/finediff.php" );
-							
-							/*
-							*   // FineDiff::$paragraphGranularity = paragraph/line level
-							*   // FineDiff::$sentenceGranularity = sentence level
-							*   // FineDiff::$wordGranularity = word level
-							*   // FineDiff::$characterGranularity = character level [default]
-							*/
-							#$out .= sprintf('<br>Changed "%3$s" from "%1$s" » "%2$s"', $post_old_value, $post_new_value, $key_to_diff);
 
 							// Different diffs for different keys
 							if ( "post_title" == $key_to_diff ) {
 
 								$has_diff_values = true;
 
-								/*$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
-								$diff_table_output .= sprintf(
-									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
-									__("Post title 1", "simple-history"), 
-									$diff->renderDiffToHTML()
-								);*/
-
 								$diff_table_output .= sprintf(
 									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
 									__("Title", "simple-history"), 
-									wp_text_diff($post_old_value, $post_new_value)
+									simple_history_text_diff($post_old_value, $post_new_value)
 								);
-
-								#$diff = new FineDiff($post_old_value, $post_new_value);
-								#$diff_table_output .= sprintf('<tr><td>%1$s</td><td>%2$s</td></tr>', __("Post title", "simple-history"), $diff->renderDiffToHTML() );
-
-								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$paragraphGranularity);
-								#$diff_table_output .= sprintf('<tr><td>%1$s</td><td>%2$s</td></tr>', __("Post title", "simple-history"), $diff->renderDiffToHTML() );
-
-								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$sentenceGranularity);
-								#$out .= "<p>".$diff->renderDiffToHTML()."</p>";
-
-								// This will look the same as the output of the finediff class
-								#$left_lines  = explode("\n", normalize_whitespace($post_old_value));
-								#$right_lines = explode("\n", normalize_whitespace($post_new_value));
-								#$text_diff = new Text_Diff($left_lines, $right_lines);
-								#$renderer = new WP_Text_Diff_Renderer_inline();
-								#$diff = $renderer->render($text_diff);
-								#$diff_table_output .= "<tr><td>Post title 3</td><td>" . $diff . "</td></tr>";
 
 							} else if ( "post_content" == $key_to_diff ) {
 
 								// Problem: to much text/content
 								// Risks to fill the visual output
+								// Maybe solution: use own diff function, that uses none or few context lines
 
 								$has_diff_values = true;
 
 								$diff_table_output .= sprintf(
 									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
 									__("Content", "simple-history"), 
-									wp_text_diff($post_old_value, $post_new_value)
+									simple_history_text_diff($post_old_value, $post_new_value)
 								);
-
-								#$left_lines  = explode("\n", normalize_whitespace($post_old_value));
-								#$right_lines = explode("\n", normalize_whitespace($post_new_value));
-
-								#$text_diff = new Text_Diff($left_lines, $right_lines);
-								#$diff_table_output .= "<tr><td>Added lines</td><td>" . $text_diff->countAddedLines() . "</td></tr>";
-								#$diff_table_output .= "<tr><td>Removed lines</td><td>" . $text_diff->countDeletedLines() . "</td></tr>";
-
-								#$renderer = new WP_Text_Diff_Renderer_inline();
-								#$diff = $renderer->render($text_diff);
-								#$diff_table_output .= "<tr><td>text diff inline</td><td>" . $diff . "</td></tr>";
-
-								// Text_MappedDiff
-								#$text_diff = new Text_MappedDiff($left_lines, $right_lines);
-								#$diff_table_output .= print_r($text_diff, true);
-
-								//
-								#$renderer  = new Text_Diff_Renderer();
-								#$diff = $renderer->render($text_diff);
-								#$diff_table_output .= "<br><br>" . print_r($diff, true);
-
-								#$renderer = new WP_Text_Diff_Renderer_table();
-								#$diff = $renderer->render($text_diff);
-								#var_dump($renderer->_changed($left_lines, $right_lines));
-								#$diff_table_output .= "<tr><td><span>diff table:</span></td><td><table> " . $renderer->_changed($left_lines, $right_lines) . "</table></td></tr>";
-								#$diff_table_output .= "<br>diff table end";
 
 
 							} else if ( "post_status" == $key_to_diff ) {
 
 								$has_diff_values = true;
 
-								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -754,7 +623,7 @@ class SimplePostLogger extends SimpleLogger
 										<td>%2$s</td>
 									</tr>', 
 									__("Permalink", "simple-history"), 
-									wp_text_diff($post_old_value, $post_new_value)
+									simple_history_text_diff($post_old_value, $post_new_value)
 								);
 
 							} else if ( "comment_status" == $key_to_diff ) {
@@ -857,20 +726,21 @@ class SimplePostLogger extends SimpleLogger
 		<style>
 
 			/* format diff output */
-			.SimpleHistoryLogitem__details .diff td,
-			.SimpleHistoryLogitem__details .diff td:first-child {
-				text-align: left;
-				white-space: normal;
-				font-size: 13px;
-				line-height: 1.1;
-				padding: 0.25em 0.5em;
-				color: rgb(68, 68, 68);
-			}
-			
-			.SimpleHistoryLogitem__details .diff {
+			.SimpleHistory__diff.SimpleHistory__diff {
 				border-spacing: 1px;
 			}
 
+			.SimpleHistory__diff.SimpleHistory__diff td,
+			.SimpleHistory__diff.SimpleHistory__diff td:first-child {
+				text-align: left;
+				white-space: normal;
+				font-size: 13px;
+				line-height: 1.3;
+				padding: 0.25em 0.5em;
+				color: rgb(75, 75, 75);
+				font-family: "Open Sans", sans-serif;
+			}
+			
 		</style>	
 		<?php
 
