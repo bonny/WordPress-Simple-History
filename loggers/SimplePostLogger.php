@@ -464,8 +464,19 @@ class SimplePostLogger extends SimpleLogger
 
 					}
 
-					
 				}
+
+				// If post parent changed then
+				// store info about old and new parent
+				/*
+				sf_d($post_data_diff);exit;
+				post_parent] => Array
+				        (
+				            [old] => 0
+				            [new] => 25556
+				        )
+				*/
+				
 
 			
 			}
@@ -479,7 +490,8 @@ class SimplePostLogger extends SimpleLogger
 		$arr_meta_keys_to_ignore = array(
 			"_edit_lock",
 			"_edit_last",
-			"_post_restored_from"
+			"_post_restored_from",
+			"_wp_page_template"
 		);
 
 		$meta_changes = array(
@@ -490,8 +502,39 @@ class SimplePostLogger extends SimpleLogger
 
 		$old_meta = $old_post_data["post_meta"];
 		$new_meta = $new_post_data["post_meta"];
+		
+		// page template is stored in _wp_page_template
+		/*
+		  [_wp_page_template] => Array
+        (
+            [0] => default
+        )
+	    [_wp_page_template] => Array
+        (
+            [0] => template-builder.php
+        )        
+		*/
+		// post thumb is stored in _thumbnail_id
+		#sf_d($old_meta);
+		#sf_d($new_meta);
+		if ( isset( $old_meta["_wp_page_template"][0] ) && isset( $new_meta["_wp_page_template"][0] ) ) {
+			
+			#sf_d( $old_meta["_wp_page_template"][0] );
+			#sf_d( $new_meta["_wp_page_template"][0] );
+			/*
+			Var is string with length 7: default
+			Var is string with length 20: template-builder.php
+			*/
+			
+		}
 
-		// Look for added meta
+		// Remove fields that we have checked already and other that should be ignored
+		foreach ($arr_meta_keys_to_ignore as $key_to_ignore) {
+			unset( $old_meta[ $key_to_ignore ] );
+			unset( $new_meta[ $key_to_ignore ] );
+		}
+		
+		// Look for added custom fields
 		foreach ( $new_meta as $meta_key => $meta_value ) {
 			
 			if ( ! isset( $old_meta[ $meta_key ] ) ) {
