@@ -525,15 +525,15 @@ class SimplePostLogger extends SimpleLogger
 		}
 
 		if ( $meta_changes["added"] ) {
-			$context["meta_added"] = sizeof($meta_changes["added"]);
+			$context["post_meta_added"] = sizeof($meta_changes["added"]);
 		}
 
 		if ( $meta_changes["removed"] ) {
-			$context["meta_removed"] = sizeof($meta_changes["removed"]);
+			$context["post_meta_removed"] = sizeof($meta_changes["removed"]);
 		}
 
 		if ( $meta_changes["changed"] ) {
-			$context["meta_changed"] = sizeof($meta_changes["changed"]);
+			$context["post_meta_changed"] = sizeof($meta_changes["changed"]);
 		}
 
 		return $context;
@@ -635,6 +635,8 @@ class SimplePostLogger extends SimpleLogger
 			// Check for keys like "post_prev_post_title" and "post_new_post_title"
 			$diff_table_output = "";
 			$has_diff_values = false;
+
+			// @TODO: this is silly. why loop if we know what we're looking for?
 			foreach ( $context as $key => $val ) {
 
 				if ( strpos($key, "post_prev_") !== false ) {
@@ -801,6 +803,35 @@ class SimplePostLogger extends SimpleLogger
 				}
 
 			} // for each context key
+
+			if ( isset( $context["post_meta_added"] ) || isset( $context["post_meta_removed"] ) || isset( $context["post_meta_changed"] ) ) {
+
+				$meta_changed_out = "";
+				$has_diff_values = true;
+
+				if ( isset( $context["post_meta_added"] ) ) {
+					$meta_changed_out .= "<span class='SimpleHistoryLogitem__inlineDivided'>". (int) $context["post_meta_added"] ." added</span> ";
+				}
+
+				if ( isset( $context["post_meta_removed"] ) ) {
+					$meta_changed_out .= "<span class='SimpleHistoryLogitem__inlineDivided'>". (int) $context["post_meta_removed"] ." removed</span> ";
+				}
+
+				if ( isset( $context["post_meta_changed"] ) ) {
+					$meta_changed_out .= "<span class='SimpleHistoryLogitem__inlineDivided'>". (int) $context["post_meta_changed"] ." changed</span> ";
+				}
+
+				$diff_table_output .= sprintf(
+					'<tr>
+						<td>%1$s</td>
+						<td>%2$s</td>
+					</tr>',
+					esc_html( __("Custom fields", "simple-history") ),
+					$meta_changed_out
+				);
+
+			}
+			
 
 			/*
 			$diff_table_output .= "
