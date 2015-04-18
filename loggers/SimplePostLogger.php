@@ -402,7 +402,7 @@ class SimplePostLogger extends SimpleLogger
 		- post thumb (part of custom fields)
 		- categories
 		- tags
-
+	* @return array $context with diff data added
 	*/
 	function add_post_data_diff_to_context($context, $old_post_data, $new_post_data) {
 		
@@ -470,11 +470,76 @@ class SimplePostLogger extends SimpleLogger
 			
 			}
 
+		} // post_data_diff
+
+
+		// Compare custom fields
+
+		// Array with custom field keys to ignore because changed everytime or very internal
+		$arr_meta_keys_to_ignore = array(
+			"_edit_lock",
+			"_edit_last",
+			"_post_restored_from"
+		);
+
+		$meta_changes = array(
+			"added" => array(),
+			"removed" => array(),
+			"changed" => array()
+		);
+
+		$old_meta = $old_post_data["post_meta"];
+		$new_meta = $new_post_data["post_meta"];
+
+		// Look for added meta
+		foreach ( $new_meta as $meta_key => $meta_value ) {
+			
+			if ( ! isset( $old_meta[ $meta_key ] ) ) {
+				$meta_changes["added"][ $meta_key ] = true;
+			}
+
+		}
+
+		// Look for removed meta
+		// Does not work, if user clicks "delete" in edit screen then meta is removed using ajax
+		/*
+		foreach ( $old_meta as $meta_key => $meta_value ) {
+			
+			if ( ! isset($new_meta[ $meta_key ] ) ) {
+				$meta_changes["removed"][ $meta_key ] = true;
+			}
+
+		}
+		*/
+
+		// Look for changed meta
+		foreach ( $old_meta as $meta_key => $meta_value ) {
+			
+			if ( isset( $new_meta[ $meta_key ] ) ) {
+
+				if ( json_encode( $old_meta[ $meta_key ] ) != json_encode( $new_meta[ $meta_key ] ) ) {
+					$meta_changes["changed"][ $meta_key ] = true;
+				}
+			}
+
+		}
+
+		if ( $meta_changes["added"] ) {
+			$context["meta_added"] = sizeof($meta_changes["added"]);
+		}
+
+		if ( $meta_changes["removed"] ) {
+			$context["meta_removed"] = sizeof($meta_changes["removed"]);
+		}
+
+		if ( $meta_changes["changed"] ) {
+			$context["meta_changed"] = sizeof($meta_changes["changed"]);
 		}
 
 		return $context;
 
 	}
+
 	/**
 	 * Since 2.0.x
 	 */
