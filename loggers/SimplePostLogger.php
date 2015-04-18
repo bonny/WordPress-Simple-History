@@ -164,6 +164,7 @@ class SimplePostLogger extends SimpleLogger
 	/**
 	 * Get and store old info about a post that is being edited.
 	 * Needed to later compare old data with new data, to detect differences.
+	 * This function is called on edit screen, but before post edits are saved
 	 *
 	 * Can't use the regular filters like "pre_post_update" because custom fields are already written by then.
 	 *
@@ -434,12 +435,41 @@ class SimplePostLogger extends SimpleLogger
 
 		}
 
+		// If changes where detected
 		if ( $post_data_diff ) {
-			//$context["_post_data_diff"] = $this->simpleHistory->json_encode( $post_data_diff );
+			
+			// $context["_post_data_diff"] = $this->simpleHistory->json_encode( $post_data_diff );
+			// Save at least 2 values for each detected value change, i.e. the old value and the new value
 			foreach ( $post_data_diff as $diff_key => $diff_values ) {
+			
 				$context["post_prev_{$diff_key}"] = $diff_values["old"];
 				$context["post_new_{$diff_key}"] = $diff_values["new"];
+
+				// If post_author then get more author info
+				// Because just a user ID does not get us far
+				if ( "post_author" == $diff_key ) {
+					
+					$old_author_user = get_userdata( (int) $diff_values["old"] );
+					$new_author_user = get_userdata( (int) $diff_values["new"] );
+
+					if ( is_a( $old_author_user, "WP_User" ) && is_a( $new_author_user, "WP_User" ) ) {
+						
+						$context["post_prev_{$diff_key}/user_login"] = $old_author_user->user_login;
+						$context["post_prev_{$diff_key}/user_email"] = $old_author_user->user_email;
+						$context["post_prev_{$diff_key}/display_name"] = $old_author_user->display_name;
+
+						$context["post_new_{$diff_key}/user_login"] = $new_author_user->user_login;
+						$context["post_new_{$diff_key}/user_email"] = $new_author_user->user_email;
+						$context["post_new_{$diff_key}/display_name"] = $new_author_user->display_name;				
+
+					}
+
+					
+				}
+
+			
 			}
+
 		}
 
 		return $context;
@@ -645,7 +675,47 @@ class SimplePostLogger extends SimpleLogger
 
 								$has_diff_values = true;
 
-								#$diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
+								// wp post edit screen uses display_name so we should use it too
+								if ( isset( $context["post_prev_post_author/display_name"] ) && isset( $context["post_new_post_author/display_name"] ) ) {
+								
+									$prev_user_display_name = $context["post_prev_post_author/display_name"];
+									$new_user_display_name = $context["post_new_post_author/display_name"];
+
+									$prev_user_user_email = $context["post_prev_post_author/user_email"];
+									$new_user_user_email = $context["post_new_post_author/user_email"];
+
+									$diff_table_output .= sprintf(
+										'<tr>
+											<td>%1$s</td>
+											<td>%2$s</td>
+										</tr>', 
+										__("Author", "simple-history"), 
+										$this->interpolate( 
+											__('Changed from {prev_user_display_name} ({prev_user_email}) to {new_user_display_name} ({new_user_email})', "simple-history"), 
+											array(
+												"prev_user_display_name" => esc_html( $prev_user_display_name ),
+												"prev_user_email" => esc_html( $prev_user_user_email ),
+												"new_user_display_name" => esc_html( $new_user_display_name ),
+												"new_user_email" => esc_html( $new_user_user_email ) 
+											)
+										)
+									);
+
+									/*
+									$diff_table_output .= sprintf(
+										'<tr>
+											<td>%1$s</td>
+											<td><del>%2$s</del> <ins>%3$s</ins></td>
+										</tr>', 
+										__("Author", "simple-history"), 
+										esc_html( $prev_user_display_name ),
+										esc_html( $new_user_display_name )
+									);
+									*/
+
+								}
+
+								/*
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -655,6 +725,7 @@ class SimplePostLogger extends SimpleLogger
 									esc_html($post_old_value),
 									esc_html($post_new_value)
 								);
+								*/
 
 							}
 
