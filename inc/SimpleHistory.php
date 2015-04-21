@@ -1224,20 +1224,20 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 
 			<h3 class="nav-tab-wrapper">
 				<?php
-foreach ($arr_settings_tabs as $one_tab) {
+				foreach ($arr_settings_tabs as $one_tab) {
 
-			$tab_slug = $one_tab["slug"];
+					$tab_slug = $one_tab["slug"];
 
-			printf(
-				'<a href="%3$s" class="nav-tab %4$s">%1$s</a>',
-				$one_tab["name"], // 1
-				$tab_slug, // 2
-				add_query_arg("selected-tab", $tab_slug, $settings_base_url), // 3
-				$active_tab == $tab_slug ? "nav-tab-active" : ""// 4
-			);
+					printf(
+						'<a href="%3$s" class="nav-tab %4$s">%1$s</a>',
+						$one_tab["name"], // 1
+						$tab_slug, // 2
+						add_query_arg("selected-tab", $tab_slug, $settings_base_url), // 3
+						$active_tab == $tab_slug ? "nav-tab-active" : ""// 4
+					);
 
-		}
-		?>
+				}
+				?>
 			</h3>
 
 			<?php
