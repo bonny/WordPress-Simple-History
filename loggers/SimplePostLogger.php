@@ -396,6 +396,8 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	/*
+	 * Adds diff data to the context array. Is called just before the event is logged.
+	 * 
 	 * Since 2.0.x
 
 	 To detect
@@ -503,28 +505,36 @@ class SimplePostLogger extends SimpleLogger
 		$old_meta = $old_post_data["post_meta"];
 		$new_meta = $new_post_data["post_meta"];
 		
+		// @todo: post thumb is stored in _thumbnail_id
+
 		// page template is stored in _wp_page_template
-		/*
-		  [_wp_page_template] => Array
-        (
-            [0] => default
-        )
-	    [_wp_page_template] => Array
-        (
-            [0] => template-builder.php
-        )        
-		*/
-		// post thumb is stored in _thumbnail_id
-		#sf_d($old_meta);
-		#sf_d($new_meta);
 		if ( isset( $old_meta["_wp_page_template"][0] ) && isset( $new_meta["_wp_page_template"][0] ) ) {
 			
-			#sf_d( $old_meta["_wp_page_template"][0] );
-			#sf_d( $new_meta["_wp_page_template"][0] );
 			/*
 			Var is string with length 7: default
 			Var is string with length 20: template-builder.php
 			*/
+
+			if ( $old_meta["_wp_page_template"][0] != $new_meta["_wp_page_template"][0] ) {
+				
+				// prev page template is different from new page template
+
+				// store template php file name
+				$context["post_prev_page_template"] = $old_meta["_wp_page_template"][0];
+				$context["post_new_page_template"] = $new_meta["_wp_page_template"][0];
+
+				// also store template name (the name is the value that is visible in the post edit screen)
+				// @todo: get the template name, but untranslated
+				// $templates = get_page_templates( get_post() );
+				/*
+				Array
+				(
+				    [Showcase Template] => showcase.php
+				    [Sidebar Template] => sidebar-page.php
+				)
+				*/
+
+			}
 			
 		}
 
@@ -811,31 +821,29 @@ class SimplePostLogger extends SimpleLogger
 										)
 									);
 
-									/*
-									$diff_table_output .= sprintf(
-										'<tr>
-											<td>%1$s</td>
-											<td><del>%2$s</del> <ins>%3$s</ins></td>
-										</tr>', 
-										__("Author", "simple-history"), 
-										esc_html( $prev_user_display_name ),
-										esc_html( $new_user_display_name )
-									);
-									*/
 
 								}
 
-								/*
+							} else if ( "page_template" == $key_to_diff ) {
+
+								// page_template
+								$prev_page_template = $context["post_prev_page_template"];
+								$new_page_template = $context["post_new_page_template"];
+
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
-										<td>Changed from %2$s to %3$s</td>
+										<td>%2$s</td>
 									</tr>', 
-									__("Author", "simple-history"), 
-									esc_html($post_old_value),
-									esc_html($post_new_value)
+									__("Template", "simple-history"), 
+									$this->interpolate( 
+										__('Changed from {prev_page_template} to {new_page_template}', "simple-history"), 
+										array(
+											"prev_page_template" => esc_html( $prev_page_template ),
+											"new_page_template" => esc_html( $new_page_template ),
+										)
+									)
 								);
-								*/
 
 							}
 
@@ -875,7 +883,6 @@ class SimplePostLogger extends SimpleLogger
 
 			}
 			
-
 			/*
 			$diff_table_output .= "
 				<p>
