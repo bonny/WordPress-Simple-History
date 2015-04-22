@@ -1232,7 +1232,7 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 						'<a href="%3$s" class="nav-tab %4$s">%1$s</a>',
 						$one_tab["name"], // 1
 						$tab_slug, // 2
-						add_query_arg("selected-tab", $tab_slug, $settings_base_url), // 3
+						esc_url( add_query_arg("selected-tab", $tab_slug, $settings_base_url) ), // 3
 						$active_tab == $tab_slug ? "nav-tab-active" : ""// 4
 					);
 
@@ -1354,7 +1354,7 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 			add_settings_error("simple_history_rss_feed_regenerate_secret", "simple_history_rss_feed_regenerate_secret", $msg, "updated");
 			set_transient('settings_errors', get_settings_errors(), 30);
 
-			$goback = add_query_arg('settings-updated', 'true', wp_get_referer());
+			$goback = esc_url_raw( add_query_arg('settings-updated', 'true', wp_get_referer()) );
 			wp_redirect($goback);
 			exit;
 
@@ -1556,7 +1556,7 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 	 */
 	function settings_field_clear_log() {
 
-		$clear_link = add_query_arg("", "");
+		$clear_link = esc_url( add_query_arg("", "") );
 		$clear_link = wp_nonce_url($clear_link, "simple_history_clear_log", "simple_history_clear_log_nonce");
 		$clear_days = $this->get_clear_history_interval();
 

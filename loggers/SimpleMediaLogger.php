@@ -338,7 +338,7 @@ class SimpleMediaLogger extends SimpleLogger
 	}
 
 	/**
-	 * Modify RSS links to they go directly to the correct media in wp admin
+	 * Modify RSS links so they go directly to the correct media in wp admin
 	 * 
 	 * @since 2.0.23
 	 * @param string $link
