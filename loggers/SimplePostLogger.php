@@ -873,6 +873,9 @@ class SimplePostLogger extends SimpleLogger
 									$new_page_template_name = $new_page_template;
 								}
 
+								// @TODO: translate template names
+								// $value = translate( $value, $this->get('TextDomain') );
+
 								$message = __('Changed from {prev_page_template} to {new_page_template}', "simple-history");
 								if ( $prev_page_template_name && $new_page_template_name ) {
 									$message = __('Changed from "{prev_page_template_name}" to "{new_page_template_name}"', "simple-history");
@@ -946,7 +949,7 @@ class SimplePostLogger extends SimpleLogger
 			";
 			*/
 
-			if ( $has_diff_values ) {
+			if ( $has_diff_values || $diff_table_output ) {
 
 				$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
 
