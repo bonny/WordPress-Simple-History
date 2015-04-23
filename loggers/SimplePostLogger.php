@@ -523,16 +523,22 @@ class SimplePostLogger extends SimpleLogger
 				$context["post_prev_page_template"] = $old_meta["_wp_page_template"][0];
 				$context["post_new_page_template"] = $new_meta["_wp_page_template"][0];
 
-				// also store template name (the name is the value that is visible in the post edit screen)
-				// @todo: get the template name, but untranslated
-				// $templates = get_page_templates( get_post() );
+				$theme_templates = (array) $this->get_theme_templates();
 				/*
+				print_r($theme_templates);
+
 				Array
 				(
-				    [Showcase Template] => showcase.php
-				    [Sidebar Template] => sidebar-page.php
+				    [showcase.php] => Showcase Template
+				    [sidebar-page.php] => Sidebar Template
 				)
 				*/
+				if ( isset( $theme_templates[ $context["post_prev_page_template"] ] ) && isset( $theme_templates[ $context["post_new_page_template"] ] ) ) {
+
+					$context["post_prev_page_template_name"] = $theme_templates[$context["post_prev_page_template"]];
+					$context["post_new_page_template_name"] = $theme_templates[$context["post_new_page_template"]];
+
+				}
 
 			}
 			
@@ -590,6 +596,30 @@ class SimplePostLogger extends SimpleLogger
 		}
 
 		return $context;
+
+	}
+
+	/**
+	 * Return the current theme templates.
+	 * Template will return untranslated.
+	 * Uses the same approach as in class-wp-theme.php to get templates.
+	 *
+	 * @since 2.0.x
+	 */
+	function get_theme_templates() {
+
+		$theme = wp_get_theme();
+		$page_templates = array();
+
+		$files = (array) $theme->get_files( 'php', 1 );
+
+		foreach ( $files as $file => $full_path ) {
+			if ( ! preg_match( '|Template Name:(.*)$|mi', file_get_contents( $full_path ), $header ) )
+				continue;
+			$page_templates[ $file ] = _cleanup_header_comment( $header[1] );
+		}
+		
+		return $page_templates;
 
 	}
 
@@ -826,9 +856,19 @@ class SimplePostLogger extends SimpleLogger
 
 							} else if ( "page_template" == $key_to_diff ) {
 
-								// page_template
+								// page template filename
 								$prev_page_template = $context["post_prev_page_template"];
 								$new_page_template = $context["post_new_page_template"];
+
+								// page template name, should exist, but I guess someone could have deleted a template
+								// and after that change the template for a post
+								$prev_page_template_name = isset( $context["post_prev_page_template_name"] ) ? $context["post_prev_page_template_name"] : "";
+								$new_page_template_name = isset( $context["post_new_page_template_name"] ) ? $context["post_new_page_template_name"] : "";
+
+								$message = __('Changed from {prev_page_template} to {new_page_template}', "simple-history");
+								if ( $prev_page_template_name && $new_page_template_name ) {
+									$message = __('Changed from "{prev_page_template_name}" to "{new_page_template_name}"', "simple-history");
+								}
 
 								$diff_table_output .= sprintf(
 									'<tr>
@@ -837,10 +877,12 @@ class SimplePostLogger extends SimpleLogger
 									</tr>', 
 									__("Template", "simple-history"), 
 									$this->interpolate( 
-										__('Changed from {prev_page_template} to {new_page_template}', "simple-history"), 
+										$message, 
 										array(
-											"prev_page_template" => esc_html( $prev_page_template ),
-											"new_page_template" => esc_html( $new_page_template ),
+											"prev_page_template" => "<code>" . esc_html( $prev_page_template ) . "</code>",
+											"new_page_template" => "<code>" . esc_html( $new_page_template ) . "</code>",
+											"prev_page_template_name" => esc_html( $prev_page_template_name ),
+											"new_page_template_name" => esc_html( $new_page_template_name )
 										)
 									)
 								);
