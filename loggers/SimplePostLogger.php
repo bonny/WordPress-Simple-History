@@ -533,11 +533,12 @@ class SimplePostLogger extends SimpleLogger
 				    [sidebar-page.php] => Sidebar Template
 				)
 				*/
-				if ( isset( $theme_templates[ $context["post_prev_page_template"] ] ) && isset( $theme_templates[ $context["post_new_page_template"] ] ) ) {
-
+				if ( isset( $theme_templates[ $context["post_prev_page_template"] ] ) ) {
 					$context["post_prev_page_template_name"] = $theme_templates[$context["post_prev_page_template"]];
+				}
+				
+				if ( isset( $theme_templates[ $context["post_new_page_template"] ] ) ) {
 					$context["post_new_page_template_name"] = $theme_templates[$context["post_new_page_template"]];
-
 				}
 
 			}
@@ -864,6 +865,13 @@ class SimplePostLogger extends SimpleLogger
 								// and after that change the template for a post
 								$prev_page_template_name = isset( $context["post_prev_page_template_name"] ) ? $context["post_prev_page_template_name"] : "";
 								$new_page_template_name = isset( $context["post_new_page_template_name"] ) ? $context["post_new_page_template_name"] : "";
+
+								// If prev och new template is "default" then use that as name
+								if ( "default" == $prev_page_template && ! $prev_page_template_name ) {
+									$prev_page_template_name = $prev_page_template;
+								} else if ( "default" == $new_page_template && ! $new_page_template_name ) {
+									$new_page_template_name = $new_page_template;
+								}
 
 								$message = __('Changed from {prev_page_template} to {new_page_template}', "simple-history");
 								if ( $prev_page_template_name && $new_page_template_name ) {
