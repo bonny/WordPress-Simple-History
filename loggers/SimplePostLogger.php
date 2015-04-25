@@ -346,7 +346,6 @@ class SimplePostLogger extends SimpleLogger
 		From something to publish = post published
 		if not from & to = same, then user has changed something
 		*/
-
 		$context = array(
 			"post_id" => $post->ID,
 			"post_type" => get_post_type($post),

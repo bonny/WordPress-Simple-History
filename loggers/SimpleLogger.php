@@ -222,7 +222,37 @@ class SimpleLogger {
 
 			case "web_user":
 
-				if (empty($context["_server_remote_addr"])) {
+				/*
+				Note: server_remote_addr may not show visiting/attacking ip, if server is behind...stuff..
+				Can be behind varnish cashe, or browser can for example use compression in chrome mobile
+				then the real ip is behind _server_http_x_forwarded_for_0 or similar
+				_server_remote_addr	66.249.81.222
+				_server_http_x_forwarded_for_0	5.35.187.212
+				*/
+
+				// Check if additional IP addresses are stored, from http_x_forwarded_for and so on
+				$ip_keys = $this->get_ip_number_header_keys();
+				$found_addition_ip_headers = false;
+
+				foreach ( $ip_keys as $one_ip_header_key ) {
+					
+					$one_ip_header_key_lower = strtolower($one_ip_header_key);
+
+					foreach ( $context as $context_key => $context_val ) {
+
+						#$key_check_for = "_server_" . strtolower($one_ip_header_key) . "_0";
+
+						$match = preg_match("/^_server_{$one_ip_header_key_lower}_[\d+]/", $context_key, $matches);
+						if ( $match ) {
+							$arr_found_addition_ip_headers[ $context_key ] = $context_val;
+						}
+
+					} // foreach context key for this ip header key
+
+
+				} // foreach ip header key
+
+				if ( empty( $context["_server_remote_addr"] ) ) {
 
 					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . __("Anonymous web user", "simple-history") . "</strong> ";
 
@@ -231,10 +261,24 @@ class SimpleLogger {
 					$iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr($context["_server_remote_addr"]));
 
 					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__anonUserWithIp'>";
+					
 					$initiator_html .= sprintf(
 						__('Anonymous user from %1$s', "simple-history"),
 						"<a target='_blank' href={$iplookup_link} class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" . esc_attr($context["_server_remote_addr"]) . "</a>"
 					);
+			
+					if ( sizeof( $arr_found_addition_ip_headers ) ) {
+						$initiator_html .= " (Multipe IPs reported) ";
+						/*
+						print_r($arr_found_addition_ip_headers);
+						Array
+						(
+						    [_server_http_x_forwarded_for_0] => 5.35.187.212
+						    [_server_http_x_forwarded_for_1] => 83.251.97.21
+						)
+						*/
+					}
+
 					$initiator_html .= "</strong> ";
 
 					// $initiator_html .= "<strong>" . __("<br><br>Unknown user from {$context["_server_remote_addr"]}") . "</strong>";
@@ -1024,7 +1068,7 @@ class SimpleLogger {
 
 				// If web server is behind a load balancer then the ip address will always be the same
 				// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
-				// Note that the x-forwarded-for header can contain multiple ips
+				// Note that the x-forwarded-for header can contain multiple ips, comma separated
 				// Also note that the header can be faked
 				// Ref: http://stackoverflow.com/questions/753645/how-do-i-get-the-correct-ip-from-http-x-forwarded-for-if-it-contains-multiple-ip
 				// Ref: http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
@@ -1032,7 +1076,7 @@ class SimpleLogger {
 				// Check for IP in lots of headers
 				// Based on code found here:
 				// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
-				$ip_keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED');
+				$ip_keys = $this->get_ip_number_header_keys();
 
 				foreach ($ip_keys as $key) {
 
@@ -1104,6 +1148,26 @@ class SimpleLogger {
 		return $this;
 
 	} // log
+
+	/**
+	 * Returns array with headers that may contain user IP
+	 *
+	 * @since 2.0.x
+	 */
+	public function get_ip_number_header_keys() {
+
+		$arr = array(
+			'HTTP_CLIENT_IP', 
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_X_FORWARDED',
+			'HTTP_X_CLUSTER_CLIENT_IP',
+			'HTTP_FORWARDED_FOR',
+			'HTTP_FORWARDED'
+		);
+
+		return $arr;
+
+	}
 
 	/**
 	 * Ensures an ip address is both a valid IP and does not fall within
