@@ -1915,6 +1915,11 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 			$data_attrs .= sprintf(' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context["_server_remote_addr"] ) );
 		}
 
+		$arr_found_additional_ip_headers = $this->instantiatedLoggers["SimpleLogger"]["instance"]->get_event_ip_number_headers($oneLogRow);
+		if ( $arr_found_additional_ip_headers ) {
+			$data_attrs .= sprintf(' data-ip-address-multiple="1" ' );
+		}
+
 		$data_attrs .= sprintf(' data-logger="%1$s" ', esc_attr( $oneLogRow->logger ) );
 		$data_attrs .= sprintf(' data-level="%1$s" ', esc_attr( $oneLogRow->level ) );
 		$data_attrs .= sprintf(' data-date="%1$s" ', esc_attr( $oneLogRow->date ) );
@@ -2052,7 +2057,11 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 		);
 
 		if (isset($oneLogRow->initiator) && !empty($oneLogRow->initiator)) {
-			$classes[] = "SimpleHistoryLogitem--initiator-" . esc_attr($oneLogRow->initiator);
+			$classes[] = "SimpleHistoryLogitem--initiator-" . $oneLogRow->initiator;
+		}
+
+		if ( $arr_found_additional_ip_headers ) {
+			$classes[] = "SimpleHistoryLogitem--IPAddress-multiple";
 		}
 
 		// Always append the log level tag
@@ -2098,7 +2107,7 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 			$oneLogRow->logger, // 7
 			$data_attrs, // 8 data attributes
 			$more_details_html, // 9
-			join(" ", $classes) // 10
+			esc_attr( join(" ", $classes) ) // 10
 		);
 
 		// Get the main message row.

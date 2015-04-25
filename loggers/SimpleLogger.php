@@ -231,32 +231,25 @@ class SimpleLogger {
 				*/
 
 				// Check if additional IP addresses are stored, from http_x_forwarded_for and so on
-				$ip_keys = $this->get_ip_number_header_keys();
-				$found_addition_ip_headers = false;
-
-				foreach ( $ip_keys as $one_ip_header_key ) {
-					
-					$one_ip_header_key_lower = strtolower($one_ip_header_key);
-
-					foreach ( $context as $context_key => $context_val ) {
-
-						#$key_check_for = "_server_" . strtolower($one_ip_header_key) . "_0";
-
-						$match = preg_match("/^_server_{$one_ip_header_key_lower}_[\d+]/", $context_key, $matches);
-						if ( $match ) {
-							$arr_found_addition_ip_headers[ $context_key ] = $context_val;
-						}
-
-					} // foreach context key for this ip header key
-
-
-				} // foreach ip header key
+				$arr_found_additional_ip_headers = $this->get_event_ip_number_headers($row);
 
 				if ( empty( $context["_server_remote_addr"] ) ) {
 
 					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . __("Anonymous web user", "simple-history") . "</strong> ";
 
 				} else {
+
+					if ( sizeof( $arr_found_additional_ip_headers ) ) {
+						$initiator_html .= " (Multipe IPs reported) ";
+						/*
+						print_r($arr_found_additional_ip_headers);
+						Array
+						(
+						    [_server_http_x_forwarded_for_0] => 5.35.187.212
+						    [_server_http_x_forwarded_for_1] => 83.251.97.21
+						)
+						*/
+					}
 
 					$iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr($context["_server_remote_addr"]));
 
@@ -267,18 +260,6 @@ class SimpleLogger {
 						"<a target='_blank' href={$iplookup_link} class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" . esc_attr($context["_server_remote_addr"]) . "</a>"
 					);
 			
-					if ( sizeof( $arr_found_addition_ip_headers ) ) {
-						$initiator_html .= " (Multipe IPs reported) ";
-						/*
-						print_r($arr_found_addition_ip_headers);
-						Array
-						(
-						    [_server_http_x_forwarded_for_0] => 5.35.187.212
-						    [_server_http_x_forwarded_for_1] => 83.251.97.21
-						)
-						*/
-					}
-
 					$initiator_html .= "</strong> ";
 
 					// $initiator_html .= "<strong>" . __("<br><br>Unknown user from {$context["_server_remote_addr"]}") . "</strong>";
@@ -1166,6 +1147,38 @@ class SimpleLogger {
 		);
 
 		return $arr;
+
+	}
+
+	/**
+	 * Returns additional headers with ip number from context
+	 *
+	 * @since 2.0.x
+	 */
+	function get_event_ip_number_headers($row) {
+
+		$ip_keys = $this->get_ip_number_header_keys();
+		$arr_found_additional_ip_headers = array();
+		$context = $row->context;
+
+		foreach ( $ip_keys as $one_ip_header_key ) {
+			
+			$one_ip_header_key_lower = strtolower($one_ip_header_key);
+
+			foreach ( $context as $context_key => $context_val ) {
+
+				#$key_check_for = "_server_" . strtolower($one_ip_header_key) . "_0";
+
+				$match = preg_match("/^_server_{$one_ip_header_key_lower}_[\d+]/", $context_key, $matches);
+				if ( $match ) {
+					$arr_found_additional_ip_headers[ $context_key ] = $context_val;
+				}
+
+			} // foreach context key for this ip header key
+
+		} // foreach ip header key
+		
+		return $arr_found_additional_ip_headers;
 
 	}
 
