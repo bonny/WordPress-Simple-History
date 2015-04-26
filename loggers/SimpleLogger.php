@@ -241,17 +241,17 @@ class SimpleLogger {
 
 					$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__anonUserWithIp'>";
 
-					if ( sizeof( $arr_found_additional_ip_headers ) ) {
+					#if ( sizeof( $arr_found_additional_ip_headers ) ) {
 
 
-						$iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr($context["_server_remote_addr"]));
+						#$iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr($context["_server_remote_addr"]));
 
-						$ip_numbers_joined = wp_sprintf_l('%l', array("_server_remote_addr" => $context["_server_remote_addr"]) + $arr_found_additional_ip_headers);
+						#$ip_numbers_joined = wp_sprintf_l('%l', array("_server_remote_addr" => $context["_server_remote_addr"]) + $arr_found_additional_ip_headers);
 
-						$initiator_html .= sprintf(
+						/*$initiator_html .= sprintf(
 							__('Anonymous user with multiple IP addresses detected: %1$s', "simple-history"),
 							"<a target='_blank' href={$iplookup_link} class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" . esc_html( $ip_numbers_joined ) . "</a>"
-						);
+						);*/
 
 						/*
 						print_r($arr_found_additional_ip_headers);
@@ -262,7 +262,7 @@ class SimpleLogger {
 						)
 						*/
 
-					} else {
+					#} else {
 
 						// single ip address
 						$iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr($context["_server_remote_addr"]));
@@ -272,7 +272,7 @@ class SimpleLogger {
 							"<a target='_blank' href={$iplookup_link} class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" . esc_html($context["_server_remote_addr"]) . "</a>"
 						);
 
-					}
+					#} // multiple ip
 			
 					$initiator_html .= "</strong> ";
 

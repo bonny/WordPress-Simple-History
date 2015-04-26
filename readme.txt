@@ -3,7 +3,7 @@ Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
-Tested up to: 4.1
+Tested up to: 4.2
 Stable tag: 2.0.28
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
@@ -116,7 +116,14 @@ initiated by a specific user.
 ## Changelog
 
 = trunk =
-- Added: [Quick Diff](http://eskapism.se/blog/2015/04/quick-diff-shows-post-changes-in-wordpress/)
+
+- Added: [Post Quick Diff](http://eskapism.se/blog/2015/04/quick-diff-shows-post-changes-in-wordpress/)
+- Title
+- Slug/permalink
+- Content
+- Publish date
+- Template
+
 - Added: Filter to add custom HTML above and after the context data table. They are named `simple_history/log_html_output_details_single/html_before_context_table` and `simple_history/log_html_output_details_single/html_after_context_table` (and yes, I do fancy really long filter names).
 - Added: Filters to control what to output in the data/context details table (the popup you see when you click the time of each event): `simple_history/log_html_output_details_table/row_keys_to_show` and `simple_history/log_html_output_details_table/context_keys_to_show`. Also added [two usage examples](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for the filters.
 - Added: Filter `simple_history/log_insert_context` to control what gets saved to the context table. Example on usage for this is also available in the [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
