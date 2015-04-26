@@ -117,16 +117,11 @@ initiated by a specific user.
 
 = trunk =
 
-- Added: [Post Quick Diff](http://eskapism.se/blog/2015/04/quick-diff-shows-post-changes-in-wordpress/)
-- Title
-- Slug/permalink
-- Content
-- Publish date
-- Template
-
+- Added: Introducing [Post "Quick Diff"](http://eskapism.se/blog/2015/04/quick-diff-shows-post-changes-in-wordpress/) – a very simple and efficient way to quickly see what’s been changed in a post. With Quick Diff you will in a glance see the difference between the title, permalink, content, publish date, post status or the template of the post. It's really a super simple and fast way to follow the work of your co-editors. (After using it for some time now myself, I think it's the best thing since sliced bread!).
 - Added: Filter to add custom HTML above and after the context data table. They are named `simple_history/log_html_output_details_single/html_before_context_table` and `simple_history/log_html_output_details_single/html_after_context_table` (and yes, I do fancy really long filter names).
 - Added: Filters to control what to output in the data/context details table (the popup you see when you click the time of each event): `simple_history/log_html_output_details_table/row_keys_to_show` and `simple_history/log_html_output_details_table/context_keys_to_show`. Also added [two usage examples](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for the filters.
 - Added: Filter `simple_history/log_insert_context` to control what gets saved to the context table. Example on usage for this is also available in the [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
+- Added: data attribute `data-ip-address-multiple` and class `SimpleHistoryLogitem--IPAddress-multiple` added for events that have more than one IP address detected. Happens when `http_x_forwarded_for` or similary headers are included in response.
 - Fixed: Images in GitHub readme files are now displayed correctly.
 - Fixed: Readme files to GitHub repositories ending with slash (/) now works correctly too.
 - Fixed: IP Info popup is now again closeable with `ESC` key or with a click outside it.
