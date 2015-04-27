@@ -168,7 +168,7 @@ class SimplePostLogger extends SimpleLogger
 	 *
 	 * Can't use the regular filters like "pre_post_update" because custom fields are already written by then.
 	 *
-	 * @since 2.0.x
+	 * @since 2.0.29
 	 */
 	function on_admin_action_editpost() {
 		
@@ -397,7 +397,7 @@ class SimplePostLogger extends SimpleLogger
 	/*
 	 * Adds diff data to the context array. Is called just before the event is logged.
 	 * 
-	 * Since 2.0.x
+	 * Since 2.0.29
 
 	 To detect
 		- post thumb (part of custom fields)
@@ -604,7 +604,7 @@ class SimplePostLogger extends SimpleLogger
 	 * Template will return untranslated.
 	 * Uses the same approach as in class-wp-theme.php to get templates.
 	 *
-	 * @since 2.0.x
+	 * @since 2.0.29
 	 */
 	function get_theme_templates() {
 
@@ -624,7 +624,7 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	/**
-	 * Since 2.0.x
+	 * Since 2.0.29
 	 */
 	function add_diff($post_data_diff, $key, $old_value, $new_value) {
 

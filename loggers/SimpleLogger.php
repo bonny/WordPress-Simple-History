@@ -1147,7 +1147,7 @@ class SimpleLogger {
 	/**
 	 * Returns array with headers that may contain user IP
 	 *
-	 * @since 2.0.x
+	 * @since 2.0.29
 	 */
 	public function get_ip_number_header_keys() {
 
@@ -1167,7 +1167,7 @@ class SimpleLogger {
 	/**
 	 * Returns additional headers with ip number from context
 	 *
-	 * @since 2.0.x
+	 * @since 2.0.29
 	 */
 	function get_event_ip_number_headers($row) {
 

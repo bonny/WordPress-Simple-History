@@ -10,7 +10,7 @@ class SimpleHistory {
 	const NAME = "Simple History";
 
 	// Dont use this any more! Will be removed in future versions. Use global SIMPLE_HISTORY_VERSION instead.
-	const VERSION = "2.0.28";
+	const VERSION = "2.0.29";
 
 	/**
 	 * For singleton
@@ -2683,7 +2683,7 @@ function simple_history_add($args) {
 /**
  * Pretty much same as wp_text_diff() but with this you can set leading and trailing context lines
  *
- * @since 2.0.x
+ * @since 2.0.29
  *
  * 
  * Original description from wp_text_diff():
