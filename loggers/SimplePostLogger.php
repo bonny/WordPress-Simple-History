@@ -647,7 +647,7 @@ class SimplePostLogger extends SimpleLogger
 	public function getLogRowPlainTextOutput($row) {
 
 		$context = $row->context;
-		$post_id = $context["post_id"];
+		$post_id = isset($context["post_id"]) ? $context["post_id"] : 0;
 
 		// Default to original log message
 		$message = $row->message;
@@ -664,7 +664,8 @@ class SimplePostLogger extends SimpleLogger
 		$message_key = isset($context["_message_key"]) ? $context["_message_key"] : null;
 
 		// Try to get singular name
-		$post_type_obj = get_post_type_object( $context["post_type"] );
+		$post_type = isset($context["post_type"]) ? $context["post_type"] : "";
+		$post_type_obj = get_post_type_object( $post_type );
 		if ( ! is_null( $post_type_obj ) ) {
 
 			if ( ! empty ($post_type_obj->labels->singular_name) ) {
@@ -697,8 +698,8 @@ class SimplePostLogger extends SimpleLogger
 
 		} // post still available
 
-		$context["post_type"] = esc_html( $context["post_type"] );
-		$context["post_title"] = esc_html( $context["post_title"] );
+		$context["post_type"] = isset( $context["post_type"] ) ? esc_html( $context["post_type"] ) : "";
+		$context["post_title"] = isset( $context["post_title"] ) ? esc_html( $context["post_title"] ) : "";
 		$context["edit_link"] = get_edit_post_link( $post_id );
 
 		return $this->interpolate($message, $context);
@@ -709,7 +710,7 @@ class SimplePostLogger extends SimpleLogger
 
 		$context = $row->context;
 		$message_key = $context["_message_key"];
-		$post_id = $context["post_id"];
+		$post_id = isset($context["post_id"]) ? $context["post_id"] : 0;
 
 		$out = "";
 
