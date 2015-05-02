@@ -31,6 +31,7 @@ class SimpleMenuLogger extends SimpleLogger
 			"labels" => array(
 				"search" => array(
 					"label" => _x("Menus", "Menu logger: search", "simple-history"),
+					"label_all" => _x("All menu activity", "Menu updates logger: search", "simple-history"),
 					"options" => array(
 						_x("Created menus", "Menu updates logger: search", "simple-history") => array(
 							"created_menu"

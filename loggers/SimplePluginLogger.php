@@ -82,6 +82,7 @@ class SimplePluginLogger extends SimpleLogger
 			"labels" => array(
 				"search" => array(
 					"label" => _x("Plugins", "Plugin logger: search", "simple-history"),
+					"label_all" => _x("All plugin activity", "Plugin logger: search", "simple-history"),
 					"options" => array(
 						_x("Activated plugins", "Plugin logger: search", "simple-history") => array(
 							'plugin_activated'

@@ -125,6 +125,7 @@ class SimplePostLogger extends SimpleLogger
 			"labels" => array(
 				"search" => array(
 					"label" => _x("Posts & Pages", "Post logger: search", "simple-history"),
+					"label_all" => _x("All posts & pages activity", "Post logger: search", "simple-history"),
 					"options" => array(
 						_x("Posts created", "Post logger: search", "simple-history") => array(
 							"post_created"

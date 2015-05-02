@@ -29,6 +29,7 @@ class SimpleMediaLogger extends SimpleLogger
 			"labels" => array(
 				"search" => array(
 					"label" => _x("Media", "Media logger: search", "simple-history"),
+					"label_all" => _x("All media activity", "Media logger: search", "simple-history"),
 					"options" => array(
 						_x("Added media", "Media logger: search", "simple-history") => array(
 							"attachment_created"
