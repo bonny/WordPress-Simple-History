@@ -168,17 +168,24 @@ class SimpleLogger {
 
 					$user_display_name = $user->display_name;
 
-					$tmpl_initiator_html = '
-						<strong class="SimpleHistoryLogitem__inlineDivided">%3$s</strong>
-						<span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">%2$s</span>
-					'	;
-
 					// If user who logged this is the currently logged in user
-					// we replace name and email with just "You"
-					if ($is_current_user) {
+					// skip name and email and use just "You"
+					if ( $is_current_user ) {
+
 						$tmpl_initiator_html = '
-							<strong class="SimpleHistoryLogitem__inlineDivided">%5$s</strong>
+							<a href="%6$s" class="SimpleHistoryLogitem__headerUserProfileLink">
+								<strong class="SimpleHistoryLogitem__inlineDivided">%5$s</strong>
+							</a>
 						'	;
+					} else {
+
+						$tmpl_initiator_html = '
+							<a href="%6$s" class="SimpleHistoryLogitem__headerUserProfileLink">
+								<strong class="SimpleHistoryLogitem__inlineDivided">%3$s</strong>
+								<span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">%2$s</span>
+							</a>
+						';
+
 					}
 
 					/**
@@ -196,7 +203,8 @@ class SimpleLogger {
 						esc_html($user->user_email), 	// 2
 						esc_html($user_display_name), 	// 3
 						$user_role, 	// 4
-						_x("You", "header output when initiator is the currently logged in user", "simple-history") 	// 5
+						_x("You", "header output when initiator is the currently logged in user", "simple-history"),	// 5
+						get_edit_user_link( $user_id ) // 6
 					);
 
 				} else if ($user_id > 0) {
@@ -211,9 +219,9 @@ class SimpleLogger {
 						'<strong class="SimpleHistoryLogitem__inlineDivided">' .
 						__('Deleted user (had id %1$s, email %2$s, login %3$s)', "simple-history") .
 						'</strong>',
-						esc_html($context["_user_id"]),
-						esc_html($context["_user_email"]),
-						esc_html($context["_user_login"])
+						esc_html($context["_user_id"]), // 1
+						esc_html($context["_user_email"]), // 2
+						esc_html($context["_user_login"]) // 3
 					);
 
 				}
@@ -510,6 +518,7 @@ class SimpleLogger {
 				break;
 
 		}
+
 		/**
 		 * Filter generated output for row image (sender image)
 		 *

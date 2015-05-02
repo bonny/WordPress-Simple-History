@@ -118,6 +118,8 @@ initiated by a specific user.
 
 = trunk =
 
+- Added: Username of logged events now link to that user's profile.
+- Fixed: Some loggers were missing the "All"-message in the search.
 - Changed: Hide some more keys and values by default in the context data popup.
 
 = 2.0.29 (April 2015) =
