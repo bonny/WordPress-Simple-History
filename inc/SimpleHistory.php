@@ -1970,6 +1970,17 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 			 */
 			$logRowKeysToShow = apply_filters("simple_history/log_html_output_details_table/row_keys_to_show", $logRowKeysToShow, $oneLogRow);
 
+			// Hide some keys by default
+			unset(
+				$logRowKeysToShow["occasionsID"],
+				$logRowKeysToShow["subsequentOccasions"],
+				$logRowKeysToShow["rep"],
+				$logRowKeysToShow["repeated"],
+				$logRowKeysToShow["occasionsIDType"],
+				$logRowKeysToShow["context"]
+			);
+
+
 			foreach ( $oneLogRow as $rowKey => $rowVal ) {
 
 				// Only columns from oneLogRow that exist in logRowKeysToShow will be outputed
@@ -1995,7 +2006,25 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 
 
 			$logRowContextKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow->context), true);
-
+			/*
+			error_log($this->json_encode($logRowContextKeysToShow));
+			 Marker - 2 maj 2015 20:51:54
+			[02-May-2015 18:51:57 UTC] {
+			    "post_id": true,
+			    "post_type": true,
+			    "post_title": true,
+			    "post_prev_post_title": true,
+			    "post_new_post_title": true,
+			    "post_prev_post_name": true,
+			    "post_new_post_name": true,
+			    "_message_key": true,
+			    "_user_id": true,
+			    "_user_login": true,
+			    "_user_email": true,
+			    "_server_remote_addr": true,
+			    "_server_http_referer": true
+			}
+			*/
 			/**
 			 * Filter what keys to show from the row context
 			 *

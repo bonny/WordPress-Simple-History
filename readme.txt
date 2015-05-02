@@ -111,9 +111,14 @@ initiated by a specific user.
 
 4. Click on the IP address of an entry to view the location of for example a failed login attempt.
 
+
 == Changelog ==
 
 ## Changelog
+
+= trunk =
+
+- Changed: Hide some more keys and values by default in the context data popup.
 
 = 2.0.29 (April 2015) =
 
