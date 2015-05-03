@@ -182,7 +182,7 @@ class SimpleHistoryLogQuery {
 				%2$s
 			';
 
-			$where .= " AND t.id <= " . (int) $args["logRowID"];
+			$where .= " AND t.id < " . (int) $args["logRowID"];
 			$where .= " AND t.occasionsID = '" . esc_sql( $args["occasionsID"] ) . "'";
 
 			$limit = "LIMIT " . (int) $args["occasionsCount"];

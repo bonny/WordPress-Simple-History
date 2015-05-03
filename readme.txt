@@ -119,8 +119,10 @@ initiated by a specific user.
 = trunk =
 
 - Added: Username of logged events now link to that user's profile.
+- Fixed: When expanding ocassions the first loaded occasion was the same event as the one you expanded from, and the last ocassion was missing. Looked extra stupid when only 1 occasion existed, and you clicked "show ocassions" only to just find the same event again. So stupid. But fixed now!
 - Fixed: Some loggers were missing the "All"-message in the search.
 - Changed: Hide some more keys and values by default in the context data popup.
+- Changed: Use `truncate` instead of `delete` when clearing the database. Works much faster on large logs.
 
 = 2.0.29 (April 2015) =
 

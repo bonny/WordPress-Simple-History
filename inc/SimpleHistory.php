@@ -1610,10 +1610,12 @@ $active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$tableprefix}{$simple_history_table}";
 		$num_rows = $wpdb->get_var($sql_num_rows, 0);
 
-		$sql = "DELETE FROM {$tableprefix}{$simple_history_table}";
+		#$sql = "DELETE FROM {$tableprefix}{$simple_history_table}";
+		$sql = "TRUNCATE {$tableprefix}{$simple_history_table}";
 		$wpdb->query($sql);
 
-		$sql = "DELETE FROM {$tableprefix}{$simple_history_context_table}";
+		#$sql = "DELETE FROM {$tableprefix}{$simple_history_context_table}";
+		$sql = "TRUNCATE {$tableprefix}{$simple_history_context_table}";
 		$wpdb->query($sql);
 
 		// Zero state sucks

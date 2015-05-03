@@ -16,6 +16,32 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
  * Some examples of filter usage and so on
  */
 
+
+/**
+ * Change capability required to manage the options page of simple history.
+ * Default capability is "manage_options"
+ */
+add_filter("simple_history/view_settings_capability", function($capability) {
+    
+    $capability = "manage_options";
+    return $capability;
+
+});
+
+
+/**
+ * Change capability required to view main simple history page.
+ * Default capability is "edit_pages". Change to for example "manage options" 
+ * to only allow admins to view the history log.
+ */
+add_filter("simple_history/view_history_capability", function($capability) {
+    
+    $capability = "manage_options";
+    return $capability;
+
+});
+
+
 // Skip adding things to the context table during logging. 
 // Useful if you don't want to add cool and possible super useful info to your logged events.
 // Also nice to have if you want to make sure your database does not grow.
