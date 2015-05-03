@@ -66,7 +66,13 @@ class SimpleHistoryLogQuery {
 			"messages" => null,
 
 			// userID as number
-			"user" => null
+			"user" => null,
+
+			// Can also contain:
+			// occasionsCount
+			// occasionsCountMaxReturn
+			// occasionsID
+
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -185,7 +191,18 @@ class SimpleHistoryLogQuery {
 			$where .= " AND t.id < " . (int) $args["logRowID"];
 			$where .= " AND t.occasionsID = '" . esc_sql( $args["occasionsID"] ) . "'";
 
-			$limit = "LIMIT " . (int) $args["occasionsCount"];
+			if ( isset( $args["occasionsCountMaxReturn"] ) ) {
+
+				// Limit to max nn events if occasionsCountMaxReturn is set.
+				// Used in gui to prevent top many events returned, that can stall the browser.
+				$limit = "LIMIT " . (int) $args["occasionsCountMaxReturn"];
+
+			} else {
+
+				// Regular limit that gets all occasions
+				$limit = "LIMIT " . (int) $args["occasionsCount"];				
+
+			}
 
 			// [logRowID] =&gt; 353
 			// [occasionsID] =&gt; 73b06d5740d15e35079b6aa024255cb3
@@ -194,7 +211,7 @@ class SimpleHistoryLogQuery {
 		}
 		
 		// Determine limit
-		// Both posts_per_pae and paged must be set
+		// Both posts_per_page and paged must be set
 		$is_limit_query = ( is_numeric( $args["posts_per_page"] ) && $args["posts_per_page"] > 0 );
 		$is_limit_query = $is_limit_query && ( is_numeric( $args["paged"] ) && $args["paged"] > 0 );
 		if ($is_limit_query) {

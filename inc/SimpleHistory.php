@@ -274,7 +274,6 @@ class SimpleHistory {
 		if ($this->is_on_our_own_pages()) {
 
 			?>
-
 			<script type="text/html" id="tmpl-simple-history-base">
 
 				<div class="SimpleHistory__waitingForFirstLoad">
@@ -348,6 +347,15 @@ class SimpleHistory {
 					</div>
 				</div>
 
+			</script>
+
+			<script type="text/html" id="tmpl-simple-history-occasions-too-many">
+				<li>
+					<p><?php _e('Sorry, but there are too many similar events to show.', "simple-history"); ?></p>
+					<p><br>occasionsCount: {{ data.occasionsCount }}
+					<br>occasionsCountMaxReturn: {{ data.occasionsCountMaxReturn }}
+					<br>diff: {{ data.occasionsCount - data.occasionsCountMaxReturn }}</p>
+				</li>
 			</script>
 
 			<?php
