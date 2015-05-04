@@ -1226,9 +1226,9 @@ class SimpleHistory {
 			</h2>
 
 			<?php
-$active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
-		$settings_base_url = menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0);
-		?>
+			$active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
+			$settings_base_url = menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0);
+			?>
 
 			<h3 class="nav-tab-wrapper">
 				<?php
