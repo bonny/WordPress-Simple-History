@@ -191,7 +191,7 @@ class SimpleHistoryLogQuery {
 			$where .= " AND t.id < " . (int) $args["logRowID"];
 			$where .= " AND t.occasionsID = '" . esc_sql( $args["occasionsID"] ) . "'";
 
-			if ( isset( $args["occasionsCountMaxReturn"] ) ) {
+			if ( isset( $args["occasionsCountMaxReturn"] ) && (int) $args["occasionsCountMaxReturn"] < (int) $args["occasionsCount"] ) {
 
 				// Limit to max nn events if occasionsCountMaxReturn is set.
 				// Used in gui to prevent top many events returned, that can stall the browser.
@@ -200,7 +200,7 @@ class SimpleHistoryLogQuery {
 			} else {
 
 				// Regular limit that gets all occasions
-				$limit = "LIMIT " . (int) $args["occasionsCount"];				
+				$limit = "LIMIT " . (int) $args["occasionsCount"];
 
 			}
 
