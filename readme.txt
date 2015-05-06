@@ -116,7 +116,7 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.0.30 =
+= 2.0.30 (May 2015) =
 
 - Added: Username of logged events now link to that user's profile.
 - Fixed: When expanding ocassions the first loaded occasion was the same event as the one you expanded from, and the last ocassion was missing. Looked extra stupid when only 1 occasion existed, and you clicked "show ocassions" only to just find the same event again. So stupid. But fixed now!
