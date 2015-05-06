@@ -168,7 +168,7 @@ var simple_history = (function($) {
 
 			var logRowID = this.attributes.logRow.data("rowId");
 			var occasionsCount = this.attributes.logRow.data("occasionsCount");
-			var occasionsCountMaxReturn = 20;
+			var occasionsCountMaxReturn = 15;
 			this.occasionsCountMaxReturn = occasionsCountMaxReturn;
 			var occasionsID = this.attributes.logRow.data("occasionsId");
 

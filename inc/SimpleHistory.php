@@ -350,11 +350,26 @@ class SimpleHistory {
 			</script>
 
 			<script type="text/html" id="tmpl-simple-history-occasions-too-many">
-				<li>
-					<p><?php _e('Sorry, but there are too many similar events to show.', "simple-history"); ?></p>
-					<p><br>occasionsCount: {{ data.occasionsCount }}
-					<br>occasionsCountMaxReturn: {{ data.occasionsCountMaxReturn }}
-					<br>diff: {{ data.occasionsCount - data.occasionsCountMaxReturn }}</p>
+				<li 
+					class="SimpleHistoryLogitem 
+						   SimpleHistoryLogitem--occasion
+						   SimpleHistoryLogitem--occasion-tooMany
+						   ">
+					<div class="SimpleHistoryLogitem__firstcol"></div>
+					<div class="SimpleHistoryLogitem__secondcol">
+						<div class="SimpleHistoryLogitem__text">
+							<?php _e('Sorry, but there are too many similar events to show.', "simple-history"); ?>
+							<!-- <br>occasionsCount: {{ data.occasionsCount }}
+							<br>occasionsCountMaxReturn: {{ data.occasionsCountMaxReturn }} 
+							<br>diff: {{ data.occasionsCount - data.occasionsCountMaxReturn }} 
+							Suggestions: 
+							<ul>
+								<li>- dig into database directly
+								<li>- Export
+							</ul>
+							-->
+						</div>
+					</div>
 				</li>
 			</script>
 
