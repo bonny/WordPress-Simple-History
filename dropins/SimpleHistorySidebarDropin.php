@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) or die();
+
 /*
 Dropin Name: Sidebar
 Drop Description: Outputs HTML and filters for a sidebar
@@ -124,10 +127,13 @@ class SimpleHistorySidebarDropin {
 
 		// Box to encourage people translate plugin
 		$current_locale = get_locale();
-		if ("en_US" != $current_locale) {
 
-			/** WordPress Translation Install API */
-			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
+		/** WordPress Translation Install API. This file exists only since 4.0. */
+		$translation_install_file = ABSPATH . 'wp-admin/includes/translation-install.php';
+		
+		if ( "en_US" != $current_locale && file_exists( $translation_install_file ) ) {
+
+			require_once $translation_install_file;
 			
 			$translations = wp_get_available_translations();
 
@@ -164,7 +170,8 @@ class SimpleHistorySidebarDropin {
 				}
 
 			}
-		}
+
+		} // if not en_US + translation install file exists
 
 	}
 
@@ -183,7 +190,7 @@ class SimpleHistorySidebarDropin {
 
 		$file_url = plugin_dir_url(__FILE__);
 
-		wp_enqueue_style("simple_history_SidebarDropin", $file_url . "SimpleHistorySidebarDropin.css", null, SimpleHistory::VERSION);
+		wp_enqueue_style("simple_history_SidebarDropin", $file_url . "SimpleHistorySidebarDropin.css", null, SIMPLE_HISTORY_VERSION);
 
 	}
 

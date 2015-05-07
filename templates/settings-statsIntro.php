@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 // Number of rows the last n days
 function get_num_rows_last_n_days($period_days) {
 

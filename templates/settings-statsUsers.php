@@ -1,5 +1,8 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
+
 // Output users
 echo "<h3>" . __("Users", "simple-history") . "</h3>";
 

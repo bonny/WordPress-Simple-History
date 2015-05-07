@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /**
  * Logs WordPress core updates
  */
@@ -26,7 +28,7 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 			"description" => "Logs the update of WordPress (manual and automatic updates)",
 			"capability" => "update_core",
 			"messages" => array(
-				'core_updated' => __('Updated WordPress from {prev_version} to {new_version}', 'simple-history'),
+				'core_updated' => __('Updated WordPress to {new_version} from {prev_version}', 'simple-history'),
 				'core_auto_updated' => __('WordPress auto-updated to {new_version} from {prev_version}', 'simple-history')
 			),
 			"labels" => array(

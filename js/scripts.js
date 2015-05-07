@@ -133,7 +133,8 @@ var simple_history = (function($) {
 				data: {
 					logRowID: options.logRowID,
 					occasionsID: options.occasionsID,
-					occasionsCount: options.occasionsCount
+					occasionsCount: options.occasionsCount,
+					occasionsCountMaxReturn: options.occasionsCountMaxReturn
 				}
 			});
 
@@ -167,6 +168,8 @@ var simple_history = (function($) {
 
 			var logRowID = this.attributes.logRow.data("rowId");
 			var occasionsCount = this.attributes.logRow.data("occasionsCount");
+			var occasionsCountMaxReturn = 15;
+			this.occasionsCountMaxReturn = occasionsCountMaxReturn;
 			var occasionsID = this.attributes.logRow.data("occasionsId");
 
 			this.attributes.logRow.addClass("SimpleHistoryLogitem--occasionsOpening");
@@ -175,7 +178,8 @@ var simple_history = (function($) {
 				logRow: this.attributes.logRow,
 				logRowID: logRowID,
 				occasionsID: occasionsID,
-				occasionsCount: occasionsCount
+				occasionsCount: occasionsCount,
+				occasionsCountMaxReturn: occasionsCountMaxReturn
 			});
 
 			this.logRows.on("reset", this.render, this);
@@ -196,6 +200,15 @@ var simple_history = (function($) {
 				$li.addClass("SimpleHistoryLogitem--occasion");
 				$html = $html.add($li);
 			});
+
+			// If occasionsCount is more than occasionsCountMaxReturn then show a message
+			var occasionsCount = this.attributes.logRow.data("occasionsCount");
+			if (occasionsCount > this.occasionsCountMaxReturn) {
+
+				var templateTooMany = wp.template("simple-history-occasions-too-many");
+				$html = $html.add(templateTooMany({ occasionsCount: occasionsCount, occasionsCountMaxReturn: this.occasionsCountMaxReturn }));
+
+			}
 
 			this.$el.html($html);
 

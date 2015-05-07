@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 class SimpleHistorySettingsLogtestDropin {
 
 	// Simple History instance

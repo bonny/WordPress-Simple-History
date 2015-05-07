@@ -514,6 +514,12 @@ i.e. the log is inside a .postbox element
 		height: 24px;;
 	}
 
+	.postbox .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
+	.postbox .SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before,
+	.postbox .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
+		font-size: 24px;
+	}
+
 	.postbox .SimpleHistoryLogitem__secondcol {
 		margin-left: 40px;
 	}
@@ -645,6 +651,23 @@ Modal window with detailss
 	right: 120px;
 	top: 60px;
 	z-index: 15;
+	-webkit-overflow-scrolling: touch;
+}
+
+@media only screen and (max-width: 960px) {
+
+	.SimpleHistory-modal__background {
+		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
+	}
+
+	.SimpleHistory-modal__content {
+		top: 10px;
+		left: 10px;
+		right: 10px;
+		bottom: 10px;
+		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
+	}
+
 }
 
 .SimpleHistory-modal__contentInner {
@@ -668,15 +691,16 @@ Modal window with detailss
 
 /* if wp left meny is collapsed .folded is added and meny width is 36 px */
 .folded .SimpleHistory-modal__content {
-	left: 156px /* admin meny width is 160 px*/
+	left: 156px /* admin meny width is 160 px */
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 850px) {
+	
 	.SimpleHistory-modal__content {
-		left: 156px /* admin meny width is 160 px*/
+		left: 10px; /* admin meny width is 160 px */
 	}
-}
 
+}
 
 
 .SimpleHistory-modal__content--enter {
@@ -707,6 +731,13 @@ Modal window with detailss
 
 .admin-bar .SimpleHistory-modal__content {
 	top: 92px /* admin bar height is 32 px*/
+}
+
+@media only screen and (max-width: 960px) {
+	.admin-bar .SimpleHistory-modal__content {
+		top: 10px;
+		z-index: 100000;
+	}
 }
 
 /* style the logRow a bit more when shown in modal */
@@ -749,7 +780,7 @@ Modal window with detailss
 
 .SimpleHistoryLogitem__moreDetailsContext {
 	font-family: monospace;
-	white-space: pre-line;
+	white-space: pre-wrap;
 	font-size: 12px;
 	border-collapse: collapse;
 }
@@ -763,6 +794,30 @@ Modal window with detailss
 .SimpleHistoryLogitem__moreDetailsContext tr:nth-child(odd) {
 	background-color: #eee;
 }
+
+
+@media only screen and (max-width: 850px) {
+	
+	.SimpleHistoryLogitem__moreDetails {
+		margin-left: -60px;
+	}
+
+	/* make table less table-like on small screens by putting tds below/after each other
+	   instead of next to each other */
+	.SimpleHistoryLogitem__moreDetailsContext th:first-child,
+	.SimpleHistoryLogitem__moreDetailsContext td:first-child {
+		display: block;
+		font-weight: bold;
+	}
+
+	.SimpleHistoryLogitem__moreDetailsContext th:nth-child(2),
+	.SimpleHistoryLogitem__moreDetailsContext td:nth-child(2) {
+		display: block;
+		margin-bottom: 1em;
+	}
+
+}
+
 
 .SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__secondcol,
 .SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .SimpleHistoryLogitem__secondcol {
@@ -780,6 +835,7 @@ Modal window with detailss
 	vertical-align: top;
 	color: #999;
 }
+
 
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before {

@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 echo "<h4 class=''>";
 echo __("Rows per day", "simple-history");
 echo "</h4>";

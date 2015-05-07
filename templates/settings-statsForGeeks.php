@@ -1,3 +1,7 @@
+<?php
+defined( 'ABSPATH' ) or die();
+?>
+
 <script>
 	
 	jQuery(function($) {

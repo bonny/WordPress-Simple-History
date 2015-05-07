@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die();
+
 /*
 Dropin Name: Global RSS Feed
 Dropin URI: http://simple-history.com/
@@ -82,7 +84,7 @@ class SimpleHistoryRSSDropin {
 			add_settings_error( "simple_history_rss_feed_regenerate_secret", "simple_history_rss_feed_regenerate_secret", $msg, "updated" );
 			set_transient('settings_errors', get_settings_errors(), 30);
 
-			$goback = add_query_arg( 'settings-updated', 'true',  wp_get_referer() );
+			$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true',  wp_get_referer() ) );
 			wp_redirect( $goback );
 			exit;
 
@@ -173,14 +175,29 @@ class SimpleHistoryRSSDropin {
 						// Remove capability override after query is done
 						// remove_action( $action_tag, array($this, "on_can_read_single_logger") );
 
-						foreach ($queryResults["log_rows"] as $row) {
+						foreach ( $queryResults["log_rows"] as $row ) {
 
 							$header_output = $this->sh->getLogRowHeaderOutput( $row );
 							$text_output = $this->sh->getLogRowPlainTextOutput( $row );
 							$details_output = $this->sh->getLogRowDetailsOutput( $row );
-							$item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;
+							
+							// http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt
+							//$item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;
+							$item_guid = esc_url( add_query_arg("SimpleHistoryGuid", $row->id, home_url()) );
+							$item_link = esc_url( add_query_arg("SimpleHistoryGuid", $row->id, home_url()) );
 
-							#$item_title = wp_kses( $header_output . ": " . $text_output, array() );
+							/**
+							 * Filter the guid/link URL used in RSS feed.
+							 * Link will be esc_url'ed by simple history, so no need to do that in your filter
+							 *
+							 * @since 2.0.23
+							 *
+							 * @param string $item_guid link.
+							 * @param array $row
+							 */
+							$item_link = apply_filters("simple_history/rss_item_link", $item_link, $row);
+							$item_link = esc_url($item_link);
+
 							$item_title = $this->sh->getLogLevelTranslated( $row->level ) . ": " . wp_kses( $text_output, array() );
 
 							$level_output = sprintf( __('Severity level: %1$s'), $this->sh->getLogLevelTranslated( $row->level ));
@@ -205,8 +222,8 @@ class SimpleHistoryRSSDropin {
 								/* <author><?php echo $row->initiator ?></author> */
 								?>
 								<pubDate><?php echo date("D, d M Y H:i:s", strtotime($row->date)) ?> GMT</pubDate>
-								<guid isPermaLink="false"><?php echo $item_guid ?></guid>
-								<link><?php echo $item_guid ?></link>
+								<guid isPermaLink="false"><![CDATA[<?php echo $item_guid ?>]]></guid>
+								<link><![CDATA[<?php echo $item_link ?>]]></link>
 							</item>
 							<?php
 							/*
@@ -311,7 +328,7 @@ class SimpleHistoryRSSDropin {
 	 */
 	function settings_field_rss_regenerate() {
 
-		$update_link = add_query_arg("", "");
+		$update_link = esc_url( add_query_arg("", "") );
 		$update_link = wp_nonce_url( $update_link, "simple_history_rss_update_secret", "simple_history_rss_secret_regenerate_nonce" );
 
 		echo "<p>";
@@ -327,13 +344,15 @@ class SimpleHistoryRSSDropin {
 
 	/**
 	 * Get the URL to the RSS feed
+	 *
 	 * @return string URL
 	 */
 	function get_rss_address() {
 
 		$rss_secret = get_option("simple_history_rss_secret");
 		$rss_address = add_query_arg(array("simple_history_get_rss" => "1", "rss_secret" => $rss_secret), get_bloginfo("url") . "/");
-		$rss_address = htmlspecialchars($rss_address, ENT_COMPAT, "UTF-8");
+		$rss_address = esc_url( $rss_address );
+		// $rss_address = htmlspecialchars($rss_address, ENT_COMPAT, "UTF-8");
 
 		return $rss_address;
 

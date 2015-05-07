@@ -3,8 +3,8 @@ Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
-Tested up to: 4.1
-Stable tag: 2.0.21
+Tested up to: 4.2.1
+Stable tag: 2.0.30
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -29,7 +29,7 @@ activation and deactivation
 * **User profiles**<br>
 info about added, updated or removed users
 * **User logins**<br>
-see when a user login & logut
+see when a user login & logout
 * **Failed user logins**<br>
 see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 
@@ -38,6 +38,8 @@ There is also a **RSS feed of changes** available, so you can keep track of the 
 It’s a plugin that is good to have on websites where several people are
 involved in editing the content.
 
+The plugin works fine on [multisite installations of WordPress](http://codex.wordpress.org/Glossary#Multisite) too.
+
 #### Example scenarios
 
 Keep track of what other people are doing:
@@ -45,7 +47,7 @@ _"Has someone done anything today? Ah, Sarah uploaded
 the new press release and created an article for it. Great! Now I don't have to do that."_
 
 Or for debug purposes:
-_"The site feels very slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughy-plugin-x',
+_"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughy-plugin-x',
 that must be it."_
 
 #### See it in action
@@ -109,7 +111,83 @@ initiated by a specific user.
 
 4. Click on the IP address of an entry to view the location of for example a failed login attempt.
 
+
 == Changelog ==
+
+## Changelog
+
+= 2.0.30 (May 2015) =
+
+- Added: Username of logged events now link to that user's profile.
+- Fixed: When expanding ocassions the first loaded occasion was the same event as the one you expanded from, and the last ocassion was missing. Looked extra stupid when only 1 occasion existed, and you clicked "show ocassions" only to just find the same event again. So stupid. But fixed now!
+- Fixed: If an event had many similar events the list of similar events could freeze the browser. ([17948 failed login attempts overnight](https://twitter.com/eskapism/status/595478847598002176) is not that uncommon it turns out!)
+- Fixed: Some loggers were missing the "All"-message in the search.
+- Changed: Hide some more keys and values by default in the context data popup.
+- Changed: Use `truncate` instead of `delete` when clearing the database. Works much faster on large logs.
+
+= 2.0.29 (April 2015) =
+
+- Added: Introducing [Post "Quick Diff"](http://eskapism.se/blog/2015/04/quick-diff-shows-post-changes-in-wordpress/) – a very simple and efficient way to quickly see what’s been changed in a post. With Quick Diff you will in a glance see the difference between the title, permalink, content, publish date, post status, post author, or the template of the post. It's really a super simple and fast way to follow the work of your co-editors.
+- Added: Filter to add custom HTML above and after the context data table. They are named `simple_history/log_html_output_details_single/html_before_context_table` and `simple_history/log_html_output_details_single/html_after_context_table` (and yes, I do fancy really long filter names).
+- Added: Filters to control what to output in the data/context details table (the popup you see when you click the time of each event): `simple_history/log_html_output_details_table/row_keys_to_show` and `simple_history/log_html_output_details_table/context_keys_to_show`. Also added [two usage examples](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for the filters.
+- Added: Filter `simple_history/log_insert_context` to control what gets saved to the context table. Example on usage for this is also available in the [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
+- Added: data attribute `data-ip-address-multiple` and class `SimpleHistoryLogitem--IPAddress-multiple` added for events that have more than one IP address detected. Happens when `http_x_forwarded_for` or similar headers are included in response.
+- Updated: Danish translation updated.
+- Fixed: Images in GitHub readme files are now displayed correctly.
+- Fixed: Readme files to GitHub repositories ending with slash (/) now works correctly too.
+- Fixed: IP Info popup is now again closeable with `ESC` key or with a click outside it.
+- Fixed: Some enqueued scripts had double slashes in them.
+- Fixed: Make sure [URLs from add_query_arg() gets escaped](https://make.wordpress.org/plugins/2015/04/20/fixing-add_query_arg-and-remove_query_arg-usage/).
+- Fixed: Some other small things.
+
+= 2.0.28 (April 2015) =
+
+- Fixed: Do not try to load the Translation Install API if using WordPress before 4.0. Fixes https://github.com/bonny/WordPress-Simple-History/issues/67.
+- Updated: German translation updated.
+
+= 2.0.27 (April 2015) =
+
+- Fixed: Even better support for plugins from GitHub with the `GitHub Plugin URI` header. Plugin install, deactivations, and activations should have correct view-info-links now.
+- Updated: German translation updated.
+- Updated: Swedish translation updated.
+
+= 2.0.26 (March 2015) =
+
+- Fixed: Plugin installs from wordpress.org would show "wordpress plugin directory" as their source file. Looked stupid. Fixed now!
+- Added: `composer.json` added, so Simple History can be pulled in to other projects via [Composer](https://getcomposer.org/). Actually untested, but at least the file is there. Please let me know if it works! :)
+
+= 2.0.25 (March 2015) =
+
+- Added: Plugin installs now shows the source of the plugin. Supported sources are "WordPress plugin repository" and "uploaded ZIP archives".
+- Added: Plugin installs via upload now shows the uploaded file name.
+- Added: Support for showing plugin info-link for plugins from GitHub, installed with uploaded ZIP-archive. Only tested with a few plugins. Please let me know if it works or not!
+- Fixed: Messages for disabled loggers was not shown.
+- Fixed: An error when trying to show edit link for deleted comments.
+- Fixed: Use a safer way to get editable roles. Hopefully fixes https://wordpress.org/support/topic/php-warnings-simpleloggerphp-on-line-162.
+- Fixed: Some notice warnings from the comments logger.
+- Changed: Some other small things too.
+
+= 2.0.24 (March 2015) =
+
+- Fixed: Plugin installs from uploaded ZIP files are now logged correctly. Fixes https://github.com/bonny/WordPress-Simple-History/issues/59.
+- Fixed: Check that JavaScript variables it set and that the object have properties set. Fixes https://wordpress.org/support/topic/firefox-37-js-error-generated-by-simplehistoryipinfodropinjs.
+- Updated: German translation updated.
+- Changed: Loading of loggers, dropins, and so one are moved from action `plugins_loaded` to `after_setup_theme` so themes can actually use for example the load_dropin_*-filters...
+- Changed: Misc small design fixes.
+
+= 2.0.23 (March 2015) =
+
+- Added: Filter `simple_history/rss_item_link`, so plugins can modify the link used in the RSS feed.
+- Added: Links for changed posts and attachments in RSS feed now links directly to WordPress admin, making is easier to follow things from your RSS reeder.
+- Added: Filters to hide history dashboard widget and history dashboard page. Filters are `simple_history/show_dashboard_widget` and `simple_history/show_dashboard_page`.
+- Fixed: A missing argument error when deleting a plugin. Fixes https://wordpress.org/support/topic/warning-missing-argument-1-for-simplepluginlogger.
+
+= 2.0.22 (February 2015) =
+
+- Fixed: Deleted plugins were not logged correctly (name and other info was missing).
+- Added: Filter `simple_history/logger/load_logger` and `simple_history/dropin/load_dropin` that can be used to control the loading of each logger or dropin. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for usage examples.
+- Fixed: modal window with context data now works better on small screens.
+- Changed: Misc internal changes.
 
 = 2.0.21 (February 2015) =
 
@@ -117,7 +195,7 @@ initiated by a specific user.
 - Added: `_xmlrpc_request` is added to context of event when an event is initiated through a XML-RPC all.
 - Changed: RSS feed now has loglevel of event prepended to the title.
 - Changed: Options logger now only shows the first 250 chars of new and old option values. Really long values could make the log look strange.
-- Added: If constant SIMPLE_HISTORY_LOG_DEBUG is defined and true automatically adds $_GET, $_POST, and more info to each logged event. Mostly useful for the developer, but maybe some of you are a bit paranoid and want it too.
+- Added: If constant `SIMPLE_HISTORY_LOG_DEBUG` is defined and true automatically adds `$_GET`, `$_POST`, and more info to each logged event. Mostly useful for the developer, but maybe some of you are a bit paranoid and want it too.
 - Updated: German translation updated.
 
 = 2.0.20 (February 2015) =
@@ -125,7 +203,7 @@ initiated by a specific user.
 - Added: changes via [WP-CLI](http://wp-cli.org) is now detected (was previously shown as "other").
 - Added: severity level (info, warning, debug, etc.) of event is includes in the RSS output.
 - Changed the way user login is logged. Should fix https://github.com/bonny/WordPress-Simple-History/issues/40 + possible more related issues.
-- Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples.php) for usage. Fixes https://wordpress.org/support/topic/stop-logging-certain-types-of-activity.
+- Added: filter `simple_history/simple_logger/log_message_key` added, that can be used to shortcut log messages. See [example file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for usage. Fixes https://wordpress.org/support/topic/stop-logging-certain-types-of-activity.
 - Added: now uses object caching at some places. Should speed up some parts of the plugin for users with caching enabled.
 - Fixed: IP info popup can now be closed with `esc`.
 - Fixed: works better on small screens (like mobile phones) + misc other style related fixes.
