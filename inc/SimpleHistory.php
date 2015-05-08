@@ -2462,7 +2462,7 @@ class SimpleHistory {
 			 * @param string            $alt         Alternative text to use in the avatar image tag.
 			 *                                       Default empty.
 			 */
-			$avatar = apply_filters( 'get_avatar', $avatar, $id_or_email, $size, $default, $alt );
+			$avatar = apply_filters( 'get_avatar', $avatar, $email, $size, $default, $alt );
 
 			return $avatar;
 
