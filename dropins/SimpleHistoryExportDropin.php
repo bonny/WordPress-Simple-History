@@ -58,7 +58,7 @@ class SimpleHistoryExportDropin {
 
 			$query_args = array(
 				"paged" => 1,
-				"posts_per_page" => 5000
+				"posts_per_page" => 3000
 			);
 
 			$events = $query->query($query_args);
@@ -82,12 +82,30 @@ class SimpleHistoryExportDropin {
 				header("Content-Type: application/json");
 				header("Content-Disposition: attachment; filename='{$filename}'");
 
+			} else if ( "html" == $export_format ) {
+
+				$filename = "simple-history-export-" . time() . ".html";
+				header("Content-Type: text/html");
+				#header("Content-Disposition: attachment; filename='{$filename}'");
+
 			}
 
-			if ("json" == $export_format) {
+			// Some formats need to output some stuff before the actual loops
+			if ( "json" == $export_format ) {
 
 				$json_row = "[";
 				fwrite($fp, $json_row);
+
+			} else if ( "html" == $export_format ) {
+
+				$html = sprintf(
+				'
+				<!doctype html>
+				<meta charset="utf-8">
+				<title>Simple History export</title>
+				<ul>
+				');
+				fwrite($fp, $html);
 
 			}
 
@@ -99,14 +117,16 @@ class SimpleHistoryExportDropin {
 
 				foreach ( $events["log_rows"] as $one_row )  {
 
-					// if ( $row_loop > 2) { break; } # To debug/test
+					// if ( $row_loop > 10) { break; } # To debug/test
 
-					$header_output = strip_tags( html_entity_decode( $this->sh->getLogRowHeaderOutput( $one_row ), ENT_QUOTES, 'UTF-8') );
-					$header_output = trim(preg_replace('/\s\s+/', ' ', $header_output));
+					set_time_limit(30);
 
-					$message_output = strip_tags( html_entity_decode( $this->sh->getLogRowPlainTextOutput( $one_row ), ENT_QUOTES, 'UTF-8') );
+					if ( "csv" == $export_format ) {
 
-					if ("csv" == $export_format) {
+						$header_output = strip_tags( html_entity_decode( $this->sh->getLogRowHeaderOutput( $one_row ), ENT_QUOTES, 'UTF-8') );
+						$header_output = trim(preg_replace('/\s\s+/', ' ', $header_output));
+
+						$message_output = strip_tags( html_entity_decode( $this->sh->getLogRowPlainTextOutput( $one_row ), ENT_QUOTES, 'UTF-8') );
 
 						fputcsv($fp, array(
 							$one_row->date,
@@ -119,7 +139,7 @@ class SimpleHistoryExportDropin {
 							$one_row->subsequentOccasions
 						));
 
-					} else if ("json" == $export_format) {
+					} else if ( "json" == $export_format ) {
 
 						// If not first loop then add a comma between all json objects
 						if ( $row_loop == 0 ) {
@@ -131,15 +151,34 @@ class SimpleHistoryExportDropin {
 						$json_row = $comma . $this->sh->json_encode($one_row);
 						fwrite($fp, $json_row);
 
+					} else if ( "html" == $export_format ) {
+
+						$html = sprintf(
+							'
+							<li>
+								<div>%1$s</div>
+								<div>%2$s</div>
+								<div>%3$s</div>
+							</li>
+							',
+							$this->sh->getLogRowHeaderOutput( $one_row ),
+							$this->sh->getLogRowPlainTextOutput( $one_row ),
+							$this->sh->getLogRowDetailsOutput( $one_row )
+						);
+
+						fwrite($fp, $html);
+
 					}
 
 					$row_loop++;
 
 				}
 
-				#d(memory_get_usage());
-				#d(memory_get_peak_usage());
-				#flush();
+				#echo "<br>memory_get_usage:<br>"; print_r(memory_get_usage());
+				#echo "<br>memory_get_peak_usage:<br>"; print_r(memory_get_peak_usage());
+				#echo "<br>fetch next page";
+
+				flush();
 
 				// Fetch next page
 				// @TODO: must take into consideration that new items can be added while we do the fetch
@@ -147,12 +186,22 @@ class SimpleHistoryExportDropin {
 				$query_args["paged"] = $page_current;
 				$events = $query->query($query_args);
 
+				#echo "<br>did fetch next page";
+				#echo "<br>memory_get_usage:<br>"; print_r(memory_get_usage());
+				#echo "<br>memory_get_peak_usage:<br>"; print_r(memory_get_peak_usage());
+
+
 			}
 
 			if ("json" == $export_format) {
 
 				$json_row = "]";
 				fwrite($fp, $json_row);
+
+			} else if ("html" == $export_format) {
+
+				$html = sprintf('</ul>');
+				fwrite($fp, $html);
 
 			}
 
@@ -178,31 +227,34 @@ class SimpleHistoryExportDropin {
 
 		<form method="post">
 
-			<h3>Format</h3>
+			<p>Format</p>
 
 			<p>
 				<label>
-					<input type="radio" name="format" value="csv" checked>
+					<input type="radio" name="format" value="json" checked>
+					JSON
+				</label>
+
+				<br>
+
+				<label>
+					<input type="radio" name="format" value="csv">
 					CSV
 				</label>
 				<br>
 
-				<label>
-					<input type="radio" name="format" value="json">
-					JSON
-				</label>
-				<br>
+				<!-- <br> -->
 
-				<label>
+				<!--<label>
 					<input type="radio" name="format" value="html">
 					HTML
 				</label>
-				<br>
+				<br> -->
 
-				<label>
+				<!-- <label>
 					<input type="radio" name="format" value="xml">
 					XML
-				</label>
+				</label> -->
 			</p>
 
 			<p>
