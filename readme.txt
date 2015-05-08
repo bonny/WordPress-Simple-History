@@ -118,7 +118,7 @@ initiated by a specific user.
 
 = trunk =
 
-- Added: Export! Now it's possible to export the events log to a JSON or CSV formatted file. You will find the export function in the Simple History settings page (Settings -> Simple History).
+- Added: Export! Now it's possible to export the events log to a JSON or CSV formatted file. It's your data so you should be able to export it any time you want or need. And now you can do that. You will find the export function in the Simple History settings page (Settings -> Simple History).
 - Added: Filter `simple_history/header_initiator_use_you`.
 - Fixed: Fixed an undefined variable in get_avatar(). Fixes https://github.com/bonny/WordPress-Simple-History/issues/74.
 

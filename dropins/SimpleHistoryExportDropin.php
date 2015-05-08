@@ -25,7 +25,7 @@ class SimpleHistoryExportDropin {
 		// Add tab to settings page
 		$sh->registerSettingsTab(array(
 			"slug" => "export",
-			"name" => _x("Export", "Tab name on settings page", "simple-history"),
+			"name" => _x("Export", "Export dropin: Tab name on settings page", "simple-history"),
 			"function" => array($this, "output")
 		));
 
@@ -223,25 +223,25 @@ class SimpleHistoryExportDropin {
 		?>
 		<!-- <h2>Export</h2> -->
 
-		<p>The export function will export the full history.</p>
+		<p><?php _ex("The export function will export the full history.", "Export dropin: introtext", "simple-history" ) ?></p>
 
 		<form method="post">
 
-			<p>Format</p>
+			<h3><?php _ex("Choose format to export to", "Export dropin: format", "simple-history" ) ?></h3>
 
 			<p>
 				<label>
 					<input type="radio" name="format" value="json" checked>
-					JSON
+					<?php _ex("JSON", "Export dropin: export format", "simple-history" ) ?>
 				</label>
+			</p>
 
-				<br>
-
+			<p>
 				<label>
 					<input type="radio" name="format" value="csv">
-					CSV
+					<?php _ex("CSV", "Export dropin: export format", "simple-history" ) ?>
 				</label>
-				<br>
+			</p>
 
 				<!-- <br> -->
 
@@ -255,10 +255,9 @@ class SimpleHistoryExportDropin {
 					<input type="radio" name="format" value="xml">
 					XML
 				</label> -->
-			</p>
 
 			<p>
-				<button type="submit" class="button button-primary">Export</button>
+				<button type="submit" class="button button-primary"><?php _ex("Download Export File", "Export dropin: submit button", "simple-history" ) ?></button>
 				<input type="hidden" name="simple-history-action" value="export-history">
 			</p>
 
