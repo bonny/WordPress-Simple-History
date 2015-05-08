@@ -119,6 +119,7 @@ initiated by a specific user.
 = trunk =
 
 - Added: Filter `simple_history/header_initiator_use_you`.
+- Fixed: Fixed an undefined variable in get_avatar(). Fixes https://github.com/bonny/WordPress-Simple-History/issues/74.
 
 = 2.0.30 (May 2015) =
 
