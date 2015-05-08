@@ -199,7 +199,7 @@ class SimpleMediaLogger extends SimpleLogger
 
 					$context["full_image_width"] = $full_image_width;
 					$context["full_image_height"] = $full_image_height;
-					$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s"></div>', $thumb_src[0] );
+					$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $thumb_src[0] );
 
 				}
 
@@ -340,7 +340,7 @@ class SimpleMediaLogger extends SimpleLogger
 
 	/**
 	 * Modify RSS links so they go directly to the correct media in wp admin
-	 * 
+	 *
 	 * @since 2.0.23
 	 * @param string $link
 	 * @param array $row
@@ -354,7 +354,7 @@ class SimpleMediaLogger extends SimpleLogger
 		if ( isset( $row->context["attachment_id"] ) ) {
 
 			$permalink = add_query_arg(array("action" => "edit", "post" => $row->context["attachment_id"]), admin_url( "post.php" ) );
-			
+
 			if ( $permalink ) {
 				$link = $permalink;
 			}

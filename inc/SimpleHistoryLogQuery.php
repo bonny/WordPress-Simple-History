@@ -4,9 +4,9 @@ defined( 'ABSPATH' ) or die();
 
 /**
  * Queries the Simple History Log
- */ 
+ */
 class SimpleHistoryLogQuery {
-	
+
 	public function __construct() {
 
 		/*
@@ -20,7 +20,7 @@ class SimpleHistoryLogQuery {
 	}
 
 	public function query($args) {
-		
+
 		$defaults = array(
 
 			// overview | occasions
@@ -44,7 +44,7 @@ class SimpleHistoryLogQuery {
 
 			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id
 			"since_id" => null,
-			
+
 			// date range
 			// in unix datetime or Y-m-d H:i (or format compatible with strtotime())
 			"date_from" => null,
@@ -56,10 +56,10 @@ class SimpleHistoryLogQuery {
 
 			// search
 			"search" => null,
-			
+
 			// log levels to include. comma separated or as array. defaults to all.
 			"loglevels" => null,
-			
+
 			// loggers to include. comma separated. defaults to all the user can read
 			"loggers" => null,
 
@@ -73,6 +73,9 @@ class SimpleHistoryLogQuery {
 			// occasionsCountMaxReturn
 			// occasionsID
 
+			// If rows should be returned, or the actualy sql query used
+			"returnQuery" => false
+
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -81,7 +84,7 @@ class SimpleHistoryLogQuery {
 		$cache_key = "SimpleHistoryLogQuery_" . md5(serialize( $args )) . "_get_" . md5(serialize( $_GET )) . "_userid_" . get_current_user_id();
 		$cache_group =  "simple-history-" . SimpleHistory::get_cache_incrementor();
 		$arr_return = wp_cache_get($cache_key, $cache_group);
-		
+
 		if ( false !== $arr_return ) {
 			return $arr_return;
 		}
@@ -120,7 +123,7 @@ class SimpleHistoryLogQuery {
 			// 4 = where for inner calc sql query thingie
 			// 5 = db name contexts
 			$sql_tmpl = '
-				SELECT 
+				SELECT
 					SQL_CALC_FOUND_ROWS
 					t.id,
 					t.logger,
@@ -135,29 +138,29 @@ class SimpleHistoryLogQuery {
 					t.repeated,
 					t.occasionsIDType,
 					c1.value AS context_message_key
-				FROM 
+				FROM
 					(
-						SELECT 
-							id, 
-							logger, 
-							level, 
-							message, 
+						SELECT
+							id,
+							logger,
+							level,
+							message,
 							type,
 							initiator,
-							occasionsID, 
-							date, 
+							occasionsID,
+							date,
 							IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
 							IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
-							@a:=occasionsID occasionsIDType 
+							@a:=occasionsID occasionsIDType
 						FROM %3$s
 
 						# Add where here
-						WHERE 1 = 1 
+						WHERE 1 = 1
 						%4$s
 
 						ORDER BY id DESC
 					) AS t
-		
+
 				LEFT OUTER JOIN %5$s AS c1 ON c1.history_id = t.id AND c1.key = "_message_key"
 
 				WHERE %1$s
@@ -168,7 +171,7 @@ class SimpleHistoryLogQuery {
 
 			$sh = SimpleHistory::get_instance();
 
-			// Only include loggers that the current user can view		
+			// Only include loggers that the current user can view
 			$sql_loggers_user_can_view = $sh->getLoggersThatUserCanRead(get_current_user_id(), "sql");
 			$inner_where = " AND logger IN {$sql_loggers_user_can_view}";
 
@@ -209,7 +212,7 @@ class SimpleHistoryLogQuery {
 			// [occasionsCount] =&gt; 18
 
 		}
-		
+
 		// Determine limit
 		// Both posts_per_page and paged must be set
 		$is_limit_query = ( is_numeric( $args["posts_per_page"] ) && $args["posts_per_page"] > 0 );
@@ -229,7 +232,7 @@ class SimpleHistoryLogQuery {
 		// If max_id_first_page is then then only include rows
 		// with id equal to or earlier
 		if ( isset($args["max_id_first_page"]) && is_numeric($args["max_id_first_page"]) ) {
-			
+
 			$max_id_first_page = (int) $args["max_id_first_page"];
 			$where .= sprintf(
 				' AND t.id <= %1$d',
@@ -239,7 +242,7 @@ class SimpleHistoryLogQuery {
 		}
 
 		if ( isset($args["since_id"]) && is_numeric($args["since_id"]) ) {
-			
+
 			$since_id = (int) $args["since_id"];
 			/*
 			$where .= sprintf(
@@ -255,9 +258,9 @@ class SimpleHistoryLogQuery {
 
 		}
 
-		// Append date where		
+		// Append date where
 		if ( ! empty( $args["date_from"] ) ) {
-			
+
 			// date_to=2014-08-01
 			// if date is not numeric assume Y-m-d H:i-format
 			$date_from = $args["date_from"];
@@ -293,11 +296,11 @@ class SimpleHistoryLogQuery {
 
 			$sql_months = '
 				# sql_months
-				AND ( 
+				AND (
 			';
 
 			foreach ( $arr_months as $one_month ) {
-				
+
 				// beginning of month
 				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08") ) . "\n";
 				// >> 2014-08-01 00:00
@@ -307,7 +310,7 @@ class SimpleHistoryLogQuery {
 				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08 + 1 month") ) . "\n";'
 				// >> 2014-09-01 00:00
 				$date_month_end = strtotime( "{$one_month} + 1 month" );
-	
+
 				$sql_months .= sprintf(
 					'
 					(
@@ -315,8 +318,8 @@ class SimpleHistoryLogQuery {
 						AND UNIX_TIMESTAMP(date) <= %2$d
 					)
 
-					OR 
-					', 
+					OR
+					',
 					$date_month_beginning, // 1
 					$date_month_end // 2
 
@@ -339,22 +342,22 @@ class SimpleHistoryLogQuery {
 
 		// search
 		if ( ! empty( $args["search"] ) ) {
-			
+
 			$search_words = $args["search"];
 			$str_search_conditions = "";
 			$arr_search_words = preg_split("/[\s,]+/", $search_words);
-			
+
 			// create array of all searched words
 			// split both spaces and commas and such
 			$arr_sql_like_cols = array("message", "logger", "level");
 
 			foreach ($arr_sql_like_cols as $one_col) {
-	
+
 				$str_sql_search_words = "";
 
 
 				foreach ($arr_search_words as $one_search_word) {
-					
+
 					if ( method_exists($wpdb, "esc_like") ) {
 						$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
 					} else {
@@ -370,7 +373,7 @@ class SimpleHistoryLogQuery {
 				}
 
 				$str_sql_search_words = ltrim($str_sql_search_words, ' AND ');
-	
+
 				$str_search_conditions .= "\n" . sprintf(
 					'   OR ( %1$s ) ',
 					$str_sql_search_words
@@ -411,7 +414,7 @@ class SimpleHistoryLogQuery {
 		// comma separated
 		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loglevel=error,warn
 		if ( ! empty( $args["loglevels"] ) ) {
-			
+
 			$sql_loglevels = "";
 
 			if ( is_array( $args["loglevels"] ) ) {
@@ -419,7 +422,7 @@ class SimpleHistoryLogQuery {
 			} else {
 				$arr_loglevels = explode(",", $args["loglevels"]);
 			}
-			
+
 			foreach ( $arr_loglevels as $one_loglevel ) {
 				$sql_loglevels .= sprintf(' "%s", ', esc_sql( $one_loglevel ));
 			}
@@ -430,12 +433,12 @@ class SimpleHistoryLogQuery {
 			}
 
 			$inner_where .= $sql_loglevels;
-			
+
 		}
 
 		// messages
 		if ( ! empty( $args["messages"] ) ) {
-			
+
 			#print_r($args["messages"]);exit;
 			/*
 			Array
@@ -444,7 +447,7 @@ class SimpleHistoryLogQuery {
 			    [1] => SimpleCommentsLogger:SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam
 			)
 			*/
-		
+
 			// Array with loggers and messages
 			$arr_loggers_and_messages = array();
 
@@ -492,7 +495,7 @@ class SimpleHistoryLogQuery {
 			}
 			// remove last or
 			$sql_messages_where = preg_replace('/OR $/', "", $sql_messages_where);
-			
+
 			$sql_messages_where .= "\n )";
 			#echo $sql_messages_where;exit;
 			$where .= $sql_messages_where;
@@ -548,7 +551,7 @@ class SimpleHistoryLogQuery {
 		// comma separated
 		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger
 		if ( ! empty( $args["loggers"] ) ) {
-			
+
 			$sql_loggers = "";
 			if ( is_array( $args["loggers"] ) ) {
 				$arr_loggers = $args["loggers"];
@@ -566,7 +569,7 @@ class SimpleHistoryLogQuery {
 			    [1] => SimpleUserLogger:user_deleted
 			)
 			*/
-			
+
 			foreach ( $arr_loggers as $one_logger ) {
 				$sql_loggers .= sprintf(' "%s", ', esc_sql( $one_logger ));
 			}
@@ -577,12 +580,12 @@ class SimpleHistoryLogQuery {
 			}
 
 			$inner_where .= $sql_loggers;
-			
+
 		}
 
 		// user, a single userID
 		if ( ! empty( $args["user"] ) && is_numeric( $args["user"] ) ) {
-			
+
 			$userID = (int) $args["user"];
 			$sql_user = sprintf(
 				'
@@ -635,13 +638,13 @@ class SimpleHistoryLogQuery {
 
 		$sql = sprintf(
 			$sql_tmpl, // sprintf template
-			$where,  // 1 
+			$where,  // 1
 			$limit, // 2
 			$table_name, // 3
 			$inner_where,// 4
 			$table_name_contexts // 5
 		);
-		
+
 
 		/**
 		 * Filter the final sql query
@@ -663,6 +666,11 @@ class SimpleHistoryLogQuery {
 
 		}
 
+		// Only return sql query
+		if ( $args["returnQuery"] ) {
+			return $sql;
+		}
+
 		$log_rows = $wpdb->get_results($sql, OBJECT_K);
 		$num_rows = sizeof($log_rows);
 
@@ -670,7 +678,7 @@ class SimpleHistoryLogQuery {
 		// This is the number of rows with occasions taken into consideration
 		$sql_found_rows = 'SELECT FOUND_ROWS()';
 		$total_found_rows = (int) $wpdb->get_var( $sql_found_rows );
-		
+
 		// Add context
 		$post_ids = wp_list_pluck( $log_rows, "id" );
 
@@ -710,13 +718,13 @@ class SimpleHistoryLogQuery {
 				$min_id = $last_row->id;
 
 			} else {
-				
+
 				// Last row did have occaions, so fetch all occasions, and find id of last one
 				$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
 				$sql = sprintf(
 					'
 						SELECT id, date, occasionsID
-						FROM %1$s 
+						FROM %1$s
 						WHERE id <= %2$s
 						ORDER BY id DESC
 						LIMIT %3$s
@@ -725,14 +733,14 @@ class SimpleHistoryLogQuery {
 					$last_row->id,
 					$last_row_occasions_count + 1
 				);
-				
+
 				$results = $wpdb->get_results( $sql );
 
 				// the last occasion has the id we consider last in this paged result
 				$min_id = end($results)->id;
 
 			}
-		
+
 		}
 
 		// Calc pages
@@ -764,8 +772,7 @@ class SimpleHistoryLogQuery {
 		wp_cache_set($cache_key, $arr_return, $cache_group);
 
 		return $arr_return;
-	
+
 	} // query
 
 } // class
-
