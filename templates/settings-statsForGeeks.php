@@ -174,7 +174,7 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 			$one_logger_slug,
 			esc_html( $logger_info["name"]),
 			esc_html( $logger_info["description"]), // 4
-			esc_html( $logger_info["capability"]),
+			esc_html( $logger->getCapability() ),
 			$loopnum % 2 ? " alt " : "", // 6
 			$html_logger_messages // 7
 		);
