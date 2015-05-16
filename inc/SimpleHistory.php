@@ -28,6 +28,11 @@ class SimpleHistory {
 	private $view_settings_capability;
 
 	/**
+	 * Array with external loggers to load
+	 */
+	private $externalLoggers;
+
+	/**
 	 * Array with all instantiated loggers
 	 */
 	private $instantiatedLoggers;
@@ -36,8 +41,6 @@ class SimpleHistory {
 	 * Array with all instantiated dropins
 	 */
 	private $instantiatedDropins;
-
-	public $pluginBasename;
 
 	/**
 	 * Bool if gettext filter function should be active
@@ -82,13 +85,13 @@ class SimpleHistory {
 		 */
 		do_action("simple_history/before_init", $this);
 
-		$this->setupVariables();
+		$this->setup_variables();
 
 		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
 		add_action('after_setup_theme', array($this, 'load_plugin_textdomain'));
 		add_action('after_setup_theme', array($this, 'add_default_settings_tabs'));
-		add_action('after_setup_theme', array($this, 'loadLoggers'));
-		add_action('after_setup_theme', array($this, 'loadDropins'));
+		add_action('after_setup_theme', array($this, 'load_loggers'));
+		add_action('after_setup_theme', array($this, 'load_dropins'));
 
 		// Run before loading of loggers and before menu items are added
 		add_action('after_setup_theme', array($this, 'check_for_upgrade'), 5);
@@ -532,7 +535,11 @@ class SimpleHistory {
 	/**
 	 * Setup variables and things
 	 */
-	public function setupVariables() {
+	public function setup_variables() {
+
+		$this->externalLoggers = array();
+		$this->instantiatedLoggers = array();
+		$this->instantiatedDropins = array();
 
 		// Capability required to view history = for who will the History page be added
 		$this->view_history_capability = "edit_pages";
@@ -587,29 +594,49 @@ class SimpleHistory {
 	}
 
 	/**
+	 * Register an external logger so Simple History knows about it.
+	 * Does not load the logger, so file with logger must be loaded already.
+	 * 
+	 * See example-logger.php for an example on how to use this.
+	 * 
+	 * @since 2.1
+	 */
+	function register_logger($loggerClassName) {
+
+		$this->externalLoggers[] = $loggerClassName;
+
+	}
+
+	/**
 	 * Load built in loggers from all files in /loggers
 	 * and instantiates them
 	 */
-	public function loadLoggers() {
+	public function load_loggers() {
 
 		$loggersDir = SIMPLE_HISTORY_PATH . "loggers/";
 
-		/**
-		 * Filter the directory to load loggers from
-		 *
-		 * @since 2.0
-		 *
-		 * @param string $loggersDir Full directory path
-		 */
-		$loggersDir = apply_filters("simple_history/loggers_dir", $loggersDir);
+		$loggersFiles = array(
+			$loggersDir . "SimpleCommentsLogger.php",
+			$loggersDir . "SimpleCoreUpdatesLogger.php",
+			$loggersDir . "SimpleExportLogger.php",
+			$loggersDir . "SimpleLegacyLogger.php",
+			$loggersDir . "SimpleLogger.php",
+			$loggersDir . "SimpleMediaLogger.php",
+			$loggersDir . "SimpleMenuLogger.php",
+			$loggersDir . "SimpleOptionsLogger.php",
+			$loggersDir . "SimplePluginLogger.php",
+			$loggersDir . "SimplePostLogger.php",
+			$loggersDir . "SimpleThemeLogger.php",
+			$loggersDir . "SimpleUserLogger.php",
+	    );
 
-		$loggersFiles = glob($loggersDir . "*.php");
-
-		// SimpleLogger.php must be loaded first since the other loggers extend it
+		// SimpleLogger.php must be loaded first and always since the other loggers extend it
+		// Include it manually so risk of anyone using filters or similar disables it
 		include_once $loggersDir . "SimpleLogger.php";
 
 		/**
-		 * Filter the array with absolute paths to files as returned by glob function.
+		 * Filter the array with absolute paths to logger files to be loaded.
+		 *
 		 * Each file will be loaded and will be assumed to be a logger with a classname
 		 * the same as the filename.
 		 *
@@ -619,8 +646,10 @@ class SimpleHistory {
 		 */
 		$loggersFiles = apply_filters("simple_history/loggers_files", $loggersFiles);
 
+		// Array with slug of loggers to instantiate
+		// Slug of logger must also be the name of the logger class
 		$arrLoggersToInstantiate = array();
-
+	
 		foreach ( $loggersFiles as $oneLoggerFile ) {
 
 			$load_logger = true;
@@ -633,7 +662,7 @@ class SimpleHistory {
 			 * @since 2.0.22
 			 *
 			 * @param bool if to load the logger. return false to not load it.
-			 * @param srting slug of logger
+			 * @param string slug of logger
 			 */
 			$load_logger = apply_filters("simple_history/logger/load_logger", $load_logger, $basename_no_suffix );
 
@@ -648,7 +677,27 @@ class SimpleHistory {
 		}
 
 		/**
+		 * Action that plugins should use to add their custom loggers.
+		 * See register_logger() for more info.
+		 *
+		 * @since 2.1
+		 *
+		 * @param array $arrLoggersToInstantiate Array with class names
+		 */
+		
+		do_action("simple_history/add_custom_logger", $this);
+
+		$arrLoggersToInstantiate = array_merge($arrLoggersToInstantiate, $this->externalLoggers);
+
+		/**
 		 * Filter the array with names of loggers to instantiate.
+		 *
+		 * Array
+		 * (
+    	 *	[0] => SimpleCommentsLogger
+    	 *	[1] => SimpleCoreUpdatesLogger
+   		 *	...
+   		 * )
 		 *
 		 * @since 2.0
 		 *
@@ -716,7 +765,7 @@ class SimpleHistory {
 	 * Load built in dropins from all files in /dropins
 	 * and instantiates them
 	 */
-	public function loadDropins() {
+	public function load_dropins() {
 
 		$dropinsDir = SIMPLE_HISTORY_PATH . "dropins/";
 
