@@ -102,7 +102,13 @@ class SimpleLogger {
 
 		$arr_info = $this->getInfo();
 
-		return $arr_info["capability"];
+		$capability = "manage_options";
+
+		if ( ! empty( $arr_info["capability"] ) ) {
+			$capability = $arr_info["capability"];
+		}
+
+		return $capability;
 
 	}
 
