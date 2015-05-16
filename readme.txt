@@ -116,11 +116,15 @@ initiated by a specific user.
 
 ## Changelog
 
-= trunk =
+= trunk (will be 2.1) =
 
 - Added: Export! Now it's possible to export the events log to a JSON or CSV formatted file. It's your data so you should be able to export it any time you want or need. And now you can do that. You will find the export function in the Simple History settings page (Settings -> Simple History).
+- Added: Filter `simple_history/add_custom_logger` and function `register_logger` that together are used to load external custom loggers. See [example-logger.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/example-logger.php) for usage example.
 - Added: Filter `simple_history/header_initiator_use_you`.
 - Fixed: Fixed an undefined variable in get_avatar(). Fixes https://github.com/bonny/WordPress-Simple-History/issues/74.
+- Changed: Loggers now get default capability "manage_options" if they have no capability set.
+- Changed: Misc internal cleanup.
+- Removed: filter `simple_history/loggers_dir` removed, because loggers are loaded from array instead of file listing generated from `glob()`. Should be (however to the eye non-noticable) faster.
 
 = 2.0.30 (May 2015) =
 
