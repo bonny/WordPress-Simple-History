@@ -295,7 +295,7 @@ class SimpleLogger {
 				break;
 
 			case "other":
-				$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>Other</strong>";
+				$initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>" . _x("Other", "Event header output, when initiator is unknown", "simple-history") . "</strong>";
 				break;
 
 			// no initiator
