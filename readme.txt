@@ -119,7 +119,7 @@ initiated by a specific user.
 = trunk - 2.1.x =
 
 - Removed: filter `simple_history/dropins_dir` removed.
-- 
+- Fixed: Better sanitization of API arguments.
 
 
 = 2.1 (May 2015) =

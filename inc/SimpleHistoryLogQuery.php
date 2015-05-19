@@ -226,6 +226,9 @@ class SimpleHistoryLogQuery {
 		// Determine where
 		if ( $args["post__in"] && is_array( $args["post__in"] ) ) {
 
+			// make sure all vals are integers
+			$args["post__in"] = array_map("intval", $args["post__in"]);
+
 			$where .= sprintf(' AND t.id IN (%1$s)', implode(",", $args["post__in"]));
 
 		}
