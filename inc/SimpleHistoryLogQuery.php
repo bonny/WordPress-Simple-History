@@ -173,6 +173,7 @@ class SimpleHistoryLogQuery {
 			$sh = SimpleHistory::get_instance();
 
 			// Only include loggers that the current user can view
+			// @TODO: this causes error if user has no access to any logger at all
 			$sql_loggers_user_can_view = $sh->getLoggersThatUserCanRead(get_current_user_id(), "sql");
 			$inner_where = " AND logger IN {$sql_loggers_user_can_view}";
 
@@ -359,13 +360,12 @@ class SimpleHistoryLogQuery {
 
 				$str_sql_search_words = "";
 
-
 				foreach ($arr_search_words as $one_search_word) {
 
 					if ( method_exists($wpdb, "esc_like") ) {
 						$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
 					} else {
-						$str_like = like_escape( esc_sql( $one_search_word ) );
+						$str_like = esc_sql( like_escape( $one_search_word ) );
 					}
 
 					$str_sql_search_words .= sprintf(
@@ -394,7 +394,7 @@ class SimpleHistoryLogQuery {
 				if ( method_exists($wpdb, "esc_like") ) {
 					$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
 				} else {
-					$str_like = like_escape( esc_sql( $one_search_word ) );
+					$str_like = esc_sql( like_escape( $one_search_word ) );
 				}
 
 				$str_search_conditions .= "\n" . sprintf(
