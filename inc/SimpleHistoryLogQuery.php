@@ -123,6 +123,7 @@ class SimpleHistoryLogQuery {
 			// 4 = where for inner calc sql query thingie
 			// 5 = db name contexts
 			$sql_tmpl = '
+				/*NO_SELECT_FOUND_ROWS*/
 				SELECT
 					SQL_CALC_FOUND_ROWS
 					t.id,
