@@ -174,16 +174,23 @@ class SimpleLogger {
 
 					$user_display_name = $user->display_name;
 
-					// If user who logged this is the currently logged in user
-					// skip name and email and use just "You"
+					/*
+					 * If user who logged this is the currently logged in user
+					 * skip name and email and use just "You"
+					 *
+					 * @param bool If you should be used
+					 * @since 2.1
+					 */
 					$use_you = apply_filters("simple_history/header_initiator_use_you", true);
+					
 					if ( $use_you && $is_current_user ) {
 
 						$tmpl_initiator_html = '
 							<a href="%6$s" class="SimpleHistoryLogitem__headerUserProfileLink">
 								<strong class="SimpleHistoryLogitem__inlineDivided">%5$s</strong>
 							</a>
-						'	;
+						';
+
 					} else {
 
 						$tmpl_initiator_html = '
