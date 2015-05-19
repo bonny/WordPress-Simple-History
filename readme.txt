@@ -116,6 +116,12 @@ initiated by a specific user.
 
 ## Changelog
 
+= trunk - 2.1.x =
+
+- Removed: filter `simple_history/dropins_dir` removed.
+- 
+
+
 = 2.1 (May 2015) =
 
 - Added: Export! Now it's possible to export the events log to a JSON or CSV formatted file. It's your data so you should be able to export it any time you want or need. And now you can do that. You will find the export function in the Simple History settings page (Settings -> Simple History).
