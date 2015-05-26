@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.2.2
-Stable tag: 2.1
+Stable tag: 2.1.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -116,7 +116,7 @@ initiated by a specific user.
 
 ## Changelog
 
-= trunk - 2.1.x =
+= 2.1.1 (May 2015) =
 
 - Removed: filter `simple_history/dropins_dir` removed. 
 - Changed: Dropins are not loaded from a `glob()` call anymore (just like plugins in the prev release)
