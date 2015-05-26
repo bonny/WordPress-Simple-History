@@ -118,7 +118,10 @@ initiated by a specific user.
 
 = trunk - 2.1.x =
 
-- Removed: filter `simple_history/dropins_dir` removed.
+- Removed: filter `simple_history/dropins_dir` removed. 
+- Changed: Dropins are not loaded from a `glob()` call anymore (just like plugins in the prev release)
+- Updated: Brazilian Portuguese translation updated.
+- Fixed: POT file updated for translators.
 - Fixed: Better sanitization of API arguments.
 
 
