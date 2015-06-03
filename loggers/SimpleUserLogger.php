@@ -424,17 +424,30 @@ class SimpleUserLogger extends SimpleLogger {
 
 	/**
 	 * Attempt to login to user that does not exist
+	 * 
+	 * @param $user (null or WP_User or WP_Error) (required) null indicates no process has authenticated the user yet. A WP_Error object indicates another process has failed the authentication. A WP_User object indicates another process has authenticated the user.
+	 * @param $username The user's username.
+	 * @param $password The user's password (encrypted)
 	 */
 	function on_authenticate($user, $username, $password) {
 
 		// Don't log empty usernames
-		if (!trim($username)) {
+		if ( ! trim($username) ) {
 			return $user;
 		}
 
-		// If username is not a user in the system then this
-		// is consideraded a failed login attempt
-		$wp_user = get_user_by("login", $username);
+		// If already auth ok
+		if ( is_a( $user, 'WP_User' ) ) {
+		
+			$wp_user = $user;
+		
+		} else {
+
+			// If username is not a user in the system then this
+			// is consideraded a failed login attempt
+			$wp_user = get_user_by("login", $username);
+
+		}
 
 		if (false === $wp_user) {
 
