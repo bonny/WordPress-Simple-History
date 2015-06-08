@@ -81,31 +81,31 @@ class SimpleHistoryFilterDropin {
 				?>
 				<p>
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
-							name="months"
+							name="dates"
 							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
 						<?php
 
 						// Last week + two weeks bacl
-						/*printf(
+						printf(
 							'<option value="%1$s" selected>%2$s</option>',
-							"days-7", // 1 - value
+							"lastdays:7", // 1 - value
 							_x("Last 7 days", "Filter dropin: filter week", "simple-history") // 2
 						);
 
 						printf(
 							'<option value="%1$s">%2$s</option>',
-							"days-14", // 1 - value
+							"lastdays:14", // 1 - value
 							_x("Last 14 days", "Filter dropin: filter week", "simple-history") // 2
-						);*/
+						);
 			
 						// Months
 						foreach ( $result_months as $row ) {
 				
 							printf(
 								'<option value="%1$s" %3$s>%2$s</option>',
-								"month-" . $row->yearMonth,
+								"month:" . $row->yearMonth,
 								date_i18n( "F Y", strtotime($row->yearMonth) ),
-								selected( $this_month, $row->yearMonth, false )
+								"" // selected( $this_month, $row->yearMonth, false )
 							);
 				
 						}

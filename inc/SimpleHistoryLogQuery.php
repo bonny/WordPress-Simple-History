@@ -54,6 +54,11 @@ class SimpleHistoryLogQuery {
 			// array or comma separated
 			"months" => null,
 
+			// dates in format 
+			// "month:2015-06" for june 2015
+			// "lastdays:7" for the last 7 days
+			"dates" => null,
+
 			// search
 			"search" => null,
 
@@ -183,10 +188,10 @@ class SimpleHistoryLogQuery {
 			// 2 = limit
 			// 3 = db name
 			$sql_tmpl = '
-				SELECT t.*,
+				SELECT h.*,
 					# fake columns that exist in overview query
 					1 as subsequentOccasions
-				FROM %3$s AS t
+				FROM %3$s AS h
 				WHERE %1$s
 				ORDER BY id DESC
 				%2$s
@@ -287,6 +292,46 @@ class SimpleHistoryLogQuery {
 
 			$inner_where .= "\n" . sprintf(' AND date <= "%1$s"', date( 'Y-m-d H:i:s', $date_from ) );
 
+		}
+
+		// dats
+		// if months they translate to $args["months"] because we already have support for that
+		// can't use months and dates and the same time
+		if ( ! empty( $args["dates"] ) ) {
+
+			if ( is_array( $args["dates"] ) ) {
+				$arr_dates = $args["dates"];
+			} else {
+				$arr_dates = explode(",", $args["dates"]);
+			}
+
+			$args["months"] = array();
+			$args["lastdays"] = 0;
+
+			foreach ( $arr_dates as $one_date ) {
+				
+				// If begins with "month:" then strip string and keep only month numbers
+				if ( strpos($one_date, "month:") === 0 ) {
+					$args["months"][] = substr($one_date, strlen("month:"));
+				} else if ( strpos($one_date, "lastdays:") === 0 ) {
+					// Only keep largest lastdays value
+					$args["lastdays"] = max($args["lastdays"], substr($one_date, strlen("lastdays:")));
+					#$args["lastdays"][] = substr($one_date, strlen("lastdays:"));
+				}
+
+			}
+
+
+		}
+
+		// lastdays, as int
+		if ( ! empty( $args["lastdays"] ) ) {
+
+			$inner_where .= sprintf('
+				# lastdays
+				AND date >= DATE(NOW()) - INTERVAL %d DAY
+			', $args["lastdays"]);
+			
 		}
 
 		// months, in format "Y-m"
