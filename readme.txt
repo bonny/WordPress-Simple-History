@@ -116,6 +116,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= trunk (June 2015) =
+
+- Changed: By default the log shows events from the last week. This makes it possible to load the log very quickly even for very large logs. A large amount of users + keeping the log forver = millions of rows of data. Previosly this could stall the log or make it load almost forver. Now = almost always very fast. Tried it with over 5.000 users and a million row and yes - zing! - much faster.
+
 = 2.1.1 (May 2015) =
 
 - Removed: filter `simple_history/dropins_dir` removed. 

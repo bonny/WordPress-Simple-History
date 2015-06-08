@@ -57,7 +57,11 @@
 
 		}
 
-		intervalID = setInterval(checkForUpdates, simple_history_NewRowsNotifierDropin.interval);
+		// Start interval if prev interval was cleared
+		if (!intervalID) {
+			console.log("start setInterval");
+			intervalID = setInterval(checkForUpdates, simple_history_NewRowsNotifierDropin.interval);
+		}
 
 	});
 
@@ -65,7 +69,8 @@
 	$(document).on("click", ".SimpleHistoryDropin__NewRowsNotifier", function(e) {
 
 		// Stop polling and stop any outgoing ajax request
-		clearInterval(intervalID);
+		//clearInterval(intervalID);
+		//intervalID = false;
 		ajax_jqXHR.abort();
 
 		var prev_max_id = simple_history.rowsView.collection.max_id;
