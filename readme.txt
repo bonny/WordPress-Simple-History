@@ -118,7 +118,8 @@ initiated by a specific user.
 
 = trunk (June 2015) =
 
-- Changed: By default the log shows events from the last week. This makes it possible to load the log very quickly even for very large logs. A large amount of users + keeping the log forver = millions of rows of data. Previosly this could stall the log or make it load almost forver. Now = almost always very fast. Tried it with over 5.000 users and a million row and yes - zing! - much faster.
+- Changed: By default the log now shows events from the last week. The previous behavior was to not apply any filtering what so ever during the first load. Anyway – this change makes it possible to load the log very quickly even for very large logs. A large amount of users + keeping the log forver = millions of rows of data. Previosly this could stall the log or make it load almost forever. Now = almost always very fast. Tried it with over 5.000 users and a million row and yes - zing! - much faster..
+- Fixed: The function that checks for new rows each second (or actually each tenth second to spare resourced) was called an extra time each time the submit button for the filter was clicked. Kinda stupid. Kinda fixed now.
 
 = 2.1.1 (May 2015) =
 
