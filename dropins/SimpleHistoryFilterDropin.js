@@ -13,17 +13,9 @@ var SimpleHistoryFilterDropin = (function($) {
 		addElements();
 		addFetchListener();
 
-		//$(document).trigger("SimpleHistory:mainViewInitBeforeLoadRows");
-		$(document).on("SimpleHistory:mainViewInitBeforeLoadRows", function() {
-			console.log("init");
-			// onDomReadyInit();
-		});
-
 	}
 	
 	function onDomReadyInit() {
-
-		console.log("SimpleHistoryFilterDropin: onDomReadyInit()");
 
 		enhanceSelects();
 		addListeners();
@@ -31,8 +23,6 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function addElements() {
-
-		console.log("addElements");
 
 		$elms.filter_container = $(".SimpleHistory__filters");
 		$elms.filter_user = $elms.filter_container.find(".SimpleHistory__filters__filter--user");
@@ -58,8 +48,6 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function updateFilters() {
-
-		console.log("updateFilters");
 
 		// form serialize
 		// search=apa&loglevels=critical&loglevels=alert&loggers=SimpleMediaLogger&loggers=SimpleMenuLogger&user=1&dates=2014-09 SimpleHistoryFilterDropin.js?ver=2.0:40
@@ -103,10 +91,7 @@ var SimpleHistoryFilterDropin = (function($) {
 
 		e.preventDefault();
 		
-		updateFilters();
-
-		//console.log( "filtering is active:", isFilteringActive );
-		// console.log($search.val(), $loglevels.val(), $loggers.val(), $user.val(), $dates.val());
+		// updateFilters();
 
 		// Reload the log rows collection
 		simple_history.logRowsCollection.reload();
@@ -114,8 +99,6 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function addFetchListener() {
-
-		console.log("addFetchListener");
 
 		$(document).on("SimpleHistory:mainViewInitBeforeLoadRows", function() {
 
@@ -140,13 +123,10 @@ var SimpleHistoryFilterDropin = (function($) {
 
 	}
 
+	// called each time the log is reloaded
 	function modifyFetchData(collection, url_data) {
 
 		updateFilters();
-
-		console.log("filterdropin: modifyFetchData", url_data);
-
-		// url_data.apa = "yolo";
 
 		if (isFilteringActive) {
 
