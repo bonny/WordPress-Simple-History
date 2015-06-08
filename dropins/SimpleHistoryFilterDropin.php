@@ -130,28 +130,50 @@ class SimpleHistoryFilterDropin {
 					global $wpdb;
 					$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 					$loggers_user_can_read_sql_in = $this->sh->getLoggersThatUserCanRead(null, "sql");
-					$sql_dates = sprintf('
-						SELECT DISTINCT ( date_format(DATE, "%%Y-%%m") ) AS yearMonth
-						FROM %s
-						WHERE logger IN %s
-						ORDER BY yearMonth DESC
-						', $table_name, // 1
-						$loggers_user_can_read_sql_in // 2
-					);
 
-					$result_months = $wpdb->get_results($sql_dates);
+
+					// Get unique months
+					$cache_key = "SimpleHistory_FilterDropin_Months";
+					$result_months = wp_cache_get($cache_key);
+
+					if ( false === $result_months ) {
+					
+						$sql_dates = sprintf('
+							SELECT DISTINCT ( date_format(DATE, "%%Y-%%m") ) AS yearMonth
+							FROM %s
+							WHERE logger IN %s
+							ORDER BY yearMonth DESC
+							', $table_name, // 1
+							$loggers_user_can_read_sql_in // 2
+						);
+
+						$result_months = $wpdb->get_results($sql_dates);
+
+						wp_cache_set($cache_key, $result_months, "", HOUR_IN_SECONDS);
+
+					}
+
+					// Default month = current month
+					// Mainly for performance reasons, since often
+					// it's not the user's intendion to view all events, 
+					// but just the latest
+					$this_month = date("Y-m");
+
 					?>
 					<p>
 						<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
 								name="months"
 								placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
 							<?php
-							foreach ($result_months as $row) {
+							foreach ( $result_months as $row ) {
+					
 								printf(
-									'<option value="%1$s">%2$s</option>',
+									'<option value="%1$s" %3$s>%2$s</option>',
 									$row->yearMonth,
-									date_i18n( "F Y", strtotime($row->yearMonth) )
+									date_i18n( "F Y", strtotime($row->yearMonth) ),
+									selected( $this_month, $row->yearMonth, false )
 								);
+					
 							}
 							?>
 						</select>
