@@ -772,7 +772,7 @@ class SimpleHistoryLogQuery {
 
 		#sf_d($arr_return, '$arr_return');exit;
 
-		#wp_cache_set($cache_key, $arr_return, $cache_group);
+		wp_cache_set($cache_key, $arr_return, $cache_group);
 
 		return $arr_return;
 

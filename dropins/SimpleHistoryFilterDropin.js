@@ -118,6 +118,9 @@ var SimpleHistoryFilterDropin = (function($) {
 
 	function modifyFetchData(collection, url_data) {
 
+		console.log("filterdropin: modifyFetchData", url_data);
+		// url_data.apa = "yolo";
+
 		if (isFilteringActive) {
 
 			url_data = _.extend(url_data, activeFilters);
