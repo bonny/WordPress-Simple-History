@@ -108,7 +108,7 @@ class SimpleHistoryLogQuery {
 
 		$where = "1 = 1";
 		$limit = "";
-		$inner_where = "";
+		$inner_where = "1 = 1";
 
 		if ( "overview" === $args["type"] || "single" === $args["type"] ) {
 
@@ -116,7 +116,7 @@ class SimpleHistoryLogQuery {
 			$sql_set_var = "SET @a:='', @counter:=1, @groupby:=0";
 			$wpdb->query( $sql_set_var );
 
-			// Query template
+			// New and slightly faster query
 			// 1 = where
 			// 2 = limit
 			// 3 = db name
@@ -126,47 +126,46 @@ class SimpleHistoryLogQuery {
 				/*NO_SELECT_FOUND_ROWS*/
 				SELECT
 					SQL_CALC_FOUND_ROWS
-					t.id,
-					t.logger,
-					t.level,
-					t.date,
-					t.message,
-					t.type,
-					t.initiator,
-					t.occasionsID,
-					count(REPEATED) AS subsequentOccasions,
+					h.id,
+					h.logger,
+					h.level,
+					h.date,
+					h.message,
+					h.type,
+					h.initiator,
+					h.occasionsID,
+					count(t.repeated) AS subsequentOccasions,
 					t.rep,
 					t.repeated,
 					t.occasionsIDType,
 					c1.value AS context_message_key
-				FROM
-					(
-						SELECT
-							id,
-							logger,
-							level,
-							message,
-							type,
-							initiator,
-							occasionsID,
-							date,
-							IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
-							IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
-							@a:=occasionsID occasionsIDType
-						FROM %3$s
 
-						# Add where here
-						WHERE 1 = 1
+				FROM %3$s AS h
+
+				LEFT OUTER JOIN %5$s AS c1 ON (c1.history_id = h.id AND c1.key = "_message_key")		
+
+				INNER JOIN (
+					SELECT
+						id,
+						IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
+						IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
+						@a:=occasionsID occasionsIDType
+					FROM %3$s AS h2
+
+					# First/inner where
+					WHERE 
 						%4$s
+						
+					ORDER BY id DESC, date DESC
+				) AS t ON t.id = h.id
 
-						ORDER BY id DESC
-					) AS t
+				WHERE
+					# AND DATE >= DATE(NOW()) - INTERVAL 7 DAY
+					# Outer/Second where
+					%1$s
 
-				LEFT OUTER JOIN %5$s AS c1 ON c1.history_id = t.id AND c1.key = "_message_key"
-
-				WHERE %1$s
 				GROUP BY repeated
-				ORDER BY id DESC
+				ORDER BY id DESC, date DESC
 				%2$s
 			';
 
@@ -175,7 +174,7 @@ class SimpleHistoryLogQuery {
 			// Only include loggers that the current user can view
 			// @TODO: this causes error if user has no access to any logger at all
 			$sql_loggers_user_can_view = $sh->getLoggersThatUserCanRead(get_current_user_id(), "sql");
-			$inner_where = " AND logger IN {$sql_loggers_user_can_view}";
+			$inner_where .= " AND logger IN {$sql_loggers_user_can_view}";
 
 		} else if ( "occasions" === $args["type"] ) {
 
@@ -193,8 +192,8 @@ class SimpleHistoryLogQuery {
 				%2$s
 			';
 
-			$where .= " AND t.id < " . (int) $args["logRowID"];
-			$where .= " AND t.occasionsID = '" . esc_sql( $args["occasionsID"] ) . "'";
+			$where .= " AND h.id < " . (int) $args["logRowID"];
+			$where .= " AND h.occasionsID = '" . esc_sql( $args["occasionsID"] ) . "'";
 
 			if ( isset( $args["occasionsCountMaxReturn"] ) && (int) $args["occasionsCountMaxReturn"] < (int) $args["occasionsCount"] ) {
 
@@ -230,7 +229,7 @@ class SimpleHistoryLogQuery {
 			// make sure all vals are integers
 			$args["post__in"] = array_map("intval", $args["post__in"]);
 
-			$where .= sprintf(' AND t.id IN (%1$s)', implode(",", $args["post__in"]));
+			$inner_where .= sprintf(' AND id IN (%1$s)', implode(",", $args["post__in"]));
 
 		}
 
@@ -239,8 +238,8 @@ class SimpleHistoryLogQuery {
 		if ( isset($args["max_id_first_page"]) && is_numeric($args["max_id_first_page"]) ) {
 
 			$max_id_first_page = (int) $args["max_id_first_page"];
-			$where .= sprintf(
-				' AND t.id <= %1$d',
+			$inner_where .= sprintf(
+				' AND id <= %1$d',
 				$max_id_first_page
 			);
 
@@ -262,7 +261,7 @@ class SimpleHistoryLogQuery {
 			);
 
 		}
-
+		
 		// Append date where
 		if ( ! empty( $args["date_from"] ) ) {
 
@@ -273,7 +272,7 @@ class SimpleHistoryLogQuery {
 				$date_from = strtotime( $date_from );
 			}
 
-			$inner_where .= "\n" . sprintf(' AND UNIX_TIMESTAMP(date) >= %1$d', esc_sql( $date_from ) );
+			$inner_where .= "\n" . sprintf(' AND date >= "%1$s"', esc_sql( date( 'Y-m-d H:i:s', $date_from ) ) );
 
 		}
 
@@ -286,7 +285,7 @@ class SimpleHistoryLogQuery {
 				$date_to = strtotime( $date_to );
 			}
 
-			$inner_where .= "\n" . sprintf(' AND UNIX_TIMESTAMP(date) <= %1$d', esc_sql( $date_to ) );
+			$inner_where .= "\n" . sprintf(' AND date <= "%1$s"', date( 'Y-m-d H:i:s', $date_from ) );
 
 		}
 
@@ -319,14 +318,14 @@ class SimpleHistoryLogQuery {
 				$sql_months .= sprintf(
 					'
 					(
-						UNIX_TIMESTAMP(date) >=%1$d
-						AND UNIX_TIMESTAMP(date) <= %2$d
+						date >= "%1$s"
+						AND date <= "%2$s"
 					)
 
 					OR
 					',
-					$date_month_beginning, // 1
-					$date_month_end // 2
+					date( 'Y-m-d H:i:s', $date_month_beginning ), // 1
+					date( 'Y-m-d H:i:s', $date_month_end ) // 2
 
 				);
 
@@ -356,7 +355,7 @@ class SimpleHistoryLogQuery {
 			// split both spaces and commas and such
 			$arr_sql_like_cols = array("message", "logger", "level");
 
-			foreach ($arr_sql_like_cols as $one_col) {
+			foreach ( $arr_sql_like_cols as $one_col ) {
 
 				$str_sql_search_words = "";
 
@@ -489,7 +488,7 @@ class SimpleHistoryLogQuery {
 				$sql_messages_where .= sprintf(
 					'
 					(
-						logger = "%1$s"
+						h.logger = "%1$s"
 						AND c1.value IN (%2$s)
 					)
 					OR ',
@@ -773,7 +772,7 @@ class SimpleHistoryLogQuery {
 
 		#sf_d($arr_return, '$arr_return');exit;
 
-		wp_cache_set($cache_key, $arr_return, $cache_group);
+		#wp_cache_set($cache_key, $arr_return, $cache_group);
 
 		return $arr_return;
 
