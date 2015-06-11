@@ -44,20 +44,18 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	 */
 	// register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
-	define( 'SIMPLE_HISTORY_VERSION', '2.1.1' );
-
-	//define( 'SIMPLE_HISTORY_FILE', __FILE__ );
-	//define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( SIMPLE_HISTORY_FILE ) );
-	//define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( SIMPLE_HISTORY_FILE ) );
+	if ( ! defined( 'SIMPLE_HISTORY_VERSION' ) ) {
+		define( 'SIMPLE_HISTORY_VERSION', '2.1.1' );
+	}
 
 	if ( ! defined( 'SIMPLE_HISTORY_PATH' ) ) {
 		define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( __FILE__ ) );
 	}
-	// Plugin URL
+
 	if ( ! defined( 'SIMPLE_HISTORY_BASENAME' ) ) {
 		define( 'SIMPLE_HISTORY_BASENAME', plugin_dir_url( __FILE__ ) );
 	}
-	// Plugin Root File
+
 	if ( ! defined( 'SIMPLE_HISTORY_FILE' ) ) {
 		define( 'SIMPLE_HISTORY_FILE', __FILE__ );
 	}
