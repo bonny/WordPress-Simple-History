@@ -984,13 +984,11 @@ class SimpleHistory {
 
 			add_thickbox();
 
-			$plugin_url = plugin_dir_url(SIMPLE_HISTORY_BASENAME);
+			wp_enqueue_style("simple_history_styles", SIMPLE_HISTORY_BASENAME . "css/styles.css", false, SIMPLE_HISTORY_VERSION);
+			wp_enqueue_script("simple_history_script", SIMPLE_HISTORY_BASENAME . "js/scripts.js", array("jquery", "backbone", "wp-util"), SIMPLE_HISTORY_VERSION, true);
 
-			wp_enqueue_style("simple_history_styles", $plugin_url . "css/styles.css", false, SIMPLE_HISTORY_VERSION);
-			wp_enqueue_script("simple_history_script", $plugin_url . "js/scripts.js", array("jquery", "backbone", "wp-util"), SIMPLE_HISTORY_VERSION, true);
-
-			wp_enqueue_script("select2", $plugin_url . "js/select2/select2.min.js", array("jquery"));
-			wp_enqueue_style("select2", $plugin_url . "js/select2/select2.css");
+			wp_enqueue_script("select2", SIMPLE_HISTORY_BASENAME . "js/select2/select2.min.js", array("jquery"));
+			wp_enqueue_style("select2", SIMPLE_HISTORY_BASENAME . "js/select2/select2.css");
 
 			// Translations that we use in JavaScript
 			wp_localize_script('simple_history_script', 'simple_history_script_vars', array(

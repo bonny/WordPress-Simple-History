@@ -46,10 +46,22 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 
 	define( 'SIMPLE_HISTORY_VERSION', '2.1.1' );
 
-	define( 'SIMPLE_HISTORY_FILE', __FILE__ );
-	define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( SIMPLE_HISTORY_FILE ) );
-	define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( SIMPLE_HISTORY_FILE ) );
-	
+	//define( 'SIMPLE_HISTORY_FILE', __FILE__ );
+	//define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( SIMPLE_HISTORY_FILE ) );
+	//define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( SIMPLE_HISTORY_FILE ) );
+
+	if ( ! defined( 'SIMPLE_HISTORY_PATH' ) ) {
+		define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( __FILE__ ) );
+	}
+	// Plugin URL
+	if ( ! defined( 'SIMPLE_HISTORY_BASENAME' ) ) {
+		define( 'SIMPLE_HISTORY_BASENAME', plugin_dir_url( __FILE__ ) );
+	}
+	// Plugin Root File
+	if ( ! defined( 'SIMPLE_HISTORY_FILE' ) ) {
+		define( 'SIMPLE_HISTORY_FILE', __FILE__ );
+	}
+
 	// Constants will be like:
 	/*
 	SIMPLE_HISTORY_FILE:
