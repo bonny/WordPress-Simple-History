@@ -83,16 +83,32 @@ class SampleTest extends WP_UnitTestCase {
 		}
 
 	}
-	#getSettingsTabs
-	#getInstantiatedLoggers
-	#getInstantiatedDropins
+	
+	function test_default_settings_tabs() {
 
+		$sh = SimpleHistory::get_instance();
+		$settings_tabs = $sh->getSettingsTabs();
+		$arr_default_settings = array(
+			"settings",
+			"export"
+		);
 
-	// test loggers and dropins loaded
-	// test logging a thing
-	// test logging of different log levels
-	// test context
-	// test api query
+		$loaded_settings_slugs = wp_list_pluck( $settings_tabs, "slug" );
+		$this->assertEquals($arr_default_settings, $loaded_settings_slugs);
+
+	}
+
+	/*
+	
+	# Todo
+	
+	- test loggers and dropins loaded
+	- test logging a thing
+	- test logging of different log levels
+	- test context
+	- test api query
+
+	*/
 
 }
 
