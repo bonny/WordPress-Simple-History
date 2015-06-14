@@ -11,4 +11,8 @@
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
+    <php>
+         <ini name="display_errors" value="true"/>
+    </php>
 </phpunit>
+

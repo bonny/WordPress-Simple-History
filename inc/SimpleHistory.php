@@ -2319,6 +2319,13 @@ class SimpleHistory {
 
 	}
 
+	public function getInstantiatedDropins() {
+
+		return $this->instantiatedDropins;
+		
+	}
+	
+
 	public function getInstantiatedLoggerBySlug($slug = "") {
 
 		if (empty($slug)) {
