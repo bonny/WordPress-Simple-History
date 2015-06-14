@@ -18,6 +18,8 @@ class SampleTest extends WP_UnitTestCase {
 		$this->assertTrue( defined("SIMPLE_HISTORY_BASENAME") );
 		$this->assertTrue( defined("SIMPLE_HISTORY_FILE") );
 
+		$this->assertFalse( defined("SIMPLE_HISTORY_DEV") );
+
 	}
 
 }
