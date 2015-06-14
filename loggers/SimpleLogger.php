@@ -1079,9 +1079,9 @@ class SimpleLogger {
 
 			// Add remote addr to context
 			// Good to always have
-			if (!isset($context["_server_remote_addr"])) {
+			if ( ! isset($context["_server_remote_addr"]) ) {
 
-				$context["_server_remote_addr"] = $_SERVER["REMOTE_ADDR"];
+				$context["_server_remote_addr"] = empty($_SERVER["REMOTE_ADDR"]) ? "" : $_SERVER["REMOTE_ADDR"];
 
 				// If web server is behind a load balancer then the ip address will always be the same
 				// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
@@ -1095,7 +1095,7 @@ class SimpleLogger {
 				// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
 				$ip_keys = $this->get_ip_number_header_keys();
 
-				foreach ($ip_keys as $key) {
+				foreach ( $ip_keys as $key ) {
 
 					if (array_key_exists($key, $_SERVER) === true) {
 
