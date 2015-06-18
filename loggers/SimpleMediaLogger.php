@@ -173,6 +173,7 @@ class SimpleMediaLogger extends SimpleLogger
 			$filetype = wp_check_filetype( $context["attachment_filename"] );
 			$file_url = wp_get_attachment_url( $attachment_id );
 			$edit_link = get_edit_post_link( $attachment_id );
+			$attached_file = get_attached_file( $attachment_id );
 			$message = "";
 			$full_src = false;
 
@@ -187,8 +188,6 @@ class SimpleMediaLogger extends SimpleLogger
 
 				$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
 				$full_src = wp_get_attachment_image_src($attachment_id, "full");
-				#sf_d($thumb_src, '$thumb_src');
-				#sf_d($full_src, '$full_src');
 
 				$full_image_width = $full_src[1];
 				$full_image_height = $full_src[2];
@@ -199,16 +198,21 @@ class SimpleMediaLogger extends SimpleLogger
 
 					$context["full_image_width"] = $full_image_width;
 					$context["full_image_height"] = $full_image_height;
-					$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $thumb_src[0] );
+
+					// Only output thumb if file exists
+					// For example images deleted on file system but not in WP cause broken images (rare case, but has happened to me.)
+					if ( file_exists( $attached_file ) ) {
+						$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>' );
+					}
 
 				}
 
-			} else if ($is_audio) {
+			} else if ( $is_audio ) {
 
 				$content = sprintf('[audio src="%1$s"]', $file_url);
 				$context["attachment_thumb"] = do_shortcode( $content );
 
-			} else if ($is_video) {
+			} else if ( $is_video ) {
 
 				$content = sprintf('[video src="%1$s"]', $file_url);
 				$context["attachment_thumb"] = do_shortcode( $content );

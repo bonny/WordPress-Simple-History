@@ -125,6 +125,7 @@ initiated by a specific user.
 - Added: Plugin now works as a ["must-use-plugin"](https://codex.wordpress.org/Must_Use_Plugins). Props [jacquesletesson](https://github.com/jacquesletesson).
 - Fixed: The function that checks for new rows each second (or actually each tenth second to spare resourced) was called an extra time each time the submit button for the filter was clicked. Kinda stupid. Kinda fixed now.
 - Fixed: The export feature that was added in version 2.1 was actually not enabled for all users. Now it is!
+- Fixed: Image attachments that is deleted from file system no longer result in "broken image" in the log. (Rare case, I know, but it does happen for me that local dev server and remote prod server gets out of "sync" when it comes to attachments)
 - 
 
 = 2.1.1 (May 2015) =
