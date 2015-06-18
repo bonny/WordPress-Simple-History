@@ -38,8 +38,22 @@ class SimpleHistoryFilterDropin {
 
 		$loggers_user_can_read = $this->sh->getLoggersThatUserCanRead();
 
+		/**
+		 * Filter that determines if search filters should be visible directly on page load
+		 *
+		 * Set to true to show the filters when page is loaded
+		 * If false then user must click "Show options"
+		 *
+		 * @since 2.x
+		 *
+		 * @param bool $show_more_filters_on_load Default false
+		 */
+
+		$show_more_filters_on_load = false;
+		$show_more_filters_on_load = apply_filters("SimpleHistoryFilterDropin/show_more_filters_on_load" , $show_more_filters_on_load);
+
 		?>
-		<div class="SimpleHistory__filters">
+		<div class="SimpleHistory__filters <?php echo $show_more_filters_on_load ? "is-showingMoreFilters" : "" ?>">
 
 			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
 

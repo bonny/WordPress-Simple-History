@@ -123,10 +123,10 @@ initiated by a specific user.
 - Added: Finnish translation. Thanks a lot to the translator!
 - Added: Cache is used on a few more places.
 - Added: Plugin now works as a ["must-use-plugin"](https://codex.wordpress.org/Must_Use_Plugins). Props [jacquesletesson](https://github.com/jacquesletesson).
+- Added: New filter `SimpleHistoryFilterDropin/show_more_filters_on_load` that is used to control if the search options should be expanded by default when the history page is loaded. Default is false, to have a less cluttered GUI.
 - Fixed: The function that checks for new rows each second (or actually each tenth second to spare resourced) was called an extra time each time the submit button for the filter was clicked. Kinda stupid. Kinda fixed now.
 - Fixed: The export feature that was added in version 2.1 was actually not enabled for all users. Now it is!
 - Fixed: Image attachments that is deleted from file system no longer result in "broken image" in the log. (Rare case, I know, but it does happen for me that local dev server and remote prod server gets out of "sync" when it comes to attachments)
-- 
 
 = 2.1.1 (May 2015) =
 
