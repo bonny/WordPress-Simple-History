@@ -160,8 +160,33 @@ var SimpleHistoryFilterDropin = (function($) {
 			},
 			formatResult: formatUsers,
 			initSelection: function(elm, callback) {
-				console.log("elm", elm);
-				console.log("callback", callback);
+
+				// called on init if value attribute on input is set
+				var $elm = $(elm);
+				var value = $elm.val();
+				/*
+				id
+				user_login
+				user_nicename
+				user_email
+				gravatar
+				*/
+
+				var default_user_data = $elms.filter_user.data("default-user-data");
+				console.log("default_user_data", default_user_data);
+				
+				callback(default_user_data);
+
+				/*
+				callback({
+					id: 1,
+					user_email: "kalle@example.com",
+					user_login: "login_hej",
+					user_nicename: "yolo",
+					gravatar: ""
+				});
+				*/
+
 			},
 			formatSelection: formatUsers,
 			escapeMarkup: function(m) {

@@ -255,8 +255,20 @@ class SimpleHistoryFilterDropin {
 					 *
 					 * @param int User ID. Default null = show all users.
 					 */
-#add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function() { return 4; });
-					$default_user_id = apply_filters("SimpleHistoryFilterDropin/filter_default_user_ids", null);
+add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function($arr) { 
+	$arr = array(
+		1, 
+		4
+	);
+	return $arr;
+});
+					$default_user_ids = apply_filters("SimpleHistoryFilterDropin/filter_default_user_ids", array());
+					$arr_default_user_data = array();
+
+					foreach ($default_user_ids as $user_id) {
+						$arr_default_user_data[] = $this->get_data_for_user($user_id);
+					}
+				
 					?>
 					<p>
 						<input type="text"
@@ -264,7 +276,9 @@ class SimpleHistoryFilterDropin {
 								class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
 								style="width: 300px"
 								placeholder="<?php _e("All users", "simple-history") ?>"
-								value="<?php echo esc_attr($default_user_id) ?>" />
+								value="<?php echo esc_attr(implode(",",$default_user_ids)) ?>"
+								data-default-user-data="<?php echo esc_attr( json_encode($arr_default_user_data) ) ?>"
+							/>
 					</p>
 
 					<p>
@@ -287,6 +301,35 @@ class SimpleHistoryFilterDropin {
 		<?php
 
 	} // function
+
+	
+	/**
+	 * Return format used for select2 for a single user id
+	 */
+	public function get_data_for_user($userID) {
+		
+		if ( ! $userID || ! is_numeric($userID) ) {
+			return false;
+		}
+
+		$user = get_user_by( "id", $userID );
+
+		if ( false == $user ) {
+			return false;
+		}
+		
+		$userdata = (object) array(
+			"id" => $user->id,
+			"user_email" => $user->user_email,
+			"user_login" => $user->user_login,
+			"user_nicename" => $user->user_nicename
+		);
+
+		$this->add_gravatar_to_user_array($userdata);
+
+		return $userdata;
+
+	}
 
 	/**
 	 * Return users
@@ -350,7 +393,6 @@ class SimpleHistoryFilterDropin {
 	} // function
 
 	function add_gravatar_to_user_array(& $val, $index) {
-
 		$val->text = sprintf(
 			'%1$s - %2$s',
 			$val->user_login,

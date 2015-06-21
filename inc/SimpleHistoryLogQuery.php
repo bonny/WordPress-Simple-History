@@ -92,7 +92,6 @@ class SimpleHistoryLogQuery {
 		$cache_key = "SimpleHistoryLogQuery_" . md5(serialize( $args )) . "_get_" . md5(serialize( $_GET )) . "_userid_" . get_current_user_id();
 		$cache_group =  "simple-history-" . SimpleHistory::get_cache_incrementor();
 		$arr_return = wp_cache_get($cache_key, $cache_group);
-$arr_return = false;
 
 		if ( false !== $arr_return ) {
 			return $arr_return;
@@ -651,13 +650,14 @@ $arr_return = false;
 
 		}
 
-		// users, a array
+		// users, comma separated
 		if ( ! empty( $args["users"] ) && is_string( $args["users"] ) ) {
 
 			$users = explode(",", $args["users"]);
+			$users = array_map("intval", $users);
+			
 			if ( $users ) {
 				
-				$users = array_map("intval", $users);
 				$users_in = implode(",", $users);
 
 				$sql_user = sprintf(
