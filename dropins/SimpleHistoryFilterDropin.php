@@ -249,19 +249,23 @@ class SimpleHistoryFilterDropin {
 					 *
 					 * Example:
 					 *
-					 *     add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function() { return 4; });
+					 *     add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function() { return array(1,4); });
 					 *
 					 * @since 2.x
 					 *
-					 * @param int User ID. Default null = show all users.
+					 * @param array Array with user ids. Default is an empty array = show all users.
 					 */
-add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function($arr) { 
-	$arr = array(
-		1, 
-		4
-	);
-	return $arr;
-});
+
+					/*
+					add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function($arr) { 
+						$arr = array(
+							1, 
+							4
+						);
+						return $arr;
+					});
+					//*/
+
 					$default_user_ids = apply_filters("SimpleHistoryFilterDropin/filter_default_user_ids", array());
 					$arr_default_user_data = array();
 
@@ -305,6 +309,9 @@ add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function($arr) {
 	
 	/**
 	 * Return format used for select2 for a single user id
+	 *
+	 * @param int $userID
+	 * @return array Array with each user as an object
 	 */
 	public function get_data_for_user($userID) {
 		
