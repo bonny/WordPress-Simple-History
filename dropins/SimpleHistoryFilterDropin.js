@@ -54,7 +54,7 @@ var SimpleHistoryFilterDropin = (function($) {
 		var $search = $elms.filter_form.find("[name='search']");
 		var $loglevels = $elms.filter_form.find("[name='loglevels']");
 		var $messages = $elms.filter_form.find("[name='messages']");
-		var $user = $elms.filter_form.find("[name='user']");
+		var $users = $elms.filter_form.find("[name='users']");
 		var $dates = $elms.filter_form.find("[name='dates']");
 
 		// If any of our search boxes are filled in we consider ourself to be in search mode
@@ -76,9 +76,9 @@ var SimpleHistoryFilterDropin = (function($) {
 			activeFilters.messages = $messages.val();
 		}
 
-		if ( $.trim( $user.val() )) {
+		if ( $.trim( $users.val() )) {
 			isFilteringActive = true;
-			activeFilters.user = $user.val();
+			activeFilters.users = $users.val();
 		}
 
 		if ( $dates.val() && $dates.val().length ) {
@@ -159,8 +159,15 @@ var SimpleHistoryFilterDropin = (function($) {
 				}
 			},
 			formatResult: formatUsers,
+			initSelection: function(elm, callback) {
+				console.log("elm", elm);
+				console.log("callback", callback);
+			},
 			formatSelection: formatUsers,
-			escapeMarkup: function(m) { return m; }
+			escapeMarkup: function(m) {
+				return m;
+			},
+			multiple: true
 		});
 
 		$(".SimpleHistory__filters__filter--logger").select2({
@@ -181,6 +188,7 @@ var SimpleHistoryFilterDropin = (function($) {
 	function formatUsers(userdata) {
 
 		var html = "";
+
 		html += "<div class='SimpleHistory__filters__userfilter__gravatar'>";
 		html += userdata.gravatar;
 		html += "</div>";
@@ -190,6 +198,7 @@ var SimpleHistoryFilterDropin = (function($) {
 		html += "<div class='SimpleHistory__filters__userfilter__secondary'>";
 		html += userdata.user_login;
 		html += "</div>";
+		
 		return html;
 
 	}

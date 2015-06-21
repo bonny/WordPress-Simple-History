@@ -73,6 +73,9 @@ class SimpleHistoryLogQuery {
 			// userID as number
 			"user" => null,
 
+			// user ids, comma separated
+			"users" => null,
+
 			// Can also contain:
 			// occasionsCount
 			// occasionsCountMaxReturn
@@ -89,6 +92,7 @@ class SimpleHistoryLogQuery {
 		$cache_key = "SimpleHistoryLogQuery_" . md5(serialize( $args )) . "_get_" . md5(serialize( $_GET )) . "_userid_" . get_current_user_id();
 		$cache_group =  "simple-history-" . SimpleHistory::get_cache_incrementor();
 		$arr_return = wp_cache_get($cache_key, $cache_group);
+$arr_return = false;
 
 		if ( false !== $arr_return ) {
 			return $arr_return;
@@ -644,6 +648,30 @@ class SimpleHistoryLogQuery {
 			);
 
 			$inner_where .= $sql_user;
+
+		}
+
+		// users, a array
+		if ( ! empty( $args["users"] ) && is_string( $args["users"] ) ) {
+
+			$users = explode(",", $args["users"]);
+			if ( $users ) {
+				
+				$users = array_map("intval", $users);
+				$users_in = implode(",", $users);
+
+				$sql_user = sprintf(
+					'
+					AND id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )
+					',
+					$table_name_contexts, // 1
+					$users_in // 2
+				);
+
+				$inner_where .= $sql_user;
+
+				#echo $inner_where;exit;
+			}
 
 		}
 

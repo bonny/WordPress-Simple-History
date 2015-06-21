@@ -48,7 +48,6 @@ class SimpleHistoryFilterDropin {
 		 *
 		 * @param bool $show_more_filters_on_load Default false
 		 */
-
 		$show_more_filters_on_load = false;
 		$show_more_filters_on_load = apply_filters("SimpleHistoryFilterDropin/show_more_filters_on_load" , $show_more_filters_on_load);
 
@@ -99,7 +98,7 @@ class SimpleHistoryFilterDropin {
 							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
 						<?php
 
-						// Last week + two weeks bacl
+						// Last week + two weeks back
 						printf(
 							'<option value="%1$s" selected>%2$s</option>',
 							"lastdays:7", // 1 - value
@@ -127,29 +126,68 @@ class SimpleHistoryFilterDropin {
 					</select>
 				</p><!-- end months -->
 
+				<?php
+				/**
+				 * Filter to control what the default search string is. Default to empty string.
+				 *
+				 * @since 2.x
+				 *
+				 * @param string Default search string
+				 */
+				$default_search_string = apply_filters("SimpleHistoryFilterDropin/filter_default_search_string" , "");
+				?>
 				<p>
-					<input type="search" class="SimpleHistoryFilterDropin-searchInput" placeholder="<?php _e("", "simple-history"); ?>" name="search">
+					<input 
+						type="search" 
+						class="SimpleHistoryFilterDropin-searchInput" 
+						placeholder="<?php _e("", "simple-history"); ?>" 
+						name="search"
+						value="<?php echo esc_attr($default_search_string); ?>"
+						>
 					<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--first js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
 					<!-- <br> -->
 					<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Show options", "Filter dropin: button to show more search options", "simple-history") ?></button>
 				</p>
 
-
+				<?php
+				/**
+				 * Filter to control what the default loglevels are.
+				 *
+				 * @since 2.x
+				 *
+				 * @param array Array with loglevel sugs. Default empty = show all.
+				 */
+				$arr_default_loglevels = apply_filters("SimpleHistoryFilterDropin/filter_default_loglevel", array());
+				?>
 				<div class="SimpleHistory__filters__moreFilters js-SimpleHistory__filters__moreFilters">
 
 					<p>
 						<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e("All log levels", "simple-history") ?>" multiple>
-							<option value="debug" data-color="#CEF6D8"><?php echo $this->sh->getLogLevelTranslated("Debug") ?></option>
-							<option value="info" data-color="white"><?php echo $this->sh->getLogLevelTranslated("Info") ?></option>
-							<option value="notice" data-color="rgb(219, 219, 183)"><?php echo $this->sh->getLogLevelTranslated("Notice") ?></option>
-							<option value="warning" data-color="#F7D358"><?php echo $this->sh->getLogLevelTranslated("Warning") ?></option>
-							<option value="error" data-color="#F79F81"><?php echo $this->sh->getLogLevelTranslated("Error") ?></option>
-							<option value="critical" data-color="#FA5858"><?php echo $this->sh->getLogLevelTranslated("Critical") ?></option>
-							<option value="alert" data-color="rgb(199, 69, 69)"><?php echo $this->sh->getLogLevelTranslated("Alert") ?></option>
-							<option value="emergency" data-color="#DF0101"><?php echo $this->sh->getLogLevelTranslated("Emergency") ?></option>
+							<option <?php selected(in_array("debug", $arr_default_loglevels)) ?> value="debug" data-color="#CEF6D8"><?php echo $this->sh->getLogLevelTranslated("Debug") ?></option>
+							<option <?php selected(in_array("info", $arr_default_loglevels)) ?> value="info" data-color="white"><?php echo $this->sh->getLogLevelTranslated("Info") ?></option>
+							<option <?php selected(in_array("notice", $arr_default_loglevels)) ?> value="notice" data-color="rgb(219, 219, 183)"><?php echo $this->sh->getLogLevelTranslated("Notice") ?></option>
+							<option <?php selected(in_array("warning", $arr_default_loglevels)) ?> value="warning" data-color="#F7D358"><?php echo $this->sh->getLogLevelTranslated("Warning") ?></option>
+							<option <?php selected(in_array("error", $arr_default_loglevels)) ?> value="error" data-color="#F79F81"><?php echo $this->sh->getLogLevelTranslated("Error") ?></option>
+							<option <?php selected(in_array("critical", $arr_default_loglevels)) ?> value="critical" data-color="#FA5858"><?php echo $this->sh->getLogLevelTranslated("Critical") ?></option>
+							<option <?php selected(in_array("alert", $arr_default_loglevels)) ?> value="alert" data-color="rgb(199, 69, 69)"><?php echo $this->sh->getLogLevelTranslated("Alert") ?></option>
+							<option <?php selected(in_array("emergency", $arr_default_loglevels)) ?> value="emergency" data-color="#DF0101"><?php echo $this->sh->getLogLevelTranslated("Emergency") ?></option>
 						</select>
 					</p>
 
+					<?php
+					/**
+					 * Todo: Filter to control what the default messages to filter/search.
+					 * Message in in format: LoggerSlug:MessageKey
+					 * For example:
+					 *  - SimplePluginLogger:plugin_activated
+					 *  - SimpleCommentsLogger:user_comment_added
+					 *
+					 * @since 2.x
+					 *
+					 * @param array Array with loglevel sugs. Default empty = show all.
+					 */
+					// $arr_default_messages = apply_filters("SimpleHistoryFilterDropin/filter_default_messages", array());
+					?>
 					<p>
 						<select name="messages" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px"
 								placeholder="<?php _e("All messages", "simple-history") ?>" multiple>
@@ -188,7 +226,11 @@ class SimpleHistoryFilterDropin {
 										}
 
 										$str_option_messages = implode(",", $option_messages);
-										printf('<option value="%2$s">%1$s</option>', esc_attr( $option_key ), esc_attr( $str_option_messages ));
+										printf(
+												'<option value="%2$s">%1$s</option>', 
+												esc_attr( $option_key ), // 1
+												esc_attr( $str_option_messages ) // 2
+											);
 
 									}
 
@@ -201,12 +243,28 @@ class SimpleHistoryFilterDropin {
 						</select>
 					</p>
 
+					<?php
+					/**
+					 * Filter what users to search for by default
+					 *
+					 * Example:
+					 *
+					 *     add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function() { return 4; });
+					 *
+					 * @since 2.x
+					 *
+					 * @param int User ID. Default null = show all users.
+					 */
+#add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function() { return 4; });
+					$default_user_id = apply_filters("SimpleHistoryFilterDropin/filter_default_user_ids", null);
+					?>
 					<p>
 						<input type="text"
-								name = "user"
+								name = "users"
 								class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
 								style="width: 300px"
-								placeholder="<?php _e("All users", "simple-history") ?>" />
+								placeholder="<?php _e("All users", "simple-history") ?>"
+								value="<?php echo esc_attr($default_user_id) ?>" />
 					</p>
 
 					<p>
