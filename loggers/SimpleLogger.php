@@ -1145,6 +1145,11 @@ class SimpleLogger {
 			// Insert all context values into db
 			foreach ($context as $key => $value) {
 
+				// If value is array or object then use json_encode to store it
+				if (is_object($value) || is_array($value)) {
+					$value = simpleHistory::json_encode($value);
+				}
+
 				$data = array(
 					"history_id" => $history_inserted_id,
 					"key" => $key,

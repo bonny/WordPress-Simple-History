@@ -326,7 +326,7 @@ class SimpleHistoryFilterDropin {
 		}
 		
 		$userdata = (object) array(
-			"id" => $user->id,
+			"id" => $user->ID,
 			"user_email" => $user->user_email,
 			"user_login" => $user->user_login,
 			"user_nicename" => $user->user_nicename
@@ -399,7 +399,7 @@ class SimpleHistoryFilterDropin {
 
 	} // function
 
-	function add_gravatar_to_user_array(& $val, $index) {
+	function add_gravatar_to_user_array(& $val, $index = null) {
 		$val->text = sprintf(
 			'%1$s - %2$s',
 			$val->user_login,
