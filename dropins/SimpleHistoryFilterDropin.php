@@ -127,13 +127,15 @@ class SimpleHistoryFilterDropin {
 						", 30);			
 						$numEvents = $wpdb->get_var($sql);
 						$numPages = $numEvents / $this->sh->get_pager_size();
-						#echo "<br><br>" . $numEvents . " unique events the last 30 days.";
-						#echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
 						$daysToShow = 30;
 
 					}
 
 				}
+
+				echo "<br><br>" . $numEvents . " unique events the last $daysToShow days.";
+				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
+
 
 
 
