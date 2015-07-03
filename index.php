@@ -53,12 +53,23 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	}
 
 	if ( ! defined( 'SIMPLE_HISTORY_BASENAME' ) ) {
-		define( 'SIMPLE_HISTORY_BASENAME', plugin_dir_url( __FILE__ ) );
+		define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( __FILE__ ) );
+	}
+
+	if ( ! defined( 'SIMPLE_HISTORY_DIR_URL' ) ) {
+		define( 'SIMPLE_HISTORY_DIR_URL', plugin_dir_url( __FILE__ ) );
 	}
 
 	if ( ! defined( 'SIMPLE_HISTORY_FILE' ) ) {
 		define( 'SIMPLE_HISTORY_FILE', __FILE__ );
 	}
+
+	// Prev behavior:
+	/*
+	define( 'SIMPLE_HISTORY_FILE', __FILE__ );
+	define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( SIMPLE_HISTORY_FILE ) );
+	define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( SIMPLE_HISTORY_FILE ) );
+	*/
 
 	// Constants will be like:
 	/*

@@ -129,7 +129,7 @@ initiated by a specific user.
 - Fixed: if trying to log an array or an object the logger now automagically runs `json_encode()` on the value to make it a string. Previous is just tried to run `$wpdb->insert() with the array and that gave errors. Should fix https://wordpress.org/support/topic/mysql_real_escape_string.
 - Fixed: The function that checks for new rows each second (or actually each tenth second to spare resourced) was called an extra time each time the submit button for the filter was clicked. Kinda stupid. Kinda fixed now.
 - Fixed: The export feature that was added in version 2.1 was actually not enabled for all users. Now it is!
-- Fixed: Image attachments that is deleted from file system no longer result in "broken image" in the log. (Rare case, I know, but it does happen for me that local dev server and remote prod server gets out of "sync" when it comes to attachments)
+- Fixed: Image attachments that is deleted from file system no longer result in "broken image" in the log. (Rare case, I know, but it does happen for me that local dev server and remote prod server gets out of "sync" when it comes to attachments.)
 
 = 2.1.1 (May 2015) =
 
