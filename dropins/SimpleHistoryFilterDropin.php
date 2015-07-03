@@ -97,31 +97,45 @@ class SimpleHistoryFilterDropin {
 					# Number of unique events the last n days
 					SELECT count( DISTINCT occasionsID )
 					FROM $table_name
-					WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%s DAY) 
+					WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
 				", 7);			
 				$numEvents = $wpdb->get_var($sql);
-				echo "<br><br>" . $numEvents . " unique events the last 7 days.";
-				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
+				$numPages = $numEvents / $this->sh->get_pager_size();
+				$daysToShow = 7;
 
-				$sql = $wpdb->prepare("
-					# Number of unique events the last n days
-					SELECT count( DISTINCT occasionsID )
-					FROM $table_name
-					WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%s DAY) 
-				", 14);			
-				$numEvents = $wpdb->get_var($sql);
-				echo "<br><br>" . $numEvents . " unique events the last 14 days.";
-				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
+				if ( $numPages < 20 ) {
+					
+					// Not that many things the last 7 days. Let's try with 14/two weeks instead.
+					$sql = $wpdb->prepare("
+						# Number of unique events the last n days
+						SELECT count( DISTINCT occasionsID )
+						FROM $table_name
+						WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
+					", 14);			
+					$numEvents = $wpdb->get_var($sql);
+					$numPages = $numEvents / $this->sh->get_pager_size();
+					$daysToShow = 14;
 
-				$sql = $wpdb->prepare("
-					# Number of unique events the last n days
-					SELECT count( DISTINCT occasionsID )
-					FROM $table_name
-					WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%s DAY) 
-				", 30);			
-				$numEvents = $wpdb->get_var($sql);
-				echo "<br><br>" . $numEvents . " unique events the last 30 days.";
-				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
+					if ( $numPages < 20 ) {
+
+						// Not many things the last 14 days. Let try with 30 days instead
+						$sql = $wpdb->prepare("
+							# Number of unique events the last n days
+							SELECT count( DISTINCT occasionsID )
+							FROM $table_name
+							WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
+						", 30);			
+						$numEvents = $wpdb->get_var($sql);
+						$numPages = $numEvents / $this->sh->get_pager_size();
+						#echo "<br><br>" . $numEvents . " unique events the last 30 days.";
+						#echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
+						$daysToShow = 30;
+
+					}
+
+				}
+
+
 
 
 				?>
@@ -131,17 +145,26 @@ class SimpleHistoryFilterDropin {
 							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
 						<?php
 
-						// Last week + two weeks back
+						// Last week + two weeks back + 30 days back
 						printf(
-							'<option value="%1$s" selected>%2$s</option>',
+							'<option value="%1$s" %3$s>%2$s</option>',
 							"lastdays:7", // 1 - value
-							_x("Last 7 days", "Filter dropin: filter week", "simple-history") // 2
+							_x("Last 7 days", "Filter dropin: filter week", "simple-history"), // 2 text
+							selected($daysToShow, 7, 0)
 						);
 
 						printf(
-							'<option value="%1$s">%2$s</option>',
+							'<option value="%1$s" %3$s>%2$s</option>',
 							"lastdays:14", // 1 - value
-							_x("Last 14 days", "Filter dropin: filter week", "simple-history") // 2
+							_x("Last 14 days", "Filter dropin: filter week", "simple-history"), // 2 text
+							selected($daysToShow, 14, 0)
+						);
+
+						printf(
+							'<option value="%1$s" %3$s>%2$s</option>',
+							"lastdays:30", // 1 - value
+							_x("Last 30 days", "Filter dropin: filter week", "simple-history"), // 2 text
+							selected($daysToShow, 30, 0)
 						);
 			
 						// Months
