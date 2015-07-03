@@ -91,6 +91,39 @@ class SimpleHistoryFilterDropin {
 				// but just the latest
 				$this_month = date("Y-m");
 
+
+				// Determine if we limit the date range by default
+				$sql = $wpdb->prepare("
+					# Number of unique events the last n days
+					SELECT count( DISTINCT occasionsID )
+					FROM $table_name
+					WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%s DAY) 
+				", 7);			
+				$numEvents = $wpdb->get_var($sql);
+				echo "<br><br>" . $numEvents . " unique events the last 7 days.";
+				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
+
+				$sql = $wpdb->prepare("
+					# Number of unique events the last n days
+					SELECT count( DISTINCT occasionsID )
+					FROM $table_name
+					WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%s DAY) 
+				", 14);			
+				$numEvents = $wpdb->get_var($sql);
+				echo "<br><br>" . $numEvents . " unique events the last 14 days.";
+				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
+
+				$sql = $wpdb->prepare("
+					# Number of unique events the last n days
+					SELECT count( DISTINCT occasionsID )
+					FROM $table_name
+					WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%s DAY) 
+				", 30);			
+				$numEvents = $wpdb->get_var($sql);
+				echo "<br><br>" . $numEvents . " unique events the last 30 days.";
+				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
+
+
 				?>
 				<p>
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
