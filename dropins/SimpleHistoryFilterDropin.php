@@ -34,6 +34,25 @@ class SimpleHistoryFilterDropin {
 
 	}
 
+	public function get_unique_events_for_days($days = 7) {
+
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+
+		$sql = $wpdb->prepare("
+			# Number of unique events the last n days
+			SELECT count( DISTINCT occasionsID )
+			FROM $table_name
+			WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
+		", $days);			
+		
+		$numEvents = $wpdb->get_var($sql);
+
+		return $numEvents;
+
+	}
+
 	public function gui_page_filters() {
 
 		$loggers_user_can_read = $this->sh->getLoggersThatUserCanRead();
@@ -93,41 +112,23 @@ class SimpleHistoryFilterDropin {
 
 
 				// Determine if we limit the date range by default
-				$sql = $wpdb->prepare("
-					# Number of unique events the last n days
-					SELECT count( DISTINCT occasionsID )
-					FROM $table_name
-					WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
-				", 7);			
-				$numEvents = $wpdb->get_var($sql);
-				$numPages = $numEvents / $this->sh->get_pager_size();
 				$daysToShow = 7;
+				$numEvents = $this->get_unique_events_for_days($daysToShow);
+				$numPages = $numEvents / $this->sh->get_pager_size();
 
 				if ( $numPages < 20 ) {
 					
 					// Not that many things the last 7 days. Let's try with 14/two weeks instead.
-					$sql = $wpdb->prepare("
-						# Number of unique events the last n days
-						SELECT count( DISTINCT occasionsID )
-						FROM $table_name
-						WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
-					", 14);			
-					$numEvents = $wpdb->get_var($sql);
-					$numPages = $numEvents / $this->sh->get_pager_size();
 					$daysToShow = 14;
+					$numEvents = $this->get_unique_events_for_days($daysToShow);
+					$numPages = $numEvents / $this->sh->get_pager_size();
 
 					if ( $numPages < 20 ) {
 
 						// Not many things the last 14 days. Let try with 30 days instead
-						$sql = $wpdb->prepare("
-							# Number of unique events the last n days
-							SELECT count( DISTINCT occasionsID )
-							FROM $table_name
-							WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
-						", 30);			
-						$numEvents = $wpdb->get_var($sql);
-						$numPages = $numEvents / $this->sh->get_pager_size();
 						$daysToShow = 30;
+						$numEvents = $this->get_unique_events_for_days($daysToShow);
+						$numPages = $numEvents / $this->sh->get_pager_size();
 
 					}
 
