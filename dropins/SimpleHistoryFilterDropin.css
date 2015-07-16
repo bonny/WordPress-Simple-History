@@ -25,7 +25,8 @@
 	/* width: 310px; */
 }
 
-.SimpleHistory__filters__filter--date {
+.SimpleHistory__filters__filter--date,
+.SimpleHistoryFilterDropin-searchInput {
 	width: 310px;
 }
 
@@ -75,7 +76,7 @@
 }
 
 .SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-searchInput {
-	width: 310px;
+	/*width: 310px;*/
 }
 
 .SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-showMoreFilters--first {

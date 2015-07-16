@@ -213,10 +213,13 @@ class SimpleHistoryFilterDropin {
 					<input 
 						type="search" 
 						class="SimpleHistoryFilterDropin-searchInput" 
-						placeholder="<?php _e("", "simple-history"); ?>" 
+						placeholder="<?php _e("Containing words", "simple-history"); ?>" 
 						name="search"
 						value="<?php echo esc_attr($default_search_string); ?>"
 						>
+				</p>
+
+				<p>
 					<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--first js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
 					<!-- <br> -->
 					<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Show options", "Filter dropin: button to show more search options", "simple-history") ?></button>
