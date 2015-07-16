@@ -38,16 +38,27 @@ class SimpleHistoryFilterDropin {
 
 		global $wpdb;
 
+		$days = (int) $days;
+
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 
-		$sql = $wpdb->prepare("
-			# Number of unique events the last n days
-			SELECT count( DISTINCT occasionsID )
-			FROM $table_name
-			WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
-		", $days);			
+		// Number of unique events the last n days
+		$cache_key = "SimpleHistory_FilterDropin_unique_events_for_days" . $days;
+		$numEvents = wp_cache_get($cache_key);
+
+		if ( false == $numEvents ) {
 		
-		$numEvents = $wpdb->get_var($sql);
+			$sql = $wpdb->prepare("
+				SELECT count( DISTINCT occasionsID )
+				FROM $table_name
+				WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
+			", $days);			
+		
+			$numEvents = $wpdb->get_var($sql);
+
+			wp_cache_set( $cache_key, $numEvents, "",  DAY_IN_SECONDS);
+
+		}
 
 		return $numEvents;
 
@@ -78,6 +89,7 @@ class SimpleHistoryFilterDropin {
 				<!-- <h3><?php _e("Filter history", "simple-history") ?></h3> -->
 
 				<?php
+
 				// Start months filter
 				global $wpdb;
 				$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
@@ -106,10 +118,9 @@ class SimpleHistoryFilterDropin {
 
 				// Default month = current month
 				// Mainly for performance reasons, since often
-				// it's not the user's intendion to view all events, 
+				// it's not the users intention to view all events, 
 				// but just the latest
 				$this_month = date("Y-m");
-
 
 				// Determine if we limit the date range by default
 				$daysToShow = 7;
@@ -118,14 +129,14 @@ class SimpleHistoryFilterDropin {
 
 				if ( $numPages < 20 ) {
 					
-					// Not that many things the last 7 days. Let's try with 14/two weeks instead.
+					// Not that many things the last 7 days. Let's try to expand to 14 daysinstead.
 					$daysToShow = 14;
 					$numEvents = $this->get_unique_events_for_days($daysToShow);
 					$numPages = $numEvents / $this->sh->get_pager_size();
 
 					if ( $numPages < 20 ) {
 
-						// Not many things the last 14 days. Let try with 30 days instead
+						// Not many things the last 14 days either. Let try with 30 days.
 						$daysToShow = 30;
 						$numEvents = $this->get_unique_events_for_days($daysToShow);
 						$numPages = $numEvents / $this->sh->get_pager_size();
@@ -134,12 +145,8 @@ class SimpleHistoryFilterDropin {
 
 				}
 
-				echo "<br><br>" . $numEvents . " unique events the last $daysToShow days.";
-				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";
-
-
-
-
+				/*echo "<br><br>" . $numEvents . " unique events the last $daysToShow days.";
+				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";*/
 
 				?>
 				<p>
@@ -168,6 +175,13 @@ class SimpleHistoryFilterDropin {
 							"lastdays:30", // 1 - value
 							_x("Last 30 days", "Filter dropin: filter week", "simple-history"), // 2 text
 							selected($daysToShow, 30, 0)
+						);
+
+						printf(
+							'<option value="%1$s" %3$s>%2$s</option>',
+							"lastdays:60", // 1 - value
+							_x("Last 60 days", "Filter dropin: filter week", "simple-history"), // 2 text
+							selected($daysToShow, 60, 0)
 						);
 			
 						// Months
