@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Simple History package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Simple History 2.1\n"
+"Project-Id-Version: Simple History 2.1.1\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Simple-History\n"
-"POT-Creation-Date: 2015-05-26 19:52:54+00:00\n"
+"POT-Creation-Date: 2015-07-16 19:15:38+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -34,32 +34,36 @@ msgid ""
 "href=\"%2$s\">buy me something from my Amazon wish list</a>."
 msgstr ""
 
-#: dropins/SimpleHistoryFilterDropin.php:46
+#: dropins/SimpleHistoryFilterDropin.php:89
 msgid "Filter history"
 msgstr ""
 
-#: dropins/SimpleHistoryFilterDropin.php:50
-#: dropins/SimpleHistoryFilterDropin.php:161
-msgid "Search events"
-msgstr ""
-
-#: dropins/SimpleHistoryFilterDropin.php:58
-msgid "All log levels"
-msgstr ""
-
-#: dropins/SimpleHistoryFilterDropin.php:72
-msgid "All messages"
-msgstr ""
-
-#: dropins/SimpleHistoryFilterDropin.php:126
-msgid "All users"
-msgstr ""
-
-#: dropins/SimpleHistoryFilterDropin.php:147
+#: dropins/SimpleHistoryFilterDropin.php:155
 msgid "All dates"
 msgstr ""
 
-#: dropins/SimpleHistoryFilterDropin.php:170
+#: dropins/SimpleHistoryFilterDropin.php:216
+msgid "Containing words"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:223
+#: dropins/SimpleHistoryFilterDropin.php:365
+msgid "Search events"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:241
+msgid "All log levels"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:269
+msgid "All messages"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:358
+msgid "All users"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:374
 msgid "Search"
 msgstr ""
 
@@ -152,163 +156,163 @@ msgstr ""
 msgid "Got a 404-page when trying to visit \"{request_uri}\""
 msgstr ""
 
-#: inc/SimpleHistory.php:364
+#: inc/SimpleHistory.php:370
 msgid "Sorry, but there are too many similar events to show."
 msgstr ""
 
-#: inc/SimpleHistory.php:568 inc/SimpleHistory.php:894
+#: inc/SimpleHistory.php:573 inc/SimpleHistory.php:899
 msgid "Settings"
 msgstr ""
 
-#: inc/SimpleHistory.php:579
+#: inc/SimpleHistory.php:584
 msgid "Log (debug)"
 msgstr ""
 
-#: inc/SimpleHistory.php:584
+#: inc/SimpleHistory.php:589
 msgid "Styles example (debug)"
 msgstr ""
 
-#: inc/SimpleHistory.php:919
-#. #-#-#-#-#  simple-history.pot (Simple History 2.1)  #-#-#-#-#
+#: inc/SimpleHistory.php:924
+#. #-#-#-#-#  simple-history.pot (Simple History 2.1.1)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 msgid "Simple History"
 msgstr ""
 
-#: inc/SimpleHistory.php:997
+#: inc/SimpleHistory.php:1000
 msgid "Remove all log items?"
 msgstr ""
 
-#: inc/SimpleHistory.php:999
+#: inc/SimpleHistory.php:1002
 msgid "Go to the first page"
 msgstr ""
 
-#: inc/SimpleHistory.php:1000
+#: inc/SimpleHistory.php:1003
 msgid "Go to the previous page"
 msgstr ""
 
-#: inc/SimpleHistory.php:1001
+#: inc/SimpleHistory.php:1004
 msgid "Go to the next page"
 msgstr ""
 
-#: inc/SimpleHistory.php:1002
+#: inc/SimpleHistory.php:1005
 msgid "Go to the last page"
 msgstr ""
 
-#: inc/SimpleHistory.php:1003
+#: inc/SimpleHistory.php:1006
 msgid "Current page"
 msgstr ""
 
-#: inc/SimpleHistory.php:1005
+#: inc/SimpleHistory.php:1008
 msgid "Oups, the log could not be loaded right now."
 msgstr ""
 
-#: inc/SimpleHistory.php:1006
+#: inc/SimpleHistory.php:1009
 msgid "Your search did not match any history events."
 msgstr ""
 
-#: inc/SimpleHistory.php:1290 inc/SimpleHistory.php:1405
+#: inc/SimpleHistory.php:1293 inc/SimpleHistory.php:1408
 msgid "Simple History Settings"
 msgstr ""
 
-#: inc/SimpleHistory.php:1324
+#: inc/SimpleHistory.php:1327
 msgid "No valid callback found"
 msgstr ""
 
-#: inc/SimpleHistory.php:1426
+#: inc/SimpleHistory.php:1429
 msgid "Cleared database"
 msgstr ""
 
-#: inc/SimpleHistory.php:1453
+#: inc/SimpleHistory.php:1456
 msgid "Show history"
 msgstr ""
 
-#: inc/SimpleHistory.php:1466
+#: inc/SimpleHistory.php:1469
 msgid "Number of items per page"
 msgstr ""
 
-#: inc/SimpleHistory.php:1478
+#: inc/SimpleHistory.php:1481
 msgid "Clear log"
 msgstr ""
 
-#: inc/SimpleHistory.php:1617
+#: inc/SimpleHistory.php:1620
 msgid "on the dashboard"
 msgstr ""
 
-#: inc/SimpleHistory.php:1622
+#: inc/SimpleHistory.php:1625
 msgid "as a page under the dashboard menu"
 msgstr ""
 
-#: inc/SimpleHistory.php:1638
+#: inc/SimpleHistory.php:1641
 msgid "Items in the database are automatically removed after %1$s days."
 msgstr ""
 
-#: inc/SimpleHistory.php:1640
+#: inc/SimpleHistory.php:1643
 msgid "Items in the database are kept forever."
 msgstr ""
 
-#: inc/SimpleHistory.php:1644
+#: inc/SimpleHistory.php:1647
 msgid "Clear log now"
 msgstr ""
 
-#: inc/SimpleHistory.php:1696
+#: inc/SimpleHistory.php:1699
 msgid "The log for Simple History was cleared ({num_rows} rows were removed)."
 msgstr ""
 
-#: inc/SimpleHistory.php:1960
+#: inc/SimpleHistory.php:1963
 msgid "+%1$s similar event"
 msgid_plural "+%1$s similar events"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/SimpleHistory.php:1967
+#: inc/SimpleHistory.php:1970
 msgid "Loading…"
 msgstr ""
 
-#: inc/SimpleHistory.php:1974
+#: inc/SimpleHistory.php:1977
 msgid "Showing %1$s more"
 msgstr ""
 
-#: inc/SimpleHistory.php:2013
+#: inc/SimpleHistory.php:2016
 msgid "Context data"
 msgstr ""
 
-#: inc/SimpleHistory.php:2014
+#: inc/SimpleHistory.php:2017
 msgid "This is potentially useful meta data that a logger has saved."
 msgstr ""
 
-#: inc/SimpleHistory.php:2629
+#: inc/SimpleHistory.php:2639
 msgid "No events today so far."
 msgstr ""
 
-#: inc/SimpleHistory.php:2648
+#: inc/SimpleHistory.php:2658
 msgid "One event today from one user."
 msgstr ""
 
-#: inc/SimpleHistory.php:2654
+#: inc/SimpleHistory.php:2664
 msgid "One event today from one source."
 msgstr ""
 
-#: inc/SimpleHistory.php:2660
+#: inc/SimpleHistory.php:2670
 msgid "%1$d events today from one user."
 msgstr ""
 
-#: inc/SimpleHistory.php:2666
+#: inc/SimpleHistory.php:2676
 msgid "%1$d events today from %2$d users."
 msgstr ""
 
-#: inc/SimpleHistory.php:2672 inc/SimpleHistory.php:2678
+#: inc/SimpleHistory.php:2682 inc/SimpleHistory.php:2688
 msgid "%1$d events today from one user and one other source."
 msgstr ""
 
-#: inc/SimpleHistory.php:2684
+#: inc/SimpleHistory.php:2694
 msgid "%1$d events today from one user and %3$d other sources."
 msgstr ""
 
-#: inc/SimpleHistory.php:2690
+#: inc/SimpleHistory.php:2700
 msgid "%1$s events today from %2$d users and %3$d other sources."
 msgstr ""
 
-#: index.php:76
+#: index.php:97
 msgid ""
 "Simple History is a great plugin, but to use it your server must have at "
 "least PHP 5.3 installed (you have version %s)."
@@ -400,19 +404,19 @@ msgstr ""
 msgid "Uploaded {post_type} <a href=\"{edit_link}\">\"{attachment_title}\"</a>"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:238
+#: loggers/SimpleMediaLogger.php:242
 msgid "{attachment_thumb}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:247
+#: loggers/SimpleMediaLogger.php:251
 msgid "{attachment_size_format}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:248
+#: loggers/SimpleMediaLogger.php:252
 msgid "{attachment_filetype_extension}"
 msgstr ""
 
-#: loggers/SimpleMediaLogger.php:250
+#: loggers/SimpleMediaLogger.php:254
 msgid "{full_image_width} × {full_image_height}"
 msgstr ""
 
@@ -718,42 +722,62 @@ msgctxt "donate settings headline"
 msgid "Donate"
 msgstr ""
 
-#: dropins/SimpleHistoryExportDropin.php:28
+#: dropins/SimpleHistoryExportDropin.php:23
 msgctxt "Export dropin: Tab name on settings page"
 msgid "Export"
 msgstr ""
 
-#: dropins/SimpleHistoryExportDropin.php:226
+#: dropins/SimpleHistoryExportDropin.php:221
 msgctxt "Export dropin: introtext"
 msgid "The export function will export the full history."
 msgstr ""
 
-#: dropins/SimpleHistoryExportDropin.php:230
+#: dropins/SimpleHistoryExportDropin.php:225
 msgctxt "Export dropin: format"
 msgid "Choose format to export to"
 msgstr ""
 
-#: dropins/SimpleHistoryExportDropin.php:235
+#: dropins/SimpleHistoryExportDropin.php:230
 msgctxt "Export dropin: export format"
 msgid "JSON"
 msgstr ""
 
-#: dropins/SimpleHistoryExportDropin.php:242
+#: dropins/SimpleHistoryExportDropin.php:237
 msgctxt "Export dropin: export format"
 msgid "CSV"
 msgstr ""
 
-#: dropins/SimpleHistoryExportDropin.php:260
+#: dropins/SimpleHistoryExportDropin.php:255
 msgctxt "Export dropin: submit button"
 msgid "Download Export File"
 msgstr ""
 
-#: dropins/SimpleHistoryFilterDropin.php:52
+#: dropins/SimpleHistoryFilterDropin.php:162
+msgctxt "Filter dropin: filter week"
+msgid "Last 7 days"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:169
+msgctxt "Filter dropin: filter week"
+msgid "Last 14 days"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:176
+msgctxt "Filter dropin: filter week"
+msgid "Last 30 days"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:183
+msgctxt "Filter dropin: filter week"
+msgid "Last 60 days"
+msgstr ""
+
+#: dropins/SimpleHistoryFilterDropin.php:225
 msgctxt "Filter dropin: button to show more search options"
 msgid "Show options"
 msgstr ""
 
-#: dropins/SimpleHistoryFilterDropin.php:162
+#: dropins/SimpleHistoryFilterDropin.php:366
 msgctxt "Filter dropin: button to hide more search options"
 msgid "Hide options"
 msgstr ""
@@ -862,114 +886,114 @@ msgctxt "User logger: 404"
 msgid "Pages not found"
 msgstr ""
 
-#: inc/SimpleHistory.php:284
+#: inc/SimpleHistory.php:290
 msgctxt "Message visible while waiting for log to load from server the first time"
 msgid "Loading history..."
 msgstr ""
 
-#: inc/SimpleHistory.php:321
+#: inc/SimpleHistory.php:327
 msgctxt "page n of n"
 msgid "of"
 msgstr ""
 
-#: inc/SimpleHistory.php:416
+#: inc/SimpleHistory.php:422
 msgctxt "API: not enought arguments passed"
 msgid "Not enough args specified"
 msgstr ""
 
-#: inc/SimpleHistory.php:1387
+#: inc/SimpleHistory.php:1390
 msgctxt "dashboard menu name"
 msgid "Simple History"
 msgstr ""
 
-#: inc/SimpleHistory.php:1514
+#: inc/SimpleHistory.php:1517
 msgctxt "history page headline"
 msgid "Simple History"
 msgstr ""
 
-#: inc/SimpleHistory.php:1784
+#: inc/SimpleHistory.php:1787
 msgctxt "simple-history"
 msgid "Simple History removed one event that were older than {days} days"
 msgid_plural "Simple History removed {num_rows} events that were older than {days} days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/SimpleHistory.php:2245
+#: inc/SimpleHistory.php:2248
 msgctxt "Log level in gui"
 msgid "emergency"
 msgstr ""
 
-#: inc/SimpleHistory.php:2249
+#: inc/SimpleHistory.php:2252
 msgctxt "Log level in gui"
 msgid "alert"
 msgstr ""
 
-#: inc/SimpleHistory.php:2253
+#: inc/SimpleHistory.php:2256
 msgctxt "Log level in gui"
 msgid "critical"
 msgstr ""
 
-#: inc/SimpleHistory.php:2257
+#: inc/SimpleHistory.php:2260
 msgctxt "Log level in gui"
 msgid "error"
 msgstr ""
 
-#: inc/SimpleHistory.php:2261
+#: inc/SimpleHistory.php:2264
 msgctxt "Log level in gui"
 msgid "warning"
 msgstr ""
 
-#: inc/SimpleHistory.php:2265
+#: inc/SimpleHistory.php:2268
 msgctxt "Log level in gui"
 msgid "notice"
 msgstr ""
 
-#: inc/SimpleHistory.php:2269
+#: inc/SimpleHistory.php:2272
 msgctxt "Log level in gui"
 msgid "info"
 msgstr ""
 
-#: inc/SimpleHistory.php:2273
+#: inc/SimpleHistory.php:2276
 msgctxt "Log level in gui"
 msgid "debug"
 msgstr ""
 
-#: inc/SimpleHistory.php:2278
+#: inc/SimpleHistory.php:2281
 msgctxt "Log level in gui"
 msgid "Emergency"
 msgstr ""
 
-#: inc/SimpleHistory.php:2282
+#: inc/SimpleHistory.php:2285
 msgctxt "Log level in gui"
 msgid "Alert"
 msgstr ""
 
-#: inc/SimpleHistory.php:2286
+#: inc/SimpleHistory.php:2289
 msgctxt "Log level in gui"
 msgid "Critical"
 msgstr ""
 
-#: inc/SimpleHistory.php:2290
+#: inc/SimpleHistory.php:2293
 msgctxt "Log level in gui"
 msgid "Error"
 msgstr ""
 
-#: inc/SimpleHistory.php:2294
+#: inc/SimpleHistory.php:2297
 msgctxt "Log level in gui"
 msgid "Warning"
 msgstr ""
 
-#: inc/SimpleHistory.php:2298
+#: inc/SimpleHistory.php:2301
 msgctxt "Log level in gui"
 msgid "Notice"
 msgstr ""
 
-#: inc/SimpleHistory.php:2302
+#: inc/SimpleHistory.php:2305
 msgctxt "Log level in gui"
 msgid "Info"
 msgstr ""
 
-#: inc/SimpleHistory.php:2306
+#: inc/SimpleHistory.php:2309
 msgctxt "Log level in gui"
 msgid "Debug"
 msgstr ""
