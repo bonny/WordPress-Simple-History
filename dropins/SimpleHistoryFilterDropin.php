@@ -74,7 +74,7 @@ class SimpleHistoryFilterDropin {
 		 * Set to true to show the filters when page is loaded
 		 * If false then user must click "Show options"
 		 *
-		 * @since 2.x
+		 * @since 2.1.2
 		 *
 		 * @param bool $show_more_filters_on_load Default false
 		 */
@@ -203,7 +203,7 @@ class SimpleHistoryFilterDropin {
 				/**
 				 * Filter to control what the default search string is. Default to empty string.
 				 *
-				 * @since 2.x
+				 * @since 2.1.2
 				 *
 				 * @param string Default search string
 				 */
@@ -229,7 +229,7 @@ class SimpleHistoryFilterDropin {
 				/**
 				 * Filter to control what the default loglevels are.
 				 *
-				 * @since 2.x
+				 * @since 2.1.2
 				 *
 				 * @param array Array with loglevel sugs. Default empty = show all.
 				 */
@@ -258,7 +258,7 @@ class SimpleHistoryFilterDropin {
 					 *  - SimplePluginLogger:plugin_activated
 					 *  - SimpleCommentsLogger:user_comment_added
 					 *
-					 * @since 2.x
+					 * @since 2.1.2
 					 *
 					 * @param array Array with loglevel sugs. Default empty = show all.
 					 */
@@ -327,7 +327,7 @@ class SimpleHistoryFilterDropin {
 					 *
 					 *     add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function() { return array(1,4); });
 					 *
-					 * @since 2.x
+					 * @since 2.1.2
 					 *
 					 * @param array Array with user ids. Default is an empty array = show all users.
 					 */
