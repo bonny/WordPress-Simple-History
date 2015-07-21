@@ -57,7 +57,7 @@ See the plugin in action with this short screencast:
 
 #### API so you can add your own events to Simple History
 
-If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by calling the function `simple_history_add()` like this:
+If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by using the function `SimpleLogger()` like this:
 
 `
 <?php
