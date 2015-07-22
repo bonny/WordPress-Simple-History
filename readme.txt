@@ -124,7 +124,7 @@ initiated by a specific user.
 
 = 2.1.2 (July 2015) =
 
-- Changed: By default the log now shows events from the last week, last two weeks or last 30 days, all depending on how many events you have in your log. The previous behavior was to not apply any filtering what so ever during the first load. Anyway: this change makes it possible to load the log very quickly even for very large logs. A large amount of users + keeping the log forver = millions of rows of data. Previosly this could stall the log or make it load almost forever. Now = almost always very fast. I have tried it with over 5.000 users and a million row and yes - zing! - much faster. Fixes https://wordpress.org/support/topic/load-with-pagination-mysql.
+- Changed: By default the log now shows events from the last week, last two weeks or last 30 days, all depending on how many events you have in your log. The previous behavior was to not apply any filtering what so ever during the first load. Anyway: this change makes it possible to load the log very quickly even for very large logs. A large amount of users + keeping the log forver = millions of rows of data. Previously this could stall the log or make it load almost forever. Now = almost always very fast. I have tried it with over 5.000 users and a million row and yes - zing! - much faster. Fixes https://wordpress.org/support/topic/load-with-pagination-mysql.
 - Added: Finnish translation. Thanks a lot to the translator!
 - Updated: Swedish translation updated
 - Added: Cache is used on a few more places.
