@@ -201,8 +201,8 @@ class SimpleMediaLogger extends SimpleLogger
 
 					// Only output thumb if file exists
 					// For example images deleted on file system but not in WP cause broken images (rare case, but has happened to me.)
-					if ( file_exists( $attached_file ) ) {
-						$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>' );
+					if ( file_exists( $attached_file ) && $thumb_src ) {
+						$context["attachment_thumb"] = sprintf('<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $thumb_src[0] );
 					}
 
 				}
