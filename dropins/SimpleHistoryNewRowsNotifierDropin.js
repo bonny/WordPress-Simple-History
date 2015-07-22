@@ -59,7 +59,6 @@
 
 		// Start interval if prev interval was cleared
 		if (!intervalID) {
-			console.log("start setInterval");
 			intervalID = setInterval(checkForUpdates, simple_history_NewRowsNotifierDropin.interval);
 		}
 

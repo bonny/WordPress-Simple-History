@@ -593,8 +593,6 @@ var simple_history = (function($) {
 
 		manualInitialize: function() {
 
-			console.log("manualInitialize");
-
 			// Don't try to init if our element does not exist
 			if (!this.$el.length) {
 				return;
