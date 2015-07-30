@@ -9,6 +9,7 @@ Version: 2.1.3
 Author: Pär Thernström
 Author URI: http://simple-history.com/
 License: GPL2
+GitHub Plugin URI: https://github.com/bonny/WordPress-Simple-History
 */
 
 /*  Copyright 2015  Pär Thernström (email: par.thernstrom@gmail.com)

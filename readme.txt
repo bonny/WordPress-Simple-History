@@ -121,6 +121,7 @@ initiated by a specific user.
 
 - Fixed: WordPress core updates got the wrong previous version.
 - Updated: Updated German translations.
+- Added: GHU header added to plugin header, to support [GitHub Updater plugin](https://github.com/afragen/github-updater).
 
 = 2.1.3 (July 2015) =
 
