@@ -14,6 +14,20 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 		
 		add_action( '_core_updated_successfully', array( $this, "on_core_updated" ) );
 
+		add_action( 'update_feedback', array( $this, "on_update_feedback" ) );
+
+	}
+
+	/**
+	 * We need to store the WordPress version we are updating from. 
+	 * 'update_feedback' is a suitable filter.
+	 */
+	function on_update_feedback() {
+
+		if ( ! empty( $GLOBALS['wp_version'] ) && ! isset( $GLOBALS['simple_history_' .  $this->slug . '_wp_version'] ) ) {
+			$GLOBALS['simple_history_' .  $this->slug . '_wp_version'] = $GLOBALS['wp_version'];
+		}
+
 	}
 
 	/**
@@ -55,7 +69,7 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
 	 */
 	public function on_core_updated($new_wp_version) {
 		
-		$old_wp_version = $GLOBALS['wp_version'];
+		$old_wp_version = empty( $GLOBALS['simple_history_' .  $this->slug . '_wp_version'] ) ? $GLOBALS["wp_version"] : $GLOBALS['simple_history_' .  $this->slug . '_wp_version'];
 
 		$auto_update = true;		
 		if ( $GLOBALS['pagenow'] == 'update-core.php' ) {

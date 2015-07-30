@@ -117,6 +117,11 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.1.x (July 2015) =
+
+- Fixed: WordPress core updates got the wrong previous version.
+- Updated: Updated German translations.
+
 = 2.1.3 (July 2015) =
 
 - Fixed: Ajax error when loading a log that contained uploaded images.
