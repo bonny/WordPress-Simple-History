@@ -117,6 +117,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.1.x (mmm 2015) =
+
+- Changed: Use `h1` instead of `h2` on admin screens. Reason for this the changes in 4.3: https://make.wordpress.org/core/2015/07/31/headings-in-admin-screens-change-in-wordpress-4-3/.
+
 = 2.1.4 (July 2015) =
 
 - Fixed: WordPress core updates got the wrong previous version.
