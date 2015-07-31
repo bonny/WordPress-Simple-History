@@ -1288,17 +1288,17 @@ class SimpleHistory {
 		?>
 		<div class="wrap">
 
-			<h2 class="SimpleHistoryPageHeadline">
+			<h1 class="SimpleHistoryPageHeadline">
 				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
 				<?php _e("Simple History Settings", "simple-history")?>
-			</h2>
+			</h1>
 
 			<?php
 			$active_tab = isset($_GET["selected-tab"]) ? $_GET["selected-tab"] : "settings";
 			$settings_base_url = menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0);
 			?>
 
-			<h3 class="nav-tab-wrapper">
+			<h2 class="nav-tab-wrapper">
 				<?php
 				foreach ($arr_settings_tabs as $one_tab) {
 
@@ -1314,7 +1314,7 @@ class SimpleHistory {
 
 				}
 				?>
-			</h3>
+			</h2>
 
 			<?php
 
@@ -1512,21 +1512,21 @@ class SimpleHistory {
 
 		<div class="wrap SimpleHistoryWrap">
 
-			<h2 class="SimpleHistoryPageHeadline">
+			<h1 class="SimpleHistoryPageHeadline">
 				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
 				<?php echo _x("Simple History", 'history page headline', 'simple-history')?>
-			</h2>
+			</h1>
 
 			<?php
-/**
-		 * Fires before the gui div
-		 *
-		 * @since 2.0
-		 *
-		 * @param SimpleHistory $SimpleHistory This class.
-		 */
-		do_action("simple_history/history_page/before_gui", $this);
-		?>
+			/**
+			 * Fires before the gui div
+			 *
+			 * @since 2.0
+			 *
+			 * @param SimpleHistory $SimpleHistory This class.
+			 */
+			do_action("simple_history/history_page/before_gui", $this);
+			?>
 
 			<div class="SimpleHistoryGuiWrap">
 

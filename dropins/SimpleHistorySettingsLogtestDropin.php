@@ -79,7 +79,7 @@ class SimpleHistorySettingsLogtestDropin {
 	public function output() {
 
 		?>
-		<h2>Test data</h2>
+		<h1>Test data</h1>
 
 		<p>Add lots of test data to the log database.</p>
 
