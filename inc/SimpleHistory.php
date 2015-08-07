@@ -9,23 +9,10 @@ class SimpleHistory {
 
 	const NAME = "Simple History";
 
-	// Dont use this any more! Will be removed in future versions. Use global SIMPLE_HISTORY_VERSION instead.
-	const VERSION = "2.1.4";
-
 	/**
 	 * For singleton
 	 */
 	private static $instance;
-
-	/**
-	 * Capability required to view the history log
-	 */
-	private $view_history_capability;
-
-	/**
-	 * Capability required to view and edit the settings page
-	 */
-	private $view_settings_capability;
 
 	/**
 	 * Array with external loggers to load
@@ -546,17 +533,39 @@ class SimpleHistory {
 		$this->instantiatedLoggers = array();
 		$this->instantiatedDropins = array();
 
-		// Capability required to view history = for who will the History page be added
-		$this->view_history_capability = "edit_pages";
-		$this->view_history_capability = apply_filters("simple_history_view_history_capability", $this->view_history_capability);
-		$this->view_history_capability = apply_filters("simple_history/view_history_capability", $this->view_history_capability);
-
-		// Capability required to view settings
-		$this->view_settings_capability = "manage_options";
-		$this->view_settings_capability = apply_filters("simple_history_view_settings_capability", $this->view_settings_capability);
-		$this->view_settings_capability = apply_filters("simple_history/view_settings_capability", $this->view_settings_capability);
-
 		$this->plugin_basename = SIMPLE_HISTORY_BASENAME;
+
+	}
+
+	/**
+	 * Return capability required to view history = for who will the History page be added
+	 *
+	 * @since 2.1.5
+	 * @return string capability
+	 */
+	public function get_view_history_capability() {
+
+		$view_history_capability = "edit_pages";
+		$view_history_capability = apply_filters("simple_history_view_history_capability", $view_history_capability);
+		$view_history_capability = apply_filters("simple_history/view_history_capability", $view_history_capability);
+
+		return $view_history_capability;
+
+	}
+
+	/**
+	 * Return capability required to view settings
+	 *
+	 * @since 2.1.5
+	 * @return string capability
+	 */
+	public function get_view_settings_capability() {
+
+		$view_settings_capability = "manage_options";
+		$view_settings_capability = apply_filters("simple_history_view_settings_capability", $view_settings_capability);
+		$view_settings_capability = apply_filters("simple_history/view_settings_capability", $view_settings_capability);
+
+		return $view_settings_capability;
 
 	}
 
@@ -890,7 +899,7 @@ class SimpleHistory {
 	function plugin_action_links($actions, $b, $c, $d) {
 
 		// Only add link if user has the right to view the settings page
-		if (!current_user_can($this->view_settings_capability)) {
+		if ( ! current_user_can( $this->get_view_settings_capability() ) ) {
 			return $actions;
 		}
 
@@ -909,7 +918,7 @@ class SimpleHistory {
 	 */
 	function add_dashboard_widget() {
 
-		if ( $this->setting_show_on_dashboard() && current_user_can( $this->view_history_capability ) ) {
+		if ( $this->setting_show_on_dashboard() && current_user_can( $this->get_view_history_capability() ) ) {
 
 			/**
 			 * Filter to determine if history page should be added to page below dashboard or not
@@ -1388,7 +1397,7 @@ class SimpleHistory {
 				add_dashboard_page(
 					SimpleHistory::NAME,
 					_x("Simple History", 'dashboard menu name', 'simple-history'),
-					$this->view_history_capability,
+					$this->get_view_history_capability(),
 					"simple_history_page",
 					array($this, "history_page_output")
 				);
@@ -1407,7 +1416,7 @@ class SimpleHistory {
 			add_options_page(
 				__('Simple History Settings', "simple-history"),
 				SimpleHistory::NAME,
-				$this->view_settings_capability,
+				$this->get_view_settings_capability(),
 				SimpleHistory::SETTINGS_MENU_SLUG,
 				array($this, 'settings_page_output')
 			);

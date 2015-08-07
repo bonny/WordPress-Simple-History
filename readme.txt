@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
 Requires at least: 3.6.0
 Tested up to: 4.3
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -117,9 +117,11 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.1.x (mmm 2015) =
+= 2.1.5 (August 2015) =
 
+- Fixed: It was not possible to modify the filters `simple_history/view_settings_capability` and `simple_history/view_history_capability` from the `functions.php`-file in a theme (filters where applied to early - they did however work from within a plugin!)
 - Changed: Use `h1` instead of `h2` on admin screens. Reason for this the changes in 4.3: https://make.wordpress.org/core/2015/07/31/headings-in-admin-screens-change-in-wordpress-4-3/.
+- Removed: the constant `VERSION` is now removed. Use constant `SIMPLE_HISTORY_VERSION` instead of you need to check the current version of Simple History.
 
 = 2.1.4 (July 2015) =
 
