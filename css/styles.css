@@ -695,7 +695,7 @@ Modal window with detailss
 }
 
 @media only screen and (max-width: 850px) {
-	
+
 	.SimpleHistory-modal__content {
 		left: 10px; /* admin meny width is 160 px */
 	}
@@ -797,7 +797,7 @@ Modal window with detailss
 
 
 @media only screen and (max-width: 850px) {
-	
+
 	.SimpleHistoryLogitem__moreDetails {
 		margin-left: -60px;
 	}
@@ -879,7 +879,7 @@ Modal window with detailss
 /* icon on log page*/
 .SimpleHistoryPageHeadline__icon {
 	font-size: 24px;
-	line-height: 30px;
+	line-height: 18px;
 	width: 24px;
 	color: rgb(63, 147, 73);
 }
