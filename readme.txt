@@ -76,6 +76,8 @@ if ( function_exists("SimpleLogger") ) {
 ?>
 `
 
+Check out the [examples-folder](https://github.com/bonny/WordPress-Simple-History/tree/master/examples) for more examples.
+
 #### Translations/Languages
 
 So far Simple History is translated to:
@@ -117,6 +119,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.1.x (August 2015) =
+
+- Updated: Danish translation updated. Thanks translator!
+
 = 2.1.5 (August 2015) =
 
 - Fixed: It was not possible to modify the filters `simple_history/view_settings_capability` and `simple_history/view_history_capability` from the `functions.php`-file in a theme (filters where applied to early - they did however work from within a plugin!)
@@ -151,7 +157,7 @@ initiated by a specific user.
 
 = 2.1.1 (May 2015) =
 
-- Removed: filter `simple_history/dropins_dir` removed. 
+- Removed: filter `simple_history/dropins_dir` removed.
 - Changed: Dropins are not loaded from a `glob()` call anymore (just like plugins in the prev release)
 - Updated: Brazilian Portuguese translation updated.
 - Fixed: POT file updated for translators.
