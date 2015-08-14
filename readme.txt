@@ -1,7 +1,7 @@
 ﻿=== Simple History ===
 Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
-Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream
+Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 3.6.0
 Tested up to: 4.3
 Stable tag: 2.1.5
@@ -29,7 +29,7 @@ activation and deactivation
 * **User profiles**<br>
 info about added, updated or removed users
 * **User logins**<br>
-see when a user login & logout
+see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
 * **Failed user logins**<br>
 see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 
