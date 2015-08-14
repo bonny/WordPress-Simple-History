@@ -77,7 +77,7 @@ class SimpleHistory {
 		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
 		add_action('after_setup_theme', array($this, 'load_plugin_textdomain'));
 		add_action('after_setup_theme', array($this, 'add_default_settings_tabs'));
-		
+
 		// Plugins and dropins are loaded using the "after_setup_theme" filter so
 		// themes can use filters to modify the loading of them.
 		// The drawback with this is that for example logouts done when plugins like
@@ -747,20 +747,27 @@ class SimpleHistory {
 			// LoggerInfo contains all messages, both translated an not, by key.
 			// Add messages to the loggerInstance
 			$loopNum = 0;
-			foreach ($loggerInfo["messages"] as $message_key => $message) {
+			if ( is_array($loggerInfo["messages"]) ) {
 
-				$loggerInstance->messages[$message_key] = $loggerInstance->messages[$loopNum];
-				$loopNum++;
+				foreach ( $loggerInfo["messages"] as $message_key => $message ) {
 
+					$loggerInstance->messages[$message_key] = $loggerInstance->messages[$loopNum];
+					$loopNum++;
+
+				}
 			}
 
 			// Remove index keys, only keeping slug keys
 			if (is_array($loggerInstance->messages)) {
+
 				foreach ($loggerInstance->messages as $key => $val) {
+
 					if (is_int($key)) {
 						unset($loggerInstance->messages[$key]);
 					}
+
 				}
+
 			}
 
 			// Add logger to array of loggers
@@ -2336,9 +2343,9 @@ class SimpleHistory {
 	public function getInstantiatedDropins() {
 
 		return $this->instantiatedDropins;
-		
+
 	}
-	
+
 
 	public function getInstantiatedLoggerBySlug($slug = "") {
 
