@@ -695,7 +695,7 @@ Modal window with detailss
 }
 
 @media only screen and (max-width: 850px) {
-	
+
 	.SimpleHistory-modal__content {
 		left: 10px; /* admin meny width is 160 px */
 	}
@@ -797,7 +797,7 @@ Modal window with detailss
 
 
 @media only screen and (max-width: 850px) {
-	
+
 	.SimpleHistoryLogitem__moreDetails {
 		margin-left: -60px;
 	}
@@ -884,6 +884,11 @@ Modal window with detailss
 	color: rgb(63, 147, 73);
 }
 
+/* For WP < 4.3 */
+.branch-4-2 .SimpleHistoryPageHeadline__icon {
+	line-height: 18px;
+}
+
 /* if not hits when using filter function */
 .SimpleHistory--hasNoHits {
 }
@@ -908,4 +913,3 @@ Modal window with detailss
 	margin-left: 13px;
 	margin-right: 13px;
 }
-

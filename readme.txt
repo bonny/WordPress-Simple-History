@@ -122,6 +122,7 @@ initiated by a specific user.
 = 2.1.x (August 2015) =
 
 - Updated: Danish translation updated. Thanks translator!
+- Fixed: Icon on settings page was a bit unaligned on WordPress not running the latest beta version (hrm, which I guess most of you were..)
 
 = 2.1.5 (August 2015) =
 
