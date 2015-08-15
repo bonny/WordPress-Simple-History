@@ -123,6 +123,7 @@ initiated by a specific user.
 
 - Updated: Danish translation updated. Thanks translator!
 - Fixed: Icon on settings page was a bit unaligned on WordPress not running the latest beta version (hrm, which I guess most of you were..)
+- Fixed: Possible php notice. Should fix https://wordpress.org/support/topic/simplehistoryphp-creates-debug-entries.
 
 = 2.1.5 (August 2015) =
 
