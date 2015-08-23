@@ -182,7 +182,7 @@ class SimpleLogger {
 					 * @since 2.1
 					 */
 					$use_you = apply_filters("simple_history/header_initiator_use_you", true);
-					
+
 					if ( $use_you && $is_current_user ) {
 
 						$tmpl_initiator_html = '
@@ -855,6 +855,7 @@ class SimpleLogger {
 		$sh_latest_translations = $this->simpleHistory->gettextLatestTranslations;
 
 		if ( ! empty( $sh_latest_translations ) ) {
+
 			if ( isset( $sh_latest_translations[ $message ] ) ) {
 
 				// Translation of this phrase was found, so use original phrase instead of translated one
@@ -1020,6 +1021,9 @@ class SimpleLogger {
 
 		}
 
+		// Trim message
+		$data["message"] = trim( $data["message"] );
+
 		/**
 		 * Filter data to be saved to db
 		 *
@@ -1031,6 +1035,7 @@ class SimpleLogger {
 
 		// Insert data into db
 		// sf_d($db_table, '$db_table');exit;
+
 		$result = $wpdb->insert($db_table, $data);
 
 		// Only save context if able to store row

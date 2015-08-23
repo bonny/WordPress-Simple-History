@@ -153,6 +153,10 @@ class SimpleHistory {
 
 		}
 
+		if ( isset( $_GET["testlogyo"] ) ) {
+			add_action( "simple_history/loggers_loaded", array( $this, "addWelcomeLogMessage" ) );
+		}
+
 	}
 
 	/**
@@ -1264,20 +1268,88 @@ class SimpleHistory {
 
 		}// end db version 3 » 4
 
-	}// end check_for_upgrade
+	} // end check_for_upgrade
+
+	/**
+	 * Check if the database has data/rows
+	 *
+	 * @return bool True if database is not empty, false if database is empty = contains no data
+	 */
+	function does_database_have_data() {
+
+		global $wpdb;
+
+		$tableprefix = $wpdb->prefix;
+
+		$simple_history_table = SimpleHistory::DBTABLE;
+		$simple_history_context_table = SimpleHistory::DBTABLE_CONTEXTS;
+
+		$sql_data_exists = "SELECT id AS id_exists FROM {$tableprefix}{$simple_history_table} LIMIT 1";
+		$data_exists = (bool) $wpdb->get_var( $sql_data_exists, 0 );
+
+		return $data_exists;
+
+	}
 
 	/**
 	 * Greet users to version 2!
+	 * Is only called after database has been upgraded, so only on first install (or upgrade).
+	 * Not called after only plugin activation.
 	 */
 	public function addWelcomeLogMessage() {
 
-		SimpleLogger()->info(
-			"Welcome to Simple History 2! Hope you will enjoy this plugin.
-			Found bugs? Got great ideas? Send them to the plugin developer at par.thernstrom@gmail.com.",
-			array(
-				"_initiator" => SimpleLoggerLogInitiators::WORDPRESS,
-			)
-		);
+		$db_data_exists = $this->does_database_have_data();
+		$db_data_exists = false;
+
+		$pluginLogger = $this->getInstantiatedLoggerBySlug( "SimplePluginLogger" );
+		if ( $pluginLogger ) {
+
+			// Add plugin installed message
+			$context = array(
+				"plugin_name" => "Simple History",
+				"plugin_description" => "Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.",
+				"plugin_url" => "http://simple-history.com",
+				"plugin_version" => SIMPLE_HISTORY_VERSION,
+				"plugin_author" => "Pär Thernström"
+			);
+
+			$pluginLogger->infoMessage( "plugin_installed", $context );
+
+			// Add plugin activated message
+			$context["plugin_slug"] = "simple-history";
+			$context["plugin_title"] = '<a href="http://simple-history.com/">Simple History</a>';
+
+			$pluginLogger->infoMessage( "plugin_activated", $context );
+
+		}
+
+		if ( ! $db_data_exists ) {
+
+			$welcome_message_1 = "
+Welcome to Simple History!
+
+This is the main history feed. It will contain events that this plugin has logged.
+";
+
+			$welcome_message_2 ="
+Because Simple History was just recently installed, this feed does not contain much events yet. But keep the plugin activated and soon you will see detailed information about page edits, plugin updates, user logins, and much more.
+";
+
+			SimpleLogger()->info(
+				$welcome_message_2,
+				array(
+					"_initiator" => SimpleLoggerLogInitiators::WORDPRESS,
+				)
+			);
+
+			SimpleLogger()->info(
+				$welcome_message_1,
+				array(
+					"_initiator" => SimpleLoggerLogInitiators::WORDPRESS,
+				)
+			);
+
+		}
 
 	}
 

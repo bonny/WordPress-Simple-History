@@ -124,6 +124,9 @@ initiated by a specific user.
 - Updated: Danish translation updated. Thanks translator!
 - Fixed: Icon on settings page was a bit unaligned on WordPress not running the latest beta version (hrm, which I guess most of you were..)
 - Fixed: Possible php notice. Should fix https://wordpress.org/support/topic/simplehistoryphp-creates-debug-entries.
+- Changed: Logged messages are now trimmed by default (Spaces and new lines will be removed from messages).
+- Updated: When installing and activating the plugin it will now add the same "plugin installed" and "plugin activated" message that other plugins get when they are installed. These events where not logged before because the plugin was not installed and could therefor not log its own installation. Solution was to log it manually. Works. Looks good. But perhaps a bit of cheating.
+- Added: A (hopefully) better welcome message when activating the plugin for the first time. Hopefully the new message makes new users understand a bit better why the log may be empty at first.
 
 = 2.1.5 (August 2015) =
 
