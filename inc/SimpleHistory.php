@@ -153,10 +153,6 @@ class SimpleHistory {
 
 		}
 
-		if ( isset( $_GET["testlogyo"] ) ) {
-			add_action( "simple_history/loggers_loaded", array( $this, "addWelcomeLogMessage" ) );
-		}
-
 	}
 
 	/**
@@ -1299,7 +1295,7 @@ class SimpleHistory {
 	public function addWelcomeLogMessage() {
 
 		$db_data_exists = $this->does_database_have_data();
-		$db_data_exists = false;
+		#$db_data_exists = false;
 
 		$pluginLogger = $this->getInstantiatedLoggerBySlug( "SimplePluginLogger" );
 		if ( $pluginLogger ) {
