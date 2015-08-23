@@ -1269,6 +1269,7 @@ class SimpleHistory {
 	/**
 	 * Check if the database has data/rows
 	 *
+	 * @since 2.1.6
 	 * @return bool True if database is not empty, false if database is empty = contains no data
 	 */
 	function does_database_have_data() {

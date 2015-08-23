@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 3.6.0
 Tested up to: 4.3
-Stable tag: 2.1.5
+Stable tag: 2.1.6
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -119,12 +119,12 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.1.x (August 2015) =
+= 2.1.6 (August 2015) =
 
 - Updated: Danish translation updated. Thanks translator!
 - Fixed: Icon on settings page was a bit unaligned on WordPress not running the latest beta version (hrm, which I guess most of you were..)
 - Fixed: Possible php notice. Should fix https://wordpress.org/support/topic/simplehistoryphp-creates-debug-entries.
-- Changed: Logged messages are now trimmed by default (Spaces and new lines will be removed from messages).
+- Changed: Logged messages are now trimmed by default (spaces and new lines will be removed from messages).
 - Updated: When installing and activating the plugin it will now add the same "plugin installed" and "plugin activated" message that other plugins get when they are installed. These events where not logged before because the plugin was not installed and could therefor not log its own installation. Solution was to log it manually. Works. Looks good. But perhaps a bit of cheating.
 - Added: A (hopefully) better welcome message when activating the plugin for the first time. Hopefully the new message makes new users understand a bit better why the log may be empty at first.
 
