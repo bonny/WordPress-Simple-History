@@ -336,7 +336,7 @@ class SimpleLogger {
 		// http://developers.whatwg.org/text-level-semantics.html#the-time-element
 		$date_html = "";
 		$str_when = "";
-		$date_datetime = new DateTime($row->date);
+                $date_datetime = new DateTime( $row->date );
 
 		/**
 		 * Filter how many seconds as most that can pass since an
@@ -360,16 +360,16 @@ class SimpleLogger {
 		$time_ago_just_now_max_time = 30;
 		$time_ago_just_now_max_time = apply_filters("simple_history/header_just_now_max_time", $time_ago_just_now_max_time);
 
-		if (time() - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time) {
+                if ( time() - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time ) {
 
 			// show "just now" if event is very recent
 			$str_when = __("Just now", "simple-history");
 
-		} else if (time() - $date_datetime->getTimestamp() > $time_ago_max_time) {
+                } else if ( time() - $date_datetime->getTimestamp() > $time_ago_max_time ) {
 
 			/* translators: Date format for log row header, see http://php.net/date */
 			$datef = __('M j, Y \a\t G:i', "simple-history");
-			$str_when = date_i18n($datef, $date_datetime->getTimestamp());
+                        $str_when .= date_i18n( $datef, strtotime( get_date_from_gmt( $row->date ) ) );
 
 		} else {
 
@@ -887,14 +887,9 @@ class SimpleLogger {
 		$level = apply_filters("simple_history/log_argument/level", $level, $context, $message, $this);
 		$message = apply_filters("simple_history/log_argument/message", $message, $level, $context, $this);
 
-		/* Store date at utc or local time?
+                /* Store date as GMT date, i.e. not local date/time
 		 * Some info here:
 		 * http://www.skyverge.com/blog/down-the-rabbit-hole-wordpress-and-timezones/
-		 * UNIX timestamp = no timezone = UTC
-		 * anything is better than now() anyway!
-		 * WP seems to use the local time, so I will go with that too I think
-		 * GMT/UTC-time is: date_i18n($timezone_format, false, 'gmt'));
-		 * local time is: date_i18n($timezone_format));
 		 */
 		$localtime = current_time("mysql", 1);
 

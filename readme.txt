@@ -119,6 +119,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.1.7 (September 2015) =
+
+- Fixed: Date and time in the log was using GMT time rather than local time. Could be confusing. Even very confusing if living in a time zone far far away from the GMT zone.
+
 = 2.1.6 (August 2015) =
 
 - Updated: Danish translation updated. Thanks translator!
