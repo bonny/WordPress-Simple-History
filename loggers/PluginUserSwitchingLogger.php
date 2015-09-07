@@ -22,7 +22,7 @@ class PluginUserSwitchingLogger extends SimpleLogger {
 		$arr_info = array(			
 			"name" => _x("User Switching Logger", "PluginUserSwitchingLogger", "simple-history"),
 			"description" => _x("Logs user switches", "PluginUserSwitchingLogger", "simple-history"),
-			"capability" => "export",
+			"capability" => "edit_users",
 			"messages" => array(
 				'switched_to_user' => _x('Switched to user "{user_login_to}" from user "{user_login_from}"', "PluginUserSwitchingLogger", "simple-history"),
 				'switched_back_user' => _x('Switched back to user "{user_login_to}" from "{user_login_from}"', "PluginUserSwitchingLogger", "simple-history"),

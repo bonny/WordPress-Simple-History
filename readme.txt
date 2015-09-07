@@ -119,6 +119,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.1.8 (nnn 2015)
+
+- Added: Support for plugin [User Switching](https://wordpress.org/plugins/user-switching/). The event log will show when a user switched to another user, when they switched back, or when they switched off.
+
 = 2.1.7 (September 2015) =
 
 - Fixed: Date and time in the log was using GMT time rather than local time. Could be confusing. Even very confusing if living in a time zone far far away from the GMT zone.
