@@ -119,6 +119,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.1.x (nnn 2015) =
+
+- Fixed: Mouse over (:hover state) on buttons no longer use blue background. Now works much better with admin themes other than the standard one. Fixes https://wordpress.org/support/topic/pagination-button-design.
+
 = 2.1.7 (September 2015) =
 
 - Fixed: Date and time in the log was using GMT time rather than local time. Could be confusing. Even very confusing if living in a time zone far far away from the GMT zone.
