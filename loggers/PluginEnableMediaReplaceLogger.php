@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) or die();
  * Logs user switching from the great Enable Media Replace plugin
  * Plugin URL: https://wordpress.org/plugins/enable-media-replace/
  * 
- * @since 2.1.x
+ * @since 2.2
  */
 class PluginEnableMediaReplaceLogger extends SimpleLogger {
 

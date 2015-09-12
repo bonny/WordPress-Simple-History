@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) or die();
  * Logs user switching from the great User Switching plugin
  * Plugin URL: https://wordpress.org/plugins/user-switching/
  * 
- * @since 2.1.x
+ * @since 2.2
  */
 class PluginUserSwitchingLogger extends SimpleLogger {
 
