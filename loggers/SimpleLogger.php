@@ -452,8 +452,7 @@ class SimpleLogger {
 
 		// Message is translated here, but translation must be added in
 		// plain text before
-
-		if (empty( $message_key )) {
+		if ( empty( $message_key ) ) {
 
 			// Message key did not exist, so check if we should translate using textdomain
 			if ( ! empty( $row->context["_gettext_domain"] ) ) {

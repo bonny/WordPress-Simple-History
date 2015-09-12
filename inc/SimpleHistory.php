@@ -642,6 +642,10 @@ class SimpleHistory {
 			$loggersDir . "SimplePostLogger.php",
 			$loggersDir . "SimpleThemeLogger.php",
 			$loggersDir . "SimpleUserLogger.php",
+
+			// Loggers for third party plugins
+			$loggersDir . "PluginUserSwitchingLogger.php",
+			$loggersDir . "PluginEnableMediaReplaceLogger.php"
 	    );
 
 		// SimpleLogger.php must be loaded first and always since the other loggers extend it
@@ -727,7 +731,6 @@ class SimpleHistory {
 			}
 
 			$loggerInstance = new $oneLoggerName( $this );
-
 			if ( ! is_subclass_of( $loggerInstance, "SimpleLogger" ) && ! is_a( $loggerInstance, "SimpleLogger" ) ) {
 				continue;
 			}
@@ -747,7 +750,35 @@ class SimpleHistory {
 			// LoggerInfo contains all messages, both translated an not, by key.
 			// Add messages to the loggerInstance
 			$loopNum = 0;
-			if ( is_array( $loggerInfo["messages"] ) ) {
+
+			$arr_messages_by_message_key = array();
+			
+			foreach ( $loggerInfo["messages"] as $message_key => $message_untranslated ) {
+
+				// Find message in array with both translated and non translated strings
+				foreach ( $loggerInstance->messages as $one_message_with_translation_info ) {
+
+					/*
+				    [0] => Array
+				        (
+				            [untranslated_text] => ...
+				            [translated_text] => ...
+				            [domain] => simple-history
+				            [context] => ...
+				        )
+					*/
+					if ( $message_untranslated == $one_message_with_translation_info["untranslated_text"] ) {
+						$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
+						continue;
+					}
+
+				}
+
+			}
+
+			$loggerInstance->messages = $arr_messages_by_message_key;
+
+			/*if ( is_array( $loggerInfo["messages"] ) ) {
 
 				foreach ( $loggerInfo["messages"] as $message_key => $message ) {
 
@@ -769,6 +800,7 @@ class SimpleHistory {
 				}
 
 			}
+			*/
 
 			// Add logger to array of loggers
 			$this->instantiatedLoggers[$loggerInstance->slug] = array(

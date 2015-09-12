@@ -18,8 +18,8 @@ class SimpleExportLogger extends SimpleLogger
 	function getInfo() {
 
 		$arr_info = array(			
-			"name" => "Export Logger",
-			"description" => "Logs updates to WordPress export",
+			"name" => __("Export Logger", "simple-history"),
+			"description" => __("Logs updates to WordPress export", "simple-history"),
 			"capability" => "export",
 			"messages" => array(
 				'created_export' => __('Created XML export', "simple-history"),
@@ -51,7 +51,7 @@ class SimpleExportLogger extends SimpleLogger
 		$this->infoMessage(
 			"created_export",
 			array(
-				"args" => $this->simpleHistory->json_encode($args)
+				"args" => $this->simpleHistory->json_encode( $args )
 			)
 		);
 
