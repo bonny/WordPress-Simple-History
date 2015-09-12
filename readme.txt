@@ -123,6 +123,8 @@ initiated by a specific user.
 
 - Added: Support for plugin [User Switching](https://wordpress.org/plugins/user-switching/). The event log will show when a user switched to another user, when they switched back, or when they switched off.
 
+- Added: Support for plugin [Enable Media Replace](https://wordpress.org/plugins/enable-media-replace/). Whenever a user replaces an attachment with a new, you will now know about it and also see the name of both the old and the new attachment. Awesome!
+
 = 2.1.7 (September 2015) =
 
 - Fixed: Date and time in the log was using GMT time rather than local time. Could be confusing. Even very confusing if living in a time zone far far away from the GMT zone.
