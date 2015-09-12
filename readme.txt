@@ -119,7 +119,7 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.2 (September 2015)
+= 2.2 (September 2015) =
 
 - Added: Support for plugin [User Switching](https://wordpress.org/plugins/user-switching/). The event log will show when a user switched to another user, when they switched back, or when they switched off.
 
