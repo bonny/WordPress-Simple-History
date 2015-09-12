@@ -645,6 +645,7 @@ class SimpleHistory {
 
 			// Loggers for third party plugins
 			$loggersDir . "PluginUserSwitchingLogger.php",
+			$loggersDir . "PluginEnableMediaReplaceLogger.php"
 	    );
 
 		// SimpleLogger.php must be loaded first and always since the other loggers extend it
