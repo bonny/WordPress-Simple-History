@@ -599,8 +599,8 @@ Pagination, below logRows
 }
 
 .SimpleHistoryPaginationLink.SimpleHistoryPaginationLink:hover {
-	color: rgb(255, 255, 255);
-	background: rgb(46, 162, 204);
+	/*color: rgb(255, 255, 255);*/
+	/*background: rgb(46, 162, 204);*/
 }
 
 .SimpleHistoryPaginationLink.SimpleHistoryPaginationLink.disabled {
