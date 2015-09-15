@@ -3,9 +3,9 @@
 defined( 'ABSPATH' ) or die();
 
 /**
- * Logs user switching from the great Enable Media Replace plugin
+ * Logs attachments updated with the great Enable Media Replace plugin
  * Plugin URL: https://wordpress.org/plugins/enable-media-replace/
- * 
+ *
  * @since 2.2
  */
 class PluginEnableMediaReplaceLogger extends SimpleLogger {
@@ -14,12 +14,12 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 
 	/**
 	 * Get array with information about this logger
-	 * 
+	 *
 	 * @return array
 	 */
 	function getInfo() {
 
-		$arr_info = array(			
+		$arr_info = array(
 			"name" => _x("Enable Media Replace Logger", "PluginEnableMediaReplaceLogger", "simple-history"),
 			"description" => _x("Logs media updates made with the Enable Media Replace Plugin", "PluginEnableMediaReplaceLogger", "simple-history"),
 			"capability" => "edit_files",
@@ -27,7 +27,7 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 				'replaced_file' => _x('Replaced attachment "{prev_attachment_title}" with new attachment "{new_attachment_title}"', "PluginEnableMediaReplaceLogger", "simple-history"),
 			),
 		);
-		
+
 		return $arr_info;
 
 	}
@@ -35,11 +35,11 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 	function loaded() {
 
 		// Action that is called when Enable Media Replace loads it's admin options page (both when viewing and when posting new file to it)
-		add_action( 'load-media_page_enable-media-replace/enable-media-replace', array( $this, "on_load_plugin_admin_page" ), 10, 1 ); 
+		add_action( 'load-media_page_enable-media-replace/enable-media-replace', array( $this, "on_load_plugin_admin_page" ), 10, 1 );
 	}
 
 	function on_load_plugin_admin_page() {
-		
+
 		if ( empty( $_POST ) ) {
 			return;
 		}
@@ -56,7 +56,7 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 				return;
 			}
 
-			/*			
+			/*
 			get	{
 			    "page": "enable-media-replace\/enable-media-replace.php",
 			    "noheader": "true",
@@ -64,11 +64,11 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 			    "attachment_id": "64085",
 			    "_wpnonce": "1089573e0c"
 			}
-			
+
 			post	{
 			    "ID": "64085",
 			    "replace_type": "replace"
-			}		
+			}
 
 			files	{
 			    "userfile": {
@@ -78,7 +78,7 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 			        "error": 0,
 			        "size": 4325729
 			    }
-			}		
+			}
 			*/
 
 			$this->infoMessage("replaced_file", array(
@@ -96,7 +96,7 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 				"old_attachment_meta" => $prev_attachment_meta
 				*/
 			));
-			
+
 		}
 
 	}
