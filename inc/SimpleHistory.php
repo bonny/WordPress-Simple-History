@@ -752,7 +752,7 @@ class SimpleHistory {
 			$loopNum = 0;
 
 			$arr_messages_by_message_key = array();
-			
+
 			foreach ( $loggerInfo["messages"] as $message_key => $message_untranslated ) {
 
 				// Find message in array with both translated and non translated strings
@@ -1122,7 +1122,7 @@ class SimpleHistory {
 
 			// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
 			// This table is missing action_description, but we add that later on
-			$sql = "CREATE TABLE " . $table_name . " (
+			$sql = "CREATE TABLE IF NOT EXISTS " . $table_name . " (
 			  id bigint(20) NOT NULL AUTO_INCREMENT,
 			  date datetime NOT NULL,
 			  action VARCHAR(256) NOT NULL COLLATE utf8_general_ci,
@@ -1157,7 +1157,7 @@ class SimpleHistory {
 		if ( 1 == intval( $db_version ) ) {
 
 			// Add column for action description in non-translatable free text
-			$sql = "ALTER TABLE {$table_name} ADD COLUMN action_description longtext";
+			$sql = "ALTER TABLE {$table_name} ADD COLUMN IF NOT EXISTS action_description longtext";
 			$wpdb->query( $sql );
 
 			$db_version_prev = $db_version;
@@ -1203,7 +1203,7 @@ class SimpleHistory {
 
 			// Update old table
 			$sql = "
-				CREATE TABLE {$table_name} (
+				CREATE TABLE IF NOT EXISTS {$table_name} (
 				  id bigint(20) NOT NULL AUTO_INCREMENT,
 				  date datetime NOT NULL,
 				  logger varchar(30) DEFAULT NULL,
@@ -1228,7 +1228,7 @@ class SimpleHistory {
 
 			// Add context table
 			$sql = "
-				CREATE TABLE {$table_name_contexts} (
+				CREATE TABLE IF NOT EXISTS {$table_name_contexts} (
 				  context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				  history_id bigint(20) unsigned NOT NULL,
 				  `key` varchar(255) DEFAULT NULL,
