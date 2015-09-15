@@ -119,6 +119,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.2.1 (September 2015) =
+
+- Fixed: Missed to log users switching back on using the User Switching plugin. Fixes https://github.com/bonny/WordPress-Simple-History/issues/89.
+
 = 2.2 (September 2015) =
 
 - Added: Support for plugin [User Switching](https://wordpress.org/plugins/user-switching/). The event log will show when a user switched to another user, when they switched back, or when they switched off.
