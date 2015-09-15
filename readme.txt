@@ -119,6 +119,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= x.x.x (mm 2015 )=
+
+- Fixed: When running unit tests for a site where Simple History is a must use plugin it sometimes tried to create tables and add columns more then once. Now uses `if not exists` and similar to only try to create the tables if they not already exists.
+
 = 2.2.1 (September 2015) =
 
 - Fixed: Missed to log users switching back on using the User Switching plugin. Fixes https://github.com/bonny/WordPress-Simple-History/issues/89.
