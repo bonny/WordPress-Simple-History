@@ -743,6 +743,29 @@ class SimpleHistory {
 
 			$loggerInfo = $loggerInstance->getInfo();
 
+			/*
+				$loggerInfo["messages"]
+			    [messages] => Array
+			        (
+			            [anon_comment_added] => Lade till en kommentar till {comment_post_type} "{comment_post_title}"
+			            [user_comment_added] => Lade till en kommentar till {comment_post_type} "{comment_post_title}"
+			            [comment_status_approve] => Godkände en kommentar till "{comment_post_title}" av {comment_author} ({comment_author_email})
+			            [comment_status_hold] => Godkände inte en kommentar till "{comment_post_title}" av {comment_author} ({comment_author_email})
+			*/
+
+			/*
+			$loggerInstance->messages
+			Array
+			(
+			    [0] => Array
+			        (
+			            [untranslated_text] => Added a comment to {comment_post_type} "{comment_post_title}"
+			            [translated_text] => Lade till en kommentar till {comment_post_type} "{comment_post_title}"
+			            [domain] => simple-history
+			            [context] => A comment was added to the database by a non-logged in internet user
+			        )
+			*/
+
 			// Un-tell gettext filter
 			$this->doFilterGettext = false;
 			$this->doFilterGettext_currentLogger = null;
@@ -753,7 +776,7 @@ class SimpleHistory {
 
 			$arr_messages_by_message_key = array();
 
-			foreach ( $loggerInfo["messages"] as $message_key => $message_untranslated ) {
+			foreach ( $loggerInfo["messages"] as $message_key => $message_translated ) {
 
 				// Find message in array with both translated and non translated strings
 				foreach ( $loggerInstance->messages as $one_message_with_translation_info ) {
@@ -767,7 +790,7 @@ class SimpleHistory {
 				            [context] => ...
 				        )
 					*/
-					if ( $message_untranslated == $one_message_with_translation_info["untranslated_text"] ) {
+					if ( $message_translated == $one_message_with_translation_info["translated_text"] ) {
 						$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
 						continue;
 					}
@@ -777,31 +800,7 @@ class SimpleHistory {
 			}
 
 			$loggerInstance->messages = $arr_messages_by_message_key;
-
-			/*if ( is_array( $loggerInfo["messages"] ) ) {
-
-				foreach ( $loggerInfo["messages"] as $message_key => $message ) {
-
-					$loggerInstance->messages[$message_key] = $loggerInstance->messages[$loopNum];
-					$loopNum++;
-
-				}
-			}
-
-			// Remove index keys, only keeping slug keys
-			if ( is_array( $loggerInstance->messages ) ) {
-
-				foreach ( $loggerInstance->messages as $key => $val ) {
-
-					if ( is_int( $key ) ) {
-						unset( $loggerInstance->messages[$key] );
-					}
-
-				}
-
-			}
-			*/
-
+			
 			// Add logger to array of loggers
 			$this->instantiatedLoggers[$loggerInstance->slug] = array(
 				"name" => $loggerInfo["name"],
