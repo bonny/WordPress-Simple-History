@@ -114,6 +114,8 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
 
 		$this->assertEquals( $table_name, $table_exists );
+		
+		$this->assertEquals( "a", "b" );
 
 
 	}
