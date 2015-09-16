@@ -99,11 +99,38 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 	}
 
+	function test_install() {
+
+		// Install test: databases created correctly?
+		// how: get describe table and check that fields exists and so on
+
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
+		$this->assertEquals( $table_name, $table_exists );
+
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
+
+		$this->assertEquals( $table_name, $table_exists );
+
+
+	}
+
+	function test_logging() {
+
+		// test logging and retrieving logs
+
+
+	}
+
+
+
 	/*
 	
 	# Todo
 	
-	- test loggers and dropins loaded
 	- test logging a thing
 	- test logging of different log levels
 	- test context
