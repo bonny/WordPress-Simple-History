@@ -1,6 +1,6 @@
 <?php
 
-class SampleTest extends WP_UnitTestCase {
+class SimpleHistoryTest extends WP_UnitTestCase {
 
 	function test_sample() {
 
