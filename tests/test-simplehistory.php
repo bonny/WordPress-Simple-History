@@ -106,17 +106,15 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 		global $wpdb;
 
+		// Test table simple history
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
 		$this->assertEquals( $table_name, $table_exists );
 
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS . "dd";
+		// Test table simple history contexts
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
-
 		$this->assertEquals( $table_name, $table_exists );
-		
-		$this->assertEquals( "a", "b" );
-
 
 	}
 
