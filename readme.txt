@@ -123,6 +123,8 @@ initiated by a specific user.
 
 - Added: Basic support for plugin [https://wordpress.org/plugins/ultimate-member/](Ultimate Member), so users logging in using the plugin will no be logged in Simple History. Fixes https://wordpress.org/support/topic/compatibility-with-ultimate-member.
 
+- Fixed: If the plugin is deleted (but why?!) then the context table is also removed now.
+
 = 2.2.3 (September 2015) =
 
 - Fixed: On new installs the database tables was not created correctly and new events could not be logged.
