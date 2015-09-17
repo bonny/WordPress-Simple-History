@@ -182,11 +182,43 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 	}
 
+	// test logging and retrieving logs
 	function test_logging() {
 
-		// test logging and retrieving logs
-		SimpleLogger()->info("This is a message sent to the log");
+		$refl_log_levels = new ReflectionClass('SimpleLoggerLogLevels');
+		$log_levels = (array) $refl_log_levels->getConstants();
 
+		$refl_log_initiators = new ReflectionClass('SimpleLoggerLogInitiators');
+		$log_initiators = (array) $refl_log_initiators->getConstants();
+
+
+		foreach ( $log_levels as $level_const => $level_str ) {
+			
+			foreach ( $log_initiators as $initiator_const => $initiator_str ) {
+
+				$message = "This is a message with log level $level_str";
+				
+				SimpleLogger()->log( $level_str, $message, array(
+					"_initiator" => $initiator_str
+				) );
+
+				// Last logged message in db should be the above
+				$row = $wpdb->get_row( "SELECT logger, level, message, initiator FROM wp_simple_history ORDER BY id DESC LIMIT 1", ARRAY_A );
+
+				$expected_row = array(
+					'logger' => "SimpleLogger",
+					'level' => $level_str,
+					'message' => $message,
+					'initiator' => $initiator_str
+				);
+
+				#!d($row);
+				#!d($expected_row);
+				#!d( $row == $expected_row );
+
+			}
+
+		}
 
 	}
 
