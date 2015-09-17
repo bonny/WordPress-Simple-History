@@ -2172,7 +2172,8 @@ Because Simple History was just recently installed, this feed does not contain m
 				$logRowKeysToShow["rep"],
 				$logRowKeysToShow["repeated"],
 				$logRowKeysToShow["occasionsIDType"],
-				$logRowKeysToShow["context"]
+				$logRowKeysToShow["context"],
+				$logRowKeysToShow["type"]
 			);
 
 
