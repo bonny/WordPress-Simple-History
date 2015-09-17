@@ -111,12 +111,6 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_simple_history ) );
 		$this->assertEquals( $table_name_simple_history, $table_exists );
 
-		// Test table simple history contexts
-		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
-		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_contexts ) );
-		$this->assertEquals( $table_name_contexts, $table_exists );
-
-		// Test table structure for simple history table
 		$table_cols = $wpdb->get_col("DESCRIBE $table_name_simple_history");
 		$expected_table_cols = array(
 			"id",
@@ -138,7 +132,12 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 		$this->assertEquals($expected_table_cols, $table_cols, "cols in history table should be the same");
 
-		// Test table structure for contexts table
+
+		// Test table simple history contexts
+		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_contexts ) );
+		$this->assertEquals( $table_name_contexts, $table_exists );
+
 		$table_cols_context = $wpdb->get_col("DESCRIBE $table_name_contexts");
 		$expected_table_cols_context = array(
 			"id",
