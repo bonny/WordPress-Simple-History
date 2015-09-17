@@ -204,7 +204,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 				) );
 
 				// Last logged message in db should be the above
-				$row = $wpdb->get_row( "SELECT logger, level, message, initiator FROM wp_simple_history ORDER BY id DESC LIMIT 1", ARRAY_A );
+				$db_row = $wpdb->get_row( "SELECT logger, level, message, initiator FROM wp_simple_history ORDER BY id DESC LIMIT 1", ARRAY_A );
 
 				$expected_row = array(
 					'logger' => "SimpleLogger",
@@ -213,9 +213,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 					'initiator' => $initiator_str
 				);
 
-				#!d($row);
-				#!d($expected_row);
-				#!d( $row == $expected_row );
+				$this->assertEquals( $expected_row, $db_row );
 
 			}
 
