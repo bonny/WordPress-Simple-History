@@ -113,17 +113,10 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 			"id",
 			"date",
 			"action",
-			"object_type",
-			"object_subtype",
-			"user_id",
-			"object_id",
-			"object_name",
-			"action_description",
 			"logger",
 			"level",
 			"message",
 			"occasionsID",
-			"type",
 			"initiator"
 		);
 
