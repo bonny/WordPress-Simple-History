@@ -185,12 +185,13 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 	// test logging and retrieving logs
 	function test_logging() {
 
+		global $wpdb;
+
 		$refl_log_levels = new ReflectionClass('SimpleLoggerLogLevels');
 		$log_levels = (array) $refl_log_levels->getConstants();
 
 		$refl_log_initiators = new ReflectionClass('SimpleLoggerLogInitiators');
 		$log_initiators = (array) $refl_log_initiators->getConstants();
-
 
 		foreach ( $log_levels as $level_const => $level_str ) {
 			
