@@ -101,9 +101,6 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 	function test_install() {
 
-		// Install test: databases created correctly?
-		// how: get describe table and check that fields exists and so on
-
 		global $wpdb;
 
 		// Test table simple history
@@ -151,9 +148,44 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 	}
 
+	function test_loglevels_and_initiators() {
+
+		$refl = new ReflectionClass('SimpleLoggerLogLevels');
+		$log_levels = (array) $refl->getConstants();
+
+		$expected_log_levels = array(
+			'EMERGENCY' => "emergency",
+			'ALERT' => "alert",
+			'CRITICAL' => "critical",
+			'ERROR' => "error",
+			'WARNING' => "warning",
+			'NOTICE' => "notice",
+			'INFO' => "info",
+			'DEBUG' => "debugx"
+		);
+
+		$this->assertEquals( $expected_log_levels, $log_levels, "log levels" );
+
+		$refl = new ReflectionClass('SimpleLoggerLogInitiators');
+		$log_initiators = (array) $refl->getConstants();
+
+		$expected_log_initiators = array(
+			"WP_USER" => 'wp_user',
+			"WEB_USER" => 'web_user',
+			"WORDPRESS" => "wp",
+			"WP_CLI" => "wp_cli",
+			"OTHER" => 'otherx'
+		);
+
+		$this->assertEquals( $expected_log_initiators, $log_initiators, "log initiators" );
+
+
+	}
+
 	function test_logging() {
 
 		// test logging and retrieving logs
+		SimpleLogger()->info("This is a message sent to the log");
 
 
 	}
