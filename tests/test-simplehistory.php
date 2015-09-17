@@ -187,6 +187,8 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 		global $wpdb;
 
+		$table_name_simple_history = $wpdb->prefix . SimpleHistory::DBTABLE;
+
 		$refl_log_levels = new ReflectionClass('SimpleLoggerLogLevels');
 		$log_levels = (array) $refl_log_levels->getConstants();
 
@@ -204,7 +206,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 				) );
 
 				// Last logged message in db should be the above
-				$db_row = $wpdb->get_row( "SELECT logger, level, message, initiator FROM wp_simple_history ORDER BY id DESC LIMIT 1", ARRAY_A );
+				$db_row = $wpdb->get_row( "SELECT logger, level, message, initiator FROM $table_name_simple_history ORDER BY id DESC LIMIT 1", ARRAY_A );
 
 				$expected_row = array(
 					'logger' => "SimpleLogger",
@@ -213,7 +215,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 					'initiator' => $initiator_str
 				);
 
-				$this->assertEquals( $expected_row, $db_row );
+				$this->assertEquals( $expected_row, $db_row, "logged event in db" );
 
 			}
 
