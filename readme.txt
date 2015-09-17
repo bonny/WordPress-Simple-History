@@ -128,7 +128,10 @@ initiated by a specific user.
 
 - Fixed: If the plugin is deleted (but why?!) then the context table is also removed now.
 
+- Changed: During a first install the plugin now creates a few less columns than before (some columns where left from version 1 of the plugin).
+
 - Behind the scenes: More unit tests! Hopefully more nasty things will get caught before releasing new versions of the plugin.
+
 
 
 = 2.2.3 (September 2015) =
