@@ -139,7 +139,6 @@ class SimpleHistoryLogQuery {
 					h.level,
 					h.date,
 					h.message,
-					h.type,
 					h.initiator,
 					h.occasionsID,
 					count(t.repeated) AS subsequentOccasions,
