@@ -112,7 +112,6 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$expected_table_cols = array(
 			"id",
 			"date",
-			"action",
 			"logger",
 			"level",
 			"message",
