@@ -161,7 +161,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 			'WARNING' => "warning",
 			'NOTICE' => "notice",
 			'INFO' => "info",
-			'DEBUG' => "debugx"
+			'DEBUG' => "debug"
 		);
 
 		$this->assertEquals( $expected_log_levels, $log_levels, "log levels" );
@@ -174,7 +174,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 			"WEB_USER" => 'web_user',
 			"WORDPRESS" => "wp",
 			"WP_CLI" => "wp_cli",
-			"OTHER" => 'otherx'
+			"OTHER" => 'other'
 		);
 
 		$this->assertEquals( $expected_log_initiators, $log_initiators, "log initiators" );
