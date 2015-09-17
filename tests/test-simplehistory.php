@@ -221,20 +221,14 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 		}
 
+		// TODO: test logging with context
+
 	}
 
+	function test_api() {
 
+	}
 
-	/*
-	
-	# Todo
-	
-	- test logging a thing
-	- test logging of different log levels
-	- test context
-	- test api query
-
-	*/
 
 }
 
