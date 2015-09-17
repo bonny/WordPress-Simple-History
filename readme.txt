@@ -119,15 +119,22 @@ initiated by a specific user.
 
 ## Changelog
 
+
 = 2.2.x (September 2015) =
 
 - Added: Basic support for plugin [https://wordpress.org/plugins/ultimate-member/](Ultimate Member), so users logging in using the plugin will no be logged in Simple History. Fixes https://wordpress.org/support/topic/compatibility-with-ultimate-member.
 
+- Changed: Remove "type" key from context detail table, because it's an old an unused column.
+
 - Fixed: If the plugin is deleted (but why?!) then the context table is also removed now.
+
+- Behind the scenes: More unit tests! Hopefully more nasty things will get caught before releasing new versions of the plugin.
+
 
 = 2.2.3 (September 2015) =
 
 - Fixed: On new installs the database tables was not created correctly and new events could not be logged.
+
 
 = 2.2.2 (September 2015) =
 
