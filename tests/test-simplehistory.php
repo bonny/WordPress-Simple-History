@@ -107,14 +107,59 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		global $wpdb;
 
 		// Test table simple history
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
-		$this->assertEquals( $table_name, $table_exists );
+		$table_name_simple_history = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_simple_history ) );
+		$this->assertEquals( $table_name_simple_history, $table_exists );
 
 		// Test table simple history contexts
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
-		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
-		$this->assertEquals( $table_name, $table_exists );
+		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_contexts ) );
+		$this->assertEquals( $table_name_contexts, $table_exists );
+
+		// Test table structure for simple history table
+		$table_cols = $wpdb->get_col("DESCRIBE $table_name_simple_history");
+		$expected_table_cols = array(
+			"id",
+			"date",
+			"action",
+			"object_type",
+			"object_subtype",
+			"user_id",
+			"object_id",
+			"object_name",
+			"action_description",
+			"logger",
+			"level",
+			"message",
+			"occasionsID",
+			"type",
+			"initiator"
+		);
+
+		$this->assertEquals($expected_table_cols, $table_cols, 0.0, true);
+
+		// Test table structure for contexts table
+		$table_cols = $wpdb->get_col("DESCRIBE $table_name_contexts");
+		$expected_table_cols = array(
+			"id",
+			"date",
+			"action",
+			"object_type",
+			"object_subtype",
+			"user_id",
+			"object_id",
+			"object_name",
+			"action_description",
+			"logger",
+			"level",
+			"message",
+			"occasionsID",
+			"type",
+			"initiator"
+		);
+
+		$this->assertEquals($expected_table_cols, $table_cols, 0.0, true);
+
 
 	}
 
