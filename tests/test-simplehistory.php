@@ -139,8 +139,8 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$this->assertEquals($expected_table_cols, $table_cols, "cols in history table should be the same");
 
 		// Test table structure for contexts table
-		$table_cols = $wpdb->get_col("DESCRIBE $table_name_contexts");
-		$expected_table_cols = array(
+		$table_cols_context = $wpdb->get_col("DESCRIBE $table_name_contexts");
+		$expected_table_cols_context = array(
 			"id",
 			"date",
 			"action",
@@ -158,7 +158,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 			"initiator"
 		);
 
-		$this->assertEquals($expected_table_cols, $table_cols, "cols in history table should be the same");
+		$this->assertEquals($expected_table_cols_context, $table_cols_context, "cols in history table should be the same");
 
 
 	}
