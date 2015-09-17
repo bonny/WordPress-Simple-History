@@ -1203,7 +1203,7 @@ class SimpleHistory {
 
 			// Update old table
 			$sql = "
-				CREATE TABLE {$table_name} (
+				CREATE TABLE IF NOT EXISTS {$table_name} (
 				  id bigint(20) NOT NULL AUTO_INCREMENT,
 				  date datetime NOT NULL,
 				  logger varchar(30) DEFAULT NULL,
