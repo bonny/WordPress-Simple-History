@@ -130,7 +130,7 @@ class SimpleLogger {
 		 * 
 		 * @since 2.2.x
 		 */
-		$context = apply_filters( "simple_history/logger/interpolatecontext", $context, $message, $row );
+		$context = apply_filters( "simple_history/logger/interpolate/context", $context, $message, $row );
 
 		// Build a replacement array with braces around the context keys
 		$replace = array();
