@@ -126,9 +126,13 @@ initiated by a specific user.
 
 - Changed: Remove "type" key from context detail table, because it's an old an unused column.
 
-- Fixed: If the plugin is deleted (but why?!) then the context table is also removed now.
-
 - Changed: During a first install the plugin now creates a few less columns than before (some columns where left from version 1 of the plugin).
+
+- Changed: Don't show the "translate this plugin" metabox for any english talking locale.
+
+- Changed: Don't show the GitHub metabox.
+
+- Fixed: If the plugin is deleted (but why?!) then the context table is also removed now.
 
 - Behind the scenes: More unit tests! Hopefully more nasty things will get caught before releasing new versions of the plugin.
 

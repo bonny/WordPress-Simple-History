@@ -110,7 +110,7 @@ class SimpleHistorySidebarDropin {
 		$arrBoxes = array(
 			"boxReview" => $boxReview, 
 			"boxDonate" => $boxDonate,
-			"boxGithub" => $boxGithub,
+			// "boxGithub" => $boxGithub,
 		);
 
 		/**
@@ -131,7 +131,9 @@ class SimpleHistorySidebarDropin {
 		/** WordPress Translation Install API. This file exists only since 4.0. */
 		$translation_install_file = ABSPATH . 'wp-admin/includes/translation-install.php';
 		
-		if ( "en_US" != $current_locale && file_exists( $translation_install_file ) ) {
+		// Show only the translation box if current language is not an english language
+
+		if ( in_array( $current_locale, array("en_US", "en_GB", "en_CA", "en_NZ", "en_AU") ) != $current_locale && file_exists( $translation_install_file ) ) {
 
 			require_once $translation_install_file;
 			
