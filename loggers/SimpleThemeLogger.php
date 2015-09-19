@@ -625,7 +625,7 @@ return;
 				$message = $this->interpolate( $message, array(
 					"widget_id_base" => $widget->name,
 					"sidebar_id" => $sidebar["name"],
-				) );
+				), $row );
 
 				$output .= $message;
 

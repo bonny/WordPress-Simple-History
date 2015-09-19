@@ -131,7 +131,7 @@ class SimpleMediaLogger extends SimpleLogger
 			$context["attachment_filename"] = esc_html( $context["attachment_filename"] );
 			$context["edit_link"] = get_edit_post_link( $attachment_id );
 
-			$message = $this->interpolate($message, $context);
+			$message = $this->interpolate($message, $context, $row);
 
 		} else {
 
@@ -256,7 +256,7 @@ class SimpleMediaLogger extends SimpleLogger
 			//$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
 			$message .= "</p>";
 
-			$output .= $this->interpolate($message, $context);
+			$output .= $this->interpolate($message, $context, $row);
 
 		}
 

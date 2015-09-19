@@ -560,7 +560,7 @@ class SimpleCommentsLogger extends SimpleLogger
 		}
 
 
-		return $this->interpolate($message, $context);
+		return $this->interpolate($message, $context, $row);
 
 	}
 

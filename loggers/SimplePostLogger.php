@@ -703,7 +703,7 @@ class SimplePostLogger extends SimpleLogger
 		$context["post_title"] = isset( $context["post_title"] ) ? esc_html( $context["post_title"] ) : "";
 		$context["edit_link"] = get_edit_post_link( $post_id );
 
-		return $this->interpolate($message, $context);
+		return $this->interpolate($message, $context, $row);
 
 	}
 

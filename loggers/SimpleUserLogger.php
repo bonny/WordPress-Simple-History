@@ -234,7 +234,7 @@ class SimpleUserLogger extends SimpleLogger {
 
 					}
 
-					$output = $this->interpolate($msg, $context);
+					$output = $this->interpolate($msg, $context, $row);
 
 				} else {
 
@@ -251,7 +251,7 @@ class SimpleUserLogger extends SimpleLogger {
 					// Edited user still exist, so link to their profile
 					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
 					$msg = __('Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', "simple-history");
-					$output = $this->interpolate($msg, $context);
+					$output = $this->interpolate($msg, $context, $row);
 
 				} else {
 
