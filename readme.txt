@@ -119,7 +119,6 @@ initiated by a specific user.
 
 ## Changelog
 
-
 = 2.2.4 (September 2015) =
 
 - Added: Basic support for plugin [https://wordpress.org/plugins/ultimate-member/](Ultimate Member), so users logging in using the plugin will now be logged in Simple History. Fixes https://wordpress.org/support/topic/compatibility-with-ultimate-member.
