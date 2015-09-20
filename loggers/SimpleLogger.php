@@ -128,7 +128,7 @@ class SimpleLogger {
 		/**
 		 * Filter the context used to create the message from the message template
 		 * 
-		 * @since 2.2.x
+		 * @since 2.2.4
 		 */
 		$context = apply_filters( "simple_history/logger/interpolate/context", $context, $message, $row );
 
