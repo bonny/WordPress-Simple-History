@@ -122,31 +122,21 @@ initiated by a specific user.
 = 2.2.4 (September 2015) =
 
 - Added: Basic support for plugin [https://wordpress.org/plugins/ultimate-member/](Ultimate Member), so users logging in using the plugin will now be logged in Simple History. Fixes https://wordpress.org/support/topic/compatibility-with-ultimate-member.
-
 - Added: Filter `simple_history/logger/interpolate/context` that can be used to modify the variables sent to the message template.
-
 - Changed: Remove "type" key from context detail table, because it's an old an unused column.
-
 - Changed: During a first install the plugin now creates a few less columns than before (some columns where left from version 1 of the plugin).
-
 - Changed: Don't show the "translate this plugin" metabox for any english talking locale.
-
 - Changed: Don't show the GitHub metabox.
-
 - Fixed: If the plugin is deleted (but why?!) then the context table is also removed now.
-
 - Behind the scenes: More unit tests! Hopefully more nasty things will get caught before releasing new versions of the plugin.
-
 
 = 2.2.3 (September 2015) =
 
 - Fixed: On new installs the database tables was not created correctly and new events could not be logged.
 
-
 = 2.2.2 (September 2015) =
 
 - Fixed: Logging stopped working for languages other then English. Sorry about that!
-
 - Fixed: When running unit tests for a site where Simple History is a must use plugin it sometimes tried to create tables and add columns more then once. Now uses `if not exists` and similar to only try to create the tables if they not already exists.
 
 = 2.2.1 (September 2015) =
@@ -156,9 +146,7 @@ initiated by a specific user.
 = 2.2 (September 2015) =
 
 - Added: Support for plugin [User Switching](https://wordpress.org/plugins/user-switching/). The event log will show when a user switched to another user, when they switched back, or when they switched off.
-
 - Added: Support for plugin [Enable Media Replace](https://wordpress.org/plugins/enable-media-replace/). Whenever a user replaces an attachment with a new, you will now know about it and also see the name of both the old and the new attachment. Awesome!
-
 - Fixed: Mouse over (:hover state) on buttons no longer use blue background. Now works much better with admin themes other than the standard one. Fixes https://wordpress.org/support/topic/pagination-button-design.
 
 = 2.1.7 (September 2015) =
