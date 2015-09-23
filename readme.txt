@@ -121,7 +121,7 @@ initiated by a specific user.
 
 = 2.2.4 (September 2015) =
 
-- Added: Basic support for plugin [https://wordpress.org/plugins/ultimate-member/](Ultimate Member), so users logging in using the plugin will now be logged in Simple History. Fixes https://wordpress.org/support/topic/compatibility-with-ultimate-member.
+- Added: Basic support for plugin [Ultimate Member](https://wordpress.org/plugins/ultimate-member/), so users logging in using the plugin will now be logged in Simple History. Fixes https://wordpress.org/support/topic/compatibility-with-ultimate-member.
 - Added: Filter `simple_history/logger/interpolate/context` that can be used to modify the variables sent to the message template.
 - Changed: Remove "type" key from context detail table, because it's an old an unused column.
 - Changed: During a first install the plugin now creates a few less columns than before (some columns where left from version 1 of the plugin).
