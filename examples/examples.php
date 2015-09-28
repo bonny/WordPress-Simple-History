@@ -18,6 +18,26 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
 
 
 /**
+ * Example that modifies the parameters sent to the message template
+ * This example will change the post type from "post" or "page" or similar to "my own page type"
+ */
+add_filter( "simple_history/logger/interpolate/context", function($context, $message, $row) {
+
+        if ( empty( $row ) ) {
+                return $context;
+        }
+
+        if ( $row->logger == "SimplePostLogger" && $row->context_message_key == "post_updated" ) {
+                $context["post_type"] = "my own page type";
+        }
+
+        return $context;
+
+}, 10, 3);
+
+
+
+/**
  * Change capability required to manage the options page of simple history.
  * Default capability is "manage_options"
  */
