@@ -21,7 +21,7 @@ class SimpleHistoryRSSDropin {
 			require_once( ABSPATH . '/wp-admin/includes/user.php' );
 		}
 		
-		//Check the status og the RSS feed
+		//Check the status of the RSS feed
 		$this->is_rss_enabled();
 
 		// Generate a rss secret, if it does not exist
