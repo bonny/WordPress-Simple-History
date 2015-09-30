@@ -41,6 +41,9 @@ class SimpleHistoryRSSDropin {
 	 * + also regenerates the secret if requested
 	 */
 	public function add_settings() {
+		
+		//we register a setting to keep track of the RSS feed status (enabled/disabled)
+		register_setting( 'simple_history_settings_group', 'simple_history_enable_rss_feed', array($this, 'update_rss_status') );
 
 		/**
 		 * Start new section for RSS feed
@@ -52,6 +55,15 @@ class SimpleHistoryRSSDropin {
 			_x("RSS feed", "rss settings headline", "simple-history"), // No title __("General", "simple-history"),
 			array($this, "settings_section_output"),
 			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
+		);
+		
+		// Enable/Disabled RSS feed
+		add_settings_field(
+			"simple_history_enable_rss_feed",
+			__("Enable", "simple-history"),
+			array($this, "settings_field_rss_enable"),
+			SimpleHistory::SETTINGS_MENU_SLUG,
+			$settings_section_rss_id
 		);
 		
 		//if RSS is activated we display other fields
@@ -122,6 +134,33 @@ class SimpleHistoryRSSDropin {
 		
 		return false;
 
+	}
+	
+	/**
+	 * Output for settings field that show current RSS address
+	 */
+	function settings_field_rss_enable() {
+		
+		?>
+		
+		<input value="1" type="checkbox" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
+		<label for="simple_history_enable_rss_feed"><?php _e( "enable RSS feed", 'simple-history' )?></label>
+		
+		<?php
+
+	}
+	
+	/**
+	 * Sanitize RSS enabled/disabled status on update settings
+	 */
+	function update_rss_status($field) {
+
+		if( $field === "1" ){
+			return "1";
+		}
+		
+		return "0";
+		
 	}
 
 
