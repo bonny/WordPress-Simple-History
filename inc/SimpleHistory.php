@@ -2508,17 +2508,27 @@ Because Simple History was just recently installed, this feed does not contain m
 		if ( "sql" == $format ) {
 
 			$str_return = "(";
+			
+			if ( sizeof( $arr_loggers_user_can_view ) ) {
 
-			foreach ( $arr_loggers_user_can_view as $one_logger ) {
+				foreach ( $arr_loggers_user_can_view as $one_logger ) {
 
-				$str_return .= sprintf(
-					'"%1$s", ',
-					$one_logger["instance"]->slug
-				);
+					$str_return .= sprintf(
+						'"%1$s", ',
+						$one_logger["instance"]->slug
+					);
 
+				}
+
+				$str_return = rtrim( $str_return, " ," );
+			
+			} else {
+			
+				// user was not allowed to read any loggers, return in (NULL) to return nothing
+				$str_return .= 'NULL';
+			
 			}
-
-			$str_return = rtrim( $str_return, " ," );
+			
 			$str_return .= ")";
 
 			return $str_return;
