@@ -192,7 +192,7 @@ class SimpleUserLogger extends SimpleLogger {
 			"deleted_user_login" => $wp_user_to_delete->user_login,
 			"deleted_user_role" => $role,
 			"reassign_user_id" => $reassign,
-			"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
+			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
 		);
 
 		// Let's log this as a little bit more significant that just "message"
@@ -302,7 +302,7 @@ class SimpleUserLogger extends SimpleLogger {
 			$context["_user_id"] = $user_obj->ID;
 			$context["_user_login"] = $user_obj->user_login;
 			$context["_user_email"] = $user_obj->user_email;
-			$context["server_http_user_agent"] = $_SERVER["HTTP_USER_AGENT"];
+			$context["server_http_user_agent"] = isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null;
 
 			$this->infoMessage("user_logged_in", $context);
 
@@ -339,7 +339,7 @@ class SimpleUserLogger extends SimpleLogger {
 			"edited_user_id" => $wp_user_edited->ID,
 			"edited_user_email" => $wp_user_edited->user_email,
 			"edited_user_login" => $wp_user_edited->user_login,
-			"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
+			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
 		);
 
 		$this->infoMessage("user_updated_profile", $context);
@@ -368,7 +368,7 @@ class SimpleUserLogger extends SimpleLogger {
 			"created_user_email" => $wp_user_added->user_email,
 			"created_user_login" => $wp_user_added->user_login,
 			"created_user_role" => $role,
-			"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
+			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
 		);
 
 		$this->infoMessage("user_created", $context);
@@ -395,7 +395,7 @@ class SimpleUserLogger extends SimpleLogger {
 				"login_user_id" => $user->ID,
 				"login_user_email" => $user->user_email,
 				"login_user_login" => $user->user_login,
-				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
+				"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
 				//"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
 				"_occasionsID" => __CLASS__ . '/failed_user_login',
 			);
@@ -454,7 +454,7 @@ class SimpleUserLogger extends SimpleLogger {
 			$context = array(
 				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
 				"failed_login_username" => $username,
-				"server_http_user_agent" => $_SERVER["HTTP_USER_AGENT"],
+				"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
 				// count all failed logins to unknown users as the same occasions,
 				// to prevent log being flooded with login/hack attempts
 				// "_occasionsID" => __CLASS__  . '/' . __FUNCTION__
