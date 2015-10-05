@@ -2,6 +2,12 @@
 
 class SimpleHistoryTest extends WP_UnitTestCase {
 
+	// https://phpunit.de/manual/current/en/fixtures.html
+    public static function setUpBeforeClass() {
+
+    }
+
+
 	function test_sample() {
 
 		// replace this with some actual testing code
@@ -26,7 +32,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$this->assertTrue( class_exists("SimpleHistory") );
 		$this->assertTrue( class_exists("SimpleHistoryLogQuery") );
 
-		$sh = SimpleHistory::get_instance();		
+		$sh = SimpleHistory::get_instance();
 		$this->assertTrue( is_object($sh) );
 		$this->assertTrue( is_a($sh, "SimpleHistory") );
 
@@ -36,7 +42,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 		$sh = SimpleHistory::get_instance();
 		$loggers = $sh->getInstantiatedLoggers();
-		
+
 		$arr_default_loggers = array(
 			"SimpleCommentsLogger",
 			"SimpleCoreUpdatesLogger",
@@ -51,7 +57,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 			"SimpleThemeLogger",
 			"SimpleUserLogger",
 		);
-	
+
 		foreach ($arr_default_loggers as $slug) {
 
 			$this->assertArrayHasKey( $slug, $loggers );
@@ -64,7 +70,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 		$sh = SimpleHistory::get_instance();
 		$dropins = $sh->getInstantiatedDropins();
-		
+
 		$arr_default_dropins = array(
 			"SimpleHistoryDonateDropin",
 			"SimpleHistoryExportDropin",
@@ -76,7 +82,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 			"SimpleHistorySettingsStatsDropin",
 			"SimpleHistorySidebarDropin",
 		);
-	
+
 		foreach ($arr_default_dropins as $slug) {
 
 			$this->assertArrayHasKey( $slug, $dropins );
@@ -84,7 +90,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		}
 
 	}
-	
+
 	function test_default_settings_tabs() {
 
 		$sh = SimpleHistory::get_instance();
@@ -188,11 +194,11 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$log_initiators = (array) $refl_log_initiators->getConstants();
 
 		foreach ( $log_levels as $level_const => $level_str ) {
-			
+
 			foreach ( $log_initiators as $initiator_const => $initiator_str ) {
 
 				$message = "This is a message with log level $level_str";
-				
+
 				SimpleLogger()->log( $level_str, $message, array(
 					"_initiator" => $initiator_str
 				) );
@@ -217,7 +223,46 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 	}
 
-	function test_api() {
+	function test_log_query() {
+
+		// Add admin user
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$args = array(
+			"posts_per_page" => 1
+		);
+
+		$logQuery = new SimpleHistoryLogQuery();
+		$queryResults = $logQuery->query( $args );
+
+		// The latest row should be the user we create above
+		$this->assertArrayHasKey( "total_row_count", $queryResults );
+		$this->assertArrayHasKey( "pages_count", $queryResults );
+		$this->assertArrayHasKey( "page_current", $queryResults );
+		$this->assertArrayHasKey( "page_rows_from", $queryResults );
+		$this->assertArrayHasKey( "page_rows_to", $queryResults );
+		$this->assertArrayHasKey( "max_id", $queryResults );
+		$this->assertArrayHasKey( "min_id", $queryResults );
+		$this->assertArrayHasKey( "log_rows_count", $queryResults );
+		$this->assertArrayHasKey( "log_rows", $queryResults );
+
+		$this->assertCount( 1, $queryResults["log_rows"] );
+
+		$this->assertObjectHasAttribute( "id", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "logger", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "level", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "date", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "message", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "initiator", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "occasionsID", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "subsequentOccasions", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "rep", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "repeated", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "occasionsIDType", $queryResults["log_rows"][0] );
+		$this->assertObjectHasAttribute( "context", $queryResults["log_rows"][0] );
+
+		
 
 	}
 
