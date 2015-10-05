@@ -675,8 +675,11 @@ class SimplePostLogger extends SimpleLogger
 
 		}
 
+		$context["edit_link"] = get_edit_post_link( $post_id );
+
 		// If post is not available any longer then we can't link to it, so keep plain message then
-		if ( $post_is_available ) {
+		// Also keep plain format if user is not allowed to edit post (edit link is empty)
+		if ( $post_is_available && $context["edit_link"] ) {
 
 			if ( "post_updated" == $message_key ) {
 
@@ -701,7 +704,6 @@ class SimplePostLogger extends SimpleLogger
 
 		$context["post_type"] = isset( $context["post_type"] ) ? esc_html( $context["post_type"] ) : "";
 		$context["post_title"] = isset( $context["post_title"] ) ? esc_html( $context["post_title"] ) : "";
-		$context["edit_link"] = get_edit_post_link( $post_id );
 
 		return $this->interpolate($message, $context, $row);
 

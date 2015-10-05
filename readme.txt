@@ -119,6 +119,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.2.x (Oktober 2015) =
+
+- Fixed: Edited posts/pages/custom post types does not get a linked title unless the user viewing the log has edit rights.
+
 = 2.2.4 (September 2015) =
 
 - Added: Basic support for plugin [Ultimate Member](https://wordpress.org/plugins/ultimate-member/), so users logging in using the plugin will now be logged in Simple History. Fixes https://wordpress.org/support/topic/compatibility-with-ultimate-member.
