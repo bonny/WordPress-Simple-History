@@ -32,6 +32,23 @@ info about added, updated or removed users
 see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
 * **Failed user logins**<br>
 see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
+* **Menu edits**
+* **Option screens**<br>
+view details about changes made in the differnt settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
+
+#### Support for third party plugins
+
+By default Simple History comes with support for these third party plugins:
+
+**User Switching**  
+The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button. Simple History will log each user switch being made.
+
+**Enable Media Replace**  
+The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place. Simple history will log details about the file being replaced and details about the new file.
+
+Support for more plugins are coming.
+
+#### RSS feed available
 
 There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
 
