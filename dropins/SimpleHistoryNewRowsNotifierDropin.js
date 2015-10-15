@@ -32,12 +32,20 @@
 				$elm.html( response.data.strings.newRowsFound );
 				$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
 
+                                $(document).trigger("SimpleHistory:NewRowsNotifier:newRowsFound", response);
+
+                        } else {
+
+                                $(document).trigger("SimpleHistory:NewRowsNotifier:noNewRowsFound", response);
+
 			}
 
 		}).fail(function(jqXHR, textStatus, errorThrown) {
 
 			$elm.html( simple_history_NewRowsNotifierDropin.errorCheck );
 			$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
+
+                        $(document).trigger("SimpleHistory:NewRowsNotifier:newRowsError");
 
 		});
 
@@ -100,6 +108,55 @@
 		}
 
 		$elm.removeClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
+                $(document).trigger("SimpleHistory:NewRowsNotifier:afterReload");
+
 	});
+
+}(jQuery));
+
+// Change page title
+(function($) {
+
+        var $document = $(document);
+
+        function onNewRowsFound(e, response) {
+                console.log("onNewRowsFound", response);
+                setTitle(response.data.num_new_rows);
+        }
+
+        function onNoNewRowsFound(e, response) {
+                console.log("onNewRowsFound");
+                setTitle(0);
+        }
+
+        function onNewRowsError(e) {
+                console.log("onNewRowsError");
+                setTitle("!");
+        }
+
+        function onNewRowsReload(e) {
+                console.log("onNewRowsReload");
+                setTitle("");
+        }
+
+        function setTitle(newNum) {
+
+                var title = document.title;
+
+                // Remove any existing number first or !, like (123) Regular title => Regular title
+                title = title.replace(/^\([\d!]+\) /, "");
+
+                if ( newNum ) {
+                        title = "("+newNum+") " + title;
+                }
+
+                document.title = title;
+
+        }
+
+        $document.on("SimpleHistory:NewRowsNotifier:newRowsFound", onNewRowsFound);
+        $document.on("SimpleHistory:NewRowsNotifier:noNewRowsFound", onNoNewRowsFound);
+        $document.on("SimpleHistory:NewRowsNotifier:newRowsError", onNewRowsError);
+        $document.on("SimpleHistory:NewRowsNotifier:afterReload", onNewRowsReload);
 
 }(jQuery));
