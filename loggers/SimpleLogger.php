@@ -44,7 +44,7 @@ class SimpleLogger {
 	 * Constructor. Remember to call this as parent constructor if making a childlogger
 	 * @param $simpleHistory history class  objectinstance
 	 */
-	public function __construct($simpleHistory) {
+        public function __construct( $simpleHistory = null ) {
 
 		global $wpdb;
 
