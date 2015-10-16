@@ -136,8 +136,9 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.2.x (Oktober 2015) =
+= 2.2.x (October 2015) =
 
+- New translations?
 - Added: Browser tab with Simple History open will now show the number of new and unread events available. Nice feature to have if you keep a tab with the Simple History log open but in the background: now you can see directly in the title if new events are available. Such small change. Very much nice.
 - Fixed: Edited posts/pages/custom post types does not get a linked title unless the user viewing the log has edit rights.
 - Fixed: Another try to fix the notice error here: https://wordpress.org/support/topic/simplehistoryphp-creates-debug-entries.
