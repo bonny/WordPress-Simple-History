@@ -67,12 +67,16 @@ var simple_history = (function($) {
 				data: url_data,
 				// called on 404 and similar
 				error: function(collection, response, options) {
-					collection.trigger("reloadError");
-					$(document).trigger("SimpleHistory:logRowsCollectionReloadError");
+
+					collection.trigger("reloadError", [ response, options ]);
+					$(document).trigger("SimpleHistory:logRowsCollectionReloadError", [ response, options ]);
+
 				},
 				success: function(collection, response, options) {
-					collection.trigger("reloadDone");
-					$(document).trigger("SimpleHistory:logRowsCollectionReloadDone");
+
+					collection.trigger("reloadDone", [ response, options ]);
+					$(document).trigger("SimpleHistory:logRowsCollectionReloadDone", [ response, options ]);
+
 				}
 			});
 
@@ -316,11 +320,48 @@ var simple_history = (function($) {
 			this.collection.on("reset", this.render, this);
 			this.collection.on("reload", this.onReload, this);
 			this.collection.on("reloadDone", this.onReloadDone, this);
+			this.collection.on("reloadError", this.onReloadError, this);
 
 			// Trigger event for plugins
 			this.collection.on("reset", function() {
 				$(document).trigger("SimpleHistory:logLoaded");
 			}, this);
+
+		},
+
+		onReloadError: function(args) {
+
+			// If we get an error while loading the log it can be because the AJAX response
+			// is returning parts of HTML because of plugins giving errors
+			// not our fault, but instead of just ajax spinning forever we can 
+			// tell the user about this perhaps and they can do something about it
+			// or else they will uninstall the plugin (worst) or post in support forum (better)
+			// or we can help them solve it here (best)
+			var response = args[0];
+			
+			if ( response && response.responseText ) {
+				
+				// console.log( response.responseText );
+				$("html").removeClass("SimpleHistory-isLoadingPage");
+				$(".SimpleHistory__waitingForFirstLoad").addClass("SimpleHistory__waitingForFirstLoad--isLoaded");
+
+				var $mainViewElm = this.collection.mainView.$el;
+				$mainViewElm.addClass("SimpleHistory--ajaxHasErrors");
+
+				var noHitsClass = "SimpleHistoryLogitems__ajaxError";
+
+				// Remove maybe previous div with message
+				$mainViewElm.find("." + noHitsClass).remove();
+
+				// Add div with message
+				var $noHitsElm = $("<div />")
+					.html( "<div class='SimpleHistoryLogitems__ajaxError__infoMessage'>" + simple_history_script_vars.ajaxLoadError + "</div>" + response.responseText )
+					.addClass(noHitsClass)
+					.appendTo( $mainViewElm.find(".SimpleHistoryLogitems__above") )
+					;
+
+
+			}
 
 		},
 
@@ -346,7 +387,7 @@ var simple_history = (function($) {
 
 				var noHitsClass = "SimpleHistoryLogitems__noHits";
 
-				// Remove maybe previos div with message
+				// Remove maybe previous div with message
 				$mainViewElm.find("." + noHitsClass).remove();
 
 				// Add div with message

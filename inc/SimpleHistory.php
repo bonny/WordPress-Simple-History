@@ -1058,6 +1058,7 @@ class SimpleHistory {
 					'currentPage' => __( "Current page", 'simple-history' ),
 				),
 				"loadLogAPIError" => __( "Oups, the log could not be loaded right now.", 'simple-history' ),
+				"ajaxLoadError" => __( "Hm, the log could not be loaded right now. Perhaps there is another plugin that is showing some error messages. Anyway, below is the output I got from the server.", 'simple-history' ),
 				"logNoHits" => __( "Your search did not match any history events.", "simple-history" ),
 			) );
 

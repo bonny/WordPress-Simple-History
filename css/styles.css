@@ -889,7 +889,7 @@ Modal window with detailss
 	line-height: 18px;
 }
 
-/* if not hits when using filter function */
+/* if not hits when using filter function + if ajax error */
 .SimpleHistory--hasNoHits {
 }
 
@@ -905,11 +905,24 @@ Modal window with detailss
 	display: none;
 }
 
-.SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
+.SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits,
+.SimpleHistory--ajaxHasErrors .SimpleHistoryLogitems__ajaxError {
 	display: block;
+	padding: 20px;
+}
+
+.SimpleHistory--ajaxHasErrors .SimpleHistoryLogitems__ajaxError {
+	max-height: 20em;
+	overflow: auto;
 }
 
 .postbox .SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
 	margin-left: 13px;
 	margin-right: 13px;
+}
+
+.SimpleHistoryLogitems__ajaxError__infoMessage {
+	background: rgb(255, 255, 183);
+	padding: 10px;
+	font-weight: bold;
 }
