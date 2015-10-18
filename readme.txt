@@ -136,6 +136,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.3.x (October 2015) =
+
+- Updated: German translation updated.
+
 = 2.3 (October 2015) =
 
 - Added: The title of the browser tab with Simple History open will now show the number of new and unread events available. Nice feature to have if you keep a tab with the Simple History log open but in the background: now you can see directly in the title if new events are available. Such small change. Very much nice.
