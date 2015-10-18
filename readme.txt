@@ -138,10 +138,11 @@ initiated by a specific user.
 
 = 2.2.x (October 2015) =
 
-- New translations?
-- Added: Browser tab with Simple History open will now show the number of new and unread events available. Nice feature to have if you keep a tab with the Simple History log open but in the background: now you can see directly in the title if new events are available. Such small change. Very much nice.
+- Added: The title of the browser tab with Simple History open will now show the number of new and unread events available. Nice feature to have if you keep a tab with the Simple History log open but in the background: now you can see directly in the title if new events are available. Such small change. Very much nice.
+- Added: If the AJAX call to fetch the log failed, a message now appears telling the user that something went wrong. Also, the output from the server is displayed so they can get a hint of what's going wrong. Hopefully this will reduce the number of support requests that is caused by other plugins.
 - Fixed: Edited posts/pages/custom post types does not get a linked title unless the user viewing the log has edit rights.
 - Fixed: Another try to fix the notice error here: https://wordpress.org/support/topic/simplehistoryphp-creates-debug-entries.
+- Updated: Danish translation updated.
 
 = 2.2.4 (September 2015) =
 
