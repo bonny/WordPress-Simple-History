@@ -143,8 +143,8 @@ class SimpleHistoryRSSDropin {
 		
 		?>
 		
-		<input value="1" type="checkbox" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
-		<label for="simple_history_enable_rss_feed"><?php _e( "enable RSS feed", 'simple-history' )?></label>
+		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
+		<label for="simple_history_enable_rss_feed"><?php _e( "Enable RSS feed", 'simple-history' )?></label>
 		
 		<?php
 
