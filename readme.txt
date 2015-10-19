@@ -138,6 +138,7 @@ initiated by a specific user.
 
 = 2.3.x (October 2015) =
 
+- Changed: The RSS-feed with updates is now disabled by default for new installs. It is password protected, but some users felt that is should be optional to activate it. And now it is! Thanks to https://github.com/guillaumemolter for adding this feature.
 - Updated: German translation updated.
 
 = 2.3 (October 2015) =
