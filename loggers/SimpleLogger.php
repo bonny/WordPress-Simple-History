@@ -861,6 +861,16 @@ class SimpleLogger {
 
 		global $wpdb;
 
+		/*
+		 * Filter that makes it possible to shortcut this log
+		 *
+		 * @since x.x
+		 */
+		$do_log = apply_filters( "simple_history/log/do_log", $level, $message, $context );
+		if ( $do_log === false ) {
+			return $this;
+		}
+
 		// Check if $message is a translated message, and if so then fetch original
 		$sh_latest_translations = $this->simpleHistory->gettextLatestTranslations;
 
