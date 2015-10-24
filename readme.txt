@@ -138,6 +138,7 @@ initiated by a specific user.
 
 = 2.3.x (October 2015) =
 
+- Fixed: Hopefully fix the wrong relative time, as reported here: https://wordpress.org/support/topic/wrong-reporting-time.
 - Changed: The RSS-feed with updates is now disabled by default for new installs. It is password protected, but some users felt that is should be optional to activate it. And now it is! Thanks to https://github.com/guillaumemolter for adding this feature.
 - Added: Filter `simple_history/log/do_log` that can be used to shortcut the log()-method.
 - Updated: German translation updated.
