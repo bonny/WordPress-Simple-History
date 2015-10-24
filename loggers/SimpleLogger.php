@@ -347,8 +347,13 @@ class SimpleLogger {
 		// http://developers.whatwg.org/text-level-semantics.html#the-time-element
 		$date_html = "";
 		$str_when = "";
-		$date_datetime = new DateTime( $row->date );
 
+		// $row->date is in GMT
+		$date_datetime = new DateTime( $row->date );
+		
+		// Current datetime in GMT
+		$time_current = strtotime( current_time("mysql", 1) );
+	
 		/**
 		 * Filter how many seconds as most that can pass since an
 		 * event occured to show "nn minutes ago" (human diff time-format) instead of exact date
@@ -371,12 +376,12 @@ class SimpleLogger {
 		$time_ago_just_now_max_time = 30;
 		$time_ago_just_now_max_time = apply_filters("simple_history/header_just_now_max_time", $time_ago_just_now_max_time);
 
-		if ( time() - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time ) {
+		if ( $time_current - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time ) {
 
 			// show "just now" if event is very recent
 			$str_when = __("Just now", "simple-history");
 
-		} else if ( time() - $date_datetime->getTimestamp() > $time_ago_max_time ) {
+		} else if ( $time_current - $date_datetime->getTimestamp() > $time_ago_max_time ) {
 
 			/* translators: Date format for log row header, see http://php.net/date */
 			$datef = __('M j, Y \a\t G:i', "simple-history");
@@ -385,7 +390,7 @@ class SimpleLogger {
 		} else {
 
 			// Show "nn minutes ago" when event is xx seconds ago or earlier
-			$date_human_time_diff = human_time_diff($date_datetime->getTimestamp(), time());
+			$date_human_time_diff = human_time_diff($date_datetime->getTimestamp(), $time_current );
 			/* translators: 1: last modified date and time in human time diff-format */
 			$str_when = sprintf(__('%1$s ago', 'simple-history'), $date_human_time_diff);
 
