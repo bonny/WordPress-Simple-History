@@ -827,6 +827,7 @@ class SimpleHistory {
 		$dropinsDir = SIMPLE_HISTORY_PATH . "dropins/";
 
 		$dropinsFiles = array(
+			$dropinsDir . "SimpleHistoryPluginPatchesDropin.php",
 			$dropinsDir . "SimpleHistoryDonateDropin.php",
 			$dropinsDir . "SimpleHistoryExportDropin.php",
 			$dropinsDir . "SimpleHistoryFilterDropin.php",
