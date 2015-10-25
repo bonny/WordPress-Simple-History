@@ -867,9 +867,10 @@ class SimpleLogger {
 		global $wpdb;
 
 		/*
-		 * Filter that makes it possible to shortcut this log
+		 * Filter that makes it possible to shortcut this log.
+		 * Return bool false to cancel.
 		 *
-		 * @since x.x
+		 * @since 2.3.1
 		 */
 		$do_log = apply_filters( "simple_history/log/do_log", $level, $message, $context );
 		if ( $do_log === false ) {

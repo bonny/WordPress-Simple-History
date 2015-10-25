@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 3.6.0
 Tested up to: 4.3
-Stable tag: 2.3
+Stable tag: 2.3.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -136,11 +136,11 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.3.x (October 2015) =
+= 2.3.1 (October 2015) =
 
-- Fixed: Hopefully fix the wrong relative time, as reported here: https://wordpress.org/support/topic/wrong-reporting-time.
+- Fixed: Hopefully fixed the wrong relative time, as reported here: https://wordpress.org/support/topic/wrong-reporting-time.
 - Changed: The RSS-feed with updates is now disabled by default for new installs. It is password protected, but some users felt that is should be optional to activate it. And now it is! Thanks to https://github.com/guillaumemolter for adding this feature.
-- Fixed: Failed login entries when using plugin (Captcha on Login)[https://sv.wordpress.org/plugins/captcha-on-login/] was reported as "Logged out" when they really meant "Failed to log in". Please note that this was nothing that Simple History did wrong, it was rather Captcha on Login that did manually call `wp_logout()` each time a user failed to login.
+- Fixed: Failed login entries when using plugin (Captcha on Login)[https://wordpress.org/plugins/captcha-on-login/] was reported as "Logged out" when they really meant "Failed to log in". Please note that this was nothing that Simple History did wrong, it was rather Captcha on Login that manually called `wp_logout()` each time a user failed to login. Should fix all those mystery "Logged out"-entried some of you users had.
 - Added: Filter `simple_history/log/do_log` that can be used to shortcut the log()-method.
 - Updated: German translation updated.
 
