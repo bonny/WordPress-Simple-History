@@ -97,7 +97,6 @@ class SimpleHistoryPluginPatchesDropin {
 		// $userLogger->warningMessage("user_unknown_login_failed", $context);
 
 		// Same context as in SimpleUserLogger
-		// Todo: get user id and email and login
 		$context = array(
 			"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
 			"_user_id" => null,
@@ -111,6 +110,28 @@ class SimpleHistoryPluginPatchesDropin {
 			"patch_using_patch" => true,
 			"patch_name" => "captcha_on_login"
 		);
+
+		// Append capcha message
+		if ( $last_login_status ) {
+			$context["patch_last_login_status"] = $last_login_status;
+		}
+
+		// Get user id and email and login
+		// Not passed to filter, but we have it in $_POST
+		$login_username = isset( $_POST["log"] ) ? $_POST["log"] : null;
+		if ($login_username ) {
+
+			$user = get_user_by( "login", $login_username );
+
+			if ( is_a( $user, "WP_User") ) {
+
+				$context["login_user_id"] = $user->ID;
+				$context["login_user_email"] = $user->user_email;
+				$context["login_user_login"] = $user->user_login;
+				
+			}
+
+		}
 
 		$userLogger->warningMessage("user_login_failed", $context);
 
