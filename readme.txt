@@ -125,13 +125,15 @@ https://github.com/bonny/WordPress-Simple-History
 are of type post and pages and media (i.e. images & other uploads), and only events
 initiated by a specific user.
 
-2. The __Post Quick Diff__ feature will make it quck and easy for a user of a site to see what updates other users are have done to posts and pages.
+2. The __Post Quick Diff__ feature will make it quick and easy for a user of a site to see what updates other users are have done to posts and pages.
 
 3. Events with different severity – Simple History uses the log levels specified in the PHP PSR-3 standard.
 
 4. Events have context with extra details - Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
 5. Click on the IP address of an entry to view the location of for example a failed login attempt.
+
+6. See even more details about a logged event (by clicking on the date and time of the event).
 
 
 == Changelog ==
