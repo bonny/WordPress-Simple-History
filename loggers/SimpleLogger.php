@@ -119,7 +119,7 @@ class SimpleLogger {
 	 * @param array $context
 	 * @param array $row Currently not always passed, because loggers need to be updated to support this...
 	 */
-	function interpolate($message, $context = array(), $row = null) {
+	function interpolate( $message, $context = array(), $row = null ) {
 
 		if ( ! is_array( $context ) ) {
 			return $message;
@@ -135,10 +135,28 @@ class SimpleLogger {
 		// Build a replacement array with braces around the context keys
 		$replace = array();
 		foreach ( $context as $key => $val ) {
+
+			// Both key and val must be strings
+			if ( ! is_string( $key ) || ! is_string( $val ) ) {
+				continue;
+			}
+
 			$replace['{' . $key . '}'] = $val;
+
 		}
 
 		// Interpolate replacement values into the message and return
+		/*
+		if ( ! is_string( $message )) {
+			echo "message:";
+			var_dump($message);exit;
+		}
+		if ( ! is_string( $replace )) {
+			echo "replace";
+			var_dump($replace);exit;
+		}
+		// */
+		
 		return strtr($message, $replace);
 
 	}
