@@ -119,7 +119,10 @@ class SimpleHistoryPluginPatchesDropin {
 		// Get user id and email and login
 		// Not passed to filter, but we have it in $_POST
 		$login_username = isset( $_POST["log"] ) ? $_POST["log"] : null;
-		if ($login_username ) {
+		
+		if ( $login_username ) {
+
+			$context["login_user_login"] = $login_username;
 
 			$user = get_user_by( "login", $login_username );
 
@@ -127,7 +130,6 @@ class SimpleHistoryPluginPatchesDropin {
 
 				$context["login_user_id"] = $user->ID;
 				$context["login_user_email"] = $user->user_email;
-				$context["login_user_login"] = $user->user_login;
 				
 			}
 
@@ -138,15 +140,6 @@ class SimpleHistoryPluginPatchesDropin {
 		// Cancel original log event
 		return false;
 		
-		/*$this->system_debug_log( 
-			__FUNCTION__, 
-			$level, 
-			$message, 
-			$context, 
-			$last_login_status
-		 );
-		 */
-
 	}
 	
 	/**
