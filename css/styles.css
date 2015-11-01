@@ -502,7 +502,7 @@ i.e. the log is inside a .postbox element
 	}
 
 	.postbox .SimpleHistoryLogitem:first-child {
-		padding-top: 0;
+		/*padding-top: 0;*/
 	}
 
 	.postbox .SimpleHistoryLogitem::before {

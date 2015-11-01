@@ -142,7 +142,8 @@ initiated by a specific user.
 
 = 2.3.x (nnn 2015) =
 
-- Fixed: Line height was a bit tight on the dashboard.
+- Fixed: Line height was a bit tight on the dashboard. Also: the margin was a tad to small for the first logged event on the dashboard.
+- 
 
 = 2.3.1 (October 2015) =
 
