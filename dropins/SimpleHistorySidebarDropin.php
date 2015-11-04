@@ -97,18 +97,27 @@ class SimpleHistorySidebarDropin {
 		*/
 
 		// Box about possible events missing
-		$boxMissingEvents = '
+		$boxMissingEvents = sprintf( '
 			<div class="postbox">
-				<h3 class="hndle">Missing events?</h3>
+				<h3 class="hndle">%1$s</h3>
 				<div class="inside">
-					<p>Do you think things are missing in the log? Let me know about it.</p>
+					<p>%2$s</p>
+					<p><a href="hello@simple-history.com">hello@simple-history.com</a></p>
 				</div>
 			</div>
-		';
+			', 
+			_x("Add more to the log", "Sidebar box", "simple-history"), // 1
+			_x("Are there things you miss in the history log?", "Sidebar box", "simple-history") // 2
+
+			// Add events yourself using the Logger API
+			// Tell the developer
+
+		);
 		//echo $boxMissingEvents;
 
 		$arrBoxes = array(
 			"boxReview" => $boxReview, 
+			"boxMissingEvents" => $boxMissingEvents,
 			"boxDonate" => $boxDonate,
 			// "boxGithub" => $boxGithub,
 		);
