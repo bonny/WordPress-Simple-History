@@ -142,11 +142,12 @@ initiated by a specific user.
 
 = 2.3.x (nnn 2015) =
 
-- Fixed: Line height was a bit tight on the dashboard. Also: the margin was a tad to small for the first logged event on the dashboard.
-- Fixed: Username was not added correctly to failed login attempts when using plugin Captcha on Login.
+- Changed: When hovering the time of an event in the log, the date of the event displays in both local time and GMT time. Hopefully makes it easier for admins in different timezones that work together on a site to understand when each event happened. Fixes https://github.com/bonny/WordPress-Simple-History/issues/84.
 - Added: New method `register_dropin` that can be used to add dropins.
 - Added: New action `simple_history/add_custom_dropin`.
 - Added: Example on how to add an external dropin: [example-dropin.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/example-dropin.php).
+- Fixed: Line height was a bit tight on the dashboard. Also: the margin was a tad to small for the first logged event on the dashboard.
+- Fixed: Username was not added correctly to failed login attempts when using plugin Captcha on Login.
 
 = 2.3.1 (October 2015) =
 

@@ -413,16 +413,25 @@ class SimpleLogger {
 			$str_when = sprintf(__('%1$s ago', 'simple-history'), $date_human_time_diff);
 
 		}
-
+		
 		$item_permalink = admin_url("index.php?page=simple_history_page");
 		$item_permalink .= "#item/{$row->id}";
+
+		$date_format = get_option('date_format') . ' - '. get_option('time_format');
+		$str_datetime_title = sprintf(
+			__('%1$s local time %3$s (%2$s GMT time)', "simple-history"),
+			get_date_from_gmt( $date_datetime->format('Y-m-d H:i:s'), $date_format ), // 1 local time
+			$date_datetime->format( $date_format ), // GMT time
+			PHP_EOL // 3, new line
+		);
 
 		$date_html = "<span class='SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided'>";
 		$date_html .= "<a class='' href='{$item_permalink}'>";
 		$date_html .= sprintf(
-			'<time datetime="%1$s" title="%1$s" class="">%2$s</time>',
-			$date_datetime->format(DateTime::RFC3339), // 1 datetime attribute
-			$str_when
+			'<time datetime="%3$s" title="%1$s" class="">%2$s</time>',
+			esc_attr( $str_datetime_title ), // 1 datetime attribute
+			esc_html( $str_when ), // 2 date text, visible in log
+			$date_datetime->format( DateTime::RFC3339 ) // 3
 		);
 		$date_html .= "</a>";
 		$date_html .= "</span>";
