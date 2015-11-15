@@ -39,35 +39,35 @@ class SimpleHistoryPluginPatchesDropin {
 	 */
 	function patch_captcha_on_login() {
 
-		add_action( "simple_history/log/do_log", array( $this, "patch_captcha_on_login_on_log" ), 10, 3 );
+		add_action( "simple_history/log/do_log", array( $this, "patch_captcha_on_login_on_log" ), 10, 5 );
 
 	}
 
 	// Detect that this log message is being called from Captha on login
-	function patch_captcha_on_login_on_log( $level = null, $message = null, $context = null ) {	
+	function patch_captcha_on_login_on_log( $doLog, $level = null, $message = null, $context = null, $loggerInstance = null ) {	
 
 		if ( empty( $context ) || ! isset( $context["_message_key"] ) || "user_logged_out" != $context["_message_key"] ) {
 			// Message key did not exist or was not "user_logged_out"
-			return;
+			return $doLog;
 		}
 
 		// codiga is the input with the captcha
 		if ( ! isset( $_POST["log"], $_POST["pwd"], $_POST["wp-submit"], $_POST["codigo"] ) ) {
 			// All needed post variables was not set
-			return;
+			return $doLog;
 		}
 
 		// The Captcha on login uses a class called 'Anderson_Makiyama_Captcha_On_Login'
 		// and also a globla variable called $global $anderson_makiyama
 		global $anderson_makiyama;
 		if ( ! class_exists("Anderson_Makiyama_Captcha_On_Login") || ! isset( $anderson_makiyama ) ) {
-			return;
+			return $doLog;
 		}
 
 		// We must come from wp-login
 		$wp_referer = wp_get_referer();
 		if ( ! $wp_referer || ! "wp-login.php" == basename( $wp_referer ) ) {
-			return;
+			return $doLog;
 		}
 		
 		$anderson_makiyama_indice = Anderson_Makiyama_Captcha_On_Login::PLUGIN_ID;
@@ -91,7 +91,7 @@ class SimpleHistoryPluginPatchesDropin {
 		// Get the user logger
 		$userLogger = $this->sh->getInstantiatedLoggerBySlug( "SimpleUserLogger" );
 		if ( ! $userLogger ) {
-			return;
+			return $doLog;
 		}
 
 		// $userLogger->warningMessage("user_unknown_login_failed", $context);
@@ -138,7 +138,9 @@ class SimpleHistoryPluginPatchesDropin {
 		$userLogger->warningMessage("user_login_failed", $context);
 
 		// Cancel original log event
-		return false;
+		$doLog = false;
+		
+		return $doLog;
 		
 	}
 	

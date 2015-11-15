@@ -899,7 +899,8 @@ class SimpleLogger {
 		 *
 		 * @since 2.3.1
 		 */
-		$do_log = apply_filters( "simple_history/log/do_log", $level, $message, $context );
+		$do_log = apply_filters( "simple_history/log/do_log", true, $level, $message, $context, $this );
+		
 		if ( $do_log === false ) {
 			return $this;
 		}
