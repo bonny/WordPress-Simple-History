@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 3.6.0
 Tested up to: 4.3
-Stable tag: 2.3.1
+Stable tag: 2.4
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -140,10 +140,10 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.3.x (nnn 2015) =
+= 2.4 (November 2015) =
 
 - Added: Now logs when a user changes their password using the "reset password" link.
-- Added: Also logs when someone users the password reset form.
+- Added: Now logs when someone users the password reset form.
 - Added: New method `register_dropin` that can be used to add dropins.
 - Added: New action `simple_history/add_custom_dropin`.
 - Added: Example on how to add an external dropin: [example-dropin.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/example-dropin.php).
