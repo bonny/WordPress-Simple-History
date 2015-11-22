@@ -143,7 +143,7 @@ initiated by a specific user.
 = 2.4 (November 2015) =
 
 - Added: Now logs when a user changes their password using the "reset password" link.
-- Added: Now logs when someone users the password reset form.
+- Added: Now logs when a user uses the password reset form.
 - Added: New method `register_dropin` that can be used to add dropins.
 - Added: New action `simple_history/add_custom_dropin`.
 - Added: Example on how to add an external dropin: [example-dropin.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/example-dropin.php).
