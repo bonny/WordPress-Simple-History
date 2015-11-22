@@ -136,8 +136,13 @@ class SimpleLogger {
 		$replace = array();
 		foreach ( $context as $key => $val ) {
 
-			// Both key and val must be strings
-			if ( ! is_string( $key ) || ! is_string( $val ) ) {
+			// Both key and val must be strings or number (for vals)
+			if ( is_string( $key ) ) {
+				// ok
+			} else if ( is_string( $val ) || is_numeric( $val ) ) {
+				// ok
+			} else {
+				// not a value we can replace
 				continue;
 			}
 
@@ -156,7 +161,7 @@ class SimpleLogger {
 			var_dump($replace);exit;
 		}
 		// */
-		
+
 		return strtr($message, $replace);
 
 	}

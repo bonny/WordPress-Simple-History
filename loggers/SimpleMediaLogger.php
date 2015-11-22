@@ -183,7 +183,6 @@ class SimpleMediaLogger extends SimpleLogger
 
 			$full_image_width = null;
 			$full_image_height = null;
-
 			if ( $is_image ) {
 
 				$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
@@ -250,13 +249,17 @@ class SimpleMediaLogger extends SimpleLogger
 			$message .= "<p class='SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta'>";
 			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span> ";
 			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_filetype_extension}', "simple-history") . "</span>";
-			if ($full_image_width && $full_image_height) {
+			
+			if ( $full_image_width && $full_image_height ) {
+
 				$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}', "simple-history") . "</span>";
+
 			}
+
 			//$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . sprintf( __('<a href="%1$s">Edit attachment</a>'), $edit_link ) . "</span>";
 			$message .= "</p>";
 
-			$output .= $this->interpolate($message, $context, $row);
+			$output .= $this->interpolate( $message, $context, $row );
 
 		}
 

@@ -140,6 +140,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.4.x (November 2015) =
+
+- Fixed: The media logger now shows the width and height of uploaded images again.
+
 = 2.4 (November 2015) =
 
 - Added: Now logs when a user changes their password using the "reset password" link.
