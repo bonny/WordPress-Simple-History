@@ -127,6 +127,10 @@ class SimpleHistoryFilterDropin {
 				$numEvents = $this->get_unique_events_for_days($daysToShow);
 				$numPages = $numEvents / $this->sh->get_pager_size();
 
+				// Example on my server with lots of brute force attacks
+				// 166434 / 15 = 11 000 pages for last 7 days
+				// 1 day = 3051 / 15 = 203 pages = still much but better than 11000 pages!
+
 				if ( $numPages < 20 ) {
 					
 					// Not that many things the last 7 days. Let's try to expand to 14 daysinstead.
@@ -155,33 +159,41 @@ class SimpleHistoryFilterDropin {
 							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
 						<?php
 
-						// Last week + two weeks back + 30 days back
+						// One day+ Last week + two weeks back + 30 days back
+
+						printf(
+							'<option value="%1$s" %3$s>%2$s</option>',
+							"lastdays:1", // 1 - value
+							_x("Last day", "Filter dropin: filter week", "simple-history"), // 2 text
+							selected( $daysToShow, 1, 0 )
+						);
+
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							"lastdays:7", // 1 - value
 							_x("Last 7 days", "Filter dropin: filter week", "simple-history"), // 2 text
-							selected($daysToShow, 7, 0)
+							selected( $daysToShow, 7, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							"lastdays:14", // 1 - value
 							_x("Last 14 days", "Filter dropin: filter week", "simple-history"), // 2 text
-							selected($daysToShow, 14, 0)
+							selected( $daysToShow, 14, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							"lastdays:30", // 1 - value
 							_x("Last 30 days", "Filter dropin: filter week", "simple-history"), // 2 text
-							selected($daysToShow, 30, 0)
+							selected( $daysToShow, 30, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							"lastdays:60", // 1 - value
 							_x("Last 60 days", "Filter dropin: filter week", "simple-history"), // 2 text
-							selected($daysToShow, 60, 0)
+							selected( $daysToShow, 60, 0 )
 						);
 			
 						// Months
