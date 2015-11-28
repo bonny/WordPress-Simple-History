@@ -143,12 +143,12 @@ class SimpleUserLogger extends SimpleLogger {
 				"message" => $message,
 				"key" => $key,
 				"user_login" => $user_login,
-				"user_data" => $user_data,
+				// "user_data" => $user_data,
 				"GET" => $_GET,
 				"POST" => $_POST
 			);
 
-			if ( is_a($user_data, "WP_User") ) {
+			if ( is_a( $user_data, "WP_User" ) ) {
 
 				$context["user_email"] = $user_data->user_email;
 
