@@ -20,9 +20,8 @@ class SimpleCategoriesLogger extends SimpleLogger {
 			"name" => __("Categories Logger", "simple-history"),
 			"description" => "Logs changes to categories, tags, and taxonomies",
 			"messages" => array(
-				'core_updated' => __('Updated WordPress to {new_version} from {prev_version}', 'simple-history'),
-                                'core_auto_updated' => __('WordPress auto-updated to {new_version} from {prev_version}', 'simple-history'),
-                                "core_db_version_updated" => __('WordPress database version updated to {new_version} from {prev_version}', 'simple-history')
+				'created_term' => __('Added term "{term_name}" in taxonomy "{term_taxonomy}"', 'simple-history'),
+				'deleted_term' => __('Deleted term "{term_name}" from taxonomy "{term_taxonomy}"', 'simple-history'),
 			),
 			/*"labels" => array(
 				"search" => array(
@@ -54,17 +53,6 @@ class SimpleCategoriesLogger extends SimpleLogger {
 	do_action( 'created_term', $term_id, $tt_id, $taxonomy );
 
 
-	 * Fires after a term is deleted from the database and the cache is cleaned.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @param int     $term         Term ID.
-	 * @param int     $tt_id        Term taxonomy ID.
-	 * @param string  $taxonomy     Taxonomy slug.
-	 * @param mixed   $deleted_term Copy of the already-deleted term, in the form specified
-	 *                              by the parent function. WP_Error otherwise.
-	do_action( 'delete_term', $term, $tt_id, $taxonomy, $deleted_term );
-
 
 	 * Fires after a term has been updated, and the term cache has been cleaned.
 	 *
@@ -75,41 +63,108 @@ class SimpleCategoriesLogger extends SimpleLogger {
 	 * @param string $taxonomy Taxonomy slug.
 	do_action( "edited_term", $term_id, $tt_id, $taxonomy );
 	
-	*/
+	 * Filter the term parent.
+	 *
+	 * Hook to this filter to see if it will cause a hierarchy loop.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @param int    $parent      ID of the parent term.
+	 * @param int    $term_id     Term ID.
+	 * @param string $taxonomy    Taxonomy slug.
+	 * @param array  $parsed_args An array of potentially altered update arguments for the given term.
+	 * @param array  $args        An array of update arguments for the given term.
+	$parent = apply_filters( 'wp_update_term_parent', $args['parent'], $term_id, $taxonomy, $parsed_args, $args );
 
+	*/
 
 	public function loaded() {
 
 		add_action( 'created_term',  array( $this, "on_created_term"), 10, 3 );
 		add_action( 'delete_term',  array( $this, "on_delete_term"), 10, 4 );
-		add_action( "edited_term",  array( $this, "on_edited_term"), 10, 3 );	
+		add_action( 'wp_update_term_parent',  array( $this, "on_wp_update_term_parent"), 10, 5 );
+	
+		// This action does not contain enough info to know what the term was called before the update
+		// add_action( "edited_term",  array( $this, "on_edited_term"), 10, 3 );	
 
 	}
 
-	function on_created_term( $term_id = null, $tt_id = null, $taxonomy = null ) {
+	function on_wp_update_term_parent( $parent = null, $term_id = null, $taxonomy = null, $parsed_args = null, $args = null ) {
 
 		$this->debug(
-			"on_created_term",
+			"on_wp_update_term_parent",
+			array(
+				"parent" => $parent,
+				"term_id" => $term_id,
+				"taxonomy" => $taxonomy,
+				"parsed_args" => $parsed_args,
+				"args" => $args
+			)
+		);
+
+		return $parent;
+
+	}
+
+	/*		
+	 * Fires after a new term is created, and after the term cache has been cleaned.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param int    $term_id  Term ID.
+	 * @param int    $tt_id    Term taxonomy ID.
+	 * @param string $taxonomy Taxonomy slug.
+	 */
+	function on_created_term( $term_id = null, $tt_id = null, $taxonomy = null ) {
+
+		$term = get_term_by( "id", $term_id, $taxonomy );
+
+		if ( ! $term ) {
+			return;
+		}
+
+		$term_name = $term->name;
+		$term_taxonomy = $term->taxonomy;
+		$term_id = $term->term_id;
+
+		$this->infoMessage(
+			"created_term",
 			array(
 				"term_id" => $term_id,
-				"tt_id" => $tt_id,
-				"taxonomy" => $taxonomy
+				"term_name" => $term_name,
+				"term_taxonomy" => $term_taxonomy,
 			)
 		);
 
 	}
 
 
-
+	 /*
+	 * Fires after a term is deleted from the database and the cache is cleaned.
+	 *
+	 * @param int     $term         Term ID.
+	 * @param int     $tt_id        Term taxonomy ID.
+	 * @param string  $taxonomy     Taxonomy slug.
+	 * @param mixed   $deleted_term Copy of the already-deleted term, in the form specified
+	 *                              by the parent function. WP_Error otherwise.
+	 */
 	function on_delete_term( $term = null, $tt_id = null, $taxonomy = null, $deleted_term = null ) {
 
-		$this->debug(
-			"on_delete_term",
+		if ( is_wp_error( $deleted_term ) ) {
+			return;
+		}
+
+		$term_name = $deleted_term->name;
+		$term_taxonomy = $deleted_term->taxonomy;
+		$term_id = $deleted_term->term_id;
+
+		$this->infoMessage(
+			"deleted_term",
 			array(
-				"term" => $term,
-				"tt_id" => $tt_id,
-				"taxonomy" => $taxonomy,
-				"deleted_term" => $deleted_term
+				"term_id" => $term_id,
+				"term_name" => $term_name,
+				"term_taxonomy" => $term_taxonomy,
+				// "deleted_term" => $deleted_term,
 			)
 		);
 
