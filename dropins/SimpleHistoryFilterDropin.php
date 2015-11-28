@@ -51,9 +51,9 @@ class SimpleHistoryFilterDropin {
 			$sql = $wpdb->prepare("
 				SELECT count( DISTINCT occasionsID )
 				FROM $table_name
-				WHERE DATE >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
-			", $days);			
-		
+				WHERE date >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
+			", $days);
+	
 			$numEvents = $wpdb->get_var($sql);
 
 			wp_cache_set( $cache_key, $numEvents, "",  DAY_IN_SECONDS);
