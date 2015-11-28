@@ -123,27 +123,41 @@ class SimpleHistoryFilterDropin {
 				$this_month = date("Y-m");
 
 				// Determine if we limit the date range by default
-				$daysToShow = 7;
+				$daysToShow = 1;
+
+				// Start with the latest day
 				$numEvents = $this->get_unique_events_for_days($daysToShow);
 				$numPages = $numEvents / $this->sh->get_pager_size();
 
-				// Example on my server with lots of brute force attacks
+				// Example on my server with lots of brute force attacks (causing log to not load)
 				// 166434 / 15 = 11 000 pages for last 7 days
 				// 1 day = 3051 / 15 = 203 pages = still much but better than 11000 pages!
 
 				if ( $numPages < 20 ) {
-					
-					// Not that many things the last 7 days. Let's try to expand to 14 daysinstead.
-					$daysToShow = 14;
+
+					// Not that many things the last day. Let's try to expand to 7 days instead.
+					$daysToShow = 7;
 					$numEvents = $this->get_unique_events_for_days($daysToShow);
 					$numPages = $numEvents / $this->sh->get_pager_size();
 
 					if ( $numPages < 20 ) {
-
-						// Not many things the last 14 days either. Let try with 30 days.
-						$daysToShow = 30;
+					
+						// Not that many things the last 7 days. Let's try to expand to 14 days instead.
+						$daysToShow = 14;
 						$numEvents = $this->get_unique_events_for_days($daysToShow);
 						$numPages = $numEvents / $this->sh->get_pager_size();
+
+						if ( $numPages < 20 ) {
+
+							// Not many things the last 14 days either. Let try with 30 days.
+							$daysToShow = 30;
+							$numEvents = $this->get_unique_events_for_days($daysToShow);
+							$numPages = $numEvents / $this->sh->get_pager_size();
+
+							// @TODO: for sites with very low activity,
+							// if they have no events for the last 30 days should we just show all?
+
+						}
 
 					}
 
