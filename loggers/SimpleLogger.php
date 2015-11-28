@@ -162,7 +162,7 @@ class SimpleLogger {
 		}
 		// */
 
-		return strtr($message, $replace);
+		return strtr( $message, $replace );
 
 	}
 
