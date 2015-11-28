@@ -117,7 +117,7 @@ class SimpleHistorySidebarDropin {
 
 		$arrBoxes = array(
 			"boxReview" => $boxReview, 
-			"boxMissingEvents" => $boxMissingEvents,
+			// "boxMissingEvents" => $boxMissingEvents,
 			"boxDonate" => $boxDonate,
 			// "boxGithub" => $boxGithub,
 		);
