@@ -142,6 +142,7 @@ initiated by a specific user.
 
 = 2.4.x (November 2015) =
 
+- Added: Category edits are now logged, so now you can see terms, categories and taxonomies that are added, changed, and deleted. Fixes https://wordpress.org/support/topic/view-changes-to-categories.
 - Fixed: The media logger now shows the width and height of uploaded images again.
 - Updated: Added date filter to show just events from just one day. Useful for sites that get hammered by brute force login attempts. On one site where I hade 166434 login attempots the last 7 days this helped to make the log actually load :/.
 
