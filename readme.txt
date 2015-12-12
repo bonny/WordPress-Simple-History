@@ -144,6 +144,7 @@ initiated by a specific user.
 
 - Added: Category edits are now logged, so now you can see terms, categories and taxonomies that are added, changed, and deleted. Fixes https://wordpress.org/support/topic/view-changes-to-categories.
 - Fixed: The media logger now shows the width and height of uploaded images again.
+- Fixed: IP Lookup using ipinfo.io would fail if your site was using HTTPS (pro account on ipinfo.io required for that), so now falls back to opening a link to ipinfo.io in a new tab instead.
 - Updated: Added date filter to show just events from just one day. Useful for sites that get hammered by brute force login attempts. On one site where I hade 166434 login attempots the last 7 days this helped to make the log actually load :/.
 - Updated: New French translation
 
