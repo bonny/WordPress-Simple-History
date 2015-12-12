@@ -18,9 +18,20 @@
 			return;
 		}
 
-		showPopup($elm);
+		// If we are on a HTTPS site we cant use ipinfo because lookups over https require pro account
+		// Fallback to plain link
+		var isHTTPS = document.location.protocol == "https:";
 
-		return lookupIpAddress(ipAddress);
+		if (isHTTPS) {
+			
+			return true;
+
+		} else {
+
+			showPopup($elm);
+
+			return lookupIpAddress(ipAddress);
+		}
 
 	});
 
