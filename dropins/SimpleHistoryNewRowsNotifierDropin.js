@@ -32,11 +32,11 @@
 				$elm.html( response.data.strings.newRowsFound );
 				$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
 
-                                $(document).trigger("SimpleHistory:NewRowsNotifier:newRowsFound", response);
+								$(document).trigger("SimpleHistory:NewRowsNotifier:newRowsFound", response);
 
-                        } else {
+						} else {
 
-                                $(document).trigger("SimpleHistory:NewRowsNotifier:noNewRowsFound", response);
+								$(document).trigger("SimpleHistory:NewRowsNotifier:noNewRowsFound", response);
 
 			}
 
@@ -45,7 +45,7 @@
 			$elm.html( simple_history_NewRowsNotifierDropin.errorCheck );
 			$elm.addClass("SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck");
 
-                        $(document).trigger("SimpleHistory:NewRowsNotifier:newRowsError");
+						$(document).trigger("SimpleHistory:NewRowsNotifier:newRowsError");
 
 		});
 
@@ -108,7 +108,7 @@
 		}
 
 		$elm.removeClass("SimpleHistoryDropin__NewRowsNotifier--haveNewRows");
-                $(document).trigger("SimpleHistory:NewRowsNotifier:afterReload");
+				$(document).trigger("SimpleHistory:NewRowsNotifier:afterReload");
 
 	});
 
@@ -117,46 +117,42 @@
 // Change page title
 (function($) {
 
-        var $document = $(document);
+		var $document = $(document);
 
-        function onNewRowsFound(e, response) {
-                console.log("onNewRowsFound", response);
-                setTitle(response.data.num_new_rows);
-        }
+		function onNewRowsFound(e, response) {
+			setTitle(response.data.num_new_rows);
+		}
 
-        function onNoNewRowsFound(e, response) {
-                console.log("onNewRowsFound");
-                setTitle(0);
-        }
+		function onNoNewRowsFound(e, response) {
+			setTitle(0);
+		}
 
-        function onNewRowsError(e) {
-                console.log("onNewRowsError");
-                setTitle("!");
-        }
+		function onNewRowsError(e) {
+			setTitle("!");
+		}
 
-        function onNewRowsReload(e) {
-                console.log("onNewRowsReload");
-                setTitle("");
-        }
+		function onNewRowsReload(e) {
+			setTitle("");
+		}
 
-        function setTitle(newNum) {
+		function setTitle(newNum) {
 
-                var title = document.title;
+			var title = document.title;
 
-                // Remove any existing number first or !, like (123) Regular title => Regular title
-                title = title.replace(/^\([\d!]+\) /, "");
+			// Remove any existing number first or !, like (123) Regular title => Regular title
+			title = title.replace(/^\([\d!]+\) /, "");
 
-                if ( newNum ) {
-                        title = "("+newNum+") " + title;
-                }
+			if ( newNum ) {
+				title = "("+newNum+") " + title;
+			}
 
-                document.title = title;
+			document.title = title;
 
-        }
+		}
 
-        $document.on("SimpleHistory:NewRowsNotifier:newRowsFound", onNewRowsFound);
-        $document.on("SimpleHistory:NewRowsNotifier:noNewRowsFound", onNoNewRowsFound);
-        $document.on("SimpleHistory:NewRowsNotifier:newRowsError", onNewRowsError);
-        $document.on("SimpleHistory:NewRowsNotifier:afterReload", onNewRowsReload);
+		$document.on("SimpleHistory:NewRowsNotifier:newRowsFound", onNewRowsFound);
+		$document.on("SimpleHistory:NewRowsNotifier:noNewRowsFound", onNoNewRowsFound);
+		$document.on("SimpleHistory:NewRowsNotifier:newRowsError", onNewRowsError);
+		$document.on("SimpleHistory:NewRowsNotifier:afterReload", onNewRowsReload);
 
 }(jQuery));
