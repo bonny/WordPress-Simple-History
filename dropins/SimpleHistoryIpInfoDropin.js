@@ -92,17 +92,38 @@
 	// Init request to lookup address
 	function lookupIpAddress(ipAddress) {
 
-		$.get("http://ipinfo.io/" + ipAddress, onIpAddressLookupkResponse, "jsonp");
+		//try {
+		
+			var ajax = $.get("http://ipinfo.io/" + ipAddress, onIpAddressLookupResponse, "jsonp");
 
-		return false;
+			// If the ajax call fail, for example because of blocked connections using adblocker-similar software
+			// err_blocked_by_client
+			// ajax.fail(onIpAddressLookupResponseError);
+			// I don't manage to get this to work, I can't find any way to detect err_blocked_by_client
+
+			return false;
+		//}
+
+		//catch (error) {
+		//	console.log("error", error);
+		//}
 
 	}
 
 	// Function called when ip adress lookup succeeded
-	function onIpAddressLookupkResponse(d) {
-	
+	function onIpAddressLookupResponse(d) {
+		
 		$popupContent.html(templateLoaded(d));
 
 	}
+
+	/*
+	function onIpAddressLookupResponseError(d) {
+
+		console.log("onIpAddressLookupResponseError", d);
+		$popupContent.html(templateLoaded(d));
+
+	}
+	*/
 
 })(jQuery);
