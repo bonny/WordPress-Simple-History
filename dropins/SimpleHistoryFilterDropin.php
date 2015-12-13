@@ -116,6 +116,8 @@ class SimpleHistoryFilterDropin {
 
 				}
 
+				$arr_days_and_pages = array();
+
 				// Default month = current month
 				// Mainly for performance reasons, since often
 				// it's not the users intention to view all events, 
@@ -129,6 +131,11 @@ class SimpleHistoryFilterDropin {
 				$numEvents = $this->get_unique_events_for_days($daysToShow);
 				$numPages = $numEvents / $this->sh->get_pager_size();
 
+				$arr_days_and_pages[] = array(
+					"daysToShow" => $daysToShow,
+					"numPages" => $numPages
+				);
+
 				// Example on my server with lots of brute force attacks (causing log to not load)
 				// 166434 / 15 = 11 000 pages for last 7 days
 				// 1 day = 3051 / 15 = 203 pages = still much but better than 11000 pages!
@@ -140,12 +147,22 @@ class SimpleHistoryFilterDropin {
 					$numEvents = $this->get_unique_events_for_days($daysToShow);
 					$numPages = $numEvents / $this->sh->get_pager_size();
 
+					$arr_days_and_pages[] = array(
+						"daysToShow" => $daysToShow,
+						"numPages" => $numPages
+					);
+
 					if ( $numPages < 20 ) {
 					
 						// Not that many things the last 7 days. Let's try to expand to 14 days instead.
 						$daysToShow = 14;
 						$numEvents = $this->get_unique_events_for_days($daysToShow);
 						$numPages = $numEvents / $this->sh->get_pager_size();
+
+						$arr_days_and_pages[] = array(
+							"daysToShow" => $daysToShow,
+							"numPages" => $numPages
+						);
 
 						if ( $numPages < 20 ) {
 
@@ -154,8 +171,14 @@ class SimpleHistoryFilterDropin {
 							$numEvents = $this->get_unique_events_for_days($daysToShow);
 							$numPages = $numEvents / $this->sh->get_pager_size();
 
+							$arr_days_and_pages[] = array(
+								"daysToShow" => $daysToShow,
+								"numPages" => $numPages
+							);
+
 							// @TODO: for sites with very low activity,
 							// if they have no events for the last 30 days should we just show all?
+							// OR what if 30 days gives a huge amount of pages, but 20 does not?
 
 						}
 
@@ -167,7 +190,7 @@ class SimpleHistoryFilterDropin {
 				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";*/
 
 				?>
-				<p>
+				<p data-debug-daysAndPages="<?php echo json_encode( $arr_days_and_pages ) ?>">
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
 							name="dates"
 							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
