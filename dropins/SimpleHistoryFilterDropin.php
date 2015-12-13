@@ -190,7 +190,7 @@ class SimpleHistoryFilterDropin {
 				echo "<br>" . $numEvents / $this->sh->get_pager_size() . " pages";*/
 
 				?>
-				<p data-debug-daysAndPages="<?php echo json_encode( $arr_days_and_pages ) ?>">
+				<p data-debug-daysAndPages='<?php echo json_encode( $arr_days_and_pages ) ?>'>
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
 							name="dates"
 							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
