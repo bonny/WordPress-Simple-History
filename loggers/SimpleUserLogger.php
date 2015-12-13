@@ -17,12 +17,12 @@ class SimpleUserLogger extends SimpleLogger {
 	function getInfo() {
 
 		$arr_info = array(
-			"name" => "User Logger",
-			"description" => "Logs user logins, logouts, and failed logins",
+			"name" => __("User Logger", "simple-history"),
+			"description" => __("Logs user logins, logouts, and failed logins", "simple-history"),
 			"capability" => "edit_users",
 			"messages" => array(
-				'user_login_failed' => __('Failed to login to account with username "{login_user_login}" because an incorrect password was entered', "simple-history"),
-				'user_unknown_login_failed' => __('Failed to login with username "{failed_login_username}" because no user with that username exists', "simple-history"),
+				'user_login_failed' => __('Failed to login with username "{login}" (incorrect password entered)', "simple-history"),
+				'user_unknown_login_failed' => __('Failed to login with username "{failed_username}" (username does not exist)', "simple-history"),
 				'user_logged_in' => __('Logged in', "simple-history"),
 				'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
 				'user_logged_out' => __("Logged out", "simple-history"),
@@ -186,10 +186,12 @@ class SimpleUserLogger extends SimpleLogger {
 		$context = array();
 
 		if ( is_a( $user, "WP_User") ) {
+			
 			$context["_initiator"] = SimpleLoggerLogInitiators::WP_USER;
 			$context["_user_id"] = $user->ID;
 			$context["_user_login"] = $user->user_login;
 			$context["_user_email"] = $user->user_email;
+
 		}
 
 		if ( isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2'] ) {
@@ -478,19 +480,15 @@ class SimpleUserLogger extends SimpleLogger {
 	function on_wp_authenticate_user($user, $password) {
 
 		// Only log failed attempts
-		if (!wp_check_password($password, $user->user_pass, $user->ID)) {
+		if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
 
 			// Overwrite some vars that Simple History set automagically
 			$context = array(
 				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
-				"_user_id" => null,
-				"_user_login" => null,
-				"_user_email" => null,
-				"login_user_id" => $user->ID,
-				"login_user_email" => $user->user_email,
-				"login_user_login" => $user->user_login,
+				"login_id" => $user->ID,
+				"login_email" => $user->user_email,
+				"login" => $user->user_login,
 				"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
-				//"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
 				"_occasionsID" => __CLASS__ . '/failed_user_login',
 			);
 
@@ -504,7 +502,8 @@ class SimpleUserLogger extends SimpleLogger {
 			 */
 			$log_password = false;
 			$log_password = apply_filters("simple_history/comments_logger/log_failed_password", $log_password);
-			if ($log_password) {
+
+			if ( $log_password ) {
 				$context["login_user_password"] = $password;
 			}
 
@@ -547,7 +546,7 @@ class SimpleUserLogger extends SimpleLogger {
 
 			$context = array(
 				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
-				"failed_login_username" => $username,
+				"failed_username" => $username,
 				"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
 				// count all failed logins to unknown users as the same occasions,
 				// to prevent log being flooded with login/hack attempts

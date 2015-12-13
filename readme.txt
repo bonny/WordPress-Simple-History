@@ -145,6 +145,7 @@ initiated by a specific user.
 - Added: Category edits are now logged, so now you can see terms, categories and taxonomies that are added, changed, and deleted. Fixes for example https://wordpress.org/support/topic/view-changes-to-categories and https://twitter.com/hmarafi/status/655994402037362688.
 - Fixed: The media logger now shows the width and height of uploaded images again.
 - Fixed: IP Lookup using ipinfo.io would fail if your site was using HTTPS (pro account on ipinfo.io required for that), so now falls back to opening a link to ipinfo.io in a new tab instead.
+- Changed: Failed login attempts now use shorter messages and shorter variable names. Not really the fault of this plugin, but sites can get a huge amount of failed login attempts logged. Sites with almost 2 million logged rows just in the last 60 days for example, that will cause the database tables with the history grow to simething like 700 MB. Not cool. So to make those tables a bit smaller the plugin now uses shorter messages for failed login attempts, shorter variable names, and it stores less data. Remember that if you want to stop hackers from attacking your site you should install a plugin like [Jetpack and its BruteProtect module](https://jetpack.me/support/security-features/).
 - Updated: Added date filter to show just events from just one day. Useful for sites that get hammered by brute force login attempts. On one site where I hade 166434 login attempots the last 7 days this helped to make the log actually load :/.
 - Updated: New French translation
 

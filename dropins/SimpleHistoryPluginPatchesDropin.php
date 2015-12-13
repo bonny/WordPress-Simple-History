@@ -117,9 +117,6 @@ class SimpleHistoryPluginPatchesDropin {
 		// Same context as in SimpleUserLogger
 		$context = array(
 			"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
-			"_user_id" => null,
-			"_user_login" => null,
-			"_user_email" => null,
 			#"login_user_id" => $user->ID,
 			#"login_user_email" => $user->user_email,
 			#"login_user_login" => $user->user_login,
