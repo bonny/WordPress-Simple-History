@@ -176,16 +176,20 @@ class SimpleHistoryFilterDropin {
 								"numPages" => $numPages
 							);
 
+							// If 30 days gives a big amount of pages, go back to 14 days
+							if ( $numPages > 1000 ) {
+								$daysToShow = 14;
+							}
+
 							// @TODO: for sites with very low activity,
 							// if they have no events for the last 30 days should we just show all?
-							// OR what if 30 days gives a huge amount of pages, but 20 does not?
 
 						}
 
 					}
 
 				}
-				
+
 				?>
 				<p data-debug-daysAndPages='<?php echo json_encode( $arr_days_and_pages ) ?>'>
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
