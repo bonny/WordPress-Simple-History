@@ -140,12 +140,13 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.5 (November 2015) =
+= 2.5 (December 2015) =
 
 - Added: Category edits are now logged, so now you can see terms, categories and taxonomies that are added, changed, and deleted. Fixes for example https://wordpress.org/support/topic/view-changes-to-categories and https://twitter.com/hmarafi/status/655994402037362688.
 - Fixed: The media logger now shows the width and height of uploaded images again.
 - Fixed: IP Lookup using ipinfo.io would fail if your site was using HTTPS (pro account on ipinfo.io required for that), so now falls back to opening a link to ipinfo.io in a new tab instead.
 - Fixed: If there was a server error while loading the log, the error would be shown, to help you debug any errors. The error would however not go away if you successfully loaded the log again. Now it does.
+- Changed: The search/filter now falls back to showing events for the last 14 days, if 30 days would return over 1000 pages of events. This change is to try to make the log fail to load in less scenarios. If a site got a bit spike if brute force attacks (yes, it's always those attacks!) then there could be a big jump in the number of events and pages between 14 days and 30 days.
 - Changed: Failed login attempts now use shorter messages and shorter variable names. Not really the fault of this plugin, but sites can get a huge amount of failed login attempts logged. Sites with almost 2 million logged rows just in the last 60 days for example. And that will cause the database tables with the history to grow to several hundreds of megabyte. So to make those tables a bit smaller the plugin now uses shorter messages for failed login attempts, shorter variable names, and it stores less data. If you want to stop hackers from attacking your site (resulting in big history logs) you should install a plugin like [Jetpack and its BruteProtect module](https://jetpack.me/support/security-features/).
 - Updated: Added date filter to show just events from just one day. Useful for sites that get hammered by brute force login attempts. On one site where I had 166434 login attempts the last 7 days this helped to make the log actually load :/.
 - Updated: New French translation
