@@ -379,6 +379,9 @@ var simple_history = (function($) {
 
 			var $mainViewElm = this.collection.mainView.$el;
 
+			// Remove maybe previous div with ajax error message
+			$mainViewElm.find(".SimpleHistoryLogitems__ajaxError").remove();
+
 			// Add message if no hits
 			$mainViewElm.removeClass("SimpleHistory--hasNoHits");
 			if (! this.collection.length ) {
