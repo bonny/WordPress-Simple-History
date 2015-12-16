@@ -108,15 +108,26 @@ class SimpleHistorySidebarDropin {
 			', 
 			_x("Add more to the log", "Sidebar box", "simple-history"), // 1
 			_x("Are there things you miss in the history log?", "Sidebar box", "simple-history") // 2
-
-			// Add events yourself using the Logger API
-			// Tell the developer
-
 		);
-		//echo $boxMissingEvents;
+
+
+		// Box about support
+		$boxSupport = sprintf( '
+			<div class="postbox">
+				<h3 class="hndle">%1$s</h3>
+				<div class="inside">
+					<p>%2$s</p>
+				</div>
+			</div>
+			', 
+			_x("Support", "Sidebar box", "simple-history"), // 1
+			sprintf( _x('<a href="%1$s">Visit the support forum</a> if you need help or have questions.', "Sidebar box", "simple-history"), 'https://wordpress.org/support/plugin/simple-history' ) // 2
+		);
+
 
 		$arrBoxes = array(
 			"boxReview" => $boxReview, 
+			"boxSupport" => $boxSupport,
 			// "boxMissingEvents" => $boxMissingEvents,
 			"boxDonate" => $boxDonate,
 			// "boxGithub" => $boxGithub,
