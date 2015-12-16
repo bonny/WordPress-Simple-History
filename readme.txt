@@ -20,6 +20,8 @@ Out of the box Simple History has support for:
 see who added, updated or deleted a post or page
 * **Attachments**<br>
 see who added, updated or deleted an attachment
+* **Taxonomies (Custom taxonomies, categories, tags)**<br>
+see who added, updated or deleted an taxonomy
 * **Comments**<br>
 see who edited, approved or removed a comment
 * **Widgets**<br>
