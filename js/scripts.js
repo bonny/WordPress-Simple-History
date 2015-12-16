@@ -2,7 +2,16 @@
 
 var simple_history = (function($) {
 
-	var api_base_url = window.ajaxurl + "?action=simple_history_api";
+	var api_base_url = window.ajaxurl;
+
+	// Plugins may have modified the Ajax URL so it already contains query params
+	if (api_base_url.indexOf("?") >= 0) {
+		api_base_url += "&";
+	} else {
+		api_base_url += "?";
+	}
+
+	api_base_url += "action=simple_history_api";
 
 	var debug = function(what) {
 

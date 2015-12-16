@@ -142,6 +142,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.5.x (December 2015) =
+
+- Fixed: No longer assume that the ajaxurl don't already contains query params. Should fix problems with third party plugins like [WPML](https://wpml.org/).
+
 = 2.5 (December 2015) =
 
 - Added: Category edits are now logged, so now you can see terms, categories and taxonomies that are added, changed, and deleted. Fixes for example https://wordpress.org/support/topic/view-changes-to-categories and https://twitter.com/hmarafi/status/655994402037362688.
