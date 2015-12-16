@@ -71,7 +71,7 @@ class SimpleHistoryDonateDropin {
 	function settings_section_output() {
 		
 		printf( 
-			__( 'If you find Simple History useful please <a href="%1$s">donate</a> or <a href="%2$s">buy me something from my Amazon wish list</a>.', "simple-history"),
+			__( 'If you find Simple History useful please <a href="%1$s">donate</a>.', "simple-history"),
 			"http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=pluginpage&utm_campaign=simplehistory", 
 			"http://www.amazon.co.uk/registry/wishlist/IAEZWNLQQICG"
 		);
