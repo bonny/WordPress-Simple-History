@@ -306,15 +306,15 @@ class SimpleUserLogger extends SimpleLogger {
 		$output = parent::getLogRowPlainTextOutput($row);
 		$current_user_id = get_current_user_id();
 
-		if ("user_updated_profile" == $context["_message_key"]) {
+		if ( "user_updated_profile" == $context["_message_key"] ) {
 
-			$wp_user = get_user_by("id", $context["edited_user_id"]);
+			$wp_user = get_user_by( "id", $context["edited_user_id"] );
 
 			// If edited_user_id and _user_id is the same then a user edited their own profile
 			// Note: it's not the same thing as the currently logged in user (but.. it can be!)
-			if ($context["edited_user_id"] === $context["_user_id"]) {
+			if ( ! empty( $context["_user_id"] ) && $context["edited_user_id"] === $context["_user_id"] ) {
 
-				if ($wp_user) {
+				if ( $wp_user ) {
 
 					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
 
