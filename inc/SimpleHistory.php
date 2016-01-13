@@ -1537,7 +1537,7 @@ Because Simple History was just recently installed, this feed does not contain m
 			if ( $show_dashboard_page ) {
 
 				add_dashboard_page(
-					SimpleHistory::NAME,
+					_x( "Simple History", 'dashboard title name', 'simple-history' ),
 					_x( "Simple History", 'dashboard menu name', 'simple-history' ),
 					$this->get_view_history_capability(),
 					"simple_history_page",
@@ -1557,7 +1557,7 @@ Because Simple History was just recently installed, this feed does not contain m
 
 			add_options_page(
 				__( 'Simple History Settings', "simple-history" ),
-				SimpleHistory::NAME,
+				_x( 'Simple History', "Options page menu title", "simple-history" ),
 				$this->get_view_settings_capability(),
 				SimpleHistory::SETTINGS_MENU_SLUG,
 				array( $this, 'settings_page_output' )
