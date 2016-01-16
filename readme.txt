@@ -127,7 +127,7 @@ https://github.com/bonny/WordPress-Simple-History
 are of type post and pages and media (i.e. images & other uploads), and only events
 initiated by a specific user.
 
-2. The __Post Quick Diff__ feature will make it quick and easy for a user of a site to see what updates other users are have done to posts and pages.
+2. The __Post Quick Diff__ feature will make it quick and easy for a user of a site to see what updates other users have done to posts and pages.
 
 3. Events with different severity – Simple History uses the log levels specified in the PHP PSR-3 standard.
 
@@ -146,7 +146,7 @@ initiated by a specific user.
 
 - Fixed: No longer assume that the ajaxurl don't already contains query params. Should fix problems with third party plugins like [WPML](https://wpml.org/).
 - Fixed: Notice if context key did not exist. Should fix https://github.com/bonny/WordPress-Simple-History/issues/100.
-- Fixed: Name and title on dashboard and settings page were not translateable.
+- Fixed: Name and title on dashboard and settings page were not translateable. Fixes https://wordpress.org/support/topic/dashboard-max-length-of-content.
 
 = 2.5 (December 2015) =
 
