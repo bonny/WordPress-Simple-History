@@ -192,6 +192,15 @@ add_filter("simple_history/simple_logger/log_message_key", function($doLog, $log
 // Never clear the log (default is 60 days)
 add_filter("simple_history/db_purge_days_interval", "__return_zero");
 
+// Clear items that are older than a 7 days (i.e. keep only the most recent 7 days in the log)
+add_filter( "simple_history/db_purge_days_interval", function( $days ) {
+	
+	$days = 7;
+	
+	return $days;
+
+} );
+
 // Don't let anyone - even with the correct secret - view the RSS feed
 add_filter("simple_history/rss_feed_show", "__return_false");
 
