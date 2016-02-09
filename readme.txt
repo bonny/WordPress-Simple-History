@@ -147,6 +147,9 @@ initiated by a specific user.
 - Fixed: No longer assume that the ajaxurl don't already contains query params. Should fix problems with third party plugins like [WPML](https://wpml.org/).
 - Fixed: Notice if context key did not exist. Should fix https://github.com/bonny/WordPress-Simple-History/issues/100.
 - Fixed: Name and title on dashboard and settings page were not translateable. Fixes https://wordpress.org/support/topic/dashboard-max-length-of-content.
+- Fixed: Typo when user resets password.
+- Added: Filter `simple_history/row_header_date_output`.
+- Added: Filter `simple_history/log/inserted`.
 
 = 2.5 (December 2015) =
 
