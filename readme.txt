@@ -142,7 +142,7 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.5.1 (December 2015) =
+= 2.5.1 (February 2016) =
 
 - Fixed: No longer assume that the ajaxurl don't already contains query params. Should fix problems with third party plugins like [WPML](https://wpml.org/).
 - Fixed: Notice if context key did not exist. Should fix https://github.com/bonny/WordPress-Simple-History/issues/100.
