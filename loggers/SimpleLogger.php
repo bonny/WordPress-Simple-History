@@ -448,7 +448,7 @@ class SimpleLogger {
 		/**
 		 * Filter the output of the date section of the header.
 		 *
-		 * @since 2.5.x
+		 * @since 2.5.1
 		 *
 		 * @param String $date_html
 		 * @param array $row
@@ -1249,7 +1249,7 @@ class SimpleLogger {
 		/**
 		 * Action that is called after an event has been logged
 		 *
-		 * @since 2.5.x
+		 * @since 2.5.1
 		 *
 		 * @param array $context Array with all context data to store. Modify and return this.
 		 * @param array $data Array with data used for parent row.

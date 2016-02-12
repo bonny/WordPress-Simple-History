@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 3.6.0
 Tested up to: 4.4
-Stable tag: 2.5
+Stable tag: 2.5.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -142,7 +142,7 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.5.x (December 2015) =
+= 2.5.1 (December 2015) =
 
 - Fixed: No longer assume that the ajaxurl don't already contains query params. Should fix problems with third party plugins like [WPML](https://wpml.org/).
 - Fixed: Notice if context key did not exist. Should fix https://github.com/bonny/WordPress-Simple-History/issues/100.
