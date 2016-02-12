@@ -150,6 +150,7 @@ initiated by a specific user.
 - Fixed: Typo when user resets password.
 - Added: Filter `simple_history/row_header_date_output`.
 - Added: Filter `simple_history/log/inserted`.
+- Added: Filter `simple_history/row_header_date_output`.
 
 = 2.5 (December 2015) =
 
