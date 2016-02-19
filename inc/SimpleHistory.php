@@ -2553,7 +2553,7 @@ Because Simple History was just recently installed, this feed does not contain m
 
 					$str_return .= sprintf(
 						'"%1$s", ',
-						$one_logger["instance"]->slug
+						esc_sql( $one_logger["instance"]->slug )
 					);
 
 				}
