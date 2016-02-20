@@ -1934,7 +1934,11 @@ Because Simple History was just recently installed, this feed does not contain m
 		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
 		// Get id of rows to delete
-		$sql = "SELECT id FROM {$table_name} WHERE DATE_ADD(date, INTERVAL $days DAY) < now()";
+		$sql = $wpdb->prepare(
+			"SELECT id FROM %s WHERE DATE_ADD(date, INTERVAL %d DAY) < now()",
+			$table_name,
+			$days
+		);
 
 		$ids_to_delete = $wpdb->get_col( $sql );
 
