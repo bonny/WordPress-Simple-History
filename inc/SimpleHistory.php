@@ -1124,6 +1124,34 @@ class SimpleHistory {
 				}
 			}
 
+			// begin add timeago (code from Stream)
+			wp_enqueue_script( 'timeago', SIMPLE_HISTORY_DIR_URL . 'js/timeago/jquery.timeago.js', array("jquery"), '1.5.2', true );
+
+			/*
+			Call script
+			jQuery(".SimpleHistoryLogitem__when time").timeago()
+			when log is loaded and when occassions are loaded
+			$(document).trigger("SimpleHistory:logRowsCollectionOccasionsLoaded");
+			$(document).trigger("SimpleHistory:logLoaded");
+
+			// <time class="timeago" datetime="2008-07-17T09:24:17Z" title="July 17, 2008">8 years ago</time>
+			jQuery(document).ready(function() {
+				jQuery("time.timeago").timeago();
+			});
+			
+
+			$locale    = strtolower( substr( get_locale(), 0, 2 ) );
+			$file_tmpl = 'ui/lib/timeago/locales/jquery.timeago.%s.js';
+
+			if ( file_exists( $this->plugin->locations['dir'] . sprintf( $file_tmpl, $locale ) ) ) {
+				wp_register_script( 'timeago-locale', $this->plugin->locations['url'] . sprintf( $file_tmpl, $locale ), array( 'timeago' ), '1' );
+			} else {
+				wp_register_script( 'timeago-locale', $this->plugin->locations['url'] . sprintf( $file_tmpl, 'en' ), array( 'timeago' ), '1' );
+			}
+			*/
+			// end timeago
+
+
 			/**
 			 * Fires when the admin scripts have been enqueued.
 			 * Only fires on any of the pages where Simple History is used

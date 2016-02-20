@@ -736,6 +736,9 @@ var simple_history = (function($) {
 
 })(jQuery);
 
+/**
+ * When the clear-log-button in admin is clicked then check that users really wants to clear the log
+ */
 jQuery(".js-SimpleHistory-Settings-ClearLog").on("click", function(e) {
 
 	if (confirm(simple_history_script_vars.settingsConfirmClearLog)) {
@@ -745,3 +748,29 @@ jQuery(".js-SimpleHistory-Settings-ClearLog").on("click", function(e) {
 	}
 
 });
+
+/**
+ * Add support for TimeAgo
+ */
+(function($) {
+
+	var $document = $(document);
+	
+	// called on first load + on pagination
+	$document.on("SimpleHistory:logLoaded", addTimeAgo); 
+
+	// when log is loaded and when occassions are loaded
+	$document.on("SimpleHistory:logRowsCollectionOccasionsLoaded", addTimeAgo);
+
+
+	function addTimeAgo() {
+
+		console.log("addTimeAgo()");
+		
+		$(".SimpleHistoryLogitem__when time").timeago();
+
+	}
+
+
+})(jQuery);
+
