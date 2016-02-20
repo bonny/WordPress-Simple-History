@@ -68,6 +68,15 @@ class SimpleHistory {
 
 	function __construct() {
 
+		$this->init();
+
+	} // construct
+
+	/**
+	 * @since 2.5.x
+	 */
+	public function init() {
+
 		/**
 		 * Fires before Simple History does it's init stuff
 		 *
@@ -96,30 +105,17 @@ class SimpleHistory {
 
 		add_action( 'after_setup_theme', array( $this, 'setup_cron' ) );
 
-		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
-		add_action( 'admin_menu', array( $this, 'add_settings' ) );
-
-		add_action( 'admin_footer', array( $this, "add_js_templates" ) );
-
-		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widget' ) );
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-
-		add_action( 'admin_head', array( $this, "onAdminHead" ) );
-		add_action( 'admin_footer', array( $this, "onAdminFooter" ) );
-
 		// Filters and actions not called during regular boot
 		add_filter( "gettext", array( $this, 'filter_gettext' ), 20, 3 );
 		add_filter( "gettext_with_context", array( $this, 'filter_gettext_with_context' ), 20, 4 );
 
 		add_filter( 'gettext', array( $this, "filter_gettext_storeLatestTranslations" ), 10, 3 );
 
-		add_action( 'simple_history/history_page/before_gui', array( $this, "output_quick_stats" ) );
-		add_action( 'simple_history/dashboard/before_gui', array( $this, "output_quick_stats" ) );
+		if ( is_admin() ) {
+			
+			$this->add_admin_actions();
 
-		add_action( 'wp_ajax_simple_history_api', array( $this, 'api' ) );
-
-		add_filter( 'plugin_action_links_simple-history/index.php', array( $this, 'plugin_action_links' ), 10, 4 );
+		}
 
 		/**
 		 * Fires after Simple History has done it's init stuff
@@ -157,6 +153,32 @@ class SimpleHistory {
 			}, 10, 4 );
 
 		}
+
+	}
+
+	/**
+	 * @since 2.5.x
+	 */
+	private function add_admin_actions() {
+
+		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
+		add_action( 'admin_menu', array( $this, 'add_settings' ) );
+
+		add_action( 'admin_footer', array( $this, "add_js_templates" ) );
+
+		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widget' ) );
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+
+		add_action( 'admin_head', array( $this, "onAdminHead" ) );
+		add_action( 'admin_footer', array( $this, "onAdminFooter" ) );
+	
+		add_action( 'simple_history/history_page/before_gui', array( $this, "output_quick_stats" ) );
+		add_action( 'simple_history/dashboard/before_gui', array( $this, "output_quick_stats" ) );
+
+		add_action( 'wp_ajax_simple_history_api', array( $this, 'api' ) );
+
+		add_filter( 'plugin_action_links_simple-history/index.php', array( $this, 'plugin_action_links' ), 10, 4 );
 
 	}
 
