@@ -107,6 +107,7 @@ So far Simple History is translated to:
 * Danish
 * Dutch
 * Finnish
+* French
 
 I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/).
 
