@@ -1134,9 +1134,9 @@ class SimpleHistory {
 
 			// Only enqueue if locale-file exists on file system
 			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
-				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, $locale ), array("jquery"), '1.5.2', true  );
+				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, $locale ), array("jquery"), '1.5.2', true );
 			} else {
-				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, "en" ), array("jquery"), '1.5.2', true  );
+				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, "en" ), array("jquery"), '1.5.2', true );
 			}
 			// end add timeago
 
