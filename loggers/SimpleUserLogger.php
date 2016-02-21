@@ -318,8 +318,10 @@ class SimpleUserLogger extends SimpleLogger {
 
 					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
 
+					$use_you = apply_filters("simple_history/user_logger/plain_text_output_use_you", true);
+
 					// User still exist, so link to their profile
-					if ($current_user_id === $context["_user_id"]) {
+					if ( $current_user_id === $context["_user_id"] && $use_you ) {
 
 						// User that is viewing the log is the same as the edited user
 						$msg = __('Edited <a href="{edit_profile_link}">your profile</a>', "simple-history");

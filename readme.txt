@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 3.6.0
 Tested up to: 4.4
-Stable tag: 2.5.1
+Stable tag: 2.5.2
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -107,6 +107,7 @@ So far Simple History is translated to:
 * Danish
 * Dutch
 * Finnish
+* French
 
 I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/).
 
@@ -141,6 +142,13 @@ initiated by a specific user.
 == Changelog ==
 
 ## Changelog
+
+= 2.5.2 (February 2016) =
+
+- Added: The GUI log now updates the relative "fuzzy" timestamps in real time. This means that if you keep the log opened, the relative date for each event, for example "2 minutes ago" or "2 hours ago", will always be up to date (hah!). Keep the log opened for 5 minutes and you will see that the event that previously said "2 minutes ago" now says "7 minutes ago". Fixes https://github.com/bonny/WordPress-Simple-History/issues/88 and is implemented using the great [timeago jquery plugin](http://timeago.yarp.com/).
+- Added: Filter `simple_history/user_logger/plain_text_output_use_you`. Works the same way as the `simple_history/header_initiator_use_you` filter, but for the rich text part when a user has edited their profile.
+- Fixed: Logger slugs that contained for example backslashes (becuase they where namespaced) would not show up in the log. Now logger slugs are escaped. Fixes https://github.com/bonny/WordPress-Simple-History/issues/103.
+- Changed: Actions and things that only is needed in admin area are now only called if `is_admin()`. Fixes https://github.com/bonny/WordPress-Simple-History/issues/105.
 
 = 2.5.1 (February 2016) =
 
