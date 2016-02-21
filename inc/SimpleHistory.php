@@ -1124,6 +1124,22 @@ class SimpleHistory {
 				}
 			}
 
+			// Add timeago.js
+			wp_enqueue_script( 'timeago', SIMPLE_HISTORY_DIR_URL . 'js/timeago/jquery.timeago.js', array("jquery"), '1.5.2', true );
+
+			// Determine current locale to load timeago locale
+			$locale      = strtolower( substr( get_locale(), 0, 2 ) );
+			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/timeago/locales/jquery.timeago.%s.js';
+			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/timeago/locales/jquery.timeago.%s.js';
+
+			// Only enqueue if locale-file exists on file system
+			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
+				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, $locale ), array("jquery"), '1.5.2', true );
+			} else {
+				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, "en" ), array("jquery"), '1.5.2', true );
+			}
+			// end add timeago
+
 			/**
 			 * Fires when the admin scripts have been enqueued.
 			 * Only fires on any of the pages where Simple History is used
