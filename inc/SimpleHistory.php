@@ -1124,33 +1124,21 @@ class SimpleHistory {
 				}
 			}
 
-			// begin add timeago (code from Stream)
+			// Add timeago.js
 			wp_enqueue_script( 'timeago', SIMPLE_HISTORY_DIR_URL . 'js/timeago/jquery.timeago.js', array("jquery"), '1.5.2', true );
 
-			/*
-			Call script
-			jQuery(".SimpleHistoryLogitem__when time").timeago()
-			when log is loaded and when occassions are loaded
-			$(document).trigger("SimpleHistory:logRowsCollectionOccasionsLoaded");
-			$(document).trigger("SimpleHistory:logLoaded");
+			// Determine current locale to load timeago locale
+			$locale      = strtolower( substr( get_locale(), 0, 2 ) );
+			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/timeago/locales/jquery.timeago.%s.js';
+			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/timeago/locales/jquery.timeago.%s.js';
 
-			// <time class="timeago" datetime="2008-07-17T09:24:17Z" title="July 17, 2008">8 years ago</time>
-			jQuery(document).ready(function() {
-				jQuery("time.timeago").timeago();
-			});
-			
-
-			$locale    = strtolower( substr( get_locale(), 0, 2 ) );
-			$file_tmpl = 'ui/lib/timeago/locales/jquery.timeago.%s.js';
-
-			if ( file_exists( $this->plugin->locations['dir'] . sprintf( $file_tmpl, $locale ) ) ) {
-				wp_register_script( 'timeago-locale', $this->plugin->locations['url'] . sprintf( $file_tmpl, $locale ), array( 'timeago' ), '1' );
+			// Only enqueue if locale-file exists on file system
+			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
+				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, $locale ), array("jquery"), '1.5.2', true  );
 			} else {
-				wp_register_script( 'timeago-locale', $this->plugin->locations['url'] . sprintf( $file_tmpl, 'en' ), array( 'timeago' ), '1' );
+				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, "en" ), array("jquery"), '1.5.2', true  );
 			}
-			*/
-			// end timeago
-
+			// end add timeago
 
 			/**
 			 * Fires when the admin scripts have been enqueued.
