@@ -73,7 +73,7 @@ class SimpleHistory {
 	} // construct
 
 	/**
-	 * @since 2.5.x
+	 * @since 2.5.2
 	 */
 	public function init() {
 
@@ -157,7 +157,7 @@ class SimpleHistory {
 	}
 
 	/**
-	 * @since 2.5.x
+	 * @since 2.5.2
 	 */
 	private function add_admin_actions() {
 
