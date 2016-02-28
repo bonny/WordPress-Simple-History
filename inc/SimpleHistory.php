@@ -1938,7 +1938,7 @@ Because Simple History was just recently installed, this feed does not contain m
 		}
 
 		$days = $this->get_clear_history_interval();
-
+		
 		// Never clear log if days = 0
 		if ( 0 == $days ) {
 			return;
@@ -1951,8 +1951,7 @@ Because Simple History was just recently installed, this feed does not contain m
 
 		// Get id of rows to delete
 		$sql = $wpdb->prepare(
-			"SELECT id FROM %s WHERE DATE_ADD(date, INTERVAL %d DAY) < now()",
-			$table_name,
+			"SELECT id FROM $table_name WHERE DATE_ADD(date, INTERVAL %d DAY) < now()",
 			$days
 		);
 
