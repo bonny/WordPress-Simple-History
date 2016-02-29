@@ -109,7 +109,8 @@ So far Simple History is translated to:
 * Finnish
 * French
 
-I'm looking for translations of Simple History in more languages! If you're interested please check out the [localization](https://developer.wordpress.org/plugins/internationalization/localization/) part of the Plugin Handbook for info on how to translate plugins. When you're done with your translation email it to me at par.thernstrom@gmail.com, or [add a pull request](https://github.com/bonny/WordPress-Simple-History/).
+I'm looking for translations of Simple History in more languages! If you want to translate Simple History
+to your language then read about how this is done over at the [Polyglots handbook](https://make.wordpress.org/polyglots/handbook/rosetta/theme-plugin-directories/#translating-themes-plugins).
 
 #### Contribute at GitHub
 
