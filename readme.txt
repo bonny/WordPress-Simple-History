@@ -146,7 +146,7 @@ initiated by a specific user.
 = 2.5.x (March 2016) =
 
 - Fixed: Notice error when generating permalink for event.
-- 
+- Changed: Check that array key is integer or string. Hopefully fixes https://wordpress.org/support/topic/error-in-wp-adminerror_log.
 
 = 2.5.3 (February 2016) =
 
