@@ -424,7 +424,9 @@ class SimpleLogger {
 		}
 		
 		$item_permalink = admin_url("index.php?page=simple_history_page");
-		$item_permalink .= "#item/{$row->id}";
+		if ( ! empty( $row->id ) ) {
+			$item_permalink .= "#item/{$row->id}";
+		}
 
 		$date_format = get_option('date_format') . ' - '. get_option('time_format');
 		$str_datetime_title = sprintf(

@@ -143,6 +143,11 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.5.x (March 2016) =
+
+- Fixed: Notice error when generating permalink for event.
+- 
+
 = 2.5.3 (February 2016) =
 
 - Fixed: Old entries was not correctly removed. Fixes https://github.com/bonny/WordPress-Simple-History/issues/108.
