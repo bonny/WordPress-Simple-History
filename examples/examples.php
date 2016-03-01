@@ -16,6 +16,8 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
  * Some examples of filter usage and so on
  */
 
+// Disable all logging
+add_filter( "simple_history/log/do_log", "__return_false" );
 
 /**
  * Example that modifies the parameters sent to the message template
