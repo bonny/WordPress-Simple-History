@@ -764,9 +764,7 @@ jQuery(".js-SimpleHistory-Settings-ClearLog").on("click", function(e) {
 
 
 	function addTimeAgo() {
-
-		console.log("addTimeAgo()");
-		
+	
 		$(".SimpleHistoryLogitem__when time").timeago();
 
 	}
