@@ -262,7 +262,24 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$this->assertObjectHasAttribute( "occasionsIDType", $queryResults["log_rows"][0] );
 		$this->assertObjectHasAttribute( "context", $queryResults["log_rows"][0] );
 
+	}
+
+	function test_get_info() {
+
+		$sh = SimpleHistory::get_instance();
+
+		$postlogger = $sh->getInstantiatedLoggerBySlug( "SimplePostLogger" );
+		$info = $postlogger->getInfo();
+
+		$this->assertArrayHasKey( "name", $info );
+		$this->assertArrayHasKey( "description", $info );
+		$this->assertArrayHasKey( "capability", $info );
+		$this->assertArrayHasKey( "messages", $info );
 		
+		$this->assertTrue( is_array( $info["messages"] ) );
+		$this->assertTrue( is_array( $info["labels"] ) );
+		$this->assertTrue( is_array( $info["labels"]["search"] ) );
+		$this->assertTrue( is_array( $info["labels"]["search"]["options"] ) );
 
 	}
 
