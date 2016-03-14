@@ -447,6 +447,7 @@ class SimpleLogger {
 		$date_html .= "</a>";
 		$date_html .= "</span>";
 
+
 		/**
 		 * Filter the output of the date section of the header.
 		 *
@@ -456,6 +457,15 @@ class SimpleLogger {
 		 * @param array $row
 		 */
 		$date_html = apply_filters("simple_history/row_header_date_output", $date_html, $row);
+
+		// Sending logger
+		$logger_info = $this->getInfo();
+		$logger_sending_info = isset( $logger_info["sending_info"] ) ? $logger_info["sending_info"] : false;
+		if ( $logger_sending_info ) {
+			$sending_logger_html = "<span class='SimpleHistoryLogitem__inlineDivided'>";
+			$sending_logger_html .= $logger_sending_info;
+			$sending_logger_html .= "</span>";
+		}
 
 		// Loglevel
 		// SimpleHistoryLogitem--loglevel-warning
@@ -467,7 +477,11 @@ class SimpleLogger {
 		 */
 
 		// Glue together final result
-		$template = '%1$s%2$s';
+		$template = '
+			%1$s 
+			%2$s 
+			%3$s
+		';
 		#if ( ! $initiator_html ) {
 		#	$template = '%2$s';
 		#}
@@ -475,8 +489,8 @@ class SimpleLogger {
 		$html = sprintf(
 			$template,
 			$initiator_html, // 1
-			$date_html // 2
-			// $level_html // 3
+			$date_html, // 2
+			$sending_logger_html // 3
 		);
 
 		/**

@@ -29,6 +29,7 @@ class PluginUserSwitchingLogger extends SimpleLogger {
 				'switched_back_themself' => _x('Switched back to user "{user_login_to}"', "PluginUserSwitchingLogger", "simple-history"),
 				'switched_off_user' => _x('Switched off user "{user_login}"', "PluginUserSwitchingLogger", "simple-history"),
 			),
+			"sending_info" => "Using plugin User Switching"
 		);
 
 		return $arr_info;
