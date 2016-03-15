@@ -459,6 +459,7 @@ class SimpleLogger {
 		$date_html = apply_filters("simple_history/row_header_date_output", $date_html, $row);
 
 		// Sending logger
+		$sending_logger_html = "";
 		$logger_info = $this->getInfo();
 		$logger_sending_info = isset( $logger_info["sending_info"] ) ? $logger_info["sending_info"] : false;
 		if ( $logger_sending_info ) {
