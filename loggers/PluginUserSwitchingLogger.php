@@ -23,7 +23,7 @@ class PluginUserSwitchingLogger extends SimpleLogger {
 			"name" => _x("User Switching Logger", "PluginUserSwitchingLogger", "simple-history"),
 			"description" => _x("Logs user switches", "PluginUserSwitchingLogger", "simple-history"),
 			// Definition of via: by way of, through the medium or agency of; also :  by means of
-			"name_via" => "Using plugin User Switching",
+			"name_via" => _x("Using plugin User Switching", "PluginUserSwitchingLogger", "simple-history"),
 			"capability" => "edit_users",
 			"messages" => array(
 				'switched_to_user' => _x('Switched to user "{user_login_to}" from user "{user_login_from}"', "PluginUserSwitchingLogger", "simple-history"),
