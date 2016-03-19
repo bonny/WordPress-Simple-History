@@ -94,6 +94,21 @@ class SimpleLogger {
 	}
 
 	/**
+	 * Return single array entry from the array in getInfo()
+	 * Returns the value of the key if value exists, or null
+	 *
+	 * @since 2.5.4
+	 * @return Mixed
+	 */
+	function getInfoValueByKey( $key ) {
+		
+		$arr_info = $this->getInfo();
+
+		return isset( $arr_info[ $key ] ) ? $arr_info[ $key ] : null;
+
+	}
+
+	/**
 	 * Returns the capability required to read log rows from this logger
 	 *
 	 * @return $string capability
@@ -447,6 +462,7 @@ class SimpleLogger {
 		$date_html .= "</a>";
 		$date_html .= "</span>";
 
+
 		/**
 		 * Filter the output of the date section of the header.
 		 *
@@ -456,6 +472,20 @@ class SimpleLogger {
 		 * @param array $row
 		 */
 		$date_html = apply_filters("simple_history/row_header_date_output", $date_html, $row);
+
+		// Logger "via" info in header, i.e. output some extra
+		// info next to the time to make it more clear what plugin etc.
+		// that "caused" this event
+		$via_html = "";
+		$logger_name_via = $this->getInfoValueByKey("name_via");
+	
+		if ( $logger_name_via ) {
+		
+			$via_html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
+			$via_html .= $logger_name_via;
+			$via_html .= "</span>";
+		
+		}
 
 		// Loglevel
 		// SimpleHistoryLogitem--loglevel-warning
@@ -467,7 +497,11 @@ class SimpleLogger {
 		 */
 
 		// Glue together final result
-		$template = '%1$s%2$s';
+		$template = '
+			%1$s 
+			%2$s 
+			%3$s
+		';
 		#if ( ! $initiator_html ) {
 		#	$template = '%2$s';
 		#}
@@ -475,8 +509,8 @@ class SimpleLogger {
 		$html = sprintf(
 			$template,
 			$initiator_html, // 1
-			$date_html // 2
-			// $level_html // 3
+			$date_html, // 2
+			$via_html // 3
 		);
 
 		/**

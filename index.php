@@ -5,7 +5,7 @@ Plugin URI: http://simple-history.com
 Text Domain: simple-history
 Domain Path: /languages
 Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
-Version: 2.5.3
+Version: 2.5.4
 Author: Pär Thernström
 Author URI: http://simple-history.com/
 License: GPL2
@@ -42,7 +42,7 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	// register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
 	if ( ! defined( 'SIMPLE_HISTORY_VERSION' ) ) {
-		define( 'SIMPLE_HISTORY_VERSION', '2.5.3' );
+		define( 'SIMPLE_HISTORY_VERSION', '2.5.4' );
 	}
 
 	if ( ! defined( 'SIMPLE_HISTORY_PATH' ) ) {

@@ -274,9 +274,6 @@ class SimplePluginLogger extends SimpleLogger
 			wp_die(__('You do not have sufficient permissions to delete plugins for this site.'));
 		}
 
-		// Same as in plugins.php
-		check_admin_referer('bulk-plugins');
-
 		// Verify delete must be set
 		if ( ! isset( $_POST["verify-delete"] ) || ! $_POST["verify-delete"] ) {
 			return;
