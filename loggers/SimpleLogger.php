@@ -97,7 +97,7 @@ class SimpleLogger {
 	 * Return single array entry from the array in getInfo()
 	 * Returns the value of the key if value exists, or null
 	 *
-	 * @since 2.5.x
+	 * @since 2.5.4
 	 * @return Mixed
 	 */
 	function getInfoValueByKey( $key ) {
