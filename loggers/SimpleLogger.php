@@ -94,6 +94,21 @@ class SimpleLogger {
 	}
 
 	/**
+	 * Return single array entry from the array in getInfo()
+	 * Returns the value of the key if value exists, or null
+	 *
+	 * @since 2.5.x
+	 * @return Mixed
+	 */
+	function getInfoValueByKey( $key ) {
+		
+		$arr_info = $this->getInfo();
+
+		return isset( $arr_info[ $key ] ) ? $arr_info[ $key ] : null;
+
+	}
+
+	/**
 	 * Returns the capability required to read log rows from this logger
 	 *
 	 * @return $string capability
@@ -458,14 +473,18 @@ class SimpleLogger {
 		 */
 		$date_html = apply_filters("simple_history/row_header_date_output", $date_html, $row);
 
-		// Sending logger
-		$sending_logger_html = "";
-		$logger_info = $this->getInfo();
-		$logger_sending_info = isset( $logger_info["sending_info"] ) ? $logger_info["sending_info"] : false;
-		if ( $logger_sending_info ) {
-			$sending_logger_html = "<span class='SimpleHistoryLogitem__inlineDivided'>";
-			$sending_logger_html .= $logger_sending_info;
-			$sending_logger_html .= "</span>";
+		// Logger "via" info in header, i.e. output some extra
+		// info next to the time to make it more clear what plugin etc.
+		// that "caused" this event
+		$via_html = "";
+		$logger_name_via = $this->getInfoValueByKey("name_via");
+	
+		if ( $logger_name_via ) {
+		
+			$via_html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
+			$via_html .= $logger_name_via;
+			$via_html .= "</span>";
+		
 		}
 
 		// Loglevel
@@ -491,7 +510,7 @@ class SimpleLogger {
 			$template,
 			$initiator_html, // 1
 			$date_html, // 2
-			$sending_logger_html // 3
+			$via_html // 3
 		);
 
 		/**
