@@ -144,6 +144,10 @@ initiated by a specific user.
 
 ## Changelog
 
+= 2.5.x (March 2016) =
+
+- Changed: No longer log spam trackbacks or comments. Before this version these where logged, but not shown.
+
 = 2.5.4 (March 2016) =
 
 - Added: Support for new key in info array from logger: "name_via". Set this value in a logger and the string will be shown next to the date of the logged event. Useful when logging actions from third party plugins, or any kind of other logging that is not from WordPress core.
