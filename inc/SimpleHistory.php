@@ -1145,6 +1145,14 @@ class SimpleHistory {
 			}
 			// end add timeago
 
+			// Load Select2 locale
+			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/select2/select2_locale_%s.js';
+			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/select2/select2_locale_%s.js';
+			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
+				wp_enqueue_script( 'select2-locale', sprintf( $locale_url_path, $locale ), array("jquery"), '3.5.1', true );
+			}
+
+
 			/**
 			 * Fires when the admin scripts have been enqueued.
 			 * Only fires on any of the pages where Simple History is used
