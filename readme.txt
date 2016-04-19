@@ -148,7 +148,7 @@ initiated by a specific user.
 
 - Changed: The logger for Enable Media Replace required the capability `edit_files` to view the logged events, but since this also makde it impossible to view events if the constant `DISALLOW_FILE_EDIT` was true. Now Enable Media Replace requires the capability `upload_files` instead. Makes more sense. Fixes https://wordpress.org/support/topic/simple-history-and-disallow_file_edit.
 - Changed: No longer log spam trackbacks or comments. Before this version these where logged, but not shown.
-- Fixed: Translations was not loaded for Select2.
+- Fixed: Translations was not loaded for Select2. Fixes https://wordpress.org/support/topic/found-a-string-thats-not-translatable-v-254.
 
 = 2.5.4 (March 2016) =
 
