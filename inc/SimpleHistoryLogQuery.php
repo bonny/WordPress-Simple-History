@@ -292,7 +292,7 @@ class SimpleHistoryLogQuery {
 				$date_to = strtotime( $date_to );
 			}
 
-			$inner_where .= "\n" . sprintf(' AND date <= "%1$s"', date( 'Y-m-d H:i:s', $date_from ) );
+			$inner_where .= "\n" . sprintf(' AND date <= "%1$s"', date( 'Y-m-d H:i:s', $date_to ) );
 
 		}
 
