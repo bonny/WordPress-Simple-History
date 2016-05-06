@@ -2,8 +2,8 @@
 Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
-Requires at least: 3.6.0
-Tested up to: 4.4
+Requires at least: 4.5.1
+Tested up to: 4.5.1
 Stable tag: 2.5.5
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
@@ -144,7 +144,12 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.5.5 (March 2016) =
+= 2.5.x (nnn 2016) =
+
+- Changed: New constant `SETTINGS_GENERAL_OPTION_GROUP`. Fixes https://wordpress.org/support/topic/constant-for-settings-option-group-name-option_group.
+-
+
+= 2.5.5 (April 2016) =
 
 - Changed: The logger for Enable Media Replace required the capability `edit_files` to view the logged events, but since this also made it impossible to view events if the constant `DISALLOW_FILE_EDIT` was true. Now Enable Media Replace requires the capability `upload_files` instead. Makes more sense. Fixes https://wordpress.org/support/topic/simple-history-and-disallow_file_edit.
 - Changed: No longer log spam trackbacks or comments. Before this version these where logged, but not shown.

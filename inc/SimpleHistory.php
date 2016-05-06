@@ -63,6 +63,9 @@ class SimpleHistory {
 	/** Slug for the settings menu */
 	const SETTINGS_MENU_SLUG = "simple_history_settings_menu_slug";
 
+        /** Slug for the settings menu */
+        const SETTINGS_GENERAL_OPTION_GROUP = "simple_history_settings_group";
+
 	/** ID for the general settings section */
 	const SETTINGS_SECTION_GENERAL_ID = "simple_history_settings_section_general";
 
@@ -1662,8 +1665,8 @@ Because Simple History was just recently installed, this feed does not contain m
 		);
 
 		// Nonces for show where inputs
-		register_setting( "simple_history_settings_group", "simple_history_show_on_dashboard" );
-		register_setting( "simple_history_settings_group", "simple_history_show_as_page" );
+                register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, "simple_history_show_on_dashboard" );
+                register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, "simple_history_show_as_page" );
 
 		// Dropdown number if items to show
 		add_settings_field(
@@ -1675,7 +1678,7 @@ Because Simple History was just recently installed, this feed does not contain m
 		);
 
 		// Nonces for number of items inputs
-		register_setting( "simple_history_settings_group", "simple_history_pager_size" );
+                register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, "simple_history_pager_size" );
 
 		// Link to clear log
 		add_settings_field(
