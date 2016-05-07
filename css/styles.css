@@ -276,6 +276,7 @@ Style different log levels.
 .SimpleHistoryLogitem__text {
 	margin-top: 0.4em;
 	font-size: 15px;
+	overflow: auto;
 	color: #333;
 }
 
