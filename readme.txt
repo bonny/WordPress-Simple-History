@@ -108,6 +108,7 @@ So far Simple History is translated to:
 * Dutch
 * Finnish
 * French
+* Russian
 
 I'm looking for translations of Simple History in more languages! If you want to translate Simple History
 to your language then read about how this is done over at the [Polyglots handbook](https://make.wordpress.org/polyglots/handbook/rosetta/theme-plugin-directories/#translating-themes-plugins).
