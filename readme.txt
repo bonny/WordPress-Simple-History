@@ -147,7 +147,7 @@ initiated by a specific user.
 = 2.5.x (nnn 2016) =
 
 - Changed: New constant `SETTINGS_GENERAL_OPTION_GROUP`. Fixes https://wordpress.org/support/topic/constant-for-settings-option-group-name-option_group.
--
+- Fixed: Long log messages with no spaces would get cut of. Now all the message is shown, but with one or several line breaks.
 
 = 2.5.5 (April 2016) =
 
