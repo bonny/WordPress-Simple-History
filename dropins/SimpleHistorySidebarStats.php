@@ -6,6 +6,15 @@ defined( 'ABSPATH' ) or die();
 Dropin Name: Sidebar with short stats
 Dropin URI: http://simple-history.com/
 Author: Pär Thernström
+
+
+# Todo
+
+- [ ] JS error on dashboard
+- [ ] Cache SQL query
+- [ ] Only show for admins?
+- [ ] More stats, graph or text
+
 */
 
 class SimpleHistorySidebarStats {
@@ -119,8 +128,8 @@ class SimpleHistorySidebarStats {
 
 				<?php
 
-				$arr_labels = [];
-				$arr_dataset_data = [];
+				$arr_labels = array();
+				$arr_dataset_data = array();
 
 				foreach ( $period as $dt ) {
 					
