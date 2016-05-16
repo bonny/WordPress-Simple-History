@@ -887,6 +887,7 @@ class SimpleHistory {
 			$dropinsDir . "SimpleHistorySettingsLogtestDropin.php",
 			$dropinsDir . "SimpleHistorySettingsStatsDropin.php",
 			$dropinsDir . "SimpleHistorySidebarDropin.php",
+			$dropinsDir . "SimpleHistorySidebarStats.php",
 		);
 
 		/**
@@ -972,6 +973,7 @@ class SimpleHistory {
 				"name" => $oneDropinName,
 				"instance" => new $oneDropinName( $this ),
 			);
+
 		}
 
 	}
