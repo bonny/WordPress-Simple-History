@@ -149,6 +149,7 @@ initiated by a specific user.
 
 - Changed: New constant `SETTINGS_GENERAL_OPTION_GROUP`. Fixes https://wordpress.org/support/topic/constant-for-settings-option-group-name-option_group.
 - Fixed: Long log messages with no spaces would get cut of. Now all the message is shown, but with one or several line breaks.
+- Fixed: Some small CSS modification to make the page less "jumpy" while loading (for example setting a default height to the select2 input box).
 
 = 2.5.5 (April 2016) =
 
