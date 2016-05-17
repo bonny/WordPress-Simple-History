@@ -10,7 +10,8 @@ Author: Pär Thernström
 
 # Todo
 
-- [ ] JS error on dashboard
+- [ ] "1764 events have been logged the last 28 days"
+- [x] JS error on dashboard
 - [ ] Cache SQL query
 - [ ] Only show for admins?
 - [ ] More stats, graph or text
@@ -49,14 +50,19 @@ class SimpleHistorySidebarStats {
 
 		?>
 		<script>
-			//var // SimpleHistory_SidebarChart_ChartCanvas
-			//alert(jQuery);
-			// SimpleHistory_SidebarChart_ChartCanvas
+			/**
+			 * JavaScript for SimpleHistory_SidebarChart
+			 */
 			(function($) {
 
 				$(function() {
 
 					var ctx = $(".SimpleHistory_SidebarChart_ChartCanvas");
+					
+					if ( ! ctx.length ) {
+						return;
+					}
+
 					var chartLabels =  JSON.parse( $(".SimpleHistory_SidebarChart_ChartLabels").val() );
 					var chartDatasetData = JSON.parse( $(".SimpleHistory_SidebarChart_ChartDatasetData").val() );
 
@@ -119,7 +125,17 @@ class SimpleHistorySidebarStats {
 
 			<div class="inside">
 				
-				<p>Number of events per day the last <?php echo $num_days ?> days.</p>
+				<?php				
+
+				printf(
+					__('<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', "simple-history"),
+					$this->get_num_rows_last_n_days( $num_days ),
+					number_format_i18n( $num_days )
+				);
+
+				?>
+
+				<p>Number of events per day.</p>
 				
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
 				<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
@@ -165,6 +181,22 @@ class SimpleHistorySidebarStats {
 		<?php
 
 	}
+
+	// Number of rows the last n days
+	function get_num_rows_last_n_days($period_days) {
+
+		global $wpdb;
+
+		$sql = sprintf(
+			'select count(*) FROM %1$s WHERE UNIX_TIMESTAMP(date) >= %2$d',
+			$wpdb->prefix . SimpleHistory::DBTABLE,
+			strtotime("-$period_days days")
+		);
+		
+		return $wpdb->get_var($sql);
+
+	}
+
 
 	function get_num_events_for_period( $period_days ) {
 
