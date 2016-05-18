@@ -14,8 +14,8 @@ Author: Pär Thernström
 - [x] JS error on dashboard
 - [x] Cache SQL query
 - [-] Only show for admins? Nah, because graph can be useful for other users too
-- [ ] Only show for loggers that user can read
-- [ ] More stats, graph or text
+- [x] Only show for loggers that user can read
+- [ ] More stats, graph or text?
 
 */
 
@@ -121,26 +121,30 @@ class SimpleHistorySidebarStats {
 				
 		<div class="postbox">
 
-			<h3 class="hndle">Stats</h3>
+			<h3 class="hndle"><?php _e("Stats", "simple-history") ?></h3>
 
 			<div class="inside">
 				
-				<?php				
+				<p>
+					<?php				
 
-				printf(
-					__('<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', "simple-history"),
-					$this->sh->get_num_events_last_n_days( $num_days ),
-					number_format_i18n( $num_days )
-				);
+					printf(
+						__('<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', "simple-history"),
+						$this->sh->get_num_events_last_n_days( $num_days ),
+						number_format_i18n( $num_days )
+					);
 
-				?>
-
-				<p>Number of events per day.</p>
+					?>
+				</p>
 				
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
 				<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
 					<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"></canvas>
 				</div>
+
+				<p class="SimpleHistory_SidebarChart_ChartDescription" style="font-style: italic; color: #777; text-align: center;">
+					<?php _e("Number of events per day.", "simple-history") ?>
+				</p>
 
 				<?php
 
