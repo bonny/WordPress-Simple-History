@@ -3,8 +3,8 @@ Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
-Tested up to: 4.5.1
-Stable tag: 2.5.5
+Tested up to: 4.5.2
+Stable tag: 2.6
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -145,7 +145,7 @@ initiated by a specific user.
 
 ## Changelog
 
-= 2.5.x (nnn 2016) =
+= 2.6 (May 2016) =
 
 - Added: A nice little graph in the sidebar that displays the number of logged events per day the last 28 days. Graph is powered by [Graph.js](http://www.chartjs.org/).
 - Added: Function `get_num_events_last_n_days()`
