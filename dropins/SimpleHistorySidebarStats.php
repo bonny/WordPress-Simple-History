@@ -10,10 +10,11 @@ Author: Pär Thernström
 
 # Todo
 
-- [ ] "1764 events have been logged the last 28 days"
+- [x] "1764 events have been logged the last 28 days"
 - [x] JS error on dashboard
-- [ ] Cache SQL query
-- [ ] Only show for admins?
+- [x] Cache SQL query
+- [-] Only show for admins? Nah, because graph can be useful for other users too
+- [ ] Only show for loggers that user can read
 - [ ] More stats, graph or text
 
 */
@@ -108,8 +109,7 @@ class SimpleHistorySidebarStats {
 
 		$num_days = 28;
 
-		$num_events_per_day_for_period = $this->get_num_events_for_period( $num_days );
-		#echo "<pre>";print_r($num_events_per_day_for_period);echo "</pre>";
+		$num_events_per_day_for_period = $this->sh->get_num_events_per_day_last_n_days( $num_days );
 
 		// Period = all dates, so empty ones don't get lost
 		$period_start_date = DateTime::createFromFormat('U', strtotime("-$num_days days"));
@@ -129,7 +129,7 @@ class SimpleHistorySidebarStats {
 
 				printf(
 					__('<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', "simple-history"),
-					$this->get_num_rows_last_n_days( $num_days ),
+					$this->sh->get_num_events_last_n_days( $num_days ),
 					number_format_i18n( $num_days )
 				);
 
@@ -179,47 +179,6 @@ class SimpleHistorySidebarStats {
 		</div>
 	
 		<?php
-
-	}
-
-	// Number of rows the last n days
-	function get_num_rows_last_n_days($period_days) {
-
-		global $wpdb;
-
-		$sql = sprintf(
-			'select count(*) FROM %1$s WHERE UNIX_TIMESTAMP(date) >= %2$d',
-			$wpdb->prefix . SimpleHistory::DBTABLE,
-			strtotime("-$period_days days")
-		);
-		
-		return $wpdb->get_var($sql);
-
-	}
-
-
-	function get_num_events_for_period( $period_days ) {
-
-		global $wpdb;
-
-		$sql = sprintf(
-			'
-				SELECT 
-					date_format(date, "%%Y-%%m-%%d") AS yearDate,
-					count(date) AS count
-				FROM  
-					%1$s
-				WHERE UNIX_TIMESTAMP(date) >= %2$d
-				GROUP BY yearDate
-				ORDER BY yearDate ASC
-			',
-			$wpdb->prefix . SimpleHistory::DBTABLE,
-			strtotime("-$period_days days")
-		);
-
-		$dates = $wpdb->get_results( $sql );
-
-		return $dates;
 
 	}
 

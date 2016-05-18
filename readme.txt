@@ -147,6 +147,10 @@ initiated by a specific user.
 
 = 2.5.x (nnn 2016) =
 
+- Added: A nice little graph in the sidebar that displays the number of logged events per day the last 28 days. Graph is powered by [Graph.js](http://www.chartjs.org/).
+- Added: Function `get_num_events_last_n_days()`
+- Added: Function `get_num_events_per_day_last_n_days()`
+- Changed: Switched to transients from cache at some places, because more people will benefit from transients instead of cache (that requires object cache to be installed).
 - Changed: New constant `SETTINGS_GENERAL_OPTION_GROUP`. Fixes https://wordpress.org/support/topic/constant-for-settings-option-group-name-option_group.
 - Fixed: Long log messages with no spaces would get cut of. Now all the message is shown, but with one or several line breaks.
 - Fixed: Some small CSS modification to make the page less "jumpy" while loading (for example setting a default height to the select2 input box).
