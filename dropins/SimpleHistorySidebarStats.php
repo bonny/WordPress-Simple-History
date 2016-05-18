@@ -6,17 +6,6 @@ defined( 'ABSPATH' ) or die();
 Dropin Name: Sidebar with short stats
 Dropin URI: http://simple-history.com/
 Author: Pär Thernström
-
-
-# Todo
-
-- [x] "1764 events have been logged the last 28 days"
-- [x] JS error on dashboard
-- [x] Cache SQL query
-- [-] Only show for admins? Nah, because graph can be useful for other users too
-- [x] Only show for loggers that user can read
-- [ ] More stats, graph or text?
-
 */
 
 class SimpleHistorySidebarStats {
