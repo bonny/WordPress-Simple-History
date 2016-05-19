@@ -147,7 +147,7 @@ initiated by a specific user.
 
 = 2.6 (May 2016) =
 
-- Added: A nice little graph in the sidebar that displays the number of logged events per day the last 28 days. Graph is powered by [Graph.js](http://www.chartjs.org/).
+- Added: A nice little graph in the sidebar that displays the number of logged events per day the last 28 days. Graph is powered by [Chart.js](http://www.chartjs.org/).
 - Added: Function `get_num_events_last_n_days()`
 - Added: Function `get_num_events_per_day_last_n_days()`
 - Changed: Switched to transients from cache at some places, because more people will benefit from transients instead of cache (that requires object cache to be installed).
