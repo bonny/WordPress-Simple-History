@@ -937,7 +937,7 @@ Modal window with detailss
 	position: relative;
 }
 
-/* fade out indicating more content */
+/* fade out that indicate more content */
 /*.SimpleHistory__diff__contents:after {
 	content: "";
 	position: absolute;
