@@ -277,6 +277,8 @@ Style different log levels.
 	margin-top: 0.4em;
 	font-size: 15px;
 	color: #333;
+	/* break long lines so content always fit, even if very long (like very long url from http_api-logger */
+	word-break: break-word;
 }
 
 .SimpleHistoryLogitem__details p {

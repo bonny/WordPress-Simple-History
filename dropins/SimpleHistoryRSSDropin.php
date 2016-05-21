@@ -43,7 +43,7 @@ class SimpleHistoryRSSDropin {
 	public function add_settings() {
 		
 		//we register a setting to keep track of the RSS feed status (enabled/disabled)
-		register_setting( 'simple_history_settings_group', 'simple_history_enable_rss_feed', array($this, 'update_rss_status') );
+                register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, 'simple_history_enable_rss_feed', array($this, 'update_rss_status') );
 
 		/**
 		 * Start new section for RSS feed

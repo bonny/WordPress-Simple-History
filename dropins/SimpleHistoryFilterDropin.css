@@ -30,6 +30,12 @@
 	width: 310px;
 }
 
+/* set height on date input or it will "jump" during page load */
+.wp-admin select[multiple].SimpleHistory__filters__filter--date {
+	height: 2.2em;
+	overflow: hidden;
+}
+
 /**
  * Search results in filter
  */

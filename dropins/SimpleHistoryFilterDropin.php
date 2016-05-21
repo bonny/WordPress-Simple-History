@@ -34,35 +34,6 @@ class SimpleHistoryFilterDropin {
 
 	}
 
-	public function get_unique_events_for_days($days = 7) {
-
-		global $wpdb;
-
-		$days = (int) $days;
-
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-
-		// Number of unique events the last n days
-		$cache_key = "SimpleHistory_FilterDropin_unique_events_for_days" . $days;
-		$numEvents = wp_cache_get($cache_key);
-
-		if ( false == $numEvents ) {
-		
-			$sql = $wpdb->prepare("
-				SELECT count( DISTINCT occasionsID )
-				FROM $table_name
-				WHERE date >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
-			", $days);
-	
-			$numEvents = $wpdb->get_var($sql);
-
-			wp_cache_set( $cache_key, $numEvents, "",  DAY_IN_SECONDS);
-
-		}
-
-		return $numEvents;
-
-	}
 
 	public function gui_page_filters() {
 
@@ -96,8 +67,8 @@ class SimpleHistoryFilterDropin {
 				$loggers_user_can_read_sql_in = $this->sh->getLoggersThatUserCanRead(null, "sql");
 
 				// Get unique months
-				$cache_key = "SimpleHistory_FilterDropin_Months";
-				$result_months = wp_cache_get($cache_key);
+				$cache_key = "sh_filter_unique_months";
+				$result_months = get_transient( $cache_key );
 
 				if ( false === $result_months ) {
 				
@@ -112,7 +83,7 @@ class SimpleHistoryFilterDropin {
 
 					$result_months = $wpdb->get_results($sql_dates);
 
-					wp_cache_set($cache_key, $result_months, "", HOUR_IN_SECONDS);
+					set_transient( $cache_key, $result_months, HOUR_IN_SECONDS );
 
 				}
 
@@ -128,7 +99,7 @@ class SimpleHistoryFilterDropin {
 				$daysToShow = 1;
 
 				// Start with the latest day
-				$numEvents = $this->get_unique_events_for_days($daysToShow);
+				$numEvents = $this->sh->get_unique_events_for_days($daysToShow);
 				$numPages = $numEvents / $this->sh->get_pager_size();
 
 				$arr_days_and_pages[] = array(
@@ -144,7 +115,7 @@ class SimpleHistoryFilterDropin {
 
 					// Not that many things the last day. Let's try to expand to 7 days instead.
 					$daysToShow = 7;
-					$numEvents = $this->get_unique_events_for_days($daysToShow);
+					$numEvents = $this->sh->get_unique_events_for_days($daysToShow);
 					$numPages = $numEvents / $this->sh->get_pager_size();
 
 					$arr_days_and_pages[] = array(
@@ -156,7 +127,7 @@ class SimpleHistoryFilterDropin {
 					
 						// Not that many things the last 7 days. Let's try to expand to 14 days instead.
 						$daysToShow = 14;
-						$numEvents = $this->get_unique_events_for_days($daysToShow);
+						$numEvents = $this->sh->get_unique_events_for_days($daysToShow);
 						$numPages = $numEvents / $this->sh->get_pager_size();
 
 						$arr_days_and_pages[] = array(
@@ -168,7 +139,7 @@ class SimpleHistoryFilterDropin {
 
 							// Not many things the last 14 days either. Let try with 30 days.
 							$daysToShow = 30;
-							$numEvents = $this->get_unique_events_for_days($daysToShow);
+							$numEvents = $this->sh->get_unique_events_for_days($daysToShow);
 							$numPages = $numEvents / $this->sh->get_pager_size();
 
 							$arr_days_and_pages[] = array(

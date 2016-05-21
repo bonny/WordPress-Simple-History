@@ -63,6 +63,9 @@ class SimpleHistory {
 	/** Slug for the settings menu */
 	const SETTINGS_MENU_SLUG = "simple_history_settings_menu_slug";
 
+        /** Slug for the settings menu */
+        const SETTINGS_GENERAL_OPTION_GROUP = "simple_history_settings_group";
+
 	/** ID for the general settings section */
 	const SETTINGS_SECTION_GENERAL_ID = "simple_history_settings_section_general";
 
@@ -884,6 +887,7 @@ class SimpleHistory {
 			$dropinsDir . "SimpleHistorySettingsLogtestDropin.php",
 			$dropinsDir . "SimpleHistorySettingsStatsDropin.php",
 			$dropinsDir . "SimpleHistorySidebarDropin.php",
+			$dropinsDir . "SimpleHistorySidebarStats.php",
 		);
 
 		/**
@@ -969,6 +973,7 @@ class SimpleHistory {
 				"name" => $oneDropinName,
 				"instance" => new $oneDropinName( $this ),
 			);
+
 		}
 
 	}
@@ -1144,6 +1149,14 @@ class SimpleHistory {
 				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, "en" ), array("jquery"), '1.5.2', true );
 			}
 			// end add timeago
+
+			// Load Select2 locale
+			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/select2/select2_locale_%s.js';
+			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/select2/select2_locale_%s.js';
+			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
+				wp_enqueue_script( 'select2-locale', sprintf( $locale_url_path, $locale ), array("jquery"), '3.5.1', true );
+			}
+
 
 			/**
 			 * Fires when the admin scripts have been enqueued.
@@ -1654,8 +1667,8 @@ Because Simple History was just recently installed, this feed does not contain m
 		);
 
 		// Nonces for show where inputs
-		register_setting( "simple_history_settings_group", "simple_history_show_on_dashboard" );
-		register_setting( "simple_history_settings_group", "simple_history_show_as_page" );
+                register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, "simple_history_show_on_dashboard" );
+                register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, "simple_history_show_as_page" );
 
 		// Dropdown number if items to show
 		add_settings_field(
@@ -1667,7 +1680,7 @@ Because Simple History was just recently installed, this feed does not contain m
 		);
 
 		// Nonces for number of items inputs
-		register_setting( "simple_history_settings_group", "simple_history_pager_size" );
+                register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, "simple_history_pager_size" );
 
 		// Link to clear log
 		add_settings_field(
@@ -2552,7 +2565,7 @@ Because Simple History was just recently installed, this feed does not contain m
 	 * with all loggers they are allowed to read
 	 *
 	 * @param int $user_id Id of user to get loggers for. Defaults to current user id.
-	 * @param string $format format to return loggers in. Default is array.
+	 * @param string $format format to return loggers in. Default is array. Can also be "sql"
 	 * @return array
 	 */
 	public function getLoggersThatUserCanRead( $user_id = "", $format = "array" ) {
@@ -2960,6 +2973,118 @@ Because Simple History was just recently installed, this feed does not contain m
 		return $incrementor_value;
 
 	}
+
+
+	// Number of rows the last n days
+	function get_num_events_last_n_days( $period_days = 28 ) {
+
+		$transient_key = "sh_" . md5( __METHOD__  . $period_days . "_2");
+		
+		$count = get_transient( $transient_key );
+
+
+		if ( false === $count ) {
+
+			global $wpdb;
+
+			$sqlStringLoggersUserCanRead = $this->getLoggersThatUserCanRead( null, "sql" );
+
+			$sql = sprintf(
+				'
+					SELECT count(*) 
+					FROM %1$s 
+					WHERE UNIX_TIMESTAMP(date) >= %2$d
+					AND logger IN %3$s
+				',
+				$wpdb->prefix . SimpleHistory::DBTABLE,
+				strtotime("-$period_days days"),
+				$sqlStringLoggersUserCanRead
+			);
+			
+			$count = $wpdb->get_var( $sql );
+
+			set_transient( $transient_key, $count, HOUR_IN_SECONDS );
+
+		}
+		
+		return $count;
+
+	} // get_num_events_last_n_days
+
+
+	function get_num_events_per_day_last_n_days( $period_days = 28 ) {
+
+		$transient_key = "sh_" . md5( __METHOD__  . $period_days . "_2");
+		
+		$dates = get_transient( $transient_key );
+
+		if ( false === $dates ) {
+
+			global $wpdb;
+
+			$sqlStringLoggersUserCanRead = $this->getLoggersThatUserCanRead( null, "sql" );
+
+			$sql = sprintf(
+				'
+					SELECT 
+						date_format(date, "%%Y-%%m-%%d") AS yearDate,
+						count(date) AS count
+					FROM  
+						%1$s
+					WHERE 
+						UNIX_TIMESTAMP(date) >= %2$d
+						AND logger IN (%3$d)
+					GROUP BY yearDate
+					ORDER BY yearDate ASC
+				',
+				$wpdb->prefix . SimpleHistory::DBTABLE,
+				strtotime("-$period_days days"),
+				$sqlStringLoggersUserCanRead
+			);
+
+			$dates = $wpdb->get_results( $sql );
+
+			set_transient( $transient_key, $dates, HOUR_IN_SECONDS );
+			// echo "set";exit;
+
+		} else {
+			// echo "get";exit;			
+		}
+
+		return $dates;
+
+	} // get_num_events_per_day_for_period
+
+	// Number of unique events the last n days
+	public function get_unique_events_for_days( $days = 7 ) {
+
+		global $wpdb;
+
+		$days = (int) $days;
+
+		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+
+		$cache_key = "sh_" .md5( __METHOD__ . $days );
+
+		$numEvents = get_transient( $cache_key );
+
+		if ( false == $numEvents ) {
+		
+			$sql = $wpdb->prepare("
+				SELECT count( DISTINCT occasionsID )
+				FROM $table_name
+				WHERE date >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
+			", $days);
+	
+			$numEvents = $wpdb->get_var($sql);
+
+			set_transient( $cache_key, $numEvents, HOUR_IN_SECONDS );
+
+		}
+
+		return $numEvents;
+
+	} // get_unique_events_for_days
 
 } // class
 
