@@ -140,6 +140,8 @@ initiated by a specific user.
 
 6. See even more details about a logged event (by clicking on the date and time of the event).
 
+7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day. 
+A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 == Changelog ==
 
