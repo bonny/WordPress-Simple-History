@@ -3189,8 +3189,13 @@ function simple_history_text_diff( $left_string, $right_string, $args = null ) {
 
 	if ( ! $diff )
 		return '';
+	
+	$r = "";
 
-	$r  = "<table class='diff SimpleHistory__diff'>\n";
+	$r .= "<div class='SimpleHistory__diff__contents' tabindex='0'>";
+	$r .= "<div class='SimpleHistory__diff__contentsInner'>";
+
+	$r  .= "<table class='diff SimpleHistory__diff'>\n";
 
 	if ( ! empty( $args[ 'show_split_view' ] ) ) {
 		$r .= "<col class='content diffsplit left' /><col class='content diffsplit middle' /><col class='content diffsplit right' />";
@@ -3211,8 +3216,11 @@ function simple_history_text_diff( $left_string, $right_string, $args = null ) {
 	if ( $args['title'] || $args['title_left'] || $args['title_right'] )
 		$r .= "</thead>\n";
 
-	$r .= "<tbody>\n$diff\n</tbody>\n";
+	$r .= "<tbody>\n$diff</div>\n</tbody>\n";
 	$r .= "</table>";
+
+	$r .= "</div>";
+	$r .= "</div>";
 
 	return $r;
 }

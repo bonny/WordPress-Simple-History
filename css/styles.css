@@ -928,3 +928,23 @@ Modal window with detailss
 	padding: 10px;
 	font-weight: bold;
 }
+
+
+/* diff contents can be very high sometimes, so we limit the height and add scrollbars in those cases */
+.SimpleHistory__diff__contents {
+	max-height: 11em;
+	overflow: hidden;
+}
+
+.SimpleHistory__diff__contents:hover,
+.SimpleHistory__diff__contents:focus {
+	overflow-y: auto;
+}
+
+.SimpleHistory__diff__contents:focus {
+	outline: 1px solid rgb(0, 115, 170);
+	box-shadow: 0 0 0 1px #5b9dd9,0 0 2px 1px rgba(30,140,190,.8);
+}
+
+.SimpleHistory__diff__contentsInner {
+}
