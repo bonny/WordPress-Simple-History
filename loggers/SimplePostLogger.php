@@ -780,7 +780,6 @@ class SimplePostLogger extends SimpleLogger
 									__("Status", "simple-history"), 
 									esc_html($post_old_value),
 									esc_html($post_new_value)
-
 								);
 
 							} else if ( "post_date" == $key_to_diff ) {

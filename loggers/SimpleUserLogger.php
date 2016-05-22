@@ -176,7 +176,7 @@ class SimpleUserLogger extends SimpleLogger {
 		$arr_keys_to_check = _get_additional_user_keys( $user );
 
 		// Somehow some fields are not include above, so add them manually
-		$arr_keys_to_check = array_merge( $arr_keys_to_check, array("user_nicename", "user_email", "user_url") );
+		$arr_keys_to_check = array_merge( $arr_keys_to_check, array("user_email", "user_url", "display_name") );
 
 		// Skip some keys, because to much info or I don't know what they are
 		$arr_keys_to_check = array_diff( $arr_keys_to_check, array("use_ssl") );
@@ -186,6 +186,9 @@ class SimpleUserLogger extends SimpleLogger {
 		$posted_data["user_url"] = isset( $posted_data["url"] ) ? $posted_data["url"] : null;
 		$posted_data["show_admin_bar_front"] = isset( $posted_data["admin_bar_front"] ) ? true : null;
 		$posted_data["user_email"] = isset( $posted_data["email"] ) ? $posted_data["email"] : null;
+		
+		// Display name publicly as	= POST "display_name"
+		#var_dump($user->display_name);
 
 		// Set vals for Enable keyboard shortcuts for comment moderation
 		$posted_data['comment_shortcuts'] = isset( $posted_data['comment_shortcuts'] ) ? "true" : "false";
@@ -204,8 +207,8 @@ class SimpleUserLogger extends SimpleLogger {
 
 		// Check if password was updated
 		// if ( ! empty( $userdata['user_pass'] ) && $userdata['user_pass'] !== $user_obj->user_pass ) {
-		#var_dump( $user->user_email );
-		#var_dump( $posted_data["user_email"] );
+	
+		// Check if role was changed
 		
 		// Will contain the differences
 		$user_data_diff = array();
@@ -261,16 +264,11 @@ class SimpleUserLogger extends SimpleLogger {
 
 	}
 
-	/*
-	
-	user requests a reset password link
-
-		$errors = apply_filters( 'wp_login_errors', $errors, $redirect_to );
-
-		elseif	( isset($_GET['checkemail']) && 'confirm' == $_GET['checkemail'] )
-			$errors->add('confirm', __('Check your e-mail for the confirmation link.'), 'message');
-
-	*/
+	/**
+	 *
+	 * user requests a reset password link
+	 *
+	 */
 	function on_retrieve_password_message( $message, $key, $user_login, $user_data ) {
 		
 		if ( isset( $_GET["action"] ) && ( "lostpassword" == $_GET["action"] ) ) {
@@ -280,9 +278,6 @@ class SimpleUserLogger extends SimpleLogger {
 				"message" => $message,
 				"key" => $key,
 				"user_login" => $user_login,
-				// "user_data" => $user_data,
-				#"GET" => $_GET,
-				#"POST" => $_POST
 			);
 
 			if ( is_a( $user_data, "WP_User" ) ) {
@@ -434,7 +429,9 @@ class SimpleUserLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Modify row output
+	 * Modify plain text row output
+	 * - adds link to user profil
+	 * - change to "your profile" if you're looking at your own edit
 	 */
 	public function getLogRowPlainTextOutput($row) {
 
@@ -748,4 +745,120 @@ class SimpleUserLogger extends SimpleLogger {
 		return $post_data_diff;
 
 	}
+
+	/**
+	 * Return more info about an logged event
+	 * Supports so far: 
+	 */
+	function getLogRowDetailsOutput( $row ) {
+
+		$context = $row->context;
+		$message_key = $context["_message_key"];
+
+		$out = "";
+
+		if ( "user_updated_profile" == $message_key ) {
+
+			// Find all user_prev_ and user_new_ values and show them
+			$arr_user_keys_to_show_diff_for = array(
+				"first_name" => array(
+					"title" => _x("First name", "User logger", "simple-history")
+				),
+				"last_name" => array(
+					"title" => _x("Last name", "User logger", "simple-history")
+				),
+				"nickname" => array(
+					"title" => _x("Nickname", "User logger", "simple-history")
+				),
+				"description" => array(
+					"title" => _x("Description", "User logger", "simple-history")
+				),
+				"rich_editing" => array(
+					"title" => _x("Disable the visual editor when writing", "User logger", "simple-history")
+				),
+				"comment_shortcuts" => array(
+					"title" => _x("Enable keyboard shortcuts for comment moderation", "User logger", "simple-history")
+				),
+				"admin_color" => array(
+					"title" => _x("Admin Colour Scheme", "User logger", "simple-history")
+				),
+				"show_admin_bar_front" => array(
+					"title" => _x("Show Toolbar when viewing site", "User logger", "simple-history")
+				),
+				"aim" => array(
+					"title" => _x("AIM", "User logger", "simple-history")
+				),
+				"yim" => array(
+					"title" => _x("Yahoo IM", "User logger", "simple-history")
+				),
+				"jabber" => array(
+					"title" => _x("Jabber / Google Talk	", "User logger", "simple-history")
+				),
+				/*"user_nicename" => array(
+					"title" => _x("Nicename", "User logger", "simple-history")
+				),*/
+				"user_email" => array(
+					"title" => _x("Email", "User logger", "simple-history")
+				),
+				"user_url" => array(
+					"title" => _x("Website", "User logger", "simple-history")
+				),
+				"display_name" => array(
+					"title" => _x("Display name publicly as", "User logger", "simple-history")
+				)
+			);
+
+			$diff_table_output = "";
+
+			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
+
+				if ( isset( $context["user_prev_{$key}"] ) && isset( $context["user_new_{$key}"] ) ) {
+					
+					#$out .= "<p>key $key exists in context";
+					#$out .= "<p>" . $val["title"] . "</p>";
+					#$out .="<p>" . $context["user_prev_{$key}"] . "</p>";
+					#$out .="<p>" . $context["user_new_{$key}"] . "</p>";
+
+					$user_old_value = $context["user_prev_{$key}"];
+					$user_new_value = $context["user_new_{$key}"];
+
+					/*
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>Changed from %2$s to %3$s</td>
+						</tr>', 
+						$val["title"],
+						esc_html( $user_old_value ),
+						esc_html( $user_new_value )
+					);
+					*/
+
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>%2$s</td>
+						</tr>', 
+						$val["title"],
+						simple_history_text_diff( $user_old_value, $user_new_value )
+					);
+
+
+				}
+
+			}
+
+			if ( $diff_table_output ) {
+				$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+			}
+
+			$out .= $diff_table_output;
+
+		}
+
+		return $out;
+
+
+	}
+
 }
