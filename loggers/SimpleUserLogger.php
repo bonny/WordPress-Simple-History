@@ -106,7 +106,7 @@ class SimpleUserLogger extends SimpleLogger {
 		add_filter('authenticate', array($this, "on_authenticate"), 10, 3);
 
 		// User is changed
-		add_action("profile_update", array($this, "on_profile_update"), 10, 2);
+		#add_action("profile_update", array($this, "on_profile_update"), 10, 2);
 
 		// User is created
 		add_action("user_register", array($this, "on_user_register"), 10, 2);
@@ -121,6 +121,143 @@ class SimpleUserLogger extends SimpleLogger {
 		add_action( 'validate_password_reset', array( $this, "on_validate_password_reset" ), 10, 2 );
 
 		add_action( 'retrieve_password_message', array( $this, "on_retrieve_password_message" ), 10, 4 ); 
+
+		add_filter( 'insert_user_meta', array( $this, "on_insert_user_meta" ), 10, 3 );
+
+
+	}
+
+	 /*
+ 	 * Called before the user is updated
+ 	 * 
+ 	 * Filter a user's meta values and keys before the user is created or updated.
+ 	 *
+ 	 * Does not include contact methods. These are added using `wp_get_user_contact_methods( $user )`.
+ 	 * 
+ 	 * @param array $meta {
+ 	 *     Default meta values and keys for the user.
+ 	 *
+ 	 *     @type string   $nickname             The user's nickname. Default is the user's username.
+	 *     @type string   $first_name           The user's first name.
+	 *     @type string   $last_name            The user's last name.
+	 *     @type string   $description          The user's description.
+	 *     @type bool     $rich_editing         Whether to enable the rich-editor for the user. False if not empty.
+	 *     @type bool     $comment_shortcuts    Whether to enable keyboard shortcuts for the user. Default false.
+	 *     @type string   $admin_color          The color scheme for a user's admin screen. Default 'fresh'.
+	 *     @type int|bool $use_ssl              Whether to force SSL on the user's admin area. 0|false if SSL is
+	 *                                          not forced.
+	 *     @type bool     $show_admin_bar_front Whether to show the admin bar on the front end for the user.
+	 *                                          Default true.
+ 	 * }
+	 * @param WP_User $user   User object.
+	 * @param bool    $update Whether the user is being updated rather than created.
+	 */
+	function on_insert_user_meta( $meta, $user, $update ) {
+
+		// We only log updates here
+		if ( ! $update ) {
+			return $meta;
+		}
+
+		// $user should be set, but check just in case
+		if ( empty( $user ) || ! is_object( $user ) ) {
+			return $meta;
+		}
+
+		/*
+		POSTed data = new data to set
+		Includes:
+		{
+		    "admin_color": "ectoplasm",
+		    "admin_bar_front": "1",
+		    "first_name": "P\u00e4rRAA",
+		    "last_name": "Thernstr\u00f6mRAA",
+		    "nickname": "adminmannenyoQAA",
+		    "display_name": "P\u00e4r",
+		    "email": "par.thernstrom@gmail.com",
+		    "url": "http:\/\/webcQAA",
+		    "aim": "aimEQAA",
+		    "yim": "yahooFEAA",
+		    "jabber": "jabberRAA",
+		    "description": "bio infoRAA",
+		    "pass1": "",
+		    "pass2": "",
+		}
+		*/
+		
+		// Make of copy of the posted data, because we change the keys
+		$posted_data = $_POST;
+
+		// Get the deafult fields to include. This includes contact methods (including filter, so more could have been added)
+		$arr_keys_to_check = _get_additional_user_keys( $user );
+
+		// Somehow some fields are not include above, so add them manually
+		$arr_keys_to_check = array_merge( $arr_keys_to_check, array("user_nicename", "user_email", "user_url") );
+
+		// Skip some keys, because to much info or I don't know what they are
+		$arr_keys_to_check = array_diff( $arr_keys_to_check, array("use_ssl") );
+
+		// Some keys have different ways of getting data from user
+		// so change posted object to match those
+		$posted_data["user_url"] = isset( $posted_data["url"] ) ? $posted_data["url"] : null;
+		$posted_data["show_admin_bar_front"] = isset( $posted_data["admin_bar_front"] ) ? true : null;
+		$posted_data["user_email"] = isset( $posted_data["email"] ) ? $posted_data["email"] : null;
+
+		// Enable keyboard shortcuts for comment moderation
+		$posted_data['comment_shortcuts'] = isset( $posted_data['comment_shortcuts'] ) ? "true" : "false";
+		
+		// Disable the visual editor when writing
+		// posted val = string "false" = yes, disable
+		$posted_data['rich_editing'] = isset( $posted_data['rich_editing'] ) ? "false" : "true";
+		
+		// Show Toolbar when viewing site
+		$posted_data['show_admin_bar_front'] = isset( $posted_data['admin_bar_front'] ) ? "true" : "false";
+		
+		// if checkbox is checked in admin then this is the saved value on the user object
+		#var_dump( $user->comment_shortcuts ); // "true"
+		#var_dump( $user->rich_editing ); // "false"
+		#var_dump( $user->show_admin_bar_front ); // "true"
+
+		#print_r($posted_data);
+		// Check if password was updated
+		// if ( ! empty( $userdata['user_pass'] ) && $userdata['user_pass'] !== $user_obj->user_pass ) {
+		#var_dump( $user->user_email );
+		#var_dump( $posted_data["user_email"] );
+		
+		// Will contain the differences
+		$user_data_diff = array();
+
+		// Check all keys for diff values
+		foreach  ( $arr_keys_to_check as $one_key_to_check ) {
+
+			$old_val = $user->$one_key_to_check;
+			$new_val = isset( $posted_data[ $one_key_to_check ] ) ? $posted_data[ $one_key_to_check ] : null;
+
+			#echo "<hr>key: $one_key_to_check";
+			#echo "<br>old val: $old_val";
+			#echo "<br>new val: $new_val";
+
+			// new val must be set, because otherwise we are not setting anything
+			if ( ! isset( $new_val ) ) {
+				continue;
+			}
+
+			$user_data_diff = $this->add_diff($user_data_diff, $one_key_to_check, $old_val, $new_val);
+			
+		}
+
+
+		$context = array(
+			"edited_user_id" => $user->ID,
+			"edited_user_email" => $user->user_email,
+			"edited_user_login" => $user->user_login,
+			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
+			"user_data_diff" => $user_data_diff
+		);
+	
+		$this->infoMessage("user_updated_profile", $context);
+
+		return $meta;
 
 	}
 
@@ -144,8 +281,8 @@ class SimpleUserLogger extends SimpleLogger {
 				"key" => $key,
 				"user_login" => $user_login,
 				// "user_data" => $user_data,
-				"GET" => $_GET,
-				"POST" => $_POST
+				#"GET" => $_GET,
+				#"POST" => $_POST
 			);
 
 			if ( is_a( $user_data, "WP_User" ) ) {
@@ -319,9 +456,12 @@ class SimpleUserLogger extends SimpleLogger {
 					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
 
 					$use_you = apply_filters("simple_history/user_logger/plain_text_output_use_you", true);
+					
+					//error_log( serialize( $current_user_id) ); // int 1
+					//error_log( serialize( $context["_user_id"]) ); // string 1
 
 					// User still exist, so link to their profile
-					if ( $current_user_id === $context["_user_id"] && $use_you ) {
+					if ( (int) $current_user_id === (int) $context["_user_id"] && $use_you ) {
 
 						// User that is viewing the log is the same as the edited user
 						$msg = __('Edited <a href="{edit_profile_link}">your profile</a>', "simple-history");
@@ -424,9 +564,14 @@ class SimpleUserLogger extends SimpleLogger {
 
 	/**
 	 * User is edited
+	 * 
+	 * Called immediately after an existing user is updated.
+	 * @param int    $user_id       User ID.
+	 * @param object $old_user_data Object containing user's data prior to update.
 	 */
-	function on_profile_update($user_id) {
+	function on_profile_update( $user_id, $old_user_data ) {
 
+		/*
 		if (!$user_id || !is_numeric($user_id)) {
 			return;
 		}
@@ -437,10 +582,13 @@ class SimpleUserLogger extends SimpleLogger {
 			"edited_user_id" => $wp_user_edited->ID,
 			"edited_user_email" => $wp_user_edited->user_email,
 			"edited_user_login" => $wp_user_edited->user_login,
-			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
+			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
+			"old_user_data" => $old_user_data
 		);
 
+	
 		$this->infoMessage("user_updated_profile", $context);
+		*/
 
 	}
 
@@ -580,5 +728,24 @@ class SimpleUserLogger extends SimpleLogger {
 		return $user;
 
 	}
+	
+	/**
+	 * Add diff to array if old and new values are different
+	 *
+	 * Since 2.0.29
+	 */
+	function add_diff($post_data_diff, $key, $old_value, $new_value) {
 
+		if ( $old_value != $new_value ) {
+
+			$post_data_diff[$key] = array(
+				"old" => $old_value,
+				"new" => $new_value
+			);
+
+		}
+
+		return $post_data_diff;
+
+	}
 }
