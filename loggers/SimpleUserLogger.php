@@ -163,32 +163,16 @@ class SimpleUserLogger extends SimpleLogger {
 		if ( empty( $user ) || ! is_object( $user ) ) {
 			return $meta;
 		}
-
-		/*
-		POSTed data = new data to set
-		Includes:
-		{
-		    "admin_color": "ectoplasm",
-		    "admin_bar_front": "1",
-		    "first_name": "P\u00e4rRAA",
-		    "last_name": "Thernstr\u00f6mRAA",
-		    "nickname": "adminmannenyoQAA",
-		    "display_name": "P\u00e4r",
-		    "email": "par.thernstrom@gmail.com",
-		    "url": "http:\/\/webcQAA",
-		    "aim": "aimEQAA",
-		    "yim": "yahooFEAA",
-		    "jabber": "jabberRAA",
-		    "description": "bio infoRAA",
-		    "pass1": "",
-		    "pass2": "",
-		}
-		*/
-		
+	
 		// Make of copy of the posted data, because we change the keys
 		$posted_data = $_POST;
 
-		// Get the deafult fields to include. This includes contact methods (including filter, so more could have been added)
+		// Paranoid mode, just in case some other plugin fires the "insert_user_meta" filter and the user.php file is not loaded for some super wierd reason
+		if ( ! function_exists( "_get_additional_user_keys" ) ) {
+			return $meta;
+		}
+		
+		// Get the default fields to include. This includes contact methods (including filter, so more could have been added)
 		$arr_keys_to_check = _get_additional_user_keys( $user );
 
 		// Somehow some fields are not include above, so add them manually
@@ -203,14 +187,14 @@ class SimpleUserLogger extends SimpleLogger {
 		$posted_data["show_admin_bar_front"] = isset( $posted_data["admin_bar_front"] ) ? true : null;
 		$posted_data["user_email"] = isset( $posted_data["email"] ) ? $posted_data["email"] : null;
 
-		// Enable keyboard shortcuts for comment moderation
+		// Set vals for Enable keyboard shortcuts for comment moderation
 		$posted_data['comment_shortcuts'] = isset( $posted_data['comment_shortcuts'] ) ? "true" : "false";
 		
-		// Disable the visual editor when writing
+		// Set vals for Disable the visual editor when writing
 		// posted val = string "false" = yes, disable
 		$posted_data['rich_editing'] = isset( $posted_data['rich_editing'] ) ? "false" : "true";
 		
-		// Show Toolbar when viewing site
+		// Set vals for Show Toolbar when viewing site
 		$posted_data['show_admin_bar_front'] = isset( $posted_data['admin_bar_front'] ) ? "true" : "false";
 		
 		// if checkbox is checked in admin then this is the saved value on the user object
@@ -218,7 +202,6 @@ class SimpleUserLogger extends SimpleLogger {
 		#var_dump( $user->rich_editing ); // "false"
 		#var_dump( $user->show_admin_bar_front ); // "true"
 
-		#print_r($posted_data);
 		// Check if password was updated
 		// if ( ! empty( $userdata['user_pass'] ) && $userdata['user_pass'] !== $user_obj->user_pass ) {
 		#var_dump( $user->user_email );
@@ -246,14 +229,31 @@ class SimpleUserLogger extends SimpleLogger {
 			
 		}
 
-
+		// Setup basic context
 		$context = array(
 			"edited_user_id" => $user->ID,
 			"edited_user_email" => $user->user_email,
 			"edited_user_login" => $user->user_login,
 			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
-			"user_data_diff" => $user_data_diff
 		);
+
+		// Add diff to context
+		if ( $user_data_diff ) {
+
+			foreach ( $user_data_diff as $one_diff_key => $one_diff_vals ) {
+				/*
+				One diff looks like:
+			    "nickname": {
+			        "old": "MyOldNick",
+			        "new": "MyNewNick"
+			    }
+				*/
+				$context["user_prev_{$one_diff_key}"] = $one_diff_vals["old"];
+				$context["user_new_{$one_diff_key}"] = $one_diff_vals["new"];
+			}
+
+		}
+
 	
 		$this->infoMessage("user_updated_profile", $context);
 
