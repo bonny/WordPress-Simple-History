@@ -166,6 +166,7 @@ class SimpleUserLogger extends SimpleLogger {
 	
 		// Make of copy of the posted data, because we change the keys
 		$posted_data = $_POST;
+		$posted_data = stripslashes_deep( $posted_data );
 
 		// Paranoid mode, just in case some other plugin fires the "insert_user_meta" filter and the user.php file is not loaded for some super wierd reason
 		if ( ! function_exists( "_get_additional_user_keys" ) ) {
@@ -804,7 +805,8 @@ class SimpleUserLogger extends SimpleLogger {
 					"title" => _x("Website", "User logger", "simple-history")
 				),
 				"display_name" => array(
-					"title" => _x("Display name publicly as", "User logger", "simple-history")
+					//"title" => _x("Display name publicly as", "User logger", "simple-history")
+					"title" => _x("Display name", "User logger", "simple-history")
 				)
 			);
 
@@ -834,15 +836,23 @@ class SimpleUserLogger extends SimpleLogger {
 					);
 					*/
 
+					// $diff_table_output .= sprintf(
+					// 	'<tr>
+					// 		<td>%1$s</td>
+					// 		<td>%2$s</td>
+					// 	</tr>', 
+					// 	$val["title"],
+					// 	simple_history_text_diff( $user_old_value, $user_new_value )
+					// );
+
 					$diff_table_output .= sprintf(
 						'<tr>
 							<td>%1$s</td>
 							<td>%2$s</td>
 						</tr>', 
 						$val["title"],
-						simple_history_text_diff( $user_old_value, $user_new_value )
+						sprintf( '<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins> <del class="SimpleHistoryLogitem__keyValueTable__removedThing">%2$s<del>', esc_html( $user_old_value ), esc_html( $user_new_value ) )
 					);
-
 
 				}
 

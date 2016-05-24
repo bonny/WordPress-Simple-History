@@ -330,6 +330,15 @@ Style different log levels.
 }
 
 
+.SimpleHistoryLogitem__keyValueTable__addedThing {
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem__keyValueTable__removedThing {
+	text-decoration: line-through;
+	color: #999;
+}
+
 
 /* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
 .SimpleHistoryLogitem__inlineDivided {
