@@ -147,11 +147,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.x (nnn 2016) =
+= 2.x (May 2016) =
 
+- Added: When a user is created or edited the log now shows what fields have changed and from what old value to what new value. A much requested feature!
 - Fixed: If you edited your own profile the log would say that you edited "their profile". Now it says that you edited "your profile" instead.
 - Changed: Post diffs could get very tall. Now they are max approx 8 rows by default, but if you hover the diff (or give it focus with your keyboard) you get a scrollbar and can scroll the contents. Fixes https://wordpress.org/support/topic/dashboard-max-length-of-content and https://wordpress.org/support/topic/feature-request-make-content-diff-report-expandable-and-closed-by-default.
-- Fixed: Myabe fix a notice varning if a transient was missing a name or value.
+- Fixed: Maybe fix a notice varning if a transient was missing a name or value.
 
 = 2.6 (May 2016) =
 
