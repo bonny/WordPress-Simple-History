@@ -903,7 +903,7 @@ class SimpleUserLogger extends SimpleLogger {
 
 			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
 
-				if ( isset( $context[ $key ] ) && ! empty( trim( $context[ $key ] ) ) ) {
+				if ( isset( $context[ $key ] ) && trim( $context[ $key ] ) ) {
 
 					if ( "send_user_notification" == $key ) {
 
