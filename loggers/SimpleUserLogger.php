@@ -451,7 +451,7 @@ class SimpleUserLogger extends SimpleLogger {
 
 				if ( $wp_user ) {
 
-					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
+					$context["edit_profile_link"] = get_edit_user_link( $wp_user->ID );
 
 					$use_you = apply_filters("simple_history/user_logger/plain_text_output_use_you", true);
 					
@@ -482,7 +482,7 @@ class SimpleUserLogger extends SimpleLogger {
 			} else {
 
 				// User edited another users profile
-				if ($wp_user) {
+				if ( $wp_user ) {
 
 					// Edited user still exist, so link to their profile
 					$context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
@@ -497,7 +497,38 @@ class SimpleUserLogger extends SimpleLogger {
 
 			}
 
-		}// if user_updated_profile
+			// if user_updated_profile
+		
+		} else if ( "user_created" == $context["_message_key"] ) {
+
+			// A user was created. Create link of username that goes to user profile.
+			$wp_user = get_user_by( "id", $context["created_user_id"] );
+
+			// If edited_user_id and _user_id is the same then a user edited their own profile
+			// Note: it's not the same thing as the currently logged in user (but.. it can be!)
+
+			if ( $wp_user ) {
+
+				$context["edit_profile_link"] = get_edit_user_link( $wp_user->ID );
+
+				// User that is viewing the log is the same as the edited user
+				$msg = __('Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}', "simple-history");
+
+				$output = $this->interpolate(
+							$msg, 
+							$context, 
+							$row
+						);
+
+			} else {
+				
+				// User does not exist any longer, keep original message
+
+
+			}
+
+		}
+
 
 		return $output;
 	}
@@ -852,7 +883,80 @@ class SimpleUserLogger extends SimpleLogger {
 
 			$out .= $diff_table_output;
 
-		}
+		} else if ( "user_created" == $message_key ) {
+
+			// Show fields for created users
+			$arr_user_keys_to_show_diff_for = array(
+				"created_user_first_name" => array(
+					"title" => _x("First name", "User logger", "simple-history")
+				),
+				"created_user_last_name" => array(
+					"title" => _x("Last name", "User logger", "simple-history")
+				),
+				"created_user_url" => array(
+					"title" => _x("Website", "User logger", "simple-history")
+				),
+				"send_user_notification" => array(
+					"title" => _x("User notification email sent", "User logger", "simple-history")
+				)
+			);
+
+			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
+
+				if ( isset( $context[ $key ] ) && ! empty( trim( $context[ $key ] ) ) ) {
+
+					if ( "send_user_notification" == $key ) {
+
+						if ( intval( $context[ $key ] ) == 1 ) {
+							$sent_status = _x("Yes, email with account details was sent", "User logger", "simple-history");
+						} else {
+							// $sent_status = _x("No, no email with account details was sent", "User logger", "simple-history");
+							$sent_status = "";
+						}
+
+						if ( $sent_status ) {
+
+							$diff_table_output .= sprintf(
+								'<tr>
+									<td>%1$s</td>
+									<td>%2$s</td>
+								</tr>', 
+								_x("Notification", "User logger", "simple-history"),
+								sprintf( 
+									'<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>',
+									 esc_html( $sent_status ) // 1
+								)
+							);
+
+						}
+
+					} else {
+
+						$diff_table_output .= sprintf(
+							'<tr>
+								<td>%1$s</td>
+								<td>%2$s</td>
+							</tr>', 
+							$val["title"],
+							sprintf( 
+								'<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>',
+								 esc_html( $context[ $key ] ) // 1
+							)
+						);
+
+					}
+
+				}
+
+			}
+
+			if ( $diff_table_output ) {
+				$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+			}
+
+			$out .= $diff_table_output;
+
+		} // message key
 
 		return $out;
 
