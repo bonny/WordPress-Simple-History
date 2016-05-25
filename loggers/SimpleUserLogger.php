@@ -592,10 +592,14 @@ class SimpleUserLogger extends SimpleLogger {
 
 	/**
 	 * User is created
+	 *
+	 * "This action hook allows you to access data for a new user immediately after they are added to the database.
+	 *  The user id is passed to hook as an argument."
+	 *
 	 */
-	function on_user_register($user_id) {
+	function on_user_register( $user_id ) {
 
-		if (!$user_id || !is_numeric($user_id)) {
+		if ( ! $user_id || ! is_numeric( $user_id )) {
 			return;
 		}
 
@@ -603,15 +607,21 @@ class SimpleUserLogger extends SimpleLogger {
 
 		// wp_user->roles (array) - the roles the user is part of.
 		$role = null;
-		if (is_array($wp_user_added->roles) && !empty($wp_user_added->roles[0])) {
+		if ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0]) ) {
 			$role = $wp_user_added->roles[0];
 		}
+
+		$send_user_notification = (int) ( isset( $_POST["send_user_notification"] ) && $_POST["send_user_notification"] );
 
 		$context = array(
 			"created_user_id" => $wp_user_added->ID,
 			"created_user_email" => $wp_user_added->user_email,
-			"created_user_login" => $wp_user_added->user_login,
+			"created_user_login" => $wp_user_added->user_login, // username
 			"created_user_role" => $role,
+			"created_user_first_name" => $wp_user_added->first_name,
+			"created_user_last_name" => $wp_user_added->last_name,
+			"created_user_url" => $wp_user_added->user_url,
+			"send_user_notification" => $send_user_notification,
 			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
 		);
 
@@ -772,19 +782,19 @@ class SimpleUserLogger extends SimpleLogger {
 					"title" => _x("Nickname", "User logger", "simple-history")
 				),
 				"description" => array(
-					"title" => _x("Description", "User logger", "simple-history")
+					"title" => _x("Description", "User logger", "simple-history"),
 				),
 				"rich_editing" => array(
-					"title" => _x("Disable the visual editor when writing", "User logger", "simple-history")
+					"title" => _x("Visual editor", "User logger", "simple-history") // Disable visual editor
 				),
 				"comment_shortcuts" => array(
-					"title" => _x("Enable keyboard shortcuts for comment moderation", "User logger", "simple-history")
-				),
-				"admin_color" => array(
-					"title" => _x("Admin Colour Scheme", "User logger", "simple-history")
+					"title" => _x("Keyboard shortcuts", "User logger", "simple-history") // Enable keyboard shortcuts for comment moderation
 				),
 				"show_admin_bar_front" => array(
-					"title" => _x("Show Toolbar when viewing site", "User logger", "simple-history")
+					"title" => _x("Show Toolbar", "User logger", "simple-history") //  Show Toolbar when viewing site
+				),
+				"admin_color" => array(
+					"title" => _x("Colour Scheme", "User logger", "simple-history") // Admin Colour Scheme
 				),
 				"aim" => array(
 					"title" => _x("AIM", "User logger", "simple-history")
@@ -816,34 +826,8 @@ class SimpleUserLogger extends SimpleLogger {
 
 				if ( isset( $context["user_prev_{$key}"] ) && isset( $context["user_new_{$key}"] ) ) {
 					
-					#$out .= "<p>key $key exists in context";
-					#$out .= "<p>" . $val["title"] . "</p>";
-					#$out .="<p>" . $context["user_prev_{$key}"] . "</p>";
-					#$out .="<p>" . $context["user_new_{$key}"] . "</p>";
-
 					$user_old_value = $context["user_prev_{$key}"];
 					$user_new_value = $context["user_new_{$key}"];
-
-					/*
-					$diff_table_output .= sprintf(
-						'<tr>
-							<td>%1$s</td>
-							<td>Changed from %2$s to %3$s</td>
-						</tr>', 
-						$val["title"],
-						esc_html( $user_old_value ),
-						esc_html( $user_new_value )
-					);
-					*/
-
-					// $diff_table_output .= sprintf(
-					// 	'<tr>
-					// 		<td>%1$s</td>
-					// 		<td>%2$s</td>
-					// 	</tr>', 
-					// 	$val["title"],
-					// 	simple_history_text_diff( $user_old_value, $user_new_value )
-					// );
 
 					$diff_table_output .= sprintf(
 						'<tr>
@@ -851,7 +835,11 @@ class SimpleUserLogger extends SimpleLogger {
 							<td>%2$s</td>
 						</tr>', 
 						$val["title"],
-						sprintf( '<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins> <del class="SimpleHistoryLogitem__keyValueTable__removedThing">%2$s<del>', esc_html( $user_old_value ), esc_html( $user_new_value ) )
+						sprintf( 
+							'<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins> <del class="SimpleHistoryLogitem__keyValueTable__removedThing">%2$s</del>',
+							 esc_html( $user_new_value ), // 1
+							 esc_html( $user_old_value ) // 2
+						)
 					);
 
 				}
