@@ -202,14 +202,25 @@ class SimpleUserLogger extends SimpleLogger {
 		$posted_data['show_admin_bar_front'] = isset( $posted_data['admin_bar_front'] ) ? "true" : "false";
 		
 		// if checkbox is checked in admin then this is the saved value on the user object
-		#var_dump( $user->comment_shortcuts ); // "true"
-		#var_dump( $user->rich_editing ); // "false"
-		#var_dump( $user->show_admin_bar_front ); // "true"
+		// @todo:
 
 		// Check if password was updated
-		// if ( ! empty( $userdata['user_pass'] ) && $userdata['user_pass'] !== $user_obj->user_pass ) {
+		$password_changed = false;
+		if ( ! empty( $posted_data['pass1'] ) && ! empty( $posted_data['pass2'] ) && $posted_data['pass1'] == $posted_data['pass2']  ) {
+			$password_changed = 1;
+		}
 	
 		// Check if role was changed
+	    //[role] => bbp_moderator
+	    $role_changed = false;
+	    $new_role = isset( $posted_data["role"] ) ? $posted_data["role"] : null;
+
+	    // as done in user-edit.php
+	    // Compare user role against currently editable roles
+		$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
+		$old_role  = reset( $user_roles );
+		
+	    $role_changed = $new_role != $old_role;
 		
 		// Will contain the differences
 		$user_data_diff = array();
@@ -240,6 +251,15 @@ class SimpleUserLogger extends SimpleLogger {
 			"edited_user_login" => $user->user_login,
 			"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
 		);
+
+		if ( $password_changed ) {
+			$context["edited_user_password_changed"] = "1";
+		}
+
+		if ( $role_changed ) {
+			$context["user_prev_role"] = $old_role;
+			$context["user_new_role"] = $new_role;
+		}
 
 		// Add diff to context
 		if ( $user_data_diff ) {
@@ -848,6 +868,10 @@ class SimpleUserLogger extends SimpleLogger {
 				"display_name" => array(
 					//"title" => _x("Display name publicly as", "User logger", "simple-history")
 					"title" => _x("Display name", "User logger", "simple-history")
+				),
+				"role" => array(
+					//"title" => _x("Display name publicly as", "User logger", "simple-history")
+					"title" => _x("Role", "User logger", "simple-history")
 				)
 			);
 
@@ -874,6 +898,20 @@ class SimpleUserLogger extends SimpleLogger {
 					);
 
 				}
+
+			}
+
+			// check if password was changed
+			if ( isset( $context["edited_user_password_changed"] ) ) {
+
+				$diff_table_output .= sprintf(
+					'<tr>
+						<td>%1$s</td>
+						<td>%2$s</td>
+					</tr>', 
+					_x("Password", "User logger", "simple-history"),
+					_x("Changed", "User logger", "simple-history")
+				);
 
 			}
 
