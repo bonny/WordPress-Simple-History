@@ -399,13 +399,13 @@ class SimplePostLogger extends SimpleLogger
 	 * Adds diff data to the context array. Is called just before the event is logged.
 	 * 
 	 * Since 2.0.29
-
-	 To detect
-		- post thumb (part of custom fields)
-		- categories
-		- tags
-	* @return array $context with diff data added
-	*/
+	 * 
+	 * To detect
+	 *	- post thumb (part of custom fields)
+	 *	- categories
+	 *	- tags
+	 * @return array $context with diff data added
+	 */
 	function add_post_data_diff_to_context($context, $old_post_data, $new_post_data) {
 		
 		$old_data = $old_post_data["post_data"];
@@ -625,6 +625,8 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	/**
+	 * Add diff to array if old and new values are different
+	 *
 	 * Since 2.0.29
 	 */
 	function add_diff($post_data_diff, $key, $old_value, $new_value) {
@@ -778,7 +780,6 @@ class SimplePostLogger extends SimpleLogger
 									__("Status", "simple-history"), 
 									esc_html($post_old_value),
 									esc_html($post_new_value)
-
 								);
 
 							} else if ( "post_date" == $key_to_diff ) {

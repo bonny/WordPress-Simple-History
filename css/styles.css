@@ -330,6 +330,15 @@ Style different log levels.
 }
 
 
+.SimpleHistoryLogitem__keyValueTable__addedThing {
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem__keyValueTable__removedThing {
+	text-decoration: line-through;
+	color: #999;
+}
+
 
 /* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
 .SimpleHistoryLogitem__inlineDivided {
@@ -927,4 +936,36 @@ Modal window with detailss
 	background: rgb(255, 255, 183);
 	padding: 10px;
 	font-weight: bold;
+}
+
+
+/* diff contents can be very high sometimes, so we limit the height and add scrollbars in those cases */
+.SimpleHistory__diff__contents {
+	max-height: 11em;
+	overflow: hidden;
+	position: relative;
+}
+
+/* fade out that indicate more content */
+/*.SimpleHistory__diff__contents:after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 30px;
+	background: linear-gradient(transparent, white);
+}*/
+
+.SimpleHistory__diff__contents:hover,
+.SimpleHistory__diff__contents:focus {
+	overflow-y: auto;
+}
+
+.SimpleHistory__diff__contents:focus {
+	outline: 1px solid rgb(0, 115, 170);
+	box-shadow: 0 0 0 1px #5b9dd9,0 0 2px 1px rgba(30,140,190,.8);
+}
+
+.SimpleHistory__diff__contentsInner {
 }

@@ -314,7 +314,7 @@ class SimplePluginLogger extends SimpleLogger
 	 * We detect when that transient is set and then we have all info needed to log the plugin delete
 	 *	 
 	 */
-	public function on_setted_transient_for_remove_files($transient, $value) {
+	public function on_setted_transient_for_remove_files( $transient = "", $value = "" ) {	
 
 		if ( ! $user_id = get_current_user_id() ) {
 			return;
