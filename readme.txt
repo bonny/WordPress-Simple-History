@@ -143,6 +143,8 @@ initiated by a specific user.
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day. 
 A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
+8. When users are created or changed you can see details on what have changed.
+
 == Changelog ==
 
 ## Changelog
