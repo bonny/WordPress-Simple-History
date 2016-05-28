@@ -213,14 +213,18 @@ class SimpleUserLogger extends SimpleLogger {
 		// Check if role was changed
 	    //[role] => bbp_moderator
 	    $role_changed = false;
+
+	    // if user is network admin then role dropdown does not exist and role is not posted here
 	    $new_role = isset( $posted_data["role"] ) ? $posted_data["role"] : null;
 
-	    // as done in user-edit.php
-	    // Compare user role against currently editable roles
-		$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
-		$old_role  = reset( $user_roles );
-		
-	    $role_changed = $new_role != $old_role;
+	    if ( $new_role ) {
+		    // as done in user-edit.php
+		    // Compare user role against currently editable roles
+			$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
+			$old_role  = reset( $user_roles );
+			
+		    $role_changed = $new_role != $old_role;
+		}
 		
 		// Will contain the differences
 		$user_data_diff = array();
@@ -862,12 +866,12 @@ class SimpleUserLogger extends SimpleLogger {
 				"user_email" => array(
 					"title" => _x("Email", "User logger", "simple-history")
 				),
-				"user_url" => array(
-					"title" => _x("Website", "User logger", "simple-history")
-				),
 				"display_name" => array(
 					//"title" => _x("Display name publicly as", "User logger", "simple-history")
 					"title" => _x("Display name", "User logger", "simple-history")
+				),
+				"user_url" => array(
+					"title" => _x("Website", "User logger", "simple-history")
 				),
 				"role" => array(
 					//"title" => _x("Display name publicly as", "User logger", "simple-history")
