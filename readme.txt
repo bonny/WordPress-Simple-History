@@ -149,6 +149,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.7.x (nnn 2016) =
+
+- Fixed: Actions done with [WP CLI](https://wp-cli.org/) was not correctly attributed. Now the log should say "WP-CLI" intead of "Other" for actions done in WP CLI.
+
 = 2.7 (May 2016) =
 
 - Added: When a user is created or edited the log now shows what fields have changed and from what old value to what new value. A much requested feature!

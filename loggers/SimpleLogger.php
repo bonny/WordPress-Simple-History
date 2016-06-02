@@ -1110,7 +1110,8 @@ class SimpleLogger {
 			//  - it is a user that is manually doing this, on purpose, with intent, so not auto wordpress
 			//  - it is a specific user, but we don't know who
 			// - sounds like a special case, set initiator to wp_cli
-			if ( isset( $_SERVER["WP_CLI_PHP_USED"] ) && "cli" == php_sapi_name() ) {
+			// Can be used by plugins/themes to check if WP-CLI is running or not
+			if ( defined( "WP_CLI" ) && WP_CLI ) {
 
 				$data["initiator"] = SimpleLoggerLogInitiators::WP_CLI;
 
