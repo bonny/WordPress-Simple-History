@@ -156,6 +156,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Fixed: When changing "Front Page Displays" in "Reading Settings" the option "rewrite_rules" also got logged.
 - Fixed: Changes in Permalink Settings were not logged correctly.
 - Fixed: Actions done with [WP-CLI](https://wp-cli.org/) was not correctly attributed. Now the log should say "WP-CLI" intead of "Other" for actions done in WP CLI.
+- Added: Add check that [´mbstring´](http://php.net/manual/en/book.mbstring.php) is enabled and show a warning if it's not.
 
 = 2.7 (May 2016) =
 
