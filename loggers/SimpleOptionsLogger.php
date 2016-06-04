@@ -2,122 +2,6 @@
 
 defined( 'ABSPATH' ) or die();
 
-/*
-
-<form> is posted to options.php
-
-If $_GET['action'] == 'update' we are saving settings sent from a settings page
-
-update_option( $option, $value );
-set_transient('settings_errors', get_settings_errors(), 30);
-
-
- * Fires immediately before an option value is updated.
- * @param string $option    Name of the option to update.
- * @param mixed  $old_value The old option value.
- * @param mixed  $value     The new option value.
-do_action( 'update_option', $option, $old_value, $value );
-
-
- * Fires after the value of an option has been successfully updated.
- *
- * @since 2.9.0
- *
- * @param string $option    Name of the updated option.
- * @param mixed  $old_value The old option value.
- * @param mixed  $value     The new option value.
- do_action( 'updated_option', $option, $old_value, $value );
-
-options white list.
-$whitelist_options = apply_filters( 'whitelist_options', $whitelist_options );
-Array
-(
-	[general] => Array
-		(
-			[0] => blogname
-			[1] => blogdescription
-			[2] => gmt_offset
-			[3] => date_format
-			[4] => time_format
-			[5] => start_of_week
-			[6] => timezone_string
-			[7] => siteurl
-			[8] => home
-			[9] => admin_email
-			[10] => users_can_register
-			[11] => default_role
-		)
-
-	[discussion] => Array
-		(
-			[0] => default_pingback_flag
-			[1] => default_ping_status
-			[2] => default_comment_status
-			[3] => comments_notify
-			[4] => moderation_notify
-			[5] => comment_moderation
-			[6] => require_name_email
-			[7] => comment_whitelist
-			[8] => comment_max_links
-			[9] => moderation_keys
-			[10] => blacklist_keys
-			[11] => show_avatars
-			[12] => avatar_rating
-			[13] => avatar_default
-			[14] => close_comments_for_old_posts
-			[15] => close_comments_days_old
-			[16] => thread_comments
-			[17] => thread_comments_depth
-			[18] => page_comments
-			[19] => comments_per_page
-			[20] => default_comments_page
-			[21] => comment_order
-			[22] => comment_registration
-		)
-
-	[media] => Array
-		(
-			[0] => thumbnail_size_w
-			[1] => thumbnail_size_h
-			[2] => thumbnail_crop
-			[3] => medium_size_w
-			[4] => medium_size_h
-			[5] => large_size_w
-			[6] => large_size_h
-			[7] => image_default_size
-			[8] => image_default_align
-			[9] => image_default_link_type
-			[10] => uploads_use_yearmonth_folders
-		)
-
-	[reading] => Array
-		(
-			[0] => posts_per_page
-			[1] => posts_per_rss
-			[2] => rss_use_excerpt
-			[3] => show_on_front
-			[4] => page_on_front
-			[5] => page_for_posts
-			[6] => blog_public
-		)
-
-	[writing] => Array
-		(
-			[0] => use_smilies
-			[1] => default_category
-			[2] => default_email_category
-			[3] => use_balanceTags
-			[4] => default_link_category
-			[5] => default_post_format
-			[6] => mailserver_url
-			[7] => mailserver_port
-			[8] => mailserver_login
-			[9] => mailserver_pass
-			[10] => ping_sites
-		)
-
-*/
-
 /**
  * Logs changes to wordpress options
  */
@@ -227,7 +111,61 @@ class SimpleOptionsLogger extends SimpleLogger
 
 	}
 
+	/**
+	 * Give some options better plain text output
+	 *
+	 * Not doing anything at the moment, because it was really difficaly to give them meaningful text values
+	 */
+	public function getLogRowPlainTextOutput( $row ) {
+		
+		$message = $row->message;
+		$context = $row->context;
+		$message_key = $context["_message_key"];
 
+		$return_message = "";
+
+		// Only link to attachment if it is still available
+		if ( "option_updated" == $message_key ) {
+
+			/*
+			$option = isset( $context["option"] ) ? $context["option"] : null;
+			$option_page = isset( $context["option_page"] ) ? $context["option_page"] : null;
+			$new_value = isset( $context["new_value"] ) ? $context["new_value"] : null;
+			$old_value = isset( $context["old_value"] ) ? $context["old_value"] : null;
+
+			# $return_message = "";
+			$arr_options_to_translate = array(
+				"$option_page/blog_public" => array(
+					"text" => "Updated setting Search Engine Visibility"
+				),
+				"$option_page/rss_use_excerpt" => array(
+					"text" => "Updated setting For each article in a feed, show"
+				),
+				"$option_page/posts_per_rss" => array(
+					"text" => "Updated setting for Syndication feeds show the most recent"
+				),
+				"$option_page/posts_per_page" => array(
+					"text" => "Updated setting for Blog pages show at most"
+				)
+			);
+
+			if ( isset( $arr_options_to_translate[ "{$option_page}/{$option}" ] ) ) {
+				$return_message = $arr_options_to_translate[ "{$option_page}/{$option}" ]["text"];
+			}
+			*/
+
+		}
+
+		if ( empty( $return_message ) ) {
+
+			// No specific text to output, fallback to default
+			$return_message = parent::getLogRowPlainTextOutput( $row );
+
+		}
+
+		return $return_message;
+
+	}
 
 	/**
 	 * Get detailed output
@@ -449,5 +387,90 @@ class SimpleOptionsLogger extends SimpleLogger
 		return $output;
 
 	} // custom output page_on_front
+
+
+	/**
+	 * "default_category" = Writing Settings » Default Post Category	
+	 */
+	function add_context_for_option_default_category( $context, $old_value, $new_value, $option, $option_page ) {
+
+		if ( ! empty( $old_value ) && is_numeric( $old_value ) ) {
+
+			$old_category_name = get_the_category_by_ID( $old_value );
+
+			if ( ! is_wp_error( $old_category_name) ) {
+
+				$context["old_category_name"] = $old_category_name;
+
+			}
+
+		}
+
+		if ( ! empty( $new_value ) && is_numeric( $new_value ) ) {
+
+			$new_category_name = get_the_category_by_ID( $new_value );
+
+			if ( ! is_wp_error( $new_category_name) ) {
+
+				$context["new_category_name"] = $new_category_name;
+
+			}
+
+		}
+
+		return $context;
+
+	}
+
+	function add_context_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page ) {
+		
+		$context = call_user_func_array( array( $this, "add_context_for_option_default_category"), func_get_args() );
+
+		return $context;
+
+	}
+
+
+	/**
+	 * Add detailed putput for default_category
+	 *
+	 * @return string output
+	 */
+	function get_details_output_for_option_default_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
+
+		$old_category_name = isset( $context["old_category_name"] ) ? $context["old_category_name"] : null;
+		$new_category_name = isset( $context["new_category_name"] ) ? $context["new_category_name"] : null;
+
+		if ( $old_category_name ) {
+
+			$output .= sprintf(
+				$tmpl_row,
+				__("Old value", "simple-history"),
+				esc_html( $old_category_name )
+			);		
+
+		}
+
+		if ( $new_category_name ) {
+
+			$output .= sprintf(
+				$tmpl_row,
+				__("New value", "simple-history"),
+				esc_html( $new_category_name )
+			);		
+
+		}
+
+		return $output;
+
+	}
+
+	function get_details_output_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {	
+		
+		$output = call_user_func_array( array( $this, "get_details_output_for_option_default_category"), func_get_args() );		
+
+		return $output;
+
+	}
 
 }
