@@ -114,7 +114,7 @@ class SimpleHistory {
 
 		add_filter( 'gettext', array( $this, "filter_gettext_storeLatestTranslations" ), 10, 3 );
 
-		add_action( 'admin_bar_menu', array( $this, 'add_network_admin_bar_menu_item' ), 999 );
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 999 );
 
 		if ( is_admin() ) {
 
@@ -195,7 +195,20 @@ class SimpleHistory {
 	 * 
 	 * @since 2.7.x
 	 */
-	function add_network_admin_bar_menu_item( $wp_admin_bar ) {
+	function add_admin_bar_network_menu_item( $wp_admin_bar ) {
+
+		/**
+		 * Filter to control if admin bar shortcut should be added
+		 *
+		 * @since 2.7.x
+		 *
+		 * @param bool Add item
+		 */
+		$add_items = apply_filters( "simple_history/add_admin_bar_network_menu_item", true );
+
+		if ( ! $add_items ) {
+			return;
+		}
 
 		// Don't show for logged out users or single site mode.
 		if ( ! is_user_logged_in() || ! is_multisite() )
