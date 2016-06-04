@@ -296,7 +296,7 @@ class SimplePluginLogger extends SimpleLogger
 	 * Saves info about all installed plugins to an option.
 	 * When we are done logging then we remove the option.
 	 */
-        function save_versions_before_update($bool = null, $hook_extra = null) {
+    function save_versions_before_update($bool = null, $hook_extra = null) {
 
 		$plugins = get_plugins();
 
