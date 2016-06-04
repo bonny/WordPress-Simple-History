@@ -151,12 +151,13 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.7.x (nnn 2016) =
 
+- Added: Add shortcut to history in Admin bar for current site and in Network Admin Bar for each site where plugin is installed. Can be disabled using filters `simple_history/add_admin_bar_menu_item` and `simple_history/add_admin_bar_network_menu_item`.
+- Added: Add check that [´mbstring´](http://php.net/manual/en/book.mbstring.php) is enabled and show a warning if it's not.
 - Changed: Changes to "Front Page Displays" in "Reading Settings" now show the name of the old and new page (before only id was logged).
 - Changed: Changes to "Default Post Category" and "Default Mail Category" in "Writing Settings" now show the name of the old and new category (before only id was logged).
 - Fixed: When changing "Front Page Displays" in "Reading Settings" the option "rewrite_rules" also got logged.
 - Fixed: Changes in Permalink Settings were not logged correctly.
 - Fixed: Actions done with [WP-CLI](https://wp-cli.org/) was not correctly attributed. Now the log should say "WP-CLI" intead of "Other" for actions done in WP CLI.
-- Added: Add check that [´mbstring´](http://php.net/manual/en/book.mbstring.php) is enabled and show a warning if it's not.
 
 = 2.7 (May 2016) =
 

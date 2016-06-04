@@ -115,6 +115,7 @@ class SimpleHistory {
 		add_filter( 'gettext', array( $this, "filter_gettext_storeLatestTranslations" ), 10, 3 );
 
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 999 );
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 999 );
 
 		if ( is_admin() ) {
 
@@ -230,7 +231,6 @@ class SimpleHistory {
 
 				$menu_id = "simple-history-blog-" . $blog->userblog_id;
 				$parent_menu_id  = 'blog-' . $blog->userblog_id;
-				
 				$url = admin_url( "index.php?page=simple_history_page" );
 		
 				// Each network site is added by WP core with id "blog-1", "blog-2" ... "blog-n"
@@ -253,6 +253,54 @@ class SimpleHistory {
 			
 		} // foreach blog
 
+	} // func
+
+	/**
+	 * Adds a "View history" item/shortcut to the admin bar
+	 *
+	 * Useful because Simple History is something at least the author of this plugin often use on a site :)
+	 * 
+	 * @since 2.7.x
+	 */
+	function add_admin_bar_menu_item( $wp_admin_bar ) {
+
+		/**
+		 * Filter to control if admin bar shortcut should be added
+		 *
+		 * @since 2.7.x
+		 *
+		 * @param bool Add item
+		 */
+		$add_item = apply_filters( "simple_history/add_admin_bar_menu_item", true );
+
+		if ( ! $add_item ) {
+			return;
+		}
+
+		// Don't show for logged out users
+		if ( ! is_user_logged_in() )
+			return;
+
+		/* menu_page_url() is defined in the WordPress Plugin Administration API, which is not loaded here by default */
+		/* dito for is_plugin_active() */
+		require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+
+		$menu_id = "simple-history-view-history";
+		$parent_menu_id  = 'site-name';
+		$url = admin_url( "index.php?page=simple_history_page" );
+
+		$args = array(
+			'id'    => $menu_id,
+			'parent' => $parent_menu_id,
+			'title' => _x("History", "Admin bar name", "simple-history"),
+			'href'  => $url,
+			'meta'  => array( 
+				'class' => 'ab-item--simplehistory' 
+			)
+		);
+		
+		$wp_admin_bar->add_node( $args );
+		
 	} // func
 
 	/**
