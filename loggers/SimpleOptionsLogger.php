@@ -84,7 +84,15 @@ class SimpleOptionsLogger extends SimpleLogger
 			'writing',
 		);
 
-		if ( $option_page && ! in_array( $option_page, $arr_valid_option_pages ) ) {
+		$is_valid_options_page = $option_page && in_array( $option_page, $arr_valid_option_pages );
+
+		// Permalink settings page does not post any "option_page", so use http referer instead
+		if ( strpos( $_SERVER["REQUEST_URI"], "options-permalink.php" ) !== false ) {
+			$is_valid_options_page = true;
+			$options_page = "permalink";
+		}
+
+		if ( ! $is_valid_options_page ) {
 			return;
 		}
 
@@ -107,7 +115,6 @@ class SimpleOptionsLogger extends SimpleLogger
 		}
 
 		$this->infoMessage( 'option_updated', $context );
-
 
 	}
 
