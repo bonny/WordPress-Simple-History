@@ -96,6 +96,16 @@ class SimpleOptionsLogger extends SimpleLogger
 			return;
 		}
 
+		// Check if option name is ok
+		// For example if you change front page displays setting the "rewrite_rules" options gets updated too
+		$arr_invalid_option_names = array(
+			"rewrite_rules"
+		);
+
+		if ( in_array( $option, $arr_invalid_option_names ) ) {
+			return;
+		}
+
 		$context = array(
 			'option' => $option,
 			'old_value' => $old_value,
