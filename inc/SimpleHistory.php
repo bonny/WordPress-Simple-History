@@ -63,8 +63,8 @@ class SimpleHistory {
 	/** Slug for the settings menu */
 	const SETTINGS_MENU_SLUG = "simple_history_settings_menu_slug";
 
-        /** Slug for the settings menu */
-        const SETTINGS_GENERAL_OPTION_GROUP = "simple_history_settings_group";
+    /** Slug for the settings menu */
+    const SETTINGS_GENERAL_OPTION_GROUP = "simple_history_settings_group";
 
 	/** ID for the general settings section */
 	const SETTINGS_SECTION_GENERAL_ID = "simple_history_settings_section_general";
@@ -113,6 +113,8 @@ class SimpleHistory {
 		add_filter( "gettext_with_context", array( $this, 'filter_gettext_with_context' ), 20, 4 );
 
 		add_filter( 'gettext', array( $this, "filter_gettext_storeLatestTranslations" ), 10, 3 );
+
+		add_action( 'admin_bar_menu', array( $this, 'add_network_admin_bar_menu_item' ), 999 );
 
 		if ( is_admin() ) {
 
@@ -183,7 +185,62 @@ class SimpleHistory {
 
 		add_filter( 'plugin_action_links_simple-history/index.php', array( $this, 'plugin_action_links' ), 10, 4 );
 
+
 	}
+
+	/**
+	 * Adds a "View history" item/shortcut to the network admin, on blogs where Simple History is installed
+	 *
+	 * Useful because Simple History is something at least the author of this plugin often use on a site :)
+	 * 
+	 * @since 2.7.x
+	 */
+	function add_network_admin_bar_menu_item( $wp_admin_bar ) {
+
+		// Don't show for logged out users or single site mode.
+		if ( ! is_user_logged_in() || ! is_multisite() )
+			return;
+
+		// Show only when the user has at least one site, or they're a super admin.
+		if ( count( $wp_admin_bar->user->blogs ) < 1 && ! is_super_admin() )
+			return;
+
+		/* menu_page_url() is defined in the WordPress Plugin Administration API, which is not loaded here by default */
+		/* dito for is_plugin_active() */
+		require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+
+		foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
+			
+			switch_to_blog( $blog->userblog_id );
+
+			if ( is_plugin_active( SIMPLE_HISTORY_BASENAME ) ) {
+
+				$menu_id = "simple-history-blog-" . $blog->userblog_id;
+				$parent_menu_id  = 'blog-' . $blog->userblog_id;
+				
+				$url = admin_url( "index.php?page=simple_history_page" );
+		
+				// Each network site is added by WP core with id "blog-1", "blog-2" ... "blog-n"
+				// https://codex.wordpress.org/Function_Reference/add_node
+				$args = array(
+					'id'    => $menu_id,
+					'parent' => $parent_menu_id,
+					'title' => _x("View History", "Admin bar network name", "simple-history"),
+					'href'  => $url,
+					'meta'  => array( 
+						'class' => 'ab-item--simplehistory' 
+					)
+				);
+				
+				$wp_admin_bar->add_node( $args );
+
+			} // if plugin active
+
+			restore_current_blog();
+			
+		} // foreach blog
+
+	} // func
 
 	/**
 	 * Get singleton intance
