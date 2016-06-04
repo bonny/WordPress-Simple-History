@@ -172,9 +172,9 @@ class SimpleOptionsLogger extends SimpleLogger
  
 	}
 
-	function on_updated_option($option, $old_value, $new_value) {
+	function on_updated_option( $option, $old_value, $new_value ) {
 
-		if (empty( $_SERVER["REQUEST_URI"] )) {
+		if ( empty( $_SERVER["REQUEST_URI"] ) ) {
 			return;
 		}
 
@@ -200,22 +200,34 @@ class SimpleOptionsLogger extends SimpleLogger
 			'writing',
 		);
 
-		if ( $option_page && ! in_array($option_page, $arr_valid_option_pages) ) {
+		if ( $option_page && ! in_array( $option_page, $arr_valid_option_pages ) ) {
 			return;
 		}
 
-		$this->debugMessage( 'option_updated', array(
+		$context = array(
 			'option' => $option,
 			'old_value' => $old_value,
 			'new_value' => $new_value,
-			'REQUEST_URI' => $_SERVER['REQUEST_URI'],
-			'referer' => wp_get_referer(),
 			'option_page' => $option_page,
-			'$_REQUEST' => print_r($_REQUEST, true),
-		) );
+			#'referer' => wp_get_referer(),
+			#'REQUEST_URI' => $_SERVER['REQUEST_URI'],
+			#'$_REQUEST' => print_r($_REQUEST, true),
+		);
+
+		// Store a bit more about some options
+		// Like "page_on_front" we also store post title
+		// Check for a method for current option in this class and calls it automagically
+		$methodname = "add_context_for_option_{$option}";
+		if ( method_exists( $this, $methodname ) ) {
+			$context = $this->$methodname( $context, $old_value, $new_value, $option, $option_page );
+		}
+
+		$this->infoMessage( 'option_updated', $context );
 
 
 	}
+
+
 
 	/**
 	 * Get detailed output
@@ -225,6 +237,18 @@ class SimpleOptionsLogger extends SimpleLogger
 		$context = $row->context;
 		$message_key = $context["_message_key"];
 		$output = "";
+		
+		$option = isset( $context["option"] ) ? $context["option"] : null;
+		$option_page = isset( $context["option_page"] ) ? $context["option_page"] : null;
+		$new_value = isset( $context["new_value"] ) ? $context["new_value"] : null;
+		$old_value = isset( $context["old_value"] ) ? $context["old_value"] : null;
+
+		$tmpl_row = '
+			<tr>
+				<td>%1$s</td>
+				<td>%2$s</td>
+			</tr>
+		';
 
 		if ( "option_updated" == $message_key ) {
 		
@@ -234,31 +258,42 @@ class SimpleOptionsLogger extends SimpleLogger
 			// Output old and new values
 			if ( $context["new_value"] || $context["old_value"] ) {
 	
-				$output .= sprintf(
-					'
-					<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>
-					',
-					__("New value", "simple-history"),
-					esc_html( mb_strimwidth( $context["new_value"], 0, 250, "..." ) )
-				);
+				$option_custom_output = "";
+				$methodname = "get_details_output_for_option_{$option}";
+				
+				if ( method_exists( $this, $methodname ) ) {
+					$option_custom_output = $this->$methodname( $context, $old_value, $new_value, $option, $option_page, $tmpl_row );
+				}
 
-				$output .= sprintf(
-					'
-					<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>
-					',
-					__("Old value", "simple-history"),
-					esc_html( mb_strimwidth( $context["old_value"], 0, 250, "..." ) )
-				);
-			}
+				if ( empty( $option_custom_output ) ) {
+
+					// all other options or fallback if custom output did not find all it's stuff
+
+					$output .= sprintf(
+						$tmpl_row,
+						__("New value", "simple-history"),
+						esc_html( mb_strimwidth( $new_value, 0, 250, "..." ) )
+					);
+
+					$output .= sprintf(
+						$tmpl_row,
+						__("Old value", "simple-history"),
+						esc_html( mb_strimwidth( $old_value, 0, 250, "..." ) )
+					);
+				
+				
+				} else {
+
+					$output .= $option_custom_output;
+
+				} // if option output
+
+
+			} // if new or old val
+
 
 			// If key option_page this was saved from regular settings pages
-			if ( ! empty( $context["option_page"] ) ) {
+			if ( ! empty( $option_page ) ) {
 
 				$output .= sprintf(
 					'
@@ -269,13 +304,13 @@ class SimpleOptionsLogger extends SimpleLogger
 					',
 					__("Settings page", "simple-history"),
 					esc_html( $context["option_page"] ),
-					admin_url("options-{$context["option_page"]}.php")
+					admin_url("options-{$option_page}.php")
 				);
 
 			}
 
 			// If option = permalink_structure then we did it from permalink page
-			if ( ! empty( $context["option"] ) && ( "permalink_structure" == $context["option"] || "tag_base" == $context["option"] || "category_base" == $context["option"] ) ) {
+			if ( ! empty( $option ) && ( "permalink_structure" == $option || "tag_base" == $option || "category_base" == $option ) ) {
 
 				$output .= sprintf(
 					'
@@ -298,4 +333,121 @@ class SimpleOptionsLogger extends SimpleLogger
 		return $output;
 
 	}
+
+
+	/**
+	 * Page on front = "Front page displays" -> Your latest posts / A static page
+	 * value 0 = Your latest post
+	 * value int n = A static page
+	 */
+	function add_context_for_option_page_on_front( $context, $old_value, $new_value, $option, $option_page ) {
+
+		if ( ! empty( $old_value ) && is_numeric( $old_value ) ) {
+
+			$old_post = get_post( $old_value );
+
+			if ( $old_post ) {
+				$context["old_post_title"] = $old_post->post_title;
+			}
+
+		}
+
+		if ( ! empty( $new_value ) && is_numeric( $new_value ) ) {
+
+			$new_post = get_post( $new_value );
+
+			if ( $new_post ) {
+				$context["new_post_title"] = $new_post->post_title;
+			}
+
+		}
+
+		return $context;
+
+	}
+
+	function add_context_for_option_page_for_posts( $context, $old_value, $new_value, $option, $option_page ) {
+
+		// Get same info as for page_on_front
+		$context = call_user_func_array( array( $this, "add_context_for_option_page_on_front"), func_get_args() );
+
+		return $context;
+
+	}
+
+	function get_details_output_for_option_page_for_posts( $context, $old_value, $new_value, $option, $option_page ) {
+
+		$output = call_user_func_array( array( $this, "get_details_output_for_option_page_on_front"), func_get_args() );
+
+		return $output;
+
+	}
+
+	/**
+	 * Add detailed putput for page_on_front
+	 *
+	 * @return string output
+	 */
+	function get_details_output_for_option_page_on_front( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
+
+		$output = "";
+
+		if ( $new_value && ! empty( $context["new_post_title"] ) ) {
+
+			$post_title_with_link = "";
+			
+			if ( get_post_status( $new_value ) ) {
+				$post_title_with_link = sprintf('<a href="%1$s">%2$s</a>', get_edit_post_link( $new_value ), esc_html( $context["new_post_title"] ) );
+			} else {
+				$post_title_with_link = esc_html( $context["new_post_title"] );
+			}
+
+			$output .= sprintf(
+				$tmpl_row,
+				__("New value", "simple-history"),
+				sprintf( __('Page %1$s', "simple-history" ), $post_title_with_link)
+			);
+		
+		}
+		if ( intval( $new_value ) == 0  ) {
+
+			$output .= sprintf(
+				$tmpl_row,
+				__("New value", "simple-history"),
+				__("Your latests posts", "simple-history")
+			);
+		
+		}
+
+		if ( $old_value && ! empty( $context["old_post_title"] ) ) {
+			$post_title_with_link = "";
+			
+			if ( get_post_status( $old_value ) ) {
+				$post_title_with_link = sprintf('<a href="%1$s">%2$s</a>', get_edit_post_link( $old_value ), esc_html( $context["old_post_title"] ) );
+			} else {
+				$post_title_with_link = esc_html( $context["old_post_title"] );
+			}
+
+			$output .= sprintf(
+				$tmpl_row,
+				__("Old value", "simple-history"),
+				sprintf( __('Page %1$s', "simple-history" ), $post_title_with_link)
+			);
+
+		}
+
+		if ( intval( $old_value ) == 0  ) {
+
+			$output .= sprintf(
+				$tmpl_row,
+				__("Old value", "simple-history"),
+				__("Your latests posts", "simple-history")
+			);
+		
+		}
+	
+		return $output;
+
+	} // custom output page_on_front
+
 }
