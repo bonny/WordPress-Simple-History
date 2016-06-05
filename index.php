@@ -32,7 +32,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-if ( version_compare( phpversion(), "5.3", ">=") ) {
+if ( version_compare( phpversion(), "5.3", ">=") && function_exists( "mb_strimwidth" ) ) {
 
 	/**
 	 * Register function that is called when plugin is installed
@@ -94,10 +94,16 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 		?>
 		<div class="updated error">
 			<p><?php
+				
 				printf(
 					__( 'Simple History is a great plugin, but to use it your server must have at least PHP 5.3 installed (you have version %s).', 'simple-history' ),
 					phpversion()
 				);
+				
+				if ( ! function_exists("mb_strimwidth") ) {
+					__('You also need the mbstring extension to be enabled in PHP.', "simple-history");
+				}
+
 				?></p>
 		</div>
 		<?php
