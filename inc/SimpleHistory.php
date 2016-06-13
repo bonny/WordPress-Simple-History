@@ -193,15 +193,15 @@ class SimpleHistory {
 	 * Adds a "View history" item/shortcut to the network admin, on blogs where Simple History is installed
 	 *
 	 * Useful because Simple History is something at least the author of this plugin often use on a site :)
-	 * 
-	 * @since 2.7.x
+	 *
+	 * @since 2.7.1
 	 */
 	function add_admin_bar_network_menu_item( $wp_admin_bar ) {
 
 		/**
 		 * Filter to control if admin bar shortcut should be added
 		 *
-		 * @since 2.7.x
+		 * @since 2.7.1
 		 *
 		 * @param bool Add item
 		 */
@@ -234,7 +234,7 @@ class SimpleHistory {
 		require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 
 		foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
-			
+
 			switch_to_blog( $blog->userblog_id );
 
 			if ( is_plugin_active( SIMPLE_HISTORY_BASENAME ) ) {
@@ -242,7 +242,7 @@ class SimpleHistory {
 				$menu_id = "simple-history-blog-" . $blog->userblog_id;
 				$parent_menu_id  = 'blog-' . $blog->userblog_id;
 				$url = admin_url( "index.php?page=simple_history_page" );
-		
+
 				// Each network site is added by WP core with id "blog-1", "blog-2" ... "blog-n"
 				// https://codex.wordpress.org/Function_Reference/add_node
 				$args = array(
@@ -250,17 +250,17 @@ class SimpleHistory {
 					'parent' => $parent_menu_id,
 					'title' => _x("View History", "Admin bar network name", "simple-history"),
 					'href'  => $url,
-					'meta'  => array( 
-						'class' => 'ab-item--simplehistory' 
+					'meta'  => array(
+						'class' => 'ab-item--simplehistory'
 					)
 				);
-				
+
 				$wp_admin_bar->add_node( $args );
 
 			} // if plugin active
 
 			restore_current_blog();
-			
+
 		} // foreach blog
 
 	} // func
@@ -270,15 +270,15 @@ class SimpleHistory {
 	 * Adds a "View history" item/shortcut to the admin bar
 	 *
 	 * Useful because Simple History is something at least the author of this plugin often use on a site :)
-	 * 
-	 * @since 2.7.x
+	 *
+	 * @since 2.7.1
 	 */
 	function add_admin_bar_menu_item( $wp_admin_bar ) {
 
 		/**
 		 * Filter to control if admin bar shortcut should be added
 		 *
-		 * @since 2.7.x
+		 * @since 2.7.1
 		 *
 		 * @param bool Add item
 		 */
@@ -315,13 +315,13 @@ class SimpleHistory {
 			'parent' => $parent_menu_id,
 			'title' => _x("Simple History", "Admin bar name", "simple-history"),
 			'href'  => $url,
-			'meta'  => array( 
-				'class' => 'ab-item--simplehistory' 
+			'meta'  => array(
+				'class' => 'ab-item--simplehistory'
 			)
 		);
-		
+
 		$wp_admin_bar->add_node( $args );
-		
+
 	} // func
 
 	/**
@@ -1925,7 +1925,7 @@ Because Simple History was just recently installed, this feed does not contain m
 
 		$setting = get_option( "simple_history_show_as_page", 1 );
 		$setting = apply_filters( "simple_history_show_as_page", $setting );
-		
+
 		return (bool) $setting;
 
 	}
@@ -3120,7 +3120,7 @@ Because Simple History was just recently installed, this feed does not contain m
 	function get_num_events_last_n_days( $period_days = 28 ) {
 
 		$transient_key = "sh_" . md5( __METHOD__  . $period_days . "_2");
-		
+
 		$count = get_transient( $transient_key );
 
 
@@ -3132,8 +3132,8 @@ Because Simple History was just recently installed, this feed does not contain m
 
 			$sql = sprintf(
 				'
-					SELECT count(*) 
-					FROM %1$s 
+					SELECT count(*)
+					FROM %1$s
 					WHERE UNIX_TIMESTAMP(date) >= %2$d
 					AND logger IN %3$s
 				',
@@ -3141,13 +3141,13 @@ Because Simple History was just recently installed, this feed does not contain m
 				strtotime("-$period_days days"),
 				$sqlStringLoggersUserCanRead
 			);
-			
+
 			$count = $wpdb->get_var( $sql );
 
 			set_transient( $transient_key, $count, HOUR_IN_SECONDS );
 
 		}
-		
+
 		return $count;
 
 	} // get_num_events_last_n_days
@@ -3156,7 +3156,7 @@ Because Simple History was just recently installed, this feed does not contain m
 	function get_num_events_per_day_last_n_days( $period_days = 28 ) {
 
 		$transient_key = "sh_" . md5( __METHOD__  . $period_days . "_2");
-		
+
 		$dates = get_transient( $transient_key );
 
 		if ( false === $dates ) {
@@ -3167,12 +3167,12 @@ Because Simple History was just recently installed, this feed does not contain m
 
 			$sql = sprintf(
 				'
-					SELECT 
+					SELECT
 						date_format(date, "%%Y-%%m-%%d") AS yearDate,
 						count(date) AS count
-					FROM  
+					FROM
 						%1$s
-					WHERE 
+					WHERE
 						UNIX_TIMESTAMP(date) >= %2$d
 						AND logger IN (%3$d)
 					GROUP BY yearDate
@@ -3189,7 +3189,7 @@ Because Simple History was just recently installed, this feed does not contain m
 			// echo "set";exit;
 
 		} else {
-			// echo "get";exit;			
+			// echo "get";exit;
 		}
 
 		return $dates;
@@ -3210,13 +3210,13 @@ Because Simple History was just recently installed, this feed does not contain m
 		$numEvents = get_transient( $cache_key );
 
 		if ( false == $numEvents ) {
-		
+
 			$sql = $wpdb->prepare("
 				SELECT count( DISTINCT occasionsID )
 				FROM $table_name
-				WHERE date >= DATE_ADD(CURDATE(), INTERVAL -%d DAY) 
+				WHERE date >= DATE_ADD(CURDATE(), INTERVAL -%d DAY)
 			", $days);
-	
+
 			$numEvents = $wpdb->get_var($sql);
 
 			set_transient( $cache_key, $numEvents, HOUR_IN_SECONDS );
@@ -3330,7 +3330,7 @@ function simple_history_text_diff( $left_string, $right_string, $args = null ) {
 
 	if ( ! $diff )
 		return '';
-	
+
 	$r = "";
 
 	$r .= "<div class='SimpleHistory__diff__contents' tabindex='0'>";
