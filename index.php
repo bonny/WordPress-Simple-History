@@ -101,7 +101,8 @@ if ( version_compare( phpversion(), "5.3", ">=") && function_exists( "mb_strimwi
 				);
 
 				if ( ! function_exists("mb_strimwidth") ) {
-					__('You also need the mbstring extension to be enabled in PHP.', "simple-history");
+					echo "<br>";
+					_e('You also need the mbstring extension to be enabled in PHP.', "simple-history");
 				}
 
 				?></p>
