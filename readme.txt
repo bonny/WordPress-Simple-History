@@ -149,6 +149,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.7.x (June 2016) =
+
+- Fixed message about mbstring required not being echo'ed.
+
 = 2.7.1 (June 2016) =
 
 - Added: Add shortcut to history in Admin bar for current site and in Network Admin Bar for each site where plugin is installed. Can be disabled using filters `simple_history/add_admin_bar_menu_item` and `simple_history/add_admin_bar_network_menu_item`.
