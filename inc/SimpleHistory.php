@@ -226,7 +226,7 @@ class SimpleHistory {
 
 		// User must have capability to view the history page
 		if ( ! current_user_can( $this->get_view_history_capability() ) ) {
-			return $actions;
+			return;
 		}
 
 		/* menu_page_url() is defined in the WordPress Plugin Administration API, which is not loaded here by default */
@@ -299,7 +299,7 @@ class SimpleHistory {
 
 		// User must have capability to view the history page
 		if ( ! current_user_can( $this->get_view_history_capability() ) ) {
-			return $actions;
+			return;
 		}
 
 		/* menu_page_url() is defined in the WordPress Plugin Administration API, which is not loaded here by default */

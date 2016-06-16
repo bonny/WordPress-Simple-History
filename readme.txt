@@ -42,10 +42,10 @@ view details about changes made in the differnt settings sections of WordPress. 
 
 By default Simple History comes with support for these third party plugins:
 
-**User Switching**  
+**User Switching**
 The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button. Simple History will log each user switch being made.
 
-**Enable Media Replace**  
+**Enable Media Replace**
 The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place. Simple history will log details about the file being replaced and details about the new file.
 
 Support for more plugins are coming.
@@ -152,6 +152,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.7.x (June 2016) =
 
 - Fixed message about mbstring required not being echo'ed.
+- Fixed notice errors for users not allowed to view the log.
 
 = 2.7.1 (June 2016) =
 
