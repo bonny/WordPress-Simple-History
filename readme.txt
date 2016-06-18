@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
 Tested up to: 4.5.2
-Stable tag: 2.7
+Stable tag: 2.7.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -42,10 +42,10 @@ view details about changes made in the differnt settings sections of WordPress. 
 
 By default Simple History comes with support for these third party plugins:
 
-**User Switching**  
+**User Switching**
 The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button. Simple History will log each user switch being made.
 
-**Enable Media Replace**  
+**Enable Media Replace**
 The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place. Simple history will log details about the file being replaced and details about the new file.
 
 Support for more plugins are coming.
@@ -140,7 +140,7 @@ initiated by a specific user.
 
 6. See even more details about a logged event (by clicking on the date and time of the event).
 
-7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day. 
+7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
 A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 8. When users are created or changed you can see details on what have changed.
@@ -149,7 +149,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.7.x (nnn 2016) =
+= 2.7.x (June 2016) =
+
+- Fixed message about mbstring required not being echo'ed.
+- Fixed notice errors for users not allowed to view the log.
+
+= 2.7.1 (June 2016) =
 
 - Added: Add shortcut to history in Admin bar for current site and in Network Admin Bar for each site where plugin is installed. Can be disabled using filters `simple_history/add_admin_bar_menu_item` and `simple_history/add_admin_bar_network_menu_item`.
 - Added: Add check that [´mbstring´](http://php.net/manual/en/book.mbstring.php) is enabled and show a warning if it's not.
