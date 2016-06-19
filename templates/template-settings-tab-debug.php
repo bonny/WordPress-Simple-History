@@ -17,7 +17,7 @@ $period_end_date = DateTime::createFromFormat( 'U', time() );
 echo "<h3>Database size</h3>";
 
 // Get table sizes in mb
-$sql_table_size = sprintf('
+$sql_table_size = sprintf( '
 	SELECT table_name AS "table_name",
 	round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
 	FROM information_schema.TABLES
@@ -29,11 +29,11 @@ $sql_table_size = sprintf('
 	$table_name_contexts
 );
 
-$table_size_result = $wpdb->get_results($sql_table_size);
+$table_size_result = $wpdb->get_results( $sql_table_size );
 
 // Get num of rows for each table
-$total_num_rows_table = (int) $wpdb->get_var("select count(*) FROM {$table_name}");
-$total_num_rows_table_contexts = (int) $wpdb->get_var("select count(*) FROM {$table_name_contexts}");
+$total_num_rows_table = (int) $wpdb->get_var( "select count(*) FROM {$table_name}" );
+$total_num_rows_table_contexts = (int) $wpdb->get_var( "select count(*) FROM {$table_name_contexts}" );
 
 $table_size_result[0]->num_rows = $total_num_rows_table;
 $table_size_result[1]->num_rows = $total_num_rows_table_contexts;
@@ -50,9 +50,9 @@ echo "
 ";
 
 $loopnum = 0;
-foreach ($table_size_result as $one_table) {
+foreach ( $table_size_result as $one_table ) {
 
-	printf('<tr class="%4$s">
+	printf( '<tr class="%4$s">
 			<td>%1$s</td>
 			<td>%2$s MB</td>
 			<td>%3$s rows</td>
@@ -69,9 +69,9 @@ foreach ($table_size_result as $one_table) {
 echo "</table>";
 
 $logQuery = new SimpleHistoryLogQuery();
-$rows = $logQuery->query(array(
+$rows = $logQuery->query( array(
 	"posts_per_page" => 1,
-));
+) );
 
 // This is the number of rows with occasions taken into consideration
 $total_accassions_rows_count = $rows["total_row_count"];
@@ -79,12 +79,15 @@ $total_accassions_rows_count = $rows["total_row_count"];
 echo "<p>Total $total_accassions_rows_count rows, when grouped by occasion id.</p>";
 
 
-# echo "<h4>Clear history interval</h4>";
-# echo "<p>" . $this->sh->get_clear_history_interval() . "</p>";
+// echo "<h4>Clear history interval</h4>";
+// echo "<p>" . $this->sh->get_clear_history_interval() . "</p>";
 
 
 /**
  * Output a list of all active loggers, including name, slug, comment, message, capability and number of rows
+ * Retrieve them in order by the number of rows they have in the db
+ * Loggers with 0 rows in the db will not be included in the array, so we need to find those
+ * and add them manually last
  */
 
 $arr_logger_slugs = array();
@@ -93,26 +96,43 @@ foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
     $arr_logger_slugs[] = $oneLogger["instance"]->slug;
 }
 
-$sql_logger_counts = sprintf('
+$sql_logger_counts = sprintf( '
     SELECT logger, count(id) as count
     FROM %1$s
     WHERE logger IN ("%2$s")
     GROUP BY logger
     ORDER BY count DESC
-', $table_name, join( $arr_logger_slugs, '","') );
+', $table_name, join( $arr_logger_slugs, '","' ) );
+
 $logger_rows_count = $wpdb->get_results( $sql_logger_counts, OBJECT_K );
 
-dd($logger_rows_count);
+// Find loggers with no rows in db and append to array
+$missing_logger_slugs = array_diff( $arr_logger_slugs, array_keys( $logger_rows_count ) );
+
+foreach ( $missing_logger_slugs as $one_missing_logger_slug ) {
+
+    $logger_rows_count[$one_missing_logger_slug] = (object) array(
+        "logger" => $one_missing_logger_slug,
+        "count" => 0
+    );
+
+}
 
 echo "<h3>Loggers</h3>";
 
-echo "<p>There are " . sizeof( $arr_logger_slugs ) . " instantiated loggers.</p>";
+echo "<p>";
+printf(
+    'Listing %1$d loggers, ordered by rows count in database.',
+    sizeof( $arr_logger_slugs ) // 1
+ );
+echo "</p>";
 
 echo "<table class='widefat fixed' cellpadding=2>";
 echo "
 	<thead>
 		<tr>
-			<th>Name + Slug</th>
+			<th>Name</th>
+			<th>Slug</th>
 			<th>Description</th>
 			<th>Messages</th>
 			<th>Capability</th>
@@ -123,7 +143,7 @@ echo "
 
 $loopnum = 0;
 
-foreach ( $arr_logger_slugs as $one_logger_slug ) {
+foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 
 	$logger = $this->sh->getInstantiatedLoggerBySlug( $one_logger_slug );
 
@@ -145,12 +165,12 @@ foreach ( $arr_logger_slugs as $one_logger_slug ) {
 	$html_logger_messages = "";
 
 	foreach ( $logger_messages as $message_key => $message ) {
-		$html_logger_messages .= sprintf('<li>%1$s</li>', esc_html($message));
+		$html_logger_messages .= sprintf( '<li>%1$s</li>', esc_html( $message ) );
 	}
 
     if ( $html_logger_messages ) {
 
-		$html_logger_messages = sprintf('
+		$html_logger_messages = sprintf( '
                 <p>%2$s message strings</p>
                 <ul class="hide-if-js">
                     %1$s
@@ -169,19 +189,29 @@ foreach ( $arr_logger_slugs as $one_logger_slug ) {
 		<tr class="%6$s">
 			<td>
 				<p><strong>%3$s</strong>
-				<br><code>%2$s</code></p>
 			</td>
-			<td><p>%4$s</p></td>
-			<td>%7$s</td>
-			<td><p>%5$s</p></td>
-			<td><p>%1$s</p></td>
+            <td>
+                <p><code>%2$s</code></p>
+            </td>
+			<td>
+                <p>%4$s</p>
+            </td>
+			<td>
+                %7$s
+            </td>
+			<td>
+                <p>%5$s</p>
+            </td>
+			<td>
+                <p>%1$s</p>
+            </td>
 		</tr>
 		',
-		$one_logger_count->count,
-		$one_logger_slug,
-		esc_html( $logger_info["name"]),
-		esc_html( $logger_info["description"]), // 4
-		esc_html( $logger->getCapability() ),
+		number_format_i18n( $one_logger_count->count ),
+		esc_html( $one_logger_slug ), // 2
+		esc_html( $logger_info["name"] ),
+		esc_html( $logger_info["description"] ), // 4
+		esc_html( $logger->getCapability() ), // 5
 		$loopnum % 2 ? " alt " : "", // 6
 		$html_logger_messages // 7
 	);
