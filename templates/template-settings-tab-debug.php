@@ -42,7 +42,7 @@ echo "<table class='widefat'>";
 echo "
 	<thead>
 		<tr>
-			<th>Name</th>
+			<th>Table name</th>
 			<th>Size</th>
 			<th>Rows</th>
 		</tr>
@@ -131,7 +131,7 @@ echo "<table class='widefat fixed' cellpadding=2>";
 echo "
 	<thead>
 		<tr>
-			<th>Name</th>
+			<th>Logger name</th>
 			<th>Slug</th>
 			<th>Description</th>
 			<th>Messages</th>
