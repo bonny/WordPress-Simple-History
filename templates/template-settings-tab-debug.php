@@ -1,4 +1,5 @@
 <?php
+
 defined( 'ABSPATH' ) or die();
 
 global $wpdb;
@@ -39,27 +40,41 @@ $table_size_result[0]->num_rows = $total_num_rows_table;
 $table_size_result[1]->num_rows = $total_num_rows_table_contexts;
 
 echo "<table class='widefat'>";
-echo "
-	<thead>
+printf(
+	'<thead>
 		<tr>
-			<th>Table name</th>
-			<th>Size</th>
-			<th>Rows</th>
+			<th>%1$s</th>
+			<th>%2$s</th>
+			<th>%3$s</th>
 		</tr>
 	</thead>
-";
+	',
+	_x("Table name", "debug dropin", "simple-history"),
+	_x("Size", "debug dropin", "simple-history"),
+	_x("Rows", "debug dropin", "simple-history")
+);
 
 $loopnum = 0;
 foreach ( $table_size_result as $one_table ) {
 
+	$size = sprintf(
+		_x('%s MB', "debug dropin", "simple-history"),
+		$one_table->size_in_mb
+	);
+
+	$rows = sprintf(
+		_x('%s rows', "debug dropin", "simple-history"),
+		number_format_i18n( $one_table->num_rows, 0 )
+	);
+
 	printf( '<tr class="%4$s">
 			<td>%1$s</td>
-			<td>%2$s MB</td>
-			<td>%3$s rows</td>
+			<td>%2$s</td>
+			<td>%3$s</td>
 		</tr>',
 		$one_table->table_name,
-		$one_table->size_in_mb,
-		number_format_i18n( $one_table->num_rows, 0 ),
+		$size,
+		$rows,
 		$loopnum % 2 ? " alt " : ""
 	);
 
@@ -76,7 +91,12 @@ $rows = $logQuery->query( array(
 // This is the number of rows with occasions taken into consideration
 $total_accassions_rows_count = $rows["total_row_count"];
 
-echo "<p>Total $total_accassions_rows_count rows, when grouped by occasion id.</p>";
+echo "<p>";
+printf(
+	_x('Total %s rows, when grouped by occasion id.', "debug dropin", "simple-history" ),
+	$total_accassions_rows_count
+);
+echo "</p>";
 
 
 // echo "<h4>Clear history interval</h4>";
@@ -118,28 +138,38 @@ foreach ( $missing_logger_slugs as $one_missing_logger_slug ) {
 
 }
 
-echo "<h3>Loggers</h3>";
+echo "<h3>";
+_ex("Loggers", "debug dropin", "simple-history");
+echo "</h3>";
 
 echo "<p>";
 printf(
-    'Listing %1$d loggers, ordered by rows count in database.',
+    _x('Listing %1$d loggers, ordered by rows count in database.', "debug dropin", "simple-history"),
     sizeof( $arr_logger_slugs ) // 1
  );
 echo "</p>";
 
 echo "<table class='widefat fixed' cellpadding=2>";
-echo "
+printf(
+	'
 	<thead>
 		<tr>
-			<th>Logger name</th>
-			<th>Slug</th>
-			<th>Description</th>
-			<th>Messages</th>
-			<th>Capability</th>
-			<th>Rows count</th>
+			<th>%1$s</th>
+			<th>%2$s</th>
+			<th>%3$s</th>
+			<th>%4$s</th>
+			<th>%5$s</th>
+			<th>%6$s</th>
 		</tr>
 	</thead>
-";
+	',
+	_x("Logger name", "debug dropin", "simple-history"),
+	_x("Slug", "debug dropin", "simple-history"),
+	_x("Description", "debug dropin", "simple-history"),
+	_x("Messages", "debug dropin", "simple-history"),
+	_x("Capability", "debug dropin", "simple-history"),
+	_x("Rows count", "debug dropin", "simple-history")
+);
 
 $loopnum = 0;
 
@@ -170,14 +200,19 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 
     if ( $html_logger_messages ) {
 
+		$str_num_message_strings = sprintf(
+			_x('%1$s message strings', "debug dropin", "simple-history"),
+			sizeof( $logger_messages )
+		);
+
 		$html_logger_messages = sprintf( '
-                <p>%2$s message strings</p>
+                <p>%1$s</p>
                 <ul class="hide-if-js">
-                    %1$s
+                    %2$s
                 </ul>
             ',
-            $html_logger_messages, // 1
-            sizeof( $logger_messages ) // 2
+			$str_num_message_strings, // 1
+            $html_logger_messages // 2
         );
 
 	} else {
