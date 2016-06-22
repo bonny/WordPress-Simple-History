@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, cms, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
 Tested up to: 4.5.2
-Stable tag: 2.7.2
+Stable tag: 2.7.3
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -132,7 +132,7 @@ initiated by a specific user.
 
 2. The __Post Quick Diff__ feature will make it quick and easy for a user of a site to see what updates other users have done to posts and pages.
 
-3. Events with different severity – Simple History uses the log levels specified in the PHP PSR-3 standard.
+3. When users are created or changed you can see details on what have changed.
 
 4. Events have context with extra details - Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
@@ -143,11 +143,14 @@ initiated by a specific user.
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
 A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
-8. When users are created or changed you can see details on what have changed.
-
 == Changelog ==
 
 ## Changelog
+
+= 2.7.3 (June 2016) =
+
+- Removed the usage of the mb_* functions and mbstring is no longer a requirement.
+- Added a new debug tab to the settings page. On the debug page you can see stuff like how large your database is and how many rows that are stored in the database. Also, a list of all loggers are listed there together with some useful (for developers anyway) information.
 
 = 2.7.2 (June 2016) =
 
