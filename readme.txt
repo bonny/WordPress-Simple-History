@@ -132,7 +132,7 @@ initiated by a specific user.
 
 2. The __Post Quick Diff__ feature will make it quick and easy for a user of a site to see what updates other users have done to posts and pages.
 
-3. Events with different severity – Simple History uses the log levels specified in the PHP PSR-3 standard.
+3. When users are created or changed you can see details on what have changed.
 
 4. Events have context with extra details - Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
@@ -142,8 +142,6 @@ initiated by a specific user.
 
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
 A simple way to see any uncommon activity, for example an increased number of logins or similar.
-
-8. When users are created or changed you can see details on what have changed.
 
 == Changelog ==
 
