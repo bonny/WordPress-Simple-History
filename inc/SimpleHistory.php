@@ -1025,6 +1025,7 @@ class SimpleHistory {
 			$dropinsDir . "SimpleHistoryRSSDropin.php",
 			$dropinsDir . "SimpleHistorySettingsLogtestDropin.php",
 			$dropinsDir . "SimpleHistorySettingsStatsDropin.php",
+			$dropinsDir . "SimpleHistorySettingsDebugDropin.php",
 			$dropinsDir . "SimpleHistorySidebarDropin.php",
 			$dropinsDir . "SimpleHistorySidebarStats.php",
 		);

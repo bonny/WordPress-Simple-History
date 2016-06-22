@@ -5,7 +5,7 @@ Plugin URI: http://simple-history.com
 Text Domain: simple-history
 Domain Path: /languages
 Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
-Version: 2.7.2
+Version: 2.7.3
 Author: Pär Thernström
 Author URI: http://simple-history.com/
 License: GPL2
@@ -32,7 +32,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-if ( version_compare( phpversion(), "5.3", ">=") && function_exists( "mb_strimwidth" ) ) {
+if ( version_compare( phpversion(), "5.3", ">=") ) {
 
 	/**
 	 * Register function that is called when plugin is installed
@@ -42,7 +42,7 @@ if ( version_compare( phpversion(), "5.3", ">=") && function_exists( "mb_strimwi
 	// register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
 	if ( ! defined( 'SIMPLE_HISTORY_VERSION' ) ) {
-		define( 'SIMPLE_HISTORY_VERSION', '2.7.2' );
+		define( 'SIMPLE_HISTORY_VERSION', '2.7.3' );
 	}
 
 	if ( ! defined( 'SIMPLE_HISTORY_PATH' ) ) {
@@ -99,11 +99,6 @@ if ( version_compare( phpversion(), "5.3", ">=") && function_exists( "mb_strimwi
 					__( 'Simple History is a great plugin, but to use it your server must have at least PHP 5.3 installed (you have version %s).', 'simple-history' ),
 					phpversion()
 				);
-
-				if ( ! function_exists("mb_strimwidth") ) {
-					echo "<br>";
-					_e('You also need the mbstring extension to be enabled in PHP.', "simple-history");
-				}
 
 				?></p>
 		</div>

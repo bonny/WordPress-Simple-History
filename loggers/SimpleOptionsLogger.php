@@ -12,12 +12,12 @@ class SimpleOptionsLogger extends SimpleLogger
 
 	/**
 	 * Get array with information about this logger
-	 * 
+	 *
 	 * @return array
 	 */
 	function getInfo() {
 
-		$arr_info = array(			
+		$arr_info = array(
 			"name" => "Options Logger",
 			"description" => "Logs updates to WordPress settings",
 			"capability" => "manage_options",
@@ -31,7 +31,7 @@ class SimpleOptionsLogger extends SimpleLogger
 				Modified option "default_comment_status" on settings page "discussion"
 
 				Edited settings page "discussion" and the "default_comment_status" options
-	
+
 				*/
 			),
 			"labels" => array(
@@ -40,12 +40,12 @@ class SimpleOptionsLogger extends SimpleLogger
 					"options" => array(
 						_x("Changed options", "Options logger: search", "simple-history") => array(
 							"option_updated"
-						),						
+						),
 					)
 				) // end search array
 			) // end labels
 		);
-		
+
 		return $arr_info;
 
 	}
@@ -53,7 +53,7 @@ class SimpleOptionsLogger extends SimpleLogger
 	function loaded() {
 
 		add_action( 'updated_option', array($this, "on_updated_option"), 10, 3 );
- 
+
 	}
 
 	function on_updated_option( $option, $old_value, $new_value ) {
@@ -75,7 +75,7 @@ class SimpleOptionsLogger extends SimpleLogger
 		// Also only if "option_page" is set to one of these "built in" ones
 		// We don't wanna start loging things from other plugins, like EDD
 		$option_page = isset( $_REQUEST["option_page"] ) ? $_REQUEST["option_page"] : ""; // general | discussion | ...
-		
+
 		$arr_valid_option_pages = array(
 			'general',
 			'discussion',
@@ -134,7 +134,7 @@ class SimpleOptionsLogger extends SimpleLogger
 	 * Not doing anything at the moment, because it was really difficaly to give them meaningful text values
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
-		
+
 		$message = $row->message;
 		$context = $row->context;
 		$message_key = $context["_message_key"];
@@ -188,11 +188,11 @@ class SimpleOptionsLogger extends SimpleLogger
 	 * Get detailed output
 	 */
 	function getLogRowDetailsOutput($row) {
-	
+
 		$context = $row->context;
 		$message_key = $context["_message_key"];
 		$output = "";
-		
+
 		$option = isset( $context["option"] ) ? $context["option"] : null;
 		$option_page = isset( $context["option_page"] ) ? $context["option_page"] : null;
 		$new_value = isset( $context["new_value"] ) ? $context["new_value"] : null;
@@ -206,16 +206,16 @@ class SimpleOptionsLogger extends SimpleLogger
 		';
 
 		if ( "option_updated" == $message_key ) {
-		
+
 			//$message = 'Old value was {old_value} and new value is {new_value}';
 			$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
 			// Output old and new values
 			if ( $context["new_value"] || $context["old_value"] ) {
-	
+
 				$option_custom_output = "";
 				$methodname = "get_details_output_for_option_{$option}";
-				
+
 				if ( method_exists( $this, $methodname ) ) {
 					$option_custom_output = $this->$methodname( $context, $old_value, $new_value, $option, $option_page, $tmpl_row );
 				}
@@ -223,20 +223,33 @@ class SimpleOptionsLogger extends SimpleLogger
 				if ( empty( $option_custom_output ) ) {
 
 					// all other options or fallback if custom output did not find all it's stuff
+					$more = __( '&hellip;' );
+					$trim_length = 250;
+
+					$trimmed_new_value = substr( $new_value, 0, $trim_length );
+					$trimmed_old_value = substr( $old_value, 0, $trim_length );
+
+					if ( strlen( $new_value ) > $trim_length ) {
+						$trimmed_new_value .= $more;
+					}
+
+					if ( strlen( $old_value ) > $trim_length ) {
+						$trimmed_oldv_alue .= $more;
+					}
 
 					$output .= sprintf(
 						$tmpl_row,
 						__("New value", "simple-history"),
-						esc_html( mb_strimwidth( $new_value, 0, 250, "..." ) )
+						esc_html( $trimmed_new_value )
 					);
 
 					$output .= sprintf(
 						$tmpl_row,
 						__("Old value", "simple-history"),
-						esc_html( mb_strimwidth( $old_value, 0, 250, "..." ) )
+						esc_html( $trimmed_old_value )
 					);
-				
-				
+
+
 				} else {
 
 					$output .= $option_custom_output;
@@ -280,7 +293,7 @@ class SimpleOptionsLogger extends SimpleLogger
 				);
 
 			}
-			
+
 			$output .= "</table>";
 
 		}
@@ -350,7 +363,7 @@ class SimpleOptionsLogger extends SimpleLogger
 		if ( $new_value && ! empty( $context["new_post_title"] ) ) {
 
 			$post_title_with_link = "";
-			
+
 			if ( get_post_status( $new_value ) ) {
 				$post_title_with_link = sprintf('<a href="%1$s">%2$s</a>', get_edit_post_link( $new_value ), esc_html( $context["new_post_title"] ) );
 			} else {
@@ -362,7 +375,7 @@ class SimpleOptionsLogger extends SimpleLogger
 				__("New value", "simple-history"),
 				sprintf( __('Page %1$s', "simple-history" ), $post_title_with_link)
 			);
-		
+
 		}
 		if ( intval( $new_value ) == 0  ) {
 
@@ -371,12 +384,12 @@ class SimpleOptionsLogger extends SimpleLogger
 				__("New value", "simple-history"),
 				__("Your latests posts", "simple-history")
 			);
-		
+
 		}
 
 		if ( $old_value && ! empty( $context["old_post_title"] ) ) {
 			$post_title_with_link = "";
-			
+
 			if ( get_post_status( $old_value ) ) {
 				$post_title_with_link = sprintf('<a href="%1$s">%2$s</a>', get_edit_post_link( $old_value ), esc_html( $context["old_post_title"] ) );
 			} else {
@@ -398,16 +411,16 @@ class SimpleOptionsLogger extends SimpleLogger
 				__("Old value", "simple-history"),
 				__("Your latests posts", "simple-history")
 			);
-		
+
 		}
-	
+
 		return $output;
 
 	} // custom output page_on_front
 
 
 	/**
-	 * "default_category" = Writing Settings » Default Post Category	
+	 * "default_category" = Writing Settings » Default Post Category
 	 */
 	function add_context_for_option_default_category( $context, $old_value, $new_value, $option, $option_page ) {
 
@@ -440,7 +453,7 @@ class SimpleOptionsLogger extends SimpleLogger
 	}
 
 	function add_context_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page ) {
-		
+
 		$context = call_user_func_array( array( $this, "add_context_for_option_default_category"), func_get_args() );
 
 		return $context;
@@ -464,7 +477,7 @@ class SimpleOptionsLogger extends SimpleLogger
 				$tmpl_row,
 				__("Old value", "simple-history"),
 				esc_html( $old_category_name )
-			);		
+			);
 
 		}
 
@@ -474,7 +487,7 @@ class SimpleOptionsLogger extends SimpleLogger
 				$tmpl_row,
 				__("New value", "simple-history"),
 				esc_html( $new_category_name )
-			);		
+			);
 
 		}
 
@@ -482,9 +495,9 @@ class SimpleOptionsLogger extends SimpleLogger
 
 	}
 
-	function get_details_output_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {	
-		
-		$output = call_user_func_array( array( $this, "get_details_output_for_option_default_category"), func_get_args() );		
+	function get_details_output_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
+
+		$output = call_user_func_array( array( $this, "get_details_output_for_option_default_category"), func_get_args() );
 
 		return $output;
 
