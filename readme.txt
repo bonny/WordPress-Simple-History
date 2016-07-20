@@ -147,6 +147,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.7.x (xxx 2016) =
+
+- No warning if `on_wp_login()` is called without second argument.
+
 = 2.7.3 (June 2016) =
 
 - Removed the usage of the mb_* functions and mbstring is no longer a requirement.
