@@ -150,6 +150,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.7.x (xxx 2016) =
 
 - No warning if `on_wp_login()` is called without second argument.
+- Fix options diff not being shown correctly.
+- Fix notice if no message key did exist for a log message.
 
 = 2.7.3 (June 2016) =
 
