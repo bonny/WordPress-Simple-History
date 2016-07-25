@@ -167,7 +167,52 @@ class SimplePluginLogger extends SimpleLogger
 			return $arr_headers;
 		} );
 
+		// There is no way to ue a filter and detect a plugin that is disabled because it can't be found or similar error.
+		// So we hook into gettext and look for the usage of the error that is returned when this happens.
+		add_filter( 'gettext', array( $this, "on_gettext" ), 10, 3 );
+
 	}
+
+	/**
+	 *
+	 * There is no way to ue a filter and detect a plugin that is disabled because it can't be found or similar error.
+	 * we hook into gettext and look for the usage of the error that is returned when this happens.
+	 */
+	function on_gettext( $translation, $text, $domain ) {
+
+		// The errors we can get is:
+		// return new WP_Error('plugin_invalid', __('Invalid plugin path.'));
+		// return new WP_Error('plugin_not_found', __('Plugin file does not exist.'));
+		// return new WP_Error('no_plugin_header', __('The plugin does not have a valid header.'));
+
+		// We only act on page plugins.php
+		global $pagenow;
+
+		if ( ! isset( $pagenow ) || $pagenow !== "plugins.php" ) {
+			return $translation;
+		}
+
+		// We only act if the untranslated text is among the following ones
+		$untranslated_texts = array(
+			"Plugin file does not exist.",
+			"Invalid plugin path.",
+			"The plugin does not have a valid header."
+		);
+
+		if ( ! in_array( $text, $untranslated_texts )) {
+			return $translation;
+		}
+
+		// We don't know what plugin that was that got this error and currently there does not seem to be a way to determine that
+		// So that's why we use such generic log messages
+		$this->info("A plugin was deactivated because of an error: {error_message}", array(
+			"error_message" => $text
+		));
+
+		return $translation;
+
+	} //on_gettext
+
 
 	/**
 	 * Show readme from github in a modal win
