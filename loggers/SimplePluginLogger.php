@@ -78,6 +78,14 @@ class SimplePluginLogger extends SimpleLogger
 					'Plugin was updated in bulk',
 					'simple-history'
 				),
+
+				// plugin disabled due to some error
+				'plugin_disabled_because_error' => _x(
+					'A plugin was deactivated because of an error: {error_message}',
+					'Plugin was disabled because of an error',
+					'simple-history'
+				),
+
 			), // messages
 			"labels" => array(
 				"search" => array(
@@ -88,7 +96,8 @@ class SimplePluginLogger extends SimpleLogger
 							'plugin_activated'
 						),
 						_x("Deactivated plugins", "Plugin logger: search", "simple-history") => array(
-							'plugin_deactivated'
+							'plugin_deactivated',
+							'plugin_disabled_because_error'
 						),
 						_x("Installed plugins", "Plugin logger: search", "simple-history") => array(
 							'plugin_installed'
@@ -193,6 +202,7 @@ class SimplePluginLogger extends SimpleLogger
 		}
 
 		// We only act if the untranslated text is among the following ones
+		// (Literally these, no translation)
 		$untranslated_texts = array(
 			"Plugin file does not exist.",
 			"Invalid plugin path.",
@@ -205,9 +215,12 @@ class SimplePluginLogger extends SimpleLogger
 
 		// We don't know what plugin that was that got this error and currently there does not seem to be a way to determine that
 		// So that's why we use such generic log messages
-		$this->info("A plugin was deactivated because of an error: {error_message}", array(
-			"error_message" => $text
-		));
+		$this->warningMessage(
+			"plugin_disabled_because_error",
+			array(
+				"error_message" => $text
+			)
+		);
 
 		return $translation;
 
