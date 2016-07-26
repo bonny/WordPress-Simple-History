@@ -81,7 +81,7 @@ class SimplePluginLogger extends SimpleLogger
 
 				// plugin disabled due to some error
 				'plugin_disabled_because_error' => _x(
-					'A plugin was deactivated because of an error: {error_message}',
+					'Deactivated a plugin because of an error: {error_message}',
 					'Plugin was disabled because of an error',
 					'simple-history'
 				),
@@ -218,6 +218,7 @@ class SimplePluginLogger extends SimpleLogger
 		$this->warningMessage(
 			"plugin_disabled_because_error",
 			array(
+				"_initiator" => SimpleLoggerLogInitiators::WORDPRESS,
 				"error_message" => $text
 			)
 		);
