@@ -147,7 +147,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.7.4 (Jule 2016) =
+= 2.7.x (nnn 2016) =
+
+- User logins using e-mail are now logged correctly. Previously the user would be logged in successfully but the log said that they failed.
+- 
+
+= 2.7.4 (July 2016) =
 
 - Log a warning message if a plugin gets disabled automatically by WordPress because of any of these errors: "Plugin file does not exist.", "Invalid plugin path.", "The plugin does not have a valid header."
 - Fix warning error if `on_wp_login()` was called without second argument.
