@@ -52,17 +52,15 @@ class SimpleHistoryNewRowsNotifier {
 
 		if ( ! $apiArgs ) {
 			wp_send_json_error( array("error" => "MISSING_APIARGS") );
-			exit;
 		}
 
 		if ( empty( $apiArgs["since_id"] ) || ! is_numeric( $apiArgs["since_id"] ) ) {
 			wp_send_json_error( array("error" => "MISSING_SINCE_ID") );
-			exit;
 		}
 
 		// User must have capability to view the history page
 		if ( ! current_user_can( $this->sh->get_view_history_capability() ) ) {
-			return;
+			wp_send_json_error( array("error" => "CAPABILITY_ERROR") );
 		}
 
 		// $since_id = isset( $_GET["since_id"] ) ? absint($_GET["since_id"]) : null;
