@@ -742,23 +742,26 @@ class SimpleUserLogger extends SimpleLogger {
 	 */
 	function on_authenticate( $user, $username, $password ) {
 
-		// user = null om loggar in med epost
-		// username = epostadressen
-		#var_dump($user); var_dump($username); exit;
-
 		// Don't log empty usernames
 		if ( ! trim( $username ) ) {
 			return $user;
 		}
 
-		// If auth ok then $user is a wp_user object
-		if ( is_a( $user, 'WP_User' ) ) {
-
-			$wp_user = $user;
-
+		// If null then no auth done yet. Wierd. But what can we do.
+		if ( is_null( $user ) ) {
+			return $user;
 		}
 
-		if (false === $wp_user) {
+		// If auth ok then $user is a wp_user object
+		if ( is_a( $user, 'WP_User' ) ) {
+			return $user;
+		}
+
+		// If user is a WP_Error object then auth failed
+		// Error codes can be:
+		// "incorrect_password" | "empty_password" | "invalid_email" | "invalid_username"
+		// We only act on invalid emails and invalid usernames
+		if ( is_a( $user, 'WP_Error' ) && ( $user->get_error_code() == "invalid_username" || $user->get_error_code() == "invalid_email" ) ) {
 
 			$context = array(
 				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
