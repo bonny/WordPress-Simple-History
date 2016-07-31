@@ -383,14 +383,14 @@ class SimpleHistoryFilterDropin {
 									data-default-user-data="<?php echo esc_attr( json_encode($arr_default_user_data) ) ?>"
 								/>
 						</p>
-
-						<p>
-							<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
-							<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Hide options", "Filter dropin: button to hide more search options", "simple-history") ?></button>
-						</p>
 						<?php
 					}
 					?>
+
+					<p>
+						<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
+						<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Hide options", "Filter dropin: button to hide more search options", "simple-history") ?></button>
+					</p>
 
 				</div><!-- // more filters -->
 
