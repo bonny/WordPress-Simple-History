@@ -18,9 +18,9 @@ class SimpleHistoryNewRowsNotifier {
 	private $interval = 10000;
 
 	function __construct($sh) {
-		
+
 		$this->sh = $sh;
-		
+
 		// How often the script checks for new rows
 		$this->interval = (int) apply_filters("SimpleHistoryNewRowsNotifier/interval", $this->interval);
 
@@ -60,6 +60,11 @@ class SimpleHistoryNewRowsNotifier {
 			exit;
 		}
 
+		// User must have capability to view the history page
+		if ( ! current_user_can( $this->sh->get_view_history_capability() ) ) {
+			return;
+		}
+
 		// $since_id = isset( $_GET["since_id"] ) ? absint($_GET["since_id"]) : null;
 
 		$logQueryArgs = $apiArgs;
@@ -67,15 +72,15 @@ class SimpleHistoryNewRowsNotifier {
 		$logQuery = new SimpleHistoryLogQuery();
 		$answer = $logQuery->query( $logQueryArgs );
 
-		// Use our own repsonse array instead of $answer to keep size down
+		// Use our own response array instead of $answer to keep size down
 		$json_data = array();
-		
+
 		$numNewRows = isset( $answer["total_row_count"] ) ? $answer["total_row_count"] : 0;
 		$json_data["num_new_rows"] = $numNewRows;
 		$json_data["num_mysql_queries"] = get_num_queries();
 
 		if ($numNewRows) {
-	
+
 			// We have new rows
 
 			// Append strings
@@ -91,4 +96,3 @@ class SimpleHistoryNewRowsNotifier {
 	}
 
 } // class
-
