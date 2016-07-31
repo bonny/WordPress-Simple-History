@@ -162,7 +162,11 @@ class SimpleHistoryFilterDropin {
 				}
 
 				?>
+
 				<p data-debug-daysAndPages='<?php echo json_encode( $arr_days_and_pages ) ?>'>
+
+					<label class="SimpleHistory__filters__filterLabel"><?php _ex("Dates:", "Filter label", "simple-history") ?></label>
+
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
 							name="dates"
 							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
@@ -218,6 +222,7 @@ class SimpleHistoryFilterDropin {
 						}
 						?>
 					</select>
+
 				</p><!-- end months -->
 
 				<?php
@@ -230,20 +235,24 @@ class SimpleHistoryFilterDropin {
 				 */
 				$default_search_string = apply_filters("SimpleHistoryFilterDropin/filter_default_search_string" , "");
 				?>
+
 				<p>
+
+					<label class="SimpleHistory__filters__filterLabel"><?php _ex("Containing words:", "Filter label", "simple-history") ?></label>
+
 					<input
 						type="search"
 						class="SimpleHistoryFilterDropin-searchInput"
-						placeholder="<?php _e("Containing words", "simple-history"); ?>"
+						placeholder="<?php /* _e("Containing words", "simple-history"); */ ?>"
 						name="search"
 						value="<?php echo esc_attr($default_search_string); ?>"
 						>
+
 				</p>
 
-				<p>
+				<p class="SimpleHistory__filters__filterSubmitWrap">
 					<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--first js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
-					<!-- <br> -->
-					<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Show options", "Filter dropin: button to show more search options", "simple-history") ?></button>
+					<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Show search options", "Filter dropin: button to show more search options", "simple-history") ?></button>
 				</p>
 
 				<?php
@@ -259,6 +268,9 @@ class SimpleHistoryFilterDropin {
 				<div class="SimpleHistory__filters__moreFilters js-SimpleHistory__filters__moreFilters">
 
 					<p>
+
+						<label class="SimpleHistory__filters__filterLabel"><?php _ex("Log levels:", "Filter label", "simple-history") ?></label>
+
 						<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e("All log levels", "simple-history") ?>" multiple>
 							<option <?php selected(in_array("debug", $arr_default_loglevels)) ?> value="debug" data-color="#CEF6D8"><?php echo $this->sh->getLogLevelTranslated("Debug") ?></option>
 							<option <?php selected(in_array("info", $arr_default_loglevels)) ?> value="info" data-color="white"><?php echo $this->sh->getLogLevelTranslated("Info") ?></option>
@@ -269,9 +281,11 @@ class SimpleHistoryFilterDropin {
 							<option <?php selected(in_array("alert", $arr_default_loglevels)) ?> value="alert" data-color="rgb(199, 69, 69)"><?php echo $this->sh->getLogLevelTranslated("Alert") ?></option>
 							<option <?php selected(in_array("emergency", $arr_default_loglevels)) ?> value="emergency" data-color="#DF0101"><?php echo $this->sh->getLogLevelTranslated("Emergency") ?></option>
 						</select>
+
 					</p>
 
 					<?php
+
 					/**
 					 * Todo: Filter to control what the default messages to filter/search.
 					 * Message in in format: LoggerSlug:MessageKey
@@ -286,6 +300,9 @@ class SimpleHistoryFilterDropin {
 					// $arr_default_messages = apply_filters("SimpleHistoryFilterDropin/filter_default_messages", array());
 					?>
 					<p>
+
+						<label class="SimpleHistory__filters__filterLabel"><?php _ex("Message types:", "Filter label", "simple-history") ?></label>
+
 						<select name="messages" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px"
 								placeholder="<?php _e("All messages", "simple-history") ?>" multiple>
 							<?php
@@ -374,6 +391,9 @@ class SimpleHistoryFilterDropin {
 					if ( current_user_can("list_users") ) {
 						?>
 						<p>
+
+							<label class="SimpleHistory__filters__filterLabel"><?php _ex("Users:", "Filter label", "simple-history") ?></label>
+
 							<input type="text"
 									name = "users"
 									class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
@@ -382,14 +402,15 @@ class SimpleHistoryFilterDropin {
 									value="<?php echo esc_attr(implode(",",$default_user_ids)) ?>"
 									data-default-user-data="<?php echo esc_attr( json_encode($arr_default_user_data) ) ?>"
 								/>
+
 						</p>
 						<?php
 					}
 					?>
 
-					<p>
+					<p class="SimpleHistory__filters__filterSubmitWrap">
 						<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
-						<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Hide options", "Filter dropin: button to hide more search options", "simple-history") ?></button>
+						<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Hide search options", "Filter dropin: button to hide more search options", "simple-history") ?></button>
 					</p>
 
 				</div><!-- // more filters -->
