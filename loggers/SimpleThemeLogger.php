@@ -82,7 +82,7 @@ class SimpleThemeLogger extends SimpleLogger {
 
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_add") );
-		add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
+		//add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
 		//add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
 
 		add_filter( 'widget_update_callback', array( $this, "on_widget_update_callback" ), 10, 4 );
@@ -636,7 +636,7 @@ return;
 
 		// Fallback to default/parent output if nothing was added to output
 		if ( ! $output ) {
-	
+
 			$output .= parent::getLogRowPlainTextOutput($row);
 
 		}
@@ -791,9 +791,9 @@ return;
 	 * to many log entries with changed, just confusing.
 	 * need to rethink this
 	 */
+	 /*
 	function on_action_sidebar_admin_setup__detect_widget_order_change() {
 
-		/*
 		if ( isset( $_REQUEST["action"] ) && ( $_REQUEST["action"] == "widgets-order" ) ) {
 
 			$context = array();
@@ -820,9 +820,9 @@ return;
 			);
 
 		}
-		*/
 
 	}
+	*/
 
 	/**
 	 * Widget added

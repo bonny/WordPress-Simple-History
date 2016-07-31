@@ -585,6 +585,11 @@ class SimpleHistory {
 
 		}
 
+		// User must have capability to view the history page
+		if ( ! current_user_can( $this->get_view_history_capability() ) ) {
+			wp_send_json_error( array("error" => "CAPABILITY_ERROR") );
+		}
+
 		if ( isset( $args["id"] ) ) {
 			$args["post__in"] = array(
 				$args["id"],
