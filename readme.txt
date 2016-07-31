@@ -150,6 +150,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.7.x (nnn 2016) =
 
 - User logins using e-mail are now logged correctly. Previously the user would be logged in successfully but the log said that they failed.
+- Now only users with [`list_users`](https://codex.wordpress.org/Roles_and_Capabilities#list_users) capability can view the users filter and use the autocomplete api for users.
 - 
 
 = 2.7.4 (July 2016) =

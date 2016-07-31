@@ -71,7 +71,7 @@ class SimpleHistoryFilterDropin {
 				$result_months = get_transient( $cache_key );
 
 				if ( false === $result_months ) {
-				
+
 					$sql_dates = sprintf('
 						SELECT DISTINCT ( date_format(DATE, "%%Y-%%m") ) AS yearMonth
 						FROM %s
@@ -91,7 +91,7 @@ class SimpleHistoryFilterDropin {
 
 				// Default month = current month
 				// Mainly for performance reasons, since often
-				// it's not the users intention to view all events, 
+				// it's not the users intention to view all events,
 				// but just the latest
 				$this_month = date("Y-m");
 
@@ -124,7 +124,7 @@ class SimpleHistoryFilterDropin {
 					);
 
 					if ( $numPages < 20 ) {
-					
+
 						// Not that many things the last 7 days. Let's try to expand to 14 days instead.
 						$daysToShow = 14;
 						$numEvents = $this->sh->get_unique_events_for_days($daysToShow);
@@ -204,17 +204,17 @@ class SimpleHistoryFilterDropin {
 							_x("Last 60 days", "Filter dropin: filter week", "simple-history"), // 2 text
 							selected( $daysToShow, 60, 0 )
 						);
-			
+
 						// Months
 						foreach ( $result_months as $row ) {
-				
+
 							printf(
 								'<option value="%1$s" %3$s>%2$s</option>',
 								"month:" . $row->yearMonth,
 								date_i18n( "F Y", strtotime($row->yearMonth) ),
 								"" // selected( $this_month, $row->yearMonth, false )
 							);
-				
+
 						}
 						?>
 					</select>
@@ -231,10 +231,10 @@ class SimpleHistoryFilterDropin {
 				$default_search_string = apply_filters("SimpleHistoryFilterDropin/filter_default_search_string" , "");
 				?>
 				<p>
-					<input 
-						type="search" 
-						class="SimpleHistoryFilterDropin-searchInput" 
-						placeholder="<?php _e("Containing words", "simple-history"); ?>" 
+					<input
+						type="search"
+						class="SimpleHistoryFilterDropin-searchInput"
+						placeholder="<?php _e("Containing words", "simple-history"); ?>"
 						name="search"
 						value="<?php echo esc_attr($default_search_string); ?>"
 						>
@@ -324,7 +324,7 @@ class SimpleHistoryFilterDropin {
 
 										$str_option_messages = implode(",", $option_messages);
 										printf(
-												'<option value="%2$s">%1$s</option>', 
+												'<option value="%2$s">%1$s</option>',
 												esc_attr( $option_key ), // 1
 												esc_attr( $str_option_messages ) // 2
 											);
@@ -341,6 +341,7 @@ class SimpleHistoryFilterDropin {
 					</p>
 
 					<?php
+
 					/**
 					 * Filter what users to search for by default
 					 *
@@ -354,9 +355,9 @@ class SimpleHistoryFilterDropin {
 					 */
 
 					/*
-					add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function($arr) { 
+					add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function($arr) {
 						$arr = array(
-							1, 
+							1,
 							4
 						);
 						return $arr;
@@ -369,24 +370,27 @@ class SimpleHistoryFilterDropin {
 					foreach ($default_user_ids as $user_id) {
 						$arr_default_user_data[] = $this->get_data_for_user($user_id);
 					}
-				
+
+					if ( current_user_can("list_users") ) {
+						?>
+						<p>
+							<input type="text"
+									name = "users"
+									class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
+									style="width: 300px"
+									placeholder="<?php _e("All users", "simple-history") ?>"
+									value="<?php echo esc_attr(implode(",",$default_user_ids)) ?>"
+									data-default-user-data="<?php echo esc_attr( json_encode($arr_default_user_data) ) ?>"
+								/>
+						</p>
+
+						<p>
+							<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
+							<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Hide options", "Filter dropin: button to hide more search options", "simple-history") ?></button>
+						</p>
+						<?php
+					}
 					?>
-					<p>
-						<input type="text"
-								name = "users"
-								class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
-								style="width: 300px"
-								placeholder="<?php _e("All users", "simple-history") ?>"
-								value="<?php echo esc_attr(implode(",",$default_user_ids)) ?>"
-								data-default-user-data="<?php echo esc_attr( json_encode($arr_default_user_data) ) ?>"
-							/>
-					</p>
-
-					<p>
-						<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
-						<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex("Hide options", "Filter dropin: button to hide more search options", "simple-history") ?></button>
-					</p>
-
 
 				</div><!-- // more filters -->
 
@@ -403,7 +407,7 @@ class SimpleHistoryFilterDropin {
 
 	} // function
 
-	
+
 	/**
 	 * Return format used for select2 for a single user id
 	 *
@@ -411,7 +415,7 @@ class SimpleHistoryFilterDropin {
 	 * @return array Array with each user as an object
 	 */
 	public function get_data_for_user($userID) {
-		
+
 		if ( ! $userID || ! is_numeric($userID) ) {
 			return false;
 		}
@@ -421,7 +425,7 @@ class SimpleHistoryFilterDropin {
 		if ( false == $user ) {
 			return false;
 		}
-		
+
 		$userdata = (object) array(
 			"id" => $user->ID,
 			"user_email" => $user->user_email,
@@ -443,8 +447,14 @@ class SimpleHistoryFilterDropin {
 		$q = isset( $_GET["q"] ) ? $_GET["q"] : "";
 		$page_limit = isset( $_GET["page_limit"] ) ? (int) $_GET["page_limit"] : "";
 
+		// query and page limit must be set
 		if ( ! $q || ! $page_limit ) {
-			return;
+			wp_send_json_error();
+		}
+
+		// user must have list_users capability (default super admin + administrators have this)
+		if ( ! current_user_can("list_users") ) {
+			wp_send_json_error();;
 		}
 
 		// Search both current users and all logged rows,
@@ -473,6 +483,7 @@ class SimpleHistoryFilterDropin {
 				OR user_nicename LIKE "%%%2$s%%"
 				OR user_email LIKE "%%%2$s%%"
 				OR display_name LIKE "%%%2$s%%"
+			LIMIT 20
 			',
 			$wpdb->users,
 			$str_like
@@ -487,7 +498,8 @@ class SimpleHistoryFilterDropin {
 			"results" => array(
 			),
 			"more" => false,
-			"context" => array()
+			"context" => array(),
+			"count" => sizeof( $results_user )
 		);
 
 		$data["results"] = array_merge( $data["results"], $results_user );
