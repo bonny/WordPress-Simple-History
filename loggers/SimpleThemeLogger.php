@@ -25,6 +25,9 @@ class SimpleThemeLogger extends SimpleLogger {
 			"capability" => "edit_theme_options",
 			"messages" => array(
 				'theme_switched' => __('Switched theme to "{theme_name}" from "{prev_theme_name}"', "simple-history"),
+				'theme_installed' => __('Installed theme "{theme_name}"', "simple-history"),
+				'theme_deleted' => __('Deleted theme "{theme_name}"', "simple-history"),
+				'theme_updated' => __('Updated theme "{theme_name}"', "simple-history"),
 				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
 				'widget_removed' => __('Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', "simple-history"),
 				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
@@ -89,6 +92,99 @@ class SimpleThemeLogger extends SimpleLogger {
 
 		add_action( "load-appearance_page_custom-background", array( $this, "on_page_load_custom_background" ) );
 
+		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete" ), 10, 2 );
+
+	}
+
+
+	/*
+	$install_actions = apply_filters( 'install_theme_complete_actions', $install_actions, $this->api, $stylesheet, $theme_info );
+
+	$update_actions = apply_filters( 'update_theme_complete_actions', $update_actions, $this->theme );
+
+	Theme install is done form URL or local/uploaded file
+	Theme_Upgrader->install()
+
+	*/
+
+	function on_upgrader_process_complete( $upgrader_instance = null, $arr_data = null ) {
+
+		/*
+
+		For theme installs $arr_data looks like:
+
+			Array
+			(
+			    [type] => theme
+			    [action] => install
+			)
+
+		*/
+
+		// Both args must be set
+		if ( empty( $upgrader_instance ) || empty( $arr_data ) ) {
+			return;
+		}
+
+		// Must be type theme and action install
+		if ( $arr_data["type"] !== "theme" && $arr_data["action"] !== "install" ) {
+			return;
+		}
+
+		//
+		$skin = $upgrader_instance->skin;
+
+		#echo "<pre>";
+		#print_r( $skin );
+		#print_r( $upgrader_instance );
+		#print_r( $arr_data );
+		ob_start();
+		print_r($skin);
+		$skin_str = ob_get_clean();
+
+		/*
+		Interesting parts in $skin:
+
+		// type can be "web" or nnn
+		[type] => web
+
+		// api seems to contains theme info and description
+		[api] => stdClass Object
+	        (
+	            [name] => Hemingway
+	            [slug] => hemingway
+	            [version] => 1.56
+	            [preview_url] => https://wp-themes.com/hemingway
+	            [author] => anlino
+	            [screenshot_url] => //ts.w.org/wp-content/themes/hemingway/screenshot.png?ver=1.56
+	            [rating] => 94
+	            [num_ratings] => 35
+	            [downloaded] => 282236
+	            [last_updated] => 2016-07-03
+	            [homepage] => https://wordpress.org/themes/hemingway/
+	            [download_link] => https://downloads.wordpress.org/theme/hemingway.1.56.zip
+	        )
+
+		*/
+
+		$type = empty( $skin->type ) ? null : $skin->type ;
+		$theme_name = empty( $skin->api->name ) ? null : $skin->api->name;
+		$theme_slug = empty( $skin->api->slug ) ? null : $skin->api->slug;
+		$theme_version = empty( $skin->api->version ) ? null : $skin->api->version;
+		#$theme_screenshot_url = $skin->api->screenshot_url;
+		#$theme_last_updated = $skin->api->last_updated;
+		#$theme_last_homepage = $skin->api->last_homepage;
+		#$theme_download_link = $skin->api->last_download_link;
+
+		$this->infoMessage(
+			"theme_installed",
+			array(
+				"theme_name" => $theme_name,
+				"theme_version" => $theme_version,
+				"debug_skin" => $skin_str
+			)
+		);
+
 
 	}
 
@@ -120,8 +216,6 @@ class SimpleThemeLogger extends SimpleLogger {
 			);
 
 		}
-
-
 
 	}
 
