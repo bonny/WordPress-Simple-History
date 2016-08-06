@@ -40,6 +40,15 @@ class SimpleThemeLogger extends SimpleLogger {
 					"label" => _x("Themes & Widgets", "Theme logger: search", "simple-history"),
 					"label_all" => _x("All theme activity", "Theme logger: search", "simple-history"),
 					"options" => array(
+						_x("Updated themes", "Theme logger: search", "simple-history") => array(
+							"theme_updated"
+						),
+						_x("Deleted themes", "Theme logger: search", "simple-history") => array(
+							"theme_deleted"
+						),
+						_x("Installed themes", "Theme logger: search", "simple-history") => array(
+							"theme_installed"
+						),
 						_x("Switched themes", "Theme logger: search", "simple-history") => array(
 							"theme_switched"
 						),
