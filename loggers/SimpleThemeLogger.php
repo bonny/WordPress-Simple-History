@@ -92,22 +92,107 @@ class SimpleThemeLogger extends SimpleLogger {
 
 		add_action( "load-appearance_page_custom-background", array( $this, "on_page_load_custom_background" ) );
 
-		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete" ), 10, 2 );
+		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete_theme_install" ), 10, 2 );
+		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete_theme_update" ), 10, 2 );
+
+		// delete_site_transient( 'update_themes' );
 
 	}
 
 
-	/*
-	$install_actions = apply_filters( 'install_theme_complete_actions', $install_actions, $this->api, $stylesheet, $theme_info );
+	function on_upgrader_process_complete_theme_update( $upgrader_instance = null, $arr_data = null ) {
 
-	$update_actions = apply_filters( 'update_theme_complete_actions', $update_actions, $this->theme );
+		/*
+		For theme updates $arr_data looks like
 
-	Theme install is done form URL or local/uploaded file
-	Theme_Upgrader->install()
+		// From core update/bulk
+		Array
+		(
+		    [action] => update
+		    [type] => theme
+		    [bulk] => 1
+		    [themes] => Array
+		        (
+		            [0] => baskerville
+		        )
 
-	*/
+		)
 
-	function on_upgrader_process_complete( $upgrader_instance = null, $arr_data = null ) {
+		// From themes.php/single
+		Array
+		(
+			[action] => update
+		    [theme] => baskerville
+		    [type] => theme
+		)
+		*/
+
+		// Both args must be set
+		if ( empty( $upgrader_instance ) || empty( $arr_data ) ) {
+			return;
+		}
+
+		// Must be type theme and action install
+		if ( $arr_data["type"] !== "theme" && $arr_data["action"] !== "update" ) {
+			return;
+		}
+
+		// Skin contains the nice info
+		if ( empty( $upgrader_instance->skin ) ) {
+			return;
+		}
+
+		$skin = $upgrader_instance->skin;
+
+		$arr_themes = array();
+
+		// If single install make an array so it look like bulk and we can use same code
+		if ( isset( $arr_data["bulk"] ) && $arr_data["bulk"]  && isset( $arr_data["themes"] ) ) {
+			$arr_themes = (array) $arr_data["themes"];
+		} else {
+			$arr_themes = array(
+				$arr_data["theme"]
+			);
+		}
+
+		/*
+		ob_start();
+		print_r($skin);
+		$skin_str = ob_get_clean();
+		echo "<pre>";
+		print_r($arr_data);
+		print_r($skin);
+		// */
+
+		// $one_updated_theme is the theme slug
+		foreach ( $arr_themes as $one_updated_theme ) {
+
+			$theme_info_object = wp_get_theme( $one_updated_theme );
+
+			if ( ! is_a( $theme_info_object, "WP_Theme" ) ) {
+				continue;
+			}
+
+			$theme_name = $theme_info_object->get("Name");
+			$theme_version = $theme_info_object->get("Version");
+
+			if ( ! $theme_name || ! $theme_version ) {
+				continue;
+			}
+
+			$this->infoMessage(
+				"theme_updated",
+				array(
+					"theme_name" => $theme_name,
+					"theme_version" => $theme_version,
+				)
+			);
+
+		}
+
+	}
+
+	function on_upgrader_process_complete_theme_install( $upgrader_instance = null, $arr_data = null ) {
 
 		/*
 
@@ -127,20 +212,22 @@ class SimpleThemeLogger extends SimpleLogger {
 		}
 
 		// Must be type theme and action install
-		if ( $arr_data["type"] !== "theme" && $arr_data["action"] !== "install" ) {
+		if ( $arr_data["type"] !== "theme" || $arr_data["action"] !== "install" ) {
 			return;
 		}
 
-		//
+		// Skin contains the nice info
+		if ( empty( $upgrader_instance->skin ) ) {
+			return;
+		}
+
 		$skin = $upgrader_instance->skin;
 
-		#echo "<pre>";
-		#print_r( $skin );
-		#print_r( $upgrader_instance );
-		#print_r( $arr_data );
+		/*
 		ob_start();
 		print_r($skin);
 		$skin_str = ob_get_clean();
+		*/
 
 		/*
 		Interesting parts in $skin:
@@ -181,10 +268,9 @@ class SimpleThemeLogger extends SimpleLogger {
 			array(
 				"theme_name" => $theme_name,
 				"theme_version" => $theme_version,
-				"debug_skin" => $skin_str
+				// "debug_skin" => $skin_str
 			)
 		);
-
 
 	}
 
