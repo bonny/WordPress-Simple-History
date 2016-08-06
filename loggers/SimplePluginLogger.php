@@ -55,7 +55,7 @@ class SimplePluginLogger extends SimpleLogger
 				),
 
 				'plugin_update_failed' => _x(
-					'Updated plugin "{plugin_name}"',
+					'Failed to update plugin "{plugin_name}"',
 					'Plugin update failed',
 					'simple-history'
 				),
@@ -543,19 +543,30 @@ class SimplePluginLogger extends SimpleLogger
 
 	/**
 	 * Called when plugins is updated or installed
+	 * Called from class-wp-upgrader.php
+	 *
+	 * @param Plugin_Upgrader $this Plugin_Upgrader instance. In other contexts, $this, might
+	 *                              be a Theme_Upgrader or Core_Upgrade instance.
+	 * @param array           $data {
+	 *     Array of bulk item update data.
+
 	 */
 	function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
 
 		// Can't use get_plugins() here to get version of plugins updated from
 		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..)
 		// $plugs = get_plugins();
-		// $context["_debug_get_plugins"] = SimpleHistory::json_encode( $plugs );
+
 		/*
+		If an update fails then $plugin_upgrader_instance->skin->result->errors contains something like:
+		Array
+		(
+		    [remove_old_failed] => Array
+		        (
+		            [0] => Could not remove the old plugin.
+		        )
 
-		Try with these instead:
-		$current = get_site_transient( 'update_plugins' );
-		add_filter('upgrader_clear_destination', array($this, 'delete_old_plugin'), 10, 4);
-
+		)
 		*/
 
 		/*
