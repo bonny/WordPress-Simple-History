@@ -714,7 +714,7 @@ class SimplePluginLogger extends SimpleLogger
 
 						$plugin_data = array();
 						if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin_info ) ) {
-							$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info );
+							$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info, true, false );
 						}
 
 						$context["plugin_name"] = isset( $plugin_data["Name"] ) ? $plugin_data["Name"] : "";
@@ -750,7 +750,7 @@ class SimplePluginLogger extends SimpleLogger
 				// No plugin info in instance, so get it ourself
 				$plugin_data = array();
 				if ( file_exists( WP_PLUGIN_DIR . '/' . $arr_data["plugin"] ) ) {
-					$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data["plugin"] );
+					$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data["plugin"], true, false );
 				}
 
 				// autoptimize/autoptimize.php
@@ -862,7 +862,7 @@ class SimplePluginLogger extends SimpleLogger
 
 				foreach ($plugins_updated as $plugin_name) {
 
-					$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
+					$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name, true, false );
 
 					$plugin_slug = dirname( $plugin_name );
 
@@ -1062,7 +1062,7 @@ class SimplePluginLogger extends SimpleLogger
 		'DomainPath' - Plugin's relative directory path to .mo files.
 		'Network' - Boolean. Whether the plugin can only be activated network wide.
 		*/
-		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
+		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name, true, false );
 
 		$plugin_slug = dirname( $plugin_name );
 
@@ -1090,7 +1090,7 @@ class SimplePluginLogger extends SimpleLogger
 	 */
 	function on_deactivated_plugin($plugin_name) {
 
-		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name );
+		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name, true, false );
 		$plugin_slug = dirname( $plugin_name );
 
 		$context = array(
