@@ -157,8 +157,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 - Theme installs are now logged
 - ...and so are theme updates
-- 
-- Use correct message when a plugin update fails, i.e. the message for key `plugin_update_failed`.
+- ...and when a theme is deleted. Awesome!
+- Correct message is now used when a plugin update fails, i.e. the message for key `plugin_update_failed`.
 - When logging plugin info, store the original untranslated strings (for example plugin name).
 
 = 2.7.5 (August 2016) =

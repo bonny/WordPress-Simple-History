@@ -26,7 +26,7 @@ class SimpleThemeLogger extends SimpleLogger {
 			"messages" => array(
 				'theme_switched' => __('Switched theme to "{theme_name}" from "{prev_theme_name}"', "simple-history"),
 				'theme_installed' => __('Installed theme "{theme_name}"', "simple-history"),
-				'theme_deleted' => __('Deleted theme "{theme_name}"', "simple-history"),
+				'theme_deleted' => __('Deleted theme with slug "{theme_slug}"', "simple-history"),
 				'theme_updated' => __('Updated theme "{theme_name}"', "simple-history"),
 				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
 				'widget_removed' => __('Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', "simple-history"),
@@ -96,6 +96,54 @@ class SimpleThemeLogger extends SimpleLogger {
 		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete_theme_update" ), 10, 2 );
 
 		// delete_site_transient( 'update_themes' );
+		//do_action( 'deleted_site_transient', $transient );
+		add_action( 'deleted_site_transient', array( $this, "on_deleted_site_transient_theme_deleted" ), 10, 1 );
+
+	}
+
+	/*
+	* Fires after a transient is deleted.
+	* WP function delete_theme() does not have any actions or filters we can use to detect
+	* a theme deletion, but the last thing that is done in delete_theme() is that the
+	* "update_themes" transient is deleted. So use that info to catch theme deletions.
+	*
+	* @param string $transient Deleted transient name.
+	*/
+	function on_deleted_site_transient_theme_deleted( $transient = null ) {
+
+		if ( "update_themes" !== $transient ) {
+			return;
+		}
+
+		/*
+		When a theme is deleted we have this info:
+
+		$_GET:
+		{
+		    "action": "delete",
+		    "stylesheet": "CherryFramework",
+		    "_wpnonce": "1c1571004e"
+		}
+
+
+		*/
+
+		if ( empty( $_GET["action"] ) || $_GET["action"] !== "delete" ) {
+			return;
+		}
+
+		if ( empty( $_GET["stylesheet"] ) ) {
+			return;
+		}
+
+		$theme_deleted_slug = (string) $_GET["stylesheet"];
+
+		$this->infoMessage(
+			"theme_deleted",
+			array(
+				"theme_slug" => $theme_deleted_slug
+			)
+		);
 
 	}
 
