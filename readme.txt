@@ -155,6 +155,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.7.x (August 2016) =
 
+- Now theme installs are logged
 - Use correct message when a plugin update fails, i.e. the message for key `plugin_update_failed`.
 - When logging plugin info, store the original untranslated strings (for example plugin name).
 
