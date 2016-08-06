@@ -38,17 +38,23 @@ see when someone has tried to log in, but failed. The log will then include ip a
 * **Option screens**<br>
 view details about changes made in the differnt settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
 
+
 #### Support for third party plugins
 
-By default Simple History comes with support for these third party plugins:
+By default Simple History comes with built in support for the following plugins:
 
 **User Switching**
-The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button. Simple History will log each user switch being made.
+The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button.
+Simple History will log each user switch being made.
 
 **Enable Media Replace**
-The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place. Simple history will log details about the file being replaced and details about the new file.
+The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place.
+Simple history will log details about the file being replaced and details about the new file.
 
-Support for more plugins are coming.
+**Limit Login Attempts**
+The plugin [Limit Login Attempts](https://sv.wordpress.org/plugins/limit-login-attempts/) is old
+and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
+Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
 
 #### RSS feed available
 
