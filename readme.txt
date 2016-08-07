@@ -160,6 +160,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - ...and when a theme is deleted. Awesome!
 - Correct message is now used when a plugin update fails, i.e. the message for key `plugin_update_failed`.
 - When logging plugin info, store the original untranslated strings (for example plugin name).
+- Default number of events to show is now 10 instead of 5.
 
 = 2.7.5 (August 2016) =
 

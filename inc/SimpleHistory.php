@@ -1132,7 +1132,7 @@ class SimpleHistory {
 	 */
 	function get_pager_size() {
 
-		$pager_size = get_option( "simple_history_pager_size", 5 );
+		$pager_size = get_option( "simple_history_pager_size", 10 );
 
 		/**
 		 * Filter the pager size setting
