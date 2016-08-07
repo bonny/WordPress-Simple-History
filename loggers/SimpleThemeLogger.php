@@ -190,7 +190,7 @@ class SimpleThemeLogger extends SimpleLogger {
 		}
 
 		// Must be type theme and action install
-		if ( $arr_data["type"] !== "theme" && $arr_data["action"] !== "update" ) {
+		if ( $arr_data["type"] !== "theme" || $arr_data["action"] !== "update" ) {
 			return;
 		}
 
