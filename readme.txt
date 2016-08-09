@@ -158,6 +158,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Theme installs are now logged
 - ...and so are theme updates
 - ...and theme deletions. Awesome!
+- Support for plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-attempts/). Failed login attempts, lockouts and configuration changes will be logged.
 - Correct message is now used when a plugin update fails, i.e. the message for key `plugin_update_failed`.
 - The original untranslated strings for plugin name and so on are stored when storing info for plugin installs and updates and similar.
 - Default number of events to show is now 10 instead of 5.
