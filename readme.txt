@@ -157,9 +157,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 - Theme installs are now logged
 - ...and so are theme updates
-- ...and when a theme is deleted. Awesome!
+- ...and theme deletions. Awesome!
 - Correct message is now used when a plugin update fails, i.e. the message for key `plugin_update_failed`.
-- When logging plugin info, store the original untranslated strings (for example plugin name).
+- The original untranslated strings for plugin name and so on are stored when storing info for plugin installs and updates and similar.
 - Default number of events to show is now 10 instead of 5.
 
 = 2.7.5 (August 2016) =
