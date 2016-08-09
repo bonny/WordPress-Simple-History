@@ -629,7 +629,7 @@ class SimpleHistory {
 
 				} else {
 
-					$data["logRows"] = $logRows;
+					// $data["logRows"] = $logRows;
 				}
 
 				break;
