@@ -145,3 +145,7 @@
 .SimpleHistory__filters__filter--day {
 	display: block;
 }
+
+.SimpleHistory__filters__filter--day select {
+	width: 200px;
+}
