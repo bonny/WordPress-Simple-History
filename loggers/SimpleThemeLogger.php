@@ -25,6 +25,9 @@ class SimpleThemeLogger extends SimpleLogger {
 			"capability" => "edit_theme_options",
 			"messages" => array(
 				'theme_switched' => __('Switched theme to "{theme_name}" from "{prev_theme_name}"', "simple-history"),
+				'theme_installed' => __('Installed theme "{theme_name}"', "simple-history"),
+				'theme_deleted' => __('Deleted theme with slug "{theme_slug}"', "simple-history"),
+				'theme_updated' => __('Updated theme "{theme_name}"', "simple-history"),
 				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
 				'widget_removed' => __('Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', "simple-history"),
 				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
@@ -37,6 +40,15 @@ class SimpleThemeLogger extends SimpleLogger {
 					"label" => _x("Themes & Widgets", "Theme logger: search", "simple-history"),
 					"label_all" => _x("All theme activity", "Theme logger: search", "simple-history"),
 					"options" => array(
+						_x("Updated themes", "Theme logger: search", "simple-history") => array(
+							"theme_updated"
+						),
+						_x("Deleted themes", "Theme logger: search", "simple-history") => array(
+							"theme_deleted"
+						),
+						_x("Installed themes", "Theme logger: search", "simple-history") => array(
+							"theme_installed"
+						),
 						_x("Switched themes", "Theme logger: search", "simple-history") => array(
 							"theme_switched"
 						),
@@ -82,13 +94,240 @@ class SimpleThemeLogger extends SimpleLogger {
 
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
 		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_add") );
-		add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
+		//add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
 		//add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
 
 		add_filter( 'widget_update_callback', array( $this, "on_widget_update_callback" ), 10, 4 );
 
 		add_action( "load-appearance_page_custom-background", array( $this, "on_page_load_custom_background" ) );
 
+		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete_theme_install" ), 10, 2 );
+		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete_theme_update" ), 10, 2 );
+
+		// delete_site_transient( 'update_themes' );
+		//do_action( 'deleted_site_transient', $transient );
+		add_action( 'deleted_site_transient', array( $this, "on_deleted_site_transient_theme_deleted" ), 10, 1 );
+
+	}
+
+	/*
+	* Fires after a transient is deleted.
+	* WP function delete_theme() does not have any actions or filters we can use to detect
+	* a theme deletion, but the last thing that is done in delete_theme() is that the
+	* "update_themes" transient is deleted. So use that info to catch theme deletions.
+	*
+	* @param string $transient Deleted transient name.
+	*/
+	function on_deleted_site_transient_theme_deleted( $transient = null ) {
+
+		if ( "update_themes" !== $transient ) {
+			return;
+		}
+
+		/*
+		When a theme is deleted we have this info:
+
+		$_GET:
+		{
+		    "action": "delete",
+		    "stylesheet": "CherryFramework",
+		    "_wpnonce": "1c1571004e"
+		}
+
+
+		*/
+
+		if ( empty( $_GET["action"] ) || $_GET["action"] !== "delete" ) {
+			return;
+		}
+
+		if ( empty( $_GET["stylesheet"] ) ) {
+			return;
+		}
+
+		$theme_deleted_slug = (string) $_GET["stylesheet"];
+
+		$this->infoMessage(
+			"theme_deleted",
+			array(
+				"theme_slug" => $theme_deleted_slug
+			)
+		);
+
+	}
+
+
+	function on_upgrader_process_complete_theme_update( $upgrader_instance = null, $arr_data = null ) {
+
+		/*
+		For theme updates $arr_data looks like
+
+		// From core update/bulk
+		Array
+		(
+		    [action] => update
+		    [type] => theme
+		    [bulk] => 1
+		    [themes] => Array
+		        (
+		            [0] => baskerville
+		        )
+
+		)
+
+		// From themes.php/single
+		Array
+		(
+			[action] => update
+		    [theme] => baskerville
+		    [type] => theme
+		)
+		*/
+
+		// Both args must be set
+		if ( empty( $upgrader_instance ) || empty( $arr_data ) ) {
+			return;
+		}
+
+		// Must be type theme and action install
+		if ( $arr_data["type"] !== "theme" || $arr_data["action"] !== "update" ) {
+			return;
+		}
+
+		// Skin contains the nice info
+		if ( empty( $upgrader_instance->skin ) ) {
+			return;
+		}
+
+		$skin = $upgrader_instance->skin;
+
+		$arr_themes = array();
+
+		// If single install make an array so it look like bulk and we can use same code
+		if ( isset( $arr_data["bulk"] ) && $arr_data["bulk"]  && isset( $arr_data["themes"] ) ) {
+			$arr_themes = (array) $arr_data["themes"];
+		} else {
+			$arr_themes = array(
+				$arr_data["theme"]
+			);
+		}
+
+		/*
+		ob_start();
+		print_r($skin);
+		$skin_str = ob_get_clean();
+		echo "<pre>";
+		print_r($arr_data);
+		print_r($skin);
+		// */
+
+		// $one_updated_theme is the theme slug
+		foreach ( $arr_themes as $one_updated_theme ) {
+
+			$theme_info_object = wp_get_theme( $one_updated_theme );
+
+			if ( ! is_a( $theme_info_object, "WP_Theme" ) ) {
+				continue;
+			}
+
+			$theme_name = $theme_info_object->get("Name");
+			$theme_version = $theme_info_object->get("Version");
+
+			if ( ! $theme_name || ! $theme_version ) {
+				continue;
+			}
+
+			$this->infoMessage(
+				"theme_updated",
+				array(
+					"theme_name" => $theme_name,
+					"theme_version" => $theme_version,
+				)
+			);
+
+		}
+
+	}
+
+	function on_upgrader_process_complete_theme_install( $upgrader_instance = null, $arr_data = null ) {
+
+		/*
+
+		For theme installs $arr_data looks like:
+
+			Array
+			(
+			    [type] => theme
+			    [action] => install
+			)
+
+		*/
+
+		// Both args must be set
+		if ( empty( $upgrader_instance ) || empty( $arr_data ) ) {
+			return;
+		}
+
+		// Must be type theme and action install
+		if ( $arr_data["type"] !== "theme" || $arr_data["action"] !== "install" ) {
+			return;
+		}
+
+		// Skin contains the nice info
+		if ( empty( $upgrader_instance->skin ) ) {
+			return;
+		}
+
+		$skin = $upgrader_instance->skin;
+
+		/*
+		ob_start();
+		print_r($skin);
+		$skin_str = ob_get_clean();
+		*/
+
+		/*
+		Interesting parts in $skin:
+
+		// type can be "web" or nnn
+		[type] => web
+
+		// api seems to contains theme info and description
+		[api] => stdClass Object
+	        (
+	            [name] => Hemingway
+	            [slug] => hemingway
+	            [version] => 1.56
+	            [preview_url] => https://wp-themes.com/hemingway
+	            [author] => anlino
+	            [screenshot_url] => //ts.w.org/wp-content/themes/hemingway/screenshot.png?ver=1.56
+	            [rating] => 94
+	            [num_ratings] => 35
+	            [downloaded] => 282236
+	            [last_updated] => 2016-07-03
+	            [homepage] => https://wordpress.org/themes/hemingway/
+	            [download_link] => https://downloads.wordpress.org/theme/hemingway.1.56.zip
+	        )
+
+		*/
+
+		$type = empty( $skin->type ) ? null : $skin->type ;
+		$theme_name = empty( $skin->api->name ) ? null : $skin->api->name;
+		$theme_slug = empty( $skin->api->slug ) ? null : $skin->api->slug;
+		$theme_version = empty( $skin->api->version ) ? null : $skin->api->version;
+		#$theme_screenshot_url = $skin->api->screenshot_url;
+		#$theme_last_updated = $skin->api->last_updated;
+		#$theme_last_homepage = $skin->api->last_homepage;
+		#$theme_download_link = $skin->api->last_download_link;
+
+		$this->infoMessage(
+			"theme_installed",
+			array(
+				"theme_name" => $theme_name,
+				"theme_version" => $theme_version,
+				// "debug_skin" => $skin_str
+			)
+		);
 
 	}
 
@@ -120,8 +359,6 @@ class SimpleThemeLogger extends SimpleLogger {
 			);
 
 		}
-
-
 
 	}
 
@@ -636,7 +873,7 @@ return;
 
 		// Fallback to default/parent output if nothing was added to output
 		if ( ! $output ) {
-	
+
 			$output .= parent::getLogRowPlainTextOutput($row);
 
 		}
@@ -791,9 +1028,9 @@ return;
 	 * to many log entries with changed, just confusing.
 	 * need to rethink this
 	 */
+	 /*
 	function on_action_sidebar_admin_setup__detect_widget_order_change() {
 
-		/*
 		if ( isset( $_REQUEST["action"] ) && ( $_REQUEST["action"] == "widgets-order" ) ) {
 
 			$context = array();
@@ -820,9 +1057,9 @@ return;
 			);
 
 		}
-		*/
 
 	}
+	*/
 
 	/**
 	 * Widget added

@@ -234,7 +234,7 @@ class SimpleOptionsLogger extends SimpleLogger
 					}
 
 					if ( strlen( $old_value ) > $trim_length ) {
-						$trimmed_oldv_alue .= $more;
+						$trimmed_old_value .= $more;
 					}
 
 					$output .= sprintf(

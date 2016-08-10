@@ -30,6 +30,37 @@
 	width: 310px;
 }
 
+.SimpleHistory__filters__filterLabel {
+	display: inline-block;
+	width: 150px;
+}
+
+.SimpleHistory__filters__filterSubmitWrap {
+	margin-left: 150px; /* same width as the label */
+}
+
+@media (max-width: 600px) {
+
+	.SimpleHistory__filters__filterLabel {
+		display: block;
+		width: auto;
+	}
+
+	.SimpleHistory__filters__filterSubmitWrap {
+		margin-left: 0;
+	}
+
+}
+
+/* always label as blocks on dashboard because we don't know the width beacuse of columns */
+.postbox .SimpleHistory__filters__filterLabel {
+	display: block;
+	width: auto;
+}
+.postbox .SimpleHistory__filters__filterSubmitWrap {
+	margin-left: 0;
+}
+
 /* set height on date input or it will "jump" during page load */
 .wp-admin select[multiple].SimpleHistory__filters__filter--date {
 	height: 2.2em;
