@@ -406,7 +406,17 @@ class SimpleHistoryFilterDropin {
 						</p>
 						<?php
 					}
+
 					?>
+					<p>
+						<label class="SimpleHistory__filters__filterLabel"><?php _ex("Between dates:", "Filter label", "simple-history") ?></label>
+						<span class="SimpleHistory__filters__filter--dayValuesWrap">
+							<?php
+							$this->touch_time();
+							$this->touch_time();
+							?>
+						</span>
+					</p>
 
 					<p class="SimpleHistory__filters__filterSubmitWrap">
 						<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
@@ -539,5 +549,99 @@ class SimpleHistoryFilterDropin {
 		$val->gravatar = $this->sh->get_avatar( $val->user_email, "18", "mm");
 
 	}
+
+
+	/**
+	 * Print out HTML form date elements for editing post or comment publish date.
+	 *
+	 * Based on the wordpress function touch_time();
+	 *
+	 * @global WP_Locale  $wp_locale
+	 *
+	 * @param int|bool $edit      Accepts 1|true for editing the date, 0|false for adding the date.
+	 * @param int|bool $for_post  Accepts 1|true for applying the date to a post, 0|false for a comment.
+	 * @param int      $tab_index The tabindex attribute to add. Default 0.
+	 * @param int|bool $multi     Optional. Whether the additional fields and buttons should be added.
+	 *                            Default 0|false.
+	 */
+	function touch_time( $edit = 1 ) {
+
+		global $wp_locale;
+
+		/*
+		$post = get_post();
+		if ( $for_post )
+			$edit = ! ( in_array($post->post_status, array('draft', 'pending') ) && (!$post->post_date_gmt || '0000-00-00 00:00:00' == $post->post_date_gmt ) );
+		*/
+
+		/*
+		$tab_index_attribute = '';
+		if ( (int) $tab_index > 0 )
+			$tab_index_attribute = " tabindex=\"$tab_index\"";
+		*/
+
+		$post_date = "2009-05-12 23:51:49";
+
+		$time_adj = current_time('timestamp');
+		// $post_date = ($for_post) ? $post->post_date : get_comment()->comment_date;
+		$jj = ($edit) ? mysql2date( 'd', $post_date, false ) : gmdate( 'd', $time_adj );
+		$mm = ($edit) ? mysql2date( 'm', $post_date, false ) : gmdate( 'm', $time_adj );
+		$aa = ($edit) ? mysql2date( 'Y', $post_date, false ) : gmdate( 'Y', $time_adj );
+		$hh = ($edit) ? mysql2date( 'H', $post_date, false ) : gmdate( 'H', $time_adj );
+		$mn = ($edit) ? mysql2date( 'i', $post_date, false ) : gmdate( 'i', $time_adj );
+
+		$cur_jj = gmdate( 'd', $time_adj );
+		$cur_mm = gmdate( 'm', $time_adj );
+		$cur_aa = gmdate( 'Y', $time_adj );
+
+		//$month = '<label><span class="screen-reader-text">' . __( 'Month' ) . '</span>';
+
+		$month = '<select name="mm">';
+
+		for ( $i = 1; $i < 13; $i = $i +1 ) {
+			$monthnum = zeroise($i, 2);
+			$monthtext = $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) );
+			$month .= "\t\t\t" . '<option value="' . $monthnum . '" data-text="' . $monthtext . '" ' . selected( $monthnum, $mm, false ) . '>';
+			/* translators: 1: month number (01, 02, etc.), 2: month abbreviation */
+			$month .= sprintf( __( '%1$s-%2$s' ), $monthnum, $monthtext ) . "</option>\n";
+		}
+		$month .= '</select>';
+		$month .= '</label>';
+
+		$day = '<label><span class="screen-reader-text">' . __( 'Day' ) . '</span><input type="text" name="jj" value="' . $jj . '" size="2" maxlength="2" autocomplete="off" /></label>';
+		$year = '<label><span class="screen-reader-text">' . __( 'Year' ) . '</span><input type="text" name="aa" value="' . $aa . '" size="4" maxlength="4" autocomplete="off" /></label>';
+
+		echo '<span class="SimpleHistory__filters__filter SimpleHistory__filters__filter--day">';
+
+		/* translators: 1: month, 2: day, 3: year, 4: hour, 5: minute */
+		printf( __( '%1$s %2$s, %3$s ' ), $month, $day, $year );
+
+		echo '</span>';
+
+		/*
+		echo "\n\n";
+
+		$map = array(
+			'mm' => array( $mm, $cur_mm ),
+			'jj' => array( $jj, $cur_jj ),
+			'aa' => array( $aa, $cur_aa ),
+		);
+		foreach ( $map as $timeunit => $value ) {
+			list( $unit, $curr ) = $value;
+
+			echo '<input type="hidden" id="hidden_' . $timeunit . '" name="hidden_' . $timeunit . '" value="' . $unit . '" />' . "\n";
+			$cur_timeunit = 'cur_' . $timeunit;
+			echo '<input type="hidden" id="' . $cur_timeunit . '" name="' . $cur_timeunit . '" value="' . $curr . '" />' . "\n";
+		}
+		*/
+
+		?>
+
+	<!-- <p>
+		<a href="#edit_timestamp" class="save-timestamp hide-if-no-js button"><?php _e('OK'); ?></a>
+		<a href="#edit_timestamp" class="cancel-timestamp hide-if-no-js button-cancel"><?php _e('Cancel'); ?></a>
+	</p> -->
+	<?php
+	} // func
 
 } // end class

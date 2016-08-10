@@ -134,3 +134,14 @@
 	margin-left: 13px;
 	margin-right: 13px;
 }
+
+
+/* day filter */
+.SimpleHistory__filters__filter--dayValuesWrap {
+    display: inline-block;
+	vertical-align: top;
+}
+
+.SimpleHistory__filters__filter--day {
+	display: block;
+}
