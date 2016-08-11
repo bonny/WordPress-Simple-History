@@ -98,8 +98,7 @@ class SimpleHistorySidebarStats {
 						}
 
 						var label = this.data.labels[chartElmClicked._index];
-						//var value = this.data.datasets[chartElmClicked._datasetIndex].data[chartElmClicked._index];
-						//console.log("value", value);
+						// var value = this.data.datasets[chartElmClicked._datasetIndex].data[chartElmClicked._index];
 
 						// now we have the label which is like "July 23" or "23 juli" depending on language
 						// look for that label value in chartLabelsToDates and there we get the date in format Y-m-d
@@ -116,17 +115,20 @@ class SimpleHistorySidebarStats {
 							return;
 						}
 
-						// got a date, now reload the history with this date set
-						// reload page and pass in query string?
-						// or modify filters via js and then reload log?
-						// http://wp-playground-root.ep/wp-admin/index.php?page=simple_history_page?simpleHistory_filter_date=2016-08-11
-						console.log("labelDate", labelDate.date);
+						// got a date, now reload the history/post search filter form again
+						var labelDateParts = labelDate.date.split("-"); ["2016", "07", "18"]
 
 						// show custom date range
 						$(".SimpleHistory__filters__filter--date").val("customRange").trigger("change");
 
-					}
+						// set values, same for both from and to because we only want to show one day
+						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_aa'], [name='to_aa']").val(labelDateParts[0]);
+						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_jj'], [name='to_jj']").val(labelDateParts[2]);
+						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_mm'], [name='to_mm']").val(labelDateParts[1]);
 
+						SimpleHistoryFilterDropin.$elms.filter_form.trigger("submit");
+
+					}
 
 				});
 

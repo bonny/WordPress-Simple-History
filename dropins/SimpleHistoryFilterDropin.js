@@ -264,7 +264,8 @@ var SimpleHistoryFilterDropin = (function($) {
 
 	return {
 		init: init,
-		onDomReadyInit: onDomReadyInit
+		onDomReadyInit: onDomReadyInit,
+		$elms: $elms
 	};
 
 })(jQuery);
