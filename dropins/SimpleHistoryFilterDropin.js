@@ -14,7 +14,7 @@ var SimpleHistoryFilterDropin = (function($) {
 		addFetchListener();
 
 	}
-	
+
 	function onDomReadyInit() {
 
 		enhanceSelects();
@@ -41,7 +41,7 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function onClickMoreFilters() {
-		
+
 		//$elms.more_filters_container.toggleClass("is-visible");
 		$elms.filter_container.toggleClass("is-showingMoreFilters");
 
@@ -90,7 +90,7 @@ var SimpleHistoryFilterDropin = (function($) {
 	function onSubmitForm(e) {
 
 		e.preventDefault();
-		
+
 		// updateFilters();
 
 		// Reload the log rows collection
@@ -166,7 +166,7 @@ var SimpleHistoryFilterDropin = (function($) {
 				var $elm = $(elm);
 				var value = $elm.val();
 				var default_user_data = $elms.filter_user.data("default-user-data");
-				
+
 				callback(default_user_data);
 
 			},
@@ -182,13 +182,33 @@ var SimpleHistoryFilterDropin = (function($) {
 
 		$(".SimpleHistory__filters__filter--date").select2({
 			//width: "element"
-		});
+		}).on("select2-selecting", onDatesFilterSelect);
 
 		$(".SimpleHistory__filters__filter--loglevel").select2({
 			formatResult: formatLoglevel,
 			formatSelection: formatLoglevel,
 		    escapeMarkup: function(m) { return m; }
 		});
+
+	}
+
+	/**
+	 * Fired when something is selected in the date filter
+	 * When "Custom range..." is selected then we show the "from" .. "to" date fields
+	 */
+	function onDatesFilterSelect(e) {
+
+		// console.log("onDatesFilterSelect", e);
+
+		if (e.val === "customRange") {
+			// show custom date fields
+			$elms.filter_container.addClass("is-customDateFilterActive");
+		} else {
+			// hide custom date fields
+			$elms.filter_container.removeClass("is-customDateFilterActive");
+		}
+
+		
 
 	}
 
@@ -205,7 +225,7 @@ var SimpleHistoryFilterDropin = (function($) {
 		html += "<div class='SimpleHistory__filters__userfilter__secondary'>";
 		html += userdata.user_login;
 		html += "</div>";
-		
+
 		return html;
 
 	}

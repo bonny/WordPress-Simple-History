@@ -137,9 +137,24 @@
 
 
 /* day filter */
+/* hidden by default, shown by js when selecting "custom range" in dates picker */
 .SimpleHistory__filters__filter--dayValuesWrap {
-    display: inline-block;
-	vertical-align: top;
+    display: block;
+	visibility: hidden;
+	opacity: 0;
+	margin-left: 155px;
+	margin-top: 1em;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 1s;
+}
+
+.is-customDateFilterActive .SimpleHistory__filters__filter--dayValuesWrap {
+	visibility: visible;
+	opacity: 1;
+	xheight: auto;
+	max-height: 150px;
+	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 0s;
 }
 
 .SimpleHistory__filters__filter--day {

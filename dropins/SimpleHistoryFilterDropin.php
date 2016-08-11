@@ -169,8 +169,19 @@ class SimpleHistoryFilterDropin {
 
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
 							name="dates"
-							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
+							placeholder="<?php echo _e("All dates", "simple-history") ?>"
+							NOTmultiple
+							>
 						<?php
+
+						// custom date range
+						// since 2.8.1
+						printf(
+							'<option value="%1$s" %3$s>%2$s</option>',
+							"customRange", // 1 - value
+							_x("Custom date range...", "Filter dropin: filter custom range", "simple-history"), // 2 text
+							selected( $daysToShow, "customRange", 0 )
+						);
 
 						// One day+ Last week + two weeks back + 30 days back
 
@@ -220,8 +231,19 @@ class SimpleHistoryFilterDropin {
 							);
 
 						}
+
 						?>
 					</select>
+
+					<!-- <p> -->
+						<!-- <label class="SimpleHistory__filters__filterLabel"><?php _ex("Between dates:", "Filter label", "simple-history") ?></label> -->
+						<span class="SimpleHistory__filters__filter--dayValuesWrap">
+							<?php
+							$this->touch_time("from");
+							$this->touch_time("to");
+							?>
+						</span>
+					<!-- </p> -->
 
 				</p><!-- end months -->
 
@@ -408,15 +430,6 @@ class SimpleHistoryFilterDropin {
 					}
 
 					?>
-					<p>
-						<label class="SimpleHistory__filters__filterLabel"><?php _ex("Between dates:", "Filter label", "simple-history") ?></label>
-						<span class="SimpleHistory__filters__filter--dayValuesWrap">
-							<?php
-							$this->touch_time();
-							$this->touch_time();
-							?>
-						</span>
-					</p>
 
 					<p class="SimpleHistory__filters__filterSubmitWrap">
 						<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e("Search events", "simple-history") ?></button>
@@ -564,39 +577,29 @@ class SimpleHistoryFilterDropin {
 	 * @param int|bool $multi     Optional. Whether the additional fields and buttons should be added.
 	 *                            Default 0|false.
 	 */
-	function touch_time( $edit = 1 ) {
+	function touch_time( $from_or_to, $edit = 1 ) {
 
 		global $wp_locale;
 
-		/*
-		$post = get_post();
-		if ( $for_post )
-			$edit = ! ( in_array($post->post_status, array('draft', 'pending') ) && (!$post->post_date_gmt || '0000-00-00 00:00:00' == $post->post_date_gmt ) );
-		*/
+		// Prefix = text before the inputs
+		$prefix = "";
+		$input_prefix = "";
+		if ( "from" == $from_or_to ) {
+			$prefix = _x("From", "Filter dropin, custom date range", "simple-history");
+			$input_prefix = "from_";
+		} else if ( "to" == $from_or_to ) {
+			$prefix = _x("To", "Filter dropin, custom date range", "simple-history");
+			$input_prefix = "to_";
+		}
 
-		/*
-		$tab_index_attribute = '';
-		if ( (int) $tab_index > 0 )
-			$tab_index_attribute = " tabindex=\"$tab_index\"";
-		*/
+		// The default date to show in the inputs
+		$date = date("Y-m-d");
 
-		$post_date = "2009-05-12 23:51:49";
+		$jj = mysql2date( 'd', $date, false );
+		$mm = mysql2date( 'm', $date, false );
+		$aa = mysql2date( 'Y', $date, false );
 
-		$time_adj = current_time('timestamp');
-		// $post_date = ($for_post) ? $post->post_date : get_comment()->comment_date;
-		$jj = ($edit) ? mysql2date( 'd', $post_date, false ) : gmdate( 'd', $time_adj );
-		$mm = ($edit) ? mysql2date( 'm', $post_date, false ) : gmdate( 'm', $time_adj );
-		$aa = ($edit) ? mysql2date( 'Y', $post_date, false ) : gmdate( 'Y', $time_adj );
-		$hh = ($edit) ? mysql2date( 'H', $post_date, false ) : gmdate( 'H', $time_adj );
-		$mn = ($edit) ? mysql2date( 'i', $post_date, false ) : gmdate( 'i', $time_adj );
-
-		$cur_jj = gmdate( 'd', $time_adj );
-		$cur_mm = gmdate( 'm', $time_adj );
-		$cur_aa = gmdate( 'Y', $time_adj );
-
-		//$month = '<label><span class="screen-reader-text">' . __( 'Month' ) . '</span>';
-
-		$month = '<select name="mm">';
+		$month = "<select name='{$input_prefix}mm'>";
 
 		for ( $i = 1; $i < 13; $i = $i +1 ) {
 			$monthnum = zeroise($i, 2);
@@ -608,39 +611,20 @@ class SimpleHistoryFilterDropin {
 		$month .= '</select>';
 		$month .= '</label>';
 
-		$day = '<label><span class="screen-reader-text">' . __( 'Day' ) . '</span><input type="text" name="jj" value="' . $jj . '" size="2" maxlength="2" autocomplete="off" /></label>';
-		$year = '<label><span class="screen-reader-text">' . __( 'Year' ) . '</span><input type="text" name="aa" value="' . $aa . '" size="4" maxlength="4" autocomplete="off" /></label>';
+		$day = '<label><span class="screen-reader-text">' . __( 'Day' ) . '</span><input type="text" name="'.$input_prefix.'jj" value="' . $jj . '" size="2" maxlength="2" autocomplete="off" /></label>';
+		$year = '<label><span class="screen-reader-text">' . __( 'Year' ) . '</span><input type="text" name="'.$input_prefix.'aa" value="' . $aa . '" size="4" maxlength="4" autocomplete="off" /></label>';
 
 		echo '<span class="SimpleHistory__filters__filter SimpleHistory__filters__filter--day">';
+
+		echo $prefix . "<br>";
 
 		/* translators: 1: month, 2: day, 3: year, 4: hour, 5: minute */
 		printf( __( '%1$s %2$s, %3$s ' ), $month, $day, $year );
 
 		echo '</span>';
 
-		/*
-		echo "\n\n";
-
-		$map = array(
-			'mm' => array( $mm, $cur_mm ),
-			'jj' => array( $jj, $cur_jj ),
-			'aa' => array( $aa, $cur_aa ),
-		);
-		foreach ( $map as $timeunit => $value ) {
-			list( $unit, $curr ) = $value;
-
-			echo '<input type="hidden" id="hidden_' . $timeunit . '" name="hidden_' . $timeunit . '" value="' . $unit . '" />' . "\n";
-			$cur_timeunit = 'cur_' . $timeunit;
-			echo '<input type="hidden" id="' . $cur_timeunit . '" name="' . $cur_timeunit . '" value="' . $curr . '" />' . "\n";
-		}
-		*/
-
 		?>
 
-	<!-- <p>
-		<a href="#edit_timestamp" class="save-timestamp hide-if-no-js button"><?php _e('OK'); ?></a>
-		<a href="#edit_timestamp" class="cancel-timestamp hide-if-no-js button-cancel"><?php _e('Cancel'); ?></a>
-	</p> -->
 	<?php
 	} // func
 
