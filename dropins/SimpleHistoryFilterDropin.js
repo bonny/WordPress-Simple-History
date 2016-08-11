@@ -57,6 +57,14 @@ var SimpleHistoryFilterDropin = (function($) {
 		var $users = $elms.filter_form.find("[name='users']");
 		var $dates = $elms.filter_form.find("[name='dates']");
 
+		// Custom date range
+		var $customDateRangeFromMM = $elms.filter_form.find("[name='from_mm']");
+		var $customDateRangeFromJJ = $elms.filter_form.find("[name='from_jj']");
+		var $customDateRangeFromAA = $elms.filter_form.find("[name='from_aa']");
+		var $customDateRangeToMM = $elms.filter_form.find("[name='to_mm']");
+		var $customDateRangeToJJ = $elms.filter_form.find("[name='to_jj']");
+		var $customDateRangeToAA = $elms.filter_form.find("[name='to_aa']");
+
 		// If any of our search boxes are filled in we consider ourself to be in search mode
 		isFilteringActive = false;
 		activeFilters = {};
@@ -81,9 +89,19 @@ var SimpleHistoryFilterDropin = (function($) {
 			activeFilters.users = $users.val();
 		}
 
+		// Something is selected in the Dates dropdown
 		if ( $dates.val() && $dates.val().length ) {
+
 			isFilteringActive = true;
-			activeFilters.dates = $dates.val();
+
+			// if dates val is selected but is "customRange" then dates is not active, but dateRange is
+			if ("customRange" == $dates.val()) {
+				activeFilters.date_from = $customDateRangeFromAA.val() + "-" + $customDateRangeFromMM.val() + "-" + $customDateRangeFromJJ.val();
+				activeFilters.date_to = $customDateRangeToAA.val() + "-" + $customDateRangeToMM.val() + "-" + $customDateRangeToJJ.val();
+			} else {
+				activeFilters.dates = $dates.val();
+			}
+
 		}
 	}
 
@@ -208,7 +226,7 @@ var SimpleHistoryFilterDropin = (function($) {
 			$elms.filter_container.removeClass("is-customDateFilterActive");
 		}
 
-		
+
 
 	}
 
