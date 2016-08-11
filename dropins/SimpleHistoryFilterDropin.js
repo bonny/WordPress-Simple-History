@@ -198,9 +198,11 @@ var SimpleHistoryFilterDropin = (function($) {
 		$(".SimpleHistory__filters__filter--logger").select2({
 		});
 
-		$(".SimpleHistory__filters__filter--date").select2({
+		var $filterDate = $(".SimpleHistory__filters__filter--date");
+		$filterDate.select2({
 			//width: "element"
-		}).on("select2-selecting", onDatesFilterSelect);
+		});
+		$filterDate.on("select2-selecting change", onDatesFilterSelect);
 
 		$(".SimpleHistory__filters__filter--loglevel").select2({
 			formatResult: formatLoglevel,
@@ -214,11 +216,12 @@ var SimpleHistoryFilterDropin = (function($) {
 	 * Fired when something is selected in the date filter
 	 * When "Custom range..." is selected then we show the "from" .. "to" date fields
 	 */
-	function onDatesFilterSelect(e) {
+	function onDatesFilterSelect(e, elm) {
 
-		// console.log("onDatesFilterSelect", e);
+		var $filterDate = $("select.SimpleHistory__filters__filter--date");
+		var val = $filterDate.val();
 
-		if (e.val === "customRange") {
+		if (val === "customRange") {
 			// show custom date fields
 			$elms.filter_container.addClass("is-customDateFilterActive");
 		} else {

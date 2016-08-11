@@ -90,25 +90,40 @@ class SimpleHistorySidebarStats {
 					// when chart is clicked determine what value/day was clicked
 					function clickChart(e) {
 
-						console.log("chart clicked", this);
-
 						var chartElmClicked = this.getElementAtEvent(e)[0];
-						console.log("chartElm clicked", chartElmClicked);
+
+						if (!chartElmClicked || !chartElmClicked._index) {
+							console.log("No value found for click");
+							return;
+						}
 
 						var label = this.data.labels[chartElmClicked._index];
-						console.log("label", label);
-
 						//var value = this.data.datasets[chartElmClicked._datasetIndex].data[chartElmClicked._index];
 						//console.log("value", value);
 
 						// now we have the label which is like "July 23" or "23 juli" depending on language
 						// look for that label value in chartLabelsToDates and there we get the date in format Y-m-d
-						console.log("chartLabelsToDates", chartLabelsToDates);
+						//console.log("chartLabelsToDates", chartLabelsToDates);
+						var labelDate;
 						for (idx in chartLabelsToDates) {
 							if (label == chartLabelsToDates[idx].label) {
-								console.log(chartLabelsToDates[idx]);
+								//console.log(chartLabelsToDates[idx]);
+								labelDate = chartLabelsToDates[idx];
 							}
 						}
+
+						if (!labelDate) {
+							return;
+						}
+
+						// got a date, now reload the history with this date set
+						// reload page and pass in query string?
+						// or modify filters via js and then reload log?
+						// http://wp-playground-root.ep/wp-admin/index.php?page=simple_history_page?simpleHistory_filter_date=2016-08-11
+						console.log("labelDate", labelDate.date);
+
+						// show custom date range
+						$(".SimpleHistory__filters__filter--date").val("customRange").trigger("change");
 
 					}
 
