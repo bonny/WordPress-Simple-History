@@ -153,6 +153,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.9 (August 2016) =
+
+- Added custom date ranges to the dates filter. Just select "Custom date range..." in the dates dropdown and you can choose to se the log between any two exact dates.
+- The values in the statistics graph can now be clicked and when clicked the log is filtered to only show logged events from that day. Very convenient if you have a larger number of events logged for one day and quickly want to find out what exactly was logged that day.
+- Dates filter no longer accepts multi values. It was a bit confusing that you could select both "Last 7 days" and "Last 3 days".
+
 = 2.8 (August 2016) =
 
 - Theme installs are now logged
