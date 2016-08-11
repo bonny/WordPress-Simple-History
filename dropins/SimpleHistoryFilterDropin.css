@@ -63,7 +63,7 @@
 
 /* set height on date input or it will "jump" during page load */
 .wp-admin select[multiple].SimpleHistory__filters__filter--date {
-	height: 2.2em;
+	height: 2.25em;
 	overflow: hidden;
 }
 
@@ -133,4 +133,34 @@
 .postbox .SimpleHistory__filters {
 	margin-left: 13px;
 	margin-right: 13px;
+}
+
+
+/* day filter */
+/* hidden by default, shown by js when selecting "custom range" in dates picker */
+.SimpleHistory__filters__filter--dayValuesWrap {
+    display: block;
+	visibility: hidden;
+	opacity: 0;
+	margin-left: 155px;
+	margin-top: 1em;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 1s;
+}
+
+.is-customDateFilterActive .SimpleHistory__filters__filter--dayValuesWrap {
+	visibility: visible;
+	opacity: 1;
+	xheight: auto;
+	max-height: 150px;
+	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 0s;
+}
+
+.SimpleHistory__filters__filter--day {
+	display: block;
+}
+
+.SimpleHistory__filters__filter--day select {
+	width: 200px;
 }

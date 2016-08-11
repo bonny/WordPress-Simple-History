@@ -169,8 +169,19 @@ class SimpleHistoryFilterDropin {
 
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
 							name="dates"
-							placeholder="<?php echo _e("All dates", "simple-history") ?>" multiple>
+							placeholder="<?php echo _e("All dates", "simple-history") ?>"
+							NOTmultiple
+							>
 						<?php
+
+						// custom date range
+						// since 2.8.1
+						printf(
+							'<option value="%1$s" %3$s>%2$s</option>',
+							"customRange", // 1 - value
+							_x("Custom date range...", "Filter dropin: filter custom range", "simple-history"), // 2 text
+							selected( $daysToShow, "customRange", 0 )
+						);
 
 						// One day+ Last week + two weeks back + 30 days back
 
@@ -220,8 +231,19 @@ class SimpleHistoryFilterDropin {
 							);
 
 						}
+
 						?>
 					</select>
+
+					<!-- <p> -->
+						<!-- <label class="SimpleHistory__filters__filterLabel"><?php _ex("Between dates:", "Filter label", "simple-history") ?></label> -->
+						<span class="SimpleHistory__filters__filter--dayValuesWrap">
+							<?php
+							$this->touch_time("from");
+							$this->touch_time("to");
+							?>
+						</span>
+					<!-- </p> -->
 
 				</p><!-- end months -->
 
@@ -406,6 +428,7 @@ class SimpleHistoryFilterDropin {
 						</p>
 						<?php
 					}
+
 					?>
 
 					<p class="SimpleHistory__filters__filterSubmitWrap">
@@ -539,5 +562,70 @@ class SimpleHistoryFilterDropin {
 		$val->gravatar = $this->sh->get_avatar( $val->user_email, "18", "mm");
 
 	}
+
+
+	/**
+	 * Print out HTML form date elements for editing post or comment publish date.
+	 *
+	 * Based on the wordpress function touch_time();
+	 *
+	 * @global WP_Locale  $wp_locale
+	 *
+	 * @param int|bool $edit      Accepts 1|true for editing the date, 0|false for adding the date.
+	 * @param int|bool $for_post  Accepts 1|true for applying the date to a post, 0|false for a comment.
+	 * @param int      $tab_index The tabindex attribute to add. Default 0.
+	 * @param int|bool $multi     Optional. Whether the additional fields and buttons should be added.
+	 *                            Default 0|false.
+	 */
+	function touch_time( $from_or_to, $edit = 1 ) {
+
+		global $wp_locale;
+
+		// Prefix = text before the inputs
+		$prefix = "";
+		$input_prefix = "";
+		if ( "from" == $from_or_to ) {
+			$prefix = _x("From", "Filter dropin, custom date range", "simple-history");
+			$input_prefix = "from_";
+		} else if ( "to" == $from_or_to ) {
+			$prefix = _x("To", "Filter dropin, custom date range", "simple-history");
+			$input_prefix = "to_";
+		}
+
+		// The default date to show in the inputs
+		$date = date("Y-m-d");
+
+		$jj = mysql2date( 'd', $date, false );
+		$mm = mysql2date( 'm', $date, false );
+		$aa = mysql2date( 'Y', $date, false );
+
+		$month = "<select name='{$input_prefix}mm'>";
+
+		for ( $i = 1; $i < 13; $i = $i +1 ) {
+			$monthnum = zeroise($i, 2);
+			$monthtext = $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) );
+			$month .= "\t\t\t" . '<option value="' . $monthnum . '" data-text="' . $monthtext . '" ' . selected( $monthnum, $mm, false ) . '>';
+			/* translators: 1: month number (01, 02, etc.), 2: month abbreviation */
+			$month .= sprintf( __( '%1$s-%2$s' ), $monthnum, $monthtext ) . "</option>\n";
+		}
+		$month .= '</select>';
+		$month .= '</label>';
+
+		$day = '<label><span class="screen-reader-text">' . __( 'Day' ) . '</span><input type="text" name="'.$input_prefix.'jj" value="' . $jj . '" size="2" maxlength="2" autocomplete="off" /></label>';
+		$year = '<label><span class="screen-reader-text">' . __( 'Year' ) . '</span><input type="text" name="'.$input_prefix.'aa" value="' . $aa . '" size="4" maxlength="4" autocomplete="off" /></label>';
+
+		echo '<span class="SimpleHistory__filters__filter SimpleHistory__filters__filter--day">';
+
+		echo $prefix . "<br>";
+
+		/* translators: 1: month, 2: day, 3: year, 4: hour, 5: minute */
+		printf( __( '%1$s %2$s, %3$s ' ), $month, $day, $year );
+
+		echo '</span>';
+
+		?>
+
+	<?php
+	} // func
 
 } // end class

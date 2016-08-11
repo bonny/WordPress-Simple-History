@@ -54,7 +54,7 @@ class SimpleHistoryLogQuery {
 			// array or comma separated
 			"months" => null,
 
-			// dates in format 
+			// dates in format
 			// "month:2015-06" for june 2015
 			// "lastdays:7" for the last 7 days
 			"dates" => null,
@@ -149,7 +149,7 @@ class SimpleHistoryLogQuery {
 
 				FROM %3$s AS h
 
-				LEFT OUTER JOIN %5$s AS c1 ON (c1.history_id = h.id AND c1.key = "_message_key")		
+				LEFT OUTER JOIN %5$s AS c1 ON (c1.history_id = h.id AND c1.key = "_message_key")
 
 				INNER JOIN (
 					SELECT
@@ -160,9 +160,9 @@ class SimpleHistoryLogQuery {
 					FROM %3$s AS h2
 
 					# First/inner where
-					WHERE 
+					WHERE
 						%4$s
-						
+
 					ORDER BY id DESC, date DESC
 				) AS t ON t.id = h.id
 
@@ -268,11 +268,11 @@ class SimpleHistoryLogQuery {
 			);
 
 		}
-		
+
 		// Append date where
 		if ( ! empty( $args["date_from"] ) ) {
 
-			// date_to=2014-08-01
+			// date_from=2014-08-01
 			// if date is not numeric assume Y-m-d H:i-format
 			$date_from = $args["date_from"];
 			if ( ! is_numeric( $date_from ) ) {
@@ -296,6 +296,11 @@ class SimpleHistoryLogQuery {
 
 		}
 
+		/*
+		AND date >= "2015-01-01 00:00:00" AND date <= "2015-01-31 00:00:00"
+		*/
+		#echo $inner_where;exit;
+
 		// dats
 		// if months they translate to $args["months"] because we already have support for that
 		// can't use months and dates and the same time
@@ -311,7 +316,7 @@ class SimpleHistoryLogQuery {
 			$args["lastdays"] = 0;
 
 			foreach ( $arr_dates as $one_date ) {
-				
+
 				// If begins with "month:" then strip string and keep only month numbers
 				if ( strpos($one_date, "month:") === 0 ) {
 					$args["months"][] = substr($one_date, strlen("month:"));
@@ -333,7 +338,7 @@ class SimpleHistoryLogQuery {
 				# lastdays
 				AND date >= DATE(NOW()) - INTERVAL %d DAY
 			', $args["lastdays"]);
-			
+
 		}
 
 		// months, in format "Y-m"
@@ -654,9 +659,9 @@ class SimpleHistoryLogQuery {
 
 			$users = explode(",", $args["users"]);
 			$users = array_map("intval", $users);
-			
+
 			if ( $users ) {
-				
+
 				$users_in = implode(",", $users);
 
 				$sql_user = sprintf(
