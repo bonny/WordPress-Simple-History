@@ -296,6 +296,11 @@ class SimpleHistoryLogQuery {
 
 		}
 
+		/*
+		AND date >= "2015-01-01 00:00:00" AND date <= "2015-01-31 00:00:00"
+		*/
+		#echo $inner_where;exit;
+
 		// dats
 		// if months they translate to $args["months"] because we already have support for that
 		// can't use months and dates and the same time

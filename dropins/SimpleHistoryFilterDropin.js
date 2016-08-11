@@ -96,8 +96,8 @@ var SimpleHistoryFilterDropin = (function($) {
 
 			// if dates val is selected but is "customRange" then dates is not active, but dateRange is
 			if ("customRange" == $dates.val()) {
-				activeFilters.date_from = $customDateRangeFromAA.val() + "-" + $customDateRangeFromMM.val() + "-" + $customDateRangeFromJJ.val();
-				activeFilters.date_to = $customDateRangeToAA.val() + "-" + $customDateRangeToMM.val() + "-" + $customDateRangeToJJ.val();
+				activeFilters.date_from = $customDateRangeFromAA.val() + "-" + $customDateRangeFromMM.val() + "-" + $customDateRangeFromJJ.val() + " 00:00:00";
+				activeFilters.date_to = $customDateRangeToAA.val() + "-" + $customDateRangeToMM.val() + "-" + $customDateRangeToJJ.val() + " 23:59:59";
 			} else {
 				activeFilters.dates = $dates.val();
 			}
