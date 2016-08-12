@@ -152,9 +152,12 @@
 .is-customDateFilterActive .SimpleHistory__filters__filter--dayValuesWrap {
 	visibility: visible;
 	opacity: 1;
-	xheight: auto;
 	max-height: 150px;
 	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 0s;
+}
+
+.postbox .SimpleHistory__filters__filter--dayValuesWrap {
+	margin-left: 0;
 }
 
 .SimpleHistory__filters__filter--day {
