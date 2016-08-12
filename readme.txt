@@ -157,7 +157,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 - Added custom date ranges to the dates filter. Just select "Custom date range..." in the dates dropdown and you can choose to se the log between any two exact dates.
 - The values in the statistics graph can now be clicked and when clicked the log is filtered to only show logged events from that day. Very convenient if you have a larger number of events logged for one day and quickly want to find out what exactly was logged that day.
-- Dates filter no longer accepts multi values. It was a bit confusing that you could select both "Last 7 days" and "Last 3 days".
+- Dates filter no longer accepts multi values. It was indeed a bit confusing that you could select both "Last 7 days" and "Last 3 days".
 - Fix for empty previous plugin version (the `{plugin_prev_version}` placeholder) when updating plugins.
 - Post and pages updates done in the WordPress apps for Ios and Android should be logged again.
 
@@ -175,7 +175,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.7.5 (August 2016) =
 
 - User logins using e-mail are now logged correctly. Previously the user would be logged in successfully but the log said that they failed.
-- Now only users with [`list_users`](https://codex.wordpress.org/Roles_and_Capabilities#list_users) capability can view the users filter and use the autocomplete api for users.
+- Security fix: only users with [`list_users`](https://codex.wordpress.org/Roles_and_Capabilities#list_users) capability can view the users filter and use the autocomplete api for users.
+  Previously the autocomplete function could be used by all logged in users.
 - Add labels to search filters. (I do really hate label-less forms so it's kinda very strange that this was not in place before.)
 - Misc other internal fixes
 
