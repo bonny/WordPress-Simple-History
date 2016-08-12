@@ -175,7 +175,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.7.5 (August 2016) =
 
 - User logins using e-mail are now logged correctly. Previously the user would be logged in successfully but the log said that they failed.
-- Now only users with [`list_users`](https://codex.wordpress.org/Roles_and_Capabilities#list_users) capability can view the users filter and use the autocomplete api for users.
+- Security fix: only users with [`list_users`](https://codex.wordpress.org/Roles_and_Capabilities#list_users) capability can view the users filter and use the autocomplete api for users.
+  Previously the autocomplete function could be used by all logged in users.
 - Add labels to search filters. (I do really hate label-less forms so it's kinda very strange that this was not in place before.)
 - Misc other internal fixes
 
