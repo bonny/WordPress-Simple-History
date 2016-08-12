@@ -5,8 +5,7 @@ defined( 'ABSPATH' ) or die();
 /**
  * Logs plugin installs, updates, and deletions
  */
-class SimplePluginLogger extends SimpleLogger
-{
+class SimplePluginLogger extends SimpleLogger {
 
 	// The logger slug. Defaulting to the class name is nice and logical I think
 	public $slug = __CLASS__;
@@ -129,12 +128,6 @@ class SimplePluginLogger extends SimpleLogger
 
 	public function loaded() {
 
-		#sf_d(get_plugins(), 'get_plugins()');
-
-		//do_action( 'current_screen', $current_screen );
-		// The first hook where current screen is available
-		//add_action( 'current_screen', array( $this, "save_versions_before_update" ) );
-
 		/**
 		 * At least the plugin bulk upgrades fires this action before upgrade
 		 * We use it to fetch the current version of all plugins, before they are upgraded
@@ -142,7 +135,8 @@ class SimplePluginLogger extends SimpleLogger
 		add_filter( 'upgrader_pre_install', array( $this, "save_versions_before_update"), 10, 2);
 
 		// Clear our transient after an update is done
-		add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
+		// Removed because something probably changed in core and this was fired earlier than it used to be
+		// add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
 
 		// Fires after a plugin has been activated.
 		// If a plugin is silently activated (such as during an update),
@@ -169,7 +163,7 @@ class SimplePluginLogger extends SimpleLogger
 		// Ajax function to get info from GitHub repo. Used by "View plugin info"-link for plugin installs
 		add_action("wp_ajax_SimplePluginLogger_GetGitHubPluginInfo", array($this, "ajax_GetGitHubPluginInfo"));
 
-		// If the Github Update plugin is not installed we will not get extra fields used by it.
+		// If the Github Update plugin is not installed we need to get extra fields used by it.
 		// So need to hook filter "extra_plugin_headers" ourself.
 		add_filter( "extra_plugin_headers", function($arr_headers) {
 			$arr_headers[] = "GitHub Plugin URI";
@@ -183,7 +177,6 @@ class SimplePluginLogger extends SimpleLogger
 	}
 
 	/**
-	 *
 	 * There is no way to ue a filter and detect a plugin that is disabled because it can't be found or similar error.
 	 * we hook into gettext and look for the usage of the error that is returned when this happens.
 	 */
@@ -194,9 +187,9 @@ class SimplePluginLogger extends SimpleLogger
 		// return new WP_Error('plugin_not_found', __('Plugin file does not exist.'));
 		// return new WP_Error('no_plugin_header', __('The plugin does not have a valid header.'));
 
-		// We only act on page plugins.php
 		global $pagenow;
 
+		// We only act on page plugins.php
 		if ( ! isset( $pagenow ) || $pagenow !== "plugins.php" ) {
 			return $translation;
 		}
@@ -225,7 +218,7 @@ class SimplePluginLogger extends SimpleLogger
 
 		return $translation;
 
-	} //on_gettext
+	} // on_gettext
 
 
 	/**
@@ -359,7 +352,10 @@ class SimplePluginLogger extends SimpleLogger
 
 		$plugins = get_plugins();
 
-		update_option( $this->slug . "_plugin_info_before_update", SimpleHistory::json_encode( $plugins ) );
+		// does not work
+		$option_name = $this->slug . "_plugin_info_before_update";
+
+		$r = update_option( $option_name, SimpleHistory::json_encode( $plugins ) );
 
 		return $bool;
 
@@ -549,13 +545,12 @@ class SimplePluginLogger extends SimpleLogger
 	 *                              be a Theme_Upgrader or Core_Upgrade instance.
 	 * @param array           $data {
 	 *     Array of bulk item update data.
-
+	 *
 	 */
 	function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
 
 		// Can't use get_plugins() here to get version of plugins updated from
 		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..)
-		// $plugs = get_plugins();
 
 		/*
 		If an update fails then $plugin_upgrader_instance->skin->result->errors contains something like:
@@ -571,7 +566,9 @@ class SimplePluginLogger extends SimpleLogger
 
 		/*
 
-		# WordPress core update
+		# Contents of $arr_data in different scenarios
+
+		## WordPress core update
 
 		$arr_data:
 		Array
@@ -591,7 +588,7 @@ class SimplePluginLogger extends SimpleLogger
 		)
 
 
-		# Plugin update
+		## Plugin update
 
 		$arr_data:
 		Array
@@ -600,7 +597,7 @@ class SimplePluginLogger extends SimpleLogger
 		    [action] => install
 		)
 
-		# Bulk actions
+		## Bulk actions
 
 		array(
 			'action' => 'update',
@@ -934,114 +931,10 @@ class SimplePluginLogger extends SimpleLogger
 			#exit;
 		}
 
-	}
+		$this->remove_saved_versions();
 
-	/*
-	 * Called from filter 'upgrader_post_install'.
-	 *
-	 * Used to log bulk plugin installs and updates
-	 *
-	 * Filter docs:
-	 *
-	 * Filter the install response after the installation has finished.
-	 *
-	 * @param bool  $response   Install response.
-	 * @param array $hook_extra Extra arguments passed to hooked filters.
-	 * @param array $result     Installation result data.
-	 */
-	public function on_upgrader_post_install( $response, $hook_extra, $result ) {
+	} // on upgrader_process_complete
 
-		#echo "on_upgrader_post_install";
-		/*
-
-		# Plugin update:
-		$hook_extra
-		Array
-		(
-		    [plugin] => plugin-folder/plugin-name.php
-		    [type] => plugin
-		    [action] => update
-		)
-
-		# Plugin install, i.e. download/install, but not activation:
-		$hook_extra:
-		Array
-		(
-		    [type] => plugin
-		    [action] => install
-		)
-
-		*/
-
-		if ( isset( $hook_extra["action"] ) && $hook_extra["action"] == "install" && isset( $hook_extra["type"] ) && $hook_extra["type"] == "plugin" ) {
-
-			// It's a plugin install
-			#error_log("plugin install");
-
-
-		} else if ( isset( $hook_extra["action"] ) && $hook_extra["action"] == "update" && isset( $hook_extra["type"] ) && $hook_extra["type"] == "plugin" ) {
-
-			// It's a plugin upgrade
-			#echo "plugin update!";
-			//error_log("plugin update");
-
-		} else {
-
-			//error_log("other");
-
-		}
-
-		#sf_d($response, '$response');
-		#sf_d($hook_extra, '$hook_extra');
-		#sf_d($result, '$result');
-		#exit;
-
-		return $response;
-
-	}
-
-	/*
-
-		 * Filter the list of action links available following bulk plugin updates.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param array $update_actions Array of plugin action links.
-		 * @param array $plugin_info    Array of information for the last-updated plugin.
-
-		$update_actions = apply_filters( 'update_bulk_plugins_complete_actions', $update_actions, $this->plugin_info );
-
-	*/
-
-	/*
-
-
-		*
-		 * Fires when the bulk upgrader process is complete.
-		 *
-		 * @since 3.6.0
-		 *
-		 * @param Plugin_Upgrader $this Plugin_Upgrader instance. In other contexts, $this, might
-		 *                              be a Theme_Upgrader or Core_Upgrade instance.
-		 * @param array           $data {
-		 *     Array of bulk item update data.
-		 *
-		 *     @type string $action   Type of action. Default 'update'.
-		 *     @type string $type     Type of update process. Accepts 'plugin', 'theme', or 'core'.
-		 *     @type bool   $bulk     Whether the update process is a bulk update. Default true.
-		 *     @type array  $packages Array of plugin, theme, or core packages to update.
-		 * }
-		 *
-		do_action( 'upgrader_process_complete', $this, array(
-			'action' => 'update',
-			'type' => 'plugin',
-			'bulk' => true,
-			'plugins' => $plugins,
-		) );
-
-
-	do_action( 'upgrader_process_complete', $this, array( 'action' => 'update', 'type' => 'core' ) );
-	*/
 
 	/**
 	 * Plugin is activated
@@ -1082,7 +975,7 @@ class SimplePluginLogger extends SimpleLogger
 
 		$this->infoMessage( 'plugin_activated', $context );
 
-	}
+	} // on_activated_plugin
 
 	/**
 	 * Plugin is deactivated
@@ -1109,7 +1002,7 @@ class SimplePluginLogger extends SimpleLogger
 
 		$this->infoMessage( 'plugin_deactivated', $context );
 
-	}
+	} // on_deactivated_plugin
 
 
 	/**
@@ -1319,7 +1212,6 @@ class SimplePluginLogger extends SimpleLogger
 
 		return $output;
 
-	}
+	} // getLogRowDetailsOutput
 
-
-}
+} // class SimplePluginLogger
