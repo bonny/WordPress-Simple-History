@@ -17,7 +17,10 @@ class SimplePostLogger extends SimpleLogger
 
 	public function loaded() {
 
-		add_action("admin_init", array($this, "on_admin_init"));
+		add_action("admin_action_editpost", array($this, "on_admin_action_editpost"));
+		add_action("transition_post_status", array($this, "on_transition_post_status"), 10, 3);
+		add_action("delete_post", array($this, "on_delete_post"));
+		add_action("untrash_post", array($this, "on_untrash_post"));
 
 		$this->add_xml_rpc_hooks();
 
@@ -51,7 +54,7 @@ class SimplePostLogger extends SimpleLogger
 	}
 
 	function on_xmlrpc_call($method) {
-		
+
 		$arr_methods_to_act_on = array(
 			"wp.deletePost"
 		);
@@ -95,7 +98,7 @@ class SimplePostLogger extends SimpleLogger
 				);
 
 				$this->infoMessage( "post_trashed", $context );
-				
+
 
 			} // if delete post
 
@@ -152,16 +155,6 @@ class SimplePostLogger extends SimpleLogger
 
 	}
 
-	function on_admin_init() {
-
-		add_action("admin_action_editpost", array($this, "on_admin_action_editpost"));
-
-		add_action("transition_post_status", array($this, "on_transition_post_status"), 10, 3);
-		add_action("delete_post", array($this, "on_delete_post"));
-		add_action("untrash_post", array($this, "on_untrash_post"));
-
-	}
-
 	/**
 	 * Get and store old info about a post that is being edited.
 	 * Needed to later compare old data with new data, to detect differences.
@@ -172,7 +165,7 @@ class SimplePostLogger extends SimpleLogger
 	 * @since 2.0.29
 	 */
 	function on_admin_action_editpost() {
-		
+
 		$post_ID = isset( $_POST["post_ID"] ) ? (int) $_POST["post_ID"] : 0;
 
 		if ( ! $post_ID ) {
@@ -182,14 +175,14 @@ class SimplePostLogger extends SimpleLogger
 		if ( ! current_user_can( 'edit_post', $post_ID ) ) {
 			return;
 		};
-	
+
 		$prev_post_data = get_post( $post_ID );
 
 		$this->old_post_data[$post_ID] = array(
 			"post_data" => $prev_post_data,
 			"post_meta" => get_post_custom( $post_ID )
 		);
-		
+
 	}
 
 	/**
@@ -397,9 +390,9 @@ class SimplePostLogger extends SimpleLogger
 
 	/*
 	 * Adds diff data to the context array. Is called just before the event is logged.
-	 * 
+	 *
 	 * Since 2.0.29
-	 * 
+	 *
 	 * To detect
 	 *	- post thumb (part of custom fields)
 	 *	- categories
@@ -407,7 +400,7 @@ class SimplePostLogger extends SimpleLogger
 	 * @return array $context with diff data added
 	 */
 	function add_post_data_diff_to_context($context, $old_post_data, $new_post_data) {
-		
+
 		$old_data = $old_post_data["post_data"];
 		$new_data = $new_post_data["post_data"];
 
@@ -439,30 +432,30 @@ class SimplePostLogger extends SimpleLogger
 
 		// If changes where detected
 		if ( $post_data_diff ) {
-			
+
 			// $context["_post_data_diff"] = $this->simpleHistory->json_encode( $post_data_diff );
 			// Save at least 2 values for each detected value change, i.e. the old value and the new value
 			foreach ( $post_data_diff as $diff_key => $diff_values ) {
-			
+
 				$context["post_prev_{$diff_key}"] = $diff_values["old"];
 				$context["post_new_{$diff_key}"] = $diff_values["new"];
 
 				// If post_author then get more author info
 				// Because just a user ID does not get us far
 				if ( "post_author" == $diff_key ) {
-					
+
 					$old_author_user = get_userdata( (int) $diff_values["old"] );
 					$new_author_user = get_userdata( (int) $diff_values["new"] );
 
 					if ( is_a( $old_author_user, "WP_User" ) && is_a( $new_author_user, "WP_User" ) ) {
-						
+
 						$context["post_prev_{$diff_key}/user_login"] = $old_author_user->user_login;
 						$context["post_prev_{$diff_key}/user_email"] = $old_author_user->user_email;
 						$context["post_prev_{$diff_key}/display_name"] = $old_author_user->display_name;
 
 						$context["post_new_{$diff_key}/user_login"] = $new_author_user->user_login;
 						$context["post_new_{$diff_key}/user_email"] = $new_author_user->user_email;
-						$context["post_new_{$diff_key}/display_name"] = $new_author_user->display_name;				
+						$context["post_new_{$diff_key}/display_name"] = $new_author_user->display_name;
 
 					}
 
@@ -478,9 +471,9 @@ class SimplePostLogger extends SimpleLogger
 				            [new] => 25556
 				        )
 				*/
-				
 
-			
+
+
 			}
 
 		} // post_data_diff
@@ -504,19 +497,19 @@ class SimplePostLogger extends SimpleLogger
 
 		$old_meta = $old_post_data["post_meta"];
 		$new_meta = $new_post_data["post_meta"];
-		
+
 		// @todo: post thumb is stored in _thumbnail_id
 
 		// page template is stored in _wp_page_template
 		if ( isset( $old_meta["_wp_page_template"][0] ) && isset( $new_meta["_wp_page_template"][0] ) ) {
-			
+
 			/*
 			Var is string with length 7: default
 			Var is string with length 20: template-builder.php
 			*/
 
 			if ( $old_meta["_wp_page_template"][0] != $new_meta["_wp_page_template"][0] ) {
-				
+
 				// prev page template is different from new page template
 
 				// store template php file name
@@ -536,13 +529,13 @@ class SimplePostLogger extends SimpleLogger
 				if ( isset( $theme_templates[ $context["post_prev_page_template"] ] ) ) {
 					$context["post_prev_page_template_name"] = $theme_templates[$context["post_prev_page_template"]];
 				}
-				
+
 				if ( isset( $theme_templates[ $context["post_new_page_template"] ] ) ) {
 					$context["post_new_page_template_name"] = $theme_templates[$context["post_new_page_template"]];
 				}
 
 			}
-			
+
 		}
 
 		// Remove fields that we have checked already and other that should be ignored
@@ -550,10 +543,10 @@ class SimplePostLogger extends SimpleLogger
 			unset( $old_meta[ $key_to_ignore ] );
 			unset( $new_meta[ $key_to_ignore ] );
 		}
-		
+
 		// Look for added custom fields
 		foreach ( $new_meta as $meta_key => $meta_value ) {
-			
+
 			if ( ! isset( $old_meta[ $meta_key ] ) ) {
 				$meta_changes["added"][ $meta_key ] = true;
 			}
@@ -564,7 +557,7 @@ class SimplePostLogger extends SimpleLogger
 		// Does not work, if user clicks "delete" in edit screen then meta is removed using ajax
 		/*
 		foreach ( $old_meta as $meta_key => $meta_value ) {
-			
+
 			if ( ! isset($new_meta[ $meta_key ] ) ) {
 				$meta_changes["removed"][ $meta_key ] = true;
 			}
@@ -574,7 +567,7 @@ class SimplePostLogger extends SimpleLogger
 
 		// Look for changed meta
 		foreach ( $old_meta as $meta_key => $meta_value ) {
-			
+
 			if ( isset( $new_meta[ $meta_key ] ) ) {
 
 				if ( json_encode( $old_meta[ $meta_key ] ) != json_encode( $new_meta[ $meta_key ] ) ) {
@@ -619,7 +612,7 @@ class SimplePostLogger extends SimpleLogger
 				continue;
 			$page_templates[ $file ] = _cleanup_header_comment( $header[1] );
 		}
-		
+
 		return $page_templates;
 
 	}
@@ -729,7 +722,7 @@ class SimplePostLogger extends SimpleLogger
 			foreach ( $context as $key => $val ) {
 
 				if ( strpos($key, "post_prev_") !== false ) {
-				
+
 					// Old value exists, new value must also exist for diff to be calculates
 					$key_to_diff = substr($key, strlen("post_prev_"));
 
@@ -748,8 +741,8 @@ class SimplePostLogger extends SimpleLogger
 								$has_diff_values = true;
 
 								$diff_table_output .= sprintf(
-									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
-									__("Title", "simple-history"), 
+									'<tr><td>%1$s</td><td>%2$s</td></tr>',
+									__("Title", "simple-history"),
 									simple_history_text_diff($post_old_value, $post_new_value)
 								);
 
@@ -762,8 +755,8 @@ class SimplePostLogger extends SimpleLogger
 								$has_diff_values = true;
 
 								$diff_table_output .= sprintf(
-									'<tr><td>%1$s</td><td>%2$s</td></tr>', 
-									__("Content", "simple-history"), 
+									'<tr><td>%1$s</td><td>%2$s</td></tr>',
+									__("Content", "simple-history"),
 									simple_history_text_diff($post_old_value, $post_new_value)
 								);
 
@@ -776,8 +769,8 @@ class SimplePostLogger extends SimpleLogger
 									'<tr>
 										<td>%1$s</td>
 										<td>Changed from %2$s to %3$s</td>
-									</tr>', 
-									__("Status", "simple-history"), 
+									</tr>',
+									__("Status", "simple-history"),
 									esc_html($post_old_value),
 									esc_html($post_new_value)
 								);
@@ -791,8 +784,8 @@ class SimplePostLogger extends SimpleLogger
 									'<tr>
 										<td>%1$s</td>
 										<td>Changed from %2$s to %3$s</td>
-									</tr>', 
-									__("Publish date", "simple-history"), 
+									</tr>',
+									__("Publish date", "simple-history"),
 									esc_html($post_old_value),
 									esc_html($post_new_value)
 								);
@@ -806,8 +799,8 @@ class SimplePostLogger extends SimpleLogger
 									'<tr>
 										<td>%1$s</td>
 										<td>%2$s</td>
-									</tr>', 
-									__("Permalink", "simple-history"), 
+									</tr>',
+									__("Permalink", "simple-history"),
 									simple_history_text_diff($post_old_value, $post_new_value)
 								);
 
@@ -820,8 +813,8 @@ class SimplePostLogger extends SimpleLogger
 									'<tr>
 										<td>%1$s</td>
 										<td>Changed from %2$s to %3$s</td>
-									</tr>', 
-									__("Comment status", "simple-history"), 
+									</tr>',
+									__("Comment status", "simple-history"),
 									esc_html($post_old_value),
 									esc_html($post_new_value)
 								);
@@ -832,7 +825,7 @@ class SimplePostLogger extends SimpleLogger
 
 								// wp post edit screen uses display_name so we should use it too
 								if ( isset( $context["post_prev_post_author/display_name"] ) && isset( $context["post_new_post_author/display_name"] ) ) {
-								
+
 									$prev_user_display_name = $context["post_prev_post_author/display_name"];
 									$new_user_display_name = $context["post_new_post_author/display_name"];
 
@@ -843,15 +836,15 @@ class SimplePostLogger extends SimpleLogger
 										'<tr>
 											<td>%1$s</td>
 											<td>%2$s</td>
-										</tr>', 
-										__("Author", "simple-history"), 
-										$this->interpolate( 
-											__('Changed from {prev_user_display_name} ({prev_user_email}) to {new_user_display_name} ({new_user_email})', "simple-history"), 
+										</tr>',
+										__("Author", "simple-history"),
+										$this->interpolate(
+											__('Changed from {prev_user_display_name} ({prev_user_email}) to {new_user_display_name} ({new_user_email})', "simple-history"),
 											array(
 												"prev_user_display_name" => esc_html( $prev_user_display_name ),
 												"prev_user_email" => esc_html( $prev_user_user_email ),
 												"new_user_display_name" => esc_html( $new_user_display_name ),
-												"new_user_email" => esc_html( $new_user_user_email ) 
+												"new_user_email" => esc_html( $new_user_user_email )
 											)
 										)
 									);
@@ -889,10 +882,10 @@ class SimplePostLogger extends SimpleLogger
 									'<tr>
 										<td>%1$s</td>
 										<td>%2$s</td>
-									</tr>', 
-									__("Template", "simple-history"), 
-									$this->interpolate( 
-										$message, 
+									</tr>',
+									__("Template", "simple-history"),
+									$this->interpolate(
+										$message,
 										array(
 											"prev_page_template" => "<code>" . esc_html( $prev_page_template ) . "</code>",
 											"new_page_template" => "<code>" . esc_html( $new_page_template ) . "</code>",
@@ -939,7 +932,7 @@ class SimplePostLogger extends SimpleLogger
 				);
 
 			}
-			
+
 			/*
 			$diff_table_output .= "
 				<p>
@@ -969,7 +962,7 @@ class SimplePostLogger extends SimpleLogger
 
 	/**
 	 * Modify RSS links to they go directly to the correct post in wp admin
-	 * 
+	 *
 	 * @since 2.0.23
 	 * @param string $link
 	 * @param array $row
@@ -983,7 +976,7 @@ class SimplePostLogger extends SimpleLogger
 		if ( isset( $row->context["post_id"] ) ) {
 
 			$permalink = add_query_arg(array("action" => "edit", "post" => $row->context["post_id"]), admin_url( "post.php" ) );
-			
+
 			if ( $permalink ) {
 				$link = $permalink;
 			}
@@ -1014,8 +1007,8 @@ class SimplePostLogger extends SimpleLogger
 				color: rgb(75, 75, 75);
 				font-family: "Open Sans", sans-serif;
 			}
-			
-		</style>	
+
+		</style>
 		<?php
 
 	}
