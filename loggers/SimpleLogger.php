@@ -391,7 +391,7 @@ class SimpleLogger {
 		$str_when = "";
 
 		// $row->date is in GMT
-		$date_datetime = new DateTime( $row->date );
+		$date_datetime = new DateTime( $row->date, new DateTimeZone('GMT') );
 
 		// Current datetime in GMT
 		$time_current = strtotime( current_time("mysql", 1) );

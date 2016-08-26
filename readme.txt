@@ -153,6 +153,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.9.x (August 2016) =
+
+- Fixed an issue where the logged time was off by some hours, due to timezone being manually set elsewhere.
+  Should fix https://wordpress.org/support/topic/logged-time-off-by-2-hours and https://wordpress.org/support/topic/different-time-between-dashboard-and-logger.
+
 = 2.9 (August 2016) =
 
 - Added custom date ranges to the dates filter. Just select "Custom date range..." in the dates dropdown and you can choose to see the log between any two exact dates.
