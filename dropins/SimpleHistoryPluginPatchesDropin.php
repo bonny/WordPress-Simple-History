@@ -18,7 +18,70 @@ class SimpleHistoryPluginPatchesDropin {
 
 		$this->patch_captcha_on_login();
 
+		$this->patch_nextgen_gallery();
+
 	}
+
+	/**
+	 *
+	 * Nextgen Gallery and Nextgen Gallery Plus updates posts every 30 minutes or so when accessing
+	 * posts with galleries on the front
+	 * 
+	 * Logged messages are like "Updated nextgen gallery - display type "NextGen Pro Mosaic""
+	 * and it can be a lot of them.
+	 * 
+	 * Support forum thread:
+	 * https://wordpress.org/support/topic/non-stop-logging-nextgen-gallery-items
+	 * 
+	 * Note that Simple History does nothing wrong, the posts are updated, but it's just annoying
+	 * and unneeded/unwanted info.
+	 *
+	 * We solve this by canceling logging of these events.
+	 * 
+	 */
+	function patch_nextgen_gallery() {
+
+		add_action( "simple_history/log/do_log", array( $this, "patch_nextgen_gallery_on_log" ), 10, 5 );
+
+	}
+
+	function patch_nextgen_gallery_on_log( $doLog, $level = null, $message = null, $context = null, $loggerInstance = null ) {
+
+		// Check that NextGen is installed
+		if ( ! defined("NGG_PLUGIN") ) {
+			return $doLog;
+		}
+
+		if ( ! isset( $context["_message_key"]) || $context["_message_key"] !== "post_updated" ) {
+			return $doLog;
+		}
+
+		if ( ! isset( $context["post_type"]) || $context["post_type"] !== "display_type" ) {
+			return $doLog;
+		}
+
+		// The log spamming thingie is happening on the front, so only continue if this is not in the admin area
+		if ( is_admin() ) {
+			return $doLog;
+		}
+
+		// The calls must come from logger SimplePostLogger
+		if ( $loggerInstance->slug !== "SimplePostLogger" ) {
+			return $doLog;
+		}
+
+		// There. All checked. Now cancel the logging.
+		$doLog = false;
+
+		#error_log(simpleHistory::json_encode( $context ));
+		#error_log(simpleHistory::json_encode( $loggerInstance ));
+		#error_log(simpleHistory::json_encode( is_admin() ));
+		// error_log( __METHOD__ . " canceled logging" );
+
+		return $doLog;
+
+	}
+
 
 	/**
 	 * Captcha on Login

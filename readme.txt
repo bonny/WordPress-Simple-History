@@ -157,6 +157,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 - Fixed an issue where the logged time was off by some hours, due to timezone being manually set elsewhere.
   Should fix https://wordpress.org/support/topic/logged-time-off-by-2-hours and https://wordpress.org/support/topic/different-time-between-dashboard-and-logger.
+- Fixed Nextgen Gallery and Nextgen Gallery Plus logging lots and lots of event when viewing posts with galleries. The posts was actually updated, so this plugin did nothing wrong. But it was indeed a bit annoying and most likely something you don't want in your log. Fixes https://wordpress.org/support/topic/non-stop-logging-nextgen-gallery-items.
 
 = 2.9 (August 2016) =
 
