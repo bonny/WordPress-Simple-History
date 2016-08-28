@@ -154,6 +154,8 @@ class SimpleHistory {
 				$postdata = file_get_contents( "php://input" );
 				$context["_debug_http_raw_post_data"] = $sh->json_encode( $postdata );
 
+				$context["_debug_wp_debug_backtrace_summary"] = wp_debug_backtrace_summary();				
+
 				return $context;
 
 			}, 10, 4 );
