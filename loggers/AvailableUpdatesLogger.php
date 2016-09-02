@@ -13,14 +13,30 @@ if ( ! class_exists("AvailableUpdatesLogger") ) {
 
             $arr_info = array(
                 "name" => "AvailableUpdatesLogger",
-                "description" => "Logs available updates",
+                "description" => "Logs found updates to WordPress, plugins, and themes",
                 "capability" => "manage_options",
                 "messages" => array(
                     "core_update_available" => __( 'Found an update to WordPress.', "simple-history" ),
                     "plugin_update_available" => __( 'Found an update to plugin "{plugin_name}"', "simple-history" ),
                     "theme_update_available" => __( 'Found an update to theme "{theme_name}"', "simple-history" ),
                 ),
-                "labels" => array(),
+                "labels" => array(
+    				"search" => array(
+    					"label" => _x("WordPress and plugins updates found", "Plugin logger: updates found", "simple-history"),
+    					"label_all" => _x("All found updates", "Plugin logger: updates found", "simple-history"),
+    					"options" => array(
+    						_x("WordPress updates found", "Plugin logger: updates found", "simple-history") => array(
+    							'core_update_available'
+    						),
+    						_x("Plugin updates found", "Plugin logger: updates found", "simple-history") => array(
+    							'plugin_update_available',
+    						),
+    						_x("Theme updates found", "Plugin logger: updates found", "simple-history") => array(
+    							'theme_update_available'
+    						),
+    					)
+    				) // search array
+    			) // labels
             );
 
             return $arr_info;

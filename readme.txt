@@ -155,7 +155,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.9 (September 2016) =
 
-- Available updates to plugins and WordPress core is now logged.
+- Available updates to plugins, themes, and WordPress itself is now logged.
   Pretty great if you subscribe to the RSS feed to get the changes on a site. No need to manually check the updates-page to see if there are any updates.
 
 = 2.9.1 (August 2016) =
