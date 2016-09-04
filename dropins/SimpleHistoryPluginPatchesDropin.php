@@ -19,8 +19,48 @@ class SimpleHistoryPluginPatchesDropin {
 		$this->patch_captcha_on_login();
 
 		$this->patch_nextgen_gallery();
+	
+		$this->patch_aio_events_calendar();
 
 	}
+
+	/**
+	 * All-in-one events calendar imports ical/rss events with a cron job
+	 * which can lead to a lot of posts chnaged
+	 */
+	function patch_aio_events_calendar() {
+
+		// feature/fix-AIOEventsCalendar
+		add_action( "simple_history/log/do_log", array( $this, "patch_aio_events_calendar_on_log" ), 10, 5 );
+
+	}
+
+	
+	function patch_aio_events_calendar_on_log( $doLog, $level = null, $message = null, $context = null, $loggerInstance = null ) {
+
+		// this happens when posts are updated
+		if ( ! isset( $context["_message_key"]) || $context["_message_key"] !== "post_updated" ) {
+			return $doLog;
+		}
+
+		// this happens when post type is ai1ec_event
+		if ( ! isset( $context["post_type"]) || $context["post_type"] !== "ai1ec_event" ) {
+			return $doLog;
+		}
+
+		// we don't log when is happens in admin, only when it's a cron job
+		if ( ! defined('DOING_CRON') || ! DOING_CRON || is_admin() ) {
+			return $doLog;
+		}
+
+		// ok, this is a non-admin, cron-running post update for the ai1ec_event post type, so cancel the logging
+		error_log("ok, cancel ai1ec_event log");
+		$doLog = false;
+
+		return $doLog;
+
+	}
+
 
 	/**
 	 *

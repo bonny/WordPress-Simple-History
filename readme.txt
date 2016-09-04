@@ -153,8 +153,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.9 (September 2016) =
+= 2.9.x (September 2016) =
 
+- Fix for [All-in-One Event Calendar](https://sv.wordpress.org/plugins/all-in-one-event-calendar/) logging all events being imported during cron jobs. 
 - Available updates to plugins, themes, and WordPress itself is now logged.
   Pretty great if you subscribe to the RSS feed to get the changes on a site. No need to manually check the updates-page to see if there are any updates.
 
