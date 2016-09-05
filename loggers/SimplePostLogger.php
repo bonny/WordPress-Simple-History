@@ -303,7 +303,22 @@ class SimplePostLogger extends SimpleLogger
 	/**
 	  * Fired when a post has changed status
 	  */
-	function on_transition_post_status($new_status, $old_status, $post) {
+	function on_transition_post_status( $new_status, $old_status, $post ) {
+
+		// Only run in certain cases, 
+		// because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
+		// which by definition is not wrong, but perhaps not wanted/annoying
+		error_log("on_transition_post_status");
+
+		// Don't log things that does not happen outside admin
+		if ( ! is_admin() ) {
+
+			// ...except when calls are coming from the jetpack/ios-app
+
+			// return;
+
+		}
+
 
 		// Don't log revisions
 		if ( wp_is_post_revision( $post ) ) {
