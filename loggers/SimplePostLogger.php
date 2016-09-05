@@ -302,24 +302,13 @@ class SimplePostLogger extends SimpleLogger
 
 	/**
 	  * Fired when a post has changed status
+	  * Only run in certain cases, 
+	  * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
+	  * which by definition is not wrong, but perhaps not wanted/annoying
 	  */
 	function on_transition_post_status( $new_status, $old_status, $post ) {
 
 		$ok_to_log = true;
-
-		// Only run in certain cases, 
-		// because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
-		// which by definition is not wrong, but perhaps not wanted/annoying
-		error_log("on_transition_post_status");
-
-		// Don't log things that does not happen outside admin
-		if ( ! is_admin() ) {
-
-			// ...except when calls are coming from the jetpack/ios-app
-
-			// return;
-
-		}
 
 		// calls from the WordPress ios app/jetpack comes from non-admin-area
 		// i.e. is_admin() is false
@@ -330,8 +319,6 @@ class SimplePostLogger extends SimpleLogger
 
 		// except when calls are from/for jetpack/wordpress apps
 		// seems to be jetpack/app request when $_GET["for"] == "jetpack
-		// and REQUEST_URI is xmlrpc.php and XMLRPC_REQUEST is true
-		//"REQUEST_URI": "\/xmlrpc.php?for=jetpack&token=oNN%2AzsqA%2ASvjp6H%259%2492wCrP%23c5sS4GC%3A1%3A1&timestamp=1473106780&nonce=5otQWIQK1f&body-hash=aZEOXHVN2TlEHV6opp1gFHJLvF0%3D&signature=ouMWOgo%2Bu7pjDQeTYkmQTVT%2BfRc%3D"
 		if ( defined("XMLRPC_REQUEST") && XMLRPC_REQUEST && isset( $_GET["for"] ) && $_GET["for"] === "jetpack" ) {
 			$ok_to_log = true;
 		}
