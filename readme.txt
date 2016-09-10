@@ -3,8 +3,8 @@ Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
-Tested up to: 4.5.3
-Stable tag: 2.9.1
+Tested up to: 4.6
+Stable tag: 2.10
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -153,11 +153,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.9.x (September 2016) =
+= 2.10 (September 2016) =
 
-- Fix for [All-in-One Event Calendar](https://sv.wordpress.org/plugins/all-in-one-event-calendar/) logging all events being imported during cron jobs. 
 - Available updates to plugins, themes, and WordPress itself is now logged.
   Pretty great if you subscribe to the RSS feed to get the changes on a site. No need to manually check the updates-page to see if there are any updates.
+- Changed to logic used to determine if a post edit should be logged or not. Version 2.9 used a version that started to log a bit to much for some plugins. This should fix the problems with the Nextgen Gallery, All-In-One Events Calendar, and Membership 2 plugins. If you still have problems with a plugin that is causing to many events to be logged, please let me know!
 
 = 2.9.1 (August 2016) =
 

@@ -18,9 +18,9 @@ class SimpleHistoryPluginPatchesDropin {
 
 		$this->patch_captcha_on_login();
 
-		$this->patch_nextgen_gallery();
+		#$this->patch_nextgen_gallery();
 	
-		$this->patch_aio_events_calendar();
+		#$this->patch_aio_events_calendar();
 
 	}
 
@@ -111,6 +111,7 @@ class SimpleHistoryPluginPatchesDropin {
 		}
 
 		// There. All checked. Now cancel the logging.
+		error_log("ok, cancel nextgen gallery log");
 		$doLog = false;
 
 		#error_log(simpleHistory::json_encode( $context ));
