@@ -25,6 +25,8 @@ if ( ! class_exists("Plugin_Redirection") ) {
 					'redirection_redirection_enabled' => _x( 'Enabled the redirection for {items_count} URL(s)', "Logger: Redirection", 'simple-history' ),
 					'redirection_redirection_disabled' => _x( 'Disabled the redirection for {items_count} URL(s)"', "Logger: Redirection", 'simple-history' ),
 					'redirection_redirection_removed' => _x( 'Removed redirection for {items_count} URL(s)"', "Logger: Redirection", 'simple-history' ),
+					'redirection_options_save' => _x( 'Updated options', "Logger: Redirection", 'simple-history' ),
+					'redirection_options_removed_all' => _x( 'Removed all options and deactivated plugin', "Logger: Redirection", 'simple-history' ),
 				),
 			);
 
@@ -100,6 +102,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			*/
 			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "red_redirect_add" ) {
 				$this->log_redirection_add( $_REQUEST );
+				return;
 			}
 
 			/*
@@ -121,8 +124,10 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			*/
 			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "enable" ) {
 				$this->log_redirection_enable_or_disable( $_REQUEST );
+				return;
 			} else if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "disable" ) {
 				$this->log_redirection_enable_or_disable( $_REQUEST );
+				return;
 			}
 
 			/*
@@ -143,7 +148,62 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			*/
 			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "delete" ) {
 				$this->log_redirection_delete( $_REQUEST );
+				return;
 			}
+
+			/*
+			Options
+			- delete all options and deactivate plugin
+			{
+			    "page": "redirection.php",
+			    "sub": "options",
+			    "_wpnonce": "e2c008ca25",
+			    "_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=options",
+			    "delete": "Delete"
+			}
+			*/
+			if ( isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "options" && isset( $_REQUEST["delete"] ) && $_REQUEST["delete"] == "Delete" ) {
+				$this->log_options_delete_all( $_REQUEST );
+				return;
+			}
+
+			/*
+			Save options {
+			    "page": "redirection.php",
+			    "sub": "options",
+			    "_wpnonce": "8fe9b57662",
+			    "_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=options",
+			    "support": "on",
+			    "expire_redirect": "7",
+			    "expire_404": "7",
+			    "monitor_post": "0",
+			    "token": "acf88715b12038e3aca1ae1b3d82132a",
+			    "auto_target": "",
+			    "update": "Update"
+			}
+			*/
+			if ( 
+				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "options" &&
+				isset( $_REQUEST["update"] ) && $_REQUEST["update"] == "Update" 
+
+			) {
+				$this->log_options_save( $_REQUEST );
+				return;
+			}
+
+
+
+		}
+
+		function log_options_save( $req ) {
+
+			$this->infoMessage("redirection_options_save");		 
+
+		}
+
+		function log_options_delete_all( $req ) {
+
+			$this->infoMessage("redirection_options_removed_all");
 
 		}
 
@@ -269,7 +329,6 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			],
 			"action2": "-1"
 		}
-
 
 		*/
 
