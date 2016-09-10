@@ -21,12 +21,14 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				"capability" => "manage_options",
 				"messages" => array(
 					'redirection_redirection_added' => _x( 'Added a redirection for URL "{source_url}"', "Logger: Redirection", 'simple-history' ),
-					'redirection_redirection_edited' => _x( 'Edited the redirection for URL "{source_url}"', "Logger: Redirection", 'simple-history' ),
+					'redirection_redirection_edited' => _x( 'Edited the redirection for URL "{source_url}', "Logger: Redirection", 'simple-history' ),
 					'redirection_redirection_enabled' => _x( 'Enabled the redirection for {items_count} URL(s)', "Logger: Redirection", 'simple-history' ),
-					'redirection_redirection_disabled' => _x( 'Disabled the redirection for {items_count} URL(s)"', "Logger: Redirection", 'simple-history' ),
-					'redirection_redirection_removed' => _x( 'Removed redirection for {items_count} URL(s)"', "Logger: Redirection", 'simple-history' ),
-					'redirection_options_save' => _x( 'Updated options', "Logger: Redirection", 'simple-history' ),
+					'redirection_redirection_disabled' => _x( 'Disabled the redirection for {items_count} URL(s)', "Logger: Redirection", 'simple-history' ),
+					'redirection_redirection_removed' => _x( 'Removed redirection for {items_count} URL(s)', "Logger: Redirection", 'simple-history' ),
+					'redirection_options_saved' => _x( 'Updated options', "Logger: Redirection", 'simple-history' ),
 					'redirection_options_removed_all' => _x( 'Removed all options and deactivated plugin', "Logger: Redirection", 'simple-history' ),
+					'redirection_group_added' => _x( 'Added group "{group_name}"', "Logger: Redirection", 'simple-history' ),
+					'redirection_group_deleted' => _x( 'Deleted {items_count} group(s)', "Logger: Redirection", 'simple-history' ),
 				),
 			);
 
@@ -122,10 +124,10 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				"action2": "-1"
 			}
 			*/
-			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "enable" ) {
+			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "enable" && empty( $_REQUEST["sub"] ) ) {
 				$this->log_redirection_enable_or_disable( $_REQUEST );
 				return;
-			} else if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "disable" ) {
+			} else if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "disable" && empty( $_REQUEST["sub"] )) {
 				$this->log_redirection_enable_or_disable( $_REQUEST );
 				return;
 			}
@@ -146,7 +148,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			    "action2": "-1"
 			}
 			*/
-			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "delete" ) {
+			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "delete" && empty( $_REQUEST["sub"] ) ) {
 				$this->log_redirection_delete( $_REQUEST );
 				return;
 			}
@@ -191,13 +193,131 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				return;
 			}
 
+			/*
+			Add group
+			{
+				"page": "redirection.php",
+				"sub": "groups",
+				"_wpnonce": "4cac237744",
+				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
+				"name": "new group yo",
+				"module_id": "1",
+				"add": "Add"
+			}
+			*/
+			if ( 
+				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
+				isset( $_REQUEST["add"] ) && $_REQUEST["add"] == "Add"	
+			) {
+				$this->log_group_add( $_REQUEST );
+				return;
+			}
 
+
+			/*
+			Delete group(s)
+			{
+				"page": "redirection.php",
+				"sub": "groups",
+				"_wpnonce": "290f261024",
+				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
+				"action": "-1",
+				"id": "0",
+				"paged": "1",
+				"item": [
+					"3",
+					"2"
+				],
+				"action2": "delete"
+			}
+			*/
+			if ( 
+				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
+				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "delete"	
+			) {
+				$this->log_group_delete( $_REQUEST );
+				return;
+			}
+
+			/*
+			Disable group(s)
+			{
+				"path": "\/wp-admin\/tools.php",
+				"query": "page=redirection.php&sub=groups"
+			}
+			{
+				"page": "redirection.php",
+				"sub": "groups",
+				"_wpnonce": "290f261024",
+				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
+				"action": "disable",
+				"id": "0",
+				"paged": "1",
+				"item": [
+					"1"
+				],
+				"action2": "-1"
+			}
+			*/
+			if ( 
+				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
+				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "enable"	
+			) {
+				$this->log_group_enable_or_disable( $_REQUEST );
+				return;
+			} else  if ( 
+				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
+				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "disable"	
+			) {
+				$this->log_group_enable_or_disable( $_REQUEST );
+				return;
+			}
+
+		} // on admin init
+
+
+		function log_group_enable_or_disable() {
+			// @HERE
+		}
+
+		function log_group_delete( $req ) {
+
+			$items = isset( $req["item"] ) ? (array) $req["item"] : array();
+
+			$context = array(
+				"items" => $items,
+				"items_count" => count( $items ),
+			);
+
+			$this->infoMessage(
+				"redirection_group_deleted",
+				$context
+			);
+
+		}
+
+		function log_group_add( $req ) {
+
+			$group_name = isset( $req["name"] ) ? $req["name"] : null;
+
+			if ( ! $group_name ) {
+				return;
+			}
+
+			$context = array(
+				"group_name" => $group_name
+			);
+
+			$this->infoMessage(
+				"redirection_group_added",
+				$context
+			);
 
 		}
 
 		function log_options_save( $req ) {
 
-			$this->infoMessage("redirection_options_save");		 
+			$this->infoMessage("redirection_options_saved");		 
 
 		}
 
@@ -262,6 +382,11 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 		function log_redirection_add( $req ) {
 			
+			if ( ! isset( $req["group_id"] ) ) {
+				return;
+			}
+			
+
 			$source = isset( $req["source"] ) ? $req["source"] : null;
 			$target = isset( $req["target"] ) ? $req["target"] : null;
 
@@ -273,64 +398,6 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			$this->infoMessage("redirection_redirection_added", $context);
 
 		}
-
-		/*
-
-		Add group
-		{
-			"path": "\/wp-admin\/tools.php",
-			"query": "page=redirection.php&sub=groups"
-		}
-		{
-			"page": "redirection.php",
-			"sub": "groups",
-			"_wpnonce": "4cac237744",
-			"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
-			"name": "new group yo",
-			"module_id": "1",
-			"add": "Add"
-		}
-
-		Delete group(s)
-		{
-			"path": "\/wp-admin\/tools.php",
-			"query": "page=redirection.php&sub=groups"
-		}
-		{
-			"page": "redirection.php",
-			"sub": "groups",
-			"_wpnonce": "290f261024",
-			"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
-			"action": "-1",
-			"id": "0",
-			"paged": "1",
-			"item": [
-				"3",
-				"2"
-			],
-			"action2": "delete"
-		}
-
-		Disable group(s)
-		{
-			"path": "\/wp-admin\/tools.php",
-			"query": "page=redirection.php&sub=groups"
-		}
-		{
-			"page": "redirection.php",
-			"sub": "groups",
-			"_wpnonce": "290f261024",
-			"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
-			"action": "disable",
-			"id": "0",
-			"paged": "1",
-			"item": [
-				"1"
-			],
-			"action2": "-1"
-		}
-
-		*/
 
 	} // class
 
