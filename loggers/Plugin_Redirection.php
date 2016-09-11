@@ -347,10 +347,35 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 		function log_redirection_edit( $req ) {
 
+			/*
+			log_redirection_edit
+			{
+			    "old": "ddd changedaa",
+			    "regex": "on",
+			    "title": "this is descriptionaa",
+			    "group_id": "12",
+			    "user_agent": "Firefoxaa",
+			    "url_from": "eee changedaa",
+			    "url_notfrom": "not matched straa",
+			    "action": "red_redirect_save",
+			    "id": "7",
+			    "_wpnonce": "f15cdcdaea",
+			    "_wp_http_referer": "\/wp-admin\/admin-ajax.php"
+			}
+			*/
+			#error_log( "log_redirection_edit\n" . SimpleHistory::json_encode( $_REQUEST ) );
+
 			$context = array(
-				"source_url" => isset( $req["old"] ) ? $req["old"] : null,
-				"target_url" => isset( $req["target"] ) ? $req["target"] : null,
-				"item_id" => isset( $req["id"] ) ? $req["id"] : null,
+				"source_url"  => isset( $req["old"] ) ? $req["old"] : null,
+				"target_url"  => isset( $req["target"] ) ? $req["target"] : null,
+				"item_id"     => isset( $req["id"] ) ? $req["id"] : null,
+				"title"       => isset( $req["title"] ) ? $req["title"] : null,
+				"regex"       => isset( $req["regex"] ) ? true : false,
+				"group_id"    => isset( $req["group_id"] ) ? $req["group_id"] : null,
+				"user_agent"  => isset( $req["user_agent"] ) ? $req["user_agent"] : null,
+				"url_from"    => isset( $req["url_from"] ) ? $req["url_from"] : null,
+				"url_notfrom" => isset( $req["url_notfrom"] ) ? $req["url_notfrom"] : null,
+				"action_code" => isset( $req["action_code"] ) ? $req["action_code"] : null,
 			);
 
 			$message_key = "redirection_redirection_edited";
@@ -386,13 +411,20 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				return;
 			}
 			
-
 			$source = isset( $req["source"] ) ? $req["source"] : null;
 			$target = isset( $req["target"] ) ? $req["target"] : null;
+			$match = isset( $req["match"] ) ? $req["match"] : null;
+			$action = isset( $req["action"] ) ? $req["action"] : null;
+			$group_id = isset( $req["group_id"] ) ? $req["group_id"] : null;
+			$regex = isset( $req["regex"] ) ? true : false;
 
 			$context = array(
 				"source_url" => $source,
 				"target_url" => $target,
+				"match" => $match,
+				"action" => $action,
+				"group_id" => $group_id,
+				"regex" => $regex,
 			);
 
 			$this->infoMessage("redirection_redirection_added", $context);
