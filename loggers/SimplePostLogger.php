@@ -302,11 +302,33 @@ class SimplePostLogger extends SimpleLogger
 
 	/**
 	  * Fired when a post has changed status
+	  * Only run in certain cases, 
+	  * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
+	  * which by definition is not wrong, but perhaps not wanted/annoying
 	  */
-	function on_transition_post_status($new_status, $old_status, $post) {
+	function on_transition_post_status( $new_status, $old_status, $post ) {
+
+		$ok_to_log = true;
+
+		// calls from the WordPress ios app/jetpack comes from non-admin-area
+		// i.e. is_admin() is false
+		// so don't log when outside admin area
+		if ( ! is_admin() ) {
+			$ok_to_log = false;
+		}
+
+		// except when calls are from/for jetpack/wordpress apps
+		// seems to be jetpack/app request when $_GET["for"] == "jetpack
+		if ( defined("XMLRPC_REQUEST") && XMLRPC_REQUEST && isset( $_GET["for"] ) && $_GET["for"] === "jetpack" ) {
+			$ok_to_log = true;
+		}
 
 		// Don't log revisions
 		if ( wp_is_post_revision( $post ) ) {
+			$ok_to_log = false;
+		}
+
+		if ( ! $ok_to_log ) {
 			return;
 		}
 

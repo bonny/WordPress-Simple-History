@@ -154,6 +154,10 @@ class SimpleHistory {
 				$postdata = file_get_contents( "php://input" );
 				$context["_debug_http_raw_post_data"] = $sh->json_encode( $postdata );
 
+				$context["_debug_wp_debug_backtrace_summary"] = wp_debug_backtrace_summary();
+				$context["_debug_is_admin"] = json_encode( is_admin() );
+				$context["_debug_is_doing_cron"] = json_encode( defined('DOING_CRON') && DOING_CRON );
+
 				return $context;
 
 			}, 10, 4 );
@@ -837,6 +841,7 @@ class SimpleHistory {
 			$loggersDir . "SimpleThemeLogger.php",
 			$loggersDir . "SimpleUserLogger.php",
 			$loggersDir . "SimpleCategoriesLogger.php",
+			$loggersDir . "AvailableUpdatesLogger.php",
 
 			// Loggers for third party plugins
 			$loggersDir . "PluginUserSwitchingLogger.php",
