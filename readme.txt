@@ -158,10 +158,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Added support for plugin [Redirection](https://wordpress.org/plugins/redirection/).
   Redirects and groups that are created, changed, enabled and disabled will be logged. Also when the plugin global settings are changed that will be logged.
 - Fix possible notice error from User logger.
-<<<<<<< HEAD
-=======
 - "View changelog" link was not working on multisite.
->>>>>>> develop
 
 = 2.10 (September 2016) =
 
