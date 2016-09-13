@@ -153,6 +153,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.1x (September 2016) =
+
+- Added support for plugin [Redirection](https://wordpress.org/plugins/redirection/).
+  Redirects and groups that are created, changed, enabled and disabled will be logged. Also when the plugin global settings are changed that will be logged.
+- Fix possible notice error from User logger
+
 = 2.10 (September 2016) =
 
 - Available updates to plugins, themes, and WordPress itself is now logged.
