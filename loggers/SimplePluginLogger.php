@@ -1182,8 +1182,15 @@ class SimplePluginLogger extends SimpleLogger {
 				$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" );
 
 				if ( "plugin_updated" == $message_key || "plugin_bulk_updated" == $message_key ) {
+
 					$link_title = esc_html_x("View changelog", "plugin logger: plugin info thickbox title", "simple-history");
-					$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
+					
+					if ( is_multisite() ) {
+						$url = network_admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
+					} else {
+						$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
+					}
+
 				}
 
 				$output .= sprintf(
