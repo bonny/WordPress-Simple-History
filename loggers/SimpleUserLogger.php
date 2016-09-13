@@ -828,6 +828,7 @@ class SimpleUserLogger extends SimpleLogger {
 		$message_key = $context["_message_key"];
 
 		$out = "";
+		$diff_table_output = "";
 
 		if ( "user_updated_profile" == $message_key ) {
 
@@ -884,8 +885,6 @@ class SimpleUserLogger extends SimpleLogger {
 					"title" => _x("Role", "User logger", "simple-history")
 				)
 			);
-
-			$diff_table_output = "";
 
 			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
 
