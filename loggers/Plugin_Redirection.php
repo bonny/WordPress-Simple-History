@@ -30,6 +30,32 @@ if ( ! class_exists("Plugin_Redirection") ) {
 					'redirection_group_added' => _x( 'Added group "{group_name}"', "Logger: Redirection", 'simple-history' ),
 					'redirection_group_deleted' => _x( 'Deleted {items_count} group(s)', "Logger: Redirection", 'simple-history' ),
 				),
+				/*
+				"labels" => array(
+					"search" => array(
+						"label" => _x("Plugin Redirection", "Logger: Redirection", "simple-history"),
+						"label_all" => _x("All posts & pages activity", "Logger: Redirection", "simple-history"),
+						"options" => array(
+							_x("Posts created", "Logger: Redirection", "simple-history") => array(
+								"post_created"
+							),
+							_x("Posts updated", "Logger: Redirection", "simple-history") => array(
+								"post_updated"
+							),
+							_x("Posts trashed", "Logger: Redirection", "simple-history") => array(
+								"post_trashed"
+							),
+							_x("Posts deleted", "Logger: Redirection", "simple-history") => array(
+								"post_deleted"
+							),
+							_x("Posts restored", "Logger: Redirection", "simple-history") => array(
+								"post_restored"
+							),
+						)
+					) // end search array
+				) // end labels
+				*/
+
 			);
 
 			return $arr_info;
