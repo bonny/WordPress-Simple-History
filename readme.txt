@@ -153,6 +153,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.1x (September 2016) =
+
+- On multisites the user search filter now only search users in the current site.
+
 = 2.11 (September 2016) =
 
 - Added support for plugin [Redirection](https://wordpress.org/plugins/redirection/).

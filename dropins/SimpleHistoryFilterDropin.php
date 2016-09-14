@@ -498,7 +498,7 @@ class SimpleHistoryFilterDropin {
 
 		// user must have list_users capability (default super admin + administrators have this)
 		if ( ! current_user_can("list_users") ) {
-			wp_send_json_error();;
+			wp_send_json_error();
 		}
 
 		// Search both current users and all logged rows,
@@ -506,37 +506,20 @@ class SimpleHistoryFilterDropin {
 		// search in context: user_id, user_email, user_login
 		// search in wp_users: login, nicename, user_email
 
-		// Can't get this simple query to work, so using my own query instead
-		/*
-		$wp_users = get_users( array(
-			"search" => "*{$q}*"
-		));
-		*/
-		global $wpdb;
+		// search and get users. make sure to use "fields" and "number" or we can get timeout/use lots of memory if we have a large amount of users
+		$results_user = get_users( array(
+			"search" => "*{$q}*",
+			"fields" => array("ID", "user_login", "user_nicename", "user_email", "display_name"),
+			"number" => 20
+		) );
 
-		if ( method_exists($wpdb, "esc_like") ) {
-			$str_like = $wpdb->esc_like( $q );
-		} else {
-			$str_like = like_escape( $q );
-		}
-
-		$sql_users = $wpdb->prepare(
-			'SELECT ID as id, user_login, user_nicename, user_email, display_name FROM %1$s
-			WHERE
-				user_login LIKE "%%%2$s%%"
-				OR user_nicename LIKE "%%%2$s%%"
-				OR user_email LIKE "%%%2$s%%"
-				OR display_name LIKE "%%%2$s%%"
-			LIMIT 20
-			',
-			$wpdb->users,
-			$str_like
-		);
-
-		$results_user = $wpdb->get_results( $sql_users );
+		// add lower case id to user array
+		array_walk( $results_user, function( $val ) {
+			$val->id = $val->ID;
+		} );
 
 		// add gravatars to user array
-		array_walk( $results_user, array($this, "add_gravatar_to_user_array") );
+		array_walk( $results_user, array( $this, "add_gravatar_to_user_array" ) );
 
 		$data = array(
 			"results" => array(
