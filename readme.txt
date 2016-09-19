@@ -156,6 +156,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.1x (September 2016) =
 
 - On multisites the user search filter now only search users in the current site.
+- The statistics chart using Chart.js now uses the namespace window.Simple_History_Chart instead of window.Chart, decreasing the risk that two versions of the Chart.js library overwriting each others. Fixes https://wordpress.org/support/topic/comet-cache-breaks-simple-history/. (Note to future me: this was fixed by renaming the `window.chart` variable to `window.chart.Simple_history_chart` in the line `window.Chart = module.exports = Chart;`)
 
 = 2.11 (September 2016) =
 
