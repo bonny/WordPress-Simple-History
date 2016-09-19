@@ -32,7 +32,7 @@ class SimpleHistorySidebarStats {
 
 	public function on_admin_enqueue_scripts() {
 
-		wp_enqueue_script( "chart.js", SIMPLE_HISTORY_DIR_URL . "js/Chart.js", array( "jquery" ), SIMPLE_HISTORY_VERSION, true );
+		wp_enqueue_script( "simple_history_chart.js", SIMPLE_HISTORY_DIR_URL . "js/Chart.js", array( "jquery" ), SIMPLE_HISTORY_VERSION, true );
 
 	}
 
@@ -58,7 +58,7 @@ class SimpleHistorySidebarStats {
 					var chartLabelsToDates =  JSON.parse( $(".SimpleHistory_SidebarChart_ChartLabelsToDates").val() );
 					var chartDatasetData = JSON.parse( $(".SimpleHistory_SidebarChart_ChartDatasetData").val() );
 
-					var myChart = new Chart(ctx, {
+					var myChart = new Simple_History_Chart(ctx, {
 					    type: 'bar',
 					    data: {
 					        labels: chartLabels,
