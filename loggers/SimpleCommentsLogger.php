@@ -28,7 +28,9 @@ class SimpleCommentsLogger extends SimpleLogger
 	 */
 	function maybe_modify_log_query_sql_where($where) {
 
-		$include_spam = false;
+		// since 19 sept 2016 we do include spam, to skip the subquery
+		// spam comments should not be logged anyway since some time
+		$include_spam = true;
 
 		/**
 		 * Filter option to include spam or not in the gui
