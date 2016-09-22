@@ -43,18 +43,22 @@ view details about changes made in the differnt settings sections of WordPress. 
 
 By default Simple History comes with built in support for the following plugins:
 
-**User Switching**
+**User Switching**<br>
 The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button.
 Simple History will log each user switch being made.
 
-**Enable Media Replace**
+**Enable Media Replace**<br>
 The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place.
 Simple history will log details about the file being replaced and details about the new file.
 
-**Limit Login Attempts**
+**Limit Login Attempts**<br>
 The plugin [Limit Login Attempts](https://sv.wordpress.org/plugins/limit-login-attempts/) is old
 and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
 Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
+
+**Redirection**
+The [redirection plugin](https://sv.wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
+Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
 #### RSS feed available
 
