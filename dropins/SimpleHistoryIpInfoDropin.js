@@ -20,7 +20,10 @@
 
 		// since 24 sept 2016 ipinfo supports ssl/https for all users, so we can enable ipinfo for all
 		// https://twitter.com/ipinfoio/status/779374440417103872
-		return true;
+		showPopup($elm);
+
+		return lookupIpAddress(ipAddress);
+
 
 		/*
 		// If we are on a HTTPS site we cant use ipinfo because lookups over https require pro account
