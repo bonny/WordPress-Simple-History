@@ -103,7 +103,7 @@
 
 		//try {
 		
-			var ajax = $.get("http://ipinfo.io/" + ipAddress, onIpAddressLookupResponse, "jsonp");
+			var ajax = $.get("https://ipinfo.io/" + ipAddress, onIpAddressLookupResponse, "jsonp");
 
 			// If the ajax call fail, for example because of blocked connections using adblocker-similar software
 			// err_blocked_by_client
