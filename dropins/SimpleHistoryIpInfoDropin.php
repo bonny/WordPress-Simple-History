@@ -161,7 +161,7 @@ class SimpleHistoryIpInfoDropin {
 				</table>
 
 				<p class="SimpleHistoryIpInfoDropin__provider">
-					<?php printf( _x('IP info provided by %1$s ipinfo.io %2$s', "IP Info Dropin", "simple-history"), "<a href='http://ipinfo.io/{{ data.ip }}' target='_blank'>", "</a>" ); ?>
+					<?php printf( _x('IP info provided by %1$s ipinfo.io %2$s', "IP Info Dropin", "simple-history"), "<a href='https://ipinfo.io/{{ data.ip }}' target='_blank'>", "</a>" ); ?>
 				</p>
 
 			<# } #>
