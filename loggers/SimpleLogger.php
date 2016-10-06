@@ -1143,6 +1143,8 @@ class SimpleLogger {
 
 		$result = $wpdb->insert($db_table, $data);
 
+		$data_parent_row = null;
+
 		// Only save context if able to store row
 		if (false === $result) {
 

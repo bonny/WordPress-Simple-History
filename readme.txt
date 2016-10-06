@@ -160,6 +160,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.1x (September 2016) =
 
 - IP info now displays a popup with map + geolocation info for users using HTTPS again. Thanks to the great https://twitter.com/ipinfoio for letting all users use their service :)
+- Fix notice warning for missing `$data_parent_row`
 
 = 2.12 (September 2016) =
 
