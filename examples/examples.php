@@ -16,6 +16,24 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
  * Some examples of filter usage and so on
  */
 
+// Do not log some post types, for example pages and attachments in this case
+add_filter( "simple_history/log/do_log", function( $do_log = null, $level = null, $message = null, $context = null, $logger = null) {
+
+	$post_types_to_not_log = array(
+		"page",
+		"attachment"
+	);
+
+	if ( ( isset($logger->slug) && ($logger->slug === "SimplePostLogger" || $logger->slug === "SimpleMediaLogger") ) && ( isset($context["post_type"]) && in_array($context["post_type"], $post_types_to_not_log ) ) ) {
+
+		$do_log = false;
+
+	}
+
+	return $do_log;
+
+}, 10, 5);
+
 // Disable all logging
 add_filter( "simple_history/log/do_log", "__return_false" );
 
@@ -44,7 +62,7 @@ add_filter( "simple_history/logger/interpolate/context", function($context, $mes
  * Default capability is "manage_options"
  */
 add_filter("simple_history/view_settings_capability", function($capability) {
-    
+
     $capability = "manage_options";
     return $capability;
 
@@ -53,18 +71,18 @@ add_filter("simple_history/view_settings_capability", function($capability) {
 
 /**
  * Change capability required to view main simple history page.
- * Default capability is "edit_pages". Change to for example "manage options" 
+ * Default capability is "edit_pages". Change to for example "manage options"
  * to only allow admins to view the history log.
  */
 add_filter("simple_history/view_history_capability", function($capability) {
-    
+
     $capability = "manage_options";
     return $capability;
 
 });
 
 
-// Skip adding things to the context table during logging. 
+// Skip adding things to the context table during logging.
 // Useful if you don't want to add cool and possible super useful info to your logged events.
 // Also nice to have if you want to make sure your database does not grow.
 add_filter("simple_history/log_insert_context", function($context, $data) {
@@ -80,7 +98,7 @@ add_filter("simple_history/log_insert_context", function($context, $data) {
 
 // Hide some columns from the detailed context view popup window
 add_filter("simple_history/log_html_output_details_table/row_keys_to_show", function($logRowKeysToShow, $oneLogRow) {
-	
+
 	$logRowKeysToShow["id"] = false;
 	$logRowKeysToShow["logger"] = false;
 	$logRowKeysToShow["level"] = false;
@@ -93,7 +111,7 @@ add_filter("simple_history/log_html_output_details_table/row_keys_to_show", func
 
 // Hide some more columns from the detailed context view popup window
 add_filter("simple_history/log_html_output_details_table/context_keys_to_show", function($logRowContextKeysToShow, $oneLogRow) {
-	
+
 	$logRowContextKeysToShow["plugin_slug"] = false;
 	$logRowContextKeysToShow["plugin_name"] = false;
 	$logRowContextKeysToShow["plugin_title"] = false;
@@ -117,7 +135,7 @@ function function_show_history_dashboard_or_page($show) {
 	);
 
 	$user = wp_get_current_user();
-	
+
 	if ( ! in_array( $user->user_email, $allowed_users ) ) {
 		$show = false;
 	}
@@ -158,7 +176,7 @@ add_filter("simple_history/logger/load_logger", function($load_logger, $logger_b
 
 // Skip the loading of dropins
 add_filter("simple_history/dropin/load_dropin", function($load_dropin, $dropinFileBasename) {
-	
+
 	// Don't load the RSS feed dropin
 	if ( $dropinFileBasename == "SimpleHistoryRSSDropin" ) {
 		$load_dropin = false;
@@ -196,9 +214,9 @@ add_filter("simple_history/db_purge_days_interval", "__return_zero");
 
 // Clear items that are older than a 7 days (i.e. keep only the most recent 7 days in the log)
 add_filter( "simple_history/db_purge_days_interval", function( $days ) {
-	
+
 	$days = 7;
-	
+
 	return $days;
 
 } );
