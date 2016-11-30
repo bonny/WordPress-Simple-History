@@ -117,6 +117,21 @@ class SimpleHistory {
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
 
+		/**
+		 * Filter that is used to log things, without the need to check that simple history is available
+		 * i.e. you can have simple history acivated and log things and then you can disable the plugin
+		 * and no errors will occur
+		 *
+		 * Usage:
+		 * apply_filters("simple_history_log", "This is the log message");
+		 * apply_filters("simple_history_log", "This is the log message with some extra data/info", ["extraThing1" => $variableWIihThing]);
+		 * apply_filters("simple_history_log", "This is the log message with severity debug", null, "debug");
+		 * apply_filters("simple_history_log", "This is the log message with severity debug and with some extra info/data logged", ["userData" => $userData, "shoppingCartDebugData" => $shopDebugData], "debug",);
+		 *
+		 * @since 2.13
+		 */
+		add_filter( 'simple_history_log', array($this, "on_filter_simple_history_log"), 10, 3 );
+
 		if ( is_admin() ) {
 
 			$this->add_admin_actions();
@@ -163,6 +178,30 @@ class SimpleHistory {
 			}, 10, 4 );
 
 		}
+
+	}
+
+	/**
+	 * Log a message
+	 *
+	 * Function called when running filter "simple_history_log"
+	 *
+	 * @since 2.13
+	 * @param mixed $logMessage
+	 * @param array $context Optional context to add to the logged data
+	 * @param string $level The loglevel. Must be one of the existing ones. Defaults to "info".
+	 */
+	public function on_filter_simple_history_log( $message = null, $context = null, $level = "info" ) {
+
+		if (empty($message)) {
+			return;
+		}
+
+		if (!is_array($context)) {
+			$context = array();
+		}
+
+		SimpleLogger()->log($level, $message, $context);
 
 	}
 
