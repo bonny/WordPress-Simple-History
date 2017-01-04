@@ -16,6 +16,23 @@ define("SIMPLE_HISTORY_LOG_DEBUG", true);
  * Some examples of filter usage and so on
  */
 
+// Modify who can read a logger
+// Modify the if part to give users access or no access to a logger
+add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', function( $user_can_read_logger, $logger_instance, $user_id ) {
+
+	// in this example user with id 3 gets access to the post logger
+	// while user with id 8 does not get any access to it
+	if ( $logger_instance->slug == "SimplePostLogger" && $user_id === 3 ) {
+		$user_can_read_logger = true;
+	} else if ( $logger_instance->slug == "SimplePostLogger" && $user_id === 9 ) {
+		$user_can_read_logger = false;
+	}
+
+	return $user_can_read_logger;
+
+}, 10, 3 );
+
+
 // Do not log some post types, for example pages and attachments in this case
 add_filter( "simple_history/log/do_log", function( $do_log = null, $level = null, $message = null, $context = null, $logger = null) {
 
