@@ -677,7 +677,7 @@ class SimpleLogger {
 	 * @param array $context
 	 * @return null
 	 */
-	public static function emergency($message, array $context = array()) {
+	public function emergency($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 
@@ -744,7 +744,7 @@ class SimpleLogger {
 	 * @param array $context
 	 * @return null
 	 */
-	public static function alert($message, array $context = array()) {
+	public function alert($message, array $context = array()) {
 		return $this->log(SimpleLoggerLogLevels::ALERT, $message, $context);
 
 	}
@@ -771,7 +771,7 @@ class SimpleLogger {
 	 * @param array $context
 	 * @return null
 	 */
-	public static function critical($message, array $context = array()) {
+	public function critical($message, array $context = array()) {
 
 		return $this->log(SimpleLoggerLogLevels::CRITICAL, $message, $context);
 
