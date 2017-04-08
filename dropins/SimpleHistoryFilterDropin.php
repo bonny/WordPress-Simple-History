@@ -163,7 +163,7 @@ class SimpleHistoryFilterDropin {
 
 				?>
 
-				<p data-debug-daysAndPages='<?php echo json_encode( $arr_days_and_pages ) ?>'>
+				<p class="SimpleHistory__filters__filterRow" data-debug-daysAndPages='<?php echo json_encode( $arr_days_and_pages ) ?>'>
 
 					<label class="SimpleHistory__filters__filterLabel"><?php _ex("Dates:", "Filter label", "simple-history") ?></label>
 

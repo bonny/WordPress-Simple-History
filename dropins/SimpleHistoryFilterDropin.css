@@ -10,6 +10,13 @@
 	transition: all .25s ease-out;
 }
 
+.SimpleHistory__filters__filter--date {
+}
+
+.SimpleHistory__filters__filter--date.select2-container {
+}
+
+
 .SimpleHistory--isLoaded .SimpleHistory__filters {
 	opacity: 1;
 }
@@ -33,6 +40,7 @@
 .SimpleHistory__filters__filterLabel {
 	display: inline-block;
 	width: 150px;
+	vertical-align: middle;
 }
 
 .SimpleHistory__filters__filterSubmitWrap {
@@ -52,6 +60,20 @@
 
 }
 
+@media (min-width: 600px) {
+	/* prevent "jump" during page load because of select elm changing to select2 */
+	.SimpleHistory__filters__filterRow {
+		height: 41px;
+		line-height: 41px;
+	}
+
+	.wp-admin select[multiple].SimpleHistory__filters__filter--date {
+		height: 2.25em;
+		overflow: hidden;
+	}
+}
+
+
 /* always label as blocks on dashboard because we don't know the width beacuse of columns */
 .postbox .SimpleHistory__filters__filterLabel {
 	display: block;
@@ -59,12 +81,6 @@
 }
 .postbox .SimpleHistory__filters__filterSubmitWrap {
 	margin-left: 0;
-}
-
-/* set height on date input or it will "jump" during page load */
-.wp-admin select[multiple].SimpleHistory__filters__filter--date {
-	height: 2.25em;
-	overflow: hidden;
 }
 
 /**
