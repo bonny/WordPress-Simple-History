@@ -100,7 +100,7 @@ class SimpleUserLogger extends SimpleLogger {
 		add_action("wp_logout", array($this, "on_wp_logout"));
 
 		// Failed login attempt to username that exists
-		add_action("wp_authenticate_user", array($this, "on_wp_authenticate_user"), 10, 2);
+		add_action("wp_authenticate_user", array($this, "onWpAuthenticateUser"), 10, 2);
 
 		// Failed to login to user that did not exist (perhaps brute force)
 		// run this later than 10 because wordpress own email login check is done with prio 20
@@ -692,22 +692,23 @@ class SimpleUserLogger extends SimpleLogger {
 	 * @param WP_User or WP_Error  $user The WP_User() object of the user being edited, or a WP_Error() object if validation has already failed.
 	 * @param string password used
 	 */
-	function on_wp_authenticate_user($user, $password) {
+	function onWpAuthenticateUser($userOrError, $password) {
 
-        // Make sure $user is an object and that user_pass and ID exists on that object
-        // Some plugins modify this so the arguments passed is not always what we expect
-
+        // Only continue if $userOrError is a WP_user object
+        if (! is_a($userOrError, "WP_User")) {
+            return $userOrError;
+        }
 
 		// Only log failed attempts
-		if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+		if (! wp_check_password($password, $userOrError->user_pass, $userOrError->ID)) {
 
 			// Overwrite some vars that Simple History set automagically
 			$context = array(
 				"_initiator" => SimpleLoggerLogInitiators::WEB_USER,
-				"login_id" => $user->ID,
-				"login_email" => $user->user_email,
-				"login" => $user->user_login,
-				"server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
+				"login_id" => $userOrError->ID,
+				"login_email" => $userOrError->user_email,
+				"login" => $userOrError->user_login,
+				"server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"]) ? $_SERVER["HTTP_USER_AGENT"] : null,
 				"_occasionsID" => __CLASS__ . '/failed_user_login',
 			);
 
@@ -722,7 +723,7 @@ class SimpleUserLogger extends SimpleLogger {
 			$log_password = false;
 			$log_password = apply_filters("simple_history/comments_logger/log_failed_password", $log_password);
 
-			if ( $log_password ) {
+			if ($log_password) {
 				$context["login_user_password"] = $password;
 			}
 
@@ -730,7 +731,7 @@ class SimpleUserLogger extends SimpleLogger {
 
 		}
 
-		return $user;
+		return $userOrError;
 
 	}
 
