@@ -689,10 +689,14 @@ class SimpleUserLogger extends SimpleLogger {
 	/**
 	 * Log failed login attempt to username that exists
 	 *
-	 * @param object $user user object that was tried to gain access to
+	 * @param WP_User or WP_Error  $user The WP_User() object of the user being edited, or a WP_Error() object if validation has already failed.
 	 * @param string password used
 	 */
 	function on_wp_authenticate_user($user, $password) {
+
+        // Make sure $user is an object and that user_pass and ID exists on that object
+        // Some plugins modify this so the arguments passed is not always what we expect
+
 
 		// Only log failed attempts
 		if ( ! wp_check_password( $password, $user->user_pass, $user->ID ) ) {
