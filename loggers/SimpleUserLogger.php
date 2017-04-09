@@ -148,7 +148,7 @@ class SimpleUserLogger extends SimpleLogger
      *
      * Filter a user's meta values and keys before the user is created or updated.
      *
-     * Does not include contact methods. These are added using `wp_get_user_contact_methods( $user )`.
+     * Does not include contact methods. These are added using `wp_get_user_contact_methods($user )`.
      *
      * @param array $meta {
      *     Default meta values and keys for the user.
@@ -183,47 +183,49 @@ class SimpleUserLogger extends SimpleLogger
 
         // Make of copy of the posted data, because we change the keys
         $posted_data = $_POST;
-        $posted_data = stripslashes_deep( $posted_data );
+        $posted_data = stripslashes_deep($posted_data);
 
-        // Paranoid mode, just in case some other plugin fires the "insert_user_meta" filter and the user.php file is not loaded for some super wierd reason
-        if ( ! function_exists( "_get_additional_user_keys" ) ) {
+        // Paranoid mode, just in case some other plugin fires the "insert_user_meta"
+        // filter and the user.php file is not loaded for some super wierd reason
+        if (! function_exists("_get_additional_user_keys")) {
             return $meta;
         }
 
-        // Get the default fields to include. This includes contact methods (including filter, so more could have been added)
-        $arr_keys_to_check = _get_additional_user_keys( $user );
+        // Get the default fields to include.
+        // This includes contact methods (including filter, so more could have been added)
+        $arr_keys_to_check = _get_additional_user_keys($user);
 
         // Somehow some fields are not include above, so add them manually
-        $arr_keys_to_check = array_merge( $arr_keys_to_check, array("user_email", "user_url", "display_name") );
+        $arr_keys_to_check = array_merge($arr_keys_to_check, array("user_email", "user_url", "display_name"));
 
         // Skip some keys, because to much info or I don't know what they are
-        $arr_keys_to_check = array_diff( $arr_keys_to_check, array("use_ssl") );
+        $arr_keys_to_check = array_diff($arr_keys_to_check, array("use_ssl"));
 
         // Some keys have different ways of getting data from user
         // so change posted object to match those
-        $posted_data["user_url"] = isset( $posted_data["url"] ) ? $posted_data["url"] : null;
-        $posted_data["show_admin_bar_front"] = isset( $posted_data["admin_bar_front"] ) ? true : null;
-        $posted_data["user_email"] = isset( $posted_data["email"] ) ? $posted_data["email"] : null;
+        $posted_data["user_url"] = isset($posted_data["url"]) ? $posted_data["url"] : null;
+        $posted_data["show_admin_bar_front"] = isset($posted_data["admin_bar_front"]) ? true : null;
+        $posted_data["user_email"] = isset($posted_data["email"]) ? $posted_data["email"] : null;
 
         // Display name publicly as = POST "display_name"
         #var_dump($user->display_name);
 
         // Set vals for Enable keyboard shortcuts for comment moderation
-        $posted_data['comment_shortcuts'] = isset( $posted_data['comment_shortcuts'] ) ? "true" : "false";
+        $posted_data['comment_shortcuts'] = isset($posted_data['comment_shortcuts']) ? "true" : "false";
 
         // Set vals for Disable the visual editor when writing
         // posted val = string "false" = yes, disable
-        $posted_data['rich_editing'] = isset( $posted_data['rich_editing'] ) ? "false" : "true";
+        $posted_data['rich_editing'] = isset($posted_data['rich_editing']) ? "false" : "true";
 
         // Set vals for Show Toolbar when viewing site
-        $posted_data['show_admin_bar_front'] = isset( $posted_data['admin_bar_front'] ) ? "true" : "false";
+        $posted_data['show_admin_bar_front'] = isset($posted_data['admin_bar_front']) ? "true" : "false";
 
         // if checkbox is checked in admin then this is the saved value on the user object
         // @todo:
 
         // Check if password was updated
         $password_changed = false;
-        if ( ! empty( $posted_data['pass1'] ) && ! empty( $posted_data['pass2'] ) && $posted_data['pass1'] == $posted_data['pass2']  ) {
+        if (! empty($posted_data['pass1'] ) && ! empty($posted_data['pass2']) && $posted_data['pass1'] == $posted_data['pass2']) {
             $password_changed = 1;
         }
 
@@ -232,13 +234,13 @@ class SimpleUserLogger extends SimpleLogger
         $role_changed = false;
 
         // if user is network admin then role dropdown does not exist and role is not posted here
-        $new_role = isset( $posted_data["role"] ) ? $posted_data["role"] : null;
+        $new_role = isset($posted_data["role"]) ? $posted_data["role"] : null;
 
-        if ( $new_role ) {
+        if ($new_role) {
             // as done in user-edit.php
             // Compare user role against currently editable roles
-            $user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
-            $old_role  = reset( $user_roles );
+            $user_roles = array_intersect(array_values($user->roles), array_keys(get_editable_roles()));
+            $old_role  = reset($user_roles);
 
             $role_changed = $new_role != $old_role;
         }
@@ -247,17 +249,17 @@ class SimpleUserLogger extends SimpleLogger
         $user_data_diff = array();
 
         // Check all keys for diff values
-        foreach  ( $arr_keys_to_check as $one_key_to_check ) {
+        foreach  ($arr_keys_to_check as $one_key_to_check) {
 
             $old_val = $user->$one_key_to_check;
-            $new_val = isset( $posted_data[ $one_key_to_check ] ) ? $posted_data[ $one_key_to_check ] : null;
+            $new_val = isset($posted_data[ $one_key_to_check ] ) ? $posted_data[ $one_key_to_check ] : null;
 
             #echo "<hr>key: $one_key_to_check";
             #echo "<br>old val: $old_val";
             #echo "<br>new val: $new_val";
 
             // new val must be set, because otherwise we are not setting anything
-            if ( ! isset( $new_val ) ) {
+            if ( ! isset($new_val ) ) {
                 continue;
             }
 
@@ -270,22 +272,22 @@ class SimpleUserLogger extends SimpleLogger
             "edited_user_id" => $user->ID,
             "edited_user_email" => $user->user_email,
             "edited_user_login" => $user->user_login,
-            "server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
+            "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
         );
 
-        if ( $password_changed ) {
+        if ($password_changed ) {
             $context["edited_user_password_changed"] = "1";
         }
 
-        if ( $role_changed ) {
+        if ($role_changed ) {
             $context["user_prev_role"] = $old_role;
             $context["user_new_role"] = $new_role;
         }
 
         // Add diff to context
-        if ( $user_data_diff ) {
+        if ($user_data_diff ) {
 
-            foreach ( $user_data_diff as $one_diff_key => $one_diff_vals ) {
+            foreach ($user_data_diff as $one_diff_key => $one_diff_vals ) {
                 /*
                 One diff looks like:
                 "nickname": {
@@ -311,9 +313,9 @@ class SimpleUserLogger extends SimpleLogger
      * user requests a reset password link
      *
      */
-    function on_retrieve_password_message( $message, $key, $user_login, $user_data ) {
+    function on_retrieve_password_message($message, $key, $user_login, $user_data ) {
 
-        if ( isset( $_GET["action"] ) && ( "lostpassword" == $_GET["action"] ) ) {
+        if ( isset($_GET["action"] ) && ( "lostpassword" == $_GET["action"] ) ) {
 
             $context = array(
                 "_initiator" => SimpleLoggerLogInitiators::WEB_USER,
@@ -322,7 +324,7 @@ class SimpleUserLogger extends SimpleLogger
                 "user_login" => $user_login,
             );
 
-            if ( is_a( $user_data, "WP_User" ) ) {
+            if ( is_a($user_data, "WP_User" ) ) {
 
                 $context["user_email"] = $user_data->user_email;
 
@@ -342,7 +344,7 @@ class SimpleUserLogger extends SimpleLogger
      * @param object           $errors WP Error object.
      * @param WP_User|WP_Error $user   WP_User object if the login and reset key match. WP_Error object otherwise.
      */
-    function on_validate_password_reset( $errors, $user ) {
+    function on_validate_password_reset($errors, $user ) {
 
         /*
         User visits the forgot password screen
@@ -359,7 +361,7 @@ class SimpleUserLogger extends SimpleLogger
 
         $context = array();
 
-        if ( is_a( $user, "WP_User") ) {
+        if ( is_a($user, "WP_User") ) {
 
             $context["_initiator"] = SimpleLoggerLogInitiators::WP_USER;
             $context["_user_id"] = $user->ID;
@@ -376,7 +378,7 @@ class SimpleUserLogger extends SimpleLogger
         }
 
 
-        if ( ( ! $errors->get_error_code() ) && isset( $_POST['pass1'] ) && !empty( $_POST['pass1'] ) ) {
+        if ( ( ! $errors->get_error_code() ) && isset($_POST['pass1'] ) && !empty($_POST['pass1'] ) ) {
 
             // login_header( __( 'Password Reset' ), '<p class="message reset-pass">' . __( 'Your password has been reset.' ) . ' <a href="' . esc_url(
             $this->infoMessage( "user_password_reseted", $context );
@@ -462,7 +464,7 @@ class SimpleUserLogger extends SimpleLogger
             "deleted_user_login" => $wp_user_to_delete->user_login,
             "deleted_user_role" => $role,
             "reassign_user_id" => $reassign,
-            "server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
+            "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
         );
 
         // Let's log this as a little bit more significant that just "message"
@@ -488,16 +490,16 @@ class SimpleUserLogger extends SimpleLogger
 
             // If edited_user_id and _user_id is the same then a user edited their own profile
             // Note: it's not the same thing as the currently logged in user (but.. it can be!)
-            if ( ! empty( $context["_user_id"] ) && $context["edited_user_id"] === $context["_user_id"] ) {
+            if ( ! empty($context["_user_id"] ) && $context["edited_user_id"] === $context["_user_id"] ) {
 
-                if ( $wp_user ) {
+                if ($wp_user ) {
 
-                    $context["edit_profile_link"] = get_edit_user_link( $wp_user->ID );
+                    $context["edit_profile_link"] = get_edit_user_link($wp_user->ID );
 
                     $use_you = apply_filters("simple_history/user_logger/plain_text_output_use_you", true);
 
-                    //error_log( serialize( $current_user_id) ); // int 1
-                    //error_log( serialize( $context["_user_id"]) ); // string 1
+                    //error_log( serialize($current_user_id) ); // int 1
+                    //error_log( serialize($context["_user_id"]) ); // string 1
 
                     // User still exist, so link to their profile
                     if ( (int) $current_user_id === (int) $context["_user_id"] && $use_you ) {
@@ -523,7 +525,7 @@ class SimpleUserLogger extends SimpleLogger
             } else {
 
                 // User edited another users profile
-                if ( $wp_user ) {
+                if ($wp_user ) {
 
                     // Edited user still exist, so link to their profile
                     $context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
@@ -548,9 +550,9 @@ class SimpleUserLogger extends SimpleLogger
             // If edited_user_id and _user_id is the same then a user edited their own profile
             // Note: it's not the same thing as the currently logged in user (but.. it can be!)
 
-            if ( $wp_user ) {
+            if ($wp_user ) {
 
-                $context["edit_profile_link"] = get_edit_user_link( $wp_user->ID );
+                $context["edit_profile_link"] = get_edit_user_link($wp_user->ID );
 
                 // User that is viewing the log is the same as the edited user
                 $msg = __('Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}', "simple-history");
@@ -580,23 +582,23 @@ class SimpleUserLogger extends SimpleLogger
      * @param string $user_login
      * @param object $user
      */
-    function on_wp_login( $user_login = null, $user = null) {
+    function on_wp_login($user_login = null, $user = null) {
 
         $context = array(
             "user_login" => $user_login
         );
 
-        if ( isset( $user_login ) ) {
+        if ( isset($user_login ) ) {
 
             $user_obj = get_user_by( "login", $user_login );
 
-        } else if ( isset( $user ) && isset( $user->ID ) ) {
+        } else if ( isset($user ) && isset($user->ID ) ) {
 
             $user_obj = get_user_by( "id", $user->ID );
 
         }
 
-        if ( is_a( $user_obj, "WP_User" ) ) {
+        if ( is_a($user_obj, "WP_User" ) ) {
 
             $context = array(
                 "user_id" => $user_obj->ID,
@@ -610,7 +612,7 @@ class SimpleUserLogger extends SimpleLogger
             $context["_user_id"] = $user_obj->ID;
             $context["_user_login"] = $user_obj->user_login;
             $context["_user_email"] = $user_obj->user_email;
-            $context["server_http_user_agent"] = isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null;
+            $context["server_http_user_agent"] = isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null;
 
             $this->infoMessage("user_logged_in", $context);
 
@@ -639,7 +641,7 @@ class SimpleUserLogger extends SimpleLogger
      * @param int    $user_id       User ID.
      * @param object $old_user_data Object containing user's data prior to update.
      */
-    function on_profile_update( $user_id, $old_user_data ) {
+    function on_profile_update($user_id, $old_user_data ) {
 
         /*
         if (!$user_id || !is_numeric($user_id)) {
@@ -652,7 +654,7 @@ class SimpleUserLogger extends SimpleLogger
             "edited_user_id" => $wp_user_edited->ID,
             "edited_user_email" => $wp_user_edited->user_email,
             "edited_user_login" => $wp_user_edited->user_login,
-            "server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
+            "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
             "old_user_data" => $old_user_data
         );
 
@@ -669,9 +671,9 @@ class SimpleUserLogger extends SimpleLogger
      *  The user id is passed to hook as an argument."
      *
      */
-    function on_user_register( $user_id ) {
+    function on_user_register($user_id ) {
 
-        if ( ! $user_id || ! is_numeric( $user_id )) {
+        if ( ! $user_id || ! is_numeric($user_id )) {
             return;
         }
 
@@ -679,11 +681,11 @@ class SimpleUserLogger extends SimpleLogger
 
         // wp_user->roles (array) - the roles the user is part of.
         $role = null;
-        if ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0]) ) {
+        if ( is_array($wp_user_added->roles ) && ! empty($wp_user_added->roles[0]) ) {
             $role = $wp_user_added->roles[0];
         }
 
-        $send_user_notification = (int) ( isset( $_POST["send_user_notification"] ) && $_POST["send_user_notification"] );
+        $send_user_notification = (int) ( isset($_POST["send_user_notification"] ) && $_POST["send_user_notification"] );
 
         $context = array(
             "created_user_id" => $wp_user_added->ID,
@@ -694,7 +696,7 @@ class SimpleUserLogger extends SimpleLogger
             "created_user_last_name" => $wp_user_added->last_name,
             "created_user_url" => $wp_user_added->user_url,
             "send_user_notification" => $send_user_notification,
-            "server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
+            "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
         );
 
         $this->infoMessage("user_created", $context);
@@ -760,20 +762,20 @@ class SimpleUserLogger extends SimpleLogger
      * @param $username The user's username. since 4.5.0 `$username` now accepts an email address.
      * @param $password The user's password (encrypted)
      */
-    function on_authenticate( $user, $username, $password ) {
+    function on_authenticate($user, $username, $password ) {
 
         // Don't log empty usernames
-        if ( ! trim( $username ) ) {
+        if ( ! trim($username ) ) {
             return $user;
         }
 
         // If null then no auth done yet. Wierd. But what can we do.
-        if ( is_null( $user ) ) {
+        if ( is_null($user ) ) {
             return $user;
         }
 
         // If auth ok then $user is a wp_user object
-        if ( is_a( $user, 'WP_User' ) ) {
+        if ( is_a($user, 'WP_User' ) ) {
             return $user;
         }
 
@@ -781,12 +783,12 @@ class SimpleUserLogger extends SimpleLogger
         // Error codes can be:
         // "incorrect_password" | "empty_password" | "invalid_email" | "invalid_username"
         // We only act on invalid emails and invalid usernames
-        if ( is_a( $user, 'WP_Error' ) && ( $user->get_error_code() == "invalid_username" || $user->get_error_code() == "invalid_email" ) ) {
+        if ( is_a($user, 'WP_Error' ) && ($user->get_error_code() == "invalid_username" || $user->get_error_code() == "invalid_email" ) ) {
 
             $context = array(
                 "_initiator" => SimpleLoggerLogInitiators::WEB_USER,
                 "failed_username" => $username,
-                "server_http_user_agent" => isset( $_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
+                "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
                 // count all failed logins to unknown users as the same occasions,
                 // to prevent log being flooded with login/hack attempts
                 // "_occasionsID" => __CLASS__  . '/' . __FUNCTION__
@@ -825,7 +827,7 @@ class SimpleUserLogger extends SimpleLogger
      */
     function add_diff($post_data_diff, $key, $old_value, $new_value) {
 
-        if ( $old_value != $new_value ) {
+        if ($old_value != $new_value ) {
 
             $post_data_diff[$key] = array(
                 "old" => $old_value,
@@ -842,7 +844,7 @@ class SimpleUserLogger extends SimpleLogger
      * Return more info about an logged event
      * Supports so far:
      */
-    function getLogRowDetailsOutput( $row ) {
+    function getLogRowDetailsOutput($row ) {
 
         $context = $row->context;
         $message_key = $context["_message_key"];
@@ -906,9 +908,9 @@ class SimpleUserLogger extends SimpleLogger
                 )
             );
 
-            foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
+            foreach ($arr_user_keys_to_show_diff_for as $key => $val ) {
 
-                if ( isset( $context["user_prev_{$key}"] ) && isset( $context["user_new_{$key}"] ) ) {
+                if ( isset($context["user_prev_{$key}"] ) && isset($context["user_new_{$key}"] ) ) {
 
                     $user_old_value = $context["user_prev_{$key}"];
                     $user_new_value = $context["user_new_{$key}"];
@@ -921,18 +923,15 @@ class SimpleUserLogger extends SimpleLogger
                         $val["title"],
                         sprintf(
                             '<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins> <del class="SimpleHistoryLogitem__keyValueTable__removedThing">%2$s</del>',
-                             esc_html( $user_new_value ), // 1
-                             esc_html( $user_old_value ) // 2
+                            esc_html($user_new_value), // 1
+                            esc_html($user_old_value) // 2
                         )
                     );
-
                 }
-
             }
 
             // check if password was changed
-            if ( isset( $context["edited_user_password_changed"] ) ) {
-
+            if (isset($context["edited_user_password_changed"])) {
                 $diff_table_output .= sprintf(
                     '<tr>
                         <td>%1$s</td>
@@ -941,17 +940,14 @@ class SimpleUserLogger extends SimpleLogger
                     _x("Password", "User logger", "simple-history"),
                     _x("Changed", "User logger", "simple-history")
                 );
-
             }
 
-            if ( $diff_table_output ) {
+            if ($diff_table_output) {
                 $diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
             }
 
             $out .= $diff_table_output;
-
-        } else if ( "user_created" == $message_key ) {
-
+        } elseif ("user_created" == $message_key) {
             // Show fields for created users
             $arr_user_keys_to_show_diff_for = array(
                 "created_user_first_name" => array(
@@ -968,21 +964,22 @@ class SimpleUserLogger extends SimpleLogger
                 )
             );
 
-            foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
-
-                if ( isset( $context[ $key ] ) && trim( $context[ $key ] ) ) {
-
-                    if ( "send_user_notification" == $key ) {
-
-                        if ( intval( $context[ $key ] ) == 1 ) {
-                            $sent_status = _x("Yes, email with account details was sent", "User logger", "simple-history");
+            foreach ($arr_user_keys_to_show_diff_for as $key => $val) {
+                if (isset($context[$key]) && trim($context[$key])) {
+                    if ("send_user_notification" == $key) {
+                        if (intval($context[$key]) == 1) {
+                            $sent_status = _x(
+                                "Yes, email with account details was sent",
+                                "User logger",
+                                "simple-history"
+                            );
                         } else {
-                            // $sent_status = _x("No, no email with account details was sent", "User logger", "simple-history");
+                            // $sent_status =
+                            // _x("No, no email with account details was sent", "User logger", "simple-history");
                             $sent_status = "";
                         }
 
-                        if ( $sent_status ) {
-
+                        if ($sent_status) {
                             $diff_table_output .= sprintf(
                                 '<tr>
                                     <td>%1$s</td>
@@ -991,14 +988,11 @@ class SimpleUserLogger extends SimpleLogger
                                 _x("Notification", "User logger", "simple-history"),
                                 sprintf(
                                     '<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>',
-                                     esc_html( $sent_status ) // 1
+                                    esc_html($sent_status) // 1
                                 )
                             );
-
                         }
-
                     } else {
-
                         $diff_table_output .= sprintf(
                             '<tr>
                                 <td>%1$s</td>
@@ -1007,27 +1001,20 @@ class SimpleUserLogger extends SimpleLogger
                             $val["title"],
                             sprintf(
                                 '<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>',
-                                 esc_html( $context[ $key ] ) // 1
+                                esc_html($context[$key]) // 1
                             )
                         );
-
                     }
-
                 }
-
             }
 
-            if ( $diff_table_output ) {
+            if ($diff_table_output) {
                 $diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
             }
 
             $out .= $diff_table_output;
-
         } // message key
 
         return $out;
-
-
     }
-
 }
