@@ -157,6 +157,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.1x (April 2016) =
+
+- Make date dropdown less "jumpy" when loading page (due to select element switching to Select2)
+-
+
 = 2.13 (November 2016) =
 
 - Added filter `simple_history_log` that is a simplified way to add message to the log, without the need to check for the existance of Simple History or its SimpleLogger function. Use it like this: `apply_filters("simple_history_log", "This is a logged message");` See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for more examples.
