@@ -262,7 +262,7 @@ class SimpleHistoryRSSDropin
                         $item_link = esc_url($item_link);
 
                         $item_title = sprintf(
-                            '%1$s: %2$s',
+                            '%2$s',
                             $this->sh->getLogLevelTranslated($row->level),
                             wp_kses($text_output, array())
                         );
