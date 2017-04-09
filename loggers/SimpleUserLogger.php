@@ -130,15 +130,15 @@ class SimpleUserLogger extends SimpleLogger
         add_action("user_register", array($this, "onUserRegister"), 10, 2);
 
         // User is deleted
-        add_action('delete_user', array($this, "on_delete_user"), 10, 2);
+        add_action('delete_user', array($this, "onDeleteUser"), 10, 2);
 
         // User sessions is destroyed. AJAX call that we hook onto early.
-        add_action("wp_ajax_destroy-sessions", array($this, "on_destroy_user_session"), 0);
+        add_action("wp_ajax_destroy-sessions", array($this, "onDestroyUserSession"), 0);
 
         // User reaches reset password (from link or only from user created link)
-        add_action('validate_password_reset', array($this, "on_validate_password_reset" ), 10, 2);
+        add_action('validate_password_reset', array($this, "onValidatePasswordReset" ), 10, 2);
 
-        add_action('retrieve_password_message', array($this, "on_retrieve_password_message" ), 10, 4);
+        add_action('retrieve_password_message', array($this, "onRetrievePasswordMessage" ), 10, 4);
 
         add_filter('insert_user_meta', array($this, "onInsertUserMeta" ), 10, 3);
     }
@@ -225,7 +225,7 @@ class SimpleUserLogger extends SimpleLogger
 
         // Check if password was updated
         $password_changed = false;
-        if (! empty($posted_data['pass1'] ) && ! empty($posted_data['pass2']) && $posted_data['pass1'] == $posted_data['pass2']) {
+        if (! empty($posted_data['pass1']) && ! empty($posted_data['pass2']) && $posted_data['pass1'] == $posted_data['pass2']) {
             $password_changed = 1;
         }
 
@@ -249,22 +249,20 @@ class SimpleUserLogger extends SimpleLogger
         $user_data_diff = array();
 
         // Check all keys for diff values
-        foreach  ($arr_keys_to_check as $one_key_to_check) {
-
+        foreach ($arr_keys_to_check as $one_key_to_check) {
             $old_val = $user->$one_key_to_check;
-            $new_val = isset($posted_data[ $one_key_to_check ] ) ? $posted_data[ $one_key_to_check ] : null;
+            $new_val = isset($posted_data[$one_key_to_check]) ? $posted_data[$one_key_to_check] : null;
 
             #echo "<hr>key: $one_key_to_check";
             #echo "<br>old val: $old_val";
             #echo "<br>new val: $new_val";
 
             // new val must be set, because otherwise we are not setting anything
-            if ( ! isset($new_val ) ) {
+            if (! isset($new_val)) {
                 continue;
             }
 
             $user_data_diff = $this->addDiff($user_data_diff, $one_key_to_check, $old_val, $new_val);
-
         }
 
         // Setup basic context
@@ -272,22 +270,21 @@ class SimpleUserLogger extends SimpleLogger
             "edited_user_id" => $user->ID,
             "edited_user_email" => $user->user_email,
             "edited_user_login" => $user->user_login,
-            "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
+            "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"]) ? $_SERVER["HTTP_USER_AGENT"] : null,
         );
 
-        if ($password_changed ) {
+        if ($password_changed) {
             $context["edited_user_password_changed"] = "1";
         }
 
-        if ($role_changed ) {
+        if ($role_changed) {
             $context["user_prev_role"] = $old_role;
             $context["user_new_role"] = $new_role;
         }
 
         // Add diff to context
-        if ($user_data_diff ) {
-
-            foreach ($user_data_diff as $one_diff_key => $one_diff_vals ) {
+        if ($user_data_diff) {
+            foreach ($user_data_diff as $one_diff_key => $one_diff_vals) {
                 /*
                 One diff looks like:
                 "nickname": {
@@ -298,14 +295,12 @@ class SimpleUserLogger extends SimpleLogger
                 $context["user_prev_{$one_diff_key}"] = $one_diff_vals["old"];
                 $context["user_new_{$one_diff_key}"] = $one_diff_vals["new"];
             }
-
         }
 
 
         $this->infoMessage("user_updated_profile", $context);
 
         return $meta;
-
     }
 
     /**
@@ -313,10 +308,10 @@ class SimpleUserLogger extends SimpleLogger
      * user requests a reset password link
      *
      */
-    function on_retrieve_password_message($message, $key, $user_login, $user_data ) {
+    public function onRetrievePasswordMessage($message, $key, $user_login, $user_data)
+    {
 
-        if ( isset($_GET["action"] ) && ( "lostpassword" == $_GET["action"] ) ) {
-
+        if (isset($_GET["action"]) && ("lostpassword" == $_GET["action"])) {
             $context = array(
                 "_initiator" => SimpleLoggerLogInitiators::WEB_USER,
                 "message" => $message,
@@ -324,18 +319,14 @@ class SimpleUserLogger extends SimpleLogger
                 "user_login" => $user_login,
             );
 
-            if ( is_a($user_data, "WP_User" ) ) {
-
+            if (is_a($user_data, "WP_User")) {
                 $context["user_email"] = $user_data->user_email;
-
             }
 
-            $this->noticeMessage( "user_requested_password_reset_link", $context );
-
+            $this->noticeMessage("user_requested_password_reset_link", $context);
         }
 
         return $message;
-
     }
 
     /**
@@ -344,7 +335,8 @@ class SimpleUserLogger extends SimpleLogger
      * @param object           $errors WP Error object.
      * @param WP_User|WP_Error $user   WP_User object if the login and reset key match. WP_Error object otherwise.
      */
-    function on_validate_password_reset($errors, $user ) {
+    public function onValidatePasswordReset($errors, $user)
+    {
 
         /*
         User visits the forgot password screen
@@ -361,32 +353,24 @@ class SimpleUserLogger extends SimpleLogger
 
         $context = array();
 
-        if ( is_a($user, "WP_User") ) {
-
+        if (is_a($user, "WP_User")) {
             $context["_initiator"] = SimpleLoggerLogInitiators::WP_USER;
             $context["_user_id"] = $user->ID;
             $context["_user_login"] = $user->user_login;
             $context["_user_email"] = $user->user_email;
-
         }
 
-        if ( isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2'] ) {
-
+        if (isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2']) {
             // $errors->add( 'password_reset_mismatch', __( 'The passwords do not match.' ) );
             // user failed to reset password
-
         }
 
 
-        if ( ( ! $errors->get_error_code() ) && isset($_POST['pass1'] ) && !empty($_POST['pass1'] ) ) {
-
-            // login_header( __( 'Password Reset' ), '<p class="message reset-pass">' . __( 'Your password has been reset.' ) . ' <a href="' . esc_url(
-            $this->infoMessage( "user_password_reseted", $context );
-
-
+        if ((! $errors->get_error_code()) && isset($_POST['pass1']) && !empty($_POST['pass1'])) {
+            // login_header( __( 'Password Reset' ), '<p class="message reset-pass">'
+            // . __( 'Your password has been reset.' ) . ' <a href="' . esc_url(
+            $this->infoMessage("user_password_reseted", $context);
         }
-
-
     }
 
     /**
@@ -397,7 +381,8 @@ class SimpleUserLogger extends SimpleLogger
      *
      * @since 2.0.6
      */
-    function on_destroy_user_session() {
+    public function onDestroyUserSession()
+    {
 
         /*
         Post params:
@@ -426,19 +411,14 @@ class SimpleUserLogger extends SimpleLogger
         $context = array();
 
         if ($user->ID === get_current_user_id()) {
-
             $this->infoMessage("user_session_destroy_others");
-
         } else {
-
             $context["user_id"] = $user->ID;
             $context["user_login"] = $user->user_login;
             $context["user_display_name"] = $user->display_name;
 
             $this->infoMessage("user_session_destroy_everywhere", $context);
-
         }
-
     }
 
     /**
@@ -448,7 +428,8 @@ class SimpleUserLogger extends SimpleLogger
      * @param int|null $reassign ID of the user to reassign posts and links to.
      *                           Default null, for no reassignment.
      */
-    public function on_delete_user($user_id, $reassign) {
+    public function onDeleteUser($user_id, $reassign)
+    {
 
         $wp_user_to_delete = get_userdata($user_id);
 
