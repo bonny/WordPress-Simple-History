@@ -445,12 +445,11 @@ class SimpleUserLogger extends SimpleLogger
             "deleted_user_login" => $wp_user_to_delete->user_login,
             "deleted_user_role" => $role,
             "reassign_user_id" => $reassign,
-            "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null
+            "server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"]) ? $_SERVER["HTTP_USER_AGENT"] : null
         );
 
         // Let's log this as a little bit more significant that just "message"
         $this->noticeMessage("user_deleted", $context);
-
     }
 
     /**
@@ -458,24 +457,22 @@ class SimpleUserLogger extends SimpleLogger
      * - adds link to user profil
      * - change to "your profile" if you're looking at your own edit
      */
-    public function getLogRowPlainTextOutput($row) {
+    public function getLogRowPlainTextOutput($row)
+    {
 
         $context = $row->context;
 
         $output = parent::getLogRowPlainTextOutput($row);
         $current_user_id = get_current_user_id();
 
-        if ( "user_updated_profile" == $context["_message_key"] ) {
-
-            $wp_user = get_user_by( "id", $context["edited_user_id"] );
+        if ("user_updated_profile" == $context["_message_key"]) {
+            $wp_user = get_user_by("id", $context["edited_user_id"]);
 
             // If edited_user_id and _user_id is the same then a user edited their own profile
             // Note: it's not the same thing as the currently logged in user (but.. it can be!)
-            if ( ! empty($context["_user_id"] ) && $context["edited_user_id"] === $context["_user_id"] ) {
-
-                if ($wp_user ) {
-
-                    $context["edit_profile_link"] = get_edit_user_link($wp_user->ID );
+            if (! empty($context["_user_id"]) && $context["edited_user_id"] === $context["_user_id"]) {
+                if ($wp_user) {
+                    $context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
 
                     $use_you = apply_filters("simple_history/user_logger/plain_text_output_use_you", true);
 
@@ -483,76 +480,55 @@ class SimpleUserLogger extends SimpleLogger
                     //error_log( serialize($context["_user_id"]) ); // string 1
 
                     // User still exist, so link to their profile
-                    if ( (int) $current_user_id === (int) $context["_user_id"] && $use_you ) {
-
+                    if ((int) $current_user_id === (int) $context["_user_id"] && $use_you) {
                         // User that is viewing the log is the same as the edited user
                         $msg = __('Edited <a href="{edit_profile_link}">your profile</a>', "simple-history");
-
                     } else {
-
                         $msg = __('Edited <a href="{edit_profile_link}">their profile</a>', "simple-history");
-
                     }
 
                     $output = $this->interpolate($msg, $context, $row);
-
                 } else {
-
                     // User does not exist any longer
                     $output = __("Edited your profile", "simple-history");
-
                 }
-
             } else {
-
                 // User edited another users profile
-                if ($wp_user ) {
-
+                if ($wp_user) {
                     // Edited user still exist, so link to their profile
                     $context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
                     $msg = __('Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', "simple-history");
                     $output = $this->interpolate($msg, $context, $row);
-
                 } else {
-
                     // Edited user does not exist any longer
-
                 }
-
             }
-
             // if user_updated_profile
-
-        } else if ( "user_created" == $context["_message_key"] ) {
-
+        } elseif ("user_created" == $context["_message_key"]) {
             // A user was created. Create link of username that goes to user profile.
-            $wp_user = get_user_by( "id", $context["created_user_id"] );
+            $wp_user = get_user_by("id", $context["created_user_id"]);
 
             // If edited_user_id and _user_id is the same then a user edited their own profile
             // Note: it's not the same thing as the currently logged in user (but.. it can be!)
 
-            if ($wp_user ) {
-
-                $context["edit_profile_link"] = get_edit_user_link($wp_user->ID );
+            if ($wp_user) {
+                $context["edit_profile_link"] = get_edit_user_link($wp_user->ID);
 
                 // User that is viewing the log is the same as the edited user
-                $msg = __('Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}', "simple-history");
+                $msg = __(
+                    'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}',
+                    "simple-history"
+                );
 
                 $output = $this->interpolate(
-                            $msg,
-                            $context,
-                            $row
-                        );
-
+                    $msg,
+                    $context,
+                    $row
+                );
             } else {
-
                 // User does not exist any longer, keep original message
-
-
             }
-
         }
-
 
         return $output;
     }
