@@ -159,8 +159,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.1x (April 2016) =
 
+- Removed log level info from title in RSS feed
 - Make date dropdown less "jumpy" when loading page (due to select element switching to Select2)
--
 
 = 2.13 (November 2016) =
 
