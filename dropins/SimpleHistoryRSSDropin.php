@@ -78,7 +78,7 @@ class SimpleHistoryRSSDropin
             add_settings_field(
                 "simple_history_rss_feed",
                 __("Address", "simple-history"),
-                array($this, "settings_field_rss"),
+                array($this, "settingsFieldRss"),
                 SimpleHistory::SETTINGS_MENU_SLUG,
                 $settings_section_rss_id
             );
@@ -87,7 +87,7 @@ class SimpleHistoryRSSDropin
             add_settings_field(
                 "simple_history_rss_feed_regenerate_secret",
                 __("Regenerate", "simple-history"),
-                array($this, "settings_field_rss_regenerate"),
+                array($this, "settingsFieldRssRegenerate"),
                 SimpleHistory::SETTINGS_MENU_SLUG,
                 $settings_section_rss_id
             );
@@ -207,8 +207,7 @@ class SimpleHistoryRSSDropin
         echo '<?xml version="1.0" encoding="UTF-8"?>';
         $self_link = $this->getRssAddress();
 
-        if ( $rss_secret_option === $rss_secret_get ) {
-
+        if ($rss_secret_option === $rss_secret_get) {
             ?>
             <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
                 <channel>
@@ -279,14 +278,14 @@ class SimpleHistoryRSSDropin
                                 <div><?php echo $details_output ?></div>
                                 <p><?php echo $level_output ?></p>
                                 <?php
-                                    $occasions = $row->subsequentOccasions - 1;
-                                    if ($occasions) {
+                                $occasions = $row->subsequentOccasions - 1;
+                                if ($occasions) {
                                     printf(
                                         _n('+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history'),
                                         $occasions
                                     );
                                 }
-                                ?>
+                            ?>
                             ]]></description>
                             <?php
                             // author must be email to validate, but the field is optional, so we skip it
@@ -341,7 +340,6 @@ class SimpleHistoryRSSDropin
             </rss>
             <?php
         } else {
-
             // RSS secret was not ok
             ?>
             <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -383,30 +381,35 @@ class SimpleHistoryRSSDropin
     /**
      * Output for settings field that show current RSS address
      */
-    function settings_field_rss() {
+    public function settingsFieldRss()
+    {
 
         $rss_address = $this->getRssAddress();
 
         echo "<p><code><a href='$rss_address'>$rss_address</a></code></p>";
-
     }
 
     /**
      * Output for settings field that regenerates the RSS adress/secret
      */
-    function settings_field_rss_regenerate() {
+    public function settingsFieldRssRegenerate()
+    {
 
-        $update_link = esc_url( add_query_arg("", "") );
-        $update_link = wp_nonce_url( $update_link, "simple_history_rss_update_secret", "simple_history_rss_secret_regenerate_nonce" );
+        $update_link = esc_url(add_query_arg("", ""));
+        $update_link = wp_nonce_url($update_link, "simple_history_rss_update_secret", "simple_history_rss_secret_regenerate_nonce");
 
         echo "<p>";
         _e("You can generate a new address for the RSS feed. This is useful if you think that the address has fallen into the wrong hands.", 'simple-history');
         echo "</p>";
+
         echo "<p>";
-        printf( '<a class="button" href="%1$s">%2$s</a>', $update_link, __('Generate new address', "simple-history") );
+        printf(
+            '<a class="button" href="%1$s">%2$s</a>',
+            $update_link, // 1
+            __('Generate new address', "simple-history") // 2
+        );
 
         echo "</p>";
-
     }
 
     /**
@@ -418,7 +421,10 @@ class SimpleHistoryRSSDropin
     {
 
         $rss_secret = get_option("simple_history_rss_secret");
-        $rss_address = add_query_arg(array("simple_history_get_rss" => "1", "rss_secret" => $rss_secret), get_bloginfo("url") . "/");
+        $rss_address = add_query_arg(
+            array("simple_history_get_rss" => "1", "rss_secret" => $rss_secret),
+            get_bloginfo("url") . "/"
+        );
         $rss_address = esc_url($rss_address);
         // $rss_address = htmlspecialchars($rss_address, ENT_COMPAT, "UTF-8");
 
