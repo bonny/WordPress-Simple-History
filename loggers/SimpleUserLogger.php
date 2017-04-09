@@ -1,11 +1,10 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
-
 /**
  * Logs changes to user logins (and logouts)
  */
-class SimpleUserLogger extends SimpleLogger {
+class SimpleUserLogger extends SimpleLogger
+{
 
     public $slug = __CLASS__;
 
@@ -14,28 +13,45 @@ class SimpleUserLogger extends SimpleLogger {
      *
      * @return array
      */
-    function getInfo() {
+    public function getInfo()
+    {
 
         $arr_info = array(
             "name" => __("User Logger", "simple-history"),
             "description" => __("Logs user logins, logouts, and failed logins", "simple-history"),
             "capability" => "edit_users",
             "messages" => array(
-                'user_login_failed' => __('Failed to login with username "{login}" (incorrect password entered)', "simple-history"),
-                'user_unknown_login_failed' => __('Failed to login with username "{failed_username}" (username does not exist)', "simple-history"),
+                'user_login_failed' => __(
+                    'Failed to login with username "{login}" (incorrect password entered)',
+                    "simple-history"
+                ),
+                'user_unknown_login_failed' => __(
+                    'Failed to login with username "{failed_username}" (username does not exist)',
+                    "simple-history"
+                ),
                 'user_logged_in' => __('Logged in', "simple-history"),
                 'user_unknown_logged_in' => __("Unknown user logged in", "simple-history"),
                 'user_logged_out' => __("Logged out", "simple-history"),
-                'user_updated_profile' => __("Edited the profile for user {edited_user_login} ({edited_user_email})", "simple-history"),
-                'user_created' => __("Created user {created_user_login} ({created_user_email}) with role {created_user_role}", "simple-history"),
+                'user_updated_profile' => __(
+                    "Edited the profile for user {edited_user_login} ({edited_user_email})",
+                    "simple-history"
+                ),
+                'user_created' => __(
+                    "Created user {created_user_login} ({created_user_email}) with role {created_user_role}",
+                    "simple-history"
+                ),
                 'user_deleted' => __("Deleted user {deleted_user_login} ({deleted_user_email})", "simple-history"),
                 "user_password_reseted" => __("Reset their password", "simple-history"),
-                "user_requested_password_reset_link" => __("Requested a password reset link for user with login '{user_login}' and email '{user_email}'", "simple-history"),
+                "user_requested_password_reset_link" => __(
+                    "Requested a password reset link for user with login '{user_login}' and email '{user_email}'",
+                    "simple-history"
+                ),
 
                 /*
                 Text used in admin:
                 Log Out of All Other Sessions
-                Left your account logged in at a public computer? Lost your phone? This will log you out everywhere except your current browser
+                Left your account logged in at a public computer?
+                Lost your phone? This will log you out everywhere except your current browser
                  */
                 'user_session_destroy_others' => _x(
                     'Logged out from all other sessions',
@@ -85,15 +101,15 @@ class SimpleUserLogger extends SimpleLogger {
             ), // end labels
 
         );
-        #sf_d($arr_info);exit;
-        return $arr_info;
 
+        return $arr_info;
     }
 
     /**
      * Add actions and filters when logger is loaded by Simple History
      */
-    public function loaded() {
+    public function loaded()
+    {
 
         // Plain logins and logouts
         add_action("wp_login", array($this, "on_wp_login"), 10, 3);
@@ -120,13 +136,11 @@ class SimpleUserLogger extends SimpleLogger {
         add_action("wp_ajax_destroy-sessions", array($this, "on_destroy_user_session"), 0);
 
         // User reaches reset password (from link or only from user created link)
-        add_action( 'validate_password_reset', array( $this, "on_validate_password_reset" ), 10, 2 );
+        add_action('validate_password_reset', array($this, "on_validate_password_reset" ), 10, 2);
 
-        add_action( 'retrieve_password_message', array( $this, "on_retrieve_password_message" ), 10, 4 );
+        add_action('retrieve_password_message', array($this, "on_retrieve_password_message" ), 10, 4);
 
-        add_filter( 'insert_user_meta', array( $this, "on_insert_user_meta" ), 10, 3 );
-
-
+        add_filter('insert_user_meta', array($this, "onInsertUserMeta" ), 10, 3);
     }
 
      /*
@@ -154,15 +168,16 @@ class SimpleUserLogger extends SimpleLogger {
      * @param WP_User $user   User object.
      * @param bool    $update Whether the user is being updated rather than created.
      */
-    function on_insert_user_meta( $meta, $user, $update ) {
+    public function onInsertUserMeta($meta, $user, $update)
+    {
 
         // We only log updates here
-        if ( ! $update ) {
+        if (! $update) {
             return $meta;
         }
 
         // $user should be set, but check just in case
-        if ( empty( $user ) || ! is_object( $user ) ) {
+        if (empty($user) || ! is_object($user)) {
             return $meta;
         }
 
