@@ -1,6 +1,11 @@
 <?php
+/**
+ * Undocumented class
+ *
+ * @package SimpleHistory
+ **/
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 global $wpdb;
 
@@ -15,9 +20,9 @@ $period_end_date = DateTime::createFromFormat( 'U', time() );
  * Size of database in both number or rows and table size
  */
 
-echo "<h3>Database size</h3>";
+echo '<h3>Database size</h3>';
 
-// Get table sizes in mb
+// Get table sizes in mb.
 $sql_table_size = sprintf( '
 	SELECT table_name AS "table_name",
 	round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
@@ -253,6 +258,45 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 
 	$loopnum++;
 
+}
+
+echo "</table>";
+
+// List installed plugins
+echo '<h2>Plugins</h2>';
+echo '<p>As returned from <code>get_plugins()</code></p>';
+
+$plugins = get_plugins();
+
+echo "<table class='widefat'>";
+printf(
+    '<thead>
+        <tr>
+            <th>%1$s</th>
+            <th>%2$s</th>
+            <th>%3$s</th>
+        </tr>
+    </thead>
+    ',
+    _x("Plugin name", "debug dropin", "simple-history"),
+    _x("Plugin file path", "debug dropin", "simple-history"),
+    _x("Active", "debug dropin", "simple-history")
+);
+
+foreach ($plugins as $pluginFilePath => $onePlugin) {
+    $isPluginActive = is_plugin_active($pluginFilePath);
+    printf(
+        '
+        <tr>
+            <td><strong>%1$s</strong></td>
+            <td>%2$s</td>
+            <td>%3$s</td>
+        </tr>
+        ',
+        esc_html($onePlugin["Name"]),
+        esc_html($pluginFilePath),
+        $isPluginActive ? "Yes" : "No" // 3
+    );
 }
 
 echo "</table>";
