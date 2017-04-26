@@ -161,6 +161,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 - Removed log level info from title in RSS feed
 - Make date dropdown less "jumpy" when loading page (due to select element switching to Select2)
+- Only add filters for plugin Limit Login Attempts if plugin is active. This fixes problem with Limit Login Attempts Reloaded and possibly other forks of the plugin.
+- Debug page now displays installed plugins.
 
 = 2.13 (November 2016) =
 
