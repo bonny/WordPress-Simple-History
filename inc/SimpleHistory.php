@@ -887,7 +887,8 @@ class SimpleHistory {
 			$loggersDir . "PluginEnableMediaReplaceLogger.php",
 			$loggersDir . "Plugin_UltimateMembers_Logger.php",
 			$loggersDir . "Plugin_LimitLoginAttempts.php",
-			$loggersDir . "Plugin_Redirection.php",
+            $loggersDir . "Plugin_Redirection.php",
+			$loggersDir . "Plugin_DuplicatePost.php",
 	    );
 
 		// SimpleLogger.php must be loaded first and always since the other loggers extend it
