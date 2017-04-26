@@ -46,6 +46,18 @@ if ( ! class_exists("Plugin_LimitLoginAttempts") ) {
 
         function loaded() {
 
+            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+
+            $pluginFilePath = 'limit-login-attempts/limit-login-attempts.php';
+            $isPluginActive = is_plugin_active($pluginFilePath);
+
+            // Only continue to add filters if plugin is active.
+            // This minimise the risk of plugin errors, because plugin
+            // has been forked to new versions.
+            if (!$isPluginActive) {
+                return;
+            }
+
             add_filter( "pre_option_limit_login_lockouts_total", array( $this, "on_option_limit_login_lockouts_total" ), 10, 1 );
 
             add_action( "load-settings_page_limit-login-attempts", array( $this, "on_load_settings_page" ), 10, 1 );
