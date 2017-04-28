@@ -112,15 +112,22 @@ if (! class_exists("Plugin_DuplicatePost")) {
             }
 
             $context["duplicated_post_edit_link"] = get_edit_post_link($duplicated_post_id);
+            $context["new_post_edit_link"] = get_edit_post_link($new_post_id);
 
             // If post is not available any longer then we can't link to it, so keep plain message then
             // Also keep plain format if user is not allowed to edit post (edit link is empty)
             if ($post_is_available && $context["duplicated_post_edit_link"]) {
-                    $message = _x('Cloned {duplicated_post_post_type_singular_name} <a href="{edit_link}">"{duplicated_post_title}"</a> to <a href="{edit_link}">a new {duplicated_post_post_type_singular_name}</a>', "Logger: Plugin Duplicate Post", "simple-history");
+                    $message = _x('Cloned {duplicated_post_post_type_singular_name} <a href="{duplicated_post_edit_link}">"{duplicated_post_title}"</a> to <a href="{new_post_edit_link}">a new {duplicated_post_post_type_singular_name}</a>', "Logger: Plugin Duplicate Post", "simple-history");
             } // post still available
 
+            $context["new_post_edit_link"] = isset($context["new_post_edit_link"]) ? esc_html($context["new_post_edit_link"]) : "";
+
+            $context["duplicated_post_edit_link"] = isset($context["duplicated_post_edit_link"]) ? esc_html($context["duplicated_post_edit_link"]) : "";
+
             $context["duplicated_post_title"] = isset($context["duplicated_post_title"]) ? esc_html($context["duplicated_post_title"]) : "";
+
             $context["duplicated_post_title"] = isset($context["duplicated_post_title"]) ? esc_html($context["duplicated_post_title"]) : "";
+
             $context["duplicated_post_post_type_singular_name"] = isset($context["duplicated_post_post_type_singular_name"]) ? esc_html($context["duplicated_post_post_type_singular_name"]) : "";
 
             return $this->interpolate($message, $context, $row);
