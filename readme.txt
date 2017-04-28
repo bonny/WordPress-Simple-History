@@ -60,6 +60,11 @@ Simple History logging login attempts, lockouts, and configuration changes made 
 The [redirection plugin](https://sv.wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
 Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
+**Duplicate Post**
+Tjhe plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to
+clone posts of any type.
+Simple History will log when a clone of a post or page is done.
+
 #### RSS feed available
 
 There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
@@ -159,6 +164,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.1x (April 2016) =
 
+- Added Ssupport for plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/).
+  Now when a user clones a post or page you will se this in the history log, with links to both the original post and the new copy.
 - Removed log level info from title in RSS feed
 - Make date dropdown less "jumpy" when loading page (due to select element switching to Select2)
 - Only add filters for plugin Limit Login Attempts if plugin is active. This fixes problem with Limit Login Attempts Reloaded and possibly other forks of the plugin.
