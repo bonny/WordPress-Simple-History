@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
 Tested up to: 4.7
-Stable tag: 2.13
+Stable tag: 2.14
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -162,9 +162,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.1x (April 2016) =
+= 2.14 (April 2016) =
 
-- Added Ssupport for plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/).
+- Added support for plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/).
   Now when a user clones a post or page you will se this in the history log, with links to both the original post and the new copy.
 - Removed log level info from title in RSS feed
 - Make date dropdown less "jumpy" when loading page (due to select element switching to Select2)

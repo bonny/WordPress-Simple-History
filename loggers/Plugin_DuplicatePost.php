@@ -6,14 +6,8 @@ defined('ABSPATH') or die();
  * Logger for the Duplicate Post plugin
  * Post Duplicator (https://sv.wordpress.org/plugins/duplicate-post/)
  *
- * Post A (original)
- * Post B (copy)
- *
- * (User) Created a _copy_ of _"Post A"_
- * (User) Created a _duplicate post_ of _"Post A"_
- * (User) Copied _"Post A"_ to a _new post_
- * (User) Cloned _"Post A"_ to a _new post_
- * (User) Created _a clone_ of _"Post A"_
+ * @package SimpleHistory
+ * @since 2.13
  */
 if (! class_exists("Plugin_DuplicatePost")) {
 
