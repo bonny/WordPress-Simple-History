@@ -162,7 +162,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.14 (April 2016) =
+= 2.14 (April 2017) =
 
 - Added support for plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/).
   Now when a user clones a post or page you will se this in the history log, with links to both the original post and the new copy.
