@@ -61,14 +61,14 @@ if (! class_exists("Plugin_DuplicatePost")) {
         {
             $new_post = get_post($newPostID);
 
-            $context = [
+            $context = array(
                 "new_post_title" => $new_post->post_title,
                 "new_post_id" => $new_post->ID,
                 "duplicated_post_title" => $post->post_title,
                 "duplicated_post_id" => $post->ID,
                 // "duplicate_new_post_id" => $newPostID,
                 // "status" => $status
-            ];
+            );
 
             $this->infoMessage(
                 "post_duplicated",
