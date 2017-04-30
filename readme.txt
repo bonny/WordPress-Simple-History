@@ -162,6 +162,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.14.x (nnn 2017) =
+
+- Fix notice in available updates logger.
+
 = 2.14.1 (April 2017) =
 
 - Fix for users running on older PHP versions.

@@ -225,10 +225,11 @@ if ( ! class_exists("AvailableUpdatesLogger") ) {
 
             $current_version = null;
             $new_version = null;
+            $context_message_key = isset($row->context_message_key) ? $row->context_message_key : null;
 
             $context = isset( $row->context ) ? $row->context : array();
 
-            switch ( $row->context_message_key ) {
+            switch ( $context_message_key ) {
 
                 case "core_update_available":
                     $current_version = isset( $context["wp_core_current_version"] ) ? $context["wp_core_current_version"] : null;
