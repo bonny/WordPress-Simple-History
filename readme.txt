@@ -165,6 +165,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.14.x (nnn 2017) =
 
 - Use thumbnail version of PDF preview instead of full size image.
+- Remove Google Maps image when clicking IP address of failed login and similar, because Google Maps must be used with API key.
 - Fix notice in available updates logger.
 - Fix notice in redirection logger.
 

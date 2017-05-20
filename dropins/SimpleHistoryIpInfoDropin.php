@@ -30,7 +30,7 @@ class SimpleHistoryIpInfoDropin {
 	public function enqueue_admin_scripts() {
 
 		$file_url = plugin_dir_url(__FILE__);
-		
+
 		wp_enqueue_script("simple_history_IpInfoDropin", $file_url . "SimpleHistoryIpInfoDropin.js", array("jquery"), SIMPLE_HISTORY_VERSION, true);
 
 		wp_enqueue_style("simple_history_IpInfoDropin", $file_url . "SimpleHistoryIpInfoDropin.css", null, SIMPLE_HISTORY_VERSION);
@@ -66,18 +66,20 @@ class SimpleHistoryIpInfoDropin {
 			<# if ( typeof(data.bogon) != "undefined" ) { #>
 
 				<p><?php _ex("That IP address does not seem like a public one.", "IP Info Dropin", "simple-history"); ?></p>
-				
+
 			<# } else { #>
-				
+
 				<table class="SimpleHistoryIpInfoDropin__ipInfoTable">
 
 					<tr class="SimpleHistoryIpInfoDropin__ipInfoTable__mapRow">
 						<td colspan="2">
+							<!--
 							<# if ( typeof(data.loc) != "undefined" && data.loc ) { #>
 								<a href="https://www.google.com/maps/place/{{ data.loc }}/@{{ data.loc }},6z" target="_blank">
 									<img src="https://maps.googleapis.com/maps/api/staticmap?center={{ data.loc }}&zoom=7&size=350x100&sensor=false" width="350" height="100" alt="Google Map">
 								</a>
 							<# } #>
+							-->
 						</td>
 					</tr>
 
@@ -134,7 +136,7 @@ class SimpleHistoryIpInfoDropin {
 							{{ data.city }}
 						</td>
 					</tr>
-					<# } #>			
+					<# } #>
 
 					<# if ( typeof(data.region) != "undefined" && data.region ) { #>
 					<tr>
