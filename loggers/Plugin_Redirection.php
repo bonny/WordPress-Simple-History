@@ -109,10 +109,6 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 			$referer_parsed = parse_url( $referer );
 
-			error_log( "-----" );
-			// error_log( SimpleHistory::json_encode( $referer_parsed ) );
-			error_log( SimpleHistory::json_encode( $_REQUEST ) );
-
 			/*
 			Create redirection
 			{
@@ -210,9 +206,9 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			    "update": "Update"
 			}
 			*/
-			if ( 
+			if (
 				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "options" &&
-				isset( $_REQUEST["update"] ) && $_REQUEST["update"] == "Update" 
+				isset( $_REQUEST["update"] ) && $_REQUEST["update"] == "Update"
 
 			) {
 				$this->log_options_save( $_REQUEST );
@@ -231,9 +227,9 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				"add": "Add"
 			}
 			*/
-			if ( 
+			if (
 				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
-				isset( $_REQUEST["add"] ) && $_REQUEST["add"] == "Add"	
+				isset( $_REQUEST["add"] ) && $_REQUEST["add"] == "Add"
 			) {
 				$this->log_group_add( $_REQUEST );
 				return;
@@ -257,9 +253,9 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				"action2": "delete"
 			}
 			*/
-			if ( 
+			if (
 				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
-				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "delete"	
+				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "delete"
 			) {
 				$this->log_group_delete( $_REQUEST );
 				return;
@@ -285,15 +281,15 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				"action2": "-1"
 			}
 			*/
-			if ( 
+			if (
 				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
-				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "enable"	
+				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "enable"
 			) {
 				$this->log_group_enable_or_disable( $_REQUEST );
 				return;
-			} else  if ( 
+			} else  if (
 				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
-				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "disable"	
+				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "disable"
 			) {
 				$this->log_group_enable_or_disable( $_REQUEST );
 				return;
@@ -343,7 +339,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 		function log_options_save( $req ) {
 
-			$this->infoMessage("redirection_options_saved");		 
+			$this->infoMessage("redirection_options_saved");
 
 		}
 
@@ -354,7 +350,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 		}
 
 		function log_redirection_delete( $req ) {
-			
+
 			$items = isset( $req["item"] ) ? (array) $req["item"] : array();
 
 			$context = array(
@@ -365,7 +361,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			$message_key = "redirection_redirection_removed";
 
 			$this->infoMessage(
-				$message_key, 
+				$message_key,
 				$context
 			);
 
@@ -389,7 +385,6 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			    "_wp_http_referer": "\/wp-admin\/admin-ajax.php"
 			}
 			*/
-			#error_log( "log_redirection_edit\n" . SimpleHistory::json_encode( $_REQUEST ) );
 
 			$context = array(
 				"source_url"  => isset( $req["old"] ) ? $req["old"] : null,
@@ -407,16 +402,16 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			$message_key = "redirection_redirection_edited";
 
 			$this->infoMessage(
-				$message_key, 
+				$message_key,
 				$context
 			);
 
 		}
 
 		function log_redirection_enable_or_disable( $req ) {
-			
+
 			$message_key = $req["action"] == "enable" ? "redirection_redirection_enabled" : "redirection_redirection_disabled";
-			
+
 			$items = isset( $req["item"] ) ? (array) $req["item"] : array();
 
 			$context = array(
@@ -425,18 +420,18 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			);
 
 			$this->infoMessage(
-				$message_key, 
+				$message_key,
 				$context
 			);
 
 		}
 
 		function log_redirection_add( $req ) {
-			
+
 			if ( ! isset( $req["group_id"] ) ) {
 				return;
 			}
-			
+
 			$source = isset( $req["source"] ) ? $req["source"] : null;
 			$target = isset( $req["target"] ) ? $req["target"] : null;
 			$match = isset( $req["match"] ) ? $req["match"] : null;

@@ -61,7 +61,7 @@ The [redirection plugin](https://sv.wordpress.org/plugins/redirection/) manages 
 Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
 **Duplicate Post**
-Tjhe plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to
+The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to
 clone posts of any type.
 Simple History will log when a clone of a post or page is done.
 
@@ -165,6 +165,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.14.x (nnn 2017) =
 
 - Fix notice in available updates logger.
+- Fix notice in redirection logger.
 
 = 2.14.1 (April 2017) =
 
