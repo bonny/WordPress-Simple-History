@@ -191,8 +191,8 @@ class SimpleMediaLogger extends SimpleLogger
 
 			if ( $is_image ) {
 
-				$thumb_src = wp_get_attachment_image_src($attachment_id, array(350,500));
-				$full_src = wp_get_attachment_image_src($attachment_id, "full");
+				$thumb_src = wp_get_attachment_image_src( $attachment_id, array( 350, 500 ) );
+				$full_src = wp_get_attachment_image_src( $attachment_id, 'full' );
 
 				$full_image_width = $full_src[1];
 				$full_image_height = $full_src[2];
@@ -224,11 +224,11 @@ class SimpleMediaLogger extends SimpleLogger
 
 			} else {
 
-				// use wordpress icon for other media types
+				// Use WordPress icon for other media types.
 				if ( $attachment_is_available ) {
 					$context['attachment_thumb'] = sprintf(
-						'<div class="SimpleHistoryLogitemThumbnail">%1$s</div>',
-						wp_get_attachment_image( $attachment_id, null, true ) // Placeholder 1.
+						'%1$s',
+						wp_get_attachment_image( $attachment_id, array( 350, 500 ), true ) // Placeholder 1.
 					);
 				}
 
