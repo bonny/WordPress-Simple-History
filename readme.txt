@@ -164,6 +164,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.14.x (nnn 2017) =
 
+- Use thumbnail version of PDF preview instead of full size image.
 - Fix notice in available updates logger.
 - Fix notice in redirection logger.
 
