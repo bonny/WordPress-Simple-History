@@ -249,7 +249,7 @@ class SimpleMediaLogger extends SimpleLogger
 			$message .= "<p class='SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta'>";
 			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_size_format}', "simple-history") . "</span> ";
 			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __('{attachment_filetype_extension}', "simple-history") . "</span>";
-			
+
 			if ( $full_image_width && $full_image_height ) {
 
 				$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __('{full_image_width} × {full_image_height}', "simple-history") . "</span>";
@@ -360,7 +360,10 @@ class SimpleMediaLogger extends SimpleLogger
 
 		if ( isset( $row->context["attachment_id"] ) ) {
 
-			$permalink = add_query_arg(array("action" => "edit", "post" => $row->context["attachment_id"]), admin_url( "post.php" ) );
+			$permalink = add_query_arg( array(
+				'action' => 'edit',
+				'post' => $row->context['attachment_id'],
+			), admin_url( 'post.php' ) );
 
 			if ( $permalink ) {
 				$link = $permalink;
