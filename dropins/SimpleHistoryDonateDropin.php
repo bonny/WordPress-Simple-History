@@ -18,7 +18,7 @@ class SimpleHistoryDonateDropin {
 	private $sh;
 
 	function __construct($sh) {
-		
+
 		$this->sh = $sh;
 		add_action( 'admin_menu', array($this, 'add_settings'), 50 );
 		add_action( 'plugin_row_meta', array($this, 'action_plugin_row_meta'), 10, 2);
@@ -30,7 +30,7 @@ class SimpleHistoryDonateDropin {
 	 * Called from filter 'plugin_row_meta'
 	 */
 	function action_plugin_row_meta($links, $file) {
-		
+
 		if ($file == $this->sh->plugin_basename) {
 
 			$links = array_merge(
@@ -39,7 +39,7 @@ class SimpleHistoryDonateDropin {
 			);
 
 		}
-		
+
 		return $links;
 
 	}
@@ -49,9 +49,9 @@ class SimpleHistoryDonateDropin {
 		$settings_section_id = "simple_history_settings_section_donate";
 
 		add_settings_section(
-			$settings_section_id, 
-			_x("Donate", "donate settings headline", "simple-history"), // No title __("General", "simple-history"), 
-			array($this, "settings_section_output"), 
+			$settings_section_id,
+			_x("Donate", "donate settings headline", "simple-history"), // No title __("General", "simple-history"),
+			array($this, "settings_section_output"),
 			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
 
@@ -69,17 +69,17 @@ class SimpleHistoryDonateDropin {
 	}
 
 	function settings_section_output() {
-		
-		printf( 
+
+		printf(
 			__( 'If you find Simple History useful please <a href="%1$s">donate</a>.', "simple-history"),
-			"http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=pluginpage&utm_campaign=simplehistory", 
+			"http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=pluginpage&utm_campaign=simplehistory",
 			"http://www.amazon.co.uk/registry/wishlist/IAEZWNLQQICG"
 		);
-		
+
 	}
 
 
 	function settings_field_donate() {
 	}
 
-} // end rss class
+}
