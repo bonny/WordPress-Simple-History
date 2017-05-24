@@ -1080,6 +1080,7 @@ class SimpleHistory {
 			$dropinsDir . "SimpleHistorySettingsDebugDropin.php",
 			$dropinsDir . "SimpleHistorySidebarDropin.php",
 			$dropinsDir . "SimpleHistorySidebarStats.php",
+			$dropinsDir . "SimpleHistoryWPCLIDropin.php",
 		);
 
 		/**
