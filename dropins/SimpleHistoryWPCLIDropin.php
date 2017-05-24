@@ -29,12 +29,6 @@ class SimpleHistoryWPCLIDropin {
 		$commandConfigurationOptions = array(
 		    'shortdesc' => 'Lists the history log',
 		    'synopsis' => array(
-		        /*array(
-		            'type'     => 'positional',
-		            'name'     => 'name',
-		            'optional' => true,
-		            'multiple' => false,
-		        ),*/
 		        array(
 		            'type'     => 'assoc',
 		            'name'     => 'format',
@@ -47,7 +41,6 @@ class SimpleHistoryWPCLIDropin {
 		            'name'     => 'count',
 		            'optional' => true,
 		            'default'  => '10',
-		            //'options'  => array( 'table', 'json', 'csv', 'yaml' ),
 		        ),
 		    ),
 		    'when' => 'after_wp_load',
@@ -56,8 +49,66 @@ class SimpleHistoryWPCLIDropin {
 		WP_CLI::add_command( 'simple-history list', array($this, 'commandList'), $commandConfigurationOptions );
 	}
 
+	private function getInitiatorTextFromRow( $row ) {
+		if (! isset( $row->initiator )) {
+			return false;
+		}
+
+		$initiator = $row->initiator;
+		$initiatorText = '';
+
+		switch ($initiator) {
+			case "wp":
+				$initiatorText = 'WordPress';
+				break;
+			case "wp_cli":
+				$initiatorText = 'WP-CLI';
+				break;
+			case "wp_user":
+				$user_id = isset($row->context["_user_id"]) ? $row->context["_user_id"] : null;
+
+				if ( $user_id > 0 && $user = get_user_by("id", $user_id) ) {
+					// User still exists
+
+					// Get user role, as done in user-edit.php
+					$wp_roles = $GLOBALS["wp_roles"];
+					$all_roles = (array) $wp_roles->roles;
+					$user_roles = array_intersect( array_values( (array) $user->roles ), array_keys( (array) $wp_roles->roles ));
+					$user_role = array_shift( $user_roles );
+
+					$initiatorText = sprintf(
+						'%1$s (%2$s)' ,
+						$user->user_login, 	// 1
+						$user->user_email 	// 2
+					);
+
+				} else if ($user_id > 0) {
+					// Sender was a user, but user is deleted now
+					$initiatorText = sprintf(
+						__('Deleted user (had id %1$s, email %2$s, login %3$s)', "simple-history"),
+						$context["_user_id"], // 1
+						$context["_user_email"], // 2
+						$context["_user_login"] // 3
+					);
+				} // if user exists or not
+				break;
+			case "web_user":
+				$initiatorText = __("Anonymous web user", "simple-history");
+				break;
+			case "other":
+				$initiatorText = _x("Other", "Event header output, when initiator is unknown", "simple-history");
+				break;
+			default:
+				$initiatorText = $initiator;
+		}
+
+		return $initiatorText;
+	}
+
+	/**
+	 * The function for the command "list"
+	 */
 	public function commandList( $args, $assoc_args ) {
-		#print_r($assoc_args);exit;
 
 		if ( ! is_numeric($assoc_args["count"]) ) {
 			WP_CLI::error( __('Error: parameter "count" must be a number', 'simple-history' ) );
@@ -92,12 +143,13 @@ class SimpleHistoryWPCLIDropin {
 
 		    $eventsCleaned[] = array(
 		    	"date" => get_date_from_gmt( $row->date ),
-		    	"initiator" => $row->initiator,
+		    	// "initiator" => $row->initiator,
+		    	"initiator" => $this->getInitiatorTextFromRow( $row ),
 		    	"logger" => $row->logger,
 		    	"level" => $row->level,
 		    	"who_when" => $header_output,
-		    	"what" => $text_output,
-		    	"count" => $row->subsequentOccasions
+		    	"description" => $text_output,
+		    	"count" => $row->subsequentOccasions,
 		    	// "details" => $details_output
 		    );
 		}
@@ -135,16 +187,13 @@ class SimpleHistoryWPCLIDropin {
 		$fields = array(
 			'date',
 			'initiator',
-			#'who_when',
-			'what',
-			#'logger',
+			'description',
+			'level',
 			'count',
-			'level'
 		);
 
 		WP_CLI\Utils\format_items( $assoc_args['format'], $eventsCleaned, $fields );
 
-    	// WP_CLI::success( "Done" );
 	}
 
 }
