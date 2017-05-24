@@ -60,7 +60,6 @@ class PluginUserSwitchingLogger extends SimpleLogger {
 				// It is the old user who initiates the switching
 				"_initiator" => SimpleLoggerLogInitiators::WP_USER,
 				"_user_id" => $old_user_id,
-
 				"user_id" => $user_id,
 				"old_user_id" => $old_user_id,
 				"user_login_to" => $user_to->user_login,
