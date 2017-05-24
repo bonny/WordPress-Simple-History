@@ -164,7 +164,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.xx (nn 2017) =
 
-- Added [WP-CLI](https://wp-cli.org) command for Simple History. Now you can write `wp simple-history list` to see the latest entries from the history log. For now `list` is the only available command. Let me know if you need more commands!
+- Added a command for [WP-CLI](https://wp-cli.org). Now you can write `wp simple-history list` to see the latest entries from the history log. For now `list` is the only available command. Let me know if you need more commands!
 
 = 2.15 (May 2017) =
 
