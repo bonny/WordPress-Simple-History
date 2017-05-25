@@ -106,6 +106,7 @@ class FileEditsLogger extends SimpleLogger {
 			$action = isset($_POST["action"]) ? $_POST["action"] : null;
 			$file = isset($_POST["file"]) ? $_POST["file"] : null;
 			$theme = isset($_POST["theme"]) ? $_POST["theme"] : null;
+			$fileNewContents = isset($_POST["newcontent"]) ? wp_unslash( $_POST["newcontent"] ) : null;
 			$scrollto = isset($_POST["scrollto"]) ? (int) $_POST["scrollto"] : 0;
 
 			// Same code as in theme-editor.php
@@ -125,13 +126,21 @@ class FileEditsLogger extends SimpleLogger {
 			$relative_file = $file;
 			$file = $theme->get_stylesheet_directory() . '/' . $relative_file;
 
+			// Get file contents, so we have something to compare with later
+			$fileContentsBeforeEdit = file_get_contents($file);
+			//$fileContentDiff = simple_history_text_diff($fileContentsBeforeEdit, $fileNewContents, array());
+			#ddd($fileContentsBeforeEdit, $fileNewContents, $fileContentDiff);
+			// echo $fileContentDiff;exit;
+
 			$context = array(
 				"action" => $action,
 				"theme_name" => $theme->name,
 				"theme_stylesheet_path" => $theme->get_stylesheet(),
 				"theme_stylesheet_dir" => $theme->get_stylesheet_directory(),
 				"file_name" => $relative_file,
-				"file_dir" => $file
+				"file_dir" => $file,
+				"old_file_contents" => $fileContentsBeforeEdit,
+				"new_file_contents" => $fileNewContents,
 			);
 
 			// Hook into wp_redirect
