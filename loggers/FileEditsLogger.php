@@ -246,7 +246,7 @@ class FileEditsLogger extends SimpleLogger {
 			$diff_table_output .= sprintf(
 				'<tr><td>%1$s</td><td>%2$s</td></tr>',
 				__("File contents", "simple-history"),
-				simple_history_text_diff($context['new_file_contents'], $context['old_file_contents'])
+				simple_history_text_diff($context['old_file_contents'], $context['new_file_contents'])
 			);
 
 		}
