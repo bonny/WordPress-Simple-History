@@ -40,6 +40,7 @@ class FileEditsLogger extends SimpleLogger {
             "capability" => "manage_options",
             "messages" => array(
                 "theme_file_edited" => __( 'Edited file "{file_name}" in theme "{theme_name}"', "simple-history" ),
+                "plugin_file_edited" => __( 'Edited file "{file_name}" in plugin "{plugin_name}"', "simple-history" ),
             ),
             "labels" => array(
 				"search" => array(
@@ -66,6 +67,7 @@ class FileEditsLogger extends SimpleLogger {
 
     function loaded() {
         add_action( 'load-theme-editor.php', array( $this, "on_load_theme_editor" ), 10, 1 );
+        add_action( 'load-plugin-editor.php', array( $this, "on_load_plugin_editor" ), 10, 1 );
         add_action( 'shutdown', array( $this, "on_shutdown" ), 10, 1 );
 
     }
@@ -76,6 +78,98 @@ class FileEditsLogger extends SimpleLogger {
     public function on_shutdown() {
     	// ddd('shutdown!');
     	#exit;
+    }
+
+    /**
+     * Called when /wp/wp-admin/plugin-editor.php is loaded
+     * Both using regular GET and during POST with updated file data
+     *
+     * todo:
+     * - log edits
+     * - log failed edits that result in error and plugin deactivation
+     */
+    public function on_load_plugin_editor() {
+    	if ( isset($_POST) && isset($_POST['action']) ) {
+
+			$action = isset($_POST["action"]) ? $_POST["action"] : null;
+			$file = isset($_POST["file"]) ? $_POST["file"] : null;
+			$plugin_file = isset($_POST["plugin"]) ? $_POST["plugin"] : null;
+			$fileNewContents = isset($_POST["newcontent"]) ? wp_unslash( $_POST["newcontent"] ) : null;
+			$scrollto = isset($_POST["scrollto"]) ? (int) $_POST["scrollto"] : 0;
+
+    		// if 'phperror' is set then there was an error and an edit is done and wp tries to activate the plugin again
+			// $phperror = isset($_POST["phperror"]) ? $_POST["phperror"] : null;
+
+			// Get info about the edited plugin
+			$pluginInfo = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
+			$pluginName = isset( $pluginInfo['Name'] ) ? $pluginInfo['Name'] : null;
+			$pluginVersion = isset( $pluginInfo['Version'] ) ? $pluginInfo['Version'] : null;
+
+			// Get contents before save
+			$fileContentsBeforeEdit = file_get_contents( WP_PLUGIN_DIR . '/' . $file );
+
+			$context = array(
+				"file_name" => $plugin_file,
+				"plugin_name" => $pluginName,
+				"plugin_version" => $pluginVersion,
+				"old_file_contents" => $fileContentsBeforeEdit,
+				"new_file_contents" => $fileNewContents,
+			);
+
+    		#ddd($_POST, $context, $action, $file, $plugin, $phperror, $fileNewContents, $scrollto);
+			$loggerInstance = $this;
+			add_filter( 'wp_redirect', function ( $location, $status ) use ( $context, $loggerInstance ) {
+				error_log($location);
+
+				$locationParsed = parse_url( $location );
+
+				if ( $locationParsed === false || empty( $locationParsed['query'] ) ) {
+					return $location;
+				}
+
+				parse_str( $locationParsed['query'], $queryStringParsed);
+				#ddd($_POST, $context, $queryStringParsed, $location);
+
+				if (empty($queryStringParsed)) {
+					return $location;
+				}
+
+				// If query string "a=te" exists or "liveupdate=1" then plugin file was updated
+				$teIsSet = isset($queryStringParsed['a']) && $queryStringParsed['a'] === 'te';
+				$liveUpdateIsSet = isset($queryStringParsed['liveupdate']) && $queryStringParsed['liveupdate'] === '1';
+				if ( $teIsSet || $liveUpdateIsSet ) {
+					// File was updated
+					$this->infoMessage('plugin_file_edited', $context);
+				}
+
+				return $location;
+
+				// location when successful edit to non-active plugin
+				// http://wp-playground.dev/wp/wp-admin/plugin-editor.php?file=akismet/akismet.php&plugin=akismet/akismet.php&a=te&scrollto=0
+
+				// locations when activated plugin edited successfully
+				// plugin-editor.php?file=akismet%2Fakismet.php&plugin=akismet%2Fakismet.php&liveupdate=1&scrollto=0&networkwide&_wpnonce=b3f399fe94
+				// plugin-editor.php?file=akismet%2Fakismet.php&phperror=1&_error_nonce=63511c266d
+				// http://wp-playground.dev/wp/wp-admin/plugin-editor.php?file=akismet/akismet.php&plugin=akismet/akismet.php&a=te&scrollto=0
+
+				// locations when editing active plugin and error occurs
+				// plugin-editor.php?file=akismet%2Fakismet.php&plugin=akismet%2Fakismet.php&liveupdate=1&scrollto=0&networkwide&_wpnonce=b3f399fe94
+				// plugin-editor.php?file=akismet%2Fakismet.php&phperror=1&_error_nonce=63511c266d
+
+				// locations when error edit is fixed and saved and plugin is activated again
+				// plugin-editor.php?file=akismet%2Fakismet.php&plugin=akismet%2Fakismet.php&liveupdate=1&scrollto=0&networkwide&_wpnonce=b3f399fe94
+				// plugin-editor.php?file=akismet%2Fakismet.php&phperror=1&_error_nonce=63511c266d
+				// http://wp-playground.dev/wp/wp-admin/plugin-editor.php?file=akismet/akismet.php&plugin=akismet/akismet.php&a=te&scrollto=0
+
+			}, 10, 2 );
+
+    	}
+    	/*
+		<?php if (isset($_GET['a'])) : ?>
+		 <div id="message" class="updated notice is-dismissible"><p><?php _e('File edited successfully.') ?></p></div>
+		<?php elseif (isset($_GET['phperror'])) : ?>
+		 <div id="message" class="updated"><p><?php _e('This plugin has been deactivated because your changes resulted in a <strong>fatal error</strong>.') ?></p>
+    	*/
     }
 
     /**
@@ -128,12 +222,8 @@ class FileEditsLogger extends SimpleLogger {
 
 			// Get file contents, so we have something to compare with later
 			$fileContentsBeforeEdit = file_get_contents($file);
-			//$fileContentDiff = simple_history_text_diff($fileContentsBeforeEdit, $fileNewContents, array());
-			#ddd($fileContentsBeforeEdit, $fileNewContents, $fileContentDiff);
-			// echo $fileContentDiff;exit;
 
 			$context = array(
-				"action" => $action,
 				"theme_name" => $theme->name,
 				"theme_stylesheet_path" => $theme->get_stylesheet(),
 				"theme_stylesheet_dir" => $theme->get_stylesheet_directory(),
@@ -146,7 +236,7 @@ class FileEditsLogger extends SimpleLogger {
 			// Hook into wp_redirect
 			// This hook is only added when we know a POST is done from theme-editor.php
 			$loggerInstance = $this;
-			add_filter( 'wp_redirect', function ($location, $status) use ($context, $loggerInstance) {
+			add_filter( 'wp_redirect', function ( $location, $status ) use ( $context, $loggerInstance ) {
 				$locationParsed = parse_url( $location );
 
 				if ( $locationParsed === false || empty( $locationParsed['query'] ) ) {
@@ -162,19 +252,14 @@ class FileEditsLogger extends SimpleLogger {
 				if (isset($queryStringParsed["updated"]) && $queryStringParsed["updated"]) {
 					// File was updated
 					$this->infoMessage('theme_file_edited', $context);
-					// ddd("file was updated", $locationParsed, $location, $queryStringParsed, $context, $loggerInstance);
 				} else {
 					// File was not updated. Unknown reason, but probably because could not be written.
 				}
 
 				return $location;
 
-			}, 10, 2);
+			}, 10, 2 ); // add_filter
     	} // if post action update
     }
-
-    /*public function on_wp_redirect($location, $status) {
-    	ddd($location);
-    }*/
 
 } // class
