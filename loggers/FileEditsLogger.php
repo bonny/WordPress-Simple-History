@@ -3,31 +3,6 @@
 /**
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor
  */
-
-/*
-
-location efter theme update
-theme-editor.php?file=style.css&theme=twentyfifteen&scrollto=52&updated=true
-
-Filter/actions vi kan hooka på:
-
-// adminaction_update
-// var_dump('admin_action' . $_REQUEST['action']);exit;
-
-Redigera tema: - Appearance -> Editor
-- http://wp-playground.dev/wp/wp-admin/theme-editor.php?file=style.css&theme=twentyfifteen&scrollto=301
-- Redigerar ett tema + en fil i temat
-- do_action( "load-{$pagenow}" ); == "load-theme-editor.php"
-
-
-Redigera plugin: - Plugins -> Editor
-- http://wp-playground.dev/wp/wp-admin/plugin-editor.php
-- Redigerar ett plugin + en fil i pluginen
-
-
-*/
-
-
 class FileEditsLogger extends SimpleLogger {
 
     public $slug = __CLASS__;
@@ -68,16 +43,6 @@ class FileEditsLogger extends SimpleLogger {
     function loaded() {
         add_action( 'load-theme-editor.php', array( $this, "on_load_theme_editor" ), 10, 1 );
         add_action( 'load-plugin-editor.php', array( $this, "on_load_plugin_editor" ), 10, 1 );
-        add_action( 'shutdown', array( $this, "on_shutdown" ), 10, 1 );
-
-    }
-
-    /*
-     * Fird just before PHP shuts down execution.
-     */
-    public function on_shutdown() {
-    	// ddd('shutdown!');
-    	#exit;
     }
 
     /**
@@ -261,5 +226,41 @@ class FileEditsLogger extends SimpleLogger {
 			}, 10, 2 ); // add_filter
     	} // if post action update
     }
+
+
+	public function getLogRowDetailsOutput( $row ) {
+
+		$context = $row->context;
+		$message_key = isset( $context["_message_key"] ) ? $context["_message_key"] : null;
+
+		if (! $message_key) {
+			return;
+		}
+
+		$out = '';
+
+		$diff_table_output = '';
+
+		if ( ! empty($context['new_file_contents']) && ! empty($context['old_file_contents']) ) {
+
+			$diff_table_output .= sprintf(
+				'<tr><td>%1$s</td><td>%2$s</td></tr>',
+				__("File contents", "simple-history"),
+				simple_history_text_diff($context['new_file_contents'], $context['old_file_contents'])
+			);
+
+		}
+
+		if ( $diff_table_output ) {
+
+			$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+
+		}
+
+		$out .= $diff_table_output;
+
+		return $out;
+
+	}
 
 } // class
