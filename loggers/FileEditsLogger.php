@@ -11,7 +11,7 @@ class FileEditsLogger extends SimpleLogger {
 
         $arr_info = array(
             "name" => "FileEditsLogger",
-            "description" => "Logs edits to theme or plugin files",
+            "description" => "Logs edits to theme and plugin files",
             "capability" => "manage_options",
             "messages" => array(
                 "theme_file_edited" => __( 'Edited file "{file_name}" in theme "{theme_name}"', "simple-history" ),
@@ -19,17 +19,14 @@ class FileEditsLogger extends SimpleLogger {
             ),
             "labels" => array(
 				"search" => array(
-					"label" => _x("WordPress and plugins updates found", "Plugin logger: updates found", "simple-history"),
-					"label_all" => _x("All found updates", "Plugin logger: updates found", "simple-history"),
+					"label" => _x("Edited theme and plugin files", "Plugin logger: file edits", "simple-history"),
+					"label_all" => _x("All file edits", "Plugin logger: file edits", "simple-history"),
 					"options" => array(
-						_x("WordPress updates found", "Plugin logger: updates found", "simple-history") => array(
-							'core_update_available'
+						_x("Edited theme files", "Plugin logger: file edits", "simple-history") => array(
+							'theme_file_edited'
 						),
-						_x("Plugin updates found", "Plugin logger: updates found", "simple-history") => array(
-							'plugin_update_available',
-						),
-						_x("Theme updates found", "Plugin logger: updates found", "simple-history") => array(
-							'theme_update_available'
+						_x("Edited plugin files", "Plugin logger: file edits", "simple-history") => array(
+							'plugin_file_edited',
 						),
 					)
 				) // search array
@@ -79,6 +76,7 @@ class FileEditsLogger extends SimpleLogger {
 				"plugin_version" => $pluginVersion,
 				"old_file_contents" => $fileContentsBeforeEdit,
 				"new_file_contents" => $fileNewContents,
+				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file"
 			);
 
     		#ddd($_POST, $context, $action, $file, $plugin, $phperror, $fileNewContents, $scrollto);
@@ -196,6 +194,7 @@ class FileEditsLogger extends SimpleLogger {
 				"file_dir" => $file,
 				"old_file_contents" => $fileContentsBeforeEdit,
 				"new_file_contents" => $fileNewContents,
+				"_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/file-edit/$file"
 			);
 
 			// Hook into wp_redirect
@@ -242,13 +241,13 @@ class FileEditsLogger extends SimpleLogger {
 		$diff_table_output = '';
 
 		if ( ! empty($context['new_file_contents']) && ! empty($context['old_file_contents']) ) {
-
-			$diff_table_output .= sprintf(
-				'<tr><td>%1$s</td><td>%2$s</td></tr>',
-				__("File contents", "simple-history"),
-				simple_history_text_diff($context['old_file_contents'], $context['new_file_contents'])
-			);
-
+			if ( $context['new_file_contents'] !== $context['old_file_contents'] ) {
+				$diff_table_output .= sprintf(
+					'<tr><td>%1$s</td><td>%2$s</td></tr>',
+					__("File contents", "simple-history"),
+					simple_history_text_diff($context['old_file_contents'], $context['new_file_contents'])
+				);
+			}
 		}
 
 		if ( $diff_table_output ) {
