@@ -164,7 +164,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.xx (nn 2017) =
 
-- Added a command for [WP-CLI](https://wp-cli.org). Now you can write `wp simple-history list` to see the latest entries from the history log. For now `list` is the only available command. Let me know if you need more commands!
+- Added [WP-CLI](https://wp-cli.org) command for Simple History. Now you can write `wp simple-history list` to see the latest entries from the history log. For now `list` is the only available command. Let me know if you need more commands!
+- Added support for logging edits to theme files and plugin files. When a file is edited you will also get a quick diff on the changes,
+so you can see what CSS styles a client changed or what PHP changes they made in a plugin file.
+- Removed the edit file logger from the plugin logger, because it did not always work (checked wrong wp path). Intead the new Theme and plugins logger mentioned above will take care of this.
 
 = 2.15 (May 2017) =
 

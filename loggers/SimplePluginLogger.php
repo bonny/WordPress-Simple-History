@@ -59,12 +59,6 @@ class SimplePluginLogger extends SimpleLogger {
 					'simple-history'
 				),
 
-				'plugin_file_edited' => _x(
-					'Edited plugin file "{plugin_edited_file}"',
-					'Plugin file edited',
-					'simple-history'
-				),
-
 				'plugin_deleted' => _x(
 					'Deleted plugin "{plugin_name}"',
 					'Plugin files was deleted',
@@ -111,9 +105,6 @@ class SimplePluginLogger extends SimpleLogger {
 						_x("Failed plugin updates", "Plugin logger: search", "simple-history") => array(
 							'plugin_update_failed'
 						),
-						_x("Edited plugin files", "Plugin logger: search", "simple-history") => array(
-							'plugin_file_edited'
-						),
 						_x("Deleted plugins", "Plugin logger: search", "simple-history") => array(
 							'plugin_deleted'
 						),
@@ -151,9 +142,6 @@ class SimplePluginLogger extends SimpleLogger {
 		// Fires after the upgrades has done it's thing
 		// Check hook extra for upgrader initiator
 		add_action( 'upgrader_process_complete', array( $this, "on_upgrader_process_complete" ), 10, 2 );
-
-		// Dirty check for things that we can't catch using filters or actions
-		add_action( 'admin_init', array( $this, "check_filterless_things" ) );
 
 		// Detect files removed
 		add_action( 'setted_transient', array( $this, 'on_setted_transient_for_remove_files' ), 10, 2 );
@@ -476,64 +464,6 @@ class SimplePluginLogger extends SimpleLogger {
 	public function remove_saved_versions() {
 
 		delete_option( $this->slug . "_plugin_info_before_update" );
-
-	}
-
-	function check_filterless_things() {
-
-		// Var is string with length 113: /wp-admin/plugin-editor.php?file=my-plugin%2Fviews%2Fplugin-file.php
-		$referer = wp_get_referer();
-
-		// contains key "path" with value like "/wp-admin/plugin-editor.php"
-		$referer_info = parse_url($referer);
-
-		if ( "/wp-admin/plugin-editor.php" === $referer_info["path"] ) {
-
-			// We are in plugin editor
-			// Check for plugin edit saved
-			if ( isset( $_POST["newcontent"] ) && isset( $_POST["action"] ) && "update" == $_POST["action"] && isset( $_POST["file"] ) && ! empty( $_POST["file"] ) ) {
-
-				// A file was edited
-				$file = $_POST["file"];
-
-				// $plugins = get_plugins();
-				// http://codex.wordpress.org/Function_Reference/wp_text_diff
-
-				// Generate a diff of changes
-				if ( ! class_exists( 'WP_Text_Diff_Renderer_Table' ) ) {
-					require_once( ABSPATH . WPINC . '/wp-diff.php' );
-				}
-
-				$original_file_contents = file_get_contents( WP_PLUGIN_DIR . "/" . $file );
-				$new_file_contents = wp_unslash( $_POST["newcontent"] );
-
-				$left_lines  = explode("\n", $original_file_contents);
-				$right_lines = explode("\n", $new_file_contents);
-				$text_diff = new Text_Diff($left_lines, $right_lines);
-
-				$num_added_lines = $text_diff->countAddedLines();
-				$num_removed_lines = $text_diff->countDeletedLines();
-
-				// Generate a diff in classic diff format
-				$renderer  = new Text_Diff_Renderer();
-				$diff = $renderer->render($text_diff);
-
-				$this->infoMessage(
-					'plugin_file_edited',
-					array(
-						"plugin_edited_file" => $file,
-						"plugin_edit_diff" => $diff,
-						"plugin_edit_num_added_lines" => $num_added_lines,
-						"plugin_edit_num_removed_lines" => $num_removed_lines,
-					)
-				);
-
-				$did_log = true;
-
-			}
-
-		}
-
 
 	}
 
@@ -1184,7 +1114,7 @@ class SimplePluginLogger extends SimpleLogger {
 				if ( "plugin_updated" == $message_key || "plugin_bulk_updated" == $message_key ) {
 
 					$link_title = esc_html_x("View changelog", "plugin logger: plugin info thickbox title", "simple-history");
-					
+
 					if ( is_multisite() ) {
 						$url = network_admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
 					} else {
