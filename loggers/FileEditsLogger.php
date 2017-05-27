@@ -102,7 +102,7 @@ class FileEditsLogger extends SimpleLogger {
 				$liveUpdateIsSet = isset($queryStringParsed['liveupdate']) && $queryStringParsed['liveupdate'] === '1';
 				if ( $teIsSet || $liveUpdateIsSet ) {
 					// File was updated
-					$this->infoMessage('plugin_file_edited', $context);
+					$loggerInstance->infoMessage('plugin_file_edited', $context);
 				}
 
 				return $location;
@@ -215,7 +215,7 @@ class FileEditsLogger extends SimpleLogger {
 
 				if (isset($queryStringParsed["updated"]) && $queryStringParsed["updated"]) {
 					// File was updated
-					$this->infoMessage('theme_file_edited', $context);
+					$loggerInstance->infoMessage('theme_file_edited', $context);
 				} else {
 					// File was not updated. Unknown reason, but probably because could not be written.
 				}
