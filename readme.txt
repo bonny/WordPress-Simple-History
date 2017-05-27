@@ -136,7 +136,7 @@ https://github.com/bonny/WordPress-Simple-History
 #### Donation & more plugins
 
 * If you like this plugin don't forget to [donate to support further development](http://eskapism.se/sida/donate/).
-* More [WordPress CMS plugins](http://wordpress.org/extend/plugins/profile/eskapism) by the same author.
+* More [WordPress CMS plugins](https://profiles.wordpress.org/eskapism#content-plugins) by the same author.
 
 
 == Screenshots ==
