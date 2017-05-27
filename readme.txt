@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
 Tested up to: 4.7
-Stable tag: 2.15
+Stable tag: 2.16
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -162,7 +162,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.xx (nn 2017) =
+= 2.16 (May 2017) =
 
 - Added [WP-CLI](https://wp-cli.org) command for Simple History. Now you can write `wp simple-history list` to see the latest entries from the history log. For now `list` is the only available command. Let me know if you need more commands!
 - Added support for logging edits to theme files and plugin files. When a file is edited you will also get a quick diff on the changes,
