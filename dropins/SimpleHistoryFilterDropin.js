@@ -229,8 +229,6 @@ var SimpleHistoryFilterDropin = (function($) {
 			$elms.filter_container.removeClass("is-customDateFilterActive");
 		}
 
-
-
 	}
 
 	function formatUsers(userdata) {

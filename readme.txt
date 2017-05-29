@@ -162,6 +162,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.x (x 2017) =
+
+- Fix date range inputs not showing correctly.
+
 = 2.16 (May 2017) =
 
 - Added [WP-CLI](https://wp-cli.org) command for Simple History. Now you can write `wp simple-history list` to see the latest entries from the history log. For now `list` is the only available command. Let me know if you need more commands!

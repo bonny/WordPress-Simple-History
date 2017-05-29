@@ -172,6 +172,11 @@
 	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 0s;
 }
 
+.is-customDateFilterActive .SimpleHistory__filters__filterRow--date {
+	line-height: inherit;
+	height: inherit;
+}
+
 .postbox .SimpleHistory__filters__filter--dayValuesWrap {
 	margin-left: 0;
 }
