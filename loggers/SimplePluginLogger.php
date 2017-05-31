@@ -10,6 +10,10 @@ class SimplePluginLogger extends SimpleLogger {
 	// The logger slug. Defaulting to the class name is nice and logical I think
 	public $slug = __CLASS__;
 
+	// Array that will contain active plugins when filter
+	// load-(page) if fired
+	// private $active_plugins_on_load_page = null;
+
 	/**
 	 * Get array with information about this logger
 	 *
@@ -74,7 +78,7 @@ class SimplePluginLogger extends SimpleLogger {
 
 				// plugin disabled due to some error
 				'plugin_disabled_because_error' => _x(
-					'Deactivated a plugin because of an error: {error_message}',
+					'Deactivated plugin "{plugin_slug}" because of an error.',
 					'Plugin was disabled because of an error',
 					'simple-history'
 				),
@@ -153,20 +157,44 @@ class SimplePluginLogger extends SimpleLogger {
 
 		// If the Github Update plugin is not installed we need to get extra fields used by it.
 		// So need to hook filter "extra_plugin_headers" ourself.
-		add_filter( "extra_plugin_headers", function($arr_headers) {
+		add_filter( "extra_plugin_headers", function( $arr_headers ) {
 			$arr_headers[] = "GitHub Plugin URI";
 			return $arr_headers;
 		} );
 
-		// There is no way to ue a filter and detect a plugin that is disabled because it can't be found or similar error.
+		// There is no way to use a filter and detect a plugin that is disabled because it can't be found or similar error.
 		// So we hook into gettext and look for the usage of the error that is returned when this happens.
 		add_filter( 'gettext', array( $this, "on_gettext" ), 10, 3 );
 
+		/*
+		When a user visits plugins.php the active plugins is validated using validate_active_plugins()
+		Any plugins with errors get's deactivated, but there is no filter we can hook
+		to know which one. So as a solution we save all active plugins and compare the result on error.
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+		*/
+		// add_action( 'load-plugins.php', array( $this, "store_active_plugins_on_load_plugin_page" ), 10, 1 );
+
 	}
 
+	/*
+	public function store_active_plugins_on_load_plugin_page() {
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+		$this->active_plugins_on_load_page = $active_plugins;
+	}
+	*/
+
 	/**
-	 * There is no way to ue a filter and detect a plugin that is disabled because it can't be found or similar error.
+	 * There is no way to use a filter and detect a plugin that is disabled because it can't be found or similar error.
 	 * we hook into gettext and look for the usage of the error that is returned when this happens.
+	 *
+	 * A plugin gets deactivated when plugins.php is visited function validate_active_plugins()
+	 * 		return new WP_Error('plugin_not_found', __('Plugin file does not exist.'));
+	 * and if invalid plugin is found then this is outputed
+	 *  printf(
+	 *  /* translators: 1: plugin file 2: error message
+	 *  __( 'The plugin %1$s has been <strong>deactivated</strong> due to an error: %2$s' ),
+	 *  '<code>' . esc_html( $plugin_file ) . '</code>',
+	 *  $error->get_error_message() );
 	 */
 	function on_gettext( $translation, $text, $domain ) {
 
@@ -185,24 +213,42 @@ class SimplePluginLogger extends SimpleLogger {
 		// We only act if the untranslated text is among the following ones
 		// (Literally these, no translation)
 		$untranslated_texts = array(
-			"Plugin file does not exist.",
-			"Invalid plugin path.",
-			"The plugin does not have a valid header."
+			#"Plugin file does not exist.",
+			#"Invalid plugin path.",
+			#"The plugin does not have a valid header."
+			// This string is called later than the above
+			'The plugin %1$s has been <strong>deactivated</strong> due to an error: %2$s'
 		);
 
-		if ( ! in_array( $text, $untranslated_texts )) {
+		if ( ! in_array( $text, $untranslated_texts ) ) {
 			return $translation;
 		}
 
-		// We don't know what plugin that was that got this error and currently there does not seem to be a way to determine that
-		// So that's why we use such generic log messages
-		$this->warningMessage(
-			"plugin_disabled_because_error",
-			array(
-				"_initiator" => SimpleLoggerLogInitiators::WORDPRESS,
-				"error_message" => $text
-			)
-		);
+		// Directly after the string is translated 'esc_html' is called with the plugin name
+		// This is one of the few ways we can get the name of the plugin
+		// The esc_html filter is used pretty much but we make sure we only do our
+		// stuff the first time it's called (directly after the gettet for the plugin disabled-error..)
+		$loggerInstance = $this;
+
+		add_filter( 'esc_html', function( $safe_text, $text ) use ( $loggerInstance ) {
+			static $is_called = false;
+
+			if ( $is_called == false ) {
+				$is_called = true;
+
+				// We don't know what plugin that was that got this error and currently there does not seem to be a way to determine that
+				// So that's why we use such generic log messages
+				$loggerInstance->warningMessage(
+					"plugin_disabled_because_error",
+					array(
+						"_initiator" => SimpleLoggerLogInitiators::WORDPRESS,
+						'plugin_slug' => $text
+					)
+				);
+			}
+
+			return $safe_text;
+		}, 10, 2 );
 
 		return $translation;
 

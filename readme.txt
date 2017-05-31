@@ -164,7 +164,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.x (x 2017) =
 
-- Fix date range inputs not showing correctly.
+- Fix search date range inputs not showing correctly.
+- Change the message for when a plugin is deactivated due to an error. Now the plugin slug is included, so you know exactly what plugin has been deactivated.
 
 = 2.16 (May 2017) =
 
