@@ -41,8 +41,17 @@ Developers can easily log their own things using a simple API:
 // This is the easiest and safest way to add messages to the log
 // If the plugin is disabled this way will not generate in any error
 apply_filters("simple_history_log", "This is a logged message");
-apply_filters("simple_history_log", "This is a message with some context added", ["isATestMessage" => "yup", "debugRequestData" => $_REQUEST]);
-apply_filters("simple_history_log", "This is another logged message, with another severity level", null, "debug");
+
+// Or with some context and with log level debug:
+apply_filters(
+		"simple_history_log",
+		"Unhandled field type in getFieldContent()",
+		[
+				"fieldObj" => $fieldObj
+		],
+		'debug'
+);
+
 
 // You can olsy use functions/methods to add events to the log
 SimpleLogger()->info("This is a message sent to the log");
