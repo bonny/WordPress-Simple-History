@@ -44,11 +44,11 @@ apply_filters("simple_history_log", "This is a logged message");
 
 // Or with some context and with log level debug:
 apply_filters(
-	"simple_history_log",
-	"My message about something",
+	'simple_history_log',
+	'My message about something',
 	[
-		"debugThing" => $myThingThatIWantIncludedInTheLoggedEvent,
-		"anotherThing => $anotherThing
+		'debugThing' => $myThingThatIWantIncludedInTheLoggedEvent,
+		'anotherThing' => $anotherThing
 	],
 	'debug'
 );
