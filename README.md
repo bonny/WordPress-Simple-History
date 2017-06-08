@@ -53,6 +53,8 @@ apply_filters(
 	'debug'
 );
 
+// Or just debug a message quickly
+apply_filters('simple_history_log_debug', 'My debug message');
 
 // You can olsy use functions/methods to add events to the log
 SimpleLogger()->info("This is a message sent to the log");
