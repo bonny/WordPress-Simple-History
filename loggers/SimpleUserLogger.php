@@ -196,7 +196,10 @@ class SimpleUserLogger extends SimpleLogger
         $arr_keys_to_check = _get_additional_user_keys($user);
 
         // Somehow some fields are not include above, so add them manually
-        $arr_keys_to_check = array_merge($arr_keys_to_check, array("user_email", "user_url", "display_name"));
+        $arr_keys_to_check = array_merge(
+        	$arr_keys_to_check,
+        	array( 'user_email', 'user_url', 'display_name')
+        );
 
         // Skip some keys, because to much info or I don't know what they are
         $arr_keys_to_check = array_diff($arr_keys_to_check, array("use_ssl"));
@@ -248,6 +251,8 @@ class SimpleUserLogger extends SimpleLogger
         // Will contain the differences
         $user_data_diff = array();
 
+        // locale: sv_SE, empty = english, site-default = site....default!
+
         // Check all keys for diff values
         foreach ($arr_keys_to_check as $one_key_to_check) {
             $old_val = $user->$one_key_to_check;
@@ -297,6 +302,7 @@ class SimpleUserLogger extends SimpleLogger
             }
         }
 
+        // print_r($context);exit;
 
         $this->infoMessage("user_updated_profile", $context);
 
@@ -851,9 +857,11 @@ class SimpleUserLogger extends SimpleLogger
                     "title" => _x("Website", "User logger", "simple-history")
                 ),
                 "role" => array(
-                    //"title" => _x("Display name publicly as", "User logger", "simple-history")
                     "title" => _x("Role", "User logger", "simple-history")
-                )
+                ),
+                "locale" => array(
+                    "title" => _x("Locale", "User logger", "simple-history")
+                ),
             );
 
             foreach ($arr_user_keys_to_show_diff_for as $key => $val) {
