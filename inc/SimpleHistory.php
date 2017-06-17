@@ -189,6 +189,10 @@ class SimpleHistory {
 				$context["_debug_is_admin"] = json_encode( is_admin() );
 				$context["_debug_is_doing_cron"] = json_encode( defined('DOING_CRON') && DOING_CRON );
 
+				global $wp_current_filter;
+				$context['_debug_current_filter_array'] = $wp_current_filter;
+				$context['_debug_current_filter'] = current_filter();
+
 				return $context;
 
 			}, 10, 4 );
