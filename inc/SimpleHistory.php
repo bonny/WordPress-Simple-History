@@ -1076,6 +1076,12 @@ class SimpleHistory {
 
 			$loggerInfo = $loggerInstance->getInfo();
 
+			// Check so no logger has a logger slug with more than 30 chars,
+			// because db column is only 30 chars.
+			if ( strlen( $loggerInstance->slug ) > 30 ) {
+				add_action( 'admin_notices', array( $this, 'admin_notice_logger_slug_to_long' ) );
+			}
+
 			/*
 				$loggerInfo["messages"]
 			    [messages] => Array
@@ -3434,6 +3440,17 @@ Because Simple History was just recently installed, this feed does not contain m
 		return $numEvents;
 
 	} // get_unique_events_for_days
+
+	/**
+	 * Output an admin notice about logger slug being to long
+	 */
+	public function admin_notice_logger_slug_to_long() {
+		?>
+			<div class="error notice">
+				<p><?php echo esc_html__( 'The slug for a logger in Simple History can be max 30 chars long.', 'simple-history' ); ?></p>
+			</div>
+		<?php
+	}
 
 } // class
 
