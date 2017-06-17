@@ -1109,29 +1109,28 @@ class SimpleHistory {
 
 			$arr_messages_by_message_key = array();
 
-                        if ( isset( $loggerInfo["messages"] ) ) {
+			if ( isset( $loggerInfo["messages"] ) ) {
 
-                                foreach ( (array) $loggerInfo["messages"] as $message_key => $message_translated ) {
+				foreach ( (array) $loggerInfo["messages"] as $message_key => $message_translated ) {
 
-                                        // Find message in array with both translated and non translated strings
-                                        foreach ( $loggerInstance->messages as $one_message_with_translation_info ) {
+					// Find message in array with both translated and non translated strings
+					foreach ( $loggerInstance->messages as $one_message_with_translation_info ) {
 
-                                                /*
-                                            [0] => Array
-                                                (
-                                                    [untranslated_text] => ...
-                                                    [translated_text] => ...
-                                                    [domain] => simple-history
-                                                    [context] => ...
-                                                )
-                                                */
-                                                if ( $message_translated == $one_message_with_translation_info["translated_text"] ) {
-                                                        $arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
-                                                        continue;
-                                                }
+						/*
+						[0] => Array
+						(
+						[untranslated_text] => ...
+						[translated_text] => ...
+						[domain] => simple-history
+						[context] => ...
+						)
+						*/
+						if ( $message_translated == $one_message_with_translation_info["translated_text"] ) {
+							$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
+							continue;
+						}
 
 					}
-
 				}
 
 			}
