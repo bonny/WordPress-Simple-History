@@ -288,12 +288,31 @@ class SimplePostLogger extends SimpleLogger
 			return;
 		}
 
+		/*
+		Posts that have been in the trash for 30 days (default)
+		are deleted using a cron job that is called with action hook "wp_scheduled_delete".
+		We skip logging these because users are confused and think that the real post has been
+		deleted.
+		We detect this by checking $wp_current_filter for 'wp_scheduled_delete'
+		[
+			"wp_scheduled_delete",
+			"delete_post",
+			"simple_history\/log_argument\/context"
+		]
+		*/
+		global $wp_current_filter;
+		if ( isset( $wp_current_filter ) && is_array( $wp_current_filter ) ) {
+			if ( in_array( 'wp_scheduled_delete', $wp_current_filter, true ) ) {
+				apply_filters( 'simple_history_log_debug', "Don't log post delete beacuse from filterwp_scheduled_delete" );
+			}
+		}
+
 		$this->infoMessage(
-			"post_deleted",
+			'post_deleted',
 			array(
-				"post_id" => $post_id,
-				"post_type" => get_post_type($post),
-				"post_title" => get_the_title($post)
+				'post_id' => $post_id,
+				'post_type' => get_post_type( $post ),
+				'post_title' => get_the_title( $post ),
 			)
 		);
 
