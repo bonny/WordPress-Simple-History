@@ -303,7 +303,7 @@ class SimplePostLogger extends SimpleLogger
 		global $wp_current_filter;
 		if ( isset( $wp_current_filter ) && is_array( $wp_current_filter ) ) {
 			if ( in_array( 'wp_scheduled_delete', $wp_current_filter, true ) ) {
-				apply_filters( 'simple_history_log_debug', "Don't log post delete beacuse from filterwp_scheduled_delete" );
+				return;
 			}
 		}
 
