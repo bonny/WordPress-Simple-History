@@ -173,6 +173,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - HHVM is not used for any tests any longer because PHP 7 and Travis not supporting it or something. I dunno. Something like that.
 - When "development debug mode" is activated also log current filters.
 - Show an admin warning if a logger slug is longer than 30 chars.
+- Fix fatal error when calling log() method with null as context argument.
 
 = 2.16 (May 2017) =
 

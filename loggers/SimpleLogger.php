@@ -944,13 +944,18 @@ class SimpleLogger {
 	 * @param array  $context The log context.
 	 * @return class SimpleLogger instance
 	 */
-	public function log( $level = 'info', $message = '', array $context = array() ) {
+	public function log( $level = 'info', $message = '', $context = array() ) {
 
 		global $wpdb;
 
 		// Check that passed args are of correct types.
-		if ( ! is_string( $level ) || ! is_string( $message ) || ! is_array( $context ) ) {
+		if ( ! is_string( $level ) || ! is_string( $message ) ) {
 			return $this;
+		}
+
+		// Context must be array, but can be passed as null and so on.
+		if ( ! is_array( $context ) ) {
+			$context = array();
 		}
 
 		// Don't go on if message is empty.
