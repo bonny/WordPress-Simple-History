@@ -167,7 +167,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Fix search date range inputs not showing correctly.
 - Change the message for when a plugin is deactivated due to an error. Now the plugin slug is included, so you know exactly what plugin has been deactivated. Also the reason for the deactivation is included (one of "Invalid plugin path", "Plugin file does not exist", or "The plugin does not have a valid header.").
 - Added more filters to log message. Now filter `simple_history_log_debug` exists, together with filters for all other 7 log levels. So you can use `simple_history_log_{loglevel}` where {loglevel} is any of emergency, alert, critical, error, warning, notice, info or debug.
-- Add support for changing "locale" on a user profile, something that was added in WordPress 4.7.
+- Add support for logging the changing of "locale" on a user profile, something that was added in WordPress 4.7.
 - Add sidebar box with link to the settings page.
 - Don't log when old posts are deleted from the trash during cron job wp_scheduled_delete.
 - HHVM is not used for any tests any longer because PHP 7 and Travis not supporting it or something. I dunno. Something like that.
