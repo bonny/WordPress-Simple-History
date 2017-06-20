@@ -250,7 +250,7 @@ add_filter("simple_history/dropin/load_dropin_SimpleHistoryRSSDropin", "__return
 
 // This is the easiest and safest way to add messages to the log:
 apply_filters("simple_history_log", "This is a logged message");
-apply_filters("simple_history_log", "This is a message with some context added", ["isATestMessage" => "yup", "debugRequestData" => $_REQUEST]);
+apply_filters("simple_history_log", "This is a message with some context added", array("isATestMessage" => "yup", "debugRequestData" => $_REQUEST));
 apply_filters("simple_history_log", "This is another logged message, with another severity level", null, "debug");
 
 // Below is the function way of adding things to the log
