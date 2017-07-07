@@ -162,6 +162,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.1n (nnn 2017) =
+
+- Set from_term_description correctly, fixes https://github.com/bonny/WordPress-Simple-History/issues/127.
+-
+
 = 2.17 (June 2017) =
 
 - Fix search date range inputs not showing correctly.
