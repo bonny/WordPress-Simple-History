@@ -342,31 +342,32 @@ class SimplePostLogger extends SimpleLogger
 			$ok_to_log = true;
 		}
 
-		// Don't log revisions
+		// Don't log revisions.
 		if ( wp_is_post_revision( $post ) ) {
 			$ok_to_log = false;
 		}
 
-		if ( ! $ok_to_log ) {
-			return;
+		// Don't log some post types.
+		$skip_posttypes = array(
+			// Don't log nav_menu_updates.
+			'nav_menu_item',
+			// Don't log jetpack migration-things.
+			// https://wordpress.org/support/topic/updated-jetpack_migration-sidebars_widgets/.
+			'jetpack_migration',
+		);
+
+		/**
+		 * Filter to log what post types not to log
+		 *
+		 * @since 2.18
+		 */
+		$skip_posttypes = apply_filters( 'simple_history/post_logger/skip_posttypes', $skip_posttypes );
+
+		if ( in_array( get_post_type( $post ), $skip_posttypes, true ) ) {
+			$ok_to_log = false;
 		}
 
-		// Don't log nav_menu_updates
-		/*
-		$post_types = get_post_types();
-		Array
-		(
-		    [post] => post
-		    [page] => page
-		    [attachment] => attachment
-		    [revision] => revision
-		    [nav_menu_item] => nav_menu_item
-		    [texts] => texts
-		    [products] => products
-		    [book] => book
-		)
-		*/
-		if ( "nav_menu_item" == get_post_type( $post ) ) {
+		if ( ! $ok_to_log ) {
 			return;
 		}
 

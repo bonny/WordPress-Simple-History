@@ -165,7 +165,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.1n (nnn 2017) =
 
 - Set from_term_description correctly, fixes https://github.com/bonny/WordPress-Simple-History/issues/127.
--
+- Add filter `simple_history/post_logger/skip_posttypes`.
+- Don't log post type `jetpack_migation` because for some users that post type filled the log. Fixes https://wordpress.org/support/topic/updated-jetpack_migration-sidebars_widgets/.
 
 = 2.17 (June 2017) =
 
