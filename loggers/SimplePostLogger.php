@@ -258,6 +258,10 @@ class SimplePostLogger extends SimpleLogger
 
 		$post = get_post( $post_id );
 
+		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
+			return;
+		}
+
 		$this->infoMessage(
 			"post_restored",
 			array(
@@ -284,7 +288,7 @@ class SimplePostLogger extends SimpleLogger
 			return;
 		}
 
-		if ( "nav_menu_item" == get_post_type( $post ) ) {
+		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
 			return;
 		}
 
@@ -318,6 +322,42 @@ class SimplePostLogger extends SimpleLogger
 
 	}
 
+	/**
+	 * Get an array of post types that should not be logged by this logger.
+	 */
+	public function get_skip_posttypes() {
+		$skip_posttypes = array(
+			// Don't log nav_menu_updates.
+			'nav_menu_item',
+			// Don't log jetpack migration-things.
+			// https://wordpress.org/support/topic/updated-jetpack_migration-sidebars_widgets/.
+			'jetpack_migration',
+		);
+
+		/**
+		 * Filter to log what post types not to log
+		 *
+		 * @since 2.18
+		 */
+		$skip_posttypes = apply_filters( 'simple_history/post_logger/skip_posttypes', $skip_posttypes );
+
+		return $skip_posttypes;
+	}
+
+	/**
+	 * Check if post type is ok to log by logger
+	 * @return bool
+	 */
+	public function ok_to_log_post_posttype($post) {
+		$ok_to_log = true;
+		$skip_posttypes = $this->get_skip_posttypes();
+
+		if ( in_array( get_post_type( $post ), $skip_posttypes, true ) ) {
+			$ok_to_log = false;
+		}
+
+		return $ok_to_log;
+	}
 
 	/**
 	  * Fired when a post has changed status
@@ -347,23 +387,7 @@ class SimplePostLogger extends SimpleLogger
 			$ok_to_log = false;
 		}
 
-		// Don't log some post types.
-		$skip_posttypes = array(
-			// Don't log nav_menu_updates.
-			'nav_menu_item',
-			// Don't log jetpack migration-things.
-			// https://wordpress.org/support/topic/updated-jetpack_migration-sidebars_widgets/.
-			'jetpack_migration',
-		);
-
-		/**
-		 * Filter to log what post types not to log
-		 *
-		 * @since 2.18
-		 */
-		$skip_posttypes = apply_filters( 'simple_history/post_logger/skip_posttypes', $skip_posttypes );
-
-		if ( in_array( get_post_type( $post ), $skip_posttypes, true ) ) {
+		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
 			$ok_to_log = false;
 		}
 

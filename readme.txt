@@ -162,6 +162,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.1n (nnn 2017) =
+
+- The post types in skip_posttypes are now also applied to trashed and untrashed posts (not only post edits, as before).
+-
+
+
 = 2.18 (August 2017) =
 
 - Set from_term_description correctly, fixes https://github.com/bonny/WordPress-Simple-History/issues/127.
