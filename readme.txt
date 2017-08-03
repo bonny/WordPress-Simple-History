@@ -4,7 +4,7 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
 Tested up to: 4.8
-Stable tag: 2.17
+Stable tag: 2.18
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -162,7 +162,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.1n (nnn 2017) =
+= 2.18 (August 2017) =
 
 - Set from_term_description correctly, fixes https://github.com/bonny/WordPress-Simple-History/issues/127.
 - Add filter `simple_history/post_logger/skip_posttypes`.
