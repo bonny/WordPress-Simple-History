@@ -11,6 +11,9 @@ if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
  * Logger for the Advanced Custom Fields (ACF) plugin
  * https://sv.wordpress.org/plugins/advanced-custom-fields/
  *
+ * @TODO
+ * - store values to diff, when/how?
+ *
  * @package SimpleHistory
  * @since 2.x
  */
@@ -66,8 +69,11 @@ if (! class_exists("Plugin_ACF")) {
         	*/
         	add_action('acf/update_field_group', array($this, 'on_update_field_group'), 10);
 
+        	// This is the action that Simple History and the post logger uses to log
+       		add_action( 'transition_post_status', array($this, 'on_transition_post_status'), 5, 3);
+
         	// ACF calls save_post with prio 10, we call it earlier to be able to get field info before it might be deleted.
-			add_action('save_post', array($this, 'on_save_post'), 5, 2);
+			#add_action('save_post', array($this, 'on_save_post'), 5, 2);
 
 			// Get prev version of acf field group
 			add_filter('wp_insert_post_data', array($this, 'on_wp_insert_post_data'), 10, 2);
@@ -78,8 +84,14 @@ if (! class_exists("Plugin_ACF")) {
         	// Trash ACF field group
         	// Untrash ACF field group
 
-        	// Delete field grouo
+        	// Delete field group
 
+        	add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context'), 10, 2);
+
+        }
+
+       	public function on_post_updated_context($context, $post) {
+        	dd('on_post_updated_context', $context, $post);
         }
 
         /**
@@ -98,7 +110,8 @@ if (! class_exists("Plugin_ACF")) {
          * Called before ACF calls its save_post filter
          * Here we save the new fields values and also get the old values so we can compare
          */
-		public function on_save_post( $post_id, $post ) {
+		#public function on_save_post( $post_id, $post ) {
+        public function on_transition_post_status($new_status, $old_status, $post) {
 
 			static $isCalled = false;
 
@@ -108,6 +121,8 @@ if (! class_exists("Plugin_ACF")) {
 			}
 
 			$isCalled = true;
+
+			$post_id = $post->ID;
 
 			// do not act if this is an auto save routine
 			if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
