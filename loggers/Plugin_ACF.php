@@ -21,9 +21,15 @@ if (! class_exists("Plugin_ACF")) {
         public $slug = __CLASS__;
 
         private $old_acf_post_data = array(
-        	'fieldGroupBeforeSave' => array(),
+        	'fieldGroup' => array(
+        		'beforeSave' => null,
+        		'afterSave' => null
+        	),
+        	'modifiedFields' => array(
+        		'beforeSave' => null,
+        		'afterSave' => null
+        	),
         	'addedFields' => array(),
-        	'modifiedFields' => array(),
         	'deletedFields' => array(),
     	);
 
@@ -81,7 +87,7 @@ if (! class_exists("Plugin_ACF")) {
          */
         public function on_wp_insert_post_data($data, $postarr) {
         	if (!empty($postarr['ID'])) {
-        		$this->old_acf_post_data['fieldGroupBeforeSave'] = acf_get_field_group($postarr['ID']);
+        		$this->old_acf_post_data['fieldGroup']['beforeSave'] = acf_get_field_group($postarr['ID']);
         	}
 
         	return $data;
@@ -89,6 +95,8 @@ if (! class_exists("Plugin_ACF")) {
 
         /**
          * ACF field group is saved
+         * Called before ACF calls its save_post filter
+         * Here we save the new fields values and also get the old values so we can compare
          */
 		public function on_save_post( $post_id, $post ) {
 
@@ -147,7 +155,9 @@ if (! class_exists("Plugin_ACF")) {
 					} else {
 						// Existing fields have an id
 						// 'ID' => string(3) "383"
-						$this->old_acf_post_data['modifiedFields'][$oneFieldAddedOrUpdated['ID']] = $oneFieldAddedOrUpdated;
+						$this->old_acf_post_data['modifiedFields']['beforeSave'][$oneFieldAddedOrUpdated['ID']] = acf_get_field($oneFieldAddedOrUpdated['ID']);
+
+						$this->old_acf_post_data['modifiedFields']['afterSave'][$oneFieldAddedOrUpdated['ID']] = $oneFieldAddedOrUpdated;
 					}
 				}
 			}
@@ -165,11 +175,16 @@ if (! class_exists("Plugin_ACF")) {
         	print_r(acf_get_fields($field_group));
         	exit;*/
 
-        	echo "yo";
-        	!dd($this->old_acf_post_data);
-        	exit;
+        	#echo "yo";
+        	#!dd($this->old_acf_post_data);
+        	#exit;
+
+        	$this->old_acf_post_data['fieldGroup']['afterSave'] = $field_group;
+
+			ddd($this->old_acf_post_data);
 
         	/*
+
 
 
 			On admin post save:
