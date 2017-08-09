@@ -430,7 +430,7 @@ class SimplePostLogger extends SimpleLogger
 		} else {
 
 			// Post updated
-			// Also add diff between previod saved data and new data
+			// Also add diff between previos saved data and new data
 			if ( isset( $this->old_post_data[$post->ID] ) ) {
 
 				$old_post_data = $this->old_post_data[$post->ID];
@@ -447,6 +447,11 @@ class SimplePostLogger extends SimpleLogger
 			}
 
 			$context["_occasionsID"] = __CLASS__  . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
+
+			/**
+			 * Modify the context saved
+			 */
+			$context = apply_filters( 'simple_history/post_logger/post_updated/context', $context, $post );
 
 			$this->infoMessage( "post_updated", $context );
 
