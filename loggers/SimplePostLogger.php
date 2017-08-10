@@ -449,7 +449,10 @@ class SimplePostLogger extends SimpleLogger
 			$context["_occasionsID"] = __CLASS__  . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
 
 			/**
-			 * Modify the context saved
+			 * Modify the context saved.
+			 *
+			 * @param array $context
+			 * @param WP_Post $post
 			 */
 			$context = apply_filters( 'simple_history/post_logger/post_updated/context', $context, $post );
 
