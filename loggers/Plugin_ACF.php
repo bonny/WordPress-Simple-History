@@ -23,14 +23,14 @@ if (! class_exists("Plugin_ACF")) {
     {
         public $slug = __CLASS__;
 
-        private $old_acf_post_data = array(
+        private $oldAndNewFieldGroupsAndFields = array(
         	'fieldGroup' => array(
-        		'beforeSave' => null,
-        		'afterSave' => null
+        		'old' => null,
+        		'new' => null
         	),
         	'modifiedFields' => array(
-        		'beforeSave' => null,
-        		'afterSave' => null
+        		'old' => null,
+        		'new' => null
         	),
         	'addedFields' => array(),
         	'deletedFields' => array(),
@@ -67,7 +67,7 @@ if (! class_exists("Plugin_ACF")) {
 			apply_filters( "acf/update_field", $field); (return field)
 			do_action('acf/trash_field_group', $field_group);
         	*/
-        	add_action('acf/update_field_group', array($this, 'on_update_field_group'), 10);
+        	#add_action('acf/update_field_group', array($this, 'on_update_field_group'), 10);
 
         	// This is the action that Simple History and the post logger uses to log
        		add_action( 'transition_post_status', array($this, 'on_transition_post_status'), 5, 3);
@@ -76,31 +76,77 @@ if (! class_exists("Plugin_ACF")) {
 			#add_action('save_post', array($this, 'on_save_post'), 5, 2);
 
 			// Get prev version of acf field group
+			// This is called before transition_post_status
 			add_filter('wp_insert_post_data', array($this, 'on_wp_insert_post_data'), 10, 2);
-        	// Create ACF field group
-
-        	// Update/edit ACF field group
-
-        	// Trash ACF field group
-        	// Untrash ACF field group
-
-        	// Delete field group
 
         	add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context'), 10, 2);
 
         }
 
        	public function on_post_updated_context($context, $post) {
-        	dd('on_post_updated_context', $context, $post);
+        	// acf_prev_
+        	// acf_new_
+
+        	$acf_data_diff = array();
+
+        	# 'fieldGroup' fields to check
+        	$arr_keys_to_diff = array(
+				'menu_order',
+				'position',
+				'style',
+				'label_placement',
+				'instruction_placement',
+				'hide_on_screen',
+				'active',
+				'description',
+        	);
+
+        	$fieldGroup = $this->oldAndNewFieldGroupsAndFields['fieldGroup'];
+
+        	foreach ( $arr_keys_to_diff as $key ) {
+        		if (isset($fieldGroup['old'][$key]) && isset($fieldGroup['new'][$key])) {
+        			$acf_data_diff = $this->add_diff($acf_data_diff, $key, $fieldGroup['old'][$key], $fieldGroup['new'][$key]);
+        		}
+        	}
+
+        	dd($acf_data_diff);
+        	dd('on_post_updated_context', $context, $this->oldAndNewFieldGroupsAndFields);
+        	// HERE
+
+        	// 'modifiedFields'
+        	// 'addedFields'
+        	// 'deletedFields'
         }
+
+		function add_diff($post_data_diff, $key, $old_value, $new_value) {
+			if ( $old_value != $new_value ) {
+				$post_data_diff[$key] = array(
+					"old" => $old_value,
+					"new" => $new_value
+				);
+			}
+
+			return $post_data_diff;
+		}
 
         /**
          * Store a version of the field group as it was before the save
+         * Called before field group post/values is added to db
          */
         public function on_wp_insert_post_data($data, $postarr) {
-        	if (!empty($postarr['ID'])) {
-        		$this->old_acf_post_data['fieldGroup']['beforeSave'] = acf_get_field_group($postarr['ID']);
+
+        	// Only do this if ACF field group is being saved
+        	if ($postarr['post_type'] !== 'acf-field-group') {
+        		return $data;
         	}
+
+        	if (empty($postarr['ID'])) {
+        		return $data;
+        	}
+
+       		$this->oldAndNewFieldGroupsAndFields['fieldGroup']['old'] = acf_get_field_group($postarr['ID']);
+
+			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['new'] = acf_get_valid_field_group($_POST['acf_field_group']);
 
         	return $data;
         }
@@ -155,7 +201,7 @@ if (! class_exists("Plugin_ACF")) {
 						continue;
 					}
 
-					$this->old_acf_post_data['deletedFields'][$id] = $field_info;
+					$this->oldAndNewFieldGroupsAndFields['deletedFields'][$id] = $field_info;
 				}
 
 			}
@@ -166,13 +212,13 @@ if (! class_exists("Plugin_ACF")) {
 					if (empty($oneFieldAddedOrUpdated['ID'])) {
 						// New fields have no id
 						// 'ID' => string(0) ""
-						$this->old_acf_post_data['addedFields'][] = $oneFieldAddedOrUpdated;
+						$this->oldAndNewFieldGroupsAndFields['addedFields'][] = $oneFieldAddedOrUpdated;
 					} else {
 						// Existing fields have an id
 						// 'ID' => string(3) "383"
-						$this->old_acf_post_data['modifiedFields']['beforeSave'][$oneFieldAddedOrUpdated['ID']] = acf_get_field($oneFieldAddedOrUpdated['ID']);
+						$this->oldAndNewFieldGroupsAndFields['modifiedFields']['old'][$oneFieldAddedOrUpdated['ID']] = acf_get_field($oneFieldAddedOrUpdated['ID']);
 
-						$this->old_acf_post_data['modifiedFields']['afterSave'][$oneFieldAddedOrUpdated['ID']] = $oneFieldAddedOrUpdated;
+						$this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'][$oneFieldAddedOrUpdated['ID']] = $oneFieldAddedOrUpdated;
 					}
 				}
 			}
@@ -191,12 +237,13 @@ if (! class_exists("Plugin_ACF")) {
         	exit;*/
 
         	#echo "yo";
-        	#!dd($this->old_acf_post_data);
+        	#!dd($this->oldAndNewFieldGroupsAndFields);
         	#exit;
 
-        	$this->old_acf_post_data['fieldGroup']['afterSave'] = $field_group;
+        	#$this->oldAndNewFieldGroupsAndFields['fieldGroup']['new'] = $field_group;
 
-			ddd($this->old_acf_post_data);
+        	// Now compare old and new values and store in context
+			#ddd($this->oldAndNewFieldGroupsAndFields);
 
         	/*
 
