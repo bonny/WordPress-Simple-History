@@ -115,20 +115,6 @@ if (! class_exists("Plugin_ACF")) {
 
         	foreach ($arrKeys as $acfKey => $acfVals) {
         		if (isset($context["acf_new_$acfKey"]) && isset($context["acf_prev_$acfKey"])) {
-					/*
-					$diff_table_output .= sprintf(
-						'<tr>
-							<td>%1$s</td>
-							<td>%2$s</td>
-						</tr>',
-						$acfVals['name'],
-						simple_history_text_diff(
-							$context["acf_prev_$acfKey"],
-							$context["acf_new_$acfKey"]
-						)
-					);
-					*/
-
 					$diff_table_output .= sprintf(
 						'<tr>
 							<td>%1$s</td>
@@ -138,14 +124,31 @@ if (! class_exists("Plugin_ACF")) {
 							</td>
 						</tr>',
 						$acfVals['name'],
-						$context["acf_new_$acfKey"],
-						$context["acf_prev_$acfKey"]
+						esc_html($context["acf_new_$acfKey"]),
+						esc_html($context["acf_prev_$acfKey"])
 					);
         		}
         	}
 
         	// acf_hide_on_screen_added
         	// acf_hide_on_screen_removed
+        	if (!empty($context["acf_hide_on_screen_added"])) {
+				$diff_table_output .= sprintf(
+					'<tr>
+						<td>%1$s</td>
+						<td>
+							%4$s %2$s
+							<br>
+							%5$s %3$s
+						</td>
+					</tr>',
+					__('Hide on screen'),
+					esc_html($context['acf_hide_on_screen_added']),
+					esc_html($context['acf_hide_on_screen_removed']),
+					__('Checked'), // 4
+					__('Unchecked') // 5
+				);
+        	}
         	/*foreach ($context as $contextKey => $contextVal) {
         		if (strpos($contextKey, $keyPrefixToCheckFor) !== 0) {
         			continue;
