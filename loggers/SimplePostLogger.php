@@ -1020,6 +1020,17 @@ class SimplePostLogger extends SimpleLogger
 			";
 			*/
 
+			// Filter so other plugins/loggers can modify the diff output
+
+			/**
+			 * Modify the formatted diff output of a saved/modified post
+			 *
+			 * @param string $diff_table_output
+			 * @param array $context
+			 * @return string
+			 */
+			$diff_table_output = apply_filters( 'simple_history/post_logger/post_updated/diff_table_output', $diff_table_output, $context );
+
 			if ( $has_diff_values || $diff_table_output ) {
 
 				$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
