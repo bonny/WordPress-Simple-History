@@ -81,6 +81,81 @@ if (! class_exists("Plugin_ACF")) {
 
         	add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context'), 10, 2);
 
+			add_filter('simple_history/post_logger/post_updated/diff_table_output', array($this, 'on_diff_table_output'), 10, 2 );
+        }
+
+        public function on_diff_table_output($diff_table_output, $context) {
+
+        	// Check for keys that begin with 'acf_'
+        	$keyPrefixToCheckFor = 'acf_';
+
+        	$arrKeys = array(
+				'menu_order' => array(
+					'name' => 'Menu order'
+				),
+				'position' => array(
+					'name' => 'Position'
+				),
+				'style' => array(
+					'name' => 'Style'
+				),
+				'label_placement' => array(
+					'name' => 'Label placement'
+				),
+				'instruction_placement' => array(
+					'name' => 'Instruction placement'
+				),
+				'active' => array(
+					'name' => 'Active'
+				),
+				'description' => array(
+					'name' => 'Description'
+				),
+        	);
+
+        	foreach ($arrKeys as $acfKey => $acfVals) {
+        		if (isset($context["acf_new_$acfKey"]) && isset($context["acf_prev_$acfKey"])) {
+					/*
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>%2$s</td>
+						</tr>',
+						$acfVals['name'],
+						simple_history_text_diff(
+							$context["acf_prev_$acfKey"],
+							$context["acf_new_$acfKey"]
+						)
+					);
+					*/
+
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>
+								<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
+								<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
+							</td>
+						</tr>',
+						$acfVals['name'],
+						$context["acf_new_$acfKey"],
+						$context["acf_prev_$acfKey"]
+					);
+        		}
+        	}
+
+        	// acf_hide_on_screen_added
+        	// acf_hide_on_screen_removed
+        	/*foreach ($context as $contextKey => $contextVal) {
+        		if (strpos($contextKey, $keyPrefixToCheckFor) !== 0) {
+        			continue;
+        		}
+
+        		$diff_table_output .= '<tr><td>found acf key: ' . $contextKey . '</td></tr>';
+        	}
+        	*/
+
+        	return $diff_table_output;
         }
 
        	public function on_post_updated_context($context, $post) {
@@ -93,7 +168,6 @@ if (! class_exists("Plugin_ACF")) {
 				'style',
 				'label_placement',
 				'instruction_placement',
-				// 'hide_on_screen', array
 				'active',
 				'description',
         	);
