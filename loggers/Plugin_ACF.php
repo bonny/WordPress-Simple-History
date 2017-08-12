@@ -84,9 +84,6 @@ if (! class_exists("Plugin_ACF")) {
         }
 
        	public function on_post_updated_context($context, $post) {
-        	// acf_prev_
-        	// acf_new_
-
         	$acf_data_diff = array();
 
         	# 'fieldGroup' fields to check
@@ -96,7 +93,7 @@ if (! class_exists("Plugin_ACF")) {
 				'style',
 				'label_placement',
 				'instruction_placement',
-				'hide_on_screen',
+				// 'hide_on_screen', array
 				'active',
 				'description',
         	);
@@ -105,13 +102,34 @@ if (! class_exists("Plugin_ACF")) {
 
         	foreach ( $arr_keys_to_diff as $key ) {
         		if (isset($fieldGroup['old'][$key]) && isset($fieldGroup['new'][$key])) {
-        			$acf_data_diff = $this->add_diff($acf_data_diff, $key, $fieldGroup['old'][$key], $fieldGroup['new'][$key]);
+        			$acf_data_diff = $this->add_diff($acf_data_diff, $key, (string) $fieldGroup['old'][$key], (string) $fieldGroup['new'][$key]);
         		}
         	}
 
-        	dd($acf_data_diff);
-        	dd('on_post_updated_context', $context, $this->oldAndNewFieldGroupsAndFields);
-        	// HERE
+        	foreach ( $acf_data_diff as $diff_key => $diff_values ) {
+				$context["acf_prev_{$diff_key}"] = $diff_values["old"];
+				$context["acf_new_{$diff_key}"] = $diff_values["new"];
+        	}
+
+			$arrhHideOnScreenAdded = [];
+			$arrHideOnScreenRemoved = [];
+        	if (!empty($fieldGroup['new']['hide_on_screen']) && !empty($fieldGroup['old']['hide_on_screen'])) {
+        		$arrhHideOnScreenAdded = array_diff($fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen']);
+
+        		$arrHideOnScreenRemoved = array_diff($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
+
+        		if ($arrhHideOnScreenAdded) {
+        			$context["acf_hide_on_screen_added"] = implode(',', $arrhHideOnScreenAdded);
+        		}
+
+        		if ($arrHideOnScreenRemoved) {
+        			$context["acf_hide_on_screen_removed"] = implode(',', $arrHideOnScreenRemoved);
+        		}
+
+        	}
+        	#dd($acf_data_diff);
+        	#dd('on_post_updated_context', $context, $this->oldAndNewFieldGroupsAndFields);
+        	return $context;
 
         	// 'modifiedFields'
         	// 'addedFields'
