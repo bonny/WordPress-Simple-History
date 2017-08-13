@@ -12,7 +12,7 @@ if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
  * https://sv.wordpress.org/plugins/advanced-custom-fields/
  *
  * @TODO
- * - store values to diff, when/how?
+ * - store fields diff
  *
  * @package SimpleHistory
  * @since 2.x
@@ -90,26 +90,26 @@ if (! class_exists("Plugin_ACF")) {
         	$keyPrefixToCheckFor = 'acf_';
 
         	$arrKeys = array(
+				'instruction_placement' => array(
+					'name' => 'Instruction placement'
+				),
+				'label_placement' => array(
+					'name' => 'Label placement'
+				),
+				'description' => array(
+					'name' => 'Description'
+				),
 				'menu_order' => array(
 					'name' => 'Menu order'
 				),
 				'position' => array(
 					'name' => 'Position'
 				),
-				'style' => array(
-					'name' => 'Style'
-				),
-				'label_placement' => array(
-					'name' => 'Label placement'
-				),
-				'instruction_placement' => array(
-					'name' => 'Instruction placement'
-				),
 				'active' => array(
 					'name' => 'Active'
 				),
-				'description' => array(
-					'name' => 'Description'
+				'style' => array(
+					'name' => 'Style'
 				),
         	);
 
