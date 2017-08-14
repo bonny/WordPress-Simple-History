@@ -158,6 +158,46 @@ if (! class_exists("Plugin_ACF")) {
         	}
         	*/
 
+        	// Check for deleted fields
+        	/*
+			$context["acf_deleted_fields_{$loopNum}_key"] = $oneDeletedField['key'];
+			$context["acf_deleted_fields_{$loopNum}_name"] = $oneDeletedField['name'];
+			$context["acf_deleted_fields_{$loopNum}_label"] = $oneDeletedField['label'];
+			$context["acf_deleted_fields_{$loopNum}_type"] = $oneDeletedField['type'];
+        	*/
+        	if (isset($context['acf_deleted_fields_0_key'])) {
+        		// 1 or more deleted fields exist in context
+        		$loopnum = 0;
+        		$foundDeletedField = true;
+        		$strDeletedFields = '';
+
+        		while (isset($context["acf_deleted_fields_{$loopnum}_key"])) {
+
+					$strDeletedFields .= sprintf(
+						'%1$s (%3$s), ',
+						esc_html($context["acf_deleted_fields_{$loopnum}_label"]),
+						esc_html($context["acf_deleted_fields_{$loopnum}_name"]),
+						esc_html($context["acf_deleted_fields_{$loopnum}_type"])
+					);
+
+					$loopnum++;
+        		}
+
+        		$strDeletedFields = trim($strDeletedFields, ', ');
+
+				$diff_table_output .= sprintf(
+					'<tr>
+						<td>%1$s</td>
+						<td>
+							%2$s
+						</td>
+					</tr>',
+					__('Deleted field(s)'), // 1
+					$strDeletedFields
+				);
+        	}
+
+
         	return $diff_table_output;
         }
 
@@ -188,6 +228,7 @@ if (! class_exists("Plugin_ACF")) {
 				$context["acf_new_{$diff_key}"] = $diff_values["new"];
         	}
 
+        	// Add checked or uncheckd hide on screen-items to context
 			$arrhHideOnScreenAdded = [];
 			$arrHideOnScreenRemoved = [];
         	if (!empty($fieldGroup['new']['hide_on_screen']) && !empty($fieldGroup['old']['hide_on_screen'])) {
@@ -204,8 +245,21 @@ if (! class_exists("Plugin_ACF")) {
         		}
 
         	}
+
+        	// Add added, changed, and removed fields
         	#dd($acf_data_diff);
         	#dd('on_post_updated_context', $context, $this->oldAndNewFieldGroupsAndFields);
+        	if (!empty($this->oldAndNewFieldGroupsAndFields['deletedFields']) && is_array($this->oldAndNewFieldGroupsAndFields['deletedFields'])) {
+        		$loopNum = 0;
+        		foreach ($this->oldAndNewFieldGroupsAndFields['deletedFields'] as $oneDeletedField) {
+        			$context["acf_deleted_fields_{$loopNum}_key"] = $oneDeletedField['key'];
+        			$context["acf_deleted_fields_{$loopNum}_name"] = $oneDeletedField['name'];
+        			$context["acf_deleted_fields_{$loopNum}_label"] = $oneDeletedField['label'];
+        			$context["acf_deleted_fields_{$loopNum}_type"] = $oneDeletedField['type'];
+        			$loopNum++;
+        		}
+        	}
+
         	return $context;
 
         	// 'modifiedFields'
