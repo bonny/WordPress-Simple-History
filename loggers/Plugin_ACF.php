@@ -192,7 +192,7 @@ if (! class_exists("Plugin_ACF")) {
 							%2$s
 						</td>
 					</tr>',
-					__('Deleted field(s)'), // 1
+					_nx('Deleted field', 'Deleted fields', $loopnum, 'Logger: ACF', 'simple-history'), // 1
 					$strDeletedFields
 				);
         	}
