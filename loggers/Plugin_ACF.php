@@ -215,7 +215,7 @@ if (! class_exists("Plugin_ACF")) {
         	$acf_data_diff = array();
 
         	// 'fieldGroup' fields to check.
-        	$arr_keys_to_diff = array(
+        	$arr_field_group_keys_to_diff = array(
 				'menu_order',
 				'position',
 				'style',
@@ -227,7 +227,7 @@ if (! class_exists("Plugin_ACF")) {
 
         	$fieldGroup = $this->oldAndNewFieldGroupsAndFields['fieldGroup'];
 
-        	foreach ( $arr_keys_to_diff as $key ) {
+        	foreach ( $arr_field_group_keys_to_diff as $key ) {
         		if (isset($fieldGroup['old'][$key]) && isset($fieldGroup['new'][$key])) {
         			$acf_data_diff = $this->add_diff($acf_data_diff, $key, (string) $fieldGroup['old'][$key], (string) $fieldGroup['new'][$key]);
         		}
@@ -258,30 +258,62 @@ if (! class_exists("Plugin_ACF")) {
 
         	// Add removed fields to context
         	if (!empty($this->oldAndNewFieldGroupsAndFields['deletedFields']) && is_array($this->oldAndNewFieldGroupsAndFields['deletedFields'])) {
-        		$loopNum = 0;
+        		$loopnum = 0;
         		foreach ($this->oldAndNewFieldGroupsAndFields['deletedFields'] as $oneDeletedField) {
-        			$context["acf_deleted_fields_{$loopNum}_key"] = $oneDeletedField['key'];
-        			$context["acf_deleted_fields_{$loopNum}_name"] = $oneDeletedField['name'];
-        			$context["acf_deleted_fields_{$loopNum}_label"] = $oneDeletedField['label'];
-        			$context["acf_deleted_fields_{$loopNum}_type"] = $oneDeletedField['type'];
-        			$loopNum++;
+        			$context["acf_deleted_fields_{$loopnum}_key"] = $oneDeletedField['key'];
+        			$context["acf_deleted_fields_{$loopnum}_name"] = $oneDeletedField['name'];
+        			$context["acf_deleted_fields_{$loopnum}_label"] = $oneDeletedField['label'];
+        			$context["acf_deleted_fields_{$loopnum}_type"] = $oneDeletedField['type'];
+        			$loopnum++;
         		}
         	}
 
         	// Add added fields to context
         	if (!empty($this->oldAndNewFieldGroupsAndFields['addedFields']) && is_array($this->oldAndNewFieldGroupsAndFields['addedFields'])) {
-        		$loopNum = 0;
+        		$loopnum = 0;
+
         		foreach ($this->oldAndNewFieldGroupsAndFields['addedFields'] as $oneAddedField) {
-        			$context["acf_added_fields_{$loopNum}_key"] = $oneAddedField['key'];
-        			$context["acf_added_fields_{$loopNum}_name"] = $oneAddedField['name'];
-        			$context["acf_added_fields_{$loopNum}_label"] = $oneAddedField['label'];
-        			$context["acf_added_fields_{$loopNum}_type"] = $oneAddedField['type'];
-        			$loopNum++;
+        			$context["acf_added_fields_{$loopnum}_key"] = $oneAddedField['key'];
+        			$context["acf_added_fields_{$loopnum}_name"] = $oneAddedField['name'];
+        			$context["acf_added_fields_{$loopnum}_label"] = $oneAddedField['label'];
+        			$context["acf_added_fields_{$loopnum}_type"] = $oneAddedField['type'];
+        			$loopnum++;
         		}
         	}
 
-        	// 'addedFields'
+        	// Add modified fields to context
         	#dd('on_post_updated_context', $context, $this->oldAndNewFieldGroupsAndFields);
+        	if (!empty($this->oldAndNewFieldGroupsAndFields['modifiedFields']['old']) && !empty($this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'])) {
+        		$modifiedFields = $this->oldAndNewFieldGroupsAndFields['modifiedFields'];
+
+        		#dd($modifiedFields);
+
+        		$arrAddedFieldsKeysToAdd = array(
+        			'ID',
+        			'parent',
+        			'key',
+        			'label',
+        			'name',
+        			'type',
+        		);
+
+        		$loopnum = 0;
+
+        		foreach ($modifiedFields['old'] as $modifiedFieldId => $modifiedFieldValues) {
+        			// Both old and new values mest exist
+        			if (empty($modifiedFields['new'][$modifiedFieldId])) {
+        				continue;
+        			}
+
+        			foreach ($arrAddedFieldsKeysToAdd as $oneKeyToAdd) {
+        				#dd($modifiedFields);
+	        			$context["acf_modified_fields_{$loopnum}_{$oneKeyToAdd}_prev"] = $modifiedFields['old'][$modifiedFieldId][$oneKeyToAdd];
+	        			$context["acf_modified_fields_{$loopnum}_{$oneKeyToAdd}_new"] = $modifiedFields['new'][$modifiedFieldId][$oneKeyToAdd];
+	        			$loopnum++;
+        			}
+
+        		}
+        	}
 
         	return $context;
 
