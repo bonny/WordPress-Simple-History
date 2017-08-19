@@ -206,46 +206,83 @@ if (! class_exists("Plugin_ACF")) {
         		$loopnum = 0;
         		$strModifiedFields = '';
         		$arrAddedFieldsKeysToCheck = array(
-        			'parent',
-        			'key',
-        			'label',
-        			'name',
-        			'type',
+        			'name' => array(
+        				'name' => 'Name: ',
+        			),
+        			'parent' => array(
+        				'name' => 'Parent: '
+        			),
+        			'key' => array(
+        				'name' => 'Key: ',
+        			),
+        			'label' => array(
+        				'name' => 'Label: ',
+        			),
+        			'type' => array(
+        				'name' => 'Type: ',
+        			),
         		);
 
-        		while (isset($context["acf_modified_fields_{$loopnum}_ID_prev"])) {
+        		while (isset($context["acf_modified_fields_{$loopnum}_name_prev"])) {
+        			// One modified field, with one or more changed things
+        			$strOneModifiedField = '';
 
-					foreach ($arrAddedFieldsKeysToCheck as $oneAddedFieldKeyToCheck) {
+        			// Add the field name manually, if it is not among the changed field,
+        			// or we don't know what field the other changed values belongs to.
+        			if (empty($context["acf_modified_fields_{$loopnum}_name_new"])) {
+						$strOneModifiedField .= sprintf(
+							_x('Name: %1$s', 'Logger: ACF', 'simple-history'), // 1
+							esc_html($context["acf_modified_fields_{$loopnum}_name_prev"]) // 2
+						);
+					}
+
+					// Check for other keys changed for this field
+					foreach ($arrAddedFieldsKeysToCheck as $oneAddedFieldKeyToCheck => $oneAddedFieldKeyToCheckVals) {
 						$newAndOldValsExists = isset($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new"]) && isset($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new"]);
 		        		if ($newAndOldValsExists) {
-							$strModifiedFields .= sprintf(
-								'<tr>
-									<td>%1$s</td>
-									<td>
-										<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
-										<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
-									</td>
-								</tr>',
-								'Modified field',
-								esc_html($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new"]),
-								esc_html($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_prev"])
+							$strOneModifiedField .= sprintf(
+								'
+									%4$s
+									%3$s
+									<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>
+									<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%2$s</del>
+								',
+								esc_html($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new"]), // 1
+								esc_html($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_prev"]), // 2
+								esc_html($oneAddedFieldKeyToCheckVals['name']), // 3
+								empty($strOneModifiedField) ? '' : '<br>' // 4 new line
 							);
 		        		}
+					}
+
+	        		$strOneModifiedField = trim($strOneModifiedField, ", \n\r\t");
+
+					if ($strOneModifiedField) {
+						$strModifiedFields .= sprintf(
+							'<tr>
+								<td>%1$s</td>
+								<td>%2$s</td>
+							</tr>',
+							_x('Modified field', 'Logger: ACF', 'simple-history'), // 1
+							$strOneModifiedField
+						);
 					}
 
 					$loopnum++;
         		}
 
-        		$strModifiedFields = trim($strModifiedFields, ', ');
+        		/*if ($strModifiedFields) {
+					$strModifiedFields = sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>%2$s</td>
+						</tr>',
+						_nx('Modified field', 'Modified fields', $loopnum, 'Logger: ACF', 'simple-history'), // 1
+						$strModifiedFields
+					) . $strModifiedFields;
+				}*/
 
-				$diff_table_output .= sprintf(
-					'<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>',
-					_nx('Modified field', 'Modified fields', $loopnum, 'Logger: ACF', 'simple-history'), // 1
-					$strModifiedFields
-				);
+				$diff_table_output .= $strModifiedFields;
         	} // if deleted fields
 
         	return $diff_table_output;
@@ -345,8 +382,9 @@ if (! class_exists("Plugin_ACF")) {
         				continue;
         			}
 
-        			// Always add the ID
+        			// Always add the ID and the name
 					$context["acf_modified_fields_{$loopnum}_ID_prev"] = $modifiedFields['old'][$modifiedFieldId]['ID'];
+					$context["acf_modified_fields_{$loopnum}_name_prev"] = $modifiedFields['old'][$modifiedFieldId]['name'];
 
         			foreach ($arrAddedFieldsKeysToAdd as $oneKeyToAdd) {
         				#dd($modifiedFields);
