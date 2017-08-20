@@ -32,7 +32,7 @@ class SimpleHistorySidebarDropin {
 
 		// Box about GitHub
 		$headline = _x("Simple History is on GitHub", 'Sidebar box', 'simple-history');
-		
+
 		$body = sprintf(
 				_x('You can star, fork, or report issues with this plugin over at the <a href="%1$s">GitHub page</a>.', 'Sidebar box', 'simple-history'),
 				'https://github.com/bonny/WordPress-Simple-History'
@@ -52,9 +52,9 @@ class SimpleHistorySidebarDropin {
 
 		$body = sprintf(
 				_x('If you like and use Simple History you should <a href="%1$s">donate to keep this plugin free</a>.', 'Sidebar box', 'simple-history'),
-				'http://eskapism.se/sida/donate/'
+				'https://www.paypal.me/eskapism'
 			);
-		
+
 		$boxDonate = '
 			<div class="postbox">
 				<h3 class="hndle">'.$headline.'</h3>
@@ -105,7 +105,7 @@ class SimpleHistorySidebarDropin {
 					<p><a href="hello@simple-history.com">hello@simple-history.com</a></p>
 				</div>
 			</div>
-			', 
+			',
 			_x("Add more to the log", "Sidebar box", "simple-history"), // 1
 			_x("Are there things you miss in the history log?", "Sidebar box", "simple-history") // 2
 		);
@@ -119,14 +119,14 @@ class SimpleHistorySidebarDropin {
 					<p>%2$s</p>
 				</div>
 			</div>
-			', 
+			',
 			_x("Support", "Sidebar box", "simple-history"), // 1
 			sprintf( _x('<a href="%1$s">Visit the support forum</a> if you need help or have questions.', "Sidebar box", "simple-history"), 'https://wordpress.org/support/plugin/simple-history' ) // 2
 		);
 
 
 		$arrBoxes = array(
-			"boxReview" => $boxReview, 
+			"boxReview" => $boxReview,
 			"boxSupport" => $boxSupport,
 			// "boxMissingEvents" => $boxMissingEvents,
 			"boxDonate" => $boxDonate,
@@ -150,13 +150,13 @@ class SimpleHistorySidebarDropin {
 
 		/** WordPress Translation Install API. This file exists only since 4.0. */
 		$translation_install_file = ABSPATH . 'wp-admin/includes/translation-install.php';
-		
+
 		// Show only the translation box if current language is not an english language
 
 		if ( in_array( $current_locale, array("en_US", "en_GB", "en_CA", "en_NZ", "en_AU") ) != $current_locale && file_exists( $translation_install_file ) ) {
 
 			require_once $translation_install_file;
-			
+
 			$translations = wp_get_available_translations();
 
 			// This text does not need translation since is's only shown in English
@@ -164,7 +164,7 @@ class SimpleHistorySidebarDropin {
 				<div class="postbox">
 					<h3 class="hndle">Translate Simple History to %1$s</h3>
 					<div class="inside">
-						
+
 						<p>
 							It looks like Simple History is not yet translated to your language.
 						</p>
@@ -174,7 +174,7 @@ class SimpleHistorySidebarDropin {
 						</p>
 
 						<p>
-							When you\'re done with your translation email it to me at <a href="mailto:par.thernstrom@gmail.com" rel="nofollow">par.thernstrom@gmail.com</a> 
+							When you\'re done with your translation email it to me at <a href="mailto:par.thernstrom@gmail.com" rel="nofollow">par.thernstrom@gmail.com</a>
 							or <a href="https://github.com/bonny/WordPress-Simple-History/" rel="nofollow">add a pull request</a>.
 						</p>
 					</div>
