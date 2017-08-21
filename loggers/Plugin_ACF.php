@@ -12,7 +12,7 @@ if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
  * https://sv.wordpress.org/plugins/advanced-custom-fields/
  *
  * @TODO
- * - store fields diff
+ * - Unclear what field have been modified
  *
  * @package SimpleHistory
  * @since 2.x
@@ -288,7 +288,34 @@ if (! class_exists("Plugin_ACF")) {
         	return $diff_table_output;
         }
 
+        /**
+         * Append ACF data to post context
+         * Called via filter `simple_history/post_logger/post_updated/context`.
+         *
+         * @param array $context
+         * @param WP_Post $post
+         */
        	public function on_post_updated_context($context, $post) {
+
+       		// Only act if this is a ACF field group that is saved
+			if ( $post->post_type !== 'acf-field-group' ) {
+				return $context;
+			}
+
+			// Remove some keys that we don't want,
+			// for example the content because that's just a json string
+			// in acf-field-group posts.
+			unset(
+				$context['post_prev_post_content'],
+				$context['post_new_post_content'],
+				$context['post_prev_post_name'],
+				$context['post_new_post_name'],
+				$context['post_prev_post_date'],
+				$context['post_new_post_date'],
+				$context['post_prev_post_date_gmt'],
+				$context['post_new_post_date_gmt']
+			);
+
         	$acf_data_diff = array();
 
         	// 'fieldGroup' fields to check.
