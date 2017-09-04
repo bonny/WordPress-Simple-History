@@ -12,7 +12,8 @@ if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
  * https://sv.wordpress.org/plugins/advanced-custom-fields/
  *
  * @TODO
- * - Unclear what field have been modified
+ * - Store diff for ACF fields when post is saved
+ *
  *
  * @package SimpleHistory
  * @since 2.x
@@ -36,6 +37,8 @@ if (! class_exists("Plugin_ACF")) {
         	'deletedFields' => array(),
     	);
 
+    	private $oldPostData = array();
+
         public function getInfo()
         {
             $arr_info = array(
@@ -43,9 +46,11 @@ if (! class_exists("Plugin_ACF")) {
                 "description" => _x("Logs ACF stuff", "Logger: Plugin Duplicate Post", "simple-history"),
                 "name_via" => _x("Using plugin ACF", "Logger: Plugin Duplicate Post", "simple-history"),
                 "capability" => "manage_options",
+                /*
                 "messages" => array(
                     'post_duplicated' => _x('Cloned "{duplicated_post_title}" to a new post', "Logger: Plugin Duplicate Post", 'simple-history')
                 ),
+                */
             );
 
             return $arr_info;
@@ -71,7 +76,93 @@ if (! class_exists("Plugin_ACF")) {
         	add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context'), 10, 2);
 
 			add_filter('simple_history/post_logger/post_updated/diff_table_output', array($this, 'on_diff_table_output'), 10, 2 );
+
+			// Store diff when ACF saves post
+			/*
+			 * Possible filters:
+			 * - $value = apply_filters( "acf/update_value", $value, $post_id, $field );
+			 * $field = apply_filters( "acf/update_field", $field);
+			 * - do_action("acf/delete_value", $post_id, $field['name'], $field);
+			do_action('acf/save_post', $post_id);
+			*/
+			// add_filter( 'acf/update_value', array($this, 'on_update_value'), 10, 3 );
+			//add_filter( 'acf/update_field', array($this, 'on_update_field'), 10, 1 );
+
+			// Store prev ACF field values before new values are added
+			add_action("admin_action_editpost", array($this, "on_admin_action_editpost"));
+
+			#add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context2'), 10, 2);
+			#add_filter('save_post', array($this, 'on_post_save'), 50);
+			add_filter('acf/save_post', array($this, 'on_post_save'), 50);
         }
+
+        public function on_post_save($post_id) {
+			if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
+				return;
+			}
+
+        	// Don't act on post revision
+			if ( wp_is_post_revision( $post_id ) ) {
+				return;
+			}
+
+			$prev_post_meta = $this->oldPostData['prev_post_meta'];
+			$new_post_meta = get_post_custom($post_id);
+			$new_post_meta = array_map('reset', $new_post_meta);
+
+			$post_meta_diff = array_diff_assoc($prev_post_meta, $new_post_meta);
+			$post_meta_diff2 = array_diff_assoc($new_post_meta, $prev_post_meta);
+
+        	ddd($prev_post_meta, $new_post_meta, $post_meta_diff, $post_meta_diff2);
+        }
+
+		public function on_admin_action_editpost() {
+
+			$post_ID = isset( $_POST["post_ID"] ) ? (int) $_POST["post_ID"] : 0;
+
+			if ( ! $post_ID ) {
+				return;
+			}
+
+			$prev_post = get_post( $post_ID );
+
+			if (is_wp_error($prev_post)) {
+				return;
+			}
+
+			$post_meta = get_post_custom($post_ID);
+
+			// meta is array of arrays, get first value of each array value
+			$post_meta = array_map('reset', $post_meta);
+
+			$this->oldPostData['prev_post_meta'] = $post_meta;
+		}
+
+        /**
+         * Called once for very field
+         * in for example repeaters = called 1 time per sub field
+         */
+        public function on_update_value($value, $post_id, $field) {
+        	// dd('acf on_update_value', $value, $post_id, $field);
+        	apply_filters('simple_history_log_debug', 'acf on_update_value, field "{acf_field_label}", value "{acf_field_value}"', array(
+        		'value' => $value,
+        		'post_id' => $post_id,
+        		'field' => $field,
+        		'acf_field_label' => $field['label'],
+        		'acf_field_value' => $value
+        	));
+
+        	return $value;
+        }
+
+        /*public function on_update_field($field) {
+        	// dd('acf on_update_value', $value, $post_id, $field);
+        	apply_filters('simple_history_log_debug', 'acf on_update_field', array(
+        		'field' => $field
+        	));
+
+        	return $field;
+        }*/
 
         /**
          * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'
@@ -180,9 +271,9 @@ if (! class_exists("Plugin_ACF")) {
         		while (isset($context["acf_added_fields_{$loopnum}_key"])) {
 					$strAddedFields .= sprintf(
 						'%1$s (%3$s), ',
-						esc_html($context["acf_added_fields_{$loopnum}_label"]),
-						esc_html($context["acf_added_fields_{$loopnum}_name"]),
-						esc_html($context["acf_added_fields_{$loopnum}_type"])
+						esc_html($context["acf_added_fields_{$loopnum}_label"]), // 1
+						esc_html($context["acf_added_fields_{$loopnum}_name"]), // 2
+						esc_html($context["acf_added_fields_{$loopnum}_type"]) // 3
 					);
 
 					$loopnum++;
@@ -229,10 +320,21 @@ if (! class_exists("Plugin_ACF")) {
 
         			// Add the field name manually, if it is not among the changed field,
         			// or we don't know what field the other changed values belongs to.
+        			/*
         			if (empty($context["acf_modified_fields_{$loopnum}_name_new"])) {
 						$strOneModifiedField .= sprintf(
 							_x('Name: %1$s', 'Logger: ACF', 'simple-history'), // 1
 							esc_html($context["acf_modified_fields_{$loopnum}_name_prev"]) // 2
+						);
+					}
+					*/
+
+        			// Add the label name manually, if it is not among the changed field,
+        			// or we don't know what field the other changed values belongs to.
+        			if (empty($context["acf_modified_fields_{$loopnum}_label_new"])) {
+						$strOneModifiedField .= sprintf(
+							_x('Label: %1$s', 'Logger: ACF', 'simple-history'), // 1
+							esc_html($context["acf_modified_fields_{$loopnum}_label_prev"]) // 2
 						);
 					}
 
@@ -409,9 +511,10 @@ if (! class_exists("Plugin_ACF")) {
         				continue;
         			}
 
-        			// Always add the ID and the name
+        			// Always add ID, name, and lavel
 					$context["acf_modified_fields_{$loopnum}_ID_prev"] = $modifiedFields['old'][$modifiedFieldId]['ID'];
 					$context["acf_modified_fields_{$loopnum}_name_prev"] = $modifiedFields['old'][$modifiedFieldId]['name'];
+					$context["acf_modified_fields_{$loopnum}_label_prev"] = $modifiedFields['old'][$modifiedFieldId]['label'];
 
         			foreach ($arrAddedFieldsKeysToAdd as $oneKeyToAdd) {
         				#dd($modifiedFields);
