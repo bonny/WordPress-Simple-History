@@ -178,6 +178,10 @@ class SimplePostLogger extends SimpleLogger
 
 		$prev_post_data = get_post( $post_ID );
 
+		if (is_wp_error($prev_post_data)) {
+			return;
+		}
+
 		$this->old_post_data[$post_ID] = array(
 			"post_data" => $prev_post_data,
 			"post_meta" => get_post_custom( $post_ID )
