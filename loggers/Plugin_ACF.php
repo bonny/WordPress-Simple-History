@@ -110,10 +110,37 @@ if (! class_exists("Plugin_ACF")) {
 			$new_post_meta = get_post_custom($post_id);
 			$new_post_meta = array_map('reset', $new_post_meta);
 
+			// New and old post meta can contain different amount of keys,
+			// join them so we have the name of all post meta thaf have been added, removed, or modified.
+			$new_and_old_post_meta = array_merge($prev_post_meta, $new_post_meta);
+			ksort($new_and_old_post_meta, SORT_REGULAR);
+
+			// array1 - The array to compare from
+			// array2 - An array to compare against
+			// Returns an array containing all the values from array1 that are not present in any of the other arrays.
+
+			// Compare old with new = get only changed, not added, deleted are here
 			$post_meta_diff = array_diff_assoc($prev_post_meta, $new_post_meta);
+
+			// Compare new with old = get an diff with added and changed stuff
 			$post_meta_diff2 = array_diff_assoc($new_post_meta, $prev_post_meta);
 
-        	ddd($prev_post_meta, $new_post_meta, $post_meta_diff, $post_meta_diff2);
+			// Compare old and new values
+			// Loop all keys in $new_and_old_post_meta
+			// But act only on those whose keys begins with "_" and where the value begins with "field_" and ends with alphanum
+			foreach ($new_and_old_post_meta as $post_meta_key => $post_meta_val) {
+				if (strpos($post_meta_key, '_') !== 0) {
+					continue;
+				}
+
+				if (strpos($post_meta_val, 'field_') !== 0) {
+					continue;
+				}
+
+				echo "<br>$post_meta_key - $post_meta_val";
+			}
+
+        	ddd($prev_post_meta, $new_post_meta, $post_meta_diff, $post_meta_diff2, $new_and_old_post_meta);
         }
 
 		public function on_admin_action_editpost() {
