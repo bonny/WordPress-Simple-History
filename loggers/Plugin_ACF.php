@@ -472,8 +472,8 @@ if (! class_exists("Plugin_ACF")) {
         	}
 
         	// Add checked or uncheckd hide on screen-items to context
-			$arrhHideOnScreenAdded = [];
-			$arrHideOnScreenRemoved = [];
+			$arrhHideOnScreenAdded = array();
+			$arrHideOnScreenRemoved = array();
         	if (!empty($fieldGroup['new']['hide_on_screen']) && !empty($fieldGroup['old']['hide_on_screen'])) {
         		$arrhHideOnScreenAdded = array_diff($fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen']);
         		$arrHideOnScreenRemoved = array_diff($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
