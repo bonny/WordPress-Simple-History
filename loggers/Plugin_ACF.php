@@ -119,15 +119,32 @@ if (! class_exists("Plugin_ACF")) {
 			// array2 - An array to compare against
 			// Returns an array containing all the values from array1 that are not present in any of the other arrays.
 
+			// Keep only ACF fields in prev and new post meta
+			$prev_post_meta = $this->keep_only_acf_stuff_in_array($prev_post_meta);
+			$new_post_meta = $this->keep_only_acf_stuff_in_array($new_post_meta);
+
 			// Compare old with new = get only changed, not added, deleted are here
-			$post_meta_diff = array_diff_assoc($prev_post_meta, $new_post_meta);
+			$post_meta_diff1 = array_diff_assoc($prev_post_meta, $new_post_meta);
 
 			// Compare new with old = get an diff with added and changed stuff
 			$post_meta_diff2 = array_diff_assoc($new_post_meta, $prev_post_meta);
 
+			// Compare keys, get added fields
+			$post_meta_added_fields = array_diff_assoc(array_keys($post_meta_diff2), array_keys($post_meta_diff1));
+
+			// Keys that exist in diff1 but not in diff2 = deleted
+			$post_meta_removed_fields = array_diff_assoc(array_keys($post_meta_diff1), array_keys($post_meta_diff2));
+
+			$post_meta_changed_fields = $post_meta_diff1;
+
+			// value is changed: added to both diff and diff2
+			// value is added, like in repeater: added to diff2 (not to diff)
+			// $diff3: contains only added things
+
 			// Compare old and new values
 			// Loop all keys in $new_and_old_post_meta
 			// But act only on those whose keys begins with "_" and where the value begins with "field_" and ends with alphanum
+			/*
 			foreach ($new_and_old_post_meta as $post_meta_key => $post_meta_val) {
 				if (strpos($post_meta_key, '_') !== 0) {
 					continue;
@@ -139,8 +156,30 @@ if (! class_exists("Plugin_ACF")) {
 
 				echo "<br>$post_meta_key - $post_meta_val";
 			}
+			*/
 
-        	ddd($prev_post_meta, $new_post_meta, $post_meta_diff, $post_meta_diff2, $new_and_old_post_meta);
+        	ddd($prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $new_and_old_post_meta);
+        }
+
+        /**
+         * Remove underscore fields, remove fields with value field_, keep only vals that are acf
+         */
+        public function keep_only_acf_stuff_in_array($arr) {
+        	$newArr = array();
+        	echo '<pre>';
+        	foreach ($arr as $key => $val) {
+
+				if (strpos($key, '_') === 0) {
+					continue;
+				}
+
+				if (strpos($val, 'field_') === 0) {
+					continue;
+				}
+
+				$newArr[$key] = $val;
+        	}
+        	return $newArr;
         }
 
 		public function on_admin_action_editpost() {
@@ -242,21 +281,40 @@ if (! class_exists("Plugin_ACF")) {
 
         	// acf_hide_on_screen_added
         	// acf_hide_on_screen_removed
-        	if (!empty($context["acf_hide_on_screen_added"])) {
+        	// @TODO: not sure this works
+        	// if only acf_hide_on_screen_removed exists nothing is outputed
+        	$acf_hide_on_screen_added = empty($context['acf_hide_on_screen_added']) ? null : $context['acf_hide_on_screen_added'];
+        	$acf_hide_on_screen_removed = empty($context['acf_hide_on_screen_removed']) ? null : $context['acf_hide_on_screen_removed'];
+        	if ($acf_hide_on_screen_added || $acf_hide_on_screen_removed) {
+        		$strCheckedHideOnScreen = '';
+        		$strUncheckedHideOnScreen = '';
+
+        		if ($acf_hide_on_screen_added) {
+        			$strCheckedHideOnScreen = sprintf(
+        				'%1$s %2$s',
+        				__('Checked'), // 1
+        				esc_html($acf_hide_on_screen_added) // 2
+        			);
+        		}
+        		if ($acf_hide_on_screen_removed) {
+        			$strUncheckedHideOnScreen = sprintf(
+        				'%1$s %2$s',
+        				__('Unchecked'), // 1
+        				esc_html($acf_hide_on_screen_removed) // 2
+        			);
+        		}
+
 				$diff_table_output .= sprintf(
 					'<tr>
 						<td>%1$s</td>
 						<td>
-							%4$s %2$s
-							<br>
-							%5$s %3$s
+							%2$s
+							%3$s
 						</td>
 					</tr>',
-					__('Hide on screen'),
-					esc_html($context['acf_hide_on_screen_added']),
-					esc_html($context['acf_hide_on_screen_removed']),
-					__('Checked'), // 4
-					__('Unchecked') // 5
+					__('Hide on screen'), // 1
+					$strCheckedHideOnScreen, // 2
+					$strUncheckedHideOnScreen // 3
 				);
         	}
 
@@ -474,9 +532,19 @@ if (! class_exists("Plugin_ACF")) {
         	// Add checked or uncheckd hide on screen-items to context
 			$arrhHideOnScreenAdded = array();
 			$arrHideOnScreenRemoved = array();
-        	if (!empty($fieldGroup['new']['hide_on_screen']) && !empty($fieldGroup['old']['hide_on_screen'])) {
+
+
+			$fieldGroup['new']['hide_on_screen'] = isset($fieldGroup['new']['hide_on_screen']) && is_array($fieldGroup['new']['hide_on_screen']) ? $fieldGroup['new']['hide_on_screen'] : array();
+			$fieldGroup['old']['hide_on_screen'] = isset($fieldGroup['old']['hide_on_screen']) && is_array($fieldGroup['old']['hide_on_screen']) ? $fieldGroup['old']['hide_on_screen'] : array();
+
+			#dd($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
+
+			// Act when new or old hide_on_screen is set
+        	if (!empty($fieldGroup['new']['hide_on_screen']) || !empty($fieldGroup['old']['hide_on_screen'])) {
         		$arrhHideOnScreenAdded = array_diff($fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen']);
         		$arrHideOnScreenRemoved = array_diff($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
+
+        		#ddd($arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
 
         		if ($arrhHideOnScreenAdded) {
         			$context["acf_hide_on_screen_added"] = implode(',', $arrhHideOnScreenAdded);
@@ -487,6 +555,8 @@ if (! class_exists("Plugin_ACF")) {
         		}
 
         	}
+
+        	#ddd($context, $arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
 
         	// Add removed fields to context
         	if (!empty($this->oldAndNewFieldGroupsAndFields['deletedFields']) && is_array($this->oldAndNewFieldGroupsAndFields['deletedFields'])) {
