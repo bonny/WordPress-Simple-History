@@ -129,13 +129,14 @@ if (! class_exists("Plugin_ACF")) {
 			// Compare new with old = get an diff with added and changed stuff
 			$post_meta_diff2 = array_diff_assoc($new_post_meta, $prev_post_meta);
 
-			// Compare keys, get added fields
-			$post_meta_added_fields = array_diff_assoc(array_keys($post_meta_diff2), array_keys($post_meta_diff1));
+			// Compare keys, gets added fields
+			$post_meta_added_fields = array_diff(array_keys($post_meta_diff2), array_keys($post_meta_diff1));
+			$post_meta_added_fields = array_values($post_meta_added_fields);
 
 			// Keys that exist in diff1 but not in diff2 = deleted
 			$post_meta_removed_fields = array_diff_assoc(array_keys($post_meta_diff1), array_keys($post_meta_diff2));
 
-			$post_meta_changed_fields = $post_meta_diff1;
+			$post_meta_changed_fields = array_keys($post_meta_diff1);
 
 			// value is changed: added to both diff and diff2
 			// value is added, like in repeater: added to diff2 (not to diff)
@@ -158,7 +159,7 @@ if (! class_exists("Plugin_ACF")) {
 			}
 			*/
 
-			ddd( $prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields );
+			ddd( $prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields, $_POST );
 		}
 
 		/**
