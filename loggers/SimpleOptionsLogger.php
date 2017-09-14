@@ -352,7 +352,7 @@ class SimpleOptionsLogger extends SimpleLogger
 	}
 
 	/**
-	 * Add detailed putput for page_on_front
+	 * Add detailed output for page_on_front
 	 *
 	 * @return string output
 	 */
@@ -462,7 +462,7 @@ class SimpleOptionsLogger extends SimpleLogger
 
 
 	/**
-	 * Add detailed putput for default_category
+	 * Add detailed output for default_category
 	 *
 	 * @return string output
 	 */
@@ -470,6 +470,7 @@ class SimpleOptionsLogger extends SimpleLogger
 
 		$old_category_name = isset( $context["old_category_name"] ) ? $context["old_category_name"] : null;
 		$new_category_name = isset( $context["new_category_name"] ) ? $context["new_category_name"] : null;
+		$output = '';
 
 		if ( $old_category_name ) {
 
