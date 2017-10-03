@@ -93,10 +93,10 @@ if (! class_exists("Plugin_ACF")) {
 
 			#add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context2'), 10, 2);
 			#add_filter('save_post', array($this, 'on_post_save'), 50);
-			add_filter('acf/save_post', array($this, 'on_post_save'), 50);
+			add_filter('acf/save_post', array($this, 'on_acf_save_post'), 50);
 		}
 
-		public function on_post_save($post_id) {
+		public function on_acf_save_post($post_id) {
 			if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
 				return;
 			}
@@ -159,7 +159,15 @@ if (! class_exists("Plugin_ACF")) {
 			}
 			*/
 
-			ddd( $prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields, $_POST );
+			// We have the diff, now add it to the context
+			// This is called after Simple History already has added its row
+			// So... we must add to the context late somehow
+			// Get the latest inserted row from the SimplePostLogger, check if that postID is
+			// same as
+			// @HERE
+			$postLogger = $this->simpleHistory->getInstantiatedLoggerBySlug('SimplePostLogger');
+
+			// ddd( $prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields, $_POST, $postLogger);
 		}
 
 		/**
