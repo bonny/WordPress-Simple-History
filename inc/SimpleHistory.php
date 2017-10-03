@@ -2898,6 +2898,10 @@ Because Simple History was just recently installed, this feed does not contain m
 	}
 
 
+	/**
+	 * @param string $slug
+	 * @return mixed logger instance if found, bool false if logger not found
+	 */
 	public function getInstantiatedLoggerBySlug( $slug = "" ) {
 
 		if ( empty( $slug ) ) {
