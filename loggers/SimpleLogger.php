@@ -41,6 +41,11 @@ class SimpleLogger {
 	public $lastInsertID;
 
 	/**
+	 * Simple History instance
+	 */
+	public $simpleHistory;
+
+	/**
 	 * Constructor. Remember to call this as parent constructor if making a childlogger
 	 * @param $simpleHistory history class  objectinstance
 	 */
