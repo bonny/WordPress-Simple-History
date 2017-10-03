@@ -165,10 +165,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.1n (nnn 2017) =
 
-- The post types in skip_posttypes are now also applied to trashed and untrashed posts (not only post edits, as before).
-- Added filter `simple_history/post_logger/post_updated/context` to modify the context added by SimplePostLogger.
--
-
+- The post types in the `skip_posttypes` filter are now also applied to trashed and untrashed posts (not only post edits, as before).
+- Added filter `simple_history/post_logger/post_updated/context` that can be used to modify the context added by SimplePostLogger.
+- Fix a notice in SimpleOptionsLogger.
 
 = 2.18 (August 2017) =
 
