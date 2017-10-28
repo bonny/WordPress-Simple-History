@@ -158,9 +158,14 @@ initiated by a specific user.
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
 A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
-== Changelog ==
+==
+ ==
 
 ## Changelog
+
+= 2.1n (nnn 2017) =
+
+- Fix notice error in SimpleOptionsLogger.
 
 = 2.18 (August 2017) =
 
