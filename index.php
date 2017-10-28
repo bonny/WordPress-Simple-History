@@ -12,7 +12,8 @@ License: GPL2
 GitHub Plugin URI: https://github.com/bonny/WordPress-Simple-History
 */
 
-/*  Copyright 2015  Pär Thernström (email: par.thernstrom@gmail.com)
+/*
+  Copyright 2015  Pär Thernström (email: par.thernstrom@gmail.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
@@ -32,14 +33,14 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-if ( version_compare( phpversion(), "5.3", ">=") ) {
+if ( version_compare( phpversion(), '5.3', '>=' ) ) {
 
 	/**
 	 * Register function that is called when plugin is installed
 	 *
 	 * @TODO: make activatigon multi site aware, as in https://github.com/scribu/wp-proper-network-activation
+	 * register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 	 */
-	// register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
 
 	if ( ! defined( 'SIMPLE_HISTORY_VERSION' ) ) {
 		define( 'SIMPLE_HISTORY_VERSION', '2.18' );
@@ -62,8 +63,8 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 	}
 
 	/** Load required files */
-	require_once(__DIR__ . "/inc/SimpleHistory.php");
-	require_once(__DIR__ . "/inc/SimpleHistoryLogQuery.php");
+	require_once( __DIR__ . '/inc/SimpleHistory.php' );
+	require_once( __DIR__ . '/inc/SimpleHistoryLogQuery.php' );
 
 	// Prev behavior:
 	/*
@@ -105,5 +106,4 @@ if ( version_compare( phpversion(), "5.3", ">=") ) {
 		<?php
 
 	}
-
-}
+}// End if().
