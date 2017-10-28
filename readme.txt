@@ -166,6 +166,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.1n (nnn 2017) =
 
 - Fix notice error in SimpleOptionsLogger.
+- Code formatted according to [WordPress coding standard](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards).
 
 = 2.18 (August 2017) =
 
