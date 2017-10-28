@@ -3,8 +3,8 @@
 defined( 'ABSPATH' ) or die();
 
 echo "<h4 class=''>";
-echo __("Rows per day", "simple-history");
-echo "</h4>";
+echo __( 'Rows per day', 'simple-history' );
+echo '</h4>';
 
 $sql = sprintf(
 	'
@@ -18,37 +18,39 @@ $sql = sprintf(
 		ORDER BY yearDate ASC
 	',
 	$wpdb->prefix . SimpleHistory::DBTABLE,
-	strtotime("-$period_days days")
+	strtotime( "-$period_days days" )
 );
 
 $dates = $wpdb->get_results( $sql );
 
-#echo '<div class="SimpleHistoryChart__rowsPerDay"></div>';
+// echo '<div class="SimpleHistoryChart__rowsPerDay"></div>';
 echo '<div class="SimpleHistoryChart__rowsPerDayGoogleChart"></div>';
 
 // Loop from $period_start_date to $period_end_date
-$interval = DateInterval::createFromDateString('1 day');
-$period = new DatePeriod($period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string('1 days') ) );
-$str_js_chart_labels = "";
-$str_js_chart_data = "";
-$str_js_google_chart_data = "";
+$interval = DateInterval::createFromDateString( '1 day' );
+$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
+$str_js_chart_labels = '';
+$str_js_chart_data = '';
+$str_js_google_chart_data = '';
 
 foreach ( $period as $dt ) {
-	
-	$datef = _x( 'M j', "stats: date in rows per day chart", "simple-history" );
+
+	$datef = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
 	$str_date = date_i18n( $datef, $dt->getTimestamp() );
 
 	$str_js_chart_labels .= sprintf(
-		'"%1$s",', 
+		'"%1$s",',
 		$str_date
 	);
 
 	// Get data for this day, if exist
 	// Day in object is in format '2014-09-07'
-	$day_data = wp_filter_object_list( $dates, array("yearDate" => $dt->format( "Y-m-d" )) );
+	$day_data = wp_filter_object_list( $dates, array(
+		'yearDate' => $dt->format( 'Y-m-d' ),
+	) );
 	$day_data_value = 0;
 	if ( $day_data ) {
-		$day_data_value = (int) current($day_data)->count;
+		$day_data_value = (int) current( $day_data )->count;
 	}
 
 	$str_js_chart_data .= sprintf(
@@ -64,9 +66,9 @@ foreach ( $period as $dt ) {
 
 }
 
-$str_js_chart_labels = rtrim($str_js_chart_labels, ",");
-$str_js_chart_data = rtrim($str_js_chart_data, ",");
-$str_js_google_chart_data = rtrim($str_js_google_chart_data, ",");
+$str_js_chart_labels = rtrim( $str_js_chart_labels, ',' );
+$str_js_chart_data = rtrim( $str_js_chart_data, ',' );
+$str_js_google_chart_data = rtrim( $str_js_google_chart_data, ',' );
 
 ?>
 
@@ -133,10 +135,10 @@ $str_js_google_chart_data = rtrim($str_js_google_chart_data, ",");
 			xchartArea: { left: 0, width: "80%" },
 			xchartArea2: {'width': '100%', 'xheight': '80%'},
 			xxlegend: {'position': 'bottom'},
-	        legend: { 
-	        	xposition: 'top',
-	        	alignment: 'center'
-	        }
+			legend: { 
+				xposition: 'top',
+				alignment: 'center'
+			}
 
 
 		};

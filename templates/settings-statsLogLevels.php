@@ -3,9 +3,9 @@
 defined( 'ABSPATH' ) or die();
 
 // Stats på level (notice, warning, debug, etc.)
-echo "<h3>" . __("Log levels", "simple-history") . "</h3>";
+echo '<h3>' . __( 'Log levels', 'simple-history' ) . '</h3>';
 
-echo "<p>" . __("Number of rows logged for each log level.", "simple-history") . "</p>";
+echo '<p>' . __( 'Number of rows logged for each log level.', 'simple-history' ) . '</p>';
 
 /*
 echo "<table>";
@@ -22,13 +22,13 @@ $sql = sprintf('
 	WHERE UNIX_TIMESTAMP(date) >= %2$d
 	GROUP BY level
 	ORDER BY count DESC
-	', 
+	',
 	$table_name, // 1
-	strtotime("-$period_days days") // 2
+	strtotime( "-$period_days days" ) // 2
 );
 
 
-$level_counts = $wpdb->get_results($sql);
+$level_counts = $wpdb->get_results( $sql );
 
 $arr_chart_data = array();
 $arr_chart_labels = array();
@@ -36,19 +36,19 @@ $str_js_google_chart_data = '["Log level", "Count"], ';
 
 foreach ( $level_counts as $row ) {
 
-	if ( empty($row->level) ) {
+	if ( empty( $row->level ) ) {
 		continue;
 	}
-		
+
 	/*
 	printf('
 		<tr>
 			<td>%1$s</td>
 			<td>%2$s</td>
 		</tr>
-		', 
-		$row->level, 
-		$row->count 
+        ',
+        $row->level,
+        $row->count
 	);
 	*/
 
@@ -63,9 +63,9 @@ foreach ( $level_counts as $row ) {
 
 }
 
-$str_js_google_chart_data = rtrim($str_js_google_chart_data, ", ");
+$str_js_google_chart_data = rtrim( $str_js_google_chart_data, ', ' );
 
-echo "</table>";
+echo '</table>';
 
 echo "<div class='SimpleHistoryChart__logLevelsPie'></div>";
 
@@ -79,9 +79,9 @@ echo "<div class='SimpleHistoryChart__logLevelsPie'></div>";
 	jQuery(function($) {
 		
 		var data = {
-			labels: ["<?php echo implode('", "', $arr_chart_labels) ?>"],
+			labels: ["<?php echo implode( '", "', $arr_chart_labels ) ?>"],
 			series: [
-				[<?php echo implode(",", $arr_chart_data) ?>]
+				[<?php echo implode( ',', $arr_chart_data ) ?>]
 			]
 		};		
 		
@@ -102,10 +102,10 @@ echo "<div class='SimpleHistoryChart__logLevelsPie'></div>";
 			xtitle: 'My Daily Activities',
 			backgroundColor: "transparent",
 			is3D: true,
-	        legend: { 
-	        	xposition: 'top',
-	        	alignment: 'center'
-	        }
+			legend: { 
+				xposition: 'top',
+				alignment: 'center'
+			}
 		};
 
 		var chart = new google.visualization.PieChart( $(".SimpleHistoryChart__logLevelsPie").get(0) );
