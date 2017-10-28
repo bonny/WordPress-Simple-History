@@ -2,13 +2,29 @@
 
 /**
  * Logs available updates to themes, plugins and WordPress core
+ *
+ * @package SimpleHistory
  */
+
 if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 
+	/**
+	 * Class.
+	 */
 	class AvailableUpdatesLogger extends SimpleLogger {
 
+		/**
+		 * Slug for logger.
+		 *
+		 * @var $slug string
+		 */
 		public $slug = __CLASS__;
 
+		/**
+		 * Return logger info
+		 *
+		 * @return array
+		 */
 		function getInfo() {
 
 			$arr_info = array(
@@ -35,14 +51,17 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 								'theme_update_available'
 							),
 						),
-					),// search array
-				),// labels
+					), // search array.
+				), // labels.
 			);
 
 			return $arr_info;
 
 		}
 
+		/**
+		 * Called when logger is loaded.
+		 */
 		function loaded() {
 
 			// When WP is done checking for core updates it sets a site transient called "update_core"
@@ -260,11 +279,14 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 
 				$output .= '</p>';
 
-				// Add link to update-page
-				$output .= sprintf( '<p><a href="%1$s">', admin_url( 'update-core.php' ) );
-				$output .= __( 'View all updates', 'simple-history' );
-				$output .= '</a></p>';
+				// Add link to update-page, if user is allowed  to that page.
+				$is_allowed_to_update_page = current_user_can( 'update_core' ) || current_user_can( 'update_themes' ) || current_user_can( 'update_plugins' );
 
+				if ( $is_allowed_to_update_page ) {
+					$output .= sprintf( '<p><a href="%1$s">', admin_url( 'update-core.php' ) );
+					$output .= __( 'View all updates', 'simple-history' );
+					$output .= '</a></p>';
+				}
 			}
 
 			return $output;
