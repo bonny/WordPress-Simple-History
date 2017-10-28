@@ -20,12 +20,12 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 	function getInfo() {
 
 		$arr_info = array(
-			"name" => _x("Enable Media Replace Logger", "PluginEnableMediaReplaceLogger", "simple-history"),
-			"description" => _x("Logs media updates made with the Enable Media Replace Plugin", "PluginEnableMediaReplaceLogger", "simple-history"),
-			"name_via" => _x("Using plugin Enable Media Replace", "PluginUserSwitchingLogger", "simple-history"),
-			"capability" => "upload_files",
-			"messages" => array(
-				'replaced_file' => _x('Replaced attachment "{prev_attachment_title}" with new attachment "{new_attachment_title}"', "PluginEnableMediaReplaceLogger", "simple-history"),
+			'name' => _x( 'Enable Media Replace Logger', 'PluginEnableMediaReplaceLogger', 'simple-history' ),
+			'description' => _x( 'Logs media updates made with the Enable Media Replace Plugin', 'PluginEnableMediaReplaceLogger', 'simple-history' ),
+			'name_via' => _x( 'Using plugin Enable Media Replace', 'PluginUserSwitchingLogger', 'simple-history' ),
+			'capability' => 'upload_files',
+			'messages' => array(
+				'replaced_file' => _x( 'Replaced attachment "{prev_attachment_title}" with new attachment "{new_attachment_title}"', 'PluginEnableMediaReplaceLogger', 'simple-history' ),
 			),
 		);
 
@@ -36,7 +36,7 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 	function loaded() {
 
 		// Action that is called when Enable Media Replace loads it's admin options page (both when viewing and when posting new file to it)
-		add_action( 'load-media_page_enable-media-replace/enable-media-replace', array( $this, "on_load_plugin_admin_page" ), 10, 1 );
+		add_action( 'load-media_page_enable-media-replace/enable-media-replace', array( $this, 'on_load_plugin_admin_page' ), 10, 1 );
 	}
 
 	function on_load_plugin_admin_page() {
@@ -45,11 +45,11 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 			return;
 		}
 
-		if ( isset( $_GET["action"] ) && $_GET["action"] == "media_replace_upload" ) {
+		if ( isset( $_GET['action'] ) && $_GET['action'] == 'media_replace_upload' ) {
 
-			$attachment_id = empty( $_POST["ID"] ) ? null : (int) $_POST["ID"];
-			$replace_type = empty( $_POST["replace_type"] ) ? null : sanitize_text_field( $_POST["replace_type"] );
-			$new_file = empty( $_FILES["userfile"] ) ? null : (array) $_FILES["userfile"];
+			$attachment_id = empty( $_POST['ID'] ) ? null : (int) $_POST['ID'];
+			$replace_type = empty( $_POST['replace_type'] ) ? null : sanitize_text_field( $_POST['replace_type'] );
+			$new_file = empty( $_FILES['userfile'] ) ? null : (array) $_FILES['userfile'];
 
 			$prev_attachment_post = get_post( $attachment_id );
 
@@ -82,13 +82,13 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 			}
 			*/
 
-			$this->infoMessage("replaced_file", array(
-				"attachment_id" => $attachment_id,
-				"prev_attachment_title" => get_the_title( $prev_attachment_post ),
-				"new_attachment_title" => $new_file["name"],
-				"new_attachment_type" => $new_file["type"],
-				"new_attachment_size" => $new_file["size"],
-				"replace_type" => $replace_type,
+			$this->infoMessage('replaced_file', array(
+				'attachment_id' => $attachment_id,
+				'prev_attachment_title' => get_the_title( $prev_attachment_post ),
+				'new_attachment_title' => $new_file['name'],
+				'new_attachment_type' => $new_file['type'],
+				'new_attachment_size' => $new_file['size'],
+				'replace_type' => $replace_type,
 				/*
 				"get" => $_GET,
 				"post" => $_POST,
@@ -98,7 +98,7 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 				*/
 			));
 
-		}
+		}// End if().
 
 	}
 
