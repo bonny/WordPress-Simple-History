@@ -165,6 +165,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.1n (nnn 2017) =
 
+- Remove static keyword from some methods in SimpleLogger, so now calls like `SimpleLogger()->critical('Doh!');` works.
 - Don't show link to WordPress updates if user is not allowed to view the updates page.
 - Fix notice error in SimpleOptionsLogger.
 - Code better formatted according to [WordPress coding standard](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards).
