@@ -169,8 +169,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Remove static keyword from some methods in SimpleLogger, so now calls like `SimpleLogger()->critical('Doh!');` works.
 - Don't show link to WordPress updates if user is not allowed to view the updates page.
 - Fix notice error in SimpleOptionsLogger.
-- Code better formatted according to [WordPress coding standard](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards).
 - Fix for fatal errors when using the lost password form in [Membership 2](https://wordpress.org/plugins/membership/). Fixes https://wordpress.org/support/topic/conflict-with-simple-history-plugin-and-php-7/.
+- Code (a little bit) better formatted according to [WordPress coding standard](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards).
 
 = 2.18 (August 2017) =
 
