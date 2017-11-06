@@ -6,7 +6,7 @@ notifications:
   on_failure: change
 
 php:
-  - 5.3
+  - "5.3"
   - 5.5
   - 7.0
   - 7.1
@@ -16,7 +16,7 @@ env:
 
 matrix:
   include:
-    - php: 5.3
+    - php: "5.3"
       dist: precise
       env: WP_VERSION=latest WP_MULTISITE=1
 
