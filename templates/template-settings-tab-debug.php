@@ -54,21 +54,21 @@ printf(
 		</tr>
 	</thead>
 	',
-	_x("Table name", "debug dropin", "simple-history"),
-	_x("Size", "debug dropin", "simple-history"),
-	_x("Rows", "debug dropin", "simple-history")
+	_x( 'Table name', 'debug dropin', 'simple-history' ),
+	_x( 'Size', 'debug dropin', 'simple-history' ),
+	_x( 'Rows', 'debug dropin', 'simple-history' )
 );
 
 $loopnum = 0;
 foreach ( $table_size_result as $one_table ) {
 
 	$size = sprintf(
-		_x('%s MB', "debug dropin", "simple-history"),
+		_x( '%s MB', 'debug dropin', 'simple-history' ),
 		$one_table->size_in_mb
 	);
 
 	$rows = sprintf(
-		_x('%s rows', "debug dropin", "simple-history"),
+		_x( '%s rows', 'debug dropin', 'simple-history' ),
 		number_format_i18n( $one_table->num_rows, 0 )
 	);
 
@@ -80,34 +80,32 @@ foreach ( $table_size_result as $one_table ) {
 		$one_table->table_name,
 		$size,
 		$rows,
-		$loopnum % 2 ? " alt " : ""
+		$loopnum % 2 ? ' alt ' : ''
 	);
 
 	$loopnum++;
 }
 
-echo "</table>";
+echo '</table>';
 
 $logQuery = new SimpleHistoryLogQuery();
 $rows = $logQuery->query( array(
-	"posts_per_page" => 1,
+	'posts_per_page' => 1,
 ) );
 
 // This is the number of rows with occasions taken into consideration
-$total_accassions_rows_count = $rows["total_row_count"];
+$total_accassions_rows_count = $rows['total_row_count'];
 
-echo "<p>";
+echo '<p>';
 printf(
-	_x('Total %s rows, when grouped by occasion id.', "debug dropin", "simple-history" ),
+	_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
 	$total_accassions_rows_count
 );
-echo "</p>";
+echo '</p>';
 
 
 // echo "<h4>Clear history interval</h4>";
 // echo "<p>" . $this->sh->get_clear_history_interval() . "</p>";
-
-
 /**
  * Output a list of all active loggers, including name, slug, comment, message, capability and number of rows
  * Retrieve them in order by the number of rows they have in the db
@@ -118,7 +116,7 @@ echo "</p>";
 $arr_logger_slugs = array();
 
 foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
-    $arr_logger_slugs[] = $oneLogger["instance"]->slug;
+	$arr_logger_slugs[] = $oneLogger['instance']->slug;
 }
 
 $sql_logger_counts = sprintf( '
@@ -136,23 +134,23 @@ $missing_logger_slugs = array_diff( $arr_logger_slugs, array_keys( $logger_rows_
 
 foreach ( $missing_logger_slugs as $one_missing_logger_slug ) {
 
-    $logger_rows_count[$one_missing_logger_slug] = (object) array(
-        "logger" => $one_missing_logger_slug,
-        "count" => 0
-    );
+	$logger_rows_count[ $one_missing_logger_slug ] = (object) array(
+		'logger' => $one_missing_logger_slug,
+		'count' => 0,
+	);
 
 }
 
-echo "<h3>";
-_ex("Loggers", "debug dropin", "simple-history");
-echo "</h3>";
+echo '<h3>';
+_ex( 'Loggers', 'debug dropin', 'simple-history' );
+echo '</h3>';
 
-echo "<p>";
+echo '<p>';
 printf(
-    _x('Listing %1$d loggers, ordered by rows count in database.', "debug dropin", "simple-history"),
-    sizeof( $arr_logger_slugs ) // 1
- );
-echo "</p>";
+	_x( 'Listing %1$d loggers, ordered by rows count in database.', 'debug dropin', 'simple-history' ),
+	sizeof( $arr_logger_slugs ) // 1
+);
+echo '</p>';
 
 echo "<table class='widefat fixed' cellpadding=2>";
 printf(
@@ -168,12 +166,12 @@ printf(
 		</tr>
 	</thead>
 	',
-	_x("Logger name", "debug dropin", "simple-history"),
-	_x("Slug", "debug dropin", "simple-history"),
-	_x("Description", "debug dropin", "simple-history"),
-	_x("Messages", "debug dropin", "simple-history"),
-	_x("Capability", "debug dropin", "simple-history"),
-	_x("Rows count", "debug dropin", "simple-history")
+	_x( 'Logger name', 'debug dropin', 'simple-history' ),
+	_x( 'Slug', 'debug dropin', 'simple-history' ),
+	_x( 'Description', 'debug dropin', 'simple-history' ),
+	_x( 'Messages', 'debug dropin', 'simple-history' ),
+	_x( 'Capability', 'debug dropin', 'simple-history' ),
+	_x( 'Rows count', 'debug dropin', 'simple-history' )
 );
 
 $loopnum = 0;
@@ -195,18 +193,18 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 	}
 
 	$logger_info = $logger->getInfo();
-	$logger_messages = isset( $logger_info["messages"] ) ? (array) $logger_info["messages"] : array();
+	$logger_messages = isset( $logger_info['messages'] ) ? (array) $logger_info['messages'] : array();
 
-	$html_logger_messages = "";
+	$html_logger_messages = '';
 
 	foreach ( $logger_messages as $message_key => $message ) {
 		$html_logger_messages .= sprintf( '<li>%1$s</li>', esc_html( $message ) );
 	}
 
-    if ( $html_logger_messages ) {
+	if ( $html_logger_messages ) {
 
 		$str_num_message_strings = sprintf(
-			_x('%1$s message strings', "debug dropin", "simple-history"),
+			_x( '%1$s message strings', 'debug dropin', 'simple-history' ),
 			sizeof( $logger_messages )
 		);
 
@@ -217,12 +215,12 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
                 </ul>
             ',
 			$str_num_message_strings, // 1
-            $html_logger_messages // 2
-        );
+			$html_logger_messages // 2
+		);
 
 	} else {
-        $html_logger_messages = "<p>No message strings</p>";
-    }
+		$html_logger_messages = '<p>No message strings</p>';
+	}
 
 	printf(
 		'
@@ -249,18 +247,18 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 		',
 		number_format_i18n( $one_logger_count->count ),
 		esc_html( $one_logger_slug ), // 2
-		esc_html( $logger_info["name"] ),
-		esc_html( $logger_info["description"] ), // 4
+		esc_html( $logger_info['name'] ),
+		esc_html( $logger_info['description'] ), // 4
 		esc_html( $logger->getCapability() ), // 5
-		$loopnum % 2 ? " alt " : "", // 6
+		$loopnum % 2 ? ' alt ' : '', // 6
 		$html_logger_messages // 7
 	);
 
 	$loopnum++;
 
-}
+}// End foreach().
 
-echo "</table>";
+echo '</table>';
 
 // List installed plugins
 echo '<h2>Plugins</h2>';
@@ -270,7 +268,7 @@ $plugins = get_plugins();
 
 echo "<table class='widefat'>";
 printf(
-    '<thead>
+	'<thead>
         <tr>
             <th>%1$s</th>
             <th>%2$s</th>
@@ -278,25 +276,25 @@ printf(
         </tr>
     </thead>
     ',
-    _x("Plugin name", "debug dropin", "simple-history"),
-    _x("Plugin file path", "debug dropin", "simple-history"),
-    _x("Active", "debug dropin", "simple-history")
+	_x( 'Plugin name', 'debug dropin', 'simple-history' ),
+	_x( 'Plugin file path', 'debug dropin', 'simple-history' ),
+	_x( 'Active', 'debug dropin', 'simple-history' )
 );
 
-foreach ($plugins as $pluginFilePath => $onePlugin) {
-    $isPluginActive = is_plugin_active($pluginFilePath);
-    printf(
-        '
+foreach ( $plugins as $pluginFilePath => $onePlugin ) {
+	$isPluginActive = is_plugin_active( $pluginFilePath );
+	printf(
+		'
         <tr>
             <td><strong>%1$s</strong></td>
             <td>%2$s</td>
             <td>%3$s</td>
         </tr>
         ',
-        esc_html($onePlugin["Name"]),
-        esc_html($pluginFilePath),
-        $isPluginActive ? "Yes" : "No" // 3
-    );
+		esc_html( $onePlugin['Name'] ),
+		esc_html( $pluginFilePath ),
+		$isPluginActive ? 'Yes' : 'No' // 3
+	);
 }
 
-echo "</table>";
+echo '</table>';

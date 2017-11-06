@@ -22,17 +22,17 @@ class SimpleHistorySidebarStats {
 
 		$this->sh = $sh;
 
-		add_action("simple_history/dropin/sidebar/sidebar_html", array( $this, "on_sidebar_html" ), 5 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
 
-		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts') );
+		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts' ) );
 
-		add_action( "simple_history/admin_footer", array($this, "on_admin_footer") );
+		add_action( 'simple_history/admin_footer', array( $this, 'on_admin_footer' ) );
 
 	}
 
 	public function on_admin_enqueue_scripts() {
 
-		wp_enqueue_script( "simple_history_chart.js", SIMPLE_HISTORY_DIR_URL . "js/Chart.js", array( "jquery" ), SIMPLE_HISTORY_VERSION, true );
+		wp_enqueue_script( 'simple_history_chart.js', SIMPLE_HISTORY_DIR_URL . 'js/Chart.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION, true );
 
 	}
 
@@ -59,31 +59,31 @@ class SimpleHistorySidebarStats {
 					var chartDatasetData = JSON.parse( $(".SimpleHistory_SidebarChart_ChartDatasetData").val() );
 
 					var myChart = new Simple_History_Chart(ctx, {
-					    type: 'bar',
-					    data: {
-					        labels: chartLabels,
-					        datasets: [{
-					            data: chartDatasetData,
-					            backgroundColor: "rgb(210,210,210)",
-					            hoverBackgroundColor: "rgb(175,175,175)",
-					        }]
-					    },
-					    options: {
-					    	legend: {
-					    		display: false
-					    	},
-					        scales: {
-					            yAxes: [{
-					                ticks: {
-					                    beginAtZero:true
-					                },
-					            }],
-					            xAxes: [{
-					            	display: false
-					            }]
-					        },
+						type: 'bar',
+						data: {
+							labels: chartLabels,
+							datasets: [{
+								data: chartDatasetData,
+								backgroundColor: "rgb(210,210,210)",
+								hoverBackgroundColor: "rgb(175,175,175)",
+							}]
+						},
+						options: {
+							legend: {
+								display: false
+							},
+							scales: {
+								yAxes: [{
+									ticks: {
+										beginAtZero:true
+									},
+								}],
+								xAxes: [{
+									display: false
+								}]
+							},
 							onClick: clickChart
-					    },
+						},
 					});
 
 
@@ -147,16 +147,16 @@ class SimpleHistorySidebarStats {
 		$num_events_per_day_for_period = $this->sh->get_num_events_per_day_last_n_days( $num_days );
 
 		// Period = all dates, so empty ones don't get lost
-		$period_start_date = DateTime::createFromFormat('U', strtotime("-$num_days days"));
-		$period_end_date = DateTime::createFromFormat('U', time());
-		$interval = DateInterval::createFromDateString('1 day');
-		$period = new DatePeriod($period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string('1 days') ) );
+		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$num_days days" ) );
+		$period_end_date = DateTime::createFromFormat( 'U', time() );
+		$interval = DateInterval::createFromDateString( '1 day' );
+		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
 
 		?>
 
 		<div class="postbox">
 
-			<h3 class="hndle"><?php _e("Stats", "simple-history") ?></h3>
+			<h3 class="hndle"><?php _e( 'Stats', 'simple-history' ) ?></h3>
 
 			<div class="inside">
 
@@ -164,7 +164,7 @@ class SimpleHistorySidebarStats {
 					<?php
 
 					printf(
-						__('<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', "simple-history"),
+						__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
 						$this->sh->get_num_events_last_n_days( $num_days ),
 						number_format_i18n( $num_days )
 					);
@@ -178,7 +178,7 @@ class SimpleHistorySidebarStats {
 				</div>
 
 				<p class="SimpleHistory_SidebarChart_ChartDescription" style="font-style: italic; color: #777; text-align: center;">
-					<?php _e("Number of events per day.", "simple-history") ?>
+					<?php _e( 'Number of events per day.', 'simple-history' ) ?>
 				</p>
 
 				<?php
@@ -189,20 +189,22 @@ class SimpleHistorySidebarStats {
 
 				foreach ( $period as $dt ) {
 
-					$datef = _x( 'M j', "stats: date in rows per day chart", "simple-history" );
+					$datef = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
 					$str_date = date_i18n( $datef, $dt->getTimestamp() );
-					$str_date_ymd = date("Y-m-d", $dt->getTimestamp() );
+					$str_date_ymd = date( 'Y-m-d', $dt->getTimestamp() );
 
 					// Get data for this day, if exist
 					// Day in object is in format '2014-09-07'
-					$yearDate = $dt->format( "Y-m-d" );
-					$day_data = wp_filter_object_list( $num_events_per_day_for_period, array("yearDate" => $yearDate) );
+					$yearDate = $dt->format( 'Y-m-d' );
+					$day_data = wp_filter_object_list( $num_events_per_day_for_period, array(
+						'yearDate' => $yearDate,
+					) );
 
 					$arr_labels[] = $str_date;
 
 					$arr_labels_to_datetime[] = array(
-						"label" => $str_date,
-						"date" => $str_date_ymd
+						'label' => $str_date,
+						'date' => $str_date_ymd,
 					);
 
 					if ( $day_data ) {
@@ -213,7 +215,6 @@ class SimpleHistorySidebarStats {
 					} else {
 						$arr_dataset_data[] = 0;
 					}
-
 				}
 
 				?>
@@ -221,7 +222,7 @@ class SimpleHistorySidebarStats {
 				<input
 					type="hidden"
 					class="SimpleHistory_SidebarChart_ChartLabels"
-					value="<?php esc_attr_e( json_encode( $arr_labels )  ) ?>"
+					value="<?php esc_attr_e( json_encode( $arr_labels ) ) ?>"
 					/>
 
 				<input

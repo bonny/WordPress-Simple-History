@@ -98,13 +98,13 @@ If you are a theme or plugin developer and would like to add your own things/eve
 
 if ( function_exists("SimpleLogger") ) {
 
-    // Most basic example: just add some information to the log
-    SimpleLogger()->info("This is a message sent to the log");
+		// Most basic example: just add some information to the log
+		SimpleLogger()->info("This is a message sent to the log");
 
-    // A bit more advanced: log events with different severities
-    SimpleLogger()->info("User admin edited page 'About our company'");
-    SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
-    SimpleLogger()->debug("Ok, cron job is running!");
+		// A bit more advanced: log events with different severities
+		SimpleLogger()->info("User admin edited page 'About our company'");
+		SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
+		SimpleLogger()->debug("Ok, cron job is running!");
 
 }
 ?>
@@ -158,9 +158,19 @@ initiated by a specific user.
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
 A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
-== Changelog ==
+==
+ ==
 
 ## Changelog
+
+= 2.1n (nnn 2017) =
+
+- Add filter `simple_history/user_can_clear_log`. Return `false` from this filter to disable the "Clear blog" button.
+- Remove static keyword from some methods in SimpleLogger, so now calls like `SimpleLogger()->critical('Doh!');` works.
+- Don't show link to WordPress updates if user is not allowed to view the updates page.
+- Fix notice error in SimpleOptionsLogger.
+- Code better formatted according to [WordPress coding standard](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards).
+- Fix for fatal errors when using the lost password form in [Membership 2](https://wordpress.org/plugins/membership/). Fixes https://wordpress.org/support/topic/conflict-with-simple-history-plugin-and-php-7/.
 
 = 2.18 (August 2017) =
 
@@ -192,7 +202,7 @@ so you can see what CSS styles a client changed or what PHP changes they made in
 
 - Use thumbnail version of PDF preview instead of full size image.
 - Remove Google Maps image when clicking IP address of failed login and similar, because Google Maps must be used with API key.
-  Hostname, Network, City, Region and Country is still shown.
+	Hostname, Network, City, Region and Country is still shown.
 - Fix notice in available updates logger.
 - Fix notice in redirection logger.
 
@@ -203,7 +213,7 @@ so you can see what CSS styles a client changed or what PHP changes they made in
 = 2.14 (April 2017) =
 
 - Added support for plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/).
-  Now when a user clones a post or page you will se this in the history log, with links to both the original post and the new copy.
+	Now when a user clones a post or page you will se this in the history log, with links to both the original post and the new copy.
 - Removed log level info from title in RSS feed
 - Make date dropdown less "jumpy" when loading page (due to select element switching to Select2)
 - Only add filters for plugin Limit Login Attempts if plugin is active. This fixes problem with Limit Login Attempts Reloaded and possibly other forks of the plugin.
@@ -225,20 +235,20 @@ so you can see what CSS styles a client changed or what PHP changes they made in
 = 2.11 (September 2016) =
 
 - Added support for plugin [Redirection](https://wordpress.org/plugins/redirection/).
-  Redirects and groups that are created, changed, enabled and disabled will be logged. Also when the plugin global settings are changed that will be logged.
+	Redirects and groups that are created, changed, enabled and disabled will be logged. Also when the plugin global settings are changed that will be logged.
 - Fix possible notice error from User logger.
 - "View changelog" link now works on multisite.
 
 = 2.10 (September 2016) =
 
 - Available updates to plugins, themes, and WordPress itself is now logged.
-  Pretty great if you subscribe to the RSS feed to get the changes on a site. No need to manually check the updates-page to see if there are any updates.
+	Pretty great if you subscribe to the RSS feed to get the changes on a site. No need to manually check the updates-page to see if there are any updates.
 - Changed to logic used to determine if a post edit should be logged or not. Version 2.9 used a version that started to log a bit to much for some plugins. This should fix the problems with the Nextgen Gallery, All-In-One Events Calendar, and Membership 2 plugins. If you still have problems with a plugin that is causing to many events to be logged, please let me know!
 
 = 2.9.1 (August 2016) =
 
 - Fixed an issue where the logged time was off by some hours, due to timezone being manually set elsewhere.
-  Should fix https://wordpress.org/support/topic/logged-time-off-by-2-hours and https://wordpress.org/support/topic/different-time-between-dashboard-and-logger.
+	Should fix https://wordpress.org/support/topic/logged-time-off-by-2-hours and https://wordpress.org/support/topic/different-time-between-dashboard-and-logger.
 - Fixed Nextgen Gallery and Nextgen Gallery Plus logging lots and lots of event when viewing posts with galleries. The posts was actually updated, so this plugin did nothing wrong. But it was indeed a bit annoying and most likely something you didn't want in your log. Fixes https://wordpress.org/support/topic/non-stop-logging-nextgen-gallery-items.
 
 = 2.9 (August 2016) =
@@ -255,7 +265,7 @@ so you can see what CSS styles a client changed or what PHP changes they made in
 - ...and so are theme updates
 - ...and theme deletions. Awesome!
 - Support for plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-attempts/).
-  Failed login attempts, lockouts and configuration changes will be logged.
+	Failed login attempts, lockouts and configuration changes will be logged.
 - Correct message is now used when a plugin update fails, i.e. the message for key `plugin_update_failed`.
 - The original untranslated strings for plugin name and so on are stored when storing info for plugin installs and updates and similar.
 - Default number of events to show is now 10 instead of 5.
@@ -264,7 +274,7 @@ so you can see what CSS styles a client changed or what PHP changes they made in
 
 - User logins using e-mail are now logged correctly. Previously the user would be logged in successfully but the log said that they failed.
 - Security fix: only users with [`list_users`](https://codex.wordpress.org/Roles_and_Capabilities#list_users) capability can view the users filter and use the autocomplete api for users.
-  Previously the autocomplete function could be used by all logged in users.
+	Previously the autocomplete function could be used by all logged in users.
 - Add labels to search filters. (I do really hate label-less forms so it's kinda very strange that this was not in place before.)
 - Misc other internal fixes
 

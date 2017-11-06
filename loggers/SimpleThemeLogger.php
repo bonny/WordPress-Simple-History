@@ -20,59 +20,59 @@ class SimpleThemeLogger extends SimpleLogger {
 	function getInfo() {
 
 		$arr_info = array(
-			"name" => "Theme Logger",
-			"description" => "Logs theme edits",
-			"capability" => "edit_theme_options",
-			"messages" => array(
-				'theme_switched' => __('Switched theme to "{theme_name}" from "{prev_theme_name}"', "simple-history"),
-				'theme_installed' => __('Installed theme "{theme_name}"', "simple-history"),
-				'theme_deleted' => __('Deleted theme with slug "{theme_slug}"', "simple-history"),
-				'theme_updated' => __('Updated theme "{theme_name}"', "simple-history"),
-				'appearance_customized' => __('Customized theme appearance "{setting_id}"', "simple-history"),
-				'widget_removed' => __('Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', "simple-history"),
-				'widget_added' => __('Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', "simple-history"),
-				'widget_order_changed' => __('Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
-				'widget_edited' => __('Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', "simple-history"),
-				"custom_background_changed" => __("Changed settings for the theme custom background", "simple-history")
+			'name' => 'Theme Logger',
+			'description' => 'Logs theme edits',
+			'capability' => 'edit_theme_options',
+			'messages' => array(
+				'theme_switched' => __( 'Switched theme to "{theme_name}" from "{prev_theme_name}"', 'simple-history' ),
+				'theme_installed' => __( 'Installed theme "{theme_name}"', 'simple-history' ),
+				'theme_deleted' => __( 'Deleted theme with slug "{theme_slug}"', 'simple-history' ),
+				'theme_updated' => __( 'Updated theme "{theme_name}"', 'simple-history' ),
+				'appearance_customized' => __( 'Customized theme appearance "{setting_id}"', 'simple-history' ),
+				'widget_removed' => __( 'Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', 'simple-history' ),
+				'widget_added' => __( 'Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', 'simple-history' ),
+				'widget_order_changed' => __( 'Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', 'simple-history' ),
+				'widget_edited' => __( 'Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', 'simple-history' ),
+				'custom_background_changed' => __( 'Changed settings for the theme custom background', 'simple-history' ),
 			),
-			"labels" => array(
-				"search" => array(
-					"label" => _x("Themes & Widgets", "Theme logger: search", "simple-history"),
-					"label_all" => _x("All theme activity", "Theme logger: search", "simple-history"),
-					"options" => array(
-						_x("Updated themes", "Theme logger: search", "simple-history") => array(
-							"theme_updated"
+			'labels' => array(
+				'search' => array(
+					'label' => _x( 'Themes & Widgets', 'Theme logger: search', 'simple-history' ),
+					'label_all' => _x( 'All theme activity', 'Theme logger: search', 'simple-history' ),
+					'options' => array(
+						_x( 'Updated themes', 'Theme logger: search', 'simple-history' ) => array(
+							'theme_updated'
 						),
-						_x("Deleted themes", "Theme logger: search", "simple-history") => array(
-							"theme_deleted"
+						_x( 'Deleted themes', 'Theme logger: search', 'simple-history' ) => array(
+							'theme_deleted'
 						),
-						_x("Installed themes", "Theme logger: search", "simple-history") => array(
-							"theme_installed"
+						_x( 'Installed themes', 'Theme logger: search', 'simple-history' ) => array(
+							'theme_installed'
 						),
-						_x("Switched themes", "Theme logger: search", "simple-history") => array(
-							"theme_switched"
+						_x( 'Switched themes', 'Theme logger: search', 'simple-history' ) => array(
+							'theme_switched'
 						),
-						_x("Changed appearance of themes", "Theme logger: search", "simple-history") => array(
-							"appearance_customized"
+						_x( 'Changed appearance of themes', 'Theme logger: search', 'simple-history' ) => array(
+							'appearance_customized'
 						),
-						_x("Added widgets", "Theme logger: search", "simple-history") => array(
-							"widget_added"
+						_x( 'Added widgets', 'Theme logger: search', 'simple-history' ) => array(
+							'widget_added'
 						),
-						_x("Removed widgets", "Theme logger: search", "simple-history") => array(
-							"widget_removed"
+						_x( 'Removed widgets', 'Theme logger: search', 'simple-history' ) => array(
+							'widget_removed'
 						),
-						_x("Changed widgets order", "Theme logger: search", "simple-history") => array(
-							"widget_order_changed"
+						_x( 'Changed widgets order', 'Theme logger: search', 'simple-history' ) => array(
+							'widget_order_changed'
 						),
-						_x("Edited widgets", "Theme logger: search", "simple-history") => array(
-							"widget_edited"
+						_x( 'Edited widgets', 'Theme logger: search', 'simple-history' ) => array(
+							'widget_edited'
 						),
-						_x("Background of themes changed", "Theme logger: search", "simple-history") => array(
-							"custom_background_changed"
+						_x( 'Background of themes changed', 'Theme logger: search', 'simple-history' ) => array(
+							'custom_background_changed'
 						),
-					)
-				) // end search array
-			) // end labels
+					),
+				),// end search array
+			),// end labels
 
 		);
 
@@ -84,29 +84,29 @@ class SimpleThemeLogger extends SimpleLogger {
 
 		/**
 		 * Fires after the theme is switched.
+		 *
 		 * @param string   $new_name  Name of the new theme.
 		 * @param WP_Theme $new_theme WP_Theme instance of the new theme.
 		 */
-		add_action( 'switch_theme', array( $this, "on_switch_theme" ), 10, 2 );
-		add_action( 'load-themes.php', array( $this, "on_page_load_themes" ) );
+		add_action( 'switch_theme', array( $this, 'on_switch_theme' ), 10, 2 );
+		add_action( 'load-themes.php', array( $this, 'on_page_load_themes' ) );
 
-		add_action("customize_save", array( $this, "on_action_customize_save" ));
+		add_action( 'customize_save', array( $this, 'on_action_customize_save' ) );
 
-		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_delete") );
-		add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_add") );
-		//add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
-		//add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
+		add_action( 'sidebar_admin_setup', array( $this, 'on_action_sidebar_admin_setup__detect_widget_delete' ) );
+		add_action( 'sidebar_admin_setup', array( $this, 'on_action_sidebar_admin_setup__detect_widget_add' ) );
+		// add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
+		// add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
+		add_filter( 'widget_update_callback', array( $this, 'on_widget_update_callback' ), 10, 4 );
 
-		add_filter( 'widget_update_callback', array( $this, "on_widget_update_callback" ), 10, 4 );
+		add_action( 'load-appearance_page_custom-background', array( $this, 'on_page_load_custom_background' ) );
 
-		add_action( "load-appearance_page_custom-background", array( $this, "on_page_load_custom_background" ) );
-
-		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete_theme_install" ), 10, 2 );
-		add_action( "upgrader_process_complete", array( $this, "on_upgrader_process_complete_theme_update" ), 10, 2 );
+		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_install' ), 10, 2 );
+		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_update' ), 10, 2 );
 
 		// delete_site_transient( 'update_themes' );
-		//do_action( 'deleted_site_transient', $transient );
-		add_action( 'deleted_site_transient', array( $this, "on_deleted_site_transient_theme_deleted" ), 10, 1 );
+		// do_action( 'deleted_site_transient', $transient );
+		add_action( 'deleted_site_transient', array( $this, 'on_deleted_site_transient_theme_deleted' ), 10, 1 );
 
 	}
 
@@ -120,7 +120,7 @@ class SimpleThemeLogger extends SimpleLogger {
 	*/
 	function on_deleted_site_transient_theme_deleted( $transient = null ) {
 
-		if ( "update_themes" !== $transient ) {
+		if ( 'update_themes' !== $transient ) {
 			return;
 		}
 
@@ -137,20 +137,20 @@ class SimpleThemeLogger extends SimpleLogger {
 
 		*/
 
-		if ( empty( $_GET["action"] ) || $_GET["action"] !== "delete" ) {
+		if ( empty( $_GET['action'] ) || $_GET['action'] !== 'delete' ) {
 			return;
 		}
 
-		if ( empty( $_GET["stylesheet"] ) ) {
+		if ( empty( $_GET['stylesheet'] ) ) {
 			return;
 		}
 
-		$theme_deleted_slug = (string) $_GET["stylesheet"];
+		$theme_deleted_slug = (string) $_GET['stylesheet'];
 
 		$this->infoMessage(
-			"theme_deleted",
+			'theme_deleted',
 			array(
-				"theme_slug" => $theme_deleted_slug
+				'theme_slug' => $theme_deleted_slug,
 			)
 		);
 
@@ -190,7 +190,7 @@ class SimpleThemeLogger extends SimpleLogger {
 		}
 
 		// Must be type theme and action install
-		if ( $arr_data["type"] !== "theme" || $arr_data["action"] !== "update" ) {
+		if ( $arr_data['type'] !== 'theme' || $arr_data['action'] !== 'update' ) {
 			return;
 		}
 
@@ -204,11 +204,11 @@ class SimpleThemeLogger extends SimpleLogger {
 		$arr_themes = array();
 
 		// If single install make an array so it look like bulk and we can use same code
-		if ( isset( $arr_data["bulk"] ) && $arr_data["bulk"]  && isset( $arr_data["themes"] ) ) {
-			$arr_themes = (array) $arr_data["themes"];
+		if ( isset( $arr_data['bulk'] ) && $arr_data['bulk']  && isset( $arr_data['themes'] ) ) {
+			$arr_themes = (array) $arr_data['themes'];
 		} else {
 			$arr_themes = array(
-				$arr_data["theme"]
+				$arr_data['theme']
 			);
 		}
 
@@ -226,22 +226,22 @@ class SimpleThemeLogger extends SimpleLogger {
 
 			$theme_info_object = wp_get_theme( $one_updated_theme );
 
-			if ( ! is_a( $theme_info_object, "WP_Theme" ) ) {
+			if ( ! is_a( $theme_info_object, 'WP_Theme' ) ) {
 				continue;
 			}
 
-			$theme_name = $theme_info_object->get("Name");
-			$theme_version = $theme_info_object->get("Version");
+			$theme_name = $theme_info_object->get( 'Name' );
+			$theme_version = $theme_info_object->get( 'Version' );
 
 			if ( ! $theme_name || ! $theme_version ) {
 				continue;
 			}
 
 			$this->infoMessage(
-				"theme_updated",
+				'theme_updated',
 				array(
-					"theme_name" => $theme_name,
-					"theme_version" => $theme_version,
+					'theme_name' => $theme_name,
+					'theme_version' => $theme_version,
 				)
 			);
 
@@ -252,7 +252,6 @@ class SimpleThemeLogger extends SimpleLogger {
 	function on_upgrader_process_complete_theme_install( $upgrader_instance = null, $arr_data = null ) {
 
 		/*
-
 		For theme installs $arr_data looks like:
 
 			Array
@@ -269,7 +268,7 @@ class SimpleThemeLogger extends SimpleLogger {
 		}
 
 		// Must be type theme and action install
-		if ( $arr_data["type"] !== "theme" || $arr_data["action"] !== "install" ) {
+		if ( $arr_data['type'] !== 'theme' || $arr_data['action'] !== 'install' ) {
 			return;
 		}
 
@@ -315,16 +314,15 @@ class SimpleThemeLogger extends SimpleLogger {
 		$theme_name = empty( $skin->api->name ) ? null : $skin->api->name;
 		$theme_slug = empty( $skin->api->slug ) ? null : $skin->api->slug;
 		$theme_version = empty( $skin->api->version ) ? null : $skin->api->version;
-		#$theme_screenshot_url = $skin->api->screenshot_url;
-		#$theme_last_updated = $skin->api->last_updated;
-		#$theme_last_homepage = $skin->api->last_homepage;
-		#$theme_download_link = $skin->api->last_download_link;
-
+		// $theme_screenshot_url = $skin->api->screenshot_url;
+		// $theme_last_updated = $skin->api->last_updated;
+		// $theme_last_homepage = $skin->api->last_homepage;
+		// $theme_download_link = $skin->api->last_download_link;
 		$this->infoMessage(
-			"theme_installed",
+			'theme_installed',
 			array(
-				"theme_name" => $theme_name,
-				"theme_version" => $theme_version,
+				'theme_name' => $theme_name,
+				'theme_version' => $theme_version,
 				// "debug_skin" => $skin_str
 			)
 		);
@@ -338,23 +336,22 @@ class SimpleThemeLogger extends SimpleLogger {
 		}
 
 		$arr_valid_post_keys = array(
-			"reset-background" => 1,
-			"remove-background" => 1,
-			"background-repeat" => 1,
-			"background-position-x" => 1,
-			"background-attachment" => 1,
-			"background-color" => 1
+			'reset-background' => 1,
+			'remove-background' => 1,
+			'background-repeat' => 1,
+			'background-position-x' => 1,
+			'background-attachment' => 1,
+			'background-color' => 1,
 		);
 
-		$valid_post_key_exists = array_intersect_key($arr_valid_post_keys, $_POST);
+		$valid_post_key_exists = array_intersect_key( $arr_valid_post_keys, $_POST );
 
-		if ( ! empty( $valid_post_key_exists) ) {
+		if ( ! empty( $valid_post_key_exists ) ) {
 
 			$context = array();
 			// $context["POST"] = $this->simpleHistory->json_encode( $_POST );
-
 			$this->infoMessage(
-				"custom_background_changed",
+				'custom_background_changed',
 				$context
 			);
 
@@ -365,7 +362,7 @@ class SimpleThemeLogger extends SimpleLogger {
 	/*
 	WP_Customize_Manager $this WP_Customize_Manager instance.
 	*/
-	function on_action_customize_save($customize_manager) {
+	function on_action_customize_save( $customize_manager ) {
 
 		/*
 		- Loop through all sections
@@ -387,98 +384,86 @@ class SimpleThemeLogger extends SimpleLogger {
 		nav - Navigation
 		static_front_page - Static Front Page
 		*/
-/*
-Array
-(
-    [wp_customize] => on
-    [theme] => make
-    [customized] => {\"widget_pages[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_calendar[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_calendar[6]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjE3OiJTZWUgd2hhdCBoYXBwZW5zISI7fQ==\",\"title\":\"See what happens!\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"ca37c1913982fa69bce33f77cef871cd\"},\"widget_calendar[7]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjg6IkthbGVuZGVyIjt9\",\"title\":\"Kalender\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"c602d6d891e3f7addb11ca21ac142b49\"},\"widget_archives[4]\":{\"encoded_serialized_instance\":\"YTozOntzOjU6InRpdGxlIjtzOjA6IiI7czo1OiJjb3VudCI7aTowO3M6ODoiZHJvcGRvd24iO2k6MDt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"3480afa3934342872c740122c4988ab5\"},\"widget_archives[6]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_meta[2]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjA6IiI7fQ==\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"b518e607928dcfc07867f25e07a3a875\"},\"widget_search[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_text[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_categories[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_recent-posts[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_recent-comments[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_rss[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_tag_cloud[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_nav_menu[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_caldera_forms_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_cart_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_categories_tags_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_categories_tags_widget[2]\":{\"encoded_serialized_instance\":\"YTo0OntzOjU6InRpdGxlIjtzOjA6IiI7czo4OiJ0YXhvbm9teSI7czoxNzoiZG93bmxvYWRfY2F0ZWdvcnkiO3M6NToiY291bnQiO3M6MDoiIjtzOjEwOiJoaWRlX2VtcHR5IjtzOjA6IiI7fQ==\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"afb767ddd896180593a758ba3228a6a4\"},\"widget_edd_product_details[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_icl_lang_sel_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"sidebars_widgets[wp_inactive_widgets]\":[\"calendar-6\",\"calendar-7\",\"archives-4\",\"archives-6\",\"edd_categories_tags_widget-2\"],\"sidebars_widgets[sidebar-left]\":[\"meta-2\"],\"sidebars_widgets[sidebar-right]\":[],\"sidebars_widgets[footer-1]\":[],\"sidebars_widgets[footer-2]\":[],\"sidebars_widgets[footer-3]\":[],\"sidebars_widgets[footer-4]\":[],\"blogname\":\"My test sitexxxxx\",\"blogdescription\":\"hej\",\"header_textcolor\":false,\"background_color\":\"#30d132\",\"header_image\":false,\"header_image_data\":\"\",\"background_image\":\"http://playground-root.ep/assets/uploads/2014/09/small-image.gif\",\"background_image_thumb\":\"\",\"background_repeat\":\"repeat-y\",\"background_position_x\":\"right\",\"background_attachment\":\"scroll\",\"nav_menu_locations[primary]\":\"31\",\"nav_menu_locations[social]\":0,\"nav_menu_locations[header-bar]\":\"32\",\"show_on_front\":\"page\",\"page_on_front\":\"24851\",\"page_for_posts\":\"25253\",\"logo-regular\":\"\",\"logo-retina\":\"\",\"logo-favicon\":\"\",\"logo-apple-touch\":\"\",\"social-facebook\":\"\",\"social-twitter\":\"\",\"social-google-plus-square\":\"\",\"social-linkedin\":\"\",\"social-instagram\":\"\",\"social-flickr\":\"\",\"social-youtube\":\"\",\"social-vimeo-square\":\"\",\"social-pinterest\":\"\",\"social-email\":\"\",\"social-hide-rss\":0,\"social-custom-rss\":\"\",\"font-subset\":\"latin\",\"font-family-site-title\":\"Dawning of a New Day\",\"font-size-site-title\":32,\"font-family-site-tagline\":\"Open Sans\",\"font-size-site-tagline\":12,\"font-family-nav\":\"Open Sans\",\"font-size-nav\":14,\"font-family-subnav\":\"Open Sans\",\"font-size-subnav\":13,\"font-subnav-mobile\":1,\"font-family-widget\":\"Open Sans\",\"font-size-widget\":13,\"font-family-h1\":\"monospace\",\"font-size-h1\":50,\"font-family-h2\":\"monospace\",\"font-size-h2\":37,\"font-family-h3\":\"monospace\",\"font-size-h3\":26,\"font-family-h4\":\"monospace\",\"font-size-h4\":26,\"font-family-h5\":\"monospace\",\"font-size-h5\":18,\"font-family-h6\":\"monospace\",\"font-size-h6\":15,\"font-family-body\":\"Open Sans\",\"font-size-body\":17,\"color-primary\":\"#2fce6f\",\"color-secondary\":\"#35c904\",\"color-text\":\"#969696\",\"color-detail\":\"#b9bcbf\",\"main-background-color\":\"#ffffff\",\"header-bar-background-color\":\"#171717\",\"header-bar-text-color\":\"#16dd66\",\"header-bar-border-color\":\"#171717\",\"header-background-color\":\"#ffffff\",\"header-text-color\":\"#171717\",\"color-site-title\":\"#1a6aba\",\"footer-background-color\":\"#eaecee\",\"footer-text-color\":\"#464849\",\"footer-border-color\":\"#b9bcbf\",\"header-background-image\":\"\",\"header-background-repeat\":\"no-repeat\",\"header-background-position\":\"center\",\"header-background-size\":\"cover\",\"header-layout\":1,\"header-branding-position\":\"left\",\"header-bar-content-layout\":\"flipped\",\"header-text\":\"text\",\"header-show-social\":0,\"header-show-search\":1,\"general-layout\":\"boxed\",\"general-sticky-label\":\"sticky name\",\"main-content-link-underline\":0,\"layout-blog-hide-header\":0,\"layout-blog-hide-footer\":0,\"layout-blog-sidebar-left\":0,\"layout-blog-sidebar-right\":1,\"layout-blog-featured-images\":\"post-header\",\"layout-blog-featured-images-alignment\":\"center\",\"layout-blog-post-date\":\"absolute\",\"layout-blog-post-date-location\":\"top\",\"layout-blog-post-author\":\"avatar\",\"layout-blog-post-author-location\":\"post-footer\",\"layout-blog-auto-excerpt\":0,\"layout-blog-show-categories\":1,\"layout-blog-show-tags\":1,\"layout-blog-comment-count\":\"none\",\"layout-blog-comment-count-location\":\"before-content\",\"layout-archive-hide-header\":0,\"layout-archive-hide-footer\":0,\"layout-archive-sidebar-left\":0,\"layout-archive-sidebar-right\":1,\"layout-archive-featured-images\":\"post-header\",\"layout-archive-featured-images-alignment\":\"center\",\"layout-archive-post-date\":\"absolute\",\"layout-archive-post-date-location\":\"top\",\"layout-archive-post-author\":\"avatar\",\"layout-archive-post-author-location\":\"post-footer\",\"layout-archive-auto-excerpt\":0,\"layout-archive-show-categories\":1,\"layout-archive-show-tags\":1,\"layout-archive-comment-count\":\"none\",\"layout-archive-comment-count-location\":\"before-content\",\"layout-search-hide-header\":0,\"layout-search-hide-footer\":0,\"layout-search-sidebar-left\":true,\"layout-search-sidebar-right\":1,\"layout-search-featured-images\":\"thumbnail\",\"layout-search-featured-images-alignment\":\"center\",\"layout-search-post-date\":\"absolute\",\"layout-search-post-date-location\":\"top\",\"layout-search-post-author\":\"name\",\"layout-search-post-author-location\":\"post-footer\",\"layout-search-auto-excerpt\":1,\"layout-search-show-categories\":1,\"layout-search-show-tags\":1,\"layout-search-comment-count\":\"none\",\"layout-search-comment-count-location\":\"before-content\",\"layout-post-hide-header\":0,\"layout-post-hide-footer\":0,\"layout-post-sidebar-left\":0,\"layout-post-sidebar-right\":0,\"layout-post-featured-images\":\"post-header\",\"layout-post-featured-images-alignment\":\"center\",\"layout-post-post-date\":\"absolute\",\"layout-post-post-date-location\":\"top\",\"layout-post-post-author\":\"name\",\"layout-post-post-author-location\":\"post-footer\",\"layout-post-show-categories\":0,\"layout-post-show-tags\":0,\"layout-post-comment-count\":\"none\",\"layout-post-comment-count-location\":\"before-content\",\"layout-page-hide-header\":0,\"layout-page-hide-footer\":0,\"layout-page-sidebar-left\":0,\"layout-page-sidebar-right\":0,\"layout-page-hide-title\":1,\"layout-page-featured-images\":\"none\",\"layout-page-featured-images-alignment\":\"center\",\"layout-page-post-date\":\"none\",\"layout-page-post-date-location\":\"top\",\"layout-page-post-author\":\"none\",\"layout-page-post-author-location\":\"post-footer\",\"layout-page-comment-count\":\"none\",\"layout-page-comment-count-location\":\"before-content\",\"footer-background-image\":\"\",\"footer-background-repeat\":\"no-repeat\",\"footer-background-position\":\"center\",\"footer-background-size\":\"cover\",\"footer-widget-areas\":3,\"footer-layout\":1,\"footer-text\":\"\",\"footer-show-social\":1,\"background_size\":\"auto\",\"main-background-image\":\"\",\"main-background-repeat\":\"repeat\",\"main-background-position\":\"left\",\"main-background-size\":\"auto\",\"navigation-mobile-label\":\"Menuxx\",\"hide-site-title\":0,\"hide-tagline\":0}
-    [nonce] => e983bc7d41
-    [action] => customize_save
-)
-*/
+		/*
+		Array
+		(
+		[wp_customize] => on
+		[theme] => make
+		[customized] => {\"widget_pages[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_calendar[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_calendar[6]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjE3OiJTZWUgd2hhdCBoYXBwZW5zISI7fQ==\",\"title\":\"See what happens!\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"ca37c1913982fa69bce33f77cef871cd\"},\"widget_calendar[7]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjg6IkthbGVuZGVyIjt9\",\"title\":\"Kalender\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"c602d6d891e3f7addb11ca21ac142b49\"},\"widget_archives[4]\":{\"encoded_serialized_instance\":\"YTozOntzOjU6InRpdGxlIjtzOjA6IiI7czo1OiJjb3VudCI7aTowO3M6ODoiZHJvcGRvd24iO2k6MDt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"3480afa3934342872c740122c4988ab5\"},\"widget_archives[6]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_meta[2]\":{\"encoded_serialized_instance\":\"YToxOntzOjU6InRpdGxlIjtzOjA6IiI7fQ==\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"b518e607928dcfc07867f25e07a3a875\"},\"widget_search[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_text[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_categories[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_recent-posts[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_recent-comments[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_rss[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_tag_cloud[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_nav_menu[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_caldera_forms_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_cart_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_categories_tags_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_edd_categories_tags_widget[2]\":{\"encoded_serialized_instance\":\"YTo0OntzOjU6InRpdGxlIjtzOjA6IiI7czo4OiJ0YXhvbm9teSI7czoxNzoiZG93bmxvYWRfY2F0ZWdvcnkiO3M6NToiY291bnQiO3M6MDoiIjtzOjEwOiJoaWRlX2VtcHR5IjtzOjA6IiI7fQ==\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"afb767ddd896180593a758ba3228a6a4\"},\"widget_edd_product_details[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"widget_icl_lang_sel_widget[1]\":{\"encoded_serialized_instance\":\"YTowOnt9\",\"title\":\"\",\"is_widget_customizer_js_value\":true,\"instance_hash_key\":\"1eb11012ea65a32e655e37f998225608\"},\"sidebars_widgets[wp_inactive_widgets]\":[\"calendar-6\",\"calendar-7\",\"archives-4\",\"archives-6\",\"edd_categories_tags_widget-2\"],\"sidebars_widgets[sidebar-left]\":[\"meta-2\"],\"sidebars_widgets[sidebar-right]\":[],\"sidebars_widgets[footer-1]\":[],\"sidebars_widgets[footer-2]\":[],\"sidebars_widgets[footer-3]\":[],\"sidebars_widgets[footer-4]\":[],\"blogname\":\"My test sitexxxxx\",\"blogdescription\":\"hej\",\"header_textcolor\":false,\"background_color\":\"#30d132\",\"header_image\":false,\"header_image_data\":\"\",\"background_image\":\"http://playground-root.ep/assets/uploads/2014/09/small-image.gif\",\"background_image_thumb\":\"\",\"background_repeat\":\"repeat-y\",\"background_position_x\":\"right\",\"background_attachment\":\"scroll\",\"nav_menu_locations[primary]\":\"31\",\"nav_menu_locations[social]\":0,\"nav_menu_locations[header-bar]\":\"32\",\"show_on_front\":\"page\",\"page_on_front\":\"24851\",\"page_for_posts\":\"25253\",\"logo-regular\":\"\",\"logo-retina\":\"\",\"logo-favicon\":\"\",\"logo-apple-touch\":\"\",\"social-facebook\":\"\",\"social-twitter\":\"\",\"social-google-plus-square\":\"\",\"social-linkedin\":\"\",\"social-instagram\":\"\",\"social-flickr\":\"\",\"social-youtube\":\"\",\"social-vimeo-square\":\"\",\"social-pinterest\":\"\",\"social-email\":\"\",\"social-hide-rss\":0,\"social-custom-rss\":\"\",\"font-subset\":\"latin\",\"font-family-site-title\":\"Dawning of a New Day\",\"font-size-site-title\":32,\"font-family-site-tagline\":\"Open Sans\",\"font-size-site-tagline\":12,\"font-family-nav\":\"Open Sans\",\"font-size-nav\":14,\"font-family-subnav\":\"Open Sans\",\"font-size-subnav\":13,\"font-subnav-mobile\":1,\"font-family-widget\":\"Open Sans\",\"font-size-widget\":13,\"font-family-h1\":\"monospace\",\"font-size-h1\":50,\"font-family-h2\":\"monospace\",\"font-size-h2\":37,\"font-family-h3\":\"monospace\",\"font-size-h3\":26,\"font-family-h4\":\"monospace\",\"font-size-h4\":26,\"font-family-h5\":\"monospace\",\"font-size-h5\":18,\"font-family-h6\":\"monospace\",\"font-size-h6\":15,\"font-family-body\":\"Open Sans\",\"font-size-body\":17,\"color-primary\":\"#2fce6f\",\"color-secondary\":\"#35c904\",\"color-text\":\"#969696\",\"color-detail\":\"#b9bcbf\",\"main-background-color\":\"#ffffff\",\"header-bar-background-color\":\"#171717\",\"header-bar-text-color\":\"#16dd66\",\"header-bar-border-color\":\"#171717\",\"header-background-color\":\"#ffffff\",\"header-text-color\":\"#171717\",\"color-site-title\":\"#1a6aba\",\"footer-background-color\":\"#eaecee\",\"footer-text-color\":\"#464849\",\"footer-border-color\":\"#b9bcbf\",\"header-background-image\":\"\",\"header-background-repeat\":\"no-repeat\",\"header-background-position\":\"center\",\"header-background-size\":\"cover\",\"header-layout\":1,\"header-branding-position\":\"left\",\"header-bar-content-layout\":\"flipped\",\"header-text\":\"text\",\"header-show-social\":0,\"header-show-search\":1,\"general-layout\":\"boxed\",\"general-sticky-label\":\"sticky name\",\"main-content-link-underline\":0,\"layout-blog-hide-header\":0,\"layout-blog-hide-footer\":0,\"layout-blog-sidebar-left\":0,\"layout-blog-sidebar-right\":1,\"layout-blog-featured-images\":\"post-header\",\"layout-blog-featured-images-alignment\":\"center\",\"layout-blog-post-date\":\"absolute\",\"layout-blog-post-date-location\":\"top\",\"layout-blog-post-author\":\"avatar\",\"layout-blog-post-author-location\":\"post-footer\",\"layout-blog-auto-excerpt\":0,\"layout-blog-show-categories\":1,\"layout-blog-show-tags\":1,\"layout-blog-comment-count\":\"none\",\"layout-blog-comment-count-location\":\"before-content\",\"layout-archive-hide-header\":0,\"layout-archive-hide-footer\":0,\"layout-archive-sidebar-left\":0,\"layout-archive-sidebar-right\":1,\"layout-archive-featured-images\":\"post-header\",\"layout-archive-featured-images-alignment\":\"center\",\"layout-archive-post-date\":\"absolute\",\"layout-archive-post-date-location\":\"top\",\"layout-archive-post-author\":\"avatar\",\"layout-archive-post-author-location\":\"post-footer\",\"layout-archive-auto-excerpt\":0,\"layout-archive-show-categories\":1,\"layout-archive-show-tags\":1,\"layout-archive-comment-count\":\"none\",\"layout-archive-comment-count-location\":\"before-content\",\"layout-search-hide-header\":0,\"layout-search-hide-footer\":0,\"layout-search-sidebar-left\":true,\"layout-search-sidebar-right\":1,\"layout-search-featured-images\":\"thumbnail\",\"layout-search-featured-images-alignment\":\"center\",\"layout-search-post-date\":\"absolute\",\"layout-search-post-date-location\":\"top\",\"layout-search-post-author\":\"name\",\"layout-search-post-author-location\":\"post-footer\",\"layout-search-auto-excerpt\":1,\"layout-search-show-categories\":1,\"layout-search-show-tags\":1,\"layout-search-comment-count\":\"none\",\"layout-search-comment-count-location\":\"before-content\",\"layout-post-hide-header\":0,\"layout-post-hide-footer\":0,\"layout-post-sidebar-left\":0,\"layout-post-sidebar-right\":0,\"layout-post-featured-images\":\"post-header\",\"layout-post-featured-images-alignment\":\"center\",\"layout-post-post-date\":\"absolute\",\"layout-post-post-date-location\":\"top\",\"layout-post-post-author\":\"name\",\"layout-post-post-author-location\":\"post-footer\",\"layout-post-show-categories\":0,\"layout-post-show-tags\":0,\"layout-post-comment-count\":\"none\",\"layout-post-comment-count-location\":\"before-content\",\"layout-page-hide-header\":0,\"layout-page-hide-footer\":0,\"layout-page-sidebar-left\":0,\"layout-page-sidebar-right\":0,\"layout-page-hide-title\":1,\"layout-page-featured-images\":\"none\",\"layout-page-featured-images-alignment\":\"center\",\"layout-page-post-date\":\"none\",\"layout-page-post-date-location\":\"top\",\"layout-page-post-author\":\"none\",\"layout-page-post-author-location\":\"post-footer\",\"layout-page-comment-count\":\"none\",\"layout-page-comment-count-location\":\"before-content\",\"footer-background-image\":\"\",\"footer-background-repeat\":\"no-repeat\",\"footer-background-position\":\"center\",\"footer-background-size\":\"cover\",\"footer-widget-areas\":3,\"footer-layout\":1,\"footer-text\":\"\",\"footer-show-social\":1,\"background_size\":\"auto\",\"main-background-image\":\"\",\"main-background-repeat\":\"repeat\",\"main-background-position\":\"left\",\"main-background-size\":\"auto\",\"navigation-mobile-label\":\"Menuxx\",\"hide-site-title\":0,\"hide-tagline\":0}
+		[nonce] => e983bc7d41
+		[action] => customize_save
+		)
+		*/
 
-/*
-keys in customized = settings id
-*/
-#print_r($_REQUEST);
+		/*
+		keys in customized = settings id
+		*/
+		// print_r($_REQUEST);
+		// Needed to get sections and controls in sorted order
+		$customize_manager->prepare_controls();
 
-// Needed to get sections and controls in sorted order
-$customize_manager->prepare_controls();
+		$settings = $customize_manager->settings();
+		$sections = $customize_manager->sections();
+		$controls = $customize_manager->controls();
 
-$settings = $customize_manager->settings();
-$sections = $customize_manager->sections();
-$controls = $customize_manager->controls();
+		$customized = json_decode( wp_unslash( $_REQUEST['customized'] ) );
 
-$customized = json_decode( wp_unslash( $_REQUEST["customized"] ) );
+		foreach ( $customized as $setting_id => $posted_values ) {
 
-foreach ($customized as $setting_id => $posted_values) {
+			foreach ( $settings as $one_setting ) {
 
-	foreach ($settings as $one_setting) {
+				if ( $one_setting->id == $setting_id ) {
 
-		if ($one_setting->id == $setting_id) {
+					// sf_d("MATCH");
+					$old_value = $one_setting->value();
+					$new_value = $one_setting->post_value();
 
-			// sf_d("MATCH");
-			$old_value = $one_setting->value();
-			$new_value = $one_setting->post_value();
+					if ( $old_value != $new_value ) {
 
-			if ($old_value != $new_value) {
+						$context = array(
+							'setting_id' => $one_setting->id,
+							'setting_old_value' => $old_value,
+							'setting_new_value' => $new_value,
+							// "control_id" => $section_control->id,
+							// "control_label" => $section_control->label,
+							// "control_type" => $section_control->type,
+							// "section_id" => $section->id,
+							// "section_title" => $section->title,
+						);
 
-				$context = array(
-					"setting_id" => $one_setting->id,
-					"setting_old_value" => $old_value,
-					"setting_new_value" => $new_value,
-					#"control_id" => $section_control->id,
-					#"control_label" => $section_control->label,
-					#"control_type" => $section_control->type,
-					#"section_id" => $section->id,
-					#"section_title" => $section->title,
-				);
+						// value is changed
+						// find which control it belongs to
+						// foreach ($sections as $section) {
+						foreach ( $controls as $one_control ) {
 
-				// value is changed
-				// find which control it belongs to
-				#foreach ($sections as $section) {
-				foreach ($controls as $one_control) {
+							foreach ( $one_control->settings as $section_control_setting ) {
 
-					foreach ($one_control->settings as $section_control_setting) {
+								if ( $section_control_setting->id == $setting_id ) {
 
-						if ( $section_control_setting->id == $setting_id) {
+									// echo "\n" . $one_control->id;
+									// echo "\n" . $one_control->label;
+									// echo "\n" . $one_control->type;
+									$context['control_id'] = $one_control->id;
+									$context['control_label'] = $one_control->label;
+									$context['control_type'] = $one_control->type;
 
-							#echo "\n" . $one_control->id;
-							#echo "\n" . $one_control->label;
-							#echo "\n" . $one_control->type;
-							$context["control_id"] = $one_control->id;
-							$context["control_label"] = $one_control->label;
-							$context["control_type"] = $one_control->type;
-
+								}
+							}
 						}
+						// }
+						$this->infoMessage(
+							'appearance_customized',
+							$context
+						);
 
-					}
+					}// End if().
+				}// End if().
+			}// End foreach().
+		}// End foreach().
 
-				}
-				#}
-
-				$this->infoMessage(
-					"appearance_customized",
-					$context
-				);
-
-			}
-
-		}
-
-	}
-
-}
-
-return;
-#print_r( json_decode( $customized ) );
-#exit;
-
-
-
-
-
+		return;
+		// print_r( json_decode( $customized ) );
+		// exit;
 		// Set to true to echo some info about stuff
 		// that can be views in console when saving
 		$debug = 0;
@@ -486,44 +471,40 @@ return;
 		$arr_changed_settings = array();
 		$arr_changed_settings_ids = array();
 
+		/*
+		foreach ($settings as $setting) {
 
+		#echo "\n\nsetting";
+		#sf_d( $setting->id );
+		#sf_d( $setting->value() );
+		#sf_d( $setting->post_value() );
 
-/*
-
-
-foreach ($settings as $setting) {
-
-	#echo "\n\nsetting";
-	#sf_d( $setting->id );
-	#sf_d( $setting->value() );
-	#sf_d( $setting->post_value() );
-
-	// Get control for this settings
-	foreach ($sections as $section) {
+		// Get control for this settings
+		foreach ($sections as $section) {
 		foreach ($section->controls as $control) {
 			foreach ($control->settings as $one_setting) {
 				sf_d( $one_setting->id );
 			}
 		}
-	}
+		}
 
 
-}
-return;
-*/
-		foreach ($sections as $section ) {
-#echo "Section: " . $section->id . " (".$section->title.")";
+		}
+		return;
+		*/
+		foreach ( $sections as $section ) {
+			// echo "Section: " . $section->id . " (".$section->title.")";
 			// Id is unique slug
 			// Can't use title because that's translated
-			if ($debug) {
+			if ( $debug ) {
 
 				echo "\n-------\n";
-				echo "Section: " . $section->id . " (".$section->title.")";
+				echo 'Section: ' . $section->id . ' (' . $section->title . ')';
 
 			}
 
 			$section_controls = $section->controls;
-			foreach ($section_controls as $section_control) {
+			foreach ( $section_controls as $section_control ) {
 
 				/*
 				if ( ! $section_control->check_capabilities() ) {
@@ -536,10 +517,10 @@ return;
 				// Settings is always array, but mostly with just one setting in it it seems like
 				$section_control_settings = $section_control->settings;
 
-				if ($debug) {
+				if ( $debug ) {
 					echo "\n\nControl ";
-					echo $section_control->id . " (". $section_control->label . ")";
-					//echo "\ncontrol setting: " . $section_control->setting;
+					echo $section_control->id . ' (' . $section_control->label . ')';
+					// echo "\ncontrol setting: " . $section_control->setting;
 					// echo "\nSettings:";
 				}
 
@@ -548,7 +529,8 @@ return;
 				har underlig setting
 				setting = blogname = uppdateras som en tok!
 				*/
-				/*if ( $section_control->id == "ttfmake_stylekit-info" ) {
+				/*
+				if ( $section_control->id == "ttfmake_stylekit-info" ) {
 					print_r( sizeof($section_control_settings) );
 					echo "\nid: " . $section_control_settings[0]->id;
 					echo "\ntitle: " . $section_control_settings[0]->title;
@@ -557,7 +539,7 @@ return;
 
 				foreach ( $section_control_settings as $one_setting ) {
 
-					if ($debug) {
+					if ( $debug ) {
 						// setting id is supposed to be unique, but some themes
 						// seems to register "blogname" for example
 						// which messes things up...
@@ -572,37 +554,33 @@ return;
 					$new_value = $one_setting->post_value();
 
 					// If old and new value is different then we log
-					if ($old_value != $new_value && ! in_array($one_setting_id, $arr_changed_settings_ids) ) {
-					#if ( $old_value != $new_value ) {
-
-						if ($debug) {
+					if ( $old_value != $new_value && ! in_array( $one_setting_id, $arr_changed_settings_ids ) ) {
+						// if ( $old_value != $new_value ) {
+						if ( $debug ) {
 							echo "\nSetting with id ";
 							echo $one_setting->id;
-							echo " changed";
+							echo ' changed';
 							echo "\nold value $old_value";
 							echo "\nnew value $new_value";
 						}
 
 						$arr_changed_settings[] = array(
-							"setting_id" => $one_setting->id,
-							"setting_old_value" => $old_value,
-							"setting_new_value" => $new_value,
-							"control_id" => $section_control->id,
-							"control_label" => $section_control->label,
-							"control_type" => $section_control->type,
-							"section_id" => $section->id,
-							"section_title" => $section->title,
+							'setting_id' => $one_setting->id,
+							'setting_old_value' => $old_value,
+							'setting_new_value' => $new_value,
+							'control_id' => $section_control->id,
+							'control_label' => $section_control->label,
+							'control_type' => $section_control->type,
+							'section_id' => $section->id,
+							'section_title' => $section->title,
 						);
 
 						$arr_changed_settings_ids[] = $one_setting->id;
 
-					} // if settings changed
-
-				} // foreach setting
-
-			} // foreach control
-
-		} // foreach section
+					}
+				}// End foreach().
+			}// End foreach().
+		} // End foreach().
 
 		/*
 		arr_changed_settingsArray
@@ -633,9 +611,9 @@ return;
 
 		)
 		*/
-		if ($arr_changed_settings) {
+		if ( $arr_changed_settings ) {
 
-			if ($debug) {
+			if ( $debug ) {
 				echo "\narr_changed_settings";
 				print_r( $arr_changed_settings );
 			}
@@ -647,12 +625,11 @@ return;
 			foreach ( $arr_changed_settings as $one_changed_setting ) {
 
 				$this->infoMessage(
-					"appearance_customized",
+					'appearance_customized',
 					$one_changed_setting
 				);
 
 			}
-
 		}
 
 	}
@@ -663,7 +640,7 @@ return;
 	 */
 	function on_page_load_themes() {
 
-		//sf_d($_REQUEST, "request");exit;
+		// sf_d($_REQUEST, "request");exit;
 		/*
 		request:
 		Array
@@ -674,7 +651,7 @@ return;
 		)
 		*/
 
-		if ( ! isset($_GET["action"]) || $_GET["action"] != "activate") {
+		if ( ! isset( $_GET['action'] ) || $_GET['action'] != 'activate' ) {
 			return;
 		}
 
@@ -712,55 +689,53 @@ return;
 		)
 
 		*/
-		if ( ! is_a($current_theme, "WP_Theme") ) {
+		if ( ! is_a( $current_theme, 'WP_Theme' ) ) {
 			return;
 		}
-		#sf_d($current_theme);
-
+		// sf_d($current_theme);
 		$this->prev_theme_data = array(
-			"name" => $current_theme->name,
-			"version" => $current_theme->version
+			'name' => $current_theme->name,
+			'version' => $current_theme->version,
 		);
 
 	}
 
-	function on_switch_theme($new_name, $new_theme) {
+	function on_switch_theme( $new_name, $new_theme ) {
 
 		$prev_theme_data = $this->prev_theme_data;
 
 		$this->infoMessage(
-			"theme_switched",
+			'theme_switched',
 			array(
-				"theme_name" => $new_name,
-				"theme_version" => $new_theme->version,
-				"prev_theme_name" => $prev_theme_data["name"],
-				"prev_theme_version" => $prev_theme_data["version"]
+				'theme_name' => $new_name,
+				'theme_version' => $new_theme->version,
+				'prev_theme_name' => $prev_theme_data['name'],
+				'prev_theme_version' => $prev_theme_data['version'],
 			)
 		);
 
 	}
 
-	function getLogRowDetailsOutput($row) {
+	function getLogRowDetailsOutput( $row ) {
 
 		$context = $row->context;
-		$message_key = $context["_message_key"];
-		$output = "";
+		$message_key = $context['_message_key'];
+		$output = '';
 
 		// Theme customizer
-		if ( "appearance_customized" == $message_key ) {
+		if ( 'appearance_customized' == $message_key ) {
 
-			#if ( ! class_exists("WP_Customize_Manager") ) {
-			#	require_once( ABSPATH . WPINC . '/class-wp-customize-manager.php' );
-			#	$wp_customize = new WP_Customize_Manager;
-			#}
-
-			//$output .= "<pre>" . print_r($context, true);
-			if ( isset( $context["setting_old_value"] ) && isset( $context["setting_new_value"] ) ) {
+			// if ( ! class_exists("WP_Customize_Manager") ) {
+			// require_once( ABSPATH . WPINC . '/class-wp-customize-manager.php' );
+			// $wp_customize = new WP_Customize_Manager;
+			// }
+			// $output .= "<pre>" . print_r($context, true);
+			if ( isset( $context['setting_old_value'] ) && isset( $context['setting_new_value'] ) ) {
 
 				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
 				// Output section, if saved
-				if ( ! empty( $context["section_id"] ) ) {
+				if ( ! empty( $context['section_id'] ) ) {
 					$output .= sprintf(
 						'
 						<tr>
@@ -768,33 +743,32 @@ return;
 							<td>%2$s</td>
 						</tr>
 						',
-						__("Section", "simple-history"),
-						esc_html( $context["section_id"] )
+						__( 'Section', 'simple-history' ),
+						esc_html( $context['section_id'] )
 					);
 				}
 
 				// Don't output prev and new value if none exist
-				if ( empty( $context["setting_old_value"] ) && empty( $context["setting_new_value"] ) ) {
+				if ( empty( $context['setting_old_value'] ) && empty( $context['setting_new_value'] ) ) {
 
 					// empty, so skip
-
 				} else {
 
 					// if control is color let's be fancy and output as color
-					$control_type = isset( $context["control_type"] ) ? $context["control_type"] : "";
-					$str_old_value_prepend = "";
-					$str_new_value_prepend = "";
+					$control_type = isset( $context['control_type'] ) ? $context['control_type'] : '';
+					$str_old_value_prepend = '';
+					$str_new_value_prepend = '';
 
-					if ("color" == $control_type) {
+					if ( 'color' == $control_type ) {
 
 						$str_old_value_prepend .= sprintf(
 							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
-							esc_attr( ltrim( $context["setting_old_value"], " #" ) )
+							esc_attr( ltrim( $context['setting_old_value'], ' #' ) )
 						);
 
 						$str_new_value_prepend .= sprintf(
 							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
-							esc_attr( ltrim( $context["setting_new_value"], "#" ) )
+							esc_attr( ltrim( $context['setting_new_value'], '#' ) )
 						);
 
 					}
@@ -806,8 +780,8 @@ return;
 							<td>%3$s%2$s</td>
 						</tr>
 						',
-						__("New value", "simple-history"),
-						esc_html( $context["setting_new_value"] ),
+						__( 'New value', 'simple-history' ),
+						esc_html( $context['setting_new_value'] ),
 						$str_new_value_prepend
 					);
 
@@ -818,20 +792,17 @@ return;
 							<td>%3$s%2$s</td>
 						</tr>
 						',
-						__("Old value", "simple-history"),
-						esc_html( $context["setting_old_value"] ),
+						__( 'Old value', 'simple-history' ),
+						esc_html( $context['setting_old_value'] ),
 						$str_old_value_prepend
 					);
 
+				}// End if().
 
-				}
+				$output .= '</table>';
 
-				$output .= "</table>";
-
-			}
-
-
-		}
+			}// End if().
+		}// End if().
 
 		return $output;
 
@@ -840,41 +811,39 @@ return;
 	/**
 	 * Add widget name and sidebar name to output
 	 */
-	function getLogRowPlainTextOutput($row) {
+	function getLogRowPlainTextOutput( $row ) {
 
 		$context = $row->context;
-		$message_key = $context["_message_key"];
+		$message_key = $context['_message_key'];
 		$message = $row->message;
-		$output = "";
+		$output = '';
 
 		// Widget changed or added or removed
 		// Simple replace widget_id_base and sidebar_id with widget name and sidebar name
-		if ( in_array($message_key, array("widget_added", "widget_edited", "widget_removed") ) ) {
+		if ( in_array( $message_key, array( 'widget_added', 'widget_edited', 'widget_removed' ) ) ) {
 
-			$widget = $this->getWidgetByIdBase( $context["widget_id_base"] );
-			$sidebar = $this->getSidebarById( $context["sidebar_id"] );
+			$widget = $this->getWidgetByIdBase( $context['widget_id_base'] );
+			$sidebar = $this->getSidebarById( $context['sidebar_id'] );
 
 			if ( $widget && $sidebar ) {
 
 				// Translate message first
-				$message = $this->messages[ $message_key ]["translated_text"];
+				$message = $this->messages[ $message_key ]['translated_text'];
 
 				$message = $this->interpolate( $message, array(
-					"widget_id_base" => $widget->name,
-					"sidebar_id" => $sidebar["name"],
+					'widget_id_base' => $widget->name,
+					'sidebar_id' => $sidebar['name'],
 				), $row );
 
 				$output .= $message;
 
 			}
-
-
 		}
 
 		// Fallback to default/parent output if nothing was added to output
 		if ( ! $output ) {
 
-			$output .= parent::getLogRowPlainTextOutput($row);
+			$output .= parent::getLogRowPlainTextOutput( $row );
 
 		}
 
@@ -926,11 +895,12 @@ return;
 
 	/**
 	 * A widget is changed, i.e. new values are saved
+	 *
 	 * @TODO: first time a widget is added it seems to call this and we get double edit logs that are confusing
 	 */
-	function on_widget_update_callback($instance, $new_instance, $old_instance, $widget_instance) {
+	function on_widget_update_callback( $instance, $new_instance, $old_instance, $widget_instance ) {
 
-		#sf_d($instance);
+		// sf_d($instance);
 		/*
 		Array
 		(
@@ -940,7 +910,7 @@ return;
 
 		*/
 
-		#sf_d($new_instance);
+		// sf_d($new_instance);
 		/*
 		Custom Menu
 		Array
@@ -950,7 +920,7 @@ return;
 		)
 		*/
 
-		#sf_d($old_instance);
+		// sf_d($old_instance);
 		/*
 		Array
 		(
@@ -959,7 +929,7 @@ return;
 		)
 		*/
 
-		#sf_d($widget_instance);
+		// sf_d($widget_instance);
 		/*
 		WP_Nav_Menu_Widget Object
 		(
@@ -994,29 +964,28 @@ return;
 		$context = array();
 
 		// Add widget info
-		$context["widget_id_base"] = $widget_id_base;
+		$context['widget_id_base'] = $widget_id_base;
 		$widget = $this->getWidgetByIdBase( $widget_id_base );
-		if ($widget) {
-			$context["widget_name_translated"] = $widget->name;
+		if ( $widget ) {
+			$context['widget_name_translated'] = $widget->name;
 		}
 
 		// Add sidebar info
-		$sidebar_id = $_POST["sidebar"];
-		$context["sidebar_id"] = $sidebar_id;
+		$sidebar_id = $_POST['sidebar'];
+		$context['sidebar_id'] = $sidebar_id;
 		$sidebar = $this->getSidebarById( $sidebar_id );
-		if ($sidebar) {
-			$context["sidebar_name_translated"] = $sidebar["name"];
+		if ( $sidebar ) {
+			$context['sidebar_name_translated'] = $sidebar['name'];
 		}
 
 		// Calculate changes
-		$context["old_instance"] = $this->simpleHistory->json_encode( $old_instance );
-		$context["new_instance"] = $this->simpleHistory->json_encode( $new_instance );
+		$context['old_instance'] = $this->simpleHistory->json_encode( $old_instance );
+		$context['new_instance'] = $this->simpleHistory->json_encode( $new_instance );
 
 		$this->infoMessage(
-			"widget_edited",
+			'widget_edited',
 			$context
 		);
-
 
 		return $instance;
 
@@ -1066,26 +1035,26 @@ return;
 	 */
 	function on_action_sidebar_admin_setup__detect_widget_add() {
 
-		if ( isset( $_POST["add_new"] ) && ! empty( $_POST["add_new"] ) && isset( $_POST["sidebar"] ) && isset( $_POST["id_base"] ) ) {
+		if ( isset( $_POST['add_new'] ) && ! empty( $_POST['add_new'] ) && isset( $_POST['sidebar'] ) && isset( $_POST['id_base'] ) ) {
 
 			// Add widget info
-			$widget_id_base = $_POST["id_base"];
-			$context["widget_id_base"] = $widget_id_base;
+			$widget_id_base = $_POST['id_base'];
+			$context['widget_id_base'] = $widget_id_base;
 			$widget = $this->getWidgetByIdBase( $widget_id_base );
-			if ($widget) {
-				$context["widget_name_translated"] = $widget->name;
+			if ( $widget ) {
+				$context['widget_name_translated'] = $widget->name;
 			}
 
 			// Add sidebar info
-			$sidebar_id = $_POST["sidebar"];
-			$context["sidebar_id"] = $sidebar_id;
+			$sidebar_id = $_POST['sidebar'];
+			$context['sidebar_id'] = $sidebar_id;
 			$sidebar = $this->getSidebarById( $sidebar_id );
-			if ($sidebar) {
-				$context["sidebar_name_translated"] = $sidebar["name"];
+			if ( $sidebar ) {
+				$context['sidebar_name_translated'] = $sidebar['name'];
 			}
 
 			$this->infoMessage(
-				"widget_added",
+				'widget_added',
 				$context
 			);
 
@@ -1098,28 +1067,28 @@ return;
 	function on_action_sidebar_admin_setup__detect_widget_delete() {
 
 		// Widget was deleted
-		if ( isset( $_POST["delete_widget"] ) ) {
+		if ( isset( $_POST['delete_widget'] ) ) {
 
 			$context = array();
 
 			// Add widget info
-			$widget_id_base = $_POST["id_base"];
-			$context["widget_id_base"] = $widget_id_base;
+			$widget_id_base = $_POST['id_base'];
+			$context['widget_id_base'] = $widget_id_base;
 			$widget = $this->getWidgetByIdBase( $widget_id_base );
-			if ($widget) {
-				$context["widget_name_translated"] = $widget->name;
+			if ( $widget ) {
+				$context['widget_name_translated'] = $widget->name;
 			}
 
 			// Add sidebar info
-			$sidebar_id = $_POST["sidebar"];
-			$context["sidebar_id"] = $sidebar_id;
+			$sidebar_id = $_POST['sidebar'];
+			$context['sidebar_id'] = $sidebar_id;
 			$sidebar = $this->getSidebarById( $sidebar_id );
-			if ($sidebar) {
-				$context["sidebar_name_translated"] = $sidebar["name"];
+			if ( $sidebar ) {
+				$context['sidebar_name_translated'] = $sidebar['name'];
 			}
 
 			$this->infoMessage(
-				"widget_removed",
+				'widget_removed',
 				$context
 			);
 
@@ -1133,7 +1102,7 @@ return;
 	 * @param string $sidebar_id
 	 * @return sidebar info or false on failure
 	 */
-	function getSidebarById($sidebar_id) {
+	function getSidebarById( $sidebar_id ) {
 
 		$sidebars = isset( $GLOBALS['wp_registered_sidebars'] ) ? $GLOBALS['wp_registered_sidebars'] : false;
 
@@ -1158,22 +1127,21 @@ return;
 	 * @param string $id_base
 	 * @return wp_widget object or false on failure
 	 */
-	function getWidgetByIdBase($widget_id_base) {
+	function getWidgetByIdBase( $widget_id_base ) {
 
-		$widget_factory = isset( $GLOBALS["wp_widget_factory"] ) ? $GLOBALS["wp_widget_factory"] : false;
+		$widget_factory = isset( $GLOBALS['wp_widget_factory'] ) ? $GLOBALS['wp_widget_factory'] : false;
 
 		if ( ! $widget_factory ) {
 			return false;
 		}
 
-		foreach ($widget_factory->widgets as $one_widget) {
+		foreach ( $widget_factory->widgets as $one_widget ) {
 
 			if ( $one_widget->id_base == $widget_id_base ) {
 
 				return $one_widget;
 
 			}
-
 		}
 
 		return false;
