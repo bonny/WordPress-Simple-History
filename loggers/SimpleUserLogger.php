@@ -314,7 +314,7 @@ class SimpleUserLogger extends SimpleLogger
      * user requests a reset password link
      *
      */
-    public function onRetrievePasswordMessage($message, $key, $user_login, $user_data)
+    public function onRetrievePasswordMessage($message, $key, $user_login, $user_data = "")
     {
 
         if (isset($_GET["action"]) && ("lostpassword" == $_GET["action"])) {
