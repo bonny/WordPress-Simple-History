@@ -887,6 +887,16 @@ class SimpleHistory {
 	}
 
 	/**
+	 * Check if the current user can clear the log
+	 * @return bool
+	 */
+	public function user_can_clear_log() {
+		$user_can_clear_log = apply_filters( 'simple_history/user_can_clear_log', true );
+
+		return $user_can_clear_log;
+	}
+
+	/**
 	 * Adds default tabs to settings
 	 */
 	public function add_default_settings_tabs() {
@@ -1935,34 +1945,39 @@ Because Simple History was just recently installed, this feed does not contain m
 
 	}
 
-	/*
+	/**
 	 * Add setting sections and settings for the settings page
 	 * Also maybe save some settings before outputing them
 	 */
 	function add_settings() {
 
-		// Clear the log if clear button was clicked in settings
+		// Clear the log if clear button was clicked in settings.
 		if ( isset( $_GET['simple_history_clear_log_nonce'] ) && wp_verify_nonce( $_GET['simple_history_clear_log_nonce'], 'simple_history_clear_log' ) ) {
 
-			$this->clear_log();
+			if ( $this->user_can_clear_log() ) {
+				$this->clear_log();
+			}
+
 			$msg = __( 'Cleared database', 'simple-history' );
+
 			add_settings_error( 'simple_history_rss_feed_regenerate_secret', 'simple_history_rss_feed_regenerate_secret', $msg, 'updated' );
+
 			set_transient( 'settings_errors', get_settings_errors(), 30 );
 
 			$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
 			wp_redirect( $goback );
-			exit;
+			exit();
 
 		}
 
-		// Section for general options
-		// Will contain settings like where to show simple history and number of items
+		// Section for general options.
+		// Will contain settings like where to show simple history and number of items.
 		$settings_section_general_id = self::SETTINGS_SECTION_GENERAL_ID;
 		add_settings_section(
 			$settings_section_general_id,
-			'', // No title __("General", "simple-history"),
+			'',
 			array( $this, 'settings_section_output' ),
-			SimpleHistory::SETTINGS_MENU_SLUG// same slug as for options menu page
+			SimpleHistory::SETTINGS_MENU_SLUG // Same slug as for options menu page.
 		);
 
 		// Settings for the general settings section
@@ -1977,11 +1992,11 @@ Because Simple History was just recently installed, this feed does not contain m
 			$settings_section_general_id
 		);
 
-		// Nonces for show where inputs
+		// Nonces for show where inputs.
 		register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, 'simple_history_show_on_dashboard' );
 		register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, 'simple_history_show_as_page' );
 
-		// Number if items to show on the history page
+		// Number if items to show on the history page.
 		add_settings_field(
 			'simple_history_number_of_items',
 			__( 'Number of items per page on the log page', 'simple-history' ),
@@ -1990,10 +2005,10 @@ Because Simple History was just recently installed, this feed does not contain m
 			$settings_section_general_id
 		);
 
-		// Nonces for number of items inputs
+		// Nonces for number of items inputs.
 		register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, 'simple_history_pager_size' );
 
-		// Number if items to show on dashboard
+		// Number if items to show on dashboard.
 		add_settings_field(
 			'simple_history_number_of_items_dashboard',
 			__( 'Number of items per page on the dashboard', 'simple-history' ),
@@ -2002,17 +2017,19 @@ Because Simple History was just recently installed, this feed does not contain m
 			$settings_section_general_id
 		);
 
-		// Nonces for number of items inputs
+		// Nonces for number of items inputs.
 		register_setting( SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP, 'simple_history_pager_size_dashboard' );
 
-		// Link to clear log
-		add_settings_field(
-			'simple_history_clear_log',
-			__( 'Clear log', 'simple-history' ),
-			array( $this, 'settings_field_clear_log' ),
-			SimpleHistory::SETTINGS_MENU_SLUG,
-			$settings_section_general_id
-		);
+		// Link/button to clear log.
+		if ( $this->user_can_clear_log() ) {
+			add_settings_field(
+				'simple_history_clear_log',
+				__( 'Clear log', 'simple-history' ),
+				array( $this, 'settings_field_clear_log' ),
+				SimpleHistory::SETTINGS_MENU_SLUG,
+				$settings_section_general_id
+			);
+		}
 
 	}
 
@@ -2191,11 +2208,13 @@ Because Simple History was just recently installed, this feed does not contain m
 		$clear_days = $this->get_clear_history_interval();
 
 		echo '<p>';
+
 		if ( $clear_days > 0 ) {
 			echo sprintf( __( 'Items in the database are automatically removed after %1$s days.', 'simple-history' ), $clear_days );
 		} else {
 			_e( 'Items in the database are kept forever.', 'simple-history' );
 		}
+
 		echo '</p>';
 
 		printf( '<p><a class="button js-SimpleHistory-Settings-ClearLog" href="%2$s">%1$s</a></p>', __( 'Clear log now', 'simple-history' ), $clear_link );
@@ -2236,15 +2255,14 @@ Because Simple History was just recently installed, this feed does not contain m
 		$simple_history_table = SimpleHistory::DBTABLE;
 		$simple_history_context_table = SimpleHistory::DBTABLE_CONTEXTS;
 
-		// Get number of rows before delete
+		// Get number of rows before delete.
 		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$tableprefix}{$simple_history_table}";
 		$num_rows = $wpdb->get_var( $sql_num_rows, 0 );
 
-		// $sql = "DELETE FROM {$tableprefix}{$simple_history_table}";
+		// Use truncate instead of delete because it's much faster (I think, writing this much later).
 		$sql = "TRUNCATE {$tableprefix}{$simple_history_table}";
 		$wpdb->query( $sql );
 
-		// $sql = "DELETE FROM {$tableprefix}{$simple_history_context_table}";
 		$sql = "TRUNCATE {$tableprefix}{$simple_history_context_table}";
 		$wpdb->query( $sql );
 
@@ -2268,15 +2286,10 @@ Because Simple History was just recently installed, this feed does not contain m
 	 */
 	function maybe_purge_db() {
 
-		/*
-		if ( ! is_admin() ) {
-			return;
-		}*/
-
 		// How often should we try to do this?
-		// Once a day = a bit tiresome
-		// Let's go with sundays; purge the log on sundays
-		// day of week, 1 = mon, 7 = sun
+		// Once a day = a bit tiresome.
+		// Let's go with sundays; purge the log on sundays.
+		// Day of week, 1 = mon, 7 = sun.
 		$day_of_week = date( 'N' );
 		if ( 7 === (int) $day_of_week ) {
 
@@ -2291,7 +2304,6 @@ Because Simple History was just recently installed, this feed does not contain m
 	 */
 	function purge_db() {
 
-		// SimpleLogger()->debug("Simple History is running purge_db()");
 		$do_purge_history = true;
 
 		$do_purge_history = apply_filters( 'simple_history_allow_db_purge', $do_purge_history );

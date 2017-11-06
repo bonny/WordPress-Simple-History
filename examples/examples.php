@@ -1,14 +1,18 @@
 <?php
+/**
+ * Examples on how to customize Simple History.
+ *
+ * @package SimpleHistory
+ */
 
-// No external calls allowed
+// No external calls allowed.
 exit;
-
 
 /**
  * Misc
  */
 
-// Add $_GET, $_POST, and more info to each logged event
+// Add $_GET, $_POST, and more info to each logged even.
 define( 'SIMPLE_HISTORY_LOG_DEBUG', true );
 
 
@@ -16,8 +20,17 @@ define( 'SIMPLE_HISTORY_LOG_DEBUG', true );
  * Some examples of filter usage and so on
  */
 
-// Modify who can read a logger
-// Modify the if part to give users access or no access to a logger
+/**
+ * Remove the "Clear log"-button, so a user with admin access can not clear the log
+ * and wipe their mischievous behavior from the log.
+ */
+add_filter( 'simple_history/user_can_clear_log', function ( $user_can_clear_log ) {
+	$user_can_clear_log = false;
+	return $user_can_clear_log;
+});
+
+// Modify who can read a logger.
+// Modify the if part to give users access or no access to a logger.
 add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', function( $user_can_read_logger, $logger_instance, $user_id ) {
 
 	// in this example user with id 3 gets access to the post logger
