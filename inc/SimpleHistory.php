@@ -2357,6 +2357,7 @@ Because Simple History was just recently installed, this feed does not contain m
 		$message = _nx(
 			'Simple History removed one event that were older than {days} days',
 			'Simple History removed {num_rows} events that were older than {days} days',
+			sizeof( $ids_to_delete )
 			'Database is being cleared automagically',
 			'simple-history'
 		);
