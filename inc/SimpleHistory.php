@@ -888,6 +888,7 @@ class SimpleHistory {
 
 	/**
 	 * Check if the current user can clear the log
+	 * @since 2.19
 	 * @return bool
 	 */
 	public function user_can_clear_log() {
