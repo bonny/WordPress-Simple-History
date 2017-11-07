@@ -20,11 +20,11 @@ class Plugin_UltimateMembers_Logger extends SimpleLogger {
 	function getInfo() {
 
 		$arr_info = array(
-			"name" => _x("Ultimate Members Logger", "PluginUltimateMembersLogger", "simple-history"),
-			"description" => _x("Logs actions from the Ultimate Members plugin", "PluginUltimateMembersLogger", "simple-history"),
-			"capability" => "edit_users",
-			"messages" => array(
-				'logged_in' => _x('Logged in', "PluginUltimateMembersLogger", "simple-history"),
+			'name' => _x( 'Ultimate Members Logger', 'PluginUltimateMembersLogger', 'simple-history' ),
+			'description' => _x( 'Logs actions from the Ultimate Members plugin', 'PluginUltimateMembersLogger', 'simple-history' ),
+			'capability' => 'edit_users',
+			'messages' => array(
+				'logged_in' => _x( 'Logged in', 'PluginUltimateMembersLogger', 'simple-history' ),
 			),
 		);
 
@@ -35,13 +35,13 @@ class Plugin_UltimateMembers_Logger extends SimpleLogger {
 	function loaded() {
 
 		// Action that is called when Enable Media Replace loads it's admin options page (both when viewing and when posting new file to it)
-		add_action( 'um_on_login_before_redirect', array( $this, "on_um_on_login_before_redirect" ), 10, 1 );
+		add_action( 'um_on_login_before_redirect', array( $this, 'on_um_on_login_before_redirect' ), 10, 1 );
 	}
 
 	function on_um_on_login_before_redirect( $user_id ) {
 
-		$this->infoMessage("logged_in", array(
-			//"user_id" => $user_id,
+		$this->infoMessage('logged_in', array(
+			// "user_id" => $user_id,
 			/*
 			"get" => $_GET,
 			"post" => $_POST,

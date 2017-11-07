@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) or die();
  * Logger for the Redirection plugin
  * https://sv.wordpress.org/plugins/redirection/
  */
-if ( ! class_exists("Plugin_Redirection") ) {
+if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 	class Plugin_Redirection extends SimpleLogger {
 
@@ -15,20 +15,20 @@ if ( ! class_exists("Plugin_Redirection") ) {
 		function getInfo() {
 
 			$arr_info = array(
-				"name" => "Redirection",
-				"description" => _x("Text", "Logger: Redirection", "simple-history"),
-				"name_via" => _x("In plugin Redirection", "Logger: Redirection", "simple-history"),
-				"capability" => "manage_options",
-				"messages" => array(
-					'redirection_redirection_added' => _x( 'Added a redirection for URL "{source_url}"', "Logger: Redirection", 'simple-history' ),
-					'redirection_redirection_edited' => _x( 'Edited the redirection for URL "{source_url}', "Logger: Redirection", 'simple-history' ),
-					'redirection_redirection_enabled' => _x( 'Enabled the redirection for {items_count} URL(s)', "Logger: Redirection", 'simple-history' ),
-					'redirection_redirection_disabled' => _x( 'Disabled the redirection for {items_count} URL(s)', "Logger: Redirection", 'simple-history' ),
-					'redirection_redirection_removed' => _x( 'Removed redirection for {items_count} URL(s)', "Logger: Redirection", 'simple-history' ),
-					'redirection_options_saved' => _x( 'Updated options', "Logger: Redirection", 'simple-history' ),
-					'redirection_options_removed_all' => _x( 'Removed all options and deactivated plugin', "Logger: Redirection", 'simple-history' ),
-					'redirection_group_added' => _x( 'Added group "{group_name}"', "Logger: Redirection", 'simple-history' ),
-					'redirection_group_deleted' => _x( 'Deleted {items_count} group(s)', "Logger: Redirection", 'simple-history' ),
+				'name' => 'Redirection',
+				'description' => _x( 'Text', 'Logger: Redirection', 'simple-history' ),
+				'name_via' => _x( 'In plugin Redirection', 'Logger: Redirection', 'simple-history' ),
+				'capability' => 'manage_options',
+				'messages' => array(
+					'redirection_redirection_added' => _x( 'Added a redirection for URL "{source_url}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_edited' => _x( 'Edited the redirection for URL "{source_url}', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_enabled' => _x( 'Enabled the redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_disabled' => _x( 'Disabled the redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_removed' => _x( 'Removed redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_options_saved' => _x( 'Updated options', 'Logger: Redirection', 'simple-history' ),
+					'redirection_options_removed_all' => _x( 'Removed all options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_added' => _x( 'Added group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_deleted' => _x( 'Deleted {items_count} group(s)', 'Logger: Redirection', 'simple-history' ),
 				),
 				/*
 				"labels" => array(
@@ -65,10 +65,10 @@ if ( ! class_exists("Plugin_Redirection") ) {
 		function loaded() {
 
 			// Catch redirection create, enable, disable
-			add_action( "admin_init", array( $this, "on_admin_init" ) );
+			add_action( 'admin_init', array( $this, 'on_admin_init' ) );
 
 			// Catch edit existing redirect
-			add_action( "wp_ajax_red_redirect_save", array( $this, "on_edit_save_redirect" ) );
+			add_action( 'wp_ajax_red_redirect_save', array( $this, 'on_edit_save_redirect' ) );
 
 		} // loaded
 
@@ -103,7 +103,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			$referer = wp_get_raw_referer();
 
 			// We only continue if referer contains page=redirection.php
-			if ( false === strpos( $referer, "page=redirection.php" ) ) {
+			if ( false === strpos( $referer, 'page=redirection.php' ) ) {
 				return;
 			}
 
@@ -124,7 +124,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php"
 			}
 			*/
-			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "red_redirect_add" ) {
+			if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'red_redirect_add' ) {
 				$this->log_redirection_add( $_REQUEST );
 				return;
 			}
@@ -146,10 +146,10 @@ if ( ! class_exists("Plugin_Redirection") ) {
 				"action2": "-1"
 			}
 			*/
-			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "enable" && empty( $_REQUEST["sub"] ) ) {
+			if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'enable' && empty( $_REQUEST['sub'] ) ) {
 				$this->log_redirection_enable_or_disable( $_REQUEST );
 				return;
-			} else if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "disable" && empty( $_REQUEST["sub"] )) {
+			} elseif ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'disable' && empty( $_REQUEST['sub'] ) ) {
 				$this->log_redirection_enable_or_disable( $_REQUEST );
 				return;
 			}
@@ -170,7 +170,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			    "action2": "-1"
 			}
 			*/
-			if ( isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "delete" && empty( $_REQUEST["sub"] ) ) {
+			if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'delete' && empty( $_REQUEST['sub'] ) ) {
 				$this->log_redirection_delete( $_REQUEST );
 				return;
 			}
@@ -186,7 +186,7 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			    "delete": "Delete"
 			}
 			*/
-			if ( isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "options" && isset( $_REQUEST["delete"] ) && $_REQUEST["delete"] == "Delete" ) {
+			if ( isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'options' && isset( $_REQUEST['delete'] ) && $_REQUEST['delete'] == 'Delete' ) {
 				$this->log_options_delete_all( $_REQUEST );
 				return;
 			}
@@ -207,8 +207,8 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			}
 			*/
 			if (
-				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "options" &&
-				isset( $_REQUEST["update"] ) && $_REQUEST["update"] == "Update"
+				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'options' &&
+				isset( $_REQUEST['update'] ) && $_REQUEST['update'] == 'Update'
 
 			) {
 				$this->log_options_save( $_REQUEST );
@@ -228,13 +228,12 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			}
 			*/
 			if (
-				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
-				isset( $_REQUEST["add"] ) && $_REQUEST["add"] == "Add"
+				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'groups' &&
+				isset( $_REQUEST['add'] ) && $_REQUEST['add'] == 'Add'
 			) {
 				$this->log_group_add( $_REQUEST );
 				return;
 			}
-
 
 			/*
 			Delete group(s)
@@ -254,8 +253,8 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			}
 			*/
 			if (
-				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
-				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "delete"
+				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'groups' &&
+				isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'delete'
 			) {
 				$this->log_group_delete( $_REQUEST );
 				return;
@@ -282,14 +281,14 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			}
 			*/
 			if (
-				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
-				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "enable"
+				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'groups' &&
+				isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'enable'
 			) {
 				$this->log_group_enable_or_disable( $_REQUEST );
 				return;
-			} else  if (
-				isset( $_REQUEST["sub"] ) && $_REQUEST["sub"] == "groups" &&
-				isset( $_REQUEST["action"] ) && $_REQUEST["action"] == "disable"
+			} elseif (
+				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'groups' &&
+				isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'disable'
 			) {
 				$this->log_group_enable_or_disable( $_REQUEST );
 				return;
@@ -304,15 +303,15 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 		function log_group_delete( $req ) {
 
-			$items = isset( $req["item"] ) ? (array) $req["item"] : array();
+			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
 
 			$context = array(
-				"items" => $items,
-				"items_count" => count( $items ),
+				'items' => $items,
+				'items_count' => count( $items ),
 			);
 
 			$this->infoMessage(
-				"redirection_group_deleted",
+				'redirection_group_deleted',
 				$context
 			);
 
@@ -320,18 +319,18 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 		function log_group_add( $req ) {
 
-			$group_name = isset( $req["name"] ) ? $req["name"] : null;
+			$group_name = isset( $req['name'] ) ? $req['name'] : null;
 
 			if ( ! $group_name ) {
 				return;
 			}
 
 			$context = array(
-				"group_name" => $group_name
+				'group_name' => $group_name,
 			);
 
 			$this->infoMessage(
-				"redirection_group_added",
+				'redirection_group_added',
 				$context
 			);
 
@@ -339,26 +338,26 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 		function log_options_save( $req ) {
 
-			$this->infoMessage("redirection_options_saved");
+			$this->infoMessage( 'redirection_options_saved' );
 
 		}
 
 		function log_options_delete_all( $req ) {
 
-			$this->infoMessage("redirection_options_removed_all");
+			$this->infoMessage( 'redirection_options_removed_all' );
 
 		}
 
 		function log_redirection_delete( $req ) {
 
-			$items = isset( $req["item"] ) ? (array) $req["item"] : array();
+			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
 
 			$context = array(
-				"items" => $items,
-				"items_count" => count( $items )
+				'items' => $items,
+				'items_count' => count( $items ),
 			);
 
-			$message_key = "redirection_redirection_removed";
+			$message_key = 'redirection_redirection_removed';
 
 			$this->infoMessage(
 				$message_key,
@@ -387,19 +386,19 @@ if ( ! class_exists("Plugin_Redirection") ) {
 			*/
 
 			$context = array(
-				"source_url"  => isset( $req["old"] ) ? $req["old"] : null,
-				"target_url"  => isset( $req["target"] ) ? $req["target"] : null,
-				"item_id"     => isset( $req["id"] ) ? $req["id"] : null,
-				"title"       => isset( $req["title"] ) ? $req["title"] : null,
-				"regex"       => isset( $req["regex"] ) ? true : false,
-				"group_id"    => isset( $req["group_id"] ) ? $req["group_id"] : null,
-				"user_agent"  => isset( $req["user_agent"] ) ? $req["user_agent"] : null,
-				"url_from"    => isset( $req["url_from"] ) ? $req["url_from"] : null,
-				"url_notfrom" => isset( $req["url_notfrom"] ) ? $req["url_notfrom"] : null,
-				"action_code" => isset( $req["action_code"] ) ? $req["action_code"] : null,
+				'source_url'  => isset( $req['old'] ) ? $req['old'] : null,
+				'target_url'  => isset( $req['target'] ) ? $req['target'] : null,
+				'item_id'     => isset( $req['id'] ) ? $req['id'] : null,
+				'title'       => isset( $req['title'] ) ? $req['title'] : null,
+				'regex'       => isset( $req['regex'] ) ? true : false,
+				'group_id'    => isset( $req['group_id'] ) ? $req['group_id'] : null,
+				'user_agent'  => isset( $req['user_agent'] ) ? $req['user_agent'] : null,
+				'url_from'    => isset( $req['url_from'] ) ? $req['url_from'] : null,
+				'url_notfrom' => isset( $req['url_notfrom'] ) ? $req['url_notfrom'] : null,
+				'action_code' => isset( $req['action_code'] ) ? $req['action_code'] : null,
 			);
 
-			$message_key = "redirection_redirection_edited";
+			$message_key = 'redirection_redirection_edited';
 
 			$this->infoMessage(
 				$message_key,
@@ -410,13 +409,13 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 		function log_redirection_enable_or_disable( $req ) {
 
-			$message_key = $req["action"] == "enable" ? "redirection_redirection_enabled" : "redirection_redirection_disabled";
+			$message_key = $req['action'] == 'enable' ? 'redirection_redirection_enabled' : 'redirection_redirection_disabled';
 
-			$items = isset( $req["item"] ) ? (array) $req["item"] : array();
+			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
 
 			$context = array(
-				"items" => $items,
-				"items_count" => count( $items )
+				'items' => $items,
+				'items_count' => count( $items ),
 			);
 
 			$this->infoMessage(
@@ -428,30 +427,30 @@ if ( ! class_exists("Plugin_Redirection") ) {
 
 		function log_redirection_add( $req ) {
 
-			if ( ! isset( $req["group_id"] ) ) {
+			if ( ! isset( $req['group_id'] ) ) {
 				return;
 			}
 
-			$source = isset( $req["source"] ) ? $req["source"] : null;
-			$target = isset( $req["target"] ) ? $req["target"] : null;
-			$match = isset( $req["match"] ) ? $req["match"] : null;
-			$action = isset( $req["action"] ) ? $req["action"] : null;
-			$group_id = isset( $req["group_id"] ) ? $req["group_id"] : null;
-			$regex = isset( $req["regex"] ) ? true : false;
+			$source = isset( $req['source'] ) ? $req['source'] : null;
+			$target = isset( $req['target'] ) ? $req['target'] : null;
+			$match = isset( $req['match'] ) ? $req['match'] : null;
+			$action = isset( $req['action'] ) ? $req['action'] : null;
+			$group_id = isset( $req['group_id'] ) ? $req['group_id'] : null;
+			$regex = isset( $req['regex'] ) ? true : false;
 
 			$context = array(
-				"source_url" => $source,
-				"target_url" => $target,
-				"match" => $match,
-				"action" => $action,
-				"group_id" => $group_id,
-				"regex" => $regex,
+				'source_url' => $source,
+				'target_url' => $target,
+				'match' => $match,
+				'action' => $action,
+				'group_id' => $group_id,
+				'regex' => $regex,
 			);
 
-			$this->infoMessage("redirection_redirection_added", $context);
+			$this->infoMessage( 'redirection_redirection_added', $context );
 
 		}
 
 	} // class
 
-} // class exists
+} // End if().

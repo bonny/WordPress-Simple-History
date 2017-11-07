@@ -3,9 +3,9 @@ Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
-Tested up to: 4.8
+Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.18
+Stable tag: 2.19
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -168,6 +168,15 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - The post types in the `skip_posttypes` filter are now also applied to trashed and untrashed posts (not only post edits, as before).
 - Added filter `simple_history/post_logger/post_updated/context` that can be used to modify the context added by SimplePostLogger.
 - Fix a notice in SimpleOptionsLogger.
+
+= 2.19 (November 2017) =
+
+- Add filter `simple_history/user_can_clear_log`. Return `false` from this filter to disable the "Clear blog" button.
+- Remove static keyword from some methods in SimpleLogger, so now calls like `SimpleLogger()->critical('Doh!');` works.
+- Don't show link to WordPress updates if user is not allowed to view the updates page.
+- Fix notice error in SimpleOptionsLogger.
+- Fix for fatal errors when using the lost password form in [Membership 2](https://wordpress.org/plugins/membership/). Fixes https://wordpress.org/support/topic/conflict-with-simple-history-plugin-and-php-7/.
+- Code (a little bit) better formatted according to [WordPress coding standard](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards).
 
 = 2.18 (August 2017) =
 

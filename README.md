@@ -8,6 +8,8 @@ https://wordpress.org/plugins/simple-history/
 [![Build Status](https://travis-ci.org/bonny/WordPress-Simple-History.svg?branch=master)](https://travis-ci.org/bonny/WordPress-Simple-History)
 ![Rating at wordpress.org](https://img.shields.io/wordpress/plugin/r/simple-history.svg)
 ![Number of downloads](https://img.shields.io/wordpress/plugin/dt/simple-history.svg)
+[![WordPress plugin](https://img.shields.io/wordpress/plugin/v/simple-history.svg)]()
+[![WordPress](https://img.shields.io/wordpress/v/simple-history.svg)]()
 
 # Screenshots
 

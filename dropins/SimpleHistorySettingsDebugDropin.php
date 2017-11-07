@@ -19,13 +19,12 @@ class SimpleHistorySettingsDebugDropin {
 
 		// How do we register this to the settings array?
 		$sh->registerSettingsTab( array(
-			"slug" => "debug",
-			"name" => __( "Debug", "simple-history" ),
-			"function" => array( $this, "output" )
+			'slug' => 'debug',
+			'name' => __( 'Debug', 'simple-history' ),
+			'function' => array( $this, 'output' ),
 		) );
 
 		// add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts' ) );
-
 	}
 
 	/*
@@ -41,7 +40,7 @@ class SimpleHistorySettingsDebugDropin {
 
 	public function output() {
 
-		include SIMPLE_HISTORY_PATH . "templates/template-settings-tab-debug.php";
+		include SIMPLE_HISTORY_PATH . 'templates/template-settings-tab-debug.php';
 
 	}
 

@@ -13,73 +13,71 @@ class SimpleHistorySidebarDropin {
 
 	private $sh;
 
-	function __construct($sh) {
+	function __construct( $sh ) {
 
 		$this->sh = $sh;
 
-		add_action("simple_history/enqueue_admin_scripts", array($this, "enqueue_admin_scripts"));
-		add_action("simple_history/history_page/after_gui", array($this, "output_sidebar_html"));
+		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'simple_history/history_page/after_gui', array( $this, 'output_sidebar_html' ) );
 
 		// add_action("simple_history/dropin/sidebar/sidebar_html", array($this, "example_output"));
-
-		add_action("simple_history/dropin/sidebar/sidebar_html", array($this, "default_sidebar_contents"));
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'default_sidebar_contents' ) );
 
 	}
 
 	public function default_sidebar_contents() {
 
 		// Boxes that will appear randomly
-
 		// Box about GitHub
-		$headline = _x("Simple History is on GitHub", 'Sidebar box', 'simple-history');
+		$headline = _x( 'Simple History is on GitHub', 'Sidebar box', 'simple-history' );
 
 		$body = sprintf(
-				_x('You can star, fork, or report issues with this plugin over at the <a href="%1$s">GitHub page</a>.', 'Sidebar box', 'simple-history'),
-				'https://github.com/bonny/WordPress-Simple-History'
-			);
+			_x( 'You can star, fork, or report issues with this plugin over at the <a href="%1$s">GitHub page</a>.', 'Sidebar box', 'simple-history' ),
+			'https://github.com/bonny/WordPress-Simple-History'
+		);
 
 		$boxGithub = '
 			<div class="postbox">
-				<h3 class="hndle">'.$headline.'</h3>
+				<h3 class="hndle">' . $headline . '</h3>
 				<div class="inside">
-					<p>'.$body.'</p>
+					<p>' . $body . '</p>
 				</div>
 			</div>
 		';
 
 		// Box about donation
-		$headline = _x('Donate to support development', 'Sidebar box', 'simple-history');
+		$headline = _x( 'Donate to support development', 'Sidebar box', 'simple-history' );
 
 		$body = sprintf(
-				_x('If you like and use Simple History you should <a href="%1$s">donate to keep this plugin free</a>.', 'Sidebar box', 'simple-history'),
-				'https://www.paypal.me/eskapism'
-			);
+			_x( 'If you like and use Simple History you should <a href="%1$s">donate to keep this plugin free</a>.', 'Sidebar box', 'simple-history' ),
+			'http://eskapism.se/sida/donate/'
+		);
 
 		$boxDonate = '
 			<div class="postbox">
-				<h3 class="hndle">'.$headline.'</h3>
+				<h3 class="hndle">' . $headline . '</h3>
 				<div class="inside">
-					<p>'.$body.'</p>
+					<p>' . $body . '</p>
 				</div>
 			</div>
 		';
 
 		// Box about review
-		$headline = _x('Review this plugin if you like it', 'Sidebar box', 'simple-history');
+		$headline = _x( 'Review this plugin if you like it', 'Sidebar box', 'simple-history' );
 
 		$body1 = sprintf(
-					_x('If you like Simple History then please <a href="%1$s">give it a nice review over at wordpress.org</a>.', 'Sidebar box', 'simple-history'),
-					'https://wordpress.org/support/view/plugin-reviews/simple-history'
-				);
+			_x( 'If you like Simple History then please <a href="%1$s">give it a nice review over at wordpress.org</a>.', 'Sidebar box', 'simple-history' ),
+			'https://wordpress.org/support/view/plugin-reviews/simple-history'
+		);
 
-		$body2 = _x('A good review will help new users find this plugin. And it will make the plugin author very happy :)', 'Sidebar box', 'simple-history');
+		$body2 = _x( 'A good review will help new users find this plugin. And it will make the plugin author very happy :)', 'Sidebar box', 'simple-history' );
 
 		$boxReview = '
 			<div class="postbox">
-				<h3 class="hndle">'.$headline.'</h3>
+				<h3 class="hndle">' . $headline . '</h3>
 				<div class="inside">
-					<p>'.$body1.'</p>
-					<p>'.$body2.'</p>
+					<p>' . $body1 . '</p>
+					<p>' . $body2 . '</p>
 				</div>
 			</div>
 		';
@@ -106,10 +104,9 @@ class SimpleHistorySidebarDropin {
 				</div>
 			</div>
 			',
-			_x("Add more to the log", "Sidebar box", "simple-history"), // 1
-			_x("Are there things you miss in the history log?", "Sidebar box", "simple-history") // 2
+			_x( 'Add more to the log', 'Sidebar box', 'simple-history' ), // 1
+			_x( 'Are there things you miss in the history log?', 'Sidebar box', 'simple-history' ) // 2
 		);
-
 
 		// Box about support
 		$boxSupport = sprintf( '
@@ -120,16 +117,15 @@ class SimpleHistorySidebarDropin {
 				</div>
 			</div>
 			',
-			_x("Support", "Sidebar box", "simple-history"), // 1
-			sprintf( _x('<a href="%1$s">Visit the support forum</a> if you need help or have questions.', "Sidebar box", "simple-history"), 'https://wordpress.org/support/plugin/simple-history' ) // 2
+			_x( 'Support', 'Sidebar box', 'simple-history' ), // 1
+			sprintf( _x( '<a href="%1$s">Visit the support forum</a> if you need help or have questions.', 'Sidebar box', 'simple-history' ), 'https://wordpress.org/support/plugin/simple-history' ) // 2
 		);
 
-
 		$arrBoxes = array(
-			"boxReview" => $boxReview,
-			"boxSupport" => $boxSupport,
+			'boxReview' => $boxReview,
+			'boxSupport' => $boxSupport,
 			// "boxMissingEvents" => $boxMissingEvents,
-			"boxDonate" => $boxDonate,
+			'boxDonate' => $boxDonate,
 			// "boxGithub" => $boxGithub,
 		);
 
@@ -140,10 +136,10 @@ class SimpleHistorySidebarDropin {
 		 *
 		 * @param array $arrBoxes array with boxes to output. Check the key to determine which box is which.
 		 */
-		$arrBoxes = apply_filters("simple_history/SidebarDropin/default_sidebar_boxes", $arrBoxes);
+		$arrBoxes = apply_filters( 'simple_history/SidebarDropin/default_sidebar_boxes', $arrBoxes );
 
-		//echo $arrBoxes[array_rand($arrBoxes)];
-		echo implode("", $arrBoxes); // show all
+		// echo $arrBoxes[array_rand($arrBoxes)];
+		echo implode( '', $arrBoxes ); // show all
 
 		// Box to encourage people translate plugin
 		$current_locale = get_locale();
@@ -152,8 +148,7 @@ class SimpleHistorySidebarDropin {
 		$translation_install_file = ABSPATH . 'wp-admin/includes/translation-install.php';
 
 		// Show only the translation box if current language is not an english language
-
-		if ( in_array( $current_locale, array("en_US", "en_GB", "en_CA", "en_NZ", "en_AU") ) != $current_locale && file_exists( $translation_install_file ) ) {
+		if ( in_array( $current_locale, array( 'en_US', 'en_GB', 'en_CA', 'en_NZ', 'en_AU' ) ) != $current_locale && file_exists( $translation_install_file ) ) {
 
 			require_once $translation_install_file;
 
@@ -164,7 +159,7 @@ class SimpleHistorySidebarDropin {
 				<div class="postbox">
 					<h3 class="hndle">Translate Simple History to %1$s</h3>
 					<div class="inside">
-
+						
 						<p>
 							It looks like Simple History is not yet translated to your language.
 						</p>
@@ -174,26 +169,24 @@ class SimpleHistorySidebarDropin {
 						</p>
 
 						<p>
-							When you\'re done with your translation email it to me at <a href="mailto:par.thernstrom@gmail.com" rel="nofollow">par.thernstrom@gmail.com</a>
+							When you\'re done with your translation email it to me at <a href="mailto:par.thernstrom@gmail.com" rel="nofollow">par.thernstrom@gmail.com</a> 
 							or <a href="https://github.com/bonny/WordPress-Simple-History/" rel="nofollow">add a pull request</a>.
 						</p>
 					</div>
 				</div>
 			';
 
-			if (isset($translations[$current_locale])) {
+			if ( isset( $translations[ $current_locale ] ) ) {
 
 				// Check if an existing text string returns something else, and that current lang is not en
-				$teststring_translated = __("Just now", "simple-history");
-				$teststring_untranslated = "Just now";
-				if ($teststring_untranslated == $teststring_translated) {
+				$teststring_translated = __( 'Just now', 'simple-history' );
+				$teststring_untranslated = 'Just now';
+				if ( $teststring_untranslated == $teststring_translated ) {
 					// strings are the same, so plugin probably not translated
-					printf($boxTranslationTmpl, $translations[$current_locale]["english_name"]);
+					printf( $boxTranslationTmpl, $translations[ $current_locale ]['english_name'] );
 				}
-
 			}
-
-		} // if not en_US + translation install file exists
+		} // End if().
 
 	}
 
@@ -210,9 +203,9 @@ class SimpleHistorySidebarDropin {
 
 	public function enqueue_admin_scripts() {
 
-		$file_url = plugin_dir_url(__FILE__);
+		$file_url = plugin_dir_url( __FILE__ );
 
-		wp_enqueue_style("simple_history_SidebarDropin", $file_url . "SimpleHistorySidebarDropin.css", null, SIMPLE_HISTORY_VERSION);
+		wp_enqueue_style( 'simple_history_SidebarDropin', $file_url . 'SimpleHistorySidebarDropin.css', null, SIMPLE_HISTORY_VERSION );
 
 	}
 
@@ -227,7 +220,6 @@ class SimpleHistorySidebarDropin {
 	 * 			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Inquit, dasne adolescenti veniam? Non laboro, inquit, de nomine. In quibus doctissimi illi veteres inesse quiddam caeleste et divinum putaverunt. Duo Reges: constructio interrete. Indicant pueri, in quibus ut in speculis natura cernitur. Quod ea non occurrentia fingunt, vincunt Aristonem; Quod quidem iam fit etiam in Academia. Aliter enim nosmet ipsos nosse non possumus.</p>
 	 * 		</div>
 	 * 	</div>
-	 *
 	 */
 	public function output_sidebar_html() {
 
@@ -242,7 +234,7 @@ class SimpleHistorySidebarDropin {
 				 *
 				 * @since 2.0.16
 				 */
-				do_action("simple_history/dropin/sidebar/sidebar_html");
+				do_action( 'simple_history/dropin/sidebar/sidebar_html' );
 				?>
 			</div>
 
@@ -251,4 +243,4 @@ class SimpleHistorySidebarDropin {
 
 	}
 
-}// end class
+}//end class
