@@ -1,5 +1,11 @@
 <?php
-defined( 'ABSPATH' ) or die();
+/**
+ * Style example.
+ *
+ * @package SimpleHistory
+ */
+
+defined( 'ABSPATH' ) || die();
 ?>
 
 <div class="SimpleHistoryGuiExample">
@@ -23,7 +29,7 @@ defined( 'ABSPATH' ) or die();
 				</div>
 
 				<div class="SimpleHistoryLogitem__text">
-					Short message descriping the thing that happened. 
+					Short message descriping the thing that happened.
 				</div>
 
 				<div class="SimpleHistoryLogitem__details">
@@ -31,7 +37,7 @@ defined( 'ABSPATH' ) or die();
 					<p>More information about the event goes here. Add links, tables, text, lists, etc.</p>
 
 					<p>Some build in styles you can use:</p>
-					
+
 					<p>
 						<a href="http://playground-root.ep/wp-admin/post.php?post=25097&amp;action=edit&amp;lang=en">
 							<div class="SimpleHistoryLogitemThumbnail">
@@ -43,16 +49,16 @@ defined( 'ABSPATH' ) or die();
 					<p>The <code>inlineDivided</code> class is used to group short pieces of information together, for example meta data:</p>
 
 										<p>
-						<span class="SimpleHistoryLogitem__inlineDivided">34 kB</span> 
-						<span class="SimpleHistoryLogitem__inlineDivided">PNG</span> 
+						<span class="SimpleHistoryLogitem__inlineDivided">34 kB</span>
+						<span class="SimpleHistoryLogitem__inlineDivided">PNG</span>
 						<span class="SimpleHistoryLogitem__inlineDivided">420 × 420</span>
 					</p>
 
 					<p>
-						<span class="SimpleHistoryLogitem__inlineDivided"><em>Filesize</em> 34 kB</span> 
-						<span class="SimpleHistoryLogitem__inlineDivided"><em>Format</em> PNG</span> 
+						<span class="SimpleHistoryLogitem__inlineDivided"><em>Filesize</em> 34 kB</span>
+						<span class="SimpleHistoryLogitem__inlineDivided"><em>Format</em> PNG</span>
 						<span class="SimpleHistoryLogitem__inlineDivided"><em>Dimensions</em> 420 × 420</span>
-					</p>                    
+					</p>
 
 					<p>Tables can be used if you have more data to show, like the meta data for a plugin:</p>
 
@@ -131,7 +137,7 @@ defined( 'ABSPATH' ) or die();
 		</li>
 
 		<?php
-		// All debug levels
+		// All debug levels.
 		$template = '
         <li class="SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-%1$s SimpleHistoryLogitem--logger-SimpleMediaLogger SimpleHistoryLogitem--initiator-wp_user">
 
