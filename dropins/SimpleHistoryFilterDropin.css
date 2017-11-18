@@ -188,3 +188,8 @@
 .SimpleHistory__filters__filter--day select {
 	width: 200px;
 }
+
+.SimpleHistory__filters .select2-selection__choice,
+.SimpleHistory__filters .select2-search--inline {
+	margin-bottom: 0;
+}
