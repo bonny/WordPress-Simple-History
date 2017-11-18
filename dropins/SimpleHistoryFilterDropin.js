@@ -227,7 +227,6 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function formatUsers(userdata) {
-		console.log('formatUsers', userdata);
 		if (userdata.loading) {
 			return userdata.text;
 		}
