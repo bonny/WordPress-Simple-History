@@ -404,7 +404,6 @@ class SimpleHistoryFilterDropin {
 					//*/
 
 					$default_user_ids = apply_filters( 'SimpleHistoryFilterDropin/filter_default_user_ids', array() );
-$default_user_ids = [3, 2, 1];
 					$arr_default_user_data = array();
 
 					foreach ( $default_user_ids as $user_id ) {
