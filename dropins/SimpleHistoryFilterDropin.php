@@ -404,18 +404,16 @@ class SimpleHistoryFilterDropin {
 					if ( current_user_can( 'list_users' ) ) {
 						?>
 						<p>
-
 							<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Users:', 'Filter label', 'simple-history' ) ?></label>
-
-							<input type="text"
-									name = "users"
-									class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
-									style="width: 300px"
-									placeholder="<?php _e( 'All users', 'simple-history' ) ?>"
-									value="<?php echo esc_attr( implode( ',',$default_user_ids ) ) ?>"
-									data-default-user-data="<?php echo esc_attr( json_encode( $arr_default_user_data ) ) ?>"
-								/>
-
+							<select
+								name = "users"
+								class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
+								xstyle="width: 300px"
+								placeholder="<?php _e( 'All users', 'simple-history' ) ?>"
+								value="<?php echo esc_attr( implode( ',', $default_user_ids ) ) ?>"
+								data-default-user-data="<?php echo esc_attr( json_encode( $arr_default_user_data ) ) ?>"
+								>
+							</select>				
 						</p>
 						<?php
 					}
