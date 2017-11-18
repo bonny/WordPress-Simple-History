@@ -285,7 +285,12 @@ class SimpleHistoryFilterDropin {
 
 						<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Log levels:', 'Filter label', 'simple-history' ) ?></label>
 
-						<select name="loglevels" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" style="width: 300px" placeholder="<?php _e( 'All log levels', 'simple-history' ) ?>" multiple>
+						<select 
+							name="loglevels" 
+							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" 
+							placeholder="<?php _e( 'All log levels', 'simple-history' ) ?>" 
+							multiple
+							>
 							<option <?php selected( in_array( 'debug', $arr_default_loglevels ) ) ?> value="debug" data-color="#CEF6D8"><?php echo $this->sh->getLogLevelTranslated( 'Debug' ) ?></option>
 							<option <?php selected( in_array( 'info', $arr_default_loglevels ) ) ?> value="info" data-color="white"><?php echo $this->sh->getLogLevelTranslated( 'Info' ) ?></option>
 							<option <?php selected( in_array( 'notice', $arr_default_loglevels ) ) ?> value="notice" data-color="rgb(219, 219, 183)"><?php echo $this->sh->getLogLevelTranslated( 'Notice' ) ?></option>
@@ -317,8 +322,12 @@ class SimpleHistoryFilterDropin {
 
 						<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Message types:', 'Filter label', 'simple-history' ) ?></label>
 
-						<select name="messages" class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" style="width: 300px"
-								placeholder="<?php _e( 'All messages', 'simple-history' ) ?>" multiple>
+						<select 
+							name="messages" 
+							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" 
+							placeholder="<?php _e( 'All messages', 'simple-history' ) ?>" 
+							multiple
+							>
 							<?php
 							foreach ( $loggers_user_can_read as $logger ) {
 
@@ -404,18 +413,15 @@ class SimpleHistoryFilterDropin {
 					if ( current_user_can( 'list_users' ) ) {
 						?>
 						<p>
-
 							<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Users:', 'Filter label', 'simple-history' ) ?></label>
-
-							<input type="text"
-									name = "users"
-									class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
-									style="width: 300px"
-									placeholder="<?php _e( 'All users', 'simple-history' ) ?>"
-									value="<?php echo esc_attr( implode( ',',$default_user_ids ) ) ?>"
-									data-default-user-data="<?php echo esc_attr( json_encode( $arr_default_user_data ) ) ?>"
-								/>
-
+							<select
+								name="users"
+								class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
+								placeholder="<?php _e( 'All users', 'simple-history' ) ?>"
+								value="<?php echo esc_attr( implode( ',', $default_user_ids ) ) ?>"
+								data-default-user-data="<?php echo esc_attr( json_encode( $arr_default_user_data ) ) ?>"
+								>
+							</select>				
 						</p>
 						<?php
 					}
@@ -450,7 +456,6 @@ class SimpleHistoryFilterDropin {
 	 * @return array Array with each user as an object
 	 */
 	public function get_data_for_user( $userID ) {
-
 		if ( ! $userID || ! is_numeric( $userID ) ) {
 			return false;
 		}
@@ -471,7 +476,6 @@ class SimpleHistoryFilterDropin {
 		$this->add_gravatar_to_user_array( $userdata );
 
 		return $userdata;
-
 	}
 
 	/**
