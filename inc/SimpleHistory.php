@@ -1436,8 +1436,8 @@ class SimpleHistory {
 			wp_enqueue_style( 'simple_history_styles', SIMPLE_HISTORY_DIR_URL . 'css/styles.css', false, SIMPLE_HISTORY_VERSION );
 			wp_enqueue_script( 'simple_history_script', SIMPLE_HISTORY_DIR_URL . 'js/scripts.js', array( 'jquery', 'backbone', 'wp-util' ), SIMPLE_HISTORY_VERSION, true );
 
-			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.js', array( 'jquery' ) );
-			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.css' );
+			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', array( 'jquery' ) );
+			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.css' );
 
 			// Translations that we use in JavaScript
 			wp_localize_script( 'simple_history_script', 'simple_history_script_vars', array(
