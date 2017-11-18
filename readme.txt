@@ -164,6 +164,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.nn (nn 2017) =
+
+- Show a message if user is running to old WordPress version, and don't continue to run. 
+  Should fix stuff like https://wordpress.org/support/topic/simple-history-i-cannot-login/.
+
 = 2.19 (November 2017) =
 
 - Add filter `simple_history/user_can_clear_log`. Return `false` from this filter to disable the "Clear blog" button.
