@@ -193,3 +193,7 @@
 .SimpleHistory__filters .select2-search--inline {
 	margin-bottom: 0;
 }
+
+.SimpleHistory__filters .select2-results__option {
+	margin: 0;
+}
