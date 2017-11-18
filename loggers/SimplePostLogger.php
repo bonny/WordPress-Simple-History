@@ -428,7 +428,7 @@ class SimplePostLogger extends SimpleLogger {
 
 	}
 
-	/*
+	/**
 	 * Adds diff data to the context array. Is called just before the event is logged.
 	 *
 	 * Since 2.0.29
@@ -437,14 +437,18 @@ class SimplePostLogger extends SimpleLogger {
 	 *	- post thumb (part of custom fields)
 	 *	- categories
 	 *	- tags
-	 * @return array $context with diff data added
+	 *
+	 * @param array $context Array with context.
+	 * @param array $old_post_data Old/prev post data.
+	 * @param array $new_post_data New post data.
+	 * @return array $context with diff data added.
 	 */
 	function add_post_data_diff_to_context( $context, $old_post_data, $new_post_data ) {
 
 		$old_data = $old_post_data['post_data'];
 		$new_data = $new_post_data['post_data'];
 
-		// Will contain the differences
+		// Will contain the differences.
 		$post_data_diff = array();
 
 		$arr_keys_to_diff = array(
@@ -469,18 +473,17 @@ class SimplePostLogger extends SimpleLogger {
 			}
 		}
 
-		// If changes where detected
+		// If changes where detected.
 		if ( $post_data_diff ) {
 
-			// $context["_post_data_diff"] = $this->simpleHistory->json_encode( $post_data_diff );
-			// Save at least 2 values for each detected value change, i.e. the old value and the new value
+			// Save at least 2 values for each detected value change, i.e. the old value and the new value.
 			foreach ( $post_data_diff as $diff_key => $diff_values ) {
 
 				$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
 				$context[ "post_new_{$diff_key}" ] = $diff_values['new'];
 
-				// If post_author then get more author info
-				// Because just a user ID does not get us far
+				// If post_author then get more author info,
+				// because just a user ID does not get us far.
 				if ( 'post_author' == $diff_key ) {
 
 					$old_author_user = get_userdata( (int) $diff_values['old'] );
@@ -501,13 +504,14 @@ class SimplePostLogger extends SimpleLogger {
 			}
 		} // End if().
 
-		// Compare custom fields
-		// Array with custom field keys to ignore because changed everytime or very internal
+		// Compare custom fields.
+		// Array with custom field keys to ignore because changed everytime or very internal.
 		$arr_meta_keys_to_ignore = array(
 			'_edit_lock',
 			'_edit_last',
 			'_post_restored_from',
 			'_wp_page_template',
+			'_thumbnail_id',
 		);
 
 		$meta_changes = array(
@@ -519,32 +523,53 @@ class SimplePostLogger extends SimpleLogger {
 		$old_meta = $old_post_data['post_meta'];
 		$new_meta = $new_post_data['post_meta'];
 
-		// @todo: post thumb is stored in _thumbnail_id
-		// page template is stored in _wp_page_template
-		if ( isset( $old_meta['_wp_page_template'][0] ) && isset( $new_meta['_wp_page_template'][0] ) ) {
+		$context['old_meta'] = $old_meta;
+		$context['new_meta'] = $new_meta;
 
+		// @todo: post thumb is stored in _thumbnail_id
+		$post_thumb_modified = false;
+		$prev_post_thumb = null;
+		$new_post_thumb = null;
+
+		// If it was changed from one image to another.
+		if ( isset( $old_meta['_thumbnail_id'][0] ) && isset( $new_meta['_thumbnail_id'][0] ) ) {
+			if ( $old_meta['_thumbnail_id'][0] !== $new_meta['_thumbnail_id'][0] ) {
+				$post_thumb_modified = true;
+				$prev_post_thumb = $old_meta['_thumbnail_id'][0];
+				$new_post_thumb = $new_meta['_thumbnail_id'][0];
+			}
+		} else {
+			// Featured image id did not exist on both new and old data. But on any?
+			if ( isset( $old_meta['_thumbnail_id'][0] ) ) {
+				$prev_post_thumb = $old_meta['_thumbnail_id'][0];
+			} elseif ( isset( $new_meta['_thumbnail_id'][0] ) ) {
+				$new_post_thumb = $new_meta['_thumbnail_id'][0];
+			}
+		}
+
+		if ( $prev_post_thumb ) {
+			$context['post_prev_thumb'] = $prev_post_thumb;
+		}
+
+		if ( $new_post_thumb ) {
+			$context['post_new_thumb'] = $new_post_thumb;
+		}
+
+		// Page template is stored in _wp_page_template.
+		if ( isset( $old_meta['_wp_page_template'][0] ) && isset( $new_meta['_wp_page_template'][0] ) ) {
 			/*
 			Var is string with length 7: default
 			Var is string with length 20: template-builder.php
 			*/
 
-			if ( $old_meta['_wp_page_template'][0] != $new_meta['_wp_page_template'][0] ) {
-
-				// prev page template is different from new page template
-				// store template php file name
+			if ( $old_meta['_wp_page_template'][0] !== $new_meta['_wp_page_template'][0] ) {
+				// Prev page template is different from new page template,
+				// store template php file name.
 				$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
 				$context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
 
 				$theme_templates = (array) $this->get_theme_templates();
-				/*
-				print_r($theme_templates);
 
-				Array
-				(
-				    [showcase.php] => Showcase Template
-				    [sidebar-page.php] => Sidebar Template
-				)
-				*/
 				if ( isset( $theme_templates[ $context['post_prev_page_template'] ] ) ) {
 					$context['post_prev_page_template_name'] = $theme_templates[ $context['post_prev_page_template'] ];
 				}
@@ -555,13 +580,13 @@ class SimplePostLogger extends SimpleLogger {
 			}
 		}
 
-		// Remove fields that we have checked already and other that should be ignored
+		// Remove fields that we have checked already and other that should be ignored.
 		foreach ( $arr_meta_keys_to_ignore as $key_to_ignore ) {
 			unset( $old_meta[ $key_to_ignore ] );
 			unset( $new_meta[ $key_to_ignore ] );
 		}
 
-		// Look for added custom fields
+		// Look for added custom fields.
 		foreach ( $new_meta as $meta_key => $meta_value ) {
 
 			if ( ! isset( $old_meta[ $meta_key ] ) ) {
@@ -581,7 +606,7 @@ class SimplePostLogger extends SimpleLogger {
 		}
 		*/
 
-		// Look for changed meta
+		// Look for changed meta.
 		foreach ( $old_meta as $meta_key => $meta_value ) {
 
 			if ( isset( $new_meta[ $meta_key ] ) ) {
@@ -593,15 +618,15 @@ class SimplePostLogger extends SimpleLogger {
 		}
 
 		if ( $meta_changes['added'] ) {
-			$context['post_meta_added'] = sizeof( $meta_changes['added'] );
+			$context['post_meta_added'] = count( $meta_changes['added'] );
 		}
 
 		if ( $meta_changes['removed'] ) {
-			$context['post_meta_removed'] = sizeof( $meta_changes['removed'] );
+			$context['post_meta_removed'] = count( $meta_changes['removed'] );
 		}
 
 		if ( $meta_changes['changed'] ) {
-			$context['post_meta_changed'] = sizeof( $meta_changes['changed'] );
+			$context['post_meta_changed'] = count( $meta_changes['changed'] );
 		}
 
 		return $context;
@@ -637,6 +662,12 @@ class SimplePostLogger extends SimpleLogger {
 	 * Add diff to array if old and new values are different
 	 *
 	 * Since 2.0.29
+	 *
+	 * @param array  $post_data_diff Post data diff.
+	 * @param string $key Key.
+	 * @param mixed  $old_value Old value.
+	 * @param mixed  $new_value New value.
+	 * @return array
 	 */
 	function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
 
@@ -655,26 +686,26 @@ class SimplePostLogger extends SimpleLogger {
 
 	/**
 	 * Modify plain output to include link to post
+	 *
+	 * @param array $row Row data.
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
 
 		$context = $row->context;
 		$post_id = isset( $context['post_id'] ) ? $context['post_id'] : 0;
 
-		// Default to original log message
+		// Default to original log message.
 		$message = $row->message;
 
-		// Check if post still is available
-		// It will return a WP_Post Object if post still is in system
-		// If post is deleted from trash (not just moved there), then null is returned
+		// Check if post still is available.
+		// It will return a WP_Post Object if post still is in system.
+		// If post is deleted from trash (not just moved there), then null is returned.
 		$post = get_post( $post_id );
 		$post_is_available = is_a( $post, 'WP_Post' );
 
-		// sf_d($post_is_available, '$post_is_available');
-		// sf_d($message_key, '$message_key');
 		$message_key = isset( $context['_message_key'] ) ? $context['_message_key'] : null;
 
-		// Try to get singular name
+		// Try to get singular name.
 		$post_type = isset( $context['post_type'] ) ? $context['post_type'] : '';
 		$post_type_obj = get_post_type_object( $post_type );
 		if ( ! is_null( $post_type_obj ) ) {
@@ -686,8 +717,8 @@ class SimplePostLogger extends SimpleLogger {
 
 		$context['edit_link'] = get_edit_post_link( $post_id );
 
-		// If post is not available any longer then we can't link to it, so keep plain message then
-		// Also keep plain format if user is not allowed to edit post (edit link is empty)
+		// If post is not available any longer then we can't link to it, so keep plain message then.
+		// Also keep plain format if user is not allowed to edit post (edit link is empty).
 		if ( $post_is_available && $context['edit_link'] ) {
 
 			if ( 'post_updated' == $message_key ) {
@@ -704,7 +735,7 @@ class SimplePostLogger extends SimpleLogger {
 
 			} elseif ( 'post_trashed' == $message_key ) {
 
-				// while in trash we can still get actions to delete or restore if we follow the edit link
+				// While in trash we can still get actions to delete or restore if we follow the edit link.
 				$message = __( 'Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash', 'simple-history' );
 
 			}
@@ -717,6 +748,11 @@ class SimplePostLogger extends SimpleLogger {
 
 	}
 
+	/**
+	 * Get details output for row.
+	 *
+	 * @param array $row Row data.
+	 */
 	public function getLogRowDetailsOutput( $row ) {
 
 		$context = $row->context;
@@ -727,7 +763,7 @@ class SimplePostLogger extends SimpleLogger {
 
 		if ( 'post_updated' == $message_key ) {
 
-			// Check for keys like "post_prev_post_title" and "post_new_post_title"
+			// Check for keys like "post_prev_post_title" and "post_new_post_title".
 			$diff_table_output = '';
 			$has_diff_values = false;
 
@@ -736,7 +772,7 @@ class SimplePostLogger extends SimpleLogger {
 
 				if ( strpos( $key, 'post_prev_' ) !== false ) {
 
-					// Old value exists, new value must also exist for diff to be calculates
+					// Old value exists, new value must also exist for diff to be calculates.
 					$key_to_diff = substr( $key, strlen( 'post_prev_' ) );
 
 					$key_for_new_val = "post_new_{$key_to_diff}";
@@ -748,7 +784,7 @@ class SimplePostLogger extends SimpleLogger {
 
 						if ( $post_old_value != $post_new_value ) {
 
-							// Different diffs for different keys
+							// Different diffs for different keys.
 							if ( 'post_title' == $key_to_diff ) {
 
 								$has_diff_values = true;
@@ -761,9 +797,9 @@ class SimplePostLogger extends SimpleLogger {
 
 							} elseif ( 'post_content' == $key_to_diff ) {
 
-								// Problem: to much text/content
-								// Risks to fill the visual output
-								// Maybe solution: use own diff function, that uses none or few context lines
+								// Problem: to much text/content.
+								// Risks to fill the visual output.
+								// Maybe solution: use own diff function, that uses none or few context lines.
 								$has_diff_values = true;
 
 								$diff_table_output .= sprintf(
@@ -834,7 +870,7 @@ class SimplePostLogger extends SimpleLogger {
 
 								$has_diff_values = true;
 
-								// wp post edit screen uses display_name so we should use it too
+								// wp post edit screen uses display_name so we should use it too.
 								if ( isset( $context['post_prev_post_author/display_name'] ) && isset( $context['post_new_post_author/display_name'] ) ) {
 
 									$prev_user_display_name = $context['post_prev_post_author/display_name'];
@@ -863,16 +899,16 @@ class SimplePostLogger extends SimpleLogger {
 								}
 							} elseif ( 'page_template' == $key_to_diff ) {
 
-								// page template filename
+								// page template filename.
 								$prev_page_template = $context['post_prev_page_template'];
 								$new_page_template = $context['post_new_page_template'];
 
 								// page template name, should exist, but I guess someone could have deleted a template
-								// and after that change the template for a post
+								// and after that change the template for a post.
 								$prev_page_template_name = isset( $context['post_prev_page_template_name'] ) ? $context['post_prev_page_template_name'] : '';
 								$new_page_template_name = isset( $context['post_new_page_template_name'] ) ? $context['post_new_page_template_name'] : '';
 
-								// If prev och new template is "default" then use that as name
+								// If prev och new template is "default" then use that as name.
 								if ( 'default' == $prev_page_template && ! $prev_page_template_name ) {
 									$prev_page_template_name = $prev_page_template;
 								} elseif ( 'default' == $new_page_template && ! $new_page_template_name ) {
@@ -968,8 +1004,8 @@ class SimplePostLogger extends SimpleLogger {
 	 * Modify RSS links to they go directly to the correct post in wp admin
 	 *
 	 * @since 2.0.23
-	 * @param string $link
-	 * @param array  $row
+	 * @param string $link Link.
+	 * @param array  $row Row.
 	 */
 	public function filter_rss_item_link( $link, $row ) {
 
@@ -993,12 +1029,12 @@ class SimplePostLogger extends SimpleLogger {
 
 	}
 
+	/**
+	 * Output CSS for diff output
+	 */
 	public function adminCSS() {
-
 		?>
 		<style>
-
-			/* format diff output */
 			.SimpleHistory__diff.SimpleHistory__diff {
 				border-spacing: 1px;
 			}
@@ -1013,10 +1049,8 @@ class SimplePostLogger extends SimpleLogger {
 				color: rgb(75, 75, 75);
 				font-family: "Open Sans", sans-serif;
 			}
-
 		</style>
 		<?php
-
 	}
 
 }
