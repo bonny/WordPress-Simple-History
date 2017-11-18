@@ -166,6 +166,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.nn (nn 2017) =
 
+- Update Select2 to latest version. Fixes https://wordpress.org/support/topic/select2-js-is-outdated/.
 - Show a message if user is running to old WordPress version, and don't continue to run. 
   Should fix stuff like https://wordpress.org/support/topic/simple-history-i-cannot-login/.
 
