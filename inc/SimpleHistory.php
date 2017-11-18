@@ -1479,7 +1479,7 @@ class SimpleHistory {
 			// Load Select2 locale
 			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/select2/i18n/%s.js';
 			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/select2/i18n/%s.js';
-			error_log(sprintf( $locale_dir_path, $locale));
+
 			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
 				wp_enqueue_script( 'select2-locale', sprintf( $locale_url_path, $locale ), array( 'jquery' ), '3.5.1', true );
 			}
