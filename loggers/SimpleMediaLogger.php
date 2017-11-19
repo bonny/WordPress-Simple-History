@@ -188,7 +188,7 @@ class SimpleMediaLogger extends SimpleLogger {
 
 			if ( $is_image ) {
 
-				$thumb_src = wp_get_attachment_image_src( $attachment_id, array( 350, 500 ) );
+				$thumb_src = wp_get_attachment_image_src( $attachment_id, 'medium' );
 				$full_src = wp_get_attachment_image_src( $attachment_id, 'full' );
 
 				$full_image_width = $full_src[1];
