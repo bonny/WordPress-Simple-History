@@ -523,37 +523,8 @@ class SimplePostLogger extends SimpleLogger {
 		$old_meta = $old_post_data['post_meta'];
 		$new_meta = $new_post_data['post_meta'];
 
-		$context['old_meta'] = $old_meta;
-		$context['new_meta'] = $new_meta;
-
-		// @todo: post thumb is stored in _thumbnail_id
-		$post_thumb_modified = false;
-		$prev_post_thumb = null;
-		$new_post_thumb = null;
-
-		// If it was changed from one image to another.
-		if ( isset( $old_meta['_thumbnail_id'][0] ) && isset( $new_meta['_thumbnail_id'][0] ) ) {
-			if ( $old_meta['_thumbnail_id'][0] !== $new_meta['_thumbnail_id'][0] ) {
-				$post_thumb_modified = true;
-				$prev_post_thumb = $old_meta['_thumbnail_id'][0];
-				$new_post_thumb = $new_meta['_thumbnail_id'][0];
-			}
-		} else {
-			// Featured image id did not exist on both new and old data. But on any?
-			if ( isset( $old_meta['_thumbnail_id'][0] ) ) {
-				$prev_post_thumb = $old_meta['_thumbnail_id'][0];
-			} elseif ( isset( $new_meta['_thumbnail_id'][0] ) ) {
-				$new_post_thumb = $new_meta['_thumbnail_id'][0];
-			}
-		}
-
-		if ( $prev_post_thumb ) {
-			$context['post_prev_thumb'] = $prev_post_thumb;
-		}
-
-		if ( $new_post_thumb ) {
-			$context['post_new_thumb'] = $new_post_thumb;
-		}
+		// Add post featured thumb data.
+		$context = $this->add_post_thumb_diff( $context, $old_meta, $new_meta );
 
 		// Page template is stored in _wp_page_template.
 		if ( isset( $old_meta['_wp_page_template'][0] ) && isset( $new_meta['_wp_page_template'][0] ) ) {
@@ -1028,6 +999,47 @@ class SimplePostLogger extends SimpleLogger {
 		return $link;
 
 	}
+
+	/**
+	 * Add diff for post thumb/post featured image
+	 *
+	 * @param array $context Context.
+	 * @param array $old_meta Old meta.
+	 * @param array $new_meta New meta.
+	 * @return array Maybe modifed context.
+	 */
+	public function add_post_thumb_diff( $context, $old_meta, $new_meta ) {
+		$post_thumb_modified = false;
+		$prev_post_thumb = null;
+		$new_post_thumb = null;
+
+		// If it was changed from one image to another.
+		if ( isset( $old_meta['_thumbnail_id'][0] ) && isset( $new_meta['_thumbnail_id'][0] ) ) {
+			if ( $old_meta['_thumbnail_id'][0] !== $new_meta['_thumbnail_id'][0] ) {
+				$post_thumb_modified = true;
+				$prev_post_thumb = $old_meta['_thumbnail_id'][0];
+				$new_post_thumb = $new_meta['_thumbnail_id'][0];
+			}
+		} else {
+			// Featured image id did not exist on both new and old data. But on any?
+			if ( isset( $old_meta['_thumbnail_id'][0] ) ) {
+				$prev_post_thumb = $old_meta['_thumbnail_id'][0];
+			} elseif ( isset( $new_meta['_thumbnail_id'][0] ) ) {
+				$new_post_thumb = $new_meta['_thumbnail_id'][0];
+			}
+		}
+
+		if ( $prev_post_thumb ) {
+			$context['post_prev_thumb'] = $prev_post_thumb;
+		}
+
+		if ( $new_post_thumb ) {
+			$context['post_new_thumb'] = $new_post_thumb;
+		}
+
+		return $context;
+	}
+
 
 	/**
 	 * Output CSS for diff output
