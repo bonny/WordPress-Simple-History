@@ -8,7 +8,6 @@ defined( 'ABSPATH' ) or die();
  */
 class SimplePostLogger extends SimpleLogger {
 
-
 	// The logger slug. Defaulting to the class name is nice and logical I think
 	public $slug = __CLASS__;
 
@@ -434,7 +433,6 @@ class SimplePostLogger extends SimpleLogger {
 	 * Since 2.0.29
 	 *
 	 * To detect
-	 *	- post thumb (part of custom fields)
 	 *	- categories
 	 *	- tags
 	 *
@@ -893,22 +891,22 @@ class SimplePostLogger extends SimpleLogger {
 									$message = __( 'Changed from "{prev_page_template_name}" to "{new_page_template_name}"', 'simple-history' );
 								}
 
-															$diff_table_output .= sprintf(
-																'<tr>
+								$diff_table_output .= sprintf(
+									'<tr>
 										<td>%1$s</td>
 										<td>%2$s</td>
 									</tr>',
-																__( 'Template', 'simple-history' ),
-																$this->interpolate(
-																	$message,
-																	array(
-																		'prev_page_template' => '<code>' . esc_html( $prev_page_template ) . '</code>',
-																		'new_page_template' => '<code>' . esc_html( $new_page_template ) . '</code>',
-																		'prev_page_template_name' => esc_html( $prev_page_template_name ),
-																		'new_page_template_name' => esc_html( $new_page_template_name ),
-																	)
-																)
-															);
+									__( 'Template', 'simple-history' ),
+									$this->interpolate(
+										$message,
+										array(
+											'prev_page_template' => '<code>' . esc_html( $prev_page_template ) . '</code>',
+											'new_page_template' => '<code>' . esc_html( $new_page_template ) . '</code>',
+											'prev_page_template_name' => esc_html( $prev_page_template_name ),
+											'new_page_template_name' => esc_html( $new_page_template_name ),
+										)
+									)
+								);
 
 							}// End if().
 						}// End if().
@@ -957,6 +955,11 @@ class SimplePostLogger extends SimpleLogger {
 			";
 			*/
 
+			// Changed post thumb/featued image.
+			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
+			// post_new_thumb, int of new thumb, empty if no new thumb.
+			$diff_table_output .= $this->getLogRowDetailsOutputForPostThumb( $context );
+
 			if ( $has_diff_values || $diff_table_output ) {
 
 				$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
@@ -970,6 +973,7 @@ class SimplePostLogger extends SimpleLogger {
 		return $out;
 
 	}
+
 
 	/**
 	 * Modify RSS links to they go directly to the correct post in wp admin
@@ -1010,36 +1014,86 @@ class SimplePostLogger extends SimpleLogger {
 	 */
 	public function add_post_thumb_diff( $context, $old_meta, $new_meta ) {
 		$post_thumb_modified = false;
-		$prev_post_thumb = null;
-		$new_post_thumb = null;
+		$prev_post_thumb_id = null;
+		$new_post_thumb_id = null;
 
 		// If it was changed from one image to another.
 		if ( isset( $old_meta['_thumbnail_id'][0] ) && isset( $new_meta['_thumbnail_id'][0] ) ) {
 			if ( $old_meta['_thumbnail_id'][0] !== $new_meta['_thumbnail_id'][0] ) {
 				$post_thumb_modified = true;
-				$prev_post_thumb = $old_meta['_thumbnail_id'][0];
-				$new_post_thumb = $new_meta['_thumbnail_id'][0];
+				$prev_post_thumb_id = $old_meta['_thumbnail_id'][0];
+				$new_post_thumb_id = $new_meta['_thumbnail_id'][0];
 			}
 		} else {
 			// Featured image id did not exist on both new and old data. But on any?
 			if ( isset( $old_meta['_thumbnail_id'][0] ) ) {
-				$prev_post_thumb = $old_meta['_thumbnail_id'][0];
+				$prev_post_thumb_id = $old_meta['_thumbnail_id'][0];
 			} elseif ( isset( $new_meta['_thumbnail_id'][0] ) ) {
-				$new_post_thumb = $new_meta['_thumbnail_id'][0];
+				$new_post_thumb_id = $new_meta['_thumbnail_id'][0];
 			}
 		}
 
-		if ( $prev_post_thumb ) {
-			$context['post_prev_thumb'] = $prev_post_thumb;
+		if ( $prev_post_thumb_id ) {
+			$context['post_prev_thumb_id'] = $prev_post_thumb_id;
+			$context['post_prev_thumb_title'] = get_the_title( $prev_post_thumb_id );
 		}
 
-		if ( $new_post_thumb ) {
-			$context['post_new_thumb'] = $new_post_thumb;
+		if ( $new_post_thumb_id ) {
+			$context['post_new_thumb_id'] = $new_post_thumb_id;
+			$context['post_new_thumb_title'] = get_the_title( $new_post_thumb_id );
 		}
 
 		return $context;
 	}
 
+	/**
+	 * Get the HTML output for context that contains a modified post thumb.
+	 *
+	 * @param array $context Context that may contains prev- and new thumb ids.
+	 * @return string HTML to be used in keyvale table.
+	 */
+	private function getLogRowDetailsOutputForPostThumb( $context = null ) {
+		$out = '';
+
+		if ( ! empty( $context['post_prev_thumb_id'] ) || ! empty( $context['post_new_thumb_id'] ) ) {
+
+			// Check if images still exists and if so get their thumbnails.
+			$prev_thumb_id = empty( $context['post_prev_thumb_id'] ) ? null : $context['post_prev_thumb_id'];
+			$new_thumb_id = empty( $context['post_new_thumb_id'] ) ? null : $context['post_new_thumb_id'];
+
+			$prev_attached_file = get_attached_file( $prev_thumb_id );
+			$prev_thumb_src = wp_get_attachment_image_src( $prev_thumb_id, 'medium' );
+
+			$new_attached_file = get_attached_file( $new_thumb_id );
+			$new_thumb_src = wp_get_attachment_image_src( $new_thumb_id, 'medium' );
+
+			$prev_thumb_html = '';
+			if ( file_exists( $prev_attached_file ) && $prev_thumb_src ) {
+				$prev_thumb_html = sprintf( '<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $prev_thumb_src[0] );
+			}
+
+			$new_thumb_html = '';
+			if ( file_exists( $new_attached_file ) && $new_thumb_src ) {
+				$new_thumb_html = sprintf( '<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $new_thumb_src[0] );
+			}
+
+			$out .= sprintf(
+				'<tr>
+					<td>%1$s</td>
+					<td>
+						%3$s
+						<br>%4$s
+					</td>
+				</tr>',
+				esc_html( __( 'Featured image', 'simple-history' ) ),
+				$context['post_prev_thumb_id'] . ' / ' . $context['post_new_thumb_id'],
+				$context['post_prev_thumb_title'] . ' / ' . $context['post_new_thumb_title'],
+				$prev_thumb_html . $new_thumb_html
+			);
+		} // End if().
+
+		return $out;
+	}
 
 	/**
 	 * Output CSS for diff output
