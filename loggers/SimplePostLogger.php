@@ -1062,33 +1062,65 @@ class SimplePostLogger extends SimpleLogger {
 			$new_thumb_id = empty( $context['post_new_thumb_id'] ) ? null : $context['post_new_thumb_id'];
 
 			$prev_attached_file = get_attached_file( $prev_thumb_id );
-			$prev_thumb_src = wp_get_attachment_image_src( $prev_thumb_id, 'medium' );
+			$prev_thumb_src = wp_get_attachment_image_src( $prev_thumb_id, 'small' );
 
 			$new_attached_file = get_attached_file( $new_thumb_id );
-			$new_thumb_src = wp_get_attachment_image_src( $new_thumb_id, 'medium' );
+			$new_thumb_src = wp_get_attachment_image_src( $new_thumb_id, 'small' );
 
 			$prev_thumb_html = '';
 			if ( file_exists( $prev_attached_file ) && $prev_thumb_src ) {
-				$prev_thumb_html = sprintf( '<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $prev_thumb_src[0] );
+				$prev_thumb_html = sprintf(
+					'
+						<div>%2$s</div>
+						<div class="SimpleHistoryLogitemThumbnail">
+							<img src="%1$s" alt="">
+						</div>
+					',
+					$prev_thumb_src[0], // 1
+					esc_html( $context['post_prev_thumb_title'] )
+				);
 			}
 
 			$new_thumb_html = '';
 			if ( file_exists( $new_attached_file ) && $new_thumb_src ) {
-				$new_thumb_html = sprintf( '<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $new_thumb_src[0] );
+				$new_thumb_html = sprintf(
+					'
+						<div>%2$s</div>
+						<div class="SimpleHistoryLogitemThumbnail">
+							<img src="%1$s" alt="">
+						</div>
+					',
+					$new_thumb_src[0],
+					esc_html( $context['post_new_thumb_title'] )
+				);
 			}
 
 			$out .= sprintf(
 				'<tr>
 					<td>%1$s</td>
 					<td>
-						%3$s
-						<br>%4$s
+
+						<div class="SimpleHistory__diff__contents" tabindex="0">
+						    <div class="SimpleHistory__diff__contentsInner">
+						        <table class="diff SimpleHistory__diff">
+						            <tr>
+						                <td class="diff-deletedline">
+						                    <del>%2$s</del>
+						                </td>
+						                <td>&nbsp;</td>
+						                <td class="diff-addedline">
+						                    <ins>%3$s</ins>
+						                </td>
+						            </tr>
+						        </table>
+						    </div>
+						</div>
+
 					</td>
 				</tr>',
-				esc_html( __( 'Featured image', 'simple-history' ) ),
-				$context['post_prev_thumb_id'] . ' / ' . $context['post_new_thumb_id'],
-				$context['post_prev_thumb_title'] . ' / ' . $context['post_new_thumb_title'],
-				$prev_thumb_html . $new_thumb_html
+				esc_html( __( 'Featured image', 'simple-history' ) ), // 1
+				$prev_thumb_html,// 2
+				$new_thumb_html // 3
 			);
 		} // End if().
 
