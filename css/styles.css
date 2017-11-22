@@ -945,6 +945,10 @@ Modal window with detailss
 	position: relative;
 }
 
+.SimpleHistory__diff__contents--noContentsCrop {
+	max-height: none;
+}
+
 /* fade out that indicate more content */
 /*.SimpleHistory__diff__contents:after {
 	content: "";

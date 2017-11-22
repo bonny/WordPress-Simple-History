@@ -166,6 +166,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.nn (nn 2017) =
 
+- Add logging of post thumbnails.
 - Use medium size of image attachments when showing uploaded files in the log. Previously a custom size was used, a size that most sites did not have and instead the full size image would be outputed.
 - Make image previews smaller because many uploaded images could make the log a bit to long and not so quick to overview.
 - Update Select2 to latest version. Fixes https://wordpress.org/support/topic/select2-js-is-outdated/.

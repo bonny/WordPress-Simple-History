@@ -1076,7 +1076,13 @@ class SimplePostLogger extends SimpleLogger {
 							<img src="%1$s" alt="">
 						</div>
 					',
-					$prev_thumb_src[0], // 1
+					$prev_thumb_src[0],
+					esc_html( $context['post_prev_thumb_title'] )
+				);
+			} else {
+				// Fallback if image does not exist.
+				$prev_thumb_html = sprintf(
+					'<div>%1$s</div>',
 					esc_html( $context['post_prev_thumb_title'] )
 				);
 			}
@@ -1093,6 +1099,12 @@ class SimplePostLogger extends SimpleLogger {
 					$new_thumb_src[0],
 					esc_html( $context['post_new_thumb_title'] )
 				);
+			} else {
+				// Fallback if image does not exist.
+				$prev_thumb_html = sprintf(
+					'<div>%1$s</div>',
+					esc_html( $context['post_new_thumb_title'] )
+				);
 			}
 
 			$out .= sprintf(
@@ -1100,16 +1112,16 @@ class SimplePostLogger extends SimpleLogger {
 					<td>%1$s</td>
 					<td>
 
-						<div class="SimpleHistory__diff__contents" tabindex="0">
+						<div class="SimpleHistory__diff__contents SimpleHistory__diff__contents--noContentsCrop" tabindex="0">
 						    <div class="SimpleHistory__diff__contentsInner">
 						        <table class="diff SimpleHistory__diff">
 						            <tr>
 						                <td class="diff-deletedline">
-						                    <del>%2$s</del>
+						                    %2$s
 						                </td>
 						                <td>&nbsp;</td>
 						                <td class="diff-addedline">
-						                    <ins>%3$s</ins>
+						                    %3$s
 						                </td>
 						            </tr>
 						        </table>
