@@ -1341,6 +1341,11 @@ class SimpleHistory {
 
 		$settings_page_url = menu_page_url( SimpleHistory::SETTINGS_MENU_SLUG, 0 );
 
+		if(empty($actions)){ // Create array if actions is empty (and therefore is assumed to be a string by PHP & results in PHP 7.1+ fatal error due to trying to make array modifications on what's assumed to be a string)
+			$actions = array();
+		}elseif(is_string($actions)){ // Convert the string (which it might've been retrieved as) to an array for future use as an array
+			$actions = array($actions);
+		}
 		$actions[] = "<a href='$settings_page_url'>" . __( 'Settings', 'simple-history' ) . '</a>';
 
 		return $actions;
