@@ -64,18 +64,19 @@ class SimpleHistoryExportDropin {
 
 			$fp = fopen( 'php://output', 'w' );
 
-			// header("Content-Type: application/octet-stream");
+			$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
+
 			if ( 'csv' == $export_format ) {
 
 				$filename = 'simple-history-export-' . time() . '.csv';
 				header( 'Content-Type: text/plain' );
-				header( "Content-Disposition: attachment; filename='{$filename}'" );
+				header( sprintf( $attachment_header_template, $filename ) );
 
 			} elseif ( 'json' == $export_format ) {
 
 				$filename = 'simple-history-export-' . time() . '.json';
 				header( 'Content-Type: application/json' );
-				header( "Content-Disposition: attachment; filename='{$filename}'" );
+				header( sprintf( $attachment_header_template, $filename ) );
 
 			} elseif ( 'html' == $export_format ) {
 
