@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, trail, pages, attachments, users,
 Requires at least: 4.5.1
 Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.19
+Stable tag: 2.20
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -168,6 +168,16 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - The post types in the `skip_posttypes` filter are now also applied to trashed and untrashed posts (not only post edits, as before).
 - Added filter `simple_history/post_logger/post_updated/context` that can be used to modify the context added by SimplePostLogger.
 - Fix a notice in SimpleOptionsLogger.
+
+= 2.20 (November 2017) =
+
+- Add logging of post thumbnails.
+- Use medium size of image attachments when showing uploaded files in the log. Previously a custom size was used, a size that most sites did not have and instead the full size image would be outputed = waste of bandwidth.
+- Make image previews smaller because many uploaded images could make the log a bit to long and not so quick to overview.
+- Update Select2 to latest version. Fixes https://wordpress.org/support/topic/select2-js-is-outdated/.
+- Show a message if user is running to old WordPress version, and don't continue running the code of this plugin.
+  Should fix stuff like https://wordpress.org/support/topic/simple-history-i-cannot-login/.
+- Fix an error with PHP 7.1.
 
 = 2.19 (November 2017) =
 

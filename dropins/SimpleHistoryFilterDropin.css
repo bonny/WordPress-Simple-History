@@ -99,7 +99,7 @@
 }
 
 .SimpleHistory__filters__userfilter__secondary {
-	color: #999;
+	/* color: #999; */
 }
 
 .SimpleHistory__filters__userfilter__gravatar {
@@ -187,4 +187,13 @@
 
 .SimpleHistory__filters__filter--day select {
 	width: 200px;
+}
+
+.SimpleHistory__filters .select2-selection__choice,
+.SimpleHistory__filters .select2-search--inline {
+	margin-bottom: 0;
+}
+
+.SimpleHistory__filters .select2-results__option {
+	margin: 0;
 }

@@ -1342,6 +1342,11 @@ class SimpleHistory {
 
 		$settings_page_url = menu_page_url( SimpleHistory::SETTINGS_MENU_SLUG, 0 );
 
+		if(empty($actions)){ // Create array if actions is empty (and therefore is assumed to be a string by PHP & results in PHP 7.1+ fatal error due to trying to make array modifications on what's assumed to be a string)
+			$actions = array();
+		}elseif(is_string($actions)){ // Convert the string (which it might've been retrieved as) to an array for future use as an array
+			$actions = array($actions);
+		}
 		$actions[] = "<a href='$settings_page_url'>" . __( 'Settings', 'simple-history' ) . '</a>';
 
 		return $actions;
@@ -1437,8 +1442,8 @@ class SimpleHistory {
 			wp_enqueue_style( 'simple_history_styles', SIMPLE_HISTORY_DIR_URL . 'css/styles.css', false, SIMPLE_HISTORY_VERSION );
 			wp_enqueue_script( 'simple_history_script', SIMPLE_HISTORY_DIR_URL . 'js/scripts.js', array( 'jquery', 'backbone', 'wp-util' ), SIMPLE_HISTORY_VERSION, true );
 
-			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.js', array( 'jquery' ) );
-			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.css' );
+			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', array( 'jquery' ) );
+			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.css' );
 
 			// Translations that we use in JavaScript
 			wp_localize_script( 'simple_history_script', 'simple_history_script_vars', array(
@@ -1478,8 +1483,9 @@ class SimpleHistory {
 			}
 			// end add timeago
 			// Load Select2 locale
-			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/select2/select2_locale_%s.js';
-			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/select2/select2_locale_%s.js';
+			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/select2/i18n/%s.js';
+			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/select2/i18n/%s.js';
+
 			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
 				wp_enqueue_script( 'select2-locale', sprintf( $locale_url_path, $locale ), array( 'jquery' ), '3.5.1', true );
 			}

@@ -166,47 +166,42 @@ var SimpleHistoryFilterDropin = (function($) {
 				cache: true,
 				data: function (term, page) {
 					return {
-						q: term, // search term
+						q: term.term, // search term
 						page_limit: 10,
 						action: "simple_history_filters_search_user"
 					};
 				},
-				results: function (data, page) { // parse the results into the format expected by Select2.
+				// parse the results into the format expected by Select2.
+				processResults: function (data, page) {
 					// since we are using custom formatting functions we do not need to alter remote JSON data
 					return data.data;
 				}
 			},
-			formatResult: formatUsers,
+			templateResult: formatUsers,
 			initSelection: function(elm, callback) {
-
 				// called on init if value attribute on input is set
-
 				var $elm = $(elm);
 				var value = $elm.val();
 				var default_user_data = $elms.filter_user.data("default-user-data");
 
 				callback(default_user_data);
-
 			},
-			formatSelection: formatUsers,
+			templateSelection: formatUsers,
 			escapeMarkup: function(m) {
 				return m;
 			},
 			multiple: true
 		});
 
-		$(".SimpleHistory__filters__filter--logger").select2({
-		});
+		$(".SimpleHistory__filters__filter--logger").select2();
 
 		var $filterDate = $(".SimpleHistory__filters__filter--date");
-		$filterDate.select2({
-			//width: "element"
-		});
+		$filterDate.select2();
 		$filterDate.on("select2-selecting change", onDatesFilterSelect);
 
 		$(".SimpleHistory__filters__filter--loglevel").select2({
-			formatResult: formatLoglevel,
-			formatSelection: formatLoglevel,
+			templateResult: formatLoglevel,
+			templateSelection: formatLoglevel,
 		    escapeMarkup: function(m) { return m; }
 		});
 
@@ -232,6 +227,9 @@ var SimpleHistoryFilterDropin = (function($) {
 	}
 
 	function formatUsers(userdata) {
+		if (userdata.loading) {
+			return userdata.text;
+		}
 
 		var html = "";
 
@@ -246,18 +244,18 @@ var SimpleHistoryFilterDropin = (function($) {
 		html += "</div>";
 
 		return html;
-
 	}
 
+	/**
+	 * Used by templateResult and templateSelection
+	 */
 	function formatLoglevel(loglevel) {
-
 		var originalOption = loglevel.element;
 		var $originalOption = $(originalOption);
 		var color = $originalOption.data("color");
 
 		var html = "<span style=\"border-radius: 50%; border: 1px solid rgba(0,0,0,.1); margin-right: 5px; width: .75em; height: .75em; line-height: 1; display: inline-block; background-color: " + $originalOption.data('color') + "; '\"></span>" + loglevel.text;
 		return html;
-
 	}
 
 	return {

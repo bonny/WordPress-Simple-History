@@ -386,9 +386,8 @@ Images/thumbs can be styles nicely
 	*/
 	display: block;
 	background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
-	max-width: 100%;
-	max-height: 300px;
-	max-height: 200px;
+	max-width: 200px;
+	max-height: 125px;
 	height: auto;
 }
 
@@ -944,6 +943,10 @@ Modal window with detailss
 	max-height: 11em;
 	overflow: hidden;
 	position: relative;
+}
+
+.SimpleHistory__diff__contents--noContentsCrop {
+	max-height: none;
 }
 
 /* fade out that indicate more content */

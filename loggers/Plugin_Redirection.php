@@ -94,7 +94,6 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 		}
 
-
 		/**
 		 * Check if request is an create or enable/disable redirection
 		 */
