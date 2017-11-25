@@ -1,23 +1,30 @@
 <?php
 
-/*
-Dropin Name: Export
-Dropin Description: Adds a tab with export options
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
-
+/**
+ * Dropin Name: Export
+ * Dropin Description: Adds a tab with export options
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
 class SimpleHistoryExportDropin {
 
-	// Simple History instance
+	/**
+	 * Simple History instance.
+	 *
+	 * @var $sh
+	 */
 	private $sh;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param instance $sh Simple History instance.
+	 */
 	public function __construct( $sh ) {
 
-		// Set simple history variable
 		$this->sh = $sh;
 
-		// Add tab to settings page
+		// Add tab to settings page.
 		$sh->registerSettingsTab(array(
 			'slug' => 'export',
 			'name' => _x( 'Export', 'Export dropin: Tab name on settings page', 'simple-history' ),
@@ -64,18 +71,19 @@ class SimpleHistoryExportDropin {
 
 			$fp = fopen( 'php://output', 'w' );
 
-			// header("Content-Type: application/octet-stream");
+			$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
+
 			if ( 'csv' == $export_format ) {
 
 				$filename = 'simple-history-export-' . time() . '.csv';
 				header( 'Content-Type: text/plain' );
-				header( "Content-Disposition: attachment; filename='{$filename}'" );
+				header( sprintf( $attachment_header_template, $filename ) );
 
 			} elseif ( 'json' == $export_format ) {
 
 				$filename = 'simple-history-export-' . time() . '.json';
 				header( 'Content-Type: application/json' );
-				header( "Content-Disposition: attachment; filename='{$filename}'" );
+				header( sprintf( $attachment_header_template, $filename ) );
 
 			} elseif ( 'html' == $export_format ) {
 

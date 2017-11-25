@@ -164,6 +164,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.nn (nn 2017) =
+
+- Fix unexpected single-quotations included in file name in Internet Explorer 11 (and possibly other versions) when exporting CSV/JSON file.
+
 = 2.20 (November 2017) =
 
 - Add logging of post thumbnails.
