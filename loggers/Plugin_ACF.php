@@ -12,55 +12,75 @@ if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
  * https://sv.wordpress.org/plugins/advanced-custom-fields/
  *
  * @TODO
+ *
  * - Store diff for ACF fields when post is saved
  *
  *
  * @package SimpleHistory
  * @since 2.x
  */
-if (! class_exists("Plugin_ACF")) {
+if ( ! class_exists( 'Plugin_ACF' ) ) {
 
-	class Plugin_ACF extends SimpleLogger
-	{
+	/**
+	 * Class for ACF logging.
+	 */
+	class Plugin_ACF extends SimpleLogger {
+
+		/**
+		 * The slug for this logger.
+		 *
+		 * @var string $slug
+		 */
 		public $slug = __CLASS__;
 
+		/**
+		 * Will contain field groups and fields, before and after post save.
+		 *
+		 * @var string $oldAndNewFieldGroupsAndFields
+		 */
 		private $oldAndNewFieldGroupsAndFields = array(
 			'fieldGroup' => array(
 				'old' => null,
-				'new' => null
+				'new' => null,
 			),
 			'modifiedFields' => array(
 				'old' => null,
-				'new' => null
+				'new' => null,
 			),
 			'addedFields' => array(),
 			'deletedFields' => array(),
 		);
 
+		/**
+		 * Will contain the post data before save, i.e. the previous version of the post.
+		 *
+		 * @var string $oldPostData
+		 */
 		private $oldPostData = array();
 
-		public function getInfo()
-		{
+		/**
+		 * Get info for this loger.
+		 *
+		 * @return array Array with info about the logger.
+		 */
+		public function getInfo() {
 			$arr_info = array(
-				"name" => "Plugin ACF",
-				"description" => _x("Logs ACF stuff", "Logger: Plugin Duplicate Post", "simple-history"),
-				"name_via" => _x("Using plugin ACF", "Logger: Plugin Duplicate Post", "simple-history"),
-				"capability" => "manage_options",
-				/*
-				"messages" => array(
-					'post_duplicated' => _x('Cloned "{duplicated_post_title}" to a new post', "Logger: Plugin Duplicate Post", 'simple-history')
-				),
-				*/
+				'name' => 'Plugin ACF',
+				'description' => _x( 'Logs ACF stuff', 'Logger: Plugin Duplicate Post', 'simple-history' ),
+				'name_via' => _x( 'Using plugin ACF', 'Logger: Plugin Duplicate Post', 'simple-history' ),
+				'capability' => 'manage_options',
 			);
 
 			return $arr_info;
 		}
 
-		public function loaded()
-		{
+		/**
+		 * Method called when logger is loaded.
+		 */
+		public function loaded() {
 
-			// Bail if no ACF found
-			if (!function_exists('acf_verify_nonce')) {
+			// Bail if no ACF found.
+			if ( ! function_exists( 'acf_verify_nonce' ) ) {
 				return;
 			}
 
@@ -96,78 +116,73 @@ if (! class_exists("Plugin_ACF")) {
 			add_filter('acf/save_post', array($this, 'on_acf_save_post'), 50);
 		}
 
-		public function on_acf_save_post($post_id) {
-			if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
+		public function on_acf_save_post( $post_id ) {
+			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 				return;
 			}
 
-			// Don't act on post revision
+			// Don't act on post revision.
 			if ( wp_is_post_revision( $post_id ) ) {
 				return;
 			}
 
 			$prev_post_meta = $this->oldPostData['prev_post_meta'];
-			$new_post_meta = get_post_custom($post_id);
-			$new_post_meta = array_map('reset', $new_post_meta);
+			$new_post_meta = get_post_custom( $post_id );
+			$new_post_meta = array_map( 'reset', $new_post_meta );
 
 			// New and old post meta can contain different amount of keys,
 			// join them so we have the name of all post meta thaf have been added, removed, or modified.
-			$new_and_old_post_meta = array_merge($prev_post_meta, $new_post_meta);
-			ksort($new_and_old_post_meta, SORT_REGULAR);
+			$new_and_old_post_meta = array_merge( $prev_post_meta, $new_post_meta );
+			ksort( $new_and_old_post_meta, SORT_REGULAR );
 
 			// array1 - The array to compare from
 			// array2 - An array to compare against
 			// Returns an array containing all the values from array1 that are not present in any of the other arrays.
 
-			// Keep only ACF fields in prev and new post meta
+			// Keep only ACF fields in prev and new post meta.
 			$prev_post_meta = $this->keep_only_acf_stuff_in_array( $prev_post_meta, $new_and_old_post_meta );
 			$new_post_meta = $this->keep_only_acf_stuff_in_array( $new_post_meta, $new_and_old_post_meta );
 
-			// Compare old with new = get only changed, not added, deleted are here
-			$post_meta_diff1 = array_diff_assoc($prev_post_meta, $new_post_meta);
+			// Compare old with new = get only changed, not added, deleted are here.
+			$post_meta_diff1 = array_diff_assoc( $prev_post_meta, $new_post_meta );
 
-			// Compare new with old = get an diff with added and changed stuff
-			$post_meta_diff2 = array_diff_assoc($new_post_meta, $prev_post_meta);
+			// Compare new with old = get an diff with added and changed stuff.
+			$post_meta_diff2 = array_diff_assoc( $new_post_meta, $prev_post_meta );
 
-			// Compare keys, gets added fields
-			$post_meta_added_fields = array_diff(array_keys($post_meta_diff2), array_keys($post_meta_diff1));
-			$post_meta_added_fields = array_values($post_meta_added_fields);
+			// Compare keys, gets added fields.
+			$post_meta_added_fields = array_diff( array_keys( $post_meta_diff2 ), array_keys( $post_meta_diff1 ) );
+			$post_meta_added_fields = array_values( $post_meta_added_fields );
 
-			// Keys that exist in diff1 but not in diff2 = deleted
-			$post_meta_removed_fields = array_diff_assoc(array_keys($post_meta_diff1), array_keys($post_meta_diff2));
+			// Keys that exist in diff1 but not in diff2 = deleted.
+			$post_meta_removed_fields = array_diff_assoc( array_keys( $post_meta_diff1 ), array_keys( $post_meta_diff2 ) );
 
-			$post_meta_changed_fields = array_keys($post_meta_diff1);
+			$post_meta_changed_fields = array_keys( $post_meta_diff1 );
 
-			// value is changed: added to both diff and diff2
-			// value is added, like in repeater: added to diff2 (not to diff)
-			// $diff3: contains only added things
-
-			// Compare old and new values
-			// Loop all keys in $new_and_old_post_meta
-			// But act only on those whose keys begins with "_" and where the value begins with "field_" and ends with alphanum
 			/*
-			foreach ($new_and_old_post_meta as $post_meta_key => $post_meta_val) {
-				if (strpos($post_meta_key, '_') !== 0) {
-					continue;
-				}
+			 * value is changed: added to both diff and diff2
+			 * value is added, like in repeater: added to diff2 (not to diff)
+			 * $diff3: contains only added things.
+			 * Compare old and new values
+			 * Loop all keys in $new_and_old_post_meta
+			 * But act only on those whose keys begins with "_" and where the value begins with "field_" and ends with alphanum.
+			 */
 
-				if (strpos($post_meta_val, 'field_') !== 0) {
-					continue;
-				}
+			/*
+			 * We have the diff, now add it to the context
+			 * This is called after Simple History already has added its row
+			 * So... we must add to the context late somehow
+			 * Get the latest inserted row from the SimplePostLogger, check if that postID is
+			 * same as the
+			 */
+			$post_logger = $this->simpleHistory->getInstantiatedLoggerBySlug( 'SimplePostLogger' );
 
-				echo "<br>$post_meta_key - $post_meta_val";
+			// Save ACF diff if detected post here is same as the last one used in Postlogger.
+			if ( $post_id === $post_logger->lastInsertContext['post_id'] ) {
+				// Append new info to the contextof history item with id $post_logger->lastInsertID.
+				// @HERE: Create method is SimpleLogger to append() or similar. append(), append_to_existing().
+				ddd( $prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields, $post_logger );
 			}
-			*/
 
-			// We have the diff, now add it to the context
-			// This is called after Simple History already has added its row
-			// So... we must add to the context late somehow
-			// Get the latest inserted row from the SimplePostLogger, check if that postID is
-			// same as
-			// @HERE
-			$postLogger = $this->simpleHistory->getInstantiatedLoggerBySlug('SimplePostLogger');
-
-			// ddd( $prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields, $_POST, $postLogger);
 		}
 
 		/**
@@ -800,10 +815,9 @@ if (! class_exists("Plugin_ACF")) {
 		 * that the post logger should not log
 		 */
 		public function remove_acf_from_postlogger() {
-			add_filter('simple_history/post_logger/skip_posttypes', function($skip_posttypes) {
+			add_filter('simple_history/post_logger/skip_posttypes', function( $skip_posttypes ) {
 				array_push(
 					$skip_posttypes,
-					// 'acf-field-group',
 					'acf-field'
 				);
 
@@ -811,5 +825,5 @@ if (! class_exists("Plugin_ACF")) {
 			}, 10);
 		}
 
-	} // class
-} // class exists
+	} // Class.
+} // End if().

@@ -36,12 +36,24 @@ class SimpleLogger {
 	public $messages;
 
 	/**
-	 * ID of last inserted row. Used when chaining methods.
+	 * ID of last inserted row
+	 *
+	 * @var int $lastInsertID Database row primary key.
 	 */
 	public $lastInsertID;
 
 	/**
-	 * Simple History instance
+	 * Context of last inserted row.
+	 *
+	 * @var int $lastInsertContext Context used for the last insert.
+	 * @since 2.2x
+	 */
+	public $lastInsertContext;
+
+	/**
+	 * Simple History instance.
+	 *
+	 * @var object $simpleHistory Simple history instance.
 	 */
 	public $simpleHistory;
 
@@ -1255,15 +1267,10 @@ class SimpleLogger {
 			$context = apply_filters( 'simple_history/log_insert_context', $context, $data, $this );
 			$data_parent_row = $data;
 
-			// Insert all context values into db
+			// Insert all context values into db.
 			foreach ( $context as $key => $value ) {
 
-				// If value is array or object then use json_encode to store it
-				// if ( is_object( $value ) || is_array( $value ) ) {
-				// $value = simpleHistory::json_encode($value);
-				// }
-				// Any reason why the check is not the other way around?
-				// Everything except strings should be json_encoded
+				// Everything except strings should be json_encoded, ie. arrays and objects.
 				if ( ! is_string( $value ) ) {
 					$value = simpleHistory::json_encode( $value );
 				}
@@ -1280,6 +1287,7 @@ class SimpleLogger {
 		}// End if().
 
 		$this->lastInsertID = $history_inserted_id;
+		$this->lastInsertContext = $context;
 
 		$this->simpleHistory->get_cache_incrementor( true );
 
@@ -1294,7 +1302,7 @@ class SimpleLogger {
 		 */
 		do_action( 'simple_history/log/inserted', $context, $data_parent_row, $this );
 
-		// Return $this so we can chain methods
+		// Return $this so we can chain methods.
 		return $this;
 
 	} // log

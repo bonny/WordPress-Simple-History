@@ -996,8 +996,6 @@ class SimplePostLogger extends SimpleLogger {
 			// post_new_thumb, int of new thumb, empty if no new thumb.
 			$diff_table_output .= $this->getLogRowDetailsOutputForPostThumb( $context );
 
-			// Filter so other plugins/loggers can modify the diff output
-
 			/**
 			 * Modify the formatted diff output of a saved/modified post
 			 *
