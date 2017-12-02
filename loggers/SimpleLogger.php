@@ -1268,22 +1268,7 @@ class SimpleLogger {
 			$data_parent_row = $data;
 
 			// Insert all context values into db.
-			foreach ( $context as $key => $value ) {
-
-				// Everything except strings should be json_encoded, ie. arrays and objects.
-				if ( ! is_string( $value ) ) {
-					$value = simpleHistory::json_encode( $value );
-				}
-
-				$data = array(
-					'history_id' => $history_inserted_id,
-					'key' => $key,
-					'value' => $value,
-				);
-
-				$result = $wpdb->insert( $db_table_contexts, $data );
-
-			}
+			$this->append_context( $history_inserted_id, $context);
 		}// End if().
 
 		$this->lastInsertID = $history_inserted_id;
@@ -1306,6 +1291,44 @@ class SimpleLogger {
 		return $this;
 
 	} // log
+
+	/**
+	 * Append new info to the contextof history item with id $post_logger->lastInsertID..
+	 *
+	 * @HERE: Create method is SimpleLogger to append() or similar. append(), append_to_existing().
+	 * @TODO: use this function to add context above too
+	 *
+	 * @param int   $history_id The id of the history row to add context to.
+	 * @param array $context Context to append to existing context for the row.
+	 * @return bool True if context was added, false if not (beacuse row_id or context is empty).
+	 */
+	public function append_context( $history_id, $context ) {
+		if ( empty( $history_id ) || empty( $context ) ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		$db_table_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+
+		foreach ( $context as $key => $value ) {
+
+			// Everything except strings should be json_encoded, ie. arrays and objects.
+			if ( ! is_string( $value ) ) {
+				$value = simpleHistory::json_encode( $value );
+			}
+
+			$data = array(
+				'history_id' => $history_id,
+				'key' => $key,
+				'value' => $value,
+			);
+
+			$result = $wpdb->insert( $db_table_contexts, $data );
+		}
+
+		return true;
+	}
 
 	/**
 	 * Returns array with headers that may contain user IP
@@ -1331,6 +1354,8 @@ class SimpleLogger {
 	 * Returns additional headers with ip number from context
 	 *
 	 * @since 2.0.29
+	 * @param array $row Row with info.
+	 * @return array Headers
 	 */
 	function get_event_ip_number_headers( $row ) {
 
@@ -1359,6 +1384,9 @@ class SimpleLogger {
 	/**
 	 * Ensures an ip address is both a valid IP and does not fall within
 	 * a private network range.
+	 *
+	 * @param string $ip IP number.
+	 * @return bool
 	 */
 	function validate_ip( $ip ) {
 
@@ -1410,21 +1438,21 @@ class SimpleLogger {
 class SimpleLoggerLogInitiators {
 
 	// A wordpress user that at the log event created did exist in the wp database
-	// May have been deleted when the log is viewed
+	// May have been deleted when the log is viewed.
 	const WP_USER = 'wp_user';
 
 	// Cron job run = wordpress initiated
 	// Email sent to customer on webshop = system/wordpress/anonymous web user
-	// Javascript error occured on website = anonymous web user
+	// Javascript error occured on website = anonymous web user.
 	const WEB_USER = 'web_user';
 
-	// WordPress core or plugins updated automatically via wp-cron
+	// WordPress core or plugins updated automatically via wp-cron.
 	const WORDPRESS = 'wp';
 
-	// WP CLI / terminal
+	// WP CLI / terminal.
 	const WP_CLI = 'wp_cli';
 
-	// I dunno
+	// I dunno.
 	const OTHER = 'other';
 }
 
