@@ -11,11 +11,6 @@ if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
  * Logger for the Advanced Custom Fields (ACF) plugin
  * https://sv.wordpress.org/plugins/advanced-custom-fields/
  *
- * @TODO
- *
- * - Store diff for ACF fields when post is saved
- *
- *
  * @package SimpleHistory
  * @since 2.x
  */
@@ -86,19 +81,22 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			$this->remove_acf_from_postlogger();
 
-			// This is the action that Simple History and the post logger uses to log
-			add_action( 'transition_post_status', array($this, 'on_transition_post_status'), 5, 3);
+			// Store old and new field data.
+			add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 5, 3 );
 
-			// Get prev version of acf field group
-			// This is called before transition_post_status
-			add_filter('wp_insert_post_data', array($this, 'on_wp_insert_post_data'), 10, 2);
+			// Get prev version of acf field group.
+			// This is called before transition_post_status.
+			add_filter( 'wp_insert_post_data', array( $this, 'on_wp_insert_post_data' ), 10, 2 );
 
-			add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context'), 10, 2);
+			add_filter( 'simple_history/post_logger/post_updated/context', array( $this, 'on_post_updated_context' ), 10, 2 );
 
-			add_filter('simple_history/post_logger/post_updated/diff_table_output', array($this, 'on_diff_table_output'), 10, 2 );
+			/**
+			 * Add ACF diff data to activity feed detailed output.
+			 */
+			add_filter( 'simple_history/post_logger/post_updated/diff_table_output', array( $this, 'on_diff_table_output' ), 10, 2 );
 
-			// Store diff when ACF saves post
 			/*
+			 * Store diff when ACF saves post
 			 * Possible filters:
 			 * - $value = apply_filters( "acf/update_value", $value, $post_id, $field );
 			 * $field = apply_filters( "acf/update_field", $field);
@@ -108,15 +106,19 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// add_filter( 'acf/update_value', array($this, 'on_update_value'), 10, 3 );
 			//add_filter( 'acf/update_field', array($this, 'on_update_field'), 10, 1 );
 
-			// Store prev ACF field values before new values are added
-			add_action("admin_action_editpost", array($this, "on_admin_action_editpost"));
+			// Store prev ACF field values before new values are added.
+			add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
 
 			#add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context2'), 10, 2);
 			#add_filter('save_post', array($this, 'on_post_save'), 50);
 			add_filter('acf/save_post', array($this, 'on_acf_save_post'), 50);
 		}
 
+		/**
+		 * @param int $post_id ID of post that is being saved.
+		 */
 		public function on_acf_save_post( $post_id ) {
+
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 				return;
 			}
@@ -178,8 +180,13 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			// Save ACF diff if detected post here is same as the last one used in Postlogger.
 			if ( $post_id === $post_logger->lastInsertContext['post_id'] ) {
+				// $post_logger->lastInsertID
 				// Append new info to the contextof history item with id $post_logger->lastInsertID.
 				// @HERE: Create method is SimpleLogger to append() or similar. append(), append_to_existing().
+				$post_logger->append_context($post_logger->lastInsertID, [
+					'new_appended_context' => 'yeah',
+					'new_appended_context_2' => ['so' => 'funky'],
+				]);
 				ddd( $prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields, $post_logger );
 			}
 
@@ -226,6 +233,10 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			return $new_arr;
 		}
 
+		/**
+		 * Store prev post meta when post is saved.
+		 * Stores data in $this->oldPostData.
+		 */
 		public function on_admin_action_editpost() {
 
 			$post_ID = isset( $_POST["post_ID"] ) ? (int) $_POST["post_ID"] : 0;
@@ -236,7 +247,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			$prev_post = get_post( $post_ID );
 
-			if (is_wp_error($prev_post)) {
+			if ( is_wp_error( $prev_post ) ) {
 				return;
 			}
 
@@ -276,6 +287,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 		/**
 		 * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'
+		 *
 		 * @param string $diff_table_output
 		 * @param array $context
 		 * @return string
