@@ -333,6 +333,9 @@ class SimplePostLogger extends SimpleLogger {
 			// Don't log jetpack migration-things.
 			// https://wordpress.org/support/topic/updated-jetpack_migration-sidebars_widgets/.
 			'jetpack_migration',
+			'jp_sitemap',
+			'jp_img_sitemap',
+			'jp_sitemap_master',
 		);
 
 		/**

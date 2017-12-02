@@ -168,6 +168,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - The post types in the `skip_posttypes` filter are now also applied to trashed and untrashed posts (not only post edits, as before).
 - Added filter `simple_history/post_logger/post_updated/context` that can be used to modify the context added by SimplePostLogger.
 - Fix a notice in SimpleOptionsLogger.
+- Don't log updates to posttypes `jp_sitemap`, `jp_sitemap_master` and `jp_img_sitemap`, i.e. the post types used by Jetpack's Sitemap function. Should fix https://wordpress.org/support/topic/jetpack-sitemap-logging/.
 
 = 2.20 (November 2017) =
 
