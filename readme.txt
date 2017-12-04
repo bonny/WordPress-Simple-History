@@ -167,6 +167,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.nn (nn 2017) =
 
 - Fix unexpected single-quotations included in file name in Internet Explorer 11 (and possibly other versions) when exporting CSV/JSON file.
+- Better CSS styling on dashboard.
 
 = 2.20 (November 2017) =
 
