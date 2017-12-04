@@ -62,12 +62,12 @@
 
 @media (min-width: 600px) {
 	/* prevent "jump" during page load because of select elm changing to select2 */
-	.SimpleHistory__filters__filterRow {
+	.SimpleHistoryWrap .SimpleHistory__filters__filterRow {
 		height: 41px;
 		line-height: 41px;
 	}
 
-	.wp-admin select[multiple].SimpleHistory__filters__filter--date {
+	.SimpleHistoryWrap .wp-admin select[multiple].SimpleHistory__filters__filter--date {
 		height: 2.25em;
 		overflow: hidden;
 	}
@@ -82,6 +82,8 @@
 .postbox .SimpleHistory__filters__filterSubmitWrap {
 	margin-left: 0;
 }
+
+
 
 /**
  * Search results in filter
@@ -159,7 +161,6 @@
 	visibility: hidden;
 	opacity: 0;
 	margin-left: 155px;
-	margin-top: 1em;
 	max-height: 0;
 	overflow: hidden;
 	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 1s;
@@ -169,6 +170,7 @@
 	visibility: visible;
 	opacity: 1;
 	max-height: 150px;
+	margin-top: 1em;
 	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 0s;
 }
 

@@ -170,6 +170,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Fix a notice in SimpleOptionsLogger.
 - Don't log Jetpack sitemap updates. (Don't log updates to posttypes `jp_sitemap`, `jp_sitemap_master` and `jp_img_sitemap`, i.e. the post types used by Jetpack's Sitemap function.) Should fix https://wordpress.org/support/topic/jetpack-sitemap-logging/.
 
+= 2.nn (nn 2017) =
+
+- Fix unexpected single-quotations included in file name in Internet Explorer 11 (and possibly other versions) when exporting CSV/JSON file.
+- Better CSS styling on dashboard.
+
 = 2.20 (November 2017) =
 
 - Add logging of post thumbnails.
