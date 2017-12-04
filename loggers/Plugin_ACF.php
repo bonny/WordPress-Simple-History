@@ -183,11 +183,17 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				// $post_logger->lastInsertID
 				// Append new info to the contextof history item with id $post_logger->lastInsertID.
 				// @HERE: Create method is SimpleLogger to append() or similar. append(), append_to_existing().
+
+				// Store added fields.
+
+				// Store removed fields.
+
+				// Store modified fields.
 				$post_logger->append_context($post_logger->lastInsertID, [
 					'new_appended_context' => 'yeah',
 					'new_appended_context_2' => ['so' => 'funky'],
 				]);
-				ddd( $prev_post_meta, $new_post_meta, $post_meta_diff1, $post_meta_diff2, $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields, $post_logger );
+				ddd( $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields );
 			}
 
 		}
