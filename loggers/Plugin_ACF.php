@@ -157,6 +157,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			// Keys that exist in diff1 but not in diff2 = deleted.
 			$post_meta_removed_fields = array_diff_assoc( array_keys( $post_meta_diff1 ), array_keys( $post_meta_diff2 ) );
+			$post_meta_removed_fields = array_values($post_meta_removed_fields);
 
 			$post_meta_changed_fields = array_keys( $post_meta_diff1 );
 
@@ -182,18 +183,20 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			if ( $post_id === $post_logger->lastInsertContext['post_id'] ) {
 				// $post_logger->lastInsertID
 				// Append new info to the contextof history item with id $post_logger->lastInsertID.
-				// @HERE: Create method is SimpleLogger to append() or similar. append(), append_to_existing().
 
-				// Store added fields.
-
-				// Store removed fields.
+				// @HERE: Store added, changed, and removed fields.
+				$post_logger->append_context($post_logger->lastInsertID, [
+					'acf_added_fields' => $post_meta_added_fields,
+					'acf_changed_fields' => $post_meta_changed_fields,
+					'acf_removed_fields' => $post_meta_removed_fields,
+				]);
 
 				// Store modified fields.
-				$post_logger->append_context($post_logger->lastInsertID, [
-					'new_appended_context' => 'yeah',
-					'new_appended_context_2' => ['so' => 'funky'],
-				]);
-				ddd( $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields );
+				// $post_logger->append_context($post_logger->lastInsertID, [
+				// 	'new_appended_context' => 'yeah',
+				// 	'new_appended_context_2' => ['so' => 'funky'],
+				// ]);
+				// ddd( $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields );
 			}
 
 		}
