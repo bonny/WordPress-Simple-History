@@ -128,6 +128,24 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				return;
 			}
 
+			/*
+			Meta values look like
+			[product_images_0_image] => 625
+			[_product_images_0_image] => field_59a091044812e
+			[product_images_0_image_caption] => Image row yes
+			[_product_images_0_image_caption] => field_59a0910f4812f
+			[product_images_0_image_related_0_related_name] => Related one
+			[_product_images_0_image_related_0_related_name] => field_59aaedd43ae11
+			[product_images_0_image_related_0_related_item_post] =>
+			[_product_images_0_image_related_0_related_item_post] => field_59aaede43ae12
+			[product_images_0_image_related_1_related_name] => Another related
+			[_product_images_0_image_related_1_related_name] => field_59aaedd43ae11
+			[product_images_0_image_related_1_related_item_post] =>
+			[_product_images_0_image_related_1_related_item_post] => field_59aaede43ae12
+			[product_images_0_image_related] => 2
+			[_product_images_0_image_related] => field_59aaedbc3ae10
+			[product_images_1_image] => 574
+			*/
 			$prev_post_meta = $this->oldPostData['prev_post_meta'];
 			$new_post_meta = get_post_custom( $post_id );
 			$new_post_meta = array_map( 'reset', $new_post_meta );
@@ -144,6 +162,23 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// Keep only ACF fields in prev and new post meta.
 			$prev_post_meta = $this->keep_only_acf_stuff_in_array( $prev_post_meta, $new_and_old_post_meta );
 			$new_post_meta = $this->keep_only_acf_stuff_in_array( $new_post_meta, $new_and_old_post_meta );
+			$new_and_old_post_meta_acf_fields = array_merge($prev_post_meta, $new_post_meta);
+
+			// Map field name with fieldkey so we can get field objects when needed.
+			// Final array have values like:
+			// [product_images_0_image] => field_59a091044812e
+			// [product_images_0_image_caption] => field_59a0910f4812f
+			// [product_images_0_image_related_0_related_name] => field_59aaedd43ae11.
+			$fieldnames_to_field_keys = array();
+			foreach ( $new_and_old_post_meta_acf_fields as $meta_key => $meta_value ) {
+				// $key is like [product_images_0_image_related_1_related_name].
+				// Get ACF fieldkey for that value. Will be in $new_and_old_post_meta
+				// as the same as key but with underscore first
+				$meta_key_to_look_for = "_{$meta_key}";
+				if ( isset( $new_and_old_post_meta[ $meta_key_to_look_for ] ) ) {
+					$fieldnames_to_field_keys[ $meta_key ] = $new_and_old_post_meta[ $meta_key_to_look_for ];
+				}
+			}
 
 			// Compare old with new = get only changed, not added, deleted are here.
 			$post_meta_diff1 = array_diff_assoc( $prev_post_meta, $new_post_meta );
@@ -157,7 +192,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			// Keys that exist in diff1 but not in diff2 = deleted.
 			$post_meta_removed_fields = array_diff_assoc( array_keys( $post_meta_diff1 ), array_keys( $post_meta_diff2 ) );
-			$post_meta_removed_fields = array_values($post_meta_removed_fields);
+			$post_meta_removed_fields = array_values( $post_meta_removed_fields );
 
 			$post_meta_changed_fields = array_keys( $post_meta_diff1 );
 
@@ -181,15 +216,27 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			// Save ACF diff if detected post here is same as the last one used in Postlogger.
 			if ( $post_id === $post_logger->lastInsertContext['post_id'] ) {
-				// $post_logger->lastInsertID
-				// Append new info to the contextof history item with id $post_logger->lastInsertID.
+				$last_insert_id = $post_logger->lastInsertID;
 
+				// Append new info to the context of history item with id $post_logger->lastInsertID.
 				// @HERE: Store added, changed, and removed fields.
-				$post_logger->append_context($post_logger->lastInsertID, [
-					'acf_added_fields' => $post_meta_added_fields,
-					'acf_changed_fields' => $post_meta_changed_fields,
-					'acf_removed_fields' => $post_meta_removed_fields,
-				]);
+				$acf_context = array();
+				$acf_context = $this->add_acf_context( $acf_context, 'added', $post_meta_added_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
+				$acf_context = $this->add_acf_context( $acf_context, 'changed', $post_meta_changed_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
+				$acf_context = $this->add_acf_context( $acf_context, 'removed', $post_meta_removed_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
+
+				$post_logger->append_context( $last_insert_id, $acf_context );
+				$post_logger->append_context( $last_insert_id, array(
+					'prev_post_meta' => $prev_post_meta,
+				) );
+				$post_logger->append_context( $last_insert_id, array(
+					'new_post_meta' => $new_post_meta,
+				) );
+				// $post_logger->append_context($post_logger->lastInsertID, [
+				// 	'acf_added_fields' => $post_meta_added_fields,
+				// 	'acf_changed_fields' => $post_meta_changed_fields,
+				// 	'acf_removed_fields' => $post_meta_removed_fields,
+				// ]);
 
 				// Store modified fields.
 				// $post_logger->append_context($post_logger->lastInsertID, [
@@ -197,8 +244,129 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				// 	'new_appended_context_2' => ['so' => 'funky'],
 				// ]);
 				// ddd( $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields );
+				/*
+				As in post logger
+				post_prev_post_author	1
+				post_new_post_author	2
+				post_prev_post_author/user_login	par
+				post_prev_post_author/user_email	par.thernstrom@gmail.com
+				post_prev_post_author/display_name	par
+				post_new_post_author/user_login	jessie
+				$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
+				$context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
+				*/
 			}
 
+		}
+
+		/**
+		 * Add ACF context
+		 *
+		 * @param array  $context Context.
+		 * @param string $modify_type Type. added | removed | changed.
+		 * @param array  $relevant_acf_fields Fields.
+		 * @param array  $prev_post_meta Prev meta.
+		 * @param array  $new_post_meta New meta.
+		 */
+		function add_acf_context( $context = array(), $modify_type = '', $relevant_acf_fields = array(), $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys ) {
+			if ( ! is_array( $context ) || empty( $modify_type ) || empty( $relevant_acf_fields ) ) {
+				return $context;
+			}
+
+			$loopnum = 0;
+			foreach ( $relevant_acf_fields as $field_slug ) {
+				/*
+				Store just the names to begin with
+				acf_field_added_0 = url.
+				acf_field_added_1 = first_name.
+
+				If field slug contains a number, like in "product_images_2_image"
+				that probably means that that field is a repeater with name "product_images"
+				with a sub field called "image" and that the image is the 2:nd among it's selected sub fields.
+
+				Example of how fields can look:
+				acf_field_added_0	product_images_2_image
+				acf_field_added_1	product_images_2_image_caption
+				acf_field_added_2	product_images_2_image_related
+				acf_field_changed_0	my_field_in_acf
+				acf_field_changed_1	product_images
+				acf_field_changed_2	price
+				acf_field_changed_3	description
+				*/
+				$context_key = "acf_field_{$modify_type}_{$loopnum}";
+				$context[ $context_key ] = $field_slug;
+
+				/*
+				 * Try to get som extra info, like display name and type for this field.
+				 * For a nice context in the feed we want: parent field group name and type?
+				 */
+				if ( isset( $fieldnames_to_field_keys[ $field_slug ] ) ) {
+					$fieldkey = $fieldnames_to_field_keys[ $field_slug ];
+					$context[ "{$context_key}/field_key" ] = $fieldkey;
+
+					// Interesting stuff in field object:
+					// - Label = the human readable name of the field
+					// - Type = the type of the field
+					// - Parent = id of parent field post id.
+					$field_object = get_field_object( $fieldkey );
+					if ( is_array( $field_object ) ) {
+						$context[ "{$context_key}/field_label" ] = $field_object['label'];
+						$context[ "{$context_key}/field_type" ] = $field_object['type'];
+						// $context[ "{$context_key}/field_parent" ] = $field_object['parent'];
+
+						// Get direct parent of this field
+						// $parent_field = _acf_get_field_by_id( $field_object['parent'] );
+
+						// If no parent just continue to next field
+						if ( empty( $field_object['parent'] ) ) {
+							continue;
+						}
+
+						// We have at least one parent, get them all, including the field group
+						// $context[ "{$context_key}/field_parent_object" ] = $parent_field;
+						$field_parents = array();
+						$field_field_group = null;
+
+						// Begin with the direct parent.
+						$parent_field = $field_object;
+
+						while ( ! empty( $parent_field['parent'] ) ) {
+							// acf-field | acf-field-group.
+							$parent_field_post_type = get_post_type( $parent_field['parent'] );
+
+							if ( false === $parent_field_post_type ) {
+								break;
+							}
+
+							if ( 'acf-field' === $parent_field_post_type ) {
+								$parent_field = _acf_get_field_by_id( $parent_field['parent'] );
+							} elseif ( 'acf-field-group' === $parent_field_post_type ) {
+								$parent_field = acf_get_field_group( $parent_field['parent'] );
+							} else {
+								// Unknown post type.
+								break;
+							}
+
+							if ( false === $parent_field ) {
+								break;
+							}
+
+							if ( 'acf-field' === $parent_field_post_type ) {
+								$field_parents[] = $parent_field;
+							} elseif ( 'acf-field-group' === $parent_field_post_type ) {
+								$field_field_group = $parent_field;
+							} // End if().
+						} // End while().
+
+						error_log( "Final parents" . print_r( $field_parents, 1 ) );
+						error_log( "Final field group" . print_r( $field_field_group, 1 ) );
+					} // End if().
+				}
+
+				$loopnum++;
+			} // End foreach().
+
+			return $context;
 		}
 
 		/**
@@ -206,8 +374,11 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 *  - underscore fields
 		 *  - fields with value field_*
 		 *
-		 * keep
+		 * Keep
 		 *  - vals that are acf
+		 *
+		 * @param array $arr Array.
+		 * @param array $all_fields Array fields.
 		 */
 		public function keep_only_acf_stuff_in_array( $arr, $all_fields ) {
 			$new_arr = array();
