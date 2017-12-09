@@ -358,6 +358,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 							} // End if().
 						} // End while().
 
+						// @HERE
 						error_log( "Final parents" . print_r( $field_parents, 1 ) );
 						error_log( "Final field group" . print_r( $field_field_group, 1 ) );
 					} // End if().
