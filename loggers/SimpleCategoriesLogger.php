@@ -43,42 +43,6 @@ class SimpleCategoriesLogger extends SimpleLogger {
 
 	}
 
-	/*
-	 * Fires after a new term is created, and after the term cache has been cleaned.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @param int    $term_id  Term ID.
-	 * @param int    $tt_id    Term taxonomy ID.
-	 * @param string $taxonomy Taxonomy slug.
-	do_action( 'created_term', $term_id, $tt_id, $taxonomy );
-
-
-
-	 * Fires after a term has been updated, and the term cache has been cleaned.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @param int    $term_id  Term ID.
-	 * @param int    $tt_id    Term taxonomy ID.
-	 * @param string $taxonomy Taxonomy slug.
-	do_action( "edited_term", $term_id, $tt_id, $taxonomy );
-
-	 * Filter the term parent.
-	 *
-	 * Hook to this filter to see if it will cause a hierarchy loop.
-	 *
-	 * @since 3.1.0
-	 *
-	 * @param int    $parent      ID of the parent term.
-	 * @param int    $term_id     Term ID.
-	 * @param string $taxonomy    Taxonomy slug.
-	 * @param array  $parsed_args An array of potentially altered update arguments for the given term.
-	 * @param array  $args        An array of update arguments for the given term.
-	$parent = apply_filters( 'wp_update_term_parent', $args['parent'], $term_id, $taxonomy, $parsed_args, $args );
-
-	*/
-
 	/**
 	 * Called when the logger is loaded.
 	 */
@@ -262,6 +226,67 @@ class SimpleCategoriesLogger extends SimpleLogger {
 			)
 		);
 
+	}
+
+	/**
+	 * Modify plain output to include link to term and taxonomy.
+	 *
+	 * @param array $row Row data.
+	 */
+	public function getLogRowPlainTextOutput( $row ) {
+		$context = $row->context;
+		$message_key = isset( $context['_message_key'] ) ? $context['_message_key'] : null;
+
+		// Default to original log message.
+		$message = $row->message;
+
+		// Get term that was created, edited, or removed.
+		$term_id = isset( $context['term_id'] ) ? (int) $context['term_id'] : null;
+
+		// Get taxonomy for term.
+		if ( 'created_term' === $message_key  || 'deleted_term' === $message_key ) {
+			$term_taxonomy = isset( $context['term_taxonomy'] ) ? (string) $context['term_taxonomy'] : null;
+		} elseif ( 'edited_term' === $message_key ) {
+			$term_taxonomy = isset( $context['from_term_taxonomy'] ) ? (string) $context['from_term_taxonomy'] : null;
+		}
+
+		if ( is_wp_error( $term_object ) ) {
+			return $this->interpolate( $message, $context, $row );
+		}
+
+		$tax_edit_link = add_query_arg(
+			array(
+				'taxonomy' => $term_taxonomy,
+			),
+			admin_url( 'term.php' )
+		);
+		$context['tax_edit_link'] = $tax_edit_link;
+
+		$term_object = get_term( $term_id, $term_taxonomy );
+		$term_edit_link = get_edit_tag_link( $term_id, $term_object->taxonomy );
+		$context['term_edit_link'] = $term_edit_link;
+
+		if ( 'created_term' === $message_key && ! empty( $term_edit_link ) && ! empty( $tax_edit_link ) ) {
+			$message = _x(
+				'Added term <a href="{term_edit_link}">"{term_name}"</a> in taxonomy <a href="{tax_edit_link}">"{term_taxonomy}"</a>',
+				'Categories logger: detailed plain text output for created term',
+				'simple-history'
+			);
+		} elseif ( 'deleted_term' === $message_key && ! empty( $tax_edit_link ) ) {
+			$message = _x(
+				'Deleted term "{term_name}" from taxonomy <a href="{tax_edit_link}">"{term_taxonomy}"</a>',
+				'Categories logger: detailed plain text output for deleted term',
+				'simple-history'
+			);
+		} elseif ( 'edited_term' === $message_key && ! empty( $term_edit_link ) && ! empty( $tax_edit_link ) ) {
+			$message = _x(
+				'Edited term <a href="{term_edit_link}">"{to_term_name}"</a> in taxonomy <a href="{tax_edit_link}">"{to_term_taxonomy}"</a>',
+				'Categories logger: detailed plain text output for edited term',
+				'simple-history'
+			);
+		}
+
+		return $this->interpolate( $message, $context, $row );
 	}
 
 }
