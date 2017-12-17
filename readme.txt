@@ -169,6 +169,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Added filter `simple_history/post_logger/post_updated/context` that can be used to modify the context added by SimplePostLogger.
 - Fix a notice in SimpleOptionsLogger.
 - Don't log Jetpack sitemap updates. (Don't log updates to posttypes `jp_sitemap`, `jp_sitemap_master` and `jp_img_sitemap`, i.e. the post types used by Jetpack's Sitemap function.) Should fix https://wordpress.org/support/topic/jetpack-sitemap-logging/.
+- Don't log the taxonomies `post_translations` or `term_translations`, that are used by Polylang to store translation mappings.
 
 = 2.nn (nn 2017) =
 
