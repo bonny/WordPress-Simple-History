@@ -352,7 +352,7 @@ class SimplePostLogger extends SimpleLogger {
 	 * Check if post type is ok to log by logger
 	 * @return bool
 	 */
-	public function ok_to_log_post_posttype($post) {
+	public function ok_to_log_post_posttype( $post ) {
 		$ok_to_log = true;
 		$skip_posttypes = $this->get_skip_posttypes();
 

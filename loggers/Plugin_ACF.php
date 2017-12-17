@@ -255,8 +255,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
 				$context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
 				*/
-			}
-
+			} // End if().
 		}
 
 		/**
@@ -267,6 +266,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * @param array  $relevant_acf_fields Fields.
 		 * @param array  $prev_post_meta Prev meta.
 		 * @param array  $new_post_meta New meta.
+		 * @param array  $fieldnames_to_field_keys Fieldnames to field keys mapping.
+		 * @return array Modified context.
 		 */
 		function add_acf_context( $context = array(), $modify_type = '', $relevant_acf_fields = array(), $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys ) {
 			if ( ! is_array( $context ) || empty( $modify_type ) || empty( $relevant_acf_fields ) ) {
