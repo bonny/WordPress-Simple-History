@@ -693,7 +693,7 @@ class SimplePostLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Modify plain output to include link to post
+	 * Modify plain output to include link to post.
 	 *
 	 * @param array $row Row data.
 	 */
