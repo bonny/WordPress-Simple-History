@@ -295,24 +295,26 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				acf_field_changed_3	description
 				*/
 				$context_key = "acf_field_{$modify_type}_{$loopnum}";
-				$context[ $context_key ] = $field_slug;
+				$context[ "{$context_key}/slug" ] = $field_slug;
 
 				/*
 				 * Try to get som extra info, like display name and type for this field.
 				 * For a nice context in the feed we want: parent field group name and type?
 				 */
 				if ( isset( $fieldnames_to_field_keys[ $field_slug ] ) ) {
-					$fieldkey = $fieldnames_to_field_keys[ $field_slug ];
-					$context[ "{$context_key}/field_key" ] = $fieldkey;
+					$field_key = $fieldnames_to_field_keys[ $field_slug ];
+					$context[ "{$context_key}/key" ] = $field_key;
 
 					// Interesting stuff in field object:
 					// - Label = the human readable name of the field
 					// - Type = the type of the field
 					// - Parent = id of parent field post id.
-					$field_object = get_field_object( $fieldkey );
+					$field_object = get_field_object( $field_key );
 					if ( is_array( $field_object ) ) {
-						$context[ "{$context_key}/field_label" ] = $field_object['label'];
-						$context[ "{$context_key}/field_type" ] = $field_object['type'];
+						$context[ "{$context_key}/label" ] = $field_object['label'];
+						if ( ! empty( $field_object['type'] ) ) {
+							$context[ "{$context_key}/type" ] = $field_object['type'];
+						}
 						// $context[ "{$context_key}/field_parent" ] = $field_object['parent'];
 
 						// Get direct parent of this field
@@ -360,13 +362,52 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						} // End while().
 
 						// @HERE
-						error_log( "Final parents" . print_r( $field_parents, 1 ) );
-						error_log( "Final field group" . print_r( $field_field_group, 1 ) );
+						$field_parents = array_reverse( $field_parents );
+
+						// Array with info about each parent.
+						$arr_field_path = array();
+
+						if ( ! empty( $field_field_group['title'] ) ) {
+							$arr_field_path[] = array(
+								'name' => $field_field_group['title'],
+								'type' => 'field_group'
+							);
+						}
+
+						foreach ( $field_parents as $one_field_parent ) {
+							$arr_field_path[] = array(
+								'name' => $one_field_parent['label'],
+								'type' => 'field',
+								'field_type' => $one_field_parent['type'],
+							);
+
+						}
+
+						if ( ! empty( $arr_field_path ) ) {
+							// error_log( "arr_field_path" . print_r( $arr_field_path, 1 ) );
+							$path_loop_num = 0;
+							foreach ( $arr_field_path as $one_field_path ) {
+								$context[ "{$context_key}/path_{$path_loop_num}/name" ] = $one_field_path['name'];
+								$context[ "{$context_key}/path_{$path_loop_num}/type" ] = $one_field_path['type'];
+								if ( ! empty( $one_field_path['field_type'] ) ) {
+									$context[ "{$context_key}/path_{$path_loop_num}/field_type" ] = $one_field_path['field_type'];
+								}
+								$path_loop_num++;
+							}
+						}
+
+						#error_log( "Final parents" . print_r( $field_parents, 1 ) );
+						#error_log( "Final field group" . print_r( $field_field_group['title'], 1 ) );
+						#error_log( "context" . print_r( $context, 1 ) );
 					} // End if().
-				}
+				} // End if().
 
 				$loopnum++;
 			} // End foreach().
+
+			error_log( "---------------------------" );
+			// error_log( "field_path_string: $field_path_string");
+			error_log( "context" . print_r( $context, 1 ) );
 
 			return $context;
 		}

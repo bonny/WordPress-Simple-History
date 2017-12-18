@@ -1295,9 +1295,6 @@ class SimpleLogger {
 	/**
 	 * Append new info to the contextof history item with id $post_logger->lastInsertID..
 	 *
-	 * @HERE: Create method is SimpleLogger to append() or similar. append(), append_to_existing().
-	 * @TODO: use this function to add context above too
-	 *
 	 * @param int   $history_id The id of the history row to add context to.
 	 * @param array $context Context to append to existing context for the row.
 	 * @return bool True if context was added, false if not (beacuse row_id or context is empty).
