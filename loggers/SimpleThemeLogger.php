@@ -963,22 +963,22 @@ class SimpleThemeLogger extends SimpleLogger {
 
 		$context = array();
 
-		// Add widget info
+		// Add widget info.
 		$context['widget_id_base'] = $widget_id_base;
 		$widget = $this->getWidgetByIdBase( $widget_id_base );
 		if ( $widget ) {
 			$context['widget_name_translated'] = $widget->name;
 		}
 
-		// Add sidebar info
-		$sidebar_id = $_POST['sidebar'];
+		// Add sidebar info.
+		$sidebar_id = isset( $_POST['sidebar'] ) ? $_POST['sidebar'] : null;
 		$context['sidebar_id'] = $sidebar_id;
 		$sidebar = $this->getSidebarById( $sidebar_id );
 		if ( $sidebar ) {
 			$context['sidebar_name_translated'] = $sidebar['name'];
 		}
 
-		// Calculate changes
+		// Calculate changes.
 		$context['old_instance'] = $this->simpleHistory->json_encode( $old_instance );
 		$context['new_instance'] = $this->simpleHistory->json_encode( $new_instance );
 
@@ -1099,10 +1099,14 @@ class SimpleThemeLogger extends SimpleLogger {
 	/**
 	 * Get a sidebar by id
 	 *
-	 * @param string $sidebar_id
-	 * @return sidebar info or false on failure
+	 * @param string $sidebar_id ID of sidebar.
+	 * @return sidebar info or false on failure.
 	 */
 	function getSidebarById( $sidebar_id ) {
+
+		if ( empty( $sidebar_id ) ) {
+			return false;
+		}
 
 		$sidebars = isset( $GLOBALS['wp_registered_sidebars'] ) ? $GLOBALS['wp_registered_sidebars'] : false;
 
@@ -1110,7 +1114,7 @@ class SimpleThemeLogger extends SimpleLogger {
 			return false;
 		}
 
-		// Add sidebar info
+		// Add sidebar info.
 		if ( isset( $sidebars[ $sidebar_id ] ) ) {
 
 			return $sidebars[ $sidebar_id ];
