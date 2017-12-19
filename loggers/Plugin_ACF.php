@@ -405,6 +405,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				$loopnum++;
 			} // End foreach().
 
+			// @HERE
 			error_log( "---------------------------" );
 			// error_log( "field_path_string: $field_path_string");
 			error_log( "context" . print_r( $context, 1 ) );
