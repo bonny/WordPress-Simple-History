@@ -219,47 +219,25 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				$last_insert_id = $post_logger->lastInsertID;
 
 				// Append new info to the context of history item with id $post_logger->lastInsertID.
-				// @HERE: Store added, changed, and removed fields.
 				$acf_context = array();
 				$acf_context = $this->add_acf_context( $acf_context, 'added', $post_meta_added_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
 				$acf_context = $this->add_acf_context( $acf_context, 'changed', $post_meta_changed_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
 				$acf_context = $this->add_acf_context( $acf_context, 'removed', $post_meta_removed_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
 
 				$post_logger->append_context( $last_insert_id, $acf_context );
+
+				// Prev and new post meta just for testing
 				$post_logger->append_context( $last_insert_id, array(
 					'prev_post_meta' => $prev_post_meta,
 				) );
 				$post_logger->append_context( $last_insert_id, array(
 					'new_post_meta' => $new_post_meta,
 				) );
-				// $post_logger->append_context($post_logger->lastInsertID, [
-				// 	'acf_added_fields' => $post_meta_added_fields,
-				// 	'acf_changed_fields' => $post_meta_changed_fields,
-				// 	'acf_removed_fields' => $post_meta_removed_fields,
-				// ]);
-
-				// Store modified fields.
-				// $post_logger->append_context($post_logger->lastInsertID, [
-				// 	'new_appended_context' => 'yeah',
-				// 	'new_appended_context_2' => ['so' => 'funky'],
-				// ]);
-				// ddd( $post_meta_added_fields, $post_meta_removed_fields, $post_meta_changed_fields );
-				/*
-				As in post logger
-				post_prev_post_author	1
-				post_new_post_author	2
-				post_prev_post_author/user_login	par
-				post_prev_post_author/user_email	par.thernstrom@gmail.com
-				post_prev_post_author/display_name	par
-				post_new_post_author/user_login	jessie
-				$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
-				$context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
-				*/
 			} // End if().
 		}
 
 		/**
-		 * Add ACF context
+		 * Add ACF context for added, removed, or changed fields.
 		 *
 		 * @param array  $context Context.
 		 * @param string $modify_type Type. added | removed | changed.
@@ -315,12 +293,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						if ( ! empty( $field_object['type'] ) ) {
 							$context[ "{$context_key}/type" ] = $field_object['type'];
 						}
-						// $context[ "{$context_key}/field_parent" ] = $field_object['parent'];
 
-						// Get direct parent of this field
-						// $parent_field = _acf_get_field_by_id( $field_object['parent'] );
-
-						// If no parent just continue to next field
+						// If no parent just continue to next field.
 						if ( empty( $field_object['parent'] ) ) {
 							continue;
 						}
@@ -361,7 +335,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 							} // End if().
 						} // End while().
 
-						// @HERE
 						$field_parents = array_reverse( $field_parents );
 
 						// Array with info about each parent.
@@ -370,7 +343,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						if ( ! empty( $field_field_group['title'] ) ) {
 							$arr_field_path[] = array(
 								'name' => $field_field_group['title'],
-								'type' => 'field_group'
+								'type' => 'field_group',
 							);
 						}
 
@@ -384,7 +357,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						}
 
 						if ( ! empty( $arr_field_path ) ) {
-							// error_log( "arr_field_path" . print_r( $arr_field_path, 1 ) );
 							$path_loop_num = 0;
 							foreach ( $arr_field_path as $one_field_path ) {
 								$context[ "{$context_key}/path_{$path_loop_num}/name" ] = $one_field_path['name'];
@@ -396,6 +368,9 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 							}
 						}
 
+						// Add value of fields if they are not part of
+						// repeatable or flexible fields or similar.
+
 						#error_log( "Final parents" . print_r( $field_parents, 1 ) );
 						#error_log( "Final field group" . print_r( $field_field_group['title'], 1 ) );
 						#error_log( "context" . print_r( $context, 1 ) );
@@ -406,9 +381,9 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			} // End foreach().
 
 			// @HERE
-			error_log( "---------------------------" );
+			#error_log( "---------------------------" );
 			// error_log( "field_path_string: $field_path_string");
-			error_log( "context" . print_r( $context, 1 ) );
+			#error_log( "context" . print_r( $context, 1 ) );
 
 			return $context;
 		}
