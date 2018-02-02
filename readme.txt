@@ -173,6 +173,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Don't log the taxonomies `post_translations` or `term_translations`, that are used by Polylang to store translation mappings.
 - Add filter `simple_history/categories_logger/skip_taxonomies` that can be used to modify what taxonomies to skip when logging updates to taxonomy terms.
 - Fix notice in theme logger because did not check if `$_POST['sidebar']` was set. Fixes https://github.com/bonny/WordPress-Simple-History/issues/136.
+- Fix thumbnail title missing notice in post logger.
 
 = 2.nn (nn 2017) =
 
