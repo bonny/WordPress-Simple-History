@@ -1108,6 +1108,8 @@ class SimplePostLogger extends SimpleLogger {
 			// Check if images still exists and if so get their thumbnails.
 			$prev_thumb_id = empty( $context['post_prev_thumb_id'] ) ? null : $context['post_prev_thumb_id'];
 			$new_thumb_id = empty( $context['post_new_thumb_id'] ) ? null : $context['post_new_thumb_id'];
+			$post_new_thumb_title = empty( $context['post_new_thumb_title'] ) ? null : $context['post_new_thumb_title'];
+			$post_prev_thumb_title = empty( $context['post_prev_thumb_title'] ) ? null : $context['post_prev_thumb_title'];
 
 			$prev_attached_file = get_attached_file( $prev_thumb_id );
 			$prev_thumb_src = wp_get_attachment_image_src( $prev_thumb_id, 'small' );
@@ -1125,13 +1127,13 @@ class SimplePostLogger extends SimpleLogger {
 						</div>
 					',
 					$prev_thumb_src[0],
-					esc_html( $context['post_prev_thumb_title'] )
+					esc_html( $post_prev_thumb_title )
 				);
 			} else {
 				// Fallback if image does not exist.
 				$prev_thumb_html = sprintf(
 					'<div>%1$s</div>',
-					esc_html( $context['post_prev_thumb_title'] )
+					esc_html( $post_prev_thumb_title )
 				);
 			}
 
@@ -1145,13 +1147,13 @@ class SimplePostLogger extends SimpleLogger {
 						</div>
 					',
 					$new_thumb_src[0],
-					esc_html( $context['post_new_thumb_title'] )
+					esc_html( $post_new_thumb_title )
 				);
 			} else {
 				// Fallback if image does not exist.
 				$prev_thumb_html = sprintf(
 					'<div>%1$s</div>',
-					esc_html( $context['post_new_thumb_title'] )
+					esc_html( $post_new_thumb_title )
 				);
 			}
 
