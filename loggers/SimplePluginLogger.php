@@ -28,58 +28,58 @@ class SimplePluginLogger extends SimpleLogger {
 	 *
 	 * @return array
 	 */
-	function getInfo() {
+	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'Plugin Logger',
+			'name'        => 'Plugin Logger',
 			'description' => 'Logs plugin installs, uninstalls and updates',
-			'capability' => 'activate_plugins',
-			'messages' => array(
+			'capability'  => 'activate_plugins',
+			'messages'    => array(
 
-				'plugin_activated' => _x(
+				'plugin_activated'              => _x(
 					'Activated plugin "{plugin_name}"',
 					'Plugin was non-silently activated by a user',
 					'simple-history'
 				),
 
-				'plugin_deactivated' => _x(
+				'plugin_deactivated'            => _x(
 					'Deactivated plugin "{plugin_name}"',
 					'Plugin was non-silently deactivated by a user',
 					'simple-history'
 				),
 
-				'plugin_installed' => _x(
+				'plugin_installed'              => _x(
 					'Installed plugin "{plugin_name}"',
 					'Plugin was installed',
 					'simple-history'
 				),
 
-				'plugin_installed_failed' => _x(
+				'plugin_installed_failed'       => _x(
 					'Failed to install plugin "{plugin_name}"',
 					'Plugin failed to install',
 					'simple-history'
 				),
 
-				'plugin_updated' => _x(
+				'plugin_updated'                => _x(
 					'Updated plugin "{plugin_name}" to version {plugin_version} from {plugin_prev_version}',
 					'Plugin was updated',
 					'simple-history'
 				),
 
-				'plugin_update_failed' => _x(
+				'plugin_update_failed'          => _x(
 					'Failed to update plugin "{plugin_name}"',
 					'Plugin update failed',
 					'simple-history'
 				),
 
-				'plugin_deleted' => _x(
+				'plugin_deleted'                => _x(
 					'Deleted plugin "{plugin_name}"',
 					'Plugin files was deleted',
 					'simple-history'
 				),
 
 				// Bulk versions.
-				'plugin_bulk_updated' => _x(
+				'plugin_bulk_updated'           => _x(
 					'Updated plugin "{plugin_name}" to {plugin_version} from {plugin_prev_version}',
 					'Plugin was updated in bulk',
 					'simple-history'
@@ -1201,7 +1201,7 @@ class SimplePluginLogger extends SimpleLogger {
 					esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
 				);
 
-			}// End if().
+			} // End if().
 		} // End if().
 
 		return $output;
