@@ -115,6 +115,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		}
 
 		/**
+		 * Called when ACF saves a post.
+		 *
 		 * @param int $post_id ID of post that is being saved.
 		 */
 		public function on_acf_save_post( $post_id ) {
@@ -438,7 +440,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 */
 		public function on_admin_action_editpost() {
 
-			$post_ID = isset( $_POST["post_ID"] ) ? (int) $_POST["post_ID"] : 0;
+			$post_ID = isset( $_POST['post_ID'] ) ? (int) $_POST['post_ID'] : 0;
 
 			if ( ! $post_ID ) {
 				return;
@@ -450,10 +452,10 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				return;
 			}
 
-			$post_meta = get_post_custom($post_ID);
+			$post_meta = get_post_custom( $post_ID );
 
-			// meta is array of arrays, get first value of each array value
-			$post_meta = array_map('reset', $post_meta);
+			// Meta is array of arrays, get first value of each array value.
+			$post_meta = array_map( 'reset', $post_meta );
 
 			$this->oldPostData['prev_post_meta'] = $post_meta;
 		}
@@ -996,8 +998,11 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 		}
 
-		public function on_update_field_group($field_group) {
-			/*
+		/**
+		 * Called when field group is updated.
+		 */
+		/*
+		public function on_update_field_group( $field_group ) {
 				On admin post save:
 
 				- $_POST['acf_fields'] is only set when a new field or subfield is added or changed,
@@ -1018,12 +1023,13 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				acf_get_field()
 				// Get fields in field group
 				$fields = acf_get_fields($field_group);
-			*/
 		}
+		*/
 
 		/**
 		 * Add the post types that ACF uses for fields to the array of post types
-		 * that the post logger should not log
+		 * that the default post logger should not log. If not each field will cause one
+		 * post update log message.
 		 */
 		public function remove_acf_from_postlogger() {
 			add_filter('simple_history/post_logger/skip_posttypes', function( $skip_posttypes ) {
