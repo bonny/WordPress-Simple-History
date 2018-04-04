@@ -34,7 +34,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * @var string $oldAndNewFieldGroupsAndFields
 		 */
 		private $oldAndNewFieldGroupsAndFields = array(
-			'fieldGroup' => array(
+			'fieldGroup'     => array(
 				'old' => null,
 				'new' => null,
 			),
@@ -42,8 +42,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				'old' => null,
 				'new' => null,
 			),
-			'addedFields' => array(),
-			'deletedFields' => array(),
+			'addedFields'    => array(),
+			'deletedFields'  => array(),
 		);
 
 		/**
@@ -60,10 +60,10 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 */
 		public function getInfo() {
 			$arr_info = array(
-				'name' => 'Plugin ACF',
+				'name'        => 'Plugin ACF',
 				'description' => _x( 'Logs ACF stuff', 'Logger: Plugin Duplicate Post', 'simple-history' ),
-				'name_via' => _x( 'Using plugin ACF', 'Logger: Plugin Duplicate Post', 'simple-history' ),
-				'capability' => 'manage_options',
+				'name_via'    => _x( 'Using plugin ACF', 'Logger: Plugin Duplicate Post', 'simple-history' ),
+				'capability'  => 'manage_options',
 			);
 
 			return $arr_info;
@@ -104,14 +104,13 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			do_action('acf/save_post', $post_id);
 			*/
 			// add_filter( 'acf/update_value', array($this, 'on_update_value'), 10, 3 );
-			//add_filter( 'acf/update_field', array($this, 'on_update_field'), 10, 1 );
-
+			// add_filter( 'acf/update_field', array($this, 'on_update_field'), 10, 1 );
 			// Store prev ACF field values before new values are added.
 			add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
 
-			#add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context2'), 10, 2);
-			#add_filter('save_post', array($this, 'on_post_save'), 50);
-			add_filter('acf/save_post', array($this, 'on_acf_save_post'), 50);
+			// add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context2'), 10, 2);
+			// add_filter('save_post', array($this, 'on_post_save'), 50);
+			add_filter( 'acf/save_post', array( $this, 'on_acf_save_post' ), 50 );
 		}
 
 		/**
@@ -149,8 +148,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			[product_images_1_image] => 574
 			*/
 			$prev_post_meta = $this->oldPostData['prev_post_meta'];
-			$new_post_meta = get_post_custom( $post_id );
-			$new_post_meta = array_map( 'reset', $new_post_meta );
+			$new_post_meta  = get_post_custom( $post_id );
+			$new_post_meta  = array_map( 'reset', $new_post_meta );
 
 			// New and old post meta can contain different amount of keys,
 			// join them so we have the name of all post meta thaf have been added, removed, or modified.
@@ -160,11 +159,10 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// array1 - The array to compare from
 			// array2 - An array to compare against
 			// Returns an array containing all the values from array1 that are not present in any of the other arrays.
-
 			// Keep only ACF fields in prev and new post meta.
-			$prev_post_meta = $this->keep_only_acf_stuff_in_array( $prev_post_meta, $new_and_old_post_meta );
-			$new_post_meta = $this->keep_only_acf_stuff_in_array( $new_post_meta, $new_and_old_post_meta );
-			$new_and_old_post_meta_acf_fields = array_merge($prev_post_meta, $new_post_meta);
+			$prev_post_meta                   = $this->keep_only_acf_stuff_in_array( $prev_post_meta, $new_and_old_post_meta );
+			$new_post_meta                    = $this->keep_only_acf_stuff_in_array( $new_post_meta, $new_and_old_post_meta );
+			$new_and_old_post_meta_acf_fields = array_merge( $prev_post_meta, $new_post_meta );
 
 			// Map field name with fieldkey so we can get field objects when needed.
 			// Final array have values like:
@@ -229,12 +227,16 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				$post_logger->append_context( $last_insert_id, $acf_context );
 
 				// Prev and new post meta just for testing
-				$post_logger->append_context( $last_insert_id, array(
-					'prev_post_meta' => $prev_post_meta,
-				) );
-				$post_logger->append_context( $last_insert_id, array(
-					'new_post_meta' => $new_post_meta,
-				) );
+				$post_logger->append_context(
+					$last_insert_id, array(
+						'prev_post_meta' => $prev_post_meta,
+					)
+				);
+				$post_logger->append_context(
+					$last_insert_id, array(
+						'new_post_meta' => $new_post_meta,
+					)
+				);
 			} // End if().
 		}
 
@@ -274,7 +276,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				acf_field_changed_2	price
 				acf_field_changed_3	description
 				*/
-				$context_key = "acf_field_{$modify_type}_{$loopnum}";
+				$context_key                      = "acf_field_{$modify_type}_{$loopnum}";
 				$context[ "{$context_key}/slug" ] = $field_slug;
 
 				/*
@@ -282,7 +284,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				 * For a nice context in the feed we want: parent field group name and type?
 				 */
 				if ( isset( $fieldnames_to_field_keys[ $field_slug ] ) ) {
-					$field_key = $fieldnames_to_field_keys[ $field_slug ];
+					$field_key                       = $fieldnames_to_field_keys[ $field_slug ];
 					$context[ "{$context_key}/key" ] = $field_key;
 
 					// Interesting stuff in field object:
@@ -303,7 +305,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 						// We have at least one parent, get them all, including the field group
 						// $context[ "{$context_key}/field_parent_object" ] = $parent_field;
-						$field_parents = array();
+						$field_parents     = array();
 						$field_field_group = null;
 
 						// Begin with the direct parent.
@@ -351,8 +353,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 						foreach ( $field_parents as $one_field_parent ) {
 							$arr_field_path[] = array(
-								'name' => $one_field_parent['label'],
-								'type' => 'field',
+								'name'       => $one_field_parent['label'],
+								'type'       => 'field',
 								'field_type' => $one_field_parent['type'],
 							);
 
@@ -372,10 +374,9 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 						// Add value of fields if they are not part of
 						// repeatable or flexible fields or similar.
-
-						#error_log( "Final parents" . print_r( $field_parents, 1 ) );
-						#error_log( "Final field group" . print_r( $field_field_group['title'], 1 ) );
-						#error_log( "context" . print_r( $context, 1 ) );
+						// error_log( "Final parents" . print_r( $field_parents, 1 ) );
+						// error_log( "Final field group" . print_r( $field_field_group['title'], 1 ) );
+						// error_log( "context" . print_r( $context, 1 ) );
 					} // End if().
 				} // End if().
 
@@ -383,10 +384,9 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			} // End foreach().
 
 			// @HERE
-			#error_log( "---------------------------" );
+			// error_log( "---------------------------" );
 			// error_log( "field_path_string: $field_path_string");
-			#error_log( "context" . print_r( $context, 1 ) );
-
+			// error_log( "context" . print_r( $context, 1 ) );
 			return $context;
 		}
 
@@ -464,20 +464,23 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * Called once for very field
 		 * in for example repeaters = called 1 time per sub field
 		 */
-		public function on_update_value($value, $post_id, $field) {
+		public function on_update_value( $value, $post_id, $field ) {
 			// dd('acf on_update_value', $value, $post_id, $field);
-			apply_filters('simple_history_log_debug', 'acf on_update_value, field "{acf_field_label}", value "{acf_field_value}"', array(
-				'value' => $value,
-				'post_id' => $post_id,
-				'field' => $field,
-				'acf_field_label' => $field['label'],
-				'acf_field_value' => $value
-			));
+			apply_filters(
+				'simple_history_log_debug', 'acf on_update_value, field "{acf_field_label}", value "{acf_field_value}"', array(
+					'value'           => $value,
+					'post_id'         => $post_id,
+					'field'           => $field,
+					'acf_field_label' => $field['label'],
+					'acf_field_value' => $value,
+				)
+			);
 
 			return $value;
 		}
 
-		/*public function on_update_field($field) {
+		/*
+		public function on_update_field($field) {
 			// dd('acf on_update_value', $value, $post_id, $field);
 			apply_filters('simple_history_log_debug', 'acf on_update_field', array(
 				'field' => $field
@@ -490,37 +493,37 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'
 		 *
 		 * @param string $diff_table_output
-		 * @param array $context
+		 * @param array  $context
 		 * @return string
 		 */
-		public function on_diff_table_output($diff_table_output, $context) {
+		public function on_diff_table_output( $diff_table_output, $context ) {
 			// Field group fields to check for and output if found
 			$arrKeys = array(
 				'instruction_placement' => array(
-					'name' => 'Instruction placement'
+					'name' => 'Instruction placement',
 				),
-				'label_placement' => array(
-					'name' => 'Label placement'
+				'label_placement'       => array(
+					'name' => 'Label placement',
 				),
-				'description' => array(
-					'name' => 'Description'
+				'description'           => array(
+					'name' => 'Description',
 				),
-				'menu_order' => array(
-					'name' => 'Menu order'
+				'menu_order'            => array(
+					'name' => 'Menu order',
 				),
-				'position' => array(
-					'name' => 'Position'
+				'position'              => array(
+					'name' => 'Position',
 				),
-				'active' => array(
-					'name' => 'Active'
+				'active'                => array(
+					'name' => 'Active',
 				),
-				'style' => array(
-					'name' => 'Style'
+				'style'                 => array(
+					'name' => 'Style',
 				),
 			);
 
-			foreach ($arrKeys as $acfKey => $acfVals) {
-				if (isset($context["acf_new_$acfKey"]) && isset($context["acf_prev_$acfKey"])) {
+			foreach ( $arrKeys as $acfKey => $acfVals ) {
+				if ( isset( $context[ "acf_new_$acfKey" ] ) && isset( $context[ "acf_prev_$acfKey" ] ) ) {
 					$diff_table_output .= sprintf(
 						'<tr>
 							<td>%1$s</td>
@@ -530,32 +533,32 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 							</td>
 						</tr>',
 						$acfVals['name'],
-						esc_html($context["acf_new_$acfKey"]),
-						esc_html($context["acf_prev_$acfKey"])
+						esc_html( $context[ "acf_new_$acfKey" ] ),
+						esc_html( $context[ "acf_prev_$acfKey" ] )
 					);
 				}
 			}
 
 			// if only acf_hide_on_screen_removed exists nothing is outputed
-			$acf_hide_on_screen_added = empty($context['acf_hide_on_screen_added']) ? null : $context['acf_hide_on_screen_added'];
-			$acf_hide_on_screen_removed = empty($context['acf_hide_on_screen_removed']) ? null : $context['acf_hide_on_screen_removed'];
+			$acf_hide_on_screen_added   = empty( $context['acf_hide_on_screen_added'] ) ? null : $context['acf_hide_on_screen_added'];
+			$acf_hide_on_screen_removed = empty( $context['acf_hide_on_screen_removed'] ) ? null : $context['acf_hide_on_screen_removed'];
 
-			if ($acf_hide_on_screen_added || $acf_hide_on_screen_removed) {
-				$strCheckedHideOnScreen = '';
+			if ( $acf_hide_on_screen_added || $acf_hide_on_screen_removed ) {
+				$strCheckedHideOnScreen   = '';
 				$strUncheckedHideOnScreen = '';
 
-				if ($acf_hide_on_screen_added) {
+				if ( $acf_hide_on_screen_added ) {
 					$strCheckedHideOnScreen = sprintf(
 						'%1$s %2$s',
-						__('Checked'), // 1
-						esc_html($acf_hide_on_screen_added) // 2
+						__( 'Checked' ), // 1
+						esc_html( $acf_hide_on_screen_added ) // 2
 					);
 				}
-				if ($acf_hide_on_screen_removed) {
+				if ( $acf_hide_on_screen_removed ) {
 					$strUncheckedHideOnScreen = sprintf(
 						'%1$s %2$s',
-						__('Unchecked'), // 1
-						esc_html($acf_hide_on_screen_removed) // 2
+						__( 'Unchecked' ), // 1
+						esc_html( $acf_hide_on_screen_removed ) // 2
 					);
 				}
 
@@ -567,94 +570,94 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 							%3$s
 						</td>
 					</tr>',
-					__('Hide on screen'), // 1
+					__( 'Hide on screen' ), // 1
 					$strCheckedHideOnScreen, // 2
 					$strUncheckedHideOnScreen // 3
 				);
 			}
 
 			// Check for deleted fields
-			if (isset($context['acf_deleted_fields_0_key'])) {
+			if ( isset( $context['acf_deleted_fields_0_key'] ) ) {
 				// 1 or more deleted fields exist in context
-				$loopnum = 0;
+				$loopnum          = 0;
 				$strDeletedFields = '';
 
-				while (isset($context["acf_deleted_fields_{$loopnum}_key"])) {
+				while ( isset( $context[ "acf_deleted_fields_{$loopnum}_key" ] ) ) {
 					$strDeletedFields .= sprintf(
 						'%1$s (%3$s), ',
-						esc_html($context["acf_deleted_fields_{$loopnum}_label"]),
-						esc_html($context["acf_deleted_fields_{$loopnum}_name"]),
-						esc_html($context["acf_deleted_fields_{$loopnum}_type"])
+						esc_html( $context[ "acf_deleted_fields_{$loopnum}_label" ] ),
+						esc_html( $context[ "acf_deleted_fields_{$loopnum}_name" ] ),
+						esc_html( $context[ "acf_deleted_fields_{$loopnum}_type" ] )
 					);
 
 					$loopnum++;
 				}
 
-				$strDeletedFields = trim($strDeletedFields, ', ');
+				$strDeletedFields = trim( $strDeletedFields, ', ' );
 
 				$diff_table_output .= sprintf(
 					'<tr>
 						<td>%1$s</td>
 						<td>%2$s</td>
 					</tr>',
-					_nx('Deleted field', 'Deleted fields', $loopnum, 'Logger: ACF', 'simple-history'), // 1
+					_nx( 'Deleted field', 'Deleted fields', $loopnum, 'Logger: ACF', 'simple-history' ), // 1
 					$strDeletedFields
 				);
 			} // if deleted fields
 
 			// Check for added fields
-			if (isset($context['acf_added_fields_0_key'])) {
+			if ( isset( $context['acf_added_fields_0_key'] ) ) {
 				// 1 or more deleted fields exist in context
-				$loopnum = 0;
+				$loopnum        = 0;
 				$strAddedFields = '';
 
-				while (isset($context["acf_added_fields_{$loopnum}_key"])) {
+				while ( isset( $context[ "acf_added_fields_{$loopnum}_key" ] ) ) {
 					$strAddedFields .= sprintf(
 						'%1$s (%3$s), ',
-						esc_html($context["acf_added_fields_{$loopnum}_label"]), // 1
-						esc_html($context["acf_added_fields_{$loopnum}_name"]), // 2
-						esc_html($context["acf_added_fields_{$loopnum}_type"]) // 3
+						esc_html( $context[ "acf_added_fields_{$loopnum}_label" ] ), // 1
+						esc_html( $context[ "acf_added_fields_{$loopnum}_name" ] ), // 2
+						esc_html( $context[ "acf_added_fields_{$loopnum}_type" ] ) // 3
 					);
 
 					$loopnum++;
 				}
 
-				$strAddedFields = trim($strAddedFields, ', ');
+				$strAddedFields = trim( $strAddedFields, ', ' );
 
 				$diff_table_output .= sprintf(
 					'<tr>
 						<td>%1$s</td>
 						<td>%2$s</td>
 					</tr>',
-					_nx('Added field', 'Added fields', $loopnum, 'Logger: ACF', 'simple-history'), // 1
+					_nx( 'Added field', 'Added fields', $loopnum, 'Logger: ACF', 'simple-history' ), // 1
 					$strAddedFields
 				);
 			} // if deleted fields
 
 			// Check for modified fields
-			if (isset($context['acf_modified_fields_0_ID_prev'])) {
+			if ( isset( $context['acf_modified_fields_0_ID_prev'] ) ) {
 				// 1 or more modifiedfields exist in context
-				$loopnum = 0;
-				$strModifiedFields = '';
+				$loopnum                   = 0;
+				$strModifiedFields         = '';
 				$arrAddedFieldsKeysToCheck = array(
-					'name' => array(
+					'name'   => array(
 						'name' => 'Name: ',
 					),
 					'parent' => array(
-						'name' => 'Parent: '
+						'name' => 'Parent: ',
 					),
-					'key' => array(
+					'key'    => array(
 						'name' => 'Key: ',
 					),
-					'label' => array(
+					'label'  => array(
 						'name' => 'Label: ',
 					),
-					'type' => array(
+					'type'   => array(
 						'name' => 'Type: ',
 					),
 				);
 
-				while (isset($context["acf_modified_fields_{$loopnum}_name_prev"])) {
+				while ( isset( $context[ "acf_modified_fields_{$loopnum}_name_prev" ] ) ) {
 					// One modified field, with one or more changed things
 					$strOneModifiedField = '';
 
@@ -671,17 +674,17 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 					// Add the label name manually, if it is not among the changed field,
 					// or we don't know what field the other changed values belongs to.
-					if (empty($context["acf_modified_fields_{$loopnum}_label_new"])) {
+					if ( empty( $context[ "acf_modified_fields_{$loopnum}_label_new" ] ) ) {
 						$strOneModifiedField .= sprintf(
-							_x('Label: %1$s', 'Logger: ACF', 'simple-history'), // 1
-							esc_html($context["acf_modified_fields_{$loopnum}_label_prev"]) // 2
+							_x( 'Label: %1$s', 'Logger: ACF', 'simple-history' ), // 1
+							esc_html( $context[ "acf_modified_fields_{$loopnum}_label_prev" ] ) // 2
 						);
 					}
 
 					// Check for other keys changed for this field
-					foreach ($arrAddedFieldsKeysToCheck as $oneAddedFieldKeyToCheck => $oneAddedFieldKeyToCheckVals) {
-						$newAndOldValsExists = isset($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new"]) && isset($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new"]);
-						if ($newAndOldValsExists) {
+					foreach ( $arrAddedFieldsKeysToCheck as $oneAddedFieldKeyToCheck => $oneAddedFieldKeyToCheckVals ) {
+						$newAndOldValsExists = isset( $context[ "acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new" ] ) && isset( $context[ "acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new" ] );
+						if ( $newAndOldValsExists ) {
 							$strOneModifiedField .= sprintf(
 								'
 									%4$s
@@ -689,23 +692,23 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 									<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>
 									<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%2$s</del>
 								',
-								esc_html($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new"]), // 1
-								esc_html($context["acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_prev"]), // 2
-								esc_html($oneAddedFieldKeyToCheckVals['name']), // 3
-								empty($strOneModifiedField) ? '' : '<br>' // 4 new line
+								esc_html( $context[ "acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new" ] ), // 1
+								esc_html( $context[ "acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_prev" ] ), // 2
+								esc_html( $oneAddedFieldKeyToCheckVals['name'] ), // 3
+								empty( $strOneModifiedField ) ? '' : '<br>' // 4 new line
 							);
 						}
 					}
 
-					$strOneModifiedField = trim($strOneModifiedField, ", \n\r\t");
+					$strOneModifiedField = trim( $strOneModifiedField, ", \n\r\t" );
 
-					if ($strOneModifiedField) {
+					if ( $strOneModifiedField ) {
 						$strModifiedFields .= sprintf(
 							'<tr>
 								<td>%1$s</td>
 								<td>%2$s</td>
 							</tr>',
-							_x('Modified field', 'Logger: ACF', 'simple-history'), // 1
+							_x( 'Modified field', 'Logger: ACF', 'simple-history' ), // 1
 							$strOneModifiedField
 						);
 					}
@@ -713,7 +716,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 					$loopnum++;
 				}
 
-				/*if ($strModifiedFields) {
+				/*
+				if ($strModifiedFields) {
 					$strModifiedFields = sprintf(
 						'<tr>
 							<td>%1$s</td>
@@ -734,10 +738,10 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * Append ACF data to post context
 		 * Called via filter `simple_history/post_logger/post_updated/context`.
 		 *
-		 * @param array $context
+		 * @param array   $context
 		 * @param WP_Post $post
 		 */
-		public function on_post_updated_context($context, $post) {
+		public function on_post_updated_context( $context, $post ) {
 
 			// Only act if this is a ACF field group that is saved
 			if ( $post->post_type !== 'acf-field-group' ) {
@@ -774,79 +778,73 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			$fieldGroup = $this->oldAndNewFieldGroupsAndFields['fieldGroup'];
 
 			foreach ( $arr_field_group_keys_to_diff as $key ) {
-				if (isset($fieldGroup['old'][$key]) && isset($fieldGroup['new'][$key])) {
-					$acf_data_diff = $this->add_diff($acf_data_diff, $key, (string) $fieldGroup['old'][$key], (string) $fieldGroup['new'][$key]);
+				if ( isset( $fieldGroup['old'][ $key ] ) && isset( $fieldGroup['new'][ $key ] ) ) {
+					$acf_data_diff = $this->add_diff( $acf_data_diff, $key, (string) $fieldGroup['old'][ $key ], (string) $fieldGroup['new'][ $key ] );
 				}
 			}
 
 			foreach ( $acf_data_diff as $diff_key => $diff_values ) {
-				$context["acf_prev_{$diff_key}"] = $diff_values["old"];
-				$context["acf_new_{$diff_key}"] = $diff_values["new"];
+				$context[ "acf_prev_{$diff_key}" ] = $diff_values['old'];
+				$context[ "acf_new_{$diff_key}" ]  = $diff_values['new'];
 			}
 
 			// Add checked or uncheckd hide on screen-items to context
-			$arrhHideOnScreenAdded = array();
+			$arrhHideOnScreenAdded  = array();
 			$arrHideOnScreenRemoved = array();
 
+			$fieldGroup['new']['hide_on_screen'] = isset( $fieldGroup['new']['hide_on_screen'] ) && is_array( $fieldGroup['new']['hide_on_screen'] ) ? $fieldGroup['new']['hide_on_screen'] : array();
+			$fieldGroup['old']['hide_on_screen'] = isset( $fieldGroup['old']['hide_on_screen'] ) && is_array( $fieldGroup['old']['hide_on_screen'] ) ? $fieldGroup['old']['hide_on_screen'] : array();
 
-			$fieldGroup['new']['hide_on_screen'] = isset($fieldGroup['new']['hide_on_screen']) && is_array($fieldGroup['new']['hide_on_screen']) ? $fieldGroup['new']['hide_on_screen'] : array();
-			$fieldGroup['old']['hide_on_screen'] = isset($fieldGroup['old']['hide_on_screen']) && is_array($fieldGroup['old']['hide_on_screen']) ? $fieldGroup['old']['hide_on_screen'] : array();
-
-			#dd($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
-
+			// dd($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
 			// Act when new or old hide_on_screen is set
-			if (!empty($fieldGroup['new']['hide_on_screen']) || !empty($fieldGroup['old']['hide_on_screen'])) {
-				$arrhHideOnScreenAdded = array_diff($fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen']);
-				$arrHideOnScreenRemoved = array_diff($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
+			if ( ! empty( $fieldGroup['new']['hide_on_screen'] ) || ! empty( $fieldGroup['old']['hide_on_screen'] ) ) {
+				$arrhHideOnScreenAdded  = array_diff( $fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen'] );
+				$arrHideOnScreenRemoved = array_diff( $fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen'] );
 
-				#ddd($arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
-
-				if ($arrhHideOnScreenAdded) {
-					$context["acf_hide_on_screen_added"] = implode(',', $arrhHideOnScreenAdded);
+				// ddd($arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
+				if ( $arrhHideOnScreenAdded ) {
+					$context['acf_hide_on_screen_added'] = implode( ',', $arrhHideOnScreenAdded );
 				}
 
-				if ($arrHideOnScreenRemoved) {
-					$context["acf_hide_on_screen_removed"] = implode(',', $arrHideOnScreenRemoved);
+				if ( $arrHideOnScreenRemoved ) {
+					$context['acf_hide_on_screen_removed'] = implode( ',', $arrHideOnScreenRemoved );
 				}
-
 			}
 
-			#ddd($context, $arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
-
+			// ddd($context, $arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
 			// Add removed fields to context
-			if (!empty($this->oldAndNewFieldGroupsAndFields['deletedFields']) && is_array($this->oldAndNewFieldGroupsAndFields['deletedFields'])) {
+			if ( ! empty( $this->oldAndNewFieldGroupsAndFields['deletedFields'] ) && is_array( $this->oldAndNewFieldGroupsAndFields['deletedFields'] ) ) {
 				$loopnum = 0;
-				foreach ($this->oldAndNewFieldGroupsAndFields['deletedFields'] as $oneDeletedField) {
-					$context["acf_deleted_fields_{$loopnum}_key"] = $oneDeletedField['key'];
-					$context["acf_deleted_fields_{$loopnum}_name"] = $oneDeletedField['name'];
-					$context["acf_deleted_fields_{$loopnum}_label"] = $oneDeletedField['label'];
-					$context["acf_deleted_fields_{$loopnum}_type"] = $oneDeletedField['type'];
+				foreach ( $this->oldAndNewFieldGroupsAndFields['deletedFields'] as $oneDeletedField ) {
+					$context[ "acf_deleted_fields_{$loopnum}_key" ]   = $oneDeletedField['key'];
+					$context[ "acf_deleted_fields_{$loopnum}_name" ]  = $oneDeletedField['name'];
+					$context[ "acf_deleted_fields_{$loopnum}_label" ] = $oneDeletedField['label'];
+					$context[ "acf_deleted_fields_{$loopnum}_type" ]  = $oneDeletedField['type'];
 					$loopnum++;
 				}
 			}
 
 			// Add added fields to context
-			if (!empty($this->oldAndNewFieldGroupsAndFields['addedFields']) && is_array($this->oldAndNewFieldGroupsAndFields['addedFields'])) {
+			if ( ! empty( $this->oldAndNewFieldGroupsAndFields['addedFields'] ) && is_array( $this->oldAndNewFieldGroupsAndFields['addedFields'] ) ) {
 				$loopnum = 0;
 
-				foreach ($this->oldAndNewFieldGroupsAndFields['addedFields'] as $oneAddedField) {
+				foreach ( $this->oldAndNewFieldGroupsAndFields['addedFields'] as $oneAddedField ) {
 					// Id not available here, wold be nice to have
 					// $context["acf_added_fields_{$loopnum}_ID"] = $oneAddedField['ID'];
-					$context["acf_added_fields_{$loopnum}_key"] = $oneAddedField['key'];
-					$context["acf_added_fields_{$loopnum}_name"] = $oneAddedField['name'];
-					$context["acf_added_fields_{$loopnum}_label"] = $oneAddedField['label'];
-					$context["acf_added_fields_{$loopnum}_type"] = $oneAddedField['type'];
+					$context[ "acf_added_fields_{$loopnum}_key" ]   = $oneAddedField['key'];
+					$context[ "acf_added_fields_{$loopnum}_name" ]  = $oneAddedField['name'];
+					$context[ "acf_added_fields_{$loopnum}_label" ] = $oneAddedField['label'];
+					$context[ "acf_added_fields_{$loopnum}_type" ]  = $oneAddedField['type'];
 					$loopnum++;
 				}
 			}
 
 			// Add modified fields to context
-			#dd('on_post_updated_context', $context, $this->oldAndNewFieldGroupsAndFields);
-			if (!empty($this->oldAndNewFieldGroupsAndFields['modifiedFields']['old']) && !empty($this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'])) {
+			// dd('on_post_updated_context', $context, $this->oldAndNewFieldGroupsAndFields);
+			if ( ! empty( $this->oldAndNewFieldGroupsAndFields['modifiedFields']['old'] ) && ! empty( $this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'] ) ) {
 				$modifiedFields = $this->oldAndNewFieldGroupsAndFields['modifiedFields'];
 
-				#dd($modifiedFields);
-
+				// dd($modifiedFields);
 				$arrAddedFieldsKeysToAdd = array(
 					'parent',
 					'key',
@@ -857,23 +855,23 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 				$loopnum = 0;
 
-				foreach ($modifiedFields['old'] as $modifiedFieldId => $modifiedFieldValues) {
+				foreach ( $modifiedFields['old'] as $modifiedFieldId => $modifiedFieldValues ) {
 					// Both old and new values mest exist
-					if (empty($modifiedFields['new'][$modifiedFieldId])) {
+					if ( empty( $modifiedFields['new'][ $modifiedFieldId ] ) ) {
 						continue;
 					}
 
 					// Always add ID, name, and lavel
-					$context["acf_modified_fields_{$loopnum}_ID_prev"] = $modifiedFields['old'][$modifiedFieldId]['ID'];
-					$context["acf_modified_fields_{$loopnum}_name_prev"] = $modifiedFields['old'][$modifiedFieldId]['name'];
-					$context["acf_modified_fields_{$loopnum}_label_prev"] = $modifiedFields['old'][$modifiedFieldId]['label'];
+					$context[ "acf_modified_fields_{$loopnum}_ID_prev" ]    = $modifiedFields['old'][ $modifiedFieldId ]['ID'];
+					$context[ "acf_modified_fields_{$loopnum}_name_prev" ]  = $modifiedFields['old'][ $modifiedFieldId ]['name'];
+					$context[ "acf_modified_fields_{$loopnum}_label_prev" ] = $modifiedFields['old'][ $modifiedFieldId ]['label'];
 
-					foreach ($arrAddedFieldsKeysToAdd as $oneKeyToAdd) {
-						#dd($modifiedFields);
+					foreach ( $arrAddedFieldsKeysToAdd as $oneKeyToAdd ) {
+						// dd($modifiedFields);
 						// Only add to context if modified
-						if ($modifiedFields['new'][$modifiedFieldId][$oneKeyToAdd] != $modifiedFields['old'][$modifiedFieldId][$oneKeyToAdd]) {
-							$context["acf_modified_fields_{$loopnum}_{$oneKeyToAdd}_prev"] = $modifiedFields['old'][$modifiedFieldId][$oneKeyToAdd];
-							$context["acf_modified_fields_{$loopnum}_{$oneKeyToAdd}_new"] = $modifiedFields['new'][$modifiedFieldId][$oneKeyToAdd];
+						if ( $modifiedFields['new'][ $modifiedFieldId ][ $oneKeyToAdd ] != $modifiedFields['old'][ $modifiedFieldId ][ $oneKeyToAdd ] ) {
+							$context[ "acf_modified_fields_{$loopnum}_{$oneKeyToAdd}_prev" ] = $modifiedFields['old'][ $modifiedFieldId ][ $oneKeyToAdd ];
+							$context[ "acf_modified_fields_{$loopnum}_{$oneKeyToAdd}_new" ]  = $modifiedFields['new'][ $modifiedFieldId ][ $oneKeyToAdd ];
 						}
 					}
 
@@ -883,15 +881,15 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			return $context;
 
-			#dd($acf_data_diff);
+			// dd($acf_data_diff);
 			// 'modifiedFields'
 		}
 
-		function add_diff($post_data_diff, $key, $old_value, $new_value) {
+		function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
 			if ( $old_value != $new_value ) {
-				$post_data_diff[$key] = array(
-					"old" => $old_value,
-					"new" => $new_value
+				$post_data_diff[ $key ] = array(
+					'old' => $old_value,
+					'new' => $new_value,
 				);
 			}
 
@@ -902,20 +900,20 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * Store a version of the field group as it was before the save
 		 * Called before field group post/values is added to db
 		 */
-		public function on_wp_insert_post_data($data, $postarr) {
+		public function on_wp_insert_post_data( $data, $postarr ) {
 
 			// Only do this if ACF field group is being saved
-			if ($postarr['post_type'] !== 'acf-field-group') {
+			if ( $postarr['post_type'] !== 'acf-field-group' ) {
 				return $data;
 			}
 
-			if (empty($postarr['ID'])) {
+			if ( empty( $postarr['ID'] ) ) {
 				return $data;
 			}
 
-			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['old'] = acf_get_field_group($postarr['ID']);
+			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['old'] = acf_get_field_group( $postarr['ID'] );
 
-			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['new'] = acf_get_valid_field_group($_POST['acf_field_group']);
+			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['new'] = acf_get_valid_field_group( $_POST['acf_field_group'] );
 
 			return $data;
 		}
@@ -925,11 +923,11 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * Called before ACF calls its save_post filter
 		 * Here we save the new fields values and also get the old values so we can compare
 		 */
-		public function on_transition_post_status($new_status, $old_status, $post) {
+		public function on_transition_post_status( $new_status, $old_status, $post ) {
 
 			static $isCalled = false;
 
-			if ($isCalled) {
+			if ( $isCalled ) {
 				// echo "is called already, bail out";exit;
 				return;
 			}
@@ -939,7 +937,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			$post_id = $post->ID;
 
 			// do not act if this is an auto save routine
-			if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
+			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 				return;
 			}
 
@@ -949,44 +947,43 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			}
 
 			// only save once! WordPress save's a revision as well.
-			if ( wp_is_post_revision($post_id) ) {
+			if ( wp_is_post_revision( $post_id ) ) {
 				return;
 			}
 
 			// Store info about fields that are going to be deleted
-			if (!empty($_POST['_acf_delete_fields'])) {
-				$deletedFieldsIDs = explode('|', $_POST['_acf_delete_fields']);
+			if ( ! empty( $_POST['_acf_delete_fields'] ) ) {
+				$deletedFieldsIDs = explode( '|', $_POST['_acf_delete_fields'] );
 				$deletedFieldsIDs = array_map( 'intval', $deletedFieldsIDs );
 
 				foreach ( $deletedFieldsIDs as $id ) {
-					if ( !$id ) {
+					if ( ! $id ) {
 						continue;
 					}
 
-					$field_info = acf_get_field($id);
+					$field_info = acf_get_field( $id );
 
-					if (!$field_info) {
+					if ( ! $field_info ) {
 						continue;
 					}
 
-					$this->oldAndNewFieldGroupsAndFields['deletedFields'][$id] = $field_info;
+					$this->oldAndNewFieldGroupsAndFields['deletedFields'][ $id ] = $field_info;
 				}
-
 			}
 
 			// Store info about added or modified fields
-			if (!empty($_POST['acf_fields']) && is_array($_POST['acf_fields'])) {
-				foreach ($_POST['acf_fields'] as $oneFieldAddedOrUpdated) {
-					if (empty($oneFieldAddedOrUpdated['ID'])) {
+			if ( ! empty( $_POST['acf_fields'] ) && is_array( $_POST['acf_fields'] ) ) {
+				foreach ( $_POST['acf_fields'] as $oneFieldAddedOrUpdated ) {
+					if ( empty( $oneFieldAddedOrUpdated['ID'] ) ) {
 						// New fields have no id
 						// 'ID' => string(0) ""
 						$this->oldAndNewFieldGroupsAndFields['addedFields'][] = $oneFieldAddedOrUpdated;
 					} else {
 						// Existing fields have an id
 						// 'ID' => string(3) "383"
-						$this->oldAndNewFieldGroupsAndFields['modifiedFields']['old'][$oneFieldAddedOrUpdated['ID']] = acf_get_field($oneFieldAddedOrUpdated['ID']);
+						$this->oldAndNewFieldGroupsAndFields['modifiedFields']['old'][ $oneFieldAddedOrUpdated['ID'] ] = acf_get_field( $oneFieldAddedOrUpdated['ID'] );
 
-						$this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'][$oneFieldAddedOrUpdated['ID']] = $oneFieldAddedOrUpdated;
+						$this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'][ $oneFieldAddedOrUpdated['ID'] ] = $oneFieldAddedOrUpdated;
 					}
 				}
 			}
@@ -995,7 +992,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// in filter 'acf/update_field_group' beacuse it's safer because
 			// ACF has done it's validation and it's after ACF has saved the fields,
 			// so less likely that we make some critical error
-
 		}
 
 		/**
@@ -1032,14 +1028,16 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * post update log message.
 		 */
 		public function remove_acf_from_postlogger() {
-			add_filter('simple_history/post_logger/skip_posttypes', function( $skip_posttypes ) {
-				array_push(
-					$skip_posttypes,
-					'acf-field'
-				);
+			add_filter(
+				'simple_history/post_logger/skip_posttypes', function( $skip_posttypes ) {
+					array_push(
+						$skip_posttypes,
+						'acf-field'
+					);
 
-				return $skip_posttypes;
-			}, 10);
+					return $skip_posttypes;
+				}, 10
+			);
 		}
 
 	} // Class.
