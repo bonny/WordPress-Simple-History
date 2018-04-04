@@ -248,7 +248,7 @@ class SimplePluginLogger extends SimpleLogger {
 		global $pagenow;
 
 		// We only act on page plugins.php.
-		if ( ! isset( $pagenow ) || $pagenow !== 'plugins.php' ) {
+		if ( ! isset( $pagenow ) || 'plugins.php' !== $pagenow ) {
 			return $translation;
 		}
 
