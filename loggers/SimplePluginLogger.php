@@ -3,12 +3,12 @@
 defined( 'ABSPATH' ) || die();
 
 /**
- * Logs plugin installs, updates, and deletions
+ * Logs plugin installs, updates, and deletions.
  */
 class SimplePluginLogger extends SimpleLogger {
 
 	/**
-	 * The logger slug. Defaulting to the class name is nice and logical I think
+	 * The logger slug. Defaulting to the class name is nice and logical I think.
 	 *
 	 * @var string $slug
 	 */
@@ -93,33 +93,33 @@ class SimplePluginLogger extends SimpleLogger {
 				),
 
 			), // Messages.
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Plugins', 'Plugin logger: search', 'simple-history' ),
+					'label'     => _x( 'Plugins', 'Plugin logger: search', 'simple-history' ),
 					'label_all' => _x( 'All plugin activity', 'Plugin logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Activated plugins', 'Plugin logger: search', 'simple-history' ) => array(
-							'plugin_activated'
+							'plugin_activated',
 						),
 						_x( 'Deactivated plugins', 'Plugin logger: search', 'simple-history' ) => array(
 							'plugin_deactivated',
 							'plugin_disabled_because_error',
 						),
 						_x( 'Installed plugins', 'Plugin logger: search', 'simple-history' ) => array(
-							'plugin_installed'
+							'plugin_installed',
 						),
 						_x( 'Failed plugin installs', 'Plugin logger: search', 'simple-history' ) => array(
-							'plugin_installed_failed'
+							'plugin_installed_failed',
 						),
 						_x( 'Updated plugins', 'Plugin logger: search', 'simple-history' ) => array(
 							'plugin_updated',
 							'plugin_bulk_updated',
 						),
 						_x( 'Failed plugin updates', 'Plugin logger: search', 'simple-history' ) => array(
-							'plugin_update_failed'
+							'plugin_update_failed',
 						),
 						_x( 'Deleted plugins', 'Plugin logger: search', 'simple-history' ) => array(
-							'plugin_deleted'
+							'plugin_deleted',
 						),
 					),
 				), // search array.
@@ -154,24 +154,26 @@ class SimplePluginLogger extends SimpleLogger {
 		// this hook does not fire.
 		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 2 );
 
-		// Fires after the upgrades has done it's thing
-		// Check hook extra for upgrader initiator
+		// Fires after the upgrades has done it's thing.
+		// Check hook extra for upgrader initiator.
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2 );
 
-		// Detect files removed
+		// Detect files removed.
 		add_action( 'setted_transient', array( $this, 'on_setted_transient_for_remove_files' ), 10, 2 );
 
 		add_action( 'admin_action_delete-selected', array( $this, 'on_action_delete_selected' ), 10, 1 );
 
-		// Ajax function to get info from GitHub repo. Used by "View plugin info"-link for plugin installs
+		// Ajax function to get info from GitHub repo. Used by "View plugin info"-link for plugin installs.
 		add_action( 'wp_ajax_SimplePluginLogger_GetGitHubPluginInfo', array( $this, 'ajax_GetGitHubPluginInfo' ) );
 
 		// If the Github Update plugin is not installed we need to get extra fields used by it.
 		// So need to hook filter "extra_plugin_headers" ourself.
-		add_filter( 'extra_plugin_headers', function( $arr_headers ) {
-			$arr_headers[] = 'GitHub Plugin URI';
-			return $arr_headers;
-		} );
+		add_filter(
+			'extra_plugin_headers', function( $arr_headers ) {
+				$arr_headers[] = 'GitHub Plugin URI';
+				return $arr_headers;
+			}
+		);
 
 		// There is no way to use a filter and detect a plugin that is disabled because it can't be found or similar error.
 		// So we hook into gettext and look for the usage of the error that is returned when this happens.
@@ -229,7 +231,7 @@ class SimplePluginLogger extends SimpleLogger {
 	 * we hook into gettext and look for the usage of the error that is returned when this happens.
 	 *
 	 * A plugin gets deactivated when plugins.php is visited function validate_active_plugins()
-	 * 		return new WP_Error('plugin_not_found', __('Plugin file does not exist.'));
+	 *      return new WP_Error('plugin_not_found', __('Plugin file does not exist.'));
 	 * and if invalid plugin is found then this is outputed
 	 *  printf(
 	 *  /* translators: 1: plugin file 2: error message
@@ -254,7 +256,7 @@ class SimplePluginLogger extends SimpleLogger {
 		// (Literally these, no translation)
 		$untranslated_texts = array(
 			// This string is called later than the above
-			'The plugin %1$s has been <strong>deactivated</strong> due to an error: %2$s'
+			'The plugin %1$s has been <strong>deactivated</strong> due to an error: %2$s',
 		);
 
 		if ( ! in_array( $text, $untranslated_texts ) ) {
@@ -267,28 +269,30 @@ class SimplePluginLogger extends SimpleLogger {
 		// stuff the first time it's called (directly after the gettet for the plugin disabled-error..).
 		$logger_instance = $this;
 
-		add_filter( 'esc_html', function( $safe_text, $text ) use ( $logger_instance ) {
-			static $is_called = false;
+		add_filter(
+			'esc_html', function( $safe_text, $text ) use ( $logger_instance ) {
+				static $is_called = false;
 
-			if ( false === $is_called ) {
-				$is_called = true;
+				if ( false === $is_called ) {
+					$is_called = true;
 
-				$deactivation_reason = array_shift( $logger_instance->latest_plugin_deactivation_because_of_error_reason );
+					$deactivation_reason = array_shift( $logger_instance->latest_plugin_deactivation_because_of_error_reason );
 
-				// We don't know what plugin that was that got this error and currently there does not seem to be a way to determine that.
-				// So that's why we use such generic log messages.
-				$logger_instance->warningMessage(
-					'plugin_disabled_because_error',
-					array(
-						'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
-						'plugin_slug' => $text,
-						'deactivation_reason' => $deactivation_reason,
-					)
-				);
-			}
+					// We don't know what plugin that was that got this error and currently there does not seem to be a way to determine that.
+					// So that's why we use such generic log messages.
+					$logger_instance->warningMessage(
+						'plugin_disabled_because_error',
+						array(
+							'_initiator'          => SimpleLoggerLogInitiators::WORDPRESS,
+							'plugin_slug'         => $text,
+							'deactivation_reason' => $deactivation_reason,
+						)
+					);
+				}
 
-			return $safe_text;
-		}, 10, 2 );
+				return $safe_text;
+			}, 10, 2
+		);
 
 		return $translation;
 
@@ -315,18 +319,20 @@ class SimplePluginLogger extends SimpleLogger {
 		}
 
 		$repo_username = $repo_parts[3];
-		$repo_repo = $repo_parts[4];
+		$repo_repo     = $repo_parts[4];
 
 		// https://developer.github.com/v3/repos/contents/
 		// https://api.github.com/repos/<username>/<repo>/readme
 		$api_url = sprintf( 'https://api.github.com/repos/%1$s/%2$s/readme', urlencode( $repo_username ), urlencode( $repo_repo ) );
 
 		// Get file. Use accept-header to get file as HTML instead of JSON
-		$response = wp_remote_get( $api_url, array(
-			'headers' => array(
-				'accept' => 'application/vnd.github.VERSION.html',
-			),
-		) );
+		$response = wp_remote_get(
+			$api_url, array(
+				'headers' => array(
+					'accept' => 'application/vnd.github.VERSION.html',
+				),
+			)
+		);
 
 		$response_body = wp_remote_retrieve_body( $response );
 
@@ -458,28 +464,28 @@ class SimplePluginLogger extends SimpleLogger {
 				) {
 
 			/*
-		    [checked] => Array
-		        (
-		            [0] => the-events-calendar/the-events-calendar.php
-		        )
-		    */
+			[checked] => Array
+				(
+					[0] => the-events-calendar/the-events-calendar.php
+				)
+			*/
 
-			$plugins_deleted = $_POST['checked'];
+			$plugins_deleted       = $_POST['checked'];
 			$plugins_before_update = json_decode( get_option( $this->slug . '_plugin_info_before_update', false ), true );
 
 			foreach ( $plugins_deleted as $plugin ) {
 
 				$context = array(
-					'plugin' => $plugin,// plugin-name-folder/plugin-main-file.php
+					'plugin' => $plugin, // plugin-name-folder/plugin-main-file.php
 				);
 
 				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin ] ) ) {
-					$context['plugin_name'] = $plugins_before_update[ $plugin ]['Name'];
-					$context['plugin_title'] = $plugins_before_update[ $plugin ]['Title'];
+					$context['plugin_name']        = $plugins_before_update[ $plugin ]['Name'];
+					$context['plugin_title']       = $plugins_before_update[ $plugin ]['Title'];
 					$context['plugin_description'] = $plugins_before_update[ $plugin ]['Description'];
-					$context['plugin_author'] = $plugins_before_update[ $plugin ]['Author'];
-					$context['plugin_version'] = $plugins_before_update[ $plugin ]['Version'];
-					$context['plugin_url'] = $plugins_before_update[ $plugin ]['PluginURI'];
+					$context['plugin_author']      = $plugins_before_update[ $plugin ]['Author'];
+					$context['plugin_version']     = $plugins_before_update[ $plugin ]['Version'];
+					$context['plugin_url']         = $plugins_before_update[ $plugin ]['PluginURI'];
 				}
 
 				$this->infoMessage(
@@ -565,10 +571,10 @@ class SimplePluginLogger extends SimpleLogger {
 		If an update fails then $plugin_upgrader_instance->skin->result->errors contains something like:
 		Array
 		(
-		    [remove_old_failed] => Array
-		        (
-		            [0] => Could not remove the old plugin.
-		        )
+			[remove_old_failed] => Array
+				(
+					[0] => Could not remove the old plugin.
+				)
 
 		)
 		*/
@@ -581,8 +587,8 @@ class SimplePluginLogger extends SimpleLogger {
 		$arr_data:
 		Array
 		(
-		    [action] => update
-		    [type] => core
+			[action] => update
+			[type] => core
 		)
 
 
@@ -591,8 +597,8 @@ class SimplePluginLogger extends SimpleLogger {
 		$arr_data:
 		Array
 		(
-		    [type] => plugin
-		    [action] => install
+			[type] => plugin
+			[action] => install
 		)
 
 
@@ -601,8 +607,8 @@ class SimplePluginLogger extends SimpleLogger {
 		$arr_data:
 		Array
 		(
-		    [type] => plugin
-		    [action] => install
+			[type] => plugin
+			[action] => install
 		)
 
 		## Bulk actions
@@ -626,24 +632,24 @@ class SimplePluginLogger extends SimpleLogger {
 			if ( isset( $arr_data['action'] ) && 'install' == $arr_data['action'] && ! $plugin_upgrader_instance->bulk ) {
 
 				$upgrader_skin_options = isset( $plugin_upgrader_instance->skin->options ) && is_array( $plugin_upgrader_instance->skin->options ) ? $plugin_upgrader_instance->skin->options : array();
-				$upgrader_skin_result = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
-				$upgrader_skin_api = isset( $plugin_upgrader_instance->skin->api ) ? $plugin_upgrader_instance->skin->api : (object) array();
+				$upgrader_skin_result  = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
+				$upgrader_skin_api     = isset( $plugin_upgrader_instance->skin->api ) ? $plugin_upgrader_instance->skin->api : (object) array();
 
 				$plugin_slug = isset( $upgrader_skin_result['destination_name'] ) ? $upgrader_skin_result['destination_name'] : '';
 
 				// Upgrader contains current info
 				$context = array(
-					'plugin_slug' => $plugin_slug,
-					'plugin_name' => isset( $upgrader_skin_api->name ) ? $upgrader_skin_api->name : '',
-					'plugin_version' => isset( $upgrader_skin_api->version ) ? $upgrader_skin_api->version : '',
-					'plugin_author' => isset( $upgrader_skin_api->author ) ? $upgrader_skin_api->author : '',
+					'plugin_slug'         => $plugin_slug,
+					'plugin_name'         => isset( $upgrader_skin_api->name ) ? $upgrader_skin_api->name : '',
+					'plugin_version'      => isset( $upgrader_skin_api->version ) ? $upgrader_skin_api->version : '',
+					'plugin_author'       => isset( $upgrader_skin_api->author ) ? $upgrader_skin_api->author : '',
 					'plugin_last_updated' => isset( $upgrader_skin_api->last_updated ) ? $upgrader_skin_api->last_updated : '',
-					'plugin_requires' => isset( $upgrader_skin_api->requires ) ? $upgrader_skin_api->requires : '',
-					'plugin_tested' => isset( $upgrader_skin_api->tested ) ? $upgrader_skin_api->tested : '',
-					'plugin_rating' => isset( $upgrader_skin_api->rating ) ? $upgrader_skin_api->rating : '',
-					'plugin_num_ratings' => isset( $upgrader_skin_api->num_ratings ) ? $upgrader_skin_api->num_ratings : '',
-					'plugin_downloaded' => isset( $upgrader_skin_api->downloaded ) ? $upgrader_skin_api->downloaded : '',
-					'plugin_added' => isset( $upgrader_skin_api->added ) ? $upgrader_skin_api->added : '',
+					'plugin_requires'     => isset( $upgrader_skin_api->requires ) ? $upgrader_skin_api->requires : '',
+					'plugin_tested'       => isset( $upgrader_skin_api->tested ) ? $upgrader_skin_api->tested : '',
+					'plugin_rating'       => isset( $upgrader_skin_api->rating ) ? $upgrader_skin_api->rating : '',
+					'plugin_num_ratings'  => isset( $upgrader_skin_api->num_ratings ) ? $upgrader_skin_api->num_ratings : '',
+					'plugin_downloaded'   => isset( $upgrader_skin_api->downloaded ) ? $upgrader_skin_api->downloaded : '',
+					'plugin_added'        => isset( $upgrader_skin_api->added ) ? $upgrader_skin_api->added : '',
 					'plugin_source_files' => $this->simpleHistory->json_encode( $plugin_upgrader_instance->result['source_files'] ),
 
 					// To debug comment out these:
@@ -674,18 +680,18 @@ class SimplePluginLogger extends SimpleLogger {
 					/*
 					_debug_files
 					{
-					    "pluginzip": {
-					        "name": "WPThumb-master.zip",
-					        "type": "application\/zip",
-					        "tmp_name": "\/Applications\/MAMP\/tmp\/php\/phpnThImc",
-					        "error": 0,
-					        "size": 2394625
-					    }
+						"pluginzip": {
+							"name": "WPThumb-master.zip",
+							"type": "application\/zip",
+							"tmp_name": "\/Applications\/MAMP\/tmp\/php\/phpnThImc",
+							"error": 0,
+							"size": 2394625
+						}
 					}
 					*/
 
 					if ( isset( $_FILES['pluginzip']['name'] ) ) {
-						$plugin_upload_name = $_FILES['pluginzip']['name'];
+						$plugin_upload_name            = $_FILES['pluginzip']['name'];
 						$context['plugin_upload_name'] = $plugin_upload_name;
 					}
 				}
@@ -695,7 +701,7 @@ class SimplePluginLogger extends SimpleLogger {
 					// Add errors
 					// Errors is in original wp admin language
 					$context['error_messages'] = $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->result->errors );
-					$context['error_data'] = $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->result->error_data );
+					$context['error_data']     = $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
 					$this->infoMessage(
 						'plugin_installed_failed',
@@ -720,11 +726,11 @@ class SimplePluginLogger extends SimpleLogger {
 							$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info, true, false );
 						}
 
-						$context['plugin_name'] = isset( $plugin_data['Name'] ) ? $plugin_data['Name'] : '';
+						$context['plugin_name']        = isset( $plugin_data['Name'] ) ? $plugin_data['Name'] : '';
 						$context['plugin_description'] = isset( $plugin_data['Description'] ) ? $plugin_data['Description'] : '';
-						$context['plugin_url'] = isset( $plugin_data['PluginURI'] ) ? $plugin_data['PluginURI'] : '';
-						$context['plugin_version'] = isset( $plugin_data['Version'] ) ? $plugin_data['Version'] : '';
-						$context['plugin_author'] = isset( $plugin_data['AuthorName'] ) ? $plugin_data['AuthorName'] : '';
+						$context['plugin_url']         = isset( $plugin_data['PluginURI'] ) ? $plugin_data['PluginURI'] : '';
+						$context['plugin_version']     = isset( $plugin_data['Version'] ) ? $plugin_data['Version'] : '';
+						$context['plugin_author']      = isset( $plugin_data['AuthorName'] ) ? $plugin_data['AuthorName'] : '';
 
 						// Comment out these to debug plugin installs
 						// $context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
@@ -757,14 +763,14 @@ class SimplePluginLogger extends SimpleLogger {
 				$plugin_slug = dirname( $arr_data['plugin'] );
 
 				$context = array(
-					'plugin_slug' => $plugin_slug,
-					'request' => $this->simpleHistory->json_encode( $_REQUEST ),
-					'plugin_name' => $plugin_data['Name'],
-					'plugin_title' => $plugin_data['Title'],
-					'plugin_description' => $plugin_data['Description'],
-					'plugin_author' => $plugin_data['Author'],
-					'plugin_version' => $plugin_data['Version'],
-					'plugin_url' => $plugin_data['PluginURI'],
+					'plugin_slug'         => $plugin_slug,
+					'request'             => $this->simpleHistory->json_encode( $_REQUEST ),
+					'plugin_name'         => $plugin_data['Name'],
+					'plugin_title'        => $plugin_data['Title'],
+					'plugin_description'  => $plugin_data['Description'],
+					'plugin_author'       => $plugin_data['Author'],
+					'plugin_version'      => $plugin_data['Version'],
+					'plugin_url'          => $plugin_data['PluginURI'],
 					'plugin_source_files' => $this->simpleHistory->json_encode( $plugin_upgrader_instance->result['source_files'] ),
 				);
 
@@ -813,7 +819,7 @@ class SimplePluginLogger extends SimpleLogger {
 					// Add errors
 					// Errors is in original wp admin language
 					$context['error_messages'] = json_encode( $plugin_upgrader_instance->skin->result->errors );
-					$context['error_data'] = json_encode( $plugin_upgrader_instance->skin->result->error_data );
+					$context['error_data']     = json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
 					$this->infoMessage(
 						'plugin_update_failed',
@@ -862,13 +868,13 @@ class SimplePluginLogger extends SimpleLogger {
 					$plugin_slug = dirname( $plugin_name );
 
 					$context = array(
-						'plugin_slug' => $plugin_slug,
-						'plugin_name' => $plugin_data['Name'],
-						'plugin_title' => $plugin_data['Title'],
+						'plugin_slug'        => $plugin_slug,
+						'plugin_name'        => $plugin_data['Name'],
+						'plugin_title'       => $plugin_data['Title'],
 						'plugin_description' => $plugin_data['Description'],
-						'plugin_author' => $plugin_data['Author'],
-						'plugin_version' => $plugin_data['Version'],
-						'plugin_url' => $plugin_data['PluginURI'],
+						'plugin_author'      => $plugin_data['Author'],
+						'plugin_version'     => $plugin_data['Version'],
+						'plugin_url'         => $plugin_data['PluginURI'],
 					);
 
 					// get url and package
@@ -954,13 +960,13 @@ class SimplePluginLogger extends SimpleLogger {
 		$plugin_slug = dirname( $plugin_name );
 
 		$context = array(
-			'plugin_name' => $plugin_data['Name'],
-			'plugin_slug' => $plugin_slug,
-			'plugin_title' => $plugin_data['Title'],
+			'plugin_name'        => $plugin_data['Name'],
+			'plugin_slug'        => $plugin_slug,
+			'plugin_title'       => $plugin_data['Title'],
 			'plugin_description' => $plugin_data['Description'],
-			'plugin_author' => $plugin_data['Author'],
-			'plugin_version' => $plugin_data['Version'],
-			'plugin_url' => $plugin_data['PluginURI'],
+			'plugin_author'      => $plugin_data['Author'],
+			'plugin_version'     => $plugin_data['Version'],
+			'plugin_url'         => $plugin_data['PluginURI'],
 		);
 
 		if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
@@ -981,13 +987,13 @@ class SimplePluginLogger extends SimpleLogger {
 		$plugin_slug = dirname( $plugin_name );
 
 		$context = array(
-			'plugin_name' => $plugin_data['Name'],
-			'plugin_slug' => $plugin_slug,
-			'plugin_title' => $plugin_data['Title'],
+			'plugin_name'        => $plugin_data['Name'],
+			'plugin_slug'        => $plugin_slug,
+			'plugin_title'       => $plugin_data['Title'],
 			'plugin_description' => $plugin_data['Description'],
-			'plugin_author' => $plugin_data['Author'],
-			'plugin_version' => $plugin_data['Version'],
-			'plugin_url' => $plugin_data['PluginURI'],
+			'plugin_author'      => $plugin_data['Author'],
+			'plugin_version'     => $plugin_data['Version'],
+			'plugin_url'         => $plugin_data['PluginURI'],
 		);
 
 		if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
@@ -1004,9 +1010,9 @@ class SimplePluginLogger extends SimpleLogger {
 	 */
 	function getLogRowDetailsOutput( $row ) {
 
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
-		$output = '';
+		$output      = '';
 
 		// When a plugin is installed we show a bit more information
 		// We do it only on install because we don't want to clutter to log,
@@ -1018,19 +1024,19 @@ class SimplePluginLogger extends SimpleLogger {
 
 				// Description includes a link to author, remove that, i.e. all text after and including <cite>
 				$plugin_description = $context['plugin_description'];
-				$cite_pos = strpos( $plugin_description, '<cite>' );
+				$cite_pos           = strpos( $plugin_description, '<cite>' );
 				if ( $cite_pos ) {
 					$plugin_description = substr( $plugin_description, 0, $cite_pos );
 				}
 
 				// Keys to show
 				$arr_plugin_keys = array(
-					'plugin_description' => _x( 'Description', 'plugin logger - detailed output', 'simple-history' ),
-					'plugin_install_source' => _x( 'Source', 'plugin logger - detailed output install source', 'simple-history' ),
+					'plugin_description'         => _x( 'Description', 'plugin logger - detailed output', 'simple-history' ),
+					'plugin_install_source'      => _x( 'Source', 'plugin logger - detailed output install source', 'simple-history' ),
 					'plugin_install_source_file' => _x( 'Source file name', 'plugin logger - detailed output install source', 'simple-history' ),
-					'plugin_version' => _x( 'Version', 'plugin logger - detailed output version', 'simple-history' ),
-					'plugin_author' => _x( 'Author', 'plugin logger - detailed output author', 'simple-history' ),
-					'plugin_url' => _x( 'URL', 'plugin logger - detailed output url', 'simple-history' ),
+					'plugin_version'             => _x( 'Version', 'plugin logger - detailed output version', 'simple-history' ),
+					'plugin_author'              => _x( 'Author', 'plugin logger - detailed output author', 'simple-history' ),
+					'plugin_url'                 => _x( 'URL', 'plugin logger - detailed output url', 'simple-history' ),
 					// "plugin_downloaded" => _x("Downloads", "plugin logger - detailed output downloaded", "simple-history"),
 					// "plugin_requires" => _x("Requires", "plugin logger - detailed output author", "simple-history"),
 					// "plugin_tested" => _x("Compatible up to", "plugin logger - detailed output compatible", "simple-history"),
@@ -1067,7 +1073,6 @@ class SimplePluginLogger extends SimpleLogger {
 							break;
 
 						case 'plugin_install_source':
-
 							if ( ! isset( $context[ $key ] ) ) {
 								continue;
 							}
@@ -1086,14 +1091,13 @@ class SimplePluginLogger extends SimpleLogger {
 							break;
 
 						case 'plugin_install_source_file':
-
 							if ( ! isset( $context['plugin_upload_name'] ) || ! isset( $context['plugin_install_source'] ) ) {
 								continue;
 							}
 
 							if ( 'upload' == $context['plugin_install_source'] ) {
 								$plugin_upload_name = $context['plugin_upload_name'];
-								$desc_output = esc_html( $plugin_upload_name );
+								$desc_output        = esc_html( $plugin_upload_name );
 							}
 
 							break;
@@ -1169,7 +1173,7 @@ class SimplePluginLogger extends SimpleLogger {
 			if ( $plugin_slug && empty( $context['plugin_github_url'] ) ) {
 
 				$link_title = esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title', 'simple-history' );
-				$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" );
+				$url        = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" );
 
 				if ( 'plugin_updated' == $message_key || 'plugin_bulk_updated' == $message_key ) {
 
