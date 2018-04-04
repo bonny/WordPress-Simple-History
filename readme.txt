@@ -163,7 +163,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.1n (nnn 2017) =
+= 2.3n (nnn 2017) =
 
 - Changes to taxonomies/categories/tags now include a link to the modified term and to the category that the term belongs to.
 - The post types in the `skip_posttypes` filter are now also applied to trashed and untrashed posts (not only post edits, as before).
@@ -174,9 +174,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Add filter `simple_history/categories_logger/skip_taxonomies` that can be used to modify what taxonomies to skip when logging updates to taxonomy terms.
 - Fix notice in theme logger because did not check if `$_POST['sidebar']` was set. Fixes https://github.com/bonny/WordPress-Simple-History/issues/136.
 - Fix thumbnail title missing notice in post logger.
-
-= 2.nn (nn 2017) =
-
+- Fix PHP warning when a plugin was checked by WordPress for an update, but your WordPress install did not have the plugin folder for that plugin.
 - Fix unexpected single-quotations included in file name in Internet Explorer 11 (and possibly other versions) when exporting CSV/JSON file.
 - Better CSS styling on dashboard.
 
