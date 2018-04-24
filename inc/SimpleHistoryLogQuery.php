@@ -20,7 +20,6 @@ class SimpleHistoryLogQuery {
 	}
 
 	public function query( $args ) {
-
 		$defaults = array(
 
 			// overview | occasions
@@ -638,7 +637,12 @@ class SimpleHistoryLogQuery {
 
 		}
 
-		// users, comma separated
+		// If users is array, make it comma separated.
+		if ( isset( $args['users'] ) && is_array( $args['users'] ) ) {
+			$args['users'] = implode( ',', $args['users'] );
+		}
+
+		// Users, comma separated.
 		if ( ! empty( $args['users'] ) && is_string( $args['users'] ) ) {
 
 			$users = explode( ',', $args['users'] );
