@@ -78,11 +78,8 @@ class FileEditsLogger extends SimpleLogger {
 				'_occasionsID' => __CLASS__ . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
 			);
 
-			// ddd($_POST, $context, $action, $file, $plugin, $phperror, $fileNewContents, $scrollto);
 			$loggerInstance = $this;
 			add_filter( 'wp_redirect', function ( $location, $status ) use ( $context, $loggerInstance ) {
-				error_log( $location );
-
 				$locationParsed = parse_url( $location );
 
 				if ( $locationParsed === false || empty( $locationParsed['query'] ) ) {

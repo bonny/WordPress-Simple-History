@@ -1066,7 +1066,7 @@ class SimpleLogger {
 
 			// No occasions id specified, create one bases on the data array
 			$occasions_data = $data + $context;
-			// error_log(simpleHistory::json_encode($occasions_data));
+
 			// Don't include date in context data
 			unset( $occasions_data['date'] );
 

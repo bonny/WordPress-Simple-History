@@ -52,7 +52,6 @@ class SimpleHistoryPluginPatchesDropin {
 		}
 
 		// ok, this is a non-admin, cron-running post update for the ai1ec_event post type, so cancel the logging
-		error_log( 'ok, cancel ai1ec_event log' );
 		$doLog = false;
 
 		return $doLog;
@@ -108,15 +107,9 @@ class SimpleHistoryPluginPatchesDropin {
 		}
 
 		// There. All checked. Now cancel the logging.
-		error_log( 'ok, cancel nextgen gallery log' );
 		$doLog = false;
 
-		// error_log(simpleHistory::json_encode( $context ));
-		// error_log(simpleHistory::json_encode( $loggerInstance ));
-		// error_log(simpleHistory::json_encode( is_admin() ));
-		// error_log( __METHOD__ . " canceled logging" );
 		return $doLog;
-
 	}
 
 

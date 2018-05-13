@@ -516,9 +516,7 @@ class SimpleHistory {
 
 		if ( ! wp_next_scheduled( 'simple_history/maybe_purge_db' ) ) {
 			wp_schedule_event( time(), 'daily', 'simple_history/maybe_purge_db' );
-			// error_log("not scheduled, so do schedule");
 		} else {
-			// error_log("is scheduled");
 		}
 
 		// Remove old schedule (only author dev sites should have it)
@@ -2660,32 +2658,14 @@ Because Simple History was just recently installed, this feed does not contain m
 			}
 
 			$logRowContextKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow->context ), true );
-			/*
-			error_log($this->json_encode($logRowContextKeysToShow));
-			 Marker - 2 maj 2015 20:51:54
-			[02-May-2015 18:51:57 UTC] {
-			    "post_id": true,
-			    "post_type": true,
-			    "post_title": true,
-			    "post_prev_post_title": true,
-			    "post_new_post_title": true,
-			    "post_prev_post_name": true,
-			    "post_new_post_name": true,
-			    "_message_key": true,
-			    "_user_id": true,
-			    "_user_login": true,
-			    "_user_email": true,
-			    "_server_remote_addr": true,
-			    "_server_http_referer": true
-			}
-			*/
+
 			/**
 			 * Filter what keys to show from the row context
 			 *
 			 * Array is in format
 			 *
-			  *   Array
-			  *   (
+			 *   Array
+			 *   (
 			 *       [plugin_slug] => 1
 			 *       [plugin_name] => 1
 			 *       [plugin_title] => 1

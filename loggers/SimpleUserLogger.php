@@ -465,8 +465,6 @@ class SimpleUserLogger extends SimpleLogger {
 
 					$use_you = apply_filters( 'simple_history/user_logger/plain_text_output_use_you', true );
 
-					// error_log( serialize($current_user_id) ); // int 1
-					// error_log( serialize($context["_user_id"]) ); // string 1
 					// User still exist, so link to their profile
 					if ( (int) $current_user_id === (int) $context['_user_id'] && $use_you ) {
 						// User that is viewing the log is the same as the edited user
