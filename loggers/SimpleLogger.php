@@ -1205,8 +1205,7 @@ class SimpleLogger {
 				}
 			}
 
-			// Add remote addr to context
-			// Good to always have
+			// Add remote addr to context.
 			if ( ! isset( $context['_server_remote_addr'] ) ) {
 
 				$context['_server_remote_addr'] = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : $_SERVER['REMOTE_ADDR'];
@@ -1249,8 +1248,7 @@ class SimpleLogger {
 				}
 			}// End if().
 
-			// Append http referer
-			// Also good to always have!
+			// Append http referer.
 			if ( ! isset( $context['_server_http_referer'] ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
 				$context['_server_http_referer'] = $_SERVER['HTTP_REFERER'];
 			}
@@ -1268,7 +1266,7 @@ class SimpleLogger {
 			$data_parent_row = $data;
 
 			// Insert all context values into db.
-			$this->append_context( $history_inserted_id, $context);
+			$this->append_context( $history_inserted_id, $context );
 		}// End if().
 
 		$this->lastInsertID = $history_inserted_id;

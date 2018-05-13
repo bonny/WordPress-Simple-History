@@ -5,7 +5,6 @@
  */
 class SimpleUserLogger extends SimpleLogger {
 
-
 	public $slug = __CLASS__;
 
 	/**
