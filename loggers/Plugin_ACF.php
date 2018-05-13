@@ -21,7 +21,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 	 */
 	class Plugin_ACF extends SimpleLogger {
 
-
 		/**
 		 * The slug for this logger.
 		 *
@@ -55,15 +54,15 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		private $oldPostData = array();
 
 		/**
-		 * Get info for this loger.
+		 * Get info for this logger.
 		 *
 		 * @return array Array with info about the logger.
 		 */
 		public function getInfo() {
 			$arr_info = array(
 				'name'        => 'Plugin ACF',
-				'description' => _x( 'Logs ACF stuff', 'Logger: Plugin Duplicate Post', 'simple-history' ),
-				'name_via'    => _x( 'Using plugin ACF', 'Logger: Plugin Duplicate Post', 'simple-history' ),
+				'description' => _x( 'Logs ACF stuff', 'Logger: Plugin ACF', 'simple-history' ),
+				'name_via'    => _x( 'Using plugin ACF', 'Logger: Plugin ACF', 'simple-history' ),
 				'capability'  => 'manage_options',
 			);
 
@@ -80,21 +79,21 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				return;
 			}
 
-			$this->remove_acf_from_postlogger();
-
-			// Store old and new field data.
-			add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 5, 3 );
+			// Remove ACF Fields from the post types that postlogger logs.
+			add_filter( 'simple_history/post_logger/skip_posttypes', array( $this, 'remove_acf_from_postlogger') );
 
 			// Get prev version of acf field group.
 			// This is called before transition_post_status.
 			add_filter( 'wp_insert_post_data', array( $this, 'on_wp_insert_post_data' ), 10, 2 );
 
+			// Store old and new field data when a post is saved.
+			add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 5, 3 );
+
+			// Append ACF data to post context
 			add_filter( 'simple_history/post_logger/post_updated/context', array( $this, 'on_post_updated_context' ), 10, 2 );
 
-			/**
-			 * Add ACF diff data to activity feed detailed output.
-			 */
-			add_filter( 'simple_history/post_logger/post_updated/diff_table_output', array( $this, 'on_diff_table_output' ), 10, 2 );
+			// Add ACF diff data to activity feed detailed output.
+			add_filter( 'simple_history/post_logger/post_updated/diff_table_output', array( $this, 'on_diff_table_output_field_group' ), 10, 2 );
 
 			/*
 			 * Store diff when ACF saves post
@@ -104,16 +103,15 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			 * - do_action("acf/delete_value", $post_id, $field['name'], $field);
 			do_action('acf/save_post', $post_id);
 			*/
-			// add_filter( 'acf/update_value', array($this, 'on_update_value'), 10, 3 );
-			// add_filter( 'acf/update_field', array($this, 'on_update_field'), 10, 1 );
+
 			// Store prev ACF field values before new values are added.
+			// Called from filter admin_action_editpost that is fired at top of admin.php
 			add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
 
-			// add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context2'), 10, 2);
-			// add_filter('save_post', array($this, 'on_post_save'), 50);
+			// When ACF saved a post.
 			add_filter( 'acf/save_post', array( $this, 'on_acf_save_post' ), 50 );
 
-			// add_action( 'acf/update_field_group', array( $this, 'on_acf_update_field_group'), 10, 1 );
+			// Fired after a log row is inserted. Add filter so field group save is is not logged again.
 			add_action( 'simple_history/log/inserted', array( $this, 'on_log_inserted' ), 10, 3 );
 		}
 
@@ -164,15 +162,9 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		}
 
 		/**
-		 * Called when ACF updates a field group.
-		 */
-		/*
-		public function on_acf_update_field_group( $field_group ) {
-			error_log('on_acf_update_field_group: ' . simpleHistory::json_encode($field_group));
-			// echo 'on_acf_update_field_group';exit;
-		}*/
-
-		/**
+		 * Append info about changes in ACF fields input,
+		 * i.e. store all info we later use to show changes that a user has done.
+		 *
 		 * Called when ACF saves a post.
 		 *
 		 * @param int $post_id ID of post that is being saved.
@@ -284,7 +276,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 				$post_logger->append_context( $last_insert_id, $acf_context );
 
-				// Prev and new post meta just for testing
+				// Prev and new post meta for testing.
+				/*
 				$post_logger->append_context(
 					$last_insert_id,
 					array(
@@ -297,6 +290,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						'new_post_meta' => $new_post_meta,
 					)
 				);
+				*/
 			} // End if().
 		}
 
@@ -549,13 +543,21 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		}*/
 
 		/**
-		 * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'
+		 * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'.
+		 * Diff table is generated only for post type 'acf-field-group'.
 		 *
 		 * @param string $diff_table_output
 		 * @param array  $context
 		 * @return string
 		 */
-		public function on_diff_table_output( $diff_table_output, $context ) {
+		public function on_diff_table_output_field_group( $diff_table_output, $context ) {
+    		$post_type = !empty($context['post_type']) ? $context['post_type'] : false;
+
+    		// Bail if not ACF Field Group.
+    		if ($post_type !== 'acf-field-group') {
+    			return '';
+    		}
+
 			// Field group fields to check for and output if found
 			$arrKeys = array(
 				'instruction_placement' => array(
@@ -795,7 +797,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		}
 
 		/**
-		 * Append ACF data to post context
+		 * Append ACF data to post context.
+		 *
 		 * Called via filter `simple_history/post_logger/post_updated/context`.
 		 *
 		 * @param array   $context
@@ -1086,19 +1089,13 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * that the default post logger should not log. If not each field will cause one
 		 * post update log message.
 		 */
-		public function remove_acf_from_postlogger() {
-			add_filter(
-				'simple_history/post_logger/skip_posttypes',
-				function ( $skip_posttypes ) {
-					array_push(
-						$skip_posttypes,
-						'acf-field'
-					);
-
-					return $skip_posttypes;
-				},
-				10
+		public function remove_acf_from_postlogger( $skip_posttypes ) {
+			array_push(
+				$skip_posttypes,
+				'acf-field'
 			);
+
+			return $skip_posttypes;
 		}
 	} // Class.
 } // End if().
