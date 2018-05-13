@@ -95,20 +95,11 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// Add ACF diff data to activity feed detailed output.
 			add_filter( 'simple_history/post_logger/post_updated/diff_table_output', array( $this, 'on_diff_table_output_field_group' ), 10, 2 );
 
-			/*
-			 * Store diff when ACF saves post
-			 * Possible filters:
-			 * - $value = apply_filters( "acf/update_value", $value, $post_id, $field );
-			 * $field = apply_filters( "acf/update_field", $field);
-			 * - do_action("acf/delete_value", $post_id, $field['name'], $field);
-			do_action('acf/save_post', $post_id);
-			*/
-
 			// Store prev ACF field values before new values are added.
 			// Called from filter admin_action_editpost that is fired at top of admin.php
 			add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
 
-			// When ACF saved a post.
+			// Fired when ACF saves a post. Adds ACF context to logged row.
 			add_filter( 'acf/save_post', array( $this, 'on_acf_save_post' ), 50 );
 
 			// Fired after a log row is inserted. Add filter so field group save is is not logged again.
@@ -531,16 +522,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			return $value;
 		}
-
-		/*
-		public function on_update_field($field) {
-			// dd('acf on_update_value', $value, $post_id, $field);
-			apply_filters('simple_history_log_debug', 'acf on_update_field', array(
-				'field' => $field
-			));
-
-			return $field;
-		}*/
 
 		/**
 		 * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'.
@@ -990,7 +971,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			static $isCalled = false;
 
 			if ( $isCalled ) {
-				// echo "is called already, bail out";exit;
 				return;
 			}
 
@@ -1056,33 +1036,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// so less likely that we make some critical error
 		}
 
-		/**
-		 * Called when field group is updated.
-		 */
-		/*
-		public function on_update_field_group( $field_group ) {
-				On admin post save:
-
-				- $_POST['acf_fields'] is only set when a new field or subfield is added or changed,
-					when a field is deleted is contains a subset somehow..
-
-				- calls acf_update_field()
-					$field = apply_filters( "acf/update_field", $field);
-
-				- $_POST['_acf_delete_fields'] is only set when a field is deleted
-					contains string like "0|328" with the id's that have been removed
-					do_action( "acf/delete_field", $field);
-
-				- then lastly field group is updated
-
-				// Get field group
-				$field_group = acf_get_field_group( $selector );
-				// Get field
-				acf_get_field()
-				// Get fields in field group
-				$fields = acf_get_fields($field_group);
-		}
-		*/
 
 		/**
 		 * Add the post types that ACF uses for fields to the array of post types
