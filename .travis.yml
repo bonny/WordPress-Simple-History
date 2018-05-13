@@ -11,7 +11,9 @@ notifications:
 php:
   - "5.3"
   - "5.5"
-  - "7.1"
+  # Disable 7.1 beacuse wordpress tests does not work.
+  # Ticket with info: https://core.trac.wordpress.org/ticket/43218
+  # - "7.1"
 
 env:
   - WP_VERSION=latest WP_MULTISITE=0
