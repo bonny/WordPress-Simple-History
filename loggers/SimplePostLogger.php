@@ -2,7 +2,6 @@
 
 defined( 'ABSPATH' ) or die();
 
-
 /**
  * Logs changes to posts and pages, including custom post types
  */
@@ -394,6 +393,20 @@ class SimplePostLogger extends SimpleLogger {
 		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
 			$ok_to_log = false;
 		}
+
+		/**
+		 * Filter to control logging.
+		 *
+		 * @param bool $ok_to_log
+		 * @param $new_status
+		 * @param $old_status
+		 * @param $post
+		 *
+		 * @return bool True to log, false to not log.
+		 *
+		 * @since 2.x
+		 */
+		$ok_to_log = apply_filters( 'simple_history/post_logger/post_updated/ok_to_log', $ok_to_log, $new_status, $old_status, $post );
 
 		if ( ! $ok_to_log ) {
 			return;
@@ -1181,7 +1194,7 @@ class SimplePostLogger extends SimpleLogger {
 					</td>
 				</tr>',
 				esc_html( __( 'Featured image', 'simple-history' ) ), // 1
-				$prev_thumb_html,// 2
+				$prev_thumb_html, // 2
 				$new_thumb_html // 3
 			);
 		} // End if().
