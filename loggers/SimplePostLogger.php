@@ -404,7 +404,7 @@ class SimplePostLogger extends SimpleLogger {
 		 *
 		 * @return bool True to log, false to not log.
 		 *
-		 * @since 2.x
+		 * @since 2.21
 		 */
 		$ok_to_log = apply_filters( 'simple_history/post_logger/post_updated/ok_to_log', $ok_to_log, $new_status, $old_status, $post );
 

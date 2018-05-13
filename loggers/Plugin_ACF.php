@@ -12,7 +12,7 @@ if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
  * https://sv.wordpress.org/plugins/advanced-custom-fields/
  *
  * @package SimpleHistory
- * @since 2.x
+ * @since 2.21
  */
 if ( ! class_exists( 'Plugin_ACF' ) ) {
 

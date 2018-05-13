@@ -118,7 +118,7 @@ class SimpleCategoriesLogger extends SimpleLogger {
 	 * We skip some taxonomies, for example Polylang translation terms that fill the log with
 	 * messages like 'Edited term "pll_5a3643a142c80" in taxonomy "post_translations"' otherwise.
 	 *
-	 * @since 2.x
+	 * @since 2.21
 	 * @param string $from_term_taxonomy Slug of taxonomy.
 	 * @return bool True or false.
 	 */
@@ -137,7 +137,7 @@ class SimpleCategoriesLogger extends SimpleLogger {
 	/**
 	 * Get taxonomies to skip.
 	 *
-	 * @since 2.x
+	 * @since 2.21
 	 * @return array Array with taxonomies.
 	 */
 	function get_skip_taxonomies() {

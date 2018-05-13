@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, trail, pages, attachments, users,
 Requires at least: 4.5.1
 Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.20
+Stable tag: 2.21
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -163,7 +163,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.3n (nnn 2017) =
+= 2.21 (May 2018) =
 
 - Added support for Advanced Custom Fields (ACF): when a ACF Field or ACF Field Group is created or modified or deleted you will now get more details in the activity feed.
 - Changes to taxonomies/categories/tags now include a link to the modified term and to the category that the term belongs to.

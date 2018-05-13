@@ -948,9 +948,9 @@ class SimpleLogger {
 	/**
 	 * Logs with an arbitrary level.
 	 *
-	 * @param mixed  $level The log level.
-	 * @param string $message The log message.
-	 * @param array  $context The log context.
+	 * @param mixed  $level The log level. Default "info".
+	 * @param string $message The log message. Default "".
+	 * @param array  $context The log context. Default empty array.
 	 * @return class SimpleLogger instance
 	 */
 	public function log( $level = 'info', $message = '', $context = array() ) {
@@ -1279,7 +1279,7 @@ class SimpleLogger {
 		 *
 		 * @since 2.5.1
 		 *
-		 * @param array $context Array with all context data to store. Modify and return this.
+		 * @param array $context Array with all context data that was used to log event.
 		 * @param array $data Array with data used for parent row.
 		 * @param array $this Reference to this logger instance
 		 */
