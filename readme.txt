@@ -169,7 +169,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Changes to taxonomies/categories/tags now include a link to the modified term and to the category that the term belongs to.
 - The post types in the `skip_posttypes` filter are now also applied to trashed and untrashed posts (not only post edits, as before).
 - Don't log Jetpack sitemap updates. (Don't log updates to posttypes `jp_sitemap`, `jp_sitemap_master` and `jp_img_sitemap`, i.e. the post types used by Jetpack's Sitemap function.) Should fix https://wordpress.org/support/topic/jetpack-sitemap-logging/.
-- Don't log the taxonomies `post_translations` or `term_translations`, that are used by Polylang to store translation mappings.
+- Don't log the taxonomies `post_translations` or `term_translations`, that are used by Polylang to store translation mappings. That contained md5-hashed strings and was not of any benefit (a separate logger for Polylang will come soon anyway).
 - Fix notice in theme logger because did not check if `$_POST['sidebar']` was set. Fixes https://github.com/bonny/WordPress-Simple-History/issues/136.
 - Fix thumbnail title missing notice in post logger.
 - Fix PHP warning when a plugin was checked by WordPress for an update, but your WordPress install did not have the plugin folder for that plugin.
