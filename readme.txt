@@ -165,9 +165,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.3n (nnn 2017) =
 
+- Added support for Advanced Custom Fields (ACF): when a ACF Field or ACF Field Group is created or modified or deleted you will now get more details in the activity feed.
 - Changes to taxonomies/categories/tags now include a link to the modified term and to the category that the term belongs to.
 - The post types in the `skip_posttypes` filter are now also applied to trashed and untrashed posts (not only post edits, as before).
 - Added filter `simple_history/post_logger/post_updated/context` that can be used to modify the context added by SimplePostLogger.
+- Added filter `simple_history/post_logger/post_updated/ok_to_log` that can be used to skip logging a post update.
 - Fix a notice in SimpleOptionsLogger.
 - Don't log Jetpack sitemap updates. (Don't log updates to posttypes `jp_sitemap`, `jp_sitemap_master` and `jp_img_sitemap`, i.e. the post types used by Jetpack's Sitemap function.) Should fix https://wordpress.org/support/topic/jetpack-sitemap-logging/.
 - Don't log the taxonomies `post_translations` or `term_translations`, that are used by Polylang to store translation mappings.
