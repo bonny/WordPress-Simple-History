@@ -21,6 +21,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 	 */
 	class Plugin_ACF extends SimpleLogger {
 
+
 		/**
 		 * The slug for this logger.
 		 *
@@ -111,7 +112,65 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// add_filter('simple_history/post_logger/post_updated/context', array($this, 'on_post_updated_context2'), 10, 2);
 			// add_filter('save_post', array($this, 'on_post_save'), 50);
 			add_filter( 'acf/save_post', array( $this, 'on_acf_save_post' ), 50 );
+
+			// add_action( 'acf/update_field_group', array( $this, 'on_acf_update_field_group'), 10, 1 );
+			add_action( 'simple_history/log/inserted', array( $this, 'on_log_inserted' ), 10, 3 );
 		}
+
+		/**
+		 * Fired after a log row is inserted.
+		 */
+		public function on_log_inserted( $context, $data_parent_row, $simple_history_instance ) {
+			$message_key = ! empty( $context['_message_key'] ) ? $context['_message_key'] : false;
+			$logger = ! empty( $data_parent_row['logger'] ) ? $data_parent_row['logger'] : false;
+			$post_id = ! empty( $context['post_id'] ) ? $context['post_id'] : false;
+			$post_type = ! empty( $context['post_type'] ) ? $context['post_type'] : false;
+
+			// Bail if not all required vars are set.
+			if ( ! $message_key || ! $logger || ! $post_id || ! $post_type ) {
+				return;
+			}
+
+			// Only act when logger was SimplePostLogger.
+			if ( $logger !== 'SimplePostLogger' ) {
+				return;
+			}
+
+			// Only act when the saved type was a ACF Field Group.
+			if ( $post_type !== 'acf-field-group' ) {
+				return;
+			}
+
+			// Ok, a row was inserted using the log function on SimplePostLogger,
+			// now ACF will call save_post again and trigger
+			// another log of the same row. To prevent this we
+			// now add a filter to prevent the next log.
+			add_filter( 'simple_history/post_logger/post_updated/ok_to_log', array( $this, 'prevent_second_acf_field_group_post_save_log' ), 10, 4 );
+		}
+
+		/**
+		 * Fired from SimpleLogger action 'simple_history/post_logger/post_updated/ok_to_log' and added only after
+		 * a row already has been logged.
+		 *
+		 * This function checks if post type logged by SimplePostLogger is a ACF Field Group, and if it is
+		 * then don't log that log. This way we prevent the post logger from logging the field group changes twice.
+		 */
+		public function prevent_second_acf_field_group_post_save_log($ok_to_log, $new_status, $old_status, $post) {
+			if (isset($post->post_type) && $post->post_type === 'acf-field-group') {
+				$ok_to_log = false;
+			}
+
+			return $ok_to_log;
+		}
+
+		/**
+		 * Called when ACF updates a field group.
+		 */
+		/*
+		public function on_acf_update_field_group( $field_group ) {
+			error_log('on_acf_update_field_group: ' . simpleHistory::json_encode($field_group));
+			// echo 'on_acf_update_field_group';exit;
+		}*/
 
 		/**
 		 * Called when ACF saves a post.
@@ -119,7 +178,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * @param int $post_id ID of post that is being saved.
 		 */
 		public function on_acf_save_post( $post_id ) {
-
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 				return;
 			}
@@ -228,12 +286,14 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 				// Prev and new post meta just for testing
 				$post_logger->append_context(
-					$last_insert_id, array(
+					$last_insert_id,
+					array(
 						'prev_post_meta' => $prev_post_meta,
 					)
 				);
 				$post_logger->append_context(
-					$last_insert_id, array(
+					$last_insert_id,
+					array(
 						'new_post_meta' => $new_post_meta,
 					)
 				);
@@ -251,7 +311,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * @param array  $fieldnames_to_field_keys Fieldnames to field keys mapping.
 		 * @return array Modified context.
 		 */
-		function add_acf_context( $context = array(), $modify_type = '', $relevant_acf_fields = array(), $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys ) {
+		public function add_acf_context( $context = array(), $modify_type = '', $relevant_acf_fields = array(), $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys ) {
 			if ( ! is_array( $context ) || empty( $modify_type ) || empty( $relevant_acf_fields ) ) {
 				return $context;
 			}
@@ -357,7 +417,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 								'type'       => 'field',
 								'field_type' => $one_field_parent['type'],
 							);
-
 						}
 
 						if ( ! empty( $arr_field_path ) ) {
@@ -383,7 +442,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				$loopnum++;
 			} // End foreach().
 
-			// @HERE
 			// error_log( "---------------------------" );
 			// error_log( "field_path_string: $field_path_string");
 			// error_log( "context" . print_r( $context, 1 ) );
@@ -439,7 +497,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * Stores data in $this->oldPostData.
 		 */
 		public function on_admin_action_editpost() {
-
 			$post_ID = isset( $_POST['post_ID'] ) ? (int) $_POST['post_ID'] : 0;
 
 			if ( ! $post_ID ) {
@@ -467,7 +524,9 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		public function on_update_value( $value, $post_id, $field ) {
 			// dd('acf on_update_value', $value, $post_id, $field);
 			apply_filters(
-				'simple_history_log_debug', 'acf on_update_value, field "{acf_field_label}", value "{acf_field_value}"', array(
+				'simple_history_log_debug',
+				'acf on_update_value, field "{acf_field_label}", value "{acf_field_value}"',
+				array(
 					'value'           => $value,
 					'post_id'         => $post_id,
 					'field'           => $field,
@@ -539,7 +598,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				}
 			}
 
-			// if only acf_hide_on_screen_removed exists nothing is outputed
+			// If only acf_hide_on_screen_removed exists nothing is outputed.
 			$acf_hide_on_screen_added   = empty( $context['acf_hide_on_screen_added'] ) ? null : $context['acf_hide_on_screen_added'];
 			$acf_hide_on_screen_removed = empty( $context['acf_hide_on_screen_removed'] ) ? null : $context['acf_hide_on_screen_removed'];
 
@@ -554,6 +613,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						esc_html( $acf_hide_on_screen_added ) // 2
 					);
 				}
+
 				if ( $acf_hide_on_screen_removed ) {
 					$strUncheckedHideOnScreen = sprintf(
 						'%1$s %2$s',
@@ -576,9 +636,9 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				);
 			}
 
-			// Check for deleted fields
+			// Check for deleted fields.
 			if ( isset( $context['acf_deleted_fields_0_key'] ) ) {
-				// 1 or more deleted fields exist in context
+				// 1 or more deleted fields exist in context.
 				$loopnum          = 0;
 				$strDeletedFields = '';
 
@@ -885,7 +945,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// 'modifiedFields'
 		}
 
-		function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
+		public function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
 			if ( $old_value != $new_value ) {
 				$post_data_diff[ $key ] = array(
 					'old' => $old_value,
@@ -924,7 +984,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * Here we save the new fields values and also get the old values so we can compare
 		 */
 		public function on_transition_post_status( $new_status, $old_status, $post ) {
-
 			static $isCalled = false;
 
 			if ( $isCalled ) {
@@ -1029,16 +1088,17 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 */
 		public function remove_acf_from_postlogger() {
 			add_filter(
-				'simple_history/post_logger/skip_posttypes', function( $skip_posttypes ) {
+				'simple_history/post_logger/skip_posttypes',
+				function ( $skip_posttypes ) {
 					array_push(
 						$skip_posttypes,
 						'acf-field'
 					);
 
 					return $skip_posttypes;
-				}, 10
+				},
+				10
 			);
 		}
-
 	} // Class.
 } // End if().
