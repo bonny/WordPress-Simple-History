@@ -434,6 +434,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		}
 
 		/**
+		 * Clean array and keep only ACF related things.
+		 *
 		 * Remove
 		 *  - underscore fields
 		 *  - fields with value field_*
@@ -474,6 +476,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 				$new_arr[ $key ] = $val;
 			}
+
 			return $new_arr;
 		}
 
@@ -503,27 +506,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		}
 
 		/**
-		 * Called once for very field
-		 * in for example repeaters = called 1 time per sub field
-		 */
-		public function on_update_value( $value, $post_id, $field ) {
-			// dd('acf on_update_value', $value, $post_id, $field);
-			apply_filters(
-				'simple_history_log_debug',
-				'acf on_update_value, field "{acf_field_label}", value "{acf_field_value}"',
-				array(
-					'value'           => $value,
-					'post_id'         => $post_id,
-					'field'           => $field,
-					'acf_field_label' => $field['label'],
-					'acf_field_value' => $value,
-				)
-			);
-
-			return $value;
-		}
-
-		/**
 		 * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'.
 		 * Diff table is generated only for post type 'acf-field-group'.
 		 *
@@ -542,25 +524,25 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// Field group fields to check for and output if found
 			$arrKeys = array(
 				'instruction_placement' => array(
-					'name' => 'Instruction placement',
+					'name' => _x('Instruction placement', 'Logger: Plugin ACF', 'simple-history'),
 				),
 				'label_placement'       => array(
-					'name' => 'Label placement',
+					'name' => _x('Label placement', 'Logger: Plugin ACF', 'simple-history'),
 				),
 				'description'           => array(
-					'name' => 'Description',
+					'name' => _x('Description', 'Logger: Plugin ACF', 'simple-history'),
 				),
 				'menu_order'            => array(
-					'name' => 'Menu order',
+					'name' => _x('Menu order', 'Logger: Plugin ACF', 'simple-history'),
 				),
 				'position'              => array(
-					'name' => 'Position',
+					'name' => _x('Position', 'Logger: Plugin ACF', 'simple-history'),
 				),
 				'active'                => array(
-					'name' => 'Active',
+					'name' => _x('Active', 'Logger: Plugin ACF', 'simple-history'),
 				),
 				'style'                 => array(
-					'name' => 'Style',
+					'name' => _x('Style', 'Logger: Plugin ACF', 'simple-history'),
 				),
 			);
 
@@ -592,7 +574,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				if ( $acf_hide_on_screen_added ) {
 					$strCheckedHideOnScreen = sprintf(
 						'%1$s %2$s',
-						__( 'Checked' ), // 1
+						_x( 'Checked', 'Logger: Plugin ACF', 'simple-history' ), // 1
 						esc_html( $acf_hide_on_screen_added ) // 2
 					);
 				}
@@ -600,7 +582,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				if ( $acf_hide_on_screen_removed ) {
 					$strUncheckedHideOnScreen = sprintf(
 						'%1$s %2$s',
-						__( 'Unchecked' ), // 1
+						_x( 'Unchecked', 'Logger: Plugin ACF', 'simple-history' ), // 1
 						esc_html( $acf_hide_on_screen_removed ) // 2
 					);
 				}
@@ -613,7 +595,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 							%3$s
 						</td>
 					</tr>',
-					__( 'Hide on screen' ), // 1
+					_x( 'Hide on screen', 'Logger: Plugin ACF', 'simple-history' ), // 1
 					$strCheckedHideOnScreen, // 2
 					$strUncheckedHideOnScreen // 3
 				);
@@ -643,7 +625,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						<td>%1$s</td>
 						<td>%2$s</td>
 					</tr>',
-					_nx( 'Deleted field', 'Deleted fields', $loopnum, 'Logger: ACF', 'simple-history' ), // 1
+					_nx( 'Deleted field', 'Deleted fields', $loopnum, 'Logger: Plugin ACF', 'simple-history' ), // 1
 					$strDeletedFields
 				);
 			} // if deleted fields
@@ -672,7 +654,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						<td>%1$s</td>
 						<td>%2$s</td>
 					</tr>',
-					_nx( 'Added field', 'Added fields', $loopnum, 'Logger: ACF', 'simple-history' ), // 1
+					_nx( 'Added field', 'Added fields', $loopnum, 'Logger: Plugin ACF', 'simple-history' ), // 1
 					$strAddedFields
 				);
 			} // if deleted fields
@@ -684,19 +666,19 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				$strModifiedFields         = '';
 				$arrAddedFieldsKeysToCheck = array(
 					'name'   => array(
-						'name' => 'Name: ',
+						'name' => _x('Name: ', 'Logger: Plugin ACF', 'simple-history'),
 					),
 					'parent' => array(
-						'name' => 'Parent: ',
+						'name' => _x('Parent: ', 'Logger: Plugin ACF', 'simple-history'),
 					),
 					'key'    => array(
-						'name' => 'Key: ',
+						'name' => _x('Key: ', 'Logger: Plugin ACF', 'simple-history'),
 					),
 					'label'  => array(
-						'name' => 'Label: ',
+						'name' => _x('Label: ', 'Logger: Plugin ACF', 'simple-history'),
 					),
 					'type'   => array(
-						'name' => 'Type: ',
+						'name' => _x('Type: ', 'Logger: Plugin ACF', 'simple-history'),
 					),
 				);
 
@@ -709,7 +691,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 					/*
 					if (empty($context["acf_modified_fields_{$loopnum}_name_new"])) {
 						$strOneModifiedField .= sprintf(
-							_x('Name: %1$s', 'Logger: ACF', 'simple-history'), // 1
+							_x('Name: %1$s', 'Logger: Plugin ACF', 'simple-history'), // 1
 							esc_html($context["acf_modified_fields_{$loopnum}_name_prev"]) // 2
 						);
 					}
@@ -719,7 +701,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 					// or we don't know what field the other changed values belongs to.
 					if ( empty( $context[ "acf_modified_fields_{$loopnum}_label_new" ] ) ) {
 						$strOneModifiedField .= sprintf(
-							_x( 'Label: %1$s', 'Logger: ACF', 'simple-history' ), // 1
+							_x( 'Label: %1$s', 'Logger: Plugin ACF', 'simple-history' ), // 1
 							esc_html( $context[ "acf_modified_fields_{$loopnum}_label_prev" ] ) // 2
 						);
 					}
@@ -751,7 +733,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 								<td>%1$s</td>
 								<td>%2$s</td>
 							</tr>',
-							_x( 'Modified field', 'Logger: ACF', 'simple-history' ), // 1
+							_x( 'Modified field', 'Logger: Plugin ACF', 'simple-history' ), // 1
 							$strOneModifiedField
 						);
 					}
@@ -766,7 +748,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 							<td>%1$s</td>
 							<td>%2$s</td>
 						</tr>',
-						_nx('Modified field', 'Modified fields', $loopnum, 'Logger: ACF', 'simple-history'), // 1
+						_nx('Modified field', 'Modified fields', $loopnum, 'Logger: Plugin ACF', 'simple-history'), // 1
 						$strModifiedFields
 					) . $strModifiedFields;
 				}*/
@@ -888,7 +870,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			if ( ! empty( $this->oldAndNewFieldGroupsAndFields['modifiedFields']['old'] ) && ! empty( $this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'] ) ) {
 				$modifiedFields = $this->oldAndNewFieldGroupsAndFields['modifiedFields'];
 
-				// dd($modifiedFields);
 				$arrAddedFieldsKeysToAdd = array(
 					'parent',
 					'key',
@@ -924,9 +905,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			}
 
 			return $context;
-
-			// dd($acf_data_diff);
-			// 'modifiedFields'
 		}
 
 		public function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
