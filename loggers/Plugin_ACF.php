@@ -2,11 +2,6 @@
 
 defined( 'ABSPATH' ) || die();
 
-// Only enable in development mode.
-if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
-	return;
-}
-
 /**
  * Logger for the Advanced Custom Fields (ACF) plugin
  * https://sv.wordpress.org/plugins/advanced-custom-fields/
@@ -69,13 +64,17 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			return $arr_info;
 		}
 
+		private function isACFInstalled() {
+			return defined('ACF') && ACF;
+		}
+
 		/**
 		 * Method called when logger is loaded.
 		 */
 		public function loaded() {
 
 			// Bail if no ACF found.
-			if ( ! function_exists( 'acf_verify_nonce' ) ) {
+			if ( ! $this->isACFInstalled() ) {
 				return;
 			}
 
