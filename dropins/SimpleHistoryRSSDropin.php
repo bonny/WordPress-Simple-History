@@ -288,43 +288,6 @@ class SimpleHistoryRSSDropin {
 							<link><![CDATA[<?php echo $item_link ?>]]></link>
 						</item>
 						<?php
-						/*
-                        [0] =&gt; stdClass Object
-                            (
-                                [id] =&gt; 27324
-                                [logger] =&gt; SimplePluginLogger
-                                [level] =&gt; info
-                                [date] =&gt; 2014-10-15 06:50:01
-                                [message] =&gt; Updated plugin &quot;{plugin_name}&quot; from {plugin_prev_version} to {plugin_version}
-                                [type] =&gt;
-                                [initiator] =&gt; wp_user
-                                [occasionsID] =&gt; 75e8aeab3e43b37f8a458f3744c4995f
-                                [subsequentOccasions] =&gt; 1
-                                [rep] =&gt; 1
-                                [repeated] =&gt; 1
-                                [occasionsIDType] =&gt; 75e8aeab3e43b37f8a458f3744c4995f
-                                [context] =&gt; Array
-                                    (
-                                        [plugin_slug] =&gt; google-analytics-for-wordpress
-                                        [plugin_name] =&gt; Google Analytics by Yoast
-                                        [plugin_title] =&gt; &lt;a href=&quot;https://yoast.com/wordpress/plugins/google-analytics/#utm_source=wordpress&amp;#038;utm_medium=plugin&amp;#038;utm_campaign=wpgaplugin&amp;#038;utm_content=v504&quot;&gt;Google Analytics by Yoast&lt;/a&gt;
-                                        [plugin_description] =&gt; This plugin makes it simple to add Google Analytics to your WordPress blog, adding lots of features, eg. error page, search result and automatic clickout and download tracking. &lt;cite&gt;By &lt;a href=&quot;https://yoast.com/&quot;&gt;Team Yoast&lt;/a&gt;.&lt;/cite&gt;
-                                        [plugin_author] =&gt; &lt;a href=&quot;https://yoast.com/&quot;&gt;Team Yoast&lt;/a&gt;
-                                        [plugin_version] =&gt; 5.0.7
-                                        [plugin_url] =&gt; https://yoast.com/wordpress/plugins/google-analytics/#utm_source=wordpress&amp;#038;utm_medium=plugin&amp;#038;utm_campaign=wpgaplugin&amp;#038;utm_content=v504
-                                        [plugin_update_info_plugin] =&gt; google-analytics-for-wordpress/googleanalytics.php
-                                        [plugin_update_info_package] =&gt; https://downloads.wordpress.org/plugin/google-analytics-for-wordpress.5.0.7.zip
-                                        [plugin_prev_version] =&gt; 5.0.6
-                                        [_message_key] =&gt; plugin_bulk_updated
-                                        [_user_id] =&gt; 1
-                                        [_user_login] =&gt; admin
-                                        [_user_email] =&gt; par.thernstrom@gmail.com
-                                        [_server_remote_addr] =&gt; ::1
-                                        [_server_http_referer] =&gt; http://playground-root.ep/wp-admin/update-core.php?action=do-plugin-upgrade
-                                    )
-
-                            )
-                        */
 					} // End foreach().
 
 					?>

@@ -150,36 +150,6 @@ class SimpleHistoryWPCLIDropin {
 			);
 		}
 
-		// print_r($events);
-		// print_r($eventsCleaned);
-		/*
-		[9] => stdClass Object
-            (
-                [id] => 735
-                [logger] => AvailableUpdatesLogger
-                [level] => notice
-                [date] => 2017-05-19 12:45:13
-                [message] => Found an update to plugin "{plugin_name}"
-                [initiator] => wp
-                [occasionsID] => 9a2d42eebea5c3cd2b16db0c38258016
-                [subsequentOccasions] => 1
-                [rep] => 1
-                [repeated] => 10
-                [occasionsIDType] => 9a2d42eebea5c3cd2b16db0c38258016
-                [context_message_key] => plugin_update_available
-                [context] => Array
-                    (
-                        [plugin_name] => WooCommerce
-                        [plugin_current_version] => 3.0.6
-                        [plugin_new_version] => 3.0.7
-                        [_message_key] => plugin_update_available
-                        [_server_remote_addr] => ::1
-                        [_server_http_referer] => http://wp-playground.dev/wp/wp-cron.php?doing_wp_cron=1495197902.1593680381774902343750
-                    )
-
-            )
-		*/
-
 		$fields = array(
 			'date',
 			'initiator',
