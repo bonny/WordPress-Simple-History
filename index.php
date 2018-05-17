@@ -32,9 +32,8 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-// Plugin requires at least version "4.5.1", because usage of functions like wp_get_raw_referer
-
-// true if version ok, false if too old version
+// Plugin requires at least WordPress version "4.5.1", because usage of functions like wp_get_raw_referer.
+// true if version ok, false if too old version.
 $ok_wp_version = version_compare( $GLOBALS['wp_version'], "4.5.1", '>=' );
 $ok_php_version = version_compare( phpversion(), '5.3', '>=' );
 
@@ -70,6 +69,7 @@ if ( $ok_php_version && $ok_wp_version ) {
 	/** Load required files */
 	require_once( __DIR__ . '/inc/SimpleHistory.php' );
 	require_once( __DIR__ . '/inc/SimpleHistoryLogQuery.php' );
+	require_once( __DIR__ . '/inc/SimpleHistoryIpAnonymizer.php' );
 
 	/**
 	Constants will be like:
