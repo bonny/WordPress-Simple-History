@@ -1208,7 +1208,23 @@ class SimpleLogger {
 			// Add remote addr to context.
 			if ( ! isset( $context['_server_remote_addr'] ) ) {
 
-				$context['_server_remote_addr'] = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : $_SERVER['REMOTE_ADDR'];
+				$remote_addr = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : wp_unslash( $_SERVER['REMOTE_ADDR'] );
+
+				/**
+				 * Filter to control if ip addresses should be anonymized or not.
+				 *
+				 * @since 2.x
+				 *
+				 * @param bool true to anonymize ip address, false to keep original ip address.
+				 * @return bool
+				 */
+				$anonymize_ip_address = apply_filters( 'simple_history/privacy/anonymize_ip_address', true );
+
+				if ( $anonymize_ip_address ) {
+					$remote_addr = SimpleHistoryIpAnonymizer::anonymizeIp( $remote_addr );
+				}
+
+				$context['_server_remote_addr'] = $remote_addr;
 
 				// If web server is behind a load balancer then the ip address will always be the same
 				// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
@@ -1225,18 +1241,23 @@ class SimpleLogger {
 
 					if ( array_key_exists( $key, $_SERVER ) === true ) {
 
-						// Loop through all IPs
+						// Loop through all IPs.
 						$ip_loop_num = 0;
 						foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
 
-							// trim for safety measures
+							// trim for safety measures.
 							$ip = trim( $ip );
 
-							// attempt to validate IP
+							// attempt to validate IP.
 							if ( $this->validate_ip( $ip ) ) {
 
-								// valid, add to context, with loop index appended so we can store many IPs
+								// valid, add to context, with loop index appended so we can store many IPs.
 								$key_lower = strtolower( $key );
+
+								if ( $anonymize_ip_address ) {
+									$ip = SimpleHistoryIpAnonymizer::anonymizeIp( $ip );
+								}
+
 								$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
 
 							}

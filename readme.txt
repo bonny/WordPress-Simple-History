@@ -163,6 +163,15 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.n (nnn 2018) =
+
+- IP addresses are now anonymized by default. This is mainly done because of the [General Data Protection Regulation](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation) (GDPR)
+Both IPv4 and IPv6 addresses will be anonymized and the ip addresses are anonymized to their network ID.
+So for example the IPv4 address 192.168.123.124 is anonymized to 192.168.123.0 and
+the IPv6 address 2a03:2880:2110:df07:face:b00c::1 is anonymized by default to 2610:28:3090:3001::.
+
+- Added filter `simple_history/privacy/anonymize_ip_address` than can be used to disable ip address anonymization.
+
 = 2.21.1 (May 2018) =
 
 - Make sure support for Advanced Custom Fields is activated for all users – and not only for the developer of the plugin ;)
