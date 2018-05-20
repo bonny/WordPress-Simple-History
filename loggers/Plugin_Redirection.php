@@ -23,11 +23,24 @@ defined( 'ABSPATH' ) or die();
  */
 if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
+	/**
+	 * Class to log things from the Redirection plugin.
+	 */
 	class Plugin_Redirection extends SimpleLogger {
 
+		/**
+		 * Logger slug.
+		 *
+		 * @var string
+		 */
 		public $slug = __CLASS__;
 
-		function getInfo() {
+		/**
+		 * Return info about logger.
+		 *
+		 * @return array Array with plugin info.
+		 */
+		public function getInfo() {
 
 			$arr_info = array(
 				'name' => 'Redirection',
@@ -39,7 +52,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 					'redirection_redirection_edited' => _x( 'Edited the redirection for URL "{prev_source_url}"', 'Logger: Redirection', 'simple-history' ),
 					'redirection_redirection_enabled' => _x( 'Enabled the redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
 					'redirection_redirection_disabled' => _x( 'Disabled the redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_removed' => _x( 'Removed redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_deleted' => _x( 'Deleted redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
 					'redirection_options_saved' => _x( 'Updated options', 'Logger: Redirection', 'simple-history' ),
 					'redirection_options_removed_all' => _x( 'Removed all options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
 					'redirection_group_added' => _x( 'Added group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
@@ -140,6 +153,8 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 					$this->log_redirection_enable_or_disable( $request, $bulk_items );
 				} elseif ( 'disable' === $bulk_action ) {
 					$this->log_redirection_enable_or_disable( $request, $bulk_items );
+				} elseif ( 'delete' === $bulk_action ) {
+					$this->log_redirection_delete( $request, $bulk_items );
 				}
 
 				// Bulk action, like selecting multiple redirects in admin and enabling, disabling, deleting.
@@ -204,22 +219,24 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 		}
 
-		function log_redirection_delete( $req ) {
-
-			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
-
+		/**
+		 * Log the deletion of a redirection.
+		 *
+		 * @param object $req Request.
+		 * @param array  $bulk_items Array with item ids.
+		 */
+		protected function log_redirection_delete( $req, $bulk_items ) {
 			$context = array(
-				'items' => $items,
-				'items_count' => count( $items ),
+				'items' => $bulk_items,
+				'items_count' => count( $bulk_items ),
 			);
 
-			$message_key = 'redirection_redirection_removed';
+			$message_key = 'redirection_redirection_deleted';
 
 			$this->infoMessage(
 				$message_key,
 				$context
 			);
-
 		}
 
 		/**
