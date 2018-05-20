@@ -2479,7 +2479,7 @@ Because Simple History was just recently installed, this feed does not contain m
 	 * Works like json_encode, but adds JSON_PRETTY_PRINT if the current php version supports it
 	 * i.e. PHP is 5.4.0 or greated
 	 *
-	 * @param $value array|object|string|whatever that is json_encode'able
+	 * @param mixed $value array|object|string|whatever that is json_encode'able.
 	 */
 	public static function json_encode( $value ) {
 
@@ -3575,3 +3575,29 @@ function simple_history_text_diff( $left_string, $right_string, $args = null ) {
 
 	return $r;
 }
+
+/**
+ * Log variable(s) to error log.
+ * Any number of variables can be passed and each variable is print_r'ed to the error log.
+ *
+ * Example usage:
+ * sh_error_log(
+ *   'rest_request_after_callbacks:',
+ *   $handler,
+ *   $handler['callback'][0],
+ *   $handler['callback'][1]
+ * );
+ */
+function sh_error_log() {
+	foreach ( func_get_args() as $var ) {
+		if ( is_bool( $var ) ) {
+			$bool_string = true === $var ? 'true' : 'false';
+			error_log( "$bool_string (boolean value)" );
+		} elseif ( is_null( $var ) ) {
+			error_log( 'null (null value)' );
+		} else {
+			error_log( print_r( $var, true ) );
+		}
+	}
+}
+

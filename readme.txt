@@ -172,9 +172,13 @@ the IPv6 address 2a03:2880:2110:df07:face:b00c::1 is anonymized by default to 26
 
 - Added filter `simple_history/privacy/anonymize_ip_address` than can be used to disable ip address anonymization.
 
+- Added function `sh_error_log()` to easily log variables to the error log. Probably only of interest to developers.
+
+
 = 2.21.1 (May 2018) =
 
 - Make sure support for Advanced Custom Fields is activated for all users – and not only for the developer of the plugin ;)
+
 
 = 2.21 (May 2018) =
 
