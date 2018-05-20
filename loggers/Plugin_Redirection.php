@@ -110,12 +110,14 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		 * @return WP_HTTP_Response $response
 		 */
 		public function on_rest_request_before_callbacks( $response, $handler, $request ) {
+			/*
 			sh_error_log(
 				'rest_request_after_callbacks:',
 				$handler['callback'][0],
 				$handler['callback'][1],
 				$request->get_params()
 			);
+			*/
 
 			// API route callback object, for example "Redirection_Api_Redirect" Object.
 			$route_callback_object = isset( $handler['callback'][0] ) ? $handler['callback'][0] : false;
@@ -157,10 +159,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 					$this->log_redirection_delete( $request, $bulk_items );
 				}
 
-				// Bulk action, like selecting multiple redirects in admin and enabling, disabling, deleting.
-				// $this->log_redirection_enable_or_disable( $_REQUEST );
-				// $this->log_redirection_enable_or_disable( $_REQUEST );
-				// $this->log_redirection_delete( $_REQUEST );
+				// Old things that is not logged yet again after Redirection changed to using the REST API.
 				// $this->log_options_delete_all( $_REQUEST );
 				// $this->log_options_save( $_REQUEST );
 				// $this->log_group_add( $_REQUEST );
