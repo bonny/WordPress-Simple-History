@@ -122,6 +122,26 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 			}
 
 			if ( 'route_bulk' === $route_callback_method ) {
+
+				$bulk_action = $request->get_param( 'bulk' );
+
+				$bulk_items = $request->get_param( 'items' );
+				$bulk_items = explode( ',', $bulk_items );
+
+				if ( is_array( $bulk_items ) ) {
+					$bulk_items = array_map( 'intval', $bulk_items );
+				}
+
+				if ( empty( $bulk_items ) ) {
+					return $response;
+				}
+
+				if ( 'enable' === $bulk_action ) {
+					$this->log_redirection_enable_or_disable( $request, $bulk_items );
+				} elseif ( 'disable' === $bulk_action ) {
+					$this->log_redirection_enable_or_disable( $request, $bulk_items );
+				}
+
 				// Bulk action, like selecting multiple redirects in admin and enabling, disabling, deleting.
 				// $this->log_redirection_enable_or_disable( $_REQUEST );
 				// $this->log_redirection_enable_or_disable( $_REQUEST );
@@ -135,10 +155,6 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 			}
 
 			return $response;
-		}
-
-		function log_group_enable_or_disable() {
-			// @HERE
 		}
 
 		function log_group_delete( $req ) {
@@ -206,23 +222,26 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 		}
 
+		/**
+		 * Log enable or disable of items.
+		 *
+		 * @param Object $req Req.
+		 * @param Array  $bulk_items Array.
+		 */
+		protected function log_redirection_enable_or_disable( $req, $bulk_items ) {
+			$bulk_action = $req->get_param( 'bulk' );
 
-		function log_redirection_enable_or_disable( $req ) {
-
-			$message_key = $req['action'] == 'enable' ? 'redirection_redirection_enabled' : 'redirection_redirection_disabled';
-
-			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
+			$message_key = 'enable' === $bulk_action ? 'redirection_redirection_enabled' : 'redirection_redirection_disabled';
 
 			$context = array(
-				'items' => $items,
-				'items_count' => count( $items ),
+				'items' => $bulk_items,
+				'items_count' => count( $bulk_items ),
 			);
 
 			$this->infoMessage(
 				$message_key,
 				$context
 			);
-
 		}
 
 		/**
@@ -264,7 +283,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 			$context = array(
 				'new_source_url' => $req->get_param( 'url' ),
 				'new_target_url' => $action_data['url'],
-				'id' => $redirection_id,
+				'redirection_id' => $redirection_id,
 			);
 
 			// Get old values.
