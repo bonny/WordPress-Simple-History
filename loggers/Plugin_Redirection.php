@@ -49,14 +49,16 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 				'capability' => 'manage_options',
 				'messages' => array(
 					'redirection_redirection_added' => _x( 'Added a redirection for URL "{source_url}"', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_edited' => _x( 'Edited the redirection for URL "{prev_source_url}"', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_enabled' => _x( 'Enabled the redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_disabled' => _x( 'Disabled the redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_edited' => _x( 'Edited redirection for URL "{prev_source_url}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_enabled' => _x( 'Enabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_disabled' => _x( 'Disabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
 					'redirection_redirection_deleted' => _x( 'Deleted redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_options_saved' => _x( 'Updated options', 'Logger: Redirection', 'simple-history' ),
-					'redirection_options_removed_all' => _x( 'Removed all options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
-					'redirection_group_added' => _x( 'Added group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
-					'redirection_group_deleted' => _x( 'Deleted {items_count} group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_options_saved' => _x( 'Updated redirection options', 'Logger: Redirection', 'simple-history' ),
+					'redirection_options_removed_all' => _x( 'Removed all redirection options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_added' => _x( 'Added redirection group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_enabled' => _x( 'Enabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_disabled' => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_deleted' => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 				),
 				/*
 				"labels" => array(
@@ -83,7 +85,6 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 					) // end search array
 				) // end labels
 				*/
-
 			);
 
 			return $arr_info;
@@ -121,23 +122,27 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 			// API route callback object, for example "Redirection_Api_Redirect" Object.
 			$route_callback_object = isset( $handler['callback'][0] ) ? $handler['callback'][0] : false;
+			$route_callback_object_class = get_class( $route_callback_object );
 
 			// Method name to call on callback class, for example "route_bulk".
 			$route_callback_method = isset( $handler['callback'][1] ) ? $handler['callback'][1] : false;
 
+			$redirection_api_classes = array(
+				'Redirection_Api_Redirect',
+				'Redirection_Api_Group',
+				'Redirection_Api_Settings',
+			);
+
 			// Bail directly if this is not a Redirection API call.
-			if ( 'Redirection_Api_Redirect' !== get_class( $route_callback_object ) ) {
+			if ( ! in_array( $route_callback_object_class, $redirection_api_classes ) ) {
 				return $response;
 			}
 
-			if ( 'route_create' === $route_callback_method ) {
+			if ( 'Redirection_Api_Redirect' == $route_callback_object_class && 'route_create' === $route_callback_method ) {
 				$this->log_redirection_add( $request );
 			} elseif ( 'route_update' === $route_callback_method ) {
 				$this->log_redirection_edit( $request );
-			}
-
-			if ( 'route_bulk' === $route_callback_method ) {
-
+			} else if ( 'Redirection_Api_Redirect' == $route_callback_object_class && 'route_bulk' === $route_callback_method ) {
 				$bulk_action = $request->get_param( 'bulk' );
 
 				$bulk_items = $request->get_param( 'items' );
@@ -158,38 +163,61 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 				} elseif ( 'delete' === $bulk_action ) {
 					$this->log_redirection_delete( $request, $bulk_items );
 				}
+			} elseif ( 'Redirection_Api_Group' == $route_callback_object_class && 'route_create' === $route_callback_method ) {
+				$this->log_group_add( $request );
+			} else if ( 'Redirection_Api_Group' == $route_callback_object_class && 'route_bulk' === $route_callback_method ) {
+				$bulk_action = $request->get_param( 'bulk' );
 
-				// Old things that is not logged yet again after Redirection changed to using the REST API.
-				// $this->log_options_delete_all( $_REQUEST );
-				// $this->log_options_save( $_REQUEST );
-				// $this->log_group_add( $_REQUEST );
-				// $this->log_group_delete( $_REQUEST );
-				// $this->log_group_enable_or_disable( $_REQUEST );
-				// $this->log_group_enable_or_disable( $_REQUEST );
+				$bulk_items = $request->get_param( 'items' );
+				$bulk_items = explode( ',', $bulk_items );
+
+				if ( is_array( $bulk_items ) ) {
+					$bulk_items = array_map( 'intval', $bulk_items );
+				}
+
+				if ( empty( $bulk_items ) ) {
+					return $response;
+				}
+
+				if ( 'enable' === $bulk_action ) {
+					$this->log_group_enable_or_disable( $request, $bulk_items );
+				} elseif ( 'disable' === $bulk_action ) {
+					$this->log_group_enable_or_disable( $request, $bulk_items );
+				} elseif ( 'delete' === $bulk_action ) {
+					$this->log_group_delete( $request, $bulk_items );
+				}
+			} else if ( 'Redirection_Api_Settings' == $route_callback_object_class ) {
+				$this->log_options_save( $request );
 			}
 
 			return $response;
 		}
 
-		function log_group_delete( $req ) {
-
-			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
-
+		/**
+		 * Log when a Redirection group is deleted.
+		 *
+		 * @param object $req Request.
+		 * @param array  $bulk_items Array with item ids.
+		 */
+		public function log_group_delete( $req, $bulk_items ) {
 			$context = array(
-				'items' => $items,
-				'items_count' => count( $items ),
+				'items' => $bulk_items,
+				'items_count' => count( $bulk_items ),
 			);
 
 			$this->infoMessage(
 				'redirection_group_deleted',
 				$context
 			);
-
 		}
 
-		function log_group_add( $req ) {
-
-			$group_name = isset( $req['name'] ) ? $req['name'] : null;
+		/**
+		 * Log when a Redirection grouop is added
+		 *
+		 * @param WP_REST_Request $req Request.
+		 */
+		public function log_group_add( $req ) {
+			$group_name = $req->get_param( 'name' );
 
 			if ( ! $group_name ) {
 				return;
@@ -203,19 +231,32 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 				'redirection_group_added',
 				$context
 			);
+		}
 
+		/**
+		 * Log enabling and disabling of redirection groups.
+		 *
+		 * @param object $req Request.
+		 * @param array  $bulk_items Array with item ids.
+		 */
+		public function log_group_enable_or_disable( $req, $bulk_items ) {
+			$bulk_action = $req->get_param( 'bulk' );
+
+			$message_key = 'enable' === $bulk_action ? 'redirection_group_enabled' : 'redirection_group_disabled';
+
+			$context = array(
+				'items' => $bulk_items,
+				'items_count' => count( $bulk_items ),
+			);
+
+			$this->infoMessage(
+				$message_key,
+				$context
+			);
 		}
 
 		function log_options_save( $req ) {
-
 			$this->infoMessage( 'redirection_options_saved' );
-
-		}
-
-		function log_options_delete_all( $req ) {
-
-			$this->infoMessage( 'redirection_options_removed_all' );
-
 		}
 
 		/**
