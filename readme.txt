@@ -174,6 +174,8 @@ the IPv6 address 2a03:2880:2110:df07:face:b00c::1 is anonymized by default to 26
 
 - Added function `sh_error_log()` to easily log variables to the error log. Probably only of interest to developers.
 
+- Fixed logging for [plugin Redirection](https://wordpress.org/plugins/redirection/). The logging of URL redirects and so on stopped working some while back because the Redirection plugin started using the WP REST API. But now it's working again!
+
 
 = 2.21.1 (May 2018) =
 
