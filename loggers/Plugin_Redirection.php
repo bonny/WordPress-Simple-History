@@ -1,18 +1,46 @@
 <?php
 
+/*
+// Nya filter
+
+// Ny redirect
+$data = apply_filters( 'redirection_create_redirect', $data );
+
+// Uppdatera redirect
+$data = apply_filters( 'redirection_update_redirect', $data );
+
+// Get Redirection item
+Red_Item::get_by_id();
+
+*/
+
+
 defined( 'ABSPATH' ) or die();
 
 /**
  * Logger for the Redirection plugin
- * https://sv.wordpress.org/plugins/redirection/
+ * https://wordpress.org/plugins/redirection/
  */
 if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
+	/**
+	 * Class to log things from the Redirection plugin.
+	 */
 	class Plugin_Redirection extends SimpleLogger {
 
+		/**
+		 * Logger slug.
+		 *
+		 * @var string
+		 */
 		public $slug = __CLASS__;
 
-		function getInfo() {
+		/**
+		 * Return info about logger.
+		 *
+		 * @return array Array with plugin info.
+		 */
+		public function getInfo() {
 
 			$arr_info = array(
 				'name' => 'Redirection',
@@ -21,14 +49,16 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 				'capability' => 'manage_options',
 				'messages' => array(
 					'redirection_redirection_added' => _x( 'Added a redirection for URL "{source_url}"', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_edited' => _x( 'Edited the redirection for URL "{source_url}', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_enabled' => _x( 'Enabled the redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_disabled' => _x( 'Disabled the redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_removed' => _x( 'Removed redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_options_saved' => _x( 'Updated options', 'Logger: Redirection', 'simple-history' ),
-					'redirection_options_removed_all' => _x( 'Removed all options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
-					'redirection_group_added' => _x( 'Added group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
-					'redirection_group_deleted' => _x( 'Deleted {items_count} group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_edited' => _x( 'Edited redirection for URL "{prev_source_url}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_enabled' => _x( 'Enabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_disabled' => _x( 'Disabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_deleted' => _x( 'Deleted redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_options_saved' => _x( 'Updated redirection options', 'Logger: Redirection', 'simple-history' ),
+					'redirection_options_removed_all' => _x( 'Removed all redirection options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_added' => _x( 'Added redirection group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_enabled' => _x( 'Enabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_disabled' => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_deleted' => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 				),
 				/*
 				"labels" => array(
@@ -55,270 +85,139 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 					) // end search array
 				) // end labels
 				*/
-
 			);
 
 			return $arr_info;
 
 		}
 
-		function loaded() {
-
-			// Catch redirection create, enable, disable
-			add_action( 'admin_init', array( $this, 'on_admin_init' ) );
-
-			// Catch edit existing redirect
-			add_action( 'wp_ajax_red_redirect_save', array( $this, 'on_edit_save_redirect' ) );
-
-		} // loaded
-
-		function on_edit_save_redirect() {
-
-			/*
-			Edit and save redirection
-			{
-			    "old": "\/my-edited-old-page-again\/",
-			    "title": "",
-			    "group_id": "1",
-			    "target": "\/my-edited-new-page-again\/",
-			    "action_code": "301",
-			    "action": "red_redirect_save",
-			    "id": "7",
-			    "_wpnonce": "732a2bb825",
-			    "_wp_http_referer": "\/wp-admin\/admin-ajax.php"
-			}
-			_wpnonce:abfaeae905
-			_wp_http_referer:/wp-admin/admin-ajax.php
-			*/
-			$this->log_redirection_edit( $_REQUEST );
-
+		/**
+		 * Called when logger is loaded.
+		 */
+		public function loaded() {
+			// Redirection plugin uses the WP REST API, so catch when requests do the API is done.
+			// We use filter *_before_callbacks so we can access the old title
+			// of the Redirection object, i.e. before new values are saved.
+			add_filter( 'rest_request_before_callbacks', array( $this, 'on_rest_request_before_callbacks' ), 10, 3 );
 		}
 
 		/**
-		 * Check if request is an create or enable/disable redirection
+		 * Fired when WP REST API call is done.
+		 *
+		 * @param WP_HTTP_Response $response Result to send to the client. Usually a WP_REST_Response.
+		 * @param WP_REST_Server   $handler  ResponseHandler instance (usually WP_REST_Server).
+		 * @param WP_REST_Request  $request  Request used to generate the response.
+		 *
+		 * @return WP_HTTP_Response $response
 		 */
-		function on_admin_init() {
-
-			$referer = wp_get_raw_referer();
-
-			// We only continue if referer contains page=redirection.php
-			if ( false === strpos( $referer, 'page=redirection.php' ) ) {
-				return;
-			}
-
-			$referer_parsed = parse_url( $referer );
-
+		public function on_rest_request_before_callbacks( $response, $handler, $request ) {
 			/*
-			Create redirection
-			{
-				"source": "source yo",
-				"match": "url",
-				"red_action": "url",
-				"target": "dest yo",
-				"group_id": "1",
-				"add": "Add Redirection",
-				"group": "0",
-				"action": "red_redirect_add",
-				"_wpnonce": "cdadb5a4ca",
-				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php"
-			}
+			sh_error_log(
+				'rest_request_after_callbacks:',
+				$handler['callback'][0],
+				$handler['callback'][1],
+				$request->get_params()
+			);
 			*/
-			if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'red_redirect_add' ) {
-				$this->log_redirection_add( $_REQUEST );
-				return;
+
+			// API route callback object, for example "Redirection_Api_Redirect" Object.
+			$route_callback_object = isset( $handler['callback'][0] ) ? $handler['callback'][0] : false;
+			$route_callback_object_class = get_class( $route_callback_object );
+
+			// Method name to call on callback class, for example "route_bulk".
+			$route_callback_method = isset( $handler['callback'][1] ) ? $handler['callback'][1] : false;
+
+			$redirection_api_classes = array(
+				'Redirection_Api_Redirect',
+				'Redirection_Api_Group',
+				'Redirection_Api_Settings',
+			);
+
+			// Bail directly if this is not a Redirection API call.
+			if ( ! in_array( $route_callback_object_class, $redirection_api_classes ) ) {
+				return $response;
 			}
 
-			/*
-			Enable/disable single or multiple direction(s)
-			{
-				"page": "redirection.php",
-				"_wpnonce": "290f261024",
-				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php",
-				"action": "enable", or "disable"
-				"id": "0",
-				"paged": "1",
-				"item": [
-					"3",
-					"2",
-					"1"
-				],
-				"action2": "-1"
-			}
-			*/
-			if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'enable' && empty( $_REQUEST['sub'] ) ) {
-				$this->log_redirection_enable_or_disable( $_REQUEST );
-				return;
-			} elseif ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'disable' && empty( $_REQUEST['sub'] ) ) {
-				$this->log_redirection_enable_or_disable( $_REQUEST );
-				return;
+			if ( 'Redirection_Api_Redirect' == $route_callback_object_class && 'route_create' === $route_callback_method ) {
+				$this->log_redirection_add( $request );
+			} elseif ( 'route_update' === $route_callback_method ) {
+				$this->log_redirection_edit( $request );
+			} else if ( 'Redirection_Api_Redirect' == $route_callback_object_class && 'route_bulk' === $route_callback_method ) {
+				$bulk_action = $request->get_param( 'bulk' );
+
+				$bulk_items = $request->get_param( 'items' );
+				$bulk_items = explode( ',', $bulk_items );
+
+				if ( is_array( $bulk_items ) ) {
+					$bulk_items = array_map( 'intval', $bulk_items );
+				}
+
+				if ( empty( $bulk_items ) ) {
+					return $response;
+				}
+
+				if ( 'enable' === $bulk_action ) {
+					$this->log_redirection_enable_or_disable( $request, $bulk_items );
+				} elseif ( 'disable' === $bulk_action ) {
+					$this->log_redirection_enable_or_disable( $request, $bulk_items );
+				} elseif ( 'delete' === $bulk_action ) {
+					$this->log_redirection_delete( $request, $bulk_items );
+				}
+			} elseif ( 'Redirection_Api_Group' == $route_callback_object_class && 'route_create' === $route_callback_method ) {
+				$this->log_group_add( $request );
+			} else if ( 'Redirection_Api_Group' == $route_callback_object_class && 'route_bulk' === $route_callback_method ) {
+				$bulk_action = $request->get_param( 'bulk' );
+
+				$bulk_items = $request->get_param( 'items' );
+				$bulk_items = explode( ',', $bulk_items );
+
+				if ( is_array( $bulk_items ) ) {
+					$bulk_items = array_map( 'intval', $bulk_items );
+				}
+
+				if ( empty( $bulk_items ) ) {
+					return $response;
+				}
+
+				if ( 'enable' === $bulk_action ) {
+					$this->log_group_enable_or_disable( $request, $bulk_items );
+				} elseif ( 'disable' === $bulk_action ) {
+					$this->log_group_enable_or_disable( $request, $bulk_items );
+				} elseif ( 'delete' === $bulk_action ) {
+					$this->log_group_delete( $request, $bulk_items );
+				}
+			} else if ( 'Redirection_Api_Settings' == $route_callback_object_class ) {
+				$this->log_options_save( $request );
 			}
 
-			/*
-			Delete item(s)
-			{
-			    "page": "redirection.php",
-			    "edit": "4",
-			    "_wpnonce": "290f261024",
-			    "_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&edit=4",
-			    "action": "delete",
-			    "id": "0",
-			    "paged": "1",
-			    "item": [
-			        "6"
-			    ],
-			    "action2": "-1"
-			}
-			*/
-			if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'delete' && empty( $_REQUEST['sub'] ) ) {
-				$this->log_redirection_delete( $_REQUEST );
-				return;
-			}
-
-			/*
-			Options
-			- delete all options and deactivate plugin
-			{
-			    "page": "redirection.php",
-			    "sub": "options",
-			    "_wpnonce": "e2c008ca25",
-			    "_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=options",
-			    "delete": "Delete"
-			}
-			*/
-			if ( isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'options' && isset( $_REQUEST['delete'] ) && $_REQUEST['delete'] == 'Delete' ) {
-				$this->log_options_delete_all( $_REQUEST );
-				return;
-			}
-
-			/*
-			Save options {
-			    "page": "redirection.php",
-			    "sub": "options",
-			    "_wpnonce": "8fe9b57662",
-			    "_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=options",
-			    "support": "on",
-			    "expire_redirect": "7",
-			    "expire_404": "7",
-			    "monitor_post": "0",
-			    "token": "acf88715b12038e3aca1ae1b3d82132a",
-			    "auto_target": "",
-			    "update": "Update"
-			}
-			*/
-			if (
-				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'options' &&
-				isset( $_REQUEST['update'] ) && $_REQUEST['update'] == 'Update'
-
-			) {
-				$this->log_options_save( $_REQUEST );
-				return;
-			}
-
-			/*
-			Add group
-			{
-				"page": "redirection.php",
-				"sub": "groups",
-				"_wpnonce": "4cac237744",
-				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
-				"name": "new group yo",
-				"module_id": "1",
-				"add": "Add"
-			}
-			*/
-			if (
-				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'groups' &&
-				isset( $_REQUEST['add'] ) && $_REQUEST['add'] == 'Add'
-			) {
-				$this->log_group_add( $_REQUEST );
-				return;
-			}
-
-			/*
-			Delete group(s)
-			{
-				"page": "redirection.php",
-				"sub": "groups",
-				"_wpnonce": "290f261024",
-				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
-				"action": "-1",
-				"id": "0",
-				"paged": "1",
-				"item": [
-					"3",
-					"2"
-				],
-				"action2": "delete"
-			}
-			*/
-			if (
-				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'groups' &&
-				isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'delete'
-			) {
-				$this->log_group_delete( $_REQUEST );
-				return;
-			}
-
-			/*
-			Disable group(s)
-			{
-				"path": "\/wp-admin\/tools.php",
-				"query": "page=redirection.php&sub=groups"
-			}
-			{
-				"page": "redirection.php",
-				"sub": "groups",
-				"_wpnonce": "290f261024",
-				"_wp_http_referer": "\/wp-admin\/tools.php?page=redirection.php&sub=groups",
-				"action": "disable",
-				"id": "0",
-				"paged": "1",
-				"item": [
-					"1"
-				],
-				"action2": "-1"
-			}
-			*/
-			if (
-				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'groups' &&
-				isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'enable'
-			) {
-				$this->log_group_enable_or_disable( $_REQUEST );
-				return;
-			} elseif (
-				isset( $_REQUEST['sub'] ) && $_REQUEST['sub'] == 'groups' &&
-				isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'disable'
-			) {
-				$this->log_group_enable_or_disable( $_REQUEST );
-				return;
-			}
-
-		} // on admin init
-
-
-		function log_group_enable_or_disable() {
-			// @HERE
+			return $response;
 		}
 
-		function log_group_delete( $req ) {
-
-			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
-
+		/**
+		 * Log when a Redirection group is deleted.
+		 *
+		 * @param object $req Request.
+		 * @param array  $bulk_items Array with item ids.
+		 */
+		public function log_group_delete( $req, $bulk_items ) {
 			$context = array(
-				'items' => $items,
-				'items_count' => count( $items ),
+				'items' => $bulk_items,
+				'items_count' => count( $bulk_items ),
 			);
 
 			$this->infoMessage(
 				'redirection_group_deleted',
 				$context
 			);
-
 		}
 
-		function log_group_add( $req ) {
-
-			$group_name = isset( $req['name'] ) ? $req['name'] : null;
+		/**
+		 * Log when a Redirection grouop is added
+		 *
+		 * @param WP_REST_Request $req Request.
+		 */
+		public function log_group_add( $req ) {
+			$group_name = $req->get_param( 'name' );
 
 			if ( ! $group_name ) {
 				return;
@@ -332,122 +231,180 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 				'redirection_group_added',
 				$context
 			);
+		}
 
+		/**
+		 * Log enabling and disabling of redirection groups.
+		 *
+		 * @param object $req Request.
+		 * @param array  $bulk_items Array with item ids.
+		 */
+		public function log_group_enable_or_disable( $req, $bulk_items ) {
+			$bulk_action = $req->get_param( 'bulk' );
+
+			$message_key = 'enable' === $bulk_action ? 'redirection_group_enabled' : 'redirection_group_disabled';
+
+			$context = array(
+				'items' => $bulk_items,
+				'items_count' => count( $bulk_items ),
+			);
+
+			$this->infoMessage(
+				$message_key,
+				$context
+			);
 		}
 
 		function log_options_save( $req ) {
-
 			$this->infoMessage( 'redirection_options_saved' );
-
 		}
 
-		function log_options_delete_all( $req ) {
-
-			$this->infoMessage( 'redirection_options_removed_all' );
-
-		}
-
-		function log_redirection_delete( $req ) {
-
-			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
-
+		/**
+		 * Log the deletion of a redirection.
+		 *
+		 * @param object $req Request.
+		 * @param array  $bulk_items Array with item ids.
+		 */
+		protected function log_redirection_delete( $req, $bulk_items ) {
 			$context = array(
-				'items' => $items,
-				'items_count' => count( $items ),
+				'items' => $bulk_items,
+				'items_count' => count( $bulk_items ),
 			);
 
-			$message_key = 'redirection_redirection_removed';
+			$message_key = 'redirection_redirection_deleted';
 
 			$this->infoMessage(
 				$message_key,
 				$context
 			);
-
 		}
 
-		function log_redirection_edit( $req ) {
+		/**
+		 * Log enable or disable of items.
+		 *
+		 * @param Object $req Req.
+		 * @param Array  $bulk_items Array.
+		 */
+		protected function log_redirection_enable_or_disable( $req, $bulk_items ) {
+			$bulk_action = $req->get_param( 'bulk' );
 
-			/*
-			log_redirection_edit
-			{
-			    "old": "ddd changedaa",
-			    "regex": "on",
-			    "title": "this is descriptionaa",
-			    "group_id": "12",
-			    "user_agent": "Firefoxaa",
-			    "url_from": "eee changedaa",
-			    "url_notfrom": "not matched straa",
-			    "action": "red_redirect_save",
-			    "id": "7",
-			    "_wpnonce": "f15cdcdaea",
-			    "_wp_http_referer": "\/wp-admin\/admin-ajax.php"
-			}
-			*/
+			$message_key = 'enable' === $bulk_action ? 'redirection_redirection_enabled' : 'redirection_redirection_disabled';
 
 			$context = array(
-				'source_url'  => isset( $req['old'] ) ? $req['old'] : null,
-				'target_url'  => isset( $req['target'] ) ? $req['target'] : null,
-				'item_id'     => isset( $req['id'] ) ? $req['id'] : null,
-				'title'       => isset( $req['title'] ) ? $req['title'] : null,
-				'regex'       => isset( $req['regex'] ) ? true : false,
-				'group_id'    => isset( $req['group_id'] ) ? $req['group_id'] : null,
-				'user_agent'  => isset( $req['user_agent'] ) ? $req['user_agent'] : null,
-				'url_from'    => isset( $req['url_from'] ) ? $req['url_from'] : null,
-				'url_notfrom' => isset( $req['url_notfrom'] ) ? $req['url_notfrom'] : null,
-				'action_code' => isset( $req['action_code'] ) ? $req['action_code'] : null,
-			);
-
-			$message_key = 'redirection_redirection_edited';
-
-			$this->infoMessage(
-				$message_key,
-				$context
-			);
-
-		}
-
-		function log_redirection_enable_or_disable( $req ) {
-
-			$message_key = $req['action'] == 'enable' ? 'redirection_redirection_enabled' : 'redirection_redirection_disabled';
-
-			$items = isset( $req['item'] ) ? (array) $req['item'] : array();
-
-			$context = array(
-				'items' => $items,
-				'items_count' => count( $items ),
+				'items' => $bulk_items,
+				'items_count' => count( $bulk_items ),
 			);
 
 			$this->infoMessage(
 				$message_key,
 				$context
 			);
-
 		}
 
-		function log_redirection_add( $req ) {
+		/**
+		 * Log when a Redirection is added.
+		 *
+		 * @param WP_REST_Request $req Request.
+		 */
+		protected function log_redirection_add( $req ) {
+			$action_data = $req->get_param( 'action_data' );
 
-			if ( ! isset( $req['group_id'] ) ) {
-				return;
+			if ( ! $action_data || ! is_array( $action_data ) ) {
+				return false;
 			}
 
-			$source = isset( $req['source'] ) ? $req['source'] : null;
-			$target = isset( $req['target'] ) ? $req['target'] : null;
-			$match = isset( $req['match'] ) ? $req['match'] : null;
-			$action = isset( $req['action'] ) ? $req['action'] : null;
-			$group_id = isset( $req['group_id'] ) ? $req['group_id'] : null;
-			$regex = isset( $req['regex'] ) ? true : false;
-
 			$context = array(
-				'source_url' => $source,
-				'target_url' => $target,
-				'match' => $match,
-				'action' => $action,
-				'group_id' => $group_id,
-				'regex' => $regex,
+				'source_url' => $req->get_param( 'url' ),
+				'target_url' => $action_data['url'],
 			);
 
 			$this->infoMessage( 'redirection_redirection_added', $context );
+		}
 
+		/**
+		 * Log when a Redirection is changed.
+		 *
+		 * @param WP_REST_Request $req Request.
+		 */
+		protected function log_redirection_edit( $req ) {
+			$action_data = $req->get_param( 'action_data' );
+
+			if ( ! $action_data || ! is_array( $action_data ) ) {
+				return false;
+			}
+
+			$message_key = 'redirection_redirection_edited';
+
+			$redirection_id = $req->get_param( 'id' );
+
+			$context = array(
+				'new_source_url' => $req->get_param( 'url' ),
+				'new_target_url' => $action_data['url'],
+				'redirection_id' => $redirection_id,
+			);
+
+			// Get old values.
+			$redirection_item = Red_Item::get_by_id( $redirection_id );
+
+			if ( false !== $redirection_item ) {
+				$context['prev_source_url'] = $redirection_item->get_url();
+				$context['prev_target_url'] = $redirection_item->get_action_data();
+			}
+
+			$this->infoMessage(
+				$message_key,
+				$context
+			);
+		}
+
+		/**
+		 * Return more info about an logged redirection event.
+		 *
+		 * @param array $row Row with info.
+		 */
+		public function getLogRowDetailsOutput( $row ) {
+			$context = $row->context;
+			$message_key = $context['_message_key'];
+
+			$out = '';
+
+			if ( 'redirection_redirection_edited' === $message_key ) {
+				if ( $context['new_source_url'] !== $context['prev_source_url'] ) {
+					$diff_table_output = sprintf(
+						'<tr>
+		                    <td>%1$s</td>
+		                    <td>
+								<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
+								<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
+		                    </td>
+		                </tr>',
+						esc_html_x( 'Source URL', 'Logger: Redirection', 'simple-history' ), // 1
+						esc_html( $context['new_source_url'] ), // 2
+						esc_html( $context['prev_source_url'] ) // 3
+					);
+
+					$out .= '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+				}
+
+				if ( $context['new_target_url'] !== $context['prev_target_url'] ) {
+					$diff_table_output = sprintf(
+						'<tr>
+		                    <td>%1$s</td>
+		                    <td>
+								<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
+								<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
+		                    </td>
+		                </tr>',
+						esc_html_x( 'Target URL', 'Logger: Redirection', 'simple-history' ), // 1
+						esc_html( $context['new_target_url'] ), // 2
+						esc_html( $context['prev_target_url'] ) // 3
+					);
+
+					$out .= '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+				}
+			}
+
+			return $out;
 		}
 
 	} // class
