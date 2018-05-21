@@ -60,28 +60,19 @@ class SimplePrivacyLogger extends SimpleLogger {
 		$option_name = 'wp_page_for_privacy_policy';
 
 		if ( 'create-privacy-page' === $action ) {
-		    add_action( "update_option_{$option_name}", array( $this, 'on_update_option_create_privacy_page' ), 10, 3 );
-		}  elseif ( 'set-privacy-page' === $action ) {
+			add_action( "update_option_{$option_name}", array( $this, 'on_update_option_create_privacy_page' ), 10, 3 );
+		} elseif ( 'set-privacy-page' === $action ) {
 			add_action( "update_option_{$option_name}", array( $this, 'on_update_option_set_privacy_page' ), 10, 3 );
 		}
-		/*
-		$_POST when creating a new privacy page
-		action: create-privacy-page
-		_wpnonce: 8464326d44
-		_wp_http_referer: /wp/wp-admin/privacy.php
-		submit: Create New Page
-
-		update_option( 'wp_page_for_privacy_policy', $privacy_policy_page_id );
-
-		$_POST when setting privacy page
-		action: set-privacy-page
-		page_for_privacy_policy: 329
-		_wpnonce: 549e876bd9
-		_wp_http_referer: /wp/wp-admin/privacy.php
-		submit: Use This Page
-		*/
 	}
 
+	/**
+	 * Fires after the value of a specific option has been successfully updated.
+	 *
+	 * @param mixed  $old_value The old option value.
+	 * @param mixed  $value     The new option value.
+	 * @param string $option    Option name.
+	 */
 	public function on_update_option_create_privacy_page( $old_value, $value, $option ) {
 		$post = get_post( $value );
 
@@ -99,6 +90,13 @@ class SimplePrivacyLogger extends SimpleLogger {
 		);
 	}
 
+	/**
+	 * Fires after the value of a specific option has been successfully updated.
+	 *
+	 * @param mixed  $old_value The old option value.
+	 * @param mixed  $value     The new option value.
+	 * @param string $option    Option name.
+	 */
 	public function on_update_option_set_privacy_page( $old_value, $value, $option ) {
 
 		$post = get_post( $value );
