@@ -1,21 +1,6 @@
 <?php
 
-/*
-// Nya filter
-
-// Ny redirect
-$data = apply_filters( 'redirection_create_redirect', $data );
-
-// Uppdatera redirect
-$data = apply_filters( 'redirection_update_redirect', $data );
-
-// Get Redirection item
-Red_Item::get_by_id();
-
-*/
-
-
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logger for the Redirection plugin
@@ -60,6 +45,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 					'redirection_group_disabled' => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 					'redirection_group_deleted' => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 				),
+
 				/*
 				"labels" => array(
 					"search" => array(
@@ -111,15 +97,6 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		 * @return WP_HTTP_Response $response
 		 */
 		public function on_rest_request_before_callbacks( $response, $handler, $request ) {
-			/*
-			sh_error_log(
-				'rest_request_after_callbacks:',
-				$handler['callback'][0],
-				$handler['callback'][1],
-				$request->get_params()
-			);
-			*/
-
 			// API route callback object, for example "Redirection_Api_Redirect" Object.
 			$route_callback_object = isset( $handler['callback'][0] ) ? $handler['callback'][0] : false;
 			$route_callback_object_class = get_class( $route_callback_object );
@@ -255,7 +232,12 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 			);
 		}
 
-		function log_options_save( $req ) {
+		/**
+		 * Log when options are saved.
+		 *
+		 * @param object $req Request.
+		 */
+		protected function log_options_save( $req ) {
 			$this->infoMessage( 'redirection_options_saved' );
 		}
 
