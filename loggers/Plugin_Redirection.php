@@ -99,6 +99,13 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		public function on_rest_request_before_callbacks( $response, $handler, $request ) {
 			// API route callback object, for example "Redirection_Api_Redirect" Object.
 			$route_callback_object = isset( $handler['callback'][0] ) ? $handler['callback'][0] : false;
+
+			// In the case of redirection $route_callback_object must be a class
+			// so bail if it is not.
+			if ( gettype( $route_callback_object ) !== 'object' ) {
+				return $response;
+			}
+
 			$route_callback_object_class = get_class( $route_callback_object );
 
 			// Method name to call on callback class, for example "route_bulk".
