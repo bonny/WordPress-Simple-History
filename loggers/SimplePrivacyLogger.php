@@ -46,8 +46,35 @@ class SimplePrivacyLogger extends SimpleLogger {
 	 */
 	public function loaded() {
 
-		// Add our filters only on the privacy page.
+		// Add our filters to detect create privacy page and set privacy page.
+		// Add the filters only on the privacy page.
 		add_action( 'load-privacy.php', array( $this, 'on_load_privacy_page' ) );
+
+		// Log when export request is sent to user.
+		// http://wp-playground.localhost/wp/wp-admin/tools.php?page=export_personal_data
+		// "Confirmation request initiated successfully.
+		// $content = apply_filters( 'user_request_action_email_content', $email_text, $email_data );"
+		// Filter called when sending email after creating request. But also when re-sending request!
+
+		// Delete request POST data
+		/*
+		page: export_personal_data
+		action: delete
+		request_id[0]: 784
+		_wpnonce: 41672c730a
+		*/
+
+		// Download Personal Data in admin
+		/*
+		AJAX
+		action: wp-privacy-export-personal-data
+		exporter: 3
+		id: 785
+		page: 1
+		security: 1cc184a3f8
+		sendAsEmail: false
+		*/
+
 
 		// user_request_action_confirmed – fired when a user confirms a privacy request
 
