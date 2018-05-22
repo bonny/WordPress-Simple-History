@@ -163,6 +163,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.n (nnn 2018) =
+
+- Fix error when categories changes was shown in the log.
+
 = 2.22.1 (May 2018) =
 
 - Fix for some REST API Routes not working, for example when using WPCF7. Should fix https://wordpress.org/support/topic/errorexception-with-wpcf7/ and similar.
