@@ -1,4 +1,9 @@
 <?php
+/**
+ * Comment API: Walker_Comment class
+ *
+ * @package SimpleHistory
+ */
 
 defined( 'ABSPATH' ) || die();
 
@@ -12,7 +17,7 @@ defined( 'ABSPATH' ) || die();
 /**
  * Class to log things from the Redirection plugin.
  */
-class SimplePrivacyLogger extends SimpleLogger {
+class Privacy_Logger extends SimpleLogger {
 
 	/**
 	 * Logger slug.
@@ -27,7 +32,6 @@ class SimplePrivacyLogger extends SimpleLogger {
 	 * @return array Array with plugin info.
 	 */
 	public function getInfo() {
-
 		$arr_info = array(
 			'name' => 'Privacy',
 			'description' => _x( 'Log WordPress privacy related things', 'Logger: Redirection', 'simple-history' ),
