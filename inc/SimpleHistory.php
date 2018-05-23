@@ -970,6 +970,7 @@ class SimpleHistory {
 		$loggersDir = SIMPLE_HISTORY_PATH . 'loggers/';
 
 		$loggersFiles = array(
+			// Main loggers.
 			$loggersDir . 'SimpleCommentsLogger.php',
 			$loggersDir . 'SimpleCoreUpdatesLogger.php',
 			$loggersDir . 'SimpleExportLogger.php',
@@ -985,20 +986,20 @@ class SimpleHistory {
 			$loggersDir . 'SimpleCategoriesLogger.php',
 			$loggersDir . 'AvailableUpdatesLogger.php',
 			$loggersDir . 'FileEditsLogger.php',
-			$loggersDir . 'SimplePrivacyLogger.php',
+			$loggersDir . 'class-privacy-logger.php',
 
-			// Loggers for third party plugins
-			$loggersDir . "PluginUserSwitchingLogger.php",
-			$loggersDir . "PluginEnableMediaReplaceLogger.php",
-			$loggersDir . "Plugin_UltimateMembers_Logger.php",
-			$loggersDir . "Plugin_LimitLoginAttempts.php",
-            $loggersDir . "Plugin_Redirection.php",
-			$loggersDir . "Plugin_DuplicatePost.php",
-			$loggersDir . "Plugin_ACF.php"
-	    );
+			// Loggers for third party plugins.
+			$loggersDir . 'PluginUserSwitchingLogger.php',
+			$loggersDir . 'PluginEnableMediaReplaceLogger.php',
+			$loggersDir . 'Plugin_UltimateMembers_Logger.php',
+			$loggersDir . 'Plugin_LimitLoginAttempts.php',
+			$loggersDir . 'Plugin_Redirection.php',
+			$loggersDir . 'Plugin_DuplicatePost.php',
+			$loggersDir . 'Plugin_ACF.php',
+		);
 
-		// SimpleLogger.php must be loaded first and always since the other loggers extend it
-		// Include it manually so risk of anyone using filters or similar disables it
+		// SimpleLogger.php must be loaded first and always since the other loggers extend it.
+		// Include it manually so risk of anyone using filters or similar disables it.
 		include_once $loggersDir . 'SimpleLogger.php';
 
 		/**
@@ -1013,15 +1014,18 @@ class SimpleHistory {
 		 */
 		$loggersFiles = apply_filters( 'simple_history/loggers_files', $loggersFiles );
 
-		// Array with slug of loggers to instantiate
-		// Slug of logger must also be the name of the logger class
-		$arrLoggersToInstantiate = array();
+		// Array with slug of loggers to instantiate.
+		// Slug of logger must also be the name of the logger class.
+		$arr_loggers_to_instantiate = array();
 
-		foreach ( $loggersFiles as $oneLoggerFile ) {
+		// $one_logger_file = "SimpleCommentsLogger.php", "class-privacy-logger.php", and so on.
+		foreach ( $loggersFiles as $one_logger_file ) {
 
 			$load_logger = true;
 
-			$basename_no_suffix = basename( $oneLoggerFile, '.php' );
+			// SimpleCommentsLogger.php -> SimpleCommentsLogger.
+			// class-privacy-logger.php -> class-privacy-logger.
+			$basename_no_suffix = basename( $one_logger_file, '.php' );
 
 			/**
 			 * Filter to completely skip loading of a logger
@@ -1029,7 +1033,7 @@ class SimpleHistory {
 			 * @since 2.0.22
 			 *
 			 * @param bool if to load the logger. return false to not load it.
-			 * @param string slug of logger
+			 * @param string basename of logger, i.e. "SimpleCommentsLogger" or "class-privacy-logger"
 			 */
 			$load_logger = apply_filters( 'simple_history/logger/load_logger', $load_logger, $basename_no_suffix );
 
@@ -1037,9 +1041,9 @@ class SimpleHistory {
 				continue;
 			}
 
-			include_once $oneLoggerFile;
+			include_once $one_logger_file;
 
-			$arrLoggersToInstantiate[] = $basename_no_suffix;
+			$arr_loggers_to_instantiate[] = $basename_no_suffix;
 
 		}
 
@@ -1053,7 +1057,7 @@ class SimpleHistory {
 		 */
 		do_action( 'simple_history/add_custom_logger', $this );
 
-		$arrLoggersToInstantiate = array_merge( $arrLoggersToInstantiate, $this->externalLoggers );
+		$arr_loggers_to_instantiate = array_merge( $arr_loggers_to_instantiate, $this->externalLoggers );
 
 		/**
 		 * Filter the array with names of loggers to instantiate.
@@ -1067,85 +1071,72 @@ class SimpleHistory {
 		 *
 		 * @since 2.0
 		 *
-		 * @param array $arrLoggersToInstantiate Array with class names
+		 * @param array $arr_loggers_to_instantiate Array with class names
 		 */
-		$arrLoggersToInstantiate = apply_filters( 'simple_history/loggers_to_instantiate', $arrLoggersToInstantiate );
+		$arr_loggers_to_instantiate = apply_filters( 'simple_history/loggers_to_instantiate', $arr_loggers_to_instantiate );
 
-		// Instantiate each logger
-		foreach ( $arrLoggersToInstantiate as $oneLoggerName ) {
+		// Instantiate each logger.
+		foreach ( $arr_loggers_to_instantiate as $one_logger_name ) {
 
-			if ( ! class_exists( $oneLoggerName ) ) {
+			// Detect logger class name.
+			$logger_class_name = null;
+
+			if ( class_exists( $one_logger_name ) ) {
+				// Logger name is "SimpleCommentsLogger".
+				$logger_class_name = $one_logger_name;
+			} else {
+				// Check if class is "class-privacy-logger".
+				$logger_snaked_name = substr( $one_logger_name, 6 );
+				// "privacy-logger" -> "privacy_logger" -> Privacy_Logger
+				$logger_snaked_name = str_replace( '-', '_', $logger_snaked_name );
+				$logger_snaked_name = ucwords( $logger_snaked_name, '_' );
+				if ( class_exists( $logger_snaked_name ) ) {
+					$logger_class_name = $logger_snaked_name;
+				}
+			}
+
+			// Continue to load next logger if no valid logger class found.
+			if ( ! $logger_class_name ) {
 				continue;
 			}
 
-			$loggerInstance = new $oneLoggerName( $this );
-			if ( ! is_subclass_of( $loggerInstance, 'SimpleLogger' ) && ! is_a( $loggerInstance, 'SimpleLogger' ) ) {
+			// Init found logger class.
+			$logger_instance = new $logger_class_name( $this );
+
+			if ( ! is_subclass_of( $logger_instance, 'SimpleLogger' ) && ! is_a( $logger_instance, 'SimpleLogger' ) ) {
 				continue;
 			}
 
-			$loggerInstance->loaded();
+			$logger_instance->loaded();
 
-			// Tell gettext-filter to add untranslated messages
+			// Tell gettext-filter to add untranslated messages.
 			$this->doFilterGettext = true;
-			$this->doFilterGettext_currentLogger = $loggerInstance;
+			$this->doFilterGettext_currentLogger = $logger_instance;
 
-			$loggerInfo = $loggerInstance->getInfo();
+			$logger_info = $logger_instance->getInfo();
 
 			// Check so no logger has a logger slug with more than 30 chars,
 			// because db column is only 30 chars.
-			if ( strlen( $loggerInstance->slug ) > 30 ) {
+			if ( strlen( $logger_instance->slug ) > 30 ) {
 				add_action( 'admin_notices', array( $this, 'admin_notice_logger_slug_to_long' ) );
 			}
 
-			/*
-				$loggerInfo["messages"]
-			    [messages] => Array
-			        (
-			            [anon_comment_added] => Lade till en kommentar till {comment_post_type} "{comment_post_title}"
-			            [user_comment_added] => Lade till en kommentar till {comment_post_type} "{comment_post_title}"
-			            [comment_status_approve] => Godkände en kommentar till "{comment_post_title}" av {comment_author} ({comment_author_email})
-			            [comment_status_hold] => Godkände inte en kommentar till "{comment_post_title}" av {comment_author} ({comment_author_email})
-			*/
-
-			/*
-			$loggerInstance->messages
-			Array
-			(
-			    [0] => Array
-			        (
-			            [untranslated_text] => Added a comment to {comment_post_type} "{comment_post_title}"
-			            [translated_text] => Lade till en kommentar till {comment_post_type} "{comment_post_title}"
-			            [domain] => simple-history
-			            [context] => A comment was added to the database by a non-logged in internet user
-			        )
-			*/
-
-			// Un-tell gettext filter
+			// Un-tell gettext filter.
 			$this->doFilterGettext = false;
 			$this->doFilterGettext_currentLogger = null;
 
 			// LoggerInfo contains all messages, both translated an not, by key.
-			// Add messages to the loggerInstance
+			// Add messages to the loggerInstance.
 			$loopNum = 0;
 
 			$arr_messages_by_message_key = array();
 
-			if ( isset( $loggerInfo['messages'] ) ) {
+			if ( isset( $logger_info['messages'] ) ) {
 
-				foreach ( (array) $loggerInfo['messages'] as $message_key => $message_translated ) {
+				foreach ( (array) $logger_info['messages'] as $message_key => $message_translated ) {
 
-					// Find message in array with both translated and non translated strings
-					foreach ( $loggerInstance->messages as $one_message_with_translation_info ) {
-
-						/*
-						[0] => Array
-						(
-						[untranslated_text] => ...
-						[translated_text] => ...
-						[domain] => simple-history
-						[context] => ...
-						)
-						*/
+					// Find message in array with both translated and non translated strings.
+					foreach ( $logger_instance->messages as $one_message_with_translation_info ) {
 						if ( $message_translated == $one_message_with_translation_info['translated_text'] ) {
 							$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
 							continue;
@@ -1154,12 +1145,12 @@ class SimpleHistory {
 				}
 			}
 
-			$loggerInstance->messages = $arr_messages_by_message_key;
+			$logger_instance->messages = $arr_messages_by_message_key;
 
-			// Add logger to array of loggers
-			$this->instantiatedLoggers[ $loggerInstance->slug ] = array(
-				'name' => $loggerInfo['name'],
-				'instance' => $loggerInstance,
+			// Add logger to array of loggers.
+			$this->instantiatedLoggers[ $logger_instance->slug ] = array(
+				'name' => $logger_info['name'],
+				'instance' => $logger_instance,
 			);
 
 		}// End foreach().
@@ -1531,10 +1522,10 @@ class SimpleHistory {
 			// Table creation, used to be in register_activation_hook
 			// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
 			$sql = 'CREATE TABLE ' . $table_name . ' (
-              id bigint(20) NOT NULL AUTO_INCREMENT,
-              date datetime NOT NULL,
-              PRIMARY KEY  (id)
-            ) CHARACTER SET=utf8;';
+			  id bigint(20) NOT NULL AUTO_INCREMENT,
+			  date datetime NOT NULL,
+			  PRIMARY KEY  (id)
+			) CHARACTER SET=utf8;';
 
 			// Upgrade db / fix utf for varchars
 			dbDelta( $sql );
