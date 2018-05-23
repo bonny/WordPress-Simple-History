@@ -65,7 +65,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		}
 
 		private function isACFInstalled() {
-			return defined('ACF') && ACF;
+			return defined( 'ACF' ) && ACF;
 		}
 
 		/**
@@ -79,7 +79,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			}
 
 			// Remove ACF Fields from the post types that postlogger logs.
-			add_filter( 'simple_history/post_logger/skip_posttypes', array( $this, 'remove_acf_from_postlogger') );
+			add_filter( 'simple_history/post_logger/skip_posttypes', array( $this, 'remove_acf_from_postlogger' ) );
 
 			// Get prev version of acf field group.
 			// This is called before transition_post_status.
@@ -143,8 +143,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * This function checks if post type logged by SimplePostLogger is a ACF Field Group, and if it is
 		 * then don't log that log. This way we prevent the post logger from logging the field group changes twice.
 		 */
-		public function prevent_second_acf_field_group_post_save_log($ok_to_log, $new_status, $old_status, $post) {
-			if (isset($post->post_type) && $post->post_type === 'acf-field-group') {
+		public function prevent_second_acf_field_group_post_save_log( $ok_to_log, $new_status, $old_status, $post ) {
+			if ( isset( $post->post_type ) && $post->post_type === 'acf-field-group' ) {
 				$ok_to_log = false;
 			}
 
@@ -513,35 +513,35 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * @return string
 		 */
 		public function on_diff_table_output_field_group( $diff_table_output, $context ) {
-    		$post_type = !empty($context['post_type']) ? $context['post_type'] : false;
+			$post_type = ! empty( $context['post_type'] ) ? $context['post_type'] : false;
 
-    		// Bail if not ACF Field Group.
-    		if ($post_type !== 'acf-field-group') {
-    			return '';
-    		}
+			// Bail if not ACF Field Group.
+			if ( $post_type !== 'acf-field-group' ) {
+				return '';
+			}
 
 			// Field group fields to check for and output if found
 			$arrKeys = array(
 				'instruction_placement' => array(
-					'name' => _x('Instruction placement', 'Logger: Plugin ACF', 'simple-history'),
+					'name' => _x( 'Instruction placement', 'Logger: Plugin ACF', 'simple-history' ),
 				),
 				'label_placement'       => array(
-					'name' => _x('Label placement', 'Logger: Plugin ACF', 'simple-history'),
+					'name' => _x( 'Label placement', 'Logger: Plugin ACF', 'simple-history' ),
 				),
 				'description'           => array(
-					'name' => _x('Description', 'Logger: Plugin ACF', 'simple-history'),
+					'name' => _x( 'Description', 'Logger: Plugin ACF', 'simple-history' ),
 				),
 				'menu_order'            => array(
-					'name' => _x('Menu order', 'Logger: Plugin ACF', 'simple-history'),
+					'name' => _x( 'Menu order', 'Logger: Plugin ACF', 'simple-history' ),
 				),
 				'position'              => array(
-					'name' => _x('Position', 'Logger: Plugin ACF', 'simple-history'),
+					'name' => _x( 'Position', 'Logger: Plugin ACF', 'simple-history' ),
 				),
 				'active'                => array(
-					'name' => _x('Active', 'Logger: Plugin ACF', 'simple-history'),
+					'name' => _x( 'Active', 'Logger: Plugin ACF', 'simple-history' ),
 				),
 				'style'                 => array(
-					'name' => _x('Style', 'Logger: Plugin ACF', 'simple-history'),
+					'name' => _x( 'Style', 'Logger: Plugin ACF', 'simple-history' ),
 				),
 			);
 
@@ -665,19 +665,19 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				$strModifiedFields         = '';
 				$arrAddedFieldsKeysToCheck = array(
 					'name'   => array(
-						'name' => _x('Name: ', 'Logger: Plugin ACF', 'simple-history'),
+						'name' => _x( 'Name: ', 'Logger: Plugin ACF', 'simple-history' ),
 					),
 					'parent' => array(
-						'name' => _x('Parent: ', 'Logger: Plugin ACF', 'simple-history'),
+						'name' => _x( 'Parent: ', 'Logger: Plugin ACF', 'simple-history' ),
 					),
 					'key'    => array(
-						'name' => _x('Key: ', 'Logger: Plugin ACF', 'simple-history'),
+						'name' => _x( 'Key: ', 'Logger: Plugin ACF', 'simple-history' ),
 					),
 					'label'  => array(
-						'name' => _x('Label: ', 'Logger: Plugin ACF', 'simple-history'),
+						'name' => _x( 'Label: ', 'Logger: Plugin ACF', 'simple-history' ),
 					),
 					'type'   => array(
-						'name' => _x('Type: ', 'Logger: Plugin ACF', 'simple-history'),
+						'name' => _x( 'Type: ', 'Logger: Plugin ACF', 'simple-history' ),
 					),
 				);
 
