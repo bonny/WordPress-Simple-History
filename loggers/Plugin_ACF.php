@@ -869,7 +869,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			if ( ! empty( $this->oldAndNewFieldGroupsAndFields['modifiedFields']['old'] ) && ! empty( $this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'] ) ) {
 				$modifiedFields = $this->oldAndNewFieldGroupsAndFields['modifiedFields'];
 
-				$arrAddedFieldsKeysToAdd = array(
+				$arr_added_fields_keys_to_add = array(
 					'parent',
 					'key',
 					'label',
@@ -890,12 +890,19 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 					$context[ "acf_modified_fields_{$loopnum}_name_prev" ]  = $modifiedFields['old'][ $modifiedFieldId ]['name'];
 					$context[ "acf_modified_fields_{$loopnum}_label_prev" ] = $modifiedFields['old'][ $modifiedFieldId ]['label'];
 
-					foreach ( $arrAddedFieldsKeysToAdd as $oneKeyToAdd ) {
-						// dd($modifiedFields);
-						// Only add to context if modified
-						if ( $modifiedFields['new'][ $modifiedFieldId ][ $oneKeyToAdd ] != $modifiedFields['old'][ $modifiedFieldId ][ $oneKeyToAdd ] ) {
-							$context[ "acf_modified_fields_{$loopnum}_{$oneKeyToAdd}_prev" ] = $modifiedFields['old'][ $modifiedFieldId ][ $oneKeyToAdd ];
-							$context[ "acf_modified_fields_{$loopnum}_{$oneKeyToAdd}_new" ]  = $modifiedFields['new'][ $modifiedFieldId ][ $oneKeyToAdd ];
+					foreach ( $arr_added_fields_keys_to_add as $one_key_to_add ) {
+						// Check that new and old exist.
+						$new_exist = isset( $modifiedFields['new'][ $modifiedFieldId ][ $one_key_to_add ] );
+						$old_exists = isset( $modifiedFields['old'][ $modifiedFieldId ][ $one_key_to_add ] );
+
+						if ( ! $new_exists || ! $old_exists ) {
+							continue;
+						}
+
+						// Only add to context if modified.
+						if ( $modifiedFields['new'][ $modifiedFieldId ][ $one_key_to_add ] != $modifiedFields['old'][ $modifiedFieldId ][ $one_key_to_add ] ) {
+							$context[ "acf_modified_fields_{$loopnum}_{$one_key_to_add}_prev" ] = $modifiedFields['old'][ $modifiedFieldId ][ $one_key_to_add ];
+							$context[ "acf_modified_fields_{$loopnum}_{$one_key_to_add}_new" ]  = $modifiedFields['new'][ $modifiedFieldId ][ $one_key_to_add ];
 						}
 					}
 
@@ -920,10 +927,13 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		/**
 		 * Store a version of the field group as it was before the save
 		 * Called before field group post/values is added to db
+		 *
+		 * @param array $data Post data.
+		 * @param array $postarr Post data.
 		 */
 		public function on_wp_insert_post_data( $data, $postarr ) {
 
-			// Only do this if ACF field group is being saved
+			// Only do this if ACF field group is being saved.
 			if ( $postarr['post_type'] !== 'acf-field-group' ) {
 				return $data;
 			}
