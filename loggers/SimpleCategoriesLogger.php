@@ -250,19 +250,21 @@ class SimpleCategoriesLogger extends SimpleLogger {
 			$term_taxonomy = isset( $context['from_term_taxonomy'] ) ? (string) $context['from_term_taxonomy'] : null;
 		}
 
-		if ( is_wp_error( $term_object ) ) {
-			return $this->interpolate( $message, $context, $row );
-		}
-
 		$tax_edit_link = add_query_arg(
 			array(
 				'taxonomy' => $term_taxonomy,
 			),
 			admin_url( 'term.php' )
 		);
+
 		$context['tax_edit_link'] = $tax_edit_link;
 
 		$term_object = get_term( $term_id, $term_taxonomy );
+
+		if ( is_wp_error( $term_object ) ) {
+			return $this->interpolate( $message, $context, $row );
+		}
+
 		$term_edit_link = get_edit_tag_link( $term_id, $term_object->taxonomy );
 		$context['term_edit_link'] = $term_edit_link;
 

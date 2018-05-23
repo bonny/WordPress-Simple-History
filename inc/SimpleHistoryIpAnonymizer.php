@@ -35,6 +35,11 @@ class SimpleHistoryIpAnonymizer {
 	 * @return string The anonymized IP address. Returns an empty string when the IP address is invalid.
 	 */
 	public function anonymize($address) {
+
+		if (empty($address)) {
+			return "";
+		}
+
 		$packedAddress = inet_pton($address);
 
 		if (strlen($packedAddress) == 4) {
