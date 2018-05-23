@@ -168,6 +168,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Fix error when categories changes was shown in the log.
 - Fix error when a ACF Field Group was saved.
 - Fix error when the IP address anonymization function tried to anonymize an empty IP adress. Could happen when for example running wp cron locally on your server.
+- Rewrote logger loading method so now it's possible to name your loggers in a WordPress codings standard compatible way. Also: made a bit more code more WordPress-ish.
 
 = 2.22.1 (May 2018) =
 
