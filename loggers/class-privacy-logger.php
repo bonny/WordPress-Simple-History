@@ -1,6 +1,6 @@
 <?php
 /**
- * Comment API: Walker_Comment class
+ * Logger for privacy/GDPR related things.
  *
  * @package SimpleHistory
  */
@@ -84,8 +84,157 @@ class Privacy_Logger extends SimpleLogger {
 
 		// wp_privacy_personal_data_export_file_created – fires after a personal data export file has been created
 
+		// Export personal data.
+		// Done on page
+		// /wp-admin/tools.php?page=export_personal_data
+		// email posted with action=add_export_personal_data_request
+		// kör först $request_id = wp_create_user_request( $email_address, $action_type );
+		// sen wp_send_user_request( $request_id );
+		// type of action: export_personal_data, remove_personal_data
+		/*
+		Infogar en post när det skapas
+	$request_id = wp_insert_post( array(
+		'post_author'   => $user_id,
+		'post_name'     => $action_name,
+		'post_title'    => $email_address,
+		'post_content'  => wp_json_encode( $request_data ),
+		'post_status'   => 'request-pending',
+		'post_type'     => 'user_request',
+		'post_date'     => current_time( 'mysql', false ),
+		'post_date_gmt' => current_time( 'mysql', true ),
+	), true );
+
+	eller denna
+	 * Create and log a user request to perform a specific action.
+ *
+ * Requests are stored inside a post type named `user_request` since they can apply to both
+ * users on the site, or guests without a user account.
+
+		$request_id = wp_insert_post( array(
+		'post_author'   => $user_id,
+		'post_name'     => $action_name,
+		'post_title'    => $email_address,
+		'post_content'  => wp_json_encode( $request_data ),
+		'post_status'   => 'request-pending',
+		'post_type'     => 'user_request',
+		'post_date'     => current_time( 'mysql', false ),
+		'post_date_gmt' => current_time( 'mysql', true ),
+	), true );
+
+
+		*/
+
+		// Request to export or remove data is stored in posts with post type
+		// 'user_request'.
+		add_action( 'save_post_user_request', array( $this, 'on_save_post_user_request' ), 10, 3 );
+
+		// When requests are removed posts are removed.
+		add_action( 'before_delete_post', array( $this, 'on_before_delete_post' ), 10, 1 );
 	}
 
+	/**
+	 *
+	 */
+	public function on_save_post_user_request( $post_ID, $post, $update ) {
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return;
+		}
+
+		/*
+		Add Data Export Request
+		An email will be sent to the user at this email address asking them to verify the request.
+		post id will be valid WP_User_Request
+		$post->post_title, // email@domain.tld
+		$post->post_status, // request-pending
+		$post->post_password empty, is set and causing another call to save_post, so only save one of them
+		WP_User_Request Object
+		(
+		    [ID] => 802
+		    [user_id] => 0
+		    [email] => par+u@eskapism.se
+		    [action_name] => export_personal_data
+		    [status] => request-completed
+		    [created_timestamp] => 1527107451
+		    [modified_timestamp] => 1527107720
+		    [confirmed_timestamp] => 0
+		    [completed_timestamp] => 1527107720
+		    [request_data] => Array
+		        (
+		        )
+
+		    [confirm_key] => $P$BPju6ceKU..rfGNShVXneUyids3P2V/
+		)
+
+		Download Personal Data i admin som inloggad
+		[email] => par+q@earthpeople.se
+	    [action_name] => export_personal_data
+	    [status] => request-completed
+	    $_POST[sendAsEmail] = false
+
+		Klickar ladda-hem-länk i mail
+		http://wp-playground.localhost/wp/wp-login.php?action=confirmaction&request_id=798&confirm_key=w7yQEx41bbqzabWnZz4S
+		Kommer till typ wp-login med meddelande "Tack för att du bekräftar din begäran om dataexport."
+		logga att "User approved Data Export Request"
+		[email] => par+z@earthpeople.se
+		[action_name] => export_personal_data
+		[status] => request-confirmed
+
+		Klickar på "Remove request" i admin
+	 	[email] => par+q@earthpeople.se
+	    [action_name] => export_personal_data
+	    [status] => request-completed
+	    $_POST[action] = delete
+
+	    Klickar på "email data" i admin som inloggad
+	    mail skickas till användare med länk till uploads-mappen
+		[email] => par+r@eskapism.se
+		[action_name] => export_personal_data
+		[status] => request-completed
+		$_POST[sendAsEmail] = true
+
+		*/
+
+		sh_error_log(
+			'---',
+			'on_save_post_user_request',
+			// $post->post_type, user_request
+			#$post->post_name, // export_personal_data
+			#$post->post_content,
+			#$post->post_title, // email@domain.tld
+			#$post->post_status, // request-pending
+			#$post->post_password,
+			wp_get_user_request_data( $post->ID ),
+			$_GET,
+			$_POST,
+			$_SERVER['SCRIPT_FILENAME']
+		);
+	}
+
+	public function on_before_delete_post( $postid ) {
+		$post = get_post( $postid );
+
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return;
+		}
+
+		sh_error_log(
+			'---',
+			'on_before_delete_post',
+			// $post->post_type, user_request
+			$post->post_content,
+			$post->post_title,
+			$post->post_status,
+			$post->post_password,
+			wp_get_user_request_data( $post->ID ),
+			$_GET,
+			$_POST,
+			$_SERVER['SCRIPT_FILENAME']
+		);
+	}
+
+	/**
+	 * Fired when the privacy admin page is loaded.
+	 */
 	public function on_load_privacy_page() {
 		$action = isset( $_POST['action'] ) ? $_POST['action'] : '';
 		$option_name = 'wp_page_for_privacy_policy';
