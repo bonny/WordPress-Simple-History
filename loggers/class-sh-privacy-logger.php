@@ -40,6 +40,8 @@ class SH_Privacy_Logger extends SimpleLogger {
 				'privacy_page_created' => _x( 'Created a new privacy page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_page_set' => _x( 'Set privacy page to page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_requested' => _x( 'Requested a privacy data export for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_admin_downloaded' => _x( 'Downloaded personal data export file for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_request_confirmed' => _x( 'Confirmed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
@@ -50,12 +52,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 * Called when logger is loaded.
 	 */
 	public function loaded() {
-
-		// Check that new function since 4.9.6 exist before trying to use this logger.
-		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
-			return;
-		}
-
 		// Exclude the post types used by the data export from the regular post logger updates.
 		add_filter( 'simple_history/post_logger/skip_posttypes', array( $this, 'remove_post_types_from_postlogger' ) );
 
@@ -66,6 +62,13 @@ class SH_Privacy_Logger extends SimpleLogger {
 		// Add filters to detect data export related functions.
 		// We only add the filters when the tools page for export personal data is loaded.
 		add_action( 'load-tools_page_export_personal_data', array( $this, 'on_load_export_personal_data_page' ) );
+
+		// Request to export or remove data is stored in posts with post type "user_request",
+		// so we add a hook to catch all saves to that post.
+		add_action( 'save_post_user_request', array( $this, 'on_save_post_user_request' ), 10, 3 );
+
+		// Actions fired when user confirms an request action, like exporting their data.
+		add_action( 'user_request_action_confirmed', array( $this, 'on_user_request_action_confirmed' ), 10, 1 );
 	}
 
 	/**
@@ -80,6 +83,44 @@ class SH_Privacy_Logger extends SimpleLogger {
 		);
 
 		return $skip_posttypes;
+	}
+
+	/**
+	 * User gets email and clicks in the confirm data export link.
+	 * Ends up on page that looks kinda like the login page and with message
+	 * "Tack för att du bekräftar din begäran om dataexport."
+	 * "Webbplatsens administratör har informerats. Du kommer via e-post att få en länk för nedladdning av din dataexport när begäran har behandlats."
+	 * URL is like
+	 * http://wp-playground.localhost/wp/wp-login.php?action=confirmaction&request_id=806confirm_key=kOQEq4xkEI2DJdNZ
+	 *
+	 * @param int $request_id Request ID.
+	 */
+	public function on_user_request_action_confirmed( $request_id ) {
+		// Load user.php because we use functions from there.
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+
+		// Check that new function since 4.9.6 exist before trying to use functions.
+		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
+			return;
+		}
+
+		$user_request = wp_get_user_request_data( $request_id );
+		if ( ! $user_request ) {
+			return;
+		}
+
+		if ( 'export_personal_data' === $user_request->action_name && 'request-confirmed' === $user_request->status ) {
+			$this->infoMessage(
+				'privacy_data_export_request_confirmed',
+				array(
+					'user_email' => $user_request->email,
+				)
+			);
+		}
+
+		sh_error_log( 'on_user_request_action_confirmed', $user_request );
 	}
 
 	/**
@@ -99,7 +140,8 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
-		if ( $update ) {
+		// Check that new function since 4.9.6 exist before trying to use functions.
+		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
 			return;
 		}
 
@@ -110,37 +152,36 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
+		$is_doing_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX;
+
 		// Add Data Export Request.
 		// An email will be sent to the user at this email address asking them to verify the request.
 		// Notice message in admin is "Confirmation request initiated successfully.".
-		if ( 'export_personal_data' === $user_request->action_name ) {
+		if ( ! $update && 'export_personal_data' === $user_request->action_name && 'request-pending' && $user_request->status ) {
 			$this->infoMessage(
 				'privacy_data_export_requested',
 				array(
 					'user_email' => $user_request->email,
 				)
 			);
+		} elseif ( $update && is_user_logged_in() && $is_doing_ajax && 'export_personal_data' === $user_request->action_name && 'request-completed' && $user_request->status ) {
+			// Download Personal Data file in admin as logged in user.
+			// Probably by clicking the download link near the user name.
+			// Do checks for loggedin_user and doing ajax so we don't catch other places where export could be done.
+			$send_as_email = isset( $_POST['sendAsEmail'] ) ? 'true' === $_POST['sendAsEmail'] : false;
+
+			if ( ! $send_as_email ) {
+				$this->infoMessage(
+					'privacy_data_export_admin_downloaded',
+					array(
+						'user_email' => $user_request->email,
+					)
+				);
+			}
 		}
 
 		/*
-		post id will be valid WP_User_Request
-		$post->post_title, // email@domain.tld
-		$post->post_status, // request-pending
-		$post->post_password empty, is set and causing another call to save_post, so only save one of them
 
-		Download Personal Data i admin som inloggad
-		[email] => par+q@earthpeople.se
-	    [action_name] => export_personal_data
-	    [status] => request-completed
-	    $_POST[sendAsEmail] = false
-
-		Klickar ladda-hem-länk i mail
-		http://wp-playground.localhost/wp/wp-login.php?action=confirmaction&request_id=798&confirm_key=w7yQEx41bbqzabWnZz4S
-		Kommer till typ wp-login med meddelande "Tack för att du bekräftar din begäran om dataexport."
-		logga att "User approved Data Export Request"
-		[email] => par+z@earthpeople.se
-		[action_name] => export_personal_data
-		[status] => request-confirmed
 
 		Klickar på "Remove request" i admin
 	 	[email] => par+q@earthpeople.se
@@ -167,6 +208,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 			#$post->post_status, // request-pending
 			#$post->post_password,
 			wp_get_user_request_data( $post->ID ),
+			$update,
 			$_GET,
 			$_POST,
 			$_SERVER['SCRIPT_FILENAME']
@@ -199,13 +241,8 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 * Fired when the tools page for export data is loaded.
 	 */
 	public function on_load_export_personal_data_page() {
-		// Request to export or remove data is stored in posts with post type "user_request",
-		// so we add a hook to catch all saves to that post
-		add_action( 'save_post_user_request', array( $this, 'on_save_post_user_request' ), 10, 3 );
-
 		// When requests are removed posts are removed.
 		add_action( 'before_delete_post', array( $this, 'on_before_delete_post' ), 10, 1 );
-
 	}
 
 	/**
