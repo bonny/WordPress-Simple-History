@@ -41,6 +41,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 				'privacy_page_set' => _x( 'Set privacy page to page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_requested' => _x( 'Requested a privacy data export for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_admin_downloaded' => _x( 'Downloaded personal data export file for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_emailed' => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_request_confirmed' => _x( 'Confirmed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
@@ -165,12 +166,21 @@ class SH_Privacy_Logger extends SimpleLogger {
 				)
 			);
 		} elseif ( $update && is_user_logged_in() && $is_doing_ajax && 'export_personal_data' === $user_request->action_name && 'request-completed' && $user_request->status ) {
-			// Download Personal Data file in admin as logged in user.
-			// Probably by clicking the download link near the user name.
-			// Do checks for loggedin_user and doing ajax so we don't catch other places where export could be done.
+
 			$send_as_email = isset( $_POST['sendAsEmail'] ) ? 'true' === $_POST['sendAsEmail'] : false;
 
-			if ( ! $send_as_email ) {
+
+			if ( $send_as_email ) {
+				// If send as email = true then email a link with the export to a user.
+				$this->infoMessage(
+					'privacy_data_export_emailed',
+					array(
+						'user_email' => $user_request->email,
+					)
+				);
+			} else if ( ! $send_as_email ) {
+				// If send as email = false then export file is downloaded by admin user in admin.
+				// Probably by clicking the download link near the user name.
 				$this->infoMessage(
 					'privacy_data_export_admin_downloaded',
 					array(
