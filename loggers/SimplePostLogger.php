@@ -288,8 +288,8 @@ class SimplePostLogger extends SimpleLogger {
 			return;
 		}
 
-		if ( 'nav_menu_item' == get_post_type( $post ) ) {
-			return;
+		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
+			$ok_to_log = false;
 		}
 
 		/*
@@ -349,6 +349,9 @@ class SimplePostLogger extends SimpleLogger {
 
 	/**
 	 * Check if post type is ok to log by logger
+	 *
+	 * @param Int or WP_Post $post Post the check.
+	 *
 	 * @return bool
 	 */
 	public function ok_to_log_post_posttype( $post ) {
