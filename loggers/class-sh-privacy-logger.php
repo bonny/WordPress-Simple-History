@@ -43,6 +43,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 				'privacy_data_export_admin_downloaded' => _x( 'Downloaded personal data export file for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_emailed' => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_request_confirmed' => _x( 'Confirmed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_removed' => _x( 'Removed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
@@ -225,13 +226,53 @@ class SH_Privacy_Logger extends SimpleLogger {
 		);
 	}
 
+	/**
+	 * Fires before a post is deleted, at the start of wp_delete_post().
+	 * We use this to detect if a post with post type 'user_request' is going to be deleted,
+	 * meaning that a user request is removed.
+	 *
+	 * @param int $postid Post ID.
+	 */
 	public function on_before_delete_post( $postid ) {
+
+		if ( empty( $postid ) ) {
+			return;
+		}
+
 		$post = get_post( $postid );
 
 		if ( ! is_a( $post, 'WP_Post' ) ) {
 			return;
 		}
 
+		if ( get_post_type( $post ) !== 'user_request' ) {
+			return;
+		}
+
+		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
+			return;
+		}
+
+		$user_request = wp_get_user_request_data( $postid );
+
+		if ( ! $user_request ) {
+			return;
+		}
+
+
+		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : null;
+
+		if ( $user_request && 'delete' === $action ) {
+			// Looks like "Remove request" action.
+			$this->infoMessage(
+				'privacy_data_export_removed',
+				array(
+					'user_email' => $user_request->email,
+				)
+			);
+		}
+
+		/*
 		sh_error_log(
 			'---',
 			'on_before_delete_post',
@@ -245,6 +286,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 			$_POST,
 			$_SERVER['SCRIPT_FILENAME']
 		);
+		*/
 	}
 
 	/**

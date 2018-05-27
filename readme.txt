@@ -38,6 +38,10 @@ see when someone has tried to log in, but failed. The log will then include ip a
 * **Menu edits**
 * **Option screens**<br>
 view details about changes made in the differnt settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
+* **Privacy page**<br>
+when a privacy page is created or set to a new page.
+* **Data Export**<br>
+see when a user requests a privacy data export and when this request is approved and then emailed to the user.
 
 
 #### Support for third party plugins
@@ -165,7 +169,14 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.n (nnn 2018) =
 
-- Add login of privacy and GDPR related functions in WordPress.
+- Add logging of privacy and GDPR related functions in WordPress. Currently the following new [privacy related features in WordPress 4.9.6](https://wordpress.org/news/2018/05/wordpress-4-9-6-privacy-and-maintenance-release/) are logged:
+	- A Privacy policy page is created
+	- A new Privacy page is selected
+	- Privacy data export is requested for a user/email
+	- Priacy data export request is confirmed by user.
+	- Privacy data export is downloaded in the admin area (by an admin or other user with required capability)
+	- Privacy data export email is sent to user
+	- A user/admin removes a data export request for a user
 - Fix error when categories changes was shown in the log. Fixes https://wordpress.org/support/topic/php-notice-undefined-variable-term_object/.
 - Fix error when a ACF Field Group was saved.
 - Fix error when the IP address anonymization function tried to anonymize an empty IP adress. Could happen when for example running wp cron locally on your server.
