@@ -12,6 +12,11 @@ defined( 'ABSPATH' ) || die();
  *
  * List of interesting filters:
  * https://developer.wordpress.org/plugins/privacy/privacy-related-options-hooks-and-capabilities/
+ *
+ * Possible enhancements:
+ * - Log when status changes to "Retry".
+ *   Something has status "request-failed".
+ *   Set in _wp_personal_data_cleanup_requests()
  */
 
 /**
@@ -169,7 +174,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 		} elseif ( $update && is_user_logged_in() && $is_doing_ajax && 'export_personal_data' === $user_request->action_name && 'request-completed' && $user_request->status ) {
 
 			$send_as_email = isset( $_POST['sendAsEmail'] ) ? 'true' === $_POST['sendAsEmail'] : false;
-
 
 			if ( $send_as_email ) {
 				// If send as email = true then email a link with the export to a user.
