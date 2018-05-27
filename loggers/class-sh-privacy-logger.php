@@ -34,11 +34,12 @@ class SH_Privacy_Logger extends SimpleLogger {
 	public function getInfo() {
 		$arr_info = array(
 			'name' => 'Privacy',
-			'description' => _x( 'Log WordPress privacy related things', 'Logger: Redirection', 'simple-history' ),
+			'description' => _x( 'Log WordPress privacy related things', 'Logger: Privacy', 'simple-history' ),
 			'capability' => 'manage_options',
 			'messages' => array(
-				'privacy_page_created' => _x( 'Created a new privacy page "{new_post_title}"', 'Logger: Redirection', 'simple-history' ),
-				'privacy_page_set' => _x( 'Set privacy page to page "{new_post_title}"', 'Logger: Redirection', 'simple-history' ),
+				'privacy_page_created' => _x( 'Created a new privacy page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_page_set' => _x( 'Set privacy page to page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_requested' => _x( 'Requested a privacy data export for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
@@ -50,120 +51,82 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 */
 	public function loaded() {
 
-		// Add our filters to detect create privacy page and set privacy page.
-		// Add the filters only on the privacy page.
+		// Check that new function since 4.9.6 exist before trying to use this logger.
+		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
+			return;
+		}
+
+		// Exclude the post types used by the data export from the regular post logger updates.
+		add_filter( 'simple_history/post_logger/skip_posttypes', array( $this, 'remove_post_types_from_postlogger' ) );
+
+		// Add filters to detect when a privacy page is created and when a privacy page is set..
+		// We only Aadd the filters when the privacy page is loaded.
 		add_action( 'load-privacy.php', array( $this, 'on_load_privacy_page' ) );
 
-		// Log when export request is sent to user.
-		// http://wp-playground.localhost/wp/wp-admin/tools.php?page=export_personal_data
-		// "Confirmation request initiated successfully.
-		// $content = apply_filters( 'user_request_action_email_content', $email_text, $email_data );"
-		// Filter called when sending email after creating request. But also when re-sending request!
-
-		// Delete request POST data
-		/*
-		page: export_personal_data
-		action: delete
-		request_id[0]: 784
-		_wpnonce: 41672c730a
-		*/
-
-		// Download Personal Data in admin
-		/*
-		AJAX
-		action: wp-privacy-export-personal-data
-		exporter: 3
-		id: 785
-		page: 1
-		security: 1cc184a3f8
-		sendAsEmail: false
-		*/
-
-
-		// user_request_action_confirmed – fired when a user confirms a privacy request
-
-		// wp_privacy_personal_data_export_file_created – fires after a personal data export file has been created
-
-		// Export personal data.
-		// Done on page
-		// /wp-admin/tools.php?page=export_personal_data
-		// email posted with action=add_export_personal_data_request
-		// kör först $request_id = wp_create_user_request( $email_address, $action_type );
-		// sen wp_send_user_request( $request_id );
-		// type of action: export_personal_data, remove_personal_data
-		/*
-		Infogar en post när det skapas
-	$request_id = wp_insert_post( array(
-		'post_author'   => $user_id,
-		'post_name'     => $action_name,
-		'post_title'    => $email_address,
-		'post_content'  => wp_json_encode( $request_data ),
-		'post_status'   => 'request-pending',
-		'post_type'     => 'user_request',
-		'post_date'     => current_time( 'mysql', false ),
-		'post_date_gmt' => current_time( 'mysql', true ),
-	), true );
-
-	eller denna
-	 * Create and log a user request to perform a specific action.
- *
- * Requests are stored inside a post type named `user_request` since they can apply to both
- * users on the site, or guests without a user account.
-
-		$request_id = wp_insert_post( array(
-		'post_author'   => $user_id,
-		'post_name'     => $action_name,
-		'post_title'    => $email_address,
-		'post_content'  => wp_json_encode( $request_data ),
-		'post_status'   => 'request-pending',
-		'post_type'     => 'user_request',
-		'post_date'     => current_time( 'mysql', false ),
-		'post_date_gmt' => current_time( 'mysql', true ),
-	), true );
-
-
-		*/
-
-		// Request to export or remove data is stored in posts with post type
-		// 'user_request'.
-		add_action( 'save_post_user_request', array( $this, 'on_save_post_user_request' ), 10, 3 );
-
-		// When requests are removed posts are removed.
-		add_action( 'before_delete_post', array( $this, 'on_before_delete_post' ), 10, 1 );
+		// Add filters to detect data export related functions.
+		// We only add the filters when the tools page for export personal data is loaded.
+		add_action( 'load-tools_page_export_personal_data', array( $this, 'on_load_export_personal_data_page' ) );
 	}
 
 	/**
+	 * Remove privacy post types from the post types that the usual postlogger logs.
 	 *
+	 * @param array $skip_posttypes Posttypes to skip.
+	 */
+	public function remove_post_types_from_postlogger( $skip_posttypes ) {
+		array_push(
+			$skip_posttypes,
+			'user_request'
+		);
+
+		return $skip_posttypes;
+	}
+
+	/**
+	 * Fires once a post of post type "user_request" has been saved.
+	 * Used to catch data export request actions.
+	 *
+	 * @param int     $post_ID Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @param bool    $update  Whether this is an existing post being updated or not.
 	 */
 	public function on_save_post_user_request( $post_ID, $post, $update ) {
+		if ( empty( $post_ID ) ) {
+			return;
+		}
+
 		if ( ! is_a( $post, 'WP_Post' ) ) {
 			return;
 		}
 
+		if ( $update ) {
+			return;
+		}
+
+		// Post id should be a of type WP_User_Request.
+		$user_request = wp_get_user_request_data( $post_ID );
+
+		if ( ! $user_request ) {
+			return;
+		}
+
+		// Add Data Export Request.
+		// An email will be sent to the user at this email address asking them to verify the request.
+		// Notice message in admin is "Confirmation request initiated successfully.".
+		if ( 'export_personal_data' === $user_request->action_name ) {
+			$this->infoMessage(
+				'privacy_data_export_requested',
+				array(
+					'user_email' => $user_request->email,
+				)
+			);
+		}
+
 		/*
-		Add Data Export Request
-		An email will be sent to the user at this email address asking them to verify the request.
 		post id will be valid WP_User_Request
 		$post->post_title, // email@domain.tld
 		$post->post_status, // request-pending
 		$post->post_password empty, is set and causing another call to save_post, so only save one of them
-		WP_User_Request Object
-		(
-		    [ID] => 802
-		    [user_id] => 0
-		    [email] => par+u@eskapism.se
-		    [action_name] => export_personal_data
-		    [status] => request-completed
-		    [created_timestamp] => 1527107451
-		    [modified_timestamp] => 1527107720
-		    [confirmed_timestamp] => 0
-		    [completed_timestamp] => 1527107720
-		    [request_data] => Array
-		        (
-		        )
-
-		    [confirm_key] => $P$BPju6ceKU..rfGNShVXneUyids3P2V/
-		)
 
 		Download Personal Data i admin som inloggad
 		[email] => par+q@earthpeople.se
@@ -230,6 +193,19 @@ class SH_Privacy_Logger extends SimpleLogger {
 			$_POST,
 			$_SERVER['SCRIPT_FILENAME']
 		);
+	}
+
+	/**
+	 * Fired when the tools page for export data is loaded.
+	 */
+	public function on_load_export_personal_data_page() {
+		// Request to export or remove data is stored in posts with post type "user_request",
+		// so we add a hook to catch all saves to that post
+		add_action( 'save_post_user_request', array( $this, 'on_save_post_user_request' ), 10, 3 );
+
+		// When requests are removed posts are removed.
+		add_action( 'before_delete_post', array( $this, 'on_before_delete_post' ), 10, 1 );
+
 	}
 
 	/**
