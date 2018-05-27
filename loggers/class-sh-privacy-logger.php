@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || die();
 /**
  * Class to log things from the Redirection plugin.
  */
-class Privacy_Logger extends SimpleLogger {
+class SH_Privacy_Logger extends SimpleLogger {
 
 	/**
 	 * Logger slug.

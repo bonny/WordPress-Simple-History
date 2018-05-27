@@ -996,7 +996,7 @@ class SimpleHistory {
 			$loggersDir . 'SimpleCategoriesLogger.php',
 			$loggersDir . 'AvailableUpdatesLogger.php',
 			$loggersDir . 'FileEditsLogger.php',
-			$loggersDir . 'class-privacy-logger.php',
+			$loggersDir . 'class-sh-privacy-logger.php',
 
 			// Loggers for third party plugins.
 			$loggersDir . 'PluginUserSwitchingLogger.php',

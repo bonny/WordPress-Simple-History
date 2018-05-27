@@ -165,7 +165,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.n (nnn 2018) =
 
-- Fix error when categories changes was shown in the log.
+- Add login of privacy and GDPR related functions in WordPress.
+- Fix error when categories changes was shown in the log. Fixes https://wordpress.org/support/topic/php-notice-undefined-variable-term_object/.
 - Fix error when a ACF Field Group was saved.
 - Fix error when the IP address anonymization function tried to anonymize an empty IP adress. Could happen when for example running wp cron locally on your server.
 - Rewrote logger loading method so now it's possible to name your loggers in a WordPress codings standard compatible way. Also: made a bit more code more WordPress-ish.
