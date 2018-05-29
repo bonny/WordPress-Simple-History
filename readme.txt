@@ -183,6 +183,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Fix error when calling the REST API with an API endpoint with a closure as the callback. Fixes https://github.com/bonny/WordPress-Simple-History/issues/141.
 - Rewrote logger loading method so now it's possible to name your loggers in a WordPress codings standard compatible way. Also: made a bit more code more WordPress-ish.
 - The post types in the `skip_posttypes` filter are now also applied to deleted posts.
+- Add function `sh_get_callable_name()` that returns a human readable namn for a callback.
 
 = 2.22.1 (May 2018) =
 
