@@ -97,8 +97,20 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		 * @return WP_HTTP_Response $response
 		 */
 		public function on_rest_request_before_callbacks( $response, $handler, $request ) {
+			// Callback must be set.
+			if ( ! isset( $handler['callback'] ) ) {
+				return $response;
+			}
+
+			$callback = $handler['callback'];
+
+			// In the case of redirection the callback type must be an array.
+			if ( 'array' !== gettype( $callback ) || count( $callback ) !== 2 ) {
+				return $response;
+			}
+
 			// API route callback object, for example "Redirection_Api_Redirect" Object.
-			$route_callback_object = isset( $handler['callback'][0] ) ? $handler['callback'][0] : false;
+			$route_callback_object = isset( $callback[0] ) ? $callback[0] : false;
 
 			// In the case of redirection $route_callback_object must be a class
 			// so bail if it is not.
@@ -109,7 +121,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 			$route_callback_object_class = get_class( $route_callback_object );
 
 			// Method name to call on callback class, for example "route_bulk".
-			$route_callback_method = isset( $handler['callback'][1] ) ? $handler['callback'][1] : false;
+			$route_callback_method = isset( $callback[1] ) ? $callback[1] : false;
 
 			$redirection_api_classes = array(
 				'Redirection_Api_Redirect',
