@@ -49,6 +49,9 @@ class SH_Privacy_Logger extends SimpleLogger {
 				'privacy_data_export_emailed' => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_request_confirmed' => _x( 'Confirmed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_removed' => _x( 'Removed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				// Data Erasure Request is sent to an email.
+				'data_erasure_request_sent' => _x( 'Sent data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_confirmed' => _x( 'Confirmed data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
@@ -78,6 +81,13 @@ class SH_Privacy_Logger extends SimpleLogger {
 		add_action( 'user_request_action_confirmed', array( $this, 'on_user_request_action_confirmed' ), 10, 1 );
 	}
 
+	/*
+	Erase Personal Data
+	- send request
+	- approve request
+	-
+	*/
+
 	/**
 	 * Remove privacy post types from the post types that the usual postlogger logs.
 	 *
@@ -100,6 +110,12 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 * URL is like
 	 * http://wp-playground.localhost/wp/wp-login.php?action=confirmaction&request_id=806confirm_key=kOQEq4xkEI2DJdNZ
 	 *
+	 * Http://wp-playground.localhost/wp/wp-login.php?action=confirmaction&request_id=807&confirm_key=DXdqHbidLZGLB9uW0rTo
+	 * Tack för att du bekräftar din begäran om att ta bort data.
+	 * Webbplatsens administratör har informerats. Du kommer via e-post att få en notifiering när dina uppgifter har raderats.
+	 *
+	 * Fired when user confirms data export or data erasure.
+	 *
 	 * @param int $request_id Request ID.
 	 */
 	public function on_user_request_action_confirmed( $request_id ) {
@@ -118,9 +134,17 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
+		// User approved data export.
 		if ( 'export_personal_data' === $user_request->action_name && 'request-confirmed' === $user_request->status ) {
 			$this->infoMessage(
 				'privacy_data_export_request_confirmed',
+				array(
+					'user_email' => $user_request->email,
+				)
+			);
+		} else if ( 'remove_personal_data' === $user_request->action_name && 'request-confirmed' === $user_request->status ) {
+			$this->infoMessage(
+				'data_erasure_request_confirmed',
 				array(
 					'user_email' => $user_request->email,
 				)
@@ -193,6 +217,31 @@ class SH_Privacy_Logger extends SimpleLogger {
 					)
 				);
 			}
+		} else if ( ! $update && 'remove_personal_data' === $user_request->action_name && 'request-pending' === $user_request->status ) {
+			$this->infoMessage(
+				'data_erasure_request_sent',
+				array(
+					'user_email' => $user_request->email,
+				)
+			);
+		} else {
+			// Post created, but not logged yet.
+			sh_error_log(
+				'---',
+				'on_save_post_user_request, not logged yet',
+				// $post->post_type, user_request
+				#$post->post_name, // export_personal_data
+				#$post->post_content,
+				#$post->post_title, // email@domain.tld
+				#$post->post_status, // request-pending
+				#$post->post_password,
+				wp_get_user_request_data( $post->ID ),
+				$update,
+				$_GET,
+				$_POST,
+				$_SERVER['SCRIPT_FILENAME']
+			);
+
 		}
 
 		/*
@@ -213,21 +262,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 		*/
 
-		sh_error_log(
-			'---',
-			'on_save_post_user_request',
-			// $post->post_type, user_request
-			#$post->post_name, // export_personal_data
-			#$post->post_content,
-			#$post->post_title, // email@domain.tld
-			#$post->post_status, // request-pending
-			#$post->post_password,
-			wp_get_user_request_data( $post->ID ),
-			$update,
-			$_GET,
-			$_POST,
-			$_SERVER['SCRIPT_FILENAME']
-		);
 	}
 
 	/**
@@ -262,7 +296,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 		if ( ! $user_request ) {
 			return;
 		}
-
 
 		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : null;
 
