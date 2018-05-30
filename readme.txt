@@ -38,6 +38,12 @@ see when someone has tried to log in, but failed. The log will then include ip a
 * **Menu edits**
 * **Option screens**<br>
 view details about changes made in the differnt settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
+* **Privacy page**<br>
+when a privacy page is created or set to a new page.
+* **Data Export**<br>
+see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
+* **User Data Erasure Requests**<br>
+see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
 
 #### Support for third party plugins
@@ -66,7 +72,7 @@ The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allow
 clone posts of any type.
 Simple History will log when a clone of a post or page is done.
 
-#### RSS feed available
+#### RSS feed with changes
 
 There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
 
@@ -85,12 +91,7 @@ Or for debug purposes:
 _"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughy-plugin-x',
 that must be it."_
 
-#### See it in action
-
-See the plugin in action with this short screencast:
-[youtube http://www.youtube.com/watch?v=4cu4kooJBzs]
-
-#### API so you can add your own events to Simple History
+#### API so you can add your own events to the audit log
 
 If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by using the function `SimpleLogger()` like this:
 
@@ -134,11 +135,9 @@ to your language then read about how this is done over at the [Polyglots handboo
 Development of this plugin takes place at GitHub. Please join in with feature requests, bug reports, or even pull requests!
 https://github.com/bonny/WordPress-Simple-History
 
-#### Donation & more plugins
+#### Donation
 
-* If you like this plugin don't forget to [donate to support further development](http://eskapism.se/sida/donate/).
-* More [WordPress CMS plugins](https://profiles.wordpress.org/eskapism#content-plugins) by the same author.
-
+* If you like this plugin please consider [donating to support the development](https://www.paypal.me/eskapism).
 
 == Screenshots ==
 
@@ -165,12 +164,17 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.n (nnn 2018) =
 
-- Fix error when categories changes was shown in the log.
+- Add logging of privacy and GDPR related functions in WordPress. Some of the new [privacy related features in WordPress 4.9.6](https://wordpress.org/news/2018/05/wordpress-4-9-6-privacy-and-maintenance-release/) that are logged:
+	- Privacy policy page is created or changed to a new page.
+	- Privacy data export is requested for a user and when this request is confirmed by the user and when the data for the request is downloaded by an admin or emailed to the user.
+	- Erase Personal Data: Request is added for user to have their personal data erased, user confirms the data removal and when the deletion of user data is done.
+- Fix error when categories changes was shown in the log. Fixes https://wordpress.org/support/topic/php-notice-undefined-variable-term_object/.
 - Fix error when a ACF Field Group was saved.
 - Fix error when the IP address anonymization function tried to anonymize an empty IP adress. Could happen when for example running wp cron locally on your server.
 - Fix error when calling the REST API with an API endpoint with a closure as the callback. Fixes https://github.com/bonny/WordPress-Simple-History/issues/141.
 - Rewrote logger loading method so now it's possible to name your loggers in a WordPress codings standard compatible way. Also: made a bit more code more WordPress-ish.
 - The post types in the `skip_posttypes` filter are now also applied to deleted posts.
+- Add function `sh_get_callable_name()` that returns a human readable name for a callback.
 
 = 2.22.1 (May 2018) =
 
