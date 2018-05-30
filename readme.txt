@@ -50,6 +50,11 @@ see when a user privacy data export request is added and when this request is ap
 
 By default Simple History comes with built in support for the following plugins:
 
+**Advanced Custom Fields (ACF)**<br>
+[ACF](https://www.advancedcustomfields.com/) adds fields to your posts and pages.
+Simple History will log changes made to the field groups and the fields inside field groups. Your will be able to
+see when both field groups and fields are created and modified.
+
 **User Switching**<br>
 The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button.
 Simple History will log each user switch being made.
