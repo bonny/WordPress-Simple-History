@@ -17,6 +17,8 @@ defined( 'ABSPATH' ) || die();
  * - Log when status changes to "Retry".
  *   Something has status "request-failed".
  *   Set in _wp_personal_data_cleanup_requests()
+ * - Log when _wp_privacy_resend_request() is called
+ *
  */
 
 /**
@@ -53,6 +55,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 				'data_erasure_request_sent' => _x( 'Sent data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_request_confirmed' => _x( 'Confirmed data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_request_handled' => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_removed' => _x( 'Removed personal data removal request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
@@ -80,6 +83,9 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 		// Actions fired when user confirms an request action, like exporting their data.
 		add_action( 'user_request_action_confirmed', array( $this, 'on_user_request_action_confirmed' ), 10, 1 );
+
+		// Add filters to detect misc things that happen on export page.
+		add_action( 'load-tools_page_remove_personal_data', array( $this, 'on_load_page_remove_personal_data' ) );
 	}
 
 	/*
@@ -253,25 +259,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 			);
 
 		}
-
-		/*
-
-
-		Klickar på "Remove request" i admin
-	 	[email] => par+q@earthpeople.se
-	    [action_name] => export_personal_data
-	    [status] => request-completed
-	    $_POST[action] = delete
-
-	    Klickar på "email data" i admin som inloggad
-	    mail skickas till användare med länk till uploads-mappen
-		[email] => par+r@eskapism.se
-		[action_name] => export_personal_data
-		[status] => request-completed
-		$_POST[sendAsEmail] = true
-
-		*/
-
 	}
 
 	/**
@@ -281,8 +268,52 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 *
 	 * @param int $postid Post ID.
 	 */
-	public function on_before_delete_post( $postid ) {
+	public function on_before_delete_post_on_remove_personal_data_page( $postid ) {
+		if ( empty( $postid ) ) {
+			return;
+		}
 
+		$post = get_post( $postid );
+
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return;
+		}
+
+		if ( get_post_type( $post ) !== 'user_request' ) {
+			return;
+		}
+
+		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
+			return;
+		}
+
+		$user_request = wp_get_user_request_data( $postid );
+
+		if ( ! $user_request ) {
+			return;
+		}
+
+		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : null;
+
+		if ( $user_request && 'delete' === $action ) {
+			// Looks like "Remove request" action.
+			$this->infoMessage(
+				'data_erasure_request_removed',
+				array(
+					'user_email' => $user_request->email,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Fires before a post is deleted, at the start of wp_delete_post().
+	 * We use this to detect if a post with post type 'user_request' is going to be deleted,
+	 * meaning that a user request is removed.
+	 *
+	 * @param int $postid Post ID.
+	 */
+	public function on_before_delete_post_on_personal_data_page( $postid ) {
 		if ( empty( $postid ) ) {
 			return;
 		}
@@ -318,22 +349,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 				)
 			);
 		}
-
-		/*
-		sh_error_log(
-			'---',
-			'on_before_delete_post',
-			// $post->post_type, user_request
-			$post->post_content,
-			$post->post_title,
-			$post->post_status,
-			$post->post_password,
-			wp_get_user_request_data( $post->ID ),
-			$_GET,
-			$_POST,
-			$_SERVER['SCRIPT_FILENAME']
-		);
-		*/
 	}
 
 	/**
@@ -341,7 +356,15 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 */
 	public function on_load_export_personal_data_page() {
 		// When requests are removed posts are removed.
-		add_action( 'before_delete_post', array( $this, 'on_before_delete_post' ), 10, 1 );
+		add_action( 'before_delete_post', array( $this, 'on_before_delete_post_on_personal_data_page' ), 10, 1 );
+	}
+
+	/**
+	 * Fired when the tools page for user data removal is loaded.
+	 */
+	public function on_load_page_remove_personal_data() {
+		// When requests are removed posts are removed.
+		add_action( 'before_delete_post', array( $this, 'on_before_delete_post_on_remove_personal_data_page' ), 10, 1 );
 	}
 
 	/**
