@@ -274,7 +274,9 @@ class SimplePostLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Called when a post is deleted from the trash
+	 * Fired immediately before a post is deleted from the database.
+	 *
+	 * @param int $postid Post ID.
 	 */
 	function on_delete_post( $post_id ) {
 
@@ -288,7 +290,23 @@ class SimplePostLogger extends SimpleLogger {
 			return;
 		}
 
-		if ( 'nav_menu_item' == get_post_type( $post ) ) {
+		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
+			$ok_to_log = false;
+		}
+
+		/**
+		 * Filter to control logging.
+		 *
+		 * @param bool $ok_to_log If this post deletion should be logged.
+		 * @param int $post_id
+		 *
+		 * @return bool True to log, false to not log.
+		 *
+		 * @since 2.21
+		 */
+		$ok_to_log = apply_filters( 'simple_history/post_logger/post_deleted/ok_to_log', $ok_to_log, $post_id );
+
+		if ( ! $ok_to_log ) {
 			return;
 		}
 
@@ -349,6 +367,9 @@ class SimplePostLogger extends SimpleLogger {
 
 	/**
 	 * Check if post type is ok to log by logger
+	 *
+	 * @param Int or WP_Post $post Post the check.
+	 *
 	 * @return bool
 	 */
 	public function ok_to_log_post_posttype( $post ) {
