@@ -18,7 +18,6 @@ defined( 'ABSPATH' ) || die();
  *   Something has status "request-failed".
  *   Set in _wp_personal_data_cleanup_requests()
  * - Log when _wp_privacy_resend_request() is called
- *
  */
 
 /**
@@ -51,7 +50,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 				'privacy_data_export_emailed' => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_request_confirmed' => _x( 'Confirmed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_removed' => _x( 'Removed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				// Data Erasure Request is sent to an email.
 				'data_erasure_request_sent' => _x( 'Sent data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_request_confirmed' => _x( 'Confirmed data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_request_handled' => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
@@ -240,24 +238,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 					'user_email' => $user_request->email,
 				)
 			);
-		} else {
-			// Post created, but not logged yet.
-			sh_error_log(
-				'---',
-				'on_save_post_user_request, not logged yet',
-				// $post->post_type, user_request
-				#$post->post_name, // export_personal_data
-				#$post->post_content,
-				#$post->post_title, // email@domain.tld
-				#$post->post_status, // request-pending
-				#$post->post_password,
-				wp_get_user_request_data( $post->ID ),
-				$update,
-				$_GET,
-				$_POST,
-				$_SERVER['SCRIPT_FILENAME']
-			);
-
 		}
 	}
 

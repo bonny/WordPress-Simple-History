@@ -164,21 +164,17 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.n (nnn 2018) =
 
-- Add logging of privacy and GDPR related functions in WordPress. Currently the following new [privacy related features in WordPress 4.9.6](https://wordpress.org/news/2018/05/wordpress-4-9-6-privacy-and-maintenance-release/) are logged:
-	- A Privacy policy page is created
-	- A new Privacy page is selected
-	- Privacy data export is requested for a user/email
-	- Priacy data export request is confirmed by user.
-	- Privacy data export is downloaded in the admin area (by an admin or other user with required capability)
-	- Privacy data export email is sent to user
-	- A user/admin removes a data export request for a user
+- Add logging of privacy and GDPR related functions in WordPress. Some of the new [privacy related features in WordPress 4.9.6](https://wordpress.org/news/2018/05/wordpress-4-9-6-privacy-and-maintenance-release/) that are logged:
+	- Privacy policy page is created or changed to a new page.
+	- Privacy data export is requested for a user and when this request is confirmed by the user and when the data for the request is downloaded by an admin or emailed to the user.
+	- Erase Personal Data: Request is added for user to have their personal data erased, user confirms the data removal and when the deletion of user data is done.
 - Fix error when categories changes was shown in the log. Fixes https://wordpress.org/support/topic/php-notice-undefined-variable-term_object/.
 - Fix error when a ACF Field Group was saved.
 - Fix error when the IP address anonymization function tried to anonymize an empty IP adress. Could happen when for example running wp cron locally on your server.
 - Fix error when calling the REST API with an API endpoint with a closure as the callback. Fixes https://github.com/bonny/WordPress-Simple-History/issues/141.
 - Rewrote logger loading method so now it's possible to name your loggers in a WordPress codings standard compatible way. Also: made a bit more code more WordPress-ish.
 - The post types in the `skip_posttypes` filter are now also applied to deleted posts.
-- Add function `sh_get_callable_name()` that returns a human readable namn for a callback.
+- Add function `sh_get_callable_name()` that returns a human readable name for a callback.
 
 = 2.22.1 (May 2018) =
 
