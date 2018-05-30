@@ -52,6 +52,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 				// Data Erasure Request is sent to an email.
 				'data_erasure_request_sent' => _x( 'Sent data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_request_confirmed' => _x( 'Confirmed data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_handled' => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
@@ -185,10 +186,10 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 		$is_doing_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX;
 
-		// Add Data Export Request.
-		// An email will be sent to the user at this email address asking them to verify the request.
-		// Notice message in admin is "Confirmation request initiated successfully.".
 		if ( ! $update && 'export_personal_data' === $user_request->action_name && 'request-pending' && $user_request->status ) {
+			// Add Data Export Request.
+			// An email will be sent to the user at this email address asking them to verify the request.
+			// Notice message in admin is "Confirmation request initiated successfully.".
 			$this->infoMessage(
 				'privacy_data_export_requested',
 				array(
@@ -218,8 +219,17 @@ class SH_Privacy_Logger extends SimpleLogger {
 				);
 			}
 		} else if ( ! $update && 'remove_personal_data' === $user_request->action_name && 'request-pending' === $user_request->status ) {
+			// Send request to user to remove user data.
 			$this->infoMessage(
 				'data_erasure_request_sent',
+				array(
+					'user_email' => $user_request->email,
+				)
+			);
+		} else if ( $update && 'remove_personal_data' === $user_request->action_name && 'request-completed' === $user_request->status ) {
+			// Admin clicked "Erase user data" in admin, after user has approved remove request.
+			$this->infoMessage(
+				'data_erasure_request_handled',
 				array(
 					'user_email' => $user_request->email,
 				)
