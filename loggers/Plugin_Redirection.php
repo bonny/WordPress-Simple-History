@@ -106,8 +106,6 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 			$callable_name = sh_get_callable_name( $callback );
 
-			error_log( $callable_name );
-
 			$ok_redirection_api_callable_names = array(
 				'Redirection_Api_Redirect::route_bulk',
 				'Redirection_Api_Redirect::route_create',
