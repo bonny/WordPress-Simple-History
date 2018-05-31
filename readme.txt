@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, trail, pages, attachments, users,
 Requires at least: 4.5.1
 Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.23
+Stable tag: 2.23.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -166,6 +166,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 == Changelog ==
 
 ## Changelog
+
+= 2.23.1 (May 2018) =
+
+- Remove some debug messages that was outputed to the error log. Fixes https://wordpress.org/support/topic/errors-in-php-log-since-v2-23/.
+- Fix error beacuse function `ucwords()` does not allow a second argument on PHP versions before 5.4.32. Fixes https://wordpress.org/support/topic/error-message-since-last-update/, https://wordpress.org/support/topic/errors-related-to-php-version/.
+- Added new function `sh_ucwords()` that works like `ucwords()` but it also works on PHP 5.3.
 
 = 2.23 (May 2018) =
 

@@ -1100,7 +1100,8 @@ class SimpleHistory {
 				$logger_snaked_name = substr( $one_logger_name, 6 );
 				// "privacy-logger" -> "privacy_logger" -> Privacy_Logger
 				$logger_snaked_name = str_replace( '-', '_', $logger_snaked_name );
-				$logger_snaked_name = ucwords( $logger_snaked_name, '_' );
+				$logger_snaked_name = sh_ucwords( $logger_snaked_name, '_' );
+
 				if ( class_exists( $logger_snaked_name ) ) {
 					$logger_class_name = $logger_snaked_name;
 				}
@@ -3647,4 +3648,20 @@ function sh_get_callable_name( $callable ) {
 	} else {
 		return 'unknown';
 	}
+}
+
+/**
+ * PHP 5.3 compatible version of ucwords with second argument.
+ * Taken from http://php.net/manual/en/function.ucwords.php#105249.
+ *
+ * @param string $str String.
+ * @param string $separator String.
+ *
+ * @return string with words uppercased.
+ */
+function sh_ucwords( $str, $separator = ' ' ) {
+	$str = str_replace( $separator, ' ', $str );
+	$str = ucwords( strtolower( $str ) );
+	$str = str_replace( ' ', $separator, $str );
+	return $str;
 }
