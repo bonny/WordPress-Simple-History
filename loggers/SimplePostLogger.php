@@ -290,6 +290,8 @@ class SimplePostLogger extends SimpleLogger {
 			return;
 		}
 
+		$ok_to_log = true;
+
 		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
 			$ok_to_log = false;
 		}
