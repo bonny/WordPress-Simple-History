@@ -167,6 +167,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.23.n (June 2018) =
+
+- Fix notice in postlogger when a post was deleted from the trash.
+
 = 2.23.1 (May 2018) =
 
 - Remove some debug messages that was outputed to the error log. Fixes https://wordpress.org/support/topic/errors-in-php-log-since-v2-23/.
