@@ -2341,50 +2341,53 @@ Because Simple History was just recently installed, this feed does not contain m
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
-		// Get id of rows to delete
-		$sql = $wpdb->prepare(
-			"SELECT id FROM $table_name WHERE DATE_ADD(date, INTERVAL %d DAY) < now()",
-			$days
-		);
 
-		$ids_to_delete = $wpdb->get_col( $sql );
+		while( 1>0 ) {
+			// Get id of rows to delete
+			$sql = $wpdb->prepare(
+				"SELECT id FROM $table_name WHERE DATE_ADD(date, INTERVAL %d DAY) < now() LIMIT 100000",
+				$days
+			);
 
-		if ( empty( $ids_to_delete ) ) {
-			// Nothing to delete
-			return;
+			$ids_to_delete = $wpdb->get_col( $sql );
+
+			if ( empty( $ids_to_delete ) ) {
+				// Nothing to delete
+				return;
+			}
+
+			$sql_ids_in = implode( ',', $ids_to_delete );
+
+			// Add number of deleted rows to total_rows option
+			$prev_total_rows = (int) get_option( 'simple_history_total_rows', 0 );
+			$total_rows = $prev_total_rows + sizeof( $ids_to_delete );
+			update_option( 'simple_history_total_rows', $total_rows );
+
+			// Remove rows + contexts
+			$sql_delete_history = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
+			$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
+
+			$wpdb->query( $sql_delete_history );
+			$wpdb->query( $sql_delete_history_context );
+
+			$message = _nx(
+				'Simple History removed one event that were older than {days} days',
+				'Simple History removed {num_rows} events that were older than {days} days',
+				sizeof( $ids_to_delete ),
+				'Database is being cleared automagically',
+				'simple-history'
+			);
+
+			SimpleLogger()->info(
+				$message,
+				array(
+					'days' => $days,
+					'num_rows' => sizeof( $ids_to_delete ),
+				)
+			);
+
+			$this->get_cache_incrementor( true );
 		}
-
-		$sql_ids_in = implode( ',', $ids_to_delete );
-
-		// Add number of deleted rows to total_rows option
-		$prev_total_rows = (int) get_option( 'simple_history_total_rows', 0 );
-		$total_rows = $prev_total_rows + sizeof( $ids_to_delete );
-		update_option( 'simple_history_total_rows', $total_rows );
-
-		// Remove rows + contexts
-		$sql_delete_history = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
-		$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
-
-		$wpdb->query( $sql_delete_history );
-		$wpdb->query( $sql_delete_history_context );
-
-		$message = _nx(
-			'Simple History removed one event that were older than {days} days',
-			'Simple History removed {num_rows} events that were older than {days} days',
-			sizeof( $ids_to_delete ),
-			'Database is being cleared automagically',
-			'simple-history'
-		);
-
-		SimpleLogger()->info(
-			$message,
-			array(
-				'days' => $days,
-				'num_rows' => sizeof( $ids_to_delete ),
-			)
-		);
-
-		$this->get_cache_incrementor( true );
 
 	}
 
