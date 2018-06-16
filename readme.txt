@@ -170,6 +170,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.23.n (June 2018) =
 
 - Fix notice in postlogger when a post was deleted from the trash.
+- Clear database in smaller steps. Fixes https://github.com/bonny/WordPress-Simple-History/issues/143.
 
 = 2.23.1 (May 2018) =
 
