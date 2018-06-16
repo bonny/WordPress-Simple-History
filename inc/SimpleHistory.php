@@ -2331,7 +2331,7 @@ Because Simple History was just recently installed, this feed does not contain m
 
 		$days = $this->get_clear_history_interval();
 
-		// Never clear log if days = 0
+		// Never clear log if days = 0.
 		if ( 0 == $days ) {
 			return;
 		}
@@ -2341,9 +2341,8 @@ Because Simple History was just recently installed, this feed does not contain m
 		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
-
-		while( 1>0 ) {
-			// Get id of rows to delete
+		while( 1 > 0 ) {
+			// Get id of rows to delete.
 			$sql = $wpdb->prepare(
 				"SELECT id FROM $table_name WHERE DATE_ADD(date, INTERVAL %d DAY) < now() LIMIT 100000",
 				$days
@@ -2352,18 +2351,18 @@ Because Simple History was just recently installed, this feed does not contain m
 			$ids_to_delete = $wpdb->get_col( $sql );
 
 			if ( empty( $ids_to_delete ) ) {
-				// Nothing to delete
+				// Nothing to delete.
 				return;
 			}
 
 			$sql_ids_in = implode( ',', $ids_to_delete );
 
-			// Add number of deleted rows to total_rows option
+			// Add number of deleted rows to total_rows option.
 			$prev_total_rows = (int) get_option( 'simple_history_total_rows', 0 );
 			$total_rows = $prev_total_rows + sizeof( $ids_to_delete );
 			update_option( 'simple_history_total_rows', $total_rows );
 
-			// Remove rows + contexts
+			// Remove rows + contexts.
 			$sql_delete_history = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
 			$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
 
@@ -2373,7 +2372,7 @@ Because Simple History was just recently installed, this feed does not contain m
 			$message = _nx(
 				'Simple History removed one event that were older than {days} days',
 				'Simple History removed {num_rows} events that were older than {days} days',
-				sizeof( $ids_to_delete ),
+				count( $ids_to_delete ),
 				'Database is being cleared automagically',
 				'simple-history'
 			);
@@ -2382,7 +2381,7 @@ Because Simple History was just recently installed, this feed does not contain m
 				$message,
 				array(
 					'days' => $days,
-					'num_rows' => sizeof( $ids_to_delete ),
+					'num_rows' => count( $ids_to_delete ),
 				)
 			);
 
@@ -2394,7 +2393,7 @@ Because Simple History was just recently installed, this feed does not contain m
 	/**
 	 * Return plain text output for a log row
 	 * Uses the getLogRowPlainTextOutput of the logger that logged the row
-	 * with fallback to SimpleLogger if logger is not available
+	 * with fallback to SimpleLogger if logger is not available.
 	 *
 	 * @param array $row
 	 * @return string
