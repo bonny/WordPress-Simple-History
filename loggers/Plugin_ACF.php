@@ -892,7 +892,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 					foreach ( $arr_added_fields_keys_to_add as $one_key_to_add ) {
 						// Check that new and old exist.
-						$new_exist = isset( $modifiedFields['new'][ $modifiedFieldId ][ $one_key_to_add ] );
+						$new_exists = isset( $modifiedFields['new'][ $modifiedFieldId ][ $one_key_to_add ] );
 						$old_exists = isset( $modifiedFields['old'][ $modifiedFieldId ][ $one_key_to_add ] );
 
 						if ( ! $new_exists || ! $old_exists ) {
