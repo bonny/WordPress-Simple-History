@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, trail, pages, attachments, users,
 Requires at least: 4.5.1
 Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.23.1
+Stable tag: 2.24
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -167,7 +167,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.23.n (June 2018) =
+= 2.24 (July 2018) =
 
 - Added user login and user email to CSV export file.
 - Fix notice in postlogger when a post was deleted from the trash.
