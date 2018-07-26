@@ -27,7 +27,7 @@ class SH_Jetpack_Logger extends SimpleLogger {
 	public function getInfo() {
 		$arr_info = array(
 			'name' => 'Jetpack logger',
-			'description' => _x( 'Log WordPress translation related things', 'Logger: Jetpack', 'simple-history' ),
+			'description' => _x( 'Log Jetpack settings changes', 'Logger: Jetpack', 'simple-history' ),
 			'capability' => 'manage_options',
 			'name_via' => _x( 'Using plugin Jetpack', 'Logger: Jetpack', 'simple-history' ),
 			'messages' => array(
@@ -47,12 +47,10 @@ class SH_Jetpack_Logger extends SimpleLogger {
 		add_action( 'jetpack_deactivate_module', array($this, 'on_jetpack_deactivate_module'), 10, 2 );
 	}
 
-    // $active_modules = Jetpack::get_active_modules();
-    // sh_error_log('jetpack active modules', $active_modules);
-
     /**
-     * Get array with all modules and info about them.
-     * Module slug is key + array key ["module"]
+     * Get array with all Jetpack modules and info about them.
+     *
+     * @return array Array with info.
      */
 	private function get_jetpack_modules() {
    		$available_modules = Jetpack::get_available_modules();
@@ -70,6 +68,13 @@ class SH_Jetpack_Logger extends SimpleLogger {
 		return $available_modules_with_info;
 	}
 
+	/**
+	 * Get info about a Jetpack module.
+	 *
+	 * @param string $slug Slug of module to get info for.
+	 *
+	 * @return Array Array with module info.
+	 */
 	private function get_jetpack_module($slug = null) {
 		if ( empty( $slug ) ) {
 			return false;
@@ -80,12 +85,15 @@ class SH_Jetpack_Logger extends SimpleLogger {
 		return isset($modules[$slug]) ? $modules[$slug] : false;
 	}
 
+	/**
+	 * Called when a module is activated.
+	 */
 	public function on_jetpack_activate_module($module_slug = null, $success = null) {
 		if ( true !== $success ) {
 			return;
 		}
 
-		$context = array();{}
+		$context = array();
 
 		$module = $this->get_jetpack_module($module_slug);
 
@@ -101,12 +109,15 @@ class SH_Jetpack_Logger extends SimpleLogger {
 		);
 	}
 
+	/**
+	 * Called when a module is deactivated.
+	 */
 	public function on_jetpack_deactivate_module($module_slug = null, $success = null) {
 		if ( true !== $success ) {
 			return;
 		}
 
-		$context = array();{}
+		$context = array();
 
 		$module = $this->get_jetpack_module($module_slug);
 
