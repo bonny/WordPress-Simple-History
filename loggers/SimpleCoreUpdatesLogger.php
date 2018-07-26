@@ -14,18 +14,17 @@ class SimpleCoreUpdatesLogger extends SimpleLogger {
 		add_action( '_core_updated_successfully', array( $this, 'on_core_updated' ) );
 		add_action( 'update_feedback', array( $this, 'on_update_feedback' ) );
 
-				// Can't log db updates at the moment, because loaded() is not called yet when the action fires
-				// add_action( 'wp_upgrade', array( $this, "on_wp_upgrade" ), 10, 2 );
+		// Can't log db updates at the moment, because loaded() is not called yet when the action fires
+		// add_action( 'wp_upgrade', array( $this, "on_wp_upgrade" ), 10, 2 );
 	}
 
-
-		 /**
-		  * Fires after a site is fully upgraded.
-		  * The database, that is.
-		  *
-		  * @param int $wp_db_version         The new $wp_db_version.
-		  * @param int $wp_current_db_version The old (current) $wp_db_version.
-		  */
+	 /**
+	  * Fires after a site is fully upgraded.
+	  * The database, that is.
+	  *
+	  * @param int $wp_db_version         The new $wp_db_version.
+	  * @param int $wp_current_db_version The old (current) $wp_db_version.
+	  */
 	function on_wp_upgrade( $wp_db_version, $wp_current_db_version ) {
 
 		$this->debugMessage(

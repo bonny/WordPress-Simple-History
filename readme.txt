@@ -167,6 +167,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.2n (July 2018) =
+- Add logging of translation updates, so now you can see when a plugin or a theme has gotten new translations.
+
 = 2.25 (July 2018) =
 - Add `wp_cron_current_filter` to event context when something is logged during a cron job. This can help debugging thing like posts being added or deleted by some plugin and you're trying to figure out which plugin it is.
 - Fix for event details not always being shown.

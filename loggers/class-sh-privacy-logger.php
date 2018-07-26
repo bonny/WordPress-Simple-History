@@ -19,10 +19,6 @@ defined( 'ABSPATH' ) || die();
  *   Set in _wp_personal_data_cleanup_requests()
  * - Log when _wp_privacy_resend_request() is called
  */
-
-/**
- * Class to log things from the Redirection plugin.
- */
 class SH_Privacy_Logger extends SimpleLogger {
 
 	/**
