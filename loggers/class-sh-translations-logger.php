@@ -30,7 +30,7 @@ class SH_Translations_Logger extends SimpleLogger {
 			'description' => _x( 'Log WordPress translation related things', 'Logger: Translations', 'simple-history' ),
 			'capability' => 'manage_options',
 			'messages' => array(
-				'translations_updated' => _x( 'Updated translations"', 'Logger: Translations', 'simple-history' ),
+				'translations_updated' => _x( 'Updated translations for "{name}" ({language})', 'Logger: Translations', 'simple-history' ),
 			),
 		);
 
@@ -51,6 +51,27 @@ class SH_Translations_Logger extends SimpleLogger {
 
 		if ('update' !== $options['action']) {
 			return;
+		}
+
+		if ( empty( $options['translations'] ) || ! is_array( $options['translations'] ) ) {
+			return;
+		}
+
+		$translations = $options['translations'];
+
+		foreach ($translations as $translation) {
+			$name = $upgrader->get_name_for_update( (object) $translation );
+
+			$context = array(
+				'name' => $name,
+				'language' => $translation['language'],
+				'translations' => $translation,
+			);
+
+			$this->infoMessage(
+				'translations_updated',
+				$context
+			);
 		}
 
 		/*
@@ -77,29 +98,6 @@ class SH_Translations_Logger extends SimpleLogger {
 		                    [version] => 4.0.8
 		                )
 
-		            [2] => Array
-		                (
-		                    [language] => de_DE
-		                    [type] => plugin
-		                    [slug] => bbpress
-		                    [version] => 2.5.14
-		                )
-
-		            [3] => Array
-		                (
-		                    [language] => sv_SE
-		                    [type] => plugin
-		                    [slug] => bbpress
-		                    [version] => 2.5.14
-		                )
-		            [10] => Array
-		                (
-		                    [language] => de_DE
-		                    [type] => theme
-		                    [slug] => twentysixteen
-		                    [version] => 1.5
-		                )
-
 		            [11] => Array
 		                (
 		                    [language] => sv_SE
@@ -110,11 +108,19 @@ class SH_Translations_Logger extends SimpleLogger {
 		        )
 
 		)
-		*/
 
-		sh_error_log('on_upgrader_process_complete yes', $options);
+		This is how WordPress writes update messages:
+		Updating translations for Yoast SEO (de_DE)…
+		Translation updated successfully.
+
+		Updating translations for Yoast SEO (sv_SE)…
+		Translation updated successfully.
+
+		Updating translations for Twenty Fifteen (de_DE)…
+		Translation updated successfully.
+
+		$name = $this->upgrader->get_name_for_update( $this->language_update );
+		*/
 	}
 
 } // class
-
-
