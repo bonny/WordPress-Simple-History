@@ -53,6 +53,11 @@ class SH_Jetpack_Logger extends SimpleLogger {
      * @return array Array with info.
      */
 	private function get_jetpack_modules() {
+		// Check that Jetpack has the needed methods.
+		if ( ! method_exists('Jetpack', 'get_available_modules') || ! method_exists('Jetpack', 'get_module') ) {
+			return false;
+		}
+
    		$available_modules = Jetpack::get_available_modules();
    		$available_modules_with_info = array();
 
