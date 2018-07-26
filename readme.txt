@@ -167,6 +167,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.24n (July 2018) =
+- Add `wp_cron_current_filter` to event context when something is logged during a cron job. This can help debugging thing like posts being added or deleted by some plugin and you're trying to figure out which plugin it is.
+
 = 2.24 (July 2018) =
 
 - Added user login and user email to CSV export file.

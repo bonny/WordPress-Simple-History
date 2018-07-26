@@ -1118,9 +1118,13 @@ class SimpleLogger {
 			// If cron then set WordPress as responsible
 			if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
 
-				// Seems to be wp cron running and doing this
+				// Seems to be wp cron running and doing this.
 				$data['initiator'] = SimpleLoggerLogInitiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
+
+				// To aid debugging we log the current filter and a list of all filters.
+				global $wp_current_filter;
+				$context['_wp_cron_current_filter'] = current_filter();
 
 			}
 
@@ -1312,7 +1316,7 @@ class SimpleLogger {
 	} // log
 
 	/**
-	 * Append new info to the contextof history item with id $post_logger->lastInsertID..
+	 * Append new info to the context of history item with id $post_logger->lastInsertID.
 	 *
 	 * @param int   $history_id The id of the history row to add context to.
 	 * @param array $context Context to append to existing context for the row.
