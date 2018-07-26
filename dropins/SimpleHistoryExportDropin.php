@@ -128,8 +128,8 @@ class SimpleHistoryExportDropin {
 
 						$message_output = strip_tags( html_entity_decode( $this->sh->getLogRowPlainTextOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 
-						$user_email = empty( $one_row->context['user_email'] ) ? null : $one_row->context['user_email'];
-						$user_login = empty( $one_row->context['user_login'] ) ? null : $one_row->context['user_login'];
+						$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
+						$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
 
 						fputcsv($fp, array(
 							$one_row->date,
