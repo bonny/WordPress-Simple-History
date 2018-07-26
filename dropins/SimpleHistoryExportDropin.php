@@ -111,7 +111,7 @@ class SimpleHistoryExportDropin {
 
 			}
 
-			// Paginate through all pages and all their rows
+			// Paginate through all pages and all their rows.
 			$row_loop = 0;
 			while ( $page_current <= $pages_count + 1 ) {
 
@@ -146,7 +146,7 @@ class SimpleHistoryExportDropin {
 
 					} elseif ( 'json' == $export_format ) {
 
-						// If not first loop then add a comma between all json objects
+						// If not first loop then add a comma between all json objects.
 						if ( $row_loop == 0 ) {
 							$comma = "\n";
 						} else {
