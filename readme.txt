@@ -50,6 +50,11 @@ see when a user privacy data export request is added and when this request is ap
 
 By default Simple History comes with built in support for the following plugins:
 
+**Jetpack**<br>
+The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the creators of WordPress) that lets you supercharge your website by adding a lot of extra functions.
+In Simple History you will see what Jetpack modules that are activated and deactivated.
+(The creator of Simple History recommends this plugin and its [brute force attack protection](https://jetpack.com/features/security/brute-force-attack-protection/) functions btw. It's a really good way to block unwanted login attempts from malicious botnets and distributed attacks.
+
 **Advanced Custom Fields (ACF)**<br>
 [ACF](https://www.advancedcustomfields.com/) adds fields to your posts and pages.
 Simple History will log changes made to the field groups and the fields inside field groups. Your will be able to
@@ -168,6 +173,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 ## Changelog
 
 = 2.2n (July 2018) =
+- Add support for the [Jetpack plugin](https://wordpress.org/plugins/jetpack/). To begin with, module activations and deactivations will be logged.
 - Add logging of translation updates, so now you can see when a plugin or a theme has gotten new translations.
 
 = 2.25 (July 2018) =
