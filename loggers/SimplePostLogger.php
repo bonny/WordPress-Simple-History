@@ -445,6 +445,7 @@ class SimplePostLogger extends SimpleLogger {
 		From pending to trash
 		From something to publish = post published
 		if not from & to = same, then user has changed something
+		From draft to publish in future: status = "future"
 		*/
 		$context = array(
 			'post_id' => $post->ID,
@@ -825,7 +826,6 @@ class SimplePostLogger extends SimpleLogger {
 
 						$post_old_value = $context[ $key ];
 						$post_new_value = $context[ $key_for_new_val ];
-
 						if ( $post_old_value != $post_new_value ) {
 
 							// Different diffs for different keys.
@@ -855,7 +855,6 @@ class SimplePostLogger extends SimpleLogger {
 							} elseif ( 'post_status' == $key_to_diff ) {
 
 								$has_diff_values = true;
-
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>

@@ -517,7 +517,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 			// Bail if not ACF Field Group.
 			if ( $post_type !== 'acf-field-group' ) {
-				return '';
+				return $diff_table_output;
 			}
 
 			// Field group fields to check for and output if found
