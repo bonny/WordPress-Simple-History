@@ -173,7 +173,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 ## Changelog
 
 = 2.2n (July 2018) =
-- Add support for the [Jetpack plugin](https://wordpress.org/plugins/jetpack/). To begin with, module activations and deactivations will be logged.
+- Add support for the [Jetpack plugin](https://wordpress.org/plugins/jetpack/). To begin with, activation and deactivation of Jetpack modules is logged.
 - Add logging of translation updates, so now you can see when a plugin or a theme has gotten new translations.
 
 = 2.25 (July 2018) =
