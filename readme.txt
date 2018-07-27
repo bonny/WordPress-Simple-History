@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, trail, pages, attachments, users,
 Requires at least: 4.5.1
 Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.26
+Stable tag: 2.26.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -171,6 +171,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 == Changelog ==
 
 ## Changelog
+
+= 2.26.1 (July 2018) =
+- Fix 5.3 compatibility.
 
 = 2.26 (July 2018) =
 - Add support for the [Jetpack plugin](https://wordpress.org/plugins/jetpack/). To begin with, activation and deactivation of Jetpack modules is logged.
