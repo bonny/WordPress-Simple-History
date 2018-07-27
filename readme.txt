@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, trail, pages, attachments, users,
 Requires at least: 4.5.1
 Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.25
+Stable tag: 2.26
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -49,6 +49,11 @@ see when a user privacy data export request is added and when this request is ap
 #### Support for third party plugins
 
 By default Simple History comes with built in support for the following plugins:
+
+**Jetpack**<br>
+The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the creators of WordPress) that lets you supercharge your website by adding a lot of extra functions.
+In Simple History you will see what Jetpack modules that are activated and deactivated.
+(The creator of Simple History recommends this plugin and its [brute force attack protection](https://jetpack.com/features/security/brute-force-attack-protection/) functions btw. It's a really good way to block unwanted login attempts from malicious botnets and distributed attacks.
 
 **Advanced Custom Fields (ACF)**<br>
 [ACF](https://www.advancedcustomfields.com/) adds fields to your posts and pages.
@@ -167,8 +172,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.2n (July 2018) =
-- Add logging of translation updates, so now you can see when a plugin or a theme has gotten new translations.
+= 2.26 (July 2018) =
+- Add support for the [Jetpack plugin](https://wordpress.org/plugins/jetpack/). To begin with, activation and deactivation of Jetpack modules is logged.
+- Add logging of translation updates, so now you can see when a plugin or a theme has gotten new translations. Fixes https://github.com/bonny/WordPress-Simple-History/issues/147.
+- Fix notice in Advanced Custom Fields logger when saving an ACF options page.
+Fixes https://wordpress.org/support/topic/problem-with-acf-options-pages/, https://wordpress.org/support/topic/problem-with-recent-version-and-acf/, https://github.com/bonny/WordPress-Simple-History/issues/145.
 
 = 2.25 (July 2018) =
 - Add `wp_cron_current_filter` to event context when something is logged during a cron job. This can help debugging thing like posts being added or deleted by some plugin and you're trying to figure out which plugin it is.

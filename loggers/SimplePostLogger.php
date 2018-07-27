@@ -812,7 +812,6 @@ class SimplePostLogger extends SimpleLogger {
 			$diff_table_output = '';
 			$has_diff_values = false;
 
-			// @TODO: this is silly. why loop if we know what we're looking for?
 			foreach ( $context as $key => $val ) {
 
 				if ( strpos( $key, 'post_prev_' ) !== false ) {
@@ -845,12 +844,15 @@ class SimplePostLogger extends SimpleLogger {
 								// Risks to fill the visual output.
 								// Maybe solution: use own diff function, that uses none or few context lines.
 								$has_diff_values = true;
+								$key_text_diff = simple_history_text_diff( $post_old_value, $post_new_value );
 
-								$diff_table_output .= sprintf(
-									'<tr><td>%1$s</td><td>%2$s</td></tr>',
-									__( 'Content', 'simple-history' ),
-									simple_history_text_diff( $post_old_value, $post_new_value )
-								);
+								if ( $key_text_diff ) {
+									$diff_table_output .= sprintf(
+										'<tr><td>%1$s</td><td>%2$s</td></tr>',
+										__( 'Content', 'simple-history' ),
+										$key_text_diff
+									);
+								}
 
 							} elseif ( 'post_status' == $key_to_diff ) {
 
