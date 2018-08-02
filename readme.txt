@@ -69,12 +69,12 @@ The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-rep
 Simple history will log details about the file being replaced and details about the new file.
 
 **Limit Login Attempts**<br>
-The plugin [Limit Login Attempts](https://sv.wordpress.org/plugins/limit-login-attempts/) is old
+The plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-attempts/) is old
 and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
 Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
 
 **Redirection**
-The [redirection plugin](https://sv.wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
+The [redirection plugin](https://wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
 Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
 **Duplicate Post**
