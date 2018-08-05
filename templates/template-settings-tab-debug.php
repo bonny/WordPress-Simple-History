@@ -20,7 +20,8 @@ $period_end_date = DateTime::createFromFormat( 'U', time() );
  * Size of database in both number or rows and table size
  */
 
-echo '<h3>Database size</h3>';
+echo '<h3>' . _x( 'Database size', 'debug dropin', 'simple-history' ) . '</h3>';
+
 
 // Get table sizes in mb.
 $sql_table_size = sprintf( '
@@ -219,7 +220,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 		);
 
 	} else {
-		$html_logger_messages = '<p>No message strings</p>';
+		$html_logger_messages = '<p>' . _x( 'No message strings', 'debug dropin', 'simple-history' ) . '</p>';
 	}
 
 	printf(
@@ -261,8 +262,9 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 echo '</table>';
 
 // List installed plugins
-echo '<h2>Plugins</h2>';
-echo '<p>As returned from <code>get_plugins()</code></p>';
+echo '<h2>' . _x( 'Plugins', 'debug dropin', 'simple-history' ) . '</h2>';
+
+echo '<p>' . _x( 'As returned from <code>get_plugins()</code>', 'debug dropin', 'simple-history' ) . '</p>';
 
 $plugins = get_plugins();
 
@@ -293,7 +295,10 @@ foreach ( $plugins as $pluginFilePath => $onePlugin ) {
         ',
 		esc_html( $onePlugin['Name'] ),
 		esc_html( $pluginFilePath ),
-		$isPluginActive ? 'Yes' : 'No' // 3
+		$isPluginActive ?
+			_x( 'Yes', 'debug dropin', 'simple-history' ) :
+			_x( 'No', 'debug dropin', 'simple-history' )
+			 // 3
 	);
 }
 
