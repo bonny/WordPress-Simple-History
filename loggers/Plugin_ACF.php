@@ -949,6 +949,10 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				return $data;
 			}
 
+			if ( empty( $_POST['acf_field_group'] ) ) {
+				return $data;
+			}
+
 			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['old'] = acf_get_field_group( $postarr['ID'] );
 
 			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['new'] = acf_get_valid_field_group( $_POST['acf_field_group'] );
