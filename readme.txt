@@ -175,6 +175,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 = 2.26.x (August 2018) =
 - Fix notice errors when syncing an ACF field group. Fixes https://github.com/bonny/WordPress-Simple-History/issues/150.
 - Fix notice error when trying to read plugin info for a plugin that no longer exists or has changed name. Fixes https://github.com/bonny/WordPress-Simple-History/issues/146.
+- Always load the SimpleLogger logger. Fixes https://github.com/bonny/WordPress-Simple-History/issues/129.
 - Make more texts translatable.
 
 = 2.26.1 (July 2018) =
