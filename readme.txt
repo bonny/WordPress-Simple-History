@@ -173,7 +173,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 ## Changelog
 
 = 2.26.x (August 2018) =
-- Add some missing string translations.
+- Fix notice errors when syncing an ACF field group. Fixes https://github.com/bonny/WordPress-Simple-History/issues/150.
+- Make more texts translatable.
 
 = 2.26.1 (July 2018) =
 - Fix 5.3 compatibility.
