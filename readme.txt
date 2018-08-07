@@ -177,6 +177,8 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Fix notice error when trying to read plugin info for a plugin that no longer exists or has changed name. Fixes https://github.com/bonny/WordPress-Simple-History/issues/146.
 - Always load the SimpleLogger logger. Fixes https://github.com/bonny/WordPress-Simple-History/issues/129.
 - Make more texts translatable.
+- Show plugin slug instead of name when translations are updated and a plugin name is not provided by the upgrader. This can happen when a plugin is using an external update service, like EDD.
+- Group translation updates in the log. Useful because sometimes you update a lot of translations at the same time and the log is full of just those messages.
 
 = 2.26.1 (July 2018) =
 - Fix 5.3 compatibility.
