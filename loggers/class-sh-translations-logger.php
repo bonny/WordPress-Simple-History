@@ -62,10 +62,17 @@ class SH_Translations_Logger extends SimpleLogger {
 		foreach ($translations as $translation) {
 			$name = $upgrader->get_name_for_update( (object) $translation );
 
+			// Name can be empty, this is the case for for example Polylang Pro.
+			// If so then use slug as name, so message won't be empty.
+			if ( empty( $name ) && ! empty( $translation['slug'] ) ) {
+				$name = $translation['slug'];
+			}
+
 			$context = array(
 				'name' => $name,
 				'language' => $translation['language'],
 				'translations' => $translation,
+				'_occasionsID' => __CLASS__ . '/translations_updated',
 			);
 
 			$this->infoMessage(

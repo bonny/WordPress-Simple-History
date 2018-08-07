@@ -113,7 +113,11 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 
 		}
 
-
+		/**
+		 * Called when WordPress is done checking for plugin updates.
+		 * WP sets site transient 'update_plugins' when done.
+		 * Log found plugin updates.
+		 */
 		function on_setted_update_plugins_transient( $updates ) {
 
 			if ( empty( $updates->response ) || ! is_array( $updates->response ) ) {
@@ -140,16 +144,22 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
-			// For each available update
+			// For each available update.
 			foreach ( $updates->response as $key => $data ) {
 
 				// Make sure plugin directory exists or get_plugin_data will
 				// give warning like
 				// "PHP Warning:  fread() expects parameter 1 to be resource, boolean given in /wp/wp-includes/functions.php on line 4837"
 				$file = WP_PLUGIN_DIR . '/' . $key;
-				$fp = fopen( $file, 'r' );
 
 				// Continue with next plugin if plugin file did not exist.
+				if ( ! file_exists( $file ) ) {
+					continue;
+				}
+
+				$fp = fopen( $file, 'r' );
+
+				// Continue with next plugin if plugin file could not be read.
 				if (false === $fp) {
 					continue;
 				}
