@@ -172,7 +172,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.2n (August 2018) =
+
+- Use WordPress own function (`wp_privacy_anonymize_ip`, available since WordPress version 4.9.6) to anonymize IP addresses, instead of our own class.
+
 = 2.27 (August 2018) =
+
 - Fix notice errors when syncing an ACF field group. Fixes https://github.com/bonny/WordPress-Simple-History/issues/150.
 - Fix notice error when trying to read plugin info for a plugin that no longer exists or has changed name. Fixes https://github.com/bonny/WordPress-Simple-History/issues/146.
 - Always load the SimpleLogger logger. Fixes https://github.com/bonny/WordPress-Simple-History/issues/129.
@@ -181,15 +186,18 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Group translation updates in the log. Useful because sometimes you update a lot of translations at the same time and the log is full of just those messages.
 
 = 2.26.1 (July 2018) =
+
 - Fix 5.3 compatibility.
 
 = 2.26 (July 2018) =
+
 - Add support for the [Jetpack plugin](https://wordpress.org/plugins/jetpack/). To begin with, activation and deactivation of Jetpack modules is logged.
 - Add logging of translation updates, so now you can see when a plugin or a theme has gotten new translations. Fixes https://github.com/bonny/WordPress-Simple-History/issues/147.
 - Fix notice in Advanced Custom Fields logger when saving an ACF options page.
 Fixes https://wordpress.org/support/topic/problem-with-acf-options-pages/, https://wordpress.org/support/topic/problem-with-recent-version-and-acf/, https://github.com/bonny/WordPress-Simple-History/issues/145.
 
 = 2.25 (July 2018) =
+
 - Add `wp_cron_current_filter` to event context when something is logged during a cron job. This can help debugging thing like posts being added or deleted by some plugin and you're trying to figure out which plugin it is.
 - Fix for event details not always being shown.
 - Fix for sometimes missing user name and user email in export file.

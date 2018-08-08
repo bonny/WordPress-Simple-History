@@ -69,7 +69,6 @@ if ( $ok_php_version && $ok_wp_version ) {
 	/** Load required files */
 	require_once( __DIR__ . '/inc/SimpleHistory.php' );
 	require_once( __DIR__ . '/inc/SimpleHistoryLogQuery.php' );
-	require_once( __DIR__ . '/inc/SimpleHistoryIpAnonymizer.php' );
 
 	/**
 	Constants will be like:

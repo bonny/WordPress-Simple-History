@@ -1224,8 +1224,8 @@ class SimpleLogger {
 				 */
 				$anonymize_ip_address = apply_filters( 'simple_history/privacy/anonymize_ip_address', true );
 
-				if ( $anonymize_ip_address ) {
-					$remote_addr = SimpleHistoryIpAnonymizer::anonymizeIp( $remote_addr );
+				if ( $anonymize_ip_address && function_exists('wp_privacy_anonymize_ip') ) {
+					$remote_addr = wp_privacy_anonymize_ip( $remote_addr );
 				}
 
 				$context['_server_remote_addr'] = $remote_addr;
@@ -1258,8 +1258,8 @@ class SimpleLogger {
 								// valid, add to context, with loop index appended so we can store many IPs.
 								$key_lower = strtolower( $key );
 
-								if ( $anonymize_ip_address ) {
-									$ip = SimpleHistoryIpAnonymizer::anonymizeIp( $ip );
+								if ( $anonymize_ip_address && function_exists('wp_privacy_anonymize_ip') ) {
+									$ip = wp_privacy_anonymize_ip( $ip );
 								}
 
 								$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
