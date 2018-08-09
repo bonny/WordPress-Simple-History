@@ -57,8 +57,7 @@ In Simple History you will see what Jetpack modules that are activated and deact
 
 **Advanced Custom Fields (ACF)**<br>
 [ACF](https://www.advancedcustomfields.com/) adds fields to your posts and pages.
-Simple History will log changes made to the field groups and the fields inside field groups. Your will be able to
-see when both field groups and fields are created and modified.
+Simple History will log changes made to the field groups and the fields inside field groups. Your will see when both field groups and fields are created and modified.
 
 **User Switching**<br>
 The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button.
