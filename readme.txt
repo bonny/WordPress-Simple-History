@@ -148,6 +148,16 @@ https://github.com/bonny/WordPress-Simple-History
 
 * If you like this plugin please consider [donating to support the development](https://www.paypal.me/eskapism).
 
+== Frequently Asked Questions ==
+
+= Can I add my own events to the log? =
+
+Yes. See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
+
+= For how long are events stored? =
+
+Events in the log are stored for 60 days by default. Events older than this will be removed.
+
 == Screenshots ==
 
 1. The log view + it also shows the filter function in use - the log only shows event that
