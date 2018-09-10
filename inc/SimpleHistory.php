@@ -2424,7 +2424,6 @@ Because Simple History was just recently installed, this feed does not contain m
 		$logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
 
 		return $logger->getLogRowPlainTextOutput( $row );
-
 	}
 
 	/**
