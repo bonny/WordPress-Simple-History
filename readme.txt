@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 4.5.1
 Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.27
+Stable tag: 2.28
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -181,7 +181,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.2n (August 2018) =
+= 2.28 (September 2018) =
 
 - Always show time and sometimes date before each event, in addition to the relative date. Fixes https://wordpress.org/support/topic/feature-request-granular-settings-changes-detailed-timestamp/.
 - Use WordPress own function (`wp_privacy_anonymize_ip`, available since WordPress version 4.9.6) to anonymize IP addresses, instead of our own class.
