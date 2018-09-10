@@ -27,7 +27,6 @@ var simple_history = (function ($) {
   }
 
   var LogRowsCollection = Backbone.Collection.extend({
-
     initialize: function (models, options) {
       this.mainView = options.mainView
 
@@ -68,12 +67,18 @@ var simple_history = (function ($) {
         data: url_data,
         // called on 404 and similar
         error: function (collection, response, options) {
-          collection.trigger('reloadError', [ response, options ])
-          $(document).trigger('SimpleHistory:logRowsCollectionReloadError', [ response, options ])
+          collection.trigger('reloadError', [response, options])
+          $(document).trigger('SimpleHistory:logRowsCollectionReloadError', [
+            response,
+            options
+          ])
         },
         success: function (collection, response, options) {
-          collection.trigger('reloadDone', [ response, options ])
-          $(document).trigger('SimpleHistory:logRowsCollectionReloadDone', [ response, options ])
+          collection.trigger('reloadDone', [response, options])
+          $(document).trigger('SimpleHistory:logRowsCollectionReloadDone', [
+            response,
+            options
+          ])
         }
       })
     },
@@ -101,7 +106,9 @@ var simple_history = (function ($) {
         this.max_id_first_page = this.max_id
         $(document).trigger('SimpleHistory:logRowsCollectionFirstLoad')
 
-        $('.SimpleHistory__waitingForFirstLoad').addClass('SimpleHistory__waitingForFirstLoad--isLoaded')
+        $('.SimpleHistory__waitingForFirstLoad').addClass(
+          'SimpleHistory__waitingForFirstLoad--isLoaded'
+        )
 
         // Add class to body to so we can catch loaded log everywhere in CSS
         $('body').addClass('SimpleHistory--isLoaded')
@@ -116,11 +123,9 @@ var simple_history = (function ($) {
 
       return arrRows
     }
-
   })
 
   var OccasionsLogRowsCollection = Backbone.Collection.extend({
-
     initialize: function (models, options) {
       this.url = api_base_url + '&type=occasions&format=html'
 
@@ -153,11 +158,9 @@ var simple_history = (function ($) {
 
       return arrRows
     }
-
   })
 
   var OccasionsView = Backbone.View.extend({
-
     initialize: function () {
       var logRowID = this.attributes.logRow.data('rowId')
       var occasionsCount = this.attributes.logRow.data('occasionsCount')
@@ -178,9 +181,13 @@ var simple_history = (function ($) {
       this.logRows.on('reset', this.render, this)
 
       // Trigger event for plugins
-      this.logRows.on('reset', function () {
-        $(document).trigger('SimpleHistory:logRowsCollectionOccasionsLoaded')
-      }, this)
+      this.logRows.on(
+        'reset',
+        function () {
+          $(document).trigger('SimpleHistory:logRowsCollectionOccasionsLoaded')
+        },
+        this
+      )
     },
 
     render: function () {
@@ -196,16 +203,22 @@ var simple_history = (function ($) {
       var occasionsCount = this.attributes.logRow.data('occasionsCount')
       if (occasionsCount > this.occasionsCountMaxReturn) {
         var templateTooMany = wp.template('simple-history-occasions-too-many')
-        $html = $html.add(templateTooMany({ occasionsCount: occasionsCount, occasionsCountMaxReturn: this.occasionsCountMaxReturn }))
+        $html = $html.add(
+          templateTooMany({
+            occasionsCount: occasionsCount,
+            occasionsCountMaxReturn: this.occasionsCountMaxReturn
+          })
+        )
       }
 
       this.$el.html($html)
 
-      this.attributes.logRow.removeClass('SimpleHistoryLogitem--occasionsOpening').addClass('SimpleHistoryLogitem--occasionsOpened')
+      this.attributes.logRow
+        .removeClass('SimpleHistoryLogitem--occasionsOpening')
+        .addClass('SimpleHistoryLogitem--occasionsOpened')
 
       this.$el.addClass('haveOccasionsAdded')
     }
-
   })
 
   var DetailsModel = Backbone.Model.extend({
@@ -216,7 +229,6 @@ var simple_history = (function ($) {
    * DetailsView is a modal popup thingie with all info about a LogRow
    */
   var DetailsView = Backbone.View.extend({
-
     initialize: function (attributes) {
       this.model.fetch({
         data: {
@@ -282,15 +294,15 @@ var simple_history = (function ($) {
     },
 
     render: function () {
-      var $modalContentInnerEl = this.$el.find('.SimpleHistory-modal__contentInner')
+      var $modalContentInnerEl = this.$el.find(
+        '.SimpleHistory-modal__contentInner'
+      )
       var logRowLI = this.model.get('data').log_rows[0]
       $modalContentInnerEl.html(logRowLI)
     }
-
   })
 
   var RowsView = Backbone.View.extend({
-
     initialize: function () {
       this.collection.on('reset', this.render, this)
       this.collection.on('reload', this.onReload, this)
@@ -298,9 +310,13 @@ var simple_history = (function ($) {
       this.collection.on('reloadError', this.onReloadError, this)
 
       // Trigger event for plugins
-      this.collection.on('reset', function () {
-        $(document).trigger('SimpleHistory:logLoaded')
-      }, this)
+      this.collection.on(
+        'reset',
+        function () {
+          $(document).trigger('SimpleHistory:logLoaded')
+        },
+        this
+      )
     },
 
     onReloadError: function (args) {
@@ -315,7 +331,9 @@ var simple_history = (function ($) {
       if (response && response.responseText) {
         // console.log( response.responseText );
         $('html').removeClass('SimpleHistory-isLoadingPage')
-        $('.SimpleHistory__waitingForFirstLoad').addClass('SimpleHistory__waitingForFirstLoad--isLoaded')
+        $('.SimpleHistory__waitingForFirstLoad').addClass(
+          'SimpleHistory__waitingForFirstLoad--isLoaded'
+        )
 
         var $mainViewElm = this.collection.mainView.$el
         $mainViewElm.addClass('SimpleHistory--ajaxHasErrors')
@@ -327,7 +345,12 @@ var simple_history = (function ($) {
 
         // Add div with message
         var $noHitsElm = $('<div />')
-          .html("<div class='SimpleHistoryLogitems__ajaxError__infoMessage'>" + simple_history_script_vars.ajaxLoadError + '</div>' + response.responseText)
+          .html(
+            "<div class='SimpleHistoryLogitems__ajaxError__infoMessage'>" +
+              simple_history_script_vars.ajaxLoadError +
+              '</div>' +
+              response.responseText
+          )
           .addClass(noHitsClass)
           .appendTo($mainViewElm.find('.SimpleHistoryLogitems__above'))
       }
@@ -391,7 +414,9 @@ var simple_history = (function ($) {
 
       var $target = $(e.target)
       var $logRow = $target.closest('.SimpleHistoryLogitem')
-      var $occasionsElm = $("<li class='SimpleHistoryLogitem__occasionsItemsWrap'><ul class='SimpleHistoryLogitem__occasionsItems'/></li>")
+      var $occasionsElm = $(
+        "<li class='SimpleHistoryLogitem__occasionsItemsWrap'><ul class='SimpleHistoryLogitem__occasionsItems'/></li>"
+      )
 
       $logRow.after($occasionsElm)
 
@@ -414,11 +439,9 @@ var simple_history = (function ($) {
       // Rendering of log rows items is done
       this.trigger('renderDone')
     }
-
   })
 
   var PaginationView = Backbone.View.extend({
-
     initialize: function () {
       $(document).keydown({ view: this }, this.keyboardNav)
 
@@ -428,7 +451,7 @@ var simple_history = (function ($) {
     events: {
       'click .SimpleHistoryPaginationLink': 'navigateArrow',
       'keyup .SimpleHistoryPaginationCurrentPage': 'navigateToPage',
-      'keydown': 'keydown'
+      keydown: 'keydown'
     },
 
     keyboardNav: function (e) {
@@ -542,30 +565,33 @@ var simple_history = (function ($) {
       })
 
       // Scroll to top of el
-      $('html, body').animate({
-        scrollTop: this.attributes.mainView.$el.offset().top - 85
-      }, 350)
+      $('html, body').animate(
+        {
+          scrollTop: this.attributes.mainView.$el.offset().top - 85
+        },
+        350
+      )
     },
 
     render: function () {
       var compiled = wp.template('simple-history-logitems-pagination')
 
-      this.$el.html(compiled({
-        min_id: this.collection.min_id,
-        max_id: this.collection.max_id,
-        pages_count: this.collection.pages_count,
-        total_row_count: this.collection.total_row_count,
-        page_rows_from: this.collection.page_rows_from,
-        page_rows_to: this.collection.page_rows_to,
-        api_args: this.collection.api_args,
-        strings: simple_history_script_vars.pagination
-      }))
+      this.$el.html(
+        compiled({
+          min_id: this.collection.min_id,
+          max_id: this.collection.max_id,
+          pages_count: this.collection.pages_count,
+          total_row_count: this.collection.total_row_count,
+          page_rows_from: this.collection.page_rows_from,
+          page_rows_to: this.collection.page_rows_to,
+          api_args: this.collection.api_args,
+          strings: simple_history_script_vars.pagination
+        })
+      )
     }
-
   })
 
   var MainView = Backbone.View.extend({
-
     el: '.SimpleHistoryGui',
 
     initialize: function () {
@@ -615,11 +641,9 @@ var simple_history = (function ($) {
       var template = $('#tmpl-simple-history-base').html()
       this.$el.html(template)
     }
-
   })
 
   var LogRouter = Backbone.Router.extend({
-
     routes: {
       'item/:number': 'item',
       '*default': 'default'
@@ -638,7 +662,6 @@ var simple_history = (function ($) {
     default: function () {
       return false
     }
-
   })
 
   var mainView = new MainView()
@@ -657,7 +680,6 @@ var simple_history = (function ($) {
  */
 jQuery('.js-SimpleHistory-Settings-ClearLog').on('click', function (e) {
   if (confirm(simple_history_script_vars.settingsConfirmClearLog)) {
-
   } else {
     e.preventDefault()
   }
@@ -676,6 +698,8 @@ jQuery('.js-SimpleHistory-Settings-ClearLog').on('click', function (e) {
   $document.on('SimpleHistory:logRowsCollectionOccasionsLoaded', addTimeAgo)
 
   function addTimeAgo () {
-    $('.SimpleHistoryLogitem__when time.SimpleHistoryLogitem__when__liveRelative').timeago()
+    $(
+      '.SimpleHistoryLogitem__when time.SimpleHistoryLogitem__when__liveRelative'
+    ).timeago()
   }
 })(jQuery)
