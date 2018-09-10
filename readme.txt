@@ -173,7 +173,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.2n (August 2018) =
 
+- Always show time and sometimes date before each event, in addition to the relative date. Fixes https://wordpress.org/support/topic/feature-request-granular-settings-changes-detailed-timestamp/.
 - Use WordPress own function (`wp_privacy_anonymize_ip`, available since WordPress version 4.9.6) to anonymize IP addresses, instead of our own class.
+- Update timeago.js
 
 = 2.27 (August 2018) =
 
