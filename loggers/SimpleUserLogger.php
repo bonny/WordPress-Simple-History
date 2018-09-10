@@ -814,9 +814,9 @@ class SimpleUserLogger extends SimpleLogger {
 					'title' => _x( 'Jabber / Google Talk ', 'User logger', 'simple-history' ),
 				),
 				/*
-                "user_nicename" => array(
-                    "title" => _x("Nicename", "User logger", "simple-history")
-                ),*/
+					"user_nicename" => array(
+					"title" => _x("Nicename", "User logger", "simple-history")
+				),*/
 				'user_email' => array(
 					'title' => _x( 'Email', 'User logger', 'simple-history' ),
 				),
