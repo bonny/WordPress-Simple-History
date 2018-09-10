@@ -230,13 +230,12 @@ class SimpleLogger {
 
 			// wp_user = wordpress uses, but user may have been deleted since log entry was added
 			case 'wp_user':
-
 				$user_id = isset( $row->context['_user_id'] ) ? $row->context['_user_id'] : null;
 
 				if ( $user_id > 0 && $user = get_user_by( 'id', $user_id ) ) {
 
 					// Sender is user and user still exists
-					$is_current_user = ($user_id == get_current_user_id()) ? true : false;
+					$is_current_user = ( get_current_user_id() == $user_id ) ? true : false;
 
 					// get user role, as done in user-edit.php
 					$wp_roles = $GLOBALS['wp_roles'];
@@ -285,11 +284,11 @@ class SimpleLogger {
 
 					$initiator_html .= sprintf(
 						$tmpl_initiator_html,
-						esc_html( $user->user_login ), 	// 1
-						esc_html( $user->user_email ), 	// 2
-						esc_html( $user_display_name ), 	// 3
-						$user_role, 	// 4
-						_x( 'You', 'header output when initiator is the currently logged in user', 'simple-history' ),	// 5
+						esc_html( $user->user_login ), // 1
+						esc_html( $user->user_email ), // 2
+						esc_html( $user_display_name ),  // 3
+						$user_role, // 4
+						_x( 'You', 'header output when initiator is the currently logged in user', 'simple-history' ), // 5
 						get_edit_user_link( $user_id ) // 6
 					);
 
@@ -315,7 +314,6 @@ class SimpleLogger {
 				break;
 
 			case 'web_user':
-
 				/*
 				Note: server_remote_addr may not show visiting/attacking ip, if server is behind...stuff..
 				Can be behind varnish cashe, or browser can for example use compression in chrome mobile
@@ -348,8 +346,8 @@ class SimpleLogger {
 						print_r($arr_found_additional_ip_headers);
 						Array
 						(
-						    [_server_http_x_forwarded_for_0] => 5.35.187.212
-						    [_server_http_x_forwarded_for_1] => 83.251.97.21
+							[_server_http_x_forwarded_for_0] => 5.35.187.212
+							[_server_http_x_forwarded_for_1] => 83.251.97.21
 						)
 						*/
 
@@ -431,24 +429,30 @@ class SimpleLogger {
 		$time_ago_just_now_max_time = 30;
 		$time_ago_just_now_max_time = apply_filters( 'simple_history/header_just_now_max_time', $time_ago_just_now_max_time );
 
+		$date_format = get_option( 'date_format' );
+		$time_format = get_option( 'time_format' );
+		$date_and_time_format = $date_format . ' - ' . $time_format;
+
+		// Show local time as hours an minutes when event is recent.
+		$local_date_format = $time_format;
+
+		// Show local time as date and hours when event is a bit older.
+		if ( ( $time_current - HOUR_IN_SECONDS * 6 ) > $date_datetime->getTimestamp() ) {
+			$local_date_format = $date_and_time_format;
+		}
+
 		if ( $time_current - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time ) {
-
-			// show "just now" if event is very recent
+			// Show "just now" if event is very recent.
 			$str_when = __( 'Just now', 'simple-history' );
-
 		} elseif ( $time_current - $date_datetime->getTimestamp() > $time_ago_max_time ) {
-
-			/* translators: Date format for log row header, see http://php.net/date */
+			/* Translators: Date format for log row header, see http://php.net/date */
 			$datef = __( 'M j, Y \a\t G:i', 'simple-history' );
 			$str_when = date_i18n( $datef, strtotime( get_date_from_gmt( $row->date ) ) );
-
 		} else {
-
 			// Show "nn minutes ago" when event is xx seconds ago or earlier
 			$date_human_time_diff = human_time_diff( $date_datetime->getTimestamp(), $time_current );
-			/* translators: 1: last modified date and time in human time diff-format */
+			/* Translators: 1: last modified date and time in human time diff-format */
 			$str_when = sprintf( __( '%1$s ago', 'simple-history' ), $date_human_time_diff );
-
 		}
 
 		$item_permalink = admin_url( 'index.php?page=simple_history_page' );
@@ -456,24 +460,34 @@ class SimpleLogger {
 			$item_permalink .= "#item/{$row->id}";
 		}
 
-		$date_format = get_option( 'date_format' ) . ' - ' . get_option( 'time_format' );
+		// Datetime attribute on <time> element.
 		$str_datetime_title = sprintf(
 			__( '%1$s local time %3$s (%2$s GMT time)', 'simple-history' ),
-			get_date_from_gmt( $date_datetime->format( 'Y-m-d H:i:s' ), $date_format ), // 1 local time
-			$date_datetime->format( $date_format ), // GMT time
+			get_date_from_gmt( $date_datetime->format( 'Y-m-d H:i:s' ), $date_and_time_format ), // 1 local time
+			$date_datetime->format( $date_and_time_format ), // GMT time
 			PHP_EOL // 3, new line
 		);
 
+		// Time and date before live updated relative date.
+		$str_datetime_local = sprintf(
+			'%1$s',
+			get_date_from_gmt( $date_datetime->format( 'Y-m-d H:i:s' ), $local_date_format ) // 1 local time
+		);
+
+		// HTML for whole span with date info.
 		$date_html = "<span class='SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided'>";
 		$date_html .= "<a class='' href='{$item_permalink}'>";
 		$date_html .= sprintf(
-			'<time datetime="%3$s" title="%1$s" class="">%2$s</time>',
+			'<span title="%1$s">%4$s (<time datetime="%3$s" class="SimpleHistoryLogitem__when__liveRelative">%2$s</time>)</span>',
 			esc_attr( $str_datetime_title ), // 1 datetime attribute
-			esc_html( $str_when ), // 2 date text, visible in log
-			$date_datetime->format( DateTime::RFC3339 ) // 3
+			esc_html( $str_when ), // 2 date text, visible in log, but overridden by JS relative date script.
+			$date_datetime->format( DateTime::RFC3339 ), // 3
+			esc_html( $str_datetime_local ) // 4
 		);
 		$date_html .= '</a>';
 		$date_html .= '</span>';
+
+		sh_error_log('$date_html', $date_html);
 
 		/**
 		 * Filter the output of the date section of the header.
