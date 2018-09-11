@@ -487,8 +487,6 @@ class SimpleLogger {
 		$date_html .= '</a>';
 		$date_html .= '</span>';
 
-		sh_error_log('$date_html', $date_html);
-
 		/**
 		 * Filter the output of the date section of the header.
 		 *
