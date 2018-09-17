@@ -984,14 +984,47 @@ class SimpleLogger {
 			return $this;
 		}
 
-		/*
+		/**
 		 * Filter that makes it possible to shortcut this log.
 		 * Return bool false to cancel.
 		 *
 		 * @since 2.3.1
 		 */
 		$do_log = apply_filters( 'simple_history/log/do_log', true, $level, $message, $context, $this );
+		if ( false === $do_log ) {
+			return $this;
+		}
 
+		/**
+		 * Easy shortcut method to disable logging of messages from
+		 * a specific logger.
+		 *
+		 * Example filter name:
+		 * simple_history/log/do_log/SimpleUserLogger
+		 * simple_history/log/do_log/SimplePostLogger
+		 *
+		 * Example to disable logging of any user login/logout/failed login activity:
+		 * add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false')
+		 *
+		 * @since 2.nn
+		 */
+		$do_log = apply_filters( "simple_history/log/do_log/{$this->slug}", true );
+		if ( false === $do_log ) {
+			return $this;
+		}
+
+		/**
+		 * Easy shortcut method to disable logging of messages from
+		 * a specific logger and message.
+		 *
+		 * Example filter name:
+		 * simple_history/log/do_log/SimpleUserLogger/user_logged_in
+		 * simple_history/log/do_log/SimplePostLogger/post_updated
+		 *
+		 * @since 2.nn
+		 */
+		$message_key = isset( $context['_message_key'] ) ? $context['_message_key'] : null;
+		$do_log = apply_filters( "simple_history/log/do_log/{$this->slug}/{$message_key}", true );
 		if ( false === $do_log ) {
 			return $this;
 		}
@@ -1236,7 +1269,7 @@ class SimpleLogger {
 				 */
 				$anonymize_ip_address = apply_filters( 'simple_history/privacy/anonymize_ip_address', true );
 
-				if ( $anonymize_ip_address && function_exists('wp_privacy_anonymize_ip') ) {
+				if ( $anonymize_ip_address && function_exists( 'wp_privacy_anonymize_ip' ) ) {
 					$remote_addr = wp_privacy_anonymize_ip( $remote_addr );
 				}
 
@@ -1270,7 +1303,7 @@ class SimpleLogger {
 								// valid, add to context, with loop index appended so we can store many IPs.
 								$key_lower = strtolower( $key );
 
-								if ( $anonymize_ip_address && function_exists('wp_privacy_anonymize_ip') ) {
+								if ( $anonymize_ip_address && function_exists( 'wp_privacy_anonymize_ip' ) ) {
 									$ip = wp_privacy_anonymize_ip( $ip );
 								}
 
