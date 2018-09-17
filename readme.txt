@@ -181,6 +181,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.nn (nn 2018) =
+
+- Make log welcome message translateable.
+
 = 2.28.1 (September 2018) =
 
 - Remove a debug message that was left in the code.

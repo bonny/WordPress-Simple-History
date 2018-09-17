@@ -1787,15 +1787,15 @@ class SimpleHistory {
 
 		if ( ! $db_data_exists ) {
 
-			$welcome_message_1 = '
+			$welcome_message_1 = __('
 Welcome to Simple History!
 
 This is the main history feed. It will contain events that this plugin has logged.
-';
+', 'simple-history');
 
-			$welcome_message_2 = '
+			$welcome_message_2 = __('
 Because Simple History was just recently installed, this feed does not contain much events yet. But keep the plugin activated and soon you will see detailed information about page edits, plugin updates, user logins, and much more.
-';
+', 'simple-history');
 
 			SimpleLogger()->info(
 				$welcome_message_2,
@@ -1816,15 +1816,11 @@ Because Simple History was just recently installed, this feed does not contain m
 	}
 
 	public function registerSettingsTab( $arr_tab_settings ) {
-
 		$this->arr_settings_tabs[] = $arr_tab_settings;
-
 	}
 
 	public function getSettingsTabs() {
-
 		return $this->arr_settings_tabs;
-
 	}
 
 	/**
@@ -1832,9 +1828,7 @@ Because Simple History was just recently installed, this feed does not contain m
 	 * Called from add_options_page
 	 */
 	function settings_page_output() {
-
 		$arr_settings_tabs = $this->getSettingsTabs();
-
 		?>
 		<div class="wrap">
 
