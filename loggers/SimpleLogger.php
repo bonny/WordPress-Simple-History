@@ -992,7 +992,7 @@ class SimpleLogger {
 		 */
 		$do_log = apply_filters( 'simple_history/log/do_log', true, $level, $message, $context, $this );
 
-		if ( $do_log === false ) {
+		if ( false === $do_log ) {
 			return $this;
 		}
 
