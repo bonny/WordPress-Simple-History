@@ -3,6 +3,17 @@
 defined( 'ABSPATH' ) or die();
 
 /**
+ * Todo:
+ * - break out diff and save from "on_transition_post_status"
+ *   and re-use in rest hooks.
+ * - make sure filters are used for rest hooks too
+ * - re-use as much as possible
+ * - test REST API update from curl or similar
+ */
+
+
+
+/**
  * Logs changes to posts and pages, including custom post types
  */
 class SimplePostLogger extends SimpleLogger {
@@ -21,13 +32,53 @@ class SimplePostLogger extends SimpleLogger {
 		add_action( 'untrash_post', array( $this, 'on_untrash_post' ) );
 
 		$this->add_xml_rpc_hooks();
+		$this->add_rest_hooks();
 
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
 
 	}
 
 	/**
-	 * Filters to XML RPC calls needs to be added early, admin_init is to late
+	 * Add hooks to catch updates via REST API, i.e. the new Gutenberg editor.
+	 */
+	function add_rest_hooks() {
+		$post_types = get_post_types( array(), 'objects' );
+
+		// class-wp-rest-posts-controller.php fires two actions in
+		// the update_item() method.
+		foreach ( $post_types as $post_type ) {
+			add_action( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Filter "rest_pre_insert_{$this->post_type}" ilters a post before it is inserted via the REST API.
+	 * Fired from class-wp-rest-posts-controller.php.
+	 *
+	 * @param stdClass        $prepared_post An object representing a single post prepared
+	 *                                       for inserting or updating the database.
+	 * @param WP_REST_Request $request       Request object.
+	 */
+	function on_rest_pre_insert( $prepared_post, $request ) {
+		// $prepared_post = post with new content.
+		// $old_post = post with old content
+		$old_post = get_post( $prepared_post->ID );
+		$old_post_meta = get_post_custom( $old_post->ID );
+		$prepared_post_meta = get_post_custom( $prepared_post->ID );
+
+		#sh_error_log( 'on_rest_insert $old_post', $old_post );
+		sh_error_log( 'on_rest_insert $old_post_meta', $old_post_meta );
+		#sh_error_log( 'on_rest_insert $prepared_post_meta', $prepared_post_meta );
+		#sh_error_log( 'on_rest_insert $prepared_post', $prepared_post );
+		#sh_error_log( 'on_rest_insert $request', $request );
+		//sh_error_log( 'on_rest_insert $featured_media', $request->get_param( 'featured_media' ) );
+		// sh_error_log( 'on_rest_pre_insert', $new_post->post_content );
+
+		return $prepared_post;
+	}
+
+	/**
+	 * Filters to XML RPC calls needs to be added early, admin_init is to late.
 	 */
 	function add_xml_rpc_hooks() {
 
@@ -154,7 +205,7 @@ class SimplePostLogger extends SimpleLogger {
 	/**
 	 * Get and store old info about a post that is being edited.
 	 * Needed to later compare old data with new data, to detect differences.
-	 * This function is called on edit screen, but before post edits are saved
+	 * This function is called on edit screen  but before post edits are saved.
 	 *
 	 * Can't use the regular filters like "pre_post_update" because custom fields are already written by then.
 	 *
@@ -470,8 +521,8 @@ class SimplePostLogger extends SimpleLogger {
 
 		} else {
 
-			// Post updated
-			// Also add diff between previod saved data and new data
+			// Post updated.
+			// Also add diff between previos saved data and new data.
 			if ( isset( $this->old_post_data[ $post->ID ] ) ) {
 
 				$old_post_data = $this->old_post_data[ $post->ID ];
@@ -497,7 +548,7 @@ class SimplePostLogger extends SimpleLogger {
 			 */
 			$context = apply_filters( 'simple_history/post_logger/post_updated/context', $context, $post );
 
-			$this->infoMessage( "post_updated", $context );
+			$this->infoMessage( 'post_updated', $context );
 
 		}// End if().
 
