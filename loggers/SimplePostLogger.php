@@ -455,7 +455,7 @@ class SimplePostLogger extends SimpleLogger {
 
 		// except when calls are from/for jetpack/wordpress apps
 		// seems to be jetpack/app request when $_GET["for"] == "jetpack
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && $_GET['for'] === 'jetpack' ) {
+		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] ) {
 			$ok_to_log = true;
 		}
 
