@@ -66,14 +66,13 @@ class SimplePostLogger extends SimpleLogger {
 		$old_post_meta = get_post_custom( $old_post->ID );
 		$prepared_post_meta = get_post_custom( $prepared_post->ID );
 
-		#sh_error_log( 'on_rest_insert $old_post', $old_post );
+		// sh_error_log( 'on_rest_insert $old_post', $old_post );
 		sh_error_log( 'on_rest_insert $old_post_meta', $old_post_meta );
-		#sh_error_log( 'on_rest_insert $prepared_post_meta', $prepared_post_meta );
-		#sh_error_log( 'on_rest_insert $prepared_post', $prepared_post );
-		#sh_error_log( 'on_rest_insert $request', $request );
-		//sh_error_log( 'on_rest_insert $featured_media', $request->get_param( 'featured_media' ) );
+		// sh_error_log( 'on_rest_insert $prepared_post_meta', $prepared_post_meta );
+		// sh_error_log( 'on_rest_insert $prepared_post', $prepared_post );
+		// sh_error_log( 'on_rest_insert $request', $request );
+		// sh_error_log( 'on_rest_insert $featured_media', $request->get_param( 'featured_media' ) );
 		// sh_error_log( 'on_rest_pre_insert', $new_post->post_content );
-
 		return $prepared_post;
 	}
 
@@ -90,7 +89,7 @@ class SimplePostLogger extends SimpleLogger {
 		*/
 
 		add_action( 'xmlrpc_call_success_blogger_newPost', array( $this, 'on_xmlrpc_newPost' ), 10, 2 );
-		add_action( 'xmlrpc_call_success_mw_newPost', array( $this, 'on_xmlrpc_newPost' ), 10,2 );
+		add_action( 'xmlrpc_call_success_mw_newPost', array( $this, 'on_xmlrpc_newPost' ), 10, 2 );
 
 		add_action( 'xmlrpc_call_success_blogger_editPost', array( $this, 'on_xmlrpc_editPost' ), 10, 2 );
 		add_action( 'xmlrpc_call_success_mw_editPost', array( $this, 'on_xmlrpc_editPost' ), 10, 2 );
@@ -105,7 +104,7 @@ class SimplePostLogger extends SimpleLogger {
 	function on_xmlrpc_call( $method ) {
 
 		$arr_methods_to_act_on = array(
-			'wp.deletePost'
+			'wp.deletePost',
 		);
 
 		$raw_post_data = null;
@@ -178,23 +177,23 @@ class SimplePostLogger extends SimpleLogger {
 					'label_all' => _x( 'All posts & pages activity', 'Post logger: search', 'simple-history' ),
 					'options' => array(
 						_x( 'Posts created', 'Post logger: search', 'simple-history' ) => array(
-							'post_created'
+							'post_created',
 						),
 						_x( 'Posts updated', 'Post logger: search', 'simple-history' ) => array(
-							'post_updated'
+							'post_updated',
 						),
 						_x( 'Posts trashed', 'Post logger: search', 'simple-history' ) => array(
-							'post_trashed'
+							'post_trashed',
 						),
 						_x( 'Posts deleted', 'Post logger: search', 'simple-history' ) => array(
-							'post_deleted'
+							'post_deleted',
 						),
 						_x( 'Posts restored', 'Post logger: search', 'simple-history' ) => array(
-							'post_restored'
+							'post_restored',
 						),
 					),
-				),// end search array
-			),// end labels
+				), // end search array
+			), // end labels
 
 		);
 
@@ -225,13 +224,13 @@ class SimplePostLogger extends SimpleLogger {
 
 		$prev_post_data = get_post( $post_ID );
 
-		if (is_wp_error($prev_post_data)) {
+		if ( is_wp_error( $prev_post_data ) ) {
 			return;
 		}
 
-		$this->old_post_data[$post_ID] = array(
-			"post_data" => $prev_post_data,
-			"post_meta" => get_post_custom( $post_ID )
+		$this->old_post_data[ $post_ID ] = array(
+			'post_data' => $prev_post_data,
+			'post_meta' => get_post_custom( $post_ID ),
 		);
 
 	}
@@ -437,11 +436,11 @@ class SimplePostLogger extends SimpleLogger {
 	}
 
 	/**
-	  * Fired when a post has changed status
-	  * Only run in certain cases,
-	  * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
-	  * which by definition is not wrong, but perhaps not wanted/annoying
-	  */
+	 * Fired when a post has changed status
+	 * Only run in certain cases,
+	 * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
+	 * which by definition is not wrong, but perhaps not wanted/annoying
+	 */
 	function on_transition_post_status( $new_status, $old_status, $post ) {
 
 		$ok_to_log = true;
@@ -504,12 +503,12 @@ class SimplePostLogger extends SimpleLogger {
 			'post_title' => get_the_title( $post ),
 		);
 
-		if ( $old_status == 'auto-draft' && ($new_status != 'auto-draft' && $new_status != 'inherit') ) {
+		if ( $old_status == 'auto-draft' && ( $new_status != 'auto-draft' && $new_status != 'inherit' ) ) {
 
 			// Post created
 			$this->infoMessage( 'post_created', $context );
 
-		} elseif ( $new_status == 'auto-draft' || ($old_status == 'new' && $new_status == 'inherit') ) {
+		} elseif ( $new_status == 'auto-draft' || ( $old_status == 'new' && $new_status == 'inherit' ) ) {
 
 			// Post was automagically saved by WordPress
 			return;
@@ -560,8 +559,8 @@ class SimplePostLogger extends SimpleLogger {
 	 * Since 2.0.29
 	 *
 	 * To detect
-	 *	- categories
-	 *	- tags
+	 *  - categories
+	 *  - tags
 	 *
 	 * @param array $context Array with context.
 	 * @param array $old_post_data Old/prev post data.
@@ -904,7 +903,6 @@ class SimplePostLogger extends SimpleLogger {
 										$key_text_diff
 									);
 								}
-
 							} elseif ( 'post_status' == $key_to_diff ) {
 
 								$has_diff_values = true;
@@ -1126,10 +1124,12 @@ class SimplePostLogger extends SimpleLogger {
 
 		if ( isset( $row->context['post_id'] ) ) {
 
-			$permalink = add_query_arg( array(
-				'action' => 'edit',
-				'post' => $row->context['post_id'],
-			), admin_url( 'post.php' ) );
+			$permalink = add_query_arg(
+				array(
+					'action' => 'edit',
+					'post' => $row->context['post_id'],
+				), admin_url( 'post.php' )
+			);
 
 			if ( $permalink ) {
 				$link = $permalink;
