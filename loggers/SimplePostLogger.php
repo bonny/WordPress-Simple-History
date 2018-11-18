@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Todo:
@@ -11,17 +11,16 @@ defined( 'ABSPATH' ) or die();
  * - test REST API update from curl or similar
  */
 
-
-
 /**
  * Logs changes to posts and pages, including custom post types
  */
 class SimplePostLogger extends SimpleLogger {
 
-	// The logger slug. Defaulting to the class name is nice and logical I think
+	// The logger slug. Defaulting to the class name is nice and logical I think.
 	public $slug = __CLASS__;
 
-	// Array that will contain previous post data, before data is updated
+	// Array that will contain previous post data, before data is updated.
+	// Array format is [post_id] => [post_data, post_meta].
 	private $old_post_data = array();
 
 	public function loaded() {
@@ -56,7 +55,7 @@ class SimplePostLogger extends SimpleLogger {
 	 * Fired from class-wp-rest-posts-controller.php.
 	 *
 	 * @param stdClass        $prepared_post An object representing a single post prepared
-	 *                                       for inserting or updating the database.
+	 *                                       for inserting or updating the database, i.e. the new updated post.
 	 * @param WP_REST_Request $request       Request object.
 	 */
 	function on_rest_pre_insert( $prepared_post, $request ) {
@@ -303,6 +302,7 @@ class SimplePostLogger extends SimpleLogger {
 
 	/**
 	 * Called when a post is restored from the trash
+	 * @param int $post_id
 	 */
 	function on_untrash_post( $post_id ) {
 
@@ -436,24 +436,62 @@ class SimplePostLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Fired when a post has changed status
-	 * Only run in certain cases,
-	 * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
-	 * which by definition is not wrong, but perhaps not wanted/annoying
+	 * Maybe log a post creation, modification or deletion.
+	 *
+	 * Todo:
+	 * - support password protect.
+	 * - post_password is set
+	 *
+	 * @param array $args Array with old and new post data.
 	 */
-	function on_transition_post_status( $new_status, $old_status, $post ) {
+	public function maybe_log_post_change( $args ) {
+		$default_args = array(
+			'new_post',
+			'new_post_meta',
+			'old_post',
+			'old_post_meta',
+			// Old status is included because that's the value we get in filter
+			// "transation_post_status", when a previous post may not exist.
+			'old_status',
+		);
 
+		$args = wp_parse_args( $args, $default_args );
+
+		// Bail if needed args not set.
+		if ( ! isset( $args['new_post'] ) || ! isset( $args['new_post_meta'] ) ) {
+			return;
+		}
+
+		$new_status = isset( $args['new_post']->post_status ) ? $args['new_post']->post_status : null;
+		$post = $args['new_post'];
+		$new_post_data = array(
+			'post_data' => $post,
+			'post_meta' => $args['new_post_meta'],
+		);
+
+		// Set old status to status from old post with fallback to old_status variable.
+		$old_status = isset( $args['old_post']->post_status ) ? $args['old_post']->post_status : null;
+		$old_status = ! isset( $old_status ) && isset( $args['old_status'] ) ? $args['old_status'] : $old_status;
+
+		$old_post = isset( $args['old_post'] ) ? $args['old_post'] : null;
+		$old_post_meta = isset( $args['old_post_meta'] ) ? $args['old_post_meta'] : null;
+		$old_post_data = array(
+			'post_data' => $old_post,
+			'post_meta' => $old_post_meta,
+		);
+
+		// Default to log.
 		$ok_to_log = true;
 
-		// calls from the WordPress ios app/jetpack comes from non-admin-area
+		// Calls from the WordPress ios app/jetpack comes from non-admin-area
 		// i.e. is_admin() is false
 		// so don't log when outside admin area
 		if ( ! is_admin() ) {
 			$ok_to_log = false;
 		}
 
-		// except when calls are from/for jetpack/wordpress apps
-		// seems to be jetpack/app request when $_GET["for"] == "jetpack
+		// Except when calls are from/for Jetpack/WordPress apps.
+		// seems to be jetpack/app request when $_GET["for"] == "jetpack.
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] ) {
 			$ok_to_log = true;
 		}
@@ -503,6 +541,13 @@ class SimplePostLogger extends SimpleLogger {
 			'post_title' => get_the_title( $post ),
 		);
 
+		sh_error_log(
+			'maybe_log_post_change',
+			"old_status: $old_status",
+			"new status: $new_status",
+			"post_password: ''{$old_post->post_password}' › '{$post->post_password}'"
+		);
+
 		if ( $old_status == 'auto-draft' && ( $new_status != 'auto-draft' && $new_status != 'inherit' ) ) {
 
 			// Post created
@@ -520,16 +565,9 @@ class SimplePostLogger extends SimpleLogger {
 
 		} else {
 
-			// Post updated.
-			// Also add diff between previos saved data and new data.
-			if ( isset( $this->old_post_data[ $post->ID ] ) ) {
-
-				$old_post_data = $this->old_post_data[ $post->ID ];
-
-				$new_post_data = array(
-					'post_data' => $post,
-					'post_meta' => get_post_custom( $post->ID ),
-				);
+			// Existing post updated.
+			// Also add diff between previous saved data and new data.
+			if ( isset( $old_post_data ) && isset( $new_post_data ) ) {
 
 				// Now we have both old and new post data, including custom fields, in the same format
 				// So let's compare!
@@ -550,7 +588,60 @@ class SimplePostLogger extends SimpleLogger {
 			$this->infoMessage( 'post_updated', $context );
 
 		}// End if().
+	}
 
+	/**
+	 * Fired when a post has changed status.
+	 * Only run in certain cases,
+	 * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
+	 * which by definition is not wrong, but perhaps not wanted/annoying.
+	 *
+	 * @param string $new_status One of auto-draft, inherit, draft, pending, publish, future.
+	 * @param string $old_status Same as above.
+	 * @param WP_Post $post New updated post.
+	 */
+	function on_transition_post_status( $new_status, $old_status, $post ) {
+
+		/*
+		Classical editor:
+		- New post is created
+			- status change from "new" › "auto-draft"
+			- no old post data exists
+			- no title yet
+			- post will not show up on post edit overview screen
+			- not suitable to log because no useful info yet
+
+		- New post is auto-saved
+			- status change from "auto-draft" to "draft"
+			- Even if I don't click the save-button the post is saved, automagically
+
+		-
+		*/
+
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return;
+		}
+
+		$old_post_data_exists = ! empty( $this->old_post_data[ $post->ID ] );
+		$post_is_revision = wp_is_post_revision( $post );
+
+		$old_post = null;
+		$old_post_meta = null;
+
+		if ( ! empty( $this->old_post_data[ $post->ID ] ) ) {
+			$old_post = $this->old_post_data[ $post->ID ]['post_data'];
+			$old_post_meta = $this->old_post_data[ $post->ID ]['post_meta'];
+		}
+
+		$args = array(
+			'new_post' => $post,
+			'new_post_meta' => get_post_custom( $post->ID ),
+			'old_post' => $old_post,
+			'old_post_meta' => $old_post_meta,
+			'old_status' => $old_status,
+		);
+
+		$this->maybe_log_post_change( $args );
 	}
 
 	/**
@@ -644,8 +735,8 @@ class SimplePostLogger extends SimpleLogger {
 			'changed' => array(),
 		);
 
-		$old_meta = $old_post_data['post_meta'];
-		$new_meta = $new_post_data['post_meta'];
+		$old_meta = isset( $old_post_data['post_meta'] ) ? (array) $old_post_data['post_meta'] : array();
+		$new_meta = isset( $new_post_data['post_meta'] ) ? (array) $new_post_data['post_meta'] : array();
 
 		// Add post featured thumb data.
 		$context = $this->add_post_thumb_diff( $context, $old_meta, $new_meta );
@@ -689,8 +780,8 @@ class SimplePostLogger extends SimpleLogger {
 			}
 		}
 
-		// Look for removed meta
-		// Does not work, if user clicks "delete" in edit screen then meta is removed using ajax
+		// Look for removed meta.
+		// Does not work, if user clicks "delete" in edit screen then meta is removed using ajax.
 		/*
 		foreach ( $old_meta as $meta_key => $meta_value ) {
 
@@ -735,7 +826,7 @@ class SimplePostLogger extends SimpleLogger {
 	 *
 	 * @since 2.0.29
 	 */
-	function get_theme_templates() {
+	public function get_theme_templates() {
 
 		$theme = wp_get_theme();
 		$page_templates = array();
@@ -764,7 +855,7 @@ class SimplePostLogger extends SimpleLogger {
 	 * @param mixed  $new_value New value.
 	 * @return array
 	 */
-	function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
+	public function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
 
 		if ( $old_value != $new_value ) {
 
