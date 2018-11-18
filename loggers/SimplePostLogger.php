@@ -545,34 +545,27 @@ class SimplePostLogger extends SimpleLogger {
 			'maybe_log_post_change',
 			"old_status: $old_status",
 			"new status: $new_status",
-			"post_password: ''{$old_post->post_password}' › '{$post->post_password}'"
+			"post_password: '{$old_post->post_password}' › '{$post->post_password}'"
 		);
 
-		if ( $old_status == 'auto-draft' && ( $new_status != 'auto-draft' && $new_status != 'inherit' ) ) {
-
+		if ( 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status ) ) {
 			// Post created
 			$this->infoMessage( 'post_created', $context );
-
-		} elseif ( $new_status == 'auto-draft' || ( $old_status == 'new' && $new_status == 'inherit' ) ) {
-
+		} elseif ( 'auto-draft' === $new_status || ( 'new' === $old_status && 'inherit' === $new_status ) ) {
 			// Post was automagically saved by WordPress
 			return;
-
-		} elseif ( $new_status == 'trash' ) {
-
+		} elseif ( 'trash' === $new_status ) {
 			// Post trashed
 			$this->infoMessage( 'post_trashed', $context );
 
 		} else {
+			// Existing post was updated.
 
-			// Existing post updated.
 			// Also add diff between previous saved data and new data.
 			if ( isset( $old_post_data ) && isset( $new_post_data ) ) {
-
 				// Now we have both old and new post data, including custom fields, in the same format
 				// So let's compare!
 				$context = $this->add_post_data_diff_to_context( $context, $old_post_data, $new_post_data );
-
 			}
 
 			$context['_occasionsID'] = __CLASS__ . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
@@ -586,7 +579,6 @@ class SimplePostLogger extends SimpleLogger {
 			$context = apply_filters( 'simple_history/post_logger/post_updated/context', $context, $post );
 
 			$this->infoMessage( 'post_updated', $context );
-
 		}// End if().
 	}
 
@@ -678,7 +670,7 @@ class SimplePostLogger extends SimpleLogger {
 			'comment_status',
 			'ping_status',
 			'post_parent', // only id, need to get context for that, like name of parent at least?
-			'post_author', // only id, need to get context for that, like name, login, email at least?
+			'post_author', // only id, need to get more info for user.
 		);
 
 		foreach ( $arr_keys_to_diff as $key ) {
@@ -815,8 +807,45 @@ class SimplePostLogger extends SimpleLogger {
 			$context['post_meta_changed'] = count( $meta_changes['changed'] );
 		}
 
-		return $context;
+		// Check for changes in post visbility and post password usage.
+		// publish = public
+		// publish + post_password = password protected
+		// private = post private
+		$old_post_has_password = ! empty( $old_data->post_password );
+		$old_post_password = $old_post_has_password ? $old_data->post_password : null;
+		$old_post_status = isset( $old_data->post_status ) ? $old_data->post_status : null;
 
+		$new_post_has_password = ! empty( $new_data->post_password );
+		$new_post_password = $new_post_has_password ? $new_data->post_password : null;
+		$new_post_status = isset( $new_data->post_status ) ? $new_data->post_status : null;
+
+		if ( false === $old_post_has_password && 'publish' === $new_post_status && $new_post_has_password ) {
+			// If updated post is published and password is set and old post did not have password set
+			// = post changed to be password protected.
+			$context['post_password_protected'] = true;
+		} else if ( $old_post_has_password && 'publish' === $old_post_status && false === $new_post_has_password && 'publish' === $new_post_status ) {
+			// Old post is publish and had password protection and new post is publish but no password
+			// = post changed to be un-password protected
+			$context['post_password_unprotected'] = true;
+		} else if ( $old_post_has_password && $new_post_has_password && $old_post_password !== $new_post_password ) {
+			// If old post had password and new post has password, but passwords are note same
+			// = post has changed password.
+			$context['post_password_changed'] = true;
+		} else if ( 'private' === $new_post_status && 'private' !== $old_post_status ) {
+			// If new status is private and old is not
+			// = post is changed to be private.
+			$context['post_private'] = true;
+			// Also check if password was set before.
+			if ( $old_post_has_password ) {
+				$context['post_password_unprotected'] = true;
+			}
+		}
+
+		// Todo: detect sticky.
+		// Sticky is stored in option:
+		// $sticky_posts = get_option('sticky_posts');
+
+		return $context;
 	}
 
 	/**
