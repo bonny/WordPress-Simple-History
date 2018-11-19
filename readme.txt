@@ -183,6 +183,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 = 2.nn (nn 2018) =
 
+- Store if post password has been set, unset, or changed.
 - Make log welcome message translateable.
 - Add two filters to make it more ease to control via filters if a logger and the combination logger + message should be logged.
 	- `"simple_history/log/do_log/{$this->slug}"` controls if any messages for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger.
@@ -195,7 +196,6 @@ A simple way to see any uncommon activity, for example an increased number of lo
 		// Disable logging of updated posts, i.e. the message "post_updated" from the logger SimplePostLogger.
 		add_filter( 'simple_history/log/do_log/SimplePostLogger/post_updated', '__return_false' );
 		```
-- add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false');
 - Fix warning in the next version of PHP, PHP 7.3.
 
 = 2.28.1 (September 2018) =
