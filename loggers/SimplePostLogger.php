@@ -46,33 +46,66 @@ class SimplePostLogger extends SimpleLogger {
 		// class-wp-rest-posts-controller.php fires two actions in
 		// the update_item() method.
 		foreach ( $post_types as $post_type ) {
+			// Rest pre insert is fired before an updated post is inserted into db.
 			add_action( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
+
+			// Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API."
+			add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
 		}
 	}
 
 	/**
-	 * Filter "rest_pre_insert_{$this->post_type}" ilters a post before it is inserted via the REST API.
+	 * Filter "rest_pre_insert_{$this->post_type}" filters a post before it is inserted via the REST API.
 	 * Fired from class-wp-rest-posts-controller.php.
+	 *
+	 * Here we can get the old post object.
 	 *
 	 * @param stdClass        $prepared_post An object representing a single post prepared
 	 *                                       for inserting or updating the database, i.e. the new updated post.
 	 * @param WP_REST_Request $request       Request object.
 	 */
 	function on_rest_pre_insert( $prepared_post, $request ) {
-		// $prepared_post = post with new content.
-		// $old_post = post with old content
+		// $prepared_post = stdClass Object with new and modified content.
+		// changes are not saved to post in db yet, so get_post( $prepared_post->ID ) will get old contents.
+		/*
+		stdClass Object
+		(
+		    [ID] => 889
+		    [post_title] => gutenberg 1
+		    [post_content] => <!-- wp:paragraph -->
+		<p>hejsan</p>
+		<!-- /wp:paragraph -->
+		    [post_excerpt] =>
+		    [post_type] => post
+		    [page_template] =>
+		)
+
+		*/
+		// $old_post = post with old content and old meta
 		$old_post = get_post( $prepared_post->ID );
 		$old_post_meta = get_post_custom( $old_post->ID );
-		$prepared_post_meta = get_post_custom( $prepared_post->ID );
 
-		// sh_error_log( 'on_rest_insert $old_post', $old_post );
-		sh_error_log( 'on_rest_insert $old_post_meta', $old_post_meta );
-		// sh_error_log( 'on_rest_insert $prepared_post_meta', $prepared_post_meta );
-		// sh_error_log( 'on_rest_insert $prepared_post', $prepared_post );
-		// sh_error_log( 'on_rest_insert $request', $request );
-		// sh_error_log( 'on_rest_insert $featured_media', $request->get_param( 'featured_media' ) );
-		// sh_error_log( 'on_rest_pre_insert', $new_post->post_content );
+		#sh_error_log( 'on_rest_pre_insert $old_post', $old_post );
+		#sh_error_log( 'on_rest_pre_insert $old_post_meta', $old_post_meta );
+
 		return $prepared_post;
+	}
+
+	/**
+	 * Fires after a single post is completely created or updated via the REST API.
+	 *
+	 * Here we can get the updated post, after it's updated in the db.
+	 *
+	 * @param WP_Post         $post     Inserted or updated post object.
+	 * @param WP_REST_Request $request  Request object.
+	 * @param bool            $creating True when creating a post, false when updating.
+	 */
+	function on_rest_after_insert( $post, $request, $creating ) {
+		$post = get_post( $post->ID );
+		$post_meta = get_post_custom( $post->ID );
+
+		sh_error_log( 'on_rest_after_insert $post', $post );
+		sh_error_log( 'on_rest_after_insert $post_meta', $post_meta );
 	}
 
 	/**
@@ -541,12 +574,12 @@ class SimplePostLogger extends SimpleLogger {
 			'post_title' => get_the_title( $post ),
 		);
 
-		sh_error_log(
-			'maybe_log_post_change',
-			"old_status: $old_status",
-			"new status: $new_status",
-			"post_password: '{$old_post->post_password}' › '{$post->post_password}'"
-		);
+		// sh_error_log(
+		// 	'maybe_log_post_change',
+		// 	"old_status: $old_status",
+		// 	"new status: $new_status",
+		// 	"post_password: '{$old_post->post_password}' › '{$post->post_password}'"
+		// );
 
 		if ( 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status ) ) {
 			// Post created
@@ -583,7 +616,7 @@ class SimplePostLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Fired when a post has changed status.
+	 * Fired when a post has changed status in the classical editor.
 	 * Only run in certain cases,
 	 * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
 	 * which by definition is not wrong, but perhaps not wanted/annoying.
@@ -593,23 +626,7 @@ class SimplePostLogger extends SimpleLogger {
 	 * @param WP_Post $post New updated post.
 	 */
 	function on_transition_post_status( $new_status, $old_status, $post ) {
-
-		/*
-		Classical editor:
-		- New post is created
-			- status change from "new" › "auto-draft"
-			- no old post data exists
-			- no title yet
-			- post will not show up on post edit overview screen
-			- not suitable to log because no useful info yet
-
-		- New post is auto-saved
-			- status change from "auto-draft" to "draft"
-			- Even if I don't click the save-button the post is saved, automagically
-
-		-
-		*/
-
+		// Bail if post is not a post.
 		if ( ! is_a( $post, 'WP_Post' ) ) {
 			return;
 		}
@@ -807,7 +824,7 @@ class SimplePostLogger extends SimpleLogger {
 			$context['post_meta_changed'] = count( $meta_changes['changed'] );
 		}
 
-		// Check for changes in post visbility and post password usage.
+		// Check for changes in post visbility and post password usage and store in context.
 		// publish = public
 		// publish + post_password = password protected
 		// private = post private
