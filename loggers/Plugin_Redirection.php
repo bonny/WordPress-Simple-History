@@ -326,7 +326,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 			$context = array(
 				'new_source_url' => $req->get_param( 'url' ),
-				'new_target_url' => $action_data['url'],
+				'new_target_url' => isset( $action_data['url'] ) ? $action_data['url'] : '',
 				'redirection_id' => $redirection_id,
 			);
 
