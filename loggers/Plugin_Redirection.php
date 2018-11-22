@@ -326,7 +326,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 			$context = array(
 				'new_source_url' => $req->get_param( 'url' ),
-				'new_target_url' => $action_data['url'],
+				'new_target' => $action_data,
 				'redirection_id' => $redirection_id,
 			);
 
@@ -335,7 +335,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 
 			if ( false !== $redirection_item ) {
 				$context['prev_source_url'] = $redirection_item->get_url();
-				$context['prev_target_url'] = $redirection_item->get_action_data();
+				$context['prev_target'] = maybe_unserialize($redirection_item->get_action_data());
 			}
 
 			$this->infoMessage(
@@ -373,7 +373,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 					$out .= '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
 				}
 
-				if ( $context['new_target_url'] !== $context['prev_target_url'] ) {
+				if ( $context['new_target'] !== $context['prev_target'] ) {
 					$diff_table_output = sprintf(
 						'<tr>
 		                    <td>%1$s</td>
@@ -382,9 +382,9 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 								<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
 		                    </td>
 		                </tr>',
-						esc_html_x( 'Target URL', 'Logger: Redirection', 'simple-history' ), // 1
-						esc_html( $context['new_target_url'] ), // 2
-						esc_html( $context['prev_target_url'] ) // 3
+						esc_html_x( 'Target', 'Logger: Redirection', 'simple-history' ), // 1
+						esc_html( $context['new_target'] ), // 2
+						esc_html( $context['prev_target'] ) // 3
 					);
 
 					$out .= '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
