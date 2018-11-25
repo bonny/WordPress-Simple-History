@@ -1,6 +1,6 @@
 # Simple History 2 – a simple, lightweight, extendable logger for WordPress
 
-Simple History is a WordPress plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI. It's great way to view user activity and keep an eye on what the users are doing.
+Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI. It's great way to view user activity and keep an eye on what the admin users of a website are doing.
 
 Download from WordPress.org:  
 https://wordpress.org/plugins/simple-history/
@@ -58,7 +58,7 @@ apply_filters(
 // Or just debug a message quickly
 apply_filters('simple_history_log_debug', 'My debug message');
 
-// You can olsy use functions/methods to add events to the log
+// You can also use functions/methods to add events to the log
 SimpleLogger()->info("This is a message sent to the log");
 
 // Add events of different severity
