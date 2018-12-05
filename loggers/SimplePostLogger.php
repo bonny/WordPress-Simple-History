@@ -4,6 +4,8 @@ defined( 'ABSPATH' ) || die();
 
 /**
  * Todo:
+ * - store data to old_post_data in on_rest_pre_insert()
+ * - call maybe_log_post_change() in on_rest_after_insert()
  * - break out diff and save from "on_transition_post_status"
  *   and re-use in rest hooks.
  * - make sure filters are used for rest hooks too
@@ -20,7 +22,9 @@ class SimplePostLogger extends SimpleLogger {
 	public $slug = __CLASS__;
 
 	// Array that will contain previous post data, before data is updated.
-	// Array format is [post_id] => [post_data, post_meta].
+	// Array format is
+	// [post_id] => [post_data, post_meta].
+	// post_data = WP_Post object, post_meta = post meta array.
 	private $old_post_data = array();
 
 	public function loaded() {
@@ -41,11 +45,15 @@ class SimplePostLogger extends SimpleLogger {
 	 * Add hooks to catch updates via REST API, i.e. the new Gutenberg editor.
 	 */
 	function add_rest_hooks() {
+
+		// Get all post types.
 		$post_types = get_post_types( array(), 'objects' );
 
-		// class-wp-rest-posts-controller.php fires two actions in
-		// the update_item() method.
+		// Add actions for each post type.
 		foreach ( $post_types as $post_type ) {
+			// class-wp-rest-posts-controller.php fires two actions in
+			// the update_item() method: pre_insert and after_insert.
+
 			// Rest pre insert is fired before an updated post is inserted into db.
 			add_action( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
 
@@ -63,6 +71,7 @@ class SimplePostLogger extends SimpleLogger {
 	 * @param stdClass        $prepared_post An object representing a single post prepared
 	 *                                       for inserting or updating the database, i.e. the new updated post.
 	 * @param WP_REST_Request $request       Request object.
+	 * @return stdClass $prepared_post
 	 */
 	function on_rest_pre_insert( $prepared_post, $request ) {
 		// $prepared_post = stdClass Object with new and modified content.
@@ -87,6 +96,11 @@ class SimplePostLogger extends SimpleLogger {
 
 		#sh_error_log( 'on_rest_pre_insert $old_post', $old_post );
 		#sh_error_log( 'on_rest_pre_insert $old_post_meta', $old_post_meta );
+
+		$this->old_post_data[ $old_post->ID ] = array(
+			'post_data' => $old_post,
+			'post_meta' => get_post_custom( $old_post->ID ),
+		);
 
 		return $prepared_post;
 	}
@@ -264,7 +278,6 @@ class SimplePostLogger extends SimpleLogger {
 			'post_data' => $prev_post_data,
 			'post_meta' => get_post_custom( $post_ID ),
 		);
-
 	}
 
 	/**
