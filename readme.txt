@@ -197,6 +197,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 		add_filter( 'simple_history/log/do_log/SimplePostLogger/post_updated', '__return_false' );
 		```
 - Fix warning in the next version of PHP, PHP 7.3.
+- Check that logger messages exists and is array before trying to use.
 
 = 2.28.1 (September 2018) =
 
