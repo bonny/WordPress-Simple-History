@@ -197,6 +197,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 		```
 - add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false');
 - Fix notice in Redirection plugin logger due because redirection plugin can have multiple target types. Props @MaximVanhove.
+- Fix warning because of missing logging messages in the categories/tags logger. Props @JeroenSormani.
 - Fix warning in the next version of PHP, PHP 7.3.
 
 = 2.28.1 (September 2018) =
