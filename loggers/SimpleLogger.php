@@ -1250,7 +1250,7 @@ class SimpleLogger {
 				/**
 				 * Filter to control if ip addresses should be anonymized or not.
 				 *
-				 * @since 2.x
+				 * @since 2.22
 				 *
 				 * @param bool true to anonymize ip address, false to keep original ip address.
 				 * @return bool
