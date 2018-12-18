@@ -984,15 +984,48 @@ class SimpleLogger {
 			return $this;
 		}
 
-		/*
+		/**
 		 * Filter that makes it possible to shortcut this log.
 		 * Return bool false to cancel.
 		 *
 		 * @since 2.3.1
 		 */
 		$do_log = apply_filters( 'simple_history/log/do_log', true, $level, $message, $context, $this );
+		if ( false === $do_log ) {
+			return $this;
+		}
 
-		if ( $do_log === false ) {
+		/**
+		 * Easy shortcut method to disable logging of messages from
+		 * a specific logger.
+		 *
+		 * Example filter name:
+		 * simple_history/log/do_log/SimpleUserLogger
+		 * simple_history/log/do_log/SimplePostLogger
+		 *
+		 * Example to disable logging of any user login/logout/failed login activity:
+		 * add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false')
+		 *
+		 * @since 2.nn
+		 */
+		$do_log = apply_filters( "simple_history/log/do_log/{$this->slug}", true );
+		if ( false === $do_log ) {
+			return $this;
+		}
+
+		/**
+		 * Easy shortcut method to disable logging of messages from
+		 * a specific logger and message.
+		 *
+		 * Example filter name:
+		 * simple_history/log/do_log/SimpleUserLogger/user_logged_in
+		 * simple_history/log/do_log/SimplePostLogger/post_updated
+		 *
+		 * @since 2.nn
+		 */
+		$message_key = isset( $context['_message_key'] ) ? $context['_message_key'] : null;
+		$do_log = apply_filters( "simple_history/log/do_log/{$this->slug}/{$message_key}", true );
+		if ( false === $do_log ) {
 			return $this;
 		}
 
@@ -1054,19 +1087,19 @@ class SimpleLogger {
 			'message' => $message,
 		);
 
-		// Allow date to be override
-		// Date must be in format 'Y-m-d H:i:s'
+		// Allow date to be overriden.
+		// Date must be in format 'Y-m-d H:i:s'.
 		if ( isset( $context['_date'] ) ) {
 			$data['date'] = $context['_date'];
 			unset( $context['_date'] );
 		}
 
-		// Add occasions id
+		// Add occasions id.
 		$occasions_id = null;
 		if ( isset( $context['_occasionsID'] ) ) {
 
 			// Minimize risk of similar loggers logging same messages and such and resulting in same occasions id
-			// by always adding logger slug
+			// by always adding logger slug.
 			$occasions_data = array(
 				'_occasionsID' => $context['_occasionsID'],
 				'_loggerSlug' => $this->slug,
@@ -1076,28 +1109,17 @@ class SimpleLogger {
 
 		} else {
 
-			// No occasions id specified, create one bases on the data array
+			// No occasions id specified, create one bases on the data array.
 			$occasions_data = $data + $context;
 
-			// Don't include date in context data
+			// Don't include date in context data.
 			unset( $occasions_data['date'] );
 
-			// sf_d($occasions_data);exit;
 			$occasions_id = md5( json_encode( $occasions_data ) );
 
 		}
 
 		$data['occasionsID'] = $occasions_id;
-
-		// Log event type, defaults to other if not set
-		/*
-		if ( isset( $context["_type"] ) ) {
-		$data["type"] = $context["_type"];
-		unset( $context["_type"] );
-		} else {
-		$data["type"] = SimpleLoggerLogTypes::OTHER;
-		}
-		 */
 
 		// Log initiator, defaults to current user if exists, or other if not user exist
 		if ( isset( $context['_initiator'] ) ) {
@@ -1161,11 +1183,11 @@ class SimpleLogger {
 
 		}
 
-		// Trim message
+		// Trim message.
 		$data['message'] = trim( $data['message'] );
 
 		/**
-		 * Filter data to be saved to db
+		 * Filter data to be saved to db.
 		 *
 		 * @since 2.0
 		 *
@@ -1173,13 +1195,12 @@ class SimpleLogger {
 		 */
 		$data = apply_filters( 'simple_history/log_insert_data', $data );
 
-		// Insert data into db
-		// sf_d($db_table, '$db_table');exit;
+		// Insert data into db.
 		$result = $wpdb->insert( $db_table, $data );
 
 		$data_parent_row = null;
 
-		// Only save context if able to store row
+		// Only save context if able to store row.
 		if ( false === $result ) {
 
 			$history_inserted_id = null;
@@ -1191,7 +1212,7 @@ class SimpleLogger {
 			$db_table_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
 			/**
-			 * Filter table name for contexts
+			 * Filter table name for contexts.
 			 *
 			 * @since 2.0
 			 *
@@ -1203,10 +1224,10 @@ class SimpleLogger {
 				$context = array();
 			}
 
-			// Append user id to context, if not already added
+			// Append user id to context, if not already added.
 			if ( ! isset( $context['_user_id'] ) ) {
 
-				// wp_get_current_user is ont available early
+				// wp_get_current_user is not available early.
 				// http://codex.wordpress.org/Function_Reference/wp_get_current_user
 				// https://core.trac.wordpress.org/ticket/14024
 				if ( function_exists( 'wp_get_current_user' ) ) {
@@ -1229,14 +1250,14 @@ class SimpleLogger {
 				/**
 				 * Filter to control if ip addresses should be anonymized or not.
 				 *
-				 * @since 2.x
+				 * @since 2.22
 				 *
 				 * @param bool true to anonymize ip address, false to keep original ip address.
 				 * @return bool
 				 */
 				$anonymize_ip_address = apply_filters( 'simple_history/privacy/anonymize_ip_address', true );
 
-				if ( $anonymize_ip_address && function_exists('wp_privacy_anonymize_ip') ) {
+				if ( $anonymize_ip_address && function_exists( 'wp_privacy_anonymize_ip' ) ) {
 					$remote_addr = wp_privacy_anonymize_ip( $remote_addr );
 				}
 
@@ -1270,7 +1291,7 @@ class SimpleLogger {
 								// valid, add to context, with loop index appended so we can store many IPs.
 								$key_lower = strtolower( $key );
 
-								if ( $anonymize_ip_address && function_exists('wp_privacy_anonymize_ip') ) {
+								if ( $anonymize_ip_address && function_exists( 'wp_privacy_anonymize_ip' ) ) {
 									$ip = wp_privacy_anonymize_ip( $ip );
 								}
 
@@ -1297,7 +1318,7 @@ class SimpleLogger {
 			 *
 			 * @param array $context Array with all context data to store. Modify and return this.
 			 * @param array $data Array with data used for parent row.
-			 * @param array $this Reference to this logger instance
+			 * @param array $this Reference to this logger instance.
 			 */
 			$context = apply_filters( 'simple_history/log_insert_context', $context, $data, $this );
 			$data_parent_row = $data;
