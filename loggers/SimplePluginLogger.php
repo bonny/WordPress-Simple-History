@@ -1092,7 +1092,7 @@ class SimplePluginLogger extends SimpleLogger {
 
 						case 'plugin_install_source_file':
 							if ( ! isset( $context['plugin_upload_name'] ) || ! isset( $context['plugin_install_source'] ) ) {
-								continue;
+								break;
 							}
 
 							if ( 'upload' == $context['plugin_install_source'] ) {
