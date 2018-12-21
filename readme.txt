@@ -181,6 +181,11 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
+= 2.x =
+- Gutenberg compatibility.
+- Store if post password has been set, unset, or changed.
+- Check that logger messages exists and is array before trying to use.
+
 = 2.29.1 (December 2018) =
 
 - Fix another PHP 7.3 warning. Should fix https://wordpress.org/support/topic/php-7-3-compatibility-3/.
