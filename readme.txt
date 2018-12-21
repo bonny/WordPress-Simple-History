@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 4.5.1
 Tested up to: 4.9
 Requires PHP: 5.3
-Stable tag: 2.28.1
+Stable tag: 2.29.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -181,9 +181,12 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.nn (nn 2018) =
+= 2.29.1 (December 2018) =
 
-- Store if post password has been set, unset, or changed.
+- Fix another PHP 7.3 warning. Should fix https://wordpress.org/support/topic/php-7-3-compatibility-3/.
+
+= 2.29 (December 2018) =
+
 - Make log welcome message translateable.
 - Add two filters to make it more ease to control via filters if a logger and the combination logger + message should be logged.
 	- `"simple_history/log/do_log/{$this->slug}"` controls if any messages for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger.
@@ -196,8 +199,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 		// Disable logging of updated posts, i.e. the message "post_updated" from the logger SimplePostLogger.
 		add_filter( 'simple_history/log/do_log/SimplePostLogger/post_updated', '__return_false' );
 		```
+- add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false');
+- Fix notice in Redirection plugin logger due because redirection plugin can have multiple target types. Props @MaximVanhove.
+- Fix warning because of missing logging messages in the categories/tags logger. Props @JeroenSormani.
 - Fix warning in the next version of PHP, PHP 7.3.
-- Check that logger messages exists and is array before trying to use.
 
 = 2.28.1 (September 2018) =
 

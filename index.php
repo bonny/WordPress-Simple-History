@@ -5,7 +5,7 @@
  * Text Domain: simple-history
  * Domain Path: /languages
  * Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
- * Version: 2.28.1
+ * Version: 2.29.1
  * Author: Pär Thernström
  * Author URI: http://simple-history.com/
  * License: GPL2
@@ -47,7 +47,7 @@ if ( $ok_php_version && $ok_wp_version ) {
 	 */
 
 	if ( ! defined( 'SIMPLE_HISTORY_VERSION' ) ) {
-		define( 'SIMPLE_HISTORY_VERSION', '2.28.1' );
+		define( 'SIMPLE_HISTORY_VERSION', '2.29.1' );
 	}
 
 	if ( ! defined( 'SIMPLE_HISTORY_PATH' ) ) {

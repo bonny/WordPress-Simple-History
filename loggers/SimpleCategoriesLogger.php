@@ -24,19 +24,23 @@ class SimpleCategoriesLogger extends SimpleLogger {
 				'deleted_term' => __( 'Deleted term "{term_name}" from taxonomy "{term_taxonomy}"', 'simple-history' ),
 				'edited_term' => __( 'Edited term "{to_term_name}" in taxonomy "{to_term_taxonomy}"', 'simple-history' ),
 			),
-			/*
-			"labels" => array(
-				"search" => array(
-					"label" => _x("WordPress Core", "User logger: search", "simple-history"),
-					"options" => array(
-						_x("WordPress core updates", "User logger: search", "simple-history") => array(
-							"core_updated",
-							"core_auto_updated"
+			'labels' => array(
+				'search' => array(
+					'label' => _x( 'Categories', 'Categories logger: search', 'simple-history'),
+					'label_all' => _x( 'All category activity', 'Category logger: search', 'simple-history' ),
+					'options' => array(
+						_x( 'Term created', 'Category logger: search', 'simple-history' ) => array(
+							'created_term'
+						),
+						_x( 'Term deleted', 'Category logger: search', 'simple-history' ) => array(
+							'deleted_term'
+						),
+						_x( 'Term edited', 'Category logger: search', 'simple-history' ) => array(
+							'edited_term'
 						),
 					)
 				) // end search array
 			) // end labels
-			*/
 		);
 
 		return $arr_info;
