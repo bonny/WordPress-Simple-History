@@ -450,6 +450,8 @@ class SimplePostLogger extends SimpleLogger {
 
 	/**
 	 * Get an array of post types that should not be logged by this logger.
+	 *
+	 * @return Array with post type slugs to skip.
 	 */
 	public function get_skip_posttypes() {
 		$skip_posttypes = array(

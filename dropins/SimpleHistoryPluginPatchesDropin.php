@@ -17,9 +17,24 @@ class SimpleHistoryPluginPatchesDropin {
 		$this->sh = $sh;
 
 		$this->patch_captcha_on_login();
-		// scheduled-action
+
+		add_filter(
+			'simple_history/post_logger/skip_posttypes',
+			array( $this, 'woocommerce_skip_scheduled_actions_posttype' )
+		);
 	}
 
+	/**
+	 * Skip logging of WooCommerce scheduled actions/cron related things,
+	 * stored in the scheduled-action"post type. If not disabled the log can be filled with
+	 * a large amount of actions for this postype.
+	 *
+	 * @since 2.3
+	 */
+	public function woocommerce_skip_scheduled_actions_posttype( $skip_posttypes ) {
+		$skip_posttypes[] = 'scheduled-action';
+		return $skip_posttypes;
+	}
 
 	/**
 	 * Captcha on Login
