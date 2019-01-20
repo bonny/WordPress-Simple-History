@@ -4,13 +4,15 @@ defined( 'ABSPATH' ) || die();
 
 /**
  * Todo:
- * - store data to old_post_data in on_rest_pre_insert()
- * - call maybe_log_post_change() in on_rest_after_insert()
- * - break out diff and save from "on_transition_post_status"
- *   and re-use in rest hooks.
- * - make sure filters are used for rest hooks too
- * - re-use as much as possible
+ * - [ ] Logged twice from REST
+ * - [ ] Store REST call status for all logs (same as for cron etc.)
+ * - [x] store data to old_post_data in on_rest_pre_insert()
+ * - [ ] call maybe_log_post_change() in on_rest_after_insert()
+ * - [x] break out diff and save from "on_transition_post_status"
+ *   [x] and re-use in rest hooks.
+ * - [x] make sure filters are used for rest hooks too
  * - test REST API update from curl or similar
+ * - [ ] Save auto-saves? Not done by user but still done...
  */
 
 /**
@@ -94,9 +96,6 @@ class SimplePostLogger extends SimpleLogger {
 		$old_post = get_post( $prepared_post->ID );
 		$old_post_meta = get_post_custom( $old_post->ID );
 
-		#sh_error_log( 'on_rest_pre_insert $old_post', $old_post );
-		#sh_error_log( 'on_rest_pre_insert $old_post_meta', $old_post_meta );
-
 		$this->old_post_data[ $old_post->ID ] = array(
 			'post_data' => $old_post,
 			'post_meta' => get_post_custom( $old_post->ID ),
@@ -118,8 +117,19 @@ class SimplePostLogger extends SimpleLogger {
 		$post = get_post( $post->ID );
 		$post_meta = get_post_custom( $post->ID );
 
-		sh_error_log( 'on_rest_after_insert $post', $post );
-		sh_error_log( 'on_rest_after_insert $post_meta', $post_meta );
+		$old_post = $this->old_post_data[ $post->ID ]['post_data'];
+		$old_post_meta = $this->old_post_data[ $post->ID ]['post_meta'];
+
+		// @HERE
+		$args = array(
+			'new_post' => $post,
+			'new_post_meta' => $post_meta,
+			'old_post' => $old_post,
+			'old_post_meta' => $old_post_meta,
+			'old_status' => $old_post->post_status,
+		);
+
+		$this->maybe_log_post_change( $args );
 	}
 
 	/**
@@ -542,6 +552,13 @@ class SimplePostLogger extends SimpleLogger {
 			$ok_to_log = true;
 		}
 
+		// Also accept calls from REST API
+		$is_rest_api_request = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+
+		if ( $is_rest_api_request ) {
+			$ok_to_log = true;
+		}
+
 		// Don't log revisions.
 		if ( wp_is_post_revision( $post ) ) {
 			$ok_to_log = false;
@@ -586,13 +603,6 @@ class SimplePostLogger extends SimpleLogger {
 			'post_type' => get_post_type( $post ),
 			'post_title' => get_the_title( $post ),
 		);
-
-		// sh_error_log(
-		// 	'maybe_log_post_change',
-		// 	"old_status: $old_status",
-		// 	"new status: $new_status",
-		// 	"post_password: '{$old_post->post_password}' › '{$post->post_password}'"
-		// );
 
 		if ( 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status ) ) {
 			// Post created
@@ -704,7 +714,6 @@ class SimplePostLogger extends SimpleLogger {
 		);
 
 		foreach ( $arr_keys_to_diff as $key ) {
-
 			if ( isset( $old_data->$key ) && isset( $new_data->$key ) ) {
 				$post_data_diff = $this->add_diff( $post_data_diff, $key, $old_data->$key, $new_data->$key );
 			}
