@@ -370,7 +370,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 								break;
 							}
 
-							if ( 'acf-field' === $parent_field_post_type ) {
+							if (  'acf-field' === $parent_field_post_type ) {
 								$parent_field = _acf_get_field_by_id( $parent_field['parent'] );
 							} elseif ( 'acf-field-group' === $parent_field_post_type ) {
 								$parent_field = acf_get_field_group( $parent_field['parent'] );
