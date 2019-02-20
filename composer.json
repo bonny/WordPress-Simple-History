@@ -10,7 +10,6 @@
 	"homepage": "http://simple-history.com/",
 	"minimum-stability": "dev",
 	"require-dev": {
-		"phpro/grumphp": "dev-master"
 	},
 	"require": {
 		"php": ">=5.3.0"
