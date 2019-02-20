@@ -151,8 +151,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 				)
 			);
 		}
-
-		// sh_error_log( 'on_user_request_action_confirmed', $user_request );
 	}
 
 	/**

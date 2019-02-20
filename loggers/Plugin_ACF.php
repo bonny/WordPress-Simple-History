@@ -195,8 +195,8 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			*/
 			$prev_post_meta = isset( $this->oldPostData['prev_post_meta'] ) ? $this->oldPostData['prev_post_meta'] : array();
 
-			$new_post_meta  = get_post_custom( $post_id );
-			$new_post_meta  = array_map( 'reset', $new_post_meta );
+			$new_post_meta = get_post_custom( $post_id );
+			$new_post_meta = array_map( 'reset', $new_post_meta );
 
 			// New and old post meta can contain different amount of keys,
 			// join them so we have the name of all post meta thaf have been added, removed, or modified.
@@ -303,6 +303,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * @return array Modified context.
 		 */
 		public function add_acf_context( $context = array(), $modify_type = '', $relevant_acf_fields = array(), $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys ) {
+
 			if ( ! is_array( $context ) || empty( $modify_type ) || empty( $relevant_acf_fields ) ) {
 				return $context;
 			}
@@ -343,6 +344,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 					// - Type = the type of the field
 					// - Parent = id of parent field post id.
 					$field_object = get_field_object( $field_key );
+
 					if ( is_array( $field_object ) ) {
 						$context[ "{$context_key}/label" ] = $field_object['label'];
 						if ( ! empty( $field_object['type'] ) ) {
@@ -363,17 +365,26 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						$parent_field = $field_object;
 
 						while ( ! empty( $parent_field['parent'] ) ) {
+							$parentFieldParent = $parent_field['parent'];
+
 							// acf-field | acf-field-group.
-							$parent_field_post_type = get_post_type( $parent_field['parent'] );
+							$parent_field_post_type = get_post_type( $parentFieldParent );
 
 							if ( false === $parent_field_post_type ) {
 								break;
 							}
 
 							if ( 'acf-field' === $parent_field_post_type ) {
-								$parent_field = _acf_get_field_by_id( $parent_field['parent'] );
+								// Field is when field is for example a sub field of a repeater.
+								if ( function_exists( 'acf_get_field' ) ) {
+									// Since ACF 5.7.10 the acf_get_field() function is available.
+									$parent_field = acf_get_field( $parentFieldParent );
+								} elseif ( function_exists( '_acf_get_field_by_id' ) ) {
+									// ACF function _acf_get_field_by_id() is available before ACF 5.7.10.
+									$parent_field = _acf_get_field_by_id( $parentFieldParent );
+								}
 							} elseif ( 'acf-field-group' === $parent_field_post_type ) {
-								$parent_field = acf_get_field_group( $parent_field['parent'] );
+								$parent_field = acf_get_field_group( $parentFieldParent );
 							} else {
 								// Unknown post type.
 								break;
