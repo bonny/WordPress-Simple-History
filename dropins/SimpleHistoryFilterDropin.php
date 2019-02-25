@@ -285,10 +285,10 @@ class SimpleHistoryFilterDropin {
 
 						<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Log levels:', 'Filter label', 'simple-history' ) ?></label>
 
-						<select 
-							name="loglevels" 
-							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel" 
-							placeholder="<?php _e( 'All log levels', 'simple-history' ) ?>" 
+						<select
+							name="loglevels"
+							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel"
+							placeholder="<?php _e( 'All log levels', 'simple-history' ) ?>"
 							multiple
 							>
 							<option <?php selected( in_array( 'debug', $arr_default_loglevels ) ) ?> value="debug" data-color="#CEF6D8"><?php echo $this->sh->getLogLevelTranslated( 'Debug' ) ?></option>
@@ -322,10 +322,10 @@ class SimpleHistoryFilterDropin {
 
 						<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Message types:', 'Filter label', 'simple-history' ) ?></label>
 
-						<select 
-							name="messages" 
-							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger" 
-							placeholder="<?php _e( 'All messages', 'simple-history' ) ?>" 
+						<select
+							name="messages"
+							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger"
+							placeholder="<?php _e( 'All messages', 'simple-history' ) ?>"
 							multiple
 							>
 							<?php
@@ -421,7 +421,7 @@ class SimpleHistoryFilterDropin {
 								value="<?php echo esc_attr( implode( ',', $default_user_ids ) ) ?>"
 								data-default-user-data="<?php echo esc_attr( json_encode( $arr_default_user_data ) ) ?>"
 								>
-							</select>				
+							</select>
 						</p>
 						<?php
 					}
@@ -594,8 +594,8 @@ class SimpleHistoryFilterDropin {
 
 		echo $prefix . '<br>';
 
-		/* translators: 1: month, 2: day, 3: year, 4: hour, 5: minute */
-		printf( __( '%1$s %2$s, %3$s ' ), $month, $day, $year );
+		/* translators: 1: month, 2: day, 3: year */
+		printf( __( '%1$s %2$s, %3$s' ), $month, $day, $year );
 
 		echo '</span>';
 
