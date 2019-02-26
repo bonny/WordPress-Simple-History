@@ -336,11 +336,11 @@ class SimplePluginLogger extends SimpleLogger {
 
 		$response_body = wp_remote_retrieve_body( $response );
 
-		$repo_info = sprintf(
-			__( '<p>Viewing <code>readme</code> from repository <code><a target="_blank" href="%1$s">%2$s</a></code>.</p>', 'simple-history' ),
+		$repo_info = '<p>' . sprintf(
+			__( 'Viewing <code>readme</code> from repository <code><a target="_blank" href="%1$s">%2$s</a></code>.', 'simple-history' ),
 			esc_url( $repo ),
 			esc_html( $repo )
-		);
+		) . '</p>';
 
 		$github_markdown_css_path = SIMPLE_HISTORY_PATH . '/css/github-markdown.css';
 

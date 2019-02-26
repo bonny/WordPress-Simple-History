@@ -280,7 +280,7 @@ class SimpleCommentsLogger extends SimpleLogger {
 							'trackback_edited',
 							'pingback_edited',
 						),
-						_x( 'Approved  comments', 'Comments logger: search', 'simple-history' ) => array(
+						_x( 'Approved comments', 'Comments logger: search', 'simple-history' ) => array(
 							'comment_status_approve',
 							'trackback_status_approve',
 							'pingback_status_approve',
