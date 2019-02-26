@@ -4,8 +4,8 @@ Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 4.5.1
 Tested up to: 4.9
-Requires PHP: 5.4
-Stable tag: 2.29.1
+Requires PHP: 5.3
+Stable tag: 2.29.2
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -187,6 +187,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 - Store if post password has been set, unset, or changed.
 - Check that logger messages exists and is array before trying to use.
 - Bump required version in readme to 5.4. It's just to difficult to keep the plugin compatible with PHP less than [PHP version 5.4](http://php.net/manual/en/migration54.new-features.php).
+
+= 2.29.2 (January 2019) =
+
+- Fix for (the still great) plugin [Advanced Custom Fields](http://advancedcustomfields.com) 5.7.10 that removed the function `_acf_get_field_by_id` that this plugin used. Fixes https://wordpress.org/support/topic/uncaught-error-call-to-undefined-function-_acf_get_field_by_id/.
 
 = 2.29.1 (December 2018) =
 
