@@ -379,7 +379,7 @@ class SimpleHistory {
 
 				$menu_id = 'simple-history-blog-' . $blog->userblog_id;
 				$parent_menu_id  = 'blog-' . $blog->userblog_id;
-				$url = admin_url( 'index.php?page=simple_history_page' );
+				$url = admin_url( 'tools.php?page=simple_history_page' );
 
 				// Each network site is added by WP core with id "blog-1", "blog-2" ... "blog-n"
 				// https://codex.wordpress.org/Function_Reference/add_node
@@ -448,7 +448,7 @@ class SimpleHistory {
 
 		$menu_id = 'simple-history-view-history';
 		$parent_menu_id  = 'site-name';
-		$url = admin_url( 'index.php?page=simple_history_page' );
+		$url = admin_url( 'tools.php?page=simple_history_page' );
 
 		$args = array(
 			'id'    => $menu_id,
@@ -1421,11 +1421,11 @@ class SimpleHistory {
 
 			return true;
 
-		} elseif ( $current_screen && $current_screen->base == 'dashboard_page_simple_history_page' ) {
+		} elseif ( $current_screen && $current_screen->base == 'tools_page_simple_history_page' ) {
 
 			return true;
 
-		} elseif ( ( $hook == 'settings_page_' . SimpleHistory::SETTINGS_MENU_SLUG ) || ( $this->setting_show_on_dashboard() && $hook == 'index.php' ) || ( $this->setting_show_as_page() && $hook == 'dashboard_page_simple_history_page' ) ) {
+		} elseif ( ( $hook == 'settings_page_' . SimpleHistory::SETTINGS_MENU_SLUG ) || ( $this->setting_show_on_dashboard() && $hook == 'index.php' ) || ( $this->setting_show_as_page() && $hook == 'tools_page_simple_history_page' ) ) {
 
 			return true;
 
@@ -1933,7 +1933,8 @@ Because Simple History was just recently installed, this feed does not contain m
 
 			if ( $show_dashboard_page ) {
 
-				add_dashboard_page(
+				add_submenu_page(
+					'tools.php',
 					_x( 'Simple History', 'dashboard title name', 'simple-history' ),
 					_x( 'Simple History', 'dashboard menu name', 'simple-history' ),
 					$this->get_view_history_capability(),

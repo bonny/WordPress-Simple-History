@@ -455,7 +455,7 @@ class SimpleLogger {
 			$str_when = sprintf( __( '%1$s ago', 'simple-history' ), $date_human_time_diff );
 		}
 
-		$item_permalink = admin_url( 'index.php?page=simple_history_page' );
+		$item_permalink = admin_url( 'tools.php?page=simple_history_page' );
 		if ( ! empty( $row->id ) ) {
 			$item_permalink .= "#item/{$row->id}";
 		}
