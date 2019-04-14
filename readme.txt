@@ -154,6 +154,11 @@ https://github.com/bonny/WordPress-Simple-History
 
 Yes. See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
 
+= Is it possible to exclude users from the log? =
+
+Yes, you exclude users by role or email using the filter `simple_history/log/do_log`.
+See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
+
 = For how long are events stored? =
 
 Events in the log are stored for 60 days by default. Events older than this will be removed.
