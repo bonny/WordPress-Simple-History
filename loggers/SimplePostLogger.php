@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || die();
  * - [ ] Logged twice from REST
  * - [ ] Store REST call status for all logs (same as for cron etc.)
  * - [x] store data to old_post_data in on_rest_pre_insert()
- * - [ ] call maybe_log_post_change() in on_rest_after_insert()
+ * - [x] call maybe_log_post_change() in on_rest_after_insert()
  * - [x] break out diff and save from "on_transition_post_status"
  *   [x] and re-use in rest hooks.
  * - [x] make sure filters are used for rest hooks too
@@ -1013,7 +1013,6 @@ class SimplePostLogger extends SimpleLogger {
 
 		$context = $row->context;
 		$message_key = $context['_message_key'];
-		$post_id = isset( $context['post_id'] ) ? $context['post_id'] : 0;
 
 		$out = '';
 
@@ -1170,9 +1169,9 @@ class SimplePostLogger extends SimpleLogger {
 									$new_page_template_name = $new_page_template;
 								}
 
-															// @TODO: translate template names
-															// $value = translate( $value, $this->get('TextDomain') );
-															$message = __( 'Changed from {prev_page_template} to {new_page_template}', 'simple-history' );
+								// @TODO: translate template names
+								// $value = translate( $value, $this->get('TextDomain') );
+								$message = __( 'Changed from {prev_page_template} to {new_page_template}', 'simple-history' );
 								if ( $prev_page_template_name && $new_page_template_name ) {
 									$message = __( 'Changed from "{prev_page_template_name}" to "{new_page_template_name}"', 'simple-history' );
 								}
