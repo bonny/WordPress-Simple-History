@@ -5,6 +5,11 @@ defined( 'ABSPATH' ) || die();
 /**
  * Todo:
  * - [ ] Logged twice from REST
+ *   Maybe related:
+ *   https://github.com/WordPress/gutenberg/issues/15094
+ *   https://github.com/WordPress/gutenberg/issues/12897
+ *   https://github.com/WordPress/gutenberg/issues/12797
+ *
  * - [ ] Store REST call status for all logs (same as for cron etc.)
  * - [x] store data to old_post_data in on_rest_pre_insert()
  * - [x] call maybe_log_post_change() in on_rest_after_insert()
@@ -90,11 +95,10 @@ class SimplePostLogger extends SimpleLogger {
 		    [post_type] => post
 		    [page_template] =>
 		)
-
 		*/
+
 		// $old_post = post with old content and old meta
 		$old_post = get_post( $prepared_post->ID );
-		$old_post_meta = get_post_custom( $old_post->ID );
 
 		$this->old_post_data[ $old_post->ID ] = array(
 			'post_data' => $old_post,
@@ -114,6 +118,8 @@ class SimplePostLogger extends SimpleLogger {
 	 * @param bool            $creating True when creating a post, false when updating.
 	 */
 	function on_rest_after_insert( $post, $request, $creating ) {
+		sh_error_log('on_rest_after_insert');
+
 		$post = get_post( $post->ID );
 		$post_meta = get_post_custom( $post->ID );
 
@@ -651,13 +657,17 @@ class SimplePostLogger extends SimpleLogger {
 	 * @param WP_Post $post New updated post.
 	 */
 	function on_transition_post_status( $new_status, $old_status, $post ) {
+		$is_rest_api_request = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		$is_admin = is_admin();
+		// False if not a revision, ID of revision's parent otherwise.
+		$post_is_revision = wp_is_post_revision( $post );
+		sh_error_log('on_transition_post_status', '$new_status', $new_status, '$old_status', $old_status, '$is_rest_api_request', $is_rest_api_request, '$is_admin', $is_admin, '$post_is_revision', $post_is_revision);
 		// Bail if post is not a post.
 		if ( ! is_a( $post, 'WP_Post' ) ) {
 			return;
 		}
 
-		$old_post_data_exists = ! empty( $this->old_post_data[ $post->ID ] );
-		$post_is_revision = wp_is_post_revision( $post );
+		// $old_post_data_exists = ! empty( $this->old_post_data[ $post->ID ] );
 
 		$old_post = null;
 		$old_post_meta = null;
