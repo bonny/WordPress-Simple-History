@@ -1176,11 +1176,15 @@ class SimpleLogger {
 			}
 		}// End if().
 
-		// Detect XML-RPC calls and append to context, if not already there
+		// Detect XML-RPC calls and append to context, if not already there.
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && ! isset( $context['_xmlrpc_request'] ) ) {
-
 			$context['_xmlrpc_request'] = true;
+		}
 
+		// Detect REST calls and append to context, if not already there.
+		$isRestApiRequest = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		if ( $isRestApiRequest ) {
+			$context['_rest_api_request'] = true;
 		}
 
 		// Trim message.
