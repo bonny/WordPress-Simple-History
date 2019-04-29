@@ -584,18 +584,6 @@ class SimplePostLogger extends SimpleLogger {
 			$ok_to_log = false;
 		}
 
-		if ($ok_to_log) {
-			sh_error_log(
-				__METHOD__ . ':_debug_caller_method',
-				$args['_debug_caller_method'],
-				'$isXmlRpcRequest', $isXmlRpcRequest,
-				'$isRestApiRequest', $isRestApiRequest,
-				'$is_admin', $is_admin,
-				'new_post_data', $new_post_data,
-				'old_post_data', $old_post_data
-			);
-		}
-
 		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
 			$ok_to_log = false;
 		}
