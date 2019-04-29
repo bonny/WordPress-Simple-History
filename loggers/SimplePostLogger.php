@@ -4,9 +4,11 @@ defined( 'ABSPATH' ) || die();
 
 /**
  * Todo:
+ * - [ ] install and test with ACF again
+ * 	 - Install 5.7.13 and then each save or preview results in 2 or 3 adds to the log.
+ *   - The second save saves all the post meta. So it's technically two saves but not for the user.
  * - [ ] test REST API update from curl or similar
  * - [ ] test REST API from Android/Ios-apps
- * - [ ] install and test with ACF again
  * - [ ] Save auto-saves? Not done by user but still done...
  */
 
