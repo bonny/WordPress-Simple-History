@@ -187,9 +187,10 @@ A simple way to see any uncommon activity, for example an increased number of lo
 ## Changelog
 
 = 2.x =
-- Gutenberg compatibility.
+- Add better Gutenberg compatibility.
 - Don't log WooCommerce scheduled actions. Fixes https://wordpress.org/support/topic/cant-use-flooded-with-deleted-scheduled-action-woocommerce-webhooks/.
 - Store if post password has been set, unset, or changed.
+- Store if a log entry comes from the REST API. Stored in the event context as `_rest_api_request`.
 - Check that logger messages exists and is array before trying to use.
 - Bump required version in readme to 5.4. It's just to difficult to keep the plugin compatible with PHP less than [PHP version 5.4](http://php.net/manual/en/migration54.new-features.php).
 - Updates to some translation strings.
