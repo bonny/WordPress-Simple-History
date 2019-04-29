@@ -5,10 +5,16 @@ defined( 'ABSPATH' ) || die();
 /**
  * Todo:
  * - [ ] Logged twice from REST
+ *   Is post transiation fired always. even in rest calls? I'm SURE it wasn't before..
  *   Maybe related:
  *   https://github.com/WordPress/gutenberg/issues/15094
  *   https://github.com/WordPress/gutenberg/issues/12897
  *   https://github.com/WordPress/gutenberg/issues/12797
+ *   ajax fired from REQUEST_META_BOX_UPDATES gets fired twice (POST request)
+ *   clicking save = 3 POST requests.
+ *   no plugins installed = 1 POST REQUEST
+ *   ACF installed = 3 requests.
+ *   only act on the "real" one?
  *
  * - [ ] Store REST call status for all logs (same as for cron etc.)
  * - [x] store data to old_post_data in on_rest_pre_insert()
@@ -65,7 +71,7 @@ class SimplePostLogger extends SimpleLogger {
 			add_action( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
 
 			// Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API."
-			add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
+			// add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
 		}
 	}
 
@@ -133,6 +139,7 @@ class SimplePostLogger extends SimpleLogger {
 			'old_post' => $old_post,
 			'old_post_meta' => $old_post_meta,
 			'old_status' => $old_post->post_status,
+			'_debug_caller_method' => __METHOD__
 		);
 
 		$this->maybe_log_post_change( $args );
@@ -556,7 +563,8 @@ class SimplePostLogger extends SimpleLogger {
 
 		// Except when calls are from/for Jetpack/WordPress apps.
 		// seems to be jetpack/app request when $_GET["for"] == "jetpack.
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] ) {
+		$isXmlRpcRequest = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
+		if ( $isXmlRpcRequest && isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] ) {
 			$ok_to_log = true;
 		}
 
@@ -567,9 +575,26 @@ class SimplePostLogger extends SimpleLogger {
 			$ok_to_log = true;
 		}
 
+		#$is_rest_api_request = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		$is_admin = is_admin();
+		// False if not a revision, ID of revision's parent otherwise.
+		$post_is_revision = wp_is_post_revision( $post );
+
 		// Don't log revisions.
-		if ( wp_is_post_revision( $post ) ) {
+		if ( $post_is_revision ) {
 			$ok_to_log = false;
+		}
+
+		if ($ok_to_log) {
+			sh_error_log(
+				__METHOD__ . ':_debug_caller_method',
+				$args['_debug_caller_method'],
+				'$isXmlRpcRequest', $isXmlRpcRequest,
+				'$is_rest_api_request', $is_rest_api_request,
+				'$is_admin', $is_admin,
+				'new_post_data', $new_post_data,
+				'old_post_data', $old_post_data
+			);
 		}
 
 		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
@@ -661,7 +686,7 @@ class SimplePostLogger extends SimpleLogger {
 		$is_admin = is_admin();
 		// False if not a revision, ID of revision's parent otherwise.
 		$post_is_revision = wp_is_post_revision( $post );
-		sh_error_log('on_transition_post_status', '$new_status', $new_status, '$old_status', $old_status, '$is_rest_api_request', $is_rest_api_request, '$is_admin', $is_admin, '$post_is_revision', $post_is_revision);
+		//sh_error_log('on_transition_post_status', '$new_status', $new_status, '$old_status', $old_status, '$is_rest_api_request', $is_rest_api_request, '$is_admin', $is_admin, '$post_is_revision', $post_is_revision);
 		// Bail if post is not a post.
 		if ( ! is_a( $post, 'WP_Post' ) ) {
 			return;
@@ -683,6 +708,7 @@ class SimplePostLogger extends SimpleLogger {
 			'old_post' => $old_post,
 			'old_post_meta' => $old_post_meta,
 			'old_status' => $old_status,
+			'_debug_caller_method' => __METHOD__
 		);
 
 		$this->maybe_log_post_change( $args );
