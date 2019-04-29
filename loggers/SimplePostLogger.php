@@ -4,25 +4,9 @@ defined( 'ABSPATH' ) || die();
 
 /**
  * Todo:
- * - [ ] Logged twice from REST
- *   Is post transiation fired always. even in rest calls? I'm SURE it wasn't before..
- *   Maybe related:
- *   https://github.com/WordPress/gutenberg/issues/15094
- *   https://github.com/WordPress/gutenberg/issues/12897
- *   https://github.com/WordPress/gutenberg/issues/12797
- *   ajax fired from REQUEST_META_BOX_UPDATES gets fired twice (POST request)
- *   clicking save = 3 POST requests.
- *   no plugins installed = 1 POST REQUEST
- *   ACF installed = 3 requests.
- *   only act on the "real" one?
- *
- * - [ ] Store REST call status for all logs (same as for cron etc.)
- * - [x] store data to old_post_data in on_rest_pre_insert()
- * - [x] call maybe_log_post_change() in on_rest_after_insert()
- * - [x] break out diff and save from "on_transition_post_status"
- *   [x] and re-use in rest hooks.
- * - [x] make sure filters are used for rest hooks too
- * - test REST API update from curl or similar
+ * - [ ] test REST API update from curl or similar
+ * - [ ] test REST API from Android/Ios-apps
+ * - [ ] install and test with ACF again
  * - [ ] Save auto-saves? Not done by user but still done...
  */
 
