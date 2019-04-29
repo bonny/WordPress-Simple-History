@@ -569,13 +569,12 @@ class SimplePostLogger extends SimpleLogger {
 		}
 
 		// Also accept calls from REST API
-		$is_rest_api_request = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
-
-		if ( $is_rest_api_request ) {
+		$isRestApiRequest = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		if ( $isRestApiRequest ) {
 			$ok_to_log = true;
 		}
 
-		#$is_rest_api_request = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		#$isRestApiRequest = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 		$is_admin = is_admin();
 		// False if not a revision, ID of revision's parent otherwise.
 		$post_is_revision = wp_is_post_revision( $post );
@@ -590,7 +589,7 @@ class SimplePostLogger extends SimpleLogger {
 				__METHOD__ . ':_debug_caller_method',
 				$args['_debug_caller_method'],
 				'$isXmlRpcRequest', $isXmlRpcRequest,
-				'$is_rest_api_request', $is_rest_api_request,
+				'$isRestApiRequest', $isRestApiRequest,
 				'$is_admin', $is_admin,
 				'new_post_data', $new_post_data,
 				'old_post_data', $old_post_data
@@ -682,11 +681,11 @@ class SimplePostLogger extends SimpleLogger {
 	 * @param WP_Post $post New updated post.
 	 */
 	function on_transition_post_status( $new_status, $old_status, $post ) {
-		$is_rest_api_request = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		$isRestApiRequest = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 		$is_admin = is_admin();
 		// False if not a revision, ID of revision's parent otherwise.
 		$post_is_revision = wp_is_post_revision( $post );
-		//sh_error_log('on_transition_post_status', '$new_status', $new_status, '$old_status', $old_status, '$is_rest_api_request', $is_rest_api_request, '$is_admin', $is_admin, '$post_is_revision', $post_is_revision);
+		//sh_error_log('on_transition_post_status', '$new_status', $new_status, '$old_status', $old_status, '$isRestApiRequest', $isRestApiRequest, '$is_admin', $is_admin, '$post_is_revision', $post_is_revision);
 		// Bail if post is not a post.
 		if ( ! is_a( $post, 'WP_Post' ) ) {
 			return;
