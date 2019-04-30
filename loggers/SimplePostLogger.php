@@ -3,10 +3,11 @@
 defined( 'ABSPATH' ) || die();
 
 /**
- * Todo:
+ * Todo/@HERE
  * - [ ] install and test with ACF again
  * 	 - Install 5.7.13 and then each save or preview results in 2 or 3 adds to the log.
  *   - The second save saves all the post meta. So it's technically two saves but not for the user.
+ * 	Both requests have the same HTTP_X_WP_NONCE
  * - [ ] test REST API update from curl or similar
  * - [ ] test REST API from Android/Ios-apps
  * - [ ] Save auto-saves? Not done by user but still done...
@@ -542,7 +543,7 @@ class SimplePostLogger extends SimpleLogger {
 
 		// Calls from the WordPress ios app/jetpack comes from non-admin-area
 		// i.e. is_admin() is false
-		// so don't log when outside admin area
+		// so don't log when outside admin area.
 		if ( ! is_admin() ) {
 			$ok_to_log = false;
 		}
@@ -560,13 +561,13 @@ class SimplePostLogger extends SimpleLogger {
 			$ok_to_log = true;
 		}
 
-		#$isRestApiRequest = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
-		$is_admin = is_admin();
-		// False if not a revision, ID of revision's parent otherwise.
-		$post_is_revision = wp_is_post_revision( $post );
-
 		// Don't log revisions.
-		if ( $post_is_revision ) {
+		if ( wp_is_post_revision( $post ) ) {
+			$ok_to_log = false;
+		}
+
+		// Don't log Gutenberg saving meta boxes.
+		if ( isset($_GET['meta-box-loader']) && $_GET['meta-box-loader'] ) {
 			$ok_to_log = false;
 		}
 
