@@ -154,6 +154,11 @@ https://github.com/bonny/WordPress-Simple-History
 
 Yes. See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
 
+= Is it possible to exclude users from the log? =
+
+Yes, you exclude users by role or email using the filter `simple_history/log/do_log`.
+See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
+
 = For how long are events stored? =
 
 Events in the log are stored for 60 days by default. Events older than this will be removed.
@@ -180,6 +185,15 @@ A simple way to see any uncommon activity, for example an increased number of lo
 == Changelog ==
 
 ## Changelog
+
+= 2.x =
+- Add better Gutenberg compatibility.
+- Don't log WooCommerce scheduled actions. Fixes https://wordpress.org/support/topic/cant-use-flooded-with-deleted-scheduled-action-woocommerce-webhooks/.
+- Store if post password has been set, unset, or changed.
+- Store if a log entry comes from the REST API. Stored in the event context as `_rest_api_request`.
+- Check that logger messages exists and is array before trying to use.
+- Bump required version in readme to 5.4. It's just to difficult to keep the plugin compatible with PHP less than [PHP version 5.4](http://php.net/manual/en/migration54.new-features.php).
+- Updates to some translation strings.
 
 = 2.29.2 (January 2019) =
 

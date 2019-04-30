@@ -1,16 +1,30 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
+
+/**
+ * Todo/@HERE
+ * - [ ] install and test with ACF again
+ * 	 - Install 5.7.13 and then each save or preview results in 2 or 3 adds to the log.
+ *   - The second save saves all the post meta. So it's technically two saves but not for the user.
+ * 	Both requests have the same HTTP_X_WP_NONCE
+ * - [ ] test REST API update from curl or similar
+ * - [ ] test REST API from Android/Ios-apps
+ * - [ ] Save auto-saves? Not done by user but still done...
+ */
 
 /**
  * Logs changes to posts and pages, including custom post types
  */
 class SimplePostLogger extends SimpleLogger {
 
-	// The logger slug. Defaulting to the class name is nice and logical I think
+	// The logger slug. Defaulting to the class name is nice and logical I think.
 	public $slug = __CLASS__;
 
-	// Array that will contain previous post data, before data is updated
+	// Array that will contain previous post data, before data is updated.
+	// Array format is
+	// [post_id] => [post_data, post_meta].
+	// post_data = WP_Post object, post_meta = post meta array.
 	private $old_post_data = array();
 
 	public function loaded() {
@@ -21,13 +35,105 @@ class SimplePostLogger extends SimpleLogger {
 		add_action( 'untrash_post', array( $this, 'on_untrash_post' ) );
 
 		$this->add_xml_rpc_hooks();
+		$this->add_rest_hooks();
 
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
 
 	}
 
 	/**
-	 * Filters to XML RPC calls needs to be added early, admin_init is to late
+	 * Add hooks to catch updates via REST API, i.e. the new Gutenberg editor.
+	 */
+	function add_rest_hooks() {
+
+		// Get all post types.
+		$post_types = get_post_types( array(), 'objects' );
+
+		// Add actions for each post type.
+		foreach ( $post_types as $post_type ) {
+			// class-wp-rest-posts-controller.php fires two actions in
+			// the update_item() method: pre_insert and after_insert.
+
+			// Rest pre insert is fired before an updated post is inserted into db.
+			add_action( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
+
+			// Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API."
+			// add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
+		}
+	}
+
+	/**
+	 * Filter "rest_pre_insert_{$this->post_type}" filters a post before it is inserted via the REST API.
+	 * Fired from class-wp-rest-posts-controller.php.
+	 *
+	 * Here we can get the old post object.
+	 *
+	 * @param stdClass        $prepared_post An object representing a single post prepared
+	 *                                       for inserting or updating the database, i.e. the new updated post.
+	 * @param WP_REST_Request $request       Request object.
+	 * @return stdClass $prepared_post
+	 */
+	function on_rest_pre_insert( $prepared_post, $request ) {
+		// $prepared_post = stdClass Object with new and modified content.
+		// changes are not saved to post in db yet, so get_post( $prepared_post->ID ) will get old contents.
+		/*
+		stdClass Object
+		(
+		    [ID] => 889
+		    [post_title] => gutenberg 1
+		    [post_content] => <!-- wp:paragraph -->
+		<p>hejsan</p>
+		<!-- /wp:paragraph -->
+		    [post_excerpt] =>
+		    [post_type] => post
+		    [page_template] =>
+		)
+		*/
+
+		// $old_post = post with old content and old meta
+		$old_post = get_post( $prepared_post->ID );
+
+		$this->old_post_data[ $old_post->ID ] = array(
+			'post_data' => $old_post,
+			'post_meta' => get_post_custom( $old_post->ID ),
+		);
+
+		return $prepared_post;
+	}
+
+	/**
+	 * Fires after a single post is completely created or updated via the REST API.
+	 *
+	 * Here we can get the updated post, after it's updated in the db.
+	 *
+	 * @param WP_Post         $post     Inserted or updated post object.
+	 * @param WP_REST_Request $request  Request object.
+	 * @param bool            $creating True when creating a post, false when updating.
+	 */
+	function on_rest_after_insert( $post, $request, $creating ) {
+		sh_error_log('on_rest_after_insert');
+
+		$post = get_post( $post->ID );
+		$post_meta = get_post_custom( $post->ID );
+
+		$old_post = $this->old_post_data[ $post->ID ]['post_data'];
+		$old_post_meta = $this->old_post_data[ $post->ID ]['post_meta'];
+
+		// @HERE
+		$args = array(
+			'new_post' => $post,
+			'new_post_meta' => $post_meta,
+			'old_post' => $old_post,
+			'old_post_meta' => $old_post_meta,
+			'old_status' => $old_post->post_status,
+			'_debug_caller_method' => __METHOD__
+		);
+
+		$this->maybe_log_post_change( $args );
+	}
+
+	/**
+	 * Filters to XML RPC calls needs to be added early, admin_init is to late.
 	 */
 	function add_xml_rpc_hooks() {
 
@@ -39,7 +145,7 @@ class SimplePostLogger extends SimpleLogger {
 		*/
 
 		add_action( 'xmlrpc_call_success_blogger_newPost', array( $this, 'on_xmlrpc_newPost' ), 10, 2 );
-		add_action( 'xmlrpc_call_success_mw_newPost', array( $this, 'on_xmlrpc_newPost' ), 10,2 );
+		add_action( 'xmlrpc_call_success_mw_newPost', array( $this, 'on_xmlrpc_newPost' ), 10, 2 );
 
 		add_action( 'xmlrpc_call_success_blogger_editPost', array( $this, 'on_xmlrpc_editPost' ), 10, 2 );
 		add_action( 'xmlrpc_call_success_mw_editPost', array( $this, 'on_xmlrpc_editPost' ), 10, 2 );
@@ -54,7 +160,7 @@ class SimplePostLogger extends SimpleLogger {
 	function on_xmlrpc_call( $method ) {
 
 		$arr_methods_to_act_on = array(
-			'wp.deletePost'
+			'wp.deletePost',
 		);
 
 		$raw_post_data = null;
@@ -127,23 +233,23 @@ class SimplePostLogger extends SimpleLogger {
 					'label_all' => _x( 'All posts & pages activity', 'Post logger: search', 'simple-history' ),
 					'options' => array(
 						_x( 'Posts created', 'Post logger: search', 'simple-history' ) => array(
-							'post_created'
+							'post_created',
 						),
 						_x( 'Posts updated', 'Post logger: search', 'simple-history' ) => array(
-							'post_updated'
+							'post_updated',
 						),
 						_x( 'Posts trashed', 'Post logger: search', 'simple-history' ) => array(
-							'post_trashed'
+							'post_trashed',
 						),
 						_x( 'Posts deleted', 'Post logger: search', 'simple-history' ) => array(
-							'post_deleted'
+							'post_deleted',
 						),
 						_x( 'Posts restored', 'Post logger: search', 'simple-history' ) => array(
-							'post_restored'
+							'post_restored',
 						),
 					),
-				),// end search array
-			),// end labels
+				), // end search array
+			), // end labels
 
 		);
 
@@ -154,7 +260,7 @@ class SimplePostLogger extends SimpleLogger {
 	/**
 	 * Get and store old info about a post that is being edited.
 	 * Needed to later compare old data with new data, to detect differences.
-	 * This function is called on edit screen, but before post edits are saved
+	 * This function is called on edit screen  but before post edits are saved.
 	 *
 	 * Can't use the regular filters like "pre_post_update" because custom fields are already written by then.
 	 *
@@ -174,15 +280,14 @@ class SimplePostLogger extends SimpleLogger {
 
 		$prev_post_data = get_post( $post_ID );
 
-		if (is_wp_error($prev_post_data)) {
+		if ( is_wp_error( $prev_post_data ) ) {
 			return;
 		}
 
-		$this->old_post_data[$post_ID] = array(
-			"post_data" => $prev_post_data,
-			"post_meta" => get_post_custom( $post_ID )
+		$this->old_post_data[ $post_ID ] = array(
+			'post_data' => $prev_post_data,
+			'post_meta' => get_post_custom( $post_ID ),
 		);
-
 	}
 
 	/**
@@ -253,6 +358,7 @@ class SimplePostLogger extends SimpleLogger {
 
 	/**
 	 * Called when a post is restored from the trash
+	 * @param int $post_id
 	 */
 	function on_untrash_post( $post_id ) {
 
@@ -344,6 +450,8 @@ class SimplePostLogger extends SimpleLogger {
 
 	/**
 	 * Get an array of post types that should not be logged by this logger.
+	 *
+	 * @return Array with post type slugs to skip.
 	 */
 	public function get_skip_posttypes() {
 		$skip_posttypes = array(
@@ -386,30 +494,80 @@ class SimplePostLogger extends SimpleLogger {
 	}
 
 	/**
-	  * Fired when a post has changed status
-	  * Only run in certain cases,
-	  * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
-	  * which by definition is not wrong, but perhaps not wanted/annoying
-	  */
-	function on_transition_post_status( $new_status, $old_status, $post ) {
+	 * Maybe log a post creation, modification or deletion.
+	 *
+	 * Todo:
+	 * - support password protect.
+	 * - post_password is set
+	 *
+	 * @param array $args Array with old and new post data.
+	 */
+	public function maybe_log_post_change( $args ) {
+		$default_args = array(
+			'new_post',
+			'new_post_meta',
+			'old_post',
+			'old_post_meta',
+			// Old status is included because that's the value we get in filter
+			// "transation_post_status", when a previous post may not exist.
+			'old_status',
+		);
 
+		$args = wp_parse_args( $args, $default_args );
+
+		// Bail if needed args not set.
+		if ( ! isset( $args['new_post'] ) || ! isset( $args['new_post_meta'] ) ) {
+			return;
+		}
+
+		$new_status = isset( $args['new_post']->post_status ) ? $args['new_post']->post_status : null;
+		$post = $args['new_post'];
+		$new_post_data = array(
+			'post_data' => $post,
+			'post_meta' => $args['new_post_meta'],
+		);
+
+		// Set old status to status from old post with fallback to old_status variable.
+		$old_status = isset( $args['old_post']->post_status ) ? $args['old_post']->post_status : null;
+		$old_status = ! isset( $old_status ) && isset( $args['old_status'] ) ? $args['old_status'] : $old_status;
+
+		$old_post = isset( $args['old_post'] ) ? $args['old_post'] : null;
+		$old_post_meta = isset( $args['old_post_meta'] ) ? $args['old_post_meta'] : null;
+		$old_post_data = array(
+			'post_data' => $old_post,
+			'post_meta' => $old_post_meta,
+		);
+
+		// Default to log.
 		$ok_to_log = true;
 
-		// calls from the WordPress ios app/jetpack comes from non-admin-area
+		// Calls from the WordPress ios app/jetpack comes from non-admin-area
 		// i.e. is_admin() is false
-		// so don't log when outside admin area
+		// so don't log when outside admin area.
 		if ( ! is_admin() ) {
 			$ok_to_log = false;
 		}
 
-		// except when calls are from/for jetpack/wordpress apps
-		// seems to be jetpack/app request when $_GET["for"] == "jetpack
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && $_GET['for'] === 'jetpack' ) {
+		// Except when calls are from/for Jetpack/WordPress apps.
+		// seems to be jetpack/app request when $_GET["for"] == "jetpack.
+		$isXmlRpcRequest = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
+		if ( $isXmlRpcRequest && isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] ) {
+			$ok_to_log = true;
+		}
+
+		// Also accept calls from REST API
+		$isRestApiRequest = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		if ( $isRestApiRequest ) {
 			$ok_to_log = true;
 		}
 
 		// Don't log revisions.
 		if ( wp_is_post_revision( $post ) ) {
+			$ok_to_log = false;
+		}
+
+		// Don't log Gutenberg saving meta boxes.
+		if ( isset($_GET['meta-box-loader']) && $_GET['meta-box-loader'] ) {
 			$ok_to_log = false;
 		}
 
@@ -453,38 +611,24 @@ class SimplePostLogger extends SimpleLogger {
 			'post_title' => get_the_title( $post ),
 		);
 
-		if ( $old_status == 'auto-draft' && ($new_status != 'auto-draft' && $new_status != 'inherit') ) {
-
+		if ( 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status ) ) {
 			// Post created
 			$this->infoMessage( 'post_created', $context );
-
-		} elseif ( $new_status == 'auto-draft' || ($old_status == 'new' && $new_status == 'inherit') ) {
-
+		} elseif ( 'auto-draft' === $new_status || ( 'new' === $old_status && 'inherit' === $new_status ) ) {
 			// Post was automagically saved by WordPress
 			return;
-
-		} elseif ( $new_status == 'trash' ) {
-
+		} elseif ( 'trash' === $new_status ) {
 			// Post trashed
 			$this->infoMessage( 'post_trashed', $context );
 
 		} else {
+			// Existing post was updated.
 
-			// Post updated
-			// Also add diff between previod saved data and new data
-			if ( isset( $this->old_post_data[ $post->ID ] ) ) {
-
-				$old_post_data = $this->old_post_data[ $post->ID ];
-
-				$new_post_data = array(
-					'post_data' => $post,
-					'post_meta' => get_post_custom( $post->ID ),
-				);
-
+			// Also add diff between previous saved data and new data.
+			if ( isset( $old_post_data ) && isset( $new_post_data ) ) {
 				// Now we have both old and new post data, including custom fields, in the same format
 				// So let's compare!
 				$context = $this->add_post_data_diff_to_context( $context, $old_post_data, $new_post_data );
-
 			}
 
 			$context['_occasionsID'] = __CLASS__ . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
@@ -497,10 +641,51 @@ class SimplePostLogger extends SimpleLogger {
 			 */
 			$context = apply_filters( 'simple_history/post_logger/post_updated/context', $context, $post );
 
-			$this->infoMessage( "post_updated", $context );
-
+			$this->infoMessage( 'post_updated', $context );
 		}// End if().
+	}
 
+	/**
+	 * Fired when a post has changed status in the classical editor.
+	 * Only run in certain cases,
+	 * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
+	 * which by definition is not wrong, but perhaps not wanted/annoying.
+	 *
+	 * @param string $new_status One of auto-draft, inherit, draft, pending, publish, future.
+	 * @param string $old_status Same as above.
+	 * @param WP_Post $post New updated post.
+	 */
+	function on_transition_post_status( $new_status, $old_status, $post ) {
+		$isRestApiRequest = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		$is_admin = is_admin();
+		// False if not a revision, ID of revision's parent otherwise.
+		$post_is_revision = wp_is_post_revision( $post );
+		//sh_error_log('on_transition_post_status', '$new_status', $new_status, '$old_status', $old_status, '$isRestApiRequest', $isRestApiRequest, '$is_admin', $is_admin, '$post_is_revision', $post_is_revision);
+		// Bail if post is not a post.
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return;
+		}
+
+		// $old_post_data_exists = ! empty( $this->old_post_data[ $post->ID ] );
+
+		$old_post = null;
+		$old_post_meta = null;
+
+		if ( ! empty( $this->old_post_data[ $post->ID ] ) ) {
+			$old_post = $this->old_post_data[ $post->ID ]['post_data'];
+			$old_post_meta = $this->old_post_data[ $post->ID ]['post_meta'];
+		}
+
+		$args = array(
+			'new_post' => $post,
+			'new_post_meta' => get_post_custom( $post->ID ),
+			'old_post' => $old_post,
+			'old_post_meta' => $old_post_meta,
+			'old_status' => $old_status,
+			'_debug_caller_method' => __METHOD__
+		);
+
+		$this->maybe_log_post_change( $args );
 	}
 
 	/**
@@ -509,8 +694,8 @@ class SimplePostLogger extends SimpleLogger {
 	 * Since 2.0.29
 	 *
 	 * To detect
-	 *	- categories
-	 *	- tags
+	 *  - categories
+	 *  - tags
 	 *
 	 * @param array $context Array with context.
 	 * @param array $old_post_data Old/prev post data.
@@ -537,11 +722,10 @@ class SimplePostLogger extends SimpleLogger {
 			'comment_status',
 			'ping_status',
 			'post_parent', // only id, need to get context for that, like name of parent at least?
-			'post_author', // only id, need to get context for that, like name, login, email at least?
+			'post_author', // only id, need to get more info for user.
 		);
 
 		foreach ( $arr_keys_to_diff as $key ) {
-
 			if ( isset( $old_data->$key ) && isset( $new_data->$key ) ) {
 				$post_data_diff = $this->add_diff( $post_data_diff, $key, $old_data->$key, $new_data->$key );
 			}
@@ -594,8 +778,8 @@ class SimplePostLogger extends SimpleLogger {
 			'changed' => array(),
 		);
 
-		$old_meta = $old_post_data['post_meta'];
-		$new_meta = $new_post_data['post_meta'];
+		$old_meta = isset( $old_post_data['post_meta'] ) ? (array) $old_post_data['post_meta'] : array();
+		$new_meta = isset( $new_post_data['post_meta'] ) ? (array) $new_post_data['post_meta'] : array();
 
 		// Add post featured thumb data.
 		$context = $this->add_post_thumb_diff( $context, $old_meta, $new_meta );
@@ -639,8 +823,8 @@ class SimplePostLogger extends SimpleLogger {
 			}
 		}
 
-		// Look for removed meta
-		// Does not work, if user clicks "delete" in edit screen then meta is removed using ajax
+		// Look for removed meta.
+		// Does not work, if user clicks "delete" in edit screen then meta is removed using ajax.
 		/*
 		foreach ( $old_meta as $meta_key => $meta_value ) {
 
@@ -674,8 +858,45 @@ class SimplePostLogger extends SimpleLogger {
 			$context['post_meta_changed'] = count( $meta_changes['changed'] );
 		}
 
-		return $context;
+		// Check for changes in post visbility and post password usage and store in context.
+		// publish = public
+		// publish + post_password = password protected
+		// private = post private
+		$old_post_has_password = ! empty( $old_data->post_password );
+		$old_post_password = $old_post_has_password ? $old_data->post_password : null;
+		$old_post_status = isset( $old_data->post_status ) ? $old_data->post_status : null;
 
+		$new_post_has_password = ! empty( $new_data->post_password );
+		$new_post_password = $new_post_has_password ? $new_data->post_password : null;
+		$new_post_status = isset( $new_data->post_status ) ? $new_data->post_status : null;
+
+		if ( false === $old_post_has_password && 'publish' === $new_post_status && $new_post_has_password ) {
+			// If updated post is published and password is set and old post did not have password set
+			// = post changed to be password protected.
+			$context['post_password_protected'] = true;
+		} else if ( $old_post_has_password && 'publish' === $old_post_status && false === $new_post_has_password && 'publish' === $new_post_status ) {
+			// Old post is publish and had password protection and new post is publish but no password
+			// = post changed to be un-password protected
+			$context['post_password_unprotected'] = true;
+		} else if ( $old_post_has_password && $new_post_has_password && $old_post_password !== $new_post_password ) {
+			// If old post had password and new post has password, but passwords are note same
+			// = post has changed password.
+			$context['post_password_changed'] = true;
+		} else if ( 'private' === $new_post_status && 'private' !== $old_post_status ) {
+			// If new status is private and old is not
+			// = post is changed to be private.
+			$context['post_private'] = true;
+			// Also check if password was set before.
+			if ( $old_post_has_password ) {
+				$context['post_password_unprotected'] = true;
+			}
+		}
+
+		// Todo: detect sticky.
+		// Sticky is stored in option:
+		// $sticky_posts = get_option('sticky_posts');
+
+		return $context;
 	}
 
 	/**
@@ -685,7 +906,7 @@ class SimplePostLogger extends SimpleLogger {
 	 *
 	 * @since 2.0.29
 	 */
-	function get_theme_templates() {
+	public function get_theme_templates() {
 
 		$theme = wp_get_theme();
 		$page_templates = array();
@@ -714,7 +935,7 @@ class SimplePostLogger extends SimpleLogger {
 	 * @param mixed  $new_value New value.
 	 * @return array
 	 */
-	function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
+	public function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
 
 		if ( $old_value != $new_value ) {
 
@@ -802,7 +1023,6 @@ class SimplePostLogger extends SimpleLogger {
 
 		$context = $row->context;
 		$message_key = $context['_message_key'];
-		$post_id = isset( $context['post_id'] ) ? $context['post_id'] : 0;
 
 		$out = '';
 
@@ -853,7 +1073,6 @@ class SimplePostLogger extends SimpleLogger {
 										$key_text_diff
 									);
 								}
-
 							} elseif ( 'post_status' == $key_to_diff ) {
 
 								$has_diff_values = true;
@@ -960,9 +1179,9 @@ class SimplePostLogger extends SimpleLogger {
 									$new_page_template_name = $new_page_template;
 								}
 
-															// @TODO: translate template names
-															// $value = translate( $value, $this->get('TextDomain') );
-															$message = __( 'Changed from {prev_page_template} to {new_page_template}', 'simple-history' );
+								// @TODO: translate template names
+								// $value = translate( $value, $this->get('TextDomain') );
+								$message = __( 'Changed from {prev_page_template} to {new_page_template}', 'simple-history' );
 								if ( $prev_page_template_name && $new_page_template_name ) {
 									$message = __( 'Changed from "{prev_page_template_name}" to "{new_page_template_name}"', 'simple-history' );
 								}
@@ -1075,10 +1294,12 @@ class SimplePostLogger extends SimpleLogger {
 
 		if ( isset( $row->context['post_id'] ) ) {
 
-			$permalink = add_query_arg( array(
-				'action' => 'edit',
-				'post' => $row->context['post_id'],
-			), admin_url( 'post.php' ) );
+			$permalink = add_query_arg(
+				array(
+					'action' => 'edit',
+					'post' => $row->context['post_id'],
+				), admin_url( 'post.php' )
+			);
 
 			if ( $permalink ) {
 				$link = $permalink;
