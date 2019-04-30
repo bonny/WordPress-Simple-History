@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 4.5.1
 Tested up to: 5.0.3
 Requires PHP: 5.3
-Stable tag: 2.29.2
+Stable tag: 2.30
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -186,7 +186,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.x =
+= 2.30 =
 - Add better Gutenberg compatibility.
 - Don't log WooCommerce scheduled actions. Fixes https://wordpress.org/support/topic/cant-use-flooded-with-deleted-scheduled-action-woocommerce-webhooks/.
 - Store if post password has been set, unset, or changed.
