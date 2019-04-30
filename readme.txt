@@ -186,7 +186,7 @@ A simple way to see any uncommon activity, for example an increased number of lo
 
 ## Changelog
 
-= 2.30 =
+= 2.30 (April 2019) =
 - Add better Gutenberg compatibility.
 - Don't log WooCommerce scheduled actions. Fixes https://wordpress.org/support/topic/cant-use-flooded-with-deleted-scheduled-action-woocommerce-webhooks/.
 - Store if post password has been set, unset, or changed.
