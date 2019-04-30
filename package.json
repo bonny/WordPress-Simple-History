@@ -12,6 +12,13 @@
     "time-grunt": "^1.4.0"
   },
   "dependencies": {
-    "prettier": "^1.17.0"
+    "husky": "^2.1.0",
+    "prettier": "^1.17.0",
+    "pretty-quick": "^1.10.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
