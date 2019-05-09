@@ -1151,10 +1151,9 @@ class SimpleHistory {
 
 			$arr_messages_by_message_key = array();
 
-			if ( isset( $logger_info['messages'] ) ) {
+			if ( isset( $logger_info['messages'] ) && is_array( $logger_info['messages'] ) ) {
 
 				foreach ( (array) $logger_info['messages'] as $message_key => $message_translated ) {
-
 					// Find message in array with both translated and non translated strings.
 					foreach ( $logger_instance->messages as $one_message_with_translation_info ) {
 						if ( $message_translated == $one_message_with_translation_info['translated_text'] ) {
