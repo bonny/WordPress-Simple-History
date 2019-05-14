@@ -81,6 +81,12 @@ The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allow
 clone posts of any type.
 Simple History will log when a clone of a post or page is done.
 
+**Beaver Builder**  
+The plugin [Beaver Build](https://sv.wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
+Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
+
+
+
 #### RSS feed with changes
 
 There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
