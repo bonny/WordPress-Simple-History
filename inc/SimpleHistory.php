@@ -1009,6 +1009,7 @@ class SimpleHistory {
 			$loggersDir . 'Plugin_Redirection.php',
 			$loggersDir . 'Plugin_DuplicatePost.php',
 			$loggersDir . 'Plugin_ACF.php',
+			$loggersDir . 'Plugin_BeaverBuilder.php',
 		);
 
 		// SimpleLogger.php must be loaded first and always since the other loggers extend it.
