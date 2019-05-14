@@ -82,7 +82,7 @@ clone posts of any type.
 Simple History will log when a clone of a post or page is done.
 
 **Beaver Builder**  
-The plugin [Beaver Build](https://sv.wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
+The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
 Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
 
@@ -191,6 +191,9 @@ A simple way to see any uncommon activity, for example an increased number of lo
 == Changelog ==
 
 ## Changelog
+
+= 2.31 (May 2019) =
+- Add support for plugin [Beaver Builder](https://wordpress.org/plugins/beaver-builder-lite-version/).
 
 = 2.30 (April 2019) =
 - Add better Gutenberg compatibility.
