@@ -27,19 +27,19 @@ if (!class_exists('Plugin_BeaverBuilder')) {
 				'capability' => 'manage_options',
 				'messages' => array(
 					'layout_saved' => __(
-						'Layout "{layout_name}" Updated',
+						'Layout "{layout_name}" updated',
 						'simple-history'
 					),
 					'template_saved' => __(
-						'Template "{layout_name}" Updated',
+						'Template "{layout_name}" updated',
 						'simple-history'
 					),
 					'draft_saved' => __(
-						'Draft "{layout_name}" Updated',
+						'Draft "{layout_name}" updated',
 						'simple-history'
 					),
 					'admin_saved' => __(
-						'Beaver Builder Settings Saved',
+						'Beaver Builder settings saved',
 						'simple-history'
 					)
 				)
