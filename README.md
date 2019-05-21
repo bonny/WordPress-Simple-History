@@ -65,7 +65,6 @@ SimpleLogger()->info("This is a message sent to the log");
 SimpleLogger()->info("User admin edited page 'About our company'");
 SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
 SimpleLogger()->debug("Ok, cron job is running!");
-
 ```
 
 You will find more examples in the [examples.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) file.
