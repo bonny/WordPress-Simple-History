@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined('ABSPATH') or die();
 
 $pager_size = $this->get_pager_size();
 
@@ -11,12 +11,12 @@ $pager_size = $this->get_pager_size();
  *
  * @param int $pager_size
  */
-$pager_size = apply_filters( 'simple_history/settings_page_pager_size', $pager_size );
+$pager_size = apply_filters('simple_history/settings_page_pager_size', $pager_size);
 
 ?>
 <div class="SimpleHistoryGui"
-	 data-pager-size='<?php echo $pager_size ?>'
-	 ></div>
+     data-pager-size='<?php echo $pager_size ?>'
+     ></div>
 <?php
 
 global $wpdb;

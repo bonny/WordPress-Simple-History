@@ -6,269 +6,247 @@
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistoryExportDropin {
+class SimpleHistoryExportDropin
+{
 
-	/**
-	 * Simple History instance.
-	 *
-	 * @var $sh
-	 */
-	private $sh;
+    /**
+     * Simple History instance.
+     *
+     * @var $sh
+     */
+    private $sh;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param instance $sh Simple History instance.
-	 */
-	public function __construct( $sh ) {
+    /**
+     * Constructor.
+     *
+     * @param instance $sh Simple History instance.
+     */
+    public function __construct($sh)
+    {
 
-		$this->sh = $sh;
+        $this->sh = $sh;
 
-		// Add tab to settings page.
-		$sh->registerSettingsTab(array(
-			'slug' => 'export',
-			'name' => _x( 'Export', 'Export dropin: Tab name on settings page', 'simple-history' ),
-			'function' => array( $this, 'output' ),
-		));
+        // Add tab to settings page.
+        $sh->registerSettingsTab(array(
+            'slug' => 'export',
+            'name' => _x('Export', 'Export dropin: Tab name on settings page', 'simple-history'),
+            'function' => array( $this, 'output' ),
+        ));
 
-		add_action( 'init', array( $this, 'downloadExport' ) );
+        add_action('init', array( $this, 'downloadExport' ));
+    }
 
-	}
+    public function downloadExport()
+    {
 
-	public function downloadExport() {
+        global $wpdb;
 
-		global $wpdb;
+        $table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+        $table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+        if (isset($_POST['simple-history-action']) && $_POST['simple-history-action'] === 'export-history') {
+            // Will die if nonce not valid
+            check_admin_referer(__CLASS__ . '-action-export');
 
-		if ( isset( $_POST['simple-history-action'] ) && $_POST['simple-history-action'] === 'export-history' ) {
+            $export_format = isset($_POST['format']) ? $_POST['format'] : 'json';
 
-			// Will die if nonce not valid
-			check_admin_referer( __CLASS__ . '-action-export' );
+            // Disable relative time output in header
+            add_filter('simple_history/header_time_ago_max_time', '__return_zero');
+            add_filter('simple_history/header_just_now_max_time', '__return_zero');
 
-			$export_format = isset( $_POST['format'] ) ? $_POST['format'] : 'json';
+            // Don't use "You" if event is initiated by the same user that does the export
+            add_filter('simple_history/header_initiator_use_you', '__return_false');
 
-			// Disable relative time output in header
-			add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
-			add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
+            $query = new SimpleHistoryLogQuery();
 
-			// Don't use "You" if event is initiated by the same user that does the export
-			add_filter( 'simple_history/header_initiator_use_you', '__return_false' );
+            $query_args = array(
+                'paged' => 1,
+                'posts_per_page' => 3000,
+            );
 
-			$query = new SimpleHistoryLogQuery();
+            $events = $query->query($query_args);
 
-			$query_args = array(
-				'paged' => 1,
-				'posts_per_page' => 3000,
-			);
+            // $events->total_row_count;
+            $pages_count = $events['pages_count'];
+            $page_current = $events['page_current'];
 
-			$events = $query->query( $query_args );
+            $fp = fopen('php://output', 'w');
 
-			// $events->total_row_count;
-			$pages_count = $events['pages_count'];
-			$page_current = $events['page_current'];
+            $attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
 
-			$fp = fopen( 'php://output', 'w' );
+            if ('csv' == $export_format) {
+                $filename = 'simple-history-export-' . time() . '.csv';
+                header('Content-Type: text/plain');
+                header(sprintf($attachment_header_template, $filename));
+            } elseif ('json' == $export_format) {
+                $filename = 'simple-history-export-' . time() . '.json';
+                header('Content-Type: application/json');
+                header(sprintf($attachment_header_template, $filename));
+            } elseif ('html' == $export_format) {
+                $filename = 'simple-history-export-' . time() . '.html';
+                header('Content-Type: text/html');
+                // header("Content-Disposition: attachment; filename='{$filename}'");
+            }
 
-			$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
-
-			if ( 'csv' == $export_format ) {
-
-				$filename = 'simple-history-export-' . time() . '.csv';
-				header( 'Content-Type: text/plain' );
-				header( sprintf( $attachment_header_template, $filename ) );
-
-			} elseif ( 'json' == $export_format ) {
-
-				$filename = 'simple-history-export-' . time() . '.json';
-				header( 'Content-Type: application/json' );
-				header( sprintf( $attachment_header_template, $filename ) );
-
-			} elseif ( 'html' == $export_format ) {
-
-				$filename = 'simple-history-export-' . time() . '.html';
-				header( 'Content-Type: text/html' );
-				// header("Content-Disposition: attachment; filename='{$filename}'");
-			}
-
-			// Some formats need to output some stuff before the actual loops
-			if ( 'json' == $export_format ) {
-
-				$json_row = '[';
-				fwrite( $fp, $json_row );
-
-			} elseif ( 'html' == $export_format ) {
-
-				$html = sprintf(
-					'
+            // Some formats need to output some stuff before the actual loops
+            if ('json' == $export_format) {
+                $json_row = '[';
+                fwrite($fp, $json_row);
+            } elseif ('html' == $export_format) {
+                $html = sprintf(
+                    '
 				<!doctype html>
 				<meta charset="utf-8">
 				<title>Simple History export</title>
 				<ul>
-				');
-				fwrite( $fp, $html );
+				'
+                );
+                fwrite($fp, $html);
+            }
 
-			}
+            // Paginate through all pages and all their rows.
+            $row_loop = 0;
+            while ($page_current <= $pages_count + 1) {
+                // if ($page_current > 1) { break; } # To debug/test
+                foreach ($events['log_rows'] as $one_row) {
+                    // if ( $row_loop > 10) { break; } # To debug/test
+                    set_time_limit(30);
 
-			// Paginate through all pages and all their rows.
-			$row_loop = 0;
-			while ( $page_current <= $pages_count + 1 ) {
+                    if ('csv' == $export_format) {
+                        $header_output = strip_tags(html_entity_decode($this->sh->getLogRowHeaderOutput($one_row), ENT_QUOTES, 'UTF-8'));
+                        $header_output = trim(preg_replace('/\s\s+/', ' ', $header_output));
 
-				// if ($page_current > 1) { break; } # To debug/test
-				foreach ( $events['log_rows'] as $one_row ) {
+                        $message_output = strip_tags(html_entity_decode($this->sh->getLogRowPlainTextOutput($one_row), ENT_QUOTES, 'UTF-8'));
 
-					// if ( $row_loop > 10) { break; } # To debug/test
-					set_time_limit( 30 );
+                        $user_email = empty($one_row->context['_user_email']) ? null : $one_row->context['_user_email'];
+                        $user_login = empty($one_row->context['_user_login']) ? null : $one_row->context['_user_login'];
 
-					if ( 'csv' == $export_format ) {
+                        fputcsv($fp, array(
+                            $one_row->date,
+                            $one_row->logger,
+                            $one_row->level,
+                            $one_row->initiator,
+                            $one_row->context_message_key,
+                            $user_email,
+                            $user_login,
+                            $header_output,
+                            $message_output,
+                            $one_row->subsequentOccasions,
+                        ));
+                    } elseif ('json' == $export_format) {
+                        // If not first loop then add a comma between all json objects.
+                        if ($row_loop == 0) {
+                            $comma = "\n";
+                        } else {
+                            $comma = ",\n";
+                        }
 
-						$header_output = strip_tags( html_entity_decode( $this->sh->getLogRowHeaderOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
-						$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
-
-						$message_output = strip_tags( html_entity_decode( $this->sh->getLogRowPlainTextOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
-
-						$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
-						$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
-
-						fputcsv($fp, array(
-							$one_row->date,
-							$one_row->logger,
-							$one_row->level,
-							$one_row->initiator,
-							$one_row->context_message_key,
-							$user_email,
-							$user_login,
-							$header_output,
-							$message_output,
-							$one_row->subsequentOccasions,
-						));
-
-					} elseif ( 'json' == $export_format ) {
-
-						// If not first loop then add a comma between all json objects.
-						if ( $row_loop == 0 ) {
-							$comma = "\n";
-						} else {
-							$comma = ",\n";
-						}
-
-						$json_row = $comma . $this->sh->json_encode( $one_row );
-						fwrite( $fp, $json_row );
-
-					} elseif ( 'html' == $export_format ) {
-
-						$html = sprintf(
-							'
+                        $json_row = $comma . $this->sh->json_encode($one_row);
+                        fwrite($fp, $json_row);
+                    } elseif ('html' == $export_format) {
+                        $html = sprintf(
+                            '
 							<li>
 								<div>%1$s</div>
 								<div>%2$s</div>
 								<div>%3$s</div>
 							</li>
 							',
-							$this->sh->getLogRowHeaderOutput( $one_row ),
-							$this->sh->getLogRowPlainTextOutput( $one_row ),
-							$this->sh->getLogRowDetailsOutput( $one_row )
-						);
+                            $this->sh->getLogRowHeaderOutput($one_row),
+                            $this->sh->getLogRowPlainTextOutput($one_row),
+                            $this->sh->getLogRowDetailsOutput($one_row)
+                        );
 
-						fwrite( $fp, $html );
+                        fwrite($fp, $html);
+                    }// End if().
 
-					}// End if().
+                    $row_loop++;
+                }// End foreach().
 
-					$row_loop++;
+                // echo "<br>memory_get_usage:<br>"; print_r(memory_get_usage());
+                // echo "<br>memory_get_peak_usage:<br>"; print_r(memory_get_peak_usage());
+                // echo "<br>fetch next page";
+                flush();
 
-				}// End foreach().
+                // Fetch next page
+                // @TODO: must take into consideration that new items can be added while we do the fetch
+                $page_current++;
+                $query_args['paged'] = $page_current;
+                $events = $query->query($query_args);
 
-				// echo "<br>memory_get_usage:<br>"; print_r(memory_get_usage());
-				// echo "<br>memory_get_peak_usage:<br>"; print_r(memory_get_peak_usage());
-				// echo "<br>fetch next page";
-				flush();
+                // echo "<br>did fetch next page";
+                // echo "<br>memory_get_usage:<br>"; print_r(memory_get_usage());
+                // echo "<br>memory_get_peak_usage:<br>"; print_r(memory_get_peak_usage());
+            }// End while().
 
-				// Fetch next page
-				// @TODO: must take into consideration that new items can be added while we do the fetch
-				$page_current++;
-				$query_args['paged'] = $page_current;
-				$events = $query->query( $query_args );
+            if ('json' == $export_format) {
+                $json_row = ']';
+                fwrite($fp, $json_row);
+            } elseif ('html' == $export_format) {
+                $html = sprintf('</ul>');
+                fwrite($fp, $html);
+            }
 
-				// echo "<br>did fetch next page";
-				// echo "<br>memory_get_usage:<br>"; print_r(memory_get_usage());
-				// echo "<br>memory_get_peak_usage:<br>"; print_r(memory_get_peak_usage());
-			}// End while().
+            fclose($fp);
+            flush();
 
-			if ( 'json' == $export_format ) {
+            exit;
 
-				$json_row = ']';
-				fwrite( $fp, $json_row );
-
-			} elseif ( 'html' == $export_format ) {
-
-				$html = sprintf( '</ul>' );
-				fwrite( $fp, $html );
-
-			}
-
-			fclose( $fp );
-			flush();
-
-			exit;
-
-			// echo "<br>done";
-		}// End if().
-
-	}
+            // echo "<br>done";
+        }// End if().
+    }
 
 
-	public function output() {
+    public function output()
+    {
 
-		?>
-		<!-- <h2>Export</h2> -->
+        ?>
+        <!-- <h2>Export</h2> -->
 
-		<p><?php _ex( 'The export function will export the full history.', 'Export dropin: introtext', 'simple-history' ) ?></p>
+        <p><?php _ex('The export function will export the full history.', 'Export dropin: introtext', 'simple-history') ?></p>
 
-		<form method="post">
+        <form method="post">
 
-			<h3><?php _ex( 'Choose format to export to', 'Export dropin: format', 'simple-history' ) ?></h3>
+            <h3><?php _ex('Choose format to export to', 'Export dropin: format', 'simple-history') ?></h3>
 
-			<p>
-				<label>
-					<input type="radio" name="format" value="json" checked>
-					<?php _ex( 'JSON', 'Export dropin: export format', 'simple-history' ) ?>
-				</label>
-			</p>
+            <p>
+                <label>
+                    <input type="radio" name="format" value="json" checked>
+                    <?php _ex('JSON', 'Export dropin: export format', 'simple-history') ?>
+                </label>
+            </p>
 
-			<p>
-				<label>
-					<input type="radio" name="format" value="csv">
-					<?php _ex( 'CSV', 'Export dropin: export format', 'simple-history' ) ?>
-				</label>
-			</p>
+            <p>
+                <label>
+                    <input type="radio" name="format" value="csv">
+                    <?php _ex('CSV', 'Export dropin: export format', 'simple-history') ?>
+                </label>
+            </p>
 
-				<!-- <br> -->
+                <!-- <br> -->
 
-				<!--<label>
-					<input type="radio" name="format" value="html">
-					HTML
-				</label>
-				<br> -->
+                <!--<label>
+                    <input type="radio" name="format" value="html">
+                    HTML
+                </label>
+                <br> -->
 
-				<!-- <label>
-					<input type="radio" name="format" value="xml">
-					XML
-				</label> -->
+                <!-- <label>
+                    <input type="radio" name="format" value="xml">
+                    XML
+                </label> -->
 
-			<p>
-				<button type="submit" class="button button-primary"><?php _ex( 'Download Export File', 'Export dropin: submit button', 'simple-history' ) ?></button>
-				<input type="hidden" name="simple-history-action" value="export-history">
-			</p>
+            <p>
+                <button type="submit" class="button button-primary"><?php _ex('Download Export File', 'Export dropin: submit button', 'simple-history') ?></button>
+                <input type="hidden" name="simple-history-action" value="export-history">
+            </p>
 
-			<?php
-			wp_nonce_field( __CLASS__ . '-action-export' );
-			?>
+            <?php
+            wp_nonce_field(__CLASS__ . '-action-export');
+            ?>
 
-		</form>
+        </form>
 
-		<?php
-
-	}
-
+        <?php
+    }
 }

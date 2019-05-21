@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined('ABSPATH') or die();
 
 /*
 Dropin Name: Donate things
@@ -12,73 +12,72 @@ Author: Pär Thernström
  * Simple History Donate dropin
  * Put some donate messages here and there
  */
-class SimpleHistoryDonateDropin {
+class SimpleHistoryDonateDropin
+{
 
-	// Simple History instance
-	private $sh;
+    // Simple History instance
+    private $sh;
 
-	function __construct( $sh ) {
+    function __construct($sh)
+    {
 
-		$this->sh = $sh;
-		add_action( 'admin_menu', array( $this, 'add_settings' ), 50 );
-		add_action( 'plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2 );
+        $this->sh = $sh;
+        add_action('admin_menu', array( $this, 'add_settings' ), 50);
+        add_action('plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2);
+    }
 
-	}
+    /**
+     * Add link to the donate page in the Plugins » Installed plugins screen
+     * Called from filter 'plugin_row_meta'
+     */
+    function action_plugin_row_meta($links, $file)
+    {
 
-	/**
-	 * Add link to the donate page in the Plugins » Installed plugins screen
-	 * Called from filter 'plugin_row_meta'
-	 */
-	function action_plugin_row_meta( $links, $file ) {
+        if ($file == $this->sh->plugin_basename) {
+            $links = array_merge(
+                $links,
+                array( sprintf('<a href="https://www.paypal.me/eskapism">%1$s</a>', __('Donate', "simple-history")) )
+            );
+        }
 
-		if ( $file == $this->sh->plugin_basename ) {
+        return $links;
+    }
 
-			$links = array_merge(
-				$links,
-				array( sprintf( '<a href="https://www.paypal.me/eskapism">%1$s</a>', __('Donate', "simple-history") ) )
-			);
+    public function add_settings()
+    {
 
-		}
+        $settings_section_id = 'simple_history_settings_section_donate';
 
-		return $links;
+        add_settings_section(
+            $settings_section_id,
+            _x('Donate', 'donate settings headline', 'simple-history'), // No title __("General", "simple-history"),
+            array( $this, 'settings_section_output' ),
+            SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
+        );
 
-	}
+        // Empty section to make more room below
+        /*
+        add_settings_field(
+            "simple_history_settings_donate",
+            "", // __("Donate", "simple-history"),
+            array($this, "settings_field_donate"),
+            SimpleHistory::SETTINGS_MENU_SLUG,
+            $settings_section_id
+        );
+        */
+    }
 
-	public function add_settings() {
+    function settings_section_output()
+    {
 
-		$settings_section_id = 'simple_history_settings_section_donate';
-
-		add_settings_section(
-			$settings_section_id,
-			_x( 'Donate', 'donate settings headline', 'simple-history' ), // No title __("General", "simple-history"),
-			array( $this, 'settings_section_output' ),
-			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
-		);
-
-		// Empty section to make more room below
-		/*
-		add_settings_field(
-			"simple_history_settings_donate",
-			"", // __("Donate", "simple-history"),
-			array($this, "settings_field_donate"),
-			SimpleHistory::SETTINGS_MENU_SLUG,
-			$settings_section_id
-		);
-		*/
-
-	}
-
-	function settings_section_output() {
-
-		printf(
-			__( 'If you find Simple History useful please <a href="%1$s">donate</a>.', "simple-history"),
-			'https://www.paypal.me/eskapism'
-		);
-
-	}
+        printf(
+            __('If you find Simple History useful please <a href="%1$s">donate</a>.', "simple-history"),
+            'https://www.paypal.me/eskapism'
+        );
+    }
 
 
-	function settings_field_donate() {
-	}
-
+    function settings_field_donate()
+    {
+    }
 }
