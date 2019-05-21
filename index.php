@@ -46,7 +46,7 @@ if ($ok_php_version && $ok_wp_version) {
 	 */
 
 	if (!defined('SIMPLE_HISTORY_VERSION')) {
-		define('SIMPLE_HISTORY_VERSION', '2.30');
+		define('SIMPLE_HISTORY_VERSION', '2.31');
 	}
 
 	if (!defined('SIMPLE_HISTORY_PATH')) {

@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 4.5.1
 Tested up to: 5.2
 Requires PHP: 5.4
-Stable tag: 2.30
+Stable tag: 2.31
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
