@@ -72,7 +72,7 @@ class SimpleHistory
     public function __construct()
     {
         $this->init();
-    } // construct
+    }
 
     /**
      * @since 2.5.2
@@ -798,7 +798,8 @@ class SimpleHistory
                 </li>
             </script>
 
-            <?php // Call plugins so they can add their js
+            <?php
+            // Call plugins so they can add their js
             foreach ($this->instantiatedLoggers as $one_logger) {
                 if (method_exists($one_logger['instance'], 'adminJS')) {
                     $one_logger['instance']->adminJS();
