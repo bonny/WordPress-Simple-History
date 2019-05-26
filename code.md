@@ -19,4 +19,3 @@ List errors and warnings:
 Fix things:
 
     $ phpcbf /path/to/code
-
