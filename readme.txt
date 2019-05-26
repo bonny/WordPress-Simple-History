@@ -193,6 +193,16 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = 2.n (n 2019) =
 
+- Add filter `simple_history/admin_location` that makes is possible to move the main page from the dashboard menu to any other menu page, for example the Tools menu. Fixes https://github.com/bonny/WordPress-Simple-History/issues/140. Example usage of filter:
+
+```php
+// Move Simple History log sub page from the "Dashboard" menu to the "Tools" menu.
+add_filter('simple_history/admin_location', function ($location) {
+	$location = 'tools';
+	return $location;
+});
+```
+
 - Make it easier to extend SimplePostLogger by making `$old_post_data` protected instead of private. https://github.com/bonny/WordPress-Simple-History/pull/173.
 - Remove unused old function `testlog_old()`.
 - Move helper functions to own file.
