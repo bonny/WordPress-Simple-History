@@ -191,6 +191,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 ## Changelog
 
+= 2.n (n 2019) =
+
+- Make it easier to extend SimplePostLogger by making `$old_post_data` protected instead of private. https://github.com/bonny/WordPress-Simple-History/pull/173.
+
 = 2.31 (May 2019) =
 
 - Add support for plugin [Beaver Builder](https://wordpress.org/plugins/beaver-builder-lite-version/).
@@ -217,13 +221,16 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Make log welcome message translateable.
 - Add two filters to make it more ease to control via filters if a logger and the combination logger + message should be logged. - `"simple_history/log/do_log/{$this->slug}"` controls if any messages for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger. - `"simple_history/log/do_log/{$this->slug}/{$message_key}"` controls if a specific message for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger. - Code examples for the two filters above:
-  ```
+
+  ````
   // Disable logging of any user message, i.e. any message from the logger SimpleUserLogger.
   add_filter( 'simple_history/log/do_log/SimpleUserLogger', '\_\_return_false' );
 
       		// Disable logging of updated posts, i.e. the message "post_updated" from the logger SimplePostLogger.
       		add_filter( 'simple_history/log/do_log/SimplePostLogger/post_updated', '__return_false' );
       		```
+
+  ````
 
 - add_filter('simple_history/log/do_log/SimpleUserLogger', '\_\_return_false');
 - Fix notice in Redirection plugin logger due because redirection plugin can have multiple target types. Props @MaximVanhove.
