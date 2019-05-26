@@ -159,44 +159,6 @@ class SimpleHistory
          * @param SimpleHistory $SimpleHistory This class.
          */
         do_action('simple_history/after_init', $this);
-
-        // Add some extra info to each logged context when SIMPLE_HISTORY_LOG_DEBUG is set and true
-        if (defined('SIMPLE_HISTORY_LOG_DEBUG') && SIMPLE_HISTORY_LOG_DEBUG) {
-            add_filter(
-                'simple_history/log_argument/context',
-                function ($context, $level, $message, $logger) {
-                    $sh = SimpleHistory::get_instance();
-                    $context['_debug_get'] = $sh->json_encode($_GET);
-                    $context['_debug_post'] = $sh->json_encode($_POST);
-                    $context['_debug_server'] = $sh->json_encode($_SERVER);
-                    $context['_debug_files'] = $sh->json_encode($_FILES);
-                    $context['_debug_php_sapi_name'] = php_sapi_name();
-
-                    global $argv;
-                    $context['_debug_argv'] = $sh->json_encode($argv);
-
-                    $consts = get_defined_constants(true);
-                    $consts = $consts['user'];
-                    $context['_debug_user_constants'] = $sh->json_encode($consts);
-
-                    $postdata = file_get_contents('php://input');
-                    $context['_debug_http_raw_post_data'] = $sh->json_encode($postdata);
-
-                    $context['_debug_wp_debug_backtrace_summary'] = wp_debug_backtrace_summary();
-                    $context['_debug_is_admin'] = json_encode(is_admin());
-                    $context['_debug_is_ajax'] = json_encode(defined('DOING_AJAX') && DOING_AJAX);
-                    $context['_debug_is_doing_cron'] = json_encode(defined('DOING_CRON') && DOING_CRON);
-
-                    global $wp_current_filter;
-                    $context['_debug_current_filter_array'] = $wp_current_filter;
-                    $context['_debug_current_filter'] = current_filter();
-
-                    return $context;
-                },
-                10,
-                4
-            );
-        }
     }
 
     /**
@@ -519,31 +481,6 @@ class SimpleHistory
         }
     }
 
-    public function testlog_old()
-    {
-        // Log that an email has been sent
-        simple_history_add(array(
-            'object_type' => 'Email',
-            'object_name' => 'Hi there',
-            'action' => 'was sent'
-        ));
-
-        // Will show “Plugin your_plugin_name Edited” in the history log
-        simple_history_add('action=edited&object_type=plugin&object_name=your_plugin_name');
-
-        // Will show the history item "Starship USS Enterprise repaired"
-        simple_history_add('action=repaired&object_type=Starship&object_name=USS Enterprise');
-
-        // Log with some extra details about the email
-        simple_history_add(array(
-            'object_type' => 'Email',
-            'object_name' => 'Hi there',
-            'action' => 'was sent',
-            'description' =>
-                'The database query to generate the email took .3 seconds. This is email number 4 that is sent to this user'
-        ));
-    }
-
     public function onAdminHead()
     {
         if ($this->is_on_our_own_pages()) {
@@ -635,7 +572,7 @@ class SimpleHistory
                         <div class="SimpleHistory-modal__contentInner">
                             <img class="SimpleHistory-modal__contentSpinner" src="<?php echo admin_url(
                                 '/images/spinner.gif'
-                            ); ?>" alt="">
+                                                                                  ); ?>" alt="">
                         </div>
                         <div class="SimpleHistory-modal__contentClose">
                             <button class="button">✕</button>
@@ -674,7 +611,8 @@ class SimpleHistory
                 if (method_exists($one_logger['instance'], 'adminJS')) {
                     $one_logger['instance']->adminJS();
                 }
-            }} // End if().
+            }
+        } // End if().
     }
 
     /**
@@ -1145,7 +1083,8 @@ class SimpleHistory
             $dropinsDir . 'SimpleHistorySidebarDropin.php',
             $dropinsDir . 'SimpleHistorySidebarStats.php',
             $dropinsDir . 'SimpleHistorySidebarSettings.php',
-            $dropinsDir . 'SimpleHistoryWPCLIDropin.php'
+            $dropinsDir . 'SimpleHistoryWPCLIDropin.php',
+            $dropinsDir . 'SimpleHistoryDebugDropin.php',
         );
 
         /**
@@ -1359,8 +1298,7 @@ class SimpleHistory
             return true;
         } elseif ($current_screen && $current_screen->base == 'dashboard_page_simple_history_page') {
             return true;
-        } elseif (
-            $hook == 'settings_page_' . SimpleHistory::SETTINGS_MENU_SLUG ||
+        } elseif ($hook == 'settings_page_' . SimpleHistory::SETTINGS_MENU_SLUG ||
             ($this->setting_show_on_dashboard() && $hook == 'index.php') ||
             ($this->setting_show_as_page() && $hook == 'dashboard_page_simple_history_page')
         ) {
@@ -1882,8 +1820,7 @@ Because Simple History was just recently installed, this feed does not contain m
     public function add_settings()
     {
         // Clear the log if clear button was clicked in settings.
-        if (
-            isset($_GET['simple_history_clear_log_nonce']) &&
+        if (isset($_GET['simple_history_clear_log_nonce']) &&
             wp_verify_nonce($_GET['simple_history_clear_log_nonce'], 'simple_history_clear_log')
         ) {
             if ($this->user_can_clear_log()) {
@@ -2118,7 +2055,7 @@ Because Simple History was just recently installed, this feed does not contain m
         <label for="simple_history_show_as_page"><?php _e(
             'as a page under the dashboard menu',
             'simple-history'
-        ); ?></label>
+                                                 ); ?></label>
 
         <?php
     }
@@ -2603,8 +2540,7 @@ Because Simple History was just recently installed, this feed does not contain m
 
             foreach ($oneLogRow->context as $contextKey => $contextVal) {
                 // Only columns from context that exist in logRowContextKeysToShow will be outputed
-                if (
-                    !array_key_exists($contextKey, $logRowContextKeysToShow) ||
+                if (!array_key_exists($contextKey, $logRowContextKeysToShow) ||
                     !$logRowContextKeysToShow[$contextKey]
                 ) {
                     continue;
@@ -3318,226 +3254,8 @@ Because Simple History was just recently installed, this feed does not contain m
                 <p><?php echo esc_html__(
                     'The slug for a logger in Simple History can be max 30 chars long.',
                     'simple-history'
-                ); ?></p>
+                   ); ?></p>
             </div>
         <?php
     }
 } // class
-
-/**
- * Helper function with same name as the SimpleLogger-class
- *
- * Makes call like this possible:
- * SimpleLogger()->info("This is a message sent to the log");
- */
-function SimpleLogger()
-{
-    return new SimpleLogger(SimpleHistory::get_instance());
-}
-
-/**
- * Add event to history table
- * This is here for backwards compatibility
- * If you use this please consider using
- * SimpleHistory()->info();
- * instead
- */
-function simple_history_add($args)
-{
-    $defaults = array(
-        'action' => null,
-        'object_type' => null,
-        'object_subtype' => null,
-        'object_id' => null,
-        'object_name' => null,
-        'user_id' => null,
-        'description' => null
-    );
-
-    $context = wp_parse_args($args, $defaults);
-
-    $message = "{$context["object_type"]} {$context["object_name"]} {$context["action"]}";
-
-    SimpleLogger()->info($message, $context);
-} // simple_history_add
-
-/**
- * Pretty much same as wp_text_diff() but with this you can set leading and trailing context lines
- *
- * @since 2.0.29
- *
- *
- * Original description from wp_text_diff():
- *
- * Displays a human readable HTML representation of the difference between two strings.
- *
- * The Diff is available for getting the changes between versions. The output is
- * HTML, so the primary use is for displaying the changes. If the two strings
- * are equivalent, then an empty string will be returned.
- *
- * The arguments supported and can be changed are listed below.
- *
- * 'title' : Default is an empty string. Titles the diff in a manner compatible
- *      with the output.
- * 'title_left' : Default is an empty string. Change the HTML to the left of the
- *      title.
- * 'title_right' : Default is an empty string. Change the HTML to the right of
- *      the title.
- *
- * @see wp_parse_args() Used to change defaults to user defined settings.
- * @uses Text_Diff
- * @uses WP_Text_Diff_Renderer_Table
- *
- * @param string       $left_string "old" (left) version of string
- * @param string       $right_string "new" (right) version of string
- * @param string|array $args Optional. Change 'title', 'title_left', and 'title_right' defaults. And leading_context_lines and trailing_context_lines.
- * @return string Empty string if strings are equivalent or HTML with differences.
- */
-function simple_history_text_diff($left_string, $right_string, $args = null)
-{
-    $defaults = array(
-        'title' => '',
-        'title_left' => '',
-        'title_right' => '',
-        'leading_context_lines' => 1,
-        'trailing_context_lines' => 1
-    );
-
-    $args = wp_parse_args($args, $defaults);
-
-    if (!class_exists('WP_Text_Diff_Renderer_Table')) {
-        require ABSPATH . WPINC . '/wp-diff.php';
-    }
-
-    $left_string = normalize_whitespace($left_string);
-    $right_string = normalize_whitespace($right_string);
-
-    $left_lines = explode("\n", $left_string);
-    $right_lines = explode("\n", $right_string);
-    $text_diff = new Text_Diff($left_lines, $right_lines);
-
-    $renderer = new WP_Text_Diff_Renderer_Table($args);
-    $renderer->_leading_context_lines = $args['leading_context_lines'];
-    $renderer->_trailing_context_lines = $args['trailing_context_lines'];
-
-    $diff = $renderer->render($text_diff);
-
-    if (!$diff) {
-        return '';
-    }
-
-    $r = '';
-
-    $r .= "<div class='SimpleHistory__diff__contents' tabindex='0'>";
-    $r .= "<div class='SimpleHistory__diff__contentsInner'>";
-
-    $r .= "<table class='diff SimpleHistory__diff'>\n";
-
-    if (!empty($args['show_split_view'])) {
-        $r .=
-            "<col class='content diffsplit left' /><col class='content diffsplit middle' /><col class='content diffsplit right' />";
-    } else {
-        $r .= "<col class='content' />";
-    }
-
-    if ($args['title'] || $args['title_left'] || $args['title_right']) {
-        $r .= '<thead>';
-    }
-    if ($args['title']) {
-        $r .= "<tr class='diff-title'><th colspan='4'>$args[title]</th></tr>\n";
-    }
-    if ($args['title_left'] || $args['title_right']) {
-        $r .= "<tr class='diff-sub-title'>\n";
-        $r .= "\t<td></td><th>$args[title_left]</th>\n";
-        $r .= "\t<td></td><th>$args[title_right]</th>\n";
-        $r .= "</tr>\n";
-    }
-    if ($args['title'] || $args['title_left'] || $args['title_right']) {
-        $r .= "</thead>\n";
-    }
-
-    $r .= "<tbody>\n$diff</div>\n</tbody>\n";
-    $r .= '</table>';
-
-    $r .= '</div>';
-    $r .= '</div>';
-
-    return $r;
-}
-
-/**
- * Log variable(s) to error log.
- * Any number of variables can be passed and each variable is print_r'ed to the error log.
- *
- * Example usage:
- * sh_error_log(
- *   'rest_request_after_callbacks:',
- *   $handler,
- *   $handler['callback'][0],
- *   $handler['callback'][1]
- * );
- */
-function sh_error_log()
-{
-    foreach (func_get_args() as $var) {
-        if (is_bool($var)) {
-            $bool_string = true === $var ? 'true' : 'false';
-            error_log("$bool_string (boolean value)");
-        } elseif (is_null($var)) {
-            error_log('null (null value)');
-        } else {
-            error_log(print_r($var, true));
-        }
-    }
-}
-
-/**
- * Return a name for a callable.
- *
- * Examples of return values:
- * - WP_REST_Posts_Controller::get_items
- * - WP_REST_Users_Controller::get_items"
- * - WP_REST_Server::get_index
- * - Redirection_Api_Redirect::route_bulk
- * - wpcf7_rest_create_feedback
- * - closure
- *
- * Function based on code found on stack overflow:
- * https://stackoverflow.com/questions/34324576/print-name-or-definition-of-callable-in-php
- *
- * @param callable $callable The callable thing to check.
- * @return string Name of callable.
- */
-function sh_get_callable_name($callable)
-{
-    if (is_string($callable)) {
-        return trim($callable);
-    } elseif (is_array($callable)) {
-        if (is_object($callable[0])) {
-            return sprintf('%s::%s', get_class($callable[0]), trim($callable[1]));
-        } else {
-            return sprintf('%s::%s', trim($callable[0]), trim($callable[1]));
-        }
-    } elseif ($callable instanceof Closure) {
-        return 'closure';
-    } else {
-        return 'unknown';
-    }
-}
-
-/**
- * PHP 5.3 compatible version of ucwords with second argument.
- * Taken from http://php.net/manual/en/function.ucwords.php#105249.
- *
- * @param string $str String.
- * @param string $separator String.
- *
- * @return string with words uppercased.
- */
-function sh_ucwords($str, $separator = ' ')
-{
-    $str = str_replace($separator, ' ', $str);
-    $str = ucwords(strtolower($str));
-    $str = str_replace(' ', $separator, $str);
-    return $str;
-}
