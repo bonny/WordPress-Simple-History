@@ -29,28 +29,15 @@ class SimplePostLogger extends SimpleLogger
 
     public function loaded()
     {
-        add_action('admin_action_editpost', array(
-            $this,
-            'on_admin_action_editpost'
-        ));
-        add_action(
-            'transition_post_status',
-            array($this, 'on_transition_post_status'),
-            10,
-            3
-        );
+        add_action('admin_action_editpost', array($this, 'on_admin_action_editpost'));
+        add_action('transition_post_status', array($this, 'on_transition_post_status'), 10, 3);
         add_action('delete_post', array($this, 'on_delete_post'));
         add_action('untrash_post', array($this, 'on_untrash_post'));
 
         $this->add_xml_rpc_hooks();
         $this->add_rest_hooks();
 
-        add_filter(
-            'simple_history/rss_item_link',
-            array($this, 'filter_rss_item_link'),
-            10,
-            2
-        );
+        add_filter('simple_history/rss_item_link', array($this, 'filter_rss_item_link'), 10, 2);
     }
 
     /**
@@ -67,12 +54,7 @@ class SimplePostLogger extends SimpleLogger
             // the update_item() method: pre_insert and after_insert.
 
             // Rest pre insert is fired before an updated post is inserted into db.
-            add_action(
-                "rest_pre_insert_{$post_type->name}",
-                array($this, 'on_rest_pre_insert'),
-                10,
-                2
-            );
+            add_action("rest_pre_insert_{$post_type->name}", array($this, 'on_rest_pre_insert'), 10, 2);
 
             // Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API."
             // add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
@@ -161,44 +143,14 @@ class SimplePostLogger extends SimpleLogger
         }, 10, 1);
         */
 
-        add_action(
-            'xmlrpc_call_success_blogger_newPost',
-            array($this, 'on_xmlrpc_newPost'),
-            10,
-            2
-        );
-        add_action(
-            'xmlrpc_call_success_mw_newPost',
-            array($this, 'on_xmlrpc_newPost'),
-            10,
-            2
-        );
+        add_action('xmlrpc_call_success_blogger_newPost', array($this, 'on_xmlrpc_newPost'), 10, 2);
+        add_action('xmlrpc_call_success_mw_newPost', array($this, 'on_xmlrpc_newPost'), 10, 2);
 
-        add_action(
-            'xmlrpc_call_success_blogger_editPost',
-            array($this, 'on_xmlrpc_editPost'),
-            10,
-            2
-        );
-        add_action(
-            'xmlrpc_call_success_mw_editPost',
-            array($this, 'on_xmlrpc_editPost'),
-            10,
-            2
-        );
+        add_action('xmlrpc_call_success_blogger_editPost', array($this, 'on_xmlrpc_editPost'), 10, 2);
+        add_action('xmlrpc_call_success_mw_editPost', array($this, 'on_xmlrpc_editPost'), 10, 2);
 
-        add_action(
-            'xmlrpc_call_success_blogger_deletePost',
-            array($this, 'on_xmlrpc_deletePost'),
-            10,
-            2
-        );
-        add_action(
-            'xmlrpc_call_success_wp_deletePage',
-            array($this, 'on_xmlrpc_deletePost'),
-            10,
-            2
-        );
+        add_action('xmlrpc_call_success_blogger_deletePost', array($this, 'on_xmlrpc_deletePost'), 10, 2);
+        add_action('xmlrpc_call_success_wp_deletePage', array($this, 'on_xmlrpc_deletePost'), 10, 2);
 
         add_action('xmlrpc_call', array($this, 'on_xmlrpc_call'), 10, 1);
     }
@@ -214,27 +166,23 @@ class SimplePostLogger extends SimpleLogger
         if (in_array($method, $arr_methods_to_act_on)) {
             // Setup common stuff
             $raw_post_data = file_get_contents('php://input');
-            $context[
-                'wp.deletePost.xmldata'
-            ] = $this->simpleHistory->json_encode($raw_post_data);
+            $context['wp.deletePost.xmldata'] = $this->simpleHistory->json_encode($raw_post_data);
             $message = new IXR_Message($raw_post_data);
 
             if (!$message->parse()) {
                 return;
             }
 
-            $context[
-                'wp.deletePost.xmlrpc_message'
-            ] = $this->simpleHistory->json_encode($message);
-            $context[
-                'wp.deletePost.xmlrpc_message.messageType'
-            ] = $this->simpleHistory->json_encode($message->messageType);
-            $context[
-                'wp.deletePost.xmlrpc_message.methodName'
-            ] = $this->simpleHistory->json_encode($message->methodName);
-            $context[
-                'wp.deletePost.xmlrpc_message.messageParams'
-            ] = $this->simpleHistory->json_encode($message->params);
+            $context['wp.deletePost.xmlrpc_message'] = $this->simpleHistory->json_encode($message);
+            $context['wp.deletePost.xmlrpc_message.messageType'] = $this->simpleHistory->json_encode(
+                $message->messageType
+            );
+            $context['wp.deletePost.xmlrpc_message.methodName'] = $this->simpleHistory->json_encode(
+                $message->methodName
+            );
+            $context['wp.deletePost.xmlrpc_message.messageParams'] = $this->simpleHistory->json_encode(
+                $message->params
+            );
 
             // Actions for delete post
             if ('wp.deletePost' == $method) {
@@ -267,69 +215,25 @@ class SimplePostLogger extends SimpleLogger
     {
         $arr_info = array(
             'name' => 'Post Logger',
-            'description' =>
-                'Logs the creation and modification of posts and pages',
+            'description' => 'Logs the creation and modification of posts and pages',
             'capability' => 'edit_pages',
             'messages' => array(
-                'post_created' => __(
-                    'Created {post_type} "{post_title}"',
-                    'simple-history'
-                ),
-                'post_updated' => __(
-                    'Updated {post_type} "{post_title}"',
-                    'simple-history'
-                ),
-                'post_restored' => __(
-                    'Restored {post_type} "{post_title}" from trash',
-                    'simple-history'
-                ),
-                'post_deleted' => __(
-                    'Deleted {post_type} "{post_title}"',
-                    'simple-history'
-                ),
-                'post_trashed' => __(
-                    'Moved {post_type} "{post_title}" to the trash',
-                    'simple-history'
-                )
+                'post_created' => __('Created {post_type} "{post_title}"', 'simple-history'),
+                'post_updated' => __('Updated {post_type} "{post_title}"', 'simple-history'),
+                'post_restored' => __('Restored {post_type} "{post_title}" from trash', 'simple-history'),
+                'post_deleted' => __('Deleted {post_type} "{post_title}"', 'simple-history'),
+                'post_trashed' => __('Moved {post_type} "{post_title}" to the trash', 'simple-history')
             ),
             'labels' => array(
                 'search' => array(
-                    'label' => _x(
-                        'Posts & Pages',
-                        'Post logger: search',
-                        'simple-history'
-                    ),
-                    'label_all' => _x(
-                        'All posts & pages activity',
-                        'Post logger: search',
-                        'simple-history'
-                    ),
+                    'label' => _x('Posts & Pages', 'Post logger: search', 'simple-history'),
+                    'label_all' => _x('All posts & pages activity', 'Post logger: search', 'simple-history'),
                     'options' => array(
-                        _x(
-                            'Posts created',
-                            'Post logger: search',
-                            'simple-history'
-                        ) => array('post_created'),
-                        _x(
-                            'Posts updated',
-                            'Post logger: search',
-                            'simple-history'
-                        ) => array('post_updated'),
-                        _x(
-                            'Posts trashed',
-                            'Post logger: search',
-                            'simple-history'
-                        ) => array('post_trashed'),
-                        _x(
-                            'Posts deleted',
-                            'Post logger: search',
-                            'simple-history'
-                        ) => array('post_deleted'),
-                        _x(
-                            'Posts restored',
-                            'Post logger: search',
-                            'simple-history'
-                        ) => array('post_restored')
+                        _x('Posts created', 'Post logger: search', 'simple-history') => array('post_created'),
+                        _x('Posts updated', 'Post logger: search', 'simple-history') => array('post_updated'),
+                        _x('Posts trashed', 'Post logger: search', 'simple-history') => array('post_trashed'),
+                        _x('Posts deleted', 'Post logger: search', 'simple-history') => array('post_deleted'),
+                        _x('Posts restored', 'Post logger: search', 'simple-history') => array('post_restored')
                     )
                 ) // end search array
             ) // end labels
@@ -466,9 +370,7 @@ class SimplePostLogger extends SimpleLogger
             return;
         }
 
-        if ($post->post_status === 'auto-draft' ||
-            $post->post_status === 'inherit'
-        ) {
+        if ($post->post_status === 'auto-draft' || $post->post_status === 'inherit') {
             return;
         }
 
@@ -488,11 +390,7 @@ class SimplePostLogger extends SimpleLogger
          *
          * @since 2.21
          */
-        $ok_to_log = apply_filters(
-            'simple_history/post_logger/post_deleted/ok_to_log',
-            $ok_to_log,
-            $post_id
-        );
+        $ok_to_log = apply_filters('simple_history/post_logger/post_deleted/ok_to_log', $ok_to_log, $post_id);
 
         if (!$ok_to_log) {
             return;
@@ -547,10 +445,7 @@ class SimplePostLogger extends SimpleLogger
          *
          * @since 2.18
          */
-        $skip_posttypes = apply_filters(
-            'simple_history/post_logger/skip_posttypes',
-            $skip_posttypes
-        );
+        $skip_posttypes = apply_filters('simple_history/post_logger/skip_posttypes', $skip_posttypes);
 
         return $skip_posttypes;
     }
@@ -602,9 +497,7 @@ class SimplePostLogger extends SimpleLogger
             return;
         }
 
-        $new_status = isset($args['new_post']->post_status)
-            ? $args['new_post']->post_status
-            : null;
+        $new_status = isset($args['new_post']->post_status) ? $args['new_post']->post_status : null;
         $post = $args['new_post'];
         $new_post_data = array(
             'post_data' => $post,
@@ -612,18 +505,11 @@ class SimplePostLogger extends SimpleLogger
         );
 
         // Set old status to status from old post with fallback to old_status variable.
-        $old_status = isset($args['old_post']->post_status)
-            ? $args['old_post']->post_status
-            : null;
-        $old_status =
-            !isset($old_status) && isset($args['old_status'])
-                ? $args['old_status']
-                : $old_status;
+        $old_status = isset($args['old_post']->post_status) ? $args['old_post']->post_status : null;
+        $old_status = !isset($old_status) && isset($args['old_status']) ? $args['old_status'] : $old_status;
 
         $old_post = isset($args['old_post']) ? $args['old_post'] : null;
-        $old_post_meta = isset($args['old_post_meta'])
-            ? $args['old_post_meta']
-            : null;
+        $old_post_meta = isset($args['old_post_meta']) ? $args['old_post_meta'] : null;
         $old_post_data = array(
             'post_data' => $old_post,
             'post_meta' => $old_post_meta
@@ -642,17 +528,13 @@ class SimplePostLogger extends SimpleLogger
         // Except when calls are from/for Jetpack/WordPress apps.
         // seems to be jetpack/app request when $_GET["for"] == "jetpack.
         $isXmlRpcRequest = defined('XMLRPC_REQUEST') && XMLRPC_REQUEST;
-        if ($isXmlRpcRequest &&
-            isset($_GET['for']) &&
-            'jetpack' === $_GET['for']
-        ) {
+        if ($isXmlRpcRequest && isset($_GET['for']) && 'jetpack' === $_GET['for']) {
             $ok_to_log = true;
         }
 
         // Also accept calls from REST API
         $isRestApiRequest =
-            (defined('REST_API_REQUEST') && REST_API_REQUEST) ||
-            (defined('REST_REQUEST') && REST_REQUEST);
+            (defined('REST_API_REQUEST') && REST_API_REQUEST) || (defined('REST_REQUEST') && REST_REQUEST);
         if ($isRestApiRequest) {
             $ok_to_log = true;
         }
@@ -713,14 +595,10 @@ class SimplePostLogger extends SimpleLogger
             'post_title' => get_the_title($post)
         );
 
-        if ('auto-draft' === $old_status &&
-            ('auto-draft' !== $new_status && 'inherit' !== $new_status)
-        ) {
+        if ('auto-draft' === $old_status && ('auto-draft' !== $new_status && 'inherit' !== $new_status)) {
             // Post created
             $this->infoMessage('post_created', $context);
-        } elseif ('auto-draft' === $new_status ||
-            ('new' === $old_status && 'inherit' === $new_status)
-        ) {
+        } elseif ('auto-draft' === $new_status || ('new' === $old_status && 'inherit' === $new_status)) {
             // Post was automagically saved by WordPress
             return;
         } elseif ('trash' === $new_status) {
@@ -733,15 +611,10 @@ class SimplePostLogger extends SimpleLogger
             if (isset($old_post_data) && isset($new_post_data)) {
                 // Now we have both old and new post data, including custom fields, in the same format
                 // So let's compare!
-                $context = $this->add_post_data_diff_to_context(
-                    $context,
-                    $old_post_data,
-                    $new_post_data
-                );
+                $context = $this->add_post_data_diff_to_context($context, $old_post_data, $new_post_data);
             }
 
-            $context['_occasionsID'] =
-                __CLASS__ . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
+            $context['_occasionsID'] = __CLASS__ . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
 
             /**
              * Modify the context saved.
@@ -749,11 +622,7 @@ class SimplePostLogger extends SimpleLogger
              * @param array $context
              * @param WP_Post $post
              */
-            $context = apply_filters(
-                'simple_history/post_logger/post_updated/context',
-                $context,
-                $post
-            );
+            $context = apply_filters('simple_history/post_logger/post_updated/context', $context, $post);
 
             $this->infoMessage('post_updated', $context);
         } // End if().
@@ -817,11 +686,8 @@ class SimplePostLogger extends SimpleLogger
      * @param array $new_post_data New post data.
      * @return array $context with diff data added.
      */
-    public function add_post_data_diff_to_context(
-        $context,
-        $old_post_data,
-        $new_post_data
-    ) {
+    public function add_post_data_diff_to_context($context, $old_post_data, $new_post_data)
+    {
         $old_data = $old_post_data['post_data'];
         $new_data = $new_post_data['post_data'];
 
@@ -847,12 +713,7 @@ class SimplePostLogger extends SimpleLogger
 
         foreach ($arr_keys_to_diff as $key) {
             if (isset($old_data->$key) && isset($new_data->$key)) {
-                $post_data_diff = $this->add_diff(
-                    $post_data_diff,
-                    $key,
-                    $old_data->$key,
-                    $new_data->$key
-                );
+                $post_data_diff = $this->add_diff($post_data_diff, $key, $old_data->$key, $new_data->$key);
             }
         }
 
@@ -869,22 +730,14 @@ class SimplePostLogger extends SimpleLogger
                     $old_author_user = get_userdata((int) $diff_values['old']);
                     $new_author_user = get_userdata((int) $diff_values['new']);
 
-                    if (is_a($old_author_user, 'WP_User') &&
-                        is_a($new_author_user, 'WP_User')
-                    ) {
-                        $context["post_prev_{$diff_key}/user_login"] =
-                            $old_author_user->user_login;
-                        $context["post_prev_{$diff_key}/user_email"] =
-                            $old_author_user->user_email;
-                        $context["post_prev_{$diff_key}/display_name"] =
-                            $old_author_user->display_name;
+                    if (is_a($old_author_user, 'WP_User') && is_a($new_author_user, 'WP_User')) {
+                        $context["post_prev_{$diff_key}/user_login"] = $old_author_user->user_login;
+                        $context["post_prev_{$diff_key}/user_email"] = $old_author_user->user_email;
+                        $context["post_prev_{$diff_key}/display_name"] = $old_author_user->display_name;
 
-                        $context["post_new_{$diff_key}/user_login"] =
-                            $new_author_user->user_login;
-                        $context["post_new_{$diff_key}/user_email"] =
-                            $new_author_user->user_email;
-                        $context["post_new_{$diff_key}/display_name"] =
-                            $new_author_user->display_name;
+                        $context["post_new_{$diff_key}/user_login"] = $new_author_user->user_login;
+                        $context["post_new_{$diff_key}/user_email"] = $new_author_user->user_email;
+                        $context["post_new_{$diff_key}/display_name"] = $new_author_user->display_name;
                     }
                 }
             }
@@ -906,47 +759,33 @@ class SimplePostLogger extends SimpleLogger
             'changed' => array()
         );
 
-        $old_meta = isset($old_post_data['post_meta'])
-            ? (array) $old_post_data['post_meta']
-            : array();
-        $new_meta = isset($new_post_data['post_meta'])
-            ? (array) $new_post_data['post_meta']
-            : array();
+        $old_meta = isset($old_post_data['post_meta']) ? (array) $old_post_data['post_meta'] : array();
+        $new_meta = isset($new_post_data['post_meta']) ? (array) $new_post_data['post_meta'] : array();
 
         // Add post featured thumb data.
         $context = $this->add_post_thumb_diff($context, $old_meta, $new_meta);
 
         // Page template is stored in _wp_page_template.
-        if (isset($old_meta['_wp_page_template'][0]) &&
-            isset($new_meta['_wp_page_template'][0])
-        ) {
+        if (isset($old_meta['_wp_page_template'][0]) && isset($new_meta['_wp_page_template'][0])) {
             /*
             Var is string with length 7: default
             Var is string with length 20: template-builder.php
             */
 
-            if ($old_meta['_wp_page_template'][0] !==
-                $new_meta['_wp_page_template'][0]
-            ) {
+            if ($old_meta['_wp_page_template'][0] !== $new_meta['_wp_page_template'][0]) {
                 // Prev page template is different from new page template,
                 // store template php file name.
-                $context['post_prev_page_template'] =
-                    $old_meta['_wp_page_template'][0];
-                $context['post_new_page_template'] =
-                    $new_meta['_wp_page_template'][0];
+                $context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
+                $context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
 
                 $theme_templates = (array) $this->get_theme_templates();
 
-                if (isset($theme_templates[$context['post_prev_page_template']])
-                ) {
-                    $context['post_prev_page_template_name'] =
-                        $theme_templates[$context['post_prev_page_template']];
+                if (isset($theme_templates[$context['post_prev_page_template']])) {
+                    $context['post_prev_page_template_name'] = $theme_templates[$context['post_prev_page_template']];
                 }
 
-                if (isset($theme_templates[$context['post_new_page_template']])
-                ) {
-                    $context['post_new_page_template_name'] =
-                        $theme_templates[$context['post_new_page_template']];
+                if (isset($theme_templates[$context['post_new_page_template']])) {
+                    $context['post_new_page_template_name'] = $theme_templates[$context['post_new_page_template']];
                 }
             }
         }
@@ -979,9 +818,7 @@ class SimplePostLogger extends SimpleLogger
         // Look for changed meta.
         foreach ($old_meta as $meta_key => $meta_value) {
             if (isset($new_meta[$meta_key])) {
-                if (json_encode($old_meta[$meta_key]) !=
-                    json_encode($new_meta[$meta_key])
-                ) {
+                if (json_encode($old_meta[$meta_key]) != json_encode($new_meta[$meta_key])) {
                     $meta_changes['changed'][$meta_key] = true;
                 }
             }
@@ -1004,25 +841,14 @@ class SimplePostLogger extends SimpleLogger
         // publish + post_password = password protected
         // private = post private
         $old_post_has_password = !empty($old_data->post_password);
-        $old_post_password = $old_post_has_password
-            ? $old_data->post_password
-            : null;
-        $old_post_status = isset($old_data->post_status)
-            ? $old_data->post_status
-            : null;
+        $old_post_password = $old_post_has_password ? $old_data->post_password : null;
+        $old_post_status = isset($old_data->post_status) ? $old_data->post_status : null;
 
         $new_post_has_password = !empty($new_data->post_password);
-        $new_post_password = $new_post_has_password
-            ? $new_data->post_password
-            : null;
-        $new_post_status = isset($new_data->post_status)
-            ? $new_data->post_status
-            : null;
+        $new_post_password = $new_post_has_password ? $new_data->post_password : null;
+        $new_post_status = isset($new_data->post_status) ? $new_data->post_status : null;
 
-        if (false === $old_post_has_password &&
-            'publish' === $new_post_status &&
-            $new_post_has_password
-        ) {
+        if (false === $old_post_has_password && 'publish' === $new_post_status && $new_post_has_password) {
             // If updated post is published and password is set and old post did not have password set
             // = post changed to be password protected.
             $context['post_password_protected'] = true;
@@ -1034,16 +860,11 @@ class SimplePostLogger extends SimpleLogger
             // Old post is publish and had password protection and new post is publish but no password
             // = post changed to be un-password protected
             $context['post_password_unprotected'] = true;
-        } elseif ($old_post_has_password &&
-            $new_post_has_password &&
-            $old_post_password !== $new_post_password
-        ) {
+        } elseif ($old_post_has_password && $new_post_has_password && $old_post_password !== $new_post_password) {
             // If old post had password and new post has password, but passwords are note same
             // = post has changed password.
             $context['post_password_changed'] = true;
-        } elseif ('private' === $new_post_status &&
-            'private' !== $old_post_status
-        ) {
+        } elseif ('private' === $new_post_status && 'private' !== $old_post_status) {
             // If new status is private and old is not
             // = post is changed to be private.
             $context['post_private'] = true;
@@ -1075,12 +896,7 @@ class SimplePostLogger extends SimpleLogger
         $files = (array) $theme->get_files('php', 1);
 
         foreach ($files as $file => $full_path) {
-            if (!preg_match(
-                '|Template Name:(.*)$|mi',
-                file_get_contents($full_path),
-                $header
-            )
-            ) {
+            if (!preg_match('|Template Name:(.*)$|mi', file_get_contents($full_path), $header)) {
                 continue;
             }
             $page_templates[$file] = _cleanup_header_comment($header[1]);
@@ -1131,18 +947,14 @@ class SimplePostLogger extends SimpleLogger
         $post = get_post($post_id);
         $post_is_available = is_a($post, 'WP_Post');
 
-        $message_key = isset($context['_message_key'])
-            ? $context['_message_key']
-            : null;
+        $message_key = isset($context['_message_key']) ? $context['_message_key'] : null;
 
         // Try to get singular name.
         $post_type = isset($context['post_type']) ? $context['post_type'] : '';
         $post_type_obj = get_post_type_object($post_type);
         if (!is_null($post_type_obj)) {
             if (!empty($post_type_obj->labels->singular_name)) {
-                $context['post_type'] = strtolower(
-                    $post_type_obj->labels->singular_name
-                );
+                $context['post_type'] = strtolower($post_type_obj->labels->singular_name);
             }
         }
 
@@ -1152,20 +964,11 @@ class SimplePostLogger extends SimpleLogger
         // Also keep plain format if user is not allowed to edit post (edit link is empty).
         if ($post_is_available && $context['edit_link']) {
             if ('post_updated' == $message_key) {
-                $message = __(
-                    'Updated {post_type} <a href="{edit_link}">"{post_title}"</a>',
-                    'simple-history'
-                );
+                $message = __('Updated {post_type} <a href="{edit_link}">"{post_title}"</a>', 'simple-history');
             } elseif ('post_deleted' == $message_key) {
-                $message = __(
-                    'Deleted {post_type} "{post_title}"',
-                    'simple-history'
-                );
+                $message = __('Deleted {post_type} "{post_title}"', 'simple-history');
             } elseif ('post_created' == $message_key) {
-                $message = __(
-                    'Created {post_type} <a href="{edit_link}">"{post_title}"</a>',
-                    'simple-history'
-                );
+                $message = __('Created {post_type} <a href="{edit_link}">"{post_title}"</a>', 'simple-history');
             } elseif ('post_trashed' == $message_key) {
                 // While in trash we can still get actions to delete or restore if we follow the edit link.
                 $message = __(
@@ -1175,12 +978,8 @@ class SimplePostLogger extends SimpleLogger
             }
         } // End if().
 
-        $context['post_type'] = isset($context['post_type'])
-            ? esc_html($context['post_type'])
-            : '';
-        $context['post_title'] = isset($context['post_title'])
-            ? esc_html($context['post_title'])
-            : '';
+        $context['post_type'] = isset($context['post_type']) ? esc_html($context['post_type']) : '';
+        $context['post_title'] = isset($context['post_title']) ? esc_html($context['post_title']) : '';
 
         return $this->interpolate($message, $context, $row);
     }
@@ -1221,10 +1020,7 @@ class SimplePostLogger extends SimpleLogger
                                 $diff_table_output .= sprintf(
                                     '<tr><td>%1$s</td><td>%2$s</td></tr>',
                                     $this->label_for($key_to_diff, $label, $context),
-                                    simple_history_text_diff(
-                                        $post_old_value,
-                                        $post_new_value
-                                    )
+                                    simple_history_text_diff($post_old_value, $post_new_value)
                                 );
                             } elseif ('post_content' == $key_to_diff) {
                                 // Problem: to much text/content.
@@ -1232,10 +1028,7 @@ class SimplePostLogger extends SimpleLogger
                                 // Maybe solution: use own diff function, that uses none or few context lines.
                                 $has_diff_values = true;
                                 $label = __('Content', 'simple-history');
-                                $key_text_diff = simple_history_text_diff(
-                                    $post_old_value,
-                                    $post_new_value
-                                );
+                                $key_text_diff = simple_history_text_diff($post_old_value, $post_new_value);
 
                                 if ($key_text_diff) {
                                     $diff_table_output .= sprintf(
@@ -1281,10 +1074,7 @@ class SimplePostLogger extends SimpleLogger
 										<td>%2$s</td>
 									</tr>',
                                     $this->label_for($key_to_diff, $label, $context),
-                                    simple_history_text_diff(
-                                        $post_old_value,
-                                        $post_new_value
-                                    )
+                                    simple_history_text_diff($post_old_value, $post_new_value)
                                 );
                             } elseif ('comment_status' == $key_to_diff) {
                                 $has_diff_values = true;
@@ -1304,34 +1094,14 @@ class SimplePostLogger extends SimpleLogger
                                 $has_diff_values = true;
 
                                 // wp post edit screen uses display_name so we should use it too.
-                                if (isset(
-                                    $context[
-                                            'post_prev_post_author/display_name'
-                                        ]
-                                ) &&
-                                    isset(
-                                        $context[
-                                            'post_new_post_author/display_name'
-                                        ]
-                                    )
+                                if (isset($context['post_prev_post_author/display_name']) &&
+                                    isset($context['post_new_post_author/display_name'])
                                 ) {
-                                    $prev_user_display_name =
-                                        $context[
-                                            'post_prev_post_author/display_name'
-                                        ];
-                                    $new_user_display_name =
-                                        $context[
-                                            'post_new_post_author/display_name'
-                                        ];
+                                    $prev_user_display_name = $context['post_prev_post_author/display_name'];
+                                    $new_user_display_name = $context['post_new_post_author/display_name'];
 
-                                    $prev_user_user_email =
-                                        $context[
-                                            'post_prev_post_author/user_email'
-                                        ];
-                                    $new_user_user_email =
-                                        $context[
-                                            'post_new_post_author/user_email'
-                                        ];
+                                    $prev_user_user_email = $context['post_prev_post_author/user_email'];
+                                    $new_user_user_email = $context['post_new_post_author/user_email'];
 
                                     $label = __('Author', 'simple-history');
                                     $diff_table_output .= sprintf(
@@ -1346,50 +1116,32 @@ class SimplePostLogger extends SimpleLogger
                                                 'simple-history'
                                             ),
                                             array(
-                                                'prev_user_display_name' => esc_html(
-                                                    $prev_user_display_name
-                                                ),
-                                                'prev_user_email' => esc_html(
-                                                    $prev_user_user_email
-                                                ),
-                                                'new_user_display_name' => esc_html(
-                                                    $new_user_display_name
-                                                ),
-                                                'new_user_email' => esc_html(
-                                                    $new_user_user_email
-                                                )
+                                                'prev_user_display_name' => esc_html($prev_user_display_name),
+                                                'prev_user_email' => esc_html($prev_user_user_email),
+                                                'new_user_display_name' => esc_html($new_user_display_name),
+                                                'new_user_email' => esc_html($new_user_user_email)
                                             )
                                         )
                                     );
                                 }
                             } elseif ('page_template' == $key_to_diff) {
                                 // page template filename.
-                                $prev_page_template =
-                                    $context['post_prev_page_template'];
-                                $new_page_template =
-                                    $context['post_new_page_template'];
+                                $prev_page_template = $context['post_prev_page_template'];
+                                $new_page_template = $context['post_new_page_template'];
 
                                 // page template name, should exist, but I guess someone could have deleted a template
                                 // and after that change the template for a post.
-                                $prev_page_template_name = isset(
-                                    $context['post_prev_page_template_name']
-                                )
+                                $prev_page_template_name = isset($context['post_prev_page_template_name'])
                                     ? $context['post_prev_page_template_name']
                                     : '';
-                                $new_page_template_name = isset(
-                                    $context['post_new_page_template_name']
-                                )
+                                $new_page_template_name = isset($context['post_new_page_template_name'])
                                     ? $context['post_new_page_template_name']
                                     : '';
 
                                 // If prev och new template is "default" then use that as name.
-                                if ('default' == $prev_page_template &&
-                                    !$prev_page_template_name
-                                ) {
+                                if ('default' == $prev_page_template && !$prev_page_template_name) {
                                     $prev_page_template_name = $prev_page_template;
-                                } elseif ('default' == $new_page_template &&
-                                    !$new_page_template_name
-                                ) {
+                                } elseif ('default' == $new_page_template && !$new_page_template_name) {
                                     $new_page_template_name = $new_page_template;
                                 }
 
@@ -1399,9 +1151,7 @@ class SimplePostLogger extends SimpleLogger
                                     'Changed from {prev_page_template} to {new_page_template}',
                                     'simple-history'
                                 );
-                                if ($prev_page_template_name &&
-                                    $new_page_template_name
-                                ) {
+                                if ($prev_page_template_name && $new_page_template_name) {
                                     $message = __(
                                         'Changed from "{prev_page_template_name}" to "{new_page_template_name}"',
                                         'simple-history'
@@ -1416,20 +1166,10 @@ class SimplePostLogger extends SimpleLogger
 									</tr>',
                                     $this->label_for($key_to_diff, $label, $context),
                                     $this->interpolate($message, array(
-                                        'prev_page_template' =>
-                                            '<code>' .
-                                            esc_html($prev_page_template) .
-                                            '</code>',
-                                        'new_page_template' =>
-                                            '<code>' .
-                                            esc_html($new_page_template) .
-                                            '</code>',
-                                        'prev_page_template_name' => esc_html(
-                                            $prev_page_template_name
-                                        ),
-                                        'new_page_template_name' => esc_html(
-                                            $new_page_template_name
-                                        )
+                                        'prev_page_template' => '<code>' . esc_html($prev_page_template) . '</code>',
+                                        'new_page_template' => '<code>' . esc_html($new_page_template) . '</code>',
+                                        'prev_page_template_name' => esc_html($prev_page_template_name),
+                                        'new_page_template_name' => esc_html($new_page_template_name)
                                     ))
                                 );
                             } else {
@@ -1500,9 +1240,7 @@ class SimplePostLogger extends SimpleLogger
             // Changed post thumb/featued image.
             // post_prev_thumb, int of prev thumb, empty if not prev thumb.
             // post_new_thumb, int of new thumb, empty if no new thumb.
-            $diff_table_output .= $this->getLogRowDetailsOutputForPostThumb(
-                $context
-            );
+            $diff_table_output .= $this->getLogRowDetailsOutputForPostThumb($context);
 
             /**
              * Modify the formatted diff output of a saved/modified post
@@ -1519,9 +1257,7 @@ class SimplePostLogger extends SimpleLogger
 
             if ($has_diff_values || $diff_table_output) {
                 $diff_table_output =
-                    '<table class="SimpleHistoryLogitem__keyValueTable">' .
-                    $diff_table_output .
-                    '</table>';
+                    '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
             }
 
             $out .= $diff_table_output;
@@ -1537,14 +1273,7 @@ class SimplePostLogger extends SimpleLogger
 
     public function extra_diff_record($key, $old_value, $new_value)
     {
-        return sprintf(
-            '<tr><td>%1$s</td><td>%2$s</td></tr>',
-            $key,
-            simple_history_text_diff(
-                $old_value,
-                $new_value
-            )
-        );
+        return sprintf('<tr><td>%1$s</td><td>%2$s</td></tr>', $key, simple_history_text_diff($old_value, $new_value));
     }
 
     /**
@@ -1592,11 +1321,8 @@ class SimplePostLogger extends SimpleLogger
         $new_post_thumb_id = null;
 
         // If it was changed from one image to another.
-        if (isset($old_meta['_thumbnail_id'][0]) &&
-            isset($new_meta['_thumbnail_id'][0])
-        ) {
-            if ($old_meta['_thumbnail_id'][0] !== $new_meta['_thumbnail_id'][0]
-            ) {
+        if (isset($old_meta['_thumbnail_id'][0]) && isset($new_meta['_thumbnail_id'][0])) {
+            if ($old_meta['_thumbnail_id'][0] !== $new_meta['_thumbnail_id'][0]) {
                 $post_thumb_modified = true;
                 $prev_post_thumb_id = $old_meta['_thumbnail_id'][0];
                 $new_post_thumb_id = $new_meta['_thumbnail_id'][0];
@@ -1612,16 +1338,12 @@ class SimplePostLogger extends SimpleLogger
 
         if ($prev_post_thumb_id) {
             $context['post_prev_thumb_id'] = $prev_post_thumb_id;
-            $context['post_prev_thumb_title'] = get_the_title(
-                $prev_post_thumb_id
-            );
+            $context['post_prev_thumb_title'] = get_the_title($prev_post_thumb_id);
         }
 
         if ($new_post_thumb_id) {
             $context['post_new_thumb_id'] = $new_post_thumb_id;
-            $context['post_new_thumb_title'] = get_the_title(
-                $new_post_thumb_id
-            );
+            $context['post_new_thumb_title'] = get_the_title($new_post_thumb_id);
         }
 
         return $context;
@@ -1642,34 +1364,20 @@ class SimplePostLogger extends SimpleLogger
     {
         $out = '';
 
-        if (!empty($context['post_prev_thumb_id']) ||
-            !empty($context['post_new_thumb_id'])
-        ) {
+        if (!empty($context['post_prev_thumb_id']) || !empty($context['post_new_thumb_id'])) {
             // Check if images still exists and if so get their thumbnails.
-            $prev_thumb_id = empty($context['post_prev_thumb_id'])
-                ? null
-                : $context['post_prev_thumb_id'];
-            $new_thumb_id = empty($context['post_new_thumb_id'])
-                ? null
-                : $context['post_new_thumb_id'];
-            $post_new_thumb_title = empty($context['post_new_thumb_title'])
-                ? null
-                : $context['post_new_thumb_title'];
+            $prev_thumb_id = empty($context['post_prev_thumb_id']) ? null : $context['post_prev_thumb_id'];
+            $new_thumb_id = empty($context['post_new_thumb_id']) ? null : $context['post_new_thumb_id'];
+            $post_new_thumb_title = empty($context['post_new_thumb_title']) ? null : $context['post_new_thumb_title'];
             $post_prev_thumb_title = empty($context['post_prev_thumb_title'])
                 ? null
                 : $context['post_prev_thumb_title'];
 
             $prev_attached_file = get_attached_file($prev_thumb_id);
-            $prev_thumb_src = wp_get_attachment_image_src(
-                $prev_thumb_id,
-                'small'
-            );
+            $prev_thumb_src = wp_get_attachment_image_src($prev_thumb_id, 'small');
 
             $new_attached_file = get_attached_file($new_thumb_id);
-            $new_thumb_src = wp_get_attachment_image_src(
-                $new_thumb_id,
-                'small'
-            );
+            $new_thumb_src = wp_get_attachment_image_src($new_thumb_id, 'small');
 
             $prev_thumb_html = '';
             if (file_exists($prev_attached_file) && $prev_thumb_src) {
@@ -1685,10 +1393,7 @@ class SimplePostLogger extends SimpleLogger
                 );
             } else {
                 // Fallback if image does not exist.
-                $prev_thumb_html = sprintf(
-                    '<div>%1$s</div>',
-                    esc_html($post_prev_thumb_title)
-                );
+                $prev_thumb_html = sprintf('<div>%1$s</div>', esc_html($post_prev_thumb_title));
             }
 
             $new_thumb_html = '';
@@ -1705,10 +1410,7 @@ class SimplePostLogger extends SimpleLogger
                 );
             } else {
                 // Fallback if image does not exist.
-                $prev_thumb_html = sprintf(
-                    '<div>%1$s</div>',
-                    esc_html($post_new_thumb_title)
-                );
+                $prev_thumb_html = sprintf('<div>%1$s</div>', esc_html($post_new_thumb_title));
             }
 
             $out .= sprintf(
