@@ -852,7 +852,8 @@ class SimplePostLogger extends SimpleLogger
             // If updated post is published and password is set and old post did not have password set
             // = post changed to be password protected.
             $context['post_password_protected'] = true;
-        } elseif ($old_post_has_password &&
+        } elseif (
+            $old_post_has_password &&
             'publish' === $old_post_status &&
             false === $new_post_has_password &&
             'publish' === $new_post_status
@@ -1094,7 +1095,8 @@ class SimplePostLogger extends SimpleLogger
                                 $has_diff_values = true;
 
                                 // wp post edit screen uses display_name so we should use it too.
-                                if (isset($context['post_prev_post_author/display_name']) &&
+                                if (
+                                    isset($context['post_prev_post_author/display_name']) &&
                                     isset($context['post_new_post_author/display_name'])
                                 ) {
                                     $prev_user_display_name = $context['post_prev_post_author/display_name'];
@@ -1186,7 +1188,8 @@ class SimplePostLogger extends SimpleLogger
                 } // End if().
             } // End foreach().
 
-            if (isset($context['post_meta_added']) ||
+            if (
+                isset($context['post_meta_added']) ||
                 isset($context['post_meta_removed']) ||
                 isset($context['post_meta_changed'])
             ) {
