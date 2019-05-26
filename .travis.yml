@@ -1,6 +1,5 @@
-dist: trusty
+dist: xenial
 sudo: false
-dist: precise
 language: php
 
 notifications:
