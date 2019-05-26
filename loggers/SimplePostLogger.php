@@ -25,7 +25,7 @@ class SimplePostLogger extends SimpleLogger
 	// Array format is
 	// [post_id] => [post_data, post_meta].
 	// post_data = WP_Post object, post_meta = post meta array.
-	private $old_post_data = array();
+	protected $old_post_data = array();
 
 	public function loaded()
 	{
@@ -847,6 +847,8 @@ class SimplePostLogger extends SimpleLogger
 			'post_author' // only id, need to get more info for user.
 		);
 
+		$arr_keys_to_diff = $this->add_keys_to_diff($arr_keys_to_diff);
+
 		foreach ($arr_keys_to_diff as $key) {
 			if (isset($old_data->$key) && isset($new_data->$key)) {
 				$post_data_diff = $this->add_diff(
@@ -1229,10 +1231,11 @@ class SimplePostLogger extends SimpleLogger
 							// Different diffs for different keys.
 							if ('post_title' == $key_to_diff) {
 								$has_diff_values = true;
+								$label = __('Title', 'simple-history');
 
 								$diff_table_output .= sprintf(
 									'<tr><td>%1$s</td><td>%2$s</td></tr>',
-									__('Title', 'simple-history'),
+									$this->label_for($key_to_diff, $label, $context),
 									simple_history_text_diff(
 										$post_old_value,
 										$post_new_value
@@ -1243,6 +1246,7 @@ class SimplePostLogger extends SimpleLogger
 								// Risks to fill the visual output.
 								// Maybe solution: use own diff function, that uses none or few context lines.
 								$has_diff_values = true;
+								$label = __('Content', 'simple-history');
 								$key_text_diff = simple_history_text_diff(
 									$post_old_value,
 									$post_new_value
@@ -1251,23 +1255,25 @@ class SimplePostLogger extends SimpleLogger
 								if ($key_text_diff) {
 									$diff_table_output .= sprintf(
 										'<tr><td>%1$s</td><td>%2$s</td></tr>',
-										__('Content', 'simple-history'),
+										$this->label_for($key_to_diff, $label, $context),
 										$key_text_diff
 									);
 								}
 							} elseif ('post_status' == $key_to_diff) {
 								$has_diff_values = true;
+								$label = __('Status', 'simple-history');
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
 										<td>Changed from %2$s to %3$s</td>
 									</tr>',
-									__('Status', 'simple-history'),
+									$this->label_for($key_to_diff, $label, $context),
 									esc_html($post_old_value),
 									esc_html($post_new_value)
 								);
 							} elseif ('post_date' == $key_to_diff) {
 								$has_diff_values = true;
+								$label = __('Publish date', 'simple-history');
 
 								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
@@ -1275,12 +1281,13 @@ class SimplePostLogger extends SimpleLogger
 										<td>%1$s</td>
 										<td>Changed from %2$s to %3$s</td>
 									</tr>',
-									__('Publish date', 'simple-history'),
+									$this->label_for($key_to_diff, $label, $context),
 									esc_html($post_old_value),
 									esc_html($post_new_value)
 								);
 							} elseif ('post_name' == $key_to_diff) {
 								$has_diff_values = true;
+								$label = __('Permalink', 'simple-history');
 
 								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
@@ -1288,7 +1295,7 @@ class SimplePostLogger extends SimpleLogger
 										<td>%1$s</td>
 										<td>%2$s</td>
 									</tr>',
-									__('Permalink', 'simple-history'),
+									$this->label_for($key_to_diff, $label, $context),
 									simple_history_text_diff(
 										$post_old_value,
 										$post_new_value
@@ -1296,6 +1303,7 @@ class SimplePostLogger extends SimpleLogger
 								);
 							} elseif ('comment_status' == $key_to_diff) {
 								$has_diff_values = true;
+								$label = __('Comment status', 'simple-history');
 
 								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
@@ -1303,7 +1311,7 @@ class SimplePostLogger extends SimpleLogger
 										<td>%1$s</td>
 										<td>Changed from %2$s to %3$s</td>
 									</tr>',
-									__('Comment status', 'simple-history'),
+									$this->label_for($key_to_diff, $label, $context),
 									esc_html($post_old_value),
 									esc_html($post_new_value)
 								);
@@ -1341,12 +1349,13 @@ class SimplePostLogger extends SimpleLogger
 											'post_new_post_author/user_email'
 										];
 
+									$label = __('Author', 'simple-history');
 									$diff_table_output .= sprintf(
 										'<tr>
 											<td>%1$s</td>
 											<td>%2$s</td>
 										</tr>',
-										__('Author', 'simple-history'),
+										$this->label_for($key_to_diff, $label, $context),
 										$this->interpolate(
 											__(
 												'Changed from {prev_user_display_name} ({prev_user_email}) to {new_user_display_name} ({new_user_email})',
@@ -1418,12 +1427,13 @@ class SimplePostLogger extends SimpleLogger
 									);
 								}
 
+								$label = __('Template', 'simple-history');
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
 										<td>%2$s</td>
 									</tr>',
-									__('Template', 'simple-history'),
+									$this->label_for($key_to_diff, $label, $context),
 									$this->interpolate($message, array(
 										'prev_page_template' =>
 											'<code>' .
@@ -1440,6 +1450,14 @@ class SimplePostLogger extends SimpleLogger
 											$new_page_template_name
 										)
 									))
+								);
+							} else {
+								$has_diff_values = true;
+
+								$diff_table_output .= $this->extra_diff_record(
+									$this->label_for($key_to_diff, $key_to_diff, $context),
+									$post_old_value,
+									$post_new_value
 								);
 							} // End if().
 						} // End if().
@@ -1532,6 +1550,21 @@ class SimplePostLogger extends SimpleLogger
 		return $out;
 	}
 
+	protected function label_for($key, $label, $context) {
+		return apply_filters('simple_history/post_logger/label_for_key', $label, $key, $context);
+	}
+
+	public function extra_diff_record($key, $old_value, $new_value) {
+		return sprintf(
+			'<tr><td>%1$s</td><td>%2$s</td></tr>',
+			$key,
+			simple_history_text_diff(
+				$old_value,
+				$new_value
+			)
+		);
+	}
+
 	/**
 	 * Modify RSS links to they go directly to the correct post in wp admin
 	 *
@@ -1612,6 +1645,10 @@ class SimplePostLogger extends SimpleLogger
 		}
 
 		return $context;
+	}
+
+	protected function add_keys_to_diff($arr_keys_to_diff) {
+		return apply_filters('simple_history/post_logger/keys_to_diff', $arr_keys_to_diff);
 	}
 
 	/**
