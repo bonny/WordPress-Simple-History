@@ -2,6 +2,9 @@ dist: xenial
 sudo: false
 language: php
 
+services:
+ - mysql
+
 notifications:
  on_success: never
  on_failure: change
