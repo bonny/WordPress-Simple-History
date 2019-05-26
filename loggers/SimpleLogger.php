@@ -86,7 +86,7 @@ class SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
         $arr_info = array(
             // The logger slug. Defaulting to the class name is nice and logical I think
@@ -115,7 +115,7 @@ class SimpleLogger
      * @since 2.5.4
      * @return Mixed
      */
-    function getInfoValueByKey($key)
+    public function getInfoValueByKey($key)
     {
         $arr_info = $this->getInfo();
 
@@ -147,7 +147,7 @@ class SimpleLogger
      * @param array  $context
      * @param array  $row Currently not always passed, because loggers need to be updated to support this...
      */
-    function interpolate($message, $context = array(), $row = null)
+    public function interpolate($message, $context = array(), $row = null)
     {
         if (!is_array($context)) {
             return $message;
@@ -207,7 +207,7 @@ class SimpleLogger
      *
      * @return string HTML
      */
-    function getLogRowHeaderOutput($row)
+    public function getLogRowHeaderOutput($row)
     {
         // HTML for initiator
         $initiator_html = '';
@@ -1545,7 +1545,7 @@ class SimpleLogger
      * @param array $row Row with info.
      * @return array Headers
      */
-    function get_event_ip_number_headers($row)
+    public function get_event_ip_number_headers($row)
     {
         $ip_keys = $this->get_ip_number_header_keys();
         $arr_found_additional_ip_headers = array();
@@ -1579,7 +1579,7 @@ class SimpleLogger
      * @param string $ip IP number.
      * @return bool
      */
-    function validate_ip($ip)
+    public function validate_ip($ip)
     {
         if (filter_var(
             $ip,
@@ -1600,7 +1600,7 @@ class SimpleLogger
      * The CSS that you output will only be outputed
      * on pages where Simple History is used.
      */
-    function adminCSS()
+    public function adminCSS()
     {
         /*
         ?>
@@ -1618,7 +1618,7 @@ class SimpleLogger
      * The JS that you output will only be outputed
      * on pages where Simple History is used.
      */
-    function adminJS()
+    public function adminJS()
     {
         /*
         ?>
