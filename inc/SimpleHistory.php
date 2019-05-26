@@ -2336,7 +2336,8 @@ Because Simple History was just recently installed, this feed does not contain m
                 <?php echo _x('Simple History', 'history page headline', 'simple-history'); ?>
             </h1>
 
-            <?php /**
+            <?php 
+            /**
     * Fires before the gui div
     *
     * @since 2.0
@@ -2351,7 +2352,8 @@ Because Simple History was just recently installed, this feed does not contain m
                      data-pager-size='<?php echo $pager_size; ?>'
                      ></div>
 
-                <?php /**
+                <?php 
+                /**
      * Fires after the gui div
      *
      * @since 2.0
