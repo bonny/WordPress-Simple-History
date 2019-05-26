@@ -15,7 +15,7 @@ class SimpleCategoriesLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -74,7 +74,7 @@ class SimpleCategoriesLogger extends SimpleLogger
      * @param array  $parsed_args An array of potentially altered update arguments for the given term.
      * @param array  $term_update_args        An array of update arguments for the given term.
      */
-    function on_wp_update_term_parent($parent = null, $term_id = null, $taxonomy = null, $parsed_args = null, $term_update_args = null)
+    public function on_wp_update_term_parent($parent = null, $term_id = null, $taxonomy = null, $parsed_args = null, $term_update_args = null)
     {
 
         $term_before_edited = get_term_by('id', $term_id, $taxonomy);
@@ -128,7 +128,7 @@ class SimpleCategoriesLogger extends SimpleLogger
      * @param string $from_term_taxonomy Slug of taxonomy.
      * @return bool True or false.
      */
-    function ok_to_log_taxonomy($from_term_taxonomy = '')
+    public function ok_to_log_taxonomy($from_term_taxonomy = '')
     {
         if (empty($from_term_taxonomy)) {
             return false;
@@ -147,7 +147,7 @@ class SimpleCategoriesLogger extends SimpleLogger
      * @since 2.21
      * @return array Array with taxonomies.
      */
-    function get_skip_taxonomies()
+    public function get_skip_taxonomies()
     {
 
         $taxonomies_to_skip = array(
@@ -170,7 +170,7 @@ class SimpleCategoriesLogger extends SimpleLogger
      * @param int    $tt_id    Term taxonomy ID.
      * @param string $taxonomy Taxonomy slug.
      */
-    function on_created_term($term_id = null, $tt_id = null, $taxonomy = null)
+    public function on_created_term($term_id = null, $tt_id = null, $taxonomy = null)
     {
 
         $term = get_term_by('id', $term_id, $taxonomy);
@@ -209,7 +209,7 @@ class SimpleCategoriesLogger extends SimpleLogger
      * @param mixed  $deleted_term Copy of the already-deleted term, in the form specified
      *                              by the parent function. WP_Error otherwise.
      */
-    function on_delete_term($term = null, $tt_id = null, $taxonomy = null, $deleted_term = null)
+    public function on_delete_term($term = null, $tt_id = null, $taxonomy = null, $deleted_term = null)
     {
 
         if (is_wp_error($deleted_term)) {
