@@ -274,24 +274,45 @@ class SimpleCategoriesLogger extends SimpleLogger
             return $this->interpolate($message, $context, $row);
         }
 
-        $term_edit_link = get_edit_tag_link($term_id, $term_object->taxonomy);
+        $term_edit_link = isset($term_object) ? get_edit_tag_link($term_id, $term_object->taxonomy) : null;
         $context['term_edit_link'] = $term_edit_link;
+
+        // Get taxonomy name to use in log but fall back to taxonomy slug if
+        // taxonomy has been deleted.
+        $context['termTaxonomySlugOrName'] = isset($context['term_taxonomy']) ? $context['term_taxonomy'] : null;
+        $context['toTermTaxonomySlugOrName'] = isset($context['to_term_taxonomy']) ? $context['to_term_taxonomy'] : null;
+
+        if (isset($context['term_taxonomy']) && $context['term_taxonomy']) {
+            $termTaxonomyObject = get_taxonomy($context['term_taxonomy']);
+            if (is_a($termTaxonomyObject, 'WP_Taxonomy')) {
+                $termTaxonomyObjectLabels = get_taxonomy_labels($termTaxonomyObject);
+                $context['termTaxonomySlugOrName'] = $termTaxonomyObjectLabels->singular_name;
+            }
+        }
+
+        if (isset($context['to_term_taxonomy']) && $context['to_term_taxonomy']) {
+            $termTaxonomyObject = get_taxonomy($context['to_term_taxonomy']);
+            if (is_a($termTaxonomyObject, 'WP_Taxonomy')) {
+                $termTaxonomyObjectLabels = get_taxonomy_labels($termTaxonomyObject);
+                $context['toTermTaxonomySlugOrName'] = $termTaxonomyObjectLabels->singular_name;
+            }
+        }
 
         if ('created_term' === $message_key && ! empty($term_edit_link) && ! empty($tax_edit_link)) {
             $message = _x(
-                'Added term <a href="{term_edit_link}">"{term_name}"</a> in taxonomy <a href="{tax_edit_link}">"{term_taxonomy}"</a>',
+                'Added term <a href="{term_edit_link}">"{term_name}"</a> in taxonomy <a href="{tax_edit_link}">"{termTaxonomySlugOrName}"</a>',
                 'Categories logger: detailed plain text output for created term',
                 'simple-history'
             );
         } elseif ('deleted_term' === $message_key && ! empty($tax_edit_link)) {
             $message = _x(
-                'Deleted term "{term_name}" from taxonomy <a href="{tax_edit_link}">"{term_taxonomy}"</a>',
+                'Deleted term "{term_name}" from taxonomy <a href="{tax_edit_link}">"{termTaxonomySlugOrName}"</a>',
                 'Categories logger: detailed plain text output for deleted term',
                 'simple-history'
             );
         } elseif ('edited_term' === $message_key && ! empty($term_edit_link) && ! empty($tax_edit_link)) {
             $message = _x(
-                'Edited term <a href="{term_edit_link}">"{to_term_name}"</a> in taxonomy <a href="{tax_edit_link}">"{to_term_taxonomy}"</a>',
+                'Edited term <a href="{term_edit_link}">"{to_term_name}"</a> in taxonomy <a href="{tax_edit_link}">"{toTermTaxonomySlugOrName}"</a>',
                 'Categories logger: detailed plain text output for edited term',
                 'simple-history'
             );

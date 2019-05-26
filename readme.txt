@@ -204,6 +204,8 @@ add_filter('simple_history/admin_location', function ($location) {
 ```
 
 - Make it easier to extend SimplePostLogger by making `$old_post_data` protected instead of private. https://github.com/bonny/WordPress-Simple-History/pull/173.
+- Try to use taxonomy name instead of taxonomy slug when showing term additions or modifications. Fixes https://github.com/bonny/WordPress-Simple-History/issues/164.
+- Fix notice error when showing the log entry for a term that was deleted.
 - Remove unused old function `testlog_old()`.
 - Move helper functions to own file.
 - Move debug code into own dropin.
