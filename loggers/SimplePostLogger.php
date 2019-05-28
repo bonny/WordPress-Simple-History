@@ -90,13 +90,15 @@ class SimplePostLogger extends SimpleLogger
         )
         */
 
-        // $old_post = post with old content and old meta
-        $old_post = get_post($prepared_post->ID);
+        if ($request['id']) {  // is null on creating entity
+            // $old_post = post with old content and old meta
+            $old_post = get_post($request['id']);
 
-        $this->old_post_data[$old_post->ID] = array(
-            'post_data' => $old_post,
-            'post_meta' => get_post_custom($old_post->ID)
-        );
+            $this->old_post_data[$old_post->ID] = array(
+                'post_data' => $old_post,
+                'post_meta' => get_post_custom($old_post->ID)
+            );
+        }
 
         return $prepared_post;
     }
