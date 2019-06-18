@@ -118,7 +118,6 @@ class SimplePostLogger extends SimpleLogger
         $old_post = $this->old_post_data[$post->ID]['post_data'];
         $old_post_meta = $this->old_post_data[$post->ID]['post_meta'];
 
-        // @HERE
         $args = array(
             'new_post' => $post,
             'new_post_meta' => $post_meta,
@@ -243,9 +242,9 @@ class SimplePostLogger extends SimpleLogger
     }
 
     /**
-     * Get and store old info about a post that is being edited.
+     * Get and store old info about a post that is going to be edited.
      * Needed to later compare old data with new data, to detect differences.
-     * This function is called on edit screen  but before post edits are saved.
+     * This function is called on edit screen but before post edits are saved.
      *
      * Can't use the regular filters like "pre_post_update" because custom fields are already written by then.
      *
