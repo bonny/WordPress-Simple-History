@@ -62,9 +62,9 @@ if (!class_exists('Plugin_BeaverBuilder')) {
             );
             add_action(
                 'fl_builder_after_save_user_template',
-                array($this, 'save_layout'),
+                array($this, 'save_template'),
                 10,
-                4
+                1
             );
             add_action(
                 'fl_builder_after_save_draft',
@@ -77,6 +77,15 @@ if (!class_exists('Plugin_BeaverBuilder')) {
                 'save_admin'
             ));
         }
+        
+        function save_template($post_id)
+		{
+            $post = get_post($post_id);
+			$context = array(
+				'layout_name' => $post->post_name
+			);
+			$this->noticeMessage('template_saved', $context);
+		}
         
         function save_draft($post_id, $publish)
 		{
