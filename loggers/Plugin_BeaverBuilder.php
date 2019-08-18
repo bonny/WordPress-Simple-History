@@ -62,21 +62,38 @@ if (!class_exists('Plugin_BeaverBuilder')) {
             );
             add_action(
                 'fl_builder_after_save_user_template',
-                array($this, 'save_layout'),
+                array($this, 'save_template'),
                 10,
-                4
+                1
             );
             add_action(
                 'fl_builder_after_save_draft',
-                array($this, 'save_layout'),
+                array($this, 'save_draft'),
                 10,
-                4
+                2
             );
             add_action('fl_builder_admin_settings_save', array(
                 $this,
                 'save_admin'
             ));
         }
+        
+        function save_template($post_id)
+		{
+            $post = get_post($post_id);
+			$context = array(
+				'layout_name' => $post->post_name
+			);
+			$this->noticeMessage('template_saved', $context);
+		}
+        
+        function save_draft($post_id, $publish)
+		{
+			$context = array(
+				'layout_name' => $post_id
+			);
+			$this->noticeMessage('draft_saved', $context);
+		}
 
         function save_layout($post_id, $publish, $data, $settings)
         {
@@ -84,7 +101,9 @@ if (!class_exists('Plugin_BeaverBuilder')) {
             $context = array(
                 'layout_name' => $post->post_name
             );
-            $this->noticeMessage('layout_saved', $context);
+            if ( $publish ) {
+                $this->noticeMessage('layout_saved', $context);
+            }
         }
 
         function save_admin()
