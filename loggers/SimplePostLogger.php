@@ -118,7 +118,6 @@ class SimplePostLogger extends SimpleLogger
         $old_post = $this->old_post_data[$post->ID]['post_data'];
         $old_post_meta = $this->old_post_data[$post->ID]['post_meta'];
 
-        // @HERE
         $args = array(
             'new_post' => $post,
             'new_post_meta' => $post_meta,
