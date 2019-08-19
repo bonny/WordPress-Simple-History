@@ -193,6 +193,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = 2.n (n 2019) =
 
+- Fix error in Beaver Builder logger. Fixes https://wordpress.org/support/topic/conflict-with-beaver-builder-plugin-4/.
 - Add filter `simple_history/admin_location` that makes is possible to move the main page from the dashboard menu to any other menu page, for example the Tools menu. Fixes https://github.com/bonny/WordPress-Simple-History/issues/140. Example usage of filter:
 
 ```php
