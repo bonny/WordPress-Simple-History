@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.2
 Requires PHP: 5.6
-Stable tag: 2.31.1
+Stable tag: 2.32
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -191,7 +191,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 ## Changelog
 
-= 2.n (n 2019) =
+= 2.32 (August 2019) =
 
 - Fix error in Beaver Builder logger. Fixes https://wordpress.org/support/topic/conflict-with-beaver-builder-plugin-4/.
 - Add filter `simple_history/admin_location` that makes is possible to move the main page from the dashboard menu to any other menu page, for example the Tools menu. Fixes https://github.com/bonny/WordPress-Simple-History/issues/140. Example usage of filter:
