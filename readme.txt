@@ -2,9 +2,9 @@
 Contributors: eskapism
 Donate link: http://eskapism.se/sida/donate/
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
-Requires at least: 4.5.1
+Requires at least: 5.2
 Tested up to: 5.2
-Requires PHP: 5.4
+Requires PHP: 5.6
 Stable tag: 2.31.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
@@ -204,9 +204,12 @@ add_filter('simple_history/admin_location', function ($location) {
 ```
 
 - Make it easier to extend SimplePostLogger by making `$old_post_data` protected instead of private. https://github.com/bonny/WordPress-Simple-History/pull/173.
+- Try to use taxonomy name instead of taxonomy slug when showing term additions or modifications. Fixes https://github.com/bonny/WordPress-Simple-History/issues/164.
+- Fix notice error when showing the log entry for a term that was deleted.
 - Remove unused old function `testlog_old()`.
 - Move helper functions to own file.
 - Move debug code into own dropin.
+- Bump required PHP version to 5.6.20 (same version that WordPress itself requires).
 
 = 2.31 (May 2019) =
 
