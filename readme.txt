@@ -191,6 +191,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 ## Changelog
 
+- Correct URL redirected to after clearing log. Fixes #123.
+
 = 2.32 (August 2019) =
 
 - Fix error in Beaver Builder logger. Fixes https://wordpress.org/support/topic/conflict-with-beaver-builder-plugin-4/.

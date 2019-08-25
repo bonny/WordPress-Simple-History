@@ -1818,7 +1818,8 @@ Because Simple History was just recently installed, this feed does not contain m
      */
     public function add_settings()
     {
-        // Clear the log if clear button was clicked in settings.
+        // Clear the log if clear button was clicked in settings
+        // and redirect user to show message.
         if (isset($_GET['simple_history_clear_log_nonce']) &&
             wp_verify_nonce($_GET['simple_history_clear_log_nonce'], 'simple_history_clear_log')
         ) {
@@ -2068,10 +2069,16 @@ Because Simple History was just recently installed, this feed does not contain m
      */
     public function settings_field_clear_log()
     {
-        $clear_link = esc_url(add_query_arg('', ''));
-        $clear_link = wp_nonce_url($clear_link, 'simple_history_clear_log', 'simple_history_clear_log_nonce');
-        $clear_days = $this->get_clear_history_interval();
 
+        // Get base URL to current page.
+        // Will be like "/wordpress/wp-admin/options-general.php?page=simple_history_settings_menu_slug&"
+        $clear_link = add_query_arg('', '');
+
+        // Append nonce to URL.
+        $clear_link = wp_nonce_url($clear_link, 'simple_history_clear_log', 'simple_history_clear_log_nonce');
+
+        $clear_days = $this->get_clear_history_interval();
+        
         echo '<p>';
 
         if ($clear_days > 0) {
@@ -2088,7 +2095,7 @@ Because Simple History was just recently installed, this feed does not contain m
         printf(
             '<p><a class="button js-SimpleHistory-Settings-ClearLog" href="%2$s">%1$s</a></p>',
             __('Clear log now', 'simple-history'),
-            $clear_link
+            esc_url($clear_link)
         );
     }
 
