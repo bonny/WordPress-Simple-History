@@ -12,7 +12,7 @@ exit;
  * Misc
  */
 
-// Add $_GET, $_POST, and more info to each logged even.
+// Add $_GET, $_POST, and more info to each logged event.
 define('SIMPLE_HISTORY_LOG_DEBUG', true);
 
 
