@@ -36,7 +36,7 @@ if (class_exists('SimpleLogger')) {
          * Return information about this logger.
          * Used to show info about the logger at various places.
          */
-        function getInfo()
+        public function getInfo()
         {
 
             $arr_info = array(
