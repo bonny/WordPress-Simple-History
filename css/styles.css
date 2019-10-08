@@ -51,7 +51,7 @@ The spinner that wp uses:;
 	background-color: transparent;
 }
 
-.SimpleHistoryGui {
+.SimpleHistoryGuiWrap .SimpleHistoryGui {
 	width: 100%;
 	float: left;
 }
