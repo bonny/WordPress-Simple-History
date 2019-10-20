@@ -22,7 +22,6 @@ $period_end_date = DateTime::createFromFormat('U', time());
 
 echo '<h3>' . _x('Database size', 'debug dropin', 'simple-history') . '</h3>';
 
-
 // Get table sizes in mb.
 $sql_table_size = sprintf(
     '
@@ -63,15 +62,9 @@ printf(
 
 $loopnum = 0;
 foreach ($table_size_result as $one_table) {
-    $size = sprintf(
-        _x('%s MB', 'debug dropin', 'simple-history'),
-        $one_table->size_in_mb
-    );
+    $size = sprintf(_x('%s MB', 'debug dropin', 'simple-history'), $one_table->size_in_mb);
 
-    $rows = sprintf(
-        _x('%s rows', 'debug dropin', 'simple-history'),
-        number_format_i18n($one_table->num_rows, 0)
-    );
+    $rows = sprintf(_x('%s rows', 'debug dropin', 'simple-history'), number_format_i18n($one_table->num_rows, 0));
 
     printf(
         '<tr class="%4$s">
@@ -92,7 +85,7 @@ echo '</table>';
 
 $logQuery = new SimpleHistoryLogQuery();
 $rows = $logQuery->query(array(
-    'posts_per_page' => 1,
+    'posts_per_page' => 1
 ));
 
 // This is the number of rows with occasions taken into consideration
@@ -104,7 +97,6 @@ printf(
     $total_accassions_rows_count
 );
 echo '</p>';
-
 
 // echo "<h4>Clear history interval</h4>";
 // echo "<p>" . $this->sh->get_clear_history_interval() . "</p>";
@@ -121,13 +113,17 @@ foreach ($this->sh->getInstantiatedLoggers() as $oneLogger) {
     $arr_logger_slugs[] = $oneLogger['instance']->slug;
 }
 
-$sql_logger_counts = sprintf('
+$sql_logger_counts = sprintf(
+    '
     SELECT logger, count(id) as count
     FROM %1$s
     WHERE logger IN ("%2$s")
     GROUP BY logger
     ORDER BY count DESC
-', $table_name, join($arr_logger_slugs, '","'));
+',
+    $table_name,
+    join('","', $arr_logger_slugs)
+);
 
 $logger_rows_count = $wpdb->get_results($sql_logger_counts, OBJECT_K);
 
@@ -135,9 +131,9 @@ $logger_rows_count = $wpdb->get_results($sql_logger_counts, OBJECT_K);
 $missing_logger_slugs = array_diff($arr_logger_slugs, array_keys($logger_rows_count));
 
 foreach ($missing_logger_slugs as $one_missing_logger_slug) {
-    $logger_rows_count[ $one_missing_logger_slug ] = (object) array(
+    $logger_rows_count[$one_missing_logger_slug] = (object) array(
         'logger' => $one_missing_logger_slug,
-        'count' => 0,
+        'count' => 0
     );
 }
 
@@ -179,15 +175,15 @@ $loopnum = 0;
 foreach ($logger_rows_count as $one_logger_slug => $one_logger_val) {
     $logger = $this->sh->getInstantiatedLoggerBySlug($one_logger_slug);
 
-    if (! $logger) {
+    if (!$logger) {
         continue;
     }
 
-    if (isset($logger_rows_count[ $one_logger_slug ])) {
-        $one_logger_count = $logger_rows_count[ $one_logger_slug ];
+    if (isset($logger_rows_count[$one_logger_slug])) {
+        $one_logger_count = $logger_rows_count[$one_logger_slug];
     } else {
         // logger was not is sql result, so fake result
-        $one_logger_count = new stdclass;
+        $one_logger_count = new stdclass();
         $one_logger_count->count = 0;
     }
 
@@ -253,7 +249,7 @@ foreach ($logger_rows_count as $one_logger_slug => $one_logger_val) {
     );
 
     $loopnum++;
-}// End foreach().
+} // End foreach().
 
 echo '</table>';
 
@@ -291,9 +287,7 @@ foreach ($plugins as $pluginFilePath => $onePlugin) {
         ',
         esc_html($onePlugin['Name']),
         esc_html($pluginFilePath),
-        $isPluginActive ?
-            _x('Yes', 'debug dropin', 'simple-history') :
-            _x('No', 'debug dropin', 'simple-history')
+        $isPluginActive ? _x('Yes', 'debug dropin', 'simple-history') : _x('No', 'debug dropin', 'simple-history')
         // 3
     );
 }

@@ -1,11 +1,10 @@
 <?php
-defined('ABSPATH') or die();
-?>
+defined('ABSPATH') or die(); ?>
 
 <script>
-    
+
     jQuery(function($) {
-        
+
         var $button = $(".js-SimpleHistoryShowsStatsForGeeks");
         var $wrapper = $(".SimpleHistory__statsForGeeksInner");
 
@@ -18,21 +17,18 @@ defined('ABSPATH') or die();
 
 </script>
 <?php
-
-defined('ABSPATH') or exit;
+defined('ABSPATH') or exit();
 
 echo '<hr>';
 echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsForGeeks'>Show stats for geeks</button></p>";
-
 ?>
 
 <div class="SimpleHistory__statsForGeeksInner hide-if-js">
     <?php
-
     echo '<h4>Rows count</h4>';
     $logQuery = new SimpleHistoryLogQuery();
     $rows = $logQuery->query(array(
-        'posts_per_page' => 1,
+        'posts_per_page' => 1
         // "date_from" => strtotime("-$period_days days")
     ));
 
@@ -52,9 +48,9 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 
     $sql_table_size = sprintf(
         '
-		SELECT table_name AS "table_name", 
-		round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb" 
-		FROM information_schema.TABLES 
+		SELECT table_name AS "table_name",
+		round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
+		FROM information_schema.TABLES
 		WHERE table_schema = "%1$s"
 		AND table_name IN ("%2$s", "%3$s");
 		',
@@ -64,7 +60,6 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
     );
 
     $table_size_result = $wpdb->get_results($sql_table_size);
-
 
     echo '<h4>Database size</h4>';
 
@@ -119,13 +114,17 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
         $arr_logger_slugs[] = $oneLogger['instance']->slug;
     }
 
-    $sql_logger_counts = sprintf('
+    $sql_logger_counts = sprintf(
+        '
 		SELECT logger, count(id) as count
 		FROM %1$s
 		WHERE logger IN ("%2$s")
 		GROUP BY logger
 		ORDER BY count DESC
-	', $table_name, join($arr_logger_slugs, '","'));
+	',
+        $table_name,
+        join('","', $arr_logger_slugs)
+    );
 
     $logger_rows_count = $wpdb->get_results($sql_logger_counts, OBJECT_K);
 
@@ -134,15 +133,15 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
     foreach ($arr_logger_slugs as $one_logger_slug) {
         $logger = $this->sh->getInstantiatedLoggerBySlug($one_logger_slug);
 
-        if (! $logger) {
+        if (!$logger) {
             continue;
         }
 
-        if (isset($logger_rows_count[ $one_logger_slug ])) {
-            $one_logger_count = $logger_rows_count[ $one_logger_slug ];
+        if (isset($logger_rows_count[$one_logger_slug])) {
+            $one_logger_count = $logger_rows_count[$one_logger_slug];
         } else {
             // logger was not is sql result, so fake result
-            $one_logger_count = new stdclass;
+            $one_logger_count = new stdclass();
             $one_logger_count->count = 0;
         }
 
@@ -180,8 +179,7 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
         );
 
         $loopnum++;
-    }// End foreach().
+    } // End foreach().
     echo '</table>';
-
     ?>
 </div><!-- // stats for geeks inner -->

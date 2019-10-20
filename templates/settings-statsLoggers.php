@@ -17,14 +17,14 @@ $sql_logger_counts = sprintf(
     '
 	SELECT logger, count(id) as count
 	FROM %1$s
-	WHERE 
+	WHERE
 		logger IN ("%2$s")
 		AND UNIX_TIMESTAMP(date) >= %3$d
 	GROUP BY logger
 	ORDER BY count DESC
 	',
     $table_name, // 1
-    join($arr_logger_slugs, '","'), // 2
+    join('","', $arr_logger_slugs), // 2
     strtotime("-$period_days days")
 );
 
@@ -42,7 +42,7 @@ $max_loggers_in_chart = sizeof($arr_colors);
 foreach ($logger_rows_count as $one_logger_count) {
     $logger = $this->sh->getInstantiatedLoggerBySlug($one_logger_count->logger);
 
-    if (! $logger) {
+    if (!$logger) {
         continue;
     }
 
@@ -61,7 +61,7 @@ foreach ($logger_rows_count as $one_logger_count) {
 			},',
         $one_logger_count->count, // 1
         $logger_info['name'], // 2
-        $arr_colors[ $i ] // 3
+        $arr_colors[$i] // 3
     );
 
     $str_js_chart_data_chartist .= sprintf(
@@ -69,10 +69,7 @@ foreach ($logger_rows_count as $one_logger_count) {
         $one_logger_count->count // 1
     );
 
-    $str_js_chart_labels .= sprintf(
-        '"%1$s",',
-        $logger_info['name']
-    );
+    $str_js_chart_labels .= sprintf('"%1$s",', $logger_info['name']);
 
     $str_js_google_chart_data .= sprintf(
         '["%1$s", %2$d], ',
@@ -81,40 +78,39 @@ foreach ($logger_rows_count as $one_logger_count) {
     );
 
     $i++;
-}// End foreach().
+} // End foreach().
 $str_js_chart_data = rtrim($str_js_chart_data, ',');
 $str_js_chart_data_chartist = rtrim($str_js_chart_data_chartist, ',');
 $str_js_chart_labels = rtrim($str_js_chart_labels, ',');
 $str_js_google_chart_data = rtrim($str_js_google_chart_data, ',');
-
 ?>
 <script>
-    
+
     /**
      * Pie chart with loggers distribution
      */
     jQuery(function($) {
 
-        /*      
+        /*
         var data = {
-            series: [<?php echo $str_js_chart_data_chartist ?>],
-            labels: [<?php echo $str_js_chart_labels ?>]
-        };      
-        
+            series: [<?php echo $str_js_chart_data_chartist; ?>],
+            labels: [<?php echo $str_js_chart_labels; ?>]
+        };
+
         var options = {};
 
         Chartist.Pie(".SimpleHistoryChart__loggersPie", data, options);
         */
 
         var data = google.visualization.arrayToDataTable([
-            <?php echo $str_js_google_chart_data ?>
+            <?php echo $str_js_google_chart_data; ?>
         ]);
 
         var options = {
             xtitle: 'My Daily Activities',
             backgroundColor: "transparent",
             is3D: true,
-            legend: { 
+            legend: {
                 xposition: 'top',
                 alignment: 'center'
             }
@@ -123,7 +119,7 @@ $str_js_google_chart_data = rtrim($str_js_google_chart_data, ',');
 
         var chart = new google.visualization.PieChart( $(".SimpleHistoryChart__loggersPieGoogleChart").get(0) );
         chart.draw(data, options);
-        
+
         //var chart2 = new google.visualization.BarChart( $(".SimpleHistoryChart__loggersGoogleBarChart").get(0) );
         //chart2.draw(data, options);
 
