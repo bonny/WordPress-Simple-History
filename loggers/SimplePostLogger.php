@@ -57,7 +57,7 @@ class SimplePostLogger extends SimpleLogger
             add_action("rest_pre_insert_{$post_type->name}", array($this, 'on_rest_pre_insert'), 10, 2);
 
             // Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API."
-            // add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
+            add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
         }
     }
 
@@ -76,19 +76,6 @@ class SimplePostLogger extends SimpleLogger
     {
         // $prepared_post = stdClass Object with new and modified content.
         // changes are not saved to post in db yet, so get_post( $prepared_post->ID ) will get old contents.
-        /*
-        stdClass Object
-        (
-            [ID] => 889
-            [post_title] => gutenberg 1
-            [post_content] => <!-- wp:paragraph -->
-        <p>hejsan</p>
-        <!-- /wp:paragraph -->
-            [post_excerpt] =>
-            [post_type] => post
-            [page_template] =>
-        )
-        */
 
         // $old_post = post with old content and old meta
         $old_post = get_post($prepared_post->ID);
@@ -104,22 +91,22 @@ class SimplePostLogger extends SimpleLogger
     /**
      * Fires after a single post is completely created or updated via the REST API.
      *
-     * Here we can get the updated post, after it's updated in the db.
+     * Here we get the updated post, after it is updated in the db.
      *
-     * @param WP_Post         $post     Inserted or updated post object.
+     * @param WP_Post         $updated_post     Inserted or updated post object.
      * @param WP_REST_Request $request  Request object.
      * @param bool            $creating True when creating a post, false when updating.
      */
-    public function on_rest_after_insert($post, $request, $creating)
+    public function on_rest_after_insert($updatedPost, $request, $creating)
     {
-        $post = get_post($post->ID);
-        $post_meta = get_post_custom($post->ID);
+        $updatedPost = get_post($updatedPost->ID);
+        $post_meta = get_post_custom($updatedPost->ID);
 
-        $old_post = $this->old_post_data[$post->ID]['post_data'];
-        $old_post_meta = $this->old_post_data[$post->ID]['post_meta'];
+        $old_post = $this->old_post_data[$updatedPost->ID]['post_data'];
+        $old_post_meta = $this->old_post_data[$updatedPost->ID]['post_meta'];
 
         $args = array(
-            'new_post' => $post,
+            'new_post' => $updatedPost,
             'new_post_meta' => $post_meta,
             'old_post' => $old_post,
             'old_post_meta' => $old_post_meta,
@@ -629,6 +616,11 @@ class SimplePostLogger extends SimpleLogger
 
     /**
      * Fired when a post has changed status in the classical editor.
+     * 
+     * It is also fired when saving from the Gutenberg editor,
+     * but it seems something is different because 
+     * we can't get previosly custom fields here (we only get latest values instead).
+     * 
      * Only run in certain cases,
      * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
      * which by definition is not wrong, but perhaps not wanted/annoying.
@@ -639,11 +631,16 @@ class SimplePostLogger extends SimpleLogger
      */
     public function on_transition_post_status($new_status, $old_status, $post)
     {
-        // $isRestApiRequest = ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
-        // $is_admin = is_admin();
-        // False if not a revision, ID of revision's parent otherwise.
-        // $post_is_revision = wp_is_post_revision( $post );
-        // sh_error_log('on_transition_post_status', '$new_status', $new_status, '$old_status', $old_status, '$isRestApiRequest', $isRestApiRequest, '$is_admin', $is_admin, '$post_is_revision', $post_is_revision);
+        sh_error_log('on_transition_post_status');
+        sh_error_log('new post meta', get_post_custom($post->ID));
+
+        $isRestApiRequest = (defined('REST_REQUEST') && REST_REQUEST);
+
+        // Bail if this is a rest request.
+        if ($isRestApiRequest) {
+            return;
+        }
+
         // Bail if post is not a post.
         if (!is_a($post, 'WP_Post')) {
             return;
@@ -667,7 +664,8 @@ class SimplePostLogger extends SimpleLogger
             'old_status' => $old_status,
             '_debug_caller_method' => __METHOD__
         );
-
+error_log('$post->ID', $post->ID);
+error_log('post_meta' . print_r($args['new_post_meta'], 1) . print_r($args['old_post_meta'], 1));
         $this->maybe_log_post_change($args);
     }
 
