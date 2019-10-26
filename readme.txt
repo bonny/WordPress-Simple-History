@@ -196,6 +196,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Correct URL redirected to after clearing log. Fixes #123.
 - Fix history log on dashboard leaving lots of white space and sometimes overlapping other dashboard widgets.
   Fixes https://wordpress.org/support/topic/dashboard-block-cut-off/, https://wordpress.org/support/topic/simple-history-v2-32/, and https://wordpress.org/support/topic/new-update-not-working-10/.
+- Fix join parameter order for PHP 7.4.
 
 = 2.32 (August 2019) =
 
