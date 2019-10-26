@@ -631,9 +631,6 @@ class SimplePostLogger extends SimpleLogger
      */
     public function on_transition_post_status($new_status, $old_status, $post)
     {
-        sh_error_log('on_transition_post_status');
-        sh_error_log('new post meta', get_post_custom($post->ID));
-
         $isRestApiRequest = defined('REST_REQUEST') && REST_REQUEST;
 
         // Bail if this is a rest request.
