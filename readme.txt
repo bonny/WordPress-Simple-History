@@ -80,7 +80,7 @@ The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allow
 clone posts of any type.
 Simple History will log when a clone of a post or page is done.
 
-**Beaver Builder**  
+**Beaver Builder**
 The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
 Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
@@ -191,7 +191,11 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 ## Changelog
 
+= 2.3n (September 2019) =
+- Better compatibility with the Gutenberg Block editor.
 - Correct URL redirected to after clearing log. Fixes #123.
+- Fix history log on dashboard leaving lots of white space and sometimes overlapping other dashboard widgets.
+  Fixes https://wordpress.org/support/topic/dashboard-block-cut-off/, https://wordpress.org/support/topic/simple-history-v2-32/, and https://wordpress.org/support/topic/new-update-not-working-10/.
 
 = 2.32 (August 2019) =
 
