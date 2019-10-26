@@ -57,7 +57,7 @@ class SimplePostLogger extends SimpleLogger
             add_action("rest_pre_insert_{$post_type->name}", array($this, 'on_rest_pre_insert'), 10, 2);
 
             // Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API."
-            add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
+            add_action("rest_after_insert_{$post_type->name}", array($this, 'on_rest_after_insert'), 10, 3);
         }
     }
 
@@ -616,11 +616,11 @@ class SimplePostLogger extends SimpleLogger
 
     /**
      * Fired when a post has changed status in the classical editor.
-     * 
+     *
      * It is also fired when saving from the Gutenberg editor,
-     * but it seems something is different because 
+     * but it seems something is different because
      * we can't get previosly custom fields here (we only get latest values instead).
-     * 
+     *
      * Only run in certain cases,
      * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
      * which by definition is not wrong, but perhaps not wanted/annoying.
@@ -634,7 +634,7 @@ class SimplePostLogger extends SimpleLogger
         sh_error_log('on_transition_post_status');
         sh_error_log('new post meta', get_post_custom($post->ID));
 
-        $isRestApiRequest = (defined('REST_REQUEST') && REST_REQUEST);
+        $isRestApiRequest = defined('REST_REQUEST') && REST_REQUEST;
 
         // Bail if this is a rest request.
         if ($isRestApiRequest) {
@@ -664,8 +664,9 @@ class SimplePostLogger extends SimpleLogger
             'old_status' => $old_status,
             '_debug_caller_method' => __METHOD__
         );
-error_log('$post->ID', $post->ID);
-error_log('post_meta' . print_r($args['new_post_meta'], 1) . print_r($args['old_post_meta'], 1));
+        // @HERE
+        // error_log('$post->ID', $post->ID);
+        // error_log('post_meta' . print_r($args['new_post_meta'], 1) . print_r($args['old_post_meta'], 1));
         $this->maybe_log_post_change($args);
     }
 
