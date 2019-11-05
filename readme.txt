@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.2
 Requires PHP: 5.6
-Stable tag: 2.32
+Stable tag: 2.33
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -191,7 +191,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 ## Changelog
 
-= 2.3n (September 2019) =
+= 2.33 (November 2019) =
 - Better compatibility with the Gutenberg Block editor.
 - Correct URL redirected to after clearing log. Fixes #123.
 - Fix history log on dashboard leaving lots of white space and sometimes overlapping other dashboard widgets.
