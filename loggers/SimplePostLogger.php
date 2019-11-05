@@ -661,9 +661,7 @@ class SimplePostLogger extends SimpleLogger
             'old_status' => $old_status,
             '_debug_caller_method' => __METHOD__
         );
-        // @HERE
-        // error_log('$post->ID', $post->ID);
-        // error_log('post_meta' . print_r($args['new_post_meta'], 1) . print_r($args['old_post_meta'], 1));
+
         $this->maybe_log_post_change($args);
     }
 
