@@ -1,6 +1,6 @@
 === Simple History ===
 Contributors: eskapism
-Donate link: http://eskapism.se/sida/donate/
+Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 5.2
 Tested up to: 5.2
@@ -197,6 +197,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fix history log on dashboard leaving lots of white space and sometimes overlapping other dashboard widgets.
   Fixes https://wordpress.org/support/topic/dashboard-block-cut-off/, https://wordpress.org/support/topic/simple-history-v2-32/, and https://wordpress.org/support/topic/new-update-not-working-10/.
 - Fix join parameter order for PHP 7.4.
+- Update donate link. It's now https://www.paypal.me/eskapism.
+  If you like the plugin please consider donate.
+	A very small amount makes me much more happy than nothing at all! ;)
 
 = 2.32 (August 2019) =
 
