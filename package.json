@@ -10,13 +10,15 @@
   "grunt-wp-i18n": "^0.4.9",
   "load-grunt-tasks": "^1.0.0",
   "time-grunt": "^1.4.0",
-  "grunt-version": "^1.3.1"
+  "grunt-version": "^1.3.1",
+  "grunt-wp-deploy": "git+https://github.com/johnbillion/grunt-wp-deploy.git#master",
+  "grunt-wp-readme-to-markdown": "^2"
  },
  "dependencies": {
-  "@prettier/plugin-php": "^0.10.2",
-  "husky": "^2.1.0",
-  "prettier": "^1.17.0",
-  "pretty-quick": "^1.10.0"
+  "@prettier/plugin-php": "^0.12",
+  "husky": "^4",
+  "prettier": "^1.19.0",
+  "pretty-quick": "^2"
  },
  "husky": {
   "hooks": {
