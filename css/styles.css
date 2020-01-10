@@ -1,4 +1,3 @@
-
 /*
 
 The spinner that wp uses:;
@@ -7,9 +6,17 @@ The spinner that wp uses:;
 */
 
 /* clearfix */
-.SimpleHistory__cf:before, .SimpleHistory__cf:after { content:""; display:table; }
-.SimpleHistory__cf:after { clear:both; }
-.SimpleHistory__cf { zoom:1; } /* For IE 6/7 (trigger hasLayout) */
+.SimpleHistory__cf:before,
+.SimpleHistory__cf:after {
+	content: "";
+	display: table;
+}
+.SimpleHistory__cf:after {
+	clear: both;
+}
+.SimpleHistory__cf {
+	zoom: 1;
+} /* For IE 6/7 (trigger hasLayout) */
 
 .SimpleHistoryGui,
 .SimpleHistoryGuiExample {
@@ -34,7 +41,7 @@ The spinner that wp uses:;
 
 /* wrap around the log items and the pagination */
 .SimpleHistoryLogitemsWrap {
-	transition: opacity .1s ease-out;
+	transition: opacity 0.1s ease-out;
 }
 
 /* on its own page */
@@ -44,7 +51,7 @@ The spinner that wp uses:;
 	position: relative;
 	margin-right: 340px;
 	min-height: 200px;
-	background-color: rgba(255,255,255,.75);
+	background-color: rgba(255, 255, 255, 0.75);
 }
 
 .SimpleHistory--isLoaded .SimpleHistoryGuiWrap {
@@ -65,8 +72,6 @@ The spinner that wp uses:;
 		float: none;
 	}
 }
-
-
 
 /*
 .SimpleHistoryGui:after {
@@ -89,15 +94,13 @@ The spinner that wp uses:;
 	background: #fff;
 	border: 1px solid rgb(229, 229, 229);
 	opacity: 0;
-	transition: all .25s ease-out;
+	transition: all 0.25s ease-out;
 }
 
 .SimpleHistory--isLoaded .SimpleHistoryLogitems,
 .SimpleHistoryGuiExample .SimpleHistoryLogitems {
 	opacity: 1;
 }
-
-
 
 /**
  * Log items
@@ -135,7 +138,7 @@ The spinner that wp uses:;
 Style different log levels.
 */
 
- .SimpleHistoryLogitem--logleveltag {
+.SimpleHistoryLogitem--logleveltag {
 	display: inline-block;
 	background-color: rgba(238, 238, 238, 1);
 	font-size: 10px;
@@ -146,15 +149,13 @@ Style different log levels.
 	line-height: 1;
 }
 
-
 .SimpleHistoryLogitem--loglevel-debug {
-	border-left-color: #CEF6D8;
+	border-left-color: #cef6d8;
 }
 .SimpleHistoryLogitem--logleveltag-debug {
-	background-color: #CEF6D8;
+	background-color: #cef6d8;
 	color: #111;
 }
-
 
 .SimpleHistoryLogitem--loglevel-info {
 	border-left-color: white;
@@ -164,37 +165,35 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem--loglevel-notice {
-	border-left-color: #FFFFE0;
+	border-left-color: #ffffe0;
 	border-left-color: rgb(219, 219, 183);
 }
 .SimpleHistoryLogitem--logleveltag-notice {
 	background-color: rgb(219, 219, 183);
-	color: #111
+	color: #111;
 }
 
 .SimpleHistoryLogitem--loglevel-warning {
-	border-left-color: #F7D358;
+	border-left-color: #f7d358;
 }
- .SimpleHistoryLogitem--logleveltag-warning {
- 	background-color: #F7D358;
- 	color: #111;
- }
-
+.SimpleHistoryLogitem--logleveltag-warning {
+	background-color: #f7d358;
+	color: #111;
+}
 
 .SimpleHistoryLogitem--loglevel-error {
-	border-left-color: #F79F81;
+	border-left-color: #f79f81;
 }
 .SimpleHistoryLogitem--logleveltag-error {
-	background-color: #F79F81;
+	background-color: #f79f81;
 	color: #000;
 }
 
-
 .SimpleHistoryLogitem--loglevel-critical {
-	border-left-color: #FA5858;
+	border-left-color: #fa5858;
 }
 .SimpleHistoryLogitem--logleveltag-critical {
-	background-color: #FA5858;
+	background-color: #fa5858;
 	color: #fff;
 }
 
@@ -207,12 +206,12 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem--loglevel-emergency {
-	border-left-color: #610B0B;
-	border-left-color: #DF0101;
+	border-left-color: #610b0b;
+	border-left-color: #df0101;
 }
 .SimpleHistoryLogitem--logleveltag-emergency {
-	background-color: #610B0B;
-	background-color: #DF0101;
+	background-color: #610b0b;
+	background-color: #df0101;
 	color: #eee;
 }
 
@@ -282,8 +281,8 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem__details p {
-	margin-top: .4em;
-	margin-bottom: .4em;
+	margin-top: 0.4em;
+	margin-bottom: 0.4em;
 }
 
 .SimpleHistoryLogitem__occasions {
@@ -329,7 +328,6 @@ Style different log levels.
 	margin: 0;
 }
 
-
 .SimpleHistoryLogitem__keyValueTable__addedThing {
 	text-decoration: none;
 }
@@ -338,7 +336,6 @@ Style different log levels.
 	text-decoration: line-through;
 	color: #999;
 }
-
 
 /* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
 .SimpleHistoryLogitem__inlineDivided {
@@ -353,14 +350,14 @@ Style different log levels.
 .SimpleHistoryLogitem__inlineDivided:before {
 	/* \b7 = middot, \a0 = space */
 	/*content: '\a0\b7\a0\a0';*/
-	content: '\b7\a0';
+	content: "\b7\a0";
 	/* \2022 = bullet */
 	/*content: '\a0\a0\2022\a0\a0';*/
 	color: rgb(137, 143, 156);
 }
 
 .SimpleHistoryLogitem__inlineDivided:first-child:before {
-	content: '';
+	content: "";
 }
 
 /*
@@ -368,11 +365,10 @@ Images/thumbs can be styles nicely
 */
 .SimpleHistoryLogitemThumbnail {
 	display: inline-block;
-	margin: .5em 0 0 0;
+	margin: 0.5em 0 0 0;
 	padding: 5px;
 	border: 1px solid #ddd;
 	border-radius: 2px;
-
 }
 
 .SimpleHistoryLogitemThumbnailLink {
@@ -385,12 +381,11 @@ Images/thumbs can be styles nicely
 	so user can see that an image have transparency
 	*/
 	display: block;
-	background-image: url('data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7');
+	background-image: url("data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7");
 	max-width: 200px;
 	max-height: 125px;
 	height: auto;
 }
-
 
 /*
 when occasions are added
@@ -432,7 +427,8 @@ when occasions are added
 .SimpleHistoryLogitem__occasionsItems {
 	opacity: 0;
 	max-height: 0;
-	transition: opacity .25s ease-out .5s, max-height 2s ease-out 0s, margin .25s .0s ease-out;
+	transition: opacity 0.25s ease-out 0.5s, max-height 2s ease-out 0s,
+		margin 0.25s 0s ease-out;
 	background-color: white;
 	box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
 }
@@ -441,7 +437,7 @@ when occasions are added
 	opacity: 1;
 	max-height: 2000px;
 	margin-left: -5px;
-	margin-right: -5px;;
+	margin-right: -5px;
 }
 
 /*
@@ -474,12 +470,11 @@ when occasions are added
 .SimpleHistoryLogitem--occasionAdded {
 	max-height: 1000px;
 	opacity: 1;
-	border-top-width : 1px;
-	border-bottom-width : 1px;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
 	padding-top: 15px;
 	padding-bottom: 15px;
 }
-
 
 /*
 customizations for the dashboard
@@ -488,83 +483,87 @@ i.e. the log is inside a .postbox element
 
 .postbox {
 }
-	#simple_history_dashboard_widget .inside {
-		padding: 0;
-		margin-top: 0;
-	}
+#simple_history_dashboard_widget .inside {
+	padding: 0;
+	margin-top: 0;
+}
 
-	.postbox .SimpleHistoryQuickStats {
-		margin-left: 13px;
-		margin-right: 13px;
-		font-size: 14px;
-	}
+.postbox .SimpleHistoryQuickStats {
+	margin-left: 13px;
+	margin-right: 13px;
+	font-size: 14px;
+}
 
-	.postbox .SimpleHistoryQuickStats p {
-		font-size: 14px;
-	}
+.postbox .SimpleHistoryQuickStats p {
+	font-size: 14px;
+}
 
-	.postbox .SimpleHistoryLogitems {
-		border: none;
-	}
+.postbox .SimpleHistoryLogitems {
+	border: none;
+}
 
-	.postbox .SimpleHistoryLogitem {
-		padding: 12px 5px 12px 16px;
-	}
+.postbox .SimpleHistoryLogitem {
+	padding: 12px 5px 12px 16px;
+}
 
-	.postbox .SimpleHistoryLogitem:first-child {
-		/*padding-top: 0;*/
-	}
+.postbox .SimpleHistoryLogitem:first-child {
+	/*padding-top: 0;*/
+}
 
-	.postbox .SimpleHistoryLogitem::before {
-		left: 55px;
-	}
+.postbox .SimpleHistoryLogitem::before {
+	left: 55px;
+}
 
-	.postbox .SimpleHistoryLogitem__senderImage {
-		width: 24px;
-		height: 24px;;
-	}
+.postbox .SimpleHistoryLogitem__senderImage {
+	width: 24px;
+	height: 24px;
+}
 
-	.postbox .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
-	.postbox .SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before,
-	.postbox .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
-		font-size: 24px;
-	}
+.postbox
+	.SimpleHistoryLogitem--initiator-wp
+	.SimpleHistoryLogitem__senderImage:before,
+.postbox
+	.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:before,
+.postbox
+	.SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__senderImage:before {
+	font-size: 24px;
+}
 
-	.postbox .SimpleHistoryLogitem__secondcol {
-		margin-left: 40px;
-	}
+.postbox .SimpleHistoryLogitem__secondcol {
+	margin-left: 40px;
+}
 
-	.postbox .SimpleHistoryLogitem__text {
-		font-size: 1em;
-	}
+.postbox .SimpleHistoryLogitem__text {
+	font-size: 1em;
+}
 
-	.postbox .SimpleHistoryLogitem__details p {
-		margin-top: 0;
-		margin-bottom: 0;
-	}
+.postbox .SimpleHistoryLogitem__details p {
+	margin-top: 0;
+	margin-bottom: 0;
+}
 
-	.postbox .SimpleHistoryLogitem__text,
-	.postbox .SimpleHistoryLogitem__details,
-	.postbox .SimpleHistoryLogitem__details p {
-		line-height: 1.5;
-	}
+.postbox .SimpleHistoryLogitem__text,
+.postbox .SimpleHistoryLogitem__details,
+.postbox .SimpleHistoryLogitem__details p {
+	line-height: 1.5;
+}
 
-	.postbox .SimpleHistoryPaginationLink,
-	.postbox .SimpleHistoryPaginationCurrentPage {
-		font-size: 13px;
-		line-height: 19px;
-		height: 24px;
-	}
+.postbox .SimpleHistoryPaginationLink,
+.postbox .SimpleHistoryPaginationCurrentPage {
+	font-size: 13px;
+	line-height: 19px;
+	height: 24px;
+}
 
-	/*
+/*
 	.postbox .SimpleHistoryLogitem__details {
 		display: none;
 	}
 	*/
 
 /* // end dashboard */
-
-
 
 /*
 Styles for filter
@@ -585,7 +584,8 @@ Styles for filter
 Pagination, below logRows
 */
 
-.SimpleHistoryLogitems__pagination {}
+.SimpleHistoryLogitems__pagination {
+}
 
 .SimpleHistoryPaginationPages {
 	text-align: center;
@@ -629,7 +629,7 @@ Pagination, below logRows
 animations/effects
 */
 .SimpleHistory-isLoadingPage .SimpleHistoryLogitemsWrap {
-	opacity: .5;
+	opacity: 0.5;
 }
 
 /*
@@ -637,7 +637,6 @@ Modal window with detailss
 */
 .SimpleHistory-modal {
 }
-
 
 .SimpleHistory-modal__background {
 	position: fixed;
@@ -665,7 +664,6 @@ Modal window with detailss
 }
 
 @media only screen and (max-width: 960px) {
-
 	.SimpleHistory-modal__background {
 		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
 	}
@@ -677,7 +675,6 @@ Modal window with detailss
 		bottom: 10px;
 		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
 	}
-
 }
 
 .SimpleHistory-modal__contentInner {
@@ -701,46 +698,43 @@ Modal window with detailss
 
 /* if wp left meny is collapsed .folded is added and meny width is 36 px */
 .folded .SimpleHistory-modal__content {
-	left: 156px /* admin meny width is 160 px */
+	left: 156px; /* admin meny width is 160 px */
 }
 
 @media only screen and (max-width: 850px) {
-
 	.SimpleHistory-modal__content {
 		left: 10px; /* admin meny width is 160 px */
 	}
-
 }
 
-
 .SimpleHistory-modal__content--enter {
-	transition: all .15s ease-out;
+	transition: all 0.15s ease-out;
 	-webkit-transform: scale(0.95);
-			transform: scale(0.95);
+	transform: scale(0.95);
 	opacity: 0;
 }
 
 .SimpleHistory-modal__content--enter-active {
 	opacity: 1;
 	-webkit-transform: scale(1);
-			transform: scale(1);
+	transform: scale(1);
 }
 
 .SimpleHistory-modal__content--leave-active {
 	opacity: 0;
 	-webkit-transform: scale(0.95);
-			transform: scale(0.95);
+	transform: scale(0.95);
 }
 
 .SimpleHistory-modal__leave-active {
-	transition: all .15s .15s ease-out, visibility 0s .30s;
+	transition: all 0.15s 0.15s ease-out, visibility 0s 0.3s;
 
 	opacity: 0;
 	visibility: hidden;
 }
 
 .admin-bar .SimpleHistory-modal__content {
-	top: 92px /* admin bar height is 32 px*/
+	top: 92px; /* admin bar height is 32 px*/
 }
 
 @media only screen and (max-width: 960px) {
@@ -751,7 +745,7 @@ Modal window with detailss
 }
 
 /* style the logRow a bit more when shown in modal */
-.SimpleHistory-modal  .SimpleHistoryLogitem__header {
+.SimpleHistory-modal .SimpleHistoryLogitem__header {
 	font-size: 16px;
 }
 
@@ -805,9 +799,7 @@ Modal window with detailss
 	background-color: #eee;
 }
 
-
 @media only screen and (max-width: 850px) {
-
 	.SimpleHistoryLogitem__moreDetails {
 		margin-left: -60px;
 	}
@@ -825,34 +817,39 @@ Modal window with detailss
 		display: block;
 		margin-bottom: 1em;
 	}
-
 }
 
-
-.SimpleHistory-modal .SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__secondcol,
-.SimpleHistory-modal .SimpleHistoryLogitem--initiator-other .SimpleHistoryLogitem__secondcol {
+.SimpleHistory-modal
+	.SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__secondcol,
+.SimpleHistory-modal
+	.SimpleHistoryLogitem--initiator-other
+	.SimpleHistoryLogitem__secondcol {
 	margin-left: 0;
 }
 
 /** wordpress as initiator = add wordpress icon */
 /** anonymous user as initiator = plain user image */
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
-.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before,
-.SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
+.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__senderImage:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
-	font: normal 32px/1 'dashicons';
+	font: normal 32px/1 "dashicons";
 	vertical-align: top;
 	color: #999;
 }
 
-
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
-.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:before {
+.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:before {
 	content: "\f120";
 }
 
-.SimpleHistoryLogitem--initiator-wp_cli .SimpleHistoryLogitem__senderImage:after {
+.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:after {
 	content: "CLI";
 	position: absolute;
 	background: rgba(255, 255, 255, 0.7);
@@ -863,10 +860,11 @@ Modal window with detailss
 	line-height: 36px;
 	text-align: center;
 	font-family: monospace;
-	font-sIze: 12px;
+	font-size: 12px;
 }
 
-.SimpleHistoryLogitem--initiator-web_user .SimpleHistoryLogitem__senderImage:before {
+.SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__senderImage:before {
 	content: "\f110";
 }
 
@@ -937,7 +935,6 @@ Modal window with detailss
 	font-weight: bold;
 }
 
-
 /* diff contents can be very high sometimes, so we limit the height and add scrollbars in those cases */
 .SimpleHistory__diff__contents {
 	max-height: 11em;
@@ -967,7 +964,7 @@ Modal window with detailss
 
 .SimpleHistory__diff__contents:focus {
 	outline: 1px solid rgb(0, 115, 170);
-	box-shadow: 0 0 0 1px #5b9dd9,0 0 2px 1px rgba(30,140,190,.8);
+	box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 .SimpleHistory__diff__contentsInner {
