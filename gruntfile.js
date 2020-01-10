@@ -76,7 +76,8 @@ module.exports = function(grunt) {
     plugin_slug: "<%= pkg.name %>",
     plugin_main_file: "index.php",
     build_dir: "build",
-    assets_dir: "assets-wp-repo"
+    assets_dir: "assets-wp-repo",
+    svn_user: "eskapism"
    }
   },
   assets: {
@@ -84,8 +85,10 @@ module.exports = function(grunt) {
     deploy_trunk: false,
     deploy_tag: false,
     plugin_slug: "<%= pkg.name %>",
+    plugin_main_file: "<%= wp_deploy.deploy.options.plugin_main_file %>",
     build_dir: "<%= wp_deploy.deploy.options.build_dir %>",
-    assets_dir: "<%= wp_deploy.deploy.options.assets_dir %>"
+    assets_dir: "<%= wp_deploy.deploy.options.assets_dir %>",
+    svn_user: "<%= wp_deploy.deploy.options.svn_user %>"
    }
   }
  };
