@@ -68,12 +68,67 @@ module.exports = function(grunt) {
   }
  };
 
+ config.wp_deploy = {
+  deploy: {
+   options: {
+    deploy_trunk: true,
+    deploy_tag: true,
+    plugin_slug: "<%= pkg.name %>",
+    plugin_main_file: "index.php",
+    build_dir: "build",
+    assets_dir: "assets-wp-repo"
+   }
+  },
+  assets: {
+   options: {
+    deploy_trunk: false,
+    deploy_tag: false,
+    plugin_slug: "<%= pkg.name %>",
+    build_dir: "<%= wp_deploy.deploy.options.build_dir %>",
+    assets_dir: "<%= wp_deploy.deploy.options.assets_dir %>"
+   }
+  }
+ };
+
+ config.clean = {
+  main: ["<%= wp_deploy.deploy.options.build_dir %>"]
+ };
+
+ config.copy = {
+  main: {
+   src: [
+    "**",
+    "!.*",
+    "!.git/**",
+    "!<%= wp_deploy.deploy.options.assets_dir %>/**",
+    "!<%= wp_deploy.deploy.options.build_dir %>/**",
+    "!README.md",
+    ignored_gitignore,
+    ignored_gitattributes
+   ],
+   dest: "<%= wp_deploy.deploy.options.build_dir %>/"
+  }
+ };
+
  grunt.initConfig(config);
 
  // Task(s) to run. Default is default.
  grunt.registerTask("makepot", "Make .POT-files for languages/translation.", [
   "makepot"
  ]);
+
+ grunt.registerTask("build", "Clean and copy", ["clean", "copy"]);
+
+ grunt.registerTask("deploy", "Deploy plugin to WordPress plugin repository", [
+  "build",
+  "wp_deploy:deploy"
+ ]);
+
+ grunt.registerTask(
+  "deploy:assets",
+  "Deploy plugin asssets to WordPress plugin repository",
+  ["build", "wp_deploy:assets"]
+ );
 
  grunt.registerTask(
   "bump",
