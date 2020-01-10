@@ -13,6 +13,7 @@
 /CONTRIBUTING.md export-ignore
 /Gruntfile.js export-ignore
 /package.json export-ignore
+/package-lock.json export-ignore
 /phpcs.xml.dist export-ignore
 /phpunit.xml.dist export-ignore
 /SECURITY.md export-ignore
