@@ -191,6 +191,12 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 ## Changelog
 
+= 2.33.2 (January 2020) =
+- Fix history displaying blank white space on smaller screens. Fixes https://wordpress.org/support/topic/viewing-the-log-on-a-iphone/.
+
+= 2.33.1 (January 2020) =
+- Was just an internal test version.
+
 = 2.33 (November 2019) =
 - Better compatibility with the Gutenberg Block editor.
 - Correct URL redirected to after clearing log. Fixes #123.
