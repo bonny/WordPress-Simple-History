@@ -17,7 +17,7 @@
 <p align="center">
 
 <a href="https://wordpress.org/plugins/simple-history/">
-<img src="https://img.shields.io/badge/Download_latest-2a2?	style=for-the-badge" alt="Download latest" />
+<img src="https://img.shields.io/badge/Download_latest-2a2?style=for-the-badge" alt="Download latest" />
 </a>
 
 </p>
