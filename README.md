@@ -1,15 +1,39 @@
-# Simple History 2 – a simple, lightweight, extendable logger for WordPress
+<p align="center">
+	<img width="100" height="100" src="https://raw.githubusercontent.com/bonny/WordPress-Simple-History/master/assets-wp-repo/icon.svg" alt="">
+</p>
+
+<h2 align="center">Simple History 2 – a simple, lightweight, extendable logger for WordPress</h2>
+
+<p align="center">
+
+<img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars" />
+
+<img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K">
+
+<img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
+
+</p>
+	
+<p align="center">
+
+<a href="https://wordpress.org/plugins/simple-history/">
+<img src="https://img.shields.io/badge/Download_latest-2a2?	style=for-the-badge" alt="Download latest" />
+</a>
+
+</p>
 
 Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI. It's great way to view user activity and keep an eye on what the admin users of a website are doing.
 
 Download from WordPress.org:  
 https://wordpress.org/plugins/simple-history/
 
-[![Build Status](https://travis-ci.org/bonny/WordPress-Simple-History.svg?branch=master)](https://travis-ci.org/bonny/WordPress-Simple-History)
-![Rating at wordpress.org](https://img.shields.io/wordpress/plugin/r/simple-history.svg)
-![Number of downloads](https://img.shields.io/wordpress/plugin/dt/simple-history.svg)
-[![WordPress plugin](https://img.shields.io/wordpress/plugin/v/simple-history.svg)]()
-[![WordPress](https://img.shields.io/wordpress/v/simple-history.svg)]()
+<img src="https://img.shields.io/wordpress/plugin/wp-version/simple-history?style=for-the-badge" alt="Compatible with WordPress version 5.2 or later" />
+
+<img src="https://img.shields.io/wordpress/plugin/v/simple-history.svg?style=for-the-badge" alt="Plugin version" />
+
+<a href="https://travis-ci.org/bonny/WordPress-Simple-History">
+<img src="https://img.shields.io/travis/bonny/WordPress-Simple-History?style=for-the-badge" alt="Build status">
+</a>
 
 # Screenshots
 
