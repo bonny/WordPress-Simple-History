@@ -1,8 +1,8 @@
-<p align="center">
-	<img width="100" height="100" src="https://raw.githubusercontent.com/bonny/WordPress-Simple-History/master/assets-wp-repo/icon.svg" alt="">
-</p>
+<h2 align="center">
+	<img width="20" height="20" src="https://raw.githubusercontent.com/bonny/WordPress-Simple-History/master/assets-wp-repo/icon.svg" alt="">
+	Simple History 2
+</h1>
 
-<h2 align="center">Simple History 2</h1>
 <p align="center">A lightweight activity feed plugin for WordPress</p>
 
 <p align="center">
