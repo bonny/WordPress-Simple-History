@@ -2,7 +2,8 @@
 	<img width="100" height="100" src="https://raw.githubusercontent.com/bonny/WordPress-Simple-History/master/assets-wp-repo/icon.svg" alt="">
 </p>
 
-<h2 align="center">Simple History 2 – a simple, lightweight, extendable logger for WordPress</h2>
+<h2 align="center">Simple History 2</h1>
+<p align="center">A lightweight activity feed plugin for WordPress</p>
 
 <p align="center">
 
@@ -13,27 +14,18 @@
 <img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
 
 </p>
-	
+
 <p align="center">
-
-<a href="https://wordpress.org/plugins/simple-history/">
-<img src="https://img.shields.io/badge/Download_latest-2a2?style=for-the-badge" alt="Download latest" />
-</a>
-
+Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI. It's great way to view user activity and keep an eye on what the admin users of a website are doing.
 </p>
 
-Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI. It's great way to view user activity and keep an eye on what the admin users of a website are doing.
-
-Download from WordPress.org:  
+<p align="center">
+Download from WordPress.org: 
+<a href="https://wordpress.org/plugins/simple-history/">
+<br />
 https://wordpress.org/plugins/simple-history/
-
-<img src="https://img.shields.io/wordpress/plugin/wp-version/simple-history?style=for-the-badge" alt="Compatible with WordPress version 5.2 or later" />
-
-<img src="https://img.shields.io/wordpress/plugin/v/simple-history.svg?style=for-the-badge" alt="Plugin version" />
-
-<a href="https://travis-ci.org/bonny/WordPress-Simple-History">
-<img src="https://img.shields.io/travis/bonny/WordPress-Simple-History?style=for-the-badge" alt="Build status">
 </a>
+</p>
 
 # Screenshots
 
