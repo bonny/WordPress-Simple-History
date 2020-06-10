@@ -47,9 +47,7 @@ The spinner that wp uses:;
 /* on its own page */
 /*.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {*/
 .SimpleHistoryGuiWrap {
-	/*float: left;*/
 	position: relative;
-	margin-right: 340px;
 	min-height: 200px;
 	background-color: rgba(255, 255, 255, 0.75);
 }
@@ -60,16 +58,21 @@ The spinner that wp uses:;
 
 .SimpleHistoryGuiWrap .SimpleHistoryGui {
 	width: 100%;
-	float: left;
 }
 
-@media only screen and (max-width: 850px) {
+@media only screen and (min-width: 960px) {
 	.SimpleHistoryGuiWrap {
-		float: none;
-		margin-right: auto;
-	}
-	.SimpleHistoryGui {
-		float: none;
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: flex;
+		-ms-flex-wrap: nowrap;
+		flex-wrap: nowrap;
+		-webkit-box-align: start;
+		-ms-flex-align: start;
+		align-items: flex-start;
+		-webkit-box-pack: justify;
+		-ms-flex-pack: justify;
+		justify-content: space-between;
 	}
 }
 
