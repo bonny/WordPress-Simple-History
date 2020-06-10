@@ -47,9 +47,7 @@ The spinner that wp uses:;
 /* on its own page */
 /*.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {*/
 .SimpleHistoryGuiWrap {
-	/*float: left;*/
 	position: relative;
-	margin-right: 340px;
 	min-height: 200px;
 	background-color: rgba(255, 255, 255, 0.75);
 }
@@ -60,7 +58,6 @@ The spinner that wp uses:;
 
 .SimpleHistoryGuiWrap .SimpleHistoryGui {
 	width: 100%;
-	float: left;
 }
 
 @media only screen and (max-width: 850px) {
