@@ -60,13 +60,19 @@ The spinner that wp uses:;
 	width: 100%;
 }
 
-@media only screen and (max-width: 850px) {
+@media only screen and (min-width: 960px) {
 	.SimpleHistoryGuiWrap {
-		float: none;
-		margin-right: auto;
-	}
-	.SimpleHistoryGui {
-		float: none;
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: flex;
+		-ms-flex-wrap: nowrap;
+		flex-wrap: nowrap;
+		-webkit-box-align: start;
+		-ms-flex-align: start;
+		align-items: flex-start;
+		-webkit-box-pack: justify;
+		-ms-flex-pack: justify;
+		justify-content: space-between;
 	}
 }
 
