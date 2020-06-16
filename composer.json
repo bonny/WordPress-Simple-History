@@ -10,12 +10,12 @@
 	"homepage": "http://simple-history.com/",
 	"minimum-stability": "dev",
 	"require-dev": {
-		"squizlabs/php_codesniffer": "3.*"
+		"squizlabs/php_codesniffer": "^3.5"
 	},
 	"require": {
 		"php": ">=5.2.0"
 	},
-	"version": "2.33",
+	"version": "2.33.2",
 	"authors": [
 		{
 			"name": "Pär Thernström",
