@@ -553,11 +553,8 @@ i.e. the log is inside a .postbox element
 	line-height: 1.5;
 }
 
-.postbox .SimpleHistoryPaginationLink,
 .postbox .SimpleHistoryPaginationCurrentPage {
-	font-size: 13px;
-	line-height: 19px;
-	height: 24px;
+	vertical-align: top;
 }
 
 /*
@@ -602,18 +599,15 @@ Pagination, below logRows
 	padding-bottom: 8px;
 }
 
-.SimpleHistoryPaginationLink.SimpleHistoryPaginationLink {
-	/*line-height: 30px;*/
-	/*background: rgb(238, 238, 238);*/
-	/*background: rgba(0, 0, 0, 0.05);*/
-	/*padding: 0 10px 3px;
-	text-decoration: none;*/
-	font-size: 16px;
-}
-
-.SimpleHistoryPaginationLink.SimpleHistoryPaginationLink:hover {
-	/*color: rgb(255, 255, 255);*/
-	/*background: rgb(46, 162, 204);*/
+.SimpleHistoryPaginationLinks .SimpleHistoryPaginationLink {
+    vertical-align: baseline;
+    min-width: 30px;
+    min-height: 30px;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 16px;
+    line-height: 1.625;
+    text-align: center;
 }
 
 .SimpleHistoryPaginationLink.SimpleHistoryPaginationLink.disabled {
@@ -624,8 +618,13 @@ Pagination, below logRows
 }
 
 .SimpleHistoryPaginationCurrentPage {
-	/*padding-top: 0;*/
-	text-align: center;
+	margin: 0 2px 0 0;
+    font-size: 13px;
+    text-align: center;
+}
+
+.SimpleHistoryPaginationInput .total-pages {
+	margin-right: 2px;
 }
 
 /*
