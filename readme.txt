@@ -198,6 +198,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Use flexbox for history page layout, so if all dropins are disabled then the content area
   spans the entire 100 % width (#199).
 
+- Adjust style of pagination to match WordPress core pagination.
+
 = 2.33.2 (January 2020) =
 - Fix history displaying blank white space on smaller screens. Fixes https://wordpress.org/support/topic/viewing-the-log-on-a-iphone/.
 
