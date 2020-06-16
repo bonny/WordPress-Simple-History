@@ -189,11 +189,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-## Changelog
-
-### [Unreleased]
-
-= 2.34 (January 2020) =
+= 2.34 (June 2020) =
 
 **Changed**
 
