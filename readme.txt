@@ -191,7 +191,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 ## Changelog
 
-## [Unreleased]
+### [Unreleased]
+
+#### Changed
 
 - Use flexbox for history page layout, so if all dropins are disabled then the content area
   spans the entire 100 % width (#199).
