@@ -19,9 +19,9 @@
   "time-grunt": "^1.4.0"
  },
  "dependencies": {
-  "@prettier/plugin-php": "^0.12",
+  "@prettier/plugin-php": "^0.14",
   "husky": "^4.0.6",
-  "prettier": "^1.19.0",
+  "prettier": "^2.0",
   "pretty-quick": "^2"
  },
  "husky": {
