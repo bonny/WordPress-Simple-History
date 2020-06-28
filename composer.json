@@ -15,7 +15,6 @@
 	"require": {
 		"php": ">=5.2.0"
 	},
-	"version": "2.33.2",
 	"authors": [
 		{
 			"name": "Pär Thernström",
