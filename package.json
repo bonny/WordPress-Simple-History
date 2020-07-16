@@ -1,17 +1,17 @@
 {
  "name": "simple-history",
- "version": "2.33.2",
+ "version": "2.34.0",
  "description": "WordPress audit log plugin",
  "author": "Pär Thernström",
  "license": "GPL",
  "devDependencies": {
   "gitattributes-globs": "^1",
   "gitignore-globs": "^0.1",
-  "grunt": "^1",
+  "grunt": "^1.1.0",
   "grunt-contrib-clean": "^2",
   "grunt-contrib-copy": "^1",
   "grunt-pot": "^0.2.1",
-  "grunt-version": "^1.3.2",
+  "grunt-version": "^2",
   "grunt-wp-deploy": "git+https://github.com/johnbillion/grunt-wp-deploy.git#master",
   "grunt-wp-i18n": "^0.4.9",
   "grunt-wp-readme-to-markdown": "^2",
@@ -19,9 +19,9 @@
   "time-grunt": "^1.4.0"
  },
  "dependencies": {
-  "@prettier/plugin-php": "^0.12",
-  "husky": "^4.0.6",
-  "prettier": "^1.19.0",
+  "@prettier/plugin-php": "^0.14",
+  "husky": "^4.2.5",
+  "prettier": "^2.0",
   "pretty-quick": "^2"
  },
  "husky": {

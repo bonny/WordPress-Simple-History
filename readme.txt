@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 2.33.2
+Stable tag: 2.34.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -189,11 +189,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-## Changelog
+= 2.34 (June 2020) =
 
-### [Unreleased]
-
-#### Changed
+**Changed**
 
 - Use flexbox for history page layout, so if all dropins are disabled then the content area
   spans the entire 100 % width (#199).
@@ -205,12 +203,15 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fixed PHP Warning when bulk editing items in the Redirection plugin. Fixes https://github.com/bonny/WordPress-Simple-History/issues/207, https://wordpress.org/support/topic/crashes-with-redirection-plugin/.
 
 = 2.33.2 (January 2020) =
+
 - Fix history displaying blank white space on smaller screens. Fixes https://wordpress.org/support/topic/viewing-the-log-on-a-iphone/.
 
 = 2.33.1 (January 2020) =
+
 - Was just an internal test version.
 
 = 2.33 (November 2019) =
+
 - Better compatibility with the Gutenberg Block editor.
 - Correct URL redirected to after clearing log. Fixes #123.
 - Fix history log on dashboard leaving lots of white space and sometimes overlapping other dashboard widgets.
@@ -218,7 +219,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fix join parameter order for PHP 7.4.
 - Update donate link. It's now https://www.paypal.me/eskapism.
   If you like the plugin please consider donate.
-	A very small amount makes me much more happy than nothing at all! ;)
+  A very small amount makes me much more happy than nothing at all! ;)
 
 = 2.32 (August 2019) =
 

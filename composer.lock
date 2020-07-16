@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3b8dfbd08d71ac09ed083ecf8002d083",
+    "content-hash": "2b65e6c117e9f812e13934ba2a32be21",
     "packages": [],
     "packages-dev": [
         {
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "451a256c34e46ab346ee2b3d706e42eecb03223b"
+                "reference": "75ff420b23c0866c99c350099381a93b8602ebe6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/451a256c34e46ab346ee2b3d706e42eecb03223b",
-                "reference": "451a256c34e46ab346ee2b3d706e42eecb03223b",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/75ff420b23c0866c99c350099381a93b8602ebe6",
+                "reference": "75ff420b23c0866c99c350099381a93b8602ebe6",
                 "shasum": ""
             },
             "require": {
@@ -56,18 +56,17 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-10-03T04:52:04+00:00"
+            "time": "2020-05-21T06:41:29+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "squizlabs/php_codesniffer": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.2.0"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

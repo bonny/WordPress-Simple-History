@@ -1,4 +1,4 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
  require("time-grunt")(grunt);
 
  // Require all grunt-tasks instead of manually initialize them.
@@ -7,13 +7,13 @@ module.exports = function(grunt) {
  var pkg = grunt.file.readJSON("package.json");
  var gig = require("gitignore-globs");
  var gag = require("gitattributes-globs");
- var ignored_gitignore = gig(".gitignore", { negate: true }).map(function(
+ var ignored_gitignore = gig(".gitignore", { negate: true }).map(function (
   value
  ) {
   return value.replace(/^!\//, "!");
  });
  var ignored_gitattributes = gag(".gitattributes", { negate: true }).map(
-  function(value) {
+  function (value) {
    return value.replace(/^!\//, "!");
   }
  );
@@ -25,25 +25,28 @@ module.exports = function(grunt) {
  config.version = {
   main: {
    options: {
-    prefix: "Version:[\\s]+"
+    prefix: "Version:[\\s]+",
    },
-   src: ["index.php"]
+   src: ["index.php"],
   },
   main2: {
    options: {
-    prefix: "'SIMPLE_HISTORY_VERSION', '"
+    prefix: "'SIMPLE_HISTORY_VERSION', '",
    },
-   src: ["index.php"]
+   src: ["index.php"],
   },
   readme: {
    options: {
-    prefix: "Stable tag:[\\s]+"
+    prefix: "Stable tag:[\\s]+",
    },
-   src: ["readme.txt"]
+   src: ["readme.txt"],
+  },
+  composer: {
+   src: ["composer.json"],
   },
   pkg: {
-   src: ["package.json"]
-  }
+   src: ["package.json"],
+  },
  };
 
  config.makepot = {
@@ -59,13 +62,13 @@ module.exports = function(grunt) {
     potFilename: "", // Name of the POT file.
     potHeaders: {
      poedit: true, // Includes common Poedit headers.
-     "x-poedit-keywordslist": true // Include a list of all possible gettext functions.
+     "x-poedit-keywordslist": true, // Include a list of all possible gettext functions.
     }, // Headers to add to the generated POT file.
     processPot: null, // A callback function for manipulating the POT file.
     type: "wp-plugin", // Type of project (wp-plugin or wp-theme).
-    updateTimestamp: true // Whether the POT-Creation-Date should be updated without other changes.
-   }
-  }
+    updateTimestamp: true, // Whether the POT-Creation-Date should be updated without other changes.
+   },
+  },
  };
 
  config.wp_deploy = {
@@ -77,8 +80,8 @@ module.exports = function(grunt) {
     plugin_main_file: "index.php",
     build_dir: "build",
     assets_dir: "assets-wp-repo",
-    svn_user: "eskapism"
-   }
+    svn_user: "eskapism",
+   },
   },
   assets: {
    options: {
@@ -88,13 +91,13 @@ module.exports = function(grunt) {
     plugin_main_file: "<%= wp_deploy.deploy.options.plugin_main_file %>",
     build_dir: "<%= wp_deploy.deploy.options.build_dir %>",
     assets_dir: "<%= wp_deploy.deploy.options.assets_dir %>",
-    svn_user: "<%= wp_deploy.deploy.options.svn_user %>"
-   }
-  }
+    svn_user: "<%= wp_deploy.deploy.options.svn_user %>",
+   },
+  },
  };
 
  config.clean = {
-  main: ["<%= wp_deploy.deploy.options.build_dir %>"]
+  main: ["<%= wp_deploy.deploy.options.build_dir %>"],
  };
 
  config.copy = {
@@ -107,24 +110,24 @@ module.exports = function(grunt) {
     "!<%= wp_deploy.deploy.options.build_dir %>/**",
     "!README.md",
     ignored_gitignore,
-    ignored_gitattributes
+    ignored_gitattributes,
    ],
-   dest: "<%= wp_deploy.deploy.options.build_dir %>/"
-  }
+   dest: "<%= wp_deploy.deploy.options.build_dir %>/",
+  },
  };
 
  grunt.initConfig(config);
 
  // Task(s) to run. Default is default.
  grunt.registerTask("makepot", "Make .POT-files for languages/translation.", [
-  "makepot"
+  "makepot",
  ]);
 
  grunt.registerTask("build", "Clean and copy", ["clean", "copy"]);
 
  grunt.registerTask("deploy", "Deploy plugin to WordPress plugin repository", [
   "build",
-  "wp_deploy:deploy"
+  "wp_deploy:deploy",
  ]);
 
  grunt.registerTask(
@@ -136,7 +139,7 @@ module.exports = function(grunt) {
  grunt.registerTask(
   "bump",
   "Bump version in major, minor, patch or custom steps.",
-  function(version) {
+  function (version) {
    if (!version) {
     grunt.fail.fatal(
      "No version specified. Usage: bump:major, bump:minor, bump:patch, bump:x.y.z"
