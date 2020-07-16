@@ -200,6 +200,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Adjust style of pagination to match WordPress core pagination.
 
+= unreleased =
+
+- Fixed PHP Warning when bulk editing items in the Redirection plugin. Fixes https://github.com/bonny/WordPress-Simple-History/issues/207, https://wordpress.org/support/topic/crashes-with-redirection-plugin/.
+
 = 2.33.2 (January 2020) =
 - Fix history displaying blank white space on smaller screens. Fixes https://wordpress.org/support/topic/viewing-the-log-on-a-iphone/.
 
