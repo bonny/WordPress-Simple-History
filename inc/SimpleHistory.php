@@ -50,12 +50,12 @@ class SimpleHistory
      * Required to automagically determine orginal text and text domain
      * for calls like this `SimpleLogger()->log( __("My translated message") );`
      */
-    public $gettextLatestTranslations = array();
+    public $gettextLatestTranslations = [];
 
     /**
      * All registered settings tabs
      */
-    private $arr_settings_tabs = array();
+    private $arr_settings_tabs = [];
 
     const DBTABLE = 'simple_history';
     const DBTABLE_CONTEXTS = 'simple_history_contexts';
@@ -91,30 +91,30 @@ class SimpleHistory
         $this->setup_variables();
 
         // Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
-        add_action('after_setup_theme', array( $this, 'load_plugin_textdomain' ));
-        add_action('after_setup_theme', array( $this, 'add_default_settings_tabs' ));
+        add_action('after_setup_theme', [$this, 'load_plugin_textdomain']);
+        add_action('after_setup_theme', [$this, 'add_default_settings_tabs']);
 
         // Plugins and dropins are loaded using the "after_setup_theme" filter so
         // themes can use filters to modify the loading of them.
         // The drawback with this is that for example logouts done when plugins like
         // iThemes Security is installed is not logged, because those plugins fire wp_logout()
         // using filter "plugins_loaded", i.e. before simple history has loaded its filters.
-        add_action('after_setup_theme', array( $this, 'load_loggers' ));
-        add_action('after_setup_theme', array( $this, 'load_dropins' ));
+        add_action('after_setup_theme', [$this, 'load_loggers']);
+        add_action('after_setup_theme', [$this, 'load_dropins']);
 
         // Run before loading of loggers and before menu items are added.
-        add_action('after_setup_theme', array( $this, 'check_for_upgrade' ), 5);
+        add_action('after_setup_theme', [$this, 'check_for_upgrade'], 5);
 
-        add_action('after_setup_theme', array( $this, 'setup_cron' ));
+        add_action('after_setup_theme', [$this, 'setup_cron']);
 
         // Filters and actions not called during regular boot.
-        add_filter('gettext', array( $this, 'filter_gettext' ), 20, 3);
-        add_filter('gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4);
+        add_filter('gettext', [$this, 'filter_gettext'], 20, 3);
+        add_filter('gettext_with_context', [$this, 'filter_gettext_with_context'], 20, 4);
 
-        add_filter('gettext', array( $this, 'filter_gettext_storeLatestTranslations' ), 10, 3);
+        add_filter('gettext', [$this, 'filter_gettext_storeLatestTranslations'], 10, 3);
 
-        add_action('admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40);
-        add_action('admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40);
+        add_action('admin_bar_menu', [$this, 'add_admin_bar_network_menu_item'], 40);
+        add_action('admin_bar_menu', [$this, 'add_admin_bar_menu_item'], 40);
 
         /**
          * Filter that is used to log things, without the need to check that simple history is available
@@ -129,7 +129,7 @@ class SimpleHistory
          *
          * @since 2.13
          */
-        add_filter('simple_history_log', array( $this, 'on_filter_simple_history_log' ), 10, 3);
+        add_filter('simple_history_log', [$this, 'on_filter_simple_history_log'], 10, 3);
 
         /**
          * Filter to log with specific log level, for example:
@@ -138,14 +138,14 @@ class SimpleHistory
          *
          * @since 2.17
          */
-        add_filter('simple_history_log_emergency', array( $this, 'on_filter_simple_history_log_emergency' ), 10, 3);
-        add_filter('simple_history_log_alert', array( $this, 'on_filter_simple_history_log_alert' ), 10, 2);
-        add_filter('simple_history_log_critical', array( $this, 'on_filter_simple_history_log_critical' ), 10, 2);
-        add_filter('simple_history_log_error', array( $this, 'on_filter_simple_history_log_error' ), 10, 2);
-        add_filter('simple_history_log_warning', array( $this, 'on_filter_simple_history_log_warning' ), 10, 2);
-        add_filter('simple_history_log_notice', array( $this, 'on_filter_simple_history_log_notice' ), 10, 2);
-        add_filter('simple_history_log_info', array( $this, 'on_filter_simple_history_log_info' ), 10, 2);
-        add_filter('simple_history_log_debug', array( $this, 'on_filter_simple_history_log_debug' ), 10, 2);
+        add_filter('simple_history_log_emergency', [$this, 'on_filter_simple_history_log_emergency'], 10, 3);
+        add_filter('simple_history_log_alert', [$this, 'on_filter_simple_history_log_alert'], 10, 2);
+        add_filter('simple_history_log_critical', [$this, 'on_filter_simple_history_log_critical'], 10, 2);
+        add_filter('simple_history_log_error', [$this, 'on_filter_simple_history_log_error'], 10, 2);
+        add_filter('simple_history_log_warning', [$this, 'on_filter_simple_history_log_warning'], 10, 2);
+        add_filter('simple_history_log_notice', [$this, 'on_filter_simple_history_log_notice'], 10, 2);
+        add_filter('simple_history_log_info', [$this, 'on_filter_simple_history_log_info'], 10, 2);
+        add_filter('simple_history_log_debug', [$this, 'on_filter_simple_history_log_debug'], 10, 2);
 
         if (is_admin()) {
             $this->add_admin_actions();
@@ -269,24 +269,24 @@ class SimpleHistory
      */
     private function add_admin_actions()
     {
-        add_action('admin_menu', array( $this, 'add_admin_pages' ));
-        add_action('admin_menu', array( $this, 'add_settings' ));
+        add_action('admin_menu', [$this, 'add_admin_pages']);
+        add_action('admin_menu', [$this, 'add_settings']);
 
-        add_action('admin_footer', array( $this, 'add_js_templates' ));
+        add_action('admin_footer', [$this, 'add_js_templates']);
 
-        add_action('wp_dashboard_setup', array( $this, 'add_dashboard_widget' ));
+        add_action('wp_dashboard_setup', [$this, 'add_dashboard_widget']);
 
-        add_action('admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ));
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
 
-        add_action('admin_head', array( $this, 'onAdminHead' ));
-        add_action('admin_footer', array( $this, 'onAdminFooter' ));
+        add_action('admin_head', [$this, 'onAdminHead']);
+        add_action('admin_footer', [$this, 'onAdminFooter']);
 
-        add_action('simple_history/history_page/before_gui', array( $this, 'output_quick_stats' ));
-        add_action('simple_history/dashboard/before_gui', array( $this, 'output_quick_stats' ));
+        add_action('simple_history/history_page/before_gui', [$this, 'output_quick_stats']);
+        add_action('simple_history/dashboard/before_gui', [$this, 'output_quick_stats']);
 
-        add_action('wp_ajax_simple_history_api', array( $this, 'api' ));
+        add_action('wp_ajax_simple_history_api', [$this, 'api']);
 
-        add_filter('plugin_action_links_simple-history/index.php', array( $this, 'plugin_action_links' ), 10, 4);
+        add_filter('plugin_action_links_simple-history/index.php', [$this, 'plugin_action_links'], 10, 4);
     }
 
     /**
@@ -307,27 +307,27 @@ class SimpleHistory
          */
         $add_items = apply_filters('simple_history/add_admin_bar_network_menu_item', true);
 
-        if (! $add_items) {
+        if (!$add_items) {
             return;
         }
 
         // Don't show for logged out users or single site mode.
-        if (! is_user_logged_in() || ! is_multisite()) {
+        if (!is_user_logged_in() || !is_multisite()) {
             return;
         }
 
         // Show only when the user has at least one site, or they're a super admin.
-        if (count($wp_admin_bar->user->blogs) < 1 && ! is_super_admin()) {
+        if (count($wp_admin_bar->user->blogs) < 1 && !is_super_admin()) {
             return;
         }
 
         // Setting to show as page must be true
-        if (! $this->setting_show_as_page()) {
+        if (!$this->setting_show_as_page()) {
             return;
         }
 
         // User must have capability to view the history page
-        if (! current_user_can($this->get_view_history_capability())) {
+        if (!current_user_can($this->get_view_history_capability())) {
             return;
         }
 
@@ -341,20 +341,22 @@ class SimpleHistory
 
             if (is_plugin_active(SIMPLE_HISTORY_BASENAME)) {
                 $menu_id = 'simple-history-blog-' . $blog->userblog_id;
-                $parent_menu_id  = 'blog-' . $blog->userblog_id;
-                $url = admin_url(apply_filters('simple_history/admin_location', 'index') . '.php?page=simple_history_page');
+                $parent_menu_id = 'blog-' . $blog->userblog_id;
+                $url = admin_url(
+                    apply_filters('simple_history/admin_location', 'index') . '.php?page=simple_history_page'
+                );
 
                 // Each network site is added by WP core with id "blog-1", "blog-2" ... "blog-n"
                 // https://codex.wordpress.org/Function_Reference/add_node
-                $args = array(
-                    'id'    => $menu_id,
+                $args = [
+                    'id' => $menu_id,
                     'parent' => $parent_menu_id,
                     'title' => _x('View History', 'Admin bar network name', 'simple-history'),
-                    'href'  => $url,
-                    'meta'  => array(
-                        'class' => 'ab-item--simplehistory'
-                    )
-                );
+                    'href' => $url,
+                    'meta' => [
+                        'class' => 'ab-item--simplehistory',
+                    ],
+                ];
 
                 $wp_admin_bar->add_node($args);
             } // End if().
@@ -381,22 +383,22 @@ class SimpleHistory
          */
         $add_item = apply_filters('simple_history/add_admin_bar_menu_item', true);
 
-        if (! $add_item) {
+        if (!$add_item) {
             return;
         }
 
         // Don't show for logged out users
-        if (! is_user_logged_in()) {
+        if (!is_user_logged_in()) {
             return;
         }
 
         // Setting to show as page must be true
-        if (! $this->setting_show_as_page()) {
+        if (!$this->setting_show_as_page()) {
             return;
         }
 
         // User must have capability to view the history page
-        if (! current_user_can($this->get_view_history_capability())) {
+        if (!current_user_can($this->get_view_history_capability())) {
             return;
         }
 
@@ -404,18 +406,18 @@ class SimpleHistory
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
         $menu_id = 'simple-history-view-history';
-        $parent_menu_id  = 'site-name';
+        $parent_menu_id = 'site-name';
         $url = admin_url(apply_filters('simple_history/admin_location', 'index') . '.php?page=simple_history_page');
 
-        $args = array(
-            'id'    => $menu_id,
+        $args = [
+            'id' => $menu_id,
             'parent' => $parent_menu_id,
             'title' => _x('Simple History', 'Admin bar name', 'simple-history'),
-            'href'  => $url,
-            'meta'  => array(
-                'class' => 'ab-item--simplehistory'
-            )
-        );
+            'href' => $url,
+            'meta' => [
+                'class' => 'ab-item--simplehistory',
+            ],
+        ];
 
         $wp_admin_bar->add_node($args);
     } // func
@@ -427,7 +429,7 @@ class SimpleHistory
      */
     public static function get_instance()
     {
-        if (! isset(self::$instance)) {
+        if (!isset(self::$instance)) {
             self::$instance = new SimpleHistory();
         }
 
@@ -437,7 +439,7 @@ class SimpleHistory
     public function filter_gettext_storeLatestTranslations($translation, $text, $domain)
     {
         // Check that translation is a string or integer, i.ex. the valid values for an array key
-        if (! is_string($translation) || ! is_integer($translation)) {
+        if (!is_string($translation) || !is_integer($translation)) {
             return $translation;
         }
 
@@ -449,11 +451,11 @@ class SimpleHistory
         // global $sh_latest_translations;
         $sh_latest_translations = $this->gettextLatestTranslations;
 
-        $sh_latest_translations[ $translation ] = array(
+        $sh_latest_translations[$translation] = [
             'translation' => $translation,
             'text' => $text,
-            'domain' => $domain
-        );
+            'domain' => $domain,
+        ];
 
         $arr_length = sizeof($sh_latest_translations);
         if ($arr_length > $array_max_size) {
@@ -467,9 +469,9 @@ class SimpleHistory
 
     public function setup_cron()
     {
-        add_filter('simple_history/maybe_purge_db', array( $this, 'maybe_purge_db' ));
+        add_filter('simple_history/maybe_purge_db', [$this, 'maybe_purge_db']);
 
-        if (! wp_next_scheduled('simple_history/maybe_purge_db')) {
+        if (!wp_next_scheduled('simple_history/maybe_purge_db')) {
             wp_schedule_event(time(), 'daily', 'simple_history/maybe_purge_db');
         } else {
         }
@@ -570,7 +572,9 @@ class SimpleHistory
                     <div class="SimpleHistory-modal__background"></div>
                     <div class="SimpleHistory-modal__content">
                         <div class="SimpleHistory-modal__contentInner">
-                            <img class="SimpleHistory-modal__contentSpinner" src="<?php echo esc_url(admin_url('/images/spinner.gif')); ?>" alt="">
+                            <img class="SimpleHistory-modal__contentSpinner" src="<?php echo esc_url(
+                                admin_url('/images/spinner.gif')
+                            ); ?>" alt="">
                         </div>
                         <div class="SimpleHistory-modal__contentClose">
                             <button class="button">✕</button>
@@ -605,12 +609,12 @@ class SimpleHistory
             </script>
 
             <?php // Call plugins so they can add their js
-            foreach ($this->instantiatedLoggers as $one_logger) {
+            // Call plugins so they can add their js
+            ?>foreach ($this->instantiatedLoggers as $one_logger) {
                 if (method_exists($one_logger['instance'], 'adminJS')) {
                     $one_logger['instance']->adminJS();
                 }
-            }
-        }// End if().
+            }} // End if().
     }
 
     /**
@@ -633,24 +637,24 @@ class SimpleHistory
         // Type = overview | ...
         $type = isset($_GET['type']) ? $_GET['type'] : null;
 
-        if (empty($args) || ! $type) {
-            wp_send_json_error(array(
-                _x('Not enough args specified', 'API: not enought arguments passed', 'simple-history')
-            ));
+        if (empty($args) || !$type) {
+            wp_send_json_error([
+                _x('Not enough args specified', 'API: not enought arguments passed', 'simple-history'),
+            ]);
         }
 
         // User must have capability to view the history page
-        if (! current_user_can($this->get_view_history_capability())) {
-            wp_send_json_error(array(
-                'error' => 'CAPABILITY_ERROR'
-            ));
+        if (!current_user_can($this->get_view_history_capability())) {
+            wp_send_json_error([
+                'error' => 'CAPABILITY_ERROR',
+            ]);
         }
 
         if (isset($args['id'])) {
-            $args['post__in'] = array($args['id']);
+            $args['post__in'] = [$args['id']];
         }
 
-        $data = array();
+        $data = [];
 
         switch ($type) {
             case 'overview':
@@ -664,15 +668,15 @@ class SimpleHistory
 
                 // Output can be array or HMTL
                 if (isset($args['format']) && 'html' === $args['format']) {
-                    $data['log_rows_raw'] = array();
+                    $data['log_rows_raw'] = [];
 
                     foreach ($data['log_rows'] as $key => $oneLogRow) {
-                        $args = array();
+                        $args = [];
                         if ($type == 'single') {
                             $args['type'] = 'single';
                         }
 
-                        $data['log_rows'][ $key ] = $this->getLogRowHTMLOutput($oneLogRow, $args);
+                        $data['log_rows'][$key] = $this->getLogRowHTMLOutput($oneLogRow, $args);
                         $data['num_queries'] = get_num_queries();
                     }
                 } else {
@@ -683,7 +687,7 @@ class SimpleHistory
 
             default:
                 $data[] = 'Nah.';
-        }// End switch().
+        } // End switch().
 
         wp_send_json_success($data);
     }
@@ -696,12 +700,12 @@ class SimpleHistory
     public function filter_gettext($translated_text, $untranslated_text, $domain)
     {
         if (isset($this->doFilterGettext) && $this->doFilterGettext) {
-            $this->doFilterGettext_currentLogger->messages[] = array(
+            $this->doFilterGettext_currentLogger->messages[] = [
                 'untranslated_text' => $untranslated_text,
                 'translated_text' => $translated_text,
                 'domain' => $domain,
-                'context' => null
-            );
+                'context' => null,
+            ];
         }
 
         return $translated_text;
@@ -713,12 +717,12 @@ class SimpleHistory
     public function filter_gettext_with_context($translated_text, $untranslated_text, $context, $domain)
     {
         if (isset($this->doFilterGettext) && $this->doFilterGettext) {
-            $this->doFilterGettext_currentLogger->messages[] = array(
+            $this->doFilterGettext_currentLogger->messages[] = [
                 'untranslated_text' => $untranslated_text,
                 'translated_text' => $translated_text,
                 'domain' => $domain,
-                'context' => $context
-            );
+                'context' => $context,
+            ];
         }
 
         return $translated_text;
@@ -746,10 +750,10 @@ class SimpleHistory
      */
     public function setup_variables()
     {
-        $this->externalLoggers = array();
-        $this->externalDropins = array();
-        $this->instantiatedLoggers = array();
-        $this->instantiatedDropins = array();
+        $this->externalLoggers = [];
+        $this->externalDropins = [];
+        $this->instantiatedLoggers = [];
+        $this->instantiatedDropins = [];
 
         $this->plugin_basename = SIMPLE_HISTORY_BASENAME;
     }
@@ -803,27 +807,27 @@ class SimpleHistory
     public function add_default_settings_tabs()
     {
         // Add default settings tabs
-        $this->arr_settings_tabs = array(
-            array(
+        $this->arr_settings_tabs = [
+            [
                 'slug' => 'settings',
                 'name' => __('Settings', 'simple-history'),
-                'function' => array($this, 'settings_output_general')
-            )
-        );
+                'function' => [$this, 'settings_output_general'],
+            ],
+        ];
 
         if (defined('SIMPLE_HISTORY_DEV') && SIMPLE_HISTORY_DEV) {
-            $arr_dev_tabs = array(
-                array(
+            $arr_dev_tabs = [
+                [
                     'slug' => 'log',
                     'name' => __('Log (debug)', 'simple-history'),
-                    'function' => array($this, 'settings_output_log')
-                ),
-                array(
+                    'function' => [$this, 'settings_output_log'],
+                ],
+                [
                     'slug' => 'styles-example',
                     'name' => __('Styles example (debug)', 'simple-history'),
-                    'function' => array($this, 'settings_output_styles_example')
-                )
-            );
+                    'function' => [$this, 'settings_output_styles_example'],
+                ],
+            ];
 
             $this->arr_settings_tabs = array_merge($this->arr_settings_tabs, $arr_dev_tabs);
         }
@@ -863,7 +867,7 @@ class SimpleHistory
     {
         $loggersDir = SIMPLE_HISTORY_PATH . 'loggers/';
 
-        $loggersFiles = array(
+        $loggersFiles = [
             // Main loggers.
             $loggersDir . 'SimpleCommentsLogger.php',
             $loggersDir . 'SimpleCoreUpdatesLogger.php',
@@ -892,8 +896,8 @@ class SimpleHistory
             $loggersDir . 'Plugin_Redirection.php',
             $loggersDir . 'Plugin_DuplicatePost.php',
             $loggersDir . 'Plugin_ACF.php',
-            $loggersDir . 'Plugin_BeaverBuilder.php'
-        );
+            $loggersDir . 'Plugin_BeaverBuilder.php',
+        ];
 
         // SimpleLogger.php must be loaded first and always since the other loggers extend it.
         // Include it manually so no risk of anyone using filters or similar disables it.
@@ -913,7 +917,7 @@ class SimpleHistory
 
         // Array with slug of loggers to instantiate.
         // Slug of logger must also be the name of the logger class.
-        $arr_loggers_to_instantiate = array();
+        $arr_loggers_to_instantiate = [];
 
         // $one_logger_file = "SimpleCommentsLogger.php", "class-privacy-logger.php", and so on.
         foreach ($loggersFiles as $one_logger_file) {
@@ -939,7 +943,7 @@ class SimpleHistory
                 $load_logger = true;
             }
 
-            if (! $load_logger) {
+            if (!$load_logger) {
                 continue;
             }
 
@@ -967,8 +971,8 @@ class SimpleHistory
          * (
          *  [0] => SimpleCommentsLogger
          *  [1] => SimpleCoreUpdatesLogger
-            *   ...
-            * )
+         *   ...
+         * )
          *
          * @since 2.0
          *
@@ -1000,14 +1004,14 @@ class SimpleHistory
             }
 
             // Continue to load next logger if no valid logger class found.
-            if (! $logger_class_name) {
+            if (!$logger_class_name) {
                 continue;
             }
 
             // Init found logger class.
             $logger_instance = new $logger_class_name($this);
 
-            if (! is_subclass_of($logger_instance, 'SimpleLogger') && ! is_a($logger_instance, 'SimpleLogger')) {
+            if (!is_subclass_of($logger_instance, 'SimpleLogger') && !is_a($logger_instance, 'SimpleLogger')) {
                 continue;
             }
 
@@ -1022,7 +1026,7 @@ class SimpleHistory
             // Check so no logger has a logger slug with more than 30 chars,
             // because db column is only 30 chars.
             if (strlen($logger_instance->slug) > 30) {
-                add_action('admin_notices', array( $this, 'admin_notice_logger_slug_to_long' ));
+                add_action('admin_notices', [$this, 'admin_notice_logger_slug_to_long']);
             }
 
             // Un-tell gettext filter.
@@ -1033,14 +1037,14 @@ class SimpleHistory
             // Add messages to the loggerInstance.
             $loopNum = 0;
 
-            $arr_messages_by_message_key = array();
+            $arr_messages_by_message_key = [];
 
             if (isset($logger_info['messages']) && is_array($logger_info['messages'])) {
                 foreach ((array) $logger_info['messages'] as $message_key => $message_translated) {
                     // Find message in array with both translated and non translated strings.
                     foreach ($logger_instance->messages as $one_message_with_translation_info) {
                         if ($message_translated == $one_message_with_translation_info['translated_text']) {
-                            $arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
+                            $arr_messages_by_message_key[$message_key] = $one_message_with_translation_info;
                             continue;
                         }
                     }
@@ -1050,11 +1054,11 @@ class SimpleHistory
             $logger_instance->messages = $arr_messages_by_message_key;
 
             // Add logger to array of loggers.
-            $this->instantiatedLoggers[ $logger_instance->slug ] = array(
+            $this->instantiatedLoggers[$logger_instance->slug] = [
                 'name' => $logger_info['name'],
-                'instance' => $logger_instance
-            );
-        }// End foreach().
+                'instance' => $logger_instance,
+            ];
+        } // End foreach().
 
         do_action('simple_history/loggers_loaded');
     }
@@ -1067,7 +1071,7 @@ class SimpleHistory
     {
         $dropinsDir = SIMPLE_HISTORY_PATH . 'dropins/';
 
-        $dropinsFiles = array(
+        $dropinsFiles = [
             $dropinsDir . 'SimpleHistoryPluginPatchesDropin.php',
             $dropinsDir . 'SimpleHistoryDonateDropin.php',
             $dropinsDir . 'SimpleHistoryExportDropin.php',
@@ -1083,7 +1087,7 @@ class SimpleHistory
             $dropinsDir . 'SimpleHistorySidebarSettings.php',
             $dropinsDir . 'SimpleHistoryWPCLIDropin.php',
             $dropinsDir . 'SimpleHistoryDebugDropin.php',
-        );
+        ];
 
         /**
          * Filter the array with absolute paths to files as returned by glob function.
@@ -1096,7 +1100,7 @@ class SimpleHistory
          */
         $dropinsFiles = apply_filters('simple_history/dropins_files', $dropinsFiles);
 
-        $arrDropinsToInstantiate = array();
+        $arrDropinsToInstantiate = [];
 
         foreach ($dropinsFiles as $oneDropinFile) {
             // path/path/simplehistory/dropins/SimpleHistoryDonateDropin.php => SimpleHistoryDonateDropin
@@ -1125,14 +1129,14 @@ class SimpleHistory
              */
             $load_dropin = apply_filters('simple_history/dropin/load_dropin', $load_dropin, $oneDropinFileBasename);
 
-            if (! $load_dropin) {
+            if (!$load_dropin) {
                 continue;
             }
 
             include_once $oneDropinFile;
 
             $arrDropinsToInstantiate[] = $oneDropinFileBasename;
-        }// End foreach().
+        } // End foreach().
 
         /**
          * Action that dropins can use to add their custom loggers.
@@ -1157,14 +1161,14 @@ class SimpleHistory
 
         // Instantiate each dropin
         foreach ($arrDropinsToInstantiate as $oneDropinName) {
-            if (! class_exists($oneDropinName)) {
+            if (!class_exists($oneDropinName)) {
                 continue;
             }
 
-            $this->instantiatedDropins[ $oneDropinName ] = array(
+            $this->instantiatedDropins[$oneDropinName] = [
                 'name' => $oneDropinName,
-                'instance' => new $oneDropinName($this)
-            );
+                'instance' => new $oneDropinName($this),
+            ];
         }
     }
 
@@ -1219,7 +1223,7 @@ class SimpleHistory
     public function plugin_action_links($actions, $b, $c, $d)
     {
         // Only add link if user has the right to view the settings page
-        if (! current_user_can($this->get_view_settings_capability())) {
+        if (!current_user_can($this->get_view_settings_capability())) {
             return $actions;
         }
 
@@ -1227,10 +1231,10 @@ class SimpleHistory
 
         if (empty($actions)) {
             // Create array if actions is empty (and therefore is assumed to be a string by PHP & results in PHP 7.1+ fatal error due to trying to make array modifications on what's assumed to be a string)
-            $actions = array();
+            $actions = [];
         } elseif (is_string($actions)) {
             // Convert the string (which it might've been retrieved as) to an array for future use as an array
-            $actions = array( $actions );
+            $actions = [$actions];
         }
         $actions[] = "<a href='$settings_page_url'>" . __('Settings', 'simple-history') . '</a>';
 
@@ -1255,11 +1259,10 @@ class SimpleHistory
             $show_dashboard_widget = apply_filters('simple_history/show_dashboard_widget', true);
 
             if ($show_dashboard_widget) {
-                wp_add_dashboard_widget(
-                    'simple_history_dashboard_widget',
-                    __('Simple History', 'simple-history'),
-                    array($this, 'dashboard_widget_output')
-                );
+                wp_add_dashboard_widget('simple_history_dashboard_widget', __('Simple History', 'simple-history'), [
+                    $this,
+                    'dashboard_widget_output',
+                ]);
             }
         }
     }
@@ -1293,13 +1296,17 @@ class SimpleHistory
         $current_screen = get_current_screen();
 
         $basePrefix = apply_filters('simple_history/admin_location', 'index');
-        $basePrefix = ( $basePrefix === 'index' ) ? 'dashboard' : $basePrefix;
+        $basePrefix = $basePrefix === 'index' ? 'dashboard' : $basePrefix;
 
         if ($current_screen && $current_screen->base == 'settings_page_' . SimpleHistory::SETTINGS_MENU_SLUG) {
             return true;
-        } elseif ($current_screen && $current_screen->base ==  $basePrefix. '_page_simple_history_page') {
+        } elseif ($current_screen && $current_screen->base == $basePrefix . '_page_simple_history_page') {
             return true;
-        } elseif (( $hook == 'settings_page_' . SimpleHistory::SETTINGS_MENU_SLUG ) || ( $this->setting_show_on_dashboard() && $hook == 'index.php' ) || ( $this->setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page' )) {
+        } elseif (
+            $hook == 'settings_page_' . SimpleHistory::SETTINGS_MENU_SLUG ||
+            ($this->setting_show_on_dashboard() && $hook == 'index.php') ||
+            ($this->setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page')
+        ) {
             return true;
         } elseif ($current_screen && $current_screen->base == 'dashboard' && $this->setting_show_on_dashboard()) {
             return true;
@@ -1327,31 +1334,31 @@ class SimpleHistory
             wp_enqueue_script(
                 'simple_history_script',
                 SIMPLE_HISTORY_DIR_URL . 'js/scripts.js',
-                array('jquery', 'backbone', 'wp-util'),
+                ['jquery', 'backbone', 'wp-util'],
                 SIMPLE_HISTORY_VERSION,
                 true
             );
 
-            wp_enqueue_script('select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', array( 'jquery' ));
+            wp_enqueue_script('select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', ['jquery']);
             wp_enqueue_style('select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.css');
 
             // Translations that we use in JavaScript
-            wp_localize_script('simple_history_script', 'simple_history_script_vars', array(
-                    'settingsConfirmClearLog' => __('Remove all log items?', 'simple-history'),
-                    'pagination' => array(
-                        'goToTheFirstPage' => __('Go to the first page', 'simple-history'),
-                        'goToThePrevPage' => __('Go to the previous page', 'simple-history'),
-                        'goToTheNextPage' => __('Go to the next page', 'simple-history'),
-                        'goToTheLastPage' => __('Go to the last page', 'simple-history'),
-                    'currentPage' => __('Current page', 'simple-history')
-                    ),
-                    'loadLogAPIError' => __('Oups, the log could not be loaded right now.', 'simple-history'),
+            wp_localize_script('simple_history_script', 'simple_history_script_vars', [
+                'settingsConfirmClearLog' => __('Remove all log items?', 'simple-history'),
+                'pagination' => [
+                    'goToTheFirstPage' => __('Go to the first page', 'simple-history'),
+                    'goToThePrevPage' => __('Go to the previous page', 'simple-history'),
+                    'goToTheNextPage' => __('Go to the next page', 'simple-history'),
+                    'goToTheLastPage' => __('Go to the last page', 'simple-history'),
+                    'currentPage' => __('Current page', 'simple-history'),
+                ],
+                'loadLogAPIError' => __('Oups, the log could not be loaded right now.', 'simple-history'),
                 'ajaxLoadError' => __(
                     'Hm, the log could not be loaded right now. Perhaps another plugin is giving some errors. Anyway, below is the output I got from the server.',
                     'simple-history'
                 ),
-                'logNoHits' => __('Your search did not match any history events.', 'simple-history')
-            ));
+                'logNoHits' => __('Your search did not match any history events.', 'simple-history'),
+            ]);
 
             // Call plugins adminCSS-method, so they can add their CSS
             foreach ($this->instantiatedLoggers as $one_logger) {
@@ -1364,21 +1371,21 @@ class SimpleHistory
             wp_enqueue_script(
                 'timeago',
                 SIMPLE_HISTORY_DIR_URL . 'js/timeago/jquery.timeago.js',
-                array('jquery'),
+                ['jquery'],
                 '1.5.2',
                 true
             );
 
             // Determine current locale to load timeago locale
-            $locale      = strtolower(substr(get_locale(), 0, 2));
+            $locale = strtolower(substr(get_locale(), 0, 2));
             $locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/timeago/locales/jquery.timeago.%s.js';
             $locale_dir_path = SIMPLE_HISTORY_PATH . 'js/timeago/locales/jquery.timeago.%s.js';
 
             // Only enqueue if locale-file exists on file system
             if (file_exists(sprintf($locale_dir_path, $locale))) {
-                wp_enqueue_script('timeago-locale', sprintf($locale_url_path, $locale), array( 'jquery' ), '1.5.2', true);
+                wp_enqueue_script('timeago-locale', sprintf($locale_url_path, $locale), ['jquery'], '1.5.2', true);
             } else {
-                wp_enqueue_script('timeago-locale', sprintf($locale_url_path, 'en'), array( 'jquery' ), '1.5.2', true);
+                wp_enqueue_script('timeago-locale', sprintf($locale_url_path, 'en'), ['jquery'], '1.5.2', true);
             }
             // end add timeago
             // Load Select2 locale
@@ -1386,7 +1393,7 @@ class SimpleHistory
             $locale_dir_path = SIMPLE_HISTORY_PATH . 'js/select2/i18n/%s.js';
 
             if (file_exists(sprintf($locale_dir_path, $locale))) {
-                wp_enqueue_script('select2-locale', sprintf($locale_url_path, $locale), array( 'jquery' ), '3.5.1', true);
+                wp_enqueue_script('select2-locale', sprintf($locale_url_path, $locale), ['jquery'], '3.5.1', true);
             }
 
             /**
@@ -1398,7 +1405,7 @@ class SimpleHistory
              * @param SimpleHistory $SimpleHistory This class.
              */
             do_action('simple_history/enqueue_admin_scripts', $this);
-        }// End if().
+        } // End if().
     }
 
     public function filter_option_page_capability($capability)
@@ -1467,19 +1474,19 @@ class SimpleHistory
 
         // Check that all options we use are set to their defaults, if they miss value
         // Each option that is missing a value will make a sql call otherwise = unnecessary
-        $arr_options = array(
-            array(
+        $arr_options = [
+            [
                 'name' => 'simple_history_show_as_page',
-                'default_value' => 1
-            ),
-            array(
+                'default_value' => 1,
+            ],
+            [
                 'name' => 'simple_history_show_on_dashboard',
-                'default_value' => 1
-            )
-        );
+                'default_value' => 1,
+            ],
+        ];
 
         foreach ($arr_options as $one_option) {
-            if (false === ( $option_value = get_option($one_option['name']) )) {
+            if (false === ($option_value = get_option($one_option['name']))) {
                 // Value is not set in db, so set it to a default
                 update_option($one_option['name'], $one_option['default_value']);
             }
@@ -1547,7 +1554,7 @@ class SimpleHistory
 
             // Say welcome, however loggers are not added this early so we need to
             // use a filter to load it later
-            add_action('simple_history/loggers_loaded', array( $this, 'addWelcomeLogMessage' ));
+            add_action('simple_history/loggers_loaded', [$this, 'addWelcomeLogMessage']);
         } // End if().
 
         /**
@@ -1590,7 +1597,7 @@ class SimpleHistory
         // Some installs on 2.2.2 got failed installs
         // We detect these by checking for db_version and then running the install stuff again
         if (4 == intval($db_version)) {
-            if (! $this->does_database_have_data()) {
+            if (!$this->does_database_have_data()) {
                 // not ok, decrease db number so installs will run again and hopefully fix things
                 $db_version = 0;
             } else {
@@ -1635,25 +1642,25 @@ class SimpleHistory
         $pluginLogger = $this->getInstantiatedLoggerBySlug('SimplePluginLogger');
         if ($pluginLogger) {
             // Add plugin installed message
-            $context = array(
+            $context = [
                 'plugin_name' => 'Simple History',
                 'plugin_description' =>
                     'Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.',
-                'plugin_url' => 'http://simple-history.com',
+                'plugin_url' => 'https://simple-history.com',
                 'plugin_version' => SIMPLE_HISTORY_VERSION,
-                'plugin_author' => 'Pär Thernström'
-            );
+                'plugin_author' => 'Pär Thernström',
+            ];
 
             $pluginLogger->infoMessage('plugin_installed', $context);
 
             // Add plugin activated message
             $context['plugin_slug'] = 'simple-history';
-            $context['plugin_title'] = '<a href="http://simple-history.com/">Simple History</a>';
+            $context['plugin_title'] = '<a href="https://simple-history.com/">Simple History</a>';
 
             $pluginLogger->infoMessage('plugin_activated', $context);
         }
 
-        if (! $db_data_exists) {
+        if (!$db_data_exists) {
             $welcome_message_1 = __(
                 '
 Welcome to Simple History!
@@ -1670,13 +1677,13 @@ Because Simple History was just recently installed, this feed does not contain m
                 'simple-history'
             );
 
-            SimpleLogger()->info($welcome_message_2, array(
-                '_initiator' => SimpleLoggerLogInitiators::WORDPRESS
-            ));
+            SimpleLogger()->info($welcome_message_2, [
+                '_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+            ]);
 
-            SimpleLogger()->info($welcome_message_1, array(
-                '_initiator' => SimpleLoggerLogInitiators::WORDPRESS
-            ));
+            SimpleLogger()->info($welcome_message_1, [
+                '_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+            ]);
         }
     }
 
@@ -1718,26 +1725,26 @@ Because Simple History was just recently installed, this feed does not contain m
                         $one_tab['name'], // 1
                         $tab_slug, // 2
                         esc_url(add_query_arg('selected-tab', $tab_slug, $settings_base_url)), // 3
-                        $active_tab == $tab_slug ? 'nav-tab-active' : ''// 4
+                        $active_tab == $tab_slug ? 'nav-tab-active' : '' // 4
                     );
                 } ?>
             </h2>
 
             <?php
             // Output contents for selected tab
-            $arr_active_tab = wp_filter_object_list($arr_settings_tabs, array(
-                'slug' => $active_tab
-            ));
+            $arr_active_tab = wp_filter_object_list($arr_settings_tabs, [
+                'slug' => $active_tab,
+            ]);
             $arr_active_tab = current($arr_active_tab);
 
             // We must have found an active tab and it must have a callable function
-            if (! $arr_active_tab || ! is_callable($arr_active_tab['function'])) {
+            if (!$arr_active_tab || !is_callable($arr_active_tab['function'])) {
                 wp_die(__('No valid callback found', 'simple-history'));
             }
 
-            $args = array(
-                'arr_active_tab' => $arr_active_tab
-            );
+            $args = [
+                'arr_active_tab' => $arr_active_tab,
+            ];
 
             call_user_func_array($arr_active_tab['function'], $args);?>
 
@@ -1791,7 +1798,7 @@ Because Simple History was just recently installed, this feed does not contain m
                     _x('Simple History', 'dashboard menu name', 'simple-history'),
                     $this->get_view_history_capability(),
                     'simple_history_page',
-                    array( $this, 'history_page_output' )
+                    [$this, 'history_page_output']
                 );
             }
         }
@@ -1807,7 +1814,7 @@ Because Simple History was just recently installed, this feed does not contain m
                 _x('Simple History', 'Options page menu title', 'simple-history'),
                 $this->get_view_settings_capability(),
                 SimpleHistory::SETTINGS_MENU_SLUG,
-                array( $this, 'settings_page_output' )
+                [$this, 'settings_page_output']
             );
         }
     }
@@ -1820,7 +1827,8 @@ Because Simple History was just recently installed, this feed does not contain m
     {
         // Clear the log if clear button was clicked in settings
         // and redirect user to show message.
-        if (isset($_GET['simple_history_clear_log_nonce']) &&
+        if (
+            isset($_GET['simple_history_clear_log_nonce']) &&
             wp_verify_nonce($_GET['simple_history_clear_log_nonce'], 'simple_history_clear_log')
         ) {
             if ($this->user_can_clear_log()) {
@@ -1849,7 +1857,7 @@ Because Simple History was just recently installed, this feed does not contain m
         add_settings_section(
             $settings_section_general_id,
             '',
-            array( $this, 'settings_section_output' ),
+            [$this, 'settings_section_output'],
             SimpleHistory::SETTINGS_MENU_SLUG // Same slug as for options menu page.
         );
 
@@ -1860,7 +1868,7 @@ Because Simple History was just recently installed, this feed does not contain m
         add_settings_field(
             'simple_history_show_where',
             __('Show history', 'simple-history'),
-            array( $this, 'settings_field_where_to_show' ),
+            [$this, 'settings_field_where_to_show'],
             SimpleHistory::SETTINGS_MENU_SLUG,
             $settings_section_general_id
         );
@@ -1873,7 +1881,7 @@ Because Simple History was just recently installed, this feed does not contain m
         add_settings_field(
             'simple_history_number_of_items',
             __('Number of items per page on the log page', 'simple-history'),
-            array( $this, 'settings_field_number_of_items' ),
+            [$this, 'settings_field_number_of_items'],
             SimpleHistory::SETTINGS_MENU_SLUG,
             $settings_section_general_id
         );
@@ -1885,7 +1893,7 @@ Because Simple History was just recently installed, this feed does not contain m
         add_settings_field(
             'simple_history_number_of_items_dashboard',
             __('Number of items per page on the dashboard', 'simple-history'),
-            array( $this, 'settings_field_number_of_items_dashboard' ),
+            [$this, 'settings_field_number_of_items_dashboard'],
             SimpleHistory::SETTINGS_MENU_SLUG,
             $settings_section_general_id
         );
@@ -1898,7 +1906,7 @@ Because Simple History was just recently installed, this feed does not contain m
             add_settings_field(
                 'simple_history_clear_log',
                 __('Clear log', 'simple-history'),
-                array( $this, 'settings_field_clear_log' ),
+                [$this, 'settings_field_clear_log'],
                 SimpleHistory::SETTINGS_MENU_SLUG,
                 $settings_section_general_id
             );
@@ -1933,14 +1941,21 @@ Because Simple History was just recently installed, this feed does not contain m
                 <?php echo _x('Simple History', 'history page headline', 'simple-history'); ?>
             </h1>
 
-            <?php /**
+             /**
+         * Fires before the gui div
+         *
+         * @since 2.0
+         *
+         * @param SimpleHistory $SimpleHistory This class.
+         */<?php
+        /**
              * Fires before the gui div
              *
              * @since 2.0
              *
              * @param SimpleHistory $SimpleHistory This class.
              */
-            do_action('simple_history/history_page/before_gui', $this); ?>
+        ?>do_action('simple_history/history_page/before_gui', $this); ?>
 
             <div class="SimpleHistoryGuiWrap">
 
@@ -1948,14 +1963,21 @@ Because Simple History was just recently installed, this feed does not contain m
                      data-pager-size='<?php echo $pager_size; ?>'
                      ></div>
 
-                <?php /**
+                 /**
+         * Fires after the gui div
+         *
+         * @since 2.0
+         *
+         * @param SimpleHistory $SimpleHistory This class.
+         */<?php
+        /**
                  * Fires after the gui div
                  *
                  * @since 2.0
                  *
                  * @param SimpleHistory $SimpleHistory This class.
                  */
-                do_action('simple_history/history_page/after_gui', $this); ?>
+        ?>do_action('simple_history/history_page/after_gui', $this); ?>
 
             </div>
 
@@ -2053,12 +2075,7 @@ Because Simple History was just recently installed, this feed does not contain m
             ? "checked='checked'"
             : ''; ?> type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
         <label for="simple_history_show_as_page">
-            <?php
-            _e(
-                'as a page under the dashboard menu',
-                'simple-history'
-            );
-            ?>
+            <?php _e('as a page under the dashboard menu', 'simple-history'); ?>
         </label>
 
         <?php
@@ -2069,7 +2086,6 @@ Because Simple History was just recently installed, this feed does not contain m
      */
     public function settings_field_clear_log()
     {
-
         // Get base URL to current page.
         // Will be like "/wordpress/wp-admin/options-general.php?page=simple_history_settings_menu_slug&"
         $clear_link = add_query_arg('', '');
@@ -2078,7 +2094,7 @@ Because Simple History was just recently installed, this feed does not contain m
         $clear_link = wp_nonce_url($clear_link, 'simple_history_clear_log', 'simple_history_clear_log_nonce');
 
         $clear_days = $this->get_clear_history_interval();
-        
+
         echo '<p>';
 
         if ($clear_days > 0) {
@@ -2147,9 +2163,9 @@ Because Simple History was just recently installed, this feed does not contain m
         // Zero state sucks
         SimpleLogger()->info(
             __('The log for Simple History was cleared ({num_rows} rows were removed).', 'simple-history'),
-            array(
-                'num_rows' => $num_rows
-            )
+            [
+                'num_rows' => $num_rows,
+            ]
         );
 
         $this->get_cache_incrementor(true);
@@ -2183,7 +2199,7 @@ Because Simple History was just recently installed, this feed does not contain m
         $do_purge_history = apply_filters('simple_history_allow_db_purge', $do_purge_history);
         $do_purge_history = apply_filters('simple_history/allow_db_purge', $do_purge_history);
 
-        if (! $do_purge_history) {
+        if (!$do_purge_history) {
             return;
         }
 
@@ -2235,10 +2251,10 @@ Because Simple History was just recently installed, this feed does not contain m
                 'simple-history'
             );
 
-            SimpleLogger()->info($message, array(
-                    'days' => $days,
-                'num_rows' => count($ids_to_delete)
-            ));
+            SimpleLogger()->info($message, [
+                'days' => $days,
+                'num_rows' => count($ids_to_delete),
+            ]);
 
             $this->get_cache_incrementor(true);
         }
@@ -2256,18 +2272,18 @@ Because Simple History was just recently installed, this feed does not contain m
     {
         $row_logger = $row->logger;
         $logger = null;
-        $row->context = isset($row->context) && is_array($row->context) ? $row->context : array();
+        $row->context = isset($row->context) && is_array($row->context) ? $row->context : [];
 
-        if (! isset($row->context['_message_key'])) {
+        if (!isset($row->context['_message_key'])) {
             $row->context['_message_key'] = null;
         }
 
         // Fallback to SimpleLogger if no logger exists for row
-        if (! isset($this->instantiatedLoggers[ $row_logger ])) {
+        if (!isset($this->instantiatedLoggers[$row_logger])) {
             $row_logger = 'SimpleLogger';
         }
 
-        $logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
+        $logger = $this->instantiatedLoggers[$row_logger]['instance'];
 
         return $logger->getLogRowPlainTextOutput($row);
     }
@@ -2287,14 +2303,14 @@ Because Simple History was just recently installed, this feed does not contain m
     {
         $row_logger = $row->logger;
         $logger = null;
-        $row->context = isset($row->context) && is_array($row->context) ? $row->context : array();
+        $row->context = isset($row->context) && is_array($row->context) ? $row->context : [];
 
         // Fallback to SimpleLogger if no logger exists for row
-        if (! isset($this->instantiatedLoggers[ $row_logger ])) {
+        if (!isset($this->instantiatedLoggers[$row_logger])) {
             $row_logger = 'SimpleLogger';
         }
 
-        $logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
+        $logger = $this->instantiatedLoggers[$row_logger]['instance'];
 
         return $logger->getLogRowHeaderOutput($row);
     }
@@ -2309,14 +2325,14 @@ Because Simple History was just recently installed, this feed does not contain m
     {
         $row_logger = $row->logger;
         $logger = null;
-        $row->context = isset($row->context) && is_array($row->context) ? $row->context : array();
+        $row->context = isset($row->context) && is_array($row->context) ? $row->context : [];
 
         // Fallback to SimpleLogger if no logger exists for row
-        if (! isset($this->instantiatedLoggers[ $row_logger ])) {
+        if (!isset($this->instantiatedLoggers[$row_logger])) {
             $row_logger = 'SimpleLogger';
         }
 
-        $logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
+        $logger = $this->instantiatedLoggers[$row_logger]['instance'];
 
         return $logger->getLogRowSenderImageOutput($row);
     }
@@ -2325,14 +2341,14 @@ Because Simple History was just recently installed, this feed does not contain m
     {
         $row_logger = $row->logger;
         $logger = null;
-        $row->context = isset($row->context) && is_array($row->context) ? $row->context : array();
+        $row->context = isset($row->context) && is_array($row->context) ? $row->context : [];
 
         // Fallback to SimpleLogger if no logger exists for row
-        if (! isset($this->instantiatedLoggers[ $row_logger ])) {
+        if (!isset($this->instantiatedLoggers[$row_logger])) {
             $row_logger = 'SimpleLogger';
         }
 
-        $logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
+        $logger = $this->instantiatedLoggers[$row_logger]['instance'];
 
         return $logger->getLogRowDetailsOutput($row);
     }
@@ -2369,9 +2385,9 @@ Because Simple History was just recently installed, this feed does not contain m
      */
     public function getLogRowHTMLOutput($oneLogRow, $args)
     {
-        $defaults = array(
-            'type' => 'overview' // or "single" to include more stuff
-        );
+        $defaults = [
+            'type' => 'overview', // or "single" to include more stuff
+        ];
 
         $args = wp_parse_args($args, $defaults);
 
@@ -2468,13 +2484,13 @@ Because Simple History was just recently installed, this feed does not contain m
              *
              * Array is in format
              *
-              *   Array
-              *   (
-              *       [id] => 1
-              *       [logger] => 1
-              *       [level] => 1
-              *       ...
-              *   )
+             *   Array
+             *   (
+             *       [id] => 1
+             *       [logger] => 1
+             *       [level] => 1
+             *       ...
+             *   )
              *
              * @since 2.0.29
              *
@@ -2500,7 +2516,7 @@ Because Simple History was just recently installed, this feed does not contain m
 
             foreach ($oneLogRow as $rowKey => $rowVal) {
                 // Only columns from oneLogRow that exist in logRowKeysToShow will be outputed
-                if (! array_key_exists($rowKey, $logRowKeysToShow) || ! $logRowKeysToShow[ $rowKey ]) {
+                if (!array_key_exists($rowKey, $logRowKeysToShow) || !$logRowKeysToShow[$rowKey]) {
                     continue;
                 }
 
@@ -2534,8 +2550,8 @@ Because Simple History was just recently installed, this feed does not contain m
              *       [plugin_description] => 1
              *       [plugin_author] => 1
              *       [plugin_version] => 1
-              *       ...
-              *   )
+             *       ...
+             *   )
              *
              * @since 2.0.29
              *
@@ -2550,7 +2566,8 @@ Because Simple History was just recently installed, this feed does not contain m
 
             foreach ($oneLogRow->context as $contextKey => $contextVal) {
                 // Only columns from context that exist in logRowContextKeysToShow will be outputed
-                if (!array_key_exists($contextKey, $logRowContextKeysToShow) ||
+                if (
+                    !array_key_exists($contextKey, $logRowContextKeysToShow) ||
                     !$logRowContextKeysToShow[$contextKey]
                 ) {
                     continue;
@@ -2578,16 +2595,16 @@ Because Simple History was just recently installed, this feed does not contain m
                 '<div class="SimpleHistoryLogitem__moreDetails">%1$s</div>',
                 $more_details_html
             );
-        }// End if().
+        } // End if().
 
         // Classes to add to log item li element
-        $classes = array(
+        $classes = [
             'SimpleHistoryLogitem',
             "SimpleHistoryLogitem--loglevel-{$oneLogRow->level}",
-            "SimpleHistoryLogitem--logger-{$oneLogRow->logger}"
-        );
+            "SimpleHistoryLogitem--logger-{$oneLogRow->logger}",
+        ];
 
-        if (isset($oneLogRow->initiator) && ! empty($oneLogRow->initiator)) {
+        if (isset($oneLogRow->initiator) && !empty($oneLogRow->initiator)) {
             $classes[] = 'SimpleHistoryLogitem--initiator-' . $oneLogRow->initiator;
         }
 
@@ -2731,7 +2748,7 @@ Because Simple History was just recently installed, this feed does not contain m
 
             default:
                 $str_translated = $loglevel;
-        }// End switch().
+        } // End switch().
 
         return $str_translated;
     }
@@ -2775,9 +2792,9 @@ Because Simple History was just recently installed, this feed does not contain m
      */
     public function getLoggersThatUserCanRead($user_id = '', $format = 'array')
     {
-        $arr_loggers_user_can_view = array();
+        $arr_loggers_user_can_view = [];
 
-        if (! is_numeric($user_id)) {
+        if (!is_numeric($user_id)) {
             $user_id = get_current_user_id();
         }
 
@@ -2864,7 +2881,7 @@ Because Simple History was just recently installed, this feed does not contain m
                 $safe_alt = esc_attr($alt);
             }
 
-            if (! is_numeric($size)) {
+            if (!is_numeric($size)) {
                 $size = '96';
             }
 
@@ -2877,14 +2894,14 @@ Because Simple History was just recently installed, this feed does not contain m
                 }
             }
 
-            if (! empty($email)) {
+            if (!empty($email)) {
                 $email_hash = md5(strtolower(trim($email)));
             }
 
             if (is_ssl()) {
                 $host = 'https://secure.gravatar.com';
             } else {
-                if (! empty($email)) {
+                if (!empty($email)) {
                     $host = sprintf('http://%d.gravatar.com', hexdec($email_hash[0]) % 2);
                 } else {
                     $host = 'http://0.gravatar.com';
@@ -2895,7 +2912,7 @@ Because Simple History was just recently installed, this feed does not contain m
                 $default = "$host/avatar/ad516503a11cd5ca435acc9bb6523536?s={$size}";
             } elseif ('blank' == $default) {
                 $default = $email ? 'blank' : includes_url('images/blank.gif');
-            } elseif (! empty($email) && 'gravatar_default' == $default) {
+            } elseif (!empty($email) && 'gravatar_default' == $default) {
                 $default = '';
             } elseif ('gravatar_default' == $default) {
                 $default = "$host/avatar/?s={$size}";
@@ -2905,14 +2922,14 @@ Because Simple History was just recently installed, this feed does not contain m
                 $default = add_query_arg('s', $size, $default);
             }
 
-            if (! empty($email)) {
+            if (!empty($email)) {
                 $out = "$host/avatar/";
                 $out .= $email_hash;
                 $out .= '?s=' . $size;
                 $out .= '&amp;d=' . urlencode($default);
 
                 $rating = get_option('avatar_rating');
-                if (! empty($rating)) {
+                if (!empty($rating)) {
                     $out .= "&amp;r={$rating}";
                 }
 
@@ -2951,10 +2968,10 @@ Because Simple History was just recently installed, this feed does not contain m
 
         // Get number of events today
         $logQuery = new SimpleHistoryLogQuery();
-        $logResults = $logQuery->query(array(
-                'posts_per_page' => 1,
-            'date_from' => strtotime('today')
-        ));
+        $logResults = $logQuery->query([
+            'posts_per_page' => 1,
+            'date_from' => strtotime('today'),
+        ]);
 
         $total_row_count = (int) $logResults['total_row_count'];
 
@@ -3031,7 +3048,6 @@ Because Simple History was just recently installed, this feed does not contain m
         }
 
         $count_other_sources = sizeof($results_other_sources_today);
-
         // sf_d($logResults, '$logResults');
         // sf_d($results_users_today, '$sql_users_today');
         // sf_d($results_other_sources_today, '$results_other_sources_today');
@@ -3065,13 +3081,13 @@ Because Simple History was just recently installed, this feed does not contain m
 
                     // A single event existed and was from another source
                     // 1 event today from 1 source.
-                    if ($total_row_count == 1 && ! $count_users_today) {
+                    if ($total_row_count == 1 && !$count_users_today) {
                         $msg_tmpl .= __('One event today from one source.', 'simple-history');
                     }
 
                     // Multiple events from a single user
                     // 3 events today from one user.
-                    if ($total_row_count > 1 && $count_users_today == 1 && ! $count_other_sources) {
+                    if ($total_row_count > 1 && $count_users_today == 1 && !$count_other_sources) {
                         $msg_tmpl .= __('%1$d events today from one user.', 'simple-history');
                     }
 
@@ -3104,7 +3120,7 @@ Because Simple History was just recently installed, this feed does not contain m
                     if ($total_row_count > 1 && $count_users_today > 1 && $count_other_sources > 1) {
                         $msg_tmpl .= __('%1$s events today from %2$d users and %3$d other sources.', 'simple-history');
                     }
-                }// End if().
+                } // End if().
 
                 // only show stats if we have something to output
                 if ($msg_tmpl) {
@@ -3262,12 +3278,10 @@ Because Simple History was just recently installed, this feed does not contain m
         ?>
             <div class="error notice">
                 <p>
-                    <?php
-                    echo esc_html__(
+                    <?php echo esc_html__(
                         'The slug for a logger in Simple History can be max 30 chars long.',
                         'simple-history'
-                    );
-                    ?></p>
+                    ); ?></p>
             </div>
         <?php
     }
