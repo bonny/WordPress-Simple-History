@@ -599,7 +599,7 @@ class SimpleHistory
                 </li>
             </script>
 
-            <?php // Call plugins so they can add their js
+            <?php // Call plugins so they can add their js.
             foreach ($this->instantiatedLoggers as $one_logger) {
                 if (method_exists($one_logger['instance'], 'adminJS')) {
                     $one_logger['instance']->adminJS();
@@ -1930,6 +1930,7 @@ Because Simple History was just recently installed, this feed does not contain m
                 <div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
                 <?php echo _x('Simple History', 'history page headline', 'simple-history'); ?>
             </h1>
+            
             <?php /**
              * Fires before the gui div
              *
