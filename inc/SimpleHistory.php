@@ -594,27 +594,17 @@ class SimpleHistory
                     <div class="SimpleHistoryLogitem__secondcol">
                         <div class="SimpleHistoryLogitem__text">
                             <?php _e('Sorry, but there are too many similar events to show.', 'simple-history'); ?>
-                            <!-- <br>occasionsCount: {{ data.occasionsCount }}
-                            <br>occasionsCountMaxReturn: {{ data.occasionsCountMaxReturn }}
-                            <br>diff: {{ data.occasionsCount - data.occasionsCountMaxReturn }}
-                            Suggestions:
-                            <ul>
-                                <li>- dig into database directly
-                                <li>- Export
-                            </ul>
-                            -->
                         </div>
                     </div>
                 </li>
             </script>
 
             <?php // Call plugins so they can add their js
-            // Call plugins so they can add their js
-            ?>foreach ($this->instantiatedLoggers as $one_logger) {
+            foreach ($this->instantiatedLoggers as $one_logger) {
                 if (method_exists($one_logger['instance'], 'adminJS')) {
                     $one_logger['instance']->adminJS();
                 }
-            }} // End if().
+            }}
     }
 
     /**
@@ -1940,49 +1930,30 @@ Because Simple History was just recently installed, this feed does not contain m
                 <div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
                 <?php echo _x('Simple History', 'history page headline', 'simple-history'); ?>
             </h1>
-
-             /**
-         * Fires before the gui div
-         *
-         * @since 2.0
-         *
-         * @param SimpleHistory $SimpleHistory This class.
-         */<?php
-        /**
+            <?php /**
              * Fires before the gui div
              *
              * @since 2.0
              *
              * @param SimpleHistory $SimpleHistory This class.
              */
-        ?>do_action('simple_history/history_page/before_gui', $this); ?>
+            do_action('simple_history/history_page/before_gui', $this); ?>
 
             <div class="SimpleHistoryGuiWrap">
 
                 <div class="SimpleHistoryGui"
                      data-pager-size='<?php echo $pager_size; ?>'
                      ></div>
-
-                 /**
-         * Fires after the gui div
-         *
-         * @since 2.0
-         *
-         * @param SimpleHistory $SimpleHistory This class.
-         */<?php
-        /**
-                 * Fires after the gui div
-                 *
-                 * @since 2.0
-                 *
-                 * @param SimpleHistory $SimpleHistory This class.
-                 */
-        ?>do_action('simple_history/history_page/after_gui', $this); ?>
-
+                    <?php /**
+                     * Fires after the gui div
+                     *
+                     * @since 2.0
+                     *
+                     * @param SimpleHistory $SimpleHistory This class.
+                     */
+                    do_action('simple_history/history_page/after_gui', $this); ?>
             </div>
-
         </div>
-
         <?php
     }
 
@@ -3285,4 +3256,4 @@ Because Simple History was just recently installed, this feed does not contain m
             </div>
         <?php
     }
-} // class
+}
