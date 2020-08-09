@@ -1665,7 +1665,7 @@ This is the main history feed. It will contain events that this plugin has logge
 
             $welcome_message_2 = __(
                 '
-Because Simple History was just recently installed, this feed does not contain much events yet. But keep the plugin activated and soon you will see detailed information about page edits, plugin updates, user logins, and much more.
+Because Simple History was only recently installed, this feed does not display many events yet. As long as the plugin remains activated you will soon see detailed information about page edits, plugin updates, users logging in, and much more.
 ',
                 'simple-history'
             );
