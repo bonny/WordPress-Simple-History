@@ -189,6 +189,16 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= unreleased =
+
+**Fixed**
+
+- Fix PHP Warning when bulk editing items in the Redirection plugin. Fixes https://github.com/bonny/WordPress-Simple-History/issues/207, https://wordpress.org/support/topic/crashes-with-redirection-plugin/. (https://github.com/bonny/WordPress-Simple-History/commit/e8be051c4d95e598275a7ba17a01f76008eb7a5b)
+
+**Changed**
+
+- Welcome text updated to be more correct. (https://github.com/bonny/WordPress-Simple-History/pull/211)
+
 = 2.34 (June 2020) =
 
 **Changed**
@@ -197,10 +207,6 @@ Events in the log are stored for 60 days by default. Events older than this will
   spans the entire 100 % width (#199).
 
 - Adjust style of pagination to match WordPress core pagination.
-
-= unreleased =
-
-- Fixed PHP Warning when bulk editing items in the Redirection plugin. Fixes https://github.com/bonny/WordPress-Simple-History/issues/207, https://wordpress.org/support/topic/crashes-with-redirection-plugin/.
 
 = 2.33.2 (January 2020) =
 
