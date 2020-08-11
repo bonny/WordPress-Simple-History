@@ -10,6 +10,8 @@ Since I always forget what standards I use in different projects this file is he
 - phpcs to lint while editing. Lots of code is old but working but was written
   before my editor had nice linting, so much of the code does not lint. This will be fixed.
 
+* Changelog: try to use format from https://keepachangelog.com.
+
 ## How to use in Visual Studio Code
 
 - Run `composer install`
