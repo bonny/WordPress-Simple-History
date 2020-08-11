@@ -3,9 +3,9 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 5.2
-Tested up to: 5.4
+Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 2.34.0
+Stable tag: 2.35.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -188,6 +188,18 @@ Events in the log are stored for 60 days by default. Events older than this will
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 == Changelog ==
+
+= unreleased =
+
+You can now [sponsor the developer of this plugin at GitHub](https://github.com/sponsors/bonny/).
+
+**Fixed**
+
+- Fix PHP Warning when bulk editing items in the Redirection plugin. Fixes https://github.com/bonny/WordPress-Simple-History/issues/207, https://wordpress.org/support/topic/crashes-with-redirection-plugin/. (https://github.com/bonny/WordPress-Simple-History/commit/e8be051c4d95e598275a7ba17a01f76008eb7a5b)
+
+**Changed**
+
+- Welcome text updated to be more correct. (https://github.com/bonny/WordPress-Simple-History/pull/211)
 
 = 2.34 (June 2020) =
 

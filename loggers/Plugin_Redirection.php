@@ -129,9 +129,11 @@ if (! class_exists('Plugin_Redirection')) {
                 $this->log_redirection_edit($request);
             } elseif ('Redirection_Api_Redirect::route_bulk' === $callable_name) {
                 $bulk_action = $request->get_param('bulk');
-
                 $bulk_items = $request->get_param('items');
-                $bulk_items = explode(',', $bulk_items);
+
+                if (!is_array($bulk_items)) {
+                    $bulk_items = explode(',', $bulk_items);
+                }
 
                 if (is_array($bulk_items)) {
                     $bulk_items = array_map('intval', $bulk_items);

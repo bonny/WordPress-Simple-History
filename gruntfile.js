@@ -41,9 +41,6 @@ module.exports = function (grunt) {
    },
    src: ["readme.txt"],
   },
-  composer: {
-   src: ["composer.json"],
-  },
   pkg: {
    src: ["package.json"],
   },
