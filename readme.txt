@@ -191,6 +191,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = unreleased =
 
+You can now [sponsor the developer of this plugin at GitHub](https://github.com/sponsors/bonny/).
+
 **Fixed**
 
 - Fix PHP Warning when bulk editing items in the Redirection plugin. Fixes https://github.com/bonny/WordPress-Simple-History/issues/207, https://wordpress.org/support/topic/crashes-with-redirection-plugin/. (https://github.com/bonny/WordPress-Simple-History/commit/e8be051c4d95e598275a7ba17a01f76008eb7a5b)
