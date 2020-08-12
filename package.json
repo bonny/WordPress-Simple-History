@@ -1,6 +1,6 @@
 {
  "name": "simple-history",
- "version": "2.35.0",
+ "version": "2.35.1",
  "description": "WordPress audit log plugin",
  "author": "Pär Thernström",
  "license": "GPL",
@@ -37,7 +37,7 @@
   "deploy:assets": "grunt deploy:assets",
   "deploy:ci": "grunt deploy:ci",
   "deploy": "grunt deploy",
-  "deploy_without_tag": "grunt deploy_without_tag",
+  "deploy_without_tag": "grunt wp_deploy:deploy_without_tag",
   "grunt": "grunt"
  }
 }
