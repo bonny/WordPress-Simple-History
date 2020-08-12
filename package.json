@@ -37,6 +37,7 @@
   "deploy:assets": "grunt deploy:assets",
   "deploy:ci": "grunt deploy:ci",
   "deploy": "grunt deploy",
+  "deploy_without_tag": "grunt deploy_without_tag",
   "grunt": "grunt"
  }
 }
