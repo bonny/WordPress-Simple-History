@@ -189,7 +189,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= unreleased =
+= 2.35 (August 2020) =
 
 You can now [sponsor the developer of this plugin at GitHub](https://github.com/sponsors/bonny/).
 
