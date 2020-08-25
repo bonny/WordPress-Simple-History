@@ -881,7 +881,7 @@ class SimplePostLogger extends SimpleLogger
          * @param array $old_meta Old/prev post meta data.
          * @param array $new_meta New post meta data.
          *
-         * @return array $context with diff data added
+         * @return array $context Array with diff data added.
          *
          * @since 2.36.0
          */
