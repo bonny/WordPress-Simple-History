@@ -51,7 +51,7 @@ if ($ok_php_version && $ok_wp_version) {
     define('SIMPLE_HISTORY_DIR_URL', plugin_dir_url(__FILE__));
     define('SIMPLE_HISTORY_FILE', __FILE__);
 
-    /** Load required files */
+   /** Load required files */
     require_once __DIR__ . '/inc/SimpleHistory.php';
     require_once __DIR__ . '/inc/SimpleHistoryLogQuery.php';
     require_once __DIR__ . '/inc/helpers.php';
