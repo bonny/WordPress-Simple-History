@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 2.35.0
+Stable tag: 2.35.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -189,7 +189,17 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= unreleased =
+= 2.36 =
+
+- Fix plus and minus icons in quick diff.
+- Add filter for Post Logger context. (https://github.com/bonny/WordPress-Simple-History/pull/216)
+- Misc code cleanups and smaller fixes.
+
+= 2.35.1 (August 2020) =
+
+Minor update to correct readme.
+
+= 2.35 (August 2020) =
 
 You can now [sponsor the developer of this plugin at GitHub](https://github.com/sponsors/bonny/).
 

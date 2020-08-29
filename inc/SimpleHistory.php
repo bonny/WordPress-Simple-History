@@ -574,7 +574,7 @@ class SimpleHistory
                         <div class="SimpleHistory-modal__contentInner">
                             <img class="SimpleHistory-modal__contentSpinner" src="<?php echo esc_url(
                                 admin_url('/images/spinner.gif')
-                            ); ?>" alt="">
+                                                                                  ); ?>" alt="">
                         </div>
                         <div class="SimpleHistory-modal__contentClose">
                             <button class="button">✕</button>
@@ -604,7 +604,8 @@ class SimpleHistory
                 if (method_exists($one_logger['instance'], 'adminJS')) {
                     $one_logger['instance']->adminJS();
                 }
-            }}
+            }
+        }
     }
 
     /**

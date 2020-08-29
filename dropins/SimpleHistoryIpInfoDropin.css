@@ -2,7 +2,7 @@
 }
 
 .SimpleHistoryLogitem__anonUserWithIp__theIp:hover {
-/*	cursor: pointer;
+	/*	cursor: pointer;
 	text-decoration: underline;*/
 }
 
@@ -22,7 +22,7 @@
 	padding: 10px;
 	z-index: 5;
 	/* fade out then hide visibility */
-	transition: visibility 0 .25s, opacity .25s;
+	transition: visibility 0 0.25s, opacity 0.25s;
 }
 
 .SimpleHistoryIpInfoDropin__popup p {
@@ -33,7 +33,7 @@
 	visibility: visible;
 	opacity: 1;
 	/* make visible immediately and start opacity directly */
-	transition: visibility 0, opacity .25s 0s;
+	transition: visibility 0, opacity 0.25s 0s;
 }
 
 .SimpleHistoryIpInfoDropin__popupArrow {
@@ -53,7 +53,8 @@
 	left: 40px;
 }
 
-.SimpleHistoryIpInfoDropin__popupArrow:after, .SimpleHistoryIpInfoDropin__popupArrow:before {
+.SimpleHistoryIpInfoDropin__popupArrow:after,
+.SimpleHistoryIpInfoDropin__popupArrow:before {
 	bottom: 100%;
 	left: 50%;
 	border: solid transparent;
@@ -83,7 +84,6 @@
 }
 
 .SimpleHistoryIpInfoDropin__ipInfoTable tr {
-
 }
 
 .SimpleHistoryIpInfoDropin__ipInfoTable th,
@@ -111,14 +111,14 @@
 	text-align: right;
 	font-size: 12px;
 	color: #888;
-	margin-top: .5em !important;
+	margin-top: 0.5em !important;
 }
 
 .SimpleHistoryIpInfoDropin__popupClose {
 	position: absolute;
 	width: 21px;
 	height: 20px;
-	background-color: rgba(200, 200, 200, .5);
+	background-color: rgba(200, 200, 200, 0.5);
 	border-radius: 50%;
 	top: 5px;
 	right: 5px;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * File that is run during plugin uninstall (not just de-activate)
  *

@@ -784,5 +784,5 @@ class SimpleHistoryLogQuery
         wp_cache_set($cache_key, $arr_return, $cache_group);
 
         return $arr_return;
-    } // query
-} // class
+    }
+}

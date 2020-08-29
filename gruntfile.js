@@ -80,6 +80,19 @@ module.exports = function (grunt) {
     svn_user: "eskapism",
    },
   },
+  // Deploy without tagging the release, useful when only changes to the readme,
+  // for example when changing the "Tested up to" value.
+  deploy_without_tag: {
+   options: {
+    deploy_trunk: true,
+    deploy_tag: false,
+    plugin_slug: "<%= pkg.name %>",
+    plugin_main_file: "index.php",
+    build_dir: "build",
+    assets_dir: "assets-wp-repo",
+    svn_user: "eskapism",
+   },
+  },
   assets: {
    options: {
     deploy_trunk: false,

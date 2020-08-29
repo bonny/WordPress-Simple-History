@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Logger for privacy/GDPR related things.
  *

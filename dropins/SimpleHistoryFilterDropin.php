@@ -518,7 +518,7 @@ class SimpleHistoryFilterDropin
         wp_send_json_success($data);
     } // function
 
-    function add_gravatar_to_user_array(& $val, $index = null)
+    function add_gravatar_to_user_array(&$val, $index = null)
     {
         $val->text = sprintf(
             '%1$s - %2$s',

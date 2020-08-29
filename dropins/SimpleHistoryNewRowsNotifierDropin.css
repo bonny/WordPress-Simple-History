@@ -5,8 +5,8 @@
 	background: white;
 	line-height: 40px;
 	background: rgba(0, 255, 30, 0.15);
-	-webkit-transition: max-height .5s ease-out, background 0s;
-	        transition: max-height .5s ease-out, background 0s;
+	-webkit-transition: max-height 0.5s ease-out, background 0s;
+	transition: max-height 0.5s ease-out, background 0s;
 }
 
 .SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
@@ -15,12 +15,12 @@
 }
 
 .SimpleHistoryDropin__NewRowsNotifier--haveNewRows:before {
-	content: '\f463';
+	content: "\f463";
 	font: 400 20px/1 dashicons;
 	-webkit-font-smoothing: antialiased;
 	display: inline-block;
 	vertical-align: middle;
-	margin-right: .5em;
+	margin-right: 0.5em;
 }
 
 .SimpleHistoryDropin__NewRowsNotifier--haveNewRows:hover {

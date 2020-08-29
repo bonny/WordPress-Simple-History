@@ -1,13 +1,7 @@
-
-
 .SimpleHistory__filters {
-	/*float: right;
-	width: 300px;
-	margin-right: -340px;
-	*/
 	/* hide by default while log is loading */
-	opacity: .5;
-	transition: all .25s ease-out;
+	opacity: 0.5;
+	transition: all 0.25s ease-out;
 }
 
 .SimpleHistory__filters__filter--date {
@@ -15,7 +9,6 @@
 
 .SimpleHistory__filters__filter--date.select2-container {
 }
-
 
 .SimpleHistory--isLoaded .SimpleHistory__filters {
 	opacity: 1;
@@ -26,8 +19,8 @@
 	width: 310px;
 }
 
-.SimpleHistory__filters__form input[type=text],
-.SimpleHistory__filters__form input[type=search] {
+.SimpleHistory__filters__form input[type="text"],
+.SimpleHistory__filters__form input[type="search"] {
 	/* width: 100%; */
 	/* width: 310px; */
 }
@@ -48,7 +41,6 @@
 }
 
 @media (max-width: 600px) {
-
 	.SimpleHistory__filters__filterLabel {
 		display: block;
 		width: auto;
@@ -57,7 +49,6 @@
 	.SimpleHistory__filters__filterSubmitWrap {
 		margin-left: 0;
 	}
-
 }
 
 @media (min-width: 600px) {
@@ -67,12 +58,13 @@
 		line-height: 41px;
 	}
 
-	.SimpleHistoryWrap .wp-admin select[multiple].SimpleHistory__filters__filter--date {
+	.SimpleHistoryWrap
+		.wp-admin
+		select[multiple].SimpleHistory__filters__filter--date {
 		height: 2.25em;
 		overflow: hidden;
 	}
 }
-
 
 /* always label as blocks on dashboard because we don't know the width beacuse of columns */
 .postbox .SimpleHistory__filters__filterLabel {
@@ -82,8 +74,6 @@
 .postbox .SimpleHistory__filters__filterSubmitWrap {
 	margin-left: 0;
 }
-
-
 
 /**
  * Search results in filter
@@ -127,25 +117,27 @@
 
 /* when showing more filters */
 .SimpleHistory__filters.is-showingMoreFilters {
-
 }
 
-.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-searchInput {
+.SimpleHistory__filters.is-showingMoreFilters
+	.SimpleHistoryFilterDropin-searchInput {
 	/*width: 310px;*/
 }
 
-.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-showMoreFilters--first {
+.SimpleHistory__filters.is-showingMoreFilters
+	.SimpleHistoryFilterDropin-showMoreFilters--first {
 	display: none;
 }
 
-.SimpleHistory__filters.is-showingMoreFilters .SimpleHistory__filters__moreFilters {
+.SimpleHistory__filters.is-showingMoreFilters
+	.SimpleHistory__filters__moreFilters {
 	display: block;
 }
 
-.SimpleHistory__filters.is-showingMoreFilters .SimpleHistoryFilterDropin-doFilterButton--first {
+.SimpleHistory__filters.is-showingMoreFilters
+	.SimpleHistoryFilterDropin-doFilterButton--first {
 	display: none;
 }
-
 
 /* dashboard */
 .postbox .SimpleHistory__filters {
@@ -153,17 +145,17 @@
 	margin-right: 13px;
 }
 
-
 /* day filter */
 /* hidden by default, shown by js when selecting "custom range" in dates picker */
 .SimpleHistory__filters__filter--dayValuesWrap {
-    display: block;
+	display: block;
 	visibility: hidden;
 	opacity: 0;
 	margin-left: 155px;
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 1s;
+	transition: max-height 0.25s ease-in-out, opacity 0.25s ease-in-out,
+		visibility 0s 1s;
 }
 
 .is-customDateFilterActive .SimpleHistory__filters__filter--dayValuesWrap {
@@ -171,7 +163,8 @@
 	opacity: 1;
 	max-height: 150px;
 	margin-top: 1em;
-	transition: max-height .25s ease-in-out, opacity .25s ease-in-out, visibility 0s 0s;
+	transition: max-height 0.25s ease-in-out, opacity 0.25s ease-in-out,
+		visibility 0s 0s;
 }
 
 .is-customDateFilterActive .SimpleHistory__filters__filterRow--date {
