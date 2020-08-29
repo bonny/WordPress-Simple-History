@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Logger for translation related things, like translation updated.
  *

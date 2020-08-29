@@ -747,7 +747,7 @@ class SimpleCommentsLogger extends SimpleLogger
                 // Edit link sometimes does not contain comment ID
                 // Probably because comment has been removed or something
                 // So only continue if link does not end with "=""
-                if ($edit_comment_link && $edit_comment_link[ strlen($edit_comment_link) -1 ] !== '=') {
+                if ($edit_comment_link && $edit_comment_link[ strlen($edit_comment_link) - 1 ] !== '=') {
                     $output .= sprintf(
                         '
 						<tr>

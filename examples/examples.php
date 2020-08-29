@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Examples on how to customize Simple History.
  *

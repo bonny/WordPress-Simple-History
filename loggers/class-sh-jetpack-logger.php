@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Logger for Automattic Jetpack plugin.
  *

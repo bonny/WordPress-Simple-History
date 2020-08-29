@@ -464,11 +464,12 @@ class SimplePluginLogger extends SimpleLogger
         }
 
         // We found the transient we were looking for
-        if (isset($_POST['action'])
+        if (
+            isset($_POST['action'])
                 && 'delete-selected' == $_POST['action']
                 && isset($_POST['checked'])
                 && is_array($_POST['checked'])
-                ) {
+        ) {
             /*
             [checked] => Array
                 (
