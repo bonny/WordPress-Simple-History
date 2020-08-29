@@ -35,7 +35,7 @@ function simple_history_add($args)
     $message = "{$context["object_type"]} {$context["object_name"]} {$context["action"]}";
 
     SimpleLogger()->info($message, $context);
-} // simple_history_add
+}
 
 /**
  * Pretty much same as wp_text_diff() but with this you can set leading and trailing context lines
