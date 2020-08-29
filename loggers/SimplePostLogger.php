@@ -1440,29 +1440,4 @@ class SimplePostLogger extends SimpleLogger
 
         return $out;
     }
-
-    /**
-     * Output CSS for diff output
-     */
-    public function adminCSS()
-    {
-        ?>
-        <style>
-            .SimpleHistory__diff.SimpleHistory__diff {
-                border-spacing: 1px;
-            }
-
-            .SimpleHistory__diff.SimpleHistory__diff td,
-            .SimpleHistory__diff.SimpleHistory__diff td:first-child {
-                text-align: left;
-                white-space: normal;
-                font-size: 13px;
-                line-height: 1.3;
-                padding: 0.25em 0.5em;
-                color: rgb(75, 75, 75);
-                font-family: "Open Sans", sans-serif;
-            }
-        </style>
-        <?php
-    }
 }
