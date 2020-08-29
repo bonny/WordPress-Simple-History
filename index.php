@@ -42,7 +42,7 @@ if ($ok_php_version && $ok_wp_version) {
     /**
      * Register function that is called when plugin is installed
      *
-     * @TODO: make activatigon multi site aware, as in https://github.com/scribu/wp-proper-network-activation
+     * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
      * register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
      */
     define('SIMPLE_HISTORY_VERSION', '2.35.1');
