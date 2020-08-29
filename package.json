@@ -18,16 +18,16 @@
     "load-grunt-tasks": "^1.0.0",
     "stylelint": "^13.6.1",
     "stylelint-prettier": "^1.1.2",
-    "time-grunt": "^1.4.0"
-  },
-  "dependencies": {
+    "time-grunt": "^1.4.0",
     "husky": "^4.2.5",
+    "lint-staged": "^10.2.13",
     "prettier": "^2.1.1",
     "pretty-quick": "^3.0.0"
   },
+  "dependencies": {},
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged"
+      "pre-commit": "lint-staged && pretty-quick --staged"
     }
   },
   "scripts": {
@@ -42,5 +42,10 @@
     "grunt": "grunt",
     "lint-css": "stylelint css/*.css dropins/*.css",
     "lint-php": "composer run lint"
+  },
+  "lint-staged": {
+    "*.php": [
+      "./vendor/bin/phpcs --extensions=php --warning-severity=8 -s"
+    ]
   }
 }
