@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: Simple History
  * Plugin URI: http://simple-history.com
@@ -34,8 +35,8 @@ if (!defined('WPINC')) {
 
 // Plugin requires at least WordPress version "4.5.1", because usage of functions like wp_get_raw_referer.
 // true if version ok, false if too old version.
-$ok_wp_version = version_compare($GLOBALS['wp_version'], '4.5.1', '>=');
-$ok_php_version = version_compare(phpversion(), '5.3', '>=');
+$ok_wp_version = version_compare($GLOBALS['wp_version'], '5.2', '>=');
+$ok_php_version = version_compare(phpversion(), '5.6', '>=');
 
 if ($ok_php_version && $ok_wp_version) {
     /**
@@ -59,48 +60,6 @@ if ($ok_php_version && $ok_wp_version) {
     SimpleHistory::get_instance();
 } else {
     // User is running to old version of php, add admin notice about that.
+    require_once __DIR__ . '/inc/oldversions.php';
     add_action('admin_notices', 'simple_history_old_version_admin_notice');
-
-    /**
-     * Show an admin message if old PHP version.
-     */
-    function simple_history_old_version_admin_notice()
-    {
-        $ok_wp_version = version_compare($GLOBALS['wp_version'], '4.5.1', '>=');
-        $ok_php_version = version_compare(phpversion(), '5.3', '>=');
-        ?>
-        <div class="updated error">
-            <?php
-            if (!$ok_php_version) {
-                echo '<p>';
-                printf(
-                    /* translators: 1: PHP version */
-                    esc_html(
-                        __(
-                            'Simple History is a great plugin, but to use it your server must have at least PHP 5.3 installed (you have version %s).',
-                            'simple-history'
-                        )
-                    ),
-                    phpversion() // 1
-                );
-                echo '</p>';
-            }
-
-            if (!$ok_wp_version) {
-                echo '<p>';
-                printf(
-                    /* translators: 1: WordPress version */
-                    esc_html(
-                        __(
-                            'Simple History requires WordPress version 4.5.1 or higher (you have version %s).',
-                            'simple-history'
-                        )
-                    ),
-                    $GLOBALS['wp_version'] // 1
-                );
-                echo '</p>';
-            }?>
-        </div>
-        <?php
-    }
 } // End if().
