@@ -872,7 +872,20 @@ class SimplePostLogger extends SimpleLogger
         // Sticky is stored in option:
         // $sticky_posts = get_option('sticky_posts');
 
-        return $context;
+        /**
+         * Filter to control context sent to the diff output.
+         *
+         * @param array $context Array with context.
+         * @param array $old_data Old/prev post data.
+         * @param array $new_data New post data.
+         * @param array $old_meta Old/prev post meta data.
+         * @param array $new_meta New post meta data.
+         *
+         * @return array $context Array with diff data added.
+         *
+         * @since 2.36.0
+         */
+        return apply_filters('simple_history/post_logger/context', $context, $old_data, $new_data, $old_meta, $new_meta);
     }
 
     /**
