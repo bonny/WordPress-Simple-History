@@ -211,11 +211,6 @@ Style different log levels.
 	color: #eee;
 }
 
-.SimpleHistoryLogitem:hover {
-	/* same bg color as twitter uses on hover */
-	/*background: rgb(245, 248, 250);*/
-}
-
 .SimpleHistoryLogitem a {
 	text-decoration: none;
 }
