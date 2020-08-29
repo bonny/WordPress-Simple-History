@@ -41,7 +41,8 @@
     "deploy_without_tag": "grunt wp_deploy:deploy_without_tag",
     "grunt": "grunt",
     "lint-css": "stylelint css/*.css dropins/*.css",
-    "lint-php": "composer run lint"
+    "lint-php": "composer run lint",
+    "lint-php-fix": "composer run lint-fix"
   },
   "lint-staged": {
     "*.php": [
