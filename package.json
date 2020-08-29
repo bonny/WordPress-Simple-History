@@ -1,47 +1,46 @@
 {
- "name": "simple-history",
- "version": "2.35.1",
- "description": "WordPress audit log plugin",
- "author": "Pär Thernström",
- "license": "GPL",
- "devDependencies": {
-  "gitattributes-globs": "^1",
-  "gitignore-globs": "^0.1",
-  "grunt": "^1.1.0",
-  "grunt-contrib-clean": "^2",
-  "grunt-contrib-copy": "^1",
-  "grunt-pot": "^0.2.1",
-  "grunt-version": "^2",
-  "grunt-wp-deploy": "git+https://github.com/johnbillion/grunt-wp-deploy.git#master",
-  "grunt-wp-i18n": "^0.4.9",
-  "grunt-wp-readme-to-markdown": "^2",
-  "load-grunt-tasks": "^1.0.0",
-  "stylelint": "^13.6.1",
-  "stylelint-prettier": "^1.1.2",
-  "time-grunt": "^1.4.0"
- },
- "dependencies": {
-  "husky": "^4.2.5",
-  "prettier": "^2.1.1",
-  "pretty-quick": "^3.0.0"
- },
- "husky": {
-  "hooks": {
-   "pre-commit": "pretty-quick --staged"
+  "name": "simple-history",
+  "version": "2.35.1",
+  "description": "WordPress audit log plugin",
+  "author": "Pär Thernström",
+  "license": "GPL",
+  "devDependencies": {
+    "gitattributes-globs": "^1",
+    "gitignore-globs": "^0.1",
+    "grunt": "^1.1.0",
+    "grunt-contrib-clean": "^2",
+    "grunt-contrib-copy": "^1",
+    "grunt-pot": "^0.2.1",
+    "grunt-version": "^2",
+    "grunt-wp-deploy": "git+https://github.com/johnbillion/grunt-wp-deploy.git#master",
+    "grunt-wp-i18n": "^0.4.9",
+    "grunt-wp-readme-to-markdown": "^2",
+    "load-grunt-tasks": "^1.0.0",
+    "stylelint": "^13.6.1",
+    "stylelint-prettier": "^1.1.2",
+    "time-grunt": "^1.4.0"
+  },
+  "dependencies": {
+    "husky": "^4.2.5",
+    "prettier": "^2.1.1",
+    "pretty-quick": "^3.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "scripts": {
+    "makepot": "grunt makepot",
+    "bump:major": "grunt bump:major",
+    "bump:minor": "grunt bump:minor",
+    "bump:patch": "grunt bump:patch",
+    "deploy:assets": "grunt deploy:assets",
+    "deploy:ci": "grunt deploy:ci",
+    "deploy": "grunt deploy",
+    "deploy_without_tag": "grunt wp_deploy:deploy_without_tag",
+    "grunt": "grunt",
+    "lint-css": "stylelint css/*.css dropins/*.css",
+    "lint-php": "composer run lint"
   }
- },
- "scripts": {
-  "makepot": "grunt makepot",
-  "bump:major": "grunt bump:major",
-  "bump:minor": "grunt bump:minor",
-  "bump:patch": "grunt bump:patch",
-  "deploy:assets": "grunt deploy:assets",
-  "deploy:ci": "grunt deploy:ci",
-  "deploy": "grunt deploy",
-  "deploy_without_tag": "grunt wp_deploy:deploy_without_tag",
-  "grunt": "grunt",
-  "lint-css": "stylelint css/*.css dropins/*.css",
-  "lint-js": "eslint assets/js",
-  "lint-php": "composer run lint"
- }
 }

@@ -189,7 +189,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= [Unreleased] =
+= 2.36 =
 
 - Fix plus and minus icons in quick diff.
 - Add filter for Post Logger context. (https://github.com/bonny/WordPress-Simple-History/pull/216)

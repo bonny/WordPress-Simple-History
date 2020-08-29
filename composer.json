@@ -26,5 +26,10 @@
 	"dist": {
 		"url": "https://downloads.wordpress.org/plugin/simple-history.zip",
 		"type": "zip"
+	},
+	"scripts": {
+		"lint": "./vendor/bin/phpcs .",
+		"lint-fix": "./vendor/bin/phpcbf .",
+		"test": "./vendor/bin/phpunit"
 	}
 }
