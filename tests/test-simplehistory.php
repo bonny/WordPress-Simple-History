@@ -1,5 +1,8 @@
 <?php
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+// phpcs:disable Squiz.Scope.MethodScope.Missing
+
 class SimpleHistoryTest extends WP_UnitTestCase
 {
 
@@ -7,7 +10,6 @@ class SimpleHistoryTest extends WP_UnitTestCase
     public static function setUpBeforeClass()
     {
     }
-
 
     function test_sample()
     {

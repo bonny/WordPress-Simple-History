@@ -7,8 +7,6 @@ defined('ABSPATH') or die();
  */
 class SimpleMediaLogger extends SimpleLogger
 {
-
-
     public $slug = 'SimpleMediaLogger';
 
     /**
@@ -16,7 +14,7 @@ class SimpleMediaLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -43,8 +41,8 @@ class SimpleMediaLogger extends SimpleLogger
                             'attachment_deleted'
                         ),
                     ),
-                ),// end search array
-            ),// end labels
+                ), // end search array
+            ), // end labels
         );
 
         return $arr_info;
@@ -53,19 +51,18 @@ class SimpleMediaLogger extends SimpleLogger
     public function loaded()
     {
 
-        add_action('admin_init', array( $this, 'on_admin_init' ));
+        add_action('admin_init', array($this, 'onAdminInit'));
 
-        add_action('xmlrpc_call_success_mw_newMediaObject', array( $this, 'on_mw_newMediaObject' ), 10, 2);
+        add_action('xmlrpc_call_success_mw_newMediaObject', array($this, 'onMwNewMediaObject'), 10, 2);
 
-        add_filter('simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2);
+        add_filter('simple_history/rss_item_link', array($this, 'filterRssItemLink'), 10, 2);
     }
 
-    function on_admin_init()
+    public function onAdminInit()
     {
-
-        add_action('add_attachment', array( $this, 'on_add_attachment' ));
-        add_action('edit_attachment', array( $this, 'on_edit_attachment' ));
-        add_action('delete_attachment', array( $this, 'on_delete_attachment' ));
+        add_action('add_attachment', array($this, 'onAddAttachment'));
+        add_action('edit_attachment', array($this, 'onEditAttachment'));
+        add_action('delete_attachment', array($this, 'onDeleteAttachment'));
     }
 
     /**
@@ -76,7 +73,7 @@ class SimpleMediaLogger extends SimpleLogger
      * @param int   $id   ID of the new attachment.
      * @param array $args An array of arguments to add the attachment.
      */
-    function on_mw_newMediaObject($attachment_id, $args)
+    public function onMwNewMediaObject($attachment_id, $args)
     {
 
         $attachment_post = get_post($attachment_id);
@@ -140,9 +137,9 @@ class SimpleMediaLogger extends SimpleLogger
     /**
      * Get output for detailed log section
      *
-     * @param array $row Row.
+     * @param object $row Row.
      */
-    function getLogRowDetailsOutput($row)
+    public function getLogRowDetailsOutput($row)
     {
 
         $context = $row->context;
@@ -207,15 +204,15 @@ class SimpleMediaLogger extends SimpleLogger
                 if ($attachment_is_available) {
                     $context['attachment_thumb'] = sprintf(
                         '%1$s',
-                        wp_get_attachment_image($attachment_id, array( 350, 500 ), true) // Placeholder 1.
+                        wp_get_attachment_image($attachment_id, array(350, 500), true) // Placeholder 1.
                     );
                 }
-            }// End if().
+            } // End if().
 
             $context['attachment_size_format'] = size_format($row->context['attachment_filesize']);
             $context['attachment_filetype_extension'] = strtoupper($filetype['ext']);
 
-            if (! empty($context['attachment_thumb'])) {
+            if (!empty($context['attachment_thumb'])) {
                 if ($is_image) {
                     $message .= "<a class='SimpleHistoryLogitemThumbnailLink' href='" . $edit_link . "'>";
                 }
@@ -238,7 +235,7 @@ class SimpleMediaLogger extends SimpleLogger
             $message .= '</p>';
 
             $output .= $this->interpolate($message, $context, $row);
-        }// End if().
+        } // End if().
 
         return $output;
     }
@@ -246,7 +243,7 @@ class SimpleMediaLogger extends SimpleLogger
     /**
      * Called when an attachment is added
      */
-    function on_add_attachment($attachment_id)
+    public function onAddAttachment($attachment_id)
     {
 
         $attachment_post = get_post($attachment_id);
@@ -278,7 +275,7 @@ class SimpleMediaLogger extends SimpleLogger
      *
      * @param int $attachment_id
      */
-    function on_edit_attachment($attachment_id)
+    public function onEditAttachment($attachment_id)
     {
 
         $attachment_post = get_post($attachment_id);
@@ -298,10 +295,10 @@ class SimpleMediaLogger extends SimpleLogger
         );
     }
 
-    /**
+    /*
      * Called when an attachment is deleted
      */
-    function on_delete_attachment($attachment_id)
+    public function onDeleteAttachment($attachment_id)
     {
 
         $attachment_post = get_post($attachment_id);
@@ -328,7 +325,7 @@ class SimpleMediaLogger extends SimpleLogger
      * @param string $link
      * @param array  $row
      */
-    public function filter_rss_item_link($link, $row)
+    public function filterRssItemLink($link, $row)
     {
 
         if ($row->logger != $this->slug) {

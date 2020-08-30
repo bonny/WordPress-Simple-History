@@ -3,7 +3,6 @@
 // No external calls allowed to test file
 exit;
 
-
 /**
  * This example shows how to create a simple logger that will
  * log 404-errors on your website.
@@ -12,7 +11,6 @@ exit;
 // We use the function "register_logger" to tell tell SimpleHistory that our custom logger exists.
 // We call it from inside the filter "simple_history/add_custom_logger".
 add_action('simple_history/add_custom_logger', function ($simpleHistory) {
-
     $simpleHistory->register_logger('FourOhFourLogger');
 });
 
@@ -66,11 +64,11 @@ if (class_exists('SimpleLogger')) {
          * calls a loaded() function. This is where you add your actions
          * and other logger functionality.
          */
-        function loaded()
+        public function loaded()
         {
 
             // Call a function when WordPress finds a 404 page
-            add_action('404_template', array( $this, 'on_404_template' ), 10, 1);
+            add_action('404_template', array( $this, 'on404Template' ), 10, 1);
         }
 
         /**
@@ -78,7 +76,7 @@ if (class_exists('SimpleLogger')) {
          * It collects some info and then it logs a warning message
          * to the log.
          */
-        function on_404_template($template)
+        public function on404Template($template)
         {
 
             $context = array(

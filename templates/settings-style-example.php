@@ -13,7 +13,11 @@ defined('ABSPATH') || die();
 
     <ul class="SimpleHistoryLogitems">
 
-        <li data-row-id="665" data-occasions-count="0" data-occasions-id="8cdab45b0f40a0c9ffea63683e6edd8a" class="SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-info SimpleHistoryLogitem--logger-SimpleMediaLogger SimpleHistoryLogitem--initiator-wp_user">
+        <li 
+            data-row-id="665" 
+            data-occasions-count="0" 
+            data-occasions-id="8cdab45b0f40a0c9ffea63683e6edd8a"
+            class="SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-info SimpleHistoryLogitem--logger-SimpleMediaLogger SimpleHistoryLogitem--initiator-wp_user">
 
             <div class="SimpleHistoryLogitem__firstcol">
                 <div class="SimpleHistoryLogitem__senderImage">
@@ -26,6 +30,7 @@ defined('ABSPATH') || die();
                 <div class="SimpleHistoryLogitem__header">
                     <strong class="SimpleHistoryLogitem__inlineDivided">Jessie</strong>
                     <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">admin@example.com</span>
+                    <?php // phpcs:ignore Generic.Files.LineLength ?>
                     <span class="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"><a class="" href="http://playground-root.ep/wp-admin/index.php?page=simple_history_page#item/665"><time datetime="2014-08-11T21:08:44+00:00" title="2014-08-11T21:08:44+00:00" class="">1 min ago</time></a></span>
                 </div>
 
@@ -49,7 +54,7 @@ defined('ABSPATH') || die();
 
                     <p>The <code>inlineDivided</code> class is used to group short pieces of information together, for example meta data:</p>
 
-                                        <p>
+                    <p>
                         <span class="SimpleHistoryLogitem__inlineDivided">34 kB</span>
                         <span class="SimpleHistoryLogitem__inlineDivided">PNG</span>
                         <span class="SimpleHistoryLogitem__inlineDivided">420 × 420</span>
@@ -144,7 +149,7 @@ defined('ABSPATH') || die();
 
             <div class="SimpleHistoryLogitem__firstcol">
                 <div class="SimpleHistoryLogitem__senderImage">
-                    <img src="http://0.gravatar.com/avatar/eabcdc5ce4112ee4bceff4d7567d43a5?s=38&amp;d=http%%3A%%2F%%2F0.gravatar.com%%2Favatar%%2Fad516503a11cd5ca435acc9bb6523536%%3Fs%%3D38&amp;r=G" class="avatar avatar-38 photo" height="38" width="38">
+                    <img src="http://0.gravatar.com/avatar/eabcdc5ce4112ee4bceff4d7567d43a5?s=38" class="avatar avatar-38 photo" height="38" width="38">
                 </div>
             </div>
 
@@ -153,7 +158,16 @@ defined('ABSPATH') || die();
                 <div class="SimpleHistoryLogitem__header">
                     <strong class="SimpleHistoryLogitem__inlineDivided">Jessie</strong>
                     <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">admin@example.com</span>
-                    <span class="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"><a class="" href="http://playground-root.ep/wp-admin/index.php?page=simple_history_page#item/665"><time datetime="2014-08-11T21:08:44+00:00" title="2014-08-11T21:08:44+00:00" class="">1 min ago</time></a></span>
+                    <span class="
+                        SimpleHistoryLogitem__permalink 
+                        SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"
+                        ><a 
+                            class="" 
+                            href="#"
+                        ><time 
+                            datetime="2014-08-11T21:08:44+00:00" 
+                            title="2014-08-11T21:08:44+00:00" 
+                            class="">1 min ago</time></a></span>
                 </div>
 
                 <div class="SimpleHistoryLogitem__text">
@@ -185,7 +199,7 @@ defined('ABSPATH') || die();
 
         $refl = new ReflectionClass('SimpleLoggerLogLevels');
         foreach ($refl->getConstants() as $key => $val) {
-            $msg = isset($arr_messages[ $val ]) ? $arr_messages[ $val ] : 'This is a message with loglevel';
+            $msg = isset($arr_messages[$val]) ? $arr_messages[$val] : 'This is a message with loglevel';
             echo sprintf($template, $val, $msg);
         }
 

@@ -6,11 +6,12 @@ defined('ABSPATH') or die();
  * Logger for Beaver Builder
  */
 if (!class_exists('Plugin_BeaverBuilder')) {
+    // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
     class Plugin_BeaverBuilder extends SimpleLogger
     {
         public $slug = __CLASS__;
 
-        function getInfo()
+        public function getInfo()
         {
             $arr_info = array(
                 'name' => 'Plugin Beaver Builder',
@@ -48,7 +49,7 @@ if (!class_exists('Plugin_BeaverBuilder')) {
             return $arr_info;
         }
 
-        function loaded()
+        public function loaded()
         {
             if (!class_exists('FLBuilder')) {
                 return;
@@ -56,29 +57,29 @@ if (!class_exists('Plugin_BeaverBuilder')) {
 
             add_action(
                 'fl_builder_after_save_layout',
-                array($this, 'save_layout'),
+                array($this, 'saveLayout'),
                 10,
                 4
             );
             add_action(
                 'fl_builder_after_save_user_template',
-                array($this, 'save_template'),
+                array($this, 'saveTemplate'),
                 10,
                 1
             );
             add_action(
                 'fl_builder_after_save_draft',
-                array($this, 'save_draft'),
+                array($this, 'saveDraft'),
                 10,
                 2
             );
             add_action('fl_builder_admin_settings_save', array(
                 $this,
-                'save_admin'
+                'saveAdmin'
             ));
         }
-        
-        function save_template($post_id)
+
+        public function saveTemplate($post_id)
         {
             $post = get_post($post_id);
             $context = array(
@@ -86,8 +87,8 @@ if (!class_exists('Plugin_BeaverBuilder')) {
             );
             $this->noticeMessage('template_saved', $context);
         }
-        
-        function save_draft($post_id, $publish)
+
+        public function saveDraft($post_id, $publish)
         {
             $context = array(
                 'layout_name' => $post_id
@@ -95,7 +96,7 @@ if (!class_exists('Plugin_BeaverBuilder')) {
             $this->noticeMessage('draft_saved', $context);
         }
 
-        function save_layout($post_id, $publish, $data, $settings)
+        public function saveLayout($post_id, $publish, $data, $settings)
         {
             $post = get_post($post_id);
             $context = array(
@@ -106,9 +107,9 @@ if (!class_exists('Plugin_BeaverBuilder')) {
             }
         }
 
-        function save_admin()
+        public function saveAdmin()
         {
             $this->noticeMessage('admin_saved');
         }
-    } // class
+    }
 } // End if().
