@@ -7,8 +7,6 @@ defined('ABSPATH') or die();
  */
 class SimpleExportLogger extends SimpleLogger
 {
-
-
     public $slug = __CLASS__;
 
     /**
@@ -16,9 +14,8 @@ class SimpleExportLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
-
         $arr_info = array(
             'name' => __('Export Logger', 'simple-history'),
             'description' => __('Logs updates to WordPress export', 'simple-history'),
@@ -41,15 +38,14 @@ class SimpleExportLogger extends SimpleLogger
         return $arr_info;
     }
 
-    function loaded()
+    public function loaded()
     {
 
         add_action('export_wp', array( $this, 'on_export_wp' ), 10, 1);
     }
 
-    function on_export_wp($args)
+    public function on_export_wp($args)
     {
-
         $this->infoMessage(
             'created_export',
             array(
@@ -57,19 +53,4 @@ class SimpleExportLogger extends SimpleLogger
             )
         );
     }
-
-    /**
-     * Get detailed output
-     */
-    /*
-    function getLogRowDetailsOutput($row) {
-
-        $context = $row->context;
-        $message_key = $context["_message_key"];
-        $output = "";
-
-        return $output;
-
-    }
-    */
 }

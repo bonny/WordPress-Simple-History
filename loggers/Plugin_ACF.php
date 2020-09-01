@@ -309,7 +309,7 @@ if (! class_exists('Plugin_ACF')) {
          * @param array  $fieldnames_to_field_keys Fieldnames to field keys mapping.
          * @return array Modified context.
          */
-        public function add_acf_context($context = array(), $modify_type = '', $relevant_acf_fields = array(), $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys)
+        public function add_acf_context($context = array(), $modify_type = '', $relevant_acf_fields = array(), $prev_post_meta = [], $new_post_meta = [], $fieldnames_to_field_keys = [])
         {
 
             if (! is_array($context) || empty($modify_type) || empty($relevant_acf_fields)) {
@@ -1074,5 +1074,5 @@ if (! class_exists('Plugin_ACF')) {
 
             return $skip_posttypes;
         }
-    } // Class.
+    }
 } // End if().

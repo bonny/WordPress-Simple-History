@@ -9,7 +9,7 @@
 defined('ABSPATH') || die();
 
 /**
- * Logger for translation related things.
+ * Logger for plugin Jetpack.
  */
 class SH_Jetpack_Logger extends SimpleLogger
 {
@@ -145,4 +145,4 @@ class SH_Jetpack_Logger extends SimpleLogger
             $context
         );
     }
-} // class
+}

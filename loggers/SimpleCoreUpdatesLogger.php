@@ -27,7 +27,7 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
       * @param int $wp_db_version         The new $wp_db_version.
       * @param int $wp_current_db_version The old (current) $wp_db_version.
       */
-    function on_wp_upgrade($wp_db_version, $wp_current_db_version)
+    public function on_wp_upgrade($wp_db_version, $wp_current_db_version)
     {
 
         $this->debugMessage(
@@ -43,7 +43,7 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
      * We need to store the WordPress version we are updating from.
      * 'update_feedback' is a suitable filter.
      */
-    function on_update_feedback()
+    public function on_update_feedback()
     {
 
         if (! empty($GLOBALS['wp_version']) && ! isset($GLOBALS[ 'simple_history_' . $this->slug . '_wp_version' ])) {
@@ -56,7 +56,7 @@ class SimpleCoreUpdatesLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(

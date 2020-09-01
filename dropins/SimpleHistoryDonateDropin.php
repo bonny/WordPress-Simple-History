@@ -18,7 +18,7 @@ class SimpleHistoryDonateDropin
     // Simple History instance
     private $sh;
 
-    function __construct($sh)
+    public function __construct($sh)
     {
 
         $this->sh = $sh;
@@ -30,7 +30,7 @@ class SimpleHistoryDonateDropin
      * Add link to the donate page in the Plugins » Installed plugins screen
      * Called from filter 'plugin_row_meta'
      */
-    function action_plugin_row_meta($links, $file)
+    public function action_plugin_row_meta($links, $file)
     {
 
         if ($file == $this->sh->plugin_basename) {
@@ -67,7 +67,7 @@ class SimpleHistoryDonateDropin
         */
     }
 
-    function settings_section_output()
+    public function settings_section_output()
     {
 
         printf(
@@ -77,7 +77,7 @@ class SimpleHistoryDonateDropin
     }
 
 
-    function settings_field_donate()
+    public function settings_field_donate()
     {
     }
 }

@@ -7,8 +7,6 @@ defined('ABSPATH') or die();
  */
 class SimpleMenuLogger extends SimpleLogger
 {
-
-
     public $slug = __CLASS__;
 
     /**
@@ -16,7 +14,7 @@ class SimpleMenuLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -54,7 +52,7 @@ class SimpleMenuLogger extends SimpleLogger
         return $arr_info;
     }
 
-    function loaded()
+    public function loaded()
     {
 
         /*
@@ -117,7 +115,7 @@ class SimpleMenuLogger extends SimpleLogger
      * Can't use action "wp_delete_nav_menu" beacuse
      * it's fired after menu is deleted, so we don't have the name in this action
      */
-    function on_load_nav_menus_page_detect_delete()
+    public function on_load_nav_menus_page_detect_delete()
     {
 
         /*
@@ -176,7 +174,7 @@ class SimpleMenuLogger extends SimpleLogger
     }
     */
 
-    function on_wp_create_nav_menu($term_id, $menu_data)
+    public function on_wp_create_nav_menu($term_id, $menu_data)
     {
 
         $menu = wp_get_nav_menu_object($term_id);
@@ -213,7 +211,7 @@ class SimpleMenuLogger extends SimpleLogger
     /**
      * Detect menu being saved
      */
-    function on_load_nav_menus_page_detect_update()
+    public function on_load_nav_menus_page_detect_update()
     {
 
         /*
@@ -309,7 +307,7 @@ class SimpleMenuLogger extends SimpleLogger
     /**
      * Get detailed output
      */
-    function getLogRowDetailsOutput($row)
+    public function getLogRowDetailsOutput($row)
     {
 
         $context = $row->context;
@@ -344,7 +342,7 @@ class SimpleMenuLogger extends SimpleLogger
     /**
      * Log updates to theme menu locations
      */
-    function on_load_nav_menus_page_detect_locations_update()
+    public function on_load_nav_menus_page_detect_locations_update()
     {
 
         // Check that needed vars are set

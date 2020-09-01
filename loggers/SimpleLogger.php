@@ -1489,7 +1489,7 @@ class SimpleLogger
 
         // Return $this so we can chain methods.
         return $this;
-    } // log
+    }
 
     /**
      * Append new info to the context of history item with id $post_logger->lastInsertID.
@@ -1520,7 +1520,7 @@ class SimpleLogger
                 'value' => $value
             );
 
-            $result = $wpdb->insert($db_table_contexts, $data);
+            $wpdb->insert($db_table_contexts, $data);
         }
 
         return true;
@@ -1549,7 +1549,7 @@ class SimpleLogger
      * Returns additional headers with ip number from context
      *
      * @since 2.0.29
-     * @param array $row Row with info.
+     * @param object $row Row with info.
      * @return array Headers
      */
     public function get_event_ip_number_headers($row)
@@ -1636,59 +1636,4 @@ class SimpleLogger
         <?php
         */
     }
-}
-
-/**
- * Describes log initiator, i.e. who caused to log event to happend
- */
-class SimpleLoggerLogInitiators
-{
-    // A wordpress user that at the log event created did exist in the wp database
-    // May have been deleted when the log is viewed.
-    const WP_USER = 'wp_user';
-
-    // Cron job run = wordpress initiated
-    // Email sent to customer on webshop = system/wordpress/anonymous web user
-    // Javascript error occured on website = anonymous web user.
-    const WEB_USER = 'web_user';
-
-    // WordPress core or plugins updated automatically via wp-cron.
-    const WORDPRESS = 'wp';
-
-    // WP CLI / terminal.
-    const WP_CLI = 'wp_cli';
-
-    // I dunno.
-    const OTHER = 'other';
-}
-
-/**
- * Describes log event type
- * Based on the CRUD-types
- * http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
- * More may be added later on if needed
- * Note: not in use at the moment
- */
-class SimpleLoggerLogTypes
-{
-    const CREATE = 'create';
-    const READ = 'read';
-    const UPDATE = 'update';
-    const DELETE = 'delete';
-    const OTHER = 'other';
-}
-
-/**
- * Describes log levels
- */
-class SimpleLoggerLogLevels
-{
-    const EMERGENCY = 'emergency';
-    const ALERT = 'alert';
-    const CRITICAL = 'critical';
-    const ERROR = 'error';
-    const WARNING = 'warning';
-    const NOTICE = 'notice';
-    const INFO = 'info';
-    const DEBUG = 'debug';
 }

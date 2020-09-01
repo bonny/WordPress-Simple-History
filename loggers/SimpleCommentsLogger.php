@@ -7,13 +7,10 @@ defined('ABSPATH') or die();
  */
 class SimpleCommentsLogger extends SimpleLogger
 {
-
-
     public $slug = __CLASS__;
 
-    function __construct($sh)
+    public function __construct($sh)
     {
-
         parent::__construct($sh);
 
         // Add option to not show spam comments, because to much things getting logged
@@ -27,7 +24,7 @@ class SimpleCommentsLogger extends SimpleLogger
      *
      * @param string $where sql query where
      */
-    function maybe_modify_log_query_sql_where($where)
+    public function maybe_modify_log_query_sql_where($where)
     {
 
         // since 19 sept 2016 we do include spam, to skip the subquery
@@ -87,7 +84,7 @@ class SimpleCommentsLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -568,7 +565,7 @@ class SimpleCommentsLogger extends SimpleLogger
     /**
      * Get output for detailed log section
      */
-    function getLogRowDetailsOutput($row)
+    public function getLogRowDetailsOutput($row)
     {
 
         $context = $row->context;
@@ -599,8 +596,7 @@ class SimpleCommentsLogger extends SimpleLogger
         $comment_type = isset($context['comment_type']) ? $context['comment_type'] : '';
 
         switch ($comment_type) {
-            case 'trackback';
-
+            case 'trackback':
                 $arr_plugin_keys = array(
                     'trackback_status' => _x('Status', 'comments logger - detailed output comment status', 'simple-history'),
                     // "trackback_type" => _x("Trackback type", "comments logger - detailed output comment type", "simple-history"),
@@ -610,11 +606,8 @@ class SimpleCommentsLogger extends SimpleLogger
                 );
 
                 break;
-
-            case 'pingback';
-
+            case 'pingback':
                 $arr_plugin_keys = array(
-
                     'pingback_status' => _x('Status', 'comments logger - detailed output comment status', 'simple-history'),
                     // "pingback_type" => _x("Pingback type", "comments logger - detailed output comment type", "simple-history"),
                     'pingback_author' => _x('Name', 'comments logger - detailed output author', 'simple-history'),
@@ -624,10 +617,8 @@ class SimpleCommentsLogger extends SimpleLogger
                 );
 
                 break;
-
-            case 'comment';
-            default;
-
+            case 'comment':
+            default:
                 $arr_plugin_keys = array(
                     'comment_status' => _x('Status', 'comments logger - detailed output comment status', 'simple-history'),
                     // "comment_type" => _x("Comment type", "comments logger - detailed output comment type", "simple-history"),
@@ -708,8 +699,7 @@ class SimpleCommentsLogger extends SimpleLogger
 
                     break;
 
-                default;
-
+                default:
                     if (isset($context[ $key ])) {
                         $desc_output = esc_html($context[ $key ]);
                     }
@@ -768,7 +758,7 @@ class SimpleCommentsLogger extends SimpleLogger
         return $output;
     }
 
-    function adminCSS()
+    public function adminCSS()
     {
         ?>
         <style>

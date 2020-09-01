@@ -11,7 +11,6 @@ defined('ABSPATH') or die();
 class SimpleLegacyLogger extends SimpleLogger
 {
 
-
     /**
      * Unique slug for this logger
      * Will be saved in DB and used to associate each log row with its logger
@@ -29,7 +28,7 @@ class SimpleLegacyLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(

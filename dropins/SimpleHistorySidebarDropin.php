@@ -207,7 +207,7 @@ class SimpleHistorySidebarDropin
      *  <div class="postbox">
      *      <h3 class="hndle">Title</h3>
      *      <div class="inside">
-     *          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Inquit, dasne adolescenti veniam? Non laboro, inquit, de nomine. In quibus doctissimi illi veteres inesse quiddam caeleste et divinum putaverunt. Duo Reges: constructio interrete. Indicant pueri, in quibus ut in speculis natura cernitur. Quod ea non occurrentia fingunt, vincunt Aristonem; Quod quidem iam fit etiam in Academia. Aliter enim nosmet ipsos nosse non possumus.</p>
+     *          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
      *      </div>
      *  </div>
      */
@@ -232,4 +232,4 @@ class SimpleHistorySidebarDropin
         </div>
         <?php
     }
-}//end class
+}

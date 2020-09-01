@@ -14,7 +14,7 @@ class SimpleHistoryFilterDropin
     // Simple History instance
     private $sh;
 
-    function __construct($sh)
+    public function __construct($sh)
     {
 
         $this->sh = $sh;
@@ -262,8 +262,12 @@ class SimpleHistoryFilterDropin
                 </p>
 
                 <p class="SimpleHistory__filters__filterSubmitWrap">
-                    <button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--first js-SimpleHistoryFilterDropin-doFilter"><?php _e('Search events', 'simple-history') ?></button>
-                    <button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex('Show search options', 'Filter dropin: button to show more search options', 'simple-history') ?></button>
+                    <button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--first js-SimpleHistoryFilterDropin-doFilter">
+                        <?php _e('Search events', 'simple-history') ?>
+                    </button>
+                    <button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters">
+                        <?php _ex('Show search options', 'Filter dropin: button to show more search options', 'simple-history') ?>
+                    </button>
                 </p>
 
                 <?php
@@ -419,8 +423,12 @@ class SimpleHistoryFilterDropin
                     ?>
 
                     <p class="SimpleHistory__filters__filterSubmitWrap">
-                        <button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter"><?php _e('Search events', 'simple-history') ?></button>
-                        <button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters"><?php _ex('Hide search options', 'Filter dropin: button to hide more search options', 'simple-history') ?></button>
+                        <button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter">
+                            <?php _e('Search events', 'simple-history') ?>
+                        </button>
+                        <button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters">
+                            <?php _ex('Hide search options', 'Filter dropin: button to hide more search options', 'simple-history') ?>
+                        </button>
                     </p>
 
                 </div><!-- // more filters -->
@@ -435,8 +443,7 @@ class SimpleHistoryFilterDropin
 
         </div>
         <?php
-    } // function
-
+    }
 
     /**
      * Return format used for select2 for a single user id
@@ -516,9 +523,9 @@ class SimpleHistoryFilterDropin
         $data['results'] = array_merge($data['results'], $results_user);
 
         wp_send_json_success($data);
-    } // function
+    }
 
-    function add_gravatar_to_user_array(&$val, $index = null)
+    public function add_gravatar_to_user_array(&$val, $index = null)
     {
         $val->text = sprintf(
             '%1$s - %2$s',
@@ -543,7 +550,7 @@ class SimpleHistoryFilterDropin
      * @param int|bool $multi     Optional. Whether the additional fields and buttons should be added.
      *                            Default 0|false.
      */
-    function touch_time($from_or_to, $edit = 1)
+    public function touch_time($from_or_to, $edit = 1)
     {
 
         global $wp_locale;
@@ -589,9 +596,5 @@ class SimpleHistoryFilterDropin
         printf(__('%1$s %2$s, %3$s'), $month, $day, $year);
 
         echo '</span>';
-
-        ?>
-
-        <?php
-    } // func
-} // end class
+    }
+}

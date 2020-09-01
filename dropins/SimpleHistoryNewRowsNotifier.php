@@ -18,7 +18,7 @@ class SimpleHistoryNewRowsNotifier
     // How often we should check for new rows, in ms
     private $interval = 10000;
 
-    function __construct($sh)
+    public function __construct($sh)
     {
 
         $this->sh = $sh;
@@ -95,4 +95,4 @@ class SimpleHistoryNewRowsNotifier
 
         wp_send_json_success($json_data);
     }
-} // class
+}

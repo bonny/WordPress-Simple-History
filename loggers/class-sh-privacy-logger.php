@@ -416,4 +416,4 @@ class SH_Privacy_Logger extends SimpleLogger
             )
         );
     }
-} // class
+}

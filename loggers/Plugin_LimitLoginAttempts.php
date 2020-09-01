@@ -7,13 +7,12 @@ defined('ABSPATH') or die();
  * https://sv.wordpress.org/plugins/limit-login-attempts/
  */
 if (! class_exists('Plugin_LimitLoginAttempts')) {
-
     class Plugin_LimitLoginAttempts extends SimpleLogger
     {
 
         public $slug = __CLASS__;
 
-        function getInfo()
+        public function getInfo()
         {
 
             $arr_info = array(
@@ -46,7 +45,7 @@ if (! class_exists('Plugin_LimitLoginAttempts')) {
             return $arr_info;
         }
 
-        function loaded()
+        public function loaded()
         {
 
             require_once(ABSPATH . 'wp-admin/includes/plugin.php');
@@ -69,7 +68,7 @@ if (! class_exists('Plugin_LimitLoginAttempts')) {
         /**
          * Fired when plugin options screen is loaded
          */
-        function on_load_settings_page($a)
+        public function on_load_settings_page($a)
         {
 
             if ($_POST && wp_verify_nonce($_POST['_wpnonce'], 'limit-login-attempts-options')) {
@@ -120,7 +119,7 @@ if (! class_exists('Plugin_LimitLoginAttempts')) {
          * do same checks as plugin itself does
          * and log if we match something
          */
-        function on_option_limit_login_lockouts_total($value)
+        public function on_option_limit_login_lockouts_total($value)
         {
 
             global $limit_login_just_lockedout;
@@ -190,7 +189,7 @@ if (! class_exists('Plugin_LimitLoginAttempts')) {
         /**
          * Add some extra info
          */
-        function getLogRowDetailsOutput($row)
+        public function getLogRowDetailsOutput($row)
         {
 
             $output = '';
@@ -228,6 +227,5 @@ if (! class_exists('Plugin_LimitLoginAttempts')) {
 
             return $output;
         }
-    } // class
-
+    }
 } // End if().

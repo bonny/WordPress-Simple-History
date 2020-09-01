@@ -189,6 +189,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= Unreleased =
+
+- Updated lots of code to be formatted more according to PSR12.
+
 = 2.36 (August 2020) =
 
 - Fix plus and minus icons in quick diff.

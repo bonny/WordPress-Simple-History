@@ -13,13 +13,13 @@ class SimpleHistorySidebarStats
 
     private $sh;
 
-    function __construct($sh)
+    public function __construct($sh)
     {
 
         $this->init($sh);
     }
 
-    function init($sh)
+    public function init($sh)
     {
 
         $this->sh = $sh;
@@ -37,7 +37,7 @@ class SimpleHistorySidebarStats
         wp_enqueue_script('simple_history_chart.js', SIMPLE_HISTORY_DIR_URL . 'js/Chart.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION, true);
     }
 
-    function on_admin_footer()
+    public function on_admin_footer()
     {
 
         ?>
@@ -141,7 +141,7 @@ class SimpleHistorySidebarStats
         <?php
     }
 
-    function on_sidebar_html()
+    public function on_sidebar_html()
     {
 
         $num_days = 28;

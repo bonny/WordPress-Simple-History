@@ -191,7 +191,7 @@ class SimplePluginLogger extends SimpleLogger
      * @param string $text Text.
      * @param string $domain Domin.
      */
-    function on_gettext_detect_plugin_error_deactivation_reason($translation, $text, $domain)
+    public function on_gettext_detect_plugin_error_deactivation_reason($translation, $text, $domain)
     {
 
         global $pagenow;
@@ -246,7 +246,7 @@ class SimplePluginLogger extends SimpleLogger
      * @param string $text Text.
      * @param string $domain Domin.
      */
-    function on_gettext($translation, $text, $domain)
+    public function on_gettext($translation, $text, $domain)
     {
 
         global $pagenow;
@@ -302,12 +302,12 @@ class SimplePluginLogger extends SimpleLogger
         );
 
         return $translation;
-    } // on_gettext
+    }
 
     /**
      * Show readme from github in a modal win
      */
-    function ajax_GetGitHubPluginInfo()
+    public function ajax_GetGitHubPluginInfo()
     {
 
         if (! current_user_can('install_plugins')) {
@@ -404,7 +404,7 @@ class SimplePluginLogger extends SimpleLogger
      * the real name of the plugin, only the dir and main index file.
      * So before a plugin is deleted we save all needed info in a transient
      */
-    function on_action_delete_selected()
+    public function on_action_delete_selected()
     {
 
         // Same as in plugins.php
@@ -431,7 +431,7 @@ class SimplePluginLogger extends SimpleLogger
      * Saves info about all installed plugins to an option.
      * When we are done logging then we remove the option.
      */
-    function save_versions_before_update($bool = null, $hook_extra = null)
+    public function save_versions_before_update($bool = null, $hook_extra = null)
     {
 
         $plugins = get_plugins();
@@ -567,7 +567,7 @@ class SimplePluginLogger extends SimpleLogger
      * @param array           $data {
      *     Array of bulk item update data.
      */
-    function on_upgrader_process_complete($plugin_upgrader_instance, $arr_data)
+    public function on_upgrader_process_complete($plugin_upgrader_instance, $arr_data)
     {
 
         // Can't use get_plugins() here to get version of plugins updated from
@@ -915,14 +915,13 @@ class SimplePluginLogger extends SimpleLogger
         }
 
         $this->remove_saved_versions();
-    } // on upgrader_process_complete
-
+    }
 
     /**
      * Plugin is activated
      * plugin_name is like admin-menu-tree-page-view/index.php
      */
-    function on_activated_plugin($plugin_name, $network_wide)
+    public function on_activated_plugin($plugin_name, $network_wide)
     {
 
         /*
@@ -957,13 +956,13 @@ class SimplePluginLogger extends SimpleLogger
         }
 
         $this->infoMessage('plugin_activated', $context);
-    } // on_activated_plugin
+    }
 
     /**
      * Plugin is deactivated
      * plugin_name is like admin-menu-tree-page-view/index.php
      */
-    function on_deactivated_plugin($plugin_name)
+    public function on_deactivated_plugin($plugin_name)
     {
 
         $plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $plugin_name, true, false);
@@ -984,13 +983,13 @@ class SimplePluginLogger extends SimpleLogger
         }
 
         $this->infoMessage('plugin_deactivated', $context);
-    } // on_deactivated_plugin
+    }
 
 
     /**
      * Get output for detailed log section
      */
-    function getLogRowDetailsOutput($row)
+    public function getLogRowDetailsOutput($row)
     {
 
         $context     = $row->context;
@@ -1120,8 +1119,7 @@ class SimplePluginLogger extends SimpleLogger
                         admin_url("plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550"),
                         esc_html_x('View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history')
                     );
-                } // End if().
-                elseif (isset($context['plugin_install_source']) && $context['plugin_install_source'] == 'upload' && ! empty($context['plugin_github_url'])) {
+                } elseif (isset($context['plugin_install_source']) && $context['plugin_install_source'] == 'upload' && ! empty($context['plugin_github_url'])) {
                     // Can't embed iframe
                     // Must use API instead
                     // https://api.github.com/repos/<username>/<repo>/readme?callback=<callbackname>
@@ -1176,5 +1174,5 @@ class SimplePluginLogger extends SimpleLogger
         } // End if().
 
         return $output;
-    } // getLogRowDetailsOutput
-} // class SimplePluginLogger
+    }
+}

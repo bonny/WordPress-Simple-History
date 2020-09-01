@@ -18,7 +18,7 @@ class PluginUserSwitchingLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -38,7 +38,7 @@ class PluginUserSwitchingLogger extends SimpleLogger
         return $arr_info;
     }
 
-    function loaded()
+    public function loaded()
     {
 
         add_action('switch_to_user', array( $this, 'on_switch_to_user' ), 10, 2);
@@ -46,7 +46,7 @@ class PluginUserSwitchingLogger extends SimpleLogger
         add_action('switch_off_user', array( $this, 'on_switch_off_user' ), 10, 1);
     }
 
-    function on_switch_to_user($user_id, $old_user_id)
+    public function on_switch_to_user($user_id, $old_user_id)
     {
 
         $user_to = get_user_by('id', $user_id);
@@ -80,7 +80,7 @@ class PluginUserSwitchingLogger extends SimpleLogger
      * @param int|false $old_user_id The ID of the user being switched from, or false if the user is switching back
      *                               after having been switched off.
      */
-    function on_switch_back_user($user_id, $old_user_id)
+    public function on_switch_back_user($user_id, $old_user_id)
     {
 
         $user_to = get_user_by('id', $user_id);
@@ -117,7 +117,7 @@ class PluginUserSwitchingLogger extends SimpleLogger
         }
     }
 
-    function on_switch_off_user($user_id)
+    public function on_switch_off_user($user_id)
     {
 
         $user = get_user_by('id', $user_id);

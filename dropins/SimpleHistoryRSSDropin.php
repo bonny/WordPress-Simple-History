@@ -12,8 +12,6 @@ Author: Pär Thernström
  */
 class SimpleHistoryRSSDropin
 {
-
-
     public function __construct($sh)
     {
 
@@ -114,7 +112,7 @@ class SimpleHistoryRSSDropin
             wp_redirect($goback);
             exit;
         }
-    } // settings
+    }
 
     /**
      * Check if RSS feed is enabled or disabled
@@ -321,7 +319,7 @@ class SimpleHistoryRSSDropin
             </rss>
             <?php
         }// End if().
-    } // rss
+    }
 
     /**
      * Create a new RSS secret
@@ -408,4 +406,4 @@ class SimpleHistoryRSSDropin
         _e('Simple History has a RSS feed which you can subscribe to and receive log updates. Make sure you only share the feed with people you trust, since it can contain sensitive or confidential information.', 'simple-history');
         echo '</p>';
     }
-} // end rss class
+}

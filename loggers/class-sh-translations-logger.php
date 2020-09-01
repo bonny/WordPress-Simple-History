@@ -13,7 +13,6 @@ defined('ABSPATH') || die();
  */
 class SH_Translations_Logger extends SimpleLogger
 {
-
     /**
      * Logger slug.
      *
@@ -134,4 +133,4 @@ class SH_Translations_Logger extends SimpleLogger
         $name = $this->upgrader->get_name_for_update( $this->language_update );
         */
     }
-} // class
+}

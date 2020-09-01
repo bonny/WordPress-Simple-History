@@ -7,7 +7,6 @@ defined('ABSPATH') or die();
  */
 class SimpleThemeLogger extends SimpleLogger
 {
-
     public $slug = __CLASS__;
 
     // When swithing themes, this will contain info about the theme we are switching from
@@ -18,7 +17,7 @@ class SimpleThemeLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -81,7 +80,7 @@ class SimpleThemeLogger extends SimpleLogger
         return $arr_info;
     }
 
-    function loaded()
+    public function loaded()
     {
 
         /**
@@ -119,7 +118,7 @@ class SimpleThemeLogger extends SimpleLogger
     *
     * @param string $transient Deleted transient name.
     */
-    function on_deleted_site_transient_theme_deleted($transient = null)
+    public function on_deleted_site_transient_theme_deleted($transient = null)
     {
 
         if ('update_themes' !== $transient) {
@@ -158,7 +157,7 @@ class SimpleThemeLogger extends SimpleLogger
     }
 
 
-    function on_upgrader_process_complete_theme_update($upgrader_instance = null, $arr_data = null)
+    public function on_upgrader_process_complete_theme_update($upgrader_instance = null, $arr_data = null)
     {
 
         /*
@@ -248,7 +247,7 @@ class SimpleThemeLogger extends SimpleLogger
         }
     }
 
-    function on_upgrader_process_complete_theme_install($upgrader_instance = null, $arr_data = null)
+    public function on_upgrader_process_complete_theme_install($upgrader_instance = null, $arr_data = null)
     {
 
         /*
@@ -328,7 +327,7 @@ class SimpleThemeLogger extends SimpleLogger
         );
     }
 
-    function on_page_load_custom_background()
+    public function on_page_load_custom_background()
     {
 
         if (empty($_POST)) {
@@ -359,7 +358,7 @@ class SimpleThemeLogger extends SimpleLogger
     /*
     WP_Customize_Manager $this WP_Customize_Manager instance.
     */
-    function on_action_customize_save($customize_manager)
+    public function on_action_customize_save($customize_manager)
     {
 
         /*
@@ -539,7 +538,7 @@ class SimpleThemeLogger extends SimpleLogger
                     $new_value = $one_setting->post_value();
 
                     // If old and new value is different then we log
-                    if ($old_value != $new_value && ! in_array($one_setting_id, $arr_changed_settings_ids)) {
+                    if ($old_value != $new_value && ! in_array($one_setting->id, $arr_changed_settings_ids)) {
                         // if ( $old_value != $new_value ) {
                         if ($debug) {
                             echo "\nSetting with id ";
@@ -618,7 +617,7 @@ class SimpleThemeLogger extends SimpleLogger
      * When a new theme is about to get switched to
      * we save info about the old one
      */
-    function on_page_load_themes()
+    public function on_page_load_themes()
     {
 
         // sf_d($_REQUEST, "request");exit;
@@ -647,13 +646,13 @@ class SimpleThemeLogger extends SimpleLogger
                 (
                     [Name] => Twenty Eleven
                     [ThemeURI] => http://wordpress.org/themes/twentyeleven
-                    [Description] => The 2011 theme for WordPress is sophisticated, lightweight, and adaptable. Make it yours with a custom menu, header image, and background -- then go further with available theme options for light or dark color scheme, custom link colors, and three layout choices. Twenty Eleven comes equipped with a Showcase page template that transforms your front page into a showcase to show off your best content, widget support galore (sidebar, three footer areas, and a Showcase page widget area), and a custom "Ephemera" widget to display your Aside, Link, Quote, or Status posts. Included are styles for print and for the admin editor, support for featured images (as custom header images on posts and pages and as large images on featured "sticky" posts), and special styles for six different post formats.
+                    [Description] => The 2011 theme for WordPress is sophisticated, lightweight...
                     [Author] => the WordPress team
                     [AuthorURI] => http://wordpress.org/
                     [Version] => 1.8
                     [Template] =>
                     [Status] =>
-                    [Tags] => dark, light, white, black, gray, one-column, two-columns, left-sidebar, right-sidebar, fixed-layout, responsive-layout, custom-background, custom-colors, custom-header, custom-menu, editor-style, featured-image-header, featured-images, flexible-header, full-width-template, microformats, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready
+                    [Tags] => dark, light, white, black, gray, one-column...
                     [TextDomain] => twentyeleven
                     [DomainPath] =>
                 )
@@ -680,7 +679,7 @@ class SimpleThemeLogger extends SimpleLogger
         );
     }
 
-    function on_switch_theme($new_name, $new_theme)
+    public function on_switch_theme($new_name, $new_theme)
     {
 
         $prev_theme_data = $this->prev_theme_data;
@@ -696,9 +695,8 @@ class SimpleThemeLogger extends SimpleLogger
         );
     }
 
-    function getLogRowDetailsOutput($row)
+    public function getLogRowDetailsOutput($row)
     {
-
         $context = $row->context;
         $message_key = $context['_message_key'];
         $output = '';
@@ -783,7 +781,7 @@ class SimpleThemeLogger extends SimpleLogger
     /**
      * Add widget name and sidebar name to output
      */
-    function getLogRowPlainTextOutput($row)
+    public function getLogRowPlainTextOutput($row)
     {
 
         $context = $row->context;
@@ -865,7 +863,7 @@ class SimpleThemeLogger extends SimpleLogger
      *
      * @TODO: first time a widget is added it seems to call this and we get double edit logs that are confusing
      */
-    function on_widget_update_callback($instance, $new_instance, $old_instance, $widget_instance)
+    public function on_widget_update_callback($instance, $new_instance, $old_instance, $widget_instance)
     {
 
         // sf_d($instance);
@@ -1000,7 +998,7 @@ class SimpleThemeLogger extends SimpleLogger
     /**
      * Widget added
      */
-    function on_action_sidebar_admin_setup__detect_widget_add()
+    public function on_action_sidebar_admin_setup__detect_widget_add()
     {
 
         if (isset($_POST['add_new']) && ! empty($_POST['add_new']) && isset($_POST['sidebar']) && isset($_POST['id_base'])) {
@@ -1029,7 +1027,7 @@ class SimpleThemeLogger extends SimpleLogger
     /*
      * widget deleted
      */
-    function on_action_sidebar_admin_setup__detect_widget_delete()
+    public function on_action_sidebar_admin_setup__detect_widget_delete()
     {
 
         // Widget was deleted
@@ -1065,7 +1063,7 @@ class SimpleThemeLogger extends SimpleLogger
      * @param string $sidebar_id ID of sidebar.
      * @return sidebar info or false on failure.
      */
-    function getSidebarById($sidebar_id)
+    public function getSidebarById($sidebar_id)
     {
 
         if (empty($sidebar_id)) {
@@ -1092,7 +1090,7 @@ class SimpleThemeLogger extends SimpleLogger
      * @param string $id_base
      * @return wp_widget object or false on failure
      */
-    function getWidgetByIdBase($widget_id_base)
+    public function getWidgetByIdBase($widget_id_base)
     {
 
         $widget_factory = isset($GLOBALS['wp_widget_factory']) ? $GLOBALS['wp_widget_factory'] : false;

@@ -16,7 +16,7 @@ class SimpleOptionsLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -50,13 +50,13 @@ class SimpleOptionsLogger extends SimpleLogger
         return $arr_info;
     }
 
-    function loaded()
+    public function loaded()
     {
 
         add_action('updated_option', array( $this, 'on_updated_option' ), 10, 3);
     }
 
-    function on_updated_option($option, $old_value, $new_value)
+    public function on_updated_option($option, $old_value, $new_value)
     {
 
         if (empty($_SERVER['REQUEST_URI'])) {
@@ -183,7 +183,7 @@ class SimpleOptionsLogger extends SimpleLogger
     /**
      * Get detailed output
      */
-    function getLogRowDetailsOutput($row)
+    public function getLogRowDetailsOutput($row)
     {
 
         $context = $row->context;
@@ -289,7 +289,7 @@ class SimpleOptionsLogger extends SimpleLogger
      * value 0 = Your latest post
      * value int n = A static page
      */
-    function add_context_for_option_page_on_front($context, $old_value, $new_value, $option, $option_page)
+    public function add_context_for_option_page_on_front($context, $old_value, $new_value, $option, $option_page)
     {
 
         if (! empty($old_value) && is_numeric($old_value)) {
@@ -311,7 +311,7 @@ class SimpleOptionsLogger extends SimpleLogger
         return $context;
     }
 
-    function add_context_for_option_page_for_posts($context, $old_value, $new_value, $option, $option_page)
+    public function add_context_for_option_page_for_posts($context, $old_value, $new_value, $option, $option_page)
     {
 
         // Get same info as for page_on_front
@@ -320,7 +320,7 @@ class SimpleOptionsLogger extends SimpleLogger
         return $context;
     }
 
-    function get_details_output_for_option_page_for_posts($context, $old_value, $new_value, $option, $option_page)
+    public function get_details_output_for_option_page_for_posts($context, $old_value, $new_value, $option, $option_page)
     {
 
         $output = call_user_func_array(array( $this, 'get_details_output_for_option_page_on_front' ), func_get_args());
@@ -333,7 +333,7 @@ class SimpleOptionsLogger extends SimpleLogger
      *
      * @return string output
      */
-    function get_details_output_for_option_page_on_front($context, $old_value, $new_value, $option, $option_page, $tmpl_row)
+    public function get_details_output_for_option_page_on_front($context, $old_value, $new_value, $option, $option_page, $tmpl_row)
     {
 
         $output = '';
@@ -386,13 +386,12 @@ class SimpleOptionsLogger extends SimpleLogger
         }
 
         return $output;
-    } // custom output page_on_front
-
+    }
 
     /**
      * "default_category" = Writing Settings » Default Post Category
      */
-    function add_context_for_option_default_category($context, $old_value, $new_value, $option, $option_page)
+    public function add_context_for_option_default_category($context, $old_value, $new_value, $option, $option_page)
     {
 
         if (! empty($old_value) && is_numeric($old_value)) {
@@ -414,7 +413,7 @@ class SimpleOptionsLogger extends SimpleLogger
         return $context;
     }
 
-    function add_context_for_option_default_email_category($context, $old_value, $new_value, $option, $option_page)
+    public function add_context_for_option_default_email_category($context, $old_value, $new_value, $option, $option_page)
     {
 
         $context = call_user_func_array(array( $this, 'add_context_for_option_default_category' ), func_get_args());
@@ -428,7 +427,7 @@ class SimpleOptionsLogger extends SimpleLogger
      *
      * @return string output
      */
-    function get_details_output_for_option_default_category($context, $old_value, $new_value, $option, $option_page, $tmpl_row)
+    public function get_details_output_for_option_default_category($context, $old_value, $new_value, $option, $option_page, $tmpl_row)
     {
 
         $old_category_name = isset($context['old_category_name']) ? $context['old_category_name'] : null;
@@ -454,7 +453,7 @@ class SimpleOptionsLogger extends SimpleLogger
         return $output;
     }
 
-    function get_details_output_for_option_default_email_category($context, $old_value, $new_value, $option, $option_page, $tmpl_row)
+    public function get_details_output_for_option_default_email_category($context, $old_value, $new_value, $option, $option_page, $tmpl_row)
     {
 
         $output = call_user_func_array(array( $this, 'get_details_output_for_option_default_category' ), func_get_args());

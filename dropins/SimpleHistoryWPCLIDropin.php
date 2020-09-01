@@ -10,11 +10,10 @@ Author: Pär Thernström
 
 class SimpleHistoryWPCLIDropin
 {
-
     // Simple History instance
     private $sh;
 
-    function __construct($sh)
+    public function __construct($sh)
     {
 
         $this->sh = $sh;

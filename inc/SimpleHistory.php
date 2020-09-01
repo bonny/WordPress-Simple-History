@@ -1,5 +1,7 @@
 <?php
 
+// phpcs:disable PSR12.Properties.ConstantVisibility.NotFound
+
 defined('ABSPATH') or die();
 
 /**
@@ -363,7 +365,7 @@ class SimpleHistory
 
             restore_current_blog();
         } // End foreach().
-    } // func
+    }
 
     /**
      * Adds a "View history" item/shortcut to the admin bar
@@ -420,7 +422,7 @@ class SimpleHistory
         ];
 
         $wp_admin_bar->add_node($args);
-    } // func
+    }
 
     /**
      * Get singleton intance
@@ -572,9 +574,7 @@ class SimpleHistory
                     <div class="SimpleHistory-modal__background"></div>
                     <div class="SimpleHistory-modal__content">
                         <div class="SimpleHistory-modal__contentInner">
-                            <img class="SimpleHistory-modal__contentSpinner" src="<?php echo esc_url(
-                                admin_url('/images/spinner.gif')
-                                                                                  ); ?>" alt="">
+                            <img class="SimpleHistory-modal__contentSpinner" src="<?php echo esc_url(admin_url('/images/spinner.gif')); ?>" alt="">
                         </div>
                         <div class="SimpleHistory-modal__contentClose">
                             <button class="button">✕</button>
@@ -599,7 +599,8 @@ class SimpleHistory
                 </li>
             </script>
 
-            <?php // Call plugins so they can add their js.
+            <?php
+            // Call plugins so they can add their js.
             foreach ($this->instantiatedLoggers as $one_logger) {
                 if (method_exists($one_logger['instance'], 'adminJS')) {
                     $one_logger['instance']->adminJS();
@@ -892,6 +893,10 @@ class SimpleHistory
 
         // SimpleLogger.php must be loaded first and always since the other loggers extend it.
         // Include it manually so no risk of anyone using filters or similar disables it.
+        include_once $loggersDir . 'SimpleLogger.php';
+        include_once $loggersDir . 'SimpleLoggerLogInitiators.php';
+        include_once $loggersDir . 'SimpleLoggerLogTypes.php';
+        include_once $loggersDir . 'SimpleLoggerLogLevels.php';
         include_once $loggersDir . 'SimpleLogger.php';
 
         /**
@@ -1598,7 +1603,7 @@ class SimpleHistory
 
             update_option('simple_history_db_version', $db_version);
         }
-    } // end check_for_upgrade
+    }
 
     /**
      * Check if the database has data/rows
@@ -2238,7 +2243,7 @@ Because Simple History was only recently installed, this feed does not display m
      * Uses the getLogRowPlainTextOutput of the logger that logged the row
      * with fallback to SimpleLogger if logger is not available.
      *
-     * @param array $row
+     * @param context $row
      * @return string
      */
     public function getLogRowPlainTextOutput($row)
@@ -3118,7 +3123,7 @@ Because Simple History was only recently installed, this feed does not display m
             </p>
         </div>
         <?php
-    } // output_quick_stats
+    }
 
     /**
      * https://www.tollmanz.com/invalidation-schemes/
@@ -3170,7 +3175,7 @@ Because Simple History was only recently installed, this feed does not display m
         }
 
         return $count;
-    } // get_num_events_last_n_days
+    }
 
     public function get_num_events_per_day_last_n_days($period_days = 28)
     {
@@ -3210,7 +3215,7 @@ Because Simple History was only recently installed, this feed does not display m
         }
 
         return $dates;
-    } // get_num_events_per_day_for_period
+    }
 
     // Number of unique events the last n days
     public function get_unique_events_for_days($days = 7)
@@ -3241,7 +3246,7 @@ Because Simple History was only recently installed, this feed does not display m
         }
 
         return $numEvents;
-    } // get_unique_events_for_days
+    }
 
     /**
      * Output an admin notice about logger slug being to long

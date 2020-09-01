@@ -23,7 +23,7 @@ class SimpleHistorySidebarSettings
      *
      * @param object $sh Simple History instance.
      */
-    function __construct($sh)
+    public function __construct($sh)
     {
 
         $this->init($sh);
@@ -34,7 +34,7 @@ class SimpleHistorySidebarSettings
      *
      * @param object $sh Simple History instance.
      */
-    function init($sh)
+    public function init($sh)
     {
 
         $this->sh = $sh;
@@ -45,7 +45,7 @@ class SimpleHistorySidebarSettings
     /**
      * Output HTML
      */
-    function on_sidebar_html()
+    public function on_sidebar_html()
     {
 
         ?>

@@ -26,7 +26,7 @@ if (! class_exists('AvailableUpdatesLogger')) {
          *
          * @return array
          */
-        function getInfo()
+        public function getInfo()
         {
 
             $arr_info = array(
@@ -63,7 +63,7 @@ if (! class_exists('AvailableUpdatesLogger')) {
         /**
          * Called when logger is loaded.
          */
-        function loaded()
+        public function loaded()
         {
 
             // When WP is done checking for core updates it sets a site transient called "update_core"
@@ -77,7 +77,7 @@ if (! class_exists('AvailableUpdatesLogger')) {
             add_action('set_site_transient_update_themes', array( $this, 'on_setted_update_update_themes' ), 10, 1);
         }
 
-        function on_setted_update_core_transient($updates)
+        public function on_setted_update_core_transient($updates)
         {
 
             global $wp_version;
@@ -117,7 +117,7 @@ if (! class_exists('AvailableUpdatesLogger')) {
          * WP sets site transient 'update_plugins' when done.
          * Log found plugin updates.
          */
-        function on_setted_update_plugins_transient($updates)
+        public function on_setted_update_plugins_transient($updates)
         {
 
             if (empty($updates->response) || ! is_array($updates->response)) {
@@ -194,9 +194,9 @@ if (! class_exists('AvailableUpdatesLogger')) {
             } // End foreach().
 
             update_option($option_key, $checked_updates);
-        } // function
+        }
 
-        function on_setted_update_update_themes($updates)
+        public function on_setted_update_update_themes($updates)
         {
 
             if (empty($updates->response) || ! is_array($updates->response)) {
@@ -247,12 +247,12 @@ if (! class_exists('AvailableUpdatesLogger')) {
             } // End foreach().
 
             update_option($option_key, $checked_updates);
-        } // function
+        }
 
         /**
          * Append prev and current version of update object as details in the output
          */
-        function getLogRowDetailsOutput($row)
+        public function getLogRowDetailsOutput($row)
         {
 
             $output = '';
@@ -304,6 +304,5 @@ if (! class_exists('AvailableUpdatesLogger')) {
 
             return $output;
         }
-    } // class
-
-} // End if().
+    }
+}

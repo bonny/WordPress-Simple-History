@@ -7,7 +7,6 @@ defined('ABSPATH') || die();
  * https://wordpress.org/plugins/redirection/
  */
 if (! class_exists('Plugin_Redirection')) {
-
     /**
      * Class to log things from the Redirection plugin.
      */
@@ -407,6 +406,5 @@ if (! class_exists('Plugin_Redirection')) {
 
             return $out;
         }
-    } // class
-
-} // End if().
+    }
+}

@@ -18,7 +18,7 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger
      *
      * @return array
      */
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -34,14 +34,14 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger
         return $arr_info;
     }
 
-    function loaded()
+    public function loaded()
     {
 
         // Action that is called when Enable Media Replace loads it's admin options page (both when viewing and when posting new file to it)
         add_action('load-media_page_enable-media-replace/enable-media-replace', array( $this, 'on_load_plugin_admin_page' ), 10, 1);
     }
 
-    function on_load_plugin_admin_page()
+    public function on_load_plugin_admin_page()
     {
 
         if (empty($_POST)) {

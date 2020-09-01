@@ -8,7 +8,7 @@ class FileEditsLogger extends SimpleLogger
 
     public $slug = __CLASS__;
 
-    function getInfo()
+    public function getInfo()
     {
 
         $arr_info = array(
@@ -38,7 +38,7 @@ class FileEditsLogger extends SimpleLogger
         return $arr_info;
     }
 
-    function loaded()
+    public function loaded()
     {
         add_action('load-theme-editor.php', array( $this, 'on_load_theme_editor' ), 10, 1);
         add_action('load-plugin-editor.php', array( $this, 'on_load_plugin_editor' ), 10, 1);
@@ -251,4 +251,4 @@ class FileEditsLogger extends SimpleLogger
 
         return $out;
     }
-} // class
+}
