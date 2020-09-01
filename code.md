@@ -30,3 +30,8 @@ List errors and warnings:
 Fix things:
 
     $ phpcbf /path/to/code
+
+## Git
+
+- Will try to follow OneFlow:  
+  https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
