@@ -147,7 +147,7 @@ to your language then read about how this is done over at the [Polyglots handboo
 #### Contribute at GitHub
 
 Development of this plugin takes place at GitHub. Please join in with feature requests, bug reports, or even pull requests!
-https://github.com/bonny/WordPress-Simple-History
+<a href="https://github.com/bonny/WordPress-Simple-History">https://github.com/bonny/WordPress-Simple-History</a>
 
 #### Donation
 
