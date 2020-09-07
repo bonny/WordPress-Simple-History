@@ -411,7 +411,7 @@ class SimpleHistoryFilterDropin
                             <select
                                 name="users"
                                 class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
-                                placeholder="<?php _e('All users', 'simple-history') ?>"
+                                data-placeholder="<?php _e('All users', 'simple-history') ?>"
                                 value="<?php echo esc_attr(implode(',', $default_user_ids)) ?>"
                                 data-default-user-data="<?php echo esc_attr(json_encode($arr_default_user_data)) ?>"
                                 >

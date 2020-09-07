@@ -154,7 +154,6 @@ var SimpleHistoryFilterDropin = (function ($) {
     $elms.filter_user.select2({
       minimumInputLength: 2,
       allowClear: true,
-      placeholder: 'All users',
       ajax: {
         url: ajaxurl,
         dataType: 'json',
