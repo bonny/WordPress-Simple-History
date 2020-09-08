@@ -168,6 +168,8 @@ class SimplePluginLogger extends SimpleLogger
         // Check hook extra for upgrader initiator.
         add_action('upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2);
 
+        add_action('pre_auto_update', [$this, 'handlePreAutoUpdate'], 10, 3);
+
         // Detect files removed.
         add_action('setted_transient', array( $this, 'on_setted_transient_for_remove_files' ), 10, 2);
 
@@ -194,6 +196,24 @@ class SimplePluginLogger extends SimpleLogger
         // Detect plugin auto update change.
         add_action("load-plugins.php", [$this, 'handleAutoUpdateChange']);
         add_action("wp_ajax_toggle-auto-updates", [$this, 'handleAutoUpdateChange'], 1, 1);
+    }
+
+    /**
+     * Automatic updater fires this action just before it calles the upgrade() method of the Plugin upgrader skin class.
+     * We can use this to detect/remember that a plugin is auto-updated.
+     *
+     * Action fires immediately prior to an auto-update.
+     *
+     * @since 4.4.0
+     *
+     * @param string $type    The type of update being checked: 'core', 'theme', 'plugin', or 'translation'.
+     * @param object $item    The update offer.
+     * @param string $context The filesystem context (a path) against which filesystem access and status
+     *                        should be checked.
+     */
+    public function handlePreAutoUpdate($type, $item, $context)
+    {
+        sh_error_log('handlePreAutoUpdate', $type, $item, $context);
     }
 
     /**
@@ -247,9 +267,18 @@ class SimplePluginLogger extends SimpleLogger
 
             $action = $_GET['action'] ?? $_POST['action'] ?? null;
             
-            // Bail if doing ajax but not action toggle-auto-updates and not type plugin
-            if (wp_doing_ajax() && $action !== 'toggle-auto-updates') {
-                return;
+            // Bail if doing ajax and
+            // - action is not toggle-auto-updates
+            // - type is not plugin
+            if (wp_doing_ajax()) {
+                if ($action !== 'toggle-auto-updates') {
+                    return;
+                }
+
+                $type = $_POST['type'] ?? null;
+                if ($type !== 'plugin') {
+                    return;
+                }
             }
 
             // Bail if screen and not plugin screen
@@ -264,8 +293,8 @@ class SimplePluginLogger extends SimpleLogger
             // Plugin slugs that actions are performed against.
             $plugins = [];
 
-            // Opening single item enable/disable auto update link in plugin list in new window.
             if (in_array($action, ['enable-auto-update', 'disable-auto-update'])) {
+                // Opening single item enable/disable auto update link in plugin list in new window.
                 $plugin = $_GET['plugin'] ?? null;
                 
                 if ($plugin) {
@@ -277,23 +306,14 @@ class SimplePluginLogger extends SimpleLogger
                 } elseif ($action === 'disable-auto-update') {
                     $enableOrDisable = 'disable';
                 }
-            }
-
-            // Ajax post call when clicking single item enable/disable link in plugin list.
-            // *    [action] => toggle-auto-updates
-            // *    [state] => disable | enable
-            // *    [type] => plugin
-            // *    [asset] => redirection/redirection.php
-            if ($action === 'toggle-auto-updates') {
+            } elseif ($action === 'toggle-auto-updates') {
+                // Ajax post call when clicking single item enable/disable link in plugin list.
+                // *    [action] => toggle-auto-updates
+                // *    [state] => disable | enable
+                // *    [type] => plugin
+                // *    [asset] => redirection/redirection.php
                 $state = $_POST['state'] ?? null;
-                $type = $_POST['type'] ?? null;
                 $asset = $_POST['asset'] ?? null;
-
-                // Bail if ajax type is not plugin (is probably theme).
-                // @TODO: this check should be earlier.
-                if ($type !== 'plugin') {
-                    return;
-                }
 
                 if ($state === 'enable') {
                     $enableOrDisable = 'enable';
@@ -304,10 +324,8 @@ class SimplePluginLogger extends SimpleLogger
                 if ($asset) {
                     $plugins[] = sanitize_text_field(urldecode($asset));
                 }
-            }
-
-            // $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
-            if (in_array($action, ['enable-auto-update-selected', 'disable-auto-update-selected'])) {
+            } elseif (in_array($action, ['enable-auto-update-selected', 'disable-auto-update-selected'])) {
+                // $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
                 $checked = $_POST['checked'] ?? null;
                 if ($checked) {
                     $plugins = (array) $checked;
@@ -320,36 +338,44 @@ class SimplePluginLogger extends SimpleLogger
                 }
             }
 
-            // Now we have
+            // Now we have:
             // - an array of plugin slugs in $plugins
-            // - if plugin auto updates is to be enabled or disable din $enableOrDisable
+            // - if plugin auto updates is to be enabled or disabled din $enableOrDisable
 
             // Bail if required values not set.
             if (!$plugins || !$enableOrDisable) {
                 return;
             }
 
+            // Finally log each plugin.
             foreach ($plugins as $onePluginSlug) {
-                $pluginFile = WP_PLUGIN_DIR . '/' . $onePluginSlug;
-                $pluginData = get_plugin_data($pluginFile, true, false);
-
-                $context = [
-                    'plugin_slug'        => $onePluginSlug,
-                    'plugin_name'        => $pluginData['Name'] ?? null,
-                    'plugin_title'       => $pluginData['Title'] ?? null,
-                    'plugin_description' => $pluginData['Description'] ?? null,
-                    'plugin_author'      => $pluginData['Author'] ?? null,
-                    'plugin_version'     => $pluginData['Version'] ?? null,
-                    'plugin_url'         => $pluginData['PluginURI'] ?? null,
-                ];
-
-                if ($enableOrDisable === 'enable') {
-                    $this->noticeMessage('plugin_auto_updates_enabled', $context);
-                } elseif ($enableOrDisable === 'disable') {
-                    $this->noticeMessage('plugin_auto_updates_disabled', $context);
-                }
+                $this->logPluginAutoUpdateEnableOrDisable($onePluginSlug, $enableOrDisable);
             }
         }, 10, 3);
+    }
+
+    /**
+     * Log plugin that is enable or disabled for auto updates.
+     *
+     * @param string $onePluginSlug slug of plugin, i.e. "hello-dolly/hello.php"
+     * @param string $enableOrDisable String "enable" or "disable"
+     */
+    public function logPluginAutoUpdateEnableOrDisable($onePluginSlug, $enableOrDisable)
+    {
+        $pluginFile = WP_PLUGIN_DIR . '/' . $onePluginSlug;
+        $pluginData = get_plugin_data($pluginFile, true, false);
+
+        $context = [
+            'plugin_slug'        => $onePluginSlug,
+            'plugin_name'        => $pluginData['Name'] ?? null,
+            'plugin_version'     => $pluginData['Version'] ?? null,
+        ];
+
+        if ($enableOrDisable === 'enable') {
+            $this->infoMessage('plugin_auto_updates_enabled', $context);
+        } elseif ($enableOrDisable === 'disable') {
+            $this->infoMessage('plugin_auto_updates_disabled', $context);
+        }
     }
 
     /**
