@@ -27,8 +27,6 @@ matrix:
     # Minimum required version by WordPress itself
     - php: "5.6.20"
       env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=5
-    - php: "7.0"
-      env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=7
     - php: "7.2"
       env: WP_VERSION=latest WP_MULTISITE=1 PHPUNIT_VERSION=7
     - php: "7.2"
