@@ -191,8 +191,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Unreleased =
 
-- Added: enabling or disabling plugin auto-updates is now logged.
-- Added: function `sh_d()` that echoes any number of variables to the screen.
+- Added: Enabling or disabling plugin auto-updates is now logged.
+- Added: Function `sh_d()` that echoes any number of variables to the screen.
+- Fixed: User logouts did show "other" instead of username of user logging out. Fixes #206, https://wordpress.org/support/topic/suspicious-logged-out-events/, https://wordpress.org/support/topic/login-logout-tracking/.
 - Updated: lots of code to be formatted more according to PSR12.
 
 = 2.36 (August 2020) =

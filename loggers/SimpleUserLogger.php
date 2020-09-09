@@ -113,7 +113,7 @@ class SimpleUserLogger extends SimpleLogger
 
         // Plain logins and logouts
         add_action('wp_login', array( $this, 'onWpLogin' ), 10, 3);
-        add_action('wp_logout', array( $this, 'onWpLogout' ));
+        add_action('wp_logout', array( $this, 'onWpLogout' ), 10, 1);
 
         // Failed login attempt to username that exists
         add_action('wp_authenticate_user', array( $this, 'onWpAuthenticateUser' ), 10, 2);
@@ -307,7 +307,7 @@ class SimpleUserLogger extends SimpleLogger
      *
      * user requests a reset password link
      */
-    public function onRetrievePasswordMessage($message, $key, $user_login, $user_data = "")
+    public function onRetrievePasswordMessage($message, $key, $user_login, $user_data = null)
     {
 
         if (isset($_GET['action']) && ('lostpassword' == $_GET['action'])) {
@@ -570,10 +570,21 @@ class SimpleUserLogger extends SimpleLogger
     /**
      * User logs out
      * http://codex.wordpress.org/Plugin_API/Action_Reference/wp_logout
+     *
+     * @param int $user_id ID of the user that was logged out. Added in WP 5.5.
      */
-    public function onWpLogout()
+    public function onWpLogout($user_id = null)
     {
-        $this->infoMessage('user_logged_out');
+        $context = [];
+        $user = get_userdata($user_id);
+        if (is_a($user, 'WP_User')) {
+            $context['_initiator']  = SimpleLoggerLogInitiators::WP_USER;
+            $context['_user_id']    = $user->ID;
+            $context['_user_login'] = $user->user_login;
+            $context['_user_email'] = $user->user_email;
+        }
+
+        $this->infoMessage('user_logged_out', $context);
     }
 
     /**
