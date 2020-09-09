@@ -258,7 +258,7 @@ class SimplePluginLogger extends SimpleLogger
                     return;
                 }
 
-                $type = $_POST['type'] ?? null;
+                $type = isset($_POST['type']) ? $_POST['type'] : null;
                 if ($type !== 'plugin') {
                     return;
                 }
@@ -278,7 +278,7 @@ class SimplePluginLogger extends SimpleLogger
 
             if (in_array($action, ['enable-auto-update', 'disable-auto-update'])) {
                 // Opening single item enable/disable auto update link in plugin list in new window.
-                $plugin = $_GET['plugin'] ?? null;
+                $plugin = isset($_GET['plugin']) ? $_GET['plugin'] : null;
                 
                 if ($plugin) {
                     $plugins[] = sanitize_text_field(urldecode($plugin));
@@ -295,8 +295,8 @@ class SimplePluginLogger extends SimpleLogger
                 // *    [state] => disable | enable
                 // *    [type] => plugin
                 // *    [asset] => redirection/redirection.php
-                $state = $_POST['state'] ?? null;
-                $asset = $_POST['asset'] ?? null;
+                $state = isset($_POST['state']) ? $_POST['state'] : null;
+                $asset = isset($_POST['asset']) ? $_POST['asset'] : null;
 
                 if ($state === 'enable') {
                     $enableOrDisable = 'enable';
@@ -309,7 +309,7 @@ class SimplePluginLogger extends SimpleLogger
                 }
             } elseif (in_array($action, ['enable-auto-update-selected', 'disable-auto-update-selected'])) {
                 // $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
-                $checked = $_POST['checked'] ?? null;
+                $checked = isset($_POST['checked']) ? $_POST['checked'] : null;
                 if ($checked) {
                     $plugins = (array) $checked;
                 }
@@ -350,8 +350,8 @@ class SimplePluginLogger extends SimpleLogger
 
         $context = [
             'plugin_slug'        => $onePluginSlug,
-            'plugin_name'        => $pluginData['Name'] ?? null,
-            'plugin_version'     => $pluginData['Version'] ?? null,
+            'plugin_name'        => isset($pluginData['Name']) ? $pluginData['Name'] : null,
+            'plugin_version'     => isset($pluginData['Version']) ? $pluginData['Version'] : null,
         ];
 
         if ($enableOrDisable === 'enable') {
