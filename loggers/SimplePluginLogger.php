@@ -168,8 +168,6 @@ class SimplePluginLogger extends SimpleLogger
         // Check hook extra for upgrader initiator.
         add_action('upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2);
 
-        add_action('pre_auto_update', [$this, 'handlePreAutoUpdate'], 10, 3);
-
         // Detect files removed.
         add_action('setted_transient', array( $this, 'on_setted_transient_for_remove_files' ), 10, 2);
 
@@ -196,24 +194,6 @@ class SimplePluginLogger extends SimpleLogger
         // Detect plugin auto update change.
         add_action("load-plugins.php", [$this, 'handleAutoUpdateChange']);
         add_action("wp_ajax_toggle-auto-updates", [$this, 'handleAutoUpdateChange'], 1, 1);
-    }
-
-    /**
-     * Automatic updater fires this action just before it calles the upgrade() method of the Plugin upgrader skin class.
-     * We can use this to detect/remember that a plugin is auto-updated.
-     *
-     * Action fires immediately prior to an auto-update.
-     *
-     * @since 4.4.0
-     *
-     * @param string $type    The type of update being checked: 'core', 'theme', 'plugin', or 'translation'.
-     * @param object $item    The update offer.
-     * @param string $context The filesystem context (a path) against which filesystem access and status
-     *                        should be checked.
-     */
-    public function handlePreAutoUpdate($type, $item, $context)
-    {
-        sh_error_log('handlePreAutoUpdate', $type, $item, $context);
     }
 
     /**
