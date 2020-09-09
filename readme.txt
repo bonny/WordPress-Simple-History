@@ -191,7 +191,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Unreleased =
 
-- Updated lots of code to be formatted more according to PSR12.
+- Added: enabling or disabling plugin auto-updates is now logged.
+- Added: function `sh_d()` that echoes any number of variables to the screen.
+- Updated: lots of code to be formatted more according to PSR12.
 
 = 2.36 (August 2020) =
 
