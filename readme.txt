@@ -189,7 +189,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= 2.37 (August 2020) =
+= 2.37 (September 2020) =
 
 - Added: Enabling or disabling plugin auto-updates is now logged.
 - Added: Function `sh_d()` that echoes any number of variables to the screen.
