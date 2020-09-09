@@ -2358,7 +2358,7 @@ Because Simple History was only recently installed, this feed does not display m
     /**
      * Returns the HTML output for a log row, to be used in the GUI/Activity Feed
      *
-     * @param array $oneLogRow SimpleHistoryLogQuery array with data from SimpleHistoryLogQuery
+     * @param object $oneLogRow SimpleHistoryLogQuery array with data from SimpleHistoryLogQuery
      * @return string
      */
     public function getLogRowHTMLOutput($oneLogRow, $args)
