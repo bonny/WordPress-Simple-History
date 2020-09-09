@@ -189,6 +189,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 2.37.1 (September 2020) =
+
+- Fixed: Some code was to new for PHP 5.6.
+
 = 2.37 (September 2020) =
 
 - Added: Enabling or disabling plugin auto-updates is now logged.

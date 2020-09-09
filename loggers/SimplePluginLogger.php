@@ -245,7 +245,10 @@ class SimplePluginLogger extends SimpleLogger
              *         )
              */
 
-            $action = $_GET['action'] ?? $_POST['action'] ?? null;
+            $action = isset($_GET['action']) ? $_GET['action'] : null;
+            if (!$action) {
+                $action = isset($_POST['action']) ? $_POST['action'] : null;
+            }
             
             // Bail if doing ajax and
             // - action is not toggle-auto-updates
