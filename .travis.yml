@@ -3,11 +3,11 @@ sudo: false
 language: php
 
 services:
- - mysql
+  - mysql
 
 notifications:
- on_success: never
- on_failure: change
+  on_success: never
+  on_failure: change
 
 #php:
 # WordPress requires PHP 5.6.20 since version 5.2
@@ -20,24 +20,26 @@ notifications:
 #  - "7.1"
 
 env:
- - WP_VERSION=latest WP_MULTISITE=0
+  - WP_VERSION=latest WP_MULTISITE=0
 
 matrix:
- include:
-  # Minimum required version by WordPress itself
-  - php: "5.6.20"
-    env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=5
-  - php: "7.2"
-    env: WP_VERSION=latest WP_MULTISITE=1 PHPUNIT_VERSION=7
-  - php: "7.2"
-    env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=7
-  - php: "7.3"
-    env: WP_VERSION=latest WP_MULTISITE=1 PHPUNIT_VERSION=7
-  - php: "7.3"
-    env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=7
+  include:
+    # Minimum required version by WordPress itself
+    - php: "5.6.20"
+      env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=5
+    - php: "7.0"
+      env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=7
+    - php: "7.2"
+      env: WP_VERSION=latest WP_MULTISITE=1 PHPUNIT_VERSION=7
+    - php: "7.2"
+      env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=7
+    - php: "7.3"
+      env: WP_VERSION=latest WP_MULTISITE=1 PHPUNIT_VERSION=7
+    - php: "7.3"
+      env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=7
 
 before_script:
- - curl -sSfL -o ~/.phpenv/versions/$(phpenv version-name)/bin/phpunit https://phar.phpunit.de/phpunit-{$PHPUNIT_VERSION}.phar
- - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  - curl -sSfL -o ~/.phpenv/versions/$(phpenv version-name)/bin/phpunit https://phar.phpunit.de/phpunit-{$PHPUNIT_VERSION}.phar
+  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
 script: phpunit
