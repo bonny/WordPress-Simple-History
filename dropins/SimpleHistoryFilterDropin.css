@@ -22,7 +22,7 @@
 .SimpleHistory__filters__form input[type="text"],
 .SimpleHistory__filters__form input[type="search"] {
 	/* width: 100%; */
-	/* width: 310px; */
+	width: 310px !important;
 }
 
 .SimpleHistory__filters__filter--date,
