@@ -8,6 +8,9 @@
  */
 function SimpleLogger()
 {
+	if ( ! class_exists( 'SimpleLogger' ) ) {
+		SimpleHistory::get_instance()->load_loggers();
+	}
     return new SimpleLogger(SimpleHistory::get_instance());
 }
 
