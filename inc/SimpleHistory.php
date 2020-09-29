@@ -859,6 +859,18 @@ class SimpleHistory
     {
         $loggersDir = SIMPLE_HISTORY_PATH . 'loggers/';
 
+        // SimpleLogger.php must be loaded first and always since the other loggers extend it.
+        // Include it manually so no risk of anyone using filters or similar disables it.
+        include_once $loggersDir . 'SimpleLogger.php';
+        include_once $loggersDir . 'SimpleLoggerLogInitiators.php';
+        include_once $loggersDir . 'SimpleLoggerLogTypes.php';
+        include_once $loggersDir . 'SimpleLoggerLogLevels.php';
+        include_once $loggersDir . 'SimpleLogger.php';
+
+		if ( ! doing_action( 'after_setup_theme' ) ) {
+			return;
+		}
+
         $loggersFiles = [
             // Main loggers.
             $loggersDir . 'SimpleCommentsLogger.php',
@@ -890,14 +902,6 @@ class SimpleHistory
             $loggersDir . 'Plugin_ACF.php',
             $loggersDir . 'Plugin_BeaverBuilder.php',
         ];
-
-        // SimpleLogger.php must be loaded first and always since the other loggers extend it.
-        // Include it manually so no risk of anyone using filters or similar disables it.
-        include_once $loggersDir . 'SimpleLogger.php';
-        include_once $loggersDir . 'SimpleLoggerLogInitiators.php';
-        include_once $loggersDir . 'SimpleLoggerLogTypes.php';
-        include_once $loggersDir . 'SimpleLoggerLogLevels.php';
-        include_once $loggersDir . 'SimpleLogger.php';
 
         /**
          * Filter the array with absolute paths to logger files to be loaded.
