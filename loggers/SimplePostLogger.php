@@ -35,7 +35,7 @@ class SimplePostLogger extends SimpleLogger
         add_action('untrash_post', array($this, 'on_untrash_post'));
 
         $this->add_xml_rpc_hooks();
-        $this->add_rest_hooks();
+        add_action('init', array($this,'add_rest_hooks'),99);
 
         add_filter('simple_history/rss_item_link', array($this, 'filter_rss_item_link'), 10, 2);
     }
