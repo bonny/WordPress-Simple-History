@@ -45,22 +45,17 @@ class SimplePostLogger extends SimpleLogger
      */
     public function add_rest_hooks()
     {
-        // Get all post types so that we can use the block editor with custom post types.
-        $core                  = get_post_types([ '_builtin' => true ], 'object');
-        $public                = get_post_types([ '_builtin' => false, 'public' => true ], 'object');
-        $private               = get_post_types([ '_builtin' => false, 'public' => false ], 'object');
-        $registered_post_types = array_merge($core, $public, $private);
 
         /**
          * FIlter the post types we are logging information from.
          *
-         * @param array $registered_post_types Core, public and private post types.
+         * @param array $post_types Core, public and private post types.
          *
-         * @return array $registered_post_types Filtered post types.
+         * @return array $post_types Filtered post types.
          *
          * @since 2.37
          */
-        $post_types = apply_filters('simple_history/post_logger/post_types', $registered_post_types);
+        $post_types = apply_filters('simple_history/post_logger/post_types', get_post_types(array(), 'object'));
 
         // Add actions for each post type.
         foreach ($post_types as $post_type) {
