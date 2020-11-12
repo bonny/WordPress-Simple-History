@@ -189,6 +189,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 2.x Unreleased =
+
+- Changed: More custom post types that use the block editor ("Gutenberg") should now have their changes logged. Props https://github.com/claytoncollie.
+
 = 2.37.2 (September 2020) =
 
 - Fixed: Even more code that was to new for PHP 5.6 (I do have some tests, I just didn't look at them `¯\_(ツ)_/¯`.)
