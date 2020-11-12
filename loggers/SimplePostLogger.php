@@ -35,7 +35,7 @@ class SimplePostLogger extends SimpleLogger
         add_action('untrash_post', array($this, 'on_untrash_post'));
 
         $this->add_xml_rpc_hooks();
-        $this->add_rest_hooks();
+        add_action('init', array($this,'add_rest_hooks'),99);
 
         add_filter('simple_history/rss_item_link', array($this, 'filter_rss_item_link'), 10, 2);
     }
@@ -45,8 +45,17 @@ class SimplePostLogger extends SimpleLogger
      */
     public function add_rest_hooks()
     {
-        // Get all post types.
-        $post_types = get_post_types(array(), 'objects');
+
+        /**
+         * FIlter the post types we are logging information from.
+         *
+         * @param array $post_types Core, public and private post types.
+         *
+         * @return array $post_types Filtered post types.
+         *
+         * @since 2.37
+         */
+        $post_types = apply_filters('simple_history/post_logger/post_types', get_post_types(array(), 'object'));
 
         // Add actions for each post type.
         foreach ($post_types as $post_type) {
