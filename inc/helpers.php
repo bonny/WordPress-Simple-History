@@ -8,9 +8,12 @@
  */
 function SimpleLogger()
 {
-	if ( ! class_exists( 'SimpleLogger' ) ) {
-		SimpleHistory::get_instance()->load_loggers();
-	}
+    // Load loggers if main SimpleLogger class is not yet available.
+    // Makes it possible to log things early,
+    // before loggers are loaded "normally".
+    if (!class_exists('SimpleLogger')) {
+        SimpleHistory::get_instance()->load_loggers();
+    }
     return new SimpleLogger(SimpleHistory::get_instance());
 }
 
