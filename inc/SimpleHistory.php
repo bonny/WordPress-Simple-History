@@ -860,16 +860,18 @@ class SimpleHistory
         $loggersDir = SIMPLE_HISTORY_PATH . 'loggers/';
 
         // SimpleLogger.php must be loaded first and always since the other loggers extend it.
-        // Include it manually so no risk of anyone using filters or similar disables it.
+        // Load it manually so no risk of anyone using filters or similar disables it.
+        // Also load files that contain constants used by the SimpleLogger.
         include_once $loggersDir . 'SimpleLogger.php';
         include_once $loggersDir . 'SimpleLoggerLogInitiators.php';
         include_once $loggersDir . 'SimpleLoggerLogTypes.php';
         include_once $loggersDir . 'SimpleLoggerLogLevels.php';
-        include_once $loggersDir . 'SimpleLogger.php';
 
-		if ( ! doing_action( 'after_setup_theme' ) ) {
-			return;
-		}
+        // Bail if we are not in filter after_setup_theme,
+        // i.e. we are probably calling SimpleLogger() early.
+        if (!doing_action('after_setup_theme')) {
+            return;
+        }
 
         $loggersFiles = [
             // Main loggers.
@@ -2276,7 +2278,7 @@ Because Simple History was only recently installed, this feed does not display m
      * Loggers are discouraged to override this in the loggers,
      * because the output should be the same for all items in the gui
      *
-     * @param array $row
+     * @param object $row
      * @return string
      */
     public function getLogRowHeaderOutput($row)
@@ -2298,7 +2300,7 @@ Because Simple History was only recently installed, this feed does not display m
     /**
      *
      *
-     * @param array $row
+     * @param object $row
      * @return string
      */
     private function getLogRowSenderImageOutput($row)
