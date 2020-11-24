@@ -1035,8 +1035,6 @@ class SimpleHistory
 
             // LoggerInfo contains all messages, both translated an not, by key.
             // Add messages to the loggerInstance.
-            $loopNum = 0;
-
             $arr_messages_by_message_key = [];
 
             if (isset($logger_info['messages']) && is_array($logger_info['messages'])) {
