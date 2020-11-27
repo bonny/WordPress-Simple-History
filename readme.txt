@@ -191,6 +191,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = 2.x Unreleased =
 
+- Changed: It's now possible to log things before the `after_setup_theme` hook by using the `SimpleLogger()` function. Before this change calling `SimpleLogger()` before `after_setup_theme`, or on `after_setup_theme` but with a prio smaller than 10, would result in a fatal error (`Fatal error: Uncaught Error: Class 'SimpleLogger' not found`). Props https://github.com/JoryHogeveen.
+
 - Changed: More custom post types that use the block editor ("Gutenberg") should now have their changes logged. Props https://github.com/claytoncollie.
 
 = 2.37.2 (September 2020) =
