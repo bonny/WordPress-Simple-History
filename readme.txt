@@ -189,7 +189,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= 2.38.0 Unreleased =
+= 2.38.0 (November 2020) =
 
 - Changed: It's now possible to log things before the `after_setup_theme` hook by using the `SimpleLogger()` function. Before this change calling `SimpleLogger()` before `after_setup_theme`, or on `after_setup_theme` with a prio smaller than 10, would result in a fatal error (`Fatal error: Uncaught Error: Class 'SimpleLogger' not found`). Props https://github.com/JoryHogeveen.
 
