@@ -34,6 +34,8 @@ class PluginWPCrontrolLogger extends SimpleLogger
                 'deleted_event' => _x('Deleted cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'deleted_all_with_hook' => _x('Deleted all "{event_hook}" cron events', 'PluginWPCrontrolLogger', 'simple-history'),
                 'edited_event' => _x('Edited cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
+                'added_new_schedule' => _x('Added cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history'),
+                'deleted_schedule' => _x('Deleted cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history'),
             ),
         );
 
@@ -50,6 +52,8 @@ class PluginWPCrontrolLogger extends SimpleLogger
         add_action('crontrol/deleted_all_with_hook', array( $this, 'deleted_all_with_hook' ), 10, 2);
         add_action('crontrol/edited_event', array( $this, 'edited_event' ), 10, 2);
         add_action('crontrol/edited_php_event', array( $this, 'edited_event' ), 10, 2);
+        add_action('crontrol/added_new_schedule', array( $this, 'added_new_schedule' ), 10, 3);
+        add_action('crontrol/deleted_schedule', array( $this, 'deleted_schedule' ));
     }
 
     /**
@@ -230,7 +234,61 @@ class PluginWPCrontrolLogger extends SimpleLogger
         );
     }
 
+    /**
+     * Fires after a new cron schedule is added.
+     *
+     * @param string $name     The internal name of the schedule.
+     * @param int    $interval The interval between executions of the new schedule.
+     * @param string $display  The display name of the schedule.
+     */
+    public function added_new_schedule( $name, $interval, $display ) {
+        $context = array(
+            'schedule_name' => $name,
+            'schedule_interval' => $interval,
+            'schedule_display' => $display,
+        );
+
+        $this->infoMessage(
+            'added_new_schedule',
+            $context
+        );
+    }
+
+    /**
+     * Fires after a cron schedule is deleted.
+     *
+     * @param string $name     The internal name of the schedule.
+     */
+    public function deleted_schedule( $name ) {
+        $context = array(
+            'schedule_name' => $name,
+        );
+
+        $this->infoMessage(
+            'deleted_schedule',
+            $context
+        );
+    }
+
     public function getLogRowDetailsOutput($row) {
+        switch ( $row->context_message_key ) {
+            case 'added_new_event':
+            case 'ran_event':
+            case 'deleted_event':
+            case 'deleted_all_with_hook':
+            case 'edited_event':
+                return $this->cronEventDetailsOutput( $row );
+                break;
+            case 'added_new_schedule':
+            case 'deleted_schedule':
+                return $this->cronScheduleDetailsOutput( $row );
+                break;
+        }
+
+        return '';
+    }
+
+    protected function cronEventDetailsOutput($row) {
         $tmpl_row = '
             <tr>
                 <td>%1$s</td>
@@ -321,6 +379,45 @@ class PluginWPCrontrolLogger extends SimpleLogger
                 $tmpl_row,
                 _x('Recurrence', 'PluginWPCrontrolLogger', 'simple-history'),
                 esc_html( $context['event_schedule_name'] )
+            );
+        }
+
+        $output .= '</table>';
+
+        return $output;
+    }
+
+    protected function cronScheduleDetailsOutput($row) {
+        $tmpl_row = '
+            <tr>
+                <td>%1$s</td>
+                <td>%2$s</td>
+            </tr>
+        ';
+        $context = $row->context;
+        $output = '<table class="SimpleHistoryLogitem__keyValueTable">';
+
+        if ( isset( $context['schedule_name'] ) ) {
+            $output .= sprintf(
+                $tmpl_row,
+                _x('Name', 'PluginWPCrontrolLogger', 'simple-history'),
+                esc_html( $context['schedule_name'] )
+            );
+        }
+
+        if ( isset( $context['schedule_interval'] ) ) {
+            $output .= sprintf(
+                $tmpl_row,
+                _x('Interval', 'PluginWPCrontrolLogger', 'simple-history'),
+                esc_html( $context['schedule_interval'] )
+            );
+        }
+
+        if ( isset( $context['schedule_display'] ) ) {
+            $output .= sprintf(
+                $tmpl_row,
+                _x('Display Name', 'PluginWPCrontrolLogger', 'simple-history'),
+                esc_html( $context['schedule_display'] )
             );
         }
 
