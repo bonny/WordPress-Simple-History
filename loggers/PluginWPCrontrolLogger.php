@@ -49,6 +49,7 @@ class PluginWPCrontrolLogger extends SimpleLogger
         add_action('crontrol/deleted_event', array( $this, 'deleted_event' ));
         add_action('crontrol/deleted_all_with_hook', array( $this, 'deleted_all_with_hook' ), 10, 2);
         add_action('crontrol/edited_event', array( $this, 'edited_event' ), 10, 2);
+        add_action('crontrol/edited_php_event', array( $this, 'edited_event' ), 10, 2);
     }
 
     /**
