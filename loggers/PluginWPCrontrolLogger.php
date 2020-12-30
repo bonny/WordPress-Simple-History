@@ -30,7 +30,6 @@ class PluginWPCrontrolLogger extends SimpleLogger
             'capability' => 'manage_options',
             'messages' => array(
                 'added_new_event' => _x('Added cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
-                'added_new_php_event' => _x('Added PHP cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'ran_event' => _x('Manually ran cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'deleted_event' => _x('Deleted cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'deleted_all_with_hook' => _x('Deleted all "{event_hook}" cron events', 'PluginWPCrontrolLogger', 'simple-history'),
