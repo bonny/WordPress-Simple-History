@@ -28,6 +28,8 @@ class PluginWPCrontrolLogger extends SimpleLogger
             'capability' => 'manage_options',
             'messages' => array(
                 'added_new_event' => _x('Added cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
+                'added_new_php_event' => _x('Added PHP cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
+                'ran_event' => _x('Ran cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
             ),
         );
 
@@ -38,14 +40,15 @@ class PluginWPCrontrolLogger extends SimpleLogger
     {
 
         add_action('crontrol/added_new_event', array( $this, 'added_new_event' ));
-        // add_action('crontrol/added_new_php_event', array( $this, 'added_new_event' ));
+        add_action('crontrol/added_new_php_event', array( $this, 'added_new_event' ));
+        add_action('crontrol/ran_event', array( $this, 'ran_event' ));
     }
 
     /**
      * Fires when a new cron event is added.
      *
      * @param object $event {
-     *     An object containing an event's data.
+     *     An object containing the event's data.
      *
      *     @type string       $hook      Action hook to execute when the event is run.
      *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
@@ -78,9 +81,33 @@ class PluginWPCrontrolLogger extends SimpleLogger
         );
     }
 
-    public function getLogRowDetailsOutput($row) {
-        // return '<pre>' . print_r($row,true) . '</pre>';
+    /**
+     * Fires when a cron event is ran manually.
+     *
+     * @param object $event {
+     *     An object containing the event's data.
+     *
+     *     @type string       $hook      Action hook to execute when the event is run.
+     *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
+     *     @type string|false $schedule  How often the event should subsequently recur.
+     *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
+     *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+     * }
+     */
+    public function ran_event($event)
+    {
+        $context = array(
+            'event_hook' => $event->hook,
+            'event_args' => $event->args,
+        );
 
+        $this->infoMessage(
+            'ran_event',
+            $context
+        );
+    }
+
+    public function getLogRowDetailsOutput($row) {
         $tmpl_row = '
             <tr>
                 <td>%1$s</td>
