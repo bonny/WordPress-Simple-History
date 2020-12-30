@@ -33,6 +33,7 @@ class PluginWPCrontrolLogger extends SimpleLogger
                 'added_new_php_event' => _x('Added PHP cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'ran_event' => _x('Manually ran cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'deleted_event' => _x('Deleted cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
+                'deleted_all_with_hook' => _x('Deleted all "{event_hook}" cron events', 'PluginWPCrontrolLogger', 'simple-history'),
             ),
         );
 
@@ -46,10 +47,11 @@ class PluginWPCrontrolLogger extends SimpleLogger
         add_action('crontrol/added_new_php_event', array( $this, 'added_new_event' ));
         add_action('crontrol/ran_event', array( $this, 'ran_event' ));
         add_action('crontrol/deleted_event', array( $this, 'deleted_event' ));
+        add_action('crontrol/deleted_all_with_hook', array( $this, 'deleted_all_with_hook' ), 10, 2);
     }
 
     /**
-     * Fires when a new cron event is added.
+     * Fires after a new cron event is added.
      *
      * @param object $event {
      *     An object containing the event's data.
@@ -86,7 +88,7 @@ class PluginWPCrontrolLogger extends SimpleLogger
     }
 
     /**
-     * Fires when a cron event is ran manually.
+     * Fires after a cron event is ran manually.
      *
      * @param object $event {
      *     An object containing the event's data.
@@ -112,7 +114,7 @@ class PluginWPCrontrolLogger extends SimpleLogger
     }
 
     /**
-     * Fires when a cron event is deleted.
+     * Fires after a cron event is deleted.
      *
      * @param object $event {
      *     An object containing the event's data.
@@ -144,6 +146,25 @@ class PluginWPCrontrolLogger extends SimpleLogger
 
         $this->infoMessage(
             'deleted_event',
+            $context
+        );
+    }
+
+    /**
+     * Fires after all cron events with the given hook are deleted.
+     *
+     * @param string $hook    The hook name.
+     * @param int    $deleted The number of events that were deleted.
+     */
+    public function deleted_all_with_hook($hook, $deleted)
+    {
+        $context = array(
+            'event_hook' => $hook,
+            'events_deleted' => $deleted,
+        );
+
+        $this->infoMessage(
+            'deleted_all_with_hook',
             $context
         );
     }
