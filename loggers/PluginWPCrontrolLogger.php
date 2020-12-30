@@ -90,34 +90,34 @@ class PluginWPCrontrolLogger extends SimpleLogger
         $context = $row->context;
         $output = '<table class="SimpleHistoryLogitem__keyValueTable">';
 
-        switch ( $row->context_message_key ) {
-            case 'added_new_event':
-            case 'added_new_php_event':
-                if ( '[]' !== $context['event_args'] ) {
-                    $args = $context['event_args'];
-                } else {
-                    $args = _x('None', 'PluginWPCrontrolLogger', 'simple-history');
-                }
+        if ( isset( $context['event_args'] ) ) {
+            if ( '[]' !== $context['event_args'] ) {
+                $args = $context['event_args'];
+            } else {
+                $args = _x('None', 'PluginWPCrontrolLogger', 'simple-history');
+            }
 
-                $output .= sprintf(
-                    $tmpl_row,
-                    _x('Arguments', 'PluginWPCrontrolLogger', 'simple-history'),
-                    esc_html( $args )
-                );
+            $output .= sprintf(
+                $tmpl_row,
+                _x('Arguments', 'PluginWPCrontrolLogger', 'simple-history'),
+                esc_html( $args )
+            );
+        }
 
-                $output .= sprintf(
-                    $tmpl_row,
-                    _x('Next Run', 'PluginWPCrontrolLogger', 'simple-history'),
-                    esc_html( gmdate( 'Y-m-d H:i:s', $context['event_timestamp'] ) . ' UTC' )
-                );
+        if ( isset( $context['event_timestamp'] ) ) {
+            $output .= sprintf(
+                $tmpl_row,
+                _x('Next Run', 'PluginWPCrontrolLogger', 'simple-history'),
+                esc_html( gmdate( 'Y-m-d H:i:s', $context['event_timestamp'] ) . ' UTC' )
+            );
+        }
 
-                $output .= sprintf(
-                    $tmpl_row,
-                    _x('Recurrence', 'PluginWPCrontrolLogger', 'simple-history'),
-                    esc_html( $context['event_schedule_name'] )
-                );
-
-                break;
+        if ( isset( $context['event_schedule_name'] ) ) {
+            $output .= sprintf(
+                $tmpl_row,
+                _x('Recurrence', 'PluginWPCrontrolLogger', 'simple-history'),
+                esc_html( $context['event_schedule_name'] )
+            );
         }
 
         $output .= '</table>';
