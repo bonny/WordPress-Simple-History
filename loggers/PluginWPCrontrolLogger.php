@@ -6,6 +6,8 @@ defined('ABSPATH') or die();
  * Logs cron event management from the WP Crontrol plugin
  * Plugin URL: https://wordpress.org/plugins/wp-crontrol/
  *
+ * Requires WP Crontrol 1.9.0 or later.
+ *
  * @since x.x
  */
 class PluginWPCrontrolLogger extends SimpleLogger
@@ -30,6 +32,7 @@ class PluginWPCrontrolLogger extends SimpleLogger
                 'added_new_event' => _x('Added cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'added_new_php_event' => _x('Added PHP cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'ran_event' => _x('Ran cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
+                'deleted_event' => _x('Deleted cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
             ),
         );
 
@@ -42,6 +45,7 @@ class PluginWPCrontrolLogger extends SimpleLogger
         add_action('crontrol/added_new_event', array( $this, 'added_new_event' ));
         add_action('crontrol/added_new_php_event', array( $this, 'added_new_event' ));
         add_action('crontrol/ran_event', array( $this, 'ran_event' ));
+        add_action('crontrol/deleted_event', array( $this, 'deleted_event' ));
     }
 
     /**
@@ -103,6 +107,43 @@ class PluginWPCrontrolLogger extends SimpleLogger
 
         $this->infoMessage(
             'ran_event',
+            $context
+        );
+    }
+
+    /**
+     * Fires when a cron event is deleted.
+     *
+     * @param object $event {
+     *     An object containing the event's data.
+     *
+     *     @type string       $hook      Action hook to execute when the event is run.
+     *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
+     *     @type string|false $schedule  How often the event should subsequently recur.
+     *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
+     *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+     * }
+     */
+    public function deleted_event($event)
+    {
+        $context = array(
+            'event_hook' => $event->hook,
+            'event_timestamp' => $event->timestamp,
+            'event_args' => $event->args,
+        );
+
+        if ( $event->schedule ) {
+            $context['event_schedule_name'] = $event->schedule;
+
+            if ( function_exists( '\Crontrol\Event\get_schedule_name' ) ) {
+                $context['event_schedule_name'] = \Crontrol\Event\get_schedule_name( $event );
+            }
+        } else {
+            $context['event_schedule_name'] = _x('None', 'PluginWPCrontrolLogger', 'simple-history');
+        }
+
+        $this->infoMessage(
+            'deleted_event',
             $context
         );
     }
