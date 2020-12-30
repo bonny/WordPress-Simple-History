@@ -63,8 +63,8 @@ The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allow
 Simple History will log each user switch being made.
 
 **WP Crontrol**<br>
-The [WP Crontrol plugin](https://wordpress.org/plugins/wp-crontrol/) lets you view and control what's happening in the WP-Cron system.
-Simple History will log when cron events are added, edited, deleted, and manually ran.
+The [WP Crontrol plugin](https://wordpress.org/plugins/wp-crontrol/) enables you to view and control what's happening in the WP-Cron system.
+Simple History will log when cron events are added, edited, deleted, and manually ran, and when cron schedules are added and deleted.
 
 **Enable Media Replace**<br>
 The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place.
