@@ -34,6 +34,7 @@ class PluginWPCrontrolLogger extends SimpleLogger
                 'ran_event' => _x('Manually ran cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'deleted_event' => _x('Deleted cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
                 'deleted_all_with_hook' => _x('Deleted all "{event_hook}" cron events', 'PluginWPCrontrolLogger', 'simple-history'),
+                'edited_event' => _x('Edited cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history'),
             ),
         );
 
@@ -48,6 +49,7 @@ class PluginWPCrontrolLogger extends SimpleLogger
         add_action('crontrol/ran_event', array( $this, 'ran_event' ));
         add_action('crontrol/deleted_event', array( $this, 'deleted_event' ));
         add_action('crontrol/deleted_all_with_hook', array( $this, 'deleted_all_with_hook' ), 10, 2);
+        add_action('crontrol/edited_event', array( $this, 'edited_event' ), 10, 2);
     }
 
     /**
@@ -169,6 +171,65 @@ class PluginWPCrontrolLogger extends SimpleLogger
         );
     }
 
+    /**
+     * Fires after a cron event is edited.
+     *
+     * @param object $event {
+     *     An object containing the new event's data.
+     *
+     *     @type string       $hook      Action hook to execute when the event is run.
+     *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
+     *     @type string|false $schedule  How often the event should subsequently recur.
+     *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
+     *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+     * }
+     * @param object $original {
+     *     An object containing the original event's data.
+     *
+     *     @type string       $hook      Action hook to execute when the event is run.
+     *     @type int          $timestamp Unix timestamp (UTC) for when to next run the event.
+     *     @type string|false $schedule  How often the event should subsequently recur.
+     *     @type array        $args      Array containing each separate argument to pass to the hook's callback function.
+     *     @type int          $interval  The interval time in seconds for the schedule. Only present for recurring events.
+     * }
+     */
+    public function edited_event($event, $original)
+    {
+        $context = array(
+            'event_hook' => $event->hook,
+            'event_timestamp' => $event->timestamp,
+            'event_args' => $event->args,
+            'event_original_hook' => $original->hook,
+            'event_original_timestamp' => $original->timestamp,
+            'event_original_args' => $original->args,
+        );
+
+        if ( $event->schedule ) {
+            $context['event_schedule_name'] = $event->schedule;
+
+            if ( function_exists( '\Crontrol\Event\get_schedule_name' ) ) {
+                $context['event_schedule_name'] = \Crontrol\Event\get_schedule_name( $event );
+            }
+        } else {
+            $context['event_schedule_name'] = _x('None', 'PluginWPCrontrolLogger', 'simple-history');
+        }
+
+        if ( $original->schedule ) {
+            $context['event_original_schedule_name'] = $original->schedule;
+
+            if ( function_exists( '\Crontrol\Event\get_schedule_name' ) ) {
+                $context['event_original_schedule_name'] = \Crontrol\Event\get_schedule_name( $original );
+            }
+        } else {
+            $context['event_original_schedule_name'] = _x('None', 'PluginWPCrontrolLogger', 'simple-history');
+        }
+
+        $this->infoMessage(
+            'edited_event',
+            $context
+        );
+    }
+
     public function getLogRowDetailsOutput($row) {
         $tmpl_row = '
             <tr>
@@ -179,7 +240,35 @@ class PluginWPCrontrolLogger extends SimpleLogger
         $context = $row->context;
         $output = '<table class="SimpleHistoryLogitem__keyValueTable">';
 
-        if ( isset( $context['event_args'] ) ) {
+        if ( isset( $context['event_original_hook'] ) && ( $context['event_original_hook'] !== $context['event_hook'] ) ) {
+            $key_text_diff = simple_history_text_diff(
+                $context['event_original_hook'],
+                $context['event_hook']
+            );
+
+            if ($key_text_diff) {
+                $output .= sprintf(
+                    $tmpl_row,
+                    _x('Hook', 'PluginWPCrontrolLogger', 'simple-history'),
+                    $key_text_diff
+                );
+            }
+        }
+
+        if ( isset( $context['event_original_args'] ) && ( $context['event_original_args'] !== $context['event_args'] ) ) {
+            $key_text_diff = simple_history_text_diff(
+                $context['event_original_args'],
+                $context['event_args']
+            );
+
+            if ($key_text_diff) {
+                $output .= sprintf(
+                    $tmpl_row,
+                    _x('Arguments', 'PluginWPCrontrolLogger', 'simple-history'),
+                    $key_text_diff
+                );
+            }
+        } else if ( isset( $context['event_args'] ) ) {
             if ( '[]' !== $context['event_args'] ) {
                 $args = $context['event_args'];
             } else {
@@ -193,7 +282,20 @@ class PluginWPCrontrolLogger extends SimpleLogger
             );
         }
 
-        if ( isset( $context['event_timestamp'] ) ) {
+        if ( isset( $context['event_original_timestamp'] ) && ( $context['event_original_timestamp'] !== $context['event_timestamp'] ) ) {
+            $key_text_diff = simple_history_text_diff(
+                gmdate( 'Y-m-d H:i:s', $context['event_original_timestamp'] ),
+                gmdate( 'Y-m-d H:i:s', $context['event_timestamp'] )
+            );
+
+            if ($key_text_diff) {
+                $output .= sprintf(
+                    $tmpl_row,
+                    _x('Next Run', 'PluginWPCrontrolLogger', 'simple-history'),
+                    $key_text_diff
+                );
+            }
+        } else if ( isset( $context['event_timestamp'] ) ) {
             $output .= sprintf(
                 $tmpl_row,
                 _x('Next Run', 'PluginWPCrontrolLogger', 'simple-history'),
@@ -201,7 +303,20 @@ class PluginWPCrontrolLogger extends SimpleLogger
             );
         }
 
-        if ( isset( $context['event_schedule_name'] ) ) {
+        if ( isset( $context['event_original_schedule_name'] ) && ( $context['event_original_schedule_name'] !== $context['event_schedule_name'] ) ) {
+            $key_text_diff = simple_history_text_diff(
+                $context['event_original_schedule_name'],
+                $context['event_schedule_name']
+            );
+
+            if ($key_text_diff) {
+                $output .= sprintf(
+                    $tmpl_row,
+                    _x('Recurrence', 'PluginWPCrontrolLogger', 'simple-history'),
+                    $key_text_diff
+                );
+            }
+        } else if ( isset( $context['event_schedule_name'] ) ) {
             $output .= sprintf(
                 $tmpl_row,
                 _x('Recurrence', 'PluginWPCrontrolLogger', 'simple-history'),
