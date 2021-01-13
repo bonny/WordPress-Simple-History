@@ -1,6 +1,6 @@
 <h2 align="center">
 	<img width="20" height="20" src="https://raw.githubusercontent.com/bonny/WordPress-Simple-History/master/assets-wp-repo/icon.svg" alt="">
-	Simple History 2
+	Simple History
 </h1>
 
 <p align="center">A lightweight activity feed plugin for WordPress</p>
