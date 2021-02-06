@@ -35,8 +35,6 @@ matrix:
       env: WP_VERSION=latest WP_MULTISITE=1 PHPUNIT_VERSION=7
     - php: "7.3"
       env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=7
-    - php: "8.0"
-      env: WP_VERSION=latest WP_MULTISITE=0 PHPUNIT_VERSION=8
 
 before_script:
   - curl -sSfL -o ~/.phpenv/versions/$(phpenv version-name)/bin/phpunit https://phar.phpunit.de/phpunit-{$PHPUNIT_VERSION}.phar
