@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 2.38.0
+Stable tag: 2.39.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -75,16 +75,16 @@ The plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-atte
 and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
 Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
 
-**Redirection**
+**Redirection**<br>
 The [redirection plugin](https://wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
 Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
-**Duplicate Post**
+**Duplicate Post**<br>
 The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to
 clone posts of any type.
 Simple History will log when a clone of a post or page is done.
 
-**Beaver Builder**
+**Beaver Builder**<br>
 The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
 Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
