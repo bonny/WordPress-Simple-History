@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 2.39.0 (January 2021) =
+
+- Added: Logging of events that a user performs via the [WP Crontrol](https://wordpress.org/plugins/wp-crontrol/) plugin (requires WP Crontrol version 1.9.0 or later). Simple History will log when cron events are added, edited, deleted, and manually ran, and when cron schedules are added and deleted. Props https://github.com/johnbillion.
+
 = 2.38.0 (November 2020) =
 
 - Changed: It's now possible to log things before the `after_setup_theme` hook by using the `SimpleLogger()` function. Before this change calling `SimpleLogger()` before `after_setup_theme`, or on `after_setup_theme` with a prio smaller than 10, would result in a fatal error (`Fatal error: Uncaught Error: Class 'SimpleLogger' not found`). Props https://github.com/JoryHogeveen.
