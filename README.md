@@ -31,15 +31,20 @@ https://wordpress.org/plugins/simple-history/
 
 ## Viewing history events
 
-This screenshot show the log view + it also shows the filter function in use: the log only shows event that
-are of type post and pages and media (i.e. images & other uploads), and only events
-initiated by a specific user.
+This screenshot show the user activity feed:
+
+- It has an active **filter/search in use**:
+  - only show changes performed by a specific user
+  - it only shows event that are of type post and pages and media (i.e. images & other uploads)
+- A thumbnail is shown for the image that is uploaded
 
 ![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-1.png?rev=1)
 
 ## Events with different severity
 
-Simple History uses the log levels specified in the [PHP PSR-3 standard](http://www.php-fig.org/psr/psr-3/).
+Simple History uses the log levels specified in the [PHP PSR-3 standard](https://www.php-fig.org/psr/psr-3/).
+
+## Quick diff lets you see what's changed
 
 ![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-2.png?rev=1096689)
 
@@ -47,9 +52,9 @@ Simple History uses the log levels specified in the [PHP PSR-3 standard](http://
 
 Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
-![Simple History screenshot](http://ps.w.org/simple-history/assets/screenshot-3.png?rev=1096689)
+![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-3.png?rev=1096689)
 
-# Plugin API
+## Plugin API
 
 Developers can easily log their own things using a simple API:
 
@@ -84,3 +89,9 @@ SimpleLogger()->debug("Ok, cron job is running!");
 ```
 
 You will find more examples in the [examples.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) file.
+
+## Running tests
+
+Run `$ npm run test` to run the tests.
+
+The tests are located in the `tests`-folder and Docker is used to create a WordPress environment to run the tests. The Dockerfile used is [PHPUnit WordPress Plugin](https://github.com/yukihiko-shinoda/dockerfile-phpunit-wordpress-plugin).
