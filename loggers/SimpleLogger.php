@@ -201,20 +201,24 @@ class SimpleLogger
     }
 
     /**
-     * Returns header output for a log row
+     * Returns header output for a log row.
+     *
      * Format should be common for all log rows and should be like:
-     * Username (user role) · Date
+     * Username (user role) · Date · IP Address · Via plugin abc
      *
      * @return string HTML
      */
     public function getLogRowHeaderOutput($row)
     {
-        // HTML for initiator
+        // HTML for initiator.
         $initiator_html = '';
 
         $initiator = $row->initiator;
         $context = $row->context;
 
+        // @HERE:
+        // - move these to own methods
+        // - show ip address always, but then never but enable using filter in logger
         switch ($initiator) {
             case 'wp':
                 $initiator_html .=
@@ -325,13 +329,13 @@ class SimpleLogger
             case 'web_user':
                 /*
                 Note: server_remote_addr may not show visiting/attacking ip, if server is behind...stuff..
-                Can be behind varnish cashe, or browser can for example use compression in chrome mobile
+                Can be behind varnish cache, or browser can for example use compression in chrome mobile
                 then the real ip is behind _server_http_x_forwarded_for_0 or similar
                 _server_remote_addr 66.249.81.222
                 _server_http_x_forwarded_for_0  5.35.187.212
                 */
 
-                // Check if additional IP addresses are stored, from http_x_forwarded_for and so on
+                // Check if additional IP addresses are stored, from http_x_forwarded_for and so on.
                 $arr_found_additional_ip_headers = $this->get_event_ip_number_headers(
                     $row
                 );
