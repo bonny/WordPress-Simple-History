@@ -42,7 +42,8 @@
     "grunt": "grunt",
     "lint-css": "stylelint css/*.css dropins/*.css",
     "lint-php": "composer run lint",
-    "lint-php-fix": "composer run lint-fix"
+    "lint-php-fix": "composer run lint-fix",
+    "test": "docker-compose -f tests/docker-compose.yml run phpunit phpunit --testdox"
   },
   "lint-staged": {
     "*.php": [
