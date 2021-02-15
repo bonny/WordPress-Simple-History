@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  database:
+    environment:
+      MYSQL_ROOT_PASSWORD: examplepass
+    image: mysql:5.7
+
+  phpunit:
+    command:
+      - bash
+    depends_on:
+      - database
+    environment:
+      DATABASE_PASSWORD: examplepass
+    image: futureys/phpunit-wordpress-plugin
+    stdin_open: true
+    tty: true
+    volumes:
+      - ../:/plugin
