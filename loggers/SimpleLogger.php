@@ -200,15 +200,7 @@ class SimpleLogger
         return strtr($message, $replace);
     }
 
-    /**
-     * Returns header output for a log row.
-     *
-     * Format should be common for all log rows and should be like:
-     * Username (user role) · Date · IP Address · Via plugin abc
-     *
-     * @return string HTML
-     */
-    public function getLogRowHeaderOutput($row)
+    public function getLogRowHeaderInitiatorOutput($row)
     {
         // HTML for initiator.
         $initiator_html = '';
@@ -253,12 +245,12 @@ class SimpleLogger
                     $user_display_name = $user->display_name;
 
                     /*
-                     * If user who logged this is the currently logged in user
-                     * skip name and email and use just "You"
-                     *
-                     * @param bool If you should be used
-                     * @since 2.1
-                     */
+                    * If user who logged this is the currently logged in user
+                    * skip name and email and use just "You"
+                    *
+                    * @param bool If you should be used
+                    * @since 2.1
+                    */
                     $use_you = apply_filters(
                         'simple_history/header_initiator_use_you',
                         true
@@ -266,17 +258,17 @@ class SimpleLogger
 
                     if ($use_you && $is_current_user) {
                         $tmpl_initiator_html = '
-							<a href="%6$s" class="SimpleHistoryLogitem__headerUserProfileLink">
-								<strong class="SimpleHistoryLogitem__inlineDivided">%5$s</strong>
-							</a>
-						';
+                            <a href="%6$s" class="SimpleHistoryLogitem__headerUserProfileLink">
+                                <strong class="SimpleHistoryLogitem__inlineDivided">%5$s</strong>
+                            </a>
+                        ';
                     } else {
                         $tmpl_initiator_html = '
-							<a href="%6$s" class="SimpleHistoryLogitem__headerUserProfileLink">
-								<strong class="SimpleHistoryLogitem__inlineDivided">%3$s</strong>
-								<span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">%2$s</span>
-							</a>
-						';
+                            <a href="%6$s" class="SimpleHistoryLogitem__headerUserProfileLink">
+                                <strong class="SimpleHistoryLogitem__inlineDivided">%3$s</strong>
+                                <span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">%2$s</span>
+                            </a>
+                        ';
                     }
 
                     /**
@@ -429,6 +421,11 @@ class SimpleLogger
             $row
         );
 
+        return $initiator_html;
+    }
+
+    public function getLogRowHeaderDateOutput($row)
+    {
         // HTML for date
         // Date (should...) always exist
         // http://developers.whatwg.org/text-level-semantics.html#the-time-element
@@ -566,6 +563,11 @@ class SimpleLogger
             $row
         );
 
+        return $date_html;
+    }
+
+    public function getLogRowHeaderUsingPluginOutput($row)
+    {
         // Logger "via" info in header, i.e. output some extra
         // info next to the time to make it more clear what plugin etc.
         // that "caused" this event
@@ -579,24 +581,48 @@ class SimpleLogger
             $via_html .= '</span>';
         }
 
-        // Loglevel
-        // SimpleHistoryLogitem--loglevel-warning
-        /*
-        $level_html = sprintf(
-        '<span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%1$s</span>',
-        $row->level
-        );
-         */
+        return $via_html;
+    }
 
-        // Glue together final result
+    /**
+     * Returns header output for a log row.
+     *
+     * Format should be common for all log rows and should be like:
+     * Username (user role) · Date · IP Address · Via plugin abc
+     * I.e.:
+     * Initiator * Date/time * IP Address * Via logger
+     *
+     * @param object $row Row data
+     * @return string HTML
+     */
+    public function getLogRowHeaderOutput($row)
+    {
+        $initiator_html = $this->getLogRowHeaderInitiatorOutput($row);
+        $date_html = $this->getLogRowHeaderDateOutput($row);
+        $via_html = $this->getLogRowHeaderUsingPluginOutput($row);
+
+        // Template to combine header parts.
         $template = '
 			%1$s
 			%2$s
 			%3$s
 		';
-        // if ( ! $initiator_html ) {
-        // $template = '%2$s';
-        // }
+
+        /**
+         * Filter template used to glue together markup the log row header.
+         *
+         * @since 2.0
+         *
+         * @param string $template
+         * @param object $row Log row
+         */
+        $template = apply_filters(
+            'simple_history/row_header_output/template',
+            $template,
+            $row
+        );
+
+        // Glue together final result.
         $html = sprintf(
             $template,
             $initiator_html, // 1
@@ -605,7 +631,7 @@ class SimpleLogger
         );
 
         /**
-         * Filter generated html for the log row header
+         * Filter generated html for the log row header.
          *
          * @since 2.0
          *
