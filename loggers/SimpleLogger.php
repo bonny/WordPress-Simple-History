@@ -184,19 +184,6 @@ class SimpleLogger
         }
 
         // Interpolate replacement values into the message and return
-        /*
-        if ( ! is_string( $message )) {
-            echo "message:";
-            var_dump($message);exit;
-        }
-        //*/
-        /*
-        if ( ! is_string( $replace )) {
-            echo "replace: \n";
-            var_dump($replace);
-        }
-        // */
-
         return strtr($message, $replace);
     }
 
