@@ -50,7 +50,7 @@ Out of the box Simple History has support for:
 By default Simple History comes with built in support for the following plugins:
 
 **Jetpack**<br>
-The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the creators of WordPress) that lets you supercharge your website by adding a lot of extra functions.
+The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the company behind the WordPress.com service) that lets you supercharge your website by adding a lot of extra functions.
 In Simple History you will see what Jetpack modules that are activated and deactivated.
 (The creator of Simple History recommends this plugin and its [brute force attack protection](https://jetpack.com/features/security/brute-force-attack-protection/) functions btw. It's a really good way to block unwanted login attempts from malicious botnets and distributed attacks.
 
