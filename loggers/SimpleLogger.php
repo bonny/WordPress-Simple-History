@@ -592,17 +592,28 @@ class SimpleLogger
 
             $html .= sprintf(
                 __('IP Address %1$s', 'simple-history'),
-                "<a target='_blank' href={$iplookup_link} class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" .
+                "<a target='_blank' href='{$iplookup_link}' class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" .
                 esc_html($first_ip_address) .
                 '</a>'
             );
         } elseif (sizeof($arr_ip_addresses) > 1) {
             $ip_addresses_html = '';
+
             foreach ($arr_ip_addresses as $ip_address_header => $ip_address) {
+                $iplookup_link = sprintf(
+                    'https://ipinfo.io/%1$s',
+                    esc_attr($first_ip_address)
+                );
+    
                 $ip_addresses_html .= sprintf(
-                    '%1$s, ',
-                    esc_html($ip_address),
-                    esc_html($ip_address_header)
+                    '
+                    <a target="_blank" href="$iplookup_link" class="SimpleHistoryLogitem__anonUserWithIp__theIp">
+                        %1$s
+                    </a>, 
+                    ',
+                    esc_html($ip_address), // 1
+                    esc_html($ip_address_header), // 2
+                    $iplookup_link // 3
                 );
             }
             // Remove trailing comma.
