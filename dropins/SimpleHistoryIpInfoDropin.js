@@ -7,6 +7,7 @@
     "simple-history-ipinfodropin-popup-loading"
   );
   var templateLoaded = wp.template("simple-history-ipinfodropin-popup-loaded");
+  var templateError = wp.template("simple-history-ipinfodropin-popup-error");
 
   // Click on link with IP-number
   $logItems.on(
@@ -83,30 +84,29 @@
 
   // Init request to lookup address
   function lookupIpAddress(ipAddress) {
-    //try {
-
     var ajax = $.get(
       "https://ipinfo.io/" + ipAddress,
       onIpAddressLookupResponse,
       "jsonp"
-    );
-
-    // If the ajax call fail, for example because of blocked connections using adblocker-similar software
-    // err_blocked_by_client
-    // ajax.fail(onIpAddressLookupResponseError);
-    // I don't manage to get this to work, I can't find any way to detect err_blocked_by_client
+    ).fail(function (jqXHR, textStatus, errorThrown) {
+      // Some error occured, for example "net::ERR_BLOCKED_BY_CLIENT"
+      // when ad blocker uBlock blocks
+      // ipinfo.io using EasyPrivacy filter
+      console.log("fail", jqXHR, textStatus, errorThrown);
+      onIpAddressLookupResponseFail();
+    });
 
     return false;
-    //}
-
-    //catch (error) {
-    //	console.log("error", error);
-    //}
   }
 
-  // Function called when ip adress lookup succeeded
+  // Function called when ip adress lookup succeeded.
   function onIpAddressLookupResponse(d) {
     $popupContent.html(templateLoaded(d));
+  }
+
+  // Function called when ip adress lookup failed.
+  function onIpAddressLookupResponseFail(d) {
+    $popupContent.html(templateError(d));
   }
 
   /*
