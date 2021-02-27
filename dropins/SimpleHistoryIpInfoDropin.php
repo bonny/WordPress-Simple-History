@@ -31,10 +31,10 @@ class SimpleHistoryIpInfoDropin
 
     /**
      * Display IP Addressses for login related messages.
-     * 
-     * @param bool $bool 
-     * @param object $row 
-     * @return bool 
+     *
+     * @param bool $bool
+     * @param object $row
+     * @return bool
      */
     public function row_header_display_ip_address_filter($bool, $row)
     {

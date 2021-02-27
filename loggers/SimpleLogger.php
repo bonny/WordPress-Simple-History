@@ -615,12 +615,12 @@ class SimpleLogger
             foreach ($arr_ip_addresses as $ip_address_header => $ip_address) {
                 $iplookup_link = sprintf(
                     'https://ipinfo.io/%1$s',
-                    esc_attr($first_ip_address)
+                    esc_attr($ip_address)
                 );
     
                 $ip_addresses_html .= sprintf(
                     '
-                    <a target="_blank" href="$iplookup_link" class="SimpleHistoryLogitem__anonUserWithIp__theIp">
+                    <a target="_blank" href="%3$s" class="SimpleHistoryLogitem__anonUserWithIp__theIp">
                         %1$s
                     </a>, 
                     ',
@@ -630,6 +630,8 @@ class SimpleLogger
                 );
             }
             // Remove trailing comma.
+            // @HERE trailing comma is not removed
+            // @HERE add header as title? so we know where each IP number comes from.
             $ip_addresses_html = rtrim($ip_addresses_html, ', ');
             
             $html .= sprintf(
