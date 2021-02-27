@@ -619,19 +619,14 @@ class SimpleLogger
                 );
     
                 $ip_addresses_html .= sprintf(
-                    '
-                    <a target="_blank" href="%3$s" class="SimpleHistoryLogitem__anonUserWithIp__theIp">
-                        %1$s
-                    </a>, 
-                    ',
+                    '<a target="_blank" href="%3$s" class="SimpleHistoryLogitem__anonUserWithIp__theIp">%1$s</a>, ',
                     esc_html($ip_address), // 1
                     esc_html($ip_address_header), // 2
                     $iplookup_link // 3
                 );
             }
+
             // Remove trailing comma.
-            // @HERE trailing comma is not removed
-            // @HERE add header as title? so we know where each IP number comes from.
             $ip_addresses_html = rtrim($ip_addresses_html, ', ');
             
             $html .= sprintf(
