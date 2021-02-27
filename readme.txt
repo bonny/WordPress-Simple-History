@@ -196,6 +196,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 = Unreleased =
 
 - Added: Filter `simple_history/row_header_output/template`.
+- Added: Multiple IP addresses shown when behind proxy dokku etc.
+- Added: Show message when failing to get IP address due to for example ad blocker. IPInfo.io is for example blocked in the EasyList filter list.
+- Added: Filter `simple_history/row_header_output/display_ip_address`
 
 = 2.39.0 (January 2021) =
 

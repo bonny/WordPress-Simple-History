@@ -20,6 +20,43 @@ class SimpleHistoryIpInfoDropin
 
         add_action('simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ));
         add_action('simple_history/admin_footer', array( $this, 'add_js_template' ));
+
+        add_filter(
+            'simple_history/row_header_output/display_ip_address',
+            [ $this, 'row_header_display_ip_address_filter'],
+            10,
+            2
+        );
+    }
+
+    /**
+     * Display IP Addressses for login related messages.
+     * 
+     * @param bool $bool 
+     * @param object $row 
+     * @return bool 
+     */
+    public function row_header_display_ip_address_filter($bool, $row)
+    {
+        // Bail if log row in not from our logger.
+        if ('SimpleUserLogger' !== $row->logger) {
+            return $bool;
+        }
+
+        // Message keys to show IP Addresses for.
+        $arr_keys_to_log = [
+            'user_logged_in',
+            'user_login_failed',
+            'user_unknown_login_failed',
+            'user_unknown_logged_in',
+        ];
+
+        // Bail if not correct message key.
+        if (!in_array($row->context_message_key, $arr_keys_to_log)) {
+            return $bool;
+        }
+
+        return true;
     }
 
     public function enqueue_admin_scripts()
