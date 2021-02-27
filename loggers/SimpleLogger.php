@@ -193,15 +193,10 @@ class SimpleLogger
      */
     public function getLogRowHeaderInitiatorOutput($row)
     {
-        // HTML for initiator.
         $initiator_html = '';
-
         $initiator = $row->initiator;
         $context = $row->context;
 
-        // @HERE:
-        // - move these to own methods
-        // - show ip address always, but then never but enable using filter in logger
         switch ($initiator) {
             case 'wp':
                 $initiator_html .=
@@ -545,12 +540,30 @@ class SimpleLogger
      */
     public function getLogRowHeaderIPAddressOutput($row)
     {
+
+        /**
+         * Filter if IP Address should be added to header row.
+         *
+         * @since 2.x
+         *
+         * @param bool True to show IP address, false to hide it. Defaults to false.
+         * @param object $row Row data
+         */
+        $show_ip_address = apply_filters(
+            'simple_history/row_header_output/display_ip_address',
+            false,
+            $row
+        );
+
+        if (!$show_ip_address) {
+            return '';
+        }
+
         $context = $row->context;
         $html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__anonUserWithIp'>";
         
         $arr_ip_addresses = [];
 
-        
         // Look for additional ip addresses.
         $arr_found_additional_ip_headers = $this->get_event_ip_number_headers($row);
         
