@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 2.39.0
+Stable tag: 2.40.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -193,7 +193,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= Unreleased =
+= 2.40.0 (March 2021) =
 
 - Changed: IP address is now also shown when a user successfully logs in.
   Previously the IP address was only shown for failed login attempts. Note that the IP address/es of all events are always logged and can be seen in the "context data" table that is displayed when you click the date and time of an event.
