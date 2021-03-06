@@ -195,10 +195,17 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Unreleased =
 
-- Added: Filter `simple_history/row_header_output/template`.
-- Added: Multiple IP addresses shown when behind proxy dokku etc.
-- Added: Show message when failing to get IP address due to for example ad blocker. IPInfo.io is for example blocked in the EasyList filter list.
-- Added: Filter `simple_history/row_header_output/display_ip_address`
+- Changed: IP address is now also shown when a user successfully logs in.
+  Previously the IP address was only shown for failed login attempts. Note that the IP address/es of all events are always logged and can be seen in the "context data" table that is displayed when you click the date and time of an event.
+  [#233](https://github.com/bonny/WordPress-Simple-History/issues/233).
+
+- Added: If multiple IP addresses are detected, for example when a website is running behind a proxy or similar, all IP addresses are now shown for failed and sucessful logins.
+
+- Added: Filter `simple_history/row_header_output/display_ip_address` that can be used to control when the IP address/es should be visible in the main log. By default sucessful and failed logins are shown.
+
+- Added: Show message when failing to get IP address due to for example ad blocker. IPInfo.io is for example blocked in the EasyList filter list that for example [Chrome extension uBlock Origin](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm) uses.
+
+- Added: Filter `simple_history/row_header_output/template` that controls the output of the header row in the main event log.
 
 = 2.39.0 (January 2021) =
 
