@@ -1746,8 +1746,9 @@ Because Simple History was only recently installed, this feed does not display m
             $args = [
                 'arr_active_tab' => $arr_active_tab,
             ];
-
-            call_user_func_array($arr_active_tab['function'], $args);?>
+            
+            call_user_func_array($arr_active_tab['function'], array_values($args));
+            ?>
 
         </div>
         <?php
