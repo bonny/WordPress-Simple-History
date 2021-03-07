@@ -605,7 +605,7 @@ class SimpleLogger
 
             $html .= sprintf(
                 __('IP Address %1$s', 'simple-history'),
-                "<a target='_blank' href='{$iplookup_link}' class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" .
+                "<a target='_blank' href='{$iplookup_link}' class='SimpleHistoryLogitem__anonUserWithIp__theIp' data-ip-address='" . esc_attr($first_ip_address) . "'>" .
                 esc_html($first_ip_address) .
                 '</a>'
             );
@@ -619,10 +619,11 @@ class SimpleLogger
                 );
     
                 $ip_addresses_html .= sprintf(
-                    '<a target="_blank" href="%3$s" class="SimpleHistoryLogitem__anonUserWithIp__theIp">%1$s</a>, ',
+                    '<a target="_blank" href="%3$s" class="SimpleHistoryLogitem__anonUserWithIp__theIp" data-ip-address="%4$s">%1$s</a>, ',
                     esc_html($ip_address), // 1
                     esc_html($ip_address_header), // 2
-                    $iplookup_link // 3
+                    $iplookup_link, // 3
+                    esc_attr($ip_address), // 4
                 );
             }
 

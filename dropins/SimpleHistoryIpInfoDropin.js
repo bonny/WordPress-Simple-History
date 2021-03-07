@@ -15,7 +15,7 @@
     ".SimpleHistoryLogitem__anonUserWithIp__theIp",
     function (e) {
       var $elm = $(this);
-      var ipAddress = $elm.closest(".SimpleHistoryLogitem").data("ipAddress");
+      var ipAddress = $elm.closest("a").data("ipAddress");
 
       if (!ipAddress) {
         return;
