@@ -195,7 +195,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = 2.41.1 (March 2021) =
 
-- Fixed: Get information for correct IP Address when mulitple IP addresses are shown.
+- Fixed: Get information for correct IP Address when multiple IP addresses are shown.
 
 = 2.41.0 (March 2021) =
 
