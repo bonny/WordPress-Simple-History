@@ -623,7 +623,7 @@ class SimpleLogger
                     esc_html($ip_address), // 1
                     esc_html($ip_address_header), // 2
                     $iplookup_link, // 3
-                    esc_attr($ip_address), // 4
+                    esc_attr($ip_address) // 4
                 );
             }
 
