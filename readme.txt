@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 2.40.0
+Stable tag: 2.41.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -193,11 +193,17 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 2.41.0 (March 2021) =
+
+- Fixed: Error when visiting settings screen on PHP 8. 
+  Fixes https://wordpress.org/support/topic/simple-history-fatal-error/.
+  [#239](https://github.com/bonny/WordPress-Simple-History/issues/239)
+
 = 2.40.0 (March 2021) =
 
 - Changed: IP address is now also shown when a user successfully logs in.
   Previously the IP address was only shown for failed login attempts. Note that the IP address/es of all events are always logged and can be seen in the "context data" table that is displayed when you click the date and time of an event.
-  [#233](https://github.com/bonny/WordPress-Simple-History/issues/233).
+  [#233](https://github.com/bonny/WordPress-Simple-History/issues/233)
 
 - Added: If multiple IP addresses are detected, for example when a website is running behind a proxy or similar, all IP addresses are now shown for failed and sucessful logins.
 
