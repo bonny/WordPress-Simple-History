@@ -43,7 +43,10 @@
     "lint-css": "stylelint css/*.css dropins/*.css",
     "lint-php": "composer run lint",
     "lint-php-fix": "composer run lint-fix",
-    "test": "docker-compose -f tests/docker-compose.yml run phpunit phpunit --testdox"
+    "test": "npm run test:wp5.6.2-php7.2 && npm run test:wp5.6.2-php7.4.15 && npm run test:wp5.2-php5.6",
+    "test:wp5.6.2-php7.2": "DOCKER_IMAGE_PHPUNIT=eskapism/phpunit-wordpress-plugin:wp5.6.2-php7.2 docker-compose -f tests/docker-compose.yml run phpunit phpunit --testdox",
+    "test:wp5.6.2-php7.4.15": "DOCKER_IMAGE_PHPUNIT=eskapism/phpunit-wordpress-plugin:wp5.6.2-php7.4.15 docker-compose -f tests/docker-compose.yml run phpunit phpunit --testdox",
+    "test:wp5.2-php5.6": "DOCKER_IMAGE_PHPUNIT=eskapism/phpunit-wordpress-plugin:wp5.2-php5.6 docker-compose -f tests/docker-compose.yml run phpunit phpunit --testdox"
   },
   "lint-staged": {
     "*.php": [

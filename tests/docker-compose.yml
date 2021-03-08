@@ -12,7 +12,7 @@ services:
       - database
     environment:
       DATABASE_PASSWORD: examplepass
-    image: futureys/phpunit-wordpress-plugin
+    image: ${DOCKER_IMAGE_PHPUNIT}
     stdin_open: true
     tty: true
     volumes:
