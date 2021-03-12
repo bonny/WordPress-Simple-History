@@ -136,7 +136,6 @@ class SimpleUserLogger extends SimpleLogger
 
         // User reaches reset password (from link or only from user created link)
         add_action('validate_password_reset', array( $this, 'onValidatePasswordReset' ), 10, 2);
-
         add_action('retrieve_password_message', array( $this, 'onRetrievePasswordMessage' ), 10, 4);
 
         add_filter('insert_user_meta', array( $this, 'onInsertUserMeta' ), 10, 3);
@@ -304,26 +303,25 @@ class SimpleUserLogger extends SimpleLogger
     }
 
     /**
+     * Fired from hook "retrieve_password_message" in "wp-login.php".
+     * Hook filters the message body of the password reset mail.
      *
-     * user requests a reset password link
+     * If this hook is fired then WP has checked for valid username etc already.
+     *
+     * This hook is not fired when using for example WooCommerce because it has it's own reset password system.
+     * Maybe get_password_reset_key() can be used instead?
      */
     public function onRetrievePasswordMessage($message, $key, $user_login, $user_data = null)
     {
+        $context = array(
+            '_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+            'message' => $message,
+            'key' => $key,
+            'user_login' => $user_login,
+            'user_email' => $user_data->user_email
+        );
 
-        if (isset($_GET['action']) && ('lostpassword' == $_GET['action'])) {
-            $context = array(
-                '_initiator' => SimpleLoggerLogInitiators::WEB_USER,
-                'message' => $message,
-                'key' => $key,
-                'user_login' => $user_login,
-            );
-
-            if (is_a($user_data, 'WP_User')) {
-                $context['user_email'] = $user_data->user_email;
-            }
-
-            $this->noticeMessage('user_requested_password_reset_link', $context);
-        }
+        $this->noticeMessage('user_requested_password_reset_link', $context);
 
         return $message;
     }
