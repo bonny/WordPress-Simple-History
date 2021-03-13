@@ -10,8 +10,10 @@
 	"homepage": "http://simple-history.com/",
 	"minimum-stability": "dev",
 	"require-dev": {
-		"squizlabs/php_codesniffer": "^3.5",
-		"phpunit/phpunit": "^7"
+		"dealerdirect/phpcodesniffer-composer-installer": "*",
+		"phpcompatibility/php-compatibility": "*",
+		"wp-coding-standards/wpcs": "*",
+		"phpcompatibility/phpcompatibility-wp": "*"
 	},
 	"require": {
 		"php": ">=5.2.0"
@@ -19,11 +21,14 @@
 	"authors": [
 		{
 			"name": "Pär Thernström",
-			"email": "par.thernstrom@gmail.com",
-			"homepage": "https://eskapism.se/",
-			"role": "Developer"
+			"homepage": "https://eskapism.se/"
 		}
 	],
+	"support": {
+		"issues": "https://github.com/bonny/WordPress-Simple-History/issues",
+		"forum": "https://wordpress.org/support/plugin/simple-history/",
+		"source": "https://github.com/bonny/WordPress-Simple-History"
+	},
 	"dist": {
 		"url": "https://downloads.wordpress.org/plugin/simple-history.zip",
 		"type": "zip"

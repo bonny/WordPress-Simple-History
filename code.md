@@ -35,3 +35,9 @@ Fix things:
 
 - Will try to follow OneFlow:  
   https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
+
+## Update match 2021
+
+Code standards is updated to WordPress own.
+
+Uses composer package `dealerdirect/phpcodesniffer-composer-installer` to find PHP_CodeSniffer rules automagically. Just run `composer install` and then `vendor/bin/phpcs`.
