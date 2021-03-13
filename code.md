@@ -41,3 +41,5 @@ Fix things:
 Code standards is updated to WordPress own.
 
 Uses composer package `dealerdirect/phpcodesniffer-composer-installer` to find PHP_CodeSniffer rules automagically. Just run `composer install` and then `vendor/bin/phpcs`.
+
+Use PHP 7 for now, the WordPress rules crashes on PHP 8 so far (bug fixed but no version with fix released).
