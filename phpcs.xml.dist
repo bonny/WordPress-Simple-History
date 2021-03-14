@@ -3,12 +3,16 @@
 	<description>WordPress Coding Standards for Simple History</description>
 	<config name="testVersion" value="5.6-"/>
 
-	<!-- Show sniff codes in all reports, and progress while running -->
-	<arg value="sp"/>
+	<!-- Show progress while running -->
+	<arg value="p"/>
+	<!-- Show sniff codes in all reports -->
+	<arg value="s"/>
 	<!-- Show results with colors -->
 	<arg name="colors"/>
+	<!-- Don't show warnings -->
+	<arg value="n"/>
 
-	<!-- Check all PHP files in directory tree by default. -->
+	<!-- Check only PHP files -->
 	<arg name="extensions" value="php"/>
 
 	<!-- Process current dir by default-->
@@ -19,8 +23,35 @@
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/build/*</exclude-pattern>
 
+	<!-- 
+		Info about customizable things:
+	    https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties
+	-->
+	<config name="minimum_supported_wp_version" value="5.2"/>
+
 	<rule ref="WordPress-Extra">
 	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="simple-history"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="sh"/>
+				<element value="simplehistory"/>
+				<element value="simple_history"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Add this and fix when all other things are fixed.-->
+	<!-- <rule ref="WordPress-Docs"/> -->
 
 	<rule ref="PHPCompatibilityWP"/>
 
