@@ -6,15 +6,14 @@
  * Makes call like this possible:
  * SimpleLogger()->info("This is a message sent to the log");
  */
-function SimpleLogger()
-{
-    // Load loggers if main SimpleLogger class is not yet available.
-    // Makes it possible to log things early,
-    // before loggers are loaded "normally" on filter "after_setup_theme".
-    if (!class_exists('SimpleLogger')) {
-        SimpleHistory::get_instance()->load_loggers();
-    }
-    return new SimpleLogger(SimpleHistory::get_instance());
+function SimpleLogger() {
+	// Load loggers if main SimpleLogger class is not yet available.
+	// Makes it possible to log things early,
+	// before loggers are loaded "normally" on filter "after_setup_theme".
+	if ( ! class_exists( 'SimpleLogger' ) ) {
+		SimpleHistory::get_instance()->load_loggers();
+	}
+	return new SimpleLogger( SimpleHistory::get_instance() );
 }
 
 /**
@@ -24,23 +23,22 @@ function SimpleLogger()
  * SimpleHistory()->info();
  * instead
  */
-function simple_history_add($args)
-{
-    $defaults = array(
-        'action' => null,
-        'object_type' => null,
-        'object_subtype' => null,
-        'object_id' => null,
-        'object_name' => null,
-        'user_id' => null,
-        'description' => null
-    );
+function simple_history_add( $args ) {
+	$defaults = array(
+		'action' => null,
+		'object_type' => null,
+		'object_subtype' => null,
+		'object_id' => null,
+		'object_name' => null,
+		'user_id' => null,
+		'description' => null,
+	);
 
-    $context = wp_parse_args($args, $defaults);
+	$context = wp_parse_args( $args, $defaults );
 
-    $message = "{$context["object_type"]} {$context["object_name"]} {$context["action"]}";
+	$message = "{$context["object_type"]} {$context["object_name"]} {$context["action"]}";
 
-    SimpleLogger()->info($message, $context);
+	SimpleLogger()->info( $message, $context );
 }
 
 /**
@@ -75,76 +73,75 @@ function simple_history_add($args)
  * @param string|array $args Optional. Change 'title', 'title_left', and 'title_right' defaults. And leading_context_lines and trailing_context_lines.
  * @return string Empty string if strings are equivalent or HTML with differences.
  */
-function simple_history_text_diff($left_string, $right_string, $args = null)
-{
-    $defaults = array(
-        'title' => '',
-        'title_left' => '',
-        'title_right' => '',
-        'leading_context_lines' => 1,
-        'trailing_context_lines' => 1
-    );
+function simple_history_text_diff( $left_string, $right_string, $args = null ) {
+	$defaults = array(
+		'title' => '',
+		'title_left' => '',
+		'title_right' => '',
+		'leading_context_lines' => 1,
+		'trailing_context_lines' => 1,
+	);
 
-    $args = wp_parse_args($args, $defaults);
+	$args = wp_parse_args( $args, $defaults );
 
-    if (!class_exists('WP_Text_Diff_Renderer_Table')) {
-        require ABSPATH . WPINC . '/wp-diff.php';
-    }
+	if ( ! class_exists( 'WP_Text_Diff_Renderer_Table' ) ) {
+		require ABSPATH . WPINC . '/wp-diff.php';
+	}
 
-    $left_string = normalize_whitespace($left_string);
-    $right_string = normalize_whitespace($right_string);
+	$left_string = normalize_whitespace( $left_string );
+	$right_string = normalize_whitespace( $right_string );
 
-    $left_lines = explode("\n", $left_string);
-    $right_lines = explode("\n", $right_string);
-    $text_diff = new Text_Diff($left_lines, $right_lines);
+	$left_lines = explode( "\n", $left_string );
+	$right_lines = explode( "\n", $right_string );
+	$text_diff = new Text_Diff( $left_lines, $right_lines );
 
-    $renderer = new WP_Text_Diff_Renderer_Table($args);
-    $renderer->_leading_context_lines = $args['leading_context_lines'];
-    $renderer->_trailing_context_lines = $args['trailing_context_lines'];
+	$renderer = new WP_Text_Diff_Renderer_Table( $args );
+	$renderer->_leading_context_lines = $args['leading_context_lines'];
+	$renderer->_trailing_context_lines = $args['trailing_context_lines'];
 
-    $diff = $renderer->render($text_diff);
+	$diff = $renderer->render( $text_diff );
 
-    if (!$diff) {
-        return '';
-    }
+	if ( ! $diff ) {
+		return '';
+	}
 
-    $r = '';
+	$r = '';
 
-    $r .= "<div class='SimpleHistory__diff__contents' tabindex='0'>";
-    $r .= "<div class='SimpleHistory__diff__contentsInner'>";
+	$r .= "<div class='SimpleHistory__diff__contents' tabindex='0'>";
+	$r .= "<div class='SimpleHistory__diff__contentsInner'>";
 
-    $r .= "<table class='diff SimpleHistory__diff'>\n";
+	$r .= "<table class='diff SimpleHistory__diff'>\n";
 
-    if (!empty($args['show_split_view'])) {
-        $r .=
-            "<col class='content diffsplit left' /><col class='content diffsplit middle' /><col class='content diffsplit right' />";
-    } else {
-        $r .= "<col class='content' />";
-    }
+	if ( ! empty( $args['show_split_view'] ) ) {
+		$r .=
+			"<col class='content diffsplit left' /><col class='content diffsplit middle' /><col class='content diffsplit right' />";
+	} else {
+		$r .= "<col class='content' />";
+	}
 
-    if ($args['title'] || $args['title_left'] || $args['title_right']) {
-        $r .= '<thead>';
-    }
-    if ($args['title']) {
-        $r .= "<tr class='diff-title'><th colspan='4'>$args[title]</th></tr>\n";
-    }
-    if ($args['title_left'] || $args['title_right']) {
-        $r .= "<tr class='diff-sub-title'>\n";
-        $r .= "\t<td></td><th>$args[title_left]</th>\n";
-        $r .= "\t<td></td><th>$args[title_right]</th>\n";
-        $r .= "</tr>\n";
-    }
-    if ($args['title'] || $args['title_left'] || $args['title_right']) {
-        $r .= "</thead>\n";
-    }
+	if ( $args['title'] || $args['title_left'] || $args['title_right'] ) {
+		$r .= '<thead>';
+	}
+	if ( $args['title'] ) {
+		$r .= "<tr class='diff-title'><th colspan='4'>$args[title]</th></tr>\n";
+	}
+	if ( $args['title_left'] || $args['title_right'] ) {
+		$r .= "<tr class='diff-sub-title'>\n";
+		$r .= "\t<td></td><th>$args[title_left]</th>\n";
+		$r .= "\t<td></td><th>$args[title_right]</th>\n";
+		$r .= "</tr>\n";
+	}
+	if ( $args['title'] || $args['title_left'] || $args['title_right'] ) {
+		$r .= "</thead>\n";
+	}
 
-    $r .= "<tbody>\n$diff</div>\n</tbody>\n";
-    $r .= '</table>';
+	$r .= "<tbody>\n$diff</div>\n</tbody>\n";
+	$r .= '</table>';
 
-    $r .= '</div>';
-    $r .= '</div>';
+	$r .= '</div>';
+	$r .= '</div>';
 
-    return $r;
+	return $r;
 }
 
 /**
@@ -159,18 +156,17 @@ function simple_history_text_diff($left_string, $right_string, $args = null)
  *   $handler['callback'][1]
  * );
  */
-function sh_error_log()
-{
-    foreach (func_get_args() as $var) {
-        if (is_bool($var)) {
-            $bool_string = true === $var ? 'true' : 'false';
-            error_log("$bool_string (boolean value)");
-        } elseif (is_null($var)) {
-            error_log('null (null value)');
-        } else {
-            error_log(print_r($var, true));
-        }
-    }
+function sh_error_log() {
+	foreach ( func_get_args() as $var ) {
+		if ( is_bool( $var ) ) {
+			$bool_string = true === $var ? 'true' : 'false';
+			error_log( "$bool_string (boolean value)" );
+		} elseif ( is_null( $var ) ) {
+			error_log( 'null (null value)' );
+		} else {
+			error_log( print_r( $var, true ) );
+		}
+	}
 }
 
 /**
@@ -184,32 +180,31 @@ function sh_error_log()
  *
  * @mixed Vars Variables to output.
  */
-function sh_d()
-{
-    $output = '';
+function sh_d() {
+	$output = '';
 
-    foreach (func_get_args() as $var) {
-        $loopOutput = '';
-        if (is_bool($var)) {
-            $bool_string = true === $var ? 'true' : 'false';
-            $loopOutput = "$bool_string (boolean value)";
-        } elseif (is_null($var)) {
-            $loopOutput = ('null (null value)');
-        } else {
-            $loopOutput = print_r($var, true);
-        }
+	foreach ( func_get_args() as $var ) {
+		$loopOutput = '';
+		if ( is_bool( $var ) ) {
+			$bool_string = true === $var ? 'true' : 'false';
+			$loopOutput = "$bool_string (boolean value)";
+		} elseif ( is_null( $var ) ) {
+			$loopOutput = ( 'null (null value)' );
+		} else {
+			$loopOutput = print_r( $var, true );
+		}
 
-        if ($loopOutput) {
-            $output = $output . sprintf(
-                '
+		if ( $loopOutput ) {
+			$output = $output . sprintf(
+				'
                 <pre>%1$s</pre>
                 ',
-                esc_html($loopOutput)
-            );
-        }
-    }
-    
-    echo $output;
+				esc_html( $loopOutput )
+			);
+		}
+	}
+
+	echo $output;
 }
 
 /**
@@ -229,21 +224,20 @@ function sh_d()
  * @param callable $callable The callable thing to check.
  * @return string Name of callable.
  */
-function sh_get_callable_name($callable)
-{
-    if (is_string($callable)) {
-        return trim($callable);
-    } elseif (is_array($callable)) {
-        if (is_object($callable[0])) {
-            return sprintf('%s::%s', get_class($callable[0]), trim($callable[1]));
-        } else {
-            return sprintf('%s::%s', trim($callable[0]), trim($callable[1]));
-        }
-    } elseif ($callable instanceof Closure) {
-        return 'closure';
-    } else {
-        return 'unknown';
-    }
+function sh_get_callable_name( $callable ) {
+	if ( is_string( $callable ) ) {
+		return trim( $callable );
+	} elseif ( is_array( $callable ) ) {
+		if ( is_object( $callable[0] ) ) {
+			return sprintf( '%s::%s', get_class( $callable[0] ), trim( $callable[1] ) );
+		} else {
+			return sprintf( '%s::%s', trim( $callable[0] ), trim( $callable[1] ) );
+		}
+	} elseif ( $callable instanceof Closure ) {
+		return 'closure';
+	} else {
+		return 'unknown';
+	}
 }
 
 /**
@@ -255,10 +249,9 @@ function sh_get_callable_name($callable)
  *
  * @return string with words uppercased.
  */
-function sh_ucwords($str, $separator = ' ')
-{
-    $str = str_replace($separator, ' ', $str);
-    $str = ucwords(strtolower($str));
-    $str = str_replace(' ', $separator, $str);
-    return $str;
+function sh_ucwords( $str, $separator = ' ' ) {
+	$str = str_replace( $separator, ' ', $str );
+	$str = ucwords( strtolower( $str ) );
+	$str = str_replace( ' ', $separator, $str );
+	return $str;
 }

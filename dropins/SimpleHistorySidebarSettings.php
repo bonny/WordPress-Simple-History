@@ -1,6 +1,6 @@
 <?php
 
-defined('ABSPATH') or die();
+defined( 'ABSPATH' ) or die();
 
 /*
 Dropin Name: Sidebar with link to settings
@@ -8,84 +8,81 @@ Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
 
-class SimpleHistorySidebarSettings
-{
+class SimpleHistorySidebarSettings {
 
-    /**
-     * Simple History isntance
-     *
-     * @var object $sh Simple History instance.
-     */
-    private $sh;
 
-    /**
-     * Constructor.
-     *
-     * @param object $sh Simple History instance.
-     */
-    public function __construct($sh)
-    {
+	/**
+	 * Simple History isntance
+	 *
+	 * @var object $sh Simple History instance.
+	 */
+	private $sh;
 
-        $this->init($sh);
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param object $sh Simple History instance.
+	 */
+	public function __construct( $sh ) {
 
-    /**
-     * Init
-     *
-     * @param object $sh Simple History instance.
-     */
-    public function init($sh)
-    {
+		$this->init( $sh );
+	}
 
-        $this->sh = $sh;
+	/**
+	 * Init
+	 *
+	 * @param object $sh Simple History instance.
+	 */
+	public function init( $sh ) {
 
-        add_action('simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5);
-    }
+		$this->sh = $sh;
 
-    /**
-     * Output HTML
-     */
-    public function on_sidebar_html()
-    {
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
+	}
 
-        ?>
+	/**
+	 * Output HTML
+	 */
+	public function on_sidebar_html() {
 
-        <div class="postbox">
+		?>
 
-            <h3 class="hndle"><?php esc_html_e('Settings', 'simple-history') ?></h3>
+		<div class="postbox">
 
-            <div class="inside">
+			<h3 class="hndle"><?php esc_html_e( 'Settings', 'simple-history' ); ?></h3>
 
-                <p>
-                    <?php
+			<div class="inside">
 
-                    /*
-                    Visit the settings page to change the number of items to show and
-                    where to show
-                    rss feed
-                    clear log
+				<p>
+					<?php
 
-                    - Visit the settings page to change the number of events to show, to get
-                    - Visit the settings page
-                    */
-                    printf(
-                        wp_kses(
-                            /* translators: 1: URL to settings page */
-                            __('<a href="%1$s">Visit the settings page</a> to change things like the number of events to show and to get access to the RSS feed with all events, and more.', 'simple-history'),
-                            array(
-                                'a' => array(
-                                    'href' => array(),
-                                ),
-                            )
-                        ),
-                        esc_url(menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, false))
-                    );
-                    ?>
-                </p>
+					/*
+					Visit the settings page to change the number of items to show and
+					where to show
+					rss feed
+					clear log
 
-            </div>
-        </div>
+					- Visit the settings page to change the number of events to show, to get
+					- Visit the settings page
+					*/
+					printf(
+						wp_kses(
+							/* translators: 1: URL to settings page */
+							__( '<a href="%1$s">Visit the settings page</a> to change things like the number of events to show and to get access to the RSS feed with all events, and more.', 'simple-history' ),
+							array(
+								'a' => array(
+									'href' => array(),
+								),
+							)
+						),
+						esc_url( menu_page_url( SimpleHistory::SETTINGS_MENU_SLUG, false ) )
+					);
+					?>
+				</p>
 
-        <?php
-    }
+			</div>
+		</div>
+
+		<?php
+	}
 }

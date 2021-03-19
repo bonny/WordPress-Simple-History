@@ -1,6 +1,6 @@
 <?php
 
-defined('ABSPATH') or die();
+defined( 'ABSPATH' ) or die();
 
 /**
  * Dropin Name: Debug
@@ -8,54 +8,52 @@ defined('ABSPATH') or die();
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistoryDebugDropin
-{
-    public function __construct($sh)
-    {
-        // Bail if Simple History debug mode is not active.
-        if (!defined('SIMPLE_HISTORY_LOG_DEBUG') || !SIMPLE_HISTORY_LOG_DEBUG) {
-            return;
-        }
+class SimpleHistoryDebugDropin {
 
-        add_action('simple_history/log_argument/context', [$this, 'onLogArgumentContext'], 10, 4);
-    }
+	public function __construct( $sh ) {
+		// Bail if Simple History debug mode is not active.
+		if ( ! defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) || ! SIMPLE_HISTORY_LOG_DEBUG ) {
+			return;
+		}
 
-    /**
-     * Modify the context to add debug information.
-     *
-     * @param array $context
-     * @param string $level
-     * @param string $message
-     * @param SimpleLogger $logger
-     */
-    public function onLogArgumentContext(array $context, string $level, string $message, SimpleLogger $logger)
-    {
-        $sh = SimpleHistory::get_instance();
-        $context['_debug_get'] = $sh->json_encode($_GET);
-        $context['_debug_post'] = $sh->json_encode($_POST);
-        $context['_debug_server'] = $sh->json_encode($_SERVER);
-        $context['_debug_files'] = $sh->json_encode($_FILES);
-        $context['_debug_php_sapi_name'] = php_sapi_name();
+		add_action( 'simple_history/log_argument/context', array( $this, 'onLogArgumentContext' ), 10, 4 );
+	}
 
-        global $argv;
-        $context['_debug_argv'] = $sh->json_encode($argv);
+	/**
+	 * Modify the context to add debug information.
+	 *
+	 * @param array $context
+	 * @param string $level
+	 * @param string $message
+	 * @param SimpleLogger $logger
+	 */
+	public function onLogArgumentContext( array $context, string $level, string $message, SimpleLogger $logger ) {
+		$sh = SimpleHistory::get_instance();
+		$context['_debug_get'] = $sh->json_encode( $_GET );
+		$context['_debug_post'] = $sh->json_encode( $_POST );
+		$context['_debug_server'] = $sh->json_encode( $_SERVER );
+		$context['_debug_files'] = $sh->json_encode( $_FILES );
+		$context['_debug_php_sapi_name'] = php_sapi_name();
 
-        $consts = get_defined_constants(true);
-        $consts = $consts['user'];
-        $context['_debug_user_constants'] = $sh->json_encode($consts);
+		global $argv;
+		$context['_debug_argv'] = $sh->json_encode( $argv );
 
-        $postdata = file_get_contents('php://input');
-        $context['_debug_http_raw_post_data'] = $sh->json_encode($postdata);
+		$consts = get_defined_constants( true );
+		$consts = $consts['user'];
+		$context['_debug_user_constants'] = $sh->json_encode( $consts );
 
-        $context['_debug_wp_debug_backtrace_summary'] = wp_debug_backtrace_summary();
-        $context['_debug_is_admin'] = json_encode(is_admin());
-        $context['_debug_is_ajax'] = json_encode(defined('DOING_AJAX') && DOING_AJAX);
-        $context['_debug_is_doing_cron'] = json_encode(defined('DOING_CRON') && DOING_CRON);
+		$postdata = file_get_contents( 'php://input' );
+		$context['_debug_http_raw_post_data'] = $sh->json_encode( $postdata );
 
-        global $wp_current_filter;
-        $context['_debug_current_filter_array'] = $wp_current_filter;
-        $context['_debug_current_filter'] = current_filter();
+		$context['_debug_wp_debug_backtrace_summary'] = wp_debug_backtrace_summary();
+		$context['_debug_is_admin'] = json_encode( is_admin() );
+		$context['_debug_is_ajax'] = json_encode( defined( 'DOING_AJAX' ) && DOING_AJAX );
+		$context['_debug_is_doing_cron'] = json_encode( defined( 'DOING_CRON' ) && DOING_CRON );
 
-        return $context;
-    }
+		global $wp_current_filter;
+		$context['_debug_current_filter_array'] = $wp_current_filter;
+		$context['_debug_current_filter'] = current_filter();
+
+		return $context;
+	}
 }

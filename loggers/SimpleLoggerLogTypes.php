@@ -9,11 +9,11 @@
  * More may be added later on if needed
  * Note: not in use at the moment
  */
-class SimpleLoggerLogTypes
-{
-    const CREATE = 'create';
-    const READ = 'read';
-    const UPDATE = 'update';
-    const DELETE = 'delete';
-    const OTHER = 'other';
+class SimpleLoggerLogTypes {
+
+	const CREATE = 'create';
+	const READ = 'read';
+	const UPDATE = 'update';
+	const DELETE = 'delete';
+	const OTHER = 'other';
 }
