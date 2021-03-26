@@ -3,7 +3,9 @@ services:
   database:
     environment:
       MYSQL_ROOT_PASSWORD: examplepass
-    image: mysql:5.7
+    #image: mysql:5.7 does not exist for Apple M1 processors 
+    # but mariadb 10.2 is compatible and exists for M1.
+    image: mariadb:10.2
 
   phpunit:
     command:
