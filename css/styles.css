@@ -972,3 +972,7 @@ Modal window with detailss
 	color: rgb(75, 75, 75);
 	font-family: "Open Sans", sans-serif;
 }
+
+.SimpleHistory__diff.SimpleHistory__diff tbody tr td:nth-child(2) {
+	width: auto;
+}
