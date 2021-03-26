@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= n.n () =
+
+- Fixed: Quick diff table had to wrong sizes of the table cells. ([#246](https://github.com/bonny/WordPress-Simple-History/issues/246))
+
 = 2.41.2 (March 2021) =
 
 - Fixed: Error when running on PHP version 7.2 or lower.
