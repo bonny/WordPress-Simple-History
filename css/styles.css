@@ -231,10 +231,6 @@ Style different log levels.
 	margin-top: 5px;
 }
 
-.SimpleHistoryLogitem:hover .SimpleHistoryLogitem__senderImage {
-	/*opacity: 1;*/
-}
-
 .SimpleHistoryLogitem__senderImage img {
 	display: block;
 	max-width: 100%;
@@ -259,7 +255,6 @@ Style different log levels.
 .SimpleHistoryLogitem__text,
 .SimpleHistoryLogitem__details,
 .SimpleHistoryLogitem__details p {
-	xfont-size: 16px;
 	line-height: 1.4;
 }
 
@@ -378,14 +373,6 @@ Images/thumbs can be styles nicely
 	height: auto;
 }
 
-/*
-when occasions are added
-*/
-.SimpleHistoryLogitem--occasionsOpened {
-	/*box-shadow: 0px 10px 10px -6px rgba(0, 0, 0, 0.3);
-	z-index: 1;*/
-}
-
 /* remove border below */
 .SimpleHistoryLogitem--occasionsOpened::before {
 	opacity: 0;
@@ -471,9 +458,6 @@ when occasions are added
 customizations for the dashboard
 i.e. the log is inside a .postbox element
 */
-
-.postbox {
-}
 #simple_history_dashboard_widget .inside {
 	padding: 0;
 	margin-top: 0;
@@ -495,10 +479,6 @@ i.e. the log is inside a .postbox element
 
 .postbox .SimpleHistoryLogitem {
 	padding: 12px 5px 12px 16px;
-}
-
-.postbox .SimpleHistoryLogitem:first-child {
-	/*padding-top: 0;*/
 }
 
 .postbox .SimpleHistoryLogitem::before {
@@ -571,10 +551,6 @@ Styles for filter
 /*
 Pagination, below logRows
 */
-
-.SimpleHistoryLogitems__pagination {
-}
-
 .SimpleHistoryPaginationPages {
 	text-align: center;
 	padding-top: 20px;
@@ -625,9 +601,6 @@ animations/effects
 /*
 Modal window with detailss
 */
-.SimpleHistory-modal {
-}
-
 .SimpleHistory-modal__background {
 	position: fixed;
 	top: 0;
@@ -751,9 +724,6 @@ Modal window with detailss
 	background: inherit;
 }
 
-.SimpleHistory-modal .SimpleHistoryLogitem__senderImage {
-	/*opacity: 1;*/
-}
 
 .SimpleHistoryLogitem__moreDetails {
 	border-top: 1px solid rgb(229, 229, 229);
@@ -888,8 +858,6 @@ Modal window with detailss
 }
 
 /* if not hits when using filter function + if ajax error */
-.SimpleHistory--hasNoHits {
-}
 
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems__pagination {
 	display: none;
