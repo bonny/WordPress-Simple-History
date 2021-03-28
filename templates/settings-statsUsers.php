@@ -1,13 +1,13 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 
 // Output users
-echo '<h3>' . __( 'Users', 'simple-history' ) . '</h3>';
+echo '<h3>' . esc_html__( 'Users', 'simple-history' ) . '</h3>';
 
-echo '<p>' . __( 'Number of logged items for the 5 users with most logged rows.', 'simple-history' ) . '</p>';
-echo '<p>' . __( 'Deleted users are also included.', 'simple-history' ) . '</p>';
+echo '<p>' . esc_html__( 'Number of logged items for the 5 users with most logged rows.', 'simple-history' ) . '</p>';
+echo '<p>' . esc_html__( 'Deleted users are also included.', 'simple-history' ) . '</p>';
 
 $sql_users = sprintf(
 	'

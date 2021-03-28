@@ -89,19 +89,7 @@ $str_js_google_chart_data = rtrim( $str_js_google_chart_data, ',' );
 	/**
 	 * Pie chart with loggers distribution
 	 */
-	jQuery(function($) {
-
-		/*
-		var data = {
-			series: [<?php echo $str_js_chart_data_chartist; ?>],
-			labels: [<?php echo $str_js_chart_labels; ?>]
-		};
-
-		var options = {};
-
-		Chartist.Pie(".SimpleHistoryChart__loggersPie", data, options);
-		*/
-
+	function initStatsLoggersDistribution($) {
 		var data = google.visualization.arrayToDataTable([
 			<?php echo $str_js_google_chart_data; ?>
 		]);
@@ -119,10 +107,10 @@ $str_js_google_chart_data = rtrim( $str_js_google_chart_data, ',' );
 
 		var chart = new google.visualization.PieChart( $(".SimpleHistoryChart__loggersPieGoogleChart").get(0) );
 		chart.draw(data, options);
+	};
 
-		//var chart2 = new google.visualization.BarChart( $(".SimpleHistoryChart__loggersGoogleBarChart").get(0) );
-		//chart2.draw(data, options);
-
+	google.setOnLoadCallback(function () {
+		initStatsLoggersDistribution(jQuery);
 	});
 
 </script>

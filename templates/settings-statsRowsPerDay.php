@@ -1,9 +1,9 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 echo "<h4 class=''>";
-echo __( 'Rows per day', 'simple-history' );
+esc_html_e( 'Rows per day', 'simple-history' );
 echo '</h4>';
 
 $sql = sprintf(
@@ -78,46 +78,8 @@ $str_js_google_chart_data = rtrim( $str_js_google_chart_data, ',' );
 	/**
 	 * Bar chart with rows per day
 	 */
-	jQuery(function($) {
-		
-		/*
-		var data = {
-			// A labels array that can contain any sort of values
-			labels: [<?php echo $str_js_chart_labels; ?>],
-			// Our series array that contains series objects or in this case series data arrays
-			series: [
-				[<?php echo $str_js_chart_data; ?>]
-			]
-		};
-		
-		var options = {
-			// the name of the dates at bottom
-			axisX: {
-				// If the axis grid should be drawn or not
-				showGrid: false,
-				// Interpolation function that allows you to intercept the value from the axis label
-				labelInterpolationFnc: function(value, i) {
-
-					// If it's the last value then always show
-					if (i === data.series[0].length-1) {
-						return value;
-					}
-
-					// only return every n value
-					if ( i % 7 ) {
-						return "";
-					}
-					
-					return value;
-				}
-			}
-		};
-
-		Chartist.Bar(".SimpleHistoryChart__rowsPerDay", data, options);
-		*/
-
+	function initStatsRowsPerDay($) {
 		// Google Bar Chart
-
 		var data = google.visualization.arrayToDataTable([
 			['Date', 'Number of rows'],
 			<?php echo $str_js_google_chart_data; ?>
@@ -147,7 +109,8 @@ $str_js_google_chart_data = rtrim( $str_js_google_chart_data, ',' );
 		var chart = new google.visualization.LineChart( $(".SimpleHistoryChart__rowsPerDayGoogleChart").get(0) );
 
 		chart.draw(data, options);
-
+	};
+	google.setOnLoadCallback(function () {
+		initStatsRowsPerDay(jQuery);
 	});
-
 </script>

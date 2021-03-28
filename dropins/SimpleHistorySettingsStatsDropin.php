@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: Settings stats
@@ -40,7 +40,7 @@ class SimpleHistorySettingsStatsDropin {
 
 		$file_url = plugin_dir_url( __FILE__ );
 
-		wp_enqueue_script( 'google-ajax-api', 'https://www.google.com/jsapi' );
+		wp_enqueue_script( 'google-ajax-api', 'https://www.google.com/jsapi', array(), 1 );
 		wp_enqueue_style( 'simple_history_SettingsStatsDropin', $file_url . 'SimpleHistorySettingsStatsDropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 

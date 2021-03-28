@@ -92,7 +92,7 @@ echo "<div class='SimpleHistoryChart__logLevelsPie'></div>";
 	});
 	*/
 
-	jQuery(function($) {
+	function initStatsLoggersLogLevels($) {
 		var data = google.visualization.arrayToDataTable([
 			<?php echo $str_js_google_chart_data; ?>
 		]);
@@ -110,6 +110,10 @@ echo "<div class='SimpleHistoryChart__logLevelsPie'></div>";
 		var chart = new google.visualization.PieChart( $(".SimpleHistoryChart__logLevelsPie").get(0) );
 
 		chart.draw(data, options);
-	}); 
+	}; 
+
+	google.setOnLoadCallback(function () {
+		initStatsLoggersLogLevels(jQuery);
+	});
 
 </script>
