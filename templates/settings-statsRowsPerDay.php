@@ -6,22 +6,22 @@ echo "<h4 class=''>";
 esc_html_e( 'Rows per day', 'simple-history' );
 echo '</h4>';
 
-$sql = sprintf(
-	'
-		SELECT 
-			date_format(date, "%%Y-%%m-%%d") AS yearDate,
-			count(date) AS count
-		FROM  
-			%1$s
-		WHERE UNIX_TIMESTAMP(date) >= %2$d
-		GROUP BY yearDate
-		ORDER BY yearDate ASC
-	',
-	$wpdb->prefix . SimpleHistory::DBTABLE,
-	strtotime( "-$period_days days" )
+$dates = $wpdb->get_results(
+	$wpdb->prepare(
+		'
+			SELECT 
+				date_format(date, "%%Y-%%m-%%d") AS yearDate,
+				count(date) AS count
+			FROM  
+				%1$s
+			WHERE UNIX_TIMESTAMP(date) >= %2$d
+			GROUP BY yearDate
+			ORDER BY yearDate ASC
+		',
+		$wpdb->prefix . SimpleHistory::DBTABLE,
+		strtotime( "-$period_days days" )
+	)
 );
-
-$dates = $wpdb->get_results( $sql );
 
 // echo '<div class="SimpleHistoryChart__rowsPerDay"></div>';
 echo '<div class="SimpleHistoryChart__rowsPerDayGoogleChart"></div>';
@@ -69,7 +69,7 @@ foreach ( $period as $dt ) {
 
 $str_js_chart_labels = rtrim( $str_js_chart_labels, ',' );
 $str_js_chart_data = rtrim( $str_js_chart_data, ',' );
-$str_js_google_chart_data = rtrim( $str_js_google_chart_data, ',' );
+$str_js_google_chart_data = rtrim( $str_js_google_chart_data, ', ' );
 
 ?>
 
@@ -82,7 +82,7 @@ $str_js_google_chart_data = rtrim( $str_js_google_chart_data, ',' );
 		// Google Bar Chart
 		var data = google.visualization.arrayToDataTable([
 			['Date', 'Number of rows'],
-			<?php echo $str_js_google_chart_data; ?>
+			<?php echo $str_js_google_chart_data; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		]);
 
 		var options = {

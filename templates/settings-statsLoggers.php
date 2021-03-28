@@ -91,7 +91,7 @@ $str_js_google_chart_data = rtrim( $str_js_google_chart_data, ',' );
 	 */
 	function initStatsLoggersDistribution($) {
 		var data = google.visualization.arrayToDataTable([
-			<?php echo $str_js_google_chart_data; ?>
+			<?php echo $str_js_google_chart_data; // // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		]);
 
 		var options = {
