@@ -1,11 +1,11 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 // Stats på level (notice, warning, debug, etc.)
-echo '<h3>' . __( 'Log levels', 'simple-history' ) . '</h3>';
+echo '<h3>' . esc_html__( 'Log levels', 'simple-history' ) . '</h3>';
 
-echo '<p>' . __( 'Number of rows logged for each log level.', 'simple-history' ) . '</p>';
+echo '<p>' . esc_html__( 'Number of rows logged for each log level.', 'simple-history' ) . '</p>';
 
 /*
 echo "<table>";
@@ -14,22 +14,23 @@ echo "<tr>
 		<th>Count</th>
 	</tr>";
 */
-$sql = sprintf(
-	'
-	SELECT 
-		level,
-		count(level) as count
-	FROM %1$s
-	WHERE UNIX_TIMESTAMP(date) >= %2$d
-	GROUP BY level
-	ORDER BY count DESC
-	',
-	$table_name, // 1
-	strtotime( "-$period_days days" ) // 2
+global $wpdb;
+
+$level_counts = $wpdb->get_results(
+	$wpdb->prepare(
+		'
+		SELECT 
+			level,
+			count(level) as count
+		FROM %1$s
+		WHERE UNIX_TIMESTAMP(date) >= %2$d
+		GROUP BY level
+		ORDER BY count DESC
+		',
+		$table_name, // 1
+		strtotime( "-$period_days days" ) // 2
+	)
 );
-
-
-$level_counts = $wpdb->get_results( $sql );
 
 $arr_chart_data = array();
 $arr_chart_labels = array();
@@ -57,8 +58,8 @@ foreach ( $level_counts as $row ) {
 
 	$str_js_google_chart_data .= sprintf(
 		'["%1$s", %2$d], ',
-		$row->level,
-		$row->count
+		esc_js( $row->level ),
+		esc_js( $row->count )
 	);
 }
 
@@ -74,27 +75,9 @@ echo "<div class='SimpleHistoryChart__logLevelsPie'></div>";
 	/**
 	 * Bar chart with log levels
 	 */
-	/*
-	jQuery(function($) {
-		
-		var data = {
-			labels: ["<?php echo implode( '", "', $arr_chart_labels ); ?>"],
-			series: [
-				[<?php echo implode( ',', $arr_chart_data ); ?>]
-			]
-		};      
-		
-		var options = {
-		};
-
-		Chartist.Bar(".SimpleHistoryChart__logLevels", data, options);
-
-	});
-	*/
-
 	function initStatsLoggersLogLevels($) {
 		var data = google.visualization.arrayToDataTable([
-			<?php echo $str_js_google_chart_data; ?>
+			<?php echo $str_js_google_chart_data;  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		]);
 
 		var options = {
