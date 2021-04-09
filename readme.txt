@@ -196,6 +196,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 = n.n.n () =
 
 - Added: Logger messages is shown when clicking number of message strings in settings debug tab.
+- Internal: Code formatting to match the WordPress coding standards.
 
 = 2.41.2 (March 2021) =
 
