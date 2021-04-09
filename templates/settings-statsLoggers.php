@@ -1,8 +1,8 @@
 <?php
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 echo "<h4 class=''>";
-echo __( 'Loggers', 'simple-history' );
+esc_html_e( 'Loggers', 'simple-history' );
 echo '</h4>';
 
 // echo '<div class="SimpleHistoryChart__loggersPie"></div>';
@@ -13,31 +13,38 @@ foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
 	$arr_logger_slugs[] = $oneLogger['instance']->slug;
 }
 
-$sql_logger_counts = sprintf(
-	'
-	SELECT logger, count(id) as count
-	FROM %1$s
-	WHERE
-		logger IN ("%2$s")
-		AND UNIX_TIMESTAMP(date) >= %3$d
-	GROUP BY logger
-	ORDER BY count DESC
-	',
-	$table_name, // 1
-	join( '","', $arr_logger_slugs ), // 2
-	strtotime( "-$period_days days" )
+$logger_slugs_sql_in = array_map(
+	function( $slug ) {
+		return "'" . esc_sql( $slug ) . "'";
+	},
+	$arr_logger_slugs
 );
 
-$logger_rows_count = $wpdb->get_results( $sql_logger_counts );
-// sf_d($logger_rows_count);
+// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+$logger_rows_count = $wpdb->get_results(
+	$wpdb->prepare(
+		'
+			SELECT logger, count(id) as count
+			FROM %1$s
+			WHERE
+				logger IN (' . implode( ',', $logger_slugs_sql_in ) . ')
+				AND UNIX_TIMESTAMP(date) >= %2$d
+			GROUP BY logger
+			ORDER BY count DESC
+		',
+		$table_name, // 1
+		strtotime( "-$period_days days" ) // 2
+	)
+);
+// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
 $str_js_chart_labels = '';
 $str_js_chart_data = '';
 $str_js_chart_data_chartist = '';
 $str_js_google_chart_data = "['Logger name', 'Logged rows'],";
 $i = 0;
 
-// shuffle($arr_colors);
-$max_loggers_in_chart = sizeof( $arr_colors );
+$max_loggers_in_chart = count( $arr_colors );
 
 foreach ( $logger_rows_count as $one_logger_count ) {
 	$logger = $this->sh->getInstantiatedLoggerBySlug( $one_logger_count->logger );
