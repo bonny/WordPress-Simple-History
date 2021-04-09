@@ -1,5 +1,5 @@
 <?php
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 ?>
 
 <form method="post" action="options.php">
