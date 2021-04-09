@@ -24,24 +24,24 @@ $period_end_date = DateTime::createFromFormat( 'U', time() );
 echo '<h3>' . esc_html_x( 'Database size', 'debug dropin', 'simple-history' ) . '</h3>';
 
 // Get table sizes in mb.
-$sql_table_size = sprintf(
-	'
+$table_size_result = $wpdb->get_results(
+	$wpdb->prepare(
+		'
 	SELECT table_name AS "table_name",
 	round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
 	FROM information_schema.TABLES
 	WHERE table_schema = "%1$s"
 	AND table_name IN ("%2$s", "%3$s");
 	',
-	DB_NAME, // 1
-	$table_name, // 2
-	$table_name_contexts
+		DB_NAME, // 1
+		$table_name, // 2
+		$table_name_contexts // 3
+	)
 );
 
-$table_size_result = $wpdb->get_results( $sql_table_size );
-
 // Get num of rows for each table
-$total_num_rows_table = (int) $wpdb->get_var( "select count(*) FROM {$table_name}" );
-$total_num_rows_table_contexts = (int) $wpdb->get_var( "select count(*) FROM {$table_name_contexts}" );
+$total_num_rows_table = (int) $wpdb->get_var( $wpdb->prepare( 'select count(*) FROM %s', $table_name ) );
+$total_num_rows_table_contexts = (int) $wpdb->get_var( $wpdb->prepare( 'select count(*) FROM %s', $table_name_contexts ) );
 
 $table_size_result[0]->num_rows = $total_num_rows_table;
 $table_size_result[1]->num_rows = $total_num_rows_table_contexts;
@@ -116,21 +116,22 @@ foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
 	$arr_logger_slugs[] = $oneLogger['instance']->slug;
 }
 
-$sql_logger_counts = sprintf(
-	'
+$logger_rows_count = $wpdb->get_results(
+	$wpdb->prepare(
+		'
     SELECT logger, count(id) as count
     FROM %1$s
     WHERE logger IN ("%2$s")
     GROUP BY logger
     ORDER BY count DESC
 ',
-	$table_name,
-	join( '","', $arr_logger_slugs )
+		$table_name,
+		join( '","', $arr_logger_slugs )
+	),
+	OBJECT_K
 );
 
-$logger_rows_count = $wpdb->get_results( $sql_logger_counts, OBJECT_K );
-
-// Find loggers with no rows in db and append to array
+// Find loggers with no rows in db and append to array.
 $missing_logger_slugs = array_diff( $arr_logger_slugs, array_keys( $logger_rows_count ) );
 
 foreach ( $missing_logger_slugs as $one_missing_logger_slug ) {
