@@ -142,7 +142,7 @@ class SimpleHistorySidebarDropin {
 		 *
 		 * @param array $arrBoxes array with boxes to output. Check the key to determine which box is which.
 		 */
-		$arrBoxes = apply_filters( 'simple_history/SidebarDropin/default_sidebar_boxes', $arrBoxes );
+		$arrBoxes = apply_filters( 'simple_history/SidebarDropin/default_sidebar_boxes', $arrBoxes ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 
 		echo implode( '', $arrBoxes );
 

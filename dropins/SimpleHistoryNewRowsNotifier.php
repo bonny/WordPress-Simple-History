@@ -23,7 +23,7 @@ class SimpleHistoryNewRowsNotifier {
 		$this->sh = $sh;
 
 		// How often the script checks for new rows
-		$this->interval = (int) apply_filters( 'SimpleHistoryNewRowsNotifier/interval', $this->interval );
+		$this->interval = (int) apply_filters( 'SimpleHistoryNewRowsNotifier/interval', $this->interval ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 
 		add_action( 'wp_ajax_SimpleHistoryNewRowsNotifier', array( $this, 'ajax' ) );
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );

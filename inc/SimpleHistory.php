@@ -714,7 +714,7 @@ class SimpleHistory {
 		$domain = 'simple-history';
 
 		// The "plugin_locale" filter is also used in load_plugin_textdomain()
-		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
+		$locale = apply_filters( 'plugin_locale', get_locale(), $domain ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		load_textdomain( $domain, WP_LANG_DIR . '/simple-history/' . $domain . '-' . $locale . '.mo' );
 		load_plugin_textdomain( $domain, false, dirname( $this->plugin_basename ) . '/languages/' );
 	}
@@ -2906,7 +2906,7 @@ Because Simple History was only recently installed, this feed does not display m
 			 * @param string            $alt         Alternative text to use in the avatar image tag.
 			 *                                       Default empty.
 			 */
-			$avatar = apply_filters( 'get_avatar', $avatar, $email, $size, $default, $alt );
+			$avatar = apply_filters( 'get_avatar', $avatar, $email, $size, $default, $alt ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
 			return $avatar;
 		} // End if().
