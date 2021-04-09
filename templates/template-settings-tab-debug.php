@@ -21,7 +21,7 @@ $period_end_date = DateTime::createFromFormat( 'U', time() );
  * Size of database in both number or rows and table size
  */
 
-echo '<h3>' . _x( 'Database size', 'debug dropin', 'simple-history' ) . '</h3>';
+echo '<h3>' . esc_html_x( 'Database size', 'debug dropin', 'simple-history' ) . '</h3>';
 
 // Get table sizes in mb.
 $sql_table_size = sprintf(
@@ -56,9 +56,9 @@ printf(
 		</tr>
 	</thead>
 	',
-	_x( 'Table name', 'debug dropin', 'simple-history' ),
-	_x( 'Size', 'debug dropin', 'simple-history' ),
-	_x( 'Rows', 'debug dropin', 'simple-history' )
+	esc_html_x( 'Table name', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Size', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Rows', 'debug dropin', 'simple-history' )
 );
 
 $loopnum = 0;
@@ -96,8 +96,8 @@ $total_accassions_rows_count = $rows['total_row_count'];
 
 echo '<p>';
 printf(
-	_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
-	$total_accassions_rows_count
+	esc_html_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
+	esc_html( $total_accassions_rows_count )
 );
 echo '</p>';
 
@@ -141,13 +141,13 @@ foreach ( $missing_logger_slugs as $one_missing_logger_slug ) {
 }
 
 echo '<h3>';
-_ex( 'Loggers', 'debug dropin', 'simple-history' );
+echo esc_html_x( 'Loggers', 'debug dropin', 'simple-history' );
 echo '</h3>';
 
 echo '<p>';
 printf(
-	_x( 'Listing %1$d loggers, ordered by rows count in database.', 'debug dropin', 'simple-history' ),
-	sizeof( $arr_logger_slugs ) // 1
+	esc_html_x( 'Listing %1$d loggers, ordered by rows count in database.', 'debug dropin', 'simple-history' ),
+	esc_html( count( $arr_logger_slugs ) ) // 1
 );
 echo '</p>';
 
@@ -165,12 +165,12 @@ printf(
 		</tr>
 	</thead>
 	',
-	_x( 'Logger name', 'debug dropin', 'simple-history' ),
-	_x( 'Slug', 'debug dropin', 'simple-history' ),
-	_x( 'Description', 'debug dropin', 'simple-history' ),
-	_x( 'Messages', 'debug dropin', 'simple-history' ),
-	_x( 'Capability', 'debug dropin', 'simple-history' ),
-	_x( 'Rows count', 'debug dropin', 'simple-history' )
+	esc_html_x( 'Logger name', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Slug', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Description', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Messages', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Capability', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Rows count', 'debug dropin', 'simple-history' )
 );
 
 $loopnum = 0;
@@ -198,25 +198,26 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 	foreach ( $logger_messages as $message_key => $message ) {
 		$html_logger_messages .= sprintf( '<li>%1$s</li>', esc_html( $message ) );
 	}
-
 	if ( $html_logger_messages ) {
 		$str_num_message_strings = sprintf(
-			_x( '%1$s message strings', 'debug dropin', 'simple-history' ),
-			sizeof( $logger_messages )
+			esc_html_x( '%1$s message strings', 'debug dropin', 'simple-history' ),
+			esc_html( count( $logger_messages ) )
 		);
 
 		$html_logger_messages = sprintf(
 			'
-                <p>%1$s</p>
-                <ul class="hide-if-js">
-                    %2$s
-                </ul>
+			<details>
+				<summary>%1$s</summary>
+				<ul>
+					%2$s
+				</ul>
+			</details>
             ',
-			$str_num_message_strings, // 1
+			esc_html( $str_num_message_strings ), // 1
 			$html_logger_messages // 2
 		);
 	} else {
-		$html_logger_messages = '<p>' . _x( 'No message strings', 'debug dropin', 'simple-history' ) . '</p>';
+		$html_logger_messages = '<p>' . esc_html_x( 'No message strings', 'debug dropin', 'simple-history' ) . '</p>';
 	}
 
 	printf(
@@ -248,7 +249,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 		esc_html( $logger_info['description'] ), // 4
 		esc_html( $logger->getCapability() ), // 5
 		$loopnum % 2 ? ' alt ' : '', // 6
-		$html_logger_messages // 7
+		$html_logger_messages // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
 
 	$loopnum++;
@@ -257,11 +258,11 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 echo '</table>';
 
 // List installed plugins
-echo '<h2>' . _x( 'Plugins', 'debug dropin', 'simple-history' ) . '</h2>';
+echo '<h2>' . esc_html_x( 'Plugins', 'debug dropin', 'simple-history' ) . '</h2>';
 
-echo '<p>' . _x( 'As returned from <code>get_plugins()</code>', 'debug dropin', 'simple-history' ) . '</p>';
+echo '<p>' . esc_html_x( 'As returned from <code>get_plugins()</code>', 'debug dropin', 'simple-history' ) . '</p>';
 
-$plugins = get_plugins();
+$all_plugins = get_plugins();
 
 echo "<table class='widefat'>";
 printf(
@@ -273,12 +274,12 @@ printf(
         </tr>
     </thead>
     ',
-	_x( 'Plugin name', 'debug dropin', 'simple-history' ),
-	_x( 'Plugin file path', 'debug dropin', 'simple-history' ),
-	_x( 'Active', 'debug dropin', 'simple-history' )
+	esc_html_x( 'Plugin name', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Plugin file path', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Active', 'debug dropin', 'simple-history' )
 );
 
-foreach ( $plugins as $pluginFilePath => $onePlugin ) {
+foreach ( $all_plugins as $pluginFilePath => $onePlugin ) {
 	$isPluginActive = is_plugin_active( $pluginFilePath );
 	printf(
 		'
@@ -290,7 +291,7 @@ foreach ( $plugins as $pluginFilePath => $onePlugin ) {
         ',
 		esc_html( $onePlugin['Name'] ),
 		esc_html( $pluginFilePath ),
-		$isPluginActive ? _x( 'Yes', 'debug dropin', 'simple-history' ) : _x( 'No', 'debug dropin', 'simple-history' )
+		$isPluginActive ? esc_html_x( 'Yes', 'debug dropin', 'simple-history' ) : esc_html_x( 'No', 'debug dropin', 'simple-history' )
 		// 3
 	);
 }

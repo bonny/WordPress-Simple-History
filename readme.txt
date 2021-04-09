@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= n.n.n () =
+
+- Added: Logger messages is shown when clicking number of message strings in settings debug tab.
+
 = 2.41.2 (March 2021) =
 
 - Fixed: Error when running on PHP version 7.2 or lower.
