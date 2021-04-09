@@ -2,28 +2,30 @@
 
 defined( 'ABSPATH' ) || die();
 
-
 // Output users
 echo '<h3>' . esc_html__( 'Users', 'simple-history' ) . '</h3>';
 
 echo '<p>' . esc_html__( 'Number of logged items for the 5 users with most logged rows.', 'simple-history' ) . '</p>';
 echo '<p>' . esc_html__( 'Deleted users are also included.', 'simple-history' ) . '</p>';
 
-$sql_users = sprintf(
-	'
-		SELECT 
-			DISTINCT value as user_id, 
-			wp_users.* 
-		FROM %1$s AS c
-		LEFT JOIN wp_users ON wp_users.id = c.value
-		WHERE c.key = "_user_id"
-		GROUP BY c.value
-		',
-	$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS // 1
+$user_results = $wpdb->get_results(
+	$wpdb->prepare(
+		'
+			SELECT 
+				DISTINCT value as user_id, 
+				%4$s.* 
+			FROM %1$s AS c
+			LEFT JOIN %2$s ON %3$s.id = c.value
+			WHERE c.key = "_user_id"
+			GROUP BY c.value
+			',
+		$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS, // 1
+		$wpdb->users, // 2
+		$wpdb->users, // 3
+		$wpdb->users // 4
+	)
 );
 
-$user_results = $wpdb->get_results( $sql_users );
-// sf_d($user_results);
 // printf('<p>Total %1$s users found.</p>', sizeof( $user_results ));
 echo "<table class='widefat' cellpadding=2>";
 echo '<thead><tr>
@@ -46,8 +48,9 @@ foreach ( $user_results as $one_user_result ) {
 
 	// get number of rows this user is responsible for
 	if ( $user_id ) {
-		$sql_user_count = sprintf(
-			'
+		$user_rows_count = $wpdb->get_var(
+			$wpdb->prepare(
+				'
 			SELECT count(VALUE) AS count
 			FROM %1$s AS c
 			INNER JOIN %2$s AS h ON h.id = c.history_id
@@ -55,13 +58,12 @@ foreach ( $user_results as $one_user_result ) {
 			AND c.value = %3$s
 			AND UNIX_TIMESTAMP(h.date) >= %4$s
 					',
-			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS, // 1
-			$wpdb->prefix . SimpleHistory::DBTABLE, // 2
-			$user_id, // 3
-			strtotime( "-$period_days days" ) // 4
+				$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS, // 1
+				$wpdb->prefix . SimpleHistory::DBTABLE, // 2
+				$user_id, // 3
+				strtotime( "-$period_days days" ) // 4
+			)
 		);
-
-		$user_rows_count = $wpdb->get_var( $sql_user_count );
 	}
 
 	$arr_users[] = array(
@@ -77,7 +79,7 @@ foreach ( $user_results as $one_user_result ) {
 usort(
 	$arr_users,
 	function ( $a, $b ) {
-		return $a['user_rows_count'] < $b['user_rows_count'];
+		return (int) ( $a['user_rows_count'] < $b['user_rows_count'] );
 	}
 );
 
@@ -97,13 +99,13 @@ foreach ( $arr_users as $one_user ) {
 			<td>%4$s</td>
 		</tr>
 		',
-		$one_user['user_id'],
-		$one_user['user_login'],
-		$one_user['user_email'], // 3
-		$one_user['str_deleted'],
-		$one_user['user_rows_count'],
+		esc_html( $one_user['user_id'] ),
+		esc_html( $one_user['user_login'] ),
+		esc_html( $one_user['user_email'] ), // 3
+		esc_html( $one_user['str_deleted'] ),
+		esc_html( $one_user['user_rows_count'] ),
 		$loopnum % 2 ? ' alternate ' : '', // 6
-		$this->sh->get_avatar( $one_user['user_email'], 38 ) // 7
+		$this->sh->get_avatar( $one_user['user_email'], 38 ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
 
 	$loopnum++;
