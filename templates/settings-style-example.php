@@ -200,7 +200,11 @@ defined( 'ABSPATH' ) || die();
 		$refl = new ReflectionClass( 'SimpleLoggerLogLevels' );
 		foreach ( $refl->getConstants() as $key => $val ) {
 			$msg = isset( $arr_messages[ $val ] ) ? $arr_messages[ $val ] : 'This is a message with loglevel';
-			echo sprintf( $template, $val, $msg );
+			echo sprintf(
+				$template, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$val, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$msg // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			);
 		}
 
 		?>
