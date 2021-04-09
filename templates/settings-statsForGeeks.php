@@ -1,5 +1,5 @@
 <?php
-defined( 'ABSPATH' ) or die(); ?>
+defined( 'ABSPATH' ) || die(); ?>
 
 <script>
 
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) or die(); ?>
 
 </script>
 <?php
-defined( 'ABSPATH' ) or exit();
+defined( 'ABSPATH' ) || exit();
 
 echo '<hr>';
 echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsForGeeks'>Show stats for geeks</button></p>";
@@ -39,31 +39,44 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 
 	// Total number of log rows
 	// Not caring about occasions, this number = all occasions
-	$total_num_rows = $wpdb->get_var( "select count(*) FROM {$table_name}" );
+	$total_num_rows = $wpdb->get_var( $wpdb->prepare( 'select count(*) FROM %1$s', $table_name ) );
+
 	echo '<ul>';
-	echo "<li>Total $total_num_rows log rows in db.</li>";
-	echo "<li>Total $total_accassions_rows_count rows, when grouped by occasion id.</li>";
+
+	echo '<li>';
+	printf(
+		esc_html( __( 'Total %d log rows in db.', 'simple-history' ) ),
+		esc_html( $total_num_rows )
+	);
+	echo '</li>';
+
+	echo '<li>';
+	printf(
+		esc_html( __( 'Total %d rows, when grouped by occasion id.', 'simple-history' ) ),
+		esc_html( $total_accassions_rows_count )
+	);
+	echo '</li>';
 	echo '</ul>';
 
-	echo '<h4>Clear history interval</h4>';
-	echo '<p>' . $this->sh->get_clear_history_interval() . '</p>';
+	echo '<h4>' . esc_html__( 'Clear history interval', 'simple-history' ) . '</h4>';
+	echo '<p>' . esc_html( $this->sh->get_clear_history_interval() ) . '</p>';
 
-	$sql_table_size = sprintf(
-		'
-		SELECT table_name AS "table_name",
-		round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
-		FROM information_schema.TABLES
-		WHERE table_schema = "%1$s"
-		AND table_name IN ("%2$s", "%3$s");
-		',
-		DB_NAME, // 1
-		$table_name, // 2
-		$table_name_contexts
+	$table_size_result = $wpdb->get_results(
+		$wpdb->prepare(
+			'
+			SELECT table_name AS "table_name",
+			round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
+			FROM information_schema.TABLES
+			WHERE table_schema = "%1$s"
+			AND table_name IN ("%2$s", "%3$s");
+			',
+			DB_NAME, // 1
+			$table_name, // 2
+			$table_name_contexts
+		)
 	);
 
-	$table_size_result = $wpdb->get_results( $sql_table_size );
-
-	echo '<h4>Database size</h4>';
+	echo '<h4>' . esc_html__( 'Database size', 'simple-history' ) . '</h4>';
 
 	echo "<table class='widefat'>";
 	echo '
@@ -113,7 +126,7 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 
 	$arr_logger_slugs = array();
 	foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
-		$arr_logger_slugs[] = $oneLogger['instance']->slug;
+		$arr_logger_slugs[] = esc_sql( $oneLogger['instance']->slug );
 	}
 
 	$sql_logger_counts = sprintf(
@@ -128,10 +141,10 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 		join( '","', $arr_logger_slugs )
 	);
 
+	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	$logger_rows_count = $wpdb->get_results( $sql_logger_counts, OBJECT_K );
 
 	$loopnum = 0;
-	// foreach ( $logger_rows_count as $one_logger_count ) {
 	foreach ( $arr_logger_slugs as $one_logger_slug ) {
 		$logger = $this->sh->getInstantiatedLoggerBySlug( $one_logger_slug );
 
@@ -148,7 +161,7 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 		}
 
 		$logger_info = $logger->getInfo();
-		$logger_messages = $logger_info['messages'];
+		$logger_messages = isset( $logger_info['messages'] ) ? $logger_info['messages'] : array();
 
 		$html_logger_messages = '';
 		foreach ( $logger_messages as $message_key => $message ) {
@@ -177,7 +190,7 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 			esc_html( $logger_info['description'] ), // 4
 			esc_html( $logger->getCapability() ),
 			$loopnum % 2 ? ' alt ' : '', // 6
-			$html_logger_messages // 7
+			$html_logger_messages // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		);
 
 		$loopnum++;
