@@ -193,6 +193,11 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= unreleased = 
+
+- Fixes PHP notice on menu save when there are acf fields [#248](https://github.com/bonny/WordPress-Simple-History/pull/248) [#235](https://github.com/bonny/WordPress-Simple-History/issues/235)
+
+
 = 2.42.0 (April 2021) =
 
 - Fixed: Quick diff table had to wrong sizes of the table cells. ([#246](https://github.com/bonny/WordPress-Simple-History/issues/246))
