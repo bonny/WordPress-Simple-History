@@ -269,7 +269,7 @@ if (! class_exists('Plugin_ACF')) {
             $post_logger = $this->simpleHistory->getInstantiatedLoggerBySlug('SimplePostLogger');
 
             // Save ACF diff if detected post here is same as the last one used in Postlogger.
-            if ($post_id === $post_logger->lastInsertContext['post_id']) {
+            if (isset($post_logger->lastInsertContext['post_id']) && $post_id === $post_logger->lastInsertContext['post_id']) {
                 $last_insert_id = $post_logger->lastInsertID;
 
                 // Append new info to the context of history item with id $post_logger->lastInsertID.
