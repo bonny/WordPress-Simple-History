@@ -67,6 +67,7 @@
 	<rule ref="WordPress.NamingConventions.ValidHookName">
 		<properties>
 			<property name="additionalWordDelimiters" value="-/"/>
+			WordPress.NamingConventions.ValidHookName.NotLowercase
 		</properties>
 	</rule>
 

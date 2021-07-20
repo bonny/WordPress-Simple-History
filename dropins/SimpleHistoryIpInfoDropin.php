@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: IP Info
@@ -9,8 +9,6 @@ Author: Pär Thernström
 */
 
 class SimpleHistoryIpInfoDropin {
-
-
 	private $sh;
 
 	public function __construct( $sh ) {

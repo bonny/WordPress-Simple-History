@@ -563,7 +563,7 @@ class SimpleLogger {
 			$arr_found_additional_ip_headers
 		);
 
-		// if ( sizeof( $arr_found_additional_ip_headers ) ) {
+		// if ( count( $arr_found_additional_ip_headers ) ) {
 		// $iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr($context["_server_remote_addr"]));
 		// $ip_numbers_joined = wp_sprintf_l('%l', array("_server_remote_addr" => $context["_server_remote_addr"]) + $arr_found_additional_ip_headers);
 		/*
@@ -586,7 +586,7 @@ class SimpleLogger {
 		$first_ip_address = reset( $arr_ip_addresses );
 
 		// Output single or plural text.
-		if ( sizeof( $arr_ip_addresses ) === 1 ) {
+		if ( count( $arr_ip_addresses ) === 1 ) {
 			// Single ip address
 			$iplookup_link = sprintf(
 				'https://ipinfo.io/%1$s',
@@ -599,7 +599,7 @@ class SimpleLogger {
 				esc_html( $first_ip_address ) .
 				'</a>'
 			);
-		} elseif ( sizeof( $arr_ip_addresses ) > 1 ) {
+		} elseif ( count( $arr_ip_addresses ) > 1 ) {
 			$ip_addresses_html = '';
 
 			foreach ( $arr_ip_addresses as $ip_address_header => $ip_address ) {
