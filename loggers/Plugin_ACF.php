@@ -205,7 +205,7 @@ if (! class_exists('Plugin_ACF')) {
             $new_post_meta = get_post_custom($post_id);
             array_walk($new_post_meta, function(&$value, $key){
 				$value = reset($value);
-			});
+            });
 
             // New and old post meta can contain different amount of keys,
             // join them so we have the name of all post meta thaf have been added, removed, or modified.
@@ -530,7 +530,7 @@ if (! class_exists('Plugin_ACF')) {
             // Meta is array of arrays, get first value of each array value.
             array_walk($post_meta, function(&$value, $key){
 				$value = reset($value);
-			});
+            });
 
             $this->oldPostData['prev_post_meta'] = $post_meta;
         }
