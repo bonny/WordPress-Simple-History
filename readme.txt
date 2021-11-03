@@ -1,4 +1,4 @@
-=== Simple History ===
+=== Simple History - user activity log, audit tool ===
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
