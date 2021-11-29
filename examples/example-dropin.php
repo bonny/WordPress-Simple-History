@@ -1,6 +1,7 @@
 <?php
 
-// No external calls allowed to test file
+// No external calls allowed to test file.
+// Remove this exit call if you use this file as a template for your own dropin.
 exit;
 
 /**
@@ -8,7 +9,7 @@ exit;
  * that will add a tab to the simple history settings page
  */
 
-// We use the function "register_dropin" to tell tell SimpleHistory that our custom logger exists.
+// We use the function "register_dropin" to tell tell Simple History that our custom logger exists.
 // We call it from inside the filter "simple_history/add_custom_logger".
 add_action(
 	'simple_history/add_custom_dropin',
@@ -23,25 +24,20 @@ add_action(
  */
 class AddSettingsPageTab {
 
-
-	// This will hold a reference to the simple history instance
+	// This will hold a reference to the simple history instance.
 	private $sh;
 
-	// simple history will pass itself to the constructor
+	// Simple History will pass itself to the constructor.
 	public function __construct( $sh ) {
-
 		$this->sh = $sh;
-
 		$this->init();
 	}
 
 	public function init() {
-
-				add_action( 'init', array( $this, 'add_settings_tab' ) );
+		add_action( 'init', array( $this, 'add_settings_tab' ) );
 	}
 
 	public function add_settings_tab() {
-
 		$this->sh->registerSettingsTab(
 			array(
 				'slug' => 'my_unique_settings_tab_slug',
@@ -52,13 +48,9 @@ class AddSettingsPageTab {
 	}
 
 	public function settings_tab_output() {
-
 		?>
-
 		<h3>Hi there!</h3>
-
 		<p>I'm the output from on settings tab.</p>
-
-				<?php
+		<?php
 	}
 }

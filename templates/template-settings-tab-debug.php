@@ -39,9 +39,10 @@ $table_size_result = $wpdb->get_results(
 	)
 );
 
+
 // Get num of rows for each table
-$total_num_rows_table = (int) $wpdb->get_var( $wpdb->prepare( 'select count(*) FROM %s', $table_name ) );
-$total_num_rows_table_contexts = (int) $wpdb->get_var( $wpdb->prepare( 'select count(*) FROM %s', $table_name_contexts ) );
+$total_num_rows_table = (int) $wpdb->get_var( "select count(*) FROM $table_name" ); // phpcs:ignore 
+$total_num_rows_table_contexts = (int) $wpdb->get_var( "select count(*) FROM $table_name_contexts" ); // phpcs:ignore 
 
 $table_size_result[0]->num_rows = $total_num_rows_table;
 $table_size_result[1]->num_rows = $total_num_rows_table_contexts;

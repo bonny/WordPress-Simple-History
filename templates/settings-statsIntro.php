@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 // Number of rows the last n days
 function get_num_rows_last_n_days( $period_days ) {
@@ -13,11 +13,11 @@ function get_num_rows_last_n_days( $period_days ) {
 		strtotime( "-$period_days days" )
 	);
 
-	return $wpdb->get_var( $sql );
+	return $wpdb->get_var( $sql ); // PHPCS:ignore
 }
 
 printf(
-	__( '<b>%1$s rows</b> have been logged the last <b>%2$s days</b>', 'simple-history' ),
-	get_num_rows_last_n_days( $period_days ),
-	$period_days
+	esc_html( __( '<b>%1$s rows</b> have been logged the last <b>%2$s days</b>', 'simple-history' ) ),
+	(int) get_num_rows_last_n_days( $period_days ),
+	(int) $period_days
 );

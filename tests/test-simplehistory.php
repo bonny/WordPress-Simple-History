@@ -108,7 +108,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_simple_history ) );
 		$this->assertEquals( $table_name_simple_history, $table_exists );
 
-		$table_cols = $wpdb->get_col( "DESCRIBE $table_name_simple_history" );
+		$table_cols = $wpdb->get_col( "DESCRIBE $table_name_simple_history" ); // PHPCS:ignore
 		$expected_table_cols = array(
 			'id',
 			'date',
@@ -126,7 +126,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_contexts ) );
 		$this->assertEquals( $table_name_contexts, $table_exists );
 
-		$table_cols_context = $wpdb->get_col( "DESCRIBE $table_name_contexts" );
+		$table_cols_context = $wpdb->get_col( "DESCRIBE $table_name_contexts" ); // PHPCS:ignore
 		$expected_table_cols_context = array(
 			'context_id',
 			'history_id',
@@ -195,7 +195,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 				);
 
 				// Last logged message in db should be the above
-				$db_row = $wpdb->get_row( "SELECT logger, level, message, initiator FROM $table_name_simple_history ORDER BY id DESC LIMIT 1", ARRAY_A );
+				$db_row = $wpdb->get_row( "SELECT logger, level, message, initiator FROM $table_name_simple_history ORDER BY id DESC LIMIT 1", ARRAY_A ); // PHPCS:ignore
 
 				$expected_row = array(
 					'logger' => 'SimpleLogger',

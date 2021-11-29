@@ -7,10 +7,9 @@ Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 class SimpleHistorySettingsDebugDropin {
-
 
 	private $sh;
 
@@ -18,8 +17,7 @@ class SimpleHistorySettingsDebugDropin {
 
 		$this->sh = $sh;
 
-		// How do we register this to the settings array?
-		$sh->registerSettingsTab(
+		$this->sh->registerSettingsTab(
 			array(
 				'slug' => 'debug',
 				'name' => __( 'Debug', 'simple-history' ),

@@ -90,14 +90,6 @@ class SimpleHistorySettingsStatsDropin {
 			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--users'>
 				<?php include( SIMPLE_HISTORY_PATH . 'templates/settings-statsUsers.php' ); ?>
 			</div>
-
-			<!--
-			<div class='SimpleHistoryStats__graph SimpleHistoryStats__graph--initiators'>
-				<?php include( SIMPLE_HISTORY_PATH . 'templates/settings-statsInitiators.php' ); ?>
-			</div>
-			-->
-
-
 		</div><!-- // end charts wrapper -->
 
 		<?php

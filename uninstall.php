@@ -32,11 +32,11 @@ foreach ( $arr_options as $one_option ) {
 
 global $wpdb;
 
-// Remove database tables
+// Remove database tables.
 $table_name = $wpdb->prefix . 'simple_history';
-$wpdb->query( "DROP TABLE IF EXISTS $table_name" );
+$wpdb->query( "DROP TABLE IF EXISTS $table_name" ); // PHPCS:ignore
 
 $table_name = $wpdb->prefix . 'simple_history_contexts';
-$wpdb->query( "DROP TABLE IF EXISTS $table_name" );
+$wpdb->query( "DROP TABLE IF EXISTS $table_name" ); // PHPCS:ignore
 
-// And we are done. Simple History is ...  history.
+// And we are done. Simple History is ... history.
