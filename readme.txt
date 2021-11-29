@@ -1,11 +1,11 @@
-=== Simple History ===
+=== Simple History - user activity log, audit tool ===
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 5.2
-Tested up to: 5.7
+Tested up to: 5.8.2
 Requires PHP: 5.6
-Stable tag: 2.41.2
+Stable tag: 2.43.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -197,6 +197,15 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Added: Logger messages is shown when clicking number of message strings in settings debug tab.
 - Internal: Code formatting to match the WordPress coding standards.
+= 2.43.0 (October 2021) =
+
+- Fixed: PHP notices on menu save when there are ACF fields attached ([#235](https://github.com/bonny/WordPress-Simple-History/issues/235))
+
+- Fixed: `array_map` and `reset` cause warning in PHP 8 ([#263](https://github.com/bonny/WordPress-Simple-History/pull/263))
+
+= 2.42.0 (April 2021) =
+
+- Fixed: Quick diff table had to wrong sizes of the table cells. ([#246](https://github.com/bonny/WordPress-Simple-History/issues/246))
 
 = 2.41.2 (March 2021) =
 
