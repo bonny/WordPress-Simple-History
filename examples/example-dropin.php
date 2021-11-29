@@ -37,21 +37,21 @@ class AddSettingsPageTab {
 
 	public function init() {
 
-				add_action( 'init', array( $this, 'addSettingsTab' ) );
+				add_action( 'init', array( $this, 'add_settings_tab' ) );
 	}
 
-	public function addSettingsTab() {
+	public function add_settings_tab() {
 
 		$this->sh->registerSettingsTab(
 			array(
 				'slug' => 'my_unique_settings_tab_slug',
 				'name' => __( 'Example tab', 'simple-history' ),
-				'function' => array( $this, 'settingsTabOutput' ),
+				'function' => array( $this, 'settings_tab_output' ),
 			)
 		);
 	}
 
-	public function settingsTabOutput() {
+	public function settings_tab_output() {
 
 		?>
 
