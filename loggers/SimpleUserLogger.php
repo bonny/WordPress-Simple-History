@@ -177,6 +177,7 @@ class SimpleUserLogger extends SimpleLogger {
 		}
 
 		// Make of copy of the posted data, because we change the keys
+		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
 		$posted_data = $_POST;
 		$posted_data = stripslashes_deep( $posted_data );
 
@@ -329,20 +330,6 @@ class SimpleUserLogger extends SimpleLogger {
 	 * @param WP_User|WP_Error $user   WP_User object if the login and reset key match. WP_Error object otherwise.
 	 */
 	public function onValidatePasswordReset( $errors, $user ) {
-
-		/*
-		User visits the forgot password screen
-		$errors object are empty
-		$user contains a user
-		$_post is empty
-
-		User resets password
-		$errors empty
-		$user user object
-		$_post
-
-		*/
-
 		$context = array();
 
 		if ( is_a( $user, 'WP_User' ) ) {
@@ -352,14 +339,8 @@ class SimpleUserLogger extends SimpleLogger {
 			$context['_user_email'] = $user->user_email;
 		}
 
-		if ( isset( $_POST['pass1'] ) && $_POST['pass1'] != $_POST['pass2'] ) {
-			// $errors->add( 'password_reset_mismatch', __( 'The passwords do not match.' ) );
-			// user failed to reset password
-		}
-
+		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
 		if ( ( ! $errors->get_error_code() ) && isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-			// login_header( __( 'Password Reset' ), '<p class="message reset-pass">'
-			// . __( 'Your password has been reset.' ) . ' <a href="' . esc_url(
 			$this->infoMessage( 'user_password_reseted', $context );
 		}
 	}
@@ -373,7 +354,6 @@ class SimpleUserLogger extends SimpleLogger {
 	 * @since 2.0.6
 	 */
 	public function onDestroyUserSession() {
-
 		/*
 		Post params:
 		nonce: a14df12195
@@ -381,6 +361,7 @@ class SimpleUserLogger extends SimpleLogger {
 		action: destroy-sessions
 		 */
 
+		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
 		$user = get_userdata( (int) $_POST['user_id'] );
 
 		if ( $user ) {
@@ -395,8 +376,6 @@ class SimpleUserLogger extends SimpleLogger {
 			// Could not log out user sessions. Please try again.
 			return;
 		}
-
-		$sessions = WP_Session_Tokens::get_instance( $user->ID );
 
 		$context = array();
 
@@ -484,8 +463,6 @@ class SimpleUserLogger extends SimpleLogger {
 					$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
 					$msg = __( 'Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', 'simple-history' );
 					$output = $this->interpolate( $msg, $context, $row );
-				} else {
-					// Edited user does not exist any longer
 				}
 			}
 		} elseif ( 'user_created' == $context['_message_key'] ) {
@@ -508,8 +485,6 @@ class SimpleUserLogger extends SimpleLogger {
 					$context,
 					$row
 				);
-			} else {
-				// User does not exist any longer, keep original message
 			}
 		}// End if().
 
@@ -623,6 +598,7 @@ class SimpleUserLogger extends SimpleLogger {
 			$role = $wp_user_added->roles[0];
 		}
 
+		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
 		$send_user_notification = (int) ( isset( $_POST['send_user_notification'] ) && $_POST['send_user_notification'] );
 
 		$context = array(
