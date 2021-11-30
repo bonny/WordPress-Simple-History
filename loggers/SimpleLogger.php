@@ -486,8 +486,8 @@ class SimpleLogger {
 		 *
 		 * @since 2.5.1
 		 *
-		 * @param String $date_html
-		 * @param array $row
+		 * @param string $date_html
+		 * @param object $row
 		 */
 		$date_html = apply_filters(
 			'simple_history/row_header_date_output',

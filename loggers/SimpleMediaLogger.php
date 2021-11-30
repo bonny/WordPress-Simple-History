@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logs media uploads
@@ -48,11 +48,8 @@ class SimpleMediaLogger extends SimpleLogger {
 	}
 
 	public function loaded() {
-
 		add_action( 'admin_init', array( $this, 'onAdminInit' ) );
-
 		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'onMwNewMediaObject' ), 10, 2 );
-
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filterRssItemLink' ), 10, 2 );
 	}
 
@@ -144,11 +141,7 @@ class SimpleMediaLogger extends SimpleLogger {
 		$attachment_post = get_post( $attachment_id );
 		$attachment_is_available = is_a( $attachment_post, 'WP_Post' );
 
-		if ( 'attachment_updated' == $message_key ) {
-			// Attachment is changed = don't show thumbs and all
-		} elseif ( 'attachment_deleted' == $message_key ) {
-			// Attachment is deleted = don't show thumbs and all
-		} elseif ( 'attachment_created' == $message_key ) {
+		if ( 'attachment_created' == $message_key ) {
 			// Attachment is created/uploaded = show details with image thumbnail
 			$attachment_id = $context['attachment_id'];
 			$filetype = wp_check_filetype( $context['attachment_filename'] );
@@ -314,10 +307,9 @@ class SimpleMediaLogger extends SimpleLogger {
 	 *
 	 * @since 2.0.23
 	 * @param string $link
-	 * @param array  $row
+	 * @param object  $row
 	 */
 	public function filterRssItemLink( $link, $row ) {
-
 		if ( $row->logger != $this->slug ) {
 			return $link;
 		}

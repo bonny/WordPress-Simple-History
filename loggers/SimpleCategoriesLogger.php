@@ -232,7 +232,7 @@ class SimpleCategoriesLogger extends SimpleLogger {
 	/**
 	 * Modify plain output to include link to term and taxonomy.
 	 *
-	 * @param array $row Row data.
+	 * @param object $row Row data.
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
 		$context = $row->context;

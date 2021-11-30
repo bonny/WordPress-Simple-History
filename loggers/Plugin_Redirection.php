@@ -348,7 +348,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		/**
 		 * Return more info about an logged redirection event.
 		 *
-		 * @param array $row Row with info.
+		 * @param object $row Row with info.
 		 */
 		public function getLogRowDetailsOutput( $row ) {
 			$context = $row->context;

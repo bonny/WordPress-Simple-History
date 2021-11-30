@@ -933,7 +933,7 @@ class SimplePostLogger extends SimpleLogger {
 	/**
 	 * Modify plain output to include link to post.
 	 *
-	 * @param array $row Row data.
+	 * @param object $row Row data.
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
 		$context = $row->context;
@@ -988,7 +988,7 @@ class SimplePostLogger extends SimpleLogger {
 	/**
 	 * Get details output for row.
 	 *
-	 * @param array $row Row data.
+	 * @param object $row Row data.
 	 */
 	public function getLogRowDetailsOutput( $row ) {
 		$context = $row->context;

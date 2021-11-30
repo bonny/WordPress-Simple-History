@@ -247,7 +247,7 @@ class SimpleHistoryRSSDropin {
 						 * @since 2.0.23
 						 *
 						 * @param string $item_guid link.
-						 * @param array $row
+						 * @param object $row
 						 */
 						$item_link = apply_filters( 'simple_history/rss_item_link', $item_link, $row );
 						$item_link = esc_url( $item_link );
