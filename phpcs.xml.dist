@@ -35,6 +35,8 @@
 	<rule ref="WordPress-Extra">
 		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
 		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase" />
+		<exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase" />
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound"/>
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound"/>
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound"/>
@@ -43,6 +45,7 @@
 		<exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
+		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
@@ -69,7 +72,6 @@
 	<rule ref="WordPress.NamingConventions.ValidHookName">
 		<properties>
 			<property name="additionalWordDelimiters" value="-/"/>
-			<!-- WordPress.NamingConventions.ValidHookName.NotLowercase -->
 		</properties>
 	</rule>
 

@@ -49,7 +49,7 @@ class SimpleHistoryFilterDropin {
 		 * @param bool $show_more_filters_on_load Default false
 		 */
 		$show_more_filters_on_load = false;
-		$show_more_filters_on_load = apply_filters( 'SimpleHistoryFilterDropin/show_more_filters_on_load', $show_more_filters_on_load ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+		$show_more_filters_on_load = apply_filters( 'SimpleHistoryFilterDropin/show_more_filters_on_load', $show_more_filters_on_load );
 
 		?>
 		<div class="SimpleHistory__filters <?php echo $show_more_filters_on_load ? 'is-showingMoreFilters' : ''; ?>">
@@ -241,7 +241,7 @@ class SimpleHistoryFilterDropin {
 				 *
 				 * @param string Default search string
 				 */
-				$default_search_string = apply_filters( 'SimpleHistoryFilterDropin/filter_default_search_string', '' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+				$default_search_string = apply_filters( 'SimpleHistoryFilterDropin/filter_default_search_string', '' );
 				?>
 
 				<p>
@@ -275,7 +275,7 @@ class SimpleHistoryFilterDropin {
 				 *
 				 * @param array Array with loglevel sugs. Default empty = show all.
 				 */
-				$arr_default_loglevels = apply_filters( 'SimpleHistoryFilterDropin/filter_default_loglevel', array() ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+				$arr_default_loglevels = apply_filters( 'SimpleHistoryFilterDropin/filter_default_loglevel', array() );
 				?>
 				<div class="SimpleHistory__filters__moreFilters js-SimpleHistory__filters__moreFilters">
 

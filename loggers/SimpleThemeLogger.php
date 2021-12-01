@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logs WordPress theme edits
@@ -324,6 +324,7 @@ class SimpleThemeLogger extends SimpleLogger {
 
 	public function on_page_load_custom_background() {
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( empty( $_POST ) ) {
 			return;
 		}
@@ -337,6 +338,7 @@ class SimpleThemeLogger extends SimpleLogger {
 			'background-color' => 1,
 		);
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$valid_post_key_exists = array_intersect_key( $arr_valid_post_keys, $_POST );
 
 		if ( ! empty( $valid_post_key_exists ) ) {

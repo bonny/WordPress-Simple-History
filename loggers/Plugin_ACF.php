@@ -507,6 +507,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 * Stores data in $this->oldPostData.
 		 */
 		public function on_admin_action_editpost() {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$post_ID = isset( $_POST['post_ID'] ) ? (int) $_POST['post_ID'] : 0;
 
 			if ( ! $post_ID ) {
@@ -970,12 +971,14 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				return $data;
 			}
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( empty( $_POST['acf_field_group'] ) ) {
 				return $data;
 			}
 
 			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['old'] = acf_get_field_group( $postarr['ID'] );
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$this->oldAndNewFieldGroupsAndFields['fieldGroup']['new'] = acf_get_valid_field_group( $_POST['acf_field_group'] );
 
 			return $data;
@@ -1013,8 +1016,10 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			}
 
 			// Store info about fields that are going to be deleted
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( ! empty( $_POST['_acf_delete_fields'] ) ) {
-				$deletedFieldsIDs = explode( '|', $_POST['_acf_delete_fields'] );
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$deletedFieldsIDs = explode( '|', (string) $_POST['_acf_delete_fields'] );
 				$deletedFieldsIDs = array_map( 'intval', $deletedFieldsIDs );
 
 				foreach ( $deletedFieldsIDs as $id ) {
@@ -1033,7 +1038,9 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			}
 
 			// Store info about added or modified fields
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( ! empty( $_POST['acf_fields'] ) && is_array( $_POST['acf_fields'] ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				foreach ( $_POST['acf_fields'] as $oneFieldAddedOrUpdated ) {
 					if ( empty( $oneFieldAddedOrUpdated['ID'] ) ) {
 						// New fields have no id

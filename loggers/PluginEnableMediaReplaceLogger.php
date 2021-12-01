@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logs attachments updated with the great Enable Media Replace plugin
@@ -9,7 +9,6 @@ defined( 'ABSPATH' ) or die();
  * @since 2.2
  */
 class PluginEnableMediaReplaceLogger extends SimpleLogger {
-
 
 	public $slug = __CLASS__;
 
@@ -41,12 +40,15 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 
 	public function on_load_plugin_admin_page() {
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( empty( $_POST ) ) {
 			return;
 		}
 
 		if ( isset( $_GET['action'] ) && $_GET['action'] == 'media_replace_upload' ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$attachment_id = empty( $_POST['ID'] ) ? null : (int) $_POST['ID'];
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$replace_type = empty( $_POST['replace_type'] ) ? null : sanitize_text_field( $_POST['replace_type'] );
 			$new_file = empty( $_FILES['userfile'] ) ? null : (array) $_FILES['userfile'];
 

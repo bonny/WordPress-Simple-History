@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logger for the (old but still) very popular plugin Limit Login Attempts
@@ -68,6 +68,7 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 		 */
 		public function on_load_settings_page( $a ) {
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( $_POST && wp_verify_nonce( $_POST['_wpnonce'], 'limit-login-attempts-options' ) ) {
 				// Settings saved
 				if ( isset( $_POST['clear_log'] ) ) {
@@ -133,11 +134,6 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 			$retries = get_option( 'limit_login_retries' );
 			if ( ! is_array( $retries ) ) {
 				$retries = array();
-			}
-
-			if ( isset( $retries[ $ip ] ) && ( ( $retries[ $ip ] / limit_login_option( 'allowed_retries' ) ) % limit_login_option( 'notify_email_after' ) ) != 0 ) {
-				// $this->notice( "user locked out but don't log" );
-				// return;
 			}
 
 			/* Format message. First current lockout duration */
@@ -215,9 +211,9 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 				);
 
 				if ( 'longer' == $lockout_type ) {
-					$when = sprintf( _nx( '%d hour', '%d hours', $time, 'Logger: Plugin Limit Login Attempts', 'limit-login-attempts' ), $time );
+					$when = sprintf( _nx( '%d hour', '%d hours', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ), $time );
 				} elseif ( 'normal' == $lockout_type ) {
-					$when = sprintf( _nx( '%d minute', '%d minutes', $time, 'Logger: Plugin Limit Login Attempts', 'limit-login-attempts' ), $time );
+					$when = sprintf( _nx( '%d minute', '%d minutes', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ), $time );
 				}
 
 				$output .= '<p>' . sprintf(

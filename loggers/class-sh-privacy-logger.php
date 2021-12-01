@@ -197,6 +197,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 				)
 			);
 		} elseif ( $update && is_user_logged_in() && $is_doing_ajax && 'export_personal_data' === $user_request->action_name && 'request-completed' && $user_request->status ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$send_as_email = isset( $_POST['sendAsEmail'] ) ? 'true' === $_POST['sendAsEmail'] : false;
 
 			if ( $send_as_email ) {
@@ -346,6 +347,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 * Fired when the privacy admin page is loaded.
 	 */
 	public function on_load_privacy_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$action = isset( $_POST['action'] ) ? $_POST['action'] : '';
 		$option_name = 'wp_page_for_privacy_policy';
 
