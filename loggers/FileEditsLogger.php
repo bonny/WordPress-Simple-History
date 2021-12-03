@@ -4,8 +4,6 @@
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor
  */
 class FileEditsLogger extends SimpleLogger {
-
-
 	public $slug = __CLASS__;
 
 	public function getInfo() {
@@ -51,12 +49,14 @@ class FileEditsLogger extends SimpleLogger {
 	 * - log failed edits that result in error and plugin deactivation
 	 */
 	public function on_load_plugin_editor() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST ) && isset( $_POST['action'] ) ) {
-			$action = isset( $_POST['action'] ) ? $_POST['action'] : null;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$file = isset( $_POST['file'] ) ? $_POST['file'] : null;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$plugin_file = isset( $_POST['plugin'] ) ? $_POST['plugin'] : null;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
-			$scrollto = isset( $_POST['scrollto'] ) ? (int) $_POST['scrollto'] : 0;
 
 			// if 'phperror' is set then there was an error and an edit is done and wp tries to activate the plugin again
 			// $phperror = isset($_POST["phperror"]) ? $_POST["phperror"] : null;
@@ -140,6 +140,7 @@ class FileEditsLogger extends SimpleLogger {
 	 */
 	public function on_load_theme_editor() {
 		// Only continue if method is post and action is update
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST ) && isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
 			/*
 			POST data is like
@@ -154,11 +155,12 @@ class FileEditsLogger extends SimpleLogger {
 					'submit' => string(11) "Update File"
 			*/
 
-			$action = isset( $_POST['action'] ) ? $_POST['action'] : null;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$file = isset( $_POST['file'] ) ? $_POST['file'] : null;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$theme = isset( $_POST['theme'] ) ? $_POST['theme'] : null;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
-			$scrollto = isset( $_POST['scrollto'] ) ? (int) $_POST['scrollto'] : 0;
 
 			// Same code as in theme-editor.php
 			if ( $theme ) {
@@ -212,8 +214,6 @@ class FileEditsLogger extends SimpleLogger {
 					if ( isset( $queryStringParsed['updated'] ) && $queryStringParsed['updated'] ) {
 						// File was updated
 						$loggerInstance->infoMessage( 'theme_file_edited', $context );
-					} else {
-						// File was not updated. Unknown reason, but probably because could not be written.
 					}
 
 					return $location;
@@ -223,7 +223,6 @@ class FileEditsLogger extends SimpleLogger {
 			); // add_filter
 		} // End if().
 	}
-
 
 	public function getLogRowDetailsOutput( $row ) {
 
