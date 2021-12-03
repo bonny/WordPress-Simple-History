@@ -742,6 +742,10 @@ class SimplePostLogger extends SimpleLogger {
 			'_post_restored_from',
 			'_wp_page_template',
 			'_thumbnail_id',
+
+			// _encloseme is added to a post when it's published. The wp-cron process should get scheduled shortly thereafter to process the post to look for enclosures.
+			// https://wordpress.stackexchange.com/questions/20904/the-encloseme-meta-key-conundrum
+			'_encloseme',
 		);
 
 		$meta_changes = array(
@@ -793,18 +797,6 @@ class SimplePostLogger extends SimpleLogger {
 				$meta_changes['added'][ $meta_key ] = true;
 			}
 		}
-
-		// Look for removed meta.
-		// Does not work, if user clicks "delete" in edit screen then meta is removed using ajax.
-		/*
-		foreach ( $old_meta as $meta_key => $meta_value ) {
-
-			if ( ! isset($new_meta[ $meta_key ] ) ) {
-				$meta_changes["removed"][ $meta_key ] = true;
-			}
-
-		}
-		*/
 
 		// Look for changed meta.
 		foreach ( $old_meta as $meta_key => $meta_value ) {
