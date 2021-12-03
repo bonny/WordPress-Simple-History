@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * A PSR-3 inspired logger class
@@ -80,17 +80,17 @@ class SimpleLogger {
 	}
 
 	/**
-	 * Get array with information about this logger
+	 * Get array with information about this logger.
 	 *
 	 * @return array
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			// The logger slug. Defaulting to the class name is nice and logical I think
+			// The logger slug. Defaulting to the class name is nice and logical I think.
 			'slug' => __CLASS__,
 
 			// Shown on the info-tab in settings, use these fields to tell
-			// an admin what your logger is used for
+			// an admin what your logger is used for.
 			'name' => 'SimpleLogger',
 			'description' => 'The built in logger for Simple History',
 
@@ -163,10 +163,12 @@ class SimpleLogger {
 		$replace = array();
 		foreach ( $context as $key => $val ) {
 			// Both key and val must be strings or number (for vals)
+			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 			if ( is_string( $key ) || is_numeric( $key ) ) {
 				// key ok
 			}
 
+			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 			if ( is_string( $val ) || is_numeric( $val ) ) {
 				// val ok
 			} else {
@@ -733,7 +735,7 @@ class SimpleLogger {
 			// to message keys that are unavailable. If so then fallback to message.
 			if ( isset( $this->messages[ $message_key ]['translated_text'] ) ) {
 				$message = $this->messages[ $message_key ]['translated_text'];
-			} else {
+			} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
 				// Not message exists for message key. Just keep using message.
 			}
 		}
@@ -780,7 +782,8 @@ class SimpleLogger {
 				? $row->context['_user_id']
 				: null;
 
-				if ( $user_id > 0 && ( $user = get_user_by( 'id', $user_id ) ) ) {
+				$user = get_user_by( 'id', $user_id );
+				if ( $user_id > 0 && ( $user ) ) {
 					// Sender was user
 					$sender_image_html = $this->simpleHistory->get_avatar(
 						$user->user_email,

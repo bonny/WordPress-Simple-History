@@ -1,13 +1,11 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logs changes to wordpress options
  */
 class SimpleOptionsLogger extends SimpleLogger {
-
-
 
 	public $slug = __CLASS__;
 
@@ -126,57 +124,6 @@ class SimpleOptionsLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Give some options better plain text output
-	 *
-	 * Not doing anything at the moment, because it was really difficaly to give them meaningful text values
-	 */
-	public function getLogRowPlainTextOutput( $row ) {
-
-		$message = $row->message;
-		$context = $row->context;
-		$message_key = $context['_message_key'];
-
-		$return_message = '';
-
-		// Only link to attachment if it is still available
-		if ( 'option_updated' == $message_key ) {
-			/*
-			$option = isset( $context["option"] ) ? $context["option"] : null;
-			$option_page = isset( $context["option_page"] ) ? $context["option_page"] : null;
-			$new_value = isset( $context["new_value"] ) ? $context["new_value"] : null;
-			$old_value = isset( $context["old_value"] ) ? $context["old_value"] : null;
-
-			# $return_message = "";
-			$arr_options_to_translate = array(
-				"$option_page/blog_public" => array(
-					"text" => "Updated setting Search Engine Visibility"
-				),
-				"$option_page/rss_use_excerpt" => array(
-					"text" => "Updated setting For each article in a feed, show"
-				),
-				"$option_page/posts_per_rss" => array(
-					"text" => "Updated setting for Syndication feeds show the most recent"
-				),
-				"$option_page/posts_per_page" => array(
-					"text" => "Updated setting for Blog pages show at most"
-				)
-			);
-
-			if ( isset( $arr_options_to_translate[ "{$option_page}/{$option}" ] ) ) {
-				$return_message = $arr_options_to_translate[ "{$option_page}/{$option}" ]["text"];
-			}
-			*/
-		}
-
-		if ( empty( $return_message ) ) {
-			// No specific text to output, fallback to default
-			$return_message = parent::getLogRowPlainTextOutput( $row );
-		}
-
-		return $return_message;
-	}
-
-	/**
 	 * Get detailed output
 	 */
 	public function getLogRowDetailsOutput( $row ) {
@@ -212,7 +159,7 @@ class SimpleOptionsLogger extends SimpleLogger {
 
 				if ( empty( $option_custom_output ) ) {
 					// all other options or fallback if custom output did not find all it's stuff
-					$more = __( '&hellip;' );
+					$more = __( '&hellip;', 'simple-history' );
 					$trim_length = 250;
 
 					$trimmed_new_value = substr( $new_value, 0, $trim_length );

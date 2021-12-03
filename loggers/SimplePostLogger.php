@@ -240,6 +240,7 @@ class SimplePostLogger extends SimpleLogger {
 	 * @since 2.0.29
 	 */
 	public function on_admin_action_editpost() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$post_ID = isset( $_POST['post_ID'] ) ? (int) $_POST['post_ID'] : 0;
 
 		if ( ! $post_ID ) {
@@ -1284,7 +1285,7 @@ class SimplePostLogger extends SimpleLogger {
 	 *
 	 * @since 2.0.23
 	 * @param string $link Link.
-	 * @param array  $row Row.
+	 * @param object  $row Row.
 	 */
 	public function filter_rss_item_link( $link, $row ) {
 		if ( $row->logger != $this->slug ) {
