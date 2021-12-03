@@ -403,7 +403,6 @@ class SimpleThemeLogger extends SimpleLogger {
 		foreach ( $customized as $setting_id => $posted_values ) {
 			foreach ( $settings as $one_setting ) {
 				if ( $one_setting->id == $setting_id ) {
-					// sf_d("MATCH");
 					$old_value = $one_setting->value();
 					$new_value = $one_setting->post_value();
 
@@ -412,29 +411,20 @@ class SimpleThemeLogger extends SimpleLogger {
 							'setting_id' => $one_setting->id,
 							'setting_old_value' => $old_value,
 							'setting_new_value' => $new_value,
-							// "control_id" => $section_control->id,
-							// "control_label" => $section_control->label,
-							// "control_type" => $section_control->type,
-							// "section_id" => $section->id,
-							// "section_title" => $section->title,
 						);
 
 						// value is changed
 						// find which control it belongs to
-						// foreach ($sections as $section) {
 						foreach ( $controls as $one_control ) {
 							foreach ( $one_control->settings as $section_control_setting ) {
 								if ( $section_control_setting->id == $setting_id ) {
-									// echo "\n" . $one_control->id;
-									// echo "\n" . $one_control->label;
-									// echo "\n" . $one_control->type;
 									$context['control_id'] = $one_control->id;
 									$context['control_label'] = $one_control->label;
 									$context['control_type'] = $one_control->type;
 								}
 							}
 						}
-						// }
+
 						$this->infoMessage(
 							'appearance_customized',
 							$context
@@ -443,187 +433,21 @@ class SimpleThemeLogger extends SimpleLogger {
 				}// End if().
 			}// End foreach().
 		}// End foreach().
-
-		return;
-		// print_r( json_decode( $customized ) );
-		// exit;
-		// Set to true to echo some info about stuff
-		// that can be views in console when saving
-		$debug = 0;
-
-		$arr_changed_settings = array();
-		$arr_changed_settings_ids = array();
-
-		/*
-		foreach ($settings as $setting) {
-
-		#echo "\n\nsetting";
-		#sf_d( $setting->id );
-		#sf_d( $setting->value() );
-		#sf_d( $setting->post_value() );
-
-		// Get control for this settings
-		foreach ($sections as $section) {
-		foreach ($section->controls as $control) {
-			foreach ($control->settings as $one_setting) {
-				sf_d( $one_setting->id );
-			}
-		}
-		}
-
-
-		}
-		return;
-		*/
-		foreach ( $sections as $section ) {
-			// echo "Section: " . $section->id . " (".$section->title.")";
-			// Id is unique slug
-			// Can't use title because that's translated
-			if ( $debug ) {
-				echo "\n-------\n";
-				echo 'Section: ' . $section->id . ' (' . $section->title . ')';
-			}
-
-			$section_controls = $section->controls;
-			foreach ( $section_controls as $section_control ) {
-				/*
-				if ( ! $section_control->check_capabilities() ) {
-					echo "\n\n\nno access to control";
-				} else {
-					echo "\n have access to control";
-				}
-				*/
-
-				// Settings is always array, but mostly with just one setting in it it seems like
-				$section_control_settings = $section_control->settings;
-
-				if ( $debug ) {
-					echo "\n\nControl ";
-					echo $section_control->id . ' (' . $section_control->label . ')';
-					// echo "\ncontrol setting: " . $section_control->setting;
-					// echo "\nSettings:";
-				}
-
-				/*
-				Control ttfmake_stylekit-info ()
-				har underlig setting
-				setting = blogname = uppdateras som en tok!
-				*/
-				/*
-				if ( $section_control->id == "ttfmake_stylekit-info" ) {
-					print_r( sizeof($section_control_settings) );
-					echo "\nid: " . $section_control_settings[0]->id;
-					echo "\ntitle: " . $section_control_settings[0]->title;
-					exit;
-				}*/
-
-				foreach ( $section_control_settings as $one_setting ) {
-					if ( $debug ) {
-						// setting id is supposed to be unique, but some themes
-						// seems to register "blogname" for example
-						// which messes things up...
-						// solution:
-						// order sections so built-in sections always are added first
-						// and then only store a seting id once (the first time = for the built in setting)
-						// hm.. nope, does not work. in this case theme "make" is using blogname in their own control
-						echo "\nsetting id " . $one_setting->id;
-					}
-
-					$old_value = $one_setting->value();
-					$new_value = $one_setting->post_value();
-
-					// If old and new value is different then we log
-					if ( $old_value != $new_value && ! in_array( $one_setting->id, $arr_changed_settings_ids ) ) {
-						// if ( $old_value != $new_value ) {
-						if ( $debug ) {
-							echo "\nSetting with id ";
-							echo $one_setting->id;
-							echo ' changed';
-							echo "\nold value $old_value";
-							echo "\nnew value $new_value";
-						}
-
-						$arr_changed_settings[] = array(
-							'setting_id' => $one_setting->id,
-							'setting_old_value' => $old_value,
-							'setting_new_value' => $new_value,
-							'control_id' => $section_control->id,
-							'control_label' => $section_control->label,
-							'control_type' => $section_control->type,
-							'section_id' => $section->id,
-							'section_title' => $section->title,
-						);
-
-						$arr_changed_settings_ids[] = $one_setting->id;
-					}
-				}// End foreach().
-			}// End foreach().
-		} // End foreach().
-
-		/*
-		arr_changed_settingsArray
-		(
-			[0] => Array
-				(
-					[setting_id] => background_color
-					[setting_old_value] => 31d68e
-					[setting_new_value] => 2f37ce
-					[control_id] => background_color
-					[control_label] => Background Color
-					[control_type] => color
-					[section_id] => background_image
-					[section_title] => Background
-				)
-
-			[1] => Array
-				(
-					[setting_id] => font-header
-					[setting_old_value] => sans-serif
-					[setting_new_value] => monospace
-					[control_id] => ttfmake_font-header
-					[control_label] => Headers
-					[control_type] => select
-					[section_id] => ttfmake_font
-					[section_title] => Fonts
-				)
-
-		)
-		*/
-		if ( $arr_changed_settings ) {
-			if ( $debug ) {
-				echo "\narr_changed_settings";
-				print_r( $arr_changed_settings );
-			}
-
-			// Store each changed settings as one log entry
-			// We could store all in just one, but then we would get
-			// problems when outputing formatted output (too many things to show at once)
-			// or when gathering stats
-			foreach ( $arr_changed_settings as $one_changed_setting ) {
-				$this->infoMessage(
-					'appearance_customized',
-					$one_changed_setting
-				);
-			}
-		}
 	}
 
 	/**
 	 * When a new theme is about to get switched to
 	 * we save info about the old one
+	 *
+	 * Request looks like:
+	 *  Array
+	 *  (
+	 *    [action] => activate
+	 *    [stylesheet] => wp-theme-bonny-starter
+	 *    [_wpnonce] => 31b033ba59
+	 *  )
 	 */
 	public function on_page_load_themes() {
-
-		// sf_d($_REQUEST, "request");exit;
-		/*
-		request:
-		Array
-		(
-			[action] => activate
-			[stylesheet] => wp-theme-bonny-starter
-			[_wpnonce] => 31b033ba59
-		)
-		*/
 
 		if ( ! isset( $_GET['action'] ) || $_GET['action'] != 'activate' ) {
 			return;
@@ -666,7 +490,7 @@ class SimpleThemeLogger extends SimpleLogger {
 		if ( ! is_a( $current_theme, 'WP_Theme' ) ) {
 			return;
 		}
-		// sf_d($current_theme);
+
 		$this->prev_theme_data = array(
 			'name' => $current_theme->name,
 			'version' => $current_theme->version,
@@ -718,8 +542,9 @@ class SimpleThemeLogger extends SimpleLogger {
 				}
 
 				// Don't output prev and new value if none exist
+				// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 				if ( empty( $context['setting_old_value'] ) && empty( $context['setting_new_value'] ) ) {
-					// empty, so skip
+					// Empty, so skip.
 				} else {
 					// if control is color let's be fancy and output as color
 					$control_type = isset( $context['control_type'] ) ? $context['control_type'] : '';
@@ -931,6 +756,7 @@ class SimpleThemeLogger extends SimpleLogger {
 		}
 
 		// Add sidebar info.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$sidebar_id = isset( $_POST['sidebar'] ) ? $_POST['sidebar'] : null;
 		$context['sidebar_id'] = $sidebar_id;
 		$sidebar = $this->getSidebarById( $sidebar_id );
@@ -994,8 +820,10 @@ class SimpleThemeLogger extends SimpleLogger {
 	 */
 	public function on_action_sidebar_admin_setup__detect_widget_add() {
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['add_new'] ) && ! empty( $_POST['add_new'] ) && isset( $_POST['sidebar'] ) && isset( $_POST['id_base'] ) ) {
 			// Add widget info
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$widget_id_base = $_POST['id_base'];
 			$context['widget_id_base'] = $widget_id_base;
 			$widget = $this->getWidgetByIdBase( $widget_id_base );
@@ -1004,6 +832,7 @@ class SimpleThemeLogger extends SimpleLogger {
 			}
 
 			// Add sidebar info
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$sidebar_id = $_POST['sidebar'];
 			$context['sidebar_id'] = $sidebar_id;
 			$sidebar = $this->getSidebarById( $sidebar_id );
@@ -1023,10 +852,12 @@ class SimpleThemeLogger extends SimpleLogger {
 	public function on_action_sidebar_admin_setup__detect_widget_delete() {
 
 		// Widget was deleted
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['delete_widget'] ) ) {
 			$context = array();
 
-			// Add widget info
+			// Add widget info.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$widget_id_base = $_POST['id_base'];
 			$context['widget_id_base'] = $widget_id_base;
 			$widget = $this->getWidgetByIdBase( $widget_id_base );
@@ -1035,6 +866,7 @@ class SimpleThemeLogger extends SimpleLogger {
 			}
 
 			// Add sidebar info
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$sidebar_id = $_POST['sidebar'];
 			$context['sidebar_id'] = $sidebar_id;
 			$sidebar = $this->getSidebarById( $sidebar_id );
