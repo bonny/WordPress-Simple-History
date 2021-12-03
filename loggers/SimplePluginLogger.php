@@ -19,7 +19,7 @@ class SimplePluginLogger extends SimpleLogger {
 	 * like when the plugin file does not exist. We need to store this in this
 	 * weird way because there is no other way for us to get the reason.
 	 *
-	 * @var string $latest_plugin_deactivation_because_of_error_reason
+	 * @var array $latest_plugin_deactivation_because_of_error_reason
 	 */
 	public $latest_plugin_deactivation_because_of_error_reason = array();
 
@@ -246,6 +246,7 @@ class SimplePluginLogger extends SimpleLogger {
 
 				$action = isset( $_GET['action'] ) ? $_GET['action'] : null;
 				if ( ! $action ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$action = isset( $_POST['action'] ) ? $_POST['action'] : null;
 				}
 
@@ -257,6 +258,7 @@ class SimplePluginLogger extends SimpleLogger {
 						return;
 					}
 
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$type = isset( $_POST['type'] ) ? $_POST['type'] : null;
 					if ( $type !== 'plugin' ) {
 						return;
@@ -294,7 +296,9 @@ class SimplePluginLogger extends SimpleLogger {
 					// *    [state] => disable | enable
 					// *    [type] => plugin
 					// *    [asset] => redirection/redirection.php
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$state = isset( $_POST['state'] ) ? $_POST['state'] : null;
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$asset = isset( $_POST['asset'] ) ? $_POST['asset'] : null;
 
 					if ( $state === 'enable' ) {
@@ -308,6 +312,7 @@ class SimplePluginLogger extends SimpleLogger {
 					}
 				} elseif ( in_array( $action, array( 'enable-auto-update-selected', 'disable-auto-update-selected' ) ) ) {
 					// $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$checked = isset( $_POST['checked'] ) ? $_POST['checked'] : null;
 					if ( $checked ) {
 						$plugins = (array) $checked;
@@ -486,18 +491,18 @@ class SimplePluginLogger extends SimpleLogger {
 	public function ajax_GetGitHubPluginInfo() {
 
 		if ( ! current_user_can( 'install_plugins' ) ) {
-			wp_die( __( "You don't have access to this page.", 'simple-history' ) );
+			wp_die( esc_html__( "You don't have access to this page.", 'simple-history' ) );
 		}
 
 		$repo = isset( $_GET['repo'] ) ? (string) $_GET['repo'] : '';
 
 		if ( ! $repo ) {
-			wp_die( __( 'Could not find GitHub repository.', 'simple-history' ) );
+			wp_die( esc_html__( 'Could not find GitHub repository.', 'simple-history' ) );
 		}
 
 		$repo_parts = explode( '/', rtrim( $repo, '/' ) );
 		if ( count( $repo_parts ) !== 5 ) {
-			wp_die( __( 'Could not find GitHub repository.', 'simple-history' ) );
+			wp_die( esc_html__( 'Could not find GitHub repository.', 'simple-history' ) );
 		}
 
 		$repo_username = $repo_parts[3];
@@ -564,13 +569,12 @@ class SimplePluginLogger extends SimpleLogger {
 					%2$s
 				</div>
 			',
-			$repo_info,
+			$repo_info, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			$response_body,
 			$github_markdown_css_path,
 			esc_url( $repo ) // 4
 		);
 
-		// echo($response_body);
 		exit;
 	}
 
@@ -583,15 +587,17 @@ class SimplePluginLogger extends SimpleLogger {
 
 		// Same as in plugins.php
 		if ( ! current_user_can( 'delete_plugins' ) ) {
-			wp_die( __( 'You do not have sufficient permissions to delete plugins for this site.' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to delete plugins for this site.', 'simple-history' ) );
 		}
 
 		// Verify delete must be set
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! isset( $_POST['verify-delete'] ) || ! $_POST['verify-delete'] ) {
 			return;
 		}
 
 		// An arr of plugins must be set
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! isset( $_POST['checked'] ) || ! is_array( $_POST['checked'] ) ) {
 			return;
 		}
@@ -626,7 +632,8 @@ class SimplePluginLogger extends SimpleLogger {
 	 */
 	public function on_setted_transient_for_remove_files( $transient = '', $value = '' ) {
 
-		if ( ! $user_id = get_current_user_id() ) {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
 			return;
 		}
 
@@ -637,10 +644,12 @@ class SimplePluginLogger extends SimpleLogger {
 
 		// We found the transient we were looking for
 		if (
+			// phpcs:disable WordPress.Security.NonceVerification.Missing
 			isset( $_POST['action'] )
 				&& 'delete-selected' == $_POST['action']
 				&& isset( $_POST['checked'] )
 				&& is_array( $_POST['checked'] )
+			// phpcs:enable WordPress.Security.NonceVerification.Missing
 		) {
 			/*
 			[checked] => Array
@@ -649,7 +658,8 @@ class SimplePluginLogger extends SimpleLogger {
 				)
 			*/
 
-			$plugins_deleted       = $_POST['checked'];
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$plugins_deleted = (array) $_POST['checked'];
 			$plugins_before_update = json_decode( get_option( $this->slug . '_plugin_info_before_update', false ), true );
 
 			foreach ( $plugins_deleted as $plugin ) {
@@ -1076,13 +1086,6 @@ class SimplePluginLogger extends SimpleLogger {
 				}// End foreach().
 			}// End if().
 		} // End if().
-
-		if ( ! $did_log ) {
-			// echo "on_upgrader_process_complete";
-			// sf_d( $plugin_upgrader_instance, '$plugin_upgrader_instance' );
-			// sf_d( $arr_data, '$arr_data' );
-			// exit;
-		}
 
 		$this->remove_saved_versions();
 	}

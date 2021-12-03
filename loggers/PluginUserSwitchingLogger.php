@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logs user switching from the great User Switching plugin
