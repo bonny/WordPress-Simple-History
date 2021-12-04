@@ -1,24 +1,18 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Queries the Simple History Log
  */
 class SimpleHistoryLogQuery {
 
-
-	public function __construct() {
-
-		/*
-		if ( is_array($args) && ! empty($args) ) {
-
-			return $this->query($args);
-
-		}
-		*/
-	}
-
+	/**
+	 * Query the log.
+	 *
+	 * @param string|array|object $args
+	 * @return array
+	 */
 	public function query( $args ) {
 		$defaults = array(
 
@@ -85,7 +79,8 @@ class SimpleHistoryLogQuery {
 		);
 
 		$args = wp_parse_args( $args, $defaults );
-		// sf_d($args, "Run log query with args");
+
+		// Create cache key based on args and request and current user.
 		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_get_' . md5( serialize( $_GET ) ) . '_userid_' . get_current_user_id();
 		$cache_group = 'simple-history-' . SimpleHistory::get_cache_incrementor();
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
@@ -118,6 +113,7 @@ class SimpleHistoryLogQuery {
 		if ( 'overview' === $args['type'] || 'single' === $args['type'] ) {
 			// Set variables used by query
 			$sql_set_var = "SET @a:='', @counter:=1, @groupby:=0";
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql_set_var );
 
 			// New and slightly faster query
@@ -375,11 +371,7 @@ class SimpleHistoryLogQuery {
 				$str_sql_search_words = '';
 
 				foreach ( $arr_search_words as $one_search_word ) {
-					if ( method_exists( $wpdb, 'esc_like' ) ) {
-						$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
-					} else {
-						$str_like = esc_sql( like_escape( $one_search_word ) );
-					}
+					$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
 
 					$str_sql_search_words .= sprintf(
 						' AND %1$s LIKE "%2$s" ',
@@ -401,11 +393,7 @@ class SimpleHistoryLogQuery {
 			// also search contexts
 			$str_search_conditions .= "\n   OR ( ";
 			foreach ( $arr_search_words as $one_search_word ) {
-				if ( method_exists( $wpdb, 'esc_like' ) ) {
-					$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
-				} else {
-					$str_like = esc_sql( like_escape( $one_search_word ) );
-				}
+				$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
 
 				$str_search_conditions .= "\n" . sprintf(
 					'	id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
@@ -679,22 +667,12 @@ class SimpleHistoryLogQuery {
 		 */
 		$sql = apply_filters( 'simple_history/log_query_sql', $sql );
 
-		// Remove comments below to debug query (includes query in json result)
-		// $include_query_in_result = true;
-		if ( isset( $_GET['SimpleHistoryLogQuery-showDebug'] ) && $_GET['SimpleHistoryLogQuery-showDebug'] ) {
-			echo '<pre>';
-			echo $sql_set_var;
-			echo $sql;
-			exit;
-		}
-
 		// Only return sql query
 		if ( $args['returnQuery'] ) {
 			return $sql;
 		}
 
 		$log_rows = $wpdb->get_results( $sql, OBJECT_K );
-		$num_rows = sizeof( $log_rows );
 
 		// Find total number of rows that we would have gotten without pagination
 		// This is the number of rows with occasions taken into consideration
@@ -724,7 +702,7 @@ class SimpleHistoryLogQuery {
 		$min_id = null;
 		$max_id = null;
 
-		if ( sizeof( $log_rows ) ) {
+		if ( count( $log_rows ) ) {
 			// Max id is simply the id of the first row
 			$max_id = reset( $log_rows )->id;
 
@@ -766,7 +744,7 @@ class SimpleHistoryLogQuery {
 
 		// Create array to return
 		// Make all rows a sub key because we want to add some meta info too
-		$log_rows_count = sizeof( $log_rows );
+		$log_rows_count = count( $log_rows );
 		$page_rows_from = ( (int) $args['paged'] * (int) $args['posts_per_page'] ) - (int) $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
 		$arr_return = array(
@@ -781,7 +759,6 @@ class SimpleHistoryLogQuery {
 			'log_rows' => $log_rows,
 		);
 
-		// sf_d($arr_return, '$arr_return');exit;
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
 
 		return $arr_return;

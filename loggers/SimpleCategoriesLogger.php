@@ -1,12 +1,11 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logs changes to categories and tags and taxonomies
  */
 class SimpleCategoriesLogger extends SimpleLogger {
-
 
 	public $slug = __CLASS__;
 

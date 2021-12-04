@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logs WordPress menu edits
@@ -253,7 +253,8 @@ class SimpleMenuLogger extends SimpleLogger {
 
 		// Compare new items to be saved with old version
 		$old_ids = wp_list_pluck( $arr_prev_menu_items, 'db_id' );
-		$new_ids = array_values( isset( $_POST['menu-item-db-id'] ) ? $_POST['menu-item-db-id'] : array() );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$new_ids = array_values( isset( $_POST['menu-item-db-id'] ) ? (array) $_POST['menu-item-db-id'] : array() );
 
 		// Get ids of added and removed post ids
 		$arr_removed = array_diff( $old_ids, $new_ids );
@@ -267,37 +268,13 @@ class SimpleMenuLogger extends SimpleLogger {
 			'edited_menu',
 			array(
 				'menu_id' => $menu_id,
-				'menu_name' => $_POST['menu-name'],
-				'menu_items_added' => sizeof( $arr_added ),
-				'menu_items_removed' => sizeof( $arr_removed ),
-				// "request" => $this->simpleHistory->json_encode($_REQUEST)
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				'menu_name' => sanitize_text_field( $_POST['menu-name'] ),
+				'menu_items_added' => count( $arr_added ),
+				'menu_items_removed' => count( $arr_removed ),
 			)
 		);
 	}
-
-	/**
-	 * This seems to get called twice
-	 * one time with menu_data, a second without
-	 */
-	/*
-	function on_wp_update_nav_menu($menu_id, $menu_data = array()) {
-
-		if (empty($menu_data)) {
-			return;
-		}
-
-		$this->infoMessage(
-			"edited_menu",
-			array(
-				"menu_id" => $menu_id,
-				"menu_name" => $menu_data["menu-name"],
-				"menu_data" => $this->simpleHistory->json_encode($menu_data),
-				"request" => $this->simpleHistory->json_encode($_REQUEST)
-			)
-		);
-
-	}
-	*/
 
 	/**
 	 * Get detailed output
@@ -356,7 +333,8 @@ class SimpleMenuLogger extends SimpleLogger {
 				)
 		)
 		*/
-		$menu_locations = $_POST['menu-locations'];
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$menu_locations = (array) $_POST['menu-locations'];
 
 		$this->infoMessage(
 			'edited_menu_locations',

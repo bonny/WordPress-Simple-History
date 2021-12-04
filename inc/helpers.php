@@ -22,6 +22,17 @@ function SimpleLogger() {
  * If you use this please consider using
  * SimpleHistory()->info();
  * instead
+ *
+ * Example usage:
+ *  simple_history_add(
+ *      array(
+ *          'object_type' => 'post',
+ *          'object_name' => 'Lorem ispum dolor',
+ *          'action' => 'updated',
+ *      )
+ *  );
+ *
+ * @param array $args Array with at least keys object_type, object_name, action.
  */
 function simple_history_add( $args ) {
 	$defaults = array(
@@ -45,7 +56,6 @@ function simple_history_add( $args ) {
  * Pretty much same as wp_text_diff() but with this you can set leading and trailing context lines
  *
  * @since 2.0.29
- *
  *
  * Original description from wp_text_diff():
  *
@@ -204,6 +214,7 @@ function sh_d() {
 		}
 	}
 
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo $output;
 }
 

@@ -18,7 +18,7 @@ function simple_history_old_version_admin_notice() {
 						'simple-history'
 					)
 				),
-				phpversion() // 1
+				esc_html( phpversion() ) // 1
 			);
 			echo '</p>';
 		}
@@ -33,7 +33,7 @@ function simple_history_old_version_admin_notice() {
 						'simple-history'
 					)
 				),
-				$GLOBALS['wp_version'] // 1
+				esc_html( $GLOBALS['wp_version'] ) // 1
 			);
 			echo '</p>';
 		}

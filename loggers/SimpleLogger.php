@@ -209,8 +209,9 @@ class SimpleLogger {
 					? $row->context['_user_id']
 					: null;
 
-				if ( $user_id > 0 && ( $user = get_user_by( 'id', $user_id ) ) ) {
-					// Sender is user and user still exists
+				$user = get_user_by( 'id', $user_id );
+				if ( $user_id > 0 && ( $user ) ) {
+					// Sender is user and user still exists.
 					$is_current_user =
 						get_current_user_id() == $user_id ? true : false;
 
@@ -727,6 +728,7 @@ class SimpleLogger {
 		if ( empty( $message_key ) ) {
 			// Message key did not exist, so check if we should translate using textdomain
 			if ( ! empty( $row->context['_gettext_domain'] ) ) {
+				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.NonSingularStringLiteralText
 				$message = __( $message, $row->context['_gettext_domain'] );
 			}
 		} else {

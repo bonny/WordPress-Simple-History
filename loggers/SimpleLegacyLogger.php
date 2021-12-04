@@ -1,26 +1,23 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Logger for events stored earlier than v2
  * and for events added via simple_history_add
  *
+ * TODO: Can this be removed? SimpleLegacyLogger is not used anywhere no longer.
+ *       Even `simple_history_add()` uses `SimpleLogger()->info()`.
+ *
  * @since 2.0
  */
 class SimpleLegacyLogger extends SimpleLogger {
-
 
 	/**
 	 * Unique slug for this logger
 	 * Will be saved in DB and used to associate each log row with its logger
 	 */
 	public $slug = 'SimpleLegacyLogger';
-
-	public function __construct() {
-
-		// $this->info(__CLASS__ . " construct()");
-	}
 
 	/**
 	 * Get array with information about this logger
@@ -34,28 +31,12 @@ class SimpleLegacyLogger extends SimpleLogger {
 			'description' => 'Formats old events',
 			'capability' => 'edit_pages',
 			'messages' => array(),
-			/*
-			 "labels" => array(
-				"search" => array(
-					"label" => _x("Export", "Export logger: search", "simple-history"),
-					"options" => array(
-						_x("Exports created", "Core updates logger: search", "simple-history") => array(
-							"created_export"
-						),
-					)
-				) // end search array
-			) // end labels
-			*/
-
 		);
 
 		return $arr_info;
 	}
 
 	public function getLogRowPlainTextOutput( $row ) {
-
-		$message = $row->message;
-		$context = $row->context;
 
 		$out = '';
 
@@ -73,7 +54,6 @@ class SimpleLegacyLogger extends SimpleLogger {
 
 		$one_item = $wpdb->get_row( $sql );
 
-		// $out .= print_r($row, true);
 		// Code mostly from version 1.x
 		$object_type = ucwords( $one_item->object_type );
 		$object_name = esc_html( $one_item->object_name );
@@ -87,7 +67,7 @@ class SimpleLegacyLogger extends SimpleLogger {
 		}
 
 		if ( isset( $one_item->occasions ) ) {
-			$description .= sprintf( __( '%d occasions', 'simple-history' ), sizeof( $one_item->occasions ) );
+			$description .= sprintf( __( '%d occasions', 'simple-history' ), count( $one_item->occasions ) );
 		}
 
 		$item_title = esc_html( $object_type ) . ' "' . esc_html( $object_name ) . "\" {$one_item->action}";

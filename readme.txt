@@ -195,10 +195,12 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = n.n.n () =
 
+- Changed: Post logger now ignores changes to the `_encloseme` meta key.
 - Added: Logger messages is shown when clicking number of message strings in settings debug tab.
 - Fixed: Used wrong text domain for some strings in Limit Login Attempts logger.
 - Internal: Code formatting to match the WordPress coding standards.
 - Internal: Code cleanup.
+- Changed: Remove usage of deprecated method `like_escape()` since we require a higher WP version that has `esc_like()`.
 
 = 2.43.0 (October 2021) =
 
