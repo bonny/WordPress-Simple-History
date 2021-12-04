@@ -2,7 +2,7 @@
 
 // phpcs:disable PSR12.Properties.ConstantVisibility.NotFound
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Main class for Simple History
@@ -443,7 +443,7 @@ class SimpleHistory {
 			'domain' => $domain,
 		);
 
-		$arr_length = sizeof( $sh_latest_translations );
+		$arr_length = count( $sh_latest_translations );
 		if ( $arr_length > $array_max_size ) {
 			$sh_latest_translations = array_slice( $sh_latest_translations, $arr_length - $array_max_size );
 		}
@@ -458,7 +458,6 @@ class SimpleHistory {
 
 		if ( ! wp_next_scheduled( 'simple_history/maybe_purge_db' ) ) {
 			wp_schedule_event( time(), 'daily', 'simple_history/maybe_purge_db' );
-		} else {
 		}
 
 		// Remove old schedule (only author dev sites should have it)
@@ -484,13 +483,14 @@ class SimpleHistory {
 	 * Output JS templated into footer
 	 */
 	public function add_js_templates( $hook ) {
-		if ( $this->is_on_our_own_pages() ) { ?>
+		if ( $this->is_on_our_own_pages() ) {
+			?>
 			<script type="text/html" id="tmpl-simple-history-base">
 
 				<div class="SimpleHistory__waitingForFirstLoad">
-					<img src="<?php echo admin_url( '/images/spinner.gif' ); ?>" alt="" width="20" height="20">
+					<img src="<?php echo esc_url( admin_url( '/images/spinner.gif' ) ); ?>" alt="" width="20" height="20">
 					<?php
-					echo _x(
+					echo esc_html_x(
 						'Loading history...',
 						'Message visible while waiting for log to load from server the first time',
 						'simple-history'
@@ -575,7 +575,7 @@ class SimpleHistory {
 					<div class="SimpleHistoryLogitem__firstcol"></div>
 					<div class="SimpleHistoryLogitem__secondcol">
 						<div class="SimpleHistoryLogitem__text">
-							<?php _e( 'Sorry, but there are too many similar events to show.', 'simple-history' ); ?>
+							<?php esc_html_e( 'Sorry, but there are too many similar events to show.', 'simple-history' ); ?>
 						</div>
 					</div>
 				</li>
@@ -656,8 +656,6 @@ class SimpleHistory {
 						$data['log_rows'][ $key ] = $this->getLogRowHTMLOutput( $oneLogRow, $args );
 						$data['num_queries'] = get_num_queries();
 					}
-				} else {
-					// $data["logRows"] = $logRows;
 				}
 
 				break;
@@ -1259,7 +1257,7 @@ class SimpleHistory {
 		do_action( 'simple_history/dashboard/before_gui', $this );
 		?>
 		<div class="SimpleHistoryGui"
-			 data-pager-size='<?php echo $pager_size; ?>'
+			 data-pager-size='<?php echo esc_attr( $pager_size ); ?>'
 			 ></div>
 		<?php
 	}
@@ -1310,8 +1308,8 @@ class SimpleHistory {
 				true
 			);
 
-			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', array( 'jquery' ) );
-			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.css' );
+			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION );
+			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.css', array(), SIMPLE_HISTORY_VERSION );
 
 			// Translations that we use in JavaScript
 			wp_localize_script(
@@ -1422,6 +1420,7 @@ class SimpleHistory {
 
 			// Fix UTF-8 for table
 			$sql = sprintf( 'alter table %1$s charset=utf8;', $table_name );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql );
 
 			$db_version_prev = $db_version;
@@ -1459,7 +1458,8 @@ class SimpleHistory {
 		);
 
 		foreach ( $arr_options as $one_option ) {
-			if ( false === ( $option_value = get_option( $one_option['name'] ) ) ) {
+			$option_value = get_option( $one_option['name'] );
+			if ( false === ( $option_value ) ) {
 				// Value is not set in db, so set it to a default
 				update_option( $one_option['name'], $one_option['default_value'] );
 			}
@@ -1505,6 +1505,7 @@ class SimpleHistory {
                 ) CHARSET=utf8;
             ";
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql );
 
 			$db_version_prev = $db_version;
@@ -1523,6 +1524,7 @@ class SimpleHistory {
 				$table_name
 			);
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql );
 
 			// Say welcome, however loggers are not added this early so we need to
@@ -1543,6 +1545,7 @@ class SimpleHistory {
 
 			// If old columns exist = this is an old install, then modify the columns so we still can keep them
 			// we want to keep them because user may have logged items that they want to keep
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$db_cools = $wpdb->get_col( "DESCRIBE $table_name" );
 
 			if ( in_array( 'action', $db_cools ) ) {
@@ -1558,6 +1561,7 @@ class SimpleHistory {
                     ',
 					$table_name
 				);
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$wpdb->query( $sql );
 			}
 
@@ -1592,11 +1596,10 @@ class SimpleHistory {
 		global $wpdb;
 
 		$tableprefix = $wpdb->prefix;
-
 		$simple_history_table = self::DBTABLE;
-		$simple_history_context_table = self::DBTABLE_CONTEXTS;
 
 		$sql_data_exists = "SELECT id AS id_exists FROM {$tableprefix}{$simple_history_table} LIMIT 1";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$data_exists = (bool) $wpdb->get_var( $sql_data_exists, 0 );
 
 		return $data_exists;
@@ -1683,7 +1686,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 			<h1 class="SimpleHistoryPageHeadline">
 				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
-				<?php _e( 'Simple History Settings', 'simple-history' ); ?>
+				<?php esc_html_e( 'Simple History Settings', 'simple-history' ); ?>
 			</h1>
 
 			<?php
@@ -1719,7 +1722,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 			// We must have found an active tab and it must have a callable function
 			if ( ! $arr_active_tab || ! is_callable( $arr_active_tab['function'] ) ) {
-				wp_die( __( 'No valid callback found', 'simple-history' ) );
+				wp_die( esc_html__( 'No valid callback found', 'simple-history' ) );
 			}
 
 			$args = array(
@@ -1892,10 +1895,6 @@ Because Simple History was only recently installed, this feed does not display m
 	 * Output for page with the history
 	 */
 	public function history_page_output() {
-		// global $simple_history;
-		// $this->purge_db();
-		global $wpdb;
-
 		$pager_size = $this->get_pager_size();
 
 		/**
@@ -1912,7 +1911,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 			<h1 class="SimpleHistoryPageHeadline">
 				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
-				<?php echo _x( 'Simple History', 'history page headline', 'simple-history' ); ?>
+				<?php echo esc_html_x( 'Simple History', 'history page headline', 'simple-history' ); ?>
 			</h1>
 			
 			<?php
@@ -1929,7 +1928,7 @@ Because Simple History was only recently installed, this feed does not display m
 			<div class="SimpleHistoryGuiWrap">
 
 				<div class="SimpleHistoryGui"
-					 data-pager-size='<?php echo $pager_size; ?>'
+					 data-pager-size='<?php echo esc_attr( $pager_size ); ?>'
 					 ></div>
 					<?php
 					/**
@@ -2028,7 +2027,7 @@ Because Simple History was only recently installed, this feed does not display m
 			: '';
 		?>
 		 type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
-		<label for="simple_history_show_on_dashboard"><?php _e( 'on the dashboard', 'simple-history' ); ?></label>
+		<label for="simple_history_show_on_dashboard"><?php esc_html_e( 'on the dashboard', 'simple-history' ); ?></label>
 
 		<br />
 
@@ -2040,7 +2039,7 @@ Because Simple History was only recently installed, this feed does not display m
 		?>
 		 type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
 		<label for="simple_history_show_as_page">
-			<?php _e( 'as a page under the dashboard menu', 'simple-history' ); ?>
+			<?php esc_html_e( 'as a page under the dashboard menu', 'simple-history' ); ?>
 		</label>
 
 		<?php
@@ -2063,18 +2062,18 @@ Because Simple History was only recently installed, this feed does not display m
 
 		if ( $clear_days > 0 ) {
 			echo sprintf(
-				__( 'Items in the database are automatically removed after %1$s days.', 'simple-history' ),
-				$clear_days
+				esc_html__( 'Items in the database are automatically removed after %1$s days.', 'simple-history' ),
+				esc_html( $clear_days )
 			);
 		} else {
-			_e( 'Items in the database are kept forever.', 'simple-history' );
+			esc_html_e( 'Items in the database are kept forever.', 'simple-history' );
 		}
 
 		echo '</p>';
 
 		printf(
 			'<p><a class="button js-SimpleHistory-Settings-ClearLog" href="%2$s">%1$s</a></p>',
-			__( 'Clear log now', 'simple-history' ),
+			esc_html__( 'Clear log now', 'simple-history' ),
 			esc_url( $clear_link )
 		);
 	}
@@ -2113,13 +2112,16 @@ Because Simple History was only recently installed, this feed does not display m
 
 		// Get number of rows before delete.
 		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$tableprefix}{$simple_history_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$num_rows = $wpdb->get_var( $sql_num_rows, 0 );
 
 		// Use truncate instead of delete because it's much faster (I think, writing this much later).
 		$sql = "TRUNCATE {$tableprefix}{$simple_history_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
 		$sql = "TRUNCATE {$tableprefix}{$simple_history_context_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
 		// Zero state sucks
@@ -2178,10 +2180,12 @@ Because Simple History was only recently installed, this feed does not display m
 		while ( 1 > 0 ) {
 			// Get id of rows to delete.
 			$sql = $wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 				"SELECT id FROM $table_name WHERE DATE_ADD(date, INTERVAL %d DAY) < now() LIMIT 100000",
 				$days
 			);
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$ids_to_delete = $wpdb->get_col( $sql );
 
 			if ( empty( $ids_to_delete ) ) {
@@ -2193,14 +2197,16 @@ Because Simple History was only recently installed, this feed does not display m
 
 			// Add number of deleted rows to total_rows option.
 			$prev_total_rows = (int) get_option( 'simple_history_total_rows', 0 );
-			$total_rows = $prev_total_rows + sizeof( $ids_to_delete );
+			$total_rows = $prev_total_rows + count( $ids_to_delete );
 			update_option( 'simple_history_total_rows', $total_rows );
 
 			// Remove rows + contexts.
 			$sql_delete_history = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
 			$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql_delete_history );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql_delete_history_context );
 
 			$message = _nx(
@@ -2789,7 +2795,7 @@ Because Simple History was only recently installed, this feed does not display m
 		if ( 'sql' == $format ) {
 			$str_return = '(';
 
-			if ( sizeof( $arr_loggers_user_can_view ) ) {
+			if ( count( $arr_loggers_user_can_view ) ) {
 				foreach ( $arr_loggers_user_can_view as $one_logger ) {
 					$str_return .= sprintf( '"%1$s", ', esc_sql( $one_logger['instance']->slug ) );
 				}
@@ -2962,7 +2968,7 @@ Because Simple History was only recently installed, this feed does not display m
 			wp_cache_set( $cache_key, $results_users_today, $cache_group );
 		}
 
-		$count_users_today = sizeof( $results_users_today );
+		$count_users_today = count( $results_users_today );
 
 		// Get number of other sources (not wp_user)
 		$sql_other_sources_where = sprintf(
@@ -3002,7 +3008,7 @@ Because Simple History was only recently installed, this feed does not display m
 			wp_cache_set( $cache_key, $results_other_sources_today, $cache_group );
 		}
 
-		$count_other_sources = sizeof( $results_other_sources_today );
+		$count_other_sources = count( $results_other_sources_today );
 		// sf_d($logResults, '$logResults');
 		// sf_d($results_users_today, '$sql_users_today');
 		// sf_d($results_other_sources_today, '$results_other_sources_today');
