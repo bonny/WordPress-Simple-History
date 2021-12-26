@@ -37,5 +37,10 @@
 		"lint": "./vendor/bin/phpcs .",
 		"lint-fix": "./vendor/bin/phpcbf .",
 		"test": "./vendor/bin/phpunit"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }
