@@ -6,7 +6,7 @@
  * Makes call like this possible:
  * SimpleLogger()->info("This is a message sent to the log");
  */
-function SimpleLogger() {
+function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 	// Load loggers if main SimpleLogger class is not yet available.
 	// Makes it possible to log things early,
 	// before loggers are loaded "normally" on filter "after_setup_theme".
