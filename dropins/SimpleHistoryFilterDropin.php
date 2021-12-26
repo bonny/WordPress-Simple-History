@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: Filter GUI
@@ -55,9 +55,6 @@ class SimpleHistoryFilterDropin {
 		<div class="SimpleHistory__filters <?php echo $show_more_filters_on_load ? 'is-showingMoreFilters' : ''; ?>">
 
 			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
-
-				<!-- <h3><?php _e( 'Filter history', 'simple-history' ); ?></h3> -->
-
 				<?php
 
 				// Start months filter
@@ -92,7 +89,6 @@ class SimpleHistoryFilterDropin {
 				// Mainly for performance reasons, since often
 				// it's not the users intention to view all events,
 				// but just the latest
-				$this_month = date( 'Y-m' );
 
 				// Determine if we limit the date range by default
 				$daysToShow = 1;
@@ -211,10 +207,9 @@ class SimpleHistoryFilterDropin {
 						// Months
 						foreach ( $result_months as $row ) {
 							printf(
-								'<option value="%1$s" %3$s>%2$s</option>',
+								'<option value="%1$s">%2$s</option>',
 								'month:' . $row->yearMonth,
 								date_i18n( 'F Y', strtotime( $row->yearMonth ) ),
-								'' // selected( $this_month, $row->yearMonth, false )
 							);
 						}
 
@@ -565,7 +560,7 @@ class SimpleHistoryFilterDropin {
 		}
 
 		// The default date to show in the inputs
-		$date = date( 'Y-m-d' );
+		$date = gmdate( 'Y-m-d' );
 
 		$jj = mysql2date( 'd', $date, false );
 		$mm = mysql2date( 'm', $date, false );

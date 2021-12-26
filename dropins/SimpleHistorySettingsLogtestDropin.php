@@ -1,9 +1,8 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 class SimpleHistorySettingsLogtestDropin {
-
 
 	// Simple History instance
 	private $sh;
@@ -104,7 +103,7 @@ class SimpleHistorySettingsLogtestDropin {
 		for ( $j = 0; $j < 50; $j++ ) {
 			// between yesteday and a month back in time
 			for ( $i = 0; $i < rand( 1, 30 ); $i++ ) {
-				$str_date = date( 'Y-m-d H:i:s', strtotime( "now -{$i}days" ) );
+				$str_date = gmdate( 'Y-m-d H:i:s', strtotime( "now -{$i}days" ) );
 				SimpleLogger()->info(
 					'Entry with date in the past',
 					array(

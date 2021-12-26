@@ -2146,7 +2146,7 @@ Because Simple History was only recently installed, this feed does not display m
 		// Once a day = a bit tiresome.
 		// Let's go with sundays; purge the log on sundays.
 		// Day of week, 1 = mon, 7 = sun.
-		$day_of_week = date( 'N' );
+		$day_of_week = gmdate( 'N' );
 		if ( 7 === (int) $day_of_week ) {
 			$this->purge_db();
 		}

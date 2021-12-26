@@ -282,7 +282,7 @@ class SimpleHistoryRSSDropin {
 							// author must be email to validate, but the field is optional, so we skip it
 							/* <author><?php echo $row->initiator ?></author> */
 							?>
-							<pubDate><?php echo date( 'D, d M Y H:i:s', strtotime( $row->date ) ); ?> GMT</pubDate>
+							<pubDate><?php echo gmdate( 'D, d M Y H:i:s', strtotime( $row->date ) ); ?> GMT</pubDate>
 							<guid isPermaLink="false"><![CDATA[<?php echo $item_guid; ?>]]></guid>
 							<link><![CDATA[<?php echo $item_link; ?>]]></link>
 						</item>
@@ -304,7 +304,7 @@ class SimpleHistoryRSSDropin {
 					<item>
 						<title><?php _e( 'Wrong RSS secret', 'simple-history' ); ?></title>
 						<description><?php _e( 'Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed.', 'simple-history' ); ?></description>
-						<pubDate><?php echo date( 'D, d M Y H:i:s', time() ); ?> GMT</pubDate>
+						<pubDate><?php echo gmdate( 'D, d M Y H:i:s', time() ); ?> GMT</pubDate>
 						<guid><?php echo home_url() . '?SimpleHistoryGuid=wrong-secret'; ?></guid>
 					</item>
 				</channel>

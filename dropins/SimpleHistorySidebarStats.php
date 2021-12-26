@@ -187,7 +187,7 @@ class SimpleHistorySidebarStats {
 				foreach ( $period as $dt ) {
 					$datef = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
 					$str_date = date_i18n( $datef, $dt->getTimestamp() );
-					$str_date_ymd = date( 'Y-m-d', $dt->getTimestamp() );
+					$str_date_ymd = gmdate( 'Y-m-d', $dt->getTimestamp() );
 
 					// Get data for this day, if exist
 					// Day in object is in format '2014-09-07'

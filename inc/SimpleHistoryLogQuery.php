@@ -253,7 +253,7 @@ class SimpleHistoryLogQuery {
 				$date_from = strtotime( $date_from );
 			}
 
-			$inner_where .= "\n" . sprintf( ' AND date >= "%1$s"', esc_sql( date( 'Y-m-d H:i:s', $date_from ) ) );
+			$inner_where .= "\n" . sprintf( ' AND date >= "%1$s"', esc_sql( gmdate( 'Y-m-d H:i:s', $date_from ) ) );
 		}
 
 		if ( ! empty( $args['date_to'] ) ) {
@@ -264,7 +264,7 @@ class SimpleHistoryLogQuery {
 				$date_to = strtotime( $date_to );
 			}
 
-			$inner_where .= "\n" . sprintf( ' AND date <= "%1$s"', date( 'Y-m-d H:i:s', $date_to ) );
+			$inner_where .= "\n" . sprintf( ' AND date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_to ) );
 		}
 
 		/*
@@ -340,8 +340,8 @@ class SimpleHistoryLogQuery {
 
 					OR
 					',
-					date( 'Y-m-d H:i:s', $date_month_beginning ), // 1
-					date( 'Y-m-d H:i:s', $date_month_end ) // 2
+					gmdate( 'Y-m-d H:i:s', $date_month_beginning ), // 1
+					gmdate( 'Y-m-d H:i:s', $date_month_end ) // 2
 				);
 			}
 
