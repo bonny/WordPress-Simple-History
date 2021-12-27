@@ -111,12 +111,12 @@ class SimpleHistoryLogQuery {
 		$inner_where = '1 = 1';
 
 		if ( 'overview' === $args['type'] || 'single' === $args['type'] ) {
-			// Set variables used by query
+			// Set variables used by query.
 			$sql_set_var = "SET @a:='', @counter:=1, @groupby:=0";
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql_set_var );
 
-			// New and slightly faster query
+			// Main query
 			// 1 = where
 			// 2 = limit
 			// 3 = db name
@@ -194,7 +194,7 @@ class SimpleHistoryLogQuery {
 
 			if ( isset( $args['occasionsCountMaxReturn'] ) && (int) $args['occasionsCountMaxReturn'] < (int) $args['occasionsCount'] ) {
 				// Limit to max nn events if occasionsCountMaxReturn is set.
-				// Used in gui to prevent top many events returned, that can stall the browser.
+				// Used in gui to prevent to many events returned, that can stall the browser.
 				$limit = 'LIMIT ' . (int) $args['occasionsCountMaxReturn'];
 			} else {
 				// Regular limit that gets all occasions
@@ -231,12 +231,6 @@ class SimpleHistoryLogQuery {
 
 		if ( isset( $args['since_id'] ) && is_numeric( $args['since_id'] ) ) {
 			$since_id = (int) $args['since_id'];
-			/*
-			$where .= sprintf(
-				' AND t.id > %1$d',
-				$since_id
-			);
-			*/
 			// Add where to inner because that's faster
 			$inner_where .= sprintf(
 				' AND id > %1$d',
@@ -253,7 +247,7 @@ class SimpleHistoryLogQuery {
 				$date_from = strtotime( $date_from );
 			}
 
-			$inner_where .= "\n" . sprintf( ' AND date >= "%1$s"', esc_sql( gmdate( 'Y-m-d H:i:s', $date_from ) ) );
+			$inner_where .= "\n" . sprintf( ' AND date >= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_from ) );
 		}
 
 		if ( ! empty( $args['date_to'] ) ) {
@@ -267,13 +261,8 @@ class SimpleHistoryLogQuery {
 			$inner_where .= "\n" . sprintf( ' AND date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_to ) );
 		}
 
-		/*
-		AND date >= "2015-01-01 00:00:00" AND date <= "2015-01-31 00:00:00"
-		*/
-		// echo $inner_where;exit;
-		// dats
-		// if months they translate to $args["months"] because we already have support for that
-		// can't use months and dates and the same time
+		// If months they translate to $args["months"] because we already have support for that
+		// can't use months and dates and the same time.
 		if ( ! empty( $args['dates'] ) ) {
 			if ( is_array( $args['dates'] ) ) {
 				$arr_dates = $args['dates'];
@@ -281,24 +270,39 @@ class SimpleHistoryLogQuery {
 				$arr_dates = explode( ',', $args['dates'] );
 			}
 
+			/*
+				$arr_dates can be a month:
+
+				Array
+				(
+					[0] => month:2021-11
+				)
+
+				$arr_dates can be a number of days:
+				Array
+				(
+					[0] => lastdays:7
+				)
+			*/
+
 			$args['months'] = array();
 			$args['lastdays'] = 0;
 
 			foreach ( $arr_dates as $one_date ) {
-				// If begins with "month:" then strip string and keep only month numbers
 				if ( strpos( $one_date, 'month:' ) === 0 ) {
+					// If begins with "month:" then strip string and keep only month numbers.
 					$args['months'][] = substr( $one_date, strlen( 'month:' ) );
+					// If begins with "lastdays:" then strip string and keep only number of days.
 				} elseif ( strpos( $one_date, 'lastdays:' ) === 0 ) {
 					// Only keep largest lastdays value
 					$args['lastdays'] = max( $args['lastdays'], substr( $one_date, strlen( 'lastdays:' ) ) );
-					// $args["lastdays"][] = substr($one_date, strlen("lastdays:"));
 				}
 			}
 		}
 
 		// lastdays, as int
 		if ( ! empty( $args['lastdays'] ) ) {
-			$inner_where .= sprintf(
+			$inner_where .= "\n" . sprintf(
 				'
 				# lastdays
 				AND date >= DATE(NOW()) - INTERVAL %d DAY
@@ -315,7 +319,7 @@ class SimpleHistoryLogQuery {
 				$arr_months = explode( ',', $args['months'] );
 			}
 
-			$sql_months = '
+			$sql_months = "\n" . '
 				# sql_months
 				AND (
 			';
@@ -354,10 +358,9 @@ class SimpleHistoryLogQuery {
 			';
 
 			$inner_where .= $sql_months;
-			// echo $inner_where;exit;
-		}// End if().
+		} // End if().
 
-		// search
+		// Search.
 		if ( ! empty( $args['search'] ) ) {
 			$search_words = $args['search'];
 			$str_search_conditions = '';
@@ -390,7 +393,7 @@ class SimpleHistoryLogQuery {
 
 			$str_search_conditions = preg_replace( '/^OR /', ' ', trim( $str_search_conditions ) );
 
-			// also search contexts
+			// Also search contexts.
 			$str_search_conditions .= "\n   OR ( ";
 			foreach ( $arr_search_words as $one_search_word ) {
 				$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
@@ -403,11 +406,9 @@ class SimpleHistoryLogQuery {
 			}
 			$str_search_conditions = preg_replace( '/ AND $/', '', $str_search_conditions );
 
-			$str_search_conditions .= "\n   ) "; // end or for contexts
+			$str_search_conditions .= "\n   ) "; // end OR for contexts
 
 			$inner_where .= "\n AND \n(\n {$str_search_conditions} \n ) ";
-
-			// echo $inner_where;exit;
 		}// End if().
 
 		// log levels
@@ -436,8 +437,8 @@ class SimpleHistoryLogQuery {
 
 		// messages
 		if ( ! empty( $args['messages'] ) ) {
-			// print_r($args["messages"]);exit;
 			/*
+			$args['messages']:
 			Array
 			(
 				[0] => SimpleCommentsLogger:anon_comment_added,SimpleCommentsLogger:user_comment_added,SimpleCommentsLogger:anon_trackback_added,SimpleCommentsLogger:user_trackback_added,SimpleCommentsLogger:anon_pingback_added,SimpleCommentsLogger:user_pingback_added,SimpleCommentsLogger:comment_edited,SimpleCommentsLogger:trackback_edited,SimpleCommentsLogger:pingback_edited,SimpleCommentsLogger:comment_status_approve,SimpleCommentsLogger:trackback_status_approve,SimpleCommentsLogger:pingback_status_approve,SimpleCommentsLogger:comment_status_hold,SimpleCommentsLogger:trackback_status_hold,SimpleCommentsLogger:pingback_status_hold,SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam,SimpleCommentsLogger:comment_status_trash,SimpleCommentsLogger:trackback_status_trash,SimpleCommentsLogger:pingback_status_trash,SimpleCommentsLogger:comment_untrashed,SimpleCommentsLogger:trackback_untrashed,SimpleCommentsLogger:pingback_untrashed,SimpleCommentsLogger:comment_deleted,SimpleCommentsLogger:trackback_deleted,SimpleCommentsLogger:pingback_deleted
@@ -445,14 +446,14 @@ class SimpleHistoryLogQuery {
 			)
 			*/
 
-			// Array with loggers and messages
+			// Array with loggers and messages.
 			$arr_loggers_and_messages = array();
 
-			// Tranform from get'et format to our own internal format
+			// Tranform from get'et format to our own internal format.
 			foreach ( (array) $args['messages'] as $one_arr_messages_row ) {
 				$arr_row_messages = explode( ',', $one_arr_messages_row );
-				// print_r($arr_row_messages);#exit;
 				/*
+				$one_arr_messages_row:
 				Array
 				(
 					[0] => SimpleCommentsLogger:anon_comment_added
@@ -470,73 +471,38 @@ class SimpleHistoryLogQuery {
 				}
 			}
 
-			// Now create sql where based on loggers and messages
+			// Create sql where based on loggers and messages.
 			$sql_messages_where = ' AND (';
-			// print_r($arr_loggers_and_messages);exit;
+
 			foreach ( $arr_loggers_and_messages as $logger_slug => $logger_messages ) {
+
+				$sql_logger_messages_in = '';
+				foreach ( $logger_messages as $one_logger_message ) {
+					$sql_logger_messages_in .= sprintf( '"%s",', esc_sql( $one_logger_message ) );
+				}
+
+				if ( $sql_logger_messages_in ) {
+					$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
+					$sql_logger_messages_in = "\n AND c1.value IN ({$sql_logger_messages_in}) ";
+				}
+
 				$sql_messages_where .= sprintf(
 					'
 					(
 						h.logger = "%1$s"
-						AND c1.value IN (%2$s)
+						%2$s
 					)
 					OR ',
 					esc_sql( $logger_slug ),
-					"'" . implode( "','", $logger_messages ) . "'"
+					$sql_logger_messages_in
 				);
 			}
 			// remove last or
 			$sql_messages_where = preg_replace( '/OR $/', '', $sql_messages_where );
 
 			$sql_messages_where .= "\n )";
-			// echo $sql_messages_where;exit;
 			$where .= $sql_messages_where;
-
-			/*
-			print_r($arr_loggers_and_messages);exit;
-			Array
-			(
-				[SimpleCommentsLogger] => Array
-					(
-						[0] => anon_comment_added
-						[1] => user_comment_added
-						[2] => anon_trackback_added
-						[3] => user_trackback_added
-						[4] => anon_pingback_added
-						[5] => user_pingback_added
-						[6] => comment_edited
-						[7] => trackback_edited
-						[8] => pingback_edited
-						[9] => comment_status_approve
-						[10] => trackback_status_approve
-						[11] => pingback_status_approve
-						[12] => comment_status_hold
-						[13] => trackback_status_hold
-						[14] => pingback_status_hold
-						[15] => comment_status_spam
-						[16] => trackback_status_spam
-						[17] => pingback_status_spam
-						[18] => comment_status_trash
-						[19] => trackback_status_trash
-						[20] => pingback_status_trash
-						[21] => comment_untrashed
-						[22] => trackback_untrashed
-						[23] => pingback_untrashed
-						[24] => comment_deleted
-						[25] => trackback_deleted
-						[26] => pingback_deleted
-					)
-
-				[SimpleUserLogger] => Array
-					(
-						[0] => SimpleUserLogger
-						[1] => SimpleUserLogger
-					)
-
-			)
-
-			*/
-		}// End if().
+		} // End if().
 
 		// loggers
 		// comma separated
@@ -548,17 +514,6 @@ class SimpleHistoryLogQuery {
 			} else {
 				$arr_loggers = explode( ',', $args['loggers'] );
 			}
-
-			// print_r($args["loggers"]);exit;
-			// print_r($arr_loggers);exit;
-			/*
-			Example of version with logger + message keys
-			Array
-			(
-				[0] => SimpleUserLogger:user_created
-				[1] => SimpleUserLogger:user_deleted
-			)
-			*/
 
 			foreach ( $arr_loggers as $one_logger ) {
 				$sql_loggers .= sprintf( ' "%s", ', esc_sql( $one_logger ) );
@@ -672,12 +627,12 @@ class SimpleHistoryLogQuery {
 			return $sql;
 		}
 
-		$log_rows = $wpdb->get_results( $sql, OBJECT_K );
+		$log_rows = $wpdb->get_results( $sql, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Find total number of rows that we would have gotten without pagination
 		// This is the number of rows with occasions taken into consideration
 		$sql_found_rows = 'SELECT FOUND_ROWS()';
-		$total_found_rows = (int) $wpdb->get_var( $sql_found_rows );
+		$total_found_rows = (int) $wpdb->get_var( $sql_found_rows ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Add context
 		$post_ids = wp_list_pluck( $log_rows, 'id' );
@@ -686,7 +641,7 @@ class SimpleHistoryLogQuery {
 			$context_results = array();
 		} else {
 			$sql_context = sprintf( 'SELECT * FROM %2$s WHERE history_id IN (%1$s)', join( ',', $post_ids ), $table_name_contexts );
-			$context_results = $wpdb->get_results( $sql_context );
+			$context_results = $wpdb->get_results( $sql_context ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 
 		foreach ( $context_results as $context_row ) {
@@ -697,23 +652,23 @@ class SimpleHistoryLogQuery {
 			$log_rows[ $context_row->history_id ]->context[ $context_row->key ] = $context_row->value;
 		}
 
-		// Remove id from keys, because they are cumbersome when working with JSON
+		// Remove id from keys, because they are cumbersome when working with JSON.
 		$log_rows = array_values( $log_rows );
 		$min_id = null;
 		$max_id = null;
 
 		if ( count( $log_rows ) ) {
-			// Max id is simply the id of the first row
+			// Max id is simply the id of the first row.
 			$max_id = reset( $log_rows )->id;
 
 			// Min id = to find the lowest id we must take occasions into consideration
 			$last_row = end( $log_rows );
 			$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
 			if ( $last_row_occasions_count === 0 ) {
-				// Last row did not have any more occasions, so get min_id directly from the row
+				// Last row did not have any more occasions, so get min_id directly from the row.
 				$min_id = $last_row->id;
 			} else {
-				// Last row did have occaions, so fetch all occasions, and find id of last one
+				// Last row did have occasions, so fetch all occasions, and find id of last one.
 				$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
 				$sql = sprintf(
 					'
@@ -728,22 +683,22 @@ class SimpleHistoryLogQuery {
 					$last_row_occasions_count + 1
 				);
 
-				$results = $wpdb->get_results( $sql );
+				$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 				// the last occasion has the id we consider last in this paged result
 				$min_id = end( $results )->id;
 			}
-		}// End if().
+		} // End if().
 
-		// Calc pages
+		// Calc pages.
 		if ( $args['posts_per_page'] ) {
 			$pages_count = Ceil( $total_found_rows / (int) $args['posts_per_page'] );
 		} else {
 			$pages_count = 1;
 		}
 
-		// Create array to return
-		// Make all rows a sub key because we want to add some meta info too
+		// Create array to return.
+		// Make all rows a sub key because we want to add some meta info too.
 		$log_rows_count = count( $log_rows );
 		$page_rows_from = ( (int) $args['paged'] * (int) $args['posts_per_page'] ) - (int) $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
