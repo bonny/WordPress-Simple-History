@@ -580,6 +580,7 @@ class SimplePluginLogger extends SimpleLogger {
 				</style>
 
 				<base href="%4$s/raw/master/">
+				<base target="_blank">
 
 				<header class="repo-info">
 					%1$s
