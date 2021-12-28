@@ -850,7 +850,6 @@ class SimpleHistory {
 			$loggersDir . 'SimpleCommentsLogger.php',
 			$loggersDir . 'SimpleCoreUpdatesLogger.php',
 			$loggersDir . 'SimpleExportLogger.php',
-			$loggersDir . 'SimpleLegacyLogger.php',
 			$loggersDir . 'SimpleLogger.php',
 			$loggersDir . 'SimpleMediaLogger.php',
 			$loggersDir . 'SimpleMenuLogger.php',
@@ -1423,7 +1422,6 @@ class SimpleHistory {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql );
 
-			$db_version_prev = $db_version;
 			$db_version = 1;
 
 			update_option( 'simple_history_db_version', $db_version );
@@ -1438,7 +1436,6 @@ class SimpleHistory {
 		if ( 1 == intval( $db_version ) ) {
 			// V2 used to add column "action_description"
 			// but it's not used any more so don't do i
-			$db_version_prev = $db_version;
 			$db_version = 2;
 
 			update_option( 'simple_history_db_version', $db_version );
@@ -1508,16 +1505,15 @@ class SimpleHistory {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql );
 
-			$db_version_prev = $db_version;
 			$db_version = 3;
 			update_option( 'simple_history_db_version', $db_version );
 
-			// Update possible old items to use SimpleLegacyLogger
+			// Update possible old items to use SimpleLogger.
 			$sql = sprintf(
 				'
                     UPDATE %1$s
                     SET
-                        logger = "SimpleLegacyLogger",
+                        logger = "SimpleLogger",
                         level = "info"
                     WHERE logger IS NULL
                 ',
@@ -1565,7 +1561,6 @@ class SimpleHistory {
 				$wpdb->query( $sql );
 			}
 
-			$db_version_prev = $db_version;
 			$db_version = 4;
 
 			update_option( 'simple_history_db_version', $db_version );

@@ -47,7 +47,6 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 			'SimpleCommentsLogger',
 			'SimpleCoreUpdatesLogger',
 			'SimpleExportLogger',
-			'SimpleLegacyLogger',
 			'SimpleLogger',
 			'SimpleMediaLogger',
 			'SimpleMenuLogger',
