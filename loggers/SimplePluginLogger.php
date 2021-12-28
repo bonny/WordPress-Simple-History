@@ -532,6 +532,26 @@ class SimplePluginLogger extends SimpleLogger {
 
 		$github_markdown_css_path = SIMPLE_HISTORY_PATH . '/css/github-markdown.css';
 
+		$escaped_response_body = wp_kses(
+			$response_body,
+			array(
+				'p' => array(),
+				'div' => array(),
+				'h1' => array(),
+				'h2' => array(),
+				'h3' => array(),
+				'code' => array(),
+				'a' => array(
+					'href' => array(),
+				),
+				'img' => array(
+					'src' => array(),
+				),
+				'ul' => array(),
+				'li' => array(),
+			)
+		);
+
 		printf(
 			'
 				<!doctype html>
@@ -570,8 +590,8 @@ class SimplePluginLogger extends SimpleLogger {
 				</div>
 			',
 			$repo_info, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			$response_body,
-			$github_markdown_css_path,
+			$escaped_response_body, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			esc_url( $github_markdown_css_path ), // 3
 			esc_url( $repo ) // 4
 		);
 
