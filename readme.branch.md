@@ -16,5 +16,4 @@ After first run:
 ## Todo och klura på
 
 - Hur testa GitHub-plugin-uppdateraren för `SimplePluginLogger.php` rad 573-574. Hur escape'a, om alls? `wp_kses`?
-- Kan `SimpleLegacyLogger.php` tas bort? Verkar inte användas nånstans.
-- 
+-
