@@ -1542,7 +1542,7 @@ class SimpleHistory {
 			// If old columns exist = this is an old install, then modify the columns so we still can keep them
 			// we want to keep them because user may have logged items that they want to keep
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$db_cools = $wpdb->get_col( "DESCRIBE $table_name" );
+			$db_cools = $wpdb->get_col( "DESCRIBE $table_name" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 			if ( in_array( 'action', $db_cools ) ) {
 				$sql = sprintf(
@@ -2939,7 +2939,6 @@ Because Simple History was only recently installed, this feed does not display m
 			'
             SELECT
                 DISTINCT(c.value) AS user_id
-                #h.id, h.logger, h.level, h.initiator, h.date
                 FROM %3$s AS h
             INNER JOIN %4$s AS c
             ON c.history_id = h.id AND c.key = "_user_id"
@@ -2949,7 +2948,7 @@ Because Simple History was only recently installed, this feed does not display m
                 AND date > "%2$s"
             ',
 			$sql_loggers_in,
-			date( 'Y-m-d H:i', strtotime( 'today' ) ),
+			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
 			$wpdb->prefix . self::DBTABLE,
 			$wpdb->prefix . self::DBTABLE_CONTEXTS
 		);
@@ -2959,13 +2958,13 @@ Because Simple History was only recently installed, this feed does not display m
 		$results_users_today = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false === $results_users_today ) {
-			$results_users_today = $wpdb->get_results( $sql_users_today );
+			$results_users_today = $wpdb->get_results( $sql_users_today ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			wp_cache_set( $cache_key, $results_users_today, $cache_group );
 		}
 
 		$count_users_today = count( $results_users_today );
 
-		// Get number of other sources (not wp_user)
+		// Get number of other sources (not wp_user).
 		$sql_other_sources_where = sprintf(
 			'
                 initiator <> "wp_user"
@@ -2973,7 +2972,7 @@ Because Simple History was only recently installed, this feed does not display m
                 AND date > "%2$s"
             ',
 			$sql_loggers_in,
-			date( 'Y-m-d H:i', strtotime( 'today' ) ),
+			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
 			$wpdb->prefix . self::DBTABLE,
 			$wpdb->prefix . self::DBTABLE_CONTEXTS
 		);
@@ -2989,24 +2988,21 @@ Because Simple History was only recently installed, this feed does not display m
                 %5$s
             ',
 			$sql_loggers_in,
-			date( 'Y-m-d H:i', strtotime( 'today' ) ),
+			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
 			$wpdb->prefix . self::DBTABLE,
 			$wpdb->prefix . self::DBTABLE_CONTEXTS,
 			$sql_other_sources_where // 5
 		);
-		// sf_d($sql_other_sources, '$sql_other_sources');
+
 		$cache_key = 'quick_stats_results_other_sources_today_' . md5( serialize( $sql_other_sources ) );
 		$results_other_sources_today = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false === $results_other_sources_today ) {
-			$results_other_sources_today = $wpdb->get_results( $sql_other_sources );
+			$results_other_sources_today = $wpdb->get_results( $sql_other_sources ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			wp_cache_set( $cache_key, $results_other_sources_today, $cache_group );
 		}
 
 		$count_other_sources = count( $results_other_sources_today );
-		// sf_d($logResults, '$logResults');
-		// sf_d($results_users_today, '$sql_users_today');
-		// sf_d($results_other_sources_today, '$results_other_sources_today');
 		?>
 		<div class="SimpleHistoryQuickStats">
 			<p>
@@ -3078,25 +3074,14 @@ Because Simple History was only recently installed, this feed does not display m
 					}
 				} // End if().
 
-				// only show stats if we have something to output
+				// Show stats if we have something to output.
 				if ( $msg_tmpl ) {
 					printf(
-						$msg_tmpl,
-						$logResults['total_row_count'], // 1
-						$count_users_today, // 2
-						$count_other_sources // 3
+						esc_html( $msg_tmpl ),
+						(int) $logResults['total_row_count'], // 1
+						(int) $count_users_today, // 2
+						(int) $count_other_sources // 3
 					);
-
-					// Space between texts
-					/*
-					echo " ";
-
-					// http://playground-root.ep/wp-admin/options-general.php?page=simple_history_settings_menu_slug&selected-tab=stats
-					printf(
-					'<a href="%1$s">View more stats</a>.',
-					add_query_arg("selected-tab", "stats", menu_page_url(SimpleHistory::SETTINGS_MENU_SLUG, 0))
-					);
-					*/
 				}
 				?>
 			</p>
@@ -3119,11 +3104,10 @@ Because Simple History was only recently installed, this feed does not display m
 			wp_cache_set( $incrementor_key, $incrementor_value );
 		}
 
-		// echo "<br>incrementor_value: $incrementor_value";
 		return $incrementor_value;
 	}
 
-	// Number of rows the last n days
+	// Number of rows the last n days.
 	public function get_num_events_last_n_days( $period_days = 28 ) {
 		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
 
@@ -3156,7 +3140,6 @@ Because Simple History was only recently installed, this feed does not display m
 
 	public function get_num_events_per_day_last_n_days( $period_days = 28 ) {
 		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
-
 		$dates = get_transient( $transient_key );
 
 		if ( false === $dates ) {
@@ -3182,12 +3165,9 @@ Because Simple History was only recently installed, this feed does not display m
 				$sqlStringLoggersUserCanRead
 			);
 
-			$dates = $wpdb->get_results( $sql );
+			$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 			set_transient( $transient_key, $dates, HOUR_IN_SECONDS );
-			// echo "set";exit;
-		} else {
-			// echo "get";exit;
 		}
 
 		return $dates;
