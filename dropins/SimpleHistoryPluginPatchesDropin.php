@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: Plugin Patches
@@ -8,14 +8,10 @@ Dropin Description: Used to patch plugins that behave wierd
 Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
-
 class SimpleHistoryPluginPatchesDropin {
-
-
 	private $sh;
 
 	public function __construct( $sh ) {
-
 		$this->sh = $sh;
 
 		$this->patch_captcha_on_login();
@@ -132,7 +128,7 @@ class SimpleHistoryPluginPatchesDropin {
 		$context = array(
 			'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
 			'server_http_user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : null,
-			'_occasionsID' => 'SimpleUserLogger' . '/failed_user_login',
+			'_occasionsID' => 'SimpleUserLogger/failed_user_login',
 			'patch_using_patch' => true,
 			'patch_name' => 'captcha_on_login',
 		);
@@ -144,7 +140,7 @@ class SimpleHistoryPluginPatchesDropin {
 
 		// Get user id and email and login
 		// Not passed to filter, but we have it in $_POST
-		$login_username = isset( $_POST['log'] ) ? $_POST['log'] : null;
+		$login_username = isset( $_POST['log'] ) ? sanitize_user( $_POST['log'] ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		if ( $login_username ) {
 			$context['login_user_login'] = $login_username;
