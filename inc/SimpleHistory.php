@@ -3130,7 +3130,7 @@ Because Simple History was only recently installed, this feed does not display m
 				$sqlStringLoggersUserCanRead
 			);
 
-			$count = $wpdb->get_var( $sql );
+			$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 			set_transient( $transient_key, $count, HOUR_IN_SECONDS );
 		}
@@ -3173,29 +3173,32 @@ Because Simple History was only recently installed, this feed does not display m
 		return $dates;
 	}
 
-	// Number of unique events the last n days
+	/**
+	 * Get number of unique events the last n days.
+	 *
+	 * @param int $days
+	 * @return int Number of days.
+	 */
 	public function get_unique_events_for_days( $days = 7 ) {
 		global $wpdb;
-
 		$days = (int) $days;
-
 		$table_name = $wpdb->prefix . self::DBTABLE;
-
 		$cache_key = 'sh_' . md5( __METHOD__ . $days );
-
 		$numEvents = get_transient( $cache_key );
 
 		if ( false == $numEvents ) {
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$sql = $wpdb->prepare(
 				"
                 SELECT count( DISTINCT occasionsID )
                 FROM $table_name
                 WHERE date >= DATE_ADD(CURDATE(), INTERVAL -%d DAY)
-            ",
+            	",
 				$days
 			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-			$numEvents = $wpdb->get_var( $sql );
+			$numEvents = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 			set_transient( $cache_key, $numEvents, HOUR_IN_SECONDS );
 		}
