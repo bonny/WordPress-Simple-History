@@ -7,8 +7,6 @@
  * Author: Pär Thernström
  */
 class SimpleHistoryExportDropin {
-
-
 	/**
 	 * Simple History instance.
 	 *
@@ -41,16 +39,13 @@ class SimpleHistoryExportDropin {
 
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
-
 		if ( isset( $_POST['simple-history-action'] ) && $_POST['simple-history-action'] === 'export-history' ) {
-			// Will die if nonce not valid
+			// Will die if nonce not valid.
 			check_admin_referer( __CLASS__ . '-action-export' );
 
 			$export_format = isset( $_POST['format'] ) ? $_POST['format'] : 'json';
 
-			// Disable relative time output in header
+			// Disable relative time output in header.
 			add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
 			add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
 
@@ -201,45 +196,31 @@ class SimpleHistoryExportDropin {
 
 
 	public function output() {
-
 		?>
-		<!-- <h2>Export</h2> -->
-
-		<p><?php _ex( 'The export function will export the full history.', 'Export dropin: introtext', 'simple-history' ); ?></p>
+		<p><?php echo esc_html_x( 'The export function will export the full history.', 'Export dropin: introtext', 'simple-history' ); ?></p>
 
 		<form method="post">
 
-			<h3><?php _ex( 'Choose format to export to', 'Export dropin: format', 'simple-history' ); ?></h3>
+			<h3><?php echo esc_html_x( 'Choose format to export to', 'Export dropin: format', 'simple-history' ); ?></h3>
 
 			<p>
 				<label>
 					<input type="radio" name="format" value="json" checked>
-					<?php _ex( 'JSON', 'Export dropin: export format', 'simple-history' ); ?>
+					<?php echo esc_html_x( 'JSON', 'Export dropin: export format', 'simple-history' ); ?>
 				</label>
 			</p>
 
 			<p>
 				<label>
 					<input type="radio" name="format" value="csv">
-					<?php _ex( 'CSV', 'Export dropin: export format', 'simple-history' ); ?>
+					<?php echo esc_html_x( 'CSV', 'Export dropin: export format', 'simple-history' ); ?>
 				</label>
 			</p>
 
-				<!-- <br> -->
-
-				<!--<label>
-					<input type="radio" name="format" value="html">
-					HTML
-				</label>
-				<br> -->
-
-				<!-- <label>
-					<input type="radio" name="format" value="xml">
-					XML
-				</label> -->
-
 			<p>
-				<button type="submit" class="button button-primary"><?php _ex( 'Download Export File', 'Export dropin: submit button', 'simple-history' ); ?></button>
+				<button type="submit" class="button button-primary">
+					<?php echo esc_html_x( 'Download Export File', 'Export dropin: submit button', 'simple-history' ); ?>
+				</button>
 				<input type="hidden" name="simple-history-action" value="export-history">
 			</p>
 
