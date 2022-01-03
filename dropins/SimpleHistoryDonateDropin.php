@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: Donate things
@@ -13,14 +13,11 @@ Author: Pär Thernström
  * Put some donate messages here and there
  */
 class SimpleHistoryDonateDropin {
+	private $simple_history;
 
+	public function __construct( $simple_history ) {
+		$this->simple_history = $simple_history;
 
-	// Simple History instance
-	private $sh;
-
-	public function __construct( $sh ) {
-
-		$this->sh = $sh;
 		add_action( 'admin_menu', array( $this, 'add_settings' ), 50 );
 		add_action( 'plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2 );
 	}
@@ -31,7 +28,7 @@ class SimpleHistoryDonateDropin {
 	 */
 	public function action_plugin_row_meta( $links, $file ) {
 
-		if ( $file == $this->sh->plugin_basename ) {
+		if ( $file == $this->simple_history->plugin_basename ) {
 			$links = array_merge(
 				$links,
 				array( sprintf( '<a href="https://www.paypal.me/eskapism">%1$s</a>', __( 'Donate', 'simple-history' ) ) )
@@ -51,28 +48,20 @@ class SimpleHistoryDonateDropin {
 			array( $this, 'settings_section_output' ),
 			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
-
-		// Empty section to make more room below
-		/*
-		add_settings_field(
-			"simple_history_settings_donate",
-			"", // __("Donate", "simple-history"),
-			array($this, "settings_field_donate"),
-			SimpleHistory::SETTINGS_MENU_SLUG,
-			$settings_section_id
-		);
-		*/
 	}
 
 	public function settings_section_output() {
 
 		printf(
-			__( 'If you find Simple History useful please <a href="%1$s">donate</a>.', 'simple-history' ),
+			wp_kses(
+				__( 'If you find Simple History useful please <a href="%1$s">donate</a>.', 'simple-history' ),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			),
 			'https://www.paypal.me/eskapism'
 		);
-	}
-
-
-	public function settings_field_donate() {
 	}
 }
