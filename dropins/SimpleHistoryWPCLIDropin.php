@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: WP CLI
@@ -14,10 +14,8 @@ class SimpleHistoryWPCLIDropin {
 	private $sh;
 
 	public function __construct( $sh ) {
-
 		$this->sh = $sh;
-		// add_action( 'admin_menu', array($this, 'add_settings'), 50 );
-		// add_action( 'plugin_row_meta', array($this, 'action_plugin_row_meta'), 10, 2);
+
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			$this->register_commands();
 		}
@@ -64,22 +62,17 @@ class SimpleHistoryWPCLIDropin {
 				break;
 			case 'wp_user':
 				$user_id = isset( $row->context['_user_id'] ) ? $row->context['_user_id'] : null;
+				$user = get_user_by( 'id', $user_id );
 
-				if ( $user_id > 0 && $user = get_user_by( 'id', $user_id ) ) {
+				if ( $user_id > 0 && $user ) {
 					// User still exists
-					// Get user role, as done in user-edit.php
-					$wp_roles = $GLOBALS['wp_roles'];
-					$all_roles = (array) $wp_roles->roles;
-					$user_roles = array_intersect( array_values( (array) $user->roles ), array_keys( (array) $wp_roles->roles ) );
-					$user_role = array_shift( $user_roles );
-
 					$initiatorText = sprintf(
 						'%1$s (%2$s)',
 						$user->user_login,  // 1
 						$user->user_email   // 2
 					);
 				} elseif ( $user_id > 0 ) {
-					// Sender was a user, but user is deleted now
+					// Sender was a user, but user is deleted now.
 					$initiatorText = sprintf(
 						__( 'Deleted user (had id %1$s, email %2$s, login %3$s)', 'simple-history' ),
 						$context['_user_id'], // 1
