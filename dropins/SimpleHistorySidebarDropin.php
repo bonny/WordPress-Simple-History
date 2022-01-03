@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: Sidebar
@@ -10,39 +10,13 @@ Author: Pär Thernström
 */
 
 class SimpleHistorySidebarDropin {
-
-
-	private $sh;
-
 	public function __construct( $sh ) {
-
-		$this->sh = $sh;
-
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/history_page/after_gui', array( $this, 'output_sidebar_html' ) );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'default_sidebar_contents' ) );
 	}
 
 	public function default_sidebar_contents() {
-
-		// Boxes that will appear randomly
-		// Box about GitHub
-		$headline = _x( 'Simple History is on GitHub', 'Sidebar box', 'simple-history' );
-
-		$body = sprintf(
-			_x( 'You can star, fork, or report issues with this plugin over at the <a href="%1$s">GitHub page</a>.', 'Sidebar box', 'simple-history' ),
-			'https://github.com/bonny/WordPress-Simple-History'
-		);
-
-		$boxGithub = '
-			<div class="postbox">
-				<h3 class="hndle">' . $headline . '</h3>
-				<div class="inside">
-					<p>' . $body . '</p>
-				</div>
-			</div>
-		';
-
 		// Box about donation
 		$headline = _x( 'Donate to support development', 'Sidebar box', 'simple-history' );
 
@@ -86,33 +60,6 @@ class SimpleHistorySidebarDropin {
 			</div>
 		';
 
-		// Box about tweeting and blogging
-		/*
-		$boxSocial = '
-			<div class="postbox">
-				<h3 class="hndle">Blog or tweet</h3>
-				<div class="inside">
-					<p>Yeah, how about that yo.</p>
-				</div>
-			</div>
-		';
-		*/
-
-		// Box about possible events missing
-		$boxMissingEvents = sprintf(
-			'
-			<div class="postbox">
-				<h3 class="hndle">%1$s</h3>
-				<div class="inside">
-					<p>%2$s</p>
-					<p><a href="hello@simple-history.com">hello@simple-history.com</a></p>
-				</div>
-			</div>
-			',
-			_x( 'Add more to the log', 'Sidebar box', 'simple-history' ), // 1
-			_x( 'Are there things you miss in the history log?', 'Sidebar box', 'simple-history' ) // 2
-		);
-
 		// Box about support
 		$boxSupport = sprintf(
 			'
@@ -130,9 +77,7 @@ class SimpleHistorySidebarDropin {
 		$arrBoxes = array(
 			'boxReview' => $boxReview,
 			'boxSupport' => $boxSupport,
-			// "boxMissingEvents" => $boxMissingEvents,
 			'boxDonate' => $boxDonate,
-			// "boxGithub" => $boxGithub,
 		);
 
 		/**
@@ -144,49 +89,7 @@ class SimpleHistorySidebarDropin {
 		 */
 		$arrBoxes = apply_filters( 'simple_history/SidebarDropin/default_sidebar_boxes', $arrBoxes );
 
-		echo implode( '', $arrBoxes );
-
-		// Box to encourage people translate plugin.
-		$current_locale = get_locale();
-
-		/** WordPress Translation Install API. This file exists only since 4.0. */
-		$translation_install_file = ABSPATH . 'wp-admin/includes/translation-install.php';
-
-		// Show only the translation box if current language is not an english language
-		if ( in_array( $current_locale, array( 'en_US', 'en_GB', 'en_CA', 'en_NZ', 'en_AU' ) ) != $current_locale && file_exists( $translation_install_file ) ) {
-			require_once $translation_install_file;
-
-			$translations = wp_get_available_translations();
-
-			// This text does not need translation since is's only shown in English
-			$boxTranslationTmpl = '
-				<div class="postbox">
-					<h3 class="hndle">Translate Simple History to %1$s</h3>
-					<div class="inside">
-						
-						<p>
-							It looks like Simple History is not yet translated to your language.
-						</p>
-
-						<p>
-                            If you\'re interested in translating it please check out the
-                            <a href="https://developer.wordpress.org/plugins/internationalization/localization/">localization</a>
-                            part of the Plugin Handbook for info on how to translate plugins.
-						</p>
-					</div>
-				</div>
-			';
-
-			if ( isset( $translations[ $current_locale ] ) ) {
-				// Check if an existing text string returns something else, and that current lang is not en
-				$teststring_translated = __( 'Just now', 'simple-history' );
-				$teststring_untranslated = 'Just now';
-				if ( $teststring_untranslated == $teststring_translated ) {
-					// strings are the same, so plugin probably not translated
-					printf( $boxTranslationTmpl, $translations[ $current_locale ]['english_name'] );
-				}
-			}
-		} // End if().
+		echo implode( '', $arrBoxes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	public function enqueue_admin_scripts() {
