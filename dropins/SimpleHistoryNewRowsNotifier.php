@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Dropin Name: New Items Notifier
@@ -90,7 +90,7 @@ class SimpleHistoryNewRowsNotifier {
 		if ( $numNewRows ) {
 			// We have new rows
 			// Append strings
-			$textRowsFound = sprintf( _n( '1 new event', '%d new events', $numNewRows, 'simple-history' ), $numNewRows );
+			$textRowsFound = sprintf( _n( '%s new event', '%s new events', $numNewRows, 'simple-history' ), $numNewRows );
 			$json_data['strings'] = array(
 				'newRowsFound' => $textRowsFound,
 			);
