@@ -7,7 +7,7 @@
 		"log",
 		"history"
 	],
-	"homepage": "http://simple-history.com/",
+	"homepage": "https://simple-history.com/",
 	"minimum-stability": "dev",
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
