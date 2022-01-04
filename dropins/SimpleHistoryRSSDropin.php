@@ -1,6 +1,7 @@
 <?php
 
-// defined('ABSPATH') or die();
+defined( 'ABSPATH' ) || die();
+
 /*
 Dropin Name: Global RSS Feed
 Dropin URI: http://simple-history.com/
@@ -139,7 +140,7 @@ class SimpleHistoryRSSDropin {
 	public function settingsFieldRssEnable() {
 		?>
 		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->isRssEnabled(), 1 ); ?> />
-		<label for="simple_history_enable_rss_feed"><?php _e( 'Enable RSS feed', 'simple-history' ); ?></label>
+		<label for="simple_history_enable_rss_feed"><?php esc_html_e( 'Enable RSS feed', 'simple-history' ); ?></label>
 		<?php
 	}
 
@@ -203,10 +204,10 @@ class SimpleHistoryRSSDropin {
 			?>
 			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 				<channel>
-					<title><![CDATA[<?php printf( __( 'History for %s', 'simple-history' ), get_bloginfo( 'name' ) ); ?>]]></title>
-					<description><![CDATA[<?php printf( __( 'WordPress History for %s', 'simple-history' ), get_bloginfo( 'name' ) ); ?>]]></description>
-					<link><?php echo get_bloginfo( 'url' ); ?></link>
-					<atom:link href="<?php echo $self_link; ?>" rel="self" type="application/atom+xml" />
+					<title><![CDATA[<?php printf( esc_html__( 'History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?>]]></title>
+					<description><![CDATA[<?php printf( esc_html__( 'WordPress History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?>]]></description>
+					<link><?php echo esc_url( get_bloginfo( 'url' ) ); ?></link>
+					<atom:link href="<?php echo esc_url( $self_link ); ?>" rel="self" type="application/atom+xml" />
 					<?php
 
 					// Override capability check: if you have a valid rss_secret_key you can read it all
@@ -258,23 +259,65 @@ class SimpleHistoryRSSDropin {
 							wp_kses( $text_output, array() )
 						);
 
-						$level_output = sprintf( __( 'Severity level: %1$s' ), $this->sh->getLogLevelTranslated( $row->level ) );
+						$level_output = sprintf( esc_html__( 'Severity level: %1$s', 'simple-history' ), $this->sh->getLogLevelTranslated( $row->level ) );
 
+						$wp_kses_attrs = array(
+							'a' => array(
+								'href' => array(),
+								'class' => array(),
+								'data-ip-address' => array(),
+								'target' => array(),
+								'title' => array(),
+							),
+							'em' => array(),
+							'span' => array(
+								'class' => array(),
+								'title' => array(),
+								'aria-hidden' => array(),
+							),
+							'time' => array(
+								'datetime' => array(),
+								'class' => array(),
+							),
+							'strong' => array(
+								'class' => array(),
+							),
+							'div' => array(
+								'class' => array(),
+								'tabindex' => array(),
+							),
+							'p' => array(),
+							'del' => array(),
+							'ins' => array(),
+							'table' => array(
+								'class' => array(),
+							),
+							'tbody' => array(),
+							'tr' => array(),
+							'td' => array(
+								'class' => array(),
+							),
+							'col' => array(
+								'class' => array(),
+							),
+						);
 						?>
 						<item>
-							<title><![CDATA[<?php echo $item_title; ?>]]></title>
+							<title><![CDATA[<?php echo esc_html( $item_title ); ?>]]></title>
 							<description><![CDATA[
-								<p><?php echo $header_output; ?></p>
-								<p><?php echo $text_output; ?></p>
-								<div><?php echo $details_output; ?></div>
-								<p><?php echo $level_output; ?></p>
+								<p><?php echo wp_kses( $header_output, $wp_kses_attrs ); ?></p>
+								<p><?php echo wp_kses( $text_output, $wp_kses_attrs ); ?></p>
+								<div><?php echo wp_kses( $details_output, $wp_kses_attrs ); ?></div>
+								<p><?php echo wp_kses( $level_output, $wp_kses_attrs ); ?></p>
 								<?php
 								$occasions = $row->subsequentOccasions - 1;
 								if ( $occasions ) {
+									echo '<p>';
 									printf(
-										_n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' ),
-										$occasions
+										esc_html( _n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' ) ),
+										(int) $occasions
 									);
+									echo '</p>';
 								}
 								?>
 							]]></description>
@@ -282,9 +325,9 @@ class SimpleHistoryRSSDropin {
 							// author must be email to validate, but the field is optional, so we skip it
 							/* <author><?php echo $row->initiator ?></author> */
 							?>
-							<pubDate><?php echo gmdate( 'D, d M Y H:i:s', strtotime( $row->date ) ); ?> GMT</pubDate>
-							<guid isPermaLink="false"><![CDATA[<?php echo $item_guid; ?>]]></guid>
-							<link><![CDATA[<?php echo $item_link; ?>]]></link>
+							<pubDate><?php echo esc_html( gmdate( 'D, d M Y H:i:s', strtotime( $row->date ) ) ); ?> GMT</pubDate>
+							<guid isPermaLink="false"><![CDATA[<?php echo esc_html( $item_guid ); ?>]]></guid>
+							<link><![CDATA[<?php echo esc_url( $item_link ); ?>]]></link>
 						</item>
 						<?php
 					} // End foreach().
@@ -298,14 +341,14 @@ class SimpleHistoryRSSDropin {
 			?>
 			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 				<channel>
-					<title><?php printf( __( 'History for %s', 'simple-history' ), get_bloginfo( 'name' ) ); ?></title>
-					<description><?php printf( __( 'WordPress History for %s', 'simple-history' ), get_bloginfo( 'name' ) ); ?></description>
-					<link><?php echo home_url(); ?></link>
+					<title><?php printf( esc_html__( 'History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?></title>
+					<description><?php printf( esc_html__( 'WordPress History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?></description>
+					<link><?php echo esc_url( home_url() ); ?></link>
 					<item>
-						<title><?php _e( 'Wrong RSS secret', 'simple-history' ); ?></title>
-						<description><?php _e( 'Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed.', 'simple-history' ); ?></description>
-						<pubDate><?php echo gmdate( 'D, d M Y H:i:s', time() ); ?> GMT</pubDate>
-						<guid><?php echo home_url() . '?SimpleHistoryGuid=wrong-secret'; ?></guid>
+						<title><?php esc_html_e( 'Wrong RSS secret', 'simple-history' ); ?></title>
+						<description><?php esc_html_e( 'Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed.', 'simple-history' ); ?></description>
+						<pubDate><?php echo esc_html( gmdate( 'D, d M Y H:i:s', time() ) ); ?> GMT</pubDate>
+						<guid><?php echo esc_url( home_url() . '?SimpleHistoryGuid=wrong-secret' ); ?></guid>
 					</item>
 				</channel>
 			</rss>
@@ -335,10 +378,10 @@ class SimpleHistoryRSSDropin {
 	 * Output for settings field that show current RSS address
 	 */
 	public function settingsFieldRss() {
-
-		$rss_address = $this->getRssAddress();
-
-		echo "<p><code><a href='$rss_address'>$rss_address</a></code></p>";
+		printf(
+			'<p><code><a href="%1$s">%1$s</a></code></p>',
+			esc_url( $this->getRssAddress() )
+		);
 	}
 
 	/**
@@ -350,14 +393,14 @@ class SimpleHistoryRSSDropin {
 		$update_link = wp_nonce_url( $update_link, 'simple_history_rss_update_secret', 'simple_history_rss_secret_regenerate_nonce' );
 
 		echo '<p>';
-		_e( 'You can generate a new address for the RSS feed. This is useful if you think that the address has fallen into the wrong hands.', 'simple-history' );
+		esc_html_e( 'You can generate a new address for the RSS feed. This is useful if you think that the address has fallen into the wrong hands.', 'simple-history' );
 		echo '</p>';
 
 		echo '<p>';
 		printf(
 			'<a class="button" href="%1$s">%2$s</a>',
-			$update_link, // 1
-			__( 'Generate new address', 'simple-history' ) // 2
+			esc_url( $update_link ), // 1
+			esc_html( 'Generate new address', 'simple-history' ) // 2
 		);
 
 		echo '</p>';
@@ -379,7 +422,7 @@ class SimpleHistoryRSSDropin {
 			get_bloginfo( 'url' ) . '/'
 		);
 		$rss_address = esc_url( $rss_address );
-		// $rss_address = htmlspecialchars($rss_address, ENT_COMPAT, "UTF-8");
+
 		return $rss_address;
 	}
 
@@ -388,9 +431,8 @@ class SimpleHistoryRSSDropin {
 	 * Called from add_sections_setting.
 	 */
 	public function settingsSectionOutput() {
-
 		echo '<p>';
-		_e( 'Simple History has a RSS feed which you can subscribe to and receive log updates. Make sure you only share the feed with people you trust, since it can contain sensitive or confidential information.', 'simple-history' );
+		esc_html_e( 'Simple History has a RSS feed which you can subscribe to and receive log updates. Make sure you only share the feed with people you trust, since it can contain sensitive or confidential information.', 'simple-history' );
 		echo '</p>';
 	}
 }

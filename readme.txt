@@ -200,6 +200,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fixed: Readme text loaded from GitHub repo is now filtered using `wp_kses()`.
 - Fixed: Links in readme text loaded from GitHub repo now opens in new window/tab by default (instead of loading in the modal/thickbox iframe).
 - Added: Logger messages is shown when clicking number of message strings in settings debug tab.
+- Added: Num occasions in RSS feed is now wrapped in a `<p>` tag.
 - Removed: "Simple Legacy Logger" is removed because it has not been used for a very long time.
 - Removed: "GitHub Plugin URI" header removed from index file. Only installs from wordpress.org are supported from now on.
 - Removed: Box with translations notice removed from sidebar because it did not work properly when using different languages as site language and user language.
