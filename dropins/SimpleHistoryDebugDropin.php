@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /**
  * Dropin Name: Debug
@@ -27,10 +27,10 @@ class SimpleHistoryDebugDropin {
 	 * @param string $message
 	 * @param SimpleLogger $logger
 	 */
-	public function onLogArgumentContext( array $context, string $level, string $message, SimpleLogger $logger ) {
+	public function onLogArgumentContext( $context, $level, $message, $logger ) {
 		$sh = SimpleHistory::get_instance();
 		$context['_debug_get'] = $sh->json_encode( $_GET );
-		$context['_debug_post'] = $sh->json_encode( $_POST );
+		$context['_debug_post'] = $sh->json_encode( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$context['_debug_server'] = $sh->json_encode( $_SERVER );
 		$context['_debug_files'] = $sh->json_encode( $_FILES );
 		$context['_debug_php_sapi_name'] = php_sapi_name();
