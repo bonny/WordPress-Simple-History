@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) or die();
+defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: Sidebar with short stats
@@ -9,8 +9,6 @@ Author: Pär Thernström
 */
 
 class SimpleHistorySidebarStats {
-
-
 	private $sh;
 
 	public function __construct( $sh ) {
@@ -153,17 +151,22 @@ class SimpleHistorySidebarStats {
 
 		<div class="postbox">
 
-			<h3 class="hndle"><?php _e( 'Stats', 'simple-history' ); ?></h3>
+			<h3 class="hndle"><?php esc_html_e( 'Stats', 'simple-history' ); ?></h3>
 
 			<div class="inside">
 
 				<p>
 					<?php
 
-					printf(
-						__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
-						$this->sh->get_num_events_last_n_days( $num_days ),
-						number_format_i18n( $num_days )
+					echo wp_kses(
+						sprintf(
+							__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
+							$this->sh->get_num_events_last_n_days( $num_days ),
+							number_format_i18n( $num_days )
+						),
+						array(
+							'b' => array(),
+						)
 					);
 
 					?>
@@ -175,7 +178,7 @@ class SimpleHistorySidebarStats {
 				</div>
 
 				<p class="SimpleHistory_SidebarChart_ChartDescription" style="font-style: italic; color: #777; text-align: center;">
-					<?php _e( 'Number of events per day.', 'simple-history' ); ?>
+					<?php esc_html_e( 'Number of events per day.', 'simple-history' ); ?>
 				</p>
 
 				<?php
@@ -219,19 +222,19 @@ class SimpleHistorySidebarStats {
 				<input
 					type="hidden"
 					class="SimpleHistory_SidebarChart_ChartLabels"
-					value="<?php esc_attr_e( json_encode( $arr_labels ) ); ?>"
+					value="<?php echo esc_attr( json_encode( $arr_labels ) ); ?>"
 					/>
 
 				<input
 					type="hidden"
 					class="SimpleHistory_SidebarChart_ChartLabelsToDates"
-					value="<?php esc_attr_e( json_encode( $arr_labels_to_datetime ) ); ?>"
+					value="<?php echo esc_attr( json_encode( $arr_labels_to_datetime ) ); ?>"
 					/>
 
 				<input
 					type="hidden"
 					class="SimpleHistory_SidebarChart_ChartDatasetData"
-					value="<?php esc_attr_e( json_encode( $arr_dataset_data ) ); ?>"
+					value="<?php echo esc_attr( json_encode( $arr_dataset_data ) ); ?>"
 					/>
 
 			</div>
