@@ -205,7 +205,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Removed: "GitHub Plugin URI" header removed from index file. Only installs from wordpress.org are supported from now on.
 - Removed: Box with translations notice removed from sidebar because it did not work properly when using different languages as site language and user language.
 - Internal: Code formatting to match the WordPress coding standards.
-- Internal: Code cleanup.
+- Internal: Code cleanup and escaping some text and more.
 
 = 2.43.0 (October 2021) =
 
