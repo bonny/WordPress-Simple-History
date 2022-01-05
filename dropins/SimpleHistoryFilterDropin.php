@@ -78,7 +78,7 @@ class SimpleHistoryFilterDropin {
 						$loggers_user_can_read_sql_in // 2
 					);
 
-					$result_months = $wpdb->get_results( $sql_dates );
+					$result_months = $wpdb->get_results( $sql_dates ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 					set_transient( $cache_key, $result_months, HOUR_IN_SECONDS );
 				}
@@ -150,11 +150,11 @@ class SimpleHistoryFilterDropin {
 
 				<p class="SimpleHistory__filters__filterRow SimpleHistory__filters__filterRow--date" data-debug-daysAndPages='<?php echo json_encode( $arr_days_and_pages ); ?>'>
 
-					<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Dates:', 'Filter label', 'simple-history' ); ?></label>
+					<label class="SimpleHistory__filters__filterLabel"><?php echo esc_html_x( 'Dates:', 'Filter label', 'simple-history' ); ?></label>
 
 					<select class="SimpleHistory__filters__filter SimpleHistory__filters__filter--date"
 							name="dates"
-							placeholder="<?php echo _e( 'All dates', 'simple-history' ); ?>"
+							placeholder="<?php esc_attr_e( 'All dates', 'simple-history' ); ?>"
 							NOTmultiple
 							>
 						<?php
@@ -164,7 +164,7 @@ class SimpleHistoryFilterDropin {
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'customRange', // 1 - value
-							_x( 'Custom date range...', 'Filter dropin: filter custom range', 'simple-history' ), // 2 text
+							esc_attr_x( 'Custom date range...', 'Filter dropin: filter custom range', 'simple-history' ), // 2 text
 							selected( $daysToShow, 'customRange', 0 )
 						);
 
@@ -172,35 +172,35 @@ class SimpleHistoryFilterDropin {
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:1', // 1 - value
-							_x( 'Last day', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last day', 'Filter dropin: filter week', 'simple-history' ), // 2 text
 							selected( $daysToShow, 1, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:7', // 1 - value
-							_x( 'Last 7 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last 7 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
 							selected( $daysToShow, 7, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:14', // 1 - value
-							_x( 'Last 14 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last 14 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
 							selected( $daysToShow, 14, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:30', // 1 - value
-							_x( 'Last 30 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last 30 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
 							selected( $daysToShow, 30, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:60', // 1 - value
-							_x( 'Last 60 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last 60 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
 							selected( $daysToShow, 60, 0 )
 						);
 
@@ -208,23 +208,25 @@ class SimpleHistoryFilterDropin {
 						foreach ( $result_months as $row ) {
 							printf(
 								'<option value="%1$s">%2$s</option>',
-								'month:' . $row->yearMonth,
-								date_i18n( 'F Y', strtotime( $row->yearMonth ) ),
+								'month:' . esc_attr( $row->yearMonth ),
+								esc_attr(
+									date_i18n(
+										'F Y',
+										strtotime( $row->yearMonth )
+									)
+								)
 							);
 						}
 
 						?>
 					</select>
-
-					<!-- <p> -->
-						<!-- <label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Between dates:', 'Filter label', 'simple-history' ); ?></label> -->
-						<span class="SimpleHistory__filters__filter--dayValuesWrap">
-							<?php
-							$this->touch_time( 'from' );
-							$this->touch_time( 'to' );
-							?>
-						</span>
-					<!-- </p> -->
+					
+					<span class="SimpleHistory__filters__filter--dayValuesWrap">
+						<?php
+						$this->touch_time( 'from' );
+						$this->touch_time( 'to' );
+						?>
+					</span>
 
 				</p><!-- end months -->
 
@@ -240,25 +242,25 @@ class SimpleHistoryFilterDropin {
 				?>
 
 				<p>
-
-					<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Containing words:', 'Filter label', 'simple-history' ); ?></label>
+					<label class="SimpleHistory__filters__filterLabel">
+						<?php echo esc_html_x( 'Containing words:', 'Filter label', 'simple-history' ); ?>
+					</label>
 
 					<input
 						type="search"
 						class="SimpleHistoryFilterDropin-searchInput"
-						placeholder="<?php /* _e("Containing words", "simple-history"); */ ?>"
+						placeholder=""
 						name="search"
 						value="<?php echo esc_attr( $default_search_string ); ?>"
 						>
-
 				</p>
 
 				<p class="SimpleHistory__filters__filterSubmitWrap">
 					<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--first js-SimpleHistoryFilterDropin-doFilter">
-						<?php _e( 'Search events', 'simple-history' ); ?>
+						<?php esc_html_e( 'Search events', 'simple-history' ); ?>
 					</button>
 					<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters">
-						<?php _ex( 'Show search options', 'Filter dropin: button to show more search options', 'simple-history' ); ?>
+						<?php echo esc_html_x( 'Show search options', 'Filter dropin: button to show more search options', 'simple-history' ); ?>
 					</button>
 				</p>
 
@@ -275,23 +277,40 @@ class SimpleHistoryFilterDropin {
 				<div class="SimpleHistory__filters__moreFilters js-SimpleHistory__filters__moreFilters">
 
 					<p>
-
-						<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Log levels:', 'Filter label', 'simple-history' ); ?></label>
+						<label class="SimpleHistory__filters__filterLabel">
+							<?php echo esc_html_x( 'Log levels:', 'Filter label', 'simple-history' ); ?>
+						</label>
 
 						<select
 							name="loglevels"
 							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--loglevel"
-							placeholder="<?php _e( 'All log levels', 'simple-history' ); ?>"
+							placeholder="<?php esc_attr_e( 'All log levels', 'simple-history' ); ?>"
 							multiple
 							>
-							<option <?php selected( in_array( 'debug', $arr_default_loglevels ) ); ?> value="debug" data-color="#CEF6D8"><?php echo $this->sh->getLogLevelTranslated( 'Debug' ); ?></option>
-							<option <?php selected( in_array( 'info', $arr_default_loglevels ) ); ?> value="info" data-color="white"><?php echo $this->sh->getLogLevelTranslated( 'Info' ); ?></option>
-							<option <?php selected( in_array( 'notice', $arr_default_loglevels ) ); ?> value="notice" data-color="rgb(219, 219, 183)"><?php echo $this->sh->getLogLevelTranslated( 'Notice' ); ?></option>
-							<option <?php selected( in_array( 'warning', $arr_default_loglevels ) ); ?> value="warning" data-color="#F7D358"><?php echo $this->sh->getLogLevelTranslated( 'Warning' ); ?></option>
-							<option <?php selected( in_array( 'error', $arr_default_loglevels ) ); ?> value="error" data-color="#F79F81"><?php echo $this->sh->getLogLevelTranslated( 'Error' ); ?></option>
-							<option <?php selected( in_array( 'critical', $arr_default_loglevels ) ); ?> value="critical" data-color="#FA5858"><?php echo $this->sh->getLogLevelTranslated( 'Critical' ); ?></option>
-							<option <?php selected( in_array( 'alert', $arr_default_loglevels ) ); ?> value="alert" data-color="rgb(199, 69, 69)"><?php echo $this->sh->getLogLevelTranslated( 'Alert' ); ?></option>
-							<option <?php selected( in_array( 'emergency', $arr_default_loglevels ) ); ?> value="emergency" data-color="#DF0101"><?php echo $this->sh->getLogLevelTranslated( 'Emergency' ); ?></option>
+							<option <?php selected( in_array( 'debug', $arr_default_loglevels ) ); ?> value="debug" data-color="#CEF6D8">
+								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Debug' ) ); ?>
+							</option>
+							<option <?php selected( in_array( 'info', $arr_default_loglevels ) ); ?> value="info" data-color="white">
+								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Info' ) ); ?>
+							</option>
+							<option <?php selected( in_array( 'notice', $arr_default_loglevels ) ); ?> value="notice" data-color="rgb(219, 219, 183)">
+								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Notice' ) ); ?>
+							</option>
+							<option <?php selected( in_array( 'warning', $arr_default_loglevels ) ); ?> value="warning" data-color="#F7D358">
+								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Warning' ) ); ?>
+							</option>
+							<option <?php selected( in_array( 'error', $arr_default_loglevels ) ); ?> value="error" data-color="#F79F81">
+								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Error' ) ); ?>
+							</option>
+							<option <?php selected( in_array( 'critical', $arr_default_loglevels ) ); ?> value="critical" data-color="#FA5858">
+								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Critical' ) ); ?>
+							</option>
+							<option <?php selected( in_array( 'alert', $arr_default_loglevels ) ); ?> value="alert" data-color="rgb(199, 69, 69)">
+								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Alert' ) ); ?>
+							</option>
+							<option <?php selected( in_array( 'emergency', $arr_default_loglevels ) ); ?> value="emergency" data-color="#DF0101">
+								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Emergency' ) ); ?>
+							</option>
 						</select>
 
 					</p>
@@ -312,13 +331,14 @@ class SimpleHistoryFilterDropin {
 					// $arr_default_messages = apply_filters("SimpleHistoryFilterDropin/filter_default_messages", array());
 					?>
 					<p>
-
-						<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Message types:', 'Filter label', 'simple-history' ); ?></label>
+						<label class="SimpleHistory__filters__filterLabel">
+							<?php echo esc_html_x( 'Message types:', 'Filter label', 'simple-history' ); ?>
+						</label>
 
 						<select
 							name="messages"
 							class="SimpleHistory__filters__filter SimpleHistory__filters__filter--logger"
-							placeholder="<?php _e( 'All messages', 'simple-history' ); ?>"
+							placeholder="<?php esc_attr_e( 'All messages', 'simple-history' ); ?>"
 							multiple
 							>
 							<?php
@@ -399,11 +419,13 @@ class SimpleHistoryFilterDropin {
 					if ( current_user_can( 'list_users' ) ) {
 						?>
 						<p>
-							<label class="SimpleHistory__filters__filterLabel"><?php _ex( 'Users:', 'Filter label', 'simple-history' ); ?></label>
+							<label class="SimpleHistory__filters__filterLabel">
+								<?php echo esc_html_x( 'Users:', 'Filter label', 'simple-history' ); ?>
+							</label>
 							<select
 								name="users"
 								class="SimpleHistory__filters__filter SimpleHistory__filters__filter--user"
-								data-placeholder="<?php _e( 'All users', 'simple-history' ); ?>"
+								data-placeholder="<?php esc_html_e( 'All users', 'simple-history' ); ?>"
 								value="<?php echo esc_attr( implode( ',', $default_user_ids ) ); ?>"
 								data-default-user-data="<?php echo esc_attr( json_encode( $arr_default_user_data ) ); ?>"
 								>
@@ -416,20 +438,14 @@ class SimpleHistoryFilterDropin {
 
 					<p class="SimpleHistory__filters__filterSubmitWrap">
 						<button class="button SimpleHistoryFilterDropin-doFilterButton SimpleHistoryFilterDropin-doFilterButton--second js-SimpleHistoryFilterDropin-doFilter">
-							<?php _e( 'Search events', 'simple-history' ); ?>
+							<?php esc_html_e( 'Search events', 'simple-history' ); ?>
 						</button>
 						<button type="button" class="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--second js-SimpleHistoryFilterDropin-showMoreFilters">
-							<?php _ex( 'Hide search options', 'Filter dropin: button to hide more search options', 'simple-history' ); ?>
+							<?php esc_html_x( 'Hide search options', 'Filter dropin: button to hide more search options', 'simple-history' ); ?>
 						</button>
 					</p>
 
 				</div><!-- // more filters -->
-
-				<!--
-				<p>
-					<button class="button js-SimpleHistoryFilterDropin-doFilter"><?php _e( 'Search', 'simple-history' ); ?></button>
-				</p>
-				-->
 
 			</form>
 
@@ -438,7 +454,7 @@ class SimpleHistoryFilterDropin {
 	}
 
 	/**
-	 * Return format used for select2 for a single user id
+	 * Return format used for select2 for a single user id.
 	 *
 	 * @param int $userID
 	 * @return array Array with each user as an object
@@ -512,7 +528,7 @@ class SimpleHistoryFilterDropin {
 			'results' => array(),
 			'more' => false,
 			'context' => array(),
-			'count' => sizeof( $results_user ),
+			'count' => count( $results_user ),
 		);
 
 		$data['results'] = array_merge( $data['results'], $results_user );
@@ -545,7 +561,6 @@ class SimpleHistoryFilterDropin {
 	 *                            Default 0|false.
 	 */
 	public function touch_time( $from_or_to, $edit = 1 ) {
-
 		global $wp_locale;
 
 		// Prefix = text before the inputs
@@ -568,25 +583,57 @@ class SimpleHistoryFilterDropin {
 
 		$month = "<select name='{$input_prefix}mm'>";
 
-		for ( $i = 1; $i < 13; $i = $i + 1 ) {
+		for ( $i = 1; $i < 13; ++$i ) {
 			$monthnum = zeroise( $i, 2 );
 			$monthtext = $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) );
 			$month .= "\t\t\t" . '<option value="' . $monthnum . '" data-text="' . $monthtext . '" ' . selected( $monthnum, $mm, false ) . '>';
 			/* translators: 1: month number (01, 02, etc.), 2: month abbreviation */
-			$month .= sprintf( __( '%1$s-%2$s' ), $monthnum, $monthtext ) . "</option>\n";
+			$month .= sprintf( __( '%1$s-%2$s', 'simple-history' ), $monthnum, $monthtext ) . "</option>\n";
 		}
 		$month .= '</select>';
 		$month .= '</label>';
 
-		$day = '<label><span class="screen-reader-text">' . __( 'Day' ) . '</span><input type="text" name="' . $input_prefix . 'jj" value="' . $jj . '" size="2" maxlength="2" autocomplete="off" /></label>';
-		$year = '<label><span class="screen-reader-text">' . __( 'Year' ) . '</span><input type="text" name="' . $input_prefix . 'aa" value="' . $aa . '" size="4" maxlength="4" autocomplete="off" /></label>';
+		$day = '<label><span class="screen-reader-text">' . __( 'Day', 'simple-history' ) . '</span><input type="text" name="' . $input_prefix . 'jj" value="' . $jj . '" size="2" maxlength="2" autocomplete="off" /></label>';
+		$year = '<label><span class="screen-reader-text">' . __( 'Year', 'simple-history' ) . '</span><input type="text" name="' . $input_prefix . 'aa" value="' . $aa . '" size="4" maxlength="4" autocomplete="off" /></label>';
 
 		echo '<span class="SimpleHistory__filters__filter SimpleHistory__filters__filter--day">';
 
-		echo $prefix . '<br>';
+		echo esc_html( $prefix ) . '<br>';
+
+		$wp_kses_args = array(
+			'select' => array(
+				'name' => array(),
+			),
+			'label' => array(),
+			'option' => array(
+				'value' => array(),
+				'data-text' => array(),
+				'selected' => array(),
+
+			),
+			'span' => array(
+				'class' => array(),
+			),
+			'input' => array(
+				'type' => array(),
+				'name' => array(),
+				'value' => array(),
+				'size' => array(),
+				'maxlength' => array(),
+				'autocomplete' => array(),
+			),
+		);
 
 		/* translators: 1: month, 2: day, 3: year */
-		printf( __( '%1$s %2$s, %3$s' ), $month, $day, $year );
+		echo wp_kses(
+			sprintf(
+				__( '%1$s %2$s, %3$s', 'simple-history' ),
+				$month,
+				$day,
+				$year
+			),
+			$wp_kses_args
+		);
 
 		echo '</span>';
 	}
