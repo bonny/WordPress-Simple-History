@@ -74,11 +74,11 @@ class SimpleHistoryIpInfoDropin {
 		</div>
 
 		<script type="text/html" id="tmpl-simple-history-ipinfodropin-popup-loading">
-			<p><?php _ex( 'Getting IP info ...', 'IP Info Dropin', 'simple-history' ); ?></p>
+			<p><?php echo esc_html_x( 'Getting IP info ...', 'IP Info Dropin', 'simple-history' ); ?></p>
 		</script>
 
 		<script type="text/html" id="tmpl-simple-history-ipinfodropin-popup-error">
-			<p><?php _ex( 'Could not get info about IP address.', 'IP Info Dropin', 'simple-history' ); ?></p>
+			<p><?php echo esc_html_x( 'Could not get info about IP address.', 'IP Info Dropin', 'simple-history' ); ?></p>
 		</script>
 
 		<script type="text/html" id="tmpl-simple-history-ipinfodropin-popup-loaded">
@@ -96,7 +96,7 @@ class SimpleHistoryIpInfoDropin {
 			-->
 			<# if ( typeof(data.bogon) != "undefined" ) { #>
 
-				<p><?php _ex( 'That IP address does not seem like a public one.', 'IP Info Dropin', 'simple-history' ); ?></p>
+				<p><?php echo esc_html_x( 'That IP address does not seem like a public one.', 'IP Info Dropin', 'simple-history' ); ?></p>
 
 			<# } else { #>
 
@@ -117,7 +117,7 @@ class SimpleHistoryIpInfoDropin {
 					<# if ( typeof(data.ip) != "undefined" && data.ip ) { #>
 					<tr>
 						<td>
-							<?php _ex( 'IP address', 'IP Info Dropin', 'simple-history' ); ?>
+							<?php echo esc_html_x( 'IP address', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
 							{{ data.ip }}
@@ -128,7 +128,7 @@ class SimpleHistoryIpInfoDropin {
 					<# if ( typeof(data.hostname) != "undefined" && data.hostname ) { #>
 					<tr>
 						<td>
-							<?php _ex( 'Hostname', 'IP Info Dropin', 'simple-history' ); ?>
+							<?php echo esc_html_x( 'Hostname', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
 							{{ data.hostname }}
@@ -139,7 +139,7 @@ class SimpleHistoryIpInfoDropin {
 					<# if ( typeof(data.org) != "undefined" && data.org ) { #>
 					<tr>
 						<td>
-							<?php _ex( 'Network', 'IP Info Dropin', 'simple-history' ); ?>
+							<?php echo esc_html_x( 'Network', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
 							{{ data.org }}
@@ -150,7 +150,7 @@ class SimpleHistoryIpInfoDropin {
 					<# if ( typeof(data.network) != "undefined" && data.network ) { #>
 					<tr>
 						<td>
-							<?php _ex( 'Network', 'IP Info Dropin', 'simple-history' ); ?>
+							<?php echo esc_html_x( 'Network', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
 							{{ data.network }}
@@ -161,7 +161,7 @@ class SimpleHistoryIpInfoDropin {
 					<# if ( typeof(data.city) != "undefined" && data.city ) { #>
 					<tr>
 						<td>
-							<?php _ex( 'City', 'IP Info Dropin', 'simple-history' ); ?>
+							<?php echo esc_html_x( 'City', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
 							{{ data.city }}
@@ -172,7 +172,7 @@ class SimpleHistoryIpInfoDropin {
 					<# if ( typeof(data.region) != "undefined" && data.region ) { #>
 					<tr>
 						<td>
-							<?php _ex( 'Region', 'IP Info Dropin', 'simple-history' ); ?>
+							<?php echo esc_html_x( 'Region', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
 							{{ data.region }}
@@ -183,7 +183,7 @@ class SimpleHistoryIpInfoDropin {
 					<# if ( typeof(data.country) != "undefined" && data.country ) { #>
 					<tr>
 						<td>
-							<?php _ex( 'Country', 'IP Info Dropin', 'simple-history' ); ?>
+							<?php echo esc_html_x( 'Country', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
 							{{ data.country }}
@@ -194,7 +194,7 @@ class SimpleHistoryIpInfoDropin {
 				</table>
 
 				<p class="SimpleHistoryIpInfoDropin__provider">
-					<?php printf( _x( 'IP info provided by %1$s ipinfo.io %2$s', 'IP Info Dropin', 'simple-history' ), "<a href='https://ipinfo.io/{{ data.ip }}' target='_blank'>", '</a>' ); ?>
+					<?php printf( esc_html_x( 'IP info provided by %1$s ipinfo.io %2$s', 'IP Info Dropin', 'simple-history' ), "<a href='https://ipinfo.io/{{ data.ip }}' target='_blank'>", '</a>' ); ?>
 				</p>
 
 			<# } #>
