@@ -202,9 +202,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Added: Logger messages is shown when clicking number of message strings in settings debug tab.
 - Added: Num occasions in RSS feed is now wrapped in a `<p>` tag.
 - Removed: "Simple Legacy Logger" is removed because it has not been used for a very long time.
-- Removed: "GitHub Plugin URI" header removed from index file. Only installs from wordpress.org are supported from now on.
+- Removed: "GitHub Plugin URI" header removed from index file, so installs of Simple History from Github using Git Updater are not supported from now on.
 - Removed: Box with translations notice removed from sidebar because it did not work properly when using different languages as site language and user language.
-- Internal: Code formatting to match the WordPress coding standards.
+- Internal: Code formatting to better match the WordPress coding standards.
 - Internal: Code cleanup and escaping some text and more.
 
 = 2.43.0 (October 2021) =
