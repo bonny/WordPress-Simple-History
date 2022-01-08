@@ -10,12 +10,6 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 	public static function setUpBeforeClass() {
 	}
 
-	function test_sample() {
-
-		// replace this with some actual testing code
-		$this->assertTrue( true );
-	}
-
 	function test_history_setup() {
 
 		$this->assertTrue( defined( 'SIMPLE_HISTORY_VERSION' ) );
