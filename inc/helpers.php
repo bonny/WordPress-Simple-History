@@ -205,11 +205,13 @@ function sh_d() {
 		}
 
 		if ( $loopOutput ) {
+			$maybe_escaped_loop_output = 'cli' === php_sapi_name() ? $loopOutput : esc_html( $loopOutput );
+
 			$output = $output . sprintf(
 				'
                 <pre>%1$s</pre>
                 ',
-				esc_html( $loopOutput )
+				$maybe_escaped_loop_output
 			);
 		}
 	}

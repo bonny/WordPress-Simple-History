@@ -193,6 +193,11 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= nnn unreleased =
+
+- Function sh_d() now does not escape output when running from CLI.
+
+
 = 3.0.0 (January 2022) =
 
 - Fixed: Used wrong text domain for some strings in Limit Login Attempts logger.
