@@ -62,6 +62,15 @@ class SimpleHistory {
 	const DBTABLE = 'simple_history';
 	const DBTABLE_CONTEXTS = 'simple_history_contexts';
 
+	/** @var string $dbtable Full database name, i.e. wp_simple_history */
+	public static $dbtable;
+
+	/** @var string $dbtable Full database name for contexts, i.e. wp_simple_history_contexts */
+	public static $dbtable_contexts;
+
+	/** @var string $plugin_basename */
+	public $plugin_basename;
+
 	/** Slug for the settings menu */
 	const SETTINGS_MENU_SLUG = 'simple_history_settings_menu_slug';
 
@@ -725,8 +734,11 @@ class SimpleHistory {
 		$this->externalDropins = array();
 		$this->instantiatedLoggers = array();
 		$this->instantiatedDropins = array();
-
 		$this->plugin_basename = SIMPLE_HISTORY_BASENAME;
+
+		global $wpdb;
+		$this::$dbtable = $wpdb->prefix . self::DBTABLE;
+		$this::$dbtable_contexts = $wpdb->prefix . self::DBTABLE_CONTEXTS;
 	}
 
 	/**

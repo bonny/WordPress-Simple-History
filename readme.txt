@@ -196,7 +196,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 = nnn unreleased =
 
 - Function sh_d() now does not escape output when running from CLI.
-
+- Add class static variables $dbtable and $dbtable_contexts that contain full db name (existing class constants DBTABLE and DBTABLE_CONTEXTS needed to be prefixed manually).
 
 = 3.0.0 (January 2022) =
 
