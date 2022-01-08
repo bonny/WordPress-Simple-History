@@ -1,11 +1,11 @@
-=== Simple History - user activity log, audit tool ===
+=== Simple History – user activity log, audit tool ===
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 5.2
 Tested up to: 5.8.2
 Requires PHP: 5.6
-Stable tag: 2.43.0
+Stable tag: 3.0.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -193,7 +193,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= n.n.n () =
+= 3.0.0 (January 2022) =
 
 - Fixed: Used wrong text domain for some strings in Limit Login Attempts logger.
 - Fixed: Post logger now ignores changes to the `_encloseme` meta key.
