@@ -13,7 +13,8 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
 		"phpcompatibility/php-compatibility": "*",
 		"wp-coding-standards/wpcs": "*",
-		"phpcompatibility/phpcompatibility-wp": "*"
+		"phpcompatibility/phpcompatibility-wp": "*",
+		"lucatume/wp-browser": "dev-master"
 	},
 	"require": {
 		"php": ">=5.2.0"
