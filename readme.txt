@@ -204,8 +204,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Removed: "Simple Legacy Logger" is removed because it has not been used for a very long time.
 - Removed: "GitHub Plugin URI" header removed from index file, so installs of Simple History from Github using Git Updater are not supported from now on.
 - Removed: Box with translations notice removed from sidebar because it did not work properly when using different languages as site language and user language.
-- Internal: Code formatting to better match the WordPress coding standards. ([#243](https://github.com/bonny/WordPress-Simple-History/issues/243))
-- Internal: Code cleanup and escaping some text and more.
+- Internal: Code formatting to better match the WordPress coding standards, code cleanup, text escaping. ([#243](https://github.com/bonny/WordPress-Simple-History/issues/243))
 
 = 2.43.0 (October 2021) =
 
