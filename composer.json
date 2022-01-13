@@ -2,6 +2,7 @@
 	"name": "bonny/wordpress-simple-history",
 	"type": "wordpress-plugin",
 	"description": "View recent changes made within WordPress, directly on your dashboard or on a separate page.",
+	"license": "GPL-2.0-or-later",
 	"keywords": [
 		"WordPress",
 		"log",
@@ -14,7 +15,15 @@
 		"phpcompatibility/php-compatibility": "*",
 		"wp-coding-standards/wpcs": "*",
 		"phpcompatibility/phpcompatibility-wp": "*",
-		"lucatume/wp-browser": "dev-master"
+		"lucatume/wp-browser": "dev-master",
+		"codeception/module-asserts": "^1.0",
+		"codeception/module-phpbrowser": "^1.0",
+		"codeception/module-webdriver": "^1.0",
+		"codeception/module-db": "^1.0",
+		"codeception/module-filesystem": "^1.0",
+		"codeception/module-cli": "^1.0",
+		"codeception/util-universalframework": "^1.0",
+		"hoa/console": "3.x-dev"
 	},
 	"require": {
 		"php": ">=5.2.0"
