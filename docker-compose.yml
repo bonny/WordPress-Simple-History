@@ -1,0 +1,71 @@
+version: "3.1"
+
+services:
+  wordpress:
+    image: wordpress:${WORDPRESS_VERSION:-5.8}-php${PHP_VERSION:-7.4}
+    container_name: simple-history-wordpress
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    user: "33:33"
+    ports:
+      - "${DOCKER_WEB_PORT_FORWARD:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wp_test_site
+      WORDPRESS_DB_USER: dbuser
+      WORDPRESS_DB_PASSWORD: examplepass
+    volumes:
+      - wordpress:/var/www/html
+      - ./:/var/www/html/wp-content/plugins/simple-history
+      - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
+    # - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+
+  php-cli:
+    image: thecodingmachine/php:${PHP_VERSION:-7.4}-v4-cli
+    container_name: simple-history-php-cli
+    volumes:
+      - ./:/usr/src/app
+
+  db:
+    image: "mariadb:${MARIADB_VERSION:-10.5}"
+    container_name: simple-history-database
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    environment:
+      MYSQL_DATABASE: wp_test_site
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "${DB_EXPOSE_PORT:-127.0.0.1:13306}:3306"
+    volumes:
+      - "${MARIADB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
+
+  wp-cli:
+    image: wordpress:cli-php${PHP_VERSION-7.4}
+    container_name: simple-history-wpcli
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wp_test_site
+      WORDPRESS_DB_USER: dbuser
+      WORDPRESS_DB_PASSWORD: examplepass
+    user: "33:33"
+    depends_on:
+      - db
+      - wordpress
+    init: true
+    volumes:
+      - wordpress:/var/www/html:rw
+      - ./:/var/www/html/wp-content/plugins/simple-history
+
+  chrome:
+    #image: ${CHROME_IMAGE-selenium/standalone-chrome}
+    image: seleniarm/standalone-chromium
+    shm_size: "2gb"
+    container_name: simple-history-chrome
+    restart: always
+    ports:
+      - 14444:4444
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+volumes:
+  wordpress: null

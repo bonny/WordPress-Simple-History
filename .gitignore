@@ -9,4 +9,6 @@ vendor
 /.vscode
 /build
 workspace.code-workspace
+data/
+tests/_data/dump.sql
 
