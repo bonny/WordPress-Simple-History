@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.9"
 
 services:
   wordpress:
@@ -19,12 +19,6 @@ services:
       - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
     # - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
 
-  php-cli:
-    image: thecodingmachine/php:${PHP_VERSION:-7.4}-v4-cli
-    container_name: simple-history-php-cli
-    volumes:
-      - ./:/usr/src/app
-
   db:
     image: "mariadb:${MARIADB_VERSION:-10.5}"
     container_name: simple-history-database
@@ -38,6 +32,32 @@ services:
       - "${DB_EXPOSE_PORT:-127.0.0.1:13306}:3306"
     volumes:
       - "${MARIADB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
+
+  chrome:
+    image: seleniarm/standalone-chromium
+    # shm_size: "2gb"
+    container_name: simple-history-chrome
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    ports:
+      - 14444:4444
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  php-cli:
+    image: dockette/php:${PHP_VERSION-7.4}
+    container_name: simple-history-php-cli
+    profiles:
+      - noautostart
+    volumes:
+      - ./:/srv
+
+  composer:
+    image: composer:2
+    container_name: simple-history-composer
+    volumes:
+      - ./:/app
+    profiles:
+      - noautostart
 
   wp-cli:
     image: wordpress:cli-php${PHP_VERSION-7.4}
@@ -54,18 +74,11 @@ services:
     init: true
     volumes:
       - wordpress:/var/www/html:rw
+      # Make tests folder available so we can export/import db.
+      - ./tests/_data/:/var/www/html/tests/_data:rw
       - ./:/var/www/html/wp-content/plugins/simple-history
-
-  chrome:
-    #image: ${CHROME_IMAGE-selenium/standalone-chrome}
-    image: seleniarm/standalone-chromium
-    shm_size: "2gb"
-    container_name: simple-history-chrome
-    restart: always
-    ports:
-      - 14444:4444
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    profiles:
+      - noautostart
 
 volumes:
   wordpress: null

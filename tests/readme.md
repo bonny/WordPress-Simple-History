@@ -1,5 +1,17 @@
 # Tests
 
+## New method using wp-browser
+
+- Install required dependencies with `$ docker compose run --rm composer install`.
+- Copy `dump.sql` to `tests/_data/dump.sql`.
+  This is the starting database fixture, containing the WordPress state that the tests start from. It's a minimal, starting environment shared by all tests.
+- Start containers required for testing:
+  `$ docker compose up -d`.
+  This will start WordPress, MariaDB, Selenium Chrome
+- Run tests:
+  - docker-compose run --rm php-cli2 vendor/bin/codecept run acceptance
+  - 
+
 ## Run images
 
 To run image with tag `eskapism/phpunit-wordpress-plugin:wp5.2-php7.2` use argument `DOCKER_IMAGE_PHPUNIT` and set it to the image you want to run:

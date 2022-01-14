@@ -40,9 +40,10 @@ modules:
       adminPassword: "admin"
       adminPath: "/wp-admin"
       browser: chrome
-      host: localhost
-      port: 14444
-      window_size: false #disabled for Chrome driver
+      host: chrome
+      port: 4444
+      # window_size: false #disabled for Chrome driver
+      window_size: 1024x768
       capabilities:
         chromeOptions:
           args:
