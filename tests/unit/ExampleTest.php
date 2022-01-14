@@ -1,23 +1,20 @@
 <?php
 
-class ExampleTest extends \Codeception\Test\Unit
-{
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
-    
-    protected function _before()
-    {
-    }
+class ExampleTest extends \Codeception\Test\Unit {
 
-    protected function _after()
-    {
-    }
+	/**
+	 * @var \UnitTester
+	 */
+	protected $tester;
 
-    // tests
-    public function testSomeFeature()
-    {
+	protected function _before() {
+	}
 
-    }
+	protected function _after() {
+	}
+
+	// tests
+	public function testSomeFeature() {
+
+	}
 }

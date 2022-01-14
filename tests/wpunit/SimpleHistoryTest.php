@@ -3,13 +3,8 @@
 // phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 // phpcs:disable Squiz.Scope.MethodScope.Missing
 
-class SimpleHistoryTest extends WP_UnitTestCase {
-
-
+class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	// https://phpunit.de/manual/current/en/fixtures.html
-	public static function setUpBeforeClass() {
-	}
-
 	function test_history_setup() {
 
 		$this->assertTrue( defined( 'SIMPLE_HISTORY_VERSION' ) );

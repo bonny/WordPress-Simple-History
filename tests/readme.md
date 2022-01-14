@@ -10,7 +10,7 @@
   This will start WordPress, MariaDB, Selenium Chrome
 - Run tests:
   - `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance`
-  -
+  - `$ docker-compose run --rm php-cli vendor/bin/codecept run wpunit`
 
 ## Run images
 

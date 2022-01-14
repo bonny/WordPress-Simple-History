@@ -5,14 +5,9 @@ require_once 'functions.php';
 use function SimpleHistory\tests\get_latest_row;
 use function SimpleHistory\tests\get_latest_context;
 
-// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-// phpcs:disable Squiz.Scope.MethodScope.Missing
-class FiltersTest extends WP_UnitTestCase {
+class FiltersTest extends \Codeception\TestCase\WPTestCase {
 
-	public static function setUpBeforeClass() {
-	}
-
-	function test_filters() {
+	public function test_filters() {
 		apply_filters( 'simple_history_log', 'This is a logged message' );
 		$latest_row = get_latest_row();
 

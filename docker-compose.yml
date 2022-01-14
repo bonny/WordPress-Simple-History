@@ -7,7 +7,7 @@ services:
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     user: "33:33"
     ports:
-      - "${DOCKER_WEB_PORT_FORWARD:-8080}:80"
+      - "${DOCKER_WEB_PORT_FORWARD:-9191}:80"
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_NAME: wp_test_site
@@ -40,16 +40,23 @@ services:
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     # ports:
     #   - 14444:4444
-    # extra_hosts:
-    #   - host.docker.internal:host-gateway
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   php-cli:
     image: dockette/php:${PHP_VERSION-7.4}
     container_name: simple-history-php-cli
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wp_test_site
+      WORDPRESS_DB_USER: dbuser
+      WORDPRESS_DB_PASSWORD: examplepass
     profiles:
       - noautostart
     volumes:
       - ./:/srv
+      - wordpress:/wordpress
+      - ./:/wordpress/wp-content/plugins/simple-history
 
   composer:
     image: composer:2
