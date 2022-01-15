@@ -22,8 +22,7 @@
 		"codeception/module-db": "^1.0",
 		"codeception/module-filesystem": "^1.0",
 		"codeception/module-cli": "^1.0",
-		"codeception/util-universalframework": "^1.0",
-		"hoa/console": "3.x-dev"
+		"codeception/util-universalframework": "^1.0"
 	},
 	"require": {
 		"php": ">=5.2.0"

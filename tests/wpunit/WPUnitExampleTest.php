@@ -7,14 +7,14 @@ class WPUnitExampleTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	protected $tester;
 
-	public function setUp(): void {
+	public function setUp() {
 		// Before...
 		parent::setUp();
 
 		// Your set up methods here.
 	}
 
-	public function tearDown(): void {
+	public function tearDown() {
 		// Your tear down methods here.
 
 		// Then...
