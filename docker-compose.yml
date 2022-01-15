@@ -44,7 +44,7 @@ services:
       - host.docker.internal:host-gateway
 
   php-cli:
-    image: dockette/php:${PHP_VERSION-7.4}
+    image: dockette/ci:php${PHP_VERSION-74}
     container_name: simple-history-php-cli
     environment:
       WORDPRESS_DB_HOST: db
@@ -53,6 +53,7 @@ services:
       WORDPRESS_DB_PASSWORD: examplepass
     profiles:
       - noautostart
+    working_dir: /srv
     volumes:
       - ./:/srv
       - wordpress:/wordpress
