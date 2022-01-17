@@ -195,6 +195,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = nnn unreleased =
 
+- Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
+- Fixed: Some PHP notice messages in post logger.
+- Changed: Don't log attachment updates from post logger.
 - Function sh_d() now does not escape output when running from CLI.
 - Add class static variables $dbtable and $dbtable_contexts that contain full db name (existing class constants DBTABLE and DBTABLE_CONTEXTS needed to be prefixed manually).
 
