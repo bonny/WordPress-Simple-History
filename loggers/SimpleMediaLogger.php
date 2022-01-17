@@ -48,15 +48,11 @@ class SimpleMediaLogger extends SimpleLogger {
 	}
 
 	public function loaded() {
-		add_action( 'admin_init', array( $this, 'onAdminInit' ) );
-		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'onNewMediaObject' ), 10, 2 );
-		add_filter( 'simple_history/rss_item_link', array( $this, 'filterRssItemLink' ), 10, 2 );
-	}
-
-	public function onAdminInit() {
-		add_action( 'add_attachment', array( $this, 'onAddAttachment' ) );
-		add_action( 'edit_attachment', array( $this, 'onEditAttachment' ) );
-		add_action( 'delete_attachment', array( $this, 'onDeleteAttachment' ) );
+		add_action( 'add_attachment', array( $this, 'on_add_attachment' ) );
+		add_action( 'edit_attachment', array( $this, 'on_edit_attachment' ) );
+		add_action( 'delete_attachment', array( $this, 'on_delete_attachment' ) );
+		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'on_mw_new_media_object' ), 10, 2 );
+		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
 	}
 
 	/**
