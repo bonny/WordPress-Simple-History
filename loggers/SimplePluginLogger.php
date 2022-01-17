@@ -956,7 +956,6 @@ class SimplePluginLogger extends SimpleLogger {
 					'plugin_author'       => $plugin_data['Author'],
 					'plugin_version'      => $plugin_data['Version'],
 					'plugin_url'          => $plugin_data['PluginURI'],
-					'plugin_source_files' => $this->simpleHistory->json_encode( $plugin_upgrader_instance->result['source_files'] ),
 				);
 
 				// update status for plugins are in response
