@@ -99,14 +99,33 @@ class SimpleMediaLogger extends SimpleLogger {
 
 		$attachment_id = $context['attachment_id'];
 		$attachment_post = get_post( $attachment_id );
-		$attachment_is_available = is_a( $attachment_post, 'WP_Post' );
+		$attachment_is_available = $attachment_post instanceof WP_Post;
 
-		// Only link to attachment if it is still available
+		// Only link to attachment if it is still available.
 		if ( $attachment_is_available ) {
 			if ( 'attachment_updated' == $message_key ) {
 				$message = __( 'Edited {post_type} <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
-			} elseif ( 'attachment_created' == $message_key ) {
-				$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
+			} elseif ( 'attachment_created' == $message_key ) {				
+
+				if ( isset( $context['attachment_parent_id'] ) ) {
+					// Attachment was uploaded to a post. Link to it, if still available.
+					$attachment_parent_post = get_post( $context['attachment_parent_id'] );
+					$attachment_parent_available = $attachment_parent_post instanceof WP_Post;
+
+					$context['attachment_parent_post_type'] = esc_html( $context['attachment_parent_post_type'] );
+					$context['attachment_parent_title'] = esc_html( $context['attachment_parent_title'] );
+
+					if ( $attachment_parent_available ) {
+						// Include link to parent post.
+						$context['attachment_parent_edit_link'] = get_edit_post_link( $context['attachment_parent_id'] );
+						$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a> to {attachment_parent_post_type} <a href="{attachment_parent_edit_link}">"{attachment_parent_title}"</a>', 'simple-history' );
+					} else {
+						// Include only title to parent post.
+						$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a> to {attachment_parent_post_type} "{attachment_parent_title}"', 'simple-history' );
+					}
+				} else {
+					$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );	
+				}
 			}
 
 			$context['post_type'] = esc_html( $context['post_type'] );
@@ -150,7 +169,6 @@ class SimpleMediaLogger extends SimpleLogger {
 			// Is true if attachment is an image. But for example PDFs can have thumbnail images, but they are not considered to be image.
 			$is_image = wp_attachment_is_image( $attachment_id );
 
-			// $message .= $is_image ? "is images yes" : "is image no";
 			$is_video = strpos( $filetype['type'], 'video/' ) !== false;
 			$is_audio = strpos( $filetype['type'], 'audio/' ) !== false;
 
@@ -237,7 +255,7 @@ class SimpleMediaLogger extends SimpleLogger {
 		$mime = get_post_mime_type( $attachment_post );
 		$file  = get_attached_file( $attachment_id );
 		$file_size = file_exists( $file ) ? filesize( $file ) : null;
-		
+
 		$context = array(
 			'post_type' => get_post_type( $attachment_post ),
 			'attachment_id' => $attachment_id,
@@ -248,16 +266,18 @@ class SimpleMediaLogger extends SimpleLogger {
 		);
 
 		// Add information about possible parent.
-		$attachment_parent = get_post_parent($attachment_id);
+		$attachment_parent = get_post_parent( $attachment_id );
 		$attachment_parent_id = $attachment_parent ? $attachment_parent->ID : null;
 		$attachment_parent_title = $attachment_parent ? get_the_title( $attachment_parent ) : null;
+		$attachment_parent_post_type = $attachment_parent ? get_post_type( $attachment_parent ) : null;
 
 		if ( $attachment_parent ) {
 			$context = array_merge(
 				$context,
 				array(
 					'attachment_parent_id' => $attachment_parent_id,
-					'attachment_parent_title' => $attachment_parent_title,			
+					'attachment_parent_title' => $attachment_parent_title,
+					'attachment_parent_post_type' => $attachment_parent_post_type,
 				)
 			);
 		}
