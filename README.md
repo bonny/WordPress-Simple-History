@@ -92,12 +92,4 @@ You will find more examples in the [examples.php](https://github.com/bonny/WordP
 
 ## Running tests
 
-Run `$ npm run test` to run the tests.
-
-The tests are located in the `tests`-folder and Docker is used to create a WordPress environment to run the tests. The Dockerfile used is based on [PHPUnit WordPress Plugin](https://github.com/yukihiko-shinoda/dockerfile-phpunit-wordpress-plugin).
-
-Currently the tests are run on:
-
-- WordPress 5.6.2 with PHP 7.2
-- WordPress 5.6.2 with PHP 7.4.15
-- WordPress 5.2 with PHP 5.6
+Tests are located in the `tests`-folder. See [./tests/readme.md](./tests/readme.md).
