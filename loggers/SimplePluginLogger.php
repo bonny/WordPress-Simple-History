@@ -770,7 +770,6 @@ class SimplePluginLogger extends SimpleLogger {
 	 *     Array of bulk item update data.
 	 */
 	public function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
-
 		// Can't use get_plugins() here to get version of plugins updated from
 		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..)
 		/*
@@ -837,28 +836,17 @@ class SimplePluginLogger extends SimpleLogger {
 			if ( isset( $arr_data['action'] ) && 'install' == $arr_data['action'] && ! $plugin_upgrader_instance->bulk ) {
 				$upgrader_skin_options = isset( $plugin_upgrader_instance->skin->options ) && is_array( $plugin_upgrader_instance->skin->options ) ? $plugin_upgrader_instance->skin->options : array();
 				$upgrader_skin_result  = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
-				$upgrader_skin_api     = isset( $plugin_upgrader_instance->skin->api ) ? $plugin_upgrader_instance->skin->api : (object) array();
+				// $upgrader_skin_api  = isset( $plugin_upgrader_instance->skin->api ) ? $plugin_upgrader_instance->skin->api : (object) array();
+				$new_plugin_data       = isset( $plugin_upgrader_instance->new_plugin_data ) ? $plugin_upgrader_instance->new_plugin_data : array();
+				$plugin_slug 		   = isset( $upgrader_skin_result['destination_name'] ) ? $upgrader_skin_result['destination_name'] : '';
 
-				$plugin_slug = isset( $upgrader_skin_result['destination_name'] ) ? $upgrader_skin_result['destination_name'] : '';
-
-				// Upgrader contains current info
 				$context = array(
 					'plugin_slug'         => $plugin_slug,
-					'plugin_name'         => isset( $upgrader_skin_api->name ) ? $upgrader_skin_api->name : '',
-					'plugin_version'      => isset( $upgrader_skin_api->version ) ? $upgrader_skin_api->version : '',
-					'plugin_author'       => isset( $upgrader_skin_api->author ) ? $upgrader_skin_api->author : '',
-					'plugin_last_updated' => isset( $upgrader_skin_api->last_updated ) ? $upgrader_skin_api->last_updated : '',
-					'plugin_requires'     => isset( $upgrader_skin_api->requires ) ? $upgrader_skin_api->requires : '',
-					'plugin_tested'       => isset( $upgrader_skin_api->tested ) ? $upgrader_skin_api->tested : '',
-					'plugin_rating'       => isset( $upgrader_skin_api->rating ) ? $upgrader_skin_api->rating : '',
-					'plugin_num_ratings'  => isset( $upgrader_skin_api->num_ratings ) ? $upgrader_skin_api->num_ratings : '',
-					'plugin_downloaded'   => isset( $upgrader_skin_api->downloaded ) ? $upgrader_skin_api->downloaded : '',
-					'plugin_added'        => isset( $upgrader_skin_api->added ) ? $upgrader_skin_api->added : '',
-					'plugin_source_files' => $this->simpleHistory->json_encode( $plugin_upgrader_instance->result['source_files'] ),
-
-					// To debug comment out these:
-					// "debug_skin_options" => $this->simpleHistory->json_encode( $upgrader_skin_options ),
-					// "debug_skin_result" => $this->simpleHistory->json_encode( $upgrader_skin_result ),
+					'plugin_name'         => isset( $new_plugin_data['Name'] ) ? $new_plugin_data['Name'] : '',
+					'plugin_version'      => isset( $new_plugin_data['Version'] ) ? $new_plugin_data['Version'] : '',
+					'plugin_author'       => isset( $new_plugin_data['Author'] ) ? $new_plugin_data['Author'] : '',
+					'plugin_requires_wp'  => isset( $new_plugin_data['RequiresWP'] ) ? $new_plugin_data['RequiresWP'] : '',
+					'plugin_requires_php' => isset( $new_plugin_data['RequiresPHP'] ) ? $new_plugin_data['RequiresPHP'] : '',
 				);
 
 				/*
@@ -871,7 +859,7 @@ class SimplePluginLogger extends SimpleLogger {
 
 				Also: plugins hosted at GitHub have a de-facto standard field of "GitHub Plugin URI"
 				*/
-				$install_source = 'unknown';
+				$install_source = 'web';
 				if ( isset( $upgrader_skin_options['type'] ) ) {
 					$install_source = (string) $upgrader_skin_options['type'];
 				}
