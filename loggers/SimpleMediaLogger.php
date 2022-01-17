@@ -49,7 +49,7 @@ class SimpleMediaLogger extends SimpleLogger {
 
 	public function loaded() {
 		add_action( 'admin_init', array( $this, 'onAdminInit' ) );
-		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'onMwNewMediaObject' ), 10, 2 );
+		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'onNewMediaObject' ), 10, 2 );
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filterRssItemLink' ), 10, 2 );
 	}
 
@@ -67,7 +67,7 @@ class SimpleMediaLogger extends SimpleLogger {
 	 * @param int   $id   ID of the new attachment.
 	 * @param array $args An array of arguments to add the attachment.
 	 */
-	public function onMwNewMediaObject( $attachment_id, $args ) {
+	public function onNewMediaObject( $attachment_id, $args ) {
 
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
