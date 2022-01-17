@@ -431,6 +431,7 @@ class SimplePostLogger extends SimpleLogger {
 			'jp_sitemap',
 			'jp_img_sitemap',
 			'jp_sitemap_master',
+			'attachment',
 		);
 
 		/**
