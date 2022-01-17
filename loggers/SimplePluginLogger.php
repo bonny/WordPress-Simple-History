@@ -838,7 +838,7 @@ class SimplePluginLogger extends SimpleLogger {
 				$upgrader_skin_result  = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
 				// $upgrader_skin_api  = isset( $plugin_upgrader_instance->skin->api ) ? $plugin_upgrader_instance->skin->api : (object) array();
 				$new_plugin_data       = isset( $plugin_upgrader_instance->new_plugin_data ) ? $plugin_upgrader_instance->new_plugin_data : array();
-				$plugin_slug 		   = isset( $upgrader_skin_result['destination_name'] ) ? $upgrader_skin_result['destination_name'] : '';
+				$plugin_slug           = isset( $upgrader_skin_result['destination_name'] ) ? $upgrader_skin_result['destination_name'] : '';
 
 				$context = array(
 					'plugin_slug'         => $plugin_slug,
