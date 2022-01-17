@@ -17,8 +17,8 @@ class SimpleMediaLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'Media/Attachments Logger',
-			'description' => 'Logs media uploads and edits',
+			'name' => __('Media/Attachments Logger', 'simle-history'),
+			'description' => __('Logs media uploads and edits', 'simple-history'),
 			'capability' => 'edit_pages',
 			'messages' => array(
 				'attachment_created' => __( 'Created {post_type} "{attachment_title}"', 'simple-history' ),
@@ -227,7 +227,7 @@ class SimpleMediaLogger extends SimpleLogger {
 	 * Called when an attachment is added.
 	 * Fired from filter 'add_attachment'.
 	 * Is not fired when image is added in Block Editor
-	 * 
+	 *
 	 * @param int $attachment_id.
 	 */
 	public function on_add_attachment( $attachment_id ) {
@@ -236,27 +236,40 @@ class SimpleMediaLogger extends SimpleLogger {
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
 		$file  = get_attached_file( $attachment_id );
-		$file_size = false;
+		$file_size = file_exists( $file ) ? filesize( $file ) : null;
+		
+		$context = array(
+			'post_type' => get_post_type( $attachment_post ),
+			'attachment_id' => $attachment_id,
+			'attachment_title' => get_the_title( $attachment_post ),
+			'attachment_filename' => $filename,
+			'attachment_mime' => $mime,
+			'attachment_filesize' => $file_size,
+		);
 
-		if ( file_exists( $file ) ) {
-			$file_size = filesize( $file );
+		// Add information about possible parent.
+		$attachment_parent = get_post_parent($attachment_id);
+		$attachment_parent_id = $attachment_parent ? $attachment_parent->ID : null;
+		$attachment_parent_title = $attachment_parent ? get_the_title( $attachment_parent ) : null;
+
+		if ( $attachment_parent ) {
+			$context = array_merge(
+				$context,
+				array(
+					'attachment_parent_id' => $attachment_parent_id,
+					'attachment_parent_title' => $attachment_parent_title,			
+				)
+			);
 		}
 
 		$this->infoMessage(
 			'attachment_created',
-			array(
-				'post_type' => get_post_type( $attachment_post ),
-				'attachment_id' => $attachment_id,
-				'attachment_title' => get_the_title( $attachment_post ),
-				'attachment_filename' => $filename,
-				'attachment_mime' => $mime,
-				'attachment_filesize' => $file_size,
-			)
+			$context
 		);
 	}
 
 	/**
-	 * An attachmet is changed
+	 * An attachment is changed
 	 * is this only being called if the title of the attachment is changed?!
 	 *
 	 * @param int $attachment_id
