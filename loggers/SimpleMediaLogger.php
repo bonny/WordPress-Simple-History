@@ -17,7 +17,7 @@ class SimpleMediaLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => __( 'Media/Attachments Logger', 'simle-history' ),
+			'name' => __( 'Media/Attachments Logger', 'simple-history' ),
 			'description' => __( 'Logs media uploads and edits', 'simple-history' ),
 			'capability' => 'edit_pages',
 			'messages' => array(
@@ -105,7 +105,7 @@ class SimpleMediaLogger extends SimpleLogger {
 		if ( $attachment_is_available ) {
 			if ( 'attachment_updated' == $message_key ) {
 				$message = __( 'Edited {post_type} <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
-			} elseif ( 'attachment_created' == $message_key ) {				
+			} elseif ( 'attachment_created' == $message_key ) {
 
 				if ( isset( $context['attachment_parent_id'] ) ) {
 					// Attachment was uploaded to a post. Link to it, if still available.
@@ -124,7 +124,7 @@ class SimpleMediaLogger extends SimpleLogger {
 						$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a> to {attachment_parent_post_type} "{attachment_parent_title}"', 'simple-history' );
 					}
 				} else {
-					$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );	
+					$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
 				}
 			}
 
