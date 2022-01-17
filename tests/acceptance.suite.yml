@@ -42,7 +42,7 @@ modules:
       browser: chrome
       host: chrome
       port: 4444
-      wait: 2
+      #wait: 2
       # window_size: false #disabled for Chrome driver
       window_size: 1024x768
       capabilities:

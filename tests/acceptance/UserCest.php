@@ -72,15 +72,16 @@ class UserCest
     public function logUserCreated(\Step\Acceptance\Admin $I) {
         $I->loginAsAdmin();
         $I->amOnAdminPage('/user-new.php');
+
+        // Needed for the admin JS to have time to generate a password and duplicate it to the hidden password field.
+        $I->wait(0.1);
         
         $I->fillField("#user_login", "NewUserLogin");
         $I->fillField("#email", "newuser@example.com");
         $I->uncheckOption('#send_user_notification');
 
-        $I->executeJS("document.querySelector('.user-pass2-wrap').style.display = 'block';"); 
-        $I->fillField('#pass2', $I->grabValueFrom('#pass1'));
-
         $I->click('Add New User');
+        $I->makeScreenshot();
 
         $I->seeInLog('You', 'Created user NewUserLogin (newuser@example.com) with role subscriber', 1);
     }
