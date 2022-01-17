@@ -63,7 +63,7 @@ class SimpleMediaLogger extends SimpleLogger {
 	 * @param int   $id   ID of the new attachment.
 	 * @param array $args An array of arguments to add the attachment.
 	 */
-	public function onNewMediaObject( $attachment_id, $args ) {
+	public function on_mw_new_media_object( $attachment_id, $args ) {
 
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
@@ -224,9 +224,13 @@ class SimpleMediaLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Called when an attachment is added
+	 * Called when an attachment is added.
+	 * Fired from filter 'add_attachment'.
+	 * Is not fired when image is added in Block Editor
+	 * 
+	 * @param int $attachment_id.
 	 */
-	public function onAddAttachment( $attachment_id ) {
+	public function on_add_attachment( $attachment_id ) {
 
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
@@ -257,12 +261,11 @@ class SimpleMediaLogger extends SimpleLogger {
 	 *
 	 * @param int $attachment_id
 	 */
-	public function onEditAttachment( $attachment_id ) {
+	public function on_edit_attachment( $attachment_id ) {
 
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
-		$file  = get_attached_file( $attachment_id );
 
 		$this->infoMessage(
 			'attachment_updated',
@@ -279,7 +282,7 @@ class SimpleMediaLogger extends SimpleLogger {
 	/*
 	 * Called when an attachment is deleted
 	 */
-	public function onDeleteAttachment( $attachment_id ) {
+	public function on_delete_attachment( $attachment_id ) {
 
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
@@ -305,7 +308,7 @@ class SimpleMediaLogger extends SimpleLogger {
 	 * @param string $link
 	 * @param object  $row
 	 */
-	public function filterRssItemLink( $link, $row ) {
+	public function filter_rss_item_link( $link, $row ) {
 		if ( $row->logger != $this->slug ) {
 			return $link;
 		}
