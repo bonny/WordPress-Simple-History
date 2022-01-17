@@ -195,7 +195,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = nnn unreleased =
 
-- Added: Media and other attachments now display the post they were uploaded to, if any.
+- Added: Media and other attachments now display the post they were uploaded to, if any. ([#274](https://github.com/bonny/WordPress-Simple-History/issues/274))
 - Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
 - Fixed: Some PHP notice messages in post logger.
 - Changed: Don't log attachment updates from post logger.
