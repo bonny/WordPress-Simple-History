@@ -195,6 +195,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = nnn unreleased =
 
+- Added: Media and other attachments now display the post they were uploaded to, if any.
 - Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
 - Fixed: Some PHP notice messages in post logger.
 - Changed: Don't log attachment updates from post logger.
@@ -234,7 +235,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = 2.41.0 (March 2021) =
 
-- Fixed: Error when visiting settings screen on PHP 8. 
+- Fixed: Error when visiting settings screen on PHP 8.
   Fixes https://wordpress.org/support/topic/simple-history-fatal-error/.
   [#239](https://github.com/bonny/WordPress-Simple-History/issues/239)
 
