@@ -83,6 +83,11 @@ class SimplePostLogger extends SimpleLogger {
 		// $prepared_post = stdClass Object with new and modified content.
 		// changes are not saved to post in db yet, so get_post( $prepared_post->ID ) will get old contents.
 
+		// Not all posts have ID, for example attachment uploaded in block editor does not.
+		if ( empty( $prepared_post->ID ) ) {
+			return $prepared_post;
+		}
+
 		// $old_post = post with old content and old meta
 		$old_post = get_post( $prepared_post->ID );
 
@@ -107,15 +112,15 @@ class SimplePostLogger extends SimpleLogger {
 		$updatedPost = get_post( $updatedPost->ID );
 		$post_meta = get_post_custom( $updatedPost->ID );
 
-		$old_post = $this->old_post_data[ $updatedPost->ID ]['post_data'];
-		$old_post_meta = $this->old_post_data[ $updatedPost->ID ]['post_meta'];
+		$old_post = isset( $this->old_post_data[ $updatedPost->ID ] ) ? $this->old_post_data[ $updatedPost->ID ]['post_data'] : null;
+		$old_post_meta = isset( $this->old_post_data[ $updatedPost->ID ] ) ? $this->old_post_data[ $updatedPost->ID ]['post_meta'] : null;
 
 		$args = array(
 			'new_post' => $updatedPost,
 			'new_post_meta' => $post_meta,
 			'old_post' => $old_post,
 			'old_post_meta' => $old_post_meta,
-			'old_status' => $old_post->post_status,
+			'old_status' => $old_post ? $old_post->post_status : null,
 			'_debug_caller_method' => __METHOD__,
 		);
 
