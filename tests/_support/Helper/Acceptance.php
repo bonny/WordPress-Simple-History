@@ -6,5 +6,9 @@ namespace Helper;
 
 class Acceptance extends \Codeception\Module
 {
-
+    function testar() {
+        $I = $this;
+        $I->see("yolo");
+        echo "testar";
+    }
 }

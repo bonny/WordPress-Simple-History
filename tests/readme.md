@@ -2,7 +2,7 @@
 
 ## New method using wp-browser
 
-- Install required dependencies with `$ docker compose run --rm composer install`.
+- Install required dependencies with `$ docker-compose run --rm php-cli composer install`.
 - Copy `dump.sql` to `tests/_data/dump.sql`.
   This is the starting database fixture, containing the WordPress state that the tests start from. It's a minimal, starting environment shared by all tests. The file is not included in the repo.
 - Start containers required for testing:
