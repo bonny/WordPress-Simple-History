@@ -17,8 +17,8 @@ class SimpleMediaLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => __('Media/Attachments Logger', 'simle-history'),
-			'description' => __('Logs media uploads and edits', 'simple-history'),
+			'name' => __( 'Media/Attachments Logger', 'simle-history' ),
+			'description' => __( 'Logs media uploads and edits', 'simple-history' ),
 			'capability' => 'edit_pages',
 			'messages' => array(
 				'attachment_created' => __( 'Created {post_type} "{attachment_title}"', 'simple-history' ),
