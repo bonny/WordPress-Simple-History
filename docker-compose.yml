@@ -17,7 +17,6 @@ services:
       - wordpress:/var/www/html
       - ./:/var/www/html/wp-content/plugins/simple-history
       - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
-    # - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
 
   db:
     image: "mariadb:${MARIADB_VERSION:-10.5}"
@@ -58,14 +57,6 @@ services:
       - ./:/srv
       - wordpress:/wordpress
       - ./:/wordpress/wp-content/plugins/simple-history
-
-  # composer:
-  #   image: composer:2
-  #   container_name: simple-history-composer
-  #   volumes:
-  #     - ./:/app
-  #   profiles:
-  #     - noautostart
 
   wp-cli:
     image: wordpress:cli-php${PHP_VERSION-7.4}

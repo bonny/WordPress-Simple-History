@@ -43,10 +43,10 @@
     "lint-css": "stylelint css/*.css dropins/*.css",
     "lint-php": "composer run lint",
     "lint-php-fix": "composer run lint-fix",
-    "test": "npm run test:wp5.6.2-php7.2 && npm run test:wp5.6.2-php7.4.15 && npm run test:wp5.2-php5.6",
-    "test:wp5.6.2-php7.2": "DOCKER_IMAGE_PHPUNIT=eskapism/phpunit-wordpress-plugin:wp5.6.2-php7.2 docker-compose -f tests/docker-compose.yml run phpunit phpunit --testdox",
-    "test:wp5.6.2-php7.4.15": "DOCKER_IMAGE_PHPUNIT=eskapism/phpunit-wordpress-plugin:wp5.6.2-php7.4.15 docker-compose -f tests/docker-compose.yml run phpunit phpunit --testdox",
-    "test:wp5.2-php5.6": "DOCKER_IMAGE_PHPUNIT=eskapism/phpunit-wordpress-plugin:wp5.2-php5.6 docker-compose -f tests/docker-compose.yml run phpunit phpunit --testdox"
+    "test": "npm run test:php5.6-wpunit && npm run test:php7.4-wpunit && npm run test:php7.4-acceptance",
+    "test:php7.4-wpunit": "docker-compose run --rm php-cli vendor/bin/codecept run wpunit",
+    "test:php7.4-acceptance": "docker-compose run --rm php-cli vendor/bin/codecept run acceptance",
+    "test:php5.6-wpunit": "PHP_CLI_VERSION=56 docker-compose run --rm php-cli vendor/bin/codecept run wpunit"
   },
   "lint-staged": {
     "*.php": [
