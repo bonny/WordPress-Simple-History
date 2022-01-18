@@ -7,24 +7,24 @@
     factory(jQuery);
   }
 })(function (jQuery) {
-  // Portuguese shortened
+  // Azerbaijani
   jQuery.timeago.settings.strings = {
     prefixAgo: null,
     prefixFromNow: null,
-    suffixAgo: "",
-    suffixFromNow: "",
-    seconds: "1m",
-    minute: "1m",
-    minutes: "%dm",
-    hour: "1h",
-    hours: "%dh",
-    day: "1d",
-    days: "%dd",
-    month: "1M",
-    months: "%dM",
-    year: "1a",
-    years: "%da",
-    wordSeparator: " ",
+    suffixAgo: "əvvəl",
+    suffixFromNow: "sonra",
+    seconds: "saniyələr",
+    minute: "1 dəqiqə",
+    minutes: "%d dəqiqə",
+    hour: "1 saat",
+    hours: "%d saat",
+    day: "1 gün",
+    days: "%d gün",
+    month: "1 ay",
+    months: "%d ay",
+    year: "1 il",
+    years: "%d il",
+    wordSeparator: "",
     numbers: [],
   };
 });

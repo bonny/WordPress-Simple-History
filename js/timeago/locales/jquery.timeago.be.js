@@ -7,7 +7,7 @@
     factory(jQuery);
   }
 })(function (jQuery) {
-  // Russian
+  // Belarusian
   function numpf(n, f, s, t) {
     // f - 1, 21, 31, ...
     // s - 2-4, 22-24, 32-34 ...
@@ -25,29 +25,29 @@
 
   jQuery.timeago.settings.strings = {
     prefixAgo: null,
-    prefixFromNow: "через",
-    suffixAgo: "назад",
+    prefixFromNow: "праз",
+    suffixAgo: "таму",
     suffixFromNow: null,
-    seconds: "меньше минуты",
-    minute: "минуту",
+    seconds: "менш хвіліны",
+    minute: "хвіліну",
     minutes: function (value) {
-      return numpf(value, "%d минуту", "%d минуты", "%d минут");
+      return numpf(value, "%d хвіліна", "%d хвіліны", "%d хвілін");
     },
-    hour: "час",
+    hour: "гадзіну",
     hours: function (value) {
-      return numpf(value, "%d час", "%d часа", "%d часов");
+      return numpf(value, "%d гадзіна", "%d гадзіны", "%d гадзін");
     },
-    day: "день",
+    day: "дзень",
     days: function (value) {
-      return numpf(value, "%d день", "%d дня", "%d дней");
+      return numpf(value, "%d дзень", "%d дні", "%d дзён");
     },
     month: "месяц",
     months: function (value) {
-      return numpf(value, "%d месяц", "%d месяца", "%d месяцев");
+      return numpf(value, "%d месяц", "%d месяцы", "%d месяцаў");
     },
     year: "год",
     years: function (value) {
-      return numpf(value, "%d год", "%d года", "%d лет");
+      return numpf(value, "%d год", "%d гады", "%d гадоў");
     },
   };
 });

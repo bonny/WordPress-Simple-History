@@ -7,23 +7,23 @@
     factory(jQuery);
   }
 })(function (jQuery) {
-  // Catalan
+  // German shortened
   jQuery.timeago.settings.strings = {
-    prefixAgo: "fa",
-    prefixFromNow: "d'aquí",
-    suffixAgo: null,
-    suffixFromNow: null,
-    seconds: "menys d'un minut",
-    minute: "un minut",
-    minutes: "%d minuts",
-    hour: "una hora",
-    hours: "%d hores",
-    day: "un dia",
-    days: "%d dies",
-    month: "un mes",
-    months: "%d mesos",
-    year: "un any",
-    years: "%d anys",
+    prefixAgo: null,
+    prefixFromNow: null,
+    suffixAgo: "",
+    suffixFromNow: "",
+    seconds: "s",
+    minute: "1m",
+    minutes: "%dm",
+    hour: "1h",
+    hours: "%dh",
+    day: "1T.",
+    days: "%dT.",
+    month: "1Mt.",
+    months: "%dMt.",
+    year: "1J.",
+    years: "%dJ.",
     wordSeparator: " ",
     numbers: [],
   };
