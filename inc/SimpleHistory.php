@@ -1359,7 +1359,7 @@ class SimpleHistory {
 			);
 
 			// Determine current locale to load timeago and Select 2locale.
-			$user_locale = strtolower( substr( get_user_locale(), 0, 2) ); // en_US
+			$user_locale = strtolower( substr( get_user_locale(), 0, 2 ) ); // en_US
 
 			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/timeago/locales/jquery.timeago.%s.js';
 			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/timeago/locales/jquery.timeago.%s.js';
