@@ -624,7 +624,7 @@ class SimpleHistoryLogQuery {
 		 * @param string $sql
 		 */
 		$sql = apply_filters( 'simple_history/log_query_sql', $sql );
-		
+
 		// Only return sql query.
 		// if ( $args['returnQuery'] ) {
 		// 	return $sql;
