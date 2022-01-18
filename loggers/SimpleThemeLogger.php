@@ -133,7 +133,7 @@ class SimpleThemeLogger extends SimpleLogger {
 	 */
 	public function on_action_delete_theme( $stylesheet ) {
 		$theme = wp_get_theme( $stylesheet );
-		
+
 		$this->themes_data[ $stylesheet ] = array(
 			'name' => $theme->get( 'Name' ),
 			'version' => $theme->get( 'Version' ),
