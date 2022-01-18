@@ -195,6 +195,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = nnn unreleased =
 
+- Fixed: Theme installs are now logged again. ([#265](https://github.com/bonny/WordPress-Simple-History/issues/265))
 - Fixed: Plugin deletions are now logged again. ([#247](https://github.com/bonny/WordPress-Simple-History/issues/247), [#122](https://github.com/bonny/WordPress-Simple-History/issues/122))
 - Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
 - Fixed: Some PHP notice messages in post logger.
