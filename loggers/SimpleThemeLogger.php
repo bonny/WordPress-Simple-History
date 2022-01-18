@@ -13,6 +13,14 @@ class SimpleThemeLogger extends SimpleLogger {
 	private $prev_theme_data;
 
 	/**
+	 * Used to collect information about a theme before it is deleted.
+	 * Theme info is stored with css file as the key.
+	 *
+	 * @var array
+	 */
+	protected $themes_data = array();
+
+	/**
 	 * Get array with information about this logger
 	 *
 	 * @return array
@@ -26,7 +34,7 @@ class SimpleThemeLogger extends SimpleLogger {
 			'messages' => array(
 				'theme_switched' => __( 'Switched theme to "{theme_name}" from "{prev_theme_name}"', 'simple-history' ),
 				'theme_installed' => __( 'Installed theme "{theme_name}" by {theme_author}', 'simple-history' ),
-				'theme_deleted' => __( 'Deleted theme with slug "{theme_slug}"', 'simple-history' ),
+				'theme_deleted' => __( 'Deleted theme "{theme_name}"', 'simple-history' ),
 				'theme_updated' => __( 'Updated theme "{theme_name}"', 'simple-history' ),
 				'appearance_customized' => __( 'Customized theme appearance "{setting_id}"', 'simple-history' ),
 				'widget_removed' => __( 'Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', 'simple-history' ),
@@ -103,56 +111,67 @@ class SimpleThemeLogger extends SimpleLogger {
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_install' ), 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_update' ), 10, 2 );
 
-		// delete_site_transient( 'update_themes' );
-		// do_action( 'deleted_site_transient', $transient );
-		add_action( 'deleted_site_transient', array( $this, 'on_deleted_site_transient_theme_deleted' ), 10, 1 );
-	}
-
-	/*
-	* Fires after a transient is deleted.
-	* WP function delete_theme() does not have any actions or filters we can use to detect
-	* a theme deletion, but the last thing that is done in delete_theme() is that the
-	* "update_themes" transient is deleted. So use that info to catch theme deletions.
-	*
-	* @param string $transient Deleted transient name.
-	*/
-	public function on_deleted_site_transient_theme_deleted( $transient = null ) {
-
-		if ( 'update_themes' !== $transient ) {
-			return;
-		}
-
+		// Log theme deletion.
+		add_action( 'delete_theme', array( $this, 'on_action_delete_theme' ), 10, 1 );
+		add_action( 'deleted_theme', array( $this, 'on_action_deleted_theme' ), 10, 2 );
 		/*
-		When a theme is deleted we have this info:
-
-		$_GET:
-		{
-			"action": "delete",
-			"stylesheet": "CherryFramework",
-			"_wpnonce": "1c1571004e"
-		}
-
-
-		*/
-
-		if ( empty( $_GET['action'] ) || $_GET['action'] !== 'delete' ) {
-			return;
-		}
-
-		if ( empty( $_GET['stylesheet'] ) ) {
-			return;
-		}
-
-		$theme_deleted_slug = (string) $_GET['stylesheet'];
-
 		$this->infoMessage(
 			'theme_deleted',
 			array(
 				'theme_slug' => $theme_deleted_slug,
 			)
 		);
+		wp_get_theme( $one_updated_theme );
+		*/
 	}
 
+	/**
+	 * Store information about a theme before the theme is deleted.
+	 *
+	 * @param string $stylesheet Stylesheet of the theme to delete.
+	 * @return void
+	 */
+	public function on_action_delete_theme( $stylesheet ) {
+		$theme = wp_get_theme( $stylesheet );
+		
+		$this->themes_data[ $stylesheet ] = array(
+			'name' => $theme->get( 'Name' ),
+			'version' => $theme->get( 'Version' ),
+			'author' => $theme->get( 'Author' ),
+			'description' => $theme->get( 'Description' ),
+			'themeuri' => $theme->get( 'ThemeURI' ),
+		);
+	}
+
+	/**
+	 * Log theme deletion.
+	 *
+	 * @param string $stylesheet Stylesheet of the theme to delete.
+	 * @param bool   $deleted    Whether the theme deletion was successful.
+	 * @return void
+	 */
+	public function on_action_deleted_theme( $stylesheet, $deleted ) {
+		if ( ! $deleted || ! $stylesheet ) {
+			return;
+		}
+
+		if ( empty( $this->themes_data[ $stylesheet ] ) ) {
+			return;
+		}
+
+		$theme_data = $this->themes_data[ $stylesheet ];
+
+		$this->infoMessage(
+			'theme_deleted',
+			array(
+				'theme_slug' => $stylesheet,
+				'theme_name' => $theme_data['name'],
+				'theme_version' => $theme_data['version'],
+				'theme_author' => $theme_data['author'],
+				'theme_description' => $theme_data['description'],
+			)
+		);
+	}
 
 	public function on_upgrader_process_complete_theme_update( $upgrader_instance = null, $arr_data = null ) {
 
