@@ -193,8 +193,8 @@ class SimplePluginLogger extends SimpleLogger {
 		add_filter( 'gettext', array( $this, 'on_gettext' ), 10, 3 );
 
 		// Detect plugin auto update change.
-		add_action( 'load-plugins.php', array( $this, 'handleAutoUpdateChange' ) );
-		add_action( 'wp_ajax_toggle-auto-updates', array( $this, 'handleAutoUpdateChange' ), 1, 1 );
+		add_action( 'load-plugins.php', array( $this, 'handle_auto_update_change' ) );
+		add_action( 'wp_ajax_toggle-auto-updates', array( $this, 'handle_auto_update_change' ), 1, 1 );
 
 		// Log plugin deletions, i.e. when a user click "Delete" in the plugins listing
 		// or choose plugin(s) and select Bulk actions -> Delete.
@@ -258,7 +258,7 @@ class SimplePluginLogger extends SimpleLogger {
 	 * site_option 'auto_update_plugins'.
 	 * Check the value of that option after the option is updated.
 	 */
-	public function handleAutoUpdateChange() {
+	public function handle_auto_update_change() {
 		$option = 'auto_update_plugins';
 
 		add_filter(
