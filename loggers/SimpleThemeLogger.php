@@ -284,14 +284,25 @@ class SimpleThemeLogger extends SimpleLogger {
 			return;
 		}
 
+		// $destination_name is the slug (folder name) of the theme.
+		sh_error_log( '$upgrader_instance', $upgrader_instance );
+		$destination_name = $upgrader_instance->result['destination_name'];
+		$theme = wp_get_theme( $destination_name );
+
+		if ( ! $theme->exists() ) {
+			return;
+		}
+
 		$new_theme_data = $upgrader_instance->new_theme_data;
 
 		$this->infoMessage(
 			'theme_installed',
 			array(
+				'theme_slug' => $destination_name,
 				'theme_name' => $new_theme_data['Name'],
 				'theme_version' => $new_theme_data['Version'],
 				'theme_author' => $new_theme_data['Author'],
+				'theme_description' => $theme->get( 'Description' ),
 			)
 		);
 	}
