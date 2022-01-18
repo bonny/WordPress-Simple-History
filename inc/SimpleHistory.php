@@ -608,8 +608,6 @@ class SimpleHistory {
 	 * http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&posts_per_page=5&paged=1&format=html
 	 */
 	public function api() {
-		global $wpdb;
-
 		// Fake slow answers
 		// sleep(2);
 		// sleep(rand(0,3));
@@ -1360,14 +1358,15 @@ class SimpleHistory {
 				true
 			);
 
-			// Determine current locale to load timeago locale
-			$locale = strtolower( substr( get_locale(), 0, 2 ) );
+			// Determine current locale to load timeago and Select 2locale.
+			$user_locale = strtolower( substr( get_user_locale(), 0, 2) ); // en_US
+
 			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/timeago/locales/jquery.timeago.%s.js';
 			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/timeago/locales/jquery.timeago.%s.js';
 
 			// Only enqueue if locale-file exists on file system
-			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
-				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, $locale ), array( 'jquery' ), '1.5.2', true );
+			if ( file_exists( sprintf( $locale_dir_path, $user_locale ) ) ) {
+				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, $user_locale ), array( 'jquery' ), '1.5.2', true );
 			} else {
 				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, 'en' ), array( 'jquery' ), '1.5.2', true );
 			}
@@ -1376,8 +1375,8 @@ class SimpleHistory {
 			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/select2/i18n/%s.js';
 			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/select2/i18n/%s.js';
 
-			if ( file_exists( sprintf( $locale_dir_path, $locale ) ) ) {
-				wp_enqueue_script( 'select2-locale', sprintf( $locale_url_path, $locale ), array( 'jquery' ), '3.5.1', true );
+			if ( file_exists( sprintf( $locale_dir_path, $user_locale ) ) ) {
+				wp_enqueue_script( 'select2-locale', sprintf( $locale_url_path, $user_locale ), array( 'jquery' ), '3.5.1', true );
 			}
 
 			/**
