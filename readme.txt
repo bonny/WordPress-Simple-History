@@ -195,6 +195,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = nnn unreleased =
 
+- Fixed: Plugin deletions are now logged again. ([#247](https://github.com/bonny/WordPress-Simple-History/issues/247), [#122](https://github.com/bonny/WordPress-Simple-History/issues/122))
+- Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
+- Fixed: Some PHP notice messages in post logger.
 - Added: Media and other attachments now display the post they were uploaded to, if any. ([#274](https://github.com/bonny/WordPress-Simple-History/issues/274))
 - Added: Add class static variables $dbtable and $dbtable_contexts that contain full db name (existing class constants DBTABLE and DBTABLE_CONTEXTS needed to be prefixed manually).
 - Added: Plugin installs now save required version of PHP and WordPress.
@@ -202,8 +205,6 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Changed: Attachment updates are no longer logged from post logger since the media/attachment logger takes care of it.
 - Changed: Function `sh_d()` now does not escape output when running from CLI.
 - Removed: Plugin source files-listing removed from plugin installs, because the listing was incomplete, plus some more fields that no longer were able to get meaninful values (plugin rating, number or ratings, etc.).
-- Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
-- Fixed: Some PHP notice messages in post logger.
 
 = 3.0.0 (January 2022) =
 

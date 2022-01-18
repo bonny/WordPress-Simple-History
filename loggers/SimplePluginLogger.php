@@ -24,6 +24,14 @@ class SimplePluginLogger extends SimpleLogger {
 	public $latest_plugin_deactivation_because_of_error_reason = array();
 
 	/**
+	 * Used to collect information about a plugin (using get_plugin_data()) before it is deleted.
+	 * Plugin info is stored with plugin file as the key.
+	 *
+	 * @var array
+	 */
+	protected $plugins_data = array();
+
+	/**
 	 * Get array with information about this logger
 	 *
 	 * @return array
@@ -166,11 +174,6 @@ class SimplePluginLogger extends SimpleLogger {
 		// Check hook extra for upgrader initiator.
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2 );
 
-		// Detect files removed.
-		add_action( 'setted_transient', array( $this, 'on_setted_transient_for_remove_files' ), 10, 2 );
-
-		add_action( 'admin_action_delete-selected', array( $this, 'on_action_delete_selected' ), 10, 1 );
-
 		// Ajax function to get info from GitHub repo. Used by "View plugin info"-link for plugin installs.
 		add_action( 'wp_ajax_SimplePluginLogger_GetGitHubPluginInfo', array( $this, 'ajax_GetGitHubPluginInfo' ) );
 
@@ -192,6 +195,58 @@ class SimplePluginLogger extends SimpleLogger {
 		// Detect plugin auto update change.
 		add_action( 'load-plugins.php', array( $this, 'handleAutoUpdateChange' ) );
 		add_action( 'wp_ajax_toggle-auto-updates', array( $this, 'handleAutoUpdateChange' ), 1, 1 );
+
+		// Log plugin deletions, i.e. when a user click "Delete" in the plugins listing
+		// or choose plugin(s) and select Bulk actions -> Delete.
+		// Since WordPress 4.4 filters exists that are fired before and after plugin deletion.
+		add_action( 'delete_plugin', array( $this, 'on_action_delete_plugin' ), 10, 1 );
+		add_action( 'deleted_plugin', array( $this, 'on_action_deleted_plugin' ), 10, 2 );
+	}
+
+	/**
+	 * Store information about a plugin before it gets deleted.
+	 * Called from action `deleted_plugin` that is fired just before the plugin will be deleted.
+	 *
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @return void
+	 */
+	public function on_action_delete_plugin( $plugin_file ) {
+		$this->plugins_data[ $plugin_file ] = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file, true, false );
+	}
+
+	/**
+	 * Log plugin deletion.
+	 * Called from action `deleted_plugin` that is fired just after a plugin has been deleted.
+	 *
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @param bool   $deleted     Whether the plugin deletion was successful.
+	 * @return void
+	 */
+	public function on_action_deleted_plugin( $plugin_file, $deleted ) {
+		if ( ! $deleted ) {
+			return;
+		}
+
+		if ( empty( $this->plugins_data[ $plugin_file ] ) ) {
+			return;
+		}
+
+		$plugin_data = $this->plugins_data[ $plugin_file ];
+
+		$context = array(
+			'plugin' => $plugin_file,
+			'plugin_name' => $plugin_data['Name'],
+			'plugin_title' => $plugin_data['Title'],
+			'plugin_description' => $plugin_data['Description'],
+			'plugin_author' => $plugin_data['Author'],
+			'plugin_version' => $plugin_data['Version'],
+			'plugin_url' => $plugin_data['PluginURI'],
+		);
+
+		$this->infoMessage(
+			'plugin_deleted',
+			$context
+		);
 	}
 
 	/**
@@ -599,35 +654,6 @@ class SimplePluginLogger extends SimpleLogger {
 		exit;
 	}
 
-	/*
-	 * When a plugin has been deleted there is no way for us to get
-	 * the real name of the plugin, only the dir and main index file.
-	 * So before a plugin is deleted we save all needed info in a transient
-	 */
-	public function on_action_delete_selected() {
-
-		// Same as in plugins.php
-		if ( ! current_user_can( 'delete_plugins' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to delete plugins for this site.', 'simple-history' ) );
-		}
-
-		// Verify delete must be set
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( ! isset( $_POST['verify-delete'] ) || ! $_POST['verify-delete'] ) {
-			return;
-		}
-
-		// An arr of plugins must be set
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( ! isset( $_POST['checked'] ) || ! is_array( $_POST['checked'] ) ) {
-			return;
-		}
-
-		// If we get this far it looks like a plugin is begin deleted
-		// Get and save info about it
-		$this->save_versions_before_update();
-	}
-
 	/**
 	 * Saves info about all installed plugins to an option.
 	 * When we are done logging then we remove the option.
@@ -645,110 +671,6 @@ class SimplePluginLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Detect plugin being deleted
-	 * When WP is done deleting a plugin it sets a transient called plugins_delete_result:
-	 * set_transient('plugins_delete_result_' . $user_ID, $delete_result);
-	 *
-	 * We detect when that transient is set and then we have all info needed to log the plugin delete
-	 */
-	public function on_setted_transient_for_remove_files( $transient = '', $value = '' ) {
-
-		$user_id = get_current_user_id();
-		if ( ! $user_id ) {
-			return;
-		}
-
-		$transient_name = '_transient_plugins_delete_result_' . $user_id;
-		if ( $transient_name !== $transient ) {
-			return;
-		}
-
-		// We found the transient we were looking for
-		if (
-			// phpcs:disable WordPress.Security.NonceVerification.Missing
-			isset( $_POST['action'] )
-				&& 'delete-selected' == $_POST['action']
-				&& isset( $_POST['checked'] )
-				&& is_array( $_POST['checked'] )
-			// phpcs:enable WordPress.Security.NonceVerification.Missing
-		) {
-			/*
-			[checked] => Array
-				(
-					[0] => the-events-calendar/the-events-calendar.php
-				)
-			*/
-
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$plugins_deleted = (array) $_POST['checked'];
-			$plugins_before_update = json_decode( get_option( $this->slug . '_plugin_info_before_update', false ), true );
-
-			foreach ( $plugins_deleted as $plugin ) {
-				$context = array(
-					'plugin' => $plugin, // plugin-name-folder/plugin-main-file.php
-				);
-
-				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin ] ) ) {
-					$context['plugin_name']        = $plugins_before_update[ $plugin ]['Name'];
-					$context['plugin_title']       = $plugins_before_update[ $plugin ]['Title'];
-					$context['plugin_description'] = $plugins_before_update[ $plugin ]['Description'];
-					$context['plugin_author']      = $plugins_before_update[ $plugin ]['Author'];
-					$context['plugin_version']     = $plugins_before_update[ $plugin ]['Version'];
-					$context['plugin_url']         = $plugins_before_update[ $plugin ]['PluginURI'];
-				}
-
-				$this->infoMessage(
-					'plugin_deleted',
-					$context
-				);
-			}
-		}
-
-		$this->remove_saved_versions();
-	}
-
-	/**
-	 * Save all plugin information before a plugin is updated or removed.
-	 * This way we can know both the old (pre updated/removed) and the current version of the plugin
-	 */
-	/*
-	public function save_versions_before_update() {
-
-		$current_screen = get_current_screen();
-		$request_uri = $_SERVER["SCRIPT_NAME"];
-
-		// Only add option on pages where needed
-		$do_store = false;
-
-		if (
-				SimpleHistory::ends_with( $request_uri, "/wp-admin/update.php" )
-				&& isset( $current_screen->base )
-				&& "update" == $current_screen->base
-			) {
-
-			// Plugin update screen
-			$do_store = true;
-
-		} else if (
-				SimpleHistory::ends_with( $request_uri, "/wp-admin/plugins.php" )
-				&& isset( $current_screen->base )
-				&& "plugins" == $current_screen->base
-				&& ( isset( $_POST["action"] ) && "delete-selected" == $_POST["action"] )
-			) {
-
-			// Plugin delete screen, during delete
-			$do_store = true;
-
-		}
-
-		if ( $do_store ) {
-			update_option( $this->slug . "_plugin_info_before_update", SimpleHistory::json_encode( get_plugins() ) );
-		}
-
-	}
-	*/
-
-	/**
 	 * when plugin updates are done wp_clean_plugins_cache() is called,
 	 * which in its turn run:
 	 * delete_site_transient( 'update_plugins' );
@@ -756,7 +678,6 @@ class SimplePluginLogger extends SimpleLogger {
 	 * delete_site_transient_update_plugins
 	 */
 	public function remove_saved_versions() {
-
 		delete_option( $this->slug . '_plugin_info_before_update' );
 	}
 
