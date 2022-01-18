@@ -285,7 +285,6 @@ class SimpleThemeLogger extends SimpleLogger {
 		}
 
 		// $destination_name is the slug (folder name) of the theme.
-		sh_error_log( '$upgrader_instance', $upgrader_instance );
 		$destination_name = $upgrader_instance->result['destination_name'];
 		$theme = wp_get_theme( $destination_name );
 
