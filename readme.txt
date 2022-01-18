@@ -202,6 +202,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
 - Fixed: Some PHP notice messages in post logger.
 - Updated: JavaScript library TimeAgo updated to 1.6.7 from 1.6.3.
+- Added: Option "All days" to date range filter dropdown. ([#196](https://github.com/bonny/WordPress-Simple-History/issues/196))
 - Added: Media and other attachments now display the post they were uploaded to, if any. ([#274](https://github.com/bonny/WordPress-Simple-History/issues/274))
 - Added: Add class static variables $dbtable and $dbtable_contexts that contain full db name (existing class constants DBTABLE and DBTABLE_CONTEXTS needed to be prefixed manually).
 - Added: Plugin installs now save required version of PHP and WordPress.

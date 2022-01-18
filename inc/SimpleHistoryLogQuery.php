@@ -74,7 +74,7 @@ class SimpleHistoryLogQuery {
 			// occasionsCountMaxReturn
 			// occasionsID
 			// If rows should be returned, or the actualy sql query used
-			'returnQuery' => false,
+			// 'returnQuery' => false,
 
 		);
 
@@ -159,7 +159,6 @@ class SimpleHistoryLogQuery {
 				) AS t ON t.id = h.id
 
 				WHERE
-					# AND DATE >= DATE(NOW()) - INTERVAL 7 DAY
 					# Outer/Second where
 					%1$s
 
@@ -282,6 +281,12 @@ class SimpleHistoryLogQuery {
 				Array
 				(
 					[0] => lastdays:7
+				)
+
+				$arr_dates can be allDates
+				Array
+				(
+					[0] => allDates
 				)
 			*/
 
@@ -563,8 +568,6 @@ class SimpleHistoryLogQuery {
 				);
 
 				$inner_where .= $sql_user;
-
-				// echo $inner_where;exit;
 			}
 		}
 
@@ -621,11 +624,11 @@ class SimpleHistoryLogQuery {
 		 * @param string $sql
 		 */
 		$sql = apply_filters( 'simple_history/log_query_sql', $sql );
-
-		// Only return sql query
-		if ( $args['returnQuery'] ) {
-			return $sql;
-		}
+		
+		// Only return sql query.
+		// if ( $args['returnQuery'] ) {
+		// 	return $sql;
+		// }
 
 		$log_rows = $wpdb->get_results( $sql, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 

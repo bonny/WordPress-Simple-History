@@ -172,35 +172,35 @@ class SimpleHistoryFilterDropin {
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:1', // 1 - value
-							esc_attr_x( 'Last day', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last day', 'Filter dropin: filter days', 'simple-history' ), // 2 text
 							selected( $daysToShow, 1, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:7', // 1 - value
-							esc_attr_x( 'Last 7 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last 7 days', 'Filter dropin: filter days', 'simple-history' ), // 2 text
 							selected( $daysToShow, 7, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:14', // 1 - value
-							esc_attr_x( 'Last 14 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last 14 days', 'Filter dropin: filter days', 'simple-history' ), // 2 text
 							selected( $daysToShow, 14, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:30', // 1 - value
-							esc_attr_x( 'Last 30 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last 30 days', 'Filter dropin: filter days', 'simple-history' ), // 2 text
 							selected( $daysToShow, 30, 0 )
 						);
 
 						printf(
 							'<option value="%1$s" %3$s>%2$s</option>',
 							'lastdays:60', // 1 - value
-							esc_attr_x( 'Last 60 days', 'Filter dropin: filter week', 'simple-history' ), // 2 text
+							esc_attr_x( 'Last 60 days', 'Filter dropin: filter days', 'simple-history' ), // 2 text
 							selected( $daysToShow, 60, 0 )
 						);
 
@@ -217,6 +217,13 @@ class SimpleHistoryFilterDropin {
 								)
 							);
 						}
+
+						// All time.
+						printf(
+							'<option value="%1$s">%2$s</option>',
+							'allDates', // 1 - value
+							esc_attr_x( 'All dates', 'Filter dropin: filter all dates', 'simple-history' ) // 2 text
+						);
 
 						?>
 					</select>
