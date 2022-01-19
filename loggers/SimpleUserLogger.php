@@ -66,6 +66,28 @@ class SimpleUserLogger extends SimpleLogger {
 					'User destroys all login sessions for a user',
 					'simple-history'
 				),
+
+				'user_admin_email_confirm_screen_view' => _x(
+					'Viewed admin email confirm screen',
+					'User sees user admin email confirm screen',
+					'simple-history'
+				),
+				'user_admin_email_confirm_update_clicked' => _x(
+					'Clicked "Update" button on admin email confirm screen',
+					'User clicks update admin email on admin email confirm screen',
+					'simple-history'
+				),
+				'user_admin_email_confirm_correct_clicked' => _x(
+					'Clicked "The email is correct" on admin email confirm screen',
+					'User clicks confirm admin email on admin email confirm screen',
+					'simple-history'
+				),
+				'user_admin_email_confirm_remind_clicked' => _x(
+					'Clicked "Remind me later" on admin email confirm screen',
+					'User clicks remind me later on admin email confirm screen',
+					'simple-history'
+				),
+
 			),
 
 			'labels' => array(
@@ -121,8 +143,6 @@ class SimpleUserLogger extends SimpleLogger {
 		// so if we run at 10 we just get null
 		add_filter( 'authenticate', array( $this, 'onAuthenticate' ), 30, 3 );
 
-		// User is changed
-		// add_action("profile_update", array($this, "on_profile_update"), 10, 2);
 		// User is created
 		add_action( 'user_register', array( $this, 'onUserRegister' ), 10, 2 );
 
@@ -137,6 +157,102 @@ class SimpleUserLogger extends SimpleLogger {
 		add_action( 'retrieve_password_message', array( $this, 'onRetrievePasswordMessage' ), 10, 4 );
 
 		add_filter( 'insert_user_meta', array( $this, 'onInsertUserMeta' ), 10, 3 );
+
+		// Administration email verification-screen
+
+		// Run this to force-show the admin email confirm screen.
+		// add_filter(
+		// 	'option_admin_email_lifespan',
+		// 	function( $value, $option ) {
+		// 		return 1;
+		// 	},
+		// 	10,
+		// 	2
+		// );
+
+		add_action(
+			'admin_email_confirm',
+			array( $this, 'on_action_admin_email_confirm' )
+		);
+
+		add_action(
+			'load-options-general.php',
+			array( $this, 'on_action_load_options_general' )
+		);
+
+		add_action(
+			'login_form_confirm_admin_email',
+			array( $this, 'on_action_login_form_confirm_admin_email' )
+		);
+
+		add_action(
+			'login_form_confirm_admin_email',
+			array( $this, 'on_action_login_form_confirm_admin_email_remind_later' )
+		);
+	}
+
+	public function on_action_login_form_confirm_admin_email_remind_later() {
+		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
+		if ( empty( $_GET['remind_me_later'] ) ) {
+			return;
+		}
+
+		// Bail if nonce not valid.
+		$nonce_valid = wp_verify_nonce( $_GET['remind_me_later'], 'remind_me_later_nonce' );
+		if ( $nonce_valid === false ) {
+			return;
+		}
+
+		$this->infoMessage( 'user_admin_email_confirm_remind_clicked' );
+	}
+
+	public function on_action_login_form_confirm_admin_email() {
+		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
+		if ( empty( $_POST['confirm_admin_email_nonce'] ) || empty( $_POST['correct-admin-email'] ) ) {
+			return;
+		}
+
+		// Bail if nonce not valid.
+		$nonce_valid = wp_verify_nonce( $_POST['confirm_admin_email_nonce'], 'confirm_admin_email' );
+		if ( $nonce_valid === false ) {
+			return;
+		}
+
+		// sh_error_log( 'User clicked "The email is correct"' );
+		$this->infoMessage( 'user_admin_email_confirm_correct_clicked' );
+	}
+
+	public function on_action_load_options_general() {
+		$referer = wp_get_referer();
+		$referer_parts = wp_parse_url( $referer );
+
+		$login_url = wp_login_url();
+		$login_url_parts = wp_parse_url( $login_url );
+
+		// Bail if referer is not login page.
+		if ( $referer_parts['path'] !== $login_url_parts['path'] ) {
+			return;
+		}
+
+		// If page was wp-login.php and action was confirm_admin_email then user came from confirm email screen
+		// http://wordpress-stable.test/wordpress/wp-login.php?redirect_to=http%3A%2F%2Fwordpress-stable.test%2Fwordpress%2Fwp-admin%2F&action=confirm_admin_email&wp_lang=sv_SE
+		$referer_parts_query_parts = wp_parse_args( $referer_parts['query'] );
+
+		// Bail if action was not to show confirm_admin_email-page.
+		if ( $referer_parts_query_parts['action'] !== 'confirm_admin_email' ) {
+			return;
+		}
+
+		// We are at options-general.php and user got here from the confirm admin email page.
+		// sh_error_log( 'User clicked on "Update" button' );
+		$this->infoMessage( 'user_admin_email_confirm_update_clicked' );
+	}
+
+	public function on_action_admin_email_confirm( $errors ) {
+		if ( is_wp_error( $errors ) && $errors->has_errors() ) {
+			return;
+		}
+		$this->infoMessage( 'user_admin_email_confirm_screen_view' );
 	}
 
 	 /*
@@ -294,7 +410,6 @@ class SimpleUserLogger extends SimpleLogger {
 			}
 		}
 
-		// print_r($context);exit;
 		$this->infoMessage( 'user_updated_profile', $context );
 
 		return $meta;
@@ -550,34 +665,6 @@ class SimpleUserLogger extends SimpleLogger {
 		$this->infoMessage( 'user_logged_out', $context );
 	}
 
-	/**
-	 * User is edited
-	 *
-	 * Called immediately after an existing user is updated.
-	 *
-	 * @param int    $user_id       User ID.
-	 * @param object $old_user_data Object containing user's data prior to update.
-	 */
-	// public function on_profile_update($user_id, $old_user_data) {
-		/*
-		if (!$user_id || !is_numeric($user_id)) {
-			return;
-		}
-
-		$wp_user_edited = get_userdata($user_id);
-
-		$context = array(
-			"edited_user_id" => $wp_user_edited->ID,
-			"edited_user_email" => $wp_user_edited->user_email,
-			"edited_user_login" => $wp_user_edited->user_login,
-			"server_http_user_agent" => isset($_SERVER["HTTP_USER_AGENT"] ) ? $_SERVER["HTTP_USER_AGENT"] : null,
-			"old_user_data" => $old_user_data
-		);
-
-
-		$this->infoMessage("user_updated_profile", $context);
-		*/
-	// }
 	/**
 	 * User is created
 	 *
