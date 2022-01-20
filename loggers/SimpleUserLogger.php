@@ -72,21 +72,21 @@ class SimpleUserLogger extends SimpleLogger {
 					'User sees user admin email confirm screen',
 					'simple-history'
 				),
-				'user_admin_email_confirm_update_clicked' => _x(
-					'Clicked "Update" button on admin email confirm screen',
-					'User clicks update admin email on admin email confirm screen',
-					'simple-history'
-				),
+				// 'user_admin_email_confirm_update_clicked' => _x(
+				// 	'Clicked "Update" button on admin email confirm screen',
+				// 	'User clicks update admin email on admin email confirm screen',
+				// 	'simple-history'
+				// ),
 				'user_admin_email_confirm_correct_clicked' => _x(
-					'Clicked "The email is correct" on admin email confirm screen',
+					'Verified that administration email for website is correct',
 					'User clicks confirm admin email on admin email confirm screen',
 					'simple-history'
 				),
-				'user_admin_email_confirm_remind_clicked' => _x(
-					'Clicked "Remind me later" on admin email confirm screen',
-					'User clicks remind me later on admin email confirm screen',
-					'simple-history'
-				),
+				// 'user_admin_email_confirm_remind_clicked' => _x(
+				// 	'Clicked "Remind me later" on admin email confirm screen',
+				// 	'User clicks remind me later on admin email confirm screen',
+				// 	'simple-history'
+				// ),
 
 			),
 
@@ -170,28 +170,28 @@ class SimpleUserLogger extends SimpleLogger {
 		// 	2
 		// );
 
-		add_action(
+		/* add_action(
 			'admin_email_confirm',
 			array( $this, 'on_action_admin_email_confirm' )
-		);
+		); */
 
-		add_action(
+		/* add_action(
 			'load-options-general.php',
 			array( $this, 'on_action_load_options_general' )
-		);
+		); */
 
 		add_action(
 			'login_form_confirm_admin_email',
 			array( $this, 'on_action_login_form_confirm_admin_email' )
 		);
 
-		add_action(
+		/* add_action(
 			'login_form_confirm_admin_email',
 			array( $this, 'on_action_login_form_confirm_admin_email_remind_later' )
-		);
+		); */
 	}
 
-	public function on_action_login_form_confirm_admin_email_remind_later() {
+	/* 	public function on_action_login_form_confirm_admin_email_remind_later() {
 		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
 		if ( empty( $_GET['remind_me_later'] ) ) {
 			return;
@@ -205,7 +205,8 @@ class SimpleUserLogger extends SimpleLogger {
 
 		$this->infoMessage( 'user_admin_email_confirm_remind_clicked' );
 	}
-
+ 	*/
+	
 	public function on_action_login_form_confirm_admin_email() {
 		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
 		if ( empty( $_POST['confirm_admin_email_nonce'] ) || empty( $_POST['correct-admin-email'] ) ) {
@@ -222,7 +223,7 @@ class SimpleUserLogger extends SimpleLogger {
 		$this->infoMessage( 'user_admin_email_confirm_correct_clicked' );
 	}
 
-	public function on_action_load_options_general() {
+	/* public function on_action_load_options_general() {
 		$referer = wp_get_referer();
 		$referer_parts = wp_parse_url( $referer );
 
@@ -246,14 +247,14 @@ class SimpleUserLogger extends SimpleLogger {
 		// We are at options-general.php and user got here from the confirm admin email page.
 		// sh_error_log( 'User clicked on "Update" button' );
 		$this->infoMessage( 'user_admin_email_confirm_update_clicked' );
-	}
+	} */
 
-	public function on_action_admin_email_confirm( $errors ) {
+	/* 	public function on_action_admin_email_confirm( $errors ) {
 		if ( is_wp_error( $errors ) && $errors->has_errors() ) {
 			return;
 		}
 		$this->infoMessage( 'user_admin_email_confirm_screen_view' );
-	}
+	} */
 
 	 /*
 	 * Called before the user is updated
