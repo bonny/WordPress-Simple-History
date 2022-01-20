@@ -205,8 +205,8 @@ class SimpleUserLogger extends SimpleLogger {
 
 		$this->infoMessage( 'user_admin_email_confirm_remind_clicked' );
 	}
- 	*/
-	
+	 */
+
 	public function on_action_login_form_confirm_admin_email() {
 		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
 		if ( empty( $_POST['confirm_admin_email_nonce'] ) || empty( $_POST['correct-admin-email'] ) ) {
