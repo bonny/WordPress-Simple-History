@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.8.2
 Requires PHP: 5.6
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -193,7 +193,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= nnn unreleased =
+= 3.1.0 (January 2022) =
 
 - Fixed: Use user selected language instead of selected site language when loading languages for JavaScript libraries. ([#232](https://github.com/bonny/WordPress-Simple-History/issues/232))
 - Fixed: Theme deletions are now logged again. ([#266](https://github.com/bonny/WordPress-Simple-History/issues/266))
