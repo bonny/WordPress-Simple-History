@@ -6,6 +6,7 @@
 /data
 /tests
 /vendor
+/examples
 
 .distignore
 .gitignore
@@ -16,7 +17,7 @@
 .prettierrc
 .stylelintrc
 code.md
-codeception.dist
+codeception.dist.yml
 composer.json
 composer.lock
 docker-compose
