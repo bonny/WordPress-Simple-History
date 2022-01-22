@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 3.1.1 (January 2022) =
+
+- Fixed: Error when uploading images when using WordPress 5.7.0 or earlier.
+
 = 3.1.0 (January 2022) =
 
 - Fixed: Use user selected language instead of selected site language when loading languages for JavaScript libraries. ([#232](https://github.com/bonny/WordPress-Simple-History/issues/232))

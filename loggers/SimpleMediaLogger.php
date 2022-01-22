@@ -266,12 +266,11 @@ class SimpleMediaLogger extends SimpleLogger {
 		);
 
 		// Add information about possible parent.
-		$attachment_parent = get_post_parent( $attachment_id );
-		$attachment_parent_id = $attachment_parent ? $attachment_parent->ID : null;
-		$attachment_parent_title = $attachment_parent ? get_the_title( $attachment_parent ) : null;
-		$attachment_parent_post_type = $attachment_parent ? get_post_type( $attachment_parent ) : null;
+		$attachment_parent_id = wp_get_post_parent_id( $attachment_post );
+		$attachment_parent_title = $attachment_parent_id ? get_the_title( $attachment_parent_id ) : null;
+		$attachment_parent_post_type = $attachment_parent_id ? get_post_type( $attachment_parent_id ) : null;
 
-		if ( $attachment_parent ) {
+		if ( $attachment_parent_id ) {
 			$context = array_merge(
 				$context,
 				array(
