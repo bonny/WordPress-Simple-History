@@ -427,12 +427,28 @@ class SimpleUserLogger extends SimpleLogger {
 	 */
 	public function onRetrievePasswordMessage( $message, $key, $user_login, $user_data = null ) {
 		$context = array(
-			'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
 			'message' => $message,
-			'key' => $key,
 			'user_login' => $user_login,
 			'user_email' => $user_data->user_email,
 		);
+
+		// Request to send reset password link
+		// can be initiated from login screen or from users-listing-page in admin.
+		// Detect where from the request is coming.
+		$request_origin = 'unknown';
+
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen = get_current_screen();
+			if ( $screen->base === 'users' ) {
+				$request_origin = 'wp_admin_users_admin';
+			}
+		} else if ( ! empty( $_POST['user_login'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$request_origin = 'login_screen';
+		}
+
+		if ( 'login_screen' === $request_origin ) {
+			$context['_initiator'] = SimpleLoggerLogInitiators::WEB_USER;
+		}
 
 		$this->noticeMessage( 'user_requested_password_reset_link', $context );
 

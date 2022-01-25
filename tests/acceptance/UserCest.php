@@ -106,7 +106,7 @@ class UserCest
         $I->moveMouseOver('.table-view-list tbody tr:nth-child(2)');
         $I->click('.table-view-list tbody tr:nth-child(2) a.resetpassword');
 
-        $I->seeInLog('You', "Requested a password reset link for user with login 'anna' and email 'anna@eskapism.se'");
+        $I->seeInLog('You', "Requested a password reset link for user with login 'anna' and email 'anna@example.com'");
     }
 
 

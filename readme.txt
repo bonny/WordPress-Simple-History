@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= Unreleased =
+
+- Fixed: Password reset links was always attributed to "Anonymous web user", even those that was sent from the users listing in the WordPress admin area.
+
 = 3.1.1 (January 2022) =
 
 - Fixed: Error when uploading images when using WordPress 5.7.0 or earlier.
