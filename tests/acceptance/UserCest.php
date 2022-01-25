@@ -86,9 +86,22 @@ class UserCest
         $I->seeInLog('You', 'Created user NewUserLogin (newuser@example.com) with role subscriber', 1);
     }
 
+    public function logUserDeleted(\Step\Acceptance\Admin $I) {
+        $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'password']);        
+        $I->loginAsAdmin();
+        $I->amOnAdminPage('users.php');
+
+        $I->checkOption(".table-view-list tbody tr:nth-child(2) [name='users[]']");
+                
+        $I->click('.table-view-list tbody tr:nth-child(2) .submitdelete');
+        $I->click("Confirm Deletion");
+
+        $I->seeInLog('You', 'Deleted user anna (anna@example.com)');
+    }
+
+
     /*
     To log:
-    - user_deleted
     - user_password_reseted
     - user_requested_password_reset_link
     */
