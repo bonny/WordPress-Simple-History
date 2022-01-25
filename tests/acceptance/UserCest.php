@@ -91,12 +91,22 @@ class UserCest
         $I->loginAsAdmin();
         $I->amOnAdminPage('users.php');
 
-        $I->checkOption(".table-view-list tbody tr:nth-child(2) [name='users[]']");
-                
+        $I->moveMouseOver('.table-view-list tbody tr:nth-child(2)');
         $I->click('.table-view-list tbody tr:nth-child(2) .submitdelete');
         $I->click("Confirm Deletion");
 
         $I->seeInLog('You', 'Deleted user anna (anna@example.com)');
+    }
+
+    public function logUserRequestPasswordReset(\Step\Acceptance\Admin $I) {
+        $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'password']);        
+        $I->loginAsAdmin();
+        $I->amOnAdminPage('users.php');
+
+        $I->moveMouseOver('.table-view-list tbody tr:nth-child(2)');
+        $I->click('.table-view-list tbody tr:nth-child(2) a.resetpassword');
+
+        $I->seeInLog('You', "Requested a password reset link for user with login 'anna' and email 'anna@eskapism.se'");
     }
 
 
