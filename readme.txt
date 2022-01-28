@@ -196,7 +196,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 = Unreleased =
 
 - Fixed: Password reset links was always attributed to "Anonymous web user", even those that was sent from the users listing in the WordPress admin area.
-- Changed: `sh_d()` now tell you if a value is integer or numeric string.
+- Changed: `sh_d()` now tell you if a value is integer or numeric string or an empty string.
 
 = 3.1.1 (January 2022) =
 

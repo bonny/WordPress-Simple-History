@@ -204,6 +204,8 @@ function sh_d() {
 			$loopOutput = "$var (integer value)";
 		} elseif ( is_numeric( $var ) ) {
 			$loopOutput = "$var (numeric string)";
+		} elseif ( is_string( $var ) && $var === '' ) {
+			$loopOutput = "'' (empty string)";
 		} else {
 			$loopOutput = print_r( $var, true );
 		}
