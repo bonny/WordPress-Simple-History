@@ -144,7 +144,7 @@ class SimpleUserLogger extends SimpleLogger {
 		add_filter( 'authenticate', array( $this, 'onAuthenticate' ), 30, 3 );
 
 		// User is created
-		add_action( 'user_register', array( $this, 'onUserRegister' ), 10, 2 );
+		add_action( 'user_register', array( $this, 'on_user_register' ), 10, 2 );
 
 		// User is deleted
 		add_action( 'delete_user', array( $this, 'onDeleteUser' ), 10, 2 );
@@ -156,7 +156,8 @@ class SimpleUserLogger extends SimpleLogger {
 		add_action( 'validate_password_reset', array( $this, 'onValidatePasswordReset' ), 10, 2 );
 		add_action( 'retrieve_password_message', array( $this, 'onRetrievePasswordMessage' ), 10, 4 );
 
-		add_filter( 'insert_user_meta', array( $this, 'onInsertUserMeta' ), 10, 3 );
+		// New way, fired before update so we can get old user data.
+		add_filter( 'wp_pre_insert_user_data', array( $this, 'on_pre_insert_user_data' ), 10, 4 );
 
 		// Administration email verification-screen
 
@@ -256,134 +257,120 @@ class SimpleUserLogger extends SimpleLogger {
 		$this->infoMessage( 'user_admin_email_confirm_screen_view' );
 	} */
 
-	 /*
-	 * Called before the user is updated
+
+	/**
+	 * Filters user data before the record is created or updated.
+	 * Used to log user profile updates.
 	 *
-	 * Filter a user's meta values and keys before the user is created or updated.
+	 * It only includes data in the users table, not any user metadata.
 	 *
-	 * Does not include contact methods. These are added using `wp_get_user_contact_methods($user )`.
+	 * @since 4.9.0
+	 * @since 5.8.0 The `$userdata` parameter was added.
 	 *
-	 * @param array $meta {
-	 *     Default meta values and keys for the user.
+	 * @param array    $data {
+	 *     Values and keys for the user.
 	 *
-	 *     @type string   $nickname             The user's nickname. Default is the user's username.
-	 *     @type string   $first_name           The user's first name.
-	 *     @type string   $last_name            The user's last name.
-	 *     @type string   $description          The user's description.
-	 *     @type bool     $rich_editing         Whether to enable the rich-editor for the user. False if not empty.
-	 *     @type bool     $comment_shortcuts    Whether to enable keyboard shortcuts for the user. Default false.
-	 *     @type string   $admin_color          The color scheme for a user's admin screen. Default 'fresh'.
-	 *     @type int|bool $use_ssl              Whether to force SSL on the user's admin area. 0|false if SSL is
-	 *                                          not forced.
-	 *     @type bool     $show_admin_bar_front Whether to show the admin bar on the front end for the user.
-	 *                                          Default true.
+	 *     @type string $user_login      The user's login. Only included if $update == false
+	 *     @type string $user_pass       The user's password.
+	 *     @type string $user_email      The user's email.
+	 *     @type string $user_url        The user's url.
+	 *     @type string $user_nicename   The user's nice name. Defaults to a URL-safe version of user's login
+	 *     @type string $display_name    The user's display name.
+	 *     @type string $user_registered MySQL timestamp describing the moment when the user registered. Defaults to
+	 *                                   the current UTC timestamp.
 	 * }
-	 * @param WP_User $user   User object.
-	 * @param bool    $update Whether the user is being updated rather than created.
+	 * @param bool     $update   Whether the user is being updated rather than created.
+	 * @param int|null $user_id  ID of the user to be updated, or NULL if the user is being created.
+	 * @param array    $userdata The raw array of data passed to wp_insert_user().
 	 */
-	public function onInsertUserMeta( $meta, $user, $update ) {
-
-		// We only log updates here
+	public function on_pre_insert_user_data( $data, $update, $user_id, $userdata ) {
+		// Bail if this is not a user update.
 		if ( ! $update ) {
-			return $meta;
+			return $data;
 		}
 
-		// $user should be set, but check just in case
-		if ( empty( $user ) || ! is_object( $user ) ) {
-			return $meta;
+		// Bail if we don't have all needed data.
+		if ( ! $data || ! $user_id || ! $userdata ) {
+			return $data;
 		}
 
-		// Make of copy of the posted data, because we change the keys
-		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
-		$posted_data = $_POST;
-		$posted_data = stripslashes_deep( $posted_data );
-
-		// Paranoid mode, just in case some other plugin fires the "insert_user_meta"
-		// filter and the user.php file is not loaded for some super wierd reason
-		if ( ! function_exists( '_get_additional_user_keys' ) ) {
-			return $meta;
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return $data;
 		}
 
-		// Get the default fields to include.
-		// This includes contact methods (including filter, so more could have been added)
-		$arr_keys_to_check = _get_additional_user_keys( $user );
-
-		// Somehow some fields are not include above, so add them manually
-		$arr_keys_to_check = array_merge(
-			$arr_keys_to_check,
-			array( 'user_email', 'user_url', 'display_name' )
-		);
-
-		// Skip some keys, because to much info or I don't know what they are
-		$arr_keys_to_check = array_diff( $arr_keys_to_check, array( 'use_ssl' ) );
-
-		// Some keys have different ways of getting data from user
-		// so change posted object to match those
-		$posted_data['user_url'] = isset( $posted_data['url'] ) ? $posted_data['url'] : null;
-		$posted_data['show_admin_bar_front'] = isset( $posted_data['admin_bar_front'] ) ? true : null;
-		$posted_data['user_email'] = isset( $posted_data['email'] ) ? $posted_data['email'] : null;
-
-		// Display name publicly as = POST "display_name"
-		// var_dump($user->display_name);
-		// Set vals for Enable keyboard shortcuts for comment moderation
-		$posted_data['comment_shortcuts'] = isset( $posted_data['comment_shortcuts'] ) ? 'true' : 'false';
-
-		// Set vals for Disable the visual editor when writing
-		// posted val = string "false" = yes, disable
-		$posted_data['rich_editing'] = isset( $posted_data['rich_editing'] ) ? 'false' : 'true';
-
-		// Set vals for Show Toolbar when viewing site
-		$posted_data['show_admin_bar_front'] = isset( $posted_data['admin_bar_front'] ) ? 'true' : 'false';
-
-		// if checkbox is checked in admin then this is the saved value on the user object
-		// @todo:
-		// Check if password was updated
-		$password_changed = false;
-		if ( ! empty( $posted_data['pass1'] ) && ! empty( $posted_data['pass2'] ) && $posted_data['pass1'] == $posted_data['pass2'] ) {
-			$password_changed = 1;
+		$current_screen = get_current_screen();
+		if ( empty( $current_screen ) || $current_screen->id !== 'user-edit' ) {
+			return $data;
 		}
 
-		// Check if role was changed
-		// [role] => bbp_moderator
-		$role_changed = false;
+		// HERE: bail if only user_activation_key is set,
 
-		// if user is network admin then role dropdown does not exist and role is not posted here
-		$new_role = isset( $posted_data['role'] ) ? $posted_data['role'] : null;
+		// If $_POST['action']=send-password-reset is set then this is a
+		// send password reset-link-request from a users profile edit page.
+		#send-password-reset
 
-		if ( $new_role ) {
-			// as done in user-edit.php
-			// Compare user role against currently editable roles
-			$user_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
-			$old_role  = reset( $user_roles );
+		// because then this is a send password reset link update.
+		#sh_d( '$_REQUEST', $_REQUEST, $_SERVER );
+		#sh_d( 'is_ajax', defined( 'DOING_AJAX' ) && DOING_AJAX );
+		#exit;
 
-			$role_changed = $new_role != $old_role;
-		}
+		/*
+		Bugs:
+		- Output: For example keyboard shows "true ~~false~~", should be
+		  something more user friendly. "Enabled ~~disabled~~"
+		  or "Checked ~~unchecked~~"
+		- Output: Language instead of sv_SE show "Swedish ~~English~~"
+		*/
 
-		// Will contain the differences
+		// Array with differences between old and new values.
 		$user_data_diff = array();
 
-		// locale: sv_SE, empty = english, site-default = site....default!
-		// Check all keys for diff values
-		foreach ( $arr_keys_to_check as $one_key_to_check ) {
-			$old_val = $user->$one_key_to_check;
-			$new_val = isset( $posted_data[ $one_key_to_check ] ) ? $posted_data[ $one_key_to_check ] : null;
+		// Get user object that contains old/existing values.
+		$user_before_update = get_user_by( 'ID', $user_id );
 
-			// echo "<hr>key: $one_key_to_check";
-			// echo "<br>old val: $old_val";
-			// echo "<br>new val: $new_val";
-			// new val must be set, because otherwise we are not setting anything
-			if ( ! isset( $new_val ) ) {
-				continue;
+		$password_changed = false;
+
+		foreach ( $userdata as $option_key => $one_maybe_updated_option_value ) {
+			$prev_option_value = $user_before_update->$option_key;
+			$add_diff = true;
+
+			// Some options need special treatment.
+			if ( $option_key === 'role' ) {
+				// Get text name of previous role.
+				$user_roles = array_intersect( array_values( $user_before_update->roles ), array_keys( get_editable_roles() ) );
+				$prev_option_value = reset( $user_roles );
+			} else if ( $option_key === 'user_pass' ) {
+				$password_changed = $one_maybe_updated_option_value !== $prev_option_value;
+				$add_diff = false;
+			} else if ( $option_key === 'comment_shortcuts' ) {
+				if ( empty( $one_maybe_updated_option_value ) ) {
+					$one_maybe_updated_option_value = 'false';
+				}
+			} else if ( $option_key === 'locale' ) {
+				if ( $one_maybe_updated_option_value === '' ) {
+					$one_maybe_updated_option_value = 'SITE_DEFAULT';
+				}
+				if ( $prev_option_value === '' ) {
+					$prev_option_value = 'SITE_DEFAULT';
+				}
 			}
 
-			$user_data_diff = $this->addDiff( $user_data_diff, $one_key_to_check, $old_val, $new_val );
+			// if ( $one_maybe_updated_option_value !== $prev_option_value ) {
+			// 	sh_d( '----------' );
+			// 	sh_d( "'{$option_key}' changed" );
+			// 	sh_d( 'From:', $prev_option_value, 'To:', $one_maybe_updated_option_value );
+			// }
+
+			if ( $add_diff ) {
+				$user_data_diff = $this->addDiff( $user_data_diff, $option_key, $prev_option_value, $one_maybe_updated_option_value );
+			}
 		}
 
-		// Setup basic context
+		// Setup basic context.
 		$context = array(
-			'edited_user_id' => $user->ID,
-			'edited_user_email' => $user->user_email,
-			'edited_user_login' => $user->user_login,
+			'edited_user_id' => $user_id,
+			'edited_user_email' => $user_before_update->user_email,
+			'edited_user_login' => $user_before_update->user_login,
 			'server_http_user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : null,
 		);
 
@@ -391,29 +378,21 @@ class SimpleUserLogger extends SimpleLogger {
 			$context['edited_user_password_changed'] = '1';
 		}
 
-		if ( $role_changed ) {
-			$context['user_prev_role'] = $old_role;
-			$context['user_new_role'] = $new_role;
-		}
-
 		// Add diff to context
 		if ( $user_data_diff ) {
 			foreach ( $user_data_diff as $one_diff_key => $one_diff_vals ) {
-				/*
-				One diff looks like:
-				"nickname": {
-					"old": "MyOldNick",
-					"new": "MyNewNick"
-				}
-				*/
 				$context[ "user_prev_{$one_diff_key}" ] = $one_diff_vals['old'];
 				$context[ "user_new_{$one_diff_key}" ] = $one_diff_vals['new'];
 			}
 		}
 
+		// sh_d( 'context', $context );
+		// exit;
+
 		$this->infoMessage( 'user_updated_profile', $context );
 
-		return $meta;
+		// exit;
+		return $data;
 	}
 
 	/**
@@ -439,7 +418,7 @@ class SimpleUserLogger extends SimpleLogger {
 
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
-			if ( $screen->base === 'users' ) {
+			if ( $screen && $screen->base === 'users' ) {
 				$request_origin = 'wp_admin_users_admin';
 			}
 		} else if ( ! empty( $_POST['user_login'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -683,12 +662,13 @@ class SimpleUserLogger extends SimpleLogger {
 	}
 
 	/**
-	 * User is created
+	 * User is created. Fired from action user_register.
+	 * Fires immediately after a new user is registered.
 	 *
-	 * "This action hook allows you to access data for a new user immediately after they are added to the database.
-	 *  The user id is passed to hook as an argument."
+	 * @param int   $user_id  User ID.
+	 * (@param array $userdata The raw array of data passed to wp_insert_user(). Since WP 5.8.0.)
 	 */
-	public function onUserRegister( $user_id ) {
+	public function on_user_register( $user_id, $userdata ) {
 
 		if ( ! $user_id || ! is_numeric( $user_id ) ) {
 			return;
@@ -836,10 +816,19 @@ class SimpleUserLogger extends SimpleLogger {
 		return $user;
 	}
 
+
+
+
 	/**
-	 * Add diff to array if old and new values are different
+	 * Add diff to diff array if old and new values are different.
 	 *
 	 * Since 2.0.29
+	 *
+	 * @param array $post_data_diff
+	 * @param string $key
+	 * @param string $old_value
+	 * @param string $new_value
+	 * @return array
 	 */
 	public function addDiff( $post_data_diff, $key, $old_value, $new_value ) {
 		if ( $old_value != $new_value ) {
@@ -903,10 +892,6 @@ class SimpleUserLogger extends SimpleLogger {
 				'jabber' => array(
 					'title' => _x( 'Jabber / Google Talk ', 'User logger', 'simple-history' ),
 				),
-				/*
-					"user_nicename" => array(
-					"title" => _x("Nicename", "User logger", "simple-history")
-				),*/
 				'user_email' => array(
 					'title' => _x( 'Email', 'User logger', 'simple-history' ),
 				),
@@ -921,14 +906,41 @@ class SimpleUserLogger extends SimpleLogger {
 					'title' => _x( 'Role', 'User logger', 'simple-history' ),
 				),
 				'locale' => array(
-					'title' => _x( 'Locale', 'User logger', 'simple-history' ),
+					'title' => _x( 'Language', 'User logger', 'simple-history' ),
 				),
 			);
+
+			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
+			$translations = wp_get_available_translations();
+			#sh_d('$translations', $translations);exit;
+			// HERE: English (United States) is not included in translations_array, add manually.
+			// $languages = get_available_languages();
+			if ( ! isset( $translations['en_US'] ) ) {
+				$translations['en_US'] = array(
+					'language' => 'en_US',
+					'english_name' => 'English',
+				);
+			}
 
 			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
 				if ( isset( $context[ "user_prev_{$key}" ] ) && isset( $context[ "user_new_{$key}" ] ) ) {
 					$user_old_value = $context[ "user_prev_{$key}" ];
 					$user_new_value = $context[ "user_new_{$key}" ];
+
+					if ( $key === 'locale' ) {
+						if ( isset( $translations[ $user_old_value ] ) ) {
+							$language_english_name = $translations[ $user_old_value ]['english_name'];
+							$user_old_value = "{$language_english_name} ({$user_old_value})";
+						} else if ( $user_old_value === 'SITE_DEFAULT' ) {
+							$user_old_value = __( 'Site Default', 'simple-history' );
+						}
+						if ( isset( $translations[ $user_new_value ] ) ) {
+							$language_english_name = $translations[ $user_new_value ]['english_name'];
+							$user_new_value = "{$language_english_name} ({$user_new_value})";
+						} else if ( $user_new_value === 'SITE_DEFAULT' ) {
+							$user_new_value = __( 'Site Default', 'simple-history' );
+						}
+					}
 
 					$diff_table_output .= sprintf(
 						'<tr>
@@ -945,7 +957,7 @@ class SimpleUserLogger extends SimpleLogger {
 				}
 			}
 
-			// check if password was changed
+			// Check if password was changed.
 			if ( isset( $context['edited_user_password_changed'] ) ) {
 				$diff_table_output .= sprintf(
 					'<tr>
