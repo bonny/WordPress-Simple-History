@@ -304,9 +304,8 @@ Style different log levels.
 
 .SimpleHistoryLogitem__keyValueTable tr > td:first-child {
 	text-align: right;
-	/*font-weight: bold;*/
 	padding-right: 1em;
-	color: #aaa;
+	color: #757575;
 	white-space: nowrap;
 }
 
@@ -723,7 +722,6 @@ Modal window with detailss
 .SimpleHistory-modal .SimpleHistoryLogitem:hover {
 	background: inherit;
 }
-
 
 .SimpleHistoryLogitem__moreDetails {
 	border-top: 1px solid rgb(229, 229, 229);
