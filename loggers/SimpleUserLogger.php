@@ -95,7 +95,7 @@ class SimpleUserLogger extends SimpleLogger {
 				'old_role' => $old_role,
 				*/
 				'user_role_updated' => _x(
-					'Updated role for user "{edited_user_login}" to "{new_role}" from "{old_role}"',
+					'Changed role for user "{edited_user_login}" to "{new_role}" from "{old_role}"',
 					'User updates the role for a user',
 					'simple-history'
 				),
