@@ -5,7 +5,6 @@
  */
 class SimpleUserLogger extends SimpleLogger {
 
-
 	public $slug = __CLASS__;
 
 	/**
@@ -45,61 +44,26 @@ class SimpleUserLogger extends SimpleLogger {
 					"Requested a password reset link for user with login '{user_login}' and email '{user_email}'",
 					'simple-history'
 				),
-
-				/*
-				Text used in admin:
-				Log Out of All Other Sessions
-				Left your account logged in at a public computer?
-				Lost your phone? This will log you out everywhere except your current browser
-				 */
 				'user_session_destroy_others' => _x(
 					'Logged out from all other sessions',
 					'User destroys other login sessions for themself',
 					'simple-history'
 				),
-				/*
-				Text used in admin:
-				'Log %s out of all sessions' ), $profileuser->display_name );
-				 */
 				'user_session_destroy_everywhere' => _x(
 					'Logged out "{user_display_name}" from all sessions',
 					'User destroys all login sessions for a user',
 					'simple-history'
 				),
-
-				// 'user_admin_email_confirm_screen_view' => _x(
-				// 	'Viewed admin email confirm screen',
-				// 	'User sees user admin email confirm screen',
-				// 	'simple-history'
-				// ),
-				// 'user_admin_email_confirm_update_clicked' => _x(
-				// 	'Clicked "Update" button on admin email confirm screen',
-				// 	'User clicks update admin email on admin email confirm screen',
-				// 	'simple-history'
-				// ),
 				'user_admin_email_confirm_correct_clicked' => _x(
 					'Verified that administration email for website is correct',
 					'User clicks confirm admin email on admin email confirm screen',
 					'simple-history'
 				),
-				// 'user_admin_email_confirm_remind_clicked' => _x(
-				// 	'Clicked "Remind me later" on admin email confirm screen',
-				// 	'User clicks remind me later on admin email confirm screen',
-				// 	'simple-history'
-				// ),
-				/*
-				'edited_user_id' => $user_id,
-				'edited_user_email' => $changed_user->user_email,
-				'edited_user_login' => $changed_user->user_login,
-				'new_role' => $role,
-				'old_role' => $old_role,
-				*/
 				'user_role_updated' => _x(
 					'Changed role for user "{edited_user_login}" to "{new_role}" from "{old_role}"',
 					'User updates the role for a user',
 					'simple-history'
 				),
-
 			),
 
 			'labels' => array(
@@ -187,25 +151,10 @@ class SimpleUserLogger extends SimpleLogger {
 		// 	2
 		// );
 
-		/* add_action(
-			'admin_email_confirm',
-			array( $this, 'on_action_admin_email_confirm' )
-		); */
-
-		/* add_action(
-			'load-options-general.php',
-			array( $this, 'on_action_load_options_general' )
-		); */
-
 		add_action(
 			'login_form_confirm_admin_email',
 			array( $this, 'on_action_login_form_confirm_admin_email' )
 		);
-
-		/* add_action(
-			'login_form_confirm_admin_email',
-			array( $this, 'on_action_login_form_confirm_admin_email_remind_later' )
-		); */
 	}
 
 	/**
@@ -246,22 +195,6 @@ class SimpleUserLogger extends SimpleLogger {
 		);
 	}
 
-	/* 	public function on_action_login_form_confirm_admin_email_remind_later() {
-		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
-		if ( empty( $_GET['remind_me_later'] ) ) {
-			return;
-		}
-
-		// Bail if nonce not valid.
-		$nonce_valid = wp_verify_nonce( $_GET['remind_me_later'], 'remind_me_later_nonce' );
-		if ( $nonce_valid === false ) {
-			return;
-		}
-
-		$this->infoMessage( 'user_admin_email_confirm_remind_clicked' );
-	}
-	 */
-
 	public function on_action_login_form_confirm_admin_email() {
 		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
 		if ( empty( $_POST['confirm_admin_email_nonce'] ) || empty( $_POST['correct-admin-email'] ) ) {
@@ -276,40 +209,6 @@ class SimpleUserLogger extends SimpleLogger {
 
 		$this->infoMessage( 'user_admin_email_confirm_correct_clicked' );
 	}
-
-	/* public function on_action_load_options_general() {
-		$referer = wp_get_referer();
-		$referer_parts = wp_parse_url( $referer );
-
-		$login_url = wp_login_url();
-		$login_url_parts = wp_parse_url( $login_url );
-
-		// Bail if referer is not login page.
-		if ( $referer_parts['path'] !== $login_url_parts['path'] ) {
-			return;
-		}
-
-		// If page was wp-login.php and action was confirm_admin_email then user came from confirm email screen
-		// http://wordpress-stable.test/wordpress/wp-login.php?redirect_to=http%3A%2F%2Fwordpress-stable.test%2Fwordpress%2Fwp-admin%2F&action=confirm_admin_email&wp_lang=sv_SE
-		$referer_parts_query_parts = wp_parse_args( $referer_parts['query'] );
-
-		// Bail if action was not to show confirm_admin_email-page.
-		if ( $referer_parts_query_parts['action'] !== 'confirm_admin_email' ) {
-			return;
-		}
-
-		// We are at options-general.php and user got here from the confirm admin email page.
-		// sh_error_log( 'User clicked on "Update" button' );
-		$this->infoMessage( 'user_admin_email_confirm_update_clicked' );
-	} */
-
-	/* 	public function on_action_admin_email_confirm( $errors ) {
-		if ( is_wp_error( $errors ) && $errors->has_errors() ) {
-			return;
-		}
-		$this->infoMessage( 'user_admin_email_confirm_screen_view' );
-	} */
-
 
 	/**
 	 * Filters user data before the record is created or updated.
@@ -391,12 +290,6 @@ class SimpleUserLogger extends SimpleLogger {
 				}
 			}
 
-			// if ( $one_maybe_updated_option_value !== $prev_option_value ) {
-			// 	sh_d( '----------' );
-			// 	sh_d( "'{$option_key}' changed" );
-			// 	sh_d( 'From:', $prev_option_value, 'To:', $one_maybe_updated_option_value );
-			// }
-
 			if ( $add_diff ) {
 				$user_data_diff = $this->addDiff( $user_data_diff, $option_key, $prev_option_value, $one_maybe_updated_option_value );
 			}
@@ -422,12 +315,8 @@ class SimpleUserLogger extends SimpleLogger {
 			}
 		}
 
-		// sh_d( 'context', $context );
-		// exit;
-
 		$this->infoMessage( 'user_updated_profile', $context );
 
-		// exit;
 		return $data;
 	}
 
@@ -501,13 +390,6 @@ class SimpleUserLogger extends SimpleLogger {
 	 * @since 2.0.6
 	 */
 	public function onDestroyUserSession() {
-		/*
-		Post params:
-		nonce: a14df12195
-		user_id: 1
-		action: destroy-sessions
-		 */
-
 		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
 		$user = get_userdata( (int) $_POST['user_id'] );
 
@@ -852,9 +734,6 @@ class SimpleUserLogger extends SimpleLogger {
 		return $user;
 	}
 
-
-
-
 	/**
 	 * Add diff to diff array if old and new values are different.
 	 *
@@ -1049,8 +928,6 @@ class SimpleUserLogger extends SimpleLogger {
 								'simple-history'
 							);
 						} else {
-							// $sent_status =
-							// _x("No, no email with account details was sent", "User logger", "simple-history");
 							$sent_status = '';
 						}
 
