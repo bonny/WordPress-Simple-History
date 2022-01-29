@@ -842,8 +842,9 @@ class SimpleUserLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Return more info about an logged event
-	 * Supports so far:
+	 * Return more info about an logged event.
+	 *
+	 * @param object $row
 	 */
 	public function getLogRowDetailsOutput( $row ) {
 		$context = $row->context;
@@ -853,8 +854,26 @@ class SimpleUserLogger extends SimpleLogger {
 		$diff_table_output = '';
 
 		if ( 'user_updated_profile' == $message_key ) {
-			// Find all user_prev_ and user_new_ values and show them
+			// Find all user_prev_ and user_new_ values and show them.
 			$arr_user_keys_to_show_diff_for = array(
+				'rich_editing' => array(
+					'title' => _x( 'Visual editor', 'User logger', 'simple-history' ),
+				),
+				'admin_color' => array(
+					'title' => _x( 'Colour Scheme', 'User logger', 'simple-history' ),
+				),
+				'comment_shortcuts' => array(
+					'title' => _x( 'Keyboard shortcuts', 'User logger', 'simple-history' ),
+				),
+				'show_admin_bar_front' => array(
+					'title' => _x( 'Show Toolbar', 'User logger', 'simple-history' ),
+				),
+				'locale' => array(
+					'title' => _x( 'Language', 'User logger', 'simple-history' ),
+				),
+				'role' => array(
+					'title' => _x( 'Role', 'User logger', 'simple-history' ),
+				),
 				'first_name' => array(
 					'title' => _x( 'First name', 'User logger', 'simple-history' ),
 				),
@@ -864,24 +883,17 @@ class SimpleUserLogger extends SimpleLogger {
 				'nickname' => array(
 					'title' => _x( 'Nickname', 'User logger', 'simple-history' ),
 				),
+				'display_name' => array(
+					'title' => _x( 'Display name', 'User logger', 'simple-history' ),
+				),
+				'user_email' => array(
+					'title' => _x( 'Email', 'User logger', 'simple-history' ),
+				),
+				'user_url' => array(
+					'title' => _x( 'Website', 'User logger', 'simple-history' ),
+				),
 				'description' => array(
 					'title' => _x( 'Description', 'User logger', 'simple-history' ),
-				),
-				'rich_editing' => array(
-					// Disable visual editor
-					'title' => _x( 'Visual editor', 'User logger', 'simple-history' ),
-				),
-				'comment_shortcuts' => array(
-					// Enable keyboard shortcuts for comment moderation
-					'title' => _x( 'Keyboard shortcuts', 'User logger', 'simple-history' ),
-				),
-				'show_admin_bar_front' => array(
-					// Show Toolbar when viewing site
-					'title' => _x( 'Show Toolbar', 'User logger', 'simple-history' ),
-				),
-				'admin_color' => array(
-					// Admin Colour Scheme
-					'title' => _x( 'Colour Scheme', 'User logger', 'simple-history' ),
 				),
 				'aim' => array(
 					'title' => _x( 'AIM', 'User logger', 'simple-history' ),
@@ -892,29 +904,12 @@ class SimpleUserLogger extends SimpleLogger {
 				'jabber' => array(
 					'title' => _x( 'Jabber / Google Talk ', 'User logger', 'simple-history' ),
 				),
-				'user_email' => array(
-					'title' => _x( 'Email', 'User logger', 'simple-history' ),
-				),
-				'display_name' => array(
-					// "title" => _x("Display name publicly as", "User logger", "simple-history")
-					'title' => _x( 'Display name', 'User logger', 'simple-history' ),
-				),
-				'user_url' => array(
-					'title' => _x( 'Website', 'User logger', 'simple-history' ),
-				),
-				'role' => array(
-					'title' => _x( 'Role', 'User logger', 'simple-history' ),
-				),
-				'locale' => array(
-					'title' => _x( 'Language', 'User logger', 'simple-history' ),
-				),
 			);
 
 			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 			$translations = wp_get_available_translations();
-			#sh_d('$translations', $translations);exit;
-			// HERE: English (United States) is not included in translations_array, add manually.
-			// $languages = get_available_languages();
+
+			// English (United States) is not included in translations_array, add manually.
 			if ( ! isset( $translations['en_US'] ) ) {
 				$translations['en_US'] = array(
 					'language' => 'en_US',
