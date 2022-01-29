@@ -778,7 +778,7 @@ class SimpleUserLogger extends SimpleLogger {
 					'value_false' => _x( 'Disable', 'User logger', 'simple-history' ),
 				),
 				'admin_color' => array(
-					'title' => _x( 'Colour Scheme', 'User logger', 'simple-history' ),
+					'title' => _x( 'Colour scheme', 'User logger', 'simple-history' ),
 				),
 				'comment_shortcuts' => array(
 					'title' => _x( 'Keyboard shortcuts', 'User logger', 'simple-history' ),
