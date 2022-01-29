@@ -235,14 +235,14 @@ class SimpleUserLogger extends SimpleLogger {
 	 * @param int|null $user_id  ID of the user to be updated, or NULL if the user is being created.
 	 * @param array    $userdata The raw array of data passed to wp_insert_user().
 	 */
-	public function on_pre_insert_user_data( $data, $update, $user_id, $userdata ) {
+	public function on_pre_insert_user_data( $data, $update, $user_id, $userdata = array() ) {
 		// Bail if this is not a user update.
 		if ( ! $update ) {
 			return $data;
 		}
 
 		// Bail if we don't have all needed data.
-		if ( ! $data || ! $user_id || ! $userdata ) {
+		if ( ! $data || ! $user_id ) {
 			return $data;
 		}
 
@@ -586,7 +586,7 @@ class SimpleUserLogger extends SimpleLogger {
 	 * @param int   $user_id  User ID.
 	 * (@param array $userdata The raw array of data passed to wp_insert_user(). Since WP 5.8.0.)
 	 */
-	public function on_user_register( $user_id, $userdata ) {
+	public function on_user_register( $user_id, $userdata = array() ) {
 
 		if ( ! $user_id || ! is_numeric( $user_id ) ) {
 			return;
