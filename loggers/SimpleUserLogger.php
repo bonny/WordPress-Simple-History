@@ -858,15 +858,24 @@ class SimpleUserLogger extends SimpleLogger {
 			$arr_user_keys_to_show_diff_for = array(
 				'rich_editing' => array(
 					'title' => _x( 'Visual editor', 'User logger', 'simple-history' ),
+					'type' => 'checkbox',
+					'value_true' => _x( 'Enable', 'User logger', 'simple-history' ),
+					'value_false' => _x( 'Disable', 'User logger', 'simple-history' ),
 				),
 				'admin_color' => array(
 					'title' => _x( 'Colour Scheme', 'User logger', 'simple-history' ),
 				),
 				'comment_shortcuts' => array(
 					'title' => _x( 'Keyboard shortcuts', 'User logger', 'simple-history' ),
+					'type' => 'checkbox',
+					'value_true' => _x( 'Enable', 'User logger', 'simple-history' ),
+					'value_false' => _x( 'Disable', 'User logger', 'simple-history' ),
 				),
 				'show_admin_bar_front' => array(
-					'title' => _x( 'Show Toolbar', 'User logger', 'simple-history' ),
+					'title' => _x( 'Toolbar', 'User logger', 'simple-history' ),
+					'type' => 'checkbox',
+					'value_true' => _x( 'Show', 'User logger', 'simple-history' ),
+					'value_false' => _x( "Don't show", 'User logger', 'simple-history' ),
 				),
 				'locale' => array(
 					'title' => _x( 'Language', 'User logger', 'simple-history' ),
@@ -929,12 +938,20 @@ class SimpleUserLogger extends SimpleLogger {
 						} else if ( $user_old_value === 'SITE_DEFAULT' ) {
 							$user_old_value = __( 'Site Default', 'simple-history' );
 						}
+
 						if ( isset( $translations[ $user_new_value ] ) ) {
 							$language_english_name = $translations[ $user_new_value ]['english_name'];
 							$user_new_value = "{$language_english_name} ({$user_new_value})";
 						} else if ( $user_new_value === 'SITE_DEFAULT' ) {
 							$user_new_value = __( 'Site Default', 'simple-history' );
 						}
+					}
+
+					// Change naming for checkbox items from "true" or "false" to
+					// something more user friendly "Checked" and "Unchecked".
+					if ( isset( $val['type'] ) && $val['type'] === 'checkbox' ) {
+						$user_old_value = ( $user_old_value === 'true' ) ? $val['value_true'] : $val['value_false'];
+						$user_new_value = ( $user_new_value === 'true' ) ? $val['value_true'] : $val['value_false'];
 					}
 
 					$diff_table_output .= sprintf(
