@@ -127,12 +127,14 @@ class SimpleUserLogger extends SimpleLogger {
 						_x( 'User deletions', 'User logger: search', 'simple-history' ) => array(
 							'user_deleted',
 						),
+						_x( 'User role changes', 'User logger: search', 'simple-history' ) => array(
+							'user_role_updated',
+						),
 
 					),
 				), // end search
 
 			), // end labels
-
 		);
 
 		return $arr_info;
