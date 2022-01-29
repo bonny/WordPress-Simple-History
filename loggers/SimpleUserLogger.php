@@ -32,7 +32,7 @@ class SimpleUserLogger extends SimpleLogger {
 				'user_unknown_logged_in' => __( 'Unknown user logged in', 'simple-history' ),
 				'user_logged_out' => __( 'Logged out', 'simple-history' ),
 				'user_updated_profile' => __(
-					'Edited the profile for user {edited_user_login} ({edited_user_email})',
+					'Edited the profile for user "{edited_user_login}" ({edited_user_email})',
 					'simple-history'
 				),
 				'user_created' => __(
@@ -67,11 +67,11 @@ class SimpleUserLogger extends SimpleLogger {
 					'simple-history'
 				),
 
-				'user_admin_email_confirm_screen_view' => _x(
-					'Viewed admin email confirm screen',
-					'User sees user admin email confirm screen',
-					'simple-history'
-				),
+				// 'user_admin_email_confirm_screen_view' => _x(
+				// 	'Viewed admin email confirm screen',
+				// 	'User sees user admin email confirm screen',
+				// 	'simple-history'
+				// ),
 				// 'user_admin_email_confirm_update_clicked' => _x(
 				// 	'Clicked "Update" button on admin email confirm screen',
 				// 	'User clicks update admin email on admin email confirm screen',
@@ -87,6 +87,18 @@ class SimpleUserLogger extends SimpleLogger {
 				// 	'User clicks remind me later on admin email confirm screen',
 				// 	'simple-history'
 				// ),
+				/*
+				'edited_user_id' => $user_id,
+				'edited_user_email' => $changed_user->user_email,
+				'edited_user_login' => $changed_user->user_login,
+				'new_role' => $role,
+				'old_role' => $old_role,
+				*/
+				'user_role_updated' => _x(
+					'Updated role for user "{edited_user_login}" to "{new_role}" from "{old_role}"',
+					'User updates the role for a user',
+					'simple-history'
+				),
 
 			),
 
@@ -159,6 +171,8 @@ class SimpleUserLogger extends SimpleLogger {
 		// New way, fired before update so we can get old user data.
 		add_filter( 'wp_pre_insert_user_data', array( $this, 'on_pre_insert_user_data' ), 10, 4 );
 
+		add_action( 'set_user_role', array( $this, 'on_set_user_role' ), 10, 3 );
+
 		// Administration email verification-screen
 
 		// Run this to force-show the admin email confirm screen.
@@ -192,6 +206,44 @@ class SimpleUserLogger extends SimpleLogger {
 		); */
 	}
 
+	/**
+	 * Fires after the user's role has changed.
+	 *
+	 * @since 2.9.0
+	 * @since 3.6.0 Added $old_roles to include an array of the user's previous roles.
+	 *
+	 * @param int      $user_id   The user ID.
+	 * @param string   $role      The new role.
+	 * @param string[] $old_roles An array of the user's previous roles.
+	 */
+	public function on_set_user_role( $user_id, $role, $old_roles ) {
+		$current_screen = simple_history_get_current_screen();
+
+		// Bail if we are not on the users screen.
+		if ( $current_screen->id !== 'users' ) {
+			return;
+		}
+
+		$changed_user = get_user_by( 'ID', $user_id );
+
+		if ( ! is_array( $old_roles ) ) {
+			$old_roles = array();
+		}
+
+		$old_role = (string) reset( $old_roles );
+
+		$this->noticeMessage(
+			'user_role_updated',
+			array(
+				'edited_user_id' => $user_id,
+				'edited_user_email' => $changed_user->user_email,
+				'edited_user_login' => $changed_user->user_login,
+				'new_role' => $role,
+				'old_role' => $old_role,
+			)
+		);
+	}
+
 	/* 	public function on_action_login_form_confirm_admin_email_remind_later() {
 		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
 		if ( empty( $_GET['remind_me_later'] ) ) {
@@ -220,7 +272,6 @@ class SimpleUserLogger extends SimpleLogger {
 			return;
 		}
 
-		// sh_error_log( 'User clicked "The email is correct"' );
 		$this->infoMessage( 'user_admin_email_confirm_correct_clicked' );
 	}
 
@@ -298,10 +349,10 @@ class SimpleUserLogger extends SimpleLogger {
 			return $data;
 		}
 
-		$current_screen = get_current_screen();
+		$current_screen = simple_history_get_current_screen();
 
 		// Bail if we are not on the user-edit screen.
-		if ( empty( $current_screen ) || $current_screen->id !== 'user-edit' ) {
+		if ( $current_screen->id !== 'user-edit' ) {
 			return $data;
 		}
 
