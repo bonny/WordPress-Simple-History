@@ -299,28 +299,11 @@ class SimpleUserLogger extends SimpleLogger {
 		}
 
 		$current_screen = get_current_screen();
+
+		// Bail if we are not on the user-edit screen.
 		if ( empty( $current_screen ) || $current_screen->id !== 'user-edit' ) {
 			return $data;
 		}
-
-		// HERE: bail if only user_activation_key is set,
-
-		// If $_POST['action']=send-password-reset is set then this is a
-		// send password reset-link-request from a users profile edit page.
-		#send-password-reset
-
-		// because then this is a send password reset link update.
-		#sh_d( '$_REQUEST', $_REQUEST, $_SERVER );
-		#sh_d( 'is_ajax', defined( 'DOING_AJAX' ) && DOING_AJAX );
-		#exit;
-
-		/*
-		Bugs:
-		- Output: For example keyboard shows "true ~~false~~", should be
-		  something more user friendly. "Enabled ~~disabled~~"
-		  or "Checked ~~unchecked~~"
-		- Output: Language instead of sv_SE show "Swedish ~~English~~"
-		*/
 
 		// Array with differences between old and new values.
 		$user_data_diff = array();
