@@ -33,7 +33,7 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 				'description' => 'Logs found updates to WordPress, plugins, and themes',
 				'capability' => 'manage_options',
 				'messages' => array(
-					'core_update_available' => __( 'Found an update to WordPress.', 'simple-history' ),
+					'core_update_available' => __( 'Found an update to WordPress', 'simple-history' ),
 					'plugin_update_available' => __( 'Found an update to plugin "{plugin_name}"', 'simple-history' ),
 					'theme_update_available' => __( 'Found an update to theme "{theme_name}"', 'simple-history' ),
 				),
