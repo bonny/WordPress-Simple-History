@@ -17,3 +17,32 @@ Tests use [wpbrowser](https://wpbrowser.wptestkit.dev/).
     - For acceptance tests wordpress-container must be restarted:
       - `$ WORDPRESS_VERSION=5 PHP_VERSION=5.6 docker-compose up`
       - `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance`
+
+## Run a single test
+
+To run for example `UserCest:logUserProfileUpdated`:
+
+`$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance UserCest:logUserProfileUpdated`
+
+## Setting up the starting database fixture
+
+The `dump.sql` file is generating something like this:
+
+```sh
+# Install WordPress
+docker-compose run --rm wp-cli wp core install --url=localhost:8080 --title=wp-tests --admin_user=admin --admin_email=test@example.com --admin_password=admin --skip-email
+
+# Empty site (removes post etc.)
+docker-compose run --rm wp-cli wp site empty --yes --uploads
+
+# Activate plugin
+docker-compose run --rm wp-cli plugin activate simple-history
+
+# Export database to local file
+docker-compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
+
+# Restore DB so can browse from localhost:9191 again, perhaps to update the fixture
+docker-compose run --rm wp-cli db import /var/www/html/tests/_data/dump.sql
+docker compose run wp-cli option set siteurl http://localhost:9191
+docker compose run wp-cli option set home http://localhost:9191
+```
