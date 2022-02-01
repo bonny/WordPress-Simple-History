@@ -16,6 +16,7 @@ services:
       WORDPRESS_CONFIG_EXTRA: |
         define( 'WP_AUTO_UPDATE_CORE', false );
         define( 'AUTOMATIC_UPDATER_DISABLED', true );
+        define( 'WP_ENVIRONMENT_TYPE', 'local' );
     volumes:
       - wordpress:/var/www/html
       - ./:/var/www/html/wp-content/plugins/simple-history
