@@ -200,6 +200,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fixed: Increase contrast ratio on some texts.
 - Added: Role changes from users overview page are now logged.
 - Changed: `sh_d()` now tell you if a value is integer or numeric string or an empty string.
+- Changed: The log message "Found an update to WordPress" had a dot in it. No other log message had a dot so the dot is no more.
 
 = 3.1.1 (January 2022) =
 
