@@ -173,6 +173,24 @@ class UserCest
         $I->seeInLog('You', "Requested a password reset link for user with login 'anna' and email 'anna@example.com'");
     }
 
+    public function logUsersBulkChangeRole(\Step\Acceptance\Admin $I) {
+        $user_id_1 = $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'annapass']);        
+        $user_id_2 = $I->haveUserInDatabase('anders', 'subscriber', ['user_pass' => 'anderspass']);        
+        
+        $I->loginAsAdmin();
+        $I->amOnAdminPage('users.php');
+
+        $I->checkOption("#user_{$user_id_1}");
+        $I->checkOption("#user_{$user_id_2}");
+
+        $I->selectOption('#new_role', 'editor');
+        
+        $I->click('#changeit');
+
+        $I->seeInLog('You', 'Changed role for user "anna" to "editor" from "author"');
+        $I->seeInLog('You', 'Changed role for user "anders" to "editor" from "subscriber"', 2);
+    }
+
     /*
     To log:
     - Change role using dropdown

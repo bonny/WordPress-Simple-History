@@ -39,8 +39,6 @@ class Admin extends \AcceptanceTester
         
         $I->waitForElementVisible('.SimpleHistoryLogitems');
 
-        $I->makeScreenshot();
-
         $I->see($who, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__header");
         $I->see($message, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__text");
     }
