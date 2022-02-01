@@ -64,6 +64,11 @@ class SimpleUserLogger extends SimpleLogger {
 					'User updates the role for a user',
 					'simple-history'
 				),
+				'user_application_password_created' => _x(
+					'Added application password for user "{edited_user_login}" with name "{application_password_name}"',
+					'User add new application password',
+					'simple-history'
+				),
 			),
 
 			'labels' => array(
@@ -93,6 +98,9 @@ class SimpleUserLogger extends SimpleLogger {
 						),
 						_x( 'User role changes', 'User logger: search', 'simple-history' ) => array(
 							'user_role_updated',
+						),
+						_x( 'User application password created', 'User logger: search', 'simple-history' ) => array(
+							'user_application_password_created',
 						),
 
 					),
@@ -154,6 +162,47 @@ class SimpleUserLogger extends SimpleLogger {
 		add_action(
 			'login_form_confirm_admin_email',
 			array( $this, 'on_action_login_form_confirm_admin_email' )
+		);
+
+		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
+	}
+
+	/**
+	 * Log when an Application Password is created for a user.
+	 *
+	 * Fired from action `wp_create_application_password`.
+ *
+	 * @param int    $user_id      The user ID.
+	 * @param array  $new_item     {
+	 *     The details about the created password.
+	 *
+	 *     @type string $uuid      The unique identifier for the application password.
+	 *     @type string $app_id    A UUID provided by the application to uniquely identify it.
+	 *     @type string $name      The name of the application password.
+	 *     @type string $password  A one-way hash of the password.
+	 *     @type int    $created   Unix timestamp of when the password was created.
+	 *     @type null   $last_used Null.
+	 *     @type null   $last_ip   Null.
+	 * }
+	 * @param string $new_password The unhashed generated application password.
+	 * @param array  $args         {
+	 *     Arguments used to create the application password.
+	 *
+	 *     @type string $name   The name of the application password.
+	 *     @type string $app_id A UUID provided by the application to uniquely identify it.
+	 * }
+	 */
+	public function on_action_wp_create_application_password( $user_id, $new_item, $new_password, $args ) {
+		$user = get_user_by( 'ID', $user_id );
+
+		$this->infoMessage(
+			'user_application_password_created',
+			array(
+				'edited_user_id' => $user_id,
+				'edited_user_email' => $user->user_email,
+				'edited_user_login' => $user->user_login,
+				'application_password_name' => $new_item['name'],
+			)
 		);
 	}
 
