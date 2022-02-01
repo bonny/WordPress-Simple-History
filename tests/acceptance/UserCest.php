@@ -59,7 +59,7 @@ class UserCest
         $I->seeInLogAsAdmin('Anonymous web user', 'Failed to login with username "anna" (incorrect password entered)');
     }
 
-    public function logUserProfileUpdated(\Step\Acceptance\Admin $I) {
+    public function logUserOwnProfileUpdated(\Step\Acceptance\Admin $I) {
         $I->loginAsAdmin();
         $I->amOnAdminPage('/profile.php');
 
@@ -81,6 +81,35 @@ class UserCest
         $I->seeInLogKeyValueTable("First name Jane");
         $I->seeInLogKeyValueTable("Last name Doe");
         $I->seeInLogKeyValueTable("Website https://texttv.nu http://wordpress");
+        $I->seeInLogKeyValueTable("Description Hello there, this is my description text.");
+    }
+
+    public function logUserOtherProfileUpdated(\Step\Acceptance\Admin $I) {
+        $I->haveUserInDatabase('annaauthor', 'author', ['user_pass' => 'password']);        
+        
+        $I->loginAsAdmin();
+
+        $I->amOnAdminPage('/users.php');
+        $I->click('annaauthor');
+
+        $I->checkOption('#rich_editing');
+        $I->selectOption('input[name=admin_color]', 'light');
+        $I->fillField("#first_name", "Annaname");
+        $I->fillField("#last_name", "Doeauthor");
+        $I->checkOption('#comment_shortcuts');
+        $I->unCheckOption('#admin_bar_front');
+        $I->fillField("#url", 'https://brottsplatskartan.se');
+        $I->fillField("#description", 'Hello there, this is my description text.');
+      
+        $I->click('#submit');
+        
+        $I->seeInLog('You', 'Edited the profile for user annaauthor (annaauthor@example.com)', 1);
+        $I->seeInLogKeyValueTable('Visual editor Disable enable');
+        $I->seeInLogKeyValueTable('Keyboard shortcuts enable disable');
+        $I->seeInLogKeyValueTable("Toolbar don't show Show");
+        $I->seeInLogKeyValueTable("First name Annaname");
+        $I->seeInLogKeyValueTable("Last name Doeauthor");
+        $I->seeInLogKeyValueTable("Website https://brottsplatskartan.se http://annaauthor.example.com");
         $I->seeInLogKeyValueTable("Description Hello there, this is my description text.");
     }
 
