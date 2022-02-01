@@ -142,6 +142,26 @@ class UserCest
         $I->seeInLog('You', 'Deleted user anna (anna@example.com)');
     }
 
+    public function logUsersBulkEditDeleted(\Step\Acceptance\Admin $I) {
+        $user_id_1 = $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'annapass']);        
+        $user_id_2 = $I->haveUserInDatabase('anders', 'author', ['user_pass' => 'anderspass']);        
+        
+        $I->loginAsAdmin();
+        $I->amOnAdminPage('users.php');
+
+        $I->checkOption("#user_{$user_id_1}");
+        $I->checkOption("#user_{$user_id_2}");
+
+        $I->selectOption('#bulk-action-selector-top', 'delete');
+        
+        $I->click('#doaction');
+        
+        $I->click("Confirm Deletion");
+
+        $I->seeInLog('You', 'Deleted user anna (anna@example.com)');
+        $I->seeInLog('You', 'Deleted user anders (anders@example.com)', 2);
+    }
+
     public function logUserRequestPasswordReset(\Step\Acceptance\Admin $I) {
         $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'password']);        
         $I->loginAsAdmin();
