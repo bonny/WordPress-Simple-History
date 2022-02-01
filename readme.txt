@@ -196,6 +196,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 = Unreleased =
 
 - Refactored detection of user profile updates. Order of updated user fields are now shown in same order as they are in the edit user screen. Also the texts are updated to be more user friendly. And those "show toolbar"-messages that showed up at random times should be gone too. 🤞
+- Added: Creation and deletion (revoke) of Application Passwords are now logged.
 - Fixed: Password reset links was always attributed to "Anonymous web user", even those that was sent from the users listing in the WordPress admin area.
 - Fixed: Increase contrast ratio on some texts.
 - Added: Role changes from users overview page are now logged.
