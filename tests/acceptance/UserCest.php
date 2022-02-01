@@ -191,12 +191,20 @@ class UserCest
         $I->seeInLog('You', 'Changed role for user "anders" to "editor" from "subscriber"', 2);
     }
 
-    /*
-    To log:
-    - Change role using dropdown
-    - user_password_reseted
-    - user_requested_password_reset_link
-    - Delete multiple users using dropdown
-    - 
-    */
+    public function logUserApplicationPasswordCreated(\Step\Acceptance\Admin $I) {
+        $I->haveUserInDatabase('annaauthor', 'author', ['user_pass' => 'password']);        
+        
+        $I->loginAsAdmin();
+
+        $I->amOnAdminPage('/users.php');
+        $I->click('annaauthor');
+
+        $I->checkOption('#rich_editing');
+        $I->selectOption('input[name=admin_color]', 'light');
+        $I->fillField("#new_application_password_name", "My New App");
+
+        $I->click('#do_new_application_password');
+        
+        $I->seeInLog('You', 'Added application password "My New App" for user "annaauthor"');
+    }
 }
