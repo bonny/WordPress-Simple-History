@@ -62,11 +62,26 @@ class UserCest
     public function logUserProfileUpdated(\Step\Acceptance\Admin $I) {
         $I->loginAsAdmin();
         $I->amOnAdminPage('/profile.php');
+
+        $I->checkOption('#rich_editing');
+        $I->selectOption('input[name=admin_color]', 'light');
         $I->fillField("#first_name", "Jane");
         $I->fillField("#last_name", "Doe");
+        $I->checkOption('#comment_shortcuts');
+        $I->unCheckOption('#admin_bar_front');
+        $I->fillField("#url", 'https://texttv.nu');
+        $I->fillField("#description", 'Hello there, this is my description text.');
+      
         $I->click('#submit');
-
+        
         $I->seeInLog('You', 'Edited your profile', 1);
+        $I->seeInLogKeyValueTable('Visual editor Disable enable');
+        $I->seeInLogKeyValueTable('Keyboard shortcuts enable disable');
+        $I->seeInLogKeyValueTable("Toolbar don't show Show");
+        $I->seeInLogKeyValueTable("First name Jane");
+        $I->seeInLogKeyValueTable("Last name Doe");
+        $I->seeInLogKeyValueTable("Website https://texttv.nu http://wordpress");
+        $I->seeInLogKeyValueTable("Description Hello there, this is my description text.");
     }
 
     public function logUserCreated(\Step\Acceptance\Admin $I) {
@@ -109,10 +124,12 @@ class UserCest
         $I->seeInLog('You', "Requested a password reset link for user with login 'anna' and email 'anna@example.com'");
     }
 
-
     /*
     To log:
+    - Change role using dropdown
     - user_password_reseted
     - user_requested_password_reset_link
+    - Delete multiple users using dropdown
+    - 
     */
 }

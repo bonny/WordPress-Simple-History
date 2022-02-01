@@ -26,7 +26,7 @@ class Admin extends \AcceptanceTester
     }
 
     /**
-     * Check the latest log entry returned by for a message.
+     * Check log entry for a message.
      * 
      * @param string $who Clear text initator, i.e. "Anonymous web user", "Erik", "WP-CLI", ...
      * @param mixed $message Clear text message, i.e. "Logged in", "Added attachment", ...
@@ -39,8 +39,27 @@ class Admin extends \AcceptanceTester
         
         $I->waitForElementVisible('.SimpleHistoryLogitems');
 
+        $I->makeScreenshot();
+
         $I->see($who, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__header");
         $I->see($message, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__text");
+    }
+
+    /**
+     * Check a log entry returned for value in keyValueTable
+     * 
+     * @param string $who Text that contain text key and both the new and old value, i.e. "First name Hanna Anna" (where Anna is the removed name and Hanna the added).
+     * @param mixed $message Clear text message, i.e. "Logged in", "Added attachment", ...
+     */
+    public function seeInLogKeyValueTable($text, $child = 1)
+    {
+        $I = $this;
+
+        $I->amOnAdminPage('index.php?page=simple_history_page');
+        
+        $I->waitForElementVisible('.SimpleHistoryLogitems');
+
+        $I->see($text, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__details tr");
     }
 
     /**
