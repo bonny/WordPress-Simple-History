@@ -65,8 +65,13 @@ class SimpleUserLogger extends SimpleLogger {
 					'simple-history'
 				),
 				'user_application_password_created' => _x(
-					'Added application password for user "{edited_user_login}" with name "{application_password_name}"',
+					'Added application password "{application_password_name}" for user "{edited_user_login}"',
 					'User add new application password',
+					'simple-history'
+				),
+				'user_application_password_deleted' => _x(
+					'Deleted application password "{application_password_name}" for user "{edited_user_login}"',
+					'User deletes application password',
 					'simple-history'
 				),
 			),
@@ -101,6 +106,9 @@ class SimpleUserLogger extends SimpleLogger {
 						),
 						_x( 'User application password created', 'User logger: search', 'simple-history' ) => array(
 							'user_application_password_created',
+						),
+						_x( 'User application password deletion', 'User logger: search', 'simple-history' ) => array(
+							'user_application_password_deleted',
 						),
 
 					),
@@ -159,12 +167,10 @@ class SimpleUserLogger extends SimpleLogger {
 		// 	2
 		// );
 
-		add_action(
-			'login_form_confirm_admin_email',
-			array( $this, 'on_action_login_form_confirm_admin_email' )
-		);
+		add_action( 'login_form_confirm_admin_email', array( $this, 'on_action_login_form_confirm_admin_email' ) );
 
 		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
+		add_action( 'wp_delete_application_password', array( $this, 'on_action_wp_delete_application_password' ), 10, 2 );
 	}
 
 	/**
@@ -173,7 +179,7 @@ class SimpleUserLogger extends SimpleLogger {
 	 * Fired from action `wp_create_application_password`.
  *
 	 * @param int    $user_id      The user ID.
-	 * @param array  $new_item     {
+	 * @param array  $item     {
 	 *     The details about the created password.
 	 *
 	 *     @type string $uuid      The unique identifier for the application password.
@@ -192,7 +198,7 @@ class SimpleUserLogger extends SimpleLogger {
 	 *     @type string $app_id A UUID provided by the application to uniquely identify it.
 	 * }
 	 */
-	public function on_action_wp_create_application_password( $user_id, $new_item, $new_password, $args ) {
+	public function on_action_wp_create_application_password( $user_id, $item, $new_password, $args ) {
 		$user = get_user_by( 'ID', $user_id );
 
 		$this->infoMessage(
@@ -201,10 +207,36 @@ class SimpleUserLogger extends SimpleLogger {
 				'edited_user_id' => $user_id,
 				'edited_user_email' => $user->user_email,
 				'edited_user_login' => $user->user_login,
-				'application_password_name' => $new_item['name'],
+				'application_password_name' => $item['name'],
 			)
 		);
 	}
+
+
+	/**
+	 * Log when an Application password is deleted (revoked).
+
+	 * Fired from action `wp_delete_application_password`.
+	 *
+	 * @since 5.6.0
+	 *
+	 * @param int   $user_id The user ID.
+	 * @param array $item    The data about the application password.
+	 */
+	public function on_action_wp_delete_application_password( $user_id, $item ) {
+		$user = get_user_by( 'ID', $user_id );
+
+		$this->infoMessage(
+			'user_application_password_deleted',
+			array(
+				'edited_user_id' => $user_id,
+				'edited_user_email' => $user->user_email,
+				'edited_user_login' => $user->user_login,
+				'application_password_name' => $item['name'],
+			)
+		);
+	}
+
 
 	/**
 	 * Fires after the user's role has changed.
