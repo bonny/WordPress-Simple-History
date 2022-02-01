@@ -125,7 +125,6 @@ class UserCest
         $I->uncheckOption('#send_user_notification');
 
         $I->click('Add New User');
-        $I->makeScreenshot();
 
         $I->seeInLog('You', 'Created user NewUserLogin (newuser@example.com) with role subscriber', 1);
     }
@@ -206,5 +205,31 @@ class UserCest
         $I->click('#do_new_application_password');
         
         $I->seeInLog('You', 'Added application password "My New App" for user "annaauthor"');
+    }
+    
+    public function logUserApplicationPasswordDeleted(\Step\Acceptance\Admin $I) {
+        $I->haveUserInDatabase('annaauthor', 'author', ['user_pass' => 'password']);        
+        
+        $I->loginAsAdmin();
+
+        $I->amOnAdminPage('/users.php');
+        $I->click('annaauthor');
+
+        $I->checkOption('#rich_editing');
+        $I->selectOption('input[name=admin_color]', 'light');
+        $I->fillField("#new_application_password_name", "My New App");
+
+        $I->click('#do_new_application_password');
+
+        $I->waitForElementVisible('#new-application-password-value');
+
+        $I->see('Your new password for My New App is:');
+
+        $I->click("Revoke");
+
+        $I->acceptPopup();
+       
+        $I->seeInLog('You', 'Deleted application password "My New App" for user "annaauthor"');
+
     }
 }
