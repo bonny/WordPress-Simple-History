@@ -246,14 +246,10 @@ class SimpleUserLogger extends SimpleLogger {
 			return $data;
 		}
 
-		if ( ! function_exists( 'get_current_screen' ) ) {
-			return $data;
-		}
-
 		$current_screen = simple_history_get_current_screen();
 
-		// Bail if we are not on the user-edit screen.
-		if ( $current_screen->id !== 'user-edit' ) {
+		// Bail if we are not on the user-edit screen (edit other user) or profile screen (edit own user).
+		if ( ! in_array( $current_screen->id, array( 'user-edit', 'profile' ) ) ) {
 			return $data;
 		}
 
