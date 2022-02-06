@@ -22,12 +22,8 @@ class FirstCest {
                 $I->see('Users:');
 
                 $I->loginAs('erik', 'password'); 
-                $I->makeScreenshot();
                 
                 $I->amOnAdminPage( 'index.php?page=simple_history_page' );
                 $I->see( 'Simple History' );
-
-                $I->makeScreenshot();
-                // $I->pause();
 	}
 }
