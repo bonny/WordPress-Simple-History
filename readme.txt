@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.8.2
 Requires PHP: 5.6
-Stable tag: 3.1.1
+Stable tag: 3.2.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -193,13 +193,13 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= Unreleased =
+= 3.2.0 (February 2022) =
 
-- Refactored detection of user profile updates. Order of updated user fields are now shown in same order as they are in the edit user screen. Also the texts are updated to be more user friendly. And those "show toolbar"-messages that showed up at random times should be gone too. 🤞
+- Refactored detection of user profile updates. Order of updated user fields are now shown in the same order as they are in the edit user screen. Also the texts are updated to be more user friendly. And those "show toolbar"-messages that showed up at random times should be gone too. 🤞
 - Added: Creation and deletion (revoke) of Application Passwords are now logged.
+- Added: Role changes from users overview page are now logged.
 - Fixed: Password reset links was always attributed to "Anonymous web user", even those that was sent from the users listing in the WordPress admin area.
 - Fixed: Increase contrast ratio on some texts.
-- Added: Role changes from users overview page are now logged.
 - Changed: `sh_d()` now tell you if a value is integer or numeric string or an empty string.
 - Changed: The log message "Found an update to WordPress" had a dot in it. No other log message had a dot so the dot is no more.
 
