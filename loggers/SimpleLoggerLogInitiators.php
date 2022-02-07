@@ -3,7 +3,7 @@
 // phpcs:disable PSR12.Properties.ConstantVisibility.NotFound
 
 /**
- * Describes log initiator, i.e. who caused to log event to happend
+ * Describes log initiator, i.e. who caused to log event to happened
  */
 class SimpleLoggerLogInitiators {
 
@@ -13,7 +13,7 @@ class SimpleLoggerLogInitiators {
 
 	// Cron job run = wordpress initiated
 	// Email sent to customer on webshop = system/wordpress/anonymous web user
-	// Javascript error occured on website = anonymous web user.
+	// Javascript error occurred on website = anonymous web user.
 	const WEB_USER = 'web_user';
 
 	// WordPress core or plugins updated automatically via wp-cron.

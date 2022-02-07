@@ -48,7 +48,7 @@ if ( ! class_exists( 'Plugin_DuplicatePost' ) ) {
 			// When a copy have been made of a post or page
 			// the action 'dp_duplicate_page' or 'dp_duplicate_post'
 			// is fired with args $new_post_id, $post, $status.
-			// We add actions with prio 20 so we probably run after
+			// We add actions with priority 20 so we probably run after
 			// the plugins own
 			add_action( 'dp_duplicate_post', array( $this, 'onDpDuplicatePost' ), 100, 3 );
 			add_action( 'dp_duplicate_page', array( $this, 'onDpDuplicatePost' ), 100, 3 );

@@ -375,7 +375,7 @@ class SimpleLogger {
 
 		/**
 		 * Filter how many seconds as most that can pass since an
-		 * event occured to show "nn minutes ago" (human diff time-format) instead of exact date
+		 * event occurred to show "nn minutes ago" (human diff time-format) instead of exact date
 		 *
 		 * @since 2.0
 		 *
@@ -389,7 +389,7 @@ class SimpleLogger {
 
 		/**
 		 * Filter how many seconds as most that can pass since an
-		 * event occured to show "just now" instead of exact date
+		 * event occurred to show "just now" instead of exact date
 		 *
 		 * @since 2.0
 		 *
@@ -827,7 +827,7 @@ class SimpleLogger {
 	/**
 	 * Use this method to output detailed output for a log row
 	 * Example usage is if a user has uploaded an image then a
-	 * thumbnail of that image can bo outputed here
+	 * thumbnail of that image can bo outputted here
 	 *
 	 * @param object $row
 	 * @return string HTML-formatted output
@@ -1287,7 +1287,7 @@ class SimpleLogger {
 			'message' => $message,
 		);
 
-		// Allow date to be overriden.
+		// Allow date to be overridden.
 		// Date must be in format 'Y-m-d H:i:s'.
 		if ( isset( $context['_date'] ) ) {
 			$data['date'] = $context['_date'];

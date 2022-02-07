@@ -68,7 +68,7 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 			// set_site_transient( 'update_core', null ); // Uncomment to test
 			add_action( 'set_site_transient_update_core', array( $this, 'on_setted_update_core_transient' ), 10, 1 );
 
-			// Dito for plugins
+			// Ditto for plugins
 			// set_site_transient( 'update_plugins', null ); // Uncomment to test
 			add_action( 'set_site_transient_update_plugins', array( $this, 'on_setted_update_plugins_transient' ), 10, 1 );
 

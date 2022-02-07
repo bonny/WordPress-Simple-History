@@ -523,7 +523,7 @@ class SimpleCommentsLogger extends SimpleLogger {
 
 
 	/**
-	 * Modify plain output to inlcude link to post
+	 * Modify plain output to include link to post
 	 * and link to comment
 	 *
 	 * @param object $row
