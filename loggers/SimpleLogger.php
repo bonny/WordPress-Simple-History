@@ -91,12 +91,12 @@ class SimpleLogger {
 
 			// Shown on the info-tab in settings, use these fields to tell
 			// an admin what your logger is used for.
-			'name' => 'SimpleLogger',
-			'description' => 'The built in logger for Simple History',
+			'name'        => 'SimpleLogger',
+			'description' => __( 'The built in logger for Simple History', 'simple-history' ),
 
 			// Capability required to view log entries from this logger
 			'capability' => 'edit_pages',
-			'messages' => array(
+			'messages'   => array(
 				// No pre-defined variants
 				// when adding messages __() or _x() must be used
 			),
@@ -768,7 +768,7 @@ class SimpleLogger {
 
 	/**
 	 * Get output for image
-	 * Image can be for example gravar if sender is user,
+	 * Image can be for example gravatar if sender is user,
 	 * or other images if sender i system, wordpress, and so on
 	 */
 	public function getLogRowSenderImageOutput( $row ) {
@@ -893,7 +893,7 @@ class SimpleLogger {
 		}
 
 		/**
-		 * Filter so plugins etc. can shortut logging
+		 * Filter so plugins etc. can shortcut logging
 		 *
 		 * @since 2.0.20
 		 *
@@ -1224,7 +1224,7 @@ class SimpleLogger {
 		}
 
 		/**
-		 * Filter arguments passed to log funtion
+		 * Filter arguments passed to log function
 		 *
 		 * @since 2.0
 		 *
@@ -1564,7 +1564,7 @@ class SimpleLogger {
 	 *
 	 * @param int   $history_id The id of the history row to add context to.
 	 * @param array $context Context to append to existing context for the row.
-	 * @return bool True if context was added, false if not (beacuse row_id or context is empty).
+	 * @return bool True if context was added, false if not (because row_id or context is empty).
 	 */
 	public function append_context( $history_id, $context ) {
 		if ( empty( $history_id ) || empty( $context ) ) {

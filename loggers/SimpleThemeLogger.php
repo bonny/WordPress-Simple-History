@@ -9,7 +9,7 @@ class SimpleThemeLogger extends SimpleLogger {
 
 	public $slug = __CLASS__;
 
-	// When swithing themes, this will contain info about the theme we are switching from
+	// When switching themes, this will contain info about the theme we are switching from
 	private $prev_theme_data;
 
 	/**
@@ -28,26 +28,26 @@ class SimpleThemeLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'Theme Logger',
-			'description' => 'Logs theme edits',
-			'capability' => 'edit_theme_options',
-			'messages' => array(
-				'theme_switched' => __( 'Switched theme to "{theme_name}" from "{prev_theme_name}"', 'simple-history' ),
-				'theme_installed' => __( 'Installed theme "{theme_name}" by {theme_author}', 'simple-history' ),
-				'theme_deleted' => __( 'Deleted theme "{theme_name}"', 'simple-history' ),
-				'theme_updated' => __( 'Updated theme "{theme_name}"', 'simple-history' ),
-				'appearance_customized' => __( 'Customized theme appearance "{setting_id}"', 'simple-history' ),
-				'widget_removed' => __( 'Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', 'simple-history' ),
-				'widget_added' => __( 'Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', 'simple-history' ),
-				'widget_order_changed' => __( 'Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', 'simple-history' ),
-				'widget_edited' => __( 'Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', 'simple-history' ),
+			'name'        => __( 'Theme Logger', 'simple-history' ),
+			'description' => __( 'Logs theme edits', 'simple-history' ),
+			'capability'  => 'edit_theme_options',
+			'messages'    => array(
+				'theme_switched'            => __( 'Switched theme to "{theme_name}" from "{prev_theme_name}"', 'simple-history' ),
+				'theme_installed'           => __( 'Installed theme "{theme_name}" by {theme_author}', 'simple-history' ),
+				'theme_deleted'             => __( 'Deleted theme "{theme_name}"', 'simple-history' ),
+				'theme_updated'             => __( 'Updated theme "{theme_name}"', 'simple-history' ),
+				'appearance_customized'     => __( 'Customized theme appearance "{setting_id}"', 'simple-history' ),
+				'widget_removed'            => __( 'Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', 'simple-history' ),
+				'widget_added'              => __( 'Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', 'simple-history' ),
+				'widget_order_changed'      => __( 'Changed widget order "{widget_id_base}" in sidebar "{sidebar_id}"', 'simple-history' ),
+				'widget_edited'             => __( 'Changed widget "{widget_id_base}" in sidebar "{sidebar_id}"', 'simple-history' ),
 				'custom_background_changed' => __( 'Changed settings for the theme custom background', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Themes & Widgets', 'Theme logger: search', 'simple-history' ),
+					'label'     => _x( 'Themes & Widgets', 'Theme logger: search', 'simple-history' ),
 					'label_all' => _x( 'All theme activity', 'Theme logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Updated themes', 'Theme logger: search', 'simple-history' ) => array(
 							'theme_updated',
 						),

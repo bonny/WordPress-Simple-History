@@ -9,18 +9,18 @@ class FileEditsLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'FileEditsLogger',
-			'description' => 'Logs edits to theme and plugin files',
-			'capability' => 'manage_options',
-			'messages' => array(
-				'theme_file_edited' => __( 'Edited file "{file_name}" in theme "{theme_name}"', 'simple-history' ),
+			'name'        => _x( 'File edits Logger', 'Logger: FileEditsLogger', 'simple-history' ),
+			'description' => __( 'Logs edits to theme and plugin files', 'simple-history' ),
+			'capability'  => 'manage_options',
+			'messages'    => array(
+				'theme_file_edited'  => __( 'Edited file "{file_name}" in theme "{theme_name}"', 'simple-history' ),
 				'plugin_file_edited' => __( 'Edited file "{file_name}" in plugin "{plugin_name}"', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Edited theme and plugin files', 'Plugin logger: file edits', 'simple-history' ),
+					'label'     => _x( 'Edited theme and plugin files', 'Plugin logger: file edits', 'simple-history' ),
 					'label_all' => _x( 'All file edits', 'Plugin logger: file edits', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Edited theme files', 'Plugin logger: file edits', 'simple-history' ) => array(
 							'theme_file_edited',
 						),

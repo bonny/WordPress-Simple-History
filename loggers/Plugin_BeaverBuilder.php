@@ -13,20 +13,20 @@ if ( ! class_exists( 'Plugin_BeaverBuilder' ) ) {
 
 		public function getInfo() {
 			$arr_info = array(
-				'name' => 'Plugin Beaver Builder',
+				'name'        => _x( 'Plugin: Beaver Builder Logger', 'Logger: Plugin Beaver Builder', 'simple-history' ),
 				'description' => _x(
 					'Logs various things in Beaver Builder',
 					'Logger: Plugin Beaver Builder',
 					'simple-history'
 				),
-				'name_via' => _x(
+				'name_via'    => _x(
 					'Using plugin Beaver Builder',
 					'Logger: Plugin Beaver Builder',
 					'simple-history'
 				),
 				'capability' => 'manage_options',
-				'messages' => array(
-					'layout_saved' => __(
+				'messages'   => array(
+					'layout_saved'   => __(
 						'Layout "{layout_name}" updated',
 						'simple-history'
 					),
@@ -34,11 +34,11 @@ if ( ! class_exists( 'Plugin_BeaverBuilder' ) ) {
 						'Template "{layout_name}" updated',
 						'simple-history'
 					),
-					'draft_saved' => __(
+					'draft_saved'    => __(
 						'Draft "{layout_name}" updated',
 						'simple-history'
 					),
-					'admin_saved' => __(
+					'admin_saved'    => __(
 						'Beaver Builder settings saved',
 						'simple-history'
 					),

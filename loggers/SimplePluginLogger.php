@@ -38,8 +38,8 @@ class SimplePluginLogger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name'        => 'Plugin Logger',
-			'description' => 'Logs plugin installs, uninstalls and updates',
+			'name'        => __( 'Plugin Logger', 'simple-history' ),
+			'description' => __( 'Logs plugin installs, uninstalls and updates', 'simple-history' ),
 			'capability'  => 'activate_plugins',
 			'messages'    => array(
 
@@ -427,7 +427,7 @@ class SimplePluginLogger extends SimpleLogger {
 	 *
 	 * @param string $translation Translation.
 	 * @param string $text Text.
-	 * @param string $domain Domin.
+	 * @param string $domain Domain.
 	 */
 	public function on_gettext_detect_plugin_error_deactivation_reason( $translation, $text, $domain ) {
 
@@ -481,7 +481,7 @@ class SimplePluginLogger extends SimpleLogger {
 	 *
 	 * @param string $translation Translation.
 	 * @param string $text Text.
-	 * @param string $domain Domin.
+	 * @param string $domain Domain.
 	 */
 	public function on_gettext( $translation, $text, $domain ) {
 
@@ -1097,7 +1097,7 @@ class SimplePluginLogger extends SimpleLogger {
 
 		// When a plugin is installed we show a bit more information
 		// We do it only on install because we don't want to clutter to log,
-		// and when something is installed the description is most useul for other
+		// and when something is installed the description is most useful for other
 		// admins on the site
 		if ( 'plugin_installed' === $message_key ) {
 			if ( isset( $context['plugin_description'] ) ) {

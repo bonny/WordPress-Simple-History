@@ -16,15 +16,15 @@ class SimpleExportLogger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name' => __( 'Export Logger', 'simple-history' ),
+			'name'        => __( 'Export Logger', 'simple-history' ),
 			'description' => __( 'Logs updates to WordPress export', 'simple-history' ),
-			'capability' => 'export',
-			'messages' => array(
+			'capability'  => 'export',
+			'messages'    => array(
 				'created_export' => __( 'Created XML export', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Export', 'Export logger: search', 'simple-history' ),
+					'label'   => _x( 'Export', 'Export logger: search', 'simple-history' ),
 					'options' => array(
 						_x( 'Created exports', 'Export logger: search', 'simple-history' ) => array(
 							'created_export',

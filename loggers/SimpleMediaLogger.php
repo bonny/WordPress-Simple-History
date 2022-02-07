@@ -17,19 +17,19 @@ class SimpleMediaLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => __( 'Media/Attachments Logger', 'simple-history' ),
+			'name'        => __( 'Media/Attachments Logger', 'simple-history' ),
 			'description' => __( 'Logs media uploads and edits', 'simple-history' ),
-			'capability' => 'edit_pages',
-			'messages' => array(
+			'capability'  => 'edit_pages',
+			'messages'    => array(
 				'attachment_created' => __( 'Created {post_type} "{attachment_title}"', 'simple-history' ),
 				'attachment_updated' => __( 'Edited {post_type} "{attachment_title}"', 'simple-history' ),
 				'attachment_deleted' => __( 'Deleted {post_type} "{attachment_title}" ("{attachment_filename}")', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Media', 'Media logger: search', 'simple-history' ),
+					'label'     => _x( 'Media', 'Media logger: search', 'simple-history' ),
 					'label_all' => _x( 'All media activity', 'Media logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Added media', 'Media logger: search', 'simple-history' ) => array(
 							'attachment_created',
 						),
@@ -89,7 +89,7 @@ class SimpleMediaLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Modify plain output to inlcude link to post
+	 * Modify plain output to include link to post
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
 

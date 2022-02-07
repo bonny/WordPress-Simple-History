@@ -15,18 +15,18 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 		public function getInfo() {
 
 			$arr_info = array(
-				'name' => 'Plugin Limit Login Attempts',
+				'name'        => _x( 'Plugin: Limit Login Attempts Logger', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				'description' => _x( 'Logs failed login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-				'name_via' => _x( 'Using plugin Limit Login Attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-				'capability' => 'manage_options',
-				'messages' => array(
+				'name_via'    => _x( 'Using plugin Limit Login Attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+				'capability'  => 'manage_options',
+				'messages'    => array(
 					// 'user_locked_out' => _x( 'User locked out', "Logger: Plugin Limit Login Attempts", "simple-history" ),
 					'failed_login_whitelisted' => _x( 'Failed login attempt from whitelisted IP', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-					'failed_login' => _x( 'Was locked out because too many failed login attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-					'cleared_ip_log' => _x( 'Cleared IP log', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-					'reseted_lockout_count' => _x( 'Reseted lockout count', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+					'failed_login'             => _x( 'Was locked out because too many failed login attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+					'cleared_ip_log'           => _x( 'Cleared IP log', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+					'reseted_lockout_count'    => _x( 'Reset lockout count', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 					'cleared_current_lockouts' => _x( 'Cleared current lockouts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-					'updated_options' => _x( 'Updated options', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+					'updated_options'          => _x( 'Updated options', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				),
 				/*
 				"labels" => array(

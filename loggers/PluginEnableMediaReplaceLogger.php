@@ -20,11 +20,11 @@ class PluginEnableMediaReplaceLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => _x( 'Enable Media Replace Logger', 'PluginEnableMediaReplaceLogger', 'simple-history' ),
+			'name'        => _x( 'Plugin: Enable Media Replace Logger', 'PluginEnableMediaReplaceLogger', 'simple-history' ),
 			'description' => _x( 'Logs media updates made with the Enable Media Replace Plugin', 'PluginEnableMediaReplaceLogger', 'simple-history' ),
-			'name_via' => _x( 'Using plugin Enable Media Replace', 'PluginUserSwitchingLogger', 'simple-history' ),
-			'capability' => 'upload_files',
-			'messages' => array(
+			'name_via'    => _x( 'Using plugin Enable Media Replace', 'PluginUserSwitchingLogger', 'simple-history' ),
+			'capability'  => 'upload_files',
+			'messages'    => array(
 				'replaced_file' => _x( 'Replaced attachment "{prev_attachment_title}" with new attachment "{new_attachment_title}"', 'PluginEnableMediaReplaceLogger', 'simple-history' ),
 			),
 		);

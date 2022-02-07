@@ -23,18 +23,18 @@ class PluginWPCrontrolLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => _x( 'WP Crontrol Logger', 'PluginWPCrontrolLogger', 'simple-history' ),
+			'name'        => _x( 'Plugin: WP Crontrol Logger', 'PluginWPCrontrolLogger', 'simple-history' ),
 			'description' => _x( 'Logs management of cron events', 'PluginWPCrontrolLogger', 'simple-history' ),
-			'name_via' => _x( 'Using plugin WP Crontrol', 'PluginWPCrontrolLogger', 'simple-history' ),
-			'capability' => 'manage_options',
-			'messages' => array(
-				'added_new_event' => _x( 'Added cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
-				'ran_event' => _x( 'Manually ran cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
-				'deleted_event' => _x( 'Deleted cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
+			'name_via'    => _x( 'Using plugin WP Crontrol', 'PluginWPCrontrolLogger', 'simple-history' ),
+			'capability'  => 'manage_options',
+			'messages'    => array(
+				'added_new_event'       => _x( 'Added cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
+				'ran_event'             => _x( 'Manually ran cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
+				'deleted_event'         => _x( 'Deleted cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 				'deleted_all_with_hook' => _x( 'Deleted all "{event_hook}" cron events', 'PluginWPCrontrolLogger', 'simple-history' ),
-				'edited_event' => _x( 'Edited cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
-				'added_new_schedule' => _x( 'Added cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
-				'deleted_schedule' => _x( 'Deleted cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
+				'edited_event'          => _x( 'Edited cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
+				'added_new_schedule'    => _x( 'Added cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
+				'deleted_schedule'      => _x( 'Deleted cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 			),
 		);
 

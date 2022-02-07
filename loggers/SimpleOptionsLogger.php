@@ -17,10 +17,10 @@ class SimpleOptionsLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'Options Logger',
-			'description' => 'Logs updates to WordPress settings',
-			'capability' => 'manage_options',
-			'messages' => array(
+			'name'        => __( 'Options Logger', 'simple-history' ),
+			'description' => __( 'Logs updates to WordPress settings', 'simple-history' ),
+			'capability'  => 'manage_options',
+			'messages'    => array(
 				// 'option_updated' => __('Updated option "{option}" on settings page "{option_page}"', "simple-history"),
 				'option_updated' => __( 'Updated option "{option}"', 'simple-history' ),
 				/*
@@ -32,9 +32,9 @@ class SimpleOptionsLogger extends SimpleLogger {
 
 				*/
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Options', 'Options logger: search', 'simple-history' ),
+					'label'   => _x( 'Options', 'Options logger: search', 'simple-history' ),
 					'options' => array(
 						_x( 'Changed options', 'Options logger: search', 'simple-history' ) => array(
 							'option_updated',
@@ -69,7 +69,7 @@ class SimpleOptionsLogger extends SimpleLogger {
 		}
 
 		// Also only if "option_page" is set to one of these "built in" ones
-		// We don't wanna start loging things from other plugins, like EDD
+		// We don't wanna start logging things from other plugins, like EDD
 		$option_page = isset( $_REQUEST['option_page'] ) ? $_REQUEST['option_page'] : ''; // general | discussion | ...
 
 		$arr_valid_option_pages = array(

@@ -28,22 +28,22 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		public function getInfo() {
 
 			$arr_info = array(
-				'name' => 'Redirection',
-				'description' => _x( 'Text', 'Logger: Redirection', 'simple-history' ),
-				'name_via' => _x( 'In plugin Redirection', 'Logger: Redirection', 'simple-history' ),
-				'capability' => 'manage_options',
-				'messages' => array(
-					'redirection_redirection_added' => _x( 'Added a redirection for URL "{source_url}"', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_edited' => _x( 'Edited redirection for URL "{prev_source_url}"', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_enabled' => _x( 'Enabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+				'name'        => _x( 'Plugin: Redirection Logger', 'Logger: Redirection', 'simple-history' ),
+				'description' => _x( 'Logs edits in the Redirection plugin', 'Logger: Redirection', 'simple-history' ),
+				'name_via'    => _x( 'In plugin Redirection', 'Logger: Redirection', 'simple-history' ),
+				'capability'  => 'manage_options',
+				'messages'    => array(
+					'redirection_redirection_added'    => _x( 'Added a redirection for URL "{source_url}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_edited'   => _x( 'Edited redirection for URL "{prev_source_url}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_enabled'  => _x( 'Enabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
 					'redirection_redirection_disabled' => _x( 'Disabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_redirection_deleted' => _x( 'Deleted redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_options_saved' => _x( 'Updated redirection options', 'Logger: Redirection', 'simple-history' ),
-					'redirection_options_removed_all' => _x( 'Removed all redirection options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
-					'redirection_group_added' => _x( 'Added redirection group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
-					'redirection_group_enabled' => _x( 'Enabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_group_disabled' => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
-					'redirection_group_deleted' => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_redirection_deleted'  => _x( 'Deleted redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_options_saved'        => _x( 'Updated redirection options', 'Logger: Redirection', 'simple-history' ),
+					'redirection_options_removed_all'  => _x( 'Removed all redirection options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_added'          => _x( 'Added redirection group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_enabled'        => _x( 'Enabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_disabled'       => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+					'redirection_group_deleted'        => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 				),
 
 				/*
@@ -195,7 +195,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		}
 
 		/**
-		 * Log when a Redirection grouop is added
+		 * Log when a Redirection group is added
 		 *
 		 * @param WP_REST_Request $req Request.
 		 */

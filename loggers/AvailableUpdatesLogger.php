@@ -29,19 +29,19 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 		public function getInfo() {
 
 			$arr_info = array(
-				'name' => 'AvailableUpdatesLogger',
-				'description' => 'Logs found updates to WordPress, plugins, and themes',
-				'capability' => 'manage_options',
-				'messages' => array(
-					'core_update_available' => __( 'Found an update to WordPress', 'simple-history' ),
+				'name'        => _x( 'Available Updates Logger', 'AvailableUpdatesLogger', 'simple-history' ),
+				'description' => __( 'Logs found updates to WordPress, plugins, and themes', 'simple-history' ),
+				'capability'  => 'manage_options',
+				'messages'    => array(
+					'core_update_available'   => __( 'Found an update to WordPress', 'simple-history' ),
 					'plugin_update_available' => __( 'Found an update to plugin "{plugin_name}"', 'simple-history' ),
-					'theme_update_available' => __( 'Found an update to theme "{theme_name}"', 'simple-history' ),
+					'theme_update_available'  => __( 'Found an update to theme "{theme_name}"', 'simple-history' ),
 				),
-				'labels' => array(
+				'labels'      => array(
 					'search' => array(
-						'label' => _x( 'WordPress and plugins updates found', 'Plugin logger: updates found', 'simple-history' ),
+						'label'     => _x( 'WordPress and plugins updates found', 'Plugin logger: updates found', 'simple-history' ),
 						'label_all' => _x( 'All found updates', 'Plugin logger: updates found', 'simple-history' ),
-						'options' => array(
+						'options'   => array(
 							_x( 'WordPress updates found', 'Plugin logger: updates found', 'simple-history' ) => array(
 								'core_update_available',
 							),

@@ -17,21 +17,21 @@ class SimpleMenuLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'Menu Logger',
-			'description' => 'Logs menu edits',
-			'capability' => 'edit_theme_options',
-			'messages' => array(
-				'created_menu' => __( 'Created menu "{menu_name}"', 'simple-history' ),
-				'edited_menu' => __( 'Edited menu "{menu_name}"', 'simple-history' ),
-				'deleted_menu' => __( 'Deleted menu "{menu_name}"', 'simple-history' ),
-				'edited_menu_item' => __( 'Edited a menu item', 'simple-history' ),
+			'name'        => __( 'Menu Logger', 'simple-history' ),
+			'description' => __( 'Logs menu edits', 'simple-history' ),
+			'capability'  => 'edit_theme_options',
+			'messages'    => array(
+				'created_menu'          => __( 'Created menu "{menu_name}"', 'simple-history' ),
+				'edited_menu'           => __( 'Edited menu "{menu_name}"', 'simple-history' ),
+				'deleted_menu'          => __( 'Deleted menu "{menu_name}"', 'simple-history' ),
+				'edited_menu_item'      => __( 'Edited a menu item', 'simple-history' ),
 				'edited_menu_locations' => __( 'Updated menu locations', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Menus', 'Menu logger: search', 'simple-history' ),
+					'label'     => _x( 'Menus', 'Menu logger: search', 'simple-history' ),
 					'label_all' => _x( 'All menu activity', 'Menu updates logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Created menus', 'Menu updates logger: search', 'simple-history' ) => array(
 							'created_menu',
 						),
@@ -91,7 +91,7 @@ class SimpleMenuLogger extends SimpleLogger {
 		// This is fired when adding nav items in the editor, not at save, so not
 		// good to log because user might not end up saving the changes
 		// add_action("wp_update_nav_menu_item", array($this, "on_wp_update_nav_menu_item"), 10, 3 );
-		// Fired before "wp_update_nav_menu" below, to remember menu layput before it's updated
+		// Fired before "wp_update_nav_menu" below, to remember menu layout before it's updated
 		// so we can't detect changes
 		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_update' ) );
 
@@ -105,12 +105,12 @@ class SimpleMenuLogger extends SimpleLogger {
 		do_action( 'wp_update_nav_menu', $menu_id, $menu_data );
 		*/
 		// add_action("wp_update_nav_menu", array($this, "on_wp_update_nav_menu"), 10, 2 );
-		// Detect meny location change in "manage locations"
+		// Detect menu location change in "manage locations"
 		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_locations_update' ) );
 	}
 
 	/**
-	 * Can't use action "wp_delete_nav_menu" beacuse
+	 * Can't use action "wp_delete_nav_menu" because
 	 * it's fired after menu is deleted, so we don't have the name in this action
 	 */
 	public function on_load_nav_menus_page_detect_delete() {

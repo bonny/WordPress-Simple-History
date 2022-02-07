@@ -56,15 +56,15 @@ class SimpleCoreUpdatesLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'Core Updates Logger',
-			'description' => 'Logs the update of WordPress (manual and automatic updates)',
-			'capability' => 'update_core',
-			'messages' => array(
-				'core_updated' => __( 'Updated WordPress to {new_version} from {prev_version}', 'simple-history' ),
-				'core_auto_updated' => __( 'WordPress auto-updated to {new_version} from {prev_version}', 'simple-history' ),
+			'name'        => __( 'Core Updates Logger', 'simple-history' ),
+			'description' => __( 'Logs the update of WordPress (manual and automatic updates)', 'simple-history' ),
+			'capability'  => 'update_core',
+			'messages'    => array(
+				'core_updated'            => __( 'Updated WordPress to {new_version} from {prev_version}', 'simple-history' ),
+				'core_auto_updated'       => __( 'WordPress auto-updated to {new_version} from {prev_version}', 'simple-history' ),
 				'core_db_version_updated' => __( 'WordPress database version updated to {new_version} from {prev_version}', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
 					'label' => _x( 'WordPress Core', 'User logger: search', 'simple-history' ),
 					'options' => array(

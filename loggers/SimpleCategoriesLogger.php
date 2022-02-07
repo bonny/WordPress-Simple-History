@@ -17,18 +17,18 @@ class SimpleCategoriesLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => __( 'Categories Logger', 'simple-history' ),
-			'description' => 'Logs changes to categories, tags, and taxonomies',
-			'messages' => array(
+			'name'        => __( 'Categories Logger', 'simple-history' ),
+			'description' => __( 'Logs changes to categories, tags, and taxonomies', 'simple-history' ),
+			'messages'    => array(
 				'created_term' => __( 'Added term "{term_name}" in taxonomy "{term_taxonomy}"', 'simple-history' ),
 				'deleted_term' => __( 'Deleted term "{term_name}" from taxonomy "{term_taxonomy}"', 'simple-history' ),
-				'edited_term' => __( 'Edited term "{to_term_name}" in taxonomy "{to_term_taxonomy}"', 'simple-history' ),
+				'edited_term'  => __( 'Edited term "{to_term_name}" in taxonomy "{to_term_taxonomy}"', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Categories', 'Categories logger: search', 'simple-history' ),
+					'label'     => _x( 'Categories', 'Categories logger: search', 'simple-history' ),
 					'label_all' => _x( 'All category activity', 'Category logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Term created', 'Category logger: search', 'simple-history' ) => array(
 							'created_term',
 						),

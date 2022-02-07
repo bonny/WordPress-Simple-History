@@ -15,10 +15,10 @@ class SimpleUserLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => __( 'User Logger', 'simple-history' ),
+			'name'        => __( 'User Logger', 'simple-history' ),
 			'description' => __( 'Logs user logins, logouts, and failed logins', 'simple-history' ),
-			'capability' => 'edit_users',
-			'messages' => array(
+			'capability'  => 'edit_users',
+			'messages'    => array(
 				'user_login_failed' => __(
 					'Failed to login with username "{login}" (incorrect password entered)',
 					'simple-history'
@@ -75,12 +75,11 @@ class SimpleUserLogger extends SimpleLogger {
 					'simple-history'
 				),
 			),
-
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Users', 'User logger: search', 'simple-history' ),
+					'label'     => _x( 'Users', 'User logger: search', 'simple-history' ),
 					'label_all' => _x( 'All user activity', 'User logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Successful user logins', 'User logger: search', 'simple-history' ) => array(
 							'user_logged_in',
 							'user_unknown_logged_in',

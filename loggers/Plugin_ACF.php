@@ -56,7 +56,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 */
 		public function getInfo() {
 			$arr_info = array(
-				'name'        => 'Plugin ACF',
+				'name'        => _x( 'Plugin: Advanced Custom Fields Logger', 'Logger: Plugin ACF', 'simple-history' ),
 				'description' => _x( 'Logs ACF stuff', 'Logger: Plugin ACF', 'simple-history' ),
 				'name_via'    => _x( 'Using plugin ACF', 'Logger: Plugin ACF', 'simple-history' ),
 				'capability'  => 'manage_options',
@@ -205,7 +205,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			);
 
 			// New and old post meta can contain different amount of keys,
-			// join them so we have the name of all post meta thaf have been added, removed, or modified.
+			// join them so we have the name of all post meta that have been added, removed, or modified.
 			$new_and_old_post_meta = array_merge( $prev_post_meta, $new_post_meta );
 			ksort( $new_and_old_post_meta, SORT_REGULAR );
 
@@ -1057,7 +1057,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			}
 
 			// We don't do anything else here, but we make the actual logging
-			// in filter 'acf/update_field_group' beacuse it's safer because
+			// in filter 'acf/update_field_group' because it's safer because
 			// ACF has done it's validation and it's after ACF has saved the fields,
 			// so less likely that we make some critical error
 		}

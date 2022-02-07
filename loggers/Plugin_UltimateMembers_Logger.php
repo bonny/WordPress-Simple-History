@@ -19,10 +19,10 @@ class Plugin_UltimateMembers_Logger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name' => _x( 'Ultimate Members Logger', 'PluginUltimateMembersLogger', 'simple-history' ),
+			'name'        => _x( 'Plugin: Ultimate Members Logger', 'PluginUltimateMembersLogger', 'simple-history' ),
 			'description' => _x( 'Logs actions from the Ultimate Members plugin', 'PluginUltimateMembersLogger', 'simple-history' ),
-			'capability' => 'edit_users',
-			'messages' => array(
+			'capability'  => 'edit_users',
+			'messages'    => array(
 				'logged_in' => _x( 'Logged in', 'PluginUltimateMembersLogger', 'simple-history' ),
 			),
 		);
