@@ -17,21 +17,21 @@ class SimpleMenuLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'Menu Logger',
-			'description' => 'Logs menu edits',
-			'capability' => 'edit_theme_options',
-			'messages' => array(
-				'created_menu' => __( 'Created menu "{menu_name}"', 'simple-history' ),
-				'edited_menu' => __( 'Edited menu "{menu_name}"', 'simple-history' ),
-				'deleted_menu' => __( 'Deleted menu "{menu_name}"', 'simple-history' ),
-				'edited_menu_item' => __( 'Edited a menu item', 'simple-history' ),
+			'name'        => __( 'Menu Logger', 'simple-history' ),
+			'description' => __( 'Logs menu edits', 'simple-history' ),
+			'capability'  => 'edit_theme_options',
+			'messages'    => array(
+				'created_menu'          => __( 'Created menu "{menu_name}"', 'simple-history' ),
+				'edited_menu'           => __( 'Edited menu "{menu_name}"', 'simple-history' ),
+				'deleted_menu'          => __( 'Deleted menu "{menu_name}"', 'simple-history' ),
+				'edited_menu_item'      => __( 'Edited a menu item', 'simple-history' ),
 				'edited_menu_locations' => __( 'Updated menu locations', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Menus', 'Menu logger: search', 'simple-history' ),
+					'label'     => _x( 'Menus', 'Menu logger: search', 'simple-history' ),
 					'label_all' => _x( 'All menu activity', 'Menu updates logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Created menus', 'Menu updates logger: search', 'simple-history' ) => array(
 							'created_menu',
 						),

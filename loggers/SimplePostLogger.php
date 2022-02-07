@@ -207,21 +207,21 @@ class SimplePostLogger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name' => 'Post Logger',
-			'description' => 'Logs the creation and modification of posts and pages',
-			'capability' => 'edit_pages',
-			'messages' => array(
-				'post_created' => __( 'Created {post_type} "{post_title}"', 'simple-history' ),
-				'post_updated' => __( 'Updated {post_type} "{post_title}"', 'simple-history' ),
+			'name'        => __( 'Post Logger', 'simple-history' ),
+			'description' => __( 'Logs the creation and modification of posts and pages', 'simple-history' ),
+			'capability'  => 'edit_pages',
+			'messages'    => array(
+				'post_created'  => __( 'Created {post_type} "{post_title}"', 'simple-history' ),
+				'post_updated'  => __( 'Updated {post_type} "{post_title}"', 'simple-history' ),
 				'post_restored' => __( 'Restored {post_type} "{post_title}" from trash', 'simple-history' ),
-				'post_deleted' => __( 'Deleted {post_type} "{post_title}"', 'simple-history' ),
-				'post_trashed' => __( 'Moved {post_type} "{post_title}" to the trash', 'simple-history' ),
+				'post_deleted'  => __( 'Deleted {post_type} "{post_title}"', 'simple-history' ),
+				'post_trashed'  => __( 'Moved {post_type} "{post_title}" to the trash', 'simple-history' ),
 			),
-			'labels' => array(
+			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'Posts & Pages', 'Post logger: search', 'simple-history' ),
+					'label'     => _x( 'Posts & Pages', 'Post logger: search', 'simple-history' ),
 					'label_all' => _x( 'All posts & pages activity', 'Post logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Posts created', 'Post logger: search', 'simple-history' ) => array( 'post_created' ),
 						_x( 'Posts updated', 'Post logger: search', 'simple-history' ) => array( 'post_updated' ),
 						_x( 'Posts trashed', 'Post logger: search', 'simple-history' ) => array( 'post_trashed' ),

@@ -91,12 +91,12 @@ class SimpleLogger {
 
 			// Shown on the info-tab in settings, use these fields to tell
 			// an admin what your logger is used for.
-			'name' => 'SimpleLogger',
-			'description' => 'The built in logger for Simple History',
+			'name'        => 'SimpleLogger',
+			'description' => __( 'The built in logger for Simple History', 'simple-history' ),
 
 			// Capability required to view log entries from this logger
 			'capability' => 'edit_pages',
-			'messages' => array(
+			'messages'   => array(
 				// No pre-defined variants
 				// when adding messages __() or _x() must be used
 			),

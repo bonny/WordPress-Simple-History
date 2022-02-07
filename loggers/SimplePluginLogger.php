@@ -38,8 +38,8 @@ class SimplePluginLogger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name'        => 'Plugin Logger',
-			'description' => 'Logs plugin installs, uninstalls and updates',
+			'name'        => __( 'Plugin Logger', 'simple-history' ),
+			'description' => __( 'Logs plugin installs, uninstalls and updates', 'simple-history' ),
 			'capability'  => 'activate_plugins',
 			'messages'    => array(
 

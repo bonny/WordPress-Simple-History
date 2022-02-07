@@ -40,15 +40,15 @@ if ( class_exists( 'SimpleLogger' ) ) {
 		public function getInfo() {
 
 			$arr_info = array(
-				'name' => '404 Logger',
-				'description' => 'Logs access to pages that result in page not found errors (error code 404)',
-				'capability' => 'edit_pages',
-				'messages' => array(
+				'name'        => __( '404 Logger', 'simple-history' ),
+				'description' => __( 'Logs access to pages that result in page not found errors (error code 404)', 'simple-history' ),
+				'capability'  => 'edit_pages',
+				'messages'    => array(
 					'page_not_found' => __( 'Got a 404-page when trying to visit "{request_uri}"', 'simple-history' ),
 				),
-				'labels' => array(
+				'labels'      => array(
 					'search' => array(
-						'label' => _x( 'Pages not found (404 errors)', 'User logger: 404', 'simple-history' ),
+						'label'   => _x( 'Pages not found (404 errors)', 'User logger: 404', 'simple-history' ),
 						'options' => array(
 							_x( 'Pages not found', 'User logger: 404', 'simple-history' ) => array(
 								'page_not_found',

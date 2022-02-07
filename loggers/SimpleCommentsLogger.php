@@ -90,10 +90,10 @@ class SimpleCommentsLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name' => 'Comments Logger',
-			'description' => 'Logs comments, and modifications to them',
-			'capability' => 'moderate_comments',
-			'messages' => array(
+			'name'        => __( 'Comments Logger', 'simple-history' ),
+			'description' => __( 'Logs comments, and modifications to them', 'simple-history' ),
+			'capability'  => 'moderate_comments',
+			'messages'    => array(
 
 				// Comments
 				'anon_comment_added' => _x(
@@ -265,9 +265,9 @@ class SimpleCommentsLogger extends SimpleLogger {
 			'labels' => array(
 
 				'search' => array(
-					'label' => _x( 'Comments', 'Comments logger: search', 'simple-history' ),
+					'label'     => _x( 'Comments', 'Comments logger: search', 'simple-history' ),
 					'label_all' => _x( 'All comments activity', 'Comments logger: search', 'simple-history' ),
-					'options' => array(
+					'options'   => array(
 						_x( 'Added comments', 'Comments logger: search', 'simple-history' ) => array(
 							'anon_comment_added',
 							'user_comment_added',
