@@ -37,21 +37,21 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name' => 'Privacy',
+			'name'        => 'Privacy',
 			'description' => _x( 'Log WordPress privacy related things', 'Logger: Privacy', 'simple-history' ),
-			'capability' => 'manage_options',
-			'messages' => array(
-				'privacy_page_created' => _x( 'Created a new privacy page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
-				'privacy_page_set' => _x( 'Set privacy page to page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
-				'privacy_data_export_requested' => _x( 'Requested a privacy data export for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'privacy_data_export_admin_downloaded' => _x( 'Downloaded personal data export file for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'privacy_data_export_emailed' => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+			'capability'  => 'manage_options',
+			'messages'    => array(
+				'privacy_page_created'                  => _x( 'Created a new privacy page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_page_set'                      => _x( 'Set privacy page to page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_requested'         => _x( 'Requested a privacy data export for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_admin_downloaded'  => _x( 'Downloaded personal data export file for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_emailed'           => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_request_confirmed' => _x( 'Confirmed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'privacy_data_export_removed' => _x( 'Removed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_sent' => _x( 'Sent data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_confirmed' => _x( 'Confirmed data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_handled' => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_removed' => _x( 'Removed personal data removal request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_removed'           => _x( 'Removed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_sent'             => _x( 'Sent data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_confirmed'        => _x( 'Confirmed data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_handled'          => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_removed'          => _x( 'Removed personal data removal request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
