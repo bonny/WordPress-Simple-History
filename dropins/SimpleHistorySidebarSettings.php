@@ -12,7 +12,7 @@ class SimpleHistorySidebarSettings {
 
 
 	/**
-	 * Simple History isntance
+	 * Simple History instance
 	 *
 	 * @var object $sh Simple History instance.
 	 */

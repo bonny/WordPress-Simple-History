@@ -333,7 +333,7 @@ class SimpleHistory {
 		 * `menu_page_url()` is defined in the WordPress Plugin Administration API,
 		 * which is not loaded here by default
 		 *
-		 * ditto for is_plugin_active()
+		 * ditto for `is_plugin_active()`
 		 */
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 

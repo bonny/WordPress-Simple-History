@@ -741,7 +741,7 @@ class SimplePostLogger extends SimpleLogger {
 		} // End if().
 
 		// Compare custom fields.
-		// Array with custom field keys to ignore because changed everytime or very internal.
+		// Array with custom field keys to ignore because changed every time or very internal.
 		$arr_meta_keys_to_ignore = array(
 			'_edit_lock',
 			'_edit_last',
@@ -1241,7 +1241,7 @@ class SimplePostLogger extends SimpleLogger {
 			";
 			*/
 
-			// Changed post thumb/featued image.
+			// Changed post thumb/featured image.
 			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
 			// post_new_thumb, int of new thumb, empty if no new thumb.
 			$diff_table_output .= $this->getLogRowDetailsOutputForPostThumb( $context );

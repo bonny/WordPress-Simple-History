@@ -343,7 +343,7 @@ SimpleLogger()->info( 'This is a message sent to the log' );
 SimpleLogger()->info( 'This is a message sent to the log' );
 
 // Log entries can have placeholders and context
-// This makes log entried translatable and filterable
+// This makes log entries translatable and filterable
 SimpleLogger()->notice(
 	'User {username} edited page {pagename}',
 	array(
@@ -356,7 +356,7 @@ SimpleLogger()->notice(
 	)
 );
 
-// Log entried can have custom occasionsID
+// Log entries can have custom occasionsID
 // This will group items together and a log entry will only be shown once
 // in the log overview, even if the logged messages are different
 for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
@@ -382,7 +382,7 @@ SimpleLogger()->info(
 	)
 );
 
-// Initiator "WP_USER" means that a logged in user did someting
+// Initiator "WP_USER" means that a logged in user did something
 SimpleLogger()->info(
 	'Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}',
 	array(

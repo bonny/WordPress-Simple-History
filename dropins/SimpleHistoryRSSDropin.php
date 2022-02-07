@@ -31,7 +31,7 @@ class SimpleHistoryRSSDropin {
 
 		add_action( 'init', array( $this, 'checkForRssFeedRequest' ) );
 
-		// Add settings with prio 11 so it' added after the main Simple History settings
+		// Add settings with priority 11 so it' added after the main Simple History settings
 		add_action( 'admin_menu', array( $this, 'addSettings' ), 11 );
 	}
 
@@ -82,7 +82,7 @@ class SimpleHistoryRSSDropin {
 				$settings_section_rss_id
 			);
 
-			// Regnerate address
+			// Regenerate address
 			add_settings_field(
 				'simple_history_rss_feed_regenerate_secret',
 				__( 'Regenerate', 'simple-history' ),
@@ -385,7 +385,7 @@ class SimpleHistoryRSSDropin {
 	}
 
 	/**
-	 * Output for settings field that regenerates the RSS adress/secret
+	 * Output for settings field that regenerates the RSS address/secret
 	 */
 	public function settingsFieldRssRegenerate() {
 

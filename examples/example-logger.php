@@ -28,7 +28,7 @@ if ( class_exists( 'SimpleLogger' ) ) {
 
 
 		/**
-		 * The slug is ised to identify this logger in various places.
+		 * The slug is used to identify this logger in various places.
 		 * We use the name of the class too keep it simple.
 		 */
 		public $slug = __CLASS__;

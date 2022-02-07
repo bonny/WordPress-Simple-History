@@ -27,7 +27,7 @@ class SimpleHistoryIpInfoDropin {
 	}
 
 	/**
-	 * Display IP Addressses for login related messages.
+	 * Display IP Addresses for login related messages.
 	 *
 	 * @param bool $bool
 	 * @param object $row
