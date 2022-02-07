@@ -69,7 +69,7 @@ class SimpleOptionsLogger extends SimpleLogger {
 		}
 
 		// Also only if "option_page" is set to one of these "built in" ones
-		// We don't wanna start loging things from other plugins, like EDD
+		// We don't wanna start logging things from other plugins, like EDD
 		$option_page = isset( $_REQUEST['option_page'] ) ? $_REQUEST['option_page'] : ''; // general | discussion | ...
 
 		$arr_valid_option_pages = array(

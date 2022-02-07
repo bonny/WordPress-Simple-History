@@ -195,7 +195,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		}
 
 		/**
-		 * Log when a Redirection grouop is added
+		 * Log when a Redirection group is added
 		 *
 		 * @param WP_REST_Request $req Request.
 		 */

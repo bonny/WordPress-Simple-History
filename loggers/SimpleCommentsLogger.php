@@ -418,7 +418,7 @@ class SimpleCommentsLogger extends SimpleLogger {
 
 		// add occasions if comment was considered spam
 		// if not added, spam comments can easily flood the log
-		// Deletions of spam easiy flood log
+		// Deletions of spam easily flood log
 		if ( isset( $comment_data->comment_approved ) && 'spam' === $comment_data->comment_approved ) {
 			// since 2.5.5: don't log deletion of spam comments
 			return;

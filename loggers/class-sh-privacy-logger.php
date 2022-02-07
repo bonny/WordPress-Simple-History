@@ -66,7 +66,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 		add_filter( 'simple_history/post_logger/skip_posttypes', array( $this, 'remove_post_types_from_postlogger' ) );
 
 		// Add filters to detect when a privacy page is created and when a privacy page is set..
-		// We only Aadd the filters when the privacy page is loaded.
+		// We only add the filters when the privacy page is loaded.
 		add_action( 'load-privacy.php', array( $this, 'on_load_privacy_page' ) );
 
 		// Add filters to detect data export related functions.

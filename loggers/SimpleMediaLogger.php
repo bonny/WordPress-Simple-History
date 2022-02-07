@@ -89,7 +89,7 @@ class SimpleMediaLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Modify plain output to inlcude link to post
+	 * Modify plain output to include link to post
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
 
