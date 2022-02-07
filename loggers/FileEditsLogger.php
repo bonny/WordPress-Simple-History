@@ -9,7 +9,7 @@ class FileEditsLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name'        => 'FileEditsLogger',
+			'name'        => _x( 'File edits Logger', 'Logger: FileEditsLogger', 'simple-history' ),
 			'description' => __( 'Logs edits to theme and plugin files', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(

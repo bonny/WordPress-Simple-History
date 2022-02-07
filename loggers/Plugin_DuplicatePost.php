@@ -16,7 +16,7 @@ if ( ! class_exists( 'Plugin_DuplicatePost' ) ) {
 
 		public function getInfo() {
 			$arr_info = array(
-				'name'        => 'Plugin Duplicate Posts',
+				'name'        => _x( 'Plugin: Duplicate Posts Logger', 'Logger: Plugin Duplicate Post', 'simple-history' ),
 				'description' => _x(
 					'Logs posts and pages cloned using plugin Duplicate Post',
 					'Logger: Plugin Duplicate Post',

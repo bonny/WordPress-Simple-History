@@ -23,7 +23,7 @@ class PluginWPCrontrolLogger extends SimpleLogger {
 	public function getInfo() {
 
 		$arr_info = array(
-			'name'        => _x( 'WP Crontrol Logger', 'PluginWPCrontrolLogger', 'simple-history' ),
+			'name'        => _x( 'Plugin: WP Crontrol Logger', 'PluginWPCrontrolLogger', 'simple-history' ),
 			'description' => _x( 'Logs management of cron events', 'PluginWPCrontrolLogger', 'simple-history' ),
 			'name_via'    => _x( 'Using plugin WP Crontrol', 'PluginWPCrontrolLogger', 'simple-history' ),
 			'capability'  => 'manage_options',

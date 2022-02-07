@@ -28,7 +28,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		public function getInfo() {
 
 			$arr_info = array(
-				'name' => 'Redirection',
+				'name'        => _x( 'Plugin: Redirection Logger', 'Logger: Redirection', 'simple-history' ),
 				'description' => _x( 'Logs edits in the Redirection plugin', 'Logger: Redirection', 'simple-history' ),
 				'name_via'    => _x( 'In plugin Redirection', 'Logger: Redirection', 'simple-history' ),
 				'capability'  => 'manage_options',

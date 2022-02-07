@@ -13,7 +13,7 @@ if ( ! class_exists( 'Plugin_BeaverBuilder' ) ) {
 
 		public function getInfo() {
 			$arr_info = array(
-				'name'        => 'Plugin Beaver Builder',
+				'name'        => _x( 'Plugin: Beaver Builder Logger', 'Logger: Plugin Beaver Builder', 'simple-history' ),
 				'description' => _x(
 					'Logs various things in Beaver Builder',
 					'Logger: Plugin Beaver Builder',

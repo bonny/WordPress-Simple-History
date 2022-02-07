@@ -28,7 +28,7 @@ class SH_Jetpack_Logger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name'        => 'Jetpack logger',
+			'name'        => _x( 'Plugin: Jetpack Logger', 'Logger: Jetpack', 'simple-history' ),
 			'description' => _x( 'Log Jetpack settings changes', 'Logger: Jetpack', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'name_via'    => _x( 'Using plugin Jetpack', 'Logger: Jetpack', 'simple-history' ),

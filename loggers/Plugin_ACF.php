@@ -56,7 +56,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 */
 		public function getInfo() {
 			$arr_info = array(
-				'name'        => 'Plugin ACF',
+				'name'        => _x( 'Plugin: Advanced Custom Fields Logger', 'Logger: Plugin ACF', 'simple-history' ),
 				'description' => _x( 'Logs ACF stuff', 'Logger: Plugin ACF', 'simple-history' ),
 				'name_via'    => _x( 'Using plugin ACF', 'Logger: Plugin ACF', 'simple-history' ),
 				'capability'  => 'manage_options',

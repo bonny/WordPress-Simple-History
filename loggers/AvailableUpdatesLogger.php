@@ -29,7 +29,7 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 		public function getInfo() {
 
 			$arr_info = array(
-				'name'        => 'AvailableUpdatesLogger',
+				'name'        => _x( 'Available Updates Logger', 'AvailableUpdatesLogger', 'simple-history' ),
 				'description' => __( 'Logs found updates to WordPress, plugins, and themes', 'simple-history' ),
 				'capability'  => 'manage_options',
 				'messages'    => array(

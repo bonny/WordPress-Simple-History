@@ -37,7 +37,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name'        => 'Privacy',
+			'name'        => _x( 'Privacy Logger', 'Logger: privacy', 'simple-history' ),
 			'description' => _x( 'Log WordPress privacy related things', 'Logger: Privacy', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(
