@@ -16,8 +16,12 @@ function get_num_rows_last_n_days( $period_days ) {
 	return $wpdb->get_var( $sql ); // PHPCS:ignore
 }
 
-printf(
-	esc_html( __( '<b>%1$s rows</b> have been logged the last <b>%2$s days</b>', 'simple-history' ) ),
+$message = sprintf(
+	__( '<b>%1$s rows</b> have been logged the last <b>%2$s days</b>', 'simple-history' ),
 	(int) get_num_rows_last_n_days( $period_days ),
 	(int) $period_days
 );
+
+$message = '<p>' . $message . '</p>';
+
+echo wp_kses_post( $message );
