@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || die(); ?>
 defined( 'ABSPATH' ) || exit();
 
 echo '<hr>';
-echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsForGeeks'>Show stats for geeks</button></p>";
+echo '<p class="hide-if-no-js"><button class="button js-SimpleHistoryShowsStatsForGeeks">' . __( 'Show stats for geeks', 'simple-history' ) . '</button></p>';
 ?>
 
 <div class="SimpleHistory__statsForGeeksInner hide-if-js">
@@ -82,8 +82,8 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 	echo '
         <thead>
             <tr>
-                <th>Table name</th>
-                <th>Table size (MB)</th>
+                <th>' . __( 'Table name', 'simple-history' ) . '</th>
+                <th>' . __( 'Table size (MB)', 'simple-history' ) . '</th>
                 </tr>
         </thead>
     ';
@@ -107,19 +107,17 @@ echo "<p class='hide-if-no-js'><button class='button js-SimpleHistoryShowsStatsF
 
 	// @TODO: this does actually only show all loggers that have logged rows,
 	// not all loggers!
-	echo '<h4>Loggers</h4>';
-
-	echo '<p>All instantiated loggers.</p>';
-
+	echo '<h4>' . __( 'Loggers', 'simple-history' ) . '</h4>';
+	echo '<p>' . __( 'All instantiated loggers.', 'simple-history' ) . '</p>';
 	echo "<table class='widefat' cellpadding=2>";
 	echo '
         <thead>
             <tr>
-                <th>Name + Slug</th>
-                <th>Description</th>
-                <th>Messages</th>
-                <th>Capability</th>
-                <th>Rows count</th>
+                <th>' . __( 'Name + Slug', 'simple-history' ) . '</th>
+                <th>' . __( 'Description', 'simple-history' ) . '</th>
+                <th>' . __( 'Messages', 'simple-history' ) . '</th>
+                <th>' . __( 'Capability', 'simple-history' ) . '</th>
+                <th>' . __( 'Rows count', 'simple-history' ) . '</th>
             </tr>
         </thead>
     ';

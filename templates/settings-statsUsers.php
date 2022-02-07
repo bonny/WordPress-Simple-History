@@ -30,11 +30,11 @@ $user_results = $wpdb->get_results(
 echo "<table class='widefat' cellpadding=2>";
 echo '<thead><tr>
         <th></th>
-        <th>User ID</th>
-        <th>login</th>
-        <th>email</th>
-        <th>logged items</th>
-        <th>deleted</th>
+        <th>' . __( 'User ID', 'simple-history' ) . '</th>
+        <th>' . __( 'Login', 'simple-history' ) . '</th>
+        <th>' . __( 'E-mail', 'simple-history' ) . '</th>
+        <th>' . __( '# logged items', 'simple-history' ) . '</th>
+        <th>' . __( 'Deleted', 'simple-history' ) . '</th>
     </tr></thead>';
 
 	$arr_users = array();
@@ -67,10 +67,10 @@ foreach ( $user_results as $one_user_result ) {
 	}
 
 	$arr_users[] = array(
-		'user_id' => $user_id,
-		'user_login' => $one_user_result->user_login,
-		'user_email' => $one_user_result->user_email, // 3
-		'str_deleted' => $str_deleted,
+		'user_id'         => $user_id,
+		'user_login'      => $one_user_result->user_login,
+		'user_email'      => $one_user_result->user_email, // 3
+		'str_deleted'     => $str_deleted,
 		'user_rows_count' => $user_rows_count,
 	);
 }// End foreach().
