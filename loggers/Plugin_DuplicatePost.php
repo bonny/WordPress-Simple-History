@@ -16,15 +16,15 @@ if ( ! class_exists( 'Plugin_DuplicatePost' ) ) {
 
 		public function getInfo() {
 			$arr_info = array(
-				'name' => 'Plugin Duplicate Posts',
+				'name'        => 'Plugin Duplicate Posts',
 				'description' => _x(
 					'Logs posts and pages cloned using plugin Duplicate Post',
 					'Logger: Plugin Duplicate Post',
 					'simple-history'
 				),
-				'name_via' => _x( 'Using plugin Duplicate Posts', 'Logger: Plugin Duplicate Post', 'simple-history' ),
-				'capability' => 'manage_options',
-				'messages' => array(
+				'name_via'    => _x( 'Using plugin Duplicate Posts', 'Logger: Plugin Duplicate Post', 'simple-history' ),
+				'capability'  => 'manage_options',
+				'messages'    => array(
 					'post_duplicated' => _x(
 						'Cloned "{duplicated_post_title}" to a new post',
 						'Logger: Plugin Duplicate Post',

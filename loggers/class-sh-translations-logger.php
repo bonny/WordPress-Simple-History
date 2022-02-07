@@ -27,10 +27,10 @@ class SH_Translations_Logger extends SimpleLogger {
 	 */
 	public function getInfo() {
 		$arr_info = array(
-			'name' => 'Translation',
+			'name'        => 'Translation',
 			'description' => _x( 'Log WordPress translation related things', 'Logger: Translations', 'simple-history' ),
-			'capability' => 'manage_options',
-			'messages' => array(
+			'capability'  => 'manage_options',
+			'messages'    => array(
 				'translations_updated' => _x( 'Updated translations for "{name}" ({language})', 'Logger: Translations', 'simple-history' ),
 			),
 		);
