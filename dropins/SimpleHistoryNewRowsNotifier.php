@@ -37,7 +37,7 @@ class SimpleHistoryNewRowsNotifier {
 
 		$arr_localize_data = array(
 			'interval' => $this->interval,
-			'errorCheck' => _x( 'An error occured while checking for new events', 'New rows notifier: error while checking for new rows', 'simple-history' ),
+			'errorCheck' => _x( 'An error occurred while checking for new events', 'New rows notifier: error while checking for new rows', 'simple-history' ),
 		);
 
 		wp_localize_script( 'simple_history_NewRowsNotifierDropin', 'simple_history_NewRowsNotifierDropin', $arr_localize_data );

@@ -73,7 +73,7 @@ class SimpleHistoryLogQuery {
 			// occasionsCount
 			// occasionsCountMaxReturn
 			// occasionsID
-			// If rows should be returned, or the actualy sql query used
+			// If rows should be returned, or the actually sql query used
 			// 'returnQuery' => false,
 
 		);
@@ -454,7 +454,7 @@ class SimpleHistoryLogQuery {
 			// Array with loggers and messages.
 			$arr_loggers_and_messages = array();
 
-			// Tranform from get'et format to our own internal format.
+			// Transform from received format to our own internal format.
 			foreach ( (array) $args['messages'] as $one_arr_messages_row ) {
 				$arr_row_messages = explode( ',', $one_arr_messages_row );
 				/*

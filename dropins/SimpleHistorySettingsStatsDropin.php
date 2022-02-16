@@ -55,11 +55,11 @@ class SimpleHistorySettingsStatsDropin {
 		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$period_days days" ) );
 		$period_end_date = DateTime::createFromFormat( 'U', time() );
 
-		// Colors taken from the gogole chart example that was found in this Stack Overflow thread:
+		// Colors taken from the Google chart example that was found in this Stack Overflow thread:
 		// http://stackoverflow.com/questions/236936/how-pick-colors-for-a-pie-chart
 		$arr_colors = explode( ',', '8a56e2,cf56e2,e256ae,e25668,e28956,e2cf56,aee256,68e256,56e289,56e2cf,56aee2,5668e2' );
 
-		// Load google charts libraries
+		// Load Google charts libraries
 		?>
 		<script>
 			google.load('visualization', '1', {'packages':['corechart']});

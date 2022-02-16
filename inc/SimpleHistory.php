@@ -49,7 +49,7 @@ class SimpleHistory {
 
 	/**
 	 * Used to store latest translations used by __()
-	 * Required to automagically determine orginal text and text domain
+	 * Required to automagically determine original text and text domain
 	 * for calls like this `SimpleLogger()->log( __("My translated message") );`
 	 */
 	public $gettextLatestTranslations = array();
@@ -127,7 +127,7 @@ class SimpleHistory {
 
 		/**
 		 * Filter that is used to log things, without the need to check that simple history is available
-		 * i.e. you can have simple history acivated and log things and then you can disable the plugin
+		 * i.e. you can have simple history activated and log things and then you can disable the plugin
 		 * and no errors will occur
 		 *
 		 * Usage:
@@ -178,7 +178,7 @@ class SimpleHistory {
 	 * @since 2.13
 	 * @param string $message The message to log.
 	 * @param array  $context Optional context to add to the logged data.
-	 * @param string $level The loglevel. Must be one of the existing ones. Defaults to "info".
+	 * @param string $level The log level. Must be one of the existing ones. Defaults to "info".
 	 */
 	public function on_filter_simple_history_log( $message = null, $context = null, $level = 'info' ) {
 		SimpleLogger()->log( $level, $message, $context );
@@ -329,9 +329,12 @@ class SimpleHistory {
 			return;
 		}
 
-		/*
-		 menu_page_url() is defined in the WordPress Plugin Administration API, which is not loaded here by default */
-		/* dito for is_plugin_active() */
+		/**
+		 * `menu_page_url()` is defined in the WordPress Plugin Administration API,
+		 * which is not loaded here by default
+		 *
+		 * ditto for `is_plugin_active()`
+		 */
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
@@ -420,7 +423,7 @@ class SimpleHistory {
 	}
 
 	/**
-	 * Get singleton intance
+	 * Get singleton instance
 	 *
 	 * @return SimpleHistory instance
 	 */
@@ -620,7 +623,7 @@ class SimpleHistory {
 		if ( empty( $args ) || ! $type ) {
 			wp_send_json_error(
 				array(
-					_x( 'Not enough args specified', 'API: not enought arguments passed', 'simple-history' ),
+					_x( 'Not enough args specified', 'API: not enough arguments passed', 'simple-history' ),
 				)
 			);
 		}
@@ -650,7 +653,7 @@ class SimpleHistory {
 
 				$data['api_args'] = $args;
 
-				// Output can be array or HMTL
+				// Output can be array or HTML
 				if ( isset( $args['format'] ) && 'html' === $args['format'] ) {
 					$data['log_rows_raw'] = array();
 
@@ -1806,7 +1809,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * Add setting sections and settings for the settings page
-	 * Also maybe save some settings before outputing them
+	 * Also maybe save some settings before outputting them
 	 */
 	public function add_settings() {
 		// Clear the log if clear button was clicked in settings
@@ -1952,7 +1955,7 @@ Because Simple History was only recently installed, this feed does not display m
 	}
 
 	/**
-	 * Get setting if plugin should be visible on dasboard.
+	 * Get setting if plugin should be visible on dashboard.
 	 * Defaults to true
 	 *
 	 * @return bool
@@ -2327,7 +2330,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * Works like json_encode, but adds JSON_PRETTY_PRINT if the current php version supports it
-	 * i.e. PHP is 5.4.0 or greated
+	 * i.e. PHP is 5.4.0 or greater
 	 *
 	 * @param mixed $value array|object|string|whatever that is json_encode'able.
 	 */
@@ -2424,7 +2427,7 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 
 		// If type is single then include more details.
-		// This is typically shown in the modal window when clickin the event date and time.
+		// This is typically shown in the modal window when clicking the event date and time.
 		$more_details_html = '';
 		if ( $args['type'] == 'single' ) {
 			$more_details_html = apply_filters(
@@ -2487,7 +2490,7 @@ Because Simple History was only recently installed, this feed does not display m
 			);
 
 			foreach ( $oneLogRow as $rowKey => $rowVal ) {
-				// Only columns from oneLogRow that exist in logRowKeysToShow will be outputed
+				// Only columns from oneLogRow that exist in logRowKeysToShow will be outputted
 				if ( ! array_key_exists( $rowKey, $logRowKeysToShow ) || ! $logRowKeysToShow[ $rowKey ] ) {
 					continue;
 				}
@@ -2537,7 +2540,7 @@ Because Simple History was only recently installed, this feed does not display m
 			);
 
 			foreach ( $oneLogRow->context as $contextKey => $contextVal ) {
-				// Only columns from context that exist in logRowContextKeysToShow will be outputed
+				// Only columns from context that exist in logRowContextKeysToShow will be outputted
 				if (
 					! array_key_exists( $contextKey, $logRowContextKeysToShow ) ||
 					! $logRowContextKeysToShow[ $contextKey ]
@@ -3066,7 +3069,7 @@ Because Simple History was only recently installed, this feed does not display m
 						$msg_tmpl .= __( '%1$d events today from one user and one other source.', 'simple-history' );
 					}
 
-					// Multiple events from multple users but from only 1 single other source
+					// Multiple events from multiple users but from only 1 single other source
 					// 3 events today from 2 users and 1 other source.
 					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
 						$msg_tmpl .= __( '%1$d events today from one user and one other source.', 'simple-history' );

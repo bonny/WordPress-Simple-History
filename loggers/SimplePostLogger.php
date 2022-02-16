@@ -625,7 +625,7 @@ class SimplePostLogger extends SimpleLogger {
 	 *
 	 * It is also fired when saving from the Gutenberg editor,
 	 * but it seems something is different because
-	 * we can't get previosly custom fields here (we only get latest values instead).
+	 * we can't get previously custom fields here (we only get latest values instead).
 	 *
 	 * Only run in certain cases,
 	 * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
@@ -741,7 +741,7 @@ class SimplePostLogger extends SimpleLogger {
 		} // End if().
 
 		// Compare custom fields.
-		// Array with custom field keys to ignore because changed everytime or very internal.
+		// Array with custom field keys to ignore because changed every time or very internal.
 		$arr_meta_keys_to_ignore = array(
 			'_edit_lock',
 			'_edit_last',
@@ -825,7 +825,7 @@ class SimplePostLogger extends SimpleLogger {
 			$context['post_meta_changed'] = count( $meta_changes['changed'] );
 		}
 
-		// Check for changes in post visbility and post password usage and store in context.
+		// Check for changes in post visibility and post password usage and store in context.
 		// publish = public
 		// publish + post_password = password protected
 		// private = post private
@@ -1241,7 +1241,7 @@ class SimplePostLogger extends SimpleLogger {
 			";
 			*/
 
-			// Changed post thumb/featued image.
+			// Changed post thumb/featured image.
 			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
 			// post_new_thumb, int of new thumb, empty if no new thumb.
 			$diff_table_output .= $this->getLogRowDetailsOutputForPostThumb( $context );
@@ -1313,7 +1313,7 @@ class SimplePostLogger extends SimpleLogger {
 	 * @param array $context Context.
 	 * @param array $old_meta Old meta.
 	 * @param array $new_meta New meta.
-	 * @return array Maybe modifed context.
+	 * @return array Maybe modified context.
 	 */
 	public function add_post_thumb_diff( $context, $old_meta, $new_meta ) {
 		$post_thumb_modified = false;

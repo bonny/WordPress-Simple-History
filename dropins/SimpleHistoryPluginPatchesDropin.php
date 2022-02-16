@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || die();
 
 /*
 Dropin Name: Plugin Patches
-Dropin Description: Used to patch plugins that behave wierd
+Dropin Description: Used to patch plugins that behave weird
 Dropin URI: http://simple-history.com/
 Author: Pär Thernström
 */
@@ -25,7 +25,7 @@ class SimpleHistoryPluginPatchesDropin {
 	/**
 	 * Skip logging of WooCommerce scheduled actions/cron related things,
 	 * stored in the scheduled-action"post type. If not disabled the log can be filled with
-	 * a large amount of actions for this postype.
+	 * a large amount of actions for this posttype.
 	 *
 	 * @since 2.3
 	 */
@@ -37,10 +37,10 @@ class SimpleHistoryPluginPatchesDropin {
 	/**
 	 * Captcha on Login
 	 *
-	 * Calls wp_logut() wrongly when
+	 * Calls wp_logout() wrongly when
 	 *  - a user IP is blocked
 	 *  - when max num of tries is reached
-	 *  - or when the capcha is not correct
+	 *  - or when the captcha is not correct
 	 *
 	 * So the event logged will be logged_out but should be user_login_failed or user_unknown_login_failed.
 	 * Wrong events logged reported here:
@@ -54,7 +54,7 @@ class SimpleHistoryPluginPatchesDropin {
 		add_action( 'simple_history/log/do_log', array( $this, 'patch_captcha_on_login_on_log' ), 10, 5 );
 	}
 
-	// Detect that this log message is being called from Captha on login
+	// Detect that this log message is being called from Captcha on login
 	// and that the message is "user_logged_out"
 	public function patch_captcha_on_login_on_log( $doLog, $level = null, $message = null, $context = null, $loggerInstance = null ) {
 
@@ -63,7 +63,7 @@ class SimpleHistoryPluginPatchesDropin {
 			return $doLog;
 		}
 
-		// 22 nov 2015: disabled this check beacuse for example robots/scripts don't pass all args
+		// 22 nov 2015: disabled this check because for example robots/scripts don't pass all args
 		// instead they only post "log" and "pwd"
 		// codiga is the input with the captcha
 		/*
@@ -81,7 +81,7 @@ class SimpleHistoryPluginPatchesDropin {
 		}
 
 		// We must come from wp-login
-		// Disabled 22 nov 2015 because robots/scripts dont send referer
+		// Disabled 22 nov 2015 because robots/scripts do not send referer
 		/*
 		$wp_referer = wp_get_referer();
 		if ( ! $wp_referer || ! "wp-login.php" == basename( $wp_referer ) ) {

@@ -472,7 +472,7 @@ class SimplePluginLogger extends SimpleLogger {
 	 *
 	 * A plugin gets deactivated when plugins.php is visited function validate_active_plugins()
 	 *      return new WP_Error('plugin_not_found', __('Plugin file does not exist.'));
-	 * and if invalid plugin is found then this is outputed
+	 * and if invalid plugin is found then this is outputted
 	 *  printf(
 	 *  /* translators: 1: plugin file 2: error message
 	 *  __( 'The plugin %1$s has been <strong>deactivated</strong> due to an error: %2$s' ),

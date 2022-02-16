@@ -101,7 +101,7 @@ class SimpleHistorySettingsLogtestDropin {
 
 		// Add some data random back in time, to fill up the log to test much data
 		for ( $j = 0; $j < 50; $j++ ) {
-			// between yesteday and a month back in time
+			// between yesterday and a month back in time
 			for ( $i = 0; $i < rand( 1, 30 ); $i++ ) {
 				$str_date = gmdate( 'Y-m-d H:i:s', strtotime( "now -{$i}days" ) );
 				SimpleLogger()->info(
@@ -126,7 +126,7 @@ class SimpleHistorySettingsLogtestDropin {
 		SimpleLogger()->debug( 'Ok, cron job is running!' );
 
 		// Log entries can have placeholders and context
-		// This makes log entried translatable and filterable
+		// This makes log entries translatable and filterable
 		for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
 			SimpleLogger()->notice(
 				'User {username} edited page {pagename}',
@@ -141,7 +141,7 @@ class SimpleHistorySettingsLogtestDropin {
 			);
 		}
 		// return;
-		// Log entried can have custom occasionsID
+		// Log entries can have custom occasionsID
 		// This will group items together and a log entry will only be shown once
 		// in the log overview
 		for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {

@@ -266,7 +266,7 @@ function sh_get_callable_name( $callable ) {
  * @param string $str String.
  * @param string $separator String.
  *
- * @return string with words uppercased.
+ * @return string with words in uppercase.
  */
 function sh_ucwords( $str, $separator = ' ' ) {
 	$str = str_replace( $separator, ' ', $str );
@@ -279,7 +279,7 @@ function sh_ucwords( $str, $separator = ' ' ) {
  * Get the current screen object.
  * Returns an object with all attributes empty if functions is not found or if function
  * returns null. Makes it easier to use get_current_screen when we don't have to
- * check for function existance and or null.
+ * check for function existence and or null.
  *
  * @return WP_Screen|Object Current screen object or object with empty attributes when screen not defined.
  */
