@@ -2,7 +2,7 @@ export default {
   projectLink: "https://github.com/bonny/WordPress-Simple-History/", // GitHub link in the navbar
   github: "https://github.com/bonny/WordPress-Simple-History/",
   docsRepositoryBase:
-    "https://github.com/bonny/WordPress-Simple-History/edit/feature/docs/docs/pages/", // base URL for the docs repository
+    "https://github.com/bonny/WordPress-Simple-History/blob/feature/docs/docs/pages/", // base URL for the docs repository
   titleSuffix: " – Simple History Documentation",
   nextLinks: true,
   prevLinks: true,
