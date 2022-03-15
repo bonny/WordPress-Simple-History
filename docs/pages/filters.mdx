@@ -1,0 +1,188 @@
+# Hooks
+
+Filters and actions.
+
+## Actions
+
+```sh
+dropins/SimpleHistorySidebarSettings.php:40:		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
+dropins/SimpleHistoryDebugDropin.php:19:		add_action( 'simple_history/log_argument/context', array( $this, 'onLogArgumentContext' ), 10, 4 );
+dropins/SimpleHistorySidebarStats.php:23:		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
+dropins/SimpleHistorySidebarStats.php:25:		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts' ) );
+dropins/SimpleHistorySidebarStats.php:27:		add_action( 'simple_history/admin_footer', array( $this, 'on_admin_footer' ) );
+dropins/SimpleHistoryIpInfoDropin.php:18:		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
+dropins/SimpleHistoryIpInfoDropin.php:19:		add_action( 'simple_history/admin_footer', array( $this, 'add_js_template' ) );
+dropins/SimpleHistoryFilterDropin.php:21:		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
+dropins/SimpleHistoryFilterDropin.php:22:		add_action( 'simple_history/history_page/before_gui', array( $this, 'gui_page_filters' ) );
+dropins/SimpleHistoryFilterDropin.php:23:		add_action( 'simple_history/dashboard/before_gui', array( $this, 'gui_page_filters' ) );
+dropins/SimpleHistoryFilterDropin.php:24:		add_action( 'wp_ajax_simple_history_filters_search_user', array( $this, 'ajax_simple_history_filters_search_user' ) );
+dropins/SimpleHistoryRSSDropin.php:32:		add_action( 'init', array( $this, 'checkForRssFeedRequest' ) );
+dropins/SimpleHistoryRSSDropin.php:35:		add_action( 'admin_menu', array( $this, 'addSettings' ), 11 );
+dropins/SimpleHistoryRSSDropin.php:215:					add_action( $action_tag, array( $this, 'onCanReadSingleLogger' ), 10, 3 );
+dropins/SimpleHistoryRSSDropin.php:219:					add_action( 'simple_history/header_just_now_max_time', '__return_zero' );
+dropins/SimpleHistoryRSSDropin.php:220:					add_action( 'simple_history/header_time_ago_max_time', '__return_zero' );
+dropins/SimpleHistoryNewRowsNotifier.php:28:		add_action( 'wp_ajax_SimpleHistoryNewRowsNotifier', array( $this, 'ajax' ) );
+dropins/SimpleHistoryNewRowsNotifier.php:29:		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
+dropins/SimpleHistoryWPCLIDropin.php:107:		add_action( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 3 );
+dropins/SimpleHistoryDonateDropin.php:21:		add_action( 'admin_menu', array( $this, 'add_settings' ), 50 );
+dropins/SimpleHistoryDonateDropin.php:22:		add_action( 'plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2 );
+dropins/SimpleHistorySidebarDropin.php:14:		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
+dropins/SimpleHistorySidebarDropin.php:15:		add_action( 'simple_history/history_page/after_gui', array( $this, 'output_sidebar_html' ) );
+dropins/SimpleHistorySidebarDropin.php:16:		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'default_sidebar_contents' ) );
+dropins/SimpleHistoryExportDropin.php:35:		add_action( 'init', array( $this, 'downloadExport' ) );
+dropins/SimpleHistorySettingsStatsDropin.php:36:		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts' ) );
+dropins/SimpleHistoryPluginPatchesDropin.php:54:		add_action( 'simple_history/log/do_log', array( $this, 'patch_captcha_on_login_on_log' ), 10, 5 );
+dropins/SimpleHistorySettingsLogtestDropin.php:28:		// add_action( 'admin_enqueue_scripts', array( $this, 'on_admin_enqueue_scripts') );
+dropins/SimpleHistorySettingsLogtestDropin.php:29:		add_action( 'admin_head', array( $this, 'on_admin_head' ) );
+dropins/SimpleHistorySettingsLogtestDropin.php:30:		add_action( 'wp_ajax_SimpleHistoryAddLogTest', array( $this, 'on_ajax_add_logtests' ) );
+inc/SimpleHistory.php:103:		add_action( 'after_setup_theme', array( $this, 'load_plugin_textdomain' ) );
+inc/SimpleHistory.php:104:		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
+inc/SimpleHistory.php:111:		add_action( 'after_setup_theme', array( $this, 'load_loggers' ) );
+inc/SimpleHistory.php:112:		add_action( 'after_setup_theme', array( $this, 'load_dropins' ) );
+inc/SimpleHistory.php:115:		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
+inc/SimpleHistory.php:117:		add_action( 'after_setup_theme', array( $this, 'setup_cron' ) );
+inc/SimpleHistory.php:125:		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
+inc/SimpleHistory.php:126:		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
+inc/SimpleHistory.php:271:		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
+inc/SimpleHistory.php:272:		add_action( 'admin_menu', array( $this, 'add_settings' ) );
+inc/SimpleHistory.php:274:		add_action( 'admin_footer', array( $this, 'add_js_templates' ) );
+inc/SimpleHistory.php:276:		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widget' ) );
+inc/SimpleHistory.php:278:		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+inc/SimpleHistory.php:280:		add_action( 'admin_head', array( $this, 'onAdminHead' ) );
+inc/SimpleHistory.php:281:		add_action( 'admin_footer', array( $this, 'onAdminFooter' ) );
+inc/SimpleHistory.php:283:		add_action( 'simple_history/history_page/before_gui', array( $this, 'output_quick_stats' ) );
+inc/SimpleHistory.php:284:		add_action( 'simple_history/dashboard/before_gui', array( $this, 'output_quick_stats' ) );
+inc/SimpleHistory.php:286:		add_action( 'wp_ajax_simple_history_api', array( $this, 'api' ) );
+inc/SimpleHistory.php:1016:				add_action( 'admin_notices', array( $this, 'admin_notice_logger_slug_to_long' ) );
+inc/SimpleHistory.php:1542:			add_action( 'simple_history/loggers_loaded', array( $this, 'addWelcomeLogMessage' ) );
+loggers/AvailableUpdatesLogger.php:69:			add_action( 'set_site_transient_update_core', array( $this, 'on_setted_update_core_transient' ), 10, 1 );
+loggers/AvailableUpdatesLogger.php:73:			add_action( 'set_site_transient_update_plugins', array( $this, 'on_setted_update_plugins_transient' ), 10, 1 );
+loggers/AvailableUpdatesLogger.php:75:			add_action( 'set_site_transient_update_themes', array( $this, 'on_setted_update_update_themes' ), 10, 1 );
+loggers/SimpleCategoriesLogger.php:54:		add_action( 'created_term', array( $this, 'on_created_term' ), 10, 3 );
+loggers/SimpleCategoriesLogger.php:57:		add_action( 'delete_term', array( $this, 'on_delete_term' ), 10, 4 );
+loggers/SimpleCategoriesLogger.php:60:		add_action( 'wp_update_term_parent', array( $this, 'on_wp_update_term_parent' ), 10, 5 );
+loggers/PluginWPCrontrolLogger.php:46:		add_action( 'crontrol/added_new_event', array( $this, 'added_new_event' ) );
+loggers/PluginWPCrontrolLogger.php:47:		add_action( 'crontrol/added_new_php_event', array( $this, 'added_new_event' ) );
+loggers/PluginWPCrontrolLogger.php:48:		add_action( 'crontrol/ran_event', array( $this, 'ran_event' ) );
+loggers/PluginWPCrontrolLogger.php:49:		add_action( 'crontrol/deleted_event', array( $this, 'deleted_event' ) );
+loggers/PluginWPCrontrolLogger.php:50:		add_action( 'crontrol/deleted_all_with_hook', array( $this, 'deleted_all_with_hook' ), 10, 2 );
+loggers/PluginWPCrontrolLogger.php:51:		add_action( 'crontrol/edited_event', array( $this, 'edited_event' ), 10, 2 );
+loggers/PluginWPCrontrolLogger.php:52:		add_action( 'crontrol/edited_php_event', array( $this, 'edited_event' ), 10, 2 );
+loggers/PluginWPCrontrolLogger.php:53:		add_action( 'crontrol/added_new_schedule', array( $this, 'added_new_schedule' ), 10, 3 );
+loggers/PluginWPCrontrolLogger.php:54:		add_action( 'crontrol/deleted_schedule', array( $this, 'deleted_schedule' ) );
+loggers/class-sh-translations-logger.php:45:		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2 );
+loggers/SimpleMenuLogger.php:64:		// add_action("wp_delete_nav_menu", array($this, "on_wp_delete_nav_menu"), 10, 1 );
+loggers/SimpleMenuLogger.php:65:		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_delete' ) );
+loggers/SimpleMenuLogger.php:76:		add_action( 'wp_create_nav_menu', array( $this, 'on_wp_create_nav_menu' ), 10, 2 );
+loggers/SimpleMenuLogger.php:93:		// add_action("wp_update_nav_menu_item", array($this, "on_wp_update_nav_menu_item"), 10, 3 );
+loggers/SimpleMenuLogger.php:96:		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_update' ) );
+loggers/SimpleMenuLogger.php:107:		// add_action("wp_update_nav_menu", array($this, "on_wp_update_nav_menu"), 10, 2 );
+loggers/SimpleMenuLogger.php:109:		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_locations_update' ) );
+loggers/SimpleOptionsLogger.php:52:		add_action( 'updated_option', array( $this, 'on_updated_option' ), 10, 3 );
+loggers/SimplePostLogger.php:31:		add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
+loggers/SimplePostLogger.php:32:		add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 10, 3 );
+loggers/SimplePostLogger.php:33:		add_action( 'delete_post', array( $this, 'on_delete_post' ) );
+loggers/SimplePostLogger.php:34:		add_action( 'untrash_post', array( $this, 'on_untrash_post' ) );
+loggers/SimplePostLogger.php:39:		add_action( 'init', array( $this, 'add_rest_hooks' ), 99 );
+loggers/SimplePostLogger.php:64:			add_action( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
+loggers/SimplePostLogger.php:67:			add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
+loggers/SimplePostLogger.php:136:		add_action("xmlrpc_call", function($method) {
+loggers/SimplePostLogger.php:141:		add_action( 'xmlrpc_call_success_blogger_newPost', array( $this, 'on_xmlrpc_newPost' ), 10, 2 );
+loggers/SimplePostLogger.php:142:		add_action( 'xmlrpc_call_success_mw_newPost', array( $this, 'on_xmlrpc_newPost' ), 10, 2 );
+loggers/SimplePostLogger.php:144:		add_action( 'xmlrpc_call_success_blogger_editPost', array( $this, 'on_xmlrpc_editPost' ), 10, 2 );
+loggers/SimplePostLogger.php:145:		add_action( 'xmlrpc_call_success_mw_editPost', array( $this, 'on_xmlrpc_editPost' ), 10, 2 );
+loggers/SimplePostLogger.php:147:		add_action( 'xmlrpc_call_success_blogger_deletePost', array( $this, 'on_xmlrpc_deletePost' ), 10, 2 );
+loggers/SimplePostLogger.php:148:		add_action( 'xmlrpc_call_success_wp_deletePage', array( $this, 'on_xmlrpc_deletePost' ), 10, 2 );
+loggers/SimplePostLogger.php:150:		add_action( 'xmlrpc_call', array( $this, 'on_xmlrpc_call' ), 10, 1 );
+loggers/SimplePluginLogger.php:162:		// add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
+loggers/SimplePluginLogger.php:166:		add_action( 'activated_plugin', array( $this, 'on_activated_plugin' ), 10, 2 );
+loggers/SimplePluginLogger.php:171:		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 2 );
+loggers/SimplePluginLogger.php:175:		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2 );
+loggers/SimplePluginLogger.php:178:		add_action( 'wp_ajax_SimplePluginLogger_GetGitHubPluginInfo', array( $this, 'ajax_GetGitHubPluginInfo' ) );
+loggers/SimplePluginLogger.php:196:		add_action( 'load-plugins.php', array( $this, 'handle_auto_update_change' ) );
+loggers/SimplePluginLogger.php:197:		add_action( 'wp_ajax_toggle-auto-updates', array( $this, 'handle_auto_update_change' ), 1, 1 );
+loggers/SimplePluginLogger.php:202:		add_action( 'delete_plugin', array( $this, 'on_action_delete_plugin' ), 10, 1 );
+loggers/SimplePluginLogger.php:203:		add_action( 'deleted_plugin', array( $this, 'on_action_deleted_plugin' ), 10, 2 );
+loggers/PluginUserSwitchingLogger.php:42:		add_action( 'switch_to_user', array( $this, 'on_switch_to_user' ), 10, 2 );
+loggers/PluginUserSwitchingLogger.php:43:		add_action( 'switch_back_user', array( $this, 'on_switch_back_user' ), 10, 2 );
+loggers/PluginUserSwitchingLogger.php:44:		add_action( 'switch_off_user', array( $this, 'on_switch_off_user' ), 10, 1 );
+loggers/SimpleCoreUpdatesLogger.php:15:		add_action( '_core_updated_successfully', array( $this, 'on_core_updated' ) );
+loggers/SimpleCoreUpdatesLogger.php:16:		add_action( 'update_feedback', array( $this, 'on_update_feedback' ) );
+loggers/SimpleCoreUpdatesLogger.php:19:		// add_action( 'wp_upgrade', array( $this, "on_wp_upgrade" ), 10, 2 );
+loggers/FileEditsLogger.php:39:		add_action( 'load-theme-editor.php', array( $this, 'on_load_theme_editor' ), 10, 1 );
+loggers/FileEditsLogger.php:40:		add_action( 'load-plugin-editor.php', array( $this, 'on_load_plugin_editor' ), 10, 1 );
+loggers/SimpleThemeLogger.php:98:		add_action( 'switch_theme', array( $this, 'on_switch_theme' ), 10, 2 );
+loggers/SimpleThemeLogger.php:99:		add_action( 'load-themes.php', array( $this, 'on_page_load_themes' ) );
+loggers/SimpleThemeLogger.php:101:		add_action( 'customize_save', array( $this, 'on_action_customize_save' ) );
+loggers/SimpleThemeLogger.php:103:		add_action( 'sidebar_admin_setup', array( $this, 'on_action_sidebar_admin_setup__detect_widget_delete' ) );
+loggers/SimpleThemeLogger.php:104:		add_action( 'sidebar_admin_setup', array( $this, 'on_action_sidebar_admin_setup__detect_widget_add' ) );
+loggers/SimpleThemeLogger.php:105:		// add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
+loggers/SimpleThemeLogger.php:106:		// add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
+loggers/SimpleThemeLogger.php:109:		add_action( 'load-appearance_page_custom-background', array( $this, 'on_page_load_custom_background' ) );
+loggers/SimpleThemeLogger.php:111:		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_install' ), 10, 2 );
+loggers/SimpleThemeLogger.php:112:		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_update' ), 10, 2 );
+loggers/SimpleThemeLogger.php:115:		add_action( 'delete_theme', array( $this, 'on_action_delete_theme' ), 10, 1 );
+loggers/SimpleThemeLogger.php:116:		add_action( 'deleted_theme', array( $this, 'on_action_deleted_theme' ), 10, 2 );
+loggers/Plugin_UltimateMembers_Logger.php:36:		add_action( 'um_on_login_before_redirect', array( $this, 'on_um_on_login_before_redirect' ), 10, 1 );
+loggers/SimpleExportLogger.php:42:		add_action( 'export_wp', array( $this, 'on_export_wp' ), 10, 1 );
+loggers/Plugin_DuplicatePost.php:53:			add_action( 'dp_duplicate_post', array( $this, 'onDpDuplicatePost' ), 100, 3 );
+loggers/Plugin_DuplicatePost.php:54:			add_action( 'dp_duplicate_page', array( $this, 'onDpDuplicatePost' ), 100, 3 );
+loggers/Plugin_LimitLoginAttempts.php:63:			add_action( 'load-settings_page_limit-login-attempts', array( $this, 'on_load_settings_page' ), 10, 1 );
+loggers/PluginEnableMediaReplaceLogger.php:38:		add_action( 'load-media_page_enable-media-replace/enable-media-replace', array( $this, 'on_load_plugin_admin_page' ), 10, 1 );
+loggers/Plugin_ACF.php:90:			add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 5, 3 );
+loggers/Plugin_ACF.php:100:			add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
+loggers/Plugin_ACF.php:106:			add_action( 'simple_history/log/inserted', array( $this, 'on_log_inserted' ), 10, 3 );
+loggers/class-sh-privacy-logger.php:70:		add_action( 'load-privacy.php', array( $this, 'on_load_privacy_page' ) );
+loggers/class-sh-privacy-logger.php:74:		add_action( 'load-tools_page_export_personal_data', array( $this, 'on_load_export_personal_data_page' ) );
+loggers/class-sh-privacy-logger.php:78:		add_action( 'save_post_user_request', array( $this, 'on_save_post_user_request' ), 10, 3 );
+loggers/class-sh-privacy-logger.php:81:		add_action( 'user_request_action_confirmed', array( $this, 'on_user_request_action_confirmed' ), 10, 1 );
+loggers/class-sh-privacy-logger.php:84:		add_action( 'load-tools_page_remove_personal_data', array( $this, 'on_load_page_remove_personal_data' ) );
+loggers/class-sh-privacy-logger.php:335:		add_action( 'before_delete_post', array( $this, 'on_before_delete_post_on_personal_data_page' ), 10, 1 );
+loggers/class-sh-privacy-logger.php:343:		add_action( 'before_delete_post', array( $this, 'on_before_delete_post_on_remove_personal_data_page' ), 10, 1 );
+loggers/class-sh-privacy-logger.php:355:			add_action( "update_option_{$option_name}", array( $this, 'on_update_option_create_privacy_page' ), 10, 3 );
+loggers/class-sh-privacy-logger.php:357:			add_action( "update_option_{$option_name}", array( $this, 'on_update_option_set_privacy_page' ), 10, 3 );
+loggers/SimpleCommentsLogger.php:329:		add_action( 'comment_post', array( $this, 'on_comment_post' ), 10, 2 );
+loggers/SimpleCommentsLogger.php:335:		add_action( 'wp_set_comment_status', array( $this, 'on_wp_set_comment_status' ), 10, 2 );
+loggers/SimpleCommentsLogger.php:340:		add_action( 'untrashed_comment', array( $this, 'on_untrashed_comment' ), 10, 1 );
+loggers/SimpleCommentsLogger.php:345:		add_action( 'delete_comment', array( $this, 'on_delete_comment' ), 10, 1 );
+loggers/SimpleCommentsLogger.php:351:		add_action( 'edit_comment', array( $this, 'on_edit_comment' ), 10, 1 );
+loggers/class-sh-jetpack-logger.php:48:		add_action( 'jetpack_activate_module', array( $this, 'on_jetpack_activate_module' ), 10, 2 );
+loggers/class-sh-jetpack-logger.php:49:		add_action( 'jetpack_deactivate_module', array( $this, 'on_jetpack_deactivate_module' ), 10, 2 );
+loggers/Plugin_BeaverBuilder.php:56:			add_action(
+loggers/Plugin_BeaverBuilder.php:62:			add_action(
+loggers/Plugin_BeaverBuilder.php:68:			add_action(
+loggers/Plugin_BeaverBuilder.php:74:			add_action(
+loggers/SimpleMediaLogger.php:51:		add_action( 'add_attachment', array( $this, 'on_add_attachment' ) );
+loggers/SimpleMediaLogger.php:52:		add_action( 'edit_attachment', array( $this, 'on_edit_attachment' ) );
+loggers/SimpleMediaLogger.php:53:		add_action( 'delete_attachment', array( $this, 'on_delete_attachment' ) );
+loggers/SimpleMediaLogger.php:54:		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'on_mw_new_media_object' ), 10, 2 );
+loggers/SimpleUserLogger.php:128:		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 3 );
+loggers/SimpleUserLogger.php:129:		add_action( 'wp_logout', array( $this, 'onWpLogout' ), 10, 1 );
+loggers/SimpleUserLogger.php:132:		add_action( 'wp_authenticate_user', array( $this, 'onWpAuthenticateUser' ), 10, 2 );
+loggers/SimpleUserLogger.php:140:		add_action( 'user_register', array( $this, 'on_user_register' ), 10, 2 );
+loggers/SimpleUserLogger.php:143:		add_action( 'delete_user', array( $this, 'onDeleteUser' ), 10, 2 );
+loggers/SimpleUserLogger.php:146:		add_action( 'wp_ajax_destroy-sessions', array( $this, 'onDestroyUserSession' ), 0 );
+loggers/SimpleUserLogger.php:149:		add_action( 'validate_password_reset', array( $this, 'onValidatePasswordReset' ), 10, 2 );
+loggers/SimpleUserLogger.php:150:		add_action( 'retrieve_password_message', array( $this, 'onRetrievePasswordMessage' ), 10, 4 );
+loggers/SimpleUserLogger.php:155:		add_action( 'set_user_role', array( $this, 'on_set_user_role' ), 10, 3 );
+loggers/SimpleUserLogger.php:169:		add_action( 'login_form_confirm_admin_email', array( $this, 'on_action_login_form_confirm_admin_email' ) );
+loggers/SimpleUserLogger.php:171:		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
+loggers/SimpleUserLogger.php:172:		add_action( 'wp_delete_application_password', array( $this, 'on_action_wp_delete_application_password' ), 10, 2 );
+index.php:64:	add_action( 'admin_notices', 'simple_history_old_version_admin_notice' );
+```
+
+## Filters
+
+## Update docs
+
+To find all filters:
+
+```sh
+$ ack 'add_filter\(' --ignore-dir=vendor --ignore-dir=examples --ignore-dir=tests --type=php
+```
+
+To find all actions:
+
+```sh
+$ ack 'add_action\(' --ignore-dir=vendor --ignore-dir=examples --ignore-dir=tests --type=php
+```
