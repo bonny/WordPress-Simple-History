@@ -173,6 +173,57 @@ index.php:64:	add_action( 'admin_notices', 'simple_history_old_version_admin_not
 
 ## Filters
 
+```sh
+dropins/SimpleHistoryIpInfoDropin.php:21:		add_filter(
+dropins/SimpleHistoryFilterDropin.php:402:					 *     add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function() { return array(1,4); });
+dropins/SimpleHistoryFilterDropin.php:410:					add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function($arr) {
+dropins/SimpleHistoryExportDropin.php:49:			add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
+dropins/SimpleHistoryExportDropin.php:50:			add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
+dropins/SimpleHistoryExportDropin.php:53:			add_filter( 'simple_history/header_initiator_use_you', '__return_false' );
+dropins/SimpleHistoryPluginPatchesDropin.php:19:		add_filter(
+inc/SimpleHistory.php:120:		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
+inc/SimpleHistory.php:121:		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
+inc/SimpleHistory.php:123:		add_filter( 'gettext', array( $this, 'filter_gettext_storeLatestTranslations' ), 10, 3 );
+inc/SimpleHistory.php:141:		add_filter( 'simple_history_log', array( $this, 'on_filter_simple_history_log' ), 10, 3 );
+inc/SimpleHistory.php:150:		add_filter( 'simple_history_log_emergency', array( $this, 'on_filter_simple_history_log_emergency' ), 10, 3 );
+inc/SimpleHistory.php:151:		add_filter( 'simple_history_log_alert', array( $this, 'on_filter_simple_history_log_alert' ), 10, 2 );
+inc/SimpleHistory.php:152:		add_filter( 'simple_history_log_critical', array( $this, 'on_filter_simple_history_log_critical' ), 10, 2 );
+inc/SimpleHistory.php:153:		add_filter( 'simple_history_log_error', array( $this, 'on_filter_simple_history_log_error' ), 10, 2 );
+inc/SimpleHistory.php:154:		add_filter( 'simple_history_log_warning', array( $this, 'on_filter_simple_history_log_warning' ), 10, 2 );
+inc/SimpleHistory.php:155:		add_filter( 'simple_history_log_notice', array( $this, 'on_filter_simple_history_log_notice' ), 10, 2 );
+inc/SimpleHistory.php:156:		add_filter( 'simple_history_log_info', array( $this, 'on_filter_simple_history_log_info' ), 10, 2 );
+inc/SimpleHistory.php:157:		add_filter( 'simple_history_log_debug', array( $this, 'on_filter_simple_history_log_debug' ), 10, 2 );
+inc/SimpleHistory.php:288:		add_filter( 'plugin_action_links_simple-history/index.php', array( $this, 'plugin_action_links' ), 10, 4 );
+inc/SimpleHistory.php:469:		add_filter( 'simple_history/maybe_purge_db', array( $this, 'maybe_purge_db' ) );
+loggers/Plugin_Redirection.php:86:			add_filter( 'rest_request_before_callbacks', array( $this, 'on_rest_request_before_callbacks' ), 10, 3 );
+loggers/SimpleLogger.php:1175:		 * add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false')
+loggers/SimplePostLogger.php:41:		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
+loggers/SimplePluginLogger.php:158:		add_filter( 'upgrader_pre_install', array( $this, 'save_versions_before_update' ), 10, 2 );
+loggers/SimplePluginLogger.php:182:		add_filter(
+loggers/SimplePluginLogger.php:192:		add_filter( 'gettext', array( $this, 'on_gettext_detect_plugin_error_deactivation_reason' ), 10, 3 );
+loggers/SimplePluginLogger.php:193:		add_filter( 'gettext', array( $this, 'on_gettext' ), 10, 3 );
+loggers/SimplePluginLogger.php:264:		add_filter(
+loggers/SimplePluginLogger.php:512:		add_filter(
+loggers/FileEditsLogger.php:81:			add_filter(
+loggers/FileEditsLogger.php:199:			add_filter(
+loggers/SimpleThemeLogger.php:107:		add_filter( 'widget_update_callback', array( $this, 'on_widget_update_callback' ), 10, 4 );
+loggers/Plugin_LimitLoginAttempts.php:61:			add_filter( 'pre_option_limit_login_lockouts_total', array( $this, 'on_option_limit_login_lockouts_total' ), 10, 1 );
+loggers/Plugin_ACF.php:83:			add_filter( 'simple_history/post_logger/skip_posttypes', array( $this, 'remove_acf_from_postlogger' ) );
+loggers/Plugin_ACF.php:87:			add_filter( 'wp_insert_post_data', array( $this, 'on_wp_insert_post_data' ), 10, 2 );
+loggers/Plugin_ACF.php:93:			add_filter( 'simple_history/post_logger/post_updated/context', array( $this, 'on_post_updated_context' ), 10, 2 );
+loggers/Plugin_ACF.php:96:			add_filter( 'simple_history/post_logger/post_updated/diff_table_output', array( $this, 'on_diff_table_output_field_group' ), 10, 2 );
+loggers/Plugin_ACF.php:103:			add_filter( 'acf/save_post', array( $this, 'on_acf_save_post' ), 50 );
+loggers/Plugin_ACF.php:137:			add_filter( 'simple_history/post_logger/post_updated/ok_to_log', array( $this, 'prevent_second_acf_field_group_post_save_log' ), 10, 4 );
+loggers/class-sh-privacy-logger.php:66:		add_filter( 'simple_history/post_logger/skip_posttypes', array( $this, 'remove_post_types_from_postlogger' ) );
+loggers/SimpleCommentsLogger.php:16:		// add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
+loggers/SimpleCommentsLogger.php:17:		add_filter( 'simple_history/log_query_inner_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
+loggers/SimpleCommentsLogger.php:18:		add_filter( 'simple_history/quick_stats_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
+loggers/SimpleMediaLogger.php:55:		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
+loggers/SimpleUserLogger.php:137:		add_filter( 'authenticate', array( $this, 'onAuthenticate' ), 30, 3 );
+loggers/SimpleUserLogger.php:153:		add_filter( 'wp_pre_insert_user_data', array( $this, 'on_pre_insert_user_data' ), 10, 4 );
+loggers/SimpleUserLogger.php:160:		// add_filter(
+```
+
 ## Update docs
 
 To find all filters:
