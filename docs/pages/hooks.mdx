@@ -1,6 +1,24 @@
+import { hooks } from "../hooks_and_filters.js";
+
+export const Hook = ({ hook }) => {
+	console.log("hook", hook);
+
+    return (
+    	<div>
+    		<h2>{hook.name}</h2>
+    		<p>Type: {hook.type}</p>
+    	</div>
+    );
+
+};
+
 # Hooks
 
 Filters and actions.
+
+{hooks.map(hook => {
+return <Hook hook={hook} />
+})}
 
 ## Actions
 
