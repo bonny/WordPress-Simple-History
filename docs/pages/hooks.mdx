@@ -1,4 +1,4 @@
-import { hooks } from "../hooks_and_filters.js";
+import hooks from "../hooks.json";
 
 export const Hook = ({ hook }) => {
 	console.log("hook", hook);
@@ -247,7 +247,7 @@ loggers/SimpleUserLogger.php:160:		// add_filter(
 To find all filters:
 
 ```sh
-$ ack 'add_filter\(' --ignore-dir=vendor --ignore-dir=examples --ignore-dir=tests --type=php
+$ ack 'apply_filters\(' --ignore-dir=vendor --ignore-dir=examples --ignore-dir=tests --type=php
 ```
 
 To find all actions:
