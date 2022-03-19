@@ -6,8 +6,8 @@
 			"file": "inc/SimpleHistory.php",
 			"type": "action",
 			"doc": {
-				"description": "Action that dropins can use to add their custom loggers.",
-				"long_description": "See register_dropin() for more info.",
+				"description": "Fires after the list of dropins to load are populated.",
+				"long_description": "Can for example be used by dropins can to add their own custom loggers.\n See register_dropin() for more info.",
 				"tags": [
 					{
 						"name": "since",
@@ -15,12 +15,12 @@
 					},
 					{
 						"name": "param",
-						"content": "Array with class names",
-						"types": ["array"],
-						"variable": "$arrDropinsToInstantiate"
+						"content": "Simple History instance.",
+						"types": ["\\SimpleHistory"],
+						"variable": "$this"
 					}
 				],
-				"long_description_html": "<p>See register_dropin() for more info.</p>"
+				"long_description_html": "<p>Can for example be used by dropins can to add their own custom loggers.</p> <p>See register_dropin() for more info.</p>"
 			},
 			"args": 1
 		},
@@ -29,8 +29,8 @@
 			"file": "inc/SimpleHistory.php",
 			"type": "action",
 			"doc": {
-				"description": "Action that plugins can use to add their custom loggers.",
-				"long_description": "See register_logger() for more info.",
+				"description": "Fires after the list of loggers to load are populated.",
+				"long_description": "Can for example be used by plugin to load their own custom loggers.\n See register_logger() for more info.",
 				"tags": [
 					{
 						"name": "since",
@@ -38,12 +38,12 @@
 					},
 					{
 						"name": "param",
-						"content": "instance",
+						"content": "Simple History instance.",
 						"types": ["\\SimpleHistory"],
-						"variable": ""
+						"variable": "$this"
 					}
 				],
-				"long_description_html": "<p>See register_logger() for more info.</p>"
+				"long_description_html": "<p>Can for example be used by plugin to load their own custom loggers.</p> <p>See register_logger() for more info.</p>"
 			},
 			"args": 1
 		},

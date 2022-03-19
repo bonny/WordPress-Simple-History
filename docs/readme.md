@@ -17,7 +17,7 @@ Run the following in the `docs`-folder to update `hooks/actions` and `hooks/filt
 
 ## Todo
 
-- [ ] https://nextra.vercel.app/
-- [ ] https://nextra.vercel.app/advanced/code-highlighting
-- [ ] https://github.com/mdx-js/vscode-mdx
-- [ ] Start writing docs
+- [ ] Add documentation to all actions and filters in plugin.
+  - [ ] Test if possible to add markdown and better examples, multiline, directly in comment.
+  - [ ] "Fires ..." is what WP uses for actions, "Filters ..." is what WP uses for filters.
+- [ ] Get syntax highlighting to work when Nextra is updated to version 2.

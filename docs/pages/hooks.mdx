@@ -1,5 +1,6 @@
 import actions from "../hooks/actions.json";
 import filters from "../hooks/filters.json";
+import { HookParams } from "../functions.js";
 
 export const HookTOCItem = ({ hook }) => {
 	return (
@@ -16,7 +17,11 @@ export const Hook = ({ hook }) => {
 				<code>{hook.name}</code>
 			</h4>
 			<p>{hook.doc.description}</p>
-			<p>{hook.doc.long_description}</p>
+			<div
+				className="mt-1"
+				dangerouslySetInnerHTML={{ __html: hook.doc.long_description_html }}
+			></div>
+			<HookParams hook={hook} />
 		</div>
 	);
 };

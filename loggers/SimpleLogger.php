@@ -1540,13 +1540,13 @@ class SimpleLogger {
 		$this->simpleHistory->get_cache_incrementor( true );
 
 		/**
-		 * Action that is called after an event has been logged
+		 * Fired after an event has been logged.
 		 *
 		 * @since 2.5.1
 		 *
 		 * @param array $context Array with all context data that was used to log event.
 		 * @param array $data_parent_row Array with data used for parent row.
-		 * @param array $this Reference to this logger instance.
+		 * @param SimpleLogger $this Reference to this logger instance.
 		 */
 		do_action(
 			'simple_history/log/inserted',

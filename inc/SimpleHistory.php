@@ -940,12 +940,15 @@ class SimpleHistory {
 		}
 
 		/**
-		 * Action that plugins can use to add their custom loggers.
+		 * Fires after the list of loggers to load are populated.
+		 *
+		 * Can for example be used by plugin to load their own custom loggers.
+		 *
 		 * See register_logger() for more info.
 		 *
 		 * @since 2.1
 		 *
-		 * @param SimpleHistory instance
+		 * @param SimpleHistory $this Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_logger', $this );
 
@@ -1123,12 +1126,14 @@ class SimpleHistory {
 		} // End foreach().
 
 		/**
-		 * Action that dropins can use to add their custom loggers.
+		 * Fires after the list of dropins to load are populated.
+		 * Can for example be used by dropins can to add their own custom loggers.
+		 *
 		 * See register_dropin() for more info.
 		 *
 		 * @since 2.3.2
 		 *
-		 * @param array $arrDropinsToInstantiate Array with class names
+		 * @param SimpleHistory $this Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_dropin', $this );
 
