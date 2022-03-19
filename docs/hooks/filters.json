@@ -230,43 +230,43 @@
 		},
 		{
 			"name": "simple_history/admin_location",
+			"file": "inc/SimpleHistory.php",
+			"type": "filter",
+			"doc": {
+				"description": "",
+				"long_description": "",
+				"tags": [],
+				"long_description_html": ""
+			},
+			"args": 1
+		},
+		{
+			"name": "simple_history/admin_location",
+			"file": "inc/SimpleHistory.php",
+			"type": "filter",
+			"doc": {
+				"description": "",
+				"long_description": "",
+				"tags": [],
+				"long_description_html": ""
+			},
+			"args": 1
+		},
+		{
+			"name": "simple_history/admin_location",
+			"file": "inc/SimpleHistory.php",
+			"type": "filter",
+			"doc": {
+				"description": "",
+				"long_description": "",
+				"tags": [],
+				"long_description_html": ""
+			},
+			"args": 1
+		},
+		{
+			"name": "simple_history/admin_location",
 			"file": "loggers/SimpleLogger.php",
-			"type": "filter",
-			"doc": {
-				"description": "",
-				"long_description": "",
-				"tags": [],
-				"long_description_html": ""
-			},
-			"args": 1
-		},
-		{
-			"name": "simple_history/admin_location",
-			"file": "inc/SimpleHistory.php",
-			"type": "filter",
-			"doc": {
-				"description": "",
-				"long_description": "",
-				"tags": [],
-				"long_description_html": ""
-			},
-			"args": 1
-		},
-		{
-			"name": "simple_history/admin_location",
-			"file": "inc/SimpleHistory.php",
-			"type": "filter",
-			"doc": {
-				"description": "",
-				"long_description": "",
-				"tags": [],
-				"long_description_html": ""
-			},
-			"args": 1
-		},
-		{
-			"name": "simple_history/admin_location",
-			"file": "inc/SimpleHistory.php",
 			"type": "filter",
 			"doc": {
 				"description": "",
@@ -2056,30 +2056,6 @@
 		},
 		{
 			"name": "simple_history_log",
-			"file": "tests/wpunit/FiltersTest.php",
-			"type": "filter",
-			"doc": {
-				"description": "",
-				"long_description": "",
-				"tags": [],
-				"long_description_html": ""
-			},
-			"args": 1
-		},
-		{
-			"name": "simple_history_log",
-			"file": "tests/wpunit/FiltersTest.php",
-			"type": "filter",
-			"doc": {
-				"description": "",
-				"long_description": "",
-				"tags": [],
-				"long_description_html": ""
-			},
-			"args": 3
-		},
-		{
-			"name": "simple_history_log",
 			"file": "examples/examples.php",
 			"type": "filter",
 			"doc": {
@@ -2113,18 +2089,6 @@
 				"long_description_html": ""
 			},
 			"args": 3
-		},
-		{
-			"name": "simple_history_log_debug",
-			"file": "tests/wpunit/FiltersTest.php",
-			"type": "filter",
-			"doc": {
-				"description": "",
-				"long_description": "",
-				"tags": [],
-				"long_description_html": ""
-			},
-			"args": 1
 		},
 		{
 			"name": "simple_history_show_as_page",
