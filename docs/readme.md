@@ -13,7 +13,7 @@ Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.
 
 Run the following in the `docs`-folder to update `hooks/actions` and `hooks/filters`:
 
-`$ ./vendor/bin/wp-hooks-generator --input=.. --output=hooks --ignore-files=../vendor/,vendor/`
+`$ ./vendor/bin/wp-hooks-generator --input=.. --output=hooks --ignore-files=../vendor/,vendor/,tests/`
 
 ## Todo
 
