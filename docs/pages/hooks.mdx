@@ -17,8 +17,10 @@ export const Hook = ({ hook }) => {
 				<code>{hook.name}</code>
 			</h4>
 			<p>{hook.doc.description}</p>
-			{/* prettier-ignore */}
-			<div className="mt-1" dangerouslySetInnerHTML={{ "__html": hook.doc.long_description_html }}></div>
+			<div
+				className="mt-1"
+				dangerouslySetInnerHTML={{ __html: hook.doc.long_description_html }}
+			></div>
 			<HookParams hook={hook} />
 		</div>
 	);
