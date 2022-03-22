@@ -13,15 +13,15 @@
   "license": "ISC",
   "dependencies": {
     "next": "^12.1.0",
-    "nextra": "^1.1.0",
-    "nextra-theme-docs": "^1.2.6",
+    "nextra": "^2.0.0-beta.5",
+    "nextra-theme-docs": "^2.0.0-beta.5",
     "prism-react-renderer": "^1.3.1",
     "prismjs": "^1.27.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "prettier": "^2.2.1"
+    "prettier": "^2.6"
   },
   "prettier": {
     "semi": false,
