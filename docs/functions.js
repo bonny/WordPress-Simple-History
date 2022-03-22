@@ -1,3 +1,8 @@
+import { MDXProvider } from "@mdx-js/react"
+
+const components = {
+}
+
 export const HookParams = ({ hook }) => {
   const params = hook.doc.tags.filter(tag => tag.name === 'param')
 
@@ -33,6 +38,10 @@ export const HookParams = ({ hook }) => {
       )
     })
 
+    if (!paramTypesOut.length) {
+      return null
+    }
+
     return (
       <li>
         {paramTypesOut} {oneParam.variable} {oneParam.content}{' '}
@@ -44,11 +53,17 @@ export const HookParams = ({ hook }) => {
     paramsDoc = <ul>{paramsDoc}</ul>
   }
 
+  // https://github.com/mdx-js/mdx/issues/197
+  // 
   return (
     <div>
       <code>
         do_action( '{hook.name}'{paramsOutput} )
       </code>
+
+      <MDXProvider components={components}>
+        {/* how to render markdown here? */}
+      </MDXProvider>
 
       <div>{paramsDoc}</div>
     </div>
