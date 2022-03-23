@@ -10,7 +10,7 @@ export const HookParams = ({ hook }) => {
     const paramTypesOut = oneParam.types.map((type, typeIdx, typeArr) => {
       const divider = typeIdx < typeArr.length - 1 ? '|' : ''
       return (
-        <span>
+        <span key={`params-${type}`}>
           {type}
           {divider}
         </span>
@@ -31,7 +31,7 @@ export const HookParams = ({ hook }) => {
     const paramTypesOut = oneParam.types.map((type, typeIdx, typeArr) => {
       const divider = typeIdx < typeArr.length - 1 ? '|' : ''
       return (
-        <span>
+        <span key={`paramsdoc-${type}`}>
           {type}
           {divider}
         </span>
