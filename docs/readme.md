@@ -20,4 +20,4 @@ Run the following in the `docs`-folder to update `hooks/actions` and `hooks/filt
 - [ ] Add documentation to all actions and filters in plugin.
   - [ ] Test if possible to add markdown and better examples, multiline, directly in comment.
   - [ ] "Fires ..." is what WP uses for actions, "Filters ..." is what WP uses for filters.
-- [ ] Get syntax highlighting to work when Nextra is updated to version 2.
+- [ ] Syntax highlighting for `apply_filters...`
