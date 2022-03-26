@@ -22,3 +22,11 @@
 /* body {
 	@apply border-rose-600 border-8;
 } */
+
+html {
+	scroll-behavior: smooth;
+}
+
+.HookInformation-name {
+	scroll-margin: 75px;
+}

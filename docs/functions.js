@@ -18,10 +18,12 @@ export const HookTOCItem = ({ hook }) => {
  */
 export const Hook = ({ hook }) => {
   return (
-    <div key={`hook-item-${hook.name}`}>
+    <div key={`hook-item-${hook.name}`} className="HookInformation">
       <hr />
 
-      <h4 id={`${hook.name}`}>{hook.name}</h4>
+      <h4 id={`${hook.name}`} className="HookInformation-name">
+        {hook.name}
+      </h4>
       <p>{hook.doc.description}</p>
       <div
         className="mt-1"
