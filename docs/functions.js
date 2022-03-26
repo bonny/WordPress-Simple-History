@@ -1,7 +1,3 @@
-import { MDXProvider } from '@mdx-js/react'
-
-const components = {}
-
 export const HookTOCItem = ({ hook }) => {
   return (
     <li key={`hook-toc-item-${hook.name}`}>
@@ -24,11 +20,14 @@ export const Hook = ({ hook }) => {
       <h4 id={`${hook.name}`} className="HookInformation-name">
         {hook.name}
       </h4>
+
       <p>{hook.doc.description}</p>
+
       <div
         className="mt-1"
         dangerouslySetInnerHTML={{ __html: hook.doc.long_description_html }}
       ></div>
+
       <HookParams hook={hook} />
     </div>
   )
@@ -91,10 +90,6 @@ export const HookParams = ({ hook }) => {
       <code>
         do_action( '{hook.name}'{paramsOutput} )
       </code>
-
-      <MDXProvider components={components}>
-        {/* how to render markdown here? */}
-      </MDXProvider>
 
       <div>{paramsDoc}</div>
     </div>
