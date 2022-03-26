@@ -1,9 +1,9 @@
 export default {
-  projectLink: "https://github.com/bonny/WordPress-Simple-History/", // GitHub link in the navbar
-  github: "https://github.com/bonny/WordPress-Simple-History/",
+  projectLink: 'https://github.com/bonny/WordPress-Simple-History/', // GitHub link in the navbar
+  github: 'https://github.com/bonny/WordPress-Simple-History/',
   docsRepositoryBase:
-    "https://github.com/bonny/WordPress-Simple-History/blob/feature/docs/docs/pages/", // base URL for the docs repository
-  titleSuffix: " – Simple History Documentation",
+    'https://github.com/bonny/WordPress-Simple-History/blob/feature/docs/docs/pages/', // base URL for the docs repository
+  titleSuffix: ' – Simple History Documentation',
   nextLinks: true,
   prevLinks: true,
   search: true,
@@ -30,5 +30,6 @@ export default {
       <meta name="og:title" content="Simple History Documentation" />
     </>
   ),
-  unstable_faviconGlyph: "📄",
-};
+  unstable_faviconGlyph: '📄',
+  floatTOC: true
+}
