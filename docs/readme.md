@@ -13,11 +13,12 @@ Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.
 
 Run the following in the `docs`-folder to update `hooks/actions` and `hooks/filters`:
 
-`$ ./vendor/bin/wp-hooks-generator --input=.. --output=hooks --ignore-files=../vendor/,vendor/,tests/`
+    $ npm run update-hooks-from-source
 
 ## Todo
 
 - [ ] Add documentation to all actions and filters in plugin.
+  - [ ] Select one filter to add for with mulitple examples, check forums for good example. Capability? do_log?
   - [ ] Test if possible to add markdown and better examples, multiline, directly in comment.
   - [ ] "Fires ..." is what WP uses for actions, "Filters ..." is what WP uses for filters.
 - [ ] Syntax highlighting for `apply_filters...`
