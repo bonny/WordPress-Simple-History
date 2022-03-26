@@ -1,27 +1,6 @@
-import actions from "../hooks/actions.json";
-import filters from "../hooks/filters.json";
-import { HookParams } from "../functions.js";
-
-export const HookTOCItem = ({ hook }) => {
-	return (
-		<li>
-			<a href={`#${hook.name}`}>{hook.name}</a>
-		</li>
-	);
-};
-
-export const Hook = ({ hook }) => {
-	return (
-		<div>
-			<h4 id={`${hook.name}`}>
-				<code>{hook.name}</code>
-			</h4>
-			<p>{hook.doc.description}</p>
-			<div className="mt-1" dangerouslySetInnerHTML={{ "__html": hook.doc.long_description_html }}></div>
-			<HookParams hook={hook} />
-		</div>
-	);
-};
+import actions from '../hooks/actions.json'
+import filters from '../hooks/filters.json'
+import { HookParams, HookTOCItem, Hook } from '../functions.js'
 
 # Actions and filters
 
@@ -30,16 +9,16 @@ export const Hook = ({ hook }) => {
 ### Actions
 
 <ul>
-	{actions.hooks.map((hook) => {
-		return <HookTOCItem hook={hook} />;
+	{actions.hooks.map(hook => {
+		return <HookTOCItem hook={hook} key={`toc-hook-action-${hook.name}`} />
 	})}
 </ul>
 
 ### Filters
 
 <ul>
-	{filters.hooks.map((hook) => {
-		return <HookTOCItem hook={hook} />;
+	{filters.hooks.map(hook => {
+		return <HookTOCItem hook={hook} key={`toc-hook-filter-${hook.name}`} />
 	})}
 </ul>
 
@@ -48,15 +27,15 @@ export const Hook = ({ hook }) => {
 ### Actions
 
 <div>
-	{actions.hooks.map((hook) => {
-		return <Hook hook={hook} />;
+	{actions.hooks.map(hook => {
+		return <Hook hook={hook} key={`details-hook-action-${hook.name}`} />
 	})}
 </div>
 
 ### Filters
 
 <div>
-	{filters.hooks.map((hook) => {
-		return <Hook hook={hook} />;
+	{filters.hooks.map(hook => {
+		return <Hook hook={hook} key={`details-hook-action-${hook.name}`} />
 	})}
 </div>
