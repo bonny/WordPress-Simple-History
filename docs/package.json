@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "update-hooks-from-source": "./vendor/bin/wp-hooks-generator --input=.. --output=hooks --ignore-files=../vendor/,vendor/,tests/"
+    "update-hooks-from-source": "php generate-hooks-json-files.php --input=.. --output=hooks --ignore-files=../vendor/,vendor/,tests/"
   },
   "author": "Pär Thernström <par.thernstrom@gmail.com>",
   "license": "ISC",
