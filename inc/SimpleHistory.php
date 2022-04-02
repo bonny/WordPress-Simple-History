@@ -2606,10 +2606,11 @@ Because Simple History was only recently installed, this feed does not display m
 			$logRowContextKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow->context ), true );
 
 			/**
-			 * Filter what keys to show from the row context
+			 * Filter what keys to show from the row context.
 			 *
-			 * Array is in format
+			 * Array is in format:
 			 *
+			 * ```
 			 *   Array
 			 *   (
 			 *       [plugin_slug] => 1
@@ -2620,6 +2621,27 @@ Because Simple History was only recently installed, this feed does not display m
 			 *       [plugin_version] => 1
 			 *       ...
 			 *   )
+			 * ```
+			 *
+			 *  @example Hide some more columns from the detailed context view popup window
+			 *
+			 * ```php
+			 *  add_filter(
+			 *      'simple_history/log_html_output_details_table/context_keys_to_show',
+			 *      function ( $logRowContextKeysToShow, $oneLogRow ) {
+			 *
+			 *          $logRowContextKeysToShow['plugin_slug'] = false;
+			 *          $logRowContextKeysToShow['plugin_name'] = false;
+			 *          $logRowContextKeysToShow['plugin_title'] = false;
+			 *          $logRowContextKeysToShow['plugin_description'] = false;
+			 *
+			 *          return $logRowContextKeysToShow;
+			 *      },
+			 *      10,
+			 *      2
+			 *  );
+			 * ```
+			 *
 			 *
 			 * @since 2.0.29
 			 *

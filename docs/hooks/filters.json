@@ -703,18 +703,69 @@
             "file": "loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
-                "description": "Filter that makes it possible to shortcut this log.",
-                "long_description": "Return bool false to cancel.",
+                "description": "Filter that makes it possible to shortcut the logging of a message.",
+                "long_description": "Return bool false to cancel logging .",
                 "tags": [
+                    {
+                        "name": "example",
+                        "content": "not log some post types, for example pages and attachments in this case <code>php  add_filter(      'simple_history/log/do_log',      function ( $do_log = null, $level = null, $message = null, $context = null, $logger = null ) {           $post_types_to_not_log = array(              'page',              'attachment',          );           if ( ( isset( $logger-&gt;slug ) &amp;&amp; ( $logger-&gt;slug === 'SimplePostLogger' || $logger-&gt;slug === 'SimpleMediaLogger' ) ) &amp;&amp; ( isset( $context['post_type'] ) &amp;&amp; in_array( $context['post_type'], $post_types_to_not_log ) ) ) {              $do_log = false;          }           return $do_log;      },      10,      5  ); </code>"
+                    },
+                    {
+                        "name": "example",
+                        "content": "all logging <code>php  // Disable all logging  add_filter( 'simple_history/log/do_log', '__return_false' ); </code>"
+                    },
                     {
                         "name": "since",
                         "content": "2.3.1"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Wheter to log or not.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": "$doLog"
+                    },
+                    {
+                        "name": "param",
+                        "content": "The loglevel.",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$level"
+                    },
+                    {
+                        "name": "param",
+                        "content": "The log message.",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$message"
+                    },
+                    {
+                        "name": "param",
+                        "content": "The message context.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$context"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Logger instance.",
+                        "types": [
+                            "\\SimpleLogger"
+                        ],
+                        "variable": "$this"
                     }
                 ],
-                "long_description_html": "<p>Return bool false to cancel.</p>"
+                "long_description_html": "<p>Return bool false to cancel logging .</p>"
             },
             "args": 5,
-            "examples": []
+            "examples": [
+                "Do not log some post types, for example pages and attachments in this case\n\n```php\n add_filter(\n     'simple_history/log/do_log',\n     function ( $do_log = null, $level = null, $message = null, $context = null, $logger = null ) {\n\n         $post_types_to_not_log = array(\n             'page',\n             'attachment',\n         );\n\n         if ( ( isset( $logger->slug ) && ( $logger->slug === 'SimplePostLogger' || $logger->slug === 'SimpleMediaLogger' ) ) && ( isset( $context['post_type'] ) && in_array( $context['post_type'], $post_types_to_not_log ) ) ) {\n             $do_log = false;\n         }\n\n         return $do_log;\n     },\n     10,\n     5\n );\n```",
+                "Disable all logging\n\n```php\n // Disable all logging\n add_filter( 'simple_history/log/do_log', '__return_false' );\n```"
+            ]
         },
         {
             "name": "simple_history/log/do_log/{$this->slug}",
@@ -872,9 +923,13 @@
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "Filter what keys to show from the row context",
-                "long_description": "Array is in format\n   Array   (       [plugin_slug] => 1       [plugin_name] => 1       [plugin_title] => 1       [plugin_description] => 1       [plugin_author] => 1       [plugin_version] => 1       ...   )",
+                "description": "Filter what keys to show from the row context.",
+                "long_description": "Array is in format:\n ```   Array   (       [plugin_slug] => 1       [plugin_name] => 1       [plugin_title] => 1       [plugin_description] => 1       [plugin_author] => 1       [plugin_version] => 1       ...   ) ```",
                 "tags": [
+                    {
+                        "name": "example",
+                        "content": "some more columns from the detailed context view popup window <code>php  add_filter(      'simple_history/log_html_output_details_table/context_keys_to_show',      function ( $logRowContextKeysToShow, $oneLogRow ) {           $logRowContextKeysToShow['plugin_slug'] = false;          $logRowContextKeysToShow['plugin_name'] = false;          $logRowContextKeysToShow['plugin_title'] = false;          $logRowContextKeysToShow['plugin_description'] = false;           return $logRowContextKeysToShow;      },      10,      2  ); </code>"
+                    },
                     {
                         "name": "since",
                         "content": "2.0.29"
@@ -896,10 +951,12 @@
                         "variable": ""
                     }
                 ],
-                "long_description_html": "<p>Array is in format</p> <p>Array ( [plugin_slug] =&gt; 1 [plugin_name] =&gt; 1 [plugin_title] =&gt; 1 [plugin_description] =&gt; 1 [plugin_author] =&gt; 1 [plugin_version] =&gt; 1 ... )</p>"
+                "long_description_html": "<p>Array is in format:</p> <pre><code>  Array\n  (\n      [plugin_slug] =&gt; 1\n      [plugin_name] =&gt; 1\n      [plugin_title] =&gt; 1\n      [plugin_description] =&gt; 1\n      [plugin_author] =&gt; 1\n      [plugin_version] =&gt; 1\n      ...\n  )</code></pre>"
             },
             "args": 2,
-            "examples": []
+            "examples": [
+                "Hide some more columns from the detailed context view popup window\n\n```php\n add_filter(\n     'simple_history/log_html_output_details_table/context_keys_to_show',\n     function ( $logRowContextKeysToShow, $oneLogRow ) {\n\n         $logRowContextKeysToShow['plugin_slug'] = false;\n         $logRowContextKeysToShow['plugin_name'] = false;\n         $logRowContextKeysToShow['plugin_title'] = false;\n         $logRowContextKeysToShow['plugin_description'] = false;\n\n         return $logRowContextKeysToShow;\n     },\n     10,\n     2\n );\n```"
+            ]
         },
         {
             "name": "simple_history/log_html_output_details_table/row_keys_to_show",
@@ -907,8 +964,12 @@
             "type": "filter",
             "doc": {
                 "description": "Filter what keys to show from oneLogRow",
-                "long_description": "Array is in format\n   Array   (       [id] => 1       [logger] => 1       [level] => 1       ...   )",
+                "long_description": "Array is in format\n ```  Array   (       [id] => 1       [logger] => 1       [level] => 1       ...   ) ```",
                 "tags": [
+                    {
+                        "name": "example",
+                        "content": "some columns from the detailed context view popup window <code>php  add_filter(      'simple_history/log_html_output_details_table/row_keys_to_show',      function ( $logRowKeysToShow, $oneLogRow ) {           $logRowKeysToShow['id'] = false;          $logRowKeysToShow['logger'] = false;          $logRowKeysToShow['level'] = false;          $logRowKeysToShow['message'] = false;           return $logRowKeysToShow;      },      10,      2  ); </code>"
+                    },
                     {
                         "name": "since",
                         "content": "2.0.29"
@@ -930,19 +991,25 @@
                         "variable": ""
                     }
                 ],
-                "long_description_html": "<p>Array is in format</p> <p>Array ( [id] =&gt; 1 [logger] =&gt; 1 [level] =&gt; 1 ... )</p>"
+                "long_description_html": "<p>Array is in format</p> <pre><code> Array\n  (\n      [id] =&gt; 1\n      [logger] =&gt; 1\n      [level] =&gt; 1\n      ...\n  )</code></pre>"
             },
             "args": 2,
-            "examples": []
+            "examples": [
+                "Hide some columns from the detailed context view popup window\n\n```php\n add_filter(\n     'simple_history/log_html_output_details_table/row_keys_to_show',\n     function ( $logRowKeysToShow, $oneLogRow ) {\n\n         $logRowKeysToShow['id'] = false;\n         $logRowKeysToShow['logger'] = false;\n         $logRowKeysToShow['level'] = false;\n         $logRowKeysToShow['message'] = false;\n\n         return $logRowKeysToShow;\n     },\n     10,\n     2\n );\n```"
+            ]
         },
         {
             "name": "simple_history/log_insert_context",
             "file": "loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
-                "description": "Filter the context to store for this event/row",
+                "description": "Filters the context to store for this event/row",
                 "long_description": "",
                 "tags": [
+                    {
+                        "name": "example",
+                        "content": "adding things to the context table during logging. Useful if you don't want to add cool and possible super useful info to your logged events. Also nice to have if you want to make sure your database does not grow. <code>php  add_filter(      'simple_history/log_insert_context',      function ( $context, $data ) {          unset( $context['_user_id'] );          unset( $context['_user_login'] );          unset( $context['_user_email'] );          unset( $context['server_http_user_agent'] );           return $context;      },      10,      2  ); </code>"
+                    },
                     {
                         "name": "since",
                         "content": "2.0.29"
@@ -975,7 +1042,9 @@
                 "long_description_html": ""
             },
             "args": 3,
-            "examples": []
+            "examples": [
+                "Skip adding things to the context table during logging.\nUseful if you don't want to add cool and possible super useful info to your logged events.\nAlso nice to have if you want to make sure your database does not grow.\n\n```php\n add_filter(\n     'simple_history/log_insert_context',\n     function ( $context, $data ) {\n         unset( $context['_user_id'] );\n         unset( $context['_user_login'] );\n         unset( $context['_user_email'] );\n         unset( $context['server_http_user_agent'] );\n\n         return $context;\n     },\n     10,\n     2\n );\n```"
+            ]
         },
         {
             "name": "simple_history/log_insert_data",
@@ -1138,18 +1207,48 @@
             "file": "loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
-                "description": "Filter the context used to create the message from the message template",
-                "long_description": "",
+                "description": "Filters the context used to create the message from the message template.",
+                "long_description": "Can be used to modify the variables sent to the message template.",
                 "tags": [
+                    {
+                        "name": "example",
+                        "content": "that modifies the parameters sent to the message template. This example will change the post type from \"post\" or \"page\" or similar to \"my own page type\".  <code>php  add_filter(      'simple_history/logger/interpolate/context',      function ( $context, $message, $row ) {           if ( empty( $row ) ) {              return $context;          }           if ( $row-&gt;logger == 'SimplePostLogger' &amp;&amp; $row-&gt;context_message_key == 'post_updated' ) {              $context['post_type'] = 'my own page type';          }           return $context;      },      10,      3  ); </code>"
+                    },
                     {
                         "name": "since",
                         "content": "2.2.4"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$context"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$message"
+                    },
+                    {
+                        "name": "param",
+                        "content": "The row. Not supported by all loggers.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$row"
                     }
                 ],
-                "long_description_html": ""
+                "long_description_html": "<p>Can be used to modify the variables sent to the message template.</p>"
             },
             "args": 3,
-            "examples": []
+            "examples": [
+                "Example that modifies the parameters sent to the message template.\n\nThis example will change the post type from \"post\" or \"page\" or similar to \"my own page type\".\n\n ```php\n add_filter(\n     'simple_history/logger/interpolate/context',\n     function ( $context, $message, $row ) {\n\n         if ( empty( $row ) ) {\n             return $context;\n         }\n\n         if ( $row->logger == 'SimplePostLogger' && $row->context_message_key == 'post_updated' ) {\n             $context['post_type'] = 'my own page type';\n         }\n\n         return $context;\n     },\n     10,\n     3\n );\n```"
+            ]
         },
         {
             "name": "simple_history/logger/load_logger",
@@ -1302,13 +1401,44 @@
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "",
+                "description": "Filters who can read/view the messages from a single logger.",
                 "long_description": "",
-                "tags": [],
+                "tags": [
+                    {
+                        "name": "example",
+                        "content": "who can read a logger. <code>php // Modify who can read a logger. // Modify the if part to give users access or no access to a logger. add_filter(   'simple_history/loggers_user_can_read/can_read_single_logger',   function ( $user_can_read_logger, $logger_instance, $user_id ) {     // in this example user with id 3 gets access to the post logger     // while user with id 8 does not get any access to it     if ( $logger_instance-&gt;slug == 'SimplePostLogger' &amp;&amp; $user_id === 3 ) {       $user_can_read_logger = true;     } elseif ( $logger_instance-&gt;slug == 'SimplePostLogger' &amp;&amp; $user_id === 9 ) {       $user_can_read_logger = false;     }       return $user_can_read_logger;    },  10,  3 ); </code>"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Wheter the user is allowed to view the logger.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "Logger instance.",
+                        "types": [
+                            "\\SimpleLogger"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "Id of user.",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$user_id"
+                    }
+                ],
                 "long_description_html": ""
             },
             "args": 3,
-            "examples": []
+            "examples": [
+                "Modify who can read a logger.\n\n```php\n// Modify who can read a logger.\n// Modify the if part to give users access or no access to a logger.\nadd_filter(\n  'simple_history/loggers_user_can_read/can_read_single_logger',\n  function ( $user_can_read_logger, $logger_instance, $user_id ) {\n    // in this example user with id 3 gets access to the post logger\n    // while user with id 8 does not get any access to it\n    if ( $logger_instance->slug == 'SimplePostLogger' && $user_id === 3 ) {\n      $user_can_read_logger = true;\n    } elseif ( $logger_instance->slug == 'SimplePostLogger' && $user_id === 9 ) {\n      $user_can_read_logger = false;\n    }\n\n     return $user_can_read_logger;\n   },\n 10,\n 3\n);\n```"
+            ]
         },
         {
             "name": "simple_history/logrowhtmloutput/classes",
@@ -2292,13 +2422,28 @@
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "",
-                "long_description": "",
-                "tags": [],
-                "long_description_html": ""
+                "description": "Allows controlling who can manually clear the log.",
+                "long_description": "When this is true then the \"Clear\"-button in shown in the settings. When this is false then no button is shown.",
+                "tags": [
+                    {
+                        "name": "example",
+                        "content": "// Remove the \"Clear log\"-button, so a user with admin access can not clear the log  // and wipe their mischievous behavior from the log.  add_filter(      'simple_history/user_can_clear_log',      function ( $user_can_clear_log ) {          $user_can_clear_log = false;          return $user_can_clear_log;      }  ); ```"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Whether the current user is allowed to clear the log.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": "$allow"
+                    }
+                ],
+                "long_description_html": "<p>When this is true then the \"Clear\"-button in shown in the settings. When this is false then no button is shown.</p>"
             },
             "args": 1,
-            "examples": []
+            "examples": [
+                "```php\n // Remove the \"Clear log\"-button, so a user with admin access can not clear the log\n // and wipe their mischievous behavior from the log.\n add_filter(\n     'simple_history/user_can_clear_log',\n     function ( $user_can_clear_log ) {\n         $user_can_clear_log = false;\n         return $user_can_clear_log;\n     }\n );\n```"
+            ]
         },
         {
             "name": "simple_history/user_logger/plain_text_output_use_you",
@@ -2318,26 +2463,56 @@
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "",
-                "long_description": "",
-                "tags": [],
-                "long_description_html": ""
+                "description": "Filter the capability required to view main simple history page, with the activity feed.",
+                "long_description": "Default capability is \"edit_pages\".",
+                "tags": [
+                    {
+                        "name": "example",
+                        "content": "the capability required to view the log to \"manage options\", so only allow admins are allowed to view the history log page. <code>php  add_filter(      'simple_history/view_history_capability',      function ( $capability ) {          $capability = 'manage_options';          return $capability;      }  ); </code>"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$view_history_capability"
+                    }
+                ],
+                "long_description_html": "<p>Default capability is \"edit_pages\".</p>"
             },
             "args": 1,
-            "examples": []
+            "examples": [
+                "Change the capability required to view the log to \"manage options\", so only allow admins are allowed to view the history log page.\n\n```php\n add_filter(\n     'simple_history/view_history_capability',\n     function ( $capability ) {\n         $capability = 'manage_options';\n         return $capability;\n     }\n );\n```"
+            ]
         },
         {
             "name": "simple_history/view_settings_capability",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "",
+                "description": "Filters the capability required to view the settings page.",
                 "long_description": "",
-                "tags": [],
+                "tags": [
+                    {
+                        "name": "example",
+                        "content": "capability required to view the <code>php  add_filter(      'simple_history/view_settings_capability',      function ( $capability ) {           $capability = 'manage_options';          return $capability;      }  ); </code>"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$view_settings_capability"
+                    }
+                ],
                 "long_description_html": ""
             },
             "args": 1,
-            "examples": []
+            "examples": [
+                "Change capability required to view the\n\n```php\n add_filter(\n     'simple_history/view_settings_capability',\n     function ( $capability ) {\n\n         $capability = 'manage_options';\n         return $capability;\n     }\n );\n```"
+            ]
         },
         {
             "name": "simple_history_allow_db_purge",
@@ -2455,7 +2630,7 @@
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "",
+                "description": "Deprecated, use filter `simple_history/view_history_capability` instead.",
                 "long_description": "",
                 "tags": [],
                 "long_description_html": ""
@@ -2468,7 +2643,7 @@
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "",
+                "description": "Old filter name, use `simple_history/view_settings_capability` instead.",
                 "long_description": "",
                 "tags": [],
                 "long_description_html": ""

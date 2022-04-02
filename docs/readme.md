@@ -17,6 +17,7 @@ Run the following in the `docs`-folder to update `hooks/actions` and `hooks/filt
 
 ## Todo
 
+- [ ] Move examples from `examples.mdx` to the filters docs.
 - [ ] Add documentation to all actions and filters in plugin.
   - [ ] Select one filter to add for with mulitple examples, check forums for good example. Capability? do_log?
   - [ ] Test if possible to add markdown and better examples, multiline, directly in comment.
