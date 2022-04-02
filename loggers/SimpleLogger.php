@@ -1146,10 +1146,46 @@ class SimpleLogger {
 		}
 
 		/**
-		 * Filter that makes it possible to shortcut this log.
-		 * Return bool false to cancel.
+		 * Filter that makes it possible to shortcut the logging of a message.
+		 * Return bool false to cancel logging .
+		 *
+		 * @example Do not log some post types, for example pages and attachments in this case
+		 *
+		 * ```php
+		 *  add_filter(
+		 *      'simple_history/log/do_log',
+		 *      function ( $do_log = null, $level = null, $message = null, $context = null, $logger = null ) {
+		 *
+		 *          $post_types_to_not_log = array(
+		 *              'page',
+		 *              'attachment',
+		 *          );
+		 *
+		 *          if ( ( isset( $logger->slug ) && ( $logger->slug === 'SimplePostLogger' || $logger->slug === 'SimpleMediaLogger' ) ) && ( isset( $context['post_type'] ) && in_array( $context['post_type'], $post_types_to_not_log ) ) ) {
+		 *              $do_log = false;
+		 *          }
+		 *
+		 *          return $do_log;
+		 *      },
+		 *      10,
+		 *      5
+		 *  );
+		 * ```
+		 *
+		 * @example Disable all logging
+		 *
+		 * ```php
+		 *  // Disable all logging
+		 *  add_filter( 'simple_history/log/do_log', '__return_false' );
+		 * ```
 		 *
 		 * @since 2.3.1
+		 *
+		 * @param bool $doLog Wheter to log or not.
+		 * @param string $level The loglevel.
+		 * @param string $message The log message.
+		 * @param array $context The message context.
+		 * @param SimpleLogger $this Logger instance.
 		 */
 		$do_log = apply_filters(
 			'simple_history/log/do_log',
@@ -1159,6 +1195,7 @@ class SimpleLogger {
 			$context,
 			$this
 		);
+
 		if ( false === $do_log ) {
 			return $this;
 		}
