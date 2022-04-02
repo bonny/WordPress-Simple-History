@@ -2531,13 +2531,34 @@ Because Simple History was only recently installed, this feed does not display m
 			 *
 			 * Array is in format
 			 *
-			 *   Array
+			 * ```
+			 *  Array
 			 *   (
 			 *       [id] => 1
 			 *       [logger] => 1
 			 *       [level] => 1
 			 *       ...
 			 *   )
+			 * ```
+			 *
+			 * @example Hide some columns from the detailed context view popup window
+			 *
+			 * ```php
+			 *  add_filter(
+			 *      'simple_history/log_html_output_details_table/row_keys_to_show',
+			 *      function ( $logRowKeysToShow, $oneLogRow ) {
+			 *
+			 *          $logRowKeysToShow['id'] = false;
+			 *          $logRowKeysToShow['logger'] = false;
+			 *          $logRowKeysToShow['level'] = false;
+			 *          $logRowKeysToShow['message'] = false;
+			 *
+			 *          return $logRowKeysToShow;
+			 *      },
+			 *      10,
+			 *      2
+			 *  );
+			 * ```
 			 *
 			 * @since 2.0.29
 			 *
