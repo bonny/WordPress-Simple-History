@@ -13,13 +13,13 @@ export const HookTOCItem = ({ hook }) => {
  * @returns
  */
 function HookExamples({ hook }) {
-  if (!hook.examples_unencoded || !hook.examples_unencoded.length) {
+  if (!hook.examples || !hook.examples.length) {
     return null
   }
 
-  const examples_output = hook.examples_unencoded.map(example => {
+  const examples_output = hook.examples.map(example => {
     return (
-      <div>
+      <div key={example}>
         <pre>
           <code>{example}</code>
         </pre>

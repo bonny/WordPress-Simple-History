@@ -25,9 +25,7 @@
                 "long_description_html": "<p>Can for example be used by dropins can to add their own custom loggers.</p> <p>See register_dropin() for more info.</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/add_custom_logger",
@@ -53,9 +51,7 @@
                 "long_description_html": "<p>Can for example be used by plugin to load their own custom loggers.</p> <p>See register_logger() for more info.</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/admin_footer",
@@ -68,9 +64,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/admin_head",
@@ -83,9 +77,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/after_init",
@@ -111,9 +103,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/before_init",
@@ -139,9 +129,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/dashboard/before_gui",
@@ -154,9 +142,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/dropin/sidebar/sidebar_html",
@@ -174,9 +160,7 @@
                 "long_description_html": ""
             },
             "args": 0,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/enqueue_admin_scripts",
@@ -202,9 +186,7 @@
                 "long_description_html": "<p>Only fires on any of the pages where Simple History is used</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/history_page/after_gui",
@@ -230,9 +212,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/history_page/before_gui",
@@ -258,9 +238,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log/inserted",
@@ -302,9 +280,7 @@
                 "long_description_html": ""
             },
             "args": 3,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/loggers_loaded",
@@ -317,9 +293,7 @@
                 "long_description_html": ""
             },
             "args": 0,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         }
     ]
 }

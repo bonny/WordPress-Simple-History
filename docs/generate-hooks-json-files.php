@@ -176,30 +176,15 @@ function export_hooks( array $hooks, string $path ) : array {
 		$doc['long_description_html'] = $doc['long_description'];
 
         $examples = [];
-        $examples_unencoded = [];
-        $examples_encoded = [];
-        $examples_serialized = [];
 
 		if ( $docblock ) {
 
-			// if ($hook->getName() === 'simple_history/rss_feed_args') {
-				foreach ( $docblock->getTags() as $tag ) {
-					if ($tag->getName() === 'example') {
-						#echo "\n\n----- one tag -----\n";
-						// echo "\ngetName(): " . $tag->getName();
-						#echo "\ngetContent():\n" . $tag->getContent();
-						//echo "\ngetDescription(): " . $tag->getDescription();
-                        //print_r($tag);
-						// echo "\ngetParsedDescripion(): "; print_r($tag->getParsedDescription());
-                        // var_dump( $tag->getContent());
-                        $examples_unencoded[] = $tag->getContent();
-                        $examples_encoded[] = json_encode( $tag->getContent() );
-                        $examples_serialized[] = serialize( $tag->getContent() );
-					}
-                    
+			foreach ( $docblock->getTags() as $tag ) {
+				if ($tag->getName() === 'example') {
+					$examples[] = $tag->getContent();
 				}
-				// exit;
-			// }
+				
+			}
 	
 			$doc['long_description'] = \WP_Parser\fix_newlines( $docblock->getLongDescription() );
 			$doc['long_description'] = str_replace(
@@ -224,9 +209,7 @@ function export_hooks( array $hooks, string $path ) : array {
 			'type'     => $hook->getType(),
 			'doc'      => $doc,
 			'args'     => count( $hook->getNode()->args ) - 1,
-            'examples_unencoded' => $examples_unencoded,
-            'examples_encoded' => $examples_encoded,
-            'examples_serialized' => $examples_serialized,
+            'examples' => $examples,
 		);
 	}
 

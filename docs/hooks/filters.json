@@ -25,9 +25,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "SimpleHistoryFilterDropin/filter_default_search_string",
@@ -53,9 +51,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "SimpleHistoryFilterDropin/filter_default_user_ids",
@@ -68,9 +64,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "SimpleHistoryFilterDropin/show_more_filters_on_load",
@@ -96,9 +90,7 @@
                 "long_description_html": "<p>Set to true to show the filters when page is loaded If false then user must click \"Show options\"</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "SimpleHistoryNewRowsNotifier/interval",
@@ -111,9 +103,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "get_avatar",
@@ -165,9 +155,7 @@
                 "long_description_html": "<p>Same filter WordPress uses</p>"
             },
             "args": 5,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "plugin_locale",
@@ -180,9 +168,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/SidebarDropin/default_sidebar_boxes",
@@ -208,9 +194,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/add_admin_bar_menu_item",
@@ -236,9 +220,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/add_admin_bar_network_menu_item",
@@ -264,9 +246,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/admin_location",
@@ -279,9 +259,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/admin_location",
@@ -294,9 +272,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/admin_location",
@@ -309,9 +285,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/admin_location",
@@ -324,9 +298,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/admin_location",
@@ -339,9 +311,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/allow_db_purge",
@@ -354,9 +324,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/categories_logger/skip_taxonomies",
@@ -369,9 +337,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/comments_logger/include_spam",
@@ -397,9 +363,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/comments_logger/log_failed_password",
@@ -425,9 +389,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/comments_logger/log_not_existing_user_password",
@@ -453,9 +415,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/comments_logger/row_details_plugin_info_keys",
@@ -468,9 +428,7 @@
                 "long_description_html": "<p>The hook also fires immediately before comment status transition hooks are fired.</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/dashboard_pager_size",
@@ -496,9 +454,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/db_purge_days_interval",
@@ -511,9 +467,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/db_table",
@@ -539,9 +493,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/dropin/load_dropin",
@@ -575,9 +527,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/dropin/load_dropin_{$oneDropinFileBasename}",
@@ -603,9 +553,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/dropins_files",
@@ -631,9 +579,7 @@
                 "long_description_html": "<p>Each file will be loaded and will be assumed to be a dropin with a classname the same as the filename.</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/dropins_to_instantiate",
@@ -659,9 +605,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/header_initiator_html_existing_user",
@@ -687,9 +631,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/header_initiator_use_you",
@@ -702,9 +644,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/header_just_now_max_time",
@@ -730,9 +670,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/header_time_ago_max_time",
@@ -758,9 +696,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log/do_log",
@@ -778,9 +714,7 @@
                 "long_description_html": "<p>Return bool false to cancel.</p>"
             },
             "args": 5,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log/do_log/{$this->slug}",
@@ -798,9 +732,7 @@
                 "long_description_html": "<p>Example filter name: simple_history/log/do_log/SimpleUserLogger simple_history/log/do_log/SimplePostLogger</p> <p>Example to disable logging of any user login/logout/failed login activity: add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false')</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log/do_log/{$this->slug}/{$message_key}",
@@ -818,9 +750,7 @@
                 "long_description_html": "<p>Example filter name: simple_history/log/do_log/SimpleUserLogger/user_logged_in simple_history/log/do_log/SimplePostLogger/post_updated</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_argument/context",
@@ -833,9 +763,7 @@
                 "long_description_html": ""
             },
             "args": 4,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_argument/level",
@@ -848,9 +776,7 @@
                 "long_description_html": ""
             },
             "args": 4,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_argument/message",
@@ -863,9 +789,7 @@
                 "long_description_html": ""
             },
             "args": 4,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_arguments",
@@ -915,9 +839,7 @@
                 "long_description_html": ""
             },
             "args": 4,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_html_output_details_single/html_after_context_table",
@@ -930,9 +852,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_html_output_details_single/html_before_context_table",
@@ -945,9 +865,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_html_output_details_table/context_keys_to_show",
@@ -981,9 +899,7 @@
                 "long_description_html": "<p>Array is in format</p> <p>Array ( [plugin_slug] =&gt; 1 [plugin_name] =&gt; 1 [plugin_title] =&gt; 1 [plugin_description] =&gt; 1 [plugin_author] =&gt; 1 [plugin_version] =&gt; 1 ... )</p>"
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_html_output_details_table/row_keys_to_show",
@@ -1017,9 +933,7 @@
                 "long_description_html": "<p>Array is in format</p> <p>Array ( [id] =&gt; 1 [logger] =&gt; 1 [level] =&gt; 1 ... )</p>"
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_insert_context",
@@ -1061,9 +975,7 @@
                 "long_description_html": ""
             },
             "args": 3,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_insert_data",
@@ -1089,9 +1001,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_query_inner_where",
@@ -1117,9 +1027,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_query_limit",
@@ -1145,9 +1053,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_query_sql",
@@ -1173,9 +1079,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_query_sql_template",
@@ -1201,9 +1105,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/log_query_sql_where",
@@ -1229,9 +1131,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/logger/interpolate/context",
@@ -1249,9 +1149,7 @@
                 "long_description_html": ""
             },
             "args": 3,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/logger/load_logger",
@@ -1285,9 +1183,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/logger_db_table_contexts",
@@ -1313,9 +1209,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/loggers_files",
@@ -1341,9 +1235,7 @@
                 "long_description_html": "<p>Each file will be loaded and will be assumed to be a logger with a classname the same as the filename.</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/loggers_to_instantiate",
@@ -1369,9 +1261,7 @@
                 "long_description_html": "<p>Array ( [0] =&gt; SimpleCommentsLogger [1] =&gt; SimpleCoreUpdatesLogger ... )</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/loggers_user_can_read",
@@ -1405,9 +1295,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/loggers_user_can_read/can_read_single_logger",
@@ -1420,9 +1308,7 @@
                 "long_description_html": ""
             },
             "args": 3,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/logrowhtmloutput/classes",
@@ -1446,9 +1332,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/page_pager_size",
@@ -1474,9 +1358,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/pager_size",
@@ -1502,9 +1384,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/pager_size_dashboard",
@@ -1530,9 +1410,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/plugin_logger/row_details_plugin_info_keys",
@@ -1545,9 +1423,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/context",
@@ -1612,9 +1488,7 @@
                 "long_description_html": ""
             },
             "args": 5,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/keys_to_diff",
@@ -1627,9 +1501,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/label_for_key",
@@ -1642,9 +1514,7 @@
                 "long_description_html": ""
             },
             "args": 3,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/post_deleted/ok_to_log",
@@ -1685,9 +1555,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/post_types",
@@ -1720,9 +1588,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/post_updated/context",
@@ -1752,9 +1618,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/post_updated/diff_table_output",
@@ -1791,9 +1655,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/post_updated/ok_to_log",
@@ -1844,9 +1706,7 @@
                 "long_description_html": ""
             },
             "args": 4,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/post_logger/skip_posttypes",
@@ -1864,9 +1724,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/privacy/anonymize_ip_address",
@@ -1899,9 +1757,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/quick_stats_where",
@@ -1914,9 +1770,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/row_details_output",
@@ -1950,9 +1804,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/row_header_date_output",
@@ -1986,9 +1838,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/row_header_initiator_output",
@@ -2022,9 +1872,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/row_header_output",
@@ -2058,9 +1906,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/row_header_output/display_ip_address",
@@ -2094,9 +1940,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/row_header_output/template",
@@ -2130,9 +1974,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/row_plain_text_output",
@@ -2166,9 +2008,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/row_sender_image_output",
@@ -2202,9 +2042,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/rss_feed_args",
@@ -2241,17 +2079,9 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [
+            "examples": [
                 "Change number of posts to retreieve in RSS feed.\n\n// This example changes the number of posts in the RSS feed to 50 from the default 10.\n\n```php\n add_filter(\n   'simple_history/rss_feed_args',\n     function( $args ) {\n       $args['posts_per_page'] = 50;\n       return $args;\n    }\n);",
                 "Change number of posts to retreieve in RSS feed.\n\n// This example changes the number of posts in the RSS feed to 20 from the default 10.\n\n```php\n add_filter(\n   'simple_history/rss_feed_args',\n     function( $args ) {\n       $args['posts_per_page'] = 20;\n       return $args;\n    }\n);"
-            ],
-            "examples_encoded": [
-                "\"Change number of posts to retreieve in RSS feed.\\n\\n\\/\\/ This example changes the number of posts in the RSS feed to 50 from the default 10.\\n\\n```php\\n add_filter(\\n   'simple_history\\/rss_feed_args',\\n     function( $args ) {\\n       $args['posts_per_page'] = 50;\\n       return $args;\\n    }\\n);\"",
-                "\"Change number of posts to retreieve in RSS feed.\\n\\n\\/\\/ This example changes the number of posts in the RSS feed to 20 from the default 10.\\n\\n```php\\n add_filter(\\n   'simple_history\\/rss_feed_args',\\n     function( $args ) {\\n       $args['posts_per_page'] = 20;\\n       return $args;\\n    }\\n);\""
-            ],
-            "examples_serialized": [
-                "s:284:\"Change number of posts to retreieve in RSS feed.\n\n// This example changes the number of posts in the RSS feed to 50 from the default 10.\n\n```php\n add_filter(\n   'simple_history/rss_feed_args',\n     function( $args ) {\n       $args['posts_per_page'] = 50;\n       return $args;\n    }\n);\";",
-                "s:284:\"Change number of posts to retreieve in RSS feed.\n\n// This example changes the number of posts in the RSS feed to 20 from the default 10.\n\n```php\n add_filter(\n   'simple_history/rss_feed_args',\n     function( $args ) {\n       $args['posts_per_page'] = 20;\n       return $args;\n    }\n);\";"
             ]
         },
         {
@@ -2265,9 +2095,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/rss_item_link",
@@ -2301,9 +2129,7 @@
                 "long_description_html": "<p>Link will be esc_url'ed by simple history, so no need to do that in your filter</p>"
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/settings_page_pager_size",
@@ -2329,9 +2155,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/show_dashboard_page",
@@ -2357,9 +2181,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/show_dashboard_widget",
@@ -2385,9 +2207,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/show_settings_page",
@@ -2400,9 +2220,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/simple_logger/log_message_key",
@@ -2467,9 +2285,7 @@
                 "long_description_html": ""
             },
             "args": 5,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/user_can_clear_log",
@@ -2482,9 +2298,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/user_logger/plain_text_output_use_you",
@@ -2497,9 +2311,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/view_history_capability",
@@ -2512,9 +2324,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history/view_settings_capability",
@@ -2527,9 +2337,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_allow_db_purge",
@@ -2542,9 +2350,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_db_purge_days_interval",
@@ -2564,9 +2370,7 @@
                 "long_description_html": "<p>Default is 60 days.</p>"
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_log",
@@ -2579,9 +2383,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_log",
@@ -2594,9 +2396,7 @@
                 "long_description_html": ""
             },
             "args": 2,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_log",
@@ -2609,9 +2409,7 @@
                 "long_description_html": ""
             },
             "args": 3,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_show_as_page",
@@ -2624,9 +2422,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_show_on_dashboard",
@@ -2639,9 +2435,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_show_settings_page",
@@ -2654,9 +2448,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_view_history_capability",
@@ -2669,9 +2461,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         },
         {
             "name": "simple_history_view_settings_capability",
@@ -2684,9 +2474,7 @@
                 "long_description_html": ""
             },
             "args": 1,
-            "examples_unencoded": [],
-            "examples_encoded": [],
-            "examples_serialized": []
+            "examples": []
         }
     ]
 }
