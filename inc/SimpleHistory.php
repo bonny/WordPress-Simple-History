@@ -781,22 +781,22 @@ class SimpleHistory {
 		 * Allows controlling who can manually clear the log.
 		 * When this is true then the "Clear"-button in shown in the settings.
 		 * When this is false then no button is shown.
-		 * 
+		 *
 		 * @example
 		 * ```php
-		 *	// Remove the "Clear log"-button, so a user with admin access can not clear the log
-		 *	// and wipe their mischievous behavior from the log.
-		 *	add_filter(
-		 *		'simple_history/user_can_clear_log',
-		 *		function ( $user_can_clear_log ) {
-		 *			$user_can_clear_log = false;
-		 *			return $user_can_clear_log;
-		 *		}
-		 *	);
+		 *  // Remove the "Clear log"-button, so a user with admin access can not clear the log
+		 *  // and wipe their mischievous behavior from the log.
+		 *  add_filter(
+		 *      'simple_history/user_can_clear_log',
+		 *      function ( $user_can_clear_log ) {
+		 *          $user_can_clear_log = false;
+		 *          return $user_can_clear_log;
+		 *      }
+		 *  );
 		 * ```
-		 * 
+		 *
 		 * @param bool $allow Whether the current user is allowed to clear the log.
-		*/		
+		*/
 		return apply_filters( 'simple_history/user_can_clear_log', true );
 	}
 
@@ -2795,8 +2795,38 @@ Because Simple History was only recently installed, this feed does not display m
 		foreach ( $loggers as $one_logger ) {
 			$logger_capability = $one_logger['instance']->getCapability();
 
-			// $arr_loggers_user_can_view = apply_filters("simple_history/loggers_user_can_read", $user_id, $arr_loggers_user_can_view);
 			$user_can_read_logger = user_can( $user_id, $logger_capability );
+
+			/**
+			 * Filters who can read/view the messages from a single logger.
+			 *
+			 * @example Modify who can read a logger.
+			 *
+			 * ```php
+			 * // Modify who can read a logger.
+			 * // Modify the if part to give users access or no access to a logger.
+			 * add_filter(
+			 *   'simple_history/loggers_user_can_read/can_read_single_logger',
+			 *   function ( $user_can_read_logger, $logger_instance, $user_id ) {
+			 *     // in this example user with id 3 gets access to the post logger
+			 *     // while user with id 8 does not get any access to it
+			 *     if ( $logger_instance->slug == 'SimplePostLogger' && $user_id === 3 ) {
+			 *       $user_can_read_logger = true;
+			 *     } elseif ( $logger_instance->slug == 'SimplePostLogger' && $user_id === 9 ) {
+			 *       $user_can_read_logger = false;
+			 *     }
+			 *
+			 *      return $user_can_read_logger;
+			 *    },
+			 *  10,
+			 *  3
+			 * );
+			 * ```
+			 *
+			 * @param bool Wheter the user is allowed to view the logger.
+			 * @param SimpleLogger Logger instance.
+			 * @param int $user_id Id of user.
+			 */
 			$user_can_read_logger = apply_filters(
 				'simple_history/loggers_user_can_read/can_read_single_logger',
 				$user_can_read_logger,
