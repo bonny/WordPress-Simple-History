@@ -8,6 +8,9 @@ export default {
   prevLinks: true,
   search: true,
   customSearch: null, // customizable, you can use algolia for example
+  unstable_flexsearch: true,
+  unstable_staticImage: true,
+  floatTOC: true,
   darkMode: true,
   footer: true,
   footerText: `${new Date().getFullYear()} © Pär Thernström.`,
@@ -30,6 +33,5 @@ export default {
       <meta name="og:title" content="Simple History Documentation" />
     </>
   ),
-  unstable_faviconGlyph: '📄',
-  floatTOC: true
+  unstable_faviconGlyph: '📄'
 }
