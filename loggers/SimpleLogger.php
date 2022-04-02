@@ -1439,8 +1439,8 @@ class SimpleLogger {
 
 		// Detect REST calls and append to context, if not already there.
 		$isRestApiRequest =
-		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
-		( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		( defined( 'REST_API_REQUEST' ) && constant( 'REST_API_REQUEST' ) ) ||
+		( defined( 'REST_REQUEST' ) && constant( 'REST_REQUEST' ) );
 		if ( $isRestApiRequest ) {
 			$context['_rest_api_request'] = true;
 		}
