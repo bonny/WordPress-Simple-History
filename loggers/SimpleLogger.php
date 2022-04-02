@@ -1580,7 +1580,27 @@ class SimpleLogger {
 			}
 
 			/**
-			 * Filter the context to store for this event/row
+			 * Filters the context to store for this event/row
+			 *
+			 * @example Skip adding things to the context table during logging.
+			 * Useful if you don't want to add cool and possible super useful info to your logged events.
+			 * Also nice to have if you want to make sure your database does not grow.
+			 *
+			 * ```php
+			 *  add_filter(
+			 *      'simple_history/log_insert_context',
+			 *      function ( $context, $data ) {
+			 *          unset( $context['_user_id'] );
+			 *          unset( $context['_user_login'] );
+			 *          unset( $context['_user_email'] );
+			 *          unset( $context['server_http_user_agent'] );
+			 *
+			 *          return $context;
+			 *      },
+			 *      10,
+			 *      2
+			 *  );
+			 * ```
 			 *
 			 * @since 2.0.29
 			 *
