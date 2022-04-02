@@ -743,14 +743,38 @@ class SimpleHistory {
 	}
 
 	/**
-	 * Return capability required to view history = for who will the History page be added
+	 * Return capability required to view history = for who will the History page be added.
+	 * Default capability is "edit_pages".
 	 *
 	 * @since 2.1.5
 	 * @return string capability
 	 */
 	public function get_view_history_capability() {
 		$view_history_capability = 'edit_pages';
+
+		/**
+		 * Deprecated, use filter `simple_history/view_history_capability` instead.
+		 */
 		$view_history_capability = apply_filters( 'simple_history_view_history_capability', $view_history_capability );
+
+		/**
+		 * Filter the capability required to view main simple history page, with the activity feed.
+		 * Default capability is "edit_pages".
+		 *
+		 * @example Change the capability required to view the log to "manage options", so only allow admins are allowed to view the history log page.
+		 *
+		 * ```php
+		 *  add_filter(
+		 *      'simple_history/view_history_capability',
+		 *      function ( $capability ) {
+		 *          $capability = 'manage_options';
+		 *          return $capability;
+		 *      }
+		 *  );
+		 * ```
+		 *
+		 * @param string $view_history_capability
+		 */
 		$view_history_capability = apply_filters( 'simple_history/view_history_capability', $view_history_capability );
 
 		return $view_history_capability;
@@ -774,9 +798,8 @@ class SimpleHistory {
 
 		/**
 		 * Filters the capability required to view the settings page.
-		 * Default capability is "manage_options".
 		 *
-		 * @example Change capability required to manage the options page of simple history.
+		 * @example Change capability required to view the
 		 *
 		 * ```php
 		 *  add_filter(
@@ -788,7 +811,7 @@ class SimpleHistory {
 		 *      }
 		 *  );
 		 * ```
-		 * 
+		 *
 		 * @param string $view_settings_capability
 		 */
 		$view_settings_capability = apply_filters( 'simple_history/view_settings_capability', $view_settings_capability );
