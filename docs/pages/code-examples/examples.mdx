@@ -11,25 +11,10 @@
  * Misc
  */
 
-// Add $_GET, $_POST, and more info to each logged event.
-define( 'SIMPLE_HISTORY_LOG_DEBUG', true );
-
 
 /**
  * Some examples of filter usage and so on
  */
-
-/**
- * Remove the "Clear log"-button, so a user with admin access can not clear the log
- * and wipe their mischievous behavior from the log.
- */
-add_filter(
-	'simple_history/user_can_clear_log',
-	function ( $user_can_clear_log ) {
-		$user_can_clear_log = false;
-		return $user_can_clear_log;
-	}
-);
 
 // Modify who can read a logger.
 // Modify the if part to give users access or no access to a logger.

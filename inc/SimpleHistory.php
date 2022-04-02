@@ -771,15 +771,33 @@ class SimpleHistory {
 	}
 
 	/**
-	 * Check if the current user can clear the log
+	 * Check if the current user can clear the log.
 	 *
 	 * @since 2.19
 	 * @return bool
 	 */
 	public function user_can_clear_log() {
-		$user_can_clear_log = apply_filters( 'simple_history/user_can_clear_log', true );
-
-		return $user_can_clear_log;
+		/**
+		 * Allows controlling who can manually clear the log.
+		 * When this is true then the "Clear"-button in shown in the settings.
+		 * When this is false then no button is shown.
+		 * 
+		 * @example
+		 * ```php
+		 *	// Remove the "Clear log"-button, so a user with admin access can not clear the log
+		 *	// and wipe their mischievous behavior from the log.
+		 *	add_filter(
+		 *		'simple_history/user_can_clear_log',
+		 *		function ( $user_can_clear_log ) {
+		 *			$user_can_clear_log = false;
+		 *			return $user_can_clear_log;
+		 *		}
+		 *	);
+		 * ```
+		 * 
+		 * @param bool $allow Whether the current user is allowed to clear the log.
+		*/		
+		return apply_filters( 'simple_history/user_can_clear_log', true );
 	}
 
 	/**
