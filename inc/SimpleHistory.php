@@ -813,7 +813,7 @@ class SimpleHistory {
 			),
 		);
 
-		if ( defined( 'SIMPLE_HISTORY_DEV' ) && SIMPLE_HISTORY_DEV ) {
+		if ( defined( 'SIMPLE_HISTORY_DEV' ) && constant( 'SIMPLE_HISTORY_DEV' ) ) {
 			$arr_dev_tabs = array(
 				array(
 					'slug' => 'log',
