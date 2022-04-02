@@ -148,9 +148,38 @@ class SimpleLogger {
 		}
 
 		/**
-		 * Filter the context used to create the message from the message template
+		 * Filters the context used to create the message from the message template.
+		 * Can be used to modify the variables sent to the message template.
+		 *
+		 * @example Example that modifies the parameters sent to the message template.
+		 *
+		 * This example will change the post type from "post" or "page" or similar to "my own page type".
+		 *
+		 *  ```php
+		 *  add_filter(
+		 *      'simple_history/logger/interpolate/context',
+		 *      function ( $context, $message, $row ) {
+		 *
+		 *          if ( empty( $row ) ) {
+		 *              return $context;
+		 *          }
+		 *
+		 *          if ( $row->logger == 'SimplePostLogger' && $row->context_message_key == 'post_updated' ) {
+		 *              $context['post_type'] = 'my own page type';
+		 *          }
+		 *
+		 *          return $context;
+		 *      },
+		 *      10,
+		 *      3
+		 *  );
+		 * ```
 		 *
 		 * @since 2.2.4
+		 *
+		 * @param array $context
+		 * @param string $message
+		 * @param array $row The row. Not supported by all loggers.
 		 */
 		$context = apply_filters(
 			'simple_history/logger/interpolate/context',
