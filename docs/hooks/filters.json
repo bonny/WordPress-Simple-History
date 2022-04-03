@@ -461,13 +461,33 @@
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "",
-                "long_description": "",
-                "tags": [],
-                "long_description_html": ""
+                "description": "Filter to modify number of days of history to keep.",
+                "long_description": "Default is 60 days.",
+                "tags": [
+                    {
+                        "name": "example",
+                        "content": "only the most recent 7 days in the log. <code>php add_filter( \"simple_history/db_purge_days_interval\", function( $days ) {      $days = 7;      return $days;  } ); </code>"
+                    },
+                    {
+                        "name": "example",
+                        "content": "the log to keep 90 days in the log. <code>php add_filter( \"simple_history/db_purge_days_interval\", function( $days ) {      $days = 90;      return $days;  } ); </code>"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Number of days of history to keep",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$days"
+                    }
+                ],
+                "long_description_html": "<p>Default is 60 days.</p>"
             },
             "args": 1,
-            "examples": []
+            "examples": [
+                "Keep only the most recent 7 days in the log.\n\n```php\nadd_filter( \"simple_history/db_purge_days_interval\", function( $days ) {\n     $days = 7;\n     return $days;\n } );\n```",
+                "Expand the log to keep 90 days in the log.\n\n```php\nadd_filter( \"simple_history/db_purge_days_interval\", function( $days ) {\n     $days = 90;\n     return $days;\n } );\n```"
+            ]
         },
         {
             "name": "simple_history/db_table",
@@ -1862,8 +1882,12 @@
             "type": "filter",
             "doc": {
                 "description": "Filter to control if ip addresses should be anonymized or not.",
-                "long_description": "",
+                "long_description": "Defaults to true, meaning that any IP address is anonymized.",
                 "tags": [
+                    {
+                        "name": "example",
+                        "content": "IP anonymization. <code>php add_filter( 'simple_history/privacy/anonymize_ip_address', '__return_false' ); </code>"
+                    },
                     {
                         "name": "since",
                         "content": "2.22"
@@ -1875,19 +1899,14 @@
                             "bool"
                         ],
                         "variable": ""
-                    },
-                    {
-                        "name": "return",
-                        "content": "",
-                        "types": [
-                            "bool"
-                        ]
                     }
                 ],
-                "long_description_html": ""
+                "long_description_html": "<p>Defaults to true, meaning that any IP address is anonymized.</p>"
             },
             "args": 1,
-            "examples": []
+            "examples": [
+                "Disable IP anonymization.\n\n```php\nadd_filter( 'simple_history/privacy/anonymize_ip_address', '__return_false' );\n```"
+            ]
         },
         {
             "name": "simple_history/quick_stats_where",
@@ -2532,17 +2551,10 @@
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "Filter to modify number of days of history to keep.",
-                "long_description": "Default is 60 days.",
-                "tags": [
-                    {
-                        "name": "param",
-                        "content": "Number of days of history to keep",
-                        "types": [],
-                        "variable": "$days"
-                    }
-                ],
-                "long_description_html": "<p>Default is 60 days.</p>"
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
             },
             "args": 1,
             "examples": []
