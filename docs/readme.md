@@ -17,9 +17,8 @@ Run the following in the `docs`-folder to update `hooks/actions` and `hooks/filt
 
 ## Todo
 
-- [ ] Move examples from `examples.mdx` to the filters docs.
-- [ ] Add documentation to all actions and filters in plugin.
-  - [ ] Select one filter to add for with mulitple examples, check forums for good example. Capability? do_log?
-  - [ ] Test if possible to add markdown and better examples, multiline, directly in comment.
-  - [ ] "Fires ..." is what WP uses for actions, "Filters ..." is what WP uses for filters.
-- [ ] Syntax highlighting for `apply_filters...`
+- [ ] Add link to WordPress.org support forum
+- [ ] Add link to Simple-History.com main site
+- [ ] Add syntax highlighting to documentation `apply_filters...` and examples.
+- [ ] Merge into `main`, no reason to work from branch now when it's up and running.
+- [ ] Automattic deploy using GitHub Actions.
