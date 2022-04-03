@@ -1,0 +1,85 @@
+# Frequently Asked Questions
+
+This pages answers some of the most common questions asked in the
+[support forum](https://wordpress.org/support/plugin/simple-history/).
+
+## How do I control what is logged?
+
+> I believe Simple History is adding to much information to the log. Can I limit what is logged?
+
+Yes, there are some **useful filters** you can use to control
+what is being added to the log:
+
+- [`simple_history/log/do_log`](/hooks#simple_history/log/do_log)
+- [`simple_history/log/do_log/{$this->slug}/{$message_key}`](/hooks#simple_history/log/do_log/{$this->slug}/{$message_key})
+- [`simple_history/log/do_log/{$this->slug}`](/hooks#simple_history/log/do_log/{$this->slug})
+
+## Can I log when a user does something on my website, like visits a page?
+
+Yes, using the [Logging API](/logging) you can add anything you want to the log.
+
+Here are some examples:
+
+```php
+// Add a message to the log when a user visits a page on your site.
+add_action( 'wp_footer', 'trackUserActivity' );
+function trackUserActivity() {
+  $user = wp_get_current_user();
+  $user_email = $user->user_email;
+  $page_title = get_the_title();
+  $msg = "User $user_email viewed page $page_title";
+  apply_filters( 'simple_history_log', $msg );
+}
+```
+
+## Can the RSS feed show more than 10 items?
+
+Yes, you can use the filter [`simple_history/rss_feed_args`](/hooks#simple_history/rss_feed_args)
+to change how many items are included.
+
+## Can the log be shown on the front of my website?
+
+No, there is no built in support for displaying the log on the frontend of a website.
+
+If you are a developer you can use the [SimpleHistoryLogQuery](https://github.com/bonny/WordPress-Simple-History/blob/main/inc/SimpleHistoryLogQuery.php)
+class to query the log manually and display the results.
+
+## How do I clear the log?
+
+Items in the log are removed automatically after 60 days.
+
+There's also a **"Clear log now"-button** on the _Settings_ -> _Simple History_ screen.
+
+## Log thing more than 60 days
+
+https://wordpress.org/support/topic/can-we-extend-the-history-length/
+https://wordpress.org/support/topic/log-360-days/
+https://wordpress.org/support/topic/ability-to-change-delete-after-60-day-feature-request/
+https://wordpress.org/support/topic/possible-to-go-back-further-than-60-days/
+https://wordpress.org/support/topic/is-it-possible-to-change-the-60-days-to-say-90-days/
+
+## Track things that happen on the frontend
+
+https://wordpress.org/support/topic/log-with-javascript/
+https://wordpress.org/support/topic/track-also-download-files/
+https://wordpress.org/support/topic/trigger-custom-log-through-js-event/
+
+## How can I see the IP address of an event?
+
+https://wordpress.org/support/topic/ip-address-log/
+https://wordpress.org/support/topic/how-do-i-find-the-ip-of-who-logged-in/
+https://wordpress.org/support/topic/ip-of-logged-in-user/
+
+## Why is the IP address always end with a zero (0)
+
+https://wordpress.org/support/topic/how-to-use-anonymize_ip_address/
+
+## Who is the "other" user?
+
+https://wordpress.org/support/topic/who-is-user-called-other/
+
+## Is the plugin GDPR complient?
+
+https://wordpress.org/support/topic/gdpr-compliance-66/
+https://wordpress.org/support/topic/gdpr-compliance-250/
+https://wordpress.org/support/topic/is-that-plugin-gdpr-conform/
