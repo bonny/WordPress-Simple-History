@@ -1511,11 +1511,17 @@ class SimpleLogger {
 
 				/**
 				 * Filter to control if ip addresses should be anonymized or not.
+				 * Defaults to true, meaning that any IP address is anonymized.
+				 *
+				 * @example Disable IP anonymization.
+				 *
+				 * ```php
+				 * add_filter( 'simple_history/privacy/anonymize_ip_address', '__return_false' );
+				 * ```
 				 *
 				 * @since 2.22
 				 *
 				 * @param bool true to anonymize ip address, false to keep original ip address.
-				 * @return bool
 				 */
 				$anonymize_ip_address = apply_filters(
 					'simple_history/privacy/anonymize_ip_address',
