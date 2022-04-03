@@ -2168,13 +2168,33 @@ Because Simple History was only recently installed, this feed does not display m
 	public function get_clear_history_interval() {
 		$days = 60;
 
+		// Deprecated filter name, use `simple_history/db_purge_days_interval` instead.
+		$days = (int) apply_filters( 'simple_history_db_purge_days_interval', $days );
+
 		/**
 		 * Filter to modify number of days of history to keep.
 		 * Default is 60 days.
 		 *
-		 * @param $days Number of days of history to keep
+		 * @example Keep only the most recent 7 days in the log.
+		 *
+		 * ```php
+		 * add_filter( "simple_history/db_purge_days_interval", function( $days ) {
+		 *      $days = 7;
+		 *      return $days;
+		 *  } );
+		 * ```
+		 * 
+		 * @example Expand the log to keep 90 days in the log.
+		 *
+		 * ```php
+		 * add_filter( "simple_history/db_purge_days_interval", function( $days ) {
+		 *      $days = 90;
+		 *      return $days;
+		 *  } );
+		 * ```
+		 *
+		 * @param int $days Number of days of history to keep
 		 */
-		$days = (int) apply_filters( 'simple_history_db_purge_days_interval', $days );
 		$days = (int) apply_filters( 'simple_history/db_purge_days_interval', $days );
 
 		return $days;
