@@ -1,11 +1,13 @@
-Site is built using [Nextra](https://github.com/shuding/nextra).
-Documents use [MDX](https://mdxjs.com/) for formatting.
+# Docs
 
-## Deploy
+This folder is used to generated the docs at https://docs.simple-history.com/.
 
-Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.com.
+Site is built using [Nextra](https://github.com/shuding/nextra) and the pages use [MDX](https://mdxjs.com/) for formatting.
 
-    $ git push dokku feature/docs:master
+## Local development
+
+- `$ nvm use` to switch Node version.
+- `$ npm run dev` to start dev server.
 
 ## Update list of hooks
 
@@ -14,6 +16,12 @@ Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.
 Run the following in the `docs`-folder to update `hooks/actions` and `hooks/filters`:
 
     $ npm run update-hooks-from-source
+
+## Deploy
+
+Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.com.
+
+    $ git push dokku main:master
 
 ## Todo
 

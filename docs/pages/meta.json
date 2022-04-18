@@ -1,0 +1,17 @@
+{
+	"index": {
+		"title": "Home",
+		"hidden": false
+	},
+	"logging": "Logging",
+	"code-examples": "Code examples",
+	"hooks": "Hooks (actions & filters)",
+	"log-levels": "Log Levels",
+	"translate": "Translate",
+	"faq": "FAQ",
+	"support": "Support Forum",
+	"404": {
+		"title": "Page not found",
+		"hidden": true
+	}
+}
