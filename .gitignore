@@ -11,5 +11,4 @@ vendor
 workspace.code-workspace
 data/
 tests/_data/dump.sql
-
 docs/.vscode/settings.json
