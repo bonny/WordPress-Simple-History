@@ -27,7 +27,7 @@
   "dependencies": {},
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && pretty-quick --staged"
+      "disabled-pre-commit": "lint-staged && pretty-quick --staged"
     }
   },
   "scripts": {

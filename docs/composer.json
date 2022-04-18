@@ -1,0 +1,9 @@
+{
+	"name": "simple-history/docs",
+	"description": "Documentation for Simple History",
+	"license": "GPL-3.0-or-later",
+	"minimum-stability": "dev",
+	"require": {
+		"johnbillion/wp-hooks-generator": "^0.7.3"
+	}
+}

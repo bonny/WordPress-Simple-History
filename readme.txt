@@ -196,6 +196,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 = Unreleased =
 
 - Update translations. Props @kebbet.
+- Use `constant()` function to get constant values. Makes some linting errors go away.
 - Remove `languages` folder. [#287](https://github.com/bonny/WordPress-Simple-History/issues/287)
 
 = 3.2.0 (February 2022) =

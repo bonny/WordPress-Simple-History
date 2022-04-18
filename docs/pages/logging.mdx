@@ -1,0 +1,188 @@
+import Callout from 'nextra-theme-docs/callout'
+
+# Logging API
+
+You can add messages to the history log from your own code, for example in a custom plugin or from your theme.
+
+## Using filters
+
+The easiest and most safe way to add messages is using the `apply_filters`.
+
+```php
+apply_filters(
+	'simple_history_log',
+	'This is a logged message'
+);
+```
+
+<Callout emoji="👍">
+	Because `apply_filters` is a function that is built into WordPress *your site
+	won't break* if Simple History is not available, for example if the plugin has
+	been disabled.
+</Callout>
+
+By default messages are added with log level info. If you need to log something that has
+a higher severity then you can specify the log level using a fourth parameter:
+
+```php
+apply_filters(
+	'simple_history_log',
+	'This is another logged message, with another severity level',
+	null,
+	'warning'
+);
+```
+
+You can also add messages with context:
+
+```php
+apply_filters(
+	'simple_history_log',
+	'User {username} created a compressed backup with the name {backup_name} with format {backup_format}',
+	[
+		'username' => 'Jane',
+		'backup_name' => 'orders-backup.zip',
+		'backup_format' => 'CSV'
+	],
+	'alert'
+);
+```
+
+## Using SimpleLogger()
+
+If you are sure that Simple History is loaded you can use function `SimpleLogger()` to log things.
+This method may be prefered if you log a lot of things, or use many variables, or just because it looks
+cooler 😎.
+
+<Callout emoji="💡">
+	To be sure nothing breaks if Simple History is disabled you can for example
+	wrap each of the calls below inside a `function_exists( 'SimpleLogger' )`.
+</Callout>
+
+Add a simple information message to the log:
+
+```php
+SimpleLogger()->info( 'This is a message added to the log' );
+```
+
+### Adding log level
+
+You can add messages with different severity using any of the
+[log levels specified in PSR-3](https://www.php-fig.org/psr/psr-3/#5-psrlogloglevel): "info" (default), "notice", "warning", and so on:
+
+```php
+SimpleLogger()->warning( 'User "Jessie" deleted user "Kim"' );
+SimpleLogger()->alert( 'Space is running low on the hard drive!' );
+SimpleLogger()->debug( 'Ok, cron job is running!' );
+```
+
+### Adding context
+
+Log entries can have placeholders and context.
+This makes log entries translatable and filterable.
+And it also makes it easier to find all messages of the same type when searching.
+The values that you add in the context array does not need to have 
+a corresponding placeholder name in the message, so it's possible to add some extra information
+that is only visible when viewing more details about an event.
+
+```php
+SimpleLogger()->notice(
+	'User {username} edited page {pagename}',
+	[
+		'username' => 'jessie',
+		'pagename' => 'My test page',
+		'page_id' => 124,
+		'some_nice_to_have_extra_value' => 'My useful extra value'
+	]
+);
+```
+
+Automatic grouping of messages
+
+```php
+// Add a message to the history log
+// and then add a second log entry with same info and Simple History
+// will make these two become an "occasionGroup",
+// i.e. collapsing their entries into one expandable log item
+SimpleLogger()->info( 'This is a message sent to the log' );
+SimpleLogger()->info( 'This is a message sent to the log' );
+
+// Log entries can have placeholders and context
+// This makes log entries translatable and filterable
+SimpleLogger()->notice(
+'User {username} edited page {pagename}',
+array(
+'username' => 'jessie',
+'pagename' => 'My test page',
+'\_initiator' => SimpleLoggerLogInitiators::WP_USER,
+'\_user_id' => 5,
+'\_user_login' => 'jess',
+'\_user_email' => 'jessie@example.com',
+)
+);
+
+// Log entries can have custom occasionsID
+// This will group items together and a log entry will only be shown once
+// in the log overview, even if the logged messages are different
+for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
+	SimpleLogger()->notice(
+		'User {username} edited page {pagename}',
+		array(
+			'username' => "example_user_{$i}",
+'pagename' => 'My test page',
+'\_occasionsID' => 'postID:24884,action:edited',
+)
+);
+}
+
+// Events can have different "initiators",
+// i.e. who was responsible for the logged event
+// Initiator "WORDPRESS" means that WordPress did something on it's own
+SimpleLogger()->info(
+'WordPress updated itself from version {from_version} to {to_version}',
+array(
+'from_version' => '3.8',
+'to_version' => '3.8.1',
+'\_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+)
+);
+
+// Initiator "WP_USER" means that a logged in user did something
+SimpleLogger()->info(
+'Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}',
+array(
+'plugin_name' => 'Ninja Forms',
+'plugin_from_version' => '1.1',
+'plugin_to_version' => '1.1.2',
+'\_initiator' => SimpleLoggerLogInitiators::WP_USER,
+)
+);
+
+// // Initiator "WEB_USER" means that an unknown internet user did something
+SimpleLogger()->warning(
+"An attempt to login as user 'administrator' failed to login because the wrong password was entered",
+array(
+'\_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+)
+);
+
+// Use the "context array" to add more data to your logged event
+// Data can be used later on to show detailed info about a log entry
+// and does not need to be shown on the overview screen
+SimpleLogger()->info(
+"Edited product '{pagename}'",
+array(
+'pagename' => 'We are hiring!',
+'\_postType' => 'product',
+'\_userID' => 1,
+'\_userLogin' => 'jessie',
+'\_userEmail' => 'jessie@example.com',
+'\_occasionsID' => 'username:1,postID:24885,action:edited',
+)
+);
+
+```
+
+```
+
+```

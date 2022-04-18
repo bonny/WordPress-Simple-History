@@ -1,0 +1,34 @@
+{
+  "name": "docs.simple-history.com",
+  "version": "1.0.0",
+  "description": "Documentation for Simple History WordPress plugin",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "update-hooks-from-source": "php generate-hooks-json-files.php --input=.. --output=hooks --ignore-files=../vendor/,vendor/,tests/"
+  },
+  "author": "Pär Thernström <par.thernstrom@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^12.1.0",
+    "nextra": "2.0.0-alpha.48",
+    "nextra-theme-docs": "2.0.0-alpha.48",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "prettier": "^2.6",
+    "autoprefixer": "^10.4.2",
+    "postcss": "^8.4.5",
+    "tailwindcss": "^3.0.16"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "arrowParens": "avoid"
+  }
+}

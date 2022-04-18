@@ -224,6 +224,38 @@ class SimpleHistoryRSSDropin {
 						'posts_per_page' => 10,
 					);
 
+					/**
+					 * Filters the arguments passed to `SimpleHistoryLogQuery()` when fetching the RSS feed
+					 *
+					 * @example Change number of posts to retreieve in RSS feed.
+					 *
+					 * // This example changes the number of posts in the RSS feed to 50 from the default 10.
+					 *
+					 * ```php
+					 *  add_filter(
+					 *    'simple_history/rss_feed_args',
+					 *      function( $args ) {
+					 *        $args['posts_per_page'] = 50;
+					 *        return $args;
+					 *     }
+					 * );
+					 *
+					 * @example Change number of posts to retreieve in RSS feed.
+					 *
+					 * // This example changes the number of posts in the RSS feed to 20 from the default 10.
+					 *
+					 * ```php
+					 *  add_filter(
+					 *    'simple_history/rss_feed_args',
+					 *      function( $args ) {
+					 *        $args['posts_per_page'] = 20;
+					 *        return $args;
+					 *     }
+					 * );
+					 *
+					 * @param array $args SimpleHistoryLogQuery arguments.
+					 * @return array.
+					 */
 					$args = apply_filters( 'simple_history/rss_feed_args', $args );
 
 					$logQuery = new SimpleHistoryLogQuery();

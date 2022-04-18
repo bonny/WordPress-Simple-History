@@ -1,0 +1,53 @@
+import actions from '../hooks/actions.json'
+import filters from '../hooks/filters.json'
+import { HookParams, HookTOCItem, Hook } from '../functions.js'
+
+# Actions and filters
+
+With the help of hooks in WordPress you can modify how Simple History works.
+
+You can for example change who can see the log and customize what is logged.
+
+For more information on how to use hooks in WordPress see the documentation on wordpress.org.
+
+- https://developer.wordpress.org/plugins/hooks/
+- https://developer.wordpress.org/plugins/hooks/actions/
+- https://developer.wordpress.org/plugins/hooks/filters/
+
+Actions and filters are prefixed with `simple_history/`.
+
+## Overview
+
+### Actions
+
+<ul>
+	{actions.hooks.map(hook => {
+		return <HookTOCItem hook={hook} key={`toc-hook-action-${hook.name}`} />
+	})}
+</ul>
+
+### Filters
+
+<ul>
+	{filters.hooks.map(hook => {
+		return <HookTOCItem hook={hook} key={`toc-hook-filter-${hook.name}`} />
+	})}
+</ul>
+
+## Detailed info
+
+### Actions
+
+<div>
+	{actions.hooks.map(hook => {
+		return <Hook hook={hook} key={`details-hook-action-${hook.name}`} />
+	})}
+</div>
+
+### Filters
+
+<div>
+	{filters.hooks.map(hook => {
+		return <Hook hook={hook} key={`details-hook-action-${hook.name}`} />
+	})}
+</div>

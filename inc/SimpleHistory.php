@@ -743,43 +743,110 @@ class SimpleHistory {
 	}
 
 	/**
-	 * Return capability required to view history = for who will the History page be added
+	 * Return capability required to view history = for who will the History page be added.
+	 * Default capability is "edit_pages".
 	 *
 	 * @since 2.1.5
 	 * @return string capability
 	 */
 	public function get_view_history_capability() {
 		$view_history_capability = 'edit_pages';
+
+		/**
+		 * Deprecated, use filter `simple_history/view_history_capability` instead.
+		 */
 		$view_history_capability = apply_filters( 'simple_history_view_history_capability', $view_history_capability );
+
+		/**
+		 * Filter the capability required to view main simple history page, with the activity feed.
+		 * Default capability is "edit_pages".
+		 *
+		 * @example Change the capability required to view the log to "manage options", so only allow admins are allowed to view the history log page.
+		 *
+		 * ```php
+		 *  add_filter(
+		 *      'simple_history/view_history_capability',
+		 *      function ( $capability ) {
+		 *          $capability = 'manage_options';
+		 *          return $capability;
+		 *      }
+		 *  );
+		 * ```
+		 *
+		 * @param string $view_history_capability
+		 */
 		$view_history_capability = apply_filters( 'simple_history/view_history_capability', $view_history_capability );
 
 		return $view_history_capability;
 	}
 
 	/**
-	 * Return capability required to view settings
+	 * Return capability required to view settings.
+	 * Default capability is "manage_options",
+	 * but can be modified using filter.
 	 *
 	 * @since 2.1.5
 	 * @return string capability
 	 */
 	public function get_view_settings_capability() {
 		$view_settings_capability = 'manage_options';
+
+		/**
+		 * Old filter name, use `simple_history/view_settings_capability` instead.
+		 */
 		$view_settings_capability = apply_filters( 'simple_history_view_settings_capability', $view_settings_capability );
+
+		/**
+		 * Filters the capability required to view the settings page.
+		 *
+		 * @example Change capability required to view the
+		 *
+		 * ```php
+		 *  add_filter(
+		 *      'simple_history/view_settings_capability',
+		 *      function ( $capability ) {
+		 *
+		 *          $capability = 'manage_options';
+		 *          return $capability;
+		 *      }
+		 *  );
+		 * ```
+		 *
+		 * @param string $view_settings_capability
+		 */
 		$view_settings_capability = apply_filters( 'simple_history/view_settings_capability', $view_settings_capability );
 
 		return $view_settings_capability;
 	}
 
 	/**
-	 * Check if the current user can clear the log
+	 * Check if the current user can clear the log.
 	 *
 	 * @since 2.19
 	 * @return bool
 	 */
 	public function user_can_clear_log() {
-		$user_can_clear_log = apply_filters( 'simple_history/user_can_clear_log', true );
-
-		return $user_can_clear_log;
+		/**
+		 * Allows controlling who can manually clear the log.
+		 * When this is true then the "Clear"-button in shown in the settings.
+		 * When this is false then no button is shown.
+		 *
+		 * @example
+		 * ```php
+		 *  // Remove the "Clear log"-button, so a user with admin access can not clear the log
+		 *  // and wipe their mischievous behavior from the log.
+		 *  add_filter(
+		 *      'simple_history/user_can_clear_log',
+		 *      function ( $user_can_clear_log ) {
+		 *          $user_can_clear_log = false;
+		 *          return $user_can_clear_log;
+		 *      }
+		 *  );
+		 * ```
+		 *
+		 * @param bool $allow Whether the current user is allowed to clear the log.
+		*/
+		return apply_filters( 'simple_history/user_can_clear_log', true );
 	}
 
 	/**
@@ -795,7 +862,7 @@ class SimpleHistory {
 			),
 		);
 
-		if ( defined( 'SIMPLE_HISTORY_DEV' ) && SIMPLE_HISTORY_DEV ) {
+		if ( defined( 'SIMPLE_HISTORY_DEV' ) && constant( 'SIMPLE_HISTORY_DEV' ) ) {
 			$arr_dev_tabs = array(
 				array(
 					'slug' => 'log',
@@ -940,12 +1007,15 @@ class SimpleHistory {
 		}
 
 		/**
-		 * Action that plugins can use to add their custom loggers.
+		 * Fires after the list of loggers to load are populated.
+		 *
+		 * Can for example be used by plugin to load their own custom loggers.
+		 *
 		 * See register_logger() for more info.
 		 *
 		 * @since 2.1
 		 *
-		 * @param SimpleHistory instance
+		 * @param SimpleHistory $this Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_logger', $this );
 
@@ -1123,12 +1193,14 @@ class SimpleHistory {
 		} // End foreach().
 
 		/**
-		 * Action that dropins can use to add their custom loggers.
+		 * Fires after the list of dropins to load are populated.
+		 * Can for example be used by dropins can to add their own custom loggers.
+		 *
 		 * See register_dropin() for more info.
 		 *
 		 * @since 2.3.2
 		 *
-		 * @param array $arrDropinsToInstantiate Array with class names
+		 * @param SimpleHistory $this Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_dropin', $this );
 
@@ -2096,13 +2168,33 @@ Because Simple History was only recently installed, this feed does not display m
 	public function get_clear_history_interval() {
 		$days = 60;
 
+		// Deprecated filter name, use `simple_history/db_purge_days_interval` instead.
+		$days = (int) apply_filters( 'simple_history_db_purge_days_interval', $days );
+
 		/**
 		 * Filter to modify number of days of history to keep.
 		 * Default is 60 days.
 		 *
-		 * @param $days Number of days of history to keep
+		 * @example Keep only the most recent 7 days in the log.
+		 *
+		 * ```php
+		 * add_filter( "simple_history/db_purge_days_interval", function( $days ) {
+		 *      $days = 7;
+		 *      return $days;
+		 *  } );
+		 * ```
+		 * 
+		 * @example Expand the log to keep 90 days in the log.
+		 *
+		 * ```php
+		 * add_filter( "simple_history/db_purge_days_interval", function( $days ) {
+		 *      $days = 90;
+		 *      return $days;
+		 *  } );
+		 * ```
+		 *
+		 * @param int $days Number of days of history to keep
 		 */
-		$days = (int) apply_filters( 'simple_history_db_purge_days_interval', $days );
 		$days = (int) apply_filters( 'simple_history/db_purge_days_interval', $days );
 
 		return $days;
@@ -2459,13 +2551,34 @@ Because Simple History was only recently installed, this feed does not display m
 			 *
 			 * Array is in format
 			 *
-			 *   Array
+			 * ```
+			 *  Array
 			 *   (
 			 *       [id] => 1
 			 *       [logger] => 1
 			 *       [level] => 1
 			 *       ...
 			 *   )
+			 * ```
+			 *
+			 * @example Hide some columns from the detailed context view popup window
+			 *
+			 * ```php
+			 *  add_filter(
+			 *      'simple_history/log_html_output_details_table/row_keys_to_show',
+			 *      function ( $logRowKeysToShow, $oneLogRow ) {
+			 *
+			 *          $logRowKeysToShow['id'] = false;
+			 *          $logRowKeysToShow['logger'] = false;
+			 *          $logRowKeysToShow['level'] = false;
+			 *          $logRowKeysToShow['message'] = false;
+			 *
+			 *          return $logRowKeysToShow;
+			 *      },
+			 *      10,
+			 *      2
+			 *  );
+			 * ```
 			 *
 			 * @since 2.0.29
 			 *
@@ -2513,10 +2626,11 @@ Because Simple History was only recently installed, this feed does not display m
 			$logRowContextKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow->context ), true );
 
 			/**
-			 * Filter what keys to show from the row context
+			 * Filter what keys to show from the row context.
 			 *
-			 * Array is in format
+			 * Array is in format:
 			 *
+			 * ```
 			 *   Array
 			 *   (
 			 *       [plugin_slug] => 1
@@ -2527,6 +2641,27 @@ Because Simple History was only recently installed, this feed does not display m
 			 *       [plugin_version] => 1
 			 *       ...
 			 *   )
+			 * ```
+			 *
+			 *  @example Hide some more columns from the detailed context view popup window
+			 *
+			 * ```php
+			 *  add_filter(
+			 *      'simple_history/log_html_output_details_table/context_keys_to_show',
+			 *      function ( $logRowContextKeysToShow, $oneLogRow ) {
+			 *
+			 *          $logRowContextKeysToShow['plugin_slug'] = false;
+			 *          $logRowContextKeysToShow['plugin_name'] = false;
+			 *          $logRowContextKeysToShow['plugin_title'] = false;
+			 *          $logRowContextKeysToShow['plugin_description'] = false;
+			 *
+			 *          return $logRowContextKeysToShow;
+			 *      },
+			 *      10,
+			 *      2
+			 *  );
+			 * ```
+			 *
 			 *
 			 * @since 2.0.29
 			 *
@@ -2772,8 +2907,38 @@ Because Simple History was only recently installed, this feed does not display m
 		foreach ( $loggers as $one_logger ) {
 			$logger_capability = $one_logger['instance']->getCapability();
 
-			// $arr_loggers_user_can_view = apply_filters("simple_history/loggers_user_can_read", $user_id, $arr_loggers_user_can_view);
 			$user_can_read_logger = user_can( $user_id, $logger_capability );
+
+			/**
+			 * Filters who can read/view the messages from a single logger.
+			 *
+			 * @example Modify who can read a logger.
+			 *
+			 * ```php
+			 * // Modify who can read a logger.
+			 * // Modify the if part to give users access or no access to a logger.
+			 * add_filter(
+			 *   'simple_history/loggers_user_can_read/can_read_single_logger',
+			 *   function ( $user_can_read_logger, $logger_instance, $user_id ) {
+			 *     // in this example user with id 3 gets access to the post logger
+			 *     // while user with id 8 does not get any access to it
+			 *     if ( $logger_instance->slug == 'SimplePostLogger' && $user_id === 3 ) {
+			 *       $user_can_read_logger = true;
+			 *     } elseif ( $logger_instance->slug == 'SimplePostLogger' && $user_id === 9 ) {
+			 *       $user_can_read_logger = false;
+			 *     }
+			 *
+			 *      return $user_can_read_logger;
+			 *    },
+			 *  10,
+			 *  3
+			 * );
+			 * ```
+			 *
+			 * @param bool Wheter the user is allowed to view the logger.
+			 * @param SimpleLogger Logger instance.
+			 * @param int $user_id Id of user.
+			 */
 			$user_can_read_logger = apply_filters(
 				'simple_history/loggers_user_can_read/can_read_single_logger',
 				$user_can_read_logger,
