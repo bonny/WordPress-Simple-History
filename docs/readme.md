@@ -25,8 +25,6 @@ Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.
 
 ## Todo
 
-- [ ] Add link to WordPress.org support forum
 - [ ] Add link to Simple-History.com main site
 - [ ] Add syntax highlighting to documentation `apply_filters...` and examples.
-- [ ] Merge into `main`, no reason to work from branch now when it's up and running.
 - [ ] Automattic deploy using GitHub Actions.
