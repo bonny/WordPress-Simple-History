@@ -25,7 +25,6 @@ Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.
 
 ## Todo
 
-- [ ] "Edit page on Github" link does not work.
 - [ ] Automattic deploy using GitHub Actions.
 - [ ] Move all examples from examples file to inline docs and regenerate hooks docs.
 - [ ] Add link to Simple-History.com main site
