@@ -25,7 +25,8 @@ Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.
 
 ## Todo
 
-- [ ] Automattic deploy using GitHub Actions.
+- [x] Automattic deploy using GitHub Actions.
+- [ ] Add screenshots to for example custom logger doc.
 - [ ] Move all examples from examples file to inline docs and regenerate hooks docs.
 - [ ] Add link to Simple-History.com main site
 - [ ] Add syntax highlighting to documentation `apply_filters...` and examples.
