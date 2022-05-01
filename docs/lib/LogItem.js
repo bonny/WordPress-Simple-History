@@ -66,12 +66,12 @@ function LogItem({
             </p>
           </div>
           <div>
-            <p className="m-0">
+            <p className="m-0 text-sm">
               <span className="font-semibold">{who}</span>
               <span className="text-gray-400"> • </span>
               <span className="text-sky-700">{date}</span>
             </p>
-            <p className="m-0" style={{ marginTop: 0 }}>
+            <p className="m-0 text-lg" style={{ marginTop: '.25rem' }}>
               {text}
               <Loglevel />
             </p>
