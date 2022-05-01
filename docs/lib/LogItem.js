@@ -6,7 +6,8 @@ function LogItem({
   date = 'April 5, 2022 - 22:23 (25 days ago)',
   text = '',
   level = 'info',
-  similarCount = 0
+  similarCount = 0,
+  overview = false
 }) {
   const Loglevel = function () {
     if (level === 'info') {
@@ -71,16 +72,37 @@ function LogItem({
     )
   }
 
+  let containerClasses
+  if (overview) {
+    containerClasses = ''
+  } else {
+    containerClasses = 'bg-gray-200 p-4 rounded-lg'
+  }
+
+  let itemClasses
+  if (overview) {
+    itemClasses = 'p-4'
+  } else {
+    itemClasses = 'bg-white p-4 rounded-md'
+  }
+
+  let dividerClasses
+  if (overview) {
+    dividerClasses = 'grow border-b pb-6'
+  } else {
+    dividerClasses = ''
+  }
+
   return (
-    <div className="bg-gray-200 p-4 rounded-lg">
-      <div className="bg-white p-4 rounded-md">
+    <div className={containerClasses}>
+      <div className={itemClasses}>
         <div className="flex gap-5">
           <div>
             <p className="w-12 text-blue-600">
               <Image src={profilePic} layout="responsive" />
             </p>
           </div>
-          <div>
+          <div className={dividerClasses}>
             <p className="m-0 text-sm">
               <span className="font-semibold">{who}</span>
               <span className="text-gray-400"> • </span>

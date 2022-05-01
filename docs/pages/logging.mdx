@@ -1,5 +1,6 @@
 import Callout from 'nextra-theme-docs/callout'
 import LogItem from '../lib/LogItem'
+import LogItems from '../lib/LogItems'
 
 # Logging API
 
@@ -112,9 +113,11 @@ SimpleLogger()->alert( 'Space is running low on the hard drive!' );
 SimpleLogger()->debug( 'Ok, cron job is running!' );
 ```
 
-<LogItem text='User "Jessie" deleted user "Kim"' level="warning" />
-<LogItem text="Space is running low on the hard drive!" level="alert" />
-<LogItem text="Ok, cron job is running!" level="debug" />
+<LogItems>
+	<LogItem text='User "Jessie" deleted user "Kim"' level="warning" />
+	<LogItem text="Space is running low on the hard drive!" level="alert" />
+	<LogItem text="Ok, cron job is running!" level="debug" />
+</LogItems>
 
 ### Adding context
 
@@ -174,12 +177,13 @@ for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
 }
 ```
 
-<LogItem text="This is a message sent to the log" similarCount={2} />
-
-<LogItem
-	text="User {example_user_0} edited page My test page"
-	similarCount={24}
-/>
+<LogItems>
+	<LogItem text="This is a message sent to the log" similarCount={2} />
+	<LogItem
+		text="User {example_user_0} edited page My test page"
+		similarCount={24}
+	/>
+</LogItems>
 
 ### Initiator
 
@@ -239,18 +243,18 @@ SimpleLogger()->warning(
 );
 ```
 
-<LogItem who="jess" text="User jessie edited page My test page" />
-
-<LogItem
-	who="WordPress"
-	text="WordPress updated itself from version 3.8 to 3.8.1"
-/>
-
-<LogItem
-	who="WP-CLI"
-	text="Updated plugin Query Monitor from version 3.8.2 to version 3.9.0"
-/>
-<LogItem
-	who="WEB_USER"
-	text="An attempt to login as user 'administrator' failed to login because the wrong password was entered"
-/>
+<LogItems>
+	<LogItem who="jess" text="User jessie edited page My test page" />  
+    <LogItem
+    	who="WordPress"
+    	text="WordPress updated itself from version 3.8 to 3.8.1"
+    />
+    <LogItem
+    	who="WP-CLI"
+    	text="Updated plugin Query Monitor from version 3.8.2 to version 3.9.0"
+    />    
+  	<LogItem
+    	who="WEB_USER"
+    	text="An attempt to login as user 'administrator' failed to login because the wrong password was entered"
+    />
+</LogItems>
