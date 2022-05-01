@@ -7,7 +7,15 @@ You can add messages to the history log from your own code, for example in a cus
 
 ## Using filters
 
-The easiest and most safe way to add messages is using the `apply_filters`.
+### Adding messages
+
+The easiest and most safe way to log messages is using the `apply_filters`.
+
+<Callout emoji="👍">
+	Because `apply_filters` is a function that is built into WordPress *your site
+	won't break* if Simple History is not available, for example if the plugin has
+	been disabled.
+</Callout>
 
 ```php
 apply_filters(
@@ -22,11 +30,7 @@ apply_filters(
 	date="April 5, 2022 - 22:23 (25 days ago)"
 />
 
-<Callout emoji="👍">
-	Because `apply_filters` is a function that is built into WordPress *your site
-	won't break* if Simple History is not available, for example if the plugin has
-	been disabled.
-</Callout>
+### Adding log level
 
 By default messages are added with log level info. If you need to log something that has
 a higher severity then you can specify the log level using a fourth parameter:
@@ -46,6 +50,8 @@ apply_filters(
 	date="April 5, 2022 - 22:23 (25 days ago)"
 	level="warning"
 />
+
+### Adding context
 
 You can also add messages with context:
 
@@ -71,9 +77,11 @@ apply_filters(
 
 ## Using SimpleLogger()
 
+### Adding messages
+
 If you are sure that Simple History is loaded you can use function `SimpleLogger()` to log things.
-This method may be prefered if you log a lot of things, or use many variables, or just because it looks
-cooler 😎.
+This method may be prefered if you log a lot of things, use many variables, need to manually add initiator,
+or just because it looks cooler 😎.
 
 <Callout emoji="💡">
 	To be sure nothing breaks if Simple History is disabled you can for example
@@ -157,11 +165,11 @@ SimpleLogger()->info( 'This is a message sent to the log' );
 for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
 	SimpleLogger()->notice(
 		'User {username} edited page {pagename}',
-		array(
+		[
 			'username' => "example_user_{$i}",
 			'pagename' => 'My test page',
 			'_occasionsID' => 'postID:24884,action:edited',
-		)
+		]
 	);
 }
 ```
@@ -173,66 +181,76 @@ for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
 	similarCount={24}
 />
 
+### Initiator
+
+By default Simple History automatically determines who is responsible for something that happens.
+You can however override this if needed by adding an `_initiator` key to the context array.
+
+The available initiators are specified in the `SimpleLoggerLogInitiators` class and they are:
+
+- WP_USER
+- WEB_USER
+- WORDPRESS
+- WP_CLI
+- OTHER
+
 ```php
-// Log entries can have placeholders and context
-// This makes log entries translatable and filterable
-SimpleLogger()->notice(
-'User {username} edited page {pagename}',
-array(
-'username' => 'jessie',
-'pagename' => 'My test page',
-'\_initiator' => SimpleLoggerLogInitiators::WP_USER,
-'\_user_id' => 5,
-'\_user_login' => 'jess',
-'\_user_email' => 'jessie@example.com',
-)
-);
-
-
 // Events can have different "initiators",
 // i.e. who was responsible for the logged event
 // Initiator "WORDPRESS" means that WordPress did something on it's own
+SimpleLogger()->notice(
+	'User {username} edited page {pagename}',
+	[
+		'username' => 'jessie',
+		'pagename' => 'My test page',
+		'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+		'_user_id' => 5,
+		'_user_login' => 'jess',
+		'_user_email' => 'jessie@example.com',
+	]
+);
+
 SimpleLogger()->info(
-'WordPress updated itself from version {from_version} to {to_version}',
-array(
-'from_version' => '3.8',
-'to_version' => '3.8.1',
-'\_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
-)
+	'WordPress updated itself from version {from_version} to {to_version}',
+	[
+		'from_version' => '3.8',
+		'to_version' => '3.8.1',
+		'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+	]
 );
 
 // Initiator "WP_USER" means that a logged in user did something
 SimpleLogger()->info(
-'Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}',
-array(
-'plugin_name' => 'Ninja Forms',
-'plugin_from_version' => '1.1',
-'plugin_to_version' => '1.1.2',
-'\_initiator' => SimpleLoggerLogInitiators::WP_USER,
-)
+	'Updated plugin {plugin_name} from version {plugin_from_version} to version {plugin_to_version}',
+	array(
+		'plugin_name' => 'Query Monitor',
+		'plugin_from_version' => '3.8.2',
+		'plugin_to_version' => '3.9.0',
+		'_initiator' => SimpleLoggerLogInitiators::WP_CLI,
+	)
 );
 
-// // Initiator "WEB_USER" means that an unknown internet user did something
+// Initiator "WEB_USER" means that an unknown internet user did something
 SimpleLogger()->warning(
-"An attempt to login as user 'administrator' failed to login because the wrong password was entered",
-array(
-'\_initiator' => SimpleLoggerLogInitiators::WEB_USER,
-)
+	"An attempt to login as user 'administrator' failed to login because the wrong password was entered",
+	[
+		'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+	]
 );
-
-// Use the "context array" to add more data to your logged event
-// Data can be used later on to show detailed info about a log entry
-// and does not need to be shown on the overview screen
-SimpleLogger()->info(
-"Edited product '{pagename}'",
-array(
-'pagename' => 'We are hiring!',
-'\_postType' => 'product',
-'\_userID' => 1,
-'\_userLogin' => 'jessie',
-'\_userEmail' => 'jessie@example.com',
-'\_occasionsID' => 'username:1,postID:24885,action:edited',
-)
-);
-
 ```
+
+<LogItem who="jess" text="User jessie edited page My test page" />
+
+<LogItem
+	who="WordPress"
+	text="WordPress updated itself from version 3.8 to 3.8.1"
+/>
+
+<LogItem
+	who="WP-CLI"
+	text="Updated plugin Query Monitor from version 3.8.2 to version 3.9.0"
+/>
+<LogItem
+	who="WEB_USER"
+	text="An attempt to login as user 'administrator' failed to login because the wrong password was entered"
+/>
