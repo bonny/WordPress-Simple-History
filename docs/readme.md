@@ -30,3 +30,4 @@ Deploy is done using Dokku. Push to dokku repo to deploy to docs.simple-history.
 - [ ] Move all examples from examples file to inline docs and regenerate hooks docs.
 - [ ] Add link to Simple-History.com main site
 - [ ] Add syntax highlighting to documentation `apply_filters...` and examples.
+- [ ] Add attribution for profile pics somewhere <a href="https://www.freepik.com/vectors/people-profile">People profile vector created by freepik - www.freepik.com</a>

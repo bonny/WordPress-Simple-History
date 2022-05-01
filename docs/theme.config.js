@@ -13,7 +13,16 @@ export default {
   floatTOC: true,
   darkMode: true,
   footer: true,
-  footerText: `${new Date().getFullYear()} © Pär Thernström.`,
+  footerText: (
+    <div>
+      <p>Simple History is {`${new Date().getFullYear()} © Pär Thernström.`}</p>
+      <p>
+        <a href="https://www.freepik.com/vectors/people-profile">
+          People profile vector created by freepik - www.freepik.com
+        </a>
+      </p>
+    </div>
+  ),
   footerEditLink: `Edit this page on GitHub`,
   logo: (
     <>

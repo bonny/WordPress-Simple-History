@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import profilePic from './profile-pic.jpeg'
+import profilePics from './profile-images/'
 
 function LogItem({
   who = 'Jane Does',
@@ -56,12 +56,17 @@ function LogItem({
     )
   }
 
+  const randomProfilePictureNumber = Math.floor(
+    Math.random() * profilePics.length
+  )
+  const profilePic = profilePics[randomProfilePictureNumber]
+
   return (
     <div className="bg-gray-200 p-4 rounded-lg">
       <div className="bg-white p-4 rounded-md">
-        <div className="flex gap-6">
+        <div className="flex gap-5">
           <div>
-            <p className="w-10 text-blue-500">
+            <p className="w-12 text-blue-500">
               <Image src={profilePic} layout="responsive" />
             </p>
           </div>
