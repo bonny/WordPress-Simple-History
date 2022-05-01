@@ -129,16 +129,51 @@ SimpleLogger()->notice(
 );
 ```
 
-Automatic grouping of messages
+<LogItem text="User jessie edited page My test page" />
+
+<p>
+	Note that `page_id` and `some_nice_to_have_extra_value` are saved to the
+	database, but they are not shown in the main log feed.
+</p>
+
+### Automatic grouping of messages
+
+If many entries of the same kind is logged the activity feed can be a bit crowded with messages.
+That's why Simple History by defaults groups similar messages, for example login attempts or post updates.
+If a user is editing a page on your website they may edit the page many times and we don't want the edit of a
+single post to take over the feed completely.
 
 ```php
 // Add a message to the history log
 // and then add a second log entry with same info and Simple History
 // will make these two become an "occasionGroup",
-// i.e. collapsing their entries into one expandable log item
+// i.e. collapsing their entries into one expandable log item.
 SimpleLogger()->info( 'This is a message sent to the log' );
 SimpleLogger()->info( 'This is a message sent to the log' );
 
+// Log entries can have custom occasionsID.
+// This will group items together and a log entry will only be shown once
+// in the log overview, even if the logged messages are different.
+for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
+	SimpleLogger()->notice(
+		'User {username} edited page {pagename}',
+		array(
+			'username' => "example_user_{$i}",
+			'pagename' => 'My test page',
+			'_occasionsID' => 'postID:24884,action:edited',
+		)
+	);
+}
+```
+
+<LogItem text="This is a message sent to the log" similarCount={2} />
+
+<LogItem
+	text="User {example_user_0} edited page My test page"
+	similarCount={24}
+/>
+
+```php
 // Log entries can have placeholders and context
 // This makes log entries translatable and filterable
 SimpleLogger()->notice(
@@ -153,19 +188,6 @@ array(
 )
 );
 
-// Log entries can have custom occasionsID
-// This will group items together and a log entry will only be shown once
-// in the log overview, even if the logged messages are different
-for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
-	SimpleLogger()->notice(
-		'User {username} edited page {pagename}',
-		array(
-			'username' => "example_user_{$i}",
-'pagename' => 'My test page',
-'\_occasionsID' => 'postID:24884,action:edited',
-)
-);
-}
 
 // Events can have different "initiators",
 // i.e. who was responsible for the logged event
