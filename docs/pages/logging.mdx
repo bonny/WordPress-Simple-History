@@ -1,4 +1,5 @@
 import Callout from 'nextra-theme-docs/callout'
+import LogItem from '../lib/LogItem'
 
 # Logging API
 
@@ -14,6 +15,12 @@ apply_filters(
 	'This is a logged message'
 );
 ```
+
+<LogItem
+	who="Jane Doe"
+	text="This is a logged message"
+	date="April 5, 2022 - 22:23 (25 days ago)"
+/>
 
 <Callout emoji="👍">
 	Because `apply_filters` is a function that is built into WordPress *your site
@@ -33,6 +40,13 @@ apply_filters(
 );
 ```
 
+<LogItem
+	who="Jane Doe"
+	text="This is another logged message, with another severity level"
+	date="April 5, 2022 - 22:23 (25 days ago)"
+	level="warning"
+/>
+
 You can also add messages with context:
 
 ```php
@@ -47,6 +61,13 @@ apply_filters(
 	'alert'
 );
 ```
+
+<LogItem
+	who="Jane Doe"
+	text="User Jane created a compressed backup with the name orders-backup.zip with format CSV"
+	date="April 5, 2022 - 22:23 (25 days ago)"
+	level="alert"
+/>
 
 ## Using SimpleLogger()
 
@@ -65,6 +86,13 @@ Add a simple information message to the log:
 SimpleLogger()->info( 'This is a message added to the log' );
 ```
 
+<LogItem
+	who="Jane Doe"
+	text="This is a message added to the log"
+	date="April 5, 2022 - 22:23 (25 days ago)"
+	level="info"
+/>
+
 ### Adding log level
 
 You can add messages with different severity using any of the
@@ -76,12 +104,16 @@ SimpleLogger()->alert( 'Space is running low on the hard drive!' );
 SimpleLogger()->debug( 'Ok, cron job is running!' );
 ```
 
+<LogItem text='User "Jessie" deleted user "Kim"' level="warning" />
+<LogItem text="Space is running low on the hard drive!" level="alert" />
+<LogItem text="Ok, cron job is running!" level="debug" />
+
 ### Adding context
 
 Log entries can have placeholders and context.
 This makes log entries translatable and filterable.
 And it also makes it easier to find all messages of the same type when searching.
-The values that you add in the context array does not need to have 
+The values that you add in the context array does not need to have
 a corresponding placeholder name in the message, so it's possible to add some extra information
 that is only visible when viewing more details about an event.
 
@@ -180,9 +212,5 @@ array(
 '\_occasionsID' => 'username:1,postID:24885,action:edited',
 )
 );
-
-```
-
-```
 
 ```
