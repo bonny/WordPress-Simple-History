@@ -28,3 +28,4 @@ package-lock.json
 phpcs.xml.dist
 phpunit.xml
 README.md
+docker-compose.yml
