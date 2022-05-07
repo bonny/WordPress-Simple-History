@@ -5,7 +5,7 @@ Tags: history, log, changes, changelog, audit, audit log, event log, user tracki
 Requires at least: 5.2
 Tested up to: 5.9.3
 Requires PHP: 5.6
-Stable tag: 3.2.0
+Stable tag: 3.3.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -193,7 +193,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= Unreleased, maybe 3.3.0 =
+= 3.3.0 (May 2022) =
 
 - Fixed: Error when third party plugin passed arguments to the `get_avatar` filter. [#288](https://github.com/bonny/WordPress-Simple-History/issues/288)
 - Changed: If Gravatars are disabled in WordPress ("Discussion" -> "Show Avatars" is unchecked) then Simple History respects this and also does not show any user avatars in the activity feed. A new filter has been added that can be used to override this: [`simple_history/show_avatars`](https://docs.simple-history.com/hooks#simple_history/show_avatars). [#288](https://github.com/bonny/WordPress-Simple-History/issues/288)
