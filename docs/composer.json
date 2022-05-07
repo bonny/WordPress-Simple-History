@@ -5,5 +5,10 @@
 	"minimum-stability": "dev",
 	"require": {
 		"johnbillion/wp-hooks-generator": "^0.7.3"
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true
+		}
 	}
 }

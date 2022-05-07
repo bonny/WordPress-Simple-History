@@ -3,6 +3,32 @@
     "hooks": [
         {
             "name": "simple_history/add_custom_dropin",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "Action that dropins can use to add their custom loggers.",
+                "long_description": "See register_dropin() for more info.",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.3.2"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with class names",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$arrDropinsToInstantiate"
+                    }
+                ],
+                "long_description_html": "<p>See register_dropin() for more info.</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/add_custom_dropin",
             "file": "inc/SimpleHistory.php",
             "type": "action",
             "doc": {
@@ -23,6 +49,32 @@
                     }
                 ],
                 "long_description_html": "<p>Can for example be used by dropins can to add their own custom loggers.</p> <p>See register_dropin() for more info.</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/add_custom_logger",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "Action that plugins can use to add their custom loggers.",
+                "long_description": "See register_logger() for more info.",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.1"
+                    },
+                    {
+                        "name": "param",
+                        "content": "instance",
+                        "types": [
+                            "\\SimpleHistory"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": "<p>See register_logger() for more info.</p>"
             },
             "args": 1,
             "examples": []
@@ -55,6 +107,19 @@
         },
         {
             "name": "simple_history/admin_footer",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/admin_footer",
             "file": "inc/SimpleHistory.php",
             "type": "action",
             "doc": {
@@ -80,11 +145,76 @@
             "examples": []
         },
         {
+            "name": "simple_history/admin_head",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/after_init",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "Fires after Simple History has done it's init stuff",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "This class.",
+                        "types": [
+                            "\\SimpleHistory"
+                        ],
+                        "variable": "$SimpleHistory"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/after_init",
             "file": "inc/SimpleHistory.php",
             "type": "action",
             "doc": {
                 "description": "Fires after Simple History has done it's init stuff",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "This class.",
+                        "types": [
+                            "\\SimpleHistory"
+                        ],
+                        "variable": "$SimpleHistory"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/before_init",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "Fires before Simple History does it's init stuff",
                 "long_description": "",
                 "tags": [
                     {
@@ -133,6 +263,19 @@
         },
         {
             "name": "simple_history/dashboard/before_gui",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/dashboard/before_gui",
             "file": "inc/SimpleHistory.php",
             "type": "action",
             "doc": {
@@ -147,6 +290,24 @@
         {
             "name": "simple_history/dropin/sidebar/sidebar_html",
             "file": "dropins/SimpleHistorySidebarDropin.php",
+            "type": "action",
+            "doc": {
+                "description": "Allows to output HTML in sidebar",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.16"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 0,
+            "examples": []
+        },
+        {
+            "name": "simple_history/dropin/sidebar/sidebar_html",
+            "file": "build/dropins/SimpleHistorySidebarDropin.php",
             "type": "action",
             "doc": {
                 "description": "Allows to output HTML in sidebar",
@@ -189,11 +350,89 @@
             "examples": []
         },
         {
+            "name": "simple_history/enqueue_admin_scripts",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "Fires when the admin scripts have been enqueued.",
+                "long_description": "Only fires on any of the pages where Simple History is used",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "This class.",
+                        "types": [
+                            "\\SimpleHistory"
+                        ],
+                        "variable": "$SimpleHistory"
+                    }
+                ],
+                "long_description_html": "<p>Only fires on any of the pages where Simple History is used</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/history_page/after_gui",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "Fires after the gui div",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "This class.",
+                        "types": [
+                            "\\SimpleHistory"
+                        ],
+                        "variable": "$SimpleHistory"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/history_page/after_gui",
             "file": "inc/SimpleHistory.php",
             "type": "action",
             "doc": {
                 "description": "Fires after the gui div",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "This class.",
+                        "types": [
+                            "\\SimpleHistory"
+                        ],
+                        "variable": "$SimpleHistory"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/history_page/before_gui",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "Fires before the gui div",
                 "long_description": "",
                 "tags": [
                     {
@@ -280,6 +519,61 @@
                 "long_description_html": ""
             },
             "args": 3,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log/inserted",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "action",
+            "doc": {
+                "description": "Action that is called after an event has been logged",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.5.1"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with all context data that was used to log event.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$context"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with data used for parent row.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$data"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Reference to this logger instance",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$this"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 3,
+            "examples": []
+        },
+        {
+            "name": "simple_history/loggers_loaded",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "action",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 0,
             "examples": []
         },
         {

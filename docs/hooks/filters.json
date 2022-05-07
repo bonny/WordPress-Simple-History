@@ -28,8 +28,60 @@
             "examples": []
         },
         {
+            "name": "SimpleHistoryFilterDropin/filter_default_loglevel",
+            "file": "build/dropins/SimpleHistoryFilterDropin.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to control what the default loglevels are.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.1.2"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with loglevel sugs. Default empty = show all.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "SimpleHistoryFilterDropin/filter_default_search_string",
             "file": "dropins/SimpleHistoryFilterDropin.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to control what the default search string is. Default to empty string.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.1.2"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Default search string",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "SimpleHistoryFilterDropin/filter_default_search_string",
+            "file": "build/dropins/SimpleHistoryFilterDropin.php",
             "type": "filter",
             "doc": {
                 "description": "Filter to control what the default search string is. Default to empty string.",
@@ -67,8 +119,47 @@
             "examples": []
         },
         {
+            "name": "SimpleHistoryFilterDropin/filter_default_user_ids",
+            "file": "build/dropins/SimpleHistoryFilterDropin.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "SimpleHistoryFilterDropin/show_more_filters_on_load",
             "file": "dropins/SimpleHistoryFilterDropin.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter that determines if search filters should be visible directly on page load",
+                "long_description": "Set to true to show the filters when page is loaded If false then user must click \"Show options\"",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.1.2"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Default false",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": "$show_more_filters_on_load"
+                    }
+                ],
+                "long_description_html": "<p>Set to true to show the filters when page is loaded If false then user must click \"Show options\"</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "SimpleHistoryFilterDropin/show_more_filters_on_load",
+            "file": "build/dropins/SimpleHistoryFilterDropin.php",
             "type": "filter",
             "doc": {
                 "description": "Filter that determines if search filters should be visible directly on page load",
@@ -106,8 +197,21 @@
             "examples": []
         },
         {
+            "name": "SimpleHistoryNewRowsNotifier/interval",
+            "file": "build/dropins/SimpleHistoryNewRowsNotifier.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "get_avatar",
-            "file": "inc/SimpleHistory.php",
+            "file": "build/inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "Filter the avatar to retrieve.",
@@ -171,6 +275,45 @@
             "examples": []
         },
         {
+            "name": "plugin_locale",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/SidebarDropin/default_sidebar_boxes",
+            "file": "build/dropins/SimpleHistorySidebarDropin.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the default boxes to output in the sidebar",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.17"
+                    },
+                    {
+                        "name": "param",
+                        "content": "array with boxes to output. Check the key to determine which box is which.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$arrBoxes"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/SidebarDropin/default_sidebar_boxes",
             "file": "dropins/SimpleHistorySidebarDropin.php",
             "type": "filter",
@@ -189,6 +332,32 @@
                             "array"
                         ],
                         "variable": "$arrBoxes"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/add_admin_bar_menu_item",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to control if admin bar shortcut should be added",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.7.1"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Add item",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
                     }
                 ],
                 "long_description_html": ""
@@ -249,13 +418,26 @@
             "examples": []
         },
         {
-            "name": "simple_history/admin_location",
-            "file": "inc/SimpleHistory.php",
+            "name": "simple_history/add_admin_bar_network_menu_item",
+            "file": "build/inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
-                "description": "",
+                "description": "Filter to control if admin bar shortcut should be added",
                 "long_description": "",
-                "tags": [],
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.7.1"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Add item",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    }
+                ],
                 "long_description_html": ""
             },
             "args": 1,
@@ -276,7 +458,7 @@
         },
         {
             "name": "simple_history/admin_location",
-            "file": "inc/SimpleHistory.php",
+            "file": "build/inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "",
@@ -314,8 +496,112 @@
             "examples": []
         },
         {
+            "name": "simple_history/admin_location",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/admin_location",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/admin_location",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/admin_location",
+            "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/admin_location",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/admin_location",
+            "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/allow_db_purge",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/allow_db_purge",
             "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/categories_logger/skip_taxonomies",
+            "file": "build/loggers/SimpleCategoriesLogger.php",
             "type": "filter",
             "doc": {
                 "description": "",
@@ -334,6 +620,32 @@
                 "description": "",
                 "long_description": "",
                 "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/comments_logger/include_spam",
+            "file": "build/loggers/SimpleCommentsLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter option to include spam or not in the gui By default spam is not included, because it can fill the log with too much events",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Default false",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": "$include_spam"
+                    }
+                ],
                 "long_description_html": ""
             },
             "args": 1,
@@ -367,7 +679,59 @@
         },
         {
             "name": "simple_history/comments_logger/log_failed_password",
+            "file": "build/loggers/SimpleUserLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Maybe store password too Default is to not do this because of privacy and security",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": "$log_password"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/comments_logger/log_failed_password",
             "file": "loggers/SimpleUserLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Maybe store password too Default is to not do this because of privacy and security",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": "$log_password"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/comments_logger/log_not_existing_user_password",
+            "file": "build/loggers/SimpleUserLogger.php",
             "type": "filter",
             "doc": {
                 "description": "Maybe store password too Default is to not do this because of privacy and security",
@@ -426,6 +790,45 @@
                 "long_description": "The hook also fires immediately before comment status transition hooks are fired.",
                 "tags": [],
                 "long_description_html": "<p>The hook also fires immediately before comment status transition hooks are fired.</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/comments_logger/row_details_plugin_info_keys",
+            "file": "build/loggers/SimpleCommentsLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Fires immediately after a comment is updated in the database.",
+                "long_description": "The hook also fires immediately before comment status transition hooks are fired.",
+                "tags": [],
+                "long_description_html": "<p>The hook also fires immediately before comment status transition hooks are fired.</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/dashboard_pager_size",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the pager size setting for the dashboard",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$pager_size"
+                    }
+                ],
+                "long_description_html": ""
             },
             "args": 1,
             "examples": []
@@ -490,8 +893,47 @@
             ]
         },
         {
+            "name": "simple_history/db_purge_days_interval",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/db_table",
             "file": "loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter db table used for simple history events",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$db_table"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/db_table",
+            "file": "build/loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
                 "description": "Filter db table used for simple history events",
@@ -550,6 +992,66 @@
             "examples": []
         },
         {
+            "name": "simple_history/dropin/load_dropin",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to completely skip loading of a dropin",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.22"
+                    },
+                    {
+                        "name": "param",
+                        "content": "if to load the dropin. return false to not load it.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "slug of dropin",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/dropin/load_dropin_{$oneDropinFileBasename}",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to completely skip loading of dropin complete filer name will be like: simple_history/dropin/load_dropin_SimpleHistoryRSSDropin",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.6"
+                    },
+                    {
+                        "name": "param",
+                        "content": "if to load the dropin. return false to not load it.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/dropin/load_dropin_{$oneDropinFileBasename}",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
@@ -571,6 +1073,32 @@
                     }
                 ],
                 "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/dropins_files",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the array with absolute paths to files as returned by glob function.",
+                "long_description": "Each file will be loaded and will be assumed to be a dropin with a classname the same as the filename.",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with filenames",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$dropinsFiles"
+                    }
+                ],
+                "long_description_html": "<p>Each file will be loaded and will be assumed to be a dropin with a classname the same as the filename.</p>"
             },
             "args": 1,
             "examples": []
@@ -603,6 +1131,32 @@
         },
         {
             "name": "simple_history/dropins_to_instantiate",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the array with names of dropin to instantiate.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with class names",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$arrDropinsToInstantiate"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/dropins_to_instantiate",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
@@ -620,6 +1174,32 @@
                             "array"
                         ],
                         "variable": "$arrDropinsToInstantiate"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/header_initiator_html_existing_user",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the format for the user output",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$format."
                     }
                 ],
                 "long_description_html": ""
@@ -667,6 +1247,19 @@
             "examples": []
         },
         {
+            "name": "simple_history/header_initiator_use_you",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/header_just_now_max_time",
             "file": "loggers/SimpleLogger.php",
             "type": "filter",
@@ -693,11 +1286,63 @@
             "examples": []
         },
         {
+            "name": "simple_history/header_just_now_max_time",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter how many seconds as most that can pass since an event occured to show \"just now\" instead of exact date",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Seconds",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$time_ago_max_time"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/header_time_ago_max_time",
             "file": "loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
                 "description": "Filter how many seconds as most that can pass since an event occurred to show \"nn minutes ago\" (human diff time-format) instead of exact date",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Seconds",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$time_ago_max_time"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/header_time_ago_max_time",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter how many seconds as most that can pass since an event occured to show \"nn minutes ago\" (human diff time-format) instead of exact date",
                 "long_description": "",
                 "tags": [
                     {
@@ -788,8 +1433,44 @@
             ]
         },
         {
+            "name": "simple_history/log/do_log",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter that makes it possible to shortcut this log.",
+                "long_description": "Return bool false to cancel.",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.3.1"
+                    }
+                ],
+                "long_description_html": "<p>Return bool false to cancel.</p>"
+            },
+            "args": 5,
+            "examples": []
+        },
+        {
             "name": "simple_history/log/do_log/{$this->slug}",
             "file": "loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Easy shortcut method to disable logging of messages from a specific logger.",
+                "long_description": "Example filter name: simple_history/log/do_log/SimpleUserLogger simple_history/log/do_log/SimplePostLogger\n Example to disable logging of any user login/logout/failed login activity: add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false')",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.nn"
+                    }
+                ],
+                "long_description_html": "<p>Example filter name: simple_history/log/do_log/SimpleUserLogger simple_history/log/do_log/SimplePostLogger</p> <p>Example to disable logging of any user login/logout/failed login activity: add_filter('simple_history/log/do_log/SimpleUserLogger', '__return_false')</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log/do_log/{$this->slug}",
+            "file": "build/loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
                 "description": "Easy shortcut method to disable logging of messages from a specific logger.",
@@ -824,6 +1505,24 @@
             "examples": []
         },
         {
+            "name": "simple_history/log/do_log/{$this->slug}/{$message_key}",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Easy shortcut method to disable logging of messages from a specific logger and message.",
+                "long_description": "Example filter name: simple_history/log/do_log/SimpleUserLogger/user_logged_in simple_history/log/do_log/SimplePostLogger/post_updated",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.nn"
+                    }
+                ],
+                "long_description_html": "<p>Example filter name: simple_history/log/do_log/SimpleUserLogger/user_logged_in simple_history/log/do_log/SimplePostLogger/post_updated</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/log_argument/context",
             "file": "loggers/SimpleLogger.php",
             "type": "filter",
@@ -837,8 +1536,47 @@
             "examples": []
         },
         {
+            "name": "simple_history/log_argument/context",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 4,
+            "examples": []
+        },
+        {
             "name": "simple_history/log_argument/level",
             "file": "loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 4,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log_argument/level",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 4,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log_argument/message",
+            "file": "build/loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
                 "description": "",
@@ -913,6 +1651,56 @@
             "examples": []
         },
         {
+            "name": "simple_history/log_arguments",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter arguments passed to log funtion",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$level"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$message"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$context"
+                    },
+                    {
+                        "name": "param",
+                        "content": "SimpleLogger object",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 4,
+            "examples": []
+        },
+        {
             "name": "simple_history/log_html_output_details_single/html_after_context_table",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
@@ -926,8 +1714,34 @@
             "examples": []
         },
         {
+            "name": "simple_history/log_html_output_details_single/html_after_context_table",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
             "name": "simple_history/log_html_output_details_single/html_before_context_table",
             "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log_html_output_details_single/html_before_context_table",
+            "file": "build/inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "",
@@ -979,6 +1793,40 @@
             ]
         },
         {
+            "name": "simple_history/log_html_output_details_table/context_keys_to_show",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter what keys to show from the row context",
+                "long_description": "Array is in format\n   Array   (       [plugin_slug] => 1       [plugin_name] => 1       [plugin_title] => 1       [plugin_description] => 1       [plugin_author] => 1       [plugin_version] => 1       ...   )",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.29"
+                    },
+                    {
+                        "name": "param",
+                        "content": "with keys to show. key to show = key. value = boolean to show or not.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "log row to show details from",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": "<p>Array is in format</p> <p>Array ( [plugin_slug] =&gt; 1 [plugin_name] =&gt; 1 [plugin_title] =&gt; 1 [plugin_description] =&gt; 1 [plugin_author] =&gt; 1 [plugin_version] =&gt; 1 ... )</p>"
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
             "name": "simple_history/log_html_output_details_table/row_keys_to_show",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
@@ -1017,6 +1865,40 @@
             "examples": [
                 "Hide some columns from the detailed context view popup window\n\n```php\n add_filter(\n     'simple_history/log_html_output_details_table/row_keys_to_show',\n     function ( $logRowKeysToShow, $oneLogRow ) {\n\n         $logRowKeysToShow['id'] = false;\n         $logRowKeysToShow['logger'] = false;\n         $logRowKeysToShow['level'] = false;\n         $logRowKeysToShow['message'] = false;\n\n         return $logRowKeysToShow;\n     },\n     10,\n     2\n );\n```"
             ]
+        },
+        {
+            "name": "simple_history/log_html_output_details_table/row_keys_to_show",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter what keys to show from oneLogRow",
+                "long_description": "Array is in format\n   Array   (       [id] => 1       [logger] => 1       [level] => 1       ...   )",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.29"
+                    },
+                    {
+                        "name": "param",
+                        "content": "with keys to show. key to show = key. value = boolean to show or not.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "log row to show details from",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": "<p>Array is in format</p> <p>Array ( [id] =&gt; 1 [logger] =&gt; 1 [level] =&gt; 1 ... )</p>"
+            },
+            "args": 2,
+            "examples": []
         },
         {
             "name": "simple_history/log_insert_context",
@@ -1067,6 +1949,48 @@
             ]
         },
         {
+            "name": "simple_history/log_insert_context",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the context to store for this event/row",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.29"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with all context data to store. Modify and return this.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$context"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with data used for parent row.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$data"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Reference to this logger instance.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$this"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 3,
+            "examples": []
+        },
+        {
             "name": "simple_history/log_insert_data",
             "file": "loggers/SimpleLogger.php",
             "type": "filter",
@@ -1085,6 +2009,58 @@
                             "array"
                         ],
                         "variable": "$data"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log_insert_data",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter data to be saved to db.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$data"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log_query_inner_where",
+            "file": "build/inc/SimpleHistoryLogQuery.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the sql template limit",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$limit"
                     }
                 ],
                 "long_description_html": ""
@@ -1145,6 +2121,32 @@
             "examples": []
         },
         {
+            "name": "simple_history/log_query_limit",
+            "file": "build/inc/SimpleHistoryLogQuery.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the sql template limit",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$limit"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/log_query_sql",
             "file": "inc/SimpleHistoryLogQuery.php",
             "type": "filter",
@@ -1163,6 +2165,58 @@
                             "string"
                         ],
                         "variable": "$sql"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log_query_sql",
+            "file": "build/inc/SimpleHistoryLogQuery.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the final sql query",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$sql"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log_query_sql_template",
+            "file": "build/inc/SimpleHistoryLogQuery.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the sql template",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$sql_tmpl"
                     }
                 ],
                 "long_description_html": ""
@@ -1199,6 +2253,32 @@
         {
             "name": "simple_history/log_query_sql_where",
             "file": "inc/SimpleHistoryLogQuery.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the sql template where clause",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$where"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/log_query_sql_where",
+            "file": "build/inc/SimpleHistoryLogQuery.php",
             "type": "filter",
             "doc": {
                 "description": "Filter the sql template where clause",
@@ -1271,6 +2351,58 @@
             ]
         },
         {
+            "name": "simple_history/logger/interpolate/context",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the context used to create the message from the message template",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.2.4"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 3,
+            "examples": []
+        },
+        {
+            "name": "simple_history/logger/load_logger",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to completely skip loading of a logger",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.22"
+                    },
+                    {
+                        "name": "param",
+                        "content": "if to load the logger. return false to not load it.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "basename of logger, i.e. \"SimpleCommentsLogger\" or \"class-privacy-logger\"",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
             "name": "simple_history/logger/load_logger",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
@@ -1302,6 +2434,32 @@
                 "long_description_html": ""
             },
             "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/logger_db_table_contexts",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter table name for contexts.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$db_table_contexts"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
             "examples": []
         },
         {
@@ -1357,6 +2515,58 @@
             "examples": []
         },
         {
+            "name": "simple_history/loggers_files",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the array with absolute paths to logger files to be loaded.",
+                "long_description": "Each file will be loaded and will be assumed to be a logger with a classname the same as the filename.",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with filenames",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$loggersFiles"
+                    }
+                ],
+                "long_description_html": "<p>Each file will be loaded and will be assumed to be a logger with a classname the same as the filename.</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/loggers_to_instantiate",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the array with names of loggers to instantiate.",
+                "long_description": "Array (  [0] => SimpleCommentsLogger  [1] => SimpleCoreUpdatesLogger   ... )",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with class names",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$arr_loggers_to_instantiate"
+                    }
+                ],
+                "long_description_html": "<p>Array ( [0] =&gt; SimpleCommentsLogger [1] =&gt; SimpleCoreUpdatesLogger ... )</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/loggers_to_instantiate",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
@@ -1385,6 +2595,40 @@
         {
             "name": "simple_history/loggers_user_can_read",
             "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Fires before Simple History does it's init stuff",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with loggers that user $user_id can read",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$arr_loggers_user_can_view"
+                    },
+                    {
+                        "name": "param",
+                        "content": "user_id ID of user to check read capability for",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/loggers_user_can_read",
+            "file": "build/inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "Fires before Simple History does it's init stuff",
@@ -1461,6 +2705,43 @@
             ]
         },
         {
+            "name": "simple_history/loggers_user_can_read/can_read_single_logger",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 3,
+            "examples": []
+        },
+        {
+            "name": "simple_history/logrowhtmloutput/classes",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to modify classes added to item li element",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.7"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Array with classes",
+                        "types": [],
+                        "variable": "$classes"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/logrowhtmloutput/classes",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
@@ -1511,8 +2792,60 @@
             "examples": []
         },
         {
+            "name": "simple_history/page_pager_size",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the pager size setting for the history page",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$pager_size"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/pager_size",
             "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the pager size setting",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$pager_size"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/pager_size",
+            "file": "build/inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "Filter the pager size setting",
@@ -1563,6 +2896,32 @@
             "examples": []
         },
         {
+            "name": "simple_history/pager_size_dashboard",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the pager size setting",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.12"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$pager_size"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/plugin_logger/row_details_plugin_info_keys",
             "file": "loggers/SimplePluginLogger.php",
             "type": "filter",
@@ -1573,6 +2932,84 @@
                 "long_description_html": ""
             },
             "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/plugin_logger/row_details_plugin_info_keys",
+            "file": "build/loggers/SimplePluginLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "For bulk updates $arr_data looks like: Array (     [action] => update     [type] => plugin     [bulk] => 1     [plugins] => Array         (             [0] => plugin-folder-1/plugin-index.php             [1] => my-plugin-folder/my-plugin.php         ) )",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/post_logger/context",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to control context sent to the diff output.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "param",
+                        "content": "Array with context.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$context"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Old/prev post data.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$old_data"
+                    },
+                    {
+                        "name": "param",
+                        "content": "New post data.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$new_data"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Old/prev post meta data.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$old_meta"
+                    },
+                    {
+                        "name": "param",
+                        "content": "New post meta data.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$new_meta"
+                    },
+                    {
+                        "name": "return",
+                        "content": "$context Array with diff data added.",
+                        "types": [
+                            "array"
+                        ]
+                    },
+                    {
+                        "name": "since",
+                        "content": "2.36.0"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 5,
             "examples": []
         },
         {
@@ -1654,6 +3091,32 @@
             "examples": []
         },
         {
+            "name": "simple_history/post_logger/keys_to_diff",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/post_logger/label_for_key",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 3,
+            "examples": []
+        },
+        {
             "name": "simple_history/post_logger/label_for_key",
             "file": "loggers/SimplePostLogger.php",
             "type": "filter",
@@ -1708,6 +3171,80 @@
             "examples": []
         },
         {
+            "name": "simple_history/post_logger/post_deleted/ok_to_log",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to control logging.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "param",
+                        "content": "If this post deletion should be logged.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": "$ok_to_log"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$post_id"
+                    },
+                    {
+                        "name": "return",
+                        "content": "True to log, false to not log.",
+                        "types": [
+                            "bool"
+                        ]
+                    },
+                    {
+                        "name": "since",
+                        "content": "2.21"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/post_logger/post_types",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the post types we are logging information from.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "param",
+                        "content": "Core, public and private post types.",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$post_types"
+                    },
+                    {
+                        "name": "return",
+                        "content": "$post_types Filtered post types.",
+                        "types": [
+                            "array"
+                        ]
+                    },
+                    {
+                        "name": "since",
+                        "content": "2.37"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/post_logger/post_types",
             "file": "loggers/SimplePostLogger.php",
             "type": "filter",
@@ -1738,6 +3275,36 @@
                 "long_description_html": ""
             },
             "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/post_logger/post_updated/context",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Modify the context saved.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$context"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "\\WP_Post"
+                        ],
+                        "variable": "$post"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
             "examples": []
         },
         {
@@ -1808,6 +3375,94 @@
             "examples": []
         },
         {
+            "name": "simple_history/post_logger/post_updated/diff_table_output",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Modify the formatted diff output of a saved/modified post",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$diff_table_output"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": "$context"
+                    },
+                    {
+                        "name": "return",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ]
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/post_logger/post_updated/ok_to_log",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to control logging.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": "$ok_to_log"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [],
+                        "variable": "$new_status"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [],
+                        "variable": "$old_status"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [],
+                        "variable": "$post"
+                    },
+                    {
+                        "name": "return",
+                        "content": "True to log, false to not log.",
+                        "types": [
+                            "bool"
+                        ]
+                    },
+                    {
+                        "name": "since",
+                        "content": "2.21"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 4,
+            "examples": []
+        },
+        {
             "name": "simple_history/post_logger/post_updated/ok_to_log",
             "file": "loggers/SimplePostLogger.php",
             "type": "filter",
@@ -1856,6 +3511,24 @@
                 "long_description_html": ""
             },
             "args": 4,
+            "examples": []
+        },
+        {
+            "name": "simple_history/post_logger/skip_posttypes",
+            "file": "build/loggers/SimplePostLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to log what post types not to log",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.18"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
             "examples": []
         },
         {
@@ -1909,8 +3582,54 @@
             ]
         },
         {
+            "name": "simple_history/privacy/anonymize_ip_address",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to control if ip addresses should be anonymized or not.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.22"
+                    },
+                    {
+                        "name": "param",
+                        "content": "true to anonymize ip address, false to keep original ip address.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "return",
+                        "content": "",
+                        "types": [
+                            "bool"
+                        ]
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/quick_stats_where",
             "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/quick_stats_where",
+            "file": "build/inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "",
@@ -1944,6 +3663,74 @@
                     {
                         "name": "param",
                         "content": "Log row",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/row_details_output",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter generated output for details",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$html"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Log row",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/row_header_date_output",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the output of the date section of the header.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.5.1"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$date_html"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
                         "types": [
                             "object"
                         ],
@@ -2008,6 +3795,74 @@
                             "string"
                         ],
                         "variable": "$initiator_html"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Log row",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/row_header_initiator_output",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter generated html for the initiator row header html",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$initiator_html"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Log row",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/row_header_output",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter generated html for the log row header.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$html"
                     },
                     {
                         "name": "param",
@@ -2092,8 +3947,76 @@
             "examples": []
         },
         {
+            "name": "simple_history/row_header_output/display_ip_address",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter if IP Address should be added to header row.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.x"
+                    },
+                    {
+                        "name": "param",
+                        "content": "True to show IP address, false to hide it. Defaults to false.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "Row data",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
             "name": "simple_history/row_header_output/template",
             "file": "loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter template used to glue together markup the log row header.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$template"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Log row",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/row_header_output/template",
+            "file": "build/loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
                 "description": "Filter template used to glue together markup the log row header.",
@@ -2160,8 +4083,76 @@
             "examples": []
         },
         {
+            "name": "simple_history/row_plain_text_output",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter generated output for plain text output",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$html"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Log row",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
             "name": "simple_history/row_sender_image_output",
             "file": "loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter generated output for row image (sender image)",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$sender_image_html"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Log row",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/row_sender_image_output",
+            "file": "build/loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
                 "description": "Filter generated output for row image (sender image)",
@@ -2234,6 +4225,32 @@
             ]
         },
         {
+            "name": "simple_history/rss_feed_args",
+            "file": "build/dropins/SimpleHistoryRSSDropin.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/rss_feed_show",
+            "file": "build/dropins/SimpleHistoryRSSDropin.php",
+            "type": "filter",
+            "doc": {
+                "description": "Start new section for RSS feed",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/rss_feed_show",
             "file": "dropins/SimpleHistoryRSSDropin.php",
             "type": "filter",
@@ -2249,6 +4266,40 @@
         {
             "name": "simple_history/rss_item_link",
             "file": "dropins/SimpleHistoryRSSDropin.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the guid/link URL used in RSS feed.",
+                "long_description": "Link will be esc_url'ed by simple history, so no need to do that in your filter",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.23"
+                    },
+                    {
+                        "name": "param",
+                        "content": "link.",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": "$item_guid"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "object"
+                        ],
+                        "variable": "$row"
+                    }
+                ],
+                "long_description_html": "<p>Link will be esc_url'ed by simple history, so no need to do that in your filter</p>"
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history/rss_item_link",
+            "file": "build/dropins/SimpleHistoryRSSDropin.php",
             "type": "filter",
             "doc": {
                 "description": "Filter the guid/link URL used in RSS feed.",
@@ -2299,6 +4350,90 @@
                             "int"
                         ],
                         "variable": "$pager_size"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/settings_page_pager_size",
+            "file": "build/templates/settings-log.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter the pager size setting for the settings page",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0"
+                    },
+                    {
+                        "name": "param",
+                        "content": "",
+                        "types": [
+                            "int"
+                        ],
+                        "variable": "$pager_size"
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/show_avatars",
+            "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to control if avatars should be displayed, even if the show_avatars option is set to false in WordPress discussion settings.",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "3.3.0"
+                    },
+                    {
+                        "name": "example",
+                        "content": "display of Gravatars <code>php  add_filter(      'simple_history/show_avatars',      function ( $force ) {          $force = true;          return $force;      }  ); </code>"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Force display. Default false.",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": [
+                "Force display of Gravatars\n\n```php\n add_filter(\n     'simple_history/show_avatars',\n     function ( $force ) {\n         $force = true;\n         return $force;\n     }\n );\n```"
+            ]
+        },
+        {
+            "name": "simple_history/show_dashboard_page",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to determine if history page should be added to page below dashboard or not",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.23"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Show the page or not",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
                     }
                 ],
                 "long_description_html": ""
@@ -2359,6 +4494,45 @@
             "examples": []
         },
         {
+            "name": "simple_history/show_dashboard_widget",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to determine if history page should be added to page below dashboard or not",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.23"
+                    },
+                    {
+                        "name": "param",
+                        "content": "Show the page or not",
+                        "types": [
+                            "bool"
+                        ],
+                        "variable": ""
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/show_settings_page",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/show_settings_page",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
@@ -2369,6 +4543,71 @@
                 "long_description_html": ""
             },
             "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/simple_logger/log_message_key",
+            "file": "build/loggers/SimpleLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter so plugins etc. can shortut logging",
+                "long_description": "",
+                "tags": [
+                    {
+                        "name": "since",
+                        "content": "2.0.20"
+                    },
+                    {
+                        "name": "param",
+                        "content": "yes, we default to do the logging",
+                        "types": [
+                            "true"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "logger slug",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "messageKey",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "log level",
+                        "types": [
+                            "string"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "param",
+                        "content": "context",
+                        "types": [
+                            "array"
+                        ],
+                        "variable": ""
+                    },
+                    {
+                        "name": "return",
+                        "content": "false to abort logging",
+                        "types": [
+                            "bool"
+                        ]
+                    }
+                ],
+                "long_description_html": ""
+            },
+            "args": 5,
             "examples": []
         },
         {
@@ -2465,6 +4704,32 @@
             ]
         },
         {
+            "name": "simple_history/user_can_clear_log",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/user_logger/plain_text_output_use_you",
+            "file": "build/loggers/SimpleUserLogger.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history/user_logger/plain_text_output_use_you",
             "file": "loggers/SimpleUserLogger.php",
             "type": "filter",
@@ -2504,6 +4769,32 @@
             "examples": [
                 "Change the capability required to view the log to \"manage options\", so only allow admins are allowed to view the history log page.\n\n```php\n add_filter(\n     'simple_history/view_history_capability',\n     function ( $capability ) {\n         $capability = 'manage_options';\n         return $capability;\n     }\n );\n```"
             ]
+        },
+        {
+            "name": "simple_history/view_history_capability",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history/view_settings_capability",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
         },
         {
             "name": "simple_history/view_settings_capability",
@@ -2547,11 +4838,83 @@
             "examples": []
         },
         {
+            "name": "simple_history_allow_db_purge",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history_db_purge_days_interval",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "Filter to modify number of days of history to keep.",
+                "long_description": "Default is 60 days.",
+                "tags": [
+                    {
+                        "name": "param",
+                        "content": "Number of days of history to keep",
+                        "types": [],
+                        "variable": "$days"
+                    }
+                ],
+                "long_description_html": "<p>Default is 60 days.</p>"
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history_db_purge_days_interval",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history_log",
+            "file": "build/examples/examples.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 3,
+            "examples": []
+        },
+        {
+            "name": "simple_history_log",
+            "file": "build/examples/examples.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history_log",
+            "file": "build/examples/examples.php",
+            "type": "filter",
+            "doc": {
+                "description": "Load only the loggers that are specified in the $do_log_us array",
                 "long_description": "",
                 "tags": [],
                 "long_description_html": ""
@@ -2582,7 +4945,7 @@
                 "tags": [],
                 "long_description_html": ""
             },
-            "args": 2,
+            "args": 3,
             "examples": []
         },
         {
@@ -2595,7 +4958,20 @@
                 "tags": [],
                 "long_description_html": ""
             },
-            "args": 3,
+            "args": 2,
+            "examples": []
+        },
+        {
+            "name": "simple_history_show_as_page",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
             "examples": []
         },
         {
@@ -2613,7 +4989,33 @@
         },
         {
             "name": "simple_history_show_on_dashboard",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history_show_on_dashboard",
             "file": "inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history_show_settings_page",
+            "file": "build/inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "",
@@ -2651,11 +5053,37 @@
             "examples": []
         },
         {
+            "name": "simple_history_view_history_capability",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
             "name": "simple_history_view_settings_capability",
             "file": "inc/SimpleHistory.php",
             "type": "filter",
             "doc": {
                 "description": "Old filter name, use `simple_history/view_settings_capability` instead.",
+                "long_description": "",
+                "tags": [],
+                "long_description_html": ""
+            },
+            "args": 1,
+            "examples": []
+        },
+        {
+            "name": "simple_history_view_settings_capability",
+            "file": "build/inc/SimpleHistory.php",
+            "type": "filter",
+            "doc": {
+                "description": "",
                 "long_description": "",
                 "tags": [],
                 "long_description_html": ""
