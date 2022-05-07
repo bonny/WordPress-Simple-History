@@ -193,8 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= Unreleased =
+= Unreleased, maybe 3.3.0 =
 
+- Fixed: Error when third party plugin passed arguments to the `get_avatar` filter. [#288](https://github.com/bonny/WordPress-Simple-History/issues/288)
+- Changed: If Gravatars are disabled in WordPress ("Discussion" -> "Show Avatars" is unchecked) then Simple History respects this and also does not show any user avatars in the activity feed. A new filter has been added that can be used to override this: [`simple_history/show_avatars`](https://docs.simple-history.com/hooks#simple_history/show_avatars). [#288](https://github.com/bonny/WordPress-Simple-History/issues/288)
 - Update translations. Props @kebbet.
 - Use `constant()` function to get constant values. Makes some linting errors go away.
 - Remove `languages` folder. [#287](https://github.com/bonny/WordPress-Simple-History/issues/287)

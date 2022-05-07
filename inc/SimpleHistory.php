@@ -2183,7 +2183,7 @@ Because Simple History was only recently installed, this feed does not display m
 		 *      return $days;
 		 *  } );
 		 * ```
-		 * 
+		 *
 		 * @example Expand the log to keep 90 days in the log.
 		 *
 		 * ```php
@@ -2994,6 +2994,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * want to allow/show gravatars even if they are disabled in discussion settings
 	 *
 	 * @since 2.0
+	 * @since 3.3 Respects gravatar setting in discussion settings.
 	 *
 	 * @param string $email email address
 	 * @param int    $size Size of the avatar image
@@ -3001,95 +3002,34 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @param string $alt Alternative text to use in image tag. Defaults to blank
 	 * @return string <img> tag for the user's avatar
 	 */
-	public function get_avatar( $email, $size = '96', $default = '', $alt = false ) {
-		// WP setting for avatars is to show, so just use the built in function
-		if ( get_option( 'show_avatars' ) ) {
-			$avatar = get_avatar( $email, $size, $default, $alt );
+	public function get_avatar( $email, $size = '96', $default = '', $alt = false, $args = array() ) {
+		$args = array(
+			'force_display' => false,
+		);
 
-			return $avatar;
-		} else {
-			// WP setting for avatar was to not show, but we do it anyway, using the same code as get_avatar() would have used
-			if ( false === $alt ) {
-				$safe_alt = '';
-			} else {
-				$safe_alt = esc_attr( $alt );
-			}
+		/**
+		 * Filter to control if avatars should be displayed, even if the show_avatars option
+		 * is set to false in WordPress discussion settings.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @example Force display of Gravatars
+		 *
+		 * ```php
+		 *  add_filter(
+		 *      'simple_history/show_avatars',
+		 *      function ( $force ) {
+		 *          $force = true;
+		 *          return $force;
+		 *      }
+		 *  );
+		 * ```
+		 *
+		 * @param bool Force display. Default false.
+		 */
+		$args['force_display'] = apply_filters( 'simple_history/show_avatars', $args['force_display'] );
 
-			if ( ! is_numeric( $size ) ) {
-				$size = '96';
-			}
-
-			if ( empty( $default ) ) {
-				$avatar_default = get_option( 'avatar_default' );
-				if ( empty( $avatar_default ) ) {
-					$default = 'mystery';
-				} else {
-					$default = $avatar_default;
-				}
-			}
-
-			if ( ! empty( $email ) ) {
-				$email_hash = md5( strtolower( trim( $email ) ) );
-			}
-
-			if ( is_ssl() ) {
-				$host = 'https://secure.gravatar.com';
-			} else {
-				if ( ! empty( $email ) ) {
-					$host = sprintf( 'http://%d.gravatar.com', hexdec( $email_hash[0] ) % 2 );
-				} else {
-					$host = 'http://0.gravatar.com';
-				}
-			}
-
-			if ( 'mystery' == $default ) {
-				$default = "$host/avatar/ad516503a11cd5ca435acc9bb6523536?s={$size}";
-			} elseif ( 'blank' == $default ) {
-				$default = $email ? 'blank' : includes_url( 'images/blank.gif' );
-			} elseif ( ! empty( $email ) && 'gravatar_default' == $default ) {
-				$default = '';
-			} elseif ( 'gravatar_default' == $default ) {
-				$default = "$host/avatar/?s={$size}";
-			} elseif ( empty( $email ) ) {
-				$default = "$host/avatar/?d=$default&amp;s={$size}";
-			} elseif ( strpos( $default, 'http://' ) === 0 ) {
-				$default = add_query_arg( 's', $size, $default );
-			}
-
-			if ( ! empty( $email ) ) {
-				$out = "$host/avatar/";
-				$out .= $email_hash;
-				$out .= '?s=' . $size;
-				$out .= '&amp;d=' . urlencode( $default );
-
-				$rating = get_option( 'avatar_rating' );
-				if ( ! empty( $rating ) ) {
-					$out .= "&amp;r={$rating}";
-				}
-
-				$out = str_replace( '&#038;', '&amp;', esc_url( $out ) );
-				$avatar = "<img alt='{$safe_alt}' src='{$out}' class='avatar avatar-{$size} photo' height='{$size}' width='{$size}' />";
-			} else {
-				$out = esc_url( $default );
-				$avatar = "<img alt='{$safe_alt}' src='{$out}' class='avatar avatar-{$size} photo avatar-default' height='{$size}' width='{$size}' />";
-			}
-
-			/**
-			 * Filter the avatar to retrieve.
-			 * Same filter WordPress uses
-			 *
-			 * @since 2.0.19
-			 *
-			 * @param string            $avatar      Image tag for the user's avatar.
-			 * @param int|object|string $id_or_email A user ID, email address, or comment object.
-			 * @param int               $size        Square avatar width and height in pixels to retrieve.
-			 * @param string            $alt         Alternative text to use in the avatar image tag.
-			 *                                       Default empty.
-			 */
-			$avatar = apply_filters( 'get_avatar', $avatar, $email, $size, $default, $alt ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-
-			return $avatar;
-		} // End if().
+		return get_avatar( $email, $size, $default, $alt, $args );
 	}
 
 	/**
