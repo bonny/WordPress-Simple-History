@@ -43,7 +43,7 @@
     "lint-css": "stylelint css/*.css dropins/*.css",
     "lint-php": "composer run lint",
     "lint-php-fix": "composer run lint-fix",
-    "test": "npm run test:php5.6-wpunit && npm run test:php7.4-wpunit && npm run test:php7.4-acceptance",
+    "test": "npm run test:php7.4-wpunit && npm run test:php7.4-acceptance",
     "test:php7.4-wpunit": "docker-compose run --rm php-cli vendor/bin/codecept run wpunit",
     "test:php7.4-acceptance": "docker-compose run --rm php-cli vendor/bin/codecept run acceptance"
   },
