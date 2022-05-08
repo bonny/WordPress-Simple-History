@@ -1,0 +1,4 @@
+{
+	"phpVersion": "7.0",
+	"plugins": ["johnbillion/query-monitor"]
+}
