@@ -18,7 +18,7 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 		 *
 		 * @var string
 		 */
-		public $slug = __CLASS__;
+		public $slug = self::class;
 
 		/**
 		 * Return info about logger.

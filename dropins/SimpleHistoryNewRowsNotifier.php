@@ -47,7 +47,7 @@ class SimpleHistoryNewRowsNotifier {
 
 	public function ajax() {
 
-		$apiArgs = isset( $_GET['apiArgs'] ) ? $_GET['apiArgs'] : array();
+		$apiArgs = $_GET['apiArgs'] ?? array();
 
 		if ( ! $apiArgs ) {
 			wp_send_json_error(
@@ -83,7 +83,7 @@ class SimpleHistoryNewRowsNotifier {
 		// Use our own response array instead of $answer to keep size down
 		$json_data = array();
 
-		$numNewRows = isset( $answer['total_row_count'] ) ? $answer['total_row_count'] : 0;
+		$numNewRows = $answer['total_row_count'] ?? 0;
 		$json_data['num_new_rows'] = $numNewRows;
 		$json_data['num_mysql_queries'] = get_num_queries();
 

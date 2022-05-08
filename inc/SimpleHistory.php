@@ -618,7 +618,7 @@ class SimpleHistory {
 		unset( $args['action'] );
 
 		// Type = overview | ...
-		$type = isset( $_GET['type'] ) ? $_GET['type'] : null;
+		$type = $_GET['type'] ?? null;
 
 		if ( empty( $args ) || ! $type ) {
 			wp_send_json_error(
@@ -1771,7 +1771,7 @@ Because Simple History was only recently installed, this feed does not display m
 			</h1>
 
 			<?php
-			$active_tab = isset( $_GET['selected-tab'] ) ? $_GET['selected-tab'] : 'settings';
+			$active_tab = $_GET['selected-tab'] ?? 'settings';
 			$settings_base_url = menu_page_url( self::SETTINGS_MENU_SLUG, 0 );
 			?>
 
@@ -2233,7 +2233,7 @@ Because Simple History was only recently installed, this feed does not display m
 			)
 		);
 
-		$this->get_cache_incrementor( true );
+		static::get_cache_incrementor(true);
 	}
 
 	/**
@@ -2326,7 +2326,7 @@ Because Simple History was only recently installed, this feed does not display m
 				)
 			);
 
-			$this->get_cache_incrementor( true );
+			static::get_cache_incrementor(true);
 		}
 	}
 
@@ -3073,7 +3073,7 @@ Because Simple History was only recently installed, this feed does not display m
 		);
 
 		$cache_key = 'quick_stats_users_today_' . md5( serialize( $sql_loggers_in ) );
-		$cache_group = 'simple-history-' . $this->get_cache_incrementor();
+		$cache_group = 'simple-history-' . static::get_cache_incrementor();
 		$results_users_today = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false === $results_users_today ) {

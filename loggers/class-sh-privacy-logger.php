@@ -28,7 +28,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 *
 	 * @var string
 	 */
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	/**
 	 * Return info about logger.
@@ -269,7 +269,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
-		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : null;
+		$action = $_REQUEST['action'] ?? null;
 
 		if ( $user_request && 'delete' === $action ) {
 			// Looks like "Remove request" action.
@@ -314,7 +314,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
-		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : null;
+		$action = $_REQUEST['action'] ?? null;
 
 		if ( $user_request && 'delete' === $action ) {
 			// Looks like "Remove request" action.
@@ -348,7 +348,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 */
 	public function on_load_privacy_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$action = isset( $_POST['action'] ) ? $_POST['action'] : '';
+		$action = $_POST['action'] ?? '';
 		$option_name = 'wp_page_for_privacy_policy';
 
 		if ( 'create-privacy-page' === $action ) {

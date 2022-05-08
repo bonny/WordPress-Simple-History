@@ -71,7 +71,7 @@ echo "<div class='SimpleHistoryChart__logLevelsPie'></div>";
 
 ?>
 <script>
-	
+
 	/**
 	 * Bar chart with log levels
 	 */

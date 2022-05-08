@@ -184,7 +184,7 @@ class SimpleHistoryRSSDropin {
 	public function outputRss() {
 
 		$rss_secret_option = get_option( 'simple_history_rss_secret' );
-		$rss_secret_get = isset( $_GET['rss_secret'] ) ? $_GET['rss_secret'] : '';
+		$rss_secret_get = $_GET['rss_secret'] ?? '';
 
 		if ( empty( $rss_secret_option ) || empty( $rss_secret_get ) ) {
 			die();
@@ -361,13 +361,13 @@ class SimpleHistoryRSSDropin {
 							<guid isPermaLink="false"><![CDATA[<?php echo esc_html( $item_guid ); ?>]]></guid>
 							<link><![CDATA[<?php echo esc_url( $item_link ); ?>]]></link>
 						</item>
-						<?php
+<?php
 					} // End foreach().
 
 					?>
 				</channel>
 			</rss>
-			<?php
+<?php
 		} else {
 			// RSS secret was not ok
 			?>
@@ -384,7 +384,7 @@ class SimpleHistoryRSSDropin {
 					</item>
 				</channel>
 			</rss>
-			<?php
+<?php
 		}// End if().
 	}
 
@@ -398,7 +398,7 @@ class SimpleHistoryRSSDropin {
 		$rss_secret = '';
 
 		for ( $i = 0; $i < 20; $i++ ) {
-			$rss_secret .= chr( rand( 97, 122 ) );
+			$rss_secret .= chr( random_int( 97, 122 ) );
 		}
 
 		update_option( 'simple_history_rss_secret', $rss_secret );

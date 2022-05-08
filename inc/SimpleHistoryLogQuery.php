@@ -14,6 +14,7 @@ class SimpleHistoryLogQuery {
 	 * @return array
 	 */
 	public function query( $args ) {
+		$sql_tmpl = null;
 		$defaults = array(
 
 			// overview | occasions

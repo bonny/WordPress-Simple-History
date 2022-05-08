@@ -8,7 +8,7 @@ defined( 'ABSPATH' ) || die();
 class SimpleCoreUpdatesLogger extends SimpleLogger {
 
 
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	public function loaded() {
 

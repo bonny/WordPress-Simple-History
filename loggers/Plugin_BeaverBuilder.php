@@ -9,7 +9,7 @@ if ( ! class_exists( 'Plugin_BeaverBuilder' ) ) {
     // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 	class Plugin_BeaverBuilder extends SimpleLogger {
 
-		public $slug = __CLASS__;
+		public $slug = self::class;
 
 		public function getInfo() {
 			$arr_info = array(

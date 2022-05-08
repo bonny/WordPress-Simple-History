@@ -19,7 +19,7 @@ class SH_Jetpack_Logger extends SimpleLogger {
 	 *
 	 * @var string
 	 */
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	/**
 	 * Return info about logger.
@@ -89,7 +89,7 @@ class SH_Jetpack_Logger extends SimpleLogger {
 
 		$modules = $this->get_jetpack_modules();
 
-		return isset( $modules[ $slug ] ) ? $modules[ $slug ] : false;
+		return $modules[ $slug ] ?? false;
 	}
 
 	/**

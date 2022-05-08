@@ -4,7 +4,7 @@
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor
  */
 class FileEditsLogger extends SimpleLogger {
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	public function getInfo() {
 
@@ -52,9 +52,9 @@ class FileEditsLogger extends SimpleLogger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST ) && isset( $_POST['action'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$file = isset( $_POST['file'] ) ? $_POST['file'] : null;
+			$file = $_POST['file'] ?? null;
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$plugin_file = isset( $_POST['plugin'] ) ? $_POST['plugin'] : null;
+			$plugin_file = $_POST['plugin'] ?? null;
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
 
@@ -62,8 +62,8 @@ class FileEditsLogger extends SimpleLogger {
 			// $phperror = isset($_POST["phperror"]) ? $_POST["phperror"] : null;
 			// Get info about the edited plugin
 			$pluginInfo = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
-			$pluginName = isset( $pluginInfo['Name'] ) ? $pluginInfo['Name'] : null;
-			$pluginVersion = isset( $pluginInfo['Version'] ) ? $pluginInfo['Version'] : null;
+			$pluginName = $pluginInfo['Name'] ?? null;
+			$pluginVersion = $pluginInfo['Version'] ?? null;
 
 			// Get contents before save
 			$fileContentsBeforeEdit = file_get_contents( WP_PLUGIN_DIR . '/' . $file );
@@ -74,7 +74,7 @@ class FileEditsLogger extends SimpleLogger {
 				'plugin_version' => $pluginVersion,
 				'old_file_contents' => $fileContentsBeforeEdit,
 				'new_file_contents' => $fileNewContents,
-				'_occasionsID' => __CLASS__ . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
+				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
 			);
 
 			$loggerInstance = $this;
@@ -156,9 +156,9 @@ class FileEditsLogger extends SimpleLogger {
 			*/
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$file = isset( $_POST['file'] ) ? $_POST['file'] : null;
+			$file = $_POST['file'] ?? null;
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$theme = isset( $_POST['theme'] ) ? $_POST['theme'] : null;
+			$theme = $_POST['theme'] ?? null;
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
 
@@ -190,7 +190,7 @@ class FileEditsLogger extends SimpleLogger {
 				'file_dir' => $file,
 				'old_file_contents' => $fileContentsBeforeEdit,
 				'new_file_contents' => $fileNewContents,
-				'_occasionsID' => __CLASS__ . '/' . __FUNCTION__ . "/file-edit/$file",
+				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$file",
 			);
 
 			// Hook into wp_redirect
@@ -227,7 +227,7 @@ class FileEditsLogger extends SimpleLogger {
 	public function getLogRowDetailsOutput( $row ) {
 
 		$context = $row->context;
-		$message_key = isset( $context['_message_key'] ) ? $context['_message_key'] : null;
+		$message_key = $context['_message_key'] ?? null;
 
 		if ( ! $message_key ) {
 			return;

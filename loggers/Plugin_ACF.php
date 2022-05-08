@@ -22,7 +22,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 		 *
 		 * @var string $slug
 		 */
-		public $slug = __CLASS__;
+		public $slug = self::class;
 
 		/**
 		 * Will contain field groups and fields, before and after post save.
@@ -194,7 +194,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			[_product_images_0_image_related] => field_59aaedbc3ae10
 			[product_images_1_image] => 574
 			*/
-			$prev_post_meta = isset( $this->oldPostData['prev_post_meta'] ) ? $this->oldPostData['prev_post_meta'] : array();
+			$prev_post_meta = $this->oldPostData['prev_post_meta'] ?? array();
 
 			$new_post_meta = get_post_custom( $post_id );
 			array_walk(

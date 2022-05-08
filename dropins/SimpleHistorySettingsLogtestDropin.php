@@ -102,7 +102,7 @@ class SimpleHistorySettingsLogtestDropin {
 		// Add some data random back in time, to fill up the log to test much data
 		for ( $j = 0; $j < 50; $j++ ) {
 			// between yesterday and a month back in time
-			for ( $i = 0; $i < rand( 1, 30 ); $i++ ) {
+			for ( $i = 0; $i < random_int( 1, 30 ); $i++ ) {
 				$str_date = gmdate( 'Y-m-d H:i:s', strtotime( "now -{$i}days" ) );
 				SimpleLogger()->info(
 					'Entry with date in the past',
@@ -127,16 +127,16 @@ class SimpleHistorySettingsLogtestDropin {
 
 		// Log entries can have placeholders and context
 		// This makes log entries translatable and filterable
-		for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
+		for ( $i = 0; $i < random_int( 1, 50 ); $i++ ) {
 			SimpleLogger()->notice(
 				'User {username} edited page {pagename}',
 				array(
 					'username' => 'bonnyerden',
 					'pagename' => 'My test page',
 					'_initiator' => SimpleLoggerLogInitiators::WP_USER,
-					'_user_id' => rand( 1, 20 ),
-					'_user_login' => 'loginname' . rand( 1, 20 ),
-					'_user_email' => 'user' . rand( 1, 20 ) . '@example.com',
+					'_user_id' => random_int( 1, 20 ),
+					'_user_login' => 'loginname' . random_int( 1, 20 ),
+					'_user_email' => 'user' . random_int( 1, 20 ) . '@example.com',
 				)
 			);
 		}
@@ -144,7 +144,7 @@ class SimpleHistorySettingsLogtestDropin {
 		// Log entries can have custom occasionsID
 		// This will group items together and a log entry will only be shown once
 		// in the log overview
-		for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
+		for ( $i = 0; $i < random_int( 1, 50 ); $i++ ) {
 			SimpleLogger()->notice(
 				'User {username} edited page {pagename}',
 				array(
@@ -215,7 +215,7 @@ class SimpleHistorySettingsLogtestDropin {
 			)
 		);
 
-		for ( $i = 0; $i < rand( 50, 1000 ); $i++ ) {
+		for ( $i = 0; $i < random_int( 50, 1000 ); $i++ ) {
 			SimpleLogger()->warning(
 				'An attempt to login as user "{user_login}" failed to login because the wrong password was entered',
 				array(

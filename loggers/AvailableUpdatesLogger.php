@@ -19,7 +19,7 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 		 *
 		 * @var $slug string
 		 */
-		public $slug = __CLASS__;
+		public $slug = self::class;
 
 		/**
 		 * Return logger info
@@ -164,7 +164,7 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 
 				$plugin_info = get_plugin_data( $file, true, false );
 
-				$plugin_new_version = isset( $data->new_version ) ? $data->new_version : '';
+				$plugin_new_version = $data->new_version ?? '';
 
 				// Check if this plugin and this version has been checked/logged already.
 				if ( ! array_key_exists( $key, $checked_updates ) ) {
@@ -183,8 +183,8 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 				$this->noticeMessage(
 					'plugin_update_available',
 					array(
-						'plugin_name' => isset( $plugin_info['Name'] ) ? $plugin_info['Name'] : '',
-						'plugin_current_version' => isset( $plugin_info['Version'] ) ? $plugin_info['Version'] : '',
+						'plugin_name' => $plugin_info['Name'] ?? '',
+						'plugin_current_version' => $plugin_info['Version'] ?? '',
 						'plugin_new_version' => $plugin_new_version,
 						'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
 					// "plugin_info" => $plugin_info,
@@ -219,7 +219,7 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 				// $message .= "\n" . sprintf( __( "Theme: %s is out of date. Please update from version %s to %s", "wp-updates-notifier" ), $theme_info['Name'], $theme_info['Version'], $data['new_version'] ) . "\n";
 				$settings['notified']['theme'][ $key ] = $data['new_version']; // set theme version we are notifying about
 
-				$theme_new_version = isset( $data['new_version'] ) ? $data['new_version'] : '';
+				$theme_new_version = $data['new_version'] ?? '';
 
 				// check if this plugin and this version has been checked/logged already
 				if ( ! array_key_exists( $key, $checked_updates ) ) {
@@ -238,8 +238,8 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 				$this->noticeMessage(
 					'theme_update_available',
 					array(
-						'theme_name' => isset( $theme_info['Name'] ) ? $theme_info['Name'] : '',
-						'theme_current_version' => isset( $theme_info['Version'] ) ? $theme_info['Version'] : '',
+						'theme_name' => $theme_info['Name'] ?? '',
+						'theme_current_version' => $theme_info['Version'] ?? '',
 						'theme_new_version' => $theme_new_version,
 						'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
 					// "plugin_info" => $plugin_info,
@@ -262,24 +262,24 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 
 			$current_version = null;
 			$new_version = null;
-			$context_message_key = isset( $row->context_message_key ) ? $row->context_message_key : null;
+			$context_message_key = $row->context_message_key ?? null;
 
-			$context = isset( $row->context ) ? $row->context : array();
+			$context = $row->context ?? array();
 
 			switch ( $context_message_key ) {
 				case 'core_update_available':
-					$current_version = isset( $context['wp_core_current_version'] ) ? $context['wp_core_current_version'] : null;
-					$new_version = isset( $context['wp_core_new_version'] ) ? $context['wp_core_new_version'] : null;
+					$current_version = $context['wp_core_current_version'] ?? null;
+					$new_version = $context['wp_core_new_version'] ?? null;
 					break;
 
 				case 'plugin_update_available':
-					$current_version = isset( $context['plugin_current_version'] ) ? $context['plugin_current_version'] : null;
-					$new_version = isset( $context['plugin_new_version'] ) ? $context['plugin_new_version'] : null;
+					$current_version = $context['plugin_current_version'] ?? null;
+					$new_version = $context['plugin_new_version'] ?? null;
 					break;
 
 				case 'theme_update_available':
-					$current_version = isset( $context['theme_current_version'] ) ? $context['theme_current_version'] : null;
-					$new_version = isset( $context['theme_new_version'] ) ? $context['theme_new_version'] : null;
+					$current_version = $context['theme_current_version'] ?? null;
+					$new_version = $context['theme_new_version'] ?? null;
 					break;
 			}
 

@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || die();
  */
 class SimpleThemeLogger extends SimpleLogger {
 
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	// When switching themes, this will contain info about the theme we are switching from
 	private $prev_theme_data;
@@ -531,7 +531,7 @@ class SimpleThemeLogger extends SimpleLogger {
 					// Empty, so skip.
 				} else {
 					// if control is color let's be fancy and output as color
-					$control_type = isset( $context['control_type'] ) ? $context['control_type'] : '';
+					$control_type = $context['control_type'] ?? '';
 					$str_old_value_prepend = '';
 					$str_new_value_prepend = '';
 
@@ -741,7 +741,7 @@ class SimpleThemeLogger extends SimpleLogger {
 
 		// Add sidebar info.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$sidebar_id = isset( $_POST['sidebar'] ) ? $_POST['sidebar'] : null;
+		$sidebar_id = $_POST['sidebar'] ?? null;
 		$context['sidebar_id'] = $sidebar_id;
 		$sidebar = $this->getSidebarById( $sidebar_id );
 		if ( $sidebar ) {
@@ -804,6 +804,7 @@ class SimpleThemeLogger extends SimpleLogger {
 	 */
 	public function on_action_sidebar_admin_setup__detect_widget_add() {
 
+		$context = [];
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['add_new'] ) && ! empty( $_POST['add_new'] ) && isset( $_POST['sidebar'] ) && isset( $_POST['id_base'] ) ) {
 			// Add widget info
@@ -877,7 +878,7 @@ class SimpleThemeLogger extends SimpleLogger {
 			return false;
 		}
 
-		$sidebars = isset( $GLOBALS['wp_registered_sidebars'] ) ? $GLOBALS['wp_registered_sidebars'] : false;
+		$sidebars = $GLOBALS['wp_registered_sidebars'] ?? false;
 
 		if ( ! $sidebars ) {
 			return false;
@@ -899,7 +900,7 @@ class SimpleThemeLogger extends SimpleLogger {
 	 */
 	public function getWidgetByIdBase( $widget_id_base ) {
 
-		$widget_factory = isset( $GLOBALS['wp_widget_factory'] ) ? $GLOBALS['wp_widget_factory'] : false;
+		$widget_factory = $GLOBALS['wp_widget_factory'] ?? false;
 
 		if ( ! $widget_factory ) {
 			return false;

@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || die();
 if ( ! class_exists( 'Plugin_DuplicatePost' ) ) {
 	class Plugin_DuplicatePost extends SimpleLogger {
 
-		public $slug = __CLASS__;
+		public $slug = self::class;
 
 		public function getInfo() {
 			$arr_info = array(
@@ -81,12 +81,10 @@ if ( ! class_exists( 'Plugin_DuplicatePost' ) ) {
 		 */
 		public function getLogRowPlainTextOutput( $row ) {
 			$context = $row->context;
-			$new_post_id = isset( $context['new_post_id'] ) ? $context['new_post_id'] : null;
-			$duplicated_post_id = isset( $context['duplicated_post_id'] ) ? $context['duplicated_post_id'] : null;
-			$duplicated_post_title = isset( $context['duplicated_post_title'] )
-				? $context['duplicated_post_title']
-				: null;
-			$message_key = isset( $context['_message_key'] ) ? $context['_message_key'] : null;
+			$new_post_id = $context['new_post_id'] ?? null;
+			$duplicated_post_id = $context['duplicated_post_id'] ?? null;
+			$duplicated_post_title = $context['duplicated_post_title'] ?? null;
+			$message_key = $context['_message_key'] ?? null;
 
 			$message = $row->message;
 
@@ -97,7 +95,7 @@ if ( ! class_exists( 'Plugin_DuplicatePost' ) ) {
 			$post_is_available = is_a( $postDuplicated, 'WP_Post' );
 
 			// Try to get singular name
-			$post_type = isset( $postDuplicated->post_type ) ? $postDuplicated->post_type : '';
+			$post_type = $postDuplicated->post_type ?? '';
 			$post_type_obj = get_post_type_object( $post_type );
 
 			if ( ! is_null( $post_type_obj ) ) {

@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || die();
  */
 class SimpleCommentsLogger extends SimpleLogger {
 
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	public function __construct( $sh ) {
 		parent::__construct( $sh );
@@ -511,7 +511,7 @@ class SimpleCommentsLogger extends SimpleLogger {
 			// add occasions if comment is considered spam
 			// if not added, spam comments can easily flood the log
 			if ( isset( $comment_data->comment_approved ) && 'spam' === $comment_data->comment_approved ) {
-				$context['_occasionsID'] = __CLASS__ . '/' . __FUNCTION__ . "/anon_{$context["comment_type"]}_added/type:spam";
+				$context['_occasionsID'] = self::class . '/' . __FUNCTION__ . "/anon_{$context["comment_type"]}_added/type:spam";
 			}
 		}
 
@@ -588,7 +588,7 @@ class SimpleCommentsLogger extends SimpleLogger {
 
 		// Keys to show
 		$arr_plugin_keys = array();
-		$comment_type = isset( $context['comment_type'] ) ? $context['comment_type'] : '';
+		$comment_type = $context['comment_type'] ?? '';
 
 		switch ( $comment_type ) {
 			case 'trackback':

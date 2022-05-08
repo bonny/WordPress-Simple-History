@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || die();
  */
 class SimpleOptionsLogger extends SimpleLogger {
 
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	/**
 	 * Get array with information about this logger
@@ -70,7 +70,7 @@ class SimpleOptionsLogger extends SimpleLogger {
 
 		// Also only if "option_page" is set to one of these "built in" ones
 		// We don't wanna start logging things from other plugins, like EDD
-		$option_page = isset( $_REQUEST['option_page'] ) ? $_REQUEST['option_page'] : ''; // general | discussion | ...
+		$option_page = $_REQUEST['option_page'] ?? ''; // general | discussion | ...
 
 		$arr_valid_option_pages = array(
 			'general',
@@ -132,10 +132,10 @@ class SimpleOptionsLogger extends SimpleLogger {
 		$message_key = $context['_message_key'];
 		$output = '';
 
-		$option = isset( $context['option'] ) ? $context['option'] : null;
-		$option_page = isset( $context['option_page'] ) ? $context['option_page'] : null;
-		$new_value = isset( $context['new_value'] ) ? $context['new_value'] : null;
-		$old_value = isset( $context['old_value'] ) ? $context['old_value'] : null;
+		$option = $context['option'] ?? null;
+		$option_page = $context['option_page'] ?? null;
+		$new_value = $context['new_value'] ?? null;
+		$old_value = $context['old_value'] ?? null;
 
 		$tmpl_row = '
 			<tr>
@@ -365,8 +365,8 @@ class SimpleOptionsLogger extends SimpleLogger {
 	 */
 	public function get_details_output_for_option_default_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
 
-		$old_category_name = isset( $context['old_category_name'] ) ? $context['old_category_name'] : null;
-		$new_category_name = isset( $context['new_category_name'] ) ? $context['new_category_name'] : null;
+		$old_category_name = $context['old_category_name'] ?? null;
+		$new_category_name = $context['new_category_name'] ?? null;
 		$output = '';
 
 		if ( $old_category_name ) {

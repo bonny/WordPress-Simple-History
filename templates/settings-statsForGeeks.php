@@ -159,7 +159,7 @@ echo '<p class="hide-if-no-js"><button class="button js-SimpleHistoryShowsStatsF
 		}
 
 		$logger_info = $logger->getInfo();
-		$logger_messages = isset( $logger_info['messages'] ) ? $logger_info['messages'] : array();
+		$logger_messages = $logger_info['messages'] ?? array();
 
 		$html_logger_messages = '';
 		foreach ( $logger_messages as $message_key => $message ) {

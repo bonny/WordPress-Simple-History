@@ -12,7 +12,7 @@ class SimplePluginLogger extends SimpleLogger {
 	 *
 	 * @var string $slug
 	 */
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	/**
 	 * This variable is set if a plugins has been disabled due to an error,
@@ -299,10 +299,10 @@ class SimplePluginLogger extends SimpleLogger {
 				 *         )
 				 */
 
-				$action = isset( $_GET['action'] ) ? $_GET['action'] : null;
+				$action = $_GET['action'] ?? null;
 				if ( ! $action ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$action = isset( $_POST['action'] ) ? $_POST['action'] : null;
+					$action = $_POST['action'] ?? null;
 				}
 
 				// Bail if doing ajax and
@@ -314,7 +314,7 @@ class SimplePluginLogger extends SimpleLogger {
 					}
 
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$type = isset( $_POST['type'] ) ? $_POST['type'] : null;
+					$type = $_POST['type'] ?? null;
 					if ( $type !== 'plugin' ) {
 						return;
 					}
@@ -334,7 +334,7 @@ class SimplePluginLogger extends SimpleLogger {
 
 				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ) ) ) {
 					// Opening single item enable/disable auto update link in plugin list in new window.
-					$plugin = isset( $_GET['plugin'] ) ? $_GET['plugin'] : null;
+					$plugin = $_GET['plugin'] ?? null;
 
 					if ( $plugin ) {
 						$plugins[] = sanitize_text_field( urldecode( $plugin ) );
@@ -352,9 +352,9 @@ class SimplePluginLogger extends SimpleLogger {
 					// *    [type] => plugin
 					// *    [asset] => redirection/redirection.php
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$state = isset( $_POST['state'] ) ? $_POST['state'] : null;
+					$state = $_POST['state'] ?? null;
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$asset = isset( $_POST['asset'] ) ? $_POST['asset'] : null;
+					$asset = $_POST['asset'] ?? null;
 
 					if ( $state === 'enable' ) {
 						$enableOrDisable = 'enable';
@@ -368,7 +368,7 @@ class SimplePluginLogger extends SimpleLogger {
 				} elseif ( in_array( $action, array( 'enable-auto-update-selected', 'disable-auto-update-selected' ) ) ) {
 					// $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$checked = isset( $_POST['checked'] ) ? $_POST['checked'] : null;
+					$checked = $_POST['checked'] ?? null;
 					if ( $checked ) {
 						$plugins = (array) $checked;
 					}
@@ -411,8 +411,8 @@ class SimplePluginLogger extends SimpleLogger {
 
 		$context = array(
 			'plugin_slug'        => $onePluginSlug,
-			'plugin_name'        => isset( $pluginData['Name'] ) ? $pluginData['Name'] : null,
-			'plugin_version'     => isset( $pluginData['Version'] ) ? $pluginData['Version'] : null,
+			'plugin_name'        => $pluginData['Name'] ?? null,
+			'plugin_version'     => $pluginData['Version'] ?? null,
 		);
 
 		if ( $enableOrDisable === 'enable' ) {
@@ -758,16 +758,16 @@ class SimplePluginLogger extends SimpleLogger {
 				$upgrader_skin_options = isset( $plugin_upgrader_instance->skin->options ) && is_array( $plugin_upgrader_instance->skin->options ) ? $plugin_upgrader_instance->skin->options : array();
 				$upgrader_skin_result  = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
 				// $upgrader_skin_api  = isset( $plugin_upgrader_instance->skin->api ) ? $plugin_upgrader_instance->skin->api : (object) array();
-				$new_plugin_data       = isset( $plugin_upgrader_instance->new_plugin_data ) ? $plugin_upgrader_instance->new_plugin_data : array();
-				$plugin_slug           = isset( $upgrader_skin_result['destination_name'] ) ? $upgrader_skin_result['destination_name'] : '';
+				$new_plugin_data       = $plugin_upgrader_instance->new_plugin_data ?? array();
+				$plugin_slug           = $upgrader_skin_result['destination_name'] ?? '';
 
 				$context = array(
 					'plugin_slug'         => $plugin_slug,
-					'plugin_name'         => isset( $new_plugin_data['Name'] ) ? $new_plugin_data['Name'] : '',
-					'plugin_version'      => isset( $new_plugin_data['Version'] ) ? $new_plugin_data['Version'] : '',
-					'plugin_author'       => isset( $new_plugin_data['Author'] ) ? $new_plugin_data['Author'] : '',
-					'plugin_requires_wp'  => isset( $new_plugin_data['RequiresWP'] ) ? $new_plugin_data['RequiresWP'] : '',
-					'plugin_requires_php' => isset( $new_plugin_data['RequiresPHP'] ) ? $new_plugin_data['RequiresPHP'] : '',
+					'plugin_name'         => $new_plugin_data['Name'] ?? '',
+					'plugin_version'      => $new_plugin_data['Version'] ?? '',
+					'plugin_author'       => $new_plugin_data['Author'] ?? '',
+					'plugin_requires_wp'  => $new_plugin_data['RequiresWP'] ?? '',
+					'plugin_requires_php' => $new_plugin_data['RequiresPHP'] ?? '',
 				);
 
 				/*
@@ -824,7 +824,7 @@ class SimplePluginLogger extends SimpleLogger {
 					// Plugin was successfully installed
 					// Try to grab more info from the readme
 					// Would be nice to grab a screenshot, but that is difficult since they often are stored remotely
-					$plugin_destination = isset( $plugin_upgrader_instance->result['destination'] ) ? $plugin_upgrader_instance->result['destination'] : null;
+					$plugin_destination = $plugin_upgrader_instance->result['destination'] ?? null;
 
 					if ( $plugin_destination ) {
 						$plugin_info = $plugin_upgrader_instance->plugin_info();
@@ -834,11 +834,11 @@ class SimplePluginLogger extends SimpleLogger {
 							$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info, true, false );
 						}
 
-						$context['plugin_name']        = isset( $plugin_data['Name'] ) ? $plugin_data['Name'] : '';
-						$context['plugin_description'] = isset( $plugin_data['Description'] ) ? $plugin_data['Description'] : '';
-						$context['plugin_url']         = isset( $plugin_data['PluginURI'] ) ? $plugin_data['PluginURI'] : '';
-						$context['plugin_version']     = isset( $plugin_data['Version'] ) ? $plugin_data['Version'] : '';
-						$context['plugin_author']      = isset( $plugin_data['AuthorName'] ) ? $plugin_data['AuthorName'] : '';
+						$context['plugin_name']        = $plugin_data['Name'] ?? '';
+						$context['plugin_description'] = $plugin_data['Description'] ?? '';
+						$context['plugin_url']         = $plugin_data['PluginURI'] ?? '';
+						$context['plugin_version']     = $plugin_data['Version'] ?? '';
+						$context['plugin_author']      = $plugin_data['AuthorName'] ?? '';
 
 						// Comment out these to debug plugin installs
 						// $context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );

@@ -16,7 +16,7 @@ class SimpleHistoryWPCLIDropin {
 	public function __construct( $sh ) {
 		$this->sh = $sh;
 
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		if ( defined( \WP_CLI::class ) && WP_CLI ) {
 			$this->register_commands();
 		}
 	}
@@ -46,6 +46,7 @@ class SimpleHistoryWPCLIDropin {
 	}
 
 	private function getInitiatorTextFromRow( $row ) {
+		$context = [];
 		if ( ! isset( $row->initiator ) ) {
 			return false;
 		}
@@ -61,7 +62,7 @@ class SimpleHistoryWPCLIDropin {
 				$initiatorText = 'WP-CLI';
 				break;
 			case 'wp_user':
-				$user_id = isset( $row->context['_user_id'] ) ? $row->context['_user_id'] : null;
+				$user_id = $row->context['_user_id'] ?? null;
 				$user = get_user_by( 'id', $user_id );
 
 				if ( $user_id > 0 && $user ) {

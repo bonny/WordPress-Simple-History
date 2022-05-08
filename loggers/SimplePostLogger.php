@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || die();
 class SimplePostLogger extends SimpleLogger {
 
 	// The logger slug. Defaulting to the class name is nice and logical I think.
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	// Array that will contain previous post data, before data is updated.
 	// Array format is
@@ -489,7 +489,7 @@ class SimplePostLogger extends SimpleLogger {
 			return;
 		}
 
-		$new_status = isset( $args['new_post']->post_status ) ? $args['new_post']->post_status : null;
+		$new_status = $args['new_post']->post_status ?? null;
 		$post = $args['new_post'];
 		$new_post_data = array(
 			'post_data' => $post,
@@ -497,11 +497,11 @@ class SimplePostLogger extends SimpleLogger {
 		);
 
 		// Set old status to status from old post with fallback to old_status variable.
-		$old_status = isset( $args['old_post']->post_status ) ? $args['old_post']->post_status : null;
+		$old_status = $args['old_post']->post_status ?? null;
 		$old_status = ! isset( $old_status ) && isset( $args['old_status'] ) ? $args['old_status'] : $old_status;
 
-		$old_post = isset( $args['old_post'] ) ? $args['old_post'] : null;
-		$old_post_meta = isset( $args['old_post_meta'] ) ? $args['old_post_meta'] : null;
+		$old_post = $args['old_post'] ?? null;
+		$old_post_meta = $args['old_post_meta'] ?? null;
 		$old_post_data = array(
 			'post_data' => $old_post,
 			'post_meta' => $old_post_meta,
@@ -606,7 +606,7 @@ class SimplePostLogger extends SimpleLogger {
 				$context = $this->add_post_data_diff_to_context( $context, $old_post_data, $new_post_data );
 			}
 
-			$context['_occasionsID'] = __CLASS__ . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
+			$context['_occasionsID'] = self::class . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
 
 			/**
 			 * Modify the context saved.
@@ -831,11 +831,11 @@ class SimplePostLogger extends SimpleLogger {
 		// private = post private
 		$old_post_has_password = ! empty( $old_data->post_password );
 		$old_post_password = $old_post_has_password ? $old_data->post_password : null;
-		$old_post_status = isset( $old_data->post_status ) ? $old_data->post_status : null;
+		$old_post_status = $old_data->post_status ?? null;
 
 		$new_post_has_password = ! empty( $new_data->post_password );
 		$new_post_password = $new_post_has_password ? $new_data->post_password : null;
-		$new_post_status = isset( $new_data->post_status ) ? $new_data->post_status : null;
+		$new_post_status = $new_data->post_status ?? null;
 
 		if ( false === $old_post_has_password && 'publish' === $new_post_status && $new_post_has_password ) {
 			// If updated post is published and password is set and old post did not have password set
@@ -936,7 +936,7 @@ class SimplePostLogger extends SimpleLogger {
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
 		$context = $row->context;
-		$post_id = isset( $context['post_id'] ) ? $context['post_id'] : 0;
+		$post_id = $context['post_id'] ?? 0;
 
 		// Default to original log message.
 		$message = $row->message;
@@ -947,10 +947,10 @@ class SimplePostLogger extends SimpleLogger {
 		$post = get_post( $post_id );
 		$post_is_available = is_a( $post, 'WP_Post' );
 
-		$message_key = isset( $context['_message_key'] ) ? $context['_message_key'] : null;
+		$message_key = $context['_message_key'] ?? null;
 
 		// Try to get singular name.
-		$post_type = isset( $context['post_type'] ) ? $context['post_type'] : '';
+		$post_type = $context['post_type'] ?? '';
 		$post_type_obj = get_post_type_object( $post_type );
 		if ( ! is_null( $post_type_obj ) ) {
 			if ( ! empty( $post_type_obj->labels->singular_name ) ) {
@@ -1131,12 +1131,8 @@ class SimplePostLogger extends SimpleLogger {
 
 								// page template name, should exist, but I guess someone could have deleted a template
 								// and after that change the template for a post.
-								$prev_page_template_name = isset( $context['post_prev_page_template_name'] )
-									? $context['post_prev_page_template_name']
-									: '';
-								$new_page_template_name = isset( $context['post_new_page_template_name'] )
-									? $context['post_new_page_template_name']
-									: '';
+								$prev_page_template_name = $context['post_prev_page_template_name'] ?? '';
+								$new_page_template_name = $context['post_new_page_template_name'] ?? '';
 
 								// If prev och new template is "default" then use that as name.
 								if ( 'default' == $prev_page_template && ! $prev_page_template_name ) {

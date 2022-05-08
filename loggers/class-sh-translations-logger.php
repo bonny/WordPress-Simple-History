@@ -18,7 +18,7 @@ class SH_Translations_Logger extends SimpleLogger {
 	 *
 	 * @var string
 	 */
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	/**
 	 * Return info about logger.
@@ -73,7 +73,7 @@ class SH_Translations_Logger extends SimpleLogger {
 				'name' => $name,
 				'language' => $translation['language'],
 				'translations' => $translation,
-				'_occasionsID' => __CLASS__ . '/translations_updated',
+				'_occasionsID' => self::class . '/translations_updated',
 			);
 
 			$this->infoMessage(

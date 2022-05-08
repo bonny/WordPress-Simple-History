@@ -74,7 +74,7 @@ $str_js_google_chart_data = rtrim( $str_js_google_chart_data, ', ' );
 ?>
 
 <script>
-	
+
 	/**
 	 * Bar chart with rows per day
 	 */

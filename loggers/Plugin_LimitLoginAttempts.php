@@ -10,7 +10,7 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 	class Plugin_LimitLoginAttempts extends SimpleLogger {
 
 
-		public $slug = __CLASS__;
+		public $slug = self::class;
 
 		public function getInfo() {
 
@@ -189,9 +189,10 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 		 */
 		public function getLogRowDetailsOutput( $row ) {
 
+			$when = null;
 			$output = '';
 
-			$context = isset( $row->context ) ? $row->context : array();
+			$context = $row->context ?? array();
 
 			$message_key = $row->context_message_key;
 

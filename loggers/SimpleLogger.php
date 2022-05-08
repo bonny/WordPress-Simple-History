@@ -16,7 +16,7 @@ class SimpleLogger {
 	 * Unique slug for this logger
 	 * Will be saved in DB and used to associate each log row with its logger
 	 */
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	/**
 	 * Will contain the untranslated messages from getInfo()
@@ -87,7 +87,7 @@ class SimpleLogger {
 	public function getInfo() {
 		$arr_info = array(
 			// The logger slug. Defaulting to the class name is nice and logical I think.
-			'slug' => __CLASS__,
+			'slug' => self::class,
 
 			// Shown on the info-tab in settings, use these fields to tell
 			// an admin what your logger is used for.
@@ -115,7 +115,7 @@ class SimpleLogger {
 	public function getInfoValueByKey( $key ) {
 		$arr_info = $this->getInfo();
 
-		return isset( $arr_info[ $key ] ) ? $arr_info[ $key ] : null;
+		return $arr_info[ $key ] ?? null;
 	}
 
 	/**
@@ -234,9 +234,7 @@ class SimpleLogger {
 
 			// wp_user = wordpress uses, but user may have been deleted since log entry was added
 			case 'wp_user':
-				$user_id = isset( $row->context['_user_id'] )
-					? $row->context['_user_id']
-					: null;
+				$user_id = $row->context['_user_id'] ?? null;
 
 				$user = get_user_by( 'id', $user_id );
 				if ( $user_id > 0 && ( $user ) ) {
@@ -748,9 +746,7 @@ class SimpleLogger {
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
 		$message = $row->message;
-		$message_key = isset( $row->context['_message_key'] )
-		? $row->context['_message_key']
-		: null;
+		$message_key = $row->context['_message_key'] ?? null;
 
 		// Message is translated here, but translation must be added in
 		// plain text before
@@ -809,9 +805,7 @@ class SimpleLogger {
 		switch ( $initiator ) {
 			// wp_user = wordpress uses, but user may have been deleted since log entry was added
 			case 'wp_user':
-				$user_id = isset( $row->context['_user_id'] )
-				? $row->context['_user_id']
-				: null;
+				$user_id = $row->context['_user_id'] ?? null;
 
 				$user = get_user_by( 'id', $user_id );
 				if ( $user_id > 0 && ( $user ) ) {
@@ -1260,9 +1254,7 @@ class SimpleLogger {
 		 *
 		 * @since 2.nn
 		 */
-		$message_key = isset( $context['_message_key'] )
-		? $context['_message_key']
-		: null;
+		$message_key = $context['_message_key'] ?? null;
 		$do_log = apply_filters(
 			"simple_history/log/do_log/{$this->slug}/{$message_key}",
 			true
@@ -1423,7 +1415,7 @@ class SimpleLogger {
 			// - it is a specific user, but we don't know who
 			// - sounds like a special case, set initiator to wp_cli
 			// Can be used by plugins/themes to check if WP-CLI is running or not
-			if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			if ( defined( \WP_CLI::class ) && WP_CLI ) {
 				$data['initiator'] = SimpleLoggerLogInitiators::WP_CLI;
 			}
 		} // End if().

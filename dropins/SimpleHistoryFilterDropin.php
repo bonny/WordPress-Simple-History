@@ -227,7 +227,7 @@ class SimpleHistoryFilterDropin {
 
 						?>
 					</select>
-					
+
 					<span class="SimpleHistory__filters__filter--dayValuesWrap">
 						<?php
 						$this->touch_time( 'from' );
@@ -457,7 +457,7 @@ class SimpleHistoryFilterDropin {
 			</form>
 
 		</div>
-		<?php
+<?php
 	}
 
 	/**
@@ -494,7 +494,7 @@ class SimpleHistoryFilterDropin {
 	 */
 	public function ajax_simple_history_filters_search_user() {
 
-		$q = isset( $_GET['q'] ) ? $_GET['q'] : '';
+		$q = $_GET['q'] ?? '';
 		$page_limit = isset( $_GET['page_limit'] ) ? (int) $_GET['page_limit'] : '';
 
 		// query and page limit must be set

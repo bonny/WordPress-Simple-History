@@ -41,9 +41,9 @@ class SimpleHistoryExportDropin {
 
 		if ( isset( $_POST['simple-history-action'] ) && $_POST['simple-history-action'] === 'export-history' ) {
 			// Will die if nonce not valid.
-			check_admin_referer( __CLASS__ . '-action-export' );
+			check_admin_referer( self::class . '-action-export' );
 
-			$export_format = isset( $_POST['format'] ) ? $_POST['format'] : 'json';
+			$export_format = $_POST['format'] ?? 'json';
 
 			// Disable relative time output in header.
 			add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
@@ -225,7 +225,7 @@ class SimpleHistoryExportDropin {
 			</p>
 
 			<?php
-			wp_nonce_field( __CLASS__ . '-action-export' );
+			wp_nonce_field( self::class . '-action-export' );
 			?>
 
 		</form>

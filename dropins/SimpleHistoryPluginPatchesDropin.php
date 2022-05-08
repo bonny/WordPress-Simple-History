@@ -112,7 +112,7 @@ class SimpleHistoryPluginPatchesDropin {
 		// - Failed: image code did not match
 		// - Failed: Login or Password did not match
 		// - Success
-		$last_login_status = isset( $last_100_logins[0][2] ) ? $last_100_logins[0][2] : '';
+		$last_login_status = $last_100_logins[0][2] ?? '';
 
 		// If we get here we're pretty sure we come from Captcha on login
 		// and that we should cancel the wp_logout message and log an failed login instead
@@ -127,7 +127,7 @@ class SimpleHistoryPluginPatchesDropin {
 		// Same context as in SimpleUserLogger
 		$context = array(
 			'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
-			'server_http_user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : null,
+			'server_http_user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
 			'_occasionsID' => 'SimpleUserLogger/failed_user_login',
 			'patch_using_patch' => true,
 			'patch_name' => 'captcha_on_login',

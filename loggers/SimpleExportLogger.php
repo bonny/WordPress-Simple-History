@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || die();
  */
 class SimpleExportLogger extends SimpleLogger {
 
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	/**
 	 * Get array with information about this logger

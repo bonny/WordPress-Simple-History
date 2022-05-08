@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || die();
  */
 class SimpleCategoriesLogger extends SimpleLogger {
 
-	public $slug = __CLASS__;
+	public $slug = self::class;
 
 	/**
 	 * Get array with information about this logger
@@ -234,8 +234,9 @@ class SimpleCategoriesLogger extends SimpleLogger {
 	 * @param object $row Row data.
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
+		$term_taxonomy = null;
 		$context = $row->context;
-		$message_key = isset( $context['_message_key'] ) ? $context['_message_key'] : null;
+		$message_key = $context['_message_key'] ?? null;
 
 		// Default to original log message.
 		$message = $row->message;
@@ -270,8 +271,8 @@ class SimpleCategoriesLogger extends SimpleLogger {
 
 		// Get taxonomy name to use in log but fall back to taxonomy slug if
 		// taxonomy has been deleted.
-		$context['termTaxonomySlugOrName'] = isset( $context['term_taxonomy'] ) ? $context['term_taxonomy'] : null;
-		$context['toTermTaxonomySlugOrName'] = isset( $context['to_term_taxonomy'] ) ? $context['to_term_taxonomy'] : null;
+		$context['termTaxonomySlugOrName'] = $context['term_taxonomy'] ?? null;
+		$context['toTermTaxonomySlugOrName'] = $context['to_term_taxonomy'] ?? null;
 
 		if ( isset( $context['term_taxonomy'] ) && $context['term_taxonomy'] ) {
 			$termTaxonomyObject = get_taxonomy( $context['term_taxonomy'] );
