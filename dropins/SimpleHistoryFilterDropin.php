@@ -360,7 +360,7 @@ class SimpleHistoryFilterDropin {
 									// If all activity
 									if ( ! empty( $logger_info['labels']['search']['label_all'] ) ) {
 										$arr_all_search_messages = array();
-										foreach ( $logger_info['labels']['search']['options'] as $option_key => $option_messages ) {
+										foreach ( $logger_info['labels']['search']['options'] as $option_messages ) {
 											$arr_all_search_messages = array_merge( $arr_all_search_messages, $option_messages );
 										}
 

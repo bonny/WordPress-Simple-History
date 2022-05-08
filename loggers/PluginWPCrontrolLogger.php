@@ -271,11 +271,9 @@ class PluginWPCrontrolLogger extends SimpleLogger {
 			case 'deleted_all_with_hook':
 			case 'edited_event':
 				return $this->cronEventDetailsOutput( $row );
-				break;
 			case 'added_new_schedule':
 			case 'deleted_schedule':
 				return $this->cronScheduleDetailsOutput( $row );
-				break;
 		}
 
 		return '';

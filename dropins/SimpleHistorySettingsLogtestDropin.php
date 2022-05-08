@@ -4,17 +4,12 @@ defined( 'ABSPATH' ) || die();
 
 class SimpleHistorySettingsLogtestDropin {
 
-	// Simple History instance
-	private $sh;
-
 	public function __construct( $sh ) {
 
 		// Since it's not quite done yet, it's for da devs only for now
 		if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
 			return;
 		}
-
-		$this->sh = $sh;
 
 		// How do we register this to the settings array?
 		$sh->registerSettingsTab(

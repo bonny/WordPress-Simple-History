@@ -9,15 +9,10 @@ Author: Pär Thernström
 */
 
 class SimpleHistoryIpInfoDropin {
-	private $sh;
-
-	public function __construct( $sh ) {
-
-		$this->sh = $sh;
-
+	public function __construct()
+	{
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/admin_footer', array( $this, 'add_js_template' ) );
-
 		add_filter(
 			'simple_history/row_header_output/display_ip_address',
 			array( $this, 'row_header_display_ip_address_filter' ),

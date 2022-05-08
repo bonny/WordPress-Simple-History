@@ -665,7 +665,7 @@ class SimplePluginLogger extends SimpleLogger {
 		// does not work
 		$option_name = $this->slug . '_plugin_info_before_update';
 
-		$r = update_option( $option_name, SimpleHistory::json_encode( $plugins ) );
+		update_option( $option_name, SimpleHistory::json_encode( $plugins ) );
 
 		return $bool;
 	}

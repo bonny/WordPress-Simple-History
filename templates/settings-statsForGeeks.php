@@ -162,7 +162,7 @@ echo '<p class="hide-if-no-js"><button class="button js-SimpleHistoryShowsStatsF
 		$logger_messages = $logger_info['messages'] ?? array();
 
 		$html_logger_messages = '';
-		foreach ( $logger_messages as $message_key => $message ) {
+		foreach ( $logger_messages as $message ) {
 			$html_logger_messages .= sprintf( '<li>%1$s</li>', esc_html( $message ) );
 		}
 		if ( $html_logger_messages ) {

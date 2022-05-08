@@ -45,7 +45,7 @@ class SimpleHistory {
 	/**
 	 * Used by gettext filter to temporarily store current logger
 	 */
-	private $doFilterGettext_currentLogger = null;
+	private $doFilterGettext_currentLogger;
 
 	/**
 	 * Used to store latest translations used by __()
@@ -1095,7 +1095,7 @@ class SimpleHistory {
 			$arr_messages_by_message_key = array();
 
 			if ( isset( $logger_info['messages'] ) && is_array( $logger_info['messages'] ) ) {
-				foreach ( (array) $logger_info['messages'] as $message_key => $message_translated ) {
+				foreach ( $logger_info['messages'] as $message_key => $message_translated ) {
 					// Find message in array with both translated and non translated strings.
 					foreach ( $logger_instance->messages as $one_message_with_translation_info ) {
 						if ( $message_translated == $one_message_with_translation_info['translated_text'] ) {
@@ -2340,7 +2340,6 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	public function getLogRowPlainTextOutput( $row ) {
 		$row_logger = $row->logger;
-		$logger = null;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		if ( ! isset( $row->context['_message_key'] ) ) {
@@ -2371,7 +2370,6 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	public function getLogRowHeaderOutput( $row ) {
 		$row_logger = $row->logger;
-		$logger = null;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row
@@ -2392,7 +2390,6 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	private function getLogRowSenderImageOutput( $row ) {
 		$row_logger = $row->logger;
-		$logger = null;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row
@@ -2407,7 +2404,6 @@ Because Simple History was only recently installed, this feed does not display m
 
 	public function getLogRowDetailsOutput( $row ) {
 		$row_logger = $row->logger;
-		$logger = null;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row
@@ -3198,8 +3194,8 @@ Because Simple History was only recently installed, this feed does not display m
 					printf(
 						esc_html( $msg_tmpl ),
 						(int) $logResults['total_row_count'], // 1
-						(int) $count_users_today, // 2
-						(int) $count_other_sources // 3
+						$count_users_today, // 2
+						$count_other_sources // 3
 					);
 				}
 				?>

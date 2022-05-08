@@ -319,7 +319,6 @@ class SimpleMediaLogger extends SimpleLogger {
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
-		$file  = get_attached_file( $attachment_id );
 
 		$this->infoMessage(
 			'attachment_deleted',

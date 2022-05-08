@@ -83,8 +83,6 @@ if ( ! class_exists( 'Plugin_DuplicatePost' ) ) {
 			$context = $row->context;
 			$new_post_id = $context['new_post_id'] ?? null;
 			$duplicated_post_id = $context['duplicated_post_id'] ?? null;
-			$duplicated_post_title = $context['duplicated_post_title'] ?? null;
-			$message_key = $context['_message_key'] ?? null;
 
 			$message = $row->message;
 

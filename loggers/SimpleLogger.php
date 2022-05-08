@@ -335,11 +335,6 @@ class SimpleLogger {
 				_server_http_x_forwarded_for_0  5.35.187.212
 				*/
 
-				// Check if additional IP addresses are stored, from http_x_forwarded_for and so on.
-				$arr_found_additional_ip_headers = $this->get_event_ip_number_headers(
-					$row
-				);
-
 				$initiator_html .=
 					"<strong class='SimpleHistoryLogitem__inlineDivided'>" .
 					__( 'Anonymous web user', 'simple-history' ) .
@@ -581,8 +576,6 @@ class SimpleLogger {
 
 		$context = $row->context;
 		$html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__anonUserWithIp'>";
-
-		$arr_ip_addresses = array();
 
 		// Look for additional ip addresses.
 		$arr_found_additional_ip_headers = $this->get_event_ip_number_headers( $row );
@@ -875,7 +868,6 @@ class SimpleLogger {
 	 * System is unusable.
 	 *
 	 * @param string $message
-	 * @param array  $context
 	 * @return null
 	 */
 	public function emergency( $message, array $context = array() ) {
@@ -886,7 +878,6 @@ class SimpleLogger {
 	 * System is unusable.
 	 *
 	 * @param string $message key from getInfo messages array
-	 * @param array  $context
 	 * @return null
 	 */
 	public function emergencyMessage( $message, array $context = array() ) {
@@ -950,7 +941,6 @@ class SimpleLogger {
 	 * Action must be taken immediately.
 	 *
 	 * @param string $message
-	 * @param array  $context
 	 * @return null
 	 */
 	public function alert( $message, array $context = array() ) {
@@ -961,7 +951,6 @@ class SimpleLogger {
 	 * Action must be taken immediately.
 	 *
 	 * @param string $message key from getInfo messages array
-	 * @param array  $context
 	 * @return null
 	 */
 	public function alertMessage( $message, array $context = array() ) {
@@ -989,7 +978,6 @@ class SimpleLogger {
 	 * Critical conditions.
 	 *
 	 * @param string $message key from getInfo messages array
-	 * @param array  $context
 	 * @return null
 	 */
 	public function criticalMessage( $message, array $context = array() ) {
@@ -1008,7 +996,6 @@ class SimpleLogger {
 	 * be logged and monitored.
 	 *
 	 * @param string $message
-	 * @param array  $context
 	 * @return null
 	 */
 	public function error( $message, array $context = array() ) {
@@ -1020,7 +1007,6 @@ class SimpleLogger {
 	 * be logged and monitored.
 	 *
 	 * @param string $message key from getInfo messages array
-	 * @param array  $context
 	 * @return null
 	 */
 	public function errorMessage( $message, array $context = array() ) {
@@ -1049,7 +1035,6 @@ class SimpleLogger {
 	 * Exceptional occurrences that are not errors.
 	 *
 	 * @param string $message key from getInfo messages array
-	 * @param array  $context
 	 * @return null
 	 */
 	public function warningMessage( $message, array $context = array() ) {
@@ -1064,7 +1049,6 @@ class SimpleLogger {
 	 * Normal but significant events.
 	 *
 	 * @param string $message
-	 * @param array  $context
 	 * @return null
 	 */
 	public function notice( $message, array $context = array() ) {
@@ -1075,7 +1059,6 @@ class SimpleLogger {
 	 * Normal but significant events.
 	 *
 	 * @param string $message key from getInfo messages array
-	 * @param array  $context
 	 * @return null
 	 */
 	public function noticeMessage( $message, array $context = array() ) {
@@ -1120,7 +1103,6 @@ class SimpleLogger {
 	 * Detailed debug information.
 	 *
 	 * @param string $message
-	 * @param array  $context
 	 * @return null
 	 */
 	public function debug( $message, array $context = array() ) {
@@ -1131,7 +1113,6 @@ class SimpleLogger {
 	 * Detailed debug information.
 	 *
 	 * @param string $message key from getInfo messages array
-	 * @param array  $context
 	 * @return null
 	 */
 	public function debugMessage( $message, array $context = array() ) {
@@ -1351,9 +1332,6 @@ class SimpleLogger {
 			$data['date'] = $context['_date'];
 			unset( $context['_date'] );
 		}
-
-		// Add occasions id.
-		$occasions_id = null;
 		if ( isset( $context['_occasionsID'] ) ) {
 			// Minimize risk of similar loggers logging same messages and such and resulting in same occasions id
 			// by always adding logger slug.

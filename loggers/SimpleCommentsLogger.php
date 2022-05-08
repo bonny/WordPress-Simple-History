@@ -498,8 +498,6 @@ class SimpleCommentsLogger extends SimpleLogger {
 
 		$comment_data = get_comment( $comment_ID );
 
-		$message = '';
-
 		if ( $comment_data->user_id ) {
 			// comment was from a logged in user
 			$message = "user_{$context["comment_type"]}_added";
@@ -564,7 +562,6 @@ class SimpleCommentsLogger extends SimpleLogger {
 	public function getLogRowDetailsOutput( $row ) {
 
 		$context = $row->context;
-		$message_key = $context['_message_key'];
 		$output = '';
 		// print_r($row);exit;
 		/*

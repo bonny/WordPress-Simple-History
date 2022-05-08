@@ -215,10 +215,6 @@ class SimpleThemeLogger extends SimpleLogger {
 			return;
 		}
 
-		$skin = $upgrader_instance->skin;
-
-		$arr_themes = array();
-
 		// If single install make an array so it look like bulk and we can use same code
 		if ( isset( $arr_data['bulk'] ) && $arr_data['bulk'] && isset( $arr_data['themes'] ) ) {
 			$arr_themes = (array) $arr_data['themes'];
@@ -379,7 +375,6 @@ class SimpleThemeLogger extends SimpleLogger {
 		$customize_manager->prepare_controls();
 
 		$settings = $customize_manager->settings();
-		$sections = $customize_manager->sections();
 		$controls = $customize_manager->controls();
 
 		$customized = json_decode( wp_unslash( $_REQUEST['customized'] ) );

@@ -1372,8 +1372,6 @@ class SimplePostLogger extends SimpleLogger {
 
 			$new_attached_file = get_attached_file( $new_thumb_id );
 			$new_thumb_src = wp_get_attachment_image_src( $new_thumb_id, 'small' );
-
-			$prev_thumb_html = '';
 			if ( file_exists( $prev_attached_file ) && $prev_thumb_src ) {
 				$prev_thumb_html = sprintf(
 					'

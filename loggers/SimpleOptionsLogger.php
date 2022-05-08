@@ -85,7 +85,6 @@ class SimpleOptionsLogger extends SimpleLogger {
 		// Permalink settings page does not post any "option_page", so use http referer instead
 		if ( strpos( $_SERVER['REQUEST_URI'], 'options-permalink.php' ) !== false ) {
 			$is_valid_options_page = true;
-			$options_page = 'permalink';
 		}
 
 		if ( ! $is_valid_options_page ) {
@@ -277,8 +276,6 @@ class SimpleOptionsLogger extends SimpleLogger {
 		$output = '';
 
 		if ( $new_value && ! empty( $context['new_post_title'] ) ) {
-			$post_title_with_link = '';
-
 			if ( get_post_status( $new_value ) ) {
 				$post_title_with_link = sprintf( '<a href="%1$s">%2$s</a>', get_edit_post_link( $new_value ), esc_html( $context['new_post_title'] ) );
 			} else {
@@ -300,8 +297,6 @@ class SimpleOptionsLogger extends SimpleLogger {
 		}
 
 		if ( $old_value && ! empty( $context['old_post_title'] ) ) {
-			$post_title_with_link = '';
-
 			if ( get_post_status( $old_value ) ) {
 				$post_title_with_link = sprintf( '<a href="%1$s">%2$s</a>', get_edit_post_link( $old_value ), esc_html( $context['old_post_title'] ) );
 			} else {

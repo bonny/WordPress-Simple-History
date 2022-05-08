@@ -12,13 +12,6 @@ class SimpleHistorySidebarSettings {
 
 
 	/**
-	 * Simple History instance
-	 *
-	 * @var object $sh Simple History instance.
-	 */
-	private $sh;
-
-	/**
 	 * Constructor.
 	 *
 	 * @param object $sh Simple History instance.
@@ -34,8 +27,6 @@ class SimpleHistorySidebarSettings {
 	 * @param object $sh Simple History instance.
 	 */
 	public function init( $sh ) {
-
-		$this->sh = $sh;
 
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
 	}

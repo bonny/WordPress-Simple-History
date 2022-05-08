@@ -359,7 +359,7 @@ SimpleLogger()->notice(
 // Log entries can have custom occasionsID
 // This will group items together and a log entry will only be shown once
 // in the log overview, even if the logged messages are different
-for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
+for ( $i = 0; $i < random_int( 1, 50 ); $i++ ) {
 	SimpleLogger()->notice(
 		'User {username} edited page {pagename}',
 		array(

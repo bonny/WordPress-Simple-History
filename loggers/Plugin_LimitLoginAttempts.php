@@ -135,9 +135,6 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 			if ( ! is_array( $retries ) ) {
 				$retries = array();
 			}
-
-			/* Format message. First current lockout duration */
-			$lockout_type = '';
 			if ( ! isset( $retries[ $ip ] ) ) {
 				/* longer lockout */
 				$lockout_type = 'longer';

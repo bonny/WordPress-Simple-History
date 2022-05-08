@@ -13,7 +13,7 @@ global $wpdb;
 $table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
 $table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
 
-$period_days = (int) 14;
+$period_days = 14;
 $period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$period_days days" ) );
 $period_end_date = DateTime::createFromFormat( 'U', time() );
 
@@ -197,7 +197,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 
 	$html_logger_messages = '';
 
-	foreach ( $logger_messages as $message_key => $message ) {
+	foreach ( $logger_messages as $message ) {
 		$html_logger_messages .= sprintf( '<li>%1$s</li>', esc_html( $message ) );
 	}
 	if ( $html_logger_messages ) {

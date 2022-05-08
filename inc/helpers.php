@@ -287,7 +287,7 @@ function simple_history_get_current_screen() {
 	if ( function_exists( 'get_current_screen' ) ) {
 		$current_screen = get_current_screen();
 		if ( $current_screen instanceof WP_Screen ) {
-			return (object) $current_screen;
+			return $current_screen;
 		}
 	}
 

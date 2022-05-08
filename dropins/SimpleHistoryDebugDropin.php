@@ -10,12 +10,12 @@ defined( 'ABSPATH' ) || die();
  */
 class SimpleHistoryDebugDropin {
 
-	public function __construct( $sh ) {
+	public function __construct()
+	{
 		// Bail if Simple History debug mode is not active.
 		if ( ! defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) || ! SIMPLE_HISTORY_LOG_DEBUG ) {
 			return;
 		}
-
 		add_action( 'simple_history/log_argument/context', array( $this, 'onLogArgumentContext' ), 10, 4 );
 	}
 
