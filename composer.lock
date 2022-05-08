@@ -3575,12 +3575,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "f958d0a9c9632172dd963577fec0430de8ad1fb6"
+                "reference": "52fecaf9ca1f9ee1b51a9be67b75a3b792cb0609"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/f958d0a9c9632172dd963577fec0430de8ad1fb6",
-                "reference": "f958d0a9c9632172dd963577fec0430de8ad1fb6",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/52fecaf9ca1f9ee1b51a9be67b75a3b792cb0609",
+                "reference": "52fecaf9ca1f9ee1b51a9be67b75a3b792cb0609",
                 "shasum": ""
             },
             "require": {
@@ -3628,7 +3628,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-05-07T18:51:48+00:00"
+            "time": "2022-05-08T08:49:04+00:00"
         },
         {
             "name": "rmccue/requests",
@@ -6835,5 +6835,5 @@
         "php": "^7.2"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }
