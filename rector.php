@@ -41,6 +41,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 		array(
 			LevelSetList::UP_TO_PHP_70,
 			SetList::DEAD_CODE,
+			SetList::CODE_QUALITY,
 			// Add lists one by one to make diffs not to big.
 			// SetList::CODE_QUALITY
 		)
