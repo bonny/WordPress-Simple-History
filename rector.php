@@ -11,11 +11,18 @@ use Rector\Set\ValueObject\SetList;
 return static function ( RectorConfig $rectorConfig ): void {
 	$rectorConfig->paths(
 		array(
-			__DIR__ . '/loggers',
-			__DIR__ . '/dropins',
-			__DIR__ . '/examples',
-			__DIR__ . '/inc',
-			__DIR__ . '/templates',
+			__DIR__,
+		)
+	);
+
+	$rectorConfig->skip(
+		array(
+			__DIR__ . '/tests',
+			__DIR__ . '/docs',
+			__DIR__ . '/build',
+			__DIR__ . '/vendor',
+			__DIR__ . '/node_modules',
+			__DIR__ . '/rector.php',
 		)
 	);
 
