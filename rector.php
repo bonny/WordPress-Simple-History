@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;
+use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
+use Rector\CodeQuality\Rector\Array_\ArrayThisCallToThisMethodCallRector;
 use Rector\Config\RectorConfig;
 use Rector\Core\ValueObject\PhpVersion;
 use Rector\Set\ValueObject\LevelSetList;
@@ -31,6 +33,10 @@ return static function ( RectorConfig $rectorConfig ): void {
 			__DIR__ . '/rector.php',
 			// Disable rule because I like to concat my strings.
 			SimplifyUselessVariableRector::class,
+			// Doesn't feel WordPress'ish
+			CallableThisArrayToAnonymousFunctionRector::class,
+			// Looks wierd
+			ArrayThisCallToThisMethodCallRector::class
 		)
 	);
 
