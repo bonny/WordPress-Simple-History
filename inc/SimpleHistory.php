@@ -1655,6 +1655,7 @@ class SimpleHistory {
 		// Some installs on 2.2.2 got failed installs
 		// We detect these by checking for db_version and then running the install stuff again
 		if ( 4 == intval( $db_version ) ) {
+			/** @noRector \Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector */
 			if ( ! $this->does_database_have_data() ) {
 				// not ok, decrease db number so installs will run again and hopefully fix things
 				$db_version = 0;
