@@ -1,0 +1,28 @@
+import Callout from 'nextra-theme-docs/callout'
+import LogItem from '../lib/LogItem'
+import LogItems from '../lib/LogItems'
+
+# Query API
+
+You can get things for the history by using the class `SimpleHistoryLogQuery`.
+
+A quick example:
+
+```php
+
+$logQuery = new SimpleHistoryLogQuery();
+
+// Array with arguments..
+$args = [
+	// ...
+];
+
+$queryResults = $logQuery->query( $args );
+
+// Remove capability override after query is done
+// remove_action( $action_tag, array($this, "onCanReadSingleLogger") );
+foreach ( $queryResults['log_rows'] as $row ) {
+	// ...
+}
+
+```
