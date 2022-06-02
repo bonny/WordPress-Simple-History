@@ -57,7 +57,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			SetList::DEAD_CODE,
 			SetList::CODE_QUALITY,
 			// Add lists one by one to make diffs not to big.
-			// SetList::CODE_QUALITY
+			// SetList::CODING_STYLE
 		)
 	);
 
