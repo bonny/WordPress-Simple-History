@@ -1,21 +1,22 @@
 <?php
 
-class FirstCest {
+class GUICest {
 
-	public function visitPluginPage( AcceptanceTester $I ) {
-                $I->loginAsAdmin();
-                
-                // Kör inte filters etc. så loggas inte.
+	public function test_basic_log_gui( AcceptanceTester $I ) {
+                // Does not fire filters, so will not be logged.
                 $I->haveUserInDatabase('erik', 'editor', ['user_pass' => 'password']);
 
+                $I->loginAsAdmin();
                 $I->amOnAdminPage( 'index.php?page=simple_history_page' );
-                //$I->waitForElementVisible('.SimpleHistoryLogitemsWrap');
+
                 $I->see( 'Simple History' );
                 $I->see('Logged in', '.SimpleHistoryLogitem__text');
-                // $I->amOnPage('/');
-                //$I->makeHtmlSnapshot();
 
-                // Expanded search filters.
+                // Search filters, unexpanded and expanded.
+                $I->dontSee('Log levels:');
+                $I->dontSee('Message types:');
+                $I->dontSee('users:');
+
                 $I->click('Show search options');
                 $I->see('Log levels:');
                 $I->see('Message types:');
