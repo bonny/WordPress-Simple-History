@@ -8,6 +8,7 @@ modules:
   enabled:
     - WPDb
     - WPBrowser
+    - WPCli
     # - WPFilesystem
     - Asserts
     - \Helper\Functional
@@ -40,3 +41,7 @@ modules:
       mu-plugins: "/wp-content/mu-plugins"
       themes: "/wp-content/themes"
       uploads: "/wp-content/uploads"
+
+    WPCli:
+      path: "%WP_ROOT_FOLDER%"
+      allow-root: true
