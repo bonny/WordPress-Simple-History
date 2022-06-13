@@ -13,6 +13,7 @@ use Rector\Config\RectorConfig;
 use Rector\Core\ValueObject\PhpVersion;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
+use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
 
 return static function ( RectorConfig $rectorConfig ): void {
 	$rectorConfig->paths(
@@ -26,6 +27,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 	// register a single rule
 	// $rectorConfig->rule( InlineConstructorDefaultToPropertyRector::class );
 
+	// Skip some paths and skip some tests.
 	$rectorConfig->skip(
 		array(
 			__DIR__ . '/tests',
@@ -45,6 +47,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			// Need to find out what they do
 			RemoveEmptyMethodCallRector::class,
 			RenameFunctionRector::class,
+			JsonThrowOnErrorRector::class
 		)
 	);
 
