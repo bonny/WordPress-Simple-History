@@ -8,12 +8,13 @@
 - Start containers required for testing:
   `$ docker compose up -d`.
   This will start WordPress, MariaDB and a Headliess Chrome using Selenium.
-- Run tests using PHP 7.4:
+- Run _unit_, _acceptance_, and _functional_ tests using PHP 7.4:
   - `$ docker-compose run --rm php-cli vendor/bin/codecept run wpunit`
     - Faster tests to test things that does not require so much user input.
   - `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance`
     - These are tests that are performed using a Chromium browser, like it was done with users that actually visits the WP admin in a browser and does things. These test are slower but more realistic.
-    - Run single test: `docker-compose run --rm php-cli vendor/bin/codecept run acceptance FirstCest:visitPluginPage`
+  - `❯ docker-compose run --rm php-cli vendor/bin/codecept run functional`
+  - Run single test: `docker-compose run --rm php-cli vendor/bin/codecept run acceptance FirstCest:visitPluginPage`
 
 ## Run a single test
 
