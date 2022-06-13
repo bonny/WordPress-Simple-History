@@ -11,6 +11,7 @@ modules:
     # - WPFilesystem
     - Asserts
     - \Helper\Functional
+
   config:
     WPDb:
       dsn: "%TEST_SITE_DB_DSN%"
@@ -23,6 +24,7 @@ modules:
       url: "%TEST_SITE_WP_URL%"
       urlReplacement: true
       tablePrefix: "%TEST_SITE_TABLE_PREFIX%"
+
     WPBrowser:
       url: "%TEST_SITE_WP_URL%"
       adminUsername: "%TEST_SITE_ADMIN_USERNAME%"
