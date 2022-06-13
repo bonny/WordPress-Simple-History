@@ -1,7 +1,6 @@
 <?php
 
 // phpcs:disable PSR12.Properties.ConstantVisibility.NotFound
-
 defined( 'ABSPATH' ) || die();
 
 /**
@@ -1139,7 +1138,7 @@ class SimpleHistory {
 			$dropinsDir . 'SimpleHistorySidebarDropin.php',
 			$dropinsDir . 'SimpleHistorySidebarStats.php',
 			$dropinsDir . 'SimpleHistorySidebarSettings.php',
-			$dropinsDir . 'SimpleHistoryWPCLIDropin.php',
+			$dropinsDir . 'WPCLI.php',
 			$dropinsDir . 'SimpleHistoryDebugDropin.php',
 		);
 
@@ -1215,15 +1214,22 @@ class SimpleHistory {
 
 		$arrDropinsToInstantiate = array_merge( $arrDropinsToInstantiate, $this->externalDropins );
 
-		// Instantiate each dropin
+		// Instantiate each dropin.
 		foreach ( $arrDropinsToInstantiate as $oneDropinName ) {
-			if ( ! class_exists( $oneDropinName ) ) {
+			$dropin_class_with_namespace = $oneDropinName;
+
+			if ( ! class_exists( $dropin_class_with_namespace ) ) {
+				$dropin_class_with_namespace = '\SimpleHistory\\Dropin\\' . $oneDropinName;
+			}
+
+			// Bail if dropin not found with or without classname.
+			if ( ! class_exists( $dropin_class_with_namespace ) ) {
 				continue;
 			}
 
 			$this->instantiatedDropins[ $oneDropinName ] = array(
 				'name' => $oneDropinName,
-				'instance' => new $oneDropinName( $this ),
+				'instance' => new $dropin_class_with_namespace( $this ),
 			);
 		}
 	}
