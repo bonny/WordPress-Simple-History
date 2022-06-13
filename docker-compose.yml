@@ -16,6 +16,7 @@ services:
       WORDPRESS_CONFIG_EXTRA: |
         define( 'WP_AUTO_UPDATE_CORE', false );
         define( 'AUTOMATIC_UPDATER_DISABLED', true );
+        define( 'DISABLE_WP_CRON', true );
         define( 'WP_ENVIRONMENT_TYPE', 'local' );
     volumes:
       - wordpress:/var/www/html
@@ -38,7 +39,7 @@ services:
       - "${MARIADB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
 
   chrome:
-    image: seleniarm/standalone-chromium
+    image: seleniarm/standalone-chromium:102.0
     # shm_size: "2gb"
     container_name: simple-history-chrome
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
