@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 5.2
 Tested up to: 5.9.3
-Requires PHP: 5.6
+Requires PHP: 7.4
 Stable tag: 3.3.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
@@ -192,6 +192,12 @@ Events in the log are stored for 60 days by default. Events older than this will
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 == Changelog ==
+
+= Unreleased =
+
+- PHP 7.4 is now the required version. If you use anything lower than that please try use [version 3.3.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
+- Dropins has support for namespace `SimpleHistory\Dropin` and the WP Cli dropin is using it so far and soon all dropins will move to this namespace.
+- Code fixes using Rector.
 
 = 3.3.0 (May 2022) =
 
