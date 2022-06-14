@@ -63,7 +63,7 @@ class Admin extends \AcceptanceTester
     /**
      * @param mixed $who 
      * @param mixed $message 
-     * @param int $child Default 2 beacause num 1 is the logged event for the admin logging in.
+     * @param int $child Default 2 because num 1 is the logged event for the admin logging in.
      */
     public function seeInLogAsAdmin($who, $message, $child = 2)
     {
