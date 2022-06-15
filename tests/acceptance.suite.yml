@@ -12,6 +12,7 @@ modules:
     # - WPBrowser
     - WPWebDriver
     - \Helper\Acceptance
+    - Asserts
   config:
     WPDb:
       dsn: "%TEST_SITE_DB_DSN%"
