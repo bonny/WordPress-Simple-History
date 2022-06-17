@@ -22,6 +22,10 @@ $queryResults = $logQuery->query( $args );
 // Remove capability override after query is done
 // remove_action( $action_tag, array($this, "onCanReadSingleLogger") );
 foreach ( $queryResults['log_rows'] as $row ) {
+	$header_output = $this->sh->getLogRowHeaderOutput( $row );
+	$text_output = $this->sh->getLogRowPlainTextOutput( $row );
+	$details_output = $this->sh->getLogRowDetailsOutput( $row );
+
 	// ...
 }
 
