@@ -28,7 +28,7 @@ export default {
     <>
       <img src="https://ps.w.org/simple-history/assets/icon.svg" alt="" />
       <div className="ml-2">
-        <span className="font-semibold">Simple History</span> Documentation
+        <span className="font-semibold">Simple History</span> Developer Documentation
       </div>
     </>
   ),
