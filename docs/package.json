@@ -1,7 +1,7 @@
 {
   "name": "docs.simple-history.com",
   "version": "1.0.0",
-  "description": "Documentation for Simple History WordPress plugin",
+  "description": "Developer documentation for Simple History WordPress plugin",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
