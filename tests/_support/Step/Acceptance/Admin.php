@@ -85,6 +85,11 @@ class Admin extends \AcceptanceTester
      * 
      * This kinda tests that both message and context are working.
      * 
+     * Example:
+     * ```php
+     * $I->seeLogMessage('Failed to login with username "erik" (username does not exist)');
+     * ```
+     * 
      * @param string $message_to_test 
      */
     public function seeLogMessage(string $message_to_test) {
