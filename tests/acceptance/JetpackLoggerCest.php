@@ -13,15 +13,25 @@
 
 use \Step\Acceptance\Admin;
 
-class UserCest
+class JetpackLoggerCest
 {
-    public function testYo(Admin $I) {
-        $I->amOnPage('/wp-login.php');
-        $I->submitForm('#loginform', array(
-            'log' => 'erik',
-            'pwd' => 'password',
-        ));
+    public function activatePlugin(Admin $I) {
+        $I->loginAsAdmin();
+        $I->amOnPluginsPage();
+        // $I->seePluginInstalled('jetpack');
+        $I->activatePlugin('jetpack');
+        $I->canSeePluginActivated('jetpack');
+        
+        $I->amOnAdminPage( 'admin.php?page=jetpack#/performance' );
 
-        $I->seeLogMessage('Failed to login with username "erik" (username does not exist)');
+        // Enable site accelerator.
+        $I->click('label[for="toggle-0"]');
+        $I->wait(1); // Toggle takes some time to be activated.        
+        $I->seeLogMessage('Activated Jetpack module "Asset CDN"');
+
+        // Enable Lazy Loading for images.
+        $I->click('label[for="toggle-3"]');
+        $I->wait(1); // Toggle takes some time to be activated.        
+        $I->seeLogMessage('Activated Jetpack module "Lazy Images"');
     }
 }
