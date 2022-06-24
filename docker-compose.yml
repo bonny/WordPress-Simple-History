@@ -21,6 +21,8 @@ services:
     volumes:
       - wordpress:/var/www/html
       - ./:/var/www/html/wp-content/plugins/simple-history
+      - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
+      - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
       - ./tests/mu-plugin.php:/var/www/html/wp-content/mu-plugins/mu-plugin.php
       - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
 
@@ -63,6 +65,8 @@ services:
       - ./:/srv
       - wordpress:/wordpress
       - ./:/wordpress/wp-content/plugins/simple-history
+      - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
+      - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
 
   wp-cli:
     image: wordpress:cli-php${PHP_VERSION-7.4}
