@@ -13,3 +13,4 @@ data/
 tests/_data/dump.sql
 docs/.vscode/settings.json
 tests/.vscode/settings.json
+tests/plugins
