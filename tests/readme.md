@@ -5,6 +5,7 @@
 - Install required dependencies with `$ docker-compose run --rm php-cli composer install`.
 - Copy `dump.sql` to `tests/_data/dump.sql`.
   This is the starting database fixture, containing the WordPress state that the tests start from. It's a minimal, starting environment shared by all tests. The file is not included in the repo.
+- Manually download [Jetpack](https://wordpress.org/plugins/jetpack/) and [WP Crontrol](https://wordpress.org/plugins/wp-crontrol/) and place in `tests/plugins`. The plugins are are used to test that Simple History catches changes in those plugins.
 - Start containers required for testing:
   `$ docker compose up -d`.
   This will start WordPress, MariaDB and a Headliess Chrome using Selenium.
@@ -39,8 +40,16 @@ docker-compose run --rm wp-cli plugin activate simple-history
 # Export database to local file
 docker-compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
 
-# Restore DB so can browse from localhost:9191 again, perhaps to update the fixture
+# Restore DB so can browse from localhost:9191 again, perhaps to update the fixture.
+# Note: to update WP you need to temporary disable mu-plugin.php.
 docker-compose run --rm wp-cli db import /var/www/html/tests/_data/dump.sql
-docker compose run wp-cli option set siteurl http://localhost:9191
-docker compose run wp-cli option set home http://localhost:9191
+docker compose run --rm wp-cli option set siteurl http://localhost:9191
+docker compose run --rm wp-cli option set home http://localhost:9191
 ```
+
+## Update log
+
+Changes made to the test site and SQL-file.
+
+- 24 june 2022: Added Jetpack 11.0 and WP Crontrol 1.12.1.
+- 18 june 2022: Updated to WordPress 6.0 and updated Akismet + languages + themes.
