@@ -1,16 +1,4 @@
 <?php
-
-/**
- * Activated Jetpack module "Extra Sidebar Widgets"
- * Deactivated Jetpack module "Site verification"
- * 
- * $I->seeMessageInLog('Activated Jetpack module "Extra Sidebar Widgets"');
- * $I->seeInterpolatedMessageInLog('Activated Jetpack module "Extra Sidebar Widgets"');
- * $I->seeLogMessage('Activated Jetpack module "Extra Sidebar Widgets"');
- * Hämta från db och interpolera osv.
- * 
- */
-
 use \Step\Acceptance\Admin;
 
 class JetpackLoggerCest
@@ -18,7 +6,6 @@ class JetpackLoggerCest
     public function activatePlugin(Admin $I) {
         $I->loginAsAdmin();
         $I->amOnPluginsPage();
-        // $I->seePluginInstalled('jetpack');
         $I->activatePlugin('jetpack');
         $I->canSeePluginActivated('jetpack');
         
