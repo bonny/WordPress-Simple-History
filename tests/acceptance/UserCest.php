@@ -1,22 +1,28 @@
 <?php
 
 /**
+ * Here:
  * 
+ * - check that all messages are tested:
+ *   -  user_login_failed
+ *   -  user_unknown_login_failed
+ *   -  user_logged_in
+ *   -  user_unknown_logged_in
+ *   -  user_logged_out
+ *   -  user_updated_profile
+ *   -  user_created
+ *   -  user_deleted
+ *   -  user_password_reseted
+ *   -  user_requested_password_reset_link
+ *   -  user_session_destroy_others
+ *   -  user_session_destroy_everywhere
+ *   -  user_admin_email_confirm_correct_clicked
+ *   -  user_role_updated
+ *   -  user_application_password_created
+ *   -  user_application_password_deleted
  * 
- * Kanske använda för att hämta värden från DB:
- * grabFromDatabase($table, $column, $criteria = []) {
- * 
- * dontSee() för att testa erik inte ser logins
- * 
- * Använda
- * performOn()
- * för att testa att man ser saker i ett LogItem-element
- * 
- * 
- * Gör ofta:
- *  - Logga in med användare till Simple History-sidan
- *  - Användare ska se eller inte se vissa saker på sidan
- * 
+ * - use `seeLogMessage()` to test because faster.
+ * - add initiator and context tests
  */
 
 class UserCest
