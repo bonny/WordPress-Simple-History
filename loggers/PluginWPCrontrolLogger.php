@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) || die();
  */
 class PluginWPCrontrolLogger extends SimpleLogger {
 
-
 	public $slug = self::class;
 
 	/**
@@ -42,7 +41,6 @@ class PluginWPCrontrolLogger extends SimpleLogger {
 	}
 
 	public function loaded() {
-
 		add_action( 'crontrol/added_new_event', array( $this, 'added_new_event' ) );
 		add_action( 'crontrol/added_new_php_event', array( $this, 'added_new_event' ) );
 		add_action( 'crontrol/ran_event', array( $this, 'ran_event' ) );
