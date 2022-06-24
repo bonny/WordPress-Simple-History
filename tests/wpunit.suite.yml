@@ -18,5 +18,10 @@ modules:
       domain: "%TEST_SITE_WP_DOMAIN%"
       adminEmail: "%TEST_SITE_ADMIN_EMAIL%"
       title: "Test"
-      plugins: ["simple-history/index.php"]
+      plugins:
+        [
+          "simple-history/index.php",
+          "jetpack/jetpack.php",
+          "wp-crontrol/wp-crontrol.php",
+        ]
       activatePlugins: ["simple-history/index.php"]
