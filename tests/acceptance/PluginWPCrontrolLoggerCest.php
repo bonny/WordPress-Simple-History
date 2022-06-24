@@ -33,4 +33,24 @@ class PluginWPCrontrolLoggerCest
         $I->click('a[href*="crontrol_action=run-cron"][href*=version]');
         $I->seeLogMessage('Manually ran cron event "wp_version_check"');
     }
+
+    public function addNewCronEventAndEditCronEvent(Admin $I) {
+        // Add cron event. Message key 'added_new_event'.
+        $I->amOnAdminPage('tools.php?page=crontrol_admin_manage_page');
+        $I->click('Add New', '.wrap');
+        $I->fillField('#crontrol_hookname', 'A Manually Added Cron Event');
+        $I->fillField('#crontrol_args', '["i","want",25,"cakes"]');
+        $I->selectOption('input[name=crontrol_next_run_date_local]', 'Tomorrow');
+        $I->click('Add Event');
+        $I->seeLogMessage('Added cron event "A Manually Added Cron Event"');
+
+        // Edit cron event. Message key 'edited_event'.
+        $I->amOnAdminPage('tools.php?page=crontrol_admin_manage_page');
+        
+        $I->executeJS("jQuery('div.row-actions').addClass('visible');");
+        // Click "Edit now" link.
+        $I->click('a[href*="crontrol_action=edit-cron"][href*=Manually]');
+        $I->click('Update Event');
+        $I->seeLogMessage('Edited cron event "A Manually Added Cron Event"');
+    }
 }
