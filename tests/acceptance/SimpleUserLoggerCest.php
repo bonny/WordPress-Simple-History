@@ -25,8 +25,9 @@
  * - add initiator and context tests
  */
 
-class UserCest
+class SimpleUserLoggerCest
 {
+    // user_unknown_login_failed
     public function logLoginAttemptFromUserThatDoesNotExist(\Step\Acceptance\Admin $I) {
         $I->amOnPage('/wp-login.php');
         $I->submitForm('#loginform', array(
@@ -34,7 +35,8 @@ class UserCest
             'pwd' => 'password',
         ));
 
-        $I->seeInLogAsAdmin('Anonymous web user', 'Failed to login with username "erik" (username does not exist)', 2);
+        $I->seeLogInitiator('web_user');
+        $I->seeLogMessage('Failed to login with username "erik" (username does not exist)');
     }
 
     public function logLoginAndLogoutFromUserThatExists(\Step\Acceptance\Admin $I) {
