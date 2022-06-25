@@ -8,7 +8,7 @@ class SimpleUserLogger extends SimpleLogger {
 	public $slug = self::class;
 
 	/**
-	 * Get array with information about this logger
+	 * Get array with information about this logger.
 	 *
 	 * @return array
 	 */
