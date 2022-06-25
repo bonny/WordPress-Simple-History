@@ -80,19 +80,11 @@ class Admin extends \AcceptanceTester
     }
 
     /**
-     * Test that the latest interpolated message in the log
-     * is equal to the passed string.
-     * 
-     * This kinda tests that both message and context are working.
-     * 
-     * Example:
-     * ```php
-     * $I->seeLogMessage('Failed to login with username "erik" (username does not exist)');
-     * ```
-     * 
-     * @param string $message_to_test 
+     * Get latest history row and context data.
+     
+     * @return array
      */
-    public function seeLogMessage(string $message_to_test) {
+    public function getHistory(): array {
         // I can't find any "grabRow"-method so I will get the columns one by one.        
         $history_table = $this->grabPrefixedTableNameFor('simple_history');
         $contexts_table = $this->grabPrefixedTableNameFor('simple_history_contexts');
@@ -138,10 +130,36 @@ class Admin extends \AcceptanceTester
             $context_keys_values[$context_key] = $context_value;
         }
 
+        return [
+            'row' => $column_values,
+            'context' => $context_keys_values,
+        ];
+    }
+
+    public function seeLogInitiator($initator) {
+        $history = $this->getHistory();
+        $this->assertEquals($initator, $history['row']['initiator']);
+    }
+
+    /**
+     * Test that the latest interpolated message in the log
+     * is equal to the passed string.
+     * 
+     * This kinda tests that both message and context are working.
+     * 
+     * Example:
+     * ```php
+     * $I->seeLogMessage('Failed to login with username "erik" (username does not exist)');
+     * ```
+     * 
+     * @param string $message_to_test 
+     */
+    public function seeLogMessage(string $message_to_test) {
+        ['row' => $row, 'context' => $context] = $this->getHistory();
 
         $interpolated_message = self::interpolate(
-            $column_values['message'],
-            $context_keys_values
+            $row['message'],
+            $context,
         );
 
         $this->assertEquals($message_to_test, $interpolated_message);
