@@ -36,7 +36,7 @@ class Admin extends \AcceptanceTester
         $I = $this;
 
         $I->amOnAdminPage('index.php?page=simple_history_page');
-        
+
         $I->waitForElementVisible('.SimpleHistoryLogitems');
 
         $I->see($who, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__header");
@@ -54,7 +54,7 @@ class Admin extends \AcceptanceTester
         $I = $this;
 
         $I->amOnAdminPage('index.php?page=simple_history_page');
-        
+
         $I->waitForElementVisible('.SimpleHistoryLogitems');
 
         $I->see($text, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__details tr");
@@ -84,11 +84,12 @@ class Admin extends \AcceptanceTester
      
      * @return array
      */
-    public function getHistory(): array {
+    public function getHistory(): array
+    {
         // I can't find any "grabRow"-method so I will get the columns one by one.        
         $history_table = $this->grabPrefixedTableNameFor('simple_history');
         $contexts_table = $this->grabPrefixedTableNameFor('simple_history_contexts');
-        $latest_id = max( $this->grabColumnFromDatabase($history_table, 'id', []) );
+        $latest_id = max($this->grabColumnFromDatabase($history_table, 'id', []));
         $where = ['id' => $latest_id];
         $contexts_where = ['history_id' => $latest_id];
 
@@ -115,11 +116,11 @@ class Admin extends \AcceptanceTester
 
         foreach ($context_columns as $column_name) {
             $column_name_key = str_replace('`key`', 'key', $column_name);
-            
+
             if (!isset($context_values[$column_name_key])) {
                 $context_values[$column_name_key] = [];
             }
-            
+
             $context_values[$column_name_key][] = $this->grabColumnFromDatabase($contexts_table, $column_name, $contexts_where);
         }
 
@@ -136,7 +137,8 @@ class Admin extends \AcceptanceTester
         ];
     }
 
-    public function seeLogInitiator($initator) {
+    public function seeLogInitiator($initator)
+    {
         $history = $this->getHistory();
         $this->assertEquals($initator, $history['row']['initiator']);
     }
@@ -154,7 +156,8 @@ class Admin extends \AcceptanceTester
      * 
      * @param string $message_to_test 
      */
-    public function seeLogMessage(string $message_to_test) {
+    public function seeLogMessage(string $message_to_test)
+    {
         ['row' => $row, 'context' => $context] = $this->getHistory();
 
         $interpolated_message = self::interpolate(
@@ -165,41 +168,24 @@ class Admin extends \AcceptanceTester
         $this->assertEquals($message_to_test, $interpolated_message);
     }
 
-	/**
-	 * Interpolates context values into the message placeholders.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 * @param array  $row Currently not always passed, because loggers need to be updated to support this...
-	 */
-	public static function interpolate( $message, $context = array(), $row = null ) {
-		if ( ! is_array( $context ) ) {
-			return $message;
-		}
-
-		// Build a replacement array with braces around the context keys.
-		$replace = array();
-		foreach ( $context as $key => $val ) {
-			// Both key and val must be strings or number (for vals)
-			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			if ( is_string( $key ) || is_numeric( $key ) ) {
-				// key ok
-			}
-
-			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			if ( is_string( $val ) || is_numeric( $val ) ) {
-				// val ok
-			} else {
-				// not a value we can replace
-				continue;
-			}
-
-			$replace[ '{' . $key . '}' ] = $val;
-		}
-
-		// Interpolate replacement values into the message and return
-		return strtr( $message, $replace );
-	}
+    /**
+     * Test that the last stored context matches the passed context.
+     * Since the stored context can contain much data
+     * the comparison is only done with the keys that are included in the
+     * passed array.
+     * 
+     * Example:
+     * ```php
+     * $I->seeLogContext([
+     *   'user_new_user_url' => 'https://example.com',
+     *   'user_new_first_name' => 'Annaname',
+     *   'user_new_last_name' => 'Doeauthor',
+     *   'user_new_description' => 'Hello there, this is my description text.',
+     * ]);
+     * ```
+     * 
+     * @param array $expectedContext Array with expected key => value entries.
+     */
     public function seeLogContext(array $expectedContext)
     {
         ['row' => $row, 'context' => $foundContext] = $this->getHistory();
@@ -210,4 +196,40 @@ class Admin extends \AcceptanceTester
         $this->assertEquals($expectedContext, $foundContext);
     }
 
+    /**
+     * Interpolates context values into the message placeholders.
+     *
+     * @param string $message
+     * @param array  $context
+     * @param array  $row Currently not always passed, because loggers need to be updated to support this...
+     */
+    public static function interpolate($message, $context = array(), $row = null)
+    {
+        if (!is_array($context)) {
+            return $message;
+        }
+
+        // Build a replacement array with braces around the context keys.
+        $replace = array();
+        foreach ($context as $key => $val) {
+            // Both key and val must be strings or number (for vals)
+            // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+            if (is_string($key) || is_numeric($key)) {
+                // key ok
+            }
+
+            // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+            if (is_string($val) || is_numeric($val)) {
+                // val ok
+            } else {
+                // not a value we can replace
+                continue;
+            }
+
+            $replace['{' . $key . '}'] = $val;
+        }
+
+        // Interpolate replacement values into the message and return
+        return strtr($message, $replace);
+    }
 }
