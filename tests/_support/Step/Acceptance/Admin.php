@@ -200,5 +200,14 @@ class Admin extends \AcceptanceTester
 		// Interpolate replacement values into the message and return
 		return strtr( $message, $replace );
 	}
+    public function seeLogContext(array $expectedContext)
+    {
+        ['row' => $row, 'context' => $foundContext] = $this->getHistory();
+
+        // Only test the keys passed.
+        $foundContext = array_intersect_key($foundContext, $expectedContext);
+
+        $this->assertEquals($expectedContext, $foundContext);
+    }
 
 }
