@@ -197,6 +197,20 @@ class Admin extends \AcceptanceTester
     }
 
     /**
+     * Debug function to output log context.
+     * The function simply checks if the context is an empty array and
+     * it's probably not and the function will fail and the contexts is
+     * shown as the expected value.
+     * 
+     * @return void 
+     */
+    public function seeLogContextDebug(int $index = 0)
+    {
+        ['row' => $row, 'context' => $foundContext] = $this->getHistory($index);
+        $this->assertEquals([], $foundContext);
+    }
+
+    /**
      * Interpolates context values into the message placeholders.
      *
      * @param string $message
