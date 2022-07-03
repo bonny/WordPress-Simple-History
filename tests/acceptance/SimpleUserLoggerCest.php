@@ -5,7 +5,6 @@
  * 
  * - check that all messages are tested:
  *   -  user_unknown_logged_in (not sure how to test)
- *   -  user_created
  *   -  user_deleted
  *   -  user_password_reseted
  *   -  user_requested_password_reset_link
@@ -131,6 +130,7 @@ class SimpleUserLoggerCest
         ]);
     }
 
+    // user_created
     public function logUserCreated(\Step\Acceptance\Admin $I)
     {
         $I->loginAsAdmin();
@@ -145,9 +145,16 @@ class SimpleUserLoggerCest
 
         $I->click('Add New User');
 
-        $I->seeInLog('You', 'Created user NewUserLogin (newuser@example.com) with role subscriber', 1);
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage('Created user NewUserLogin (newuser@example.com) with role subscriber');
+        $I->seeLogContext([
+            'created_user_email' => 'newuser@example.com',
+            'created_user_login' => 'NewUserLogin',
+            'created_user_role' => 'subscriber',
+        ]);
     }
 
+    // user_deleted
     public function logUserDeleted(\Step\Acceptance\Admin $I)
     {
         $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'password']);
@@ -158,9 +165,11 @@ class SimpleUserLoggerCest
         $I->click('.table-view-list tbody tr:nth-child(2) .submitdelete');
         $I->click("Confirm Deletion");
 
-        $I->seeInLog('You', 'Deleted user anna (anna@example.com)');
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage('Deleted user anna (anna@example.com)');
     }
 
+    // user_deleted
     public function logUsersBulkEditDeleted(\Step\Acceptance\Admin $I)
     {
         $user_id_1 = $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'annapass']);
@@ -178,8 +187,12 @@ class SimpleUserLoggerCest
 
         $I->click("Confirm Deletion");
 
-        $I->seeInLog('You', 'Deleted user anna (anna@example.com)');
-        $I->seeInLog('You', 'Deleted user anders (anders@example.com)', 2);
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage('Deleted user anna (anna@example.com)');
+
+        // todo: need to check second row in db
+        $I->seeLogInitiator('wp_user', 1);
+        $I->seeLogMessage('Deleted user anders (anders@example.com)', 1);
     }
 
     public function logUserRequestPasswordReset(\Step\Acceptance\Admin $I)
