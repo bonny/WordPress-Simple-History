@@ -81,15 +81,17 @@ class Admin extends \AcceptanceTester
 
     /**
      * Get latest history row and context data.
-     
+     *
+     * @param int $index 0 to get latest row, 1 to get second latest row, etc.
      * @return array
      */
-    public function getHistory(): array
+    public function getHistory(int $index = 0): array
     {
         // I can't find any "grabRow"-method so I will get the columns one by one.        
         $history_table = $this->grabPrefixedTableNameFor('simple_history');
         $contexts_table = $this->grabPrefixedTableNameFor('simple_history_contexts');
-        $latest_id = max($this->grabColumnFromDatabase($history_table, 'id', []));
+        $ids = array_reverse($this->grabColumnFromDatabase($history_table, 'id', []));
+        $latest_id = $ids[$index];
         $where = ['id' => $latest_id];
         $contexts_where = ['history_id' => $latest_id];
 
@@ -137,9 +139,17 @@ class Admin extends \AcceptanceTester
         ];
     }
 
-    public function seeLogInitiator($initator)
+    /**
+     * 
+     * @param mixed $initator wp_user, web_user, ...
+     * @return void 
+     * @throws InjectionException 
+     * @throws ConditionalAssertionFailed 
+     * @throws Exception 
+     */
+    public function seeLogInitiator(string $initator, int $index = 0)
     {
-        $history = $this->getHistory();
+        $history = $this->getHistory($index);
         $this->assertEquals($initator, $history['row']['initiator']);
     }
 
@@ -156,9 +166,9 @@ class Admin extends \AcceptanceTester
      * 
      * @param string $message_to_test 
      */
-    public function seeLogMessage(string $message_to_test)
+    public function seeLogMessage(string $message_to_test, int $index = 0)
     {
-        ['row' => $row, 'context' => $context] = $this->getHistory();
+        ['row' => $row, 'context' => $context] = $this->getHistory($index);
 
         $interpolated_message = self::interpolate(
             $row['message'],
@@ -186,9 +196,9 @@ class Admin extends \AcceptanceTester
      * 
      * @param array $expectedContext Array with expected key => value entries.
      */
-    public function seeLogContext(array $expectedContext)
+    public function seeLogContext(array $expectedContext, int $index = 0)
     {
-        ['row' => $row, 'context' => $foundContext] = $this->getHistory();
+        ['row' => $row, 'context' => $foundContext] = $this->getHistory($index);
 
         // Only test the keys passed.
         $foundContext = array_intersect_key($foundContext, $expectedContext);
