@@ -1,8 +1,6 @@
 <?php
-
+use \Step\Acceptance\Admin;
 /**
- * 'privacy_page_created'                  => _x( 'Created a new privacy page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
- * 'privacy_page_set'                      => _x( 'Set privacy page to page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
  * 'privacy_data_export_requested'         => _x( 'Requested a privacy data export for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 'privacy_data_export_admin_downloaded'  => _x( 'Downloaded personal data export file for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 'privacy_data_export_emailed'           => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
@@ -16,13 +14,12 @@
 
 class SimplePrivacyLoggerCest
 {
-
     /**
      * Go to privacy page and create a new privacy page.
      *
      * privacy_page_created
      */
-    public function logPrivacyPageCreated(\Step\Acceptance\Admin $I)
+    public function logPrivacyPageCreated(Admin $I)
     {
         $I->loginAsAdmin();
         $I->amOnAdminPage('options-privacy.php');
@@ -43,7 +40,7 @@ class SimplePrivacyLoggerCest
      *
      * privacy_page_set
      */
-    public function logPrivacyPageSet(\Step\Acceptance\Admin $I)
+    public function logPrivacyPageSet(Admin $I)
     {
         $I->havePageInDatabase([
             'post_title' => 'My new privacy page',
@@ -57,5 +54,26 @@ class SimplePrivacyLoggerCest
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Set privacy page to page "My new privacy page"');
+    }
+
+    /**
+     * Go to export personal data page and add data export request.
+     *
+     * Message key: privacy_data_export_requested
+     */
+    public function logDataExportRequest(Admin $I)
+    {
+        $I->haveUserInDatabase('myNewUser');
+        
+        $I->loginAsAdmin();        
+        $I->amOnAdminPage('export-personal-data.php');
+        $I->fillField('#username_or_email_for_privacy_request', 'myNewUser');
+        $I->click('Send Request');
+
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage('Requested a privacy data export for user "myNewUser@example.com"');
+        $I->seeLogContext([
+            'send_confirmation_email' => 1,
+        ]);
     }
 }
