@@ -1,22 +1,14 @@
 <?php
 
 /**
- * Here:
+ * Message keys left to test, but not yet tested because
+ * difficult to test or I don't know how to test at the moment:
  * 
- * - check that all messages are tested:
- *   -  user_unknown_logged_in (not sure how to test)
- *   -  user_deleted
+ *   -  user_unknown_logged_in
  *   -  user_password_reseted
- *   -  user_requested_password_reset_link
  *   -  user_session_destroy_others
  *   -  user_session_destroy_everywhere
  *   -  user_admin_email_confirm_correct_clicked
- *   -  user_role_updated
- *   -  user_application_password_created
- *   -  user_application_password_deleted
- * 
- * - use `seeLogMessage()` to test because faster.
- * - add initiator and context tests
  */
 
 class SimpleUserLoggerCest
@@ -70,6 +62,7 @@ class SimpleUserLoggerCest
         $I->seeLogMessage('Failed to login with username "anna" (incorrect password entered)');
     }
 
+    // user_updated_profile
     public function logUserOwnProfileUpdated(\Step\Acceptance\Admin $I)
     {
         $I->loginAsAdmin();
@@ -86,14 +79,26 @@ class SimpleUserLoggerCest
 
         $I->click('#submit');
 
-        $I->seeInLog('You', 'Edited your profile', 1);
-        $I->seeInLogKeyValueTable('Visual editor Disable enable');
-        $I->seeInLogKeyValueTable('Keyboard shortcuts enable disable');
-        $I->seeInLogKeyValueTable("Toolbar don't show Show");
-        $I->seeInLogKeyValueTable("First name Jane");
-        $I->seeInLogKeyValueTable("Last name Doe");
-        $I->seeInLogKeyValueTable("Website https://texttv.nu http://wordpress");
-        $I->seeInLogKeyValueTable("Description Hello there, this is my description text.");
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage('Edited the profile for user "admin" (test@example.com)');
+        $I->seeLogContext([
+            'user_new_user_url' => 'https://texttv.nu',
+            'user_new_first_name' => 'Jane',
+            'user_new_last_name' => 'Doe',
+            'user_prev_first_name' => '',
+            'user_prev_last_name' => '',
+            'user_prev_description' => '',
+            'user_new_description' => 'Hello there, this is my description text.',
+        ]);
+
+        // $I->seeInLog('You', 'Edited your profile', 1);
+        // $I->seeInLogKeyValueTable('Visual editor Disable enable');
+        // $I->seeInLogKeyValueTable('Keyboard shortcuts enable disable');
+        // $I->seeInLogKeyValueTable("Toolbar don't show Show");
+        // $I->seeInLogKeyValueTable("First name Jane");
+        // $I->seeInLogKeyValueTable("Last name Doe");
+        // $I->seeInLogKeyValueTable("Website https://texttv.nu http://wordpress");
+        // $I->seeInLogKeyValueTable("Description Hello there, this is my description text.");
     }
 
     // user_updated_profile
@@ -190,11 +195,11 @@ class SimpleUserLoggerCest
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Deleted user anna (anna@example.com)');
 
-        // todo: need to check second row in db
         $I->seeLogInitiator('wp_user', 1);
         $I->seeLogMessage('Deleted user anders (anders@example.com)', 1);
     }
 
+    // user_requested_password_reset_link
     public function logUserRequestPasswordReset(\Step\Acceptance\Admin $I)
     {
         $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'password']);
@@ -204,9 +209,15 @@ class SimpleUserLoggerCest
         $I->moveMouseOver('.table-view-list tbody tr:nth-child(2)');
         $I->click('.table-view-list tbody tr:nth-child(2) a.resetpassword');
 
-        $I->seeInLog('You', "Requested a password reset link for user with login 'anna' and email 'anna@example.com'");
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage("Requested a password reset link for user with login 'anna' and email 'anna@example.com'");
+        $I->seeLogContext([
+            'user_login' => 'anna',
+            'user_email' => 'anna@example.com',
+        ]);
     }
 
+    // user_role_updated
     public function logUsersBulkChangeRole(\Step\Acceptance\Admin $I)
     {
         $user_id_1 = $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'annapass']);
@@ -222,10 +233,14 @@ class SimpleUserLoggerCest
 
         $I->click('#changeit');
 
-        $I->seeInLog('You', 'Changed role for user "anna" to "editor" from "author"');
-        $I->seeInLog('You', 'Changed role for user "anders" to "editor" from "subscriber"', 2);
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage('Changed role for user "anna" to "editor" from "author"');
+
+        $I->seeLogInitiator('wp_user', 1);
+        $I->seeLogMessage('Changed role for user "anders" to "editor" from "subscriber"', 1);
     }
 
+    // user_application_password_created
     public function logUserApplicationPasswordCreated(\Step\Acceptance\Admin $I)
     {
         $I->haveUserInDatabase('annaauthor', 'author', ['user_pass' => 'password']);
@@ -241,9 +256,14 @@ class SimpleUserLoggerCest
 
         $I->click('#do_new_application_password');
 
-        $I->seeInLog('You', 'Added application password "My New App" for user "annaauthor"');
+        // Wait for Ajax call to be completed.
+        $I->waitForElementVisible('#new-application-password-value');
+
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage('Added application password "My New App" for user "annaauthor"');
     }
 
+    // user_application_password_deleted
     public function logUserApplicationPasswordDeleted(\Step\Acceptance\Admin $I)
     {
         $I->haveUserInDatabase('annaauthor', 'author', ['user_pass' => 'password']);
@@ -267,6 +287,10 @@ class SimpleUserLoggerCest
 
         $I->acceptPopup();
 
-        $I->seeInLog('You', 'Deleted application password "My New App" for user "annaauthor"');
+        $I->waitForText('Application password revoked');
+
+        $I->seeLogInitiator('wp_user');
+        $I->seeLogMessage('Deleted application password "My New App" for user "annaauthor"');
+        $I->seeLogContextDebug();
     }
 }
