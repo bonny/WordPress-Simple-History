@@ -458,10 +458,10 @@ class SimpleUserLogger extends SimpleLogger {
 	}
 
 	/**
-	 * Called when user sessions are destroyed from admin
-	 * Can be called for current logged in user = destroy all other sessions
+	 * Called when user sessions are destroyed from admin.
+	 * Can be called for current logged in user = destroy all other sessions.
 	 * or for another user = destroy all sessions for that user
-	 * Fires from AJAX call
+	 * Fires from AJAX call.
 	 *
 	 * @since 2.0.6
 	 */
@@ -521,7 +521,6 @@ class SimpleUserLogger extends SimpleLogger {
 			'server_http_user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
 		);
 
-		// Let's log this as a little bit more significant that just "message"
 		$this->noticeMessage( 'user_deleted', $context );
 	}
 
