@@ -196,7 +196,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 = Unreleased =
 
 - PHP 7.4 is now the required version. If you use anything lower than that please try use [version 3.3.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
-- Privacy logger is loggin the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
+- Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
+- Remove usage of deprectead function `wp_get_user_request_data()`.
+- Log if "Send personal data export confirmation email" is checked when adding a Data Export Request.
 - Dropins has support for namespace `SimpleHistory\Dropin` and the WP Cli dropin is using it so far and soon all dropins will move to this namespace.
 - Code fixes using Rector.
 

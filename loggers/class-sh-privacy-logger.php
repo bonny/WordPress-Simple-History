@@ -125,12 +125,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 		}
 
-		// Check that new function since 4.9.6 exist before trying to use functions.
-		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
-			return;
-		}
-
-		$user_request = wp_get_user_request_data( $request_id );
+		$user_request = wp_get_user_request( $request_id );
 		if ( ! $user_request ) {
 			return;
 		}
@@ -155,7 +150,9 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 	/**
 	 * Fires once a post of post type "user_request" has been saved.
-	 * Used to catch data export request actions.
+	 *
+	 * Used to catch data export request actions from screen at
+	 * /wp-admin/export-personal-data.php
 	 *
 	 * @param int     $post_ID Post ID.
 	 * @param WP_Post $post    Post object.
@@ -170,13 +167,8 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
-		// Check that new function since 4.9.6 exist before trying to use functions.
-		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
-			return;
-		}
-
 		// Post id should be a of type WP_User_Request.
-		$user_request = wp_get_user_request_data( $post_ID );
+		$user_request = wp_get_user_request( $post_ID );
 
 		if ( ! $user_request ) {
 			return;
@@ -192,6 +184,8 @@ class SH_Privacy_Logger extends SimpleLogger {
 				'privacy_data_export_requested',
 				array(
 					'user_email' => $user_request->email,
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
+					'send_confirmation_email' => isset( $_POST['send_confirmation_email'] ) ? 1 : 0,
 				)
 			);
 		} elseif ( $update && is_user_logged_in() && $is_doing_ajax && 'export_personal_data' === $user_request->action_name && 'request-completed' && $user_request->status ) {
@@ -257,11 +251,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
-		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
-			return;
-		}
-
-		$user_request = wp_get_user_request_data( $postid );
+		$user_request = wp_get_user_request( $postid );
 
 		if ( ! $user_request ) {
 			return;
@@ -302,11 +292,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
-		if ( ! function_exists( 'wp_get_user_request_data' ) ) {
-			return;
-		}
-
-		$user_request = wp_get_user_request_data( $postid );
+		$user_request = wp_get_user_request( $postid );
 
 		if ( ! $user_request ) {
 			return;
