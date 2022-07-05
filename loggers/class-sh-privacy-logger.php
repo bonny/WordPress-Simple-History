@@ -21,8 +21,6 @@ defined( 'ABSPATH' ) || die();
  * - Log when _wp_privacy_resend_request() is called
  */
 class SH_Privacy_Logger extends SimpleLogger {
-
-
 	/**
 	 * Logger slug.
 	 *
@@ -67,7 +65,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 		// Add filters to detect when a privacy page is created and when a privacy page is set..
 		// We only add the filters when the privacy page is loaded.
-		add_action( 'load-privacy.php', array( $this, 'on_load_privacy_page' ) );
+		add_action( 'load-options-privacy.php', array( $this, 'on_load_privacy_page' ) );
 
 		// Add filters to detect data export related functions.
 		// We only add the filters when the tools page for export personal data is loaded.
@@ -345,6 +343,8 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 	/**
 	 * Fired when the privacy admin page is loaded.
+	 * Page is something like
+	 * http://wordpress-stable.test/wp-admin/options-privacy.php
 	 */
 	public function on_load_privacy_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
