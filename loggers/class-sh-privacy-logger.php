@@ -80,6 +80,56 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 		// Add filters to detect misc things that happen on export page.
 		add_action( 'load-tools_page_remove_personal_data', array( $this, 'on_load_page_remove_personal_data' ) );
+
+		add_action( 'wp_privacy_personal_data_export_file_created', array( $this, 'on_wp_privacy_personal_data_export_file_created' ), 10, 5 );
+	}
+
+	/**
+	 * Log when a Data Export is emailed or downloaded.
+	 *
+	 * If send as email = false then export file is downloaded by admin user in admin,
+	 * Probably by clicking the download link near the user name.
+	 *
+	 * How can a user send the export via email?
+	 * "Tack för att du bekräftar din begäran om dataexport.
+	 *  Webbplatsens administratör har informerats.
+	 *  Du kommer få en länk för nedladdning av din dataexport
+	 *  via e-post när begäran har behandlats."
+	 *
+	 * Visit Tools > Export Personal Data and click "Send export link".
+	 */
+	public function on_wp_privacy_personal_data_export_file_created( $archive_pathname, $archive_url, $html_report_pathname, $request_id, $json_report_pathname ) {
+		/*
+		{
+			"ID": 55,
+			"user_id": "1",
+			"email": "par.thernstrom@gmail.com",
+			"action_name": "export_personal_data",
+			"status": "request-confirmed",
+			"created_timestamp": 1657042509,
+			"modified_timestamp": 1657042509,
+			"confirmed_timestamp": 0,
+			"completed_timestamp": 0,
+			"request_data": [],
+			"confirm_key": ""
+		} */
+		$user_request = wp_get_user_request( $request_id );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$send_as_email = isset( $_POST['sendAsEmail'] ) && $_POST['sendAsEmail'] === 'true' ? 1 : 0;
+
+		$message_key = $send_as_email
+						? 'privacy_data_export_emailed'
+						: 'privacy_data_export_admin_downloaded';
+
+		$this->infoMessage(
+			$message_key,
+			array(
+				'send_as_email' => $send_as_email,
+				'request_id' => $request_id,
+				'user_email' => $user_request->email,
+			)
+		);
 	}
 
 	/*
@@ -188,28 +238,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 					'send_confirmation_email' => isset( $_POST['send_confirmation_email'] ) ? 1 : 0,
 				)
 			);
-		} elseif ( $update && is_user_logged_in() && $is_doing_ajax && 'export_personal_data' === $user_request->action_name && 'request-completed' && $user_request->status ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$send_as_email = isset( $_POST['sendAsEmail'] ) && 'true' === $_POST['sendAsEmail'];
-
-			if ( $send_as_email ) {
-				// If send as email = true then email a link with the export to a user.
-				$this->infoMessage(
-					'privacy_data_export_emailed',
-					array(
-						'user_email' => $user_request->email,
-					)
-				);
-			} elseif ( ! $send_as_email ) {
-				// If send as email = false then export file is downloaded by admin user in admin.
-				// Probably by clicking the download link near the user name.
-				$this->infoMessage(
-					'privacy_data_export_admin_downloaded',
-					array(
-						'user_email' => $user_request->email,
-					)
-				);
-			}
 		} elseif ( ! $update && 'remove_personal_data' === $user_request->action_name && 'request-pending' === $user_request->status ) {
 			// Send request to user to remove user data.
 			$this->infoMessage(
@@ -338,7 +366,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 		foreach ( $request_ids as $request_id ) {
 			$request = wp_get_user_request( $request_id );
-			
+
 			if ( false === $request ) {
 				continue;
 			}
