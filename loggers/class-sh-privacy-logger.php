@@ -69,7 +69,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 
 		// Add filters to detect data export related functions.
 		// We only add the filters when the tools page for export personal data is loaded.
-		add_action( 'load-tools_page_export_personal_data', array( $this, 'on_load_export_personal_data_page' ) );
+		add_action( 'load-export-personal-data.php', array( $this, 'on_load_export_personal_data_page' ) );
 
 		// Request to export or remove data is stored in posts with post type "user_request",
 		// so we add a hook to catch all saves to that post.
@@ -317,6 +317,41 @@ class SH_Privacy_Logger extends SimpleLogger {
 	public function on_load_export_personal_data_page() {
 		// When requests are removed posts are removed.
 		add_action( 'before_delete_post', array( $this, 'on_before_delete_post_on_personal_data_page' ), 10, 1 );
+
+		// When a request is marked as complete the hook "admin_action_complete" is fired.
+		add_action( 'admin_action_complete', array( $this, 'on_admin_action_complete' ), 10, 1 );
+	}
+
+	/**
+	 * Fired when page is like
+	 * /wp-admin/export-personal-data.php?action=complete&request_id%5B0%5D=57&_wpnonce=ec34ef990
+	 * i.e. a Data Export Request is marked as completed from the admin area.
+	 *
+	 * @return void
+	 */
+	public function on_admin_action_complete() {
+		$request_ids = isset( $_REQUEST['request_id'] ) ? wp_parse_id_list( wp_unslash( $_REQUEST['request_id'] ) ) : array();
+
+		if ( empty( $request_ids ) ) {
+			return;
+		}
+
+		foreach ( $request_ids as $request_id ) {
+			$request = wp_get_user_request( $request_id );
+			
+			if ( false === $request ) {
+				continue;
+			}
+
+			$this->infoMessage(
+				'privacy_data_export_completed',
+				array(
+					'request_id' => $request_id,
+					'request_email' => $request->email,
+					'request_status' => $request->status,
+				)
+			);
+		}
 	}
 
 	/**
