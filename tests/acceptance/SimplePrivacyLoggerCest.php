@@ -1,14 +1,13 @@
 <?php
 use \Step\Acceptance\Admin;
+
 /**
- * 'privacy_data_export_admin_downloaded'  => _x( 'Downloaded personal data export file for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 'privacy_data_export_emailed'           => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 'privacy_data_export_request_confirmed' => _x( 'Confirmed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 'privacy_data_export_removed'           => _x( 'Removed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 'data_erasure_request_sent'             => _x( 'Sent data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 'data_erasure_request_confirmed'        => _x( 'Confirmed data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 'data_erasure_request_handled'          => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
- * 'data_erasure_request_removed'          => _x( 'Removed personal data removal request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
  * 
  * Add test + new logger for:
  *  - request marked as complete -> admin_action_complete
@@ -88,5 +87,32 @@ class SimplePrivacyLoggerCest
         $I->click('Download personal data');
         $I->waitForText('This user’s personal data export file was downloaded.');
         $I->seeLogMessage('Downloaded personal data export file for user "myNewUser@example.com"');
+
+        /**
+         * privacy_data_export_emailed
+         * When data export request is generated, the user
+         * gets and email with a confirm link. We need to click that link.
+         * We maybe can use filter 'user_request_action_email_subject' to catch the confirm url.
+         * `$subject = apply_filters( 'user_request_action_email_subject', $subject, $email_data['sitename'], $email_data );`
+         */
+        // TODO: this test
+
+        
+        /**
+         * privacy_data_export_completed
+         */
+        $I->amOnAdminPage('export-personal-data.php');
+        $I->moveMouseOver('.table-view-list tbody tr:nth-child(1)');
+        $I->click('Complete request');
+        $I->seeLogMessage('Marked Data Export Request for "myNewUser@example.com" as complete');
+
+        /**
+         * Remove request after it's done/completed.
+         * privacy_data_export_removed
+         */
+        $I->amOnAdminPage('export-personal-data.php');
+        $I->moveMouseOver('.table-view-list tbody tr:nth-child(1)');
+        $I->click('Remove request');
+        $I->seeLogMessage('Removed data export request for "myNewUser@example.com"');
     }
 }
