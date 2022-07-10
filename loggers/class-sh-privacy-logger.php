@@ -80,9 +80,35 @@ class SH_Privacy_Logger extends SimpleLogger {
 		add_action( 'user_request_action_confirmed', array( $this, 'on_user_request_action_confirmed' ), 10, 1 );
 
 		// Add filters to detect misc things that happen on export page.
-		add_action( 'load-tools_page_remove_personal_data', array( $this, 'on_load_page_remove_personal_data' ) );
+		add_action( 'load-erase-personal-data.php', array( $this, 'on_load_page_remove_personal_data' ) );
 
 		add_action( 'wp_privacy_personal_data_export_file_created', array( $this, 'on_wp_privacy_personal_data_export_file_created' ), 10, 5 );
+
+		add_action( 'wp_privacy_personal_data_erased', array( $this, 'on_wp_privacy_personal_data_erased' ), 10, 1 );
+	}
+
+	/**
+	 * Log when Personal Data is erased by admin
+	 * clicking "Force erase personal data"
+	 * in admin (but also mayby using link in email).
+	 *
+	 * @param int $request_id The privacy request post ID associated with this request.
+	 */
+	public function on_wp_privacy_personal_data_erased( $request_id ) {
+		$user_request = wp_get_user_request( $request_id );
+
+		if ( ! $user_request ) {
+			return;
+		}
+
+		$this->infoMessage(
+			'data_erasure_erasure_erased', 
+			[
+				'user_email' => $user_request->email,
+				'user_id' => $user_request->user_id,
+				'request_id' => $request_id,
+			]
+		);
 	}
 
 	/**
