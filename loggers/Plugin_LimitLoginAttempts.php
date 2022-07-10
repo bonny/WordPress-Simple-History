@@ -9,7 +9,6 @@ defined( 'ABSPATH' ) || die();
 if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 	class Plugin_LimitLoginAttempts extends SimpleLogger {
 
-
 		public $slug = self::class;
 
 		public function getInfo() {
@@ -165,10 +164,6 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 					'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
 					'value' => $value,
 					'limit_login_just_lockedout' => $limit_login_just_lockedout,
-					// "retries" => $retries,
-					// "whitelisted" => $whitelisted, // bool, true | false
-					// "subject" => $subject,
-					// "message" => $message,
 					'count' => $count, // num of failed login attempts before block
 					'time' => $time, // duration in minutes for block
 					'lockouts' => $lockouts,
