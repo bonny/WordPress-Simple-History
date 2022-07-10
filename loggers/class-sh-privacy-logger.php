@@ -41,16 +41,17 @@ class SH_Privacy_Logger extends SimpleLogger {
 			'messages'    => array(
 				'privacy_page_created'                  => _x( 'Created a new privacy page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_page_set'                      => _x( 'Set privacy page to page "{new_post_title}"', 'Logger: Privacy', 'simple-history' ),
-				'privacy_data_export_requested'         => _x( 'Requested a privacy data export for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_requested'         => _x( 'Requested a personal privacy data export for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_admin_downloaded'  => _x( 'Downloaded personal data export file for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_emailed'           => _x( 'Sent email with personal data export download info for user "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'privacy_data_export_request_confirmed' => _x( 'Confirmed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'privacy_data_export_completed'         => _x( 'Marked Data Export Request for "{request_email}" as complete', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_request_confirmed' => _x( 'Confirmed personal data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'privacy_data_export_completed'         => _x( 'Marked personal data export request as complete for "{request_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_removed'           => _x( 'Removed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_sent'             => _x( 'Sent data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_confirmed'        => _x( 'Confirmed data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_handled'          => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_added'             => _x( 'Added personal data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_confirmed'        => _x( 'Confirmed personal data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_completed'          => _x( 'Marked personal data erasure request as complete for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_request_removed'          => _x( 'Removed personal data removal request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_erasure_erased'          => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
@@ -251,8 +252,6 @@ class SH_Privacy_Logger extends SimpleLogger {
 			return;
 		}
 
-		$is_doing_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX;
-
 		if ( ! $update && 'export_personal_data' === $user_request->action_name && 'request-pending' && $user_request->status ) {
 			// Add Data Export Request.
 			// An email will be sent to the user at this email address asking them to verify the request.
@@ -268,15 +267,17 @@ class SH_Privacy_Logger extends SimpleLogger {
 		} elseif ( ! $update && 'remove_personal_data' === $user_request->action_name && 'request-pending' === $user_request->status ) {
 			// Send request to user to remove user data.
 			$this->infoMessage(
-				'data_erasure_request_sent',
+				'data_erasure_request_added',
 				array(
 					'user_email' => $user_request->email,
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
+					'send_confirmation_email' => isset( $_POST['send_confirmation_email'] ) ? 1 : 0,
 				)
 			);
 		} elseif ( $update && 'remove_personal_data' === $user_request->action_name && 'request-completed' === $user_request->status ) {
-			// Admin clicked "Erase user data" in admin, after user has approved remove request.
+			// Admin clicked "Complete request" in admin.
 			$this->infoMessage(
-				'data_erasure_request_handled',
+				'data_erasure_request_completed',
 				array(
 					'user_email' => $user_request->email,
 				)
