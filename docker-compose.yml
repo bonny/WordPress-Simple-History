@@ -23,6 +23,7 @@ services:
       - ./:/var/www/html/wp-content/plugins/simple-history
       - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
       - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
+      - ./tests/plugins/duplicate-post:/var/www/html/wp-content/plugins/duplicate-post
       - ./tests/mu-plugin.php:/var/www/html/wp-content/mu-plugins/mu-plugin.php
       - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
 
@@ -67,6 +68,7 @@ services:
       - ./:/wordpress/wp-content/plugins/simple-history
       - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
       - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
+      - ./tests/plugins/duplicate-post:/var/www/html/wp-content/plugins/duplicate-post
 
   wp-cli:
     image: wordpress:cli-php${PHP_VERSION-7.4}

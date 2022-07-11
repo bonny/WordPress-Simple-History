@@ -23,5 +23,6 @@ modules:
           "simple-history/index.php",
           "jetpack/jetpack.php",
           "wp-crontrol/wp-crontrol.php",
+          "duplicate-post/duplicate-post.php",
         ]
       activatePlugins: ["simple-history/index.php"]
