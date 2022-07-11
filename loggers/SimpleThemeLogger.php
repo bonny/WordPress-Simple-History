@@ -9,7 +9,7 @@ class SimpleThemeLogger extends SimpleLogger {
 
 	public $slug = self::class;
 
-	// When switching themes, this will contain info about the theme we are switching from
+	// When switching themes, this will contain info about the theme we are switching from.
 	private $prev_theme_data;
 
 	/**
