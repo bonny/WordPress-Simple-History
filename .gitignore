@@ -11,6 +11,8 @@ vendor
 workspace.code-workspace
 data/
 tests/_data/dump.sql
+tests/_data/twentysixteen.2.6.zip
+tests/_data/twentysixteen.2.7.zip
 docs/.vscode/settings.json
 tests/.vscode/settings.json
 tests/plugins
