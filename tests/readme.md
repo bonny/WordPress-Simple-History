@@ -4,6 +4,7 @@
 - Tests are run using Docker.
 - Install required dependencies with `$ docker-compose run --rm php-cli composer install`.
 - Copy `dump.sql` to `tests/_data/dump.sql`.
+- Copy `twentysixteen.2.6.zip` and `twentysixteen.2.7.zip` to `tests/_data/twentysixteen.2.6.zip` and `tests/_data/twentysixteen.2.7.zip`.
   This is the starting database fixture, containing the WordPress state that the tests start from. It's a minimal, starting environment shared by all tests. The file is not included in the repo.
 - Manually download [Jetpack](https://wordpress.org/plugins/jetpack/) and [WP Crontrol](https://wordpress.org/plugins/wp-crontrol/) and place in `tests/plugins`. The plugins are are used to test that Simple History catches changes in those plugins.
 - Start containers required for testing:
