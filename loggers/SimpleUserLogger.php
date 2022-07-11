@@ -75,6 +75,44 @@ class SimpleUserLogger extends SimpleLogger {
 					'simple-history'
 				),
 			),
+			// Examples used for documentation.
+			'examples' => array(
+				array(
+					'description' => 'User fails to login',
+					'message' => 'user_login_failed',
+					'context' => array(
+						'login' => 'jane.doe@example.com',
+					),
+				),
+				array(
+					'description' => 'Another user fails to login',
+					'message' => 'user_login_failed',
+					'context' => array(
+						'login' => 'john.smith@example.com',
+					),
+				),
+				array(
+					'description' => 'User fails to login due to user account not existing',
+					'message' => 'user_unknown_login_failed',
+					'context' => array(
+						'failed_username' => 'janet',
+					),
+				),
+				array(
+					'message' => 'user_logged_in',
+					'user' => 'Jane Doe',
+					'description' => 'User logs in',
+				),
+				array(
+					'message' => 'user_unknown_logged_in',
+					'description' => 'Unknown user logs in',
+				),
+				array(
+					'message' => 'user_logged_out',
+					'user' => 'Jane Doe',
+					'description' => 'User logs out',
+				),
+			),
 			'labels'      => array(
 				'search' => array(
 					'label'     => _x( 'Users', 'User logger: search', 'simple-history' ),
