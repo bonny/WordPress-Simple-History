@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || die();
 
 /**
- * Logger for the Duplicate Post plugin
+ * Logger for the Yoast Duplicate Post plugin
  * Post Duplicator (https://sv.wordpress.org/plugins/duplicate-post/)
  *
  * @package SimpleHistory
@@ -22,7 +22,7 @@ if ( ! class_exists( 'Plugin_DuplicatePost' ) ) {
 					'Logger: Plugin Duplicate Post',
 					'simple-history'
 				),
-				'name_via'    => _x( 'Using plugin Duplicate Posts', 'Logger: Plugin Duplicate Post', 'simple-history' ),
+				'name_via'    => _x( 'Using plugin Yoast Duplicate Post', 'Logger: Plugin Duplicate Post', 'simple-history' ),
 				'capability'  => 'manage_options',
 				'messages'    => array(
 					'post_duplicated' => _x(
