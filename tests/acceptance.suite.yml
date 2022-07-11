@@ -10,6 +10,7 @@ modules:
   enabled:
     - WPDb
     # - WPBrowser
+    - WPFilesystem
     - WPWebDriver
     - \Helper\Acceptance
     - Asserts
@@ -63,3 +64,10 @@ modules:
               "--verbose",
               "--disable-dev-shm-usage",
             ]
+
+    WPFilesystem:
+      wpRootFolder: "%WP_ROOT_FOLDER%"
+      plugins: "/wp-content/plugins"
+      mu-plugins: "/wp-content/mu-plugins"
+      themes: "/wp-content/themes"
+      uploads: "/wp-content/uploads"
