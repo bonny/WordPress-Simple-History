@@ -205,6 +205,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`
 - Dropins has support for namespace `SimpleHistory\Dropin` and the WP Cli dropin is using it so far and soon all dropins will move to this namespace.
 - Code fixes using Rector.
+- Removed logger for plugin Ultimate Members.
 
 = 3.3.0 (May 2022) =
 
