@@ -1,6 +1,7 @@
 <?php
 
 namespace SimpleHistory\Dropin;
+
 use WP_CLI;
 
 /*
@@ -12,7 +13,7 @@ Author: Pär Thernström
 class WPCLI {
 	// Simple History instance.
 	private $sh;
-	
+
 	public function __construct( $sh ) {
 		$this->sh = $sh;
 
@@ -23,11 +24,11 @@ class WPCLI {
 
 	private function register_commands() {
 		WP_CLI::add_command(
-			'simple-history', 
-			__NAMESPACE__ . '\Commands', 
-			[
-				'shortdesc' => __('List events from the Simple History log.', 'simple-history'),
-			]
+			'simple-history',
+			__NAMESPACE__ . '\Commands',
+			array(
+				'shortdesc' => __( 'List events from the Simple History log.', 'simple-history' ),
+			)
 		);
 	}
 }
@@ -36,16 +37,15 @@ class Commands {
 	/** Simple History instance. */
 	private $sh;
 
-	public function __construct()
-	{
-		$this->sh = \SimpleHistory::get_instance();
+	public function __construct() {
+		 $this->sh = \SimpleHistory::get_instance();
 	}
 
 	/**
 	 * Display the latest events from the history.
-	 * 
+	 *
 	 * ## Options
-	 * 
+	 *
 	 * [--format=<format>]
 	 * : Format to output log in.
 	 * ---
@@ -55,20 +55,20 @@ class Commands {
 	 *   - json
 	 *   - csv
 	 *   - yaml
-	 * 
+	 *
 	 * [--count=<count>]
 	 * : How many events to show.
 	 * ---
 	 * default: 10
-	 * 
+	 *
 	 * ## Examples
-	 * 
+	 *
 	 *     wp simple-history list --count=20 --format=json
-	 * 
+	 *
 	 * @when after_wp_load
 	 */
 	// Usage: wp simple-history
-	public function list ( $args, $assoc_args ) {
+	public function list( $args, $assoc_args ) {
 		if ( ! is_numeric( $assoc_args['count'] ) ) {
 			WP_CLI::error( __( 'Error: parameter "count" must be a number', 'simple-history' ) );
 		}
@@ -119,7 +119,7 @@ class Commands {
 	}
 
 	private function getInitiatorTextFromRow( $row ) {
-		$context = [];
+		$context = array();
 		if ( ! isset( $row->initiator ) ) {
 			return false;
 		}

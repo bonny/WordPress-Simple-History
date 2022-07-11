@@ -7,7 +7,6 @@ class FileEditsLogger extends SimpleLogger {
 	public $slug = self::class;
 
 	public function getInfo() {
-
 		$arr_info = array(
 			'name'        => _x( 'File edits Logger', 'Logger: FileEditsLogger', 'simple-history' ),
 			'description' => __( 'Logs edits to theme and plugin files', 'simple-history' ),

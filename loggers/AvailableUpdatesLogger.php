@@ -187,10 +187,6 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 						'plugin_current_version' => $plugin_info['Version'] ?? '',
 						'plugin_new_version' => $plugin_new_version,
 						'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
-					// "plugin_info" => $plugin_info,
-					// "remote_plugin_info" => $remote_plugin_info,
-					// "active_plugins" => $active_plugins,
-					// "updates" => $updates
 					)
 				);
 			} // End foreach().
