@@ -35,8 +35,8 @@ if ( ! defined( 'WPINC' ) ) {
 
 // Plugin requires at least WordPress version "4.5.1", because usage of functions like wp_get_raw_referer.
 // true if version ok, false if too old version.
-$ok_wp_version = version_compare( $GLOBALS['wp_version'], '5.2', '>=' );
-$ok_php_version = version_compare( phpversion(), '5.6', '>=' );
+$ok_wp_version = version_compare( $GLOBALS['wp_version'], '5.4', '>=' );
+$ok_php_version = version_compare( phpversion(), '7.4', '>=' );
 
 if ( $ok_php_version && $ok_wp_version ) {
 	/**

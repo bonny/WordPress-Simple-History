@@ -2,7 +2,7 @@
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
-Requires at least: 5.2
+Requires at least: 5.4
 Tested up to: 6.0.1
 Requires PHP: 7.4
 Stable tag: 3.3.0
