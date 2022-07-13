@@ -204,7 +204,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 **Changed**
 
-- PHP 7.4 is now the required version. If you use anything lower than that please try use [version 3.3.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
+- PHP 7.4 is now the required version. If you use anything lower than that please use [version 3.3.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
+- WordPress 5.4 is now the required version.
 - Remove usage of deprectead function `wp_get_user_request_data()`.
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
