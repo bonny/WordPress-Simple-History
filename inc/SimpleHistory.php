@@ -1218,7 +1218,7 @@ class SimpleHistory {
 			$dropin_class_with_namespace = $oneDropinName;
 
 			if ( ! class_exists( $dropin_class_with_namespace ) ) {
-				$dropin_class_with_namespace = '\SimpleHistory\\Dropin\\' . $oneDropinName;
+				$dropin_class_with_namespace = '\SimpleHistory\\Dropins\\' . $oneDropinName;
 			}
 
 			// Bail if dropin not found with or without classname.

@@ -1,22 +1,16 @@
 <?php
 
-namespace SimpleHistory\Dropin;
+namespace SimpleHistory\Dropins;
 
 use WP_CLI;
 
-/*
-Dropin Name: WP CLI
-Dropin URI: https://simple-history.com/
-Author: Pär Thernström
-*/
-
+/**
+ * Dropin Name: WP CLI
+ * Dropin URI: https://simple-history.com/
+ * Author: Pär Thernström
+ */
 class WPCLI {
-	// Simple History instance.
-	private $sh;
-
-	public function __construct( $sh ) {
-		$this->sh = $sh;
-
+	public function __construct() {
 		if ( defined( WP_CLI::class ) && WP_CLI ) {
 			$this->register_commands();
 		}
