@@ -214,6 +214,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 **Removed**
 
 - Removed logger for plugin Ultimate Members.
+- Removed function `simple_history_add`. See https://docs.simple-history.com/logging for other ways to add messages to the history log.
 
 **Fixed**
 

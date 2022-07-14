@@ -17,42 +17,6 @@ function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunct
 }
 
 /**
- * Add event to history table
- * This is here for backwards compatibility
- * If you use this please consider using
- * SimpleHistory()->info();
- * instead
- *
- * Example usage:
- *  simple_history_add(
- *      array(
- *          'object_type' => 'post',
- *          'object_name' => 'Lorem ispum dolor',
- *          'action' => 'updated',
- *      )
- *  );
- *
- * @param array $args Array with at least keys object_type, object_name, action.
- */
-function simple_history_add( $args ) {
-	$defaults = array(
-		'action' => null,
-		'object_type' => null,
-		'object_subtype' => null,
-		'object_id' => null,
-		'object_name' => null,
-		'user_id' => null,
-		'description' => null,
-	);
-
-	$context = wp_parse_args( $args, $defaults );
-
-	$message = "{$context["object_type"]} {$context["object_name"]} {$context["action"]}";
-
-	SimpleLogger()->info( $message, $context );
-}
-
-/**
  * Pretty much same as wp_text_diff() but with this you can set leading and trailing context lines
  *
  * @since 2.0.29
