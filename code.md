@@ -17,8 +17,10 @@ Use PHP 7 for now, the WordPress rules crashes on PHP 8 so far (bug fixed but no
   `$ phpcs` to lint PHP from command line
 
 - **Rector** is used to update code to 7.4 and to refactor code to better quality.
+
   - Dry run with `❯ vendor/bin/rector process --dry-run`
   - Run without `--dry-run` to write changes.
+  - Run with docker using `docker run -it --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp php:7.4-cli php vendor/bin/rector process --dry-run`
 
 - Changelog: try to use format from https://keepachangelog.com.
 
