@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset name="Simple-History">
 	<description>WordPress Coding Standards for Simple History</description>
-	<config name="testVersion" value="7.0-"/>
+	<config name="testVersion" value="7.4-"/>
 
 	<!-- Show progress while running -->
 	<arg value="p"/>
@@ -30,7 +30,7 @@
 		Also see example XML:
 		https://github.com/WordPress/WordPress-Coding-Standards/blob/develop/phpcs.xml.dist.sample
 	-->
-	<config name="minimum_supported_wp_version" value="5.2"/>
+	<config name="minimum_supported_wp_version" value="5.4"/>
 
 	<rule ref="WordPress-Extra">
 		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
