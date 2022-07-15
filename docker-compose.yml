@@ -66,9 +66,11 @@ services:
       - ./:/srv
       - wordpress:/wordpress
       - ./:/wordpress/wp-content/plugins/simple-history
-      - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
-      - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
-      - ./tests/plugins/duplicate-post:/var/www/html/wp-content/plugins/duplicate-post
+      - ./tests/plugins/jetpack:/wordpress/wp-content/plugins/jetpack
+      - ./tests/plugins/wp-crontrol:/wordpress/wp-content/plugins/wp-crontrol
+      - ./tests/plugins/duplicate-post:/wordpress/wp-content/plugins/duplicate-post
+    depends_on:
+      - db
 
   wp-cli:
     image: wordpress:cli-php${PHP_VERSION-7.4}
