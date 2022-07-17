@@ -1,20 +1,20 @@
 Since I always forget what standards I use in different projects this file is here to remind me about the standards I use in this project:
 
-Code standards is updated to WordPress own (used to be PSR 12).
+Code standards is WordPress own.
+**phpcodesniffer** is used to format code.
 
-Uses composer package `dealerdirect/phpcodesniffer-composer-installer` to find PHP_CodeSniffer rules automagically. Just run `composer install` and then `vendor/bin/phpcs`.
+Uses composer package `dealerdirect/phpcodesniffer-composer-installer` to find PHP_CodeSniffer rules automagically. Run `composer install` and then `vendor/bin/phpcs`.
 
-Use PHP 7 for now, the WordPress rules crashes on PHP 8 so far (bug fixed but no version with fix released).
+Use PHP 7.4 (the WordPress rules crashes on PHP 8 so far, bug fixed but no version with fix released).
 
 - `phpcs.xml.dist` is the config used.
 
-- Formatting:
-  phpcbf to fix errors and warning.
-  Then sometimes Prettier, but befare it's not 100 % stable yet for PHP files.
-
-- phpcs to lint while editing. Lots of code is old but working but was written
+- `phpcs` to lint while editing. Lots of code is old but working but was written
   before my editor had nice linting, so much of the code does not lint. This will be fixed.  
-  `$ phpcs` to lint PHP from command line
+  `$ vendor/bin/phpcs phpcs` to lint PHP from command line
+
+- Formatting:
+  `$ vendor/bin/phpcs phpcbf` to fix (write to disk) errors and warning.
 
 - **Rector** is used to update code to 7.4 and to refactor code to better quality.
 
