@@ -219,6 +219,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Removed function `simple_history_add`. See https://docs.simple-history.com/logging for other ways to add messages to the history log.
 - Filter `simple_history/loggers_files` and `simple_history/logger/load_logger` are removed.
 - Removed unused class `SimpleLoggerLogTypes`.
+- Removed patches for plugin [captcha-on-login](https://wordpress.org/plugins/captcha-on-login/).
 
 **Fixed**
 
