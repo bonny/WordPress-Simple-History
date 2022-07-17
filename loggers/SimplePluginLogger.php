@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs plugin related things, for example installs, updates, and deletions.
@@ -12,7 +12,7 @@ class SimplePluginLogger extends SimpleLogger {
 	 *
 	 * @var string $slug
 	 */
-	public $slug = self::class;
+	public $slug = 'SimplePluginLogger';
 
 	/**
 	 * This variable is set if a plugins has been disabled due to an error,

@@ -1,14 +1,8 @@
 <?php
+namespace SimpleHistory\Loggers;
 
 /**
- * Logger for privacy/GDPR related things.
  *
- * @package SimpleHistory
- */
-
-defined( 'ABSPATH' ) || die();
-
-/**
  * Logger for WordPress privacy/GDPR related things
  *
  * List of interesting filters:
@@ -19,6 +13,8 @@ defined( 'ABSPATH' ) || die();
  *   Something has status "request-failed".
  *   Set in _wp_personal_data_cleanup_requests()
  * - Log when _wp_privacy_resend_request() is called
+ *
+ * @package SimpleHistory
  */
 class SH_Privacy_Logger extends SimpleLogger {
 	/**
@@ -26,7 +22,7 @@ class SH_Privacy_Logger extends SimpleLogger {
 	 *
 	 * @var string
 	 */
-	public $slug = self::class;
+	public $slug = 'SH_Privacy_Logger';
 
 	/**
 	 * Return info about logger.

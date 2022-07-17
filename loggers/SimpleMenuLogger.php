@@ -1,13 +1,13 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs WordPress menu edits
  */
 class SimpleMenuLogger extends SimpleLogger {
 
-	public $slug = self::class;
+	public $slug = 'SimpleMenuLogger';
 
 	/**
 	 * Get array with information about this logger

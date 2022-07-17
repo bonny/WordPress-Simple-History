@@ -1,24 +1,18 @@
 <?php
+namespace SimpleHistory\Loggers;
 
 /**
  * Logger for translation related things, like translation updated.
  *
  * @package SimpleHistory
  */
-
-defined( 'ABSPATH' ) || die();
-
-/**
- * Logger for translation related things.
- */
 class SH_Translations_Logger extends SimpleLogger {
-
 	/**
 	 * Logger slug.
 	 *
 	 * @var string
 	 */
-	public $slug = self::class;
+	public $slug = 'SH_Translations_Logger';
 
 	/**
 	 * Return info about logger.

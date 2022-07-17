@@ -1,6 +1,9 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Dropins;
+
+use SimpleHistory\SimpleHistory;
+
 
 /*
 Dropin Name: Sidebar with link to settings

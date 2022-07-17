@@ -1,13 +1,13 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs changes to wordpress options
  */
 class SimpleOptionsLogger extends SimpleLogger {
 
-	public $slug = self::class;
+	public $slug = 'SimpleOptionsLogger';
 
 	/**
 	 * Get array with information about this logger

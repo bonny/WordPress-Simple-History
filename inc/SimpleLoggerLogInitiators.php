@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleHistory;
+
 // phpcs:disable PSR12.Properties.ConstantVisibility.NotFound
 
 /**

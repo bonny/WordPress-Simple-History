@@ -1,13 +1,12 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs things related to comments
  */
 class SimpleCommentsLogger extends SimpleLogger {
-
-	public $slug = self::class;
+	public $slug = 'SimpleCommentsLogger';
 
 	public function __construct( $sh ) {
 		parent::__construct( $sh );

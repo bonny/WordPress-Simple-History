@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs media uploads

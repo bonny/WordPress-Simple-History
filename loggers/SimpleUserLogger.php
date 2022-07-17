@@ -1,11 +1,14 @@
 <?php
+namespace SimpleHistory\Loggers;
+
+use SimpleHistory\SimpleLoggerLogInitiators;
 
 /**
  * Logs changes to user logins (and logouts)
  */
 class SimpleUserLogger extends SimpleLogger {
 
-	public $slug = self::class;
+	public $slug = 'SimpleUserLogger';
 
 	/**
 	 * Get array with information about this logger.

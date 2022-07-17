@@ -1,6 +1,12 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
+
+use DateTime;
+use DateTimeZone;
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleLoggerLogLevels;
+use SimpleHistory\SimpleLoggerLogInitiators;
 
 /**
  * A PSR-3 inspired logger class
@@ -11,12 +17,13 @@ defined( 'ABSPATH' ) || die();
  * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md PSR-3 specification
  */
 class SimpleLogger {
-
 	/**
 	 * Unique slug for this logger
-	 * Will be saved in DB and used to associate each log row with its logger
+	 * Will be saved in DB and used to associate each log row with its logger.
+	 *
+	 * @var string
 	 */
-	public $slug = self::class;
+	public $slug = 'SimpleLogger';
 
 	/**
 	 * Will contain the untranslated messages from getInfo()
@@ -58,7 +65,7 @@ class SimpleLogger {
 	public $simpleHistory;
 
 	/**
-	 * Constructor. Remember to call this as parent constructor if making a childlogger
+	 * Constructor. Remember to call this as parent constructor if making a child logger.
 	 *
 	 * @param $simpleHistory history class  objectinstance
 	 */
@@ -1063,7 +1070,7 @@ class SimpleLogger {
 	 */
 	public function noticeMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			SimpleLoggerLogLevels::NOTICE,
+			\SimpleHistory\SimpleLoggerLogLevels::NOTICE,
 			$message,
 			$context
 		);

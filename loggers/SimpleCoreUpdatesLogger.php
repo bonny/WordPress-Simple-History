@@ -1,14 +1,12 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs WordPress core updates
  */
 class SimpleCoreUpdatesLogger extends SimpleLogger {
-
-
-	public $slug = self::class;
+	public $slug = 'SimpleCoreUpdatesLogger';
 
 	public function loaded() {
 

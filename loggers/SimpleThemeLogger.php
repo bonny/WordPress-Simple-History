@@ -1,13 +1,13 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs WordPress theme edits
  */
 class SimpleThemeLogger extends SimpleLogger {
 
-	public $slug = self::class;
+	public $slug = 'SimpleThemeLogger';
 
 	// When switching themes, this will contain info about the theme we are switching from.
 	private $prev_theme_data;

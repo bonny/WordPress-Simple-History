@@ -1,7 +1,8 @@
 <?php
+namespace SimpleHistory;
 
-// phpcs:disable PSR12.Properties.ConstantVisibility.NotFound
-defined( 'ABSPATH' ) || die();
+use getid3_ogg;
+use SimpleHistory\Loggers;
 
 /**
  * Main class for Simple History
@@ -648,6 +649,7 @@ class SimpleHistory {
 			case 'single':
 				// API use SimpleHistoryLogQuery, so simply pass args on to that
 				$logQuery = new SimpleHistoryLogQuery();
+
 				$data = $logQuery->query( $args );
 
 				$data['api_args'] = $args;
@@ -904,105 +906,63 @@ class SimpleHistory {
 	}
 
 	/**
+	 * Get array with classnames of all core (built-in) loggers.
+	 *
+	 * @return array
+	 */
+	public function get_core_loggers() {
+		$loggers = array(
+			Loggers\AvailableUpdatesLogger::class,
+			Loggers\FileEditsLogger::class,
+			Loggers\Plugin_ACF::class,
+			Loggers\Plugin_BeaverBuilder::class,
+			Loggers\Plugin_DuplicatePost::class,
+			Loggers\Plugin_LimitLoginAttempts::class,
+			Loggers\Plugin_Redirection::class,
+			Loggers\PluginEnableMediaReplaceLogger::class,
+			Loggers\PluginUserSwitchingLogger::class,
+			Loggers\PluginWPCrontrolLogger::class,
+			Loggers\SH_Jetpack_Logger::class,
+			Loggers\SH_Privacy_Logger::class,
+			Loggers\SH_Translations_Logger::class,
+			Loggers\SimpleCategoriesLogger::class,
+			Loggers\SimpleCommentsLogger::class,
+			Loggers\SimpleCoreUpdatesLogger::class,
+			Loggers\SimpleExportLogger::class,
+			Loggers\SimpleLogger::class,
+			Loggers\SimpleMediaLogger::class,
+			Loggers\SimpleMenuLogger::class,
+			Loggers\SimpleOptionsLogger::class,
+			Loggers\SimplePluginLogger::class,
+			Loggers\SimplePostLogger::class,
+			Loggers\SimpleThemeLogger::class,
+			Loggers\SimpleUserLogger::class,
+		);
+
+		/**
+		 * Filter the array with class names of core loggers.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $logger Array with class names.
+		 */
+		$loggers = apply_filters( 'simple_history/core_loggers', $loggers );
+
+		return $loggers;
+	}
+
+	/**
 	 * Load built in loggers from all files in /loggers
 	 * and instantiates them
 	 */
 	public function load_loggers() {
-		$loggersDir = SIMPLE_HISTORY_PATH . 'loggers/';
-
-		// SimpleLogger.php must be loaded first and always since the other loggers extend it.
-		// Load it manually so no risk of anyone using filters or similar disables it.
-		// Also load files that contain constants used by the SimpleLogger.
-		include_once $loggersDir . 'SimpleLogger.php';
-		include_once $loggersDir . 'SimpleLoggerLogInitiators.php';
-		include_once $loggersDir . 'SimpleLoggerLogTypes.php';
-		include_once $loggersDir . 'SimpleLoggerLogLevels.php';
-
 		// Bail if we are not in filter after_setup_theme,
 		// i.e. we are probably calling SimpleLogger() early.
 		if ( ! doing_action( 'after_setup_theme' ) ) {
 			return;
 		}
 
-		$loggersFiles = array(
-			// Main loggers.
-			$loggersDir . 'SimpleCommentsLogger.php',
-			$loggersDir . 'SimpleCoreUpdatesLogger.php',
-			$loggersDir . 'SimpleExportLogger.php',
-			$loggersDir . 'SimpleLogger.php',
-			$loggersDir . 'SimpleMediaLogger.php',
-			$loggersDir . 'SimpleMenuLogger.php',
-			$loggersDir . 'SimpleOptionsLogger.php',
-			$loggersDir . 'SimplePluginLogger.php',
-			$loggersDir . 'SimplePostLogger.php',
-			$loggersDir . 'SimpleThemeLogger.php',
-			$loggersDir . 'SimpleUserLogger.php',
-			$loggersDir . 'SimpleCategoriesLogger.php',
-			$loggersDir . 'AvailableUpdatesLogger.php',
-			$loggersDir . 'FileEditsLogger.php',
-			$loggersDir . 'class-sh-privacy-logger.php',
-			$loggersDir . 'class-sh-translations-logger.php',
-			$loggersDir . 'class-sh-jetpack-logger.php',
-
-			// Loggers for third party plugins.
-			$loggersDir . 'PluginUserSwitchingLogger.php',
-			$loggersDir . 'PluginWPCrontrolLogger.php',
-			$loggersDir . 'PluginEnableMediaReplaceLogger.php',
-			$loggersDir . 'Plugin_LimitLoginAttempts.php',
-			$loggersDir . 'Plugin_Redirection.php',
-			$loggersDir . 'Plugin_DuplicatePost.php',
-			$loggersDir . 'Plugin_ACF.php',
-			$loggersDir . 'Plugin_BeaverBuilder.php',
-		);
-
-		/**
-		 * Filter the array with absolute paths to logger files to be loaded.
-		 *
-		 * Each file will be loaded and will be assumed to be a logger with a classname
-		 * the same as the filename.
-		 *
-		 * @since 2.0
-		 *
-		 * @param array $loggersFiles Array with filenames
-		 */
-		$loggersFiles = apply_filters( 'simple_history/loggers_files', $loggersFiles );
-
-		// Array with slug of loggers to instantiate.
-		// Slug of logger must also be the name of the logger class.
-		$arr_loggers_to_instantiate = array();
-
-		// $one_logger_file = "SimpleCommentsLogger.php", "class-privacy-logger.php", and so on.
-		foreach ( $loggersFiles as $one_logger_file ) {
-			$load_logger = true;
-
-			// SimpleCommentsLogger.php -> SimpleCommentsLogger.
-			// class-privacy-logger.php -> class-privacy-logger.
-			$basename_no_suffix = basename( $one_logger_file, '.php' );
-
-			/**
-			 * Filter to completely skip loading of a logger
-			 *
-			 * @since 2.0.22
-			 *
-			 * @param bool if to load the logger. return false to not load it.
-			 * @param string basename of logger, i.e. "SimpleCommentsLogger" or "class-privacy-logger"
-			 */
-			$load_logger = apply_filters( 'simple_history/logger/load_logger', $load_logger, $basename_no_suffix );
-
-			// If logger was SimpleLogger then force it to be loaded because for example
-			// custom extended plugins added later probably depends on it.
-			if ( 'SimpleLogger' === $basename_no_suffix ) {
-				$load_logger = true;
-			}
-
-			if ( ! $load_logger ) {
-				continue;
-			}
-
-			include_once $one_logger_file;
-
-			$arr_loggers_to_instantiate[] = $basename_no_suffix;
-		}
+		$arr_loggers_to_instantiate = $this->get_core_loggers();
 
 		/**
 		 * Fires after the list of loggers to load are populated.
@@ -1020,12 +980,12 @@ class SimpleHistory {
 		$arr_loggers_to_instantiate = array_merge( $arr_loggers_to_instantiate, $this->externalLoggers );
 
 		/**
-		 * Filter the array with names of loggers to instantiate.
+		 * Filter the array with class names of loggers to instantiate.
 		 *
 		 * Array
 		 * (
-		 *  [0] => SimpleCommentsLogger
-		 *  [1] => SimpleCoreUpdatesLogger
+		 *  [0] => SimpleHistory\Loggers\SimpleUserLogger
+		 *  [1] => SimpleHistory\Loggers\SimplePostLogger
 		 *   ...
 		 * )
 		 *
@@ -1039,37 +999,19 @@ class SimpleHistory {
 		);
 
 		// Instantiate each logger.
-		foreach ( $arr_loggers_to_instantiate as $one_logger_name ) {
-			// Detect logger class name.
-			$logger_class_name = null;
-
-			if ( class_exists( $one_logger_name ) ) {
-				// Logger name is "SimpleCommentsLogger".
-				$logger_class_name = $one_logger_name;
-			} else {
-				// Check if class is "class-privacy-logger".
-				$logger_snaked_name = substr( $one_logger_name, 6 );
-				// "privacy-logger" -> "privacy_logger" -> Privacy_Logger
-				$logger_snaked_name = str_replace( '-', '_', $logger_snaked_name );
-				$logger_snaked_name = sh_ucwords( $logger_snaked_name, '_' );
-
-				if ( class_exists( $logger_snaked_name ) ) {
-					$logger_class_name = $logger_snaked_name;
-				}
+		foreach ( $arr_loggers_to_instantiate as $one_logger_class ) {
+			if ( ! class_exists( $one_logger_class ) ) {
+				continue;
 			}
-
-			// Continue to load next logger if no valid logger class found.
-			if ( ! $logger_class_name ) {
+			
+			if ( ! is_subclass_of( $one_logger_class, 'SimpleHistory\Loggers\SimpleLogger' ) 
+				&& ( $one_logger_class !== 'SimpleHistory\Loggers\SimpleLogger')
+			) {
 				continue;
 			}
 
-			// Init found logger class.
-			$logger_instance = new $logger_class_name( $this );
-
-			if ( ! is_subclass_of( $logger_instance, 'SimpleLogger' ) && ! is_a( $logger_instance, 'SimpleLogger' ) ) {
-				continue;
-			}
-
+			/** @var SimpleLogger */
+			$logger_instance = new $one_logger_class( $this );
 			$logger_instance->loaded();
 
 			// Tell gettext-filter to add untranslated messages.
@@ -1081,7 +1023,15 @@ class SimpleHistory {
 			// Check so no logger has a logger slug with more than 30 chars,
 			// because db column is only 30 chars.
 			if ( strlen( $logger_instance->slug ) > 30 ) {
-				add_action( 'admin_notices', array( $this, 'admin_notice_logger_slug_to_long' ) );
+				_doing_it_wrong(
+					__METHOD__,
+					sprintf(
+						esc_html( __( 'A logger slug can be max 30 chars long. Slug %1$s of logger %2$s is to long.', 'simple-history' ) ),
+						esc_html( $logger_instance->slug ),
+						esc_html( $logger_instance->getInfoValueByKey( 'name' ) )
+					),
+					'3.0'
+				);
 			}
 
 			// Un-tell gettext filter.
@@ -1106,13 +1056,15 @@ class SimpleHistory {
 
 			$logger_instance->messages = $arr_messages_by_message_key;
 
-			// Add logger to array of loggers.
 			$this->instantiatedLoggers[ $logger_instance->slug ] = array(
 				'name' => $logger_info['name'],
 				'instance' => $logger_instance,
 			);
 		} // End foreach().
 
+		// sh_d('$this->instantiatedLoggers', $this->instantiatedLoggers);exit;
+
+		// TODO: document
 		do_action( 'simple_history/loggers_loaded' );
 	}
 
@@ -2239,7 +2191,7 @@ Because Simple History was only recently installed, this feed does not display m
 			)
 		);
 
-		static::get_cache_incrementor(true);
+		static::get_cache_incrementor( true );
 	}
 
 	/**
@@ -2332,7 +2284,7 @@ Because Simple History was only recently installed, this feed does not display m
 				)
 			);
 
-			static::get_cache_incrementor(true);
+			static::get_cache_incrementor( true );
 		}
 	}
 
@@ -2906,6 +2858,7 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 
 		$loggers = $this->getInstantiatedLoggers();
+
 		foreach ( $loggers as $one_logger ) {
 			$logger_capability = $one_logger['instance']->getCapability();
 
@@ -3325,23 +3278,5 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 
 		return $numEvents;
-	}
-
-	/**
-	 * Output an admin notice about logger slug being to long
-	 */
-	public function admin_notice_logger_slug_to_long() {
-		?>
-			<div class="error notice">
-				<p>
-					<?php
-					echo esc_html__(
-						'The slug for a logger in Simple History can be max 30 chars long.',
-						'simple-history'
-					);
-					?>
-					</p>
-			</div>
-		<?php
 	}
 }

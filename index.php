@@ -10,7 +10,6 @@
  * Author: Pär Thernström
  * Author URI: http://simple-history.com/
  * License: GPL2
-
  *
  * @package Simple History
  */
@@ -33,8 +32,6 @@ if ( ! defined( 'WPINC' ) ) {
 	die();
 }
 
-// Plugin requires at least WordPress version "4.5.1", because usage of functions like wp_get_raw_referer.
-// true if version ok, false if too old version.
 $ok_wp_version = version_compare( $GLOBALS['wp_version'], '5.4', '>=' );
 $ok_php_version = version_compare( phpversion(), '7.4', '>=' );
 
@@ -51,13 +48,17 @@ if ( $ok_php_version && $ok_wp_version ) {
 	define( 'SIMPLE_HISTORY_DIR_URL', plugin_dir_url( __FILE__ ) );
 	define( 'SIMPLE_HISTORY_FILE', __FILE__ );
 
-	/** Load required files */
-	require_once __DIR__ . '/inc/SimpleHistory.php';
-	require_once __DIR__ . '/inc/SimpleHistoryLogQuery.php';
+	/** Load required files. */
+	require_once __DIR__ . '/inc/Autoloader.php';
 	require_once __DIR__ . '/inc/helpers.php';
 
-	/** Boot up */
-	SimpleHistory::get_instance();
+	/** Boot up. */
+	$loader = new SimpleHistory\Autoloader();
+	$loader->register();
+	$loader->add_namespace( 'SimpleHistory', SIMPLE_HISTORY_PATH );
+	$loader->add_namespace( 'SimpleHistory', SIMPLE_HISTORY_PATH . '/inc/' );
+
+	SimpleHistory\SimpleHistory::get_instance();
 } else {
 	// User is running to old version of php, add admin notice about that.
 	require_once __DIR__ . '/inc/oldversions.php';

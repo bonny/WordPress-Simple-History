@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+use SimpleHistory\SimpleHistory;
 
 /**
  * Dropin Name: Debug
@@ -10,8 +10,7 @@ defined( 'ABSPATH' ) || die();
  */
 class SimpleHistoryDebugDropin {
 
-	public function __construct()
-	{
+	public function __construct() {
 		// Bail if Simple History debug mode is not active.
 		if ( ! defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) || ! SIMPLE_HISTORY_LOG_DEBUG ) {
 			return;

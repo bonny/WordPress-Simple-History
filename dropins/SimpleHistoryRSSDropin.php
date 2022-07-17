@@ -1,6 +1,8 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Dropins;
+
+use SimpleHistory\SimpleHistory;
 
 /*
 Dropin Name: Global RSS Feed

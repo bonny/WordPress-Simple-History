@@ -1,18 +1,20 @@
 <?php
 
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\Loggers\SimpleLogger;
+
 /**
  * Helper function with same name as the SimpleLogger-class
  *
- * Makes call like this possible:
+ * @example Log a message to the log.
+ * 
+ * ```php
  * SimpleLogger()->info("This is a message sent to the log");
+ * ```
+ * 
+ * @return SimpleLogger
  */
 function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
-	// Load loggers if main SimpleLogger class is not yet available.
-	// Makes it possible to log things early,
-	// before loggers are loaded "normally" on filter "after_setup_theme".
-	if ( ! class_exists( 'SimpleLogger' ) ) {
-		SimpleHistory::get_instance()->load_loggers();
-	}
 	return new SimpleLogger( SimpleHistory::get_instance() );
 }
 

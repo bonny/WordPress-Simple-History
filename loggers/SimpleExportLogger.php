@@ -1,13 +1,12 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs WordPress exports
  */
 class SimpleExportLogger extends SimpleLogger {
-
-	public $slug = self::class;
+	public $slug = 'SimpleExportLogger';
 
 	/**
 	 * Get array with information about this logger

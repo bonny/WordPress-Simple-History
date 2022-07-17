@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory;
 
 /**
  * Queries the Simple History Log

@@ -3,6 +3,10 @@
 // phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 // phpcs:disable Squiz.Scope.MethodScope.Missing
 
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleLoggerLogLevels;
+use SimpleHistory\SimpleHistoryLogQuery;
+
 class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	// https://phpunit.de/manual/current/en/fixtures.html
 	function test_history_setup() {
@@ -19,12 +23,12 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_history_classes() {
 
-		$this->assertTrue( class_exists( 'SimpleHistory' ) );
-		$this->assertTrue( class_exists( 'SimpleHistoryLogQuery' ) );
+		$this->assertTrue( class_exists( 'SimpleHistory\SimpleHistory' ) );
+		$this->assertTrue( class_exists( 'SimpleHistory\SimpleHistoryLogQuery' ) );
 
 		$sh = SimpleHistory::get_instance();
 		$this->assertTrue( is_object( $sh ) );
-		$this->assertTrue( is_a( $sh, 'SimpleHistory' ) );
+		$this->assertTrue( is_a( $sh, 'SimpleHistory\SimpleHistory' ) );
 	}
 
 	function test_default_loggers() {
@@ -33,6 +37,17 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$loggers = $sh->getInstantiatedLoggers();
 
 		$arr_default_loggers = array(
+			'AvailableUpdatesLogger',
+			'FileEditsLogger',
+			'Plugin_ACF',
+			'Plugin_BeaverBuilder',
+			'Plugin_DuplicatePost',
+			'Plugin_LimitLoginAttempts',
+			'Plugin_Redirection',
+			'PluginEnableMediaReplaceLogger',
+			'PluginUserSwitchingLogger',
+			'PluginWPCrontrolLogger',
+			'SimpleCategoriesLogger',
 			'SimpleCommentsLogger',
 			'SimpleCoreUpdatesLogger',
 			'SimpleExportLogger',
@@ -127,7 +142,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_loglevels_and_initiators() {
 
-		$refl = new ReflectionClass( 'SimpleLoggerLogLevels' );
+		$refl = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogLevels' );
 		$log_levels = (array) $refl->getConstants();
 
 		$expected_log_levels = array(
@@ -143,7 +158,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected_log_levels, $log_levels, 'log levels' );
 
-		$refl = new ReflectionClass( 'SimpleLoggerLogInitiators' );
+		$refl = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogInitiators' );
 		$log_initiators = (array) $refl->getConstants();
 
 		$expected_log_initiators = array(
@@ -164,10 +179,10 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		$table_name_simple_history = $wpdb->prefix . SimpleHistory::DBTABLE;
 
-		$refl_log_levels = new ReflectionClass( 'SimpleLoggerLogLevels' );
+		$refl_log_levels = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogLevels' );
 		$log_levels = (array) $refl_log_levels->getConstants();
 
-		$refl_log_initiators = new ReflectionClass( 'SimpleLoggerLogInitiators' );
+		$refl_log_initiators = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogInitiators' );
 		$log_initiators = (array) $refl_log_initiators->getConstants();
 
 		foreach ( $log_levels as $level_const => $level_str ) {
@@ -195,8 +210,6 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 				$this->assertEquals( $expected_row, $db_row, 'logged event in db' );
 			}
 		}
-
-		// TODO: test logging with context
 	}
 
 	function test_log_query() {

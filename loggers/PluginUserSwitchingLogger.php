@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs user switching from the great User Switching plugin
@@ -9,9 +9,7 @@ defined( 'ABSPATH' ) || die();
  * @since 2.2
  */
 class PluginUserSwitchingLogger extends SimpleLogger {
-
-
-	public $slug = self::class;
+	public $slug = 'PluginUserSwitchingLogger';
 
 	/**
 	 * Get array with information about this logger

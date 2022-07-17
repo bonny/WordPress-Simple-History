@@ -1,10 +1,11 @@
 <?php
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor
  */
 class FileEditsLogger extends SimpleLogger {
-	public $slug = self::class;
+	public $slug = 'FileEditsLogger';
 
 	public function getInfo() {
 		$arr_info = array(

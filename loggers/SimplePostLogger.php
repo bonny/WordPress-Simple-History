@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Todo/@HERE
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || die();
 class SimplePostLogger extends SimpleLogger {
 
 	// The logger slug. Defaulting to the class name is nice and logical I think.
-	public $slug = self::class;
+	public $slug = 'SimplePostLogger';
 
 	// Array that will contain previous post data, before data is updated.
 	// Array format is

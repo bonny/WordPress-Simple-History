@@ -1,4 +1,5 @@
 <?php
+namespace SimpleHistory\Loggers;
 
 /**
  * Logger for Automattic Jetpack plugin.
@@ -12,14 +13,12 @@ defined( 'ABSPATH' ) || die();
  * Logger for plugin Jetpack.
  */
 class SH_Jetpack_Logger extends SimpleLogger {
-
-
 	/**
 	 * Logger slug.
 	 *
 	 * @var string
 	 */
-	public $slug = self::class;
+	public $slug = 'SH_Jetpack_Logger';
 
 	/**
 	 * Return info about logger.

@@ -1,6 +1,6 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs attachments updated with the great Enable Media Replace plugin
@@ -9,8 +9,7 @@ defined( 'ABSPATH' ) || die();
  * @since 2.2
  */
 class PluginEnableMediaReplaceLogger extends SimpleLogger {
-
-	public $slug = self::class;
+	public $slug = 'PluginEnableMediaReplaceLogger';
 
 	/**
 	 * Get array with information about this logger

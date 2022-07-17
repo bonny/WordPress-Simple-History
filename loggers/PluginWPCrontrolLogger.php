@@ -1,18 +1,15 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs cron event management from the WP Crontrol plugin
  * Plugin URL: https://wordpress.org/plugins/wp-crontrol/
  *
  * Requires WP Crontrol 1.9.0 or later.
- *
- * @since x.x
  */
 class PluginWPCrontrolLogger extends SimpleLogger {
-
-	public $slug = self::class;
+	public $slug = 'PluginWPCrontrolLogger';
 
 	/**
 	 * Get array with information about this logger

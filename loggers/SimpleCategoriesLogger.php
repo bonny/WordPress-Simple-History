@@ -1,13 +1,12 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Loggers;
 
 /**
  * Logs changes to categories and tags and taxonomies
  */
 class SimpleCategoriesLogger extends SimpleLogger {
-
-	public $slug = self::class;
+	public $slug = 'SimpleCategoriesLogger';
 
 	/**
 	 * Get array with information about this logger
