@@ -201,11 +201,13 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Log when a Data Export Request is marked as complete.
 - Log when Personal Data is erased by an admin.
 - Dropins has support for namespace `SimpleHistory\Dropins` and the WP Cli dropin is using it so far and soon all dropins will move to this namespace.
+- Add filter `simple_history/core_loggers` to modify the list of built in (core) loggers.
 
 **Changed**
 
 - PHP 7.4 is now the required version. If you use anything lower than that please use [version 3.3.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
 - WordPress 5.4 is now the required version.
+- Code now uses namespaces and classes (including loggers and dropins) are now loaded using an autoloader.
 - Remove usage of deprectead function `wp_get_user_request_data()`.
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
@@ -215,6 +217,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Removed logger for plugin Ultimate Members.
 - Removed function `simple_history_add`. See https://docs.simple-history.com/logging for other ways to add messages to the history log.
+- Filter `simple_history/loggers_files` and `simple_history/logger/load_logger` are removed.
+- Removed unused class `SimpleLoggerLogTypes`.
 
 **Fixed**
 
