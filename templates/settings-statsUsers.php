@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleHistory;
+
 defined( 'ABSPATH' ) || die();
 
 // Output users

@@ -1,5 +1,10 @@
 <?php
 
+namespace SimpleHistory;
+
+use SimpleHistory\SimpleHistory;
+use DateTime;
+
 /**
  * Undocumented class
  *

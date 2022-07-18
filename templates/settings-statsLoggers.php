@@ -1,4 +1,7 @@
 <?php
+
+namespace SimpleHistory;
+
 defined( 'ABSPATH' ) || die();
 
 echo "<h4 class=''>";

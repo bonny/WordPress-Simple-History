@@ -1,5 +1,10 @@
 <?php
 
+namespace SimpleHistory;
+
+use DateInterval;
+use DatePeriod;
+
 defined( 'ABSPATH' ) || die();
 
 echo "<h4 class=''>";

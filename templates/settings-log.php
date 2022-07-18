@@ -1,5 +1,9 @@
 <?php
 
+namespace SimpleHistory;
+
+use SimpleHistory\SimpleHistory;
+
 defined( 'ABSPATH' ) || die();
 
 $pager_size = $this->get_pager_size();

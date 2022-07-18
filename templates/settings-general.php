@@ -1,4 +1,8 @@
 <?php
+namespace SimpleHistory;
+
+use SimpleHistory\SimpleHistory;
+
 defined( 'ABSPATH' ) || die();
 ?>
 

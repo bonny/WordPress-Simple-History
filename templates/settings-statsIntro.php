@@ -1,5 +1,9 @@
 <?php
 
+namespace SimpleHistory;
+
+use SimpleHistory\SimpleHistory;
+
 defined( 'ABSPATH' ) || die();
 
 // Number of rows the last n days
