@@ -1,7 +1,11 @@
 Since I always forget what standards I use in different projects this file is here to remind me about the standards I use in this project:
 
-Code standards is WordPress own.
-**phpcodesniffer** is used to format code.
+- Code standards is WordPress own.
+- **phpcodesniffer** is used to format code.
+- **phpstan** is used to check for bugs.
+- **rector** is used to update code.
+
+## phpcodesniffer
 
 Uses composer package `dealerdirect/phpcodesniffer-composer-installer` to find PHP_CodeSniffer rules automagically. Run `composer install` and then `vendor/bin/phpcs`.
 
@@ -15,6 +19,14 @@ Use PHP 7.4 (the WordPress rules crashes on PHP 8 so far, bug fixed but no versi
 
 - Formatting:
   `$ vendor/bin/phpcs phpcbf` to fix (write to disk) errors and warning.
+
+## phpstan
+
+Config is in `phpstan.neon`.
+
+- `$ vendor/bin/phpstan analyse`
+
+## Rector
 
 - **Rector** is used to update code to 7.4 and to refactor code to better quality.
 
