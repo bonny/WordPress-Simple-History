@@ -15,6 +15,9 @@
     - Faster tests to test things that does not require so much user input.
   - `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance`
     - These are tests that are performed using a Chromium browser, like it was done with users that actually visits the WP admin in a browser and does things. These test are slower but more realistic.
+    - To run a single test run for example
+      `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance SimpleUserLoggerCest:logUserCreated` or to run a single suite 
+      `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance SimpleUserLoggerCest`
   - `❯ docker-compose run --rm php-cli vendor/bin/codecept run functional`
   - Run single test: `docker-compose run --rm php-cli vendor/bin/codecept run acceptance FirstCest:visitPluginPage`
 
