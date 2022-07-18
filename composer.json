@@ -24,7 +24,11 @@
 		"codeception/module-cli": "^1.0",
 		"codeception/util-universalframework": "^1.0",
 		"rector/rector": "^0.12",
-		"wp-cli/wp-cli-bundle": "2.6.x-dev"
+		"wp-cli/wp-cli-bundle": "2.6.x-dev",
+		"phpstan/phpstan": "1.8.x-dev",
+		"szepeviktor/phpstan-wordpress": "dev-master",
+		"phpstan/extension-installer": "1.2.x-dev",
+		"php-stubs/wp-cli-stubs": "dev-master"
 	},
 	"require": {
 		"php": "^7.4"
@@ -52,7 +56,8 @@
 	},
 	"config": {
 		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"phpstan/extension-installer": true
 		}
 	}
 }
