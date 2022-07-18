@@ -1,6 +1,8 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Dropins;
+
+use SimpleHistory\SimpleHistoryLogQuery;
 
 /**
  * Dropin Name: New Items Notifier
@@ -8,17 +10,11 @@ defined( 'ABSPATH' ) || die();
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-
-class SimpleHistoryNewRowsNotifier {
-
-	// Simple History instance
-	private $sh;
-
+class SimpleHistoryNewRowsNotifier extends Dropin {
 	// How often we should check for new rows, in ms
 	private $interval = 10000;
 
 	public function __construct( $sh ) {
-
 		$this->sh = $sh;
 
 		// How often the script checks for new rows

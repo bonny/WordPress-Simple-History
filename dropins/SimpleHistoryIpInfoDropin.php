@@ -1,17 +1,19 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Dropins;
 
-/*
-Dropin Name: IP Info
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
+
+/**
+ * Dropin Name: IP Info
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
 */
 
-class SimpleHistoryIpInfoDropin {
-	public function __construct()
-	{
-		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
+class SimpleHistoryIpInfoDropin extends Dropin {
+	public function __construct() {
+		 add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/admin_footer', array( $this, 'add_js_template' ) );
 		add_filter(
 			'simple_history/row_header_output/display_ip_address',

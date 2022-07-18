@@ -1,19 +1,15 @@
 <?php
 
-namespace SimpleHistory;
+namespace SimpleHistory\Dropins;
 
-/*
-Dropin Name: Plugin Patches
-Dropin Description: Used to patch plugins that behave weird
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
-class SimpleHistoryPluginPatchesDropin {
-	private $sh;
-
-	public function __construct( $sh ) {
-		$this->sh = $sh;
-
+/**
+ * Dropin Name: Plugin Patches
+ * Dropin Description: Used to patch plugins that behave weird
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
+class SimpleHistoryPluginPatchesDropin extends Dropin {
+	public function __construct() {
 		add_filter(
 			'simple_history/post_logger/skip_posttypes',
 			array( $this, 'woocommerce_skip_scheduled_actions_posttype' )

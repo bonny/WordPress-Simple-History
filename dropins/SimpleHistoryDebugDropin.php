@@ -1,6 +1,10 @@
 <?php
 
+namespace SimpleHistory\Dropins;
+
 use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
+
 
 /**
  * Dropin Name: Debug
@@ -8,7 +12,7 @@ use SimpleHistory\SimpleHistory;
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistoryDebugDropin {
+class SimpleHistoryDebugDropin extends Dropin {
 
 	public function __construct() {
 		// Bail if Simple History debug mode is not active.

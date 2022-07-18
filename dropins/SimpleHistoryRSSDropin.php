@@ -3,21 +3,20 @@
 namespace SimpleHistory\Dropins;
 
 use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
 
-/*
-Dropin Name: Global RSS Feed
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
+/**
+ * Dropin Name: Global RSS Feed
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
 
 /**
  * Simple History RSS Feed drop-in
  */
-class SimpleHistoryRSSDropin {
-
+class SimpleHistoryRSSDropin extends Dropin {
 	public function __construct( $sh ) {
-
-		$this->sh = $sh;
+		parent::__construct( $sh );
 
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once( ABSPATH . '/wp-admin/includes/user.php' );
@@ -26,14 +25,14 @@ class SimpleHistoryRSSDropin {
 		// Check the status of the RSS feed
 		$this->isRssEnabled();
 
-		// Generate a rss secret, if it does not exist
+		// Generate a rss secret, if it does not exist.
 		if ( ! get_option( 'simple_history_rss_secret' ) ) {
 			$this->updateRssSecret();
 		}
 
 		add_action( 'init', array( $this, 'checkForRssFeedRequest' ) );
 
-		// Add settings with priority 11 so it' added after the main Simple History settings
+		// Add settings with priority 11 so it' added after the main Simple History settings.
 		add_action( 'admin_menu', array( $this, 'addSettings' ), 11 );
 	}
 
@@ -363,13 +362,13 @@ class SimpleHistoryRSSDropin {
 							<guid isPermaLink="false"><![CDATA[<?php echo esc_html( $item_guid ); ?>]]></guid>
 							<link><![CDATA[<?php echo esc_url( $item_link ); ?>]]></link>
 						</item>
-<?php
+						<?php
 					} // End foreach().
 
 					?>
 				</channel>
 			</rss>
-<?php
+			<?php
 		} else {
 			// RSS secret was not ok
 			?>
@@ -386,7 +385,7 @@ class SimpleHistoryRSSDropin {
 					</item>
 				</channel>
 			</rss>
-<?php
+			<?php
 		}// End if().
 	}
 
@@ -434,7 +433,7 @@ class SimpleHistoryRSSDropin {
 		printf(
 			'<a class="button" href="%1$s">%2$s</a>',
 			esc_url( $update_link ), // 1
-			esc_html( 'Generate new address', 'simple-history' ) // 2
+			esc_html__( 'Generate new address', 'simple-history' ) // 2
 		);
 
 		echo '</p>';

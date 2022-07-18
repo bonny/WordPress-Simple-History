@@ -3,17 +3,15 @@
 namespace SimpleHistory\Dropins;
 
 use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\SimpleLoggerLogInitiators;
 
-
-/*
-Dropin Name: Sidebar with link to settings
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
-
-class SimpleHistorySidebarSettings {
-
-
+/**
+ * Dropin Name: Sidebar with link to settings
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
+class SimpleHistorySidebarSettings extends Dropin {
 	/**
 	 * Constructor.
 	 *

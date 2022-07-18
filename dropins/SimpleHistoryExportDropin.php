@@ -1,4 +1,9 @@
 <?php
+namespace SimpleHistory\Dropins;
+
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
+
 
 /**
  * Dropin Name: Export
@@ -6,14 +11,7 @@
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistoryExportDropin {
-	/**
-	 * Simple History instance.
-	 *
-	 * @var $sh
-	 */
-	private $sh;
-
+class SimpleHistoryExportDropin extends Dropin {
 	/**
 	 * Constructor.
 	 *

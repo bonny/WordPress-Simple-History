@@ -3,18 +3,20 @@
 namespace SimpleHistory\Dropins;
 
 use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
 
-/*
-Dropin Name: Donate things
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
+
+/**
+ * Dropin Name: Donate things
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
 
 /**
  * Simple History Donate dropin
  * Put some donate messages here and there
  */
-class SimpleHistoryDonateDropin {
+class SimpleHistoryDonateDropin extends Dropin {
 	private $simple_history;
 
 	public function __construct( $simple_history ) {

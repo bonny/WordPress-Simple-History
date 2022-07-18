@@ -1,18 +1,18 @@
 <?php
 
-/*
-Dropin Name: Settings debug
-Dropin Description: Adds a tab with debug information
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
+namespace SimpleHistory\Dropins;
 
-defined( 'ABSPATH' ) || die();
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
 
-class SimpleHistorySettingsDebugDropin {
+/**
+ * Dropin Name: Settings debug
+ * Dropin Description: Adds a tab with debug information
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
 
-	private $sh;
-
+class SimpleHistorySettingsDebugDropin extends Dropin {
 	public function __construct( $sh ) {
 
 		$this->sh = $sh;

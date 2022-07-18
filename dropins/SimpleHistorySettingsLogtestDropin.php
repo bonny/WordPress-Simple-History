@@ -1,8 +1,12 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Dropins;
 
-class SimpleHistorySettingsLogtestDropin {
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\SimpleLoggerLogInitiators;
+
+class SimpleHistorySettingsLogtestDropin extends Dropin {
 
 	public function __construct( $sh ) {
 

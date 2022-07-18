@@ -1,18 +1,22 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Dropins;
 
-/*
-Dropin Name: Settings stats
-Dropin Description: Adds a tab with stats
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
-
-class SimpleHistorySettingsStatsDropin {
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\SimpleLoggerLogInitiators;
 
 
+/**
+ * Dropin Name: Settings stats
+ * Dropin Description: Adds a tab with stats
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
+
+class SimpleHistorySettingsStatsDropin extends Dropin {
 	public function __construct( $sh ) {
+		parent::__construct( $sh );
 
 		// Since it's not quite done yet, it's for da devs only for now
 		if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
@@ -47,8 +51,8 @@ class SimpleHistorySettingsStatsDropin {
 
 		// $period_days = (int) 28;
 		$period_days = 14;
-		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$period_days days" ) );
-		$period_end_date = DateTime::createFromFormat( 'U', time() );
+		$period_start_date = \DateTime::createFromFormat( 'U', strtotime( "-$period_days days" ) );
+		$period_end_date = \DateTime::createFromFormat( 'U', time() );
 
 		// Colors taken from the Google chart example that was found in this Stack Overflow thread:
 		// http://stackoverflow.com/questions/236936/how-pick-colors-for-a-pie-chart

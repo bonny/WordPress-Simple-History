@@ -2,14 +2,18 @@
 
 namespace SimpleHistory\Dropins;
 
-/*
-Dropin Name: Sidebar
-Drop Description: Outputs HTML and filters for a sidebar
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\SimpleLoggerLogInitiators;
 
-class SimpleHistorySidebarDropin {
+/**
+ * Dropin Name: Sidebar
+ * Drop Description: Outputs HTML and filters for a sidebar
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
+
+class SimpleHistorySidebarDropin extends Dropin {
 	public function __construct()
 	{
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );

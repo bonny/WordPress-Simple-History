@@ -1,21 +1,21 @@
 <?php
 
-defined( 'ABSPATH' ) || die();
+namespace SimpleHistory\Dropins;
 
-/*
-Dropin Name: Sidebar with short stats
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
-*/
+use DateTime;
+use DateInterval;
+use DatePeriod;
+use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\SimpleLoggerLogInitiators;
 
-class SimpleHistorySidebarStats {
-	private $sh;
+/**
+ * Dropin Name: Sidebar with short stats
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
+ */
 
-	public function __construct( $sh ) {
-
-		$this->init( $sh );
-	}
-
+class SimpleHistorySidebarStats extends Dropin {
 	public function init( $sh ) {
 
 		$this->sh = $sh;

@@ -3,21 +3,17 @@
 namespace SimpleHistory\Dropins;
 
 use SimpleHistory\SimpleHistory;
+use SimpleHistory\SimpleHistoryLogQuery;
 
-/*
-Dropin Name: Filter GUI
-Dropin URI: http://simple-history.com/
-Author: Pär Thernström
+
+/**
+ * Dropin Name: Filter GUI
+ * Dropin URI: http://simple-history.com/
+ * Author: Pär Thernström
 */
 
-class SimpleHistoryFilterDropin {
-
-
-	// Simple History instance
-	private $sh;
-
+class SimpleHistoryFilterDropin extends Dropin {
 	public function __construct( $sh ) {
-
 		$this->sh = $sh;
 
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
@@ -245,7 +241,7 @@ class SimpleHistoryFilterDropin {
 				 *
 				 * @since 2.1.2
 				 *
-				 * @param string Default search string
+				 * @param string $default_search_string Default search string.
 				 */
 				$default_search_string = apply_filters( 'SimpleHistoryFilterDropin/filter_default_search_string', '' );
 				?>
@@ -279,7 +275,7 @@ class SimpleHistoryFilterDropin {
 				 *
 				 * @since 2.1.2
 				 *
-				 * @param array Array with loglevel sugs. Default empty = show all.
+				 * @param array $arr_default_loglevels Array with loglevel sugs. Default empty = show all.
 				 */
 				$arr_default_loglevels = apply_filters( 'SimpleHistoryFilterDropin/filter_default_loglevel', array() );
 				?>
@@ -399,25 +395,21 @@ class SimpleHistoryFilterDropin {
 					/**
 					 * Filter what users to search for by default
 					 *
-					 * Example:
+					 * @example Modify default search users.
 					 *
-					 *     add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function() { return array(1,4); });
+					 * ```php
+					 * add_filter(
+					 *   "SimpleHistoryFilterDropin/filter_default_user_ids",
+					 *   function() {
+					 *     return array(1,4);
+					 *   }
+					 * );
+					 * ```
 					 *
 					 * @since 2.1.2
 					 *
-					 * @param array Array with user ids. Default is an empty array = show all users.
+					 * @param array $default_user_ids Array with user ids. Default is an empty array = show all users.
 					 */
-
-					/*
-					add_filter("SimpleHistoryFilterDropin/filter_default_user_ids", function($arr) {
-						$arr = array(
-							1,
-							4
-						);
-						return $arr;
-					});
-					//*/
-
 					$default_user_ids = apply_filters( 'SimpleHistoryFilterDropin/filter_default_user_ids', array() ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 					$arr_default_user_data = array();
 
