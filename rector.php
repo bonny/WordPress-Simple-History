@@ -47,7 +47,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			// Need to find out what they do
 			RemoveEmptyMethodCallRector::class,
 			RenameFunctionRector::class,
-			JsonThrowOnErrorRector::class
+			JsonThrowOnErrorRector::class,
 		)
 	);
 
