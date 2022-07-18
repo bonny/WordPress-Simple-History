@@ -202,6 +202,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Log when Personal Data is erased by an admin.
 - Dropins has support for namespace `SimpleHistory\Dropins` and the WP Cli dropin is using it so far and soon all dropins will move to this namespace.
 - Add filter `simple_history/core_loggers` to modify the list of built in (core) loggers.
+- Add filter `simple_history/dropins_to_instantiate` to modify the list of built in dropins to instantiate.
 
 **Changed**
 
@@ -217,7 +218,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Removed logger for plugin Ultimate Members.
 - Removed function `simple_history_add`. See https://docs.simple-history.com/logging for other ways to add messages to the history log.
-- Filter `simple_history/loggers_files` and `simple_history/logger/load_logger` are removed.
+- Filters `simple_history/loggers_files` and `simple_history/logger/load_logger` are removed.
+- Filters `'simple_history/dropins_files'` are removed.
 - Removed unused class `SimpleLoggerLogTypes`.
 - Removed patches for plugin [captcha-on-login](https://wordpress.org/plugins/captcha-on-login/).
 
