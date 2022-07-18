@@ -2,6 +2,8 @@
 
 namespace SimpleHistory\Loggers;
 
+use SimpleHistory\SimpleHistory;
+
 /**
  * Logs plugin related things, for example installs, updates, and deletions.
  */
