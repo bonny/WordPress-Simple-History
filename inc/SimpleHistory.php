@@ -942,7 +942,7 @@ class SimpleHistory {
 		/**
 		 * Filter the array with class names of core loggers.
 		 *
-		 * @since 3.0
+		 * @since 4.0
 		 *
 		 * @param array $logger Array with class names.
 		 */
@@ -1073,7 +1073,7 @@ class SimpleHistory {
 		/**
 		 * Fired when all loggers are instantiated.
 		 *
-		 * @since 3.0
+		 * @since 4.0
 		 */
 		do_action( 'simple_history/loggers/instantiated', $this );
 	}
@@ -1104,9 +1104,9 @@ class SimpleHistory {
 		);
 
 		/**
-		 * Filter the array with class names of core loggers.
+		 * Filter the array with class names of core dropins.
 		 *
-		 * @since 3.0
+		 * @since 4.0
 		 *
 		 * @param array $logger Array with class names.
 		 */
@@ -1162,7 +1162,7 @@ class SimpleHistory {
 			 * add_filter( 'simple_history/dropin/instantiate_SimpleHistoryRSSDropin', '__return_false' );
 			 * ```
 			 *
-			 * @since 3.0
+			 * @since 4.0
 			 *
 			 * @param bool if to load the dropin. return false to not load it.
 			 */
@@ -1171,7 +1171,7 @@ class SimpleHistory {
 			/**
 			 * Filter to completely skip loading of a dropin.
 			 *
-			 * @since 3.0
+			 * @since 4.0
 			 *
 			 * @param bool $instantiate_dropin if to load the dropin. return false to not load it.
 			 * @param string $dropin_short_name slug of dropin, i.e. "SimpleHistoryRSSDropin"
