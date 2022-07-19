@@ -203,6 +203,12 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Dropins has support for namespace `SimpleHistory\Dropins` and the WP Cli dropin is using it so far and soon all dropins will move to this namespace.
 - Add filter `simple_history/core_loggers` to modify the list of built in (core) loggers.
 - Add filter `simple_history/dropins_to_instantiate` to modify the list of built in dropins to instantiate.
+- Add filter `simple_history/core_dropins`
+- Add filter `simple_history/dropins_to_instantiate`
+- Add filter `simple_history/dropin/instantiate_{$dropin_short_name}`
+- Add filter `simple_history/dropin/instantiate`one_dropin_class );`
+- Add action `simple_history/dropins/instantiated`
+- Add action `simple_history/loggers/instantiated`
 
 **Changed**
 

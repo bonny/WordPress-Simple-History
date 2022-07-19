@@ -1063,10 +1063,19 @@ class SimpleHistory {
 
 		/**
 		 * Fired when all loggers are instantiated.
+		 * 
+		 * @deprecated 3.0 Use action `simple_history/loggers/instantiated` instead.
 		 *
 		 * @since 3.0
 		 */
 		do_action( 'simple_history/loggers_loaded' );
+
+		/**
+		 * Fired when all loggers are instantiated.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'simple_history/loggers/instantiated', $this );
 	}
 
 
