@@ -11,3 +11,6 @@ parameters:
     - %rootDir%/../../php-stubs/wp-cli-stubs/wp-cli-stubs.php
     - %rootDir%/../../php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php
     - %rootDir%/../../php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php
+  ignoreErrors:
+    - '#Constant SIMPLE_HISTORY_PATH not found.#'
+    - '#Constant SIMPLE_HISTORY_DIR_URL not found.#'
