@@ -1,8 +1,8 @@
 <?php
 namespace SimpleHistory;
 
-use getid3_ogg;
 use SimpleHistory\Loggers;
+use SimpleHistory\Dropins;
 
 /**
  * Main class for Simple History
@@ -952,8 +952,7 @@ class SimpleHistory {
 	}
 
 	/**
-	 * Load built in loggers from all files in /loggers
-	 * and instantiates them
+	 * Instantiates built in loggers.
 	 */
 	public function load_loggers() {
 		// Bail if we are not in filter after_setup_theme,
@@ -1003,9 +1002,9 @@ class SimpleHistory {
 			if ( ! class_exists( $one_logger_class ) ) {
 				continue;
 			}
-			
-			if ( ! is_subclass_of( $one_logger_class, 'SimpleHistory\Loggers\SimpleLogger' ) 
-				&& ( $one_logger_class !== 'SimpleHistory\Loggers\SimpleLogger')
+
+			if ( ! is_subclass_of( $one_logger_class, 'SimpleHistory\Loggers\SimpleLogger' )
+				&& ( $one_logger_class !== 'SimpleHistory\Loggers\SimpleLogger' )
 			) {
 				continue;
 			}
@@ -1062,85 +1061,56 @@ class SimpleHistory {
 			);
 		} // End foreach().
 
-		// sh_d('$this->instantiatedLoggers', $this->instantiatedLoggers);exit;
-
-		// TODO: document
+		/**
+		 * Fired when all loggers are instantiated.
+		 *
+		 * @since 3.0
+		 */
 		do_action( 'simple_history/loggers_loaded' );
 	}
 
-	/**
-	 * Load built in dropins from all files in /dropins
-	 * and instantiates them
-	 */
-	public function load_dropins() {
-		$dropinsDir = SIMPLE_HISTORY_PATH . 'dropins/';
 
-		$dropinsFiles = array(
-			$dropinsDir . 'SimpleHistoryPluginPatchesDropin.php',
-			$dropinsDir . 'SimpleHistoryDonateDropin.php',
-			$dropinsDir . 'SimpleHistoryExportDropin.php',
-			$dropinsDir . 'SimpleHistoryFilterDropin.php',
-			$dropinsDir . 'SimpleHistoryIpInfoDropin.php',
-			$dropinsDir . 'SimpleHistoryNewRowsNotifier.php',
-			$dropinsDir . 'SimpleHistoryRSSDropin.php',
-			$dropinsDir . 'SimpleHistorySettingsLogtestDropin.php',
-			$dropinsDir . 'SimpleHistorySettingsStatsDropin.php',
-			$dropinsDir . 'SimpleHistorySettingsDebugDropin.php',
-			$dropinsDir . 'SimpleHistorySidebarDropin.php',
-			$dropinsDir . 'SimpleHistorySidebarStats.php',
-			$dropinsDir . 'SimpleHistorySidebarSettings.php',
-			$dropinsDir . 'WPCLI.php',
-			$dropinsDir . 'SimpleHistoryDebugDropin.php',
+	/**
+	 * Get array with classnames of all core (built-in) dropins.
+	 *
+	 * @return array
+	 */
+	public function get_core_dropins() {
+		$dropins = array(
+			Dropins\SimpleHistoryDebugDropin::class,
+			Dropins\SimpleHistoryDonateDropin::class,
+			Dropins\SimpleHistoryExportDropin::class,
+			Dropins\SimpleHistoryFilterDropin::class,
+			Dropins\SimpleHistoryIpInfoDropin::class,
+			Dropins\SimpleHistoryNewRowsNotifier::class,
+			Dropins\SimpleHistoryPluginPatchesDropin::class,
+			Dropins\SimpleHistoryRSSDropin::class,
+			Dropins\SimpleHistorySettingsDebugDropin::class,
+			Dropins\SimpleHistorySettingsLogtestDropin::class,
+			Dropins\SimpleHistorySettingsStatsDropin::class,
+			Dropins\SimpleHistorySidebarDropin::class,
+			Dropins\SimpleHistorySidebarSettings::class,
+			Dropins\SimpleHistorySidebarStats::class,
+			Dropins\WPCLI::class,
 		);
 
 		/**
-		 * Filter the array with absolute paths to files as returned by glob function.
-		 * Each file will be loaded and will be assumed to be a dropin with a classname
-		 * the same as the filename.
+		 * Filter the array with class names of core loggers.
 		 *
-		 * @since 2.0
+		 * @since 3.0
 		 *
-		 * @param array $dropinsFiles Array with filenames
+		 * @param array $logger Array with class names.
 		 */
-		$dropinsFiles = apply_filters( 'simple_history/dropins_files', $dropinsFiles );
+		$dropins = apply_filters( 'simple_history/core_dropins', $dropins );
 
-		$arrDropinsToInstantiate = array();
+		return $dropins;
+	}
 
-		foreach ( $dropinsFiles as $oneDropinFile ) {
-			// path/path/simplehistory/dropins/SimpleHistoryDonateDropin.php => SimpleHistoryDonateDropin
-			$oneDropinFileBasename = basename( $oneDropinFile, '.php' );
-
-			$load_dropin = true;
-
-			/**
-			 * Filter to completely skip loading of dropin
-			 * complete filer name will be like:
-			 * simple_history/dropin/load_dropin_SimpleHistoryRSSDropin
-			 *
-			 * @since 2.0.6
-			 *
-			 * @param bool if to load the dropin. return false to not load it.
-			 */
-			$load_dropin = apply_filters( "simple_history/dropin/load_dropin_{$oneDropinFileBasename}", $load_dropin );
-
-			/**
-			 * Filter to completely skip loading of a dropin
-			 *
-			 * @since 2.0.22
-			 *
-			 * @param bool if to load the dropin. return false to not load it.
-			 * @param string slug of dropin
-			 */
-			$load_dropin = apply_filters( 'simple_history/dropin/load_dropin', $load_dropin, $oneDropinFileBasename );
-
-			if ( ! $load_dropin ) {
-				continue;
-			}
-
-			include_once $oneDropinFile;
-
-			$arrDropinsToInstantiate[] = $oneDropinFileBasename;
-		} // End foreach().
+	/**
+	 * Instantiates built in dropins.
+	 */
+	public function load_dropins() {
+		$dropins_to_instantiate = $this->get_core_dropins();
 
 		/**
 		 * Fires after the list of dropins to load are populated.
@@ -1154,35 +1124,84 @@ class SimpleHistory {
 		 */
 		do_action( 'simple_history/add_custom_dropin', $this );
 
+		$dropins_to_instantiate = array_merge( $dropins_to_instantiate, $this->externalDropins );
+
 		/**
-		 * Filter the array with names of dropin to instantiate.
+		 * Filter the array with dropin classnames to instantiate.
 		 *
-		 * @since 2.0
+		 * @since 3.0
 		 *
-		 * @param array $arrDropinsToInstantiate Array with class names
+		 * @param array $dropins_to_instantiate Array with dropin class names.
 		 */
-		$arrDropinsToInstantiate = apply_filters( 'simple_history/dropins_to_instantiate', $arrDropinsToInstantiate );
+		$dropins_to_instantiate = apply_filters( 'simple_history/dropins_to_instantiate', $dropins_to_instantiate );
 
-		$arrDropinsToInstantiate = array_merge( $arrDropinsToInstantiate, $this->externalDropins );
+		// $one_dropin_class is full namespaced class, i.e. 'SimpleHistory\Dropins\SimpleHistoryRSSDropin'.
+		foreach ( $dropins_to_instantiate as $one_dropin_class ) {
+			$instantiate_dropin = true;
 
-		// Instantiate each dropin.
-		foreach ( $arrDropinsToInstantiate as $oneDropinName ) {
-			$dropin_class_with_namespace = $oneDropinName;
+			$dropin_short_name = ( new \ReflectionClass( $one_dropin_class ) )->getShortName();
 
-			if ( ! class_exists( $dropin_class_with_namespace ) ) {
-				$dropin_class_with_namespace = '\SimpleHistory\\Dropins\\' . $oneDropinName;
-			}
+			/**
+			 * Filter to completely skip instantiate a dropin.
+			 *
+			 * Complete filter name will be something like
+			 * `simple_history/dropin/instantiate_SimpleHistoryRSSDropin`
+			 *
+			 * @example Do not instantiate dropin SimpleHistoryRSSDropin.
+			 *
+			 * ```php
+			 * add_filter( 'simple_history/dropin/instantiate_SimpleHistoryRSSDropin', '__return_false' );
+			 * ```
+			 *
+			 * @since 3.0
+			 *
+			 * @param bool if to load the dropin. return false to not load it.
+			 */
+			$instantiate_dropin = apply_filters( "simple_history/dropin/instantiate_{$dropin_short_name}", $instantiate_dropin );
 
-			// Bail if dropin not found with or without classname.
-			if ( ! class_exists( $dropin_class_with_namespace ) ) {
+			/**
+			 * Filter to completely skip loading of a dropin.
+			 *
+			 * @since 3.0
+			 *
+			 * @param bool $instantiate_dropin if to load the dropin. return false to not load it.
+			 * @param string $dropin_short_name slug of dropin, i.e. "SimpleHistoryRSSDropin"
+			 * @param string $one_dropin_class fully qualified name of class, i.e. "SimpleHistory\Dropins\SimpleHistoryRSSDropin"
+			 */
+			$instantiate_dropin = apply_filters( 'simple_history/dropin/instantiate', $instantiate_dropin, $dropin_short_name, $one_dropin_class );
+
+			// Bail if dropin should not be instantiated.
+			if ( ! $instantiate_dropin ) {
 				continue;
 			}
 
-			$this->instantiatedDropins[ $oneDropinName ] = array(
-				'name' => $oneDropinName,
-				'instance' => new $dropin_class_with_namespace( $this ),
+			// Bail if dropin class not found.
+			if ( ! class_exists( $one_dropin_class ) ) {
+				continue;
+			}
+
+			// Bail if dropin class is of wrong type.
+			if ( ! is_subclass_of( $one_dropin_class, 'SimpleHistory\Dropins\Dropin' ) ) {
+				continue;
+			}
+
+			$dropin_instance = new $one_dropin_class( $this );
+			$dropin_instance->loaded();
+
+			$this->instantiatedDropins[ $dropin_short_name ] = array(
+				'name' => $dropin_short_name,
+				'instance' => $dropin_instance,
 			);
-		}
+		} // End foreach().
+
+		/**
+		 * Fires after all dropins are instantiated.
+		 * @since 3.0
+		 *
+		 * @param SimpleHistory $this Simple History instance.
+		 */
+		do_action( 'simple_history/dropins/instantiated', $this );
+
 	}
 
 	/**
