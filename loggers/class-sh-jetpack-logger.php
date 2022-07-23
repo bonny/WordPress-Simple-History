@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || die();
 /**
  * Logger for plugin Jetpack.
  */
-class SH_Jetpack_Logger extends SimpleLogger {
+class SH_Jetpack_Logger extends Logger {
 	/**
 	 * Logger slug.
 	 *

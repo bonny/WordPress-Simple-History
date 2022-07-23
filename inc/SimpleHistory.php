@@ -1003,9 +1003,7 @@ class SimpleHistory {
 				continue;
 			}
 
-			if ( ! is_subclass_of( $one_logger_class, 'SimpleHistory\Loggers\SimpleLogger' )
-				&& ( $one_logger_class !== 'SimpleHistory\Loggers\SimpleLogger' )
-			) {
+			if ( ! is_subclass_of( $one_logger_class, 'SimpleHistory\Loggers\Logger' ) ) {
 				continue;
 			}
 
@@ -2854,7 +2852,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * @param string $slug
-	 * @return mixed logger instance if found, bool false if logger not found
+	 * @return bool|Logger logger instance if found, bool false if logger not found
 	 */
 	public function getInstantiatedLoggerBySlug( $slug = '' ) {
 		if ( empty( $slug ) ) {

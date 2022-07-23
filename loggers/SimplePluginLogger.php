@@ -7,7 +7,7 @@ use SimpleHistory\SimpleHistory;
 /**
  * Logs plugin related things, for example installs, updates, and deletions.
  */
-class SimplePluginLogger extends SimpleLogger {
+class SimplePluginLogger extends Logger {
 
 	/**
 	 * The logger slug.

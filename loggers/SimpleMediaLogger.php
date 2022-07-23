@@ -5,7 +5,7 @@ namespace SimpleHistory\Loggers;
 /**
  * Logs media uploads
  */
-class SimpleMediaLogger extends SimpleLogger {
+class SimpleMediaLogger extends Logger {
 
 	public $slug = 'SimpleMediaLogger';
 

@@ -8,7 +8,7 @@ namespace SimpleHistory\Loggers;
  *
  * @since 2.2
  */
-class PluginUserSwitchingLogger extends SimpleLogger {
+class PluginUserSwitchingLogger extends Logger {
 	public $slug = 'PluginUserSwitchingLogger';
 
 	/**

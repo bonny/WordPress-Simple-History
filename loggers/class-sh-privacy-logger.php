@@ -16,7 +16,7 @@ namespace SimpleHistory\Loggers;
  *
  * @package SimpleHistory
  */
-class SH_Privacy_Logger extends SimpleLogger {
+class SH_Privacy_Logger extends Logger {
 	/**
 	 * Logger slug.
 	 *

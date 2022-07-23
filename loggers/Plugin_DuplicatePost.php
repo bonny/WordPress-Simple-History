@@ -9,7 +9,7 @@ namespace SimpleHistory\Loggers;
  * @package SimpleHistory
  * @since 2.13
  */
-class Plugin_DuplicatePost extends SimpleLogger {
+class Plugin_DuplicatePost extends Logger {
 	public $slug = 'Plugin_DuplicatePost';
 
 	public function getInfo() {

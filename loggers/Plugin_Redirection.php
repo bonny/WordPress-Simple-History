@@ -6,7 +6,7 @@ namespace SimpleHistory\Loggers;
  * Logger for the Redirection plugin
  * https://wordpress.org/plugins/redirection/
  */
-class Plugin_Redirection extends SimpleLogger {
+class Plugin_Redirection extends Logger {
 	/**
 	 * Logger slug.
 	 *

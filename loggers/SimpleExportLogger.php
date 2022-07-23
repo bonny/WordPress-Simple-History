@@ -5,7 +5,7 @@ namespace SimpleHistory\Loggers;
 /**
  * Logs WordPress exports
  */
-class SimpleExportLogger extends SimpleLogger {
+class SimpleExportLogger extends Logger {
 	public $slug = 'SimpleExportLogger';
 
 	/**

@@ -16,7 +16,7 @@ namespace SimpleHistory\Loggers;
 /**
  * Logs changes to posts and pages, including custom post types
  */
-class SimplePostLogger extends SimpleLogger {
+class SimplePostLogger extends Logger {
 
 	// The logger slug. Defaulting to the class name is nice and logical I think.
 	public $slug = 'SimplePostLogger';

@@ -6,7 +6,7 @@ namespace SimpleHistory\Loggers;
  * Logger for the (old but still) very popular plugin Limit Login Attempts
  * https://sv.wordpress.org/plugins/limit-login-attempts/
  */
-class Plugin_LimitLoginAttempts extends SimpleLogger {
+class Plugin_LimitLoginAttempts extends Logger {
 
 	public $slug = 'Plugin_LimitLoginAttempts';
 

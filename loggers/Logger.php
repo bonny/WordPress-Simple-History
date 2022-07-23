@@ -22,7 +22,7 @@ abstract class Logger {
 	 *
 	 * @var string
 	 */
-	public $slug = 'SimpleLogger';
+	public $slug;
 
 	/**
 	 * Will contain the untranslated messages from getInfo().
@@ -124,7 +124,7 @@ abstract class Logger {
 	 *
 	 * @return $string capability
 	 */
-	protected function getCapability() {
+	public function getCapability() {
 		return $this->getInfoValueByKey( 'capability' ) ?? 'manage_options';
 	}
 
@@ -137,6 +137,7 @@ abstract class Logger {
 	 */
 	protected function interpolate( $message, $context = array(), $row = null ) {
 		// TODO: Move out this function to helpers? Because not using any logger specific things
+		//       maybe in namespace, similar to Laravel, `use SimpleHistory\Support\Arr;`
 		if ( ! is_array( $context ) ) {
 			return $message;
 		}

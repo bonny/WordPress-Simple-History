@@ -5,7 +5,7 @@ namespace SimpleHistory\Loggers;
 /**
  * Logs things related to comments
  */
-class SimpleCommentsLogger extends SimpleLogger {
+class SimpleCommentsLogger extends Logger {
 	public $slug = 'SimpleCommentsLogger';
 
 	public function __construct( $sh ) {

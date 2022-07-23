@@ -5,7 +5,7 @@ namespace SimpleHistory\Loggers;
 /**
  * Logs changes to categories and tags and taxonomies
  */
-class SimpleCategoriesLogger extends SimpleLogger {
+class SimpleCategoriesLogger extends Logger {
 	public $slug = 'SimpleCategoriesLogger';
 
 	/**

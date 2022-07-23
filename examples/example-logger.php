@@ -24,7 +24,7 @@ if ( class_exists( 'SimpleLogger' ) ) {
 	/**
 	 * This is the class that does the main work!
 	 */
-	class FourOhFourLogger extends SimpleLogger {
+	class FourOhFourLogger extends Logger {
 
 
 		/**

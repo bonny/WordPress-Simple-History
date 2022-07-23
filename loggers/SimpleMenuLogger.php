@@ -5,7 +5,7 @@ namespace SimpleHistory\Loggers;
 /**
  * Logs WordPress menu edits
  */
-class SimpleMenuLogger extends SimpleLogger {
+class SimpleMenuLogger extends Logger {
 
 	public $slug = 'SimpleMenuLogger';
 

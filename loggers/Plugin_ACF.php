@@ -10,7 +10,7 @@ namespace SimpleHistory\Loggers;
  * @since 2.21
  */
 
-class Plugin_ACF extends SimpleLogger {
+class Plugin_ACF extends Logger {
 	/**
 	 * The slug for this logger.
 	 *

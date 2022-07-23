@@ -261,6 +261,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$sh = SimpleHistory::get_instance();
 
 		$postlogger = $sh->getInstantiatedLoggerBySlug( 'SimplePostLogger' );
+
 		$info = $postlogger->getInfo();
 
 		$this->assertArrayHasKey( 'name', $info );

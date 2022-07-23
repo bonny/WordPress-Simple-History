@@ -8,7 +8,7 @@ namespace SimpleHistory\Loggers;
  *
  * Requires WP Crontrol 1.9.0 or later.
  */
-class PluginWPCrontrolLogger extends SimpleLogger {
+class PluginWPCrontrolLogger extends Logger {
 	public $slug = 'PluginWPCrontrolLogger';
 
 	/**

@@ -6,7 +6,7 @@ use SimpleHistory\SimpleLoggerLogInitiators;
 /**
  * Logs changes to user logins (and logouts)
  */
-class SimpleUserLogger extends SimpleLogger {
+class SimpleUserLogger extends Logger {
 
 	public $slug = 'SimpleUserLogger';
 
