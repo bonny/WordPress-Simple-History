@@ -8,15 +8,6 @@ namespace SimpleHistory\Loggers;
 class SimpleCommentsLogger extends Logger {
 	public $slug = 'SimpleCommentsLogger';
 
-	public function __construct( $sh ) {
-		parent::__construct( $sh );
-
-		// Add option to not show spam comments, because to much things getting logged
-		// add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
-		add_filter( 'simple_history/log_query_inner_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
-		add_filter( 'simple_history/quick_stats_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
-	}
-
 	/**
 	 * Modify sql query to exclude comments of type spam
 	 *
@@ -321,6 +312,10 @@ class SimpleCommentsLogger extends Logger {
 	}
 
 	public function loaded() {
+		// Add option to not show spam comments, because to much things getting logged
+		// add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
+		add_filter( 'simple_history/log_query_inner_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
+		add_filter( 'simple_history/quick_stats_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
 
 		/**
 		 * Fires immediately after a comment is inserted into the database.
