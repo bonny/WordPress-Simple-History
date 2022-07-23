@@ -51,11 +51,15 @@ class SimpleHistory {
 	 * Used to store latest translations used by __()
 	 * Required to automagically determine original text and text domain
 	 * for calls like this `SimpleLogger()->log( __("My translated message") );`
+	 * 
+	 * @var array
 	 */
 	public $gettextLatestTranslations = array();
 
 	/**
-	 * All registered settings tabs
+	 * All registered settings tabs.
+	 *
+	 * @var array
 	 */
 	private $arr_settings_tabs = array();
 

@@ -8,9 +8,6 @@ use SimpleHistory\SimpleHistory;
 use SimpleHistory\SimpleLoggerLogLevels;
 use SimpleHistory\SimpleLoggerLogInitiators;
 
-// FIXME: use this as class to extend for loggers.
-// FIXME: move things out of __construct() to loaded().
-
 /**
  * Base class for loggers.
  */
@@ -138,6 +135,7 @@ abstract class Logger {
 	protected function interpolate( $message, $context = array(), $row = null ) {
 		// TODO: Move out this function to helpers? Because not using any logger specific things
 		//       maybe in namespace, similar to Laravel, `use SimpleHistory\Support\Arr;`
+		// check more functions, like json_encode() in main simplehistory class.
 		if ( ! is_array( $context ) ) {
 			return $message;
 		}
