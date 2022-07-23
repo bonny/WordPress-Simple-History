@@ -26,7 +26,7 @@ class SimpleLogger {
 	public $slug = 'SimpleLogger';
 
 	/**
-	 * Will contain the untranslated messages from getInfo()
+	 * Will contain the untranslated messages from getInfo().
 	 *
 	 * By adding your messages here they will be stored both translated and non-translated
 	 * You then log something like this:
@@ -38,12 +38,12 @@ class SimpleLogger {
 	 *   $this->infoMessage("POST_UPDATED");
 	 * </code>
 	 * which results in the original, untranslated, string being added to the log and database
-	 * the translated string are then only used when showing the log in the GUI
+	 * the translated string are then only used when showing the log in the GUI.
 	 */
 	public $messages;
 
 	/**
-	 * ID of last inserted row
+	 * ID of last inserted row.
 	 *
 	 * @var int $lastInsertID Database row primary key.
 	 */
@@ -52,7 +52,7 @@ class SimpleLogger {
 	/**
 	 * Context of last inserted row.
 	 *
-	 * @var int $lastInsertContext Context used for the last insert.
+	 * @var array $lastInsertContext Context used for the last insert.
 	 * @since 2.2x
 	 */
 	public $lastInsertContext;
@@ -60,14 +60,14 @@ class SimpleLogger {
 	/**
 	 * Simple History instance.
 	 *
-	 * @var object $simpleHistory Simple history instance.
+	 * @var SimpleHistory $simpleHistory Simple history instance.
 	 */
 	public $simpleHistory;
 
 	/**
 	 * Constructor. Remember to call this as parent constructor if making a child logger.
 	 *
-	 * @param $simpleHistory history class  objectinstance
+	 * @param SimpleHistory $simpleHistory history class  objectinstance
 	 */
 	public function __construct( $simpleHistory = null ) {
 		global $wpdb;
@@ -80,8 +80,9 @@ class SimpleLogger {
 	}
 
 	/**
-	 * Method that is called automagically when logger is loaded by Simple History
-	 * Add your init stuff here
+	 * Method that is called automagically when logger is loaded by Simple History.
+	 *
+	 * Add init things here.
 	 */
 	public function loaded() {
 	}
