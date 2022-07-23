@@ -1402,7 +1402,7 @@ class SimpleHistory {
 				)
 			);
 
-			// Call plugins adminCSS-method, so they can add their CSS
+			// Call plugins adminCSS-method, so they can add their CSS.
 			foreach ( $this->instantiatedLoggers as $one_logger ) {
 				if ( method_exists( $one_logger['instance'], 'adminCSS' ) ) {
 					$one_logger['instance']->adminCSS();
