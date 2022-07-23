@@ -87,6 +87,15 @@ abstract class Logger {
 	}
 
 	/**
+	 * Get the slug for the logger.
+	 *
+	 * @return string
+	 */
+	public function getSlug() {
+		return $this->slug;
+	}
+
+	/**
 	 * Get array with information about this logger.
 	 *
 	 * @return array
