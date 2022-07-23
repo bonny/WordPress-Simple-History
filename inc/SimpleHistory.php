@@ -2862,7 +2862,7 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 
 		foreach ( $this->getInstantiatedLoggers() as $one_logger ) {
-			if ( $slug == $one_logger['instance']->slug ) {
+			if ( $slug === $one_logger['instance']->getSlug() ) {
 				return $one_logger['instance'];
 			}
 		}
