@@ -228,6 +228,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Filters `'simple_history/dropins_files'` are removed.
 - Removed unused class `SimpleLoggerLogTypes`.
 - Removed patches for plugin [captcha-on-login](https://wordpress.org/plugins/captcha-on-login/).
+- Removed unused function `sh_ucwords()`.
 
 **Fixed**
 

@@ -134,22 +134,6 @@ function sh_get_callable_name( $callable ) {
 }
 
 /**
- * PHP 5.3 compatible version of ucwords with second argument.
- * Taken from http://php.net/manual/en/function.ucwords.php#105249.
- *
- * @param string $str String.
- * @param string $separator String.
- *
- * @return string with words in uppercase.
- */
-function sh_ucwords( $str, $separator = ' ' ) {
-	$str = str_replace( $separator, ' ', $str );
-	$str = ucwords( strtolower( $str ) );
-	$str = str_replace( ' ', $separator, $str );
-	return $str;
-}
-
-/**
  * Get the current screen object.
  * Returns an object with all attributes empty if functions is not found or if function
  * returns null. Makes it easier to use get_current_screen when we don't have to
