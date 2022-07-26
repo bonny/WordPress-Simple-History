@@ -2,7 +2,8 @@
 
 namespace SimpleHistory\Loggers;
 
-use SimpleHistory\Support\Support;
+use SimpleHistory\Helpers;
+
 
 /**
  * Todo/@HERE
@@ -983,7 +984,7 @@ class SimplePostLogger extends Logger {
 		$context['post_type'] = isset( $context['post_type'] ) ? esc_html( $context['post_type'] ) : '';
 		$context['post_title'] = isset( $context['post_title'] ) ? esc_html( $context['post_title'] ) : '';
 
-		return support::interpolate( $message, $context, $row );
+		return helpers::interpolate( $message, $context, $row );
 	}
 
 	/**
@@ -1021,7 +1022,7 @@ class SimplePostLogger extends Logger {
 								$diff_table_output .= sprintf(
 									'<tr><td>%1$s</td><td>%2$s</td></tr>',
 									$this->label_for( $key_to_diff, $label, $context ),
-									Support::text_diff( $post_old_value, $post_new_value )
+									helpers::text_diff( $post_old_value, $post_new_value )
 								);
 							} elseif ( 'post_content' == $key_to_diff ) {
 								// Problem: to much text/content.
@@ -1029,7 +1030,7 @@ class SimplePostLogger extends Logger {
 								// Maybe solution: use own diff function, that uses none or few context lines.
 								$has_diff_values = true;
 								$label = __( 'Content', 'simple-history' );
-								$key_text_diff = Support::text_diff( $post_old_value, $post_new_value );
+								$key_text_diff = helpers::text_diff( $post_old_value, $post_new_value );
 
 								if ( $key_text_diff ) {
 									$diff_table_output .= sprintf(
@@ -1075,7 +1076,7 @@ class SimplePostLogger extends Logger {
 										<td>%2$s</td>
 									</tr>',
 									$this->label_for( $key_to_diff, $label, $context ),
-									Support::text_diff( $post_old_value, $post_new_value )
+									helpers::text_diff( $post_old_value, $post_new_value )
 								);
 							} elseif ( 'comment_status' == $key_to_diff ) {
 								$has_diff_values = true;
@@ -1112,7 +1113,7 @@ class SimplePostLogger extends Logger {
 											<td>%2$s</td>
 										</tr>',
 										$this->label_for( $key_to_diff, $label, $context ),
-										support::interpolate(
+										helpers::interpolate(
 											__(
 												'Changed from {prev_user_display_name} ({prev_user_email}) to {new_user_display_name} ({new_user_email})',
 												'simple-history'
@@ -1163,7 +1164,7 @@ class SimplePostLogger extends Logger {
 										<td>%2$s</td>
 									</tr>',
 									$this->label_for( $key_to_diff, $label, $context ),
-									support::interpolate(
+									helpers::interpolate(
 										$message,
 										array(
 											'prev_page_template' => '<code>' . esc_html( $prev_page_template ) . '</code>',
@@ -1273,7 +1274,7 @@ class SimplePostLogger extends Logger {
 	}
 
 	public function extra_diff_record( $key, $old_value, $new_value ) {
-		return sprintf( '<tr><td>%1$s</td><td>%2$s</td></tr>', $key, Support::text_diff( $old_value, $new_value ) );
+		return sprintf( '<tr><td>%1$s</td><td>%2$s</td></tr>', $key, helpers::text_diff( $old_value, $new_value ) );
 	}
 
 	/**

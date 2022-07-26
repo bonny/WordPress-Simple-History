@@ -10,9 +10,9 @@
  * - json_encode
  */
 
-namespace SimpleHistory\Support;
+namespace SimpleHistory;
 
-class Support {
+class Helpers {
 	/**
 	 * Pretty much same as wp_text_diff() but with this you can set leading and trailing context lines
 	 *

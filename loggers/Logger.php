@@ -7,7 +7,8 @@ use DateTimeZone;
 use SimpleHistory\SimpleHistory;
 use SimpleHistory\SimpleLoggerLogLevels;
 use SimpleHistory\SimpleLoggerLogInitiators;
-use SimpleHistory\Support\Support;
+use SimpleHistory\Helpers;
+
 
 /**
  * Base class for loggers.
@@ -674,7 +675,7 @@ abstract class Logger {
 			}
 		}
 
-		$html = support::interpolate( $message, $row->context, $row );
+		$html = helpers::interpolate( $message, $row->context, $row );
 
 		// All messages are escaped by default.
 		// If you need unescaped output override this method

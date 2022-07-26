@@ -1,7 +1,7 @@
 <?php
 namespace SimpleHistory\Loggers;
 
-use SimpleHistory\Support\Support;
+use SimpleHistory\Helpers;
 
 /**
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor
@@ -244,7 +244,7 @@ class FileEditsLogger extends Logger {
 				$diff_table_output .= sprintf(
 					'<tr><td>%1$s</td><td>%2$s</td></tr>',
 					__( 'File contents', 'simple-history' ),
-					Support::text_diff( $context['old_file_contents'], $context['new_file_contents'] )
+					helpers::text_diff( $context['old_file_contents'], $context['new_file_contents'] )
 				);
 			}
 		}

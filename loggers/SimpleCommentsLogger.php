@@ -2,7 +2,7 @@
 
 namespace SimpleHistory\Loggers;
 
-use SimpleHistory\Support\Support;
+use SimpleHistory\Helpers;
 
 /**
  * Logs things related to comments
@@ -548,7 +548,7 @@ class SimpleCommentsLogger extends Logger {
 			}
 		}
 
-		return support::interpolate( $message, $context, $row );
+		return helpers::interpolate( $message, $context, $row );
 	}
 
 

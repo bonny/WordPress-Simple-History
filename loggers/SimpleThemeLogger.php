@@ -2,7 +2,8 @@
 
 namespace SimpleHistory\Loggers;
 
-use SimpleHistory\Support\Support;
+use SimpleHistory\Helpers;
+
 
 /**
  * Logs WordPress theme edits
@@ -596,7 +597,7 @@ class SimpleThemeLogger extends Logger {
 				// Translate message first
 				$message = $this->messages[ $message_key ]['translated_text'];
 
-				$message = support::interpolate(
+				$message = helpers::interpolate(
 					$message,
 					array(
 						'widget_id_base' => $widget->name,
@@ -801,7 +802,7 @@ class SimpleThemeLogger extends Logger {
 	 */
 	public function on_action_sidebar_admin_setup__detect_widget_add() {
 
-		$context = [];
+		$context = array();
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['add_new'] ) && ! empty( $_POST['add_new'] ) && isset( $_POST['sidebar'] ) && isset( $_POST['id_base'] ) ) {
 			// Add widget info
