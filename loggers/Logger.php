@@ -1442,7 +1442,7 @@ abstract class Logger {
 							$ip = trim( $ip );
 
 							// attempt to validate IP.
-							if ( $this->validate_ip( $ip ) ) {
+							if ( Helpers::validate_ip( $ip ) ) {
 								// valid, add to context, with loop index appended so we can store many IPs.
 								$key_lower = strtolower( $key );
 
@@ -1617,29 +1617,6 @@ abstract class Logger {
 		} // End foreach().
 
 		return $arr_found_additional_ip_headers;
-	}
-
-	/**
-	 * Ensures an ip address is both a valid IP and does not fall within
-	 * a private network range.
-	 *
-	 * @param string $ip IP number.
-	 * @return bool
-	 */
-	public function validate_ip( $ip ) {
-		if (
-			filter_var(
-				$ip,
-				FILTER_VALIDATE_IP,
-				FILTER_FLAG_IPV4 |
-				FILTER_FLAG_NO_PRIV_RANGE |
-				FILTER_FLAG_NO_RES_RANGE
-			) === false
-		) {
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
