@@ -3,8 +3,7 @@
 // TODO: move functions here
 /**
  * Move here:
- * - Logger.php:interpolate()
- * - All in helpers
+  * - All in helpers
  * - validate_ip
  * - get_event_ip_number_headers
  * - get_ip_number_header_keys
