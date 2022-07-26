@@ -2,6 +2,7 @@
 
 namespace SimpleHistory\Loggers;
 
+use SimpleHistory\Support\Support;
 /**
  * Logs changes to categories and tags and taxonomies
  */
@@ -262,7 +263,7 @@ class SimpleCategoriesLogger extends Logger {
 		$term_object = get_term( $term_id, $term_taxonomy );
 
 		if ( is_wp_error( $term_object ) ) {
-			return $this->interpolate( $message, $context, $row );
+			return support::interpolate( $message, $context, $row );
 		}
 
 		$term_edit_link = isset( $term_object ) ? get_edit_tag_link( $term_id, $term_object->taxonomy ) : null;
@@ -309,6 +310,6 @@ class SimpleCategoriesLogger extends Logger {
 			);
 		}
 
-		return $this->interpolate( $message, $context, $row );
+		return support::interpolate( $message, $context, $row );
 	}
 }

@@ -1,5 +1,16 @@
 <?php
 
+// TODO: move functions here
+/**
+ * Move here:
+ * - Logger.php:interpolate()
+ * - All in helpers
+ * - validate_ip
+ * - get_event_ip_number_headers
+ * - get_ip_number_header_keys
+ * - json_encode
+ */
+
 namespace SimpleHistory\Support;
 
 class Support {
@@ -105,4 +116,80 @@ class Support {
 		return $r;
 	}
 
+    	/**
+	 * Interpolates context values into the message placeholders.
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 * @param array  $row Currently not always passed, because loggers need to be updated to support this...
+	 */
+	public static function interpolate( $message, $context = array(), $row = null ) {
+		if ( ! is_array( $context ) ) {
+			return $message;
+		}
+
+		/**
+		 * Filters the context used to create the message from the message template.
+		 * Can be used to modify the variables sent to the message template.
+		 *
+		 * @example Example that modifies the parameters sent to the message template.
+		 *
+		 * This example will change the post type from "post" or "page" or similar to "my own page type".
+		 *
+		 *  ```php
+		 *  add_filter(
+		 *      'simple_history/logger/interpolate/context',
+		 *      function ( $context, $message, $row ) {
+		 *
+		 *          if ( empty( $row ) ) {
+		 *              return $context;
+		 *          }
+		 *
+		 *          if ( $row->logger == 'SimplePostLogger' && $row->context_message_key == 'post_updated' ) {
+		 *              $context['post_type'] = 'my own page type';
+		 *          }
+		 *
+		 *          return $context;
+		 *      },
+		 *      10,
+		 *      3
+		 *  );
+		 * ```
+		 *
+		 * @since 2.2.4
+		 *
+		 * @param array $context
+		 * @param string $message
+		 * @param array $row The row. Not supported by all loggers.
+		 */
+		$context = apply_filters(
+			'simple_history/logger/interpolate/context',
+			$context,
+			$message,
+			$row
+		);
+
+		// Build a replacement array with braces around the context keys
+		$replace = array();
+		foreach ( $context as $key => $val ) {
+			// Both key and val must be strings or number (for vals)
+			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			if ( is_string( $key ) || is_numeric( $key ) ) {
+				// key ok
+			}
+
+			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			if ( is_string( $val ) || is_numeric( $val ) ) {
+				// val ok
+			} else {
+				// not a value we can replace
+				continue;
+			}
+
+			$replace[ '{' . $key . '}' ] = $val;
+		}
+
+		// Interpolate replacement values into the message and return
+		return strtr( $message, $replace );
+	}
 }

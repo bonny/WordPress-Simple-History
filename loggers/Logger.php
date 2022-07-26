@@ -7,6 +7,7 @@ use DateTimeZone;
 use SimpleHistory\SimpleHistory;
 use SimpleHistory\SimpleLoggerLogLevels;
 use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\Support\Support;
 
 /**
  * Base class for loggers.
@@ -123,86 +124,6 @@ abstract class Logger {
 	 */
 	public function getCapability() {
 		return $this->getInfoValueByKey( 'capability' ) ?? 'manage_options';
-	}
-
-	/**
-	 * Interpolates context values into the message placeholders.
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 * @param array  $row Currently not always passed, because loggers need to be updated to support this...
-	 */
-	protected function interpolate( $message, $context = array(), $row = null ) {
-		// TODO: Move out this function to helpers? Because not using any logger specific things
-		//       maybe in namespace, similar to Laravel, `use SimpleHistory\Support\Arr;`
-		// check more functions, like json_encode() in main simplehistory class.
-		if ( ! is_array( $context ) ) {
-			return $message;
-		}
-
-		/**
-		 * Filters the context used to create the message from the message template.
-		 * Can be used to modify the variables sent to the message template.
-		 *
-		 * @example Example that modifies the parameters sent to the message template.
-		 *
-		 * This example will change the post type from "post" or "page" or similar to "my own page type".
-		 *
-		 *  ```php
-		 *  add_filter(
-		 *      'simple_history/logger/interpolate/context',
-		 *      function ( $context, $message, $row ) {
-		 *
-		 *          if ( empty( $row ) ) {
-		 *              return $context;
-		 *          }
-		 *
-		 *          if ( $row->logger == 'SimplePostLogger' && $row->context_message_key == 'post_updated' ) {
-		 *              $context['post_type'] = 'my own page type';
-		 *          }
-		 *
-		 *          return $context;
-		 *      },
-		 *      10,
-		 *      3
-		 *  );
-		 * ```
-		 *
-		 * @since 2.2.4
-		 *
-		 * @param array $context
-		 * @param string $message
-		 * @param array $row The row. Not supported by all loggers.
-		 */
-		$context = apply_filters(
-			'simple_history/logger/interpolate/context',
-			$context,
-			$message,
-			$row
-		);
-
-		// Build a replacement array with braces around the context keys
-		$replace = array();
-		foreach ( $context as $key => $val ) {
-			// Both key and val must be strings or number (for vals)
-			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			if ( is_string( $key ) || is_numeric( $key ) ) {
-				// key ok
-			}
-
-			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			if ( is_string( $val ) || is_numeric( $val ) ) {
-				// val ok
-			} else {
-				// not a value we can replace
-				continue;
-			}
-
-			$replace[ '{' . $key . '}' ] = $val;
-		}
-
-		// Interpolate replacement values into the message and return
-		return strtr( $message, $replace );
 	}
 
 	/**
@@ -753,7 +674,7 @@ abstract class Logger {
 			}
 		}
 
-		$html = $this->interpolate( $message, $row->context, $row );
+		$html = support::interpolate( $message, $row->context, $row );
 
 		// All messages are escaped by default.
 		// If you need unescaped output override this method

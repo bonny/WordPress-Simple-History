@@ -983,7 +983,7 @@ class SimplePostLogger extends Logger {
 		$context['post_type'] = isset( $context['post_type'] ) ? esc_html( $context['post_type'] ) : '';
 		$context['post_title'] = isset( $context['post_title'] ) ? esc_html( $context['post_title'] ) : '';
 
-		return $this->interpolate( $message, $context, $row );
+		return support::interpolate( $message, $context, $row );
 	}
 
 	/**
@@ -1112,7 +1112,7 @@ class SimplePostLogger extends Logger {
 											<td>%2$s</td>
 										</tr>',
 										$this->label_for( $key_to_diff, $label, $context ),
-										$this->interpolate(
+										support::interpolate(
 											__(
 												'Changed from {prev_user_display_name} ({prev_user_email}) to {new_user_display_name} ({new_user_email})',
 												'simple-history'
@@ -1163,7 +1163,7 @@ class SimplePostLogger extends Logger {
 										<td>%2$s</td>
 									</tr>',
 									$this->label_for( $key_to_diff, $label, $context ),
-									$this->interpolate(
+									support::interpolate(
 										$message,
 										array(
 											'prev_page_template' => '<code>' . esc_html( $prev_page_template ) . '</code>',

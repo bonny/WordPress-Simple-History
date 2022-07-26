@@ -2,6 +2,7 @@
 
 namespace SimpleHistory\Loggers;
 
+use SimpleHistory\support\Support;
 /**
  * Logs media uploads
  */
@@ -132,7 +133,7 @@ class SimpleMediaLogger extends Logger {
 			$context['attachment_filename'] = esc_html( $context['attachment_filename'] );
 			$context['edit_link'] = get_edit_post_link( $attachment_id );
 
-			$message = $this->interpolate( $message, $context, $row );
+			$message = support::interpolate( $message, $context, $row );
 		} else {
 			// Attachment post is not available, attachment has probably been deleted
 			$message = parent::getLogRowPlainTextOutput( $row );
@@ -235,7 +236,7 @@ class SimpleMediaLogger extends Logger {
 
 			$message .= '</p>';
 
-			$output .= $this->interpolate( $message, $context, $row );
+			$output .= support::interpolate( $message, $context, $row );
 		} // End if().
 
 		return $output;

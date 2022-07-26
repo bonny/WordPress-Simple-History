@@ -2,6 +2,7 @@
 namespace SimpleHistory\Loggers;
 
 use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\Support\Support;
 
 /**
  * Logs changes to user logins (and logouts)
@@ -596,7 +597,7 @@ class SimpleUserLogger extends Logger {
 						$msg = __( 'Edited <a href="{edit_profile_link}">their profile</a>', 'simple-history' );
 					}
 
-					$output = $this->interpolate( $msg, $context, $row );
+					$output = support::interpolate( $msg, $context, $row );
 				} else {
 					// User does not exist any longer
 					$output = __( 'Edited your profile', 'simple-history' );
@@ -607,7 +608,7 @@ class SimpleUserLogger extends Logger {
 					// Edited user still exist, so link to their profile
 					$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
 					$msg = __( 'Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', 'simple-history' );
-					$output = $this->interpolate( $msg, $context, $row );
+					$output = support::interpolate( $msg, $context, $row );
 				}
 			}
 		} elseif ( 'user_created' == $context['_message_key'] ) {
@@ -625,7 +626,7 @@ class SimpleUserLogger extends Logger {
 					'simple-history'
 				);
 
-				$output = $this->interpolate(
+				$output = support::interpolate(
 					$msg,
 					$context,
 					$row

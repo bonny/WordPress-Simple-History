@@ -2,6 +2,8 @@
 
 namespace SimpleHistory\Loggers;
 
+use SimpleHistory\Support\Support;
+
 /**
  * Logs WordPress theme edits
  */
@@ -594,7 +596,7 @@ class SimpleThemeLogger extends Logger {
 				// Translate message first
 				$message = $this->messages[ $message_key ]['translated_text'];
 
-				$message = $this->interpolate(
+				$message = support::interpolate(
 					$message,
 					array(
 						'widget_id_base' => $widget->name,

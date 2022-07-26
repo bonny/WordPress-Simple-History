@@ -2,6 +2,8 @@
 
 namespace SimpleHistory\Loggers;
 
+use SimpleHistory\Support\Support;
+
 /**
  * Logger for the Yoast Duplicate Post plugin
  * (https://sv.wordpress.org/plugins/duplicate-post/)
@@ -137,7 +139,7 @@ class Plugin_DuplicatePost extends Logger {
 			? esc_html( $context['duplicated_post_post_type_singular_name'] )
 			: '';
 
-		return $this->interpolate( $message, $context, $row );
+		return support::interpolate( $message, $context, $row );
 	}
 }
 
