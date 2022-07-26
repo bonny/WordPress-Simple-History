@@ -52,7 +52,7 @@ class FileEditsLogger extends Logger {
 	 */
 	public function on_load_plugin_editor() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( isset( $_POST ) && isset( $_POST['action'] ) ) {
+		if ( isset( $_POST['action'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$file = $_POST['file'] ?? null;
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -143,7 +143,7 @@ class FileEditsLogger extends Logger {
 	public function on_load_theme_editor() {
 		// Only continue if method is post and action is update
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( isset( $_POST ) && isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
+		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
 			/*
 			POST data is like
 				array(8)

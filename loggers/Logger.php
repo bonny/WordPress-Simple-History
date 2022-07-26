@@ -63,6 +63,20 @@ abstract class Logger {
 	public $simpleHistory;
 
 	/**
+	 * Full name of simple history table, i.e. wp db prefix + simple history db name.
+	 * 
+	 * @var string
+	 */
+	public $db_table;
+	
+	/**
+	 * Full name of simple history contexts table, i.e. wp db prefix + simple history contexts db name.
+	 * 
+	 * @var string
+	 */
+	public $db_table_contexts;
+
+	/**
 	 * Constructor. Remember to call this as parent constructor if making a child logger.
 	 *
 	 * @param SimpleHistory $simpleHistory
@@ -476,7 +490,7 @@ abstract class Logger {
 		 *
 		 * @since 2.x
 		 *
-		 * @param bool True to show IP address, false to hide it. Defaults to false.
+		 * @param bool $show_ip_address True to show IP address, false to hide it. Defaults to false.
 		 * @param object $row Row data
 		 */
 		$show_ip_address = apply_filters(
@@ -826,11 +840,11 @@ abstract class Logger {
 		 *
 		 * @since 2.0.20
 		 *
-		 * @param true yes, we default to do the logging
-		 * @param string logger slug
-		 * @param string messageKey
-		 * @param string log level
-		 * @param array context
+		 * @param bool $do_log true yes, we default to do the logging
+		 * @param string $slug logger slug
+		 * @param string $messageKey
+		 * @param string $log_level
+		 * @param array $context
 		 * @return bool false to abort logging
 		 */
 		$doLog = apply_filters(
@@ -1104,7 +1118,7 @@ abstract class Logger {
 		 * @param string $level The loglevel.
 		 * @param string $message The log message.
 		 * @param array $context The message context.
-		 * @param SimpleLogger $this Logger instance.
+		 * @param Logger $instance Logger instance.
 		 */
 		$do_log = apply_filters(
 			'simple_history/log/do_log',
@@ -1185,7 +1199,7 @@ abstract class Logger {
 		 * @param string $level
 		 * @param string $message
 		 * @param array $context
-		 * @param object SimpleLogger object
+		 * @param object $instance SimpleLogger object
 		 */
 		apply_filters(
 			'simple_history/log_arguments',
@@ -1406,7 +1420,7 @@ abstract class Logger {
 				 *
 				 * @since 2.22
 				 *
-				 * @param bool true to anonymize ip address, false to keep original ip address.
+				 * @param bool $do_anonymize true to anonymize ip address, false to keep original ip address.
 				 */
 				$anonymize_ip_address = apply_filters(
 					'simple_history/privacy/anonymize_ip_address',
@@ -1497,7 +1511,7 @@ abstract class Logger {
 			 *
 			 * @param array $context Array with all context data to store. Modify and return this.
 			 * @param array $data Array with data used for parent row.
-			 * @param array $this Reference to this logger instance.
+			 * @param Logger $instance Reference to this logger instance.
 			 */
 			$context = apply_filters(
 				'simple_history/log_insert_context',
@@ -1523,7 +1537,7 @@ abstract class Logger {
 		 *
 		 * @param array $context Array with all context data that was used to log event.
 		 * @param array $data_parent_row Array with data used for parent row.
-		 * @param SimpleLogger $this Reference to this logger instance.
+		 * @param Logger $instance Reference to this logger instance.
 		 */
 		do_action(
 			'simple_history/log/inserted',

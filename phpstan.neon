@@ -14,3 +14,5 @@ parameters:
   ignoreErrors:
     - '#Constant SIMPLE_HISTORY_PATH not found.#'
     - '#Constant SIMPLE_HISTORY_DIR_URL not found.#'
+    - '#Constant WPINC not found.#'
+    - '#Constant WP_PLUGIN_DIR not found.#'

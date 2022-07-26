@@ -5,7 +5,7 @@
  * Move here:
  * - get_event_ip_number_headers
  * - get_ip_number_header_keys
- * - json_encode
+ * - get_cache_incrementor
  */
 
 namespace SimpleHistory;
