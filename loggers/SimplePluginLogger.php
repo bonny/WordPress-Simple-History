@@ -3,6 +3,8 @@
 namespace SimpleHistory\Loggers;
 
 use SimpleHistory\SimpleHistory;
+use SimpleHistory\Helpers;
+use SimpleHistory\SimpleLoggerLogInitiators;
 
 /**
  * Logs plugin related things, for example installs, updates, and deletions.
@@ -667,7 +669,7 @@ class SimplePluginLogger extends Logger {
 		// does not work
 		$option_name = $this->slug . '_plugin_info_before_update';
 
-		update_option( $option_name, SimpleHistory::json_encode( $plugins ) );
+		update_option( $option_name, Helpers::json_encode( $plugins ) );
 
 		return $bool;
 	}
@@ -813,8 +815,8 @@ class SimplePluginLogger extends Logger {
 				if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
 					// Add errors
 					// Errors is in original wp admin language
-					$context['error_messages'] = $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->result->errors );
-					$context['error_data']     = $this->simpleHistory->json_encode( $plugin_upgrader_instance->skin->result->error_data );
+					$context['error_messages'] = Helpers::json_encode( $plugin_upgrader_instance->skin->result->errors );
+					$context['error_data']     = Helpers::json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
 					$this->infoMessage(
 						'plugin_installed_failed',
@@ -843,8 +845,8 @@ class SimplePluginLogger extends Logger {
 						$context['plugin_author']      = $plugin_data['AuthorName'] ?? '';
 
 						// Comment out these to debug plugin installs
-						// $context["debug_plugin_data"] = $this->simpleHistory->json_encode( $plugin_data );
-						// $context["debug_plugin_info"] = $this->simpleHistory->json_encode( $plugin_info );
+						// $context["debug_plugin_data"] = Helpers::json_encode( $plugin_data );
+						// $context["debug_plugin_info"] = Helpers::json_encode( $plugin_info );
 						if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
 							$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
 						}
@@ -872,7 +874,7 @@ class SimplePluginLogger extends Logger {
 
 				$context = array(
 					'plugin_slug'         => $plugin_slug,
-					'request'             => $this->simpleHistory->json_encode( $_REQUEST ),
+					'request'             => Helpers::json_encode( $_REQUEST ),
 					'plugin_name'         => $plugin_data['Name'],
 					'plugin_title'        => $plugin_data['Title'],
 					'plugin_description'  => $plugin_data['Description'],
@@ -898,7 +900,7 @@ class SimplePluginLogger extends Logger {
 					}
 					*/
 					// for debug purposes the update_plugins key can be added
-					// $context["update_plugins"] = $this->simpleHistory->json_encode( $update_plugins );
+					// $context["update_plugins"] = Helpers::json_encode( $update_plugins );
 					$plugin_update_info = $update_plugins->response[ $arr_data['plugin'] ];
 
 					// autoptimize/autoptimize.php

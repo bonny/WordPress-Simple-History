@@ -443,11 +443,11 @@ add_action("init", function() {
 		$current_filter = current_filter();
 
 		SimpleLogger()->info("This is a message inside init, trying to log crons", array(
-			"doing_cron" => simpleHistory::json_encode($doing_cron),
+			"doing_cron" => Helpers::json_encode(($doing_cron),
 			"current_filter" => $current_filter,
 			"wp_current_filter" => $wp_current_filter,
-			"wp_current_filter" => simpleHistory::json_encode( $wp_current_filter ),
-			"const_doing_cron" => simpleHistory::json_encode($const_doing_cron)
+			"wp_current_filter" => Helpers::json_encode( $wp_current_filter ),
+			"const_doing_cron" => Helpers::json_encode($const_doing_cron)
 		));
 
 	}

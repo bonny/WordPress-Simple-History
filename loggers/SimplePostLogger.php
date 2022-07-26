@@ -163,21 +163,21 @@ class SimplePostLogger extends Logger {
 		if ( in_array( $method, $arr_methods_to_act_on ) ) {
 			// Setup common stuff
 			$raw_post_data = file_get_contents( 'php://input' );
-			$context['wp.deletePost.xmldata'] = $this->simpleHistory->json_encode( $raw_post_data );
+			$context['wp.deletePost.xmldata'] = Helpers::json_encode( $raw_post_data );
 			$message = new IXR_Message( $raw_post_data );
 
 			if ( ! $message->parse() ) {
 				return;
 			}
 
-			$context['wp.deletePost.xmlrpc_message'] = $this->simpleHistory->json_encode( $message );
-			$context['wp.deletePost.xmlrpc_message.messageType'] = $this->simpleHistory->json_encode(
+			$context['wp.deletePost.xmlrpc_message'] = Helpers::json_encode( $message );
+			$context['wp.deletePost.xmlrpc_message.messageType'] = Helpers::json_encode(
 				$message->messageType
 			);
-			$context['wp.deletePost.xmlrpc_message.methodName'] = $this->simpleHistory->json_encode(
+			$context['wp.deletePost.xmlrpc_message.methodName'] = Helpers::json_encode(
 				$message->methodName
 			);
-			$context['wp.deletePost.xmlrpc_message.messageParams'] = $this->simpleHistory->json_encode(
+			$context['wp.deletePost.xmlrpc_message.messageParams'] = Helpers::json_encode(
 				$message->params
 			);
 

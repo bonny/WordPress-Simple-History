@@ -3,7 +3,6 @@
 // TODO: move functions here
 /**
  * Move here:
- * - validate_ip
  * - get_event_ip_number_headers
  * - get_ip_number_header_keys
  * - json_encode
@@ -243,5 +242,16 @@ class Helpers {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Works like json_encode, but adds JSON_PRETTY_PRINT.
+	 *
+	 * @param mixed $value array|object|string|whatever that is json_encode'able.
+	 */
+	public static function json_encode( $value ) {
+		return version_compare( PHP_VERSION, '5.4.0' ) >= 0
+			? json_encode( $value, JSON_PRETTY_PRINT )
+			: json_encode( $value );
 	}
 }

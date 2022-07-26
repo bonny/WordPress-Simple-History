@@ -2,6 +2,7 @@
 
 namespace SimpleHistory\Loggers;
 
+use SimpleHistory\Helpers;
 /**
  * Logs WordPress menu edits
  */
@@ -196,8 +197,8 @@ class SimpleMenuLogger extends Logger {
 			array(
 				"menu_id" => $menu_id,
 				"menu_item_db_id" => $menu_item_db_id,
-				"args" => $this->simpleHistory->json_encode($args),
-				"request" => $this->simpleHistory->json_encode($_REQUEST)
+				"args" => Helpers::json_encode($args),
+				"request" => Helpers::json_encode($_REQUEST)
 			)
 		);
 
@@ -339,7 +340,7 @@ class SimpleMenuLogger extends Logger {
 		$this->infoMessage(
 			'edited_menu_locations',
 			array(
-				'menu_locations' => $this->simpleHistory->json_encode( $menu_locations ),
+				'menu_locations' => Helpers::json_encode( $menu_locations ),
 			)
 		);
 	}

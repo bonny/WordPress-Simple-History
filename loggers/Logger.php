@@ -1555,7 +1555,7 @@ abstract class Logger {
 		foreach ( $context as $key => $value ) {
 			// Everything except strings should be json_encoded, ie. arrays and objects.
 			if ( ! is_string( $value ) ) {
-				$value = simpleHistory::json_encode( $value );
+				$value = Helpers::json_encode( $value );
 			}
 
 			$data = array(

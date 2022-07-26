@@ -32,21 +32,21 @@ class SimpleHistoryDebugDropin extends Dropin {
 	 */
 	public function onLogArgumentContext( $context, $level, $message, $logger ) {
 		$sh = SimpleHistory::get_instance();
-		$context['_debug_get'] = $sh->json_encode( $_GET );
-		$context['_debug_post'] = $sh->json_encode( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$context['_debug_server'] = $sh->json_encode( $_SERVER );
-		$context['_debug_files'] = $sh->json_encode( $_FILES );
+		$context['_debug_get'] = Helpers::json_encode( $_GET );
+		$context['_debug_post'] = Helpers::json_encode( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$context['_debug_server'] = Helpers::json_encode( $_SERVER );
+		$context['_debug_files'] = Helpers::json_encode( $_FILES );
 		$context['_debug_php_sapi_name'] = php_sapi_name();
 
 		global $argv;
-		$context['_debug_argv'] = $sh->json_encode( $argv );
+		$context['_debug_argv'] = Helpers::json_encode( $argv );
 
 		$consts = get_defined_constants( true );
 		$consts = $consts['user'];
-		$context['_debug_user_constants'] = $sh->json_encode( $consts );
+		$context['_debug_user_constants'] = Helpers::json_encode( $consts );
 
 		$postdata = file_get_contents( 'php://input' );
-		$context['_debug_http_raw_post_data'] = $sh->json_encode( $postdata );
+		$context['_debug_http_raw_post_data'] = Helpers::json_encode( $postdata );
 
 		$context['_debug_wp_debug_backtrace_summary'] = wp_debug_backtrace_summary();
 		$context['_debug_is_admin'] = json_encode( is_admin() );

@@ -326,7 +326,7 @@ class SimpleThemeLogger extends Logger {
 
 		if ( ! empty( $valid_post_key_exists ) ) {
 			$context = array();
-			// $context["POST"] = $this->simpleHistory->json_encode( $_POST );
+			// $context["POST"] = Helpers::json_encode( $_POST );
 			$this->infoMessage(
 				'custom_background_changed',
 				$context
@@ -633,7 +633,7 @@ class SimpleThemeLogger extends Logger {
 			$context = array();
 
 			$widget_save_data = $_POST["widget-{$widget_id_base}"];
-			$context["widget_save_data"] = $this->simpleHistory->json_encode( $widget_save_data );
+			$context["widget_save_data"] = Helpers::json_encode( $widget_save_data );
 
 			// Add widget info
 			$context["widget_id_base"] = $widget_id_base;
@@ -747,8 +747,8 @@ class SimpleThemeLogger extends Logger {
 		}
 
 		// Calculate changes.
-		$context['old_instance'] = $this->simpleHistory->json_encode( $old_instance );
-		$context['new_instance'] = $this->simpleHistory->json_encode( $new_instance );
+		$context['old_instance'] = Helpers::json_encode( $old_instance );
+		$context['new_instance'] = Helpers::json_encode( $new_instance );
 
 		$this->infoMessage(
 			'widget_edited',
@@ -774,18 +774,18 @@ class SimpleThemeLogger extends Logger {
 			// Get old order
 			$sidebars = isset( $GLOBALS['wp_registered_sidebars'] ) ? $GLOBALS['wp_registered_sidebars'] : false;
 			if ($sidebars) {
-				$context["sidebars_from"] = $this->simpleHistory->json_encode( $sidebars );
+				$context["sidebars_from"] = Helpers::json_encode( $sidebars );
 			}
 
 			$new_sidebars = $_POST["sidebars"];
-			$context["sidebars_to"] = $this->simpleHistory->json_encode( $new_sidebars );
+			$context["sidebars_to"] = Helpers::json_encode( $new_sidebars );
 
 			$widget_factory = isset( $GLOBALS["wp_widget_factory"] ) ? $GLOBALS["wp_widget_factory"] : false;
-			$context["widgets_from"] = $this->simpleHistory->json_encode( $widget_factory->widgets );
+			$context["widgets_from"] = Helpers::json_encode( $widget_factory->widgets );
 
 			//$wp_registered_widgets, $wp_registered_sidebars, $sidebars_widgets;
 			$sidebars_widgets = isset( $GLOBALS["sidebars_widgets"] ) ? $GLOBALS["sidebars_widgets"] : false;
-			$context["sidebars_widgets"] = $this->simpleHistory->json_encode( $sidebars_widgets );
+			$context["sidebars_widgets"] = Helpers::json_encode( $sidebars_widgets );
 
 			$this->infoMessage(
 				"widget_order_changed",

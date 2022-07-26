@@ -2,6 +2,8 @@
 
 namespace SimpleHistory\Loggers;
 
+use SimpleHistory\Helpers;
+
 /**
  * Logs WordPress exports
  */
@@ -45,7 +47,7 @@ class SimpleExportLogger extends Logger {
 		$this->infoMessage(
 			'created_export',
 			array(
-				'args' => $this->simpleHistory->json_encode( $args ),
+				'args' => Helpers::json_encode( $args ),
 			)
 		);
 	}

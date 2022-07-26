@@ -137,7 +137,7 @@ class SimpleHistoryExportDropin extends Dropin {
 							$comma = ",\n";
 						}
 
-						$json_row = $comma . $this->sh->json_encode( $one_row );
+						$json_row = $comma . Helpers::json_encode( $one_row );
 						fwrite( $fp, $json_row );
 					} elseif ( 'html' == $export_format ) {
 						$html = sprintf(
