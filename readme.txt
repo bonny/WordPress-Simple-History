@@ -219,6 +219,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
 - Code fixes using Rector.
+- Add new `helper` class and move add functions `simple_history_get_current_screen()`, `interpolate()`, `text_diff` from `helpers.php` file.
 
 **Removed**
 
