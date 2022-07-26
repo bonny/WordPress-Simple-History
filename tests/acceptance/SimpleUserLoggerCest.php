@@ -289,6 +289,8 @@ class SimpleUserLoggerCest
 
         $I->waitForText('Application password revoked');
 
+        // FIXME: application passwords are revoked and not deleted?
+        // change message keys to revoked
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Deleted application password "My New App" for user "annaauthor"');
         $I->seeLogContextDebug();
