@@ -115,7 +115,7 @@ class Helpers {
 		return $r;
 	}
 
-    	/**
+		/**
 	 * Interpolates context values into the message placeholders.
 	 *
 	 * @param string $message
@@ -191,4 +191,36 @@ class Helpers {
 		// Interpolate replacement values into the message and return
 		return strtr( $message, $replace );
 	}
+
+	/**
+	 * Get the current screen object.
+	 * Returns an object with all attributes empty if functions is not found or if function
+	 * returns null. Makes it easier to use get_current_screen when we don't have to
+	 * check for function existence and or null.
+	 *
+	 * @return WP_Screen|Object Current screen object or object with empty attributes when screen not defined.
+	 */
+	public static function get_current_screen() {
+		if ( function_exists( 'get_current_screen' ) ) {
+			$current_screen = get_current_screen();
+			if ( $current_screen instanceof \WP_Screen ) {
+				return $current_screen;
+			}
+		}
+
+		// No screen found, return object with same properties but with empty values.
+		return (object) array(
+			'action' => null,
+			'base' => null,
+			'id' => null,
+			'is_network' => null,
+			'is_user' => null,
+			'parent_base' => null,
+			'parent_file' => null,
+			'post_type' => null,
+			'taxonomy' => null,
+			'is_block_editor' => null,
+		);
+	}
+
 }

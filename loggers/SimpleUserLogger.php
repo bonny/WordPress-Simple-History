@@ -290,7 +290,7 @@ class SimpleUserLogger extends Logger {
 	 * @param string[] $old_roles An array of the user's previous roles.
 	 */
 	public function on_set_user_role( $user_id, $role, $old_roles ) {
-		$current_screen = simple_history_get_current_screen();
+		$current_screen = helpers::get_current_screen();
 
 		// Bail if we are not on the users screen.
 		if ( $current_screen->id !== 'users' ) {
@@ -368,7 +368,7 @@ class SimpleUserLogger extends Logger {
 			return $data;
 		}
 
-		$current_screen = simple_history_get_current_screen();
+		$current_screen = helpers::get_current_screen();
 
 		// Bail if we are not on the user-edit screen (edit other user) or profile screen (edit own user).
 		if ( ! in_array( $current_screen->id, array( 'user-edit', 'profile' ) ) ) {
