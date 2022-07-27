@@ -19,7 +19,7 @@ class SimpleHistoryExportDropin extends Dropin {
 	 */
 	public function __construct( $sh ) {
 
-		$this->sh = $sh;
+		$this->simple_history = $sh;
 
 		// Add tab to settings page.
 		$sh->registerSettingsTab(
@@ -106,10 +106,10 @@ class SimpleHistoryExportDropin extends Dropin {
 					set_time_limit( 30 );
 
 					if ( 'csv' == $export_format ) {
-						$header_output = strip_tags( html_entity_decode( $this->sh->getLogRowHeaderOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+						$header_output = strip_tags( html_entity_decode( $this->simple_history->getLogRowHeaderOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 						$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 
-						$message_output = strip_tags( html_entity_decode( $this->sh->getLogRowPlainTextOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+						$message_output = strip_tags( html_entity_decode( $this->simple_history->getLogRowPlainTextOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 
 						$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
 						$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
@@ -148,9 +148,9 @@ class SimpleHistoryExportDropin extends Dropin {
 								<div>%3$s</div>
 							</li>
 							',
-							$this->sh->getLogRowHeaderOutput( $one_row ),
-							$this->sh->getLogRowPlainTextOutput( $one_row ),
-							$this->sh->getLogRowDetailsOutput( $one_row )
+							$this->simple_history->getLogRowHeaderOutput( $one_row ),
+							$this->simple_history->getLogRowPlainTextOutput( $one_row ),
+							$this->simple_history->getLogRowDetailsOutput( $one_row )
 						);
 
 						fwrite( $fp, $html );

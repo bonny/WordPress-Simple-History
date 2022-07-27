@@ -18,7 +18,7 @@ use SimpleHistory\LogInitiators;
 class SimpleHistorySidebarStats extends Dropin {
 	public function init( $sh ) {
 
-		$this->sh = $sh;
+		$this->simple_history = $sh;
 
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
 
@@ -139,7 +139,7 @@ class SimpleHistorySidebarStats extends Dropin {
 
 		$num_days = 28;
 
-		$num_events_per_day_for_period = $this->sh->get_num_events_per_day_last_n_days( $num_days );
+		$num_events_per_day_for_period = $this->simple_history->get_num_events_per_day_last_n_days( $num_days );
 
 		// Period = all dates, so empty ones don't get lost
 		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$num_days days" ) );
@@ -161,7 +161,7 @@ class SimpleHistorySidebarStats extends Dropin {
 					echo wp_kses(
 						sprintf(
 							__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
-							$this->sh->get_num_events_last_n_days( $num_days ),
+							$this->simple_history->get_num_events_last_n_days( $num_days ),
 							number_format_i18n( $num_days )
 						),
 						array(

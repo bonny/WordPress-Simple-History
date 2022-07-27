@@ -32,10 +32,10 @@ class WPCLI extends Dropin {
 
 class Commands {
 	/** Simple History instance. */
-	private $sh;
+	private $simple_history;
 
 	public function __construct() {
-		 $this->sh = SimpleHistory::get_instance();
+		 $this->simple_history = SimpleHistory::get_instance();
 	}
 
 	/**
@@ -86,8 +86,8 @@ class Commands {
 		$eventsCleaned = array();
 
 		foreach ( $events['log_rows'] as $row ) {
-			$header_output = $this->sh->getLogRowHeaderOutput( $row );
-			$text_output = $this->sh->getLogRowPlainTextOutput( $row );
+			$header_output = $this->simple_history->getLogRowHeaderOutput( $row );
+			$text_output = $this->simple_history->getLogRowPlainTextOutput( $row );
 			$header_output = strip_tags( html_entity_decode( $header_output, ENT_QUOTES, 'UTF-8' ) );
 			$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 

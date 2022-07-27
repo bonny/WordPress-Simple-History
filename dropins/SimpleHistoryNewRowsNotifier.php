@@ -15,7 +15,7 @@ class SimpleHistoryNewRowsNotifier extends Dropin {
 	private $interval = 10000;
 
 	public function __construct( $sh ) {
-		$this->sh = $sh;
+		$this->simple_history = $sh;
 
 		// How often the script checks for new rows
 		$this->interval = (int) apply_filters( 'SimpleHistoryNewRowsNotifier/interval', $this->interval );
@@ -61,7 +61,7 @@ class SimpleHistoryNewRowsNotifier extends Dropin {
 		}
 
 		// User must have capability to view the history page
-		if ( ! current_user_can( $this->sh->get_view_history_capability() ) ) {
+		if ( ! current_user_can( $this->simple_history->get_view_history_capability() ) ) {
 			wp_send_json_error(
 				array(
 					'error' => 'CAPABILITY_ERROR',

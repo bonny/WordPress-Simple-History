@@ -7,13 +7,13 @@ use SimpleHistory\SimpleHistory;
  * Base class for dropins.
  */
 abstract class Dropin {
-	protected SimpleHistory $sh;
+	protected SimpleHistory $simple_history;
 
 	/**
 	 * @param SimpleHistory $sh
 	 */
 	public function __construct( $sh ) {
-		$this->sh = $sh;
+		$this->simple_history = $sh;
 	}
 
 	/**

@@ -265,9 +265,9 @@ class SimpleHistoryRSSDropin extends Dropin {
 					// Remove capability override after query is done
 					// remove_action( $action_tag, array($this, "onCanReadSingleLogger") );
 					foreach ( $queryResults['log_rows'] as $row ) {
-						$header_output = $this->sh->getLogRowHeaderOutput( $row );
-						$text_output = $this->sh->getLogRowPlainTextOutput( $row );
-						$details_output = $this->sh->getLogRowDetailsOutput( $row );
+						$header_output = $this->simple_history->getLogRowHeaderOutput( $row );
+						$text_output = $this->simple_history->getLogRowPlainTextOutput( $row );
+						$details_output = $this->simple_history->getLogRowDetailsOutput( $row );
 
 						// http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt
 						// $item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;
@@ -288,11 +288,11 @@ class SimpleHistoryRSSDropin extends Dropin {
 
 						$item_title = sprintf(
 							'%2$s',
-							$this->sh->getLogLevelTranslated( $row->level ),
+							$this->simple_history->getLogLevelTranslated( $row->level ),
 							wp_kses( $text_output, array() )
 						);
 
-						$level_output = sprintf( esc_html__( 'Severity level: %1$s', 'simple-history' ), $this->sh->getLogLevelTranslated( $row->level ) );
+						$level_output = sprintf( esc_html__( 'Severity level: %1$s', 'simple-history' ), $this->simple_history->getLogLevelTranslated( $row->level ) );
 
 						$wp_kses_attrs = array(
 							'a' => array(

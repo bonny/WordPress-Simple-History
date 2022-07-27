@@ -14,7 +14,7 @@ use SimpleHistory\LogQuery;
 
 class SimpleHistoryFilterDropin extends Dropin {
 	public function __construct( $sh ) {
-		$this->sh = $sh;
+		$this->simple_history = $sh;
 
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/history_page/before_gui', array( $this, 'gui_page_filters' ) );
@@ -34,7 +34,7 @@ class SimpleHistoryFilterDropin extends Dropin {
 
 	public function gui_page_filters() {
 
-		$loggers_user_can_read = $this->sh->getLoggersThatUserCanRead();
+		$loggers_user_can_read = $this->simple_history->getLoggersThatUserCanRead();
 
 		/**
 		 * Filter that determines if search filters should be visible directly on page load
@@ -58,7 +58,7 @@ class SimpleHistoryFilterDropin extends Dropin {
 				// Start months filter
 				global $wpdb;
 				$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-				$loggers_user_can_read_sql_in = $this->sh->getLoggersThatUserCanRead( null, 'sql' );
+				$loggers_user_can_read_sql_in = $this->simple_history->getLoggersThatUserCanRead( null, 'sql' );
 
 				// Get unique months
 				$cache_key = 'sh_filter_unique_months';
@@ -92,8 +92,8 @@ class SimpleHistoryFilterDropin extends Dropin {
 				$daysToShow = 1;
 
 				// Start with the latest day
-				$numEvents = $this->sh->get_unique_events_for_days( $daysToShow );
-				$numPages = $numEvents / $this->sh->get_pager_size();
+				$numEvents = $this->simple_history->get_unique_events_for_days( $daysToShow );
+				$numPages = $numEvents / $this->simple_history->get_pager_size();
 
 				$arr_days_and_pages[] = array(
 					'daysToShow' => $daysToShow,
@@ -106,8 +106,8 @@ class SimpleHistoryFilterDropin extends Dropin {
 				if ( $numPages < 20 ) {
 					// Not that many things the last day. Let's try to expand to 7 days instead.
 					$daysToShow = 7;
-					$numEvents = $this->sh->get_unique_events_for_days( $daysToShow );
-					$numPages = $numEvents / $this->sh->get_pager_size();
+					$numEvents = $this->simple_history->get_unique_events_for_days( $daysToShow );
+					$numPages = $numEvents / $this->simple_history->get_pager_size();
 
 					$arr_days_and_pages[] = array(
 						'daysToShow' => $daysToShow,
@@ -117,8 +117,8 @@ class SimpleHistoryFilterDropin extends Dropin {
 					if ( $numPages < 20 ) {
 						// Not that many things the last 7 days. Let's try to expand to 14 days instead.
 						$daysToShow = 14;
-						$numEvents = $this->sh->get_unique_events_for_days( $daysToShow );
-						$numPages = $numEvents / $this->sh->get_pager_size();
+						$numEvents = $this->simple_history->get_unique_events_for_days( $daysToShow );
+						$numPages = $numEvents / $this->simple_history->get_pager_size();
 
 						$arr_days_and_pages[] = array(
 							'daysToShow' => $daysToShow,
@@ -128,8 +128,8 @@ class SimpleHistoryFilterDropin extends Dropin {
 						if ( $numPages < 20 ) {
 							// Not many things the last 14 days either. Let try with 30 days.
 							$daysToShow = 30;
-							$numEvents = $this->sh->get_unique_events_for_days( $daysToShow );
-							$numPages = $numEvents / $this->sh->get_pager_size();
+							$numEvents = $this->simple_history->get_unique_events_for_days( $daysToShow );
+							$numPages = $numEvents / $this->simple_history->get_pager_size();
 
 							$arr_days_and_pages[] = array(
 								'daysToShow' => $daysToShow,
@@ -293,28 +293,28 @@ class SimpleHistoryFilterDropin extends Dropin {
 							multiple
 							>
 							<option <?php selected( in_array( 'debug', $arr_default_loglevels ) ); ?> value="debug" data-color="#CEF6D8">
-								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Debug' ) ); ?>
+								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Debug' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'info', $arr_default_loglevels ) ); ?> value="info" data-color="white">
-								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Info' ) ); ?>
+								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Info' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'notice', $arr_default_loglevels ) ); ?> value="notice" data-color="rgb(219, 219, 183)">
-								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Notice' ) ); ?>
+								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Notice' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'warning', $arr_default_loglevels ) ); ?> value="warning" data-color="#F7D358">
-								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Warning' ) ); ?>
+								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Warning' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'error', $arr_default_loglevels ) ); ?> value="error" data-color="#F79F81">
-								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Error' ) ); ?>
+								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Error' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'critical', $arr_default_loglevels ) ); ?> value="critical" data-color="#FA5858">
-								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Critical' ) ); ?>
+								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Critical' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'alert', $arr_default_loglevels ) ); ?> value="alert" data-color="rgb(199, 69, 69)">
-								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Alert' ) ); ?>
+								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Alert' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'emergency', $arr_default_loglevels ) ); ?> value="emergency" data-color="#DF0101">
-								<?php echo esc_html( $this->sh->getLogLevelTranslated( 'Emergency' ) ); ?>
+								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Emergency' ) ); ?>
 							</option>
 						</select>
 
@@ -544,7 +544,7 @@ class SimpleHistoryFilterDropin extends Dropin {
 			$val->user_email
 		);
 
-		$val->gravatar = $this->sh->get_avatar( $val->user_email, '18', 'mm' );
+		$val->gravatar = $this->simple_history->get_avatar( $val->user_email, '18', 'mm' );
 	}
 
 

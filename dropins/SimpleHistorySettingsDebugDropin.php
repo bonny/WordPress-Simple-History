@@ -15,9 +15,9 @@ use SimpleHistory\LogQuery;
 class SimpleHistorySettingsDebugDropin extends Dropin {
 	public function __construct( $sh ) {
 
-		$this->sh = $sh;
+		$this->simple_history = $sh;
 
-		$this->sh->registerSettingsTab(
+		$this->simple_history->registerSettingsTab(
 			array(
 				'slug' => 'debug',
 				'name' => __( 'Debug', 'simple-history' ),
