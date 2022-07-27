@@ -1456,7 +1456,7 @@ abstract class Logger {
 							$ip = trim( $ip );
 
 							// attempt to validate IP.
-							if ( Helpers::validate_ip( $ip ) ) {
+							if ( Helpers::is_valid_public_ip( $ip ) ) {
 								// valid, add to context, with loop index appended so we can store many IPs.
 								$key_lower = strtolower( $key );
 

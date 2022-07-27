@@ -2405,16 +2405,6 @@ Because Simple History was only recently installed, this feed does not display m
 	}
 
 	/**
-	 * Returns true if $haystack ends with $needle
-	 *
-	 * @param string $haystack
-	 * @param string $needle
-	 */
-	public static function ends_with( $haystack, $needle ) {
-		return $needle === substr( $haystack, -strlen( $needle ) );
-	}
-
-	/**
 	 * Returns the HTML output for a log row, to be used in the GUI/Activity Feed.
 	 * This includes HTML for the header, the sender image, and the details.
 	 *

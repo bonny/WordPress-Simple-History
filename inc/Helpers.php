@@ -223,12 +223,12 @@ class Helpers {
 
 	/**
 	 * Ensures an ip address is both a valid IP and does not fall within
-	 * a private network range.
+	 * a private network range or is within reserved range.
 	 *
 	 * @param string $ip IP number.
 	 * @return bool
 	 */
-	public static function validate_ip( $ip ) {
+	public static function is_valid_public_ip( $ip ) {
 		if (
 			filter_var(
 				$ip,
@@ -281,6 +281,16 @@ class Helpers {
 		);
 
 		return $headers;
+	}
+
+	/**
+	 * Returns true if $haystack ends with $needle
+	 *
+	 * @param string $haystack
+	 * @param string $needle
+	 */
+	public static function ends_with( $haystack, $needle ) {
+		return $needle === substr( $haystack, -strlen( $needle ) );
 	}
 
 }
