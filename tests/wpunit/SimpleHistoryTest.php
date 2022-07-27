@@ -4,7 +4,7 @@
 // phpcs:disable Squiz.Scope.MethodScope.Missing
 
 use SimpleHistory\SimpleHistory;
-use SimpleHistory\SimpleLoggerLogLevels;
+use SimpleHistory\LogLevels;
 use SimpleHistory\SimpleHistoryLogQuery;
 
 class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
@@ -142,7 +142,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_loglevels_and_initiators() {
 
-		$refl = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogLevels' );
+		$refl = new ReflectionClass( 'SimpleHistory\LogLevels' );
 		$log_levels = (array) $refl->getConstants();
 
 		$expected_log_levels = array(
@@ -179,7 +179,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		$table_name_simple_history = $wpdb->prefix . SimpleHistory::DBTABLE;
 
-		$refl_log_levels = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogLevels' );
+		$refl_log_levels = new ReflectionClass( 'SimpleHistory\LogLevels' );
 		$log_levels = (array) $refl_log_levels->getConstants();
 
 		$refl_log_initiators = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogInitiators' );

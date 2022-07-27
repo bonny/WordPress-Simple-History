@@ -5,7 +5,7 @@ namespace SimpleHistory\Loggers;
 use DateTime;
 use DateTimeZone;
 use SimpleHistory\SimpleHistory;
-use SimpleHistory\SimpleLoggerLogLevels;
+use SimpleHistory\LogLevels;
 use SimpleHistory\SimpleLoggerLogInitiators;
 use SimpleHistory\Helpers;
 
@@ -800,7 +800,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function emergency( $message, array $context = array() ) {
-		return $this->log( SimpleLoggerLogLevels::EMERGENCY, $message, $context );
+		return $this->log( LogLevels::EMERGENCY, $message, $context );
 	}
 
 	/**
@@ -811,7 +811,7 @@ abstract class Logger {
 	 */
 	public function emergencyMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			SimpleLoggerLogLevels::EMERGENCY,
+			LogLevels::EMERGENCY,
 			$message,
 			$context
 		);
@@ -873,7 +873,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function alert( $message, array $context = array() ) {
-		return $this->log( SimpleLoggerLogLevels::ALERT, $message, $context );
+		return $this->log( LogLevels::ALERT, $message, $context );
 	}
 
 	/**
@@ -884,7 +884,7 @@ abstract class Logger {
 	 */
 	public function alertMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			SimpleLoggerLogLevels::ALERT,
+			LogLevels::ALERT,
 			$message,
 			$context
 		);
@@ -900,7 +900,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function critical( $message, array $context = array() ) {
-		return $this->log( SimpleLoggerLogLevels::CRITICAL, $message, $context );
+		return $this->log( LogLevels::CRITICAL, $message, $context );
 	}
 
 	/**
@@ -917,7 +917,7 @@ abstract class Logger {
 		$context['_message_key'] = $message;
 		$message = $this->messages[ $message ]['untranslated_text'];
 
-		$this->log( SimpleLoggerLogLevels::CRITICAL, $message, $context );
+		$this->log( LogLevels::CRITICAL, $message, $context );
 	}
 
 	/**
@@ -928,7 +928,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function error( $message, array $context = array() ) {
-		return $this->log( SimpleLoggerLogLevels::ERROR, $message, $context );
+		return $this->log( LogLevels::ERROR, $message, $context );
 	}
 
 	/**
@@ -940,7 +940,7 @@ abstract class Logger {
 	 */
 	public function errorMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			SimpleLoggerLogLevels::ERROR,
+			LogLevels::ERROR,
 			$message,
 			$context
 		);
@@ -957,7 +957,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function warning( $message, array $context = array() ) {
-		return $this->log( SimpleLoggerLogLevels::WARNING, $message, $context );
+		return $this->log( LogLevels::WARNING, $message, $context );
 	}
 
 	/**
@@ -968,7 +968,7 @@ abstract class Logger {
 	 */
 	public function warningMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			SimpleLoggerLogLevels::WARNING,
+			LogLevels::WARNING,
 			$message,
 			$context
 		);
@@ -981,7 +981,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function notice( $message, array $context = array() ) {
-		return $this->log( SimpleLoggerLogLevels::NOTICE, $message, $context );
+		return $this->log( LogLevels::NOTICE, $message, $context );
 	}
 
 	/**
@@ -992,7 +992,7 @@ abstract class Logger {
 	 */
 	public function noticeMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			\SimpleHistory\SimpleLoggerLogLevels::NOTICE,
+			\SimpleHistory\LogLevels::NOTICE,
 			$message,
 			$context
 		);
@@ -1008,7 +1008,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function info( $message, array $context = array() ) {
-		return $this->log( SimpleLoggerLogLevels::INFO, $message, $context );
+		return $this->log( LogLevels::INFO, $message, $context );
 	}
 
 	/**
@@ -1022,7 +1022,7 @@ abstract class Logger {
 	 */
 	public function infoMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			SimpleLoggerLogLevels::INFO,
+			LogLevels::INFO,
 			$message,
 			$context
 		);
@@ -1035,7 +1035,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function debug( $message, array $context = array() ) {
-		return $this->log( SimpleLoggerLogLevels::DEBUG, $message, $context );
+		return $this->log( LogLevels::DEBUG, $message, $context );
 	}
 
 	/**
@@ -1046,7 +1046,7 @@ abstract class Logger {
 	 */
 	public function debugMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			SimpleLoggerLogLevels::DEBUG,
+			LogLevels::DEBUG,
 			$message,
 			$context
 		);
