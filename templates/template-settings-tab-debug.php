@@ -90,7 +90,7 @@ foreach ( $table_size_result as $one_table ) {
 
 echo '</table>';
 
-$logQuery = new SimpleHistoryLogQuery();
+$logQuery = new LogQuery();
 $rows = $logQuery->query(
 	array(
 		'posts_per_page' => 1,

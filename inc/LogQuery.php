@@ -7,7 +7,7 @@ use SimpleHistory\Helpers;
 /**
  * Queries the Simple History Log
  */
-class SimpleHistoryLogQuery {
+class LogQuery {
 
 	/**
 	 * Query the log.

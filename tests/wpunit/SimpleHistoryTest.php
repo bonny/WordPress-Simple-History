@@ -5,7 +5,7 @@
 
 use SimpleHistory\SimpleHistory;
 use SimpleHistory\LogLevels;
-use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\LogQuery;
 
 class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	// https://phpunit.de/manual/current/en/fixtures.html
@@ -24,7 +24,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	function test_history_classes() {
 
 		$this->assertTrue( class_exists( 'SimpleHistory\SimpleHistory' ) );
-		$this->assertTrue( class_exists( 'SimpleHistory\SimpleHistoryLogQuery' ) );
+		$this->assertTrue( class_exists( 'SimpleHistory\LogQuery' ) );
 
 		$sh = SimpleHistory::get_instance();
 		$this->assertTrue( is_object( $sh ) );
@@ -226,7 +226,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 			'posts_per_page' => 1,
 		);
 
-		$logQuery = new SimpleHistoryLogQuery();
+		$logQuery = new LogQuery();
 		$queryResults = $logQuery->query( $args );
 
 		// The latest row should be the user we create above

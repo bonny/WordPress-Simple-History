@@ -3,7 +3,7 @@
 namespace SimpleHistory\Dropins;
 
 use SimpleHistory\SimpleHistory;
-use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\LogQuery;
 
 /**
  * Dropin Name: Global RSS Feed
@@ -259,7 +259,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 					 */
 					$args = apply_filters( 'simple_history/rss_feed_args', $args );
 
-					$logQuery = new SimpleHistoryLogQuery();
+					$logQuery = new LogQuery();
 					$queryResults = $logQuery->query( $args );
 
 					// Remove capability override after query is done

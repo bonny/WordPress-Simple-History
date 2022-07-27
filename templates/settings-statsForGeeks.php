@@ -2,7 +2,7 @@
 
 namespace SimpleHistory;
 
-use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\LogQuery;
 
 defined( 'ABSPATH' ) || die(); ?>
 
@@ -31,7 +31,7 @@ echo '<p class="hide-if-no-js"><button class="button js-SimpleHistoryShowsStatsF
 <div class="SimpleHistory__statsForGeeksInner hide-if-js">
 	<?php
 	echo '<h4>Rows count</h4>';
-	$logQuery = new SimpleHistoryLogQuery();
+	$logQuery = new LogQuery();
 	$rows = $logQuery->query(
 		array(
 			'posts_per_page' => 1,

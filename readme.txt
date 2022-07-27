@@ -225,6 +225,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Moved function `ends_with` to helper class.
 - Moved function `get_cache_incrementor` to helper class.
 - Class `SimpleLoggerLogLevels` renamed to `LogLevels`.
+- Class `SimpleHistoryLogQuery` renamed to `LogQuery`.
 
 **Removed**
 

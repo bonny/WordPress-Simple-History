@@ -6,7 +6,7 @@ use DateTime;
 use DateInterval;
 use DatePeriod;
 use SimpleHistory\SimpleHistory;
-use SimpleHistory\SimpleHistoryLogQuery;
+use SimpleHistory\LogQuery;
 use SimpleHistory\SimpleLoggerLogInitiators;
 
 /**

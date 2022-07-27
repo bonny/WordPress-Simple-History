@@ -653,7 +653,7 @@ class SimpleHistory {
 			case 'occasions':
 			case 'single':
 				// API use SimpleHistoryLogQuery, so simply pass args on to that
-				$logQuery = new SimpleHistoryLogQuery();
+				$logQuery = new LogQuery();
 
 				$data = $logQuery->query( $args );
 
@@ -2409,7 +2409,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * Returns the HTML output for a log row, to be used in the GUI/Activity Feed.
 	 * This includes HTML for the header, the sender image, and the details.
 	 *
-	 * @param object $oneLogRow SimpleHistoryLogQuery array with data from SimpleHistoryLogQuery
+	 * @param object $oneLogRow LogQuery array with data from LogQuery
 	 * @return string
 	 */
 	public function getLogRowHTMLOutput( $oneLogRow, $args ) {
@@ -3004,7 +3004,7 @@ Because Simple History was only recently installed, this feed does not display m
 		global $wpdb;
 
 		// Get number of events today
-		$logQuery = new SimpleHistoryLogQuery();
+		$logQuery = new LogQuery();
 		$logResults = $logQuery->query(
 			array(
 				'posts_per_page' => 1,
