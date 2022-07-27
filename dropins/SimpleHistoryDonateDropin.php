@@ -17,11 +17,7 @@ use SimpleHistory\LogQuery;
  * Put some donate messages here and there
  */
 class SimpleHistoryDonateDropin extends Dropin {
-	private $simple_history;
-
-	public function __construct( $simple_history ) {
-		$this->simple_history = $simple_history;
-
+	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_settings' ), 50 );
 		add_action( 'plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2 );
 	}
