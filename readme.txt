@@ -203,12 +203,13 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Dropins has support for namespace `SimpleHistory\Dropins` and the WP Cli dropin is using it so far and soon all dropins will move to this namespace.
 - Add filter `simple_history/core_loggers` to modify the list of built in (core) loggers.
 - Add filter `simple_history/dropins_to_instantiate` to modify the list of built in dropins to instantiate.
-- Add filter `simple_history/core_dropins`
-- Add filter `simple_history/dropins_to_instantiate`
-- Add filter `simple_history/dropin/instantiate_{$dropin_short_name}`
-- Add filter `simple_history/dropin/instantiate`one_dropin_class );`
-- Add action `simple_history/dropins/instantiated`
-- Add action `simple_history/loggers/instantiated`
+- Add filter `simple_history/core_dropins`.
+- Add filter `simple_history/dropins_to_instantiate`.
+- Add filter `simple_history/dropin/instantiate_{$dropin_short_name}`.
+- Add filter `simple_history/dropin/instantiate`one_dropin_class );`.
+- Add action `simple_history/dropins/instantiated`.
+- Add action `simple_history/loggers/instantiated`.
+- Add filter `simple_history/ip_number_header_names`.
 
 **Changed**
 
@@ -220,6 +221,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
 - Code fixes using Rector.
 - Add new `helper` class with functions `simple_history_get_current_screen()`, `interpolate()`, `text_diff`, `validate_ip` that are moved from misc plugin files.
+- Function `get_ip_number_header_keys` is moved to `helper` class and renamed `get_ip_number_header_names`.
 
 **Removed**
 

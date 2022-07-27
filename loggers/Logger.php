@@ -1445,7 +1445,7 @@ abstract class Logger {
 				// Check for IP in lots of headers
 				// Based on code found here:
 				// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
-				$ip_keys = $this->get_ip_number_header_keys();
+				$ip_keys = Helpers::get_ip_number_header_names();
 
 				foreach ( $ip_keys as $key ) {
 					if ( array_key_exists( $key, $_SERVER ) === true ) {
@@ -1585,24 +1585,6 @@ abstract class Logger {
 	}
 
 	/**
-	 * Returns array with headers that may contain user IP
-	 *
-	 * @since 2.0.29
-	 */
-	public function get_ip_number_header_keys() {
-		$arr = array(
-			'HTTP_CLIENT_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_CLUSTER_CLIENT_IP',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_FORWARDED',
-		);
-
-		return $arr;
-	}
-
-	/**
 	 * Returns additional headers with ip number from context
 	 *
 	 * @since 2.0.29
@@ -1610,7 +1592,7 @@ abstract class Logger {
 	 * @return array Headers
 	 */
 	public function get_event_ip_number_headers( $row ) {
-		$ip_keys = $this->get_ip_number_header_keys();
+		$ip_keys = Helpers::get_ip_number_header_names();
 		$arr_found_additional_ip_headers = array();
 		$context = $row->context;
 

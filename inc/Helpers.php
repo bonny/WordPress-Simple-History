@@ -254,4 +254,33 @@ class Helpers {
 			? json_encode( $value, JSON_PRETTY_PRINT )
 			: json_encode( $value );
 	}
+
+	/**
+	 * Returns array with headers that may contain user IP address.
+	 *
+	 * @since 2.0.29
+	 */
+	public static function get_ip_number_header_names() {
+		$headers = array(
+			'HTTP_CLIENT_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_X_FORWARDED',
+			'HTTP_X_CLUSTER_CLIENT_IP',
+			'HTTP_FORWARDED_FOR',
+			'HTTP_FORWARDED',
+		);
+
+		/**
+		 * Filters the array with HTTP headers thay may contain user IP address.
+		 *
+		 * @param array $headers
+		 */
+		$headers = apply_filters(
+			'simple_history/ip_number_header_names',
+			$headers,
+		);
+
+		return $headers;
+	}
+
 }
