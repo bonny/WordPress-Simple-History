@@ -3,9 +3,7 @@
 // TODO: move functions here
 /**
  * Move here:
- * - get_event_ip_number_headers
- * - get_ip_number_header_keys
- * - get_cache_incrementor
+ * -
  */
 
 namespace SimpleHistory;
@@ -293,4 +291,23 @@ class Helpers {
 		return $needle === substr( $haystack, -strlen( $needle ) );
 	}
 
+	/**
+	 * Get the Incrementor value for the cache.
+	 *
+	 * Based on code from https://www.tollmanz.com/invalidation-schemes/.
+	 *
+	 * @param $refresh bool Pass true to invalidate the cache.
+	 * @return int
+	 */
+	public static function get_cache_incrementor( $refresh = false ) {
+		$incrementor_key = 'simple_history_incrementor';
+		$incrementor_value = wp_cache_get( $incrementor_key );
+
+		if ( false === $incrementor_value || true === $refresh ) {
+			$incrementor_value = time();
+			wp_cache_set( $incrementor_key, $incrementor_value );
+		}
+
+		return $incrementor_value;
+	}
 }

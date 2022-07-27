@@ -3,6 +3,7 @@ namespace SimpleHistory;
 
 use SimpleHistory\Loggers;
 use SimpleHistory\Dropins;
+use SimpleHistory\Helpers;
 
 /**
  * Main class for Simple History
@@ -2221,7 +2222,7 @@ Because Simple History was only recently installed, this feed does not display m
 			)
 		);
 
-		static::get_cache_incrementor( true );
+		Helpers::get_cache_incrementor( true );
 	}
 
 	/**
@@ -2314,7 +2315,7 @@ Because Simple History was only recently installed, this feed does not display m
 				)
 			);
 
-			static::get_cache_incrementor( true );
+			Helpers::get_cache_incrementor( true );
 		}
 	}
 
@@ -3036,7 +3037,7 @@ Because Simple History was only recently installed, this feed does not display m
 		);
 
 		$cache_key = 'quick_stats_users_today_' . md5( serialize( $sql_loggers_in ) );
-		$cache_group = 'simple-history-' . static::get_cache_incrementor();
+		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
 		$results_users_today = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false === $results_users_today ) {
@@ -3169,24 +3170,6 @@ Because Simple History was only recently installed, this feed does not display m
 			</p>
 		</div>
 		<?php
-	}
-
-	/**
-	 * https://www.tollmanz.com/invalidation-schemes/
-	 *
-	 * @param $refresh bool
-	 * @return string
-	 */
-	public static function get_cache_incrementor( $refresh = false ) {
-		$incrementor_key = 'simple_history_incrementor';
-		$incrementor_value = wp_cache_get( $incrementor_key );
-
-		if ( false === $incrementor_value || true === $refresh ) {
-			$incrementor_value = time();
-			wp_cache_set( $incrementor_key, $incrementor_value );
-		}
-
-		return $incrementor_value;
 	}
 
 	// Number of rows the last n days.

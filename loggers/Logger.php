@@ -64,14 +64,14 @@ abstract class Logger {
 
 	/**
 	 * Full name of simple history table, i.e. wp db prefix + simple history db name.
-	 * 
+	 *
 	 * @var string
 	 */
 	public $db_table;
-	
+
 	/**
 	 * Full name of simple history contexts table, i.e. wp db prefix + simple history contexts db name.
-	 * 
+	 *
 	 * @var string
 	 */
 	public $db_table_contexts;
@@ -1528,7 +1528,7 @@ abstract class Logger {
 		$this->lastInsertID = $history_inserted_id;
 		$this->lastInsertContext = $context;
 
-		$this->simpleHistory->get_cache_incrementor( true );
+		Helpers::get_cache_incrementor( true );
 
 		/**
 		 * Fired after an event has been logged.

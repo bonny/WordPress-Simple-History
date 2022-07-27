@@ -2,6 +2,8 @@
 
 namespace SimpleHistory;
 
+use SimpleHistory\Helpers;
+
 /**
  * Queries the Simple History Log
  */
@@ -83,7 +85,7 @@ class SimpleHistoryLogQuery {
 
 		// Create cache key based on args and request and current user.
 		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_get_' . md5( serialize( $_GET ) ) . '_userid_' . get_current_user_id();
-		$cache_group = 'simple-history-' . SimpleHistory::get_cache_incrementor();
+		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false !== $arr_return ) {
