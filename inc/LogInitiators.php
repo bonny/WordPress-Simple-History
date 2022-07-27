@@ -7,7 +7,7 @@ namespace SimpleHistory;
 /**
  * Describes log initiator, i.e. who caused to log event to happened
  */
-class SimpleLoggerLogInitiators {
+class LogInitiators {
 
 	// A wordpress user that at the log event created did exist in the wp database
 	// May have been deleted when the log is viewed.

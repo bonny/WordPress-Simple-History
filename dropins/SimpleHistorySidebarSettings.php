@@ -4,7 +4,7 @@ namespace SimpleHistory\Dropins;
 
 use SimpleHistory\SimpleHistory;
 use SimpleHistory\LogQuery;
-use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\LogInitiators;
 
 /**
  * Dropin Name: Sidebar with link to settings

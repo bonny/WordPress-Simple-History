@@ -55,7 +55,7 @@ class PluginUserSwitchingLogger extends Logger {
 			'switched_to_user',
 			array(
 				// It is the old user who initiates the switching
-				'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+				'_initiator' => LogInitiators::WP_USER,
 				'_user_id' => $old_user_id,
 				'user_id' => $user_id,
 				'old_user_id' => $old_user_id,
@@ -90,7 +90,7 @@ class PluginUserSwitchingLogger extends Logger {
 			$this->infoMessage(
 				'switched_back_user',
 				array(
-					'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+					'_initiator' => LogInitiators::WP_USER,
 					'_user_id' => $old_user_id,
 					'user_id' => $user_id,
 					'old_user_id' => $old_user_id,
@@ -103,7 +103,7 @@ class PluginUserSwitchingLogger extends Logger {
 			$this->infoMessage(
 				'switched_back_themself',
 				array(
-					'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+					'_initiator' => LogInitiators::WP_USER,
 					'_user_id' => $user_id,
 					'user_login_to' => $user_to->user_login,
 				)
@@ -122,7 +122,7 @@ class PluginUserSwitchingLogger extends Logger {
 		$this->infoMessage(
 			'switched_off_user',
 			array(
-				'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+				'_initiator' => LogInitiators::WP_USER,
 				'_user_id' => $user_id,
 
 				'user_id' => $user_id,

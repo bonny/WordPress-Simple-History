@@ -349,7 +349,7 @@ SimpleLogger()->notice(
 	array(
 		'username' => 'jessie',
 		'pagename' => 'My test page',
-		'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+		'_initiator' => LogInitiators::WP_USER,
 		'_user_id' => 5,
 		'_user_login' => 'jess',
 		'_user_email' => 'jessie@example.com',
@@ -378,7 +378,7 @@ SimpleLogger()->info(
 	array(
 		'from_version' => '3.8',
 		'to_version' => '3.8.1',
-		'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+		'_initiator' => LogInitiators::WORDPRESS,
 	)
 );
 
@@ -389,7 +389,7 @@ SimpleLogger()->info(
 		'plugin_name' => 'Ninja Forms',
 		'plugin_from_version' => '1.1',
 		'plugin_to_version' => '1.1.2',
-		'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+		'_initiator' => LogInitiators::WP_USER,
 	)
 );
 
@@ -397,7 +397,7 @@ SimpleLogger()->info(
 SimpleLogger()->warning(
 	"An attempt to login as user 'administrator' failed to login because the wrong password was entered",
 	array(
-		'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+		'_initiator' => LogInitiators::WEB_USER,
 	)
 );
 

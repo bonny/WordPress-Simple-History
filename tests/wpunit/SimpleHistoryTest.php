@@ -158,7 +158,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected_log_levels, $log_levels, 'log levels' );
 
-		$refl = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogInitiators' );
+		$refl = new ReflectionClass( 'SimpleHistory\LogInitiators' );
 		$log_initiators = (array) $refl->getConstants();
 
 		$expected_log_initiators = array(
@@ -182,7 +182,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$refl_log_levels = new ReflectionClass( 'SimpleHistory\LogLevels' );
 		$log_levels = (array) $refl_log_levels->getConstants();
 
-		$refl_log_initiators = new ReflectionClass( 'SimpleHistory\SimpleLoggerLogInitiators' );
+		$refl_log_initiators = new ReflectionClass( 'SimpleHistory\LogInitiators' );
 		$log_initiators = (array) $refl_log_initiators->getConstants();
 
 		foreach ( $log_levels as $level_const => $level_str ) {

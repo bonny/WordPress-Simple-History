@@ -1,7 +1,7 @@
 <?php
 namespace SimpleHistory\Loggers;
 
-use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\LogInitiators;
 use SimpleHistory\Helpers;
 
 /**
@@ -469,7 +469,7 @@ class SimpleUserLogger extends Logger {
 		}
 
 		if ( 'login_screen' === $request_origin ) {
-			$context['_initiator'] = SimpleLoggerLogInitiators::WEB_USER;
+			$context['_initiator'] = LogInitiators::WEB_USER;
 		}
 
 		$this->noticeMessage( 'user_requested_password_reset_link', $context );
@@ -487,7 +487,7 @@ class SimpleUserLogger extends Logger {
 		$context = array();
 
 		if ( is_a( $user, 'WP_User' ) ) {
-			$context['_initiator'] = SimpleLoggerLogInitiators::WP_USER;
+			$context['_initiator'] = LogInitiators::WP_USER;
 			$context['_user_id'] = $user->ID;
 			$context['_user_login'] = $user->user_login;
 			$context['_user_email'] = $user->user_email;
@@ -665,7 +665,7 @@ class SimpleUserLogger extends Logger {
 
 			// Override some data that is usually set automagically by Simple History
 			// Because wp_get_current_user() does not return any data yet at this point
-			$context['_initiator'] = SimpleLoggerLogInitiators::WP_USER;
+			$context['_initiator'] = LogInitiators::WP_USER;
 			$context['_user_id'] = $user_obj->ID;
 			$context['_user_login'] = $user_obj->user_login;
 			$context['_user_email'] = $user_obj->user_email;
@@ -688,7 +688,7 @@ class SimpleUserLogger extends Logger {
 		$context = array();
 		$user = get_userdata( $user_id );
 		if ( is_a( $user, 'WP_User' ) ) {
-			$context['_initiator']  = SimpleLoggerLogInitiators::WP_USER;
+			$context['_initiator']  = LogInitiators::WP_USER;
 			$context['_user_id']    = $user->ID;
 			$context['_user_login'] = $user->user_login;
 			$context['_user_email'] = $user->user_email;
@@ -755,7 +755,7 @@ class SimpleUserLogger extends Logger {
 		if ( ! wp_check_password( $password, $userOrError->user_pass, $userOrError->ID ) ) {
 			// Overwrite some vars that Simple History set automagically
 			$context = array(
-				'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+				'_initiator' => LogInitiators::WEB_USER,
 				'login_id' => $userOrError->ID,
 				'login_email' => $userOrError->user_email,
 				'login' => $userOrError->user_login,
@@ -817,7 +817,7 @@ class SimpleUserLogger extends Logger {
 		// We only act on invalid emails and invalid usernames
 		if ( is_a( $user, 'WP_Error' ) && ( $user->get_error_code() == 'invalid_username' || $user->get_error_code() == 'invalid_email' ) ) {
 			$context = array(
-				'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+				'_initiator' => LogInitiators::WEB_USER,
 				'failed_username' => $username,
 				'server_http_user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
 				// count all failed logins to unknown users as the same occasions,

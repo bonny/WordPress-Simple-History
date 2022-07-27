@@ -6,7 +6,7 @@ use DateTime;
 use DateTimeZone;
 use SimpleHistory\SimpleHistory;
 use SimpleHistory\LogLevels;
-use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\LogInitiators;
 use SimpleHistory\Helpers;
 
 
@@ -1290,14 +1290,14 @@ abstract class Logger {
 		} else {
 			// No initiator set, try to determine
 			// Default to other
-			$data['initiator'] = SimpleLoggerLogInitiators::OTHER;
+			$data['initiator'] = LogInitiators::OTHER;
 
 			// Check if user is responsible.
 			if ( function_exists( 'wp_get_current_user' ) ) {
 				$current_user = wp_get_current_user();
 
 				if ( isset( $current_user->ID ) && $current_user->ID ) {
-					$data['initiator'] = SimpleLoggerLogInitiators::WP_USER;
+					$data['initiator'] = LogInitiators::WP_USER;
 					$context['_user_id'] = $current_user->ID;
 					$context['_user_login'] = $current_user->user_login;
 					$context['_user_email'] = $current_user->user_email;
@@ -1307,7 +1307,7 @@ abstract class Logger {
 			// If cron then set WordPress as responsible
 			if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
 				// Seems to be wp cron running and doing this.
-				$data['initiator'] = SimpleLoggerLogInitiators::WORDPRESS;
+				$data['initiator'] = LogInitiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
 
 				// To aid debugging we log the current filter and a list of all filters.
@@ -1323,7 +1323,7 @@ abstract class Logger {
 			// - sounds like a special case, set initiator to wp_cli
 			// Can be used by plugins/themes to check if WP-CLI is running or not
 			if ( defined( \WP_CLI::class ) && WP_CLI ) {
-				$data['initiator'] = SimpleLoggerLogInitiators::WP_CLI;
+				$data['initiator'] = LogInitiators::WP_CLI;
 			}
 		} // End if().
 

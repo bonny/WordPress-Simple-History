@@ -4,7 +4,7 @@ namespace SimpleHistory\Dropins;
 
 use SimpleHistory\SimpleHistory;
 use SimpleHistory\LogQuery;
-use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\LogInitiators;
 
 class SimpleHistorySettingsLogtestDropin extends Dropin {
 
@@ -132,7 +132,7 @@ class SimpleHistorySettingsLogtestDropin extends Dropin {
 				array(
 					'username' => 'bonnyerden',
 					'pagename' => 'My test page',
-					'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+					'_initiator' => LogInitiators::WP_USER,
 					'_user_id' => random_int( 1, 20 ),
 					'_user_login' => 'loginname' . random_int( 1, 20 ),
 					'_user_email' => 'user' . random_int( 1, 20 ) . '@example.com',
@@ -159,7 +159,7 @@ class SimpleHistorySettingsLogtestDropin extends Dropin {
 			array(
 				'from_version' => '3.8',
 				'to_version' => '3.8.1',
-				'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+				'_initiator' => LogInitiators::WORDPRESS,
 			)
 		);
 
@@ -169,7 +169,7 @@ class SimpleHistorySettingsLogtestDropin extends Dropin {
 				'plugin_name' => 'CMS Tree Page View',
 				'plugin_from_version' => '4.0',
 				'plugin_to_version' => '4.2',
-				'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+				'_initiator' => LogInitiators::WORDPRESS,
 			)
 		);
 
@@ -179,14 +179,14 @@ class SimpleHistorySettingsLogtestDropin extends Dropin {
 				'plugin_name' => 'Ninja Forms',
 				'plugin_from_version' => '1.1',
 				'plugin_to_version' => '1.1.2',
-				'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+				'_initiator' => LogInitiators::WP_USER,
 			)
 		);
 
 		SimpleLogger()->warning(
 			"An attempt to login as user 'administrator' failed to login because the wrong password was entered",
 			array(
-				'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+				'_initiator' => LogInitiators::WEB_USER,
 			)
 		);
 
@@ -196,21 +196,21 @@ class SimpleHistorySettingsLogtestDropin extends Dropin {
 				'plugin_name' => 'Simple Fields',
 				'plugin_from_version' => '1.3.7',
 				'plugin_to_version' => '1.3.8',
-				'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+				'_initiator' => LogInitiators::WP_USER,
 			)
 		);
 
 		SimpleLogger()->error(
 			"A JavaScript error was detected on page 'About us'",
 			array(
-				'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+				'_initiator' => LogInitiators::WEB_USER,
 			)
 		);
 
 		SimpleLogger()->debug(
 			"WP Cron 'my_test_cron_job' finished in 0.012 seconds",
 			array(
-				'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+				'_initiator' => LogInitiators::WORDPRESS,
 			)
 		);
 
@@ -220,7 +220,7 @@ class SimpleHistorySettingsLogtestDropin extends Dropin {
 				array(
 					'user_login' => 'admin',
 					'_userID' => null,
-					'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+					'_initiator' => LogInitiators::WEB_USER,
 				)
 			);
 		}

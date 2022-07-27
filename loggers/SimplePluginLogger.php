@@ -4,7 +4,7 @@ namespace SimpleHistory\Loggers;
 
 use SimpleHistory\SimpleHistory;
 use SimpleHistory\Helpers;
-use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\LogInitiators;
 
 /**
  * Logs plugin related things, for example installs, updates, and deletions.
@@ -528,7 +528,7 @@ class SimplePluginLogger extends Logger {
 					$logger_instance->warningMessage(
 						'plugin_disabled_because_error',
 						array(
-							'_initiator'          => SimpleLoggerLogInitiators::WORDPRESS,
+							'_initiator'          => LogInitiators::WORDPRESS,
 							'plugin_slug'         => $text,
 							'deactivation_reason' => $deactivation_reason,
 						)

@@ -2,7 +2,7 @@
 
 namespace SimpleHistory\Loggers;
 
-use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\LogInitiators;
 
 /**
  * Logs available updates to themes, plugins and WordPress core
@@ -93,7 +93,7 @@ class AvailableUpdatesLogger extends Logger {
 				array(
 					'wp_core_current_version' => $wp_version,
 					'wp_core_new_version' => $new_wp_core_version,
-					'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+					'_initiator' => LogInitiators::WORDPRESS,
 				)
 			);
 
@@ -176,7 +176,7 @@ class AvailableUpdatesLogger extends Logger {
 					'plugin_name' => $plugin_info['Name'] ?? '',
 					'plugin_current_version' => $plugin_info['Version'] ?? '',
 					'plugin_new_version' => $plugin_new_version,
-					'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+					'_initiator' => LogInitiators::WORDPRESS,
 				)
 			);
 		} // End foreach().
@@ -227,7 +227,7 @@ class AvailableUpdatesLogger extends Logger {
 					'theme_name' => $theme_info['Name'] ?? '',
 					'theme_current_version' => $theme_info['Version'] ?? '',
 					'theme_new_version' => $theme_new_version,
-					'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+					'_initiator' => LogInitiators::WORDPRESS,
 				// "plugin_info" => $plugin_info,
 				// "remote_plugin_info" => $remote_plugin_info,
 				// "active_plugins" => $active_plugins,

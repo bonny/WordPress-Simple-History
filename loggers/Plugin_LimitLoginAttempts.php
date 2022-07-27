@@ -160,7 +160,7 @@ class Plugin_LimitLoginAttempts extends Logger {
 		$this->noticeMessage(
 			$message_key,
 			array(
-				'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+				'_initiator' => LogInitiators::WEB_USER,
 				'value' => $value,
 				'limit_login_just_lockedout' => $limit_login_just_lockedout,
 				'count' => $count, // num of failed login attempts before block

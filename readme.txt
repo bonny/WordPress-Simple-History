@@ -220,12 +220,12 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
 - Code fixes using Rector.
-- Add new `helper` class with functions `simple_history_get_current_screen()`, `interpolate()`, `text_diff`, `validate_ip` that are moved from misc plugin files.
+- Add new class `Helpers`
+- Move functions `simple_history_get_current_screen()`, `interpolate()`, `text_diff`, `validate_ip`, `ends_with`, `get_cache_incrementor` to new helper class.
 - Function `get_ip_number_header_keys` is moved to helper class and renamed `get_ip_number_header_names`.
-- Moved function `ends_with` to helper class.
-- Moved function `get_cache_incrementor` to helper class.
 - Class `SimpleLoggerLogLevels` renamed to `LogLevels`.
 - Class `SimpleHistoryLogQuery` renamed to `LogQuery`.
+- Class `SimpleLoggerLogInitiators` renamed to `LogInitiators`.
 
 **Removed**
 

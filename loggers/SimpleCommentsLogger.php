@@ -500,7 +500,7 @@ class SimpleCommentsLogger extends Logger {
 		} else {
 			// comment was from a non-logged in user
 			$message = "anon_{$context["comment_type"]}_added";
-			$context['_initiator'] = SimpleLoggerLogInitiators::WEB_USER;
+			$context['_initiator'] = LogInitiators::WEB_USER;
 
 			// add occasions if comment is considered spam
 			// if not added, spam comments can easily flood the log

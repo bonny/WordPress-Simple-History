@@ -1724,14 +1724,14 @@ Because Simple History was only recently installed, this feed does not display m
 			SimpleLogger()->info(
 				$welcome_message_2,
 				array(
-					'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+					'_initiator' => LogInitiators::WORDPRESS,
 				)
 			);
 
 			SimpleLogger()->info(
 				$welcome_message_1,
 				array(
-					'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+					'_initiator' => LogInitiators::WORDPRESS,
 				)
 			);
 		}

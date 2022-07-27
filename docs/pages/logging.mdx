@@ -190,7 +190,7 @@ for ( $i = 0; $i < rand( 1, 50 ); $i++ ) {
 By default Simple History automatically determines who is responsible for something that happens.
 You can however override this if needed by adding an `_initiator` key to the context array.
 
-The available initiators are specified in the `SimpleLoggerLogInitiators` class and they are:
+The available initiators are specified in the `LogInitiators` class and they are:
 
 - WP_USER
 - WEB_USER
@@ -207,7 +207,7 @@ SimpleLogger()->notice(
 	[
 		'username' => 'jessie',
 		'pagename' => 'My test page',
-		'_initiator' => SimpleLoggerLogInitiators::WP_USER,
+		'_initiator' => LogInitiators::WP_USER,
 		'_user_id' => 5,
 		'_user_login' => 'jess',
 		'_user_email' => 'jessie@example.com',
@@ -219,7 +219,7 @@ SimpleLogger()->info(
 	[
 		'from_version' => '3.8',
 		'to_version' => '3.8.1',
-		'_initiator' => SimpleLoggerLogInitiators::WORDPRESS,
+		'_initiator' => LogInitiators::WORDPRESS,
 	]
 );
 
@@ -230,7 +230,7 @@ SimpleLogger()->info(
 		'plugin_name' => 'Query Monitor',
 		'plugin_from_version' => '3.8.2',
 		'plugin_to_version' => '3.9.0',
-		'_initiator' => SimpleLoggerLogInitiators::WP_CLI,
+		'_initiator' => LogInitiators::WP_CLI,
 	)
 );
 
@@ -238,7 +238,7 @@ SimpleLogger()->info(
 SimpleLogger()->warning(
 	"An attempt to login as user 'administrator' failed to login because the wrong password was entered",
 	[
-		'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+		'_initiator' => LogInitiators::WEB_USER,
 	]
 );
 ```

@@ -7,7 +7,7 @@ use DateInterval;
 use DatePeriod;
 use SimpleHistory\SimpleHistory;
 use SimpleHistory\LogQuery;
-use SimpleHistory\SimpleLoggerLogInitiators;
+use SimpleHistory\LogInitiators;
 
 /**
  * Dropin Name: Sidebar with short stats
