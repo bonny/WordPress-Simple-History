@@ -1,9 +1,8 @@
 <?php
 namespace SimpleHistory\Dropins;
 
-use SimpleHistory\SimpleHistory;
 use SimpleHistory\LogQuery;
-
+use SimpleHistory\Helpers;
 
 /**
  * Dropin Name: Export
@@ -12,17 +11,9 @@ use SimpleHistory\LogQuery;
  * Author: Pär Thernström
  */
 class SimpleHistoryExportDropin extends Dropin {
-	/**
-	 * Constructor.
-	 *
-	 * @param instance $sh Simple History instance.
-	 */
-	public function __construct( $sh ) {
 
-		$this->simple_history = $sh;
-
-		// Add tab to settings page.
-		$sh->registerSettingsTab(
+	public function loaded() {
+		$this->simple_history->registerSettingsTab(
 			array(
 				'slug' => 'export',
 				'name' => _x( 'Export', 'Export dropin: Tab name on settings page', 'simple-history' ),
@@ -31,12 +22,10 @@ class SimpleHistoryExportDropin extends Dropin {
 		);
 
 		add_action( 'init', array( $this, 'downloadExport' ) );
+
 	}
 
 	public function downloadExport() {
-
-		global $wpdb;
-
 		if ( isset( $_POST['simple-history-action'] ) && $_POST['simple-history-action'] === 'export-history' ) {
 			// Will die if nonce not valid.
 			check_admin_referer( self::class . '-action-export' );
