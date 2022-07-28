@@ -2,10 +2,7 @@
 
 namespace SimpleHistory\Dropins;
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
 use SimpleHistory\Helpers;
-
 
 /**
  * Dropin Name: Debug
@@ -14,13 +11,13 @@ use SimpleHistory\Helpers;
  * Author: Pär Thernström
  */
 class SimpleHistoryDebugDropin extends Dropin {
-
-	public function __construct() {
+	public function loaded() {
 		// Bail if Simple History debug mode is not active.
 		if ( ! defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) || ! SIMPLE_HISTORY_LOG_DEBUG ) {
 			return;
 		}
 		add_action( 'simple_history/log_argument/context', array( $this, 'onLogArgumentContext' ), 10, 4 );
+
 	}
 
 	/**
@@ -32,7 +29,6 @@ class SimpleHistoryDebugDropin extends Dropin {
 	 * @param SimpleLogger $logger
 	 */
 	public function onLogArgumentContext( $context, $level, $message, $logger ) {
-		$sh = SimpleHistory::get_instance();
 		$context['_debug_get'] = Helpers::json_encode( $_GET );
 		$context['_debug_post'] = Helpers::json_encode( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$context['_debug_server'] = Helpers::json_encode( $_SERVER );
