@@ -2,21 +2,17 @@
 
 namespace SimpleHistory\Dropins;
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
 use SimpleHistory\LogInitiators;
 
 class SimpleHistorySettingsLogtestDropin extends Dropin {
 
-	public function __construct( $sh ) {
-
+	public function loaded() {
 		// Since it's not quite done yet, it's for da devs only for now
 		if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
 			return;
 		}
 
-		// How do we register this to the settings array?
-		$sh->registerSettingsTab(
+		$this->simple_history->registerSettingsTab(
 			array(
 				'slug' => 'testLog',
 				'name' => __( 'Test data (debug)', 'simple-history' ),
@@ -24,7 +20,6 @@ class SimpleHistorySettingsLogtestDropin extends Dropin {
 			)
 		);
 
-		// add_action( 'admin_enqueue_scripts', array( $this, 'on_admin_enqueue_scripts') );
 		add_action( 'admin_head', array( $this, 'on_admin_head' ) );
 		add_action( 'wp_ajax_SimpleHistoryAddLogTest', array( $this, 'on_ajax_add_logtests' ) );
 	}

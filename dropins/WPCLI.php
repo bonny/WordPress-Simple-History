@@ -13,7 +13,7 @@ use WP_CLI;
  * Author: Pär Thernström
  */
 class WPCLI extends Dropin {
-	public function __construct() {
+	public function loaded() {
 		if ( defined( WP_CLI::class ) && WP_CLI ) {
 			$this->register_commands();
 		}

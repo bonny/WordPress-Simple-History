@@ -15,16 +15,14 @@ use SimpleHistory\LogInitiators;
  */
 
 class SimpleHistorySettingsStatsDropin extends Dropin {
-	public function __construct( $sh ) {
-		parent::__construct( $sh );
-
+	public function loaded() {
 		// Since it's not quite done yet, it's for da devs only for now
 		if ( ! defined( 'SIMPLE_HISTORY_DEV' ) || ! SIMPLE_HISTORY_DEV ) {
 			return;
 		}
 
 		// How do we register this to the settings array?
-		$sh->registerSettingsTab(
+		$this->simple_history->registerSettingsTab(
 			array(
 				'slug' => 'stats',
 				'name' => __( 'Stats', 'simple-history' ),
@@ -92,8 +90,6 @@ class SimpleHistorySettingsStatsDropin extends Dropin {
 		</div><!-- // end charts wrapper -->
 
 		<?php
-
-		include( SIMPLE_HISTORY_PATH . 'templates/settings-statsForGeeks.php' );
 	}
 }
 

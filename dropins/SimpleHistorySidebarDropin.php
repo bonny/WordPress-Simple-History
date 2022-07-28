@@ -2,20 +2,15 @@
 
 namespace SimpleHistory\Dropins;
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
-use SimpleHistory\LogInitiators;
-
 /**
  * Dropin Name: Sidebar
  * Drop Description: Outputs HTML and filters for a sidebar
- * Dropin URI: http://simple-history.com/
+ * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
 
 class SimpleHistorySidebarDropin extends Dropin {
-	public function __construct()
-	{
+	public function loaded() {
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/history_page/after_gui', array( $this, 'output_sidebar_html' ) );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'default_sidebar_contents' ) );

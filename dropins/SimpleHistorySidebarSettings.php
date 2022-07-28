@@ -13,22 +13,11 @@ use SimpleHistory\LogInitiators;
  */
 class SimpleHistorySidebarSettings extends Dropin {
 	/**
-	 * Constructor.
-	 *
-	 * @param object $sh Simple History instance.
-	 */
-	public function __construct( $sh ) {
-
-		$this->init( $sh );
-	}
-
-	/**
 	 * Init
 	 *
 	 * @param object $sh Simple History instance.
 	 */
-	public function init( $sh ) {
-
+	public function loaded() {
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
 	}
 
