@@ -15,14 +15,12 @@ use SimpleHistory\LogQuery;
  * Simple History RSS Feed drop-in
  */
 class SimpleHistoryRSSDropin extends Dropin {
-	public function __construct( $sh ) {
-		parent::__construct( $sh );
-
+	public function loaded() {
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once( ABSPATH . '/wp-admin/includes/user.php' );
 		}
 
-		// Check the status of the RSS feed
+		// Check the status of the RSS feed.
 		$this->isRssEnabled();
 
 		// Generate a rss secret, if it does not exist.
@@ -99,7 +97,6 @@ class SimpleHistoryRSSDropin extends Dropin {
 		$createNonceOk = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( $_GET[ $create_secret_nonce_name ], 'simple_history_rss_update_secret' );
 
 		if ( $createNonceOk ) {
-			$create_new_secret = true;
 			$this->updateRssSecret();
 
 			// Add updated-message and store in transient and then redirect
