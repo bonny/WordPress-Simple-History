@@ -9,7 +9,7 @@ namespace SimpleHistory\Dropins;
  * Author: Pär Thernström
  */
 class SimpleHistoryPluginPatchesDropin extends Dropin {
-	public function __construct() {
+	public function loaded() {
 		add_filter(
 			'simple_history/post_logger/skip_posttypes',
 			array( $this, 'woocommerce_skip_scheduled_actions_posttype' )
