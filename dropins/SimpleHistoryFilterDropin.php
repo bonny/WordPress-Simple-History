@@ -3,19 +3,16 @@
 namespace SimpleHistory\Dropins;
 
 use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
 
 
 /**
  * Dropin Name: Filter GUI
- * Dropin URI: http://simple-history.com/
+ * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
 */
 
 class SimpleHistoryFilterDropin extends Dropin {
-	public function __construct( $sh ) {
-		$this->simple_history = $sh;
-
+	public function loaded() {
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/history_page/before_gui', array( $this, 'gui_page_filters' ) );
 		add_action( 'simple_history/dashboard/before_gui', array( $this, 'gui_page_filters' ) );
@@ -451,7 +448,7 @@ class SimpleHistoryFilterDropin extends Dropin {
 			</form>
 
 		</div>
-<?php
+		<?php
 	}
 
 	/**
