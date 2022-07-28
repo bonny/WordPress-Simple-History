@@ -2966,6 +2966,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @param string $alt Alternative text to use in image tag. Defaults to blank
 	 * @return string <img> tag for the user's avatar
 	 */
+	// TODO: move to helpers
 	public function get_avatar( $email, $size = '96', $default = '', $alt = false, $args = array() ) {
 		$args = array(
 			'force_display' => false,

@@ -12,7 +12,7 @@ echo '</h4>';
 echo '<div class="SimpleHistoryChart__loggersPieGoogleChart"></div>';
 // echo '<div class="SimpleHistoryChart__loggersGoogleBarChart"></div>';
 $arr_logger_slugs = array();
-foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
+foreach ( $this->simple_history->getInstantiatedLoggers() as $oneLogger ) {
 	$arr_logger_slugs[] = $oneLogger['instance']->slug;
 }
 
@@ -50,7 +50,7 @@ $i = 0;
 $max_loggers_in_chart = count( $arr_colors );
 
 foreach ( $logger_rows_count as $one_logger_count ) {
-	$logger = $this->sh->getInstantiatedLoggerBySlug( $one_logger_count->logger );
+	$logger = $this->simple_history->getInstantiatedLoggerBySlug( $one_logger_count->logger );
 
 	if ( ! $logger ) {
 		continue;

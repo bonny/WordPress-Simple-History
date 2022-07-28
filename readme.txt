@@ -226,7 +226,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Class `SimpleLoggerLogLevels` renamed to `LogLevels`.
 - Class `SimpleHistoryLogQuery` renamed to `LogQuery`.
 - Class `SimpleLoggerLogInitiators` renamed to `LogInitiators`.
-- Move init code in donate dropin to `loaded()` from `__construct()`.
+- Move init code in dropins to `loaded()` from `__construct()`.
 
 **Removed**
 

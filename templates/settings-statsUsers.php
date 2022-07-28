@@ -107,7 +107,7 @@ foreach ( $arr_users as $one_user ) {
 		esc_html( $one_user['str_deleted'] ),
 		esc_html( $one_user['user_rows_count'] ),
 		$loopnum % 2 ? ' alternate ' : '', // 6
-		$this->sh->get_avatar( $one_user['user_email'], 38 ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$this->simple_history->get_avatar( $one_user['user_email'], 38 ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
 
 	$loopnum++;
