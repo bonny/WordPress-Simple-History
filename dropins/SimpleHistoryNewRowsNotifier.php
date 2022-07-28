@@ -7,17 +7,15 @@ use SimpleHistory\LogQuery;
 /**
  * Dropin Name: New Items Notifier
  * Dropin Description: Checks for new rows and displays a info bar when new items are available
- * Dropin URI: http://simple-history.com/
+ * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
 class SimpleHistoryNewRowsNotifier extends Dropin {
-	// How often we should check for new rows, in ms
+	// How often we should check for new rows, in ms.
 	private $interval = 10000;
 
-	public function __construct( $sh ) {
-		$this->simple_history = $sh;
-
-		// How often the script checks for new rows
+	public function loaded() {
+		// How often the script checks for new rows.
 		$this->interval = (int) apply_filters( 'SimpleHistoryNewRowsNotifier/interval', $this->interval );
 
 		add_action( 'wp_ajax_SimpleHistoryNewRowsNotifier', array( $this, 'ajax' ) );
