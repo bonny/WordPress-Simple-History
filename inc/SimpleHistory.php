@@ -3271,4 +3271,22 @@ Because Simple History was only recently installed, this feed does not display m
 
 		return $numEvents;
 	}
+
+	/**
+	 * Get the name of the Simple History database table.
+	 *
+	 * @return string
+	 */
+	public function get_table_name() {
+		return $this::$dbtable;
+	}
+
+	/**
+	 * Get the name of the Simple History contexts database table.
+	 *
+	 * @return string
+	 */
+	public function get_contexts_table_name() {
+		return $this::$dbtable_contexts;
+	}
 }
