@@ -108,7 +108,7 @@ printf(
 echo '</p>';
 
 // echo "<h4>Clear history interval</h4>";
-// echo "<p>" . $this->sh->get_clear_history_interval() . "</p>";
+// echo "<p>" . $this->simple_history->get_clear_history_interval() . "</p>";
 /**
  * Output a list of all active loggers, including name, slug, comment, message, capability and number of rows
  * Retrieve them in order by the number of rows they have in the db
@@ -118,7 +118,7 @@ echo '</p>';
 
 $arr_logger_slugs = array();
 
-foreach ( $this->sh->getInstantiatedLoggers() as $oneLogger ) {
+foreach ( $this->simple_history->getInstantiatedLoggers() as $oneLogger ) {
 	$arr_logger_slugs[] = $oneLogger['instance']->slug;
 }
 
@@ -183,7 +183,7 @@ printf(
 $loopnum = 0;
 
 foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
-	$logger = $this->sh->getInstantiatedLoggerBySlug( $one_logger_slug );
+	$logger = $this->simple_history->getInstantiatedLoggerBySlug( $one_logger_slug );
 
 	if ( ! $logger ) {
 		continue;
