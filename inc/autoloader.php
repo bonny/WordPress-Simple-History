@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
 /**
  * An example of a general-purpose implementation that includes the optional

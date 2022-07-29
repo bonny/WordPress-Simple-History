@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
+use Simple_History\Simple_History;
+use Simple_History\Log_Query;
 
 use WP_CLI;
 
@@ -35,7 +35,7 @@ class Commands {
 	private $simple_history;
 
 	public function __construct() {
-		 $this->simple_history = SimpleHistory::get_instance();
+		 $this->simple_history = Simple_History::get_instance();
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Commands {
 		// Override capability check: if you can run wp cli commands you can read all loggers.
 		add_action( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 3 );
 
-		$query = new LogQuery();
+		$query = new Log_Query();
 
 		$query_args = array(
 			'paged' => 1,

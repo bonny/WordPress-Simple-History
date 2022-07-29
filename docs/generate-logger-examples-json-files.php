@@ -7,7 +7,7 @@
 declare(strict_types=1);
 
 
-// namespace SimpleHistory\WPExamplesGenerator;
+// namespace Simple_History\WPExamplesGenerator;
 
 require_once 'vendor/autoload.php';
 

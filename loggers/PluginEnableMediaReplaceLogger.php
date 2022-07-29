@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
 /**
  * Logs attachments updated with the great Enable Media Replace plugin

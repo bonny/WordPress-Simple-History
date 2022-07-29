@@ -1,11 +1,11 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
 /**
  * Describes log levels.
  */
-class LogLevels {
+class Log_Levels {
 	public const EMERGENCY = 'emergency';
 	public const ALERT = 'alert';
 	public const CRITICAL = 'critical';

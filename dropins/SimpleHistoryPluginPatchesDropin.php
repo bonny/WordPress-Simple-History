@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
 /**
  * Dropin Name: Plugin Patches

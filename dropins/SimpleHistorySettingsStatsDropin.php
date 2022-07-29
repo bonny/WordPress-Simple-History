@@ -1,10 +1,10 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
-use SimpleHistory\LogInitiators;
+use Simple_History\Simple_History;
+use Simple_History\Log_Query;
+use Simple_History\Log_Initiators;
 
 
 /**
@@ -44,8 +44,8 @@ class SimpleHistorySettingsStatsDropin extends Dropin {
 	public function output() {
 
 		global $wpdb;
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+		$table_name = $wpdb->prefix . Simple_History::DBTABLE;
+		$table_name_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 
 		// $period_days = (int) 28;
 		$period_days = 14;

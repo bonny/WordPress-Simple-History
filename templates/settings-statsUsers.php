@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
 defined( 'ABSPATH' ) || die();
 
@@ -21,7 +21,7 @@ $user_results = $wpdb->get_results(
 			WHERE c.key = "_user_id"
 			GROUP BY c.value
 			',
-		$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS, // 1
+		$wpdb->prefix . Simple_History::DBTABLE_CONTEXTS, // 1
 		$wpdb->users, // 2
 		$wpdb->users, // 3
 		$wpdb->users // 4
@@ -60,8 +60,8 @@ foreach ( $user_results as $one_user_result ) {
 			AND c.value = %3$s
 			AND UNIX_TIMESTAMP(h.date) >= %4$s
 					',
-				$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS, // 1
-				$wpdb->prefix . SimpleHistory::DBTABLE, // 2
+				$wpdb->prefix . Simple_History::DBTABLE_CONTEXTS, // 1
+				$wpdb->prefix . Simple_History::DBTABLE, // 2
 				$user_id, // 3
 				strtotime( "-$period_days days" ) // 4
 			)

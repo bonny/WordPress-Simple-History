@@ -1,14 +1,14 @@
 <?php
-namespace SimpleHistory;
+namespace Simple_History;
 
-use SimpleHistory\Loggers;
-use SimpleHistory\Dropins;
-use SimpleHistory\Helpers;
+use Simple_History\Loggers;
+use Simple_History\Dropins;
+use Simple_History\Helpers;
 
 /**
  * Main class for Simple History
  */
-class SimpleHistory {
+class Simple_History {
 
 	const NAME = 'Simple History';
 
@@ -98,7 +98,7 @@ class SimpleHistory {
 		 *
 		 * @since 2.0
 		 *
-		 * @param SimpleHistory $SimpleHistory This class.
+		 * @param Simple_History $SimpleHistory This class.
 		 */
 		do_action( 'simple_history/before_init', $this );
 
@@ -170,7 +170,7 @@ class SimpleHistory {
 		 *
 		 * @since 2.0
 		 *
-		 * @param SimpleHistory $SimpleHistory This class.
+		 * @param Simple_History $SimpleHistory This class.
 		 */
 		do_action( 'simple_history/after_init', $this );
 	}
@@ -430,11 +430,11 @@ class SimpleHistory {
 	/**
 	 * Get singleton instance
 	 *
-	 * @return SimpleHistory instance
+	 * @return Simple_History instance
 	 */
 	public static function get_instance() {
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new SimpleHistory();
+			self::$instance = new Simple_History();
 		}
 
 		return self::$instance;
@@ -653,7 +653,7 @@ class SimpleHistory {
 			case 'occasions':
 			case 'single':
 				// API use SimpleHistoryLogQuery, so simply pass args on to that
-				$logQuery = new LogQuery();
+				$logQuery = new Log_Query();
 
 				$data = $logQuery->query( $args );
 
@@ -977,7 +977,7 @@ class SimpleHistory {
 		 *
 		 * @since 2.1
 		 *
-		 * @param SimpleHistory $this Simple History instance.
+		 * @param Simple_History $this Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_logger', $this );
 
@@ -1008,7 +1008,7 @@ class SimpleHistory {
 				continue;
 			}
 
-			if ( ! is_subclass_of( $one_logger_class, 'SimpleHistory\Loggers\Logger' ) ) {
+			if ( ! is_subclass_of( $one_logger_class, 'Simple_History\Loggers\Logger' ) ) {
 				continue;
 			}
 
@@ -1132,7 +1132,7 @@ class SimpleHistory {
 		 *
 		 * @since 2.3.2
 		 *
-		 * @param SimpleHistory $this Simple History instance.
+		 * @param Simple_History $this Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_dropin', $this );
 
@@ -1193,7 +1193,7 @@ class SimpleHistory {
 			}
 
 			// Bail if dropin class is of wrong type.
-			if ( ! is_subclass_of( $one_dropin_class, 'SimpleHistory\Dropins\Dropin' ) ) {
+			if ( ! is_subclass_of( $one_dropin_class, 'Simple_History\Dropins\Dropin' ) ) {
 				continue;
 			}
 
@@ -1210,7 +1210,7 @@ class SimpleHistory {
 		 * Fires after all dropins are instantiated.
 		 * @since 3.0
 		 *
-		 * @param SimpleHistory $this Simple History instance.
+		 * @param Simple_History $this Simple History instance.
 		 */
 		do_action( 'simple_history/dropins/instantiated', $this );
 
@@ -1448,7 +1448,7 @@ class SimpleHistory {
 			 *
 			 * @since 2.0
 			 *
-			 * @param SimpleHistory $SimpleHistory This class.
+			 * @param Simple_History $SimpleHistory This class.
 			 */
 			do_action( 'simple_history/enqueue_admin_scripts', $this );
 		} // End if().
@@ -1724,14 +1724,14 @@ Because Simple History was only recently installed, this feed does not display m
 			SimpleLogger()->info(
 				$welcome_message_2,
 				array(
-					'_initiator' => LogInitiators::WORDPRESS,
+					'_initiator' => Log_Initiators::WORDPRESS,
 				)
 			);
 
 			SimpleLogger()->info(
 				$welcome_message_1,
 				array(
-					'_initiator' => LogInitiators::WORDPRESS,
+					'_initiator' => Log_Initiators::WORDPRESS,
 				)
 			);
 		}
@@ -1990,7 +1990,7 @@ Because Simple History was only recently installed, this feed does not display m
 			 *
 			 * @since 2.0
 			 *
-			 * @param SimpleHistory $SimpleHistory This class.
+			 * @param Simple_History $SimpleHistory This class.
 			 */
 			do_action( 'simple_history/history_page/before_gui', $this );
 			?>
@@ -2006,7 +2006,7 @@ Because Simple History was only recently installed, this feed does not display m
 					 *
 					 * @since 2.0
 					 *
-					 * @param SimpleHistory $SimpleHistory This class.
+					 * @param Simple_History $SimpleHistory This class.
 					 */
 					do_action( 'simple_history/history_page/after_gui', $this );
 					?>
@@ -3005,7 +3005,7 @@ Because Simple History was only recently installed, this feed does not display m
 		global $wpdb;
 
 		// Get number of events today
-		$logQuery = new LogQuery();
+		$logQuery = new Log_Query();
 		$logResults = $logQuery->query(
 			array(
 				'posts_per_page' => 1,
@@ -3277,7 +3277,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 *
 	 * @return string
 	 */
-	public function get_table_name() {
+	public function get_events_table_name() {
 		return $this::$dbtable;
 	}
 

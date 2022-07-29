@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\Helpers;
+use Simple_History\Helpers;
 
 /**
  * Dropin Name: Debug

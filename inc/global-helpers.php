@@ -4,8 +4,8 @@
  * Global helper functions.
  */
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\Loggers\SimpleLogger;
+use Simple_History\Simple_History;
+use Simple_History\Loggers\SimpleLogger;
 
 /**
  * Helper function with same name as the SimpleLogger-class
@@ -20,7 +20,7 @@ use SimpleHistory\Loggers\SimpleLogger;
  */
 if ( ! function_exists( 'SimpleLogger' ) ) {
 	function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
-		return new SimpleLogger( SimpleHistory::get_instance() );
+		return new SimpleLogger( Simple_History::get_instance() );
 	}
 }
 

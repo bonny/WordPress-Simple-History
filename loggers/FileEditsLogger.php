@@ -1,7 +1,7 @@
 <?php
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
-use SimpleHistory\Helpers;
+use Simple_History\Helpers;
 
 /**
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor

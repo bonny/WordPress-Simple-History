@@ -1,5 +1,5 @@
 <?php
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
 /**
  * Logger for translation related things, like translation updated.

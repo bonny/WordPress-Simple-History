@@ -2,8 +2,8 @@
 
 require_once 'functions.php';
 
-use function SimpleHistory\tests\get_latest_row;
-use function SimpleHistory\tests\get_latest_context;
+use function Simple_History\tests\get_latest_row;
+use function Simple_History\tests\get_latest_context;
 
 class FiltersTest extends \Codeception\TestCase\WPTestCase {
 

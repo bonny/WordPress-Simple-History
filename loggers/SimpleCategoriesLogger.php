@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
-use SimpleHistory\Helpers;
+use Simple_History\Helpers;
 /**
  * Logs changes to categories and tags and taxonomies
  */

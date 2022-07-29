@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
 defined( 'ABSPATH' ) || die();
 

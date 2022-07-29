@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
 /**
  * Logger for Beaver Builder

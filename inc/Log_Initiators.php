@@ -1,13 +1,13 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
 // phpcs:disable PSR12.Properties.ConstantVisibility.NotFound
 
 /**
  * Describes log initiator, i.e. who caused to log event to happened
  */
-class LogInitiators {
+class Log_Initiators {
 
 	// A wordpress user that at the log event created did exist in the wp database
 	// May have been deleted when the log is viewed.

@@ -53,12 +53,12 @@ if ( $ok_php_version && $ok_wp_version ) {
 	require_once __DIR__ . '/inc/global-helpers.php';
 
 	/** Boot up. */
-	$loader = new SimpleHistory\Autoloader();
+	$loader = new Simple_History\Autoloader();
 	$loader->register();
-	$loader->add_namespace( 'SimpleHistory', SIMPLE_HISTORY_PATH );
-	$loader->add_namespace( 'SimpleHistory', SIMPLE_HISTORY_PATH . '/inc/' );
+	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
+	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . '/inc/' );
 
-	SimpleHistory\SimpleHistory::get_instance();
+	Simple_History\Simple_History::get_instance();
 } else {
 	// User is running to old version of php, add admin notice about that.
 	require_once __DIR__ . '/inc/oldversions.php';

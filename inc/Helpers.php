@@ -6,7 +6,7 @@
  * -
  */
 
-namespace SimpleHistory;
+namespace Simple_History;
 
 class Helpers {
 	/**

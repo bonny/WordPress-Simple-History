@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\LogQuery;
+use Simple_History\Log_Query;
 
 /**
  * Dropin Name: New Items Notifier
@@ -70,7 +70,7 @@ class SimpleHistoryNewRowsNotifier extends Dropin {
 		// $since_id = isset( $_GET["since_id"] ) ? absint($_GET["since_id"]) : null;
 		$logQueryArgs = $apiArgs;
 
-		$logQuery = new LogQuery();
+		$logQuery = new Log_Query();
 		$answer = $logQuery->query( $logQueryArgs );
 
 		// Use our own response array instead of $answer to keep size down

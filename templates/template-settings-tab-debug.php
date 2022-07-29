@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
-use SimpleHistory\SimpleHistory;
+use Simple_History\Simple_History;
 use DateTime;
 
 /**
@@ -14,13 +14,6 @@ use DateTime;
 defined( 'ABSPATH' ) || die();
 
 global $wpdb;
-
-$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
-
-$period_days = 14;
-$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$period_days days" ) );
-$period_end_date = DateTime::createFromFormat( 'U', time() );
 
 /**
  * Size of database in both number or rows and table size
@@ -39,15 +32,15 @@ $table_size_result = $wpdb->get_results(
 	AND table_name IN ("%2$s", "%3$s");
 	',
 		DB_NAME, // 1
-		$table_name, // 2
-		$table_name_contexts // 3
+		$this->simple_history->get_events_table_name(), // 2
+		$this->simple_history->get_contexts_table_name() // 3
 	)
 );
 
 
 // Get num of rows for each table
-$total_num_rows_table = (int) $wpdb->get_var( "select count(*) FROM $table_name" ); // phpcs:ignore 
-$total_num_rows_table_contexts = (int) $wpdb->get_var( "select count(*) FROM $table_name_contexts" ); // phpcs:ignore 
+$total_num_rows_table = (int) $wpdb->get_var( "select count(*) FROM {$this->simple_history->get_events_table_name()}" ); // phpcs:ignore 
+$total_num_rows_table_contexts = (int) $wpdb->get_var( "select count(*) FROM {$this->simple_history->get_contexts_table_name()}" ); // phpcs:ignore 
 
 $table_size_result[0]->num_rows = $total_num_rows_table;
 $table_size_result[1]->num_rows = $total_num_rows_table_contexts;
@@ -90,7 +83,7 @@ foreach ( $table_size_result as $one_table ) {
 
 echo '</table>';
 
-$logQuery = new LogQuery();
+$logQuery = new Log_Query();
 $rows = $logQuery->query(
 	array(
 		'posts_per_page' => 1,
@@ -122,20 +115,31 @@ foreach ( $this->simple_history->getInstantiatedLoggers() as $oneLogger ) {
 	$arr_logger_slugs[] = $oneLogger['instance']->slug;
 }
 
-$logger_rows_count = $wpdb->get_results(
-	$wpdb->prepare(
-		'
-    SELECT logger, count(id) as count
-    FROM %1$s
-    WHERE logger IN ("%2$s")
-    GROUP BY logger
-    ORDER BY count DESC
+
+
+
+$arr_logger_slugs = array();
+foreach ( $this->simple_history->getInstantiatedLoggers() as $oneLogger ) {
+	$arr_logger_slugs[] = esc_sql( $oneLogger['instance']->slug );
+}
+
+$sql_logger_counts = sprintf(
+	'
+	SELECT logger, count(id) as count
+	FROM %1$s
+	WHERE logger IN ("%2$s")
+	GROUP BY logger
+	ORDER BY count DESC
 ',
-		$table_name,
-		join( '","', $arr_logger_slugs )
-	),
-	OBJECT_K
+	$this->simple_history->get_events_table_name(),
+	join( '","', $arr_logger_slugs )
 );
+
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$logger_rows_count = $wpdb->get_results( $sql_logger_counts, OBJECT_K );
+
+
+
 
 // Find loggers with no rows in db and append to array.
 $missing_logger_slugs = array_diff( $arr_logger_slugs, array_keys( $logger_rows_count ) );

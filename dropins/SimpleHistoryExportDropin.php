@@ -1,8 +1,8 @@
 <?php
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\LogQuery;
-use SimpleHistory\Helpers;
+use Simple_History\Log_Query;
+use Simple_History\Helpers;
 
 /**
  * Dropin Name: Export
@@ -39,7 +39,7 @@ class SimpleHistoryExportDropin extends Dropin {
 			// Don't use "You" if event is initiated by the same user that does the export
 			add_filter( 'simple_history/header_initiator_use_you', '__return_false' );
 
-			$query = new LogQuery();
+			$query = new Log_Query();
 
 			$query_args = array(
 				'paged' => 1,

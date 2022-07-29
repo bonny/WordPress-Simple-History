@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
-use SimpleHistory\SimpleHistory;
+use Simple_History\Simple_History;
 
 defined( 'ABSPATH' ) || die();
 
@@ -13,7 +13,7 @@ function get_num_rows_last_n_days( $period_days ) {
 
 	$sql = sprintf(
 		'select count(*) FROM %1$s WHERE UNIX_TIMESTAMP(date) >= %2$d',
-		$wpdb->prefix . SimpleHistory::DBTABLE,
+		$wpdb->prefix . Simple_History::DBTABLE,
 		strtotime( "-$period_days days" )
 	);
 

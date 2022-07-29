@@ -1,13 +1,13 @@
 <?php
 
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
 use DateTime;
 use DateTimeZone;
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogLevels;
-use SimpleHistory\LogInitiators;
-use SimpleHistory\Helpers;
+use Simple_History\Simple_History;
+use Simple_History\Log_Levels;
+use Simple_History\Log_Initiators;
+use Simple_History\Helpers;
 
 
 /**
@@ -58,7 +58,7 @@ abstract class Logger {
 	/**
 	 * Simple History instance.
 	 *
-	 * @var SimpleHistory
+	 * @var Simple_History
 	 */
 	public $simpleHistory;
 
@@ -79,14 +79,14 @@ abstract class Logger {
 	/**
 	 * Constructor. Remember to call this as parent constructor if making a child logger.
 	 *
-	 * @param SimpleHistory $simpleHistory
+	 * @param Simple_History $simpleHistory
 	 */
 	public function __construct( $simpleHistory = null ) {
 		global $wpdb;
 
-		$this->db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$this->db_table = $wpdb->prefix . Simple_History::DBTABLE;
 		$this->db_table_contexts =
-			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+			$wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 
 		$this->simpleHistory = $simpleHistory;
 	}
@@ -800,7 +800,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function emergency( $message, array $context = array() ) {
-		return $this->log( LogLevels::EMERGENCY, $message, $context );
+		return $this->log( Log_Levels::EMERGENCY, $message, $context );
 	}
 
 	/**
@@ -811,7 +811,7 @@ abstract class Logger {
 	 */
 	public function emergencyMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			LogLevels::EMERGENCY,
+			Log_Levels::EMERGENCY,
 			$message,
 			$context
 		);
@@ -873,7 +873,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function alert( $message, array $context = array() ) {
-		return $this->log( LogLevels::ALERT, $message, $context );
+		return $this->log( Log_Levels::ALERT, $message, $context );
 	}
 
 	/**
@@ -884,7 +884,7 @@ abstract class Logger {
 	 */
 	public function alertMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			LogLevels::ALERT,
+			Log_Levels::ALERT,
 			$message,
 			$context
 		);
@@ -900,7 +900,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function critical( $message, array $context = array() ) {
-		return $this->log( LogLevels::CRITICAL, $message, $context );
+		return $this->log( Log_Levels::CRITICAL, $message, $context );
 	}
 
 	/**
@@ -917,7 +917,7 @@ abstract class Logger {
 		$context['_message_key'] = $message;
 		$message = $this->messages[ $message ]['untranslated_text'];
 
-		$this->log( LogLevels::CRITICAL, $message, $context );
+		$this->log( Log_Levels::CRITICAL, $message, $context );
 	}
 
 	/**
@@ -928,7 +928,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function error( $message, array $context = array() ) {
-		return $this->log( LogLevels::ERROR, $message, $context );
+		return $this->log( Log_Levels::ERROR, $message, $context );
 	}
 
 	/**
@@ -940,7 +940,7 @@ abstract class Logger {
 	 */
 	public function errorMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			LogLevels::ERROR,
+			Log_Levels::ERROR,
 			$message,
 			$context
 		);
@@ -957,7 +957,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function warning( $message, array $context = array() ) {
-		return $this->log( LogLevels::WARNING, $message, $context );
+		return $this->log( Log_Levels::WARNING, $message, $context );
 	}
 
 	/**
@@ -968,7 +968,7 @@ abstract class Logger {
 	 */
 	public function warningMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			LogLevels::WARNING,
+			Log_Levels::WARNING,
 			$message,
 			$context
 		);
@@ -981,7 +981,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function notice( $message, array $context = array() ) {
-		return $this->log( LogLevels::NOTICE, $message, $context );
+		return $this->log( Log_Levels::NOTICE, $message, $context );
 	}
 
 	/**
@@ -992,7 +992,7 @@ abstract class Logger {
 	 */
 	public function noticeMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			\SimpleHistory\LogLevels::NOTICE,
+			\SimpleHistory\Log_Levels::NOTICE,
 			$message,
 			$context
 		);
@@ -1008,7 +1008,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function info( $message, array $context = array() ) {
-		return $this->log( LogLevels::INFO, $message, $context );
+		return $this->log( Log_Levels::INFO, $message, $context );
 	}
 
 	/**
@@ -1022,7 +1022,7 @@ abstract class Logger {
 	 */
 	public function infoMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			LogLevels::INFO,
+			Log_Levels::INFO,
 			$message,
 			$context
 		);
@@ -1035,7 +1035,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function debug( $message, array $context = array() ) {
-		return $this->log( LogLevels::DEBUG, $message, $context );
+		return $this->log( Log_Levels::DEBUG, $message, $context );
 	}
 
 	/**
@@ -1046,7 +1046,7 @@ abstract class Logger {
 	 */
 	public function debugMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			LogLevels::DEBUG,
+			Log_Levels::DEBUG,
 			$message,
 			$context
 		);
@@ -1237,7 +1237,7 @@ abstract class Logger {
 		 */
 		$localtime = current_time( 'mysql', 1 );
 
-		$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$db_table = $wpdb->prefix . Simple_History::DBTABLE;
 
 		/**
 		 * Filter db table used for simple history events
@@ -1290,14 +1290,14 @@ abstract class Logger {
 		} else {
 			// No initiator set, try to determine
 			// Default to other
-			$data['initiator'] = LogInitiators::OTHER;
+			$data['initiator'] = Log_Initiators::OTHER;
 
 			// Check if user is responsible.
 			if ( function_exists( 'wp_get_current_user' ) ) {
 				$current_user = wp_get_current_user();
 
 				if ( isset( $current_user->ID ) && $current_user->ID ) {
-					$data['initiator'] = LogInitiators::WP_USER;
+					$data['initiator'] = Log_Initiators::WP_USER;
 					$context['_user_id'] = $current_user->ID;
 					$context['_user_login'] = $current_user->user_login;
 					$context['_user_email'] = $current_user->user_email;
@@ -1307,7 +1307,7 @@ abstract class Logger {
 			// If cron then set WordPress as responsible
 			if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
 				// Seems to be wp cron running and doing this.
-				$data['initiator'] = LogInitiators::WORDPRESS;
+				$data['initiator'] = Log_Initiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
 
 				// To aid debugging we log the current filter and a list of all filters.
@@ -1323,7 +1323,7 @@ abstract class Logger {
 			// - sounds like a special case, set initiator to wp_cli
 			// Can be used by plugins/themes to check if WP-CLI is running or not
 			if ( defined( \WP_CLI::class ) && WP_CLI ) {
-				$data['initiator'] = LogInitiators::WP_CLI;
+				$data['initiator'] = Log_Initiators::WP_CLI;
 			}
 		} // End if().
 
@@ -1368,7 +1368,7 @@ abstract class Logger {
 			$history_inserted_id = $wpdb->insert_id;
 
 			$db_table_contexts =
-			$wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+			$wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 
 			/**
 			 * Filter table name for contexts.
@@ -1564,7 +1564,7 @@ abstract class Logger {
 
 		global $wpdb;
 
-		$db_table_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+		$db_table_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 
 		foreach ( $context as $key => $value ) {
 			// Everything except strings should be json_encoded, ie. arrays and objects.

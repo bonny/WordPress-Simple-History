@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
 /**
  * Logs user switching from the great User Switching plugin

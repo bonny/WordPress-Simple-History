@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
 use DateInterval;
 use DatePeriod;
@@ -23,7 +23,7 @@ $dates = $wpdb->get_results(
 			GROUP BY yearDate
 			ORDER BY yearDate ASC
 		',
-		$wpdb->prefix . SimpleHistory::DBTABLE,
+		$wpdb->prefix . Simple_History::DBTABLE,
 		strtotime( "-$period_days days" )
 	)
 );

@@ -1,13 +1,13 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
-use SimpleHistory\Helpers;
+use Simple_History\Helpers;
 
 /**
  * Queries the Simple History Log
  */
-class LogQuery {
+class Log_Query {
 
 	/**
 	 * Query the log.
@@ -106,8 +106,8 @@ class LogQuery {
 
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
-		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+		$table_name = $wpdb->prefix . Simple_History::DBTABLE;
+		$table_name_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 
 		$where = '1 = 1';
 		$limit = '';
@@ -170,7 +170,7 @@ class LogQuery {
 				%2$s
 			';
 
-			$sh = SimpleHistory::get_instance();
+			$sh = Simple_History::get_instance();
 
 			// Only include loggers that the current user can view
 			// @TODO: this causes error if user has no access to any logger at all
@@ -675,7 +675,7 @@ class LogQuery {
 				$min_id = $last_row->id;
 			} else {
 				// Last row did have occasions, so fetch all occasions, and find id of last one.
-				$db_table = $wpdb->prefix . SimpleHistory::DBTABLE;
+				$db_table = $wpdb->prefix . Simple_History::DBTABLE;
 				$sql = sprintf(
 					'
 						SELECT id, date, occasionsID

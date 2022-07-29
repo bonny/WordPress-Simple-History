@@ -1,13 +1,13 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
 use DateTime;
 use DateInterval;
 use DatePeriod;
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
-use SimpleHistory\LogInitiators;
+use Simple_History\Simple_History;
+use Simple_History\Log_Query;
+use Simple_History\Log_Initiators;
 
 /**
  * Dropin Name: Sidebar with short stats

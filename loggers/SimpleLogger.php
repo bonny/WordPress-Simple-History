@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
 /**
  * A PSR-3 inspired logger class

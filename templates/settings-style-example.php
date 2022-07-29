@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
 /**
  * Style example.
@@ -199,7 +199,7 @@ defined( 'ABSPATH' ) || die();
 			'debug' => "The variable <code>\$heyhey</code> had value <code>'abc123'</code> and the hash of the user values is <code>'1f3870be274f6c49b3e31a0c6728957f'</code>",
 		);
 
-		$refl = new \ReflectionClass( 'SimpleHistory\LogLevels' );
+		$refl = new \ReflectionClass( 'Simple_History\Log_Levels' );
 		foreach ( $refl->getConstants() as $val ) {
 			$msg = $arr_messages[ $val ] ?? 'This is a message with loglevel';
 			echo sprintf(

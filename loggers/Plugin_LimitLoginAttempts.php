@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleHistory\Loggers;
+namespace Simple_History\Loggers;
 
 /**
  * Logger for the (old but still) very popular plugin Limit Login Attempts

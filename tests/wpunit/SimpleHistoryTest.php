@@ -3,9 +3,9 @@
 // phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 // phpcs:disable Squiz.Scope.MethodScope.Missing
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogLevels;
-use SimpleHistory\LogQuery;
+use Simple_History\Simple_History;
+use Simple_History\Log_Levels;
+use Simple_History\Log_Query;
 
 class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	// https://phpunit.de/manual/current/en/fixtures.html
@@ -23,17 +23,17 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_history_classes() {
 
-		$this->assertTrue( class_exists( 'SimpleHistory\SimpleHistory' ) );
-		$this->assertTrue( class_exists( 'SimpleHistory\LogQuery' ) );
+		$this->assertTrue( class_exists( 'Simple_History\Simple_History' ) );
+		$this->assertTrue( class_exists( 'Simple_History\Log_Query' ) );
 
-		$sh = SimpleHistory::get_instance();
+		$sh = Simple_History::get_instance();
 		$this->assertTrue( is_object( $sh ) );
-		$this->assertTrue( is_a( $sh, 'SimpleHistory\SimpleHistory' ) );
+		$this->assertTrue( is_a( $sh, 'Simple_History\Simple_History' ) );
 	}
 
 	function test_default_loggers() {
 
-		$sh = SimpleHistory::get_instance();
+		$sh = Simple_History::get_instance();
 		$loggers = $sh->getInstantiatedLoggers();
 
 		$arr_default_loggers = array(
@@ -68,7 +68,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_default_dropins() {
 
-		$sh = SimpleHistory::get_instance();
+		$sh = Simple_History::get_instance();
 		$dropins = $sh->getInstantiatedDropins();
 
 		$arr_default_dropins = array(
@@ -90,7 +90,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_default_settings_tabs() {
 
-		$sh = SimpleHistory::get_instance();
+		$sh = Simple_History::get_instance();
 		$settings_tabs = $sh->getSettingsTabs();
 		$arr_default_settings = array(
 			'settings',
@@ -107,7 +107,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		global $wpdb;
 
 		// Test table simple history
-		$table_name_simple_history = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$table_name_simple_history = $wpdb->prefix . Simple_History::DBTABLE;
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_simple_history ) );
 		$this->assertEquals( $table_name_simple_history, $table_exists );
 
@@ -125,7 +125,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_table_cols, $table_cols, 'cols in history table should be the same' );
 
 		// Test table simple history contexts
-		$table_name_contexts = $wpdb->prefix . SimpleHistory::DBTABLE_CONTEXTS;
+		$table_name_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_contexts ) );
 		$this->assertEquals( $table_name_contexts, $table_exists );
 
@@ -142,7 +142,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_loglevels_and_initiators() {
 
-		$refl = new ReflectionClass( 'SimpleHistory\LogLevels' );
+		$refl = new ReflectionClass( 'Simple_History\Log_Levels' );
 		$log_levels = (array) $refl->getConstants();
 
 		$expected_log_levels = array(
@@ -158,7 +158,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( $expected_log_levels, $log_levels, 'log levels' );
 
-		$refl = new ReflectionClass( 'SimpleHistory\LogInitiators' );
+		$refl = new ReflectionClass( 'Simple_History\Log_Initiators' );
 		$log_initiators = (array) $refl->getConstants();
 
 		$expected_log_initiators = array(
@@ -177,12 +177,12 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		global $wpdb;
 
-		$table_name_simple_history = $wpdb->prefix . SimpleHistory::DBTABLE;
+		$table_name_simple_history = $wpdb->prefix . Simple_History::DBTABLE;
 
-		$refl_log_levels = new ReflectionClass( 'SimpleHistory\LogLevels' );
+		$refl_log_levels = new ReflectionClass( 'Simple_History\Log_Levels' );
 		$log_levels = (array) $refl_log_levels->getConstants();
 
-		$refl_log_initiators = new ReflectionClass( 'SimpleHistory\LogInitiators' );
+		$refl_log_initiators = new ReflectionClass( 'Simple_History\Log_Initiators' );
 		$log_initiators = (array) $refl_log_initiators->getConstants();
 
 		foreach ( $log_levels as $level_const => $level_str ) {
@@ -226,7 +226,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 			'posts_per_page' => 1,
 		);
 
-		$logQuery = new LogQuery();
+		$logQuery = new Log_Query();
 		$queryResults = $logQuery->query( $args );
 
 		// The latest row should be the user we create above
@@ -258,7 +258,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_get_info() {
 
-		$sh = SimpleHistory::get_instance();
+		$sh = Simple_History::get_instance();
 
 		$postlogger = $sh->getInstantiatedLoggerBySlug( 'SimplePostLogger' );
 

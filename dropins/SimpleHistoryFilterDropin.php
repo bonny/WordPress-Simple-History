@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\SimpleHistory;
+use Simple_History\Simple_History;
 
 
 /**
@@ -54,7 +54,7 @@ class SimpleHistoryFilterDropin extends Dropin {
 
 				// Start months filter
 				global $wpdb;
-				$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+				$table_name = $wpdb->prefix . Simple_History::DBTABLE;
 				$loggers_user_can_read_sql_in = $this->simple_history->getLoggersThatUserCanRead( null, 'sql' );
 
 				// Get unique months

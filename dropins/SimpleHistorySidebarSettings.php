@@ -1,10 +1,10 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
-use SimpleHistory\LogInitiators;
+use Simple_History\Simple_History;
+use Simple_History\Log_Query;
+use Simple_History\Log_Initiators;
 
 /**
  * Dropin Name: Sidebar with link to settings
@@ -56,7 +56,7 @@ class SimpleHistorySidebarSettings extends Dropin {
 								),
 							)
 						),
-						esc_url( menu_page_url( SimpleHistory::SETTINGS_MENU_SLUG, false ) )
+						esc_url( menu_page_url( Simple_History::SETTINGS_MENU_SLUG, false ) )
 					);
 					?>
 				</p>

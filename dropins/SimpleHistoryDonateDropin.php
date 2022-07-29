@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
+use Simple_History\Simple_History;
+use Simple_History\Log_Query;
 
 
 /**
@@ -46,7 +46,7 @@ class SimpleHistoryDonateDropin extends Dropin {
 			$settings_section_id,
 			_x( 'Donate', 'donate settings headline', 'simple-history' ), // No title __("General", "simple-history"),
 			array( $this, 'settings_section_output' ),
-			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
+			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
 	}
 

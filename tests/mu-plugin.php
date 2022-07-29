@@ -5,7 +5,7 @@
  * core, plugins, or themes, as they will add entries to the log and mess up the tests.
  */
 
-namespace SimpleHistory\tests;
+namespace Simple_History\tests;
 
 defined( 'ABSPATH' ) || die();
 

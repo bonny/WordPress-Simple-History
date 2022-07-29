@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleHistory\WPHooksGenerator;
+namespace Simple_History\WPHooksGenerator;
 
 require_once 'vendor/autoload.php';
 

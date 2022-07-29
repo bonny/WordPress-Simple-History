@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleHistory\Dropins;
+namespace Simple_History\Dropins;
 
-use SimpleHistory\SimpleHistory;
-use SimpleHistory\LogQuery;
+use Simple_History\Simple_History;
+use Simple_History\Log_Query;
 
 /**
  * Dropin Name: Global RSS Feed
@@ -42,7 +42,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 
 		// we register a setting to keep track of the RSS feed status (enabled/disabled)
 		register_setting(
-			SimpleHistory::SETTINGS_GENERAL_OPTION_GROUP,
+			Simple_History::SETTINGS_GENERAL_OPTION_GROUP,
 			'simple_history_enable_rss_feed',
 			array(
 				$this,
@@ -58,7 +58,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 			$settings_section_rss_id,
 			_x( 'RSS feed', 'rss settings headline', 'simple-history' ), // No title __("General", "simple-history"),
 			array( $this, 'settingsSectionOutput' ),
-			SimpleHistory::SETTINGS_MENU_SLUG // same slug as for options menu page
+			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
 
 		// Enable/Disabled RSS feed
@@ -66,7 +66,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 			'simple_history_enable_rss_feed',
 			__( 'Enable', 'simple-history' ),
 			array( $this, 'settingsFieldRssEnable' ),
-			SimpleHistory::SETTINGS_MENU_SLUG,
+			Simple_History::SETTINGS_MENU_SLUG,
 			$settings_section_rss_id
 		);
 
@@ -77,7 +77,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 				'simple_history_rss_feed',
 				__( 'Address', 'simple-history' ),
 				array( $this, 'settingsFieldRss' ),
-				SimpleHistory::SETTINGS_MENU_SLUG,
+				Simple_History::SETTINGS_MENU_SLUG,
 				$settings_section_rss_id
 			);
 
@@ -86,7 +86,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 				'simple_history_rss_feed_regenerate_secret',
 				__( 'Regenerate', 'simple-history' ),
 				array( $this, 'settingsFieldRssRegenerate' ),
-				SimpleHistory::SETTINGS_MENU_SLUG,
+				Simple_History::SETTINGS_MENU_SLUG,
 				$settings_section_rss_id
 			);
 		}
@@ -256,7 +256,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 					 */
 					$args = apply_filters( 'simple_history/rss_feed_args', $args );
 
-					$logQuery = new LogQuery();
+					$logQuery = new Log_Query();
 					$queryResults = $logQuery->query( $args );
 
 					// Remove capability override after query is done

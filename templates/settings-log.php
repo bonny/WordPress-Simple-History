@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleHistory;
+namespace Simple_History;
 
-use SimpleHistory\SimpleHistory;
+use Simple_History\Simple_History;
 
 defined( 'ABSPATH' ) || die();
 
@@ -24,4 +24,4 @@ $pager_size = apply_filters( 'simple_history/settings_page_pager_size', $pager_s
 <?php
 
 global $wpdb;
-$table_name = $wpdb->prefix . SimpleHistory::DBTABLE;
+$table_name = $wpdb->prefix . Simple_History::DBTABLE;
