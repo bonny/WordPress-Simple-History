@@ -24,7 +24,7 @@ $loggers_dir = __DIR__ . '/../loggers/';
 $loggers = scandir( $loggers_dir );
 
 // Loggers require the main logger file to be loaded since they extend it.
-define( 'ABSPATH', __DIR__ );
+define( 'ABSPATH', __DIR__ ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 include "{$loggers_dir}/SimpleLogger.php";
 
 $instantiated_classes = array();
@@ -67,8 +67,8 @@ foreach ( $instantiated_classes as $one_instantiated_class ) {
 	$messages = $logger_info['messages'];
 	$examples = $logger_info['examples'];
 	echo '==========';
-	echo "\nlogger: $name";
-	echo "\ndescription: $description";
+	echo esc_html( "\nlogger: $name" );
+	echo esc_html( "\ndescription: $description" );
 	echo "\nmessages:\n";
 	print_r( $messages );
 	echo "\nexamples:\n";

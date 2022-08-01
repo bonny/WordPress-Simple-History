@@ -32,11 +32,11 @@ $user_results = $wpdb->get_results(
 echo "<table class='widefat' cellpadding=2>";
 echo '<thead><tr>
         <th></th>
-        <th>' . __( 'User ID', 'simple-history' ) . '</th>
-        <th>' . __( 'Login', 'simple-history' ) . '</th>
-        <th>' . __( 'E-mail', 'simple-history' ) . '</th>
-        <th>' . __( '# logged items', 'simple-history' ) . '</th>
-        <th>' . __( 'Deleted', 'simple-history' ) . '</th>
+        <th>' . esc_html__( 'User ID', 'simple-history' ) . '</th>
+        <th>' . esc_html__( 'Login', 'simple-history' ) . '</th>
+        <th>' . esc_html__( 'E-mail', 'simple-history' ) . '</th>
+        <th>' . esc_html__( '# logged items', 'simple-history' ) . '</th>
+        <th>' . esc_html__( 'Deleted', 'simple-history' ) . '</th>
     </tr></thead>';
 
 	$arr_users = array();

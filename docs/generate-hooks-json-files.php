@@ -25,7 +25,7 @@ $options = getopt(
 if ( empty( $options['input'] ) || empty( $options['output'] ) ) {
 	printf(
 		"Usage: %s --input=src --output=hooks [--ignore-files=ignore/this,ignore/that] [--ignore-hooks=this_hook,that_hook] \n",
-		$argv[0]
+		esc_html( $argv[0] )
 	);
 	exit( 1 );
 }
@@ -70,7 +70,7 @@ $ignore_hooks = $options['ignore-hooks'];
 if ( ! file_exists( $source_dir ) ) {
 	printf(
 		'The source directory "%s" does not exist.' . "\n",
-		$source_dir
+		esc_html( $source_dir )
 	);
 	exit( 1 );
 }
@@ -78,7 +78,7 @@ if ( ! file_exists( $source_dir ) ) {
 if ( ! file_exists( $target_dir ) ) {
 	printf(
 		'The target directory "%s" does not exist. Please create it first.' . "\n",
-		$target_dir
+		esc_html( $target_dir )
 	);
 	exit( 1 );
 }

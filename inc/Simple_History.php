@@ -3154,8 +3154,8 @@ Because Simple History was only recently installed, this feed does not display m
 					printf(
 						esc_html( $msg_tmpl ),
 						(int) $logResults['total_row_count'], // 1
-						$count_users_today, // 2
-						$count_other_sources // 3
+						esc_html( $count_users_today ), // 2
+						esc_html( $count_other_sources ) // 3
 					);
 				}
 				?>
