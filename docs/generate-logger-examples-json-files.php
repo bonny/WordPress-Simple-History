@@ -66,7 +66,7 @@ foreach ( $instantiated_classes as $one_instantiated_class ) {
 	$description = $logger_info['description'];
 	$messages = $logger_info['messages'];
 	$examples = $logger_info['examples'];
-	echo "==========";
+	echo '==========';
 	echo "\nlogger: $name";
 	echo "\ndescription: $description";
 	echo "\nmessages:\n";

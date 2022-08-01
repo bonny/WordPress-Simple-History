@@ -52,7 +52,7 @@ class Simple_History {
 	 * Used to store latest translations used by __()
 	 * Required to automagically determine original text and text domain
 	 * for calls like this `SimpleLogger()->log( __("My translated message") );`
-	 * 
+	 *
 	 * @var array
 	 */
 	public $gettextLatestTranslations = array();
@@ -1062,7 +1062,7 @@ class Simple_History {
 
 		/**
 		 * Fired when all loggers are instantiated.
-		 * 
+		 *
 		 * @deprecated 3.0 Use action `simple_history/loggers/instantiated` instead.
 		 *
 		 * @since 3.0

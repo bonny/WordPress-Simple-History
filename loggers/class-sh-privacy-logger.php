@@ -99,12 +99,12 @@ class SH_Privacy_Logger extends Logger {
 		}
 
 		$this->infoMessage(
-			'data_erasure_erasure_erased', 
-			[
+			'data_erasure_erasure_erased',
+			array(
 				'user_email' => $user_request->email,
 				'user_id' => $user_request->user_id,
 				'request_id' => $request_id,
-			]
+			)
 		);
 	}
 
