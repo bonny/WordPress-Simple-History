@@ -1004,10 +1004,6 @@ class Simple_History {
 
 		// Instantiate each logger.
 		foreach ( $arr_loggers_to_instantiate as $one_logger_class ) {
-			if ( ! class_exists( $one_logger_class ) ) {
-				continue;
-			}
-
 			if ( ! is_subclass_of( $one_logger_class, 'Simple_History\Loggers\Logger' ) ) {
 				continue;
 			}
@@ -1184,11 +1180,6 @@ class Simple_History {
 
 			// Bail if dropin should not be instantiated.
 			if ( ! $instantiate_dropin ) {
-				continue;
-			}
-
-			// Bail if dropin class not found.
-			if ( ! class_exists( $one_dropin_class ) ) {
 				continue;
 			}
 
