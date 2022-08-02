@@ -18,33 +18,45 @@ class Simple_History {
 	private static $instance;
 
 	/**
-	 * Array with external loggers to load
+	 * Array with external loggers to load.
+	 *
+	 * @var array
 	 */
 	private $externalLoggers;
 
 	/**
-	 * Array with external dropins to load
+	 * Array with external dropins to load.
+	 *
+	 * @var array
 	 */
 	private $externalDropins;
 
 	/**
-	 * Array with all instantiated loggers
+	 * Array with all instantiated loggers.
+	 *
+	 * @var array
 	 */
 	private $instantiatedLoggers;
 
 	/**
-	 * Array with all instantiated dropins
+	 * Array with all instantiated dropins.
+	 *
+	 * @var array
 	 */
 	private $instantiatedDropins;
 
 	/**
 	 * Bool if gettext filter function should be active
 	 * Should only be active during the load of a logger
+	 *
+	 * @var bool
 	 */
 	private $doFilterGettext = false;
 
 	/**
-	 * Used by gettext filter to temporarily store current logger
+	 * Used by gettext filter to temporarily store current logger.
+	 *
+	 * @var Logger
 	 */
 	private $doFilterGettext_currentLogger;
 
@@ -125,7 +137,7 @@ class Simple_History {
 		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
 		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
 
-		add_filter( 'gettext', array( $this, 'filter_gettext_storeLatestTranslations' ), 10, 3 );
+		add_filter( 'gettext', array( $this, 'filter_gettext_store_latest_translations' ), 10, 3 );
 
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
@@ -282,8 +294,8 @@ class Simple_History {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
-		add_action( 'admin_head', array( $this, 'onAdminHead' ) );
-		add_action( 'admin_footer', array( $this, 'onAdminFooter' ) );
+		add_action( 'admin_head', array( $this, 'on_admin_head' ) );
+		add_action( 'admin_footer', array( $this, 'on_admin_footer' ) );
 
 		add_action( 'simple_history/history_page/before_gui', array( $this, 'output_quick_stats' ) );
 		add_action( 'simple_history/dashboard/before_gui', array( $this, 'output_quick_stats' ) );
@@ -440,7 +452,7 @@ class Simple_History {
 		return self::$instance;
 	}
 
-	public function filter_gettext_storeLatestTranslations( $translation, $text, $domain ) {
+	public function filter_gettext_store_latest_translations( $translation, $text, $domain ) {
 		// Check that translation is a string or integer, i.ex. the valid values for an array key
 		if ( ! is_string( $translation ) || ! is_integer( $translation ) ) {
 			return $translation;
@@ -484,14 +496,36 @@ class Simple_History {
 		}
 	}
 
-	public function onAdminHead() {
+	/**
+	 * Function fired from action `admin_head`.
+	 *
+	 * @return void
+	 */
+	public function on_admin_head() {
 		if ( $this->is_on_our_own_pages() ) {
+			/**
+			 * Similar to action WordPress action `admin_head`,
+			 * but only fired from pages with Simple History.
+			 *
+			 * @param Simple_History $SimpleHistory This class.
+			 */
 			do_action( 'simple_history/admin_head', $this );
 		}
 	}
 
-	public function onAdminFooter() {
+	/**
+	 * Function fired from action `admin_footer`.
+	 *
+	 * @return void
+	 */
+	public function on_admin_footer() {
 		if ( $this->is_on_our_own_pages() ) {
+			/**
+			 * Similar to action WordPress action `admin_footer`,
+			 * but only fired from pages with Simple History.
+			 *
+			 * @param Simple_History $SimpleHistory This class.
+			 */
 			do_action( 'simple_history/admin_footer', $this );
 		}
 	}
@@ -1664,6 +1698,7 @@ class Simple_History {
 		return $data_exists;
 	}
 
+	// TODO: move functionality out from file/class, to dropin or similar
 	/**
 	 * Greet users to version 2!
 	 * Is only called after database has been upgraded, so only on first install (or upgrade).
