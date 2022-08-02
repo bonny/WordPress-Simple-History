@@ -95,7 +95,7 @@ class Commands {
 
 			$eventsCleaned[] = array(
 				'date' => get_date_from_gmt( $row->date ),
-				'initiator' => $this->getInitiatorTextFromRow( $row ),
+				'initiator' => $this->get_initiator_text_from_row( $row ),
 				'logger' => $row->logger,
 				'level' => $row->level,
 				'who_when' => $header_output,
@@ -115,7 +115,7 @@ class Commands {
 		WP_CLI\Utils\format_items( $assoc_args['format'], $eventsCleaned, $fields );
 	}
 
-	private function getInitiatorTextFromRow( $row ) {
+	private function get_initiator_text_from_row( $row ) {
 		$context = array();
 		if ( ! isset( $row->initiator ) ) {
 			return false;
