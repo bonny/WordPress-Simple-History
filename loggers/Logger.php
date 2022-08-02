@@ -992,7 +992,7 @@ abstract class Logger {
 	 */
 	public function noticeMessage( $message, array $context = array() ) {
 		return $this->logByMessageKey(
-			\SimpleHistory\Log_Levels::NOTICE,
+			Log_Levels::NOTICE,
 			$message,
 			$context
 		);
