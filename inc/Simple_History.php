@@ -1095,10 +1095,9 @@ class Simple_History {
 			Dropins\SimpleHistoryRSSDropin::class,
 			Dropins\SimpleHistorySettingsDebugDropin::class,
 			Dropins\SimpleHistorySettingsLogtestDropin::class,
-			Dropins\SimpleHistorySettingsStatsDropin::class,
+			Dropins\SimpleHistorySidebarStats::class,
 			Dropins\SimpleHistorySidebarDropin::class,
 			Dropins\SimpleHistorySidebarSettings::class,
-			Dropins\SimpleHistorySidebarStats::class,
 			Dropins\WPCLI::class,
 		);
 
