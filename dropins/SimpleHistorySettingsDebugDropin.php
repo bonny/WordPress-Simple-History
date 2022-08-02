@@ -11,7 +11,7 @@ namespace Simple_History\Dropins;
 
 class SimpleHistorySettingsDebugDropin extends Dropin {
 	public function loaded() {
-		$this->simple_history->registerSettingsTab(
+		$this->simple_history->register_settings_tab(
 			array(
 				'slug' => 'debug',
 				'name' => __( 'Debug', 'simple-history' ),

@@ -1761,7 +1761,7 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 	}
 
-	public function registerSettingsTab( $arr_tab_settings ) {
+	public function register_settings_tab( $arr_tab_settings ) {
 		$this->arr_settings_tabs[] = $arr_tab_settings;
 	}
 
