@@ -1622,7 +1622,7 @@ class Simple_History {
 
 			// Say welcome, however loggers are not added this early so we need to
 			// use a filter to load it later
-			add_action( 'simple_history/loggers_loaded', array( $this, 'addWelcomeLogMessage' ) );
+			add_action( 'simple_history/loggers_loaded', array( $this, 'add_welcome_log_message' ) );
 		} // End if().
 
 		/**
@@ -1704,7 +1704,7 @@ class Simple_History {
 	 * Is only called after database has been upgraded, so only on first install (or upgrade).
 	 * Not called after only plugin activation.
 	 */
-	public function addWelcomeLogMessage() {
+	public function add_welcome_log_message() {
 		$db_data_exists = $this->does_database_have_data();
 		// $db_data_exists = false;
 		$pluginLogger = $this->getInstantiatedLoggerBySlug( 'SimplePluginLogger' );
