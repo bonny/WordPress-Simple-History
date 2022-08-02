@@ -6,6 +6,7 @@ use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;
 use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
 use Rector\CodeQuality\Rector\Array_\ArrayThisCallToThisMethodCallRector;
+use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\DeadCode\Rector\MethodCall\RemoveEmptyMethodCallRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
@@ -48,6 +49,9 @@ return static function ( RectorConfig $rectorConfig ): void {
 			RemoveEmptyMethodCallRector::class,
 			RenameFunctionRector::class,
 			JsonThrowOnErrorRector::class,
+			// I think `count($array) > 0;` is more readable than `$array !== [];`.
+			CountArrayToEmptyArrayComparisonRector::class,
+			\Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector::class,
 		)
 	);
 
@@ -65,11 +69,3 @@ return static function ( RectorConfig $rectorConfig ): void {
 	);
 
 };
-
-/*
-Random todo som har med PHP 7.4 att göra:
-- Ta bort ca. version_compare( PHP_VERSION, '5.4.0' )
-- Flytta ut kod ca "get user role, as done in user-edit.php" till egen funktion
-- Få igång tester så vi kan testa enkelt.
-- Göra dold sida som visar loggen utan ajax, borde gå snabbare att använda för testerna som slipper vänta på ajax.
-*/
