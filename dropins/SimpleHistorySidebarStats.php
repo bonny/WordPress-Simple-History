@@ -16,10 +16,7 @@ use Simple_History\Log_Initiators;
  */
 
 class SimpleHistorySidebarStats extends Dropin {
-	public function init( $sh ) {
-
-		$this->simple_history = $sh;
-
+	public function loaded() {
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
 
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts' ) );
