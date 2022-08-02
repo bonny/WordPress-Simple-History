@@ -1761,10 +1761,26 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 	}
 
+	/**
+	 * Register a settings tab.
+	 * 
+	 * @param array $arr_tab_settings {
+	 *     An array of default site sign-up variables.
+	 *
+	 *     @type string   $slug   Unique slug of settings tab.
+	 *     @type string   $name Human friendly name of the tab, shown on the settings page.
+	 *     @type callable $function Function that will show the settings tab output.
+	 * }
+	 */
 	public function register_settings_tab( $arr_tab_settings ) {
 		$this->arr_settings_tabs[] = $arr_tab_settings;
 	}
 
+	/**
+	 * Get the registered settings tabs.
+	 *
+	 * @return array
+	 */
 	public function get_settings_tabs() {
 		return $this->arr_settings_tabs;
 	}

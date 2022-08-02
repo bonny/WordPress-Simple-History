@@ -7,7 +7,7 @@ use Simple_History\Helpers;
 /**
  * Dropin Name: Export
  * Dropin Description: Adds a tab with export options
- * Dropin URI: http://simple-history.com/
+ * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
 class SimpleHistoryExportDropin extends Dropin {
