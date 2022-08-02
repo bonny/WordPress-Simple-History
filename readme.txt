@@ -200,7 +200,12 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Log if "Send personal data export confirmation email" is checked when adding a Data Export Request.
 - Log when a Data Export Request is marked as complete.
 - Log when Personal Data is erased by an admin.
-- Dropins has support for namespace `SimpleHistory\Dropins` and the WP Cli dropin is using it so far and soon all dropins will move to this namespace.
+- Most of the code now uses namespaces. The main namespace is `Simple_History`.
+- Dropins use namespace `Simple_History\Dropins` and dropins must now extend the base class `Dropin`.
+- Loggers use namespace `Simple_History\Loggers` and loggers must extend the base class `Logger`.
+- Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
+- Class `LogInitiators` renamed to `Log_Initiators`.
+- Class `SimpleHistoryLogQuery` renamed to `Log_Query`.
 - Add filter `simple_history/core_loggers` to modify the list of built in (core) loggers.
 - Add filter `simple_history/dropins_to_instantiate` to modify the list of built in dropins to instantiate.
 - Add filter `simple_history/core_dropins`.
@@ -210,6 +215,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Add action `simple_history/dropins/instantiated`.
 - Add action `simple_history/loggers/instantiated`.
 - Add filter `simple_history/ip_number_header_names`.
+- Add methods `get_events_table_name()` and `get_contexts_table_name()`.
+- Call method `loaded()` on dropins when they are loaded.
 
 **Changed**
 
@@ -237,6 +244,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Removed unused class `SimpleLoggerLogTypes`.
 - Removed patches for plugin [captcha-on-login](https://wordpress.org/plugins/captcha-on-login/).
 - Removed unused function `sh_ucwords()`.
+- Remove dropin used to populate log with test data.
+- Remove dropin used to show log stats.
+- Remove examples in examples folder. Examples are moved to the documentation site at https://docs.simple-history.com/.
+- 
 
 **Fixed**
 
