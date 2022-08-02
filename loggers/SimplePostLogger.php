@@ -937,7 +937,7 @@ class SimplePostLogger extends Logger {
 	 *
 	 * @param object $row Row data.
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;
 		$post_id = $context['post_id'] ?? 0;
 

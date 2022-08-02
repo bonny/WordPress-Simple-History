@@ -233,7 +233,7 @@ class SimpleCategoriesLogger extends Logger {
 	 *
 	 * @param object $row Row data.
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 		$term_taxonomy = null;
 		$context = $row->context;
 		$message_key = $context['_message_key'] ?? null;

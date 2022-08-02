@@ -666,7 +666,7 @@ abstract class Logger {
 	 * Image that the name of the user is added in front of the text:
 	 * Jessie James: Edited post "About the company"
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 		$message = $row->message;
 		$message_key = $row->context['_message_key'] ?? null;
 

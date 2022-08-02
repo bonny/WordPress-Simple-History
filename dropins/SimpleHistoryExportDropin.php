@@ -98,7 +98,7 @@ class SimpleHistoryExportDropin extends Dropin {
 						$header_output = strip_tags( html_entity_decode( $this->simple_history->getLogRowHeaderOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 						$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 
-						$message_output = strip_tags( html_entity_decode( $this->simple_history->getLogRowPlainTextOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+						$message_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 
 						$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
 						$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
@@ -138,7 +138,7 @@ class SimpleHistoryExportDropin extends Dropin {
 							</li>
 							',
 							$this->simple_history->getLogRowHeaderOutput( $one_row ),
-							$this->simple_history->getLogRowPlainTextOutput( $one_row ),
+							$this->simple_history->get_log_row_plain_text_output( $one_row ),
 							$this->simple_history->getLogRowDetailsOutput( $one_row )
 						);
 

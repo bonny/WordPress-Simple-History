@@ -93,7 +93,7 @@ class SimpleMediaLogger extends Logger {
 	/**
 	 * Modify plain output to include link to post
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 
 		$message = $row->message;
 		$context = $row->context;
@@ -137,7 +137,7 @@ class SimpleMediaLogger extends Logger {
 			$message = helpers::interpolate( $message, $context, $row );
 		} else {
 			// Attachment post is not available, attachment has probably been deleted
-			$message = parent::getLogRowPlainTextOutput( $row );
+			$message = parent::get_log_row_plain_text_output( $row );
 		}
 
 		return $message;

@@ -79,7 +79,7 @@ class Plugin_DuplicatePost extends Logger {
 	/**
 	 * Modify plain output to include link to post
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;
 		$new_post_id = $context['new_post_id'] ?? null;
 		$duplicated_post_id = $context['duplicated_post_id'] ?? null;

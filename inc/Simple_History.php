@@ -1763,7 +1763,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * Register a settings tab.
-	 * 
+	 *
 	 * @param array $arr_tab_settings {
 	 *     An array of default site sign-up variables.
 	 *
@@ -2361,13 +2361,13 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * Return plain text output for a log row
-	 * Uses the getLogRowPlainTextOutput of the logger that logged the row
+	 * Uses the get_log_row_plain_text_output of the logger that logged the row
 	 * with fallback to SimpleLogger if logger is not available.
 	 *
 	 * @param context $row
 	 * @return string
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
@@ -2382,7 +2382,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 		$logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
 
-		return $logger->getLogRowPlainTextOutput( $row );
+		return $logger->get_log_row_plain_text_output( $row );
 	}
 
 	/**
@@ -2460,7 +2460,7 @@ Because Simple History was only recently installed, this feed does not display m
 		$args = wp_parse_args( $args, $defaults );
 
 		$header_html = $this->getLogRowHeaderOutput( $oneLogRow );
-		$plain_text_html = $this->getLogRowPlainTextOutput( $oneLogRow );
+		$plain_text_html = $this->get_log_row_plain_text_output( $oneLogRow );
 		$sender_image_html = $this->getLogRowSenderImageOutput( $oneLogRow );
 
 		// Details = for example thumbnail of media

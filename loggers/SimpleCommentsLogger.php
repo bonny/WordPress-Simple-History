@@ -522,7 +522,7 @@ class SimpleCommentsLogger extends Logger {
 	 *
 	 * @param object $row
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 
 		$message = $row->message;
 		$context = $row->context;

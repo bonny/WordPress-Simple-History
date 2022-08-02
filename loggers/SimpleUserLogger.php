@@ -571,11 +571,11 @@ class SimpleUserLogger extends Logger {
 	 * - adds link to user profile
 	 * - change to "your profile" if you're looking at your own edit
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 
 		$context = $row->context;
 
-		$output = parent::getLogRowPlainTextOutput( $row );
+		$output = parent::get_log_row_plain_text_output( $row );
 		$current_user_id = get_current_user_id();
 
 		if ( 'user_updated_profile' == $context['_message_key'] ) {

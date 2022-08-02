@@ -580,7 +580,7 @@ class SimpleThemeLogger extends Logger {
 	/**
 	 * Add widget name and sidebar name to output
 	 */
-	public function getLogRowPlainTextOutput( $row ) {
+	public function get_log_row_plain_text_output( $row ) {
 
 		$context = $row->context;
 		$message_key = $context['_message_key'];
@@ -612,7 +612,7 @@ class SimpleThemeLogger extends Logger {
 
 		// Fallback to default/parent output if nothing was added to output
 		if ( ! $output ) {
-			$output .= parent::getLogRowPlainTextOutput( $row );
+			$output .= parent::get_log_row_plain_text_output( $row );
 		}
 
 		return $output;
