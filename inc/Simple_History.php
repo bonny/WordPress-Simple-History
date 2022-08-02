@@ -1094,7 +1094,6 @@ class Simple_History {
 			Dropins\SimpleHistoryPluginPatchesDropin::class,
 			Dropins\SimpleHistoryRSSDropin::class,
 			Dropins\SimpleHistorySettingsDebugDropin::class,
-			Dropins\SimpleHistorySettingsLogtestDropin::class,
 			Dropins\SimpleHistorySidebarStats::class,
 			Dropins\SimpleHistorySidebarDropin::class,
 			Dropins\SimpleHistorySidebarSettings::class,
