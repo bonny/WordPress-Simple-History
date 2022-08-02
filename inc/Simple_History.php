@@ -1765,7 +1765,7 @@ Because Simple History was only recently installed, this feed does not display m
 		$this->arr_settings_tabs[] = $arr_tab_settings;
 	}
 
-	public function getSettingsTabs() {
+	public function get_settings_tabs() {
 		return $this->arr_settings_tabs;
 	}
 
@@ -1774,7 +1774,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * Called from add_options_page
 	 */
 	public function settings_page_output() {
-		$arr_settings_tabs = $this->getSettingsTabs();
+		$arr_settings_tabs = $this->get_settings_tabs();
 		?>
 		<div class="wrap">
 

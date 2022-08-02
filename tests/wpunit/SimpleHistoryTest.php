@@ -90,7 +90,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	function test_default_settings_tabs() {
 
 		$sh = Simple_History::get_instance();
-		$settings_tabs = $sh->getSettingsTabs();
+		$settings_tabs = $sh->get_settings_tabs();
 		$arr_default_settings = array(
 			'settings',
 			'export',
