@@ -600,7 +600,7 @@ abstract class Logger {
 	 * @param object $row Row data
 	 * @return string HTML
 	 */
-	public function getLogRowHeaderOutput( $row ) {
+	public function get_log_row_header_output( $row ) {
 		$initiator_html = $this->getLogRowHeaderInitiatorOutput( $row );
 		$date_html = $this->getLogRowHeaderDateOutput( $row );
 		$via_html = $this->getLogRowHeaderUsingPluginOutput( $row );

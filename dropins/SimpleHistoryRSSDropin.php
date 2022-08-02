@@ -262,7 +262,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 					// Remove capability override after query is done
 					// remove_action( $action_tag, array($this, "onCanReadSingleLogger") );
 					foreach ( $queryResults['log_rows'] as $row ) {
-						$header_output = $this->simple_history->getLogRowHeaderOutput( $row );
+						$header_output = $this->simple_history->get_log_row_header_output( $row );
 						$text_output = $this->simple_history->get_log_row_plain_text_output( $row );
 						$details_output = $this->simple_history->getLogRowDetailsOutput( $row );
 

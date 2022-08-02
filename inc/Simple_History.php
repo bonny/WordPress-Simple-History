@@ -2388,7 +2388,7 @@ Because Simple History was only recently installed, this feed does not display m
 	/**
 	 * Return header output for a log row.
 	 *
-	 * Uses the getLogRowHeaderOutput of the logger that logged the row
+	 * Uses the get_log_row_header_output of the logger that logged the row
 	 * with fallback to SimpleLogger if logger is not available.
 	 *
 	 * Loggers are discouraged to override this in the loggers,
@@ -2397,7 +2397,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @param object $row
 	 * @return string
 	 */
-	public function getLogRowHeaderOutput( $row ) {
+	public function get_log_row_header_output( $row ) {
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
@@ -2408,7 +2408,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 		$logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
 
-		return $logger->getLogRowHeaderOutput( $row );
+		return $logger->get_log_row_header_output( $row );
 	}
 
 	/**
@@ -2459,7 +2459,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$header_html = $this->getLogRowHeaderOutput( $oneLogRow );
+		$header_html = $this->get_log_row_header_output( $oneLogRow );
 		$plain_text_html = $this->get_log_row_plain_text_output( $oneLogRow );
 		$sender_image_html = $this->getLogRowSenderImageOutput( $oneLogRow );
 

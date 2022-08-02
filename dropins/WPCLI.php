@@ -86,7 +86,7 @@ class Commands {
 		$eventsCleaned = array();
 
 		foreach ( $events['log_rows'] as $row ) {
-			$header_output = $this->simple_history->getLogRowHeaderOutput( $row );
+			$header_output = $this->simple_history->get_log_row_header_output( $row );
 			$text_output = $this->simple_history->get_log_row_plain_text_output( $row );
 			$header_output = strip_tags( html_entity_decode( $header_output, ENT_QUOTES, 'UTF-8' ) );
 			$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );

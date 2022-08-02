@@ -95,7 +95,7 @@ class SimpleHistoryExportDropin extends Dropin {
 					set_time_limit( 30 );
 
 					if ( 'csv' == $export_format ) {
-						$header_output = strip_tags( html_entity_decode( $this->simple_history->getLogRowHeaderOutput( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+						$header_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 						$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 
 						$message_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
@@ -137,7 +137,7 @@ class SimpleHistoryExportDropin extends Dropin {
 								<div>%3$s</div>
 							</li>
 							',
-							$this->simple_history->getLogRowHeaderOutput( $one_row ),
+							$this->simple_history->get_log_row_header_output( $one_row ),
 							$this->simple_history->get_log_row_plain_text_output( $one_row ),
 							$this->simple_history->getLogRowDetailsOutput( $one_row )
 						);
