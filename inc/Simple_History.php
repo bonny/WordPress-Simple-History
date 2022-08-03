@@ -2785,7 +2785,7 @@ Because Simple History was only recently installed, this feed does not display m
 		return $this->instantiatedLoggers;
 	}
 
-	public function getInstantiatedDropins() {
+	public function get_instantiated_dropins() {
 		return $this->instantiatedDropins;
 	}
 

@@ -69,7 +69,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	function test_default_dropins() {
 
 		$sh = Simple_History::get_instance();
-		$dropins = $sh->getInstantiatedDropins();
+		$dropins = $sh->get_instantiated_dropins();
 
 		$arr_default_dropins = array(
 			'SimpleHistoryDonateDropin',
