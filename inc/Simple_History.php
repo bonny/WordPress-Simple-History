@@ -703,7 +703,7 @@ class Simple_History {
 							$args['type'] = 'single';
 						}
 
-						$data['log_rows'][ $key ] = $this->getLogRowHTMLOutput( $oneLogRow, $args );
+						$data['log_rows'][ $key ] = $this->get_log_row_html_output( $oneLogRow, $args );
 						$data['num_queries'] = get_num_queries();
 					}
 				}
@@ -2452,7 +2452,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @param object $oneLogRow LogQuery array with data from LogQuery
 	 * @return string
 	 */
-	public function getLogRowHTMLOutput( $oneLogRow, $args ) {
+	public function get_log_row_html_output( $oneLogRow, $args ) {
 		$defaults = array(
 			'type' => 'overview', // or "single" to include more stuff (used in for example modal details window)
 		);
