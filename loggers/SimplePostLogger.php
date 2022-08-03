@@ -1243,7 +1243,7 @@ class SimplePostLogger extends Logger {
 			// Changed post thumb/featured image.
 			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
 			// post_new_thumb, int of new thumb, empty if no new thumb.
-			$diff_table_output .= $this->getLogRowDetailsOutputForPostThumb( $context );
+			$diff_table_output .= $this->get_log_row_details_output_for_post_thumb( $context );
 
 			/**
 			 * Modify the formatted diff output of a saved/modified post
@@ -1358,7 +1358,7 @@ class SimplePostLogger extends Logger {
 	 * @param array $context Context that may contains prev- and new thumb ids.
 	 * @return string HTML to be used in keyvale table.
 	 */
-	private function getLogRowDetailsOutputForPostThumb( $context = null ) {
+	private function get_log_row_details_output_for_post_thumb( $context = null ) {
 		$out = '';
 
 		if ( ! empty( $context['post_prev_thumb_id'] ) || ! empty( $context['post_new_thumb_id'] ) ) {
