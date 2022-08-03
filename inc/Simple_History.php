@@ -642,6 +642,7 @@ class Simple_History {
 		}
 	}
 
+	// TODO: move api to own class, inject simple history instance.
 	/**
 	 * Base url is:
 	 * /wp-admin/admin-ajax.php?action=simple_history_api
