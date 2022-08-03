@@ -264,7 +264,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 					foreach ( $queryResults['log_rows'] as $row ) {
 						$header_output = $this->simple_history->get_log_row_header_output( $row );
 						$text_output = $this->simple_history->get_log_row_plain_text_output( $row );
-						$details_output = $this->simple_history->getLogRowDetailsOutput( $row );
+						$details_output = $this->simple_history->get_log_row_details_output( $row );
 
 						// http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt
 						// $item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;

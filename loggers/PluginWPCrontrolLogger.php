@@ -261,7 +261,7 @@ class PluginWPCrontrolLogger extends Logger {
 		);
 	}
 
-	public function getLogRowDetailsOutput( $row ) {
+	public function get_log_row_details_output( $row ) {
 		switch ( $row->context_message_key ) {
 			case 'added_new_event':
 			case 'ran_event':

@@ -148,7 +148,7 @@ class SimpleMediaLogger extends Logger {
 	 *
 	 * @param object $row Row.
 	 */
-	public function getLogRowDetailsOutput( $row ) {
+	public function get_log_row_details_output( $row ) {
 
 		$context = $row->context;
 		$message_key = $context['_message_key'];

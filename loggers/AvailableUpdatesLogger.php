@@ -242,7 +242,7 @@ class AvailableUpdatesLogger extends Logger {
 	/**
 	 * Append prev and current version of update object as details in the output
 	 */
-	public function getLogRowDetailsOutput( $row ) {
+	public function get_log_row_details_output( $row ) {
 
 		$output = '';
 

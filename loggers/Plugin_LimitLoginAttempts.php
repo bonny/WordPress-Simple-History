@@ -178,7 +178,7 @@ class Plugin_LimitLoginAttempts extends Logger {
 	/**
 	 * Add some extra info
 	 */
-	public function getLogRowDetailsOutput( $row ) {
+	public function get_log_row_details_output( $row ) {
 
 		$when = null;
 		$output = '';

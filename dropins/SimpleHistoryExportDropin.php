@@ -139,7 +139,7 @@ class SimpleHistoryExportDropin extends Dropin {
 							',
 							$this->simple_history->get_log_row_header_output( $one_row ),
 							$this->simple_history->get_log_row_plain_text_output( $one_row ),
-							$this->simple_history->getLogRowDetailsOutput( $one_row )
+							$this->simple_history->get_log_row_details_output( $one_row )
 						);
 
 						fwrite( $fp, $html );

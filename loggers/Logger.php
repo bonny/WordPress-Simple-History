@@ -777,7 +777,7 @@ abstract class Logger {
 	 * @param object $row
 	 * @return string HTML-formatted output
 	 */
-	public function getLogRowDetailsOutput( $row ) {
+	public function get_log_row_details_output( $row ) {
 		$html = '';
 
 		/**
