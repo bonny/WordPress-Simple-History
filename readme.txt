@@ -230,10 +230,11 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Add new class `Helpers`
 - Move functions `simple_history_get_current_screen()`, `interpolate()`, `text_diff`, `validate_ip`, `ends_with`, `get_cache_incrementor` to new helper class.
 - Function `get_ip_number_header_keys` is moved to helper class and renamed `get_ip_number_header_names`.
-- Class `SimpleLoggerLogLevels` renamed to `LogLevels`.
-- Class `SimpleHistoryLogQuery` renamed to `LogQuery`.
-- Class `SimpleLoggerLogInitiators` renamed to `LogInitiators`.
+- Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
+- Class `SimpleHistoryLogQuery` renamed to `Log_Query`.
+- Class `SimpleLoggerLogInitiators` renamed to `Log_Initiators`.
 - Move init code in dropins to `loaded()` from `__construct()`.
+- Rename `getLogLevelTranslated()` to `get_log_level_translated()` and move to class `log_levels`.
 
 **Removed**
 
@@ -247,7 +248,6 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Remove dropin used to populate log with test data.
 - Remove dropin used to show log stats.
 - Remove examples in examples folder. Examples are moved to the documentation site at https://docs.simple-history.com/.
-- 
 
 **Fixed**
 
