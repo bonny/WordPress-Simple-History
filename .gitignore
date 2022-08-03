@@ -16,3 +16,4 @@ tests/_data/twentysixteen.2.7.zip
 docs/.vscode/settings.json
 tests/.vscode/settings.json
 tests/plugins
+/.idea
