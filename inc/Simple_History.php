@@ -1707,7 +1707,7 @@ class Simple_History {
 	public function add_welcome_log_message() {
 		$db_data_exists = $this->does_database_have_data();
 		// $db_data_exists = false;
-		$pluginLogger = $this->getInstantiatedLoggerBySlug( 'SimplePluginLogger' );
+		$pluginLogger = $this->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
 		if ( $pluginLogger ) {
 			// Add plugin installed message
 			$context = array(
@@ -2781,10 +2781,20 @@ Because Simple History was only recently installed, this feed does not display m
 		return trim( $output );
 	}
 
+	/**
+	 * Get instantiated loggers.
+	 * 
+	 * @return array 
+	 */
 	public function get_instantiated_loggers() {
 		return $this->instantiatedLoggers;
 	}
 
+	/**
+	 * Get instantiated dropins.
+	 * 
+	 * @return array 
+	 */
 	public function get_instantiated_dropins() {
 		return $this->instantiatedDropins;
 	}
@@ -2793,7 +2803,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @param string $slug
 	 * @return bool|Logger logger instance if found, bool false if logger not found
 	 */
-	public function getInstantiatedLoggerBySlug( $slug = '' ) {
+	public function get_instantiated_logger_by_slug( $slug = '' ) {
 		if ( empty( $slug ) ) {
 			return false;
 		}

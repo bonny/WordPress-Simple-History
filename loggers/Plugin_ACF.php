@@ -259,7 +259,7 @@ class Plugin_ACF extends Logger {
 			* Get the latest inserted row from the SimplePostLogger, check if that postID is
 			* same as the
 			*/
-		$post_logger = $this->simpleHistory->getInstantiatedLoggerBySlug( 'SimplePostLogger' );
+		$post_logger = $this->simpleHistory->get_instantiated_logger_by_slug( 'SimplePostLogger' );
 
 		// Save ACF diff if detected post here is same as the last one used in Postlogger.
 		if ( isset( $post_logger->lastInsertContext['post_id'] ) && $post_id === $post_logger->lastInsertContext['post_id'] ) {

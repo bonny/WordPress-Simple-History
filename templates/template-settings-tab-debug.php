@@ -187,7 +187,7 @@ printf(
 $loopnum = 0;
 
 foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
-	$logger = $this->simple_history->getInstantiatedLoggerBySlug( $one_logger_slug );
+	$logger = $this->simple_history->get_instantiated_logger_by_slug( $one_logger_slug );
 
 	if ( ! $logger ) {
 		continue;
