@@ -290,9 +290,9 @@ class SimpleHistoryRSSDropin extends Dropin {
 							wp_kses( $text_output, array() )
 						);
 
-						$level_output = sprintf( 
-							esc_html__( 'Severity level: %1$s', 'simple-history' ), 
-							Log_Levels::get_log_level_translated( $row->level ) 
+						$level_output = sprintf(
+							esc_html__( 'Severity level: %1$s', 'simple-history' ),
+							Log_Levels::get_log_level_translated( $row->level )
 						);
 
 						$wp_kses_attrs = array(

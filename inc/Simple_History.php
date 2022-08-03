@@ -2783,8 +2783,8 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * Get instantiated loggers.
-	 * 
-	 * @return array 
+	 *
+	 * @return array
 	 */
 	public function get_instantiated_loggers() {
 		return $this->instantiatedLoggers;
@@ -2792,8 +2792,8 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * Get instantiated dropins.
-	 * 
-	 * @return array 
+	 *
+	 * @return array
 	 */
 	public function get_instantiated_dropins() {
 		return $this->instantiatedDropins;
