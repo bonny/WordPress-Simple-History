@@ -226,8 +226,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Remove usage of deprectead function `wp_get_user_request_data()`.
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
-- Code fixes using Rector.
-- Add new class `Helpers`
+- Code fixes using Rector and PHPStan.
+- Add new class `Helpers` that contain helper functions.
 - Move functions `simple_history_get_current_screen()`, `interpolate()`, `text_diff`, `validate_ip`, `ends_with`, `get_cache_incrementor` to new helper class.
 - Function `get_ip_number_header_keys` is moved to helper class and renamed `get_ip_number_header_names`.
 - Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
@@ -235,6 +235,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Class `SimpleLoggerLogInitiators` renamed to `Log_Initiators`.
 - Move init code in dropins to `loaded()` from `__construct()`.
 - Rename `getLogLevelTranslated()` to `get_log_level_translated()` and move to class `log_levels`.
+- Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style).
 
 **Removed**
 
