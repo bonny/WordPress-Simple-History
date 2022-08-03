@@ -2781,7 +2781,7 @@ Because Simple History was only recently installed, this feed does not display m
 		return trim( $output );
 	}
 
-	public function getInstantiatedLoggers() {
+	public function get_instantiated_loggers() {
 		return $this->instantiatedLoggers;
 	}
 
@@ -2798,7 +2798,7 @@ Because Simple History was only recently installed, this feed does not display m
 			return false;
 		}
 
-		foreach ( $this->getInstantiatedLoggers() as $one_logger ) {
+		foreach ( $this->get_instantiated_loggers() as $one_logger ) {
 			if ( $slug === $one_logger['instance']->getSlug() ) {
 				return $one_logger['instance'];
 			}
@@ -2822,7 +2822,7 @@ Because Simple History was only recently installed, this feed does not display m
 			$user_id = get_current_user_id();
 		}
 
-		$loggers = $this->getInstantiatedLoggers();
+		$loggers = $this->get_instantiated_loggers();
 
 		foreach ( $loggers as $one_logger ) {
 			$logger_capability = $one_logger['instance']->getCapability();

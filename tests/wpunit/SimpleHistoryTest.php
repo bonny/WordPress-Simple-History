@@ -34,7 +34,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	function test_default_loggers() {
 
 		$sh = Simple_History::get_instance();
-		$loggers = $sh->getInstantiatedLoggers();
+		$loggers = $sh->get_instantiated_loggers();
 
 		$arr_default_loggers = array(
 			'AvailableUpdatesLogger',
