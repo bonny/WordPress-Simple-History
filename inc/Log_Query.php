@@ -174,7 +174,7 @@ class Log_Query {
 
 			// Only include loggers that the current user can view
 			// @TODO: this causes error if user has no access to any logger at all
-			$sql_loggers_user_can_view = $sh->getLoggersThatUserCanRead( get_current_user_id(), 'sql' );
+			$sql_loggers_user_can_view = $sh->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
 			$inner_where .= " AND logger IN {$sql_loggers_user_can_view}";
 		} elseif ( 'occasions' === $args['type'] ) {
 			// Query template

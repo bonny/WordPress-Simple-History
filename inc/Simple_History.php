@@ -2819,13 +2819,13 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * Check which loggers a user has the right to read and return an array
-	 * with all loggers they are allowed to read
+	 * with all loggers they are allowed to read.
 	 *
 	 * @param int    $user_id Id of user to get loggers for. Defaults to current user id.
 	 * @param string $format format to return loggers in. Default is array. Can also be "sql"
 	 * @return array
 	 */
-	public function getLoggersThatUserCanRead( $user_id = '', $format = 'array' ) {
+	public function get_loggers_that_user_can_read( $user_id = '', $format = 'array' ) {
 		$arr_loggers_user_can_view = array();
 
 		if ( ! is_numeric( $user_id ) ) {
@@ -2982,7 +2982,7 @@ Because Simple History was only recently installed, this feed does not display m
 		$total_row_count = (int) $logResults['total_row_count'];
 
 		// Get sql query for where to read only loggers current user is allowed to read/view
-		$sql_loggers_in = $this->getLoggersThatUserCanRead( get_current_user_id(), 'sql' );
+		$sql_loggers_in = $this->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
 
 		// Get number of users today, i.e. events with wp_user as initiator
 		$sql_users_today = sprintf(
@@ -3148,7 +3148,7 @@ Because Simple History was only recently installed, this feed does not display m
 		if ( false === $count ) {
 			global $wpdb;
 
-			$sqlStringLoggersUserCanRead = $this->getLoggersThatUserCanRead( null, 'sql' );
+			$sqlStringLoggersUserCanRead = $this->get_loggers_that_user_can_read( null, 'sql' );
 
 			$sql = sprintf(
 				'
@@ -3177,7 +3177,7 @@ Because Simple History was only recently installed, this feed does not display m
 		if ( false === $dates ) {
 			global $wpdb;
 
-			$sqlStringLoggersUserCanRead = $this->getLoggersThatUserCanRead( null, 'sql' );
+			$sqlStringLoggersUserCanRead = $this->get_loggers_that_user_can_read( null, 'sql' );
 
 			$sql = sprintf(
 				'

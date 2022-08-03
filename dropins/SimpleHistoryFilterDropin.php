@@ -31,7 +31,7 @@ class SimpleHistoryFilterDropin extends Dropin {
 
 	public function gui_page_filters() {
 
-		$loggers_user_can_read = $this->simple_history->getLoggersThatUserCanRead();
+		$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();
 
 		/**
 		 * Filter that determines if search filters should be visible directly on page load
@@ -55,7 +55,7 @@ class SimpleHistoryFilterDropin extends Dropin {
 				// Start months filter
 				global $wpdb;
 				$table_name = $wpdb->prefix . Simple_History::DBTABLE;
-				$loggers_user_can_read_sql_in = $this->simple_history->getLoggersThatUserCanRead( null, 'sql' );
+				$loggers_user_can_read_sql_in = $this->simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
 				// Get unique months
 				$cache_key = 'sh_filter_unique_months';
