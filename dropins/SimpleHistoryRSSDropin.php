@@ -4,6 +4,7 @@ namespace Simple_History\Dropins;
 
 use Simple_History\Simple_History;
 use Simple_History\Log_Query;
+use Simple_History\Log_Levels;
 
 /**
  * Dropin Name: Global RSS Feed
@@ -285,11 +286,14 @@ class SimpleHistoryRSSDropin extends Dropin {
 
 						$item_title = sprintf(
 							'%2$s',
-							$this->simple_history->getLogLevelTranslated( $row->level ),
+							Log_Levels::get_log_level_translated( $row->level ),
 							wp_kses( $text_output, array() )
 						);
 
-						$level_output = sprintf( esc_html__( 'Severity level: %1$s', 'simple-history' ), $this->simple_history->getLogLevelTranslated( $row->level ) );
+						$level_output = sprintf( 
+							esc_html__( 'Severity level: %1$s', 'simple-history' ), 
+							Log_Levels::get_log_level_translated( $row->level ) 
+						);
 
 						$wp_kses_attrs = array(
 							'a' => array(

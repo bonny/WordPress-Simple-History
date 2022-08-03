@@ -3,7 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Simple_History;
-
+use Simple_History\Log_Levels;
 
 /**
  * Dropin Name: Filter GUI
@@ -290,28 +290,28 @@ class SimpleHistoryFilterDropin extends Dropin {
 							multiple
 							>
 							<option <?php selected( in_array( 'debug', $arr_default_loglevels ) ); ?> value="debug" data-color="#CEF6D8">
-								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Debug' ) ); ?>
+								<?php echo esc_html( Log_Levels::get_log_level_translated( 'Debug' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'info', $arr_default_loglevels ) ); ?> value="info" data-color="white">
-								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Info' ) ); ?>
+								<?php echo esc_html( Log_Levels::get_log_level_translated( 'Info' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'notice', $arr_default_loglevels ) ); ?> value="notice" data-color="rgb(219, 219, 183)">
-								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Notice' ) ); ?>
+								<?php echo esc_html( Log_Levels::get_log_level_translated( 'Notice' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'warning', $arr_default_loglevels ) ); ?> value="warning" data-color="#F7D358">
-								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Warning' ) ); ?>
+								<?php echo esc_html( Log_Levels::get_log_level_translated( 'Warning' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'error', $arr_default_loglevels ) ); ?> value="error" data-color="#F79F81">
-								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Error' ) ); ?>
+								<?php echo esc_html( Log_Levels::get_log_level_translated( 'Error' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'critical', $arr_default_loglevels ) ); ?> value="critical" data-color="#FA5858">
-								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Critical' ) ); ?>
+								<?php echo esc_html( Log_Levels::get_log_level_translated( 'Critical' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'alert', $arr_default_loglevels ) ); ?> value="alert" data-color="rgb(199, 69, 69)">
-								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Alert' ) ); ?>
+								<?php echo esc_html( Log_Levels::get_log_level_translated( 'Alert' ) ); ?>
 							</option>
 							<option <?php selected( in_array( 'emergency', $arr_default_loglevels ) ); ?> value="emergency" data-color="#DF0101">
-								<?php echo esc_html( $this->simple_history->getLogLevelTranslated( 'Emergency' ) ); ?>
+								<?php echo esc_html( Log_Levels::get_log_level_translated( 'Emergency' ) ); ?>
 							</option>
 						</select>
 
