@@ -1633,7 +1633,7 @@ abstract class Logger {
 	 * The JS that you output will only be outputed
 	 * on pages where Simple History is used.
 	 */
-	public function adminJS() {
+	public function admin_js() {
 		/*
 		?>
 		<script>

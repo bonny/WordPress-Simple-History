@@ -635,9 +635,7 @@ class Simple_History {
 			<?php
 			// Call plugins so they can add their js.
 			foreach ( $this->instantiatedLoggers as $one_logger ) {
-				if ( method_exists( $one_logger['instance'], 'adminJS' ) ) {
-					$one_logger['instance']->adminJS();
-				}
+				$one_logger['instance']->admin_js();
 			}
 		}
 	}
