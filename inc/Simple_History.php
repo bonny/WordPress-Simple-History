@@ -2418,7 +2418,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @param object $row
 	 * @return string
 	 */
-	private function getLogRowSenderImageOutput( $row ) {
+	private function get_log_row_sender_image_output( $row ) {
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
@@ -2429,7 +2429,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 		$logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
 
-		return $logger->getLogRowSenderImageOutput( $row );
+		return $logger->get_log_row_sender_image_output( $row );
 	}
 
 	public function get_log_row_details_output( $row ) {
@@ -2462,7 +2462,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 		$header_html = $this->get_log_row_header_output( $oneLogRow );
 		$plain_text_html = $this->get_log_row_plain_text_output( $oneLogRow );
-		$sender_image_html = $this->getLogRowSenderImageOutput( $oneLogRow );
+		$sender_image_html = $this->get_log_row_sender_image_output( $oneLogRow );
 
 		// Details = for example thumbnail of media
 		$details_html = trim( $this->get_log_row_details_output( $oneLogRow ) );

@@ -718,7 +718,7 @@ abstract class Logger {
 	 * Image can be for example gravatar if sender is user,
 	 * or other images if sender i system, wordpress, and so on
 	 */
-	public function getLogRowSenderImageOutput( $row ) {
+	public function get_log_row_sender_image_output( $row ) {
 		$sender_image_html = '';
 		$sender_image_size = 32;
 
