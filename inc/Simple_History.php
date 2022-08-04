@@ -18,32 +18,32 @@ class Simple_History {
 	private static $instance;
 
 	/**
-	 * Array with external loggers to load.
+	 * Array with external logger classnames to load.
 	 *
 	 * @var array
 	 */
-	private $externalLoggers;
+	private $external_loggers;
 
 	/**
 	 * Array with external dropins to load.
 	 *
 	 * @var array
 	 */
-	private $externalDropins;
+	private $external_dropins;
 
 	/**
 	 * Array with all instantiated loggers.
 	 *
 	 * @var array
 	 */
-	private $instantiatedLoggers;
+	private $instantiated_loggers;
 
 	/**
 	 * Array with all instantiated dropins.
 	 *
 	 * @var array
 	 */
-	private $instantiatedDropins;
+	private $instantiated_dropins;
 
 	/**
 	 * Bool if gettext filter function should be active
@@ -634,7 +634,7 @@ class Simple_History {
 
 			<?php
 			// Call plugins so they can add their js.
-			foreach ( $this->instantiatedLoggers as $one_logger ) {
+			foreach ( $this->instantiated_loggers as $one_logger ) {
 				$one_logger['instance']->admin_js();
 			}
 		}
@@ -770,10 +770,10 @@ class Simple_History {
 	 * Setup variables and things
 	 */
 	public function setup_variables() {
-		$this->externalLoggers = array();
-		$this->externalDropins = array();
-		$this->instantiatedLoggers = array();
-		$this->instantiatedDropins = array();
+		$this->external_loggers = array();
+		$this->external_dropins = array();
+		$this->instantiated_loggers = array();
+		$this->instantiated_dropins = array();
 		$this->plugin_basename = SIMPLE_HISTORY_BASENAME;
 
 		global $wpdb;
@@ -928,7 +928,7 @@ class Simple_History {
 	 * @since 2.1
 	 */
 	public function register_logger( $loggerClassName ) {
-		$this->externalLoggers[] = $loggerClassName;
+		$this->external_loggers[] = $loggerClassName;
 	}
 
 	/**
@@ -940,7 +940,7 @@ class Simple_History {
 	 * @since 2.1
 	 */
 	public function register_dropin( $dropinClassName ) {
-		$this->externalDropins[] = $dropinClassName;
+		$this->external_dropins[] = $dropinClassName;
 	}
 
 	/**
@@ -1014,7 +1014,7 @@ class Simple_History {
 		 */
 		do_action( 'simple_history/add_custom_logger', $this );
 
-		$arr_loggers_to_instantiate = array_merge( $arr_loggers_to_instantiate, $this->externalLoggers );
+		$arr_loggers_to_instantiate = array_merge( $arr_loggers_to_instantiate, $this->external_loggers );
 
 		/**
 		 * Filter the array with class names of loggers to instantiate.
@@ -1087,7 +1087,7 @@ class Simple_History {
 
 			$logger_instance->messages = $arr_messages_by_message_key;
 
-			$this->instantiatedLoggers[ $logger_instance->get_slug() ] = array(
+			$this->instantiated_loggers[ $logger_instance->get_slug() ] = array(
 				'name' => $logger_info['name'],
 				'instance' => $logger_instance,
 			);
@@ -1163,7 +1163,7 @@ class Simple_History {
 		 */
 		do_action( 'simple_history/add_custom_dropin', $this );
 
-		$dropins_to_instantiate = array_merge( $dropins_to_instantiate, $this->externalDropins );
+		$dropins_to_instantiate = array_merge( $dropins_to_instantiate, $this->external_dropins );
 
 		/**
 		 * Filter the array with dropin classnames to instantiate.
@@ -1222,7 +1222,7 @@ class Simple_History {
 			$dropin_instance = new $one_dropin_class( $this );
 			$dropin_instance->loaded();
 
-			$this->instantiatedDropins[ $dropin_short_name ] = array(
+			$this->instantiated_dropins[ $dropin_short_name ] = array(
 				'name' => $dropin_short_name,
 				'instance' => $dropin_instance,
 			);
@@ -1428,7 +1428,7 @@ class Simple_History {
 			);
 
 			// Call plugins admin_css-method, so they can add CSS.
-			foreach ( $this->instantiatedLoggers as $one_logger ) {
+			foreach ( $this->instantiated_loggers as $one_logger ) {
 				$one_logger['instance']->admin_css();
 			}
 
@@ -2373,11 +2373,11 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 
 		// Fallback to SimpleLogger if no logger exists for row
-		if ( ! isset( $this->instantiatedLoggers[ $row_logger ] ) ) {
+		if ( ! isset( $this->instantiated_loggers[ $row_logger ] ) ) {
 			$row_logger = 'SimpleLogger';
 		}
 
-		$logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
+		$logger = $this->instantiated_loggers[ $row_logger ]['instance'];
 
 		return $logger->get_log_row_plain_text_output( $row );
 	}
@@ -2399,11 +2399,11 @@ Because Simple History was only recently installed, this feed does not display m
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row
-		if ( ! isset( $this->instantiatedLoggers[ $row_logger ] ) ) {
+		if ( ! isset( $this->instantiated_loggers[ $row_logger ] ) ) {
 			$row_logger = 'SimpleLogger';
 		}
 
-		$logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
+		$logger = $this->instantiated_loggers[ $row_logger ]['instance'];
 
 		return $logger->get_log_row_header_output( $row );
 	}
@@ -2419,11 +2419,11 @@ Because Simple History was only recently installed, this feed does not display m
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row
-		if ( ! isset( $this->instantiatedLoggers[ $row_logger ] ) ) {
+		if ( ! isset( $this->instantiated_loggers[ $row_logger ] ) ) {
 			$row_logger = 'SimpleLogger';
 		}
 
-		$logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
+		$logger = $this->instantiated_loggers[ $row_logger ]['instance'];
 
 		return $logger->get_log_row_sender_image_output( $row );
 	}
@@ -2433,11 +2433,11 @@ Because Simple History was only recently installed, this feed does not display m
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row
-		if ( ! isset( $this->instantiatedLoggers[ $row_logger ] ) ) {
+		if ( ! isset( $this->instantiated_loggers[ $row_logger ] ) ) {
 			$row_logger = 'SimpleLogger';
 		}
 
-		$logger = $this->instantiatedLoggers[ $row_logger ]['instance'];
+		$logger = $this->instantiated_loggers[ $row_logger ]['instance'];
 
 		return $logger->get_log_row_details_output( $row );
 	}
@@ -2502,7 +2502,7 @@ Because Simple History was only recently installed, this feed does not display m
 			$data_attrs .= sprintf( ' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context['_server_remote_addr'] ) );
 		}
 
-		$arr_found_additional_ip_headers = $this->instantiatedLoggers['SimpleLogger']['instance']->get_event_ip_number_headers( $oneLogRow );
+		$arr_found_additional_ip_headers = $this->instantiated_loggers['SimpleLogger']['instance']->get_event_ip_number_headers( $oneLogRow );
 
 		if ( $arr_found_additional_ip_headers ) {
 			$data_attrs .= sprintf( ' data-ip-address-multiple="1" ' );
@@ -2784,7 +2784,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @return array
 	 */
 	public function get_instantiated_loggers() {
-		return $this->instantiatedLoggers;
+		return $this->instantiated_loggers;
 	}
 
 	/**
@@ -2793,7 +2793,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @return array
 	 */
 	public function get_instantiated_dropins() {
-		return $this->instantiatedDropins;
+		return $this->instantiated_dropins;
 	}
 
 	/**
