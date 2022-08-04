@@ -2836,7 +2836,7 @@ Because Simple History was only recently installed, this feed does not display m
 		$loggers = $this->get_instantiated_loggers();
 
 		foreach ( $loggers as $one_logger ) {
-			$logger_capability = $one_logger['instance']->getCapability();
+			$logger_capability = $one_logger['instance']->get_capability();
 
 			$user_can_read_logger = user_can( $user_id, $logger_capability );
 

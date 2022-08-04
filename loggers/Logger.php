@@ -137,7 +137,7 @@ abstract class Logger {
 	 *
 	 * @return $string capability
 	 */
-	public function getCapability() {
+	public function get_capability() {
 		return $this->get_info_value_by_key( 'capability' ) ?? 'manage_options';
 	}
 

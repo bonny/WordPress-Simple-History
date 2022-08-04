@@ -255,7 +255,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 		esc_html( $one_logger_slug ), // 2
 		esc_html( $logger_info['name'] ),
 		esc_html( $logger_info['description'] ), // 4
-		esc_html( $logger->getCapability() ), // 5
+		esc_html( $logger->get_capability() ), // 5
 		$loopnum % 2 ? ' alt ' : '', // 6
 		$html_logger_messages // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
