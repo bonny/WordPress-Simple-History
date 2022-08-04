@@ -112,15 +112,12 @@ echo '</p>';
 $arr_logger_slugs = array();
 
 foreach ( $this->simple_history->get_instantiated_loggers() as $oneLogger ) {
-	$arr_logger_slugs[] = $oneLogger['instance']->slug;
+	$arr_logger_slugs[] = $oneLogger['instance']->get_slug();
 }
-
-
-
 
 $arr_logger_slugs = array();
 foreach ( $this->simple_history->get_instantiated_loggers() as $oneLogger ) {
-	$arr_logger_slugs[] = esc_sql( $oneLogger['instance']->slug );
+	$arr_logger_slugs[] = esc_sql( $oneLogger['instance']->get_slug() );
 }
 
 $sql_logger_counts = sprintf(

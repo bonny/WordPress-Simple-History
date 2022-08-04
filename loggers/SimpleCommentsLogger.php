@@ -67,7 +67,7 @@ class SimpleCommentsLogger extends Logger {
 		',
 			$this->db_table,
 			$this->db_table_contexts,
-			$this->slug
+			$this->get_slug()
 		);
 
 		// echo $where;

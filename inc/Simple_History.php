@@ -1055,12 +1055,12 @@ class Simple_History {
 
 			// Check so no logger has a logger slug with more than 30 chars,
 			// because db column is only 30 chars.
-			if ( strlen( $logger_instance->slug ) > 30 ) {
+			if ( strlen( $logger_instance->get_slug() ) > 30 ) {
 				_doing_it_wrong(
 					__METHOD__,
 					sprintf(
 						esc_html( __( 'A logger slug can be max 30 chars long. Slug %1$s of logger %2$s is to long.', 'simple-history' ) ),
-						esc_html( $logger_instance->slug ),
+						esc_html( $logger_instance->get_slug() ),
 						esc_html( $logger_instance->getInfoValueByKey( 'name' ) )
 					),
 					'3.0'
@@ -1089,7 +1089,7 @@ class Simple_History {
 
 			$logger_instance->messages = $arr_messages_by_message_key;
 
-			$this->instantiatedLoggers[ $logger_instance->slug ] = array(
+			$this->instantiatedLoggers[ $logger_instance->get_slug() ] = array(
 				'name' => $logger_info['name'],
 				'instance' => $logger_instance,
 			);
@@ -2810,7 +2810,7 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 
 		foreach ( $this->get_instantiated_loggers() as $one_logger ) {
-			if ( $slug === $one_logger['instance']->getSlug() ) {
+			if ( $slug === $one_logger['instance']->get_slug() ) {
 				return $one_logger['instance'];
 			}
 		}
@@ -2853,9 +2853,9 @@ Because Simple History was only recently installed, this feed does not display m
 			 *   function ( $user_can_read_logger, $logger_instance, $user_id ) {
 			 *     // in this example user with id 3 gets access to the post logger
 			 *     // while user with id 8 does not get any access to it
-			 *     if ( $logger_instance->slug == 'SimplePostLogger' && $user_id === 3 ) {
+			 *     if ( $logger_instance->get_slug() == 'SimplePostLogger' && $user_id === 3 ) {
 			 *       $user_can_read_logger = true;
-			 *     } elseif ( $logger_instance->slug == 'SimplePostLogger' && $user_id === 9 ) {
+			 *     } elseif ( $logger_instance->get_slug() == 'SimplePostLogger' && $user_id === 9 ) {
 			 *       $user_can_read_logger = false;
 			 *     }
 			 *
@@ -2902,7 +2902,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 			if ( count( $arr_loggers_user_can_view ) ) {
 				foreach ( $arr_loggers_user_can_view as $one_logger ) {
-					$str_return .= sprintf( '"%1$s", ', esc_sql( $one_logger['instance']->slug ) );
+					$str_return .= sprintf( '"%1$s", ', esc_sql( $one_logger['instance']->get_slug() ) );
 				}
 
 				$str_return = rtrim( $str_return, ' ,' );

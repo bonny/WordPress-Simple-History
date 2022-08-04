@@ -41,8 +41,8 @@ class SimpleCoreUpdatesLogger extends Logger {
 	 */
 	public function on_update_feedback() {
 
-		if ( ! empty( $GLOBALS['wp_version'] ) && ! isset( $GLOBALS[ 'simple_history_' . $this->slug . '_wp_version' ] ) ) {
-			$GLOBALS[ 'simple_history_' . $this->slug . '_wp_version' ] = $GLOBALS['wp_version'];
+		if ( ! empty( $GLOBALS['wp_version'] ) && ! isset( $GLOBALS[ 'simple_history_' . $this->get_slug() . '_wp_version' ] ) ) {
+			$GLOBALS[ 'simple_history_' . $this->get_slug() . '_wp_version' ] = $GLOBALS['wp_version'];
 		}
 	}
 
@@ -85,7 +85,7 @@ class SimpleCoreUpdatesLogger extends Logger {
 	 */
 	public function on_core_updated( $new_wp_version ) {
 
-		$old_wp_version = empty( $GLOBALS[ 'simple_history_' . $this->slug . '_wp_version' ] ) ? $GLOBALS['wp_version'] : $GLOBALS[ 'simple_history_' . $this->slug . '_wp_version' ];
+		$old_wp_version = empty( $GLOBALS[ 'simple_history_' . $this->get_slug() . '_wp_version' ] ) ? $GLOBALS['wp_version'] : $GLOBALS[ 'simple_history_' . $this->get_slug() . '_wp_version' ];
 
 		$auto_update = true;
 		if ( $GLOBALS['pagenow'] == 'update-core.php' ) {

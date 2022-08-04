@@ -164,7 +164,7 @@ class SimplePostLogger extends Logger {
 			// Setup common stuff
 			$raw_post_data = file_get_contents( 'php://input' );
 			$context['wp.deletePost.xmldata'] = Helpers::json_encode( $raw_post_data );
-			$message = new IXR_Message( $raw_post_data );
+			$message = new \IXR_Message( $raw_post_data );
 
 			if ( ! $message->parse() ) {
 				return;
@@ -1285,7 +1285,7 @@ class SimplePostLogger extends Logger {
 	 * @param object  $row Row.
 	 */
 	public function filter_rss_item_link( $link, $row ) {
-		if ( $row->logger != $this->slug ) {
+		if ( $row->logger != $this->get_slug() ) {
 			return $link;
 		}
 

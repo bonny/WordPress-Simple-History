@@ -667,7 +667,7 @@ class SimplePluginLogger extends Logger {
 		$plugins = get_plugins();
 
 		// does not work
-		$option_name = $this->slug . '_plugin_info_before_update';
+		$option_name = $this->get_slug() . '_plugin_info_before_update';
 
 		update_option( $option_name, Helpers::json_encode( $plugins ) );
 
@@ -682,7 +682,7 @@ class SimplePluginLogger extends Logger {
 	 * delete_site_transient_update_plugins
 	 */
 	public function remove_saved_versions() {
-		delete_option( $this->slug . '_plugin_info_before_update' );
+		delete_option( $this->get_slug() . '_plugin_info_before_update' );
 	}
 
 	/**
@@ -915,7 +915,7 @@ class SimplePluginLogger extends Logger {
 				}
 
 				// To get old version we use our option
-				$plugins_before_update = json_decode( get_option( $this->slug . '_plugin_info_before_update', false ), true );
+				$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
 				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $arr_data['plugin'] ] ) ) {
 					$context['plugin_prev_version'] = $plugins_before_update[ $arr_data['plugin'] ]['Version'];
 				}
@@ -1007,7 +1007,7 @@ class SimplePluginLogger extends Logger {
 
 					// To get old version we use our option
 					// @TODO: this does not always work, why?
-					$plugins_before_update = json_decode( get_option( $this->slug . '_plugin_info_before_update', false ), true );
+					$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
 					if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_name ] ) ) {
 						$context['plugin_prev_version'] = $plugins_before_update[ $plugin_name ]['Version'];
 					}

@@ -342,7 +342,7 @@ class SimpleMediaLogger extends Logger {
 	 * @param object  $row
 	 */
 	public function filter_rss_item_link( $link, $row ) {
-		if ( $row->logger != $this->slug ) {
+		if ( $row->logger != $this->get_slug() ) {
 			return $link;
 		}
 

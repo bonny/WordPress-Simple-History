@@ -69,7 +69,7 @@ class AvailableUpdatesLogger extends Logger {
 
 		global $wp_version;
 
-		$last_version_checked = get_option( "simplehistory_{$this->slug}_wp_core_version_available" );
+		$last_version_checked = get_option( "simplehistory_{$this->get_slug()}_wp_core_version_available" );
 
 		// During update of network sites this was not set, so make sure to check
 		if ( empty( $updates->updates[0]->current ) ) {
@@ -98,7 +98,7 @@ class AvailableUpdatesLogger extends Logger {
 			);
 
 			// Store updated version available, so we don't log that version again
-			update_option( "simplehistory_{$this->slug}_wp_core_version_available", $new_wp_core_version );
+			update_option( "simplehistory_{$this->get_slug()}_wp_core_version_available", $new_wp_core_version );
 		}
 	}
 
@@ -120,8 +120,7 @@ class AvailableUpdatesLogger extends Logger {
 		$plugins_need_update = array_intersect_key( $plugins_need_update, $active_plugins ); // only keep plugins that are active
 		*/
 
-		// update_option( "simplehistory_{$this->slug}_wp_core_version_available", $new_wp_core_version );
-		$option_key = "simplehistory_{$this->slug}_plugin_updates_available";
+		$option_key = "simplehistory_{$this->get_slug()}_plugin_updates_available";
 		$checked_updates = get_option( $option_key );
 
 		if ( ! is_array( $checked_updates ) ) {
@@ -190,8 +189,7 @@ class AvailableUpdatesLogger extends Logger {
 			return;
 		}
 
-		// update_option( "simplehistory_{$this->slug}_wp_core_version_available", $new_wp_core_version );
-		$option_key = "simplehistory_{$this->slug}_theme_updates_available";
+		$option_key = "simplehistory_{$this->get_slug()}_theme_updates_available";
 		$checked_updates = get_option( $option_key );
 
 		if ( ! is_array( $checked_updates ) ) {

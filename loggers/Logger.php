@@ -21,7 +21,7 @@ abstract class Logger {
 	 *
 	 * @var string
 	 */
-	public $slug;
+	protected $slug;
 
 	/**
 	 * Will contain the untranslated messages from getInfo().
@@ -104,7 +104,7 @@ abstract class Logger {
 	 *
 	 * @return string
 	 */
-	public function getSlug() {
+	public function get_slug() {
 		return $this->slug;
 	}
 
@@ -850,7 +850,7 @@ abstract class Logger {
 		$doLog = apply_filters(
 			'simple_history/simple_logger/log_message_key',
 			true,
-			$this->slug,
+			$this->get_slug(),
 			$messageKey,
 			$SimpleLoggerLogLevelsLevel,
 			$context
@@ -1094,7 +1094,7 @@ abstract class Logger {
 		 *              'attachment',
 		 *          );
 		 *
-		 *          if ( ( isset( $logger->slug ) && ( $logger->slug === 'SimplePostLogger' || $logger->slug === 'SimpleMediaLogger' ) ) && ( isset( $context['post_type'] ) && in_array( $context['post_type'], $post_types_to_not_log ) ) ) {
+		 *          if ( ( isset( $logger->get_slug() ) && ( $logger->get_slug() === 'SimplePostLogger' || $logger->get_slug() === 'SimpleMediaLogger' ) ) && ( isset( $context['post_type'] ) && in_array( $context['post_type'], $post_types_to_not_log ) ) ) {
 		 *              $do_log = false;
 		 *          }
 		 *
@@ -1147,7 +1147,7 @@ abstract class Logger {
 		 * @since 2.nn
 		 */
 		$do_log = apply_filters(
-			"simple_history/log/do_log/{$this->slug}",
+			"simple_history/log/do_log/{$this->get_slug()}",
 			true
 		);
 		if ( false === $do_log ) {
@@ -1166,7 +1166,7 @@ abstract class Logger {
 		 */
 		$message_key = $context['_message_key'] ?? null;
 		$do_log = apply_filters(
-			"simple_history/log/do_log/{$this->slug}/{$message_key}",
+			"simple_history/log/do_log/{$this->get_slug()}/{$message_key}",
 			true
 		);
 		if ( false === $do_log ) {
@@ -1249,7 +1249,7 @@ abstract class Logger {
 		$db_table = apply_filters( 'simple_history/db_table', $db_table );
 
 		$data = array(
-			'logger' => $this->slug,
+			'logger' => $this->get_slug(),
 			'level' => $level,
 			'date' => $localtime,
 			'message' => $message,
@@ -1266,7 +1266,7 @@ abstract class Logger {
 			// by always adding logger slug.
 			$occasions_data = array(
 				'_occasionsID' => $context['_occasionsID'],
-				'_loggerSlug' => $this->slug,
+				'_loggerSlug' => $this->get_slug(),
 			);
 			$occasions_id = md5( json_encode( $occasions_data ) );
 			unset( $context['_occasionsID'] );
