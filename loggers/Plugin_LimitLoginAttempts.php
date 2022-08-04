@@ -2,6 +2,7 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Log_Initiators;
 /**
  * Logger for the (old but still) very popular plugin Limit Login Attempts
  * https://sv.wordpress.org/plugins/limit-login-attempts/
@@ -126,8 +127,8 @@ class Plugin_LimitLoginAttempts extends Logger {
 			return $value;
 		}
 
-		$ip = limit_login_get_address();
-		$whitelisted = is_limit_login_ip_whitelisted( $ip );
+		$ip = \limit_login_get_address();
+		$whitelisted = \is_limit_login_ip_whitelisted( $ip );
 
 		$retries = get_option( 'limit_login_retries' );
 		if ( ! is_array( $retries ) ) {
@@ -160,7 +161,7 @@ class Plugin_LimitLoginAttempts extends Logger {
 		$this->notice_message(
 			$message_key,
 			array(
-				'_initiator' => LogInitiators::WEB_USER,
+				'_initiator' => Log_Initiators::WEB_USER,
 				'value' => $value,
 				'limit_login_just_lockedout' => $limit_login_just_lockedout,
 				'count' => $count, // num of failed login attempts before block

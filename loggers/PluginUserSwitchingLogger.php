@@ -2,6 +2,8 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Log_Initiators;
+
 /**
  * Logs user switching from the great User Switching plugin
  * Plugin URL: https://wordpress.org/plugins/user-switching/
@@ -17,11 +19,9 @@ class PluginUserSwitchingLogger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-
 		$arr_info = array(
 			'name'        => _x( 'Plugin: User Switching Logger', 'PluginUserSwitchingLogger', 'simple-history' ),
 			'description' => _x( 'Logs user switches', 'PluginUserSwitchingLogger', 'simple-history' ),
-			// Definition of via: by way of, through the medium or agency of; also :  by means of
 			'name_via'   => _x( 'Using plugin User Switching', 'PluginUserSwitchingLogger', 'simple-history' ),
 			'capability' => 'edit_users',
 			'messages'   => array(
@@ -55,7 +55,7 @@ class PluginUserSwitchingLogger extends Logger {
 			'switched_to_user',
 			array(
 				// It is the old user who initiates the switching
-				'_initiator' => LogInitiators::WP_USER,
+				'_initiator' => Log_Initiators::WP_USER,
 				'_user_id' => $old_user_id,
 				'user_id' => $user_id,
 				'old_user_id' => $old_user_id,
@@ -90,7 +90,7 @@ class PluginUserSwitchingLogger extends Logger {
 			$this->info_message(
 				'switched_back_user',
 				array(
-					'_initiator' => LogInitiators::WP_USER,
+					'_initiator' => Log_Initiators::WP_USER,
 					'_user_id' => $old_user_id,
 					'user_id' => $user_id,
 					'old_user_id' => $old_user_id,
@@ -103,7 +103,7 @@ class PluginUserSwitchingLogger extends Logger {
 			$this->info_message(
 				'switched_back_themself',
 				array(
-					'_initiator' => LogInitiators::WP_USER,
+					'_initiator' => Log_Initiators::WP_USER,
 					'_user_id' => $user_id,
 					'user_login_to' => $user_to->user_login,
 				)
@@ -122,9 +122,8 @@ class PluginUserSwitchingLogger extends Logger {
 		$this->info_message(
 			'switched_off_user',
 			array(
-				'_initiator' => LogInitiators::WP_USER,
+				'_initiator' => Log_Initiators::WP_USER,
 				'_user_id' => $user_id,
-
 				'user_id' => $user_id,
 				'user_login' => $user->user_login,
 			)

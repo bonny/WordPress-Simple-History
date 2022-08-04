@@ -3,6 +3,7 @@
 namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
+use Simple_History\Log_Initiators;
 
 /**
  * Logs things related to comments
@@ -500,7 +501,7 @@ class SimpleCommentsLogger extends Logger {
 		} else {
 			// comment was from a non-logged in user
 			$message = "anon_{$context["comment_type"]}_added";
-			$context['_initiator'] = LogInitiators::WEB_USER;
+			$context['_initiator'] = Log_Initiators::WEB_USER;
 
 			// add occasions if comment is considered spam
 			// if not added, spam comments can easily flood the log
