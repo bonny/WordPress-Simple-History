@@ -452,7 +452,7 @@ abstract class Logger {
 		return $date_html;
 	}
 
-	public function getLogRowHeaderUsingPluginOutput( $row ) {
+	public function get_log_row_header_using_plugin_output( $row ) {
 		// Logger "via" info in header, i.e. output some extra
 		// info next to the time to make it more clear what plugin etc.
 		// that "caused" this event
@@ -603,7 +603,7 @@ abstract class Logger {
 	public function get_log_row_header_output( $row ) {
 		$initiator_html = $this->get_log_row_header_initiator_output( $row );
 		$date_html = $this->get_log_row_header_date_output( $row );
-		$via_html = $this->getLogRowHeaderUsingPluginOutput( $row );
+		$via_html = $this->get_log_row_header_using_plugin_output( $row );
 		$ip_address_html = $this->getLogRowHeaderIPAddressOutput( $row );
 
 		// Template to combine header parts.
