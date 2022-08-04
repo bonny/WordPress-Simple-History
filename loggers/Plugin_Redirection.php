@@ -182,7 +182,7 @@ class Plugin_Redirection extends Logger {
 			'items_count' => count( $bulk_items ),
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'redirection_group_deleted',
 			$context
 		);
@@ -204,7 +204,7 @@ class Plugin_Redirection extends Logger {
 			'group_name' => $group_name,
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'redirection_group_added',
 			$context
 		);
@@ -226,7 +226,7 @@ class Plugin_Redirection extends Logger {
 			'items_count' => count( $bulk_items ),
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			$message_key,
 			$context
 		);
@@ -238,7 +238,7 @@ class Plugin_Redirection extends Logger {
 	 * @param object $req Request.
 	 */
 	protected function log_options_save( $req ) {
-		$this->infoMessage( 'redirection_options_saved' );
+		$this->info_message( 'redirection_options_saved' );
 	}
 
 	/**
@@ -255,7 +255,7 @@ class Plugin_Redirection extends Logger {
 
 		$message_key = 'redirection_redirection_deleted';
 
-		$this->infoMessage(
+		$this->info_message(
 			$message_key,
 			$context
 		);
@@ -277,7 +277,7 @@ class Plugin_Redirection extends Logger {
 			'items_count' => count( $bulk_items ),
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			$message_key,
 			$context
 		);
@@ -300,7 +300,7 @@ class Plugin_Redirection extends Logger {
 			'target_url' => $action_data['url'],
 		);
 
-		$this->infoMessage( 'redirection_redirection_added', $context );
+		$this->info_message( 'redirection_redirection_added', $context );
 	}
 
 	/**
@@ -333,7 +333,7 @@ class Plugin_Redirection extends Logger {
 			$context['prev_target'] = maybe_unserialize( $redirection_item->get_action_data() );
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			$message_key,
 			$context
 		);

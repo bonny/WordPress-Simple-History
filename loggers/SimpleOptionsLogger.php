@@ -119,7 +119,7 @@ class SimpleOptionsLogger extends Logger {
 			$context = $this->$methodname( $context, $old_value, $new_value, $option, $option_page );
 		}
 
-		$this->infoMessage( 'option_updated', $context );
+		$this->info_message( 'option_updated', $context );
 	}
 
 	/**

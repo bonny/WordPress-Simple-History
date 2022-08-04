@@ -77,7 +77,7 @@ class SimpleMediaLogger extends Logger {
 			$file_size = filesize( $file );
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'attachment_created',
 			array(
 				'post_type' => get_post_type( $attachment_post ),
@@ -283,7 +283,7 @@ class SimpleMediaLogger extends Logger {
 			);
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'attachment_created',
 			$context
 		);
@@ -301,7 +301,7 @@ class SimpleMediaLogger extends Logger {
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
 
-		$this->infoMessage(
+		$this->info_message(
 			'attachment_updated',
 			array(
 				'post_type' => get_post_type( $attachment_post ),
@@ -322,7 +322,7 @@ class SimpleMediaLogger extends Logger {
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
 
-		$this->infoMessage(
+		$this->info_message(
 			'attachment_deleted',
 			array(
 				'post_type' => get_post_type( $attachment_post ),

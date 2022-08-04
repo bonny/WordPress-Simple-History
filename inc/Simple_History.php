@@ -1720,13 +1720,13 @@ class Simple_History {
 				'plugin_author' => 'Pär Thernström',
 			);
 
-			$pluginLogger->infoMessage( 'plugin_installed', $context );
+			$pluginLogger->info_message( 'plugin_installed', $context );
 
 			// Add plugin activated message
 			$context['plugin_slug'] = 'simple-history';
 			$context['plugin_title'] = '<a href="https://simple-history.com/">Simple History</a>';
 
-			$pluginLogger->infoMessage( 'plugin_activated', $context );
+			$pluginLogger->info_message( 'plugin_activated', $context );
 		}
 
 		if ( ! $db_data_exists ) {

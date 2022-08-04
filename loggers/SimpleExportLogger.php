@@ -44,7 +44,7 @@ class SimpleExportLogger extends Logger {
 	}
 
 	public function on_export_wp( $args ) {
-		$this->infoMessage(
+		$this->info_message(
 			'created_export',
 			array(
 				'args' => Helpers::json_encode( $args ),

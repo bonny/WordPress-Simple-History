@@ -33,7 +33,7 @@ abstract class Logger {
 	 * </code>
 	 * or with the shortcut
 	 * <code>
-	 *   $this->infoMessage("POST_UPDATED");
+	 *   $this->info_message("POST_UPDATED");
 	 * </code>
 	 * which results in the original, untranslated, string being added to the log and database
 	 * the translated string are then only used when showing the log in the GUI.
@@ -809,7 +809,7 @@ abstract class Logger {
 	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
-	public function emergencyMessage( $message, array $context = array() ) {
+	public function emergency_message( $message, array $context = array() ) {
 		return $this->logByMessageKey(
 			Log_Levels::EMERGENCY,
 			$message,
@@ -819,7 +819,7 @@ abstract class Logger {
 
 	/**
 	 * Log with message
-	 * Called from infoMessage(), errorMessage(), and so on
+	 * Called from info_message(), error_message(), and so on
 	 *
 	 * Call like this:
 	 *
@@ -882,7 +882,7 @@ abstract class Logger {
 	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
-	public function alertMessage( $message, array $context = array() ) {
+	public function alert_message( $message, array $context = array() ) {
 		return $this->logByMessageKey(
 			Log_Levels::ALERT,
 			$message,
@@ -909,7 +909,7 @@ abstract class Logger {
 	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
-	public function criticalMessage( $message, array $context = array() ) {
+	public function critical_message( $message, array $context = array() ) {
 		if ( ! isset( $this->messages[ $message ]['untranslated_text'] ) ) {
 			return;
 		}
@@ -938,7 +938,7 @@ abstract class Logger {
 	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
-	public function errorMessage( $message, array $context = array() ) {
+	public function error_message( $message, array $context = array() ) {
 		return $this->logByMessageKey(
 			Log_Levels::ERROR,
 			$message,
@@ -966,7 +966,7 @@ abstract class Logger {
 	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
-	public function warningMessage( $message, array $context = array() ) {
+	public function warning_message( $message, array $context = array() ) {
 		return $this->logByMessageKey(
 			Log_Levels::WARNING,
 			$message,
@@ -990,7 +990,7 @@ abstract class Logger {
 	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
-	public function noticeMessage( $message, array $context = array() ) {
+	public function notice_message( $message, array $context = array() ) {
 		return $this->logByMessageKey(
 			Log_Levels::NOTICE,
 			$message,
@@ -1020,7 +1020,7 @@ abstract class Logger {
 	 * @param array  $context
 	 * @return null
 	 */
-	public function infoMessage( $message, array $context = array() ) {
+	public function info_message( $message, array $context = array() ) {
 		return $this->logByMessageKey(
 			Log_Levels::INFO,
 			$message,
@@ -1044,7 +1044,7 @@ abstract class Logger {
 	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
-	public function debugMessage( $message, array $context = array() ) {
+	public function debug_message( $message, array $context = array() ) {
 		return $this->logByMessageKey(
 			Log_Levels::DEBUG,
 			$message,

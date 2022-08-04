@@ -70,15 +70,15 @@ class Plugin_LimitLoginAttempts extends Logger {
 		if ( $_POST && wp_verify_nonce( $_POST['_wpnonce'], 'limit-login-attempts-options' ) ) {
 			// Settings saved
 			if ( isset( $_POST['clear_log'] ) ) {
-				$this->noticeMessage( 'cleared_ip_log' );
+				$this->notice_message( 'cleared_ip_log' );
 			}
 
 			if ( isset( $_POST['reset_total'] ) ) {
-				$this->noticeMessage( 'reseted_lockout_count' );
+				$this->notice_message( 'reseted_lockout_count' );
 			}
 
 			if ( isset( $_POST['reset_current'] ) ) {
-				$this->noticeMessage( 'cleared_current_lockouts' );
+				$this->notice_message( 'cleared_current_lockouts' );
 			}
 
 			if ( isset( $_POST['update_options'] ) ) {
@@ -103,7 +103,7 @@ class Plugin_LimitLoginAttempts extends Logger {
 				$lockout_notify = implode( ',', $v );
 				$options['lockout_notify'] = $lockout_notify;
 
-				$this->noticeMessage(
+				$this->notice_message(
 					'updated_options',
 					array(
 						'options' => $options,
@@ -157,7 +157,7 @@ class Plugin_LimitLoginAttempts extends Logger {
 			$message_key = 'failed_login';
 		}
 
-		$this->noticeMessage(
+		$this->notice_message(
 			$message_key,
 			array(
 				'_initiator' => LogInitiators::WEB_USER,

@@ -70,7 +70,7 @@ class SH_Translations_Logger extends Logger {
 				'_occasionsID' => self::class . '/translations_updated',
 			);
 
-			$this->infoMessage(
+			$this->info_message(
 				'translations_updated',
 				$context
 			);

@@ -118,7 +118,7 @@ class SimpleThemeLogger extends Logger {
 		add_action( 'delete_theme', array( $this, 'on_action_delete_theme' ), 10, 1 );
 		add_action( 'deleted_theme', array( $this, 'on_action_deleted_theme' ), 10, 2 );
 		/*
-		$this->infoMessage(
+		$this->info_message(
 			'theme_deleted',
 			array(
 				'theme_slug' => $theme_deleted_slug,
@@ -164,7 +164,7 @@ class SimpleThemeLogger extends Logger {
 
 		$theme_data = $this->themes_data[ $stylesheet ];
 
-		$this->infoMessage(
+		$this->info_message(
 			'theme_deleted',
 			array(
 				'theme_slug' => $stylesheet,
@@ -251,7 +251,7 @@ class SimpleThemeLogger extends Logger {
 				continue;
 			}
 
-			$this->infoMessage(
+			$this->info_message(
 				'theme_updated',
 				array(
 					'theme_name' => $theme_name,
@@ -293,7 +293,7 @@ class SimpleThemeLogger extends Logger {
 
 		$new_theme_data = $upgrader_instance->new_theme_data;
 
-		$this->infoMessage(
+		$this->info_message(
 			'theme_installed',
 			array(
 				'theme_slug' => $destination_name,
@@ -327,7 +327,7 @@ class SimpleThemeLogger extends Logger {
 		if ( ! empty( $valid_post_key_exists ) ) {
 			$context = array();
 			// $context["POST"] = Helpers::json_encode( $_POST );
-			$this->infoMessage(
+			$this->info_message(
 				'custom_background_changed',
 				$context
 			);
@@ -407,7 +407,7 @@ class SimpleThemeLogger extends Logger {
 							}
 						}
 
-						$this->infoMessage(
+						$this->info_message(
 							'appearance_customized',
 							$context
 						);
@@ -483,7 +483,7 @@ class SimpleThemeLogger extends Logger {
 
 		$prev_theme_data = $this->prev_theme_data;
 
-		$this->infoMessage(
+		$this->info_message(
 			'theme_switched',
 			array(
 				'theme_name' => $new_name,
@@ -650,7 +650,7 @@ class SimpleThemeLogger extends Logger {
 				$context["sidebar_name_translated"] = $sidebar["name"];
 			}
 
-			$this->infoMessage(
+			$this->info_message(
 				"widget_edited",
 				$context
 			);
@@ -750,7 +750,7 @@ class SimpleThemeLogger extends Logger {
 		$context['old_instance'] = Helpers::json_encode( $old_instance );
 		$context['new_instance'] = Helpers::json_encode( $new_instance );
 
-		$this->infoMessage(
+		$this->info_message(
 			'widget_edited',
 			$context
 		);
@@ -787,7 +787,7 @@ class SimpleThemeLogger extends Logger {
 			$sidebars_widgets = isset( $GLOBALS["sidebars_widgets"] ) ? $GLOBALS["sidebars_widgets"] : false;
 			$context["sidebars_widgets"] = Helpers::json_encode( $sidebars_widgets );
 
-			$this->infoMessage(
+			$this->info_message(
 				"widget_order_changed",
 				$context
 			);
@@ -823,7 +823,7 @@ class SimpleThemeLogger extends Logger {
 				$context['sidebar_name_translated'] = $sidebar['name'];
 			}
 
-			$this->infoMessage(
+			$this->info_message(
 				'widget_added',
 				$context
 			);
@@ -857,7 +857,7 @@ class SimpleThemeLogger extends Logger {
 				$context['sidebar_name_translated'] = $sidebar['name'];
 			}
 
-			$this->infoMessage(
+			$this->info_message(
 				'widget_removed',
 				$context
 			);

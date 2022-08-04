@@ -247,7 +247,7 @@ class SimplePluginLogger extends Logger {
 			'plugin_url' => $plugin_data['PluginURI'],
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'plugin_deleted',
 			$context
 		);
@@ -420,9 +420,9 @@ class SimplePluginLogger extends Logger {
 		);
 
 		if ( $enableOrDisable === 'enable' ) {
-			$this->infoMessage( 'plugin_auto_updates_enabled', $context );
+			$this->info_message( 'plugin_auto_updates_enabled', $context );
 		} elseif ( $enableOrDisable === 'disable' ) {
-			$this->infoMessage( 'plugin_auto_updates_disabled', $context );
+			$this->info_message( 'plugin_auto_updates_disabled', $context );
 		}
 	}
 
@@ -525,7 +525,7 @@ class SimplePluginLogger extends Logger {
 
 					// We don't know what plugin that was that got this error and currently there does not seem to be a way to determine that.
 					// So that's why we use such generic log messages.
-					$logger_instance->warningMessage(
+					$logger_instance->warning_message(
 						'plugin_disabled_because_error',
 						array(
 							'_initiator'          => Log_Initiators::WORDPRESS,
@@ -818,7 +818,7 @@ class SimplePluginLogger extends Logger {
 					$context['error_messages'] = Helpers::json_encode( $plugin_upgrader_instance->skin->result->errors );
 					$context['error_data']     = Helpers::json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
-					$this->infoMessage(
+					$this->info_message(
 						'plugin_installed_failed',
 						$context
 					);
@@ -852,7 +852,7 @@ class SimplePluginLogger extends Logger {
 						}
 					}
 
-					$this->infoMessage(
+					$this->info_message(
 						'plugin_installed',
 						$context
 					);
@@ -926,14 +926,14 @@ class SimplePluginLogger extends Logger {
 					$context['error_messages'] = json_encode( $plugin_upgrader_instance->skin->result->errors );
 					$context['error_data']     = json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
-					$this->infoMessage(
+					$this->info_message(
 						'plugin_update_failed',
 						$context
 					);
 
 					$did_log = true;
 				} else {
-					$this->infoMessage(
+					$this->info_message(
 						'plugin_updated',
 						$context
 					);
@@ -1012,7 +1012,7 @@ class SimplePluginLogger extends Logger {
 						$context['plugin_prev_version'] = $plugins_before_update[ $plugin_name ]['Version'];
 					}
 
-					$this->infoMessage(
+					$this->info_message(
 						'plugin_bulk_updated',
 						$context
 					);
@@ -1060,7 +1060,7 @@ class SimplePluginLogger extends Logger {
 			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
 		}
 
-		$this->infoMessage( 'plugin_activated', $context );
+		$this->info_message( 'plugin_activated', $context );
 	}
 
 	/**
@@ -1086,7 +1086,7 @@ class SimplePluginLogger extends Logger {
 			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
 		}
 
-		$this->infoMessage( 'plugin_deactivated', $context );
+		$this->info_message( 'plugin_deactivated', $context );
 	}
 
 

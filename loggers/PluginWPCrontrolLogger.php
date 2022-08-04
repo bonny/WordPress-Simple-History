@@ -82,7 +82,7 @@ class PluginWPCrontrolLogger extends Logger {
 			$context['event_schedule_name'] = _x( 'None', 'PluginWPCrontrolLogger', 'simple-history' );
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'added_new_event',
 			$context
 		);
@@ -107,7 +107,7 @@ class PluginWPCrontrolLogger extends Logger {
 			'event_args' => $event->args,
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'ran_event',
 			$context
 		);
@@ -143,7 +143,7 @@ class PluginWPCrontrolLogger extends Logger {
 			$context['event_schedule_name'] = _x( 'None', 'PluginWPCrontrolLogger', 'simple-history' );
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'deleted_event',
 			$context
 		);
@@ -161,7 +161,7 @@ class PluginWPCrontrolLogger extends Logger {
 			'events_deleted' => $deleted,
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'deleted_all_with_hook',
 			$context
 		);
@@ -219,7 +219,7 @@ class PluginWPCrontrolLogger extends Logger {
 			$context['event_original_schedule_name'] = _x( 'None', 'PluginWPCrontrolLogger', 'simple-history' );
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'edited_event',
 			$context
 		);
@@ -239,7 +239,7 @@ class PluginWPCrontrolLogger extends Logger {
 			'schedule_display' => $display,
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'added_new_schedule',
 			$context
 		);
@@ -255,7 +255,7 @@ class PluginWPCrontrolLogger extends Logger {
 			'schedule_name' => $name,
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'deleted_schedule',
 			$context
 		);

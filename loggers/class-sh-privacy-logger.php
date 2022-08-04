@@ -98,7 +98,7 @@ class SH_Privacy_Logger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'data_erasure_erasure_erased',
 			array(
 				'user_email' => $user_request->email,
@@ -146,7 +146,7 @@ class SH_Privacy_Logger extends Logger {
 						? 'privacy_data_export_emailed'
 						: 'privacy_data_export_admin_downloaded';
 
-		$this->infoMessage(
+		$this->info_message(
 			$message_key,
 			array(
 				'send_as_email' => $send_as_email,
@@ -206,14 +206,14 @@ class SH_Privacy_Logger extends Logger {
 
 		// User approved data export.
 		if ( 'export_personal_data' === $user_request->action_name && 'request-confirmed' === $user_request->status ) {
-			$this->infoMessage(
+			$this->info_message(
 				'privacy_data_export_request_confirmed',
 				array(
 					'user_email' => $user_request->email,
 				)
 			);
 		} elseif ( 'remove_personal_data' === $user_request->action_name && 'request-confirmed' === $user_request->status ) {
-			$this->infoMessage(
+			$this->info_message(
 				'data_erasure_request_confirmed',
 				array(
 					'user_email' => $user_request->email,
@@ -252,7 +252,7 @@ class SH_Privacy_Logger extends Logger {
 			// Add Data Export Request.
 			// An email will be sent to the user at this email address asking them to verify the request.
 			// Notice message in admin is "Confirmation request initiated successfully.".
-			$this->infoMessage(
+			$this->info_message(
 				'privacy_data_export_requested',
 				array(
 					'user_email' => $user_request->email,
@@ -262,7 +262,7 @@ class SH_Privacy_Logger extends Logger {
 			);
 		} elseif ( ! $update && 'remove_personal_data' === $user_request->action_name && 'request-pending' === $user_request->status ) {
 			// Send request to user to remove user data.
-			$this->infoMessage(
+			$this->info_message(
 				'data_erasure_request_added',
 				array(
 					'user_email' => $user_request->email,
@@ -272,7 +272,7 @@ class SH_Privacy_Logger extends Logger {
 			);
 		} elseif ( $update && 'remove_personal_data' === $user_request->action_name && 'request-completed' === $user_request->status ) {
 			// Admin clicked "Complete request" in admin.
-			$this->infoMessage(
+			$this->info_message(
 				'data_erasure_request_completed',
 				array(
 					'user_email' => $user_request->email,
@@ -313,7 +313,7 @@ class SH_Privacy_Logger extends Logger {
 
 		if ( $user_request && 'delete' === $action ) {
 			// Looks like "Remove request" action.
-			$this->infoMessage(
+			$this->info_message(
 				'data_erasure_request_removed',
 				array(
 					'user_email' => $user_request->email,
@@ -354,7 +354,7 @@ class SH_Privacy_Logger extends Logger {
 
 		if ( $user_request && 'delete' === $action ) {
 			// Looks like "Remove request" action.
-			$this->infoMessage(
+			$this->info_message(
 				'privacy_data_export_removed',
 				array(
 					'user_email' => $user_request->email,
@@ -395,7 +395,7 @@ class SH_Privacy_Logger extends Logger {
 				continue;
 			}
 
-			$this->infoMessage(
+			$this->info_message(
 				'privacy_data_export_completed',
 				array(
 					'request_id' => $request_id,
@@ -445,7 +445,7 @@ class SH_Privacy_Logger extends Logger {
 			$new_post_title = $post->post_title;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'privacy_page_created',
 			array(
 				'prev_post_id' => $old_value,
@@ -470,7 +470,7 @@ class SH_Privacy_Logger extends Logger {
 			$new_post_title = $post->post_title;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'privacy_page_set',
 			array(
 				'prev_post_id' => $old_value,

@@ -88,7 +88,7 @@ class AvailableUpdatesLogger extends Logger {
 
 		// is WP core update available?
 		if ( 'upgrade' == $updates->updates[0]->response ) {
-			$this->noticeMessage(
+			$this->notice_message(
 				'core_update_available',
 				array(
 					'wp_core_current_version' => $wp_version,
@@ -169,7 +169,7 @@ class AvailableUpdatesLogger extends Logger {
 
 			$checked_updates[ $key ]['checked_version'] = $plugin_new_version;
 
-			$this->noticeMessage(
+			$this->notice_message(
 				'plugin_update_available',
 				array(
 					'plugin_name' => $plugin_info['Name'] ?? '',
@@ -219,7 +219,7 @@ class AvailableUpdatesLogger extends Logger {
 
 			$checked_updates[ $key ]['checked_version'] = $theme_new_version;
 
-			$this->noticeMessage(
+			$this->notice_message(
 				'theme_update_available',
 				array(
 					'theme_name' => $theme_info['Name'] ?? '',

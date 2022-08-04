@@ -109,7 +109,7 @@ class SH_Jetpack_Logger extends Logger {
 			$context['module_description'] = $module['description'];
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'module_activated',
 			$context
 		);
@@ -133,7 +133,7 @@ class SH_Jetpack_Logger extends Logger {
 			$context['module_description'] = $module['description'];
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'module_deactivated',
 			$context
 		);

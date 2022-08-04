@@ -13,6 +13,7 @@ class SimpleCoreUpdatesLogger extends Logger {
 		add_action( '_core_updated_successfully', array( $this, 'on_core_updated' ) );
 		add_action( 'update_feedback', array( $this, 'on_update_feedback' ) );
 
+		// TODO: check if this works after refactoring and autoloading and stuff
 		// Can't log db updates at the moment, because loaded() is not called yet when the action fires
 		// add_action( 'wp_upgrade', array( $this, "on_wp_upgrade" ), 10, 2 );
 	}
@@ -26,7 +27,7 @@ class SimpleCoreUpdatesLogger extends Logger {
 	  */
 	public function on_wp_upgrade( $wp_db_version, $wp_current_db_version ) {
 
-		$this->debugMessage(
+		$this->debug_message(
 			'core_db_version_updated',
 			array(
 				'new_version' => $wp_db_version,
@@ -98,7 +99,7 @@ class SimpleCoreUpdatesLogger extends Logger {
 			$message = 'core_updated';
 		}
 
-		$this->noticeMessage(
+		$this->notice_message(
 			$message,
 			array(
 				'prev_version' => $old_wp_version,

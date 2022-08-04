@@ -51,7 +51,7 @@ class PluginUserSwitchingLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'switched_to_user',
 			array(
 				// It is the old user who initiates the switching
@@ -87,7 +87,7 @@ class PluginUserSwitchingLogger extends Logger {
 
 		if ( $user_from ) {
 			// User switched back from another user
-			$this->infoMessage(
+			$this->info_message(
 				'switched_back_user',
 				array(
 					'_initiator' => LogInitiators::WP_USER,
@@ -100,7 +100,7 @@ class PluginUserSwitchingLogger extends Logger {
 			);
 		} else {
 			// User switched back to themself (no prev user)
-			$this->infoMessage(
+			$this->info_message(
 				'switched_back_themself',
 				array(
 					'_initiator' => LogInitiators::WP_USER,
@@ -119,7 +119,7 @@ class PluginUserSwitchingLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'switched_off_user',
 			array(
 				'_initiator' => LogInitiators::WP_USER,

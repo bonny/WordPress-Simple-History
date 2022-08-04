@@ -97,7 +97,7 @@ class SimpleCategoriesLogger extends Logger {
 			return $parent;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'edited_term',
 			array(
 				'term_id' => $term_id,
@@ -182,7 +182,7 @@ class SimpleCategoriesLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'created_term',
 			array(
 				'term_id' => $term_id,
@@ -218,7 +218,7 @@ class SimpleCategoriesLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'deleted_term',
 			array(
 				'term_id' => $term_id,

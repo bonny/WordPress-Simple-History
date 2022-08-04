@@ -144,7 +144,7 @@ class SimpleMenuLogger extends Logger {
 
 		$menu = wp_get_nav_menu_object( $menu_id );
 
-		$this->infoMessage(
+		$this->info_message(
 			'deleted_menu',
 			array(
 				'menu_term_id' => $menu_id,
@@ -160,7 +160,7 @@ class SimpleMenuLogger extends Logger {
 	/*
 	function on_wp_delete_nav_menu($menu_term_id) {
 
-		$this->infoMessage(
+		$this->info_message(
 			"deleted_menu",
 			array(
 				"menu_term_id" => $menu_term_id,
@@ -180,7 +180,7 @@ class SimpleMenuLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'created_menu',
 			array(
 				'term_id' => $term_id,
@@ -192,7 +192,7 @@ class SimpleMenuLogger extends Logger {
 	/*
 	function on_wp_update_nav_menu_item($menu_id, $menu_item_db_id, $args) {
 
-		$this->infoMessage(
+		$this->info_message(
 			"edited_menu_item",
 			array(
 				"menu_id" => $menu_id,
@@ -265,7 +265,7 @@ class SimpleMenuLogger extends Logger {
 		// $prev_menu = wp_get_nav_menu_object( $menu_id );
 		// $locations = get_registered_nav_menus();
 		// $menu_locations = get_nav_menu_locations();
-		$this->infoMessage(
+		$this->info_message(
 			'edited_menu',
 			array(
 				'menu_id' => $menu_id,
@@ -337,7 +337,7 @@ class SimpleMenuLogger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$menu_locations = (array) $_POST['menu-locations'];
 
-		$this->infoMessage(
+		$this->info_message(
 			'edited_menu_locations',
 			array(
 				'menu_locations' => Helpers::json_encode( $menu_locations ),

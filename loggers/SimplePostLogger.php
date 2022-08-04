@@ -198,7 +198,7 @@ class SimplePostLogger extends Logger {
 					'post_title' => get_the_title( $post ),
 				);
 
-				$this->infoMessage( 'post_trashed', $context );
+				$this->info_message( 'post_trashed', $context );
 			}
 		} // End if().
 	}
@@ -288,7 +288,7 @@ class SimplePostLogger extends Logger {
 			'post_title' => get_the_title( $post ),
 		);
 
-		$this->infoMessage( 'post_deleted', $context );
+		$this->info_message( 'post_deleted', $context );
 	}
 
 	/**
@@ -308,7 +308,7 @@ class SimplePostLogger extends Logger {
 			'post_title' => get_the_title( $post ),
 		);
 
-		$this->infoMessage( 'post_updated', $context );
+		$this->info_message( 'post_updated', $context );
 	}
 
 	/**
@@ -328,7 +328,7 @@ class SimplePostLogger extends Logger {
 			'post_title' => get_the_title( $post ),
 		);
 
-		$this->infoMessage( 'post_created', $context );
+		$this->info_message( 'post_created', $context );
 	}
 
 	/**
@@ -342,7 +342,7 @@ class SimplePostLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'post_restored',
 			array(
 				'post_id' => $post_id,
@@ -409,7 +409,7 @@ class SimplePostLogger extends Logger {
 			}
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			'post_deleted',
 			array(
 				'post_id' => $post_id,
@@ -592,13 +592,13 @@ class SimplePostLogger extends Logger {
 
 		if ( 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status ) ) {
 			// Post created
-			$this->infoMessage( 'post_created', $context );
+			$this->info_message( 'post_created', $context );
 		} elseif ( 'auto-draft' === $new_status || ( 'new' === $old_status && 'inherit' === $new_status ) ) {
 			// Post was automagically saved by WordPress
 			return;
 		} elseif ( 'trash' === $new_status ) {
 			// Post trashed
-			$this->infoMessage( 'post_trashed', $context );
+			$this->info_message( 'post_trashed', $context );
 		} else {
 			// Existing post was updated.
 
@@ -619,7 +619,7 @@ class SimplePostLogger extends Logger {
 			 */
 			$context = apply_filters( 'simple_history/post_logger/post_updated/context', $context, $post );
 
-			$this->infoMessage( 'post_updated', $context );
+			$this->info_message( 'post_updated', $context );
 		} // End if().
 	}
 

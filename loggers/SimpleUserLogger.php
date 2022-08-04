@@ -242,7 +242,7 @@ class SimpleUserLogger extends Logger {
 	public function on_action_wp_create_application_password( $user_id, $item, $new_password, $args ) {
 		$user = get_user_by( 'ID', $user_id );
 
-		$this->infoMessage(
+		$this->info_message(
 			'user_application_password_created',
 			array(
 				'edited_user_id' => $user_id,
@@ -267,7 +267,7 @@ class SimpleUserLogger extends Logger {
 	public function on_action_wp_delete_application_password( $user_id, $item ) {
 		$user = get_user_by( 'ID', $user_id );
 
-		$this->infoMessage(
+		$this->info_message(
 			'user_application_password_deleted',
 			array(
 				'edited_user_id' => $user_id,
@@ -305,7 +305,7 @@ class SimpleUserLogger extends Logger {
 
 		$old_role = (string) reset( $old_roles );
 
-		$this->noticeMessage(
+		$this->notice_message(
 			'user_role_updated',
 			array(
 				'edited_user_id' => $user_id,
@@ -329,7 +329,7 @@ class SimpleUserLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage( 'user_admin_email_confirm_correct_clicked' );
+		$this->info_message( 'user_admin_email_confirm_correct_clicked' );
 	}
 
 	/**
@@ -433,7 +433,7 @@ class SimpleUserLogger extends Logger {
 			}
 		}
 
-		$this->infoMessage( 'user_updated_profile', $context );
+		$this->info_message( 'user_updated_profile', $context );
 
 		return $data;
 	}
@@ -472,7 +472,7 @@ class SimpleUserLogger extends Logger {
 			$context['_initiator'] = Log_Initiators::WEB_USER;
 		}
 
-		$this->noticeMessage( 'user_requested_password_reset_link', $context );
+		$this->notice_message( 'user_requested_password_reset_link', $context );
 
 		return $message;
 	}
@@ -495,7 +495,7 @@ class SimpleUserLogger extends Logger {
 
 		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
 		if ( ( ! $errors->get_error_code() ) && isset( $_POST['pass1'] ) && ! empty( $_POST['pass1'] ) ) {
-			$this->infoMessage( 'user_password_reseted', $context );
+			$this->info_message( 'user_password_reseted', $context );
 		}
 	}
 
@@ -527,13 +527,13 @@ class SimpleUserLogger extends Logger {
 		$context = array();
 
 		if ( $user->ID === get_current_user_id() ) {
-			$this->infoMessage( 'user_session_destroy_others' );
+			$this->info_message( 'user_session_destroy_others' );
 		} else {
 			$context['user_id'] = $user->ID;
 			$context['user_login'] = $user->user_login;
 			$context['user_display_name'] = $user->display_name;
 
-			$this->infoMessage( 'user_session_destroy_everywhere', $context );
+			$this->info_message( 'user_session_destroy_everywhere', $context );
 		}
 	}
 
@@ -563,7 +563,7 @@ class SimpleUserLogger extends Logger {
 			'server_http_user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
 		);
 
-		$this->noticeMessage( 'user_deleted', $context );
+		$this->notice_message( 'user_deleted', $context );
 	}
 
 	/**
@@ -671,10 +671,10 @@ class SimpleUserLogger extends Logger {
 			$context['_user_email'] = $user_obj->user_email;
 			$context['server_http_user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? null;
 
-			$this->infoMessage( 'user_logged_in', $context );
+			$this->info_message( 'user_logged_in', $context );
 		} else {
 			// Could not get any info about the user logging in
-			$this->warningMessage( 'user_unknown_logged_in', $context );
+			$this->warning_message( 'user_unknown_logged_in', $context );
 		}
 	}
 
@@ -694,7 +694,7 @@ class SimpleUserLogger extends Logger {
 			$context['_user_email'] = $user->user_email;
 		}
 
-		$this->infoMessage( 'user_logged_out', $context );
+		$this->info_message( 'user_logged_out', $context );
 	}
 
 	/**
@@ -733,7 +733,7 @@ class SimpleUserLogger extends Logger {
 			'server_http_user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
 		);
 
-		$this->infoMessage( 'user_created', $context );
+		$this->info_message( 'user_created', $context );
 	}
 
 	/**
@@ -778,7 +778,7 @@ class SimpleUserLogger extends Logger {
 				$context['login_user_password'] = $password;
 			}
 
-			$this->warningMessage( 'user_login_failed', $context );
+			$this->warning_message( 'user_login_failed', $context );
 		}
 
 		return $userOrError;
@@ -846,7 +846,7 @@ class SimpleUserLogger extends Logger {
 				$context['failed_login_password'] = $password;
 			}
 
-			$this->warningMessage( 'user_unknown_login_failed', $context );
+			$this->warning_message( 'user_unknown_login_failed', $context );
 		}
 
 		return $user;

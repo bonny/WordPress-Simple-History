@@ -85,14 +85,14 @@ class Plugin_BeaverBuilder extends Logger {
 		$context = array(
 			'layout_name' => $post->post_name,
 		);
-		$this->noticeMessage( 'template_saved', $context );
+		$this->notice_message( 'template_saved', $context );
 	}
 
 	public function saveDraft( $post_id, $publish ) {
 		$context = array(
 			'layout_name' => $post_id,
 		);
-		$this->noticeMessage( 'draft_saved', $context );
+		$this->notice_message( 'draft_saved', $context );
 	}
 
 	public function saveLayout( $post_id, $publish, $data, $settings ) {
@@ -101,12 +101,12 @@ class Plugin_BeaverBuilder extends Logger {
 			'layout_name' => $post->post_name,
 		);
 		if ( $publish ) {
-			$this->noticeMessage( 'layout_saved', $context );
+			$this->notice_message( 'layout_saved', $context );
 		}
 	}
 
 	public function saveAdmin() {
-		$this->noticeMessage( 'admin_saved' );
+		$this->notice_message( 'admin_saved' );
 	}
 }
 

@@ -82,7 +82,7 @@ class PluginEnableMediaReplaceLogger extends Logger {
 			}
 			*/
 
-			$this->infoMessage(
+			$this->info_message(
 				'replaced_file',
 				array(
 					'attachment_id' => $attachment_id,

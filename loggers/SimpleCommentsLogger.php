@@ -396,7 +396,7 @@ class SimpleCommentsLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			"{$context["comment_type"]}_edited",
 			$context
 		);
@@ -421,7 +421,7 @@ class SimpleCommentsLogger extends Logger {
 			// $context["_occasionsID"] = __CLASS__  . '/' . __FUNCTION__ . "/anon_{$context["comment_type"]}_deleted/type:spam";
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			"{$context["comment_type"]}_deleted",
 			$context
 		);
@@ -434,7 +434,7 @@ class SimpleCommentsLogger extends Logger {
 			return;
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			"{$context["comment_type"]}_untrashed",
 			$context
 		);
@@ -470,7 +470,7 @@ class SimpleCommentsLogger extends Logger {
 		*/
 		$message = "{$context["comment_type"]}_status_{$comment_status}";
 
-		$this->infoMessage(
+		$this->info_message(
 			$message,
 			$context
 		);
@@ -509,7 +509,7 @@ class SimpleCommentsLogger extends Logger {
 			}
 		}
 
-		$this->infoMessage(
+		$this->info_message(
 			$message,
 			$context
 		);

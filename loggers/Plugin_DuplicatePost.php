@@ -73,7 +73,7 @@ class Plugin_DuplicatePost extends Logger {
 			// "status" => $status
 		);
 
-		$this->infoMessage( 'post_duplicated', $context );
+		$this->info_message( 'post_duplicated', $context );
 	}
 
 	/**

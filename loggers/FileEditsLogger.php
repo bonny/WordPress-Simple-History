@@ -100,7 +100,7 @@ class FileEditsLogger extends Logger {
 					$liveUpdateIsSet = isset( $queryStringParsed['liveupdate'] ) && $queryStringParsed['liveupdate'] === '1';
 					if ( $teIsSet || $liveUpdateIsSet ) {
 						// File was updated
-						$loggerInstance->infoMessage( 'plugin_file_edited', $context );
+						$loggerInstance->info_message( 'plugin_file_edited', $context );
 					}
 
 					return $location;
@@ -215,7 +215,7 @@ class FileEditsLogger extends Logger {
 
 					if ( isset( $queryStringParsed['updated'] ) && $queryStringParsed['updated'] ) {
 						// File was updated
-						$loggerInstance->infoMessage( 'theme_file_edited', $context );
+						$loggerInstance->info_message( 'theme_file_edited', $context );
 					}
 
 					return $location;
