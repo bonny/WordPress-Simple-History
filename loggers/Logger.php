@@ -810,7 +810,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function emergency_message( $message, array $context = array() ) {
-		return $this->logByMessageKey(
+		return $this->log_by_message_key(
 			Log_Levels::EMERGENCY,
 			$message,
 			$context
@@ -820,12 +820,8 @@ abstract class Logger {
 	/**
 	 * Log with message
 	 * Called from info_message(), error_message(), and so on
-	 *
-	 * Call like this:
-	 *
-	 *   return $this->logByMessageKey(SimpleLoggerLogLevels::EMERGENCY, $message, $context);
 	 */
-	private function logByMessageKey(
+	private function log_by_message_key(
 		$SimpleLoggerLogLevelsLevel,
 		$messageKey,
 		$context
@@ -883,7 +879,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function alert_message( $message, array $context = array() ) {
-		return $this->logByMessageKey(
+		return $this->log_by_message_key(
 			Log_Levels::ALERT,
 			$message,
 			$context
@@ -939,7 +935,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function error_message( $message, array $context = array() ) {
-		return $this->logByMessageKey(
+		return $this->log_by_message_key(
 			Log_Levels::ERROR,
 			$message,
 			$context
@@ -967,7 +963,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function warning_message( $message, array $context = array() ) {
-		return $this->logByMessageKey(
+		return $this->log_by_message_key(
 			Log_Levels::WARNING,
 			$message,
 			$context
@@ -991,7 +987,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function notice_message( $message, array $context = array() ) {
-		return $this->logByMessageKey(
+		return $this->log_by_message_key(
 			Log_Levels::NOTICE,
 			$message,
 			$context
@@ -1021,7 +1017,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function info_message( $message, array $context = array() ) {
-		return $this->logByMessageKey(
+		return $this->log_by_message_key(
 			Log_Levels::INFO,
 			$message,
 			$context
@@ -1045,7 +1041,7 @@ abstract class Logger {
 	 * @return null
 	 */
 	public function debug_message( $message, array $context = array() ) {
-		return $this->logByMessageKey(
+		return $this->log_by_message_key(
 			Log_Levels::DEBUG,
 			$message,
 			$context
