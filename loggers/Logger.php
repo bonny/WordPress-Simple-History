@@ -483,7 +483,7 @@ abstract class Logger {
 	 * @param mixed $row
 	 * @return string
 	 */
-	public function getLogRowHeaderIPAddressOutput( $row ) {
+	public function get_log_row_header_ip_address_output( $row ) {
 
 		/**
 		 * Filter if IP Address should be added to header row.
@@ -604,7 +604,7 @@ abstract class Logger {
 		$initiator_html = $this->get_log_row_header_initiator_output( $row );
 		$date_html = $this->get_log_row_header_date_output( $row );
 		$via_html = $this->get_log_row_header_using_plugin_output( $row );
-		$ip_address_html = $this->getLogRowHeaderIPAddressOutput( $row );
+		$ip_address_html = $this->get_log_row_header_ip_address_output( $row );
 
 		// Template to combine header parts.
 		$template = '
