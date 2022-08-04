@@ -16,7 +16,7 @@ class PluginUserSwitchingLogger extends Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 
 		$arr_info = array(
 			'name'        => _x( 'Plugin: User Switching Logger', 'PluginUserSwitchingLogger', 'simple-history' ),

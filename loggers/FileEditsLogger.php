@@ -9,7 +9,7 @@ use Simple_History\Helpers;
 class FileEditsLogger extends Logger {
 	public $slug = 'FileEditsLogger';
 
-	public function getInfo() {
+	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'File edits Logger', 'Logger: FileEditsLogger', 'simple-history' ),
 			'description' => __( 'Logs edits to theme and plugin files', 'simple-history' ),

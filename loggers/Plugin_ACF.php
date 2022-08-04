@@ -48,7 +48,7 @@ class Plugin_ACF extends Logger {
 	 *
 	 * @return array Array with info about the logger.
 	 */
-	public function getInfo() {
+	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'Plugin: Advanced Custom Fields Logger', 'Logger: Plugin ACF', 'simple-history' ),
 			'description' => _x( 'Logs ACF stuff', 'Logger: Plugin ACF', 'simple-history' ),

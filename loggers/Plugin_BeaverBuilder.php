@@ -11,7 +11,7 @@ class Plugin_BeaverBuilder extends Logger {
 
 	public $slug = 'Plugin_BeaverBuilder';
 
-	public function getInfo() {
+	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'Plugin: Beaver Builder Logger', 'Logger: Plugin Beaver Builder', 'simple-history' ),
 			'description' => _x(

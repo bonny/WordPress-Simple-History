@@ -208,7 +208,7 @@ class SimplePostLogger extends Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 		$arr_info = array(
 			'name'        => __( 'Post Logger', 'simple-history' ),
 			'description' => __( 'Logs the creation and modification of posts and pages', 'simple-history' ),

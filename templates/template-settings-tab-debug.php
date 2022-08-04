@@ -198,7 +198,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 		$one_logger_count->count = 0;
 	}
 
-	$logger_info = $logger->getInfo();
+	$logger_info = $logger->get_info();
 	$logger_messages = isset( $logger_info['messages'] ) ? (array) $logger_info['messages'] : array();
 
 	$html_logger_messages = '';

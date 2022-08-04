@@ -10,7 +10,7 @@ class Plugin_LimitLoginAttempts extends Logger {
 
 	public $slug = 'Plugin_LimitLoginAttempts';
 
-	public function getInfo() {
+	public function get_info() {
 
 		$arr_info = array(
 			'name'        => _x( 'Plugin: Limit Login Attempts Logger', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),

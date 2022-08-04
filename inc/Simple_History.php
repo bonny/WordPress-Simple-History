@@ -1051,7 +1051,7 @@ class Simple_History {
 			$this->doFilterGettext = true;
 			$this->doFilterGettext_currentLogger = $logger_instance;
 
-			$logger_info = $logger_instance->getInfo();
+			$logger_info = $logger_instance->get_info();
 
 			// Check so no logger has a logger slug with more than 30 chars,
 			// because db column is only 30 chars.

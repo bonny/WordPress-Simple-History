@@ -50,15 +50,15 @@ foreach ( $loggers as $logger_file ) {
 
 	$instantiated_class = $reflection_class->newInstanceWithoutConstructor();
 
-	if ( ! method_exists( $instantiated_class, 'getInfo' ) ) {
+	if ( ! method_exists( $instantiated_class, 'get_info' ) ) {
 		continue;
 	}
-	//var_dump( $instantiated_class->getInfo() );
+
 	$instantiated_classes[] = $instantiated_class;
 }
 
 foreach ( $instantiated_classes as $one_instantiated_class ) {
-	$logger_info = $one_instantiated_class->getInfo();
+	$logger_info = $one_instantiated_class->get_info();
 	if ( empty( $logger_info['examples'] ) ) {
 		continue;
 	}

@@ -345,7 +345,7 @@ class SimpleHistoryFilterDropin extends Dropin {
 							>
 							<?php
 							foreach ( $loggers_user_can_read as $logger ) {
-								$logger_info = $logger['instance']->getInfo();
+								$logger_info = $logger['instance']->get_info();
 								$logger_slug = $logger['instance']->get_slug();
 
 								// Get labels for logger

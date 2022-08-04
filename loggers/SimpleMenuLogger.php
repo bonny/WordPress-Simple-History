@@ -15,7 +15,7 @@ class SimpleMenuLogger extends Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 
 		$arr_info = array(
 			'name'        => __( 'Menu Logger', 'simple-history' ),

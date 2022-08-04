@@ -28,7 +28,7 @@ class SimpleThemeLogger extends Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 
 		$arr_info = array(
 			'name'        => __( 'Theme Logger', 'simple-history' ),

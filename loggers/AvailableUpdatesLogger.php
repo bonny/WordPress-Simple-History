@@ -17,7 +17,7 @@ class AvailableUpdatesLogger extends Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'Available Updates Logger', 'AvailableUpdatesLogger', 'simple-history' ),
 			'description' => __( 'Logs found updates to WordPress, plugins, and themes', 'simple-history' ),

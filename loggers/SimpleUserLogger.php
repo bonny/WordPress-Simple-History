@@ -16,7 +16,7 @@ class SimpleUserLogger extends Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 
 		$arr_info = array(
 			'name'        => __( 'User Logger', 'simple-history' ),

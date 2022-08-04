@@ -19,7 +19,7 @@ class Plugin_Redirection extends Logger {
 	 *
 	 * @return array Array with plugin info.
 	 */
-	public function getInfo() {
+	public function get_info() {
 
 		$arr_info = array(
 			'name'        => _x( 'Plugin: Redirection Logger', 'Logger: Redirection', 'simple-history' ),

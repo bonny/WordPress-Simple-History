@@ -24,7 +24,7 @@ abstract class Logger {
 	protected $slug;
 
 	/**
-	 * Will contain the untranslated messages from getInfo().
+	 * Will contain the untranslated messages from get_info().
 	 *
 	 * By adding your messages here they will be stored both translated and non-translated
 	 * You then log something like this:
@@ -113,21 +113,21 @@ abstract class Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 		return array(
 			// ...
 		);
 	}
 
 	/**
-	 * Return single array entry from the array in getInfo()
+	 * Return single array entry from the array in get_info()
 	 * Returns the value of the key if value exists, or null
 	 *
 	 * @since 2.5.4
 	 * @return Mixed
 	 */
 	protected function getInfoValueByKey( $key ) {
-		$arr_info = $this->getInfo();
+		$arr_info = $this->get_info();
 
 		return $arr_info[ $key ] ?? null;
 	}
@@ -806,7 +806,7 @@ abstract class Logger {
 	/**
 	 * System is unusable.
 	 *
-	 * @param string $message key from getInfo messages array
+	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
 	public function emergencyMessage( $message, array $context = array() ) {
@@ -879,7 +879,7 @@ abstract class Logger {
 	/**
 	 * Action must be taken immediately.
 	 *
-	 * @param string $message key from getInfo messages array
+	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
 	public function alertMessage( $message, array $context = array() ) {
@@ -906,7 +906,7 @@ abstract class Logger {
 	/**
 	 * Critical conditions.
 	 *
-	 * @param string $message key from getInfo messages array
+	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
 	public function criticalMessage( $message, array $context = array() ) {
@@ -935,7 +935,7 @@ abstract class Logger {
 	 * Runtime errors that do not require immediate action but should typically
 	 * be logged and monitored.
 	 *
-	 * @param string $message key from getInfo messages array
+	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
 	public function errorMessage( $message, array $context = array() ) {
@@ -963,7 +963,7 @@ abstract class Logger {
 	/**
 	 * Exceptional occurrences that are not errors.
 	 *
-	 * @param string $message key from getInfo messages array
+	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
 	public function warningMessage( $message, array $context = array() ) {
@@ -987,7 +987,7 @@ abstract class Logger {
 	/**
 	 * Normal but significant events.
 	 *
-	 * @param string $message key from getInfo messages array
+	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
 	public function noticeMessage( $message, array $context = array() ) {
@@ -1016,7 +1016,7 @@ abstract class Logger {
 	 *
 	 * Example: User logs in, SQL logs.
 	 *
-	 * @param string $message key from getInfo messages array
+	 * @param string $message key from get_info messages array
 	 * @param array  $context
 	 * @return null
 	 */
@@ -1041,7 +1041,7 @@ abstract class Logger {
 	/**
 	 * Detailed debug information.
 	 *
-	 * @param string $message key from getInfo messages array
+	 * @param string $message key from get_info messages array
 	 * @return null
 	 */
 	public function debugMessage( $message, array $context = array() ) {

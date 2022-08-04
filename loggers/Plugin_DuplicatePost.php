@@ -14,7 +14,7 @@ use Simple_History\Helpers;
 class Plugin_DuplicatePost extends Logger {
 	public $slug = 'Plugin_DuplicatePost';
 
-	public function getInfo() {
+	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'Plugin: Duplicate Posts Logger', 'Logger: Plugin Duplicate Post', 'simple-history' ),
 			'description' => _x(

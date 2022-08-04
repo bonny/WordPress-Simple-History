@@ -24,7 +24,7 @@ class SimpleLogger extends Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 		$arr_info = array(
 			// Shown on the info-tab in settings, use these fields to tell
 			// an admin what your logger is used for.

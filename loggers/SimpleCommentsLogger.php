@@ -79,7 +79,7 @@ class SimpleCommentsLogger extends Logger {
 	 *
 	 * @return array
 	 */
-	public function getInfo() {
+	public function get_info() {
 
 		$arr_info = array(
 			'name'        => __( 'Comments Logger', 'simple-history' ),

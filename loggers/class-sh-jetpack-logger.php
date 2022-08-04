@@ -25,7 +25,7 @@ class SH_Jetpack_Logger extends Logger {
 	 *
 	 * @return array Array with plugin info.
 	 */
-	public function getInfo() {
+	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'Plugin: Jetpack Logger', 'Logger: Jetpack', 'simple-history' ),
 			'description' => _x( 'Log Jetpack settings changes', 'Logger: Jetpack', 'simple-history' ),
