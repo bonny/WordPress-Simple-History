@@ -127,8 +127,8 @@ class Plugin_LimitLoginAttempts extends Logger {
 			return $value;
 		}
 
-		$ip = \limit_login_get_address();
-		$whitelisted = \is_limit_login_ip_whitelisted( $ip );
+		$ip = limit_login_get_address();
+		$whitelisted = is_limit_login_ip_whitelisted( $ip );
 
 		$retries = get_option( 'limit_login_retries' );
 		if ( ! is_array( $retries ) ) {

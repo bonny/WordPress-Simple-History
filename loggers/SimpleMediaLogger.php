@@ -101,7 +101,7 @@ class SimpleMediaLogger extends Logger {
 
 		$attachment_id = $context['attachment_id'];
 		$attachment_post = get_post( $attachment_id );
-		$attachment_is_available = $attachment_post instanceof WP_Post;
+		$attachment_is_available = $attachment_post instanceof \WP_Post;
 
 		// Only link to attachment if it is still available.
 		if ( $attachment_is_available ) {
@@ -112,7 +112,7 @@ class SimpleMediaLogger extends Logger {
 				if ( isset( $context['attachment_parent_id'] ) ) {
 					// Attachment was uploaded to a post. Link to it, if still available.
 					$attachment_parent_post = get_post( $context['attachment_parent_id'] );
-					$attachment_parent_available = $attachment_parent_post instanceof WP_Post;
+					$attachment_parent_available = $attachment_parent_post instanceof \WP_Post;
 
 					$context['attachment_parent_post_type'] = esc_html( $context['attachment_parent_post_type'] );
 					$context['attachment_parent_title'] = esc_html( $context['attachment_parent_title'] );

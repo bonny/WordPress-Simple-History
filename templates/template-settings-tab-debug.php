@@ -194,7 +194,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 		$one_logger_count = $logger_rows_count[ $one_logger_slug ];
 	} else {
 		// logger was not is sql result, so fake result
-		$one_logger_count = new stdclass();
+		$one_logger_count = new \stdClass();
 		$one_logger_count->count = 0;
 	}
 
