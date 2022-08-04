@@ -746,7 +746,7 @@ class SimpleCommentsLogger extends Logger {
 		return $output;
 	}
 
-	public function adminCSS() {
+	public function admin_css() {
 		?>
 		<style>
 			.SimpleCommentsLogger__gravatar {

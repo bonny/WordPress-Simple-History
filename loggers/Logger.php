@@ -1616,7 +1616,7 @@ abstract class Logger {
 	 * The CSS that you output will only be outputed
 	 * on pages where Simple History is used.
 	 */
-	public function adminCSS() {
+	public function admin_css() {
 		/*
 		?>
 		<style>

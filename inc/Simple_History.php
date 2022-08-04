@@ -1429,11 +1429,9 @@ class Simple_History {
 				)
 			);
 
-			// Call plugins adminCSS-method, so they can add their CSS.
+			// Call plugins admin_css-method, so they can add CSS.
 			foreach ( $this->instantiatedLoggers as $one_logger ) {
-				if ( method_exists( $one_logger['instance'], 'adminCSS' ) ) {
-					$one_logger['instance']->adminCSS();
-				}
+				$one_logger['instance']->admin_css();
 			}
 
 			// Add timeago.js
