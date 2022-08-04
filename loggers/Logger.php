@@ -126,7 +126,7 @@ abstract class Logger {
 	 * @since 2.5.4
 	 * @return Mixed
 	 */
-	protected function getInfoValueByKey( $key ) {
+	protected function get_info_value_by_key( $key ) {
 		$arr_info = $this->get_info();
 
 		return $arr_info[ $key ] ?? null;
@@ -138,7 +138,7 @@ abstract class Logger {
 	 * @return $string capability
 	 */
 	public function getCapability() {
-		return $this->getInfoValueByKey( 'capability' ) ?? 'manage_options';
+		return $this->get_info_value_by_key( 'capability' ) ?? 'manage_options';
 	}
 
 	/**
@@ -457,7 +457,7 @@ abstract class Logger {
 		// info next to the time to make it more clear what plugin etc.
 		// that "caused" this event
 		$via_html = '';
-		$logger_name_via = $this->getInfoValueByKey( 'name_via' );
+		$logger_name_via = $this->get_info_value_by_key( 'name_via' );
 
 		if ( $logger_name_via ) {
 			$via_html =

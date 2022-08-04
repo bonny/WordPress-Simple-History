@@ -1061,7 +1061,7 @@ class Simple_History {
 					sprintf(
 						esc_html( __( 'A logger slug can be max 30 chars long. Slug %1$s of logger %2$s is to long.', 'simple-history' ) ),
 						esc_html( $logger_instance->get_slug() ),
-						esc_html( $logger_instance->getInfoValueByKey( 'name' ) )
+						esc_html( $logger_instance->get_info_value_by_key( 'name' ) )
 					),
 					'3.0'
 				);
