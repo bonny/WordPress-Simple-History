@@ -145,7 +145,7 @@ abstract class Logger {
 	 * @param object $row
 	 * @return string HTML
 	 */
-	public function getLogRowHeaderInitiatorOutput( $row ) {
+	public function get_log_row_header_initiator_output( $row ) {
 		$initiator_html = '';
 		$initiator = $row->initiator;
 		$context = $row->context;
@@ -601,7 +601,7 @@ abstract class Logger {
 	 * @return string HTML
 	 */
 	public function get_log_row_header_output( $row ) {
-		$initiator_html = $this->getLogRowHeaderInitiatorOutput( $row );
+		$initiator_html = $this->get_log_row_header_initiator_output( $row );
 		$date_html = $this->getLogRowHeaderDateOutput( $row );
 		$via_html = $this->getLogRowHeaderUsingPluginOutput( $row );
 		$ip_address_html = $this->getLogRowHeaderIPAddressOutput( $row );
