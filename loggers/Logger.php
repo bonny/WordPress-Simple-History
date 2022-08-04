@@ -311,7 +311,7 @@ abstract class Logger {
 		return $initiator_html;
 	}
 
-	public function getLogRowHeaderDateOutput( $row ) {
+	public function get_log_row_header_date_output( $row ) {
 		// HTML for date
 		// Date (should...) always exist
 		// http://developers.whatwg.org/text-level-semantics.html#the-time-element
@@ -602,7 +602,7 @@ abstract class Logger {
 	 */
 	public function get_log_row_header_output( $row ) {
 		$initiator_html = $this->get_log_row_header_initiator_output( $row );
-		$date_html = $this->getLogRowHeaderDateOutput( $row );
+		$date_html = $this->get_log_row_header_date_output( $row );
 		$via_html = $this->getLogRowHeaderUsingPluginOutput( $row );
 		$ip_address_html = $this->getLogRowHeaderIPAddressOutput( $row );
 
