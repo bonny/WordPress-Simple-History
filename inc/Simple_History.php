@@ -51,14 +51,14 @@ class Simple_History {
 	 *
 	 * @var bool
 	 */
-	private $doFilterGettext = false;
+	private $do_filter_gettext = false;
 
 	/**
 	 * Used by gettext filter to temporarily store current logger.
 	 *
 	 * @var Logger
 	 */
-	private $doFilterGettext_currentLogger;
+	private $do_filter_gettext_current_logger;
 
 	/**
 	 * Used to store latest translations used by __()
@@ -67,7 +67,7 @@ class Simple_History {
 	 *
 	 * @var array
 	 */
-	public $gettextLatestTranslations = array();
+	public $gettext_latest_translations = array();
 
 	/**
 	 * All registered settings tabs.
@@ -464,7 +464,7 @@ class Simple_History {
 		// when SimpleLogger->log() is called from anywhere we can then search for the
 		// translated string among our n latest things and find it there, if it's translated
 		// global $sh_latest_translations;
-		$sh_latest_translations = $this->gettextLatestTranslations;
+		$sh_latest_translations = $this->gettext_latest_translations;
 
 		$sh_latest_translations[ $translation ] = array(
 			'translation' => $translation,
@@ -477,7 +477,7 @@ class Simple_History {
 			$sh_latest_translations = array_slice( $sh_latest_translations, $arr_length - $array_max_size );
 		}
 
-		$this->gettextLatestTranslations = $sh_latest_translations;
+		$this->gettext_latest_translations = $sh_latest_translations;
 
 		return $translation;
 	}
@@ -722,8 +722,8 @@ class Simple_History {
 	 * in the database.
 	 */
 	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
-		if ( isset( $this->doFilterGettext ) && $this->doFilterGettext ) {
-			$this->doFilterGettext_currentLogger->messages[] = array(
+		if ( isset( $this->do_filter_gettext ) && $this->do_filter_gettext ) {
+			$this->do_filter_gettext_current_logger->messages[] = array(
 				'untranslated_text' => $untranslated_text,
 				'translated_text' => $translated_text,
 				'domain' => $domain,
@@ -738,8 +738,8 @@ class Simple_History {
 	 * Store messages with context
 	 */
 	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
-		if ( isset( $this->doFilterGettext ) && $this->doFilterGettext ) {
-			$this->doFilterGettext_currentLogger->messages[] = array(
+		if ( isset( $this->do_filter_gettext ) && $this->do_filter_gettext ) {
+			$this->do_filter_gettext_current_logger->messages[] = array(
 				'untranslated_text' => $untranslated_text,
 				'translated_text' => $translated_text,
 				'domain' => $domain,
@@ -1046,8 +1046,8 @@ class Simple_History {
 			$logger_instance->loaded();
 
 			// Tell gettext-filter to add untranslated messages.
-			$this->doFilterGettext = true;
-			$this->doFilterGettext_currentLogger = $logger_instance;
+			$this->do_filter_gettext = true;
+			$this->do_filter_gettext_current_logger = $logger_instance;
 
 			$logger_info = $logger_instance->get_info();
 
@@ -1066,8 +1066,8 @@ class Simple_History {
 			}
 
 			// Un-tell gettext filter.
-			$this->doFilterGettext = false;
-			$this->doFilterGettext_currentLogger = null;
+			$this->do_filter_gettext = false;
+			$this->do_filter_gettext_current_logger = null;
 
 			// LoggerInfo contains all messages, both translated an not, by key.
 			// Add messages to the loggerInstance.

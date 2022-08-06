@@ -1170,8 +1170,7 @@ abstract class Logger {
 		}
 
 		// Check if $message is a translated message, and if so then fetch original
-		$sh_latest_translations =
-		$this->simpleHistory->gettextLatestTranslations;
+		$sh_latest_translations = $this->simpleHistory->gettext_latest_translations;
 
 		if ( ! empty( $sh_latest_translations ) ) {
 			if ( isset( $sh_latest_translations[ $message ] ) ) {
