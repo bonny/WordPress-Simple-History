@@ -21,9 +21,9 @@ class Plugin_ACF extends Logger {
 	/**
 	 * Will contain field groups and fields, before and after post save.
 	 *
-	 * @var string $oldAndNewFieldGroupsAndFields
+	 * @var string $old_and_new_field_groups_and_fields
 	 */
-	private $oldAndNewFieldGroupsAndFields = array(
+	private $old_and_new_field_groups_and_fields = array(
 		'fieldGroup'     => array(
 			'old' => null,
 			'new' => null,
@@ -823,7 +823,7 @@ class Plugin_ACF extends Logger {
 			'description',
 		);
 
-		$fieldGroup = $this->oldAndNewFieldGroupsAndFields['fieldGroup'];
+		$fieldGroup = $this->old_and_new_field_groups_and_fields['fieldGroup'];
 
 		foreach ( $arr_field_group_keys_to_diff as $key ) {
 			if ( isset( $fieldGroup['old'][ $key ] ) && isset( $fieldGroup['new'][ $key ] ) ) {
@@ -861,9 +861,9 @@ class Plugin_ACF extends Logger {
 
 		// ddd($context, $arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
 		// Add removed fields to context
-		if ( ! empty( $this->oldAndNewFieldGroupsAndFields['deletedFields'] ) && is_array( $this->oldAndNewFieldGroupsAndFields['deletedFields'] ) ) {
+		if ( ! empty( $this->old_and_new_field_groups_and_fields['deletedFields'] ) && is_array( $this->old_and_new_field_groups_and_fields['deletedFields'] ) ) {
 			$loopnum = 0;
-			foreach ( $this->oldAndNewFieldGroupsAndFields['deletedFields'] as $oneDeletedField ) {
+			foreach ( $this->old_and_new_field_groups_and_fields['deletedFields'] as $oneDeletedField ) {
 				$context[ "acf_deleted_fields_{$loopnum}_key" ]   = $oneDeletedField['key'];
 				$context[ "acf_deleted_fields_{$loopnum}_name" ]  = $oneDeletedField['name'];
 				$context[ "acf_deleted_fields_{$loopnum}_label" ] = $oneDeletedField['label'];
@@ -873,10 +873,10 @@ class Plugin_ACF extends Logger {
 		}
 
 		// Add added fields to context
-		if ( ! empty( $this->oldAndNewFieldGroupsAndFields['addedFields'] ) && is_array( $this->oldAndNewFieldGroupsAndFields['addedFields'] ) ) {
+		if ( ! empty( $this->old_and_new_field_groups_and_fields['addedFields'] ) && is_array( $this->old_and_new_field_groups_and_fields['addedFields'] ) ) {
 			$loopnum = 0;
 
-			foreach ( $this->oldAndNewFieldGroupsAndFields['addedFields'] as $oneAddedField ) {
+			foreach ( $this->old_and_new_field_groups_and_fields['addedFields'] as $oneAddedField ) {
 				// Id not available here, wold be nice to have
 				// $context["acf_added_fields_{$loopnum}_ID"] = $oneAddedField['ID'];
 				$context[ "acf_added_fields_{$loopnum}_key" ]   = $oneAddedField['key'];
@@ -888,9 +888,9 @@ class Plugin_ACF extends Logger {
 		}
 
 		// Add modified fields to context
-		// dd('on_post_updated_context', $context, $this->oldAndNewFieldGroupsAndFields);
-		if ( ! empty( $this->oldAndNewFieldGroupsAndFields['modifiedFields']['old'] ) && ! empty( $this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'] ) ) {
-			$modifiedFields = $this->oldAndNewFieldGroupsAndFields['modifiedFields'];
+		// dd('on_post_updated_context', $context, $this->old_and_new_field_groups_and_fields);
+		if ( ! empty( $this->old_and_new_field_groups_and_fields['modifiedFields']['old'] ) && ! empty( $this->old_and_new_field_groups_and_fields['modifiedFields']['new'] ) ) {
+			$modifiedFields = $this->old_and_new_field_groups_and_fields['modifiedFields'];
 
 			$arr_added_fields_keys_to_add = array(
 				'parent',
@@ -970,10 +970,10 @@ class Plugin_ACF extends Logger {
 			return $data;
 		}
 
-		$this->oldAndNewFieldGroupsAndFields['fieldGroup']['old'] = acf_get_field_group( $postarr['ID'] );
+		$this->old_and_new_field_groups_and_fields['fieldGroup']['old'] = acf_get_field_group( $postarr['ID'] );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$this->oldAndNewFieldGroupsAndFields['fieldGroup']['new'] = acf_get_valid_field_group( $_POST['acf_field_group'] );
+		$this->old_and_new_field_groups_and_fields['fieldGroup']['new'] = acf_get_valid_field_group( $_POST['acf_field_group'] );
 
 		return $data;
 	}
@@ -1027,7 +1027,7 @@ class Plugin_ACF extends Logger {
 					continue;
 				}
 
-				$this->oldAndNewFieldGroupsAndFields['deletedFields'][ $id ] = $field_info;
+				$this->old_and_new_field_groups_and_fields['deletedFields'][ $id ] = $field_info;
 			}
 		}
 
@@ -1039,13 +1039,13 @@ class Plugin_ACF extends Logger {
 				if ( empty( $oneFieldAddedOrUpdated['ID'] ) ) {
 					// New fields have no id
 					// 'ID' => string(0) ""
-					$this->oldAndNewFieldGroupsAndFields['addedFields'][] = $oneFieldAddedOrUpdated;
+					$this->old_and_new_field_groups_and_fields['addedFields'][] = $oneFieldAddedOrUpdated;
 				} else {
 					// Existing fields have an id
 					// 'ID' => string(3) "383"
-					$this->oldAndNewFieldGroupsAndFields['modifiedFields']['old'][ $oneFieldAddedOrUpdated['ID'] ] = acf_get_field( $oneFieldAddedOrUpdated['ID'] );
+					$this->old_and_new_field_groups_and_fields['modifiedFields']['old'][ $oneFieldAddedOrUpdated['ID'] ] = acf_get_field( $oneFieldAddedOrUpdated['ID'] );
 
-					$this->oldAndNewFieldGroupsAndFields['modifiedFields']['new'][ $oneFieldAddedOrUpdated['ID'] ] = $oneFieldAddedOrUpdated;
+					$this->old_and_new_field_groups_and_fields['modifiedFields']['new'][ $oneFieldAddedOrUpdated['ID'] ] = $oneFieldAddedOrUpdated;
 				}
 			}
 		}
