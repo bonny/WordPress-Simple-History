@@ -22,7 +22,7 @@ class WPCLI extends Dropin {
 	private function register_commands() {
 		WP_CLI::add_command(
 			'simple-history',
-			__NAMESPACE__ . '\Commands',
+			__NAMESPACE__ . '\WPCLI_Commands',
 			array(
 				'shortdesc' => __( 'List events from the Simple History log.', 'simple-history' ),
 			)
@@ -30,7 +30,7 @@ class WPCLI extends Dropin {
 	}
 }
 
-class Commands {
+class WPCLI_Commands {
 	/** Simple History instance. */
 	private $simple_history;
 
