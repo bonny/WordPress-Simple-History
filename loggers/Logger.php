@@ -50,10 +50,10 @@ abstract class Logger {
 	/**
 	 * Context of last inserted row.
 	 *
-	 * @var array $lastInsertContext
+	 * @var array $last_insert_context
 	 * @since 2.2x
 	 */
-	public $lastInsertContext;
+	public $last_insert_context;
 
 	/**
 	 * Simple History instance.
@@ -1521,7 +1521,7 @@ abstract class Logger {
 		} // End if().
 
 		$this->last_insert_id = $history_inserted_id;
-		$this->lastInsertContext = $context;
+		$this->last_insert_context = $context;
 
 		Helpers::get_cache_incrementor( true );
 
