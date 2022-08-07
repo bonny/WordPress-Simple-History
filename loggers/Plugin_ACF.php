@@ -263,9 +263,9 @@ class Plugin_ACF extends Logger {
 
 		// Save ACF diff if detected post here is same as the last one used in Postlogger.
 		if ( isset( $post_logger->lastInsertContext['post_id'] ) && $post_id === $post_logger->lastInsertContext['post_id'] ) {
-			$last_insert_id = $post_logger->lastInsertID;
+			$last_insert_id = $post_logger->last_insert_id;
 
-			// Append new info to the context of history item with id $post_logger->lastInsertID.
+			// Append new info to the context of history item with id $post_logger->last_insert_id.
 			$acf_context = array();
 			$acf_context = $this->add_acf_context( $acf_context, 'added', $post_meta_added_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
 			$acf_context = $this->add_acf_context( $acf_context, 'changed', $post_meta_changed_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );

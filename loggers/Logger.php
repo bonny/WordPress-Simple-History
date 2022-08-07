@@ -45,7 +45,7 @@ abstract class Logger {
 	 *
 	 * @var int
 	 */
-	public $lastInsertID;
+	public $last_insert_id;
 
 	/**
 	 * Context of last inserted row.
@@ -1520,7 +1520,7 @@ abstract class Logger {
 			$this->append_context( $history_inserted_id, $context );
 		} // End if().
 
-		$this->lastInsertID = $history_inserted_id;
+		$this->last_insert_id = $history_inserted_id;
 		$this->lastInsertContext = $context;
 
 		Helpers::get_cache_incrementor( true );
@@ -1546,7 +1546,7 @@ abstract class Logger {
 	}
 
 	/**
-	 * Append new info to the context of history item with id $post_logger->lastInsertID.
+	 * Append new info to the context of history item with id $post_logger->last_insert_id.
 	 *
 	 * @param int   $history_id The id of the history row to add context to.
 	 * @param array $context Context to append to existing context for the row.
