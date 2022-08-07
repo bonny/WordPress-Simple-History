@@ -59,6 +59,9 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 			'SimplePostLogger',
 			'SimpleThemeLogger',
 			'SimpleUserLogger',
+			'SH_Jetpack_Logger',
+			'SH_Privacy_Logger',
+			'SH_Translations_Logger'
 		);
 
 		foreach ( $arr_default_loggers as $slug ) {
