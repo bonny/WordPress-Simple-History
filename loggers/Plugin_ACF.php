@@ -39,9 +39,9 @@ class Plugin_ACF extends Logger {
 	/**
 	 * Will contain the post data before save, i.e. the previous version of the post.
 	 *
-	 * @var string $oldPostData
+	 * @var string $old_post_data
 	 */
-	private $oldPostData = array();
+	private $old_post_data = array();
 
 	/**
 	 * Get info for this logger.
@@ -188,7 +188,7 @@ class Plugin_ACF extends Logger {
 		[_product_images_0_image_related] => field_59aaedbc3ae10
 		[product_images_1_image] => 574
 		*/
-		$prev_post_meta = $this->oldPostData['prev_post_meta'] ?? array();
+		$prev_post_meta = $this->old_post_data['prev_post_meta'] ?? array();
 
 		$new_post_meta = get_post_custom( $post_id );
 		array_walk(
@@ -498,7 +498,7 @@ class Plugin_ACF extends Logger {
 
 	/**
 	 * Store prev post meta when post is saved.
-	 * Stores data in $this->oldPostData.
+	 * Stores data in $this->old_post_data.
 	 */
 	public function on_admin_action_editpost() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -524,7 +524,7 @@ class Plugin_ACF extends Logger {
 			}
 		);
 
-		$this->oldPostData['prev_post_meta'] = $post_meta;
+		$this->old_post_data['prev_post_meta'] = $post_meta;
 	}
 
 	/**
