@@ -644,16 +644,6 @@ class SimpleCommentsLogger extends Logger {
 						$desc_output .= esc_html( $context[ $key ] );
 					}
 
-					/*
-					if ( isset( $context["comment_author_email"] ) ) {
-
-						$gravatar_email = $context["comment_author_email"];
-						$avatar = $this->simpleHistory->get_avatar( $gravatar_email, 14, "blank" );
-						$desc_output .= "<span class='SimpleCommentsLogger__gravatar'>{$avatar}</span>";
-
-					}
-					*/
-
 					break;
 
 				case 'comment_status':
