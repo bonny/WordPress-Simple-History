@@ -1,10 +1,12 @@
 parameters:
-  level: 1
+  level: 0
   scanDirectories:
     - inc
     - loggers
     - dropins
     - templates
+  excludePaths:
+    - vendor
   scanFiles:
     - index.php
     - %rootDir%/../../php-stubs/wordpress-stubs/wordpress-stubs.php
