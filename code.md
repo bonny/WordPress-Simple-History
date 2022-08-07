@@ -22,9 +22,11 @@ Use PHP 7.4 (the WordPress rules crashes on PHP 8 so far, bug fixed but no versi
 
 ## phpstan
 
+**PHPStan** is used to analyze code.
+
 Config is in `phpstan.neon`.
 
-- `$ vendor/bin/phpstan analyse`
+- `$ vendor/bin/phpstan analyse --memory-limit 2048M .`
 
 ## Rector
 
