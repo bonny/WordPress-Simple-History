@@ -2,15 +2,7 @@
 namespace Simple_History\Loggers;
 
 /**
- * Logger for Automattic Jetpack plugin.
- *
- * @package SimpleHistory
- */
-
-defined( 'ABSPATH' ) || die();
-
-/**
- * Logger for plugin Jetpack.
+ * Logger for plugin Jetpack from Automattic.
  */
 class SH_Jetpack_Logger extends Logger {
 	/**
