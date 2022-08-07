@@ -60,7 +60,7 @@ abstract class Logger {
 	 *
 	 * @var Simple_History
 	 */
-	public $simpleHistory;
+	public $simple_history;
 
 	/**
 	 * Full name of simple history table, i.e. wp db prefix + simple history db name.
@@ -79,16 +79,16 @@ abstract class Logger {
 	/**
 	 * Constructor. Remember to call this as parent constructor if making a child logger.
 	 *
-	 * @param Simple_History $simpleHistory
+	 * @param Simple_History $simple_history
 	 */
-	public function __construct( $simpleHistory = null ) {
+	public function __construct( $simple_history = null ) {
 		global $wpdb;
 
 		$this->db_table = $wpdb->prefix . Simple_History::DBTABLE;
 		$this->db_table_contexts =
 			$wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 
-		$this->simpleHistory = $simpleHistory;
+		$this->simple_history = $simple_history;
 	}
 
 	/**
@@ -732,18 +732,18 @@ abstract class Logger {
 				$user = get_user_by( 'id', $user_id );
 				if ( $user_id > 0 && ( $user ) ) {
 					// Sender was user
-					$sender_image_html = $this->simpleHistory->get_avatar(
+					$sender_image_html = $this->simple_history->get_avatar(
 						$user->user_email,
 						$sender_image_size
 					);
 				} elseif ( $user_id > 0 ) {
 					// Sender was a user, but user is deleted now
-					$sender_image_html = $this->simpleHistory->get_avatar(
+					$sender_image_html = $this->simple_history->get_avatar(
 						'',
 						$sender_image_size
 					);
 				} else {
-					$sender_image_html = $this->simpleHistory->get_avatar(
+					$sender_image_html = $this->simple_history->get_avatar(
 						'',
 						$sender_image_size
 					);
@@ -1170,7 +1170,7 @@ abstract class Logger {
 		}
 
 		// Check if $message is a translated message, and if so then fetch original
-		$sh_latest_translations = $this->simpleHistory->gettext_latest_translations;
+		$sh_latest_translations = $this->simple_history->gettext_latest_translations;
 
 		if ( ! empty( $sh_latest_translations ) ) {
 			if ( isset( $sh_latest_translations[ $message ] ) ) {
