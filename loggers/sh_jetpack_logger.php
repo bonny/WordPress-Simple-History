@@ -1,6 +1,8 @@
 <?php
 namespace Simple_History\Loggers;
 
+use Jetpack;
+
 /**
  * Logger for plugin Jetpack from Automattic.
  */
