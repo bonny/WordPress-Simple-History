@@ -74,6 +74,12 @@ class Plugin_Redirection extends Logger {
 	 * Called when logger is loaded.
 	 */
 	public function loaded() {
+
+		// Check that Redirection class exists.
+		if ( ! class_exists( 'Red_Item' ) ) {
+			return;
+		}
+
 		// Redirection plugin uses the WP REST API, so catch when requests do the API is done.
 		// We use filter *_before_callbacks so we can access the old title
 		// of the Redirection object, i.e. before new values are saved.
@@ -144,13 +150,10 @@ class Plugin_Redirection extends Logger {
 			$this->log_group_add( $request );
 		} elseif ( 'Redirection_Api_Group::route_bulk' === $callable_name ) {
 			$bulk_action = $request->get_param( 'bulk' );
+			$bulk_items = (array) $request->get_param( 'items' );
+			// $bulk_items = explode( ',', $bulk_items );
 
-			$bulk_items = $request->get_param( 'items' );
-			$bulk_items = explode( ',', $bulk_items );
-
-			if ( is_array( $bulk_items ) ) {
-				$bulk_items = array_map( 'intval', $bulk_items );
-			}
+			$bulk_items = array_map( 'intval', $bulk_items );
 
 			if ( empty( $bulk_items ) ) {
 				return $response;
@@ -321,12 +324,12 @@ class Plugin_Redirection extends Logger {
 
 		$context = array(
 			'new_source_url' => $req->get_param( 'url' ),
-			'new_target' => $action_data,
+			'new_target' => $action_data['url'],
 			'redirection_id' => $redirection_id,
 		);
 
 		// Get old values.
-		$redirection_item = Red_Item::get_by_id( $redirection_id );
+		$redirection_item = \Red_Item::get_by_id( $redirection_id );
 
 		if ( false !== $redirection_item ) {
 			$context['prev_source_url'] = $redirection_item->get_url();

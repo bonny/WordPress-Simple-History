@@ -254,6 +254,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 **Fixed**
 
 - Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
+- Redirection logger logs enabling, disabling, and deletion of groups again.
 
 = 3.3.0 (May 2022) =
 
