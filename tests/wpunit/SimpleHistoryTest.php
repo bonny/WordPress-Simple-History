@@ -25,6 +25,9 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertTrue( class_exists( 'Simple_History\Simple_History' ) );
 		$this->assertTrue( class_exists( 'Simple_History\Log_Query' ) );
+		$this->assertTrue( class_exists( 'Simple_History\Loggers\Logger' ) );
+		$this->assertTrue( class_exists( 'Simple_History\Log_Initiators' ) );
+		$this->assertTrue( class_exists( 'Simple_History\Log_Levels' ) );
 
 		$sh = Simple_History::get_instance();
 		$this->assertTrue( is_object( $sh ) );
