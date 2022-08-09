@@ -264,7 +264,7 @@ class SimpleUserLoggerCest
     }
 
     // user_application_password_deleted
-    public function logUserApplicationPasswordDeleted(\Step\Acceptance\Admin $I)
+    public function logUserApplicationPasswordRevoked(\Step\Acceptance\Admin $I)
     {
         $I->haveUserInDatabase('annaauthor', 'author', ['user_pass' => 'password']);
 
@@ -276,23 +276,20 @@ class SimpleUserLoggerCest
         $I->checkOption('#rich_editing');
         $I->selectOption('input[name=admin_color]', 'light');
         $I->fillField("#new_application_password_name", "My New App");
-
         $I->click('#do_new_application_password');
-
         $I->waitForElementVisible('#new-application-password-value');
-
         $I->see('Your new password for My New App is:');
-
         $I->click("Revoke");
-
         $I->acceptPopup();
-
         $I->waitForText('Application password revoked');
-
-        // FIXME: application passwords are revoked and not deleted?
-        // change message keys to revoked
+        
         $I->seeLogInitiator('wp_user');
-        $I->seeLogMessage('Deleted application password "My New App" for user "annaauthor"');
-        $I->seeLogContextDebug();
+        $I->seeLogMessage('Revoked application password "My New App" for user "annaauthor"');
+        $I->seeLogContext([
+            'application_password_name' => 'My New App',
+            'edited_user_id' => '2',
+            'edited_user_email' => 'annaauthor@example.com',
+            'edited_user_login' => 'annaauthor'
+        ]);
     }
 }
