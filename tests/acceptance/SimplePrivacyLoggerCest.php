@@ -64,7 +64,7 @@ class SimplePrivacyLoggerCest
         $I->click('Send Request');
 
         $I->seeLogInitiator('wp_user');
-        $I->seeLogMessage('Requested a privacy data export for user "myNewUser@example.com"');
+        $I->seeLogMessage('Requested a personal privacy data export for user "myNewUser@example.com"');
         $I->seeLogContext([
             'send_confirmation_email' => 1,
         ]);
@@ -96,7 +96,7 @@ class SimplePrivacyLoggerCest
         $I->amOnAdminPage('export-personal-data.php');
         $I->moveMouseOver('.table-view-list tbody tr:nth-child(1)');
         $I->click('Complete request');
-        $I->seeLogMessage('Marked Data Export Request for "myNewUser@example.com" as complete');
+        $I->seeLogMessage('Marked personal data export request as complete for "myNewUser@example.com"');
 
         /**
          * Remove request after it's done/completed.
