@@ -73,9 +73,9 @@ class SimpleUserLogger extends Logger {
 					'User add new application password',
 					'simple-history'
 				),
-				'user_application_password_deleted' => _x(
-					'Deleted application password "{application_password_name}" for user "{edited_user_login}"',
-					'User deletes application password',
+				'user_application_password_revoked' => _x(
+					'Revoked application password "{application_password_name}" for user "{edited_user_login}"',
+					'User revoke application password',
 					'simple-history'
 				),
 			),
@@ -149,7 +149,7 @@ class SimpleUserLogger extends Logger {
 							'user_application_password_created',
 						),
 						_x( 'User application password deletion', 'User logger: search', 'simple-history' ) => array(
-							'user_application_password_deleted',
+							'user_application_password_revoked',
 						),
 
 					),
@@ -268,7 +268,7 @@ class SimpleUserLogger extends Logger {
 		$user = get_user_by( 'ID', $user_id );
 
 		$this->info_message(
-			'user_application_password_deleted',
+			'user_application_password_revoked',
 			array(
 				'edited_user_id' => $user_id,
 				'edited_user_email' => $user->user_email,

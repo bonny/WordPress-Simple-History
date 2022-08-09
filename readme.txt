@@ -236,6 +236,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Move init code in dropins to `loaded()` from `__construct()`.
 - Rename `getLogLevelTranslated()` to `get_log_level_translated()` and move to class `log_levels`.
 - Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style).
+- Rename message key `user_application_password_deleted` to `user_application_password_revoked`.
 
 **Removed**
 
