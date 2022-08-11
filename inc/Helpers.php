@@ -304,4 +304,37 @@ class Helpers {
 
 		return $incrementor_value;
 	}
+
+	/**
+	 * Return a name for a callable.
+	 *
+	 * Examples of return values:
+	 * - WP_REST_Posts_Controller::get_items
+	 * - WP_REST_Users_Controller::get_items"
+	 * - WP_REST_Server::get_index
+	 * - Redirection_Api_Redirect::route_bulk
+	 * - wpcf7_rest_create_feedback
+	 * - closure
+	 *
+	 * Function based on code found on stack overflow:
+	 * https://stackoverflow.com/questions/34324576/print-name-or-definition-of-callable-in-php
+	 *
+	 * @param callable $callable The callable thing to check.
+	 * @return string Name of callable.
+	 */
+	public static function get_callable_name( $callable ) {
+		if ( is_string( $callable ) ) {
+			return trim( $callable );
+		} elseif ( is_array( $callable ) ) {
+			if ( is_object( $callable[0] ) ) {
+				return sprintf( '%s::%s', get_class( $callable[0] ), trim( $callable[1] ) );
+			} else {
+				return sprintf( '%s::%s', trim( $callable[0] ), trim( $callable[1] ) );
+			}
+		} elseif ( $callable instanceof \Closure ) {
+			return 'closure';
+		} else {
+			return 'unknown';
+		}
+	}
 }
