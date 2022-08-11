@@ -217,6 +217,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Add filter `simple_history/ip_number_header_names`.
 - Add methods `get_events_table_name()` and `get_contexts_table_name()`.
 - Call method `loaded()` on dropins when they are loaded.
+- Redirection logger now logs group edits.
 
 **Changed**
 

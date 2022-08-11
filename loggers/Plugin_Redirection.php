@@ -37,6 +37,7 @@ class Plugin_Redirection extends Logger {
 				'redirection_options_saved'        => _x( 'Updated redirection options', 'Logger: Redirection', 'simple-history' ),
 				'redirection_options_removed_all'  => _x( 'Removed all redirection options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
 				'redirection_group_added'          => _x( 'Added redirection group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_edited'         => _x( 'Edited redirection group "{prev_group_name}"', 'Logger: Redirection', 'simple-history' ),
 				'redirection_group_enabled'        => _x( 'Enabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 				'redirection_group_disabled'       => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 				'redirection_group_deleted'        => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
@@ -91,11 +92,11 @@ class Plugin_Redirection extends Logger {
 	/**
 	 * Fired when WP REST API call is done.
 	 *
-	 * @param WP_HTTP_Response $response Result to send to the client. Usually a WP_REST_Response.
-	 * @param WP_REST_Server   $handler  ResponseHandler instance (usually WP_REST_Server).
-	 * @param WP_REST_Request  $request  Request used to generate the response.
+	 * @param \WP_HTTP_Response $response Result to send to the client. Usually a WP_REST_Response.
+	 * @param \WP_REST_Server   $handler  ResponseHandler instance (usually WP_REST_Server).
+	 * @param \WP_REST_Request  $request  Request used to generate the response.
 	 *
-	 * @return WP_HTTP_Response $response
+	 * @return \WP_HTTP_Response $response
 	 */
 	public function on_rest_request_before_callbacks( $response, $handler, $request ) {
 		// Callback must be set.
@@ -113,6 +114,7 @@ class Plugin_Redirection extends Logger {
 			'Redirection_Api_Redirect::route_update',
 			'Redirection_Api_Group::route_create',
 			'Redirection_Api_Group::route_bulk',
+			'Redirection_Api_Group::route_update',
 			'Redirection_Api_Settings::route_save_settings',
 		);
 
@@ -150,10 +152,11 @@ class Plugin_Redirection extends Logger {
 			}
 		} elseif ( 'Redirection_Api_Group::route_create' === $callable_name ) {
 			$this->log_group_add( $request );
+		} elseif ( 'Redirection_Api_Group::route_update' === $callable_name ) {
+			$this->log_group_edit( $request );
 		} elseif ( 'Redirection_Api_Group::route_bulk' === $callable_name ) {
 			$bulk_action = $request->get_param( 'bulk' );
 			$bulk_items = (array) $request->get_param( 'items' );
-			// $bulk_items = explode( ',', $bulk_items );
 
 			$bulk_items = array_map( 'intval', $bulk_items );
 
@@ -178,7 +181,7 @@ class Plugin_Redirection extends Logger {
 	/**
 	 * Log when a Redirection group is deleted.
 	 *
-	 * @param object $req Request.
+	 * @param \WP_REST_Request $req Request.
 	 * @param array  $bulk_items Array with item ids.
 	 */
 	public function log_group_delete( $req, $bulk_items ) {
@@ -194,9 +197,9 @@ class Plugin_Redirection extends Logger {
 	}
 
 	/**
-	 * Log when a Redirection group is added
+	 * Log when a Redirection group is added.
 	 *
-	 * @param WP_REST_Request $req Request.
+	 * @param \WP_REST_Request $req Request.
 	 */
 	public function log_group_add( $req ) {
 		$group_name = $req->get_param( 'name' );
@@ -211,6 +214,40 @@ class Plugin_Redirection extends Logger {
 
 		$this->info_message(
 			'redirection_group_added',
+			$context
+		);
+	}
+
+	/**
+	 * Log when a Redirection group is edited.
+	 *
+	 * @param \WP_REST_Request $req Request.
+	 */
+	public function log_group_edit( $req ) {
+		$group_id = $req->get_param( 'id' );
+
+		if ( $group_id === null ) {
+			return;
+		}
+
+		$context = array(
+			'group_id' => $group_id,
+			'new_group_name' => $req->get_param( 'name' ),
+			'new_group_module_id' => $req->get_param( 'moduleId' ),
+		);
+
+		// Get old values.
+		$redirection_item = \Red_Group::get( $group_id );
+		if ( $redirection_item !== false ) {
+			$prev_group_name = $redirection_item->get_name();
+			$prev_group_module_id = $redirection_item->get_module_id();
+
+			$context['prev_group_name'] = $prev_group_name;
+			$context['prev_group_module_id'] = $prev_group_module_id;
+		}
+
+		$this->info_message(
+			'redirection_group_edited',
 			$context
 		);
 	}
@@ -320,8 +357,6 @@ class Plugin_Redirection extends Logger {
 			return false;
 		}
 
-		$message_key = 'redirection_redirection_edited';
-
 		$redirection_id = $req->get_param( 'id' );
 
 		$context = array(
@@ -339,7 +374,7 @@ class Plugin_Redirection extends Logger {
 		}
 
 		$this->info_message(
-			$message_key,
+			'redirection_redirection_edited',
 			$context
 		);
 	}
