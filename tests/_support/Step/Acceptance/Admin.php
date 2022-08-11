@@ -10,7 +10,6 @@ use Exception;
 
 class Admin extends \AcceptanceTester
 {
-
     public function loginAsAdminToHistoryPage()
     {
         $I = $this;
