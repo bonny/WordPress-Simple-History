@@ -26,7 +26,6 @@ class PluginRedirectionLoggerCest
         $I->fillField('[name=url]', '/my-source-url');
         $I->fillField('[name=text]', '/my-target-url');
         $I->click('Add Redirect');
-        
         $I->wait('1'); // wait for ajax call.
         $I->seeLogMessage('Added a redirection for URL "/my-source-url"');
         $I->seeLogContext([
@@ -37,20 +36,75 @@ class PluginRedirectionLoggerCest
         // Modify redirect.
         $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
         $I->click('Edit');
+        $I->fillField('.redirect-edit [name=url]', '/my-modified-source-url');
+        $I->fillField('.redirect-edit [name=text]', '/my-modified-target-url');
+        $I->click("Save");
+        $I->wait('1'); // wait for ajax call.
+        $I->seeLogMessage('Edited redirection for URL "/my-source-url"');
 
-        // $I->makeHtmlSnapshot();
-        $I->makeScreenshot();
+        // Disable redirect.
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->click('Disable');
+        $I->wait('1'); // wait for ajax call.
+        $I->seeLogMessage('Disabled redirection for 1 URL(s)');
+
+        // Enable redirect.
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->click('Enable');
+        $I->wait('1'); // wait for ajax call.
+        $I->seeLogMessage('Enabled redirection for 1 URL(s)');
+
+        // Delete redirect.
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->click('Delete');
+        $I->acceptPopup();
+        $I->wait('1'); // wait for ajax call.
+        $I->seeLogMessage('Deleted redirection for 1 URL(s)');
+    }
+
+    public function testGroups(Admin $I) {
         
-        // $I->amOnAdminPage( 'admin.php?page=jetpack#/performance' );
+        // Go to page before some actions because the order is different
+        // directly after adding via Ajax and after a page reload.
+        $admin_page = '/tools.php?page=redirection.php&sub=groups&direction=asc';
 
-        // // Enable site accelerator.
-        // $I->click('label[for="toggle-0"]');
-        // $I->wait(1); // Toggle takes some time to be activated.        
-        // $I->seeLogMessage('Activated Jetpack module "Asset CDN"');
+        // Add group.
+        $I->amOnAdminPage($admin_page);
+        $I->fillField('[name=name]', 'A new group');
+        $I->click('Add');
+        $I->wait('1'); // wait for ajax call.
+        $I->seeLogMessage('Added redirection group "A new group"');
 
-        // // Enable Lazy Loading for images.
-        // $I->click('label[for="toggle-3"]');
-        // $I->wait(1); // Toggle takes some time to be activated.        
-        // $I->seeLogMessage('Activated Jetpack module "Lazy Images"');
+        // Edit group.
+        // $I->amOnAdminPage($admin_page);
+        // $I->makeScreenshot();
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->click('Edit');
+        $I->fillField('.edit-groups [name=name]', 'A new group modified');
+        $I->click("Save");
+        $I->wait('1'); // wait for ajax call.
+        $I->seeLogMessage('Edited redirection group "A new group"');
+        $I->seeLogContext([
+            'group_id' => '3',
+            'new_group_name' => 'A new group modified',
+            'new_group_module_id' => '1',
+            'prev_group_name' => 'A new group',
+            'prev_group_module_id' => '1',
+        ]);
+
+        // Disable group.
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->makeScreenshot();
+        $I->click('Disable');
+        $I->wait('1'); // wait for ajax call.
+        $I->seeLogMessage('Disabled 1 redirection group(s)');
+
+        // // Enable group.
+        $I->amOnAdminPage($admin_page);
+        $I->wait(0.25); // Items are loaded via Ajax.
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->click('Enable');
+        $I->wait(0.25); // wait for ajax call.
+        $I->seeLogMessage('Enabled 1 redirection group(s)');
     }
 }
