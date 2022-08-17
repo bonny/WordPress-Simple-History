@@ -25,5 +25,6 @@ modules:
           "wp-crontrol/wp-crontrol.php",
           "duplicate-post/duplicate-post.php",
           "redirection/redirection.php",
+          "enable-media-replace/enable-media-replace.php",
         ]
       activatePlugins: ["simple-history/index.php"]
