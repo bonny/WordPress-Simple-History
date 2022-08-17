@@ -26,5 +26,6 @@ modules:
           "duplicate-post/duplicate-post.php",
           "redirection/redirection.php",
           "enable-media-replace/enable-media-replace.php",
+          "user-switching/user-switching.php",
         ]
       activatePlugins: ["simple-history/index.php"]

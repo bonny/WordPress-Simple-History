@@ -195,10 +195,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Currently doing =
 
-- Add tests for Redirection plugin. [#306](https://github.com/bonny/WordPress-Simple-History/issues/306)
-  - Load plugin
-  - Add tests..
-
+- Add tests for PluginUserSwitchingLogger.
+  
 = Unreleased =
 
 **Added**
