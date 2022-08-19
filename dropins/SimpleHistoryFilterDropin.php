@@ -631,9 +631,9 @@ class SimpleHistoryFilterDropin {
 			),
 		);
 
-		/* translators: 1: month, 2: day, 3: year */
 		echo wp_kses(
 			sprintf(
+				/* translators: 1: month, 2: day, 3: year */
 				__( '%1$s %2$s, %3$s', 'simple-history' ),
 				$month,
 				$day,
