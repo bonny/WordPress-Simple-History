@@ -105,13 +105,13 @@ class Helpers {
 		return $r;
 	}
 
-	   /**
-	* Interpolates context values into the message placeholders.
-	*
-	* @param string $message
-	* @param array  $context
-	* @param array  $row Currently not always passed, because loggers need to be updated to support this...
-	*/
+	/**
+	 * Interpolates context values into the message placeholders.
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 * @param array  $row Currently not always passed, because loggers need to be updated to support this...
+	 */
 	public static function interpolate( $message, $context = array(), $row = null ) {
 		if ( ! is_array( $context ) ) {
 			return $message;
