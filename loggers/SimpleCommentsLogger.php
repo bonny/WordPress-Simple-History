@@ -23,7 +23,6 @@ class SimpleCommentsLogger extends Logger {
 			'description' => __( 'Logs comments, and modifications to them', 'simple-history' ),
 			'capability'  => 'moderate_comments',
 			'messages'    => array(
-
 				// Comments
 				'anon_comment_added' => _x(
 					'Added a comment to {comment_post_type} "{comment_post_title}"',
@@ -134,7 +133,7 @@ class SimpleCommentsLogger extends Logger {
 					'simple-history'
 				),
 
-				// Pingbacks
+				// Pingbacks.
 				'anon_pingback_added' => _x(
 					'Added a pingback to {comment_post_type} "{comment_post_title}"',
 					'A trackback was added to the database by a non-logged in internet user',
@@ -316,7 +315,6 @@ class SimpleCommentsLogger extends Logger {
 
 	public function loaded() {
 		// Add option to not show spam comments, because to much things getting logged
-		// add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
 		add_filter( 'simple_history/log_query_inner_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
 		add_filter( 'simple_history/quick_stats_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
 
@@ -393,6 +391,7 @@ class SimpleCommentsLogger extends Logger {
 	public function on_edit_comment( $comment_ID ) {
 
 		$context = $this->get_context_for_comment( $comment_ID );
+
 		if ( ! $context ) {
 			return;
 		}
@@ -559,18 +558,6 @@ class SimpleCommentsLogger extends Logger {
 
 		$context = $row->context;
 		$output = '';
-		// print_r($row);exit;
-		/*
-		if ( 'spam' !== $commentdata['comment_approved'] ) { // If it's spam save it silently for later crunching
-				if ( '0' == $commentdata['comment_approved'] ) { // comment not spam, but not auto-approved
-					wp_notify_moderator( $comment_ID );
-		*/
-		/*
-		if ( isset( $context["comment_approved"] ) && $context["comment_approved"] == '0' ) {
-			$output .= "<br>comment was automatically approved";
-		} else {
-			$output .= "<br>comment was not automatically approved";
-		}*/
 
 		$comment_text = '';
 		if ( isset( $context['comment_content'] ) && $context['comment_content'] ) {
@@ -579,7 +566,7 @@ class SimpleCommentsLogger extends Logger {
 			$comment_text = wpautop( $comment_text );
 		}
 
-		// Keys to show
+		// Keys to show.
 		$arr_plugin_keys = array();
 		$comment_type = $context['comment_type'] ?? '';
 
@@ -587,7 +574,6 @@ class SimpleCommentsLogger extends Logger {
 			case 'trackback':
 				$arr_plugin_keys = array(
 					'trackback_status' => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
-					// "trackback_type" => _x("Trackback type", "comments logger - detailed output comment type", "simple-history"),
 					'trackback_author' => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
 					'trackback_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
 					'trackback_content' => _x( 'Content', 'comments logger - detailed output content', 'simple-history' ),
@@ -597,7 +583,6 @@ class SimpleCommentsLogger extends Logger {
 			case 'pingback':
 				$arr_plugin_keys = array(
 					'pingback_status' => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
-					// "pingback_type" => _x("Pingback type", "comments logger - detailed output comment type", "simple-history"),
 					'pingback_author' => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
 					'pingback_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
 					'pingback_content' => _x( 'Content', 'comments logger - detailed output content', 'simple-history' ),
@@ -609,21 +594,22 @@ class SimpleCommentsLogger extends Logger {
 			default:
 				$arr_plugin_keys = array(
 					'comment_status' => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
-					// "comment_type" => _x("Comment type", "comments logger - detailed output comment type", "simple-history"),
 					'comment_author' => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
 					'comment_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
 					'comment_content' => _x( 'Comment', 'comments logger - detailed output content', 'simple-history' ),
 				);
 
 				break;
+		} // End switch().
 
-				// "comment_author_url" => _x("Author URL", "comments logger - detailed output author", "simple-history"),
-				// "comment_author_IP" => _x("IP number", "comments logger - detailed output IP", "simple-history"),
-		}// End switch().
-
+		/**
+		 * Filter the keys to show in the comments details output.
+		 *
+		 * @param array $arr_plugin_keys
+		 */
 		$arr_plugin_keys = apply_filters( 'simple_history/comments_logger/row_details_plugin_info_keys', $arr_plugin_keys );
 
-		// Start output of plugin meta data table
+		// Start output of plugin meta data table.
 		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
 		foreach ( $arr_plugin_keys as $key => $desc ) {
