@@ -15,7 +15,6 @@ class SimpleCategoriesLogger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-
 		$arr_info = array(
 			'name'        => __( 'Categories Logger', 'simple-history' ),
 			'description' => __( 'Logs changes to categories, tags, and taxonomies', 'simple-history' ),
@@ -50,10 +49,10 @@ class SimpleCategoriesLogger extends Logger {
 	 * Called when the logger is loaded.
 	 */
 	public function loaded() {
-		// Fires after a new term is created, and after the term cache has been cleaned..
+		// Fires after a new term is created, and after the term cache has been cleaned.
 		add_action( 'created_term', array( $this, 'on_created_term' ), 10, 3 );
 
-		// Hook to this filter to see if it will cause a hierarchy loop.
+		// Fires after a term is deleted from the database and the cache is cleaned.
 		add_action( 'delete_term', array( $this, 'on_delete_term' ), 10, 4 );
 
 		// Filter the term parent.
@@ -72,7 +71,6 @@ class SimpleCategoriesLogger extends Logger {
 	 * @param array  $term_update_args        An array of update arguments for the given term.
 	 */
 	public function on_wp_update_term_parent( $parent = null, $term_id = null, $taxonomy = null, $parsed_args = null, $term_update_args = null ) {
-
 		$term_before_edited = get_term_by( 'id', $term_id, $taxonomy );
 
 		if ( ! $term_before_edited || empty( $term_update_args ) ) {
@@ -115,45 +113,6 @@ class SimpleCategoriesLogger extends Logger {
 		return $parent;
 	}
 
-	/**
-	 * Check if it's ok to log a taxonomy.
-	 * We skip some taxonomies, for example Polylang translation terms that fill the log with
-	 * messages like 'Edited term "pll_5a3643a142c80" in taxonomy "post_translations"' otherwise.
-	 *
-	 * @since 2.21
-	 * @param string $from_term_taxonomy Slug of taxonomy.
-	 * @return bool True or false.
-	 */
-	public function ok_to_log_taxonomy( $from_term_taxonomy = '' ) {
-		if ( empty( $from_term_taxonomy ) ) {
-			return false;
-		}
-
-		$skip_taxonomies = $this->get_skip_taxonomies();
-
-		$do_log = ! in_array( $from_term_taxonomy, $skip_taxonomies, true );
-
-		return $do_log;
-	}
-
-	/**
-	 * Get taxonomies to skip.
-	 *
-	 * @since 2.21
-	 * @return array Array with taxonomies.
-	 */
-	public function get_skip_taxonomies() {
-
-		$taxonomies_to_skip = array(
-			// Polylang taxonomies used to store translation mappings.
-			'post_translations',
-			'term_translations',
-		);
-
-		$taxonomies_to_skip = apply_filters( 'simple_history/categories_logger/skip_taxonomies', $taxonomies_to_skip );
-
-		return $taxonomies_to_skip;
-	}
 
 	/*
 	 * Fires after a new term is created, and after the term cache has been cleaned.
@@ -203,7 +162,6 @@ class SimpleCategoriesLogger extends Logger {
 	 *                              by the parent function. WP_Error otherwise.
 	 */
 	public function on_delete_term( $term = null, $tt_id = null, $taxonomy = null, $deleted_term = null ) {
-
 		if ( is_wp_error( $deleted_term ) ) {
 			return;
 		}
@@ -311,5 +269,49 @@ class SimpleCategoriesLogger extends Logger {
 		}
 
 		return helpers::interpolate( $message, $context, $row );
+	}
+
+	/**
+	 * Check if it's ok to log a taxonomy.
+	 * We skip some taxonomies, for example Polylang translation terms that fill the log with
+	 * messages like 'Edited term "pll_5a3643a142c80" in taxonomy "post_translations"' otherwise.
+	 *
+	 * @since 2.21
+	 * @param string $from_term_taxonomy Slug of taxonomy.
+	 * @return bool True or false.
+	 */
+	public function ok_to_log_taxonomy( $from_term_taxonomy = '' ) {
+		if ( empty( $from_term_taxonomy ) ) {
+			return false;
+		}
+
+		$skip_taxonomies = $this->get_skip_taxonomies();
+
+		$do_log = ! in_array( $from_term_taxonomy, $skip_taxonomies, true );
+
+		return $do_log;
+	}
+
+	/**
+	 * Get taxonomies to skip.
+	 *
+	 * @since 2.21
+	 * @return array Array with taxonomies.
+	 */
+	public function get_skip_taxonomies() {
+		$taxonomies_to_skip = array(
+			// Polylang taxonomies used to store translation mappings.
+			'post_translations',
+			'term_translations',
+		);
+
+		/**
+		 * Filter taxonomies to not log changes to.
+		 *
+		 * @param array $taxonomies_to_skip Array with taxonomy slugs.
+		 */
+		$taxonomies_to_skip = apply_filters( 'simple_history/categories_logger/skip_taxonomies', $taxonomies_to_skip );
+
+		return $taxonomies_to_skip;
 	}
 }
