@@ -11,71 +11,7 @@ use Simple_History\Log_Initiators;
 class SimpleCommentsLogger extends Logger {
 	public $slug = 'SimpleCommentsLogger';
 
-	/**
-	 * Modify sql query to exclude comments of type spam
-	 *
-	 * @param string $where sql query where
-	 */
-	public function maybe_modify_log_query_sql_where( $where ) {
-
-		// since 19 sept 2016 we do include spam, to skip the subquery
-		// spam comments should not be logged anyway since some time
-		$include_spam = true;
-
 		/**
-		 * Filter option to include spam or not in the gui
-		 * By default spam is not included, because it can fill the log
-		 * with too much events
-		 *
-		 * @since 2.0
-		 *
-		 * @param bool $include_spam Default false
-		 */
-		$include_spam = apply_filters( 'simple_history/comments_logger/include_spam', $include_spam );
-
-		if ( $include_spam ) {
-			return $where;
-		}
-
-		$where .= sprintf(
-			'
-			AND id NOT IN (
-
-				SELECT id
-					# , c1.history_id, c2.history_id
-				FROM %1$s AS h
-
-				INNER JOIN %2$s AS c1
-					ON c1.history_id = h.id
-					AND c1.key = "_message_key"
-					AND c1.value IN (
-						"comment_deleted",
-						"pingback_deleted",
-						"trackback_deleted",
-						"anon_comment_added",
-						"anon_pingback_added",
-						"anon_trackback_added"
-					)
-
-				INNER JOIN %2$s AS c2
-					ON c2.history_id = h.id
-					AND c2.key = "comment_approved"
-					AND c2.value = "spam"
-
-				WHERE logger = "%3$s"
-
-			)
-		',
-			$this->db_table,
-			$this->db_table_contexts,
-			$this->get_slug()
-		);
-
-		// echo $where;
-		return $where;
-	}
-
-	/**
 	 * Get array with information about this logger
 	 *
 	 * @return array
@@ -314,6 +250,70 @@ class SimpleCommentsLogger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Modify sql query to exclude comments of type spam
+	 *
+	 * @param string $where sql query where
+	 */
+	public function maybe_modify_log_query_sql_where( $where ) {
+
+		// since 19 sept 2016 we do include spam, to skip the subquery
+		// spam comments should not be logged anyway since some time
+		$include_spam = true;
+
+		/**
+		 * Filter option to include spam or not in the gui
+		 * By default spam is not included, because it can fill the log
+		 * with too much events
+		 *
+		 * @since 2.0
+		 *
+		 * @param bool $include_spam Default false
+		 */
+		$include_spam = apply_filters( 'simple_history/comments_logger/include_spam', $include_spam );
+
+		if ( $include_spam ) {
+			return $where;
+		}
+
+		$where .= sprintf(
+			'
+			AND id NOT IN (
+
+				SELECT id
+					# , c1.history_id, c2.history_id
+				FROM %1$s AS h
+
+				INNER JOIN %2$s AS c1
+					ON c1.history_id = h.id
+					AND c1.key = "_message_key"
+					AND c1.value IN (
+						"comment_deleted",
+						"pingback_deleted",
+						"trackback_deleted",
+						"anon_comment_added",
+						"anon_pingback_added",
+						"anon_trackback_added"
+					)
+
+				INNER JOIN %2$s AS c2
+					ON c2.history_id = h.id
+					AND c2.key = "comment_approved"
+					AND c2.value = "spam"
+
+				WHERE logger = "%3$s"
+
+			)
+		',
+			$this->db_table,
+			$this->db_table_contexts,
+			$this->get_slug()
+		);
+
+		// echo $where;
+		return $where;
+	}
+
 	public function loaded() {
 		// Add option to not show spam comments, because to much things getting logged
 		// add_filter("simple_history/log_query_sql_where", array($this, "maybe_modify_log_query_sql_where"));
@@ -349,7 +349,7 @@ class SimpleCommentsLogger extends Logger {
 	}
 
 	/**
-	 * Get comments context
+	 * Get comments context.
 	 *
 	 * @param int $comment_ID
 	 * @return mixed array with context if comment found, false if comment not found
@@ -417,9 +417,8 @@ class SimpleCommentsLogger extends Logger {
 		// if not added, spam comments can easily flood the log
 		// Deletions of spam easily flood log
 		if ( isset( $comment_data->comment_approved ) && 'spam' === $comment_data->comment_approved ) {
-			// since 2.5.5: don't log deletion of spam comments
+			// Since 2.5.5 we don't log deletion of spam comments.
 			return;
-			// $context["_occasionsID"] = __CLASS__  . '/' . __FUNCTION__ . "/anon_{$context["comment_type"]}_deleted/type:spam";
 		}
 
 		$this->info_message(
