@@ -2,9 +2,6 @@
 
 use \Step\Acceptance\Admin;
 
-/*
-*/
-
 class SimpleCommentsLoggerCest
 {
     public function _before(Admin $I) {
@@ -40,11 +37,15 @@ class SimpleCommentsLoggerCest
         $I->click('Restore');
         $I->waitForJqueryAjax();
         $I->seeLogMessage('Restored a comment to "My test post" by Mr WordPress () from the trash');
-
-        // Trash and Delete permanently.
         
-
-        $I->makeScreenshot();
-
+        // Trash and Delete permanently.
+        $I->amOnAdminPage('edit-comments.php');
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->click('Trash');
+        $I->amOnAdminPage('edit-comments.php?comment_status=trash');
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->click('Delete Permanently');
+        $I->waitForJqueryAjax();
+        $I->seeLogMessage('Deleted a comment to "My test post" by Mr WordPress ()');
     }
 }
