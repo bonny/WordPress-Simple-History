@@ -66,7 +66,6 @@ class SimpleMediaLogger extends Logger {
 	 * @param array $args An array of arguments to add the attachment.
 	 */
 	public function on_mw_new_media_object( $attachment_id, $args ) {
-
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
@@ -335,7 +334,7 @@ class SimpleMediaLogger extends Logger {
 	}
 
 	/**
-	 * Modify RSS links so they go directly to the correct media in wp admin
+	 * Modify RSS links so they go directly to the correct media in WP admin.
 	 *
 	 * @since 2.0.23
 	 * @param string $link
