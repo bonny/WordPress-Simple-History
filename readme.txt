@@ -195,8 +195,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Currently doing =
 
-- Add tests for PluginUserSwitchingLogger.
-  
+- Add tests for comments logger.
+
 = Unreleased =
 
 **Added**
@@ -222,6 +222,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Add methods `get_events_table_name()` and `get_contexts_table_name()`.
 - Call method `loaded()` on dropins when they are loaded.
 - Redirection logger now logs group edits.
+- Added context key `export_content` to export logger. The key will contain the post type exported, or "all" if all content was exported.
 
 **Changed**
 
@@ -242,6 +243,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Rename `getLogLevelTranslated()` to `get_log_level_translated()` and move to class `log_levels`.
 - Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style).
 - Rename message key `user_application_password_deleted` to `user_application_password_revoked`.
+- Context key `args` is renamed to `export_args` in export logger. This key contains some of the options that was passed to export function, like author, category, start date, end date, and status.
 
 **Removed**
 

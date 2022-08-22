@@ -39,15 +39,17 @@ class SimpleExportLogger extends Logger {
 	}
 
 	public function loaded() {
-
 		add_action( 'export_wp', array( $this, 'on_export_wp' ), 10, 1 );
 	}
 
 	public function on_export_wp( $args ) {
+		$content = $args['content'] ?? '';
+
 		$this->info_message(
 			'created_export',
 			array(
-				'args' => Helpers::json_encode( $args ),
+				'export_content' => $content,
+				'export_args' => Helpers::json_encode( $args ),
 			)
 		);
 	}
