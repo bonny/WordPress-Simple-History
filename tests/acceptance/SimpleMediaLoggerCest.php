@@ -22,7 +22,7 @@ class SimpleMediaLoggerCest
             'attachment_filesize' => '601223',
         ]);
 
-        // 
+        // Edit media.
         $I->amOnAdminPage('upload.php?mode=list');
         $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
         $I->click('Edit');
@@ -35,6 +35,21 @@ class SimpleMediaLoggerCest
             'post_type' => 'attachment',
             'attachment_id' => '2',
             'attachment_title' => 'Image 1',
+            'attachment_mime' => 'image/jpeg',
+        ]);
+
+        // Delete media.
+        $I->amOnAdminPage('upload.php?mode=list');
+        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
+        $I->click('Delete Permanently');
+        $I->acceptPopup();
+        $I->waitForJqueryAjax();
+        $I->seeLogMessage('Deleted attachment "Image 1" ("Image-1-17.jpg")');
+        $I->seeLogContext([
+            'post_type' => 'attachment',
+            'attachment_id' => '2',
+            'attachment_title' => 'Image 1',
+            'attachment_filename' => 'Image-1-17.jpg',
             'attachment_mime' => 'image/jpeg',
         ]);
     }
