@@ -53,16 +53,13 @@ class SimpleMenuLogger extends Logger {
 	}
 
 	public function loaded() {
-
 		/*
 		 * Fires after a navigation menu has been successfully deleted.
 		 *
 		 * @since 3.0.0
 		 *
 		 * @param int $term_id ID of the deleted menu.
-		do_action( 'wp_delete_nav_menu', $menu->term_id );
 		*/
-		// add_action("wp_delete_nav_menu", array($this, "on_wp_delete_nav_menu"), 10, 1 );
 		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_delete' ) );
 
 		/*
@@ -72,22 +69,8 @@ class SimpleMenuLogger extends Logger {
 		 *
 		 * @param int   $term_id   ID of the new menu.
 		 * @param array $menu_data An array of menu data.
-		do_action( 'wp_create_nav_menu', $_menu['term_id'], $menu_data );
 		*/
 		add_action( 'wp_create_nav_menu', array( $this, 'on_wp_create_nav_menu' ), 10, 2 );
-
-		/*
-		 * Fires after a navigation menu item has been updated.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @see wp_update_nav_menu_items()
-		 *
-		 * @param int   $menu_id         ID of the updated menu.
-		 * @param int   $menu_item_db_id ID of the updated menu item.
-		 * @param array $args            An array of arguments used to update a menu item.
-		do_action( 'wp_update_nav_menu_item', $menu_id, $menu_item_db_id, $args );
-		*/
 
 		// This is fired when adding nav items in the editor, not at save, so not
 		// good to log because user might not end up saving the changes
@@ -96,18 +79,25 @@ class SimpleMenuLogger extends Logger {
 		// so we can't detect changes
 		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_update' ) );
 
-		/*
-		 * Fires after a navigation menu has been successfully updated.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param int   $menu_id   ID of the updated menu.
-		 * @param array $menu_data An array of menu data.
-		do_action( 'wp_update_nav_menu', $menu_id, $menu_data );
-		*/
-		// add_action("wp_update_nav_menu", array($this, "on_wp_update_nav_menu"), 10, 2 );
 		// Detect menu location change in "manage locations"
 		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_locations_update' ) );
+
+		add_filter( 'simple_history/categories_logger/skip_taxonomies', array( $this, 'on_categories_logger_skip_taxonomy' ) );
+	}
+
+	/**
+	 * Add taxonomy "nav_menu" to list of categories to not log changes to,
+	 * because menus are stored in this taxonomy,
+	 * and the menu logger will log menu changes,
+	 * so don't let categories logger log this 
+	 * or there will be duplicates.
+	 * 
+	 * @param mixed $taxonomies_to_skip 
+	 * @return array
+	 */
+	public function on_categories_logger_skip_taxonomy( $taxonomies_to_skip ) {
+		$taxonomies_to_skip[] = 'nav_menu';
+		return $taxonomies_to_skip;
 	}
 
 	/**

@@ -308,7 +308,7 @@ class SimpleCategoriesLogger extends Logger {
 		/**
 		 * Filter taxonomies to not log changes to.
 		 *
-		 * @param array $taxonomies_to_skip Array with taxonomy slugs.
+		 * @param array $taxonomies_to_skip Array with taxonomy slugs to skip.
 		 */
 		$taxonomies_to_skip = apply_filters( 'simple_history/categories_logger/skip_taxonomies', $taxonomies_to_skip );
 

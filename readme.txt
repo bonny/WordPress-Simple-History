@@ -195,7 +195,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Currently doing =
 
-- Add tests for comments logger.
+- Add tests for MenuLogger, add menu item, remove item...
 
 = Unreleased =
 
@@ -262,6 +262,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
 - Redirection logger logs enabling, disabling, and deletion of groups again.
+- Categories logger does not log changes to taxonomy `nav_menu` since the menu logger takes care of those, i.e. changes to the menus.
 
 = 3.3.0 (May 2022) =
 
