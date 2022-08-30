@@ -13,7 +13,7 @@
   "author": "Pär Thernström <par.thernstrom@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "next": "^12.2.3",
+    "next": "^12.2.4",
     "nextra": "2.0.0-beta.9",
     "nextra-theme-docs": "2.0.0-beta.9",
     "react": "^17.0.2",
