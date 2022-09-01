@@ -15,7 +15,23 @@ class SimpleHistoryNewRowsNotifier extends Dropin {
 	private $interval = 10000;
 
 	public function loaded() {
-		// How often the script checks for new rows.
+
+		/**
+		 * How often the script checks for new rows.
+		 * 
+		 * @example Change the interval from the default 10000 ms (10 seconds) to a minute (300000 ms).
+		 * // Change the interval from the default 10000 ms (10 seconds) to a minute (300000 ms).
+		 * ```php
+		 * add_filter(
+		 *   'SimpleHistoryNewRowsNotifier/interval',
+		 *   function( $interval ) {
+		 *     $interval = 300000;
+		 *     return $interval;
+		 *   }
+		 * );
+		 * ```
+		 * @param int Interval in MS.
+		 */
 		$this->interval = (int) apply_filters( 'SimpleHistoryNewRowsNotifier/interval', $this->interval );
 
 		add_action( 'wp_ajax_SimpleHistoryNewRowsNotifier', array( $this, 'ajax' ) );

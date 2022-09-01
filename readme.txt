@@ -201,6 +201,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 **Added**
 
+- Added documentation with example for filter `SimpleHistoryNewRowsNotifier/interval`.
 - Add cached = true|false to AJAX JSON answer when fetching events or checking for new events. It's a simple way to see if an object cache is in use and is working.
 - Log if "Send personal data export confirmation email" is checked when adding a Data Export Request.
 - Log when a Data Export Request is marked as complete.
