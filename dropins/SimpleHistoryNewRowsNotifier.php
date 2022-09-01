@@ -79,6 +79,7 @@ class SimpleHistoryNewRowsNotifier extends Dropin {
 		$numNewRows = $answer['total_row_count'] ?? 0;
 		$json_data['num_new_rows'] = $numNewRows;
 		$json_data['num_mysql_queries'] = get_num_queries();
+		$json_data['cached_result'] = $answer['cached_result'] ?? false;
 
 		if ( $numNewRows ) {
 			// We have new rows

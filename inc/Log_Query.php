@@ -89,6 +89,7 @@ class Log_Query {
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false !== $arr_return ) {
+			$arr_return['cached_result'] = true;
 			return $arr_return;
 		}
 

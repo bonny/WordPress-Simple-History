@@ -703,8 +703,10 @@ class Simple_History {
 						}
 
 						$data['log_rows'][ $key ] = $this->get_log_row_html_output( $oneLogRow, $args );
-						$data['num_queries'] = get_num_queries();
 					}
+					
+					$data['num_queries'] = get_num_queries();
+					$data['cached_result'] = $data['cached_result'] ?? false;
 				}
 
 				break;
