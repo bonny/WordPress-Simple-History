@@ -75,4 +75,102 @@ class SimpleOptionsLoggerCest
         ]);
 
     }
+
+    public function testWritingOptionsPage(Admin $I) {
+        $I->amOnAdminPage('options-writing.php');
+        
+        $I->fillField('#mailserver_url', 'smtpserver.example.com');
+        $I->fillField('#mailserver_login', 'login@email.com');
+        $I->fillField('#mailserver_pass', 'mailpass');
+        $I->click("Save Changes");
+
+        $I->seeLogMessage('Updated option "mailserver_pass"', 0);
+        $I->seeLogContext([
+            'option_page' => 'writing',
+            'option' => 'mailserver_pass',
+            'old_value' => 'password',
+            'new_value' => 'mailpass',
+        ], 0);
+
+        $I->seeLogMessage('Updated option "mailserver_login"', 1);
+        $I->seeLogContext([
+            'option_page' => 'writing',
+            'option' => 'mailserver_login',
+            'old_value' => 'login@example.com',
+            'new_value' => 'login@email.com',
+        ], 1);
+
+        $I->seeLogMessage('Updated option "mailserver_url"', 2);
+        $I->seeLogContext([
+            'option_page' => 'writing',
+            'option' => 'mailserver_url',
+            'old_value' => 'mail.example.com',
+            'new_value' => 'smtpserver.example.com',
+        ], 2);
+    }
+
+    public function testReadingOptionsPage(Admin $I) {
+        $I->havePageInDatabase(['post_title' => 'Test page']);
+        $I->amOnAdminPage('options-reading.php');
+        
+        $I->selectOption('[name=show_on_front]', 'page');
+        $I->selectOption('[name=page_on_front]', 'Test page');
+
+        $I->makeScreenshot();
+        $I->click('Save Changes');
+
+        $I->seeLogMessage('Updated option "page_on_front"', 0);
+        $I->seeLogContext([
+            'option_page' => 'reading',
+            'option' => 'page_on_front',
+            'old_value' => '0',
+            'new_value' => '2',
+        ], 0);
+
+        $I->seeLogMessage('Updated option "show_on_front"', 1);
+        $I->seeLogContext([
+            'option_page' => 'reading',
+            'option' => 'show_on_front',
+            'old_value' => 'posts',
+            'new_value' => 'page',
+        ], 1);
+
+        // $I->click('Save Changes');
+        // $I->seeLogMessage('Updated option "show_on_front"');
+        // $I->seeLogContext([
+        //     'option' => 'show_on_front',
+        //     'old_value' => 'posts',
+        //     'new_value' => 'page',
+        //     'option_page' => 'reading',
+        // ]);
+        
+        // $I->fillField('#mailserver_url', 'smtpserver.example.com');
+        // $I->fillField('#mailserver_login', 'login@email.com');
+        // $I->fillField('#mailserver_pass', 'mailpass');
+        // $I->click("Save Changes");
+
+        // $I->seeLogMessage('Updated option "mailserver_pass"', 0);
+        // $I->seeLogContext([
+        //     'option_page' => 'writing',
+        //     'option' => 'mailserver_pass',
+        //     'old_value' => 'password',
+        //     'new_value' => 'mailpass',
+        // ], 0);
+
+        // $I->seeLogMessage('Updated option "mailserver_login"', 1);
+        // $I->seeLogContext([
+        //     'option_page' => 'writing',
+        //     'option' => 'mailserver_login',
+        //     'old_value' => 'login@example.com',
+        //     'new_value' => 'login@email.com',
+        // ], 1);
+
+        // $I->seeLogMessage('Updated option "mailserver_url"', 2);
+        // $I->seeLogContext([
+        //     'option_page' => 'writing',
+        //     'option' => 'mailserver_url',
+        //     'old_value' => 'mail.example.com',
+        //     'new_value' => 'smtpserver.example.com',
+        // ], 2);
+    }
 }
