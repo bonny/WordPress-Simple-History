@@ -144,4 +144,56 @@ class SimpleOptionsLoggerCest
             'option_page' => 'reading',
         ]);
     }
+
+    public function testDiscussionOptionsPage(Admin $I) {
+        
+        // "Dummy" save because some values seems to be set for the first time
+        $I->amOnAdminPage('options-discussion.php');
+        $I->click("Save Changes");
+
+        $I->amOnAdminPage('options-discussion.php');
+        $I->uncheckOption('#default_comment_status');
+        $I->click("Save Changes");
+        $I->seeLogMessage('Updated option "default_comment_status"');
+        $I->seeLogContext([
+            'option_page' => 'discussion',
+            'option' => 'default_comment_status',
+            'old_value' => 'open',
+            'new_value' => 'null',
+        ]);
+        $I->makeScreenshot();
+
+        $I->amOnAdminPage('options-discussion.php');
+        $I->checkOption('#default_comment_status');
+        $I->click("Save Changes");
+        $I->seeLogMessage('Updated option "default_comment_status"');
+        $I->seeLogContext([
+            'option_page' => 'discussion',
+            'option' => 'default_comment_status',
+            'old_value' => '',
+            'new_value' => 'open',
+        ]);
+
+        $I->amOnAdminPage('options-discussion.php');
+        $I->uncheckOption('#require_name_email');
+        $I->click("Save Changes");
+        $I->seeLogMessage('Updated option "require_name_email"');
+        $I->seeLogContext([
+            'option_page' => 'discussion',
+            'option' => 'require_name_email',
+            'old_value' => '1',
+            'new_value' => 'null',
+        ]);
+
+        $I->amOnAdminPage('options-discussion.php');
+        $I->uncheckOption('#show_avatars');
+        $I->click("Save Changes");
+        $I->seeLogMessage('Updated option "show_avatars"');
+        $I->seeLogContext([
+            'option_page' => 'discussion',
+            'option' => 'show_avatars',
+            'old_value' => '1',
+            'new_value' => 'null',
+        ]);       
+    }
 }
