@@ -19,3 +19,6 @@ docs/.vscode/settings.json
 tests/.vscode/settings.json
 tests/plugins
 /.idea
+tests/_data/classic-editor.1.6.2.zip
+tests/_data/classic-widgets.0.3.zip
+tests/_data/limit-login-attempts-reloaded.2.25.5.zip
