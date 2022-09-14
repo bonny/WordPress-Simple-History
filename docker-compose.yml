@@ -45,7 +45,7 @@ services:
       - "${MARIADB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
 
   chrome:
-    image: seleniarm/standalone-chromium:103.0
+    image: seleniarm/standalone-chromium:104.0
     # shm_size: "2gb"
     container_name: simple-history-chrome
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
