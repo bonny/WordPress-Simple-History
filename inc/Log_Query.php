@@ -3,7 +3,6 @@
 namespace Simple_History;
 
 use Simple_History\Helpers;
-
 /**
  * Queries the Simple History Log
  */

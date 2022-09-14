@@ -251,6 +251,8 @@ class Helpers {
 	 * Returns array with headers that may contain user IP address.
 	 *
 	 * @since 2.0.29
+	 *
+	 * @return array
 	 */
 	public static function get_ip_number_header_names() {
 		$headers = array(
