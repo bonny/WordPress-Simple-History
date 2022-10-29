@@ -44,12 +44,12 @@ class SimpleMediaLoggerCest
         $I->click('Delete Permanently');
         $I->acceptPopup();
         $I->waitForJqueryAjax();
-        $I->seeLogMessage('Deleted attachment "Image 1" ("Image-1-17.jpg")');
+        // Full image name depends on number of uploaded images...
+        $I->seeLogMessageStartsWith('Deleted attachment "Image 1" ("Image-1');
         $I->seeLogContext([
             'post_type' => 'attachment',
             'attachment_id' => '2',
             'attachment_title' => 'Image 1',
-            'attachment_filename' => 'Image-1-17.jpg',
             'attachment_mime' => 'image/jpeg',
         ]);
     }
