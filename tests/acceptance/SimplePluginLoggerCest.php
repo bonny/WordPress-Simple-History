@@ -103,25 +103,16 @@ class SimplePluginLoggerCest
     public function testPluginDeleted(Admin $I) {      
         $I->amOnAdminPage('plugin-install.php');
         $I->click("Upload Plugin");
-        //$I->cleanPluginDir('classic-widgets');
         $I->attachFile('#pluginzip', 'classic-widgets.0.3.zip');
         $I->click('Install Now');
         
-        // plugin_deactivated
-        // $I->click("#deactivate-akismet-anti-spam");
-
         // plugin_deleted
         $I->amOnAdminPage('plugins.php');
-        // $I->wait(2); // Wait for JS to enable click handler on delete link.
-        //$I->makeScreenshot();
-        $I->checkOption('[value="classic-widgets/classic-widgets.php"]');
-                
+        $I->checkOption('[value="classic-widgets/classic-widgets.php"]');                
         $I->selectOption("#bulk-action-selector-top", 'Delete');
-        $I->makeScreenshot();
         $I->click("#doaction");
         $I->acceptPopup();
         $I->waitForJqueryAjax();
-        $I->makeScreenshot();
         $I->seeLogMessage('Deleted plugin "Classic Widgets"');
         $I->seeLogContext(array(
             'plugin' => 'classic-widgets/classic-widgets.php',
@@ -132,14 +123,12 @@ class SimplePluginLoggerCest
             'plugin_version' => '0.3',
             'plugin_url' => 'https://wordpress.org/plugins/classic-widgets/',
         ));
-        // $I->makeHtmlSnapshot();
-
-        //$I->click('#delete-classic-widgets'); // Yes, two times...
-        // $I->acceptPopup();
-        // $I->seeLogMessage('Yes', 1);
     }
-    // - plugin_disabled_because_error
-    // - plugin_auto_updates_enabled
-    // - plugin_auto_updates_disabled
 
+    public function testPluginAutoUpdatesEnableDisable(Admin $I) {
+        // - plugin_auto_updates_disabled
+        // - plugin_auto_updates_enabled
+    }
+
+    // - plugin_disabled_because_error
 }
