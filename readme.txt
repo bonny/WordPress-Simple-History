@@ -195,7 +195,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Currently doing =
 
-- Add tests for `SimpleOptionsLogger`
+- Add tests for `SimplePluginLogger`.
 
 = Unreleased =
 
@@ -209,9 +209,6 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Most of the code now uses namespaces. The main namespace is `Simple_History`.
 - Dropins use namespace `Simple_History\Dropins` and dropins must now extend the base class `Dropin`.
 - Loggers use namespace `Simple_History\Loggers` and loggers must extend the base class `Logger`.
-- Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
-- Class `LogInitiators` renamed to `Log_Initiators`.
-- Class `SimpleHistoryLogQuery` renamed to `Log_Query`.
 - Add filter `simple_history/core_loggers` to modify the list of built in (core) loggers.
 - Add filter `simple_history/dropins_to_instantiate` to modify the list of built in dropins to instantiate.
 - Add filter `simple_history/core_dropins`.
@@ -228,9 +225,12 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 **Changed**
 
-- PHP 7.4 is now the required version. If you use anything lower than that please use [version 3.3.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
-- WordPress 5.4 is now the required version.
+- PHP 7.4 is now the required minimum version. If you use anything lower than that please use [version 3.3.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
+- WordPress 5.4 is now the required minimum version.
 - Code now uses namespaces and classes (including loggers and dropins) are now loaded using an autoloader.
+- Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
+- Class `LogInitiators` renamed to `Log_Initiators`.
+- Class `SimpleHistoryLogQuery` renamed to `Log_Query`.
 - Remove usage of deprectead function `wp_get_user_request_data()`.
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
@@ -241,7 +241,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
 - Class `SimpleHistoryLogQuery` renamed to `Log_Query`.
 - Class `SimpleLoggerLogInitiators` renamed to `Log_Initiators`.
-- Move init code in dropins to `loaded()` from `__construct()`.
+- Move init code in dropins from `__construct()` to new `loaded()` method.
 - Rename `getLogLevelTranslated()` to `get_log_level_translated()` and move to class `log_levels`.
 - Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style).
 - Rename message key `user_application_password_deleted` to `user_application_password_revoked`.
@@ -249,13 +249,13 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 **Removed**
 
-- Removed logger for plugin Ultimate Members.
 - Removed function `simple_history_add`. See https://docs.simple-history.com/logging for other ways to add messages to the history log.
-- Filters `simple_history/loggers_files` and `simple_history/logger/load_logger` are removed.
-- Filters `'simple_history/dropins_files'` are removed.
-- Removed unused class `SimpleLoggerLogTypes`.
-- Removed patches for plugin [captcha-on-login](https://wordpress.org/plugins/captcha-on-login/).
 - Removed unused function `sh_ucwords()`.
+- Filters `simple_history/loggers_files` and `simple_history/logger/load_logger` are removed.
+- Filter `'simple_history/dropins_files'` are removed.
+- Removed unused class `SimpleLoggerLogTypes`.
+- Removed logger for plugin Ultimate Members.
+- Removed patches for plugin [captcha-on-login](https://wordpress.org/plugins/captcha-on-login/).
 - Remove dropin used to populate log with test data.
 - Remove dropin used to show log stats.
 - Remove examples in examples folder. Examples are moved to the documentation site at https://docs.simple-history.com/.
