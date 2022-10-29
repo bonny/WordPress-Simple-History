@@ -178,6 +178,36 @@ class Admin extends \AcceptanceTester
     }
 
     /**
+     * Test that the latest interpolated message in the log
+     * begins with the passed string.
+     * 
+     * A reason to not test the full string may might be in a scenario where
+     * the full message is a bit flaky during tests, for example when deleting
+     * an attachment the message may be:
+     * 'Deleted attachment "Image 1" ("Image-1-17.jpg")'
+     * but on the next run it is
+     * 'Deleted attachment "Image 1" ("Image-1-18.jpg")'
+     * 
+     * Example:
+     * ```php
+     * $I->seeLogMessage(''Deleted attachment "Image 1" ("Image-1');
+     * ```
+     * 
+     * @param string $message_to_test 
+     */
+    public function seeLogMessageStartsWith(string $message_to_test, int $index = 0)
+    {
+        ['row' => $row, 'context' => $context] = $this->getHistory($index);
+
+        $interpolated_message = self::interpolate(
+            $row['message'],
+            $context,
+        );
+
+        $this->assertStringStartsWith($message_to_test, $interpolated_message);
+    }
+
+    /**
      * Test that the last stored context matches the passed context.
      * Since the stored context can contain much data
      * the comparison is only done with the keys that are included in the
