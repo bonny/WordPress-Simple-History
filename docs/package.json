@@ -1,7 +1,7 @@
 {
   "name": "docs.simple-history.com",
   "version": "1.0.0",
-  "description": "Documentation for Simple History WordPress plugin",
+  "description": "Developer documentation for Simple History WordPress plugin",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -13,17 +13,17 @@
   "author": "Pär Thernström <par.thernstrom@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "next": "^12.1.5",
-    "nextra": "2.0.0-alpha.56",
-    "nextra-theme-docs": "2.0.0-alpha.58",
+    "next": "^12.2.3",
+    "nextra": "2.0.0-beta.9",
+    "nextra-theme-docs": "2.0.0-beta.9",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.5",
     "postcss": "^8.4.13",
-    "prettier": "^2.6.2",
-    "tailwindcss": "^3.0.24"
+    "prettier": "^2.7.1",
+    "tailwindcss": "^3.1.6"
   },
   "prettier": {
     "semi": false,

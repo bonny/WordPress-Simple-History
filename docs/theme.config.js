@@ -3,7 +3,7 @@ export default {
   github: 'https://github.com/bonny/WordPress-Simple-History/',
   docsRepositoryBase:
     'https://github.com/bonny/WordPress-Simple-History/tree/main/docs/pages', // base URL for the docs repository
-  titleSuffix: ' – Simple History Documentation',
+  titleSuffix: ' – Simple History Developer Documentation',
   nextLinks: true,
   prevLinks: true,
   search: true,
@@ -28,7 +28,7 @@ export default {
     <>
       <img src="https://ps.w.org/simple-history/assets/icon.svg" alt="" />
       <div className="ml-2">
-        <span className="font-semibold">Simple History</span> Documentation
+        <span className="font-semibold">Simple History</span> Developer Documentation
       </div>
     </>
   ),
@@ -37,9 +37,9 @@ export default {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta
         name="description"
-        content="Documentation for WordPress plugin Simple History"
+        content="Developer Documentation for WordPress plugin Simple History"
       />
-      <meta name="og:title" content="Simple History Documentation" />
+      <meta name="og:title" content="Simple History Developer Documentation" />
     </>
   ),
   unstable_faviconGlyph: '📄'

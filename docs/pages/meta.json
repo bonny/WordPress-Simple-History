@@ -4,6 +4,7 @@
 		"hidden": false
 	},
 	"logging": "Logging",
+	"query": "Query the history",
 	"hooks": "Hooks",
 	"log-levels": "Log Levels",
 	"code-examples": "Code examples",

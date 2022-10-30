@@ -1,0 +1,54 @@
+import Callout from 'nextra-theme-docs/callout'
+import LogItem from '../lib/LogItem'
+import LogItems from '../lib/LogItems'
+
+# Query API
+
+You can get things for the history by using the class `SimpleHistoryLogQuery`.
+
+A quick example that displays the latest 5 rows from the log:
+
+```php
+
+function simple_history_test_output() {
+    $log_query = new SimpleHistoryLogQuery();
+    $simple_history = SimpleHistory::get_instance();
+
+    $query_results = $log_query->query( [
+        'posts_per_page' => 5,
+    ] );
+
+    printf(
+        '
+            <p>Found %1$d rows.</p>
+            <p>Viewing page %2$d of %3$d.</p>
+        ',
+        esc_html( $query_results['total_row_count'] ), // 1
+        esc_html( $query_results['page_current'] ), // 2
+        esc_html( $query_results['pages_count'] ), // 3
+    );
+
+    echo "<ul>";
+    
+    foreach ( $query_results['log_rows'] as $row ) {
+        $header_output = $simple_history->getLogRowHeaderOutput( $row );
+        $text_output = $simple_history->getLogRowPlainTextOutput( $row );
+        $details_output = $simple_history->getLogRowDetailsOutput( $row );
+
+        echo "<li>";
+        echo "<hr />";
+        echo "<p>{$header_output}</p>";
+        echo "<p>{$text_output}</p>";
+        echo "<p>{$details_output}</p>";
+        echo "</li>";
+    }
+    
+    echo "</ul>";
+}
+
+```
+
+When running the above function the output will look something like this:
+
+![simple-history-log-query-example](https://user-images.githubusercontent.com/221570/178580738-fd4c9ede-3307-41bd-a309-5a4ca0b8f79e.jpg)
+

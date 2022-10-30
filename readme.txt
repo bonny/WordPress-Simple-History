@@ -2,10 +2,10 @@
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
-Requires at least: 5.4
-Tested up to: 6.0.1
+Stable tag: 3.3.1
 Requires PHP: 7.4
-Stable tag: 3.3.0
+Tested up to: 6.1
+Requires at least: 5.4
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -192,6 +192,10 @@ Events in the log are stored for 60 days by default. Events older than this will
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 == Changelog ==
+
+= 3.3.1 (October 2022) =
+
+- Tested up to WordPress 6.1.
 
 = Currently doing =
 
