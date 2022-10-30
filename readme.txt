@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 3.3.1 (October 2022) =
+
+- Tested up to WordPress 6.1.
+
 = 3.3.0 (May 2022) =
 
 - Fixed: Error when third party plugin passed arguments to the `get_avatar` filter. [#288](https://github.com/bonny/WordPress-Simple-History/issues/288)
