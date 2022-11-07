@@ -2,6 +2,14 @@
 
 use \Step\Acceptance\Admin;
 
+/**
+ * Missing tests for:
+ * 
+ * - plugin_auto_updates_disabled - unable to test, not sure why (message not logged)
+ * - plugin_auto_updates_enabled - unable to test, not sure why (message not logged)
+ * - add_filter( 'plugins_auto_update_enabled', '__return_true' );
+ * - plugin_disabled_because_error - not sure how to test
+ */
 class SimplePluginLoggerCest
 {
     public function _before(Admin $I) {
@@ -125,10 +133,12 @@ class SimplePluginLoggerCest
         ));
     }
 
-    public function testPluginAutoUpdatesEnableDisable(Admin $I) {
-        // - plugin_auto_updates_disabled
-        // - plugin_auto_updates_enabled
-    }
-
-    // - plugin_disabled_because_error
+    // public function testPluginAutoUpdatesEnableDisable(Admin $I) {
+    //     // - plugin_auto_updates_disabled
+    //     // - plugin_auto_updates_enabled        
+    //     $I->amOnAdminPage('plugins.php');
+    //     $I->click('[data-slug=classic-editor] .toggle-auto-update');
+    //     $I->wait(2);
+    //     $I->seeLogMessage('Enable auto updated');
+    // }
 }
