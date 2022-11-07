@@ -4,7 +4,6 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
 
-
 /**
  * Todo/@HERE
  * - [ ] install and test with ACF again
@@ -20,14 +19,17 @@ use Simple_History\Helpers;
  * Logs changes to posts and pages, including custom post types
  */
 class SimplePostLogger extends Logger {
-
-	// The logger slug. Defaulting to the class name is nice and logical I think.
 	public $slug = 'SimplePostLogger';
 
-	// Array that will contain previous post data, before data is updated.
-	// Array format is
-	// [post_id] => [post_data, post_meta].
-	// post_data = WP_Post object, post_meta = post meta array.
+	/**
+	 * Array that will contain previous post data, before data is updated.
+	 *
+	 * Array format is
+	 * [post_id] => [post_data, post_meta].
+	 *               post_data = WP_Post object, post_meta = post meta array.
+	 *
+	 * @var array
+	 */
 	protected $old_post_data = array();
 
 	public function loaded() {
@@ -204,7 +206,7 @@ class SimplePostLogger extends Logger {
 	}
 
 	/**
-	 * Get array with information about this logger
+	 * Get array with information about this logger.
 	 *
 	 * @return array
 	 */
@@ -1278,7 +1280,7 @@ class SimplePostLogger extends Logger {
 	}
 
 	/**
-	 * Modify RSS links to they go directly to the correct post in wp admin
+	 * Modify RSS links to they go directly to the correct post in WP admin.
 	 *
 	 * @since 2.0.23
 	 * @param string $link Link.
