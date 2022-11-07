@@ -2,6 +2,8 @@
 
 /**
  * Global helper functions.
+ *
+ * Not namespaced, so they are available everywhere.
  */
 
 use Simple_History\Simple_History;
