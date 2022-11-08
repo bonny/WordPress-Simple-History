@@ -12,12 +12,12 @@ use Simple_History\Helpers;
 
 /**
  * Base class for loggers.
- * 
+ *
  * A PSR-3 inspired logger class.
  * This class logs + formats logs for display in the Simple History GUI/Viewer.
  *
  * Extend this class to make your own logger
- * 
+ *
  * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md PSR-3 specification
  */
 abstract class Logger {
