@@ -115,7 +115,7 @@ class Log_Query {
 
 		if ( 'overview' === $args['type'] || 'single' === $args['type'] ) {
 			// Set variables used by query.
-			$sql_set_var = "SET @a:='', @counter:=1, @groupby:=0";
+			$sql_set_var = "SET @a:=NULL, @counter:=1, @groupby:=0";
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql_set_var );
 
