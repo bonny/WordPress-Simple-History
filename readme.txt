@@ -250,7 +250,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style).
 - Rename message key `user_application_password_deleted` to `user_application_password_revoked`.
 - Context key `args` is renamed to `export_args` in export logger. This key contains some of the options that was passed to export function, like author, category, start date, end date, and status.
-- Fix db error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables.
+- Fix db error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
 
 **Removed**
 
