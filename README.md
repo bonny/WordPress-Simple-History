@@ -1,9 +1,9 @@
 <h2 align="center">
 	<img width="20" height="20" src="https://raw.githubusercontent.com/bonny/WordPress-Simple-History/master/.wordpress-org/icon.svg" alt="">
 	Simple History
+	– a WordPress activity log for what matters
 </h1>
 
-<h2 align="center">– a WordPress activity log for what matters</h2>
 
 <p align="center">
 
