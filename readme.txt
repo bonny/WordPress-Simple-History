@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 3.3.2 (February 2023) =
+
+- Changed: When exporting a CSV file of the history, each cell is escaped to reduce the risk of "CSV injection" in spreadsheet applications when importing the exported CSV. Reported here: https://patchstack.com/database/vulnerability/simple-history/wordpress-simple-history-plugin-3-3-1-csv-injection-vulnerability.
+
 = 3.3.1 (October 2022) =
 
 - Tested up to WordPress 6.1.
