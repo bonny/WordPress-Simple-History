@@ -2,6 +2,7 @@
 /assets-wp-repo
 /.git
 /.github
+/.idea
 /node_modules
 /data
 /tests

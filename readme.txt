@@ -2,7 +2,7 @@
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
-Stable tag: 3.3.1
+Stable tag: 3.4.0
 Requires PHP: 7.4
 Tested up to: 6.1
 Requires at least: 5.4
@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 3.4.0 (February 2023) =
+
+- Changed: When exporting a CSV file of the history, each cell is escaped to reduce the risk of "CSV injection" in spreadsheet applications when importing the exported CSV. Reported here: https://patchstack.com/database/vulnerability/simple-history/wordpress-simple-history-plugin-3-3-1-csv-injection-vulnerability.
+
 = 3.3.1 (October 2022) =
 
 - Tested up to WordPress 6.1.
@@ -229,7 +233,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 **Changed**
 
-- PHP 7.4 is now the required minimum version. If you use anything lower than that please use [version 3.3.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
+- PHP 7.4 is now the required minimum version. If you use anything lower than that please use [version 3.4.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
 - WordPress 5.4 is now the required minimum version.
 - Code now uses namespaces and classes (including loggers and dropins) are now loaded using an autoloader.
 - Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.

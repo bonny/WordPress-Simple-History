@@ -3,6 +3,7 @@
 /assets-wp-repo export-ignore
 /bin export-ignore
 /tests export-ignore
+/.idea export-ignore
 
 /.editorconfig export-ignore
 /.gitattributes export-ignore
