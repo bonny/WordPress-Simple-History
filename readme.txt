@@ -199,7 +199,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Currently doing =
 
-- Add tests for `SimplePluginLogger`.
+- Add old SimpeLogger class so old loggers that third party plugins/software has created does not crash site.
 
 = Unreleased =
 

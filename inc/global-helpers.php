@@ -101,4 +101,3 @@ if ( ! function_exists( 'sh_d' ) ) {
 		echo $output;
 	}
 }
-

@@ -9,7 +9,6 @@ use Simple_History\Log_Levels;
 use Simple_History\Log_Initiators;
 use Simple_History\Helpers;
 
-
 /**
  * Base class for loggers.
  *

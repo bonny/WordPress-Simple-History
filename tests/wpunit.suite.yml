@@ -5,6 +5,7 @@
 actor: WpunitTester
 modules:
   enabled:
+    - Asserts
     - WPLoader
     - \Helper\Wpunit
   config:

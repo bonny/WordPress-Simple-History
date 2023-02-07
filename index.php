@@ -51,6 +51,7 @@ if ( $ok_php_version && $ok_wp_version ) {
 	/** Load required files. */
 	require_once __DIR__ . '/inc/Autoloader.php';
 	require_once __DIR__ . '/inc/global-helpers.php';
+	require_once __DIR__ . '/inc/class-simplelogger.php';
 
 	/** Boot up. */
 	$loader = new Simple_History\Autoloader();
