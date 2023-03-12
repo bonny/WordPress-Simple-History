@@ -255,6 +255,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Rename message key `user_application_password_deleted` to `user_application_password_revoked`.
 - Context key `args` is renamed to `export_args` in export logger. This key contains some of the options that was passed to export function, like author, category, start date, end date, and status.
 - Fix db error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
+- When a logger is loaded a check for the existance of required information, currently 'name' must be set. This and future checks make it easier for developers to detect errors when creating loggers. `_doing_it_wrong()` will be called when errors found with more information.
 - Logger: Method `get_info_value_by_key()` is now public so it can be used outside of a logger.
 
 **Removed**

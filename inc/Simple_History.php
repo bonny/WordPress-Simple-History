@@ -1067,6 +1067,18 @@ class Simple_History {
 				);
 			}
 
+			// Check that required content in messages array exist.
+			if ( ! isset( $logger_info['name'] ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					sprintf(
+						esc_html( __( 'Logger %1$s is missing a name.', 'simple-history' ) ),
+						esc_html( $logger_instance->get_slug() ),
+					),
+					'4.0'
+				);
+			}
+
 			// Un-tell gettext filter.
 			$this->do_filter_gettext = false;
 			$this->do_filter_gettext_current_logger = null;
