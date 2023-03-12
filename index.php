@@ -51,13 +51,16 @@ if ( $ok_php_version && $ok_wp_version ) {
 	/** Load required files. */
 	require_once __DIR__ . '/inc/Autoloader.php';
 	require_once __DIR__ . '/inc/global-helpers.php';
-	require_once __DIR__ . '/inc/class-simplelogger.php';
 
 	/** Boot up. */
 	$loader = new Simple_History\Autoloader();
 	$loader->register();
 	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
 	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . '/inc/' );
+
+	// Load code for old, deprecated things after autoloader so
+	// classes gets autoloaded.
+	require_once __DIR__ . '/inc/class-simplelogger.php';
 
 	Simple_History\Simple_History::get_instance();
 } else {
