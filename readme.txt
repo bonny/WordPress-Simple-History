@@ -228,9 +228,6 @@ Events in the log are stored for 60 days by default. Events older than this will
 - PHP 7.4 is now the required minimum version. If you use anything lower than that please use [version 3.4.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
 - WordPress 5.4 is now the required minimum version.
 - Code now uses namespaces and classes (including loggers and dropins) are now loaded using an autoloader.
-- Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
-- Class `LogInitiators` renamed to `Log_Initiators`.
-- Class `SimpleHistoryLogQuery` renamed to `Log_Query`.
 - Remove usage of deprectead function `wp_get_user_request_data()`.
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
@@ -238,8 +235,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Add new class `Helpers` that contain helper functions.
 - Move functions `simple_history_get_current_screen()`, `interpolate()`, `text_diff`, `validate_ip`, `ends_with`, `get_cache_incrementor` to new helper class.
 - Function `get_ip_number_header_keys` is moved to helper class and renamed `get_ip_number_header_names`.
-- Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
 - Class `SimpleHistoryLogQuery` renamed to `Log_Query`.
+- Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
 - Class `SimpleLoggerLogInitiators` renamed to `Log_Initiators`.
 - Move init code in dropins from `__construct()` to new `loaded()` method.
 - Rename `getLogLevelTranslated()` to `get_log_level_translated()` and move to class `log_levels`.
@@ -249,6 +246,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fix db error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
 - When a logger is loaded a check for the existance of required information, currently 'name' must be set. This and future checks make it easier for developers to detect errors when creating loggers. `_doing_it_wrong()` will be called when errors found with more information.
 - Logger: Method `get_info_value_by_key()` is now public so it can be used outside of a logger.
+- Logger: Method `get_info()` is now abstract, since it must be added by loggers.
 
 **Removed**
 
