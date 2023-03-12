@@ -3,6 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Simple_History;
+
 /**
  * Base class for dropins.
  */
@@ -10,10 +11,10 @@ abstract class Dropin {
 	protected Simple_History $simple_history;
 
 	/**
-	 * @param Simple_History $sh
+	 * @param Simple_History $simple_history
 	 */
-	public function __construct( $sh ) {
-		$this->simple_history = $sh;
+	public function __construct( $simple_history ) {
+		$this->simple_history = $simple_history;
 	}
 
 	/**
