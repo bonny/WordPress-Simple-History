@@ -1090,7 +1090,7 @@ class Simple_History {
 			$logger_instance->messages = $arr_messages_by_message_key;
 
 			$this->instantiated_loggers[ $logger_instance->get_slug() ] = array(
-				'name' => $logger_info['name'],
+				'name' => $logger_instance->get_info_value_by_key( 'name' ),
 				'instance' => $logger_instance,
 			);
 		} // End foreach().
