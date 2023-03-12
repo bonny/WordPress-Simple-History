@@ -704,7 +704,7 @@ class Simple_History {
 
 						$data['log_rows'][ $key ] = $this->get_log_row_html_output( $oneLogRow, $args );
 					}
-					
+
 					$data['num_queries'] = get_num_queries();
 					$data['cached_result'] = $data['cached_result'] ?? false;
 				}
@@ -1039,7 +1039,10 @@ class Simple_History {
 
 		// Instantiate each logger.
 		foreach ( $arr_loggers_to_instantiate as $one_logger_class ) {
-			if ( ! is_subclass_of( $one_logger_class, 'Simple_History\Loggers\Logger' ) ) {
+			$is_valid_logger_subclass = is_subclass_of( $one_logger_class, 'Simple_History\Loggers\Logger' );
+			$is_valid_old_simplelogger_subclass = is_subclass_of( $one_logger_class, 'SimpleLogger' );
+
+			if ( ! $is_valid_logger_subclass && ! $is_valid_old_simplelogger_subclass ) {
 				continue;
 			}
 
