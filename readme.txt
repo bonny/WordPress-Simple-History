@@ -193,14 +193,6 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= 3.4.0 (February 2023) =
-
-- Changed: When exporting a CSV file of the history, each cell is escaped to reduce the risk of "CSV injection" in spreadsheet applications when importing the exported CSV. Reported here: https://patchstack.com/database/vulnerability/simple-history/wordpress-simple-history-plugin-3-3-1-csv-injection-vulnerability.
-
-= 3.3.1 (October 2022) =
-
-- Tested up to WordPress 6.1.
-
 = Currently doing =
 
 - Add old SimpeLogger class so old loggers that third party plugins/software has created does not crash site.
@@ -276,6 +268,14 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
 - Redirection logger logs enabling, disabling, and deletion of groups again.
 - Categories logger does not log changes to taxonomy `nav_menu` since the menu logger takes care of those, i.e. changes to the menus.
+
+= 3.4.0 (February 2023) =
+
+- Changed: When exporting a CSV file of the history, each cell is escaped to reduce the risk of "CSV injection" in spreadsheet applications when importing the exported CSV. Reported here: https://patchstack.com/database/vulnerability/simple-history/wordpress-simple-history-plugin-3-3-1-csv-injection-vulnerability.
+
+= 3.3.1 (October 2022) =
+
+- Tested up to WordPress 6.1.
 
 = 3.3.0 (May 2022) =
 
