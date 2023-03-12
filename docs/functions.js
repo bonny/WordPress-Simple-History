@@ -118,16 +118,16 @@ export const HookParams = ({ hook }) => {
     paramsDoc = <ul>{paramsDoc}</ul>
   }
 
-  let hook_function;
+  let hook_function
   switch (hook.type) {
     case 'action':
-      hook_function = 'do_action';
-      break;  
+      hook_function = 'do_action'
+      break
     case 'filter':
-      hook_function = 'apply_filters';
-      break;  
+      hook_function = 'apply_filters'
+      break
     default:
-      break;
+      break
   }
 
   // https://github.com/mdx-js/mdx/issues/197
