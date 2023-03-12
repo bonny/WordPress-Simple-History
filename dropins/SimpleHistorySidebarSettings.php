@@ -3,8 +3,6 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Simple_History;
-use Simple_History\Log_Query;
-use Simple_History\Log_Initiators;
 
 /**
  * Dropin Name: Sidebar with link to settings
