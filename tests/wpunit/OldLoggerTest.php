@@ -2,9 +2,8 @@
 
 /*
 Todo
-
-In example file we use class SimpleLoggerLogInitiators that does not exist any more:
-'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
+- Add test for interpolate
+- Add test for SimpleHistoryLogQuery
 
 */
 
@@ -37,8 +36,34 @@ class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue(class_exists('SimpleLogger'), 'Old SimpleLogger class exists');
 	}
 
-	public function test_that_404_logger_class_exists() {
+	public function test_that_old_logger_exists() {
 		$this->assertTrue(class_exists('FourOhFourLogger'), 'Old SimpleLogger class exists');
 	}
+
+	public function test_old_logger_logging() {
+		// Trigger 404_template filter to trigger logger.
+		apply_filters( "404_template", 'template', 'type', array() );
+
+		$this->assertEquals(
+			array(
+				'logger' => 'FourOhFourLogger',
+				'level' => 'warning',
+				'message' => 'Got a 404-page when trying to visit "{request_uri}"',
+				'initiator' => 'web_user',
+			),
+			get_latest_row()
+		);
+
+	}
+
+	public function test_old_log_query() {
+		$log_query = new SimpleHistoryLogQuery();
+
+		$query_results = $log_query->query( [
+			'posts_per_page' => 5,
+		] );
+	}
+
+	// return helpers::interpolate( $message, $context, $row );
 }
 

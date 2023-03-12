@@ -60,7 +60,10 @@ if ( $ok_php_version && $ok_wp_version ) {
 
 	// Load code for old, deprecated things after autoloader so
 	// classes gets autoloaded.
-	require_once __DIR__ . '/inc/class-simplelogger.php';
+	require_once __DIR__ . '/inc/deprecated/class-simplelogger.php';
+	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php';
+	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php';
+	require_once __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php';
 
 	Simple_History\Simple_History::get_instance();
 } else {

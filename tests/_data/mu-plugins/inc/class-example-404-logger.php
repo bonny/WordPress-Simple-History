@@ -34,7 +34,6 @@ class FourOhFourLogger extends SimpleLogger {
 	}
 
 	public function handle_404_template( $template ) {
-
 		$context = array(
 			'_initiator' => SimpleLoggerLogInitiators::WEB_USER,
 			'request_uri' => isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '',
