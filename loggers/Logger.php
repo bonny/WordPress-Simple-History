@@ -91,8 +91,7 @@ abstract class Logger {
 		global $wpdb;
 
 		$this->db_table = $wpdb->prefix . Simple_History::DBTABLE;
-		$this->db_table_contexts =
-			$wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
+		$this->db_table_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 
 		$this->simple_history = $simple_history;
 	}
@@ -132,7 +131,7 @@ abstract class Logger {
 	 * @since 2.5.4
 	 * @return Mixed
 	 */
-	protected function get_info_value_by_key( $key ) {
+	public function get_info_value_by_key( $key ) {
 		$arr_info = $this->get_info();
 
 		return $arr_info[ $key ] ?? null;
