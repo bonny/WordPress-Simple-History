@@ -247,6 +247,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - When a logger is loaded a check for the existance of required information, currently 'name' must be set. This and future checks make it easier for developers to detect errors when creating loggers. `_doing_it_wrong()` will be called when errors found with more information.
 - Logger: Method `get_info_value_by_key()` is now public so it can be used outside of a logger.
 - Logger: Method `get_info()` is now abstract, since it must be added by loggers.
+- For backwards compatibility `SimpleHistoryLogQuery`, `SimpleLoggerLogLevels`, `SimpleLoggerLogInitiators`, `SimpleLogger` will continue to exist for a couple of more versions.
 
 **Removed**
 
