@@ -118,11 +118,7 @@ abstract class Logger {
 	 *
 	 * @return array
 	 */
-	public function get_info() {
-		return array(
-			// ...
-		);
-	}
+	abstract public function get_info();
 
 	/**
 	 * Return single array entry from the array in get_info()
