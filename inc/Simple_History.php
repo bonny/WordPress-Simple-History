@@ -1043,7 +1043,7 @@ class Simple_History {
 				continue;
 			}
 
-			/** @var SimpleLogger */
+			/** @var SimpleLogger $logger_instance */
 			$logger_instance = new $one_logger_class( $this );
 			$logger_instance->loaded();
 
