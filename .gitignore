@@ -7,18 +7,19 @@ tmp
 .DS_Store
 vendor
 /.vscode
-/build
 workspace.code-workspace
-data/
-tests/_data/dump.sql
-tests/_data/twentysixteen.2.6.zip
-tests/_data/twentysixteen.2.7.zip
-tests/_data/Image 1.jpg
-tests/_data/Image 2.jpg
+
 docs/.vscode/settings.json
-tests/.vscode/settings.json
-tests/plugins
 /.idea
-tests/_data/classic-editor.1.6.2.zip
-tests/_data/classic-widgets.0.3.zip
-tests/_data/limit-login-attempts-reloaded.2.25.5.zip
+
+/build
+
+# Docker related data
+data/
+
+# Tests related data
+tests/*
+!tests/_data
+tests/_data/*
+!tests/_data/Image 1.jpg
+!tests/_data/Image 2.jpg
