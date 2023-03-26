@@ -25,7 +25,7 @@
 		"codeception/util-universalframework": "^1.0"
 	},
 	"require": {
-		"php": ">=5.2.0"
+		"php": ">=5.6.0"
 	},
 	"authors": [
 		{
