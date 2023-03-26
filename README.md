@@ -37,21 +37,21 @@ This screenshot show the user activity feed:
 
 ![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-1.png?rev=1)
 
-### Events with different severity
+## Events with different severity
 
 Simple History uses the log levels specified in the [PHP PSR-3 standard](https://www.php-fig.org/psr/psr-3/).
 
-### Quick diff lets you see what's changed
+## Quick diff lets you see what's changed
 
 ![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-2.png?rev=1096689)
 
-### Events have context with extra details
+## Events have context with extra details
 
 Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
 ![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-3.png?rev=1096689)
 
-### Plugin API
+## Plugin API
 
 Developers can easily log their own things using a simple API:
 
@@ -87,6 +87,6 @@ SimpleLogger()->debug("Ok, cron job is running!");
 
 You will find more examples in the [examples.php](./examples/examples.php) file.
 
-### Running tests
+## Running tests
 
 Tests are located in the `tests`-folder. See [./tests/readme.md](./tests/readme.md).
