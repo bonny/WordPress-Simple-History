@@ -3,7 +3,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Requires at least: 5.2
-Tested up to: 6.1
+Tested up to: 6.2
 Requires PHP: 5.6
 Stable tag: 3.4.0
 
@@ -192,6 +192,11 @@ Events in the log are stored for 60 days by default. Events older than this will
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 == Changelog ==
+
+= 3.5.0 (February 2023) =
+
+- Tested up to WordPress 6.2.
+- 
 
 = 3.4.0 (February 2023) =
 
