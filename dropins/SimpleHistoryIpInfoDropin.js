@@ -89,7 +89,7 @@
       onIpAddressLookupResponse,
       "jsonp"
     ).fail(function (jqXHR, textStatus, errorThrown) {
-      // Some error occured, for example "net::ERR_BLOCKED_BY_CLIENT"
+      // Some error occurred, for example "net::ERR_BLOCKED_BY_CLIENT"
       // when ad blocker uBlock blocks
       // ipinfo.io using EasyPrivacy filter
       console.log("fail", jqXHR, textStatus, errorThrown);
@@ -99,12 +99,12 @@
     return false;
   }
 
-  // Function called when ip adress lookup succeeded.
+  // Function called when ip address lookup succeeded.
   function onIpAddressLookupResponse(d) {
     $popupContent.html(templateLoaded(d));
   }
 
-  // Function called when ip adress lookup failed.
+  // Function called when ip address lookup failed.
   function onIpAddressLookupResponseFail(d) {
     $popupContent.html(templateError(d));
   }

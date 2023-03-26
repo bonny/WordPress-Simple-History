@@ -323,7 +323,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 
 				If field slug contains a number, like in "product_images_2_image"
 				that probably means that that field is a repeater with name "product_images"
-				with a sub field called "image" and that the image is the 2:nd among it's selected sub fields.
+				with a sub field called "image" and that the image is the 2nd among it's selected sub fields.
 
 				Example of how fields can look:
 				acf_field_added_0   product_images_2_image
@@ -338,7 +338,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				$context[ "{$context_key}/slug" ] = $field_slug;
 
 				/*
-				 * Try to get som extra info, like display name and type for this field.
+				 * Try to get some extra info, like display name and type for this field.
 				 * For a nice context in the feed we want: parent field group name and type?
 				 */
 				if ( isset( $fieldnames_to_field_keys[ $field_slug ] ) ) {
@@ -591,7 +591,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 				}
 			}
 
-			// If only acf_hide_on_screen_removed exists nothing is outputed.
+			// If only acf_hide_on_screen_removed exists nothing is outputted.
 			$acf_hide_on_screen_added   = empty( $context['acf_hide_on_screen_added'] ) ? null : $context['acf_hide_on_screen_added'];
 			$acf_hide_on_screen_removed = empty( $context['acf_hide_on_screen_removed'] ) ? null : $context['acf_hide_on_screen_removed'];
 
@@ -914,7 +914,7 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 						continue;
 					}
 
-					// Always add ID, name, and lavel
+					// Always add ID, name, and label
 					$context[ "acf_modified_fields_{$loopnum}_ID_prev" ]    = $modifiedFields['old'][ $modifiedFieldId ]['ID'];
 					$context[ "acf_modified_fields_{$loopnum}_name_prev" ]  = $modifiedFields['old'][ $modifiedFieldId ]['name'];
 					$context[ "acf_modified_fields_{$loopnum}_label_prev" ] = $modifiedFields['old'][ $modifiedFieldId ]['label'];

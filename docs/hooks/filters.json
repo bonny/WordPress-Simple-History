@@ -1290,7 +1290,7 @@
             "file": "build/loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
-                "description": "Filter how many seconds as most that can pass since an event occured to show \"just now\" instead of exact date",
+                "description": "Filter how many seconds as most that can pass since an event occurred to show \"just now\" instead of exact date",
                 "long_description": "",
                 "tags": [
                     {
@@ -1342,7 +1342,7 @@
             "file": "build/loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
-                "description": "Filter how many seconds as most that can pass since an event occured to show \"nn minutes ago\" (human diff time-format) instead of exact date",
+                "description": "Filter how many seconds as most that can pass since an event occurred to show \"nn minutes ago\" (human diff time-format) instead of exact date",
                 "long_description": "",
                 "tags": [
                     {
@@ -1385,7 +1385,7 @@
                     },
                     {
                         "name": "param",
-                        "content": "Wheter to log or not.",
+                        "content": "Whether to log or not.",
                         "types": [
                             "bool"
                         ],
@@ -1655,7 +1655,7 @@
             "file": "build/loggers/SimpleLogger.php",
             "type": "filter",
             "doc": {
-                "description": "Filter arguments passed to log funtion",
+                "description": "Filter arguments passed to log function",
                 "long_description": "",
                 "tags": [
                     {
@@ -2674,7 +2674,7 @@
                     },
                     {
                         "name": "param",
-                        "content": "Wheter the user is allowed to view the logger.",
+                        "content": "Whether the user is allowed to view the logger.",
                         "types": [
                             "bool"
                         ],

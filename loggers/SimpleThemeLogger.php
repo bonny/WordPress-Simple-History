@@ -428,7 +428,7 @@ class SimpleThemeLogger extends SimpleLogger {
 	 *  (
 	 *    [action] => activate
 	 *    [stylesheet] => wp-theme-bonny-starter
-	 *    [_wpnonce] => 31b033ba59
+	 *    [_wpnonce] => 31b033b059
 	 *  )
 	 */
 	public function on_page_load_themes() {

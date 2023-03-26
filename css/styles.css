@@ -100,7 +100,7 @@
 
 /**
  * Log items
- * There is always a 4px left border, just with differents colors
+ * There is always a 4px left border, just with different colors
  */
 .SimpleHistoryLogitem {
 	position: relative;
@@ -617,7 +617,7 @@ Modal window with detailss
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	bottom: 60px;
 	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-	left: 280px; /* admin meny width is 160 px*/
+	left: 280px; /* admin menu width is 160 px*/
 	position: fixed;
 	overflow: auto;
 	right: 120px;
@@ -659,14 +659,14 @@ Modal window with detailss
 	cursor: pointer;
 }
 
-/* if wp left meny is collapsed .folded is added and meny width is 36 px */
+/* if wp left menu is collapsed .folded is added and menu width is 36 px */
 .folded .SimpleHistory-modal__content {
-	left: 156px; /* admin meny width is 160 px */
+	left: 156px; /* admin menu width is 160 px */
 }
 
 @media only screen and (max-width: 850px) {
 	.SimpleHistory-modal__content {
-		left: 10px; /* admin meny width is 160 px */
+		left: 10px; /* admin menu width is 160 px */
 	}
 }
 

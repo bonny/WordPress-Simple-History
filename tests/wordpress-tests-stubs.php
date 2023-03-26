@@ -690,7 +690,7 @@ namespace {
         /**
          * Touches the given file and its directory if it doesn't already exist.
          *
-         * This can be used to ensure a file that is implictly relied on in a test exists
+         * This can be used to ensure a file that is implicitly relied on in a test exists
          * without it having to be built.
          *
          * @param string $file The file name.
@@ -1301,7 +1301,7 @@ namespace {
          * @param array|null  $generation_definitions Optional. The defaults. Default is null.
          * @param array|null  $callbacks              Optional. Array with callbacks to apply on the fields. Default is null.
          *
-         * @return array|WP_Error Combined array on success. WP_Error when default value is incorrent.
+         * @return array|WP_Error Combined array on success. WP_Error when default value is incorrect.
          */
         public function generate_args($args = array(), $generation_definitions = \null, &$callbacks = \null)
         {

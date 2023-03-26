@@ -1,0 +1,6 @@
+[files]
+extend-exclude = ["js/timeago/locales/","js/select2/i18n/","js/Chart.js"]
+[default.extend-words]
+referer = "referer"
+reseted = "reseted"
+setted = "setted"

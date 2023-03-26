@@ -2935,7 +2935,7 @@ Because Simple History was only recently installed, this feed does not display m
 			 * );
 			 * ```
 			 *
-			 * @param bool Wheter the user is allowed to view the logger.
+			 * @param bool Whether the user is allowed to view the logger.
 			 * @param SimpleLogger Logger instance.
 			 * @param int $user_id Id of user.
 			 */
