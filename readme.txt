@@ -197,7 +197,9 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Log an entry when a cron event hook is paused or resumed with the WP Crontrol plugin #328
 - Tested up to WordPress 6.2.
-- 
+
+Note: Next major version of the plugin will require PHP 7. If you are running a PHP version older than that
+please read this: https://wordpress.org/support/update-php/.
 
 = 3.4.0 (February 2023) =
 
