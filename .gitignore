@@ -7,9 +7,19 @@ tmp
 .DS_Store
 vendor
 /.vscode
-/build
 workspace.code-workspace
-data/
-tests/_data/dump.sql
+
 docs/.vscode/settings.json
-tests/.vscode/settings.json
+/.idea
+
+/build
+
+# Docker related data
+data/
+
+# Tests related data
+tests/*
+!tests/_data
+tests/_data/*
+!tests/_data/Image 1.jpg
+!tests/_data/Image 2.jpg
