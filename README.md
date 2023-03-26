@@ -1,30 +1,17 @@
-<h1 align="center">
-  <img width="20" height="20" src=".wordpress-org/icon.svg" alt="logo">
-  Simple History
-  – a WordPress activity log for what matters
-</h1>
+# <img width="20" height="20" src=".wordpress-org/icon.svg" alt="logo"> Simple History
 
-<p align="center">
-  <img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars" />
-  <img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K">
-  <img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
-</p>
+<img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars"> <img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K"> <img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
 
-<p align="center">
-  Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
-  <br />
-  It's great way to view user activity and keep an eye on what the admin users of a website are doing.
-</p>
+A WordPress activity log for what matters
 
-<p align="center">
-  Download from WordPress.org
-  <a href="https://wordpress.org/plugins/simple-history/">
-    <br />
-    https://wordpress.org/plugins/simple-history/
-  </a>
-</p>
+Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.  
+It's great way to view user activity and keep an eye on what the admin users of a website are doing.
 
-## Screenshots
+## Installation
+
+Download from [WordPress.org](https://wordpress.org/plugins/simple-history/) and activate.
+
+## Usage
 
 ### Viewing history events
 
@@ -87,6 +74,8 @@ SimpleLogger()->debug("Ok, cron job is running!");
 
 You will find more examples in the [examples.php](./examples/examples.php) file.
 
-## Running tests
+## Development
 
-Tests are located in the `tests`-folder. See [./tests/readme.md](./tests/readme.md).
+### Running tests
+
+See the [README](./tests/readme.md) in `tests` directory.
