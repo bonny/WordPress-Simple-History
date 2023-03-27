@@ -193,7 +193,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= 3.5.0 (February 2023) =
+= 3.5.0 (March 2023) =
 
 - Added: Log an entry when a cron event hook is paused or resumed with the WP Crontrol plugin [#328](https://github.com/bonny/WordPress-Simple-History/pull/328).
 - Fixed: DB error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
