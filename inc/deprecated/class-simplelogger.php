@@ -35,15 +35,15 @@ class SimpleLogger extends Logger {
 		'adminJS' => 'admin_js',
 	);
 
-		/**
-		 * Calls `getInfo()` on child class, if method exists.
-		 *
-		 * Since `get_info()` is an abstract method on Logger class,
-		 * it can't be detected in `_call` method and therefore
-		 * it must be added.
-		 *
-		 * @return array
-		 */
+	/**
+	 * Calls `getInfo()` on child class, if method exists.
+	 *
+	 * Since `get_info()` is an abstract method on Logger class,
+	 * it can't be detected in `_call` method and therefore
+	 * it must be added.
+	 *
+	 * @return array
+	 */
 	public function get_info() {
 		if ( ! method_exists( $this, 'getInfo' ) ) {
 			return array();
@@ -52,14 +52,14 @@ class SimpleLogger extends Logger {
 		return $this->getInfo();
 	}
 
-		/**
-		 * Call new method when calling old/deprecated method names.
-		 *
-		 * @since 4.0
-		 * @param string $name
-		 * @param array $arguments
-		 * @return mixed
-		 */
+	/**
+	 * Call new method when calling old/deprecated method names.
+	 *
+	 * @since 4.0
+	 * @param string $name
+	 * @param array $arguments
+	 * @return mixed
+	 */
 	public function __call( $name, $arguments ) {
 		// Bail if method name is nothing to act on.
 		if ( ! isset( $this->methods_mapping[ $name ] ) ) {
