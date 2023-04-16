@@ -56,14 +56,33 @@ class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 	}
 
-	public function test_old_log_query() {
+	public function test_old_log_query_class() {
+		// Be admin user to be able to read logs.
+		$user_id = $this->factory->user->create(
+			array(
+				'role' => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		SimpleLogger()->info('This is an info message');
+		
 		$log_query = new SimpleHistoryLogQuery();
-
 		$query_results = $log_query->query( [
-			'posts_per_page' => 5,
+			'posts_per_page' => 1,
 		] );
-	}
 
-	// return helpers::interpolate( $message, $context, $row );
+		$expected_object = new stdClass();
+		$expected_object->logger = 'SimpleLogger';
+		$expected_object->level = 'info';
+		$expected_object->message = 'This is an info message';
+		$expected_object->context_message_key = null;
+		$expected_object->initiator = 'wp_user';
+
+		$actual = $query_results['log_rows'][0];
+		unset($actual->id, $actual->date, $actual->occasionsID, $actual->subsequentOccasions, $actual->rep, $actual->repeated, $actual->occasionsIDType, $actual->context);
+
+		$this->assertEquals($expected_object, $actual);
+	}
 }
 
