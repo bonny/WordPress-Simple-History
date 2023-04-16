@@ -4,7 +4,7 @@
  * Must use plugin without namespace.
  */
 
- // We use the function "register_logger" to tell tell SimpleHistory that our custom logger exists.
+// We use the function "register_logger" to tell tell SimpleHistory that our custom logger exists.
 // We call it from inside the filter "simple_history/add_custom_logger".
 add_action(
 	'simple_history/add_custom_logger',
