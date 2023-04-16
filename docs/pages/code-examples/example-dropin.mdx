@@ -12,8 +12,8 @@ use Simple_History\Dropins;
 // We call it from inside the filter "simple_history/add_custom_logger".
 add_action(
 	'simple_history/add_custom_dropin',
-	function ( $simpleHistory ) {
-		$simpleHistory->register_dropin( 'add_settings_page_tab' );
+	function ( $simple_history ) {
+		$simple_history->register_dropin( 'add_settings_page_tab' );
 	}
 );
 

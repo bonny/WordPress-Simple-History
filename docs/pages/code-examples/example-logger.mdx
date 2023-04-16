@@ -10,8 +10,8 @@
 // We call it from inside the filter "simple_history/add_custom_logger".
 add_action(
 	'simple_history/add_custom_logger',
-	function ( $simpleHistory ) {
-		$simpleHistory->register_logger( 'FourOhFourLogger' );
+	function ( $simple_history ) {
+		$simple_history->register_logger( 'FourOhFourLogger' );
 	}
 );
 
