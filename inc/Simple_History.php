@@ -6,7 +6,9 @@ use Simple_History\Dropins;
 use Simple_History\Helpers;
 
 /**
- * Main class for Simple History
+ * Main class for Simple History.
+ *
+ * This is used to init the plugin.
  */
 class Simple_History {
 
@@ -1015,6 +1017,21 @@ class Simple_History {
 		 * @param Simple_History $this Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_logger', $this );
+
+		// HERE: how to fix?
+		// # This is how beaver builder calls the add function.
+		// Will fail because \SimpleHistory does not exist anymore.
+		// Correct usage is:
+		// function( \Simple_History\Simple_History $simple_history ) : void {
+		//
+		// add_action(
+		// 	'simple_history/add_custom_logger',
+		// 	function( \SimpleHistory $simple_history ) : void {
+		// 		if ( class_exists( 'WEBDOGS\Extended_Simple_History_Beaver_Builder\Classes\Simple_History\Loggers\Beaver_Builder' ) ) {
+		// 			$simple_history->register_logger( Logger_Beaver_Builder::class );
+		// 		}
+		// 	}
+		// );
 
 		$arr_loggers_to_instantiate = array_merge( $arr_loggers_to_instantiate, $this->external_loggers );
 
@@ -3268,5 +3285,28 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	public function get_contexts_table_name() {
 		return $this::$dbtable_contexts;
+	}
+
+	/**
+	 * Call new method when calling old/deprecated method names.
+	 *
+	 * @param string $name
+	 * @param array $arguments
+	 * @return mixed
+	 */
+	public function __call( $name, $arguments ) {
+		$methods_mapping = array(
+			'registerSettingsTab' => 'register_settings_tab',
+		);
+
+		// Bail if method name is nothing to act on.
+		if ( ! isset( $methods_mapping[ $name ] ) ) {
+			return;
+		}
+
+		$method_name_to_call = $methods_mapping[ $name ];
+
+		return call_user_func_array( array( $this, $method_name_to_call ), $arguments );
+
 	}
 }
