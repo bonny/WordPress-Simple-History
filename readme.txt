@@ -195,7 +195,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Currently doing =
 
-- Add old SimpeLogger class so old loggers that third party plugins/software has created does not crash site.
+- Determine what to to with `SimpleHistory` vs `\Simple_History\Simple_History`. What should the "main" class be called.
+  - "Simple History" feels to broad.
+  - Docket cache uses `namespace DocketCache\Plugin`.
+  - jetpack boost uses `namespace Automattic\Jetpack_Boost;` and then `class Jetpack_Boost {` and then `new Jetpack_Boost();`
 
 = Unreleased =
 
@@ -206,9 +209,11 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Log if "Send personal data export confirmation email" is checked when adding a Data Export Request.
 - Log when a Data Export Request is marked as complete.
 - Log when Personal Data is erased by an admin.
-- Most of the code now uses namespaces. The main namespace is `Simple_History`.
-- Dropins use namespace `Simple_History\Dropins` and dropins must now extend the base class `Dropin`.
-- Loggers use namespace `Simple_History\Loggers` and loggers must extend the base class `Logger`.
+- Most of the code now uses namespaces.
+  - The main namespace is `Simple_History`.
+  - The main/core class is `Simple_History\Simple_History`.
+  - Dropins use namespace `Simple_History\Dropins` and dropins must now extend the base class `Dropin`.
+  - Loggers use namespace `Simple_History\Loggers` and loggers must extend the base class `Logger`.
 - Add filter `simple_history/core_loggers` to modify the list of built in (core) loggers.
 - Add filter `simple_history/dropins_to_instantiate` to modify the list of built in dropins to instantiate.
 - Add filter `simple_history/core_dropins`.
@@ -240,7 +245,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Class `SimpleLoggerLogInitiators` renamed to `Log_Initiators`.
 - Move init code in dropins from `__construct()` to new `loaded()` method.
 - Rename `getLogLevelTranslated()` to `get_log_level_translated()` and move to class `log_levels`.
-- Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style).
+- Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style). Some examples:
+  - `registerSettingsTab` is renamed to `register_settings_tab`.
 - Rename message key `user_application_password_deleted` to `user_application_password_revoked`.
 - Context key `args` is renamed to `export_args` in export logger. This key contains some of the options that was passed to export function, like author, category, start date, end date, and status.
 - Fix db error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
