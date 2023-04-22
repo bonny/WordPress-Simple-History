@@ -195,6 +195,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Currently doing =
 
+- Add `_call()` to simplelogger to catch random calls to old/deprecated methods
 - Determine what to to with `SimpleHistory` vs `\Simple_History\Simple_History`. What should the "main" class be called.
   - "Simple History" feels to broad.
   - Docket cache uses `namespace DocketCache\Plugin`.
