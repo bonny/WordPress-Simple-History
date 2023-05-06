@@ -79,3 +79,8 @@ You will find more examples in the [examples.php](./examples/examples.php) file.
 ### Running tests
 
 See the [README](./tests/readme.md) in `tests` directory.
+
+## Sponsors
+
+Support the free version of Simple History by becoming a sponsor.
+You can sponsor using [PayPal](https://www.paypal.com/paypalme/eskapism) or [becoming a GitHub Sponsor](https://github.com/sponsors/bonny).
