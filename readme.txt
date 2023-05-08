@@ -193,6 +193,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 3.5.1 (May 2023) =
+
+- Fixed JavaScript error when Backbone.history is already started by other plugins. Fixes https://github.com/bonny/WordPress-Simple-History/issues/319.
+
 = 3.5.0 (March 2023) =
 
 - Added: Log an entry when a cron event hook is paused or resumed with the WP Crontrol plugin [#328](https://github.com/bonny/WordPress-Simple-History/pull/328).

@@ -605,7 +605,10 @@ var simple_history = (function ($) {
       }
 
       this.logRouter = new LogRouter()
-      Backbone.history.start()
+      
+      if ( ! Backbone.History.started ) {
+        Backbone.history.start();
+      }
 
       this.logRowsCollection = new LogRowsCollection([], {
         mainView: this
