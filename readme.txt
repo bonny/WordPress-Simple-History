@@ -37,7 +37,7 @@ Out of the box Simple History has support for:
   see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 - **Menu edits**
 - **Option screens**<br>
-  view details about changes made in the differnt settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
+  view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
 - **Privacy page**<br>
   when a privacy page is created or set to a new page.
 - **Data Export**<br>
@@ -104,7 +104,7 @@ _"Has someone done anything today? Ah, Sarah uploaded
 the new press release and created an article for it. Great! Now I don't have to do that."_
 
 Or for debug purposes:
-_"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughy-plugin-x',
+_"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughty-plugin-x',
 that must be it."_
 
 #### API so you can add your own events to the audit log
@@ -244,7 +244,7 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
 - Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
 - Fixed: Some PHP notice messages in post logger.
 - Updated: JavaScript library TimeAgo updated to 1.6.7 from 1.6.3.
-- Added: Log when an admin verifies that the site admin adress is valid using the [Site Admin Email Verification Screen that was added in WordPress 5.3](https://make.wordpress.org/core/2019/10/17/wordpress-5-3-admin-email-verification-screen/). ([#194](https://github.com/bonny/WordPress-Simple-History/issues/194), [#225](https://github.com/bonny/WordPress-Simple-History/issues/225))
+- Added: Log when an admin verifies that the site admin address is valid using the [Site Admin Email Verification Screen that was added in WordPress 5.3](https://make.wordpress.org/core/2019/10/17/wordpress-5-3-admin-email-verification-screen/). ([#194](https://github.com/bonny/WordPress-Simple-History/issues/194), [#225](https://github.com/bonny/WordPress-Simple-History/issues/225))
 - Added: Option "All days" to date range filter dropdown. ([#196](https://github.com/bonny/WordPress-Simple-History/issues/196))
 - Added: Media and other attachments now display the post they were uploaded to, if any. ([#274](https://github.com/bonny/WordPress-Simple-History/issues/274))
 - Added: Add class static variables $dbtable and $dbtable_contexts that contain full db name (existing class constants DBTABLE and DBTABLE_CONTEXTS needed to be prefixed manually).
@@ -252,7 +252,7 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
 - Changed: Plugin install source is now assumed to be "web" by default.
 - Changed: Attachment updates are no longer logged from post logger since the media/attachment logger takes care of it.
 - Changed: Function `sh_d()` now does not escape output when running from CLI.
-- Removed: Plugin source files-listing removed from plugin installs, because the listing was incomplete, plus some more fields that no longer were able to get meaninful values (plugin rating, number or ratings, etc.).
+- Removed: Plugin source files-listing removed from plugin installs, because the listing was incomplete, plus some more fields that no longer were able to get meaningful values (plugin rating, number or ratings, etc.).
 
 = 3.0.0 (January 2022) =
 
@@ -297,9 +297,9 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
   Previously the IP address was only shown for failed login attempts. Note that the IP address/es of all events are always logged and can be seen in the "context data" table that is displayed when you click the date and time of an event.
   [#233](https://github.com/bonny/WordPress-Simple-History/issues/233)
 
-- Added: If multiple IP addresses are detected, for example when a website is running behind a proxy or similar, all IP addresses are now shown for failed and sucessful logins.
+- Added: If multiple IP addresses are detected, for example when a website is running behind a proxy or similar, all IP addresses are now shown for failed and successful logins.
 
-- Added: Filter `simple_history/row_header_output/display_ip_address` that can be used to control when the IP address/es should be visible in the main log. By default sucessful and failed logins are shown.
+- Added: Filter `simple_history/row_header_output/display_ip_address` that can be used to control when the IP address/es should be visible in the main log. By default successful and failed logins are shown.
 
 - Added: Show message when failing to get IP address due to for example ad blocker. IPInfo.io is for example blocked in the EasyList filter list that for example [Chrome extension uBlock Origin](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm) uses.
 
@@ -426,7 +426,7 @@ add_filter('simple_history/admin_location', function ($location) {
 
 = 2.29 (December 2018) =
 
-- Make log welcome message translateable.
+- Make log welcome message translatable.
 - Add two filters to make it more ease to control via filters if a logger and the combination logger + message should be logged. - `"simple_history/log/do_log/{$this->slug}"` controls if any messages for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger. - `"simple_history/log/do_log/{$this->slug}/{$message_key}"` controls if a specific message for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger. - Code examples for the two filters above:
 
   ````
