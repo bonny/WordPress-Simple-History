@@ -288,7 +288,11 @@ class SimpleOptionsLogger extends SimpleLogger {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'New value', 'simple-history' ),
-				sprintf( __( 'Page %1$s', 'simple-history' ), $post_title_with_link )
+				sprintf(
+					/* translators: %s post title with link. */
+					__( 'Page %s', 'simple-history' ),
+					$post_title_with_link
+				)
 			);
 		}
 		if ( intval( $new_value ) == 0 ) {
@@ -311,7 +315,11 @@ class SimpleOptionsLogger extends SimpleLogger {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'Old value', 'simple-history' ),
-				sprintf( __( 'Page %1$s', 'simple-history' ), $post_title_with_link )
+				sprintf(
+					/* translators: %s post title with link. */
+					__( 'Page %s', 'simple-history' ),
+					$post_title_with_link
+				)
 			);
 		}
 

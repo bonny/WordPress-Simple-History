@@ -97,7 +97,8 @@ $total_accassions_rows_count = $rows['total_row_count'];
 
 echo '<p>';
 printf(
-	esc_html_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
+	/* translators: %d number of rows. */
+	esc_html_x( 'Total %d rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
 	esc_html( $total_accassions_rows_count )
 );
 echo '</p>';
@@ -148,7 +149,8 @@ echo '</h3>';
 
 echo '<p>';
 printf(
-	esc_html_x( 'Listing %1$d loggers, ordered by rows count in database.', 'debug dropin', 'simple-history' ),
+	/* translators: %d number of loggers. */
+	esc_html_x( 'Listing %d loggers, ordered by rows count in database.', 'debug dropin', 'simple-history' ),
 	esc_html( count( $arr_logger_slugs ) ) // 1
 );
 echo '</p>';

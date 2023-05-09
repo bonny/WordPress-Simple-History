@@ -315,6 +315,7 @@ class SimpleLogger {
 					// _user_email
 					$initiator_html .= sprintf(
 						'<strong class="SimpleHistoryLogitem__inlineDivided">' .
+							/* translators: 1: user id, 2: user email address, 3: user account name. */
 							__(
 								'Deleted user (had id %1$s, email %2$s, login %3$s)',
 								'simple-history'
@@ -467,9 +468,9 @@ class SimpleLogger {
 				$date_datetime->getTimestamp(),
 				$time_current
 			);
-			/* Translators: 1: last modified date and time in human time diff-format */
 			$str_when = sprintf(
-				__( '%1$s ago', 'simple-history' ),
+				/* Translators: %s last modified date and time in human time diff-format */
+				__( '%s ago', 'simple-history' ),
 				$date_human_time_diff
 			);
 		}
@@ -481,6 +482,7 @@ class SimpleLogger {
 
 		// Datetime attribute on <time> element.
 		$str_datetime_title = sprintf(
+			/* translators: 1: local time string, 2: GMT time string. */
 			__( '%1$s local time %3$s (%2$s GMT time)', 'simple-history' ),
 			get_date_from_gmt(
 				$date_datetime->format( 'Y-m-d H:i:s' ),
@@ -626,7 +628,8 @@ class SimpleLogger {
 			);
 
 			$html .= sprintf(
-				__( 'IP Address %1$s', 'simple-history' ),
+				/* translators: %s link to ipinfo.io with first IP as link label. */
+				__( 'IP Address %s', 'simple-history' ),
 				"<a target='_blank' href='{$iplookup_link}' class='SimpleHistoryLogitem__anonUserWithIp__theIp' data-ip-address='" . esc_attr( $first_ip_address ) . "'>" .
 				esc_html( $first_ip_address ) .
 				'</a>'
@@ -653,7 +656,8 @@ class SimpleLogger {
 			$ip_addresses_html = rtrim( $ip_addresses_html, ', ' );
 
 			$html .= sprintf(
-				__( 'IP Addresses %1$s', 'simple-history' ),
+				/* translators: %s list of links to ipinfo.io with IP:s as link labels. */
+				__( 'IP Addresses %s', 'simple-history' ),
 				$ip_addresses_html
 			);
 		}

@@ -45,6 +45,7 @@ echo '<p class="hide-if-no-js"><button class="button js-SimpleHistoryShowsStatsF
 
 	echo '<li>';
 	printf(
+		/* translators: %d number of log rows */
 		esc_html( __( 'Total %d log rows in db.', 'simple-history' ) ),
 		esc_html( $total_num_rows )
 	);
@@ -52,6 +53,7 @@ echo '<p class="hide-if-no-js"><button class="button js-SimpleHistoryShowsStatsF
 
 	echo '<li>';
 	printf(
+		/* translators: %d number of log rows */
 		esc_html( __( 'Total %d rows, when grouped by occasion id.', 'simple-history' ) ),
 		esc_html( $total_accassions_rows_count )
 	);

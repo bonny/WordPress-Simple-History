@@ -373,8 +373,20 @@ class SimpleHistoryRSSDropin {
 			?>
 			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 				<channel>
-					<title><?php printf( esc_html__( 'History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?></title>
-					<description><?php printf( esc_html__( 'WordPress History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?></description>
+					<title><?php
+					printf(
+						/* translators: %s blog name */
+						esc_html__( 'History for %s', 'simple-history' ),
+						esc_html( get_bloginfo( 'name' ) )
+					);
+					?></title>
+					<description><?php
+						printf(
+							/* translators: %s blog name */
+							esc_html__( 'WordPress History for %s', 'simple-history' ),
+							esc_html( get_bloginfo( 'name' ) )
+						);
+						?></description>
 					<link><?php echo esc_url( home_url() ); ?></link>
 					<item>
 						<title><?php esc_html_e( 'Wrong RSS secret', 'simple-history' ); ?></title>
