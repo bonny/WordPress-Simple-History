@@ -31,6 +31,8 @@ class PluginWPCrontrolLogger extends Logger {
 				'ran_event'             => _x( 'Manually ran cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 				'deleted_event'         => _x( 'Deleted cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 				'deleted_all_with_hook' => _x( 'Deleted all "{event_hook}" cron events', 'PluginWPCrontrolLogger', 'simple-history' ),
+				'paused_hook'           => _x( 'Paused the "{event_hook}" cron event hook', 'PluginWPCrontrolLogger', 'simple-history' ),
+				'resumed_hook'          => _x( 'Resumed the "{event_hook}" cron event hook', 'PluginWPCrontrolLogger', 'simple-history' ),
 				'edited_event'          => _x( 'Edited cron event "{event_hook}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 				'added_new_schedule'    => _x( 'Added cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 				'deleted_schedule'      => _x( 'Deleted cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
@@ -46,6 +48,8 @@ class PluginWPCrontrolLogger extends Logger {
 		add_action( 'crontrol/ran_event', array( $this, 'ran_event' ) );
 		add_action( 'crontrol/deleted_event', array( $this, 'deleted_event' ) );
 		add_action( 'crontrol/deleted_all_with_hook', array( $this, 'deleted_all_with_hook' ), 10, 2 );
+		add_action( 'crontrol/paused_hook', array( $this, 'paused_hook' ) );
+		add_action( 'crontrol/resumed_hook', array( $this, 'resumed_hook' ) );
 		add_action( 'crontrol/edited_event', array( $this, 'edited_event' ), 10, 2 );
 		add_action( 'crontrol/edited_php_event', array( $this, 'edited_event' ), 10, 2 );
 		add_action( 'crontrol/added_new_schedule', array( $this, 'added_new_schedule' ), 10, 3 );
@@ -163,6 +167,38 @@ class PluginWPCrontrolLogger extends Logger {
 
 		$this->info_message(
 			'deleted_all_with_hook',
+			$context
+		);
+	}
+
+	/**
+	 * Fires after a cron event hook is paused.
+	 *
+	 * @param string $hook The hook name.
+	 */
+	public function paused_hook( $hook ) {
+		$context = array(
+			'event_hook' => $hook,
+		);
+
+		$this->infoMessage(
+			'paused_hook',
+			$context
+		);
+	}
+
+	/**
+	 * Fires after a cron event hook is resumed (unpaused).
+	 *
+	 * @param string $hook The hook name.
+	 */
+	public function resumed_hook( $hook ) {
+		$context = array(
+			'event_hook' => $hook,
+		);
+
+		$this->infoMessage(
+			'resumed_hook',
 			$context
 		);
 	}

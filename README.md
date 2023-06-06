@@ -1,35 +1,19 @@
-<h2 align="center">
-	<img width="20" height="20" src="https://raw.githubusercontent.com/bonny/WordPress-Simple-History/master/.wordpress-org/icon.svg" alt="">
-	Simple History
-	– a WordPress activity log for what matters
-</h1>
+# <img width="20" height="20" src=".wordpress-org/icon.svg" alt="logo"> Simple History
 
+<img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars"> <img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K"> <img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
 
-<p align="center">
+A WordPress activity log for what matters
 
-<img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars" />
+Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.  
+It's great way to view user activity and keep an eye on what the admin users of a website are doing.
 
-<img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K">
+## Installation
 
-<img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
+Download from [WordPress.org](https://wordpress.org/plugins/simple-history/) and activate.
 
-</p>
+## Usage
 
-<p align="center">
-Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI. It's great way to view user activity and keep an eye on what the admin users of a website are doing.
-</p>
-
-<p align="center">
-Download from WordPress.org: 
-<a href="https://wordpress.org/plugins/simple-history/">
-<br />
-https://wordpress.org/plugins/simple-history/
-</a>
-</p>
-
-# Screenshots
-
-## Viewing history events
+### Viewing history events
 
 This screenshot show the user activity feed:
 
@@ -38,21 +22,21 @@ This screenshot show the user activity feed:
   - it only shows event that are of type post and pages and media (i.e. images & other uploads)
 - A thumbnail is shown for the image that is uploaded
 
-![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-1.png?rev=1)
+![Simple History screenshot](.wordpress-org/screenshot-1.png)
 
-## Events with different severity
+### Events with different severity
 
 Simple History uses the log levels specified in the [PHP PSR-3 standard](https://www.php-fig.org/psr/psr-3/).
 
-## Quick diff lets you see what's changed
+### Quick diff lets you see what's changed
 
-![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-2.png?rev=1096689)
+![Simple History screenshot](.wordpress-org/screenshot-2.png)
 
-## Events have context with extra details
+### Events have context with extra details
 
 Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
-![Simple History screenshot](https://ps.w.org/simple-history/assets/screenshot-3.png?rev=1096689)
+![Simple History screenshot](.wordpress-org/screenshot-3.png)
 
 ## Plugin API
 
@@ -63,7 +47,7 @@ Developers can easily log their own things using a simple API:
 
 // This is the easiest and safest way to add messages to the log
 // If the plugin is disabled this way will not generate in any error
-apply_filters("simple_history_log", "This is a logged message");
+apply_filters('simple_history_log', 'This is a logged message');
 
 // Or with some context and with log level debug:
 apply_filters(
@@ -88,8 +72,15 @@ SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
 SimpleLogger()->debug("Ok, cron job is running!");
 ```
 
-You will find more examples in the [examples.php](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) file.
+You will find more examples in the [examples.php](./examples/examples.php) file.
 
-## Running tests
+## Development
 
-Tests are located in the `tests`-folder. See [./tests/readme.md](./tests/readme.md).
+### Running tests
+
+See the [README](./tests/readme.md) in `tests` directory.
+
+## Sponsors
+
+Support the free version of Simple History by becoming a sponsor.
+You can sponsor using [PayPal](https://www.paypal.com/paypalme/eskapism) or [becoming a GitHub Sponsor](https://github.com/sponsors/bonny).
