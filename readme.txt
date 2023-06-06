@@ -2,7 +2,7 @@
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
-Requires at least: 5.4
+Requires at least: 6.1
 Tested up to: 6.2
 Requires PHP: 7.4
 Stable tag: 3.5.1
@@ -232,7 +232,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 **Changed**
 
 - PHP 7.4 is now the required minimum version. If you use anything lower than that please use [version 3.4.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
-- WordPress 5.4 is now the required minimum version.
+- WordPress 6.1 is now the required minimum version.
 - Code now uses namespaces and classes (including loggers and dropins) are now loaded using an autoloader.
 - Remove usage of deprectead function `wp_get_user_request_data()`.
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.

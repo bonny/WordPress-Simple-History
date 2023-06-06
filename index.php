@@ -32,7 +32,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die();
 }
 
-$ok_wp_version = version_compare( $GLOBALS['wp_version'], '5.4', '>=' );
+$ok_wp_version = version_compare( $GLOBALS['wp_version'], '6.1', '>=' );
 $ok_php_version = version_compare( phpversion(), '7.4', '>=' );
 
 if ( $ok_php_version && $ok_wp_version ) {

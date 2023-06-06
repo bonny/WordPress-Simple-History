@@ -14,7 +14,7 @@ function simple_history_old_version_admin_notice() {
 				/* translators: 1: PHP version */
 				esc_html(
 					__(
-						'Simple History is a great plugin, but to use it your server must have at least PHP 5.6 installed (you have version %s).',
+						'Simple History is a great plugin, but to use it your server must have at least PHP 7.4 installed (you have version %s).',
 						'simple-history'
 					)
 				),
@@ -29,7 +29,7 @@ function simple_history_old_version_admin_notice() {
 				/* translators: 1: WordPress version */
 				esc_html(
 					__(
-						'Simple History requires WordPress version 5.2 or higher (you have version %s).',
+						'Simple History requires WordPress version 6.1 or higher (you have version %s).',
 						'simple-history'
 					)
 				),
