@@ -89,10 +89,10 @@ class SimpleMenuLogger extends Logger {
 	 * Add taxonomy "nav_menu" to list of categories to not log changes to,
 	 * because menus are stored in this taxonomy,
 	 * and the menu logger will log menu changes,
-	 * so don't let categories logger log this 
+	 * so don't let categories logger log this
 	 * or there will be duplicates.
-	 * 
-	 * @param mixed $taxonomies_to_skip 
+	 *
+	 * @param mixed $taxonomies_to_skip
 	 * @return array
 	 */
 	public function on_categories_logger_skip_taxonomy( $taxonomies_to_skip ) {

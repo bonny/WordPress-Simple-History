@@ -18,7 +18,7 @@ class SimpleHistoryNewRowsNotifier extends Dropin {
 
 		/**
 		 * How often the script checks for new rows.
-		 * 
+		 *
 		 * @example Change the interval from the default 10000 ms (10 seconds) to a minute (300000 ms).
 		 * // Change the interval from the default 10000 ms (10 seconds) to a minute (300000 ms).
 		 * ```php
