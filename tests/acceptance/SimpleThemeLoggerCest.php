@@ -27,13 +27,13 @@ class SimpleThemeLoggerCest
         // Flaky test, name of uploaded zip changes...
         // $I->seeLogMessage('Deleted attachment "twentysixteen.2.6.zip" ("twentysixteen.2.6-1.zip")', 0);
         $I->seeLogMessage('Installed theme "Twenty Sixteen" by the WordPress team', 1);
-        
+
         // Message key: theme_switched.
         $I->click('Activate');
         $I->seeLogMessage('Switched theme to "Twenty Sixteen" from "Twenty Twenty-One"');
 
         // Upload Theme again to test theme_updated, does not currently work when
-        // uploading zip however.
+        // uploading zip however?
         $I->amOnAdminPage('/theme-install.php?browse=popular');
         $I->click('Upload Theme');
         $I->attachFile('#themezip', 'twentysixteen.2.7.zip');
@@ -42,13 +42,14 @@ class SimpleThemeLoggerCest
         // $I->seeLogMessage('Deleted attachment "twentysixteen.2.7.zip" ("twentysixteen.2.7.zip")');
         $I->seeLogMessage('Installed theme "Twenty Sixteen" by the WordPress team', 1);
 
-        // Switch back theme so we can delete the uploaded one.
-        $I->amOnAdminPage('/themes.php?theme=twentytwenty');
+        // theme_switched: Switch back theme so we can delete the uploaded one.
+        $I->amOnAdminPage('/themes.php?theme=twentytwentyone');
+        $I->makeScreenshot();
         $I->waitForElementVisible('.theme-wrap .button.activate');
         $I->click('.theme-wrap .button.activate');
-        $I->seeLogMessage('Switched theme to "Twenty Twenty" from "Twenty Sixteen"');
+        $I->seeLogMessage('Switched theme to "Twenty Twenty-One" from "Twenty Sixteen"');
 
-        // theme_deleted
+        // theme_deleted: Theme deleted.
         $I->amOnAdminPage('/themes.php?theme=twentysixteen');
         $I->waitForElementVisible('.theme-wrap .button.delete-theme');
         $I->click('.theme-wrap .button.delete-theme');

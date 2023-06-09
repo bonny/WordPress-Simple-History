@@ -27,7 +27,7 @@ class SimplePluginLoggerCest
             'plugin_title' => '<a href="https://akismet.com/">Akismet Anti-Spam</a>',
             'plugin_description' => 'Used by millions, Akismet is quite possibly the best way in the world to <strong>protect your blog from spam</strong>. It keeps your site protected even while you sleep. To get started: activate the Akismet plugin and then go to your Akismet Settings page to set up your API key. <cite>By <a href="https://automattic.com/wordpress-plugins/">Automattic</a>.</cite>',
             'plugin_author' => '<a href="https://automattic.com/wordpress-plugins/">Automattic</a>',
-            'plugin_version' => '4.2.4',
+            'plugin_version' => '5.0.1',
             'plugin_url' => 'https://akismet.com/',
         ));
         
@@ -54,13 +54,13 @@ class SimplePluginLoggerCest
             'plugin_title' => '<a href="https://akismet.com/">Akismet Anti-Spam</a>',
             'plugin_description' => 'Used by millions, Akismet is quite possibly the best way in the world to <strong>protect your blog from spam</strong>. It keeps your site protected even while you sleep. To get started: activate the Akismet plugin and then go to your Akismet Settings page to set up your API key. <cite>By <a href="https://automattic.com/wordpress-plugins/">Automattic</a>.</cite>',
             'plugin_author' => '<a href="https://automattic.com/wordpress-plugins/">Automattic</a>',
-            'plugin_version' => '4.2.4',
+            'plugin_version' => '5.0.1',
             'plugin_url' => 'https://akismet.com/',
         ));
 
     }
     
-    public function testPluginInstall(Admin $I) {          
+    public function testPluginInstallFail(Admin $I) {          
         // plugin_installed_failed,
         // because folder already exists.
         $I->amOnAdminPage('plugin-install.php');
@@ -80,11 +80,25 @@ class SimplePluginLoggerCest
             // 'error_messages' => ... hard to test string...
             // 'error_data' => ... hard to test string...
         ));
-
+    }
+    
+    // Can't get to work because there is always a left over folder or something.
+    // Would need a "->cleanPluginDirIfExists"
+    public function testPluginInstallSuccess(Admin $I) {
         // - plugin_installed
-        $I->amOnAdminPage('plugin-install.php');
-        $I->click("Upload Plugin");
+        $I->cleanUploadsDir();
         $I->cleanPluginDir('limit-login-attempts-reloaded');
+
+        $I->amOnAdminPage('plugin-install.php');
+        
+        // $x = $I->canSeePluginFileFound('limit-login-attempts-reloadedx/readme.txt');
+        // var_dump($x);
+        // $x = $I->canSeePluginFileFound('limit-login-attempts-reloaded/readme.txt');
+        // var_dump($x);exit;
+
+        $I->click("Upload Plugin");
+        
+
         $I->attachFile('#pluginzip', 'limit-login-attempts-reloaded.2.25.5.zip');
         $I->click('Install Now');
         // Message 0 is "Deleted attachment"

@@ -15,7 +15,7 @@ class SimpleCategoriesLoggerCest
         $I->fillField("#tag-description", 'Category description');
         $I->click("Add New Category");
         // Wait for "Category added."-notification message.
-        $I->waitForElement('.updated.notice');
+        $I->waitForElement('.notice.notice-success');
         $I->seeLogMessage('Added term "My new category" in taxonomy "category"');
         $I->seeLogContext([
             'term_name' => 'My new category',

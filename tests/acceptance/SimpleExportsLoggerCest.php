@@ -8,11 +8,9 @@ class SimpleExportsLoggerCest
         $I->loginAsAdmin();
     }
 
-    public function editComment(Admin $I) {
+    public function exportXml(Admin $I) {
         $I->amOnAdminPage('export.php');
         $I->click("Download Export File");
         $I->seeLogMessage('Created XML export');
-        $I->seeLogContextDebug();
-        $I->makeScreenshot();
     }
 }
