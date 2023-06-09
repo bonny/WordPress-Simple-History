@@ -19,7 +19,8 @@
       `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance SimpleUserLoggerCest:logUserCreated` or to run a single suite
       `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance SimpleUserLoggerCest`
   - `❯ docker-compose run --rm php-cli vendor/bin/codecept run functional`
-  - Run single test: `docker-compose run --rm php-cli vendor/bin/codecept run acceptance FirstCest:visitPluginPage`
+  - Run single test:
+    - `docker-compose run --rm php-cli vendor/bin/codecept run acceptance FirstCest:visitPluginPage`
 
 ## Run a single test
 
@@ -33,7 +34,7 @@ The `dump.sql` file is generating something like this:
 
 ```sh
 # Install WordPress
-docker-compose run --rm wp-cli wp core install --url=localhost:8080 --title=wp-tests --admin_user=admin --admin_email=test@example.com --admin_password=admin --skip-email
+docker-compose run --rm wp-cli wp core install --version=6.1 --url=localhost:8080 --title=wp-tests --admin_user=admin --admin_email=test@example.com --admin_password=admin --skip-email
 
 # Empty site (removes post etc.)
 docker-compose run --rm wp-cli wp site empty --yes --uploads
@@ -43,12 +44,20 @@ docker-compose run --rm wp-cli plugin activate simple-history
 
 # Export database to local file
 docker-compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
+```
 
+To modify installed WordPress version using a web browser, to for example update WordPress or update plugins:
+
+```sh
 # Restore DB so can browse from localhost:9191 again, perhaps to update the fixture.
-# Note: to update WP you need to temporary disable mu-plugin.php.
-docker-compose run --rm wp-cli db import /var/www/html/tests/_data/dump.sql
+# Note: to update WP you need to temporary disable mu-plugin.php. (Is this still true?)
+
+docker-compose run --rm wp-cli db import /var/www/html/tests/\_data/dump.sql
 docker compose run --rm wp-cli option set siteurl http://localhost:9191
 docker compose run --rm wp-cli option set home http://localhost:9191
+# ...do changes...
+# then export sql file again:
+docker-compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
 ```
 
 ## Update log
@@ -57,3 +66,10 @@ Changes made to the test site and SQL-file.
 
 - 24 june 2022: Added Jetpack 11.0 and WP Crontrol 1.12.1.
 - 18 june 2022: Updated to WordPress 6.0 and updated Akismet + languages + themes.
+
+## Clean install of WordPress for tests
+
+- docker compose up
+- wp running on localhost:9191 but it thinks its on port 80 (beacuse thats the internal port)
+- access at http://localhost:9191/wp-login.php
+-
