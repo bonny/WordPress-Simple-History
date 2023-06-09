@@ -9,13 +9,13 @@
 		"history"
 	],
 	"homepage": "https://simple-history.com/",
-	"minimum-stability": "dev",
+	"minimum-stability": "stable",
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
 		"phpcompatibility/php-compatibility": "*",
 		"wp-coding-standards/wpcs": "*",
 		"phpcompatibility/phpcompatibility-wp": "*",
-		"lucatume/wp-browser": "^3.0.19",
+		"lucatume/wp-browser": "^3.1.0",
 		"codeception/module-asserts": "^1.0",
 		"codeception/module-phpbrowser": "^1.0",
 		"codeception/module-webdriver": "^1.0",
@@ -23,9 +23,9 @@
 		"codeception/module-filesystem": "^1.0",
 		"codeception/module-cli": "^1.0",
 		"codeception/util-universalframework": "^1.0",
-		"rector/rector": "^0.12",
-		"wp-cli/wp-cli-bundle": "2.6.x-dev",
-		"phpstan/phpstan": "1.8.x-dev",
+		"rector/rector": "^0.17.0",
+		"wp-cli/wp-cli-bundle": "2.8.1",
+		"phpstan/phpstan": "^1.10.0",
 		"szepeviktor/phpstan-wordpress": "dev-master",
 		"phpstan/extension-installer": "1.2.x-dev",
 		"php-stubs/wp-cli-stubs": "dev-master"
