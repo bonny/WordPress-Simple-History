@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   wordpress:
-    image: wordpress:${WORDPRESS_VERSION:-5.8}-php${PHP_VERSION:-7.4}
+    image: wordpress:${WORDPRESS_VERSION:-6.1}-php${PHP_VERSION:-7.4}
     container_name: simple-history-wordpress
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     user: "33:33"
@@ -28,7 +28,7 @@ services:
       - ./tests/plugins/enable-media-replace:/var/www/html/wp-content/plugins/enable-media-replace
       - ./tests/plugins/user-switching:/var/www/html/wp-content/plugins/user-switching
       - ./tests/mu-plugin.php:/var/www/html/wp-content/mu-plugins/mu-plugin.php
-      - ./tests/mu-plugin-no-namespace.php:/var/www/html/wp-content/mu-plugins/mu-plugin-no-namespace.php
+      #- ./tests/mu-plugin-no-namespace.php:/var/www/html/wp-content/mu-plugins/mu-plugin-no-namespace.php
       - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
 
   db:
@@ -79,6 +79,8 @@ services:
       - ./tests/_data/mu-plugins:/wordpress/wp-content/mu-plugins
     depends_on:
       - db
+      - wordpress
+      - chrome
 
   wp-cli:
     image: wordpress:cli-php${PHP_VERSION-7.4}
