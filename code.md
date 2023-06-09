@@ -1,3 +1,5 @@
+# Simple History code standard
+
 Since I always forget what standards I use in different projects this file is here to remind me about the standards I use in this project:
 
 - Code standards is WordPress own.
@@ -13,9 +15,7 @@ Use PHP 7.4 (the WordPress rules crashes on PHP 8 so far, bug fixed but no versi
 
 - `phpcs.xml.dist` is the config used.
 
-- `phpcs` to lint while editing. Lots of code is old but working but was written
-  before my editor had nice linting, so much of the code does not lint. This will be fixed.  
-  `$ vendor/bin/phpcs phpcs` to lint PHP from command line
+- `$ vendor/bin/phpcs` to lint PHP from command line after editing.
 
 - Formatting:
   `$ vendor/bin/phpcs phpcbf` to fix (write to disk) errors and warning.
@@ -32,7 +32,7 @@ Config is in `phpstan.neon`.
 
 - **Rector** is used to update code to 7.4 and to refactor code to better quality.
 
-  - Dry run with `❯ vendor/bin/rector process --dry-run`
+  - Dry run with `$ vendor/bin/rector process --dry-run`
   - Run without `--dry-run` to write changes.
   - Run with docker using `docker run -it --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp php:7.4-cli php vendor/bin/rector process --dry-run`
 
