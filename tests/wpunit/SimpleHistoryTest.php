@@ -246,18 +246,25 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertCount( 1, $queryResults['log_rows'] );
 
-		$this->assertObjectHasAttribute( 'id', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'logger', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'level', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'date', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'message', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'initiator', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'occasionsID', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'subsequentOccasions', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'rep', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'repeated', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'occasionsIDType', $queryResults['log_rows'][0] );
-		$this->assertObjectHasAttribute( 'context', $queryResults['log_rows'][0] );
+		// $this->assertFalse(property_exists($myObject, $nonExistentPropertyName));
+		// Can not use ->assertObjectHasAttribute because it's deprectaed and wp_browser does not have the
+		// recommendeded replacement ->assertObjectHasProperty (yet).
+		$first_log_row = $queryResults['log_rows'][0];
+
+		$this->assertIsObject($first_log_row);
+
+		$this->assertTrue( property_exists( $first_log_row, 'id' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'logger' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'level' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'date' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'message' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'initiator' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'occasionsID' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'subsequentOccasions' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'rep' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'repeated' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'occasionsIDType' ) );
+		$this->assertTrue( property_exists( $first_log_row, 'context' ) );
 	}
 
 	function test_get_info() {
