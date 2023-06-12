@@ -3,6 +3,8 @@ use Simple_History\Loggers\Logger;
 
 /**
  * Un-namespaced class for old loggers that extend \SimpleLogger.
+ *
+ * New loggers must extend Simple_History\Loggers\Logger.
  */
 class SimpleLogger extends Logger {
 	/**

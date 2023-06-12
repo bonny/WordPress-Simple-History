@@ -8,6 +8,7 @@ use Simple_History\Simple_History;
  * Base class for dropins.
  */
 abstract class Dropin {
+	/** @var Simple_History */
 	protected Simple_History $simple_history;
 
 	/**

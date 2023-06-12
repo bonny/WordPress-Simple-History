@@ -1248,13 +1248,15 @@ class Simple_History {
 				continue;
 			}
 
-			// Bail if dropin class is of wrong type.
-			if ( ! is_subclass_of( $one_dropin_class, 'Simple_History\Dropins\Dropin' ) ) {
-				continue;
-			}
-
+			// New dropins must extend Simple_History\Dropins\Dropin,
+			// but old dropins are not extending anything,
+			// so that's why we do not check type of class, like we do
+			// with plugins.
 			$dropin_instance = new $one_dropin_class( $this );
-			$dropin_instance->loaded();
+
+			if ( method_exists( $dropin_instance, 'loaded' ) ) {
+				$dropin_instance->loaded();
+			}
 
 			$this->instantiated_dropins[ $dropin_short_name ] = array(
 				'name' => $dropin_short_name,
