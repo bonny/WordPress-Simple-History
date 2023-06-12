@@ -3,8 +3,8 @@
 /**
  * Logger class that uses old Logger format, without namespace.
  */
-class FourOhFourLogger extends SimpleLogger {
-	public $slug = __CLASS__;
+class Example_Logger extends SimpleLogger {
+	public $slug = 'FourOhFourLogger';
 
 	public function getInfo() {
 		$arr_info = array(
