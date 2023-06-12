@@ -25,8 +25,7 @@ services:
       - ./tests/plugins/redirection:/var/www/html/wp-content/plugins/redirection
       - ./tests/plugins/enable-media-replace:/var/www/html/wp-content/plugins/enable-media-replace
       - ./tests/plugins/user-switching:/var/www/html/wp-content/plugins/user-switching
-      - ./tests/mu-plugin.php:/var/www/html/wp-content/mu-plugins/mu-plugin.php
-      #- ./tests/mu-plugin-no-namespace.php:/var/www/html/wp-content/mu-plugins/mu-plugin-no-namespace.php
+      - ./tests/_data/mu-plugins:/var/www/html/wp-content/mu-plugins
       - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
 
   db:
