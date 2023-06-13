@@ -58,13 +58,16 @@ if ( $ok_php_version && $ok_wp_version ) {
 	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
 	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . '/inc/' );
 
-	// Load code for old, deprecated things after autoloader so
-	// classes gets autoloaded.
+
+	// Load code for old, deprecated things, that does not use autoloader.
+	// Todo: test if these don't get loaded by autoloader after all..?
 	require_once __DIR__ . '/inc/deprecated/class-simplelogger.php';
 	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php';
 	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php';
 	require_once __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php';
 
+	// Create singleton instance of Simple History.
+	// This runs constructor that calls init method.
 	Simple_History\Simple_History::get_instance();
 } else {
 	// User is running to old version of php, add admin notice about that.

@@ -442,7 +442,7 @@ class Simple_History {
 	}
 
 	/**
-	 * Get singleton instance
+	 * Get singleton instance.
 	 *
 	 * @return Simple_History instance
 	 */
