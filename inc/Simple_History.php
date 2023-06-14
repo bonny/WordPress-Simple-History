@@ -2,6 +2,7 @@
 namespace Simple_History;
 
 use Simple_History\Loggers;
+use Simple_History\Loggers\SimpleLogger;
 use Simple_History\Dropins;
 use Simple_History\Helpers;
 
@@ -1087,7 +1088,18 @@ class Simple_History {
 				);
 			}
 
-			// Check that required content in messages array exist.
+			// Check that logger has a slug set.
+			if ( empty( $logger_instance->get_slug() ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					sprintf(
+						esc_html( __( 'A logger is missing a slug.', 'simple-history' ) ),
+					),
+					'4.0'
+				);
+			}
+
+			// Check that logger has a name set.
 			if ( ! isset( $logger_info['name'] ) ) {
 				_doing_it_wrong(
 					__METHOD__,
@@ -1107,6 +1119,7 @@ class Simple_History {
 			// Add messages to the loggerInstance.
 			$arr_messages_by_message_key = array();
 
+			// Check that required content in messages array exist.
 			if ( isset( $logger_info['messages'] ) && is_array( $logger_info['messages'] ) ) {
 				foreach ( $logger_info['messages'] as $message_key => $message_translated ) {
 					// Find message in array with both translated and non translated strings.
