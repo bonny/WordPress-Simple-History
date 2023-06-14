@@ -116,13 +116,15 @@ abstract class Logger {
 	/**
 	 * Get array with information about this logger.
 	 *
-	 * @return array
+	 * @return array Array with keys 'name', 'description', 'messages', and so on.
+	 *               See existing loggers for examples.
 	 */
 	abstract public function get_info();
 
 	/**
 	 * Return single array entry from the array in get_info()
-	 * Returns the value of the key if value exists, or null
+	 * Returns the value of the key if value exists,
+	 * or null if no value exists.
 	 *
 	 * @since 2.5.4
 	 * @return Mixed
