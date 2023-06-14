@@ -21,3 +21,5 @@ add_action(
 		$simpleHistory->register_dropin( 'Example_Dropin' );
 	}
 );
+
+require_once __DIR__ . '/inc/disable-updates.php';
