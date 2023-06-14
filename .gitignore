@@ -24,3 +24,7 @@ tests/_data/*
 !tests/_data/Image 1.jpg
 !tests/_data/Image 2.jpg
 !tests/_data/mu-plugins
+!tests/acceptance
+!tests/functional
+!tests/unit
+!tests/wpunit
