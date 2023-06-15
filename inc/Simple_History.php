@@ -1172,7 +1172,7 @@ class Simple_History {
 			Dropins\Donate_Dropin::class,
 			Dropins\Export_Dropin::class,
 			Dropins\Filter_Dropin::class,
-			Dropins\SimpleHistoryIpInfoDropin::class,
+			Dropins\IP_Info_Dropin::class,
 			Dropins\SimpleHistoryNewRowsNotifier::class,
 			Dropins\SimpleHistoryPluginPatchesDropin::class,
 			Dropins\SimpleHistoryRSSDropin::class,
