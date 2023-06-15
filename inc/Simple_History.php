@@ -1170,7 +1170,7 @@ class Simple_History {
 		$dropins = array(
 			Dropins\Debug_Dropin::class,
 			Dropins\Donate_Dropin::class,
-			Dropins\SimpleHistoryExportDropin::class,
+			Dropins\Export_Dropin::class,
 			Dropins\SimpleHistoryFilterDropin::class,
 			Dropins\SimpleHistoryIpInfoDropin::class,
 			Dropins\SimpleHistoryNewRowsNotifier::class,

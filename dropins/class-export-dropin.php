@@ -10,7 +10,7 @@ use Simple_History\Helpers;
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistoryExportDropin extends Dropin {
+class Export_Dropin extends Dropin {
 
 	public function loaded() {
 		$this->simple_history->register_settings_tab(
@@ -102,8 +102,6 @@ class SimpleHistoryExportDropin extends Dropin {
 
 						$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
 						$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
-
-						$one_row->level = '=1+1';
 
 						fputcsv(
 							$fp,
