@@ -39,11 +39,11 @@
 		<!-- <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase" /> -->
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound"/>
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound"/>
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound"/>
+		<!-- <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound"/> -->
+		<!-- <exclude name="WordPress.Files.FileName.InvalidClassFileName"/> -->
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
 		<exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
-		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
 	</rule>
