@@ -1228,6 +1228,20 @@ class Simple_History {
 		foreach ( $dropins_to_instantiate as $one_dropin_class ) {
 			$instantiate_dropin = true;
 
+			// Check that dropin exists.
+			if ( ! class_exists( $one_dropin_class ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					sprintf(
+						esc_html( __( 'A dropin was not found. Classname was "%1$s".', 'simple-history' ) ),
+						esc_html( $one_dropin_class ),
+					),
+					'4.0'
+				);
+
+				continue;
+			}
+
 			$dropin_short_name = ( new \ReflectionClass( $one_dropin_class ) )->getShortName();
 
 			/**
