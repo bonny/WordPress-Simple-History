@@ -81,8 +81,8 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 			'Donate_Dropin',
 			'Export_Dropin',
 			'Filter_Dropin',
-			'IpInfo_Dropin',
-			'NewRowsNotifier',
+			'IP_Info_Dropin',
+			'New_Rows_Notifier_Dropin',
 			'RSS_Dropin',
 			'Sidebar_Dropin',
 		);

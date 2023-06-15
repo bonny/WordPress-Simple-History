@@ -10,7 +10,7 @@ use Simple_History\Log_Query;
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistoryNewRowsNotifier extends Dropin {
+class New_Rows_Notifier_Dropin extends Dropin {
 	// How often we should check for new rows, in ms.
 	private $interval = 10000;
 
@@ -42,16 +42,14 @@ class SimpleHistoryNewRowsNotifier extends Dropin {
 
 		$file_url = plugin_dir_url( __FILE__ );
 
-		wp_enqueue_script( 'simple_history_NewRowsNotifierDropin', $file_url . 'SimpleHistoryNewRowsNotifierDropin.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION, true );
-
 		$arr_localize_data = array(
 			'interval' => $this->interval,
 			'errorCheck' => _x( 'An error occurred while checking for new events', 'New rows notifier: error while checking for new rows', 'simple-history' ),
 		);
 
+		wp_enqueue_script( 'simple_history_NewRowsNotifierDropin', $file_url . 'new-rows-notifier-dropin.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION, true );
 		wp_localize_script( 'simple_history_NewRowsNotifierDropin', 'simple_history_NewRowsNotifierDropin', $arr_localize_data );
-
-		wp_enqueue_style( 'simple_history_NewRowsNotifierDropin', $file_url . 'SimpleHistoryNewRowsNotifierDropin.css', null, SIMPLE_HISTORY_VERSION );
+		wp_enqueue_style( 'simple_history_NewRowsNotifierDropin', $file_url . 'new-rows-notifier-dropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 
 	public function ajax() {
