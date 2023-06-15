@@ -11,35 +11,31 @@ use Simple_History\Log_Levels;
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-
-/**
- * Simple History RSS Feed drop-in
- */
-class SimpleHistoryRSSDropin extends Dropin {
+class RSS_Dropin extends Dropin {
 	public function loaded() {
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once( ABSPATH . '/wp-admin/includes/user.php' );
 		}
 
 		// Check the status of the RSS feed.
-		$this->isRssEnabled();
+		$this->is_rss_enabled();
 
 		// Generate a rss secret, if it does not exist.
 		if ( ! get_option( 'simple_history_rss_secret' ) ) {
-			$this->updateRssSecret();
+			$this->update_rss_secret();
 		}
 
-		add_action( 'init', array( $this, 'checkForRssFeedRequest' ) );
+		add_action( 'init', array( $this, 'check_for_rss_feed_request' ) );
 
 		// Add settings with priority 11 so it' added after the main Simple History settings.
-		add_action( 'admin_menu', array( $this, 'addSettings' ), 11 );
+		add_action( 'admin_menu', array( $this, 'add_settings' ), 11 );
 	}
 
 	/**
 	 * Add settings for the RSS feed
 	 * + also regenerates the secret if requested
 	 */
-	public function addSettings() {
+	public function add_settings() {
 
 		// we register a setting to keep track of the RSS feed status (enabled/disabled)
 		register_setting(
@@ -72,7 +68,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 		);
 
 		// if RSS is activated we display other fields
-		if ( $this->isRssEnabled() ) {
+		if ( $this->is_rss_enabled() ) {
 			// RSS address
 			add_settings_field(
 				'simple_history_rss_feed',
@@ -93,12 +89,11 @@ class SimpleHistoryRSSDropin extends Dropin {
 		}
 
 		// Create new RSS secret
-		$create_new_secret = false;
 		$create_secret_nonce_name = 'simple_history_rss_secret_regenerate_nonce';
 		$createNonceOk = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( $_GET[ $create_secret_nonce_name ], 'simple_history_rss_update_secret' );
 
 		if ( $createNonceOk ) {
-			$this->updateRssSecret();
+			$this->update_rss_secret();
 
 			// Add updated-message and store in transient and then redirect
 			// This is the way options.php does it.
@@ -115,7 +110,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 	/**
 	 * Check if RSS feed is enabled or disabled
 	 */
-	public function isRssEnabled() {
+	public function is_rss_enabled() {
 
 		// User has never used the plugin we disable RSS feed
 		if ( get_option( 'simple_history_rss_secret' ) === false && get_option( 'simple_history_enable_rss_feed' ) === false ) {
@@ -138,7 +133,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 	 */
 	public function settingsFieldRssEnable() {
 		?>
-		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->isRssEnabled(), 1 ); ?> />
+		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
 		<label for="simple_history_enable_rss_feed"><?php esc_html_e( 'Enable RSS feed', 'simple-history' ); ?></label>
 		<?php
 	}
@@ -159,7 +154,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 	/**
 	 * Check if current request is a request for the RSS feed
 	 */
-	public function checkForRssFeedRequest() {
+	public function check_for_rss_feed_request() {
 		// check for RSS
 		// don't know if this is the right way to do this, but it seems to work!
 		if ( isset( $_GET['simple_history_get_rss'] ) ) {
@@ -191,7 +186,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 
 		$rss_show = true;
 		$rss_show = apply_filters( 'simple_history/rss_feed_show', $rss_show );
-		if ( ! $rss_show || ! $this->isRssEnabled() ) {
+		if ( ! $rss_show || ! $this->is_rss_enabled() ) {
 			wp_die( 'Nothing here.' );
 		}
 
@@ -395,7 +390,7 @@ class SimpleHistoryRSSDropin extends Dropin {
 	 *
 	 * @return string new secret
 	 */
-	public function updateRssSecret() {
+	public function update_rss_secret() {
 
 		$rss_secret = '';
 
