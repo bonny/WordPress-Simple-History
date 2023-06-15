@@ -1169,7 +1169,7 @@ class Simple_History {
 	public function get_core_dropins() {
 		$dropins = array(
 			Dropins\Debug_Dropin::class,
-			Dropins\SimpleHistoryDonateDropin::class,
+			Dropins\Donate_Dropin::class,
 			Dropins\SimpleHistoryExportDropin::class,
 			Dropins\SimpleHistoryFilterDropin::class,
 			Dropins\SimpleHistoryIpInfoDropin::class,
