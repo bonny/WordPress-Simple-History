@@ -8,8 +8,7 @@ namespace Simple_History\Dropins;
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
-
-class SimpleHistorySettingsDebugDropin extends Dropin {
+class Settings_Debug_Tab_Dropin extends Dropin {
 	public function loaded() {
 		$this->simple_history->register_settings_tab(
 			array(

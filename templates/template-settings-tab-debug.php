@@ -2,9 +2,6 @@
 
 namespace Simple_History;
 
-use Simple_History\Simple_History;
-use DateTime;
-
 /**
  * Undocumented class
  *
