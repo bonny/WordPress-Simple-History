@@ -78,13 +78,13 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$dropins = $sh->get_instantiated_dropins();
 
 		$arr_default_dropins = array(
-			'SimpleHistoryDonateDropin',
-			'SimpleHistoryExportDropin',
-			'SimpleHistoryFilterDropin',
-			'SimpleHistoryIpInfoDropin',
-			'SimpleHistoryNewRowsNotifier',
-			'SimpleHistoryRSSDropin',
-			'SimpleHistorySidebarDropin',
+			'Donate_Dropin',
+			'Export_Dropin',
+			'Filter_Dropin',
+			'IpInfo_Dropin',
+			'NewRowsNotifier',
+			'RSS_Dropin',
+			'Sidebar_Dropin',
 		);
 
 		foreach ( $arr_default_dropins as $slug ) {
