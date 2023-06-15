@@ -9,9 +9,8 @@ use Simple_History\Log_Levels;
  * Dropin Name: Filter GUI
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
-*/
-
-class SimpleHistoryFilterDropin extends Dropin {
+ */
+class Filter_Dropin extends Dropin {
 	public function loaded() {
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/history_page/before_gui', array( $this, 'gui_page_filters' ) );
@@ -20,17 +19,14 @@ class SimpleHistoryFilterDropin extends Dropin {
 	}
 
 	public function enqueue_admin_scripts() {
-
 		$file_url = plugin_dir_url( __FILE__ );
 
-		wp_enqueue_script( 'simple_history_FilterDropin', $file_url . 'SimpleHistoryFilterDropin.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION, true );
-
-		wp_enqueue_style( 'simple_history_FilterDropin', $file_url . 'SimpleHistoryFilterDropin.css', null, SIMPLE_HISTORY_VERSION );
+		wp_enqueue_script( 'simple_history_FilterDropin', $file_url . 'filter-dropin.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION, true );
+		wp_enqueue_style( 'simple_history_FilterDropin', $file_url . 'filter-dropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 
 
 	public function gui_page_filters() {
-
 		$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();
 
 		/**
