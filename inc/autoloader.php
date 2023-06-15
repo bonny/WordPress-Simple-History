@@ -152,8 +152,27 @@ class Autoloader {
 			// replace the namespace prefix with the base directory,
 			// replace namespace separators with directory separators
 			// in the relative class name, append with .php
+
+			// "Dropins/Debug_Dropin"
+			$path_and_file = str_replace( '\\', '/', $relative_class );
+
+			// <path>/WordPress-Simple-History/Dropins/Debug_Dropin.php
 			$file = $base_dir
-				  . str_replace( '\\', '/', $relative_class )
+				  . $path_and_file
+				  . '.php';
+
+			// if the mapped file exists, require it
+			if ( $this->require_file( $file ) ) {
+				// yes, we're done
+				return $file;
+			}
+
+			// Check for file with prefixed 'class-' and lowercase filename.
+			$path_and_file_lowercased_and_prefixed = mb_strtolower( $path_and_file );
+			$path_and_file_lowercased_and_prefixed = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed );
+			$path_and_file_lowercased_and_prefixed = str_replace( '/', '/class-', $path_and_file_lowercased_and_prefixed );
+			$file = $base_dir
+				  . $path_and_file_lowercased_and_prefixed
 				  . '.php';
 
 			// if the mapped file exists, require it
