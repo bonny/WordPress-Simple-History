@@ -10,7 +10,7 @@ use Simple_History\Helpers;
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistoryDebugDropin extends Dropin {
+class Debug_Dropin extends Dropin {
 	public function loaded() {
 		// Bail if Simple History debug mode is not active.
 		if ( ! defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) || ! SIMPLE_HISTORY_LOG_DEBUG ) {
