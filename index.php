@@ -56,7 +56,7 @@ if ( $ok_php_version && $ok_wp_version ) {
 	$loader = new Simple_History\Autoloader();
 	$loader->register();
 	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
-	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . '/inc/' );
+	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . 'inc/' );
 
 
 	// Load code for old, deprecated things, that does not use autoloader.
