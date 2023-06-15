@@ -1174,7 +1174,7 @@ class Simple_History {
 			Dropins\Filter_Dropin::class,
 			Dropins\IP_Info_Dropin::class,
 			Dropins\New_Rows_Notifier_Dropin::class,
-			Dropins\SimpleHistoryPluginPatchesDropin::class,
+			Dropins\Plugin_Patches_Dropin::class,
 			Dropins\SimpleHistoryRSSDropin::class,
 			Dropins\SimpleHistorySettingsDebugDropin::class,
 			Dropins\SimpleHistorySidebarStats::class,

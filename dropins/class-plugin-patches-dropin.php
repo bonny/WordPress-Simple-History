@@ -8,7 +8,7 @@ namespace Simple_History\Dropins;
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistoryPluginPatchesDropin extends Dropin {
+class Plugin_Patches_Dropin extends Dropin {
 	public function loaded() {
 		add_filter(
 			'simple_history/post_logger/skip_posttypes',
