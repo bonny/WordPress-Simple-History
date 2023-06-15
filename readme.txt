@@ -230,6 +230,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Call method `loaded()` on dropins when they are loaded.
 - Redirection logger now logs group edits.
 - Added context key `export_content` to export logger. The key will contain the post type exported, or "all" if all content was exported.
+- Make sure that dropin class exists before trying to use it.
 
 **Changed**
 
