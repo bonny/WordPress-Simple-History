@@ -139,7 +139,6 @@ class Simple_History {
 		// Filters and actions not called during regular boot.
 		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
 		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
-
 		add_filter( 'gettext', array( $this, 'filter_gettext_store_latest_translations' ), 10, 3 );
 
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
@@ -1000,6 +999,7 @@ class Simple_History {
 	public function load_loggers() {
 		// Bail if we are not in filter after_setup_theme,
 		// i.e. we are probably calling SimpleLogger() early.
+		// TODO: Test if this is still needed, after adding autoloading of classes.
 		if ( ! doing_action( 'after_setup_theme' ) ) {
 			return;
 		}
@@ -1069,6 +1069,9 @@ class Simple_History {
 			$logger_instance->loaded();
 
 			// Tell gettext-filter to add untranslated messages.
+			// TODO: Filter for texttext is called on every gettext, we should improve
+			// this by adding filter before this loop and then removing the filter,
+			// so filter is only called for a short period of time.
 			$this->do_filter_gettext = true;
 			$this->do_filter_gettext_current_logger = $logger_instance;
 
