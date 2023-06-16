@@ -967,7 +967,7 @@ class Simple_History {
 			Loggers\Plugin_Jetpack_Logger::class,
 			Loggers\Privacy_Logger::class,
 			Loggers\Translations_Logger::class,
-			Loggers\SimpleCategoriesLogger::class,
+			Loggers\Categories_Logger::class,
 			Loggers\SimpleCommentsLogger::class,
 			Loggers\SimpleCoreUpdatesLogger::class,
 			Loggers\SimpleExportLogger::class,

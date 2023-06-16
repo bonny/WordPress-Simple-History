@@ -3,10 +3,11 @@
 namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
+
 /**
  * Logs changes to categories and tags and taxonomies
  */
-class SimpleCategoriesLogger extends Logger {
+class Categories_Logger extends Logger {
 	public $slug = 'SimpleCategoriesLogger';
 
 	/**
