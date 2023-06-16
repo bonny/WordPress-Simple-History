@@ -6,7 +6,7 @@ namespace Simple_History\Loggers;
  *
  * @package SimpleHistory
  */
-class SH_Translations_Logger extends Logger {
+class Translations_Logger extends Logger {
 	/**
 	 * Logger slug.
 	 *
