@@ -961,7 +961,7 @@ class Simple_History {
 			Loggers\Plugin_Duplicate_Post_Logger::class,
 			Loggers\Plugin_Limit_Login_Attempts_Logger::class,
 			Loggers\Plugin_Redirection_Logger::class,
-			Loggers\PluginEnableMediaReplaceLogger::class,
+			Loggers\Plugin_Enable_Media_Replace_Logger::class,
 			Loggers\PluginUserSwitchingLogger::class,
 			Loggers\PluginWPCrontrolLogger::class,
 			Loggers\SH_Jetpack_Logger::class,
