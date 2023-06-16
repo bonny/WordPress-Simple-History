@@ -10,7 +10,7 @@ use Simple_History\Log_Initiators;
 use Simple_History\Helpers;
 
 /**
- * Base class for loggers.
+ * Abstract base class for loggers.
  *
  * A PSR-3 inspired logger class.
  * This class logs + formats logs for display in the Simple History GUI/Viewer.
