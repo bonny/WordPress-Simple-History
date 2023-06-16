@@ -258,6 +258,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Logger: Method `get_info_value_by_key()` is now public so it can be used outside of a logger.
 - Logger: Method `get_info()` is now abstract, since it must be added by loggers.
 - For backwards compatibility `SimpleHistoryLogQuery`, `SimpleLoggerLogLevels`, `SimpleLoggerLogInitiators`, `SimpleLogger` will continue to exist for a couple of more versions.
+- Dropin files are renamed.
 
 **Removed**
 
