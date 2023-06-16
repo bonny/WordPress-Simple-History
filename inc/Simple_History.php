@@ -958,7 +958,7 @@ class Simple_History {
 			Loggers\File_Edits_Logger::class,
 			Loggers\Plugin_ACF_Logger::class,
 			Loggers\Plugin_Beaver_Builder_Logger::class,
-			Loggers\Plugin_DuplicatePost::class,
+			Loggers\Plugin_Duplicate_Post_Logger::class,
 			Loggers\Plugin_LimitLoginAttempts::class,
 			Loggers\Plugin_Redirection::class,
 			Loggers\PluginEnableMediaReplaceLogger::class,

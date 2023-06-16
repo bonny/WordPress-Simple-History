@@ -11,7 +11,7 @@ use Simple_History\Helpers;
  * @package SimpleHistory
  * @since 2.13
  */
-class Plugin_DuplicatePost extends Logger {
+class Plugin_Duplicate_Post_Logger extends Logger {
 	public $slug = 'Plugin_DuplicatePost';
 
 	public function get_info() {
