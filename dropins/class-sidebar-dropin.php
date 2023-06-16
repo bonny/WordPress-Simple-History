@@ -8,8 +8,7 @@ namespace Simple_History\Dropins;
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
-
-class SimpleHistorySidebarDropin extends Dropin {
+class Sidebar_Dropin extends Dropin {
 	public function loaded() {
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/history_page/after_gui', array( $this, 'output_sidebar_html' ) );
@@ -76,8 +75,8 @@ class SimpleHistorySidebarDropin extends Dropin {
 
 		$arrBoxes = array(
 			'boxReview' => $boxReview,
-			'boxSupport' => $boxSupport,
 			'boxDonate' => $boxDonate,
+			'boxSupport' => $boxSupport,
 		);
 
 		/**
