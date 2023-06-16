@@ -963,7 +963,7 @@ class Simple_History {
 			Loggers\Plugin_Redirection_Logger::class,
 			Loggers\Plugin_Enable_Media_Replace_Logger::class,
 			Loggers\Plugin_User_Switching_Logger::class,
-			Loggers\PluginWPCrontrolLogger::class,
+			Loggers\Plugin_WP_Crontrol_Logger::class,
 			Loggers\SH_Jetpack_Logger::class,
 			Loggers\SH_Privacy_Logger::class,
 			Loggers\SH_Translations_Logger::class,

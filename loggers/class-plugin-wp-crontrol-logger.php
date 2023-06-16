@@ -4,14 +4,13 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
 
-
 /**
  * Logs cron event management from the WP Crontrol plugin
  * Plugin URL: https://wordpress.org/plugins/wp-crontrol/
  *
  * Requires WP Crontrol 1.9.0 or later.
  */
-class PluginWPCrontrolLogger extends Logger {
+class Plugin_WP_Crontrol_Logger extends Logger {
 	public $slug = 'PluginWPCrontrolLogger';
 
 	/**
