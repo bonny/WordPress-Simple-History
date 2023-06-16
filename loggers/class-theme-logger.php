@@ -8,7 +8,7 @@ use Simple_History\Helpers;
 /**
  * Logs WordPress theme edits
  */
-class SimpleThemeLogger extends Logger {
+class Theme_Logger extends Logger {
 
 	public $slug = 'SimpleThemeLogger';
 
