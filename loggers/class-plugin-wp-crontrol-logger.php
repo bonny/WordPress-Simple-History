@@ -180,7 +180,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 			'event_hook' => $hook,
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'paused_hook',
 			$context
 		);
@@ -196,7 +196,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 			'event_hook' => $hook,
 		);
 
-		$this->infoMessage(
+		$this->info_message(
 			'resumed_hook',
 			$context
 		);
