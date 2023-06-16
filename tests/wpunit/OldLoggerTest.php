@@ -22,7 +22,7 @@ class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 	// New logger class that is namespaced.
 	public function test_that_new_logger_class_exists() {
-		$this->assertTrue(class_exists('Simple_History\Loggers\SimpleLogger'), 'New SimpleLogger class exists');
+		$this->assertTrue(class_exists('Simple_History\Loggers\Simple_Logger'), 'New Simple_Logger class exists');
 	}
 
 	// Old logger class without namespace.
