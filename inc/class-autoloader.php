@@ -156,23 +156,29 @@ class Autoloader {
 			// "Dropins/Debug_Dropin"
 			$path_and_file = str_replace( '\\', '/', $relative_class );
 
-			// <path>/WordPress-Simple-History/Dropins/Debug_Dropin.php
-			$file = $base_dir
-				  . $path_and_file
-				  . '.php';
-
-			// if the mapped file exists, require it
-			if ( $this->require_file( $file ) ) {
-				// yes, we're done
-				return $file;
-			}
-
 			// Check for file with prefixed 'class-' and lowercase filename.
 			$path_and_file_lowercased_and_prefixed = mb_strtolower( $path_and_file );
 			$path_and_file_lowercased_and_prefixed = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed );
 			$path_and_file_lowercased_and_prefixed = str_replace( '/', '/class-', $path_and_file_lowercased_and_prefixed );
+
+			// Prepend "class" if it was not added above, because file was not in a subfolder.
+			if ( ! str_contains( $path_and_file_lowercased_and_prefixed, 'class-' ) ) {
+				$path_and_file_lowercased_and_prefixed = "class-{$path_and_file_lowercased_and_prefixed}";
+			}
+
+			$file_with_class_prefix = $base_dir
+			. $path_and_file_lowercased_and_prefixed
+			. '.php';
+
+			// if the mapped file with "class-" prefix exists, require it
+			if ( $this->require_file( $file_with_class_prefix ) ) {
+				// yes, we're done
+				return $file_with_class_prefix;
+			}
+
+			// <path>/WordPress-Simple-History/Dropins/Debug_Dropin.php
 			$file = $base_dir
-				  . $path_and_file_lowercased_and_prefixed
+				  . $path_and_file
 				  . '.php';
 
 			// if the mapped file exists, require it
@@ -197,6 +203,7 @@ class Autoloader {
 			require $file;
 			return true;
 		}
+
 		return false;
 	}
 }
