@@ -970,7 +970,7 @@ class Simple_History {
 			Loggers\Categories_Logger::class,
 			Loggers\Comments_Logger::class,
 			Loggers\Core_Updates_Logger::class,
-			Loggers\SimpleExportLogger::class,
+			Loggers\Export_Logger::class,
 			Loggers\SimpleLogger::class,
 			Loggers\SimpleMediaLogger::class,
 			Loggers\SimpleMenuLogger::class,

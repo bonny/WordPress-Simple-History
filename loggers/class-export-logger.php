@@ -7,7 +7,7 @@ use Simple_History\Helpers;
 /**
  * Logs WordPress exports
  */
-class SimpleExportLogger extends Logger {
+class Export_Logger extends Logger {
 	public $slug = 'SimpleExportLogger';
 
 	/**
