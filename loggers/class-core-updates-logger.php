@@ -5,7 +5,7 @@ namespace Simple_History\Loggers;
 /**
  * Logs WordPress core updates
  */
-class SimpleCoreUpdatesLogger extends Logger {
+class Core_Updates_Logger extends Logger {
 	public $slug = 'SimpleCoreUpdatesLogger';
 
 	public function loaded() {
