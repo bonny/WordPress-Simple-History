@@ -3,12 +3,12 @@
 namespace Simple_History\Loggers;
 
 use Simple_History\Log_Initiators;
+
 /**
  * Logger for the (old but still) very popular plugin Limit Login Attempts
  * https://sv.wordpress.org/plugins/limit-login-attempts/
  */
-class Plugin_LimitLoginAttempts extends Logger {
-
+class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	public $slug = 'Plugin_LimitLoginAttempts';
 
 	public function get_info() {
