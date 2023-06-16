@@ -5,17 +5,12 @@ use Simple_History\Log_Initiators;
 use Simple_History\Helpers;
 
 /**
- * Logs changes to user logins (and logouts)
+ * Logs changes to user logins (and logouts).
  */
-class SimpleUserLogger extends Logger {
-
+class User_Logger extends Logger {
 	public $slug = 'SimpleUserLogger';
 
-	/**
-	 * Get array with information about this logger.
-	 *
-	 * @return array
-	 */
+	/** @inheritDoc */
 	public function get_info() {
 
 		$arr_info = array(
@@ -165,7 +160,6 @@ class SimpleUserLogger extends Logger {
 	 * Add actions and filters when logger is loaded by Simple History
 	 */
 	public function loaded() {
-
 		// Plain logins and logouts
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 3 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ), 10, 1 );
