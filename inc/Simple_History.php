@@ -954,7 +954,7 @@ class Simple_History {
 	 */
 	public function get_core_loggers() {
 		$loggers = array(
-			Loggers\AvailableUpdatesLogger::class,
+			Loggers\Available_Updates_Logger::class,
 			Loggers\FileEditsLogger::class,
 			Loggers\Plugin_ACF::class,
 			Loggers\Plugin_BeaverBuilder::class,

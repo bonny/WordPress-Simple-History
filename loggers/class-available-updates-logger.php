@@ -9,7 +9,7 @@ use Simple_History\Log_Initiators;
  *
  * @package SimpleHistory
  */
-class AvailableUpdatesLogger extends Logger {
+class Available_Updates_Logger extends Logger {
 	public $slug = 'AvailableUpdatesLogger';
 
 	/**
