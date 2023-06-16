@@ -973,7 +973,7 @@ class Simple_History {
 			Loggers\Export_Logger::class,
 			Loggers\Simple_Logger::class,
 			Loggers\Media_Logger::class,
-			Loggers\SimpleMenuLogger::class,
+			Loggers\Menu_Logger::class,
 			Loggers\SimpleOptionsLogger::class,
 			Loggers\SimplePluginLogger::class,
 			Loggers\SimplePostLogger::class,
