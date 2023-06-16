@@ -10,7 +10,7 @@ use Simple_History\Log_Initiators;
  *
  * @since 2.2
  */
-class PluginUserSwitchingLogger extends Logger {
+class Plugin_User_Switching_Logger extends Logger {
 	public $slug = 'PluginUserSwitchingLogger';
 
 	/**
