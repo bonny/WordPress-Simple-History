@@ -49,7 +49,7 @@ if ( $ok_php_version && $ok_wp_version ) {
 	define( 'SIMPLE_HISTORY_FILE', __FILE__ );
 
 	/** Load required files. */
-	require_once __DIR__ . '/inc/Autoloader.php';
+	require_once __DIR__ . '/inc/class-autoloader.php';
 	require_once __DIR__ . '/inc/global-helpers.php';
 
 	/** Boot up. */
