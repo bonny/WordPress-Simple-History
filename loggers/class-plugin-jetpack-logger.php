@@ -6,7 +6,7 @@ use Jetpack;
 /**
  * Logger for plugin Jetpack from Automattic.
  */
-class SH_Jetpack_Logger extends Logger {
+class Plugin_Jetpack_Logger extends Logger {
 	/**
 	 * Logger slug.
 	 *
