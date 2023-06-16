@@ -9,7 +9,7 @@ use Simple_History\Simple_History;
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-class SimpleHistorySidebarSettings extends Dropin {
+class Sidebar_Settings_Dropin extends Dropin {
 	/**
 	 * Init
 	 *
@@ -23,27 +23,14 @@ class SimpleHistorySidebarSettings extends Dropin {
 	 * Output HTML
 	 */
 	public function on_sidebar_html() {
-
 		?>
-
 		<div class="postbox">
 
 			<h3 class="hndle"><?php esc_html_e( 'Settings', 'simple-history' ); ?></h3>
 
 			<div class="inside">
-
 				<p>
 					<?php
-
-					/*
-					Visit the settings page to change the number of items to show and
-					where to show
-					rss feed
-					clear log
-
-					- Visit the settings page to change the number of events to show, to get
-					- Visit the settings page
-					*/
 					printf(
 						wp_kses(
 							/* translators: 1: URL to settings page */
@@ -58,10 +45,8 @@ class SimpleHistorySidebarSettings extends Dropin {
 					);
 					?>
 				</p>
-
 			</div>
 		</div>
-
 		<?php
 	}
 }
