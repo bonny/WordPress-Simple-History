@@ -8,11 +8,11 @@ use Simple_History\Log_Query;
 use WP_CLI;
 
 /**
- * Dropin Name: WP CLI
+ * Dropin Name: WP CLI commands
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
-class WPCLI extends Dropin {
+class WP_CLI_Dropin extends Dropin {
 	public function loaded() {
 		if ( defined( WP_CLI::class ) && WP_CLI ) {
 			$this->register_commands();
@@ -31,7 +31,7 @@ class WPCLI extends Dropin {
 }
 
 class WPCLI_Commands {
-	/** Simple History instance. */
+	/** @var Simple_History */
 	private $simple_history;
 
 	public function __construct() {
