@@ -2,6 +2,7 @@
 /**
  * Deprecated, use Simple_History\Log_Levels instead.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
 class SimpleLoggerLogLevels {
 	const EMERGENCY = 'emergency';
 	const ALERT = 'alert';

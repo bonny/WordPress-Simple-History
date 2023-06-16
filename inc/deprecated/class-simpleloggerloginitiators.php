@@ -5,6 +5,7 @@
  *
  * Use Simple_History\Log_Initiators instead.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
 class SimpleLoggerLogInitiators {
 
 	// A wordpress user that at the log event created did exist in the wp database

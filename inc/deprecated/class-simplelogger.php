@@ -6,6 +6,7 @@ use Simple_History\Loggers\Logger;
  *
  * New loggers must extend Simple_History\Loggers\Logger.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
 class SimpleLogger extends Logger {
 	/**
 	 * Methods that used to exist and needs to be remapped.
