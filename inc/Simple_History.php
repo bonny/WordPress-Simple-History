@@ -960,7 +960,7 @@ class Simple_History {
 			Loggers\Plugin_Beaver_Builder_Logger::class,
 			Loggers\Plugin_Duplicate_Post_Logger::class,
 			Loggers\Plugin_Limit_Login_Attempts_Logger::class,
-			Loggers\Plugin_Redirection::class,
+			Loggers\Plugin_Redirection_Logger::class,
 			Loggers\PluginEnableMediaReplaceLogger::class,
 			Loggers\PluginUserSwitchingLogger::class,
 			Loggers\PluginWPCrontrolLogger::class,

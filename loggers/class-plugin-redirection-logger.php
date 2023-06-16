@@ -8,7 +8,7 @@ use Simple_History\Helpers;
  * Logger for the Redirection plugin
  * https://wordpress.org/plugins/redirection/
  */
-class Plugin_Redirection extends Logger {
+class Plugin_Redirection_Logger extends Logger {
 	/**
 	 * Logger slug.
 	 *
