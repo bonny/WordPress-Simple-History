@@ -18,7 +18,7 @@ use Simple_History\Helpers;
 /**
  * Logs changes to posts and pages, including custom post types
  */
-class SimplePostLogger extends Logger {
+class Post_Logger extends Logger {
 	public $slug = 'SimplePostLogger';
 
 	/**

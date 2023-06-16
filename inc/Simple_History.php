@@ -976,7 +976,7 @@ class Simple_History {
 			Loggers\Menu_Logger::class,
 			Loggers\Options_Logger::class,
 			Loggers\Plugin_Logger::class,
-			Loggers\SimplePostLogger::class,
+			Loggers\Post_Logger::class,
 			Loggers\SimpleThemeLogger::class,
 			Loggers\User_Logger::class,
 		);
