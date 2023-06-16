@@ -6,7 +6,7 @@ use Simple_History\Helpers;
 /**
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor
  */
-class FileEditsLogger extends Logger {
+class File_Edits_Logger extends Logger {
 	public $slug = 'FileEditsLogger';
 
 	public function get_info() {
