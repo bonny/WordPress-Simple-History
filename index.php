@@ -60,7 +60,6 @@ if ( $ok_php_version && $ok_wp_version ) {
 
 
 	// Load code for old, deprecated things, that does not use autoloader.
-	// Todo: test if these don't get loaded by autoloader after all..?
 	require_once __DIR__ . '/inc/deprecated/class-simplelogger.php';
 	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php';
 	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php';
