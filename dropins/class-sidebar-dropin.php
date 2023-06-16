@@ -94,7 +94,7 @@ class Sidebar_Dropin extends Dropin {
 	public function enqueue_admin_scripts() {
 		$file_url = plugin_dir_url( __FILE__ );
 
-		wp_enqueue_style( 'simple_history_SidebarDropin', $file_url . 'SimpleHistorySidebarDropin.css', null, SIMPLE_HISTORY_VERSION );
+		wp_enqueue_style( 'simple_history_SidebarDropin', $file_url . 'sidebar-dropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 
 	/**
