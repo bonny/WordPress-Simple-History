@@ -64,6 +64,7 @@ docker-compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M
 
 Changes made to the test site and SQL-file.
 
+- June 2023: Misc changes, updated Jetpack, added support for changed classes, added Developer Loggers, and more.
 - 24 june 2022: Added Jetpack 11.0 and WP Crontrol 1.12.1.
 - 18 june 2022: Updated to WordPress 6.0 and updated Akismet + languages + themes.
 
@@ -72,4 +73,4 @@ Changes made to the test site and SQL-file.
 - docker compose up
 - wp running on localhost:9191 but it thinks its on port 80 (beacuse thats the internal port)
 - access at http://localhost:9191/wp-login.php
--
+- ...forgot the rest.. update this next time I need to do it 🤷‍♀️.

@@ -193,91 +193,91 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= Currently doing =
-
-- Update readme for tests, make it more clear how to create tests db.
-- Add `_call()` to simplelogger to catch random calls to old/deprecated methods
-- Determine what to to with `SimpleHistory` vs `\Simple_History\Simple_History`. What should the "main" class be called.
-  - "Simple History" feels to broad.
-  - Docket cache uses `namespace DocketCache\Plugin`.
-  - jetpack boost uses `namespace Automattic\Jetpack_Boost;` and then `class Jetpack_Boost {` and then `new Jetpack_Boost();`
-
 = Unreleased =
+
+This update of Simple History contains some big changes – that you hopefully won't even notice.
+
+For regular users these are the regular additions and bug fixes:
+
+**Changed**
+
+- Minimum required PHP version is 7.4. Users with lower versions can use [version 3.4.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
+- Minimum required WordPress version is 6.1.
+- Categories logger does not log changes to taxonomy `nav_menu` any longer, since the Menu logger takes care of those, i.e. changes to the menus.
 
 **Added**
 
-- Check that loggers has a slug set (useful when developing loggers so that step is not missed).
-- Added documentation with example for filter `SimpleHistoryNewRowsNotifier/interval`.
-- Add cached = true|false to AJAX JSON answer when fetching events or checking for new events. It's a simple way to see if an object cache is in use and is working.
 - Log if "Send personal data export confirmation email" is checked when adding a Data Export Request.
 - Log when a Data Export Request is marked as complete.
 - Log when Personal Data is erased by an admin.
+- Log when a group is modified in Redirection plugin.
+- Added context key `export_content` to export logger. The key will contain the post type exported, or "all" if all content was exported.
+
+**Fixed**
+
+- Fix db error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
+- Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
+- Log when a groups is enabled, disabled, or deleted in Redirection plugin.
+
+For developers there are however some big changes:
+
+- The plugin now uses namespaces (and they are loaded using an autoloader).
+- The code has been changed to follow [WordPress coding standard](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). This means that for example all functions have been renamed from `myFunctionName()` to `my_function_name()`
+- Requiring PHP 7.4 makes code more modern is so many ways and makes development easier since we don't have to consider backwards compatibility.
+
+Here is a more detailed changelog that probably most developers are interested in:
+
+**Added**
+
+- Add cached = true|false to AJAX JSON answer when fetching events or checking for new events. It's a simple way to see if an object cache is in use and is working.
 - Most of the code now uses namespaces.
   - The main namespace is `Simple_History`.
   - The main/core class is `Simple_History\Simple_History`.
   - Dropins use namespace `Simple_History\Dropins` and dropins must now extend the base class `Dropin`.
   - Loggers use namespace `Simple_History\Loggers` and loggers must extend the base class `Logger`.
-- Add filter `simple_history/core_loggers` to modify the list of built in (core) loggers.
-- Add filter `simple_history/dropins_to_instantiate` to modify the list of built in dropins to instantiate.
-- Add filter `simple_history/core_dropins`.
-- Add filter `simple_history/dropins_to_instantiate`.
-- Add filter `simple_history/dropin/instantiate_{$dropin_short_name}`.
-- Add filter `simple_history/dropin/instantiate`one_dropin_class );`.
-- Add action `simple_history/dropins/instantiated`.
-- Add action `simple_history/loggers/instantiated`.
+- Add hooks that controls loggers and their instantiation: `simple_history/core_loggers`, `simple_history/loggers/instantiated`.
+- Add hooks that controls dropins and their instantiation: `simple_history/dropins_to_instantiate`, `simple_history/core_dropins`, `simple_history/dropins_to_instantiate`, `simple_history/dropin/instantiate_{$dropin_short_name}`, `simple_history/dropin/instantiate_{$dropin_short_name}`, `simple_history/dropins/instantiated`.
 - Add filter `simple_history/ip_number_header_names`.
 - Add methods `get_events_table_name()` and `get_contexts_table_name()`.
 - Call method `loaded()` on dropins when they are loaded.
-- Redirection logger now logs group edits.
-- Added context key `export_content` to export logger. The key will contain the post type exported, or "all" if all content was exported.
 - Make sure that dropin class exists before trying to use it.
 
 **Changed**
 
-- PHP 7.4 is now the required minimum version. If you use anything lower than that please use [version 3.4.0 of the plugin](https://downloads.wordpress.org/plugin/simple-history.3.3.0.zip).
-- WordPress 6.1 is now the required minimum version.
-- Code now uses namespaces and classes (including loggers and dropins) are now loaded using an autoloader.
+- Improved code organization with the introduction of namespaces. Code now uses namespaces and classes (including loggers and dropins) are now loaded using an autoloader.
+- Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style). Some examples:
+  - `registerSettingsTab` is renamed to `register_settings_tab`.
 - Remove usage of deprectead function `wp_get_user_request_data()`.
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
-- Code fixes using Rector and PHPStan.
+- Applied code fixes using Rector and PHPStan for better code quality.
 - Add new class `Helpers` that contain helper functions.
 - Move functions `simple_history_get_current_screen()`, `interpolate()`, `text_diff`, `validate_ip`, `ends_with`, `get_cache_incrementor` to new helper class.
 - Function `get_ip_number_header_keys` is moved to helper class and renamed `get_ip_number_header_names`.
 - Class `SimpleHistoryLogQuery` renamed to `Log_Query`.
 - Class `SimpleLoggerLogLevels` renamed to `Log_Levels`.
 - Class `SimpleLoggerLogInitiators` renamed to `Log_Initiators`.
+- Dropin files are renamed.
 - Move init code in dropins from `__construct()` to new `loaded()` method.
 - Rename `getLogLevelTranslated()` to `get_log_level_translated()` and move to class `log_levels`.
-- Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style). Some examples:
-  - `registerSettingsTab` is renamed to `register_settings_tab`.
 - Rename message key `user_application_password_deleted` to `user_application_password_revoked`.
 - Context key `args` is renamed to `export_args` in export logger. This key contains some of the options that was passed to export function, like author, category, start date, end date, and status.
-- Fix db error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
-- When a logger is loaded a check for the existance of required information, currently 'name' must be set. This and future checks make it easier for developers to detect errors when creating loggers. `_doing_it_wrong()` will be called when errors found with more information.
+- Ensure loggers has a name and a slug set to avoid development oversights. `_doing_it_wrong()` will be called if they have not.
 - Logger: Method `get_info_value_by_key()` is now public so it can be used outside of a logger.
 - Logger: Method `get_info()` is now abstract, since it must be added by loggers.
 - For backwards compatibility `SimpleHistoryLogQuery`, `SimpleLoggerLogLevels`, `SimpleLoggerLogInitiators`, `SimpleLogger` will continue to exist for a couple of more versions.
-- Dropin files are renamed.
 
 **Removed**
 
-- Removed function `simple_history_add`. See https://docs.simple-history.com/logging for other ways to add messages to the history log.
-- Removed unused function `sh_ucwords()`.
-- Filters `simple_history/loggers_files` and `simple_history/logger/load_logger` are removed.
-- Filter `'simple_history/dropins_files'` are removed.
-- Removed unused class `SimpleLoggerLogTypes`.
+- Function `simple_history_add` has been removed. See https://docs.simple-history.com/logging for other ways to add messages to the history log.
+- Unused function `sh_ucwords()` has been removed.
+- Removed filters `simple_history/loggers_files`, `simple_history/logger/load_logger`, `'simple_history/dropins_files'`.
+- Unused class `SimpleLoggerLogTypes` removed.
 - Removed logger for plugin Ultimate Members.
 - Removed patches for plugin [captcha-on-login](https://wordpress.org/plugins/captcha-on-login/).
 - Remove dropin used to populate log with test data.
 - Remove dropin used to show log stats.
-- Remove examples in examples folder. Examples are moved to the documentation site at https://docs.simple-history.com/.
-
-**Fixed**
-
-- Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
-- Redirection logger logs enabling, disabling, and deletion of groups again.
-- Categories logger does not log changes to taxonomy `nav_menu` since the menu logger takes care of those, i.e. changes to the menus.
+- Examples in examples folder are removed and moved to the documentation site at https://docs.simple-history.com/.
 
 = 3.5.1 (May 2023) =
 
