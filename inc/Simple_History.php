@@ -2,7 +2,7 @@
 namespace Simple_History;
 
 use Simple_History\Loggers;
-use Simple_History\Loggers\SimpleLogger;
+use Simple_History\Loggers\Simple_Logger;
 use Simple_History\Dropins;
 use Simple_History\Helpers;
 
@@ -971,7 +971,7 @@ class Simple_History {
 			Loggers\Comments_Logger::class,
 			Loggers\Core_Updates_Logger::class,
 			Loggers\Export_Logger::class,
-			Loggers\SimpleLogger::class,
+			Loggers\Simple_Logger::class,
 			Loggers\SimpleMediaLogger::class,
 			Loggers\SimpleMenuLogger::class,
 			Loggers\SimpleOptionsLogger::class,
@@ -1064,7 +1064,7 @@ class Simple_History {
 				continue;
 			}
 
-			/** @var SimpleLogger $logger_instance */
+			/** @var Simple_Logger $logger_instance */
 			$logger_instance = new $one_logger_class( $this );
 			$logger_instance->loaded();
 
@@ -2929,7 +2929,7 @@ Because Simple History was only recently installed, this feed does not display m
 			 * ```
 			 *
 			 * @param bool Wheter the user is allowed to view the logger.
-			 * @param SimpleLogger Logger instance.
+			 * @param Simple_Logger Logger instance.
 			 * @param int $user_id Id of user.
 			 */
 			$user_can_read_logger = apply_filters(

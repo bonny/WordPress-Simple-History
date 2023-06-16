@@ -5,7 +5,7 @@ namespace Simple_History\Loggers;
 /**
  * Simple logger to log things without message key + fallback logger.
  */
-class SimpleLogger extends Logger {
+class Simple_Logger extends Logger {
 	/**
 	 * Unique slug for this logger
 	 * Will be saved in DB and used to associate each log row with its logger.
