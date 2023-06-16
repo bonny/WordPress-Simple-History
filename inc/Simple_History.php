@@ -968,7 +968,7 @@ class Simple_History {
 			Loggers\Privacy_Logger::class,
 			Loggers\Translations_Logger::class,
 			Loggers\Categories_Logger::class,
-			Loggers\SimpleCommentsLogger::class,
+			Loggers\Comments_Logger::class,
 			Loggers\SimpleCoreUpdatesLogger::class,
 			Loggers\SimpleExportLogger::class,
 			Loggers\SimpleLogger::class,
