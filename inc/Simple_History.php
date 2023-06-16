@@ -972,7 +972,7 @@ class Simple_History {
 			Loggers\Core_Updates_Logger::class,
 			Loggers\Export_Logger::class,
 			Loggers\Simple_Logger::class,
-			Loggers\SimpleMediaLogger::class,
+			Loggers\Media_Logger::class,
 			Loggers\SimpleMenuLogger::class,
 			Loggers\SimpleOptionsLogger::class,
 			Loggers\SimplePluginLogger::class,
