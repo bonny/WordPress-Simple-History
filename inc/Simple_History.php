@@ -1177,7 +1177,7 @@ class Simple_History {
 			Dropins\Plugin_Patches_Dropin::class,
 			Dropins\RSS_Dropin::class,
 			Dropins\Settings_Debug_Tab_Dropin::class,
-			Dropins\SimpleHistorySidebarStats::class,
+			Dropins\Sidebar_Stats_Dropin::class,
 			Dropins\Sidebar_Dropin::class,
 			Dropins\Sidebar_Settings_Dropin::class,
 			Dropins\WPCLI::class,

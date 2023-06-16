@@ -5,35 +5,26 @@ namespace Simple_History\Dropins;
 use DateTime;
 use DateInterval;
 use DatePeriod;
-use Simple_History\Simple_History;
-use Simple_History\Log_Query;
-use Simple_History\Log_Initiators;
 
 /**
  * Dropin Name: Sidebar with short stats
- * Dropin URI: http://simple-history.com/
+ * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
-
-class SimpleHistorySidebarStats extends Dropin {
+class Sidebar_Stats_Dropin extends Dropin {
 	public function loaded() {
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
-
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts' ) );
-
 		add_action( 'simple_history/admin_footer', array( $this, 'on_admin_footer' ) );
 	}
 
 	public function on_admin_enqueue_scripts() {
-
 		wp_enqueue_script( 'simple_history_chart.js', SIMPLE_HISTORY_DIR_URL . 'js/Chart.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION, true );
 	}
 
 	public function on_admin_footer() {
-
 		?>
 		<script>
-
 			/**
 			 * JavaScript for SimpleHistory_SidebarChart
 			 */
@@ -133,7 +124,6 @@ class SimpleHistorySidebarStats extends Dropin {
 	}
 
 	public function on_sidebar_html() {
-
 		$num_days = 28;
 
 		$num_events_per_day_for_period = $this->simple_history->get_num_events_per_day_last_n_days( $num_days );
@@ -145,7 +135,6 @@ class SimpleHistorySidebarStats extends Dropin {
 		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
 
 		?>
-
 		<div class="postbox">
 
 			<h3 class="hndle"><?php esc_html_e( 'Stats', 'simple-history' ); ?></h3>
@@ -154,7 +143,6 @@ class SimpleHistorySidebarStats extends Dropin {
 
 				<p>
 					<?php
-
 					echo wp_kses(
 						sprintf(
 							__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
@@ -165,7 +153,6 @@ class SimpleHistorySidebarStats extends Dropin {
 							'b' => array(),
 						)
 					);
-
 					?>
 				</p>
 
@@ -179,7 +166,6 @@ class SimpleHistorySidebarStats extends Dropin {
 				</p>
 
 				<?php
-
 				$arr_labels = array();
 				$arr_labels_to_datetime = array();
 				$arr_dataset_data = array();
@@ -215,7 +201,6 @@ class SimpleHistorySidebarStats extends Dropin {
 				}
 
 				?>
-
 				<input
 					type="hidden"
 					class="SimpleHistory_SidebarChart_ChartLabels"
@@ -236,7 +221,6 @@ class SimpleHistorySidebarStats extends Dropin {
 
 			</div>
 		</div>
-
 		<?php
 	}
 }
