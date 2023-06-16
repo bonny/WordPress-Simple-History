@@ -9,7 +9,7 @@ use Simple_History\Log_Initiators;
 /**
  * Logs plugin related things, for example installs, updates, and deletions.
  */
-class SimplePluginLogger extends Logger {
+class Plugin_Logger extends Logger {
 
 	/**
 	 * The logger slug.
