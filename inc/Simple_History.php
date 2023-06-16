@@ -956,7 +956,7 @@ class Simple_History {
 		$loggers = array(
 			Loggers\Available_Updates_Logger::class,
 			Loggers\File_Edits_Logger::class,
-			Loggers\Plugin_ACF::class,
+			Loggers\Plugin_ACF_Logger::class,
 			Loggers\Plugin_BeaverBuilder::class,
 			Loggers\Plugin_DuplicatePost::class,
 			Loggers\Plugin_LimitLoginAttempts::class,
