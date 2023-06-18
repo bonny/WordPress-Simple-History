@@ -30,3 +30,6 @@ phpcs.xml.dist
 phpunit.xml
 README.md
 docker-compose.yml
+rector.php
+phpstan.neon
+.wp-env.json
