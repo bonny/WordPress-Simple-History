@@ -37,7 +37,7 @@ Out of the box Simple History has support for:
   see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 - **Menu edits**
 - **Option screens**<br>
-  view details about changes made in the differnt settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
+  view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
 - **Privacy page**<br>
   when a privacy page is created or set to a new page.
 - **Data Export**<br>
@@ -215,16 +215,16 @@ For regular users these are the regular additions and bug fixes:
 
 **Fixed**
 
-- Fix db error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
+- Fix error on MariaDB databases when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
 - Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
 - Log when a groups is enabled, disabled, or deleted in Redirection plugin.
 
-👩‍💻 For developers there are however some big changes:
+👩‍💻 For developers there are some bigger changes:
 
-- The plugin now uses namespaces (and they are loaded using an autoloader).
-- The code has been changed to follow [WordPress coding standard](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). This means that for example all functions have been renamed from `myFunctionName()` to `my_function_name()`
-- PHP 7.4 is the minimum spported version. This makes code more modern in so many ways and makes development easier since we don't have to consider backwards compatibility.
-- Many more tests have has been added to minimize risk of bugs or fatal errors.
+- The plugin now uses namespaces – and they are loaded using an autoloader.
+- The code has been changed to follow [WordPress coding standard](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). This means that for example all functions have been renamed from `myFunctionName()` to `my_function_name()`.
+- The update to PHP 7.4 as the minimum required PHP version makes code more modern in so many ways and makes development easier and more funny, since we don't have to consider backwards compatibility.
+- Many more tests have has been added to minimize risk of bugs or fatal errors. The tests are written using [wp-browser](https://wpbrowser.wptestkit.dev/).
 
 Here is a more detailed changelog that probably most developers are interested in:
 
@@ -233,15 +233,15 @@ Here is a more detailed changelog that probably most developers are interested i
 - Add cached = true|false to AJAX JSON answer when fetching events or checking for new events. It's a simple way to see if an object cache is in use and is working.
 - Most of the code now uses namespaces.
   - The main namespace is `Simple_History`.
-  - The main/core class is `Simple_History\Simple_History`.
+  - The main class is `Simple_History\Simple_History`.
   - Dropins use namespace `Simple_History\Dropins` and dropins must now extend the base class `Dropin`.
   - Loggers use namespace `Simple_History\Loggers` and loggers must extend the base class `Logger`.
 - Add hooks that controls loggers and their instantiation: `simple_history/core_loggers`, `simple_history/loggers/instantiated`.
 - Add hooks that controls dropins and their instantiation: `simple_history/dropins_to_instantiate`, `simple_history/core_dropins`, `simple_history/dropins_to_instantiate`, `simple_history/dropin/instantiate_{$dropin_short_name}`, `simple_history/dropin/instantiate_{$dropin_short_name}`, `simple_history/dropins/instantiated`.
 - Add filter `simple_history/ip_number_header_names`.
 - Add methods `get_events_table_name()` and `get_contexts_table_name()`.
-- Call method `loaded()` on dropins when they are loaded.
-- Make sure that dropin class exists before trying to use it.
+- Call method `loaded()` on dropins when they are loaded (use this instead of `__construct`).
+- Make sure that a dropin class exists before trying to use it.
 
 **Changed**
 
