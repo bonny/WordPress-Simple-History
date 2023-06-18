@@ -215,7 +215,7 @@ For regular users these are the regular additions and bug fixes:
 
 **Fixed**
 
-- Fix error on MariaDB databases when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
+- Fix error on MariaDB databases when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: [https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/](https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/).
 - Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
 - Log when a groups is enabled, disabled, or deleted in Redirection plugin.
 
@@ -269,8 +269,8 @@ A more detailed changelog that probably most developers are interested in:
 - For backwards compatibility `SimpleHistoryLogQuery`, `SimpleLoggerLogLevels`, `SimpleLoggerLogInitiators`, `SimpleLogger` will continue to exist for a couple of more versions.
 
 **Removed**
-
-- Function `simple_history_add` has been removed. See https://docs.simple-history.com/logging for other ways to add messages to the history log.
+x
+- Function `simple_history_add` has been removed. See [docs.simple-history.com/logging](https://docs.simple-history.com/logging) for other ways to add messages to the history log.
 - Unused function `sh_ucwords()` has been removed.
 - Removed filters `simple_history/loggers_files`, `simple_history/logger/load_logger`, `'simple_history/dropins_files'`.
 - Unused class `SimpleLoggerLogTypes` removed.
@@ -278,7 +278,7 @@ A more detailed changelog that probably most developers are interested in:
 - Removed patches for plugin [captcha-on-login](https://wordpress.org/plugins/captcha-on-login/).
 - Remove dropin used to populate log with test data.
 - Remove dropin used to show log stats.
-- Examples in examples folder are removed and moved to the documentation site at https://docs.simple-history.com/.
+- Examples in examples folder are removed and moved to the documentation site at docs.[simple-history.com](https://docs.simple-history.com/).
 
 = 3.5.1 (May 2023) =
 
