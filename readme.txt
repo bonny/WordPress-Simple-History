@@ -193,7 +193,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= Unreleased =
+= 4.0.0 (June 2023) =
 
 🚀 This update of Simple History contains some big changes – that you hopefully won't even notice.
 
@@ -219,7 +219,7 @@ For regular users these are the regular additions and bug fixes:
 - Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
 - Log when a groups is enabled, disabled, or deleted in Redirection plugin.
 
-👩‍💻 For developers there are some bigger changes:
+👩‍💻 For developers there are some bigger changes, that is noticable:
 
 - The plugin now uses namespaces – and they are loaded using an autoloader.
 - The code has been changed to follow [WordPress coding standard](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). This means that for example all functions have been renamed from `myFunctionName()` to `my_function_name()`.
