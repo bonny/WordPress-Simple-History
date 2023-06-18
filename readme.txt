@@ -223,10 +223,10 @@ For regular users these are the regular additions and bug fixes:
 
 - The plugin now uses namespaces – and they are loaded using an autoloader.
 - The code has been changed to follow [WordPress coding standard](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). This means that for example all functions have been renamed from `myFunctionName()` to `my_function_name()`.
-- The update to PHP 7.4 as the minimum required PHP version makes code more modern in so many ways and makes development easier and more funny, since we don't have to consider backwards compatibility.
-- Many more tests have has been added to minimize risk of bugs or fatal errors. The tests are written using [wp-browser](https://wpbrowser.wptestkit.dev/).
+- The update to PHP 7.4 as the minimum required PHP version makes code more modern in so many ways and makes development easier and more funny, since we don't have to worry about backwards compatibility as much.
+- Many more tests using [wp-browser](https://wpbrowser.wptestkit.dev/) have has been added to minimize risk of bugs or fatal errors.
 
-Here is a more detailed changelog that probably most developers are interested in:
+A more detailed changelog that probably most developers are interested in:
 
 **Added**
 
