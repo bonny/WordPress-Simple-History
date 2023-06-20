@@ -157,7 +157,7 @@ class Autoloader {
 			$path_and_file = str_replace( '\\', '/', $relative_class );
 
 			// Check for file with prefixed 'class-' and lowercase filename.
-			$path_and_file_lowercased_and_prefixed = mb_strtolower( $path_and_file );
+			$path_and_file_lowercased_and_prefixed = strtolower( $path_and_file );
 			$path_and_file_lowercased_and_prefixed = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed );
 			$path_and_file_lowercased_and_prefixed = str_replace( '/', '/class-', $path_and_file_lowercased_and_prefixed );
 

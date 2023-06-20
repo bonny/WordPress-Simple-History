@@ -233,7 +233,7 @@ class Export_Dropin extends Dropin {
 	public function esc_csv_field( $field ) {
 		$active_content_triggers = array( '=', '+', '-', '@' );
 
-		if ( in_array( mb_substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
+		if ( in_array( substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
 			$field = "'" . $field;
 		}
 
