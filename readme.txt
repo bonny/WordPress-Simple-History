@@ -193,6 +193,12 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= 4.0.1 (June 2023) =
+
+**Fixed**
+
+- Replace multibyte functions with non-multibyte versions, since `mbstring` is not a [required PHP extension](https://make.wordpress.org/hosting/handbook/server-environment/#php-extensions) (it is however a highly recommended one). Should fix https://wordpress.org/support/topic/wordpress-critical-error-9/. ([#351](https://github.com/bonny/WordPress-Simple-History/issues/351))
+
 = 4.0.0 (June 2023) =
 
 🚀 This update of Simple History contains some big changes – that you hopefully won't even notice.
@@ -270,6 +276,7 @@ A more detailed changelog that probably most developers are interested in:
 
 **Removed**
 x
+
 - Function `simple_history_add` has been removed. See [docs.simple-history.com/logging](https://docs.simple-history.com/logging) for other ways to add messages to the history log.
 - Unused function `sh_ucwords()` has been removed.
 - Removed filters `simple_history/loggers_files`, `simple_history/logger/load_logger`, `'simple_history/dropins_files'`.
