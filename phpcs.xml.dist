@@ -77,4 +77,35 @@
 
 	<rule ref="PHPCompatibilityWP"/>
 
+	<rule ref="Generic.PHP.ForbiddenFunctions">
+		<properties>
+			<property name="forbiddenFunctions" type="array" extend="true">
+				<element key="mb_strtolower" value=""/>
+				<element key="mb_strtoupper" value=""/>
+				<element key="mb_strlen" value=""/>
+				<element key="mb_substr" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+				<element key="mb_strpos" value=""/>
+				<element key="mb_strrpos" value=""/>
+			</property>
+		</properties>
+	</rule>
+
 </ruleset>
