@@ -30,7 +30,7 @@
 		Also see example XML:
 		https://github.com/WordPress/WordPress-Coding-Standards/blob/develop/phpcs.xml.dist.sample
 	-->
-	<config name="minimum_supported_wp_version" value="5.4"/>
+	<config name="minimum_supported_wp_version" value="6.1"/>
 
 	<rule ref="WordPress-Extra">
 		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
