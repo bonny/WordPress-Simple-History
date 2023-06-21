@@ -58,7 +58,6 @@ if ( $ok_php_version && $ok_wp_version ) {
 	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
 	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . 'inc/' );
 
-
 	// Load code for old, deprecated things, that does not use autoloader.
 	require_once __DIR__ . '/inc/deprecated/class-simplelogger.php';
 	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php';
