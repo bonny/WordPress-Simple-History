@@ -2133,8 +2133,18 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	public function settings_field_number_of_items() {
 		$current_pager_size = $this->get_pager_size();
-
 		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
+
+		// If number of items is controlled via filter then return early.
+		if ( has_filter( 'simple_history/pager_size' ) ) {
+			printf(
+				'<input type="text" readonly value="%1$s" />',
+				esc_html( $current_pager_size ),
+			);
+			
+			return;
+		}
+
 		?>
 		<select name="simple_history_pager_size">
 			<?php
@@ -2145,6 +2155,15 @@ Because Simple History was only recently installed, this feed does not display m
 					'<option %1$s value="%2$s">%2$s</option>',
 					esc_html( $selected ),
 					esc_html( $one_value )
+				);
+			}
+
+			// If current pager size is not among array values then manually output selected value here.
+			// This can happen if user has set a value that is not in the array.
+			if ( ! in_array( $current_pager_size, $pager_size_default_values, true ) ) {
+				printf(
+					'<option selected="selected" value="%1$s">%1$s</option>',
+					esc_html( $current_pager_size )
 				);
 			}
 			?>
@@ -2158,8 +2177,18 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	public function settings_field_number_of_items_dashboard() {
 		$current_pager_size = $this->get_pager_size_dashboard();
-
 		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
+
+		// If number of items is controlled via filter then return early.
+		if ( has_filter( 'simple_history_pager_size_dashboard' ) || has_filter( 'simple_history/dashboard_pager_size' ) ) {
+			printf(
+				'<input type="text" readonly value="%1$s" />',
+				esc_html( $current_pager_size ),
+			);
+			
+			return;
+		}
+
 		?>
 		<select name="simple_history_pager_size_dashboard">
 			<?php
@@ -2170,6 +2199,15 @@ Because Simple History was only recently installed, this feed does not display m
 					'<option %1$s value="%2$s">%2$s</option>',
 					esc_html( $selected ),
 					esc_html( $one_value )
+				);
+			}
+
+			// If current pager size is not among array values then manually output selected value here.
+			// This can happen if user has set a value that is not in the array.
+			if ( ! in_array( $current_pager_size, $pager_size_default_values, true ) ) {
+				printf(
+					'<option selected="selected" value="%1$s">%1$s</option>',
+					esc_html( $current_pager_size )
 				);
 			}
 			?>
