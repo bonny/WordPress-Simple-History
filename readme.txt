@@ -97,6 +97,12 @@ involved in editing the content.
 
 The plugin works fine on [multisite installations of WordPress](http://codex.wordpress.org/Glossary#Multisite) too.
 
+#### Comes with WP-CLI commands too
+
+For those of you who like to work with the command line there are also some WP-CLI commands available.
+
+- `wp simple-history list` – List the latest logged events.
+
 #### Example scenarios
 
 Keep track of what other people are doing:
