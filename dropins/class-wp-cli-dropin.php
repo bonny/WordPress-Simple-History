@@ -64,7 +64,6 @@ class WPCLI_Commands {
 	 *
 	 * @when after_wp_load
 	 */
-	// Usage: wp simple-history
 	public function list( $args, $assoc_args ) {
 		if ( ! is_numeric( $assoc_args['count'] ) ) {
 			WP_CLI::error( __( 'Error: parameter "count" must be a number', 'simple-history' ) );
