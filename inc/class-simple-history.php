@@ -1019,21 +1019,6 @@ class Simple_History {
 		 */
 		do_action( 'simple_history/add_custom_logger', $this );
 
-		// HERE: how to fix?
-		// # This is how beaver builder calls the add function.
-		// Will fail because \SimpleHistory does not exist anymore.
-		// Correct usage is:
-		// function( \Simple_History\Simple_History $simple_history ) : void {
-		//
-		// add_action(
-		// 	'simple_history/add_custom_logger',
-		// 	function( \SimpleHistory $simple_history ) : void {
-		// 		if ( class_exists( 'WEBDOGS\Extended_Simple_History_Beaver_Builder\Classes\Simple_History\Loggers\Beaver_Builder' ) ) {
-		// 			$simple_history->register_logger( Logger_Beaver_Builder::class );
-		// 		}
-		// 	}
-		// );
-
 		$arr_loggers_to_instantiate = array_merge( $arr_loggers_to_instantiate, $this->external_loggers );
 
 		/**
