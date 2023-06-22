@@ -197,6 +197,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Moved filter `simple_history/dashboard_pager_size` to method `get_pager_size_dashboard()`.
 - If a filter is modifying the pager sizes then show a readonly input with pager size instead of a select. [#298](https://github.com/bonny/WordPress-Simple-History/issues/298)
+- Check that array keys `attachment_parent_title` and `attachment_parent_post_type` in Media Logger. [#313](https://github.com/bonny/WordPress-Simple-History/issues/313)
 
 = 4.0.1 (June 2023) =
 

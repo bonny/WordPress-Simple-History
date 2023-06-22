@@ -113,8 +113,8 @@ class Media_Logger extends Logger {
 					$attachment_parent_post = get_post( $context['attachment_parent_id'] );
 					$attachment_parent_available = $attachment_parent_post instanceof \WP_Post;
 
-					$context['attachment_parent_post_type'] = esc_html( $context['attachment_parent_post_type'] );
-					$context['attachment_parent_title'] = esc_html( $context['attachment_parent_title'] );
+					$context['attachment_parent_post_type'] = esc_html( $context['attachment_parent_post_type'] ?? '' );
+					$context['attachment_parent_title'] = esc_html( $context['attachment_parent_title'] ?? '' );
 
 					if ( $attachment_parent_available ) {
 						// Include link to parent post.
