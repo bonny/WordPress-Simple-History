@@ -2323,7 +2323,7 @@ Because Simple History was only recently installed, this feed does not display m
 	}
 
 	/**
-	 * Removes all items from the log
+	 * Removes all items from the log.
 	 */
 	public function clear_log() {
 		global $wpdb;
@@ -2347,7 +2347,7 @@ Because Simple History was only recently installed, this feed does not display m
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		// Zero state sucks
+		// Zero state sucks.
 		SimpleLogger()->info(
 			__( 'The log for Simple History was cleared ({num_rows} rows were removed).', 'simple-history' ),
 			array(
