@@ -275,7 +275,6 @@ A more detailed changelog that probably most developers are interested in:
 - For backwards compatibility `SimpleHistoryLogQuery`, `SimpleLoggerLogLevels`, `SimpleLoggerLogInitiators`, `SimpleLogger` will continue to exist for a couple of more versions.
 
 **Removed**
-x
 
 - Function `simple_history_add` has been removed. See [docs.simple-history.com/logging](https://docs.simple-history.com/logging) for other ways to add messages to the history log.
 - Unused function `sh_ucwords()` has been removed.
