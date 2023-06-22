@@ -2141,7 +2141,7 @@ Because Simple History was only recently installed, this feed does not display m
 				'<input type="text" readonly value="%1$s" />',
 				esc_html( $current_pager_size ),
 			);
-			
+
 			return;
 		}
 
@@ -2185,7 +2185,7 @@ Because Simple History was only recently installed, this feed does not display m
 				'<input type="text" readonly value="%1$s" />',
 				esc_html( $current_pager_size ),
 			);
-			
+
 			return;
 		}
 
