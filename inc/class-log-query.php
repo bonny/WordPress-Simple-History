@@ -5,7 +5,7 @@ namespace Simple_History;
 use Simple_History\Helpers;
 
 /**
- * Queries the Simple History Log
+ * Queries the Simple History Log.
  */
 class Log_Query {
 
