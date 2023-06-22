@@ -1321,6 +1321,15 @@ class Simple_History {
 		$pager_size = get_option( 'simple_history_pager_size_dashboard', 5 );
 
 		/**
+		 * Filter the pager size setting for the dashboard.
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $pager_size
+		 */
+		$pager_size = apply_filters( 'simple_history/dashboard_pager_size', $pager_size );
+
+		/**
 		 * Filter the pager size setting
 		 *
 		 * @since 2.12
@@ -1389,15 +1398,6 @@ class Simple_History {
 	 */
 	public function dashboard_widget_output() {
 		$pager_size = $this->get_pager_size_dashboard();
-
-		/**
-		 * Filter the pager size setting for the dashboard
-		 *
-		 * @since 2.0
-		 *
-		 * @param int $pager_size
-		 */
-		$pager_size = apply_filters( 'simple_history/dashboard_pager_size', $pager_size );
 
 		do_action( 'simple_history/dashboard/before_gui', $this );
 		?>
