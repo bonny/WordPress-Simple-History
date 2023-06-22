@@ -2133,19 +2133,23 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	public function settings_field_number_of_items() {
 		$current_pager_size = $this->get_pager_size();
+
+		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
 		?>
 		<select name="simple_history_pager_size">
-			<option <?php echo $current_pager_size == 5 ? 'selected' : ''; ?> value="5">5</option>
-			<option <?php echo $current_pager_size == 10 ? 'selected' : ''; ?> value="10">10</option>
-			<option <?php echo $current_pager_size == 15 ? 'selected' : ''; ?> value="15">15</option>
-			<option <?php echo $current_pager_size == 20 ? 'selected' : ''; ?> value="20">20</option>
-			<option <?php echo $current_pager_size == 25 ? 'selected' : ''; ?> value="25">25</option>
-			<option <?php echo $current_pager_size == 30 ? 'selected' : ''; ?> value="30">30</option>
-			<option <?php echo $current_pager_size == 40 ? 'selected' : ''; ?> value="40">40</option>
-			<option <?php echo $current_pager_size == 50 ? 'selected' : ''; ?> value="50">50</option>
-			<option <?php echo $current_pager_size == 75 ? 'selected' : ''; ?> value="75">75</option>
-			<option <?php echo $current_pager_size == 100 ? 'selected' : ''; ?> value="100">100</option>
+			<?php
+			foreach ( $pager_size_default_values as $one_value ) {
+				$selected = selected( $current_pager_size, $one_value, false );
+
+				printf(
+					'<option %1$s value="%2$s">%2$s</option>',
+					esc_html( $selected ),
+					esc_html( $one_value )
+				);
+			}
+			?>
 		</select>
+		
 		<?php
 	}
 
@@ -2154,18 +2158,21 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	public function settings_field_number_of_items_dashboard() {
 		$current_pager_size = $this->get_pager_size_dashboard();
+
+		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
 		?>
 		<select name="simple_history_pager_size_dashboard">
-			<option <?php echo $current_pager_size == 5 ? 'selected' : ''; ?> value="5">5</option>
-			<option <?php echo $current_pager_size == 10 ? 'selected' : ''; ?> value="10">10</option>
-			<option <?php echo $current_pager_size == 15 ? 'selected' : ''; ?> value="15">15</option>
-			<option <?php echo $current_pager_size == 20 ? 'selected' : ''; ?> value="20">20</option>
-			<option <?php echo $current_pager_size == 25 ? 'selected' : ''; ?> value="25">25</option>
-			<option <?php echo $current_pager_size == 30 ? 'selected' : ''; ?> value="30">30</option>
-			<option <?php echo $current_pager_size == 40 ? 'selected' : ''; ?> value="40">40</option>
-			<option <?php echo $current_pager_size == 50 ? 'selected' : ''; ?> value="50">50</option>
-			<option <?php echo $current_pager_size == 75 ? 'selected' : ''; ?> value="75">75</option>
-			<option <?php echo $current_pager_size == 100 ? 'selected' : ''; ?> value="100">100</option>
+			<?php
+			foreach ( $pager_size_default_values as $one_value ) {
+				$selected = selected( $current_pager_size, $one_value, false );
+
+				printf(
+					'<option %1$s value="%2$s">%2$s</option>',
+					esc_html( $selected ),
+					esc_html( $one_value )
+				);
+			}
+			?>
 		</select>
 		<?php
 	}
