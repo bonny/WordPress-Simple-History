@@ -32,7 +32,6 @@ return static function ( RectorConfig $rectorConfig ): void {
 	$rectorConfig->skip(
 		array(
 			__DIR__ . '/tests',
-			__DIR__ . '/docs',
 			__DIR__ . '/build',
 			__DIR__ . '/vendor',
 			__DIR__ . '/node_modules',

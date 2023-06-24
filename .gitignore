@@ -8,10 +8,7 @@ tmp
 vendor
 /.vscode
 workspace.code-workspace
-
-docs/.vscode/settings.json
 /.idea
-
 /build
 
 # Docker related data

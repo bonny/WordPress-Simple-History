@@ -8,7 +8,6 @@
 /tests
 /vendor
 /examples
-/docs
 
 .distignore
 .gitignore

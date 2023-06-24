@@ -43,7 +43,7 @@
 		"issues": "https://github.com/bonny/WordPress-Simple-History/issues",
 		"forum": "https://wordpress.org/support/plugin/simple-history/",
 		"source": "https://github.com/bonny/WordPress-Simple-History",
-		"docs": "https://docs.simple-history.com/"
+		"docs": "https://simple-history.com/docs/"
 	},
 	"dist": {
 		"url": "https://downloads.wordpress.org/plugin/simple-history.zip",

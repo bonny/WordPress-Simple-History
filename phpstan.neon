@@ -3,7 +3,6 @@ parameters:
   excludePaths:
     - vendor/*
     - tests/*
-    - docs/*
     - node_modules/*
     - rector.php
   scanFiles:

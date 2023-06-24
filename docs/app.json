@@ -1,9 +1,0 @@
-{
-	"name": "Simple History documentation",
-	"scripts": {
-		"dokku": {
-			"predeploy": "echo 'Running deploy'",
-			"postdeploy": "echo 'Deploy done'"
-		}
-	}
-}
