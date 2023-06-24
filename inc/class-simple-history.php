@@ -2324,6 +2324,8 @@ Because Simple History was only recently installed, this feed does not display m
 
 	/**
 	 * Removes all items from the log.
+	 *
+	 * @return int Number of rows removed.
 	 */
 	public function clear_log() {
 		global $wpdb;
@@ -2356,6 +2358,8 @@ Because Simple History was only recently installed, this feed does not display m
 		);
 
 		Helpers::get_cache_incrementor( true );
+
+		return $num_rows;
 	}
 
 	/**
