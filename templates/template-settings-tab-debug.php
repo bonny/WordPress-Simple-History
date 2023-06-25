@@ -18,29 +18,7 @@ global $wpdb;
 
 echo '<h3>' . esc_html_x( 'Database size', 'debug dropin', 'simple-history' ) . '</h3>';
 
-// Get table sizes in mb.
-$table_size_result = $wpdb->get_results(
-	$wpdb->prepare(
-		'
-	SELECT table_name AS "table_name",
-	round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
-	FROM information_schema.TABLES
-	WHERE table_schema = "%1$s"
-	AND table_name IN ("%2$s", "%3$s");
-	',
-		DB_NAME, // 1
-		$this->simple_history->get_events_table_name(), // 2
-		$this->simple_history->get_contexts_table_name() // 3
-	)
-);
-
-
-// Get num of rows for each table
-$total_num_rows_table = (int) $wpdb->get_var( "select count(*) FROM {$this->simple_history->get_events_table_name()}" ); // phpcs:ignore 
-$total_num_rows_table_contexts = (int) $wpdb->get_var( "select count(*) FROM {$this->simple_history->get_contexts_table_name()}" ); // phpcs:ignore 
-
-$table_size_result[0]->num_rows = $total_num_rows_table;
-$table_size_result[1]->num_rows = $total_num_rows_table_contexts;
+$table_size_result = Helpers::get_db_table_stats();
 
 echo "<table class='widefat'>";
 printf(
