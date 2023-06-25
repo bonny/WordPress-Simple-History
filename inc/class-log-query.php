@@ -55,7 +55,13 @@ class Log_Query {
 			// "lastdays:7" for the last 7 days
 			'dates' => null,
 
-			// search
+			/**
+			 * Text to search for.
+			 * Message, logger and level are searched for in main table.
+			 * Values are searched for in context table.
+			 *
+			 * @var string
+			 */
 			'search' => null,
 
 			// log levels to include. comma separated or as array. defaults to all.
