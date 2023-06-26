@@ -210,7 +210,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Don't log when terms are added to author taxonomy in [Co-Authors Plus](https://wordpress.org/plugins/co-authors-plus/). Fixes [support thread](https://wordpress.org/support/topic/co-author-plus-spamming-simple-history-plugin-is-this-a-but-or-a-feature/), issue [#238](https://github.com/bonny/WordPress-Simple-History/issues/238).
 - Update Chart.js library from 2.0.2 to 4.3.0. Fixes [support thread](https://wordpress.org/support/topic/outdated-chartjs-component-used/), issue [#340](https://github.com/bonny/WordPress-Simple-History/issues/340).
 - Add function `disable_taxonomy_log()` to simplify disabling logging of a taxonomy.
-- Don't check for updates on dashboard if the widget is hidden.
+- Don't load the log or check for updates on dashboard if the widget is hidden.
 - Don't check for updates on dashboard if a request is already ongoing.
 
 = 4.0.1 (June 2023) =
