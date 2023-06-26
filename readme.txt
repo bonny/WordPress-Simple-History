@@ -207,6 +207,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Function `clear_log()` now returns the number of rows deleted.
 - Add function get_db_table_stats() that returns for example the number of rows in each table.
 - Move function get_initiator_text_from_row() to Log_Initiators class.
+- Don't log when terms are added to author taxonomy in [Co-Authors Plus](https://wordpress.org/plugins/co-authors-plus/). Fixes [support thread](https://wordpress.org/support/topic/co-author-plus-spamming-simple-history-plugin-is-this-a-but-or-a-feature/), [#238](https://github.com/bonny/WordPress-Simple-History/issues/238).
 
 = 4.0.1 (June 2023) =
 
