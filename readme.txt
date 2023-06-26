@@ -201,18 +201,26 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 = Unreleased =
 
-- Moved filter `simple_history/dashboard_pager_size` to method `get_pager_size_dashboard()`.
-- If a filter is modifying the pager sizes then show a readonly input with pager size instead of a select. [#298](https://github.com/bonny/WordPress-Simple-History/issues/298)
-- Check that array keys `attachment_parent_title` and `attachment_parent_post_type` in Media Logger. [#313](https://github.com/bonny/WordPress-Simple-History/issues/313)
+**Added**
+
+- Add filters to pause (and unpause) logging. They are called `'simple_history/pause'` and `'simple_history/resume'` Useful for developers that for example write their own data importers because the log can be overwhelmed with data when importing a lot of data. [#307](https://github.com/bonny/WordPress-Simple-History/issues/307)
 - Function `clear_log()` now returns the number of rows deleted.
-- Add function get_db_table_stats() that returns for example the number of rows in each table.
-- Move function get_initiator_text_from_row() to Log_Initiators class.
+- Function `disable_taxonomy_log()` to simplify disabling logging of a taxonomy.
+- Function `get_db_table_stats()` that returns for example the number of rows in each table.
+
+**Fixed**
+
+- Check that array keys `attachment_parent_title` and `attachment_parent_post_type` exists in Media Logger. [#313](https://github.com/bonny/WordPress-Simple-History/issues/313)
 - Don't log when terms are added to author taxonomy in [Co-Authors Plus](https://wordpress.org/plugins/co-authors-plus/). Fixes [support thread](https://wordpress.org/support/topic/co-author-plus-spamming-simple-history-plugin-is-this-a-but-or-a-feature/), issue [#238](https://github.com/bonny/WordPress-Simple-History/issues/238).
-- Update Chart.js library from 2.0.2 to 4.3.0. Fixes [support thread](https://wordpress.org/support/topic/outdated-chartjs-component-used/), issue [#340](https://github.com/bonny/WordPress-Simple-History/issues/340).
-- Add function `disable_taxonomy_log()` to simplify disabling logging of a taxonomy.
 - Don't load the log or check for updates on dashboard if the widget is hidden.
 - Don't check for updates on dashboard if a request is already ongoing.
-- Add filters to pause (and unpause) logging. They are called `'simple_history/pause'` and `'simple_history/resume'` Useful for developers that for example write their own data importers because the log can be overwhelmed with data when importing a lot of data. [#307](https://github.com/bonny/WordPress-Simple-History/issues/307)
+
+**Changed**
+
+- Moved filter `simple_history/dashboard_pager_size` to method `get_pager_size_dashboard()`.
+- Move function `get_initiator_text_from_row()` to `Log_Initiators` class.
+- If a filter is modifying the pager sizes then show a readonly input with pager size instead of a select. [#298](https://github.com/bonny/WordPress-Simple-History/issues/298)
+- Update Chart.js library from 2.0.2 to 4.3.0. Fixes [support thread](https://wordpress.org/support/topic/outdated-chartjs-component-used/), issue [#340](https://github.com/bonny/WordPress-Simple-History/issues/340).
 
 = 4.0.1 (June 2023) =
 
