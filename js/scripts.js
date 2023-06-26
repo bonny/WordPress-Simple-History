@@ -33,7 +33,17 @@ var simple_history = (function ($) {
       $(document).trigger('SimpleHistory:logRowsCollectionInitialize')
     },
 
+    /**
+     * (Re)load the log.
+     * Called on first load and on pagination and on reload button click.
+     */
     reload: function () {
+      // Don't load log if we are on dashboard and widget is hidden.
+      let $dashboardWidgetElm = $("#simple_history_dashboard_widget");
+      if ($dashboardWidgetElm.length && $dashboardWidgetElm.is(":hidden")) {
+        return;
+      }
+
       this.trigger('reload')
       $(document).trigger('SimpleHistory:logRowsCollectionReload')
 

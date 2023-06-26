@@ -12,8 +12,9 @@
       return;
     }
 
-    // Don't check for updates if widget is hidden.
-    if ($("#simple_history_dashboard_widget").is(":hidden")) {
+    // Don't check for updates if we are on dashboard and widget is hidden.
+    let $dashboardWidgetElm = $("#simple_history_dashboard_widget");
+    if ($dashboardWidgetElm.length && $dashboardWidgetElm.is(":hidden")) {
       return;
     }
 
