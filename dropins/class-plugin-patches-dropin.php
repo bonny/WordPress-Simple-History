@@ -4,8 +4,8 @@ namespace Simple_History\Dropins;
 
 /**
  * Dropin Name: Plugin Patches
- * Dropin Description: Used to patch plugins that behave weird
- * Dropin URI: http://simple-history.com/
+ * Dropin Description: Used to patch plugins that causes issues with Simple History in any way.
+ * Dropin URI: https://simple-history.com
  * Author: Pär Thernström
  */
 class Plugin_Patches_Dropin extends Dropin {
