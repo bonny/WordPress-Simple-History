@@ -203,7 +203,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 **Added**
 
-- Add filters to pause (and unpause) logging. They are called `'simple_history/pause'` and `'simple_history/resume'` Useful for developers that for example write their own data importers because the log can be overwhelmed with data when importing a lot of data. [#307](https://github.com/bonny/WordPress-Simple-History/issues/307)
+- Add actions `simple_history/pause` and `simple_history/resume` to pause and resume logging. Useful for developers that for example write their own data importers because the log can be overwhelmed with data when importing a lot of data. [#307](https://github.com/bonny/WordPress-Simple-History/issues/307)
 - Function `clear_log()` now returns the number of rows deleted.
 - Function `disable_taxonomy_log()` to simplify disabling logging of a taxonomy.
 - Function `get_db_table_stats()` that returns for example the number of rows in each table.
