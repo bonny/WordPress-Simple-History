@@ -19,7 +19,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	public function on_admin_enqueue_scripts() {
-		wp_enqueue_script( 'simple_history_chart.js', SIMPLE_HISTORY_DIR_URL . 'js/Chart.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION, true );
+		wp_enqueue_script( 'simple_history_chart.js', SIMPLE_HISTORY_DIR_URL . 'js/chart.4.3.0.min.js', array( 'jquery' ), '4.3.0', true );
 	}
 
 	public function on_admin_footer() {
@@ -42,29 +42,32 @@ class Sidebar_Stats_Dropin extends Dropin {
 					var chartLabelsToDates =  JSON.parse( $(".SimpleHistory_SidebarChart_ChartLabelsToDates").val() );
 					var chartDatasetData = JSON.parse( $(".SimpleHistory_SidebarChart_ChartDatasetData").val() );
 
-					var myChart = new Simple_History_Chart(ctx, {
+					var myChart = new Chart(ctx, {
 						type: 'bar',
 						data: {
 							labels: chartLabels,
 							datasets: [{
+								label: '',
 								data: chartDatasetData,
 								backgroundColor: "rgb(210,210,210)",
 								hoverBackgroundColor: "rgb(175,175,175)",
 							}]
 						},
 						options: {
-							legend: {
-								display: false
-							},
 							scales: {
-								yAxes: [{
+								y: {
 									ticks: {
 										beginAtZero:true
 									},
-								}],
-								xAxes: [{
+								},
+								x: {
 									display: false
-								}]
+								}
+							},
+							plugins: {
+								legend: {
+									display: false
+								},
 							},
 							onClick: clickChart
 						},
@@ -72,21 +75,20 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 
 					// when chart is clicked determine what value/day was clicked
-					function clickChart(e) {
+					function clickChart(e, legendItem, legend) {
+						console.log("clickChart", e, legendItem, legend);
 
-						var chartElmClicked = this.getElementAtEvent(e)[0];
-
-						if (!chartElmClicked || !chartElmClicked._index) {
-							console.log("No value found for click");
-							return;
+						// Get value of selected bar.
+						var label;
+						const points = myChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+						if (points.length) {
+							const firstPoint = points[0];
+							// Label e.g. "Jun 25".
+							label = myChart.data.labels[firstPoint.index];
 						}
-
-						var label = this.data.labels[chartElmClicked._index];
-						// var value = this.data.datasets[chartElmClicked._datasetIndex].data[chartElmClicked._index];
 
 						// now we have the label which is like "July 23" or "23 juli" depending on language
 						// look for that label value in chartLabelsToDates and there we get the date in format Y-m-d
-						//console.log("chartLabelsToDates", chartLabelsToDates);
 						var labelDate;
 						for (idx in chartLabelsToDates) {
 							if (label == chartLabelsToDates[idx].label) {
