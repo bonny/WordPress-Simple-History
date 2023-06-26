@@ -41,10 +41,19 @@ class Log_Query {
 			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id
 			'since_id' => null,
 
-			// date range
-			// in unix datetime or Y-m-d H:i (or format compatible with strtotime())
+			/**
+			 * From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
+			 *
+			 * @var int|string
+			 */
 			'date_from' => null,
-			'date_to' => null,
+
+			/**
+			 * To date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
+			 *
+			 * @var int|string
+			 */
+		   'date_to' => null,
 
 			// months in format "Y-m"
 			// array or comma separated
