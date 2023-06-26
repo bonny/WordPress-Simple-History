@@ -2,6 +2,7 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Helpers;
 use WP_REST_Request;
 
 /**
@@ -34,34 +35,7 @@ class Plugin_Patches_Dropin extends Dropin {
 	 * We check that we have a REST_REQUEST and that the current route is for co authors plus.
 	 */
 	public function patch_co_authors_plus() {
-		add_filter(
-			'rest_pre_dispatch',
-			array( $this, 'patch_co_authors_plus_handle_rest_pre_dispath' ),
-			10,
-			3
-		);
-	}
-
-	/**
-	 * @param mixed $result
-	 * @param WP_REST_Server $server
-	 * @param WP_REST_Request $request
-	 */
-	public function patch_co_authors_plus_handle_rest_pre_dispath( $result, $server, $request ) {
-		// Act on request to the coauthors/v1/search route.
-		if ( $request->get_route() === '/coauthors/v1/search' ) {
-			// Skip logging of 'author' taxonomy.
-			add_filter(
-				'simple_history/categories_logger/skip_taxonomies',
-				function( $taxononomies_to_skip ) {
-					$taxononomies_to_skip[] = 'author';
-					return $taxononomies_to_skip;
-				},
-			);
-		}
-
-		// Return null to not hijack the request.
-		return null;
+		Helpers::disable_taxonomy_log( 'author', is_plugin_active( 'co-authors-plus/co-authors-plus.php' ) );
 	}
 
 	/**
