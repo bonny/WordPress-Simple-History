@@ -8,6 +8,15 @@
 	var ajax_jqXHR;
 
 	var checkForUpdates = function() {
+		// If we are already checking for updates then return.
+		if (ajax_jqXHR && ajax_jqXHR.readyState !== 4) {
+			return;
+		}
+
+		// Don't check for updates if widget is hidden.
+		if ($('#simple_history_dashboard_widget').is(':hidden')) {
+			return;
+		}
 
 		var firstPageMaxID = simple_history.logRowsCollection.max_id_first_page;
 		var apiArgs = {
