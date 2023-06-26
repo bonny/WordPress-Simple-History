@@ -1057,7 +1057,7 @@ abstract class Logger {
 	 * @param mixed  $level The log level. Default "info".
 	 * @param string $message The log message. Default "".
 	 * @param array  $context The log context. Default empty array.
-	 * @return class SimpleLogger instance
+	 * @return Logger SimpleLogger instance
 	 */
 	public function log( $level = 'info', $message = '', $context = array() ) {
 		global $wpdb;

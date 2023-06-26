@@ -212,6 +212,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Add function `disable_taxonomy_log()` to simplify disabling logging of a taxonomy.
 - Don't load the log or check for updates on dashboard if the widget is hidden.
 - Don't check for updates on dashboard if a request is already ongoing.
+- Add filters to pause (and unpause) logging. They are called `'simple_history/pause'` and `'simple_history/resume'` Useful for developers that for example write their own data importers because the log can be overwhelmed with data when importing a lot of data. [#307](https://github.com/bonny/WordPress-Simple-History/issues/307)
 
 = 4.0.1 (June 2023) =
 

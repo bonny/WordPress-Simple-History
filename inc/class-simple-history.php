@@ -12,11 +12,13 @@ use Simple_History\Helpers;
  * This is used to init the plugin.
  */
 class Simple_History {
-
 	const NAME = 'Simple History';
 
 	/**
-	 * For singleton
+	 * For singleton.
+	 *
+	 * @var Simple_History
+	 * @see get_instance()
 	 */
 	private static $instance;
 
@@ -175,6 +177,8 @@ class Simple_History {
 		add_filter( 'simple_history_log_info', array( $this, 'on_filter_simple_history_log_info' ), 10, 2 );
 		add_filter( 'simple_history_log_debug', array( $this, 'on_filter_simple_history_log_debug' ), 10, 2 );
 
+		$this->add_pause_and_resume_actions();
+
 		if ( is_admin() ) {
 			$this->add_admin_actions();
 		}
@@ -187,6 +191,29 @@ class Simple_History {
 		 * @param Simple_History $SimpleHistory This class.
 		 */
 		do_action( 'simple_history/after_init', $this );
+	}
+
+	/**
+	 * Actions to disable and enable logging.
+	 * Useful for example when importing many things using PHP because then
+	 * the log can be overwhelmed with data.
+	 *
+	 * @since 4.0.2
+	 */
+	protected function add_pause_and_resume_actions() {
+		add_action(
+			'simple_history/pause',
+			function() {
+				add_filter( 'simple_history/log/do_log', '__return_false' );
+			}
+		);
+
+		add_action(
+			'simple_history/resume',
+			function () {
+				remove_filter( 'simple_history/log/do_log', '__return_false' );
+			}
+		);
 	}
 
 	/**
