@@ -374,4 +374,28 @@ class Helpers {
 
 		return $table_size_result;
 	}
+
+	/**
+	 * Disable logging of a taxonomy, if a condition is met.
+	 *
+	 * An easier method that using filters manually each time.
+	 *
+	 * @param string $taxonomy_slug Slug of taxonomy to disable logging for.
+	 * @param bool $disable Pass true to disable logging of $taxonomy.
+	 */
+	public static function disable_taxonomy_log( $taxonomy_slug, $disable = false ) {
+		// Bail if taxonomy should not be disabled.
+		if ( ! $disable ) {
+			return;
+		}
+
+		add_filter(
+			'simple_history/categories_logger/skip_taxonomies',
+			function( $taxononomies_to_skip ) use ( $taxonomy_slug ) {
+				$taxononomies_to_skip[] = $taxonomy_slug;
+				return $taxononomies_to_skip;
+			},
+		);
+	}
+
 }
