@@ -206,6 +206,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Check that array keys `attachment_parent_title` and `attachment_parent_post_type` in Media Logger. [#313](https://github.com/bonny/WordPress-Simple-History/issues/313)
 - Function `clear_log()` now returns the number of rows deleted.
 - Add function get_db_table_stats() that returns for example the number of rows in each table.
+- Move function get_initiator_text_from_row() to Log_Initiators class.
 
 = 4.0.1 (June 2023) =
 
