@@ -284,7 +284,12 @@ class Theme_Logger extends Logger {
 		}
 
 		// $destination_name is the slug (folder name) of the theme.
-		$destination_name = $upgrader_instance->result['destination_name'];
+		$destination_name = $upgrader_instance->result['destination_name'] ?? '';
+
+		if ( empty( $destination_name ) ) {
+			return;
+		}
+
 		$theme = wp_get_theme( $destination_name );
 
 		if ( ! $theme->exists() ) {
