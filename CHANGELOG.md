@@ -2,7 +2,7 @@
 
 = 2.13 (November 2016) =
 
-- Added filter `simple_history_log` that is a simplified way to add message to the log, without the need to check for the existance of Simple History or its SimpleLogger function. Use it like this: `apply_filters("simple_history_log", "This is a logged message");` See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for more examples.
+- Added filter `simple_history_log` that is a simplified way to add message to the log, without the need to check for the existence of Simple History or its SimpleLogger function. Use it like this: `apply_filters("simple_history_log", "This is a logged message");` See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php) for more examples.
 - IP info now displays a popup with map + geolocation info for users using HTTPS again. Thanks to the great https://twitter.com/ipinfoio for letting all users use their service :)
 - Fix notice warning for missing `$data_parent_row`
 
@@ -84,14 +84,14 @@
 - Changed: Changes to "Default Post Category" and "Default Mail Category" in "Writing Settings" now show the name of the old and new category (before only id was logged).
 - Fixed: When changing "Front Page Displays" in "Reading Settings" the option "rewrite_rules" also got logged.
 - Fixed: Changes in Permalink Settings were not logged correctly.
-- Fixed: Actions done with [WP-CLI](https://wp-cli.org/) was not correctly attributed. Now the log should say "WP-CLI" intead of "Other" for actions done in WP CLI.
+- Fixed: Actions done with [WP-CLI](https://wp-cli.org/) was not correctly attributed. Now the log should say "WP-CLI" instead of "Other" for actions done in WP CLI.
 
 = 2.7 (May 2016) =
 
 - Added: When a user is created or edited the log now shows what fields have changed and from what old value to what new value. A much requested feature!
 - Fixed: If you edited your own profile the log would say that you edited "their profile". Now it says that you edited "your profile" instead.
 - Changed: Post diffs could get very tall. Now they are max approx 8 rows by default, but if you hover the diff (or give it focus with your keyboard) you get a scrollbar and can scroll the contents. Fixes https://wordpress.org/support/topic/dashboard-max-length-of-content and https://wordpress.org/support/topic/feature-request-make-content-diff-report-expandable-and-closed-by-default.
-- Fixed: Maybe fix a notice varning if a transient was missing a name or value.
+- Fixed: Maybe fix a notice warning if a transient was missing a name or value.
 
 = 2.6 (May 2016) =
 
@@ -244,7 +244,7 @@
 
 = 2.1.2 (July 2015) =
 
-- Changed: By default the log now shows events from the last week, last two weeks or last 30 days, all depending on how many events you have in your log. The previous behavior was to not apply any filtering what so ever during the first load. Anyway: this change makes it possible to load the log very quickly even for very large logs. A large amount of users + keeping the log forver = millions of rows of data. Previously this could stall the log or make it load almost forever. Now = almost always very fast. I have tried it with over 5.000 users and a million row and yes - zing! - much faster. Fixes https://wordpress.org/support/topic/load-with-pagination-mysql.
+- Changed: By default the log now shows events from the last week, last two weeks or last 30 days, all depending on how many events you have in your log. The previous behavior was to not apply any filtering what so ever during the first load. Anyway: this change makes it possible to load the log very quickly even for very large logs. A large amount of users + keeping the log forever = millions of rows of data. Previously this could stall the log or make it load almost forever. Now = almost always very fast. I have tried it with over 5.000 users and a million row and yes - zing! - much faster. Fixes https://wordpress.org/support/topic/load-with-pagination-mysql.
 - Added: Finnish translation. Thanks a lot to the translator!
 - Updated: Swedish translation updated
 - Added: Cache is used on a few more places.
@@ -274,12 +274,12 @@
 - Fixed: When using [HyperDB](https://wordpress.org/support/plugin/hyperdb) only one event was returned. Fixed by using [adding `NO_SELECT_FOUND_ROWS` to the query](https://plugins.trac.wordpress.org/browser/hyperdb/trunk/db.php?#L49). Should fix problems for users using HyperDB and also users using for example [wpengine.com](http://wpengine.com) (that probably also is using HyperDB or a similar approach).
 - Changed: Loggers now get default capability "manage_options" if they have no capability set.
 - Changed: Misc internal cleanup.
-- Removed: filter `simple_history/loggers_dir` removed, because loggers are loaded from array instead of file listing generated from `glob()`. Should be (however to the eye non-noticable) faster.
+- Removed: filter `simple_history/loggers_dir` removed, because loggers are loaded from array instead of file listing generated from `glob()`. Should be (however to the eye non-noticeable) faster.
 
 = 2.0.30 (May 2015) =
 
 - Added: Username of logged events now link to that user's profile.
-- Fixed: When expanding ocassions the first loaded occasion was the same event as the one you expanded from, and the last ocassion was missing. Looked extra stupid when only 1 occasion existed, and you clicked "show ocassions" only to just find the same event again. So stupid. But fixed now!
+- Fixed: When expanding occasions the first loaded occasion was the same event as the one you expanded from, and the last occasion was missing. Looked extra stupid when only 1 occasion existed, and you clicked "show occasions" only to just find the same event again. So stupid. But fixed now!
 - Fixed: If an event had many similar events the list of similar events could freeze the browser. ([17948 failed login attempts overnight](https://twitter.com/eskapism/status/595478847598002176) is not that uncommon it turns out!)
 - Fixed: Some loggers were missing the "All"-message in the search.
 - Changed: Hide some more keys and values by default in the context data popup.
@@ -371,7 +371,7 @@
 = 2.0.19 (February 2015) =
 
 - Added: Dutch translation by [https://github.com/niknetniko](https://github.com/niknetniko). Thanks!
-- Changed: better compatibilty with plugins like [WP User Avatar](https://wordpress.org/plugins/wp-user-avatar/).
+- Changed: better compatibility with plugins like [WP User Avatar](https://wordpress.org/plugins/wp-user-avatar/).
 - Updated: German translation update.
 
 = 2.0.18 (January 2015) =
@@ -395,7 +395,7 @@
 
 - Fixed: Use the [X-Forwarded-For header](http://en.wikipedia.org/wiki/X-Forwarded-For), if it is set, to determine remote IP address. Should now correctly store IP addresses for servers behind load balancers or for clients going through proxies. Fixes https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr.
 - Changed: Failed login attempts from unknown and known users are now grouped together. This change was made because a hacker could make many login attempts to a site and rotate the logins, so they would try with both existing and non existing user names, which would make the log flood with failed login attempts.
-- Changed: use "n similar events" instead of "n more", to more cleary mark that the grouped events are not necessary exactly the same kind.
+- Changed: use "n similar events" instead of "n more", to more clearly mark that the grouped events are not necessary exactly the same kind.
 - Changed: Quick stats text changed, to also include other sources. Previous behavior was to only include events from WordPress users, but now also events from anonymous users and WordPress (like from WP-Cron) are included.
 
 = 2.0.15 (January 2015) =
@@ -562,7 +562,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 
 = 1.2 =
 
-- Fixed: Plugin name is included when plugins is activated or deactivated. Previosuly only folder name and name of php file was included.
+- Fixed: Plugin name is included when plugins is activated or deactivated. Previously only folder name and name of php file was included.
 - Added: Attachment thumbnails are now visible if history item is an attachment. Also includes some metadata.
 - Changed: Filters now use dropdowns for type and user. When a site had lots of users and lots of post types, the filter section could be way to big.
 - Added keyboard navigation. Use right and left arrow when you are on Simple History's own page to navigation between next and previous history page.
@@ -608,7 +608,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 
 - You may want to clear the history database after this update because the items in the log will have mixed translate/untranslated status and it may look/work a bit strange.
 - Added: Option to clear the database of log items.
-- Changed: No longer stored translated history items in the log. This makes the history work even if/when you switch langauge of WordPress.
+- Changed: No longer stored translated history items in the log. This makes the history work even if/when you switch language of WordPress.
 - Fixed: if for example a post was editied several times and during these edits it changed name, it would end up at different occasions. Now it's correctly stored as one event with several occasions.
 - Some more items are translateable
 
@@ -661,7 +661,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 
 - Do not show on dashboard by default to avoid clutter. Can be enabled in settings.
 - Add link to settings from plugin list
-- Settings are now available as it's own page under Settings -> Simple Fields. It was previosly on the General settings page and some people had difficulties finding it there.
+- Settings are now available as it's own page under Settings -> Simple Fields. It was previously on the General settings page and some people had difficulties finding it there.
 - Added filters: simple_history_show_settings_page, simple_history_show_on_dashboard, simple_history_show_as_page
 
 = 0.6 =
@@ -696,7 +696,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 
 = 0.3.9 =
 
-- Attachment names were urlencoded and looked wierd. Now they're not.
+- Attachment names were urlencoded and looked weird. Now they're not.
 - Started to store plugin version number
 
 = 0.3.8 =
@@ -750,7 +750,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 - added support for plugins (who activated/deactivated what plugin)
 - support for third party history items. Use like this:
   simple_history_add("action=repaired&object_type=starship&object_name=USS Enterprise");
-  this would result in somehting like this:
+  this would result in something like this:
   Starship "USS Enterprise" repaired
   by admin (John Doe), just now
 - capability edit_pages needed to show history. Is this an appropriate capability do you think?

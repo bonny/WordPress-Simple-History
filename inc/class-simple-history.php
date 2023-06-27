@@ -2391,7 +2391,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 *
 	 * The db is purged only on Sundays by default,
 	 * this is to keep the history clean. If it was done
-	 * every day it could polute the log with a lot of
+	 * every day it could pollute the log with a lot of
 	 * "Simple History removed X events that were older than Y days".
 	 *
 	 * @since 2.0.17
@@ -3007,7 +3007,7 @@ Because Simple History was only recently installed, this feed does not display m
 			 * );
 			 * ```
 			 *
-			 * @param bool Wheter the user is allowed to view the logger.
+			 * @param bool Whether the user is allowed to view the logger.
 			 * @param Simple_Logger Logger instance.
 			 * @param int $user_id Id of user.
 			 */

@@ -1113,7 +1113,7 @@ abstract class Logger {
 		 *
 		 * @since 2.3.1
 		 *
-		 * @param bool $doLog Wheter to log or not.
+		 * @param bool $doLog Whether to log or not.
 		 * @param string $level The loglevel.
 		 * @param string $message The log message.
 		 * @param array $context The message context.
@@ -1615,7 +1615,7 @@ abstract class Logger {
 
 	/**
 	 * Override this to add CSS in <head> for your logger.
-	 * The CSS that you output will only be outputed
+	 * The CSS that you output will only be outputted
 	 * on pages where Simple History is used.
 	 */
 	public function admin_css() {
@@ -1632,14 +1632,14 @@ abstract class Logger {
 
 	/**
 	 * Override this to add JavaScript in the footer for your logger.
-	 * The JS that you output will only be outputed
+	 * The JS that you output will only be outputted
 	 * on pages where Simple History is used.
 	 */
 	public function admin_js() {
 		/*
 		?>
 		<script>
-		console.log("This is outputed in the footer");
+		console.log("This is outputted in the footer");
 		</script>
 		<?php
 		*/

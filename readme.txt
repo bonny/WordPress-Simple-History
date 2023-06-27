@@ -263,7 +263,7 @@ For regular users these are the regular additions and bug fixes:
 - Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
 - Log when a groups is enabled, disabled, or deleted in Redirection plugin.
 
-👩‍💻 For developers there are some bigger changes, that is noticable:
+👩‍💻 For developers there are some bigger changes, that is noticeable:
 
 - The plugin now uses namespaces – and they are loaded using an autoloader.
 - The code has been changed to follow [WordPress coding standard](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). This means that for example all functions have been renamed from `myFunctionName()` to `my_function_name()`.
@@ -375,7 +375,7 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
 - Fixed: Images and other attachments are now logged correctly when being inserted in the Block Editor.
 - Fixed: Some PHP notice messages in post logger.
 - Updated: JavaScript library TimeAgo updated to 1.6.7 from 1.6.3.
-- Added: Log when an admin verifies that the site admin adress is valid using the [Site Admin Email Verification Screen that was added in WordPress 5.3](https://make.wordpress.org/core/2019/10/17/wordpress-5-3-admin-email-verification-screen/). ([#194](https://github.com/bonny/WordPress-Simple-History/issues/194), [#225](https://github.com/bonny/WordPress-Simple-History/issues/225))
+- Added: Log when an admin verifies that the site admin address is valid using the [Site Admin Email Verification Screen that was added in WordPress 5.3](https://make.wordpress.org/core/2019/10/17/wordpress-5-3-admin-email-verification-screen/). ([#194](https://github.com/bonny/WordPress-Simple-History/issues/194), [#225](https://github.com/bonny/WordPress-Simple-History/issues/225))
 - Added: Option "All days" to date range filter dropdown. ([#196](https://github.com/bonny/WordPress-Simple-History/issues/196))
 - Added: Media and other attachments now display the post they were uploaded to, if any. ([#274](https://github.com/bonny/WordPress-Simple-History/issues/274))
 - Added: Add class static variables $dbtable and $dbtable_contexts that contain full db name (existing class constants DBTABLE and DBTABLE_CONTEXTS needed to be prefixed manually).
@@ -383,7 +383,7 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
 - Changed: Plugin install source is now assumed to be "web" by default.
 - Changed: Attachment updates are no longer logged from post logger since the media/attachment logger takes care of it.
 - Changed: Function `sh_d()` now does not escape output when running from CLI.
-- Removed: Plugin source files-listing removed from plugin installs, because the listing was incomplete, plus some more fields that no longer were able to get meaninful values (plugin rating, number or ratings, etc.).
+- Removed: Plugin source files-listing removed from plugin installs, because the listing was incomplete, plus some more fields that no longer were able to get meaningful values (plugin rating, number or ratings, etc.).
 
 = 3.0.0 (January 2022) =
 
@@ -428,9 +428,9 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
   Previously the IP address was only shown for failed login attempts. Note that the IP address/es of all events are always logged and can be seen in the "context data" table that is displayed when you click the date and time of an event.
   [#233](https://github.com/bonny/WordPress-Simple-History/issues/233)
 
-- Added: If multiple IP addresses are detected, for example when a website is running behind a proxy or similar, all IP addresses are now shown for failed and sucessful logins.
+- Added: If multiple IP addresses are detected, for example when a website is running behind a proxy or similar, all IP addresses are now shown for failed and successful logins.
 
-- Added: Filter `simple_history/row_header_output/display_ip_address` that can be used to control when the IP address/es should be visible in the main log. By default sucessful and failed logins are shown.
+- Added: Filter `simple_history/row_header_output/display_ip_address` that can be used to control when the IP address/es should be visible in the main log. By default successful and failed logins are shown.
 
 - Added: Show message when failing to get IP address due to for example ad blocker. IPInfo.io is for example blocked in the EasyList filter list that for example [Chrome extension uBlock Origin](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm) uses.
 
@@ -620,8 +620,8 @@ add_filter('simple_history/admin_location', function ($location) {
 
 = 2.23.1 (May 2018) =
 
-- Remove some debug messages that was outputed to the error log. Fixes https://wordpress.org/support/topic/errors-in-php-log-since-v2-23/.
-- Fix error beacuse function `ucwords()` does not allow a second argument on PHP versions before 5.4.32. Fixes https://wordpress.org/support/topic/error-message-since-last-update/, https://wordpress.org/support/topic/errors-related-to-php-version/.
+- Remove some debug messages that was outputted to the error log. Fixes https://wordpress.org/support/topic/errors-in-php-log-since-v2-23/.
+- Fix error because function `ucwords()` does not allow a second argument on PHP versions before 5.4.32. Fixes https://wordpress.org/support/topic/error-message-since-last-update/, https://wordpress.org/support/topic/errors-related-to-php-version/.
 - Added new function `sh_ucwords()` that works like `ucwords()` but it also works on PHP 5.3.
 
 = 2.23 (May 2018) =
@@ -629,7 +629,7 @@ add_filter('simple_history/admin_location', function ($location) {
 - Add logging of privacy and GDPR related functions in WordPress. Some of the new [privacy related features in WordPress 4.9.6](https://wordpress.org/news/2018/05/wordpress-4-9-6-privacy-and-maintenance-release/) that are logged: - Privacy policy page is created or changed to a new page. - Privacy data export is requested for a user and when this request is confirmed by the user and when the data for the request is downloaded by an admin or emailed to the user. - Erase Personal Data: Request is added for user to have their personal data erased, user confirms the data removal and when the deletion of user data is done.
 - Fix error when categories changes was shown in the log. Fixes https://wordpress.org/support/topic/php-notice-undefined-variable-term_object/.
 - Fix error when a ACF Field Group was saved.
-- Fix error when the IP address anonymization function tried to anonymize an empty IP adress. Could happen when for example running wp cron locally on your server.
+- Fix error when the IP address anonymization function tried to anonymize an empty IP address. Could happen when for example running wp cron locally on your server.
 - Fix error when calling the REST API with an API endpoint with a closure as the callback. Fixes https://github.com/bonny/WordPress-Simple-History/issues/141.
 - Rewrote logger loading method so now it's possible to name your loggers in a WordPress codings standard compatible way. Also: made a bit more code more WordPress-ish.
 - The post types in the `skip_posttypes` filter are now also applied to deleted posts.
@@ -677,7 +677,7 @@ add_filter('simple_history/admin_location', function ($location) {
 = 2.20 (November 2017) =
 
 - Add logging of post thumbnails.
-- Use medium size of image attachments when showing uploaded files in the log. Previously a custom size was used, a size that most sites did not have and instead the full size image would be outputed = waste of bandwidth.
+- Use medium size of image attachments when showing uploaded files in the log. Previously a custom size was used, a size that most sites did not have and instead the full size image would be outputted = waste of bandwidth.
 - Make image previews smaller because many uploaded images could make the log a bit to long and not so quick to overview.
 - Update Select2 to latest version. Fixes https://wordpress.org/support/topic/select2-js-is-outdated/.
 - Show a message if user is running to old WordPress version, and don't continue running the code of this plugin.
@@ -717,7 +717,7 @@ add_filter('simple_history/admin_location', function ($location) {
 - Added [WP-CLI](https://wp-cli.org) command for Simple History. Now you can write `wp simple-history list` to see the latest entries from the history log. For now `list` is the only available command. Let me know if you need more commands!
 - Added support for logging edits to theme files and plugin files. When a file is edited you will also get a quick diff on the changes,
   so you can see what CSS styles a client changed or what PHP changes they made in a plugin file.
-- Removed the edit file logger from the plugin logger, because it did not always work (checked wrong wp path). Intead the new Theme and plugins logger mentioned above will take care of this.
+- Removed the edit file logger from the plugin logger, because it did not always work (checked wrong wp path). Instead the new Theme and plugins logger mentioned above will take care of this.
 
 = 2.15 (May 2017) =
 

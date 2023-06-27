@@ -40,7 +40,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			SimplifyUselessVariableRector::class,
 			// Doesn't feel WordPress'ish.
 			CallableThisArrayToAnonymousFunctionRector::class,
-			// Looks wierd.
+			// Looks weird.
 			ArrayThisCallToThisMethodCallRector::class,
 			// Makes to code more difficult to read.
 			SimplifyIfReturnBoolRector::class,

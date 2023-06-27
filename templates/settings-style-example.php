@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || die();
 				</div>
 
 				<div class="SimpleHistoryLogitem__text">
-					Short message descriping the thing that happened.
+					Short message describing the thing that happened.
 				</div>
 
 				<div class="SimpleHistoryLogitem__details">

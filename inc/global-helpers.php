@@ -58,7 +58,7 @@ if ( ! function_exists( 'sh_error_log' ) ) {
  *
  * Example usage:
  *
- * sh_d('Values fromm $_GET', $_GET);
+ * sh_d('Values from $_GET', $_GET);
  * sh_d('$_POST', $_POST);
  * sh_d('My vars', $varOne, $varTwo, $varXYZ);
  *

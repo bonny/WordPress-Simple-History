@@ -317,7 +317,7 @@ class Plugin_ACF_Logger extends Logger {
 
 			If field slug contains a number, like in "product_images_2_image"
 			that probably means that that field is a repeater with name "product_images"
-			with a sub field called "image" and that the image is the 2:nd among it's selected sub fields.
+			with a sub field called "image" and that the image is the 2:and among it's selected sub fields.
 
 			Example of how fields can look:
 			acf_field_added_0   product_images_2_image
@@ -332,7 +332,7 @@ class Plugin_ACF_Logger extends Logger {
 			$context[ "{$context_key}/slug" ] = $field_slug;
 
 			/*
-				* Try to get som extra info, like display name and type for this field.
+				* Try to get some extra info, like display name and type for this field.
 				* For a nice context in the feed we want: parent field group name and type?
 				*/
 			if ( isset( $fieldnames_to_field_keys[ $field_slug ] ) ) {
@@ -585,7 +585,7 @@ class Plugin_ACF_Logger extends Logger {
 			}
 		}
 
-		// If only acf_hide_on_screen_removed exists nothing is outputed.
+		// If only acf_hide_on_screen_removed exists nothing is outputted.
 		$acf_hide_on_screen_added   = empty( $context['acf_hide_on_screen_added'] ) ? null : $context['acf_hide_on_screen_added'];
 		$acf_hide_on_screen_removed = empty( $context['acf_hide_on_screen_removed'] ) ? null : $context['acf_hide_on_screen_removed'];
 

@@ -707,7 +707,7 @@ jQuery('.js-SimpleHistory-Settings-ClearLog').on('click', function (e) {
   // Called on first load + on pagination.
   $document.on('SimpleHistory:logLoaded', addTimeAgo)
 
-  // Called log is loaded and when occassions are loaded.
+  // Called log is loaded and when occasions are loaded.
   $document.on('SimpleHistory:logRowsCollectionOccasionsLoaded', addTimeAgo)
 
   function addTimeAgo () {

@@ -250,7 +250,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertCount( 1, $queryResults['log_rows'] );
 
 		// $this->assertFalse(property_exists($myObject, $nonExistentPropertyName));
-		// Can not use ->assertObjectHasAttribute because it's deprectaed and wp_browser does not have the
+		// Can not use ->assertObjectHasAttribute because it's deprecated and wp_browser does not have the
 		// recommendeded replacement ->assertObjectHasProperty (yet).
 		$first_log_row = $queryResults['log_rows'][0];
 
