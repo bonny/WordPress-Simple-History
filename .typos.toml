@@ -1,5 +1,10 @@
 [files]
-extend-exclude = ["js/timeago/locales/", "js/select2/i18n/", "js/Chart.js", "js/Chart.4.3.0.min.js"]
+extend-exclude = [
+    "js/timeago/locales/",
+    "js/select2/i18n/",
+    "js/Chart.js",
+    "js/chart.4.3.0.min.js",
+]
 [default.extend-words]
 referer = "referer"
 reseted = "reseted"
