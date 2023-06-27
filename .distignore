@@ -31,4 +31,4 @@ README.md
 docker-compose.yml
 rector.php
 phpstan.neon
-.wp-env.json
+
