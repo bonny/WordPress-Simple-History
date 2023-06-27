@@ -704,7 +704,7 @@ class User_Logger extends Logger {
 		}
 
 		$wp_user_added = get_userdata( $user_id );
-		$role = null;
+		$role = '';
 
 		// On a subsite of a multisite network,
 		// newly created users have no roles or caps until they are added to a blog.
@@ -712,7 +712,7 @@ class User_Logger extends Logger {
 		// Use value from $_POST instead.
 		if ( is_multisite() ) {
 			// PHPCS:ignore WordPress.Security.NonceVerification.Missing
-			$role = $_POST['role'] ?? null;
+			$role = sanitize_title( $_POST['role'] ?? '' );
 		} else {
 			// Single site, get role from user object.
 			if ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
