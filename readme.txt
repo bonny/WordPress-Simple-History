@@ -199,6 +199,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
+= Unreleased =
+
+- Fix `Undefined property` warning when loading more similar events. [#357](https://github.com/bonny/WordPress-Simple-History/issues/357)
+
 = 4.1.0 =
 
 **Added**

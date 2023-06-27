@@ -32,6 +32,11 @@ class IP_Info_Dropin extends Dropin {
 			return $bool;
 		}
 
+		// Bail if no message key.
+		if ( empty( $row->context_message_key ) ) {
+			return $bool;
+		}
+
 		// Message keys to show IP Addresses for.
 		$arr_keys_to_log = array(
 			'user_logged_in',
