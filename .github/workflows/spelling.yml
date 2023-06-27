@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+
+name: "Spelling"
+
+on:
+  pull_request: null
+  push:
+    branches:
+      - "main"
+# Add [skip ci] to commit message to skip CI.
+
+permissions:
+  contents: "read"
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  spell_check:
+    name: "文A Spell check"
+    runs-on: "ubuntu-22.04"
+    timeout-minutes: 1
+    steps:
+      - name: "Checkout repository"
+        uses: "actions/checkout@v3"
+
+      - name: "Search for misspellings"
+        uses: "crate-ci/typos@master"
