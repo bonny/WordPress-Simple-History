@@ -265,7 +265,7 @@ class Helpers {
 		);
 
 		/**
-		 * Filters the array with HTTP headers thay may contain user IP address.
+		 * Filters the array with HTTP headers that may contain user IP address.
 		 *
 		 * @param array $headers
 		 */

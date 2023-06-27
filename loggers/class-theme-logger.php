@@ -431,7 +431,7 @@ class Theme_Logger extends Logger {
 	 *  (
 	 *    [action] => activate
 	 *    [stylesheet] => wp-theme-bonny-starter
-	 *    [_wpnonce] => 31b033ba59
+	 *    [_wpnonce] => ...
 	 *  )
 	 */
 	public function on_page_load_themes() {

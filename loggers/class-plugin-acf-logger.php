@@ -908,7 +908,7 @@ class Plugin_ACF_Logger extends Logger {
 					continue;
 				}
 
-				// Always add ID, name, and lavel
+				// Always add ID, name, and label
 				$context[ "acf_modified_fields_{$loopnum}_ID_prev" ]    = $modifiedFields['old'][ $modifiedFieldId ]['ID'];
 				$context[ "acf_modified_fields_{$loopnum}_name_prev" ]  = $modifiedFields['old'][ $modifiedFieldId ]['name'];
 				$context[ "acf_modified_fields_{$loopnum}_label_prev" ] = $modifiedFields['old'][ $modifiedFieldId ]['label'];

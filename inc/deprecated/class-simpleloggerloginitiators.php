@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Deprecated log initators class.
+ * Deprecated log initiators class.
  *
  * Use Simple_History\Log_Initiators instead.
  */

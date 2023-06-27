@@ -483,7 +483,7 @@ class Post_Logger extends Logger {
 			'old_post',
 			'old_post_meta',
 			// Old status is included because that's the value we get in filter
-			// "transation_post_status", when a previous post may not exist.
+			// "transition_post_status", when a previous post may not exist.
 			'old_status',
 		);
 

@@ -115,7 +115,7 @@ class Menu_Logger extends Logger {
 			[menu] => 22
 			[action] => delete
 			[0] => http://playground-root.ep/wp-admin/
-			[_wpnonce] => f52e8a31ba
+			[_wpnonce] => ...
 		)
 		*/
 
