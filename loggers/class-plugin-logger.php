@@ -757,17 +757,17 @@ class Plugin_Logger extends Logger {
 		$did_log = false;
 
 		if ( isset( $arr_data['type'] ) && 'plugin' == $arr_data['type'] ) {
-			// Single plugin install
+			// Single plugin install.
 			if ( isset( $arr_data['action'] ) && 'install' == $arr_data['action'] && ! $plugin_upgrader_instance->bulk ) {
 				$upgrader_skin_options = isset( $plugin_upgrader_instance->skin->options ) && is_array( $plugin_upgrader_instance->skin->options ) ? $plugin_upgrader_instance->skin->options : array();
 				$upgrader_skin_result  = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
-				// $upgrader_skin_api  = isset( $plugin_upgrader_instance->skin->api ) ? $plugin_upgrader_instance->skin->api : (object) array();
 				$new_plugin_data       = $plugin_upgrader_instance->new_plugin_data ?? array();
 				$plugin_slug           = $upgrader_skin_result['destination_name'] ?? '';
 
 				$context = array(
 					'plugin_slug'         => $plugin_slug,
 					'plugin_name'         => $new_plugin_data['Name'] ?? '',
+					'plugin_url'          => $new_plugin_data['PluginURI'] ?? '',
 					'plugin_version'      => $new_plugin_data['Version'] ?? '',
 					'plugin_author'       => $new_plugin_data['Author'] ?? '',
 					'plugin_requires_wp'  => $new_plugin_data['RequiresWP'] ?? '',
@@ -1028,20 +1028,6 @@ class Plugin_Logger extends Logger {
 	 * plugin_name is like admin-menu-tree-page-view/index.php
 	 */
 	public function on_activated_plugin( $plugin_name, $network_wide ) {
-
-		/*
-		Plugin data returned array contains the following:
-		'Name' - Name of the plugin, must be unique.
-		'Title' - Title of the plugin and the link to the plugin's web site.
-		'Description' - Description of what the plugin does and/or notes from the author.
-		'Author' - The author's name
-		'AuthorURI' - The authors web site address.
-		'Version' - The plugin version number.
-		'PluginURI' - Plugin web site address.
-		'TextDomain' - Plugin's text domain for localization.
-		'DomainPath' - Plugin's relative directory path to .mo files.
-		'Network' - Boolean. Whether the plugin can only be activated network wide.
-		*/
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name, true, false );
 
 		$plugin_slug = dirname( $plugin_name );
