@@ -696,20 +696,28 @@ class User_Logger extends Logger {
 	 * Fires immediately after a new user is registered.
 	 *
 	 * @param int   $user_id  User ID.
-	 * (@param array $userdata The raw array of data passed to wp_insert_user(). Since WP 5.8.0.)
+	 * @param array $userdata The raw array of data passed to wp_insert_user().
 	 */
 	public function on_user_register( $user_id, $userdata = array() ) {
-
 		if ( ! $user_id || ! is_numeric( $user_id ) ) {
 			return;
 		}
 
 		$wp_user_added = get_userdata( $user_id );
-
-		// wp_user->roles (array) - the roles the user is part of.
 		$role = null;
-		if ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
-			$role = $wp_user_added->roles[0];
+
+		// On a subsite of a multisite network,
+		// newly created users have no roles or caps until they are added to a blog.
+		// So at this time we can't get the role of the user, if on a subsite.
+		// Use value from $_POST instead.
+		if ( is_multisite() ) {
+			// PHPCS:ignore WordPress.Security.NonceVerification.Missing
+			$role = $_POST['role'] ?? null;
+		} else {
+			// Single site, get role from user object.
+			if ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
+				$role = $wp_user_added->roles[0];
+			}
 		}
 
 		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
