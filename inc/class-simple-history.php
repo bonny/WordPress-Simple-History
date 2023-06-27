@@ -517,12 +517,6 @@ class Simple_History {
 		if ( ! wp_next_scheduled( 'simple_history/maybe_purge_db' ) ) {
 			wp_schedule_event( time(), 'daily', 'simple_history/maybe_purge_db' );
 		}
-
-		// Remove old schedule (only author dev sites should have it)
-		$old_next_scheduled = wp_next_scheduled( 'simple_history/purge_db' );
-		if ( $old_next_scheduled ) {
-			wp_unschedule_event( $old_next_scheduled, 'simple_history/purge_db' );
-		}
 	}
 
 	/**
