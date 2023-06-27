@@ -54,7 +54,7 @@ class SimpleThemeLoggerCest
         $I->waitForElementVisible('.theme-wrap .button.delete-theme');
         $I->click('.theme-wrap .button.delete-theme');
         $I->acceptPopup();
-        // Deleting takes a short while and no ok message is outputted when finishes, 
+        // Deleting takes a short while and no ok message is outputted when finishes,
         // so we can't wait for a message or similar.
         $I->wait(1);
         $I->seeLogMessage('Deleted theme "Twenty Sixteen"');

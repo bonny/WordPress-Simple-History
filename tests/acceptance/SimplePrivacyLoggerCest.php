@@ -42,7 +42,7 @@ class SimplePrivacyLoggerCest
             'post_title' => 'My new privacy page',
         ]);
 
-        $I->loginAsAdmin();        
+        $I->loginAsAdmin();
         $I->amOnAdminPage('options-privacy.php');
 
         $I->selectOption('#page_for_privacy_policy', 'My new privacy page');
@@ -57,8 +57,8 @@ class SimplePrivacyLoggerCest
         // Message key: privacy_data_export_requested.
         // Go to export personal data page and add data export request.
         $I->haveUserInDatabase('myNewUser');
-        
-        $I->loginAsAdmin();        
+
+        $I->loginAsAdmin();
         $I->amOnAdminPage('export-personal-data.php');
         $I->fillField('#username_or_email_for_privacy_request', 'myNewUser');
         $I->click('Send Request');
@@ -89,7 +89,7 @@ class SimplePrivacyLoggerCest
          */
         // TODO: this test
 
-        
+
         /**
          * privacy_data_export_completed
          */
@@ -116,7 +116,7 @@ class SimplePrivacyLoggerCest
         $I->haveUserInDatabase('myNewUser');
 
         // data_erasure_request_added
-        $I->loginAsAdmin();        
+        $I->loginAsAdmin();
         $I->amOnAdminPage('erase-personal-data.php');
         $I->fillField('#username_or_email_for_privacy_request', 'myNewUser');
         $I->click('Send Request');
@@ -132,7 +132,7 @@ class SimplePrivacyLoggerCest
         $I->moveMouseOver('.table-view-list tbody tr:nth-child(1)');
         $I->click('Complete request');
         $I->seeLogMessage('Marked personal data erasure request as complete for "myNewUser@example.com"');
-               
+
         // data_erasure_request_removed
         /*
         action: wp-privacy-erase-personal-data
@@ -152,6 +152,6 @@ class SimplePrivacyLoggerCest
         $I->moveMouseOver('.table-view-list tbody tr:nth-child(1)');
         $I->click('Remove request');
         $I->seeLogMessage('Removed personal data removal request for "myNewUser@example.com"');
-        
+
     }
 }

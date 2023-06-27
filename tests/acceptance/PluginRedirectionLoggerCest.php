@@ -15,7 +15,7 @@ class PluginRedirectionLoggerCest
         $I->click('Start Setup');
         $I->click('Continue');
         $I->click('Finish Setup');
-        
+
         $I->wait(3); // Ajax setups tables.
         $I->click('Continue');
         $I->click('Ready to begin!');
@@ -63,7 +63,7 @@ class PluginRedirectionLoggerCest
     }
 
     public function testGroups(Admin $I) {
-        
+
         // Go to page before some actions because the order is different
         // directly after adding via Ajax and after a page reload.
         $admin_page = '/tools.php?page=redirection.php&sub=groups&direction=asc';

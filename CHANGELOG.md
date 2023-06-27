@@ -16,20 +16,20 @@
 = 2.11 (September 2016) =
 
 - Added support for plugin [Redirection](https://wordpress.org/plugins/redirection/).
-  Redirects and groups that are created, changed, enabled and disabled will be logged. Also when the plugin global settings are changed that will be logged.
+    Redirects and groups that are created, changed, enabled and disabled will be logged. Also when the plugin global settings are changed that will be logged.
 - Fix possible notice error from User logger.
 - "View changelog" link now works on multisite.
 
 = 2.10 (September 2016) =
 
 - Available updates to plugins, themes, and WordPress itself is now logged.
-  Pretty great if you subscribe to the RSS feed to get the changes on a site. No need to manually check the updates-page to see if there are any updates.
+    Pretty great if you subscribe to the RSS feed to get the changes on a site. No need to manually check the updates-page to see if there are any updates.
 - Changed to logic used to determine if a post edit should be logged or not. Version 2.9 used a version that started to log a bit to much for some plugins. This should fix the problems with the Nextgen Gallery, All-In-One Events Calendar, and Membership 2 plugins. If you still have problems with a plugin that is causing to many events to be logged, please let me know!
 
 = 2.9.1 (August 2016) =
 
 - Fixed an issue where the logged time was off by some hours, due to timezone being manually set elsewhere.
-  Should fix https://wordpress.org/support/topic/logged-time-off-by-2-hours and https://wordpress.org/support/topic/different-time-between-dashboard-and-logger.
+    Should fix https://wordpress.org/support/topic/logged-time-off-by-2-hours and https://wordpress.org/support/topic/different-time-between-dashboard-and-logger.
 - Fixed Nextgen Gallery and Nextgen Gallery Plus logging lots and lots of event when viewing posts with galleries. The posts was actually updated, so this plugin did nothing wrong. But it was indeed a bit annoying and most likely something you didn't want in your log. Fixes https://wordpress.org/support/topic/non-stop-logging-nextgen-gallery-items.
 
 = 2.9 (August 2016) =
@@ -46,7 +46,7 @@
 - ...and so are theme updates
 - ...and theme deletions. Awesome!
 - Support for plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-attempts/).
-  Failed login attempts, lockouts and configuration changes will be logged.
+    Failed login attempts, lockouts and configuration changes will be logged.
 - Correct message is now used when a plugin update fails, i.e. the message for key `plugin_update_failed`.
 - The original untranslated strings for plugin name and so on are stored when storing info for plugin installs and updates and similar.
 - Default number of events to show is now 10 instead of 5.
@@ -55,7 +55,7 @@
 
 - User logins using e-mail are now logged correctly. Previously the user would be logged in successfully but the log said that they failed.
 - Security fix: only users with [`list_users`](https://codex.wordpress.org/Roles_and_Capabilities#list_users) capability can view the users filter and use the autocomplete api for users.
-  Previously the autocomplete function could be used by all logged in users.
+    Previously the autocomplete function could be used by all logged in users.
 - Add labels to search filters. (I do really hate label-less forms so it's kinda very strange that this was not in place before.)
 - Misc other internal fixes
 
@@ -252,7 +252,7 @@
 - Added: Filter `SimpleHistoryFilterDropin/show_more_filters_on_load` that is used to control if the search options should be expanded by default when the history page is loaded. Default is false, to have a less cluttered GUI.
 - Added: Filter `SimpleHistoryFilterDropin/filter_default_user_ids` that is used to search/filter specific user ids by default (no need to search and select users). Should fix https://wordpress.org/support/topic/how-to-pass-array-of-user-ids-to-history-query.
 - Added: Filter `SimpleHistoryFilterDropin/filter_default_loglevel` that is used to search/filter for log levels by default.
-- Fixed: if trying to log an array or an object the logger now automagically runs `json_encode()` on the value to make it a string. Previously is just tried to run `$wpdb->insert() with the array and that gave errors. Should fix https://wordpress.org/support/topic/mysql_real_escape_string.
+- Fixed: if trying to log an array or an object the logger now automagically runs `json_encode()` on the value to make it a string. Previously is just tried to run `$wpdb->insert()` with the array and that gave errors. Should fix https://wordpress.org/support/topic/mysql_real_escape_string.
 - Fixed: The function that checks for new rows each second (or actually each tenth second to spare resources) was called an extra time each time the submit button for the filter was clicked. Kinda stupid. Kinda fixed now.
 - Fixed: The export feature that was added in version 2.1 was actually not enabled for all users. Now it is!
 - Fixed: Image attachments that is deleted from file system no longer result in "broken image" in the log. (Rare case, I know, but it does happen for me that local dev server and remote prod server gets out of "sync" when it comes to attachments.)
@@ -454,7 +454,7 @@
 - Added: [WordPress 4.1 added the feature to log out a user from all their sessions](http://codex.wordpress.org/Version_4.1#Users). Simple History now logs when a user is logged out from all their sessions except the current browser, or if an admin destroys all sessions for a user. [View screenshot of new session logout log item](https://dl.dropboxusercontent.com/s/k4cmfmncekmfiib/2014-12-simple-history-changelog-user-sessions.png)
 
 - Added: filter to shortcut loading of a dropin. Example that completely skips loading the RSS-feed-dropin:
-  `add_filter("simple_history/dropin/load_dropin_SimpleHistoryRSSDropin", "__return_false");`
+    `add_filter("simple_history/dropin/load_dropin_SimpleHistoryRSSDropin", "__return_false");`
 
 = 2.0.5 (November 2014) =
 
@@ -749,10 +749,10 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 - the name of deleted items now show up, instead of "Unknown name" or similar
 - added support for plugins (who activated/deactivated what plugin)
 - support for third party history items. Use like this:
-  simple_history_add("action=repaired&object_type=starship&object_name=USS Enterprise");
-  this would result in something like this:
-  Starship "USS Enterprise" repaired
-  by admin (John Doe), just now
+    simple_history_add("action=repaired&object_type=starship&object_name=USS Enterprise");
+    this would result in something like this:
+    Starship "USS Enterprise" repaired
+    by admin (John Doe), just now
 - capability edit_pages needed to show history. Is this an appropriate capability do you think?
 
 = 0.2 =

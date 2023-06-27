@@ -10,7 +10,7 @@ class SimpleOptionsLoggerCest
 
     public function testGeneralOptionsPage(Admin $I) {
         $I->amOnAdminPage('options-general.php');
-        
+
         $options = [
             [
                 'field' => '#blogname',
@@ -20,7 +20,7 @@ class SimpleOptionsLoggerCest
                     'option' => 'blogname',
                     'old_value' => 'wp-tests',
                     'new_value' => 'My new site title',
-                    'option_page' => 'general',        
+                    'option_page' => 'general',
                 ]
             ],
             [
@@ -31,7 +31,7 @@ class SimpleOptionsLoggerCest
                     'option' => 'blogdescription',
                     'old_value' => 'Just another WordPress site',
                     'new_value' => 'New site tag',
-                    'option_page' => 'general',        
+                    'option_page' => 'general',
                 ]
             ],
             [
@@ -42,18 +42,18 @@ class SimpleOptionsLoggerCest
                     'option' => 'new_admin_email',
                     'old_value' => 'test@example.com',
                     'new_value' => 'par.thernstrom@gmail.com',
-                    'option_page' => 'general',        
+                    'option_page' => 'general',
                 ]
             ],
         ];
 
-        foreach ($options as $oneOption) {       
+        foreach ($options as $oneOption) {
             $I->fillField($oneOption['field'], $oneOption['fill']);
             $I->click("Save Changes");
             $I->seeLogMessage($oneOption['expected']);
             $I->seeLogContext($oneOption['expectedContext']);
         }
-        
+
         $I->checkOption('#users_can_register');
         $I->click("Save Changes");
         $I->seeLogMessage('Updated option "users_can_register"');
@@ -78,7 +78,7 @@ class SimpleOptionsLoggerCest
 
     public function testWritingOptionsPage(Admin $I) {
         $I->amOnAdminPage('options-writing.php');
-        
+
         $I->fillField('#mailserver_url', 'smtpserver.example.com');
         $I->fillField('#mailserver_login', 'login@email.com');
         $I->fillField('#mailserver_pass', 'mailpass');
@@ -112,7 +112,7 @@ class SimpleOptionsLoggerCest
     public function testReadingOptionsPage(Admin $I) {
         $I->havePageInDatabase(['post_title' => 'Test page']);
         $I->amOnAdminPage('options-reading.php');
-        
+
         $I->selectOption('[name=show_on_front]', 'page');
         $I->selectOption('[name=page_on_front]', 'Test page');
 
@@ -146,7 +146,7 @@ class SimpleOptionsLoggerCest
     }
 
     public function testDiscussionOptionsPage(Admin $I) {
-        
+
         // "Dummy" save because some values seems to be set for the first time
         $I->amOnAdminPage('options-discussion.php');
         $I->click("Save Changes");
@@ -194,6 +194,6 @@ class SimpleOptionsLoggerCest
             'option' => 'show_avatars',
             'old_value' => '1',
             'new_value' => 'null',
-        ]);       
+        ]);
     }
 }

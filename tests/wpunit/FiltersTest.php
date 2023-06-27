@@ -7,75 +7,75 @@ use function Simple_History\tests\get_latest_context;
 
 class FiltersTest extends \Codeception\TestCase\WPTestCase {
 
-	public function test_filters() {
-		apply_filters( 'simple_history_log', 'This is a logged message' );
-		$latest_row = get_latest_row();
+    public function test_filters() {
+        apply_filters( 'simple_history_log', 'This is a logged message' );
+        $latest_row = get_latest_row();
 
-		$this->assertEquals(
-			array(
-				'logger' => 'SimpleLogger',
-				'level' => 'info',
-				'message' => 'This is a logged message',
-				'initiator' => 'other',
-			),
-			$latest_row
-		);
+        $this->assertEquals(
+            array(
+                'logger' => 'SimpleLogger',
+                'level' => 'info',
+                'message' => 'This is a logged message',
+                'initiator' => 'other',
+            ),
+            $latest_row
+        );
 
-		// Or with some context and with log level debug:
-		apply_filters(
-			'simple_history_log',
-			'My message about something',
-			array(
-				'debugThing' => 'debugThingValue',
-				'anotherThing' => 'anotherThingValue',
-			),
-			'debug'
-		);
+        // Or with some context and with log level debug:
+        apply_filters(
+            'simple_history_log',
+            'My message about something',
+            array(
+                'debugThing' => 'debugThingValue',
+                'anotherThing' => 'anotherThingValue',
+            ),
+            'debug'
+        );
 
-		$latest_row = get_latest_row();
+        $latest_row = get_latest_row();
 
-		$this->assertEquals(
-			array(
-				'logger' => 'SimpleLogger',
-				'level' => 'debug',
-				'message' => 'My message about something',
-				'initiator' => 'other',
-			),
-			$latest_row
-		);
+        $this->assertEquals(
+            array(
+                'logger' => 'SimpleLogger',
+                'level' => 'debug',
+                'message' => 'My message about something',
+                'initiator' => 'other',
+            ),
+            $latest_row
+        );
 
-		$context = get_latest_context();
-		$this->assertEquals(
-			array(
-				array(
-					'key' => 'anotherThing',
-					'value' => 'anotherThingValue',
-				),
-				array(
-					'key' => 'debugThing',
-					'value' => 'debugThingValue',
-				),
-				array(
-					'key' => '_server_remote_addr',
-					'value' => '127.0.0.0',
-				),
-			),
-			$context
-		);
+        $context = get_latest_context();
+        $this->assertEquals(
+            array(
+                array(
+                    'key' => 'anotherThing',
+                    'value' => 'anotherThingValue',
+                ),
+                array(
+                    'key' => 'debugThing',
+                    'value' => 'debugThingValue',
+                ),
+                array(
+                    'key' => '_server_remote_addr',
+                    'value' => '127.0.0.0',
+                ),
+            ),
+            $context
+        );
 
-		// Or just debug a message quickly
-		apply_filters( 'simple_history_log_debug', 'My debug message' );
+        // Or just debug a message quickly
+        apply_filters( 'simple_history_log_debug', 'My debug message' );
 
-		$latest_row = get_latest_row();
+        $latest_row = get_latest_row();
 
-		$this->assertEquals(
-			array(
-				'logger' => 'SimpleLogger',
-				'level' => 'debug',
-				'message' => 'My debug message',
-				'initiator' => 'other',
-			),
-			$latest_row
-		);
-	}
+        $this->assertEquals(
+            array(
+                'logger' => 'SimpleLogger',
+                'level' => 'debug',
+                'message' => 'My debug message',
+                'initiator' => 'other',
+            ),
+            $latest_row
+        );
+    }
 }

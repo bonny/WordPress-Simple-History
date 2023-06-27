@@ -18,32 +18,32 @@ The plugin works as a log/history/audit log/version history of the most importan
 Out of the box Simple History has support for:
 
 - **Posts and pages**<br>
-  see who added, updated or deleted a post or page
+    see who added, updated or deleted a post or page
 - **Attachments**<br>
-  see who added, updated or deleted an attachment
+    see who added, updated or deleted an attachment
 - **Taxonomies (Custom taxonomies, categories, tags)**<br>
-  see who added, updated or deleted an taxonomy
+    see who added, updated or deleted an taxonomy
 - **Comments**<br>
-  see who edited, approved or removed a comment
+    see who edited, approved or removed a comment
 - **Widgets**<br>
-  get info when someone adds, updates or removes a widget in a sidebar
+    get info when someone adds, updates or removes a widget in a sidebar
 - **Plugins**<br>
-  activation and deactivation
+    activation and deactivation
 - **User profiles**<br>
-  info about added, updated or removed users
+    info about added, updated or removed users
 - **User logins**<br>
-  see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
+    see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
 - **Failed user logins**<br>
-  see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
+    see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 - **Menu edits**
 - **Option screens**<br>
-  view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
+    view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
 - **Privacy page**<br>
-  when a privacy page is created or set to a new page.
+    when a privacy page is created or set to a new page.
 - **Data Export**<br>
-  see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
+    see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
 - **User Data Erasure Requests**<br>
-  see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
+    see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
 #### Support for third party plugins
 
@@ -123,13 +123,13 @@ If you are a theme or plugin developer and would like to add your own things/eve
 
 if ( function_exists("SimpleLogger") ) {
 
-		// Most basic example: just add some information to the log
-		SimpleLogger()->info("This is a message sent to the log");
+        // Most basic example: just add some information to the log
+        SimpleLogger()->info("This is a message sent to the log");
 
-		// A bit more advanced: log events with different severities
-		SimpleLogger()->info("User admin edited page 'About our company'");
-		SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
-		SimpleLogger()->debug("Ok, cron job is running!");
+        // A bit more advanced: log events with different severities
+        SimpleLogger()->info("User admin edited page 'About our company'");
+        SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
+        SimpleLogger()->debug("Ok, cron job is running!");
 
 }
 ?>
@@ -181,8 +181,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 == Screenshots ==
 
 1. The log view + it also shows the filter function in use - the log only shows event that
-   are of type post and pages and media (i.e. images & other uploads), and only events
-   initiated by a specific user.
+    are of type post and pages and media (i.e. images & other uploads), and only events
+    initiated by a specific user.
 
 2. The **Post Quick Diff** feature will make it quick and easy for a user of a site to see what updates other users have done to posts and pages.
 
@@ -195,7 +195,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 6. See even more details about a logged event (by clicking on the date and time of the event).
 
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
-   A simple way to see any uncommon activity, for example an increased number of logins or similar.
+    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 == Changelog ==
 
@@ -276,10 +276,10 @@ A more detailed changelog that probably most developers are interested in:
 
 - Add cached = true|false to AJAX JSON answer when fetching events or checking for new events. It's a simple way to see if an object cache is in use and is working.
 - Most of the code now uses namespaces.
-  - The main namespace is `Simple_History`.
-  - The main class is `Simple_History\Simple_History`.
-  - Dropins use namespace `Simple_History\Dropins` and dropins must now extend the base class `Dropin`.
-  - Loggers use namespace `Simple_History\Loggers` and loggers must extend the base class `Logger`.
+    - The main namespace is `Simple_History`.
+    - The main class is `Simple_History\Simple_History`.
+    - Dropins use namespace `Simple_History\Dropins` and dropins must now extend the base class `Dropin`.
+    - Loggers use namespace `Simple_History\Loggers` and loggers must extend the base class `Logger`.
 - Add hooks that controls loggers and their instantiation: `simple_history/core_loggers`, `simple_history/loggers/instantiated`.
 - Add hooks that controls dropins and their instantiation: `simple_history/dropins_to_instantiate`, `simple_history/core_dropins`, `simple_history/dropins_to_instantiate`, `simple_history/dropin/instantiate_{$dropin_short_name}`, `simple_history/dropin/instantiate_{$dropin_short_name}`, `simple_history/dropins/instantiated`.
 - Add filter `simple_history/ip_number_header_names`.
@@ -291,7 +291,7 @@ A more detailed changelog that probably most developers are interested in:
 
 - Improved code organization with the introduction of namespaces. Code now uses namespaces and classes (including loggers and dropins) are now loaded using an autoloader.
 - Functions are renamed to use `snake_case` (WordPress coding style) instead of `camelCase` (PHP PSR coding style). Some examples:
-  - `registerSettingsTab` is renamed to `register_settings_tab`.
+    - `registerSettingsTab` is renamed to `register_settings_tab`.
 - Remove usage of deprectead function `wp_get_user_request_data()`.
 - Rename message key from `data_erasure_request_sent` to `data_erasure_request_added`.
 - Rename message key from `data_erasure_request_handled` to `data_erasure_request_completed`.
@@ -419,14 +419,14 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
 = 2.41.0 (March 2021) =
 
 - Fixed: Error when visiting settings screen on PHP 8.
-  Fixes https://wordpress.org/support/topic/simple-history-fatal-error/.
-  [#239](https://github.com/bonny/WordPress-Simple-History/issues/239)
+    Fixes https://wordpress.org/support/topic/simple-history-fatal-error/.
+    [#239](https://github.com/bonny/WordPress-Simple-History/issues/239)
 
 = 2.40.0 (March 2021) =
 
 - Changed: IP address is now also shown when a user successfully logs in.
-  Previously the IP address was only shown for failed login attempts. Note that the IP address/es of all events are always logged and can be seen in the "context data" table that is displayed when you click the date and time of an event.
-  [#233](https://github.com/bonny/WordPress-Simple-History/issues/233)
+    Previously the IP address was only shown for failed login attempts. Note that the IP address/es of all events are always logged and can be seen in the "context data" table that is displayed when you click the date and time of an event.
+    [#233](https://github.com/bonny/WordPress-Simple-History/issues/233)
 
 - Added: If multiple IP addresses are detected, for example when a website is running behind a proxy or similar, all IP addresses are now shown for failed and successful logins.
 
@@ -489,7 +489,7 @@ You can now [sponsor the developer of this plugin at GitHub](https://github.com/
 **Changed**
 
 - Use flexbox for history page layout, so if all dropins are disabled then the content area
-  spans the entire 100 % width (#199).
+    spans the entire 100 % width (#199).
 
 - Adjust style of pagination to match WordPress core pagination.
 
@@ -506,11 +506,11 @@ You can now [sponsor the developer of this plugin at GitHub](https://github.com/
 - Better compatibility with the Gutenberg Block editor.
 - Correct URL redirected to after clearing log. Fixes #123.
 - Fix history log on dashboard leaving lots of white space and sometimes overlapping other dashboard widgets.
-  Fixes https://wordpress.org/support/topic/dashboard-block-cut-off/, https://wordpress.org/support/topic/simple-history-v2-32/, and https://wordpress.org/support/topic/new-update-not-working-10/.
+    Fixes https://wordpress.org/support/topic/dashboard-block-cut-off/, https://wordpress.org/support/topic/simple-history-v2-32/, and https://wordpress.org/support/topic/new-update-not-working-10/.
 - Fix join parameter order for PHP 7.4.
 - Update donate link. It's now https://www.paypal.me/eskapism.
-  If you like the plugin please consider donate.
-  A very small amount makes me much more happy than nothing at all! ;)
+    If you like the plugin please consider donate.
+    A very small amount makes me much more happy than nothing at all! ;)
 
 = 2.32 (August 2019) =
 
@@ -520,8 +520,8 @@ You can now [sponsor the developer of this plugin at GitHub](https://github.com/
 ```php
 // Move Simple History log sub page from the "Dashboard" menu to the "Tools" menu.
 add_filter('simple_history/admin_location', function ($location) {
-	$location = 'tools';
-	return $location;
+    $location = 'tools';
+    return $location;
 });
 ```
 
@@ -560,15 +560,13 @@ add_filter('simple_history/admin_location', function ($location) {
 - Make log welcome message translateable.
 - Add two filters to make it more ease to control via filters if a logger and the combination logger + message should be logged. - `"simple_history/log/do_log/{$this->slug}"` controls if any messages for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger. - `"simple_history/log/do_log/{$this->slug}/{$message_key}"` controls if a specific message for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger. - Code examples for the two filters above:
 
-  ````
-  // Disable logging of any user message, i.e. any message from the logger SimpleUserLogger.
-  add_filter( 'simple_history/log/do_log/SimpleUserLogger', '\_\_return_false' );
+    ```php
+    // Disable logging of any user message, i.e. any message from the logger SimpleUserLogger.
+    add_filter( 'simple_history/log/do_log/SimpleUserLogger', '\_\_return_false' );
 
-      		// Disable logging of updated posts, i.e. the message "post_updated" from the logger SimplePostLogger.
-      		add_filter( 'simple_history/log/do_log/SimplePostLogger/post_updated', '__return_false' );
-      		```
-
-  ````
+    // Disable logging of updated posts, i.e. the message "post_updated" from the logger SimplePostLogger.
+    add_filter( 'simple_history/log/do_log/SimplePostLogger/post_updated', '__return_false' );
+    ```
 
 - add_filter('simple_history/log/do_log/SimpleUserLogger', '\_\_return_false');
 - Fix notice in Redirection plugin logger due because redirection plugin can have multiple target types. Props @MaximVanhove.
@@ -603,7 +601,7 @@ add_filter('simple_history/admin_location', function ($location) {
 - Add support for the [Jetpack plugin](https://wordpress.org/plugins/jetpack/). To begin with, activation and deactivation of Jetpack modules is logged.
 - Add logging of translation updates, so now you can see when a plugin or a theme has gotten new translations. Fixes https://github.com/bonny/WordPress-Simple-History/issues/147.
 - Fix notice in Advanced Custom Fields logger when saving an ACF options page.
-  Fixes https://wordpress.org/support/topic/problem-with-acf-options-pages/, https://wordpress.org/support/topic/problem-with-recent-version-and-acf/, https://github.com/bonny/WordPress-Simple-History/issues/145.
+    Fixes https://wordpress.org/support/topic/problem-with-acf-options-pages/, https://wordpress.org/support/topic/problem-with-recent-version-and-acf/, https://github.com/bonny/WordPress-Simple-History/issues/145.
 
 = 2.25 (July 2018) =
 
@@ -642,9 +640,9 @@ add_filter('simple_history/admin_location', function ($location) {
 = 2.22 (May 2018) =
 
 - IP addresses are now anonymized by default. This is mainly done because of the [General Data Protection Regulation](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation) (GDPR)
-  Both IPv4 and IPv6 addresses will be anonymized and the IP addresses are anonymized to their network ID.
-  So for example the IPv4 address `192.168.123.124` is anonymized to `192.168.123.0` and
-  the IPv6 address `2a03:2880:2110:df07:face:b00c::1` is anonymized by default to `2610:28:3090:3001::`.
+    Both IPv4 and IPv6 addresses will be anonymized and the IP addresses are anonymized to their network ID.
+    So for example the IPv4 address `192.168.123.124` is anonymized to `192.168.123.0` and
+    the IPv6 address `2a03:2880:2110:df07:face:b00c::1` is anonymized by default to `2610:28:3090:3001::`.
 
 - Added filter `simple_history/privacy/anonymize_ip_address` than can be used to disable ip address anonymization.
 
@@ -681,7 +679,7 @@ add_filter('simple_history/admin_location', function ($location) {
 - Make image previews smaller because many uploaded images could make the log a bit to long and not so quick to overview.
 - Update Select2 to latest version. Fixes https://wordpress.org/support/topic/select2-js-is-outdated/.
 - Show a message if user is running to old WordPress version, and don't continue running the code of this plugin.
-  Should fix stuff like https://wordpress.org/support/topic/simple-history-i-cannot-login/.
+    Should fix stuff like https://wordpress.org/support/topic/simple-history-i-cannot-login/.
 - Fix an error with PHP 7.1.
 
 = 2.19 (November 2017) =
@@ -716,14 +714,14 @@ add_filter('simple_history/admin_location', function ($location) {
 
 - Added [WP-CLI](https://wp-cli.org) command for Simple History. Now you can write `wp simple-history list` to see the latest entries from the history log. For now `list` is the only available command. Let me know if you need more commands!
 - Added support for logging edits to theme files and plugin files. When a file is edited you will also get a quick diff on the changes,
-  so you can see what CSS styles a client changed or what PHP changes they made in a plugin file.
+    so you can see what CSS styles a client changed or what PHP changes they made in a plugin file.
 - Removed the edit file logger from the plugin logger, because it did not always work (checked wrong wp path). Instead the new Theme and plugins logger mentioned above will take care of this.
 
 = 2.15 (May 2017) =
 
 - Use thumbnail version of PDF preview instead of full size image.
 - Remove Google Maps image when clicking IP address of failed login and similar, because Google Maps must be used with API key.
-  Hostname, Network, City, Region and Country is still shown.
+    Hostname, Network, City, Region and Country is still shown.
 - Fix notice in available updates logger.
 - Fix notice in redirection logger.
 
@@ -734,7 +732,7 @@ add_filter('simple_history/admin_location', function ($location) {
 = 2.14 (April 2017) =
 
 - Added support for plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/).
-  Now when a user clones a post or page you will se this in the history log, with links to both the original post and the new copy.
+    Now when a user clones a post or page you will se this in the history log, with links to both the original post and the new copy.
 - Removed log level info from title in RSS feed
 - Make date dropdown less "jumpy" when loading page (due to select element switching to Select2)
 - Only add filters for plugin Limit Login Attempts if plugin is active. This fixes problem with Limit Login Attempts Reloaded and possibly other forks of the plugin.

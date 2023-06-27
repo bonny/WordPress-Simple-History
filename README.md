@@ -18,8 +18,8 @@ Download from [WordPress.org](https://wordpress.org/plugins/simple-history/) and
 This screenshot show the user activity feed:
 
 - It has an active **filter/search in use**:
-  - only show changes performed by a specific user
-  - it only shows event that are of type post and pages and media (i.e. images & other uploads)
+    - only show changes performed by a specific user
+    - it only shows event that are of type post and pages and media (i.e. images & other uploads)
 - A thumbnail is shown for the image that is uploaded
 
 ![Simple History screenshot](.wordpress-org/screenshot-1.png)
@@ -51,13 +51,13 @@ apply_filters('simple_history_log', 'This is a logged message');
 
 // Or with some context and with log level debug:
 apply_filters(
-	'simple_history_log',
-	'My message about something',
-	[
-		'debugThing' => $myThingThatIWantIncludedInTheLoggedEvent,
-		'anotherThing' => $anotherThing
-	],
-	'debug'
+    'simple_history_log',
+    'My message about something',
+    [
+        'debugThing' => $myThingThatIWantIncludedInTheLoggedEvent,
+        'anotherThing' => $anotherThing
+    ],
+    'debug'
 );
 
 // Or just debug a message quickly

@@ -8,14 +8,14 @@ use Simple_History\Log_Query;
  * Un-namespaced class for old loggers that call \SimpleHistoryLogQuery.
  */
 class SimpleHistoryLogQuery {
-	/**
-	 * Only function "query" exists on old class.
-	 *
-	 * @since 4.0
-	 * @param array $args
-	 * @return array
-	 */
-	public function query( $args ) {
-		return ( new Log_Query() )->query( $args );
-	}
+    /**
+     * Only function "query" exists on old class.
+     *
+     * @since 4.0
+     * @param array $args
+     * @return array
+     */
+    public function query( $args ) {
+        return ( new Log_Query() )->query( $args );
+    }
 }

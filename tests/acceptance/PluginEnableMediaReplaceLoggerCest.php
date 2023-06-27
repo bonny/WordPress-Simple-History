@@ -19,7 +19,7 @@ class EnableMediaReplaceLoggerCest
         $I->attachFile('#async-upload', 'Image 1.jpg');
         $I->click("Upload");
         $I->seeLogMessage('Created attachment "Image 1"');
-        
+
         // Upload second image, that replaces first image.
         $I->amOnAdminPage('upload.php?mode=list');
         $I->click('Image 1');
@@ -27,7 +27,7 @@ class EnableMediaReplaceLoggerCest
         $I->attachFile('#userfile', 'Image 2.jpg');
         $I->click('Upload');
         $I->makeScreenshot();
-        $I->seeLogMessage('Replaced attachment "Image 1" with new attachment "Image 2.jpg"');        
+        $I->seeLogMessage('Replaced attachment "Image 1" with new attachment "Image 2.jpg"');
         $I->seeLogContext([
             'prev_attachment_title' => 'Image 1',
             'new_attachment_title' => 'Image 2.jpg',

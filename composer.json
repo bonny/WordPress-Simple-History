@@ -1,63 +1,63 @@
 {
-	"name": "bonny/wordpress-simple-history",
-	"type": "wordpress-plugin",
-	"description": "View recent changes made within WordPress, directly on your dashboard or on a separate page.",
-	"license": "GPL-2.0-or-later",
-	"keywords": [
-		"WordPress",
-		"log",
-		"history"
-	],
-	"homepage": "https://simple-history.com/",
-	"minimum-stability": "stable",
-	"require-dev": {
-		"dealerdirect/phpcodesniffer-composer-installer": "*",
-		"phpcompatibility/php-compatibility": "*",
-		"wp-coding-standards/wpcs": "*",
-		"phpcompatibility/phpcompatibility-wp": "*",
-		"lucatume/wp-browser": "^3.1.0",
-		"codeception/module-asserts": "^1.0",
-		"codeception/module-phpbrowser": "^1.0",
-		"codeception/module-webdriver": "^1.0",
-		"codeception/module-db": "^1.0",
-		"codeception/module-filesystem": "^1.0",
-		"codeception/module-cli": "^1.0",
-		"codeception/util-universalframework": "^1.0",
-		"rector/rector": "^0.17.0",
-		"wp-cli/wp-cli-bundle": "2.8.1",
-		"phpstan/phpstan": "^1.10.0",
-		"szepeviktor/phpstan-wordpress": "dev-master",
-		"phpstan/extension-installer": "1.2.x-dev",
-		"php-stubs/wp-cli-stubs": "dev-master"
-	},
-	"require": {
-		"php": "^7.4"
-	},
-	"authors": [
-		{
-			"name": "Pär Thernström",
-			"homepage": "https://eskapism.se/"
-		}
-	],
-	"support": {
-		"issues": "https://github.com/bonny/WordPress-Simple-History/issues",
-		"forum": "https://wordpress.org/support/plugin/simple-history/",
-		"source": "https://github.com/bonny/WordPress-Simple-History",
-		"docs": "https://simple-history.com/docs/"
-	},
-	"dist": {
-		"url": "https://downloads.wordpress.org/plugin/simple-history.zip",
-		"type": "zip"
-	},
-	"scripts": {
-		"lint": "./vendor/bin/phpcs .",
-		"lint-fix": "./vendor/bin/phpcbf .",
-		"test": "./vendor/bin/phpunit"
-	},
-	"config": {
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true,
-			"phpstan/extension-installer": true
-		}
-	}
+    "name": "bonny/wordpress-simple-history",
+    "type": "wordpress-plugin",
+    "description": "View recent changes made within WordPress, directly on your dashboard or on a separate page.",
+    "license": "GPL-2.0-or-later",
+    "keywords": [
+        "WordPress",
+        "log",
+        "history"
+    ],
+    "homepage": "https://simple-history.com/",
+    "minimum-stability": "stable",
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "*",
+        "phpcompatibility/php-compatibility": "*",
+        "wp-coding-standards/wpcs": "*",
+        "phpcompatibility/phpcompatibility-wp": "*",
+        "lucatume/wp-browser": "^3.1.0",
+        "codeception/module-asserts": "^1.0",
+        "codeception/module-phpbrowser": "^1.0",
+        "codeception/module-webdriver": "^1.0",
+        "codeception/module-db": "^1.0",
+        "codeception/module-filesystem": "^1.0",
+        "codeception/module-cli": "^1.0",
+        "codeception/util-universalframework": "^1.0",
+        "rector/rector": "^0.17.0",
+        "wp-cli/wp-cli-bundle": "2.8.1",
+        "phpstan/phpstan": "^1.10.0",
+        "szepeviktor/phpstan-wordpress": "dev-master",
+        "phpstan/extension-installer": "1.2.x-dev",
+        "php-stubs/wp-cli-stubs": "dev-master"
+    },
+    "require": {
+        "php": "^7.4"
+    },
+    "authors": [
+        {
+            "name": "Pär Thernström",
+            "homepage": "https://eskapism.se/"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/bonny/WordPress-Simple-History/issues",
+        "forum": "https://wordpress.org/support/plugin/simple-history/",
+        "source": "https://github.com/bonny/WordPress-Simple-History",
+        "docs": "https://simple-history.com/docs/"
+    },
+    "dist": {
+        "url": "https://downloads.wordpress.org/plugin/simple-history.zip",
+        "type": "zip"
+    },
+    "scripts": {
+        "lint": "./vendor/bin/phpcs .",
+        "lint-fix": "./vendor/bin/phpcbf .",
+        "test": "./vendor/bin/phpunit"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
+        }
+    }
 }

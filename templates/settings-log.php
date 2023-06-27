@@ -19,8 +19,8 @@ $pager_size = apply_filters( 'simple_history/settings_page_pager_size', $pager_s
 
 ?>
 <div class="SimpleHistoryGui"
-	 data-pager-size='<?php esc_attr( $pager_size ); ?>'
-	 ></div>
+    data-pager-size='<?php esc_attr( $pager_size ); ?>'
+></div>
 <?php
 
 global $wpdb;

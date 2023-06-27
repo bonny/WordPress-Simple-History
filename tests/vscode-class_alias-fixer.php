@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * File used to fix undefined method-warnings in Intelephense.

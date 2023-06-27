@@ -3565,12 +3565,12 @@ namespace {
          * @var string
          */
         const BLOCK_CONTENT = '
-		<p data-image-description="&lt;p&gt;Test!&lt;/p&gt;">Test</p>
-		<p>äöü</p>
-		<p>ß</p>
-		<p>系の家庭に</p>
-		<p>Example &lt;p&gt;Test!&lt;/p&gt;</p>
-	';
+        <p data-image-description="&lt;p&gt;Test!&lt;/p&gt;">Test</p>
+        <p>äöü</p>
+        <p>ß</p>
+        <p>系の家庭に</p>
+        <p>Example &lt;p&gt;Test!&lt;/p&gt;</p>
+    ';
         /**
          * Returns the rendered output for the current block.
          *

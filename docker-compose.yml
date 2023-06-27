@@ -1,105 +1,105 @@
 services:
-  wordpress:
-    image: wordpress:${WORDPRESS_VERSION:-6.1}-php${PHP_VERSION:-7.4}
-    container_name: simple-history-wordpress
-    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
-    user: "33:33"
-    ports:
-      - "${DOCKER_WEB_PORT_FORWARD:-9191}:80"
-    environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_NAME: wp_test_site
-      WORDPRESS_DB_USER: dbuser
-      WORDPRESS_DB_PASSWORD: examplepass
-      WORDPRESS_CONFIG_EXTRA: |
-        define( 'WP_AUTO_UPDATE_CORE', false );
-        define( 'AUTOMATIC_UPDATER_DISABLED', true );
-        define( 'DISABLE_WP_CRON', true );
-        define( 'WP_ENVIRONMENT_TYPE', 'local' );
-    volumes:
-      - wordpress:/var/www/html
-      - ./:/var/www/html/wp-content/plugins/simple-history
-      - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
-      - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
-      - ./tests/plugins/duplicate-post:/var/www/html/wp-content/plugins/duplicate-post
-      - ./tests/plugins/redirection:/var/www/html/wp-content/plugins/redirection
-      - ./tests/plugins/enable-media-replace:/var/www/html/wp-content/plugins/enable-media-replace
-      - ./tests/plugins/user-switching:/var/www/html/wp-content/plugins/user-switching
-      - ./tests/plugins/developer-loggers-for-simple-history:/var/www/html/wp-content/plugins/developer-loggers-for-simple-history
-      - ./tests/_data/mu-plugins:/var/www/html/wp-content/mu-plugins
-      - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
+    wordpress:
+        image: wordpress:${WORDPRESS_VERSION:-6.1}-php${PHP_VERSION:-7.4}
+        container_name: simple-history-wordpress
+        restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+        user: "33:33"
+        ports:
+            - "${DOCKER_WEB_PORT_FORWARD:-9191}:80"
+        environment:
+            WORDPRESS_DB_HOST: db
+            WORDPRESS_DB_NAME: wp_test_site
+            WORDPRESS_DB_USER: dbuser
+            WORDPRESS_DB_PASSWORD: examplepass
+            WORDPRESS_CONFIG_EXTRA: |
+                define( 'WP_AUTO_UPDATE_CORE', false );
+                define( 'AUTOMATIC_UPDATER_DISABLED', true );
+                define( 'DISABLE_WP_CRON', true );
+                define( 'WP_ENVIRONMENT_TYPE', 'local' );
+        volumes:
+            - wordpress:/var/www/html
+            - ./:/var/www/html/wp-content/plugins/simple-history
+            - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
+            - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
+            - ./tests/plugins/duplicate-post:/var/www/html/wp-content/plugins/duplicate-post
+            - ./tests/plugins/redirection:/var/www/html/wp-content/plugins/redirection
+            - ./tests/plugins/enable-media-replace:/var/www/html/wp-content/plugins/enable-media-replace
+            - ./tests/plugins/user-switching:/var/www/html/wp-content/plugins/user-switching
+            - ./tests/plugins/developer-loggers-for-simple-history:/var/www/html/wp-content/plugins/developer-loggers-for-simple-history
+            - ./tests/_data/mu-plugins:/var/www/html/wp-content/mu-plugins
+            - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
 
-  db:
-    image: "mariadb:${MARIADB_VERSION:-10.5}"
-    container_name: simple-history-database
-    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
-    environment:
-      MYSQL_DATABASE: wp_test_site
-      MYSQL_USER: dbuser
-      MYSQL_PASSWORD: examplepass
-      MYSQL_ROOT_PASSWORD: rootpass
-    ports:
-      - "${DB_EXPOSE_PORT:-127.0.0.1:}:3306"
-    volumes:
-      - "${MARIADB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
+    db:
+        image: "mariadb:${MARIADB_VERSION:-10.5}"
+        container_name: simple-history-database
+        restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+        environment:
+            MYSQL_DATABASE: wp_test_site
+            MYSQL_USER: dbuser
+            MYSQL_PASSWORD: examplepass
+            MYSQL_ROOT_PASSWORD: rootpass
+        ports:
+            - "${DB_EXPOSE_PORT:-127.0.0.1:}:3306"
+        volumes:
+            - "${MARIADB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
 
-  chrome:
-    image: seleniarm/standalone-chromium:109.0
-    # shm_size: "2gb"
-    container_name: simple-history-chrome
-    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
-    # ports:
-    #   - 14444:4444
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    chrome:
+        image: seleniarm/standalone-chromium:109.0
+        # shm_size: "2gb"
+        container_name: simple-history-chrome
+        restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+        # ports:
+        #   - 14444:4444
+        extra_hosts:
+            - host.docker.internal:host-gateway
 
-  php-cli:
-    image: dockette/ci:php${PHP_CLI_VERSION-74}
-    container_name: simple-history-php-cli
-    environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_NAME: wp_test_site
-      WORDPRESS_DB_USER: dbuser
-      WORDPRESS_DB_PASSWORD: examplepass
-    profiles:
-      - noautostart
-    working_dir: /srv
-    volumes:
-      - ./:/srv
-      - wordpress:/wordpress
-      - ./:/wordpress/wp-content/plugins/simple-history
-      - ./tests/plugins/jetpack:/wordpress/wp-content/plugins/jetpack
-      - ./tests/plugins/wp-crontrol:/wordpress/wp-content/plugins/wp-crontrol
-      - ./tests/plugins/duplicate-post:/wordpress/wp-content/plugins/duplicate-post
-      - ./tests/plugins/redirection:/wordpress/wp-content/plugins/redirection
-      - ./tests/plugins/enable-media-replace:/wordpress/wp-content/plugins/enable-media-replace
-      - ./tests/plugins/user-switching:/wordpress/wp-content/plugins/user-switching
-      - ./tests/_data/mu-plugins:/wordpress/wp-content/mu-plugins
-    depends_on:
-      - db
-      - wordpress
-      - chrome
+    php-cli:
+        image: dockette/ci:php${PHP_CLI_VERSION-74}
+        container_name: simple-history-php-cli
+        environment:
+            WORDPRESS_DB_HOST: db
+            WORDPRESS_DB_NAME: wp_test_site
+            WORDPRESS_DB_USER: dbuser
+            WORDPRESS_DB_PASSWORD: examplepass
+        profiles:
+            - noautostart
+        working_dir: /srv
+        volumes:
+            - ./:/srv
+            - wordpress:/wordpress
+            - ./:/wordpress/wp-content/plugins/simple-history
+            - ./tests/plugins/jetpack:/wordpress/wp-content/plugins/jetpack
+            - ./tests/plugins/wp-crontrol:/wordpress/wp-content/plugins/wp-crontrol
+            - ./tests/plugins/duplicate-post:/wordpress/wp-content/plugins/duplicate-post
+            - ./tests/plugins/redirection:/wordpress/wp-content/plugins/redirection
+            - ./tests/plugins/enable-media-replace:/wordpress/wp-content/plugins/enable-media-replace
+            - ./tests/plugins/user-switching:/wordpress/wp-content/plugins/user-switching
+            - ./tests/_data/mu-plugins:/wordpress/wp-content/mu-plugins
+        depends_on:
+            - db
+            - wordpress
+            - chrome
 
-  wp-cli:
-    image: wordpress:cli-php${PHP_VERSION-7.4}
-    container_name: simple-history-wpcli
-    environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_NAME: wp_test_site
-      WORDPRESS_DB_USER: dbuser
-      WORDPRESS_DB_PASSWORD: examplepass
-    user: "33:33"
-    depends_on:
-      - db
-      - wordpress
-    init: true
-    volumes:
-      - wordpress:/var/www/html:rw
-      # Make tests folder available so we can export/import db.
-      - ./tests/_data/:/var/www/html/tests/_data:rw
-      - ./:/var/www/html/wp-content/plugins/simple-history
-    profiles:
-      - noautostart
+    wp-cli:
+        image: wordpress:cli-php${PHP_VERSION-7.4}
+        container_name: simple-history-wpcli
+        environment:
+            WORDPRESS_DB_HOST: db
+            WORDPRESS_DB_NAME: wp_test_site
+            WORDPRESS_DB_USER: dbuser
+            WORDPRESS_DB_PASSWORD: examplepass
+        user: "33:33"
+        depends_on:
+            - db
+            - wordpress
+        init: true
+        volumes:
+            - wordpress:/var/www/html:rw
+            # Make tests folder available so we can export/import db.
+            - ./tests/_data/:/var/www/html/tests/_data:rw
+            - ./:/var/www/html/wp-content/plugins/simple-history
+        profiles:
+            - noautostart
 
 volumes:
-  wordpress: null
+    wordpress: null

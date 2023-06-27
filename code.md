@@ -14,11 +14,9 @@ Uses composer package `dealerdirect/phpcodesniffer-composer-installer` to find P
 Use PHP 7.4 (the WordPress rules crashes on PHP 8 so far, bug fixed but no version with fix released).
 
 - `phpcs.xml.dist` is the config used.
-
 - `$ vendor/bin/phpcs` to lint PHP from command line after editing.
-
 - Formatting:
-  `$ vendor/bin/phpcs phpcbf` to fix (write to disk) errors and warning.
+    `$ vendor/bin/phpcs phpcbf` to fix (write to disk) errors and warning.
 
 ## phpstan
 
@@ -31,11 +29,9 @@ Config is in `phpstan.neon`.
 ## Rector
 
 - **Rector** is used to update code to 7.4 and to refactor code to better quality.
-
-  - Dry run with `$ vendor/bin/rector process --dry-run`
-  - Run without `--dry-run` to write changes.
-  - Run with docker using `docker run -it --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp php:7.4-cli php vendor/bin/rector process --dry-run`
-
+    - Dry run with `$ vendor/bin/rector process --dry-run`
+    - Run without `--dry-run` to write changes.
+    - Run with docker using `docker run -it --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp php:7.4-cli php vendor/bin/rector process --dry-run`
 - Changelog: try to use format from https://keepachangelog.com.
 
 ## How to use in Visual Studio Code
@@ -47,15 +43,19 @@ Config is in `phpstan.neon`.
 
 List errors and warnings:
 
-    $ phpcs /path/to/code/myfile.php # lint specific file
-    $ phpcs # be in plugin root and all files will be linted
-    $ npm run lint-php # or use npm script
+```bash
+phpcs /path/to/code/myfile.php # lint specific file
+phpcs # be in plugin root and all files will be linted
+npm run lint-php # or use npm script
+```
 
 Fix things:
 
-    $ phpcbf /path/to/code
+```bash
+phpcbf /path/to/code
+```
 
 ## Git
 
 - Will try to follow OneFlow:  
-  https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
+    https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow

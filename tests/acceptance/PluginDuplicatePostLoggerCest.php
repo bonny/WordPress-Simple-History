@@ -8,9 +8,9 @@ class PluginDuplicatePostLoggerCest
         $I->loginAsAdmin();
         $I->amOnPluginsPage();
         $I->activatePlugin('duplicate-post');
-        $I->canSeePluginActivated('duplicate-post');        
+        $I->canSeePluginActivated('duplicate-post');
     }
-    
+
     public function clonePage(Admin $I) {
         $I->loginAsAdmin();
         $I->havePageInDatabase(['post_title' => 'Test page']);

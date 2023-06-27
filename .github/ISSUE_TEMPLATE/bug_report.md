@@ -24,6 +24,6 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **System information (please complete the following information):**
- - WordPress version: [e.g. 5.8]
- - PHP version: [e.g. 7.2]
- - Installed plugins: [e.g. Akismet, JetPack, ...]
+- WordPress version: [e.g. 5.8]
+- PHP version: [e.g. 7.2]
+- Installed plugins: [e.g. Akismet, JetPack, ...]

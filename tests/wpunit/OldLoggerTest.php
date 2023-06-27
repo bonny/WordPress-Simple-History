@@ -20,63 +20,63 @@ use function Simple_History\tests\get_latest_context;
  */
 class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 
-	// New logger class that is namespaced.
-	public function test_that_new_logger_class_exists() {
-		$this->assertTrue(class_exists('Simple_History\Loggers\Simple_Logger'), 'New Simple_Logger class exists');
-	}
+    // New logger class that is namespaced.
+    public function test_that_new_logger_class_exists() {
+        $this->assertTrue(class_exists('Simple_History\Loggers\Simple_Logger'), 'New Simple_Logger class exists');
+    }
 
-	// Old logger class without namespace.
-	public function test_that_old_logger_class_exists() {
-		$this->assertTrue(class_exists('SimpleLogger'), 'Old SimpleLogger class exists');
-	}
+    // Old logger class without namespace.
+    public function test_that_old_logger_class_exists() {
+        $this->assertTrue(class_exists('SimpleLogger'), 'Old SimpleLogger class exists');
+    }
 
-	public function test_that_old_logger_exists() {
-		$this->assertTrue(class_exists('Example_Logger'), 'Old SimpleLogger class exists');
-	}
+    public function test_that_old_logger_exists() {
+        $this->assertTrue(class_exists('Example_Logger'), 'Old SimpleLogger class exists');
+    }
 
-	public function test_old_logger_logging() {
-		// Trigger 404_template filter to trigger logger.
-		apply_filters( "404_template", 'template', 'type', array() );
+    public function test_old_logger_logging() {
+        // Trigger 404_template filter to trigger logger.
+        apply_filters( "404_template", 'template', 'type', array() );
 
-		$this->assertEquals(
-			array(
-				'logger' => 'FourOhFourLogger',
-				'level' => 'warning',
-				'message' => 'Got a 404-page when trying to visit "{request_uri}"',
-				'initiator' => 'web_user',
-			),
-			get_latest_row()
-		);
+        $this->assertEquals(
+            array(
+                'logger' => 'FourOhFourLogger',
+                'level' => 'warning',
+                'message' => 'Got a 404-page when trying to visit "{request_uri}"',
+                'initiator' => 'web_user',
+            ),
+            get_latest_row()
+        );
 
-	}
+    }
 
-	public function test_old_log_query_class() {
-		// Be admin user to be able to read logs.
-		$user_id = $this->factory->user->create(
-			array(
-				'role' => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
+    public function test_old_log_query_class() {
+        // Be admin user to be able to read logs.
+        $user_id = $this->factory->user->create(
+            array(
+                'role' => 'administrator',
+            )
+        );
+        wp_set_current_user( $user_id );
 
-		SimpleLogger()->info('This is an info message');
-		
-		$log_query = new SimpleHistoryLogQuery();
-		$query_results = $log_query->query( [
-			'posts_per_page' => 1,
-		] );
+        SimpleLogger()->info('This is an info message');
 
-		$expected_object = new stdClass();
-		$expected_object->logger = 'SimpleLogger';
-		$expected_object->level = 'info';
-		$expected_object->message = 'This is an info message';
-		$expected_object->context_message_key = null;
-		$expected_object->initiator = 'wp_user';
+        $log_query = new SimpleHistoryLogQuery();
+        $query_results = $log_query->query( [
+            'posts_per_page' => 1,
+        ] );
 
-		$actual = $query_results['log_rows'][0];
-		unset($actual->id, $actual->date, $actual->occasionsID, $actual->subsequentOccasions, $actual->rep, $actual->repeated, $actual->occasionsIDType, $actual->context);
+        $expected_object = new stdClass();
+        $expected_object->logger = 'SimpleLogger';
+        $expected_object->level = 'info';
+        $expected_object->message = 'This is an info message';
+        $expected_object->context_message_key = null;
+        $expected_object->initiator = 'wp_user';
 
-		$this->assertEquals($expected_object, $actual);
-	}
+        $actual = $query_results['log_rows'][0];
+        unset($actual->id, $actual->date, $actual->occasionsID, $actual->subsequentOccasions, $actual->rep, $actual->repeated, $actual->occasionsIDType, $actual->context);
+
+        $this->assertEquals($expected_object, $actual);
+    }
 }
 

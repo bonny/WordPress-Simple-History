@@ -4,7 +4,7 @@ use \Step\Acceptance\Admin;
 
 /**
  * Missing tests for:
- * 
+ *
  * - plugin_auto_updates_disabled - unable to test, not sure why (message not logged)
  * - plugin_auto_updates_enabled - unable to test, not sure why (message not logged)
  * - add_filter( 'plugins_auto_update_enabled', '__return_true' );
@@ -30,7 +30,7 @@ class SimplePluginLoggerCest
             'plugin_version' => '5.0.1',
             'plugin_url' => 'https://akismet.com/',
         ));
-        
+
         $I->amOnAdminPage('plugins.php');
         $I->click("#activate-hello-dolly");
         $I->seeLogMessage('Activated plugin "Hello Dolly"');
@@ -59,8 +59,8 @@ class SimplePluginLoggerCest
         ));
 
     }
-    
-    public function testPluginInstallFail(Admin $I) {          
+
+    public function testPluginInstallFail(Admin $I) {
         // plugin_installed_failed,
         // because folder already exists.
         $I->amOnAdminPage('plugin-install.php');
@@ -81,7 +81,7 @@ class SimplePluginLoggerCest
             // 'error_data' => ... hard to test string...
         ));
     }
-    
+
     // Can't get to work because there is always a left over folder or something.
     // Would need a "->cleanPluginDirIfExists"
     public function testPluginInstallSuccess(Admin $I) {
@@ -90,14 +90,14 @@ class SimplePluginLoggerCest
         $I->cleanPluginDir('limit-login-attempts-reloaded');
 
         $I->amOnAdminPage('plugin-install.php');
-        
+
         // $x = $I->canSeePluginFileFound('limit-login-attempts-reloadedx/readme.txt');
         // var_dump($x);
         // $x = $I->canSeePluginFileFound('limit-login-attempts-reloaded/readme.txt');
         // var_dump($x);exit;
 
         $I->click("Upload Plugin");
-        
+
 
         $I->attachFile('#pluginzip', 'limit-login-attempts-reloaded.2.25.5.zip');
         $I->click('Install Now');
@@ -122,15 +122,15 @@ class SimplePluginLoggerCest
         // - plugin_bulk_updated
     }
 
-    public function testPluginDeleted(Admin $I) {      
+    public function testPluginDeleted(Admin $I) {
         $I->amOnAdminPage('plugin-install.php');
         $I->click("Upload Plugin");
         $I->attachFile('#pluginzip', 'classic-widgets.0.3.zip');
         $I->click('Install Now');
-        
+
         // plugin_deleted
         $I->amOnAdminPage('plugins.php');
-        $I->checkOption('[value="classic-widgets/classic-widgets.php"]');                
+        $I->checkOption('[value="classic-widgets/classic-widgets.php"]');
         $I->selectOption("#bulk-action-selector-top", 'Delete');
         $I->click("#doaction");
         $I->acceptPopup();
@@ -149,7 +149,7 @@ class SimplePluginLoggerCest
 
     // public function testPluginAutoUpdatesEnableDisable(Admin $I) {
     //     // - plugin_auto_updates_disabled
-    //     // - plugin_auto_updates_enabled        
+    //     // - plugin_auto_updates_enabled
     //     $I->amOnAdminPage('plugins.php');
     //     $I->click('[data-slug=classic-editor] .toggle-auto-update');
     //     $I->wait(2);

@@ -9,17 +9,17 @@ namespace Simple_History\Dropins;
  * Author: Pär Thernström
  */
 class Settings_Debug_Tab_Dropin extends Dropin {
-	public function loaded() {
-		$this->simple_history->register_settings_tab(
-			array(
-				'slug' => 'debug',
-				'name' => __( 'Debug', 'simple-history' ),
-				'function' => array( $this, 'output' ),
-			)
-		);
-	}
+    public function loaded() {
+        $this->simple_history->register_settings_tab(
+            array(
+                'slug' => 'debug',
+                'name' => __( 'Debug', 'simple-history' ),
+                'function' => array( $this, 'output' ),
+            )
+        );
+    }
 
-	public function output() {
-		include SIMPLE_HISTORY_PATH . 'templates/template-settings-tab-debug.php';
-	}
+    public function output() {
+        include SIMPLE_HISTORY_PATH . 'templates/template-settings-tab-debug.php';
+    }
 }

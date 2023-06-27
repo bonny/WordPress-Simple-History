@@ -2,17 +2,17 @@
 
 class WPCliCest {
 
-	public function test_wp_cli_commands( FunctionalTester $I ) {
+    public function test_wp_cli_commands( FunctionalTester $I ) {
         // Test WP Version so we are not surprised by WP version changes.
         $I->cli('core version');
         $I->seeInShellOutput('6.1.1');
 
         $I->cli('simple-history');
         $I->seeInShellOutput('usage: wp simple-history list [--format=<format>] [--count=<count>]');
-        
+
         $I->haveUserInDatabase(
-            'luca', 
-            'editor', 
+            'luca',
+            'editor',
             [
                 'user_email' => 'luca@example.org',
                 'user_pass' => 'passw0rd',

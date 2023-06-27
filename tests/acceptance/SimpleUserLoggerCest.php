@@ -3,7 +3,7 @@
 /**
  * Message keys left to test, but not yet tested because
  * difficult to test or I don't know how to test at the moment:
- * 
+ *
  *   -  user_unknown_logged_in
  *   -  user_password_reseted
  *   -  user_session_destroy_others
@@ -282,7 +282,7 @@ class SimpleUserLoggerCest
         $I->click("Revoke");
         $I->acceptPopup();
         $I->waitForText('Application password revoked');
-        
+
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Revoked application password "My New App" for user "annaauthor"');
         $I->seeLogContext([

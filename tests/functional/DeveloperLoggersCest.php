@@ -7,7 +7,7 @@ class DeveloperLoggerCest {
         $I->activatePlugin('developer-loggers-for-simple-history');
     }
 
-	public function test_that_developer_loggers_can_be_activated( FunctionalTester $I ) {
+    public function test_that_developer_loggers_can_be_activated( FunctionalTester $I ) {
         $I->canSeePluginActivated('developer-loggers-for-simple-history');
     }
 

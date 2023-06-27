@@ -26,7 +26,7 @@ class Admin extends \AcceptanceTester
 
     /**
      * Check log entry for a message.
-     * 
+     *
      * @param string $who Clear text initator, i.e. "Anonymous web user", "Erik", "WP-CLI", ...
      * @param mixed $message Clear text message, i.e. "Logged in", "Added attachment", ...
      */
@@ -44,7 +44,7 @@ class Admin extends \AcceptanceTester
 
     /**
      * Check a log entry returned for value in keyValueTable
-     * 
+     *
      * @param string $who Text that contain text key and both the new and old value, i.e. "First name Hanna Anna" (where Anna is the removed name and Hanna the added).
      * @param mixed $message Clear text message, i.e. "Logged in", "Added attachment", ...
      */
@@ -60,8 +60,8 @@ class Admin extends \AcceptanceTester
     }
 
     /**
-     * @param mixed $who 
-     * @param mixed $message 
+     * @param mixed $who
+     * @param mixed $message
      * @param int $child Default 2 because num 1 is the logged event for the admin logging in.
      */
     public function seeInLogAsAdmin($who, $message, $child = 2)
@@ -86,7 +86,7 @@ class Admin extends \AcceptanceTester
      */
     public function getHistory(int $index = 0): array
     {
-        // I can't find any "grabRow"-method so I will get the columns one by one.        
+        // I can't find any "grabRow"-method so I will get the columns one by one.
         $history_table = $this->grabPrefixedTableNameFor('simple_history');
         $contexts_table = $this->grabPrefixedTableNameFor('simple_history_contexts');
         $ids = array_reverse($this->grabColumnFromDatabase($history_table, 'id', []));
@@ -139,12 +139,12 @@ class Admin extends \AcceptanceTester
     }
 
     /**
-     * 
+     *
      * @param mixed $initator wp_user, web_user, ...
-     * @return void 
-     * @throws InjectionException 
-     * @throws ConditionalAssertionFailed 
-     * @throws Exception 
+     * @return void
+     * @throws InjectionException
+     * @throws ConditionalAssertionFailed
+     * @throws Exception
      */
     public function seeLogInitiator(string $initator, int $index = 0)
     {
@@ -155,15 +155,15 @@ class Admin extends \AcceptanceTester
     /**
      * Test that the latest interpolated message in the log
      * is equal to the passed string.
-     * 
+     *
      * This kinda tests that both message and context are working.
-     * 
+     *
      * Example:
      * ```php
      * $I->seeLogMessage('Failed to login with username "erik" (username does not exist)');
      * ```
-     * 
-     * @param string $message_to_test 
+     *
+     * @param string $message_to_test
      */
     public function seeLogMessage(string $message_to_test, int $index = 0)
     {
@@ -180,20 +180,20 @@ class Admin extends \AcceptanceTester
     /**
      * Test that the latest interpolated message in the log
      * begins with the passed string.
-     * 
+     *
      * A reason to not test the full string may might be in a scenario where
      * the full message is a bit flaky during tests, for example when deleting
      * an attachment the message may be:
      * 'Deleted attachment "Image 1" ("Image-1-17.jpg")'
      * but on the next run it is
      * 'Deleted attachment "Image 1" ("Image-1-18.jpg")'
-     * 
+     *
      * Example:
      * ```php
      * $I->seeLogMessage(''Deleted attachment "Image 1" ("Image-1');
      * ```
-     * 
-     * @param string $message_to_test 
+     *
+     * @param string $message_to_test
      */
     public function seeLogMessageStartsWith(string $message_to_test, int $index = 0)
     {
@@ -212,7 +212,7 @@ class Admin extends \AcceptanceTester
      * Since the stored context can contain much data
      * the comparison is only done with the keys that are included in the
      * passed array.
-     * 
+     *
      * Example:
      * ```php
      * $I->seeLogContext([
@@ -222,7 +222,7 @@ class Admin extends \AcceptanceTester
      *   'user_new_description' => 'Hello there, this is my description text.',
      * ]);
      * ```
-     * 
+     *
      * @param array $expectedContext Array with expected key => value entries.
      */
     public function seeLogContext(array $expectedContext, int $index = 0)
@@ -240,8 +240,8 @@ class Admin extends \AcceptanceTester
      * The function simply checks if the context is an empty array and
      * it's probably not and the function will fail and the contexts is
      * shown as the expected value.
-     * 
-     * @return void 
+     *
+     * @return void
      */
     public function seeLogContextDebug(int $index = 0)
     {

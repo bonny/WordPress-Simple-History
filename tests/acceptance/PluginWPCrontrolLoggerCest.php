@@ -8,13 +8,13 @@ class PluginWPCrontrolLoggerCest
         $I->loginAsAdmin();
         $I->amOnPluginsPage();
         $I->activatePlugin('wp-crontrol');
-        $I->canSeePluginActivated('wp-crontrol');        
+        $I->canSeePluginActivated('wp-crontrol');
     }
-    
+
     public function addScheduleAndDeleteSchedule(Admin $I) {
         // "Cron Schedules" tab.
         $I->amOnAdminPage( 'options-general.php?page=crontrol_admin_options_page' );
-        
+
         // Add a schedule, message key "added_new_schedule".
         $I->fillField("#crontrol_schedule_internal_name", "my_123_seconds_interval");
         $I->fillField("#crontrol_schedule_interval", 123);
@@ -32,7 +32,7 @@ class PluginWPCrontrolLoggerCest
     public function manuallyRunCronEvent(Admin $I) {
         // "Cron Events" tab.
         $I->amOnAdminPage('tools.php?page=crontrol_admin_manage_page');
-        
+
         // Manually run an event. Message key 'ran_event'.
         // Manually run cron "wp_version_check" by clicking link "Run now" for that cron.
         // HTML is like this: <a href="http://wordpress-stable.test/wp-admin/tools.php?page=crontrol_admin_manage_page&amp;
@@ -56,7 +56,7 @@ class PluginWPCrontrolLoggerCest
 
         // Edit cron event. Message key 'edited_event'.
         $I->amOnAdminPage('tools.php?page=crontrol_admin_manage_page');
-        
+
         $I->executeJS("jQuery('div.row-actions').addClass('visible');");
         // Click "Edit now" link.
         $I->click('a[href*="crontrol_action=edit-cron"][href*=Manually]');

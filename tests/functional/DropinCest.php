@@ -1,7 +1,7 @@
 <?php
 
 class DropinCest {
-	public function test_can_see_dropin_tab_on_settings_page( FunctionalTester $I ) {
+    public function test_can_see_dropin_tab_on_settings_page( FunctionalTester $I ) {
         $I->loginAsAdmin();
         $I->amOnAdminPage('options-general.php?page=simple_history_settings_menu_slug');
         $I->canSee('Namespaced dropin example tab');

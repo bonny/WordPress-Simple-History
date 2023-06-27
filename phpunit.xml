@@ -1,18 +1,17 @@
 <phpunit
-	bootstrap="tests/bootstrap.php"
-	backupGlobals="false"
-	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	>
-	<testsuites>
-		<testsuite name="Simple History Test Suite">
-			<directory prefix="test-" suffix=".php">./tests/</directory>
-		</testsuite>
-	</testsuites>
+    bootstrap="tests/bootstrap.php"
+    backupGlobals="false"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+>
+    <testsuites>
+        <testsuite name="Simple History Test Suite">
+            <directory prefix="test-" suffix=".php">./tests/</directory>
+        </testsuite>
+    </testsuites>
     <php>
-         <ini name="display_errors" value="true"/>
+        <ini name="display_errors" value="true"/>
     </php>
 </phpunit>
-

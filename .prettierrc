@@ -1,12 +1,12 @@
 {
-	"overrides": [
-		{
-			"files": "*.php",
-			"options": {
-				"printWidth": 120,
-				"tabWidth": 4,
-				"useTabs": false
-			}
-		}
-	]
+    "overrides": [
+        {
+            "files": "*.php",
+            "options": {
+                "printWidth": 120,
+                "tabWidth": 4,
+                "useTabs": false
+            }
+        }
+    ]
 }

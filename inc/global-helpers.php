@@ -21,9 +21,9 @@ use Simple_History\Loggers\Simple_Logger;
  * @return Simple_Logger
  */
 if ( ! function_exists( 'SimpleLogger' ) ) {
-	function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
-		return new Simple_Logger( Simple_History::get_instance() );
-	}
+    function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+        return new Simple_Logger( Simple_History::get_instance() );
+    }
 }
 
 /**
@@ -39,18 +39,18 @@ if ( ! function_exists( 'SimpleLogger' ) ) {
  * );
  */
 if ( ! function_exists( 'sh_error_log' ) ) {
-	function sh_error_log() {
-		foreach ( func_get_args() as $var ) {
-			if ( is_bool( $var ) ) {
-				$bool_string = true === $var ? 'true' : 'false';
-				error_log( "$bool_string (boolean value)" );
-			} elseif ( is_null( $var ) ) {
-				error_log( 'null (null value)' );
-			} else {
-				error_log( print_r( $var, true ) );
-			}
-		}
-	}
+    function sh_error_log() {
+        foreach ( func_get_args() as $var ) {
+            if ( is_bool( $var ) ) {
+                $bool_string = true === $var ? 'true' : 'false';
+                error_log( "$bool_string (boolean value)" );
+            } elseif ( is_null( $var ) ) {
+                error_log( 'null (null value)' );
+            } else {
+                error_log( print_r( $var, true ) );
+            }
+        }
+    }
 }
 
 /**
@@ -65,39 +65,39 @@ if ( ! function_exists( 'sh_error_log' ) ) {
  * @mixed Vars Variables to output.
  */
 if ( ! function_exists( 'sh_d' ) ) {
-	function sh_d() {
-		$output = '';
+    function sh_d() {
+        $output = '';
 
-		foreach ( func_get_args() as $var ) {
-			$loopOutput = '';
-			if ( is_bool( $var ) ) {
-				$bool_string = true === $var ? 'true' : 'false';
-				$loopOutput = "$bool_string (boolean value)";
-			} elseif ( is_null( $var ) ) {
-				$loopOutput = ( 'null (null value)' );
-			} elseif ( is_int( $var ) ) {
-				$loopOutput = "$var (integer value)";
-			} elseif ( is_numeric( $var ) ) {
-				$loopOutput = "$var (numeric string)";
-			} elseif ( is_string( $var ) && $var === '' ) {
-				$loopOutput = "'' (empty string)";
-			} else {
-				$loopOutput = print_r( $var, true );
-			}
+        foreach ( func_get_args() as $var ) {
+            $loopOutput = '';
+            if ( is_bool( $var ) ) {
+                $bool_string = true === $var ? 'true' : 'false';
+                $loopOutput = "$bool_string (boolean value)";
+            } elseif ( is_null( $var ) ) {
+                $loopOutput = ( 'null (null value)' );
+            } elseif ( is_int( $var ) ) {
+                $loopOutput = "$var (integer value)";
+            } elseif ( is_numeric( $var ) ) {
+                $loopOutput = "$var (numeric string)";
+            } elseif ( is_string( $var ) && $var === '' ) {
+                $loopOutput = "'' (empty string)";
+            } else {
+                $loopOutput = print_r( $var, true );
+            }
 
-			if ( $loopOutput ) {
-				$maybe_escaped_loop_output = 'cli' === php_sapi_name() ? $loopOutput : esc_html( $loopOutput );
+            if ( $loopOutput ) {
+                $maybe_escaped_loop_output = 'cli' === php_sapi_name() ? $loopOutput : esc_html( $loopOutput );
 
-				$output = $output . sprintf(
-					'
+                $output = $output . sprintf(
+                    '
                 <pre>%1$s</pre>
                 ',
-					$maybe_escaped_loop_output
-				);
-			}
-		}
+                    $maybe_escaped_loop_output
+                );
+            }
+        }
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $output;
-	}
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $output;
+    }
 }

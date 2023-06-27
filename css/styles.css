@@ -1,101 +1,101 @@
 /* clearfix */
 .SimpleHistory__cf:before,
 .SimpleHistory__cf:after {
-	content: "";
-	display: table;
+    content: "";
+    display: table;
 }
 .SimpleHistory__cf:after {
-	clear: both;
+    clear: both;
 }
 .SimpleHistory__cf {
-	zoom: 1;
+    zoom: 1;
 } /* For IE 6/7 (trigger hasLayout) */
 
 .SimpleHistoryGui,
 .SimpleHistoryGuiExample {
-	position: relative;
-	/* must have a height so "loading..." will be visible in dashboard */
-	min-height: 6em;
+    position: relative;
+    /* must have a height so "loading..." will be visible in dashboard */
+    min-height: 6em;
 }
 
 .SimpleHistory__waitingForFirstLoad {
-	position: absolute;
-	top: 20px;
-	left: 20px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
 }
 
 .SimpleHistory__waitingForFirstLoad img {
-	vertical-align: text-bottom;
+    vertical-align: text-bottom;
 }
 
 .SimpleHistory__waitingForFirstLoad--isLoaded {
-	display: none;
+    display: none;
 }
 
 /* wrap around the log items and the pagination */
 .SimpleHistoryLogitemsWrap {
-	transition: opacity 0.1s ease-out;
+    transition: opacity 0.1s ease-out;
 }
 
 /* on its own page */
 /*.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {*/
 .SimpleHistoryGuiWrap {
-	position: relative;
-	min-height: 200px;
-	background-color: rgba(255, 255, 255, 0.75);
+    position: relative;
+    min-height: 200px;
+    background-color: rgba(255, 255, 255, 0.75);
 }
 
 .SimpleHistory--isLoaded .SimpleHistoryGuiWrap {
-	background-color: transparent;
+    background-color: transparent;
 }
 
 .SimpleHistoryGuiWrap .SimpleHistoryGui {
-	width: 100%;
+    width: 100%;
 }
 
 @media only screen and (min-width: 960px) {
-	.SimpleHistoryGuiWrap {
-		display: -webkit-box;
-		display: -ms-flexbox;
-		display: flex;
-		-ms-flex-wrap: nowrap;
-		flex-wrap: nowrap;
-		-webkit-box-align: start;
-		-ms-flex-align: start;
-		align-items: flex-start;
-		-webkit-box-pack: justify;
-		-ms-flex-pack: justify;
-		justify-content: space-between;
-	}
+    .SimpleHistoryGuiWrap {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        -webkit-box-align: start;
+        -ms-flex-align: start;
+        align-items: flex-start;
+        -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+    }
 }
 
 /*
 .SimpleHistoryGui:after {
-	content: "\f206";
-	font-family: dashicons;
-	font-size: 510px;
-	position: relative;
-	line-height: 1;
-	color: #ddd;
-	z-index: 0;
+    content: "\f206";
+    font-family: dashicons;
+    font-size: 510px;
+    position: relative;
+    line-height: 1;
+    color: #ddd;
+    z-index: 0;
 }
 
 .SimpleHistory--isLoaded .SimpleHistoryGui:after {
-	display: none;
+    display: none;
 }
 */
 
 .SimpleHistoryLogitems {
-	margin: 0;
-	background: #fff;
-	border: 1px solid rgb(229, 229, 229);
-	opacity: 0;
-	transition: all 0.25s ease-out;
+    margin: 0;
+    background: #fff;
+    border: 1px solid rgb(229, 229, 229);
+    opacity: 0;
+    transition: all 0.25s ease-out;
 }
 
 .SimpleHistory--isLoaded .SimpleHistoryLogitems,
 .SimpleHistoryGuiExample .SimpleHistoryLogitems {
-	opacity: 1;
+    opacity: 1;
 }
 
 /**
@@ -103,31 +103,31 @@
  * There is always a 4px left border, just with different colors.
  */
 .SimpleHistoryLogitem {
-	position: relative;
-	list-style-type: none;
-	margin: 0;
-	padding: 20px 20px 20px 16px;
-	/*border-bottom: 1px solid rgb(229, 229, 229);*/
+    position: relative;
+    list-style-type: none;
+    margin: 0;
+    padding: 20px 20px 20px 16px;
+    /*border-bottom: 1px solid rgb(229, 229, 229);*/
 
-	/* uncomment to show border with log color */
-	/*border-left: 4px solid transparent;*/
+    /* uncomment to show border with log color */
+    /*border-left: 4px solid transparent;*/
 
-	overflow: hidden;
+    overflow: hidden;
 }
 
 /* add border below items */
 .SimpleHistoryLogitem::before {
-	content: "";
-	position: absolute;
-	bottom: 0;
-	left: 66px;
-	height: 1px;
-	right: 0;
-	background: rgb(229, 229, 229);
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 66px;
+    height: 1px;
+    right: 0;
+    background: rgb(229, 229, 229);
 }
 
 .SimpleHistoryLogitem:last-of-type:before {
-	background: none;
+    background: none;
 }
 
 /*
@@ -135,156 +135,156 @@ Style different log levels.
 */
 
 .SimpleHistoryLogitem--logleveltag {
-	display: inline-block;
-	background-color: rgba(238, 238, 238, 1);
-	font-size: 10px;
-	padding: 3px 4px;
-	border-radius: 3px;
-	/*opacity: .75;*/
-	vertical-align: 1px;
-	line-height: 1;
+    display: inline-block;
+    background-color: rgba(238, 238, 238, 1);
+    font-size: 10px;
+    padding: 3px 4px;
+    border-radius: 3px;
+    /*opacity: .75;*/
+    vertical-align: 1px;
+    line-height: 1;
 }
 
 .SimpleHistoryLogitem--loglevel-debug {
-	border-left-color: #cef6d8;
+    border-left-color: #cef6d8;
 }
 .SimpleHistoryLogitem--logleveltag-debug {
-	background-color: #cef6d8;
-	color: #111;
+    background-color: #cef6d8;
+    color: #111;
 }
 
 .SimpleHistoryLogitem--loglevel-info {
-	border-left-color: white;
+    border-left-color: white;
 }
 .SimpleHistoryLogitem--logleveltag-info {
-	display: none;
+    display: none;
 }
 
 .SimpleHistoryLogitem--loglevel-notice {
-	border-left-color: #ffffe0;
-	border-left-color: rgb(219, 219, 183);
+    border-left-color: #ffffe0;
+    border-left-color: rgb(219, 219, 183);
 }
 .SimpleHistoryLogitem--logleveltag-notice {
-	background-color: rgb(219, 219, 183);
-	color: #111;
+    background-color: rgb(219, 219, 183);
+    color: #111;
 }
 
 .SimpleHistoryLogitem--loglevel-warning {
-	border-left-color: #f7d358;
+    border-left-color: #f7d358;
 }
 .SimpleHistoryLogitem--logleveltag-warning {
-	background-color: #f7d358;
-	color: #111;
+    background-color: #f7d358;
+    color: #111;
 }
 
 .SimpleHistoryLogitem--loglevel-error {
-	border-left-color: #f79f81;
+    border-left-color: #f79f81;
 }
 .SimpleHistoryLogitem--logleveltag-error {
-	background-color: #f79f81;
-	color: #000;
+    background-color: #f79f81;
+    color: #000;
 }
 
 .SimpleHistoryLogitem--loglevel-critical {
-	border-left-color: #fa5858;
+    border-left-color: #fa5858;
 }
 .SimpleHistoryLogitem--logleveltag-critical {
-	background-color: #fa5858;
-	color: #fff;
+    background-color: #fa5858;
+    color: #fff;
 }
 
 .SimpleHistoryLogitem--loglevel-alert {
-	border-left-color: rgb(199, 69, 69);
+    border-left-color: rgb(199, 69, 69);
 }
 .SimpleHistoryLogitem--logleveltag-alert {
-	background-color: rgb(199, 69, 69);
-	color: #eee;
+    background-color: rgb(199, 69, 69);
+    color: #eee;
 }
 
 .SimpleHistoryLogitem--loglevel-emergency {
-	border-left-color: #610b0b;
-	border-left-color: #df0101;
+    border-left-color: #610b0b;
+    border-left-color: #df0101;
 }
 .SimpleHistoryLogitem--logleveltag-emergency {
-	background-color: #610b0b;
-	background-color: #df0101;
-	color: #eee;
+    background-color: #610b0b;
+    background-color: #df0101;
+    color: #eee;
 }
 
 .SimpleHistoryLogitem a {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 .SimpleHistoryLogitem a:hover {
-	text-decoration: underline;
+    text-decoration: underline;
 }
 
 .SimpleHistoryLogitem__firstcol {
-	float: left;
+    float: left;
 }
 
 .SimpleHistoryLogitem__senderImage {
-	position: relative;
-	border-radius: 50%;
-	overflow: hidden;
-	/*opacity: .8;*/
-	margin-top: 5px;
+    position: relative;
+    border-radius: 50%;
+    overflow: hidden;
+    /*opacity: .8;*/
+    margin-top: 5px;
 }
 
 .SimpleHistoryLogitem__senderImage img {
-	display: block;
-	max-width: 100%;
-	max-height: 100%;
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .SimpleHistoryLogitem__secondcol {
-	margin-left: 50px;
+    margin-left: 50px;
 }
 
 .SimpleHistoryLogitem__header {
-	line-height: 1.2;
-	margin-top: 2px;
+    line-height: 1.2;
+    margin-top: 2px;
 }
 
 .SimpleHistoryLogitem__header,
 /*.SimpleHistoryLogitem__header time,*/
 .SimpleHistoryLogitem__headerEmail {
-	color: rgb(137, 143, 156);
+    color: rgb(137, 143, 156);
 }
 
 .SimpleHistoryLogitem__text,
 .SimpleHistoryLogitem__details,
 .SimpleHistoryLogitem__details p {
-	line-height: 1.4;
+    line-height: 1.4;
 }
 
 .SimpleHistoryLogitem__text {
-	margin-top: 0.4em;
-	font-size: 15px;
-	color: #333;
-	/* break long lines so content always fit, even if very long (like very long url from http_api-logger */
-	word-break: break-word;
+    margin-top: 0.4em;
+    font-size: 15px;
+    color: #333;
+    /* break long lines so content always fit, even if very long (like very long url from http_api-logger */
+    word-break: break-word;
 }
 
 .SimpleHistoryLogitem__details p {
-	margin-top: 0.4em;
-	margin-bottom: 0.4em;
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
 }
 
 .SimpleHistoryLogitem__occasions {
-	color: rgb(137, 143, 156);
-	margin-top: 0.4em;
-	line-height: 1;
-	max-height: 1em;
+    color: rgb(137, 143, 156);
+    margin-top: 0.4em;
+    line-height: 1;
+    max-height: 1em;
 }
 
 .SimpleHistoryLogitem__details {
-	margin-top: 0.4em;
+    margin-top: 0.4em;
 }
 
 /* make video embeds responsive */
 .SimpleHistoryLogitem__details .wp-video {
-	max-width: 100%;
+    max-width: 100%;
 }
 
 /*.SimpleHistoryLogitem__details .wp-video-shortcode {
@@ -298,160 +298,160 @@ Style different log levels.
 
 .SimpleHistoryLogitem__keyValueTable th,
 .SimpleHistoryLogitem__keyValueTable td {
-	vertical-align: top;
-	word-break: break-word;
+    vertical-align: top;
+    word-break: break-word;
 }
 
 .SimpleHistoryLogitem__keyValueTable tr > td:first-child {
-	text-align: right;
-	padding-right: 1em;
-	color: #757575;
-	white-space: nowrap;
+    text-align: right;
+    padding-right: 1em;
+    color: #757575;
+    white-space: nowrap;
 }
 
 .SimpleHistoryLogitem__keyValueTable p {
-	margin: 0;
+    margin: 0;
 }
 
 .SimpleHistoryLogitem__keyValueTable__addedThing {
-	text-decoration: none;
-	margin-right: 0.5em;
+    text-decoration: none;
+    margin-right: 0.5em;
 }
 
 .SimpleHistoryLogitem__keyValueTable__removedThing {
-	text-decoration: line-through;
-	color: #999;
+    text-decoration: line-through;
+    color: #999;
 }
 
 /* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
 .SimpleHistoryLogitem__inlineDivided {
-	white-space: nowrap;
+    white-space: nowrap;
 }
 
 .SimpleHistoryLogitem__inlineDivided em {
-	color: rgb(119, 119, 119);
-	font-style: normal;
+    color: rgb(119, 119, 119);
+    font-style: normal;
 }
 
 .SimpleHistoryLogitem__inlineDivided:before {
-	/* \b7 = middot, \a0 = space */
-	/*content: '\a0\b7\a0\a0';*/
-	content: "\b7\a0";
-	/* \2022 = bullet */
-	/*content: '\a0\a0\2022\a0\a0';*/
-	color: rgb(137, 143, 156);
+    /* \b7 = middot, \a0 = space */
+    /*content: '\a0\b7\a0\a0';*/
+    content: "\b7\a0";
+    /* \2022 = bullet */
+    /*content: '\a0\a0\2022\a0\a0';*/
+    color: rgb(137, 143, 156);
 }
 
 .SimpleHistoryLogitem__inlineDivided:first-child:before {
-	content: "";
+    content: "";
 }
 
 /*
 Images/thumbs can be styles nicely
 */
 .SimpleHistoryLogitemThumbnail {
-	display: inline-block;
-	margin: 0.5em 0 0 0;
-	padding: 5px;
-	border: 1px solid #ddd;
-	border-radius: 2px;
+    display: inline-block;
+    margin: 0.5em 0 0 0;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 2px;
 }
 
 .SimpleHistoryLogitemThumbnailLink {
-	display: inline-block;
+    display: inline-block;
 }
 
 .SimpleHistoryLogitemThumbnail img {
-	/*
-	photoshop-like background that represents transparency
-	so user can see that an image have transparency
-	*/
-	display: block;
-	background-image: url("data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7");
-	max-width: 200px;
-	max-height: 125px;
-	height: auto;
+    /*
+    photoshop-like background that represents transparency
+    so user can see that an image have transparency
+    */
+    display: block;
+    background-image: url("data:image/gif;base64,R0lGODlhEAAQAIAAAOXl5f///yH5BAAAAAAALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7");
+    max-width: 200px;
+    max-height: 125px;
+    height: auto;
 }
 
 /* remove border below */
 .SimpleHistoryLogitem--occasionsOpened::before {
-	opacity: 0;
+    opacity: 0;
 }
 
 /* when occasions is loaded and have loaded hide the "show occasions"-link*/
 .SimpleHistoryLogitem--occasionsOpening .SimpleHistoryLogitem__occasionsLink,
 .SimpleHistoryLogitem--occasionsOpened .SimpleHistoryLogitem__occasionsLink {
-	display: none;
+    display: none;
 }
 
 /* hide the "loading" and "loaded occasions" text */
 .SimpleHistoryLogitem__occasionsLoading,
 .SimpleHistoryLogitem__occasionsLoaded {
-	display: none;
+    display: none;
 }
 
 /* show texts during load and when load is done */
 .SimpleHistoryLogitem--occasionsOpening .SimpleHistoryLogitem__occasionsLoading,
 .SimpleHistoryLogitem--occasionsOpened .SimpleHistoryLogitem__occasionsLoaded {
-	display: block;
+    display: block;
 }
 
 /* occasions are added to a wrapper element */
 .SimpleHistoryLogitem__occasionsItemsWrap {
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .SimpleHistoryLogitem__occasionsItems {
-	opacity: 0;
-	max-height: 0;
-	transition: opacity 0.25s ease-out 0.5s, max-height 2s ease-out 0s,
-		margin 0.25s 0s ease-out;
-	background-color: white;
-	box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    max-height: 0;
+    transition: opacity 0.25s ease-out 0.5s, max-height 2s ease-out 0s,
+        margin 0.25s 0s ease-out;
+    background-color: white;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
 }
 
 .SimpleHistoryLogitem__occasionsItems.haveOccasionsAdded {
-	opacity: 1;
-	max-height: 2000px;
-	margin-left: -5px;
-	margin-right: -5px;
+    opacity: 1;
+    max-height: 2000px;
+    margin-left: -5px;
+    margin-right: -5px;
 }
 
 /*
 
 .SimpleHistoryLogitem--occasion {
-	opacity: 0;
-	padding-top: 0;
-	padding-bottom: 0;
-	max-height: 0;
-	border-top-width : 0;
-	border-bottom-width : 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    max-height: 0;
+    border-top-width : 0;
+    border-bottom-width : 0;
 }
 */
 
 /*
 .SimpleHistoryLogitem--occasionsOpened:after,
 .SimpleHistoryLogitem--occasion:after {
-	content: "";
-	position: absolute;
-	top: 3px;
-	bottom: 3px;
-	left: 20px;
-	width: 2px;
-	background: rgba(0,0,0,0.3);
-	border-radius: 3px / 7px;
+    content: "";
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 20px;
+    width: 2px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 3px / 7px;
 }
 */
 
 /* when the occasions log rows have been added show them in some kinda fancy way */
 .SimpleHistoryLogitem--occasionAdded {
-	max-height: 1000px;
-	opacity: 1;
-	border-top-width: 1px;
-	border-bottom-width: 1px;
-	padding-top: 15px;
-	padding-bottom: 15px;
+    max-height: 1000px;
+    opacity: 1;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 
 /*
@@ -459,77 +459,77 @@ customizations for the dashboard
 i.e. the log is inside a .postbox element
 */
 #simple_history_dashboard_widget .inside {
-	padding: 0;
-	margin-top: 0;
+    padding: 0;
+    margin-top: 0;
 }
 
 .postbox .SimpleHistoryQuickStats {
-	margin-left: 13px;
-	margin-right: 13px;
-	font-size: 14px;
+    margin-left: 13px;
+    margin-right: 13px;
+    font-size: 14px;
 }
 
 .postbox .SimpleHistoryQuickStats p {
-	font-size: 14px;
+    font-size: 14px;
 }
 
 .postbox .SimpleHistoryLogitems {
-	border: none;
+    border: none;
 }
 
 .postbox .SimpleHistoryLogitem {
-	padding: 12px 5px 12px 16px;
+    padding: 12px 5px 12px 16px;
 }
 
 .postbox .SimpleHistoryLogitem::before {
-	left: 55px;
+    left: 55px;
 }
 
 .postbox .SimpleHistoryLogitem__senderImage {
-	width: 24px;
-	height: 24px;
+    width: 24px;
+    height: 24px;
 }
 
 .postbox
-	.SimpleHistoryLogitem--initiator-wp
-	.SimpleHistoryLogitem__senderImage:before,
+    .SimpleHistoryLogitem--initiator-wp
+    .SimpleHistoryLogitem__senderImage:before,
 .postbox
-	.SimpleHistoryLogitem--initiator-wp_cli
-	.SimpleHistoryLogitem__senderImage:before,
+    .SimpleHistoryLogitem--initiator-wp_cli
+    .SimpleHistoryLogitem__senderImage:before,
 .postbox
-	.SimpleHistoryLogitem--initiator-web_user
-	.SimpleHistoryLogitem__senderImage:before {
-	font-size: 24px;
+    .SimpleHistoryLogitem--initiator-web_user
+    .SimpleHistoryLogitem__senderImage:before {
+    font-size: 24px;
 }
 
 .postbox .SimpleHistoryLogitem__secondcol {
-	margin-left: 40px;
+    margin-left: 40px;
 }
 
 .postbox .SimpleHistoryLogitem__text {
-	font-size: 1em;
+    font-size: 1em;
 }
 
 .postbox .SimpleHistoryLogitem__details p {
-	margin-top: 0;
-	margin-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .postbox .SimpleHistoryLogitem__text,
 .postbox .SimpleHistoryLogitem__details,
 .postbox .SimpleHistoryLogitem__details p {
-	line-height: 1.5;
+    line-height: 1.5;
 }
 
 .postbox .SimpleHistoryPaginationCurrentPage {
-	vertical-align: top;
+    vertical-align: top;
 }
 
 /*
-	.postbox .SimpleHistoryLogitem__details {
-		display: none;
-	}
-	*/
+    .postbox .SimpleHistoryLogitem__details {
+        display: none;
+    }
+    */
 
 /* // end dashboard */
 
@@ -537,179 +537,179 @@ i.e. the log is inside a .postbox element
 Styles for filter
 */
 /*.simple-history-filters {
-	float: left;
-	width: 400px;
-	margin-left: 50px;
+    float: left;
+    width: 400px;
+    margin-left: 50px;
 }
 */
 
 .SimpleHistoryLogitems__debug {
-	font-family: monospace;
-	white-space: pre;
+    font-family: monospace;
+    white-space: pre;
 }
 
 /*
 Pagination, below logRows
 */
 .SimpleHistoryPaginationPages {
-	text-align: center;
-	padding-top: 20px;
-	padding-bottom: 20px;
-	background: white;
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background: white;
 }
 
 .postbox .SimpleHistoryPaginationPages {
-	padding-top: 8px;
-	padding-bottom: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .SimpleHistoryPaginationLinks .SimpleHistoryPaginationLink {
-	vertical-align: baseline;
-	min-width: 30px;
-	min-height: 30px;
-	margin: 0;
-	padding: 0 4px;
-	font-size: 16px;
-	line-height: 1.625;
-	text-align: center;
+    vertical-align: baseline;
+    min-width: 30px;
+    min-height: 30px;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 16px;
+    line-height: 1.625;
+    text-align: center;
 }
 
 .SimpleHistoryPaginationLink.SimpleHistoryPaginationLink.disabled {
-	color: rgb(170, 170, 170);
-	background: rgb(238, 238, 238);
-	background: rgba(0, 0, 0, 0.05);
-	cursor: default;
+    color: rgb(170, 170, 170);
+    background: rgb(238, 238, 238);
+    background: rgba(0, 0, 0, 0.05);
+    cursor: default;
 }
 
 .SimpleHistoryPaginationCurrentPage {
-	margin: 0 2px 0 0;
-	font-size: 13px;
-	text-align: center;
+    margin: 0 2px 0 0;
+    font-size: 13px;
+    text-align: center;
 }
 
 .SimpleHistoryPaginationInput .total-pages {
-	margin-right: 2px;
+    margin-right: 2px;
 }
 
 /*
 animations/effects
 */
 .SimpleHistory-isLoadingPage .SimpleHistoryLogitemsWrap {
-	opacity: 0.5;
+    opacity: 0.5;
 }
 
 /*
 Modal window with detailss
 */
 .SimpleHistory-modal__background {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: rgba(0, 0, 0, 0.2);
-	z-index: 10;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 
 .SimpleHistory-modal__content {
-	background: white;
-	border-radius: 4px;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	bottom: 60px;
-	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-	left: 280px; /* admin menu width is 160 px*/
-	position: fixed;
-	overflow: auto;
-	right: 120px;
-	top: 60px;
-	z-index: 15;
-	-webkit-overflow-scrolling: touch;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    bottom: 60px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    left: 280px; /* admin menu width is 160 px*/
+    position: fixed;
+    overflow: auto;
+    right: 120px;
+    top: 60px;
+    z-index: 15;
+    -webkit-overflow-scrolling: touch;
 }
 
 @media only screen and (max-width: 960px) {
-	.SimpleHistory-modal__background {
-		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
-	}
+    .SimpleHistory-modal__background {
+        z-index: 9991; /* #adminmenuwrap has z-index 9990 */
+    }
 
-	.SimpleHistory-modal__content {
-		top: 10px;
-		left: 10px;
-		right: 10px;
-		bottom: 10px;
-		z-index: 9991; /* #adminmenuwrap has z-index 9990 */
-	}
+    .SimpleHistory-modal__content {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        z-index: 9991; /* #adminmenuwrap has z-index 9990 */
+    }
 }
 
 .SimpleHistory-modal__contentInner {
-	padding: 15px;
+    padding: 15px;
 }
 
 .SimpleHistory-modal__contentSpinner {
-	margin-left: 20px;
-	margin-top: 20px;
+    margin-left: 20px;
+    margin-top: 20px;
 }
 
 .SimpleHistory-modal__contentClose {
-	position: absolute;
-	top: 10px;
-	right: 10px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
 }
 
 .SimpleHistory-modal__contentClose button {
-	cursor: pointer;
+    cursor: pointer;
 }
 
 /* if wp left menu is collapsed .folded is added and menu width is 36 px */
 .folded .SimpleHistory-modal__content {
-	left: 156px; /* admin menu width is 160 px */
+    left: 156px; /* admin menu width is 160 px */
 }
 
 @media only screen and (max-width: 850px) {
-	.SimpleHistory-modal__content {
-		left: 10px; /* admin menu width is 160 px */
-	}
+    .SimpleHistory-modal__content {
+        left: 10px; /* admin menu width is 160 px */
+    }
 }
 
 .SimpleHistory-modal__content--enter {
-	transition: all 0.15s ease-out;
-	-webkit-transform: scale(0.95);
-	transform: scale(0.95);
-	opacity: 0;
+    transition: all 0.15s ease-out;
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    opacity: 0;
 }
 
 .SimpleHistory-modal__content--enter-active {
-	opacity: 1;
-	-webkit-transform: scale(1);
-	transform: scale(1);
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
 }
 
 .SimpleHistory-modal__content--leave-active {
-	opacity: 0;
-	-webkit-transform: scale(0.95);
-	transform: scale(0.95);
+    opacity: 0;
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
 }
 
 .SimpleHistory-modal__leave-active {
-	transition: all 0.15s 0.15s ease-out, visibility 0s 0.3s;
+    transition: all 0.15s 0.15s ease-out, visibility 0s 0.3s;
 
-	opacity: 0;
-	visibility: hidden;
+    opacity: 0;
+    visibility: hidden;
 }
 
 .admin-bar .SimpleHistory-modal__content {
-	top: 92px; /* admin bar height is 32 px*/
+    top: 92px; /* admin bar height is 32 px*/
 }
 
 @media only screen and (max-width: 960px) {
-	.admin-bar .SimpleHistory-modal__content {
-		top: 10px;
-		z-index: 100000;
-	}
+    .admin-bar .SimpleHistory-modal__content {
+        top: 10px;
+        z-index: 100000;
+    }
 }
 
 /* style the logRow a bit more when shown in modal */
 .SimpleHistory-modal .SimpleHistoryLogitem__header {
-	font-size: 16px;
+    font-size: 16px;
 }
 
 .SimpleHistory-modal .SimpleHistoryLogitem__text,
@@ -717,229 +717,231 @@ Modal window with detailss
 .SimpleHistory-modal .SimpleHistoryLogitem__details p,
 .SimpleHistory-modal .SimpleHistoryLogitem__moreDetails,
 .SimpleHistory-modal .SimpleHistoryLogitem__moreDetails p {
-	font-size: 18px;
+    font-size: 18px;
 }
 
 .SimpleHistory-modal .SimpleHistoryLogitem:hover {
-	background: inherit;
+    background: inherit;
 }
 
 .SimpleHistoryLogitem__moreDetails {
-	border-top: 1px solid rgb(229, 229, 229);
-	margin-top: 20px;
+    border-top: 1px solid rgb(229, 229, 229);
+    margin-top: 20px;
 }
 
 .SimpleHistoryLogitem__moreDetailsHeadline {
-	font-size: 14px;
-	font-weight: bold;
-	padding: 0;
-	margin-top: 20px;
-	margin-bottom: 0;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0;
+    margin-top: 20px;
+    margin-bottom: 0;
 }
 
 .SimpleHistory-modal .SimpleHistoryLogitem__moreDetails p {
-	font-size: 14px;
+    font-size: 14px;
 }
 
 .SimpleHistoryLogitem__moreDetailsContext {
-	font-family: monospace;
-	white-space: pre-wrap;
-	font-size: 12px;
-	border-collapse: collapse;
+    font-family: monospace;
+    white-space: pre-wrap;
+    font-size: 12px;
+    border-collapse: collapse;
 }
 
 .SimpleHistoryLogitem__moreDetailsContext th,
 .SimpleHistoryLogitem__moreDetailsContext td {
-	padding: 4px;
-	padding-right: 20px;
+    padding: 4px;
+    padding-right: 20px;
 }
 
 .SimpleHistoryLogitem__moreDetailsContext tr:nth-child(odd) {
-	background-color: #eee;
+    background-color: #eee;
 }
 
 @media only screen and (max-width: 850px) {
-	.SimpleHistoryLogitem__moreDetails {
-		margin-left: -60px;
-	}
+    .SimpleHistoryLogitem__moreDetails {
+        margin-left: -60px;
+    }
 
-	/* make table less table-like on small screens by putting tds below/after each other
-	   instead of next to each other */
-	.SimpleHistoryLogitem__moreDetailsContext th:first-child,
-	.SimpleHistoryLogitem__moreDetailsContext td:first-child {
-		display: block;
-		font-weight: bold;
-	}
+    /*
+        make table less table-like on small screens by putting tds below/after each other
+        instead of next to each other
+    */
+    .SimpleHistoryLogitem__moreDetailsContext th:first-child,
+    .SimpleHistoryLogitem__moreDetailsContext td:first-child {
+        display: block;
+        font-weight: bold;
+    }
 
-	.SimpleHistoryLogitem__moreDetailsContext th:nth-child(2),
-	.SimpleHistoryLogitem__moreDetailsContext td:nth-child(2) {
-		display: block;
-		margin-bottom: 1em;
-	}
+    .SimpleHistoryLogitem__moreDetailsContext th:nth-child(2),
+    .SimpleHistoryLogitem__moreDetailsContext td:nth-child(2) {
+        display: block;
+        margin-bottom: 1em;
+    }
 }
 
 .SimpleHistory-modal
-	.SimpleHistoryLogitem--initiator-web_user
-	.SimpleHistoryLogitem__secondcol,
+    .SimpleHistoryLogitem--initiator-web_user
+    .SimpleHistoryLogitem__secondcol,
 .SimpleHistory-modal
-	.SimpleHistoryLogitem--initiator-other
-	.SimpleHistoryLogitem__secondcol {
-	margin-left: 0;
+    .SimpleHistoryLogitem--initiator-other
+    .SimpleHistoryLogitem__secondcol {
+    margin-left: 0;
 }
 
-/** wordpress as initiator = add wordpress icon */
-/** anonymous user as initiator = plain user image */
+/* wordpress as initiator = add wordpress icon */
+/* anonymous user as initiator = plain user image */
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-wp_cli
-	.SimpleHistoryLogitem__senderImage:before,
+    .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-web_user
-	.SimpleHistoryLogitem__senderImage:before {
-	display: inline-block;
-	-webkit-font-smoothing: antialiased;
-	font: normal 32px/1 "dashicons";
-	vertical-align: top;
-	color: #999;
+    .SimpleHistoryLogitem__senderImage:before {
+    display: inline-block;
+    -webkit-font-smoothing: antialiased;
+    font: normal 32px/1 "dashicons";
+    vertical-align: top;
+    color: #999;
 }
 
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-wp_cli
-	.SimpleHistoryLogitem__senderImage:before {
-	content: "\f120";
+    .SimpleHistoryLogitem__senderImage:before {
+    content: "\f120";
 }
 
 .SimpleHistoryLogitem--initiator-wp_cli
-	.SimpleHistoryLogitem__senderImage:after {
-	content: "CLI";
-	position: absolute;
-	background: rgba(255, 255, 255, 0.7);
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	line-height: 36px;
-	text-align: center;
-	font-family: monospace;
-	font-size: 12px;
+    .SimpleHistoryLogitem__senderImage:after {
+    content: "CLI";
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    line-height: 36px;
+    text-align: center;
+    font-family: monospace;
+    font-size: 12px;
 }
 
 .SimpleHistoryLogitem--initiator-web_user
-	.SimpleHistoryLogitem__senderImage:before {
-	content: "\f110";
+    .SimpleHistoryLogitem__senderImage:before {
+    content: "\f110";
 }
 
 /** quick stats = stats above log gui */
 .SimpleHistoryQuickStats,
 .SimpleHistoryQuickStats p {
-	font-size: 16px;
+    font-size: 16px;
 }
 
 .SimpleHistoryQuickStats p {
-	line-height: 1;
-	margin-top: 1em;
-	margin-bottom: 1em;
+    line-height: 1;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .SimpleHistoryQuickStats a {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 /* icon on log page*/
 .SimpleHistoryPageHeadline__icon {
-	font-size: 24px;
-	line-height: 30px;
-	width: 24px;
-	color: rgb(63, 147, 73);
+    font-size: 24px;
+    line-height: 30px;
+    width: 24px;
+    color: rgb(63, 147, 73);
 }
 
 /* For WP < 4.3 */
 .branch-4-2 .SimpleHistoryPageHeadline__icon {
-	line-height: 18px;
+    line-height: 18px;
 }
 
 /* if not hits when using filter function + if ajax error */
 
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems__pagination {
-	display: none;
+    display: none;
 }
 
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems {
-	display: none;
+    display: none;
 }
 
 .SimpleHistoryLogitems__noHits {
-	display: none;
+    display: none;
 }
 
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits,
 .SimpleHistory--ajaxHasErrors .SimpleHistoryLogitems__ajaxError {
-	display: block;
-	padding: 20px;
+    display: block;
+    padding: 20px;
 }
 
 .SimpleHistory--ajaxHasErrors .SimpleHistoryLogitems__ajaxError {
-	max-height: 20em;
-	overflow: auto;
+    max-height: 20em;
+    overflow: auto;
 }
 
 .postbox .SimpleHistory--hasNoHits .SimpleHistoryLogitems__noHits {
-	margin-left: 13px;
-	margin-right: 13px;
+    margin-left: 13px;
+    margin-right: 13px;
 }
 
 .SimpleHistoryLogitems__ajaxError__infoMessage {
-	background: rgb(255, 255, 183);
-	padding: 10px;
-	font-weight: bold;
+    background: rgb(255, 255, 183);
+    padding: 10px;
+    font-weight: bold;
 }
 
 /* diff contents can be very high sometimes, so we limit the height and add scrollbars in those cases */
 .SimpleHistory__diff__contents {
-	max-height: 11em;
-	overflow: hidden;
-	position: relative;
+    max-height: 11em;
+    overflow: hidden;
+    position: relative;
 }
 
 .SimpleHistory__diff__contents--noContentsCrop {
-	max-height: none;
+    max-height: none;
 }
 
 /* fade out that indicate more content */
 /*.SimpleHistory__diff__contents:after {
-	content: "";
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	height: 30px;
-	background: linear-gradient(transparent, white);
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background: linear-gradient(transparent, white);
 }*/
 
 .SimpleHistory__diff__contents:hover,
 .SimpleHistory__diff__contents:focus {
-	overflow-y: auto;
+    overflow-y: auto;
 }
 
 .SimpleHistory__diff__contents:focus {
-	outline: 1px solid rgb(0, 115, 170);
-	box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+    outline: 1px solid rgb(0, 115, 170);
+    box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 .SimpleHistory__diff.SimpleHistory__diff {
-	border-spacing: 1px;
+    border-spacing: 1px;
 }
 
 .SimpleHistory__diff.SimpleHistory__diff td,
 .SimpleHistory__diff.SimpleHistory__diff td:first-child {
-	text-align: left;
-	white-space: normal;
-	font-size: 13px;
-	line-height: 1.3;
-	padding: 0.25em 0.5em;
-	padding: 0.5em 0.5em 0.5em 2em;
-	color: rgb(75, 75, 75);
-	font-family: "Open Sans", sans-serif;
+    text-align: left;
+    white-space: normal;
+    font-size: 13px;
+    line-height: 1.3;
+    padding: 0.25em 0.5em;
+    padding: 0.5em 0.5em 0.5em 2em;
+    color: rgb(75, 75, 75);
+    font-family: "Open Sans", sans-serif;
 }
 
 .SimpleHistory__diff.SimpleHistory__diff tbody tr td:nth-child(2) {
-	width: auto;
+    width: auto;
 }

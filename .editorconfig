@@ -1,28 +1,26 @@
 # editorconfig.org
+
 root = true
 
 [*]
-indent_style = tab
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-
-[*.php]
-charset = utf-8
-end_of_line = lf
-insert_final_newline = true
-trim_trailing_whitespace = true
 indent_style = space
 indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+block_comment_start = /*
+block_comment = *
+block_comment_end = */
 
 [*.md]
 trim_trailing_whitespace = false
 
-[*.js]
-indent_style = space
+[package-lock.json]
 indent_size = 2
 
-[{package.json,*.yml,*.cjson}]
-indent_style = space
+[{js/timeago/jquery.timeago.js,js/timeago/locales/jquery.timeago.*.js}]
 indent_size = 2
+
+[js/select2/i18n/*.js]
+insert_final_newline = false

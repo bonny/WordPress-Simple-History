@@ -25,7 +25,7 @@ class SimpleCommentsLoggerCest
         $I->click('Approve');
         $I->waitForJqueryAjax();
         $I->seeLogMessage('Approved a comment to "My test post" by Mr WordPress ()');
-        
+
         // Trash.
         $I->click('Trash');
         $I->waitForJqueryAjax();
@@ -37,7 +37,7 @@ class SimpleCommentsLoggerCest
         $I->click('Restore');
         $I->waitForJqueryAjax();
         $I->seeLogMessage('Restored a comment to "My test post" by Mr WordPress () from the trash');
-        
+
         // Trash and Delete permanently.
         $I->amOnAdminPage('edit-comments.php');
         $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');

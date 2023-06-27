@@ -59,7 +59,7 @@ class SimpleMenuLoggerCest
             'menu_items_added' => '0',
             'menu_items_removed' => '1',
         ]);
-    
+
         // Delete menu.
         $I->amOnAdminPage('nav-menus.php');
         $I->click('Delete Menu');
