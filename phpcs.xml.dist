@@ -80,30 +80,67 @@
 	<rule ref="Generic.PHP.ForbiddenFunctions">
 		<properties>
 			<property name="forbiddenFunctions" type="array" extend="true">
-				<element key="mb_strtolower" value=""/>
-				<element key="mb_strtoupper" value=""/>
-				<element key="mb_strlen" value=""/>
-				<element key="mb_substr" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
-				<element key="mb_strpos" value=""/>
-				<element key="mb_strrpos" value=""/>
+				<element key="mb_check_encoding" value="null" />
+				<element key="mb_chr" value="null" />
+				<element key="mb_convert_case" value="null" />
+				<element key="mb_convert_encoding" value="null" />
+				<element key="mb_convert_kana" value="null" />
+				<element key="mb_convert_variables" value="null" />
+				<element key="mb_decode_mimeheader" value="null" />
+				<element key="mb_decode_numericentity" value="null" />
+				<element key="mb_detect_encoding" value="null" />
+				<element key="mb_detect_order" value="null" />
+				<element key="mb_encode_mimeheader" value="null" />
+				<element key="mb_encode_numericentity" value="null" />
+				<element key="mb_encoding_aliases" value="null" />
+				<element key="mb_ereg_match" value="null" />
+				<element key="mb_ereg_replace_callback" value="null" />
+				<element key="mb_ereg_replace" value="null" />
+				<element key="mb_ereg_search_getpos" value="null" />
+				<element key="mb_ereg_search_getregs" value="null" />
+				<element key="mb_ereg_search_init" value="null" />
+				<element key="mb_ereg_search_pos" value="null" />
+				<element key="mb_ereg_search_regs" value="null" />
+				<element key="mb_ereg_search_setpos" value="null" />
+				<element key="mb_ereg_search" value="null" />
+				<element key="mb_ereg" value="null" />
+				<element key="mb_eregi_replace" value="null" />
+				<element key="mb_eregi" value="null" />
+				<element key="mb_get_info" value="null" />
+				<element key="mb_http_input" value="null" />
+				<element key="mb_http_output" value="null" />
+				<element key="mb_internal_encoding" value="null" />
+				<element key="mb_language" value="null" />
+				<element key="mb_list_encodings" value="null" />
+				<element key="mb_ord" value="null" />
+				<element key="mb_output_handler" value="null" />
+				<element key="mb_parse_str" value="null" />
+				<element key="mb_preferred_mime_name" value="null" />
+				<element key="mb_regex_encoding" value="null" />
+				<element key="mb_regex_set_options" value="null" />
+				<element key="mb_scrub" value="null" />
+				<element key="mb_send_mail" value="null" />
+				<element key="mb_split" value="null" />
+				<element key="mb_str_split" value="null" />
+				<element key="mb_strcut" value="null" />
+				<element key="mb_strimwidth" value="null" />
+				<element key="mb_stripos" value="null" />
+				<element key="mb_stristr" value="null" />
+				<element key="mb_strlen" value="null" />
+				<element key="mb_strpos" value="null" />
+				<element key="mb_strrchr" value="null" />
+				<element key="mb_strrichr" value="null" />
+				<element key="mb_strripos" value="null" />
+				<element key="mb_strrpos" value="null" />
+				<element key="mb_strstr" value="null" />
+				<element key="mb_strtolower" value="null" />
+				<element key="mb_strtoupper" value="null" />
+				<element key="mb_strwidth" value="null" />
+				<element key="mb_substitute_character" value="null" />
+				<element key="mb_substr_count" value="null" />
+				<element key="mb_substr" value="null" />
+				<!-- Append a list of all PHP multibyte functions -->
+
 			</property>
 		</properties>
 	</rule>
