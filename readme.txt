@@ -199,13 +199,13 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 == Changelog ==
 
-= Unreleased =
+= 4.1.0 =
 
 **Added**
 
-- Add actions `simple_history/pause` and `simple_history/resume` to pause and resume logging. Useful for developers that for example write their own data importers because the log can be overwhelmed with data when importing a lot of data. [#307](https://github.com/bonny/WordPress-Simple-History/issues/307)
-- Function `clear_log()` now returns the number of rows deleted.
-- Function `disable_taxonomy_log()` to simplify disabling logging of a taxonomy.
+- Actions `simple_history/pause` and `simple_history/resume` to pause and resume logging. Useful for developers that for example write their own data importers because the log can be overwhelmed with data when importing a lot of data. [#307](https://github.com/bonny/WordPress-Simple-History/issues/307)
+- `clear_log()` now returns the number of rows deleted.
+- Added `disable_taxonomy_log()` to simplify disabling logging of a taxonomy.
 - Function `get_db_table_stats()` that returns for example the number of rows in each table.
 
 **Fixed**
@@ -219,7 +219,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Moved filter `simple_history/dashboard_pager_size` to method `get_pager_size_dashboard()`.
 - Move function `get_initiator_text_from_row()` to `Log_Initiators` class.
-- If a filter is modifying the pager sizes then show a readonly input with pager size instead of a select. [#298](https://github.com/bonny/WordPress-Simple-History/issues/298)
+- If a filter is modifying the pager sizes then show a readonly text input with pager size instead of a dropdown select. [#298](https://github.com/bonny/WordPress-Simple-History/issues/298)
 - Update Chart.js library from 2.0.2 to 4.3.0. Fixes [support thread](https://wordpress.org/support/topic/outdated-chartjs-component-used/), issue [#340](https://github.com/bonny/WordPress-Simple-History/issues/340).
 
 = 4.0.1 (June 2023) =
