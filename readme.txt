@@ -203,6 +203,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 - Fix `Undefined property` warning when loading more similar events. [#357](https://github.com/bonny/WordPress-Simple-History/issues/357)
 - Remove old unused schedule 'simple_history/purge_db'.
+- Filter `simple_history/day_of_week_to_purge_db` to set the day that the db should be cleared/purged on. 0 = monday, 7 = sunday. Default is 7.
 
 = 4.1.0 =
 

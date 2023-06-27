@@ -2384,24 +2384,48 @@ Because Simple History was only recently installed, this feed does not display m
 	}
 
 	/**
-	 * Runs the purge_db() method sometimes
-	 * We don't want to call it each time because it performs SQL queries
+	 * Runs the purge_db() method sometimes.
+	 *
+	 * Fired from filter `simple_history/maybe_purge_db``
+	 * that is scheduled to run once a day.
+	 *
+	 * The db is purged only on Sundays by default,
+	 * this is to keep the history clean. If it was done
+	 * every day it could polute the log with a lot of
+	 * "Simple History removed X events that were older than Y days".
 	 *
 	 * @since 2.0.17
 	 */
 	public function maybe_purge_db() {
-		// How often should we try to do this?
-		// Once a day = a bit tiresome.
-		// Let's go with sundays; purge the log on sundays.
-		// Day of week, 1 = mon, 7 = sun.
-		$day_of_week = gmdate( 'N' );
-		if ( 7 === (int) $day_of_week ) {
+		/**
+		 * Day of week today.
+		 * @int $current_day_of_week
+		 */
+		$current_day_of_week = (int) gmdate( 'N' );
+
+		/**
+		 * Day number to purge db on.
+		 *
+		 * @int $day_of_week_to_purge_db
+		 */
+		$day_of_week_to_purge_db = 7;
+
+		/**
+		 * Filter to change day of week to purge db on.
+		 * Default is 7 (sunday).
+		 *
+		 * @param int $day_of_week_to_purge_db
+		 * @since 4.1.0
+		 */
+		$day_of_week_to_purge_db = apply_filters( 'simple_history/day_of_week_to_purge_db', $day_of_week_to_purge_db );
+
+		if ( $current_day_of_week === $day_of_week_to_purge_db ) {
 			$this->purge_db();
 		}
 	}
 
 	/**
-	 * Removes old entries from the db
+	 * Removes old entries from the db.
 	 */
 	public function purge_db() {
 		$do_purge_history = true;
