@@ -46,7 +46,9 @@
     "test": "npm run test:wpunit && npm run test:acceptance",
     "test:wpunit": "docker-compose run --rm php-cli vendor/bin/codecept run wpunit",
     "test:functional": "docker-compose run --rm php-cli vendor/bin/codecept run functional",
-    "test:acceptance": "docker-compose run --rm php-cli vendor/bin/codecept run acceptance"
+    "test:acceptance": "docker-compose run --rm php-cli vendor/bin/codecept run acceptance",
+    "spell-check": "typos",
+    "spell-check:write-changes": "typos --write-changes"
   },
   "lint-staged": {
     "*.php": [
