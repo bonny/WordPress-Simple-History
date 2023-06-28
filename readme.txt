@@ -207,6 +207,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Include "Plugin URI" from plugin when logging single plugin installs. [#323](https://github.com/bonny/WordPress-Simple-History/issues/323)
 - Check that installed theme has a destination_name. [#324](https://github.com/bonny/WordPress-Simple-History/issues/324)
 - Log correct role for user when adding a user on a subsite on a network/multisite install. [#325](https://github.com/bonny/WordPress-Simple-History/issues/325)
+- Fix spellings, as found by [Typos](https://github.com/crate-ci/typos/).
 
 = 4.1.0 =
 
