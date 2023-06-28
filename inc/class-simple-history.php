@@ -2092,7 +2092,7 @@ Because Simple History was only recently installed, this feed does not display m
 				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
 				<?php echo esc_html_x( 'Simple History', 'history page headline', 'simple-history' ); ?>
 			</h1>
-			
+
 			<?php
 			/**
 			 * Fires before the gui div
@@ -2189,7 +2189,7 @@ Because Simple History was only recently installed, this feed does not display m
 			}
 			?>
 		</select>
-		
+
 		<?php
 	}
 
@@ -2244,24 +2244,16 @@ Because Simple History was only recently installed, this feed does not display m
 		$show_as_page = $this->setting_show_as_page();
 		?>
 
-		<input 
-		<?php
-		echo $show_on_dashboard
-			? "checked='checked'"
-			: '';
-		?>
-		 type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
+		<input
+			<?php checked($show_on_dashboard); ?>
+			type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
 		<label for="simple_history_show_on_dashboard"><?php esc_html_e( 'on the dashboard', 'simple-history' ); ?></label>
 
 		<br />
 
-		<input 
-		<?php
-		echo $show_as_page
-			? "checked='checked'"
-			: '';
-		?>
-		 type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
+		<input
+			<?php checked($show_as_page); ?>
+			type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
 		<label for="simple_history_show_as_page">
 			<?php esc_html_e( 'as a page under the dashboard menu', 'simple-history' ); ?>
 		</label>

@@ -79,4 +79,3 @@ class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals($expected_object, $actual);
 	}
 }
-
