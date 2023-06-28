@@ -3064,51 +3064,6 @@ Because Simple History was only recently installed, this feed does not display m
 	}
 
 	/**
-	 * Retrieve the avatar for a user who provided a user ID or email address.
-	 * A modified version of the function that comes with WordPress, but we
-	 * want to allow/show gravatars even if they are disabled in discussion settings
-	 *
-	 * @since 2.0
-	 * @since 3.3 Respects gravatar setting in discussion settings.
-	 *
-	 * @param string $email email address
-	 * @param int    $size Size of the avatar image
-	 * @param string $default URL to a default image to use if no avatar is available
-	 * @param string $alt Alternative text to use in image tag. Defaults to blank
-	 * @return string <img> tag for the user's avatar
-	 */
-	// TODO: move to helpers
-	public function get_avatar( $email, $size = '96', $default = '', $alt = false, $args = array() ) {
-		$args = array(
-			'force_display' => false,
-		);
-
-		/**
-		 * Filter to control if avatars should be displayed, even if the show_avatars option
-		 * is set to false in WordPress discussion settings.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @example Force display of Gravatars
-		 *
-		 * ```php
-		 *  add_filter(
-		 *      'simple_history/show_avatars',
-		 *      function ( $force ) {
-		 *          $force = true;
-		 *          return $force;
-		 *      }
-		 *  );
-		 * ```
-		 *
-		 * @param bool Force display. Default false.
-		 */
-		$args['force_display'] = apply_filters( 'simple_history/show_avatars', $args['force_display'] );
-
-		return get_avatar( $email, $size, $default, $alt, $args );
-	}
-
-	/**
 	 * Quick stats above the log
 	 * Uses filter "simple_history/history_page/before_gui" to output its contents
 	 */
@@ -3417,14 +3372,20 @@ Because Simple History was only recently installed, this feed does not display m
 	public function __call( $name, $arguments ) {
 		$methods_mapping = array(
 			'registerSettingsTab' => 'register_settings_tab',
+			'get_avatar' => 'get_avatar',
 		);
 
 		// Bail if method name is nothing to act on.
 		if ( ! isset( $methods_mapping[ $name ] ) ) {
-			return;
+			return false;
 		}
 
 		$method_name_to_call = $methods_mapping[ $name ];
+
+		// Special cases, for example get_avatar that is moved to Helpers class.
+		if ( $method_name_to_call === 'get_avatar' ) {
+			return Helpers::get_avatar( ...$arguments );
+		}
 
 		return call_user_func_array( array( $this, $method_name_to_call ), $arguments );
 

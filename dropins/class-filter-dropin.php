@@ -2,6 +2,7 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Helpers;
 use Simple_History\Simple_History;
 use Simple_History\Log_Levels;
 
@@ -537,7 +538,7 @@ class Filter_Dropin extends Dropin {
 			$val->user_email
 		);
 
-		$val->gravatar = $this->simple_history->get_avatar( $val->user_email, '18', 'mm' );
+		$val->gravatar = Helpers::get_avatar( $val->user_email, '18', 'mm' );
 	}
 
 

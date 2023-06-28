@@ -354,6 +354,7 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
 - Update translations. Props @kebbet. See https://docs.simple-history.com/translate for information how to update or add translations of the plugin.
 - Use `constant()` function to get constant values. Makes some linting errors go away.
 - Remove `languages` folder. [#287](https://github.com/bonny/WordPress-Simple-History/issues/287)
+- Move function `get_avatar()` to helpers class.
 
 = 3.2.0 (February 2022) =
 

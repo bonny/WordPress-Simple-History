@@ -398,4 +398,48 @@ class Helpers {
 		);
 	}
 
+	/**
+	 * Retrieve the avatar for a user who provided a user ID or email address.
+	 * A modified version of the function that comes with WordPress, but we
+	 * want to allow/show gravatars even if they are disabled in discussion settings
+	 *
+	 * @since 2.0
+	 * @since 3.3 Respects gravatar setting in discussion settings.
+	 *
+	 * @param string $email email address
+	 * @param int    $size Size of the avatar image
+	 * @param string $default URL to a default image to use if no avatar is available
+	 * @param string $alt Alternative text to use in image tag. Defaults to blank
+	 * @return string <img> tag for the user's avatar
+	 */
+	public static function get_avatar( $email, $size = '96', $default = '', $alt = false, $args = array() ) {
+		$args = array(
+			'force_display' => false,
+		);
+
+		/**
+		 * Filter to control if avatars should be displayed, even if the show_avatars option
+		 * is set to false in WordPress discussion settings.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @example Force display of Gravatars
+		 *
+		 * ```php
+		 *  add_filter(
+		 *      'simple_history/show_avatars',
+		 *      function ( $force ) {
+		 *          $force = true;
+		 *          return $force;
+		 *      }
+		 *  );
+		 * ```
+		 *
+		 * @param bool Force display. Default false.
+		 */
+		$args['force_display'] = apply_filters( 'simple_history/show_avatars', $args['force_display'] );
+
+		return get_avatar( $email, $size, $default, $alt, $args );
+	}
+
 }

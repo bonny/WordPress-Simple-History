@@ -740,18 +740,18 @@ abstract class Logger {
 				$user = get_user_by( 'id', $user_id );
 				if ( $user_id > 0 && ( $user ) ) {
 					// Sender was user
-					$sender_image_html = $this->simple_history->get_avatar(
+					$sender_image_html = Helpers::get_avatar(
 						$user->user_email,
 						$sender_image_size
 					);
 				} elseif ( $user_id > 0 ) {
 					// Sender was a user, but user is deleted now
-					$sender_image_html = $this->simple_history->get_avatar(
+					$sender_image_html = Helpers::get_avatar(
 						'',
 						$sender_image_size
 					);
 				} else {
-					$sender_image_html = $this->simple_history->get_avatar(
+					$sender_image_html = Helpers::get_avatar(
 						'',
 						$sender_image_size
 					);
