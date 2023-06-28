@@ -1056,7 +1056,6 @@ class Plugin_ACF_Logger extends Logger {
 		// so less likely that we make some critical error
 	}
 
-
 	/**
 	 * Add the post types that ACF uses for fields to the array of post types
 	 * that the default post logger should not log. If not each field will cause one

@@ -25,7 +25,6 @@ class Filter_Dropin extends Dropin {
 		wp_enqueue_style( 'simple_history_FilterDropin', $file_url . 'filter-dropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 
-
 	public function gui_page_filters() {
 		$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();
 
@@ -539,7 +538,6 @@ class Filter_Dropin extends Dropin {
 
 		$val->gravatar = $this->simple_history->get_avatar( $val->user_email, '18', 'mm' );
 	}
-
 
 	/**
 	 * Print out HTML form date elements for editing post or comment publish date.

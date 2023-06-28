@@ -4,7 +4,6 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
 
-
 /**
  * Logs WordPress theme edits
  */

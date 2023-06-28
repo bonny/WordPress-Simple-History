@@ -175,7 +175,6 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 		return $value;
 	}
 
-
 	/**
 	 * Add some extra info
 	 */
