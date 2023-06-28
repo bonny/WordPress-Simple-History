@@ -3370,6 +3370,16 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @return mixed
 	 */
 	public function __call( $name, $arguments ) {
+		// Convert method to snake_case
+		// and check if that method exists,
+		// and if it does then call it.
+		// For example 'getLogRowHeaderOutput' will be converted to 'get_log_row_header_output'
+		// and since that version exists it will be called.
+		$camel_cased_method_name = Helpers::camel_case_to_snake_case( $name );
+		if ( method_exists( $this, $camel_cased_method_name ) ) {
+			return call_user_func_array( array( $this, $camel_cased_method_name ), $arguments );
+		}
+
 		$methods_mapping = array(
 			'registerSettingsTab' => 'register_settings_tab',
 			'get_avatar' => 'get_avatar',
