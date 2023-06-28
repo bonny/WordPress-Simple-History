@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) || die();
  */
 class PluginWPCrontrolLogger extends SimpleLogger {
 
-
 	public $slug = __CLASS__;
 
 	/**

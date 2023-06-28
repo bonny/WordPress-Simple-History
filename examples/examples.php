@@ -16,7 +16,6 @@ exit;
 // Add $_GET, $_POST, and more info to each logged event.
 define( 'SIMPLE_HISTORY_LOG_DEBUG', true );
 
-
 /**
  * Some examples of filter usage and so on
  */
@@ -52,7 +51,6 @@ add_filter(
 	10,
 	3
 );
-
 
 // Do not log some post types, for example pages and attachments in this case
 add_filter(
@@ -99,8 +97,6 @@ add_filter(
 	3
 );
 
-
-
 /**
  * Change capability required to manage the options page of simple history.
  * Default capability is "manage_options"
@@ -113,7 +109,6 @@ add_filter(
 		return $capability;
 	}
 );
-
 
 /**
  * Change capability required to view main simple history page.
@@ -128,7 +123,6 @@ add_filter(
 		return $capability;
 	}
 );
-
 
 // Skip adding things to the context table during logging.
 // Useful if you don't want to add cool and possible super useful info to your logged events.
@@ -164,7 +158,6 @@ add_filter(
 	2
 );
 
-
 // Hide some more columns from the detailed context view popup window
 add_filter(
 	'simple_history/log_html_output_details_table/context_keys_to_show',
@@ -180,8 +173,6 @@ add_filter(
 	10,
 	2
 );
-
-
 
 // Allow only the users specified in $allowed_users to show the history page, the history widget on the dashboard, or the history settings page
 add_filter( 'simple_history/show_dashboard_page', 'function_show_history_dashboard_or_page' );
@@ -202,7 +193,6 @@ function function_show_history_dashboard_or_page( $show ) {
 
 	return $show;
 }
-
 
 // Skip loading of loggers
 add_filter(
@@ -240,7 +230,6 @@ add_filter(
 	2
 );
 
-
 // Skip the loading of dropins
 add_filter(
 	'simple_history/dropin/load_dropin',
@@ -261,7 +250,6 @@ add_filter(
 	10,
 	2
 );
-
 
 // Don't log failed logins
 add_filter(
@@ -401,7 +389,6 @@ SimpleLogger()->warning(
 	)
 );
 
-
 // Use the "context array" to add  more data to your logged event
 // Data can be used later on to show detailed info about a log entry
 // and does not need to be shown on the overview screen
@@ -416,7 +403,6 @@ SimpleLogger()->info(
 		'_occasionsID' => 'username:1,postID:24885,action:edited',
 	)
 );
-
 
 // Test log cron things
 /*
@@ -454,7 +440,6 @@ add_action("init", function() {
 
 }, 100);
 */
-
 
 /*
 add_action("init", function() {

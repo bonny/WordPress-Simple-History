@@ -211,7 +211,6 @@ class SimpleUserLogger extends SimpleLogger {
 		);
 	}
 
-
 	/**
 	 * Log when an Application password is deleted (revoked).
 
@@ -235,7 +234,6 @@ class SimpleUserLogger extends SimpleLogger {
 			)
 		);
 	}
-
 
 	/**
 	 * Fires after the user's role has changed.

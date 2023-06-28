@@ -521,7 +521,6 @@ class SimpleCommentsLogger extends SimpleLogger {
 		);
 	}
 
-
 	/**
 	 * Modify plain output to include link to post
 	 * and link to comment
@@ -556,7 +555,6 @@ class SimpleCommentsLogger extends SimpleLogger {
 
 		return $this->interpolate( $message, $context, $row );
 	}
-
 
 	/**
 	 * Get output for detailed log section

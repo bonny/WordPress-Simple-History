@@ -13,7 +13,6 @@ if ( ! class_exists( 'AvailableUpdatesLogger' ) ) {
 	 */
 	class AvailableUpdatesLogger extends SimpleLogger {
 
-
 		/**
 		 * Slug for logger.
 		 *

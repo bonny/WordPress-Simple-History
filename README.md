@@ -4,7 +4,6 @@
 	– a WordPress activity log for what matters
 </h1>
 
-
 <p align="center">
 
 <img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars" />

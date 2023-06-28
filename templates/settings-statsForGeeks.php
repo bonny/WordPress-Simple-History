@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) || die(); ?>
 			$wrapper.toggle();
 		});
 
-
 	});
 
 </script>

@@ -16,7 +16,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 	 */
 	class Plugin_ACF extends SimpleLogger {
 
-
 		/**
 		 * The slug for this logger.
 		 *
@@ -1061,7 +1060,6 @@ if ( ! class_exists( 'Plugin_ACF' ) ) {
 			// ACF has done it's validation and it's after ACF has saved the fields,
 			// so less likely that we make some critical error
 		}
-
 
 		/**
 		 * Add the post types that ACF uses for fields to the array of post types

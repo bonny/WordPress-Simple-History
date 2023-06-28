@@ -11,7 +11,6 @@ Author: Pär Thernström
 
 class SimpleHistorySettingsStatsDropin {
 
-
 	// Simple History instance
 	private $sh;
 
@@ -97,5 +96,4 @@ class SimpleHistorySettingsStatsDropin {
 		include( SIMPLE_HISTORY_PATH . 'templates/settings-statsForGeeks.php' );
 	}
 }
-
 

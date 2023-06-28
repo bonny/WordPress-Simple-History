@@ -717,7 +717,6 @@ class SimplePluginLogger extends SimpleLogger {
 			[type] => core
 		)
 
-
 		# Plugin install
 
 		$arr_data:
@@ -726,7 +725,6 @@ class SimplePluginLogger extends SimpleLogger {
 			[type] => plugin
 			[action] => install
 		)
-
 
 		## Plugin update
 
@@ -1084,7 +1082,6 @@ class SimplePluginLogger extends SimpleLogger {
 
 		$this->infoMessage( 'plugin_deactivated', $context );
 	}
-
 
 	/**
 	 * Get output for detailed log section

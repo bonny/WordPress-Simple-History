@@ -18,7 +18,6 @@ add_action(
 	}
 );
 
-
 /**
  * This is the class that does the main work!
  */

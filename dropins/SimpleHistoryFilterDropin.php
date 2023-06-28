@@ -10,7 +10,6 @@ Author: Pär Thernström
 
 class SimpleHistoryFilterDropin {
 
-
 	// Simple History instance
 	private $sh;
 
@@ -32,7 +31,6 @@ class SimpleHistoryFilterDropin {
 
 		wp_enqueue_style( 'simple_history_FilterDropin', $file_url . 'SimpleHistoryFilterDropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
-
 
 	public function gui_page_filters() {
 
@@ -552,7 +550,6 @@ class SimpleHistoryFilterDropin {
 
 		$val->gravatar = $this->sh->get_avatar( $val->user_email, '18', 'mm' );
 	}
-
 
 	/**
 	 * Print out HTML form date elements for editing post or comment publish date.

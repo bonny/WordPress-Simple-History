@@ -225,7 +225,6 @@ class SimpleOptionsLogger extends SimpleLogger {
 		return $output;
 	}
 
-
 	/**
 	 * Page on front = "Front page displays" -> Your latest posts / A static page
 	 * value 0 = Your latest post
@@ -356,7 +355,6 @@ class SimpleOptionsLogger extends SimpleLogger {
 
 		return $context;
 	}
-
 
 	/**
 	 * Add detailed output for default_category

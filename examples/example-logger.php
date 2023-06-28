@@ -26,7 +26,6 @@ if ( class_exists( 'SimpleLogger' ) ) {
 	 */
 	class FourOhFourLogger extends SimpleLogger {
 
-
 		/**
 		 * The slug is used to identify this logger in various places.
 		 * We use the name of the class too keep it simple.

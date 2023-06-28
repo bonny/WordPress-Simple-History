@@ -11,7 +11,6 @@ defined( 'ABSPATH' ) || die();
 
 class SimpleHistoryNewRowsNotifier {
 
-
 	// Simple History instance
 	private $sh;
 

@@ -156,7 +156,6 @@ class SimpleHistoryRSSDropin {
 		return '0';
 	}
 
-
 	/**
 	 * Check if current request is a request for the RSS feed
 	 */

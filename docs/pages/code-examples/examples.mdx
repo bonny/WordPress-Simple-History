@@ -14,7 +14,6 @@
 // Add $_GET, $_POST, and more info to each logged event.
 define( 'SIMPLE_HISTORY_LOG_DEBUG', true );
 
-
 /**
  * Some examples of filter usage and so on
  */
@@ -38,7 +37,6 @@ function function_show_history_dashboard_or_page( $show ) {
 
 	return $show;
 }
-
 
 // Skip loading of loggers
 add_filter(
@@ -76,7 +74,6 @@ add_filter(
 	2
 );
 
-
 // Skip the loading of dropins
 add_filter(
 	'simple_history/dropin/load_dropin',
@@ -97,7 +94,6 @@ add_filter(
 	10,
 	2
 );
-
 
 // Don't log failed logins
 add_filter(

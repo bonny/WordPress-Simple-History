@@ -58,7 +58,6 @@ module.exports = {
   lch2rgb: lch2rgb
 }
 
-
 function rgb2hsl(rgb) {
   var r = rgb[0]/255,
       g = rgb[1]/255,
@@ -267,7 +266,6 @@ function hsl2keyword(args) {
   return rgb2keyword(hsl2rgb(args));
 }
 
-
 function hsv2rgb(hsv) {
   var h = hsv[0] / 60,
       s = hsv[1] / 100,
@@ -402,7 +400,6 @@ function cmyk2hwb(args) {
 function cmyk2keyword(args) {
   return rgb2keyword(cmyk2rgb(args));
 }
-
 
 function xyz2rgb(xyz) {
   var x = xyz[0] / 100,
@@ -741,7 +738,6 @@ for (var func in conversions) {
   })(func);
 }
 
-
 /* Converter does lazy conversion and caching */
 var Converter = function() {
    this.convs = {};
@@ -1008,7 +1004,6 @@ function hexDouble(num) {
   var str = num.toString(16).toUpperCase();
   return (str.length < 2) ? "0" + str : str;
 }
-
 
 //create a list of reverse color names
 var reverseNames = {};
@@ -1482,7 +1477,6 @@ Color.prototype = {
   }
 }
 
-
 Color.prototype.getValues = function(space) {
   var vals = {};
   for (var i = 0; i < space.length; i++) {
@@ -1596,7 +1590,6 @@ window.Color = module.exports = Color
  * Released under the MIT license
  * https://github.com/nnnick/Chart.js/blob/master/LICENSE.md
  */
-
 
 var Chart = require('./core/core.js')();
 
@@ -1872,7 +1865,6 @@ module.exports = function(Chart) {
 				_datasetIndex: this.index,
 				_index: index,
 
-
 				// Desired view properties
 				_model: {
 					x: this.calculateBarX(index, this.index),
@@ -2115,7 +2107,6 @@ module.exports = function(Chart) {
 		}
 	};
 
-
 	Chart.controllers.bubble = Chart.DatasetController.extend({
 		addElements: function() {
 
@@ -2342,7 +2333,6 @@ module.exports = function(Chart) {
 		cutoutPercentage: 0
 	});
 
-
 	Chart.controllers.doughnut = Chart.controllers.pie = Chart.DatasetController.extend({
 		linkScales: function() {
 			// no scales for doughnut
@@ -2549,7 +2539,6 @@ module.exports = function(Chart) {
 			}]
 		}
 	};
-
 
 	Chart.controllers.line = Chart.DatasetController.extend({
 		addElements: function() {
@@ -3060,7 +3049,6 @@ module.exports = function(Chart) {
 
 	var helpers = Chart.helpers;
 
-
 	Chart.defaults.radar = {
 		scale: {
 			type: "radialLinear"
@@ -3165,7 +3153,6 @@ module.exports = function(Chart) {
 			helpers.each(points, function(point, index) {
 				this.updateElement(point, index, reset);
 			}, this);
-
 
 			// Update bezier control points
 			this.updateBezierControlPoints();
@@ -3909,7 +3896,6 @@ module.exports = function(Chart) {
 						// Don't change anything
 				}
 			}
-
 
 			// Built in Tooltips
 			if (this.options.tooltips.enabled || this.options.tooltips.custom) {
@@ -6289,7 +6275,6 @@ module.exports = function(Chart) {
 				var scaleLabelY;
 				var useAutoskipper = this.options.ticks.autoSkip;
 
-
 				// figure out the maximum number of gridlines to show
 				var maxTicks;
 
@@ -7654,7 +7639,6 @@ module.exports = function(Chart) {
 		hoverBorderWidth: 1
 	};
 
-
 	Chart.elements.Point = Chart.Element.extend({
 		inRange: function(mouseX, mouseY) {
 			var vm = this._view;
@@ -7687,7 +7671,6 @@ module.exports = function(Chart) {
 
 			var vm = this._view;
 			var ctx = this._chart.ctx;
-
 
 			if (vm.skip) {
 				return;
@@ -8546,7 +8529,6 @@ module.exports = function(Chart) {
 			}
 		},
 		buildTicks: function() {
-
 
 			this.ticks = [];
 

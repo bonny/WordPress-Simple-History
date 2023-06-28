@@ -10,7 +10,6 @@ Author: Pär Thernström
 
 class SimpleHistorySidebarSettings {
 
-
 	/**
 	 * Simple History instance
 	 *

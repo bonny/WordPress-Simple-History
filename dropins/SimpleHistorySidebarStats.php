@@ -82,7 +82,6 @@ class SimpleHistorySidebarStats {
 						},
 					});
 
-
 					// when chart is clicked determine what value/day was clicked
 					function clickChart(e) {
 

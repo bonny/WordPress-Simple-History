@@ -13,7 +13,6 @@ defined( 'ABSPATH' ) || die();
  */
 class SH_Jetpack_Logger extends SimpleLogger {
 
-
 	/**
 	 * Logger slug.
 	 *

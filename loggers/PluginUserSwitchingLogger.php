@@ -10,7 +10,6 @@ defined( 'ABSPATH' ) || die();
  */
 class PluginUserSwitchingLogger extends SimpleLogger {
 
-
 	public $slug = __CLASS__;
 
 	/**

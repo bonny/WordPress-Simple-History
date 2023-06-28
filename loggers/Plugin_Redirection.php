@@ -12,7 +12,6 @@ if ( ! class_exists( 'Plugin_Redirection' ) ) {
 	 */
 	class Plugin_Redirection extends SimpleLogger {
 
-
 		/**
 		 * Logger slug.
 		 *

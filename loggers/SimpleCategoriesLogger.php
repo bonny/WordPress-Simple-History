@@ -192,7 +192,6 @@ class SimpleCategoriesLogger extends SimpleLogger {
 		);
 	}
 
-
 	/**
 	 * Fires after a term is deleted from the database and the cache is cleaned.
 	 *

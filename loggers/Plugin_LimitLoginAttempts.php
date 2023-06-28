@@ -9,7 +9,6 @@ defined( 'ABSPATH' ) || die();
 if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 	class Plugin_LimitLoginAttempts extends SimpleLogger {
 
-
 		public $slug = __CLASS__;
 
 		public function getInfo() {
@@ -182,7 +181,6 @@ if ( ! class_exists( 'Plugin_LimitLoginAttempts' ) ) {
 
 			return $value;
 		}
-
 
 		/**
 		 * Add some extra info

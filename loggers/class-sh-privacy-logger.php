@@ -22,7 +22,6 @@ defined( 'ABSPATH' ) || die();
  */
 class SH_Privacy_Logger extends SimpleLogger {
 
-
 	/**
 	 * Logger slug.
 	 *
