@@ -110,11 +110,9 @@
   }
 
   /*
-	function onIpAddressLookupResponseError(d) {
-
-		console.log("onIpAddressLookupResponseError", d);
-		$popupContent.html(templateLoaded(d));
-
-	}
-	*/
+  function onIpAddressLookupResponseError(d) {
+    console.log("onIpAddressLookupResponseError", d);
+    $popupContent.html(templateLoaded(d));
+  }
+  */
 })(jQuery);

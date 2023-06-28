@@ -787,8 +787,8 @@ Modal window with detailss
 	margin-left: 0;
 }
 
-/** wordpress as initiator = add wordpress icon */
-/** anonymous user as initiator = plain user image */
+/* wordpress as initiator = add wordpress icon */
+/* anonymous user as initiator = plain user image */
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-wp_cli
 	.SimpleHistoryLogitem__senderImage:before,

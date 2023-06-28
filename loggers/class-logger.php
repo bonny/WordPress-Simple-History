@@ -1233,10 +1233,10 @@ abstract class Logger {
 			$this
 		);
 
-		/*
-		 Store date as GMT date, i.e. not local date/time
-		 * Some info here:
-		 * http://www.skyverge.com/blog/down-the-rabbit-hole-wordpress-and-timezones/
+		/**
+		 * Store date as GMT date, i.e. not local date/time
+		 *
+		 * @see http://www.skyverge.com/blog/down-the-rabbit-hole-wordpress-and-timezones/
 		 */
 		$localtime = current_time( 'mysql', 1 );
 

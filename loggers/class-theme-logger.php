@@ -346,12 +346,11 @@ class Theme_Logger extends Logger {
 
 		/*
 		- Loop through all sections
-		  - And then through all controls in section
-			- Foreach control get it's setting
-			  - Get each settings prev value
-			  - Get each settings new value
-			  - Store changed values
-
+			- And then through all controls in section
+				- Foreach control get it's setting
+					- Get each settings prev value
+					- Get each settings new value
+					- Store changed values
 		*/
 
 		/*
