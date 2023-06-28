@@ -198,8 +198,24 @@ class RSS_Dropin extends Dropin {
 			?>
 			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 				<channel>
-					<title><![CDATA[<?php printf( esc_html__( 'History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?>]]></title>
-					<description><![CDATA[<?php printf( esc_html__( 'WordPress History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?>]]></description>
+					<title>
+					<?php
+						printf(
+							/* translators: %s blog name */
+							esc_html__( 'History for %s', 'simple-history' ),
+							esc_html( get_bloginfo( 'name' ) )
+						);
+					?>
+					</title>
+					<description>
+					<?php
+						printf(
+							/* translators: %s blog name */
+							esc_html__( 'WordPress History for %s', 'simple-history' ),
+							esc_html( get_bloginfo( 'name' ) )
+						);
+					?>
+					</description>
 					<link><?php echo esc_url( get_bloginfo( 'url' ) ); ?></link>
 					<atom:link href="<?php echo esc_url( $self_link ); ?>" rel="self" type="application/atom+xml" />
 					<?php

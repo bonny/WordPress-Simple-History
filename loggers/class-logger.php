@@ -245,6 +245,7 @@ abstract class Logger {
 					// _user_email
 					$initiator_html .= sprintf(
 						'<strong class="SimpleHistoryLogitem__inlineDivided">' .
+							/* translators: 1: user id, 2: user email address, 3: user account name. */
 							__(
 								'Deleted user (had id %1$s, email %2$s, login %3$s)',
 								'simple-history'
@@ -380,7 +381,7 @@ abstract class Logger {
 			$time_current - $date_datetime->getTimestamp() >
 			$time_ago_max_time
 		) {
-			/* Translators: Date format for log row header, see http://php.net/date */
+			/* translators: Date format for log row header, see http://php.net/date */
 			$datef = __( 'M j, Y \a\t G:i', 'simple-history' );
 			$str_when = date_i18n(
 				$datef,
@@ -392,8 +393,9 @@ abstract class Logger {
 				$date_datetime->getTimestamp(),
 				$time_current
 			);
-			/* Translators: 1: last modified date and time in human time diff-format */
+
 			$str_when = sprintf(
+				/* translators: %s last modified date and time in human time diff-format */
 				__( '%1$s ago', 'simple-history' ),
 				$date_human_time_diff
 			);
@@ -406,6 +408,7 @@ abstract class Logger {
 
 		// Datetime attribute on <time> element.
 		$str_datetime_title = sprintf(
+			/* translators: 1: local time string, 2: GMT time string. */
 			__( '%1$s local time %3$s (%2$s GMT time)', 'simple-history' ),
 			get_date_from_gmt(
 				$date_datetime->format( 'Y-m-d H:i:s' ),
@@ -549,6 +552,7 @@ abstract class Logger {
 			);
 
 			$html .= sprintf(
+				/* translators: %s link to ipinfo.io with first IP as link label. */
 				__( 'IP Address %1$s', 'simple-history' ),
 				"<a target='_blank' href='{$iplookup_link}' class='SimpleHistoryLogitem__anonUserWithIp__theIp' data-ip-address='" . esc_attr( $first_ip_address ) . "'>" .
 				esc_html( $first_ip_address ) .
@@ -576,6 +580,7 @@ abstract class Logger {
 			$ip_addresses_html = rtrim( $ip_addresses_html, ', ' );
 
 			$html .= sprintf(
+				/* translators: %s list of links to ipinfo.io with IP:s as link labels. */
 				__( 'IP Addresses %1$s', 'simple-history' ),
 				$ip_addresses_html
 			);

@@ -37,8 +37,10 @@ printf(
 
 $loopnum = 0;
 foreach ( $table_size_result as $one_table ) {
+	/* translators: %s size in mb. */
 	$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table->size_in_mb );
 
+	/* translators: %s number of rows. */
 	$rows = sprintf( _x( '%s rows', 'debug dropin', 'simple-history' ), number_format_i18n( $one_table->num_rows, 0 ) );
 
 	printf(
@@ -70,6 +72,7 @@ $total_accassions_rows_count = $rows['total_row_count'];
 
 echo '<p>';
 printf(
+	/* translators: %d number of rows. */
 	esc_html_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
 	esc_html( $total_accassions_rows_count )
 );
@@ -110,9 +113,6 @@ $sql_logger_counts = sprintf(
 // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 $logger_rows_count = $wpdb->get_results( $sql_logger_counts, OBJECT_K );
 
-
-
-
 // Find loggers with no rows in db and append to array.
 $missing_logger_slugs = array_diff( $arr_logger_slugs, array_keys( $logger_rows_count ) );
 
@@ -129,6 +129,7 @@ echo '</h3>';
 
 echo '<p>';
 printf(
+	/* translators: %d number of loggers. */
 	esc_html_x( 'Listing %1$d loggers, ordered by rows count in database.', 'debug dropin', 'simple-history' ),
 	esc_html( count( $arr_logger_slugs ) ) // 1
 );
@@ -183,6 +184,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 	}
 	if ( $html_logger_messages ) {
 		$str_num_message_strings = sprintf(
+			/* translators: %d number of message strings. */
 			esc_html_x( '%1$s message strings', 'debug dropin', 'simple-history' ),
 			esc_html( count( $logger_messages ) )
 		);

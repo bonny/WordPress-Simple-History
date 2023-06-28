@@ -192,30 +192,40 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 			$count = $context['count'];
 			$lockouts = $context['lockouts'];
 			$ip = $context['ip'];
-			// $whitelisted = $context["whitelisted"];
 			$lockout_type = $context['lockout_type'];
 			$time = $context['time'];
 
-			$output .= sprintf(
-				'<p>' . _x( '%1$d failed login attempts (%2$d lockout(s)) from IP: %3$s', 'Logger: Plugin Limit Login Attempts', 'simple-history' ) . '</p>',
-				$count, // 1
-				$lockouts,  // 2
-				$ip // 3
+			$message_string = sprintf(
+				/* translators: 1: number of login attempts, 2: number of lockouts, 3: IP that caused lockout. */
+				_x( '%1$d failed login attempts (%2$d lockout(s)) from IP: %3$s', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+				$count,
+				$lockouts,
+				$ip
 			);
 
+			$output .= '<p>' . $message_string . '</p>';
+
 			if ( 'longer' == $lockout_type ) {
-				$when = sprintf( _nx( '%d hour', '%d hours', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ), $time );
+				$when = sprintf(
+					/* translators: %d number of hours. */
+					_nx( '%d hour', '%d hours', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+					$time
+				);
 			} elseif ( 'normal' == $lockout_type ) {
-				$when = sprintf( _nx( '%d minute', '%d minutes', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ), $time );
+				$when = sprintf(
+					/* translators: %d number of minutes. */
+					_nx( '%d minute', '%d minutes', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+					$time
+				);
 			}
 
 			$output .= '<p>' . sprintf(
-				_x( 'IP was blocked for %1$s', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-				$when // 1
+				/* translators: %s time the IP was block, e.g. 2 hours. */
+				_x( 'IP was blocked for %s', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+				$when
 			) . '</p>';
 		}
 
 		return $output;
 	}
 }
-
