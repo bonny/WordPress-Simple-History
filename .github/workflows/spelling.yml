@@ -22,8 +22,9 @@ jobs:
         runs-on: "ubuntu-22.04"
         timeout-minutes: 1
         steps:
-            - name: "Checkout repository"
+            -
+                name: "Checkout repository"
                 uses: "actions/checkout@v3"
-
-            - name: "Search for misspellings"
+            -
+                name: "Search for misspellings"
                 uses: "crate-ci/typos@master"
