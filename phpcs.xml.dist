@@ -44,7 +44,7 @@
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
 		<exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
-		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
+		<!-- <exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/> -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
 	</rule>
 
