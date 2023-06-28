@@ -110,7 +110,7 @@ _"Has someone done anything today? Ah, Sarah uploaded
 the new press release and created an article for it. Great! Now I don't have to do that."_
 
 Or for debug purposes:
-_"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughy-plugin-x',
+_"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughty-plugin-x',
 that must be it."_
 
 #### API so you can add your own events to the audit log
@@ -558,7 +558,7 @@ add_filter('simple_history/admin_location', function ($location) {
 
 = 2.29 (December 2018) =
 
-- Make log welcome message translateable.
+- Make log welcome message translatable.
 - Add two filters to make it more ease to control via filters if a logger and the combination logger + message should be logged. - `"simple_history/log/do_log/{$this->slug}"` controls if any messages for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger. - `"simple_history/log/do_log/{$this->slug}/{$message_key}"` controls if a specific message for a specific logger should be logged. Simply return false to this filter to disable all logging to that logger. - Code examples for the two filters above:
 
   ````
