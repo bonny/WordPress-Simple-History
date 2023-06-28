@@ -283,6 +283,7 @@ class Menu_Logger extends Logger {
 
 				$output .= '<span class="SimpleHistoryLogitem__inlineDivided">';
 				$output .= sprintf(
+					// translators: Number of menu items added
 					_nx( '%1$s menu item added', '%1$s menu items added', $context['menu_items_added'], 'menu logger', 'simple-history' ),
 					esc_attr( $context['menu_items_added'] )
 				);
@@ -290,6 +291,7 @@ class Menu_Logger extends Logger {
 
 				$output .= '<span class="SimpleHistoryLogitem__inlineDivided">';
 				$output .= sprintf(
+					// translators: Number of menu items removed
 					_nx( '%1$s menu item removed', '%1$s menu items removed', $context['menu_items_removed'], 'menu logger', 'simple-history' ),
 					esc_attr( $context['menu_items_removed'] )
 				);

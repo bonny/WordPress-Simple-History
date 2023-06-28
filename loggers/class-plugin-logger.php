@@ -584,6 +584,7 @@ class Plugin_Logger extends Logger {
 		$response_body = wp_remote_retrieve_body( $response );
 
 		$repo_info = '<p>' . sprintf(
+			// translators: %1$s is a link to the repo, %2$s is the repo name.
 			__( 'Viewing <code>readme</code> from repository <code><a target="_blank" href="%1$s">%2$s</a></code>.', 'simple-history' ),
 			esc_url( $repo ),
 			esc_html( $repo )

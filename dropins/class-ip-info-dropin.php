@@ -190,7 +190,14 @@ class IP_Info_Dropin extends Dropin {
 				</table>
 
 				<p class="SimpleHistoryIpInfoDropin__provider">
-					<?php printf( esc_html_x( 'IP info provided by %1$s ipinfo.io %2$s', 'IP Info Dropin', 'simple-history' ), "<a href='https://ipinfo.io/{{ data.ip }}' target='_blank'>", '</a>' ); ?>
+					<?php
+					printf(
+						// translators: 1 is an opening A tag to ipinfo.io, 2 is a closing A tag.
+						esc_html_x( 'IP info provided by %1$s ipinfo.io %2$s', 'IP Info Dropin', 'simple-history' ),
+						"<a href='https://ipinfo.io/{{ data.ip }}' target='_blank'>",
+						'</a>'
+					);
+					?>
 				</p>
 
 			<# } #>

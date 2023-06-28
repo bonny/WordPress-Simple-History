@@ -1089,6 +1089,7 @@ class Simple_History {
 				_doing_it_wrong(
 					__METHOD__,
 					sprintf(
+						// translators: 1: logger slug, 2: logger name.
 						esc_html( __( 'A logger slug can be max 30 chars long. Slug %1$s of logger %2$s is to long.', 'simple-history' ) ),
 						esc_html( $logger_instance->get_slug() ),
 						esc_html( $logger_instance->get_info_value_by_key( 'name' ) )
@@ -1113,6 +1114,7 @@ class Simple_History {
 				_doing_it_wrong(
 					__METHOD__,
 					sprintf(
+						// translators: 1: logger slug.
 						esc_html( __( 'Logger %1$s is missing a name.', 'simple-history' ) ),
 						esc_html( $logger_instance->get_slug() ),
 					),
@@ -1239,7 +1241,10 @@ class Simple_History {
 				_doing_it_wrong(
 					__METHOD__,
 					sprintf(
-						esc_html( __( 'A dropin was not found. Classname was "%1$s".', 'simple-history' ) ),
+						esc_html(
+							// translators: 1: dropin class name.
+							__( 'A dropin was not found. Classname was "%1$s".', 'simple-history' )
+						),
 						esc_html( $one_dropin_class ),
 					),
 					'4.0'
@@ -2245,14 +2250,14 @@ Because Simple History was only recently installed, this feed does not display m
 		?>
 
 		<input
-			<?php checked($show_on_dashboard); ?>
+			<?php checked( $show_on_dashboard ); ?>
 			type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
 		<label for="simple_history_show_on_dashboard"><?php esc_html_e( 'on the dashboard', 'simple-history' ); ?></label>
 
 		<br />
 
 		<input
-			<?php checked($show_as_page); ?>
+			<?php checked( $show_as_page ); ?>
 			type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
 		<label for="simple_history_show_as_page">
 			<?php esc_html_e( 'as a page under the dashboard menu', 'simple-history' ); ?>
@@ -2278,6 +2283,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 		if ( $clear_days > 0 ) {
 			echo sprintf(
+				// translators: %1$s is number of days.
 				esc_html__( 'Items in the database are automatically removed after %1$s days.', 'simple-history' ),
 				esc_html( $clear_days )
 			);
@@ -2612,6 +2618,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 			$occasions_html .= '<a href="#" class="SimpleHistoryLogitem__occasionsLink">';
 			$occasions_html .= sprintf(
+				// translators: %1$s is number of similar events.
 				_n( '+%1$s similar event', '+%1$s similar events', $occasions_count, 'simple-history' ),
 				$occasions_count
 			);
@@ -2622,7 +2629,11 @@ Because Simple History was only recently installed, this feed does not display m
 			$occasions_html .= '</span>';
 
 			$occasions_html .= '<span class="SimpleHistoryLogitem__occasionsLoaded">';
-			$occasions_html .= sprintf( __( 'Showing %1$s more', 'simple-history' ), $occasions_count );
+			$occasions_html .= sprintf(
+				// translators: %1$s is number of similar events.
+				__( 'Showing %1$s more', 'simple-history' ),
+				$occasions_count
+			);
 			$occasions_html .= '</span>';
 
 			$occasions_html .= '</div>';
@@ -3224,36 +3235,42 @@ Because Simple History was only recently installed, this feed does not display m
 					// Multiple events from a single user
 					// 3 events today from one user.
 					if ( $total_row_count > 1 && $count_users_today == 1 && ! $count_other_sources ) {
+						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user.', 'simple-history' );
 					}
 
 					// Multiple events from only users
 					// 2 events today from 2 users.
 					if ( $total_row_count > 1 && $count_users_today == $total_row_count ) {
+						// translators: 1 is number of events. 2 is number of users.
 						$msg_tmpl .= __( '%1$d events today from %2$d users.', 'simple-history' );
 					}
 
 					// Multiple events from 1 single user and 1 single other source
 					// 2 events today from 1 user and 1 other source.
 					if ( $total_row_count && 1 == $count_users_today && 1 == $count_other_sources ) {
+						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and one other source.', 'simple-history' );
 					}
 
 					// Multiple events from multiple users but from only 1 single other source
 					// 3 events today from 2 users and 1 other source.
 					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
+						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and one other source.', 'simple-history' );
 					}
 
 					// Multiple events from 1 user but from multiple  other source
 					// 3 events today from 1 user and 2 other sources.
 					if ( $total_row_count > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
+						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and %3$d other sources.', 'simple-history' );
 					}
 
 					// Multiple events from multiple user and from multiple other sources
 					// 4 events today from 2 users and 2 other sources.
 					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources > 1 ) {
+						// translators: 1 is number of events, 2 is number of users, 3 is number of other sources.
 						$msg_tmpl .= __( '%1$s events today from %2$d users and %3$d other sources.', 'simple-history' );
 					}
 				} // End if().

@@ -20,11 +20,13 @@ class Sidebar_Dropin extends Dropin {
 		$headline = _x( 'Donate to support development', 'Sidebar box', 'simple-history' );
 
 		$bodyDonate = sprintf(
+			// translators: 1 is a link to the donate page.
 			_x( 'If you like and use Simple History you should <a href="%1$s">donate to keep this plugin free</a>.', 'Sidebar box', 'simple-history' ),
 			'https://eskapism.se/sida/donate/'
 		);
 
 		$bodyGithubSponsors = sprintf(
+			// translators: 1 is a link to the GitHub sponsors page.
 			_x( 'You can also <a href="%1$s">sponsor me at Github</a>.', 'Sidebar box', 'simple-history' ),
 			'https://github.com/sponsors/bonny/'
 		);
@@ -43,6 +45,7 @@ class Sidebar_Dropin extends Dropin {
 		$headline = _x( 'Review this plugin if you like it', 'Sidebar box', 'simple-history' );
 
 		$body1 = sprintf(
+			// translators: 1 is a link to the review page.
 			_x( 'If you like Simple History then please <a href="%1$s">give it a nice review over at wordpress.org</a>.', 'Sidebar box', 'simple-history' ),
 			'https://wordpress.org/support/view/plugin-reviews/simple-history'
 		);
@@ -70,7 +73,11 @@ class Sidebar_Dropin extends Dropin {
 			</div>
 			',
 			_x( 'Support', 'Sidebar box', 'simple-history' ), // 1
-			sprintf( _x( '<a href="%1$s">Visit the support forum</a> if you need help or have questions.', 'Sidebar box', 'simple-history' ), 'https://wordpress.org/support/plugin/simple-history' ) // 2
+			sprintf(
+				// translators: 1 is a link to the support forum.
+				_x( '<a href="%1$s">Visit the support forum</a> if you need help or have questions.', 'Sidebar box', 'simple-history' ),
+				'https://wordpress.org/support/plugin/simple-history'
+			) // 2
 		);
 
 		$arrBoxes = array(

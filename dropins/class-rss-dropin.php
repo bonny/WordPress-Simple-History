@@ -302,6 +302,7 @@ class RSS_Dropin extends Dropin {
 						);
 
 						$level_output = sprintf(
+							// translators: %s is the severity level of the log.
 							esc_html__( 'Severity level: %1$s', 'simple-history' ),
 							Log_Levels::get_log_level_translated( $row->level )
 						);
@@ -359,7 +360,10 @@ class RSS_Dropin extends Dropin {
 								if ( $occasions ) {
 									echo '<p>';
 									printf(
-										esc_html( _n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' ) ),
+										esc_html(
+											// translators: %1$s is the number of times this log has been repeated.
+											_n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' )
+										),
 										(int) $occasions
 									);
 									echo '</p>';
@@ -386,8 +390,24 @@ class RSS_Dropin extends Dropin {
 			?>
 			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 				<channel>
-					<title><?php printf( esc_html__( 'History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?></title>
-					<description><?php printf( esc_html__( 'WordPress History for %s', 'simple-history' ), esc_html( get_bloginfo( 'name' ) ) ); ?></description>
+					<title>
+					<?php
+						printf(
+							// translators: %s blog name
+							esc_html__( 'History for %s', 'simple-history' ),
+							esc_html( get_bloginfo( 'name' ) )
+						);
+					?>
+					</title>
+					<description>
+					<?php
+					printf(
+						// translators: %s blog name
+						esc_html__( 'WordPress History for %s', 'simple-history' ),
+						esc_html( get_bloginfo( 'name' ) )
+					);
+					?>
+					</description>
 					<link><?php echo esc_url( home_url() ); ?></link>
 					<item>
 						<title><?php esc_html_e( 'Wrong RSS secret', 'simple-history' ); ?></title>

@@ -723,6 +723,7 @@ class Plugin_ACF_Logger extends Logger {
 				// or we don't know what field the other changed values belongs to.
 				if ( empty( $context[ "acf_modified_fields_{$loopnum}_label_new" ] ) ) {
 					$strOneModifiedField .= sprintf(
+						// translators: %1$s is the label name.
 						_x( 'Label: %1$s', 'Logger: Plugin ACF', 'simple-history' ), // 1
 						esc_html( $context[ "acf_modified_fields_{$loopnum}_label_prev" ] ) // 2
 					);
@@ -1071,4 +1072,3 @@ class Plugin_ACF_Logger extends Logger {
 		return $skip_posttypes;
 	}
 }
-

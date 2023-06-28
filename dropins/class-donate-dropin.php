@@ -57,6 +57,7 @@ class Donate_Dropin extends Dropin {
 	public function settings_section_output() {
 		printf(
 			wp_kses(
+				// translators: 1 is a link to PayPal, 2 is a link to GitHub sponsors.
 				__(
 					'If you find Simple History useful please <a href="%1$s">donate using PayPal</a> or <a href="%2$s">become a GitHub sponsor</a>.',
 					'simple-history'

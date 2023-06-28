@@ -98,7 +98,12 @@ class New_Rows_Notifier_Dropin extends Dropin {
 		if ( $numNewRows ) {
 			// We have new rows
 			// Append strings
-			$textRowsFound = sprintf( _n( '%s new event', '%s new events', $numNewRows, 'simple-history' ), $numNewRows );
+			$textRowsFound = sprintf(
+				// translators: %s is the number of new events
+				_n( '%s new event', '%s new events', $numNewRows, 'simple-history' ),
+				$numNewRows
+			);
+
 			$json_data['strings'] = array(
 				'newRowsFound' => $textRowsFound,
 			);
