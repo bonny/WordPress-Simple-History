@@ -442,4 +442,15 @@ class Helpers {
 		return get_avatar( $email, $size, $default, $alt, $args );
 	}
 
+	/**
+	 * Function that converts camelCase to snake_case.
+	 * Used to map old functions to new ones.
+	 *
+	 * @since 4.3.0
+	 * @param string $input For example "getLogRowHtmlOutput".
+	 * @return string Modified to for example "get_log_row_html_output".
+	 */
+	public static function camel_case_to_snake_case( $input ) {
+		return strtolower( preg_replace( '/(?<!^)[A-Z]/', '_$0', $input ) );
+	}
 }
