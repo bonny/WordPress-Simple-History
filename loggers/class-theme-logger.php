@@ -176,6 +176,12 @@ class Theme_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * Log theme updated.
+	 *
+	 * @param WP_Upgrader $upgrader_instance WP_Upgrader instance.
+	 * @param array       $arr_data          Array of bulk item update data.
+	 */
 	public function on_upgrader_process_complete_theme_update( $upgrader_instance = null, $arr_data = null ) {
 
 		/*
@@ -205,6 +211,11 @@ class Theme_Logger extends Logger {
 
 		// Both args must be set
 		if ( empty( $upgrader_instance ) || empty( $arr_data ) ) {
+			return;
+		}
+
+		// Check that required data is set.
+		if ( empty( $arr_data['type'] ) || empty( $arr_data['action'] ) ) {
 			return;
 		}
 
@@ -264,13 +275,18 @@ class Theme_Logger extends Logger {
 	/**
 	 * Log theme installation.
 	 *
-	 * @param mixed $upgrader_instance
-	 * @param mixed $arr_data
+	 * @param WP_Upgrader $upgrader_instance WP_Upgrader instance.
+	 * @param array       $arr_data          Array of bulk item update data.
 	 * @return void
 	 */
 	public function on_upgrader_process_complete_theme_install( $upgrader_instance = null, $arr_data = null ) {
 		// Both args must be set.
 		if ( empty( $upgrader_instance ) || empty( $arr_data ) ) {
+			return;
+		}
+
+		// Check that required data is set.
+		if ( empty( $arr_data['type'] ) || empty( $arr_data['action'] ) ) {
 			return;
 		}
 
