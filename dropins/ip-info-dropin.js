@@ -84,7 +84,16 @@
 
   // Init request to lookup address
   function lookupIpAddress(ipAddress) {
-    var ajax = $.get(
+
+    // Check if IP address is anonymized.
+    // Anonymized IP addresses ends with ".x".
+    let isAnonymized = ipAddress.endsWith(".x");
+    if (isAnonymized) {
+      // Replace ".x" with ".0" to make it a valid IP address.
+      ipAddress = ipAddress.replace(".x", ".0");
+    }
+
+    $.get(
       "https://ipinfo.io/" + ipAddress,
       onIpAddressLookupResponse,
       "jsonp"
@@ -92,7 +101,7 @@
       // Some error occurred, for example "net::ERR_BLOCKED_BY_CLIENT"
       // when ad blocker uBlock blocks
       // ipinfo.io using EasyPrivacy filter
-      console.log("fail", jqXHR, textStatus, errorThrown);
+      // console.log("fail", jqXHR, textStatus, errorThrown);
       onIpAddressLookupResponseFail();
     });
 

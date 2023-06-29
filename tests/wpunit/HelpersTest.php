@@ -73,6 +73,15 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$ip_address_expected = '2a03:2880:f12f:83:face:b00c::25de';
 		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );
 		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );		
+	}
 
+	function test_get_valid_ip_address_from_anonymized() {
+		$ip_address_expected = '127.0.0.0';
+		$ip_address = '127.0.0.x';
+		$this->assertEquals( $ip_address_expected, Helpers::get_valid_ip_address_from_anonymized( $ip_address ) );
+
+		$ip_address_expected = '142.250.74.0';
+		$ip_address = '142.250.74.x';
+		$this->assertEquals( $ip_address_expected, Helpers::get_valid_ip_address_from_anonymized( $ip_address ) );
 	}
 }

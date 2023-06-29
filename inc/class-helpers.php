@@ -500,4 +500,16 @@ class Helpers {
 
 		return $ip_address;
 	}
+
+	/**
+	 * Static function that recieves a possible anonymized IP-address
+	 * and returns a valid one, e.g. the last '.x' replaced with '.0'.
+	 *
+	 * Used when fetching IP-address info from ipinfo.io, or API call
+	 * will fail due to malformed IP address.
+	 */
+	public static function get_valid_ip_address_from_anonymized( $ip_address ) {
+		$ip_address = preg_replace( '/\.x$/', '.0', $ip_address );
+		return $ip_address;
+	}
 }

@@ -20,6 +20,24 @@ class IP_Info_Dropin extends Dropin {
 	}
 
 	/**
+	 * Get Google Maps API key.
+	 *
+	 * @return string
+	 */
+	private function get_maps_api_key() {
+		/**
+		 * Filters the Google Maps API key that is used
+		 * to render a static map image.
+		 *
+		 * @since 4.2
+		 *
+		 * @param string $api_key The API key to use. Default is empty string, causing no Map image to be outputted.
+		 */
+		$api_key = apply_filters( 'simple_history/maps_api_key', '' );
+		return $api_key;
+	}
+
+	/**
 	 * Display IP Addresses for login related messages.
 	 *
 	 * @param bool $bool
@@ -99,14 +117,16 @@ class IP_Info_Dropin extends Dropin {
 				<table class="SimpleHistoryIpInfoDropin__ipInfoTable">
 
 					<tr class="SimpleHistoryIpInfoDropin__ipInfoTable__mapRow">
-						<td colspan="2">
-							<!--
-							<# if ( typeof(data.loc) != "undefined" && data.loc ) { #>
+						<td colspan="2">							
+							<# if ( typeof(data.loc) != "undefined" && data.loc && "<?php echo esc_attr( $this->get_maps_api_key() ); ?>" ) { #>
 								<a href="https://www.google.com/maps/place/{{ data.loc }}/@{{ data.loc }},6z" target="_blank">
-									<img src="https://maps.googleapis.com/maps/api/staticmap?center={{ data.loc }}&zoom=7&size=350x100&sensor=false" width="350" height="100" alt="Google Map">
+									<img 
+										src="https://maps.googleapis.com/maps/api/staticmap?center={{ data.loc }}&zoom=7&size=350x100&scale=2&sensor=false&key=<?php echo esc_attr( $this->get_maps_api_key() ); ?>" 
+										width="350" 
+										height="100" 
+										alt="Google Map" />
 								</a>
 							<# } #>
-							-->
 						</td>
 					</tr>
 

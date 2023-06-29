@@ -524,26 +524,6 @@ abstract class Logger {
 			$arr_found_additional_ip_headers
 		);
 
-		// if ( count( $arr_found_additional_ip_headers ) ) {
-		// $iplookup_link = sprintf('https://ipinfo.io/%1$s', esc_attr($context["_server_remote_addr"]));
-		// $ip_numbers_joined = wp_sprintf_l('%l', array("_server_remote_addr" => $context["_server_remote_addr"]) + $arr_found_additional_ip_headers);
-		/*
-			$html .= sprintf(
-				__('Anonymous user with multiple IP addresses detected: %1$s', "simple-history"),
-				"<a target='_blank' href={$iplookup_link} class='SimpleHistoryLogitem__anonUserWithIp__theIp'>" . esc_html( $ip_numbers_joined ) . "</a>"
-			);*/
-
-		/*
-			print_r($arr_found_additional_ip_headers);
-			Array
-			(
-				[_server_http_x_forwarded_for_0] => 5.35.187.212
-				[_server_http_x_forwarded_for_1] => 83.251.97.21
-			)
-			*/
-
-		// } else {
-
 		$first_ip_address = reset( $arr_ip_addresses );
 
 		// Output single or plural text.
@@ -551,7 +531,7 @@ abstract class Logger {
 			// Single ip address
 			$iplookup_link = sprintf(
 				'https://ipinfo.io/%1$s',
-				esc_attr( $first_ip_address )
+				esc_attr( Helpers::get_valid_ip_address_from_anonymized( $first_ip_address ) )
 			);
 
 			$html .= sprintf(
@@ -567,7 +547,7 @@ abstract class Logger {
 			foreach ( $arr_ip_addresses as $ip_address_header => $ip_address ) {
 				$iplookup_link = sprintf(
 					'https://ipinfo.io/%1$s',
-					esc_attr( $ip_address )
+					esc_attr( Helpers::get_valid_ip_address_from_anonymized( $ip_address ) )
 				);
 
 				$ip_addresses_html .= sprintf(
