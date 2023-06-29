@@ -704,12 +704,6 @@ class Simple_History {
 	 * @param string $domain
 	 */
 	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
-		static $number_of_calls = 0;
-		$number_of_calls++;
-		// On visit to http://wordpress-stable.test/wordpress/wp-admin/options-general.php
-		// number of times is around 3567, 3538, 3526, 3526, 3538, ...
-		sh_error_log( 'filter_gettext() called ' . $number_of_calls . ' times' );
-
 		if ( $this->do_filter_gettext ) {
 			$this->do_filter_gettext_current_logger->messages[] = array(
 				'untranslated_text' => $untranslated_text,
