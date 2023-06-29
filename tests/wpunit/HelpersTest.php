@@ -30,4 +30,22 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );
 		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );		
 	}
+
+	function test_privacy_anonymize_ip_disabled() {
+		add_filter(
+			'simple_history/privacy/anonymize_ip_address',
+			'__return_false'
+		);
+
+		$ip_address = '127.0.0.1';
+		$ip_address_expected = '127.0.0.1';
+		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );
+		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );
+
+		$ip_address = '2a03:2880:f12f:83:face:b00c::25de';
+		$ip_address_expected = '2a03:2880:f12f:83:face:b00c::25de';
+		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );
+		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );		
+
+	}
 }
