@@ -218,6 +218,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Remove support for automatically un-translating messages to the log, loggers are better and have better support for languages.
 - Change location of filter `gettext` and `gettext_with_context` and unhook inte when we are done, resulting in much fewer function calls.
 - Add `Helpers::privacy_anonymize_ip()`.
+- IPV4 addresses that are anonymized get a ".x" added last instead of ".0" to make it more clear to the user that the IP address is anonymized.
+- Add filter `simple_history/privacy/add_char_to_anonymized_ip_address` to control if a char should be added to anonymized IPV4 addresses.
 
 = 4.1.0 =
 

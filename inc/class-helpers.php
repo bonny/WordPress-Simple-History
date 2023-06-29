@@ -487,7 +487,17 @@ class Helpers {
 		}
 
 		$ip_address = wp_privacy_anonymize_ip( $ip_address );
-		// $ip_address = preg_replace( '/\.0$/', '.x', $ip_address );
+
+		$add_char = apply_filters(
+			'simple_history/privacy/add_char_to_anonymized_ip_address',
+			true
+		);
+
+		$is_ipv4 = ( 3 === substr_count( $ip_address, '.' ) );
+		if ( $add_char && $is_ipv4 ) {
+			$ip_address = preg_replace( '/\.0$/', '.x', $ip_address );
+		}
+
 		return $ip_address;
 	}
 }
