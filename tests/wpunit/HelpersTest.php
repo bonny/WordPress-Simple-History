@@ -10,7 +10,6 @@ use Simple_History\Log_Query;
 
 class HelpersTest extends \Codeception\TestCase\WPTestCase {
 	function test_privacy_anonymize_ip() {
-	
 		$ip_address = '127.0.0.1';
 		$ip_address_expected = '127.0.0.0';
 		$this->assertEquals( $ip_address_expected, Helpers::privacy_anonymize_ip( $ip_address ) );

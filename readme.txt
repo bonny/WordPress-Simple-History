@@ -217,6 +217,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Remove function `filter_gettext_store_latest_translations()`.
 - Remove support for automatically un-translating messages to the log, loggers are better and have better support for languages.
 - Change location of filter `gettext` and `gettext_with_context` and unhook inte when we are done, resulting in much fewer function calls.
+- Add `Helpers::privacy_anonymize_ip()`.
 
 = 4.1.0 =
 
