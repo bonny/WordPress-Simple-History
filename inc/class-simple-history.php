@@ -707,7 +707,6 @@ class Simple_History {
 	 * in the database.
 	 */
 	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
-		if ( isset( $this->do_filter_gettext ) && $this->do_filter_gettext ) {
 			$this->do_filter_gettext_current_logger->messages[] = array(
 				'untranslated_text' => $untranslated_text,
 				'translated_text' => $translated_text,
@@ -723,7 +722,6 @@ class Simple_History {
 	 * Store messages with context
 	 */
 	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
-		if ( isset( $this->do_filter_gettext ) && $this->do_filter_gettext ) {
 			$this->do_filter_gettext_current_logger->messages[] = array(
 				'untranslated_text' => $untranslated_text,
 				'translated_text' => $translated_text,
