@@ -30,9 +30,10 @@ abstract class Logger {
 	protected $slug;
 
 	/**
-	 * Will contain the untranslated messages from get_info().
+	 * Will contain the untranslated messages from get_info(),
+	 * added when the logger is loaded in the Simple_History class..
 	 *
-	 * By adding your messages here they will be stored both translated and non-translated
+	 * Messages here will be stored both translated and non-translated
 	 * You then log something like this:
 	 * <code>
 	 *   $this->info( $this->messages["POST_UPDATED"] );
@@ -43,6 +44,8 @@ abstract class Logger {
 	 * </code>
 	 * which results in the original, untranslated, string being added to the log and database
 	 * the translated string are then only used when showing the log in the GUI.
+	 *
+	 * @array $messages
 	 */
 	public $messages;
 

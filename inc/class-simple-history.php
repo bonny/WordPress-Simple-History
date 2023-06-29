@@ -126,12 +126,7 @@ class Simple_History {
 
 		// Run before loading of loggers and before menu items are added.
 		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
-
 		add_action( 'after_setup_theme', array( $this, 'setup_cron' ) );
-
-		// Filters and actions not called during regular boot.
-		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
-		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
 
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
@@ -702,11 +697,20 @@ class Simple_History {
 	}
 
 	/**
-	 * During the load of info for a logger we want to get a reference
-	 * to the untranslated text too, because that's the version we want to store
-	 * in the database.
+	 * Store both translated and untranslated versions of a text.
+	 *
+	 * @param string $translated_text
+	 * @param string $untranslated_text
+	 * @param string $domain
 	 */
 	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
+		static $number_of_calls = 0;
+		$number_of_calls++;
+		// On visit to http://wordpress-stable.test/wordpress/wp-admin/options-general.php
+		// number of times is around 3567, 3538, 3526, 3526, 3538, ...
+		sh_error_log( 'filter_gettext() called ' . $number_of_calls . ' times' );
+
+		if ( $this->do_filter_gettext ) {
 			$this->do_filter_gettext_current_logger->messages[] = array(
 				'untranslated_text' => $untranslated_text,
 				'translated_text' => $translated_text,
@@ -719,9 +723,15 @@ class Simple_History {
 	}
 
 	/**
-	 * Store messages with context
+	 * Store both translated and untranslated versions of a text with context.
+	 *
+	 * @param string $translated_text
+	 * @param string $untranslated_text
+	 * @param string $context
+	 * @param string $domain
 	 */
 	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
+		if ( $this->do_filter_gettext ) {
 			$this->do_filter_gettext_current_logger->messages[] = array(
 				'untranslated_text' => $untranslated_text,
 				'translated_text' => $translated_text,
@@ -1019,6 +1029,10 @@ class Simple_History {
 			$arr_loggers_to_instantiate
 		);
 
+		// Add gettext filters so we can get untranslated messages.
+		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
+		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
+
 		// Instantiate each logger.
 		foreach ( $arr_loggers_to_instantiate as $one_logger_class ) {
 			$is_valid_logger_subclass = is_subclass_of( $one_logger_class, 'Simple_History\Loggers\Logger' );
@@ -1108,6 +1122,10 @@ class Simple_History {
 				'instance' => $logger_instance,
 			);
 		} // End foreach().
+
+		// Remove getText filters.
+		remove_filter( 'gettext', array( $this, 'filter_gettext' ), 20 );
+		remove_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20 );
 
 		/**
 		 * Fired when all loggers are instantiated.
