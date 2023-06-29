@@ -210,6 +210,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fix spellings, as found by [Typos](https://github.com/crate-ci/typos/).
 - Check that required array keys exists in theme- and translation loggers. Fixes [support thread](https://wordpress.org/support/topic/strange-error-message-during-updates/), issue [#339](https://github.com/bonny/WordPress-Simple-History/issues/339).
 - Misc code cleanup and improvements.
+- Move function `get_avatar()` to helpers class.
+- Add class `SimpleHistory` so old code like `SimpleHistory->get_instance()` will work.
+- Add helper function `camel_case_to_snake_case()`.
+- Automatically convert camelCase function names to snake_case function names when calling function on \Simple_History class. This way more old code and old examples will work. Fixes for example [support thread](https://wordpress.org/support/topic/uncaught-error-class-simplehistory/).
 - Remove function `filter_gettext_store_latest_translations()`.
 - Remove support for automatically un-translating messages to the log, loggers are better and have better support for languages.
 - Change location of filter `gettext` and `gettext_with_context` and unhook inte when we are done, resulting in much fewer function calls.
@@ -357,7 +361,6 @@ Note: Next major version of the plugin will require PHP 7. If you are running a 
 - Update translations. Props @kebbet. See https://docs.simple-history.com/translate for information how to update or add translations of the plugin.
 - Use `constant()` function to get constant values. Makes some linting errors go away.
 - Remove `languages` folder. [#287](https://github.com/bonny/WordPress-Simple-History/issues/287)
-- Move function `get_avatar()` to helpers class.
 
 = 3.2.0 (February 2022) =
 
