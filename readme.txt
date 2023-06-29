@@ -210,6 +210,8 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Fix spellings, as found by [Typos](https://github.com/crate-ci/typos/).
 - Check that required array keys exists in theme- and translation loggers. Fixes [support thread](https://wordpress.org/support/topic/strange-error-message-during-updates/), issue [#339](https://github.com/bonny/WordPress-Simple-History/issues/339).
 - Misc code cleanup and improvements.
+- Remove function `filter_gettext_store_latest_translations()`.
+- Remove support for automatically un-translating messages to the log, loggers are better and have better support for languages.
 
 = 4.1.0 =
 

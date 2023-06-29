@@ -66,15 +66,6 @@ class Simple_History {
 	private $do_filter_gettext_current_logger;
 
 	/**
-	 * Used to store latest translations used by __()
-	 * Required to automagically determine original text and text domain
-	 * for calls like this `SimpleLogger()->log( __("My translated message") );`
-	 *
-	 * @var array
-	 */
-	public $gettext_latest_translations = array();
-
-	/**
 	 * All registered settings tabs.
 	 *
 	 * @var array
@@ -141,7 +132,6 @@ class Simple_History {
 		// Filters and actions not called during regular boot.
 		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
 		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
-		add_filter( 'gettext', array( $this, 'filter_gettext_store_latest_translations' ), 10, 3 );
 
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
@@ -479,36 +469,6 @@ class Simple_History {
 		}
 
 		return self::$instance;
-	}
-
-	public function filter_gettext_store_latest_translations( $translation, $text, $domain ) {
-		// Check that translation is a string or integer, i.ex. the valid values for an array key
-		if ( ! is_string( $translation ) || ! is_integer( $translation ) ) {
-			return $translation;
-		}
-
-		$array_max_size = 5;
-
-		// Keep a listing of the n latest translation
-		// when SimpleLogger->log() is called from anywhere we can then search for the
-		// translated string among our n latest things and find it there, if it's translated
-		// global $sh_latest_translations;
-		$sh_latest_translations = $this->gettext_latest_translations;
-
-		$sh_latest_translations[ $translation ] = array(
-			'translation' => $translation,
-			'text' => $text,
-			'domain' => $domain,
-		);
-
-		$arr_length = count( $sh_latest_translations );
-		if ( $arr_length > $array_max_size ) {
-			$sh_latest_translations = array_slice( $sh_latest_translations, $arr_length - $array_max_size );
-		}
-
-		$this->gettext_latest_translations = $sh_latest_translations;
-
-		return $translation;
 	}
 
 	public function setup_cron() {

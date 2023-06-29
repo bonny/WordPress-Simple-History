@@ -1177,23 +1177,6 @@ abstract class Logger {
 			return $this;
 		}
 
-		// Check if $message is a translated message, and if so then fetch original
-		$sh_latest_translations = $this->simple_history->gettext_latest_translations;
-
-		if ( ! empty( $sh_latest_translations ) ) {
-			if ( isset( $sh_latest_translations[ $message ] ) ) {
-				// Translation of this phrase was found, so use original phrase instead of translated one
-				// Store textdomain since it's required to translate
-				$context['_gettext_domain'] =
-				$sh_latest_translations[ $message ]['domain'];
-
-				// These are good to keep when debugging
-				// $context["_gettext_org_message"] = $sh_latest_translations[$message]["text"];
-				// $context["_gettext_translated_message"] = $sh_latest_translations[$message]["translation"];
-				$message = $sh_latest_translations[ $message ]['text'];
-			}
-		}
-
 		/**
 		 * Filter arguments passed to log function
 		 *
