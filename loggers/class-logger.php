@@ -1393,35 +1393,9 @@ abstract class Logger {
 
 			// Add remote addr to context.
 			if ( ! isset( $context['_server_remote_addr'] ) ) {
-				$remote_addr = empty( $_SERVER['REMOTE_ADDR'] )
-				? ''
-				: wp_unslash( $_SERVER['REMOTE_ADDR'] );
+				$remote_addr = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : wp_unslash( $_SERVER['REMOTE_ADDR'] );
 
-				/**
-				 * Filter to control if ip addresses should be anonymized or not.
-				 * Defaults to true, meaning that any IP address is anonymized.
-				 *
-				 * @example Disable IP anonymization.
-				 *
-				 * ```php
-				 * add_filter( 'simple_history/privacy/anonymize_ip_address', '__return_false' );
-				 * ```
-				 *
-				 * @since 2.22
-				 *
-				 * @param bool $do_anonymize true to anonymize ip address, false to keep original ip address.
-				 */
-				$anonymize_ip_address = apply_filters(
-					'simple_history/privacy/anonymize_ip_address',
-					true
-				);
-
-				if (
-					$anonymize_ip_address &&
-					function_exists( 'wp_privacy_anonymize_ip' )
-				) {
-					$remote_addr = wp_privacy_anonymize_ip( $remote_addr );
-				}
+				$remote_addr = Helpers::privacy_anonymize_ip( $remote_addr );
 
 				$context['_server_remote_addr'] = $remote_addr;
 
@@ -1448,13 +1422,7 @@ abstract class Logger {
 							if ( Helpers::is_valid_public_ip( $ip ) ) {
 								// valid, add to context, with loop index appended so we can store many IPs.
 								$key_lower = strtolower( $key );
-
-								if (
-									$anonymize_ip_address &&
-									function_exists( 'wp_privacy_anonymize_ip' )
-								) {
-									$ip = wp_privacy_anonymize_ip( $ip );
-								}
+								$ip = Helpers::privacy_anonymize_ip( $ip );
 
 								$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
 							}

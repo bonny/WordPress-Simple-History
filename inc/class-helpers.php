@@ -453,4 +453,41 @@ class Helpers {
 	public static function camel_case_to_snake_case( $input ) {
 		return strtolower( preg_replace( '/(?<!^)[A-Z]/', '_$0', $input ) );
 	}
+
+	/**
+	 * Anonymize IP-address using the WordPress function wp_privacy_anonymize_ip(),
+	 * with addition that it replaces the last 0 with a "x" so
+	 * users hopefully understand that it is a modified IP-address
+	 * that is anonymized.
+	 *
+	 * @param string $ip IP-address to anonymize.
+	 */
+	public static function privacy_anonymize_ip( $ip_address ) {
+		/**
+		 * Filter to control if ip addresses should be anonymized or not.
+		 * Defaults to true, meaning that any IP address is anonymized.
+		 *
+		 * @example Disable IP anonymization.
+		 *
+		 * ```php
+		 * add_filter( 'simple_history/privacy/anonymize_ip_address', '__return_false' );
+		 * ```
+		 *
+		 * @since 2.22
+		 *
+		 * @param bool $do_anonymize true to anonymize ip address, false to keep original ip address.
+		 */
+		$anonymize_ip_address = apply_filters(
+			'simple_history/privacy/anonymize_ip_address',
+			true
+		);
+
+		if ( ! $anonymize_ip_address ) {
+			return $ip_address;
+		}
+
+		$ip_address = wp_privacy_anonymize_ip( $ip_address );
+		// $ip_address = preg_replace( '/\.0$/', '.x', $ip_address );
+		return $ip_address;
+	}
 }
