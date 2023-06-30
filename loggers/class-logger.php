@@ -254,9 +254,9 @@ abstract class Logger {
 								'simple-history'
 							) .
 							'</strong>',
-						esc_html( $context['_user_id'] ), // 1
-						esc_html( $context['_user_email'] ), // 2
-						esc_html( $context['_user_login'] ) // 3
+						esc_html( $context['_user_id'] ?? '' ), // 1
+						esc_html( $context['_user_email'] ?? '' ), // 2
+						esc_html( $context['_user_login'] ?? '' ) // 3
 					);
 				} // End if().
 
