@@ -1205,9 +1205,11 @@ abstract class Logger {
 		 * Store date as GMT date, i.e. not local date/time
 		 *
 		 * @see http://www.skyverge.com/blog/down-the-rabbit-hole-wordpress-and-timezones/
+		 * @string $localtime
 		 */
 		$localtime = current_time( 'mysql', 1 );
 
+		/** @var string */
 		$db_table = $wpdb->prefix . Simple_History::DBTABLE;
 
 		/**
@@ -1219,6 +1221,11 @@ abstract class Logger {
 		 */
 		$db_table = apply_filters( 'simple_history/db_table', $db_table );
 
+		/**
+		 * Main table data row array.
+		 *
+		 * @array $data Data to be inserted into database.
+		 */
 		$data = array(
 			'logger' => $this->get_slug(),
 			'level' => $level,
@@ -1226,95 +1233,11 @@ abstract class Logger {
 			'message' => $message,
 		);
 
-		// Allow date to be overridden.
-		// Date must be in format 'Y-m-d H:i:s'.
-		if ( isset( $context['_date'] ) ) {
-			$data['date'] = $context['_date'];
-			unset( $context['_date'] );
-		}
-		if ( isset( $context['_occasionsID'] ) ) {
-			// Minimize risk of similar loggers logging same messages and such and resulting in same occasions id
-			// by always adding logger slug.
-			$occasions_data = array(
-				'_occasionsID' => $context['_occasionsID'],
-				'_loggerSlug' => $this->get_slug(),
-			);
-			$occasions_id = md5( json_encode( $occasions_data ) );
-			unset( $context['_occasionsID'] );
-		} else {
-			// No occasions id specified, create one bases on the data array.
-			$occasions_data = $data + $context;
-
-			// Don't include date in context data.
-			unset( $occasions_data['date'] );
-
-			$occasions_id = md5( json_encode( $occasions_data ) );
-		}
-
-		$data['occasionsID'] = $occasions_id;
-
-		// Log initiator, defaults to current user if exists, or other if not user exist
-		if ( isset( $context['_initiator'] ) ) {
-			// Manually set in context
-			$data['initiator'] = $context['_initiator'];
-			unset( $context['_initiator'] );
-		} else {
-			// No initiator set, try to determine
-			// Default to other
-			$data['initiator'] = Log_Initiators::OTHER;
-
-			// Check if user is responsible.
-			if ( function_exists( 'wp_get_current_user' ) ) {
-				$current_user = wp_get_current_user();
-
-				if ( isset( $current_user->ID ) && $current_user->ID ) {
-					$data['initiator'] = Log_Initiators::WP_USER;
-					$context['_user_id'] = $current_user->ID;
-					$context['_user_login'] = $current_user->user_login;
-					$context['_user_email'] = $current_user->user_email;
-				}
-			}
-
-			// If cron then set WordPress as responsible
-			if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
-				// Seems to be wp cron running and doing this.
-				$data['initiator'] = Log_Initiators::WORDPRESS;
-				$context['_wp_cron_running'] = true;
-
-				// To aid debugging we log the current filter and a list of all filters.
-				global $wp_current_filter;
-				$context['_wp_cron_current_filter'] = current_filter();
-			}
-
-			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it
-			// How to log this? Is this a user, is it WordPress, or what?
-			// I'm thinking:
-			// - it is a user that is manually doing this, on purpose, with intent, so not auto wordpress
-			// - it is a specific user, but we don't know who
-			// - sounds like a special case, set initiator to wp_cli
-			// Can be used by plugins/themes to check if WP-CLI is running or not
-			if ( defined( \WP_CLI::class ) && WP_CLI ) {
-				$data['initiator'] = Log_Initiators::WP_CLI;
-			}
-		} // End if().
-
-		// Detect XML-RPC calls and append to context, if not already there.
-		if (
-			defined( 'XMLRPC_REQUEST' ) &&
-			XMLRPC_REQUEST &&
-			! isset( $context['_xmlrpc_request'] )
-		) {
-			$context['_xmlrpc_request'] = true;
-		}
-
-		// Detect REST calls and append to context, if not already there.
-		$isRestApiRequest =
-		( defined( 'REST_API_REQUEST' ) && constant( 'REST_API_REQUEST' ) ) ||
-		( defined( 'REST_REQUEST' ) && constant( 'REST_REQUEST' ) );
-		if ( $isRestApiRequest ) {
-			$context['_rest_api_request'] = true;
-		}
-
+		list($data, $context) = $this->append_date_to_context( $data, $context );
+		list($data, $context) = $this->append_occasions_id_to_context( $data, $context );
+		list($data, $context) = $this->append_initiator_to_context( $data, $context );
+		$context = $this->append_xmlrpc_request_to_context( $context );
+		$context = $this->append_rest_api_request_to_context( $context );
 
 		/**
 		 * Filter data to be saved to db.
@@ -1330,14 +1253,13 @@ abstract class Logger {
 
 		$data_parent_row = null;
 
-		// Only save context if able to store row.
+		// Save context if able to store row.
 		if ( false === $result ) {
 			$history_inserted_id = null;
 		} else {
 			$history_inserted_id = $wpdb->insert_id;
 
-			$db_table_contexts =
-			$wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
+			$db_table_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
 
 			/**
 			 * Filter table name for contexts.
@@ -1357,71 +1279,10 @@ abstract class Logger {
 
 			// Append user id to context, if not already added.
 			// This is used to get basic information for a user even if user is deleted.
-			if ( ! isset( $context['_user_id'] ) ) {
-				// Load `wp_get_current_user` if not already loaded,
-				// because is not available early.
-				// http://codex.wordpress.org/Function_Reference/wp_get_current_user
-				// https://core.trac.wordpress.org/ticket/14024
-				if ( function_exists( 'wp_get_current_user' ) ) {
-					$current_user = wp_get_current_user();
-
-					if ( isset( $current_user->ID ) && $current_user->ID ) {
-						$context['_user_id'] = $current_user->ID;
-						$context['_user_login'] = $current_user->user_login;
-						$context['_user_email'] = $current_user->user_email;
-					}
-				}
-			}
+			$context = $this->append_user_context( $context );
 
 			// Add remote addr to context.
-			if ( ! isset( $context['_server_remote_addr'] ) ) {
-				$remote_addr = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : wp_unslash( $_SERVER['REMOTE_ADDR'] );
-
-				$remote_addr = Helpers::privacy_anonymize_ip( $remote_addr );
-
-				$context['_server_remote_addr'] = $remote_addr;
-
-				// If web server is behind a load balancer then the ip address will always be the same
-				// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
-				// Note that the x-forwarded-for header can contain multiple ips, comma separated
-				// Also note that the header can be faked
-				// Ref: http://stackoverflow.com/questions/753645/how-do-i-get-the-correct-ip-from-http-x-forwarded-for-if-it-contains-multiple-ip
-				// Ref: http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
-				// Check for IP in lots of headers
-				// Based on code found here:
-				// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
-				$ip_keys = Helpers::get_ip_number_header_names();
-
-				foreach ( $ip_keys as $key ) {
-					if ( array_key_exists( $key, $_SERVER ) === true ) {
-						// Loop through all IPs.
-						$ip_loop_num = 0;
-						foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
-							// trim for safety measures.
-							$ip = trim( $ip );
-
-							// attempt to validate IP.
-							if ( Helpers::is_valid_public_ip( $ip ) ) {
-								// valid, add to context, with loop index appended so we can store many IPs.
-								$key_lower = strtolower( $key );
-								$ip = Helpers::privacy_anonymize_ip( $ip );
-
-								$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
-							}
-
-							$ip_loop_num++;
-						}
-					}
-				}
-			} // End if().
-
-			// Append http referer.
-			if (
-				! isset( $context['_server_http_referer'] ) &&
-				isset( $_SERVER['HTTP_REFERER'] )
-			) {
-				$context['_server_http_referer'] = $_SERVER['HTTP_REFERER'];
-			}
+			$context = $this->append_remote_addr_to_context( $context );
 
 			/**
 			 * Filters the context to store for this event/row
@@ -1584,5 +1445,224 @@ abstract class Logger {
 		</script>
 		<?php
 		*/
+	}
+
+	private function append_user_context( $context ) {
+		if ( isset( $context['_user_id'] ) ) {
+			return $context;
+		}
+
+		// Load `wp_get_current_user` if not already loaded,
+		// because is not available early.
+		// http://codex.wordpress.org/Function_Reference/wp_get_current_user
+		// https://core.trac.wordpress.org/ticket/14024
+		if ( ! function_exists( 'wp_get_current_user' ) ) {
+			return $context;
+		}
+
+		$current_user = wp_get_current_user();
+
+		if ( isset( $current_user->ID ) && $current_user->ID ) {
+			$context['_user_id'] = $current_user->ID;
+			$context['_user_login'] = $current_user->user_login;
+			$context['_user_email'] = $current_user->user_email;
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Append initiator to context
+	 * If no initiator is set then try to determine it
+	 *
+	 * @param array $data
+	 * @param array $context
+	 * @return array $data as first key, $context as second key.
+	 */
+	private function append_initiator_to_context( $data, $context ) {
+		if ( isset( $context['_initiator'] ) ) {
+			// Manually set in contextn
+			$data['initiator'] = $context['_initiator'];
+			unset( $context['_initiator'] );
+		} else {
+			// No initiator set, try to determine
+			// Default to other
+			$data['initiator'] = Log_Initiators::OTHER;
+
+			// Check if user is responsible.
+			if ( function_exists( 'wp_get_current_user' ) ) {
+				$current_user = wp_get_current_user();
+
+				if ( isset( $current_user->ID ) && $current_user->ID ) {
+					$data['initiator'] = Log_Initiators::WP_USER;
+					$context['_user_id'] = $current_user->ID;
+					$context['_user_login'] = $current_user->user_login;
+					$context['_user_email'] = $current_user->user_email;
+				}
+			}
+
+			// If cron then set WordPress as responsible
+			if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+				$data['initiator'] = Log_Initiators::WORDPRESS;
+				$context['_wp_cron_running'] = true;
+
+				// To aid debugging we log the current filter and a list of all filters.
+				if ( defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) || SIMPLE_HISTORY_LOG_DEBUG ) {
+					$context['_wp_cron_current_filter'] = current_filter();
+				}
+			}
+
+			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it
+			if ( defined( \WP_CLI::class ) && WP_CLI ) {
+				$data['initiator'] = Log_Initiators::WP_CLI;
+			}
+		} // End if().
+
+		return array( $data, $context );
+	}
+
+	/**
+	 * Append remote addr and other related headers to to context.
+	 *
+	 * @param array $context
+	 * @return array $context
+	 */
+	private function append_remote_addr_to_context( $context ) {
+		if ( ! isset( $context['_server_remote_addr'] ) ) {
+			$remote_addr = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : wp_unslash( $_SERVER['REMOTE_ADDR'] );
+
+			$remote_addr = Helpers::privacy_anonymize_ip( $remote_addr );
+
+			$context['_server_remote_addr'] = $remote_addr;
+
+			// If web server is behind a load balancer then the ip address will always be the same
+			// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
+			// Note that the x-forwarded-for header can contain multiple ips, comma separated
+			// Also note that the header can be faked
+			// Ref: http://stackoverflow.com/questions/753645/how-do-i-get-the-correct-ip-from-http-x-forwarded-for-if-it-contains-multiple-ip
+			// Ref: http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
+			// Check for IP in lots of headers
+			// Based on code found here:
+			// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
+			$ip_keys = Helpers::get_ip_number_header_names();
+
+			foreach ( $ip_keys as $key ) {
+				if ( array_key_exists( $key, $_SERVER ) === true ) {
+					// Loop through all IPs.
+					$ip_loop_num = 0;
+					foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+						// trim for safety measures.
+						$ip = trim( $ip );
+
+						// attempt to validate IP.
+						if ( Helpers::is_valid_public_ip( $ip ) ) {
+							// valid, add to context, with loop index appended so we can store many IPs.
+							$key_lower = strtolower( $key );
+							$ip = Helpers::privacy_anonymize_ip( $ip );
+
+							$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
+						}
+
+						$ip_loop_num++;
+					}
+				}
+			}
+		} // End if().
+
+		// Append http referer.
+		if (
+			! isset( $context['_server_http_referer'] ) &&
+			isset( $_SERVER['HTTP_REFERER'] )
+		) {
+			$context['_server_http_referer'] = $_SERVER['HTTP_REFERER'];
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Append occasionsID to context.
+	 *
+	 * @param array $data
+	 * @param array $context
+	 * @return array $data as first key, $context as second key.
+	 */
+	private function append_occasions_id_to_context( $data, $context ) {
+		if ( isset( $context['_occasionsID'] ) ) {
+			// Minimize risk of similar loggers logging same messages and such and resulting in same occasions id
+			// by generating a new occasionsID with logger slug appened.
+			$occasions_data = array(
+				'_occasionsID' => $context['_occasionsID'],
+				'_loggerSlug' => $this->get_slug(),
+			);
+			$occasions_id = md5( json_encode( $occasions_data ) );
+			unset( $context['_occasionsID'] );
+		} else {
+			// No occasions id specified, create one based on the data array.
+			$occasions_data = $data + $context;
+
+			// Don't include date in context data.
+			unset( $occasions_data['date'] );
+
+			$occasions_id = md5( json_encode( $occasions_data ) );
+		}
+
+		$data['occasionsID'] = $occasions_id;
+
+		return array( $data, $context );
+	}
+
+	/**
+	 * Append _xmlrpc_request to context if this is a XMLRPC request.
+	 *
+	 * @param array $context
+	 * @return array $context
+	 */
+	private function append_xmlrpc_request_to_context( $context ) {
+		if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
+			return $context;
+		}
+
+		$context['_xmlrpc_request'] = true;
+
+		return $context;
+	}
+
+	/**
+	 * Append _rest_api_request to context if this is a REST API request.
+	 *
+	 * @param array $context
+	 * @return array $context
+	 */
+	private function append_rest_api_request_to_context( $context ) {
+		// Detect REST calls and append to context, if not already there.
+		$is_rest_api_request = defined( 'REST_API_REQUEST' ) && constant( 'REST_API_REQUEST' );
+		$is_rest_request = defined( 'REST_REQUEST' ) && constant( 'REST_REQUEST' );
+
+		if ( $is_rest_api_request || $is_rest_request ) {
+			$context['_rest_api_request'] = true;
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Set date on data array if date is set in context.
+	 * This is used to override the date that is set by default.
+	 * The date must be in format 'Y-m-d H:i:s'.
+	 *
+	 * @param array $data
+	 * @param array $context
+	 * @return array $data as first key, $context as second key.
+	 */
+	private function append_date_to_context( $data, $context ) {
+		// Allow date to be overridden from context.
+		// Date must be in format 'Y-m-d H:i:s'.
+		if ( isset( $context['_date'] ) ) {
+			$data['date'] = $context['_date'];
+			unset( $context['_date'] );
+		}
+
+		return array( $data, $context );
 	}
 }
