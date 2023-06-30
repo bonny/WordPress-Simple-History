@@ -94,7 +94,6 @@ abstract class Logger {
 		$this->simple_history = $simple_history;
 		$this->db_table = $this->simple_history->get_events_table_name();
 		$this->db_table_contexts = $this->simple_history->get_contexts_table_name();
-
 	}
 
 	/**
@@ -1207,18 +1206,6 @@ abstract class Logger {
 		 */
 		$localtime = current_time( 'mysql', 1 );
 
-		/** @var string */
-		$db_table = $wpdb->prefix . Simple_History::DBTABLE;
-
-		/**
-		 * Filter db table used for simple history events
-		 *
-		 * @since 2.0
-		 *
-		 * @param string $db_table
-		 */
-		$db_table = apply_filters( 'simple_history/db_table', $db_table );
-
 		/**
 		 * Main table data row array.
 		 *
@@ -1247,29 +1234,13 @@ abstract class Logger {
 		$data = apply_filters( 'simple_history/log_insert_data', $data );
 
 		// Insert data into db.
-		$result = $wpdb->insert( $db_table, $data );
-
-		$data_parent_row = null;
+		$result = $wpdb->insert( $this->db_table, $data );
 
 		// Save context if able to store row.
 		if ( false === $result ) {
 			$history_inserted_id = null;
 		} else {
 			$history_inserted_id = $wpdb->insert_id;
-
-			$db_table_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
-
-			/**
-			 * Filter table name for contexts.
-			 *
-			 * @since 2.0
-			 *
-			 * @param string $db_table_contexts
-			 */
-			$db_table_contexts = apply_filters(
-				'simple_history/logger_db_table_contexts',
-				$db_table_contexts
-			);
 
 			if ( ! is_array( $context ) ) {
 				$context = array();
@@ -1317,7 +1288,6 @@ abstract class Logger {
 				$data,
 				$this
 			);
-			$data_parent_row = $data;
 
 			// Insert all context values into db.
 			$this->append_context( $history_inserted_id, $context );
@@ -1334,17 +1304,16 @@ abstract class Logger {
 		 * @since 2.5.1
 		 *
 		 * @param array $context Array with all context data that was used to log event.
-		 * @param array $data_parent_row Array with data used for parent row.
+		 * @param array $data_parent_row Array with data used for parent/main row.
 		 * @param Logger $instance Reference to this logger instance.
 		 */
 		do_action(
 			'simple_history/log/inserted',
 			$context,
-			$data_parent_row,
+			$data,
 			$this
 		);
 
-		// Return $this so we can chain methods.
 		return $this;
 	}
 
@@ -1362,8 +1331,6 @@ abstract class Logger {
 
 		global $wpdb;
 
-		$db_table_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
-
 		foreach ( $context as $key => $value ) {
 			// Everything except strings should be json_encoded, ie. arrays and objects.
 			if ( ! is_string( $value ) ) {
@@ -1376,7 +1343,7 @@ abstract class Logger {
 				'value' => $value,
 			);
 
-			$wpdb->insert( $db_table_contexts, $data );
+			$wpdb->insert( $this->db_table_contexts, $data );
 		}
 
 		return true;

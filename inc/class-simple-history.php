@@ -754,7 +754,7 @@ class Simple_History {
 	}
 
 	/**
-	 * Setup variables and things
+	 * Setup variables and things.
 	 */
 	public function setup_variables() {
 		$this->external_loggers = array();
@@ -766,6 +766,27 @@ class Simple_History {
 		global $wpdb;
 		$this::$dbtable = $wpdb->prefix . self::DBTABLE;
 		$this::$dbtable_contexts = $wpdb->prefix . self::DBTABLE_CONTEXTS;
+
+		/**
+		 * Filter db table used for simple history events
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $db_table
+		 */
+		$this::$dbtable = apply_filters( 'simple_history/db_table', $this::$dbtable );
+
+		/**
+		 * Filter table name for contexts.
+		 *
+		 * @since 2.0
+		 *
+		 * @param string $db_table_contexts
+		 */
+		$this::$dbtable_contexts = apply_filters(
+			'simple_history/logger_db_table_contexts',
+			$this::$dbtable_contexts
+		);
 	}
 
 	/**
