@@ -222,6 +222,7 @@ Events in the log are stored for 60 days by default. Events older than this will
 - Add filter `simple_history/privacy/add_char_to_anonymized_ip_address` to control if a char should be added to anonymized IPV4 addresses.
 - If a Google Maps API key is set then a map of a users location is shown when clicking on the IP address of a logged event. [#249](https://github.com/bonny/WordPress-Simple-History/issues/249).
 - Add filter `simple_history/maps_api_key` to set a Google Maps API key to be used to show a Google Map of the location of a user login using the user IP address.
+- Fix undefined index warning in logger when context was missing `_user_id`, `_user_email`, or `_user_login`. Fix #367.
 
 = 4.1.0 =
 
