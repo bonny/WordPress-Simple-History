@@ -1060,6 +1060,8 @@ abstract class Logger {
 			$context = array();
 		}
 
+		$message = trim( $message );
+
 		// Don't go on if message is empty.
 		if ( empty( $message ) ) {
 			return $this;
@@ -1313,8 +1315,6 @@ abstract class Logger {
 			$context['_rest_api_request'] = true;
 		}
 
-		// Trim message.
-		$data['message'] = trim( $data['message'] );
 
 		/**
 		 * Filter data to be saved to db.
