@@ -1123,7 +1123,7 @@ abstract class Logger {
 			"simple_history/log/do_log/{$this->get_slug()}/{$message_key}",
 			true
 		);
-		
+
 		if ( false === $do_log ) {
 			return $this;
 		}
@@ -1520,7 +1520,7 @@ abstract class Logger {
 	private function append_occasions_id_to_context( $data, $context ) {
 		if ( isset( $context['_occasionsID'] ) ) {
 			// Minimize risk of similar loggers logging same messages and such and resulting in same occasions id
-			// by generating a new occasionsID with logger slug appened.
+			// by generating a new occasionsID with logger slug appended.
 			$occasions_data = array(
 				'_occasionsID' => $context['_occasionsID'],
 				'_loggerSlug' => $this->get_slug(),
