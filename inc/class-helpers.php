@@ -502,7 +502,7 @@ class Helpers {
 	}
 
 	/**
-	 * Static function that recieves a possible anonymized IP-address
+	 * Static function that receives a possible anonymized IP-address
 	 * and returns a valid one, e.g. the last '.x' replaced with '.0'.
 	 *
 	 * Used when fetching IP-address info from ipinfo.io, or API call
