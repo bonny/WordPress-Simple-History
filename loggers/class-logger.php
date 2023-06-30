@@ -91,12 +91,10 @@ abstract class Logger {
 	 * @param Simple_History $simple_history
 	 */
 	public function __construct( $simple_history = null ) {
-		global $wpdb;
-
-		$this->db_table = $wpdb->prefix . Simple_History::DBTABLE;
-		$this->db_table_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
-
 		$this->simple_history = $simple_history;
+		$this->db_table = $this->simple_history->get_events_table_name();
+		$this->db_table_contexts = $this->simple_history->get_contexts_table_name();
+
 	}
 
 	/**
