@@ -372,14 +372,12 @@ abstract class Logger {
 		}
 
 		if (
-			$time_current - $date_datetime->getTimestamp() <=
-			$time_ago_just_now_max_time
+			$time_current - $date_datetime->getTimestamp() <= $time_ago_just_now_max_time
 		) {
 			// Show "just now" if event is very recent.
 			$str_when = __( 'Just now', 'simple-history' );
 		} elseif (
-			$time_current - $date_datetime->getTimestamp() >
-			$time_ago_max_time
+			$time_current - $date_datetime->getTimestamp() > $time_ago_max_time
 		) {
 			/* translators: Date format for log row header, see http://php.net/date */
 			$datef = __( 'M j, Y \a\t G:i', 'simple-history' );
@@ -458,19 +456,26 @@ abstract class Logger {
 		return $date_html;
 	}
 
+	/**
+	 * Get the log row header output for the row when "name_via" is set.
+	 *
+	 * @param object $row Log row
+	 * @return string HTML
+	 */
 	public function get_log_row_header_using_plugin_output( $row ) {
 		// Logger "via" info in header, i.e. output some extra
 		// info next to the time to make it more clear what plugin etc.
 		// that "caused" this event
-		$via_html = '';
 		$logger_name_via = $this->get_info_value_by_key( 'name_via' );
 
-		if ( $logger_name_via ) {
-			$via_html =
-				"<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
-			$via_html .= $logger_name_via;
-			$via_html .= '</span>';
+		if ( ! $logger_name_via ) {
+			return;
 		}
+
+		$via_html = '';
+		$via_html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
+		$via_html .= $logger_name_via;
+		$via_html .= '</span>';
 
 		return $via_html;
 	}
@@ -490,7 +495,6 @@ abstract class Logger {
 	 * @return string
 	 */
 	public function get_log_row_header_ip_address_output( $row ) {
-
 		/**
 		 * Filter if IP Address should be added to header row.
 		 *
@@ -566,14 +570,8 @@ abstract class Logger {
 			);
 		}
 
-		// } // multiple ip
 		$html .= '</span> ';
 
-		// $initiator_html .= "<strong>" . __("<br><br>Unknown user from {$context["_server_remote_addr"]}") . "</strong>";
-		// $initiator_html .= "<strong>" . __("<br><br>{$context["_server_remote_addr"]}") . "</strong>";
-		// $initiator_html .= "<strong>" . __("<br><br>User from IP {$context["_server_remote_addr"]}") . "</strong>";
-		// $initiator_html .= "<strong>" . __("<br><br>Non-logged in user from IP  {$context["_server_remote_addr"]}") . "</strong>";
-		// } // End if().
 		return $html;
 	}
 
@@ -1068,36 +1066,6 @@ abstract class Logger {
 		 * Filter that makes it possible to shortcut the logging of a message.
 		 * Return bool false to cancel logging .
 		 *
-		 * @example Do not log some post types, for example pages and attachments in this case
-		 *
-		 * ```php
-		 *  add_filter(
-		 *      'simple_history/log/do_log',
-		 *      function ( $do_log = null, $level = null, $message = null, $context = null, $logger = null ) {
-		 *
-		 *          $post_types_to_not_log = array(
-		 *              'page',
-		 *              'attachment',
-		 *          );
-		 *
-		 *          if ( ( isset( $logger->get_slug() ) && ( $logger->get_slug() === 'SimplePostLogger' || $logger->get_slug() === 'SimpleMediaLogger' ) ) && ( isset( $context['post_type'] ) && in_array( $context['post_type'], $post_types_to_not_log ) ) ) {
-		 *              $do_log = false;
-		 *          }
-		 *
-		 *          return $do_log;
-		 *      },
-		 *      10,
-		 *      5
-		 *  );
-		 * ```
-		 *
-		 * @example Disable all logging
-		 *
-		 * ```php
-		 *  // Disable all logging
-		 *  add_filter( 'simple_history/log/do_log', '__return_false' );
-		 * ```
-		 *
 		 * @since 2.3.1
 		 *
 		 * @param bool $doLog Whether to log or not.
@@ -1155,6 +1123,7 @@ abstract class Logger {
 			"simple_history/log/do_log/{$this->get_slug()}/{$message_key}",
 			true
 		);
+		
 		if ( false === $do_log ) {
 			return $this;
 		}
@@ -1246,11 +1215,7 @@ abstract class Logger {
 				$context = array();
 			}
 
-			// Append user id to context, if not already added.
-			// This is used to get basic information for a user even if user is deleted.
 			$context = $this->append_user_context( $context );
-
-			// Add remote addr to context.
 			$context = $this->append_remote_addr_to_context( $context );
 
 			/**
