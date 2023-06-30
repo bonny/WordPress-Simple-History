@@ -253,7 +253,7 @@ abstract class Logger {
 								'Deleted user (had id %1$s, email %2$s, login %3$s)',
 								'simple-history'
 							) .
-							'</strong>',
+						'</strong>',
 						esc_html( $context['_user_id'] ?? '' ), // 1
 						esc_html( $context['_user_email'] ?? '' ), // 2
 						esc_html( $context['_user_login'] ?? '' ) // 3
@@ -1356,8 +1356,10 @@ abstract class Logger {
 			}
 
 			// Append user id to context, if not already added.
+			// This is used to get basic information for a user even if user is deleted.
 			if ( ! isset( $context['_user_id'] ) ) {
-				// wp_get_current_user is not available early.
+				// Load `wp_get_current_user` if not already loaded,
+				// because is not available early.
 				// http://codex.wordpress.org/Function_Reference/wp_get_current_user
 				// https://core.trac.wordpress.org/ticket/14024
 				if ( function_exists( 'wp_get_current_user' ) ) {
