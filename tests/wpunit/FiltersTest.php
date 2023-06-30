@@ -57,7 +57,7 @@ class FiltersTest extends \Codeception\TestCase\WPTestCase {
 				),
 				array(
 					'key' => '_server_remote_addr',
-					'value' => '127.0.0.0',
+					'value' => '127.0.0.x',
 				),
 			),
 			$context
