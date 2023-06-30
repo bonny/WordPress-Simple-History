@@ -1,12 +1,6 @@
 <?php
 
-// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-// phpcs:disable Squiz.Scope.MethodScope.Missing
-
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
-use Simple_History\Log_Levels;
-use Simple_History\Log_Query;
 
 class HelpersTest extends \Codeception\TestCase\WPTestCase {
 	function test_privacy_anonymize_ip() {
