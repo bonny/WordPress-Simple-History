@@ -267,7 +267,7 @@ Misc bug fixes and improvements.
 - Remove function `filter_gettext_store_latest_translations()`.
 - Remove support for automatically un-translating messages to the log, loggers are better and have better support for languages.
 
-= 4.1.0 =
+### 4.1.0
 
 **Added**
 
@@ -290,13 +290,13 @@ Misc bug fixes and improvements.
 - If a filter is modifying the pager sizes then show a readonly text input with pager size instead of a dropdown select. [#298](https://github.com/bonny/WordPress-Simple-History/issues/298)
 - Update Chart.js library from 2.0.2 to 4.3.0. Fixes [support thread](https://wordpress.org/support/topic/outdated-chartjs-component-used/), issue [#340](https://github.com/bonny/WordPress-Simple-History/issues/340).
 
-= 4.0.1 (June 2023) =
+### 4.0.1 (June 2023)
 
 **Fixed**
 
 - Replace multibyte functions with non-multibyte versions, since `mbstring` is not a [required PHP extension](https://make.wordpress.org/hosting/handbook/server-environment/#php-extensions) (it is however a highly recommended one). Should fix https://wordpress.org/support/topic/wordpress-critical-error-9/. ([#351](https://github.com/bonny/WordPress-Simple-History/issues/351))
 
-= 4.0.0 (June 2023) =
+### 4.0.0 (June 2023)
 
 🚀 This update of Simple History contains some big changes – that you hopefully won't even notice.
 
@@ -383,11 +383,11 @@ A more detailed changelog that probably most developers are interested in:
 - Remove dropin used to show log stats.
 - Examples in examples folder are removed and moved to the documentation site at docs.[simple-history.com](https://docs.simple-history.com/).
 
-= 3.5.1 (May 2023) =
+### 3.5.1 (May 2023)
 
 - Fixed JavaScript error when Backbone.history is already started by other plugins. Fixes https://github.com/bonny/WordPress-Simple-History/issues/319.
 
-= 3.5.0 (March 2023) =
+### 3.5.0 (March 2023)
 
 - Added: Log an entry when a cron event hook is paused or resumed with the WP Crontrol plugin [#328](https://github.com/bonny/WordPress-Simple-History/pull/328).
 - Fixed: DB error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
