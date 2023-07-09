@@ -1,4 +1,5 @@
-=== Simple History – user activity log, audit tool ===
+# Simple History – user activity log, audit tool
+
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
@@ -7,7 +8,7 @@ Stable tag: 4.1.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
-== Description ==
+## Description
 
 Simple History shows recent changes made within WordPress, directly on your dashboard or on a separate page.
 
@@ -45,7 +46,7 @@ Out of the box Simple History has support for:
 - **User Data Erasure Requests** –
   see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
-#### Support for third party plugins
+### Support for third party plugins
 
 By default Simple History comes with built in support for the following plugins:
 
@@ -97,17 +98,17 @@ Plugins can easily add support for Simple History using the [logging API](https:
 - [Loginpetze](https://wordpress.org/plugins/loginpetze/)
 - [Authorizer](https://wordpress.org/plugins/authorizer/)
 
-#### RSS feed with changes
+### RSS feed with changes
 
 Using the optional password protected **RSS feed** you can keep track of the changes made on your website using your favorite RSS reader.
 
-#### Comes with WP-CLI commands
+### Comes with WP-CLI commands
 
 For those of you who like to work with the command line there are also some WP-CLI commands available.
 
 - `wp simple-history list` – List the latest logged events.
 
-#### Example scenarios
+### Example scenarios
 
 Keep track of what other people are doing:
 _"Has someone done anything today? Ah, Sarah uploaded
@@ -117,7 +118,7 @@ Or for debug purposes:
 _"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughty-plugin-x',
 that must be it."_
 
-#### API so you can add your own events to the audit log
+### API so you can add your own events to the audit log
 
 If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by using the function `SimpleLogger()` like this:
 
@@ -142,7 +143,7 @@ if ( function_exists("SimpleLogger") ) {
 
 See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/) and how to [query the log](https://simple-history.com/docs/query-api/), and more.
 
-#### Translations/Languages
+### Translations/Languages
 
 So far Simple History is translated to:
 
@@ -158,18 +159,18 @@ So far Simple History is translated to:
 I'm looking for translations of Simple History in more languages! If you want to translate Simple History
 to your language then read about how this is done over at the [Polyglots handbook](https://make.wordpress.org/polyglots/handbook/rosetta/theme-plugin-directories/#translating-themes-plugins).
 
-#### Contribute at GitHub
+### Contribute at GitHub
 
 Development of this plugin takes place at GitHub. Please join in with feature requests, bug reports, or even pull requests!
 <a href="https://github.com/bonny/WordPress-Simple-History">https://github.com/bonny/WordPress-Simple-History</a>
 
-#### Donation
+### Donation
 
 If you like this plugin please consider donating to support the development.
 
 You can [donate using PayPal](https://www.paypal.me/eskapism) or you can [become a GitHub sponsor](https://github.com/sponsors/bonny).
 
-== Frequently Asked Questions ==
+## Frequently Asked Questions
 
 = Can I add my own events to the log? =
 
@@ -185,9 +186,9 @@ See the [hooks documentation](https://simple-history.com/docs/hooks/) for more i
 
 Events in the log are stored for 60 days by default. Events older than this will be removed.
 
-This can be modified using the filter [`simple_history/db_purge_days_interval `](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) or using the upcoming [Simple History Plus add-on](https://simple-history.com/simple-history-plus/).
+This can be modified using the filter [`simple_history/db_purge_days_interval`](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) or using the upcoming [Simple History Plus add-on](https://simple-history.com/simple-history-plus/).
 
-== Screenshots ==
+## Screenshots
 
 1. The log view + it also shows the filter function in use - the log only shows event that
    are of type post and pages and media (i.e. images & other uploads), and only events
@@ -206,11 +207,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval `]
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
-== Upgrade Notice ==
+## Upgrade Notice
 
 Misc bug fixes and improvements.
 
-== Changelog ==
+## Changelog
 
 = Unreleased =
 
