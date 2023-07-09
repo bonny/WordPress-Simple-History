@@ -13,34 +13,36 @@ Simple History shows recent changes made within WordPress, directly on your dash
 
 The plugin works as a log/history/audit log/version history of the most important events that occur in WordPress.
 
+It’s a plugin that is good to have on websites where several people are involved in editing the content.
+
 Out of the box Simple History has support for:
 
-- **Posts and pages**<br>
+- **Posts and pages** –
   see who added, updated or deleted a post or page
-- **Attachments**<br>
+- **Attachments** –
   see who added, updated or deleted an attachment
-- **Taxonomies (Custom taxonomies, categories, tags)**<br>
+- **Taxonomies (Custom taxonomies, categories, tags)** –
   see who added, updated or deleted an taxonomy
-- **Comments**<br>
+- **Comments** –
   see who edited, approved or removed a comment
-- **Widgets**<br>
+- **Widgets** –
   get info when someone adds, updates or removes a widget in a sidebar
-- **Plugins**<br>
+- **Plugins** –
   activation and deactivation
-- **User profiles**<br>
+- **User profiles** –
   info about added, updated or removed users
-- **User logins**<br>
+- **User logins** –
   see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
-- **Failed user logins**<br>
+- **Failed user logins** –
   see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 - **Menu edits**
-- **Option screens**<br>
+- **Option screens** –
   view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
-- **Privacy page**<br>
+- **Privacy page** –
   when a privacy page is created or set to a new page.
-- **Data Export**<br>
+- **Data Export** –
   see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
-- **User Data Erasure Requests**<br>
+- **User Data Erasure Requests** –
   see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
 #### Support for third party plugins
@@ -97,14 +99,9 @@ Plugins can easily add support for Simple History using the [logging API](https:
 
 #### RSS feed with changes
 
-There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
+Using the optional password protected **RSS feed** you can keep track of the changes made on your website using your favorite RSS reader.
 
-It’s a plugin that is good to have on websites where several people are
-involved in editing the content.
-
-The plugin works fine on [multisite installations of WordPress](http://codex.wordpress.org/Glossary#Multisite) too.
-
-#### Comes with WP-CLI commands too
+#### Comes with WP-CLI commands
 
 For those of you who like to work with the command line there are also some WP-CLI commands available.
 
@@ -143,7 +140,7 @@ if ( function_exists("SimpleLogger") ) {
 
 `
 
-Check out the [examples-folder](https://github.com/bonny/WordPress-Simple-History/tree/master/examples) for more examples.
+See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/) and how to [query the log](https://simple-history.com/docs/query-api/), and more.
 
 #### Translations/Languages
 
@@ -168,22 +165,27 @@ Development of this plugin takes place at GitHub. Please join in with feature re
 
 #### Donation
 
-- If you like this plugin please consider [donating to support the development](https://www.paypal.me/eskapism).
+If you like this plugin please consider donating to support the development.
+
+You can [donate using PayPal](https://www.paypal.me/eskapism) or you can [become a GitHub sponsor](https://github.com/sponsors/bonny).
 
 == Frequently Asked Questions ==
 
 = Can I add my own events to the log? =
 
-Yes. See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
+Yes. See the [Developer Documentation](https://simple-history.com/docs/).
 
 = Is it possible to exclude users from the log? =
 
-Yes, you exclude users by role or email using the filter `simple_history/log/do_log`.
-See the [examples file](https://github.com/bonny/WordPress-Simple-History/blob/master/examples/examples.php).
+Yes, you exclude users by role or email using the filter [`simple_history/log/do_log`](https://simple-history.com/docs/hooks/).
+
+See the [hooks documentation](https://simple-history.com/docs/hooks/) for more info.
 
 = For how long are events stored? =
 
 Events in the log are stored for 60 days by default. Events older than this will be removed.
+
+This can be modified using the filter [`simple_history/db_purge_days_interval `](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) or using the upcoming [Simple History Plus add-on](https://simple-history.com/simple-history-plus/).
 
 == Screenshots ==
 
@@ -203,6 +205,10 @@ Events in the log are stored for 60 days by default. Events older than this will
 
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
+
+== Upgrade Notice ==
+
+Misc bug fixes and improvements.
 
 == Changelog ==
 
