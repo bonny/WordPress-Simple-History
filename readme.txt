@@ -173,19 +173,9 @@ See the [documentation](https://simple-history.com/docs/) for examples on how to
 
 ### Translations/Languages
 
-So far Simple History is translated to:
+So far Simple History is translated to 17 languages: Chinese (China), Danish, Dutch, Dutch (Belgium), English (US), French (France), German, German (Switzerland), Korean, Polish, Portuguese (Brazil), Russian, Spanish (Colombia), Spanish (Mexico), Spanish (Spain), Spanish (Venezuela), and Swedish.
 
-- Swedish
-- German
-- Polish
-- Danish
-- Dutch
-- Finnish
-- French
-- Russian
-
-I'm looking for translations of Simple History in more languages! If you want to translate Simple History
-to your language then read about how this is done over at the [Polyglots handbook](https://make.wordpress.org/polyglots/handbook/rosetta/theme-plugin-directories/#translating-themes-plugins).
+If you want to translate Simple History to your language then read about how this is done over at the [Polyglots handbook](https://make.wordpress.org/polyglots/handbook/rosetta/theme-plugin-directories/#translating-themes-plugins).
 
 ### Contribute at GitHub
 
