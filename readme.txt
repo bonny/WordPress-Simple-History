@@ -47,42 +47,41 @@ Out of the box Simple History has support for:
 
 By default Simple History comes with built in support for the following plugins:
 
-**Jetpack**<br>
+**Jetpack** –
 The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the company behind the WordPress.com service) that lets you supercharge your website by adding a lot of extra functions.
 In Simple History you will see what Jetpack modules that are activated and deactivated.
-(The creator of Simple History recommends this plugin and its [brute force attack protection](https://jetpack.com/features/security/brute-force-attack-protection/) functions btw. It's a really good way to block unwanted login attempts from malicious botnets and distributed attacks.
 
-**Advanced Custom Fields (ACF)**<br>
+**Advanced Custom Fields (ACF)** – 
 [ACF](https://www.advancedcustomfields.com/) adds fields to your posts and pages.
 Simple History will log changes made to the field groups and the fields inside field groups. Your will see when both field groups and fields are created and modified.
 
-**User Switching**<br>
+**User Switching** – 
 The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button.
 Simple History will log each user switch being made.
 
-**WP Crontrol**<br>
+**WP Crontrol** –
 The [WP Crontrol plugin](https://wordpress.org/plugins/wp-crontrol/) enables you to view and control what's happening in the WP-Cron system.
 Simple History will log when cron events are added, edited, deleted, paused, resumed, and manually ran, and when cron schedules are added and deleted.
 
-**Enable Media Replace**<br>
+**Enable Media Replace** –
 The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place.
 Simple history will log details about the file being replaced and details about the new file.
 
-**Limit Login Attempts**<br>
+**Limit Login Attempts** –
 The plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-attempts/) is old
 and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
 Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
 
-**Redirection**<br>
+**Redirection** –
 The [redirection plugin](https://wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
 Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
-**Duplicate Post**<br>
+**Duplicate Post** –
 The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to
 clone posts of any type.
 Simple History will log when a clone of a post or page is done.
 
-**Beaver Builder**<br>
+**Beaver Builder** –
 The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
 Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
@@ -95,6 +94,7 @@ Plugins can easily add support for Simple History using the [logging API](https:
 - [AJAX Login and Registration modal popup + inline form](https://wordpress.org/plugins/ajax-login-and-registration-modal-popup/)
 - [Loginpetze](https://wordpress.org/plugins/loginpetze/)
 - [Authorizer](https://wordpress.org/plugins/authorizer/)
+
 #### RSS feed with changes
 
 There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
