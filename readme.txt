@@ -222,7 +222,7 @@ Misc bug fixes and improvements.
 
 ## Changelog
 
-### 4.x.x (July 2023)
+### 4.2.0 (July 2023)
 
 **Added**
 
