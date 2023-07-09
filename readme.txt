@@ -98,6 +98,34 @@ Plugins can easily add support for Simple History using the [logging API](https:
 - [Loginpetze](https://wordpress.org/plugins/loginpetze/)
 - [Authorizer](https://wordpress.org/plugins/authorizer/)
 
+### What users say
+
+[300+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) speak to the reliability of this plugin.
+
+- _"The best history plugin I’ve found"_ – [Rich Mehta](https://wordpress.org/support/topic/the-best-history-plugin-ive-found/)
+
+- _"Easy to use, simple interface"_ - [Deborah Edwards-Onoro](https://wordpress.org/support/topic/easy-to-use-simple-interface/)
+
+- _"Custom Logs Are Crazy Awesome!"_ - [Ahmad Awais](https://wordpress.org/support/topic/awesome-4654/)
+
+- _"Amazing activity logging plugin"_ - [digidestination](https://wordpress.org/support/topic/amazing-activity-logging-plugin/)
+
+- _"Very helpful"_ - [Martin Sauter](https://wordpress.org/support/topic/very-helpful-1280/)
+
+- _"Fantastic plugin I use on all sites"_ - [Duncan Michael-MacGregor](https://wordpress.org/support/topic/fantastic-plugin-i-use-on-all-sites/)
+
+- _"Useful Quick View of Activity"_ - [Dan O](https://wordpress.org/support/topic/useful-quick-view-of-activity/)
+
+- _"The best Activity Plugin"_ - [Rahim](https://wordpress.org/support/topic/the-best-activity-plugin/)
+
+- _"Light Weight and Easy to Use – A Great Plugin."_ - [martinsmagic](https://wordpress.org/support/topic/light-weight-and-easy-to-use-a-great-plugin/)
+
+- _"The best free history plugin ever"_ - [abazeed](https://wordpress.org/support/topic/the-best-free-history-plugin-ever/)
+
+- _"It is a standard plugin for all of our sites"_ - [Mr Tibbs](https://wordpress.org/support/topic/it-is-a-standard-plugin-for-all-of-our-sites/)
+
+- _"Indispensable wordpress tool"_ - [blueappleeducation](https://wordpress.org/support/topic/indispensable-wordpress-tool/)
+
 ### RSS feed with changes
 
 Using the optional password protected **RSS feed** you can keep track of the changes made on your website using your favorite RSS reader.
