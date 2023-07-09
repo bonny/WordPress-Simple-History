@@ -6,6 +6,8 @@
  * Text Domain: simple-history
  * Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
  * Version: 4.1.0
+ * Requires at least: 6.1
+ * Requires PHP: 7.4
  * Author: Pär Thernström
  * Author URI: http://simple-history.com/
  * License: GPL2

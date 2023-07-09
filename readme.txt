@@ -2,9 +2,7 @@
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
-Requires at least: 6.1
 Tested up to: 6.2
-Requires PHP: 7.4
 Stable tag: 4.1.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
