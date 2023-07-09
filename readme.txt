@@ -18,77 +18,68 @@ It’s a plugin that is good to have on websites where several people are involv
 
 Out of the box Simple History has support for:
 
-- **Posts and pages** –
-  see who added, updated or deleted a post or page
-- **Attachments** –
-  see who added, updated or deleted an attachment
-- **Taxonomies (Custom taxonomies, categories, tags)** –
-  see who added, updated or deleted an taxonomy
-- **Comments** –
-  see who edited, approved or removed a comment
-- **Widgets** –
-  get info when someone adds, updates or removes a widget in a sidebar
-- **Plugins** –
-  activation and deactivation
-- **User profiles** –
-  info about added, updated or removed users
-- **User logins** –
-  see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
-- **Failed user logins** –
-  see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
+- **Posts and pages** – see who added, updated or deleted a post or page
+
+- **Attachments** – see who added, updated or deleted an attachment
+
+- **Taxonomies (Custom taxonomies, categories, tags)** – see who added, updated or deleted an taxonomy
+
+- **Comments** – see who edited, approved or removed a comment
+
+- **Widgets** – get info when someone adds, updates or removes a widget in a sidebar
+
+- **Plugins** – activation and deactivation
+
+- **User profiles** – info about added, updated or removed users
+
+- **User logins** – see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
+
+- **Failed user logins** – see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
+
 - **Menu edits**
-- **Option screens** –
-  view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
-- **Privacy page** –
-  when a privacy page is created or set to a new page.
-- **Data Export** –
-  see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
-- **User Data Erasure Requests** –
-  see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
+
+- **Option screens** – view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
+
+- **Privacy page** – when a privacy page is created or set to a new page.
+
+- **Data Export** – see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
+
+- **User Data Erasure Requests** – see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
 ### Support for third party plugins
 
 By default Simple History comes with built in support for the following plugins:
 
-**Jetpack** –
-The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the company behind the WordPress.com service) that lets you supercharge your website by adding a lot of extra functions.
-In Simple History you will see what Jetpack modules that are activated and deactivated.
+- **Jetpack** – The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the company behind the WordPress.com service) that lets you supercharge your website by adding a lot of extra functions.
+  In Simple History you will see what Jetpack modules that are activated and deactivated.
 
-**Advanced Custom Fields (ACF)** – 
-[ACF](https://www.advancedcustomfields.com/) adds fields to your posts and pages.
-Simple History will log changes made to the field groups and the fields inside field groups. Your will see when both field groups and fields are created and modified.
+- **Advanced Custom Fields (ACF)** – [ACF](https://www.advancedcustomfields.com/) adds fields to your posts and pages.
+  Simple History will log changes made to the field groups and the fields inside field groups. Your will see when both field groups and fields are created and modified.
 
-**User Switching** – 
-The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button.
-Simple History will log each user switch being made.
+- **User Switching** – The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button.
+  Simple History will log each user switch being made.
 
-**WP Crontrol** –
-The [WP Crontrol plugin](https://wordpress.org/plugins/wp-crontrol/) enables you to view and control what's happening in the WP-Cron system.
-Simple History will log when cron events are added, edited, deleted, paused, resumed, and manually ran, and when cron schedules are added and deleted.
+- **WP Crontrol** – The [WP Crontrol plugin](https://wordpress.org/plugins/wp-crontrol/) enables you to view and control what's happening in the WP-Cron system.
+  Simple History will log when cron events are added, edited, deleted, paused, resumed, and manually ran, and when cron schedules are added and deleted.
 
-**Enable Media Replace** –
-The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place.
-Simple history will log details about the file being replaced and details about the new file.
+- **Enable Media Replace** – The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place.
+  Simple history will log details about the file being replaced and details about the new file.
 
-**Limit Login Attempts** –
-The plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-attempts/) is old
-and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
-Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
+- **Limit Login Attempts** – The plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-attempts/) is old
+  and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
+  Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
 
-**Redirection** –
-The [redirection plugin](https://wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
-Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
+- **Redirection** – The [redirection plugin](https://wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
+  Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
-**Duplicate Post** –
-The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to
-clone posts of any type.
-Simple History will log when a clone of a post or page is done.
+- **Duplicate Post** – The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to
+  clone posts of any type.
+  Simple History will log when a clone of a post or page is done.
 
-**Beaver Builder** –
-The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
-Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
+- **Beaver Builder** – The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
+  Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
-Plugins can easily add support for Simple History using the [logging API](https://simple-history.com/docs/logging-api/). Plugins that have support for Simple History includes:
+Plugin authors can add support for Simple History in their plugins using the [logging API](https://simple-history.com/docs/logging-api/). Plugins that have support for Simple History includes:
 
 - [Simple History Beaver Builder Add-On](https://wordpress.org/plugins/extended-simple-history-for-beaver-builder/)
 - [WP-Optimize – Cache, Clean, Compress.](https://wordpress.org/plugins/wp-optimize/)
@@ -104,13 +95,9 @@ Plugins can easily add support for Simple History using the [logging API](https:
 
 - _"The best history plugin I’ve found"_ – [Rich Mehta](https://wordpress.org/support/topic/the-best-history-plugin-ive-found/)
 
-- _"Easy to use, simple interface"_ - [Deborah Edwards-Onoro](https://wordpress.org/support/topic/easy-to-use-simple-interface/)
-
 - _"Custom Logs Are Crazy Awesome!"_ - [Ahmad Awais](https://wordpress.org/support/topic/awesome-4654/)
 
 - _"Amazing activity logging plugin"_ - [digidestination](https://wordpress.org/support/topic/amazing-activity-logging-plugin/)
-
-- _"Very helpful"_ - [Martin Sauter](https://wordpress.org/support/topic/very-helpful-1280/)
 
 - _"Fantastic plugin I use on all sites"_ - [Duncan Michael-MacGregor](https://wordpress.org/support/topic/fantastic-plugin-i-use-on-all-sites/)
 
@@ -118,11 +105,15 @@ Plugins can easily add support for Simple History using the [logging API](https:
 
 - _"The best Activity Plugin"_ - [Rahim](https://wordpress.org/support/topic/the-best-activity-plugin/)
 
-- _"Light Weight and Easy to Use – A Great Plugin."_ - [martinsmagic](https://wordpress.org/support/topic/light-weight-and-easy-to-use-a-great-plugin/)
-
 - _"The best free history plugin ever"_ - [abazeed](https://wordpress.org/support/topic/the-best-free-history-plugin-ever/)
 
 - _"It is a standard plugin for all of our sites"_ - [Mr Tibbs](https://wordpress.org/support/topic/it-is-a-standard-plugin-for-all-of-our-sites/)
+
+- _"Easy to use, simple interface"_ - [Deborah Edwards-Onoro](https://wordpress.org/support/topic/easy-to-use-simple-interface/)
+
+- _"Very helpful"_ - [Martin Sauter](https://wordpress.org/support/topic/very-helpful-1280/)
+
+- _"Light Weight and Easy to Use – A Great Plugin."_ - [martinsmagic](https://wordpress.org/support/topic/light-weight-and-easy-to-use-a-great-plugin/)
 
 - _"Indispensable wordpress tool"_ - [blueappleeducation](https://wordpress.org/support/topic/indispensable-wordpress-tool/)
 
