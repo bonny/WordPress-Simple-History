@@ -86,6 +86,15 @@ Simple History will log when a clone of a post or page is done.
 The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
 Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
+Plugins can easily add support for Simple History using the [logging API](https://simple-history.com/docs/logging-api/). Plugins that have support for Simple History includes:
+
+- [Simple History Beaver Builder Add-On](https://wordpress.org/plugins/extended-simple-history-for-beaver-builder/)
+- [WP-Optimize – Cache, Clean, Compress.](https://wordpress.org/plugins/wp-optimize/)
+- [Add Customer for WooCommerce](https://wordpress.org/plugins/add-customer-for-woocommerce/)
+- [Better WishList API](https://wordpress.org/plugins/better-wlm-api/)
+- [AJAX Login and Registration modal popup + inline form](https://wordpress.org/plugins/ajax-login-and-registration-modal-popup/)
+- [Loginpetze](https://wordpress.org/plugins/loginpetze/)
+- [Authorizer](https://wordpress.org/plugins/authorizer/)
 #### RSS feed with changes
 
 There is also a **RSS feed of changes** available, so you can keep track of the changes made via your favorite RSS reader on your phone, on your iPad, or on your computer.
