@@ -231,30 +231,41 @@ Misc bug fixes and improvements.
 
 ## Changelog
 
-= Unreleased =
+### 4.x.x (July 2023)
 
-- Fix `Undefined property` warning when loading more similar events. [#357](https://github.com/bonny/WordPress-Simple-History/issues/357)
-- Remove old unused schedule 'simple_history/purge_db'.
+**Added**
+
 - Filter `simple_history/day_of_week_to_purge_db` to set the day that the db should be cleared/purged on. 0 = monday, 7 = sunday. Default is 7.
-- Include "Plugin URI" from plugin when logging single plugin installs. [#323](https://github.com/bonny/WordPress-Simple-History/issues/323)
-- Check that installed theme has a destination_name. [#324](https://github.com/bonny/WordPress-Simple-History/issues/324)
-- Log correct role for user when adding a user on a subsite on a network/multisite install. [#325](https://github.com/bonny/WordPress-Simple-History/issues/325)
-- Fix spellings, as found by [Typos](https://github.com/crate-ci/typos/).
-- Check that required array keys exists in theme- and translation loggers. Fixes [support thread](https://wordpress.org/support/topic/strange-error-message-during-updates/), issue [#339](https://github.com/bonny/WordPress-Simple-History/issues/339).
-- Misc code cleanup and improvements.
-- Move function `get_avatar()` to helpers class.
 - Add class `SimpleHistory` so old code like `SimpleHistory->get_instance()` will work.
 - Add helper function `camel_case_to_snake_case()`.
-- Automatically convert camelCase function names to snake_case function names when calling function on \Simple_History class. This way more old code and old examples will work. Fixes for example [support thread](https://wordpress.org/support/topic/uncaught-error-class-simplehistory/).
+- Automatically convert camelCase function names to snake_case function names when calling functions on the `\Simple_History` class. This way more old code and old examples will work. Fixes for example [support thread](https://wordpress.org/support/topic/uncaught-error-class-simplehistory/).
+- Add `Helpers::privacy_anonymize_ip()`.
+- Add filter `simple_history/privacy/add_char_to_anonymized_ip_address` to control if a char should be added to anonymized IPV4 addresses.
+- Add filter `simple_history/maps_api_key` to set a Google Maps API key to be used to show a Google Map of the location of a user login using the user IP address.
+- If a Google Maps API key is set then a map of a users location is shown when clicking on the IP address of a logged event. [#249](https://github.com/bonny/WordPress-Simple-History/issues/249).
+
+**Fixed**
+
+- Fix `Undefined property` warning when loading more similar events. [#357](https://github.com/bonny/WordPress-Simple-History/issues/357)
+- Include "Plugin URI" from plugin when logging single plugin installs. [#323](https://github.com/bonny/WordPress-Simple-History/issues/323)
+- Check that installed theme has a `destination_name`. [#324](https://github.com/bonny/WordPress-Simple-History/issues/324)
+- Log correct role for user when adding a user on a subsite on a network/multisite install. [#325](https://github.com/bonny/WordPress-Simple-History/issues/325)
+- Check that required array keys exists in theme- and translation loggers. Fixes [support thread](https://wordpress.org/support/topic/strange-error-message-during-updates/), issue [#339](https://github.com/bonny/WordPress-Simple-History/issues/339).
+- Fix undefined index warning in logger when context was missing `_user_id`, `_user_email`, or `_user_login`. Fix [#367](https://github.com/bonny/WordPress-Simple-History/issues/367).
+- Misc code cleanup and improvements.
+- Fix spellings, as found by [Typos](https://github.com/crate-ci/typos/).
+
+**Changed**
+
+- Move function `get_avatar()` to helpers class.
+- Change location of filter `gettext` and `gettext_with_context` and unhook when filter is not needed any more, resulting in much fewer function calls.
+- IPV4 addresses that are anonymized get a ".x" added last instead of ".0" to make it more clear to the user that the IP address is anonymized.
+
+**Removed**
+
+- Remove unused schedule `simple_history/purge_db`.
 - Remove function `filter_gettext_store_latest_translations()`.
 - Remove support for automatically un-translating messages to the log, loggers are better and have better support for languages.
-- Change location of filter `gettext` and `gettext_with_context` and unhook inte when we are done, resulting in much fewer function calls.
-- Add `Helpers::privacy_anonymize_ip()`.
-- IPV4 addresses that are anonymized get a ".x" added last instead of ".0" to make it more clear to the user that the IP address is anonymized.
-- Add filter `simple_history/privacy/add_char_to_anonymized_ip_address` to control if a char should be added to anonymized IPV4 addresses.
-- If a Google Maps API key is set then a map of a users location is shown when clicking on the IP address of a logged event. [#249](https://github.com/bonny/WordPress-Simple-History/issues/249).
-- Add filter `simple_history/maps_api_key` to set a Google Maps API key to be used to show a Google Map of the location of a user login using the user IP address.
-- Fix undefined index warning in logger when context was missing `_user_id`, `_user_email`, or `_user_login`. Fix #367.
 
 = 4.1.0 =
 
