@@ -220,7 +220,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 			}
 
 			$output .= '<p>' . sprintf(
-				/* translators: %s time the IP was block, e.g. 2 hours. */
+				/* translators: %s time the IP was blocked, e.g. 2 hours. */
 				_x( 'IP was blocked for %s', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				$when
 			) . '</p>';
