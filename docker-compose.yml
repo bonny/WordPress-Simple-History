@@ -54,7 +54,7 @@ services:
       - host.docker.internal:host-gateway
 
   php-cli:
-    image: dockette/ci:php${PHP_CLI_VERSION-74}
+    image: dockette/ci:php${PHP_CLI_VERSION:-74}
     container_name: simple-history-php-cli
     environment:
       WORDPRESS_DB_HOST: db
