@@ -218,11 +218,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Upgrade Notice
 
-Misc bug fixes and improvements.
+Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 
 ## Changelog
 
-### 4.2.n (July 2023)
+### 4.2.1 (July 2023)
 
 **Fixed**
 
