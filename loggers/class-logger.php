@@ -1437,7 +1437,7 @@ abstract class Logger {
 				$context['_wp_cron_running'] = true;
 
 				// To aid debugging we log the current filter and a list of all filters.
-				if ( defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) || SIMPLE_HISTORY_LOG_DEBUG ) {
+				if ( Helpers::log_debug_is_enabled() ) {
 					$context['_wp_cron_current_filter'] = current_filter();
 				}
 			}

@@ -512,4 +512,18 @@ class Helpers {
 		$ip_address = preg_replace( '/\.x$/', '.0', $ip_address );
 		return $ip_address;
 	}
+
+	/**
+	 * Check if debug logging is enabled.
+	 * Used by loggers to check if they should log debug messages or not.
+	 *
+	 * @return bool True if debug logging is enabled.
+	 */
+	public static function log_debug_is_enabled() {
+		if ( defined( '\SIMPLE_HISTORY_LOG_DEBUG' ) && \SIMPLE_HISTORY_LOG_DEBUG ) {
+			return true;
+		}
+
+		return false;
+	}
 }

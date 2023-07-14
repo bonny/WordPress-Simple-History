@@ -10,15 +10,13 @@ use Simple_History\Log_Query;
 class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	// https://phpunit.de/manual/current/en/fixtures.html
 	function test_history_setup() {
+		$this->assertTrue( defined( 'SIMPLE_HISTORY_VERSION' ), 'Assert SIMPLE_HISTORY_VERSION' );
+		$this->assertTrue( defined( 'SIMPLE_HISTORY_PATH' ), 'Assert SIMPLE_HISTORY_PATH' );
+		$this->assertTrue( defined( 'SIMPLE_HISTORY_BASENAME' ), 'Assert SIMPLE_HISTORY_BASENAME' );
+		$this->assertTrue( defined( 'SIMPLE_HISTORY_DIR_URL' ), 'Assert SIMPLE_HISTORY_DIR_URL' );
+		$this->assertTrue( defined( 'SIMPLE_HISTORY_FILE' ), 'Assert SIMPLE_HISTORY_FILE' );
 
-		$this->assertTrue( defined( 'SIMPLE_HISTORY_VERSION' ) );
-		$this->assertTrue( defined( 'SIMPLE_HISTORY_PATH' ) );
-		$this->assertTrue( defined( 'SIMPLE_HISTORY_BASENAME' ) );
-		$this->assertTrue( defined( 'SIMPLE_HISTORY_DIR_URL' ) );
-		$this->assertTrue( defined( 'SIMPLE_HISTORY_FILE' ) );
-
-		$this->assertFalse( defined( 'SIMPLE_HISTORY_DEV' ) );
-		$this->assertFalse( defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) );
+		$this->assertFalse( defined( 'SIMPLE_HISTORY_DEV' ), 'Assert SIMPLE_HISTORY_DEV' );
 	}
 
 	function test_history_classes() {

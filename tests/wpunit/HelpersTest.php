@@ -78,4 +78,15 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$ip_address = '142.250.74.x';
 		$this->assertEquals( $ip_address_expected, Helpers::get_valid_ip_address_from_anonymized( $ip_address ) );
 	}
+
+	function test_constant_simple_history_log_debug_is_not_defined() {
+		$this->assertFalse( defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) );
+		$this->assertFalse( Helpers::log_debug_is_enabled() );
+	}
+
+	function test_constant_simple_history_log_debug_is_defined() {
+		define( 'SIMPLE_HISTORY_LOG_DEBUG', true );
+		$this->assertTrue( defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) );
+		$this->assertTrue( Helpers::log_debug_is_enabled() );
+	}
 }
