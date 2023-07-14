@@ -226,7 +226,7 @@ Misc bug fixes and improvements.
 
 **Fixed**
 
-- Fix PHP error when running wp-cron jobs on PHP 8. Fix [#370](https://github.com/bonny/WordPress-Simple-History/issues/370) and support threads https://wordpress.org/support/topic/fatal-error-4492/, https://wordpress.org/support/topic/fatal-error-4488/, https://wordpress.org/support/topic/php-error-in-lastest-version/.
+- Fix PHP error when running WP-Cron jobs on PHP 8 and something was to be logged. Fixes [#370](https://github.com/bonny/WordPress-Simple-History/issues/370) and support threads https://wordpress.org/support/topic/fatal-error-4492/, https://wordpress.org/support/topic/fatal-error-4488/, https://wordpress.org/support/topic/php-error-in-lastest-version/.
 
 ### 4.2.0 (July 2023)
 
