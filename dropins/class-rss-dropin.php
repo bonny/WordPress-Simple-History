@@ -32,44 +32,47 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
-	 * Add settings for the RSS feed
-	 * + also regenerates the secret if requested
+	 * Add settings for the RSS feed.
+	 *
+	 * Also regenerates the secret if requested.
 	 */
 	public function add_settings() {
-
-		// we register a setting to keep track of the RSS feed status (enabled/disabled)
+		// Register a setting to keep track of the RSS feed status (enabled/disabled).
 		register_setting(
 			Simple_History::SETTINGS_GENERAL_OPTION_GROUP,
 			'simple_history_enable_rss_feed',
 			array(
 				$this,
-				'public updateRssStatus',
+				'update_rss_status',
 			)
 		);
+
 		/**
-		 * Start new section for RSS feed
+		 * Start new section for RSS feed.
+		 *
+		 * @var string $settings_section_rss_id ID of the section
 		 */
 		$settings_section_rss_id = 'simple_history_settings_section_rss';
 
 		add_settings_section(
 			$settings_section_rss_id,
-			_x( 'RSS feed', 'rss settings headline', 'simple-history' ), // No title __("General", "simple-history"),
+			_x( 'RSS feed', 'rss settings headline', 'simple-history' ),
 			array( $this, 'settingsSectionOutput' ),
 			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
 
-		// Enable/Disabled RSS feed
+		// Enable/Disable RSS feed.
 		add_settings_field(
 			'simple_history_enable_rss_feed',
 			__( 'Enable', 'simple-history' ),
-			array( $this, 'settingsFieldRssEnable' ),
+			array( $this, 'settings_field_rss_enable' ),
 			Simple_History::SETTINGS_MENU_SLUG,
 			$settings_section_rss_id
 		);
 
-		// if RSS is activated we display other fields
+		// If RSS is activated we display other fields.
 		if ( $this->is_rss_enabled() ) {
-			// RSS address
+			// RSS address.
 			add_settings_field(
 				'simple_history_rss_feed',
 				__( 'Address', 'simple-history' ),
@@ -78,7 +81,7 @@ class RSS_Dropin extends Dropin {
 				$settings_section_rss_id
 			);
 
-			// Regenerate address
+			// Regenerate address.
 			add_settings_field(
 				'simple_history_rss_feed_regenerate_secret',
 				__( 'Regenerate', 'simple-history' ),
@@ -88,11 +91,11 @@ class RSS_Dropin extends Dropin {
 			);
 		}
 
-		// Create new RSS secret
+		// Create new RSS secret.
 		$create_secret_nonce_name = 'simple_history_rss_secret_regenerate_nonce';
-		$createNonceOk = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( $_GET[ $create_secret_nonce_name ], 'simple_history_rss_update_secret' );
+		$create_nonce_ok = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( $_GET[ $create_secret_nonce_name ], 'simple_history_rss_update_secret' );
 
-		if ( $createNonceOk ) {
+		if ( $create_nonce_ok ) {
 			$this->update_rss_secret();
 
 			// Add updated-message and store in transient and then redirect
@@ -113,30 +116,33 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
-	 * Check if RSS feed is enabled or disabled
+	 * Check if RSS feed is enabled or disabled.
+	 *
+	 * @return bool true if enabled, false if disabled
 	 */
 	public function is_rss_enabled() {
+		$is_enabled = false;
 
 		// User has never used the plugin we disable RSS feed
 		if ( get_option( 'simple_history_rss_secret' ) === false && get_option( 'simple_history_enable_rss_feed' ) === false ) {
-			// We disable RSS by default, we use 0/1 to prevent fake disabled with bools from functions returning false for unset
+			// We disable RSS by default, we use 0/1 to prevent fake disabled with bools from functions returning false for unset.
 			update_option( 'simple_history_enable_rss_feed', '0' );
 		} elseif ( get_option( 'simple_history_enable_rss_feed' ) === false ) {
-			// User was using the plugin before RSS feed became disabled by default
-			// We activate RSS to prevent a "breaking change"
+			// User was using the plugin before RSS feed became disabled by default.
+			// We activate RSS to prevent a "breaking change".
 			update_option( 'simple_history_enable_rss_feed', '1' );
-			return true;
+			$is_enabled = true;
 		} elseif ( get_option( 'simple_history_enable_rss_feed' ) === '1' ) {
-			return true;
+			$is_enabled = true;
 		}
 
-		return false;
+		return $is_enabled;
 	}
 
 	/**
 	 * Output for settings field that show current RSS address
 	 */
-	public function settingsFieldRssEnable() {
+	public function settings_field_rss_enable() {
 		?>
 		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
 		<label for="simple_history_enable_rss_feed"><?php esc_html_e( 'Enable RSS feed', 'simple-history' ); ?></label>
@@ -145,9 +151,11 @@ class RSS_Dropin extends Dropin {
 
 	/**
 	 * Sanitize RSS enabled/disabled status on update settings
+	 *
+	 * @param string $field value of the field
+	 * @return string 1 if enabled, 0 if disabled
 	 */
-	public function updateRssStatus( $field ) {
-
+	public function update_rss_status( $field ) {
 		if ( $field === '1' ) {
 			return '1';
 		}
@@ -157,13 +165,11 @@ class RSS_Dropin extends Dropin {
 
 
 	/**
-	 * Check if current request is a request for the RSS feed
+	 * Check if current request is a request for the RSS feed.
 	 */
 	public function check_for_rss_feed_request() {
-		// check for RSS
-		// don't know if this is the right way to do this, but it seems to work!
 		if ( isset( $_GET['simple_history_get_rss'] ) ) {
-			$this->outputRss();
+			$this->output_rss();
 			exit;
 		}
 	}
@@ -178,10 +184,9 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output RSS
+	 * Output RSS.
 	 */
-	public function outputRss() {
-
+	public function output_rss() {
 		$rss_secret_option = get_option( 'simple_history_rss_secret' );
 		$rss_secret_get = $_GET['rss_secret'] ?? '';
 
@@ -189,8 +194,17 @@ class RSS_Dropin extends Dropin {
 			die();
 		}
 
+		/** @var bool $rss_show */
 		$rss_show = true;
+
+		/**
+		 * Filter if RSS feed should be shown or not.
+		 * Default is true.
+		 * @since 1.3.8
+		 * @param bool $rss_show
+		 */
 		$rss_show = apply_filters( 'simple_history/rss_feed_show', $rss_show );
+
 		if ( ! $rss_show || ! $this->is_rss_enabled() ) {
 			wp_die( 'Nothing here.' );
 		}
@@ -198,7 +212,7 @@ class RSS_Dropin extends Dropin {
 		header( 'Content-Type: text/xml; charset=utf-8' );
 		echo '<?xml version="1.0" encoding="UTF-8"?>';
 
-		$self_link = $this->getRssAddress();
+		$self_link = $this->get_rss_address();
 
 		$title = sprintf(
 			/* translators: %s blog name */
@@ -434,7 +448,7 @@ class RSS_Dropin extends Dropin {
 	public function settingsFieldRss() {
 		printf(
 			'<p><code><a href="%1$s">%1$s</a></code></p>',
-			esc_url( $this->getRssAddress() )
+			esc_url( $this->get_rss_address() )
 		);
 	}
 
@@ -461,13 +475,13 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
-	 * Get the URL to the RSS feed
+	 * Get the URL to the RSS feed.
 	 *
 	 * @return string URL
 	 */
-	public function getRssAddress() {
-
+	public function get_rss_address() {
 		$rss_secret = get_option( 'simple_history_rss_secret' );
+
 		$rss_address = add_query_arg(
 			array(
 				'simple_history_get_rss' => '1',
@@ -475,6 +489,7 @@ class RSS_Dropin extends Dropin {
 			),
 			get_bloginfo( 'url' ) . '/'
 		);
+
 		$rss_address = esc_url( $rss_address );
 
 		return $rss_address;
