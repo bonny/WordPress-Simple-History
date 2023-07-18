@@ -222,6 +222,11 @@ Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 
 ## Changelog
 
+### Unreleased
+
+- Don't double escape some texts in RSS feed.
+- Use `esc_xml` to escape texts in RSS feed. Fixes support thread [XML error with RSS feed](https://wordpress.org/support/topic/xml-error-with-rss-feed/), issue [#364](https://github.com/bonny/WordPress-Simple-History/issues/364).
+
 ### 4.2.1 (July 2023)
 
 **Fixed**

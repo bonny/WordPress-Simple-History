@@ -192,30 +192,29 @@ class RSS_Dropin extends Dropin {
 
 		header( 'Content-Type: text/xml; charset=utf-8' );
 		echo '<?xml version="1.0" encoding="UTF-8"?>';
+
 		$self_link = $this->getRssAddress();
 
+		$title = sprintf(
+			/* translators: %s blog name */
+			__( 'History for %s', 'simple-history' ),
+			get_bloginfo( 'name' ),
+		);
+
+		$description = sprintf(
+			/* translators: %s blog name */
+			esc_html__( 'WordPress History for %s', 'simple-history' ),
+			get_bloginfo( 'name' )
+		);
+
 		if ( $rss_secret_option === $rss_secret_get ) {
+			echo PHP_EOL;
+
 			?>
 			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 				<channel>
-					<title>
-					<?php
-						printf(
-							/* translators: %s blog name */
-							esc_html__( 'History for %s', 'simple-history' ),
-							esc_html( get_bloginfo( 'name' ) )
-						);
-					?>
-					</title>
-					<description>
-					<?php
-						printf(
-							/* translators: %s blog name */
-							esc_html__( 'WordPress History for %s', 'simple-history' ),
-							esc_html( get_bloginfo( 'name' ) )
-						);
-					?>
-					</description>
+					<title><?php echo esc_xml( $title ); ?></title>
+					<description><?php echo esc_xml( $description ); ?></description> 
 					<link><?php echo esc_url( get_bloginfo( 'url' ) ); ?></link>
 					<atom:link href="<?php echo esc_url( $self_link ); ?>" rel="self" type="application/atom+xml" />
 					<?php
@@ -349,7 +348,7 @@ class RSS_Dropin extends Dropin {
 						);
 						?>
 						<item>
-							<title><![CDATA[<?php echo esc_html( $item_title ); ?>]]></title>
+							<title><?php echo esc_xml( $item_title ); ?></title>
 							<description><![CDATA[
 								<p><?php echo wp_kses( $header_output, $wp_kses_attrs ); ?></p>
 								<p><?php echo wp_kses( $text_output, $wp_kses_attrs ); ?></p>
@@ -359,12 +358,12 @@ class RSS_Dropin extends Dropin {
 								$occasions = $row->subsequentOccasions - 1;
 								if ( $occasions ) {
 									echo '<p>';
-									printf(
-										esc_html(
+									esc_html(
+										sprintf(
 											// translators: %1$s is the number of times this log has been repeated.
-											_n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' )
-										),
-										(int) $occasions
+											_n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' ),
+											(int) $occasions
+										)
 									);
 									echo '</p>';
 								}
@@ -374,8 +373,8 @@ class RSS_Dropin extends Dropin {
 							// author must be email to validate, but the field is optional, so we skip it
 							/* <author><?php echo $row->initiator ?></author> */
 							?>
-							<pubDate><?php echo esc_html( gmdate( 'D, d M Y H:i:s', strtotime( $row->date ) ) ); ?> GMT</pubDate>
-							<guid isPermaLink="false"><![CDATA[<?php echo esc_html( $item_guid ); ?>]]></guid>
+							<pubDate><?php echo esc_xml( gmdate( 'D, d M Y H:i:s', strtotime( $row->date ) ) ); ?> GMT</pubDate>
+							<guid isPermaLink="false"><![CDATA[<?php echo esc_xml( $item_guid ); ?>]]></guid>
 							<link><![CDATA[<?php echo esc_url( $item_link ); ?>]]></link>
 						</item>
 						<?php
@@ -387,33 +386,19 @@ class RSS_Dropin extends Dropin {
 			<?php
 		} else {
 			// RSS secret was not ok
+			echo PHP_EOL;
 			?>
 			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 				<channel>
-					<title>
-					<?php
-						printf(
-							// translators: %s blog name
-							esc_html__( 'History for %s', 'simple-history' ),
-							esc_html( get_bloginfo( 'name' ) )
-						);
-					?>
-					</title>
-					<description>
-					<?php
-					printf(
-						// translators: %s blog name
-						esc_html__( 'WordPress History for %s', 'simple-history' ),
-						esc_html( get_bloginfo( 'name' ) )
-					);
-					?>
-					</description>
+					<title><?php echo esc_xml( $title ); ?></title>
+					<description><?php echo esc_xml( $description ); ?></description>
 					<link><?php echo esc_url( home_url() ); ?></link>
+					<atom:link href="<?php echo esc_url( $self_link ); ?>" rel="self" type="application/atom+xml" />
 					<item>
-						<title><?php esc_html_e( 'Wrong RSS secret', 'simple-history' ); ?></title>
-						<description><?php esc_html_e( 'Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed.', 'simple-history' ); ?></description>
-						<pubDate><?php echo esc_html( gmdate( 'D, d M Y H:i:s', time() ) ); ?> GMT</pubDate>
-						<guid><?php echo esc_url( home_url() . '?SimpleHistoryGuid=wrong-secret' ); ?></guid>
+						<title><?php echo esc_xml( __( 'Wrong RSS secret', 'simple-history' ) ); ?></title>
+						<description><?php echo esc_xml( __( 'Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed.', 'simple-history' ) ); ?></description>
+						<pubDate><?php echo esc_xml( gmdate( 'D, d M Y H:i:s', time() ) ); ?> GMT</pubDate>
+						<guid><?php echo esc_url( add_query_arg( 'SimpleHistoryGuid', 'wrong-secret', home_url() ) ); ?></guid>
 					</item>
 				</channel>
 			</rss>
@@ -422,12 +407,11 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
-	 * Create a new RSS secret
+	 * Create a new RSS secret.
 	 *
 	 * @return string new secret
 	 */
 	public function update_rss_secret() {
-
 		$rss_secret = '';
 
 		for ( $i = 0; $i < 20; $i++ ) {
@@ -440,7 +424,7 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output for settings field that show current RSS address
+	 * Output for settings field that show current RSS address.
 	 */
 	public function settingsFieldRss() {
 		printf(
