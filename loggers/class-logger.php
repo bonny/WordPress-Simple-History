@@ -342,6 +342,9 @@ abstract class Logger {
 			$time_ago_max_time
 		);
 
+		/** @var int $time_ago_just_now_max_time Seconds */
+		$time_ago_just_now_max_time = 30;
+
 		/**
 		 * Filter how many seconds as most that can pass since an
 		 * event occurred to show "just now" instead of exact date
@@ -350,7 +353,6 @@ abstract class Logger {
 		 *
 		 * @param int $time_ago_max_time Seconds
 		 */
-		$time_ago_just_now_max_time = 30;
 		$time_ago_just_now_max_time = apply_filters(
 			'simple_history/header_just_now_max_time',
 			$time_ago_just_now_max_time
