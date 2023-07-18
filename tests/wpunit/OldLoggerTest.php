@@ -1,18 +1,8 @@
 <?php
 
-/*
-Todo
-- Add test for interpolate
-- Add test for SimpleHistoryLogQuery
-
-*/
-
 require_once 'functions.php';
-// require_once __DIR__ . '/../class-example-404-logger.php';
 
-use Simple_History\Simple_History;
 use function Simple_History\tests\get_latest_row;
-use function Simple_History\tests\get_latest_context;
 
 /**
  * Run with
