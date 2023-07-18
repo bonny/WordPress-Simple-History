@@ -77,6 +77,14 @@
 
 	<rule ref="PHPCompatibilityWP"/>
 
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<property name="customEscapingFunctions" type="array">
+				<element value="esc_xml"/>
+			</property>
+		</properties>
+	</rule>
+
 	<rule ref="Generic.PHP.ForbiddenFunctions">
 		<properties>
 			<property name="forbiddenFunctions" type="array" extend="true">
@@ -139,8 +147,6 @@
 				<element key="mb_substitute_character" value="null" />
 				<element key="mb_substr_count" value="null" />
 				<element key="mb_substr" value="null" />
-				<!-- Append a list of all PHP multibyte functions -->
-
 			</property>
 		</properties>
 	</rule>
