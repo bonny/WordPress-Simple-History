@@ -101,6 +101,11 @@ class RSS_Dropin extends Dropin {
 			add_settings_error( 'simple_history_rss_feed_regenerate_secret', 'simple_history_rss_feed_regenerate_secret', $msg, 'updated' );
 			set_transient( 'settings_errors', get_settings_errors(), 30 );
 
+			/**
+			 * Fires after RSS secret has been updated.
+			 */
+			do_action( 'simple_history/rss_feed/secret_updated' );
+
 			$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
 			wp_redirect( $goback );
 			exit;
