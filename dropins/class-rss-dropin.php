@@ -226,12 +226,12 @@ class RSS_Dropin extends Dropin {
 
 					// Override capability check: if you have a valid rss_secret_key you can read it all
 					$action_tag = 'simple_history/loggers_user_can_read/can_read_single_logger';
-					add_action( $action_tag, array( $this, 'onCanReadSingleLogger' ), 10, 3 );
+					add_filter( $action_tag, array( $this, 'onCanReadSingleLogger' ), 10, 3 );
 
 					// Modify header time output so it does not show relative date or time ago-format
 					// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate
-					add_action( 'simple_history/header_just_now_max_time', '__return_zero' );
-					add_action( 'simple_history/header_time_ago_max_time', '__return_zero' );
+					add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
+					add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
 
 					// Get log rows
 					$args = array(
