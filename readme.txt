@@ -226,9 +226,9 @@ Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 
 **Fixed**
 
-- RSS feed: Don't double escape some texts.
 - RSS feed: Use `esc_xml` to escape texts. Fixes support thread [XML error with RSS feed](https://wordpress.org/support/topic/xml-error-with-rss-feed/), issue [#364](https://github.com/bonny/WordPress-Simple-History/issues/364).
-- Plugin User Switching: store login and email context of user performing action, so information about a user exists even after deletion.
+- RSS feed: Don't double escape some texts.
+- Plugin User Switching: store login and email context of user performing action, so information about a user exists even after user deletion. [#376](https://github.com/bonny/WordPress-Simple-History/issues/376).
 
 **Added**
 
