@@ -233,6 +233,7 @@ Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 **Added**
 
 - Add action `simple_history/rss_feed/secret_updated` that is fired when the secret for the RSS feed is updated.
+- Add tests for RSS feed.
 
 ### 4.2.1 (July 2023)
 
