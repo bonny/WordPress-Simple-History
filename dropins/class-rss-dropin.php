@@ -447,7 +447,11 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function settingsFieldRss() {
 		printf(
-			'<p><code><a href="%1$s">%1$s</a></code></p>',
+			'<p>
+				<code>
+					<a id="simple_history_rss_feed_address" href="%1$s">%1$s</a>
+				</code>
+			</p>',
 			esc_url( $this->get_rss_address() )
 		);
 	}
