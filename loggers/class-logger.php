@@ -1379,14 +1379,20 @@ abstract class Logger {
 		*/
 	}
 
+	/**
+	 * Append user data to context.
+	 *
+	 * @param array $context
+	 * @return array
+	 */
 	private function append_user_context( $context ) {
 		if ( isset( $context['_user_id'] ) ) {
 			return $context;
 		}
 
-		// Load `wp_get_current_user` if not already loaded,
-		// because is not available early.
-		// http://codex.wordpress.org/Function_Reference/wp_get_current_user
+		// Bail if `wp_get_current_user` is not loaded,
+		// because is not available early. (?)
+		// https://developer.wordpress.org/reference/functions/wp_get_current_user/
 		// https://core.trac.wordpress.org/ticket/14024
 		if ( ! function_exists( 'wp_get_current_user' ) ) {
 			return $context;
@@ -1394,11 +1400,19 @@ abstract class Logger {
 
 		$current_user = wp_get_current_user();
 
-		if ( isset( $current_user->ID ) && $current_user->ID ) {
-			$context['_user_id'] = $current_user->ID;
-			$context['_user_login'] = $current_user->user_login;
-			$context['_user_email'] = $current_user->user_email;
+		// Bail if not a user object.
+		if ( ! $current_user instanceof \WP_User ) {
+			return $context;
 		}
+
+		// Bail if no user is set.
+		if ( $current_user->ID === 0 ) {
+			return $context;
+		}
+
+		$context['_user_id'] = $current_user->ID;
+		$context['_user_login'] = $current_user->user_login;
+		$context['_user_email'] = $current_user->user_email;
 
 		return $context;
 	}
