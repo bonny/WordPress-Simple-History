@@ -57,7 +57,7 @@ class RSS_Dropin extends Dropin {
 		add_settings_section(
 			$settings_section_rss_id,
 			_x( 'RSS feed', 'rss settings headline', 'simple-history' ),
-			array( $this, 'settingsSectionOutput' ),
+			array( $this, 'settings_section_output' ),
 			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
 
@@ -76,7 +76,7 @@ class RSS_Dropin extends Dropin {
 			add_settings_field(
 				'simple_history_rss_feed',
 				__( 'Address', 'simple-history' ),
-				array( $this, 'settingsFieldRss' ),
+				array( $this, 'settings_field_rss' ),
 				Simple_History::SETTINGS_MENU_SLUG,
 				$settings_section_rss_id
 			);
@@ -85,7 +85,7 @@ class RSS_Dropin extends Dropin {
 			add_settings_field(
 				'simple_history_rss_feed_regenerate_secret',
 				__( 'Regenerate', 'simple-history' ),
-				array( $this, 'settingsFieldRssRegenerate' ),
+				array( $this, 'settings_field_rss_regenerate' ),
 				Simple_History::SETTINGS_MENU_SLUG,
 				$settings_section_rss_id
 			);
@@ -445,7 +445,7 @@ class RSS_Dropin extends Dropin {
 	/**
 	 * Output for settings field that show current RSS address.
 	 */
-	public function settingsFieldRss() {
+	public function settings_field_rss() {
 		printf(
 			'<p>
 				<code>
@@ -459,7 +459,7 @@ class RSS_Dropin extends Dropin {
 	/**
 	 * Output for settings field that regenerates the RSS address/secret
 	 */
-	public function settingsFieldRssRegenerate() {
+	public function settings_field_rss_regenerate() {
 
 		$update_link = esc_url( add_query_arg( '', '' ) );
 		$update_link = wp_nonce_url( $update_link, 'simple_history_rss_update_secret', 'simple_history_rss_secret_regenerate_nonce' );
@@ -503,7 +503,7 @@ class RSS_Dropin extends Dropin {
 	 * Content for section intro. Leave it be, even if empty.
 	 * Called from add_sections_setting.
 	 */
-	public function settingsSectionOutput() {
+	public function settings_section_output() {
 		echo '<p>';
 		esc_html_e( 'Simple History has a RSS feed which you can subscribe to and receive log updates. Make sure you only share the feed with people you trust, since it can contain sensitive or confidential information.', 'simple-history' );
 		echo '</p>';
