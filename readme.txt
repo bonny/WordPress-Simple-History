@@ -224,8 +224,14 @@ Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 
 ### Unreleased
 
+**Fixed**
+
 - RSS feed: Don't double escape some texts.
 - RSS feed: Use `esc_xml` to escape texts. Fixes support thread [XML error with RSS feed](https://wordpress.org/support/topic/xml-error-with-rss-feed/), issue [#364](https://github.com/bonny/WordPress-Simple-History/issues/364).
+- Plugin User Switching: store login and email context of user performing action, so information about a user exists even after deletion.
+
+**Added**
+
 - Add action `simple_history/rss_feed/secret_updated` that is fired when the secret for the RSS feed is updated.
 
 ### 4.2.1 (July 2023)
