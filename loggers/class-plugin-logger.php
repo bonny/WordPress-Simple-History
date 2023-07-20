@@ -172,7 +172,7 @@ class Plugin_Logger extends Logger {
 		// Fires after a plugin is deactivated.
 		// If a plugin is silently deactivated (such as during an update),
 		// this hook does not fire.
-		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 2 );
+		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 1 );
 
 		// Fires after the upgrades has done it's thing.
 		// Check hook extra for upgrader initiator.
@@ -265,7 +265,7 @@ class Plugin_Logger extends Logger {
 	public function handle_auto_update_change() {
 		$option = 'auto_update_plugins';
 
-		add_filter(
+		add_action(
 			"update_option_{$option}",
 			function ( $old_value, $value, $option ) {
 				/**

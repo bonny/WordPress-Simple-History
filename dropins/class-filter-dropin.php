@@ -549,11 +549,8 @@ class Filter_Dropin extends Dropin {
 	 *
 	 * @global WP_Locale  $wp_locale
 	 *
-	 * @param int|bool $edit      Accepts 1|true for editing the date, 0|false for adding the date.
-	 * @param int|bool $for_post  Accepts 1|true for applying the date to a post, 0|false for a comment.
-	 * @param int      $tab_index The tabindex attribute to add. Default 0.
-	 * @param int|bool $multi     Optional. Whether the additional fields and buttons should be added.
-	 *                            Default 0|false.
+	 * @param 'from'|'to' $from_or_to
+	 * @param int $edit Unused.
 	 */
 	public function touch_time( $from_or_to, $edit = 1 ) {
 		global $wp_locale;

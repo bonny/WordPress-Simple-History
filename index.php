@@ -33,44 +33,46 @@ if ( ! defined( 'WPINC' ) ) {
 	die();
 }
 
-$ok_wp_version = version_compare( $GLOBALS['wp_version'], '6.1', '>=' );
-$ok_php_version = version_compare( phpversion(), '7.4', '>=' );
-
-if ( $ok_php_version && $ok_wp_version ) {
-	/**
-	 * Register function that is called when plugin is installed
-	 *
-	 * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
-	 * register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
-	 */
-	define( 'SIMPLE_HISTORY_VERSION', '4.3.0' );
-	define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( __FILE__ ) );
-	define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( __FILE__ ) );
-	define( 'SIMPLE_HISTORY_DIR_URL', plugin_dir_url( __FILE__ ) );
-	define( 'SIMPLE_HISTORY_FILE', __FILE__ );
-
-	/** Load required files. */
-	require_once __DIR__ . '/inc/class-autoloader.php';
-	require_once __DIR__ . '/inc/global-helpers.php';
-
-	/** Boot up. */
-	$loader = new Simple_History\Autoloader();
-	$loader->register();
-	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
-	$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . 'inc/' );
-
-	// Load code for old, deprecated things, that does not use autoloader.
-	require_once __DIR__ . '/inc/deprecated/class-simplehistory.php';
-	require_once __DIR__ . '/inc/deprecated/class-simplelogger.php';
-	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php';
-	require_once __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php';
-	require_once __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php';
-
-	// Create singleton instance of Simple History.
-	// This runs constructor that calls init method.
-	Simple_History\Simple_History::get_instance();
-} else {
+if (
+	version_compare( phpversion(), '7.4', '<' )
+	|| version_compare( $GLOBALS['wp_version'], '6.1', '<' )
+) {
 	// User is running to old version of php, add admin notice about that.
 	require_once __DIR__ . '/inc/oldversions.php';
 	add_action( 'admin_notices', 'simple_history_old_version_admin_notice' );
-} // End if().
+
+	return;
+}
+
+/**
+ * Register function that is called when plugin is installed
+ *
+ * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
+ * register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
+ */
+define( 'SIMPLE_HISTORY_VERSION', '4.3.0' );
+define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( __FILE__ ) );
+define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( __FILE__ ) );
+define( 'SIMPLE_HISTORY_DIR_URL', plugin_dir_url( __FILE__ ) );
+define( 'SIMPLE_HISTORY_FILE', __FILE__ );
+
+/** Load required files. */
+require_once __DIR__ . '/inc/class-autoloader.php';
+require_once __DIR__ . '/inc/global-helpers.php';
+
+/** Boot up. */
+$loader = new Simple_History\Autoloader();
+$loader->register();
+$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
+$loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . 'inc/' );
+
+// Load code for old, deprecated things, that does not use autoloader.
+require_once __DIR__ . '/inc/deprecated/class-simplehistory.php';
+require_once __DIR__ . '/inc/deprecated/class-simplelogger.php';
+require_once __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php';
+require_once __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php';
+require_once __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php';
+
+// Create singleton instance of Simple History.
+// This runs constructor that calls init method.
+Simple_History\Simple_History::get_instance();

@@ -33,7 +33,7 @@ class Log_Initiators {
 	 * "web_user" becomes "Anonymous web user".
 	 * "other" becomes "Other".
 	 *
-	 * @param string $initiator Initiator value.
+	 * @param string $row Initiator value.
 	 * @return string Human readable initiator string.
 	 */
 	public static function get_initiator_text_from_row( $row ) {

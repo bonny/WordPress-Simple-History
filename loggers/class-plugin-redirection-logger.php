@@ -306,8 +306,8 @@ class Plugin_Redirection_Logger extends Logger {
 	/**
 	 * Log enable or disable of items.
 	 *
-	 * @param Object $req Req.
-	 * @param Array  $bulk_items Array.
+	 * @param object $req Req.
+	 * @param array  $bulk_items Array.
 	 */
 	protected function log_redirection_enable_or_disable( $req, $bulk_items ) {
 		$bulk_action = $req->get_param( 'bulk' );

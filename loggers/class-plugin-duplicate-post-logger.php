@@ -57,9 +57,9 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 	/**
 	 * A post or page was duplicated
 	 *
-	 * @param $new_post_id
-	 * @param $post old post that a copy was made of
-	 * @param $status
+	 * @param int $new_post_id
+	 * @param \WP_Post $post old post that a copy was made of
+	 * @param string $status
 	 */
 	public function onDpDuplicatePost( $newPostID, $post, $status ) {
 		$new_post = get_post( $newPostID );

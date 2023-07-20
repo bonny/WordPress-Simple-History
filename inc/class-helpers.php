@@ -292,7 +292,7 @@ class Helpers {
 	 *
 	 * Based on code from https://www.tollmanz.com/invalidation-schemes/.
 	 *
-	 * @param $refresh bool Pass true to invalidate the cache.
+	 * @param bool $refresh Pass true to invalidate the cache.
 	 * @return int
 	 */
 	public static function get_cache_incrementor( $refresh = false ) {
@@ -410,7 +410,7 @@ class Helpers {
 	 * @param int    $size Size of the avatar image
 	 * @param string $default URL to a default image to use if no avatar is available
 	 * @param string $alt Alternative text to use in image tag. Defaults to blank
-	 * @return string <img> tag for the user's avatar
+	 * @return string The img element for the user's avatar
 	 */
 	public static function get_avatar( $email, $size = '96', $default = '', $alt = false, $args = array() ) {
 		$args = array(
@@ -435,7 +435,7 @@ class Helpers {
 		 *  );
 		 * ```
 		 *
-		 * @param bool Force display. Default false.
+		 * @param bool $force_display Force display. Default false.
 		 */
 		$args['force_display'] = apply_filters( 'simple_history/show_avatars', $args['force_display'] );
 
@@ -460,7 +460,8 @@ class Helpers {
 	 * users hopefully understand that it is a modified IP-address
 	 * that is anonymized.
 	 *
-	 * @param string $ip IP-address to anonymize.
+	 * @param string $ip_address IP-address to anonymize.
+	 * @return string
 	 */
 	public static function privacy_anonymize_ip( $ip_address ) {
 		/**

@@ -26,7 +26,7 @@ class Debug_Dropin extends Dropin {
 	 * @param array $context
 	 * @param string $level
 	 * @param string $message
-	 * @param SimpleLogger $logger
+	 * @param \Simple_History\Loggers\Simple_Logger $logger
 	 */
 	public function onLogArgumentContext( $context, $level, $message, $logger ) {
 		$context['_debug_get'] = Helpers::json_encode( $_GET );

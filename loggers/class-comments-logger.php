@@ -443,10 +443,11 @@ class Comments_Logger extends Logger {
 	 * Fires after a comment status has been updated in the database.
 	 * The hook also fires immediately before comment status transition hooks are fired.
 	 *
-	 * @param int         $comment_id     The comment ID.
+	 * do_action( 'wp_set_comment_status', $comment_id, $comment_status );
+	 *
+	 * @param int         $comment_ID     The comment ID.
 	 * @param string|bool $comment_status The comment status. Possible values include 'hold',
 	 *                                    'approve', 'spam', 'trash', or false.
-	 * do_action( 'wp_set_comment_status', $comment_id, $comment_status );
 	 */
 	public function on_wp_set_comment_status( $comment_ID, $comment_status ) {
 
