@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Tested up to: 6.2
-Stable tag: 4.2.1
+Stable tag: 4.3.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -222,18 +222,18 @@ Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 
 ## Changelog
 
-### Unreleased
+### 4.3.0 (July 2023)
+
+**Added**
+
+- Add action `simple_history/rss_feed/secret_updated` that is fired when the secret for the RSS feed is updated.
+- Add tests for RSS feed.
 
 **Fixed**
 
 - RSS feed: Use `esc_xml` to escape texts. Fixes support thread [XML error with RSS feed](https://wordpress.org/support/topic/xml-error-with-rss-feed/), issue [#364](https://github.com/bonny/WordPress-Simple-History/issues/364).
 - RSS feed: Some texts was double escaped.
 - Plugin User Switching: store login and email context of user performing action, so information about a user exists even after user deletion. [#376](https://github.com/bonny/WordPress-Simple-History/issues/376).
-
-**Added**
-
-- Add action `simple_history/rss_feed/secret_updated` that is fired when the secret for the RSS feed is updated.
-- Add tests for RSS feed.
 
 ### 4.2.1 (July 2023)
 
