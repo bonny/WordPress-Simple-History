@@ -161,7 +161,6 @@ class SimpleOptionsLoggerCest
             'old_value' => 'open',
             'new_value' => 'null',
         ]);
-        $I->makeScreenshot();
 
         $I->amOnAdminPage('options-discussion.php');
         $I->checkOption('#default_comment_status');

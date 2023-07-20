@@ -27,7 +27,6 @@ class PluginUserSwitchingLoggerCest
         
         // Switch back to admin.
         $I->wait(2);
-        $I->makeScreenshot();
         
         // Click "Switch back to admin" link.
         $I->click('//*[@id="user_switching"]/p/a');

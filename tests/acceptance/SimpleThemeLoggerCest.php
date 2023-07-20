@@ -44,7 +44,6 @@ class SimpleThemeLoggerCest
 
         // theme_switched: Switch back theme so we can delete the uploaded one.
         $I->amOnAdminPage('/themes.php?theme=twentytwentyone');
-        $I->makeScreenshot();
         $I->waitForElementVisible('.theme-wrap .button.activate');
         $I->click('.theme-wrap .button.activate');
         $I->seeLogMessage('Switched theme to "Twenty Twenty-One" from "Twenty Sixteen"');

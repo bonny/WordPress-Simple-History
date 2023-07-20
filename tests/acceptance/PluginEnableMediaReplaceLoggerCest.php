@@ -26,7 +26,7 @@ class EnableMediaReplaceLoggerCest
         $I->click('Upload a new file');
         $I->attachFile('#userfile', 'Image 2.jpg');
         $I->click('Upload');
-        $I->makeScreenshot();
+        
         $I->seeLogMessage('Replaced attachment "Image 1" with new attachment "Image 2.jpg"');        
         $I->seeLogContext([
             'prev_attachment_title' => 'Image 1',

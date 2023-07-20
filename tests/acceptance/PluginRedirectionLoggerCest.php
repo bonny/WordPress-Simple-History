@@ -76,8 +76,6 @@ class PluginRedirectionLoggerCest
         $I->seeLogMessage('Added redirection group "A new group"');
 
         // Edit group.
-        // $I->amOnAdminPage($admin_page);
-        // $I->makeScreenshot();
         $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
         $I->click('Edit');
         $I->fillField('.edit-groups [name=name]', 'A new group modified');
@@ -94,7 +92,6 @@ class PluginRedirectionLoggerCest
 
         // Disable group.
         $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
-        $I->makeScreenshot();
         $I->click('Disable');
         $I->wait('1'); // wait for ajax call.
         $I->seeLogMessage('Disabled 1 redirection group(s)');
