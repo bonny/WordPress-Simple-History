@@ -16,8 +16,13 @@ data/
 
 # Tests related data
 tests/*
+!tests/.valetphprc
+!tests/readme.md
+!tests/*.yml
+!tests/*.php
 !tests/_data
 tests/_data/*
+!tests/_data/.gitkeep
 !tests/_data/Image 1.jpg
 !tests/_data/Image 2.jpg
 !tests/_data/mu-plugins
@@ -25,3 +30,10 @@ tests/_data/*
 !tests/functional
 !tests/unit
 !tests/wpunit
+!tests/_output
+tests/_output/*
+!tests/_output/.gitignore
+!tests/_support
+!tests/plugins
+tests/plugins/*
+!tests/plugins/.gitkeep
