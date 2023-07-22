@@ -526,4 +526,19 @@ class Helpers {
 
 		return false;
 	}
+
+	/**
+	 * Wrapper around WordPress function is_plugin_active()
+	 * that loads the required files if function does not exist.
+	 *
+	 * @param string $plugin_file_path Path to plugin file, relative to plugins dir.
+	 * @return bool True if plugin is active.
+	 */
+	public static function is_plugin_active( $plugin_file_path ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return is_plugin_active( $plugin_file_path );
+	}
 }

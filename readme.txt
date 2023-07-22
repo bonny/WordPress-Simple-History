@@ -222,6 +222,11 @@ Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 
 ## Changelog
 
+### Unreleased
+
+- Add helper function `is_plugin_active()` that loads the needed WordPress files before using the WordPress function with the same name.
+- todo: make sure admin_url() and etc. works.
+
 ### 4.3.0 (July 2023)
 
 **Added**
@@ -277,7 +282,7 @@ Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 - Remove function `filter_gettext_store_latest_translations()`.
 - Remove support for automatically un-translating messages to the log, loggers are better and have better support for languages.
 
-### 4.1.0
+### 4.1.0 (July 2023)
 
 **Added**
 
