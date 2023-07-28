@@ -31,7 +31,6 @@ class Issue373Cest {
         $I->amGoingTo('Check that the main history feed works');
         // Go to simple history page
         $I->amOnPage('/wp-admin/index.php?page=simple_history_page');
-        // $I->see('Simple History');
         $I->amOnAdminAjaxPage([
             "action" => 'simple_history_api',
             'type' => 'overview',
@@ -41,8 +40,11 @@ class Issue373Cest {
             'dates' => 'lastdays:30'
         ]);
         $I->seeResponseCodeIsSuccessful();
-        $I->makeHtmlSnapshot('ajax-feed.json');
+        // $I->makeHtmlSnapshot('ajax-feed.json');
+        $I->see('Got a 404-page when trying to visit');
         // admin-ajax.php?action=simple_history_api&type=overview&format=html&posts_per_page=30&paged=1&dates=lastdays%3A30
 
+        // $I->amOnPluginsPage();   
+        // $I->deactivatePlugin('issue-373-disable-core-loggers');
     }
 }
