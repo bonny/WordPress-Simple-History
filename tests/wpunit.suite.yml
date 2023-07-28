@@ -28,5 +28,6 @@ modules:
           "redirection/redirection.php",
           "enable-media-replace/enable-media-replace.php",
           "user-switching/user-switching.php",
+          "issue-373-disable-core-loggers/issue-373-disable-core-loggers.php",
         ]
       activatePlugins: ["simple-history/index.php"]

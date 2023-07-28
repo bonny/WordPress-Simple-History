@@ -26,6 +26,7 @@ services:
       - ./tests/plugins/enable-media-replace:/var/www/html/wp-content/plugins/enable-media-replace
       - ./tests/plugins/user-switching:/var/www/html/wp-content/plugins/user-switching
       - ./tests/plugins/developer-loggers-for-simple-history:/var/www/html/wp-content/plugins/developer-loggers-for-simple-history
+      - ./tests/plugins/issue-373-disable-core-loggers:/var/www/html/wp-content/plugins/issue-373-disable-core-loggers
       - ./tests/_data/mu-plugins:/var/www/html/wp-content/mu-plugins
       - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
 
@@ -74,6 +75,7 @@ services:
       - ./tests/plugins/redirection:/wordpress/wp-content/plugins/redirection
       - ./tests/plugins/enable-media-replace:/wordpress/wp-content/plugins/enable-media-replace
       - ./tests/plugins/user-switching:/wordpress/wp-content/plugins/user-switching
+      - ./tests/plugins/issue-373-disable-core-loggers:/wordpress/wp-content/plugins/issue-373-disable-core-loggers
       - ./tests/_data/mu-plugins:/wordpress/wp-content/mu-plugins
     depends_on:
       - db
