@@ -360,18 +360,10 @@ class Simple_History {
 			return;
 		}
 
-		/**
-		 * `menu_page_url()` is defined in the WordPress Plugin Administration API,
-		 * which is not loaded here by default
-		 *
-		 * ditto for `is_plugin_active()`
-		 */
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
 		foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
 			switch_to_blog( $blog->userblog_id );
 
-			if ( is_plugin_active( SIMPLE_HISTORY_BASENAME ) ) {
+			if ( Helpers::is_plugin_active( SIMPLE_HISTORY_BASENAME ) ) {
 				$menu_id = 'simple-history-blog-' . $blog->userblog_id;
 				$parent_menu_id = 'blog-' . $blog->userblog_id;
 				$url = admin_url(
@@ -432,9 +424,6 @@ class Simple_History {
 		if ( ! current_user_can( $this->get_view_history_capability() ) ) {
 			return;
 		}
-
-		/* menu_page_url() and is_plugin_active()is defined in the WordPress Plugin Administration API, which is not loaded here by default */
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		$menu_id = 'simple-history-view-history';
 		$parent_menu_id = 'site-name';
@@ -739,7 +728,7 @@ class Simple_History {
 
 	/**
 	 * Load language files.
-	 * Uses the method described here:
+	 * Uses the method described at URL:
 	 * http://geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
 	 *
 	 * @since 2.0
@@ -2641,7 +2630,7 @@ Because Simple History was only recently installed, this feed does not display m
 			$data_attrs .= sprintf( ' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context['_server_remote_addr'] ) );
 		}
 
-		$arr_found_additional_ip_headers = $this->instantiated_loggers['SimpleLogger']['instance']->get_event_ip_number_headers( $oneLogRow );
+		$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $oneLogRow );
 
 		if ( $arr_found_additional_ip_headers ) {
 			$data_attrs .= sprintf( ' data-ip-address-multiple="1" ' );

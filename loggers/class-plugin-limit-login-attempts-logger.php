@@ -2,6 +2,7 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Helpers;
 use Simple_History\Log_Initiators;
 
 /**
@@ -44,11 +45,8 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	}
 
 	public function loaded() {
-
-		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-
 		$pluginFilePath = 'limit-login-attempts/limit-login-attempts.php';
-		$isPluginActive = is_plugin_active( $pluginFilePath );
+		$isPluginActive = Helpers::is_plugin_active( $pluginFilePath );
 
 		// Only continue to add filters if plugin is active.
 		// This minimise the risk of plugin errors, because plugin

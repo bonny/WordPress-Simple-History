@@ -3,7 +3,6 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
-use WP_REST_Request;
 
 /**
  * Dropin Name: Plugin Patches
@@ -35,7 +34,7 @@ class Plugin_Patches_Dropin extends Dropin {
 	 * We check that we have a REST_REQUEST and that the current route is for co authors plus.
 	 */
 	public function patch_co_authors_plus() {
-		Helpers::disable_taxonomy_log( 'author', is_plugin_active( 'co-authors-plus/co-authors-plus.php' ) );
+		Helpers::disable_taxonomy_log( 'author', Helpers::is_plugin_active( 'co-authors-plus/co-authors-plus.php' ) );
 	}
 
 	/**

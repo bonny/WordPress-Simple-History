@@ -37,9 +37,7 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 	}
 
 	public function loaded() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-		$isPluginActive = is_plugin_active( 'duplicate-post/duplicate-post.php' );
+		$isPluginActive = Helpers::is_plugin_active( 'duplicate-post/duplicate-post.php' );
 
 		if ( ! $isPluginActive ) {
 			return;
