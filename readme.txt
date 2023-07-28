@@ -220,9 +220,8 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
-Now: make plugin work with no loggers.
-
 - Fixed: PHP error when showing a log entry when all core loggers are disabled. Fixes [#373](https://github.com/bonny/WordPress-Simple-History/issues/373).
+- Moved function `get_event_ip_number_headers()` from Simple Logger to Helpers class.
 - Add helper function `is_plugin_active()` that loads the needed WordPress files before using the WordPress function with the same name. Part of fix for [#373](https://github.com/bonny/WordPress-Simple-History/issues/373).
 
 ### 4.3.0 (July 2023)

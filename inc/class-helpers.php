@@ -544,6 +544,7 @@ class Helpers {
 
 	/**
 	 * Returns additional headers with ip numbers found in context.
+	 * Additional = headers that are not the main ip number header.
 	 *
 	 * @since 2.0.29
 	 * @param object $row Row with info.
