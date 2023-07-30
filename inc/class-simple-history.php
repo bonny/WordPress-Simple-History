@@ -1148,7 +1148,6 @@ class Simple_History {
 		do_action( 'simple_history/loggers/instantiated', $this );
 	}
 
-
 	/**
 	 * Get array with classnames of all core (built-in) dropins.
 	 *

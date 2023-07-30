@@ -224,7 +224,6 @@ class Options_Logger extends Logger {
 		return $output;
 	}
 
-
 	/**
 	 * Page on front = "Front page displays" -> Your latest posts / A static page
 	 * value 0 = Your latest post
@@ -359,7 +358,6 @@ class Options_Logger extends Logger {
 
 		return $context;
 	}
-
 
 	/**
 	 * Add detailed output for default_category

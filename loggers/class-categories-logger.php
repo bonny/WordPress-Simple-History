@@ -114,7 +114,6 @@ class Categories_Logger extends Logger {
 		return $parent;
 	}
 
-
 	/*
 	 * Fires after a new term is created, and after the term cache has been cleaned.
 	 *
@@ -151,7 +150,6 @@ class Categories_Logger extends Logger {
 			)
 		);
 	}
-
 
 	/**
 	 * Fires after a term is deleted from the database and the cache is cleaned.

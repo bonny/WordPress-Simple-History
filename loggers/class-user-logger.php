@@ -247,7 +247,6 @@ class User_Logger extends Logger {
 		);
 	}
 
-
 	/**
 	 * Log when an Application password is deleted (revoked).
 
@@ -271,7 +270,6 @@ class User_Logger extends Logger {
 			)
 		);
 	}
-
 
 	/**
 	 * Fires after the user's role has changed.

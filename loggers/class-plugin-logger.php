@@ -722,7 +722,6 @@ class Plugin_Logger extends Logger {
 			[type] => core
 		)
 
-
 		# Plugin install
 
 		$arr_data:
@@ -731,7 +730,6 @@ class Plugin_Logger extends Logger {
 			[type] => plugin
 			[action] => install
 		)
-
 
 		## Plugin update
 
@@ -1075,7 +1073,6 @@ class Plugin_Logger extends Logger {
 
 		$this->info_message( 'plugin_deactivated', $context );
 	}
-
 
 	/**
 	 * Get output for detailed log section
