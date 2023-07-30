@@ -293,7 +293,6 @@ class Helpers {
 	 * Based on code from https://www.tollmanz.com/invalidation-schemes/.
 	 *
 	 * @param bool $refresh Pass true to invalidate the cache.
-	 * @param $refresh bool Pass true to invalidate the cache.
 	 * @return string
 	 */
 	public static function get_cache_incrementor( $refresh = false ) {
