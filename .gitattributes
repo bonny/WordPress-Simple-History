@@ -28,4 +28,3 @@
 /phpstan.neon export-ignore
 /phpunit.xml export-ignore
 /rector.php export-ignore
-/SECURITY.md export-ignore
