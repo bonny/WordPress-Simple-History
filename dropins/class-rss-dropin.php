@@ -174,15 +174,6 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
-	 * Modify capability check so all users reading rss feed (logged in or not) can read all loggers
-	 */
-	public function onCanReadSingleLogger( $user_can_read_logger, $logger_instance, $user_id ) {
-		$user_can_read_logger = true;
-
-		return $user_can_read_logger;
-	}
-
-	/**
 	 * Output RSS.
 	 */
 	public function output_rss() {
@@ -239,7 +230,7 @@ class RSS_Dropin extends Dropin {
 
 					// Override capability check: if you have a valid rss_secret_key you can read it all
 					$action_tag = 'simple_history/loggers_user_can_read/can_read_single_logger';
-					add_filter( $action_tag, array( $this, 'onCanReadSingleLogger' ), 10, 3 );
+					add_filter( $action_tag, '__return_true', 10, 0 );
 
 					// Modify header time output so it does not show relative date or time ago-format
 					// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate
@@ -289,7 +280,7 @@ class RSS_Dropin extends Dropin {
 					$queryResults = $logQuery->query( $args );
 
 					// Remove capability override after query is done
-					// remove_action( $action_tag, array($this, "onCanReadSingleLogger") );
+					// remove_action( $action_tag, '__return_true', 10 );
 					foreach ( $queryResults['log_rows'] as $row ) {
 						$header_output = $this->simple_history->get_log_row_header_output( $row );
 						$text_output = $this->simple_history->get_log_row_plain_text_output( $row );

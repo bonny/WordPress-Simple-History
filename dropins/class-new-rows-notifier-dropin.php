@@ -30,7 +30,8 @@ class New_Rows_Notifier_Dropin extends Dropin {
 		 *   }
 		 * );
 		 * ```
-		 * @param int Interval in MS.
+		 *
+		 * @param int $interval Interval in MS.
 		 */
 		$this->interval = (int) apply_filters( 'SimpleHistoryNewRowsNotifier/interval', $this->interval );
 

@@ -66,10 +66,10 @@ class Post_Logger extends Logger {
 			// the update_item() method: pre_insert and after_insert.
 
 			// Rest pre insert is fired before an updated post is inserted into db.
-			add_action( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
+			add_filter( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
 
 			// Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API."
-			add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
+			add_filter( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
 		}
 	}
 
@@ -263,7 +263,7 @@ class Post_Logger extends Logger {
 
 		$prev_post_data = get_post( $post_ID );
 
-		if ( is_wp_error( $prev_post_data ) ) {
+		if ( null === $prev_post_data ) {
 			return;
 		}
 
@@ -554,9 +554,9 @@ class Post_Logger extends Logger {
 		 * Filter to control logging.
 		 *
 		 * @param bool $ok_to_log
-		 * @param $new_status
-		 * @param $old_status
-		 * @param $post
+		 * @param string|null $new_status
+		 * @param string|null $old_status
+		 * @param \WP_Post $post
 		 *
 		 * @return bool True to log, false to not log.
 		 *

@@ -12,8 +12,6 @@ use Simple_History\Simple_History;
 class Sidebar_Settings_Dropin extends Dropin {
 	/**
 	 * Init
-	 *
-	 * @param object $sh Simple History instance.
 	 */
 	public function loaded() {
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );

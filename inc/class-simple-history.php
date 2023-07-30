@@ -61,7 +61,7 @@ class Simple_History {
 	/**
 	 * Used by gettext filter to temporarily store current logger.
 	 *
-	 * @var Logger
+	 * @var \Simple_History\Loggers\Logger
 	 */
 	private $do_filter_gettext_current_logger;
 
@@ -106,7 +106,7 @@ class Simple_History {
 		 *
 		 * @since 2.0
 		 *
-		 * @param Simple_History $SimpleHistory This class.
+		 * @param Simple_History $instance This class.
 		 */
 		do_action( 'simple_history/before_init', $this );
 
@@ -153,7 +153,7 @@ class Simple_History {
 		 *
 		 * @since 2.17
 		 */
-		add_filter( 'simple_history_log_emergency', array( $this, 'on_filter_simple_history_log_emergency' ), 10, 3 );
+		add_filter( 'simple_history_log_emergency', array( $this, 'on_filter_simple_history_log_emergency' ), 10, 2 );
 		add_filter( 'simple_history_log_alert', array( $this, 'on_filter_simple_history_log_alert' ), 10, 2 );
 		add_filter( 'simple_history_log_critical', array( $this, 'on_filter_simple_history_log_critical' ), 10, 2 );
 		add_filter( 'simple_history_log_error', array( $this, 'on_filter_simple_history_log_error' ), 10, 2 );
@@ -173,7 +173,7 @@ class Simple_History {
 		 *
 		 * @since 2.0
 		 *
-		 * @param Simple_History $SimpleHistory This class.
+		 * @param Simple_History $instance This class.
 		 */
 		do_action( 'simple_history/after_init', $this );
 	}
@@ -332,11 +332,11 @@ class Simple_History {
 		 *
 		 * @since 2.7.1
 		 *
-		 * @param bool Add item
+		 * @param bool $add_item Add item
 		 */
-		$add_items = apply_filters( 'simple_history/add_admin_bar_network_menu_item', true );
+		$add_item = apply_filters( 'simple_history/add_admin_bar_network_menu_item', true );
 
-		if ( ! $add_items ) {
+		if ( ! $add_item ) {
 			return;
 		}
 
@@ -402,7 +402,7 @@ class Simple_History {
 		 *
 		 * @since 2.7.1
 		 *
-		 * @param bool Add item
+		 * @param bool $add_item Add item
 		 */
 		$add_item = apply_filters( 'simple_history/add_admin_bar_menu_item', true );
 
@@ -474,7 +474,7 @@ class Simple_History {
 			 * Similar to action WordPress action `admin_head`,
 			 * but only fired from pages with Simple History.
 			 *
-			 * @param Simple_History $SimpleHistory This class.
+			 * @param Simple_History $instance This class.
 			 */
 			do_action( 'simple_history/admin_head', $this );
 		}
@@ -491,7 +491,7 @@ class Simple_History {
 			 * Similar to action WordPress action `admin_footer`,
 			 * but only fired from pages with Simple History.
 			 *
-			 * @param Simple_History $SimpleHistory This class.
+			 * @param Simple_History $instance This class.
 			 */
 			do_action( 'simple_history/admin_footer', $this );
 		}
@@ -1008,7 +1008,7 @@ class Simple_History {
 		 *
 		 * @since 2.1
 		 *
-		 * @param Simple_History $this Simple History instance.
+		 * @param Simple_History $instance Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_logger', $this );
 
@@ -1196,7 +1196,7 @@ class Simple_History {
 		 *
 		 * @since 2.3.2
 		 *
-		 * @param Simple_History $this Simple History instance.
+		 * @param Simple_History $instance Simple History instance.
 		 */
 		do_action( 'simple_history/add_custom_dropin', $this );
 
@@ -1248,7 +1248,7 @@ class Simple_History {
 			 *
 			 * @since 4.0
 			 *
-			 * @param bool if to load the dropin. return false to not load it.
+			 * @param bool $instantiate_dropin if to load the dropin. return false to not load it.
 			 */
 			$instantiate_dropin = apply_filters( "simple_history/dropin/instantiate_{$dropin_short_name}", $instantiate_dropin );
 
@@ -1288,7 +1288,7 @@ class Simple_History {
 		 * Fires after all dropins are instantiated.
 		 * @since 3.0
 		 *
-		 * @param Simple_History $this Simple History instance.
+		 * @param Simple_History $instance Simple History instance.
 		 */
 		do_action( 'simple_history/dropins/instantiated', $this );
 
@@ -1381,7 +1381,7 @@ class Simple_History {
 			 *
 			 * @since 2.0.23
 			 *
-			 * @param bool Show the page or not
+			 * @param bool $show_dashboard_widget Show the page or not
 			 */
 			$show_dashboard_widget = apply_filters( 'simple_history/show_dashboard_widget', true );
 
@@ -1524,7 +1524,7 @@ class Simple_History {
 			 *
 			 * @since 2.0
 			 *
-			 * @param Simple_History $SimpleHistory This class.
+			 * @param Simple_History $instance This class.
 			 */
 			do_action( 'simple_history/enqueue_admin_scripts', $this );
 		} // End if().
@@ -1929,7 +1929,7 @@ Because Simple History was only recently installed, this feed does not display m
 			 *
 			 * @since 2.0.23
 			 *
-			 * @param bool Show the page or not
+			 * @param bool $show_dashboard_page Show the page or not
 			 */
 			$show_dashboard_page = apply_filters( 'simple_history/show_dashboard_page', true );
 
@@ -2083,7 +2083,7 @@ Because Simple History was only recently installed, this feed does not display m
 			 *
 			 * @since 2.0
 			 *
-			 * @param Simple_History $SimpleHistory This class.
+			 * @param Simple_History $instance This class.
 			 */
 			do_action( 'simple_history/history_page/before_gui', $this );
 			?>
@@ -2099,7 +2099,7 @@ Because Simple History was only recently installed, this feed does not display m
 					 *
 					 * @since 2.0
 					 *
-					 * @param Simple_History $SimpleHistory This class.
+					 * @param Simple_History $instance This class.
 					 */
 					do_action( 'simple_history/history_page/after_gui', $this );
 					?>
@@ -2483,7 +2483,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 * Uses the get_log_row_plain_text_output of the logger that logged the row
 	 * with fallback to SimpleLogger if logger is not available.
 	 *
-	 * @param context $row
+	 * @param object $row
 	 * @return string
 	 */
 	public function get_log_row_plain_text_output( $row ) {
@@ -2709,8 +2709,8 @@ Because Simple History was only recently installed, this feed does not display m
 			 *
 			 * @since 2.0.29
 			 *
-			 * @param array with keys to show. key to show = key. value = boolean to show or not.
-			 * @param object log row to show details from
+			 * @param array $logRowKeysToShow with keys to show. key to show = key. value = boolean to show or not.
+			 * @param object $oneLogRow log row to show details from
 			 */
 			$logRowKeysToShow = apply_filters(
 				'simple_history/log_html_output_details_table/row_keys_to_show',
@@ -2792,8 +2792,8 @@ Because Simple History was only recently installed, this feed does not display m
 			 *
 			 * @since 2.0.29
 			 *
-			 * @param array with keys to show. key to show = key. value = boolean to show or not.
-			 * @param object log row to show details from
+			 * @param array $logRowContextKeysToShow with keys to show. key to show = key. value = boolean to show or not.
+			 * @param object $oneLogRow log row to show details from
 			 */
 			$logRowContextKeysToShow = apply_filters(
 				'simple_history/log_html_output_details_table/context_keys_to_show',
@@ -2863,7 +2863,7 @@ Because Simple History was only recently installed, this feed does not display m
 		 *
 		 * @since 2.0.7
 		 *
-		 * @param $classes Array with classes
+		 * @param array $classes Array with classes
 		 */
 		$classes = apply_filters( 'simple_history/logrowhtmloutput/classes', $classes );
 
@@ -2989,8 +2989,8 @@ Because Simple History was only recently installed, this feed does not display m
 			 * );
 			 * ```
 			 *
-			 * @param bool Whether the user is allowed to view the logger.
-			 * @param Simple_Logger Logger instance.
+			 * @param bool $user_can_read_logger Whether the user is allowed to view the logger.
+			 * @param Simple_Logger $logger Logger instance.
 			 * @param int $user_id Id of user.
 			 */
 			$user_can_read_logger = apply_filters(
@@ -3011,7 +3011,7 @@ Because Simple History was only recently installed, this feed does not display m
 		 * @since 2.0
 		 *
 		 * @param array $arr_loggers_user_can_view Array with loggers that user $user_id can read
-		 * @param int user_id ID of user to check read capability for
+		 * @param int $user_id ID of user to check read capability for
 		 */
 		$arr_loggers_user_can_view = apply_filters(
 			'simple_history/loggers_user_can_read',
@@ -3101,9 +3101,7 @@ Because Simple History was only recently installed, this feed does not display m
                 AND date > "%2$s"
             ',
 			$sql_loggers_in,
-			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
-			$wpdb->prefix . self::DBTABLE,
-			$wpdb->prefix . self::DBTABLE_CONTEXTS
+			gmdate( 'Y-m-d H:i', strtotime( 'today' ) )
 		);
 
 		$sql_other_sources_where = apply_filters( 'simple_history/quick_stats_where', $sql_other_sources_where );

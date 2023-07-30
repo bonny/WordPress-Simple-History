@@ -71,7 +71,7 @@ class WPCLI_Commands {
 		}
 
 		// Override capability check: if you can run wp cli commands you can read all loggers.
-		add_action( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 3 );
+		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
 
 		$query = new Log_Query();
 

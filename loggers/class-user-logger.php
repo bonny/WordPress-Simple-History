@@ -161,7 +161,7 @@ class User_Logger extends Logger {
 	 */
 	public function loaded() {
 		// Plain logins and logouts
-		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 3 );
+		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ), 10, 1 );
 
 		// Failed login attempt to username that exists
@@ -739,10 +739,9 @@ class User_Logger extends Logger {
 	/**
 	 * Log failed login attempt to username that exists
 	 *
-	 * @param WP_User or WP_Error
-	 *        $user The WP_User() object of the user being edited,
-	 *        or a WP_Error() object if validation has already failed.
-	 * @param string password used
+	 * @param \WP_User|\WP_Error $user The WP_User object of the user being edited,
+	 *                                 or a WP_Error object if validation has already failed.
+	 * @param string $password
 	 */
 	public function onWpAuthenticateUser( $userOrError, $password ) {
 
@@ -771,8 +770,7 @@ class User_Logger extends Logger {
 			 *
 			 * @param bool $log_password
 			 */
-			$log_password = false;
-			$log_password = apply_filters( 'simple_history/comments_logger/log_failed_password', $log_password );
+			$log_password = apply_filters( 'simple_history/comments_logger/log_failed_password', false );
 
 			if ( $log_password ) {
 				$context['login_user_password'] = $password;
@@ -787,12 +785,12 @@ class User_Logger extends Logger {
 	/**
 	 * Attempt to login to user that does not exist
 	 *
-	 * @param $user (null or WP_User or WP_Error) (required)
+	 * @param \WP_User|\WP_Error|null $user (required)
 	 *        null indicates no process has authenticated the user yet.
 	 *        A WP_Error object indicates another process has failed the authentication.
 	 *        A WP_User object indicates another process has authenticated the user.
-	 * @param $username The user's username. since 4.5.0 `$username` now accepts an email address.
-	 * @param $password The user's password (encrypted)
+	 * @param string $username The user's username. since 4.5.0 `$username` now accepts an email address.
+	 * @param string $password The user's password (encrypted)
 	 */
 	public function onAuthenticate( $user, $username, $password ) {
 

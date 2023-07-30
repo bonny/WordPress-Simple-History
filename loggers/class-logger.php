@@ -138,7 +138,7 @@ abstract class Logger {
 	/**
 	 * Returns the capability required to read log rows from this logger
 	 *
-	 * @return $string capability
+	 * @return string
 	 */
 	public function get_capability() {
 		return $this->get_info_value_by_key( 'capability' ) ?? 'manage_options';
