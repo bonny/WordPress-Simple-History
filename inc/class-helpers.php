@@ -293,14 +293,14 @@ class Helpers {
 	 * Based on code from https://www.tollmanz.com/invalidation-schemes/.
 	 *
 	 * @param $refresh bool Pass true to invalidate the cache.
-	 * @return int
+	 * @return string
 	 */
 	public static function get_cache_incrementor( $refresh = false ) {
 		$incrementor_key = 'simple_history_incrementor';
 		$incrementor_value = wp_cache_get( $incrementor_key );
 
 		if ( false === $incrementor_value || true === $refresh ) {
-			$incrementor_value = time();
+			$incrementor_value = uniqid();
 			wp_cache_set( $incrementor_key, $incrementor_value );
 		}
 

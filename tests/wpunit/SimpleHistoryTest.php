@@ -219,7 +219,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_log_query() {
 
-		// Add admin user
+		// Add admin user.
 		$user_id = $this->factory->user->create(
 			array(
 				'role' => 'administrator',
