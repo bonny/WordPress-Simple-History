@@ -47,6 +47,8 @@ class SimpleCategoriesLoggerCest
         $I->click("Edit");
         $I->click("Delete");
         $I->acceptPopup();
+        $I->wait(1);
+        $I->makeScreenshot();
         $I->seeLogMessage('Deleted term "My new category changed" from taxonomy "category"');
         $I->seeLogContext([
             'term_name' => 'My new category changed',

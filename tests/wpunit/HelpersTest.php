@@ -89,4 +89,33 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) );
 		$this->assertTrue( Helpers::log_debug_is_enabled() );
 	}
+
+	// Test helper function Helpers:get_event_ip_number_headers()
+	function test_get_event_ip_number_headers() {
+		$event_row = new stdClass();
+		$event_row->context = array(
+			"_not_a_ip_address_header" => 'blah',
+			"_server_http_x_forwarded_for_0" => '5.35.187.212',
+			"_server_http_x_forwarded_for_1" => '5.35.187.x',
+			"_server_http_x_forwarded_for_2" => '5.35.187.0',
+			"_server_http_x_cluster_client_ip_0" => '5.35.187.0',
+			"_server_http_x_cluster_client_ip_1" => '5.35.187.0',
+			"another_key_that_is_not_an_ip_address_header" => 'more blah',
+			"_server_http_x_forwarded_for_99" => '5.35.87.0',	
+		);
+
+		$this->assertEquals(
+			array(
+				"_server_http_x_forwarded_for_0" => '5.35.187.212',
+				"_server_http_x_forwarded_for_1" => '5.35.187.x',
+				"_server_http_x_forwarded_for_2" => '5.35.187.0',	
+				"_server_http_x_forwarded_for_99" => '5.35.87.0',	
+				"_server_http_x_cluster_client_ip_0" => '5.35.187.0',
+				"_server_http_x_cluster_client_ip_1" => '5.35.187.0',	
+			),
+			Helpers::get_event_ip_number_headers( $event_row ),
+			'Found IP address headers'
+		);
+			
+	}
 }

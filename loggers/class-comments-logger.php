@@ -515,7 +515,6 @@ class Comments_Logger extends Logger {
 		);
 	}
 
-
 	/**
 	 * Modify plain output to include link to post
 	 * and link to comment
@@ -550,7 +549,6 @@ class Comments_Logger extends Logger {
 
 		return helpers::interpolate( $message, $context, $row );
 	}
-
 
 	/**
 	 * Get output for detailed log section

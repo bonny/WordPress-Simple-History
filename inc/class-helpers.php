@@ -293,14 +293,15 @@ class Helpers {
 	 * Based on code from https://www.tollmanz.com/invalidation-schemes/.
 	 *
 	 * @param bool $refresh Pass true to invalidate the cache.
-	 * @return int
+	 * @param $refresh bool Pass true to invalidate the cache.
+	 * @return string
 	 */
 	public static function get_cache_incrementor( $refresh = false ) {
 		$incrementor_key = 'simple_history_incrementor';
 		$incrementor_value = wp_cache_get( $incrementor_key );
 
 		if ( false === $incrementor_value || true === $refresh ) {
-			$incrementor_value = time();
+			$incrementor_value = uniqid();
 			wp_cache_set( $incrementor_key, $incrementor_value );
 		}
 
@@ -526,5 +527,56 @@ class Helpers {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Wrapper around WordPress function is_plugin_active()
+	 * that loads the required files if function does not exist.
+	 *
+	 * @param string $plugin_file_path Path to plugin file, relative to plugins dir.
+	 * @return bool True if plugin is active.
+	 */
+	public static function is_plugin_active( $plugin_file_path ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return is_plugin_active( $plugin_file_path );
+	}
+
+	/**
+	 * Returns additional headers with ip numbers found in context.
+	 * Additional = headers that are not the main ip number header.
+	 *
+	 * @since 2.0.29
+	 * @param object $row Row with info.
+	 * @return array Headers
+	 */
+	public static function get_event_ip_number_headers( $row ) {
+		$ip_header_names_keys = self::get_ip_number_header_names();
+		$arr_found_additional_ip_headers = array();
+		$context = $row->context;
+
+		foreach ( $ip_header_names_keys as $one_ip_header_key ) {
+			$one_ip_header_key_lower = strtolower( $one_ip_header_key );
+
+			foreach ( $context as $context_key => $context_val ) {
+				// Header value is stored in key with lowercased
+				// header name and with a number appended to it.
+				// Examples:
+				// _server_http_x_forwarded_for_0, _server_http_x_forwarded_for_1, ...
+				$match = preg_match(
+					"/^_server_{$one_ip_header_key_lower}_[\d+]/",
+					$context_key,
+					$matches
+				);
+
+				if ( $match ) {
+					$arr_found_additional_ip_headers[ $context_key ] = $context_val;
+				}
+			}
+		} // End foreach().
+
+		return $arr_found_additional_ip_headers;
 	}
 }

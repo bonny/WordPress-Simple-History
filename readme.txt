@@ -216,11 +216,14 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
-## Upgrade Notice
-
-Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
-
 ## Changelog
+
+### Unreleased
+
+- Fixed: PHP error when showing a log entry when all core loggers are disabled. Fixes [#373](https://github.com/bonny/WordPress-Simple-History/issues/373).
+- Moved function `get_event_ip_number_headers()` from Simple Logger to Helpers class.
+- Add helper function `is_plugin_active()` that loads the needed WordPress files before using the WordPress function with the same name. Part of fix for [#373](https://github.com/bonny/WordPress-Simple-History/issues/373).
+- Changed: Use `uniqid()` as cache invalidator instead of `time()`. Querying the log multiple times during the same PHP request with the same arguments, adding entries to the log between each log query, the same results would be returned.
 
 ### 4.3.0 (July 2023)
 
@@ -277,7 +280,7 @@ Fix a PHP error that could happen on PHP 8 when WP-Cron jobs was running.
 - Remove function `filter_gettext_store_latest_translations()`.
 - Remove support for automatically un-translating messages to the log, loggers are better and have better support for languages.
 
-### 4.1.0
+### 4.1.0 (July 2023)
 
 **Added**
 
@@ -328,7 +331,7 @@ For regular users these are the regular additions and bug fixes:
 
 **Fixed**
 
-- Fix error on MariaDB databases when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: [https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/](https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/).
+- Fix error on MariaDB databases when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported at: [https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/](https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/).
 - Privacy logger is logging the creation and selection of privacy page again. It stopped worked because [a WordPress core file was renamed](https://core.trac.wordpress.org/ticket/43895).
 - Log when a groups is enabled, disabled, or deleted in Redirection plugin.
 
@@ -400,13 +403,13 @@ A more detailed changelog that probably most developers are interested in:
 ### 3.5.0 (March 2023)
 
 - Added: Log an entry when a cron event hook is paused or resumed with the WP Crontrol plugin [#328](https://github.com/bonny/WordPress-Simple-History/pull/328).
-- Fixed: DB error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported here: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
+- Fixed: DB error on MariaDB database when collation `utf8mb4_unicode_520_ci` is used for the Simple history tables. Reported at: https://wordpress.org/support/topic/database-error-after-upgrade-to-wordpress-6-1/.
 - Tested up to WordPress 6.2.
 
 Note: Next major version of the plugin will require PHP 7. If you are running a PHP version older than that please read https://wordpress.org/support/update-php/.
 
 = 3.4.0 (February 2023) =
 
-- Changed: When exporting a CSV file of the history, each cell is escaped to reduce the risk of "CSV injection" in spreadsheet applications when importing the exported CSV. Reported here: https://patchstack.com/database/vulnerability/simple-history/wordpress-simple-history-plugin-3-3-1-csv-injection-vulnerability.
+- Changed: When exporting a CSV file of the history, each cell is escaped to reduce the risk of "CSV injection" in spreadsheet applications when importing the exported CSV. Reported at: https://patchstack.com/database/vulnerability/simple-history/wordpress-simple-history-plugin-3-3-1-csv-injection-vulnerability.
 
 [Changelog for 2022 and earlier](https://github.com/bonny/WordPress-Simple-History/blob/master/CHANGELOG.md)

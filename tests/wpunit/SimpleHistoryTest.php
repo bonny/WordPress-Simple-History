@@ -36,7 +36,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		$sh = Simple_History::get_instance();
 		$loggers = $sh->get_instantiated_loggers();
-
+		
 		$arr_default_loggers = array(
 			'AvailableUpdatesLogger',
 			'FileEditsLogger',
@@ -219,7 +219,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 	function test_log_query() {
 
-		// Add admin user
+		// Add admin user.
 		$user_id = $this->factory->user->create(
 			array(
 				'role' => 'administrator',

@@ -73,7 +73,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 						},
 					});
 
-
 					// when chart is clicked determine what value/day was clicked
 					function clickChart(e, legendItem, legend) {
 						console.log("clickChart", e, legendItem, legend);

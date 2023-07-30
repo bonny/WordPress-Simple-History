@@ -265,7 +265,8 @@ printf(
 );
 
 foreach ( $all_plugins as $pluginFilePath => $onePlugin ) {
-	$isPluginActive = is_plugin_active( $pluginFilePath );
+	$isPluginActive = Helpers::is_plugin_active( $pluginFilePath );
+
 	printf(
 		'
         <tr>

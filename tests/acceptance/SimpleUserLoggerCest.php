@@ -10,7 +10,6 @@
  *   -  user_session_destroy_everywhere
  *   -  user_admin_email_confirm_correct_clicked
  */
-
 class SimpleUserLoggerCest
 {
     // user_unknown_login_failed

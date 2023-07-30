@@ -567,7 +567,7 @@ add_filter('simple_history/admin_location', function ($location) {
 
 = 2.3.1 (October 2015) =
 
-- Fixed: Hopefully fixed the wrong relative time, as reported here: https://wordpress.org/support/topic/wrong-reporting-time.
+- Fixed: Hopefully fixed the wrong relative time, as reported at URL: https://wordpress.org/support/topic/wrong-reporting-time.
 - Changed: The RSS-feed with updates is now disabled by default for new installs. It is password protected, but some users felt that is should be optional to activate it. And now it is! Thanks to https://github.com/guillaumemolter for adding this feature.
 - Fixed: Failed login entries when using plugin [Captcha on Login](https://wordpress.org/plugins/captcha-on-login/) was reported as "Logged out" when they really meant "Failed to log in". Please note that this was nothing that Simple History did wrong, it was rather Captcha on Login that manually called `wp_logout()` each time a user failed to login. Should fix all those mystery "Logged out"-entried some of you users had.
 - Added: Filter `simple_history/log/do_log` that can be used to shortcut the log()-method.
@@ -578,7 +578,7 @@ add_filter('simple_history/admin_location', function ($location) {
 - Added: The title of the browser tab with Simple History open will now show the number of new and unread events available. Nice feature to have if you keep a tab with the Simple History log open but in the background: now you can see directly in the title if new events are available. Such small change. Very much nice.
 - Added: If the AJAX call to fetch the log failed, a message now appears telling the user that something went wrong. Also, the output from the server is displayed so they can get a hint of what's going wrong. Hopefully this will reduce the number of support requests that is caused by other plugins.
 - Fixed: Edited posts/pages/custom post types does not get a linked title unless the user viewing the log has edit rights.
-- Fixed: Another try to fix the notice error here: https://wordpress.org/support/topic/simplehistoryphp-creates-debug-entries.
+- Fixed: Another try to fix the notice error: https://wordpress.org/support/topic/simplehistoryphp-creates-debug-entries.
 - Updated: Danish translation updated.
 - Updated: POT file updated.
 

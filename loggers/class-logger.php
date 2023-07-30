@@ -519,7 +519,7 @@ abstract class Logger {
 		$html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__anonUserWithIp'>";
 
 		// Look for additional ip addresses.
-		$arr_found_additional_ip_headers = $this->get_event_ip_number_headers( $row );
+		$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $row );
 
 		$arr_ip_addresses = array_merge(
 			// Remote addr always exists.
@@ -1317,34 +1317,16 @@ abstract class Logger {
 	}
 
 	/**
-	 * Returns additional headers with ip number from context
+	 * Returns additional headers with ip numbers from context.
 	 *
 	 * @since 2.0.29
+	 * @deprecated 4.3.1 Use Helpers::get_event_ip_number_headers() instead.
 	 * @param object $row Row with info.
 	 * @return array Headers
 	 */
 	public function get_event_ip_number_headers( $row ) {
-		$ip_keys = Helpers::get_ip_number_header_names();
-		$arr_found_additional_ip_headers = array();
-		$context = $row->context;
-
-		foreach ( $ip_keys as $one_ip_header_key ) {
-			$one_ip_header_key_lower = strtolower( $one_ip_header_key );
-
-			foreach ( $context as $context_key => $context_val ) {
-				// $key_check_for = "_server_" . strtolower($one_ip_header_key) . "_0";
-				$match = preg_match(
-					"/^_server_{$one_ip_header_key_lower}_[\d+]/",
-					$context_key,
-					$matches
-				);
-				if ( $match ) {
-					$arr_found_additional_ip_headers[ $context_key ] = $context_val;
-				}
-			}
-		} // End foreach().
-
-		return $arr_found_additional_ip_headers;
+		_deprecated_function( __METHOD__, '4.3.1', 'Helpers::get_event_ip_number_headers()' );
+		return Helpers::get_event_ip_number_headers( $row );
 	}
 
 	/**
@@ -1488,7 +1470,7 @@ abstract class Logger {
 			// Ref: http://stackoverflow.com/questions/753645/how-do-i-get-the-correct-ip-from-http-x-forwarded-for-if-it-contains-multiple-ip
 			// Ref: http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
 			// Check for IP in lots of headers
-			// Based on code found here:
+			// Based on code:
 			// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
 			$ip_keys = Helpers::get_ip_number_header_names();
 

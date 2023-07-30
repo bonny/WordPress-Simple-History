@@ -163,7 +163,6 @@ class RSS_Dropin extends Dropin {
 		return '0';
 	}
 
-
 	/**
 	 * Check if current request is a request for the RSS feed.
 	 */
