@@ -16,7 +16,7 @@ Use PHP 7.4 (the WordPress rules crashes on PHP 8 so far, bug fixed but no versi
 - `phpcs.xml.dist` is the config used.
 - `vendor/bin/phpcs` to lint PHP from command line after editing.
 - Formatting:
-  `vendor/bin/phpcs phpcbf` to fix (write to disk) errors and warning.
+  `vendor/bin/phpcbf` to fix (write to disk) errors and warning.
 
 ## phpstan
 
