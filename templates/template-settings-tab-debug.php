@@ -3,7 +3,7 @@
 namespace Simple_History;
 
 /**
- * @var array $args<string,mixed>
+ * @var array{instantiated_loggers:array, events_table_name:string, simple_history_instance:Simple_History, wpdb:\wpdb} $args
  **/
 
 defined( 'ABSPATH' ) || die();
