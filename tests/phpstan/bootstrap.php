@@ -7,5 +7,4 @@ define('SIMPLE_HISTORY_DIR_URL', '/');
 // No core function to read these.
 define('DB_NAME', 'db');
 define('WPINC', 'includes');
-define('WP_PLUGIN_DIR', 'plugins');
 define('WP_LANG_DIR', 'languages');
