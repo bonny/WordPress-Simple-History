@@ -149,6 +149,7 @@ printf(
 $loopnum = 0;
 
 foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
+	/** @var Loggers\Logger $logger */
 	$logger = $args['simple_history_instance']->get_instantiated_logger_by_slug( $one_logger_slug );
 
 	if ( ! $logger ) {
