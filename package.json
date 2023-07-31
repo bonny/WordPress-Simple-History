@@ -43,6 +43,8 @@
     "lint-css": "stylelint css/*.css dropins/*.css",
     "lint-php": "composer run lint",
     "lint-php-fix": "composer run lint-fix",
+    "phpstan": "vendor/bin/phpstan analyse --memory-limit 2048M",
+    "rector": "vendor/bin/rector process --dry-run",
     "test": "npm run test:php74 && npm run test:php81",
     "test:php74": "npm run test:wpunit && npm run test:functional && npm run test:acceptance",
     "test:php81": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 npm run test:wpunit && npm run test:functional && npm run test:acceptance",
