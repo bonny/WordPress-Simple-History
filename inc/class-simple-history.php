@@ -1303,7 +1303,7 @@ class Simple_History {
 	}
 
 	/**
-	 * Gets the pager size,
+	 * Gets the pager size for the dashboard widget,
 	 * i.e. the number of items to show on each page in the history
 	 *
 	 * @since 2.12
