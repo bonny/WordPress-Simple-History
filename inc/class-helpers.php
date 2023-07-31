@@ -167,10 +167,7 @@ class Helpers {
 				// key ok
 			}
 
-			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			if ( is_string( $val ) || is_numeric( $val ) ) {
-				// val ok
-			} else {
+			if ( ! is_string( $val ) && ! is_numeric( $val ) ) {
 				// not a value we can replace
 				continue;
 			}
@@ -221,19 +218,11 @@ class Helpers {
 	 * @return bool
 	 */
 	public static function is_valid_public_ip( $ip ) {
-		if (
-			filter_var(
-				$ip,
-				FILTER_VALIDATE_IP,
-				FILTER_FLAG_IPV4 |
-				FILTER_FLAG_NO_PRIV_RANGE |
-				FILTER_FLAG_NO_RES_RANGE
-			) === false
-		) {
-			return false;
-		}
-
-		return true;
+		return filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        ) !== false;
 	}
 
 	/**
@@ -521,11 +510,7 @@ class Helpers {
 	 * @return bool True if debug logging is enabled.
 	 */
 	public static function log_debug_is_enabled() {
-		if ( defined( '\SIMPLE_HISTORY_LOG_DEBUG' ) && \SIMPLE_HISTORY_LOG_DEBUG ) {
-			return true;
-		}
-
-		return false;
+		return defined( 'SIMPLE_HISTORY_LOG_DEBUG' ) && \SIMPLE_HISTORY_LOG_DEBUG;
 	}
 
 	/**
