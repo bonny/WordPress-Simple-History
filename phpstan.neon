@@ -6,10 +6,10 @@ parameters:
     - inc/
     - loggers/
     - templates/
-    - tests/
-  excludePaths:
-    - tests/wordpress-tests-stubs.php
   scanFiles:
     - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
-  # TODO Add stubs for 3rd-party loggers
-  level: 2
+  scanDirectories:
+    - tests/plugins/
+  bootstrapFiles:
+    - tests/phpstan/bootstrap.php
+  level: 1

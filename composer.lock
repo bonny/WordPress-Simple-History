@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa84ad5c024d86138089bf19db5e8601",
+    "content-hash": "eab741e040d88674ba465889d87eda11",
     "packages": [],
     "packages-dev": [
         {
@@ -3503,16 +3503,16 @@
         },
         {
             "name": "phpstan/extension-installer",
-            "version": "1.2.x-dev",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/extension-installer.git",
-                "reference": "181c23c71b9992e7b091376c1b2f97e1de4a75c6"
+                "reference": "f45734bfb9984c6c56c4486b71230355f066a58a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/extension-installer/zipball/181c23c71b9992e7b091376c1b2f97e1de4a75c6",
-                "reference": "181c23c71b9992e7b091376c1b2f97e1de4a75c6",
+                "url": "https://api.github.com/repos/phpstan/extension-installer/zipball/f45734bfb9984c6c56c4486b71230355f066a58a",
+                "reference": "f45734bfb9984c6c56c4486b71230355f066a58a",
                 "shasum": ""
             },
             "require": {
@@ -3525,7 +3525,6 @@
                 "php-parallel-lint/php-parallel-lint": "^1.2.0",
                 "phpstan/phpstan-strict-rules": "^0.11 || ^0.12 || ^1.0"
             },
-            "default-branch": true,
             "type": "composer-plugin",
             "extra": {
                 "class": "PHPStan\\ExtensionInstaller\\Plugin"
@@ -3542,22 +3541,22 @@
             "description": "Composer plugin for automatic installation of PHPStan extensions",
             "support": {
                 "issues": "https://github.com/phpstan/extension-installer/issues",
-                "source": "https://github.com/phpstan/extension-installer/tree/1.2.x"
+                "source": "https://github.com/phpstan/extension-installer/tree/1.3.1"
             },
-            "time": "2023-05-29T13:32:22+00:00"
+            "time": "2023-05-24T08:59:17+00:00"
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.18",
+            "version": "1.10.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "52b6416c579663eebdd2f1d97df21971daf3b43f"
+                "reference": "5d660cbb7e1b89253a47147ae44044f49832351f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/52b6416c579663eebdd2f1d97df21971daf3b43f",
-                "reference": "52b6416c579663eebdd2f1d97df21971daf3b43f",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/5d660cbb7e1b89253a47147ae44044f49832351f",
+                "reference": "5d660cbb7e1b89253a47147ae44044f49832351f",
                 "shasum": ""
             },
             "require": {
@@ -3606,7 +3605,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-06-07T22:00:43+00:00"
+            "time": "2023-07-19T12:44:37+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -7347,12 +7346,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/szepeviktor/phpstan-wordpress.git",
-                "reference": "6ee8aadb1cec8e44ff8ce9338f2a744c08ccd945"
+                "reference": "76f783564edc0bd8f4f3a2e44f6c09a1092702d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/6ee8aadb1cec8e44ff8ce9338f2a744c08ccd945",
-                "reference": "6ee8aadb1cec8e44ff8ce9338f2a744c08ccd945",
+                "url": "https://api.github.com/repos/szepeviktor/phpstan-wordpress/zipball/76f783564edc0bd8f4f3a2e44f6c09a1092702d5",
+                "reference": "76f783564edc0bd8f4f3a2e44f6c09a1092702d5",
                 "shasum": ""
             },
             "require": {
@@ -7402,7 +7401,7 @@
                 "issues": "https://github.com/szepeviktor/phpstan-wordpress/issues",
                 "source": "https://github.com/szepeviktor/phpstan-wordpress/tree/master"
             },
-            "time": "2023-05-14T20:08:48+00:00"
+            "time": "2023-07-27T19:24:19+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -9804,7 +9803,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "szepeviktor/phpstan-wordpress": 20,
-        "phpstan/extension-installer": 20,
         "php-stubs/wp-cli-stubs": 20
     },
     "prefer-stable": false,
@@ -9813,5 +9811,5 @@
         "php": "^7.4"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }

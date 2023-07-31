@@ -2,6 +2,10 @@
 
 namespace Simple_History;
 
+/**
+ * @var Simple_History $this
+ */
+
 use Simple_History\Simple_History;
 
 defined( 'ABSPATH' ) || die();

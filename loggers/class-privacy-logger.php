@@ -440,6 +440,7 @@ class Privacy_Logger extends Logger {
 	 */
 	public function on_update_option_create_privacy_page( $old_value, $value, $option ) {
 		$post = get_post( $value );
+		$new_post_title = '';
 
 		if ( is_a( $post, 'WP_Post' ) ) {
 			$new_post_title = $post->post_title;
@@ -465,6 +466,7 @@ class Privacy_Logger extends Logger {
 	public function on_update_option_set_privacy_page( $old_value, $value, $option ) {
 
 		$post = get_post( $value );
+		$new_post_title = '';
 
 		if ( is_a( $post, 'WP_Post' ) ) {
 			$new_post_title = $post->post_title;

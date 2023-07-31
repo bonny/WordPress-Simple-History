@@ -510,7 +510,7 @@ class Plugin_ACF_Logger extends Logger {
 
 		$prev_post = get_post( $post_ID );
 
-		if ( is_wp_error( $prev_post ) ) {
+		if ( ! $prev_post instanceof \WP_Post ) {
 			return;
 		}
 
@@ -842,6 +842,7 @@ class Plugin_ACF_Logger extends Logger {
 		$arrHideOnScreenRemoved = array();
 
 		$fieldGroup['new']['hide_on_screen'] = isset( $fieldGroup['new']['hide_on_screen'] ) && is_array( $fieldGroup['new']['hide_on_screen'] ) ? $fieldGroup['new']['hide_on_screen'] : array();
+		/** @phpstan-ignore-next-line */
 		$fieldGroup['old']['hide_on_screen'] = isset( $fieldGroup['old']['hide_on_screen'] ) && is_array( $fieldGroup['old']['hide_on_screen'] ) ? $fieldGroup['old']['hide_on_screen'] : array();
 
 		// dd($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
@@ -890,6 +891,7 @@ class Plugin_ACF_Logger extends Logger {
 
 		// Add modified fields to context
 		// dd('on_post_updated_context', $context, $this->old_and_new_field_groups_and_fields);
+		/** @phpstan-ignore-next-line */
 		if ( ! empty( $this->old_and_new_field_groups_and_fields['modifiedFields']['old'] ) && ! empty( $this->old_and_new_field_groups_and_fields['modifiedFields']['new'] ) ) {
 			$modifiedFields = $this->old_and_new_field_groups_and_fields['modifiedFields'];
 

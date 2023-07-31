@@ -5,6 +5,8 @@ use Simple_History\Loggers\Logger;
  * Un-namespaced class for old loggers that extend \SimpleLogger.
  *
  * New loggers must extend Simple_History\Loggers\Logger.
+ *
+ * @method null warningMessage(string $message, array $context)
  */
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
 class SimpleLogger extends Logger {

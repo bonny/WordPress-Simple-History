@@ -605,11 +605,9 @@ class Post_Logger extends Logger {
 			// Existing post was updated.
 
 			// Also add diff between previous saved data and new data.
-			if ( isset( $old_post_data ) && isset( $new_post_data ) ) {
-				// Now we have both old and new post data, including custom fields, in the same format
-				// So let's compare!
-				$context = $this->add_post_data_diff_to_context( $context, $old_post_data, $new_post_data );
-			}
+			// Now we have both old and new post data, including custom fields, in the same format
+			// So let's compare!
+			$context = $this->add_post_data_diff_to_context( $context, $old_post_data, $new_post_data );
 
 			$context['_occasionsID'] = self::class . '/' . __FUNCTION__ . "/post_updated/{$post->ID}";
 

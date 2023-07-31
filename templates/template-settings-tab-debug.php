@@ -3,14 +3,10 @@
 namespace Simple_History;
 
 /**
- * Undocumented class
- *
- * @package SimpleHistory
+ * @var array $args<string,mixed>
  **/
 
 defined( 'ABSPATH' ) || die();
-
-global $wpdb;
 
 /**
  * Size of database in both number or rows and table size
@@ -86,15 +82,8 @@ echo '</p>';
  * Loggers with 0 rows in the db will not be included in the array, so we need to find those
  * and add them manually last
  */
-
 $arr_logger_slugs = array();
-
-foreach ( $this->simple_history->get_instantiated_loggers() as $oneLogger ) {
-	$arr_logger_slugs[] = $oneLogger['instance']->get_slug();
-}
-
-$arr_logger_slugs = array();
-foreach ( $this->simple_history->get_instantiated_loggers() as $oneLogger ) {
+foreach ( $args['instantiated_loggers'] as $oneLogger ) {
 	$arr_logger_slugs[] = esc_sql( $oneLogger['instance']->get_slug() );
 }
 
@@ -106,12 +95,12 @@ $sql_logger_counts = sprintf(
 	GROUP BY logger
 	ORDER BY count DESC
 ',
-	$this->simple_history->get_events_table_name(),
+	$args['events_table_name'],
 	join( '","', $arr_logger_slugs )
 );
 
 // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$logger_rows_count = $wpdb->get_results( $sql_logger_counts, OBJECT_K );
+$logger_rows_count = $args['wpdb']->get_results( $sql_logger_counts, OBJECT_K );
 
 // Find loggers with no rows in db and append to array.
 $missing_logger_slugs = array_diff( $arr_logger_slugs, array_keys( $logger_rows_count ) );
@@ -160,7 +149,7 @@ printf(
 $loopnum = 0;
 
 foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
-	$logger = $this->simple_history->get_instantiated_logger_by_slug( $one_logger_slug );
+	$logger = $args['simple_history_instance']->get_instantiated_logger_by_slug( $one_logger_slug );
 
 	if ( ! $logger ) {
 		continue;
