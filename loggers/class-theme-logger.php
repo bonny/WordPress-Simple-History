@@ -178,8 +178,8 @@ class Theme_Logger extends Logger {
 	/**
 	 * Log theme updated.
 	 *
-	 * @param WP_Upgrader $upgrader_instance WP_Upgrader instance.
-	 * @param array       $arr_data          Array of bulk item update data.
+	 * @param \WP_Upgrader $upgrader_instance WP_Upgrader instance.
+	 * @param array        $arr_data          Array of bulk item update data.
 	 */
 	public function on_upgrader_process_complete_theme_update( $upgrader_instance = null, $arr_data = null ) {
 
@@ -274,8 +274,8 @@ class Theme_Logger extends Logger {
 	/**
 	 * Log theme installation.
 	 *
-	 * @param WP_Upgrader $upgrader_instance WP_Upgrader instance.
-	 * @param array       $arr_data          Array of bulk item update data.
+	 * @param \WP_Upgrader $upgrader_instance WP_Upgrader instance.
+	 * @param array        $arr_data          Array of bulk item update data.
 	 * @return void
 	 */
 	public function on_upgrader_process_complete_theme_install( $upgrader_instance = null, $arr_data = null ) {
@@ -887,7 +887,7 @@ class Theme_Logger extends Logger {
 	 * Get a sidebar by id
 	 *
 	 * @param string $sidebar_id ID of sidebar.
-	 * @return sidebar info or false on failure.
+	 * @return string|false sidebar info or false on failure.
 	 */
 	public function getSidebarById( $sidebar_id ) {
 
@@ -912,8 +912,8 @@ class Theme_Logger extends Logger {
 	/**
 	 * Get an widget by id's id_base
 	 *
-	 * @param string $id_base
-	 * @return wp_widget object or false on failure
+	 * @param string $widget_id_base
+	 * @return \WP_Widget|false wp_widget object or false on failure
 	 */
 	public function getWidgetByIdBase( $widget_id_base ) {
 

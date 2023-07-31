@@ -29,6 +29,7 @@ tests/_data/*
 !tests/acceptance
 !tests/functional
 !tests/unit
+!tests/phpstan
 !tests/wpunit
 !tests/_output
 tests/_output/*

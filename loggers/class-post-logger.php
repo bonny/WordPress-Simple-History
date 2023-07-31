@@ -357,7 +357,7 @@ class Post_Logger extends Logger {
 	/**
 	 * Fired immediately before a post is deleted from the database.
 	 *
-	 * @param int $postid Post ID.
+	 * @param int $post_id Post ID.
 	 */
 	public function on_delete_post( $post_id ) {
 		$post = get_post( $post_id );
@@ -452,7 +452,7 @@ class Post_Logger extends Logger {
 	/**
 	 * Check if post type is ok to log by logger
 	 *
-	 * @param Int or WP_Post $post Post the check.
+	 * @param \WP_Post|int $post Post the check.
 	 *
 	 * @return bool
 	 */

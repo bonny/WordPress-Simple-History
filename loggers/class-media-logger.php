@@ -62,8 +62,8 @@ class Media_Logger extends Logger {
 	 *
 	 * @since 2.0.21
 	 *
-	 * @param int   $id   ID of the new attachment.
-	 * @param array $args An array of arguments to add the attachment.
+	 * @param int   $attachment_id ID of the new attachment.
+	 * @param array $args          An array of arguments to add the attachment.
 	 */
 	public function on_mw_new_media_object( $attachment_id, $args ) {
 		$attachment_post = get_post( $attachment_id );
