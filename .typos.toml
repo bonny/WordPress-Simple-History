@@ -4,6 +4,7 @@ extend-exclude = [
     "js/select2/i18n/",
     "js/Chart.js",
     "js/chart.4.3.0.min.js",
+    "tests/wordpress-tests-stubs.php",
 ]
 [default.extend-words]
 referer = "referer"
