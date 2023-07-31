@@ -12,4 +12,4 @@ parameters:
     - tests/plugins/
   bootstrapFiles:
     - tests/phpstan/bootstrap.php
-  level: 1
+  level: 2
