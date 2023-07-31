@@ -32,7 +32,11 @@ Config is in `phpstan.neon`.
   - Dry run with `vendor/bin/rector process --dry-run`
   - Run without `--dry-run` to write changes.
   - Run with docker using `docker run -it --rm -v "$PWD":/usr/src/myapp -w /usr/src/myapp php:7.4-cli php vendor/bin/rector process --dry-run`
-- Changelog: try to use format from https://keepachangelog.com.
+  - After processing code with rector run phpcs to fix formatting.
+
+## Changelog
+
+- Try to use format from https://keepachangelog.com.
 
 ## How to use in Visual Studio Code
 

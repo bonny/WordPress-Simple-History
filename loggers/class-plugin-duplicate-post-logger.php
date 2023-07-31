@@ -94,12 +94,10 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 		$post_type = $postDuplicated->post_type ?? '';
 		$post_type_obj = get_post_type_object( $post_type );
 
-		if ( ! is_null( $post_type_obj ) ) {
-			if ( ! empty( $post_type_obj->labels->singular_name ) ) {
-				$context['duplicated_post_post_type_singular_name'] = strtolower(
-					$post_type_obj->labels->singular_name
-				);
-			}
+		if ( ! is_null( $post_type_obj ) && ! empty( $post_type_obj->labels->singular_name ) ) {
+			$context['duplicated_post_post_type_singular_name'] = strtolower(
+				$post_type_obj->labels->singular_name
+			);
 		}
 
 		$context['duplicated_post_edit_link'] = get_edit_post_link( $duplicated_post_id );

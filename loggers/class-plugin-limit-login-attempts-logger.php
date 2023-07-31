@@ -148,13 +148,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 			// $when = sprintf( _n( '%d minute', '%d minutes', $time, 'limit-login-attempts' ), $time );
 		}
 
-		if ( $whitelisted ) {
-			// $subject = __( "Failed login attempts from whitelisted IP", 'limit-login-attempts' );
-			$message_key = 'failed_login_whitelisted';
-		} else {
-			// $subject = __( "Too many failed login attempts", 'limit-login-attempts' );
-			$message_key = 'failed_login';
-		}
+		$message_key = $whitelisted ? 'failed_login_whitelisted' : 'failed_login';
 
 		$this->notice_message(
 			$message_key,

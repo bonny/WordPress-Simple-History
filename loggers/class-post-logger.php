@@ -253,7 +253,7 @@ class Post_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$post_ID = isset( $_POST['post_ID'] ) ? (int) $_POST['post_ID'] : 0;
 
-		if ( ! $post_ID ) {
+		if ( $post_ID === 0 ) {
 			return;
 		}
 
@@ -263,7 +263,7 @@ class Post_Logger extends Logger {
 
 		$prev_post_data = get_post( $post_ID );
 
-		if ( null === $prev_post_data ) {
+		if ( ! $prev_post_data instanceof \WP_Post ) {
 			return;
 		}
 
@@ -405,10 +405,8 @@ class Post_Logger extends Logger {
 		]
 		*/
 		global $wp_current_filter;
-		if ( isset( $wp_current_filter ) && is_array( $wp_current_filter ) ) {
-			if ( in_array( 'wp_scheduled_delete', $wp_current_filter, true ) ) {
-				return;
-			}
+		if ( isset( $wp_current_filter ) && is_array( $wp_current_filter ) && in_array( 'wp_scheduled_delete', $wp_current_filter, true ) ) {
+			return;
 		}
 
 		$this->info_message(
@@ -718,27 +716,25 @@ class Post_Logger extends Logger {
 		}
 
 		// If changes where detected.
-		if ( $post_data_diff ) {
-			// Save at least 2 values for each detected value change, i.e. the old value and the new value.
-			foreach ( $post_data_diff as $diff_key => $diff_values ) {
+		// Save at least 2 values for each detected value change, i.e. the old value and the new value.
+		foreach ( $post_data_diff as $diff_key => $diff_values ) {
 				$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
 				$context[ "post_new_{$diff_key}" ] = $diff_values['new'];
 
 				// If post_author then get more author info,
 				// because just a user ID does not get us far.
-				if ( 'post_author' == $diff_key ) {
-					$old_author_user = get_userdata( (int) $diff_values['old'] );
-					$new_author_user = get_userdata( (int) $diff_values['new'] );
+			if ( 'post_author' == $diff_key ) {
+				$old_author_user = get_userdata( (int) $diff_values['old'] );
+				$new_author_user = get_userdata( (int) $diff_values['new'] );
 
-					if ( is_a( $old_author_user, 'WP_User' ) && is_a( $new_author_user, 'WP_User' ) ) {
-						$context[ "post_prev_{$diff_key}/user_login" ] = $old_author_user->user_login;
-						$context[ "post_prev_{$diff_key}/user_email" ] = $old_author_user->user_email;
-						$context[ "post_prev_{$diff_key}/display_name" ] = $old_author_user->display_name;
+				if ( is_a( $old_author_user, 'WP_User' ) && is_a( $new_author_user, 'WP_User' ) ) {
+					$context[ "post_prev_{$diff_key}/user_login" ] = $old_author_user->user_login;
+					$context[ "post_prev_{$diff_key}/user_email" ] = $old_author_user->user_email;
+					$context[ "post_prev_{$diff_key}/display_name" ] = $old_author_user->display_name;
 
-						$context[ "post_new_{$diff_key}/user_login" ] = $new_author_user->user_login;
-						$context[ "post_new_{$diff_key}/user_email" ] = $new_author_user->user_email;
-						$context[ "post_new_{$diff_key}/display_name" ] = $new_author_user->display_name;
-					}
+					$context[ "post_new_{$diff_key}/user_login" ] = $new_author_user->user_login;
+					$context[ "post_new_{$diff_key}/user_email" ] = $new_author_user->user_email;
+					$context[ "post_new_{$diff_key}/display_name" ] = $new_author_user->display_name;
 				}
 			}
 		} // End if().
@@ -770,27 +766,21 @@ class Post_Logger extends Logger {
 		$context = $this->add_post_thumb_diff( $context, $old_meta, $new_meta );
 
 		// Page template is stored in _wp_page_template.
-		if ( isset( $old_meta['_wp_page_template'][0] ) && isset( $new_meta['_wp_page_template'][0] ) ) {
-			/*
-			Var is string with length 7: default
-			Var is string with length 20: template-builder.php
-			*/
-
-			if ( $old_meta['_wp_page_template'][0] !== $new_meta['_wp_page_template'][0] ) {
-				// Prev page template is different from new page template,
-				// store template php file name.
-				$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
-				$context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
-
-				$theme_templates = (array) $this->get_theme_templates();
-
-				if ( isset( $theme_templates[ $context['post_prev_page_template'] ] ) ) {
+		/*
+		Var is string with length 7: default
+		Var is string with length 20: template-builder.php
+		*/
+		if ( isset( $old_meta['_wp_page_template'][0] ) && isset( $new_meta['_wp_page_template'][0] ) && $old_meta['_wp_page_template'][0] !== $new_meta['_wp_page_template'][0] ) {
+			// Prev page template is different from new page template,
+			// store template php file name.
+			$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
+			$context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
+			$theme_templates = (array) $this->get_theme_templates();
+			if ( isset( $theme_templates[ $context['post_prev_page_template'] ] ) ) {
 					$context['post_prev_page_template_name'] = $theme_templates[ $context['post_prev_page_template'] ];
-				}
-
-				if ( isset( $theme_templates[ $context['post_new_page_template'] ] ) ) {
+			}
+			if ( isset( $theme_templates[ $context['post_new_page_template'] ] ) ) {
 					$context['post_new_page_template_name'] = $theme_templates[ $context['post_new_page_template'] ];
-				}
 			}
 		}
 
@@ -809,10 +799,8 @@ class Post_Logger extends Logger {
 
 		// Look for changed meta.
 		foreach ( $old_meta as $meta_key => $meta_value ) {
-			if ( isset( $new_meta[ $meta_key ] ) ) {
-				if ( json_encode( $old_meta[ $meta_key ] ) != json_encode( $new_meta[ $meta_key ] ) ) {
-					$meta_changes['changed'][ $meta_key ] = true;
-				}
+			if ( isset( $new_meta[ $meta_key ] ) && json_encode( $old_meta[ $meta_key ] ) !== json_encode( $new_meta[ $meta_key ] ) ) {
+				$meta_changes['changed'][ $meta_key ] = true;
 			}
 		}
 
@@ -955,10 +943,8 @@ class Post_Logger extends Logger {
 		// Try to get singular name.
 		$post_type = $context['post_type'] ?? '';
 		$post_type_obj = get_post_type_object( $post_type );
-		if ( ! is_null( $post_type_obj ) ) {
-			if ( ! empty( $post_type_obj->labels->singular_name ) ) {
-				$context['post_type'] = strtolower( $post_type_obj->labels->singular_name );
-			}
+		if ( ! is_null( $post_type_obj ) && ! empty( $post_type_obj->labels->singular_name ) ) {
+			$context['post_type'] = strtolower( $post_type_obj->labels->singular_name );
 		}
 
 		$context['edit_link'] = get_edit_post_link( $post_id );
@@ -1290,17 +1276,13 @@ class Post_Logger extends Logger {
 		}
 
 		if ( isset( $row->context['post_id'] ) ) {
-			$permalink = add_query_arg(
+			$link = add_query_arg(
 				array(
 					'action' => 'edit',
 					'post' => $row->context['post_id'],
 				),
 				admin_url( 'post.php' )
 			);
-
-			if ( $permalink ) {
-				$link = $permalink;
-			}
 		}
 
 		return $link;
@@ -1326,13 +1308,11 @@ class Post_Logger extends Logger {
 				$prev_post_thumb_id = $old_meta['_thumbnail_id'][0];
 				$new_post_thumb_id = $new_meta['_thumbnail_id'][0];
 			}
-		} else {
+		} elseif ( isset( $old_meta['_thumbnail_id'][0] ) ) {
 			// Featured image id did not exist on both new and old data. But on any?
-			if ( isset( $old_meta['_thumbnail_id'][0] ) ) {
-				$prev_post_thumb_id = $old_meta['_thumbnail_id'][0];
-			} elseif ( isset( $new_meta['_thumbnail_id'][0] ) ) {
+			$prev_post_thumb_id = $old_meta['_thumbnail_id'][0];
+		} elseif ( isset( $new_meta['_thumbnail_id'][0] ) ) {
 				$new_post_thumb_id = $new_meta['_thumbnail_id'][0];
-			}
 		}
 
 		if ( $prev_post_thumb_id ) {

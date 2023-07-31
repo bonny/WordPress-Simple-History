@@ -23,7 +23,7 @@ class Plugin_ACF_Logger extends Logger {
 	 *
 	 * @var string $old_and_new_field_groups_and_fields
 	 */
-	private $old_and_new_field_groups_and_fields = array(
+	private array $old_and_new_field_groups_and_fields = array(
 		'fieldGroup'     => array(
 			'old' => null,
 			'new' => null,
@@ -41,7 +41,7 @@ class Plugin_ACF_Logger extends Logger {
 	 *
 	 * @var string $old_post_data
 	 */
-	private $old_post_data = array();
+	private array $old_post_data = array();
 
 	/**
 	 * Get info for this logger.
@@ -104,10 +104,10 @@ class Plugin_ACF_Logger extends Logger {
 	 * Fired after a log row is inserted.
 	 */
 	public function on_log_inserted( $context, $data_parent_row, $simple_history_instance ) {
-		$message_key = ! empty( $context['_message_key'] ) ? $context['_message_key'] : false;
-		$logger = ! empty( $data_parent_row['logger'] ) ? $data_parent_row['logger'] : false;
-		$post_id = ! empty( $context['post_id'] ) ? $context['post_id'] : false;
-		$post_type = ! empty( $context['post_type'] ) ? $context['post_type'] : false;
+		$message_key = empty( $context['_message_key'] ) ? false : $context['_message_key'];
+		$logger = empty( $data_parent_row['logger'] ) ? false : $data_parent_row['logger'];
+		$post_id = empty( $context['post_id'] ) ? false : $context['post_id'];
+		$post_type = empty( $context['post_type'] ) ? false : $context['post_type'];
 
 		// Bail if not all required vars are set.
 		if ( ! $message_key || ! $logger || ! $post_id || ! $post_type ) {
@@ -504,7 +504,7 @@ class Plugin_ACF_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$post_ID = isset( $_POST['post_ID'] ) ? (int) $_POST['post_ID'] : 0;
 
-		if ( ! $post_ID ) {
+		if ( $post_ID === 0 ) {
 			return;
 		}
 
@@ -536,7 +536,7 @@ class Plugin_ACF_Logger extends Logger {
 	 * @return string
 	 */
 	public function on_diff_table_output_field_group( $diff_table_output, $context ) {
-		$post_type = ! empty( $context['post_type'] ) ? $context['post_type'] : false;
+		$post_type = empty( $context['post_type'] ) ? false : $context['post_type'];
 
 		// Bail if not ACF Field Group.
 		if ( $post_type !== 'acf-field-group' ) {
@@ -750,7 +750,7 @@ class Plugin_ACF_Logger extends Logger {
 
 				$strOneModifiedField = trim( $strOneModifiedField, ", \n\r\t" );
 
-				if ( $strOneModifiedField ) {
+				if ( $strOneModifiedField !== '' && $strOneModifiedField !== '0' ) {
 					$strModifiedFields .= sprintf(
 						'<tr>
 							<td>%1$s</td>
@@ -844,21 +844,16 @@ class Plugin_ACF_Logger extends Logger {
 		$fieldGroup['new']['hide_on_screen'] = isset( $fieldGroup['new']['hide_on_screen'] ) && is_array( $fieldGroup['new']['hide_on_screen'] ) ? $fieldGroup['new']['hide_on_screen'] : array();
 		/** @phpstan-ignore-next-line */
 		$fieldGroup['old']['hide_on_screen'] = isset( $fieldGroup['old']['hide_on_screen'] ) && is_array( $fieldGroup['old']['hide_on_screen'] ) ? $fieldGroup['old']['hide_on_screen'] : array();
-
+		$arrhHideOnScreenAdded  = array_diff( $fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen'] );
+		$arrHideOnScreenRemoved = array_diff( $fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen'] );
+		// ddd($arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
+		if ( $arrhHideOnScreenAdded !== [] ) {
+				$context['acf_hide_on_screen_added'] = implode( ',', $arrhHideOnScreenAdded );
+		}
 		// dd($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
 		// Act when new or old hide_on_screen is set
-		if ( ! empty( $fieldGroup['new']['hide_on_screen'] ) || ! empty( $fieldGroup['old']['hide_on_screen'] ) ) {
-			$arrhHideOnScreenAdded  = array_diff( $fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen'] );
-			$arrHideOnScreenRemoved = array_diff( $fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen'] );
-
-			// ddd($arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
-			if ( $arrhHideOnScreenAdded ) {
-				$context['acf_hide_on_screen_added'] = implode( ',', $arrhHideOnScreenAdded );
-			}
-
-			if ( $arrHideOnScreenRemoved ) {
+		if ( $arrHideOnScreenRemoved !== [] ) {
 				$context['acf_hide_on_screen_removed'] = implode( ',', $arrHideOnScreenRemoved );
-			}
 		}
 
 		// ddd($context, $arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
@@ -1020,7 +1015,7 @@ class Plugin_ACF_Logger extends Logger {
 			$deletedFieldsIDs = array_map( 'intval', $deletedFieldsIDs );
 
 			foreach ( $deletedFieldsIDs as $id ) {
-				if ( ! $id ) {
+				if ( $id === 0 ) {
 					continue;
 				}
 
@@ -1065,10 +1060,7 @@ class Plugin_ACF_Logger extends Logger {
 	 * post update log message.
 	 */
 	public function remove_acf_from_postlogger( $skip_posttypes ) {
-		array_push(
-			$skip_posttypes,
-			'acf-field'
-		);
+		$skip_posttypes[] = 'acf-field';
 
 		return $skip_posttypes;
 	}

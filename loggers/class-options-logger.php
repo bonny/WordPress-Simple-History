@@ -234,7 +234,7 @@ class Options_Logger extends Logger {
 		if ( ! empty( $old_value ) && is_numeric( $old_value ) ) {
 			$old_post = get_post( $old_value );
 
-			if ( $old_post ) {
+			if ( $old_post instanceof \WP_Post ) {
 				$context['old_post_title'] = $old_post->post_title;
 			}
 		}
@@ -242,7 +242,7 @@ class Options_Logger extends Logger {
 		if ( ! empty( $new_value ) && is_numeric( $new_value ) ) {
 			$new_post = get_post( $new_value );
 
-			if ( $new_post ) {
+			if ( $new_post instanceof \WP_Post ) {
 				$context['new_post_title'] = $new_post->post_title;
 			}
 		}
@@ -291,7 +291,7 @@ class Options_Logger extends Logger {
 				)
 			);
 		}
-		if ( intval( $new_value ) == 0 ) {
+		if ( (int) $new_value == 0 ) {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'New value', 'simple-history' ),
@@ -317,7 +317,7 @@ class Options_Logger extends Logger {
 			);
 		}
 
-		if ( intval( $old_value ) == 0 ) {
+		if ( (int) $old_value == 0 ) {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'Old value', 'simple-history' ),

@@ -342,7 +342,6 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 				$context['event_original_args'],
 				$context['event_args']
 			);
-
 			if ( $key_text_diff ) {
 				$output .= sprintf(
 					$tmpl_row,
@@ -350,13 +349,12 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 					$key_text_diff
 				);
 			}
-		} else if ( isset( $context['event_args'] ) ) {
+		} elseif ( isset( $context['event_args'] ) ) {
 			if ( '[]' !== $context['event_args'] ) {
 				$args = $context['event_args'];
 			} else {
 				$args = _x( 'None', 'PluginWPCrontrolLogger', 'simple-history' );
 			}
-
 			$output .= sprintf(
 				$tmpl_row,
 				_x( 'Arguments', 'PluginWPCrontrolLogger', 'simple-history' ),
@@ -369,7 +367,6 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 				gmdate( 'Y-m-d H:i:s', $context['event_original_timestamp'] ),
 				gmdate( 'Y-m-d H:i:s', $context['event_timestamp'] )
 			);
-
 			if ( $key_text_diff ) {
 				$output .= sprintf(
 					$tmpl_row,
@@ -377,7 +374,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 					$key_text_diff
 				);
 			}
-		} else if ( isset( $context['event_timestamp'] ) ) {
+		} elseif ( isset( $context['event_timestamp'] ) ) {
 			$output .= sprintf(
 				$tmpl_row,
 				_x( 'Next Run', 'PluginWPCrontrolLogger', 'simple-history' ),
@@ -390,7 +387,6 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 				$context['event_original_schedule_name'],
 				$context['event_schedule_name']
 			);
-
 			if ( $key_text_diff ) {
 				$output .= sprintf(
 					$tmpl_row,
@@ -398,7 +394,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 					$key_text_diff
 				);
 			}
-		} else if ( isset( $context['event_schedule_name'] ) ) {
+		} elseif ( isset( $context['event_schedule_name'] ) ) {
 			$output .= sprintf(
 				$tmpl_row,
 				_x( 'Recurrence', 'PluginWPCrontrolLogger', 'simple-history' ),

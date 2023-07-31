@@ -2,21 +2,26 @@
 
 declare(strict_types=1);
 
-use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;
 use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
 use Rector\CodeQuality\Rector\Array_\ArrayThisCallToThisMethodCallRector;
+use Rector\CodeQuality\Rector\ClassMethod\ReturnTypeFromStrictScalarReturnExprRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
+use Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector;
+use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\DeadCode\Rector\MethodCall\RemoveEmptyMethodCallRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
+use Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector;
 use Rector\Config\RectorConfig;
 use Rector\Core\ValueObject\PhpVersion;
 use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
+use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
+use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictTypedCallRector;
 
 return static function ( RectorConfig $rectorConfig ): void {
 	$rectorConfig->paths(
@@ -52,11 +57,18 @@ return static function ( RectorConfig $rectorConfig ): void {
 			JsonThrowOnErrorRector::class,
 			// I think `count($array) > 0;` is more readable than `$array !== [];`.
 			CountArrayToEmptyArrayComparisonRector::class,
-			// I prefer `if ( empty( $post_ids ) ) ` before `if ( $post_ids === [] )`. Also WordPress does not use short arrays.
+			// I prefer `if ( empty( $post_ids ) ) ` over `if ( $post_ids === [] )`. Also WordPress does not use short arrays.
 			SimplifyEmptyCheckOnEmptyArrayRector::class,
-			\Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector::class,
+			DisallowedEmptyRuleFixerRector::class,
+			IssetOnPropertyObjectToPropertyExistsRector::class,
 			// WordPress uses long arrays.
 			LongArrayToShortArrayRector::class,
+			// Prefer `foreach $key => $value` over `foreach (array_keys($values) as $key) {`
+			UnusedForeachValueToArrayKeysRector::class,
+			ReturnTypeFromStrictTypedCallRector::class,
+			ReturnTypeFromStrictScalarReturnExprRector::class,
+			// Ternary not allowed in WP.
+			SimplifyIfElseToTernaryRector::class,
 		)
 	);
 

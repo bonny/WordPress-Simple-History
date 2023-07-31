@@ -172,7 +172,7 @@ abstract class Logger {
 				if ( $user_id > 0 && ( $user ) ) {
 					// Sender is user and user still exists.
 					$is_current_user =
-						get_current_user_id() == $user_id ? true : false;
+						get_current_user_id() == $user_id;
 
 					// get user role, as done in user-edit.php
 					$wp_roles = $GLOBALS['wp_roles'];
@@ -473,8 +473,6 @@ abstract class Logger {
 		if ( ! $logger_name_via ) {
 			return;
 		}
-
-		$via_html = '';
 		$via_html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
 		$via_html .= $logger_name_via;
 		$via_html .= '</span>';
@@ -663,18 +661,16 @@ abstract class Logger {
 		if ( empty( $message_key ) ) {
 			// Message key did not exist, so check if we should translate using textdomain
 			if ( ! empty( $row->context['_gettext_domain'] ) ) {
-				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.NonSingularStringLiteralText
+   				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.NonSingularStringLiteralText
 				$message = __( $message, $row->context['_gettext_domain'] );
 			}
-		} else {
+		} elseif ( isset( $this->messages[ $message_key ]['translated_text'] ) ) {
 			// Check that messages does exist
 			// If we for example disable a Logger we may have references
 			// to message keys that are unavailable. If so then fallback to message.
-			if ( isset( $this->messages[ $message_key ]['translated_text'] ) ) {
-				$message = $this->messages[ $message_key ]['translated_text'];
-			} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
+			$message = $this->messages[ $message_key ]['translated_text'];
+		} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
 				// Not message exists for message key. Just keep using message.
-			}
 		}
 
 		$html = helpers::interpolate( $message, $row->context, $row );
@@ -712,32 +708,27 @@ abstract class Logger {
 
 		$initiator = $row->initiator;
 
-		switch ( $initiator ) {
-			// wp_user = wordpress uses, but user may have been deleted since log entry was added
-			case 'wp_user':
-				$user_id = $row->context['_user_id'] ?? null;
-
-				$user = get_user_by( 'id', $user_id );
-				if ( $user_id > 0 && ( $user ) ) {
+		if ( $initiator === 'wp_user' ) {
+			$user_id = $row->context['_user_id'] ?? null;
+			$user = get_user_by( 'id', $user_id );
+			if ( $user_id > 0 && ( $user ) ) {
 					// Sender was user
 					$sender_image_html = Helpers::get_avatar(
 						$user->user_email,
 						$sender_image_size
 					);
-				} elseif ( $user_id > 0 ) {
-					// Sender was a user, but user is deleted now
-					$sender_image_html = Helpers::get_avatar(
-						'',
-						$sender_image_size
-					);
-				} else {
-					$sender_image_html = Helpers::get_avatar(
-						'',
-						$sender_image_size
-					);
-				}
-
-				break;
+			} elseif ( $user_id > 0 ) {
+				// Sender was a user, but user is deleted now
+				$sender_image_html = Helpers::get_avatar(
+					'',
+					$sender_image_size
+				);
+			} else {
+				$sender_image_html = Helpers::get_avatar(
+					'',
+					$sender_image_size
+				);
+			}
 		}
 
 		/**
@@ -1189,9 +1180,9 @@ abstract class Logger {
 			'message' => $message,
 		);
 
-		list($data, $context) = $this->append_date_to_context( $data, $context );
-		list($data, $context) = $this->append_occasions_id_to_context( $data, $context );
-		list($data, $context) = $this->append_initiator_to_context( $data, $context );
+		[$data, $context] = $this->append_date_to_context( $data, $context );
+		[$data, $context] = $this->append_occasions_id_to_context( $data, $context );
+		[$data, $context] = $this->append_initiator_to_context( $data, $context );
 		$context = $this->append_xmlrpc_request_to_context( $context );
 		$context = $this->append_rest_api_request_to_context( $context );
 
@@ -1382,11 +1373,6 @@ abstract class Logger {
 
 		$current_user = wp_get_current_user();
 
-		// Bail if not a user object.
-		if ( ! $current_user instanceof \WP_User ) {
-			return $context;
-		}
-
 		// Bail if no user is set.
 		if ( $current_user->ID === 0 ) {
 			return $context;
@@ -1475,7 +1461,7 @@ abstract class Logger {
 			$ip_keys = Helpers::get_ip_number_header_names();
 
 			foreach ( $ip_keys as $key ) {
-				if ( array_key_exists( $key, $_SERVER ) === true ) {
+				if ( array_key_exists( $key, $_SERVER ) ) {
 					// Loop through all IPs.
 					$ip_loop_num = 0;
 					foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {

@@ -239,17 +239,15 @@ class File_Edits_Logger extends Logger {
 
 		$diff_table_output = '';
 
-		if ( ! empty( $context['new_file_contents'] ) && ! empty( $context['old_file_contents'] ) ) {
-			if ( $context['new_file_contents'] !== $context['old_file_contents'] ) {
-				$diff_table_output .= sprintf(
-					'<tr><td>%1$s</td><td>%2$s</td></tr>',
-					__( 'File contents', 'simple-history' ),
-					helpers::text_diff( $context['old_file_contents'], $context['new_file_contents'] )
-				);
-			}
+		if ( ! empty( $context['new_file_contents'] ) && ! empty( $context['old_file_contents'] ) && $context['new_file_contents'] !== $context['old_file_contents'] ) {
+			$diff_table_output .= sprintf(
+				'<tr><td>%1$s</td><td>%2$s</td></tr>',
+				__( 'File contents', 'simple-history' ),
+				helpers::text_diff( $context['old_file_contents'], $context['new_file_contents'] )
+			);
 		}
 
-		if ( $diff_table_output ) {
+		if ( $diff_table_output !== '' ) {
 			$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
 		}
 

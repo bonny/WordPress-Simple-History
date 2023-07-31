@@ -92,11 +92,7 @@ class Core_Updates_Logger extends Logger {
 			$auto_update = false;
 		}
 
-		if ( $auto_update ) {
-			$message = 'core_auto_updated';
-		} else {
-			$message = 'core_updated';
-		}
+		$message = $auto_update ? 'core_auto_updated' : 'core_updated';
 
 		$this->notice_message(
 			$message,

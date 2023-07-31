@@ -73,7 +73,7 @@ class Plugin_Jetpack_Logger extends Logger {
 	 *
 	 * @param string $slug Slug of module to get info for.
 	 *
-	 * @return Array Array with module info.
+	 * @return array|bool Array with info or false if module not found
 	 */
 	private function get_jetpack_module( $slug = null ) {
 		if ( empty( $slug ) ) {
@@ -97,7 +97,11 @@ class Plugin_Jetpack_Logger extends Logger {
 
 		$module = $this->get_jetpack_module( $module_slug );
 
-		if ( $module ) {
+		if ( $module === false ) {
+			return;
+		}
+
+		if ( $module !== [] ) {
 			$context['module_slug'] = $module_slug;
 			$context['module_name'] = $module['name'];
 			$context['module_description'] = $module['description'];
@@ -121,7 +125,7 @@ class Plugin_Jetpack_Logger extends Logger {
 
 		$module = $this->get_jetpack_module( $module_slug );
 
-		if ( $module ) {
+		if ( $module !== [] ) {
 			$context['module_slug'] = $module_slug;
 			$context['module_name'] = $module['name'];
 			$context['module_description'] = $module['description'];

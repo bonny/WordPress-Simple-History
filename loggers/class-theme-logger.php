@@ -12,7 +12,7 @@ class Theme_Logger extends Logger {
 	public $slug = 'SimpleThemeLogger';
 
 	// When switching themes, this will contain info about the theme we are switching from.
-	private $prev_theme_data;
+	private ?array $prev_theme_data = null;
 
 	/**
 	 * Used to collect information about a theme before it is deleted.
@@ -630,7 +630,7 @@ class Theme_Logger extends Logger {
 		}
 
 		// Fallback to default/parent output if nothing was added to output
-		if ( ! $output ) {
+		if ( $output !== '' ) {
 			$output .= parent::get_log_row_plain_text_output( $row );
 		}
 
@@ -901,12 +901,7 @@ class Theme_Logger extends Logger {
 			return false;
 		}
 
-		// Add sidebar info.
-		if ( isset( $sidebars[ $sidebar_id ] ) ) {
-			return $sidebars[ $sidebar_id ];
-		}
-
-		return false;
+		return $sidebars[ $sidebar_id ] ?? false;
 	}
 
 	/**

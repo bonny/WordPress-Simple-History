@@ -384,14 +384,14 @@ class User_Logger extends Logger {
 				// Get text name of previous role.
 				$user_roles = array_intersect( array_values( $user_before_update->roles ), array_keys( get_editable_roles() ) );
 				$prev_option_value = reset( $user_roles );
-			} else if ( $option_key === 'user_pass' ) {
+			} elseif ( $option_key === 'user_pass' ) {
 				$password_changed = $one_maybe_updated_option_value !== $prev_option_value;
 				$add_diff = false;
-			} else if ( $option_key === 'comment_shortcuts' ) {
+			} elseif ( $option_key === 'comment_shortcuts' ) {
 				if ( empty( $one_maybe_updated_option_value ) ) {
 					$one_maybe_updated_option_value = 'false';
 				}
-			} else if ( $option_key === 'locale' ) {
+			} elseif ( $option_key === 'locale' ) {
 				if ( $one_maybe_updated_option_value === '' ) {
 					$one_maybe_updated_option_value = 'SITE_DEFAULT';
 				}
@@ -418,11 +418,9 @@ class User_Logger extends Logger {
 		}
 
 		// Add diff to context
-		if ( $user_data_diff ) {
-			foreach ( $user_data_diff as $one_diff_key => $one_diff_vals ) {
+		foreach ( $user_data_diff as $one_diff_key => $one_diff_vals ) {
 				$context[ "user_prev_{$one_diff_key}" ] = $one_diff_vals['old'];
 				$context[ "user_new_{$one_diff_key}" ] = $one_diff_vals['new'];
-			}
 		}
 
 		$this->info_message( 'user_updated_profile', $context );
@@ -456,7 +454,8 @@ class User_Logger extends Logger {
 			if ( $screen && $screen->base === 'users' ) {
 				$request_origin = 'wp_admin_users_admin';
 			}
-		} else if ( ! empty( $_POST['user_login'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		} elseif ( ! empty( $_POST['user_login'] ) ) {
 			$request_origin = 'login_screen';
 		}
 
@@ -582,7 +581,7 @@ class User_Logger extends Logger {
 					$use_you = apply_filters( 'simple_history/user_logger/plain_text_output_use_you', true );
 
 					// User still exist, so link to their profile
-					if ( (int) $current_user_id === (int) $context['_user_id'] && $use_you ) {
+					if ( $current_user_id === (int) $context['_user_id'] && $use_you ) {
 						// User that is viewing the log is the same as the edited user
 						$msg = __( 'Edited <a href="{edit_profile_link}">your profile</a>', 'simple-history' );
 					} else {
@@ -594,14 +593,12 @@ class User_Logger extends Logger {
 					// User does not exist any longer
 					$output = __( 'Edited your profile', 'simple-history' );
 				}
-			} else {
+			} elseif ( $wp_user ) {
 				// User edited another users profile
-				if ( $wp_user ) {
-					// Edited user still exist, so link to their profile
-					$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
-					$msg = __( 'Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', 'simple-history' );
-					$output = helpers::interpolate( $msg, $context, $row );
-				}
+				// Edited user still exist, so link to their profile
+				$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
+				$msg = __( 'Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', 'simple-history' );
+				$output = helpers::interpolate( $msg, $context, $row );
 			}
 		} elseif ( 'user_created' == $context['_message_key'] ) {
 			// A user was created. Create link of username that goes to user profile.
@@ -709,13 +706,11 @@ class User_Logger extends Logger {
 		// So at this time we can't get the role of the user, if on a subsite.
 		// Use value from $_POST instead.
 		if ( is_multisite() ) {
-			// PHPCS:ignore WordPress.Security.NonceVerification.Missing
+      // PHPCS:ignore WordPress.Security.NonceVerification.Missing
 			$role = sanitize_title( $_POST['role'] ?? '' );
-		} else {
+		} elseif ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
 			// Single site, get role from user object.
-			if ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
-				$role = $wp_user_added->roles[0];
-			}
+			$role = $wp_user_added->roles[0];
 		}
 
 		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
@@ -793,9 +788,8 @@ class User_Logger extends Logger {
 	 * @param string $password The user's password (encrypted)
 	 */
 	public function onAuthenticate( $user, $username, $password ) {
-
-		// Don't log empty usernames
-		if ( ! trim( $username ) ) {
+		// Don't log empty usernames.
+		if ( trim( $username ) === '' ) {
 			return $user;
 		}
 
@@ -966,14 +960,14 @@ class User_Logger extends Logger {
 						if ( isset( $translations[ $user_old_value ] ) ) {
 							$language_english_name = $translations[ $user_old_value ]['english_name'];
 							$user_old_value = "{$language_english_name} ({$user_old_value})";
-						} else if ( $user_old_value === 'SITE_DEFAULT' ) {
+						} elseif ( $user_old_value === 'SITE_DEFAULT' ) {
 							$user_old_value = __( 'Site Default', 'simple-history' );
 						}
 
 						if ( isset( $translations[ $user_new_value ] ) ) {
 							$language_english_name = $translations[ $user_new_value ]['english_name'];
 							$user_new_value = "{$language_english_name} ({$user_new_value})";
-						} else if ( $user_new_value === 'SITE_DEFAULT' ) {
+						} elseif ( $user_new_value === 'SITE_DEFAULT' ) {
 							$user_new_value = __( 'Site Default', 'simple-history' );
 						}
 					}
@@ -1012,7 +1006,7 @@ class User_Logger extends Logger {
 				);
 			}
 
-			if ( $diff_table_output ) {
+			if ( $diff_table_output !== '' ) {
 				$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
 			}
 
@@ -1037,7 +1031,7 @@ class User_Logger extends Logger {
 			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
 				if ( isset( $context[ $key ] ) && trim( $context[ $key ] ) ) {
 					if ( 'send_user_notification' == $key ) {
-						if ( intval( $context[ $key ] ) == 1 ) {
+						if ( (int) $context[ $key ] == 1 ) {
 							$sent_status = _x(
 								'Yes, email with account details was sent',
 								'User logger',
@@ -1047,7 +1041,7 @@ class User_Logger extends Logger {
 							$sent_status = '';
 						}
 
-						if ( $sent_status ) {
+						if ( $sent_status !== '' ) {
 							$diff_table_output .= sprintf(
 								'<tr>
                                     <td>%1$s</td>
@@ -1076,7 +1070,7 @@ class User_Logger extends Logger {
 				}// End if().
 			}// End foreach().
 
-			if ( $diff_table_output ) {
+			if ( $diff_table_output !== '' ) {
 				$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
 			}
 

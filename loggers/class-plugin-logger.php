@@ -555,7 +555,7 @@ class Plugin_Logger extends Logger {
 
 		$repo = isset( $_GET['repo'] ) ? (string) $_GET['repo'] : '';
 
-		if ( ! $repo ) {
+		if ( $repo !== '' ) {
 			wp_die( esc_html__( 'Could not find GitHub repository.', 'simple-history' ) );
 		}
 
@@ -790,24 +790,21 @@ class Plugin_Logger extends Logger {
 				$context['plugin_install_source'] = $install_source;
 
 				// If uploaded plugin store name of ZIP
-				if ( 'upload' == $install_source ) {
-					/*
-					_debug_files
-					{
-						"pluginzip": {
-							"name": "WPThumb-master.zip",
-							"type": "application\/zip",
-							"tmp_name": "\/Applications\/MAMP\/tmp\/php\/phpnThImc",
-							"error": 0,
-							"size": 2394625
-						}
-					}
-					*/
-
-					if ( isset( $_FILES['pluginzip']['name'] ) ) {
-						$plugin_upload_name            = $_FILES['pluginzip']['name'];
-						$context['plugin_upload_name'] = $plugin_upload_name;
-					}
+				/*
+				_debug_files
+				{
+				"pluginzip": {
+				"name": "WPThumb-master.zip",
+				"type": "application\/zip",
+				"tmp_name": "\/Applications\/MAMP\/tmp\/php\/phpnThImc",
+				"error": 0,
+				"size": 2394625
+				}
+				}
+				*/
+				if ( 'upload' == $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
+					$plugin_upload_name            = $_FILES['pluginzip']['name'];
+					$context['plugin_upload_name'] = $plugin_upload_name;
 				}
 
 				if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
@@ -1171,7 +1168,7 @@ class Plugin_Logger extends Logger {
 							break;
 					}// End switch().
 
-					if ( ! trim( $desc_output ) ) {
+					if ( trim( $desc_output ) === '' ) {
 						continue;
 					}
 
@@ -1191,7 +1188,7 @@ class Plugin_Logger extends Logger {
 				// If plugin_install_source = web then it should be a wordpress.org-plugin
 				// If plugin_github_url is set then it's a zip from a github thingie
 				// so use link to that.
-				$plugin_slug = ! empty( $context['plugin_slug'] ) ? $context['plugin_slug'] : '';
+				$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 
 				// Slug + web as install source = show link to wordpress.org
 				if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'web' ) {
@@ -1224,7 +1221,7 @@ class Plugin_Logger extends Logger {
 				$output .= '</table>';
 			}// End if().
 		} elseif ( 'plugin_bulk_updated' === $message_key || 'plugin_updated' === $message_key || 'plugin_activated' === $message_key || 'plugin_deactivated' === $message_key ) {
-			$plugin_slug = ! empty( $context['plugin_slug'] ) ? $context['plugin_slug'] : '';
+			$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 
 			if ( $plugin_slug && empty( $context['plugin_github_url'] ) ) {
 				$link_title = esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title', 'simple-history' );

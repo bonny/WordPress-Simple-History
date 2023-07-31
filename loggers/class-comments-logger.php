@@ -494,7 +494,7 @@ class Comments_Logger extends Logger {
 
 		$comment_data = get_comment( $comment_ID );
 
-		if ( $comment_data->user_id ) {
+		if ( $comment_data->user_id !== '' && $comment_data->user_id !== '0' ) {
 			// comment was from a logged in user
 			$message = "user_{$context["comment_type"]}_added";
 		} else {
@@ -693,7 +693,7 @@ class Comments_Logger extends Logger {
 		if ( $comment_ID ) {
 			$comment = get_comment( $comment_ID );
 
-			if ( $comment ) {
+			if ( $comment instanceof \WP_Comment ) {
 				// http://site.local/wp/wp-admin/comment.php?action=editcomment&c=
 				$edit_comment_link = get_edit_comment_link( $comment_ID );
 

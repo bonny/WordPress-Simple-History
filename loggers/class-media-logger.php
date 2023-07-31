@@ -201,14 +201,12 @@ class Media_Logger extends Logger {
 			} elseif ( $is_video ) {
 				$content = sprintf( '[video src="%1$s"]', $file_url );
 				$context['attachment_thumb'] = do_shortcode( $content );
-			} else {
+			} elseif ( $attachment_is_available ) {
 				// Use WordPress icon for other media types.
-				if ( $attachment_is_available ) {
-					$context['attachment_thumb'] = sprintf(
-						'%1$s',
-						wp_get_attachment_image( $attachment_id, array( 350, 500 ), true ) // Placeholder 1.
-					);
-				}
+				$context['attachment_thumb'] = sprintf(
+					'%1$s',
+					wp_get_attachment_image( $attachment_id, array( 350, 500 ), true ) // Placeholder 1.
+				);
 			} // End if().
 
 			$context['attachment_size_format'] = size_format( $row->context['attachment_filesize'] );
@@ -346,17 +344,13 @@ class Media_Logger extends Logger {
 		}
 
 		if ( isset( $row->context['attachment_id'] ) ) {
-			$permalink = add_query_arg(
+			$link = add_query_arg(
 				array(
 					'action' => 'edit',
 					'post' => $row->context['attachment_id'],
 				),
 				admin_url( 'post.php' )
 			);
-
-			if ( $permalink ) {
-				$link = $permalink;
-			}
 		}
 
 		return $link;

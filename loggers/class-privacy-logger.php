@@ -142,7 +142,7 @@ class Privacy_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$send_as_email = isset( $_POST['sendAsEmail'] ) && $_POST['sendAsEmail'] === 'true' ? 1 : 0;
 
-		$message_key = $send_as_email
+		$message_key = $send_as_email !== 0
 						? 'privacy_data_export_emailed'
 						: 'privacy_data_export_admin_downloaded';
 
@@ -169,10 +169,7 @@ class Privacy_Logger extends Logger {
 	 * @param array $skip_posttypes Posttypes to skip.
 	 */
 	public function remove_post_types_from_postlogger( $skip_posttypes ) {
-		array_push(
-			$skip_posttypes,
-			'user_request'
-		);
+		$skip_posttypes[] = 'user_request';
 
 		return $skip_posttypes;
 	}
@@ -383,10 +380,6 @@ class Privacy_Logger extends Logger {
 	 */
 	public function on_admin_action_complete() {
 		$request_ids = isset( $_REQUEST['request_id'] ) ? wp_parse_id_list( wp_unslash( $_REQUEST['request_id'] ) ) : array();
-
-		if ( empty( $request_ids ) ) {
-			return;
-		}
 
 		foreach ( $request_ids as $request_id ) {
 			$request = wp_get_user_request( $request_id );

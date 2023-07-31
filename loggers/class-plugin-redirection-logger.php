@@ -135,9 +135,7 @@ class Plugin_Redirection_Logger extends Logger {
 				$bulk_items = explode( ',', $bulk_items );
 			}
 
-			if ( is_array( $bulk_items ) ) {
-				$bulk_items = array_map( 'intval', $bulk_items );
-			}
+			$bulk_items = array_map( 'intval', $bulk_items );
 
 			if ( empty( $bulk_items ) ) {
 				return $response;
