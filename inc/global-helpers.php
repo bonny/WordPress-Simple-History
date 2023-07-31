@@ -42,7 +42,7 @@ if ( ! function_exists( 'sh_error_log' ) ) {
 	function sh_error_log() {
 		foreach ( func_get_args() as $var ) {
 			if ( is_bool( $var ) ) {
-				$bool_string = true === $var ? 'true' : 'false';
+				$bool_string = $var ? 'true' : 'false';
 				error_log( "$bool_string (boolean value)" );
 			} elseif ( is_null( $var ) ) {
 				error_log( 'null (null value)' );
@@ -71,7 +71,7 @@ if ( ! function_exists( 'sh_d' ) ) {
 		foreach ( func_get_args() as $var ) {
 			$loopOutput = '';
 			if ( is_bool( $var ) ) {
-				$bool_string = true === $var ? 'true' : 'false';
+				$bool_string = $var ? 'true' : 'false';
 				$loopOutput = "$bool_string (boolean value)";
 			} elseif ( is_null( $var ) ) {
 				$loopOutput = ( 'null (null value)' );
@@ -85,10 +85,10 @@ if ( ! function_exists( 'sh_d' ) ) {
 				$loopOutput = print_r( $var, true );
 			}
 
-			if ( $loopOutput ) {
+			if ( $loopOutput !== '' ) {
 				$maybe_escaped_loop_output = 'cli' === php_sapi_name() ? $loopOutput : esc_html( $loopOutput );
 
-				$output = $output . sprintf(
+				$output .= sprintf(
 					'
                 <pre>%1$s</pre>
                 ',

@@ -9,21 +9,21 @@ namespace Simple_History;
 class Log_Initiators {
 	// A wordpress user that at the log event created did exist in the wp database
 	// May have been deleted when the log is viewed.
-	const WP_USER = 'wp_user';
+	public const WP_USER = 'wp_user';
 
 	// Cron job run = wordpress initiated
 	// Email sent to customer on webshop = system/wordpress/anonymous web user
 	// Javascript error occurred on website = anonymous web user.
-	const WEB_USER = 'web_user';
+	public const WEB_USER = 'web_user';
 
 	// WordPress core or plugins updated automatically via wp-cron.
-	const WORDPRESS = 'wp';
+	public const WORDPRESS = 'wp';
 
 	// WP CLI / terminal.
-	const WP_CLI = 'wp_cli';
+	public const WP_CLI = 'wp_cli';
 
-	// I dunno.
-	const OTHER = 'other';
+	// Unknown.
+	public const OTHER = 'other';
 
 	/**
 	 * Translate the initiator value from a log row to a human readable string.
@@ -33,7 +33,7 @@ class Log_Initiators {
 	 * "web_user" becomes "Anonymous web user".
 	 * "other" becomes "Other".
 	 *
-	 * @param string $row Initiator value.
+	 * @param object $row Initiator value.
 	 * @return string Human readable initiator string.
 	 */
 	public static function get_initiator_text_from_row( $row ) {

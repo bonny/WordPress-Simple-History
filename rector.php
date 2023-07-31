@@ -20,6 +20,7 @@ use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
+use Rector\Php74\Rector\Assign\NullCoalescingOperatorRector;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictTypedCallRector;
 
@@ -69,6 +70,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			ReturnTypeFromStrictScalarReturnExprRector::class,
 			// Ternary not allowed in WP.
 			SimplifyIfElseToTernaryRector::class,
+			NullCoalescingOperatorRector::class,
 		)
 	);
 

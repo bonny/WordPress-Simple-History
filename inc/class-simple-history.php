@@ -12,51 +12,40 @@ use Simple_History\Helpers;
  * This is used to init the plugin.
  */
 class Simple_History {
-	const NAME = 'Simple History';
+	public const NAME = 'Simple History';
 
 	/**
-	 * For singleton.
-	 *
-	 * @var Simple_History
-	 * @see get_instance()
-	 */
-	private static $instance;
+  * For singleton.
+  *
+  * @see get_instance()
+  */
+	private static ?\Simple_History\Simple_History $instance = null;
 
 	/**
-	 * Array with external logger classnames to load.
-	 *
-	 * @var array
-	 */
-	private $external_loggers;
+  * Array with external logger classnames to load.
+  */
+	private ?array $external_loggers = null;
 
 	/**
-	 * Array with external dropins to load.
-	 *
-	 * @var array
-	 */
-	private $external_dropins;
+  * Array with external dropins to load.
+  */
+	private ?array $external_dropins = null;
 
 	/**
-	 * Array with all instantiated loggers.
-	 *
-	 * @var array
-	 */
-	private $instantiated_loggers;
+  * Array with all instantiated loggers.
+  */
+	private ?array $instantiated_loggers = null;
 
 	/**
-	 * Array with all instantiated dropins.
-	 *
-	 * @var array
-	 */
-	private $instantiated_dropins;
+  * Array with all instantiated dropins.
+  */
+	private ?array $instantiated_dropins = null;
 
 	/**
-	 * Bool if gettext filter function should be active
-	 * Should only be active during the load of a logger
-	 *
-	 * @var bool
-	 */
-	private $do_filter_gettext = false;
+  * Bool if gettext filter function should be active
+  * Should only be active during the load of a logger
+  */
+	private bool $do_filter_gettext = false;
 
 	/**
 	 * Used by gettext filter to temporarily store current logger.
@@ -72,8 +61,8 @@ class Simple_History {
 	 */
 	private $arr_settings_tabs = array();
 
-	const DBTABLE = 'simple_history';
-	const DBTABLE_CONTEXTS = 'simple_history_contexts';
+	public const DBTABLE = 'simple_history';
+	public const DBTABLE_CONTEXTS = 'simple_history_contexts';
 
 	/** @var string $dbtable Full database name, i.e. wp_simple_history */
 	public static $dbtable;
@@ -85,13 +74,13 @@ class Simple_History {
 	public $plugin_basename;
 
 	/** Slug for the settings menu */
-	const SETTINGS_MENU_SLUG = 'simple_history_settings_menu_slug';
+	public const SETTINGS_MENU_SLUG = 'simple_history_settings_menu_slug';
 
 	/** Slug for the settings menu */
-	const SETTINGS_GENERAL_OPTION_GROUP = 'simple_history_settings_group';
+	public const SETTINGS_GENERAL_OPTION_GROUP = 'simple_history_settings_group';
 
 	/** ID for the general settings section */
-	const SETTINGS_SECTION_GENERAL_ID = 'simple_history_settings_section_general';
+	public const SETTINGS_SECTION_GENERAL_ID = 'simple_history_settings_section_general';
 
 	public function __construct() {
 		$this->init();
@@ -346,7 +335,7 @@ class Simple_History {
 		}
 
 		// Show only when the user has at least one site, or they're a super admin.
-		if ( count( $wp_admin_bar->user->blogs ) < 1 && ! is_super_admin() ) {
+		if ( ( is_countable( $wp_admin_bar->user->blogs ) ? count( $wp_admin_bar->user->blogs ) : 0 ) < 1 && ! is_super_admin() ) {
 			return;
 		}
 
@@ -912,7 +901,7 @@ class Simple_History {
 				),
 			);
 
-			$this->arr_settings_tabs = array_merge( $this->arr_settings_tabs, $arr_dev_tabs );
+			$this->arr_settings_tabs = [ ...$this->arr_settings_tabs, ...$arr_dev_tabs ];
 		}
 	}
 
@@ -1078,9 +1067,7 @@ class Simple_History {
 			if ( empty( $logger_instance->get_slug() ) ) {
 				_doing_it_wrong(
 					__METHOD__,
-					sprintf(
-						esc_html( __( 'A logger is missing a slug.', 'simple-history' ) ),
-					),
+					esc_html( __( 'A logger is missing a slug.', 'simple-history' ) ),
 					'4.0'
 				);
 			}
@@ -1420,7 +1407,7 @@ class Simple_History {
 
 		if ( $current_screen && $current_screen->base == 'settings_page_' . self::SETTINGS_MENU_SLUG ) {
 			return true;
-		} elseif ( $current_screen && $current_screen->base == $basePrefix . '_page_simple_history_page' ) {
+		} elseif ( $current_screen && $current_screen->base === $basePrefix . '_page_simple_history_page' ) {
 			return true;
 		} elseif (
 			$hook == 'settings_page_' . self::SETTINGS_MENU_SLUG ||
@@ -1550,7 +1537,7 @@ class Simple_History {
 		// is a version of Simple History < 0.4
 		// or it's a first install
 		// Fix database not using UTF-8
-		if ( false === $db_version || intval( $db_version ) == 0 ) {
+		if ( false === $db_version || (int) $db_version == 0 ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 			// Table creation, used to be in register_activation_hook
@@ -1583,7 +1570,7 @@ class Simple_History {
 
 		// If db version is 1 then upgrade to 2
 		// Version 2 added the action_description column
-		if ( 1 == intval( $db_version ) ) {
+		if ( 1 == (int) $db_version ) {
 			// V2 used to add column "action_description"
 			// but it's not used any more so don't do i
 			$db_version = 2;
@@ -1619,7 +1606,7 @@ class Simple_History {
 		 *
 		 * @since 2.0
 		 */
-		if ( 2 == intval( $db_version ) ) {
+		if ( 2 == (int) $db_version ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 			// Update old table
@@ -1686,7 +1673,7 @@ class Simple_History {
 		 *
 		 * @since 2.0
 		 */
-		if ( 3 == intval( $db_version ) ) {
+		if ( 3 == (int) $db_version ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 			// If old columns exist = this is an old install, then modify the columns so we still can keep them
@@ -1718,7 +1705,7 @@ class Simple_History {
 
 		// Some installs on 2.2.2 got failed installs
 		// We detect these by checking for db_version and then running the install stuff again
-		if ( 4 == intval( $db_version ) ) {
+		if ( 4 == (int) $db_version ) {
 			/** @noRector \Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector */
 			if ( ! $this->does_database_have_data() ) {
 				// not ok, decrease db number so installs will run again and hopefully fix things
@@ -2315,7 +2302,7 @@ Because Simple History was only recently installed, this feed does not display m
 		 *
 		 * @param int $days Number of days of history to keep
 		 */
-		$days = (int) apply_filters( 'simple_history/db_purge_days_interval', $days );
+		$days = apply_filters( 'simple_history/db_purge_days_interval', $days );
 
 		return $days;
 	}
@@ -2446,7 +2433,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 			// Add number of deleted rows to total_rows option.
 			$prev_total_rows = (int) get_option( 'simple_history_total_rows', 0 );
-			$total_rows = $prev_total_rows + count( $ids_to_delete );
+			$total_rows = $prev_total_rows + ( is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0 );
 			update_option( 'simple_history_total_rows', $total_rows );
 
 			// Remove rows + contexts.
@@ -2461,7 +2448,7 @@ Because Simple History was only recently installed, this feed does not display m
 			$message = _nx(
 				'Simple History removed one event that were older than {days} days',
 				'Simple History removed {num_rows} events that were older than {days} days',
-				count( $ids_to_delete ),
+				is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0,
 				'Database is being cleared automagically',
 				'simple-history'
 			);
@@ -2470,7 +2457,7 @@ Because Simple History was only recently installed, this feed does not display m
 				$message,
 				array(
 					'days' => $days,
-					'num_rows' => count( $ids_to_delete ),
+					'num_rows' => is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0,
 				)
 			);
 
@@ -2584,7 +2571,7 @@ Because Simple History was only recently installed, this feed does not display m
 
 		// Details = for example thumbnail of media
 		$details_html = trim( $this->get_log_row_details_output( $oneLogRow ) );
-		if ( $details_html ) {
+		if ( $details_html !== '' ) {
 			$details_html = sprintf( '<div class="SimpleHistoryLogitem__details">%1$s</div>', $details_html );
 		}
 
@@ -2631,8 +2618,8 @@ Because Simple History was only recently installed, this feed does not display m
 
 		$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $oneLogRow );
 
-		if ( $arr_found_additional_ip_headers ) {
-			$data_attrs .= sprintf( ' data-ip-address-multiple="1" ' );
+		if ( $arr_found_additional_ip_headers !== [] ) {
+			$data_attrs .= ' data-ip-address-multiple="1" ';
 		}
 
 		// Add data attributes info for common things like logger, level, data, initiation.
@@ -2845,7 +2832,7 @@ Because Simple History was only recently installed, this feed does not display m
 			$classes[] = 'SimpleHistoryLogitem--initiator-' . $oneLogRow->initiator;
 		}
 
-		if ( $arr_found_additional_ip_headers ) {
+		if ( $arr_found_additional_ip_headers !== [] ) {
 			$classes[] = 'SimpleHistoryLogitem--IPAddress-multiple';
 		}
 
@@ -3091,7 +3078,7 @@ Because Simple History was only recently installed, this feed does not display m
 			wp_cache_set( $cache_key, $results_users_today, $cache_group );
 		}
 
-		$count_users_today = count( $results_users_today );
+		$count_users_today = is_countable( $results_users_today ) ? count( $results_users_today ) : 0;
 
 		// Get number of other sources (not wp_user).
 		$sql_other_sources_where = sprintf(
@@ -3129,7 +3116,7 @@ Because Simple History was only recently installed, this feed does not display m
 			wp_cache_set( $cache_key, $results_other_sources_today, $cache_group );
 		}
 
-		$count_other_sources = count( $results_other_sources_today );
+		$count_other_sources = is_countable( $results_other_sources_today ) ? count( $results_other_sources_today ) : 0;
 		?>
 		<div class="SimpleHistoryQuickStats">
 			<p>
@@ -3208,7 +3195,7 @@ Because Simple History was only recently installed, this feed does not display m
 				} // End if().
 
 				// Show stats if we have something to output.
-				if ( $msg_tmpl ) {
+				if ( $msg_tmpl !== '' ) {
 					printf(
 						esc_html( $msg_tmpl ),
 						(int) $logResults['total_row_count'], // 1

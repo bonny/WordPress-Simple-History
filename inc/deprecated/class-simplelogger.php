@@ -15,7 +15,7 @@ class SimpleLogger extends Logger {
 	 *
 	 * @var string[] Array of key/value pairs where keys represent old method name and value is name of new method
 	 */
-	private $methods_mapping = array(
+	private array $methods_mapping = array(
 		'getInfoValueByKey' => 'get_info_value_by_key',
 		'getCapability' => 'get_capability',
 		'interpolate' => null, // moved to helper

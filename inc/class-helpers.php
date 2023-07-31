@@ -62,7 +62,7 @@ class Helpers {
 
 		$diff = $renderer->render( $text_diff );
 
-		if ( ! $diff ) {
+		if ( $diff === '' ) {
 			return '';
 		}
 
@@ -161,11 +161,7 @@ class Helpers {
 		// Build a replacement array with braces around the context keys
 		$replace = array();
 		foreach ( $context as $key => $val ) {
-			// Both key and val must be strings or number (for vals)
-			// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-			if ( is_string( $key ) || is_numeric( $key ) ) {
-				// key ok
-			}
+			// key ok
 
 			if ( ! is_string( $val ) && ! is_numeric( $val ) ) {
 				// not a value we can replace
@@ -288,7 +284,7 @@ class Helpers {
 		$incrementor_key = 'simple_history_incrementor';
 		$incrementor_value = wp_cache_get( $incrementor_key );
 
-		if ( false === $incrementor_value || true === $refresh ) {
+		if ( false === $incrementor_value || $refresh ) {
 			$incrementor_value = uniqid();
 			wp_cache_set( $incrementor_key, $incrementor_value );
 		}

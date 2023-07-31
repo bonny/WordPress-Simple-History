@@ -16,6 +16,8 @@ class Log_Query {
 	 * @return array
 	 */
 	public function query( $args ) {
+		$users_in = null;
+		$sql_user = null;
 		$sql_tmpl = null;
 		$defaults = array(
 
@@ -451,10 +453,8 @@ class Log_Query {
 				$sql_loglevels .= sprintf( ' "%s", ', esc_sql( $one_loglevel ) );
 			}
 
-			if ( $sql_loglevels ) {
-				$sql_loglevels = rtrim( $sql_loglevels, ' ,' );
-				$sql_loglevels = "\n AND level IN ({$sql_loglevels}) ";
-			}
+			$sql_loglevels = rtrim( $sql_loglevels, ' ,' );
+			$sql_loglevels = "\n AND level IN ({$sql_loglevels}) ";
 
 			$inner_where .= $sql_loglevels;
 		}
@@ -504,11 +504,8 @@ class Log_Query {
 				foreach ( $logger_messages as $one_logger_message ) {
 					$sql_logger_messages_in .= sprintf( '"%s",', esc_sql( $one_logger_message ) );
 				}
-
-				if ( $sql_logger_messages_in ) {
-					$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
-					$sql_logger_messages_in = "\n AND c1.value IN ({$sql_logger_messages_in}) ";
-				}
+				$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
+				$sql_logger_messages_in = "\n AND c1.value IN ({$sql_logger_messages_in}) ";
 
 				$sql_messages_where .= sprintf(
 					'
@@ -542,11 +539,8 @@ class Log_Query {
 			foreach ( $arr_loggers as $one_logger ) {
 				$sql_loggers .= sprintf( ' "%s", ', esc_sql( $one_logger ) );
 			}
-
-			if ( $sql_loggers ) {
-				$sql_loggers = rtrim( $sql_loggers, ' ,' );
-				$sql_loggers = "\n AND logger IN ({$sql_loggers}) ";
-			}
+			$sql_loggers = rtrim( $sql_loggers, ' ,' );
+			$sql_loggers = "\n AND logger IN ({$sql_loggers}) ";
 
 			$inner_where .= $sql_loggers;
 		}
@@ -574,20 +568,15 @@ class Log_Query {
 		if ( ! empty( $args['users'] ) && is_string( $args['users'] ) ) {
 			$users = explode( ',', $args['users'] );
 			$users = array_map( 'intval', $users );
-
-			if ( $users ) {
-				$users_in = implode( ',', $users );
-
-				$sql_user = sprintf(
-					'
+			$users_in = implode( ',', $users );
+			$sql_user = sprintf(
+				'
 					AND id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )
 					',
-					$table_name_contexts, // 1
-					$users_in // 2
-				);
-
-				$inner_where .= $sql_user;
-			}
+				$table_name_contexts, // 1
+				$users_in // 2
+			);
+			$inner_where .= $sql_user;
 		}
 
 		/**
