@@ -6,12 +6,14 @@ use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;
 use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
 use Rector\CodeQuality\Rector\Array_\ArrayThisCallToThisMethodCallRector;
+use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\DeadCode\Rector\MethodCall\RemoveEmptyMethodCallRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
 use Rector\Config\RectorConfig;
 use Rector\Core\ValueObject\PhpVersion;
+use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
@@ -50,13 +52,18 @@ return static function ( RectorConfig $rectorConfig ): void {
 			JsonThrowOnErrorRector::class,
 			// I think `count($array) > 0;` is more readable than `$array !== [];`.
 			CountArrayToEmptyArrayComparisonRector::class,
+			// I prefer `if ( empty( $post_ids ) ) ` before `if ( $post_ids === [] )`. Also WordPress does not use short arrays.
+			SimplifyEmptyCheckOnEmptyArrayRector::class,
 			\Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector::class,
+			// WordPress uses long arrays.
+			LongArrayToShortArrayRector::class,
 		)
 	);
 
 	// define sets of rules
 	// https://github.com/rectorphp/rector-src/blob/main/packages/Set/ValueObject/SetList.php
 	// https://github.com/rectorphp/rector-src/blob/main/rector.php
+	// https://github.com/rectorphp/rector/blob/main/docs/rector_rules_overview.md
 	$rectorConfig->sets(
 		array(
 			LevelSetList::UP_TO_PHP_74,
