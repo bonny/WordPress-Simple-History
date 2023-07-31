@@ -1430,13 +1430,14 @@ class Simple_History {
 	public function enqueue_admin_scripts( $hook ) {
 		if ( $this->is_on_our_own_pages() ) {
 			add_thickbox();
-
+			
 			wp_enqueue_style(
 				'simple_history_styles',
 				SIMPLE_HISTORY_DIR_URL . 'css/styles.css',
 				false,
 				SIMPLE_HISTORY_VERSION
 			);
+
 			wp_enqueue_script(
 				'simple_history_script',
 				SIMPLE_HISTORY_DIR_URL . 'js/scripts.js',
@@ -1445,8 +1446,11 @@ class Simple_History {
 				true
 			);
 
+			
 			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION );
 			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.css', array(), SIMPLE_HISTORY_VERSION );
+
+
 
 			// Translations that we use in JavaScript
 			wp_localize_script(
@@ -1474,7 +1478,7 @@ class Simple_History {
 			foreach ( $this->instantiated_loggers as $one_logger ) {
 				$one_logger['instance']->admin_css();
 			}
-
+			
 			// Add timeago.js
 			wp_enqueue_script(
 				'timeago',
@@ -1496,6 +1500,7 @@ class Simple_History {
 			} else {
 				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, 'en' ), array( 'jquery' ), '1.5.2', true );
 			}
+			
 			// end add timeago
 			// Load Select2 locale
 			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/select2/i18n/%s.js';
@@ -1504,7 +1509,7 @@ class Simple_History {
 			if ( file_exists( sprintf( $locale_dir_path, $user_locale ) ) ) {
 				wp_enqueue_script( 'select2-locale', sprintf( $locale_url_path, $user_locale ), array( 'jquery' ), '3.5.1', true );
 			}
-
+			
 			/**
 			 * Fires when the admin scripts have been enqueued.
 			 * Only fires on any of the pages where Simple History is used
