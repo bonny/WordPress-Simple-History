@@ -27,7 +27,7 @@ class Admin extends \AcceptanceTester
     /**
      * Check log entry for a message.
      * 
-     * @param string $who Clear text initator, i.e. "Anonymous web user", "Erik", "WP-CLI", ...
+     * @param string $who Clear text initiator, i.e. "Anonymous web user", "Erik", "WP-CLI", ...
      * @param mixed $message Clear text message, i.e. "Logged in", "Added attachment", ...
      */
     public function seeInLog($who, $message, $child = 1)
@@ -140,16 +140,16 @@ class Admin extends \AcceptanceTester
 
     /**
      * 
-     * @param mixed $initator wp_user, web_user, ...
+     * @param mixed $initiator wp_user, web_user, ...
      * @return void 
      * @throws InjectionException 
      * @throws ConditionalAssertionFailed 
      * @throws Exception 
      */
-    public function seeLogInitiator(string $initator, int $index = 0)
+    public function seeLogInitiator(string $initiator, int $index = 0)
     {
         $history = $this->getHistory($index);
-        $this->assertEquals($initator, $history['row']['initiator']);
+        $this->assertEquals($initiator, $history['row']['initiator']);
     }
 
     /**

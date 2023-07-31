@@ -71,6 +71,6 @@ Changes made to the test site and SQL-file.
 ## Clean install of WordPress for tests
 
 - docker compose up
-- wp running on localhost:9191 but it thinks its on port 80 (beacuse thats the internal port)
+- wp running on localhost:9191 but it thinks its on port 80 (because thats the internal port)
 - access at http://localhost:9191/wp-login.php
 - ...forgot the rest.. update this next time I need to do it 🤷‍♀️.

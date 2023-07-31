@@ -5,9 +5,7 @@ use Simple_History\Log_Query;
 use Simple_History\Loggers\Logger;
 
 class OccasionsTest extends \Codeception\TestCase\WPTestCase {
-	private Logger $testedLoggerClass;
-
-	function test_occassions() {
+	function test_occasions() {
 		$admin_user_id = $this->factory->user->create(
 			array(
 				'role' => 'administrator',
