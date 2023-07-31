@@ -228,9 +228,9 @@ class Privacy_Logger extends Logger {
 	 * Used to catch data export request actions from screen at
 	 * /wp-admin/export-personal-data.php
 	 *
-	 * @param int     $post_ID Post ID.
-	 * @param WP_Post $post    Post object.
-	 * @param bool    $update  Whether this is an existing post being updated or not.
+	 * @param int      $post_ID Post ID.
+	 * @param \WP_Post $post    Post object.
+	 * @param bool     $update  Whether this is an existing post being updated or not.
 	 */
 	public function on_save_post_user_request( $post_ID, $post, $update ) {
 		if ( empty( $post_ID ) ) {

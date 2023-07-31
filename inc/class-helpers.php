@@ -395,10 +395,11 @@ class Helpers {
 	 * @since 2.0
 	 * @since 3.3 Respects gravatar setting in discussion settings.
 	 *
-	 * @param string $email email address
-	 * @param int    $size Size of the avatar image
-	 * @param string $default URL to a default image to use if no avatar is available
-	 * @param string $alt Alternative text to use in image tag. Defaults to blank
+	 * @param string       $email email address
+	 * @param string       $size Size of the avatar image
+	 * @param string       $default URL to a default image to use if no avatar is available
+	 * @param string|false $alt Alternative text to use in image tag. Defaults to blank
+	 * @param array        $args Avatar arguments
 	 * @return string The img element for the user's avatar
 	 */
 	public static function get_avatar( $email, $size = '96', $default = '', $alt = false, $args = array() ) {

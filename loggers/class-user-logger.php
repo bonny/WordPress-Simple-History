@@ -472,8 +472,8 @@ class User_Logger extends Logger {
 	/**
 	 * Fired before the password reset procedure is validated.
 	 *
-	 * @param object           $errors WP Error object.
-	 * @param WP_User|WP_Error $user   WP_User object if the login and reset key match. WP_Error object otherwise.
+	 * @param \WP_Error          $errors WP Error object.
+	 * @param \WP_User|\WP_Error $user   WP_User object if the login and reset key match. WP_Error object otherwise.
 	 */
 	public function onValidatePasswordReset( $errors, $user ) {
 		$context = array();
@@ -739,9 +739,9 @@ class User_Logger extends Logger {
 	/**
 	 * Log failed login attempt to username that exists
 	 *
-	 * @param \WP_User|\WP_Error $user The WP_User object of the user being edited,
-	 *                                 or a WP_Error object if validation has already failed.
-	 * @param string $password
+	 * @param \WP_User|\WP_Error $userOrError The WP_User object of the user being edited,
+	 *                                        or a WP_Error object if validation has already failed.
+	 * @param string             $password
 	 */
 	public function onWpAuthenticateUser( $userOrError, $password ) {
 

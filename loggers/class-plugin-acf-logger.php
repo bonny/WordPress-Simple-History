@@ -152,7 +152,7 @@ class Plugin_ACF_Logger extends Logger {
 	 *
 	 * Called when ACF saves a post.
 	 *
-	 * @param mixed int $post_id ID of post that is being saved. string "option" or "options" when saving an options page.
+	 * @param mixed $post_id ID of post that is being saved. String "option" or "options" when saving an options page.
 	 */
 	public function on_acf_save_post( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
