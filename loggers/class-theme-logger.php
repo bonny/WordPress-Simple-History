@@ -274,7 +274,7 @@ class Theme_Logger extends Logger {
 	/**
 	 * Log theme installation.
 	 *
-	 * @param \WP_Theme_Upgrader_Skin $upgrader_instance WP_Upgrader instance.
+	 * @param \WP_Upgrader $upgrader_instance WP_Upgrader instance.
 	 * @param array        $arr_data          Array of bulk item update data.
 	 * @return void
 	 */
@@ -565,8 +565,8 @@ class Theme_Logger extends Logger {
 		// Widget changed or added or removed
 		// Simple replace widget_id_base and sidebar_id with widget name and sidebar name
 		if ( in_array( $message_key, array( 'widget_added', 'widget_edited', 'widget_removed' ) ) ) {
-			$widget = $this->getWidgetByIdBase( $context['widget_id_base'] );
-			$sidebar = $this->getSidebarById( $context['sidebar_id'] );
+			$widget = $this->get_widget_by_id_base( $context['widget_id_base'] );
+			$sidebar = $this->get_sidebar_by_id( $context['sidebar_id'] );
 
 			if ( $widget && $sidebar ) {
 				// Translate message first
@@ -707,7 +707,7 @@ class Theme_Logger extends Logger {
 
 		// Add widget info.
 		$context['widget_id_base'] = $widget_id_base;
-		$widget = $this->getWidgetByIdBase( $widget_id_base );
+		$widget = $this->get_widget_by_id_base( $widget_id_base );
 		if ( $widget ) {
 			$context['widget_name_translated'] = $widget->name;
 		}
@@ -716,8 +716,9 @@ class Theme_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$sidebar_id = $_POST['sidebar'] ?? null;
 		$context['sidebar_id'] = $sidebar_id;
-		$sidebar = $this->getSidebarById( $sidebar_id );
-		if ( $sidebar ) {
+		
+		$sidebar = $this->get_sidebar_by_id( $sidebar_id );
+		if ( is_array( $sidebar ) ) {
 			$context['sidebar_name_translated'] = $sidebar['name'];
 		}
 
@@ -745,7 +746,7 @@ class Theme_Logger extends Logger {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$widget_id_base = $_POST['id_base'];
 			$context['widget_id_base'] = $widget_id_base;
-			$widget = $this->getWidgetByIdBase( $widget_id_base );
+			$widget = $this->get_widget_by_id_base( $widget_id_base );
 			if ( $widget ) {
 				$context['widget_name_translated'] = $widget->name;
 			}
@@ -754,8 +755,9 @@ class Theme_Logger extends Logger {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$sidebar_id = $_POST['sidebar'];
 			$context['sidebar_id'] = $sidebar_id;
-			$sidebar = $this->getSidebarById( $sidebar_id );
-			if ( $sidebar ) {
+			$sidebar = $this->get_sidebar_by_id( $sidebar_id );
+
+			if ( is_array( $sidebar ) ) {
 				$context['sidebar_name_translated'] = $sidebar['name'];
 			}
 
@@ -780,7 +782,7 @@ class Theme_Logger extends Logger {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$widget_id_base = $_POST['id_base'];
 			$context['widget_id_base'] = $widget_id_base;
-			$widget = $this->getWidgetByIdBase( $widget_id_base );
+			$widget = $this->get_widget_by_id_base( $widget_id_base );
 			if ( $widget ) {
 				$context['widget_name_translated'] = $widget->name;
 			}
@@ -789,8 +791,9 @@ class Theme_Logger extends Logger {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$sidebar_id = $_POST['sidebar'];
 			$context['sidebar_id'] = $sidebar_id;
-			$sidebar = $this->getSidebarById( $sidebar_id );
-			if ( $sidebar ) {
+
+			$sidebar = $this->get_sidebar_by_id( $sidebar_id );
+			if ( is_array( $sidebar ) ) {
 				$context['sidebar_name_translated'] = $sidebar['name'];
 			}
 
@@ -805,9 +808,9 @@ class Theme_Logger extends Logger {
 	 * Get a sidebar by id.
 	 *
 	 * @param string $sidebar_id ID of sidebar.
-	 * @return string|false sidebar info or false on failure.
+	 * @return array|false sidebar info or false on failure.
 	 */
-	public function getSidebarById( $sidebar_id ) {
+	public function get_sidebar_by_id( $sidebar_id ) {
 
 		if ( empty( $sidebar_id ) ) {
 			return false;
@@ -828,7 +831,7 @@ class Theme_Logger extends Logger {
 	 * @param string $widget_id_base
 	 * @return \WP_Widget|false wp_widget object or false on failure
 	 */
-	public function getWidgetByIdBase( $widget_id_base ) {
+	public function get_widget_by_id_base( $widget_id_base ) {
 
 		$widget_factory = $GLOBALS['wp_widget_factory'] ?? false;
 
