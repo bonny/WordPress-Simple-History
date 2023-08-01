@@ -110,7 +110,7 @@ class Helpers {
 	 *
 	 * @param string $message
 	 * @param array  $context
-	 * @param array  $row Currently not always passed, because loggers need to be updated to support this...
+	 * @param object  $row Currently not always passed, because loggers need to be updated to support this...
 	 */
 	public static function interpolate( $message, $context = array(), $row = null ) {
 		if ( ! is_array( $context ) ) {
@@ -149,7 +149,7 @@ class Helpers {
 		 *
 		 * @param array $context
 		 * @param string $message
-		 * @param array $row The row. Not supported by all loggers.
+		 * @param object $row The row. Not supported by all loggers.
 		 */
 		$context = apply_filters(
 			'simple_history/logger/interpolate/context',
