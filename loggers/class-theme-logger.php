@@ -223,11 +223,6 @@ class Theme_Logger extends Logger {
 			return;
 		}
 
-		// Skin contains the nice info
-		if ( empty( $upgrader_instance->skin ) ) {
-			return;
-		}
-
 		// If single install make an array so it look like bulk and we can use same code
 		if ( isset( $arr_data['bulk'] ) && $arr_data['bulk'] && isset( $arr_data['themes'] ) ) {
 			$arr_themes = (array) $arr_data['themes'];
