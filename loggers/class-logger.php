@@ -100,6 +100,8 @@ abstract class Logger {
 	 * Method that is called automagically when logger is loaded by Simple History.
 	 *
 	 * Add init things here.
+	 *
+	 * @return void
 	 */
 	public function loaded() {
 	}
@@ -116,7 +118,7 @@ abstract class Logger {
 	/**
 	 * Get array with information about this logger.
 	 *
-	 * @return array Array with keys 'name', 'description', 'messages', and so on.
+	 * @return array<mixed> Array with keys 'name', 'description', 'messages', and so on.
 	 *               See existing loggers for examples.
 	 */
 	abstract public function get_info();
@@ -651,6 +653,9 @@ abstract class Logger {
 	 * Message should sound like it's coming from the user.
 	 * Image that the name of the user is added in front of the text:
 	 * Jessie James: Edited post "About the company"
+	 *
+	 * @param object $row Log row
+	 * @return string Plain text
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 		$message = $row->message;

@@ -10,22 +10,17 @@ use Simple_History\Helpers;
 class Theme_Logger extends Logger {
 	public $slug = 'SimpleThemeLogger';
 
-	// When switching themes, this will contain info about the theme we are switching from.
+	/** @var array<string> When switching themes, this will contain info about the theme we are switching from. */
 	private ?array $prev_theme_data = null;
 
 	/**
 	 * Used to collect information about a theme before it is deleted.
 	 * Theme info is stored with css file as the key.
 	 *
-	 * @var array
+	 * @var array<string,array<mixed>> Array of theme data.
 	 */
 	protected $themes_data = array();
 
-	/**
-	 * Get array with information about this logger
-	 *
-	 * @return array
-	 */
 	public function get_info() {
 		$arr_info = array(
 			'name'        => __( 'Theme Logger', 'simple-history' ),
@@ -119,8 +114,8 @@ class Theme_Logger extends Logger {
 	/**
 	 * Don't log changes to post type "customize_changeset".
 	 *
-	 * @param array $skip_posttypes Array of post types to skip logging for.
-	 * @return array
+	 * @param array<string> $skip_posttypes Array of post types to skip logging for.
+	 * @return array<string>
 	 */
 	public function skip_customize_changeset_posttype_from_postlogger( $skip_posttypes ) {
 		$skip_posttypes[] = 'customize_changeset';
@@ -179,10 +174,10 @@ class Theme_Logger extends Logger {
 	 * Log theme updated.
 	 *
 	 * @param \WP_Upgrader $upgrader_instance WP_Upgrader instance.
-	 * @param array        $arr_data          Array of bulk item update data.
+	 * @param array<mixed> $arr_data          Array of bulk item update data.
+	 * @return void
 	 */
 	public function on_upgrader_process_complete_theme_update( $upgrader_instance = null, $arr_data = null ) {
-
 		/*
 		For theme updates $arr_data looks like
 
@@ -270,7 +265,7 @@ class Theme_Logger extends Logger {
 	 * Log theme installation.
 	 *
 	 * @param \WP_Upgrader $upgrader_instance WP_Upgrader instance.
-	 * @param array        $arr_data          Array of bulk item update data.
+	 * @param array<mixed> $arr_data Array of bulk item update data.
 	 * @return void
 	 */
 	public function on_upgrader_process_complete_theme_install( $upgrader_instance = null, $arr_data = null ) {
@@ -320,8 +315,10 @@ class Theme_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * @return void
+	 */
 	public function on_page_load_custom_background() {
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( empty( $_POST ) ) {
 			return;
@@ -349,9 +346,10 @@ class Theme_Logger extends Logger {
 		}
 	}
 
-	/*
-	WP_Customize_Manager $this WP_Customize_Manager instance.
-	*/
+	/**
+	 * @param \WP_Customize_Manager $customize_manager WP_Customize_Manager instance.
+	 * @return void
+	 */
 	public function on_action_customize_save( $customize_manager ) {
 
 		/*
@@ -428,6 +426,8 @@ class Theme_Logger extends Logger {
 	 *    [stylesheet] => wp-theme-bonny-starter
 	 *    [_wpnonce] => ...
 	 *  )
+	 *
+	 * @return void
 	 */
 	public function on_page_load_themes() {
 
@@ -448,8 +448,12 @@ class Theme_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * @param string   $new_name  Name of the new theme.
+	 * @param \WP_Theme $new_theme WP_Theme instance of the new theme.
+	 * @return void
+	 */
 	public function on_switch_theme( $new_name, $new_theme ) {
-
 		$prev_theme_data = $this->prev_theme_data;
 
 		$this->info_message(
@@ -548,8 +552,6 @@ class Theme_Logger extends Logger {
 
 	/**
 	 * Add widget name and sidebar name to output
-	 *
-	 * @param object $row Log row object.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;
@@ -633,63 +635,13 @@ class Theme_Logger extends Logger {
 	/**
 	 * A widget is changed, i.e. new values are saved
 	 *
-	 * @TODO: first time a widget is added it seems to call this and we get double edit logs that are confusing
+	 * @param array<mixed> $instance       The current widget instance's settings.
+	 * @param array<mixed> $new_instance   Array of new widget settings.
+	 * @param array<mixed> $old_instance   Array of old widget settings.
+	 * @param \WP_Widget $widget_instance WP_Widget instance.
+	 * @return array<mixed> Original instance.
 	 */
 	public function on_widget_update_callback( $instance, $new_instance, $old_instance, $widget_instance ) {
-
-		// sf_d($instance);
-		/*
-		Array
-		(
-			[title] => Custom menu I am abc
-			[nav_menu] => 0
-		)
-
-		*/
-
-		// sf_d($new_instance);
-		/*
-		Custom Menu
-		Array
-		(
-			[title] => Custom menu I am abc
-			[nav_menu] => 0
-		)
-		*/
-
-		// sf_d($old_instance);
-		/*
-		Array
-		(
-			[title] => Custom menu I am
-			[nav_menu] => 0
-		)
-		*/
-
-		// sf_d($widget_instance);
-		/*
-		WP_Nav_Menu_Widget Object
-		(
-			[id_base] => nav_menu
-			[name] => Custom Menu
-			[widget_options] => Array
-				(
-					[classname] => widget_nav_menu
-					[description] => Add a custom menu to your sidebar.
-				)
-
-			[control_options] => Array
-				(
-					[id_base] => nav_menu
-				)
-
-			[number] => 2
-			[id] => nav_menu-2
-			[updated] =>
-			[option_name] => widget_nav_menu
-		)
-		*/
-
 		// If old_instance is empty then this widget has just been added
 		// and we log that as "Added" not "Edited"
 		if ( empty( $old_instance ) ) {
@@ -711,7 +663,7 @@ class Theme_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$sidebar_id = $_POST['sidebar'] ?? null;
 		$context['sidebar_id'] = $sidebar_id;
-		
+
 		$sidebar = $this->get_sidebar_by_id( $sidebar_id );
 		if ( is_array( $sidebar ) ) {
 			$context['sidebar_name_translated'] = $sidebar['name'];
@@ -730,11 +682,13 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
-	 * Widget added
+	 * Widget added.
+	 *
+	 * @return void
 	 */
 	public function on_action_sidebar_admin_setup__detect_widget_add() {
-
 		$context = array();
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['add_new'] ) && ! empty( $_POST['add_new'] ) && isset( $_POST['sidebar'] ) && isset( $_POST['id_base'] ) ) {
 			// Add widget info
@@ -763,11 +717,12 @@ class Theme_Logger extends Logger {
 		}
 	}
 
-	/*
+	/**
 	 * Widget deleted.
+	 *
+	 * @return void
 	 */
 	public function on_action_sidebar_admin_setup__detect_widget_delete() {
-
 		// Widget was deleted
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['delete_widget'] ) ) {
@@ -803,7 +758,7 @@ class Theme_Logger extends Logger {
 	 * Get a sidebar by id.
 	 *
 	 * @param string $sidebar_id ID of sidebar.
-	 * @return array|false sidebar info or false on failure.
+	 * @return array<string,mixed>|false sidebar info or false on failure.
 	 */
 	public function get_sidebar_by_id( $sidebar_id ) {
 
