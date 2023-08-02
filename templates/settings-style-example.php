@@ -105,6 +105,38 @@ defined( 'ABSPATH' ) || die();
 						</tbody>
 					</table>
 
+					<p>Tables can be used to show before and after values:</p>
+
+					<table class="SimpleHistoryLogitem__keyValueTable">
+						<tbody>
+							<tr>
+							<td>Nickname</td>
+							<td>
+								<ins class="SimpleHistoryLogitem__keyValueTable__addedThing"
+								>john</ins
+								>
+								<del class="SimpleHistoryLogitem__keyValueTable__removedThing">johndoe</del>
+							</td>
+							</tr>
+							<tr>
+							<td>Website</td>
+							<td>
+								<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">https://texttv.nu</ins>
+								<del class="SimpleHistoryLogitem__keyValueTable__removedThing">http://texttv.nu/</del>
+							</td>
+							</tr>
+							<tr>
+							<td>Description</td>
+							<td>
+								<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">Description of something. New and good.</ins>
+								<del class="SimpleHistoryLogitem__keyValueTable__removedThing">Old and bad description that was not so good.</del>
+							</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<p>Inline divided with much info in a row next to each other:</p>
+
 					<p>
 						<span class="SimpleHistoryLogitem__inlineDivided">
 							<em>Author:</em>
