@@ -2,6 +2,7 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Helpers;
 use Simple_History\Simple_History;
 use Simple_History\Log_Query;
 use Simple_History\Log_Levels;
@@ -42,8 +43,10 @@ class RSS_Dropin extends Dropin {
 			Simple_History::SETTINGS_GENERAL_OPTION_GROUP,
 			'simple_history_enable_rss_feed',
 			array(
-				$this,
-				'update_rss_status',
+				'sanitize_callback' => array(
+					Helpers::class,
+					'sanitize_checkbox_input',
+				),
 			)
 		);
 
@@ -140,27 +143,13 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output for settings field that show current RSS address
+	 * Output for settings field that show current RSS address.
 	 */
 	public function settings_field_rss_enable() {
 		?>
 		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
 		<label for="simple_history_enable_rss_feed"><?php esc_html_e( 'Enable RSS feed', 'simple-history' ); ?></label>
 		<?php
-	}
-
-	/**
-	 * Sanitize RSS enabled/disabled status on update settings
-	 *
-	 * @param string $field value of the field
-	 * @return string 1 if enabled, 0 if disabled
-	 */
-	public function update_rss_status( $field ) {
-		if ( $field === '1' ) {
-			return '1';
-		}
-
-		return '0';
 	}
 
 	/**

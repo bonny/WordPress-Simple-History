@@ -62,15 +62,12 @@ class Simple_History_Logger extends Logger {
 			return $location;
 		}
 
-		// Here make new_value be not NULL but 0. Need sanitize for save functions.
-		var_dump($this->arr_found_changes);exit;
-
 		$context = [];
 
 		foreach ( $this->arr_found_changes as $change ) {
 			$option = $change['option'];
 
-			// Remove 'simple_history_' from beginning of string using preg_replace.
+			// Remove 'simple_history_' from beginning of string.
 			$option = preg_replace( '/^simple_history_/', '', $option );
 
 			$context[ "{$option}_prev" ] = $change['old_value'];

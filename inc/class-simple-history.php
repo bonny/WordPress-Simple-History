@@ -1985,17 +1985,37 @@ Because Simple History was only recently installed, this feed does not display m
 		// Section for general options.
 		// Will contain settings like where to show simple history and number of items.
 		$settings_section_general_id = self::SETTINGS_SECTION_GENERAL_ID;
+
 		add_settings_section(
 			$settings_section_general_id,
-			'',
+			__( 'General', 'simple-history' ),
 			array( $this, 'settings_section_output' ),
 			self::SETTINGS_MENU_SLUG // Same slug as for options menu page.
 		);
 
-		// Settings for the general settings section
-		// Each setting = one row in the settings section
-		// add_settings_field( $id, $title, $callback, $page, $section, $args );
-		// Checkboxes for where to show simple history
+		// Checkboxes for where to show simple history.
+		register_setting(
+			self::SETTINGS_GENERAL_OPTION_GROUP,
+			'simple_history_show_on_dashboard',
+			array(
+				'sanitize_callback' => array(
+					Helpers::class,
+					'sanitize_checkbox_input',
+				),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GENERAL_OPTION_GROUP,
+			'simple_history_show_as_page',
+			array(
+				'sanitize_callback' => array(
+					Helpers::class,
+					'sanitize_checkbox_input',
+				),
+			)
+		);
+
 		add_settings_field(
 			'simple_history_show_where',
 			__( 'Show history', 'simple-history' ),
@@ -2003,10 +2023,6 @@ Because Simple History was only recently installed, this feed does not display m
 			self::SETTINGS_MENU_SLUG,
 			$settings_section_general_id
 		);
-
-		// Nonces for show where inputs.
-		register_setting( self::SETTINGS_GENERAL_OPTION_GROUP, 'simple_history_show_on_dashboard' );
-		register_setting( self::SETTINGS_GENERAL_OPTION_GROUP, 'simple_history_show_as_page' );
 
 		// Number if items to show on the history page.
 		add_settings_field(

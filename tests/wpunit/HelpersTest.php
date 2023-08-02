@@ -118,4 +118,10 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		);
 			
 	}
+
+	function test_sanitize_checkbox_input() {
+		$this->assertEquals( '1', Helpers::sanitize_checkbox_input( '1' ) );
+		$this->assertEquals( '0', Helpers::sanitize_checkbox_input( '' ) );
+		$this->assertEquals( '0', Helpers::sanitize_checkbox_input( null ) );
+	}
 }

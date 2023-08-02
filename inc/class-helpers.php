@@ -560,4 +560,16 @@ class Helpers {
 
 		return $arr_found_additional_ip_headers;
 	}
+
+	/**
+	 * Sanitize checkbox inputs with value "0" or "1",
+	 * so unchecked boxes get value 0 instead of null.
+	 * To be used as sanitization callback for register_setting().
+	 *
+	 * @param string $field value of the field.
+	 * @return string "1" if enabled, "0" if disabled.
+	 */
+	public static function sanitize_checkbox_input( $field ) {
+		return ( $field === '1' ) ? '1' : '0';
+	}
 }
