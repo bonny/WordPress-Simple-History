@@ -6,13 +6,6 @@ use Simple_History\Helpers;
 
 /**
  * Logs changes made on the Simple History settings page.
- *
- * To begin with the following changes will be logged:
- *
- * - RSS feed enable and secret update
- * - Show history on dashboard, as a page
- * - Number of items to show on page, dashboard
- * - Clear log
  */
 class Simple_History_Logger extends Logger {
 	protected $slug = 'SimpleHistoryLogger';
@@ -42,16 +35,16 @@ class Simple_History_Logger extends Logger {
 
 	/**
 	 * Log when the log is cleared.
-	 * 
+	 *
 	 * @param int $num_rows_deleted Number of rows deleted.
 	 */
 	public function on_log_cleared( $num_rows_deleted ) {
-		$this->info_message( 
+		$this->info_message(
 			'cleared_log',
 			[
 				'num_rows_deleted' => $num_rows_deleted,
 			]
-		 );
+		);
 	}
 
 	/**
@@ -111,5 +104,117 @@ class Simple_History_Logger extends Logger {
 			'old_value' => $old_value,
 			'new_value' => $new_value,
 		];
+	}
+
+
+	/**
+	 * Return formatted list of changes made.
+	 *
+	 * @param object $row
+	 */
+	public function get_log_row_details_output( $row ) {
+		$context = $row->context;
+
+		$settings = [
+			[
+				'slug' => 'show_on_dashboard',
+				'name' => __( 'Show on dashboard', 'simple-history' ),
+				// For on-off values then 1 = on and 0 = off.
+				'number_yes_no' => true,
+			],
+			[
+				'slug' => 'show_as_page',
+				'name' => __( 'Show as a page', 'simple-history' ),
+				'number_yes_no' => true,
+			],
+			[
+				'slug' => 'pager_size',
+				'name' => __( 'Items on page', 'simple-history' ),
+			],
+			[
+				'slug' => 'pager_size_dashboard',
+				'name' => __( 'Items on dashboard', 'simple-history' ),
+			],
+			[
+				'slug' => 'enable_rss_feed',
+				'name' => __( 'RSS feed enabled', 'simple-history' ),
+				'number_yes_no' => true,
+			],
+		];
+
+		// Find prev and new values for each setting,
+		// e.g. the slug + "_new" or "_prev".
+		foreach ( $settings as $key => $setting ) {
+			$slug = $setting['slug'];
+
+			$prev_value = $context[ "{$slug}_prev" ] ?? null;
+			$new_value = $context[ "{$slug}_new" ] ?? null;
+
+			$settings[ $key ]['changed'] = false;
+			$settings[ $key ]['added'] = false;
+			$settings[ $key ]['removed'] = false;
+
+			// If both prev and new are null then no change was made.
+			if ( is_null( $prev_value ) && is_null( $new_value ) ) {
+				continue;
+			}
+
+			// If both prev and new are the same then no change was made.
+			if ( $prev_value === $new_value ) {
+				continue;
+			}
+
+			if ( is_null( $prev_value ) ) {
+				// If prev is null then it was added.
+				$prev_value = '<em>' . __( 'Not set', 'simple-history' ) . '</em>';
+				$settings[ $key ]['added'] = true;
+			} else if ( is_null( $new_value ) ) {
+				// If new is null then it was removed.
+				$new_value = '<em>' . __( 'Not set', 'simple-history' ) . '</em>';
+				$settings[ $key ]['removed'] = true;
+			} else {
+				$settings[ $key ]['changed'] = true;
+			}
+
+			$settings[ $key ]['prev_value'] = $prev_value;
+			$settings[ $key ]['new_value'] = $new_value;
+		}
+
+		$output = '';
+
+		// Generate table output from $settings array with all required info.
+		$table = '<table class="SimpleHistoryLogitem__keyValueTable"><tbody>';
+		foreach ( $settings as $setting ) {
+			if ( $setting['changed'] ) {
+
+				$new_value_to_show = $setting['new_value'];
+				$prev_value_to_show = $setting['prev_value'];
+
+				if ( $setting['number_yes_no'] ?? false ) {
+					$new_value_to_show = $setting['new_value'] === '1' ? 'Yes' : 'No';
+					$prev_value_to_show = $setting['prev_value'] === '1' ? 'Yes' : 'No';
+				}
+
+				$table .= sprintf(
+					'
+					<tr>
+						<td>%1$s</td>
+						<td>
+							<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
+							<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
+						</td>
+					</tr>
+					',
+					esc_html( $setting['name'] ),
+					esc_html( $new_value_to_show ),
+					esc_html( $prev_value_to_show ),
+				);
+			}
+		}
+		$table .= '</tbody></table>';
+
+		$output .= $table;
+
+		return $output;
 	}
 }
