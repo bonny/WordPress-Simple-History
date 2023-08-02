@@ -23,17 +23,35 @@ class Simple_History_Logger extends Logger {
 	public function get_info() {
 		return [
 			'name'        => _x( 'Simple History Logger', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+			'name_via'   => _x( 'Using plugin Simple History', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			'description' => __( 'Logs changes made on the Simple History settings page.', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(
 				'modified_settings' => _x( 'Modified settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'regenerated_rss_feed_secret' => _x( 'Regenerated RSS feed secret', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'cleared_log' => _x( 'Cleared the log for Simple History ({num_rows_deleted} rows were removed)', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
 		];
 	}
 
 	public function loaded() {
 		add_action( 'load-options.php', [ $this, 'on_load_options_page' ] );
-		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ], 10, 2 );
+		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ] );
+		add_action( 'simple_history/settings/log_cleared', [ $this, 'on_log_cleared' ] );
+	}
+
+	/**
+	 * Log when the log is cleared.
+	 * 
+	 * @param int $num_rows_deleted Number of rows deleted.
+	 */
+	public function on_log_cleared( $num_rows_deleted ) {
+		$this->info_message( 
+			'cleared_log',
+			[
+				'num_rows_deleted' => $num_rows_deleted,
+			]
+		 );
 	}
 
 	/**
@@ -86,22 +104,6 @@ class Simple_History_Logger extends Logger {
 
 		return $location;
 	}
-
-	/*
-		$action = 'update';
-
-		[simple_history_settings_group] => Array
-		(
-			[0] => simple_history_show_on_dashboard
-			[1] => simple_history_show_as_page
-			[2] => simple_history_pager_size
-			[3] => simple_history_pager_size_dashboard
-			[4] => simple_history_enable_rss_feed
-		)
-	*/
-
-	// echo "admin_action_{$action}";exit; // admin_action_update
-	// echo "load-{$pagenow}"; // load-options.php
 
 	public function on_updated_option( $option, $old_value, $new_value ) {
 		$this->arr_found_changes[] = [

@@ -1951,11 +1951,7 @@ Because Simple History was only recently installed, this feed does not display m
 		}
 	}
 
-	/**
-	 * Add setting sections and settings for the settings page
-	 * Also maybe save some settings before outputting them
-	 */
-	public function add_settings() {
+	private function clear_log_from_url_request() {
 		// Clear the log if clear button was clicked in settings
 		// and redirect user to show message.
 		if (
@@ -1963,14 +1959,22 @@ Because Simple History was only recently installed, this feed does not display m
 			wp_verify_nonce( $_GET['simple_history_clear_log_nonce'], 'simple_history_clear_log' )
 		) {
 			if ( $this->user_can_clear_log() ) {
-				$this->clear_log();
+				$num_rows_deleted = $this->clear_log();
+
+				/**
+				 * Fires after the log has been cleared using
+				 * the "Clear log now" button on the settings page.
+				 *
+				 * @param int $num_rows_deleted Number of rows deleted.
+				 */
+				do_action( 'simple_history/settings/log_cleared', $num_rows_deleted );
 			}
 
 			$msg = __( 'Cleared database', 'simple-history' );
 
 			add_settings_error(
-				'simple_history_rss_feed_regenerate_secret',
-				'simple_history_rss_feed_regenerate_secret',
+				'simple_history_settings_clear_log',
+				'simple_history_settings_clear_log',
 				$msg,
 				'updated'
 			);
@@ -1981,6 +1985,14 @@ Because Simple History was only recently installed, this feed does not display m
 			wp_redirect( $goback );
 			exit();
 		}
+	}
+
+	/**
+	 * Add setting sections and settings for the settings page
+	 * Also maybe save some settings before outputting them
+	 */
+	public function add_settings() {
+		$this->clear_log_from_url_request();
 
 		// Section for general options.
 		// Will contain settings like where to show simple history and number of items.
@@ -2252,7 +2264,7 @@ Because Simple History was only recently installed, this feed does not display m
 	}
 
 	/**
-	 * Settings section to clear database
+	 * Settings section to clear database.
 	 */
 	public function settings_field_clear_log() {
 		// Get base URL to current page.
@@ -2352,14 +2364,6 @@ Because Simple History was only recently installed, this feed does not display m
 		$sql = "TRUNCATE {$tableprefix}{$simple_history_context_table}";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
-
-		// Zero state sucks.
-		SimpleLogger()->info(
-			__( 'The log for Simple History was cleared ({num_rows} rows were removed).', 'simple-history' ),
-			array(
-				'num_rows' => $num_rows,
-			)
-		);
 
 		Helpers::get_cache_incrementor( true );
 
