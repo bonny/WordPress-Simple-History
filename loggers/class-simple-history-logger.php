@@ -128,32 +128,101 @@ class Simple_History_Logger extends Logger {
 	public function get_log_row_details_output( $row ) {
 		$context = $row->context;
 
-		$context_output_config = [
-			[
-				'name' => __( 'Show on dashboard', 'simple-history' ),
-				'slug' => 'show_on_dashboard',
-				'number_yes_no' => true,
-			],
-			[
-				'name' => __( 'Show as a page', 'simple-history' ),
-				'slug' => 'show_as_page',
-				'number_yes_no' => true,
-			],
-			[
-				'name' => __( 'Items on page', 'simple-history' ),
-				'slug' => 'pager_size',
-			],
-			[
-				'name' => __( 'Items on dashboard', 'simple-history' ),
-				'slug' => 'pager_size_dashboard',
-			],
-			[
-				'name' => __( 'RSS feed enabled', 'simple-history' ),
-				'slug' => 'enable_rss_feed',
-				'number_yes_no' => true,
-			],
-		];
+		$context_config = new Context_Output_Config_DTO();
 
-		return Helpers::generate_added_removed_table_from_context_output_config_array( $context, $context_output_config );
+		$context_config->add_context_items(
+			[
+				new Context_Output_Config_Item_DTO(
+					'show_on_dashboard',
+					__( 'Show on dashboard', 'simple-history' ),
+					[ 'number_yes_no' => true ]
+				),
+				new Context_Output_Config_Item_DTO(
+					'show_as_page',
+					__( 'Show as a page', 'simple-history' ),
+					[
+						'number_yes_no' => true,
+					]
+				),
+				new Context_Output_Config_Item_DTO(
+					'pager_size',
+					__( 'Items on page', 'simple-history' ),
+				),
+				new Context_Output_Config_Item_DTO(
+					'pager_size_dashboard',
+					__( 'Items on dashboard', 'simple-history' ),
+				),
+				new Context_Output_Config_Item_DTO(
+					'enable_rss_feed',
+					__( 'RSS feed enabled', 'simple-history' ),
+					[
+						'number_yes_no' => true,
+					]
+				),
+			]
+		);
+
+		return Helpers::generate_added_removed_table_from_context_output_config_array( $context, $context_config );
+	}
+}
+
+class Context_Output_Config_DTO {
+	/** @var array<Context_Output_Config_Item_DTO> */
+	public array $items;
+
+	/**
+	 * @param array<Context_Output_Config_Item_DTO> $context_items
+	 */
+	public function __construct( $context_items = [] ) {
+		$this->items = $context_items;
+	}
+
+	/**
+	 * @param Context_Output_Config_Item_DTO $context_item
+	 * @return void
+	 */
+	public function add_context_item( $context_item ) {
+		$this->items[] = $context_item;
+	}
+
+	/**
+	 * @param array<Context_Output_Config_Item_DTO> $context_items
+	 * @return void
+	 */
+	public function add_context_items( $context_items ) {
+		foreach ( $context_items as $context_item ) {
+			$this->add_context_item( $context_item );
+		}
+	}
+}
+
+class Context_Output_Config_Item_DTO {
+	/** @var string Human readable name of setting */
+	public string $name;
+
+	/** @var string Slug of setting */
+	public string $slug;
+
+	public string $new_value = '';
+	public string $prev_value = '';
+
+	public bool $is_changed = false;
+	public bool $is_added = false;
+	public bool $is_removed = false;
+
+	public bool $number_yes_no = false;
+
+	/**
+	 * @param string $slug
+	 * @param string $name
+	 * @param array<string,mixed> $additional_args
+	 */
+	public function __construct( $slug, $name, $additional_args = [] ) {
+		$this->name = $name;
+		$this->slug = $slug;
+
+		if ( isset( $additional_args['number_yes_no'] ) ) {
+			$this->number_yes_no = $additional_args['number_yes_no'];
+		}
 	}
 }
