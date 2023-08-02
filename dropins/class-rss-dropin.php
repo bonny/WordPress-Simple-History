@@ -84,7 +84,7 @@ class RSS_Dropin extends Dropin {
 				$settings_section_rss_id
 			);
 
-			// Regenerate address.
+			// Link button to regenerate RSS secret.
 			add_settings_field(
 				'simple_history_rss_feed_regenerate_secret',
 				__( 'Regenerate', 'simple-history' ),
@@ -439,7 +439,6 @@ class RSS_Dropin extends Dropin {
 	 * Output for settings field that regenerates the RSS address/secret
 	 */
 	public function settings_field_rss_regenerate() {
-
 		$update_link = esc_url( add_query_arg( '', '' ) );
 		$update_link = wp_nonce_url( $update_link, 'simple_history_rss_update_secret', 'simple_history_rss_secret_regenerate_nonce' );
 
