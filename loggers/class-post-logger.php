@@ -1297,14 +1297,12 @@ class Post_Logger extends Logger {
 	 * @return array Maybe modified context.
 	 */
 	public function add_post_thumb_diff( $context, $old_meta, $new_meta ) {
-		$post_thumb_modified = false;
 		$prev_post_thumb_id = null;
 		$new_post_thumb_id = null;
 
 		// If it was changed from one image to another.
 		if ( isset( $old_meta['_thumbnail_id'][0] ) && isset( $new_meta['_thumbnail_id'][0] ) ) {
 			if ( $old_meta['_thumbnail_id'][0] !== $new_meta['_thumbnail_id'][0] ) {
-				$post_thumb_modified = true;
 				$prev_post_thumb_id = $old_meta['_thumbnail_id'][0];
 				$new_post_thumb_id = $new_meta['_thumbnail_id'][0];
 			}
