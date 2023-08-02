@@ -33,6 +33,7 @@ class Simple_History_Logger extends Logger {
 
 	public function loaded() {
 		add_action( 'load-options.php', [ $this, 'on_load_options_page' ] );
+		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ], 10, 2 );
 	}
 
 	/**
@@ -48,6 +49,13 @@ class Simple_History_Logger extends Logger {
 			// Finally, before redirecting back to Simple History options page, log the changes.
 			add_filter( 'wp_redirect', [ $this, 'commit_log_on_wp_redirect' ], 10, 2 );
 		}
+	}
+
+	/**
+	 * Log when the RSS feed secret is updated.
+	 */
+	public function on_rss_feed_secret_updated() {
+		$this->info_message( 'regenerated_rss_feed_secret' );
 	}
 
 	/**
