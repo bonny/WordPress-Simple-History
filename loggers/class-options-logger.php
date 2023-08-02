@@ -52,8 +52,15 @@ class Options_Logger extends Logger {
 		add_action( 'updated_option', array( $this, 'on_updated_option' ), 10, 3 );
 	}
 
+	/**
+	 * When an option is updated.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed $old_value Old value.
+	 * @param mixed $new_value New value.
+	 * @return void
+	 */
 	public function on_updated_option( $option, $old_value, $new_value ) {
-
 		if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 			return;
 		}
