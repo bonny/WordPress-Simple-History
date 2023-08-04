@@ -513,6 +513,16 @@ class Helpers {
 	}
 
 	/**
+	 * Check if Simple History dev mode is enabled.
+	 * Used by the developer of the plugin to test things.
+	 *
+	 * @return bool True if dev mode is enabled.
+	 */
+	public static function dev_mode_is_enabled() {
+		return defined( 'SIMPLE_HISTORY_DEV' ) && \SIMPLE_HISTORY_DEV;
+	}
+
+	/**
 	 * Wrapper around WordPress function is_plugin_active()
 	 * that loads the required files if function does not exist.
 	 *

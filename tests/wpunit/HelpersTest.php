@@ -90,6 +90,17 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( Helpers::log_debug_is_enabled() );
 	}
 
+	function test_constant_simple_history_dev_mode_is_not_defined() {
+		$this->assertFalse( defined( 'SIMPLE_HISTORY_DEV' ) );
+		$this->assertFalse( Helpers::dev_mode_is_enabled() );
+	}
+
+	function test_constant_simple_history_dev_mode_is_defined() {
+		define( 'SIMPLE_HISTORY_DEV', true );
+		$this->assertTrue( defined( 'SIMPLE_HISTORY_DEV' ) );
+		$this->assertTrue( Helpers::dev_mode_is_enabled() );
+	}
+
 	// Test helper function Helpers:get_event_ip_number_headers()
 	function test_get_event_ip_number_headers() {
 		$event_row = new stdClass();
