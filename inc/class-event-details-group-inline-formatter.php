@@ -7,7 +7,7 @@ abstract class Event_Details_Group_Formatter {
 	/**
 	 * @param Event_Details_Group $group
 	 * @param array<string,mixed> $context
-	 * @return string|array
+	 * @return string|array<mixed>
 	 */
 	abstract public function get_output( $group, $context );
 }
@@ -85,10 +85,13 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 // i.e. output current value and previous value, if any.
 abstract class Event_Details_Item_Formatter {
 	/**
-	 * @param Event_Details_Item $item
+	 * @var Event_Details_Item $item
 	 */
 	protected $item;
 
+	/**
+	 * @param Event_Details_Item $item
+	 */
 	public function __construct( $item ) {
 		$this->item = $item;
 	}
@@ -98,6 +101,9 @@ abstract class Event_Details_Item_Formatter {
 	 */
 	abstract public function get_output();
 
+	/**
+	 * @return string
+	 */
 	protected function get_value_diff_output() {
 		$value_output = '';
 

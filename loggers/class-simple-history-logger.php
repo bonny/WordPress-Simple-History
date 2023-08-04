@@ -2,12 +2,8 @@
 
 namespace Simple_History\Loggers;
 
-use Simple_History;
-use Simple_History\Helpers;
 use Simple_History\Event_Details_Container;
 use Simple_History\Event_Details_Item;
-
-use function Simple_History\generate_added_removed_table_from_context_output_config_array;
 
 /**
  * Logs changes made on the Simple History settings page.
@@ -131,8 +127,6 @@ class Simple_History_Logger extends Logger {
 	 * @param object $row
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
-
 		$context_config = new Event_Details_Container();
 		$context_config->add_items(
 			[
@@ -159,7 +153,7 @@ class Simple_History_Logger extends Logger {
 			]
 		);
 
-		$context_config->set_context( $context );
+		$context_config->set_context( $row->context );
 
 		return $context_config->get_output( 'html' );
 	}

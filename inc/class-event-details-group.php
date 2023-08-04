@@ -15,6 +15,7 @@ class Event_Details_Group {
 
 	/**
 	 * @param array<Event_Details_Item> $items
+	 * @return void
 	 */
 	public function add_items( $items ) {
 		$this->items = array_merge( $this->items, $items );

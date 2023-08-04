@@ -86,7 +86,6 @@ class Event_Details_Container {
 	}
 
 	/**
-	 * @param array<string,mixed> $context
 	 * @param string $format
 	 * @return string
 	 */
@@ -94,11 +93,16 @@ class Event_Details_Container {
 		if ( 'html' === $format ) {
 			return $this->get_html_output();
 		}
+
+		return '';
 		//  else if ( 'json' === $format ) {
 			// return $this->get_json_output_for_context( $context );
 		// }
 	}
 
+	/**
+	 * @return string
+	 */
 	private function get_html_output() {
 		$output = '';
 

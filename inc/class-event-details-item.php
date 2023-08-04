@@ -30,14 +30,6 @@ class Event_Details_Item {
 	/** @var bool If value of item is removed */
 	public ?bool $is_removed = null;
 
-	/** @var bool If value of item should be formatted as "Yes" and "No" instead of 0 and 1. */
-	// public bool $number_yes_no = false;
-
-	/** @var array How item should be formatted */
-	// public array $format = [
-	// 	'number_yes_no' => false,
-	// ];
-
 	/**
 	 * @param array|string $slug_or_slugs
 	 * @param string $name
