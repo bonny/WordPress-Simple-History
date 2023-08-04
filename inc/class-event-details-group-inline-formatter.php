@@ -58,15 +58,15 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 		foreach ( $group->items as $item ) {
 			$name = '';
 			if ( ! empty( $item->name ) ) {
-				if ( empty( $item->new_value ) ) {
-					$name = esc_html( $item->name );
-				} else {
+				if ( isset( $item->new_value ) ) {
 					$name = sprintf( '%1$s: ', esc_html( $item->name ) );
+				} else {
+					$name = esc_html( $item->name );
 				}
 			}
 
 			$value = '';
-			if ( ! empty( $item->new_value ) ) {
+			if ( isset( $item->new_value ) ) {
 				$value = esc_html( $item->new_value );
 			}
 
@@ -139,6 +139,11 @@ class Event_Details_Item_Default_Formatter extends Event_Details_Item_Formatter 
 
 class Event_Details_Item_Table_Row_Formatter extends Event_Details_Item_Formatter {
 	public function get_output() {
+		// Skip output of items with empty values.
+		if ( is_null( $this->item->new_value ) ) {
+			return '';
+		}
+
 		return sprintf(
 			'
                 <tr>

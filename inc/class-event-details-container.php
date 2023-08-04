@@ -73,13 +73,16 @@ class Event_Details_Container {
 	}
 
 	/**
-	 * @param array<Event_Details_Item> $context_items
+	 * Add many items. They will automatically
+	 * be added to a group first to share common styles.
+	 *
+	 * @param array<Event_Details_Item> $items
 	 * @return void
 	 */
-	public function add_items( $context_items ) {
-		foreach ( $context_items as $context_item ) {
-			$this->add_item( $context_item );
-		}
+	public function add_items( $items ) {
+		$event_details_group = new Event_Details_Group();
+		$event_details_group->add_items( $items );
+		$this->add_group( $event_details_group );
 	}
 
 	/**
@@ -98,7 +101,7 @@ class Event_Details_Container {
 
 	private function get_html_output() {
 		$output = '';
-		
+
 		foreach ( $this->groups as $group ) {
 			$output .= $group->formatter->get_output( $group, $this->context );
 		}
