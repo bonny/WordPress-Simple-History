@@ -2,7 +2,8 @@
 
 namespace Simple_History;
 
-use Simple_History\Loggers\Context_Output_Config_DTO;
+use Simple_History\Event_Details_Container;
+use Simple_History\Event_Details_Item;
 
 class Helpers {
 	/**
@@ -583,99 +584,5 @@ class Helpers {
 	 */
 	public static function sanitize_checkbox_input( $field ) {
 		return ( $field === '1' ) ? '1' : '0';
-	}
-
-	/**
-	 * Append prev and new values and modification status to each item
-	 * in the context_output_config array.
-	 *
-	 * @param array $context Context array.
-	 * @param Context_Output_Config_DTO $context_output_config DTO object with config for each setting.
-	 * @return Context_Output_Config_DTO Modified $context_output_config.
-	 */
-	public static function append_modified_values_status_to_context_output_config_array( $context, $context_output_config ) {
-		// Find prev and new values for each setting,
-		// e.g. the slug + "_new" or "_prev".
-		foreach ( $context_output_config->items as $key => $setting ) {
-			$slug = $setting->slug;
-
-			$prev_value = $context[ "{$slug}_prev" ] ?? null;
-			$new_value = $context[ "{$slug}_new" ] ?? null;
-
-			$context_output_config->items[ $key ]->is_changed = false;
-			$context_output_config->items[ $key ]->is_added = false;
-			$context_output_config->items[ $key ]->is_removed = false;
-
-			// If both prev and new are null then no change was made.
-			if ( is_null( $prev_value ) && is_null( $new_value ) ) {
-				continue;
-			}
-
-			// If both prev and new are the same then no change was made.
-			if ( $prev_value === $new_value ) {
-				continue;
-			}
-
-			if ( is_null( $prev_value ) ) {
-				// If prev is null then it was added.
-				$prev_value = '<em>' . __( 'Not set', 'simple-history' ) . '</em>';
-				$context_output_config->items[ $key ]->is_added = true;
-			} else if ( is_null( $new_value ) ) {
-				// If new is null then it was removed.
-				$new_value = '<em>' . __( 'Not set', 'simple-history' ) . '</em>';
-				$context_output_config->items[ $key ]->is_removed = true;
-			} else {
-				$context_output_config->items[ $key ]->is_changed = true;
-			}
-
-			$context_output_config->items[ $key ]->prev_value = $prev_value;
-			$context_output_config->items[ $key ]->new_value = $new_value;
-		}
-
-		return $context_output_config;
-	}
-
-	/**
-	 * Generate a table with items that are modified, added, or removed.
-	 *
-	 * @param array $context Context array.
-	 * @param Context_Output_Config_DTO $context_config Array with config for each setting.
-	 * @return string HTML table.
-	 */
-	public static function generate_added_removed_table_from_context_output_config_array( $context, $context_config ) {
-		$context_config = self::append_modified_values_status_to_context_output_config_array( $context, $context_config );
-
-		$table = '<table class="SimpleHistoryLogitem__keyValueTable"><tbody>';
-
-		foreach ( $context_config->items as $setting ) {
-			if ( $setting->is_changed ) {
-				$new_value_to_show = $setting->new_value;
-				$prev_value_to_show = $setting->prev_value;
-
-				if ( $setting->number_yes_no ) {
-					$new_value_to_show = $setting->new_value === '1' ? 'Yes' : 'No';
-					$prev_value_to_show = $setting->prev_value === '1' ? 'Yes' : 'No';
-				}
-
-				$table .= sprintf(
-					'
-					<tr>
-						<td>%1$s</td>
-						<td>
-							<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
-							<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
-						</td>
-					</tr>
-					',
-					esc_html( $setting->name ),
-					esc_html( $new_value_to_show ),
-					esc_html( $prev_value_to_show ),
-				);
-			}
-		}
-
-		$table .= '</tbody></table>';
-
-		return $table;
 	}
 }
