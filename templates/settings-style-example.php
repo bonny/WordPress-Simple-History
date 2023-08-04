@@ -137,7 +137,7 @@ defined( 'ABSPATH' ) || die();
 
 					<p>
 						<span class="SimpleHistoryLogitem__inlineDivided">
-							<em>Author:</em>
+							<em>Author</em>
 							<a href="http://bbpress.org">The bbPress Community</a>
 						</span>
 
@@ -147,7 +147,7 @@ defined( 'ABSPATH' ) || die();
 						</span>
 
 						<span class="SimpleHistoryLogitem__inlineDivided">
-							<em>Version:</em>
+							<em>Version</em>
 							2.5.4
 						</span>
 
@@ -171,8 +171,130 @@ defined( 'ABSPATH' ) || die();
 
 				</div>
 
-			</div>
-		</li>
+
+				<p>Table with diff content:</p>
+
+				<table class="SimpleHistoryLogitem__keyValueTable">
+					<tbody>
+						<tr>
+							<td>Title</td>
+							<td>
+								<div class="SimpleHistory__diff__contents" tabindex="0">
+									<div class="SimpleHistory__diff__contentsInner">
+										<table class="diff SimpleHistory__diff">
+											<colgroup>
+												<col class="content" />
+											</colgroup>
+											<tbody>
+												<tr>
+													<td class="diff-deletedline">
+														<span aria-hidden="true" class="dashicons dashicons-minus"></span><span
+															class="screen-reader-text">Deleted: </span>About
+														<del>us</del>
+													</td>
+													<td class="diff-addedline">
+														<span aria-hidden="true" class="dashicons dashicons-plus"></span><span
+															class="screen-reader-text">Added: </span>About
+														<ins>Us</ins>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Content</td>
+							<td>
+								<div class="SimpleHistory__diff__contents" tabindex="0">
+									<div class="SimpleHistory__diff__contentsInner">
+										<table class="diff SimpleHistory__diff">
+											<colgroup>
+												<col class="content" />
+											</colgroup>
+											<tbody>
+												<tr>
+													<td class="diff-context">
+														<span class="screen-reader-text">Unchanged: </span>&lt;p&gt;Mer.&lt;/p&gt;
+													</td>
+													<td class="diff-context">
+														<span class="screen-reader-text">Unchanged: </span>&lt;p&gt;Mer.&lt;/p&gt;
+													</td>
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td class="diff-addedline">
+														<span aria-hidden="true" class="dashicons dashicons-plus"></span><span
+															class="screen-reader-text">Added: </span>&lt;!--
+														/wp:paragraph --&gt;
+													</td>
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td class="diff-addedline">
+														<span aria-hidden="true" class="dashicons dashicons-plus"></span><span
+															class="screen-reader-text">Added: </span>&lt;!--
+														wp:paragraph --&gt;
+													</td>
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td class="diff-addedline">
+														<span aria-hidden="true" class="dashicons dashicons-plus"></span><span
+															class="screen-reader-text">Added: </span>&lt;p&gt;Hepp.&lt;/p&gt;
+													</td>
+												</tr>
+												<tr>
+													<td class="diff-context">
+														<span class="screen-reader-text">Unchanged: </span>&lt;!--
+														/wp:paragraph --&gt;
+													</td>
+													<td class="diff-context">
+														<span class="screen-reader-text">Unchanged: </span>&lt;!--
+														/wp:paragraph --&gt;
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Menu order</td>
+							<td>
+								<div class="SimpleHistory__diff__contents" tabindex="0">
+									<div class="SimpleHistory__diff__contentsInner">
+										<table class="diff SimpleHistory__diff">
+											<colgroup>
+												<col class="content" />
+											</colgroup>
+											<tbody>
+												<tr>
+													<td class="diff-deletedline">
+														<span aria-hidden="true" class="dashicons dashicons-minus"></span><span
+															class="screen-reader-text">Deleted: </span>0
+													</td>
+													<td class="diff-addedline">
+														<span aria-hidden="true" class="dashicons dashicons-plus"></span><span
+															class="screen-reader-text">Added: </span>2
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				
+			</div><!-- // second col -->
+
+		</li><!-- // one row -->
+
+		
 
 		<?php
 		// All debug levels.
