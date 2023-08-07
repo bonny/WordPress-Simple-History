@@ -119,10 +119,12 @@ class Event_Details_Container {
 	 * be added to a group first to share common styles.
 	 *
 	 * @param array<Event_Details_Item> $items
+	 * @param string|null $group_title Optional name of the auto created group.
 	 * @return Event_Details_Container $this
 	 */
-	public function add_items( $items ) {
+	public function add_items( $items, $group_title = null ) {
 		$event_details_group = new Event_Details_Group();
+		$event_details_group->set_title( $group_title );
 		$event_details_group->add_items( $items );
 		$this->add_group( $event_details_group );
 

@@ -149,7 +149,8 @@ class Simple_History_Logger extends Logger {
 						[ 'enable_rss_feed' ],
 						__( 'RSS feed enabled', 'simple-history' ),
 					),
-				]
+				],
+				__( 'Changed items', 'simple-history' )
 			)
 			->set_context( $row->context );
 
