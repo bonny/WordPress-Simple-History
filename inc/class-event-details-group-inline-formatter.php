@@ -96,17 +96,22 @@ abstract class Event_Details_Item_Formatter {
 
 	/**
 	 * @param Event_Details_Item $item
+	 * @return Event_Details_Item_Formatter $this
 	 */
 	public function __construct( $item = null ) {
 		$this->item = $item;
+
+		return $this;
 	}
 
 	/**
 	 * @param Event_Details_Item $item
-	 * @return void
+	 * @return Event_Details_Item_Formatter $this
 	 */
 	public function set_item( $item ) {
 		$this->item = $item;
+
+		return $this;
 	}
 
 	/**
@@ -214,17 +219,21 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 
 	/**
 	 * @param string $html
-	 * @return void
+	 * @return Event_Details_Item_RAW_Formatter $this
 	 */
 	public function set_html_output( $html ) {
 		$this->html_output = $html;
+
+		return $this;
 	}
 
 	/**
 	 * @param array<mixed> $json
-	 * @return void
+	 * @return Event_Details_Item_RAW_Formatter $this
 	 */
 	public function set_json_output( $json ) {
 		$this->json_output = $json;
+
+		return $this;
 	}
 }

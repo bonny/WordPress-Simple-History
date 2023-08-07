@@ -37,6 +37,7 @@ class Event_Details_Item {
 	 * @param array|string $slug_or_slugs
 	 * @param string $name
 	 * @param array<string,mixed> $additional_args
+	 * @return Event_Details_Item $this
 	 */
 	public function __construct( $slug_or_slugs = null, $name = null, $additional_args = [] ) {
 		// Set keys to use for new/current and old/prev values
@@ -59,6 +60,8 @@ class Event_Details_Item {
 		// if ( isset( $additional_args['number_yes_no'] ) ) {
 		// 	$this->number_yes_no = $additional_args['number_yes_no'];
 		// }
+
+		return $this;
 	}
 
 	/**
@@ -66,10 +69,12 @@ class Event_Details_Item {
 	 * If used then value will not be fetched from context.
 	 *
 	 * @param string $value
-	 * @return void
+	 * @return Event_Details_Item $this
 	 */
 	public function set_new_value( $new_value ) {
 		$this->new_value = $new_value;
+
+		return $this;
 	}
 
 	/**
@@ -77,10 +82,12 @@ class Event_Details_Item {
 	 * If used then value will not be fetched from context.
 	 *
 	 * @param string $value
-	 * @return void
+	 * @return Event_Details_Item $this
 	 */
 	public function set_prev_value( $prev_value ) {
 		$this->prev_value = $prev_value;
+
+		return $this;
 	}
 
 	/**
@@ -89,19 +96,23 @@ class Event_Details_Item {
 	 *
 	 * @param string $new_value
 	 * @param string $prev_value
-	 * @return void
+	 * @return Event_Details_Item $this
 	 */
 	public function set_values( $new_value, $prev_value ) {
 		$this->set_new_value( $new_value );
 		$this->set_prev_value( $prev_value );
+
+		return $this;
 	}
 
 	/**
 	 * @param Event_Details_Item_Formatter $formatter
-	 * @return void
+	* @return Event_Details_Item $this
 	 */
 	public function set_formatter( $formatter ) {
 		$this->formatter = $formatter;
+
+		return $this;
 	}
 
 	/**

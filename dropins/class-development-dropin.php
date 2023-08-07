@@ -181,61 +181,58 @@ class Development_Dropin extends Dropin {
 		$event_details_group_inline->add_items( $event_details_container );
 
 		// Another group, with same items, but different format.
-		$event_details_group_table = new Event_Details_Group();
-		$event_details_group_table->set_formatter( new Event_Details_Group_Table_Formatter() );
-		$event_details_group_table->add_items( $event_details_container );
+		// Also uses chaining.
+		$event_details_group_table = ( new Event_Details_Group() )
+			->set_formatter( new Event_Details_Group_Table_Formatter() )
+			->add_items( $event_details_container );
 
 		// Another group. Empty second arg to each item to not show title.
 		// Value of each thing must be self-explanatory.
-		$event_details_group_two = new Event_Details_Group();
-		$event_details_group_two->set_formatter( new Event_Details_Group_Inline_Formatter() );
-		$event_details_group_two->add_items(
-			[
-				new Event_Details_Item( 'image_size' ),
-				new Event_Details_Item( 'image_format' ),
-				new Event_Details_Item( 'image_dimensions' ),
-			]
-		);
+		$event_details_group_two = ( new Event_Details_Group() )
+			->set_formatter( new Event_Details_Group_Inline_Formatter() )
+			->add_items(
+				[
+					new Event_Details_Item( 'image_size' ),
+					new Event_Details_Item( 'image_format' ),
+					new Event_Details_Item( 'image_dimensions' ),
+				]
+			);
 
 		// Grouop with no added formatter.
 		// Uses table layout.
-		$event_details_group_three = new Event_Details_Group();
-		$event_details_group_three->add_items(
-			[
-				new Event_Details_Item( 'image_size', 'Size' ),
-				new Event_Details_Item( 'image_format', 'Format' ),
-				new Event_Details_Item( 'image_dimensions', 'Dimensions' ),
-			]
-		);
+		$event_details_group_three = ( new Event_Details_Group() )
+			->add_items(
+				[
+					new Event_Details_Item( 'image_size', 'Size' ),
+					new Event_Details_Item( 'image_format', 'Format' ),
+					new Event_Details_Item( 'image_dimensions', 'Dimensions' ),
+				]
+			);
 
 		// Items can pass values manually upon creation,
 		// so values will no be fetched from context.
-		$event_details_group_four = new Event_Details_Group();
-		$item1 = new Event_Details_Item( 'image_size', 'Size with custom value' );
-		$item1->set_new_value( '123 Kb' );
-		$item2 = new Event_Details_Item( 'image_format', 'Format with custom values' );
-		$item2->set_values( 'WebP', 'PNG' );
-		$event_details_group_four->add_items( [ $item1, $item2 ] );
+		$item1 = ( new Event_Details_Item( 'image_size', 'Size with custom value' ) )->set_new_value( '123 Kb' );
+		$item2 = ( new Event_Details_Item( 'image_format', 'Format with custom values' ) )->set_values( 'WebP', 'PNG' );
+		$event_details_group_four = ( new Event_Details_Group() )->add_items( [ $item1, $item2 ] );
 
 		// Create container for the groups and add the groups.
-		$event_details_container = new Event_Details_Container();
-		$event_details_container->add_groups(
-			[
-				$event_details_group_inline,
-				$event_details_group_table,
-				$event_details_group_two,
-				$event_details_group_three,
-				$event_details_group_four,
+		$event_details_container = ( new Event_Details_Container() )
+			->add_groups(
+				[
+					$event_details_group_inline,
+					$event_details_group_table,
+					$event_details_group_two,
+					$event_details_group_three,
+					$event_details_group_four,
 
-			]
-		);
+				]
+			);
 
 		// Item with custom output.
 		// Output is not escaped, so user must escape accordingly.
-		$raw_item = new Event_Details_Item();
-		$raw_item_formatter = new Event_Details_Item_RAW_Formatter();
-		$raw_item_formatter->set_html_output(
-			'
+		$raw_item_formatter = ( new Event_Details_Item_RAW_Formatter() )
+			->set_html_output(
+				'
 				<p>
 					This is custom output. Make sure to escape it accordingly.
 				</p>
@@ -244,46 +241,43 @@ class Development_Dropin extends Dropin {
 					<a href="https://simple-history.com" target="_blank">Visit Simple-History.com</a>
 				</p>
 			'
-		);
-		$raw_item_formatter->set_json_output(
-			[
-				'key' => 'value',
-				'lorem' => 'ipsum',
-			]
-		);
-		$raw_item->set_formatter( $raw_item_formatter );
+			)
+			->set_json_output(
+				[
+					'key' => 'value',
+					'lorem' => 'ipsum',
+				]
+			);
+		$raw_item = ( new Event_Details_Item() )->set_formatter( $raw_item_formatter );
 		$event_details_container->add_item( $raw_item );
 
 		// Table with colored diffs.
-		// post_prev_post_content
-		// post_new_post_content
-		// post_prev_post_title
-		// post_new_post_title
-		$group_colored_diff = new Event_Details_Group();
-		$group_colored_diff->set_formatter( new Event_Details_Group_Diff_Table_Formatter() );
-		$group_colored_diff->add_items(
-			[
-				new Event_Details_Item(
-					[ 'post_new_post_title', 'post_prev_post_title' ],
-					__( 'Post title', 'simple-history' ),
-				),
-				new Event_Details_Item(
-					[ 'post_new_post_content', 'post_prev_post_content' ],
-					__( 'Post content', 'simple-history' ),
-				),
-				new Event_Details_Item(
-					[ 'post_new_thumb_title', 'post_prev_thumb_title' ],
-					__( 'Thumb title', 'simple-history' ),
-				),
-				new Event_Details_Item(
-					[ 'post_new_thumb_id', 'post_prev_thumb_id' ],
-					__( 'Thumb ID', 'simple-history' ),
-				),
-			]
-		);
+		$group_colored_diff = ( new Event_Details_Group() )
+			->set_formatter( new Event_Details_Group_Diff_Table_Formatter() )
+			->add_items(
+				[
+					new Event_Details_Item(
+						[ 'post_new_post_title', 'post_prev_post_title' ],
+						__( 'Post title', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'post_new_post_content', 'post_prev_post_content' ],
+						__( 'Post content', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'post_new_thumb_title', 'post_prev_thumb_title' ],
+						__( 'Thumb title', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'post_new_thumb_id', 'post_prev_thumb_id' ],
+						__( 'Thumb ID', 'simple-history' ),
+					),
+				]
+			);
 		$event_details_container->add_group( $group_colored_diff );
 
 		// Set the context. Must be done last atm.
+		// TODO: Make it possible to set context at any time, easy to miss otherwise.
 		$event_details_container->set_context( $this->get_example_context() );
 
 		return $event_details_container;

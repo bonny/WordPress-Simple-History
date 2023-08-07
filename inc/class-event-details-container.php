@@ -16,9 +16,12 @@ class Event_Details_Container {
 
 	/**
 	 * @param array<Event_Details_Group> $context_items
+	 * @return Event_Details_Container $this
 	 */
 	public function __construct( $context_items = [] ) {
 		$this->groups = $context_items;
+
+		return $this;
 	}
 
 	/**
@@ -26,14 +29,19 @@ class Event_Details_Container {
 	 * for each item in each group.
 	 *
 	 * @param array<string,mixed> $context
-	 * @return void
+	 * @return Event_Details_Container $this
 	 */
 	public function set_context( $context ) {
 		$this->context = $context;
 
 		$this->update_item_values_from_context();
+
+		return $this;
 	}
 
+	/**
+	 * @return Event_Details_Container $this
+	 */
 	private function update_item_values_from_context() {
 		$context = $this->context;
 
@@ -60,11 +68,13 @@ class Event_Details_Container {
 		}
 
 		$this->context = $context;
+
+		return $this;
 	}
 
 	/**
 	 * @param Event_Details_Item $context_item
-	 * @return void
+	 * @return Event_Details_Container $this
 	 */
 	public function add_item( $context_item ) {
 		// Create group with single item.
@@ -72,26 +82,32 @@ class Event_Details_Container {
 		$context_item_group->add_items( [ $context_item ] );
 		$context_item_group->set_formatter( new Event_Details_Group_Single_Item_Formatter() );
 		$this->add_group( $context_item_group );
+
+		return $this;
 	}
 
 	/**
 	 * @param Event_Details_Group $group
-	 * @return void
+	 * @return Event_Details_Container $this
 	 */
 	public function add_group( $group ) {
 		$this->groups[] = $group;
+
+		return $this;
 	}
 
 	/**
 	 * Add groups.
 	 *
 	 * @param array<Event_Details_Group> $groups
-	 * @return void
+	 * @return Event_Details_Container $this
 	 */
 	public function add_groups( $groups ) {
 		foreach ( $groups as $group ) {
 			$this->add_group( $group );
 		}
+
+		return $this;
 	}
 
 	/**
@@ -99,12 +115,14 @@ class Event_Details_Container {
 	 * be added to a group first to share common styles.
 	 *
 	 * @param array<Event_Details_Item> $items
-	 * @return void
+	 * @return Event_Details_Container $this
 	 */
 	public function add_items( $items ) {
 		$event_details_group = new Event_Details_Group();
 		$event_details_group->add_items( $items );
 		$this->add_group( $event_details_group );
+
+		return $this;
 	}
 
 	/**
