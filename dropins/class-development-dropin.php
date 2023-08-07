@@ -8,6 +8,8 @@ use Simple_History\Event_Details_Group;
 use Simple_History\Event_Details_Item;
 use Simple_History\Event_Details_Group_Inline_Formatter;
 use Simple_History\Event_Details_Group_Table_Formatter;
+use Simple_History\Event_Details_Item_RAW_Formatter;
+use Simple_History\Event_Details_Group_Diff_Table_Formatter;
 
 include __DIR__ . '/../inc/class-event-details-container.php';
 include __DIR__ . '/../inc/class-event-details-group-inline-formatter.php';
@@ -92,10 +94,33 @@ class Development_Dropin extends Dropin {
 			// Format used by post logger.
 			'post_type' => 'page',
 			'post_title' => 'About Us',
-			'post_prev_post_title' => 'About us',
-			'post_new_post_title' => 'About Us',
-			'post_prev_post_content' => "=> '<!-- wp:paragraph --><p>Hi. Yo.</p><!-- /wp:paragraph -->'",
-			'post_new_post_content' => "=> '<!-- wp:paragraph --><p>Hello, hey!</p><!-- /wp:paragraph -->'",
+			'post_prev_post_title' => 'About the company',
+			'post_new_post_title' => 'About us',
+			'post_prev_post_content' => '<!-- wp:paragraph --><p>Hi. Yo.</p><!-- /wp:paragraph -->',
+			'post_new_post_content' => '
+				<!-- wp:paragraph --><p>Hello, hey!</p><!-- /wp:paragraph -->
+				<!-- wp:image {"id":125,"sizeSlug":"full","linkDestination":"none"} -->
+				<figure class="wp-block-image size-full"><img src="http://wordpress-stable.test/wordpress/wp-content/uploads/2023/06/placeholder-image-1024-square.gif" alt="" class="wp-image-125"/></figure>
+				<!-- /wp:image -->
+				
+				<!-- wp:paragraph -->
+				<p>List with items:</p>
+				<!-- /wp:paragraph -->
+				
+				<!-- wp:list -->
+				<ul><!-- wp:list-item -->
+				<li>Item one</li>
+				<!-- /wp:list-item -->
+				
+				<!-- wp:list-item -->
+				<li>And two</li>
+				<!-- /wp:list-item --></ul>
+				<!-- /wp:list -->
+				
+				<!-- wp:paragraph -->
+				<p></p>
+				<!-- /wp:paragraph -->
+			',
 			'post_prev_thumb_id' => '110',
 			'post_prev_thumb_title' => 'product-cat-2',
 			'post_new_thumb_id' => '108',
@@ -192,32 +217,71 @@ class Development_Dropin extends Dropin {
 		$item2->set_values( 'WebP', 'PNG' );
 		$event_details_group_four->add_items( [ $item1, $item2 ] );
 
-		// Create container for the group and add the groups.
+		// Create container for the groups and add the groups.
 		$event_details_container = new Event_Details_Container();
-		$event_details_container->add_group( $event_details_group_inline );
-		$event_details_container->add_group( $event_details_group_table, );
-		$event_details_container->add_group( $event_details_group_two, );
-		$event_details_container->add_group( $event_details_group_three, );
-		$event_details_container->add_group( $event_details_group_four, );
+		$event_details_container->add_groups(
+			[
+				$event_details_group_inline,
+				$event_details_group_table,
+				$event_details_group_two,
+				$event_details_group_three,
+				$event_details_group_four,
 
-		// No key, only message shown.
-		$event_details_container->add_item(
-			new Event_Details_Item(
-				null,
-				__( 'Hey I have no key just some text.', 'simple-history' ),
-			),
+			]
 		);
 
 		// Item with custom output.
 		// Output is not escaped, so user must escape accordingly.
-		$html_item = new Event_Details_Item(
-			null,
-			__( 'And I have <em>custom <strong>HTML</strong></em>.', 'simple-history' ),
+		$raw_item = new Event_Details_Item();
+		$raw_item_formatter = new Event_Details_Item_RAW_Formatter();
+		$raw_item_formatter->set_html_output(
+			'
+				<p>
+					This is custom output. Make sure to escape it accordingly.
+				</p>
+				<p>
+					Any <em>format</em> is <strong>allowed</strong>.
+					<a href="https://simple-history.com" target="_blank">Visit Simple-History.com</a>
+				</p>
+			'
 		);
-		// $html_item->set-formatter('HTML_Formatter');
-		// $html_item->set_value_formatter('RAW_FORMATTER');
-		// Pass new + old value to formatter too, for special cases.
-		$event_details_container->add_item( $html_item );
+		$raw_item_formatter->set_json_output(
+			[
+				'key' => 'value',
+				'lorem' => 'ipsum',
+			]
+		);
+		$raw_item->set_formatter( $raw_item_formatter );
+		$event_details_container->add_item( $raw_item );
+
+		// Table with colored diffs.
+		// post_prev_post_content
+		// post_new_post_content
+		// post_prev_post_title
+		// post_new_post_title
+		$group_colored_diff = new Event_Details_Group();
+		$group_colored_diff->set_formatter( new Event_Details_Group_Diff_Table_Formatter() );
+		$group_colored_diff->add_items(
+			[
+				new Event_Details_Item(
+					[ 'post_new_post_title', 'post_prev_post_title' ],
+					__( 'Post title', 'simple-history' ),
+				),
+				new Event_Details_Item(
+					[ 'post_new_post_content', 'post_prev_post_content' ],
+					__( 'Post content', 'simple-history' ),
+				),
+				new Event_Details_Item(
+					[ 'post_new_thumb_title', 'post_prev_thumb_title' ],
+					__( 'Thumb title', 'simple-history' ),
+				),
+				new Event_Details_Item(
+					[ 'post_new_thumb_id', 'post_prev_thumb_id' ],
+					__( 'Thumb ID', 'simple-history' ),
+				),
+			]
+		);
+		$event_details_container->add_group( $group_colored_diff );
 
 		// Set the context. Must be done last atm.
 		$event_details_container->set_context( $this->get_example_context() );

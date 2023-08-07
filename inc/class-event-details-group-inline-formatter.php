@@ -6,21 +6,20 @@ namespace Simple_History;
 abstract class Event_Details_Group_Formatter {
 	/**
 	 * @param Event_Details_Group $group
-	 * @param array<string,mixed> $context
 	 * @return string|array<mixed>
 	 */
-	abstract public function get_output( $group, $context );
+	abstract public function get_output( $group );
 }
 
 /**
  * Format a group of items as an inline list.
  */
 class Event_Details_Group_Inline_Formatter extends Event_Details_Group_Formatter {
-	public function get_output( $group, $context ) {
+	public function get_output( $group ) {
 		$output = '<p>';
 
 		foreach ( $group->items as $item ) {
-			$item_formatter = new Event_Details_Item_Default_Formatter( $item );
+			$item_formatter = $item->get_formatter( new Event_Details_Item_Default_Formatter( $item ) );
 			$output .= $item_formatter->get_output();
 		}
 
@@ -31,12 +30,29 @@ class Event_Details_Group_Inline_Formatter extends Event_Details_Group_Formatter
 }
 
 class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter {
-	public function get_output( $group, $context ) {
+	public function get_output( $group ) {
 		$output = '<table class="SimpleHistoryLogitem__keyValueTable">';
 		$output .= '<tbody>';
 
 		foreach ( $group->items as $item ) {
-			$item_formatter = new Event_Details_Item_Table_Row_Formatter( $item );
+			$item_formatter = $item->get_formatter( new Event_Details_Item_Table_Row_Formatter( $item ) );
+			$output .= $item_formatter->get_output();
+		}
+
+		$output .= '</tbody>';
+		$output .= '</table>';
+
+		return $output;
+	}
+}
+
+class Event_Details_Group_Diff_Table_Formatter extends Event_Details_Group_Formatter {
+	public function get_output( $group ) {
+		$output = '<table class="SimpleHistoryLogitem__keyValueTable">';
+		$output .= '<tbody>';
+
+		foreach ( $group->items as $item ) {
+			$item_formatter = $item->get_formatter( new Event_Details_Item_Diff_Table_Row_Formatter( $item ) );
 			$output .= $item_formatter->get_output();
 		}
 
@@ -50,31 +66,20 @@ class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter 
 /**
  * A group with a single item, just plain output, no table or inline or similar.
  * They are added to the details group without a group first (group is generated in add function).
+ * TODO: How to handle values? Placeholders?, {} or %s-format?
  */
 class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Formatter {
-	public function get_output( $group, $context ) {
+	public function get_output( $group ) {
 		$output = '';
 
 		foreach ( $group->items as $item ) {
-			$name = '';
-			if ( ! empty( $item->name ) ) {
-				if ( isset( $item->new_value ) ) {
-					$name = sprintf( '%1$s: ', esc_html( $item->name ) );
-				} else {
-					$name = esc_html( $item->name );
-				}
+			if ( $item->has_formatter() ) {
+				$formatter = $item->get_formatter();
+			} else {
+				$formatter = new Event_Details_Item_Default_Formatter( $item );
 			}
 
-			$value = '';
-			if ( isset( $item->new_value ) ) {
-				$value = esc_html( $item->new_value );
-			}
-
-			$output .= sprintf(
-				'<p>%1$s%2$s</p>',
-				$name,
-				$value
-			);
+			$output .= $formatter->get_output();
 		}
 
 		return $output;
@@ -87,12 +92,20 @@ abstract class Event_Details_Item_Formatter {
 	/**
 	 * @var Event_Details_Item $item
 	 */
-	protected $item;
+	protected ?Event_Details_Item $item;
 
 	/**
 	 * @param Event_Details_Item $item
 	 */
-	public function __construct( $item ) {
+	public function __construct( $item = null ) {
+		$this->item = $item;
+	}
+
+	/**
+	 * @param Event_Details_Item $item
+	 * @return void
+	 */
+	public function set_item( $item ) {
 		$this->item = $item;
 	}
 
@@ -129,7 +142,6 @@ abstract class Event_Details_Item_Formatter {
 
 class Event_Details_Item_Default_Formatter extends Event_Details_Item_Formatter {
 	public function get_output() {
-
 		$name = '';
 		if ( ! empty( $this->item->name ) ) {
 			$name = sprintf( '<em>%1$s:</em> ', esc_html( $this->item->name ) );
@@ -163,8 +175,56 @@ class Event_Details_Item_Table_Row_Formatter extends Event_Details_Item_Formatte
 	}
 }
 
-class Event_Details_Item_HTML_Formatter extends Event_Details_Item_Formatter {
+class Event_Details_Item_Diff_Table_Row_Formatter extends Event_Details_Item_Formatter {
 	public function get_output() {
-		return 'TODO: HTML output';
+		// Skip output of items with empty values.
+		// if ( is_null( $this->item->new_value ) ) {
+		// 	return '';
+		// }
+
+		$value_with_diff = helpers::Text_Diff(
+			$this->item->prev_value,
+			$this->item->new_value,
+		);
+
+		return sprintf(
+			'
+                <tr>
+                    <td>%1$s</td>
+                    <td>%2$s</td>
+                </tr>
+            ',
+			esc_html( $this->item->name ),
+			$value_with_diff,
+		);
+	}
+}
+
+class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
+
+	/** @var string */
+	protected $html_output = '';
+
+	/** @var array<mixed> */
+	protected $json_output = [];
+
+	public function get_output() {
+		return $this->html_output;
+	}
+
+	/**
+	 * @param string $html
+	 * @return void
+	 */
+	public function set_html_output( $html ) {
+		$this->html_output = $html;
+	}
+
+	/**
+	 * @param array<mixed> $json
+	 * @return void
+	 */
+	public function set_json_output( $json ) {
+		$this->json_output = $json;
 	}
 }

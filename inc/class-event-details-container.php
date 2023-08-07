@@ -83,6 +83,18 @@ class Event_Details_Container {
 	}
 
 	/**
+	 * Add groups.
+	 *
+	 * @param array<Event_Details_Group> $groups
+	 * @return void
+	 */
+	public function add_groups( $groups ) {
+		foreach ( $groups as $group ) {
+			$this->add_group( $group );
+		}
+	}
+
+	/**
 	 * Add many items. They will automatically
 	 * be added to a group first to share common styles.
 	 *
@@ -119,7 +131,7 @@ class Event_Details_Container {
 		$output = '';
 
 		foreach ( $this->groups as $group ) {
-			$output .= $group->formatter->get_output( $group, $this->context );
+			$output .= $group->formatter->get_output( $group );
 		}
 
 		return $output;
@@ -133,7 +145,7 @@ class Event_Details_Container {
 
 		foreach ( $this->groups as $group ) {
 			// TODO: Tell formatters to output json instead of html.
-			$output[] = $group->formatter->get_output( $group, $this->context );
+			$output[] = $group->formatter->get_output( $group );
 		}
 
 		return json_encode( $output );

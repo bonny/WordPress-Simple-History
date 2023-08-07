@@ -30,6 +30,9 @@ class Event_Details_Item {
 	/** @var bool If value of item is removed */
 	public ?bool $is_removed = null;
 
+	/** @var ?Event_Details_Item_Formatter */
+	public ?Event_Details_Item_Formatter $formatter = null;
+
 	/**
 	 * @param array|string $slug_or_slugs
 	 * @param string $name
@@ -91,5 +94,32 @@ class Event_Details_Item {
 	public function set_values( $new_value, $prev_value ) {
 		$this->set_new_value( $new_value );
 		$this->set_prev_value( $prev_value );
+	}
+
+	/**
+	 * @param Event_Details_Item_Formatter $formatter
+	 * @return void
+	 */
+	public function set_formatter( $formatter ) {
+		$this->formatter = $formatter;
+	}
+
+	/**
+	 * @param ?Event_Details_Item_Formatter $fallback_formatter Formatter to use if item does not have any formatter specified.
+	 * @return Event_Details_Item_Formatter|null
+	 */
+	public function get_formatter( $fallback_formatter = null ) {
+		if ( $this->formatter instanceof Event_Details_Item_Formatter ) {
+			return $this->formatter;
+		}
+
+		return $fallback_formatter;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_formatter() {
+		return $this->formatter instanceof Event_Details_Item_Formatter;
 	}
 }
