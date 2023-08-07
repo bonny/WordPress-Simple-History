@@ -12,12 +12,10 @@ abstract class Event_Details_Item_Formatter {
 
 	/**
 	 * @param Event_Details_Item $item
-	 * @return Event_Details_Item_Formatter $this
 	 */
 	public function __construct( $item = null ) {
 		$this->item = $item;
 
-		return $this;
 	}
 
 	/**
@@ -36,7 +34,7 @@ abstract class Event_Details_Item_Formatter {
 	abstract public function get_html_output();
 
 	/**
-	 * @return array
+	 * @return array<mixed>
 	 */
 	abstract public function get_json_output();
 

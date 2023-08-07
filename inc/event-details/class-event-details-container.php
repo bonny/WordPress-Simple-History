@@ -16,12 +16,9 @@ class Event_Details_Container {
 
 	/**
 	 * @param array<Event_Details_Group> $context_items
-	 * @return Event_Details_Container $this
 	 */
 	public function __construct( $context_items = [] ) {
 		$this->groups = $context_items;
-
-		return $this;
 	}
 
 	/**
@@ -145,7 +142,7 @@ class Event_Details_Container {
 	}
 
 	/**
-	 * @return string
+	 * @return array<mixed>
 	 */
 	public function get_json_output() {
 		$output = [];
