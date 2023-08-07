@@ -9,6 +9,9 @@ class Event_Details_Group {
 	/** @var Event_Details_Group_Formatter */
 	public Event_Details_Group_Formatter $formatter;
 
+	/** @var string|null Group title. Used in for example JSON output. */
+	public ?string $title = null;
+
 	/**
 	 * @return Event_Details_Group $this
 	 */
@@ -36,5 +39,24 @@ class Event_Details_Group {
 		$this->formatter = $formatter;
 
 		return $this;
+	}
+
+	/**
+	 * @param string $title
+	 * @return Event_Details_Group $this
+	 */
+	public function set_title( $title = null ) {
+		$this->title = $title;
+
+		return $this;
+	}
+
+	/**
+	 * Get title for group.
+	 *
+	 * @return string
+	 */
+	public function get_title() {
+		return $this->title;
 	}
 }

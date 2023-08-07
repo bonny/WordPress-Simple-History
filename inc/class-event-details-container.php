@@ -73,14 +73,18 @@ class Event_Details_Container {
 	}
 
 	/**
+	 * Shortcut to add a single item,
+	 * the item will be added to a group first.
+	 *
 	 * @param Event_Details_Item $context_item
+	 * @param string|null $group_title Optional name of the auto created group.
 	 * @return Event_Details_Container $this
 	 */
-	public function add_item( $context_item ) {
-		// Create group with single item.
+	public function add_item( $context_item, $group_title = null ) {
 		$context_item_group = new Event_Details_Group();
 		$context_item_group->add_items( [ $context_item ] );
 		$context_item_group->set_formatter( new Event_Details_Group_Single_Item_Formatter() );
+		$context_item_group->set_title( $group_title );
 		$this->add_group( $context_item_group );
 
 		return $this;

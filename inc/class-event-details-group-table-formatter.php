@@ -27,7 +27,8 @@ class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter 
 		}
 
 		return [
-			'table_items' => $output,
+			'title' => $group->get_title(),
+			'items' => $output,
 		];
 	}
 }

@@ -39,7 +39,8 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 		}
 
 		return [
-			'single_item' => $output,
+			'title' => $group->get_title(),
+			'items' => $output,
 		];
 	}
 }

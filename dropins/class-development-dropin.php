@@ -176,16 +176,19 @@ class Development_Dropin extends Dropin {
 		$event_details_group_inline = new Event_Details_Group();
 		$event_details_group_inline->set_formatter( new Event_Details_Group_Inline_Formatter() );
 		$event_details_group_inline->add_items( $event_group );
+		$event_details_group_inline->set_title( __( 'Inline group with changes', 'simple-history' ) );
 
 		// Another group, with same items, but different format.
 		// Also uses chaining.
 		$event_details_group_table = ( new Event_Details_Group() )
 			->set_formatter( new Event_Details_Group_Table_Formatter() )
-			->add_items( $event_group );
+			->add_items( $event_group )
+			->set_title( __( 'Table group with changes', 'simple-history' ) );
 
 		// Another group. Empty second arg to each item to not show title.
 		// Value of each thing must be self-explanatory.
 		$event_details_group_two = ( new Event_Details_Group() )
+			->set_title( 'Image information' )
 			->set_formatter( new Event_Details_Group_Inline_Formatter() )
 			->add_items(
 				[
@@ -198,6 +201,7 @@ class Development_Dropin extends Dropin {
 		// Grouop with no added formatter.
 		// Uses table layout.
 		$event_details_group_three = ( new Event_Details_Group() )
+			->set_title( 'Image information' )
 			->add_items(
 				[
 					new Event_Details_Item( 'image_size', 'Size' ),
@@ -210,7 +214,7 @@ class Development_Dropin extends Dropin {
 		// so values will no be fetched from context.
 		$item1 = ( new Event_Details_Item( 'image_size', 'Size with custom value' ) )->set_new_value( '123 Kb' );
 		$item2 = ( new Event_Details_Item( 'image_format', 'Format with custom values' ) )->set_values( 'WebP', 'PNG' );
-		$event_details_group_four = ( new Event_Details_Group() )->add_items( [ $item1, $item2 ] );
+		$event_details_group_four = ( new Event_Details_Group() )->add_items( [ $item1, $item2 ] )->set_title( 'Image data' );
 
 		// Create container for the groups and add the groups.
 		$event_group = ( new Event_Details_Container() )
@@ -248,10 +252,11 @@ class Development_Dropin extends Dropin {
 				]
 			);
 		$raw_item = ( new Event_Details_Item() )->set_formatter( $raw_item_formatter );
-		$event_group->add_item( $raw_item );
+		$event_group->add_item( $raw_item, 'RAW output' );
 
 		// Table with colored diffs.
 		$group_colored_diff = ( new Event_Details_Group() )
+			->set_title( 'Diff table' )
 			->set_formatter( new Event_Details_Group_Diff_Table_Formatter() )
 			->add_items(
 				[

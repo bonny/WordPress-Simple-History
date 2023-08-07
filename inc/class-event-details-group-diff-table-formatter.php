@@ -27,7 +27,8 @@ class Event_Details_Group_Diff_Table_Formatter extends Event_Details_Group_Forma
 		}
 
 		return [
-			'table_diff_items' => $output,
+			'title' => $group->get_title(),
+			'items' => $output,
 		];
 	}
 }
