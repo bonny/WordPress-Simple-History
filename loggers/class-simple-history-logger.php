@@ -2,8 +2,9 @@
 
 namespace Simple_History\Loggers;
 
-use Simple_History\Event_Details_Container;
-use Simple_History\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Container;
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
 
 /**
  * Logs changes made on the Simple History settings page.
@@ -126,7 +127,7 @@ class Simple_History_Logger extends Logger {
 	 * @param object $row
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context_config = ( new Event_Details_Container() )
+		$event_details_group = ( new Event_Details_Group() )
 			->add_items(
 				[
 					new Event_Details_Item(
@@ -149,11 +150,12 @@ class Simple_History_Logger extends Logger {
 						[ 'enable_rss_feed' ],
 						__( 'RSS feed enabled', 'simple-history' ),
 					),
-				],
-				__( 'Changed items', 'simple-history' )
+				]
 			)
-			->set_context( $row->context );
+			->set_title( __( 'Changed items', 'simple-history' ) );
 
-		return $context_config->get_html_output();
+		$events_container = new Event_Details_Container( $event_details_group, $row->context );
+
+		return $events_container->get_html_output();
 	}
 }

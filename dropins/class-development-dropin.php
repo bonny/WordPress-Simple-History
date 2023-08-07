@@ -186,7 +186,8 @@ class Development_Dropin extends Dropin {
 			->set_title( __( 'Table group with changes', 'simple-history' ) );
 
 		// Another group. Empty second arg to each item to not show title.
-		// Value of each thing must be self-explanatory.
+		// Value of each thing must be self-explanatory. Should not be used, because
+		// it's better to make all values as clear as possible.
 		$event_details_group_two = ( new Event_Details_Group() )
 			->set_title( 'Image information' )
 			->set_formatter( new Event_Details_Group_Inline_Formatter() )
@@ -217,17 +218,17 @@ class Development_Dropin extends Dropin {
 		$event_details_group_four = ( new Event_Details_Group() )->add_items( [ $item1, $item2 ] )->set_title( 'Image data' );
 
 		// Create container for the groups and add the groups.
-		$event_group = ( new Event_Details_Container() )
-			->add_groups(
-				[
-					$event_details_group_inline,
-					$event_details_group_table,
-					$event_details_group_two,
-					$event_details_group_three,
-					$event_details_group_four,
+		$events_container = new Event_Details_Container(
+			[
+				$event_details_group_inline,
+				$event_details_group_table,
+				$event_details_group_two,
+				$event_details_group_three,
+				$event_details_group_four,
 
-				]
-			);
+			],
+			$this->get_example_context()
+		);
 
 		// Item with custom output.
 		// Output is not escaped, so user must escape accordingly.
@@ -252,7 +253,7 @@ class Development_Dropin extends Dropin {
 				]
 			);
 		$raw_item = ( new Event_Details_Item() )->set_formatter( $raw_item_formatter );
-		$event_group->add_item( $raw_item, 'RAW output' );
+		$events_container->add_item( $raw_item, 'RAW output' );
 
 		// Table with colored diffs.
 		$group_colored_diff = ( new Event_Details_Group() )
@@ -278,13 +279,9 @@ class Development_Dropin extends Dropin {
 					),
 				]
 			);
-		$event_group->add_group( $group_colored_diff );
+		$events_container->add_group( $group_colored_diff );
 
-		// Set the context. Must be done last atm.
-		// TODO: Make it possible to set context at any time, easy to miss otherwise.
-		$event_group->set_context( $this->get_example_context() );
-
-		return $event_group;
+		return $events_container;
 	}
 
 	public function tab_output() {

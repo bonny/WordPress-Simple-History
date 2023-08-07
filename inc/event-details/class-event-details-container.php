@@ -12,13 +12,22 @@ class Event_Details_Container {
 	public array $groups;
 
 	/** @var array<string,mixed> */
-	public array $context;
+	protected array $context;
 
 	/**
-	 * @param array<Event_Details_Group> $context_items
+	 * @param Event_Details_Group|array<Event_Details_Group> $group_or_groups Group or array of groups.
+	 * @param array<string,mixed> $context
 	 */
-	public function __construct( $context_items = [] ) {
-		$this->groups = $context_items;
+	public function __construct( $group_or_groups = [], $context = [] ) {
+		$this->context = $context;
+		$this->groups = [];
+
+		if ( is_array( $group_or_groups ) ) {
+			$this->add_groups( $group_or_groups );
+		} else {
+			$this->add_group( $group_or_groups );
+		}
+		
 	}
 
 	/**
@@ -93,6 +102,9 @@ class Event_Details_Container {
 	 */
 	public function add_group( $group ) {
 		$this->groups[] = $group;
+
+		// Update from context again, since we have a new group.
+		$this->update_item_values_from_context();
 
 		return $this;
 	}
