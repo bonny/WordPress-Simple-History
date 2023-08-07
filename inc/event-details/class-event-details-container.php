@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Event_Details;
 
 /**
  * Class that holds configuration for a group of context items.

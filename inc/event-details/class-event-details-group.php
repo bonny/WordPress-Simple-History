@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Event_Details;
 
 class Event_Details_Group {
 	/** @var array<Event_Details_Item> */

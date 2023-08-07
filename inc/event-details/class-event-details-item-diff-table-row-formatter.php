@@ -1,10 +1,12 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Event_Details;
+
+use Simple_History\Helpers;
 
 class Event_Details_Item_Diff_Table_Row_Formatter extends Event_Details_Item_Formatter {
 	public function get_html_output() {
-		$value_with_diff = helpers::Text_Diff(
+		$value_with_diff = Helpers::Text_Diff(
 			$this->item->prev_value,
 			$this->item->new_value,
 		);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Event_Details;
 
 // Format a group of items.
 abstract class Event_Details_Group_Formatter {

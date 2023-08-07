@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Event_Details;
 
 /**
  * DTO class for a single context diff config item.

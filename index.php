@@ -65,6 +65,7 @@ $sh_loader = new Simple_History\Autoloader();
 $sh_loader->register();
 $sh_loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
 $sh_loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . 'inc/' );
+$sh_loader->add_namespace( 'Simple_History\Event_Details', SIMPLE_HISTORY_PATH . 'inc/event-details' );
 
 // Load code for old, deprecated things, that does not use autoloader.
 require_once __DIR__ . '/inc/deprecated/class-simplehistory.php';

@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Event_Details;
 
 /**
  * A group with a single item, just plain output, no table or inline or similar.

@@ -3,13 +3,13 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
-use Simple_History\Event_Details_Container;
-use Simple_History\Event_Details_Group;
-use Simple_History\Event_Details_Item;
-use Simple_History\Event_Details_Group_Inline_Formatter;
-use Simple_History\Event_Details_Group_Table_Formatter;
-use Simple_History\Event_Details_Item_RAW_Formatter;
-use Simple_History\Event_Details_Group_Diff_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Container;
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Group_Inline_Formatter;
+use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
+use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 
 /**
  * Development Dropin
@@ -28,7 +28,7 @@ class Development_Dropin extends Dropin {
 		$this->simple_history->register_settings_tab(
 			array(
 				'slug' => 'dropin_development_dropin_tab',
-				'name' => __( 'Development', 'simple-history' ),
+				'name' => __( 'Event details tests', 'simple-history' ),
 				'function' => array( $this, 'tab_output' ),
 			)
 		);

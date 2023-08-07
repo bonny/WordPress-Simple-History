@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Event_Details;
 
 class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter {
 	public function get_html_output( $group ) {
