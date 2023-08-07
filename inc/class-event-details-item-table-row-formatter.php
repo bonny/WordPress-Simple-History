@@ -3,7 +3,7 @@
 namespace Simple_History;
 
 class Event_Details_Item_Table_Row_Formatter extends Event_Details_Item_Formatter {
-	public function get_output() {
+	public function get_html_output() {
 		// Skip output of items with empty values.
 		if ( is_null( $this->item->new_value ) ) {
 			return '';
@@ -19,5 +19,11 @@ class Event_Details_Item_Table_Row_Formatter extends Event_Details_Item_Formatte
 			esc_html( $this->item->name ),
 			$this->get_value_diff_output()
 		);
+	}
+
+	public function get_json_output() {
+		// Use same formatter as inline items.
+		$item_formatter = new Event_Details_Item_Default_Formatter( $this->item );
+		return $item_formatter->get_json_output();
 	}
 }

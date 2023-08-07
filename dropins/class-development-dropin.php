@@ -135,7 +135,7 @@ class Development_Dropin extends Dropin {
 
 	private function get_example_event_details_container() {
 		// Array with details, to format in the same way.
-		$event_details_container = [
+		$event_group = [
 			new Event_Details_Item(
 				[ 'show_on_dashboard' ],
 				__( 'Show on dashboard', 'simple-history' ),
@@ -175,13 +175,13 @@ class Development_Dropin extends Dropin {
 		// Group with details = items that will be formatted the same way.
 		$event_details_group_inline = new Event_Details_Group();
 		$event_details_group_inline->set_formatter( new Event_Details_Group_Inline_Formatter() );
-		$event_details_group_inline->add_items( $event_details_container );
+		$event_details_group_inline->add_items( $event_group );
 
 		// Another group, with same items, but different format.
 		// Also uses chaining.
 		$event_details_group_table = ( new Event_Details_Group() )
 			->set_formatter( new Event_Details_Group_Table_Formatter() )
-			->add_items( $event_details_container );
+			->add_items( $event_group );
 
 		// Another group. Empty second arg to each item to not show title.
 		// Value of each thing must be self-explanatory.
@@ -213,7 +213,7 @@ class Development_Dropin extends Dropin {
 		$event_details_group_four = ( new Event_Details_Group() )->add_items( [ $item1, $item2 ] );
 
 		// Create container for the groups and add the groups.
-		$event_details_container = ( new Event_Details_Container() )
+		$event_group = ( new Event_Details_Container() )
 			->add_groups(
 				[
 					$event_details_group_inline,
@@ -241,12 +241,14 @@ class Development_Dropin extends Dropin {
 			)
 			->set_json_output(
 				[
-					'key' => 'value',
-					'lorem' => 'ipsum',
+					'This is custom output. Make sure to escape it accordingly.',
+					'Any format is allowed (but make it plain in JSON).',
+					'link' => 'https://simple-history.com',
+					'link_description' => 'Visit Simple-History.com',
 				]
 			);
 		$raw_item = ( new Event_Details_Item() )->set_formatter( $raw_item_formatter );
-		$event_details_container->add_item( $raw_item );
+		$event_group->add_item( $raw_item );
 
 		// Table with colored diffs.
 		$group_colored_diff = ( new Event_Details_Group() )
@@ -271,13 +273,13 @@ class Development_Dropin extends Dropin {
 					),
 				]
 			);
-		$event_details_container->add_group( $group_colored_diff );
+		$event_group->add_group( $group_colored_diff );
 
 		// Set the context. Must be done last atm.
 		// TODO: Make it possible to set context at any time, easy to miss otherwise.
-		$event_details_container->set_context( $this->get_example_context() );
+		$event_group->set_context( $this->get_example_context() );
 
-		return $event_details_container;
+		return $event_group;
 	}
 
 	public function tab_output() {
@@ -295,7 +297,7 @@ class Development_Dropin extends Dropin {
 			echo $event_details_container->get_html_output(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the JSON output:</p>';
-			echo $event_details_container->get_json_output(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<pre>' . Helpers::json_encode( $event_details_container->get_json_output() ) . '</pre>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 		<?php

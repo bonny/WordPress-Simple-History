@@ -145,11 +145,10 @@ class Event_Details_Container {
 		$output = [];
 
 		foreach ( $this->groups as $group ) {
-			// TODO: Tell formatters to output json instead of html.
-			$output[] = $group->formatter->get_html_output( $group );
+			$output[] = $group->formatter->get_json_output( $group );
 		}
 
-		return json_encode( $output );
+		return $output;
 	}
 }
 

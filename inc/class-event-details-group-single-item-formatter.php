@@ -18,7 +18,7 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 				$formatter = new Event_Details_Item_Default_Formatter( $item );
 			}
 
-			$output .= $formatter->get_output();
+			$output .= $formatter->get_html_output();
 		}
 
 		return $output;
@@ -26,6 +26,20 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 
 	public function get_json_output( $group ) {
 		$output = [];
-		return $output;
+
+		// Use same formatter as inline items.
+		foreach ( $group->items as $item ) {
+			if ( $item->has_formatter() ) {
+				$formatter = $item->get_formatter();
+			} else {
+				$formatter = new Event_Details_Item_Default_Formatter( $item );
+			}
+
+			$output[] = $formatter->get_json_output();
+		}
+
+		return [
+			'single_item' => $output,
+		];
 	}
 }

@@ -11,7 +11,7 @@ class Event_Details_Group_Inline_Formatter extends Event_Details_Group_Formatter
 
 		foreach ( $group->items as $item ) {
 			$item_formatter = $item->get_formatter( new Event_Details_Item_Default_Formatter( $item ) );
-			$output .= $item_formatter->get_output();
+			$output .= $item_formatter->get_html_output();
 		}
 
 		$output .= '</p>';
@@ -21,6 +21,14 @@ class Event_Details_Group_Inline_Formatter extends Event_Details_Group_Formatter
 
 	public function get_json_output( $group ) {
 		$output = [];
-		return $output;
+
+		foreach ( $group->items as $item ) {
+			$item_formatter = $item->get_formatter( new Event_Details_Item_Default_Formatter( $item ) );
+			$output[] = $item_formatter->get_json_output();
+		}
+
+		return [
+			'inline_items' => $output,
+		];
 	}
 }

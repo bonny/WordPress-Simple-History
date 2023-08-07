@@ -126,34 +126,33 @@ class Simple_History_Logger extends Logger {
 	 * @param object $row
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context_config = new Event_Details_Container();
-		$context_config->add_items(
-			[
-				new Event_Details_Item(
-					[ 'show_on_dashboard' ],
-					__( 'Show on dashboard', 'simple-history' ),
-				),
-				new Event_Details_Item(
-					[ 'show_as_page' ],
-					__( 'Show as a page', 'simple-history' ),
-				),
-				new Event_Details_Item(
-					[ 'pager_size' ],
-					__( 'Items on page', 'simple-history' ),
-				),
-				new Event_Details_Item(
-					[ 'pager_size_dashboard' ],
-					__( 'Items on dashboard', 'simple-history' ),
-				),
-				new Event_Details_Item(
-					[ 'enable_rss_feed' ],
-					__( 'RSS feed enabled', 'simple-history' ),
-				),
-			]
-		);
+		$context_config = ( new Event_Details_Container() )
+			->add_items(
+				[
+					new Event_Details_Item(
+						[ 'show_on_dashboard' ],
+						__( 'Show on dashboard', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'show_as_page' ],
+						__( 'Show as a page', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'pager_size' ],
+						__( 'Items on page', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'pager_size_dashboard' ],
+						__( 'Items on dashboard', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'enable_rss_feed' ],
+						__( 'RSS feed enabled', 'simple-history' ),
+					),
+				]
+			)
+			->set_context( $row->context );
 
-		$context_config->set_context( $row->context );
-
-		return $context_config->get_output( 'html' );
+		return $context_config->get_html_output();
 	}
 }
