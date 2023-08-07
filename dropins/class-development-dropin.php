@@ -113,7 +113,7 @@ class Development_Dropin extends Dropin {
 
 	private function get_example_event_details_container() {
 		// Array with details, to format in the same way.
-		$event_details_group = [
+		$event_details_container = [
 			new Event_Details_Item(
 				[ 'show_on_dashboard' ],
 				__( 'Show on dashboard', 'simple-history' ),
@@ -152,17 +152,18 @@ class Development_Dropin extends Dropin {
 
 		// Group with details = items that will be formatted the same way.
 		$event_details_group_inline = new Event_Details_Group();
-		$event_details_group_inline->add_items( $event_details_group );
 		$event_details_group_inline->set_formatter( new Event_Details_Group_Inline_Formatter() );
+		$event_details_group_inline->add_items( $event_details_container );
 
 		// Another group, with same items, but different format.
 		$event_details_group_table = new Event_Details_Group();
-		$event_details_group_table->add_items( $event_details_group );
 		$event_details_group_table->set_formatter( new Event_Details_Group_Table_Formatter() );
+		$event_details_group_table->add_items( $event_details_container );
 
 		// Another group. Empty second arg to each item to not show title.
 		// Value of each thing must be self-explanatory.
 		$event_details_group_two = new Event_Details_Group();
+		$event_details_group_two->set_formatter( new Event_Details_Group_Inline_Formatter() );
 		$event_details_group_two->add_items(
 			[
 				new Event_Details_Item( 'image_size' ),
@@ -170,9 +171,9 @@ class Development_Dropin extends Dropin {
 				new Event_Details_Item( 'image_dimensions' ),
 			]
 		);
-		$event_details_group_two->set_formatter( new Event_Details_Group_Inline_Formatter() );
 
 		// Grouop with no added formatter.
+		// Uses table layout.
 		$event_details_group_three = new Event_Details_Group();
 		$event_details_group_three->add_items(
 			[
@@ -182,38 +183,33 @@ class Development_Dropin extends Dropin {
 			]
 		);
 
+		// Items can pass values manually upon creation,
+		// so values will no be fetched from context.
+		$event_details_group_four = new Event_Details_Group();
+		$item1 = new Event_Details_Item( 'image_size', 'Size with custom value' );
+		$item1->set_new_value( '123 Kb' );
+		$item2 = new Event_Details_Item( 'image_format', 'Format with custom values' );
+		$item2->set_values( 'WebP', 'PNG' );
+		$event_details_group_four->add_items( [ $item1, $item2 ] );
+
 		// Create container for the group and add the groups.
-		$event_details_group = new Event_Details_Container();
-		$event_details_group->add_group( $event_details_group_inline );
-		$event_details_group->add_group( $event_details_group_table, );
-		$event_details_group->add_group( $event_details_group_two, );
-		$event_details_group->add_group( $event_details_group_three, );
+		$event_details_container = new Event_Details_Container();
+		$event_details_container->add_group( $event_details_group_inline );
+		$event_details_container->add_group( $event_details_group_table, );
+		$event_details_container->add_group( $event_details_group_two, );
+		$event_details_container->add_group( $event_details_group_three, );
+		$event_details_container->add_group( $event_details_group_four, );
 
-		// Items can be added directly too.
-		$event_details_group->add_item(
-			// Plain text item.
-			new Event_Details_Item(
-				'generated_user_nickname',
-				__( 'Nickname generated for user', 'simple-history' ),
-			)
-		);
-
-		$event_details_group->add_item(
-			// TODO: HTML item. Completely custom, user needs to fix all formatting.
-			new Event_Details_Item(
-				'post_thumbnail_id',
-				__( 'Thumbnail', 'simple-history' ),
-			),
-		);
-
-		// No key completely custom, user needs to fix all formatting.
-		$event_details_group->add_item(
+		// No key, only message shown.
+		$event_details_container->add_item(
 			new Event_Details_Item(
 				null,
 				__( 'Hey I have no key just some text.', 'simple-history' ),
 			),
 		);
 
+		// Item with custom output.
+		// Output is not escaped, so user must escape accordingly.
 		$html_item = new Event_Details_Item(
 			null,
 			__( 'And I have <em>custom <strong>HTML</strong></em>.', 'simple-history' ),
@@ -221,12 +217,12 @@ class Development_Dropin extends Dropin {
 		// $html_item->set-formatter('HTML_Formatter');
 		// $html_item->set_value_formatter('RAW_FORMATTER');
 		// Pass new + old value to formatter too, for special cases.
-		$event_details_group->add_item( $html_item );
+		$event_details_container->add_item( $html_item );
 
 		// Set the context. Must be done last atm.
-		$event_details_group->set_context( $this->get_example_context() );
+		$event_details_container->set_context( $this->get_example_context() );
 
-		return $event_details_group;
+		return $event_details_container;
 	}
 
 	public function tab_output() {

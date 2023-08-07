@@ -35,7 +35,7 @@ class Event_Details_Item {
 	 * @param string $name
 	 * @param array<string,mixed> $additional_args
 	 */
-	public function __construct( $slug_or_slugs, $name = null, $additional_args = [] ) {
+	public function __construct( $slug_or_slugs = null, $name = null, $additional_args = [] ) {
 		// Set keys to use for new/current and old/prev values
 		if ( is_array( $slug_or_slugs ) && count( $slug_or_slugs ) === 2 ) {
 			// Single slug as string = just exactly that context key.
@@ -56,5 +56,40 @@ class Event_Details_Item {
 		// if ( isset( $additional_args['number_yes_no'] ) ) {
 		// 	$this->number_yes_no = $additional_args['number_yes_no'];
 		// }
+	}
+
+	/**
+	 * Manually set the current/new value of the item.
+	 * If used then value will not be fetched from context.
+	 *
+	 * @param string $value
+	 * @return void
+	 */
+	public function set_new_value( $new_value ) {
+		$this->new_value = $new_value;
+	}
+
+	/**
+	 * Manually set the previous value of the item.
+	 * If used then value will not be fetched from context.
+	 *
+	 * @param string $value
+	 * @return void
+	 */
+	public function set_prev_value( $prev_value ) {
+		$this->prev_value = $prev_value;
+	}
+
+	/**
+	 * Manually set both new/current value and
+	 * previous value of the item.
+	 *
+	 * @param string $new_value
+	 * @param string $prev_value
+	 * @return void
+	 */
+	public function set_values( $new_value, $prev_value ) {
+		$this->set_new_value( $new_value );
+		$this->set_prev_value( $prev_value );
 	}
 }

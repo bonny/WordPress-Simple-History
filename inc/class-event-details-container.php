@@ -39,11 +39,13 @@ class Event_Details_Container {
 
 		foreach ( $this->groups as $group ) {
 			foreach ( $group->items as $item ) {
-				if ( isset( $item->slug_new ) ) {
+				// Get new value if value not already set.
+				if ( isset( $item->slug_new ) && ! isset( $item->new_value ) ) {
 					$item->new_value = $context[ $item->slug_new ] ?? null;
 				}
 
-				if ( isset( $item->slug_prev ) ) {
+				// Get prev value if value not already set.
+				if ( isset( $item->slug_prev ) && ! isset( $item->prev_value ) ) {
 					$item->prev_value = $context[ $item->slug_prev ] ?? null;
 				}
 
