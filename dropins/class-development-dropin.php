@@ -85,7 +85,7 @@ class Development_Dropin extends Dropin {
 			'user_prev_user_url' => 'http://wordpress-stable.test/wordpress',
 			'user_new_nickname' => 'parrabarry',
 			'user_prev_nickname' => 'par',
-			'user_new_description' => 'Det e jag som e jag.',
+			'user_new_description' => 'New user description.',
 			'user_prev_description' => '',
 
 			// Format used by post logger.
