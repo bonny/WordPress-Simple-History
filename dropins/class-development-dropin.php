@@ -302,7 +302,7 @@ class Development_Dropin extends Dropin {
 			echo $event_details_container->get_html_output(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the JSON output:</p>';
-			echo '<pre>' . Helpers::json_encode( $event_details_container->get_json_output() ) . '</pre>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			sh_d( Helpers::json_encode( $event_details_container->get_json_output() ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 		<?php
