@@ -11,9 +11,6 @@ use Simple_History\Event_Details_Group_Table_Formatter;
 use Simple_History\Event_Details_Item_RAW_Formatter;
 use Simple_History\Event_Details_Group_Diff_Table_Formatter;
 
-include __DIR__ . '/../inc/class-event-details-container.php';
-include __DIR__ . '/../inc/class-event-details-group-inline-formatter.php';
-
 /**
  * Development Dropin
  * Used during development to test things.
@@ -295,10 +292,10 @@ class Development_Dropin extends Dropin {
 			$event_details_container = $this->get_example_event_details_container();
 
 			echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the HTML output:</p>';
-			echo $event_details_container->get_output( 'html' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $event_details_container->get_html_output(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-			// echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the JSON output:</p>';
-			// echo $event_details_container->get_output( 'json' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the JSON output:</p>';
+			echo $event_details_container->get_json_output(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 		<?php

@@ -126,30 +126,13 @@ class Event_Details_Container {
 	}
 
 	/**
-	 * @param string $format
 	 * @return string
 	 */
-	public function get_output( $format = 'html' ) {
-		if ( 'html' === $format ) {
-			return $this->get_html_output();
-		} else if ( 'json' === $format ) {
-			return $this->get_json_output();
-		}
-
-		return '';
-		//  else if ( 'json' === $format ) {
-			// return $this->get_json_output_for_context( $context );
-		// }
-	}
-
-	/**
-	 * @return string
-	 */
-	private function get_html_output() {
+	public function get_html_output() {
 		$output = '';
 
 		foreach ( $this->groups as $group ) {
-			$output .= $group->formatter->get_output( $group );
+			$output .= $group->formatter->get_html_output( $group );
 		}
 
 		return $output;
@@ -158,12 +141,12 @@ class Event_Details_Container {
 	/**
 	 * @return string
 	 */
-	private function get_json_output() {
+	public function get_json_output() {
 		$output = [];
 
 		foreach ( $this->groups as $group ) {
 			// TODO: Tell formatters to output json instead of html.
-			$output[] = $group->formatter->get_output( $group );
+			$output[] = $group->formatter->get_html_output( $group );
 		}
 
 		return json_encode( $output );
