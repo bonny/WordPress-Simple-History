@@ -214,6 +214,15 @@ class Development_Dropin extends Dropin {
 			),
 		);
 
+		$html_item = new Event_Details_Item(
+			null,
+			__( 'And I have <em>custom <strong>HTML</strong></em>.', 'simple-history' ),
+		);
+		// $html_item->set-formatter('HTML_Formatter');
+		// $html_item->set_value_formatter('RAW_FORMATTER');
+		// Pass new + old value to formatter too, for special cases.
+		$event_details_group->add_item( $html_item );
+
 		// Set the context. Must be done last atm.
 		$event_details_group->set_context( $this->get_example_context() );
 
@@ -231,13 +240,11 @@ class Development_Dropin extends Dropin {
 
 			$event_details_container = $this->get_example_event_details_container();
 
-			echo '<p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the HTML output:</p>';
+			echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the HTML output:</p>';
 			echo $event_details_container->get_output( 'html' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-			// sh_d(
-			// 	'Event details JSON output:',
-			// 	$event_details_container->get_output( 'json' )
-			// );
+			// echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the JSON output:</p>';
+			// echo $event_details_container->get_output( 'json' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 		<?php

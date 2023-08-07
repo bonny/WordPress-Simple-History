@@ -120,7 +120,6 @@ class Simple_History_Logger extends Logger {
 		];
 	}
 
-
 	/**
 	 * Return formatted list of changes made.
 	 *

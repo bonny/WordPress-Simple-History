@@ -29,6 +29,14 @@ class Event_Details_Container {
 	 * @return void
 	 */
 	public function set_context( $context ) {
+		$this->context = $context;
+
+		$this->update_item_values_from_context();
+	}
+
+	private function update_item_values_from_context() {
+		$context = $this->context;
+
 		foreach ( $this->groups as $group ) {
 			foreach ( $group->items as $item ) {
 				if ( isset( $item->slug_new ) ) {
@@ -92,6 +100,8 @@ class Event_Details_Container {
 	public function get_output( $format = 'html' ) {
 		if ( 'html' === $format ) {
 			return $this->get_html_output();
+		} else if ( 'json' === $format ) {
+			return $this->get_json_output();
 		}
 
 		return '';
@@ -113,13 +123,19 @@ class Event_Details_Container {
 		return $output;
 	}
 
-	// private function get_json_output_for_context( $context ) {
-	// 	$output = [
-	// 		'format' => 'json',
-	// 	];
+	/**
+	 * @return string
+	 */
+	private function get_json_output() {
+		$output = [];
 
-	// 	return $output;
-	// }
+		foreach ( $this->groups as $group ) {
+			// TODO: Tell formatters to output json instead of html.
+			$output[] = $group->formatter->get_output( $group, $this->context );
+		}
+
+		return json_encode( $output );
+	}
 }
 
 /**
