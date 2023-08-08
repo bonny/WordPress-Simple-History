@@ -39,6 +39,10 @@ class RSS_Dropin extends Dropin {
 	 * Output CSS in admin header for this page.
 	 */
 	public function admin_print_styles() {
+		if ( $this->is_rss_enabled() === false ) {
+			return;
+		}
+
 		?>
 		<style>
 			.simple_history_rss_feed_query_parameters a::after {
