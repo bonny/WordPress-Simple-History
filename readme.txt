@@ -220,6 +220,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
+- Added: Event ID is included in WP-CLI output when running command `wp simple-history list`.
 - Added: Logger for logging changes to the Simple History settings page. 🙈 And yes, it was quite embarrassing that the plugin itself did not log its activities.
 - Added: Filter `simple_history/settings/log_cleared` that is fired after the log has been cleared using the "Clear log now" button on the settings page.
 - Fixed: Fix issue [#224](https://github.com/bonny/WordPress-Simple-History/issues/224) and support threads [stop the “Updated changeset” and “Move changeset” notifications](https://wordpress.org/support/topic/stop-the-updated-changeset-and-move-changeset-notifications/), [Newbie question](https://wordpress.org/support/topic/newbie-question-65/).
