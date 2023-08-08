@@ -30,7 +30,26 @@ class RSS_Dropin extends Dropin {
 
 		// Add settings with priority 11 so it' added after the main Simple History settings.
 		add_action( 'admin_menu', array( $this, 'add_settings' ), 11 );
+
+		// Output CSS in admin header for this page.
+		add_action( 'admin_print_styles-settings_page_' . $this->simple_history::SETTINGS_MENU_SLUG, array( $this, 'admin_print_styles' ) );
 	}
+
+	/**
+	 * Output CSS in admin header for this page.
+	 */
+	public function admin_print_styles() {
+		?>
+		<style>
+			.simple_history_rss_feed_query_parameters a::after {
+				/* External icon on link */
+				content: "\f504";
+				font-family: dashicons;
+			}
+		</style>
+		<?php
+	}
+
 
 	/**
 	 * Add settings for the RSS feed.
@@ -433,16 +452,17 @@ class RSS_Dropin extends Dropin {
 			esc_url( $this->get_rss_address() )
 		);
 
-		echo '<p>';
+		echo '<p class="simple_history_rss_feed_query_parameters">';
 		echo wp_kses(
 			sprintf(
 				/* translators: %s is a link to the documentation */
-				__( 'You can control what to include in the feed using query parameters. <a href="%1$s">View documentation</a>.', 'simple-history' ),
+				__( 'You can control what to include in the feed using query parameters. <a href="%1$s" target="_blank">View documentation</a>.', 'simple-history' ),
 				'https://simple-history.com/docs/feeds/?utm_source=wpadmin'
 			),
 			[
 				'a' => [
 					'href' => [],
+					'target' => [],
 				],
 			]
 		);
