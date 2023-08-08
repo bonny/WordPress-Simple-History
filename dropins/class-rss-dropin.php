@@ -460,7 +460,7 @@ class RSS_Dropin extends Dropin {
 		echo wp_kses(
 			sprintf(
 				/* translators: %s is a link to the documentation */
-				__( 'You can control what to include in the feed using query parameters. <a href="%1$s" target="_blank">View documentation</a>.', 'simple-history' ),
+				__( 'Query paramaters can be used to control what to include in the feed. <a href="%1$s" target="_blank">View documentation</a>.', 'simple-history' ),
 				'https://simple-history.com/docs/feeds/?utm_source=wpadmin'
 			),
 			[
