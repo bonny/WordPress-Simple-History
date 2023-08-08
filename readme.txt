@@ -220,6 +220,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
+- Added: RSS feed now accepts arguments to narrow down the events that are included in the feed. [#387](https://github.com/bonny/WordPress-Simple-History/issues/387)
 - Added: Event ID is included in WP-CLI output when running command `wp simple-history list`.
 - Added: Logger for logging changes to the Simple History settings page. 🙈 And yes, it was quite embarrassing that the plugin itself did not log its activities.
 - Added: Filter `simple_history/settings/log_cleared` that is fired after the log has been cleared using the "Clear log now" button on the settings page.
