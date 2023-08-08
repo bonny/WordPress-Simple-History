@@ -189,6 +189,7 @@ class RSS_Dropin extends Dropin {
 		}
 
 		header( 'Content-Type: text/xml; charset=utf-8' );
+
 		echo '<?xml version="1.0" encoding="UTF-8"?>';
 
 		$self_link = $this->get_rss_address();
@@ -226,10 +227,8 @@ class RSS_Dropin extends Dropin {
 					add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
 					add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
 
-					// Get log rows
-					$args = array(
-						'posts_per_page' => 10,
-					);
+					// Set args from query string.
+					$args = $this->set_log_query_args_from_query_string( $_GET );
 
 					/**
 					 * Filters the arguments passed to `SimpleHistoryLogQuery()` when fetching the RSS feed
@@ -485,5 +484,29 @@ class RSS_Dropin extends Dropin {
 		echo '<p>';
 		esc_html_e( 'Simple History has a RSS feed which you can subscribe to and receive log updates. Make sure you only share the feed with people you trust, since it can contain sensitive or confidential information.', 'simple-history' );
 		echo '</p>';
+	}
+
+	/**
+	 * Update log query args from query string.
+	 *
+	 * @param array $args Query string from $_GET.
+	 * @return array Updated log query args.
+	 */
+	public function set_log_query_args_from_query_string( $args ) {
+		$posts_per_page = isset( $args['posts_per_page'] ) ? (int) $args['posts_per_page'] : 10;
+		$paged = isset( $args['paged'] ) ? (int) $args['paged'] : 1;
+		$date_from = isset( $args['date_from'] ) ? sanitize_text_field( $args['date_from'] ) : '';
+		$date_to = isset( $args['date_to'] ) ? sanitize_text_field( $args['date_to'] ) : '';
+		$loggers = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : array();
+		$messages = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : array();
+
+		$args['posts_per_page'] = $posts_per_page;
+		$args['paged'] = $paged;
+		$args['date_from'] = $date_from;
+		$args['date_to'] = $date_to;
+		$args['loggers'] = $loggers;
+		$args['messages'] = $messages;
+
+		return $args;
 	}
 }
