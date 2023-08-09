@@ -218,18 +218,28 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased
+### 4.4.0 (August 2023)
 
-- Added: RSS feed now accepts arguments to narrow down the events that are included in the feed. [#387](https://github.com/bonny/WordPress-Simple-History/issues/387)
-- Added: Event ID is included in WP-CLI output when running command `wp simple-history list`.
-- Added: Logger for logging changes to the Simple History settings page. 🙈 And yes, it was quite embarrassing that the plugin itself did not log its activities.
-- Added: Filter `simple_history/settings/log_cleared` that is fired after the log has been cleared using the "Clear log now" button on the settings page.
-- Fixed: Fix issue [#224](https://github.com/bonny/WordPress-Simple-History/issues/224) and support threads [stop the “Updated changeset” and “Move changeset” notifications](https://wordpress.org/support/topic/stop-the-updated-changeset-and-move-changeset-notifications/), [Newbie question](https://wordpress.org/support/topic/newbie-question-65/).
-- Fixed: Scrollbar on dashboard on RTL websites. Fixes issue [#212](https://github.com/bonny/WordPress-Simple-History/issues/212), support thread [Horizontal Scroll](https://wordpress.org/support/topic/horizontal-scroll-16/).
-- Fixed: PHP error when showing a log entry when all core loggers are disabled. Fixes [#373](https://github.com/bonny/WordPress-Simple-History/issues/373).
-- Moved function `get_event_ip_number_headers()` from Simple Logger to Helpers class.
+**Added**
+
+- Logger for logging changes to the Simple History settings page. 🙈 And yes, it was quite embarrassing that the plugin itself did not log its activities.
+- RSS feed now accepts arguments to filter the events that are included in the feed. This makes it possible to subscribe to for example only WordPress core updates, or failed user logins, or any combination you want. [#387](https://github.com/bonny/WordPress-Simple-History/issues/387)
+- Event ID of each entry is included in WP-CLI output when running command `wp simple-history list`.
+- Filter `simple_history/settings/log_cleared` that is fired after the log has been cleared using the "Clear log now" button on the settings page.
 - Add helper function `is_plugin_active()` that loads the needed WordPress files before using the WordPress function with the same name. Part of fix for [#373](https://github.com/bonny/WordPress-Simple-History/issues/373).
-- Changed: Use `uniqid()` as cache invalidator instead of `time()`. Querying the log multiple times during the same PHP request with the same arguments, adding entries to the log between each log query, the same results would be returned.
+
+**Fixed**
+
+- Shop changes to post type `customize_changeset`. Fix issue [#224](https://github.com/bonny/WordPress-Simple-History/issues/224) and support threads [stop the “Updated changeset” and “Move changeset” notifications](https://wordpress.org/support/topic/stop-the-updated-changeset-and-move-changeset-notifications/), [Newbie question](https://wordpress.org/support/topic/newbie-question-65/).
+- Scrollbar on dashboard on RTL websites. Fixes issue [#212](https://github.com/bonny/WordPress-Simple-History/issues/212), support thread [Horizontal Scroll](https://wordpress.org/support/topic/horizontal-scroll-16/).
+- PHP error when showing a log entry when all core loggers are disabled. Fixes [#373](https://github.com/bonny/WordPress-Simple-History/issues/373).
+
+**Changed**
+
+- Tested on WordPress 6.3.
+- Use `uniqid()` as cache invalidator instead of `time()`. Querying the log multiple times during the same PHP request with the same arguments, adding entries to the log between each log query, the same results would be returned.
+- Function `get_event_ip_number_headers()` moved from Simple Logger class to Helpers class.
+- Misc internal code cleanup.
 
 ### 4.3.0 (July 2023)
 
