@@ -26,4 +26,16 @@ abstract class Dropin {
 	public function loaded() {
 		// ...
 	}
+
+	/**
+	 * Get the slug for the logger,
+	 * i.e. the unqualified class name.
+	 *
+	 * @return string
+	 */
+	public function get_slug() {
+		// https://stackoverflow.com/a/27457689
+		return substr( strrchr( get_class( $this ), '\\' ), 1 );
+	}
+
 }
