@@ -80,9 +80,19 @@ class RSS_Dropin extends Dropin {
 		 */
 		$settings_section_rss_id = 'simple_history_settings_section_rss';
 
+		/**
+		 * Filters the title for the RSS feed section headline.
+		 *
+		 * @var string $rss_section_title
+		 */
+		$rss_section_title = apply_filters(
+			'simple_history/feeds/settings_section_title',
+			_x( 'RSS feed', 'rss settings headline', 'simple-history' )
+		);
+
 		add_settings_section(
 			$settings_section_rss_id,
-			_x( 'RSS feed', 'rss settings headline', 'simple-history' ),
+			$rss_section_title,
 			array( $this, 'settings_section_output' ),
 			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
