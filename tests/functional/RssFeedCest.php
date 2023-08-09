@@ -39,9 +39,21 @@ class RssFeedCest {
 
         $I->amGoingTo('Visit the RSS feed and check for some texts');
         $I->amOnUrl($feed_address);
-        $I->canSee('History for wp-tests');
-        $I->canSee('Logged in');
+        $I->seeInSource('<title>History for wp-tests</title>');
+        $I->seeInSource('<title>Logged in</title>');
         $I->canSeeInCurrentUrl('simple_history_get_rss=1');
         $I->canSeeInCurrentUrl('rss_secret=');
+
+        // Test passing query args to the feed.
+        $feed_address = $feed_address . "&loggers=SimplePostLogger,SimpleUserLogger";
+        $I->amOnUrl($feed_address);
+        $I->seeInSource('<title>History for wp-tests</title>');
+        $I->seeInSource('<title>Logged in</title>');
+
+        // Remove user logger, logged in should not be in the feed any more.
+        $feed_address = $feed_address . "&loggers=SimplePostLogger";
+        $I->amOnUrl($feed_address);
+        $I->seeInSource('<title>History for wp-tests</title>');
+        $I->dontSeeInSource('<title>Logged in</title>');
     }
 }
