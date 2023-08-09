@@ -2,6 +2,7 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Helpers;
 use Simple_History\Simple_History;
 
 /**
@@ -20,6 +21,31 @@ class Donate_Dropin extends Dropin {
 	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_settings' ), 50 );
 		add_action( 'plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2 );
+		add_filter( 'admin_footer_text', array( $this, 'filter_admin_footer_text' ), 10, 1 );
+	}
+
+
+	/**
+	 * Add donate link to the admin footer.
+	 *
+	 * Called from filter 'admin_footer_text'.
+	 */
+	public function filter_admin_footer_text( $text ) {
+		if ( $this->simple_history->is_on_our_own_pages() === false ) {
+			return $text;
+		}
+
+		if ( Helpers::get_current_screen()->base === 'dashboard' ) {
+			return $text;
+		}
+
+		$text .= ' | ' . sprintf(
+			/* translators: 1 is a link to the WordPress.org plugin review page for Simple History. */
+			__( 'Consider giving Simple History <a href="%1$s" target="_blank">a nice review at WordPress.org</a> if you find it useful.', 'simple-history' ),
+			'https://wordpress.org/support/plugin/simple-history/reviews/?filter=5#new-post',
+		);
+
+		return $text;
 	}
 
 	/**

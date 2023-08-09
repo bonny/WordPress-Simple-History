@@ -224,6 +224,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 - Add function `get_instantiated_dropin_by_slug()` to `Simple_History` class.
 - Add function `get_rss_secret()` to `RSS_Dropin` class.
 - Add filters `simple_history/feeds/enable_feeds_checkbox_text` and `simple_history/feeds/after_address`.
+- Show review hint at footer on settings page and log page.
 
 ### 4.4.0 (August 2023)
 
