@@ -179,6 +179,7 @@ class RSS_Dropin extends Dropin {
 	 * Output for settings field that show current RSS address.
 	 */
 	public function settings_field_rss_enable() {
+			'simple_history/feeds/enable_feeds_checkbox_text',
 		?>
 		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
 		<label for="simple_history_enable_rss_feed"><?php esc_html_e( 'Enable RSS feed', 'simple-history' ); ?></label>
