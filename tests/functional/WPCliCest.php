@@ -21,13 +21,13 @@ class WPCliCest {
         $I->loginAs('luca', 'passw0rd');
 
         $I->cli('simple-history list --count=1');
-        $I->seeInShellOutput('date	initiator	description	level	count');
-        $I->seeInShellOutput('luca (luca@example.org)	Logged in	info	1');
+        $I->seeInShellOutput('date	initiator	description	level	count	id');
+        $I->seeInShellOutput('luca (luca@example.org)	Logged in	info	1	12');
 
         $result = $I->cliToString('simple-history list --format=json');
         $I->assertJson($result);
         // Test part of the JSON.
-        $I->seeInShellOutput('"initiator":"luca (luca@example.org)","description":"Logged in","level":"info","count":"1"}');
+        $I->seeInShellOutput('"initiator":"luca (luca@example.org)","description":"Logged in","level":"info","count":"1","id":"12"}');
     }
 }
 
