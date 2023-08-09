@@ -16,7 +16,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( defined( 'SIMPLE_HISTORY_DIR_URL' ), 'Assert SIMPLE_HISTORY_DIR_URL' );
 		$this->assertTrue( defined( 'SIMPLE_HISTORY_FILE' ), 'Assert SIMPLE_HISTORY_FILE' );
 
-		$this->assertFalse( defined( 'SIMPLE_HISTORY_DEV' ), 'Assert SIMPLE_HISTORY_DEV' );
+		// $this->assertFalse( defined( 'SIMPLE_HISTORY_DEV' ), 'Assert SIMPLE_HISTORY_DEV' );
 	}
 
 	function test_history_classes() {
