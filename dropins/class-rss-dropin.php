@@ -179,10 +179,19 @@ class RSS_Dropin extends Dropin {
 	 * Output for settings field that show current RSS address.
 	 */
 	public function settings_field_rss_enable() {
+		/**
+		 * Filters the text for the RSS enable checkbox.
+		 *
+		 * @var string $rss_section_title
+		 */
+		$enable_rss_text = apply_filters(
 			'simple_history/feeds/enable_feeds_checkbox_text',
+			__( 'Enable RSS feed', 'simple-history' )
+		);
+
 		?>
 		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
-		<label for="simple_history_enable_rss_feed"><?php esc_html_e( 'Enable RSS feed', 'simple-history' ); ?></label>
+		<label for="simple_history_enable_rss_feed"><?php echo esc_html( $enable_rss_text ); ?></label>
 		<?php
 	}
 
@@ -491,6 +500,13 @@ class RSS_Dropin extends Dropin {
 			]
 		);
 		echo '</p>';
+
+		/**
+		 * Fires after the RSS address has been output.
+		 *
+		 * @param RSS_Dropin $this
+		 */
+		do_action( 'simple_history/feeds/after_address', $this );
 	}
 
 	/**
@@ -529,8 +545,6 @@ class RSS_Dropin extends Dropin {
 			),
 			get_bloginfo( 'url' ) . '/'
 		);
-
-		$rss_address = esc_url( $rss_address );
 
 		return $rss_address;
 	}
