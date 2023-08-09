@@ -218,6 +218,13 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+### Unreleased
+
+- Add function `get_slug()` to `Dropin` class.
+- Add function `get_instantiated_dropin_by_slug()` to `Simple_History` class.
+- Add function `get_rss_secret()` to `RSS_Dropin` class.
+- Add filters `simple_history/feeds/enable_feeds_checkbox_text` and `simple_history/feeds/after_address`.
+
 ### 4.4.0 (August 2023)
 
 This version of Simple history is tested on the just released [WordPress 6.3](https://wordpress.org/news/2023/08/lionel/). It also contains some new features and bug fixes.
