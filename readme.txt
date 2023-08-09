@@ -220,10 +220,14 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### 4.4.0 (August 2023)
 
+This version of Simple history is tested on the just released [WordPress 6.3](https://wordpress.org/news/2023/08/lionel/). It also contains some new features and bug fixes.
+
+[Release post for Simple History 4.4.0](https://simple-history.com/2023/simple-history-4-4-0/).
+
 **Added**
 
 - Logger for logging changes to the Simple History settings page. 🙈 And yes, it was quite embarrassing that the plugin itself did not log its activities.
-- RSS feed now accepts arguments to filter the events that are included in the feed. This makes it possible to subscribe to for example only WordPress core updates, or failed user logins, or any combination you want. [#387](https://github.com/bonny/WordPress-Simple-History/issues/387)
+- RSS feed now accepts arguments to filter the events that are included in the feed. This makes it possible to subscribe to for example only WordPress core updates, or failed user logins, or any combination you want. See the documentation page for [available arguments and some examples](https://simple-history.com/docs/feeds/). [#387](https://github.com/bonny/WordPress-Simple-History/issues/387)
 - Event ID of each entry is included in WP-CLI output when running command `wp simple-history list`.
 - Filter `simple_history/settings/log_cleared` that is fired after the log has been cleared using the "Clear log now" button on the settings page.
 - Add helper function `is_plugin_active()` that loads the needed WordPress files before using the WordPress function with the same name. Part of fix for [#373](https://github.com/bonny/WordPress-Simple-History/issues/373).
