@@ -1401,6 +1401,13 @@ class Simple_History {
 		<?php
 	}
 
+	/**
+	 * Check if the current page is any of the pages that belong
+	 * to Simple History.
+	 *
+	 * @param string $hook The current page hook.
+	 * @return bool
+	 */
 	public function is_on_our_own_pages( $hook = '' ) {
 		$current_screen = get_current_screen();
 
