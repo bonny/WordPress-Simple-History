@@ -1281,7 +1281,6 @@ class Simple_History {
 		 * @param Simple_History $instance Simple History instance.
 		 */
 		do_action( 'simple_history/dropins/instantiated', $this );
-
 	}
 
 	/**
@@ -2933,6 +2932,26 @@ Because Simple History was only recently installed, this feed does not display m
 	 */
 	public function get_instantiated_dropins() {
 		return $this->instantiated_dropins;
+	}
+
+	/**
+	 * Get instantiated dropin by slug.
+	 * Returns the logger instance if found, or bool false if not found.
+	 * @param string $slug
+	 * @return bool|Dropin
+	 */
+	public function get_instantiated_dropin_by_slug( $slug = '' ) {
+		if ( empty( $slug ) ) {
+			return false;
+		}
+
+		foreach ( $this->get_instantiated_dropins() as $one_dropin ) {
+			if ( $slug === $one_dropin['instance']->get_slug() ) {
+				return $one_dropin['instance'];
+			}
+		}
+
+		return false;
 	}
 
 	/**
