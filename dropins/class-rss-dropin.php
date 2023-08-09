@@ -22,7 +22,7 @@ class RSS_Dropin extends Dropin {
 		$this->is_rss_enabled();
 
 		// Generate a rss secret, if it does not exist.
-		if ( ! get_option( 'simple_history_rss_secret' ) ) {
+		if ( ! $this->get_rss_secret() ) {
 			$this->update_rss_secret();
 		}
 
@@ -160,7 +160,7 @@ class RSS_Dropin extends Dropin {
 		$is_enabled = false;
 
 		// User has never used the plugin we disable RSS feed
-		if ( get_option( 'simple_history_rss_secret' ) === false && get_option( 'simple_history_enable_rss_feed' ) === false ) {
+		if ( $this->get_rss_secret() === false && get_option( 'simple_history_enable_rss_feed' ) === false ) {
 			// We disable RSS by default, we use 0/1 to prevent fake disabled with bools from functions returning false for unset.
 			update_option( 'simple_history_enable_rss_feed', '0' );
 		} elseif ( get_option( 'simple_history_enable_rss_feed' ) === false ) {
@@ -194,6 +194,15 @@ class RSS_Dropin extends Dropin {
 			$this->output_rss();
 			exit;
 		}
+	}
+
+	/**
+	 * Get the RSS secret.
+	 *
+	 * @return bool|string RSS secret or false if not set.
+	 */
+	public function get_rss_secret() {
+		return get_option( 'simple_history_rss_secret' );
 	}
 
 	/**
