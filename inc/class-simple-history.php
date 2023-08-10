@@ -57,7 +57,7 @@ class Simple_History {
 	/**
 	 * All registered settings tabs.
 	 *
-	 * @var array
+	 * @var array<int,mixed>
 	 */
 	private $arr_settings_tabs = array();
 
@@ -878,15 +878,17 @@ class Simple_History {
 	 * Adds default tabs to settings
 	 */
 	public function add_default_settings_tabs() {
-		// Add default settings tabs
+		// Add default settings tabs.
 		$this->arr_settings_tabs = array(
 			array(
 				'slug' => 'settings',
 				'name' => __( 'Settings', 'simple-history' ),
+				'order' => 100,
 				'function' => array( $this, 'settings_output_general' ),
 			),
 		);
 
+		// Append dev tabs if SIMPLE_HISTORY_DEV is defined and true.
 		if ( defined( 'SIMPLE_HISTORY_DEV' ) && constant( 'SIMPLE_HISTORY_DEV' ) ) {
 			$arr_dev_tabs = array(
 				array(
@@ -1819,6 +1821,7 @@ Because Simple History was only recently installed, this feed does not display m
 	 *
 	 *     @type string   $slug   Unique slug of settings tab.
 	 *     @type string   $name Human friendly name of the tab, shown on the settings page.
+	 *     @type int      $order Order of the tab, where higher number means earlier output,
 	 *     @type callable $function Function that will show the settings tab output.
 	 * }
 	 */
@@ -1829,18 +1832,39 @@ Because Simple History was only recently installed, this feed does not display m
 	/**
 	 * Get the registered settings tabs.
 	 *
+	 * The tabs are ordered by the order key, where higher number means earlier output,
+	 * i.e. the tab is outputted more to the left in the settings page.
+	 *
+	 * Tabs with no order is outputted last.
+	 *
 	 * @return array
 	 */
 	public function get_settings_tabs() {
+		// Sort by order, where higher number means earlier output.
+		usort(
+			$this->arr_settings_tabs,
+			function( $a, $b ) {
+				$a_order = $a['order'] ?? 0;
+				$b_order = $b['order'] ?? 0;
+
+				if ( $a_order === $b_order ) {
+					return 0;
+				}
+
+				return ( $a_order > $b_order ) ? -1 : 1;
+			}
+		);
+
 		return $this->arr_settings_tabs;
 	}
 
 	/**
-	 * Output HTML for the settings page
-	 * Called from add_options_page
+	 * Output HTML for the settings page.
+	 * Called from add_options_page.
 	 */
 	public function settings_page_output() {
 		$arr_settings_tabs = $this->get_settings_tabs();
+
 		?>
 		<div class="wrap">
 

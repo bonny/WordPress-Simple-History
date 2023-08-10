@@ -17,6 +17,7 @@ class Export_Dropin extends Dropin {
 			array(
 				'slug' => 'export',
 				'name' => _x( 'Export', 'Export dropin: Tab name on settings page', 'simple-history' ),
+				'order' => 50,
 				'function' => array( $this, 'output' ),
 			)
 		);
