@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;
 use Rector\CodeQuality\Rector\Array_\CallableThisArrayToAnonymousFunctionRector;
-use Rector\CodeQuality\Rector\Array_\ArrayThisCallToThisMethodCallRector;
 use Rector\CodeQuality\Rector\ClassMethod\ReturnTypeFromStrictScalarReturnExprRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector;
@@ -48,12 +47,9 @@ return static function ( RectorConfig $rectorConfig ): void {
 			SimplifyUselessVariableRector::class,
 			// Doesn't feel WordPress'ish.
 			CallableThisArrayToAnonymousFunctionRector::class,
-			// Looks weird.
-			ArrayThisCallToThisMethodCallRector::class,
 			// Makes to code more difficult to read.
 			SimplifyIfReturnBoolRector::class,
 			// Need to find out what they do
-			RemoveEmptyMethodCallRector::class,
 			RenameFunctionRector::class,
 			JsonThrowOnErrorRector::class,
 			// I think `count($array) > 0;` is more readable than `$array !== [];`.
@@ -67,7 +63,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			// Prefer `foreach $key => $value` over `foreach (array_keys($values) as $key) {`
 			UnusedForeachValueToArrayKeysRector::class,
 			ReturnTypeFromStrictTypedCallRector::class,
-			ReturnTypeFromStrictScalarReturnExprRector::class,
+			//ReturnTypeFromStrictScalarReturnExprRector::class,
 			// Ternary not allowed in WP.
 			SimplifyIfElseToTernaryRector::class,
 			NullCoalescingOperatorRector::class,
@@ -84,7 +80,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			SetList::DEAD_CODE,
 			SetList::CODE_QUALITY,
 			// Add lists one by one to make diffs not to big.
-			// SetList::CODING_STYLE,			
+			// SetList::CODING_STYLE,
 			// SetList::EARLY_RETURN,
 		)
 	);
