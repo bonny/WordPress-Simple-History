@@ -129,31 +129,15 @@ class Setup_Purge_DB_Cron {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql_delete_history_context );
 
-			// TODO: This message should be called from the Simple History logger.
-			$message = _nx(
-				'Simple History removed one event that were older than {days} days',
-				'Simple History removed {num_rows} events that were older than {days} days',
-				is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0,
-				'Database is being cleared automagically',
-				'simple-history'
-			);
-
-			SimpleLogger()->info(
-				$message,
-				array(
-					'days' => $days,
-					'num_rows' => is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0,
-				)
-			);
-
 			$num_rows_purged = is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0;
 
 			/**
 			 * Fires after events have been purged from the database.
 			 *
+			 * @param int $days Number of days to keep events.
 			 * @param int $num_rows_purged Number of rows deleted.
 			 */
-			do_action( 'simple_history/db/purged_events', $num_rows_purged );
+			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged );
 
 			Helpers::get_cache_incrementor( true );
 		}

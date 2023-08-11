@@ -25,6 +25,7 @@ class Simple_History_Logger extends Logger {
 				'modified_settings' => _x( 'Modified settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'regenerated_rss_feed_secret' => _x( 'Regenerated RSS feed secret', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'cleared_log' => _x( 'Cleared the log for Simple History ({num_rows_deleted} rows were removed)', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'purged_events' => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
 		];
 	}
@@ -33,6 +34,24 @@ class Simple_History_Logger extends Logger {
 		add_action( 'load-options.php', [ $this, 'on_load_options_page' ] );
 		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ] );
 		add_action( 'simple_history/settings/log_cleared', [ $this, 'on_log_cleared' ] );
+		add_action( 'simple_history/db/events_purged', [ $this, 'on_events_purged' ], 10, 2 );
+	}
+
+	/**
+	 * Log when events are purged.
+	 *
+	 * @param int $days Number of days to keep.
+	 * @param int $num_rows_deleted Number of rows deleted.
+	 * @return void
+	 */
+	public function on_events_purged( $days, $num_rows_deleted ) {
+		$this->info_message(
+			'purged_events',
+			[
+				'days' => $days,
+				'num_rows' => $num_rows_deleted,
+			]
+		);
 	}
 
 	/**
