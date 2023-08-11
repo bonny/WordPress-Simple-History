@@ -15,44 +15,23 @@ class Simple_History {
 	public const NAME = 'Simple History';
 
 	/**
-  * For singleton.
-  *
-  * @see get_instance()
-  */
+	 * For singleton.
+	 *
+	 * @see get_instance()
+	 */
 	private static ?\Simple_History\Simple_History $instance = null;
 
-	/**
-  * Array with external logger classnames to load.
-  */
-	private ?array $external_loggers = null;
+	/** Array with external logger classnames to load. */
+	private array $external_loggers = [];
 
-	/**
-  * Array with external dropins to load.
-  */
+	/** Array with external dropins to load. */
 	private ?array $external_dropins = null;
 
-	/**
-  * Array with all instantiated loggers.
-  */
-	private ?array $instantiated_loggers = null;
+	/** Array with all instantiated loggers. */
+	private array $instantiated_loggers = [];
 
-	/**
-  * Array with all instantiated dropins.
-  */
+	/** Array with all instantiated dropins. */
 	private ?array $instantiated_dropins = null;
-
-	/**
-  * Bool if gettext filter function should be active
-  * Should only be active during the load of a logger
-  */
-	private bool $do_filter_gettext = false;
-
-	/**
-	 * Used by gettext filter to temporarily store current logger.
-	 *
-	 * @var \Simple_History\Loggers\Logger
-	 */
-	private $do_filter_gettext_current_logger;
 
 	/**
 	 * All registered settings tabs.
@@ -110,15 +89,14 @@ class Simple_History {
 		// The drawback with this is that for example logouts done when plugins like
 		// iThemes Security is installed is not logged, because those plugins fire wp_logout()
 		// using filter "plugins_loaded", i.e. before simple history has loaded its filters.
-		add_action( 'after_setup_theme', array( $this, 'load_loggers' ) );
 		add_action( 'after_setup_theme', array( $this, 'load_dropins' ) );
+
+		new \Simple_History\setup\Loggers_Loader( $this );
+		//      new \Simple_History\setup\Dropins_Loader($this);
 
 		// Run before loading of loggers and before menu items are added.
 		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
 		add_action( 'after_setup_theme', array( $this, 'setup_cron' ) );
-
-		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
-		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
 
 		/**
 		 * Filter that is used to log things, without the need to check that simple history is available
@@ -288,6 +266,7 @@ class Simple_History {
 	 * @since 2.5.2
 	 */
 	private function add_admin_actions() {
+		// HERE: Move to admin-class so it does not pollute main simple history class.
 		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
 		add_action( 'admin_menu', array( $this, 'add_settings' ) );
 
@@ -306,6 +285,9 @@ class Simple_History {
 		add_action( 'wp_ajax_simple_history_api', array( $this, 'api' ) );
 
 		add_filter( 'plugin_action_links_simple-history/index.php', array( $this, 'plugin_action_links' ), 10, 4 );
+
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
 	}
 
 	/**
@@ -675,47 +657,6 @@ class Simple_History {
 	}
 
 	/**
-	 * Store both translated and untranslated versions of a text.
-	 *
-	 * @param string $translated_text
-	 * @param string $untranslated_text
-	 * @param string $domain
-	 */
-	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
-		if ( $this->do_filter_gettext ) {
-			$this->do_filter_gettext_current_logger->messages[] = array(
-				'untranslated_text' => $untranslated_text,
-				'translated_text' => $translated_text,
-				'domain' => $domain,
-				'context' => null,
-			);
-		}
-
-		return $translated_text;
-	}
-
-	/**
-	 * Store both translated and untranslated versions of a text with context.
-	 *
-	 * @param string $translated_text
-	 * @param string $untranslated_text
-	 * @param string $context
-	 * @param string $domain
-	 */
-	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
-		if ( $this->do_filter_gettext ) {
-			$this->do_filter_gettext_current_logger->messages[] = array(
-				'untranslated_text' => $untranslated_text,
-				'translated_text' => $translated_text,
-				'domain' => $domain,
-				'context' => $context,
-			);
-		}
-
-		return $translated_text;
-	}
-
-	/**
 	 * Load language files.
 	 * Uses the method described at URL:
 	 * http://geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
@@ -735,9 +676,7 @@ class Simple_History {
 	 * Setup variables and things.
 	 */
 	public function setup_variables() {
-		$this->external_loggers = array();
 		$this->external_dropins = array();
-		$this->instantiated_loggers = array();
 		$this->instantiated_dropins = array();
 		$this->plugin_basename = SIMPLE_HISTORY_BASENAME;
 
@@ -932,6 +871,15 @@ class Simple_History {
 	}
 
 	/**
+	 * Get array with classnames of all external dropins.
+	 *
+	 * @return array
+	 */
+	public function get_external_loggers() {
+		return $this->external_loggers;
+	}
+
+	/**
 	 * Get array with classnames of all core (built-in) loggers.
 	 *
 	 * @return array
@@ -976,166 +924,6 @@ class Simple_History {
 		$loggers = apply_filters( 'simple_history/core_loggers', $loggers );
 
 		return $loggers;
-	}
-
-	/**
-	 * Instantiates built in loggers.
-	 */
-	public function load_loggers() {
-		// Bail if we are not in filter after_setup_theme,
-		// i.e. we are probably calling SimpleLogger() early.
-		// TODO: Test if this is still needed, after adding autoloading of classes.
-		if ( ! doing_action( 'after_setup_theme' ) ) {
-			return;
-		}
-
-		$arr_loggers_to_instantiate = $this->get_core_loggers();
-
-		/**
-		 * Fires after the list of loggers to load are populated.
-		 *
-		 * Can for example be used by plugin to load their own custom loggers.
-		 *
-		 * See register_logger() for more info.
-		 *
-		 * @since 2.1
-		 *
-		 * @param Simple_History $instance Simple History instance.
-		 */
-		do_action( 'simple_history/add_custom_logger', $this );
-
-		$arr_loggers_to_instantiate = array_merge( $arr_loggers_to_instantiate, $this->external_loggers );
-
-		/**
-		 * Filter the array with class names of loggers to instantiate.
-		 *
-		 * Array
-		 * (
-		 *  [0] => SimpleHistory\Loggers\SimpleUserLogger
-		 *  [1] => SimpleHistory\Loggers\SimplePostLogger
-		 *   ...
-		 * )
-		 *
-		 * @since 2.0
-		 *
-		 * @param array $arr_loggers_to_instantiate Array with class names
-		 */
-		$arr_loggers_to_instantiate = apply_filters(
-			'simple_history/loggers_to_instantiate',
-			$arr_loggers_to_instantiate
-		);
-
-		// Add gettext filters so we can get untranslated messages.
-		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
-		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
-
-		// Instantiate each logger.
-		foreach ( $arr_loggers_to_instantiate as $one_logger_class ) {
-			$is_valid_logger_subclass = is_subclass_of( $one_logger_class, 'Simple_History\Loggers\Logger' );
-			$is_valid_old_simplelogger_subclass = is_subclass_of( $one_logger_class, 'SimpleLogger' );
-
-			if ( ! $is_valid_logger_subclass && ! $is_valid_old_simplelogger_subclass ) {
-				continue;
-			}
-
-			/** @var Simple_Logger $logger_instance */
-			$logger_instance = new $one_logger_class( $this );
-			$logger_instance->loaded();
-
-			// Tell gettext-filter to add untranslated messages.
-			// TODO: Filter for texttext is called on every gettext, we should improve
-			// this by adding filter before this loop and then removing the filter,
-			// so filter is only called for a short period of time.
-			$this->do_filter_gettext = true;
-			$this->do_filter_gettext_current_logger = $logger_instance;
-
-			$logger_info = $logger_instance->get_info();
-
-			// Check so no logger has a logger slug with more than 30 chars,
-			// because db column is only 30 chars.
-			if ( strlen( $logger_instance->get_slug() ) > 30 ) {
-				_doing_it_wrong(
-					__METHOD__,
-					sprintf(
-						// translators: 1: logger slug, 2: logger name.
-						esc_html( __( 'A logger slug can be max 30 chars long. Slug %1$s of logger %2$s is to long.', 'simple-history' ) ),
-						esc_html( $logger_instance->get_slug() ),
-						esc_html( $logger_instance->get_info_value_by_key( 'name' ) )
-					),
-					'3.0'
-				);
-			}
-
-			// Check that logger has a slug set.
-			if ( empty( $logger_instance->get_slug() ) ) {
-				_doing_it_wrong(
-					__METHOD__,
-					esc_html( __( 'A logger is missing a slug.', 'simple-history' ) ),
-					'4.0'
-				);
-			}
-
-			// Check that logger has a name set.
-			if ( ! isset( $logger_info['name'] ) ) {
-				_doing_it_wrong(
-					__METHOD__,
-					sprintf(
-						// translators: 1: logger slug.
-						esc_html( __( 'Logger %1$s is missing a name.', 'simple-history' ) ),
-						esc_html( $logger_instance->get_slug() ),
-					),
-					'4.0'
-				);
-			}
-
-			// Un-tell gettext filter.
-			$this->do_filter_gettext = false;
-			$this->do_filter_gettext_current_logger = null;
-
-			// LoggerInfo contains all messages, both translated an not, by key.
-			// Add messages to the loggerInstance.
-			$arr_messages_by_message_key = array();
-
-			// Check that required content in messages array exist.
-			if ( isset( $logger_info['messages'] ) && is_array( $logger_info['messages'] ) ) {
-				foreach ( $logger_info['messages'] as $message_key => $message_translated ) {
-					// Find message in array with both translated and non translated strings.
-					foreach ( $logger_instance->messages as $one_message_with_translation_info ) {
-						if ( $message_translated == $one_message_with_translation_info['translated_text'] ) {
-							$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
-							continue;
-						}
-					}
-				}
-			}
-
-			$logger_instance->messages = $arr_messages_by_message_key;
-
-			$this->instantiated_loggers[ $logger_instance->get_slug() ] = array(
-				'name' => $logger_instance->get_info_value_by_key( 'name' ),
-				'instance' => $logger_instance,
-			);
-		} // End foreach().
-
-		// Remove getText filters.
-		remove_filter( 'gettext', array( $this, 'filter_gettext' ), 20 );
-		remove_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20 );
-
-		/**
-		 * Fired when all loggers are instantiated.
-		 *
-		 * @deprecated 3.0 Use action `simple_history/loggers/instantiated` instead.
-		 *
-		 * @since 3.0
-		 */
-		do_action( 'simple_history/loggers_loaded' );
-
-		/**
-		 * Fired when all loggers are instantiated.
-		 *
-		 * @since 4.0
-		 */
-		do_action( 'simple_history/loggers/instantiated', $this );
 	}
 
 	/**
@@ -1223,6 +1011,7 @@ class Simple_History {
 				continue;
 			}
 
+			// TODO: There was a faster way? See Simple History PLus.
 			$dropin_short_name = ( new \ReflectionClass( $one_dropin_class ) )->getShortName();
 
 			/**
@@ -2956,6 +2745,16 @@ Because Simple History was only recently installed, this feed does not display m
 	}
 
 	/**
+	 * Set instantiated loggers.
+	 *
+	 * @param array $instantiated_loggers
+	 * @return void
+	 */
+	public function set_instantiated_loggers( $instantiated_loggers ) {
+		$this->instantiated_loggers = $instantiated_loggers;
+	}
+
+	/**
 	 * Get instantiated dropins.
 	 *
 	 * @return array
@@ -3314,6 +3113,11 @@ Because Simple History was only recently installed, this feed does not display m
 		return $count;
 	}
 
+	/**
+	 * Get number of events per day the last n days.
+	 * @param int $period_days Number of days to get events for.
+	 * @return array Array with date as key and number of events as value.
+	 */
 	public function get_num_events_per_day_last_n_days( $period_days = 28 ) {
 		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
 		$dates = get_transient( $transient_key );

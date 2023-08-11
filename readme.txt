@@ -226,6 +226,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 - Add filters `simple_history/feeds/enable_feeds_checkbox_text` and `simple_history/feeds/after_address`.
 - Show review hint at footer on settings page and log page.
 - Order of settings tab can now be set with key `order` in the array passed to `add_settings_tab()`.
+- Move loading of loggers to new class `Loggers_Loader`.
+- Moved functions `filter_gettext()`, `filter_gettext_with_context()`, `load_loggers()` to `Loggers_Loader` class.
+- Rename network admin menu item "Simple History" to "View History" to use to same name as the admin menu item.
+- Add function `get_external_loggers()`.
+- Add function `set_instantiated_loggers()`.
 
 ### 4.4.0 (August 2023)
 
