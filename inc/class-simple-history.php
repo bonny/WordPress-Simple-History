@@ -40,7 +40,7 @@ class Simple_History {
 	private array $instantiated_services = [];
 
 	/** @var array<int,mixed>  Registered settings tabs. */
-	private $arr_settings_tabs = [];
+	private array $arr_settings_tabs = [];
 
 	public const DBTABLE = 'simple_history';
 	public const DBTABLE_CONTEXTS = 'simple_history_contexts';
@@ -99,7 +99,7 @@ class Simple_History {
 		 *
 		 * @since 2.0
 		 *
-		 * @param Simple_History $instance This class.
+		 * @param Simple_History $instance Simple_History instance.
 		 */
 		do_action( 'simple_history/after_init', $this );
 	}
@@ -1121,12 +1121,7 @@ class Simple_History {
 			function( $a, $b ) {
 				$a_order = $a['order'] ?? 0;
 				$b_order = $b['order'] ?? 0;
-
-				if ( $a_order === $b_order ) {
-					return 0;
-				}
-
-				return ( $a_order > $b_order ) ? -1 : 1;
+    return $b_order <=> $a_order;
 			}
 		);
 
