@@ -76,7 +76,6 @@ class Dropins_Loader {
 				continue;
 			}
 
-			// TODO: There was a faster way? See Simple History PLus.
 			$dropin_short_name = ( new \ReflectionClass( $one_dropin_class ) )->getShortName();
 
 			/**

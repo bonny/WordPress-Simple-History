@@ -80,13 +80,13 @@ class Simple_History {
 
 		$this->setup_variables();
 
-		new \Simple_History\Loggers_Loader( $this );
-		new \Simple_History\Dropins_Loader( $this );
-		new \Simple_History\Setup_Log_Filters( $this );
-
 		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
 		add_action( 'after_setup_theme', array( $this, 'load_plugin_textdomain' ) );
 		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
+
+		new \Simple_History\Loggers_Loader( $this );
+		new \Simple_History\Dropins_Loader( $this );
+		new \Simple_History\Setup_Log_Filters( $this );
 
 		// Run before loading of loggers and before menu items are added.
 		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
