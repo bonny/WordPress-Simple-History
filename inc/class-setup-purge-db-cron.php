@@ -146,6 +146,15 @@ class Setup_Purge_DB_Cron {
 				)
 			);
 
+			$num_rows_purged = is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0;
+
+			/**
+			 * Fires after events have been purged from the database.
+			 *
+			 * @param int $num_rows_purged Number of rows deleted.
+			 */
+			do_action( 'simple_history/db/purged_events', $num_rows_purged );
+
 			Helpers::get_cache_incrementor( true );
 		}
 	}

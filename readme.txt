@@ -237,6 +237,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 - Add function `set_instantiated_loggers()`.
 - Add function `set_instantiated_dropins()`.
 - Add action `simple_history/settings_page/general_section_output`.
+- Add filter `simple_history/db/purged_events` that is fired after db has been purged from old events.
 
 ### 4.4.0 (August 2023)
 
