@@ -36,6 +36,9 @@ class Simple_History {
 	/** Array with all instantiated dropins. */
 	private array $instantiated_dropins = [];
 
+	/** Array with instantiated setup class. */
+	private array $instantiated_services = [];
+
 	/** @var array<int,mixed>  Registered settings tabs. */
 	private $arr_settings_tabs = [];
 
@@ -82,11 +85,8 @@ class Simple_History {
 		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
 		add_action( 'after_setup_theme', array( $this, 'load_plugin_textdomain' ) );
 
-		new \Simple_History\Setup_Settings_Page( $this );
-		new \Simple_History\Loggers_Loader( $this );
-		new \Simple_History\Dropins_Loader( $this );
-		new \Simple_History\Setup_Log_Filters( $this );
-		new \Simple_History\Setup_Purge_DB_Cron( $this );
+		// Load services that are required for Simple History to work.
+		$this->load_services();
 
 		// Run before loading of loggers and before menu items are added.
 		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
@@ -105,6 +105,37 @@ class Simple_History {
 		 * @param Simple_History $instance This class.
 		 */
 		do_action( 'simple_history/after_init', $this );
+	}
+
+	/**
+	 * Return array with classnames core services classnames.
+	 *
+	 * @return array<string> Array with classnames.
+	 */
+	private function get_core_services() {
+		return [
+			Setup_Settings_Page::class,
+			Loggers_Loader::class,
+			Dropins_Loader::class,
+			Setup_Log_Filters::class,
+			Setup_Purge_DB_Cron::class,
+		];
+	}
+
+	/**
+	 * Load services that are required for Simple History to work.
+	 */
+	private function load_services() {
+		foreach ( $this->get_core_services() as $service_classname ) {
+			$this->load_service( $service_classname );
+		}
+	}
+
+	/**
+	 * Load a service class.
+	 */
+	private function load_service( $service_classname ) {
+		$this->instantiated_services[] = new $service_classname( $this );
 	}
 
 	/**
