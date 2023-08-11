@@ -13,7 +13,7 @@
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
 		"phpcompatibility/php-compatibility": "*",
-		"wp-coding-standards/wpcs": "*",
+		"wp-coding-standards/wpcs": "dev-master",
 		"phpcompatibility/phpcompatibility-wp": "*",
 		"lucatume/wp-browser": "^3.1.0",
 		"codeception/module-asserts": "^1.0",
