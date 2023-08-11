@@ -2,8 +2,11 @@
 namespace Simple_History;
 
 use Simple_History\Loggers;
+use Simple_History\Loggers\Logger;
 use Simple_History\Loggers\Simple_Logger;
+use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Dropins;
+use Simple_History\Dropins\Dropin;
 use Simple_History\Helpers;
 
 /**
@@ -50,7 +53,7 @@ class Simple_History {
 	public static $dbtable_contexts;
 
 	/** @var string $plugin_basename */
-	public $plugin_basename;
+	public $plugin_basename = SIMPLE_HISTORY_BASENAME;
 
 	/** Slug for the settings menu */
 	public const SETTINGS_MENU_SLUG = 'simple_history_settings_menu_slug';
@@ -545,8 +548,6 @@ class Simple_History {
 	 * Setup variables and things.
 	 */
 	public function setup_variables() {
-		$this->plugin_basename = SIMPLE_HISTORY_BASENAME;
-
 		global $wpdb;
 		$this::$dbtable = $wpdb->prefix . self::DBTABLE;
 		$this::$dbtable_contexts = $wpdb->prefix . self::DBTABLE_CONTEXTS;
@@ -1311,9 +1312,10 @@ class Simple_History {
 	 */
 	public function add_welcome_log_message() {
 		$db_data_exists = $this->does_database_have_data();
-		// $db_data_exists = false;
-		$pluginLogger = $this->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
-		if ( $pluginLogger ) {
+
+		$plugin_logger = $this->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
+
+		if ( $plugin_logger instanceof Plugin_Logger ) {
 			// Add plugin installed message
 			$context = array(
 				'plugin_name' => 'Simple History',
@@ -1324,13 +1326,13 @@ class Simple_History {
 				'plugin_author' => 'Pär Thernström',
 			);
 
-			$pluginLogger->info_message( 'plugin_installed', $context );
+			$plugin_logger->info_message( 'plugin_installed', $context );
 
 			// Add plugin activated message
 			$context['plugin_slug'] = 'simple-history';
 			$context['plugin_title'] = '<a href="https://simple-history.com/">Simple History</a>';
 
-			$pluginLogger->info_message( 'plugin_activated', $context );
+			$plugin_logger->info_message( 'plugin_activated', $context );
 		}
 
 		if ( ! $db_data_exists ) {
@@ -2582,10 +2584,10 @@ Because Simple History was only recently installed, this feed does not display m
 	 * @param string $format format to return loggers in. Default is array. Can also be "sql"
 	 * @return array
 	 */
-	public function get_loggers_that_user_can_read( $user_id = '', $format = 'array' ) {
+	public function get_loggers_that_user_can_read( $user_id = null, $format = 'array' ) {
 		$arr_loggers_user_can_view = array();
 
-		if ( ! is_numeric( $user_id ) ) {
+		if ( is_null( $user_id ) ) {
 			$user_id = get_current_user_id();
 		}
 
