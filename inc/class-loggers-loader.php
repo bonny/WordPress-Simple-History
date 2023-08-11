@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History\Setup;
+namespace Simple_History;
 
 use Simple_History\Simple_History;
 use Simple_History\Loggers\Simple_Logger;
@@ -16,6 +16,8 @@ class Loggers_Loader {
 	/**
 	 * Bool if gettext filter function should be active
 	 * Should only be active during the load of a logger
+	 *
+	 * @var bool
 	 */
 	private bool $do_filter_gettext = false;
 
