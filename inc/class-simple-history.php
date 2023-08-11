@@ -80,6 +80,10 @@ class Simple_History {
 
 		$this->setup_variables();
 
+		new \Simple_History\Loggers_Loader( $this );
+		new \Simple_History\Dropins_Loader( $this );
+		new \Simple_History\Setup_Log_Filters( $this );
+
 		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
 		add_action( 'after_setup_theme', array( $this, 'load_plugin_textdomain' ) );
 		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
@@ -87,37 +91,6 @@ class Simple_History {
 		// Run before loading of loggers and before menu items are added.
 		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
 		add_action( 'after_setup_theme', array( $this, 'setup_cron' ) );
-
-		/**
-		 * Filter that is used to log things, without the need to check that simple history is available
-		 * i.e. you can have simple history activated and log things and then you can disable the plugin
-		 * and no errors will occur
-		 *
-		 * Usage:
-		 * apply_filters("simple_history_log", "This is the log message");
-		 * apply_filters("simple_history_log", "This is the log message with some extra data/info", ["extraThing1" => $variableWIihThing]);
-		 * apply_filters("simple_history_log", "This is the log message with severity debug", null, "debug");
-		 * apply_filters("simple_history_log", "This is the log message with severity debug and with some extra info/data logged", ["userData" => $userData, "shoppingCartDebugData" => $shopDebugData], "debug",);
-		 *
-		 * @since 2.13
-		 */
-		add_filter( 'simple_history_log', array( $this, 'on_filter_simple_history_log' ), 10, 3 );
-
-		/**
-		 * Filter to log with specific log level, for example:
-		 * apply_filters('simple_history_log_debug', 'My debug message');
-		 * apply_filters('simple_history_log_warning', 'My warning message');
-		 *
-		 * @since 2.17
-		 */
-		add_filter( 'simple_history_log_emergency', array( $this, 'on_filter_simple_history_log_emergency' ), 10, 2 );
-		add_filter( 'simple_history_log_alert', array( $this, 'on_filter_simple_history_log_alert' ), 10, 2 );
-		add_filter( 'simple_history_log_critical', array( $this, 'on_filter_simple_history_log_critical' ), 10, 2 );
-		add_filter( 'simple_history_log_error', array( $this, 'on_filter_simple_history_log_error' ), 10, 2 );
-		add_filter( 'simple_history_log_warning', array( $this, 'on_filter_simple_history_log_warning' ), 10, 2 );
-		add_filter( 'simple_history_log_notice', array( $this, 'on_filter_simple_history_log_notice' ), 10, 2 );
-		add_filter( 'simple_history_log_info', array( $this, 'on_filter_simple_history_log_info' ), 10, 2 );
-		add_filter( 'simple_history_log_debug', array( $this, 'on_filter_simple_history_log_debug' ), 10, 2 );
 
 		$this->add_pause_and_resume_actions();
 
@@ -156,100 +129,6 @@ class Simple_History {
 				remove_filter( 'simple_history/log/do_log', '__return_false' );
 			}
 		);
-	}
-
-	/**
-	 * Log a message
-	 *
-	 * Function called when running filter "simple_history_log"
-	 *
-	 * @since 2.13
-	 * @param string $message The message to log.
-	 * @param array  $context Optional context to add to the logged data.
-	 * @param string $level The log level. Must be one of the existing ones. Defaults to "info".
-	 */
-	public function on_filter_simple_history_log( $message = null, $context = null, $level = 'info' ) {
-		SimpleLogger()->log( $level, $message, $context );
-	}
-
-	/**
-	 * Log a message, triggered by filter 'on_filter_simple_history_log_emergency'.
-	 *
-	 * @param string $message The message to log.
-	 * @param array  $context The context (optional).
-	 */
-	public function on_filter_simple_history_log_emergency( $message = null, $context = null ) {
-		SimpleLogger()->log( 'emergency', $message, $context );
-	}
-
-	/**
-	 * Log a message, triggered by filter 'on_filter_simple_history_log_alert'.
-	 *
-	 * @param string $message The message to log.
-	 * @param array  $context The context (optional).
-	 */
-	public function on_filter_simple_history_log_alert( $message = null, $context = null ) {
-		SimpleLogger()->log( 'alert', $message, $context );
-	}
-
-	/**
-	 * Log a message, triggered by filter 'on_filter_simple_history_log_critical'.
-	 *
-	 * @param string $message The message to log.
-	 * @param array  $context The context (optional).
-	 */
-	public function on_filter_simple_history_log_critical( $message = null, $context = null ) {
-		SimpleLogger()->log( 'critical', $message, $context );
-	}
-
-	/**
-	 * Log a message, triggered by filter 'on_filter_simple_history_log_error'.
-	 *
-	 * @param string $message The message to log.
-	 * @param array  $context The context (optional).
-	 */
-	public function on_filter_simple_history_log_error( $message = null, $context = null ) {
-		SimpleLogger()->log( 'error', $message, $context );
-	}
-
-	/**
-	 * Log a message, triggered by filter 'on_filter_simple_history_log_warning'.
-	 *
-	 * @param string $message The message to log.
-	 * @param array  $context The context (optional).
-	 */
-	public function on_filter_simple_history_log_warning( $message = null, $context = null ) {
-		SimpleLogger()->log( 'warning', $message, $context );
-	}
-
-	/**
-	 * Log a message, triggered by filter 'on_filter_simple_history_log_notice'.
-	 *
-	 * @param string $message The message to log.
-	 * @param array  $context The context (optional).
-	 */
-	public function on_filter_simple_history_log_notice( $message = null, $context = null ) {
-		SimpleLogger()->log( 'notice', $message, $context );
-	}
-
-	/**
-	 * Log a message, triggered by filter 'on_filter_simple_history_log_info'.
-	 *
-	 * @param string $message The message to log.
-	 * @param array  $context The context (optional).
-	 */
-	public function on_filter_simple_history_log_info( $message = null, $context = null ) {
-		SimpleLogger()->log( 'info', $message, $context );
-	}
-
-	/**
-	 * Log a message, triggered by filter 'on_filter_simple_history_log_debug'.
-	 *
-	 * @param string $message The message to log.
-	 * @param array  $context The context (optional).
-	 */
-	public function on_filter_simple_history_log_debug( $message = null, $context = null ) {
-		SimpleLogger()->log( 'debug', $message, $context );
 	}
 
 	/**
@@ -951,9 +830,9 @@ class Simple_History {
 
 	/**
 	 * Get external dropins.
-		 *
+	 *
 	 * @return array
-		 */
+	 */
 	public function get_external_dropins() {
 		return $this->external_dropins;
 	}
