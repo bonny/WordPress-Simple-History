@@ -14,7 +14,7 @@ use Simple_History\Log_Levels;
 class Filter_Dropin extends Dropin {
 	public function loaded() {
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_action( 'simple_history/history_page/before_gui', array( $this, 'gui_page_filters' ) );
+		add_action( 'simple_history/history_page/before_gui', array( $this, 'gui_page_filters' ), 10 );
 		add_action( 'simple_history/dashboard/before_gui', array( $this, 'gui_page_filters' ) );
 		add_action( 'wp_ajax_simple_history_filters_search_user', array( $this, 'ajax_simple_history_filters_search_user' ) );
 	}

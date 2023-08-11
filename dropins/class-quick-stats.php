@@ -1,24 +1,18 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Dropins;
 
-use Simple_History\Simple_History;
+use Simple_History\Dropins\Dropin;
+use Simple_History\Log_Query;
+use Simple_History\Helpers;
 
 /**
  * Class that handles the quick stats above the log.
  */
-class Quick_Stats {
-	/** @var Simple_History */
-	private Simple_History $simple_history;
-
-	public function __construct( Simple_History $simple_history ) {
-		$this->simple_history = $simple_history;
-		$this->init();
-	}
-
-	private function init() {
-		add_action( 'simple_history/history_page/before_gui', array( $this, 'output_quick_stats' ) );
-		add_action( 'simple_history/dashboard/before_gui', array( $this, 'output_quick_stats' ) );
+class Quick_Stats extends Dropin {
+	public function loaded() {
+		add_action( 'simple_history/history_page/before_gui', array( $this, 'output_quick_stats' ), 5 );
+		add_action( 'simple_history/dashboard/before_gui', array( $this, 'output_quick_stats' ), 5 );
 	}
 
 	/**

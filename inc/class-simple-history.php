@@ -117,7 +117,6 @@ class Simple_History {
 			Dropins_Loader::class,
 			Setup_Log_Filters::class,
 			Setup_Purge_DB_Cron::class,
-			Quick_Stats::class,
 		];
 	}
 
@@ -164,6 +163,7 @@ class Simple_History {
 	 * @since 2.5.2
 	 */
 	private function add_admin_actions() {
+
 		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
 
 		add_action( 'admin_footer', array( $this, 'add_js_templates' ) );
@@ -795,6 +795,7 @@ class Simple_History {
 			Dropins\Sidebar_Settings_Dropin::class,
 			Dropins\WP_CLI_Dropin::class,
 			Dropins\Development_Dropin::class,
+			Dropins\Quick_Stats::class,
 		);
 
 		/**
@@ -1863,7 +1864,7 @@ class Simple_History {
 	 *
 	 * @param int    $user_id Id of user to get loggers for. Defaults to current user id.
 	 * @param string $format format to return loggers in. Default is array. Can also be "sql"
-	 * @return array|string Array or SQL string with loggers that user can read. 
+	 * @return array|string Array or SQL string with loggers that user can read.
 	 */
 	public function get_loggers_that_user_can_read( $user_id = null, $format = 'array' ) {
 		$arr_loggers_user_can_view = array();

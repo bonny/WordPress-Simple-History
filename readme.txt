@@ -220,6 +220,9 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
+Doing: Move stuff from main class to subclasses. Put in subfolder? Got to many items now. `/services/` folder and namespace? `Simple_History\Service`.
+Dropins = non necessary stuff. Services = necessary/core stuff.
+
 - Add function `get_slug()` to `Dropin` class.
 - Add function `get_instantiated_dropin_by_slug()` to `Simple_History` class.
 - Add function `get_rss_secret()` to `RSS_Dropin` class.
