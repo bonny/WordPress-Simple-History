@@ -227,10 +227,13 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 - Show review hint at footer on settings page and log page.
 - Order of settings tab can now be set with key `order` in the array passed to `add_settings_tab()`.
 - Move loading of loggers to new class `Loggers_Loader`.
+- Move loading of dropins to new class `Dropins_Loader`.
+- Move log filters to new class `Setup_Log_Filters`.
 - Moved functions `filter_gettext()`, `filter_gettext_with_context()`, `load_loggers()` to `Loggers_Loader` class.
 - Rename network admin menu item "Simple History" to "View History" to use to same name as the admin menu item.
 - Add function `get_external_loggers()`.
 - Add function `set_instantiated_loggers()`.
+- Add function `set_instantiated_dropins()`.
 
 ### 4.4.0 (August 2023)
 
