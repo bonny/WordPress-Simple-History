@@ -1,6 +1,8 @@
 <?php
 
-namespace Simple_History;
+namespace Simple_History\Services;
+
+use Simple_History\Simple_History;
 
 class Setup_Settings_Page {
 	/** @var Simple_History */

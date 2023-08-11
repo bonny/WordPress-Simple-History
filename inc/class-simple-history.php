@@ -1,13 +1,14 @@
 <?php
+
 namespace Simple_History;
 
 use Simple_History\Loggers;
 use Simple_History\Loggers\Logger;
 use Simple_History\Loggers\Simple_Logger;
-use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Dropins;
 use Simple_History\Dropins\Dropin;
 use Simple_History\Helpers;
+use Simple_History\Services;
 
 /**
  * Main class for Simple History.
@@ -111,12 +112,12 @@ class Simple_History {
 	 */
 	private function get_core_services() {
 		return [
-			Setup_Database::class,
-			Setup_Settings_Page::class,
-			Loggers_Loader::class,
-			Dropins_Loader::class,
-			Setup_Log_Filters::class,
-			Setup_Purge_DB_Cron::class,
+			Services\Setup_Database::class,
+			Services\Setup_Settings_Page::class,
+			Services\Loggers_Loader::class,
+			Services\Dropins_Loader::class,
+			Services\Setup_Log_Filters::class,
+			Services\Setup_Purge_DB_Cron::class,
 		];
 	}
 
