@@ -10,7 +10,7 @@ use Simple_History\Simple_History;
  */
 function get_latest_row( $unset_fields = true ) {
 	global $wpdb;
-	$db_table = $wpdb->prefix . Simple_History::DBTABLE;
+	$db_table = Simple_History::get_instance()->get_events_table_name();
 	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	$latest_row = $wpdb->get_row( "SELECT * FROM {$db_table} ORDER BY id DESC", ARRAY_A );
 
@@ -25,9 +25,9 @@ function get_latest_context( $unset_fields = true ) {
 	$latest_row = get_latest_row( false );
 
 	global $wpdb;
-	$dbtable_contexts = Simple_History::$dbtable_contexts;
+	$db_table_contexts = Simple_History::get_instance()->get_contexts_table_name();
 	// // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-	$latest_context = $wpdb->get_results( "SELECT * FROM {$dbtable_contexts} WHERE history_id = {$latest_row['id']} ORDER BY `key` ASC", ARRAY_A );
+	$latest_context = $wpdb->get_results( "SELECT * FROM {$db_table_contexts} WHERE history_id = {$latest_row['id']} ORDER BY `key` ASC", ARRAY_A );
 
 	if ( $unset_fields ) {
 		$latest_context = array_map(

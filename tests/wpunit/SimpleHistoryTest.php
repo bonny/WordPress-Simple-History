@@ -4,7 +4,6 @@
 // phpcs:disable Squiz.Scope.MethodScope.Missing
 
 use Simple_History\Simple_History;
-use Simple_History\Log_Levels;
 use Simple_History\Log_Query;
 
 class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
@@ -112,7 +111,8 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		global $wpdb;
 
 		// Test table simple history
-		$table_name_simple_history = $wpdb->prefix . Simple_History::DBTABLE;
+		$table_name_simple_history = Simple_History::get_instance()->get_events_table_name();
+
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_simple_history ) );
 		$this->assertEquals( $table_name_simple_history, $table_exists );
 
@@ -130,7 +130,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $expected_table_cols, $table_cols, 'cols in history table should be the same' );
 
 		// Test table simple history contexts
-		$table_name_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
+		$table_name_contexts = Simple_History::get_instance()->get_contexts_table_name();
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name_contexts ) );
 		$this->assertEquals( $table_name_contexts, $table_exists );
 
@@ -182,7 +182,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 
 		global $wpdb;
 
-		$table_name_simple_history = $wpdb->prefix . Simple_History::DBTABLE;
+		$table_name_simple_history = Simple_History::get_instance()->get_events_table_name();
 
 		$refl_log_levels = new ReflectionClass( 'Simple_History\Log_Levels' );
 		$log_levels = (array) $refl_log_levels->getConstants();
