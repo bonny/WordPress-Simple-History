@@ -421,7 +421,7 @@ class Simple_History {
 		$args = array(
 			'id' => $menu_id,
 			'parent' => $parent_menu_id,
-			'title' => _x( 'Simple History', 'Admin bar name', 'simple-history' ),
+			'title' => _x( 'View History', 'Admin bar name', 'simple-history' ),
 			'href' => $url,
 			'meta' => array(
 				'class' => 'ab-item--simplehistory',
