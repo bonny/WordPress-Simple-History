@@ -10,7 +10,9 @@ use Simple_History\Log_Query;
  */
 class API extends Service {
 	public function loaded() {
-		add_action( 'wp_ajax_simple_history_api', array( $this, 'api' ) );
+		if ( is_admin() ) {
+			add_action( 'wp_ajax_simple_history_api', array( $this, 'api' ) );
+		}
 	}
 
 	/**
