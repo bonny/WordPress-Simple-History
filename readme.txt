@@ -220,6 +220,10 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
+Here:
+
+- Add tests for pause resume
+
 - Add function `get_slug()` to `Dropin` class.
 - Add function `get_instantiated_dropin_by_slug()` to `Simple_History` class.
 - Add function `get_rss_secret()` to `RSS_Dropin` class.

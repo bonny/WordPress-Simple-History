@@ -86,8 +86,6 @@ class Simple_History {
 		// Load services that are required for Simple History to work.
 		$this->load_services();
 
-		$this->add_pause_and_resume_actions();
-
 		if ( is_admin() ) {
 			$this->add_admin_actions();
 		}
@@ -115,6 +113,7 @@ class Simple_History {
 			Services\Loggers_Loader::class,
 			Services\Dropins_Loader::class,
 			Services\Setup_Log_Filters::class,
+			Services\Setup_Pause_Resume_Actions::class,
 			Services\Setup_Purge_DB_Cron::class,
 		];
 	}
@@ -135,29 +134,6 @@ class Simple_History {
 		$service = new $service_classname( $this );
 		$service->loaded();
 		$this->instantiated_services[] = $service;
-	}
-
-	/**
-	 * Actions to disable and enable logging.
-	 * Useful for example when importing many things using PHP because then
-	 * the log can be overwhelmed with data.
-	 *
-	 * @since 4.0.2
-	 */
-	protected function add_pause_and_resume_actions() {
-		add_action(
-			'simple_history/pause',
-			function() {
-				add_filter( 'simple_history/log/do_log', '__return_false' );
-			}
-		);
-
-		add_action(
-			'simple_history/resume',
-			function () {
-				remove_filter( 'simple_history/log/do_log', '__return_false' );
-			}
-		);
 	}
 
 	/**
