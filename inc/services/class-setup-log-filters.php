@@ -7,16 +7,8 @@ use Simple_History\Simple_History;
 /**
  * Class that setups logging using WP hooks.
  */
-class Setup_Log_Filters {
-	/** @var Simple_History */
-	private Simple_History $simple_history;
-
-	public function __construct( Simple_History $simple_history ) {
-		$this->simple_history = $simple_history;
-		$this->init();
-	}
-
-	private function init() {
+class Setup_Log_Filters extends Service {
+	public function loaded() {
 		/**
 		 * Filter that is used to log things, without the need to check that simple history is available
 		 * i.e. you can have simple history activated and log things and then you can disable the plugin

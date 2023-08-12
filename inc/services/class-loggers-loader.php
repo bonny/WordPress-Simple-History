@@ -8,11 +8,7 @@ use Simple_History\Loggers\Simple_Logger;
 /**
  * Class that load loggers.
  */
-class Loggers_Loader {
-
-	/** @var Simple_History */
-	private Simple_History $simple_history;
-
+class Loggers_Loader extends Service {
 	/**
 	 * Bool if gettext filter function should be active
 	 * Should only be active during the load of a logger
@@ -28,18 +24,7 @@ class Loggers_Loader {
 	 */
 	private $do_filter_gettext_current_logger;
 
-	public function __construct( Simple_History $simple_history ) {
-		$this->simple_history = $simple_history;
-
-		$this->init();
-	}
-
-	private function init() {
-		// Plugins and dropins are loaded using the "after_setup_theme" filter so
-		// themes can use filters to modify the loading of them.
-		// The drawback with this is that for example logouts done when plugins like
-		// iThemes Security is installed is not logged, because those plugins fire wp_logout()
-		// using filter "plugins_loaded", i.e. before simple history has loaded its filters.
+	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'load_loggers' ) );
 	}
 

@@ -9,20 +9,11 @@ use Simple_History\Log_Initiators;
 /**
  * Class that setups logging using WP hooks.
  */
-class Setup_Database {
-	/** @var Simple_History */
-	private Simple_History $simple_history;
-
-	public function __construct( Simple_History $simple_history ) {
-		$this->simple_history = $simple_history;
-		$this->init();
-	}
-
-	private function init() {
+class Setup_Database extends Service {
+	public function loaded() {
 		// Run at prio 5 so it's run before the loggers etc. are setup.
 		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
 	}
-
 
 	/**
 	 * Check if plugin version have changed, i.e. has been upgraded

@@ -2,18 +2,8 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Simple_History;
-
-class Setup_Settings_Page {
-	/** @var Simple_History */
-	private Simple_History $simple_history;
-
-	public function __construct( Simple_History $simple_history ) {
-		$this->simple_history = $simple_history;
-		$this->init();
-	}
-
-	public function init() {
+class Setup_Settings_Page extends Service {
+	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
 		add_action( 'admin_menu', array( $this, 'add_settings' ) );
 		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );

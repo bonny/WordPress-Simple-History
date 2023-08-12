@@ -134,7 +134,9 @@ class Simple_History {
 	 * Load a service class.
 	 */
 	private function load_service( $service_classname ) {
-		$this->instantiated_services[] = new $service_classname( $this );
+		$service = new $service_classname( $this );
+		$service->loaded();
+		$this->instantiated_services[] = $service;
 	}
 
 	/**

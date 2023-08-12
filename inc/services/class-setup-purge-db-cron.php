@@ -8,16 +8,8 @@ use Simple_History\Helpers;
 /**
  * Class that setups logging using WP hooks.
  */
-class Setup_Purge_DB_Cron {
-	/** @var Simple_History */
-	private Simple_History $simple_history;
-
-	public function __construct( Simple_History $simple_history ) {
-		$this->simple_history = $simple_history;
-		$this->init();
-	}
-
-	private function init() {
+class Setup_Purge_DB_Cron extends Service {
+	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'setup_cron' ) );
 	}
 
