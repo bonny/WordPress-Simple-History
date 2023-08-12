@@ -2,6 +2,8 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Helpers;
+
 class Setup_Settings_Page extends Service {
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
