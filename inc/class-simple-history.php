@@ -83,9 +83,6 @@ class Simple_History {
 
 		$this->setup_variables();
 
-		// Actions and filters, ordered by order specified in codex: http://codex.wordpress.org/Plugin_API/Action_Reference
-		add_action( 'after_setup_theme', array( $this, 'load_plugin_textdomain' ) );
-
 		// Load services that are required for Simple History to work.
 		$this->load_services();
 
@@ -112,6 +109,7 @@ class Simple_History {
 	 */
 	private function get_core_services() {
 		return [
+			Services\Language_Loader::class,
 			Services\Setup_Database::class,
 			Services\Setup_Settings_Page::class,
 			Services\Loggers_Loader::class,
@@ -542,22 +540,6 @@ class Simple_History {
 		} // End switch().
 
 		wp_send_json_success( $data );
-	}
-
-	/**
-	 * Load language files.
-	 * Uses the method described at URL:
-	 * http://geertdedeckere.be/article/loading-wordpress-language-files-the-right-way
-	 *
-	 * @since 2.0
-	 */
-	public function load_plugin_textdomain() {
-		$domain = 'simple-history';
-
-		// The "plugin_locale" filter is also used in load_plugin_textdomain()
-		$locale = apply_filters( 'plugin_locale', get_locale(), $domain ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		load_textdomain( $domain, WP_LANG_DIR . '/simple-history/' . $domain . '-' . $locale . '.mo' );
-		load_plugin_textdomain( $domain, false, dirname( $this->plugin_basename ) . '/languages/' );
 	}
 
 	/**
