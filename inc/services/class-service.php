@@ -5,7 +5,8 @@ namespace Simple_History\Services;
 use Simple_History\Simple_History;
 
 /**
- * Class that setups logging using WP hooks.
+ * Class for core services to extend,
+ * i.e. services that are loaded early and are required for Simple History to work.
  */
 abstract class Service {
 	/** @var Simple_History */
