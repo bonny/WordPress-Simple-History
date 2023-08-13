@@ -118,6 +118,7 @@ class Simple_History {
 			Services\API::class,
 			Services\Dashboard_Widget::class,
 			Services\Network_Menu_Items::class,
+			Services\Plugin_List_Link::class,
 		];
 	}
 
@@ -148,7 +149,6 @@ class Simple_History {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_head', array( $this, 'on_admin_head' ) );
 		add_action( 'admin_footer', array( $this, 'on_admin_footer' ) );
-		add_filter( 'plugin_action_links_simple-history/index.php', array( $this, 'plugin_action_links' ), 10, 4 );
 	}
 
 	/**
@@ -620,32 +620,6 @@ class Simple_History {
 		$pager_size = apply_filters( 'simple_history/pager_size_dashboard', $pager_size );
 
 		return $pager_size;
-	}
-
-	/**
-	 * Add a link to the History Settings Page on the Plugins -> Installed Plugins screen.
-	 *
-	 * @param array $actions
-	 */
-	public function plugin_action_links( $actions, $b, $c, $d ) {
-		// Only add link if user has the right to view the settings page
-		if ( ! current_user_can( $this->get_view_settings_capability() ) ) {
-			return $actions;
-		}
-
-		$settings_page_url = menu_page_url( self::SETTINGS_MENU_SLUG, false );
-
-		if ( empty( $actions ) ) {
-			// Create array if actions is empty (and therefore is assumed to be a string by PHP & results in PHP 7.1+ fatal error due to trying to make array modifications on what's assumed to be a string)
-			$actions = [];
-		} elseif ( is_string( $actions ) ) {
-			// Convert the string (which it might've been retrieved as) to an array for future use as an array
-			$actions = [ $actions ];
-		}
-
-		$actions[] = "<a href='$settings_page_url'>" . __( 'Settings', 'simple-history' ) . '</a>';
-
-		return $actions;
 	}
 
 	/**
