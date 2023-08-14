@@ -247,6 +247,7 @@ Here:
 - Add filter `simple_history/db/events_purged` that is fired after db has been purged from old events.
 - Purged events are logged using the simple history logger (instead of directly in the purge function).
 - Add function `get_instantiated_services()`.
+- List dropins and services on debug page.
 
 ### 4.4.0 (August 2023)
 

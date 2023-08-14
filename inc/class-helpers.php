@@ -585,4 +585,20 @@ class Helpers {
 	public static function sanitize_checkbox_input( $field ) {
 		return ( $field === '1' ) ? '1' : '0';
 	}
+
+	/**
+	 * Get shortname for a class,
+	 * i.e. the unqualified class name.
+	 * Example get_class_short_name( Simple_History\Services\Loggers_Loader )
+	 * returns 'Loggers_Loader'.
+	 *
+	 * Solution from:
+	 * https://stackoverflow.com/a/27457689
+	 *
+	 * @param object $class Class to get short name for.
+	 * @return string
+	 */
+	public static function get_class_short_name( $class ) {
+		return substr( strrchr( get_class( $class ), '\\' ), 1 );
+	}
 }
