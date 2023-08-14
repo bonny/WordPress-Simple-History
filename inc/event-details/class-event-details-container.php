@@ -27,7 +27,6 @@ class Event_Details_Container {
 		} else {
 			$this->add_group( $group_or_groups );
 		}
-		
 	}
 
 	/**
