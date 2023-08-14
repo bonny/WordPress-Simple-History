@@ -609,7 +609,7 @@ class Helpers {
 	/**
 	 * Check if the db tables required by Simple History exists.
 	 *
-	 * @return array Array with info about the tables and their existance.
+	 * @return array Array with info about the tables and their existence.
 	 */
 	public static function required_tables_exist() {
 		global $wpdb;
