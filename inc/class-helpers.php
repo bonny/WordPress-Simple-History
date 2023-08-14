@@ -2,8 +2,7 @@
 
 namespace Simple_History;
 
-use Simple_History\Event_Details_Container;
-use Simple_History\Event_Details_Item;
+use Simple_History\Simple_History;
 
 class Helpers {
 	/**
@@ -331,7 +330,7 @@ class Helpers {
 	/**
 	 * Get number of rows in the database tables.
 	 *
-	 * @return array Array with table name, size in mb and number of rows.
+	 * @return array Array with table name, size in mb and number of rows, if tables found.
 	 */
 	public static function get_db_table_stats() {
 		global $wpdb;
@@ -352,6 +351,11 @@ class Helpers {
 				$simple_history->get_contexts_table_name() // 3
 			)
 		);
+
+		// If empty array returned then tables does not exist.
+		if ( sizeof( $table_size_result ) === 0 ) {
+			return array();
+		}
 
 		// Get num of rows for each table
 		$total_num_rows_table = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_events_table_name()}" ); // phpcs:ignore
@@ -600,5 +604,34 @@ class Helpers {
 	 */
 	public static function get_class_short_name( $class ) {
 		return substr( strrchr( get_class( $class ), '\\' ), 1 );
+	}
+
+	/**
+	 * Check if the db tables required by Simple History exists.
+	 *
+	 * @return array Array with info about the tables and their existance.
+	 */
+	public static function required_tables_exist() {
+		global $wpdb;
+
+		$simple_history_instance = Simple_History::get_instance();
+
+		$tables = array(
+			[
+				'table_name' => $simple_history_instance->get_events_table_name(),
+				'table_exists' => null,
+			],
+			[
+				'table_name' => $simple_history_instance->get_contexts_table_name(),
+				'table_exists' => null,
+			],
+		);
+
+		foreach ( $tables as $key => $table ) {
+			$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table['table_name'] ) );
+			$tables[ $key ]['table_exists']  = $table_exists;
+		}
+
+		return $tables;
 	}
 }
