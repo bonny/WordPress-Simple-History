@@ -227,7 +227,7 @@ Here:
 
 **Added**
 
-- The debug page does now show an error message if the required tables are missing. This can happen when the database of a website is moved between different servers using software that does not know about the tables used by Simple History. 
+- The debug page now detects if the required tables are missing and shows a warning. This can happen when the database of a website is moved between different servers using software that does not know about the tables used by Simple History. Fixes issue [#344](https://github.com/bonny/WordPress-Simple-History/issues/344) and support thread [Missing table support](https://wordpress.org/support/topic/missing-table-support/) among others.
 - Add filters `simple_history/feeds/enable_feeds_checkbox_text` and `simple_history/feeds/after_address`.
 - Add action `simple_history/settings_page/general_section_output`.
 - Add filter `simple_history/db/events_purged` that is fired after db has been purged from old events.
@@ -241,9 +241,9 @@ Here:
 **Changed**
 
 - Order of settings tab can now be set with key `order` in the array passed to `add_settings_tab()`.
-- Refactor code and move core functionality to multiple service classes.
 - Rename network admin menu item "Simple History" to "View History" to use to same name as the admin menu item.
 - Purged events are logged using the simple history logger (instead of directly in the purge function).
+- Refactor code and move core functionality to multiple service classes.
 
 ### 4.4.0 (August 2023)
 
