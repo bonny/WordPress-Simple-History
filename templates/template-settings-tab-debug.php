@@ -51,9 +51,9 @@ foreach ( $table_size_result as $one_table ) {
 			<td>%2$s</td>
 			<td>%3$s</td>
 		</tr>',
-		$one_table->table_name,
-		$size,
-		$rows,
+		esc_html( $one_table->table_name ),
+		esc_html( $size ),
+		esc_html( $rows ),
 	);
 }
 
@@ -326,7 +326,7 @@ echo '</table>';
 // List installed plugins
 echo '<h2>' . esc_html_x( 'Plugins', 'debug dropin', 'simple-history' ) . '</h2>';
 
-echo '<p>' . esc_html_x( 'As returned from <code>get_plugins()</code>', 'debug dropin', 'simple-history' ) . '</p>';
+echo '<p>' . esc_html_x( 'As returned from get_plugins().', 'debug dropin', 'simple-history' ) . '</p>';
 
 $all_plugins = get_plugins();
 
