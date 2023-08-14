@@ -25,6 +25,8 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			false,
 			array(
 				'instantiated_loggers' => $this->simple_history->get_instantiated_loggers(),
+				'instantiated_dropins' => $this->simple_history->get_instantiated_dropins(),
+				'instantiated_services' => $this->simple_history->get_instantiated_services(),
 				'events_table_name' => $this->simple_history->get_events_table_name(),
 				'simple_history_instance' => $this->simple_history,
 				'wpdb' => $GLOBALS['wpdb'],

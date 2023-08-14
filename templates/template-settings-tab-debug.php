@@ -3,7 +3,14 @@
 namespace Simple_History;
 
 /**
- * @var array{instantiated_loggers:array, events_table_name:string, simple_history_instance:Simple_History, wpdb:\wpdb} $args
+ * @var array{
+ *      instantiated_loggers:array,
+ *      instantiated_dropins:array,
+ *      instantiated_services:array,
+ *      events_table_name:string,
+ *      simple_history_instance:Simple_History,
+ *      wpdb:\wpdb
+ * } $args
  **/
 
 defined( 'ABSPATH' ) || die();
@@ -16,7 +23,7 @@ echo '<h3>' . esc_html_x( 'Database size', 'debug dropin', 'simple-history' ) . 
 
 $table_size_result = Helpers::get_db_table_stats();
 
-echo "<table class='widefat'>";
+echo "<table class='widefat striped'>";
 printf(
 	'<thead>
 		<tr>
@@ -31,7 +38,6 @@ printf(
 	esc_html_x( 'Rows', 'debug dropin', 'simple-history' )
 );
 
-$loopnum = 0;
 foreach ( $table_size_result as $one_table ) {
 	/* translators: %s size in mb. */
 	$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table->size_in_mb );
@@ -40,7 +46,7 @@ foreach ( $table_size_result as $one_table ) {
 	$rows = sprintf( _x( '%s rows', 'debug dropin', 'simple-history' ), number_format_i18n( $one_table->num_rows, 0 ) );
 
 	printf(
-		'<tr class="%4$s">
+		'<tr>
 			<td>%1$s</td>
 			<td>%2$s</td>
 			<td>%3$s</td>
@@ -48,10 +54,7 @@ foreach ( $table_size_result as $one_table ) {
 		$one_table->table_name,
 		$size,
 		$rows,
-		$loopnum % 2 ? ' alt ' : ''
 	);
-
-	$loopnum++;
 }
 
 echo '</table>';
@@ -73,6 +76,82 @@ printf(
 	esc_html( $total_accassions_rows_count )
 );
 echo '</p>';
+
+// List services.
+echo '<h3>' . esc_html_x( 'Services', 'debug dropin', 'simple-history' ) . '</h3>';
+
+echo '<p>';
+printf(
+	/* translators: %d number of dropins loaded. */
+	esc_html_x( '%1$d services loaded.', 'debug dropin', 'simple-history' ),
+	esc_html( count( $args['instantiated_services'] ) ) // 1
+);
+echo '</p>';
+
+echo "<table class='widefat striped' cellpadding=2>";
+printf(
+	'
+	<thead>
+		<tr>
+			<th>%1$s</th>
+		</tr>
+	</thead>
+	',
+	esc_html_x( 'Dropin name', 'debug dropin', 'simple-history' ),
+);
+
+foreach ( $args['instantiated_services'] as $one_service ) {
+	printf(
+		'
+		<tr>
+            <td>
+                <code>%1$s</code>
+            </td>
+		</tr>
+		',
+		esc_html( get_class( $one_service ) ), // 1
+	);
+}
+
+echo '</table>';
+
+// List dropins.
+echo '<h3>' . esc_html_x( 'Dropins', 'debug dropin', 'simple-history' ) . '</h3>';
+
+echo '<p>';
+printf(
+	/* translators: %d number of dropins loaded. */
+	esc_html_x( '%1$d dropins loaded.', 'debug dropin', 'simple-history' ),
+	esc_html( count( $args['instantiated_dropins'] ) ) // 1
+);
+echo '</p>';
+
+echo "<table class='widefat striped' cellpadding=2>";
+printf(
+	'
+	<thead>
+		<tr>
+			<th>%1$s</th>
+		</tr>
+	</thead>
+	',
+	esc_html_x( 'Dropin name', 'debug dropin', 'simple-history' ),
+);
+
+foreach ( $args['instantiated_dropins'] as $oneDropin ) {
+	printf(
+		'
+		<tr>
+            <td>
+                <code>%1$s</code>
+            </td>
+		</tr>
+		',
+		esc_html( get_class( $oneDropin['instance'] ) ), // 1
+	);
+}
+
+echo '</table>';
 
 // echo "<h4>Clear history interval</h4>";
 // echo "<p>" . $this->simple_history->get_clear_history_interval() . "</p>";
@@ -124,7 +203,7 @@ printf(
 );
 echo '</p>';
 
-echo "<table class='widefat fixed' cellpadding=2>";
+echo "<table class='widefat fixed striped' cellpadding=2>";
 printf(
 	'
 	<thead>
@@ -239,7 +318,7 @@ echo '<p>' . esc_html_x( 'As returned from <code>get_plugins()</code>', 'debug d
 
 $all_plugins = get_plugins();
 
-echo "<table class='widefat'>";
+echo "<table class='widefat striped'>";
 printf(
 	'<thead>
         <tr>
