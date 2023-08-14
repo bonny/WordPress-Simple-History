@@ -143,6 +143,15 @@ class Simple_History {
 	}
 
 	/**
+	 * Get instantiated services.
+	 *
+	 * @return array<int,mixed> Array with instantiated services.
+	 */
+	public function get_instantiated_services() {
+		return $this->instantiated_services;
+	}
+
+	/**
 	 * @since 2.5.2
 	 */
 	private function add_admin_actions() {
