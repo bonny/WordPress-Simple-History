@@ -81,7 +81,7 @@ class Simple_History {
 		 */
 		do_action( 'simple_history/before_init', $this );
 
-		$this->setup_variables();
+		$this->setup_db_variables();
 
 		// Load services that are required for Simple History to work.
 		$this->load_services();
@@ -311,7 +311,7 @@ class Simple_History {
 	/**
 	 * Setup variables and things.
 	 */
-	public function setup_variables() {
+	private function setup_db_variables() {
 		global $wpdb;
 		$this::$dbtable = $wpdb->prefix . self::DBTABLE;
 		$this::$dbtable_contexts = $wpdb->prefix . self::DBTABLE_CONTEXTS;
