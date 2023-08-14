@@ -2,6 +2,7 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Helpers;
 use Simple_History\Simple_History;
 
 /**
@@ -19,6 +20,16 @@ abstract class Service {
 	// using filter "plugins_loaded", i.e. before simple history has loaded its filters.
 	public function __construct( Simple_History $simple_history ) {
 		$this->simple_history = $simple_history;
+	}
+
+	/**
+	 * Get the slug for the service,
+	 * i.e. the unqualified class name.
+	 *
+	 * @return string
+	 */
+	public function get_slug() {
+		return Helpers::get_class_short_name( $this );
 	}
 
 	abstract public function loaded();
