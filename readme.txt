@@ -222,7 +222,6 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 Here:
 
-- Add tests for pause resume
 - Add test to check loaded services
 
 **Added**

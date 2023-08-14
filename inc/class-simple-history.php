@@ -9,6 +9,7 @@ use Simple_History\Dropins;
 use Simple_History\Dropins\Dropin;
 use Simple_History\Helpers;
 use Simple_History\Services;
+use Simple_History\Services\Service;
 
 /**
  * Main class for Simple History.
@@ -145,7 +146,7 @@ class Simple_History {
 	/**
 	 * Get instantiated services.
 	 *
-	 * @return array<int,mixed> Array with instantiated services.
+	 * @return array<int,Service> Array with instantiated services.
 	 */
 	public function get_instantiated_services() {
 		return $this->instantiated_services;
