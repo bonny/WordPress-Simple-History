@@ -220,10 +220,6 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
-Here:
-
-- Add test to check loaded services
-
 **Added**
 
 - The debug page now detects if the required tables are missing and shows a warning. This can happen when the database of a website is moved between different servers using software that does not know about the tables used by Simple History. Fixes issue [#344](https://github.com/bonny/WordPress-Simple-History/issues/344) and support thread [Missing table support](https://wordpress.org/support/topic/missing-table-support/) among others.
