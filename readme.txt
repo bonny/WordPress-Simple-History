@@ -227,10 +227,11 @@ Here:
 
 **Added**
 
+- The debug page does now show an error message if the required tables are missing. This can happen when the database of a website is moved between different servers using software that does not know about the tables used by Simple History. 
 - Add filters `simple_history/feeds/enable_feeds_checkbox_text` and `simple_history/feeds/after_address`.
 - Add action `simple_history/settings_page/general_section_output`.
 - Add filter `simple_history/db/events_purged` that is fired after db has been purged from old events.
-- Add helper function `get_class_short_name()`.
+- Add helper functions `required_tables_exist()`, `get_class_short_name()`.
 - Add function `get_slug()` to `Dropin` class.
 - Add function `get_rss_secret()` to `RSS_Dropin` class.
 - Show review hint at footer on settings page and log page.

@@ -16,6 +16,29 @@ namespace Simple_History;
 defined( 'ABSPATH' ) || die();
 
 /**
+ * Check that required tables exists.
+ * Some users have had issues with tables not being created after
+ * moving site from one server to another. Probably because the history tables
+ * are not moved with the rest of the database, but the options table are and that
+ * confuses Simple History.
+ */
+$tables_info = Helpers::required_tables_exist();
+
+foreach ( $tables_info as $table_info ) {
+	if ( ! $table_info['table_exists'] ) {
+		echo '<div class="notice notice-error">';
+		echo '<p>';
+		printf(
+			/* translators: %s table name. */
+			esc_html_x( 'Required table "%s" does not exist.', 'debug dropin', 'simple-history' ),
+			esc_html( $table_info['table_name'] )
+		);
+		echo '</p>';
+		echo '</div>';
+	}
+}
+
+/**
  * Size of database in both number or rows and table size
  */
 
@@ -38,23 +61,29 @@ printf(
 	esc_html_x( 'Rows', 'debug dropin', 'simple-history' )
 );
 
-foreach ( $table_size_result as $one_table ) {
-	/* translators: %s size in mb. */
-	$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table->size_in_mb );
+if ( sizeof( $table_size_result ) === 0 ) {
+	echo '<tr><td colspan="3">';
+	echo esc_html_x( 'No tables found.', 'debug dropin', 'simple-history' );
+	echo '</td></tr>';
+} else {
+	foreach ( $table_size_result as $one_table ) {
+		/* translators: %s size in mb. */
+		$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table->size_in_mb );
 
-	/* translators: %s number of rows. */
-	$rows = sprintf( _x( '%s rows', 'debug dropin', 'simple-history' ), number_format_i18n( $one_table->num_rows, 0 ) );
+		/* translators: %s number of rows. */
+		$rows = sprintf( _x( '%s rows', 'debug dropin', 'simple-history' ), number_format_i18n( $one_table->num_rows, 0 ) );
 
-	printf(
-		'<tr>
-			<td>%1$s</td>
-			<td>%2$s</td>
-			<td>%3$s</td>
-		</tr>',
-		esc_html( $one_table->table_name ),
-		esc_html( $size ),
-		esc_html( $rows ),
-	);
+		printf(
+			'<tr>
+				<td>%1$s</td>
+				<td>%2$s</td>
+				<td>%3$s</td>
+			</tr>',
+			esc_html( $one_table->table_name ),
+			esc_html( $size ),
+			esc_html( $rows ),
+		);
+	}
 }
 
 echo '</table>';
