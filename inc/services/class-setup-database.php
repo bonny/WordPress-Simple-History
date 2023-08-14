@@ -6,9 +6,6 @@ use Simple_History\Simple_History;
 use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Log_Initiators;
 
-/**
- * Class that setups logging using WP hooks.
- */
 class Setup_Database extends Service {
 	public function loaded() {
 		// Run at prio 5 so it's run before the loggers etc. are setup.

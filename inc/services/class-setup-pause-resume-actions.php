@@ -2,10 +2,6 @@
 
 namespace Simple_History\Services;
 
-/**
- * Class for core services to extend,
- * i.e. services that are loaded early and are required for Simple History to work.
- */
 class Setup_Pause_Resume_Actions extends Service {
 	public function loaded() {
 		$this->add_pause_and_resume_actions();

@@ -4,10 +4,6 @@ namespace Simple_History\Services;
 
 use Simple_History\Helpers;
 
-/**
- * Class for core services to extend,
- * i.e. services that are loaded early and are required for Simple History to work.
- */
 class Plugin_List_Link extends Service {
 	public function loaded() {
 		add_filter( 'plugin_action_links', array( $this, 'on_plugin_action_links' ), 10, 4 );

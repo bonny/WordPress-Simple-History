@@ -2,10 +2,6 @@
 
 namespace Simple_History\Services;
 
-/**
- * Class for core services to extend,
- * i.e. services that are loaded early and are required for Simple History to work.
- */
 class Dashboard_Widget extends Service {
 	public function loaded() {
 		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widget' ) );

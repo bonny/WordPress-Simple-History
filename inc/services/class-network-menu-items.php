@@ -4,10 +4,6 @@ namespace Simple_History\Services;
 
 use Simple_History\Helpers;
 
-/**
- * Class for core services to extend,
- * i.e. services that are loaded early and are required for Simple History to work.
- */
 class Network_Menu_Items extends Service {
 	public function loaded() {
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
