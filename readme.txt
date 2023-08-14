@@ -225,31 +225,24 @@ Here:
 - Add tests for pause resume
 - Add test to check loaded services
 
-- Add helper function `get_class_short_name()`.
-- Add function `get_slug()` to `Dropin` class.
-- Add function `get_instantiated_dropin_by_slug()` to `Simple_History` class.
-- Add function `get_rss_secret()` to `RSS_Dropin` class.
+**Added**
+
 - Add filters `simple_history/feeds/enable_feeds_checkbox_text` and `simple_history/feeds/after_address`.
-- Show review hint at footer on settings page and log page.
-- Order of settings tab can now be set with key `order` in the array passed to `add_settings_tab()`.
-- Refactor code and move core functionality to multiple settings classes.
-- Move loading of loggers to new class `Loggers_Loader`.
-- Move loading of dropins to new class `Dropins_Loader`.
-- Move log filters to new class `Setup_Log_Filters`.
-- Move settings page code to new class `Setup_Settings_Page`.
-- Move purge db code to new class `Setup_Purge_DB_Cron`.
-- Move setup and upgrade code to new class `Setup_Database`.
-- Move quick stats functionality to new class `Quick_Stats`.
-- Moved functions `filter_gettext()`, `filter_gettext_with_context()`, `load_loggers()` to `Loggers_Loader` class.
-- Rename network admin menu item "Simple History" to "View History" to use to same name as the admin menu item.
-- Add function `get_external_loggers()`.
-- Add function `set_instantiated_loggers()`.
-- Add function `set_instantiated_dropins()`.
 - Add action `simple_history/settings_page/general_section_output`.
 - Add filter `simple_history/db/events_purged` that is fired after db has been purged from old events.
+- Add helper function `get_class_short_name()`.
+- Add function `get_slug()` to `Dropin` class.
+- Add function `get_rss_secret()` to `RSS_Dropin` class.
+- Show review hint at footer on settings page and log page.
+- Add functions `get_instantiated_dropin_by_slug()`, `get_external_loggers()`, `set_instantiated_loggers()`, ` set_instantiated_dropins()`, `get_instantiated_services()` to `Simple_History` class.
+- Dropins and services are now listed on the debug page.
+
+**Changed**
+
+- Order of settings tab can now be set with key `order` in the array passed to `add_settings_tab()`.
+- Refactor code and move core functionality to multiple service classes.
+- Rename network admin menu item "Simple History" to "View History" to use to same name as the admin menu item.
 - Purged events are logged using the simple history logger (instead of directly in the purge function).
-- Add function `get_instantiated_services()`.
-- List dropins and services on debug page.
 
 ### 4.4.0 (August 2023)
 
