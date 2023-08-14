@@ -176,6 +176,11 @@ printf(
 );
 
 foreach ( $args['instantiated_dropins'] as $oneDropin ) {
+	// Older Dropins does not have a get_slug method.
+	$dropin_slug = method_exists( $oneDropin['instance'], 'get_slug' )
+		? $oneDropin['instance']->get_slug()
+		: Helpers::get_class_short_name( $oneDropin['instance'] );
+
 	printf(
 		'
 		<tr>
@@ -187,7 +192,7 @@ foreach ( $args['instantiated_dropins'] as $oneDropin ) {
             </td>
 		</tr>
 		',
-		esc_html( $oneDropin['instance']->get_slug() ),
+		esc_html( $dropin_slug ),
 		esc_html( get_class( $oneDropin['instance'] ) ),
 	);
 }
