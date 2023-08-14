@@ -78,4 +78,50 @@ class FiltersTest extends \Codeception\TestCase\WPTestCase {
 			$latest_row
 		);
 	}
+
+	function test_pause_resume_filters() {
+		// This should be logged.
+		apply_filters( 'simple_history_log', 'My log message 1' );
+		$this->assertEquals(
+			array(
+				'logger' => 'SimpleLogger',
+				'level' => 'info',
+				'message' => 'My log message 1',
+				'initiator' => 'other',
+			),
+			get_latest_row(),
+			'First log message should be logged'
+		);
+		
+		// Pause logging.
+		do_action('simple_history/pause');
+		apply_filters( 'simple_history_log', 'My log message 2' );
+		apply_filters( 'simple_history_log', 'My log message 3' );
+		$this->assertEquals(
+			array(
+				'logger' => 'SimpleLogger',
+				'level' => 'info',
+				'message' => 'My log message 1',
+				'initiator' => 'other',
+			),
+			get_latest_row(),
+			'Log messages should not be logged while paused'
+		);
+		
+		// Unpause logging.
+		do_action('simple_history/resume');
+		apply_filters( 'simple_history_log', 'My log message 4' );
+		apply_filters( 'simple_history_log', 'My log message 5' );
+
+		$this->assertEquals(
+			array(
+				'logger' => 'SimpleLogger',
+				'level' => 'info',
+				'message' => 'My log message 5',
+				'initiator' => 'other',
+			),
+			get_latest_row(),
+			'Log messages should be logged after unpausing'
+		);
+	}
 }
