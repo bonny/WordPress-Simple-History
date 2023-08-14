@@ -1,5 +1,6 @@
 <?php
 
+use Simple_History\Simple_History;
 use Simple_History\Helpers;
 
 class HelpersTest extends \Codeception\TestCase\WPTestCase {
@@ -134,5 +135,32 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( '1', Helpers::sanitize_checkbox_input( '1' ) );
 		$this->assertEquals( '0', Helpers::sanitize_checkbox_input( '' ) );
 		$this->assertEquals( '0', Helpers::sanitize_checkbox_input( null ) );
+	}
+
+	function test_required_tables_exist() {
+		$expected = [
+			[
+				'table_name' => 'wp_tests_simple_history',
+				'table_exists' => true,
+			],
+			[
+				'table_name' => 'wp_tests_simple_history_contexts',
+				'table_exists' => true,
+
+			],
+		];
+
+		
+		$actual = Helpers::required_tables_exist();
+
+		$this->assertEquals(
+			$expected,
+			$actual,
+			'Expected tables to exist'
+		);
+	}
+
+	function test_get_class_short_name() {
+		$this->assertEquals( 'Simple_History', Helpers::get_class_short_name( Simple_History::get_instance() ) );
 	}
 }
