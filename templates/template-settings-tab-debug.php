@@ -94,10 +94,12 @@ printf(
 	<thead>
 		<tr>
 			<th>%1$s</th>
+			<th>%2$s</th>
 		</tr>
 	</thead>
 	',
-	esc_html_x( 'Dropin name', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Short name', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Namespaced name', 'debug dropin', 'simple-history' ),
 );
 
 foreach ( $args['instantiated_services'] as $one_service ) {
@@ -107,9 +109,13 @@ foreach ( $args['instantiated_services'] as $one_service ) {
             <td>
                 <code>%1$s</code>
             </td>
+            <td>
+                <code>%2$s</code>
+            </td>
 		</tr>
 		',
-		esc_html( get_class( $one_service ) ), // 1
+		esc_html( $one_service->get_slug() ), // 1 slug
+		esc_html( get_class( $one_service ) ), // 2 full namespace and class name
 	);
 }
 
@@ -132,10 +138,12 @@ printf(
 	<thead>
 		<tr>
 			<th>%1$s</th>
+			<th>%2$s</th>
 		</tr>
 	</thead>
 	',
-	esc_html_x( 'Dropin name', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Short name', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Namespaced name', 'debug dropin', 'simple-history' ),
 );
 
 foreach ( $args['instantiated_dropins'] as $oneDropin ) {
@@ -145,9 +153,13 @@ foreach ( $args['instantiated_dropins'] as $oneDropin ) {
             <td>
                 <code>%1$s</code>
             </td>
+            <td>
+                <code>%2$s</code>
+            </td>
 		</tr>
 		',
-		esc_html( get_class( $oneDropin['instance'] ) ), // 1
+		esc_html( $oneDropin['instance']->get_slug() ),
+		esc_html( get_class( $oneDropin['instance'] ) ),
 	);
 }
 
