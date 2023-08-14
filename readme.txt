@@ -223,14 +223,16 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 Here:
 
 - Add tests for pause resume
+- Add test to check loaded services
 
+- Add helper function `get_class_short_name()`.
 - Add function `get_slug()` to `Dropin` class.
 - Add function `get_instantiated_dropin_by_slug()` to `Simple_History` class.
 - Add function `get_rss_secret()` to `RSS_Dropin` class.
 - Add filters `simple_history/feeds/enable_feeds_checkbox_text` and `simple_history/feeds/after_address`.
 - Show review hint at footer on settings page and log page.
 - Order of settings tab can now be set with key `order` in the array passed to `add_settings_tab()`.
-- Refactor code and move core functionality to mulitple settings classes.
+- Refactor code and move core functionality to multiple settings classes.
 - Move loading of loggers to new class `Loggers_Loader`.
 - Move loading of dropins to new class `Dropins_Loader`.
 - Move log filters to new class `Setup_Log_Filters`.

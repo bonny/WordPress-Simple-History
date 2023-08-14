@@ -84,7 +84,7 @@ class Setup_Settings_Page extends Service {
 
 		$settings_section_general_id = $this->simple_history::SETTINGS_SECTION_GENERAL_ID;
 		$settings_menu_slug = $this->simple_history::SETTINGS_MENU_SLUG;
-		$settings_gernal_option_group = $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP;
+		$settings_general_option_group = $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP;
 
 		add_settings_section(
 			$settings_section_general_id,
@@ -95,7 +95,7 @@ class Setup_Settings_Page extends Service {
 
 		// Checkboxes for where to show simple history.
 		register_setting(
-			$settings_gernal_option_group,
+			$settings_general_option_group,
 			'simple_history_show_on_dashboard',
 			array(
 				'sanitize_callback' => array(
@@ -106,7 +106,7 @@ class Setup_Settings_Page extends Service {
 		);
 
 		register_setting(
-			$settings_gernal_option_group,
+			$settings_general_option_group,
 			'simple_history_show_as_page',
 			array(
 				'sanitize_callback' => array(
@@ -134,7 +134,7 @@ class Setup_Settings_Page extends Service {
 		);
 
 		// Nonces for number of items inputs.
-		register_setting( $settings_gernal_option_group, 'simple_history_pager_size' );
+		register_setting( $settings_general_option_group, 'simple_history_pager_size' );
 
 		// Number if items to show on dashboard.
 		add_settings_field(
@@ -146,7 +146,7 @@ class Setup_Settings_Page extends Service {
 		);
 
 		// Nonces for number of items inputs.
-		register_setting( $settings_gernal_option_group, 'simple_history_pager_size_dashboard' );
+		register_setting( $settings_general_option_group, 'simple_history_pager_size_dashboard' );
 
 		// Link/button to clear log.
 		if ( $this->simple_history->user_can_clear_log() ) {
