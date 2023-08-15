@@ -218,7 +218,10 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased
+### 4.5.0 (August 2023)
+
+This release contains some smaller new features and improvements.
+[See the release post for more info](https://simple-history.com/simple-history-4-5-0/).
 
 **Added**
 
