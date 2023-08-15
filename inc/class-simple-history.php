@@ -529,7 +529,7 @@ class Simple_History {
 	 * @return bool
 	 */
 	public function is_on_our_own_pages( $hook = '' ) {
-		$current_screen = get_current_screen();
+		$current_screen = Helpers::get_current_screen();
 
 		$basePrefix = apply_filters( 'simple_history/admin_location', 'index' );
 		$basePrefix = $basePrefix === 'index' ? 'dashboard' : $basePrefix;
