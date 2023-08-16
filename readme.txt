@@ -93,6 +93,8 @@ Plugin authors can add support for Simple History in their plugins using the [lo
 
 [300+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) speak to the reliability of this plugin.
 
+- _"So far the best and most comprehensive logging plugin"_ - [@herrschuessler](https://wordpress.org/support/topic/so-far-the-best-and-most-comprehensive-logging-plugin/)
+
 - _"The best history plugin I’ve found"_ – [Rich Mehta](https://wordpress.org/support/topic/the-best-history-plugin-ive-found/)
 
 - _"Custom Logs Are Crazy Awesome!"_ - [Ahmad Awais](https://wordpress.org/support/topic/awesome-4654/)
@@ -108,14 +110,6 @@ Plugin authors can add support for Simple History in their plugins using the [lo
 - _"The best free history plugin ever"_ - [abazeed](https://wordpress.org/support/topic/the-best-free-history-plugin-ever/)
 
 - _"It is a standard plugin for all of our sites"_ - [Mr Tibbs](https://wordpress.org/support/topic/it-is-a-standard-plugin-for-all-of-our-sites/)
-
-- _"Easy to use, simple interface"_ - [Deborah Edwards-Onoro](https://wordpress.org/support/topic/easy-to-use-simple-interface/)
-
-- _"Very helpful"_ - [Martin Sauter](https://wordpress.org/support/topic/very-helpful-1280/)
-
-- _"Light Weight and Easy to Use – A Great Plugin."_ - [martinsmagic](https://wordpress.org/support/topic/light-weight-and-easy-to-use-a-great-plugin/)
-
-- _"Indispensable wordpress tool"_ - [blueappleeducation](https://wordpress.org/support/topic/indispensable-wordpress-tool/)
 
 ### RSS feed with changes
 
