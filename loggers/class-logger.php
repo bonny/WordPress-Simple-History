@@ -1062,7 +1062,7 @@ abstract class Logger {
 
 		/**
 		 * Filter that makes it possible to shortcut the logging of a message.
-		 * Return bool false to cancel logging .
+		 * Return bool false to cancel logging.
 		 *
 		 * @since 2.3.1
 		 *
