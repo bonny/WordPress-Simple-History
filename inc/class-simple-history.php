@@ -700,7 +700,10 @@ class Simple_History {
 	public function get_clear_history_interval() {
 		$days = 60;
 
-		// Deprecated filter name, use `simple_history/db_purge_days_interval` instead.
+		/**
+		 * Deprecated filter name, use `simple_history/db_purge_days_interval` instead.
+		 * @deprecated
+		 */
 		$days = (int) apply_filters( 'simple_history_db_purge_days_interval', $days );
 
 		/**
