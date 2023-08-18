@@ -132,7 +132,7 @@ class IP_Info_Dropin extends Dropin {
 
 					<# if ( typeof(data.ip) != "undefined" && data.ip ) { #>
 					<tr>
-						<td>
+						<td class="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 							<?php echo esc_html_x( 'IP address', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
@@ -143,7 +143,7 @@ class IP_Info_Dropin extends Dropin {
 
 					<# if ( typeof(data.hostname) != "undefined" && data.hostname ) { #>
 					<tr>
-						<td>
+						<td class="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 							<?php echo esc_html_x( 'Hostname', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
@@ -154,7 +154,7 @@ class IP_Info_Dropin extends Dropin {
 
 					<# if ( typeof(data.org) != "undefined" && data.org ) { #>
 					<tr>
-						<td>
+						<td class="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 							<?php echo esc_html_x( 'Network', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
@@ -165,7 +165,7 @@ class IP_Info_Dropin extends Dropin {
 
 					<# if ( typeof(data.network) != "undefined" && data.network ) { #>
 					<tr>
-						<td>
+						<td class="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 							<?php echo esc_html_x( 'Network', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
@@ -176,7 +176,7 @@ class IP_Info_Dropin extends Dropin {
 
 					<# if ( typeof(data.city) != "undefined" && data.city ) { #>
 					<tr>
-						<td>
+						<td class="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 							<?php echo esc_html_x( 'City', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
@@ -187,7 +187,7 @@ class IP_Info_Dropin extends Dropin {
 
 					<# if ( typeof(data.region) != "undefined" && data.region ) { #>
 					<tr>
-						<td>
+						<td class="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 							<?php echo esc_html_x( 'Region', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>
@@ -198,7 +198,7 @@ class IP_Info_Dropin extends Dropin {
 
 					<# if ( typeof(data.country) != "undefined" && data.country ) { #>
 					<tr>
-						<td>
+						<td class="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 							<?php echo esc_html_x( 'Country', 'IP Info Dropin', 'simple-history' ); ?>
 						</td>
 						<td>

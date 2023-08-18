@@ -88,6 +88,10 @@
 	padding: 0;
 }
 
+.SimpleHistoryIpInfoDropin__ipInfoTable__key {
+	white-space: nowrap;
+}
+
 .SimpleHistoryIpInfoDropin__provider {
 	text-align: right;
 	font-size: 12px;

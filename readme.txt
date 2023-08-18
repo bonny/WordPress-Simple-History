@@ -212,6 +212,10 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+### Unreleased
+
+- Prevent key values in IP info modal to wrap.
+
 ### 4.5.0 (August 2023)
 
 This release contains some smaller new features and improvements.
