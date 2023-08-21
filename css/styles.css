@@ -1002,3 +1002,11 @@ Modal window with detailss
 .sh-Icon--autorenew {
 	background-image: url(./icons/autorenew_FILL0_wght400_GRAD0_opsz48.svg);
 }
+
+.sh-Icon--format_list_numbered {
+	background-image: url(./icons/format_list_numbered_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--filter_list {
+	background-image: url(./icons/filter_list_FILL0_wght400_GRAD0_opsz48.svg);
+}

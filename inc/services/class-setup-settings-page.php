@@ -127,7 +127,7 @@ class Setup_Settings_Page extends Service {
 		// Number if items to show on the history page.
 		add_settings_field(
 			'simple_history_number_of_items',
-			Helpers::get_settings_field_title_output( __( 'Number of items per page on the log page', 'simple-history' ), 'overview' ),
+			Helpers::get_settings_field_title_output( __( 'Items per page', 'simple-history' ), 'filter_list' ),
 			array( $this, 'settings_field_number_of_items' ),
 			$settings_menu_slug,
 			$settings_section_general_id
@@ -135,15 +135,6 @@ class Setup_Settings_Page extends Service {
 
 		// Nonces for number of items inputs.
 		register_setting( $settings_general_option_group, 'simple_history_pager_size' );
-
-		// Number if items to show on dashboard.
-		add_settings_field(
-			'simple_history_number_of_items_dashboard',
-			Helpers::get_settings_field_title_output( __( 'Number of items per page on the dashboard', 'simple-history' ), 'dashboard' ),
-			array( $this, 'settings_field_number_of_items_dashboard' ),
-			$settings_menu_slug,
-			$settings_section_general_id
-		);
 
 		// Nonces for number of items inputs.
 		register_setting( $settings_general_option_group, 'simple_history_pager_size_dashboard' );
@@ -196,12 +187,20 @@ class Setup_Settings_Page extends Service {
 		<?php
 	}
 
+	public function settings_field_number_of_items() {
+		$this->settings_field_number_of_items_on_log_page();
+		echo '<br /><br />';
+		$this->settings_field_number_of_items_dashboard();
+	}
+
 	/**
 	 * Settings field for how many rows/items to show in log on the log page
 	 */
-	public function settings_field_number_of_items() {
+	private function settings_field_number_of_items_on_log_page() {
 		$current_pager_size = $this->simple_history->get_pager_size();
 		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
+
+		echo '<p>' . esc_html__( 'Number of items per page on the log page', 'simple-history' ) . '</p>';
 
 		// If number of items is controlled via filter then return early.
 		if ( has_filter( 'simple_history/pager_size' ) ) {
@@ -243,9 +242,11 @@ class Setup_Settings_Page extends Service {
 	/**
 	 * Settings field for how many rows/items to show in log on the dashboard
 	 */
-	public function settings_field_number_of_items_dashboard() {
+	private function settings_field_number_of_items_dashboard() {
 		$current_pager_size = $this->simple_history->get_pager_size_dashboard();
 		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
+
+		echo '<p>' . esc_html__( 'Number of items per page on the dashboard', 'simple-history' ) . '</p>';
 
 		// If number of items is controlled via filter then return early.
 		if ( has_filter( 'simple_history_pager_size_dashboard' ) || has_filter( 'simple_history/dashboard_pager_size' ) ) {
