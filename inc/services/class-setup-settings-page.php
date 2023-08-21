@@ -328,11 +328,31 @@ class Setup_Settings_Page extends Service {
 	public function settings_page_output() {
 		$arr_settings_tabs = $this->simple_history->get_settings_tabs();
 
+		// Wrap link around title if we have somewhere to go.
+		$headline_link_target = null;
+		$headline_link_start_elm = '';
+		$headline_link_end_elm = '';
+		if ( $this->simple_history->setting_show_as_page() ) {
+			$headline_link_target = admin_url( 'index.php?page=simple_history_page' );
+		} else if ( $this->simple_history->setting_show_on_dashboard() ) {
+			$headline_link_target = admin_url( 'index.php' );
+		}
+
+		if ( ! is_null( $headline_link_target ) ) {
+			$headline_link_start_elm = sprintf(
+				'<a href="%1$s" class="sh-PageHeader-titleLink">',
+				esc_url( $headline_link_target )
+			);
+			$headline_link_end_elm = '</a>';
+		}
+
 		?>
 		<header class="sh-PageHeader">
 			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
-				<?php esc_html_e( 'Simple History', 'simple-history' ); ?>
+				<?php echo $headline_link_start_elm; ?>
+					<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
+					<?php esc_html_e( 'Simple History', 'simple-history' ); ?>
+				<?php echo $headline_link_end_elm; ?>
 			</h1>
 
 			<?php
