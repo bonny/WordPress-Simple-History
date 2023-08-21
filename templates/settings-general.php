@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || die();
 
 	<?php
 	// Output nonce, action, and option_page fields
+	// TODO: Get this string from constant in simple history class.
 	settings_fields( 'simple_history_settings_group' );
 	?>
 

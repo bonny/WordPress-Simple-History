@@ -118,7 +118,7 @@ class Setup_Settings_Page extends Service {
 
 		add_settings_field(
 			'simple_history_show_where',
-			__( 'Show history', 'simple-history' ),
+			Helpers::get_settings_field_title_output( __( 'Show history', 'simple-history' ), 'visibility' ),
 			array( $this, 'settings_field_where_to_show' ),
 			$settings_menu_slug,
 			$settings_section_general_id
@@ -127,7 +127,7 @@ class Setup_Settings_Page extends Service {
 		// Number if items to show on the history page.
 		add_settings_field(
 			'simple_history_number_of_items',
-			__( 'Number of items per page on the log page', 'simple-history' ),
+			Helpers::get_settings_field_title_output( __( 'Number of items per page on the log page', 'simple-history' ), 'overview' ),
 			array( $this, 'settings_field_number_of_items' ),
 			$settings_menu_slug,
 			$settings_section_general_id
@@ -139,7 +139,7 @@ class Setup_Settings_Page extends Service {
 		// Number if items to show on dashboard.
 		add_settings_field(
 			'simple_history_number_of_items_dashboard',
-			__( 'Number of items per page on the dashboard', 'simple-history' ),
+			Helpers::get_settings_field_title_output( __( 'Number of items per page on the dashboard', 'simple-history' ), 'dashboard' ),
 			array( $this, 'settings_field_number_of_items_dashboard' ),
 			$settings_menu_slug,
 			$settings_section_general_id
@@ -152,7 +152,7 @@ class Setup_Settings_Page extends Service {
 		if ( $this->simple_history->user_can_clear_log() ) {
 			add_settings_field(
 				'simple_history_clear_log',
-				__( 'Clear log', 'simple-history' ),
+				Helpers::get_settings_field_title_output( __( 'Clear log', 'simple-history' ), 'auto-delete' ),
 				[ $this, 'settings_field_clear_log' ],
 				$settings_menu_slug,
 				$settings_section_general_id

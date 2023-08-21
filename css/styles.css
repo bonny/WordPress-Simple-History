@@ -943,3 +943,62 @@ Modal window with detailss
 .SimpleHistory__diff.SimpleHistory__diff tbody tr td:nth-child(2) {
 	width: auto;
 }
+
+/**
+ * SuitCSS based classnames.
+ */
+.sh-SettingsPage-settingsField-icon {
+}
+
+.sh-SettingsPage-settingsField {
+	font-size: 1rem;
+}
+
+.sh-SettingsPage-settingsField-icon {
+	--icon-size: 24px;
+	width: var(--icon-size);
+	height: var(--icon-size);
+	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
+	display: inline-block;
+	background-size: 100%;
+	vertical-align: middle;
+	margin-right: 0.5em;
+	position: relative;
+	top: -2px;
+}
+
+.sh-Icon--visibility {
+	background-image: url(./icons/visibility_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--dashboard {
+	background-image: url(./icons/dashboard_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--info {
+	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--overview {
+	background-image: url(./icons/overview_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--auto-delete {
+	background-image: url(./icons/auto_delete_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--toggle-on {
+	background-image: url(./icons/toggle_on_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--link {
+	background-image: url(./icons/link_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--edit {
+	background-image: url(./icons/edit_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--autorenew {
+	background-image: url(./icons/autorenew_FILL0_wght400_GRAD0_opsz48.svg);
+}
