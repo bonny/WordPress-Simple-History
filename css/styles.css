@@ -951,15 +951,14 @@ Modal window with detailss
 	font-family: dashicons;
 }
 
-/**
- * White page header. Used for plugin title, tab navigation, maybe settings to the right.
- * Based on style uses by core for Site Health and Privacy Policy, to keep things consistent.
- */
-
 :root {
 	--sh-color-green: #3f9349;
 }
 
+/**
+ * White page header. Used for plugin title, tab navigation, maybe settings to the right.
+ * Based on style uses by core for Site Health and Privacy Policy, to keep things consistent.
+ */
 .sh-PageHeader {
 	margin: 0 0 2rem -20px;
 	padding: 1rem 2rem 0 2rem;
@@ -1005,6 +1004,11 @@ Modal window with detailss
 .sh-SettingsPage-settingsField {
 	/* font-size: 1rem; */
 	color: #3c434a;
+}
+
+.sh-SettingsPage-settingsSectionTitle {
+	display: block;
+	margin-top: 3em;
 }
 
 .sh-SettingsPage-settingsSection-icon {
