@@ -942,9 +942,6 @@ Modal window with detailss
 /**
  * SuitCSS based classnames.
  */
-.sh-SettingsPage-settingsField-icon {
-}
-
 .sh-ExternalLink::after {
 	/* External icon on link */
 	content: "\f504";
@@ -1039,7 +1036,8 @@ Modal window with detailss
 	vertical-align: middle;
 	margin-right: 0.5em;
 	position: relative;
-	top: -2px;
+	top: -1px;
+	left: 2px;
 }
 
 .sh-PageNav-icon {
@@ -1149,4 +1147,28 @@ Modal window with detailss
 
 .sh-Icon--build {
 	background-image: url(./icons/build_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--archive {
+	background-image: url(./icons/archive_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--map {
+	background-image: url(./icons/map_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--account_circle {
+	background-image: url(./icons/account_circle_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--no_accounts {
+	background-image: url(./icons/no_accounts_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--merge_type {
+	background-image: url(./icons/merge_type_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--vpn_lock {
+	background-image: url(./icons/vpn_lock_FILL0_wght400_GRAD0_opsz48.svg);
 }
