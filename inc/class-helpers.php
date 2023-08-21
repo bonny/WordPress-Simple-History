@@ -634,4 +634,34 @@ class Helpers {
 
 		return $tables;
 	}
+
+	/**
+	 * Output title for settings field.
+	 * with wrapper classes and markup + classes for icon appended.
+	 *
+	 * @param string $title
+	 * @param ?string $icon_class_suffix
+	 * @return string
+	 */
+	public static function get_settings_field_title_output( $title, $icon_class_suffix = null ) {
+		$icon_output = '';
+
+		if ( ! is_null( $icon_class_suffix ) ) {
+			$icon_output = sprintf(
+				'<span class="sh-SettingsPage-settingsField-icon sh-Icon--%1$s"></span>',
+				esc_attr( $icon_class_suffix )
+			);
+		}
+
+		return sprintf(
+			'
+			<span class="sh-SettingsPage-settingsField">
+				%2$s
+				%1$s
+			</span>
+			',
+			esc_html( $title ),
+			$icon_output
+		);
+	}
 }
