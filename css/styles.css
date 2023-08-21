@@ -951,7 +951,21 @@ Modal window with detailss
 }
 
 .sh-SettingsPage-settingsField {
-	font-size: 1rem;
+	/* font-size: 1rem; */
+	color: #3c434a;
+}
+
+.sh-SettingsPage-settingsSection-icon {
+	--icon-size: 24px;
+	width: var(--icon-size);
+	height: var(--icon-size);
+	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
+	display: inline-block;
+	background-size: 100%;
+	vertical-align: middle;
+	margin-right: 0.5em;
+	position: relative;
+	top: -2px;
 }
 
 .sh-SettingsPage-settingsField-icon {
@@ -1009,4 +1023,24 @@ Modal window with detailss
 
 .sh-Icon--filter_list {
 	background-image: url(./icons/filter_list_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--rss_feed {
+	background-image: url(./icons/rss_feed_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--tune {
+	background-image: url(./icons/tune_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--settings {
+	background-image: url(./icons/settings_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--volunteer_activism {
+	background-image: url(./icons/volunteer_activism_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--thumb_up {
+	background-image: url(./icons/thumb_up_FILL0_wght400_GRAD0_opsz48.svg);
 }
