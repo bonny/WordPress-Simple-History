@@ -636,7 +636,37 @@ class Helpers {
 	}
 
 	/**
-	 * Output title for settings field.
+	 * Output title for settings section title.
+	 * with wrapper classes and markup + classes for icon appended.
+	 *
+	 * @param string $title
+	 * @param ?string $icon_class_suffix
+	 * @return string
+	 */
+	public static function get_settings_section_title_output( $title, $icon_class_suffix = null ) {
+		$icon_output = '';
+
+		if ( ! is_null( $icon_class_suffix ) ) {
+			$icon_output = sprintf(
+				'<span class="sh-SettingsPage-settingsSection-icon sh-Icon--%1$s"></span>',
+				esc_attr( $icon_class_suffix )
+			);
+		}
+
+		return sprintf(
+			'
+			<span class="sh-SettingsPage-settingsSectionTitle">
+				%2$s
+				%1$s
+			</span>
+			',
+			esc_html( $title ),
+			$icon_output
+		);
+	}
+
+	/**
+	 * Output title for settings field title.
 	 * with wrapper classes and markup + classes for icon appended.
 	 *
 	 * @param string $title
