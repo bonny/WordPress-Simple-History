@@ -216,6 +216,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 - Prevent key values in IP info modal to wrap.
 - GUI enchancements (for example icons on settings page, combine settings for "Items per page").
+- Add more CSS classes for icons and external links.
 
 ### 4.5.0 (August 2023)
 

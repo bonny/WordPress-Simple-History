@@ -625,8 +625,6 @@ class Simple_History {
 		$this->arr_settings_tabs = $arr_settings_tabs;
 	}
 
-
-
 	/**
 	 * Detect clear log query arg and clear log if it is set and valid.
 	 */

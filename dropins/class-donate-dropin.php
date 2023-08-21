@@ -72,7 +72,7 @@ class Donate_Dropin extends Dropin {
 	public function add_settings() {
 		add_settings_section(
 			'simple_history_settings_section_donate',
-			Helpers::get_settings_section_title_output( _x( 'Donate', 'donate settings headline', 'simple-history' ), 'volunteer_activism' ),
+			Helpers::get_settings_section_title_output( _x( 'Support development', 'donate settings headline', 'simple-history' ), 'volunteer_activism' ),
 			array( $this, 'settings_section_output' ),
 			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);
@@ -83,12 +83,14 @@ class Donate_Dropin extends Dropin {
 			wp_kses(
 				// translators: 1 is a link to PayPal, 2 is a link to GitHub sponsors.
 				__(
-					'If you find Simple History useful please <a href="%1$s">donate using PayPal</a> or <a href="%2$s">become a GitHub sponsor</a>.',
+					'If you find Simple History useful please <a href="%1$s" target="_blank" class="sh-ExternalLink">donate using PayPal</a> or <a href="%2$s" target="_blank" class="sh-ExternalLink">become a GitHub sponsor</a>.',
 					'simple-history'
 				),
 				array(
 					'a' => array(
 						'href' => array(),
+						'class' => [],
+						'target' => [],
 					),
 				)
 			),

@@ -162,7 +162,7 @@ class Setup_Settings_Page extends Service {
 		do_action( 'simple_history/settings_page/general_section_output' );
 	}
 
-		/**
+	/**
 	 * Settings field for where to show the log, page or dashboard
 	 */
 	public function settings_field_where_to_show() {
@@ -326,11 +326,10 @@ class Setup_Settings_Page extends Service {
 		$arr_settings_tabs = $this->simple_history->get_settings_tabs();
 
 		?>
-		<div class="wrap">
-
-			<h1 class="SimpleHistoryPageHeadline">
+		<header class="sh-PageHeader">
+			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
 				<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
-				<?php esc_html_e( 'Simple History Settings', 'simple-history' ); ?>
+				<?php esc_html_e( 'Simple History', 'simple-history' ); ?>
 			</h1>
 
 			<?php
@@ -338,45 +337,42 @@ class Setup_Settings_Page extends Service {
 			$settings_base_url = menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, 0 );
 			?>
 
-			<h2 class="nav-tab-wrapper">
+			<nav class="sh-PageNav">
 				<?php
 				foreach ( $arr_settings_tabs as $one_tab ) {
 					$tab_slug = $one_tab['slug'];
 
 					printf(
-						'<a href="%3$s" class="nav-tab %4$s">%1$s</a>',
+						'<a href="%3$s" class="sh-PageNav-tab %4$s">%1$s</a>',
 						$one_tab['name'], // 1
 						$tab_slug, // 2
 						esc_url( add_query_arg( 'selected-tab', $tab_slug, $settings_base_url ) ), // 3
-						$active_tab == $tab_slug ? 'nav-tab-active' : '' // 4
+						$active_tab == $tab_slug ? 'is-active' : '' // 4
 					);
 				}
 				?>
-			</h2>
+			</nav>
+		</header>
 
-			<?php
-			// Output contents for selected tab.
-			$arr_active_tab = wp_filter_object_list(
-				$arr_settings_tabs,
-				array(
-					'slug' => $active_tab,
-				)
-			);
-			$arr_active_tab = current( $arr_active_tab );
-
-			// We must have found an active tab and it must have a callable function
-			if ( ! $arr_active_tab || ! is_callable( $arr_active_tab['function'] ) ) {
-				wp_die( esc_html__( 'No valid callback found', 'simple-history' ) );
-			}
-
-			$args = array(
-				'arr_active_tab' => $arr_active_tab,
-			);
-
-			call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
-			?>
-
-		</div>
 		<?php
+		// Output contents for selected tab.
+		$arr_active_tab = wp_filter_object_list(
+			$arr_settings_tabs,
+			array(
+				'slug' => $active_tab,
+			)
+		);
+		$arr_active_tab = current( $arr_active_tab );
+
+		// We must have found an active tab and it must have a callable function
+		if ( ! $arr_active_tab || ! is_callable( $arr_active_tab['function'] ) ) {
+			wp_die( esc_html__( 'No valid callback found', 'simple-history' ) );
+		}
+
+		$args = array(
+			'arr_active_tab' => $arr_active_tab,
+		);
+
+		call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
 	}
 }

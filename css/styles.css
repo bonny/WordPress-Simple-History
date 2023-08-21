@@ -851,10 +851,6 @@ Modal window with detailss
 	color: rgb(63, 147, 73);
 }
 
-.branch-4-2 .SimpleHistoryPageHeadline__icon {
-	line-height: 18px;
-}
-
 /* if not hits when using filter function + if ajax error */
 
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems__pagination {
@@ -949,6 +945,58 @@ Modal window with detailss
 .sh-SettingsPage-settingsField-icon {
 }
 
+.sh-ExternalLink::after {
+	/* External icon on link */
+	content: "\f504";
+	font-family: dashicons;
+}
+
+/**
+ * White page header. Used for plugin title, tab navigation, maybe settings to the right.
+ * Based on style uses by core for Site Health and Privacy Policy, to keep things consistent.
+ */
+.sh-PageHeader {
+	margin: 0 0 2rem -20px;
+	padding: 1rem 2rem 0 2rem;
+	background: #fff;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.sh-PageHeader-title {
+	font-size: 23px;
+	font-weight: 400;
+	margin: 0;
+	padding: 9px 0 4px;
+	line-height: 1.3;
+}
+
+.sh-Page-content {
+	margin: 0 1rem;
+}
+
+.sh-PageNav {
+	display: flex;
+	margin-top: 1rem;
+	gap: 2rem;
+}
+
+.sh-PageNav-tab {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	padding: 0.5rem 1rem 1rem;
+	transition: box-shadow 0.25s ease-in-out;
+}
+
+.sh-PageNav-tab:hover {
+	box-shadow: inset 0 -3px #dcdcde;
+}
+
+.sh-PageNav-tab.is-active {
+	box-shadow: inset 0 -3px #3582c4;
+	font-weight: 600;
+}
+
 .sh-SettingsPage-settingsField {
 	/* font-size: 1rem; */
 	color: #3c434a;
@@ -968,7 +1016,7 @@ Modal window with detailss
 }
 
 .sh-SettingsPage-settingsField-icon {
-	--icon-size: 24px;
+	--icon-size: 20px;
 	width: var(--icon-size);
 	height: var(--icon-size);
 	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
