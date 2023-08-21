@@ -29,6 +29,7 @@ class Development_Dropin extends Dropin {
 			array(
 				'slug' => 'dropin_development_dropin_tab',
 				'name' => __( 'Event details tests', 'simple-history' ),
+				'icon' => 'overview',
 				'function' => array( $this, 'tab_output' ),
 			)
 		);

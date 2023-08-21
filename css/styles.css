@@ -955,6 +955,11 @@ Modal window with detailss
  * White page header. Used for plugin title, tab navigation, maybe settings to the right.
  * Based on style uses by core for Site Health and Privacy Policy, to keep things consistent.
  */
+
+:root {
+	--sh-color-green: #3f9349;
+}
+
 .sh-PageHeader {
 	margin: 0 0 2rem -20px;
 	padding: 1rem 2rem 0 2rem;
@@ -993,7 +998,7 @@ Modal window with detailss
 }
 
 .sh-PageNav-tab.is-active {
-	box-shadow: inset 0 -3px #3582c4;
+	box-shadow: inset 0 -3px var(--sh-color-green);
 	font-weight: 600;
 }
 
@@ -1016,6 +1021,19 @@ Modal window with detailss
 }
 
 .sh-SettingsPage-settingsField-icon {
+	--icon-size: 20px;
+	width: var(--icon-size);
+	height: var(--icon-size);
+	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
+	display: inline-block;
+	background-size: 100%;
+	vertical-align: middle;
+	margin-right: 0.5em;
+	position: relative;
+	top: -2px;
+}
+
+.sh-PageNav-icon {
 	--icon-size: 20px;
 	width: var(--icon-size);
 	height: var(--icon-size);
@@ -1090,4 +1108,36 @@ Modal window with detailss
 
 .sh-Icon--thumb_up {
 	background-image: url(./icons/thumb_up_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--workspace_premium {
+	background-image: url(./icons/workspace_premium_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--verified {
+	background-image: url(./icons/verified_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--add_box {
+	background-image: url(./icons/add_box_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--pages {
+	background-image: url(./icons/pages_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--archive {
+	background-image: url(./icons/archive_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--download {
+	background-image: url(./icons/download_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--troubleshoot {
+	background-image: url(./icons/troubleshoot_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--build {
+	background-image: url(./icons/build_FILL0_wght400_GRAD0_opsz48.svg);
 }

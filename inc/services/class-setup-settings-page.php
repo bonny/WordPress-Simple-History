@@ -21,6 +21,7 @@ class Setup_Settings_Page extends Service {
 		$settings_tabs[] = [
 			'slug' => 'settings',
 			'name' => __( 'Settings', 'simple-history' ),
+			'icon' => 'settings',
 			'order' => 100,
 			'function' => [ $this, 'settings_output_general' ],
 		];
@@ -31,11 +32,13 @@ class Setup_Settings_Page extends Service {
 				[
 					'slug' => 'log',
 					'name' => __( 'Log (debug)', 'simple-history' ),
+					'icon' => 'overview',
 					'function' => [ $this, 'settings_output_log' ],
 				],
 				[
 					'slug' => 'styles-example',
 					'name' => __( 'Styles example (debug)', 'simple-history' ),
+					'icon' => 'overview',
 					'function' => [ $this, 'settings_output_styles_example' ],
 				],
 			];
@@ -342,12 +345,27 @@ class Setup_Settings_Page extends Service {
 				foreach ( $arr_settings_tabs as $one_tab ) {
 					$tab_slug = $one_tab['slug'];
 
+					$icon_html = '';
+					if ( ! is_null( $one_tab['icon'] ?? null ) ) {
+						$icon_html = sprintf(
+							'<span class="sh-PageNav-icon sh-Icon--%1$s"></span>',
+							esc_attr( $one_tab['icon'] )
+						);
+					}
+
+					$icon_html_allowed_html = [
+						'span' => [
+							'class' => [],
+						],
+					];
+
 					printf(
-						'<a href="%3$s" class="sh-PageNav-tab %4$s">%1$s</a>',
+						'<a href="%3$s" class="sh-PageNav-tab %4$s">%5$s%1$s</a>',
 						$one_tab['name'], // 1
 						$tab_slug, // 2
 						esc_url( add_query_arg( 'selected-tab', $tab_slug, $settings_base_url ) ), // 3
-						$active_tab == $tab_slug ? 'is-active' : '' // 4
+						$active_tab == $tab_slug ? 'is-active' : '', // 4
+						wp_kses( $icon_html, $icon_html_allowed_html ) // 5
 					);
 				}
 				?>

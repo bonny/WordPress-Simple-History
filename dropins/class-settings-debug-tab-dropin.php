@@ -14,6 +14,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			array(
 				'slug' => 'debug',
 				'name' => __( 'Debug', 'simple-history' ),
+				'icon' => 'build',
 				'function' => array( $this, 'output' ),
 			)
 		);
