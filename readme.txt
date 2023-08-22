@@ -215,7 +215,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 ### Unreleased
 
 - Prevent key values in IP info modal to wrap.
-- GUI enchancements on settings page.
+- GUI enhancements on settings page.
 
 ### 4.5.0 (August 2023)
 
