@@ -410,7 +410,7 @@ class Setup_Settings_Page extends Service {
 		$args = array(
 			'arr_active_tab' => $arr_active_tab,
 		);
-
+	
 		call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
 	}
 }
