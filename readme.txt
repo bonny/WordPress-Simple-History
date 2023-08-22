@@ -216,6 +216,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 - Prevent key values in IP info modal to wrap.
 - GUI enhancements on settings page.
+- Allow direct access to protected class variable `$logger->slug` but mark access as deprectad and recommend usage of `$logger->get_slug()`.
 
 ### 4.5.0 (August 2023)
 

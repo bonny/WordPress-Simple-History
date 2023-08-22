@@ -1584,4 +1584,15 @@ abstract class Logger {
 
 		return array( $data, $context );
 	}
+
+	/**
+	 *  Add magic getter for _slug here.
+	 *  Used for backwards compatibility.
+	 */
+	public function __get( $name ) {
+		if ( 'slug' === $name ) {
+			_deprecated_function( __METHOD__, '4.5.1', 'get_slug()' );
+			return $this->get_slug();
+		}
+	}
 }

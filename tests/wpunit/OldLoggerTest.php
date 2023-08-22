@@ -2,6 +2,7 @@
 
 require_once 'functions.php';
 
+use Simple_History\Simple_History;
 use function Simple_History\tests\get_latest_row;
 
 /**
@@ -67,5 +68,12 @@ class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 		unset($actual->id, $actual->date, $actual->occasionsID, $actual->subsequentOccasions, $actual->rep, $actual->repeated, $actual->occasionsIDType, $actual->context);
 
 		$this->assertEquals($expected_object, $actual);
+	}
+
+	// Test that loggers can access deprecated property "slug".
+	public function test_that_logger_can_access_slug() {
+		$simple_history = Simple_History::get_instance();		
+		$logger = $simple_history->get_instantiated_logger_by_slug('SimpleHistoryLogger');
+		$this->assertEquals('SimpleHistoryLogger', $logger->slug);
 	}
 }
