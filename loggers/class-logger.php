@@ -1586,8 +1586,10 @@ abstract class Logger {
 	}
 
 	/**
-	 *  Add magic getter for _slug here.
+	 *  Magic getter for "_slug".
 	 *  Used for backwards compatibility.
+	 *
+	 * @param string $name Name of property to get.
 	 */
 	public function __get( $name ) {
 		if ( 'slug' === $name ) {
