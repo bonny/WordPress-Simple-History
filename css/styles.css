@@ -1172,3 +1172,11 @@ Modal window with detailss
 .sh-Icon--vpn_lock {
 	background-image: url(./icons/vpn_lock_FILL0_wght400_GRAD0_opsz48.svg);
 }
+
+.sh-Icon--lock_clock {
+	background-image: url(./icons/lock_clock_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--key {
+	background-image: url(./icons/key_FILL0_wght400_GRAD0_opsz48.svg);
+}
