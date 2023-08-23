@@ -960,7 +960,7 @@ Modal window with detailss
 	margin: 0 0 2rem -20px;
 	padding: 1rem 2rem 0 2rem;
 	background: #fff;
-	border-bottom: 1px solid #dcdcde;
+	border-bottom: 1px solid #8cac90;
 }
 
 .sh-PageHeader-title {
@@ -983,24 +983,35 @@ Modal window with detailss
 .sh-PageNav {
 	display: flex;
 	margin-top: 1rem;
+	margin-left: -1rem;
 	gap: 2rem;
 }
 
 .sh-PageNav-tab {
 	display: block;
+	position: relative;
 	text-decoration: none;
 	color: inherit;
 	padding: 0.5rem 1rem 1rem;
-	transition: box-shadow 0.25s ease-in-out;
 }
 
-.sh-PageNav-tab:hover {
-	box-shadow: inset 0 -3px #dcdcde;
-}
-
-.sh-PageNav-tab.is-active {
-	box-shadow: inset 0 -3px var(--sh-color-green);
+.sh-PageNav-tab::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 1rem;
+	right: 1rem;
+	height: 3px;
 	font-weight: 600;
+	transition: background-color 0.25s ease-in-out, height 0.15s ease-in-out;
+}
+
+.sh-PageNav-tab:hover::after {
+	background-color: #dcdcde;
+}
+
+.sh-PageNav-tab.is-active::after {
+	background: var(--sh-color-green);
 }
 
 .sh-SettingsPage-settingsField {
