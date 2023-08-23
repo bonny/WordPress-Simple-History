@@ -999,8 +999,8 @@ Modal window with detailss
 	content: "";
 	position: absolute;
 	bottom: 0;
-	left: 1rem;
-	right: 1rem;
+	left: 0.5rem;
+	right: 0.5rem;
 	height: 3px;
 	font-weight: 600;
 	transition: background-color 0.25s ease-in-out, height 0.15s ease-in-out;
