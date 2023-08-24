@@ -92,7 +92,11 @@ class Loggers_Loader extends Service {
 
 			/** @var Simple_Logger $logger_instance */
 			$logger_instance = new $one_logger_class( $this->simple_history );
+
+			// Call loaded() function on logger if logger is enabled.
+			if ( $logger_instance->is_enabled() ) {
 			$logger_instance->loaded();
+			}
 
 			// Tell gettext-filter to add untranslated messages.
 			$this->do_filter_gettext = true;
