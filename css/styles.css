@@ -1021,7 +1021,11 @@ Modal window with detailss
 
 .sh-SettingsPage-settingsSectionTitle {
 	display: block;
-	margin-top: 3em;
+	font-size: 23px;
+	font-weight: 400;
+	margin: 0;
+	padding: 9px 0 4px;
+	line-height: 1.3;
 }
 
 .sh-SettingsPage-settingsSection-icon {
