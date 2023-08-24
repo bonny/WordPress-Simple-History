@@ -1597,4 +1597,29 @@ abstract class Logger {
 			return $this->get_slug();
 		}
 	}
+
+	/**
+	 * Check if logger is enabled or disabled.
+	 *
+	 * @return bool True if enabled, false if disabled.
+	 */
+	public function is_enabled() {
+		/** @var bool $is_enabled_by_default */
+		$is_enabled_by_default = $this->get_info_value_by_key( 'enabled_by_default' ) ?? false;
+
+		/**
+		 * Filter the default enabled state of a logger.
+		 *
+		 * @param bool $is_enabled_by_default
+		 * @param string $slug
+		 * @return bool
+		 */
+		$is_enabled = apply_filters(
+			'simple_history/logger/enabled',
+			$is_enabled_by_default,
+			$this->get_slug()
+		);
+
+		return $is_enabled;
+	}
 }
