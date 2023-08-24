@@ -70,6 +70,8 @@ class Simple_History {
 	}
 
 	/**
+	 * Called on class construct.
+	 * 
 	 * @since 2.5.2
 	 */
 	public function init() {
