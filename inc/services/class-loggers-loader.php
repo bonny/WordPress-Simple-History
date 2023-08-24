@@ -4,6 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Loggers\Simple_Logger;
+use Simple_History\Loggers\Logger;
 
 /**
  * Class that load loggers.
@@ -56,6 +57,7 @@ class Loggers_Loader extends Service {
 		 */
 		do_action( 'simple_history/add_custom_logger', $this->simple_history );
 
+		/** @var Logger[] $arr_loggers_to_instantiate */
 		$arr_loggers_to_instantiate = array_merge( $arr_loggers_to_instantiate, $this->simple_history->get_external_loggers() );
 
 		/**
@@ -70,8 +72,9 @@ class Loggers_Loader extends Service {
 		 *
 		 * @since 2.0
 		 *
-		 * @param array $arr_loggers_to_instantiate Array with class names
+		 * @param array<Logger> $arr_loggers_to_instantiate Array with class names
 		 */
+		/** @var Logger[] $arr_loggers_to_instantiate */
 		$arr_loggers_to_instantiate = apply_filters(
 			'simple_history/loggers_to_instantiate',
 			$arr_loggers_to_instantiate
@@ -95,7 +98,7 @@ class Loggers_Loader extends Service {
 
 			// Call loaded() function on logger if logger is enabled.
 			if ( $logger_instance->is_enabled() ) {
-			$logger_instance->loaded();
+				$logger_instance->loaded();
 			}
 
 			// Tell gettext-filter to add untranslated messages.
