@@ -216,6 +216,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 - Loggers: Call loaded() function on a logger only if logger is enabled (is_enabled() returns true).
 - Logger: Add function is_enabled().
+- Debug settings tag: Show if a logger is enabled or disabled.
 - Prevent key values in IP info modal to wrap.
 - GUI enhancements on settings page.
 - Allow direct access to protected class variable `$logger->slug` but mark access as deprectad and recommend usage of `$logger->get_slug()`. Fixes support thread [PHP fatal error Cannot access protected property $slug](https://wordpress.org/support/topic/php-fatal-error-cannot-access-protected-property-slug/).

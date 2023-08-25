@@ -260,6 +260,7 @@ printf(
 			<th>%4$s</th>
 			<th>%5$s</th>
 			<th>%6$s</th>
+			<th>%7$s</th>
 		</tr>
 	</thead>
 	',
@@ -268,7 +269,8 @@ printf(
 	esc_html_x( 'Description', 'debug dropin', 'simple-history' ),
 	esc_html_x( 'Messages', 'debug dropin', 'simple-history' ),
 	esc_html_x( 'Capability', 'debug dropin', 'simple-history' ),
-	esc_html_x( 'Rows count', 'debug dropin', 'simple-history' )
+	esc_html_x( 'Rows count', 'debug dropin', 'simple-history' ),
+	esc_html_x( 'Status', 'debug dropin', 'simple-history' )
 );
 
 $loopnum = 0;
@@ -320,6 +322,8 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 		$html_logger_messages = '<p>' . esc_html_x( 'No message strings', 'debug dropin', 'simple-history' ) . '</p>';
 	}
 
+	$logger_enabled_text = $logger->is_enabled() ? _x( 'Enabled', 'debug dropin', 'simple-history' ) : _x( 'Disabled', 'debug dropin', 'simple-history' );
+
 	printf(
 		'
 		<tr class="%6$s">
@@ -341,6 +345,9 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 			<td>
                 <p>%1$s</p>
             </td>
+			<td>
+                <p>%8$s</p>
+            </td>
 		</tr>
 		',
 		number_format_i18n( $one_logger_count->count ),
@@ -349,7 +356,8 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 		esc_html( $logger_info['description'] ), // 4
 		esc_html( $logger->get_capability() ), // 5
 		$loopnum % 2 ? ' alt ' : '', // 6
-		$html_logger_messages // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$html_logger_messages, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		esc_html( $logger_enabled_text )
 	);
 
 	$loopnum++;
