@@ -1600,12 +1600,13 @@ abstract class Logger {
 
 	/**
 	 * Check if logger is enabled or disabled.
+	 * If a logger is missing the "enabled_by_default" they are considered enabled by default.
 	 *
 	 * @return bool True if enabled, false if disabled.
 	 */
 	public function is_enabled() {
 		/** @var bool $is_enabled_by_default */
-		$is_enabled_by_default = $this->get_info_value_by_key( 'enabled_by_default' ) ?? false;
+		$is_enabled_by_default = $this->get_info_value_by_key( 'enabled_by_default' ) ?? true;
 
 		/**
 		 * Filter the default enabled state of a logger.
