@@ -185,38 +185,55 @@ class Export_Dropin extends Dropin {
 
 	public function output() {
 		?>
-		<p><?php echo esc_html_x( 'The export function will export the full history.', 'Export dropin: introtext', 'simple-history' ); ?></p>
 
-		<form method="post">
-
-			<h3><?php echo esc_html_x( 'Choose format to export to', 'Export dropin: format', 'simple-history' ); ?></h3>
-
-			<p>
-				<label>
-					<input type="radio" name="format" value="json" checked>
-					<?php echo esc_html_x( 'JSON', 'Export dropin: export format', 'simple-history' ); ?>
-				</label>
-			</p>
-
-			<p>
-				<label>
-					<input type="radio" name="format" value="csv">
-					<?php echo esc_html_x( 'CSV', 'Export dropin: export format', 'simple-history' ); ?>
-				</label>
-			</p>
-
-			<p>
-				<button type="submit" class="button button-primary">
-					<?php echo esc_html_x( 'Download Export File', 'Export dropin: submit button', 'simple-history' ); ?>
-				</button>
-				<input type="hidden" name="simple-history-action" value="export-history">
-			</p>
-
+		<div class="wrap">
 			<?php
-			wp_nonce_field( self::class . '-action-export' );
+			echo wp_kses(
+				Helpers::get_settings_section_title_output(
+					__( 'Export history', 'simple-history' ),
+					'download'
+				),
+				array(
+					'span' => array(
+						'class' => array(),
+					),
+				)
+			);
 			?>
+			<p><?php echo esc_html_x( 'The export function will export the full history.', 'Export dropin: introtext', 'simple-history' ); ?></p>
 
-		</form>
+			<form method="post">
+
+				<h3><?php echo esc_html_x( 'Choose format to export to', 'Export dropin: format', 'simple-history' ); ?></h3>
+
+				<p>
+					<label>
+						<input type="radio" name="format" value="json" checked>
+						<?php echo esc_html_x( 'JSON', 'Export dropin: export format', 'simple-history' ); ?>
+					</label>
+				</p>
+
+				<p>
+					<label>
+						<input type="radio" name="format" value="csv">
+						<?php echo esc_html_x( 'CSV', 'Export dropin: export format', 'simple-history' ); ?>
+					</label>
+				</p>
+
+				<p>
+					<button type="submit" class="button button-primary">
+						<?php echo esc_html_x( 'Download Export File', 'Export dropin: submit button', 'simple-history' ); ?>
+					</button>
+					<input type="hidden" name="simple-history-action" value="export-history">
+				</p>
+
+				<?php
+				wp_nonce_field( self::class . '-action-export' );
+				?>
+
+			</form>
+		
+		</div>
 
 		<?php
 	}
