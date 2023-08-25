@@ -1197,7 +1197,7 @@ class Simple_History {
 	/**
 	 * Get instantiated loggers.
 	 *
-	 * @return array<Logger>
+	 * @return array<array<string,Logger>>
 	 */
 	public function get_instantiated_loggers() {
 		return $this->instantiated_loggers;
