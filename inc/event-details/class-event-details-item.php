@@ -113,6 +113,8 @@ class Event_Details_Item {
 	 */
 	public function get_formatter( $fallback_formatter = null ) {
 		if ( $this->formatter instanceof Event_Details_Item_Formatter ) {
+			// TODO: This feels stupid, should pass formatter + item separately.
+			$this->formatter->set_item( $fallback_formatter->get_item() );
 			return $this->formatter;
 		}
 
