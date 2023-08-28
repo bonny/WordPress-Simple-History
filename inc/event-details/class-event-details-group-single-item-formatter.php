@@ -12,12 +12,7 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 		$output = '';
 
 		foreach ( $group->items as $item ) {
-			if ( $item->has_formatter() ) {
-				$formatter = $item->get_formatter();
-			} else {
-				$formatter = new Event_Details_Item_Default_Formatter( $item );
-			}
-
+			$formatter = $item->get_formatter();
 			$output .= $formatter->get_html_output();
 		}
 
@@ -29,12 +24,7 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 
 		// Use same formatter as inline items.
 		foreach ( $group->items as $item ) {
-			if ( $item->has_formatter() ) {
-				$formatter = $item->get_formatter();
-			} else {
-				$formatter = new Event_Details_Item_Default_Formatter( $item );
-			}
-
+			$formatter = $item->get_formatter();
 			$output[] = $formatter->get_json_output();
 		}
 

@@ -10,6 +10,7 @@ use Simple_History\Event_Details\Event_Details_Group_Inline_Formatter;
 use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
 
 /**
  * Development Dropin
@@ -135,6 +136,14 @@ class Development_Dropin extends Dropin {
 	}
 
 	private function get_example_event_details_container() {
+		$item_table_row_raw_formatter = new Event_Details_Item_Table_Row_RAW_Formatter();
+		$item_table_row_raw_formatter->set_html_output( 'This is some <strong>RAW HTML</strong> <a href="#">output</a>. Make sure to escape <em>user input</em> etc.' );
+		$item_table_row_raw_formatter->set_json_output(
+			[
+				'raw_row_1' => 'Raw json row 1',
+				'raw_row_2' => 'Raw json row 2',
+			]
+		);
 		// Array with details, to format in the same way.
 		$event_group = [
 			new Event_Details_Item(
@@ -171,6 +180,11 @@ class Development_Dropin extends Dropin {
 				'plugin_current_version',
 				__( 'Installed version', 'simple-history' ),
 			),
+			// Raw item.
+			( new Event_Details_Item(
+				'plugin_current_version',
+				__( 'Installed version', 'simple-history' ),
+			) )->set_formatter( $item_table_row_raw_formatter ),
 		];
 
 		// Group with details = items that will be formatted the same way.

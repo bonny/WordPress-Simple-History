@@ -3,7 +3,7 @@
 namespace Simple_History\Event_Details;
 
 /**
- * Raw item in a table, i.e. the key value is outputed as usual
+ * Raw item in a table, i.e. the key value is outputted as usual
  * but the value is raw.
  */
 class Event_Details_Item_Table_Row_RAW_Formatter extends Event_Details_Item_RAW_Formatter {
@@ -12,7 +12,7 @@ class Event_Details_Item_Table_Row_RAW_Formatter extends Event_Details_Item_RAW_
 	// }
 	public function get_html_output() {
 		// Skip output of items with empty raw HTML.
-		if ( is_null( $this->html_output ) ) {
+		if ( empty( $this->html_output ) ) {
 			return '';
 		}
 

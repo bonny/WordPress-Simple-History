@@ -15,7 +15,6 @@ abstract class Event_Details_Item_Formatter {
 	 */
 	public function __construct( $item = null ) {
 		$this->item = $item;
-
 	}
 
 	/**

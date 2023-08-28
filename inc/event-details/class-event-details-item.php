@@ -31,7 +31,7 @@ class Event_Details_Item {
 	public ?bool $is_removed = null;
 
 	/** @var ?Event_Details_Item_Formatter */
-	public ?Event_Details_Item_Formatter $formatter = null;
+	protected $formatter = null;
 
 	/**
 	 * @param string|array<string> $slug_or_slugs
@@ -98,33 +98,49 @@ class Event_Details_Item {
 	}
 
 	/**
-	 * @param Event_Details_Item_Formatter $formatter
-	* @return Event_Details_Item $this
+	 * Sets a formatter to use for item.
+	 * Accepts an instance of a formatter, useful for example when passing in a custom raw formatter, where
+	 * HTML and JSON output is set manually.
+	 *
+	 * @param class-string<Event_Details_Item_Formatter>|Event_Details_Item_Formatter $formatter_or_formatter_class
+	 * @return Event_Details_Item $this
 	 */
-	public function set_formatter( $formatter ) {
-		$this->formatter = $formatter;
+	public function set_formatter( $formatter_or_formatter_class ) {
+		if ( $formatter_or_formatter_class instanceof Event_Details_Item_Formatter ) {
+			$this->formatter = $formatter_or_formatter_class;
+			$this->formatter->set_item( $this );
+		} else if ( is_subclass_of( $formatter_or_formatter_class, Event_Details_Item_Formatter::class ) ) {
+			$this->formatter = new $formatter_or_formatter_class( $this );
+		}
 
 		return $this;
 	}
 
 	/**
-	 * @param ?Event_Details_Item_Formatter $fallback_formatter Formatter to use if item does not have any formatter specified.
-	 * @return Event_Details_Item_Formatter|null
+	 * @param class-string<Event_Details_Item_Formatter>|Event_Details_Item_Formatter|null $fallback_formatter_or_formatter_class Formatter class name to use if item does not have any formatter specified.
+	 * @return Event_Details_Item_Formatter
 	 */
-	public function get_formatter( $fallback_formatter = null ) {
+	public function get_formatter( $fallback_formatter_or_formatter_class = null ) {
+		$formatter = null;
+
+		// Use fallback formatter if item formatter is not already set.
 		if ( $this->formatter instanceof Event_Details_Item_Formatter ) {
-			// TODO: This feels stupid, should pass formatter + item separately.
-			$this->formatter->set_item( $fallback_formatter->get_item() );
-			return $this->formatter;
+			$formatter = $this->formatter;
+		} elseif ( $fallback_formatter_or_formatter_class instanceof Event_Details_Item_Formatter ) {
+			$formatter = $fallback_formatter_or_formatter_class;
+		} elseif ( is_subclass_of( $fallback_formatter_or_formatter_class, Event_Details_Item_Formatter::class ) ) {
+			$formatter = new $fallback_formatter_or_formatter_class();
 		}
 
-		return $fallback_formatter;
+		$formatter->set_item( $this );
+
+		return $formatter;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function has_formatter() {
-		return $this->formatter instanceof Event_Details_Item_Formatter;
+		return true;
 	}
 }
