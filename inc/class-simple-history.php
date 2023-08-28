@@ -446,7 +446,7 @@ class Simple_History {
 			Dropins\Sidebar_Dropin::class,
 			Dropins\Sidebar_Settings_Dropin::class,
 			Dropins\WP_CLI_Dropin::class,
-			Dropins\Development_Dropin::class,
+			Dropins\Event_Details_Dev_Dropin::class,
 			Dropins\Quick_Stats::class,
 		);
 

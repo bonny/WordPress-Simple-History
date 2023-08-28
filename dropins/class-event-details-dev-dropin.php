@@ -13,10 +13,10 @@ use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
 
 /**
- * Development Dropin
- * Used during development to test things.
+ * Event details test Dropin.
+ * Used during development to test the event details classes.
  */
-class Development_Dropin extends Dropin {
+class Event_Details_Dev_Dropin extends Dropin {
 	public function loaded() {
 		if ( false === Helpers::dev_mode_is_enabled() ) {
 			return;
@@ -29,7 +29,7 @@ class Development_Dropin extends Dropin {
 		$this->simple_history->register_settings_tab(
 			array(
 				'slug' => 'dropin_development_dropin_tab',
-				'name' => __( 'Event details tests', 'simple-history' ),
+				'name' => __( 'Event details tests (dev)', 'simple-history' ),
 				'icon' => 'overview',
 				'function' => array( $this, 'tab_output' ),
 			)
