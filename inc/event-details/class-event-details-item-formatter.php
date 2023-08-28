@@ -29,6 +29,13 @@ abstract class Event_Details_Item_Formatter {
 	}
 
 	/**
+	 * @return Event_Details_Item
+	 */
+	public function get_item() {
+		return $this->item;
+	}
+
+	/**
 	 * @return string
 	 */
 	abstract public function get_html_output();
