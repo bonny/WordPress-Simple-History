@@ -2,6 +2,8 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Simple_History;
+
 class Admin_Pages extends Service {
 	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
@@ -66,7 +68,7 @@ class Admin_Pages extends Service {
 			 *
 			 * @param Simple_History $instance This class.
 			 */
-			do_action( 'simple_history/history_page/before_gui', $this );
+			do_action( 'simple_history/history_page/before_gui', $this->simple_history );
 			?>
 
 			<div class="SimpleHistoryGuiWrap">
@@ -81,7 +83,7 @@ class Admin_Pages extends Service {
 				 *
 				 * @param Simple_History $instance This class.
 				 */
-				do_action( 'simple_history/history_page/after_gui', $this );
+				do_action( 'simple_history/history_page/after_gui', $this->simple_history );
 				?>
 			</div>
 

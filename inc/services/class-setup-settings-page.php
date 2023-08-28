@@ -346,13 +346,22 @@ class Setup_Settings_Page extends Service {
 			$headline_link_end_elm = '</a>';
 		}
 
+		$allowed_link_html = [
+			'a' => [
+				'href' => 1,
+				'class' => 1,
+			],
+		];
+
 		?>
 		<header class="sh-PageHeader">
 			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-				<?php echo $headline_link_start_elm; ?>
+				<?php
+				echo wp_kses( $headline_link_start_elm, $allowed_link_html );
+				?>
 					<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
 					<?php esc_html_e( 'Simple History', 'simple-history' ); ?>
-				<?php echo $headline_link_end_elm; ?>
+				<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
 			</h1>
 
 			<?php
@@ -410,7 +419,7 @@ class Setup_Settings_Page extends Service {
 		$args = array(
 			'arr_active_tab' => $arr_active_tab,
 		);
-	
+
 		call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
 	}
 }

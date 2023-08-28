@@ -71,7 +71,7 @@ class Simple_History {
 
 	/**
 	 * Called on class construct.
-	 * 
+	 *
 	 * @since 2.5.2
 	 */
 	public function init() {
@@ -1318,7 +1318,7 @@ class Simple_History {
 			 * ```
 			 *
 			 * @param bool $user_can_read_logger Whether the user is allowed to view the logger.
-			 * @param Simple_Logger $logger Logger instance.
+			 * @param Logger $logger Logger instance.
 			 * @param int $user_id Id of user.
 			 */
 			$user_can_read_logger = apply_filters(

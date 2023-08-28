@@ -2,6 +2,8 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Simple_History;
+
 class Scripts_And_Templates extends Service {
 	public function loaded() {
 		add_action( 'admin_footer', array( $this, 'add_js_templates' ) );
