@@ -5,7 +5,7 @@ namespace Simple_History\Event_Details;
 class Event_Details_Item_Table_Row_Formatter extends Event_Details_Item_Formatter {
 	public function get_html_output() {
 		// Skip output of items with empty values.
-		if ( is_null( $this->item->new_value ) ) {
+		if ( empty( $this->item->new_value ) || is_null( $this->item->new_value ) ) {
 			return '';
 		}
 
