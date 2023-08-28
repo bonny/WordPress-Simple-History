@@ -27,17 +27,19 @@ class Setup_Settings_Page extends Service {
 		];
 
 		// Append dev tabs if SIMPLE_HISTORY_DEV is defined and true.
-		if ( defined( 'SIMPLE_HISTORY_DEV' ) && constant( 'SIMPLE_HISTORY_DEV' ) ) {
+		if ( Helpers::dev_mode_is_enabled() ) {
 			$arr_dev_tabs = [
 				[
 					'slug' => 'log',
-					'name' => __( 'Log (debug)', 'simple-history' ),
+					'name' => __( 'Log (dev)', 'simple-history' ),
+					'order' => 5,
 					'icon' => 'overview',
 					'function' => [ $this, 'settings_output_log' ],
 				],
 				[
 					'slug' => 'styles-example',
-					'name' => __( 'Styles example (debug)', 'simple-history' ),
+					'name' => __( 'Styles example (dev)', 'simple-history' ),
+					'order' => 5,
 					'icon' => 'overview',
 					'function' => [ $this, 'settings_output_styles_example' ],
 				],
