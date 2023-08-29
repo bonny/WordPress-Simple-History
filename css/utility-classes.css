@@ -1,0 +1,114 @@
+/** 
+ * Utility helpers, based on Tailwind.
+ */
+
+.sh-max-h-2 {
+	max-height: 100%;
+	overflow: hidden;
+}
+
+.sh-max-h-16 {
+	max-height: 4rem; /* 64px */
+}
+.sh-max-h-20 {
+	max-height: 5rem; /* 80px */
+}
+.sh-max-h-24 {
+	max-height: 6rem; /* 96px */
+}
+.sh-max-h-28 {
+	max-height: 7rem; /* 112px */
+}
+.sh-max-h-32 {
+	max-height: 8rem; /* 128px */
+}
+.sh-max-h-36 {
+	max-height: 9rem; /* 144px */
+}
+.sh-max-h-40 {
+	max-height: 10rem; /* 160px */
+}
+.sh-max-h-44 {
+	max-height: 11rem; /* 176px */
+}
+
+.sh-max-h-48 {
+	max-height: 12rem; /* 192px */
+}
+.sh-max-h-52 {
+	max-height: 13rem; /* 208px */
+}
+.sh-max-h-56 {
+	max-height: 14rem; /* 224px */
+}
+.sh-max-h-60 {
+	max-height: 15rem; /* 240px */
+}
+.sh-max-h-64 {
+	max-height: 16rem; /* 256px */
+}
+
+.sh-whitespace-normal {
+	white-space: normal;
+}
+.sh-whitespace-nowrap {
+	white-space: nowrap;
+}
+.sh-whitespace-pre {
+	white-space: pre;
+}
+.sh-whitespace-pre-line {
+	white-space: pre-line;
+}
+.sh-whitespace-pre-wrap {
+	white-space: pre-wrap;
+}
+.sh-whitespace-break-spaces {
+	white-space: break-spaces;
+}
+
+.sh-overflow-auto {
+	overflow: auto;
+}
+.sh-overflow-hidden {
+	overflow: hidden;
+}
+.sh-overflow-clip {
+	overflow: clip;
+}
+.sh-overflow-visible {
+	overflow: visible;
+}
+.sh-overflow-scroll {
+	overflow: scroll;
+}
+.sh-overflow-x-auto {
+	overflow-x: auto;
+}
+.sh-overflow-y-auto {
+	overflow-y: auto;
+}
+.sh-overflow-x-hidden {
+	overflow-x: hidden;
+}
+.sh-overflow-y-hidden {
+	overflow-y: hidden;
+}
+.sh-overflow-x-clip {
+	overflow-x: clip;
+}
+.sh-overflow-y-clip {
+	overflow-y: clip;
+}
+.sh-overflow-x-visible {
+	overflow-x: visible;
+}
+.sh-overflow-y-visible {
+	overflow-y: visible;
+}
+.sh-overflow-x-scroll {
+	overflow-x: scroll;
+}
+.sh-overflow-y-scroll {
+	overflow-y: scroll;
+}

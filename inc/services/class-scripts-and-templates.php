@@ -136,6 +136,13 @@ class Scripts_And_Templates extends Service {
 				SIMPLE_HISTORY_VERSION
 			);
 
+			wp_enqueue_style(
+				'simple_history_utility_styles',
+				SIMPLE_HISTORY_DIR_URL . 'css/utility-classes.css',
+				false,
+				SIMPLE_HISTORY_VERSION
+			);
+
 			wp_enqueue_script(
 				'simple_history_script',
 				SIMPLE_HISTORY_DIR_URL . 'js/scripts.js',
