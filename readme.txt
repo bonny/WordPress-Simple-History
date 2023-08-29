@@ -214,6 +214,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
+- Event details: Add interface Event_Details_Container_Interface and class Event_Details_Simple_Container class.
 - WP-CLI: ID field is not the first column and in uppercase, to follow the same format as the other wp cli commands use.
 - Loggers: Call loaded() function on a logger only if logger is enabled (is_enabled() returns true).
 - Logger: Add function is_enabled().
