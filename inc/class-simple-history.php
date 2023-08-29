@@ -10,6 +10,7 @@ use Simple_History\Dropins\Dropin;
 use Simple_History\Helpers;
 use Simple_History\Services;
 use Simple_History\Services\Service;
+use Simple_History\Event_Details\Event_Details_Simple_Container;
 
 /**
  * Main class for Simple History.
@@ -844,18 +845,29 @@ class Simple_History {
 		return $logger->get_log_row_sender_image_output( $row );
 	}
 
+	/**
+	 * Return details output for a log row.
+	 * 
+	 * @param object $row
+	 * @return string|Event_Details_Container_Interface
+	 */
 	public function get_log_row_details_output( $row ) {
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row
-		if ( ! isset( $this->instantiated_loggers[ $row_logger ] ) ) {
-			$row_logger = 'SimpleLogger';
+		$logger = $this->get_instantiated_logger_by_slug( $row_logger );
+		if ( $logger === false ) {
+			$logger = $this->get_instantiated_logger_by_slug( 'Simple_Logger' );
 		}
 
-		$logger = $this->instantiated_loggers[ $row_logger ]['instance'];
+		if ( $logger === false ) {
+			return new Event_Details_Simple_Container();
+		}
 
-		return $logger->get_log_row_details_output( $row );
+		$event_details = new Event_Details_Simple_Container( $logger->get_log_row_details_output( $row ) );
+
+		return $event_details;
 	}
 
 	/**
@@ -876,7 +888,7 @@ class Simple_History {
 		$plain_text_html = $this->get_log_row_plain_text_output( $oneLogRow );
 		$sender_image_html = $this->get_log_row_sender_image_output( $oneLogRow );
 
-		// Details = for example thumbnail of media
+		// Details = for example thumbnail of media.
 		$details_html = trim( $this->get_log_row_details_output( $oneLogRow ) );
 		if ( $details_html !== '' ) {
 			$details_html = sprintf( '<div class="SimpleHistoryLogitem__details">%1$s</div>', $details_html );
