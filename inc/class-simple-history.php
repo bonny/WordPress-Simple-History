@@ -32,7 +32,7 @@ class Simple_History {
 	/** Array with external dropins to load. */
 	private array $external_dropins = [];
 
-	/** Array with all instantiated loggers. */
+	/** @var array Array with all instantiated loggers. */
 	private array $instantiated_loggers = [];
 
 	/** Array with all instantiated dropins. */
@@ -776,19 +776,24 @@ class Simple_History {
 	 * @return string
 	 */
 	public function get_log_row_plain_text_output( $row ) {
-		$row_logger = $row->logger;
+		$row_logger_slug = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		if ( ! isset( $row->context['_message_key'] ) ) {
 			$row->context['_message_key'] = null;
 		}
 
-		// Fallback to SimpleLogger if no logger exists for row
-		if ( ! isset( $this->instantiated_loggers[ $row_logger ] ) ) {
-			$row_logger = 'SimpleLogger';
+		$logger = $this->get_instantiated_logger_by_slug( $row_logger_slug );
+
+		// Fallback to SimpleLogger if no logger exists for row.
+		if ( $logger === false ) {
+			$logger = $this->get_instantiated_logger_by_slug( 'Simple_Logger' );
 		}
 
-		$logger = $this->instantiated_loggers[ $row_logger ]['instance'];
+		// Bail if no logger found.
+		if ( $logger === false ) {
+			return '';
+		}
 
 		return $logger->get_log_row_plain_text_output( $row );
 	}
