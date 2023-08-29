@@ -147,6 +147,10 @@ abstract class Logger {
 	}
 
 	/**
+	 * Returns the header initiator output for a row.
+	 * Example return value is similar to:
+	 * "You" or "par • par.thernstrom@gmail.com"
+	 *
 	 * @param object $row
 	 * @return string HTML
 	 */
@@ -173,8 +177,7 @@ abstract class Logger {
 				$user = get_user_by( 'id', $user_id );
 				if ( $user_id > 0 && ( $user ) ) {
 					// Sender is user and user still exists.
-					$is_current_user =
-						get_current_user_id() == $user_id;
+					$is_current_user = get_current_user_id() == $user_id;
 
 					// get user role, as done in user-edit.php
 					$wp_roles = $GLOBALS['wp_roles'];
@@ -475,6 +478,7 @@ abstract class Logger {
 		if ( ! $logger_name_via ) {
 			return;
 		}
+
 		$via_html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
 		$via_html .= $logger_name_via;
 		$via_html .= '</span>';
@@ -578,12 +582,13 @@ abstract class Logger {
 	}
 
 	/**
-	 * Returns header output for a log row.
+	 * Returns header output for a log row,
+	 * by concatenating the output from the other header methods.
 	 *
 	 * Format should be common for all log rows and should be like:
-	 * Username (user role) · Date · IP Address · Via plugin abc
+	 * Username (user role) • Date • IP Address • Via plugin abc
 	 * I.e.:
-	 * Initiator * Date/time * IP Address * Via logger
+	 * Initiator • Date/time • IP Address • Via logger
 	 *
 	 * @param object $row Row data
 	 * @return string HTML
