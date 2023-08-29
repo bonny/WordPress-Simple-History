@@ -101,7 +101,7 @@ class WPCLI_Commands {
 			$text_output = strip_tags( html_entity_decode( $text_output, ENT_QUOTES, 'UTF-8' ) );
 
 			$eventsCleaned[] = array(
-				'id' => $row->id,
+				'ID' => $row->id,
 				'date' => get_date_from_gmt( $row->date ),
 				'initiator' => Log_Initiators::get_initiator_text_from_row( $row ),
 				'logger' => $row->logger,
@@ -113,12 +113,12 @@ class WPCLI_Commands {
 		}
 
 		$fields = array(
+			'ID',
 			'date',
 			'initiator',
 			'description',
 			'level',
 			'count',
-			'id',
 		);
 
 		WP_CLI\Utils\format_items( $assoc_args['format'], $eventsCleaned, $fields );
