@@ -11,6 +11,7 @@ use Simple_History\Helpers;
 use Simple_History\Services;
 use Simple_History\Services\Service;
 use Simple_History\Event_Details\Event_Details_Simple_Container;
+use Simple_History\Event_Details\Event_Details_Container_Interface;
 
 /**
  * Main class for Simple History.
@@ -860,14 +861,18 @@ class Simple_History {
 		if ( $logger === false ) {
 			$logger = $this->get_instantiated_logger_by_slug( 'Simple_Logger' );
 		}
-
+		
+		// Bail if no logger found.
 		if ( $logger === false ) {
 			return new Event_Details_Simple_Container();
 		}
-
-		$event_details = new Event_Details_Simple_Container( $logger->get_log_row_details_output( $row ) );
-
-		return $event_details;
+		
+		$logger_details_output = $logger->get_log_row_details_output( $row );
+		if ( $logger_details_output instanceof Event_Details_Container_Interface ) {
+			return $logger_details_output;
+		} else {
+			return new Event_Details_Simple_Container( $logger_details_output );
+		}
 	}
 
 	/**

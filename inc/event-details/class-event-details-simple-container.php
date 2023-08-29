@@ -11,13 +11,17 @@ class Event_Details_Simple_Container implements Event_Details_Container_Interfac
 	private $html;
 
 	/**
-	 * @param string|Event_Details_Container_Interface $html
+	 * @param string|Event_Details_Container_Interface|null $html
 	 */
 	public function __construct( $html = '' ) {
 		$this->html = $html;
 	}
 
 	public function to_html() {
+		if ($this->html instanceof Event_Details_Container_Interface) {
+			return $this->html->to_html();
+		}
+
 		return $this->html;
 	}
 

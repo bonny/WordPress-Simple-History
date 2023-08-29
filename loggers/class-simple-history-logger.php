@@ -140,11 +140,6 @@ class Simple_History_Logger extends Logger {
 		];
 	}
 
-	/**
-	 * Return formatted list of changes made.
-	 *
-	 * @param object $row
-	 */
 	public function get_log_row_details_output( $row ) {
 		$event_details_group = ( new Event_Details_Group() )
 			->add_items(
@@ -173,8 +168,6 @@ class Simple_History_Logger extends Logger {
 			)
 			->set_title( __( 'Changed items', 'simple-history' ) );
 
-		$events_container = new Event_Details_Container( $event_details_group, $row->context );
-
-		return $events_container->to_html();
+		return new Event_Details_Container( $event_details_group, $row->context );
 	}
 }
