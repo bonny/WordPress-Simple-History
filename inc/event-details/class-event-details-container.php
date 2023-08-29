@@ -30,6 +30,16 @@ class Event_Details_Container {
 	}
 
 	/**
+	 * Return the HTML output when accessing this object as a string.
+	 * 
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->get_html_output();
+	}
+
+	/**
 	 * Add context and use context to set prev and new values
 	 * for each item in each group.
 	 *
