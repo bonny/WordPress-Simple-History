@@ -9,11 +9,11 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 	/** @var array<mixed> */
 	protected $json_output = [];
 
-	public function get_html_output() {
+	public function to_html() {
 		return $this->html_output;
 	}
 
-	public function get_json_output() {
+	public function to_json() {
 		return $this->json_output;
 	}
 

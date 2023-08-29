@@ -10,7 +10,7 @@ class Event_Details_Item_Table_Row_RAW_Formatter extends Event_Details_Item_RAW_
 	// public function get_html_output() {
 	// 	return $this->html_output;
 	// }
-	public function get_html_output() {
+	public function to_html() {
 		// Skip output of items with empty raw HTML.
 		if ( empty( $this->html_output ) ) {
 			return '';

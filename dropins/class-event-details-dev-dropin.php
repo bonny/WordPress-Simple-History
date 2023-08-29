@@ -311,10 +311,10 @@ class Event_Details_Dev_Dropin extends Dropin {
 			$event_details_container = $this->get_example_event_details_container();
 
 			echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the HTML output:</p>';
-			echo $event_details_container->get_html_output(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $event_details_container->to_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			echo '<hr /><p>The event details container contains ' . count( $event_details_container->groups ) . ' groups and this is the JSON output:</p>';
-			sh_d( Helpers::json_encode( $event_details_container->get_json_output() ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			sh_d( Helpers::json_encode( $event_details_container->to_json() ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 		<?php

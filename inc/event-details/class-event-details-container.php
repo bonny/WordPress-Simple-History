@@ -31,12 +31,11 @@ class Event_Details_Container {
 
 	/**
 	 * Return the HTML output when accessing this object as a string.
-	 * 
+	 *
 	 * @return string
 	 */
-	public function __toString()
-	{
-		return $this->get_html_output();
+	public function __toString() {
+		return $this->to_html();
 	}
 
 	/**
@@ -152,11 +151,11 @@ class Event_Details_Container {
 	/**
 	 * @return string
 	 */
-	public function get_html_output() {
+	public function to_html() {
 		$output = '';
 
 		foreach ( $this->groups as $group ) {
-			$output .= $group->formatter->get_html_output( $group );
+			$output .= $group->formatter->to_html( $group );
 		}
 
 		return $output;
@@ -165,11 +164,11 @@ class Event_Details_Container {
 	/**
 	 * @return array<mixed>
 	 */
-	public function get_json_output() {
+	public function to_json() {
 		$output = [];
 
 		foreach ( $this->groups as $group ) {
-			$output[] = $group->formatter->get_json_output( $group );
+			$output[] = $group->formatter->to_json( $group );
 		}
 
 		return $output;

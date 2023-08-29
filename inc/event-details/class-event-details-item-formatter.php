@@ -37,12 +37,12 @@ abstract class Event_Details_Item_Formatter {
 	/**
 	 * @return string
 	 */
-	abstract public function get_html_output();
+	abstract public function to_html();
 
 	/**
 	 * @return array<mixed>
 	 */
-	abstract public function get_json_output();
+	abstract public function to_json();
 
 	/**
 	 * @return string

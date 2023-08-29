@@ -8,24 +8,24 @@ namespace Simple_History\Event_Details;
  * TODO: How to handle values? Placeholders?, {} or %s-format?
  */
 class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Formatter {
-	public function get_html_output( $group ) {
+	public function to_html( $group ) {
 		$output = '';
 
 		foreach ( $group->items as $item ) {
 			$formatter = $item->get_formatter();
-			$output .= $formatter->get_html_output();
+			$output .= $formatter->to_html();
 		}
 
 		return $output;
 	}
 
-	public function get_json_output( $group ) {
+	public function to_json( $group ) {
 		$output = [];
 
 		// Use same formatter as inline items.
 		foreach ( $group->items as $item ) {
 			$formatter = $item->get_formatter();
-			$output[] = $formatter->get_json_output();
+			$output[] = $formatter->to_json();
 		}
 
 		return [

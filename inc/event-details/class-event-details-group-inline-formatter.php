@@ -6,12 +6,12 @@ namespace Simple_History\Event_Details;
  * Format a group of items as an inline list.
  */
 class Event_Details_Group_Inline_Formatter extends Event_Details_Group_Formatter {
-	public function get_html_output( $group ) {
+	public function to_html( $group ) {
 		$output = '<p>';
 
 		foreach ( $group->items as $item ) {
 			$item_formatter = $item->get_formatter( new Event_Details_Item_Default_Formatter() );
-			$output .= $item_formatter->get_html_output();
+			$output .= $item_formatter->to_html();
 		}
 
 		$output .= '</p>';
@@ -19,12 +19,12 @@ class Event_Details_Group_Inline_Formatter extends Event_Details_Group_Formatter
 		return $output;
 	}
 
-	public function get_json_output( $group ) {
+	public function to_json( $group ) {
 		$output = [];
 
 		foreach ( $group->items as $item ) {
 			$item_formatter = $item->get_formatter( new Event_Details_Item_Default_Formatter() );
-			$output[] = $item_formatter->get_json_output();
+			$output[] = $item_formatter->to_json();
 		}
 
 		return [

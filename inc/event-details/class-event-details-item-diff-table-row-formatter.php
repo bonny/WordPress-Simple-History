@@ -5,7 +5,7 @@ namespace Simple_History\Event_Details;
 use Simple_History\Helpers;
 
 class Event_Details_Item_Diff_Table_Row_Formatter extends Event_Details_Item_Formatter {
-	public function get_html_output() {
+	public function to_html() {
 		$value_with_diff = Helpers::Text_Diff(
 			$this->item->prev_value,
 			$this->item->new_value,
@@ -23,9 +23,9 @@ class Event_Details_Item_Diff_Table_Row_Formatter extends Event_Details_Item_For
 		);
 	}
 
-	public function get_json_output() {
+	public function to_json() {
 		// Use same formatter as inline items.
 		$item_formatter = new Event_Details_Item_Default_Formatter( $this->item );
-		return $item_formatter->get_json_output();
+		return $item_formatter->to_json();
 	}
 }

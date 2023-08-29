@@ -175,6 +175,6 @@ class Simple_History_Logger extends Logger {
 
 		$events_container = new Event_Details_Container( $event_details_group, $row->context );
 
-		return $events_container->get_html_output();
+		return $events_container->to_html();
 	}
 }
