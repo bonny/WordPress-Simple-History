@@ -19,16 +19,16 @@ class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter 
 	}
 
 	public function to_json( $group ) {
-		$output = [];
+		$items_output = [];
 
 		foreach ( $group->items as $item ) {
 			$item_formatter = $item->get_formatter( new Event_Details_Item_Table_Row_Formatter() );
-			$output[] = $item_formatter->to_json();
+			$items_output[] = $item_formatter->to_json();
 		}
 
 		return [
 			'title' => $group->get_title(),
-			'items' => $output,
+			'items' => $items_output,
 		];
 	}
 }
