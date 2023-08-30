@@ -100,6 +100,8 @@ class WPCLI_Commands {
 			$text_output = $this->simple_history->get_log_row_plain_text_output( $row );
 			$text_output = strip_tags( html_entity_decode( $text_output, ENT_QUOTES, 'UTF-8' ) );
 
+			$row_logger = $this->simple_history->get_instantiated_logger_by_slug( $row->logger );
+
 			$eventsCleaned[] = array(
 				'ID' => $row->id,
 				'date' => get_date_from_gmt( $row->date ),
@@ -108,6 +110,7 @@ class WPCLI_Commands {
 				'level' => $row->level,
 				'who_when' => $header_output,
 				'description' => $text_output,
+				'via' => $row_logger->get_info_value_by_key( 'name_via' ),
 				'count' => $row->subsequentOccasions,
 			);
 		}
@@ -117,6 +120,7 @@ class WPCLI_Commands {
 			'date',
 			'initiator',
 			'description',
+			'via',
 			'level',
 			'count',
 		);
