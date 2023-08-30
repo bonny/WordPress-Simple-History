@@ -112,3 +112,7 @@
 .sh-overflow-y-scroll {
 	overflow-y: scroll;
 }
+
+.sh-m-0 {
+	margin: 0px;
+}
