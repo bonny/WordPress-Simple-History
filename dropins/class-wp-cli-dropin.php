@@ -110,7 +110,7 @@ class WPCLI_Commands {
 				'level' => $row->level,
 				'who_when' => $header_output,
 				'description' => $text_output,
-				'via' => $row_logger->get_info_value_by_key( 'name_via' ),
+				'via' => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
 				'count' => $row->subsequentOccasions,
 			);
 		}
