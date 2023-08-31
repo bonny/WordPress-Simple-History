@@ -4,11 +4,6 @@ namespace Simple_History\Event_Details;
 
 class Event_Details_Item_Table_Row_Formatter extends Event_Details_Item_Formatter {
 	public function to_html() {
-		// Skip output of items with empty values.
-		if ( empty( $this->item->new_value ) || is_null( $this->item->new_value ) ) {
-			return '';
-		}
-
 		return sprintf(
 			'
                 <tr>

@@ -120,7 +120,7 @@ abstract class Logger {
 	/**
 	 * Get array with information about this logger.
 	 *
-	 * @return array<mixed> Array with keys 'name', 'description', 'messages', and so on.
+	 * @return array<string,mixed> Array with keys 'name', 'description', 'messages', and so on.
 	 *               See existing loggers for examples.
 	 */
 	abstract public function get_info();

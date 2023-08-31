@@ -83,6 +83,27 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 
 		$this->context = $context;
 
+		$this->remove_empty_items();
+
+		return $this;
+	}
+
+	/**
+	 * Remove items with empty values.
+	 * Empty = no new_value set.
+	 *
+	 * @return Event_Details_Container $this
+	 */
+	private function remove_empty_items() {
+
+		foreach ( $this->groups as $group_key => $group ) {
+			foreach ( $group->items as $item_key => $item ) {
+				if ( empty( $item->new_value )) {
+					unset( $this->groups[ $group_key ]->items[ $item_key ] );
+				}
+			}
+		}
+
 		return $this;
 	}
 

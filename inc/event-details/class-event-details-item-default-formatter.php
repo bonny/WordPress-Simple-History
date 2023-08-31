@@ -5,6 +5,7 @@ namespace Simple_History\Event_Details;
 class Event_Details_Item_Default_Formatter extends Event_Details_Item_Formatter {
 	public function to_html() {
 		$name = '';
+
 		if ( ! empty( $this->item->name ) ) {
 			$name = sprintf( '<em>%1$s:</em> ', esc_html( $this->item->name ) );
 		}
