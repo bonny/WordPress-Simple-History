@@ -27,6 +27,16 @@ class Event_Details_Group {
 	}
 
 	/**
+	 * @param Event_Details_Item $item
+	 * @return Event_Details_Group $this
+	 */
+	public function add_item( $item ) {
+		$this->items[] = $item;
+
+		return $this;
+	}
+
+	/**
 	 * @param Event_Details_Group_Formatter $formatter
 	 * @return Event_Details_Group $this
 	 */
