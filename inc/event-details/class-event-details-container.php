@@ -91,6 +91,8 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	/**
 	 * Remove items with empty values.
 	 * Empty = no new_value set.
+	 * But if item has an old_value it's still interesting, because
+	 * then a change has been made from "something" to "nothing".
 	 *
 	 * @return Event_Details_Container $this
 	 */
@@ -98,7 +100,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 
 		foreach ( $this->groups as $group_key => $group ) {
 			foreach ( $group->items as $item_key => $item ) {
-				if ( empty( $item->new_value )) {
+				if ( empty( $item->new_value ) && empty( $item->prev_value ) ) {
 					unset( $this->groups[ $group_key ]->items[ $item_key ] );
 				}
 			}
