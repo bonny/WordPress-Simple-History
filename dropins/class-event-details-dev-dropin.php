@@ -185,6 +185,14 @@ class Event_Details_Dev_Dropin extends Dropin {
 				'plugin_current_version',
 				__( 'Installed version', 'simple-history' ),
 			) )->set_formatter( $item_table_row_raw_formatter ),
+			( new Event_Details_Item(
+				'plugin_current_version',
+				__( 'Really long key for some reason, it can happen when value is a label value in WooCommerce for example', 'simple-history' ),
+			) )->set_new_value( 'Yes. Very long.' ),
+			( new Event_Details_Item(
+				'plugin_current_version',
+				__( 'Short one', 'simple-history' ),
+			) )->set_new_value( 'Short key but a long value indeed. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc sit amet nisl. Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc sit amet nisl. Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc sit amet nisl. Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc sit amet nisl. Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nunc sit amet nisl.' ),
 		];
 
 		// Group with details = items that will be formatted the same way.
