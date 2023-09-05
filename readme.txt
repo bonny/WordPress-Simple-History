@@ -214,6 +214,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
+- Add filter `simple_history/log_insert_data_and_context`.
 - WP-CLI command now includes "via" in output.
 - Event details: Add interface Event_Details_Container_Interface and class Event_Details_Simple_Container class.
 - WP-CLI: ID field is not the first column and in uppercase, to follow the same format as the other wp cli commands use.

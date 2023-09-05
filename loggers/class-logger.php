@@ -1207,6 +1207,61 @@ abstract class Logger {
 		 */
 		$data = apply_filters( 'simple_history/log_insert_data', $data );
 
+		if ( ! is_array( $context ) ) {
+			$context = array();
+		}
+
+		$context = $this->append_user_context( $context );
+		$context = $this->append_remote_addr_to_context( $context );
+
+		/**
+		 * Filters the context to store for this event/row
+		 *
+		 * @example Skip adding things to the context table during logging.
+		 * Useful if you don't want to add cool and possible super useful info to your logged events.
+		 * Also nice to have if you want to make sure your database does not grow.
+		 *
+		 * ```php
+		 *  add_filter(
+		 *      'simple_history/log_insert_context',
+		 *      function ( $context, $data ) {
+		 *          unset( $context['_user_id'] );
+		 *          unset( $context['_user_login'] );
+		 *          unset( $context['_user_email'] );
+		 *          unset( $context['server_http_user_agent'] );
+		 *
+		 *          return $context;
+		 *      },
+		 *      10,
+		 *      2
+		 *  );
+		 * ```
+		 *
+		 * @since 2.0.29
+		 *
+		 * @param array $context Array with all context data to store. Modify and return this.
+		 * @param array $data Array with data used for parent row.
+		 * @param Logger $instance Reference to this logger instance.
+		 */
+		$context = apply_filters(
+			'simple_history/log_insert_context',
+			$context,
+			$data,
+			$this
+		);
+
+		/**
+		 * Filter that lets user modify both data and context before logging.
+		 *
+		 * @param array $arr_data_and_context Array with numerical keys [0] = data and [1] = context.
+		 * @param Logger $instance Reference to this logger instance.
+		 */
+		[$data, $context] = apply_filters(
+			'simple_history/log_insert_data_and_context',
+			array( $data, $context ),
+			$this
+		);
+
 		// Insert data into db.
 		$result = $wpdb->insert( $this->db_table, $data );
 
@@ -1215,49 +1270,6 @@ abstract class Logger {
 			$history_inserted_id = null;
 		} else {
 			$history_inserted_id = $wpdb->insert_id;
-
-			if ( ! is_array( $context ) ) {
-				$context = array();
-			}
-
-			$context = $this->append_user_context( $context );
-			$context = $this->append_remote_addr_to_context( $context );
-
-			/**
-			 * Filters the context to store for this event/row
-			 *
-			 * @example Skip adding things to the context table during logging.
-			 * Useful if you don't want to add cool and possible super useful info to your logged events.
-			 * Also nice to have if you want to make sure your database does not grow.
-			 *
-			 * ```php
-			 *  add_filter(
-			 *      'simple_history/log_insert_context',
-			 *      function ( $context, $data ) {
-			 *          unset( $context['_user_id'] );
-			 *          unset( $context['_user_login'] );
-			 *          unset( $context['_user_email'] );
-			 *          unset( $context['server_http_user_agent'] );
-			 *
-			 *          return $context;
-			 *      },
-			 *      10,
-			 *      2
-			 *  );
-			 * ```
-			 *
-			 * @since 2.0.29
-			 *
-			 * @param array $context Array with all context data to store. Modify and return this.
-			 * @param array $data Array with data used for parent row.
-			 * @param Logger $instance Reference to this logger instance.
-			 */
-			$context = apply_filters(
-				'simple_history/log_insert_context',
-				$context,
-				$data,
-				$this
-			);
 
 			// Insert all context values into db.
 			$this->append_context( $history_inserted_id, $context );
