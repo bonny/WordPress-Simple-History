@@ -306,6 +306,7 @@ Style different log levels.
 	text-align: right;
 	padding-right: 1em;
 	color: #757575;
+	min-width: 8em;
 	/* white-space: nowrap; */
 }
 
