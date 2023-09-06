@@ -214,6 +214,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
+- Don't log WooCommerce post type `shop_order_placehold`, that is used by WooCommerce new [High-Performance Order Storage (HPOS)](https://developer.woocommerce.com/2022/10/11/hpos-upgrade-faqs/).
 - Add filter `simple_history/log_insert_data_and_context`.
 - WP-CLI command now includes "via" in output.
 - Event details: Add interface Event_Details_Container_Interface and class Event_Details_Simple_Container class.
