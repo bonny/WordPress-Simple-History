@@ -10,6 +10,7 @@ use Simple_History\Log_Initiators;
 use Simple_History\Helpers;
 use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
+use Simple_History\Event_Details\Event_Details_Group;
 
 /**
  * Abstract base class for loggers.
@@ -766,7 +767,7 @@ abstract class Logger {
 	 * thumbnail of that image can bo outputted here
 	 *
 	 * @param object $row
-	 * @return string|Event_Details_Container_Interface HTML-formatted output or Event_Details_Container (stringable object).
+	 * @return string|Event_Details_Container_Interface|Event_Details_Group HTML-formatted output or Event_Details_Container (stringable object).
 	 */
 	public function get_log_row_details_output( $row ) {
 		$html = '';

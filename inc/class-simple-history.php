@@ -7,11 +7,13 @@ use Simple_History\Loggers\Logger;
 use Simple_History\Loggers\Simple_Logger;
 use Simple_History\Dropins;
 use Simple_History\Dropins\Dropin;
+use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Helpers;
 use Simple_History\Services;
 use Simple_History\Services\Service;
 use Simple_History\Event_Details\Event_Details_Simple_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
+use Simple_History\Event_Details\Event_Details_Group;
 
 /**
  * Main class for Simple History.
@@ -868,8 +870,11 @@ class Simple_History {
 		}
 		
 		$logger_details_output = $logger->get_log_row_details_output( $row );
+		
 		if ( $logger_details_output instanceof Event_Details_Container_Interface ) {
 			return $logger_details_output;
+		} else if ( $logger_details_output instanceof Event_Details_Group ) {
+			return new Event_Details_Container( $logger_details_output, $row->context );
 		} else {
 			return new Event_Details_Simple_Container( $logger_details_output );
 		}
