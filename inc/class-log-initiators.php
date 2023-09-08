@@ -29,7 +29,7 @@ class Log_Initiators {
 	 * Translate the initiator value from a log row to a human readable string.
 	 * E.g.
 	 * "wp" becomes "WordPress".
-	 * "wp_user" becomes "User (email)".
+	 * "wp_user" becomes "User (email@example.com)".
 	 * "web_user" becomes "Anonymous web user".
 	 * "other" becomes "Other".
 	 *
