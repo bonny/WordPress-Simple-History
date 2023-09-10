@@ -591,9 +591,22 @@ class Simple_History {
 	 *     @type string   $name Human friendly name of the tab, shown on the settings page.
 	 *     @type int      $order Order of the tab, where higher number means earlier output,
 	 *     @type callable $function Function that will show the settings tab output.
+	 *     @type string   $parent_slug Slug of parent tab, if this is a sub tab.
 	 * }
 	 */
 	public function register_settings_tab( $arr_tab_settings ) {
+		$arr_tab_settings = wp_parse_args(
+			$arr_tab_settings,
+			[
+				'slug' => null,
+				'parent_slug' => null,
+				'name' => null,
+				'icon' => null,
+				'function' => null,
+				'order' => 10,
+			]
+		);
+
 		$this->arr_settings_tabs[] = $arr_tab_settings;
 	}
 
@@ -605,9 +618,10 @@ class Simple_History {
 	 *
 	 * Tabs with no order is outputted last.
 	 *
+	 * @param string $type Type of tabs to get. Can be "top" or "sub".
 	 * @return array
 	 */
-	public function get_settings_tabs() {
+	public function get_settings_tabs( $type = 'top' ) {
 		// Sort by order, where higher number means earlier output.
 		usort(
 			$this->arr_settings_tabs,
@@ -618,7 +632,20 @@ class Simple_History {
 			}
 		);
 
-		return $this->arr_settings_tabs;
+		// Filter out tabs that are not of the type we want.
+		$settings_tabs_of_selected_type = array_filter(
+			$this->arr_settings_tabs,
+			function( $tab ) use ( $type ) {
+				if ( $type === 'top' ) {
+					return empty( $tab['parent_slug'] );
+				} elseif ( $type === 'sub' ) {
+					return ! empty( $tab['parent_slug'] );
+				}
+				return false;
+			}
+		);
+
+		return $settings_tabs_of_selected_type;
 	}
 
 	/**
@@ -850,7 +877,7 @@ class Simple_History {
 
 	/**
 	 * Return details output for a log row.
-	 * 
+	 *
 	 * @param object $row
 	 * @return string|Event_Details_Container_Interface
 	 */
@@ -863,14 +890,14 @@ class Simple_History {
 		if ( $logger === false ) {
 			$logger = $this->get_instantiated_logger_by_slug( 'Simple_Logger' );
 		}
-		
+
 		// Bail if no logger found.
 		if ( $logger === false ) {
 			return new Event_Details_Simple_Container();
 		}
-		
+
 		$logger_details_output = $logger->get_log_row_details_output( $row );
-		
+
 		if ( $logger_details_output instanceof Event_Details_Container_Interface ) {
 			return $logger_details_output;
 		} else if ( $logger_details_output instanceof Event_Details_Group ) {

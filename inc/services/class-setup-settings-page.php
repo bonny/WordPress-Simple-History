@@ -5,6 +5,8 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 
 class Setup_Settings_Page extends Service {
+	private const SETTINGS_TAB_SLUG = 'settings_tab';
+
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
 		add_action( 'admin_menu', array( $this, 'add_settings' ) );
@@ -15,27 +17,57 @@ class Setup_Settings_Page extends Service {
 	 * Adds default tabs to settings
 	 */
 	public function add_default_settings_tabs() {
-		$settings_tabs = $this->simple_history->get_settings_tabs();
+
+		//$settings_tabs = $this->simple_history->get_settings_tabs();
 
 		// Add default settings tabs.
-		$settings_tabs[] = [
-			'slug' => 'settings',
-			'name' => __( 'Settings', 'simple-history' ),
-			'icon' => 'settings',
-			'order' => 100,
-			'function' => [ $this, 'settings_output_general' ],
-		];
+		$this->simple_history->register_settings_tab(
+			[
+				'slug' => 'settings',
+				'name' => __( 'Settings', 'simple-history' ),
+				'icon' => 'settings',
+				'order' => 100,
+				'function' => [ $this, 'settings_output_general' ],
+			]
+		);
+
+		// Add sub tabs.
+		$this->simple_history->register_settings_tab(
+			[
+				'parent_slug' => 'settings',
+				'slug' => 'settings_general',
+				'name' => __( 'General', 'simple-history' ),
+				'order' => 5,
+			// 'function' => [ $this, 'settings_output_general' ],
+			]
+		);
+
+		$this->simple_history->register_settings_tab(
+			[
+				'parent_slug' => 'settings',
+				'slug' => 'settings_licences',
+				'name' => __( 'Licences', 'simple-history' ),
+				'order' => 5,
+				'function' => function() {
+					echo '<p>this is subtab content</p>';
+				},
+			]
+		);
 
 		// Append dev tabs if SIMPLE_HISTORY_DEV is defined and true.
 		if ( Helpers::dev_mode_is_enabled() ) {
-			$arr_dev_tabs = [
+			$this->simple_history->register_settings_tab(
 				[
+
 					'slug' => 'log',
 					'name' => __( 'Log (dev)', 'simple-history' ),
 					'order' => 5,
 					'icon' => 'overview',
 					'function' => [ $this, 'settings_output_log' ],
-				],
+				]
+			);
+
+			$this->simple_history->register_settings_tab(
 				[
 					'slug' => 'styles-example',
 					'name' => __( 'Styles example (dev)', 'simple-history' ),
@@ -43,12 +75,11 @@ class Setup_Settings_Page extends Service {
 					'icon' => 'overview',
 					'function' => [ $this, 'settings_output_styles_example' ],
 				],
-			];
+			);
 
-			$settings_tabs = [ ...$settings_tabs, ...$arr_dev_tabs ];
 		}
 
-		$this->simple_history->set_settings_tabs( $settings_tabs );
+		//      $this->simple_history->set_settings_tabs( $settings_tabs );
 	}
 
 	public function settings_output_log() {
@@ -329,11 +360,13 @@ class Setup_Settings_Page extends Service {
 	 */
 	public function settings_page_output() {
 		$arr_settings_tabs = $this->simple_history->get_settings_tabs();
+		$arr_settings_tabs_sub = $this->simple_history->get_settings_tabs( 'sub' );
 
 		// Wrap link around title if we have somewhere to go.
 		$headline_link_target = null;
 		$headline_link_start_elm = '';
 		$headline_link_end_elm = '';
+
 		if ( $this->simple_history->setting_show_as_page() ) {
 			$headline_link_target = admin_url( 'index.php?page=simple_history_page' );
 		} else if ( $this->simple_history->setting_show_on_dashboard() ) {
@@ -404,24 +437,101 @@ class Setup_Settings_Page extends Service {
 		</header>
 
 		<?php
-		// Output contents for selected tab.
-		$arr_active_tab = wp_filter_object_list(
-			$arr_settings_tabs,
+		// Begin subnav.
+		$sub_tab_found = false;
+		$active_sub_tab = $_GET['selected-sub-tab'] ?? '';
+
+		// Get sub tabs for currently active tab.
+		$subtabs_for_active_tab = wp_filter_object_list(
+			$arr_settings_tabs_sub,
 			array(
-				'slug' => $active_tab,
+				'parent_slug' => $active_tab,
 			)
 		);
-		$arr_active_tab = current( $arr_active_tab );
 
-		// We must have found an active tab and it must have a callable function
-		if ( ! $arr_active_tab || ! is_callable( $arr_active_tab['function'] ) ) {
-			wp_die( esc_html__( 'No valid callback found', 'simple-history' ) );
+		// Re-index array, so 0 is first sub tab.
+		$subtabs_for_active_tab = array_values( $subtabs_for_active_tab );
+
+		// If sub tabs are found but no active sub tab, then
+		// make first sub tab automatically active.
+		if ( count( $subtabs_for_active_tab ) > 0 && empty( $active_sub_tab ) ) {
+			$active_sub_tab = $subtabs_for_active_tab[0]['slug'];
+		}
+		// sh_d('$subtabs_for_active_tab', $subtabs_for_active_tab);
+		// sh_d('active_sub_tab', $active_sub_tab);
+
+		if ( count( $subtabs_for_active_tab ) > 0 ) {
+			?>
+			<nav class="sh-SettingsTabs">
+				<ul class="sh-SettingsTabs-tabs">
+					<?php
+					foreach ( $subtabs_for_active_tab as $one_sub_tab ) {
+						$is_active = $active_sub_tab === $one_sub_tab['slug'];
+						$is_active_class = $is_active ? 'is-active' : '';
+						$plug_settings_tab_url = add_query_arg( 'selected-sub-tab', $one_sub_tab['slug'], $settings_base_url );
+
+						?>
+						<li class="sh-SettingsTabs-tab">
+							<a class="sh-SettingsTabs-link <?php echo esc_attr( $is_active_class ); ?>" href="<?php echo esc_url( $plug_settings_tab_url ); ?>">
+								<?php echo esc_html( $one_sub_tab['name'] ); ?>
+							</a>
+						</li>
+						<?php
+					}
+					?>
+				</ul>
+			</nav>
+
+			<?php
+
+			// Get the active sub tab and call its output function.
+			$active_sub_tabs = wp_filter_object_list(
+				$arr_settings_tabs_sub,
+				array(
+					'parent_slug' => $active_tab,
+					'slug' => $active_sub_tab,
+				)
+			);
+
+			$active_sub_tab = reset( $active_sub_tabs );
+			$sub_tab_found = is_array( $active_sub_tab );
+
+			if ( $sub_tab_found ) {
+				if ( is_callable( $active_sub_tab['function'] ) ) {
+					call_user_func( $active_sub_tab['function'] );
+				} else {
+					echo esc_html(
+						sprintf(
+							'Function not found for sub tab "%1$s".',
+							$active_sub_tab['slug']
+						),
+						'simple-history-plus'
+					);
+				}
+			}
 		}
 
-		$args = array(
-			'arr_active_tab' => $arr_active_tab,
-		);
+		// Output contents for selected main tab,
+		// if no sub tab outputed content.
+		if ( ! $sub_tab_found ) {
+			$arr_active_tab = wp_filter_object_list(
+				$arr_settings_tabs,
+				array(
+					'slug' => $active_tab,
+				)
+			);
+			$arr_active_tab = current( $arr_active_tab );
 
-		call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
+			// We must have found an active tab and it must have a callable function
+			if ( ! $arr_active_tab || ! is_callable( $arr_active_tab['function'] ) ) {
+				wp_die( esc_html__( 'No valid callback found', 'simple-history' ) );
+			}
+
+			$args = array(
+				'arr_active_tab' => $arr_active_tab,
+			);
+
+			call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
+		}
 	}
 }
