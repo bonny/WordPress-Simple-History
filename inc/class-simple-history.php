@@ -128,6 +128,8 @@ class Simple_History {
 			Services\Dashboard_Widget::class,
 			Services\Network_Menu_Items::class,
 			Services\Plugin_List_Link::class,
+			Services\Licences_Settings_Page::class,
+			Services\Plus_Licences::class,
 		];
 	}
 

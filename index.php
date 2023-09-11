@@ -56,6 +56,16 @@ define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SIMPLE_HISTORY_DIR_URL', plugin_dir_url( __FILE__ ) );
 define( 'SIMPLE_HISTORY_FILE', __FILE__ );
 
+/**
+ * The API URL to check for updates.
+ * This should be unique to this plugin and point to a remote server
+ * running the Lemon Squeezy plugin.
+ *
+ * @var string
+ */
+define( 'SIMPLE_HISTORY_LICENCES_API_URL', 'https://simple-history.com/wp-json/lsq/v1' );
+
+
 /** Load required files. */
 require_once __DIR__ . '/inc/class-autoloader.php';
 require_once __DIR__ . '/inc/global-helpers.php';

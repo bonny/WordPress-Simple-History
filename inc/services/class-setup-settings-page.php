@@ -5,8 +5,6 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 
 class Setup_Settings_Page extends Service {
-	private const SETTINGS_TAB_SLUG = 'settings_tab';
-
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
 		add_action( 'admin_menu', array( $this, 'add_settings' ) );
@@ -17,9 +15,6 @@ class Setup_Settings_Page extends Service {
 	 * Adds default tabs to settings
 	 */
 	public function add_default_settings_tabs() {
-
-		//$settings_tabs = $this->simple_history->get_settings_tabs();
-
 		// Add default settings tabs.
 		$this->simple_history->register_settings_tab(
 			[
@@ -27,7 +22,6 @@ class Setup_Settings_Page extends Service {
 				'name' => __( 'Settings', 'simple-history' ),
 				'icon' => 'settings',
 				'order' => 100,
-				'function' => [ $this, 'settings_output_general' ],
 			]
 		);
 
@@ -35,22 +29,10 @@ class Setup_Settings_Page extends Service {
 		$this->simple_history->register_settings_tab(
 			[
 				'parent_slug' => 'settings',
-				'slug' => 'settings_general',
+				'slug' => 'general_settings_subtab_general',
 				'name' => __( 'General', 'simple-history' ),
 				'order' => 5,
-			// 'function' => [ $this, 'settings_output_general' ],
-			]
-		);
-
-		$this->simple_history->register_settings_tab(
-			[
-				'parent_slug' => 'settings',
-				'slug' => 'settings_licences',
-				'name' => __( 'Licences', 'simple-history' ),
-				'order' => 5,
-				'function' => function() {
-					echo '<p>this is subtab content</p>';
-				},
+				'function' => [ $this, 'settings_output_general' ],
 			]
 		);
 
@@ -76,10 +58,7 @@ class Setup_Settings_Page extends Service {
 					'function' => [ $this, 'settings_output_styles_example' ],
 				],
 			);
-
 		}
-
-		//      $this->simple_history->set_settings_tabs( $settings_tabs );
 	}
 
 	public function settings_output_log() {
