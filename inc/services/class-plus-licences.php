@@ -5,7 +5,6 @@ namespace Simple_History\Services;
 use Simple_History\Plugin_Updater;
 
 class Plus_Licences extends Service {
-
 	/**
 	 * Array with plugins that are plus-plugins.
 	 * Array contains plugin id as key and valis is arrays where each array has:
@@ -28,11 +27,15 @@ class Plus_Licences extends Service {
 		add_action( 'simple_history/loggers/instantiated', [ $this, 'init_plugin_updater_for_registered_licence_plugins' ] );
 	}
 
+	public function get_plus_plugins() {
+		return $this->plus_plugins;
+	}
+
 	/**
 	 * Register plugin updaters for all added plus-plugins.
 	 */
 	public function init_plugin_updater_for_registered_licence_plugins() {
-		foreach ( $this->plus_plugins as $plugin ) {
+		foreach ( $this->get_plus_plugins() as $plugin ) {
 			$this->init_updater_for_plugin( $plugin['id'], $plugin['slug'], $plugin['version'] );
 		}
 	}
@@ -45,11 +48,12 @@ class Plus_Licences extends Service {
 	 * @param string $plugin_slug Slug of plugin, eg "simple-history-plus-woocommerce".
 	 * @param string $version Current version of plugin, eg "1.0.0".
 	 */
-	public function register_plugin_for_license( $plugin_id, $plugin_slug, $version ) {
-		$this->plus_plugins[ $plugin_id ] = [
+	public function register_plugin_for_license( $plugin_id, $plugin_slug, $version, $name ) {
+		$this->plus_plugins[ $plugin_slug ] = [
 			'id' => $plugin_id,
 			'slug' => $plugin_slug,
 			'version' => $version,
+			'name' => $name,
 		];
 	}
 

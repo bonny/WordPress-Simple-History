@@ -128,8 +128,8 @@ class Simple_History {
 			Services\Dashboard_Widget::class,
 			Services\Network_Menu_Items::class,
 			Services\Plugin_List_Link::class,
-			Services\Licences_Settings_Page::class,
 			Services\Plus_Licences::class,
+			Services\Licences_Settings_Page::class,
 		];
 	}
 
@@ -370,9 +370,10 @@ class Simple_History {
 	 * @param string $plugin_id Id of plugin, eg basenamed path + index file: "simple-history-plus-woocommerce/index.php".
 	 * @param string $plugin_slug Slug of plugin, eg "simple-history-plus-woocommerce".
 	 * @param string $version Current version of plugin, eg "1.0.0".
+	 * @param string $plugin_name Name of plugin, eg "Simple History Plus WooCommerce".
 	 * @return bool True if plugin was registered, false if not.
 	 */
-	public function register_plugin_with_license( $plugin_id, $plugin_slug, $version ) {
+	public function register_plugin_with_license( $plugin_id, $plugin_slug, $version, $plugin_name ) {
 		/** @var Services\Plus_Licences|null $licences_service */
 		$licences_service = $this->get_service( Services\Plus_Licences::class );
 
@@ -380,7 +381,7 @@ class Simple_History {
 			return false;
 		}
 
-		$licences_service->register_plugin_for_license( $plugin_id, $plugin_slug, $version );
+		$licences_service->register_plugin_for_license( $plugin_id, $plugin_slug, $version, $plugin_name );
 	}
 
 	/**

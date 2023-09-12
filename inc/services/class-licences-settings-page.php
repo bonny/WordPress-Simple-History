@@ -3,8 +3,12 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
+use Simple_History\Services\Plus_Licences;
 
 class Licences_Settings_Page extends Service {
+	/** @var Plus_Licences $licences_service */
+	private $licences_service;
+
 	private const SETTINGS_SECTION_ID = 'simple_history_settings_section_tab_licenses';
 	private const SETTINGS_PAGE_SLUG = 'simple_history_settings_menu_slug_tab_licenses';
 	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_tab_licenses';
@@ -12,6 +16,8 @@ class Licences_Settings_Page extends Service {
 	private const OPTION_LICENSE_MESSAGE = 'example_plugin_license_message';
 
 	public function loaded() {
+		$this->licences_service = $this->simple_history->get_service( Plus_Licences::class );
+
 		add_action( 'after_setup_theme', array( $this, 'add_settings_tab' ) );
 		add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
 
@@ -150,16 +156,16 @@ class Licences_Settings_Page extends Service {
 			self::SETTINGS_PAGE_SLUG
 		);
 
-		// Add a field/table row, for existing users setting.
+		// Add row for licence keys.
 		add_settings_field(
 			self::OPTION_NAME_LICENSE_KEY,
-			Helpers::get_settings_field_title_output( __( 'License Key', 'simple-history' ), 'key' ),
-			[ $this, 'license_key_field_output' ],
+			Helpers::get_settings_field_title_output( __( 'License Keys', 'simple-history' ), 'key' ),
+			[ $this, 'license_keys_field_output' ],
 			self::SETTINGS_PAGE_SLUG,
-			self::SETTINGS_SECTION_ID
+			self::SETTINGS_SECTION_ID,
 		);
 
-		// Add a field/table row, for managing licenses/sites.
+		// Add row for managing licenses/sites.
 		add_settings_field(
 			'manage_licences',
 			Helpers::get_settings_field_title_output( __( 'Plugins & Licences', 'simple-history' ), 'web' ),
@@ -202,27 +208,43 @@ class Licences_Settings_Page extends Service {
 		<?php
 	}
 
-	public function license_key_field_output() {
-		$license_key = $this->get_license_key();
-		?>
-		<input type="text" class="regular-text" name="<?php echo esc_attr( self::OPTION_NAME_LICENSE_KEY ); ?>" value="<?php echo esc_attr( $license_key ); ?>" />
-		<?php
+	/**
+	 * Output fields to enter licence key for each plus plugin.
+	 */
+	public function license_keys_field_output() {
+		foreach ( $this->licences_service->get_plus_plugins() as $one_plus_plugin ) {
+			// TODO: Get licence key and messages for each individual plugin.
+			$license_key = $this->get_license_key();
+			?>
+			<div style="margin-bottom: 2em;">
+				<p>
+					<span style="font-weight: bold; font-size: 1.25em;font-weight: 400;"><?php echo esc_html( $one_plus_plugin['name'] ); ?></span>
+					<br /><?php echo 'Version ' . esc_html( $one_plus_plugin['version'] ); ?>
+				</p>
+				<p>
+					<input type="text" class="regular-text" name="<?php echo esc_attr( self::OPTION_NAME_LICENSE_KEY ); ?>" value="<?php echo esc_attr( $license_key ); ?>" />
+				</p>
+				<?php
 
-		$license_message = json_decode( $this->get_license_message() );
-		#sh_d('$license_message', $license_message);
-		$message = false;
+				$license_message = json_decode( $this->get_license_message() );
+				#sh_d('$license_message', $license_message);
+				$message = false;
 
-		if ( isset( $license_message->data->activated ) ) {
-			if ( $license_message->data->activated ) {
-				$message = "💪 License is active. You have {$license_message->data->license_key->activation_usage}/{$license_message->data->license_key->activation_limit} instances activated.";
-			} else {
-				// phpcs:ignore WordPress.PHP.DisallowShortTernary.Found
-				$message = $license_message->error ?: 'License for this site is not active. Click the button below to activate.';
-			}
-		}
+				if ( isset( $license_message->data->activated ) ) {
+					if ( $license_message->data->activated ) {
+						$message = "💪 License is active. You have {$license_message->data->license_key->activation_usage}/{$license_message->data->license_key->activation_limit} instances activated.";
+					} else {
+						// phpcs:ignore WordPress.PHP.DisallowShortTernary.Found
+						$message = $license_message->error ?: 'License for this site is not active. Click the button below to activate.';
+					}
+				}
 
-		if ( isset( $license_key ) && ! empty( $license_key ) && $message ) {
-			echo "<p class='description'>" . esc_html( $message ) . '</p>';
+				if ( isset( $license_key ) && ! empty( $license_key ) && $message ) {
+					echo "<p class='description'>" . esc_html( $message ) . '</p>';
+				}
+				?>
+			</div>
+			<?php
 		}
 
 		/*
@@ -233,16 +255,15 @@ class Licences_Settings_Page extends Service {
 
 	public function activated_sites_settings_output() {
 		?>
-
-			<p>
-				Visit the
-				<a href="https://app.lemonsqueezy.com/my-orders/" class="sh-ExternalLink" target="_blank">
-					<?php esc_html_e( 'My orders', 'simple-history' ); ?>
-				</a>
-				page at the Lemon Squeezy website to view and manage your licences and sites.
-			</p>
-			
-			<p>There you can also download the plugins you have bought.</p>
+		<p>
+			Visit the
+			<a href="https://app.lemonsqueezy.com/my-orders/" class="sh-ExternalLink" target="_blank">
+				<?php esc_html_e( 'My orders', 'simple-history' ); ?>
+			</a>
+			page at the Lemon Squeezy website to view and manage your licences and sites.
+		</p>
+		
+		<p>There you can also download the plugins you have bought.</p>
 		<?php
 	}
 
