@@ -158,12 +158,46 @@ class Licences_Settings_Page extends Service {
 			self::SETTINGS_PAGE_SLUG,
 			self::SETTINGS_SECTION_ID
 		);
+
+		// Add a field/table row, for managing licenses/sites.
+		add_settings_field(
+			'manage_licences',
+			Helpers::get_settings_field_title_output( __( 'Plugins & Licences', 'simple-history' ), 'web' ),
+			[ $this, 'activated_sites_settings_output' ],
+			self::SETTINGS_PAGE_SLUG,
+			self::SETTINGS_SECTION_ID
+		);
 	}
 
 	public function settings_section_output() {
 		?>
-		<div class="shp-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Enter your license key to activate your license and retrieve plugin updates.', 'simple-history-plus' ); ?></p>
+		<div class="sh-SettingsSectionIntroduction">
+			<p><?php esc_html_e( 'Enter your license key(s) to activate and retrieve updates for your PLUS plugins.', 'simple-history' ); ?></p>
+			<p>
+				<?php
+				$link_url = 'https://simple-history.com/plus';
+				$link_text = 'simple-history.com/plus';
+
+				echo wp_kses(
+					sprintf(
+						/* translators: 1: link to plus plugins page, 2: link text */
+						__(
+							'Don\'t have any plus plugin yet? Visit <a href="%1$s" class="sh-ExternalLink" target="_blank">%2$s</a> for more information.',
+							'simple-history'
+						),
+						esc_url( $link_url ),
+						esc_html( $link_text )
+					),
+					[
+						'a' => [
+							'href' => [],
+							'class' => [],
+							'target' => [],
+						],
+					]
+				)
+				?>
+			</p>
 		</div>
 		<?php
 	}
@@ -188,21 +222,28 @@ class Licences_Settings_Page extends Service {
 		}
 
 		if ( isset( $license_key ) && ! empty( $license_key ) && $message ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo "<p class='description'>{$message}</p>";
+			echo "<p class='description'>" . esc_html( $message ) . '</p>';
 		}
 
 		/*
-
-
 		"This license key has reached the activation limit."
 		står kvar även om man tar bort sajten i lemon squeesys admin.
-
 		*/
-		echo '<br /><p><a href="https://app.lemonsqueezy.com/my-orders/" class="sh-ExternalLink" target="_blank">';
-		esc_html_e( 'Manage activated sites', 'simple-history-plus' );
-		echo '</p></p>';
-		//
+	}
+
+	public function activated_sites_settings_output() {
+		?>
+
+			<p>
+				Visit the
+				<a href="https://app.lemonsqueezy.com/my-orders/" class="sh-ExternalLink" target="_blank">
+					<?php esc_html_e( 'My orders', 'simple-history' ); ?>
+				</a>
+				page at the Lemon Squeezy website to view and manage your licences and sites.
+			</p>
+			
+			<p>There you can also download the plugins you have bought.</p>
+		<?php
 	}
 
 	/**

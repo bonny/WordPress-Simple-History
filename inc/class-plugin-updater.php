@@ -69,7 +69,7 @@ class Plugin_Updater {
 	 * @return string
 	 */
 	protected function get_license_key() {
-		return License_Settings_Module::get_license_key();
+		// return License_Settings_Module::get_license_key();
 	}
 
 	/**

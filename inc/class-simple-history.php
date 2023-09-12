@@ -365,6 +365,25 @@ class Simple_History {
 	}
 
 	/**
+	 * Register a PLUS plugin that has support for licences.
+	 *
+	 * @param string $plugin_id Id of plugin, eg basenamed path + index file: "simple-history-plus-woocommerce/index.php".
+	 * @param string $plugin_slug Slug of plugin, eg "simple-history-plus-woocommerce".
+	 * @param string $version Current version of plugin, eg "1.0.0".
+	 * @return bool True if plugin was registered, false if not.
+	 */
+	public function register_plugin_with_license( $plugin_id, $plugin_slug, $version ) {
+		/** @var Services\Plus_Licences|null $licences_service */
+		$licences_service = $this->get_service( Services\Plus_Licences::class );
+
+		if ( is_null( $licences_service ) ) {
+			return false;
+		}
+
+		$licences_service->register_plugin_for_license( $plugin_id, $plugin_slug, $version );
+	}
+
+	/**
 	 * Get an instantiated service by its class name.
 	 *
 	 * @param string $service_classname Class name of service to get.
@@ -379,6 +398,7 @@ class Simple_History {
 
 		return null;
 	}
+
 	/**
 	 * Register an external dropin so Simple History knows about it.
 	 * Does not load the dropin, so file with dropin class must be loaded already.
