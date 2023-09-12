@@ -365,6 +365,21 @@ class Simple_History {
 	}
 
 	/**
+	 * Get an instantiated service by its class name.
+	 *
+	 * @param string $service_classname Class name of service to get.
+	 * @return Service|null Found service or null if no service found.
+	 */
+	public function get_service( $service_classname ) {
+		foreach ( $this->instantiated_services as $service ) {
+			if ( get_class( $service ) === $service_classname ) {
+				return $service;
+			}
+		}
+
+		return null;
+	}
+	/**
 	 * Register an external dropin so Simple History knows about it.
 	 * Does not load the dropin, so file with dropin class must be loaded already.
 	 *
