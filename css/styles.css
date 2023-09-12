@@ -947,6 +947,7 @@ Modal window with detailss
 	/* External icon on link */
 	content: "\f504";
 	font-family: dashicons;
+	line-height: 1;
 }
 
 :root {
