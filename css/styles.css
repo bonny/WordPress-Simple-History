@@ -1197,6 +1197,10 @@ Modal window with detailss
 	background-image: url(./icons/key_FILL0_wght400_GRAD0_opsz48.svg);
 }
 
+.sh-Icon--web {
+	background-image: url(./icons/web_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
 /** Subtabs on settings page */
 .sh-SettingsTabs {
 	/* --color-link-hover: #3f9349; */
