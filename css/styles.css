@@ -1250,3 +1250,17 @@ a.sh-SettingsTabs-link:hover {
 .sh-SettingsSectionIntroduction p {
 	font-size: 1rem;
 }
+
+.sh-mr-0 {
+	margin-right: 0px;
+}
+
+.sh-mr-1 {
+	margin-right: 0.25rem; /* 4px */
+}
+.sh-mr-2 {
+	margin-right: 0.5rem; /* 8px */
+}
+.sh-mr-3 {
+	margin-right: 0.75rem; /* 12px */
+}
