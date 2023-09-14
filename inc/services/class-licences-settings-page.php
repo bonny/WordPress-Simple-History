@@ -48,58 +48,6 @@ class Licences_Settings_Page extends Service {
 		}
 	}
 
-	public function activate_license( $license_key ) {
-		$activation_url = add_query_arg(
-			array(
-				'license_key' => $license_key,
-				'instance_name' => home_url(),
-			),
-			SIMPLE_HISTORY_LICENCES_API_URL . '/activate'
-		);
-
-		$response = wp_remote_get(
-			$activation_url,
-			array(
-				'sslverify' => false,
-				'timeout' => 10,
-			)
-		);
-
-		// sh_d('activate license', $license_key, $activation_url, $response);
-
-		if (
-			is_wp_error( $response )
-			|| ( 200 !== wp_remote_retrieve_response_code( $response ) && 400 !== wp_remote_retrieve_response_code( $response ) )
-			|| empty( wp_remote_retrieve_body( $response ) )
-		) {
-			return;
-		}
-
-		update_option( 'example_plugin_license_message', wp_remote_retrieve_body( $response ) );
-	}
-
-	public function deactivate_license( $license_key, $instance_id ) {
-		$activation_url = add_query_arg(
-			array(
-				'license_key' => $license_key,
-				'instance_id' => $instance_id,
-			),
-			SIMPLE_HISTORY_LICENCES_API_URL . '/deactivate'
-		);
-
-		$response = wp_remote_get(
-			$activation_url,
-			array(
-				'sslverify' => false,
-				'timeout' => 10,
-			)
-		);
-
-		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
-			delete_option( 'example_plugin_license_message' );
-		}
-	}
-
 	/**
 	 * Get user entered license key.
 	 *
@@ -213,29 +161,158 @@ class Licences_Settings_Page extends Service {
 	 */
 	public function license_keys_field_output() {
 		foreach ( $this->licences_service->get_plus_plugins() as $one_plus_plugin ) {
-			// TODO: Get licence key and messages for each individual plugin.
-			$license_key = $this->get_license_key();
-			?>
-			<div style="margin-bottom: 2em;">
-				<p>
-					<span style="font-weight: bold; font-size: 1.25em;font-weight: 400;"><?php echo esc_html( $one_plus_plugin['name'] ); ?></span>
-					<br /><?php echo 'Version ' . esc_html( $one_plus_plugin['version'] ); ?>
+			$this->output_licence_key_fields_for_plugin( $one_plus_plugin );
+		}
+
+		/*
+		"This license key has reached the activation limit."
+		står kvar även om man tar bort sajten i lemon squeesys admin.
+		*/
+	}
+
+	/**
+	 * Output fields to enter licence key and to activate, deactiave, and show info, for one plus plugin.
+	 *
+	 * @param Plus_Plugin $plus_plugin One plus plugin.
+	 */
+	private function output_licence_key_fields_for_plugin( $plus_plugin ) {
+		$license_key = $plus_plugin->get_license_key();
+
+		$form_post_url = add_query_arg(
+			[
+				'selected-sub-tab' => 'general_settings_subtab_licenses',
+			],
+			menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, 0 )
+		);
+
+		// Check for posted form for this plugin
+		$form_success_message = null;
+		$form_error_message = null;
+		$nonce_valid = wp_verify_nonce( $_POST['_wpnonce'] ?? '', 'sh-plugin-keys' ) !== false;
+		if ( $nonce_valid && isset( $_POST['plugin_slug'] ) && $_POST['plugin_slug'] === $plus_plugin->slug ) {
+			$action_activate = boolval( $_POST['activate'] ?? false );
+			$action_deactivate = boolval( $_POST['deactivate'] ?? false );
+
+			$new_licence_key = trim( sanitize_text_field( wp_unslash( $_POST['licence_key'] ?? '' ) ) );
+
+			if ( $action_activate ) {
+				$activation_result = $plus_plugin->activate_license( $new_licence_key );
+				if ( $activation_result['success'] === true ) {
+					$form_success_message = 'License activated! 🎉';
+				} else {
+					$form_error_message = sprintf(
+						'Could not activate license. 😢 Error info: <code>%s</code>',
+						esc_html( $activation_result['message'] )
+					);
+				}
+
+				// $licence_message = $plus_plugin->get_license_message( $license_key );
+			} elseif ( $action_deactivate ) {
+				$deactivate_result = $plus_plugin->deactivate_license();
+				if ( $deactivate_result === true ) {
+					$form_success_message = 'License deactivated. 👋';
+				} else {
+					$form_error_message = 'Could not deactivate license.';
+				}
+			}
+		}
+
+		// Get key and message again, because it they have changed.
+		$licence_message = $plus_plugin->get_license_message();
+		$license_key = $plus_plugin->get_license_key();
+
+		?>
+		<div style="margin-bottom: 2em;">
+			<form method="post" action="<?php echo esc_url( $form_post_url ); ?>">
+				<?php wp_nonce_field( 'sh-plugin-keys' ); ?>
+				<input type="hidden" name="plugin_slug" value="<?php echo esc_attr( $plus_plugin->slug ); ?>" />
+
+				<p style="font-weight: bold; font-size: 1.25em;font-weight: 400;">
+					<?php echo esc_html( $plus_plugin->name ); ?>
 				</p>
-				<p>
-					<input type="text" class="regular-text" name="<?php echo esc_attr( self::OPTION_NAME_LICENSE_KEY ); ?>" value="<?php echo esc_attr( $license_key ); ?>" />
+
+				<p class="description">
+					<?php echo 'Version ' . esc_html( $plus_plugin->version ); ?>
 				</p>
+
+				<p>
+					<input <?php wp_readonly( $licence_message['key_activated'] && ! empty( $license_key ) ); ?> type="text" class="regular-text" name="licence_key" value="<?php echo esc_attr( $license_key ); ?>" />
+				</p>
+
+				<?php
+				if ( $licence_message['key_activated'] === true ) {
+					?>
+					<p class="description">
+						<?php
+						echo wp_kses(
+							__( 'License key is <strong>active</strong>. ', 'simple-history' ),
+							[
+								'strong' => [],
+							]
+						);
+						?>
+					</p>
+					<?php
+				}
+				?>
+
+				<p>	
+					<?php
+					// Show Activate button if no key is set already.
+					if ( $licence_message['key_activated'] !== true || empty( $license_key ) ) {
+						?>
+						<span class="sh-mr-1">
+							<?php submit_button( 'Activate', 'secondary', 'activate', false ); ?>
+						</span>
+						<?php
+					}
+
+					// Show deactivate key button if key is activated.
+					if ( $licence_message['key_activated'] === true ) {
+						?>
+						<span class="sh-mr-1">
+							<?php submit_button( 'Deactivate', 'secondary', 'deactivate', false ); ?>
+						</span>
+						<?php
+					}
+					?>
+				</p>
+				
 				<?php
 
-				$license_message = json_decode( $this->get_license_message() );
-				#sh_d('$license_message', $license_message);
+				if ( $form_success_message ) {
+					printf(
+						'<div class="notice notice-large notice-alt notice-success"><p>%s</p></div>',
+						wp_kses(
+							$form_success_message,
+							[
+								'code' => [],
+							]
+						)
+					);
+				}
+
+				if ( $form_error_message ) {
+					printf(
+						'<div class="notice notice-large notice-alt notice-error"><p>%s</p></div>',
+						wp_kses(
+							$form_error_message,
+							[
+								'code' => [],
+							]
+						)
+					);
+				}
+
+				sh_d( 'debug:', '$license_message', $licence_message );
 				$message = false;
 
-				if ( isset( $license_message->data->activated ) ) {
-					if ( $license_message->data->activated ) {
-						$message = "💪 License is active. You have {$license_message->data->license_key->activation_usage}/{$license_message->data->license_key->activation_limit} instances activated.";
+				if ( isset( $licence_message->data->activated ) ) {
+					if ( $licence_message->data->activated ) {
+						$message = "💪 License is active. You have {$licence_message->data->license_key->activation_usage}/{$licence_message->data->license_key->activation_limit} instances activated.";
 					} else {
 						// phpcs:ignore WordPress.PHP.DisallowShortTernary.Found
-						$message = $license_message->error ?: 'License for this site is not active. Click the button below to activate.';
+						$message = $licence_message->error ?: 'License for this site is not active. Click the button below to activate.';
 					}
 				}
 
@@ -243,14 +320,9 @@ class Licences_Settings_Page extends Service {
 					echo "<p class='description'>" . esc_html( $message ) . '</p>';
 				}
 				?>
-			</div>
-			<?php
-		}
-
-		/*
-		"This license key has reached the activation limit."
-		står kvar även om man tar bort sajten i lemon squeesys admin.
-		*/
+			</form>
+		</div>
+		<?php
 	}
 
 	public function activated_sites_settings_output() {
@@ -277,17 +349,13 @@ class Licences_Settings_Page extends Service {
 			<!-- <h2>Licences</h2>
 			<p>Simple History Plus is a premium plugin. You need a licence key to use it.</p>
 			<p>Enter your licence key below to activate Simple History Plus.</p> -->
+			<?php
+			// Prints out all settings sections added to a particular settings page.
+			do_settings_sections( self::SETTINGS_PAGE_SLUG );
 
-			<form method="post" action="options.php">
-				<?php
-				// Prints out all settings sections added to a particular settings page.
-				do_settings_sections( self::SETTINGS_PAGE_SLUG );
-
-				// Output nonce, action, and option_page fields.
-				settings_fields( self::SETTINGS_OPTION_GROUP );
-
-				submit_button();
-				?>
+			// Output nonce, action, and option_page fields.
+			settings_fields( self::SETTINGS_OPTION_GROUP );
+			?>
 		</div>
 		<?php
 	}
