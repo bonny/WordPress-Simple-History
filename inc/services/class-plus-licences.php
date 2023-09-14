@@ -44,7 +44,7 @@ class PLus_Plugin {
 
 	private const OPTION_PREFIX = 'simple_history_plusplugin_';
 
-	private array $message = [
+	private array $message_defaults = [
 		'key' => null,
 		'key_activated' => false,
 		'key_instance_id' => null,
@@ -68,12 +68,8 @@ class PLus_Plugin {
 		return $message['key'] ?? null;
 	}
 
-	private function get_license_key_option_name() {
-		return self::OPTION_PREFIX . 'licence_key_' . $this->slug;
-	}
-
 	public function get_license_message() {
-		return get_option( $this->get_license_message_option_name() );
+		return get_option( $this->get_license_message_option_name(), $this->message_defaults );
 	}
 
 	public function set_licence_message( $new_licence_message ) {
@@ -122,34 +118,38 @@ class PLus_Plugin {
 		$remote_body_json = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( $remote_body_json['data']['activated'] === true ) {
-			$this->message['key_activated'] = true;
-			$this->message['key'] = $remote_body_json['data']['license_key']['key'];
-			$this->message['key_instance_id'] = $remote_body_json['data']['instance']['id'];
-			$this->message['key_created_at'] = $remote_body_json['data']['instance']['created_at'];
-			$this->message['key_expires_at'] = $remote_body_json['data']['license_key']['expires_at'];
-			$this->message['product_id'] = $remote_body_json['data']['meta']['product_id'];
-			$this->message['product_name'] = $remote_body_json['data']['meta']['product_name'];
-			$this->message['customer_name'] = $remote_body_json['data']['meta']['customer_name'];
-			$this->message['customer_email'] = $remote_body_json['data']['meta']['customer_email'];
+			$message = [
+				'key_activated' => true,
+				'key' => $remote_body_json['data']['license_key']['key'],
+				'key_instance_id' => $remote_body_json['data']['instance']['id'],
+				'key_created_at' => $remote_body_json['data']['instance']['created_at'],
+				'key_expires_at' => $remote_body_json['data']['license_key']['expires_at'],
+				'product_id' => $remote_body_json['data']['meta']['product_id'],
+				'product_name' => $remote_body_json['data']['meta']['product_name'],
+				'customer_name' => $remote_body_json['data']['meta']['customer_name'],
+				'customer_email' => $remote_body_json['data']['meta']['customer_email'],
+			];
 
-			$this->set_licence_message( $this->message );
+			$this->set_licence_message( $message );
 
 			return [
 				'success' => true,
 				'message' => 'Licence key successfully activated.',
 			];
 		} else {
-			$this->message['key'] = null;
-			$this->message['key_activated'] = false;
-			$this->message['key_instance_id'] = null;
-			$this->message['key_created_at'] = null;
-			$this->message['key_expires_at'] = null;
-			$this->message['product_id'] = null;
-			$this->message['product_name'] = null;
-			$this->message['customer_name'] = null;
-			$this->message['customer_email'] = null;
+			$message = [
+				'key' => null,
+				'key_activated' => false,
+				'key_instance_id' => null,
+				'key_created_at' => null,
+				'key_expires_at' => null,
+				'product_id' => null,
+				'product_name' => null,
+				'customer_name' => null,
+				'customer_email' => null,
+			];
 
-			$this->set_licence_message( $this->message );
+			$this->set_licence_message( $message );
 
 			return [
 				'success' => false,

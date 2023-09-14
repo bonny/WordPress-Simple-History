@@ -240,6 +240,19 @@ class Licences_Settings_Page extends Service {
 				</p>
 
 				<?php
+				// Show Activate button if no key is set already.
+				if ( $licence_message['key_activated'] !== true || empty( $license_key ) ) {
+					?>
+					<p><?php esc_html_e( 'No license found.', 'simple-history' ); ?></p>
+					<p>	
+						<span class="sh-mr-1">
+							<?php submit_button( 'Activate', 'secondary', 'activate', false ); ?>
+						</span>
+					</p>
+					<?php
+				}
+
+				// Show deactivate key button if key is activated.
 				if ( $licence_message['key_activated'] === true ) {
 					?>
 					<p class="description">
@@ -252,33 +265,14 @@ class Licences_Settings_Page extends Service {
 						);
 						?>
 					</p>
-					<?php
-				}
-				?>
 
-				<p>	
-					<?php
-					// Show Activate button if no key is set already.
-					if ( $licence_message['key_activated'] !== true || empty( $license_key ) ) {
-						?>
-						<span class="sh-mr-1">
-							<?php submit_button( 'Activate', 'secondary', 'activate', false ); ?>
-						</span>
-						<?php
-					}
-
-					// Show deactivate key button if key is activated.
-					if ( $licence_message['key_activated'] === true ) {
-						?>
+					<p>
 						<span class="sh-mr-1">
 							<?php submit_button( 'Deactivate', 'secondary', 'deactivate', false ); ?>
 						</span>
-						<?php
-					}
-					?>
-				</p>
-				
-				<?php
+					</p>
+					<?php
+				}
 
 				if ( $form_success_message ) {
 					printf(
@@ -304,21 +298,7 @@ class Licences_Settings_Page extends Service {
 					);
 				}
 
-				sh_d( 'debug:', '$license_message', $licence_message );
-				$message = false;
-
-				if ( isset( $licence_message->data->activated ) ) {
-					if ( $licence_message->data->activated ) {
-						$message = "💪 License is active. You have {$licence_message->data->license_key->activation_usage}/{$licence_message->data->license_key->activation_limit} instances activated.";
-					} else {
-						// phpcs:ignore WordPress.PHP.DisallowShortTernary.Found
-						$message = $licence_message->error ?: 'License for this site is not active. Click the button below to activate.';
-					}
-				}
-
-				if ( isset( $license_key ) && ! empty( $license_key ) && $message ) {
-					echo "<p class='description'>" . esc_html( $message ) . '</p>';
-				}
+				// sh_d( 'debug:', '$license_message', $licence_message );
 				?>
 			</form>
 		</div>
