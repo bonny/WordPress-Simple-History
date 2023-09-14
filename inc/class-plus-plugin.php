@@ -36,6 +36,11 @@ class PLus_Plugin {
 
 	private const OPTION_PREFIX = 'simple_history_plusplugin_';
 
+	/**
+	 * Default values for the licence message option.
+	 *
+	 * @var array<string,mixed>
+	 */
 	private array $message_defaults = [
 		'key' => null,
 		'key_activated' => false,
@@ -48,6 +53,12 @@ class PLus_Plugin {
 		'customer_email' => null,
 	];
 
+	/**
+	 * @param string $id Id of plugin, eg basenamed path + index file: "simple-history-plus-woocommerce/index.php".
+	 * @param string $slug Slug of plugin, eg "simple-history-plus-woocommerce".
+	 * @param string $version Current version of plugin, eg "1.0.0".
+	 * @param string $name Name of plugin, eg "Simple History Plus for WooCommerce".
+	 */
 	public function __construct( $id, $slug, $version, $name ) {
 		$this->id = $id;
 		$this->slug = $slug;
@@ -55,19 +66,41 @@ class PLus_Plugin {
 		$this->name = $name;
 	}
 
+	/**
+	 * Get the licence key for this plugin.
+	 *
+	 * @return mixed|null Licence key, or null if no key.
+	 */
 	public function get_license_key() {
 		$message = $this->get_license_message();
 		return $message['key'] ?? null;
 	}
 
+	/**
+	 * Get the licence message for this plugin.
+	 *
+	 * @return array<string,mixed> Licence message.
+	 */
 	public function get_license_message() {
+		/** @var array<string,mixed> */
 		return get_option( $this->get_license_message_option_name(), $this->message_defaults );
 	}
 
+	/**
+	 * Set the licence message for this plugin.
+	 *
+	 * @param array<string,mixed> $new_licence_message Licence message.
+	 * @return bool True if option was updated, false if not.
+	 */
 	public function set_licence_message( $new_licence_message ) {
 		return update_option( $this->get_license_message_option_name(), $new_licence_message );
 	}
 
+	/**
+	 * Get the option name for the licence message for this plugin.
+	 *
+	 * @return string Option name.
+	 */
 	private function get_license_message_option_name() {
 		return self::OPTION_PREFIX . 'message_' . $this->slug;
 	}
@@ -77,7 +110,7 @@ class PLus_Plugin {
 	 * Stores API result in option.
 	 *
 	 * @param string $license_key License key to activate.
-	 * @return array|null Array with info about key activation, or null if invalid.
+	 * @return array<mixed>|null Array with info about key activation, or null if invalid.
 	 */
 	public function activate_license( $license_key ) {
 		$activation_url = add_query_arg(
@@ -109,17 +142,24 @@ class PLus_Plugin {
 
 		$remote_body_json = json_decode( wp_remote_retrieve_body( $response ), true );
 
+		if ( is_null( $remote_body_json ) || ! is_array( $remote_body_json ) ) {
+			return [
+				'success' => false,
+				'message' => __( 'Unknown error', 'simple-history' ),
+			];
+		}
+
 		if ( $remote_body_json['data']['activated'] === true ) {
 			$message = [
 				'key_activated' => true,
-				'key' => $remote_body_json['data']['license_key']['key'],
-				'key_instance_id' => $remote_body_json['data']['instance']['id'],
-				'key_created_at' => $remote_body_json['data']['instance']['created_at'],
-				'key_expires_at' => $remote_body_json['data']['license_key']['expires_at'],
-				'product_id' => $remote_body_json['data']['meta']['product_id'],
-				'product_name' => $remote_body_json['data']['meta']['product_name'],
-				'customer_name' => $remote_body_json['data']['meta']['customer_name'],
-				'customer_email' => $remote_body_json['data']['meta']['customer_email'],
+				'key' => $remote_body_json['data']['license_key']['key'] ?? null,
+				'key_instance_id' => $remote_body_json['data']['instance']['id'] ?? null,
+				'key_created_at' => $remote_body_json['data']['instance']['created_at'] ?? null,
+				'key_expires_at' => $remote_body_json['data']['license_key']['expires_at'] ?? null,
+				'product_id' => $remote_body_json['data']['meta']['product_id'] ?? null,
+				'product_name' => $remote_body_json['data']['meta']['product_name'] ?? null,
+				'customer_name' => $remote_body_json['data']['meta']['customer_name'] ?? null,
+				'customer_email' => $remote_body_json['data']['meta']['customer_email'] ?? null,
 			];
 
 			$this->set_licence_message( $message );
