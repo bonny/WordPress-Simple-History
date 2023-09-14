@@ -491,7 +491,7 @@ class Setup_Settings_Page extends Service {
 		}
 
 		// Output contents for selected main tab,
-		// if no sub tab outputed content.
+		// if no sub tab outputted content.
 		if ( ! $sub_tab_found ) {
 			$arr_active_tab = wp_filter_object_list(
 				$arr_settings_tabs,
