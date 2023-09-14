@@ -18,7 +18,7 @@ class Event_Details_Simple_Container implements Event_Details_Container_Interfac
 	}
 
 	public function to_html() {
-		if ($this->html instanceof Event_Details_Container_Interface) {
+		if ( $this->html instanceof Event_Details_Container_Interface ) {
 			return $this->html->to_html();
 		}
 
