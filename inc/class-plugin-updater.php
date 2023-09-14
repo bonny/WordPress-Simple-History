@@ -69,7 +69,13 @@ class Plugin_Updater {
 	 * @return string
 	 */
 	protected function get_license_key() {
-		// return License_Settings_Module::get_license_key();
+		$plus_plugin = new Plus_Plugin(
+			$this->plugin_id,
+			$this->plugin_slug,
+			$this->version,
+		);
+
+		return $plus_plugin->get_license_key();
 	}
 
 	/**
@@ -144,7 +150,7 @@ class Plugin_Updater {
 			return false;
 		}
 
-		$plugin_data = get_plugin_data( SIMPLE_HISTORY_PLUS_FILE );
+		$plugin_data = get_plugin_data( $this->plugin_id );
 
 		$result       = $remote->update;
 		$result->name = $plugin_data['Name'];

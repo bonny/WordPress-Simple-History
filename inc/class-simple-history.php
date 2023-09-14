@@ -382,6 +382,8 @@ class Simple_History {
 		}
 
 		$licences_service->register_plugin_for_license( $plugin_id, $plugin_slug, $version, $plugin_name );
+
+		return true;
 	}
 
 	/**

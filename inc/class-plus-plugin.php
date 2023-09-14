@@ -5,7 +5,7 @@ namespace Simple_History;
 /**
  * Class with information and data for a plus plugin.
  */
-class PLus_Plugin {
+class Plus_Plugin {
 	/**
 	 * Id of plugin, eg basenamed path + index file: "simple-history-plus-woocommerce/index.php".
 	 *
@@ -59,7 +59,7 @@ class PLus_Plugin {
 	 * @param string $version Current version of plugin, eg "1.0.0".
 	 * @param string $name Name of plugin, eg "Simple History Plus for WooCommerce".
 	 */
-	public function __construct( $id, $slug, $version, $name ) {
+	public function __construct( $id, $slug, $version, $name = '' ) {
 		$this->id = $id;
 		$this->slug = $slug;
 		$this->version = $version;
