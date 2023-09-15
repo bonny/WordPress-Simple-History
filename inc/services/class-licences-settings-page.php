@@ -16,6 +16,12 @@ class Licences_Settings_Page extends Service {
 	private const OPTION_LICENSE_MESSAGE = 'example_plugin_license_message';
 
 	public function loaded() {
+		// Only load if dev mode is enabled, for now,
+		// since Plus Plugins are not ready yet.
+		if ( false === Helpers::dev_mode_is_enabled() ) {
+			return;
+		}
+
 		$this->licences_service = $this->simple_history->get_service( Plus_Licences::class );
 
 		add_action( 'after_setup_theme', array( $this, 'add_settings_tab' ) );
