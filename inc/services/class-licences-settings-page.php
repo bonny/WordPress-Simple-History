@@ -20,32 +20,6 @@ class Licences_Settings_Page extends Service {
 
 		add_action( 'after_setup_theme', array( $this, 'add_settings_tab' ) );
 		add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
-
-		add_action( 'update_option_' . self::OPTION_NAME_LICENSE_KEY, array( $this, 'handle_license_activation' ), 10, 3 );
-	}
-
-	/**
-	 * Activate license.
-	 *
-	 * Fires after the value of a specific option has been successfully updated.
-	 *
-	 * @param array $old_key_value The old option value = old license key value.
-	 * @param array $new_key_value The new option value = new license key value.
-	 * @param string $option The option name.
-	 */
-	public function handle_license_activation( $old_key_value, $new_key_value, $option ) {
-		// Activate license if new key is set and is not same as old key.
-		if ( isset( $new_key_value ) && ! empty( $new_key_value ) && $old_key_value !== $new_key_value ) {
-			$this->activate_license( $new_key_value );
-		}
-
-		// Deactivate old license when new key is added that is empty.
-		if ( isset( $new_key_value ) && empty( $new_key_value ) && ! empty( $old_key_value ) ) {
-			$license_message = json_decode( $this->get_license_message() );
-			if ( isset( $license_message->data->instance->id ) ) {
-				$this->deactivate_license( $old_key_value, $license_message->data->instance->id );
-			}
-		}
 	}
 
 	/**
