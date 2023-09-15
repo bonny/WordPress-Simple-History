@@ -436,32 +436,34 @@ class Setup_Settings_Page extends Service {
 		if ( count( $subtabs_for_active_tab ) > 0 && empty( $active_sub_tab ) ) {
 			$active_sub_tab = $subtabs_for_active_tab[0]['slug'];
 		}
-		// sh_d('$subtabs_for_active_tab', $subtabs_for_active_tab);
-		// sh_d('active_sub_tab', $active_sub_tab);
 
 		if ( count( $subtabs_for_active_tab ) > 0 ) {
-			?>
-			<nav class="sh-SettingsTabs">
-				<ul class="sh-SettingsTabs-tabs">
-					<?php
-					foreach ( $subtabs_for_active_tab as $one_sub_tab ) {
-						$is_active = $active_sub_tab === $one_sub_tab['slug'];
-						$is_active_class = $is_active ? 'is-active' : '';
-						$plug_settings_tab_url = add_query_arg( 'selected-sub-tab', $one_sub_tab['slug'], $settings_base_url );
 
-						?>
-						<li class="sh-SettingsTabs-tab">
-							<a class="sh-SettingsTabs-link <?php echo esc_attr( $is_active_class ); ?>" href="<?php echo esc_url( $plug_settings_tab_url ); ?>">
-								<?php echo esc_html( $one_sub_tab['name'] ); ?>
-							</a>
-						</li>
+			// Output subnav tabs if number of tabs are more than 1.
+			// If only one tab then no need to output subnav.
+			if ( count( $subtabs_for_active_tab ) > 1 ) {
+				?>
+				<nav class="sh-SettingsTabs">
+					<ul class="sh-SettingsTabs-tabs">
 						<?php
-					}
-					?>
-				</ul>
-			</nav>
+						foreach ( $subtabs_for_active_tab as $one_sub_tab ) {
+							$is_active = $active_sub_tab === $one_sub_tab['slug'];
+							$is_active_class = $is_active ? 'is-active' : '';
+							$plug_settings_tab_url = add_query_arg( 'selected-sub-tab', $one_sub_tab['slug'], $settings_base_url );
 
-			<?php
+							?>
+							<li class="sh-SettingsTabs-tab">
+								<a class="sh-SettingsTabs-link <?php echo esc_attr( $is_active_class ); ?>" href="<?php echo esc_url( $plug_settings_tab_url ); ?>">
+									<?php echo esc_html( $one_sub_tab['name'] ); ?>
+								</a>
+							</li>
+							<?php
+						}
+						?>
+					</ul>
+				</nav>
+				<?php
+			}
 
 			// Get the active sub tab and call its output function.
 			$active_sub_tabs = wp_filter_object_list(
