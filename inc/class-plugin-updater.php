@@ -2,8 +2,6 @@
 
 namespace Simple_History;
 
-// use Simple_History\Plus\Modules\License_Settings_Module;
-
 /**
  * The name of this class should be unique to your plugin to
  * avoid conflicts with other plugins using an updater class.
@@ -106,7 +104,7 @@ class Plugin_Updater {
 				'timeout' => 10,
 			)
 		);
-		#sh_d('$remote', $remote);exit;
+
 		if (
 			is_wp_error( $remote )
 			|| 200 !== wp_remote_retrieve_response_code( $remote )
@@ -136,26 +134,28 @@ class Plugin_Updater {
 	 */
 	public function info( $result, $action, $args ) {
 		if ( 'plugin_information' !== $action ) {
-			return false;
+			return $result;
 		}
-		// sh_d($result, $action, $args, 'this->plugin_slug', $this->plugin_slug);exit;
-		// args->slug =  [slug] => simple-history-plus
+
 		if ( $this->plugin_slug !== $args->slug ) {
-			return false;
+			return $result;
 		}
 
 		$remote = $this->request();
 
 		if ( ! $remote || ! $remote->success || empty( $remote->update ) ) {
-			return false;
+			return $result;
 		}
 
-		$plugin_data = get_plugin_data( $this->plugin_id );
+		// Plugin_id = "simple-history-plus/index.php" but get_plugin_data() requires full path.
+		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->plugin_id );
 
 		$result       = $remote->update;
 		$result->name = $plugin_data['Name'];
 		$result->slug = $this->plugin_slug;
 		$result->sections = (array) $result->sections;
+
+		// sh_d('return this', $result);
 
 		return $result;
 	}
