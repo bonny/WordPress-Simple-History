@@ -866,7 +866,23 @@ class Simple_History {
 			return '';
 		}
 
-		return $logger->get_log_row_plain_text_output( $row );
+		/**
+		 * Filter the plain text output for a log row.
+		 *
+		 * @since 4.6.0
+		 *
+		 * @param string $output Plain text output for a log row.
+		 * @param object $row Log row object.
+		 * @param Logger $logger Logger instance.
+		 */
+		$output = apply_filters(
+			'simple_history/get_log_row_plain_text_output/output',
+			$logger->get_log_row_plain_text_output( $row ),
+			$row,
+			$logger
+		);
+
+		return $output;
 	}
 
 	/**

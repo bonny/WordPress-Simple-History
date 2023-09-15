@@ -214,6 +214,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased
 
+- Add filter `simple_history/get_log_row_plain_text_output/output` to be able to modify the output of the plain text output of a log row. Solves support thread [Is it possible to log post ID](https://wordpress.org/support/topic/is-it-possible-to-log-post-id/).
 - Add function `get_service()` to Simple_History class.
 - Modified: get_log_row_details_output() now supports Event_Details_Group directly.
 - Don't log WooCommerce post type `shop_order_placehold`, that is used by WooCommerce new [High-Performance Order Storage (HPOS)](https://developer.woocommerce.com/2022/10/11/hpos-upgrade-faqs/).
