@@ -34,6 +34,15 @@ class Plus_Plugin {
 	 */
 	public $name;
 
+	/**
+	 * ID of product that this plugin is for.
+	 * Will be used to check that the entered licence key is for this product.
+	 * For example History PLUS has id 105282.
+	 *
+	 * @var int;
+	 */
+	public $product_id;
+
 	private const OPTION_PREFIX = 'simple_history_plusplugin_';
 
 	/**
@@ -59,11 +68,12 @@ class Plus_Plugin {
 	 * @param string $version Current version of plugin, eg "1.0.0".
 	 * @param string $name Name of plugin, eg "Simple History Plus for WooCommerce".
 	 */
-	public function __construct( $id, $slug, $version, $name = '' ) {
+	public function __construct( $id, $slug, $version, $name = '', $product_id = null ) {
 		$this->id = $id;
 		$this->slug = $slug;
 		$this->version = $version;
 		$this->name = $name;
+		$this->product_id = $product_id;
 	}
 
 	/**
@@ -149,45 +159,45 @@ class Plus_Plugin {
 			];
 		}
 
-		if ( $remote_body_json['data']['activated'] === true ) {
-			$message = [
-				'key_activated' => true,
-				'key' => $remote_body_json['data']['license_key']['key'] ?? null,
-				'key_instance_id' => $remote_body_json['data']['instance']['id'] ?? null,
-				'key_created_at' => $remote_body_json['data']['instance']['created_at'] ?? null,
-				'key_expires_at' => $remote_body_json['data']['license_key']['expires_at'] ?? null,
-				'product_id' => $remote_body_json['data']['meta']['product_id'] ?? null,
-				'product_name' => $remote_body_json['data']['meta']['product_name'] ?? null,
-				'customer_name' => $remote_body_json['data']['meta']['customer_name'] ?? null,
-				'customer_email' => $remote_body_json['data']['meta']['customer_email'] ?? null,
-			];
-
-			$this->set_licence_message( $message );
-
-			return [
-				'success' => true,
-				'message' => 'Licence key successfully activated.',
-			];
-		} else {
-			$message = [
-				'key' => null,
-				'key_activated' => false,
-				'key_instance_id' => null,
-				'key_created_at' => null,
-				'key_expires_at' => null,
-				'product_id' => null,
-				'product_name' => null,
-				'customer_name' => null,
-				'customer_email' => null,
-			];
-
-			$this->set_licence_message( $message );
+		// Bail because not activated, maybe because licence not valid.
+		if ( $remote_body_json['data']['activated'] === false ) {
+			$this->set_licence_message( $this->message_defaults );
 
 			return [
 				'success' => false,
 				'message' => $remote_body_json['data']['error'],
 			];
 		}
+
+		// Key was activated successfully.
+		$message = [
+			'key_activated' => true,
+			'key' => $remote_body_json['data']['license_key']['key'] ?? null,
+			'key_instance_id' => $remote_body_json['data']['instance']['id'] ?? null,
+			'key_created_at' => $remote_body_json['data']['instance']['created_at'] ?? null,
+			'key_expires_at' => $remote_body_json['data']['license_key']['expires_at'] ?? null,
+			'product_id' => $remote_body_json['data']['meta']['product_id'] ?? null,
+			'product_name' => $remote_body_json['data']['meta']['product_name'] ?? null,
+			'customer_name' => $remote_body_json['data']['meta']['customer_name'] ?? null,
+			'customer_email' => $remote_body_json['data']['meta']['customer_email'] ?? null,
+		];
+
+		$this->set_licence_message( $message );
+
+		// Deactivate and bail if activation was for another product.
+		if ( $this->product_id && $this->product_id !== $remote_body_json['data']['meta']['product_id'] ) {
+			$this->deactivate_license();
+
+			return [
+				'success' => false,
+				'message' => 'The license key is not valid for this plugin.',
+			];
+		}
+
+		return [
+			'success' => true,
+			'message' => 'Licence key successfully activated.',
+		];
 	}
 
 	/**
