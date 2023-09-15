@@ -17,6 +17,13 @@ class Admin extends \AcceptanceTester
         $I->amOnAdminPage('index.php?page=simple_history_page');
     }
 
+    public function loginAsAdminToHistorySettingsPage()
+    {
+        $I = $this;
+        $I->loginAsAdmin();
+        $I->amOnAdminPage('options-general.php?page=simple_history_settings_menu_slug');
+    }
+
     public function loginAsToHistoryPage(string $username, string $password)
     {
         $I = $this;
@@ -29,6 +36,7 @@ class Admin extends \AcceptanceTester
      * 
      * @param string $who Clear text initiator, i.e. "Anonymous web user", "Erik", "WP-CLI", ...
      * @param mixed $message Clear text message, i.e. "Logged in", "Added attachment", ...
+     * @param int $child Default 1, i.e. the first row I think.
      */
     public function seeInLog($who, $message, $child = 1)
     {

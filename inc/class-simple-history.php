@@ -376,7 +376,7 @@ class Simple_History {
 	public function register_plugin_with_license( $plugin_id, $plugin_slug, $version, $plugin_name ) {
 		/** @var Services\Plus_Licences|null $licences_service */
 		$licences_service = $this->get_service( Services\Plus_Licences::class );
-		
+
 		if ( is_null( $licences_service ) ) {
 			return false;
 		}
