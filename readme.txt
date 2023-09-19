@@ -212,23 +212,19 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased
+### 4.6.0 (September 2023)
 
-- Add filter `simple_history/get_log_row_plain_text_output/output` to be able to modify the output of the plain text output of a log row. Solves support thread [Is it possible to log post ID](https://wordpress.org/support/topic/is-it-possible-to-log-post-id/). See [documentation page for filter](https://simple-history.com/docs/hooks/#simplehistorygetlogrowplaintextoutputoutput) for details.
-- Add function `get_service()` to Simple_History class.
-- Modified: get_log_row_details_output() now supports Event_Details_Group directly.
-- Don't log WooCommerce post type `shop_order_placehold`, that is used by WooCommerce new [High-Performance Order Storage (HPOS)](https://developer.woocommerce.com/2022/10/11/hpos-upgrade-faqs/).
-- Add filter `simple_history/log_insert_data_and_context`.
-- WP-CLI command now includes "via" in output.
-- Event details: Add interface Event_Details_Container_Interface and class Event_Details_Simple_Container class.
-- WP-CLI: ID field is not the first column and in uppercase, to follow the same format as the other wp cli commands use.
-- Loggers: Call loaded() function on a logger only if logger is enabled (is_enabled() returns true).
-- Logger: Add function is_enabled().
-- Debug settings tag: Show if a logger is enabled or disabled.
-- Prevent key values in IP info modal to wrap.
-- GUI enhancements on settings page.
-- Misc refactoring of event details classes.
-- Allow direct access to protected class variable `$logger->slug` but mark access as deprectad and recommend usage of `$logger->get_slug()`. Fixes support thread [PHP fatal error Cannot access protected property $slug](https://wordpress.org/support/topic/php-fatal-error-cannot-access-protected-property-slug/).
+This release contains some new filters and some other improvements.
+[See the release post for more info](https://simple-history.com/2023/simple-history-4-6-0/).
+
+- Added: Filter `simple_history/get_log_row_plain_text_output/output` to be able to modify the output of the plain text output of a log row. Solves support thread [Is it possible to log post ID](https://wordpress.org/support/topic/is-it-possible-to-log-post-id/). See [documentation page for filter](https://simple-history.com/docs/hooks/#simplehistorygetlogrowplaintextoutputoutput) for details.
+- Added: Filter `simple_history/log_insert_data_and_context` to be able to modify the data and context that is inserted into the log.
+- Added: WP-CLI command now includes "via" in output.
+- Added: Debug settings tab now shows if a logger is enabled or disabled.
+- Changed: WP-CLI: ID field is not the first column and in uppercase, to follow the same format as the other wp cli commands use.
+- Changed: GUI enhancements on settings page.
+- Changed: Don't log WooCommerce post type `shop_order_placehold`, that is used by WooCommerce new [High-Performance Order Storage (HPOS)](https://developer.woocommerce.com/2022/10/11/hpos-upgrade-faqs/).
+- Fixed: Allow direct access to protected class variable `$logger->slug` but mark access as deprectad and recommend usage of `$logger->get_slug()`. Fixes support thread [PHP fatal error Cannot access protected property $slug](https://wordpress.org/support/topic/php-fatal-error-cannot-access-protected-property-slug/).
 
 ### 4.5.0 (August 2023)
 
