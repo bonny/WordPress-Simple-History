@@ -41,7 +41,8 @@ class SimpleHistoryLoggerCest
 
     public function it_can_clear_log_now(Admin $I) {
         $I->click('Clear log now');
-        $I->acceptPopup();
+        $I->acceptPopup();       
+        $I->wait(0.5);
         $I->seeLogMessageStartsWith('Cleared the log for Simple History (');
     }
 
@@ -69,6 +70,8 @@ class SimpleHistoryLoggerCest
     //     $I->selectOption('[name=simple_history_pager_size]', "10");
     //     $I->selectOption('[name=simple_history_pager_size_dashboard]', "10");
     //     $I->click('Save Changes');
+
+    //     $I->wait(1);
         
     //     $I->seeLogMessage('Modified settings');
     //     $I->seeLogContext([
