@@ -18,9 +18,9 @@ class Licences_Settings_Page extends Service {
 	public function loaded() {
 		// Only load if dev mode is enabled, for now,
 		// since Plus Plugins are not ready yet.
-		if ( false === Helpers::dev_mode_is_enabled() ) {
-			return;
-		}
+		// if ( false === Helpers::dev_mode_is_enabled() ) {
+		// 	return;
+		// }
 
 		$this->licences_service = $this->simple_history->get_service( Plus_Licences::class );
 
