@@ -19,7 +19,7 @@ class SimpleHistoryLoggerCest
         $I->canSee('Simple History');
         $I->canSee('Show History');
         $I->canSee('on the dashboard');
-        $I->canSee('RSS feedx');
+        $I->canSee('RSS feed');
     }
     
     public function it_can_log_show_history(Admin $I) {
