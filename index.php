@@ -51,9 +51,21 @@ if (
  * register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
  */
 define( 'SIMPLE_HISTORY_VERSION', '4.6.0' );
+
+/**
+ * Filesystem path to plugin directory.
+ * Example: /var/www/wp-content/plugins/simple-history/
+ */
 define( 'SIMPLE_HISTORY_PATH', plugin_dir_path( __FILE__ ) );
+
 define( 'SIMPLE_HISTORY_BASENAME', plugin_basename( __FILE__ ) );
+
+/**
+ * URL to plugin directory.
+ * Example: http://example.com/wp-content/plugins/simple-history/
+ */
 define( 'SIMPLE_HISTORY_DIR_URL', plugin_dir_url( __FILE__ ) );
+
 define( 'SIMPLE_HISTORY_FILE', __FILE__ );
 
 /**

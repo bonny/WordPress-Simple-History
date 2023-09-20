@@ -846,14 +846,6 @@ Modal window with detailss
 	text-decoration: none;
 }
 
-/* icon on log page*/
-.SimpleHistoryPageHeadline__icon {
-	font-size: 24px;
-	line-height: 30px;
-	width: 24px;
-	color: rgb(63, 147, 73);
-}
-
 /* if not hits when using filter function + if ajax error */
 
 .SimpleHistory--hasNoHits .SimpleHistoryLogitems__pagination {
@@ -962,22 +954,42 @@ Modal window with detailss
  */
 .sh-PageHeader {
 	margin: 0 0 2rem -20px;
-	padding: 1rem 2rem 0 2rem;
+	padding: 1.5rem;
 	background: #fff;
 	border-bottom: 1px solid #8cac90;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	/* gap: 2rem; */
 }
 
 .sh-PageHeader-title {
 	font-size: 23px;
 	font-weight: 400;
 	margin: 0;
-	padding: 9px 0 4px;
-	line-height: 1.3;
+	line-height: 1;
+}
+
+.sh-PageHeader-logo {
+	width: 200px;
+	height: auto;
 }
 
 .sh-PageHeader-titleLink {
+	display: block;
 	color: inherit;
 	text-decoration: none;
+}
+
+.sh-PageHeader-settingsLink {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.sh-PageHeader-settingsLinkIcon {
+	--icon-size: 25px;
 }
 
 .sh-Page-content {
@@ -985,9 +997,11 @@ Modal window with detailss
 }
 
 .sh-PageNav {
+	width: 100%;
 	display: flex;
 	margin-top: 1rem;
 	margin-left: -1rem;
+	margin-bottom: -1.5rem;
 	gap: 2rem;
 }
 
@@ -1036,7 +1050,7 @@ Modal window with detailss
 	--icon-size: 24px;
 	width: var(--icon-size);
 	height: var(--icon-size);
-	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
+	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
 	vertical-align: middle;
@@ -1049,7 +1063,7 @@ Modal window with detailss
 	--icon-size: 20px;
 	width: var(--icon-size);
 	height: var(--icon-size);
-	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
+	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
 	vertical-align: middle;
@@ -1063,7 +1077,7 @@ Modal window with detailss
 	--icon-size: 20px;
 	width: var(--icon-size);
 	height: var(--icon-size);
-	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
+	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
 	vertical-align: middle;

@@ -370,11 +370,8 @@ class Setup_Settings_Page extends Service {
 		?>
 		<header class="sh-PageHeader">
 			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-				<?php
-				echo wp_kses( $headline_link_start_elm, $allowed_link_html );
-				?>
-					<div class="dashicons dashicons-backup SimpleHistoryPageHeadline__icon"></div>
-					<?php esc_html_e( 'Simple History', 'simple-history' ); ?>
+				<?php echo wp_kses( $headline_link_start_elm, $allowed_link_html ); ?>			
+				<img width="1102" height="196" class="sh-PageHeader-logo" src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.svg" alt="Simple History logotype"/>
 				<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
 			</h1>
 
