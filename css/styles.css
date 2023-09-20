@@ -960,10 +960,11 @@ Modal window with detailss
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
-	/* gap: 2rem; */
+	column-gap: 1rem;
 }
 
 .sh-PageHeader-title {
+	flex: 1;
 	font-size: 23px;
 	font-weight: 400;
 	margin: 0;
@@ -981,7 +982,7 @@ Modal window with detailss
 	text-decoration: none;
 }
 
-.sh-PageHeader-settingsLink {
+.sh-PageHeader-rightLink {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
