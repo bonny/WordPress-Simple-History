@@ -1,3 +1,9 @@
+/**
+ * Fonts from Google Fonts/Material Symbols.
+ * https://fonts.google.com/icons
+ * Use optical size 48 when downloading.
+ */
+
 .sh-Icon {
 	--icon-size: 20px;
 	width: var(--icon-size);
@@ -138,4 +144,8 @@
 
 .sh-Icon--web {
 	background-image: url(./icons/web_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--extension {
+	background-image: url(./icons/extension_FILL0_wght400_GRAD0_opsz48.svg);
 }
