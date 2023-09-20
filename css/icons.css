@@ -1,0 +1,141 @@
+.sh-Icon {
+	--icon-size: 20px;
+	width: var(--icon-size);
+	height: var(--icon-size);
+	display: inline-block;
+	background-size: 100%;
+	vertical-align: middle;
+	position: relative;
+}
+
+.sh-Icon--visibility {
+	background-image: url(./icons/visibility_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--dashboard {
+	background-image: url(./icons/dashboard_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--info {
+	background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--overview {
+	background-image: url(./icons/overview_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--auto-delete {
+	background-image: url(./icons/auto_delete_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--toggle-on {
+	background-image: url(./icons/toggle_on_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--link {
+	background-image: url(./icons/link_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--edit {
+	background-image: url(./icons/edit_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--autorenew {
+	background-image: url(./icons/autorenew_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--format_list_numbered {
+	background-image: url(./icons/format_list_numbered_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--filter_list {
+	background-image: url(./icons/filter_list_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--rss_feed {
+	background-image: url(./icons/rss_feed_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--tune {
+	background-image: url(./icons/tune_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--settings {
+	background-image: url(./icons/settings_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--volunteer_activism {
+	background-image: url(./icons/volunteer_activism_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--thumb_up {
+	background-image: url(./icons/thumb_up_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--workspace_premium {
+	background-image: url(./icons/workspace_premium_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--verified {
+	background-image: url(./icons/verified_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--add_box {
+	background-image: url(./icons/add_box_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--pages {
+	background-image: url(./icons/pages_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--archive {
+	background-image: url(./icons/archive_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--download {
+	background-image: url(./icons/download_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--troubleshoot {
+	background-image: url(./icons/troubleshoot_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--build {
+	background-image: url(./icons/build_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--archive {
+	background-image: url(./icons/archive_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--map {
+	background-image: url(./icons/map_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--account_circle {
+	background-image: url(./icons/account_circle_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--no_accounts {
+	background-image: url(./icons/no_accounts_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--merge_type {
+	background-image: url(./icons/merge_type_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--vpn_lock {
+	background-image: url(./icons/vpn_lock_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--lock_clock {
+	background-image: url(./icons/lock_clock_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--key {
+	background-image: url(./icons/key_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--web {
+	background-image: url(./icons/web_FILL0_wght400_GRAD0_opsz48.svg);
+}
