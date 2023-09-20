@@ -10,7 +10,6 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 	
 	/**
 	 * Get Simple History instance before each test.
-	 * 
 	 */
 	public function setUp(): void {
 		parent::setUp();

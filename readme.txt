@@ -212,6 +212,10 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+### Unreleased 4.n.n (n n)
+
+- Add function `get_view_history_page_admin_url()`.
+
 ### 4.6.0 (September 2023)
 
 This release contains some new filters and some other improvements.
