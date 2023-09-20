@@ -376,6 +376,16 @@ class Setup_Settings_Page extends Service {
 			</h1>
 
 			<?php
+			// Add link back to the log.
+			if ( $this->simple_history->setting_show_as_page() ) {
+				?>
+				<a href="<?php echo esc_url( $this->simple_history->get_view_history_page_admin_url() ); ?>" class="sh-PageHeader-rightLink">
+					<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--history"></span>
+					<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Back to event log', 'simple-history' ); ?></span>
+				</a>
+				<?php
+			}
+
 			$active_tab = $_GET['selected-tab'] ?? 'settings';
 			$settings_base_url = menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, 0 );
 			?>

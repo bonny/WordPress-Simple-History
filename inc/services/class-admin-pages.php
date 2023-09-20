@@ -38,7 +38,7 @@ class Admin_Pages extends Service {
 	}
 
 	/**
-	 * Output for page with the history
+	 * Output for page with the history.
 	 */
 	public function history_page_output() {
 		$pager_size = $this->simple_history->get_pager_size();
@@ -61,14 +61,6 @@ class Admin_Pages extends Service {
 				</h1>
 
 				<?php
-				// Add link to settings,
-				?>
-				<a href="<?php echo esc_url( menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false ) ); ?>" class="sh-PageHeader-rightLink">
-					<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--settings"></span>
-					<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Settings & Tools', 'simple-history' ); ?></span>
-				</a>
-
-				<?php
 				// Add link to add-ons.
 				?>
 				<a href="https://simple-history.com/add-ons/?utm_source=wpadmin" class="sh-PageHeader-rightLink" target="_blank">
@@ -76,6 +68,13 @@ class Admin_Pages extends Service {
 					<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
 				</a>
 				
+				<?php
+				// Add link to settings & tools.
+				?>
+				<a href="<?php echo esc_url( menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false ) ); ?>" class="sh-PageHeader-rightLink">
+					<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--settings"></span>
+					<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Settings & Tools', 'simple-history' ); ?></span>
+				</a>
 			</header>
 
 			<div class="wrap">
