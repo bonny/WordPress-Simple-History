@@ -409,7 +409,8 @@ abstract class Logger {
 			);
 		}
 
-		$item_permalink = admin_url( apply_filters( 'simple_history/admin_location', 'index' ) . '.php?page=simple_history_page' );
+		$item_permalink = $this->simple_history->get_view_history_page_admin_url();
+
 		if ( ! empty( $row->id ) ) {
 			$item_permalink .= "#item/{$row->id}";
 		}
