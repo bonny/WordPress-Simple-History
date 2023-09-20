@@ -1641,4 +1641,13 @@ class Simple_History {
 		return call_user_func_array( array( $this, $method_name_to_call ), $arguments );
 
 	}
+
+	/**
+	 * Get the URL to the admin page where user views the history feed.
+	 *
+	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
+	 */
+	public function get_view_history_page_admin_url() {
+		return admin_url( apply_filters( 'simple_history/admin_location', 'index' ) . '.php?page=simple_history_page' );
+	}
 }
