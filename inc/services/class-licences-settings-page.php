@@ -57,7 +57,7 @@ class Licences_Settings_Page extends Service {
 				'parent_slug' => 'settings',
 				'slug' => 'general_settings_subtab_licenses',
 				'name' => __( 'Licences', 'simple-history' ),
-				'order' => 5,
+				'order' => 20,
 				'function' => [ $this, 'settings_output_licenses' ],
 			]
 		);

@@ -31,7 +31,7 @@ class Setup_Settings_Page extends Service {
 				'parent_slug' => 'settings',
 				'slug' => 'general_settings_subtab_general',
 				'name' => __( 'General', 'simple-history' ),
-				'order' => 5,
+				'order' => 100,
 				'function' => [ $this, 'settings_output_general' ],
 			]
 		);

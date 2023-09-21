@@ -633,6 +633,7 @@ class Simple_History {
 	 *     @type int      $order Order of the tab, where higher number means earlier output,
 	 *     @type callable $function Function that will show the settings tab output.
 	 *     @type string   $parent_slug Slug of parent tab, if this is a sub tab.
+	 *     @type string   $icon Icon to use for tab.
 	 * }
 	 */
 	public function register_settings_tab( $arr_tab_settings ) {
