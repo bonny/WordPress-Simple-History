@@ -77,7 +77,7 @@ class Licences_Settings_Page extends Service {
 		add_settings_section(
 			self::SETTINGS_SECTION_ID,
 			Helpers::get_settings_section_title_output(
-				__( 'License information', 'simple-history' ),
+				__( 'License information for add-ons', 'simple-history' ),
 				'workspace_premium'
 			),
 			[ $this, 'settings_section_output' ],
@@ -96,7 +96,7 @@ class Licences_Settings_Page extends Service {
 		// Add row for managing licenses/sites.
 		add_settings_field(
 			'manage_licences',
-			Helpers::get_settings_field_title_output( __( 'Plugins & Licences', 'simple-history' ), 'web' ),
+			Helpers::get_settings_field_title_output( __( 'Customer Portal', 'simple-history' ), 'web' ),
 			[ $this, 'activated_sites_settings_output' ],
 			self::SETTINGS_PAGE_SLUG,
 			self::SETTINGS_SECTION_ID
@@ -106,17 +106,17 @@ class Licences_Settings_Page extends Service {
 	public function settings_section_output() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Enter your license key(s) to activate and retrieve updates for your PLUS plugins.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Enter your license key(s) to activate and retrieve updates for your add-on plugins.', 'simple-history' ); ?></p>
 			<p>
 				<?php
-				$link_url = 'https://simple-history.com/plus';
-				$link_text = 'simple-history.com/plus';
+				$link_url = 'https://simple-history.com/add-ons';
+				$link_text = 'simple-history.com/add-ons';
 
 				echo wp_kses(
 					sprintf(
 						/* translators: 1: link to plus plugins page, 2: link text */
 						__(
-							'Don\'t have any plus plugin yet? Visit <a href="%1$s" class="sh-ExternalLink" target="_blank">%2$s</a> for more information.',
+							'Don\'t have any add-ons yet? Visit <a href="%1$s" class="sh-ExternalLink" target="_blank">%2$s</a> to see available add-ons.',
 							'simple-history'
 						),
 						esc_url( $link_url ),
@@ -289,10 +289,10 @@ class Licences_Settings_Page extends Service {
 		?>
 		<p>
 			Visit the
-			<a href="https://app.lemonsqueezy.com/my-orders/" class="sh-ExternalLink" target="_blank">
-				<?php esc_html_e( 'My orders', 'simple-history' ); ?>
+			<a href="https://simple-history.lemonsqueezy.com/billing" class="sh-ExternalLink" target="_blank">
+				<?php esc_html_e( 'Customer Portal', 'simple-history' ); ?>
 			</a>
-			page at the Lemon Squeezy website to view and manage your licences and sites.
+			 to view and manage your licences, sites, and billing for your add-ons.
 		</p>
 		
 		<p>There you can also download the plugins you have bought.</p>
