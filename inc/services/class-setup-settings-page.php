@@ -101,9 +101,9 @@ class Setup_Settings_Page extends Service {
 		$settings_menu_slug = $this->simple_history::SETTINGS_MENU_SLUG;
 		$settings_general_option_group = $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP;
 
-		add_settings_section(
+		Helpers::add_settings_section(
 			$settings_section_general_id,
-			Helpers::get_settings_section_title_output( __( 'General', 'simple-history' ), 'tune' ),
+			[ __( 'General', 'simple-history' ), 'tune' ],
 			[ $this, 'settings_section_output' ],
 			$settings_menu_slug // Same slug as for options menu page.
 		);

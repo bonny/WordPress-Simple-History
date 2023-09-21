@@ -74,12 +74,9 @@ class Licences_Settings_Page extends Service {
 		);
 
 		// Add licence settings section.
-		add_settings_section(
+		Helpers::add_settings_section(
 			self::SETTINGS_SECTION_ID,
-			Helpers::get_settings_section_title_output(
-				__( 'License information for add-ons', 'simple-history' ),
-				'workspace_premium'
-			),
+			[ __( 'License information for add-ons', 'simple-history' ), 'workspace_premium' ],
 			[ $this, 'settings_section_output' ],
 			self::SETTINGS_PAGE_SLUG
 		);

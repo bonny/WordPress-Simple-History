@@ -71,9 +71,9 @@ class Donate_Dropin extends Dropin {
 	}
 
 	public function add_settings() {
-		add_settings_section(
+		Helpers::add_settings_section(
 			'simple_history_settings_section_donate',
-			Helpers::get_settings_section_title_output( _x( 'Support development', 'donate settings headline', 'simple-history' ), 'volunteer_activism' ),
+			[ _x( 'Support development', 'donate settings headline', 'simple-history' ), 'volunteer_activism' ],
 			array( $this, 'settings_section_output' ),
 			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
 		);

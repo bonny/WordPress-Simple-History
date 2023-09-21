@@ -655,7 +655,7 @@ class Helpers {
 
 		return sprintf(
 			'
-			<span class="sh-SettingsPage-settingsSectionTitle">
+			<span class="sh-SettingsPage-settingsSection-title">
 				%2$s
 				%1$s
 			</span>
@@ -693,5 +693,33 @@ class Helpers {
 			esc_html( $title ),
 			$icon_output
 		);
+	}
+
+	/**
+	 * Wrapper for \add_settings_section with added support for:
+	 * - Icon before title.
+	 * - Wrapper div automatically added.
+	 *
+	 * @param string $id Slug-name to identify the section. Used in the 'id' attribute of tags.
+	 * @param string|array $title Formatted title of the section. Shown as the heading for the section.
+	 *                     Pass in array instead of string to use as ['Section title', 'icon-slug']
+	 * @param callable $callback Function that echos out any content at the top of the section (between heading and fields).
+	 * @param string $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page()
+	 * @param array $args Optional. Additional arguments that are passed to the $callback function. Default empty array.
+	 */
+	public static function add_settings_section( $id, $title, $callback, $page, $args = [] ) {
+		// If title is array then it is [title, icon-slug].
+		if ( is_array( $title ) ) {
+			$title = self::get_settings_section_title_output( $title[0], $title[1] );
+		} else {
+			$title = self::get_settings_section_title_output( $title );
+		}
+
+		$args = [
+			'before_section' => '<div class="sh-SettingsPage-settingsSection-wrap">',
+			'after_section' => '</div>',
+		];
+
+		add_settings_section( $id, $title, $callback, $page, $args );
 	}
 }
