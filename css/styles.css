@@ -1038,7 +1038,16 @@ Modal window with detailss
 	color: #3c434a;
 }
 
-.sh-SettingsPage-settingsSectionTitle {
+.sh-SettingsPage-settingsSection-wrap {
+	padding: 1rem 0;
+	margin: 1rem 0;
+}
+
+.sh-SettingsPage-settingsSection-wrap h2 {
+	margin: 0;
+}
+
+.sh-SettingsPage-settingsSection-title {
 	display: block;
 	font-size: 23px;
 	font-weight: 400;
