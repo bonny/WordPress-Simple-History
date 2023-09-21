@@ -16,13 +16,12 @@ class Licences_Settings_Page extends Service {
 	private const OPTION_LICENSE_MESSAGE = 'example_plugin_license_message';
 
 	public function loaded() {
-		// Only load if dev mode is enabled, for now,
-		// since Plus Plugins are not ready yet.
-		// if ( false === Helpers::dev_mode_is_enabled() ) {
-		// 	return;
-		// }
-
 		$this->licences_service = $this->simple_history->get_service( Plus_Licences::class );
+
+		// Bail if licences service not found.
+		if ( ! $this->licences_service ) {
+			return;
+		}
 
 		add_action( 'after_setup_theme', array( $this, 'add_settings_tab' ) );
 		add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
@@ -104,6 +103,7 @@ class Licences_Settings_Page extends Service {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
 			<p><?php esc_html_e( 'Enter your license key(s) to activate and retrieve updates for your add-on plugins.', 'simple-history' ); ?></p>
+
 			<p>
 				<?php
 				$link_url = 'https://simple-history.com/add-ons';
@@ -140,11 +140,6 @@ class Licences_Settings_Page extends Service {
 		foreach ( $this->licences_service->get_plus_plugins() as $one_plus_plugin ) {
 			$this->output_licence_key_fields_for_plugin( $one_plus_plugin );
 		}
-
-		/*
-		"This license key has reached the activation limit."
-		står kvar även om man tar bort sajten i lemon squeesys admin.
-		*/
 	}
 
 	/**
@@ -199,21 +194,21 @@ class Licences_Settings_Page extends Service {
 		$license_key = $plus_plugin->get_license_key();
 
 		?>
-		<div style="margin-bottom: 2em;">
+		<div class="sh-LicencesPage-plugin">
 			<form method="post" action="<?php echo esc_url( $form_post_url ); ?>">
 				<?php wp_nonce_field( 'sh-plugin-keys' ); ?>
 				<input type="hidden" name="plugin_slug" value="<?php echo esc_attr( $plus_plugin->slug ); ?>" />
 
-				<p style="font-weight: bold; font-size: 1.25em;font-weight: 400;">
+				<p class="sh-LicencesPage-plugin-name">
 					<?php echo esc_html( $plus_plugin->name ); ?>
 				</p>
 
-				<p class="description">
+				<p class="sh-LicencesPage-plugin-version">
 					<?php echo 'Version ' . esc_html( $plus_plugin->version ); ?>
 				</p>
 
 				<p>
-					<input <?php wp_readonly( $licence_message['key_activated'] && ! empty( $license_key ) ); ?> type="text" class="regular-text" name="licence_key" value="<?php echo esc_attr( $license_key ); ?>" />
+					<input type="text" class="regular-text" name="licence_key" value="<?php echo esc_attr( $license_key ); ?>" />
 				</p>
 
 				<?php
@@ -232,7 +227,7 @@ class Licences_Settings_Page extends Service {
 				// Show deactivate key button if key is activated.
 				if ( $licence_message['key_activated'] === true ) {
 					?>
-					<p class="description">
+					<p class="sh-LicencesPage-plugin-active">
 						<?php
 						echo wp_kses(
 							__( 'License key is <strong>active</strong>. ', 'simple-history' ),
@@ -275,7 +270,6 @@ class Licences_Settings_Page extends Service {
 					);
 				}
 
-				// sh_d( 'debug:', '$license_message', $licence_message );
 				?>
 			</form>
 		</div>

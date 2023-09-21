@@ -1158,3 +1158,26 @@ a.sh-SettingsTabs-link:hover {
 .sh-mr-3 {
 	margin-right: 0.75rem; /* 12px */
 }
+
+.sh-LicencesPage-plugin {
+	background: #fff;
+	border-radius: 0.5rem;
+	margin-bottom: 2rem;
+	padding: 1.5rem;
+}
+
+.form-table .sh-LicencesPage-plugin-name {
+	margin: 0;
+	font-weight: bold;
+	font-size: 1.25em;
+	font-weight: 400;
+}
+
+.form-table .sh-LicencesPage-plugin-version {
+	color: #888;
+	margin-bottom: 1rem;
+}
+
+.form-table .sh-LicencesPage-plugin-active {
+	margin-bottom: 1rem;
+}
