@@ -7,7 +7,7 @@ use Simple_History\Helpers;
 class Setup_Settings_Page extends Service {
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
-		add_action( 'admin_menu', array( $this, 'add_settings' ) );
+		add_action( 'admin_menu', array( $this, 'add_settings' ), 10 );
 		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
 	}
 

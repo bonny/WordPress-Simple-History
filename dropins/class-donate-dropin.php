@@ -19,6 +19,7 @@ use Simple_History\Simple_History;
 class Donate_Dropin extends Dropin {
 	/** @inheritDoc */
 	public function loaded() {
+		// Prio 50 so it's added after the built in settings.
 		add_action( 'admin_menu', array( $this, 'add_settings' ), 50 );
 		add_action( 'plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2 );
 		add_filter( 'admin_footer_text', array( $this, 'filter_admin_footer_text' ), 10, 1 );
@@ -79,6 +80,7 @@ class Donate_Dropin extends Dropin {
 	}
 
 	public function settings_section_output() {
+		echo '<p>';
 		printf(
 			wp_kses(
 				// translators: 1 is a link to PayPal, 2 is a link to GitHub sponsors.
@@ -97,5 +99,6 @@ class Donate_Dropin extends Dropin {
 			'https://www.paypal.me/eskapism',
 			'https://github.com/sponsors/bonny',
 		);
+		echo '</p>';
 	}
 }

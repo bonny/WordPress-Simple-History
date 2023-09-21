@@ -28,8 +28,8 @@ class RSS_Dropin extends Dropin {
 
 		add_action( 'init', array( $this, 'check_for_rss_feed_request' ) );
 
-		// Add settings with priority 11 so it' added after the main Simple History settings.
-		add_action( 'admin_menu', array( $this, 'add_settings' ), 11 );
+		// Add settings with priority 15 so it' added after the main Simple History settings.
+		add_action( 'admin_menu', array( $this, 'add_settings' ), 15 );
 	}
 
 	/**
