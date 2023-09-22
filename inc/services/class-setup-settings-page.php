@@ -386,12 +386,11 @@ class Setup_Settings_Page extends Service {
 				<?php
 			}
 
-			$active_tab = $_GET['selected-tab'] ?? 'settings';
-			$settings_base_url = menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, 0 );
 			?>
-
 			<nav class="sh-PageNav">
 				<?php
+				$active_tab = $_GET['selected-tab'] ?? 'settings';
+
 				foreach ( $arr_settings_tabs as $one_tab ) {
 					$tab_slug = $one_tab['slug'];
 
@@ -413,7 +412,7 @@ class Setup_Settings_Page extends Service {
 						'<a href="%3$s" class="sh-PageNav-tab %4$s">%5$s%1$s</a>',
 						$one_tab['name'], // 1
 						$tab_slug, // 2
-						esc_url( add_query_arg( 'selected-tab', $tab_slug, $settings_base_url ) ), // 3
+						esc_url( Helpers::get_settings_page_tab_url( $tab_slug ) ),
 						$active_tab == $tab_slug ? 'is-active' : '', // 4
 						wp_kses( $icon_html, $icon_html_allowed_html ) // 5
 					);
@@ -456,7 +455,7 @@ class Setup_Settings_Page extends Service {
 						foreach ( $subtabs_for_active_tab as $one_sub_tab ) {
 							$is_active = $active_sub_tab === $one_sub_tab['slug'];
 							$is_active_class = $is_active ? 'is-active' : '';
-							$plug_settings_tab_url = add_query_arg( 'selected-sub-tab', $one_sub_tab['slug'], $settings_base_url );
+							$plug_settings_tab_url = Helpers::get_settings_page_sub_tab_url( $one_sub_tab['slug'] );
 
 							?>
 							<li class="sh-SettingsTabs-tab">

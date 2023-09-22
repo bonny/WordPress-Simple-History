@@ -149,13 +149,7 @@ class Licences_Settings_Page extends Service {
 	 */
 	private function output_licence_key_fields_for_plugin( $plus_plugin ) {
 		$license_key = $plus_plugin->get_license_key();
-
-		$form_post_url = add_query_arg(
-			[
-				'selected-sub-tab' => 'general_settings_subtab_licenses',
-			],
-			menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, 0 )
-		);
+		$form_post_url = Helpers::get_settings_page_sub_tab_url( 'general_settings_subtab_licenses' );
 
 		// Check for posted form for this plugin
 		$form_success_message = null;
