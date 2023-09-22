@@ -737,7 +737,7 @@ class Helpers {
 
 	/**
 	 * Get URL for a sub-tab in the settings page.
-	 * 
+	 *
 	 * @param string $sub_tab_slug Slug for the sub-tab.
 	 * @return string URL for the sub-tab, unescaped.
 	 */
