@@ -48,9 +48,10 @@ class Filter_Dropin extends Dropin {
 			<form class="SimpleHistory__filters__form js-SimpleHistory__filters__form">
 				<?php
 
-				// Start months filter
 				global $wpdb;
-				$table_name = $wpdb->prefix . Simple_History::DBTABLE;
+				
+				// Start months filter
+				$table_name = $this->simple_history->get_events_table_name();
 				$loggers_user_can_read_sql_in = $this->simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
 				// Get unique months

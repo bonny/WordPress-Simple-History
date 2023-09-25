@@ -23,6 +23,3 @@ $pager_size = apply_filters( 'simple_history/settings_page_pager_size', $pager_s
 	 data-pager-size='<?php esc_attr( $pager_size ); ?>'
 	 ></div>
 <?php
-
-// global $wpdb;
-// $table_name = $wpdb->prefix . Simple_History::DBTABLE;

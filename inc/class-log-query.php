@@ -123,9 +123,9 @@ class Log_Query {
 		*/
 
 		global $wpdb;
-
-		$table_name = $wpdb->prefix . Simple_History::DBTABLE;
-		$table_name_contexts = $wpdb->prefix . Simple_History::DBTABLE_CONTEXTS;
+		$simple_history = Simple_History::get_instance();
+		$table_name = $simple_history->get_events_table_name();
+		$table_name_contexts = $simple_history->get_contexts_table_name();
 
 		$where = '1 = 1';
 		$limit = '';
@@ -680,7 +680,7 @@ class Log_Query {
 				$min_id = $last_row->id;
 			} else {
 				// Last row did have occasions, so fetch all occasions, and find id of last one.
-				$db_table = $wpdb->prefix . Simple_History::DBTABLE;
+				$db_table = $simple_history->get_events_table_name();
 				$sql = sprintf(
 					'
 						SELECT id, date, occasionsID

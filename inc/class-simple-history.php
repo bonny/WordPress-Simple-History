@@ -220,6 +220,7 @@ class Simple_History {
 	 */
 	private function setup_db_variables() {
 		global $wpdb;
+
 		$this::$dbtable = $wpdb->prefix . self::DBTABLE;
 		$this::$dbtable_contexts = $wpdb->prefix . self::DBTABLE_CONTEXTS;
 
@@ -612,10 +613,9 @@ class Simple_History {
 	public function does_database_have_data() {
 		global $wpdb;
 
-		$tableprefix = $wpdb->prefix;
-		$simple_history_table = self::DBTABLE;
+		$table_name = $this->get_events_table_name();
 
-		$sql_data_exists = "SELECT id AS id_exists FROM {$tableprefix}{$simple_history_table} LIMIT 1";
+		$sql_data_exists = "SELECT id AS id_exists FROM {$table_name} LIMIT 1";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$data_exists = (bool) $wpdb->get_var( $sql_data_exists, 0 );
 
@@ -818,11 +818,11 @@ class Simple_History {
 
 		$tableprefix = $wpdb->prefix;
 
-		$simple_history_table = self::DBTABLE;
-		$simple_history_context_table = self::DBTABLE_CONTEXTS;
+		$simple_history_table = $this->get_events_table_name();
+		$simple_history_contexts_table = $this->get_contexts_table_name();
 
 		// Get number of rows before delete.
-		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$tableprefix}{$simple_history_table}";
+		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$simple_history_table}";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$num_rows = $wpdb->get_var( $sql_num_rows, 0 );
 
@@ -831,7 +831,7 @@ class Simple_History {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		$sql = "TRUNCATE {$tableprefix}{$simple_history_context_table}";
+		$sql = "TRUNCATE {$simple_history_contexts_table}";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
@@ -1500,7 +1500,7 @@ class Simple_History {
                     WHERE UNIX_TIMESTAMP(date) >= %2$d
                     AND logger IN %3$s
                 ',
-				$wpdb->prefix . self::DBTABLE,
+				$this->get_events_table_name(),
 				strtotime( "-$period_days days" ),
 				$sqlStringLoggersUserCanRead
 			);
@@ -1540,7 +1540,7 @@ class Simple_History {
                     GROUP BY yearDate
                     ORDER BY yearDate ASC
                 ',
-				$wpdb->prefix . self::DBTABLE,
+				$this->get_events_table_name(),
 				strtotime( "-$period_days days" ),
 				$sqlStringLoggersUserCanRead
 			);
@@ -1562,7 +1562,7 @@ class Simple_History {
 	public function get_unique_events_for_days( $days = 7 ) {
 		global $wpdb;
 		$days = (int) $days;
-		$table_name = $wpdb->prefix . self::DBTABLE;
+		$table_name = $this->get_events_table_name();
 		$cache_key = 'sh_' . md5( __METHOD__ . $days );
 		$numEvents = get_transient( $cache_key );
 
