@@ -23,10 +23,21 @@ class Dashboard_Widget extends Service {
 			 */
 			$show_dashboard_widget = apply_filters( 'simple_history/show_dashboard_widget', true );
 
+			// Show link to settings page in dashboard widget if user can view settings page.
+			$show_dashboard_settings_link_html = '';
+			$show_dashboard_settings_link = current_user_can( $this->simple_history->get_view_settings_capability() );
+			if ( $show_dashboard_settings_link ) {
+				$show_dashboard_settings_link_html = sprintf(
+					'<a href="%1$s" title="%2$s" class="sh-Icon sh-Dashboard-settingsLink"></a>',
+					esc_url( menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false ) ),
+					esc_html__( 'Settings & Tools', 'simple-history' )
+				);
+			}
+
 			if ( $show_dashboard_widget ) {
 				wp_add_dashboard_widget(
 					'simple_history_dashboard_widget',
-					__( 'Simple History', 'simple-history' ),
+					__( 'Simple History', 'simple-history' ) . $show_dashboard_settings_link_html,
 					array(
 						$this,
 						'dashboard_widget_output',
