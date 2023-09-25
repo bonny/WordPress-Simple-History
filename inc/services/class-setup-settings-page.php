@@ -374,7 +374,15 @@ class Setup_Settings_Page extends Service {
 				<img width="1102" height="196" class="sh-PageHeader-logo" src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.svg" alt="Simple History logotype"/>
 				<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
 			</h1>
-
+			
+			<?php
+			// Add link to add-ons.
+			?>
+			<a href="https://simple-history.com/add-ons/?utm_source=wpadmin" class="sh-PageHeader-rightLink" target="_blank">
+				<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
+				<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
+			</a>
+			
 			<?php
 			// Add link back to the log.
 			if ( $this->simple_history->setting_show_as_page() ) {
