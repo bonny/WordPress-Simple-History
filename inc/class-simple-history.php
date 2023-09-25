@@ -687,6 +687,9 @@ class Simple_History {
 			}
 		);
 
+		// Re-index.
+		$settings_tabs_of_selected_type = array_values( $settings_tabs_of_selected_type );
+
 		return $settings_tabs_of_selected_type;
 	}
 
