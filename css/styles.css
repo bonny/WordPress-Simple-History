@@ -469,6 +469,10 @@ i.e. the log is inside a .postbox element.
 	/* -webkit-mask-image: url(./simple-history-logo-icon.svg); */
 }
 
+.postbox.closed .sh-Dashboard-settingsLink {
+	display: none;
+}
+
 .sh-Dashboard-settingsLink {
 	background-color: #787c82;
 	mask-image: url(./icons/settings_FILL0_wght400_GRAD0_opsz48.svg);
