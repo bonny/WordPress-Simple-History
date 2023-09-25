@@ -70,11 +70,15 @@ class Admin_Pages extends Service {
 				
 				<?php
 				// Add link to settings & tools.
+				if ( current_user_can( $this->simple_history->get_view_settings_capability() ) ) {
+					?>
+					<a href="<?php echo esc_url( menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false ) ); ?>" class="sh-PageHeader-rightLink">
+						<span class="sh-PageHeader-settingsLinkIcon sh-Icon"></span>
+						<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Settings & Tools', 'simple-history' ); ?></span>
+					</a>
+					<?php
+				}
 				?>
-				<a href="<?php echo esc_url( menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false ) ); ?>" class="sh-PageHeader-rightLink">
-					<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--settings"></span>
-					<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Settings & Tools', 'simple-history' ); ?></span>
-				</a>
 			</header>
 
 			<div class="wrap">
