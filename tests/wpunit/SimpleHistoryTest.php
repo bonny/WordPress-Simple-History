@@ -101,8 +101,9 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 			'dropin_example_tab_slug',
 			'tests_dropin_settings_tab_slug',
 		);
-
+		
 		$loaded_settings_slugs = wp_list_pluck( $settings_tabs, 'slug' );
+	
 		$this->assertEquals( $arr_default_settings, $loaded_settings_slugs );
 	}
 

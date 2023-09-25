@@ -49,7 +49,7 @@ class Filter_Dropin extends Dropin {
 				<?php
 
 				global $wpdb;
-				
+
 				// Start months filter
 				$table_name = $this->simple_history->get_events_table_name();
 				$loggers_user_can_read_sql_in = $this->simple_history->get_loggers_that_user_can_read( null, 'sql' );
