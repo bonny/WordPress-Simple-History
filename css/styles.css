@@ -476,7 +476,9 @@ i.e. the log is inside a .postbox element.
 .sh-Dashboard-settingsLink {
 	background-color: #787c82;
 	mask-image: url(./icons/settings_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/settings_FILL0_wght400_GRAD0_opsz48.svg);
 	mask-size: 100%;
+	-webkit-mask-size: 100%;
 }
 
 .sh-Dashboard-settingsLink:focus {
