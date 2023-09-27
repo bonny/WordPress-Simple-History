@@ -1024,6 +1024,19 @@ Modal window with detailss
 	--icon-size: 25px;
 }
 
+.sh-PageHeader-settingsLinkIcon-new {
+	font-style: normal;
+	display: inline-block;
+	text-transform: uppercase;
+	font-size: 0.8em;
+	background: green;
+	padding: 3px 4px;
+	line-height: 1;
+	border-radius: 3px;
+	color: #eee;
+	margin-left: 0.1em;
+}
+
 .sh-Page-content {
 	margin: 0 1rem;
 }
