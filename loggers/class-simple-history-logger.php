@@ -168,15 +168,6 @@ class Simple_History_Logger extends Logger {
 			)
 			->set_title( __( 'Changed items', 'simple-history' ) );
 
-		/**
-		 * Filter the event details container for the Simple History logger.
-		 *
-		 * @param Event_Details_Group $event_details_group
-		 * @param object $row
-		 * @return Event_Details_Group
-		 */
-		$event_details_group = apply_filters( 'simple_history/SimpleHistoryLogger/log_row_details_output', $event_details_group, $row );
-
-		return new Event_Details_Container( $event_details_group, $row->context );
+		return $event_details_group;
 	}
 }

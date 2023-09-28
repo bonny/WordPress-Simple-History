@@ -962,6 +962,15 @@ class Simple_History {
 		if ( $logger_details_output instanceof Event_Details_Container_Interface ) {
 			return $logger_details_output;
 		} else if ( $logger_details_output instanceof Event_Details_Group ) {
+			/**
+			 * Filter the event details group output for a logger
+			 * that has returned an Event_Details_Group.
+			 *
+			 * @param Event_Details_Group $event_details_group
+			 * @param object $row
+			 * @return Event_Details_Group
+			 */
+			$logger_details_output = apply_filters( 'simple_history/log_row_details_output-' . $logger->get_slug(), $logger_details_output, $row );
 			return new Event_Details_Container( $logger_details_output, $row->context );
 		} else {
 			return new Event_Details_Simple_Container( $logger_details_output );
