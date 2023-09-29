@@ -80,7 +80,7 @@ class Simple_History {
 	 */
 	public function init() {
 		/**
-		 * Fires before Simple History does it's init stuff
+		 * Fires before Simple History does it's init stuff.
 		 *
 		 * @since 2.0
 		 *
@@ -98,7 +98,7 @@ class Simple_History {
 		}
 
 		/**
-		 * Fires after Simple History has done it's init stuff
+		 * Fires after Simple History has done it's init stuff.
 		 *
 		 * @since 2.0
 		 *
