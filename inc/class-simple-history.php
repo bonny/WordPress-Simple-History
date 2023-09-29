@@ -940,7 +940,7 @@ class Simple_History {
 	 * Return details output for a log row.
 	 *
 	 * @param object $row
-	 * @return string|Event_Details_Container_Interface
+	 * @return string|Event_Details_Container_Interface|Event_Details_Group
 	 */
 	public function get_log_row_details_output( $row ) {
 		$row_logger = $row->logger;
