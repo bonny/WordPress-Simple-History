@@ -82,6 +82,9 @@ class Admin_Pages extends Service {
 				?>
 			</header>
 
+			<?php // WordPress will add notices after element with class .wp-header-end ?>
+			<hr class="wp-header-end">
+
 			<div class="wrap">
 
 				<?php
