@@ -1030,6 +1030,8 @@ Modal window with detailss
 	text-transform: uppercase;
 	font-size: 0.8em;
 	background: green;
+	text-decoration: underline;
+	text-decoration-color: green;
 	padding: 3px 4px;
 	line-height: 1;
 	border-radius: 3px;
