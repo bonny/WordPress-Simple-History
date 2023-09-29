@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Tested up to: 6.3
-Stable tag: 4.6.0
+Stable tag: 4.7.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -212,8 +212,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased 4.n.n (n n)
+### Unreleased 4.7.0 (September 2023)
 
+TODO: Text about add-ons.
+
+- Introducing add-ons.
 - UI changes, including a new logo and a shortcut to the settings page.
 - Add function `get_view_history_page_admin_url()`.
 - Add filter `simple_history/log_row_details_output-{logger_slug}`.
