@@ -20,8 +20,6 @@
     "load-grunt-tasks": "^5.1.0",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "stylelint": "^15.6.0",
-    "stylelint-prettier": "^1.2.0",
     "time-grunt": "^1.4.0"
   },
   "dependencies": {},
@@ -40,7 +38,6 @@
     "deploy": "grunt deploy",
     "deploy_without_tag": "grunt wp_deploy:deploy_without_tag",
     "grunt": "grunt",
-    "css:lint": "stylelint css/*.css dropins/*.css",
     "php:lint": "composer run lint",
     "php:lint-fix": "composer run lint-fix",
     "php:phpstan": "vendor/bin/phpstan analyse --memory-limit 2048M",
