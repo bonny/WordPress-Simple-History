@@ -28,6 +28,15 @@ class Plus_Licences extends Service {
 	}
 
 	/**
+	 * Check if any add-ons are installed.
+	 *
+	 * @return bool
+	 */
+	public function has_add_ons() {
+		return count( $this->get_plus_plugins() ) > 0;
+	}
+
+	/**
 	 * Register plugin updaters for all added plus-plugins.
 	 */
 	public function init_plugin_updater_for_registered_licence_plugins() {
