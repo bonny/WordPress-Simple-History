@@ -16,15 +16,14 @@ class Licences_Settings_Page extends Service {
 	private const OPTION_LICENSE_MESSAGE = 'example_plugin_license_message';
 
 	public function loaded() {
-		$this->licences_service = $this->simple_history->get_service( Plus_Licences::class );
+		$licences_service = $this->simple_history->get_service( Plus_Licences::class );
 
 		// Bail if licences service not found.
-		if ( ! $this->licences_service ) {
+		if ( ! $licences_service || ! $licences_service instanceof Plus_Licences ) {
 			return;
 		}
 
-		add_action( 'after_setup_theme', array( $this, 'add_settings_tab' ) );
-		add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
+		$this->licences_service = $licences_service;
 	}
 
 	/**
