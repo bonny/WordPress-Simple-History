@@ -24,7 +24,21 @@ class Licences_Settings_Page extends Service {
 		}
 
 		$this->licences_service = $licences_service;
+
+		// Add settings tab.
+		// For now only if any add-ons are installed.
+		// TODO: Always show this in the future, when add-ons system are tested.
+		add_action( 'plugins_loaded', [ $this, 'on_plugins_loaded' ] );
 	}
+
+	public function on_plugins_loaded() {
+		if ( $this->licences_service->has_add_ons() ) {
+			$this->add_settings_tab();
+			// add_action( 'admin_menu', array( $this, 'add_settings_tab' ) );
+			add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
+		}
+	}
+
 
 	/**
 	 * Get user entered license key.
