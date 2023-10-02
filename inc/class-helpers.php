@@ -746,4 +746,27 @@ class Helpers {
 		$settings_sub_tab_url = add_query_arg( 'selected-sub-tab', $sub_tab_slug, $settings_base_url );
 		return $settings_sub_tab_url;
 	}
+
+	/**
+	 *  Add link to add-ons.
+	 *
+	 * @return string HTML for link to add-ons.
+	 */
+	public static function get_header_add_ons_link() {
+		// TODO: Enable this later when add-ons flow are tested.
+		return '';
+
+		ob_start();
+
+		?>
+		<a href="https://simple-history.com/add-ons/?utm_source=wpadmin" class="sh-PageHeader-rightLink" target="_blank">
+			<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
+			<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
+			<em class="sh-PageHeader-settingsLinkIcon-new"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
+		</a>
+		<?php
+
+		return ob_get_clean();
+	}
+
 }

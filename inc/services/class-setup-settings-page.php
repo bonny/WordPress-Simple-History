@@ -376,13 +376,9 @@ class Setup_Settings_Page extends Service {
 			</h1>
 			
 			<?php
-			// Add link to add-ons.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo Helpers::get_header_add_ons_link();
 			?>
-			<a href="https://simple-history.com/add-ons/?utm_source=wpadmin" class="sh-PageHeader-rightLink" target="_blank">
-				<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
-				<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
-				<em class="sh-PageHeader-settingsLinkIcon-new"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
-			</a>
 			
 			<?php
 			// Add link back to the log.
