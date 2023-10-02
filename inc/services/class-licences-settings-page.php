@@ -151,18 +151,19 @@ class Licences_Settings_Page extends Service {
 		$license_key = $plus_plugin->get_license_key();
 		$form_post_url = Helpers::get_settings_page_sub_tab_url( 'general_settings_subtab_licenses' );
 
-		// Check for posted form for this plugin
+		// Check for posted form for this plugin.
 		$form_success_message = null;
 		$form_error_message = null;
 		$nonce_valid = wp_verify_nonce( $_POST['_wpnonce'] ?? '', 'sh-plugin-keys' ) !== false;
+
 		if ( $nonce_valid && isset( $_POST['plugin_slug'] ) && $_POST['plugin_slug'] === $plus_plugin->slug ) {
 			$action_activate = boolval( $_POST['activate'] ?? false );
 			$action_deactivate = boolval( $_POST['deactivate'] ?? false );
-
 			$new_licence_key = trim( sanitize_text_field( wp_unslash( $_POST['licence_key'] ?? '' ) ) );
 
 			if ( $action_activate ) {
 				$activation_result = $plus_plugin->activate_license( $new_licence_key );
+
 				if ( $activation_result['success'] === true ) {
 					$form_success_message = 'License activated! 🎉';
 				} else {
@@ -183,7 +184,7 @@ class Licences_Settings_Page extends Service {
 			}
 		}
 
-		// Get key and message again, because it they have changed.
+		// Get key and message again, because they may have changed.
 		$licence_message = $plus_plugin->get_license_message();
 		$license_key = $plus_plugin->get_license_key();
 
@@ -264,7 +265,17 @@ class Licences_Settings_Page extends Service {
 					);
 				}
 
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					?>
+					<details style="margin-top: 1em;">
+						<summary>Licence message (debug)</summary>
+						<pre><?php echo esc_html( print_r( $licence_message, true ) ); ?></pre>
+						<br />Licence key: <code><?php echo esc_html( $license_key ); ?></code>
+					</details>
+					<?php
+				}
 				?>
+
 			</form>
 		</div>
 		<?php
