@@ -92,7 +92,7 @@ class Licences_Settings_Page extends Service {
 		// Add row for managing licenses/sites.
 		add_settings_field(
 			'manage_licences',
-			Helpers::get_settings_field_title_output( __( 'Customer Portal', 'simple-history' ), 'web' ),
+			Helpers::get_settings_field_title_output( __( 'Sites and Billing', 'simple-history' ), 'web' ),
 			[ $this, 'activated_sites_settings_output' ],
 			self::SETTINGS_PAGE_SLUG,
 			self::SETTINGS_SECTION_ID
@@ -271,16 +271,34 @@ class Licences_Settings_Page extends Service {
 	}
 
 	public function activated_sites_settings_output() {
+		$link_my_orders_start = '<a href="https://app.lemonsqueezy.com/my-orders/" class="sh-ExternalLink" target="_blank">';
+		$link_my_orders_end = '</a>';
+
+		$link_billing_start = '<a href="https://simple-history.lemonsqueezy.com/billing" class="sh-ExternalLink" target="_blank">';
+		$link_billing_end = '</a>';
+
 		?>
 		<p>
-			Visit the
-			<a href="https://simple-history.lemonsqueezy.com/billing" class="sh-ExternalLink" target="_blank">
-				<?php esc_html_e( 'Customer Portal', 'simple-history' ); ?>
-			</a>
-			 to view and manage your licences, sites, and billing for your add-ons.
+			<?php
+			printf(
+				/* translators: 1: link start tag, 2: link end tag */
+				esc_html__( 'Manage licences and download your add-ons at the %1$sMy orders%2$s page.', 'simple-history' ),
+				$link_my_orders_start, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$link_my_orders_end // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			);
+			?>
 		</p>
-		
-		<p>There you can also download the plugins you have bought.</p>
+
+		<p>
+			<?php
+			printf(
+				/* translators: 1: link start tag, 2: link end tag */
+				esc_html__( 'Manage subscriptions and billing for your add-ons at the %1$sCustomer portal%2$s.', 'simple-history' ),
+				$link_billing_start, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$link_billing_end // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			);
+			?>
+		</p>
 		<?php
 	}
 
@@ -291,9 +309,6 @@ class Licences_Settings_Page extends Service {
 		// Output setting sections.
 		?>
 		<div class="wrap sh-Page-content">
-			<!-- <h2>Licences</h2>
-			<p>Simple History Plus is a premium plugin. You need a licence key to use it.</p>
-			<p>Enter your licence key below to activate Simple History Plus.</p> -->
 			<?php
 			// Prints out all settings sections added to a particular settings page.
 			do_settings_sections( self::SETTINGS_PAGE_SLUG );
