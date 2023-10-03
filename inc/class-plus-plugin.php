@@ -159,13 +159,22 @@ class Plus_Plugin {
 			];
 		}
 
-		// Bail because not activated, maybe because licence not valid.
-		if ( $remote_body_json['data']['activated'] === false ) {
+		// Bail when bad request.
+		if ( 400 === wp_remote_retrieve_response_code( $response ) ) {
 			$this->set_licence_message( $this->message_defaults );
+			$message = null;
+
+			// Get error. Can be a single field (for example when licence key is not found),
+			// or array of messages (for example when no licence_key exists in query string).
+			if ( isset( $remote_body_json['data']['errors'] ) && is_array( $remote_body_json['data']['errors'] ) ) {
+				$message = $remote_body_json['data']['errors'][0]['detail'];
+			} elseif ( isset( $remote_body_json['data']['error'] ) ) {
+				$message = $remote_body_json['data']['error'];
+			}
 
 			return [
 				'success' => false,
-				'message' => $remote_body_json['data']['error'],
+				'message' => $message,
 			];
 		}
 
