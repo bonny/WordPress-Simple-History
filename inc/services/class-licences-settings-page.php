@@ -4,6 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Helpers;
 use Simple_History\Services\Plus_Licences;
+use Simple_History\Plus_Plugin;
 
 class Licences_Settings_Page extends Service {
 	/** @var Plus_Licences $licences_service */
