@@ -219,20 +219,8 @@ class Licences_Settings_Page extends Service {
 				<p>
 					<input type="text" class="regular-text" name="licence_key" value="<?php echo esc_attr( $license_key ); ?>" />
 				</p>
-
+	
 				<?php
-				// Show Activate button if no key is set already.
-				if ( $licence_message['key_activated'] !== true || empty( $license_key ) ) {
-					?>
-					<p><?php esc_html_e( 'No license found.', 'simple-history' ); ?></p>
-					<p>	
-						<span class="sh-mr-1">
-							<?php submit_button( 'Activate', 'secondary', 'activate', false ); ?>
-						</span>
-					</p>
-					<?php
-				}
-
 				// Show deactivate key button if key is activated.
 				if ( $licence_message['key_activated'] === true ) {
 					?>
@@ -246,12 +234,25 @@ class Licences_Settings_Page extends Service {
 						);
 						?>
 					</p>
+					<?php
+				}
+				?>
 
-					<p>
-						<span class="sh-mr-1">
-							<?php submit_button( 'Deactivate', 'secondary', 'deactivate', false ); ?>
-						</span>
-					</p>
+				<p>
+					<span class="sh-mr-1">
+						<?php submit_button( 'Activate', 'secondary', 'activate', false ); ?>
+					</span>
+
+					<span class="sh-mr-1">
+						<?php submit_button( 'Deactivate', 'secondary', 'deactivate', false ); ?>
+					</span>
+				</p>
+				
+				<?php
+				// Show Activate button if no key is set already.
+				if ( $licence_message['key_activated'] !== true || empty( $license_key ) ) {
+					?>
+					<p><?php esc_html_e( 'No license found.', 'simple-history' ); ?></p>
 					<?php
 				}
 
