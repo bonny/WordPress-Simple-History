@@ -212,14 +212,12 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased 4.7.0 (September 2023)
+### Unreleased 4.7.0 (October 2023)
 
-TODO: Text about add-ons.
-
-- Introducing add-ons.
 - UI changes, including a new logo and a shortcut to the settings page.
 - Add function `get_view_history_page_admin_url()`.
 - Add filter `simple_history/log_row_details_output-{logger_slug}`.
+- Misc internal code cleanup and improvements.
 
 ### 4.6.0 (September 2023)
 
