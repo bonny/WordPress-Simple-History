@@ -27,9 +27,14 @@ class Licences_Settings_Page extends Service {
 		$this->licences_service = $licences_service;
 
 		// Add settings tab.
+		// Run on prio 20 so it runs after add ons have done their loaded actions.
 		// For now only if any add-ons are installed.
 		// TODO: Always show this in the future, when add-ons system are tested.
-		add_action( 'plugins_loaded', [ $this, 'on_plugins_loaded' ] );
+		add_action(
+			'plugins_loaded',
+			[ $this, 'on_plugins_loaded' ],
+			20
+		);
 	}
 
 	public function on_plugins_loaded() {
