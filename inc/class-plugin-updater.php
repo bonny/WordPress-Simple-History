@@ -67,7 +67,7 @@ class Plugin_Updater {
 	 * @return string
 	 */
 	protected function get_license_key() {
-		$plus_plugin = new Plus_Plugin(
+		$plus_plugin = new AddOn_Plugin(
 			$this->plugin_id,
 			$this->plugin_slug,
 			$this->version,

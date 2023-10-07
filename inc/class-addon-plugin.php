@@ -5,7 +5,7 @@ namespace Simple_History;
 /**
  * Class with information and data for a plus plugin.
  */
-class Plus_Plugin {
+class AddOn_Plugin {
 	/**
 	 * Id of plugin, eg basenamed path + index file: "simple-history-plus-woocommerce/index.php".
 	 *
