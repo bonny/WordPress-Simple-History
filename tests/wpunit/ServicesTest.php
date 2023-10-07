@@ -21,6 +21,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 		$actual_slugs = array_map(fn (Service $service) => $service->get_slug(), $services);
 
 		$expected_slugs = [
+			'AddOns_Licences',
 			'Language_Loader',
 			'Setup_Database',
 			'Scripts_And_Templates',
@@ -36,7 +37,6 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Network_Menu_Items',
 			'Plugin_List_Link',
 			'Licences_Settings_Page',
-			'Plus_Licences',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);
