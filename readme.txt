@@ -212,9 +212,12 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased 4.7.0 (October 2023)
+### 4.7.0 (October 2023)
 
-- UI changes, including a new logo and a shortcut to the settings page.
+Most notable in this release is the new logotype and a new shortcut to the "Settings & Tools" page.
+[Read the release post for more info](https://simple-history.com/2023/simple-history-4-7-0/).
+
+- Changed: UI changes, including a new logo and a shortcut to the settings page.
 - Add function `get_view_history_page_admin_url()`.
 - Add filter `simple_history/log_row_details_output-{logger_slug}` to allow modifying the output of the details of a log row.
 - Misc internal code cleanup and improvements.
