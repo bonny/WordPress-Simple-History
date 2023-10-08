@@ -222,7 +222,11 @@ class Licences_Settings_Page extends Service {
 				</p>
 
 				<p>
-					<input type="text" class="regular-text" name="licence_key" value="<?php echo esc_attr( $license_key ); ?>" />
+					<input 
+						type="text" class="regular-text" name="licence_key" 
+						value="<?php echo esc_attr( $license_key ); ?>" 
+						placeholder="<?php esc_attr_e( 'Enter license key...', 'simple-history' ); ?>"
+					 />
 				</p>
 	
 				<?php
