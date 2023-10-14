@@ -156,8 +156,15 @@ class Licences_Settings_Page extends Service {
 	 * Output fields to enter licence key for each plus plugin.
 	 */
 	public function license_keys_field_output() {
-		foreach ( $this->licences_service->get_addon_plugins() as $one_plus_plugin ) {
-			$this->output_licence_key_fields_for_plugin( $one_plus_plugin );
+		if ( is_main_site() ) {
+			foreach ( $this->licences_service->get_addon_plugins() as $one_plus_plugin ) {
+				$this->output_licence_key_fields_for_plugin( $one_plus_plugin );
+			}
+		} else {
+			printf(
+				'<p>%s</p>',
+				esc_html__( 'On multisite installations you enter the licence keys on the main site.', 'simple-history' )
+			);
 		}
 	}
 
