@@ -976,6 +976,7 @@ Modal window with detailss
 }
 
 :root {
+	--sh-color-gray: #c3c4c7;
 	--sh-color-green: #3f9349;
 }
 
@@ -987,7 +988,7 @@ Modal window with detailss
 	margin: 0 0 2rem -20px;
 	padding: 1.5rem;
 	background: #fff;
-	border-bottom: 1px solid #8cac90;
+	border-bottom: 1px solid var(--sh-color-gray);
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
