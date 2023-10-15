@@ -28,6 +28,16 @@ class AddOns_Licences extends Service {
 	}
 
 	/**
+	 * Get a single add-on plugin, by slug.
+	 *
+	 * @param string $slug Slug of plugin, eg "simple-history-extended-settings".
+	 * @return AddOn_Plugin|null Plugin or null if not found.
+	 */
+	public function get_plugin( $slug ) {
+		return $this->addon_plugins[ $slug ] ?? null;
+	}
+
+	/**
 	 * Check if any add-ons are installed.
 	 *
 	 * @return bool
