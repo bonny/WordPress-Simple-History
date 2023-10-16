@@ -44,6 +44,13 @@ class SimpleHistoryLoggerCest
         $I->acceptPopup();       
         $I->wait(0.5);
         $I->seeLogMessageStartsWith('Cleared the log for Simple History (');
+
+        // Check that db is empty.
+        $events_table = $I->grabPrefixedTableNameFor('simple_history');
+        $contexts_table = $I->grabPrefixedTableNameFor('simple_history_contexts');
+
+        $I->assertEquals(1, $I->countRowsInDatabase($events_table), 'There should be one row in events table');
+        $I->assertLessThan(10, $I->countRowsInDatabase($contexts_table), 'There should be few rows in contexts table');
     }
 
     public function it_can_enable_rss_feed(Admin $I) {
