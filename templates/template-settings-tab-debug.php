@@ -39,7 +39,7 @@ foreach ( $tables_info as $table_info ) {
 }
 
 echo wp_kses(
-	Helpers::get_settings_section_title_output( 'Debug', 'build' ),
+	Helpers::get_settings_section_title_output( __('Debug', 'simple-history'), 'build' ),
 	[
 		'span' => [
 			'class' => [],
