@@ -212,7 +212,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased 4.7.1 (?? 2023)
+### 4.7.1 (October 2023)
 
 - Fix: Only context table was cleared when clearing the database. Now also the events table is cleared.
 - Add function `AddOns_Licences::get_plugin()`.
