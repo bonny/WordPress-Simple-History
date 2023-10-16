@@ -212,6 +212,12 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+### Unreleasex 4.7.1 (?? 2023)
+
+- Fix: Only context table was cleared when clearing the database. Now also the events table is cleared.
+- Add function `AddOns_Licences::get_plugin()`.
+- Misc internal code cleanup and improvements.
+
 ### 4.7.0 (October 2023)
 
 Most notable in this release is the new logotype and a new shortcut to the "Settings & Tools" page.

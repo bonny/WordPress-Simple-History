@@ -819,8 +819,6 @@ class Simple_History {
 	public function clear_log() {
 		global $wpdb;
 
-		$tableprefix = $wpdb->prefix;
-
 		$simple_history_table = $this->get_events_table_name();
 		$simple_history_contexts_table = $this->get_contexts_table_name();
 
@@ -830,7 +828,7 @@ class Simple_History {
 		$num_rows = $wpdb->get_var( $sql_num_rows, 0 );
 
 		// Use truncate instead of delete because it's much faster (I think, writing this much later).
-		$sql = "TRUNCATE {$tableprefix}{$simple_history_table}";
+		$sql = "TRUNCATE {$simple_history_table}";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
