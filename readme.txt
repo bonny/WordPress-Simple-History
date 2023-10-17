@@ -69,18 +69,15 @@ By default Simple History comes with built in support for the following plugins:
   and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
   Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
 
-- **Redirection** – The [redirection plugin](https://wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI.
-  Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
+- **Redirection** – The [redirection plugin](https://wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI. Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
-- **Duplicate Post** – The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to
-  clone posts of any type.
-  Simple History will log when a clone of a post or page is done.
+- **Duplicate Post** – The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to clone posts of any type. Simple History will log when a clone of a post or page is done.
 
-- **Beaver Builder** – The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website.
-  Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
+- **Beaver Builder** – The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website. Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
 Plugin authors can add support for Simple History in their plugins using the [logging API](https://simple-history.com/docs/logging-api/). Plugins that have support for Simple History includes:
 
+- [Connections Business Directory](https://wordpress.org/plugins/connections/)
 - [Simple History Beaver Builder Add-On](https://wordpress.org/plugins/extended-simple-history-for-beaver-builder/)
 - [WP-Optimize – Cache, Clean, Compress.](https://wordpress.org/plugins/wp-optimize/)
 - [Add Customer for WooCommerce](https://wordpress.org/plugins/add-customer-for-woocommerce/)
