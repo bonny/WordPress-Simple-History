@@ -186,7 +186,7 @@ See the [hooks documentation](https://simple-history.com/docs/hooks/) for more i
 
 Events in the log are stored for 60 days by default. Events older than this will be removed.
 
-This can be modified using the filter [`simple_history/db_purge_days_interval`](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) or using the [Simple History Extended Settings add-on](https://simple-history.com/add-ons/extended-settings).
+This can be modified using the filter [`simple_history/db_purge_days_interval`](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) or using the [Simple History Extended Settings add-on](https://simple-history.com/add-ons/extended-settings?utm_source=wpadmin).
 
 ## Screenshots
 
