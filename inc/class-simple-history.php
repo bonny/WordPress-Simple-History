@@ -130,6 +130,7 @@ class Simple_History {
 			Services\Plugin_List_Link::class,
 			Services\AddOns_Licences::class,
 			Services\Licences_Settings_Page::class,
+			Services\Plugin_List_Info::class,
 		];
 	}
 
