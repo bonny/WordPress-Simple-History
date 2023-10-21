@@ -45,6 +45,8 @@ class Plugin_List_Info extends Service {
 					esc_url( $licences_page_url )
 				);
 			}
+
+			break;
 		}
 
 		return $links;
