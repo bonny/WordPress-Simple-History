@@ -211,6 +211,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 Unreleased:
 - Changed: Check that a service class exists before trying to instantiate it.
+- 
+- Doing: Add custom function/endppoint to get plugin add on info, from simple-history.com, without the need to use a licence key.
+  - Example URL: http://wordpress-stable-docker-mysql.test:8283/wp-admin/plugin-install.php?tab=plugin-information&plugin=simple-history-extended-settings
+  - Example from WP API: https://api.wordpress.org/plugins/info/1.0/simple-history.json
+
 ### 4.7.1 (October 2023)
 
 - Fix: Only context table was cleared when clearing the database. Now also the events table is cleared.

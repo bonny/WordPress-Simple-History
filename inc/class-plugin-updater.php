@@ -3,8 +3,9 @@
 namespace Simple_History;
 
 /**
- * The name of this class should be unique to your plugin to
- * avoid conflicts with other plugins using an updater class.
+ * Class that handles plugin info and plugin updates for add-ons plugins.
+ *
+ * This class is instantiated once for each add-on plugin.
  */
 class Plugin_Updater {
 	/**
@@ -33,6 +34,11 @@ class Plugin_Updater {
 	public $cache_key;
 
 	/**
+	 * @var string
+	 */
+	public $cache_key_plugin_info;
+
+	/**
 	 * @var boolean
 	 *
 	 * Default true.
@@ -53,9 +59,10 @@ class Plugin_Updater {
 		$this->version       = $version;
 		$this->api_url       = $api_url;
 
-		$this->cache_key     = str_replace( '-', '_', $this->plugin_slug ) . '_updater';
+		$this->cache_key      = 'simple_history_updater_cache_' . str_replace( '-', '_', $this->plugin_slug );
+		$this->cache_key_plugin_info = 'simple_history_updater_info_cache_' . str_replace( '-', '_', $this->plugin_slug );
 
-		add_filter( 'plugins_api', array( $this, 'info' ), 20, 3 );
+		add_filter( 'plugins_api', array( $this, 'on_plugins_api_handle_plugin_info' ), 20, 3 );
 		add_filter( 'site_transient_update_plugins', array( $this, 'update' ) );
 		add_action( 'upgrader_process_complete', array( $this, 'purge' ), 10, 2 );
 	}
@@ -132,32 +139,57 @@ class Plugin_Updater {
 	 * @param object $args
 	 * @return object|bool
 	 */
-	public function info( $result, $action, $args ) {
+	public function on_plugins_api_handle_plugin_info( $result, $action, $args ) {
+		// Bail if this is not about getting plugin information.
 		if ( 'plugin_information' !== $action ) {
 			return $result;
 		}
 
+		// Bail if it is not our plugin.
 		if ( $this->plugin_slug !== $args->slug ) {
 			return $result;
 		}
 
-		$remote = $this->request();
+		// Check cache/transient first.
+		$remote_json = get_transient( $this->cache_key_plugin_info );
+		if ( $remote_json !== false && $this->cache_allowed ) {
+			return $remote_json;
+		}
 
-		if ( ! $remote || ! $remote->success || empty( $remote->update ) ) {
+		// Here: Get plugin info from simple-history.com.
+		// URLs for a plugin will be like:
+		// https://simple-history.com/wp-json/simple-history/v1/plugins/simple-history-extended-settings
+		$api_url_base = 'https://simple-history.com/wp-json/simple-history/v1/plugins/';
+		$api_for_plugin = $api_url_base . $this->plugin_slug;
+		$plugin_info_response = wp_remote_get( $api_for_plugin );
+
+		// Bail if response was not ok.
+		if ( is_wp_error( $plugin_info_response ) || wp_remote_retrieve_response_code( $plugin_info_response ) !== 200 || empty( wp_remote_retrieve_body( $plugin_info_response ) ) ) {
 			return $result;
 		}
 
-		// Plugin_id = "simple-history-plus/index.php" but get_plugin_data() requires full path.
-		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->plugin_id );
+		$remote_json = json_decode( wp_remote_retrieve_body( $plugin_info_response ), false );
 
-		$result       = $remote->update;
-		$result->name = $plugin_data['Name'];
-		$result->slug = $this->plugin_slug;
-		$result->sections = (array) $result->sections;
+		// Bail if json decode error.
+		if ( $remote_json === null ) {
+			return $result;
+		}
 
-		// sh_d('return this', $result);
+		// Some things must be arrays, not objects.
+		$remote_json->sections = (array) $remote_json->sections;
+		$remote_json->tags = (array) $remote_json->tags;
+		$remote_json->banners = (array) $remote_json->banners;
+		$remote_json->contributors = (array) $remote_json->contributors;
 
-		return $result;
+		// Make all contributors arrays, not objects.
+		foreach ( $remote_json->contributors as $contributor_key => $contributor_value ) {
+			$remote_json->contributors[ $contributor_key ] = (array) $contributor_value;
+		}
+
+		// Cache the result for 10 minutes.
+		set_transient( $this->cache_key_plugin_info, $remote_json, MINUTE_IN_SECONDS * 10 );
+
+		return $remote_json;
 	}
 
 	/**
