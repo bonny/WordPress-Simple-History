@@ -4,7 +4,6 @@ namespace Simple_History;
 
 use Simple_History\Loggers;
 use Simple_History\Loggers\Logger;
-use Simple_History\Loggers\Simple_Logger;
 use Simple_History\Dropins;
 use Simple_History\Dropins\Dropin;
 use Simple_History\Event_Details\Event_Details_Container;
@@ -147,8 +146,13 @@ class Simple_History {
 	 * Load a service class.
 	 */
 	private function load_service( $service_classname ) {
+		if ( ! class_exists( $service_classname ) ) {
+			return;
+		}
+
 		$service = new $service_classname( $this );
 		$service->loaded();
+
 		$this->instantiated_services[] = $service;
 	}
 

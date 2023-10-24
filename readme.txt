@@ -209,6 +209,8 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+Unreleased:
+- Changed: Check that a service class exists before trying to instantiate it.
 ### 4.7.1 (October 2023)
 
 - Fix: Only context table was cleared when clearing the database. Now also the events table is cleared.
