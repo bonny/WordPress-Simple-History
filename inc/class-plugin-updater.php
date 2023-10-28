@@ -63,7 +63,7 @@ class Plugin_Updater {
 		$this->cache_key_plugin_info = 'simple_history_updater_info_cache_' . str_replace( '-', '_', $this->plugin_slug );
 
 		add_filter( 'plugins_api', array( $this, 'on_plugins_api_handle_plugin_info' ), 20, 3 );
-		add_filter( 'site_transient_update_plugins', array( $this, 'update' ) );
+		add_filter( 'site_transient_update_plugins', array( $this, 'site_transient_update_plugins_update' ) );
 		add_action( 'upgrader_process_complete', array( $this, 'purge' ), 10, 2 );
 	}
 
@@ -91,6 +91,7 @@ class Plugin_Updater {
 	public function request() {
 		$lsq_license_key = $this->get_license_key();
 
+		// If no licence key is set, user get no updates.
 		if ( ! $lsq_license_key ) {
 			return false;
 		}
@@ -105,11 +106,20 @@ class Plugin_Updater {
 			return json_decode( $remote );
 		}
 
+		// Get the update data from the remote server, i.e. our own server.
+		$url = add_query_arg(
+			[
+				'license_key' => $lsq_license_key,
+				'plugin_slug' => $this->plugin_slug,
+			],
+			$this->api_url . '/update',
+		);
+
 		$remote = wp_remote_get(
-			$this->api_url . "/update?license_key={$lsq_license_key}",
-			array(
+			$url,
+			[
 				'timeout' => 10,
-			)
+			]
 		);
 
 		if (
@@ -124,7 +134,8 @@ class Plugin_Updater {
 
 		$payload = wp_remote_retrieve_body( $remote );
 
-		set_transient( $this->cache_key, $payload, DAY_IN_SECONDS );
+		// TODO: Increase cache when tested more.
+		set_transient( $this->cache_key, $payload, MINUTE_IN_SECONDS );
 
 		return json_decode( $payload );
 	}
@@ -200,7 +211,7 @@ class Plugin_Updater {
 	 * @param object $transient
 	 * @return object
 	 */
-	public function update( $transient ) {
+	public function site_transient_update_plugins_update( $transient ) {
 		if ( empty( $transient->checked ) ) {
 			return $transient;
 		}
@@ -226,11 +237,15 @@ class Plugin_Updater {
 			$remote && $remote->success && ! empty( $remote->update )
 			&& version_compare( $this->version, $remote->update->version, '<' )
 		) {
+			// Update is available for plugin.
 			$res->new_version = $remote->update->version;
 			$res->package     = $remote->update->download_link;
 
 			$transient->response[ $res->plugin ] = $res;
 		} else {
+			// No update is available for plugin.
+			// Adding the "mock" item to the `no_update` property is required
+			// for the enable/disable auto-updates links to correctly appear in UI.
 			$transient->no_update[ $res->plugin ] = $res;
 		}
 
