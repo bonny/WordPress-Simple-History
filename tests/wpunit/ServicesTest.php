@@ -37,6 +37,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Network_Menu_Items',
 			'Plugin_List_Link',
 			'Licences_Settings_Page',
+			'Plugin_List_Info',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);
