@@ -3,7 +3,7 @@
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
-Tested up to: 6.3
+Tested up to: 6.4
 Stable tag: 4.7.1
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
@@ -214,6 +214,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 - Changed: Check that a service class exists before trying to instantiate it.
 - Added [Connection Business Directory](https://simple-history.com/2023/connections-business-directory-adds-support-for-simple-history/) to list of plugins with Simple History support.
 - Added new icons! ✨
+- Tested on WordPress 6.4.
 
 ### 4.7.1 (October 2023)
 
