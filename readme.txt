@@ -209,7 +209,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased:
+### 4.7.2 (October 2023)
 
 - Changed: Check that a service class exists before trying to instantiate it.
 - Added [Connection Business Directory](https://simple-history.com/2023/connections-business-directory-adds-support-for-simple-history/) to list of plugins with Simple History support.
