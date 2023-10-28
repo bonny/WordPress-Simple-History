@@ -209,12 +209,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-Unreleased:
+### Unreleased:
+
 - Changed: Check that a service class exists before trying to instantiate it.
-- 
-- Doing: Add custom function/endppoint to get plugin add on info, from simple-history.com, without the need to use a licence key.
-  - Example URL: http://wordpress-stable-docker-mysql.test:8283/wp-admin/plugin-install.php?tab=plugin-information&plugin=simple-history-extended-settings
-  - Example from WP API: https://api.wordpress.org/plugins/info/1.0/simple-history.json
+- Added [Connection Business Directory](https://simple-history.com/2023/connections-business-directory-adds-support-for-simple-history/) to list of plugins with Simple History support.
+- Added new icons! ✨
 
 ### 4.7.1 (October 2023)
 
