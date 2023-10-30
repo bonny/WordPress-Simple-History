@@ -19,10 +19,11 @@
 	<file>.</file>
 
 	<!-- Exclude composer dir and similar -->
-	<exclude-pattern>*/vendor/*</exclude-pattern>
-	<exclude-pattern>*/node_modules/*</exclude-pattern>
-	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/vendor/</exclude-pattern>
+	<exclude-pattern>*/node_modules/</exclude-pattern>
+	<exclude-pattern>*/build/</exclude-pattern>
 	<exclude-pattern>*/tests/</exclude-pattern>
+	<exclude-pattern>*/data/</exclude-pattern>
 
 	<!-- 
 		Info about customizable things:
@@ -32,21 +33,47 @@
 	-->
 	<config name="minimum_supported_wp_version" value="6.1"/>
 
-	<rule ref="WordPress-Extra">
-		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
-		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
-		<exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase" />
-		<!-- <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase" /> -->
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound"/>
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound"/>
-		<!-- <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound"/> -->
-		<!-- <exclude name="WordPress.Files.FileName.InvalidClassFileName"/> -->
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<!-- Temporarily disabled until https://github.com/WordPress/WordPress-Coding-Standards/issues/403 is fixed. -->
+		<severity>0</severity>
+	</rule>
+
+	<rule ref="WordPress">
+		<exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
-		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
-		<exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
-		<!-- <exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/> -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
+		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
+		<exclude name="Squiz.Commenting.FileComment.Missing" />
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound" />
+		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+		<exclude name="Squiz.Commenting.VariableComment.Missing" />
+		<exclude name="Squiz.Commenting.FunctionComment.Missing" />
+		<exclude name="Squiz.Commenting.BlockComment.NoCapital" />
+		<exclude name="Squiz.Commenting.BlockComment.HasEmptyLineBefore" />
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotSanitized" />
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.MissingUnslash" />
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotValidated" />
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag" />
+		<exclude name="Squiz.Commenting.BlockComment.CloserSameLine" />
+		<exclude name="Squiz.Commenting.BlockComment.NoEmptyLineBefore" />
+		<exclude name="Squiz.Commenting.VariableComment.MissingVar" />
+		<exclude name="Squiz.Commenting.FunctionComment.WrongStyle" />
+		<exclude name="WordPress.Security.NonceVerification.Missing" />
+		<exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase" />
+		<exclude name="Squiz.Commenting.FunctionComment.ParamNameNoMatch" />
+		<exclude name="Squiz.Commenting.ClassComment.SpacingAfter" />
+		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase" />
+		<exclude name="Squiz.Commenting.ClassComment.Missing" />
+		<exclude name="Squiz.Commenting.FileComment.SpacingAfterComment" />
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound" />
+		<exclude name="Squiz.Commenting.ClassComment.WrongStyle" />
+		<exclude name="Squiz.Commenting.FileComment.SpacingAfterOpen" />
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
-		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Generic.Files.OneObjectStructurePerFile.MultipleFound" />
+		<exclude name="Squiz.Commenting.VariableComment.WrongStyle" />
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
