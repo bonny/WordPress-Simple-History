@@ -315,7 +315,7 @@ class Setup_Settings_Page extends Service {
 		echo '<p>';
 
 		if ( $clear_days > 0 ) {
-			echo sprintf(
+			printf(
 				// translators: %1$s is number of days.
 				esc_html__( 'Items in the database are automatically removed after %1$s days.', 'simple-history' ),
 				esc_html( $clear_days )
@@ -415,9 +415,9 @@ class Setup_Settings_Page extends Service {
 
 					printf(
 						'<a href="%3$s" class="sh-PageNav-tab %4$s">%5$s%1$s</a>',
-						$one_tab['name'], // 1
-						$tab_slug, // 2
-						esc_url( Helpers::get_settings_page_tab_url( $tab_slug ) ),
+						esc_html( $one_tab['name'] ), // 1
+						esc_html( $tab_slug ), // 2
+						esc_url( Helpers::get_settings_page_tab_url( $tab_slug ) ), // 3
 						$active_tab == $tab_slug ? 'is-active' : '', // 4
 						wp_kses( $icon_html, $icon_html_allowed_html ) // 5
 					);

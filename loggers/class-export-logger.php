@@ -8,6 +8,7 @@ use Simple_History\Helpers;
  * Logs WordPress exports
  */
 class Export_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'SimpleExportLogger';
 
 	/**
@@ -38,10 +39,19 @@ class Export_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Called when logger is loaded
+	 */
 	public function loaded() {
 		add_action( 'export_wp', array( $this, 'on_export_wp' ), 10, 1 );
 	}
 
+	/**
+	 * Called when export is created.
+	 * Fired from filter "export_wp".
+	 *
+	 * @param array $args Arguments passed to export_wp().
+	 */
 	public function on_export_wp( $args ) {
 		$content = $args['content'] ?? '';
 

@@ -193,7 +193,7 @@ class Plugin_ACF_Logger extends Logger {
 		$new_post_meta = get_post_custom( $post_id );
 		array_walk(
 			$new_post_meta,
-			function( &$value, $key ) {
+			function ( &$value, $key ) {
 				$value = reset( $value );
 			}
 		);
@@ -519,7 +519,7 @@ class Plugin_ACF_Logger extends Logger {
 		// Meta is array of arrays, get first value of each array value.
 		array_walk(
 			$post_meta,
-			function( &$value, $key ) {
+			function ( &$value, $key ) {
 				$value = reset( $value );
 			}
 		);

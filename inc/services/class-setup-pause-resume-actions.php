@@ -17,7 +17,7 @@ class Setup_Pause_Resume_Actions extends Service {
 	protected function add_pause_and_resume_actions() {
 		add_action(
 			'simple_history/pause',
-			function() {
+			function () {
 				add_filter( 'simple_history/log/do_log', '__return_false' );
 			}
 		);

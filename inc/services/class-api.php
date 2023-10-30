@@ -91,5 +91,4 @@ class API extends Service {
 
 		wp_send_json_success( $data );
 	}
-
 }

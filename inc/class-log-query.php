@@ -633,11 +633,6 @@ class Log_Query {
 		 */
 		$sql = apply_filters( 'simple_history/log_query_sql', $sql );
 
-		// Only return sql query.
-		// if ( $args['returnQuery'] ) {
-		// 	return $sql;
-		// }
-
 		$log_rows = $wpdb->get_results( $sql, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Find total number of rows that we would have gotten without pagination

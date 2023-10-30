@@ -23,9 +23,9 @@ class Debug_Dropin extends Dropin {
 	/**
 	 * Modify the context to add debug information.
 	 *
-	 * @param array $context
-	 * @param string $level
-	 * @param string $message
+	 * @param array                                 $context
+	 * @param string                                $level
+	 * @param string                                $message
 	 * @param \Simple_History\Loggers\Simple_Logger $logger
 	 */
 	public function onLogArgumentContext( $context, $level, $message, $logger ) {

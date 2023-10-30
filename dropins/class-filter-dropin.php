@@ -549,7 +549,7 @@ class Filter_Dropin extends Dropin {
 	 * @global WP_Locale  $wp_locale
 	 *
 	 * @param 'from'|'to' $from_or_to
-	 * @param int $edit Unused.
+	 * @param int         $edit Unused.
 	 */
 	public function touch_time( $from_or_to, $edit = 1 ) {
 		global $wp_locale;

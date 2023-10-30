@@ -12,10 +12,10 @@ class Comments_Logger extends Logger {
 	public $slug = 'SimpleCommentsLogger';
 
 		/**
-	 * Get array with information about this logger
-	 *
-	 * @return array
-	 */
+		 * Get array with information about this logger
+		 *
+		 * @return array
+		 */
 	public function get_info() {
 
 		$arr_info = array(

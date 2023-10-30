@@ -26,5 +26,4 @@ class Language_Loader extends Service {
 		load_textdomain( $domain, WP_LANG_DIR . '/simple-history/' . $domain . '-' . $locale . '.mo' );
 		load_plugin_textdomain( $domain, false, dirname( $this->simple_history->plugin_basename ) . '/languages/' );
 	}
-
 }

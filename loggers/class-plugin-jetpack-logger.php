@@ -87,6 +87,10 @@ class Plugin_Jetpack_Logger extends Logger {
 
 	/**
 	 * Called when a module is activated.
+	 *
+	 * @param string $module_slug Slug of module that was activated.
+	 * @param bool   $success Whether the module activation was successful.
+	 * @return void
 	 */
 	public function on_jetpack_activate_module( $module_slug = null, $success = null ) {
 		if ( true !== $success ) {
@@ -115,6 +119,9 @@ class Plugin_Jetpack_Logger extends Logger {
 
 	/**
 	 * Called when a module is deactivated.
+	 *
+	 * @param string $module_slug Slug of module that was deactivated.
+	 * @param bool   $success Whether the module deactivation was successful.
 	 */
 	public function on_jetpack_deactivate_module( $module_slug = null, $success = null ) {
 		if ( true !== $success ) {

@@ -63,7 +63,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			// Prefer `foreach $key => $value` over `foreach (array_keys($values) as $key) {`
 			UnusedForeachValueToArrayKeysRector::class,
 			ReturnTypeFromStrictTypedCallRector::class,
-			//ReturnTypeFromStrictScalarReturnExprRector::class,
+			// ReturnTypeFromStrictScalarReturnExprRector::class,
 			// Ternary not allowed in WP.
 			SimplifyIfElseToTernaryRector::class,
 			NullCoalescingOperatorRector::class,
@@ -84,5 +84,4 @@ return static function ( RectorConfig $rectorConfig ): void {
 			// SetList::EARLY_RETURN,
 		)
 	);
-
 };

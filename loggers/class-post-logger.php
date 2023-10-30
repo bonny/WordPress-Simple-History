@@ -632,8 +632,8 @@ class Post_Logger extends Logger {
 	 * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
 	 * which by definition is not wrong, but perhaps not wanted/annoying.
 	 *
-	 * @param string $new_status One of auto-draft, inherit, draft, pending, publish, future.
-	 * @param string $old_status Same as above.
+	 * @param string  $new_status One of auto-draft, inherit, draft, pending, publish, future.
+	 * @param string  $old_status Same as above.
 	 * @param WP_Post $post New updated post.
 	 */
 	public function on_transition_post_status( $new_status, $old_status, $post ) {
@@ -1268,7 +1268,7 @@ class Post_Logger extends Logger {
 	 *
 	 * @since 2.0.23
 	 * @param string $link Link.
-	 * @param object  $row Row.
+	 * @param object $row Row.
 	 */
 	public function filter_rss_item_link( $link, $row ) {
 		if ( $row->logger != $this->get_slug() ) {

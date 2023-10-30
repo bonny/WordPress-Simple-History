@@ -62,7 +62,7 @@ class SimpleLogger extends Logger {
 	 *
 	 * @since 4.0
 	 * @param string $name
-	 * @param array $arguments
+	 * @param array  $arguments
 	 * @return mixed
 	 */
 	public function __call( $name, $arguments ) {

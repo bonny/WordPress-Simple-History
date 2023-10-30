@@ -109,4 +109,3 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 		$this->notice_message( 'admin_saved' );
 	}
 }
-

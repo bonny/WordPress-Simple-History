@@ -449,7 +449,7 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
-	 * @param string   $new_name  Name of the new theme.
+	 * @param string    $new_name  Name of the new theme.
 	 * @param \WP_Theme $new_theme WP_Theme instance of the new theme.
 	 * @return void
 	 */
@@ -638,7 +638,7 @@ class Theme_Logger extends Logger {
 	 * @param array<mixed> $instance       The current widget instance's settings.
 	 * @param array<mixed> $new_instance   Array of new widget settings.
 	 * @param array<mixed> $old_instance   Array of old widget settings.
-	 * @param \WP_Widget $widget_instance WP_Widget instance.
+	 * @param \WP_Widget   $widget_instance WP_Widget instance.
 	 * @return array<mixed> Original instance.
 	 */
 	public function on_widget_update_callback( $instance, $new_instance, $old_instance, $widget_instance ) {

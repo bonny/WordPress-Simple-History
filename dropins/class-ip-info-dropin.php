@@ -40,7 +40,7 @@ class IP_Info_Dropin extends Dropin {
 	/**
 	 * Display IP Addresses for login related messages.
 	 *
-	 * @param bool $bool
+	 * @param bool   $bool
 	 * @param object $row
 	 * @return bool
 	 */

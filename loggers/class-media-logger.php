@@ -336,7 +336,7 @@ class Media_Logger extends Logger {
 	 *
 	 * @since 2.0.23
 	 * @param string $link
-	 * @param object  $row
+	 * @param object $row
 	 */
 	public function filter_rss_item_link( $link, $row ) {
 		if ( $row->logger != $this->get_slug() ) {

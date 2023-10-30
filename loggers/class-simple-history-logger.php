@@ -98,7 +98,7 @@ class Simple_History_Logger extends Logger {
 	 * Log found changes made on the Simple History settings page.
 	 *
 	 * @param string $location
-	 * @param int $status
+	 * @param int    $status
 	 * @return string
 	 */
 	public function commit_log_on_wp_redirect( $location, $status ) {
@@ -127,8 +127,8 @@ class Simple_History_Logger extends Logger {
 	 * Store all changed options in one array.
 	 *
 	 * @param string $option
-	 * @param mixed $old_value
-	 * @param mixed $new_value
+	 * @param mixed  $old_value
+	 * @param mixed  $new_value
 	 * @return void
 	 */
 	public function on_updated_option( $option, $old_value, $new_value ) {

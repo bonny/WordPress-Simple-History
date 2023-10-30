@@ -16,7 +16,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 
 	/**
 	 * @param Event_Details_Group|array<Event_Details_Group> $group_or_groups Group or array of groups.
-	 * @param array<string,mixed> $context
+	 * @param array<string,mixed>                            $context
 	 */
 	public function __construct( $group_or_groups = [], $context = [] ) {
 		$this->context = $context;
@@ -114,7 +114,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	 * the item will be added to a group first.
 	 *
 	 * @param Event_Details_Item $context_item
-	 * @param string|null $group_title Optional name of the auto created group.
+	 * @param string|null        $group_title Optional name of the auto created group.
 	 * @return Event_Details_Container $this
 	 */
 	public function add_item( $context_item, $group_title = null ) {
@@ -159,7 +159,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	 * be added to a group first to share common styles.
 	 *
 	 * @param array<Event_Details_Item> $items
-	 * @param string|null $group_title Optional name of the auto created group.
+	 * @param string|null               $group_title Optional name of the auto created group.
 	 * @return Event_Details_Container $this
 	 */
 	public function add_items( $items, $group_title = null ) {

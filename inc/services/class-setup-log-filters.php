@@ -42,15 +42,15 @@ class Setup_Log_Filters extends Service {
 	}
 
 		/**
-	 * Log a message
-	 *
-	 * Function called when running filter "simple_history_log"
-	 *
-	 * @since 2.13
-	 * @param string $message The message to log.
-	 * @param array  $context Optional context to add to the logged data.
-	 * @param string $level The log level. Must be one of the existing ones. Defaults to "info".
-	 */
+		 * Log a message
+		 *
+		 * Function called when running filter "simple_history_log"
+		 *
+		 * @since 2.13
+		 * @param string $message The message to log.
+		 * @param array  $context Optional context to add to the logged data.
+		 * @param string $level The log level. Must be one of the existing ones. Defaults to "info".
+		 */
 	public function on_filter_simple_history_log( $message = null, $context = null, $level = 'info' ) {
 		SimpleLogger()->log( $level, $message, $context );
 	}

@@ -35,7 +35,7 @@ class Event_Details_Item {
 
 	/**
 	 * @param string|array<string> $slug_or_slugs
-	 * @param string $name
+	 * @param string               $name
 	 */
 	public function __construct( $slug_or_slugs = null, $name = null ) {
 		// Set keys to use for new/current and old/prev values

@@ -1,12 +1,11 @@
 <?php
-
-namespace Simple_History;
-
 /**
  * Style example.
  *
  * @package SimpleHistory
  */
+
+namespace Simple_History;
 
 defined( 'ABSPATH' ) || die();
 ?>
@@ -354,6 +353,7 @@ defined( 'ABSPATH' ) || die();
 		$refl = new \ReflectionClass( 'Simple_History\Log_Levels' );
 		foreach ( $refl->getConstants() as $val ) {
 			$msg = $arr_messages[ $val ] ?? 'This is a message with loglevel';
+			// phpcs:ignore Universal.CodeAnalysis.NoEchoSprintf.Found
 			echo sprintf(
 				$template, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				$val, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

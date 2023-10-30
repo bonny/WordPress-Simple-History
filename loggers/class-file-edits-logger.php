@@ -7,8 +7,14 @@ use Simple_History\Helpers;
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor
  */
 class File_Edits_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'FileEditsLogger';
 
+	/**
+	 * Get array with information about this logger
+	 *
+	 * @return array<string, mixed>
+	 */
 	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'File edits Logger', 'Logger: FileEditsLogger', 'simple-history' ),
@@ -37,6 +43,9 @@ class File_Edits_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Called when logger is loaded
+	 */
 	public function loaded() {
 		add_action( 'load-theme-editor.php', array( $this, 'on_load_theme_editor' ), 10, 1 );
 		add_action( 'load-plugin-editor.php', array( $this, 'on_load_plugin_editor' ), 10, 1 );
@@ -53,11 +62,11 @@ class File_Edits_Logger extends Logger {
 	public function on_load_plugin_editor() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['action'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$file = $_POST['file'] ?? null;
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$plugin_file = $_POST['plugin'] ?? null;
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$file = wp_unslash( $_POST['file'] ?? null );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$plugin_file = wp_unslash( $_POST['plugin'] ?? null );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
 
 			// if 'phperror' is set then there was an error and an edit is done and wp tries to activate the plugin again
@@ -123,12 +132,6 @@ class File_Edits_Logger extends Logger {
 				2
 			);
 		}// End if().
-		/*
-		<?php if (isset($_GET['a'])) : ?>
-		 <div id="message" class="updated notice is-dismissible"><p><?php _e('File edited successfully.') ?></p></div>
-		<?php elseif (isset($_GET['phperror'])) : ?>
-		 <div id="message" class="updated"><p><?php _e('This plugin has been deactivated because your changes resulted in a <strong>fatal error</strong>.') ?></p>
-		*/
 	}
 
 	/**
@@ -157,11 +160,11 @@ class File_Edits_Logger extends Logger {
 					'submit' => string(11) "Update File"
 			*/
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$file = $_POST['file'] ?? null;
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$theme = $_POST['theme'] ?? null;
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$file = wp_unslash( $_POST['file'] ?? null );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$theme = wp_unslash( $_POST['theme'] ?? null );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
 
 			// Same code as in theme-editor.php
@@ -226,8 +229,13 @@ class File_Edits_Logger extends Logger {
 		} // End if().
 	}
 
+	/**
+	 * Get output for row details
+	 *
+	 * @param object $row Log row.
+	 * @return string HTML
+	 */
 	public function get_log_row_details_output( $row ) {
-
 		$context = $row->context;
 		$message_key = $context['_message_key'] ?? null;
 

@@ -127,5 +127,4 @@ class Network_Menu_Items extends Service {
 
 		$wp_admin_bar->add_node( $args );
 	}
-
 }

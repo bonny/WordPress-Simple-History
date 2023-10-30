@@ -377,7 +377,7 @@ class Simple_History {
 	 * @param string $plugin_slug Slug of plugin, eg "simple-history-plus-woocommerce".
 	 * @param string $version Current version of plugin, eg "1.0.0".
 	 * @param string $plugin_name Name of plugin, eg "Simple History Plus WooCommerce".
-	 * @param int $product_id ID of product that this plugin is for.
+	 * @param int    $product_id ID of product that this plugin is for.
 	 * @return bool True if plugin was registered, false if not.
 	 */
 	public function register_plugin_with_license( $plugin_id, $plugin_slug, $version, $plugin_name, $product_id ) {
@@ -672,7 +672,7 @@ class Simple_History {
 		// Sort by order, where higher number means earlier output.
 		usort(
 			$this->arr_settings_tabs,
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				$a_order = $a['order'] ?? 0;
 				$b_order = $b['order'] ?? 0;
 				return $b_order <=> $a_order;
@@ -682,7 +682,7 @@ class Simple_History {
 		// Filter out tabs that are not of the type we want.
 		$settings_tabs_of_selected_type = array_filter(
 			$this->arr_settings_tabs,
-			function( $tab ) use ( $type ) {
+			function ( $tab ) use ( $type ) {
 				if ( $type === 'top' ) {
 					return empty( $tab['parent_slug'] );
 				} elseif ( $type === 'sub' ) {
@@ -1623,7 +1623,7 @@ class Simple_History {
 	 * Call new method when calling old/deprecated method names.
 	 *
 	 * @param string $name
-	 * @param array $arguments
+	 * @param array  $arguments
 	 * @return mixed
 	 */
 	public function __call( $name, $arguments ) {
@@ -1655,7 +1655,6 @@ class Simple_History {
 		}
 
 		return call_user_func_array( array( $this, $method_name_to_call ), $arguments );
-
 	}
 
 	/**

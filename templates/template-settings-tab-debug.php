@@ -11,7 +11,7 @@ namespace Simple_History;
  *      simple_history_instance:Simple_History,
  *      wpdb:\wpdb
  * } $args
- **/
+ */
 
 defined( 'ABSPATH' ) || die();
 
@@ -39,7 +39,7 @@ foreach ( $tables_info as $table_info ) {
 }
 
 echo wp_kses(
-	Helpers::get_settings_section_title_output( __('Debug', 'simple-history'), 'build' ),
+	Helpers::get_settings_section_title_output( __( 'Debug', 'simple-history' ), 'build' ),
 	[
 		'span' => [
 			'class' => [],
@@ -104,7 +104,7 @@ $rows = $logQuery->query(
 	)
 );
 
-// This is the number of rows with occasions taken into consideration
+// This is the number of rows with occasions taken into consideration.
 $total_accassions_rows_count = $rows['total_row_count'];
 
 echo '<p>';

@@ -146,8 +146,8 @@ class Plugin_Updater {
 	 * @see https://developer.wordpress.org/reference/hooks/plugins_api/
 	 *
 	 * @param false|object|array $result
-	 * @param string $action
-	 * @param object $args
+	 * @param string             $action
+	 * @param object             $args
 	 * @return object|bool
 	 */
 	public function on_plugins_api_handle_plugin_info( $result, $action, $args ) {
@@ -258,7 +258,7 @@ class Plugin_Updater {
 	 * @see https://developer.wordpress.org/reference/hooks/upgrader_process_complete/
 	 *
 	 * @param WP_Upgrader $upgrader
-	 * @param array $options
+	 * @param array       $options
 	 * @return void
 	 */
 	public function purge( $upgrader, $options ) {

@@ -56,8 +56,8 @@ class Options_Logger extends Logger {
 	 * When an option is updated.
 	 *
 	 * @param string $option Option name.
-	 * @param mixed $old_value Old value.
-	 * @param mixed $new_value New value.
+	 * @param mixed  $old_value Old value.
+	 * @param mixed  $new_value New value.
 	 * @return void
 	 */
 	public function on_updated_option( $option, $old_value, $new_value ) {

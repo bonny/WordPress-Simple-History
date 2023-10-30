@@ -15,7 +15,7 @@ use Simple_History\Log_Levels;
 class RSS_Dropin extends Dropin {
 	public function loaded() {
 		if ( ! function_exists( 'get_editable_roles' ) ) {
-			require_once( ABSPATH . '/wp-admin/includes/user.php' );
+			require_once ABSPATH . '/wp-admin/includes/user.php';
 		}
 
 		// Check the status of the RSS feed.

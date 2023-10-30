@@ -24,7 +24,6 @@ class Export_Dropin extends Dropin {
 		);
 
 		add_action( 'init', array( $this, 'downloadExport' ) );
-
 	}
 
 	public function downloadExport() {

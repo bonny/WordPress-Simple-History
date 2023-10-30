@@ -180,7 +180,7 @@ class Plugin_Redirection_Logger extends Logger {
 	 * Log when a Redirection group is deleted.
 	 *
 	 * @param \WP_REST_Request $req Request.
-	 * @param array  $bulk_items Array with item ids.
+	 * @param array            $bulk_items Array with item ids.
 	 */
 	public function log_group_delete( $req, $bulk_items ) {
 		$context = array(

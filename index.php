@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: Simple History
  * Plugin URI: https://simple-history.com

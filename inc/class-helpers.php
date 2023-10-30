@@ -112,7 +112,7 @@ class Helpers {
 	 *
 	 * @param string $message
 	 * @param array  $context
-	 * @param object  $row Currently not always passed, because loggers need to be updated to support this...
+	 * @param object $row Currently not always passed, because loggers need to be updated to support this...
 	 */
 	public static function interpolate( $message, $context = array(), $row = null ) {
 		if ( ! is_array( $context ) ) {
@@ -373,7 +373,7 @@ class Helpers {
 	 * An easier method that using filters manually each time.
 	 *
 	 * @param string $taxonomy_slug Slug of taxonomy to disable logging for.
-	 * @param bool $disable Pass true to disable logging of $taxonomy.
+	 * @param bool   $disable Pass true to disable logging of $taxonomy.
 	 */
 	public static function disable_taxonomy_log( $taxonomy_slug, $disable = false ) {
 		// Bail if taxonomy should not be disabled.
@@ -383,7 +383,7 @@ class Helpers {
 
 		add_filter(
 			'simple_history/categories_logger/skip_taxonomies',
-			function( $taxononomies_to_skip ) use ( $taxonomy_slug ) {
+			function ( $taxononomies_to_skip ) use ( $taxonomy_slug ) {
 				$taxononomies_to_skip[] = $taxonomy_slug;
 				return $taxononomies_to_skip;
 			},
@@ -639,7 +639,7 @@ class Helpers {
 	 * Output title for settings section title.
 	 * with wrapper classes and markup + classes for icon appended.
 	 *
-	 * @param string $title
+	 * @param string  $title
 	 * @param ?string $icon_class_suffix
 	 * @return string
 	 */
@@ -669,7 +669,7 @@ class Helpers {
 	 * Output title for settings field title.
 	 * with wrapper classes and markup + classes for icon appended.
 	 *
-	 * @param string $title
+	 * @param string  $title
 	 * @param ?string $icon_class_suffix
 	 * @return string
 	 */
@@ -700,12 +700,12 @@ class Helpers {
 	 * - Icon before title.
 	 * - Wrapper div automatically added.
 	 *
-	 * @param string $id Slug-name to identify the section. Used in the 'id' attribute of tags.
+	 * @param string       $id Slug-name to identify the section. Used in the 'id' attribute of tags.
 	 * @param string|array $title Formatted title of the section. Shown as the heading for the section.
 	 *                     Pass in array instead of string to use as ['Section title', 'icon-slug']
-	 * @param callable $callback Function that echos out any content at the top of the section (between heading and fields).
-	 * @param string $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page()
-	 * @param array $args Optional. Additional arguments that are passed to the $callback function. Default empty array.
+	 * @param callable     $callback Function that echos out any content at the top of the section (between heading and fields).
+	 * @param string       $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page()
+	 * @param array        $args Optional. Additional arguments that are passed to the $callback function. Default empty array.
 	 */
 	public static function add_settings_section( $id, $title, $callback, $page, $args = [] ) {
 		// If title is array then it is [title, icon-slug].
@@ -768,5 +768,4 @@ class Helpers {
 
 		return ob_get_clean();
 	}
-
 }

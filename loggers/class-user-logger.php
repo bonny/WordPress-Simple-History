@@ -194,12 +194,12 @@ class User_Logger extends Logger {
 
 		// Run this to force-show the admin email confirm screen.
 		// add_filter(
-		// 	'option_admin_email_lifespan',
-		// 	function( $value, $option ) {
-		// 		return 1;
-		// 	},
-		// 	10,
-		// 	2
+		// 'option_admin_email_lifespan',
+		// function( $value, $option ) {
+		// return 1;
+		// },
+		// 10,
+		// 2
 		// );
 
 		add_action( 'login_form_confirm_admin_email', array( $this, 'on_action_login_form_confirm_admin_email' ) );
@@ -212,7 +212,7 @@ class User_Logger extends Logger {
 	 * Log when an Application Password is created for a user.
 	 *
 	 * Fired from action `wp_create_application_password`.
- *
+	 *
 	 * @param int    $user_id      The user ID.
 	 * @param array  $item     {
 	 *     The details about the created password.
@@ -784,8 +784,8 @@ class User_Logger extends Logger {
 	 *        null indicates no process has authenticated the user yet.
 	 *        A WP_Error object indicates another process has failed the authentication.
 	 *        A WP_User object indicates another process has authenticated the user.
-	 * @param string $username The user's username. since 4.5.0 `$username` now accepts an email address.
-	 * @param string $password The user's password (encrypted)
+	 * @param string                  $username The user's username. since 4.5.0 `$username` now accepts an email address.
+	 * @param string                  $password The user's password (encrypted)
 	 */
 	public function onAuthenticate( $user, $username, $password ) {
 		// Don't log empty usernames.
@@ -849,7 +849,7 @@ class User_Logger extends Logger {
 	 *
 	 * Since 2.0.29
 	 *
-	 * @param array $post_data_diff
+	 * @param array  $post_data_diff
 	 * @param string $key
 	 * @param string $old_value
 	 * @param string $new_value

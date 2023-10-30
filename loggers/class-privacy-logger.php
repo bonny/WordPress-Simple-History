@@ -121,6 +121,12 @@ class Privacy_Logger extends Logger {
 	 *  via e-post när begäran har behandlats."
 	 *
 	 * Visit Tools > Export Personal Data and click "Send export link".
+	 *
+	 * @param string $archive_pathname Path to archive.
+	 * @param string $archive_url      URL to archive.
+	 * @param string $html_report_pathname Path to HTML report.
+	 * @param int    $request_id       The privacy request post ID associated with this request.
+	 * @param string $json_report_pathname Path to JSON report.
 	 */
 	public function on_wp_privacy_personal_data_export_file_created( $archive_pathname, $archive_url, $html_report_pathname, $request_id, $json_report_pathname ) {
 		/*
@@ -136,7 +142,8 @@ class Privacy_Logger extends Logger {
 			"completed_timestamp": 0,
 			"request_data": [],
 			"confirm_key": ""
-		} */
+		}
+		*/
 		$user_request = wp_get_user_request( $request_id );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -306,7 +313,8 @@ class Privacy_Logger extends Logger {
 			return;
 		}
 
-		$action = $_REQUEST['action'] ?? null;
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
 		if ( $user_request && 'delete' === $action ) {
 			// Looks like "Remove request" action.
@@ -347,7 +355,8 @@ class Privacy_Logger extends Logger {
 			return;
 		}
 
-		$action = $_REQUEST['action'] ?? null;
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
 		if ( $user_request && 'delete' === $action ) {
 			// Looks like "Remove request" action.
@@ -413,8 +422,8 @@ class Privacy_Logger extends Logger {
 	 * http://wordpress-stable.test/wp-admin/options-privacy.php
 	 */
 	public function on_load_privacy_page() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$action = $_POST['action'] ?? '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$action = wp_unslash( $_POST['action'] ?? '' );
 		$option_name = 'wp_page_for_privacy_policy';
 
 		if ( 'create-privacy-page' === $action ) {

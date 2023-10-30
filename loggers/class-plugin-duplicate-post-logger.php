@@ -55,9 +55,9 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 	/**
 	 * A post or page was duplicated
 	 *
-	 * @param int $new_post_id
+	 * @param int      $new_post_id
 	 * @param \WP_Post $post old post that a copy was made of
-	 * @param string $status
+	 * @param string   $status
 	 */
 	public function onDpDuplicatePost( $newPostID, $post, $status ) {
 		$new_post = get_post( $newPostID );
@@ -138,4 +138,3 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 		return helpers::interpolate( $message, $context, $row );
 	}
 }
-

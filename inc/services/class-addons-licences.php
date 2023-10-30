@@ -63,7 +63,7 @@ class AddOns_Licences extends Service {
 	 * @param string $plugin_slug Slug of plugin, eg "simple-history-plus-woocommerce".
 	 * @param string $version Current version of plugin, eg "1.0.0".
 	 * @param string $name Name of plugin, eg "Simple History Plus for WooCommerce".
-	 * @param int $product_id Product ID of plugin, eg 112341.
+	 * @param int    $product_id Product ID of plugin, eg 112341.
 	 */
 	public function register_plugin_for_license( $plugin_id, $plugin_slug, $version, $name, $product_id ) {
 		$this->addon_plugins[ $plugin_slug ] = new AddOn_Plugin( $plugin_id, $plugin_slug, $version, $name, $product_id );
