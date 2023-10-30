@@ -359,7 +359,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
             </td>
 		</tr>
 		',
-		number_format_i18n( $one_logger_count->count ),
+		esc_html( number_format_i18n( $one_logger_count->count ) ),
 		esc_html( $one_logger_slug ), // 2
 		esc_html( $logger_info['name'] ),
 		esc_html( $logger_info['description'] ), // 4
