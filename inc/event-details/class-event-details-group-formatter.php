@@ -2,7 +2,9 @@
 
 namespace Simple_History\Event_Details;
 
-// Format a group of items.
+/**
+ * Format a group of items.
+ */
 abstract class Event_Details_Group_Formatter {
 	/**
 	 * @param Event_Details_Group $group

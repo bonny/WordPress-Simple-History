@@ -2,8 +2,10 @@
 
 namespace Simple_History\Event_Details;
 
-// Format a single item in a group,
-// i.e. output current value and previous value, if any.
+/**
+ * Format a single item in a group,
+ * i.e. output current value and previous value, if any.
+ */
 abstract class Event_Details_Item_Formatter {
 	/**
 	 * @var Event_Details_Item $item
