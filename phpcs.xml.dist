@@ -79,10 +79,11 @@
 		<exclude name="Squiz.Commenting.ClassComment.SpacingAfter" />
 		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase" />
 		<exclude name="Squiz.Commenting.ClassComment.Missing" />
-		<exclude name="Squiz.Commenting.FileComment.SpacingAfterComment" />
+		
+		<!-- We don't want to change global helper function names that are in use already. -->
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound" />
 
-		<!-- Can't change the hook names we already have -->
+		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
 	</rule>
 

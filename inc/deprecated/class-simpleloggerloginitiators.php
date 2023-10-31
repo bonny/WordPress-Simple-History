@@ -4,6 +4,7 @@
  *
  * Use Simple_History\Log_Initiators instead.
  */
+
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
 class SimpleLoggerLogInitiators {
 
