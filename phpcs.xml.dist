@@ -84,7 +84,6 @@
 		<exclude name="Squiz.Commenting.ClassComment.WrongStyle" />
 		<exclude name="Squiz.Commenting.FileComment.SpacingAfterOpen" />
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
-		<exclude name="Generic.Files.OneObjectStructurePerFile.MultipleFound" />
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
