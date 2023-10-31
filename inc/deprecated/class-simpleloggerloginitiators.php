@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Deprecated log initiators class.
  *

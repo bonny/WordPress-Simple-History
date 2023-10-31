@@ -82,7 +82,8 @@
 		<exclude name="Squiz.Commenting.FileComment.SpacingAfterComment" />
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound" />
 		<exclude name="Squiz.Commenting.ClassComment.WrongStyle" />
-		<exclude name="Squiz.Commenting.FileComment.SpacingAfterOpen" />
+
+		<!-- Can't change the hook names we already have -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
 	</rule>
 
