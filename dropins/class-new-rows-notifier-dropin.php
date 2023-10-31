@@ -11,7 +11,7 @@ use Simple_History\Log_Query;
  * Author: Pär Thernström
  */
 class New_Rows_Notifier_Dropin extends Dropin {
-	// How often we should check for new rows, in ms.
+	/** @var int How often we should check for new rows, in ms. */
 	private $interval = 10000;
 
 	public function loaded() {
