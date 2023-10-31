@@ -1,4 +1,4 @@
-# <img width="20" height="20" src=".wordpress-org/icon.svg" alt="logo"> Simple History
+# <img width="30" height="30" src=".wordpress-org/icon-256x256.png" alt="logo"> Simple History
 
 <img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars"> <img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K"> <img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
 
