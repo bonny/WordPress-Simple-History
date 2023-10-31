@@ -80,9 +80,6 @@
 		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase" />
 		<exclude name="Squiz.Commenting.ClassComment.Missing" />
 		
-		<!-- We don't want to change global helper function names that are in use already. -->
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound" />
-
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
 	</rule>

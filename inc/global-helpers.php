@@ -20,7 +20,7 @@ use Simple_History\Loggers\Simple_Logger;
  * @return Simple_Logger
  */
 if ( ! function_exists( 'SimpleLogger' ) ) {
-	function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 		return new Simple_Logger( Simple_History::get_instance() );
 	}
 }
@@ -38,7 +38,7 @@ if ( ! function_exists( 'SimpleLogger' ) ) {
  * );
  */
 if ( ! function_exists( 'sh_error_log' ) ) {
-	function sh_error_log() {
+	function sh_error_log() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 		foreach ( func_get_args() as $var ) {
 			if ( is_bool( $var ) ) {
 				$bool_string = $var ? 'true' : 'false';
@@ -64,7 +64,7 @@ if ( ! function_exists( 'sh_error_log' ) ) {
  * @mixed Vars Variables to output.
  */
 if ( ! function_exists( 'sh_d' ) ) {
-	function sh_d() {
+	function sh_d() { // phpcs:ignore 
 		$output = '';
 
 		foreach ( func_get_args() as $var ) {
