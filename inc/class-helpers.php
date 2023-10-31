@@ -4,6 +4,9 @@ namespace Simple_History;
 
 use Simple_History\Simple_History;
 
+/**
+ * Helper functions.
+ */
 class Helpers {
 	/**
 	 * Pretty much same as wp_text_diff() but with this you can set leading and trailing context lines

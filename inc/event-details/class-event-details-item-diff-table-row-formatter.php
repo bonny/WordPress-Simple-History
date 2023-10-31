@@ -4,6 +4,9 @@ namespace Simple_History\Event_Details;
 
 use Simple_History\Helpers;
 
+/**
+ * Formatter for a group of items.
+ */
 class Event_Details_Item_Diff_Table_Row_Formatter extends Event_Details_Item_Formatter {
 	public function to_html() {
 		$value_with_diff = Helpers::Text_Diff(

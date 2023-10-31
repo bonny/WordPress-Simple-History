@@ -6,6 +6,9 @@ use Simple_History\Helpers;
 use Simple_History\Services\AddOns_Licences;
 use Simple_History\AddOn_Plugin;
 
+/**
+ * Settings page for licences.
+ */
 class Licences_Settings_Page extends Service {
 	/** @var AddOns_Licences $licences_service */
 	private $licences_service;

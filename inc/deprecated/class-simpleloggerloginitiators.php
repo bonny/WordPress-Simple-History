@@ -1,11 +1,9 @@
 <?php
-/**
- * Deprecated log initiators class.
- *
- * Use Simple_History\Log_Initiators instead.
- */
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
 
-// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
+/**
+ * @deprecated log initiators class. Use Simple_History\Log_Initiators instead.
+ */
 class SimpleLoggerLogInitiators {
 
 	// A wordpress user that at the log event created did exist in the wp database

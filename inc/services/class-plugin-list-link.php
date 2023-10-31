@@ -2,8 +2,9 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Helpers;
-
+/**
+ * Add a link to the History Settings Page on the Plugins -> Installed Plugins screen.
+ */
 class Plugin_List_Link extends Service {
 	public function loaded() {
 		add_filter( 'plugin_action_links', array( $this, 'on_plugin_action_links' ), 10, 4 );

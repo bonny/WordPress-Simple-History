@@ -2,6 +2,9 @@
 
 namespace Simple_History\Event_Details;
 
+/**
+ * Formatter for a group of items.
+ */
 class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 	/** @var string */
 	protected $html_output = '';

@@ -4,6 +4,9 @@ namespace Simple_History\Services;
 
 use Simple_History\Helpers;
 
+/**
+ * Add a "View history" item/shortcut to the admin bar.
+ */
 class Network_Menu_Items extends Service {
 	public function loaded() {
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );

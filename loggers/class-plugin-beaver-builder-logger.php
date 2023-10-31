@@ -5,8 +5,6 @@ namespace Simple_History\Loggers;
 /**
  * Logger for Beaver Builder
  */
-
-// phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 class Plugin_Beaver_Builder_Logger extends Logger {
 
 	public $slug = 'Plugin_BeaverBuilder';

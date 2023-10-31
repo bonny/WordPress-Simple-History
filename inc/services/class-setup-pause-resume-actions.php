@@ -2,6 +2,9 @@
 
 namespace Simple_History\Services;
 
+/**
+ * Setup pause and resume actions.
+ */
 class Setup_Pause_Resume_Actions extends Service {
 	public function loaded() {
 		$this->add_pause_and_resume_actions();

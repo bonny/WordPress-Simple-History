@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
 use Simple_History\Loggers\Logger;
 
 /**
@@ -8,7 +9,6 @@ use Simple_History\Loggers\Logger;
  *
  * @method null warningMessage(string $message, array $context)
  */
-// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound
 class SimpleLogger extends Logger {
 	/**
 	 * Methods that used to exist and needs to be remapped.

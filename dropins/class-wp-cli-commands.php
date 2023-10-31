@@ -7,6 +7,9 @@ use Simple_History\Simple_History;
 use Simple_History\Log_Query;
 use WP_CLI;
 
+/**
+ * WP CLI commands for Simple History.
+ */
 class WP_CLI_Commands {
 	/** @var Simple_History */
 	private $simple_history;

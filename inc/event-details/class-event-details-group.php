@@ -2,6 +2,9 @@
 
 namespace Simple_History\Event_Details;
 
+/**
+ * Formatter for a group of items.
+ */
 class Event_Details_Group {
 	/** @var array<Event_Details_Item> */
 	public array $items = [];

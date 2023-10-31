@@ -78,7 +78,6 @@
 		<exclude name="Squiz.Commenting.FunctionComment.ParamNameNoMatch" />
 		<exclude name="Squiz.Commenting.ClassComment.SpacingAfter" />
 		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase" />
-		<exclude name="Squiz.Commenting.ClassComment.Missing" />
 		
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />

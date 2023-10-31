@@ -5,6 +5,9 @@ namespace Simple_History\Services;
 use Simple_History\Plugin_Updater;
 use Simple_History\AddOn_Plugin;
 
+/**
+ * Service for add-on-plugins that require a licence code to be updated.
+ */
 class AddOns_Licences extends Service {
 	/**
 	 * Array with info about all add-on-plugins.

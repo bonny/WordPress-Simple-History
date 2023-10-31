@@ -2,6 +2,9 @@
 
 namespace Simple_History\Event_Details;
 
+/**
+ * Formatter for a group of items.
+ */
 class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter {
 	public function to_html( $group ) {
 		$output = '<table class="SimpleHistoryLogitem__keyValueTable">';
