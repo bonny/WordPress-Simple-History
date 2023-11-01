@@ -381,7 +381,9 @@ class RSS_Dropin extends Dropin {
 								<div><?php echo wp_kses( $details_output, $wp_kses_attrs ); ?></div>
 								<p><?php echo wp_kses( $level_output, $wp_kses_attrs ); ?></p>
 								<?php
+								// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 								$occasions = $row->subsequentOccasions - 1;
+
 								if ( $occasions ) {
 									echo '<p>';
 									esc_html(

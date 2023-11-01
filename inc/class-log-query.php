@@ -633,6 +633,7 @@ class Log_Query {
 		 */
 		$sql = apply_filters( 'simple_history/log_query_sql', $sql );
 
+		/** @var array<string,object> */
 		$log_rows = $wpdb->get_results( $sql, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Find total number of rows that we would have gotten without pagination
@@ -669,7 +670,10 @@ class Log_Query {
 
 			// Min id = to find the lowest id we must take occasions into consideration
 			$last_row = end( $log_rows );
+
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
+
 			if ( $last_row_occasions_count === 0 ) {
 				// Last row did not have any more occasions, so get min_id directly from the row.
 				$min_id = $last_row->id;

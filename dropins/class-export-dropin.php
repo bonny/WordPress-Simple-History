@@ -116,6 +116,7 @@ class Export_Dropin extends Dropin {
 								$this->esc_csv_field( $user_login ),
 								$this->esc_csv_field( $header_output ),
 								$this->esc_csv_field( $message_output ),
+								// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 								$this->esc_csv_field( $one_row->subsequentOccasions ),
 							)
 						);

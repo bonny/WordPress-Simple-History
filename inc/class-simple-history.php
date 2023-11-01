@@ -1005,6 +1005,7 @@ class Simple_History {
 		}
 
 		// subsequentOccasions = including the current one
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$occasions_count = $oneLogRow->subsequentOccasions - 1;
 		$occasions_html = '';
 
@@ -1038,6 +1039,8 @@ class Simple_History {
 		$data_attrs = '';
 		$data_attrs .= sprintf( ' data-row-id="%1$d" ', $oneLogRow->id );
 		$data_attrs .= sprintf( ' data-occasions-count="%1$d" ', $occasions_count );
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$data_attrs .= sprintf( ' data-occasions-id="%1$s" ', esc_attr( $oneLogRow->occasionsID ) );
 
 		// Add data attributes for remote address and other ip number headers.

@@ -90,6 +90,7 @@ class WP_CLI_Commands {
 				'who_when' => $header_output,
 				'description' => $text_output,
 				'via' => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'count' => $row->subsequentOccasions,
 			);
 		}

@@ -173,15 +173,14 @@ class Post_Logger extends Logger {
 			}
 
 			$context['wp.deletePost.xmlrpc_message'] = Helpers::json_encode( $message );
-			$context['wp.deletePost.xmlrpc_message.messageType'] = Helpers::json_encode(
-				$message->messageType
-			);
-			$context['wp.deletePost.xmlrpc_message.methodName'] = Helpers::json_encode(
-				$message->methodName
-			);
-			$context['wp.deletePost.xmlrpc_message.messageParams'] = Helpers::json_encode(
-				$message->params
-			);
+
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$context['wp.deletePost.xmlrpc_message.messageType'] = Helpers::json_encode( $message->messageType );
+
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$context['wp.deletePost.xmlrpc_message.methodName'] = Helpers::json_encode( $message->methodName );
+
+			$context['wp.deletePost.xmlrpc_message.messageParams'] = Helpers::json_encode( $message->params );
 
 			// Actions for delete post
 			if ( 'wp.deletePost' == $method ) {
