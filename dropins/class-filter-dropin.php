@@ -3,7 +3,6 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
 use Simple_History\Log_Levels;
 
 /**
@@ -200,11 +199,11 @@ class Filter_Dropin extends Dropin {
 						foreach ( $result_months as $row ) {
 							printf(
 								'<option value="%1$s">%2$s</option>',
-								'month:' . esc_attr( $row->yearMonth ),
+								'month:' . esc_attr( $row->yearMonth ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 								esc_attr(
 									date_i18n(
 										'F Y',
-										strtotime( $row->yearMonth )
+										strtotime( $row->yearMonth ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 									)
 								)
 							);
