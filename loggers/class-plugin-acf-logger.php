@@ -567,8 +567,8 @@ class Plugin_ACF_Logger extends Logger {
 			),
 		);
 
-		foreach ( $arrKeys as $acfKey => $acfVals ) {
-			if ( isset( $context[ "acf_new_$acfKey" ] ) && isset( $context[ "acf_prev_$acfKey" ] ) ) {
+		foreach ( $arrKeys as $acf_key => $acfVals ) {
+			if ( isset( $context[ "acf_new_$acf_key" ] ) && isset( $context[ "acf_prev_$acf_key" ] ) ) {
 				$diff_table_output .= sprintf(
 					'<tr>
 						<td>%1$s</td>
@@ -578,8 +578,8 @@ class Plugin_ACF_Logger extends Logger {
 						</td>
 					</tr>',
 					$acfVals['name'],
-					esc_html( $context[ "acf_new_$acfKey" ] ),
-					esc_html( $context[ "acf_prev_$acfKey" ] )
+					esc_html( $context[ "acf_new_$acf_key" ] ),
+					esc_html( $context[ "acf_prev_$acf_key" ] )
 				);
 			}
 		}

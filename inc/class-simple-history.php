@@ -984,29 +984,29 @@ class Simple_History {
 	 * Returns the HTML output for a log row, to be used in the GUI/Activity Feed.
 	 * This includes HTML for the header, the sender image, and the details.
 	 *
-	 * @param object $oneLogRow LogQuery array with data from LogQuery
+	 * @param object $one_log_row LogQuery array with data from LogQuery
 	 * @return string
 	 */
-	public function get_log_row_html_output( $oneLogRow, $args ) {
+	public function get_log_row_html_output( $one_log_row, $args ) {
 		$defaults = array(
 			'type' => 'overview', // or "single" to include more stuff (used in for example modal details window)
 		);
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$header_html = $this->get_log_row_header_output( $oneLogRow );
-		$plain_text_html = $this->get_log_row_plain_text_output( $oneLogRow );
-		$sender_image_html = $this->get_log_row_sender_image_output( $oneLogRow );
+		$header_html = $this->get_log_row_header_output( $one_log_row );
+		$plain_text_html = $this->get_log_row_plain_text_output( $one_log_row );
+		$sender_image_html = $this->get_log_row_sender_image_output( $one_log_row );
 
 		// Details = for example thumbnail of media.
-		$details_html = trim( $this->get_log_row_details_output( $oneLogRow ) );
+		$details_html = trim( $this->get_log_row_details_output( $one_log_row ) );
 		if ( $details_html !== '' ) {
 			$details_html = sprintf( '<div class="SimpleHistoryLogitem__details">%1$s</div>', $details_html );
 		}
 
 		// subsequentOccasions = including the current one
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$occasions_count = $oneLogRow->subsequentOccasions - 1;
+		$occasions_count = $one_log_row->subsequentOccasions - 1;
 		$occasions_html = '';
 
 		if ( $occasions_count > 0 ) {
@@ -1037,31 +1037,31 @@ class Simple_History {
 
 		// Add data attributes to log row, so plugins can do stuff.
 		$data_attrs = '';
-		$data_attrs .= sprintf( ' data-row-id="%1$d" ', $oneLogRow->id );
+		$data_attrs .= sprintf( ' data-row-id="%1$d" ', $one_log_row->id );
 		$data_attrs .= sprintf( ' data-occasions-count="%1$d" ', $occasions_count );
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$data_attrs .= sprintf( ' data-occasions-id="%1$s" ', esc_attr( $oneLogRow->occasionsID ) );
+		$data_attrs .= sprintf( ' data-occasions-id="%1$s" ', esc_attr( $one_log_row->occasionsID ) );
 
 		// Add data attributes for remote address and other ip number headers.
-		if ( isset( $oneLogRow->context['_server_remote_addr'] ) ) {
-			$data_attrs .= sprintf( ' data-ip-address="%1$s" ', esc_attr( $oneLogRow->context['_server_remote_addr'] ) );
+		if ( isset( $one_log_row->context['_server_remote_addr'] ) ) {
+			$data_attrs .= sprintf( ' data-ip-address="%1$s" ', esc_attr( $one_log_row->context['_server_remote_addr'] ) );
 		}
 
-		$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $oneLogRow );
+		$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $one_log_row );
 
 		if ( $arr_found_additional_ip_headers !== [] ) {
 			$data_attrs .= ' data-ip-address-multiple="1" ';
 		}
 
 		// Add data attributes info for common things like logger, level, data, initiation.
-		$data_attrs .= sprintf( ' data-logger="%1$s" ', esc_attr( $oneLogRow->logger ) );
-		$data_attrs .= sprintf( ' data-level="%1$s" ', esc_attr( $oneLogRow->level ) );
-		$data_attrs .= sprintf( ' data-date="%1$s" ', esc_attr( $oneLogRow->date ) );
-		$data_attrs .= sprintf( ' data-initiator="%1$s" ', esc_attr( $oneLogRow->initiator ) );
+		$data_attrs .= sprintf( ' data-logger="%1$s" ', esc_attr( $one_log_row->logger ) );
+		$data_attrs .= sprintf( ' data-level="%1$s" ', esc_attr( $one_log_row->level ) );
+		$data_attrs .= sprintf( ' data-date="%1$s" ', esc_attr( $one_log_row->date ) );
+		$data_attrs .= sprintf( ' data-initiator="%1$s" ', esc_attr( $one_log_row->initiator ) );
 
-		if ( isset( $oneLogRow->context['_user_id'] ) ) {
-			$data_attrs .= sprintf( ' data-initiator-user-id="%1$d" ', $oneLogRow->context['_user_id'] );
+		if ( isset( $one_log_row->context['_user_id'] ) ) {
+			$data_attrs .= sprintf( ' data-initiator-user-id="%1$d" ', $one_log_row->context['_user_id'] );
 		}
 
 		// If type is single then include more details.
@@ -1071,7 +1071,7 @@ class Simple_History {
 			$more_details_html = apply_filters(
 				'simple_history/log_html_output_details_single/html_before_context_table',
 				$more_details_html,
-				$oneLogRow
+				$one_log_row
 			);
 
 			$more_details_html .= sprintf(
@@ -1090,10 +1090,10 @@ class Simple_History {
 				'Value'
 			);
 
-			$logRowKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow ), true );
+			$logRowKeysToShow = array_fill_keys( array_keys( (array) $one_log_row ), true );
 
 			/**
-			 * Filter what keys to show from oneLogRow
+			 * Filter what keys to show from one_log_row
 			 *
 			 * Array is in format
 			 *
@@ -1112,7 +1112,7 @@ class Simple_History {
 			 * ```php
 			 *  add_filter(
 			 *      'simple_history/log_html_output_details_table/row_keys_to_show',
-			 *      function ( $logRowKeysToShow, $oneLogRow ) {
+			 *      function ( $logRowKeysToShow, $one_log_row ) {
 			 *
 			 *          $logRowKeysToShow['id'] = false;
 			 *          $logRowKeysToShow['logger'] = false;
@@ -1129,12 +1129,12 @@ class Simple_History {
 			 * @since 2.0.29
 			 *
 			 * @param array $logRowKeysToShow with keys to show. key to show = key. value = boolean to show or not.
-			 * @param object $oneLogRow log row to show details from
+			 * @param object $one_log_row log row to show details from
 			 */
 			$logRowKeysToShow = apply_filters(
 				'simple_history/log_html_output_details_table/row_keys_to_show',
 				$logRowKeysToShow,
-				$oneLogRow
+				$one_log_row
 			);
 
 			// Hide some keys by default
@@ -1148,8 +1148,8 @@ class Simple_History {
 				$logRowKeysToShow['type']
 			);
 
-			foreach ( $oneLogRow as $rowKey => $rowVal ) {
-				// Only columns from oneLogRow that exist in logRowKeysToShow will be outputted
+			foreach ( $one_log_row as $rowKey => $rowVal ) {
+				// Only columns from one_log_row that exist in logRowKeysToShow will be outputted
 				if ( ! array_key_exists( $rowKey, $logRowKeysToShow ) || ! $logRowKeysToShow[ $rowKey ] ) {
 					continue;
 				}
@@ -1169,7 +1169,7 @@ class Simple_History {
 				);
 			}
 
-			$logRowContextKeysToShow = array_fill_keys( array_keys( (array) $oneLogRow->context ), true );
+			$logRowContextKeysToShow = array_fill_keys( array_keys( (array) $one_log_row->context ), true );
 
 			/**
 			 * Filter what keys to show from the row context.
@@ -1194,7 +1194,7 @@ class Simple_History {
 			 * ```php
 			 *  add_filter(
 			 *      'simple_history/log_html_output_details_table/context_keys_to_show',
-			 *      function ( $logRowContextKeysToShow, $oneLogRow ) {
+			 *      function ( $logRowContextKeysToShow, $one_log_row ) {
 			 *
 			 *          $logRowContextKeysToShow['plugin_slug'] = false;
 			 *          $logRowContextKeysToShow['plugin_name'] = false;
@@ -1212,15 +1212,15 @@ class Simple_History {
 			 * @since 2.0.29
 			 *
 			 * @param array $logRowContextKeysToShow with keys to show. key to show = key. value = boolean to show or not.
-			 * @param object $oneLogRow log row to show details from
+			 * @param object $one_log_row log row to show details from
 			 */
 			$logRowContextKeysToShow = apply_filters(
 				'simple_history/log_html_output_details_table/context_keys_to_show',
 				$logRowContextKeysToShow,
-				$oneLogRow
+				$one_log_row
 			);
 
-			foreach ( $oneLogRow->context as $contextKey => $contextVal ) {
+			foreach ( $one_log_row->context as $contextKey => $contextVal ) {
 				// Only columns from context that exist in logRowContextKeysToShow will be outputted
 				if (
 					! array_key_exists( $contextKey, $logRowContextKeysToShow ) ||
@@ -1244,7 +1244,7 @@ class Simple_History {
 			$more_details_html = apply_filters(
 				'simple_history/log_html_output_details_single/html_after_context_table',
 				$more_details_html,
-				$oneLogRow
+				$one_log_row
 			);
 
 			$more_details_html = sprintf(
@@ -1256,12 +1256,12 @@ class Simple_History {
 		// Classes to add to log item li element
 		$classes = array(
 			'SimpleHistoryLogitem',
-			"SimpleHistoryLogitem--loglevel-{$oneLogRow->level}",
-			"SimpleHistoryLogitem--logger-{$oneLogRow->logger}",
+			"SimpleHistoryLogitem--loglevel-{$one_log_row->level}",
+			"SimpleHistoryLogitem--logger-{$one_log_row->logger}",
 		);
 
-		if ( isset( $oneLogRow->initiator ) && ! empty( $oneLogRow->initiator ) ) {
-			$classes[] = 'SimpleHistoryLogitem--initiator-' . $oneLogRow->initiator;
+		if ( isset( $one_log_row->initiator ) && ! empty( $one_log_row->initiator ) ) {
+			$classes[] = 'SimpleHistoryLogitem--initiator-' . $one_log_row->initiator;
 		}
 
 		if ( $arr_found_additional_ip_headers !== [] ) {
@@ -1271,8 +1271,8 @@ class Simple_History {
 		// Always append the log level tag
 		$log_level_tag_html = sprintf(
 			' <span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%2$s</span>',
-			$oneLogRow->level,
-			Log_Levels::get_log_level_translated( $oneLogRow->level )
+			$one_log_row->level,
+			Log_Levels::get_log_level_translated( $one_log_row->level )
 		);
 
 		$plain_text_html .= $log_level_tag_html;
@@ -1306,9 +1306,9 @@ class Simple_History {
 			$plain_text_html, // 2
 			$sender_image_html, // 3
 			$occasions_html, // 4
-			$oneLogRow->level, // 5
+			$one_log_row->level, // 5
 			$details_html, // 6
-			$oneLogRow->logger, // 7
+			$one_log_row->logger, // 7
 			$data_attrs, // 8 data attributes
 			$more_details_html, // 9
 			esc_attr( join( ' ', $classes ) ) // 10
@@ -1317,10 +1317,10 @@ class Simple_History {
 		// Get the main message row.
 		// Should be as plain as possible, like plain text
 		// but with links to for example users and posts
-		// SimpleLoggerFormatter::getRowTextOutput($oneLogRow);
+		// SimpleLoggerFormatter::getRowTextOutput($one_log_row);
 		// Get detailed HTML-based output
 		// May include images, lists, any cool stuff needed to view
-		// SimpleLoggerFormatter::getRowHTMLOutput($oneLogRow);
+		// SimpleLoggerFormatter::getRowHTMLOutput($one_log_row);
 		return trim( $output );
 	}
 
