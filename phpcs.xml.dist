@@ -75,7 +75,6 @@
 		<exclude name="Squiz.Commenting.FunctionComment.WrongStyle" />
 		<exclude name="WordPress.Security.NonceVerification.Missing" />
 		<exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase" />
-		<exclude name="Squiz.Commenting.FunctionComment.ParamNameNoMatch" />
 
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />

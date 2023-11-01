@@ -113,15 +113,15 @@ class Post_Logger extends Logger {
 	 * @param WP_REST_Request $request  Request object.
 	 * @param bool            $creating True when creating a post, false when updating.
 	 */
-	public function on_rest_after_insert( $updatedPost, $request, $creating ) {
-		$updatedPost = get_post( $updatedPost->ID );
-		$post_meta = get_post_custom( $updatedPost->ID );
+	public function on_rest_after_insert( $updated_post, $request, $creating ) {
+		$updated_post = get_post( $updated_post->ID );
+		$post_meta = get_post_custom( $updated_post->ID );
 
-		$old_post = isset( $this->old_post_data[ $updatedPost->ID ] ) ? $this->old_post_data[ $updatedPost->ID ]['post_data'] : null;
-		$old_post_meta = isset( $this->old_post_data[ $updatedPost->ID ] ) ? $this->old_post_data[ $updatedPost->ID ]['post_meta'] : null;
+		$old_post = isset( $this->old_post_data[ $updated_post->ID ] ) ? $this->old_post_data[ $updated_post->ID ]['post_data'] : null;
+		$old_post_meta = isset( $this->old_post_data[ $updated_post->ID ] ) ? $this->old_post_data[ $updated_post->ID ]['post_meta'] : null;
 
 		$args = array(
-			'new_post' => $updatedPost,
+			'new_post' => $updated_post,
 			'new_post_meta' => $post_meta,
 			'old_post' => $old_post,
 			'old_post_meta' => $old_post_meta,

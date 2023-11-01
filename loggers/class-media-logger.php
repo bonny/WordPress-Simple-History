@@ -245,7 +245,7 @@ class Media_Logger extends Logger {
 	 * Fired from filter 'add_attachment'.
 	 * Is not fired when image is added in Block Editor
 	 *
-	 * @param int $attachment_id.
+	 * @param int $attachment_id
 	 */
 	public function on_add_attachment( $attachment_id ) {
 
