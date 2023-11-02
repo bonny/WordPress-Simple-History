@@ -48,7 +48,7 @@ abstract class Logger {
 	 * which results in the original, untranslated, string being added to the log and database
 	 * the translated string are then only used when showing the log in the GUI.
 	 *
-	 * @array $messages
+	 * @var array $messages
 	 */
 	public $messages;
 

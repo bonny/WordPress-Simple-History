@@ -25,23 +25,24 @@ class Simple_History {
 	/**
 	 * For singleton.
 	 *
+	 * @var Simple_History
 	 * @see get_instance()
 	 */
 	private static ?\Simple_History\Simple_History $instance = null;
 
-	/** Array with external logger classnames to load. */
+	/** @var Array with external logger classnames to load. */
 	private array $external_loggers = [];
 
-	/** Array with external dropins to load. */
+	/** @var Array with external dropins to load. */
 	private array $external_dropins = [];
 
 	/** @var array Array with all instantiated loggers. */
 	private array $instantiated_loggers = [];
 
-	/** Array with all instantiated dropins. */
+	/** @var Array with all instantiated dropins. */
 	private array $instantiated_dropins = [];
 
-	/** Array with instantiated setup class. */
+	/** @var Array with instantiated setup class. */
 	private array $instantiated_services = [];
 
 	/** @var array<int,mixed>  Registered settings tabs. */
