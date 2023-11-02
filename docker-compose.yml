@@ -46,7 +46,7 @@ services:
 
   chrome:
     image: seleniarm/standalone-chromium:117.0
-    # shm_size: "2gb"
+    shm_size: "2gb"
     container_name: simple-history-chrome
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     # ports:
