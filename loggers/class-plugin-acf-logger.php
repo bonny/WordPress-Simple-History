@@ -729,8 +729,8 @@ class Plugin_ACF_Logger extends Logger {
 				}
 
 				// Check for other keys changed for this field
-				foreach ( $arrAddedFieldsKeysToCheck as $oneAddedFieldKeyToCheck => $oneAddedFieldKeyToCheckVals ) {
-					$newAndOldValsExists = isset( $context[ "acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new" ] ) && isset( $context[ "acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new" ] );
+				foreach ( $arrAddedFieldsKeysToCheck as $one_added_field_key_to_check => $one_added_field_key_to_check_vals ) {
+					$newAndOldValsExists = isset( $context[ "acf_modified_fields_{$loopnum}_{$one_added_field_key_to_check}_new" ] ) && isset( $context[ "acf_modified_fields_{$loopnum}_{$one_added_field_key_to_check}_new" ] );
 					if ( $newAndOldValsExists ) {
 						$strOneModifiedField .= sprintf(
 							'
@@ -739,9 +739,9 @@ class Plugin_ACF_Logger extends Logger {
 								<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>
 								<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%2$s</del>
 							',
-							esc_html( $context[ "acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_new" ] ), // 1
-							esc_html( $context[ "acf_modified_fields_{$loopnum}_{$oneAddedFieldKeyToCheck}_prev" ] ), // 2
-							esc_html( $oneAddedFieldKeyToCheckVals['name'] ), // 3
+							esc_html( $context[ "acf_modified_fields_{$loopnum}_{$one_added_field_key_to_check}_new" ] ), // 1
+							esc_html( $context[ "acf_modified_fields_{$loopnum}_{$one_added_field_key_to_check}_prev" ] ), // 2
+							esc_html( $one_added_field_key_to_check_vals['name'] ), // 3
 							empty( $strOneModifiedField ) ? '' : '<br>' // 4 new line
 						);
 					}
