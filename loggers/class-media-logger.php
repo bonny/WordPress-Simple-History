@@ -310,8 +310,10 @@ class Media_Logger extends Logger {
 		);
 	}
 
-	/*
-	 * Called when an attachment is deleted
+	/**
+	 * Called when an attachment is deleted.
+	 *
+	 * @param int $attachment_id
 	 */
 	public function on_delete_attachment( $attachment_id ) {
 

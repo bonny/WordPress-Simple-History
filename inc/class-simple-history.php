@@ -604,11 +604,6 @@ class Simple_History {
 		return false;
 	}
 
-	// TODO: Is this used anywhere?
-	public function filter_option_page_capability( $capability ) {
-		return $capability;
-	}
-
 	/**
 	 * Check if the database has data/rows
 	 *
@@ -1500,7 +1495,12 @@ class Simple_History {
 		return $arr_loggers_user_can_view;
 	}
 
-	// Number of rows the last n days.
+	/**
+	 * Get number of events the last n days.
+	 *
+	 * @param int $period_days
+	 * @return int Number of days.
+	 */
 	public function get_num_events_last_n_days( $period_days = 28 ) {
 		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
 

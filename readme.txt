@@ -209,6 +209,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+Unreleased
+
+- Remove unused function `filter_option_page_capability()`.
+- Update coding standards to use and follow WP Coding Standards 3.
+
 ### 4.7.2 (October 2023)
 
 - Changed: Check that a service class exists before trying to instantiate it.
