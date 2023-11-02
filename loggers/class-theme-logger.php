@@ -543,6 +543,8 @@ class Theme_Logger extends Logger {
 
 	/**
 	 * Add widget name and sidebar name to output
+	 *
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;

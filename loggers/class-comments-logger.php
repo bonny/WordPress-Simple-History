@@ -478,6 +478,9 @@ class Comments_Logger extends Logger {
 
 	/**
 	 * Fires immediately after a comment is inserted into the database.
+	 *
+	 * @param int $comment_ID
+	 * @param int $comment_approved
 	 */
 	public function on_comment_post( $comment_ID, $comment_approved ) {
 
@@ -552,6 +555,8 @@ class Comments_Logger extends Logger {
 
 	/**
 	 * Get output for detailed log section
+	 *
+	 * @param object $row
 	 */
 	public function get_log_row_details_output( $row ) {
 

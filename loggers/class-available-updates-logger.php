@@ -107,6 +107,8 @@ class Available_Updates_Logger extends Logger {
 	 * Called when WordPress is done checking for plugin updates.
 	 * WP sets site transient 'update_plugins' when done.
 	 * Log found plugin updates.
+	 *
+	 * @param object $updates
 	 */
 	public function on_setted_update_plugins_transient( $updates ) {
 
@@ -233,6 +235,8 @@ class Available_Updates_Logger extends Logger {
 
 	/**
 	 * Append prev and current version of update object as details in the output
+	 *
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_details_output( $row ) {
 

@@ -504,6 +504,9 @@ class Helpers {
 	 *
 	 * Used when fetching IP-address info from ipinfo.io, or API call
 	 * will fail due to malformed IP address.
+	 *
+	 * @param string $ip_address IP-address to get valid IP-address from.
+	 * @return string
 	 */
 	public static function get_valid_ip_address_from_anonymized( $ip_address ) {
 		$ip_address = preg_replace( '/\.x$/', '.0', $ip_address );

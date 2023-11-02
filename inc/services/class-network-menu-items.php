@@ -20,6 +20,7 @@ class Network_Menu_Items extends Service {
 	 * Useful because Simple History is something at least the author of this plugin often use on a site :)
 	 *
 	 * @since 2.7.1
+	 * @param \WP_Admin_Bar $wp_admin_bar
 	 */
 	public function add_admin_bar_network_menu_item( $wp_admin_bar ) {
 		/**
@@ -88,6 +89,7 @@ class Network_Menu_Items extends Service {
 	 * Useful because Simple History is something at least the author of this plugin often use on a site :)
 	 *
 	 * @since 2.7.1
+	 * @param \WP_Admin_Bar $wp_admin_bar
 	 */
 	public function add_admin_bar_menu_item( $wp_admin_bar ) {
 		/**

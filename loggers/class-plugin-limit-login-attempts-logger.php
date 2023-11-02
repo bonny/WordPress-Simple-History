@@ -50,6 +50,8 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 	/**
 	 * Fired when plugin options screen is loaded
+	 *
+	 * @param string $a
 	 */
 	public function on_load_settings_page( $a ) {
 
@@ -104,6 +106,8 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	 * When option value is updated
 	 * do same checks as plugin itself does
 	 * and log if we match something
+	 *
+	 * @param mixed $value
 	 */
 	public function on_option_limit_login_lockouts_total( $value ) {
 
@@ -157,6 +161,8 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 	/**
 	 * Add some extra info
+	 *
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_details_output( $row ) {
 

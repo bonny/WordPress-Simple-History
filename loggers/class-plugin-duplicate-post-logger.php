@@ -74,6 +74,8 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 
 	/**
 	 * Modify plain output to include link to post
+	 *
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;

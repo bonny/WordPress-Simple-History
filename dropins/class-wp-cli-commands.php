@@ -43,6 +43,10 @@ class WP_CLI_Commands {
 	 *     wp simple-history list --count=20 --format=json
 	 *
 	 * @when after_wp_load
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 * @return void
 	 */
 	public function list( $args, $assoc_args ) {
 		$assoc_args = wp_parse_args(

@@ -101,6 +101,10 @@ class Plugin_ACF_Logger extends Logger {
 
 	/**
 	 * Fired after a log row is inserted.
+	 *
+	 * @param array                  $context Context.
+	 * @param array                  $data_parent_row Data parent row.
+	 * @param \Simple_History\Logger $simple_history_instance Simple History instance.
 	 */
 	public function on_log_inserted( $context, $data_parent_row, $simple_history_instance ) {
 		$message_key = empty( $context['_message_key'] ) ? false : $context['_message_key'];
@@ -136,6 +140,11 @@ class Plugin_ACF_Logger extends Logger {
 	 *
 	 * This function checks if post type logged by SimplePostLogger is a ACF Field Group, and if it is
 	 * then don't log that log. This way we prevent the post logger from logging the field group changes twice.
+	 *
+	 * @param bool     $ok_to_log Ok to log.
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Old status.
+	 * @param \WP_Post $post Post.
 	 */
 	public function prevent_second_acf_field_group_post_save_log( $ok_to_log, $new_status, $old_status, $post ) {
 		if ( isset( $post->post_type ) && $post->post_type === 'acf-field-group' ) {
@@ -969,6 +978,10 @@ class Plugin_ACF_Logger extends Logger {
 	 * ACF field group is saved
 	 * Called before ACF calls its save_post filter
 	 * Here we save the new fields values and also get the old values so we can compare
+	 *
+	 * @param string  $new_status
+	 * @param string  $old_status
+	 * @param WP_Post $post
 	 */
 	public function on_transition_post_status( $new_status, $old_status, $post ) {
 		static $isCalled = false;
@@ -1047,6 +1060,9 @@ class Plugin_ACF_Logger extends Logger {
 	 * Add the post types that ACF uses for fields to the array of post types
 	 * that the default post logger should not log. If not each field will cause one
 	 * post update log message.
+	 *
+	 * @param array $skip_posttypes
+	 * @return array
 	 */
 	public function remove_acf_from_postlogger( $skip_posttypes ) {
 		$skip_posttypes[] = 'acf-field';

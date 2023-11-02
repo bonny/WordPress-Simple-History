@@ -662,6 +662,9 @@ class Plugin_Logger extends Logger {
 	/**
 	 * Saves info about all installed plugins to an option.
 	 * When we are done logging then we remove the option.
+	 *
+	 * @param bool  $bool
+	 * @param array $hook_extra
 	 */
 	public function save_versions_before_update( $bool = null, $hook_extra = null ) {
 
@@ -1025,6 +1028,9 @@ class Plugin_Logger extends Logger {
 	/**
 	 * Plugin is activated
 	 * plugin_name is like admin-menu-tree-page-view/index.php
+	 *
+	 * @param string $plugin_name Plugin name.
+	 * @param bool   $network_wide Network wide.
 	 */
 	public function on_activated_plugin( $plugin_name, $network_wide ) {
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name, true, false );
@@ -1051,6 +1057,8 @@ class Plugin_Logger extends Logger {
 	/**
 	 * Plugin is deactivated
 	 * plugin_name is like admin-menu-tree-page-view/index.php
+	 *
+	 * @param string $plugin_name Plugin name.
 	 */
 	public function on_deactivated_plugin( $plugin_name ) {
 
@@ -1076,6 +1084,8 @@ class Plugin_Logger extends Logger {
 
 	/**
 	 * Get output for detailed log section
+	 *
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_details_output( $row ) {
 

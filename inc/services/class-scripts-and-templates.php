@@ -15,6 +15,8 @@ class Scripts_And_Templates extends Service {
 
 	/**
 	 * Output JS templated into footer
+	 *
+	 * @param string $hook The current admin page.
 	 */
 	public function add_js_templates( $hook ) {
 		if ( $this->simple_history->is_on_our_own_pages() ) {
@@ -127,6 +129,8 @@ class Scripts_And_Templates extends Service {
 	 * Enqueue styles and scripts for Simple History but only to our own pages.
 	 *
 	 * Only adds scripts to pages where the log is shown or the settings page.
+	 *
+	 * @param string $hook The current admin page.
 	 */
 	public function enqueue_admin_scripts( $hook ) {
 		if ( $this->simple_history->is_on_our_own_pages() ) {

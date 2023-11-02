@@ -436,6 +436,11 @@ class User_Logger extends Logger {
 	 *
 	 * This hook is not fired when using for example WooCommerce because it has it's own reset password system.
 	 * Maybe get_password_reset_key() can be used instead?
+	 *
+	 * @param string $message    Default mail message.
+	 * @param string $key        The activation key.
+	 * @param string $user_login The username for the user.
+	 * @param object $user_data  WP_User object.
 	 */
 	public function onRetrievePasswordMessage( $message, $key, $user_login, $user_data = null ) {
 		$context = array(
@@ -561,6 +566,8 @@ class User_Logger extends Logger {
 	 * Modify plain text row output
 	 * - adds link to user profile
 	 * - change to "your profile" if you're looking at your own edit
+	 *
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 

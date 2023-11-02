@@ -122,6 +122,8 @@ class Options_Logger extends Logger {
 
 	/**
 	 * Get detailed output
+	 *
+	 * @param object $row Log row object.
 	 */
 	public function get_log_row_details_output( $row ) {
 
@@ -226,6 +228,13 @@ class Options_Logger extends Logger {
 	 * Page on front = "Front page displays" -> Your latest posts / A static page
 	 * value 0 = Your latest post
 	 * value int n = A static page
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return array context
 	 */
 	public function add_context_for_option_page_on_front( $context, $old_value, $new_value, $option, $option_page ) {
 
@@ -266,6 +275,12 @@ class Options_Logger extends Logger {
 	/**
 	 * Add detailed output for page_on_front
 	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @param string $tmpl_row template row.
 	 * @return string output
 	 */
 	public function get_details_output_for_option_page_on_front( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
@@ -328,6 +343,12 @@ class Options_Logger extends Logger {
 
 	/**
 	 * "default_category" = Writing Settings » Default Post Category
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
 	 */
 	public function add_context_for_option_default_category( $context, $old_value, $new_value, $option, $option_page ) {
 
@@ -360,6 +381,12 @@ class Options_Logger extends Logger {
 	/**
 	 * Add detailed output for default_category
 	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @param string $tmpl_row template row.
 	 * @return string output
 	 */
 	public function get_details_output_for_option_default_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {

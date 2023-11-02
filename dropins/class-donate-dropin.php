@@ -30,6 +30,9 @@ class Donate_Dropin extends Dropin {
 	 * Add donate link to the admin footer.
 	 *
 	 * Called from filter 'admin_footer_text'.
+	 *
+	 * @param string $text
+	 * @return string
 	 */
 	public function filter_admin_footer_text( $text ) {
 		if ( $this->simple_history->is_on_our_own_pages() === false ) {
@@ -53,6 +56,10 @@ class Donate_Dropin extends Dropin {
 	 * Add link to the donate page in the Plugins » Installed plugins screen.
 	 *
 	 * Called from filter 'plugin_row_meta'.
+	 *
+	 * @param array<string,string> $links
+	 * @param string               $file
+	 * @return array<string,string> $links with added links
 	 */
 	public function action_plugin_row_meta( $links, $file ) {
 		if ( $file == $this->simple_history->plugin_basename ) {

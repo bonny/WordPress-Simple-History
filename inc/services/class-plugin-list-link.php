@@ -13,7 +13,10 @@ class Plugin_List_Link extends Service {
 	/**
 	 * Add a link to the History Settings Page on the Plugins -> Installed Plugins screen.
 	 *
-	 * @param array $actions
+	 * @param array  $actions
+	 * @param string $plugin_file
+	 * @param array  $plugin_data
+	 * @param string $context
 	 */
 	public function on_plugin_action_links( $actions, $plugin_file, $plugin_data, $context ) {
 		if ( 'simple-history/index.php' !== $plugin_file ) {

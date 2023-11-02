@@ -145,6 +145,8 @@ class Simple_History {
 
 	/**
 	 * Load a service class.
+	 *
+	 * @param string $service_classname Class name of service to load.
 	 */
 	private function load_service( $service_classname ) {
 		if ( ! class_exists( $service_classname ) ) {
@@ -366,6 +368,7 @@ class Simple_History {
 	 * See example-logger.php for an example on how to use this.
 	 *
 	 * @since 2.1
+	 * @param string $loggerClassName Class name of logger to register.
 	 */
 	public function register_logger( $loggerClassName ) {
 		$this->external_loggers[] = $loggerClassName;
@@ -417,6 +420,7 @@ class Simple_History {
 	 * See example-dropin.php for an example on how to use this.
 	 *
 	 * @since 2.1
+	 * @param string $dropinClassName Class name of dropin to register.
 	 */
 	public function register_dropin( $dropinClassName ) {
 		$this->external_dropins[] = $dropinClassName;
@@ -981,6 +985,7 @@ class Simple_History {
 	 * This includes HTML for the header, the sender image, and the details.
 	 *
 	 * @param object $one_log_row LogQuery array with data from LogQuery
+	 * @param array  $args
 	 * @return string
 	 */
 	public function get_log_row_html_output( $one_log_row, $args ) {

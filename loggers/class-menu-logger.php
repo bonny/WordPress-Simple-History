@@ -257,6 +257,8 @@ class Menu_Logger extends Logger {
 
 	/**
 	 * Get detailed output
+	 *
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_details_output( $row ) {
 

@@ -132,6 +132,7 @@ abstract class Logger {
 	 * or null if no value exists.
 	 *
 	 * @since 2.5.4
+	 * @param string $key
 	 * @return Mixed
 	 */
 	public function get_info_value_by_key( $key ) {
@@ -715,6 +716,8 @@ abstract class Logger {
 	 * Get output for image
 	 * Image can be for example gravatar if sender is user,
 	 * or other images if sender i system, wordpress, and so on
+	 *
+	 * @param object $row Log row
 	 */
 	public function get_log_row_sender_image_output( $row ) {
 		$sender_image_html = '';
@@ -790,7 +793,8 @@ abstract class Logger {
 	 * System is unusable.
 	 *
 	 * @param string $message
-	 * @return null
+	 * @param array  $context
+	 * @return Logger
 	 */
 	public function emergency( $message, array $context = array() ) {
 		return $this->log( Log_Levels::EMERGENCY, $message, $context );
@@ -800,7 +804,7 @@ abstract class Logger {
 	 * System is unusable.
 	 *
 	 * @param string $message key from get_info messages array
-	 * @return null
+	 * @param array  $context
 	 */
 	public function emergency_message( $message, array $context = array() ) {
 		return $this->log_by_message_key(
@@ -813,6 +817,10 @@ abstract class Logger {
 	/**
 	 * Log with message
 	 * Called from info_message(), error_message(), and so on
+	 *
+	 * @param string $SimpleLoggerLogLevelsLevel
+	 * @param string $messageKey
+	 * @param array  $context
 	 */
 	private function log_by_message_key(
 		$SimpleLoggerLogLevelsLevel,
@@ -859,6 +867,7 @@ abstract class Logger {
 	 * Action must be taken immediately.
 	 *
 	 * @param string $message
+	 * @param array  $context
 	 * @return null
 	 */
 	public function alert( $message, array $context = array() ) {
@@ -869,6 +878,7 @@ abstract class Logger {
 	 * Action must be taken immediately.
 	 *
 	 * @param string $message key from get_info messages array
+	 * @param array  $context
 	 * @return null
 	 */
 	public function alert_message( $message, array $context = array() ) {
@@ -896,6 +906,7 @@ abstract class Logger {
 	 * Critical conditions.
 	 *
 	 * @param string $message key from get_info messages array
+	 * @param array  $context
 	 * @return null
 	 */
 	public function critical_message( $message, array $context = array() ) {
@@ -914,6 +925,7 @@ abstract class Logger {
 	 * be logged and monitored.
 	 *
 	 * @param string $message
+	 * @param array  $context
 	 * @return null
 	 */
 	public function error( $message, array $context = array() ) {
@@ -925,6 +937,7 @@ abstract class Logger {
 	 * be logged and monitored.
 	 *
 	 * @param string $message key from get_info messages array
+	 * @param array  $context
 	 * @return null
 	 */
 	public function error_message( $message, array $context = array() ) {
@@ -953,6 +966,7 @@ abstract class Logger {
 	 * Exceptional occurrences that are not errors.
 	 *
 	 * @param string $message key from get_info messages array
+	 * @param array  $context
 	 * @return null
 	 */
 	public function warning_message( $message, array $context = array() ) {
@@ -967,6 +981,7 @@ abstract class Logger {
 	 * Normal but significant events.
 	 *
 	 * @param string $message
+	 * @param array  $context
 	 * @return null
 	 */
 	public function notice( $message, array $context = array() ) {
@@ -977,6 +992,7 @@ abstract class Logger {
 	 * Normal but significant events.
 	 *
 	 * @param string $message key from get_info messages array
+	 * @param array  $context
 	 * @return null
 	 */
 	public function notice_message( $message, array $context = array() ) {
@@ -1021,6 +1037,7 @@ abstract class Logger {
 	 * Detailed debug information.
 	 *
 	 * @param string $message
+	 * @param array  $context
 	 * @return null
 	 */
 	public function debug( $message, array $context = array() ) {
@@ -1031,6 +1048,7 @@ abstract class Logger {
 	 * Detailed debug information.
 	 *
 	 * @param string $message key from get_info messages array
+	 * @param array  $context
 	 * @return null
 	 */
 	public function debug_message( $message, array $context = array() ) {
