@@ -697,6 +697,7 @@ class Plugin_Logger extends Logger {
 	public function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
 		// Can't use get_plugins() here to get version of plugins updated from
 		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..)
+
 		/*
 		If an update fails then $plugin_upgrader_instance->skin->result->errors contains something like:
 		Array
@@ -790,6 +791,7 @@ class Plugin_Logger extends Logger {
 				$context['plugin_install_source'] = $install_source;
 
 				// If uploaded plugin store name of ZIP
+
 				/*
 				_debug_files
 				{

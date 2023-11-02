@@ -145,25 +145,6 @@ class Menu_Logger extends Logger {
 	}
 
 	/**
-	 * Fired after menu is deleted, so we don't have the name in this action
-	 * So that's why we can't use this only
-	 */
-	/*
-	function on_wp_delete_nav_menu($menu_term_id) {
-
-		$this->info_message(
-			"deleted_menu",
-			array(
-				"menu_term_id" => $menu_term_id,
-				"menu" => print_r($menu, true),
-				"request" => print_r($_REQUEST, true),
-			)
-		);
-
-	}
-	*/
-
-	/**
 	 * Detect menu being created
 	 *
 	 * @param int   $term_id ID of the new menu.

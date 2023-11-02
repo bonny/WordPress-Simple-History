@@ -21,16 +21,7 @@ class Options_Logger extends Logger {
 			'description' => __( 'Logs updates to WordPress settings', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(
-				// 'option_updated' => __('Updated option "{option}" on settings page "{option_page}"', "simple-history"),
 				'option_updated' => __( 'Updated option "{option}"', 'simple-history' ),
-				/*
-				Updated option "default_comment_status" on settings page "discussion"
-				Edited option "default_comment_status" on settings page "discussion"
-				Modified option "default_comment_status" on settings page "discussion"
-
-				Edited settings page "discussion" and the "default_comment_status" options
-
-				*/
 			),
 			'labels'      => array(
 				'search' => array(

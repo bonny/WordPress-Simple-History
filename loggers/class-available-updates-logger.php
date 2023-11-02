@@ -114,13 +114,6 @@ class Available_Updates_Logger extends Logger {
 			return;
 		}
 
-		// If we only want to notify about active plugins
-		/*
-		$active_plugins = get_option( 'active_plugins' );
-		$active_plugins = array_flip( $active_plugins ); // find which plugins are active
-		$plugins_need_update = array_intersect_key( $plugins_need_update, $active_plugins ); // only keep plugins that are active
-		*/
-
 		$option_key = "simplehistory_{$this->get_slug()}_plugin_updates_available";
 		$checked_updates = get_option( $option_key );
 

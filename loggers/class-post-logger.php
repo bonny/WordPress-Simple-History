@@ -136,13 +136,6 @@ class Post_Logger extends Logger {
 	 * Filters to XML RPC calls needs to be added early, admin_init is to late.
 	 */
 	public function add_xml_rpc_hooks() {
-		// Debug: log all XML-RPC requests
-		/*
-		add_action("xmlrpc_call", function($method) {
-			SimpleLogger()->debug("XML-RPC call for method '{method}'", array("method" => $method));
-		}, 10, 1);
-		*/
-
 		add_action( 'xmlrpc_call_success_blogger_newPost', array( $this, 'on_xmlrpc_newPost' ), 10, 2 );
 		add_action( 'xmlrpc_call_success_mw_newPost', array( $this, 'on_xmlrpc_newPost' ), 10, 2 );
 
@@ -765,19 +758,17 @@ class Post_Logger extends Logger {
 		$context = $this->add_post_thumb_diff( $context, $old_meta, $new_meta );
 
 		// Page template is stored in _wp_page_template.
-		/*
-		Var is string with length 7: default
-		Var is string with length 20: template-builder.php
-		*/
 		if ( isset( $old_meta['_wp_page_template'][0] ) && isset( $new_meta['_wp_page_template'][0] ) && $old_meta['_wp_page_template'][0] !== $new_meta['_wp_page_template'][0] ) {
 			// Prev page template is different from new page template,
 			// store template php file name.
 			$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
 			$context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
 			$theme_templates = (array) $this->get_theme_templates();
+
 			if ( isset( $theme_templates[ $context['post_prev_page_template'] ] ) ) {
 					$context['post_prev_page_template_name'] = $theme_templates[ $context['post_prev_page_template'] ];
 			}
+
 			if ( isset( $theme_templates[ $context['post_new_page_template'] ] ) ) {
 					$context['post_new_page_template_name'] = $theme_templates[ $context['post_new_page_template'] ];
 			}

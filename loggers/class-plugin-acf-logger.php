@@ -273,6 +273,7 @@ class Plugin_ACF_Logger extends Logger {
 			$post_logger->append_context( $last_insert_id, $acf_context );
 
 			// Prev and new post meta for testing.
+
 			/*
 			$post_logger->append_context(
 				$last_insert_id,
@@ -709,6 +710,7 @@ class Plugin_ACF_Logger extends Logger {
 
 				// Add the field name manually, if it is not among the changed field,
 				// or we don't know what field the other changed values belongs to.
+
 				/*
 				if (empty($context["acf_modified_fields_{$loopnum}_name_new"])) {
 					$strOneModifiedField .= sprintf(

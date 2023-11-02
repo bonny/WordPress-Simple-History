@@ -28,17 +28,6 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 				'cleared_current_lockouts' => _x( 'Cleared current lockouts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				'updated_options'          => _x( 'Updated options', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 			),
-			/*
-			"labels" => array(
-				"search" => array(
-					"label" => _x( "Limit Login Attempts", "Logger: Plugin Limit Login Attempts", "simple-history" ),
-					"options" => array(
-						_x( "xxxPages not found", "User logger: 404", "simple-history" ) => array(
-							"page_not_found",
-						),
-					),
-				), // end search
-			),*/  // end labels
 		);
 
 		return $arr_info;
@@ -56,7 +45,6 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 		}
 
 		add_filter( 'pre_option_limit_login_lockouts_total', array( $this, 'on_option_limit_login_lockouts_total' ), 10, 1 );
-
 		add_action( 'load-settings_page_limit-login-attempts', array( $this, 'on_load_settings_page' ), 10, 1 );
 	}
 

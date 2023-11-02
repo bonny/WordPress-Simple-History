@@ -476,6 +476,7 @@ class Log_Query {
 			// Transform from received format to our own internal format.
 			foreach ( (array) $args['messages'] as $one_arr_messages_row ) {
 				$arr_row_messages = explode( ',', $one_arr_messages_row );
+
 				/*
 				$one_arr_messages_row:
 				Array

@@ -94,13 +94,6 @@ class Plugin_Enable_Media_Replace_Logger extends Logger {
 					'new_attachment_type' => $new_file['type'],
 					'new_attachment_size' => $new_file['size'],
 					'replace_type' => $replace_type,
-				/*
-				"get" => $_GET,
-				"post" => $_POST,
-				"files" => $_FILES,
-				"old_attachment_post" => $prev_attachment_post,
-				"old_attachment_meta" => $prev_attachment_meta
-				*/
 				)
 			);
 		}// End if().
