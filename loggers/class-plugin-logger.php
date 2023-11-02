@@ -802,7 +802,9 @@ class Plugin_Logger extends Logger {
 				}
 				}
 				*/
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( 'upload' == $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$plugin_upload_name            = $_FILES['pluginzip']['name'];
 					$context['plugin_upload_name'] = $plugin_upload_name;
 				}

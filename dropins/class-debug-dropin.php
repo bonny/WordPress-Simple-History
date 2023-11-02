@@ -32,7 +32,7 @@ class Debug_Dropin extends Dropin {
 		$context['_debug_get'] = Helpers::json_encode( $_GET );
 		$context['_debug_post'] = Helpers::json_encode( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$context['_debug_server'] = Helpers::json_encode( $_SERVER );
-		$context['_debug_files'] = Helpers::json_encode( $_FILES );
+		$context['_debug_files'] = Helpers::json_encode( $_FILES ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$context['_debug_php_sapi_name'] = php_sapi_name();
 
 		global $argv;
