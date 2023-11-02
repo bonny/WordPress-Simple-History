@@ -69,7 +69,6 @@
 		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotValidated" />
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag" />
-		<exclude name="Squiz.Commenting.BlockComment.CloserSameLine" />
 
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />

@@ -765,18 +765,6 @@ class Plugin_ACF_Logger extends Logger {
 				$loopnum++;
 			}
 
-			/*
-			if ($strModifiedFields) {
-				$strModifiedFields = sprintf(
-					'<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>',
-					_nx('Modified field', 'Modified fields', $loopnum, 'Logger: Plugin ACF', 'simple-history'), // 1
-					$strModifiedFields
-				) . $strModifiedFields;
-			}*/
-
 			$diff_table_output .= $strModifiedFields;
 		} // if deleted fields
 

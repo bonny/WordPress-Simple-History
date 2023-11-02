@@ -227,15 +227,6 @@ class Theme_Logger extends Logger {
 			);
 		}
 
-		/*
-		ob_start();
-		print_r($skin);
-		$skin_str = ob_get_clean();
-		echo "<pre>";
-		print_r($arr_data);
-		print_r($skin);
-		// */
-
 		// $one_updated_theme is the theme slug
 		foreach ( $arr_themes as $one_updated_theme ) {
 			$theme_info_object = wp_get_theme( $one_updated_theme );
