@@ -72,7 +72,6 @@
 		<exclude name="Squiz.Commenting.BlockComment.CloserSameLine" />
 		<exclude name="Squiz.Commenting.BlockComment.NoEmptyLineBefore" />
 		<exclude name="Squiz.Commenting.VariableComment.MissingVar" />
-		<!-- <exclude name="Squiz.Commenting.FunctionComment.WrongStyle" /> -->
 
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />

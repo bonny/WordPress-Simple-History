@@ -163,6 +163,12 @@ class Menu_Logger extends Logger {
 	}
 	*/
 
+	/**
+	 * Detect menu being created
+	 * 
+	 * @param int $term_id ID of the new menu.
+	 * @param array $menu_data An array of menu data.
+	 */
 	public function on_wp_create_nav_menu( $term_id, $menu_data ) {
 
 		$menu = wp_get_nav_menu_object( $term_id );
