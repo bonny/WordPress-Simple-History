@@ -183,7 +183,7 @@ class Licences_Settings_Page extends Service {
 		// Check for posted form for this plugin.
 		$form_success_message = null;
 		$form_error_message = null;
-		$nonce_valid = wp_verify_nonce( $_POST['_wpnonce'] ?? '', 'sh-plugin-keys' ) !== false;
+		$nonce_valid = wp_verify_nonce( wp_unslash( $_POST['_wpnonce'] ?? '' ), 'sh-plugin-keys' ) !== false;
 
 		if ( $nonce_valid && isset( $_POST['plugin_slug'] ) && $_POST['plugin_slug'] === $plus_plugin->slug ) {
 			$action_activate = boolval( $_POST['activate'] ?? false );

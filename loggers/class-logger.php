@@ -1508,7 +1508,7 @@ abstract class Logger {
 				if ( array_key_exists( $key, $_SERVER ) ) {
 					// Loop through all IPs.
 					$ip_loop_num = 0;
-					foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+					foreach ( explode( ',', wp_unslash( $_SERVER[ $key ] ) ) as $ip ) {
 						// trim for safety measures.
 						$ip = trim( $ip );
 
@@ -1532,7 +1532,7 @@ abstract class Logger {
 			! isset( $context['_server_http_referer'] ) &&
 			isset( $_SERVER['HTTP_REFERER'] )
 		) {
-			$context['_server_http_referer'] = $_SERVER['HTTP_REFERER'];
+			$context['_server_http_referer'] = wp_unslash( $_SERVER['HTTP_REFERER'] );
 		}
 
 		return $context;

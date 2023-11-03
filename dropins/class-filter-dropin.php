@@ -481,7 +481,7 @@ class Filter_Dropin extends Dropin {
 	 */
 	public function ajax_simple_history_filters_search_user() {
 
-		$q = $_GET['q'] ?? '';
+		$q = wp_unslash( $_GET['q'] ?? '' );
 		$page_limit = isset( $_GET['page_limit'] ) ? (int) $_GET['page_limit'] : '';
 
 		// query and page limit must be set

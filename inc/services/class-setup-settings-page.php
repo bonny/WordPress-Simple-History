@@ -397,7 +397,7 @@ class Setup_Settings_Page extends Service {
 			?>
 			<nav class="sh-PageNav">
 				<?php
-				$active_tab = $_GET['selected-tab'] ?? 'settings';
+				$active_tab = wp_unslash( $_GET['selected-tab'] ?? 'settings' );
 
 				foreach ( $arr_settings_tabs as $one_tab ) {
 					$tab_slug = $one_tab['slug'];
@@ -432,7 +432,7 @@ class Setup_Settings_Page extends Service {
 		<?php
 		// Begin subnav.
 		$sub_tab_found = false;
-		$active_sub_tab = $_GET['selected-sub-tab'] ?? '';
+		$active_sub_tab = wp_unslash( $_GET['selected-sub-tab'] ?? '' );
 
 		// Get sub tabs for currently active tab.
 		$subtabs_for_active_tab = wp_filter_object_list(

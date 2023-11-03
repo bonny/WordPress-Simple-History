@@ -31,7 +31,7 @@ class Export_Dropin extends Dropin {
 			// Will die if nonce not valid.
 			check_admin_referer( self::class . '-action-export' );
 
-			$export_format = $_POST['format'] ?? 'json';
+			$export_format = wp_unslash( $_POST['format'] ?? 'json' );
 
 			// Disable relative time output in header.
 			add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );

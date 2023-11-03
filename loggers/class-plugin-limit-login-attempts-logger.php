@@ -56,7 +56,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	public function on_load_settings_page( $a ) {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		if ( $_POST && wp_verify_nonce( $_POST['_wpnonce'], 'limit-login-attempts-options' ) ) {
+		if ( $_POST && wp_verify_nonce( wp_unslash( $_POST['_wpnonce'] ), 'limit-login-attempts-options' ) ) {
 			// Settings saved
 			if ( isset( $_POST['clear_log'] ) ) {
 				$this->notice_message( 'cleared_ip_log' );
@@ -73,14 +73,14 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 			if ( isset( $_POST['update_options'] ) ) {
 				$options = array(
 					// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-					'client_type' => sanitize_text_field( $_POST['client_type'] ),
-					'allowed_retries' => sanitize_text_field( $_POST['allowed_retries'] ),
-					'lockout_duration' => sanitize_text_field( $_POST['lockout_duration'] ) * 60,
-					'valid_duration' => sanitize_text_field( $_POST['valid_duration'] ) * 3600,
-					'allowed_lockouts' => sanitize_text_field( $_POST['allowed_lockouts'] ),
-					'long_duration' => sanitize_text_field( $_POST['long_duration'] ) * 3600,
-					'email_after' => sanitize_text_field( $_POST['email_after'] ),
-					'cookies' => ( isset( $_POST['cookies'] ) && $_POST['cookies'] == '1' ) ? 'yes' : 'no',
+					'client_type' => sanitize_text_field( wp_unslash( $_POST['client_type'] ) ),
+					'allowed_retries' => sanitize_text_field( wp_unslash( $_POST['allowed_retries'] ) ),
+					'lockout_duration' => sanitize_text_field( wp_unslash( $_POST['lockout_duration'] ) ) * 60,
+					'valid_duration' => sanitize_text_field( wp_unslash( $_POST['valid_duration'] ) ) * 3600,
+					'allowed_lockouts' => sanitize_text_field( wp_unslash( $_POST['allowed_lockouts'] ) ),
+					'long_duration' => sanitize_text_field( wp_unslash( $_POST['long_duration'] ) ) * 3600,
+					'email_after' => sanitize_text_field( wp_unslash( $_POST['email_after'] ) ),
+					'cookies' => ( isset( $_POST['cookies'] ) && wp_unslash( $_POST['cookies'] ) == '1' ) ? 'yes' : 'no',
 					// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				);
 

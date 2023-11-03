@@ -49,7 +49,7 @@ class Plugin_Enable_Media_Replace_Logger extends Logger {
 			$attachment_id = empty( $_POST['ID'] ) ? null : (int) $_POST['ID'];
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$replace_type = empty( $_POST['replace_type'] ) ? null : sanitize_text_field( $_POST['replace_type'] );
+			$replace_type = empty( $_POST['replace_type'] ) ? null : sanitize_text_field( wp_unslash( $_POST['replace_type'] ) );
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$new_file = empty( $_FILES['userfile'] ) ? null : (array) $_FILES['userfile'];

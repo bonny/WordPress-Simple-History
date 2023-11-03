@@ -716,7 +716,7 @@ class Simple_History {
 		// and redirect user to show message.
 		if (
 			isset( $_GET['simple_history_clear_log_nonce'] ) &&
-			wp_verify_nonce( $_GET['simple_history_clear_log_nonce'], 'simple_history_clear_log' )
+			wp_verify_nonce( wp_unslash( $_GET['simple_history_clear_log_nonce'] ), 'simple_history_clear_log' )
 		) {
 			if ( $this->user_can_clear_log() ) {
 				$num_rows_deleted = $this->clear_log();

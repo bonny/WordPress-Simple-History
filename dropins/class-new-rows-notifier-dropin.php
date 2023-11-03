@@ -55,7 +55,7 @@ class New_Rows_Notifier_Dropin extends Dropin {
 
 	public function ajax() {
 
-		$apiArgs = $_GET['apiArgs'] ?? array();
+		$apiArgs = wp_unslash( $_GET['apiArgs'] ?? array() );
 
 		if ( ! $apiArgs ) {
 			wp_send_json_error(
