@@ -406,8 +406,8 @@ class Plugin_Logger extends Logger {
 	/**
 	 * Log plugin that is enable or disabled for auto updates.
 	 *
-	 * @param string $onePluginSlug slug of plugin, i.e. "hello-dolly/hello.php"
-	 * @param string $enableOrDisable String "enable" or "disable"
+	 * @param string $onePluginSlug slug of plugin, i.e. "hello-dolly/hello.php".
+	 * @param string $enableOrDisable String "enable" or "disable".
 	 */
 	public function logPluginAutoUpdateEnableOrDisable( $onePluginSlug, $enableOrDisable ) {
 		$pluginFile = WP_PLUGIN_DIR . '/' . $onePluginSlug;

@@ -984,7 +984,7 @@ class Simple_History {
 	 * Returns the HTML output for a log row, to be used in the GUI/Activity Feed.
 	 * This includes HTML for the header, the sender image, and the details.
 	 *
-	 * @param object $one_log_row LogQuery array with data from LogQuery
+	 * @param object $one_log_row LogQuery array with data from LogQuery.
 	 * @param array  $args
 	 * @return string
 	 */
@@ -1405,7 +1405,7 @@ class Simple_History {
 	 * with all loggers they are allowed to read.
 	 *
 	 * @param int    $user_id Id of user to get loggers for. Defaults to current user id.
-	 * @param string $format format to return loggers in. Default is array. Can also be "sql"
+	 * @param string $format format to return loggers in. Default is array. Can also be "sql".
 	 * @return array|string Array or SQL string with loggers that user can read.
 	 */
 	public function get_loggers_that_user_can_read( $user_id = null, $format = 'array' ) {

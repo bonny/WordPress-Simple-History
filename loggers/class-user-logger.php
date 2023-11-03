@@ -792,7 +792,7 @@ class User_Logger extends Logger {
 	 *        A WP_Error object indicates another process has failed the authentication.
 	 *        A WP_User object indicates another process has authenticated the user.
 	 * @param string                  $username The user's username. since 4.5.0 `$username` now accepts an email address.
-	 * @param string                  $password The user's password (encrypted)
+	 * @param string                  $password The user's password (encrypted).
 	 */
 	public function onAuthenticate( $user, $username, $password ) {
 		// Don't log empty usernames.

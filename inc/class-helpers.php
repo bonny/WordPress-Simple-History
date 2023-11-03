@@ -34,8 +34,8 @@ class Helpers {
 	 * @uses Text_Diff
 	 * @uses WP_Text_Diff_Renderer_Table
 	 *
-	 * @param string       $left_string "old" (left) version of string
-	 * @param string       $right_string "new" (right) version of string
+	 * @param string       $left_string "old" (left) version of string.
+	 * @param string       $right_string "new" (right) version of string.
 	 * @param string|array $args Optional. Change 'title', 'title_left', and 'title_right' defaults. And leading_context_lines and trailing_context_lines.
 	 * @return string Empty string if strings are equivalent or HTML with differences.
 	 */
@@ -401,11 +401,11 @@ class Helpers {
 	 * @since 2.0
 	 * @since 3.3 Respects gravatar setting in discussion settings.
 	 *
-	 * @param string       $email email address
-	 * @param string       $size Size of the avatar image
-	 * @param string       $default URL to a default image to use if no avatar is available
-	 * @param string|false $alt Alternative text to use in image tag. Defaults to blank
-	 * @param array        $args Avatar arguments
+	 * @param string       $email email address.
+	 * @param string       $size Size of the avatar image.
+	 * @param string       $default URL to a default image to use if no avatar is available.
+	 * @param string|false $alt Alternative text to use in image tag. Defaults to blank.
+	 * @param array        $args Avatar arguments.
 	 * @return string The img element for the user's avatar
 	 */
 	public static function get_avatar( $email, $size = '96', $default = '', $alt = false, $args = array() ) {
@@ -708,9 +708,9 @@ class Helpers {
 	 *
 	 * @param string       $id Slug-name to identify the section. Used in the 'id' attribute of tags.
 	 * @param string|array $title Formatted title of the section. Shown as the heading for the section.
-	 *                     Pass in array instead of string to use as ['Section title', 'icon-slug']
+	 *                     Pass in array instead of string to use as ['Section title', 'icon-slug'].
 	 * @param callable     $callback Function that echos out any content at the top of the section (between heading and fields).
-	 * @param string       $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page()
+	 * @param string       $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page().
 	 * @param array        $args Optional. Additional arguments that are passed to the $callback function. Default empty array.
 	 */
 	public static function add_settings_section( $id, $title, $callback, $page, $args = [] ) {

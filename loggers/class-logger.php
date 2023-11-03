@@ -471,7 +471,7 @@ abstract class Logger {
 	/**
 	 * Get the log row header output for the row when "name_via" is set.
 	 *
-	 * @param object $row Log row
+	 * @param object $row Log row.
 	 * @return string HTML
 	 */
 	public function get_log_row_header_using_plugin_output( $row ) {
@@ -595,7 +595,7 @@ abstract class Logger {
 	 * I.e.:
 	 * Initiator • Date/time • IP Address • Via logger
 	 *
-	 * @param object $row Row data
+	 * @param object $row Row data.
 	 * @return string HTML
 	 */
 	public function get_log_row_header_output( $row ) {
@@ -664,7 +664,7 @@ abstract class Logger {
 	 * Image that the name of the user is added in front of the text:
 	 * Jessie James: Edited post "About the company"
 	 *
-	 * @param object $row Log row
+	 * @param object $row Log row.
 	 * @return string Plain text
 	 */
 	public function get_log_row_plain_text_output( $row ) {
@@ -717,7 +717,7 @@ abstract class Logger {
 	 * Image can be for example gravatar if sender is user,
 	 * or other images if sender i system, wordpress, and so on
 	 *
-	 * @param object $row Log row
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_sender_image_output( $row ) {
 		$sender_image_html = '';
@@ -803,7 +803,7 @@ abstract class Logger {
 	/**
 	 * System is unusable.
 	 *
-	 * @param string $message key from get_info messages array
+	 * @param string $message key from get_info messages array.
 	 * @param array  $context
 	 */
 	public function emergency_message( $message, array $context = array() ) {
@@ -877,7 +877,7 @@ abstract class Logger {
 	/**
 	 * Action must be taken immediately.
 	 *
-	 * @param string $message key from get_info messages array
+	 * @param string $message key from get_info messages array.
 	 * @param array  $context
 	 * @return null
 	 */
@@ -905,7 +905,7 @@ abstract class Logger {
 	/**
 	 * Critical conditions.
 	 *
-	 * @param string $message key from get_info messages array
+	 * @param string $message key from get_info messages array.
 	 * @param array  $context
 	 * @return null
 	 */
@@ -936,7 +936,7 @@ abstract class Logger {
 	 * Runtime errors that do not require immediate action but should typically
 	 * be logged and monitored.
 	 *
-	 * @param string $message key from get_info messages array
+	 * @param string $message key from get_info messages array.
 	 * @param array  $context
 	 * @return null
 	 */
@@ -965,7 +965,7 @@ abstract class Logger {
 	/**
 	 * Exceptional occurrences that are not errors.
 	 *
-	 * @param string $message key from get_info messages array
+	 * @param string $message key from get_info messages array.
 	 * @param array  $context
 	 * @return null
 	 */
@@ -991,7 +991,7 @@ abstract class Logger {
 	/**
 	 * Normal but significant events.
 	 *
-	 * @param string $message key from get_info messages array
+	 * @param string $message key from get_info messages array.
 	 * @param array  $context
 	 * @return null
 	 */
@@ -1021,7 +1021,7 @@ abstract class Logger {
 	 *
 	 * Example: User logs in, SQL logs.
 	 *
-	 * @param string $message key from get_info messages array
+	 * @param string $message key from get_info messages array.
 	 * @param array  $context
 	 * @return null
 	 */
@@ -1047,7 +1047,7 @@ abstract class Logger {
 	/**
 	 * Detailed debug information.
 	 *
-	 * @param string $message key from get_info messages array
+	 * @param string $message key from get_info messages array.
 	 * @param array  $context
 	 * @return null
 	 */

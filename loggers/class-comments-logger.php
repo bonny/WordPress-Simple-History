@@ -252,7 +252,7 @@ class Comments_Logger extends Logger {
 	/**
 	 * Modify sql query to exclude comments of type spam
 	 *
-	 * @param string $where sql query where
+	 * @param string $where sql query where.
 	 */
 	public function maybe_modify_log_query_sql_where( $where ) {
 
