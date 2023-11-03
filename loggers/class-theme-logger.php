@@ -369,6 +369,7 @@ class Theme_Logger extends Logger {
 		$settings = $customize_manager->settings();
 		$controls = $customize_manager->controls();
 
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$customized = json_decode( wp_unslash( $_REQUEST['customized'] ) );
 
 		foreach ( $customized as $setting_id => $posted_values ) {
@@ -722,7 +723,7 @@ class Theme_Logger extends Logger {
 			$context = array();
 
 			// Add widget info.
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 			$widget_id_base = $_POST['id_base'];
 			$context['widget_id_base'] = $widget_id_base;
 			$widget = $this->get_widget_by_id_base( $widget_id_base );
@@ -731,7 +732,7 @@ class Theme_Logger extends Logger {
 			}
 
 			// Add sidebar info
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 			$sidebar_id = $_POST['sidebar'];
 			$context['sidebar_id'] = $sidebar_id;
 

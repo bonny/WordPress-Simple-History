@@ -66,7 +66,6 @@
 		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotSanitized" />
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
 		<exclude name="WordPress.Security.ValidatedSanitizedInput.MissingUnslash" />
-		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotValidated" />
 
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />

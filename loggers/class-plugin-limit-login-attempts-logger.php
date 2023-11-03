@@ -55,7 +55,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	 */
 	public function on_load_settings_page( $a ) {
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( $_POST && wp_verify_nonce( $_POST['_wpnonce'], 'limit-login-attempts-options' ) ) {
 			// Settings saved
 			if ( isset( $_POST['clear_log'] ) ) {
@@ -72,6 +72,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 			if ( isset( $_POST['update_options'] ) ) {
 				$options = array(
+					// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 					'client_type' => sanitize_text_field( $_POST['client_type'] ),
 					'allowed_retries' => sanitize_text_field( $_POST['allowed_retries'] ),
 					'lockout_duration' => sanitize_text_field( $_POST['lockout_duration'] ) * 60,
@@ -80,6 +81,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 					'long_duration' => sanitize_text_field( $_POST['long_duration'] ) * 3600,
 					'email_after' => sanitize_text_field( $_POST['email_after'] ),
 					'cookies' => ( isset( $_POST['cookies'] ) && $_POST['cookies'] == '1' ) ? 'yes' : 'no',
+					// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				);
 
 				$v = array();

@@ -75,7 +75,7 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_load_options_page() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( $_POST['option_page'] === $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP ) {
 			// Save all changes.
 			add_action( 'updated_option', array( $this, 'on_updated_option' ), 10, 3 );

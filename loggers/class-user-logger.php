@@ -504,13 +504,13 @@ class User_Logger extends Logger {
 	 * @since 2.0.6
 	 */
 	public function onDestroyUserSession() {
-		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
+		// PHPCS:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$user = get_userdata( (int) $_POST['user_id'] );
 
 		if ( $user ) {
 			if ( ! current_user_can( 'edit_user', $user->ID ) ) {
 				$user = false;
-			} elseif ( ! wp_verify_nonce( $_POST['nonce'], 'update-user_' . $user->ID ) ) {
+			} elseif ( ! wp_verify_nonce( $_POST['nonce'], 'update-user_' . $user->ID ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				$user = false;
 			}
 		}

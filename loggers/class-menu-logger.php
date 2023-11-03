@@ -247,7 +247,7 @@ class Menu_Logger extends Logger {
 			'edited_menu',
 			array(
 				'menu_id' => $menu_id,
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				'menu_name' => sanitize_text_field( $_POST['menu-name'] ),
 				'menu_items_added' => count( $arr_added ),
 				'menu_items_removed' => count( $arr_removed ),
@@ -311,7 +311,7 @@ class Menu_Logger extends Logger {
 				)
 		)
 		*/
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$menu_locations = (array) $_POST['menu-locations'];
 
 		$this->info_message(
