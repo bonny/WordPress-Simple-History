@@ -106,7 +106,7 @@ class RSS_Dropin extends Dropin {
 
 		// Create new RSS secret.
 		$create_secret_nonce_name = 'simple_history_rss_secret_regenerate_nonce';
-		$create_nonce_ok = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( wp_unslash( $_GET[ $create_secret_nonce_name ] ), 'simple_history_rss_update_secret' );
+		$create_nonce_ok = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET[ $create_secret_nonce_name ] ) ), 'simple_history_rss_update_secret' );
 
 		if ( $create_nonce_ok ) {
 			$this->update_rss_secret();
@@ -196,7 +196,7 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function output_rss() {
 		$rss_secret_option = get_option( 'simple_history_rss_secret' );
-		$rss_secret_get = wp_unslash( $_GET['rss_secret'] ?? '' );
+		$rss_secret_get = sanitize_text_field( wp_unslash( $_GET['rss_secret'] ?? '' ) );
 
 		if ( empty( $rss_secret_option ) || empty( $rss_secret_get ) ) {
 			die();

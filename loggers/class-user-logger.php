@@ -316,7 +316,7 @@ class User_Logger extends Logger {
 		}
 
 		// Bail if nonce not valid.
-		$nonce_valid = wp_verify_nonce( wp_unslash( $_POST['confirm_admin_email_nonce'] ), 'confirm_admin_email' );
+		$nonce_valid = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['confirm_admin_email_nonce'] ) ), 'confirm_admin_email' );
 		if ( $nonce_valid === false ) {
 			return;
 		}
@@ -410,7 +410,7 @@ class User_Logger extends Logger {
 			'edited_user_id' => $user_id,
 			'edited_user_email' => $user_before_update->user_email,
 			'edited_user_login' => $user_before_update->user_login,
-			'server_http_user_agent' => wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ),
+			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ) ),
 		);
 
 		if ( $password_changed ) {
@@ -510,7 +510,7 @@ class User_Logger extends Logger {
 		if ( $user ) {
 			if ( ! current_user_can( 'edit_user', $user->ID ) ) {
 				$user = false;
-			} elseif ( ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ), 'update-user_' . $user->ID ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			} elseif ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'update-user_' . $user->ID ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				$user = false;
 			}
 		}
@@ -556,7 +556,7 @@ class User_Logger extends Logger {
 			'deleted_user_login' => $wp_user_to_delete->user_login,
 			'deleted_user_role' => $role,
 			'reassign_user_id' => $reassign,
-			'server_http_user_agent' => wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ),
+			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ) ),
 		);
 
 		$this->notice_message( 'user_deleted', $context );
@@ -665,7 +665,7 @@ class User_Logger extends Logger {
 			$context['_user_id'] = $user_obj->ID;
 			$context['_user_login'] = $user_obj->user_login;
 			$context['_user_email'] = $user_obj->user_email;
-			$context['server_http_user_agent'] = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null );
+			$context['server_http_user_agent'] = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ) );
 
 			$this->info_message( 'user_logged_in', $context );
 		} else {
@@ -721,7 +721,7 @@ class User_Logger extends Logger {
 		}
 
 		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
-		$send_user_notification = (int) ( isset( $_POST['send_user_notification'] ) && wp_unslash( $_POST['send_user_notification'] ) );
+		$send_user_notification = (int) ( isset( $_POST['send_user_notification'] ) && sanitize_text_field( wp_unslash( $_POST['send_user_notification'] ) ) );
 
 		$context = array(
 			'created_user_id' => $wp_user_added->ID,
@@ -732,7 +732,7 @@ class User_Logger extends Logger {
 			'created_user_last_name' => $wp_user_added->last_name,
 			'created_user_url' => $wp_user_added->user_url,
 			'send_user_notification' => $send_user_notification,
-			'server_http_user_agent' => wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ),
+			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ) ),
 		);
 
 		$this->info_message( 'user_created', $context );
@@ -760,7 +760,7 @@ class User_Logger extends Logger {
 				'login_id' => $userOrError->ID,
 				'login_email' => $userOrError->user_email,
 				'login' => $userOrError->user_login,
-				'server_http_user_agent' => wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ),
+				'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ) ),
 				'_occasionsID' => self::class . '/failed_user_login',
 			);
 
@@ -818,7 +818,7 @@ class User_Logger extends Logger {
 			$context = array(
 				'_initiator' => Log_Initiators::WEB_USER,
 				'failed_username' => $username,
-				'server_http_user_agent' => wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ),
+				'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? null ) ),
 				// count all failed logins to unknown users as the same occasions,
 				// to prevent log being flooded with login/hack attempts
 				// "_occasionsID" => __CLASS__  . '/' . __FUNCTION__

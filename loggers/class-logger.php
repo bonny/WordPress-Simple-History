@@ -1486,7 +1486,7 @@ abstract class Logger {
 	 */
 	private function append_remote_addr_to_context( $context ) {
 		if ( ! isset( $context['_server_remote_addr'] ) ) {
-			$remote_addr = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : wp_unslash( $_SERVER['REMOTE_ADDR'] );
+			$remote_addr = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 
 			$remote_addr = Helpers::privacy_anonymize_ip( $remote_addr );
 
@@ -1507,7 +1507,7 @@ abstract class Logger {
 				if ( array_key_exists( $key, $_SERVER ) ) {
 					// Loop through all IPs.
 					$ip_loop_num = 0;
-					foreach ( explode( ',', wp_unslash( $_SERVER[ $key ] ) ) as $ip ) {
+					foreach ( explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) ) ) as $ip ) {
 						// trim for safety measures.
 						$ip = trim( $ip );
 
@@ -1531,7 +1531,7 @@ abstract class Logger {
 			! isset( $context['_server_http_referer'] ) &&
 			isset( $_SERVER['HTTP_REFERER'] )
 		) {
-			$context['_server_http_referer'] = wp_unslash( $_SERVER['HTTP_REFERER'] );
+			$context['_server_http_referer'] = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 		}
 
 		return $context;

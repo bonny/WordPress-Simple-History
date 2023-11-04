@@ -303,10 +303,10 @@ class Plugin_Logger extends Logger {
 				 *         )
 				 */
 
-				$action = wp_unslash( $_GET['action'] ?? null );
+				$action = sanitize_text_field( wp_unslash( $_GET['action'] ?? null ) );
 				if ( ! $action ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$action = wp_unslash( $_POST['action'] ?? null );
+					$action = sanitize_text_field( wp_unslash( $_POST['action'] ?? null ) );
 				}
 
 				// Bail if doing ajax and
@@ -318,7 +318,7 @@ class Plugin_Logger extends Logger {
 					}
 
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$type = wp_unslash( $_POST['type'] ?? null );
+					$type = sanitize_text_field( wp_unslash( $_POST['type'] ?? null ) );
 					if ( $type !== 'plugin' ) {
 						return;
 					}
@@ -338,7 +338,7 @@ class Plugin_Logger extends Logger {
 
 				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ) ) ) {
 					// Opening single item enable/disable auto update link in plugin list in new window.
-					$plugin = wp_unslash( $_GET['plugin'] ?? null );
+					$plugin = sanitize_text_field( wp_unslash( $_GET['plugin'] ?? null ) );
 
 					if ( $plugin ) {
 						$plugins[] = sanitize_text_field( urldecode( $plugin ) );
@@ -356,9 +356,9 @@ class Plugin_Logger extends Logger {
 					// *    [type] => plugin
 					// *    [asset] => redirection/redirection.php
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$state = wp_unslash( $_POST['state'] ?? null );
+					$state = sanitize_text_field( wp_unslash( $_POST['state'] ?? null ) );
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$asset = wp_unslash( $_POST['asset'] ?? null );
+					$asset = sanitize_text_field( wp_unslash( $_POST['asset'] ?? null ) );
 
 					if ( $state === 'enable' ) {
 						$enableOrDisable = 'enable';
@@ -371,7 +371,7 @@ class Plugin_Logger extends Logger {
 					}
 				} elseif ( in_array( $action, array( 'enable-auto-update-selected', 'disable-auto-update-selected' ) ) ) {
 					// $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					$checked = wp_unslash( $_POST['checked'] ?? null );
 					if ( $checked ) {
 						$plugins = (array) $checked;
@@ -553,7 +553,7 @@ class Plugin_Logger extends Logger {
 			wp_die( esc_html__( "You don't have access to this page.", 'simple-history' ) );
 		}
 
-		$repo = isset( $_GET['repo'] ) ? (string) wp_unslash( $_GET['repo'] ) : '';
+		$repo = isset( $_GET['repo'] ) ? (string) sanitize_text_field( wp_unslash( $_GET['repo'] ) ) : '';
 
 		if ( $repo !== '' ) {
 			wp_die( esc_html__( 'Could not find GitHub repository.', 'simple-history' ) );
@@ -810,7 +810,7 @@ class Plugin_Logger extends Logger {
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( 'upload' == $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$plugin_upload_name            = $_FILES['pluginzip']['name'];
+					$plugin_upload_name            = sanitize_text_field( $_FILES['pluginzip']['name'] );
 					$context['plugin_upload_name'] = $plugin_upload_name;
 				}
 

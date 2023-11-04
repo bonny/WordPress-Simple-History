@@ -969,7 +969,7 @@ class Plugin_ACF_Logger extends Logger {
 		$this->old_and_new_field_groups_and_fields['fieldGroup']['old'] = acf_get_field_group( $postarr['ID'] );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$this->old_and_new_field_groups_and_fields['fieldGroup']['new'] = acf_get_valid_field_group( wp_unslash( $_POST['acf_field_group'] ) );
+		$this->old_and_new_field_groups_and_fields['fieldGroup']['new'] = acf_get_valid_field_group( sanitize_text_field( wp_unslash( $_POST['acf_field_group'] ) ) );
 
 		return $data;
 	}
@@ -1013,7 +1013,7 @@ class Plugin_ACF_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['_acf_delete_fields'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$deletedFieldsIDs = explode( '|', (string) wp_unslash( $_POST['_acf_delete_fields'] ) );
+			$deletedFieldsIDs = explode( '|', (string) sanitize_text_field( wp_unslash( $_POST['_acf_delete_fields'] ) ) );
 			$deletedFieldsIDs = array_map( 'intval', $deletedFieldsIDs );
 
 			foreach ( $deletedFieldsIDs as $id ) {
@@ -1034,7 +1034,7 @@ class Plugin_ACF_Logger extends Logger {
 		// Store info about added or modified fields
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['acf_fields'] ) && is_array( $_POST['acf_fields'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			foreach ( wp_unslash( $_POST['acf_fields'] ) as $oneFieldAddedOrUpdated ) {
 				if ( empty( $oneFieldAddedOrUpdated['ID'] ) ) {
 					// New fields have no id

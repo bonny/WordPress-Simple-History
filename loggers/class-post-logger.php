@@ -532,7 +532,7 @@ class Post_Logger extends Logger {
 		}
 
 		// Don't log Gutenberg saving meta boxes.
-		if ( isset( $_GET['meta-box-loader'] ) && wp_unslash( $_GET['meta-box-loader'] ) ) {
+		if ( isset( $_GET['meta-box-loader'] ) && sanitize_text_field( wp_unslash( $_GET['meta-box-loader'] ) ) ) {
 			$ok_to_log = false;
 		}
 

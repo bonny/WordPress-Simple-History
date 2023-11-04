@@ -128,7 +128,7 @@ class Menu_Logger extends Logger {
 			return;
 		}
 
-		$menu_id = wp_unslash( $_REQUEST['menu'] );
+		$menu_id = sanitize_text_field( wp_unslash( $_REQUEST['menu'] ) );
 		if ( ! is_nav_menu( $menu_id ) ) {
 			return;
 		}
@@ -222,7 +222,7 @@ class Menu_Logger extends Logger {
 		}
 
 		// Make sure we got the id of a menu
-		$menu_id = wp_unslash( $_REQUEST['menu'] );
+		$menu_id = sanitize_text_field( wp_unslash( $_REQUEST['menu'] ) );
 		if ( ! is_nav_menu( $menu_id ) ) {
 			return;
 		}
@@ -232,7 +232,7 @@ class Menu_Logger extends Logger {
 
 		// Compare new items to be saved with old version
 		$old_ids = wp_list_pluck( $arr_prev_menu_items, 'db_id' );
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$new_ids = array_values( isset( $_POST['menu-item-db-id'] ) ? (array) wp_unslash( $_POST['menu-item-db-id'] ) : array() );
 
 		// Get ids of added and removed post ids
@@ -311,7 +311,7 @@ class Menu_Logger extends Logger {
 				)
 		)
 		*/
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$menu_locations = (array) wp_unslash( $_POST['menu-locations'] );
 
 		$this->info_message(

@@ -54,7 +54,7 @@ class New_Rows_Notifier_Dropin extends Dropin {
 	}
 
 	public function ajax() {
-
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$apiArgs = wp_unslash( $_GET['apiArgs'] ?? array() );
 
 		if ( ! $apiArgs ) {

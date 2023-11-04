@@ -370,7 +370,7 @@ class Theme_Logger extends Logger {
 		$controls = $customize_manager->controls();
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$customized = json_decode( wp_unslash( $_REQUEST['customized'] ) );
+		$customized = json_decode( sanitize_text_field( wp_unslash( $_REQUEST['customized'] ) ) );
 
 		foreach ( $customized as $setting_id => $posted_values ) {
 			foreach ( $settings as $one_setting ) {
@@ -655,7 +655,7 @@ class Theme_Logger extends Logger {
 
 		// Add sidebar info.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$sidebar_id = wp_unslash( $_POST['sidebar'] ?? null );
+		$sidebar_id = sanitize_text_field( wp_unslash( $_POST['sidebar'] ?? null ) );
 		$context['sidebar_id'] = $sidebar_id;
 
 		$sidebar = $this->get_sidebar_by_id( $sidebar_id );
@@ -687,7 +687,7 @@ class Theme_Logger extends Logger {
 		if ( isset( $_POST['add_new'] ) && ! empty( $_POST['add_new'] ) && isset( $_POST['sidebar'] ) && isset( $_POST['id_base'] ) ) {
 			// Add widget info
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$widget_id_base = wp_unslash( $_POST['id_base'] );
+			$widget_id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
 			$context['widget_id_base'] = $widget_id_base;
 			$widget = $this->get_widget_by_id_base( $widget_id_base );
 			if ( $widget ) {
@@ -696,7 +696,7 @@ class Theme_Logger extends Logger {
 
 			// Add sidebar info
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$sidebar_id = wp_unslash( $_POST['sidebar'] );
+			$sidebar_id = sanitize_text_field( wp_unslash( $_POST['sidebar'] ) );
 			$context['sidebar_id'] = $sidebar_id;
 			$sidebar = $this->get_sidebar_by_id( $sidebar_id );
 
@@ -724,7 +724,7 @@ class Theme_Logger extends Logger {
 
 			// Add widget info.
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			$widget_id_base = wp_unslash( $_POST['id_base'] );
+			$widget_id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
 			$context['widget_id_base'] = $widget_id_base;
 			$widget = $this->get_widget_by_id_base( $widget_id_base );
 			if ( $widget ) {
@@ -733,7 +733,7 @@ class Theme_Logger extends Logger {
 
 			// Add sidebar info
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			$sidebar_id = wp_unslash( $_POST['sidebar'] );
+			$sidebar_id = sanitize_text_field( wp_unslash( $_POST['sidebar'] ) );
 			$context['sidebar_id'] = $sidebar_id;
 
 			$sidebar = $this->get_sidebar_by_id( $sidebar_id );

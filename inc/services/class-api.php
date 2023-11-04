@@ -30,7 +30,7 @@ class API extends Service {
 		unset( $args['action'] );
 
 		// Type = overview | ...
-		$type = wp_unslash( $_GET['type'] ?? null );
+		$type = sanitize_text_field( wp_unslash( $_GET['type'] ?? null ) );
 
 		if ( empty( $args ) || ! $type ) {
 			wp_send_json_error(

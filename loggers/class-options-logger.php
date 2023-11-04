@@ -62,13 +62,13 @@ class Options_Logger extends Logger {
 		);
 
 		// We only want to log options being added via pages in $arr_option_pages
-		if ( ! in_array( basename( $_SERVER['REQUEST_URI'] ), $arr_option_pages ) || basename( dirname( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) !== 'wp-admin' ) {
+		if ( ! in_array( basename( $_SERVER['REQUEST_URI'] ), $arr_option_pages ) || basename( dirname( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) ) !== 'wp-admin' ) {
 			return;
 		}
 
 		// Also only if "option_page" is set to one of these "built in" ones
 		// We don't wanna start logging things from other plugins, like EDD
-		$option_page = wp_unslash( $_REQUEST['option_page'] ?? '' ); // general | discussion | ...
+		$option_page = sanitize_text_field( wp_unslash( $_REQUEST['option_page'] ?? '' ) ); // general | discussion | ...
 
 		$arr_valid_option_pages = array(
 			'general',
@@ -81,7 +81,7 @@ class Options_Logger extends Logger {
 		$is_valid_options_page = $option_page && in_array( $option_page, $arr_valid_option_pages );
 
 		// Permalink settings page does not post any "option_page", so use http referer instead
-		if ( strpos( wp_unslash( $_SERVER['REQUEST_URI'] ), 'options-permalink.php' ) !== false ) {
+		if ( strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'options-permalink.php' ) !== false ) {
 			$is_valid_options_page = true;
 		}
 
