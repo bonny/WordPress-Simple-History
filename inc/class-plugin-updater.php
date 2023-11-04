@@ -145,9 +145,9 @@ class Plugin_Updater {
 	 *
 	 * @see https://developer.wordpress.org/reference/hooks/plugins_api/
 	 *
-	 * @param false|object|array $result
-	 * @param string             $action
-	 * @param object             $args
+	 * @param false|object|array $result False if nothing is found, default WP_Error if request failed. An array of data on success.
+	 * @param string             $action The type of information being requested from the Plugin Install API.
+	 * @param object             $args  Plugin API arguments.
 	 * @return object|bool
 	 */
 	public function on_plugins_api_handle_plugin_info( $result, $action, $args ) {
@@ -208,8 +208,8 @@ class Plugin_Updater {
 	 *
 	 * @see https://make.wordpress.org/core/2020/07/30/recommended-usage-of-the-updates-api-to-support-the-auto-updates-ui-for-plugins-and-themes-in-wordpress-5-5/
 	 *
-	 * @param object $transient
-	 * @return object
+	 * @param object $transient The pre-saved, cached data for plugins.
+	 * @return object $transient
 	 */
 	public function site_transient_update_plugins_update( $transient ) {
 		if ( empty( $transient->checked ) ) {
@@ -257,8 +257,8 @@ class Plugin_Updater {
 	 *
 	 * @see https://developer.wordpress.org/reference/hooks/upgrader_process_complete/
 	 *
-	 * @param WP_Upgrader $upgrader
-	 * @param array       $options
+	 * @param WP_Upgrader $upgrader The WP_Upgrader instance.
+	 * @param array       $options Array of bulk item update arguments.
 	 * @return void
 	 */
 	public function purge( $upgrader, $options ) {

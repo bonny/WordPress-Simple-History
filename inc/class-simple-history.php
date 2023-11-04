@@ -701,7 +701,7 @@ class Simple_History {
 	/**
 	 * Set settings tabs.
 	 *
-	 * @param array $arr_settings_tabs
+	 * @param array $arr_settings_tabs Array with settings tabs.
 	 * @return void
 	 */
 	public function set_settings_tabs( $arr_settings_tabs ) {
@@ -851,7 +851,7 @@ class Simple_History {
 	 * Uses the get_log_row_plain_text_output of the logger that logged the row
 	 * with fallback to SimpleLogger if logger is not available.
 	 *
-	 * @param object $row
+	 * @param object $row Log row object.
 	 * @return string
 	 */
 	public function get_log_row_plain_text_output( $row ) {
@@ -902,7 +902,7 @@ class Simple_History {
 	 * Loggers are discouraged to override this in the loggers,
 	 * because the output should be the same for all items in the GUI.
 	 *
-	 * @param object $row
+	 * @param object $row Log row object.
 	 * @return string
 	 */
 	public function get_log_row_header_output( $row ) {
@@ -922,7 +922,7 @@ class Simple_History {
 	/**
 	 *
 	 *
-	 * @param object $row
+	 * @param object $row Log row object.
 	 * @return string
 	 */
 	private function get_log_row_sender_image_output( $row ) {
@@ -942,7 +942,7 @@ class Simple_History {
 	/**
 	 * Return details output for a log row.
 	 *
-	 * @param object $row
+	 * @param object $row Log row object.
 	 * @return string|Event_Details_Container_Interface|Event_Details_Group
 	 */
 	public function get_log_row_details_output( $row ) {
@@ -985,7 +985,7 @@ class Simple_History {
 	 * This includes HTML for the header, the sender image, and the details.
 	 *
 	 * @param object $one_log_row LogQuery array with data from LogQuery.
-	 * @param array  $args
+	 * @param array  $args Array with arguments.
 	 * @return string
 	 */
 	public function get_log_row_html_output( $one_log_row, $args ) {
@@ -1337,7 +1337,7 @@ class Simple_History {
 	/**
 	 * Set instantiated loggers.
 	 *
-	 * @param array $instantiated_loggers
+	 * @param array $instantiated_loggers Array with instantiated loggers.
 	 * @return void
 	 */
 	public function set_instantiated_loggers( $instantiated_loggers ) {
@@ -1356,7 +1356,7 @@ class Simple_History {
 	/**
 	 * Set instantiated dropins.
 	 *
-	 * @param array $instantiated_dropins
+	 * @param array $instantiated_dropins Array with instantiated dropins.
 	 */
 	public function set_instantiated_dropins( $instantiated_dropins ) {
 		$this->instantiated_dropins = $instantiated_dropins;
@@ -1365,7 +1365,7 @@ class Simple_History {
 	/**
 	 * Get instantiated dropin by slug.
 	 * Returns the logger instance if found, or bool false if not found.
-	 * @param string $slug
+	 * @param string $slug Slug of dropin to get.
 	 * @return bool|Dropin
 	 */
 	public function get_instantiated_dropin_by_slug( $slug = '' ) {
@@ -1383,7 +1383,7 @@ class Simple_History {
 	}
 
 	/**
-	 * @param string $slug
+	 * @param string $slug Slug of logger to get.
 	 * @return bool|Logger logger instance if found, bool false if logger not found
 	 */
 	public function get_instantiated_logger_by_slug( $slug = '' ) {
@@ -1504,7 +1504,7 @@ class Simple_History {
 	/**
 	 * Get number of events the last n days.
 	 *
-	 * @param int $period_days
+	 * @param int $period_days Number of days to get events for.
 	 * @return int Number of days.
 	 */
 	public function get_num_events_last_n_days( $period_days = 28 ) {
@@ -1580,7 +1580,7 @@ class Simple_History {
 	/**
 	 * Get number of unique events the last n days.
 	 *
-	 * @param int $days
+	 * @param int $days Number of days to get events for.
 	 * @return int Number of days.
 	 */
 	public function get_unique_events_for_days( $days = 7 ) {
@@ -1631,8 +1631,8 @@ class Simple_History {
 	/**
 	 * Call new method when calling old/deprecated method names.
 	 *
-	 * @param string $name
-	 * @param array  $arguments
+	 * @param string $name Method name.
+	 * @param array  $arguments Arguments to method.
 	 * @return mixed
 	 */
 	public function __call( $name, $arguments ) {

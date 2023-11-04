@@ -199,10 +199,10 @@ class Loggers_Loader extends Service {
 	/**
 	 * Store both translated and untranslated versions of a text.
 	 *
-	 * @param string $translated_text
-	 * @param string $untranslated_text
-	 * @param string $domain
-	 * @return string
+	 * @param string $translated_text Translated text.
+	 * @param string $untranslated_text Untranslated text.
+	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
+	 * @return string Translated text.
 	 */
 	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
 		if ( $this->do_filter_gettext ) {
@@ -220,11 +220,11 @@ class Loggers_Loader extends Service {
 	/**
 	 * Store both translated and untranslated versions of a text with context.
 	 *
-	 * @param string $translated_text
-	 * @param string $untranslated_text
-	 * @param string $context
-	 * @param string $domain
-	 * @return string
+	 * @param string $translated_text Translated text.
+	 * @param string $untranslated_text Untranslated text.
+	 * @param string $context Context information for the translators.
+	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
+	 * @return string Translated text.
 	 */
 	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
 		if ( $this->do_filter_gettext ) {

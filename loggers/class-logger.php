@@ -8,7 +8,6 @@ use Simple_History\Simple_History;
 use Simple_History\Log_Levels;
 use Simple_History\Log_Initiators;
 use Simple_History\Helpers;
-use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
 
@@ -91,7 +90,7 @@ abstract class Logger {
 	/**
 	 * Constructor. Remember to call this as parent constructor if making a child logger.
 	 *
-	 * @param Simple_History $simple_history
+	 * @param Simple_History $simple_history Simple History instance.
 	 */
 	public function __construct( $simple_history = null ) {
 		$this->simple_history = $simple_history;
@@ -132,7 +131,7 @@ abstract class Logger {
 	 * or null if no value exists.
 	 *
 	 * @since 2.5.4
-	 * @param string $key
+	 * @param string $key Key to get value for.
 	 * @return Mixed
 	 */
 	public function get_info_value_by_key( $key ) {
@@ -155,7 +154,7 @@ abstract class Logger {
 	 * Example return value is similar to:
 	 * "You" or "par • par.thernstrom@gmail.com"
 	 *
-	 * @param object $row
+	 * @param object $row Log row.
 	 * @return string HTML
 	 */
 	public function get_log_row_header_initiator_output( $row ) {
@@ -502,7 +501,7 @@ abstract class Logger {
 	 *   Also each key can exist multiple times.
 	 *   Final key name will be like "_server_http_x_forwarded_for_0", "_server_http_x_forwarded_for_1" and so on.
 	 *
-	 * @param mixed $row
+	 * @param mixed $row Log row.
 	 * @return string
 	 */
 	public function get_log_row_header_ip_address_output( $row ) {
@@ -770,7 +769,7 @@ abstract class Logger {
 	 * Example usage is if a user has uploaded an image then a
 	 * thumbnail of that image can bo outputted here
 	 *
-	 * @param object $row
+	 * @param object $row Log row.
 	 * @return string|Event_Details_Container_Interface|Event_Details_Group HTML-formatted output or Event_Details_Container (stringable object).
 	 */
 	public function get_log_row_details_output( $row ) {
@@ -792,8 +791,8 @@ abstract class Logger {
 	/**
 	 * System is unusable.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message to log.
+	 * @param array  $context Context to log.
 	 * @return Logger
 	 */
 	public function emergency( $message, array $context = array() ) {
@@ -804,7 +803,7 @@ abstract class Logger {
 	 * System is unusable.
 	 *
 	 * @param string $message key from get_info messages array.
-	 * @param array  $context
+	 * @param array  $context Context to log.
 	 */
 	public function emergency_message( $message, array $context = array() ) {
 		return $this->log_by_message_key(
@@ -818,9 +817,9 @@ abstract class Logger {
 	 * Log with message
 	 * Called from info_message(), error_message(), and so on
 	 *
-	 * @param string $SimpleLoggerLogLevelsLevel
-	 * @param string $messageKey
-	 * @param array  $context
+	 * @param string $SimpleLoggerLogLevelsLevel Log level.
+	 * @param string $messageKey Message key.
+	 * @param array  $context Context to log.
 	 */
 	private function log_by_message_key(
 		$SimpleLoggerLogLevelsLevel,
@@ -866,8 +865,8 @@ abstract class Logger {
 	/**
 	 * Action must be taken immediately.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message to log.
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function alert( $message, array $context = array() ) {
@@ -878,7 +877,7 @@ abstract class Logger {
 	 * Action must be taken immediately.
 	 *
 	 * @param string $message key from get_info messages array.
-	 * @param array  $context
+	 * @param array  $context  Context to log.
 	 * @return null
 	 */
 	public function alert_message( $message, array $context = array() ) {
@@ -894,8 +893,8 @@ abstract class Logger {
 	 *
 	 * Example: Application component unavailable, unexpected exception.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message to log.
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function critical( $message, array $context = array() ) {
@@ -906,7 +905,7 @@ abstract class Logger {
 	 * Critical conditions.
 	 *
 	 * @param string $message key from get_info messages array.
-	 * @param array  $context
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function critical_message( $message, array $context = array() ) {
@@ -924,8 +923,8 @@ abstract class Logger {
 	 * Runtime errors that do not require immediate action but should typically
 	 * be logged and monitored.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message to log.
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function error( $message, array $context = array() ) {
@@ -937,7 +936,7 @@ abstract class Logger {
 	 * be logged and monitored.
 	 *
 	 * @param string $message key from get_info messages array.
-	 * @param array  $context
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function error_message( $message, array $context = array() ) {
@@ -954,8 +953,8 @@ abstract class Logger {
 	 * Example: Use of deprecated APIs, poor use of an API, undesirable things
 	 * that are not necessarily wrong.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message to log.
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function warning( $message, array $context = array() ) {
@@ -966,7 +965,7 @@ abstract class Logger {
 	 * Exceptional occurrences that are not errors.
 	 *
 	 * @param string $message key from get_info messages array.
-	 * @param array  $context
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function warning_message( $message, array $context = array() ) {
@@ -980,8 +979,8 @@ abstract class Logger {
 	/**
 	 * Normal but significant events.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message to log.
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function notice( $message, array $context = array() ) {
@@ -992,7 +991,7 @@ abstract class Logger {
 	 * Normal but significant events.
 	 *
 	 * @param string $message key from get_info messages array.
-	 * @param array  $context
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function notice_message( $message, array $context = array() ) {
@@ -1008,8 +1007,8 @@ abstract class Logger {
 	 *
 	 * Example: User logs in, SQL logs.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message to log.
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function info( $message, array $context = array() ) {
@@ -1022,7 +1021,7 @@ abstract class Logger {
 	 * Example: User logs in, SQL logs.
 	 *
 	 * @param string $message key from get_info messages array.
-	 * @param array  $context
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function info_message( $message, array $context = array() ) {
@@ -1036,8 +1035,8 @@ abstract class Logger {
 	/**
 	 * Detailed debug information.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message to log.
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function debug( $message, array $context = array() ) {
@@ -1048,7 +1047,7 @@ abstract class Logger {
 	 * Detailed debug information.
 	 *
 	 * @param string $message key from get_info messages array.
-	 * @param array  $context
+	 * @param array  $context Context to log.
 	 * @return null
 	 */
 	public function debug_message( $message, array $context = array() ) {
@@ -1399,8 +1398,8 @@ abstract class Logger {
 	/**
 	 * Append user data to context.
 	 *
-	 * @param array $context
-	 * @return array
+	 * @param array $context Context.
+	 * @return array $context Context with user data appended.
 	 */
 	private function append_user_context( $context ) {
 		if ( isset( $context['_user_id'] ) ) {
@@ -1433,8 +1432,8 @@ abstract class Logger {
 	 * Append initiator to context
 	 * If no initiator is set then try to determine it
 	 *
-	 * @param array $data
-	 * @param array $context
+	 * @param array $data Data.
+	 * @param array $context Context.
 	 * @return array $data as first key, $context as second key.
 	 */
 	private function append_initiator_to_context( $data, $context ) {
@@ -1482,7 +1481,7 @@ abstract class Logger {
 	/**
 	 * Append remote addr and other related headers to to context.
 	 *
-	 * @param array $context
+	 * @param array $context Context.
 	 * @return array $context
 	 */
 	private function append_remote_addr_to_context( $context ) {
@@ -1541,8 +1540,8 @@ abstract class Logger {
 	/**
 	 * Append occasionsID to context.
 	 *
-	 * @param array $data
-	 * @param array $context
+	 * @param array $data Data.
+	 * @param array $context Context.
 	 * @return array $data as first key, $context as second key.
 	 */
 	private function append_occasions_id_to_context( $data, $context ) {
@@ -1573,8 +1572,8 @@ abstract class Logger {
 	/**
 	 * Append _xmlrpc_request to context if this is a XMLRPC request.
 	 *
-	 * @param array $context
-	 * @return array $context
+	 * @param array $context Context.
+	 * @return array $context Context with _xmlrpc_request appended.
 	 */
 	private function append_xmlrpc_request_to_context( $context ) {
 		if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
@@ -1589,8 +1588,8 @@ abstract class Logger {
 	/**
 	 * Append _rest_api_request to context if this is a REST API request.
 	 *
-	 * @param array $context
-	 * @return array $context
+	 * @param array $context Context.
+	 * @return array $context Context with _rest_api_request appended.
 	 */
 	private function append_rest_api_request_to_context( $context ) {
 		// Detect REST calls and append to context, if not already there.
@@ -1609,8 +1608,8 @@ abstract class Logger {
 	 * This is used to override the date that is set by default.
 	 * The date must be in format 'Y-m-d H:i:s'.
 	 *
-	 * @param array $data
-	 * @param array $context
+	 * @param array $data Data.
+	 * @param array $context Context.
 	 * @return array $data as first key, $context as second key.
 	 */
 	private function append_date_to_context( $data, $context ) {

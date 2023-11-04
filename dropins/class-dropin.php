@@ -13,7 +13,7 @@ abstract class Dropin {
 	protected Simple_History $simple_history;
 
 	/**
-	 * @param Simple_History $simple_history
+	 * @param Simple_History $simple_history Simple_History instance.
 	 */
 	public function __construct( $simple_history ) {
 		$this->simple_history = $simple_history;

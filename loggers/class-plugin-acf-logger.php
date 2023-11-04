@@ -540,8 +540,8 @@ class Plugin_ACF_Logger extends Logger {
 	 * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'.
 	 * Diff table is generated only for post type 'acf-field-group'.
 	 *
-	 * @param string $diff_table_output
-	 * @param array  $context
+	 * @param string $diff_table_output Diff table output.
+	 * @param array  $context Context.
 	 * @return string
 	 */
 	public function on_diff_table_output_field_group( $diff_table_output, $context ) {
@@ -785,8 +785,8 @@ class Plugin_ACF_Logger extends Logger {
 	 *
 	 * Called via filter `simple_history/post_logger/post_updated/context`.
 	 *
-	 * @param array   $context
-	 * @param WP_Post $post
+	 * @param array   $context Context.
+	 * @param WP_Post $post Post.
 	 */
 	public function on_post_updated_context( $context, $post ) {
 
@@ -979,9 +979,9 @@ class Plugin_ACF_Logger extends Logger {
 	 * Called before ACF calls its save_post filter
 	 * Here we save the new fields values and also get the old values so we can compare
 	 *
-	 * @param string  $new_status
-	 * @param string  $old_status
-	 * @param WP_Post $post
+	 * @param string  $new_status New status.
+	 * @param string  $old_status Old status.
+	 * @param WP_Post $post Post.
 	 */
 	public function on_transition_post_status( $new_status, $old_status, $post ) {
 		static $isCalled = false;
@@ -1061,8 +1061,8 @@ class Plugin_ACF_Logger extends Logger {
 	 * that the default post logger should not log. If not each field will cause one
 	 * post update log message.
 	 *
-	 * @param array $skip_posttypes
-	 * @return array
+	 * @param array $skip_posttypes Array with post types to skip.
+	 * @return array Array with post types to skip.
 	 */
 	public function remove_acf_from_postlogger( $skip_posttypes ) {
 		$skip_posttypes[] = 'acf-field';

@@ -34,8 +34,8 @@ class Event_Details_Item {
 	protected $formatter = null;
 
 	/**
-	 * @param string|array<string> $slug_or_slugs
-	 * @param string               $name
+	 * @param string|array<string> $slug_or_slugs Key slug of current, new, or updated value.
+	 * @param string               $name        Human readable name of setting.
 	 */
 	public function __construct( $slug_or_slugs = null, $name = null ) {
 		// Set keys to use for new/current and old/prev values
@@ -60,7 +60,7 @@ class Event_Details_Item {
 	 * Manually set the current/new value of the item.
 	 * If used then value will not be fetched from context.
 	 *
-	 * @param string $new_value
+	 * @param string $new_value New value.
 	 * @return Event_Details_Item $this
 	 */
 	public function set_new_value( $new_value ) {
@@ -73,7 +73,7 @@ class Event_Details_Item {
 	 * Manually set the previous value of the item.
 	 * If used then value will not be fetched from context.
 	 *
-	 * @param string $prev_value
+	 * @param string $prev_value Previous value.
 	 * @return Event_Details_Item $this
 	 */
 	public function set_prev_value( $prev_value ) {
@@ -86,8 +86,8 @@ class Event_Details_Item {
 	 * Manually set both new/current value and
 	 * previous value of the item.
 	 *
-	 * @param string $new_value
-	 * @param string $prev_value
+	 * @param string $new_value New value.
+	 * @param string $prev_value Previous value.
 	 * @return Event_Details_Item $this
 	 */
 	public function set_values( $new_value, $prev_value ) {
@@ -102,7 +102,7 @@ class Event_Details_Item {
 	 * Accepts an instance of a formatter, useful for example when passing in a custom raw formatter, where
 	 * HTML and JSON output is set manually.
 	 *
-	 * @param class-string<Event_Details_Item_Formatter>|Event_Details_Item_Formatter $formatter_or_formatter_class
+	 * @param class-string<Event_Details_Item_Formatter>|Event_Details_Item_Formatter $formatter_or_formatter_class Formatter class name to use if item does not have any formatter specified.
 	 * @return Event_Details_Item $this
 	 */
 	public function set_formatter( $formatter_or_formatter_class ) {

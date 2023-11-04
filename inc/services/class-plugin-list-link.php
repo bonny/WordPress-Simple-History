@@ -13,10 +13,13 @@ class Plugin_List_Link extends Service {
 	/**
 	 * Add a link to the History Settings Page on the Plugins -> Installed Plugins screen.
 	 *
-	 * @param array  $actions
-	 * @param string $plugin_file
-	 * @param array  $plugin_data
-	 * @param string $context
+	 * @param array  $actions   Array of plugin action links.
+	 * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+	 * @param array  $plugin_data An array of plugin data.
+	 * @param string $context   The plugin context. By default this can be 'all', 'active', 'inactive',
+	 *                      'recently_activated', 'upgrade', 'mustuse', 'dropins', 'search',
+	 *                      'paused', 'auto-update', 'dropin'.
+	 * @return array
 	 */
 	public function on_plugin_action_links( $actions, $plugin_file, $plugin_data, $context ) {
 		if ( 'simple-history/index.php' !== $plugin_file ) {

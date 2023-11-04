@@ -93,7 +93,7 @@ class Menu_Logger extends Logger {
 	 * so don't let categories logger log this
 	 * or there will be duplicates.
 	 *
-	 * @param mixed $taxonomies_to_skip
+	 * @param mixed $taxonomies_to_skip Array with taxonomies to skip.
 	 * @return array
 	 */
 	public function on_categories_logger_skip_taxonomy( $taxonomies_to_skip ) {

@@ -663,8 +663,8 @@ class Plugin_Logger extends Logger {
 	 * Saves info about all installed plugins to an option.
 	 * When we are done logging then we remove the option.
 	 *
-	 * @param bool  $bool
-	 * @param array $hook_extra
+	 * @param bool  $bool   Default null.
+	 * @param array $hook_extra Default null.
 	 */
 	public function save_versions_before_update( $bool = null, $hook_extra = null ) {
 

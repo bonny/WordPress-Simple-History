@@ -61,8 +61,8 @@ class SimpleLogger extends Logger {
 	 * Call new method when calling old/deprecated method names.
 	 *
 	 * @since 4.0
-	 * @param string $name
-	 * @param array  $arguments
+	 * @param string $name Method name.
+	 * @param array  $arguments Arguments.
 	 * @return mixed
 	 */
 	public function __call( $name, $arguments ) {

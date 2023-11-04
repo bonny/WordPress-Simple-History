@@ -12,7 +12,7 @@ class SimpleHistoryLogQuery {
 	 * Only function "query" exists on old class.
 	 *
 	 * @since 4.0
-	 * @param array $args
+	 * @param array $args Query args.
 	 * @return array
 	 */
 	public function query( $args ) {

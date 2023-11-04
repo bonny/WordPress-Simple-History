@@ -64,7 +64,6 @@
 		<exclude name="Squiz.Commenting.BlockComment.NoCapital" />
 		<exclude name="Squiz.Commenting.BlockComment.HasEmptyLineBefore" />
 		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotSanitized" />
-		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
 
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />

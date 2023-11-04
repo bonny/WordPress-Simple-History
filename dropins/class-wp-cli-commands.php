@@ -44,8 +44,8 @@ class WP_CLI_Commands {
 	 *
 	 * @when after_wp_load
 	 *
-	 * @param array $args
-	 * @param array $assoc_args
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 * @return void
 	 */
 	public function list( $args, $assoc_args ) {

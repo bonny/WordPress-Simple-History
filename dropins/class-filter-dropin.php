@@ -450,7 +450,7 @@ class Filter_Dropin extends Dropin {
 	/**
 	 * Return format used for select2 for a single user id.
 	 *
-	 * @param int $userID
+	 * @param int $userID User ID.
 	 * @return array Array with each user as an object
 	 */
 	public function get_data_for_user( $userID ) {
@@ -547,7 +547,7 @@ class Filter_Dropin extends Dropin {
 	 *
 	 * @global WP_Locale  $wp_locale
 	 *
-	 * @param 'from'|'to' $from_or_to
+	 * @param 'from'|'to' $from_or_to From or to.
 	 * @param int         $edit Unused.
 	 */
 	public function touch_time( $from_or_to, $edit = 1 ) {

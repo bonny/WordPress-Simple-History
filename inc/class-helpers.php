@@ -113,8 +113,8 @@ class Helpers {
 	/**
 	 * Interpolates context values into the message placeholders.
 	 *
-	 * @param string $message
-	 * @param array  $context
+	 * @param string $message Message with placeholders.
+	 * @param array  $context Context values to replace placeholders with.
 	 * @param object $row Currently not always passed, because loggers need to be updated to support this...
 	 */
 	public static function interpolate( $message, $context = array(), $row = null ) {
@@ -270,8 +270,8 @@ class Helpers {
 	/**
 	 * Returns true if $haystack ends with $needle
 	 *
-	 * @param string $haystack
-	 * @param string $needle
+	 * @param string $haystack String to check.
+	 * @param string $needle String to check if $haystack ends with.
 	 */
 	public static function ends_with( $haystack, $needle ) {
 		return $needle === substr( $haystack, -strlen( $needle ) );
@@ -645,8 +645,8 @@ class Helpers {
 	 * Output title for settings section title.
 	 * with wrapper classes and markup + classes for icon appended.
 	 *
-	 * @param string  $title
-	 * @param ?string $icon_class_suffix
+	 * @param string  $title Title.
+	 * @param ?string $icon_class_suffix Icon class suffix.
 	 * @return string
 	 */
 	public static function get_settings_section_title_output( $title, $icon_class_suffix = null ) {
@@ -675,8 +675,8 @@ class Helpers {
 	 * Output title for settings field title.
 	 * with wrapper classes and markup + classes for icon appended.
 	 *
-	 * @param string  $title
-	 * @param ?string $icon_class_suffix
+	 * @param string  $title Title.
+	 * @param ?string $icon_class_suffix Icon class suffix.
 	 * @return string
 	 */
 	public static function get_settings_field_title_output( $title, $icon_class_suffix = null ) {

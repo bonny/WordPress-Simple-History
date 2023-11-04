@@ -327,7 +327,7 @@ class Post_Logger extends Logger {
 
 	/**
 	 * Called when a post is restored from the trash
-	 * @param int $post_id
+	 * @param int $post_id Post ID.
 	 */
 	public function on_untrash_post( $post_id ) {
 		$post = get_post( $post_id );

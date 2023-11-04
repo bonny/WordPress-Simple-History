@@ -31,7 +31,7 @@ class Donate_Dropin extends Dropin {
 	 *
 	 * Called from filter 'admin_footer_text'.
 	 *
-	 * @param string $text
+	 * @param string $text Admin footer text.
 	 * @return string
 	 */
 	public function filter_admin_footer_text( $text ) {
@@ -57,8 +57,8 @@ class Donate_Dropin extends Dropin {
 	 *
 	 * Called from filter 'plugin_row_meta'.
 	 *
-	 * @param array<string,string> $links
-	 * @param string               $file
+	 * @param array<string,string> $links with added links.
+	 * @param string               $file plugin file.
 	 * @return array<string,string> $links with added links
 	 */
 	public function action_plugin_row_meta( $links, $file ) {

@@ -13,14 +13,14 @@ abstract class Event_Details_Item_Formatter {
 	protected ?Event_Details_Item $item;
 
 	/**
-	 * @param Event_Details_Item $item
+	 * @param Event_Details_Item $item Item to format.
 	 */
 	public function __construct( $item = null ) {
 		$this->item = $item;
 	}
 
 	/**
-	 * @param Event_Details_Item $item
+	 * @param Event_Details_Item $item Item to format.
 	 * @return Event_Details_Item_Formatter $this
 	 */
 	public function set_item( $item ) {

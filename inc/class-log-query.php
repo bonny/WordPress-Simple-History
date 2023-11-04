@@ -12,7 +12,27 @@ class Log_Query {
 	/**
 	 * Query the log.
 	 *
-	 * @param string|array|object $args
+	 * @param string|array|object $args {
+	 *    Optional. Array or string of arguments for querying the log.
+	 *      @type string $type Type of query. Accepts 'overview', 'occasions', or 'single'. Default 'overview'.
+	 *      @type int $posts_per_page Number of posts to show per page. 0 to show all. Default 0.
+	 *      @type int $paged Page to show. 1 = first page. Default 1.
+	 *      @type array $post__in Array. Only get posts that are in array. Default null.
+	 *      @type string $format Array or html. Default 'array'.
+	 *      @type int $max_id_first_page If max_id_first_page is set then only get rows that have id equal or lower than this, to make
+	 *                                      sure that the first page of results is not too large. Default null.
+	 *      @type int $since_id If since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id. Default null.
+	 *      @type int|string $date_from From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'. Default null.
+	 *      @type int|string $date_to To date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'. Default null.
+	 *      @type array|string $months Months in format "Y-m". Default null.
+	 *      @type array|string $dates Dates in format "month:2015-06" for june 2015 or "lastdays:7" for the last 7 days. Default null.
+	 *      @type string $search Text to search for. Message, logger and level are searched for in main table. Values are searched for in context table. Default null.
+	 *      @type string $loglevels Log levels to include. Comma separated or as array. Defaults to all. Default null.
+	 *      @type string $loggers Loggers to include. Comma separated. Defaults to all the user can read. Default null.
+	 *      @type string $messages Messages to include. Comma separated. Defaults to all. Default null.
+	 *      @type int $user User ID as number. Default null.
+	 *      @type string $users User IDs, comma separated. Default null.
+	 * }
 	 * @return array
 	 */
 	public function query( $args ) {
@@ -93,9 +113,6 @@ class Log_Query {
 			// occasionsCount
 			// occasionsCountMaxReturn
 			// occasionsID
-			// If rows should be returned, or the actually sql query used
-			// 'returnQuery' => false,
-
 		);
 
 		$args = wp_parse_args( $args, $defaults );

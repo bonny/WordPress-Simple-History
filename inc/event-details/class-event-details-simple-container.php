@@ -11,7 +11,7 @@ class Event_Details_Simple_Container implements Event_Details_Container_Interfac
 	private $html;
 
 	/**
-	 * @param string|Event_Details_Container_Interface|null $html
+	 * @param string|Event_Details_Container_Interface|null $html HTML or Event_Details_Container_Interface.
 	 */
 	public function __construct( $html = '' ) {
 		$this->html = $html;

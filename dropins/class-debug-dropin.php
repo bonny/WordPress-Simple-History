@@ -23,10 +23,10 @@ class Debug_Dropin extends Dropin {
 	/**
 	 * Modify the context to add debug information.
 	 *
-	 * @param array                                 $context
-	 * @param string                                $level
-	 * @param string                                $message
-	 * @param \Simple_History\Loggers\Simple_Logger $logger
+	 * @param array                                 $context Context array.
+	 * @param string                                $level Log level.
+	 * @param string                                $message Log message.
+	 * @param \Simple_History\Loggers\Simple_Logger $logger Logger instance.
 	 */
 	public function onLogArgumentContext( $context, $level, $message, $logger ) {
 		$context['_debug_get'] = Helpers::json_encode( $_GET );

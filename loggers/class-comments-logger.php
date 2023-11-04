@@ -349,7 +349,7 @@ class Comments_Logger extends Logger {
 	/**
 	 * Get comments context.
 	 *
-	 * @param int $comment_ID
+	 * @param int $comment_ID Comment ID.
 	 * @return mixed array with context if comment found, false if comment not found
 	 */
 	public function get_context_for_comment( $comment_ID ) {
@@ -479,8 +479,8 @@ class Comments_Logger extends Logger {
 	/**
 	 * Fires immediately after a comment is inserted into the database.
 	 *
-	 * @param int $comment_ID
-	 * @param int $comment_approved
+	 * @param int $comment_ID The comment ID.
+	 * @param int $comment_approved 1 if the comment is approved, 0 if not, 'spam' if spam.
 	 */
 	public function on_comment_post( $comment_ID, $comment_approved ) {
 
@@ -522,7 +522,7 @@ class Comments_Logger extends Logger {
 	 * Modify plain output to include link to post
 	 * and link to comment
 	 *
-	 * @param object $row
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 
@@ -556,7 +556,7 @@ class Comments_Logger extends Logger {
 	/**
 	 * Get output for detailed log section
 	 *
-	 * @param object $row
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_details_output( $row ) {
 

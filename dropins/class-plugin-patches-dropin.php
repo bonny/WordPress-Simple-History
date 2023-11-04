@@ -48,7 +48,7 @@ class Plugin_Patches_Dropin extends Dropin {
 	 * a large amount of actions for this posttype.
 	 *
 	 * @since 2.3
-	 * @param array $skip_posttypes
+	 * @param array $skip_posttypes Array with post types to skip.
 	 * @return array
 	 */
 	public function woocommerce_skip_scheduled_actions_posttype( $skip_posttypes ) {
@@ -65,7 +65,7 @@ class Plugin_Patches_Dropin extends Dropin {
 	 * 'Updated post ""'.
 	 *
 	 * @since 4.6.0
-	 * @param array $skip_posttypes
+	 * @param array $skip_posttypes Array with post types to skip.
 	 * @return array
 	 */
 	public function woocommerce_skip_hpos_posttype( $skip_posttypes ) {

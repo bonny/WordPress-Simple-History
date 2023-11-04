@@ -51,10 +51,9 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	/**
 	 * Fired when plugin options screen is loaded
 	 *
-	 * @param string $a
+	 * @param string $a Hook name.
 	 */
 	public function on_load_settings_page( $a ) {
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( $_POST && wp_verify_nonce( wp_unslash( $_POST['_wpnonce'] ), 'limit-login-attempts-options' ) ) {
 			// Settings saved
@@ -109,7 +108,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	 * do same checks as plugin itself does
 	 * and log if we match something
 	 *
-	 * @param mixed $value
+	 * @param mixed $value Option value.
 	 */
 	public function on_option_limit_login_lockouts_total( $value ) {
 

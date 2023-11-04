@@ -636,8 +636,8 @@ class User_Logger extends Logger {
 	/**
 	 * User logs in
 	 *
-	 * @param string $user_login
-	 * @param object $user
+	 * @param string $user_login Username.
+	 * @param object $user   WP_User object.
 	 */
 	public function onWpLogin( $user_login = null, $user = null ) {
 
@@ -743,7 +743,7 @@ class User_Logger extends Logger {
 	 *
 	 * @param \WP_User|\WP_Error $userOrError The WP_User object of the user being edited,
 	 *                                        or a WP_Error object if validation has already failed.
-	 * @param string             $password
+	 * @param string             $password  The user's password.
 	 */
 	public function onWpAuthenticateUser( $userOrError, $password ) {
 
@@ -856,11 +856,11 @@ class User_Logger extends Logger {
 	 *
 	 * Since 2.0.29
 	 *
-	 * @param array  $post_data_diff
-	 * @param string $key
-	 * @param string $old_value
-	 * @param string $new_value
-	 * @return array
+	 * @param array  $post_data_diff Array with diffs.
+	 * @param string $key         Key in $post_data_diff array.
+	 * @param string $old_value       Old value.
+	 * @param string $new_value       New value.
+	 * @return array $post_data_diff
 	 */
 	public function addDiff( $post_data_diff, $key, $old_value, $new_value ) {
 		if ( $old_value != $new_value ) {
@@ -876,7 +876,7 @@ class User_Logger extends Logger {
 	/**
 	 * Return more info about an logged event.
 	 *
-	 * @param object $row
+	 * @param object $row Log row.
 	 */
 	public function get_log_row_details_output( $row ) {
 		$context = $row->context;

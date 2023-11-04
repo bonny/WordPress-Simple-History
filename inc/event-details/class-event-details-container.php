@@ -16,7 +16,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 
 	/**
 	 * @param Event_Details_Group|array<Event_Details_Group> $group_or_groups Group or array of groups.
-	 * @param array<string,mixed>                            $context
+	 * @param array<string,mixed>                            $context       Context to use for setting prev and new values.
 	 */
 	public function __construct( $group_or_groups = [], $context = [] ) {
 		$this->context = $context;
@@ -42,7 +42,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	 * Add context and use context to set prev and new values
 	 * for each item in each group.
 	 *
-	 * @param array<string,mixed> $context
+	 * @param array<string,mixed> $context Context to use for setting prev and new values.
 	 * @return Event_Details_Container $this
 	 */
 	public function set_context( $context ) {
@@ -113,7 +113,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	 * Shortcut to add a single item,
 	 * the item will be added to a group first.
 	 *
-	 * @param Event_Details_Item $context_item
+	 * @param Event_Details_Item $context_item Item to add.
 	 * @param string|null        $group_title Optional name of the auto created group.
 	 * @return Event_Details_Container $this
 	 */
@@ -128,7 +128,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	}
 
 	/**
-	 * @param Event_Details_Group $group
+	 * @param Event_Details_Group $group Group to add.
 	 * @return Event_Details_Container $this
 	 */
 	public function add_group( $group ) {
@@ -143,7 +143,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	/**
 	 * Add groups.
 	 *
-	 * @param array<Event_Details_Group> $groups
+	 * @param array<Event_Details_Group> $groups Groups to add.
 	 * @return Event_Details_Container $this
 	 */
 	public function add_groups( $groups ) {
@@ -158,7 +158,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	 * Add many items. They will automatically
 	 * be added to a group first to share common styles.
 	 *
-	 * @param array<Event_Details_Item> $items
+	 * @param array<Event_Details_Item> $items   Items to add.
 	 * @param string|null               $group_title Optional name of the auto created group.
 	 * @return Event_Details_Container $this
 	 */

@@ -81,7 +81,7 @@ class Core_Updates_Logger extends Logger {
 	/**
 	 * Called when WordPress is updated
 	 *
-	 * @param string $new_wp_version
+	 * @param string $new_wp_version The new WordPress version.
 	 */
 	public function on_core_updated( $new_wp_version ) {
 

@@ -21,7 +21,7 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 	}
 
 	/**
-	 * @param string $html
+	 * @param string $html HTML output.
 	 * @return Event_Details_Item_RAW_Formatter $this
 	 */
 	public function set_html_output( $html ) {
@@ -31,7 +31,7 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 	}
 
 	/**
-	 * @param array<mixed> $json
+	 * @param array<mixed> $json JSON output.
 	 * @return Event_Details_Item_RAW_Formatter $this
 	 */
 	public function set_json_output( $json ) {

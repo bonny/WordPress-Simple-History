@@ -40,8 +40,8 @@ class IP_Info_Dropin extends Dropin {
 	/**
 	 * Display IP Addresses for login related messages.
 	 *
-	 * @param bool   $bool
-	 * @param object $row
+	 * @param bool   $bool True if IP Address should be displayed.
+	 * @param object $row Log row.
 	 * @return bool
 	 */
 	public function row_header_display_ip_address_filter( $bool, $row ) {

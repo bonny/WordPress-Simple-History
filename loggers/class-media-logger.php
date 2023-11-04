@@ -247,7 +247,7 @@ class Media_Logger extends Logger {
 	 * Fired from filter 'add_attachment'.
 	 * Is not fired when image is added in Block Editor
 	 *
-	 * @param int $attachment_id
+	 * @param int $attachment_id Attachment ID.
 	 */
 	public function on_add_attachment( $attachment_id ) {
 
@@ -292,7 +292,7 @@ class Media_Logger extends Logger {
 	 * An attachment is changed
 	 * is this only being called if the title of the attachment is changed?!
 	 *
-	 * @param int $attachment_id
+	 * @param int $attachment_id Attachment ID.
 	 */
 	public function on_edit_attachment( $attachment_id ) {
 
@@ -315,7 +315,7 @@ class Media_Logger extends Logger {
 	/**
 	 * Called when an attachment is deleted.
 	 *
-	 * @param int $attachment_id
+	 * @param int $attachment_id Attachment ID.
 	 */
 	public function on_delete_attachment( $attachment_id ) {
 
@@ -339,8 +339,8 @@ class Media_Logger extends Logger {
 	 * Modify RSS links so they go directly to the correct media in WP admin.
 	 *
 	 * @since 2.0.23
-	 * @param string $link
-	 * @param object $row
+	 * @param string $link Link to the log item.
+	 * @param object $row Log item.
 	 */
 	public function filter_rss_item_link( $link, $row ) {
 		if ( $row->logger != $this->get_slug() ) {

@@ -772,7 +772,7 @@ class Theme_Logger extends Logger {
 	/**
 	 * Get an widget by id's id_base
 	 *
-	 * @param string $widget_id_base
+	 * @param string $widget_id_base ID base of widget.
 	 * @return \WP_Widget|false wp_widget object or false on failure
 	 */
 	public function get_widget_by_id_base( $widget_id_base ) {

@@ -20,7 +20,7 @@ abstract class Service {
 	 * iThemes Security is installed is not logged, because those plugins fire wp_logout()
 	 * using filter "plugins_loaded", i.e. before simple history has loaded its filters.
 	 *
-	 * @param Simple_History $simple_history
+	 * @param Simple_History $simple_history Simple History instance.
 	 */
 	public function __construct( Simple_History $simple_history ) {
 		$this->simple_history = $simple_history;
