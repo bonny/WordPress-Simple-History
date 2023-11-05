@@ -303,10 +303,10 @@ class Plugin_Logger extends Logger {
 				 *         )
 				 */
 
-				$action = sanitize_text_field( wp_unslash( $_GET['action'] ?? null ) );
+				$action = sanitize_text_field( wp_unslash( $_GET['action'] ?? '' ) );
 				if ( ! $action ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$action = sanitize_text_field( wp_unslash( $_POST['action'] ?? null ) );
+					$action = sanitize_text_field( wp_unslash( $_POST['action'] ?? '' ) );
 				}
 
 				// Bail if doing ajax and
@@ -318,7 +318,7 @@ class Plugin_Logger extends Logger {
 					}
 
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$type = sanitize_text_field( wp_unslash( $_POST['type'] ?? null ) );
+					$type = sanitize_text_field( wp_unslash( $_POST['type'] ?? '' ) );
 					if ( $type !== 'plugin' ) {
 						return;
 					}
@@ -338,7 +338,7 @@ class Plugin_Logger extends Logger {
 
 				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ) ) ) {
 					// Opening single item enable/disable auto update link in plugin list in new window.
-					$plugin = sanitize_text_field( wp_unslash( $_GET['plugin'] ?? null ) );
+					$plugin = sanitize_text_field( wp_unslash( $_GET['plugin'] ?? '' ) );
 
 					if ( $plugin ) {
 						$plugins[] = sanitize_text_field( urldecode( $plugin ) );
@@ -356,9 +356,9 @@ class Plugin_Logger extends Logger {
 					// *    [type] => plugin
 					// *    [asset] => redirection/redirection.php
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$state = sanitize_text_field( wp_unslash( $_POST['state'] ?? null ) );
+					$state = sanitize_text_field( wp_unslash( $_POST['state'] ?? '' ) );
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$asset = sanitize_text_field( wp_unslash( $_POST['asset'] ?? null ) );
+					$asset = sanitize_text_field( wp_unslash( $_POST['asset'] ?? '' ) );
 
 					if ( $state === 'enable' ) {
 						$enableOrDisable = 'enable';

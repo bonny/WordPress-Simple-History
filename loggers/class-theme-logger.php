@@ -655,7 +655,7 @@ class Theme_Logger extends Logger {
 
 		// Add sidebar info.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$sidebar_id = sanitize_text_field( wp_unslash( $_POST['sidebar'] ?? null ) );
+		$sidebar_id = sanitize_text_field( wp_unslash( $_POST['sidebar'] ?? '' ) );
 		$context['sidebar_id'] = $sidebar_id;
 
 		$sidebar = $this->get_sidebar_by_id( $sidebar_id );
