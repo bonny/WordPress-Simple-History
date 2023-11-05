@@ -342,7 +342,6 @@ class Theme_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_action_customize_save( $customize_manager ) {
-
 		/*
 		- Loop through all sections
 			- And then through all controls in section

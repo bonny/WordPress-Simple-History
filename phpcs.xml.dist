@@ -62,7 +62,6 @@
 		<exclude name="Squiz.Commenting.VariableComment.Missing" />
 		<exclude name="Squiz.Commenting.FunctionComment.Missing" />
 		<exclude name="Squiz.Commenting.BlockComment.NoCapital" />
-		<exclude name="Squiz.Commenting.BlockComment.HasEmptyLineBefore" />
 
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />

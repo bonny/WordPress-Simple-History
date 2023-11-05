@@ -106,7 +106,6 @@ class Menu_Logger extends Logger {
 	 * it's fired after menu is deleted, so we don't have the name in this action
 	 */
 	public function on_load_nav_menus_page_detect_delete() {
-
 		/*
 		http://playground-root.ep/wp-admin/nav-menus.php?menu=22&action=delete&0=http%3A%2F%2Fplayground-root.ep%2Fwp-admin%2F&_wpnonce=f52e8a31ba
 		$_REQUEST:
@@ -187,7 +186,6 @@ class Menu_Logger extends Logger {
 	 * Detect menu being saved
 	 */
 	public function on_load_nav_menus_page_detect_update() {
-
 		/*
 		This is the data to be saved
 		$_REQUEST:
