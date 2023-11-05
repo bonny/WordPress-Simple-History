@@ -104,6 +104,7 @@
 		</properties>
 	</rule>
 
+	<!-- Disallow mb functions since they are not available on all PHP server configs -->
 	<rule ref="Generic.PHP.ForbiddenFunctions">
 		<properties>
 			<property name="forbiddenFunctions" type="array" extend="true">
