@@ -60,31 +60,6 @@ class Plugin_Enable_Media_Replace_Logger extends Logger {
 				return;
 			}
 
-			/*
-			get {
-				"page": "enable-media-replace\/enable-media-replace.php",
-				"noheader": "true",
-				"action": "media_replace_upload",
-				"attachment_id": "64085",
-				"_wpnonce": "1089573e0c"
-			}
-
-			post    {
-				"ID": "64085",
-				"replace_type": "replace"
-			}
-
-			files   {
-				"userfile": {
-					"name": "earth-transparent.png",
-					"type": "image\/png",
-					"tmp_name": "\/Applications\/MAMP\/tmp\/php\/phpKA2XOo",
-					"error": 0,
-					"size": 4325729
-				}
-			}
-			*/
-
 			$this->info_message(
 				'replaced_file',
 				array(

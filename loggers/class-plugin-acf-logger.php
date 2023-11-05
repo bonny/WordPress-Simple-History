@@ -717,18 +717,6 @@ class Plugin_ACF_Logger extends Logger {
 				// One modified field, with one or more changed things
 				$strOneModifiedField = '';
 
-				// Add the field name manually, if it is not among the changed field,
-				// or we don't know what field the other changed values belongs to.
-
-				/*
-				if (empty($context["acf_modified_fields_{$loopnum}_name_new"])) {
-					$strOneModifiedField .= sprintf(
-						_x('Name: %1$s', 'Logger: Plugin ACF', 'simple-history'), // 1
-						esc_html($context["acf_modified_fields_{$loopnum}_name_prev"]) // 2
-					);
-				}
-				*/
-
 				// Add the label name manually, if it is not among the changed field,
 				// or we don't know what field the other changed values belongs to.
 				if ( empty( $context[ "acf_modified_fields_{$loopnum}_label_new" ] ) ) {

@@ -95,8 +95,6 @@ class Theme_Logger extends Logger {
 
 		add_action( 'sidebar_admin_setup', array( $this, 'on_action_sidebar_admin_setup__detect_widget_delete' ) );
 		add_action( 'sidebar_admin_setup', array( $this, 'on_action_sidebar_admin_setup__detect_widget_add' ) );
-		// add_action("wp_ajax_widgets-order", array( $this, "on_action_sidebar_admin_setup__detect_widget_order_change"), 1 );
-		// add_action("sidebar_admin_setup", array( $this, "on_action_sidebar_admin_setup__detect_widget_edit") );
 		add_filter( 'widget_update_callback', array( $this, 'on_widget_update_callback' ), 10, 4 );
 
 		add_action( 'load-appearance_page_custom-background', array( $this, 'on_page_load_custom_background' ) );
@@ -582,48 +580,6 @@ class Theme_Logger extends Logger {
 
 		return $output;
 	}
-
-	/*
-	function on_action_sidebar_admin_setup__detect_widget_edit() {
-
-		if ( isset( $_REQUEST["action"] ) && ( $_REQUEST["action"] == "save-widget" ) && isset( $_POST["sidebar"] ) && isset( $_POST["id_base"] ) ) {
-
-			$widget_id_base = $_POST["id_base"];
-
-			// a key with widget-{$widget_id_base} exists if we are saving
-			if ( ! isset( $_POST["widget-{$widget_id_base}"] ) ) {
-				return;
-			}
-
-			$context = array();
-
-			$widget_save_data = $_POST["widget-{$widget_id_base}"];
-			$context["widget_save_data"] = Helpers::json_encode( $widget_save_data );
-
-			// Add widget info
-			$context["widget_id_base"] = $widget_id_base;
-			$widget = $this->getWidgetByIdBase( $widget_id_base );
-			if ($widget) {
-				$context["widget_name_translated"] = $widget->name;
-			}
-
-			// Add sidebar info
-			$sidebar_id = $_POST["sidebar"];
-			$context["sidebar_id"] = $sidebar_id;
-			$sidebar = $this->getSidebarById( $sidebar_id );
-			if ($sidebar) {
-				$context["sidebar_name_translated"] = $sidebar["name"];
-			}
-
-			$this->info_message(
-				"widget_edited",
-				$context
-			);
-
-		}
-
-	}
-		*/
 
 	/**
 	 * A widget is changed, i.e. new values are saved

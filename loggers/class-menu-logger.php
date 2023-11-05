@@ -106,18 +106,6 @@ class Menu_Logger extends Logger {
 	 * it's fired after menu is deleted, so we don't have the name in this action
 	 */
 	public function on_load_nav_menus_page_detect_delete() {
-		/*
-		http://playground-root.ep/wp-admin/nav-menus.php?menu=22&action=delete&0=http%3A%2F%2Fplayground-root.ep%2Fwp-admin%2F&_wpnonce=f52e8a31ba
-		$_REQUEST:
-		Array
-		(
-			[menu] => 22
-			[action] => delete
-			[0] => http://playground-root.ep/wp-admin/
-			[_wpnonce] => ...
-		)
-		*/
-
 		// Check that needed vars are set
 		if ( ! isset( $_REQUEST['menu'], $_REQUEST['action'] ) ) {
 			return;
@@ -165,22 +153,6 @@ class Menu_Logger extends Logger {
 			)
 		);
 	}
-
-	/*
-	function on_wp_update_nav_menu_item($menu_id, $menu_item_db_id, $args) {
-
-		$this->info_message(
-			"edited_menu_item",
-			array(
-				"menu_id" => $menu_id,
-				"menu_item_db_id" => $menu_item_db_id,
-				"args" => Helpers::json_encode($args),
-				"request" => Helpers::json_encode($_REQUEST)
-			)
-		);
-
-	}
-	*/
 
 	/**
 	 * Detect menu being saved
