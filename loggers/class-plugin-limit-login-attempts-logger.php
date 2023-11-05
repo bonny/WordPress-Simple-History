@@ -12,6 +12,9 @@ use Simple_History\Log_Initiators;
 class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	public $slug = 'Plugin_LimitLoginAttempts';
 
+	/**
+	 * @inheritdoc
+	 */
 	public function get_info() {
 
 		$arr_info = array(
@@ -33,6 +36,9 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		$pluginFilePath = 'limit-login-attempts/limit-login-attempts.php';
 		$isPluginActive = Helpers::is_plugin_active( $pluginFilePath );

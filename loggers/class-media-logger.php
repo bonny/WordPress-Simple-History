@@ -49,6 +49,9 @@ class Media_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		add_action( 'add_attachment', array( $this, 'on_add_attachment' ) );
 		add_action( 'edit_attachment', array( $this, 'on_edit_attachment' ) );

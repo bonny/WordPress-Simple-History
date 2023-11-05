@@ -13,6 +13,9 @@ use Simple_History\Log_Levels;
  * Author: Pär Thernström
  */
 class RSS_Dropin extends Dropin {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . '/wp-admin/includes/user.php';

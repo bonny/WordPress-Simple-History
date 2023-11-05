@@ -17,6 +17,9 @@ class Event_Details_Simple_Container implements Event_Details_Container_Interfac
 		$this->html = $html;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function to_html() {
 		if ( $this->html instanceof Event_Details_Container_Interface ) {
 			return $this->html->to_html();
@@ -25,6 +28,11 @@ class Event_Details_Simple_Container implements Event_Details_Container_Interfac
 		return $this->html;
 	}
 
+	/**
+	 * @inheritdoc
+	 *
+	 * @return string
+	 */
 	public function __toString() {
 		return (string) $this->to_html();
 	}

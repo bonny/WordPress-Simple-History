@@ -14,6 +14,9 @@ class WP_CLI_Commands {
 	/** @var Simple_History */
 	private $simple_history;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		 $this->simple_history = Simple_History::get_instance();
 	}

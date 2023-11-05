@@ -8,6 +8,9 @@ use Simple_History\Helpers;
  * Setup settings page.
  */
 class Setup_Settings_Page extends Service {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
 		add_action( 'admin_menu', array( $this, 'add_settings' ), 10 );
@@ -64,18 +67,30 @@ class Setup_Settings_Page extends Service {
 		}
 	}
 
+	/**
+	 * Output for the log settings tab.
+	 */
 	public function settings_output_log() {
 		include SIMPLE_HISTORY_PATH . 'templates/settings-log.php';
 	}
 
+	/**
+	 * Output for the general settings tab.
+	 */
 	public function settings_output_general() {
 		include SIMPLE_HISTORY_PATH . 'templates/settings-general.php';
 	}
 
+	/**
+	 * Output for the styles example settings tab.
+	 */
 	public function settings_output_styles_example() {
 		include SIMPLE_HISTORY_PATH . 'templates/settings-style-example.php';
 	}
 
+	/**
+	 * Add options menu page for settings.
+	 */
 	public function add_admin_pages() {
 		// Add a settings page
 		$show_settings_page = true;
@@ -205,6 +220,9 @@ class Setup_Settings_Page extends Service {
 		<?php
 	}
 
+	/**
+	 * Settings field for how many rows/items to show in log on the log page
+	 */
 	public function settings_field_number_of_items() {
 		$this->settings_field_number_of_items_on_log_page();
 		echo '<br /><br />';

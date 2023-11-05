@@ -10,6 +10,7 @@ use Simple_History\Helpers;
  * Class that handles the quick stats above the log.
  */
 class Quick_Stats extends Dropin {
+	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'simple_history/history_page/before_gui', array( $this, 'output_quick_stats' ), 5 );
 		add_action( 'simple_history/dashboard/before_gui', array( $this, 'output_quick_stats' ), 5 );

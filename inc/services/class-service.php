@@ -36,5 +36,8 @@ abstract class Service {
 		return Helpers::get_class_short_name( $this );
 	}
 
+	/**
+	 * Called when service is loaded.
+	 */
 	abstract public function loaded();
 }

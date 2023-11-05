@@ -11,6 +11,7 @@ use Simple_History\Helpers;
  * Author: Pär Thernström
  */
 class Plugin_Patches_Dropin extends Dropin {
+	/** @inheritdoc */
 	public function loaded() {
 		add_filter(
 			'simple_history/post_logger/skip_posttypes',

@@ -309,6 +309,10 @@ class User_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * Log when user confirms that admin email is correct.
+	 * Fired from filter 'login_form_confirm_admin_email'.
+	 */
 	public function on_action_login_form_confirm_admin_email() {
 		// Bail if button with name "correct-admin-email" was not clicked or if no nonce field exists.
 		if ( empty( $_POST['confirm_admin_email_nonce'] ) || empty( $_POST['correct-admin-email'] ) ) {

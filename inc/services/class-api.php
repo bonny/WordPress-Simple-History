@@ -5,10 +5,12 @@ namespace Simple_History\Services;
 use Simple_History\Log_Query;
 
 /**
- * Class for core services to extend,
- * i.e. services that are loaded early and are required for Simple History to work.
+ * Setup API Ajax support.
  */
 class API extends Service {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_simple_history_api', array( $this, 'api' ) );

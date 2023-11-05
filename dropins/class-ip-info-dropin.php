@@ -8,6 +8,9 @@ namespace Simple_History\Dropins;
  * Author: Pär Thernström
  */
 class IP_Info_Dropin extends Dropin {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/admin_footer', array( $this, 'add_js_template' ) );
@@ -71,6 +74,9 @@ class IP_Info_Dropin extends Dropin {
 		return true;
 	}
 
+	/**
+	 * Enqueue admin scripts.
+	 */
 	public function enqueue_admin_scripts() {
 		$file_url = plugin_dir_url( __FILE__ );
 
@@ -78,6 +84,10 @@ class IP_Info_Dropin extends Dropin {
 		wp_enqueue_style( 'simple_history_IpInfoDropin', $file_url . 'ip-info-dropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 
+	/**
+	 * Add JS template.
+	 * Added from filter simple_history/admin_footer.
+	 */
 	public function add_js_template() {
 		?>
 

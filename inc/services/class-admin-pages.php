@@ -9,6 +9,7 @@ use Simple_History\Simple_History;
  * Add pages (history page and settings page).
  */
 class Admin_Pages extends Service {
+	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
 	}

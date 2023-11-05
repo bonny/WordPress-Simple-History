@@ -10,12 +10,16 @@ use WP_CLI;
  * Author: Pär Thernström
  */
 class WP_CLI_Dropin extends Dropin {
+	/** @inheritdoc */
 	public function loaded() {
 		if ( defined( WP_CLI::class ) && WP_CLI ) {
 			$this->register_commands();
 		}
 	}
 
+	/**
+	 * Register WP CLI commands.
+	 */
 	private function register_commands() {
 		WP_CLI::add_command(
 			'simple-history',

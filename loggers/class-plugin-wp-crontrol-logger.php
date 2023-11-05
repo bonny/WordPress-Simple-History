@@ -41,6 +41,9 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Called when logger is loaded.
+	 */
 	public function loaded() {
 		add_action( 'crontrol/added_new_event', array( $this, 'added_new_event' ) );
 		add_action( 'crontrol/added_new_php_event', array( $this, 'added_new_event' ) );
@@ -296,6 +299,12 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * Generate HTML output for the details of a log row.
+	 *
+	 * @param object $row Log row object.
+	 * @return string
+	 */
 	public function get_log_row_details_output( $row ) {
 		switch ( $row->context_message_key ) {
 			case 'added_new_event':
@@ -312,6 +321,12 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		return '';
 	}
 
+	/**
+	 * Generate HTML output for the details of a log row.
+	 *
+	 * @param object $row Log row object.
+	 * @return string
+	 */
 	protected function cronEventDetailsOutput( $row ) {
 		$tmpl_row = '
             <tr>
@@ -407,6 +422,12 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		return $output;
 	}
 
+	/**
+	 * Generate HTML output for the details of a log row.
+	 *
+	 * @param object $row Log row object.
+	 * @return string
+	 */
 	protected function cronScheduleDetailsOutput( $row ) {
 		$tmpl_row = '
             <tr>

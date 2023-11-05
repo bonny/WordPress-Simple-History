@@ -25,6 +25,7 @@ class Loggers_Loader extends Service {
 	 */
 	private $do_filter_gettext_current_logger;
 
+	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'load_loggers' ) );
 	}

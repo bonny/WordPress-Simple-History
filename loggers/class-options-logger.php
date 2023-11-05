@@ -38,8 +38,10 @@ class Options_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Called when logger is loaded.
+	 */
 	public function loaded() {
-
 		add_action( 'updated_option', array( $this, 'on_updated_option' ), 10, 3 );
 	}
 
@@ -257,6 +259,16 @@ class Options_Logger extends Logger {
 		return $context;
 	}
 
+	/**
+	 * Add context for option page_on_front for posts page.
+	 *
+	 * @param array $context context.
+	 * @param mixed $old_value old value.
+	 * @param mixed $new_value new value.
+	 * @param mixed $option option name.
+	 * @param mixed $option_page option page name.
+	 * @return array Updated context.
+	 */
 	public function add_context_for_option_page_for_posts( $context, $old_value, $new_value, $option, $option_page ) {
 
 		// Get same info as for page_on_front
@@ -265,10 +277,18 @@ class Options_Logger extends Logger {
 		return $context;
 	}
 
+	/**
+	 * Get detailed output for page_on_front for posts page.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return string output
+	 */
 	public function get_details_output_for_option_page_for_posts( $context, $old_value, $new_value, $option, $option_page ) {
-
 		$output = call_user_func_array( array( $this, 'get_details_output_for_option_page_on_front' ), func_get_args() );
-
 		return $output;
 	}
 
@@ -371,10 +391,18 @@ class Options_Logger extends Logger {
 		return $context;
 	}
 
+	/**
+	 * Add context for option default_category for default_email_category.
+	 *
+	 * @param array $context context.
+	 * @param mixed $old_value old value.
+	 * @param mixed $new_value new value.
+	 * @param mixed $option option name.
+	 * @param mixed $option_page option page name.
+	 * @return array Updated context.
+	 */
 	public function add_context_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page ) {
-
 		$context = call_user_func_array( array( $this, 'add_context_for_option_default_category' ), func_get_args() );
-
 		return $context;
 	}
 
@@ -414,10 +442,19 @@ class Options_Logger extends Logger {
 		return $output;
 	}
 
+	/**
+	 * Get detailed output for default_category for default_email_category.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @param string $tmpl_row template row.
+	 * @return string output
+	 */
 	public function get_details_output_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
-
 		$output = call_user_func_array( array( $this, 'get_details_output_for_option_default_category' ), func_get_args() );
-
 		return $output;
 	}
 }

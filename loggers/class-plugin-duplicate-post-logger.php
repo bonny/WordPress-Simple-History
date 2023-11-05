@@ -14,6 +14,11 @@ use Simple_History\Helpers;
 class Plugin_Duplicate_Post_Logger extends Logger {
 	public $slug = 'Plugin_DuplicatePost';
 
+	/**
+	 * Return info about this logger
+	 *
+	 * @return array
+	 */
 	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'Plugin: Duplicate Posts Logger', 'Logger: Plugin Duplicate Post', 'simple-history' ),
@@ -36,6 +41,9 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		$isPluginActive = Helpers::is_plugin_active( 'duplicate-post/duplicate-post.php' );
 

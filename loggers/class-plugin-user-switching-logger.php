@@ -35,12 +35,21 @@ class Plugin_User_Switching_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Called when logger is loaded.
+	 */
 	public function loaded() {
 		add_action( 'switch_to_user', array( $this, 'on_switch_to_user' ), 10, 2 );
 		add_action( 'switch_back_user', array( $this, 'on_switch_back_user' ), 10, 2 );
 		add_action( 'switch_off_user', array( $this, 'on_switch_off_user' ), 10, 1 );
 	}
 
+	/**
+	 * Function is called when a user switches to another user.
+	 *
+	 * @param int $user_id     The ID of the user being switched to.
+	 * @param int $old_user_id The ID of the user being switched from.
+	 */
 	public function on_switch_to_user( $user_id, $old_user_id ) {
 		$user_to = get_user_by( 'id', $user_id );
 		$user_from = get_user_by( 'id', $old_user_id );
@@ -114,6 +123,11 @@ class Plugin_User_Switching_Logger extends Logger {
 		}
 	}
 
+	/**
+	 * Function is called when a user is switched off.
+	 *
+	 * @param int $user_id The ID of the user being switched off.
+	 */
 	public function on_switch_off_user( $user_id ) {
 		$user = get_user_by( 'id', $user_id );
 

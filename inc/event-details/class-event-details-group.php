@@ -15,6 +15,9 @@ class Event_Details_Group {
 	/** @var string|null Group title. Used in for example JSON output. */
 	public ?string $title = null;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->formatter = new Event_Details_Group_Table_Formatter();
 	}

@@ -8,6 +8,9 @@ use Simple_History\Simple_History;
  * Class that load dropins.
  */
 class Dropins_Loader extends Service {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'load_dropins' ) );
 	}

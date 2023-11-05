@@ -9,6 +9,7 @@ namespace Simple_History\Dropins;
  * Author: Pär Thernström
  */
 class Settings_Debug_Tab_Dropin extends Dropin {
+	/** @inheritdoc */
 	public function loaded() {
 		$this->simple_history->register_settings_tab(
 			array(
@@ -21,6 +22,9 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 		);
 	}
 
+	/**
+	 * Output the tab.
+	 */
 	public function output() {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/template-settings-tab-debug.php',

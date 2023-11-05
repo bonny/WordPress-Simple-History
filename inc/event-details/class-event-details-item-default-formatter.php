@@ -6,6 +6,11 @@ namespace Simple_History\Event_Details;
  * Formatter for a group of items.
  */
 class Event_Details_Item_Default_Formatter extends Event_Details_Item_Formatter {
+	/**
+	 * @inheritdoc
+	 *
+	 * @return string
+	 */
 	public function to_html() {
 		$name = '';
 
@@ -20,6 +25,11 @@ class Event_Details_Item_Default_Formatter extends Event_Details_Item_Formatter 
 		);
 	}
 
+	/**
+	 * @inheritdoc
+	 *
+	 * @return array<mixed>
+	 */
 	public function to_json() {
 		$return = [];
 

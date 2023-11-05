@@ -77,6 +77,9 @@ class Donate_Dropin extends Dropin {
 		return $links;
 	}
 
+	/**
+	 * Add settings section.
+	 */
 	public function add_settings() {
 		Helpers::add_settings_section(
 			'simple_history_settings_section_donate',
@@ -86,6 +89,9 @@ class Donate_Dropin extends Dropin {
 		);
 	}
 
+	/**
+	 * Output settings section HTML.
+	 */
 	public function settings_section_output() {
 		echo '<p>';
 		printf(

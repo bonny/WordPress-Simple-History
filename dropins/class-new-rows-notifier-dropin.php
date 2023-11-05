@@ -14,6 +14,7 @@ class New_Rows_Notifier_Dropin extends Dropin {
 	/** @var int How often we should check for new rows, in ms. */
 	private $interval = 10000;
 
+	/** @inheritdoc */
 	public function loaded() {
 
 		/**
@@ -39,6 +40,9 @@ class New_Rows_Notifier_Dropin extends Dropin {
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
+	/**
+	 * Enqueue scripts.
+	 */
 	public function enqueue_admin_scripts() {
 
 		$file_url = plugin_dir_url( __FILE__ );
@@ -53,6 +57,9 @@ class New_Rows_Notifier_Dropin extends Dropin {
 		wp_enqueue_style( 'simple_history_NewRowsNotifierDropin', $file_url . 'new-rows-notifier-dropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 
+	/**
+	 * Ajax callback.
+	 */
 	public function ajax() {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$apiArgs = wp_unslash( $_GET['apiArgs'] ?? array() );

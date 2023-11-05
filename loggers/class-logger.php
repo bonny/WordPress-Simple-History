@@ -323,6 +323,12 @@ abstract class Logger {
 		return $initiator_html;
 	}
 
+	/**
+	 * Generate date output for a row.
+	 *
+	 * @param object $row Log row.
+	 * @return string HTML
+	 */
 	public function get_log_row_header_date_output( $row ) {
 		// HTML for date
 		// Date (should...) always exist

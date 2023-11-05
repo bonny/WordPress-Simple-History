@@ -21,6 +21,11 @@ class Theme_Logger extends Logger {
 	 */
 	protected $themes_data = array();
 
+	/**
+	 * Return logger info
+	 *
+	 * @return array
+	 */
 	public function get_info() {
 		$arr_info = array(
 			'name'        => __( 'Theme Logger', 'simple-history' ),
@@ -81,6 +86,9 @@ class Theme_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Called when logger is loaded.
+	 */
 	public function loaded() {
 		/**
 		 * Fires after the theme is switched.
@@ -456,6 +464,12 @@ class Theme_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * Get detailed output for a row.
+	 *
+	 * @param object $row Log row.
+	 * @return string
+	 */
 	public function get_log_row_details_output( $row ) {
 		$context = $row->context;
 		$message_key = $context['_message_key'];

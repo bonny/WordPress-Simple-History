@@ -19,6 +19,7 @@ class Licences_Settings_Page extends Service {
 	private const OPTION_NAME_LICENSE_KEY = 'shp_license_key';
 	private const OPTION_LICENSE_MESSAGE = 'example_plugin_license_message';
 
+	/** @inheritdoc */
 	public function loaded() {
 		$licences_service = $this->simple_history->get_service( AddOns_Licences::class );
 
@@ -40,6 +41,9 @@ class Licences_Settings_Page extends Service {
 		);
 	}
 
+	/**
+	 * Add settings tab after plugins has loaded.
+	 */
 	public function on_plugins_loaded() {
 		if ( $this->licences_service->has_add_ons() ) {
 			$this->add_settings_tab();
@@ -84,6 +88,9 @@ class Licences_Settings_Page extends Service {
 		);
 	}
 
+	/**
+	 * Register settings and add settings fields.
+	 */
 	public function register_and_add_settings() {
 		// Register setting options.
 		register_setting(
@@ -121,6 +128,9 @@ class Licences_Settings_Page extends Service {
 		);
 	}
 
+	/**
+	 * Output for the settings section.
+	 */
 	public function settings_section_output() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
@@ -315,6 +325,9 @@ class Licences_Settings_Page extends Service {
 		<?php
 	}
 
+	/**
+	 * Output for the tab.
+	 */
 	public function activated_sites_settings_output() {
 		$link_my_orders_start = '<a href="https://app.lemonsqueezy.com/my-orders/" class="sh-ExternalLink" target="_blank">';
 		$link_my_orders_end = '</a>';

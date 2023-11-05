@@ -14,6 +14,11 @@ class Simple_History_Logger extends Logger {
 	/** @var array<int,array<string,string>> Found changes */
 	private $arr_found_changes = [];
 
+	/**
+	 * Get info about this logger.
+	 *
+	 * @return array
+	 */
 	public function get_info() {
 		return [
 			'name'        => _x( 'Simple History Logger', 'Logger: SimpleHistoryLogger', 'simple-history' ),
@@ -29,6 +34,11 @@ class Simple_History_Logger extends Logger {
 		];
 	}
 
+	/**
+	 * Called when service is loaded.
+	 *
+	 * @return void
+	 */
 	public function loaded() {
 		add_action( 'load-options.php', [ $this, 'on_load_options_page' ] );
 		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ] );
@@ -139,6 +149,12 @@ class Simple_History_Logger extends Logger {
 		];
 	}
 
+	/**
+	 * Get the log row details for this logger.
+	 *
+	 * @param array $row Log row.
+	 * @return Event_Details_Group
+	 */
 	public function get_log_row_details_output( $row ) {
 		$event_details_group = ( new Event_Details_Group() )
 			->add_items(

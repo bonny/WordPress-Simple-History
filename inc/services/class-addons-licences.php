@@ -16,6 +16,9 @@ class AddOns_Licences extends Service {
 	 */
 	private $addon_plugins = [];
 
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		// When loggers are instantiated, register plugin updaters simple_history/loggers/instantiated.
 		add_action( 'simple_history/loggers/instantiated', [ $this, 'init_plugin_updater_for_registered_licence_plugins' ] );

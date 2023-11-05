@@ -66,6 +66,13 @@ class Available_Updates_Logger extends Logger {
 		add_action( 'set_site_transient_update_themes', array( $this, 'on_setted_update_update_themes' ), 10, 1 );
 	}
 
+	/**
+	 * Called when WordPress is done checking for core updates.
+	 * WP sets site transient 'update_core' when done.
+	 * Log found core update.
+	 *
+	 * @param object $updates Updates object.
+	 */
 	public function on_setted_update_core_transient( $updates ) {
 
 		global $wp_version;
@@ -179,6 +186,13 @@ class Available_Updates_Logger extends Logger {
 		update_option( $option_key, $checked_updates );
 	}
 
+	/**
+	 * Called when WordPress is done checking for theme updates.
+	 * WP sets site transient 'update_themes' when done.
+	 * Log found theme updates.
+	 *
+	 * @param object $updates Updates object.
+	 */
 	public function on_setted_update_update_themes( $updates ) {
 
 		if ( empty( $updates->response ) || ! is_array( $updates->response ) ) {

@@ -11,7 +11,9 @@ use Simple_History\Helpers;
  * Author: Pär Thernström
  */
 class Export_Dropin extends Dropin {
-
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		$this->simple_history->register_settings_tab(
 			array(
@@ -26,6 +28,9 @@ class Export_Dropin extends Dropin {
 		add_action( 'init', array( $this, 'downloadExport' ) );
 	}
 
+	/**
+	 * Download export file.
+	 */
 	public function downloadExport() {
 		if ( isset( $_POST['simple-history-action'] ) && $_POST['simple-history-action'] === 'export-history' ) {
 			// Will die if nonce not valid.
@@ -183,6 +188,9 @@ class Export_Dropin extends Dropin {
 		}// End if().
 	}
 
+	/**
+	 * Output for the export tab on the settings page.
+	 */
 	public function output() {
 		?>
 

@@ -6,6 +6,9 @@ namespace Simple_History\Services;
  * Setup dashboard widget.
  */
 class Dashboard_Widget extends Service {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widget' ) );
 	}

@@ -6,6 +6,9 @@ namespace Simple_History\Services;
  * Class that setups logging using WP hooks.
  */
 class Language_Loader extends Service {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		// Prio 5 so it's loaded before the loggers etc. are setup.
 		add_action( 'after_setup_theme', array( $this, 'load_plugin_textdomain' ), 5 );

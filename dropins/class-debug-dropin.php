@@ -11,6 +11,7 @@ use Simple_History\Helpers;
  * Author: Pär Thernström
  */
 class Debug_Dropin extends Dropin {
+	/** @inheritdoc */
 	public function loaded() {
 		// Bail if Simple History debug mode is not active.
 		if ( false === Helpers::log_debug_is_enabled() ) {

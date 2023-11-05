@@ -69,6 +69,9 @@ class Simple_History {
 	/** ID for the general settings section */
 	public const SETTINGS_SECTION_GENERAL_ID = 'simple_history_settings_section_general';
 
+	/**
+	 * Init Simple History.
+	 */
 	public function __construct() {
 		$this->init();
 	}

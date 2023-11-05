@@ -31,14 +31,19 @@ class Plugin_Enable_Media_Replace_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 
 		// Action that is called when Enable Media Replace loads it's admin options page (both when viewing and when posting new file to it)
 		add_action( 'load-media_page_enable-media-replace/enable-media-replace', array( $this, 'on_load_plugin_admin_page' ), 10, 1 );
 	}
 
+	/**
+	 * Called when Enable Media Replace loads it's admin options page
+	 */
 	public function on_load_plugin_admin_page() {
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( empty( $_POST ) ) {
 			return;

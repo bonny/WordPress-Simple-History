@@ -2,7 +2,6 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Simple_History;
 use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Log_Initiators;
 
@@ -10,6 +9,9 @@ use Simple_History\Log_Initiators;
  * Setup database and upgrade it if needed.
  */
 class Setup_Database extends Service {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		// Run at prio 5 so it's run before the loggers etc. are setup.
 		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );

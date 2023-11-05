@@ -8,6 +8,9 @@ use Simple_History\Simple_History;
  * Setup scripts and templates.
  */
 class Scripts_And_Templates extends Service {
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		add_action( 'admin_footer', array( $this, 'add_js_templates' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );

@@ -8,6 +8,12 @@ namespace Simple_History\Event_Details;
  * TODO: How to handle values? Placeholders?, {} or %s-format?
  */
 class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Formatter {
+	/**
+	 * @inheritdoc
+	 *
+	 * @param Event_Details_Group $group Group to format.
+	 * @return string
+	 */
 	public function to_html( $group ) {
 		$output = '';
 
@@ -19,6 +25,12 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 		return $output;
 	}
 
+	/**
+	 * @inheritdoc
+	 *
+	 * @param Event_Details_Group $group Group to format.
+	 * @return array<mixed>
+	 */
 	public function to_json( $group ) {
 		$output = [];
 

@@ -53,6 +53,9 @@ class Menu_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Called when logger is loaded.
+	 */
 	public function loaded() {
 		/*
 		 * Fires after a navigation menu has been successfully deleted.

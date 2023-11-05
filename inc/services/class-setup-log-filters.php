@@ -8,6 +8,9 @@ use Simple_History\Simple_History;
  * Class that setups logging using WP hooks.
  */
 class Setup_Log_Filters extends Service {
+	/**
+	 * Called when service is loaded.
+	 */
 	public function loaded() {
 		/**
 		 * Filter that is used to log things, without the need to check that simple history is available

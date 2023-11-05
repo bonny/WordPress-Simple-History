@@ -8,36 +8,36 @@
 use Simple_History\Simple_History;
 use Simple_History\Loggers\Simple_Logger;
 
-/**
- * Helper function with same name as the SimpleLogger-class
- *
- * @example Log a message to the log.
- *
- * ```php
- * SimpleLogger()->info("This is a message sent to the log");
- * ```
- *
- * @return Simple_Logger
- */
 if ( ! function_exists( 'SimpleLogger' ) ) {
+	/**
+	 * Helper function with same name as the SimpleLogger-class
+	 *
+	 * @example Log a message to the log.
+	 *
+	 * ```php
+	 * SimpleLogger()->info("This is a message sent to the log");
+	 * ```
+	 *
+	 * @return Simple_Logger
+	 */
 	function SimpleLogger() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 		return new Simple_Logger( Simple_History::get_instance() );
 	}
 }
 
-/**
- * Log variable(s) to error log.
- * Any number of variables can be passed and each variable is print_r'ed to the error log.
- *
- * Example usage:
- * sh_error_log(
- *   'rest_request_after_callbacks:',
- *   $handler,
- *   $handler['callback'][0],
- *   $handler['callback'][1]
- * );
- */
 if ( ! function_exists( 'sh_error_log' ) ) {
+	/**
+	 * Log variable(s) to error log.
+	 * Any number of variables can be passed and each variable is print_r'ed to the error log.
+	 *
+	 * Example usage:
+	 * sh_error_log(
+	 *   'rest_request_after_callbacks:',
+	 *   $handler,
+	 *   $handler['callback'][0],
+	 *   $handler['callback'][1]
+	 * );
+	 */
 	function sh_error_log() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 		foreach ( func_get_args() as $var ) {
 			if ( is_bool( $var ) ) {
@@ -52,19 +52,19 @@ if ( ! function_exists( 'sh_error_log' ) ) {
 	}
 }
 
-/**
- * Echoes any number of variables for debug purposes.
- *
- * Example usage:
- *
- * sh_d('Values from $_GET', $_GET);
- * sh_d('$_POST', $_POST);
- * sh_d('My vars', $varOne, $varTwo, $varXYZ);
- *
- * @mixed Vars Variables to output.
- */
 if ( ! function_exists( 'sh_d' ) ) {
-	function sh_d() { // phpcs:ignore 
+	/**
+	 * Echoes any number of variables for debug purposes.
+	 *
+	 * Example usage:
+	 *
+	 * sh_d('Values from $_GET', $_GET);
+	 * sh_d('$_POST', $_POST);
+	 * sh_d('My vars', $varOne, $varTwo, $varXYZ);
+	 *
+	 * @mixed Vars Variables to output.
+	 */
+	function sh_d() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 		$output = '';
 
 		foreach ( func_get_args() as $var ) {

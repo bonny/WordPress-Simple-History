@@ -17,6 +17,7 @@ use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
  * Used during development to test the event details classes.
  */
 class Event_Details_Dev_Dropin extends Dropin {
+	/** @inheritdoc */
 	public function loaded() {
 		if ( false === Helpers::dev_mode_is_enabled() ) {
 			return;
@@ -25,6 +26,9 @@ class Event_Details_Dev_Dropin extends Dropin {
 		add_action( 'init', array( $this, 'add_settings_tab' ) );
 	}
 
+	/**
+	 * Add settings tab.
+	 */
 	public function add_settings_tab() {
 		$this->simple_history->register_settings_tab(
 			array(
@@ -36,6 +40,11 @@ class Event_Details_Dev_Dropin extends Dropin {
 		);
 	}
 
+	/**
+	 * Get example context.
+	 *
+	 * @return array<string>
+	 */
 	private function get_example_context() {
 		return [
 			// Common keys.
@@ -135,6 +144,11 @@ class Event_Details_Dev_Dropin extends Dropin {
 		];
 	}
 
+	/**
+	 * Get example event details container.
+	 *
+	 * @return Event_Details_Container
+	 */
 	private function get_example_event_details_container() {
 		$item_table_row_raw_formatter = new Event_Details_Item_Table_Row_RAW_Formatter();
 		$item_table_row_raw_formatter->set_html_output( 'This is some <strong>RAW HTML</strong> <a href="#">output</a>. Make sure to escape <em>user input</em> etc.' );
@@ -307,6 +321,9 @@ class Event_Details_Dev_Dropin extends Dropin {
 		return $events_container;
 	}
 
+	/**
+	 * Output tab.
+	 */
 	public function tab_output() {
 		?>
 		<div class="wrap">

@@ -8,6 +8,9 @@ namespace Simple_History\Loggers;
 class Core_Updates_Logger extends Logger {
 	public $slug = 'SimpleCoreUpdatesLogger';
 
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		add_action( '_core_updated_successfully', array( $this, 'on_core_updated' ) );
 		add_action( 'update_feedback', array( $this, 'on_update_feedback' ) );

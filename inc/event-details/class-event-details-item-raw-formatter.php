@@ -12,10 +12,20 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 	/** @var array<mixed> */
 	protected $json_output = [];
 
+	/**
+	 * @inheritdoc
+	 *
+	 * @return string
+	 */
 	public function to_html() {
 		return $this->html_output;
 	}
 
+	/**
+	 * @inheritdoc
+	 *
+	 * @return array<mixed>
+	 */
 	public function to_json() {
 		return $this->json_output;
 	}

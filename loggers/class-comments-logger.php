@@ -11,11 +11,11 @@ use Simple_History\Log_Initiators;
 class Comments_Logger extends Logger {
 	public $slug = 'SimpleCommentsLogger';
 
-		/**
-		 * Get array with information about this logger
-		 *
-		 * @return array
-		 */
+	/**
+	 * Get array with information about this logger
+	 *
+	 * @return array
+	 */
 	public function get_info() {
 
 		$arr_info = array(
@@ -313,6 +313,9 @@ class Comments_Logger extends Logger {
 		return $where;
 	}
 
+	/**
+	 * Called when logger is loaded.
+	 */
 	public function loaded() {
 		// Add option to not show spam comments, because to much things getting logged
 		add_filter( 'simple_history/log_query_inner_where', array( $this, 'maybe_modify_log_query_sql_where' ) );
@@ -388,8 +391,12 @@ class Comments_Logger extends Logger {
 		return $context;
 	}
 
+	/**
+	 * Fires immediately after a comment is updated in the database.
+	 *
+	 * @param int $comment_ID The comment ID.
+	 */
 	public function on_edit_comment( $comment_ID ) {
-
 		$context = $this->get_context_for_comment( $comment_ID );
 
 		if ( ! $context ) {
@@ -402,8 +409,12 @@ class Comments_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * Fires immediately before a comment is deleted from the database.
+	 *
+	 * @param int $comment_ID The comment ID.
+	 */
 	public function on_delete_comment( $comment_ID ) {
-
 		$context = $this->get_context_for_comment( $comment_ID );
 
 		if ( ! $context ) {
@@ -426,6 +437,11 @@ class Comments_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * Fires immediately after a comment is restored from the Trash.
+	 *
+	 * @param int $comment_ID The comment ID.
+	 */
 	public function on_untrashed_comment( $comment_ID ) {
 
 		$context = $this->get_context_for_comment( $comment_ID );
@@ -726,6 +742,9 @@ class Comments_Logger extends Logger {
 		return $output;
 	}
 
+	/**
+	 * Get output for detailed log section.
+	 */
 	public function admin_css() {
 		?>
 		<style>

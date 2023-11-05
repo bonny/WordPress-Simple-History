@@ -7,6 +7,11 @@ namespace Simple_History\Event_Details;
  * but the value is raw.
  */
 class Event_Details_Item_Table_Row_RAW_Formatter extends Event_Details_Item_RAW_Formatter {
+	/**
+	 * @inheritdoc
+	 *
+	 * @return string
+	 */
 	public function to_html() {
 		// Skip output of items with empty raw HTML.
 		if ( empty( $this->html_output ) ) {

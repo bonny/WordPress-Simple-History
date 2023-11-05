@@ -11,6 +11,7 @@ use Simple_History\Log_Levels;
  * Author: Pär Thernström
  */
 class Filter_Dropin extends Dropin {
+	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/history_page/before_gui', array( $this, 'gui_page_filters' ), 10 );
@@ -18,6 +19,7 @@ class Filter_Dropin extends Dropin {
 		add_action( 'wp_ajax_simple_history_filters_search_user', array( $this, 'ajax_simple_history_filters_search_user' ) );
 	}
 
+	/** Enqueue scripts and styles */
 	public function enqueue_admin_scripts() {
 		$file_url = plugin_dir_url( __FILE__ );
 
@@ -25,6 +27,7 @@ class Filter_Dropin extends Dropin {
 		wp_enqueue_style( 'simple_history_FilterDropin', $file_url . 'filter-dropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 
+	/** Add JS template */
 	public function gui_page_filters() {
 		$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();
 
@@ -530,6 +533,12 @@ class Filter_Dropin extends Dropin {
 		wp_send_json_success( $data );
 	}
 
+	/**
+	 * Add gravatar to user array
+	 *
+	 * @param object $val User object.
+	 * @param int    $index Index.
+	 */
 	public function add_gravatar_to_user_array( &$val, $index = null ) {
 		$val->text = sprintf(
 			'%1$s - %2$s',

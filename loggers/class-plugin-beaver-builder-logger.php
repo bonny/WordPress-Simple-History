@@ -6,9 +6,13 @@ namespace Simple_History\Loggers;
  * Logger for Beaver Builder
  */
 class Plugin_Beaver_Builder_Logger extends Logger {
-
 	public $slug = 'Plugin_BeaverBuilder';
 
+	/**
+	 * Get array with information about this logger
+	 *
+	 * @return array
+	 */
 	public function get_info() {
 		$arr_info = array(
 			'name'        => _x( 'Plugin: Beaver Builder Logger', 'Logger: Plugin Beaver Builder', 'simple-history' ),
@@ -46,6 +50,9 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Called when logger is loaded.
+	 */
 	public function loaded() {
 		if ( ! class_exists( 'FLBuilder' ) ) {
 			return;
@@ -78,6 +85,11 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 		);
 	}
 
+	/**
+	 * Called when a template is saved
+	 *
+	 * @param int $post_id ID of post that was saved.
+	 */
 	public function saveTemplate( $post_id ) {
 		$post = get_post( $post_id );
 		$context = array(
@@ -86,6 +98,12 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 		$this->notice_message( 'template_saved', $context );
 	}
 
+	/**
+	 * Called when a draft is saved
+	 *
+	 * @param int $post_id ID of post that was saved.
+	 * @param int $publish If the layout was published or not.
+	 */
 	public function saveDraft( $post_id, $publish ) {
 		$context = array(
 			'layout_name' => $post_id,
@@ -93,6 +111,14 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 		$this->notice_message( 'draft_saved', $context );
 	}
 
+	/**
+	 * Called when a layout is saved
+	 *
+	 * @param int   $post_id ID of post that was saved.
+	 * @param bool  $publish If the layout was published or not.
+	 * @param array $data Data about the layout.
+	 * @param array $settings Settings for the layout.
+	 */
 	public function saveLayout( $post_id, $publish, $data, $settings ) {
 		$post = get_post( $post_id );
 		$context = array(
@@ -103,6 +129,9 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 		}
 	}
 
+	/**
+	 * Called when a layout is saved
+	 */
 	public function saveAdmin() {
 		$this->notice_message( 'admin_saved' );
 	}

@@ -32,6 +32,9 @@ class Post_Logger extends Logger {
 	 */
 	protected $old_post_data = array();
 
+	/**
+	 * @inheritdoc
+	 */
 	public function loaded() {
 		add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
 		add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 10, 3 );
@@ -148,6 +151,12 @@ class Post_Logger extends Logger {
 		add_action( 'xmlrpc_call', array( $this, 'on_xmlrpc_call' ), 10, 1 );
 	}
 
+	/**
+	 * Detect when a post is deleted using a XML-RPC call.
+	 * Fired from action "xmlrpc_call".
+	 *
+	 * @param string $method Method called.
+	 */
 	public function on_xmlrpc_call( $method ) {
 		$arr_methods_to_act_on = array( 'wp.deletePost' );
 
@@ -1245,10 +1254,26 @@ class Post_Logger extends Logger {
 		return $out;
 	}
 
+	/**
+	 * Modify the label for a key.
+	 *
+	 * @param string $key Key.
+	 * @param string $label Label.
+	 * @param array  $context Context.
+	 * @return string
+	 */
 	protected function label_for( $key, $label, $context ) {
 		return apply_filters( 'simple_history/post_logger/label_for_key', $label, $key, $context );
 	}
 
+	/**
+	 * Get extra diff record.
+	 *
+	 * @param string $key Key.
+	 * @param string $old_value Old value.
+	 * @param string $new_value New value.
+	 * @return string
+	 */
 	public function extra_diff_record( $key, $old_value, $new_value ) {
 		return sprintf( '<tr><td>%1$s</td><td>%2$s</td></tr>', $key, helpers::text_diff( $old_value, $new_value ) );
 	}
@@ -1316,6 +1341,12 @@ class Post_Logger extends Logger {
 		return $context;
 	}
 
+	/**
+	 * Add keys to diff.
+	 *
+	 * @param array $arr_keys_to_diff Array with keys to diff.
+	 * @return array
+	 */
 	protected function add_keys_to_diff( $arr_keys_to_diff ) {
 		return apply_filters( 'simple_history/post_logger/keys_to_diff', $arr_keys_to_diff );
 	}

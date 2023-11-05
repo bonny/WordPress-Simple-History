@@ -12,16 +12,23 @@ use DatePeriod;
  * Author: Pär Thernström
  */
 class Sidebar_Stats_Dropin extends Dropin {
+	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts' ) );
 		add_action( 'simple_history/admin_footer', array( $this, 'on_admin_footer' ) );
 	}
 
+	/**
+	 * Enqueue scripts.
+	 */
 	public function on_admin_enqueue_scripts() {
 		wp_enqueue_script( 'simple_history_chart.js', SIMPLE_HISTORY_DIR_URL . 'js/chart.4.3.0.min.js', array( 'jquery' ), '4.3.0', true );
 	}
 
+	/**
+	 * Run JS in footer.
+	 */
 	public function on_admin_footer() {
 		?>
 		<script>
@@ -124,6 +131,9 @@ class Sidebar_Stats_Dropin extends Dropin {
 		<?php
 	}
 
+	/**
+	 * Output HTML for sidebar.
+	 */
 	public function on_sidebar_html() {
 		$num_days = 28;
 

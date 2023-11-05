@@ -58,6 +58,11 @@ class Plugin_ACF_Logger extends Logger {
 		return $arr_info;
 	}
 
+	/**
+	 * Check if ACF is installed.
+	 *
+	 * @return bool
+	 */
 	private function isACFInstalled() {
 		return defined( 'ACF' ) && ACF;
 	}
@@ -920,6 +925,15 @@ class Plugin_ACF_Logger extends Logger {
 		return $context;
 	}
 
+	/**
+	 * Add diff to array.
+	 *
+	 * @param array  $post_data_diff Diff.
+	 * @param string $key Key.
+	 * @param string $old_value Old value.
+	 * @param string $new_value New value.
+	 * @return array
+	 */
 	public function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
 		if ( $old_value != $new_value ) {
 			$post_data_diff[ $key ] = array(
