@@ -125,7 +125,7 @@ class Filter_Dropin extends Dropin {
 							// Not many things the last 14 days either. Let try with 30 days.
 							$daysToShow = 30;
 							$numEvents = $this->simple_history->get_unique_events_for_days( $daysToShow );
-							$numPages = $numEvents / $this->simple_history->get_pager_size();
+							$numPages = $numEvents / Helpers::get_pager_size();
 
 							$arr_days_and_pages[] = array(
 								'daysToShow' => $daysToShow,
