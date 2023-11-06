@@ -51,11 +51,12 @@
 	</rule>
 
 	<rule ref="WordPress">
+		<exclude name="Squiz.Commenting.FileComment.Missing" />
 		<exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
+		<!-- I like short arrays, so allow them. -->
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
 		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
-		<exclude name="Squiz.Commenting.FileComment.Missing" />
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound" />
 		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
 
