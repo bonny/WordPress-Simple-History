@@ -774,4 +774,56 @@ class Helpers {
 
 		return ob_get_clean();
 	}
+
+	/**
+	 * Gets the pager size,
+	 * i.e. the number of items to show on each page in the history
+	 *
+	 * @return int
+	 */
+	public static function get_pager_size() {
+		$pager_size = get_option( 'simple_history_pager_size', 20 );
+
+		/**
+		 * Filter the pager size setting
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $pager_size
+		 */
+		$pager_size = apply_filters( 'simple_history/pager_size', $pager_size );
+
+		return $pager_size;
+	}
+
+	/**
+	 * Gets the pager size for the dashboard widget,
+	 * i.e. the number of items to show on each page in the history
+	 *
+	 * @since 2.12
+	 * @return int
+	 */
+	public static function get_pager_size_dashboard() {
+		$pager_size = get_option( 'simple_history_pager_size_dashboard', 5 );
+
+		/**
+		 * Filter the pager size setting for the dashboard.
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $pager_size
+		 */
+		$pager_size = apply_filters( 'simple_history/dashboard_pager_size', $pager_size );
+
+		/**
+		 * Filter the pager size setting
+		 *
+		 * @since 2.12
+		 *
+		 * @param int $pager_size
+		 */
+		$pager_size = apply_filters( 'simple_history/pager_size_dashboard', $pager_size );
+
+		return $pager_size;
+	}
 }

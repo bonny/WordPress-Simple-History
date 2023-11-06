@@ -89,7 +89,7 @@ class Filter_Dropin extends Dropin {
 
 				// Start with the latest day.
 				$numEvents = $this->simple_history->get_unique_events_for_days( $daysToShow );
-				$numPages = $numEvents / $this->simple_history->get_pager_size();
+				$numPages = $numEvents / Helpers::get_pager_size();
 
 				$arr_days_and_pages[] = array(
 					'daysToShow' => $daysToShow,
@@ -103,7 +103,7 @@ class Filter_Dropin extends Dropin {
 					// Not that many things the last day. Let's try to expand to 7 days instead.
 					$daysToShow = 7;
 					$numEvents = $this->simple_history->get_unique_events_for_days( $daysToShow );
-					$numPages = $numEvents / $this->simple_history->get_pager_size();
+					$numPages = $numEvents / Helpers::get_pager_size();
 
 					$arr_days_and_pages[] = array(
 						'daysToShow' => $daysToShow,
@@ -114,7 +114,7 @@ class Filter_Dropin extends Dropin {
 						// Not that many things the last 7 days. Let's try to expand to 14 days instead.
 						$daysToShow = 14;
 						$numEvents = $this->simple_history->get_unique_events_for_days( $daysToShow );
-						$numPages = $numEvents / $this->simple_history->get_pager_size();
+						$numPages = $numEvents / Helpers::get_pager_size();
 
 						$arr_days_and_pages[] = array(
 							'daysToShow' => $daysToShow,

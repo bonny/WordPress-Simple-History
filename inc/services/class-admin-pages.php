@@ -46,7 +46,7 @@ class Admin_Pages extends Service {
 	 * Output for page with the history.
 	 */
 	public function history_page_output() {
-		$pager_size = $this->simple_history->get_pager_size();
+		$pager_size = Helpers::get_pager_size();
 
 		/**
 		 * Filter the pager size setting for the history page

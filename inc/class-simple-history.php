@@ -531,24 +531,15 @@ class Simple_History {
 	}
 
 	/**
-	 * Gets the pager size,
+	 * Gets the pager size for the history page,
 	 * i.e. the number of items to show on each page in the history
 	 *
+	 * @deprecated 4.8 Use Helpers::get_pager_size().
 	 * @return int
 	 */
 	public function get_pager_size() {
-		$pager_size = get_option( 'simple_history_pager_size', 20 );
-
-		/**
-		 * Filter the pager size setting
-		 *
-		 * @since 2.0
-		 *
-		 * @param int $pager_size
-		 */
-		$pager_size = apply_filters( 'simple_history/pager_size', $pager_size );
-
-		return $pager_size;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_pager_size()' );
+		return Helpers::get_pager_size();
 	}
 
 	/**
@@ -556,30 +547,12 @@ class Simple_History {
 	 * i.e. the number of items to show on each page in the history
 	 *
 	 * @since 2.12
+	 * @deprecated 4.8 Use Helpers::get_pager_size_dashboard().
 	 * @return int
 	 */
 	public function get_pager_size_dashboard() {
-		$pager_size = get_option( 'simple_history_pager_size_dashboard', 5 );
-
-		/**
-		 * Filter the pager size setting for the dashboard.
-		 *
-		 * @since 2.0
-		 *
-		 * @param int $pager_size
-		 */
-		$pager_size = apply_filters( 'simple_history/dashboard_pager_size', $pager_size );
-
-		/**
-		 * Filter the pager size setting
-		 *
-		 * @since 2.12
-		 *
-		 * @param int $pager_size
-		 */
-		$pager_size = apply_filters( 'simple_history/pager_size_dashboard', $pager_size );
-
-		return $pager_size;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_pager_size_dashboard()' );
+		return Helpers::get_pager_size_dashboard();
 	}
 
 	/**

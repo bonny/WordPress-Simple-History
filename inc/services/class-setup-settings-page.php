@@ -233,7 +233,7 @@ class Setup_Settings_Page extends Service {
 	 * Settings field for how many rows/items to show in log on the log page
 	 */
 	private function settings_field_number_of_items_on_log_page() {
-		$current_pager_size = $this->simple_history->get_pager_size();
+		$current_pager_size = Helpers::get_pager_size();
 		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
 
 		echo '<p>' . esc_html__( 'Number of items per page on the log page', 'simple-history' ) . '</p>';
@@ -279,7 +279,7 @@ class Setup_Settings_Page extends Service {
 	 * Settings field for how many rows/items to show in log on the dashboard
 	 */
 	private function settings_field_number_of_items_dashboard() {
-		$current_pager_size = $this->simple_history->get_pager_size_dashboard();
+		$current_pager_size = Helpers::get_pager_size_dashboard();
 		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
 
 		echo '<p>' . esc_html__( 'Number of items per page on the dashboard', 'simple-history' ) . '</p>';
