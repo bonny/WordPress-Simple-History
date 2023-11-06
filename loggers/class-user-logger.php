@@ -149,9 +149,9 @@ class User_Logger extends Logger {
 						),
 
 					),
-				), // end search
+				),
 
-			), // end labels
+			),
 		);
 
 		return $arr_info;
@@ -161,28 +161,28 @@ class User_Logger extends Logger {
 	 * Add actions and filters when logger is loaded by Simple History
 	 */
 	public function loaded() {
-		// Plain logins and logouts
+		// Plain logins and logouts.
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ), 10, 1 );
 
-		// Failed login attempt to username that exists
+		// Failed login attempt to username that exists.
 		add_action( 'wp_authenticate_user', array( $this, 'onWpAuthenticateUser' ), 10, 2 );
 
 		// Failed to login to user that did not exist (perhaps brute force)
 		// run this later than 10 because wordpress own email login check is done with priority 20
-		// so if we run at 10 we just get null
+		// so if we run at 10 we just get null.
 		add_filter( 'authenticate', array( $this, 'onAuthenticate' ), 30, 3 );
 
-		// User is created
+		// User is created.
 		add_action( 'user_register', array( $this, 'on_user_register' ), 10, 2 );
 
-		// User is deleted
+		// User is deleted.
 		add_action( 'delete_user', array( $this, 'onDeleteUser' ), 10, 2 );
 
 		// User sessions is destroyed. AJAX call that we hook onto early.
 		add_action( 'wp_ajax_destroy-sessions', array( $this, 'onDestroyUserSession' ), 0 );
 
-		// User reaches reset password (from link or only from user created link)
+		// User reaches reset password (from link or only from user created link).
 		add_action( 'validate_password_reset', array( $this, 'onValidatePasswordReset' ), 10, 2 );
 		add_action( 'retrieve_password_message', array( $this, 'onRetrievePasswordMessage' ), 10, 4 );
 
@@ -191,18 +191,7 @@ class User_Logger extends Logger {
 
 		add_action( 'set_user_role', array( $this, 'on_set_user_role' ), 10, 3 );
 
-		// Administration email verification-screen
-
-		// Run this to force-show the admin email confirm screen.
-		// add_filter(
-		// 'option_admin_email_lifespan',
-		// function( $value, $option ) {
-		// return 1;
-		// },
-		// 10,
-		// 2
-		// );
-
+		// Administration email verification-screen.
 		add_action( 'login_form_confirm_admin_email', array( $this, 'on_action_login_form_confirm_admin_email' ) );
 
 		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
@@ -422,7 +411,7 @@ class User_Logger extends Logger {
 			$context['edited_user_password_changed'] = '1';
 		}
 
-		// Add diff to context
+		// Add diff to context.
 		foreach ( $user_data_diff as $one_diff_key => $one_diff_vals ) {
 				$context[ "user_prev_{$one_diff_key}" ] = $one_diff_vals['old'];
 				$context[ "user_new_{$one_diff_key}" ] = $one_diff_vals['new'];
@@ -585,16 +574,16 @@ class User_Logger extends Logger {
 			$wp_user = get_user_by( 'id', $context['edited_user_id'] );
 
 			// If edited_user_id and _user_id is the same then a user edited their own profile
-			// Note: it's not the same thing as the currently logged in user (but.. it can be!)
+			// Note: it's not the same thing as the currently logged in user (but.. it can be!).
 			if ( ! empty( $context['_user_id'] ) && $context['edited_user_id'] === $context['_user_id'] ) {
 				if ( $wp_user ) {
 					$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
 
 					$use_you = apply_filters( 'simple_history/user_logger/plain_text_output_use_you', true );
 
-					// User still exist, so link to their profile
+					// User still exist, so link to their profile.
 					if ( $current_user_id === (int) $context['_user_id'] && $use_you ) {
-						// User that is viewing the log is the same as the edited user
+						// User that is viewing the log is the same as the edited user.
 						$msg = __( 'Edited <a href="{edit_profile_link}">your profile</a>', 'simple-history' );
 					} else {
 						$msg = __( 'Edited <a href="{edit_profile_link}">their profile</a>', 'simple-history' );
@@ -602,12 +591,12 @@ class User_Logger extends Logger {
 
 					$output = helpers::interpolate( $msg, $context, $row );
 				} else {
-					// User does not exist any longer
+					// User does not exist any longer.
 					$output = __( 'Edited your profile', 'simple-history' );
 				}
 			} elseif ( $wp_user ) {
 				// User edited another users profile
-				// Edited user still exist, so link to their profile
+				// Edited user still exist, so link to their profile.
 				$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
 				$msg = __( 'Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', 'simple-history' );
 				$output = helpers::interpolate( $msg, $context, $row );
@@ -617,11 +606,11 @@ class User_Logger extends Logger {
 			$wp_user = get_user_by( 'id', $context['created_user_id'] );
 
 			// If edited_user_id and _user_id is the same then a user edited their own profile
-			// Note: it's not the same thing as the currently logged in user (but.. it can be!)
+			// Note: it's not the same thing as the currently logged in user (but.. it can be!).
 			if ( $wp_user ) {
 				$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
 
-				// User that is viewing the log is the same as the edited user
+				// User that is viewing the log is the same as the edited user.
 				$msg = __(
 					'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}',
 					'simple-history'
@@ -665,7 +654,7 @@ class User_Logger extends Logger {
 			);
 
 			// Override some data that is usually set automagically by Simple History
-			// Because wp_get_current_user() does not return any data yet at this point
+			// Because wp_get_current_user() does not return any data yet at this point.
 			$context['_initiator'] = Log_Initiators::WP_USER;
 			$context['_user_id'] = $user_obj->ID;
 			$context['_user_login'] = $user_obj->user_login;
@@ -674,7 +663,7 @@ class User_Logger extends Logger {
 
 			$this->info_message( 'user_logged_in', $context );
 		} else {
-			// Could not get any info about the user logging in
+			// Could not get any info about the user logging in.
 			$this->warning_message( 'user_unknown_logged_in', $context );
 		}
 	}
@@ -731,7 +720,7 @@ class User_Logger extends Logger {
 		$context = array(
 			'created_user_id' => $wp_user_added->ID,
 			'created_user_email' => $wp_user_added->user_email,
-			'created_user_login' => $wp_user_added->user_login, // username
+			'created_user_login' => $wp_user_added->user_login,
 			'created_user_role' => $role,
 			'created_user_first_name' => $wp_user_added->first_name,
 			'created_user_last_name' => $wp_user_added->last_name,
@@ -751,15 +740,13 @@ class User_Logger extends Logger {
 	 * @param string             $password  The user's password.
 	 */
 	public function onWpAuthenticateUser( $userOrError, $password ) {
-
-		// Only continue if $userOrError is a WP_user object
 		if ( ! is_a( $userOrError, 'WP_User' ) ) {
 			return $userOrError;
 		}
 
-		// Only log failed attempts
+		// Only log failed attempts.
 		if ( ! wp_check_password( $password, $userOrError->user_pass, $userOrError->ID ) ) {
-			// Overwrite some vars that Simple History set automagically
+			// Overwrite some vars that Simple History set automagically.
 			$context = array(
 				'_initiator' => Log_Initiators::WEB_USER,
 				'login_id' => $userOrError->ID,
@@ -810,7 +797,7 @@ class User_Logger extends Logger {
 			return $user;
 		}
 
-		// If auth ok then $user is a wp_user object
+		// If auth ok then $user is a wp_user object.
 		if ( is_a( $user, 'WP_User' ) ) {
 			return $user;
 		}
@@ -818,18 +805,14 @@ class User_Logger extends Logger {
 		// If user is a WP_Error object then auth failed
 		// Error codes can be:
 		// "incorrect_password" | "empty_password" | "invalid_email" | "invalid_username"
-		// We only act on invalid emails and invalid usernames
+		// We only act on invalid emails and invalid usernames.
 		if ( is_a( $user, 'WP_Error' ) && ( $user->get_error_code() == 'invalid_username' || $user->get_error_code() == 'invalid_email' ) ) {
 			$context = array(
 				'_initiator' => Log_Initiators::WEB_USER,
 				'failed_username' => $username,
 				'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
-				// count all failed logins to unknown users as the same occasions,
-				// to prevent log being flooded with login/hack attempts
-				// "_occasionsID" => __CLASS__  . '/' . __FUNCTION__
-				// Use same occasionsID as for failed login attempts to existing users,
-				// because log can flood otherwise if hacker is rotating existing and non-existing usernames
-				// "_occasionsID" => __CLASS__  . '/' . __FUNCTION__ . "/failed_user_login/userid:{$user->ID}"
+				// Count all failed logins to unknown users as the same occasions,
+				// to prevent log being flooded with login/hack attempts.
 				'_occasionsID' => self::class . '/failed_user_login',
 			);
 
@@ -1024,7 +1007,7 @@ class User_Logger extends Logger {
 
 			$out .= $diff_table_output;
 		} elseif ( 'user_created' == $message_key ) {
-			// Show fields for created users
+			// Show fields for created users.
 			$arr_user_keys_to_show_diff_for = array(
 				'created_user_first_name' => array(
 					'title' => _x( 'First name', 'User logger', 'simple-history' ),

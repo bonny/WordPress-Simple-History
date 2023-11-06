@@ -80,7 +80,7 @@ class New_Rows_Notifier_Dropin extends Dropin {
 			);
 		}
 
-		// User must have capability to view the history page
+		// User must have capability to view the history page.
 		if ( ! current_user_can( $this->simple_history->get_view_history_capability() ) ) {
 			wp_send_json_error(
 				array(
@@ -95,7 +95,7 @@ class New_Rows_Notifier_Dropin extends Dropin {
 		$logQuery = new Log_Query();
 		$answer = $logQuery->query( $logQueryArgs );
 
-		// Use our own response array instead of $answer to keep size down
+		// Use our own response array instead of $answer to keep size down.
 		$json_data = array();
 
 		$numNewRows = $answer['total_row_count'] ?? 0;
@@ -105,9 +105,9 @@ class New_Rows_Notifier_Dropin extends Dropin {
 
 		if ( $numNewRows ) {
 			// We have new rows
-			// Append strings
+			// Append strings.
 			$textRowsFound = sprintf(
-				// translators: %s is the number of new events
+				// translators: %s is the number of new events.
 				_n( '%s new event', '%s new events', $numNewRows, 'simple-history' ),
 				$numNewRows
 			);

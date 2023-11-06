@@ -37,7 +37,7 @@ class Plugin_Enable_Media_Replace_Logger extends Logger {
 	 */
 	public function loaded() {
 
-		// Action that is called when Enable Media Replace loads it's admin options page (both when viewing and when posting new file to it)
+		// Action that is called when Enable Media Replace loads it's admin options page (both when viewing and when posting new file to it).
 		add_action( 'load-media_page_enable-media-replace/enable-media-replace', array( $this, 'on_load_plugin_admin_page' ), 10, 1 );
 	}
 

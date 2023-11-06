@@ -58,7 +58,6 @@
 		<exclude name="Squiz.Commenting.FileComment.Missing" />
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound" />
 		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
-		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
 
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />

@@ -17,7 +17,8 @@ class Core_Updates_Logger extends Logger {
 		add_action( 'update_feedback', array( $this, 'on_update_feedback' ) );
 
 		// TODO: check if this works after refactoring and autoloading and stuff
-		// Can't log db updates at the moment, because loaded() is not called yet when the action fires
+		// Can't log db updates at the moment, because loaded() is not called yet when the action fires.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 		// add_action( 'wp_upgrade', array( $this, "on_wp_upgrade" ), 10, 2 );
 	}
 
@@ -75,8 +76,8 @@ class Core_Updates_Logger extends Logger {
 							'core_auto_updated',
 						),
 					),
-				), // end search array
-			), // end labels
+				),
+			),
 		);
 
 		return $arr_info;

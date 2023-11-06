@@ -36,8 +36,8 @@ class File_Edits_Logger extends Logger {
 							'plugin_file_edited',
 						),
 					),
-				), // search array
-			), // labels
+				),
+			),
 		);
 
 		return $arr_info;
@@ -71,12 +71,12 @@ class File_Edits_Logger extends Logger {
 
 			// if 'phperror' is set then there was an error and an edit is done and wp tries to activate the plugin again
 			// $phperror = isset($_POST["phperror"]) ? $_POST["phperror"] : null;
-			// Get info about the edited plugin
+			// Get info about the edited plugin.
 			$pluginInfo = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
 			$pluginName = $pluginInfo['Name'] ?? null;
 			$pluginVersion = $pluginInfo['Version'] ?? null;
 
-			// Get contents before save
+			// Get contents before save.
 			$fileContentsBeforeEdit = file_get_contents( WP_PLUGIN_DIR . '/' . $file );
 
 			$context = array(
@@ -99,16 +99,16 @@ class File_Edits_Logger extends Logger {
 					}
 
 					parse_str( $locationParsed['query'], $queryStringParsed );
-					// ddd($_POST, $context, $queryStringParsed, $location);
+
 					if ( empty( $queryStringParsed ) ) {
 						return $location;
 					}
 
-					// If query string "a=te" exists or "liveupdate=1" then plugin file was updated
+					// If query string "a=te" exists or "liveupdate=1" then plugin file was updated.
 					$teIsSet = isset( $queryStringParsed['a'] ) && $queryStringParsed['a'] === 'te';
 					$liveUpdateIsSet = isset( $queryStringParsed['liveupdate'] ) && $queryStringParsed['liveupdate'] === '1';
 					if ( $teIsSet || $liveUpdateIsSet ) {
-						// File was updated
+						// File was updated.
 						$loggerInstance->info_message( 'plugin_file_edited', $context );
 					}
 
@@ -126,7 +126,7 @@ class File_Edits_Logger extends Logger {
 					// locations when error edit is fixed and saved and plugin is activated again
 					// plugin-editor.php?file=akismet%2Fakismet.php&plugin=akismet%2Fakismet.php&liveupdate=1&scrollto=0&networkwide&_wpnonce=b3f399fe94
 					// plugin-editor.php?file=akismet%2Fakismet.php&phperror=1&_error_nonce=63511c266d
-					// http://wp-playground.dev/wp/wp-admin/plugin-editor.php?file=akismet/akismet.php&plugin=akismet/akismet.php&a=te&scrollto=0
+					// http://wp-playground.dev/wp/wp-admin/plugin-editor.php?file=akismet/akismet.php&plugin=akismet/akismet.php&a=te&scrollto=0.
 				},
 				10,
 				2
@@ -144,7 +144,7 @@ class File_Edits_Logger extends Logger {
 	 * so we hook onto that to save the edit.
 	 */
 	public function on_load_theme_editor() {
-		// Only continue if method is post and action is update
+		// Only continue if method is post and action is update.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
 			/*
@@ -167,7 +167,7 @@ class File_Edits_Logger extends Logger {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
 
-			// Same code as in theme-editor.php
+			// Same code as in theme-editor.php.
 			if ( $theme ) {
 				$stylesheet = $theme;
 			} else {
@@ -180,11 +180,11 @@ class File_Edits_Logger extends Logger {
 				return;
 			}
 
-			// Same code as in theme-editor.php
+			// Same code as in theme-editor.php.
 			$relative_file = $file;
 			$file = $theme->get_stylesheet_directory() . '/' . $relative_file;
 
-			// Get file contents, so we have something to compare with later
+			// Get file contents, so we have something to compare with later.
 			$fileContentsBeforeEdit = file_get_contents( $file );
 
 			$context = array(
@@ -199,7 +199,7 @@ class File_Edits_Logger extends Logger {
 			);
 
 			// Hook into wp_redirect
-			// This hook is only added when we know a POST is done from theme-editor.php
+			// This hook is only added when we know a POST is done from theme-editor.php.
 			$loggerInstance = $this;
 			add_filter(
 				'wp_redirect',
@@ -217,7 +217,7 @@ class File_Edits_Logger extends Logger {
 					}
 
 					if ( isset( $queryStringParsed['updated'] ) && $queryStringParsed['updated'] ) {
-						// File was updated
+						// File was updated.
 						$loggerInstance->info_message( 'theme_file_edited', $context );
 					}
 
@@ -225,8 +225,8 @@ class File_Edits_Logger extends Logger {
 				},
 				10,
 				2
-			); // add_filter
-		} // End if().
+			);
+		}
 	}
 
 	/**

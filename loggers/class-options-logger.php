@@ -31,8 +31,8 @@ class Options_Logger extends Logger {
 							'option_updated',
 						),
 					),
-				), // end search array
-			), // end labels
+				),
+			),
 		);
 
 		return $arr_info;
@@ -63,13 +63,13 @@ class Options_Logger extends Logger {
 			1 => 'options-permalink.php',
 		);
 
-		// We only want to log options being added via pages in $arr_option_pages
+		// We only want to log options being added via pages in $arr_option_pages.
 		if ( ! in_array( basename( $_SERVER['REQUEST_URI'] ), $arr_option_pages ) || basename( dirname( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) ) !== 'wp-admin' ) {
 			return;
 		}
 
 		// Also only if "option_page" is set to one of these "built in" ones
-		// We don't wanna start logging things from other plugins, like EDD
+		// We don't wanna start logging things from other plugins, like EDD.
 		$option_page = sanitize_text_field( wp_unslash( $_REQUEST['option_page'] ?? '' ) ); // general | discussion | ...
 
 		$arr_valid_option_pages = array(
@@ -82,7 +82,7 @@ class Options_Logger extends Logger {
 
 		$is_valid_options_page = $option_page && in_array( $option_page, $arr_valid_option_pages );
 
-		// Permalink settings page does not post any "option_page", so use http referer instead
+		// Permalink settings page does not post any "option_page", so use http referer instead.
 		if ( strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'options-permalink.php' ) !== false ) {
 			$is_valid_options_page = true;
 		}
@@ -92,7 +92,7 @@ class Options_Logger extends Logger {
 		}
 
 		// Check if option name is ok
-		// For example if you change front page displays setting the "rewrite_rules" options gets updated too
+		// For example if you change front page displays setting the "rewrite_rules" options gets updated too.
 		$arr_invalid_option_names = array(
 			'rewrite_rules',
 		);
@@ -113,7 +113,7 @@ class Options_Logger extends Logger {
 
 		// Store a bit more about some options
 		// Like "page_on_front" we also store post title
-		// Check for a method for current option in this class and calls it automagically
+		// Check for a method for current option in this class and calls it automagically.
 		$methodname = "add_context_for_option_{$option}";
 		if ( method_exists( $this, $methodname ) ) {
 			$context = $this->$methodname( $context, $old_value, $new_value, $option, $option_page );
@@ -149,7 +149,7 @@ class Options_Logger extends Logger {
 			// $message = 'Old value was {old_value} and new value is {new_value}';
 			$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
-			// Output old and new values
+			// Output old and new values.
 			if ( $context['new_value'] || $context['old_value'] ) {
 				$option_custom_output = '';
 				$methodname = "get_details_output_for_option_{$option}";
@@ -159,7 +159,7 @@ class Options_Logger extends Logger {
 				}
 
 				if ( empty( $option_custom_output ) ) {
-					// all other options or fallback if custom output did not find all it's stuff
+					// all other options or fallback if custom output did not find all it's stuff.
 					$more = __( '&hellip;', 'simple-history' );
 					$trim_length = 250;
 
@@ -190,7 +190,7 @@ class Options_Logger extends Logger {
 				}
 			} // End if().
 
-			// If key option_page this was saved from regular settings pages
+			// If key option_page this was saved from regular settings pages.
 			if ( ! empty( $option_page ) ) {
 				$output .= sprintf(
 					'
@@ -205,7 +205,7 @@ class Options_Logger extends Logger {
 				);
 			}
 
-			// If option = permalink_structure then we did it from permalink page
+			// If option = permalink_structure then we did it from permalink page.
 			if ( ! empty( $option ) && ( 'permalink_structure' == $option || 'tag_base' == $option || 'category_base' == $option ) ) {
 				$output .= sprintf(
 					'
@@ -271,7 +271,7 @@ class Options_Logger extends Logger {
 	 */
 	public function add_context_for_option_page_for_posts( $context, $old_value, $new_value, $option, $option_page ) {
 
-		// Get same info as for page_on_front
+		// Get same info as for page_on_front.
 		$context = call_user_func_array( array( $this, 'add_context_for_option_page_on_front' ), func_get_args() );
 
 		return $context;

@@ -1,4 +1,5 @@
 <?php
+//phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar
 
 namespace Simple_History\Loggers;
 
@@ -87,14 +88,14 @@ class Plugin_ACF_Logger extends Logger {
 		// Store old and new field data when a post is saved.
 		add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 5, 3 );
 
-		// Append ACF data to post context
+		// Append ACF data to post context.
 		add_filter( 'simple_history/post_logger/post_updated/context', array( $this, 'on_post_updated_context' ), 10, 2 );
 
 		// Add ACF diff data to activity feed detailed output.
 		add_filter( 'simple_history/post_logger/post_updated/diff_table_output', array( $this, 'on_diff_table_output_field_group' ), 10, 2 );
 
 		// Store prev ACF field values before new values are added.
-		// Called from filter admin_action_editpost that is fired at top of admin.php
+		// Called from filter admin_action_editpost that is fired at top of admin.php.
 		add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
 
 		// Fired when ACF saves a post. Adds ACF context to logged row.
@@ -371,7 +372,7 @@ class Plugin_ACF_Logger extends Logger {
 					}
 
 					// We have at least one parent, get them all, including the field group
-					// $context[ "{$context_key}/field_parent_object" ] = $parent_field;
+					// $context[ "{$context_key}/field_parent_object" ] = $parent_field;.
 					$field_parents     = array();
 					$field_field_group = null;
 
@@ -451,7 +452,7 @@ class Plugin_ACF_Logger extends Logger {
 					// repeatable or flexible fields or similar.
 					// error_log( "Final parents" . print_r( $field_parents, 1 ) );
 					// error_log( "Final field group" . print_r( $field_field_group['title'], 1 ) );
-					// error_log( "context" . print_r( $context, 1 ) );
+					// error_log( "context" . print_r( $context, 1 ) );.
 				} // End if().
 			} // End if().
 
@@ -460,7 +461,7 @@ class Plugin_ACF_Logger extends Logger {
 
 		// error_log( "---------------------------" );
 		// error_log( "field_path_string: $field_path_string");
-		// error_log( "context" . print_r( $context, 1 ) );
+		// error_log( "context" . print_r( $context, 1 ) );.
 		return $context;
 	}
 
@@ -557,7 +558,7 @@ class Plugin_ACF_Logger extends Logger {
 			return $diff_table_output;
 		}
 
-		// Field group fields to check for and output if found
+		// Field group fields to check for and output if found.
 		$arrKeys = array(
 			'instruction_placement' => array(
 				'name' => _x( 'Instruction placement', 'Logger: Plugin ACF', 'simple-history' ),
@@ -666,7 +667,7 @@ class Plugin_ACF_Logger extends Logger {
 			);
 		} // if deleted fields
 
-		// Check for added fields
+		// Check for added fields.
 		if ( isset( $context['acf_added_fields_0_key'] ) ) {
 			// 1 or more deleted fields exist in context
 			$loopnum        = 0;
@@ -695,7 +696,7 @@ class Plugin_ACF_Logger extends Logger {
 			);
 		} // if deleted fields
 
-		// Check for modified fields
+		// Check for modified fields.
 		if ( isset( $context['acf_modified_fields_0_ID_prev'] ) ) {
 			// 1 or more modifiedfields exist in context
 			$loopnum                   = 0;
@@ -719,7 +720,7 @@ class Plugin_ACF_Logger extends Logger {
 			);
 
 			while ( isset( $context[ "acf_modified_fields_{$loopnum}_name_prev" ] ) ) {
-				// One modified field, with one or more changed things
+				// One modified field, with one or more changed things.
 				$strOneModifiedField = '';
 
 				// Add the label name manually, if it is not among the changed field,
@@ -732,7 +733,7 @@ class Plugin_ACF_Logger extends Logger {
 					);
 				}
 
-				// Check for other keys changed for this field
+				// Check for other keys changed for this field.
 				foreach ( $arrAddedFieldsKeysToCheck as $one_added_field_key_to_check => $one_added_field_key_to_check_vals ) {
 					$newAndOldValsExists = isset( $context[ "acf_modified_fields_{$loopnum}_{$one_added_field_key_to_check}_new" ] ) && isset( $context[ "acf_modified_fields_{$loopnum}_{$one_added_field_key_to_check}_new" ] );
 					if ( $newAndOldValsExists ) {
@@ -783,7 +784,7 @@ class Plugin_ACF_Logger extends Logger {
 	 */
 	public function on_post_updated_context( $context, $post ) {
 
-		// Only act if this is a ACF field group that is saved
+		// Only act if this is a ACF field group that is saved.
 		if ( $post->post_type !== 'acf-field-group' ) {
 			return $context;
 		}
@@ -828,7 +829,7 @@ class Plugin_ACF_Logger extends Logger {
 			$context[ "acf_new_{$diff_key}" ]  = $diff_values['new'];
 		}
 
-		// Add checked or uncheckd hide on screen-items to context
+		// Add checked or uncheckd hide on screen-items to context.
 		$arrhHideOnScreenAdded  = array();
 		$arrHideOnScreenRemoved = array();
 
@@ -875,8 +876,7 @@ class Plugin_ACF_Logger extends Logger {
 			}
 		}
 
-		// Add modified fields to context
-		// dd('on_post_updated_context', $context, $this->old_and_new_field_groups_and_fields);
+		// Add modified fields to context.
 		/** @phpstan-ignore-next-line */
 		if ( ! empty( $this->old_and_new_field_groups_and_fields['modifiedFields']['old'] ) && ! empty( $this->old_and_new_field_groups_and_fields['modifiedFields']['new'] ) ) {
 			$modifiedFields = $this->old_and_new_field_groups_and_fields['modifiedFields'];
@@ -892,12 +892,12 @@ class Plugin_ACF_Logger extends Logger {
 			$loopnum = 0;
 
 			foreach ( $modifiedFields['old'] as $modifiedFieldId => $modifiedFieldValues ) {
-				// Both old and new values mest exist
+				// Both old and new values mest exist.
 				if ( empty( $modifiedFields['new'][ $modifiedFieldId ] ) ) {
 					continue;
 				}
 
-				// Always add ID, name, and label
+				// Always add ID, name, and label.
 				$context[ "acf_modified_fields_{$loopnum}_ID_prev" ]    = $modifiedFields['old'][ $modifiedFieldId ]['ID'];
 				$context[ "acf_modified_fields_{$loopnum}_name_prev" ]  = $modifiedFields['old'][ $modifiedFieldId ]['name'];
 				$context[ "acf_modified_fields_{$loopnum}_label_prev" ] = $modifiedFields['old'][ $modifiedFieldId ]['label'];
@@ -996,12 +996,12 @@ class Plugin_ACF_Logger extends Logger {
 
 		$post_id = $post->ID;
 
-		// do not act if this is an auto save routine
+		// do not act if this is an auto save routine.
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
 
-		// bail early if not acf-field-group
+		// bail early if not acf-field-group.
 		if ( $post->post_type !== 'acf-field-group' ) {
 			return;
 		}
@@ -1011,7 +1011,7 @@ class Plugin_ACF_Logger extends Logger {
 			return;
 		}
 
-		// Store info about fields that are going to be deleted
+		// Store info about fields that are going to be deleted.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['_acf_delete_fields'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -1033,18 +1033,18 @@ class Plugin_ACF_Logger extends Logger {
 			}
 		}
 
-		// Store info about added or modified fields
+		// Store info about added or modified fields.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['acf_fields'] ) && is_array( $_POST['acf_fields'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			foreach ( wp_unslash( $_POST['acf_fields'] ) as $oneFieldAddedOrUpdated ) {
 				if ( empty( $oneFieldAddedOrUpdated['ID'] ) ) {
 					// New fields have no id
-					// 'ID' => string(0) ""
+					// 'ID' => string(0) "".
 					$this->old_and_new_field_groups_and_fields['addedFields'][] = $oneFieldAddedOrUpdated;
 				} else {
 					// Existing fields have an id
-					// 'ID' => string(3) "383"
+					// 'ID' => string(3) "383".
 					$this->old_and_new_field_groups_and_fields['modifiedFields']['old'][ $oneFieldAddedOrUpdated['ID'] ] = acf_get_field( $oneFieldAddedOrUpdated['ID'] );
 
 					$this->old_and_new_field_groups_and_fields['modifiedFields']['new'][ $oneFieldAddedOrUpdated['ID'] ] = $oneFieldAddedOrUpdated;
@@ -1055,7 +1055,7 @@ class Plugin_ACF_Logger extends Logger {
 		// We don't do anything else here, but we make the actual logging
 		// in filter 'acf/update_field_group' because it's safer because
 		// ACF has done it's validation and it's after ACF has saved the fields,
-		// so less likely that we make some critical error
+		// so less likely that we make some critical error.
 	}
 
 	/**

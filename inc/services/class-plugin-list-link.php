@@ -27,7 +27,7 @@ class Plugin_List_Link extends Service {
 			return $actions;
 		}
 
-		// Only add link if user has the right to view the settings page
+		// Only add link if user has the right to view the settings page.
 		if ( ! current_user_can( $this->simple_history->get_view_settings_capability() ) ) {
 			return $actions;
 		}
@@ -35,10 +35,10 @@ class Plugin_List_Link extends Service {
 		$settings_page_url = menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false );
 
 		if ( empty( $actions ) ) {
-			// Create array if actions is empty (and therefore is assumed to be a string by PHP & results in PHP 7.1+ fatal error due to trying to make array modifications on what's assumed to be a string)
+			// Create array if actions is empty (and therefore is assumed to be a string by PHP & results in PHP 7.1+ fatal error due to trying to make array modifications on what's assumed to be a string).
 			$actions = [];
 		} elseif ( is_string( $actions ) ) {
-			// Convert the string (which it might've been retrieved as) to an array for future use as an array
+			// Convert the string (which it might've been retrieved as) to an array for future use as an array.
 			$actions = [ $actions ];
 		}
 

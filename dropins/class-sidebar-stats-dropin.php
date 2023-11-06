@@ -139,7 +139,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		$num_events_per_day_for_period = $this->simple_history->get_num_events_per_day_last_n_days( $num_days );
 
-		// Period = all dates, so empty ones don't get lost
+		// Period = all dates, so empty ones don't get lost.
 		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$num_days days" ) );
 		$period_end_date = DateTime::createFromFormat( 'U', time() );
 		$interval = DateInterval::createFromDateString( '1 day' );
@@ -188,7 +188,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 					$str_date_ymd = gmdate( 'Y-m-d', $dt->getTimestamp() );
 
 					// Get data for this day, if exist
-					// Day in object is in format '2014-09-07'
+					// Day in object is in format '2014-09-07'.
 					$yearDate = $dt->format( 'Y-m-d' );
 					$day_data = wp_filter_object_list(
 						$num_events_per_day_for_period,

@@ -912,7 +912,7 @@ class Simple_History {
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
-		// Fallback to SimpleLogger if no logger exists for row
+		// Fallback to SimpleLogger if no logger exists for row.
 		if ( ! isset( $this->instantiated_loggers[ $row_logger ] ) ) {
 			$row_logger = 'SimpleLogger';
 		}
@@ -932,7 +932,7 @@ class Simple_History {
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
-		// Fallback to SimpleLogger if no logger exists for row
+		// Fallback to SimpleLogger if no logger exists for row.
 		if ( ! isset( $this->instantiated_loggers[ $row_logger ] ) ) {
 			$row_logger = 'SimpleLogger';
 		}
@@ -952,7 +952,7 @@ class Simple_History {
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
-		// Fallback to SimpleLogger if no logger exists for row
+		// Fallback to SimpleLogger if no logger exists for row.
 		$logger = $this->get_instantiated_logger_by_slug( $row_logger );
 		if ( $logger === false ) {
 			$logger = $this->get_instantiated_logger_by_slug( 'Simple_Logger' );
@@ -993,7 +993,7 @@ class Simple_History {
 	 */
 	public function get_log_row_html_output( $one_log_row, $args ) {
 		$defaults = array(
-			'type' => 'overview', // or "single" to include more stuff (used in for example modal details window)
+			'type' => 'overview', // or "single" to include more stuff (used in for example modal details window).
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -1008,7 +1008,7 @@ class Simple_History {
 			$details_html = sprintf( '<div class="SimpleHistoryLogitem__details">%1$s</div>', $details_html );
 		}
 
-		// subsequentOccasions = including the current one
+		// subsequentOccasions = including the current one.
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$occasions_count = $one_log_row->subsequentOccasions - 1;
 		$occasions_html = '';
@@ -1141,7 +1141,7 @@ class Simple_History {
 				$one_log_row
 			);
 
-			// Hide some keys by default
+			// Hide some keys by default.
 			unset(
 				$logRowKeysToShow['occasionsID'],
 				$logRowKeysToShow['subsequentOccasions'],
@@ -1153,12 +1153,12 @@ class Simple_History {
 			);
 
 			foreach ( $one_log_row as $rowKey => $rowVal ) {
-				// Only columns from one_log_row that exist in logRowKeysToShow will be outputted
+				// Only columns from one_log_row that exist in logRowKeysToShow will be outputted.
 				if ( ! array_key_exists( $rowKey, $logRowKeysToShow ) || ! $logRowKeysToShow[ $rowKey ] ) {
 					continue;
 				}
 
-				// skip arrays and objects and such
+				// skip arrays and objects and such.
 				if ( is_array( $rowVal ) || is_object( $rowVal ) ) {
 					continue;
 				}
@@ -1225,7 +1225,7 @@ class Simple_History {
 			);
 
 			foreach ( $one_log_row->context as $contextKey => $contextVal ) {
-				// Only columns from context that exist in logRowContextKeysToShow will be outputted
+				// Only columns from context that exist in logRowContextKeysToShow will be outputted.
 				if (
 					! array_key_exists( $contextKey, $logRowContextKeysToShow ) ||
 					! $logRowContextKeysToShow[ $contextKey ]
@@ -1257,7 +1257,7 @@ class Simple_History {
 			);
 		} // End if().
 
-		// Classes to add to log item li element
+		// Classes to add to log item li element.
 		$classes = array(
 			'SimpleHistoryLogitem',
 			"SimpleHistoryLogitem--loglevel-{$one_log_row->level}",
@@ -1272,7 +1272,7 @@ class Simple_History {
 			$classes[] = 'SimpleHistoryLogitem--IPAddress-multiple';
 		}
 
-		// Always append the log level tag
+		// Always append the log level tag.
 		$log_level_tag_html = sprintf(
 			' <span class="SimpleHistoryLogitem--logleveltag SimpleHistoryLogitem--logleveltag-%1$s">%2$s</span>',
 			$one_log_row->level,
@@ -1290,7 +1290,7 @@ class Simple_History {
 		 */
 		$classes = apply_filters( 'simple_history/logrowhtmloutput/classes', $classes );
 
-		// Generate the HTML output for a row
+		// Generate the HTML output for a row.
 		$output = sprintf(
 			'
                 <li %8$s class="%10$s">
@@ -1324,7 +1324,7 @@ class Simple_History {
 		// SimpleLoggerFormatter::getRowTextOutput($one_log_row);
 		// Get detailed HTML-based output
 		// May include images, lists, any cool stuff needed to view
-		// SimpleLoggerFormatter::getRowHTMLOutput($one_log_row);
+		// SimpleLoggerFormatter::getRowHTMLOutput($one_log_row);.
 		return trim( $output );
 	}
 
@@ -1481,7 +1481,7 @@ class Simple_History {
 			$user_id
 		);
 
-		// just return array with slugs in parenthesis suitable for sql-where
+		// just return array with slugs in parenthesis suitable for sql-where.
 		if ( 'sql' == $format ) {
 			$str_return = '(';
 
@@ -1492,7 +1492,7 @@ class Simple_History {
 
 				$str_return = rtrim( $str_return, ' ,' );
 			} else {
-				// user was not allowed to read any loggers, return in (NULL) to return nothing
+				// user was not allowed to read any loggers, return in (NULL) to return nothing.
 				$str_return .= 'NULL';
 			}
 

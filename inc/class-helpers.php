@@ -163,20 +163,20 @@ class Helpers {
 			$row
 		);
 
-		// Build a replacement array with braces around the context keys
+		// Build a replacement array with braces around the context keys.
 		$replace = array();
 		foreach ( $context as $key => $val ) {
-			// key ok
+			// key ok.
 
 			if ( ! is_string( $val ) && ! is_numeric( $val ) ) {
-				// not a value we can replace
+				// not a value we can replace.
 				continue;
 			}
 
 			$replace[ '{' . $key . '}' ] = $val;
 		}
 
-		// Interpolate replacement values into the message and return
+		// Interpolate replacement values into the message and return.
 		return strtr( $message, $replace );
 	}
 
@@ -360,7 +360,7 @@ class Helpers {
 			return array();
 		}
 
-		// Get num of rows for each table
+		// Get num of rows for each table.
 		$total_num_rows_table = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_events_table_name()}" ); // phpcs:ignore
 		$total_num_rows_table_contexts = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_contexts_table_name()}" ); // phpcs:ignore
 

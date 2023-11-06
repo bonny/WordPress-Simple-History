@@ -169,7 +169,7 @@ class Plugin_Updater {
 
 		// Here: Get plugin info from simple-history.com.
 		// URLs for a plugin will be like:
-		// https://simple-history.com/wp-json/simple-history/v1/plugins/simple-history-extended-settings
+		// https://simple-history.com/wp-json/simple-history/v1/plugins/simple-history-extended-settings.
 		$api_url_base = 'https://simple-history.com/wp-json/simple-history/v1/plugins/';
 		$api_for_plugin = $api_url_base . $this->plugin_slug;
 		$plugin_info_response = wp_remote_get( $api_for_plugin );

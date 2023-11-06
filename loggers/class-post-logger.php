@@ -72,7 +72,7 @@ class Post_Logger extends Logger {
 			// Rest pre insert is fired before an updated post is inserted into db.
 			add_filter( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
 
-			// Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API."
+			// Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API.".
 			add_filter( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
 		}
 	}
@@ -166,7 +166,7 @@ class Post_Logger extends Logger {
 		$context = array();
 
 		if ( in_array( $method, $arr_methods_to_act_on ) ) {
-			// Setup common stuff
+			// Setup common stuff.
 			$raw_post_data = file_get_contents( 'php://input' );
 			$context['wp.deletePost.xmldata'] = Helpers::json_encode( $raw_post_data );
 			$message = new \IXR_Message( $raw_post_data );
@@ -185,7 +185,7 @@ class Post_Logger extends Logger {
 
 			$context['wp.deletePost.xmlrpc_message.messageParams'] = Helpers::json_encode( $message->params );
 
-			// Actions for delete post
+			// Actions for delete post.
 			if ( 'wp.deletePost' == $method ) {
 				// 4 params, where the last is the post id
 				if ( ! isset( $message->params[3] ) ) {
@@ -235,8 +235,8 @@ class Post_Logger extends Logger {
 						_x( 'Posts deleted', 'Post logger: search', 'simple-history' ) => array( 'post_deleted' ),
 						_x( 'Posts restored', 'Post logger: search', 'simple-history' ) => array( 'post_restored' ),
 					),
-				), // end search array
-			), // end labels
+				),
+			),
 		);
 
 		return $arr_info;
@@ -529,7 +529,8 @@ class Post_Logger extends Logger {
 			$ok_to_log = true;
 		}
 
-		// Also accept calls from REST API
+		// Also accept calls from REST API.
+		// "REST_API_REQUEST" is used by Jetpack I believe.
 		$isRestApiRequest =
 			( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 		if ( $isRestApiRequest ) {
@@ -593,13 +594,13 @@ class Post_Logger extends Logger {
 		);
 
 		if ( 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status ) ) {
-			// Post created
+			// Post created.
 			$this->info_message( 'post_created', $context );
 		} elseif ( 'auto-draft' === $new_status || ( 'new' === $old_status && 'inherit' === $new_status ) ) {
-			// Post was automagically saved by WordPress
+			// Post was automagically saved by WordPress.
 			return;
 		} elseif ( 'trash' === $new_status ) {
-			// Post trashed
+			// Post trashed.
 			$this->info_message( 'post_trashed', $context );
 		} else {
 			// Existing post was updated.
@@ -819,7 +820,7 @@ class Post_Logger extends Logger {
 		// Check for changes in post visibility and post password usage and store in context.
 		// publish = public
 		// publish + post_password = password protected
-		// private = post private
+		// private = post private.
 		$old_post_has_password = ! empty( $old_data->post_password );
 		$old_post_password = $old_post_has_password ? $old_data->post_password : null;
 		$old_post_status = $old_data->post_status ?? null;
@@ -839,7 +840,7 @@ class Post_Logger extends Logger {
 			'publish' === $new_post_status
 		) {
 			// Old post is publish and had password protection and new post is publish but no password
-			// = post changed to be un-password protected
+			// = post changed to be un-password protected.
 			$context['post_password_unprotected'] = true;
 		} elseif ( $old_post_has_password && $new_post_has_password && $old_post_password !== $new_post_password ) {
 			// If old post had password and new post has password, but passwords are note same
@@ -857,7 +858,7 @@ class Post_Logger extends Logger {
 
 		// Todo: detect sticky.
 		// Sticky is stored in option:
-		// $sticky_posts = get_option('sticky_posts');
+		// $sticky_posts = get_option('sticky_posts');.
 
 		/**
 		 * Filter to control context sent to the diff output.

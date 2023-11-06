@@ -42,7 +42,7 @@ class Export_Dropin extends Dropin {
 			add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
 			add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
 
-			// Don't use "You" if event is initiated by the same user that does the export
+			// Don't use "You" if event is initiated by the same user that does the export.
 			add_filter( 'simple_history/header_initiator_use_you', '__return_false' );
 
 			$query = new Log_Query();
@@ -73,10 +73,9 @@ class Export_Dropin extends Dropin {
 			} elseif ( 'html' == $export_format ) {
 				$filename = 'simple-history-export-' . time() . '.html';
 				header( 'Content-Type: text/html' );
-				// header("Content-Disposition: attachment; filename='{$filename}'");
 			}
 
-			// Some formats need to output some stuff before the actual loops
+			// Some formats need to output some stuff before the actual loops.
 			if ( 'json' == $export_format ) {
 				$json_row = '[';
 				fwrite( $fp, $json_row );
@@ -95,9 +94,9 @@ class Export_Dropin extends Dropin {
 			// Paginate through all pages and all their rows.
 			$row_loop = 0;
 			while ( $page_current <= $pages_count + 1 ) {
-				// if ($page_current > 1) { break; } # To debug/test
+
 				foreach ( $events['log_rows'] as $one_row ) {
-					// if ( $row_loop > 10) { break; } # To debug/test
+
 					set_time_limit( 30 );
 
 					if ( 'csv' == $export_format ) {
@@ -155,20 +154,13 @@ class Export_Dropin extends Dropin {
 					$row_loop++;
 				}// End foreach().
 
-				// echo "<br>memory_get_usage:<br>"; print_r(memory_get_usage());
-				// echo "<br>memory_get_peak_usage:<br>"; print_r(memory_get_peak_usage());
-				// echo "<br>fetch next page";
 				flush();
 
 				// Fetch next page
-				// @TODO: must take into consideration that new items can be added while we do the fetch
+				// @TODO: must take into consideration that new items can be added while we do the fetch.
 				$page_current++;
 				$query_args['paged'] = $page_current;
 				$events = $query->query( $query_args );
-
-				// echo "<br>did fetch next page";
-				// echo "<br>memory_get_usage:<br>"; print_r(memory_get_usage());
-				// echo "<br>memory_get_peak_usage:<br>"; print_r(memory_get_peak_usage());
 			}// End while().
 
 			if ( 'json' == $export_format ) {
@@ -183,8 +175,6 @@ class Export_Dropin extends Dropin {
 			flush();
 
 			exit;
-
-			// echo "<br>done";
 		}// End if().
 	}
 

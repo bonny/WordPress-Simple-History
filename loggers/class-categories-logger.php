@@ -40,8 +40,8 @@ class Categories_Logger extends Logger {
 							'edited_term',
 						),
 					),
-				), // end search array
-			), // end labels
+				),
+			),
 		);
 
 		return $arr_info;

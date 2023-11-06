@@ -26,7 +26,7 @@ class Log_Levels {
 		$str_translated = '';
 
 		switch ( $loglevel ) {
-			// Lowercase
+			// Lowercase.
 			case 'emergency':
 				$str_translated = _x( 'emergency', 'Log level in gui', 'simple-history' );
 				break;
@@ -59,7 +59,7 @@ class Log_Levels {
 				$str_translated = _x( 'debug', 'Log level in gui', 'simple-history' );
 				break;
 
-			// Uppercase
+			// Uppercase.
 			case 'Emergency':
 				$str_translated = _x( 'Emergency', 'Log level in gui', 'simple-history' );
 				break;

@@ -23,7 +23,7 @@ class Quick_Stats extends Dropin {
 	public function output_quick_stats() {
 		global $wpdb;
 
-		// Get number of events today
+		// Get number of events today.
 		$logQuery = new Log_Query();
 		$logResults = $logQuery->query(
 			array(
@@ -34,10 +34,10 @@ class Quick_Stats extends Dropin {
 
 		$total_row_count = (int) $logResults['total_row_count'];
 
-		// Get sql query for where to read only loggers current user is allowed to read/view
+		// Get sql query for where to read only loggers current user is allowed to read/view.
 		$sql_loggers_in = $this->simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
 
-		// Get number of users today, i.e. events with wp_user as initiator
+		// Get number of users today, i.e. events with wp_user as initiator.
 		$sql_users_today = sprintf(
 			'
             SELECT
@@ -110,7 +110,7 @@ class Quick_Stats extends Dropin {
 				<?php
 				$msg_tmpl = '';
 
-				// No results today at all
+				// No results today at all.
 				if ( $total_row_count == 0 ) {
 					$msg_tmpl = __( 'No events today so far.', 'simple-history' );
 				} else {

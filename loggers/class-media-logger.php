@@ -42,8 +42,8 @@ class Media_Logger extends Logger {
 							'attachment_deleted',
 						),
 					),
-				), // end search array
-			), // end labels
+				),
+			),
 		);
 
 		return $arr_info;
@@ -140,7 +140,7 @@ class Media_Logger extends Logger {
 
 			$message = helpers::interpolate( $message, $context, $row );
 		} else {
-			// Attachment post is not available, attachment has probably been deleted
+			// Attachment post is not available, attachment has probably been deleted.
 			$message = parent::get_log_row_plain_text_output( $row );
 		}
 
@@ -163,7 +163,7 @@ class Media_Logger extends Logger {
 		$attachment_is_available = is_a( $attachment_post, 'WP_Post' );
 
 		if ( 'attachment_created' == $message_key ) {
-			// Attachment is created/uploaded = show details with image thumbnail
+			// Attachment is created/uploaded = show details with image thumbnail.
 			$attachment_id = $context['attachment_id'];
 			$filetype = wp_check_filetype( $context['attachment_filename'] );
 			$file_url = wp_get_attachment_url( $attachment_id );
@@ -189,13 +189,13 @@ class Media_Logger extends Logger {
 				$full_image_height = $full_src[2];
 
 				// is_image is also true for mime types that WP can't create thumbs for
-				// so we need to check that wp got an resized version
+				// so we need to check that wp got an resized version.
 				if ( $full_image_width && $full_image_height ) {
 					$context['full_image_width'] = $full_image_width;
 					$context['full_image_height'] = $full_image_height;
 
 					// Only output thumb if file exists
-					// For example images deleted on file system but not in WP cause broken images (rare case, but has happened to me.)
+					// For example images deleted on file system but not in WP cause broken images (rare case, but has happened to me.).
 					if ( file_exists( $attached_file ) && $thumb_src ) {
 						$context['attachment_thumb'] = sprintf( '<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $thumb_src[0] );
 					}

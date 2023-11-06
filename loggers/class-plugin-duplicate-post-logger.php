@@ -56,7 +56,7 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 		// the action 'dp_duplicate_page' or 'dp_duplicate_post'
 		// is fired with args $new_post_id, $post, $status.
 		// We add actions with priority 20 so we probably run after
-		// the plugins own
+		// the plugins own.
 		add_action( 'dp_duplicate_post', array( $this, 'onDpDuplicatePost' ), 100, 3 );
 		add_action( 'dp_duplicate_page', array( $this, 'onDpDuplicatePost' ), 100, 3 );
 	}
@@ -95,11 +95,11 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 
 		// Check if post still is available
 		// It will return a WP_Post Object if post still is in system
-		// If post is deleted from trash (not just moved there), then null is returned
+		// If post is deleted from trash (not just moved there), then null is returned.
 		$postDuplicated = get_post( $duplicated_post_id );
 		$post_is_available = is_a( $postDuplicated, 'WP_Post' );
 
-		// Try to get singular name
+		// Try to get singular name.
 		$post_type = $postDuplicated->post_type ?? '';
 		$post_type_obj = get_post_type_object( $post_type );
 
@@ -113,7 +113,7 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 		$context['new_post_edit_link'] = get_edit_post_link( $new_post_id );
 
 		// If post is not available any longer then we can't link to it, so keep plain message then
-		// Also keep plain format if user is not allowed to edit post (edit link is empty)
+		// Also keep plain format if user is not allowed to edit post (edit link is empty).
 		if ( $post_is_available && $context['duplicated_post_edit_link'] ) {
 			$message = _x(
 				'Cloned {duplicated_post_post_type_singular_name} <a href="{duplicated_post_edit_link}">"{duplicated_post_title}"</a> to <a href="{new_post_edit_link}">a new {duplicated_post_post_type_singular_name}</a>',

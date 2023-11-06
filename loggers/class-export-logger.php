@@ -32,8 +32,8 @@ class Export_Logger extends Logger {
 							'created_export',
 						),
 					),
-				), // end search array
-			), // end labels
+				),
+			),
 		);
 
 		return $arr_info;

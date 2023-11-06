@@ -85,7 +85,7 @@ class Donate_Dropin extends Dropin {
 			'simple_history_settings_section_donate',
 			[ _x( 'Support development', 'donate settings headline', 'simple-history' ), 'volunteer_activism' ],
 			array( $this, 'settings_section_output' ),
-			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
+			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page.
 		);
 	}
 

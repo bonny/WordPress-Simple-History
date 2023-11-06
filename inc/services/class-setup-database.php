@@ -35,7 +35,7 @@ class Setup_Database extends Service {
 		// If no db_version is set then this
 		// is a version of Simple History < 0.4
 		// or it's a first install
-		// Fix database not using UTF-8
+		// Fix database not using UTF-8.
 		if ( false === $db_version || (int) $db_version == 0 ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
@@ -50,10 +50,10 @@ class Setup_Database extends Service {
               PRIMARY KEY  (id)
             ) CHARACTER SET=utf8;';
 
-			// Upgrade db / fix utf for varchars
+			// Upgrade db / fix utf for varchars.
 			dbDelta( $sql );
 
-			// Fix UTF-8 for table
+			// Fix UTF-8 for table.
 			$sql = sprintf( 'alter table %1$s charset=utf8;', $table_name );
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql );
@@ -63,12 +63,12 @@ class Setup_Database extends Service {
 			update_option( 'simple_history_db_version', $db_version );
 
 			// We are not 100% sure that this is a first install,
-			// but it is at least a very old version that is being updated
+			// but it is at least a very old version that is being updated.
 			$first_install = true;
 		} // End if().
 
 		// If db version is 1 then upgrade to 2
-		// Version 2 added the action_description column
+		// Version 2 added the action_description column.
 		if ( 1 == (int) $db_version ) {
 			// V2 used to add column "action_description"
 			// but it's not used any more so don't do it.
@@ -78,7 +78,7 @@ class Setup_Database extends Service {
 		}
 
 		// Check that all options we use are set to their defaults, if they miss value
-		// Each option that is missing a value will make a sql call otherwise = unnecessary
+		// Each option that is missing a value will make a sql call otherwise = unnecessary.
 		$arr_options = array(
 			array(
 				'name' => 'simple_history_show_as_page',
@@ -93,7 +93,7 @@ class Setup_Database extends Service {
 		foreach ( $arr_options as $one_option ) {
 			$option_value = get_option( $one_option['name'] );
 			if ( false === ( $option_value ) ) {
-				// Value is not set in db, so set it to a default
+				// Value is not set in db, so set it to a default.
 				update_option( $one_option['name'], $one_option['default_value'] );
 			}
 		}
@@ -108,7 +108,7 @@ class Setup_Database extends Service {
 		if ( 2 == (int) $db_version ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-			// Update old table
+			// Update old table.
 			$sql = "
                 CREATE TABLE {$table_name} (
                   id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -125,7 +125,7 @@ class Setup_Database extends Service {
 
 			dbDelta( $sql );
 
-			// Add context table
+			// Add context table.
 			$sql = "
                 CREATE TABLE IF NOT EXISTS {$table_name_contexts} (
                   context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -160,7 +160,7 @@ class Setup_Database extends Service {
 			$wpdb->query( $sql );
 
 			// Say welcome, however loggers are not added this early so we need to
-			// use a filter to load it later
+			// use a filter to load it later.
 			add_action( 'simple_history/loggers_loaded', array( $this, 'add_welcome_log_message' ) );
 		} // End if().
 
@@ -176,7 +176,7 @@ class Setup_Database extends Service {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 			// If old columns exist = this is an old install, then modify the columns so we still can keep them
-			// we want to keep them because user may have logged items that they want to keep
+			// we want to keep them because user may have logged items that they want to keep.
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$db_cools = $wpdb->get_col( "DESCRIBE $table_name" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
@@ -203,14 +203,14 @@ class Setup_Database extends Service {
 		} // End if().
 
 		// Some installs on 2.2.2 got failed installs
-		// We detect these by checking for db_version and then running the install stuff again
+		// We detect these by checking for db_version and then running the install stuff again.
 		if ( 4 == (int) $db_version ) {
 			/** @noRector \Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector */
 			if ( ! $this->simple_history->does_database_have_data() ) {
-				// not ok, decrease db number so installs will run again and hopefully fix things
+				// not ok, decrease db number so installs will run again and hopefully fix things.
 				$db_version = 0;
 			} else {
-				// all looks ok, upgrade to db version 5, so this part is not done again
+				// all looks ok, upgrade to db version 5, so this part is not done again.
 				$db_version = 5;
 			}
 
@@ -245,7 +245,7 @@ class Setup_Database extends Service {
 				]
 			);
 
-			// Add plugin activated message
+			// Add plugin activated message.
 			$plugin_logger->info_message(
 				'plugin_activated',
 				[

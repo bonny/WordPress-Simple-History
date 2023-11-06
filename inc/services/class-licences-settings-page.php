@@ -47,7 +47,7 @@ class Licences_Settings_Page extends Service {
 	public function on_plugins_loaded() {
 		if ( $this->licences_service->has_add_ons() ) {
 			$this->add_settings_tab();
-			// add_action( 'admin_menu', array( $this, 'add_settings_tab' ) );
+
 			add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
 		}
 	}

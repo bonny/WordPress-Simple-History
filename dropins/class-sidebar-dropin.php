@@ -20,7 +20,7 @@ class Sidebar_Dropin extends Dropin {
 	 * Output default sidebar contents
 	 */
 	public function default_sidebar_contents() {
-		// Box about donation
+		// Box about donation.
 		$headline = _x( 'Donate to support development', 'Sidebar box', 'simple-history' );
 
 		$bodyDonate = sprintf(
@@ -45,7 +45,7 @@ class Sidebar_Dropin extends Dropin {
 			</div>
 		';
 
-		// Box about review
+		// Box about review.
 		$headline = _x( 'Review this plugin if you like it', 'Sidebar box', 'simple-history' );
 
 		$body1 = sprintf(
@@ -66,7 +66,7 @@ class Sidebar_Dropin extends Dropin {
 			</div>
 		';
 
-		// Box about support
+		// Box about support.
 		$boxSupport = sprintf(
 			'
 			<div class="postbox">

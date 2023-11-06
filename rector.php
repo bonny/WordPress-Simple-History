@@ -33,7 +33,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 	$rectorConfig->phpVersion( PhpVersion::PHP_74 );
 
 	// register a single rule
-	// $rectorConfig->rule( InlineConstructorDefaultToPropertyRector::class );
+	// $rectorConfig->rule( InlineConstructorDefaultToPropertyRector::class );.
 
 	// Skip some paths and skip some tests.
 	$rectorConfig->skip(
@@ -49,7 +49,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			CallableThisArrayToAnonymousFunctionRector::class,
 			// Makes to code more difficult to read.
 			SimplifyIfReturnBoolRector::class,
-			// Need to find out what they do
+			// Need to find out what they do.
 			RenameFunctionRector::class,
 			JsonThrowOnErrorRector::class,
 			// I think `count($array) > 0;` is more readable than `$array !== [];`.
@@ -60,7 +60,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			IssetOnPropertyObjectToPropertyExistsRector::class,
 			// WordPress uses long arrays.
 			LongArrayToShortArrayRector::class,
-			// Prefer `foreach $key => $value` over `foreach (array_keys($values) as $key) {`
+			// Prefer `foreach $key => $value` over `foreach (array_keys($values) as $key) {`.
 			UnusedForeachValueToArrayKeysRector::class,
 			ReturnTypeFromStrictTypedCallRector::class,
 			// ReturnTypeFromStrictScalarReturnExprRector::class,
@@ -71,9 +71,9 @@ return static function ( RectorConfig $rectorConfig ): void {
 	);
 
 	// define sets of rules
-	// https://github.com/rectorphp/rector-src/blob/main/packages/Set/ValueObject/SetList.php
-	// https://github.com/rectorphp/rector-src/blob/main/rector.php
-	// https://github.com/rectorphp/rector/blob/main/docs/rector_rules_overview.md
+	// - https://github.com/rectorphp/rector-src/blob/main/packages/Set/ValueObject/SetList.php
+	// - https://github.com/rectorphp/rector-src/blob/main/rector.php
+	// - https://github.com/rectorphp/rector/blob/main/docs/rector_rules_overview.md.
 	$rectorConfig->sets(
 		array(
 			LevelSetList::UP_TO_PHP_74,
@@ -81,7 +81,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			SetList::CODE_QUALITY,
 			// Add lists one by one to make diffs not to big.
 			// SetList::CODING_STYLE,
-			// SetList::EARLY_RETURN,
+			// SetList::EARLY_RETURN,.
 		)
 	);
 };

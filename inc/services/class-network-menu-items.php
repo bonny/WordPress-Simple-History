@@ -49,12 +49,12 @@ class Network_Menu_Items extends Service {
 			return;
 		}
 
-		// Setting to show as page must be true
+		// Setting to show as page must be true.
 		if ( ! $this->simple_history->setting_show_as_page() ) {
 			return;
 		}
 
-		// User must have capability to view the history page
+		// User must have capability to view the history page.
 		if ( ! current_user_can( $this->simple_history->get_view_history_capability() ) ) {
 			return;
 		}
@@ -68,7 +68,7 @@ class Network_Menu_Items extends Service {
 				$parent_menu_id = 'blog-' . $blog->userblog_id;
 
 				// Each network site is added by WP core with id "blog-1", "blog-2" ... "blog-n"
-				// https://codex.wordpress.org/Function_Reference/add_node
+				// https://codex.wordpress.org/Function_Reference/add_node.
 				$args = array(
 					'id' => $menu_id,
 					'parent' => $parent_menu_id,

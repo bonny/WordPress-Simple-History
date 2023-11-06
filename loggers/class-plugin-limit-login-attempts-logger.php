@@ -63,7 +63,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	public function on_load_settings_page( $a ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( $_POST && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'limit-login-attempts-options' ) ) {
-			// Settings saved
+			// Settings saved..
 			if ( isset( $_POST['clear_log'] ) ) {
 				$this->notice_message( 'cleared_ip_log' );
 			}
@@ -156,8 +156,8 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 				'_initiator' => Log_Initiators::WEB_USER,
 				'value' => $value,
 				'limit_login_just_lockedout' => $limit_login_just_lockedout,
-				'count' => $count, // num of failed login attempts before block
-				'time' => $time, // duration in minutes for block
+				'count' => $count, // num of failed login attempts before block.
+				'time' => $time, // duration in minutes for block.
 				'lockouts' => $lockouts,
 				'ip' => $ip,
 				'lockout_type' => $lockout_type,

@@ -208,8 +208,6 @@ foreach ( $args['instantiated_dropins'] as $oneDropin ) {
 
 echo '</table>';
 
-// echo "<h4>Clear history interval</h4>";
-// echo "<p>" . $this->simple_history->get_clear_history_interval() . "</p>";
 /**
  * Output a list of all active loggers, including name, slug, comment, message, capability and number of rows
  * Retrieve them in order by the number of rows they have in the db
@@ -295,7 +293,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 	if ( isset( $logger_rows_count[ $one_logger_slug ] ) ) {
 		$one_logger_count = $logger_rows_count[ $one_logger_slug ];
 	} else {
-		// logger was not is sql result, so fake result
+		// logger was not is sql result, so fake result.
 		$one_logger_count = new \stdClass();
 		$one_logger_count->count = 0;
 	}
@@ -374,7 +372,7 @@ foreach ( $logger_rows_count as $one_logger_slug => $one_logger_val ) {
 
 echo '</table>';
 
-// List installed plugins
+// List installed plugins.
 echo '<h2>' . esc_html_x( 'Plugins', 'debug dropin', 'simple-history' ) . '</h2>';
 
 echo '<p>' . esc_html_x( 'As returned from get_plugins().', 'debug dropin', 'simple-history' ) . '</p>';

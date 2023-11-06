@@ -310,8 +310,8 @@ class Plugin_Logger extends Logger {
 				}
 
 				// Bail if doing ajax and
-				// - action is not toggle-auto-updates
-				// - type is not plugin
+				// - action is not toggle-auto-updates.
+				// - type is not plugin.
 				if ( wp_doing_ajax() ) {
 					if ( $action !== 'toggle-auto-updates' ) {
 						return;
@@ -324,7 +324,7 @@ class Plugin_Logger extends Logger {
 					}
 				}
 
-				// Bail if screen and not plugin screen
+				// Bail if screen and not plugin screen.
 				$current_screen = get_current_screen();
 				if ( is_a( $current_screen, 'WP_Screen' ) && ( $current_screen->base !== 'plugins' ) ) {
 					return;
@@ -354,7 +354,7 @@ class Plugin_Logger extends Logger {
 					// *    [action] => toggle-auto-updates
 					// *    [state] => disable | enable
 					// *    [type] => plugin
-					// *    [asset] => redirection/redirection.php
+					// *    [asset] => redirection/redirection.php.
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$state = sanitize_text_field( wp_unslash( $_POST['state'] ?? '' ) );
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -385,8 +385,8 @@ class Plugin_Logger extends Logger {
 				}
 
 				// Now we have:
-				// - an array of plugin slugs in $plugins
-				// - if plugin auto updates is to be enabled or disabled din $enableOrDisable
+				// - an array of plugin slugs in $plugins.
+				// - if plugin auto updates is to be enabled or disabled din $enableOrDisable.
 
 				// Bail if required values not set.
 				if ( ! $plugins || ! $enableOrDisable ) {
@@ -497,9 +497,9 @@ class Plugin_Logger extends Logger {
 		}
 
 		// We only act if the untranslated text is among the following ones
-		// (Literally these, no translation)
+		// (Literally these, no translation).
 		$untranslated_texts = array(
-			// This string is called later than the above
+			// This string is called later than the above.
 			'The plugin %1$s has been <strong>deactivated</strong> due to an error: %2$s',
 		);
 
@@ -567,11 +567,11 @@ class Plugin_Logger extends Logger {
 		$repo_username = $repo_parts[3];
 		$repo_repo     = $repo_parts[4];
 
-		// https://developer.github.com/v3/repos/contents/
-		// https://api.github.com/repos/<username>/<repo>/readme
+		// https://developer.github.com/v3/repos/contents/.
+		// https://api.github.com/repos/<username>/<repo>/readme.
 		$api_url = sprintf( 'https://api.github.com/repos/%1$s/%2$s/readme', urlencode( $repo_username ), urlencode( $repo_repo ) );
 
-		// Get file. Use accept-header to get file as HTML instead of JSON
+		// Get file. Use accept-header to get file as HTML instead of JSON.
 		$response = wp_remote_get(
 			$api_url,
 			array(
@@ -670,7 +670,7 @@ class Plugin_Logger extends Logger {
 
 		$plugins = get_plugins();
 
-		// does not work
+		// does not work.
 		$option_name = $this->get_slug() . '_plugin_info_before_update';
 
 		update_option( $option_name, Helpers::json_encode( $plugins ) );
@@ -699,7 +699,7 @@ class Plugin_Logger extends Logger {
 	 */
 	public function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
 		// Can't use get_plugins() here to get version of plugins updated from
-		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..)
+		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..).
 
 		/*
 		If an update fails then $plugin_upgrader_instance->skin->result->errors contains something like:
@@ -755,7 +755,7 @@ class Plugin_Logger extends Logger {
 		*/
 
 		// To keep track of if something was logged, so wen can output debug info only
-		// only if we did not log anything
+		// only if we did not log anything.
 		$did_log = false;
 
 		if ( isset( $arr_data['type'] ) && 'plugin' == $arr_data['type'] ) {
@@ -793,7 +793,7 @@ class Plugin_Logger extends Logger {
 
 				$context['plugin_install_source'] = $install_source;
 
-				// If uploaded plugin store name of ZIP
+				// If uploaded plugin store name of ZIP.
 
 				/*
 				_debug_files
@@ -816,7 +816,7 @@ class Plugin_Logger extends Logger {
 
 				if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
 					// Add errors
-					// Errors is in original wp admin language
+					// Errors is in original wp admin language.
 					$context['error_messages'] = Helpers::json_encode( $plugin_upgrader_instance->skin->result->errors );
 					$context['error_data']     = Helpers::json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
@@ -829,7 +829,7 @@ class Plugin_Logger extends Logger {
 				} else {
 					// Plugin was successfully installed
 					// Try to grab more info from the readme
-					// Would be nice to grab a screenshot, but that is difficult since they often are stored remotely
+					// Would be nice to grab a screenshot, but that is difficult since they often are stored remotely.
 					$plugin_destination = $plugin_upgrader_instance->result['destination'] ?? null;
 
 					if ( $plugin_destination ) {
@@ -847,8 +847,8 @@ class Plugin_Logger extends Logger {
 						$context['plugin_author']      = $plugin_data['AuthorName'] ?? '';
 
 						// Comment out these to debug plugin installs
-						// $context["debug_plugin_data"] = Helpers::json_encode( $plugin_data );
-						// $context["debug_plugin_info"] = Helpers::json_encode( $plugin_info );
+						// $context["debug_plugin_data"] = Helpers::json_encode( $plugin_data );.
+						// $context["debug_plugin_info"] = Helpers::json_encode( $plugin_info );.
 						if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
 							$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
 						}
@@ -863,15 +863,15 @@ class Plugin_Logger extends Logger {
 				}// End if().
 			} // End if().
 
-			// Single plugin update
+			// Single plugin update.
 			if ( isset( $arr_data['action'] ) && 'update' == $arr_data['action'] && ! $plugin_upgrader_instance->bulk ) {
-				// No plugin info in instance, so get it ourself
+				// No plugin info in instance, so get it ourself.
 				$plugin_data = array();
 				if ( file_exists( WP_PLUGIN_DIR . '/' . $arr_data['plugin'] ) ) {
 					$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data['plugin'], true, false );
 				}
 
-				// autoptimize/autoptimize.php
+				// autoptimize/autoptimize.php.
 				$plugin_slug = dirname( $arr_data['plugin'] );
 
 				$context = array(
@@ -887,7 +887,7 @@ class Plugin_Logger extends Logger {
 
 				// update status for plugins are in response
 				// plugin folder + index file = key
-				// use transient to get url and package
+				// use transient to get url and package.
 				$update_plugins = get_site_transient( 'update_plugins' );
 				if ( $update_plugins && isset( $update_plugins->response[ $arr_data['plugin'] ] ) ) {
 					/*
@@ -902,21 +902,21 @@ class Plugin_Logger extends Logger {
 					}
 					*/
 					// for debug purposes the update_plugins key can be added
-					// $context["update_plugins"] = Helpers::json_encode( $update_plugins );
+					// $context["update_plugins"] = Helpers::json_encode( $update_plugins );.
 					$plugin_update_info = $update_plugins->response[ $arr_data['plugin'] ];
 
-					// autoptimize/autoptimize.php
+					// autoptimize/autoptimize.php.
 					if ( isset( $plugin_update_info->plugin ) ) {
 						$context['plugin_update_info_plugin'] = $plugin_update_info->plugin;
 					}
 
-					// https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip
+					// https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip.
 					if ( isset( $plugin_update_info->package ) ) {
 						$context['plugin_update_info_package'] = $plugin_update_info->package;
 					}
 				}
 
-				// To get old version we use our option
+				// To get old version we use our option.
 				$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
 				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $arr_data['plugin'] ] ) ) {
 					$context['plugin_prev_version'] = $plugins_before_update[ $arr_data['plugin'] ]['Version'];
@@ -924,7 +924,7 @@ class Plugin_Logger extends Logger {
 
 				if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
 					// Add errors
-					// Errors is in original wp admin language
+					// Errors is in original wp admin language.
 					$context['error_messages'] = json_encode( $plugin_upgrader_instance->skin->result->errors );
 					$context['error_data']     = json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
@@ -942,10 +942,10 @@ class Plugin_Logger extends Logger {
 
 					// echo "on_upgrader_process_complete";
 					// sf_d( $plugin_upgrader_instance, '$plugin_upgrader_instance' );
-					// sf_d( $arr_data, '$arr_data' );
+					// sf_d( $arr_data, '$arr_data' );.
 					$did_log = true;
 				}
-			} // End if().
+			}
 
 			/**
 			 * For bulk updates $arr_data looks like:
@@ -979,7 +979,7 @@ class Plugin_Logger extends Logger {
 						'plugin_url'         => $plugin_data['PluginURI'],
 					);
 
-					// get url and package
+					// get url and package.
 					$update_plugins = get_site_transient( 'update_plugins' );
 					if ( $update_plugins && isset( $update_plugins->response[ $plugin_name ] ) ) {
 						/*
@@ -996,12 +996,12 @@ class Plugin_Logger extends Logger {
 
 						$plugin_update_info = $update_plugins->response[ $plugin_name ];
 
-						// autoptimize/autoptimize.php
+						// autoptimize/autoptimize.php.
 						if ( isset( $plugin_update_info->plugin ) ) {
 							$context['plugin_update_info_plugin'] = $plugin_update_info->plugin;
 						}
 
-						// https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip
+						// https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip.
 						if ( isset( $plugin_update_info->package ) ) {
 							$context['plugin_update_info_package'] = $plugin_update_info->package;
 						}
@@ -1096,17 +1096,17 @@ class Plugin_Logger extends Logger {
 		// When a plugin is installed we show a bit more information
 		// We do it only on install because we don't want to clutter to log,
 		// and when something is installed the description is most useful for other
-		// admins on the site
+		// admins on the site.
 		if ( 'plugin_installed' === $message_key ) {
 			if ( isset( $context['plugin_description'] ) ) {
-				// Description includes a link to author, remove that, i.e. all text after and including <cite>
+				// Description includes a link to author, remove that, i.e. all text after and including <cite>.
 				$plugin_description = $context['plugin_description'];
 				$cite_pos           = strpos( $plugin_description, '<cite>' );
 				if ( $cite_pos ) {
 					$plugin_description = substr( $plugin_description, 0, $cite_pos );
 				}
 
-				// Keys to show
+				// Keys to show.
 				$arr_plugin_keys = array(
 					'plugin_description'         => _x( 'Description', 'plugin logger - detailed output', 'simple-history' ),
 					'plugin_install_source'      => _x( 'Source', 'plugin logger - detailed output install source', 'simple-history' ),
@@ -1122,7 +1122,7 @@ class Plugin_Logger extends Logger {
 
 				$arr_plugin_keys = apply_filters( 'simple_history/plugin_logger/row_details_plugin_info_keys', $arr_plugin_keys );
 
-				// Start output of plugin meta data table
+				// Start output of plugin meta data table.
 				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
 				foreach ( $arr_plugin_keys as $key => $desc ) {
@@ -1133,12 +1133,12 @@ class Plugin_Logger extends Logger {
 							$desc_output = esc_html( number_format_i18n( (int) $context[ $key ] ) );
 							break;
 
-						// author is already formatted
+						// author is already formatted.
 						case 'plugin_author':
 							$desc_output = $context[ $key ];
 							break;
 
-						// URL needs a link
+						// URL needs a link.
 						case 'plugin_url':
 							$desc_output = sprintf( '<a href="%1$s">%2$s</a>', esc_attr( $context['plugin_url'] ), esc_html( $context['plugin_url'] ) );
 							break;
@@ -1204,7 +1204,7 @@ class Plugin_Logger extends Logger {
 				// so use link to that.
 				$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 
-				// Slug + web as install source = show link to wordpress.org
+				// Slug + web as install source = show link to wordpress.org.
 				if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'web' ) {
 					$output .= sprintf(
 						'
@@ -1219,7 +1219,7 @@ class Plugin_Logger extends Logger {
 				} elseif ( isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'upload' && ! empty( $context['plugin_github_url'] ) ) {
 					// Can't embed iframe
 					// Must use API instead
-					// https://api.github.com/repos/<username>/<repo>/readme?callback=<callbackname>
+					// https://api.github.com/repos/<username>/<repo>/readme?callback=<callbackname>.
 					$output .= sprintf(
 						'
 						<tr>

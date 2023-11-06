@@ -26,11 +26,11 @@ class Simple_Logger extends Logger {
 			'name'        => 'SimpleLogger',
 			'description' => __( 'The built in logger for Simple History', 'simple-history' ),
 
-			// Capability required to view log entries from this logger
+			// Capability required to view log entries from this logger.
 			'capability' => 'edit_pages',
 			'messages'   => array(
 				// No pre-defined variants
-				// when adding messages __() or _x() must be used
+				// when adding messages __() or _x() must be used.
 			),
 		);
 

@@ -74,7 +74,7 @@ class RSS_Dropin extends Dropin {
 			$settings_section_rss_id,
 			[ $rss_section_title, 'rss_feed' ],
 			array( $this, 'settings_section_output' ),
-			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page
+			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page.
 		);
 
 		// Enable/Disable RSS feed.
@@ -139,7 +139,7 @@ class RSS_Dropin extends Dropin {
 	public function is_rss_enabled() {
 		$is_enabled = false;
 
-		// User has never used the plugin we disable RSS feed
+		// User has never used the plugin we disable RSS feed.
 		if ( $this->get_rss_secret() === false && get_option( 'simple_history_enable_rss_feed' ) === false ) {
 			// We disable RSS by default, we use 0/1 to prevent fake disabled with bools from functions returning false for unset.
 			update_option( 'simple_history_enable_rss_feed', '0' );
@@ -250,12 +250,12 @@ class RSS_Dropin extends Dropin {
 					<atom:link href="<?php echo esc_url( $self_link ); ?>" rel="self" type="application/atom+xml" />
 					<?php
 
-					// Override capability check: if you have a valid rss_secret_key you can read it all
+					// Override capability check: if you have a valid rss_secret_key you can read it all.
 					$action_tag = 'simple_history/loggers_user_can_read/can_read_single_logger';
 					add_filter( $action_tag, '__return_true', 10, 0 );
 
 					// Modify header time output so it does not show relative date or time ago-format
-					// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate
+					// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate.
 					add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
 					add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
 
@@ -300,14 +300,14 @@ class RSS_Dropin extends Dropin {
 					$queryResults = $logQuery->query( $args );
 
 					// Remove capability override after query is done
-					// remove_action( $action_tag, '__return_true', 10 );
+					// remove_action( $action_tag, '__return_true', 10 );.
 					foreach ( $queryResults['log_rows'] as $row ) {
 						$header_output = $this->simple_history->get_log_row_header_output( $row );
 						$text_output = $this->simple_history->get_log_row_plain_text_output( $row );
 						$details_output = $this->simple_history->get_log_row_details_output( $row );
 
 						// http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt
-						// $item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;
+						// $item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;.
 						$item_guid = esc_url( add_query_arg( 'SimpleHistoryGuid', $row->id, home_url() ) );
 						$item_link = esc_url( add_query_arg( 'SimpleHistoryGuid', $row->id, home_url() ) );
 
@@ -401,7 +401,7 @@ class RSS_Dropin extends Dropin {
 								?>
 							]]></description>
 							<?php
-							// author must be email to validate, but the field is optional, so we skip it
+							// author must be email to validate, but the field is optional, so we skip it.
 							/* <author><?php echo $row->initiator ?></author> */
 							?>
 							<pubDate><?php echo esc_xml( gmdate( 'D, d M Y H:i:s', strtotime( $row->date ) ) ); ?> GMT</pubDate>
@@ -416,7 +416,7 @@ class RSS_Dropin extends Dropin {
 			</rss>
 			<?php
 		} else {
-			// RSS secret was not ok
+			// RSS secret was not ok.
 			echo PHP_EOL;
 			?>
 			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">

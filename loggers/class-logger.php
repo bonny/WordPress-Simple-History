@@ -173,7 +173,7 @@ abstract class Logger {
 					'<strong class="SimpleHistoryLogitem__inlineDivided">WP-CLI</strong> ';
 				break;
 
-			// wp_user = wordpress uses, but user may have been deleted since log entry was added
+			// wp_user = wordpress uses, but user may have been deleted since log entry was added.
 			case 'wp_user':
 				$user_id = $row->context['_user_id'] ?? null;
 
@@ -182,7 +182,7 @@ abstract class Logger {
 					// Sender is user and user still exists.
 					$is_current_user = get_current_user_id() == $user_id;
 
-					// get user role, as done in user-edit.php
+					// get user role, as done in user-edit.php.
 					$wp_roles = $GLOBALS['wp_roles'];
 					$user_roles = array_intersect(
 						array_values( (array) $user->roles ),
@@ -246,11 +246,7 @@ abstract class Logger {
 					);
 				} elseif ( $user_id > 0 ) {
 					// Sender was a user, but user is deleted now
-					// output all info we have
-					// _user_id
-					// _username
-					// _user_login
-					// _user_email
+					// output all info we have.
 					$initiator_html .= sprintf(
 						'<strong class="SimpleHistoryLogitem__inlineDivided">' .
 							/* translators: 1: user id, 2: user email address, 3: user account name. */
@@ -294,9 +290,8 @@ abstract class Logger {
 					'</strong>';
 				break;
 
-			// no initiator
+			// no initiator.
 			case null:
-				// $initiator_html .= "<strong class='SimpleHistoryLogitem__inlineDivided'>Null</strong>";
 				break;
 
 			default:
@@ -332,14 +327,14 @@ abstract class Logger {
 	public function get_log_row_header_date_output( $row ) {
 		// HTML for date
 		// Date (should...) always exist
-		// http://developers.whatwg.org/text-level-semantics.html#the-time-element
+		// http://developers.whatwg.org/text-level-semantics.html#the-time-element.
 		$date_html = '';
 		$str_when = '';
 
 		// $row->date is in GMT
 		$date_datetime = new DateTime( $row->date, new DateTimeZone( 'GMT' ) );
 
-		// Current datetime in GMT
+		// Current datetime in GMT.
 		$time_current = strtotime( current_time( 'mysql', 1 ) );
 
 		/**
@@ -402,7 +397,7 @@ abstract class Logger {
 				strtotime( get_date_from_gmt( $row->date ) )
 			);
 		} else {
-			// Show "nn minutes ago" when event is xx seconds ago or earlier
+			// Show "nn minutes ago" when event is xx seconds ago or earlier.
 			$date_human_time_diff = human_time_diff(
 				$date_datetime->getTimestamp(),
 				$time_current
@@ -429,7 +424,7 @@ abstract class Logger {
 				$date_datetime->format( 'Y-m-d H:i:s' ),
 				$date_and_time_format
 			), // 1 local time
-			$date_datetime->format( $date_and_time_format ), // GMT time
+			$date_datetime->format( $date_and_time_format ), // GMT time.
 			PHP_EOL // 3, new line
 		);
 
@@ -482,7 +477,7 @@ abstract class Logger {
 	public function get_log_row_header_using_plugin_output( $row ) {
 		// Logger "via" info in header, i.e. output some extra
 		// info next to the time to make it more clear what plugin etc.
-		// that "caused" this event
+		// that "caused" this event.
 		$logger_name_via = $this->get_info_value_by_key( 'name_via' );
 
 		if ( ! $logger_name_via ) {
@@ -545,7 +540,7 @@ abstract class Logger {
 
 		// Output single or plural text.
 		if ( count( $arr_ip_addresses ) === 1 ) {
-			// Single ip address
+			// Single ip address.
 			$iplookup_link = sprintf(
 				'https://ipinfo.io/%1$s',
 				esc_attr( Helpers::get_valid_ip_address_from_anonymized( $first_ip_address ) )
@@ -677,9 +672,9 @@ abstract class Logger {
 		$message_key = $row->context['_message_key'] ?? null;
 
 		// Message is translated here, but translation must be added in
-		// plain text before
+		// plain text before.
 		if ( empty( $message_key ) ) {
-			// Message key did not exist, so check if we should translate using textdomain
+			// Message key did not exist, so check if we should translate using textdomain.
 			if ( ! empty( $row->context['_gettext_domain'] ) ) {
    				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.NonSingularStringLiteralText
 				$message = __( $message, $row->context['_gettext_domain'] );
@@ -697,7 +692,7 @@ abstract class Logger {
 
 		// All messages are escaped by default.
 		// If you need unescaped output override this method
-		// in your own logger
+		// in your own logger.
 		$html = esc_html( $html );
 
 		/**
@@ -734,13 +729,13 @@ abstract class Logger {
 			$user_id = $row->context['_user_id'] ?? null;
 			$user = get_user_by( 'id', $user_id );
 			if ( $user_id > 0 && ( $user ) ) {
-					// Sender was user
+					// Sender was user.
 					$sender_image_html = Helpers::get_avatar(
 						$user->user_email,
 						$sender_image_size
 					);
 			} elseif ( $user_id > 0 ) {
-				// Sender was a user, but user is deleted now
+				// Sender was a user, but user is deleted now.
 				$sender_image_html = Helpers::get_avatar(
 					'',
 					$sender_image_size
@@ -832,7 +827,7 @@ abstract class Logger {
 		$messageKey,
 		$context
 	) {
-		// When logging by message then the key must exist
+		// When logging by message then the key must exist.
 		if ( ! isset( $this->messages[ $messageKey ]['untranslated_text'] ) ) {
 			return;
 		}
@@ -1415,7 +1410,7 @@ abstract class Logger {
 		// Bail if `wp_get_current_user` is not loaded,
 		// because is not available early. (?)
 		// https://developer.wordpress.org/reference/functions/wp_get_current_user/
-		// https://core.trac.wordpress.org/ticket/14024
+		// https://core.trac.wordpress.org/ticket/14024.
 		if ( ! function_exists( 'wp_get_current_user' ) ) {
 			return $context;
 		}
@@ -1444,12 +1439,12 @@ abstract class Logger {
 	 */
 	private function append_initiator_to_context( $data, $context ) {
 		if ( isset( $context['_initiator'] ) ) {
-			// Manually set in contextn
+			// Manually set in context.
 			$data['initiator'] = $context['_initiator'];
 			unset( $context['_initiator'] );
 		} else {
 			// No initiator set, try to determine
-			// Default to other
+			// Default to other.
 			$data['initiator'] = Log_Initiators::OTHER;
 
 			// Check if user is responsible.
@@ -1464,7 +1459,7 @@ abstract class Logger {
 				}
 			}
 
-			// If cron then set WordPress as responsible
+			// If cron then set WordPress as responsible.
 			if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
 				$data['initiator'] = Log_Initiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
@@ -1475,7 +1470,7 @@ abstract class Logger {
 				}
 			}
 
-			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it
+			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it.
 			if ( defined( \WP_CLI::class ) && WP_CLI ) {
 				$data['initiator'] = Log_Initiators::WP_CLI;
 			}
@@ -1506,7 +1501,7 @@ abstract class Logger {
 			// Ref: http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
 			// Check for IP in lots of headers
 			// Based on code:
-			// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
+			// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/.
 			$ip_keys = Helpers::get_ip_number_header_names();
 
 			foreach ( $ip_keys as $key ) {

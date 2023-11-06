@@ -41,26 +41,26 @@ class Log_Query {
 		$sql_tmpl = null;
 		$defaults = array(
 
-			// overview | occasions
+			// overview | occasions.
 			'type' => 'overview',
 
 			// Number of posts to show per page. 0 to show all.
 			'posts_per_page' => 0,
 
-			// Page to show. 1 = first page
+			// Page to show. 1 = first page.
 			'paged' => 1,
 
 			// Array. Only get posts that are in array.
 			'post__in' => null,
 
-			// array or html
+			// array or html.
 			'format' => 'array',
 
 			// If max_id_first_page is set then only get rows
-			// that have id equal or lower than this, to make
+			// that have id equal or lower than this, to make.
 			'max_id_first_page' => null,
 
-			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id
+			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id.
 			'since_id' => null,
 
 			/**
@@ -78,12 +78,12 @@ class Log_Query {
 		   'date_to' => null,
 
 			// months in format "Y-m"
-			// array or comma separated
+			// array or comma separated.
 			'months' => null,
 
 			// dates in format
 			// "month:2015-06" for june 2015
-			// "lastdays:7" for the last 7 days
+			// "lastdays:7" for the last 7 days.
 			'dates' => null,
 
 			/**
@@ -98,21 +98,21 @@ class Log_Query {
 			// log levels to include. comma separated or as array. defaults to all.
 			'loglevels' => null,
 
-			// loggers to include. comma separated. defaults to all the user can read
+			// loggers to include. comma separated. defaults to all the user can read.
 			'loggers' => null,
 
 			'messages' => null,
 
-			// userID as number
+			// userID as number.
 			'user' => null,
 
-			// user ids, comma separated
+			// user ids, comma separated.
 			'users' => null,
 
 			// Can also contain:
 			// occasionsCount
 			// occasionsCountMaxReturn
-			// occasionsID
+			// occasionsID.
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -155,11 +155,11 @@ class Log_Query {
 			$wpdb->query( $sql_set_var );
 
 			// Main query
-			// 1 = where
-			// 2 = limit
-			// 3 = db name
-			// 4 = where for inner calc sql query thingie
-			// 5 = db name contexts
+			// 1 = where.
+			// 2 = limit.
+			// 3 = db name.
+			// 4 = where for inner calc sql query thingie.
+			// 5 = db name contexts.
 			$sql_tmpl = '
 				/*NO_SELECT_FOUND_ROWS*/
 				SELECT
@@ -208,14 +208,14 @@ class Log_Query {
 			$sh = Simple_History::get_instance();
 
 			// Only include loggers that the current user can view
-			// @TODO: this causes error if user has no access to any logger at all
+			// @TODO: this causes error if user has no access to any logger at all.
 			$sql_loggers_user_can_view = $sh->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
 			$inner_where .= " AND logger IN {$sql_loggers_user_can_view}";
 		} elseif ( 'occasions' === $args['type'] ) {
 			// Query template
-			// 1 = where
-			// 2 = limit
-			// 3 = db name
+			// 1 = where.
+			// 2 = limit.
+			// 3 = db name.
 			$sql_tmpl = '
 				SELECT h.*,
 					# fake columns that exist in overview query
@@ -234,13 +234,13 @@ class Log_Query {
 				// Used in gui to prevent to many events returned, that can stall the browser.
 				$limit = 'LIMIT ' . (int) $args['occasionsCountMaxReturn'];
 			} else {
-				// Regular limit that gets all occasions
+				// Regular limit that gets all occasions.
 				$limit = 'LIMIT ' . (int) $args['occasionsCount'];
 			}
 		}// End if().
 
 		// Determine limit
-		// Both posts_per_page and paged must be set
+		// Both posts_per_page and paged must be set.
 		$is_limit_query = ( is_numeric( $args['posts_per_page'] ) && $args['posts_per_page'] > 0 );
 		$is_limit_query = $is_limit_query && ( is_numeric( $args['paged'] ) && $args['paged'] > 0 );
 		if ( $is_limit_query ) {
@@ -248,16 +248,16 @@ class Log_Query {
 			$limit .= sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
 		}
 
-		// Determine where
+		// Determine where.
 		if ( $args['post__in'] && is_array( $args['post__in'] ) ) {
-			// make sure all vals are integers
+			// make sure all vals are integers.
 			$args['post__in'] = array_map( 'intval', $args['post__in'] );
 
 			$inner_where .= sprintf( ' AND id IN (%1$s)', implode( ',', $args['post__in'] ) );
 		}
 
 		// If max_id_first_page is then then only include rows
-		// with id equal to or earlier
+		// with id equal to or earlier.
 		if ( isset( $args['max_id_first_page'] ) && is_numeric( $args['max_id_first_page'] ) ) {
 			$max_id_first_page = (int) $args['max_id_first_page'];
 			$inner_where .= sprintf(
@@ -268,17 +268,17 @@ class Log_Query {
 
 		if ( isset( $args['since_id'] ) && is_numeric( $args['since_id'] ) ) {
 			$since_id = (int) $args['since_id'];
-			// Add where to inner because that's faster
+			// Add where to inner because that's faster.
 			$inner_where .= sprintf(
 				' AND id > %1$d',
 				$since_id
 			);
 		}
 
-		// Append date where
+		// Append date where.
 		if ( ! empty( $args['date_from'] ) ) {
 			// date_from=2014-08-01
-			// if date is not numeric assume Y-m-d H:i-format
+			// if date is not numeric assume Y-m-d H:i-format.
 			$date_from = $args['date_from'];
 			if ( ! is_numeric( $date_from ) ) {
 				$date_from = strtotime( $date_from );
@@ -289,7 +289,7 @@ class Log_Query {
 
 		if ( ! empty( $args['date_to'] ) ) {
 			// date_to=2014-08-01
-			// if date is not numeric assume Y-m-d H:i-format
+			// if date is not numeric assume Y-m-d H:i-format.
 			$date_to = $args['date_to'];
 			if ( ! is_numeric( $date_to ) ) {
 				$date_to = strtotime( $date_to );
@@ -337,13 +337,13 @@ class Log_Query {
 					$args['months'][] = substr( $one_date, strlen( 'month:' ) );
 					// If begins with "lastdays:" then strip string and keep only number of days.
 				} elseif ( strpos( $one_date, 'lastdays:' ) === 0 ) {
-					// Only keep largest lastdays value
+					// Only keep largest lastdays value.
 					$args['lastdays'] = max( $args['lastdays'], substr( $one_date, strlen( 'lastdays:' ) ) );
 				}
 			}
 		}
 
-		// lastdays, as int
+		// lastdays, as int.
 		if ( ! empty( $args['lastdays'] ) ) {
 			$inner_where .= "\n" . sprintf(
 				'
@@ -354,7 +354,7 @@ class Log_Query {
 			);
 		}
 
-		// months, in format "Y-m"
+		// months, in format "Y-m".
 		if ( ! empty( $args['months'] ) ) {
 			if ( is_array( $args['months'] ) ) {
 				$arr_months = $args['months'];
@@ -370,12 +370,12 @@ class Log_Query {
 			foreach ( $arr_months as $one_month ) {
 				// beginning of month
 				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08") ) . "\n";
-				// >> 2014-08-01 00:00
+				// >> 2014-08-01 00:00.
 				$date_month_beginning = strtotime( $one_month );
 
 				// end of month
 				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08 + 1 month") ) . "\n";'
-				// >> 2014-09-01 00:00
+				// >> 2014-09-01 00:00.
 				$date_month_end = strtotime( "{$one_month} + 1 month" );
 
 				$sql_months .= sprintf(
@@ -410,7 +410,7 @@ class Log_Query {
 			$arr_search_words = preg_split( '/[\s,]+/', $search_words );
 
 			// create array of all searched words
-			// split both spaces and commas and such
+			// split both spaces and commas and such.
 			$arr_sql_like_cols = array( 'message', 'logger', 'level' );
 
 			foreach ( $arr_sql_like_cols as $one_col ) {
@@ -449,14 +449,14 @@ class Log_Query {
 			}
 			$str_search_conditions = preg_replace( '/ AND $/', '', $str_search_conditions );
 
-			$str_search_conditions .= "\n   ) "; // end OR for contexts
+			$str_search_conditions .= "\n   ) "; // end OR for contexts.
 
 			$inner_where .= "\n AND \n(\n {$str_search_conditions} \n ) ";
 		}// End if().
 
 		// log levels
 		// comma separated
-		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loglevel=error,warn
+		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loglevel=error,warn.
 		if ( ! empty( $args['loglevels'] ) ) {
 			$sql_loglevels = '';
 
@@ -476,7 +476,7 @@ class Log_Query {
 			$inner_where .= $sql_loglevels;
 		}
 
-		// messages
+		// messages.
 		if ( ! empty( $args['messages'] ) ) {
 			/*
 			$args['messages']:
@@ -536,7 +536,7 @@ class Log_Query {
 					$sql_logger_messages_in
 				);
 			}
-			// remove last or
+			// remove last or.
 			$sql_messages_where = preg_replace( '/OR $/', '', $sql_messages_where );
 
 			$sql_messages_where .= "\n )";
@@ -545,7 +545,7 @@ class Log_Query {
 
 		// loggers
 		// comma separated
-		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger
+		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger.
 		if ( ! empty( $args['loggers'] ) ) {
 			$sql_loggers = '';
 			if ( is_array( $args['loggers'] ) ) {
@@ -563,7 +563,7 @@ class Log_Query {
 			$inner_where .= $sql_loggers;
 		}
 
-		// user, a single userID
+		// user, a single userID.
 		if ( ! empty( $args['user'] ) && is_numeric( $args['user'] ) ) {
 			$userID = (int) $args['user'];
 			$sql_user = sprintf(
@@ -634,7 +634,7 @@ class Log_Query {
 		$inner_where = apply_filters( 'simple_history/log_query_inner_where', $inner_where );
 
 		$sql = sprintf(
-			$sql_tmpl, // sprintf template
+			$sql_tmpl, // sprintf template.
 			$where,  // 1
 			$limit, // 2
 			$table_name, // 3
@@ -655,11 +655,11 @@ class Log_Query {
 		$log_rows = $wpdb->get_results( $sql, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Find total number of rows that we would have gotten without pagination
-		// This is the number of rows with occasions taken into consideration
+		// This is the number of rows with occasions taken into consideration.
 		$sql_found_rows = 'SELECT FOUND_ROWS()';
 		$total_found_rows = (int) $wpdb->get_var( $sql_found_rows ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		// Add context
+		// Add context.
 		$post_ids = wp_list_pluck( $log_rows, 'id' );
 
 		if ( empty( $post_ids ) ) {
@@ -686,7 +686,7 @@ class Log_Query {
 			// Max id is simply the id of the first row.
 			$max_id = reset( $log_rows )->id;
 
-			// Min id = to find the lowest id we must take occasions into consideration
+			// Min id = to find the lowest id we must take occasions into consideration.
 			$last_row = end( $log_rows );
 
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -713,7 +713,7 @@ class Log_Query {
 
 				$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-				// the last occasion has the id we consider last in this paged result
+				// the last occasion has the id we consider last in this paged result.
 				$min_id = end( $results )->id;
 			}
 		} // End if().

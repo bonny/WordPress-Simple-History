@@ -18,7 +18,7 @@ class SimpleLogger extends Logger {
 	private array $methods_mapping = array(
 		'getInfoValueByKey' => 'get_info_value_by_key',
 		'getCapability' => 'get_capability',
-		'interpolate' => null, // moved to helper
+		'interpolate' => null, // moved to helper.
 		'getLogRowHeaderInitiatorOutput' => 'get_log_row_header_initiator_output',
 		'getLogRowHeaderDateOutput' => 'get_log_row_header_date_output',
 		'getLogRowHeaderUsingPluginOutput' => 'get_log_row_header_using_plugin_output',

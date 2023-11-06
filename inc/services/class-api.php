@@ -25,9 +25,6 @@ class API extends Service {
 	 * http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&posts_per_page=5&paged=1&format=html
 	 */
 	public function api() {
-		// Fake slow answers
-		// sleep(2);
-		// sleep(rand(0,3));
 		$args = $_GET;
 		unset( $args['action'] );
 
@@ -42,7 +39,7 @@ class API extends Service {
 			);
 		}
 
-		// User must have capability to view the history page
+		// User must have capability to view the history page.
 		if ( ! current_user_can( $this->simple_history->get_view_history_capability() ) ) {
 			wp_send_json_error(
 				array(
@@ -61,7 +58,7 @@ class API extends Service {
 			case 'overview':
 			case 'occasions':
 			case 'single':
-				// API use SimpleHistoryLogQuery, so simply pass args on to that
+				// API use SimpleHistoryLogQuery, so simply pass args on to that.
 				$logQuery = new Log_Query();
 
 				$data = $logQuery->query( $args );

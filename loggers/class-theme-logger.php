@@ -80,8 +80,8 @@ class Theme_Logger extends Logger {
 							'custom_background_changed',
 						),
 					),
-				), // end search array
-			), // end labels
+				),
+			),
 		);
 
 		return $arr_info;
@@ -210,7 +210,7 @@ class Theme_Logger extends Logger {
 		)
 		*/
 
-		// Both args must be set
+		// Both args must be set.
 		if ( empty( $upgrader_instance ) || empty( $arr_data ) ) {
 			return;
 		}
@@ -220,12 +220,12 @@ class Theme_Logger extends Logger {
 			return;
 		}
 
-		// Must be type theme and action install
+		// Must be type theme and action install.
 		if ( $arr_data['type'] !== 'theme' || $arr_data['action'] !== 'update' ) {
 			return;
 		}
 
-		// If single install make an array so it look like bulk and we can use same code
+		// If single install make an array so it look like bulk and we can use same code.
 		if ( isset( $arr_data['bulk'] ) && $arr_data['bulk'] && isset( $arr_data['themes'] ) ) {
 			$arr_themes = (array) $arr_data['themes'];
 		} else {
@@ -369,7 +369,7 @@ class Theme_Logger extends Logger {
 		static_front_page - Static Front Page
 		*/
 
-		// Needed to get sections and controls in sorted order
+		// Needed to get sections and controls in sorted order.
 		$customize_manager->prepare_controls();
 
 		$settings = $customize_manager->settings();
@@ -392,7 +392,7 @@ class Theme_Logger extends Logger {
 						);
 
 						// value is changed
-						// find which control it belongs to
+						// find which control it belongs to.
 						foreach ( $controls as $one_control ) {
 							foreach ( $one_control->settings as $section_control_setting ) {
 								if ( $section_control_setting->id == $setting_id ) {
@@ -433,7 +433,7 @@ class Theme_Logger extends Logger {
 			return;
 		}
 
-		// Get current theme / the theme we are switching from
+		// Get current theme / the theme we are switching from.
 		$current_theme = wp_get_theme();
 
 		if ( ! is_a( $current_theme, 'WP_Theme' ) ) {
@@ -476,17 +476,12 @@ class Theme_Logger extends Logger {
 		$message_key = $context['_message_key'];
 		$output = '';
 
-		// Theme customizer
+		// Theme customizer.
 		if ( 'appearance_customized' == $message_key ) {
-			// if ( ! class_exists("WP_Customize_Manager") ) {
-			// require_once( ABSPATH . WPINC . '/class-wp-customize-manager.php' );
-			// $wp_customize = new WP_Customize_Manager;
-			// }
-			// $output .= "<pre>" . print_r($context, true);
 			if ( isset( $context['setting_old_value'] ) && isset( $context['setting_new_value'] ) ) {
 				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
-				// Output section, if saved
+				// Output section, if saved.
 				if ( ! empty( $context['section_id'] ) ) {
 					$output .= sprintf(
 						'
@@ -500,12 +495,12 @@ class Theme_Logger extends Logger {
 					);
 				}
 
-				// Don't output prev and new value if none exist
+				// Don't output prev and new value if none exist.
 				// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 				if ( empty( $context['setting_old_value'] ) && empty( $context['setting_new_value'] ) ) {
 					// Empty, so skip.
 				} else {
-					// if control is color let's be fancy and output as color
+					// if control is color let's be fancy and output as color.
 					$control_type = $context['control_type'] ?? '';
 					$str_old_value_prepend = '';
 					$str_new_value_prepend = '';
@@ -566,13 +561,13 @@ class Theme_Logger extends Logger {
 		$output = '';
 
 		// Widget changed or added or removed
-		// Simple replace widget_id_base and sidebar_id with widget name and sidebar name
+		// Simple replace widget_id_base and sidebar_id with widget name and sidebar name.
 		if ( in_array( $message_key, array( 'widget_added', 'widget_edited', 'widget_removed' ) ) ) {
 			$widget = $this->get_widget_by_id_base( $context['widget_id_base'] );
 			$sidebar = $this->get_sidebar_by_id( $context['sidebar_id'] );
 
 			if ( $widget && $sidebar ) {
-				// Translate message first
+				// Translate message first.
 				$message = $this->messages[ $message_key ]['translated_text'];
 
 				$message = helpers::interpolate(
@@ -588,7 +583,7 @@ class Theme_Logger extends Logger {
 			}
 		}
 
-		// Fallback to default/parent output if nothing was added to output
+		// Fallback to default/parent output if nothing was added to output.
 		if ( $output === '' ) {
 			$output .= parent::get_log_row_plain_text_output( $row );
 		}
@@ -607,7 +602,7 @@ class Theme_Logger extends Logger {
 	 */
 	public function on_widget_update_callback( $instance, $new_instance, $old_instance, $widget_instance ) {
 		// If old_instance is empty then this widget has just been added
-		// and we log that as "Added" not "Edited"
+		// and we log that as "Added" not "Edited".
 		if ( empty( $old_instance ) ) {
 			return $instance;
 		}
@@ -655,7 +650,7 @@ class Theme_Logger extends Logger {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['add_new'] ) && ! empty( $_POST['add_new'] ) && isset( $_POST['sidebar'] ) && isset( $_POST['id_base'] ) ) {
-			// Add widget info
+			// Add widget info.
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$widget_id_base = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
 			$context['widget_id_base'] = $widget_id_base;
@@ -664,7 +659,7 @@ class Theme_Logger extends Logger {
 				$context['widget_name_translated'] = $widget->name;
 			}
 
-			// Add sidebar info
+			// Add sidebar info.
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$sidebar_id = sanitize_text_field( wp_unslash( $_POST['sidebar'] ) );
 			$context['sidebar_id'] = $sidebar_id;
@@ -687,7 +682,7 @@ class Theme_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_action_sidebar_admin_setup__detect_widget_delete() {
-		// Widget was deleted
+		// Widget was deleted.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['delete_widget'] ) ) {
 			$context = array();
@@ -701,7 +696,7 @@ class Theme_Logger extends Logger {
 				$context['widget_name_translated'] = $widget->name;
 			}
 
-			// Add sidebar info
+			// Add sidebar info.
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 			$sidebar_id = sanitize_text_field( wp_unslash( $_POST['sidebar'] ) );
 			$context['sidebar_id'] = $sidebar_id;

@@ -18,7 +18,7 @@ class Admin_Pages extends Service {
 	 * Add pages (history page and settings page)
 	 */
 	public function add_admin_pages() {
-		// Add a history page as a sub-page below the Dashboard menu item
+		// Add a history page as a sub-page below the Dashboard menu item.
 		if ( $this->simple_history->setting_show_as_page() ) {
 			/**
 			 * Filter to determine if history page should be added to page below dashboard or not
@@ -83,7 +83,7 @@ class Admin_Pages extends Service {
 				?>
 			</header>
 
-			<?php // WordPress will add notices after element with class .wp-header-end ?>
+			<?php // WordPress will add notices after element with class .wp-header-end. ?>
 			<hr class="wp-header-end">
 
 			<div class="wrap">

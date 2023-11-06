@@ -73,7 +73,7 @@ class Event_Details_Dev_Dropin extends Dropin {
 			'pager_size_new' => '25',
 			'pager_size_prev' => '50',
 
-			// Format used by plugin and theme updates
+			// Format used by plugin and theme updates.
 			'theme_name' => 'Neve',
 			'theme_new_version' => '3.6.6',
 			'theme_current_version' => '3.6.4',

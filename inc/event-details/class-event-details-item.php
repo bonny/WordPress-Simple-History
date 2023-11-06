@@ -38,7 +38,7 @@ class Event_Details_Item {
 	 * @param string               $name        Human readable name of setting.
 	 */
 	public function __construct( $slug_or_slugs = null, $name = null ) {
-		// Set keys to use for new/current and old/prev values
+		// Set keys to use for new/current and old/prev values.
 		if ( is_array( $slug_or_slugs ) && count( $slug_or_slugs ) === 2 ) {
 			// Single slug as string = just exactly that context key.
 			// Array as slugs = 0 key = new/updated value, 1 = old/prev value.

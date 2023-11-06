@@ -92,7 +92,7 @@ class Setup_Settings_Page extends Service {
 	 * Add options menu page for settings.
 	 */
 	public function add_admin_pages() {
-		// Add a settings page
+		// Add a settings page.
 		$show_settings_page = true;
 		$show_settings_page = apply_filters( 'simple_history_show_settings_page', $show_settings_page );
 		$show_settings_page = apply_filters( 'simple_history/show_settings_page', $show_settings_page );
@@ -325,7 +325,7 @@ class Setup_Settings_Page extends Service {
 	 */
 	public function settings_field_clear_log() {
 		// Get base URL to current page.
-		// Will be like "/wordpress/wp-admin/options-general.php?page=simple_history_settings_menu_slug&"
+		// Will be like "/wordpress/wp-admin/options-general.php?page=simple_history_settings_menu_slug&".
 		$clear_link = add_query_arg( '', '' );
 
 		// Append nonce to URL.
@@ -535,7 +535,7 @@ class Setup_Settings_Page extends Service {
 			);
 			$arr_active_tab = current( $arr_active_tab );
 
-			// We must have found an active tab and it must have a callable function
+			// We must have found an active tab and it must have a callable function.
 			if ( ! $arr_active_tab || ! is_callable( $arr_active_tab['function'] ) ) {
 				wp_die( esc_html__( 'No valid callback found', 'simple-history' ) );
 			}
