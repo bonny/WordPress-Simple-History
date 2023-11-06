@@ -23,11 +23,9 @@ class SimpleHistoryLoggerCest
     }
     
     public function it_can_log_show_history(Admin $I) {
-        $I->makeScreenshot();
         $I->uncheckOption('#simple_history_show_on_dashboard');
         $I->uncheckOption('#simple_history_show_as_page');
         $I->click('Save Changes');
-        $I->makeScreenshot();
 
         $I->seeLogMessage('Modified settings');
         $I->seeLogContext([
@@ -36,7 +34,6 @@ class SimpleHistoryLoggerCest
             'show_as_page_prev' => '1',
             'show_as_page_new' => '0',
         ]);
-        $I->makeScreenshot();
     }
 
     public function it_can_clear_log_now(Admin $I) {
