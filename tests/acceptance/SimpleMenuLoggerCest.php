@@ -25,17 +25,23 @@ class SimpleMenuLoggerCest
         $I->wantTo('Edit the menu, add a page and a custom link.');
         $I->amOnAdminPage('nav-menus.php');
         $I->checkOption('#pagechecklist-most-recent input:first-of-type');
-        $I->click("#submit-posttype-page"); // Add page
+        $I->click("#submit-posttype-page"); // Click add to Menu
+
         $I->click('#add-custom-links'); // Expand custom links accordion header.
         $I->waitForElementVisible('#custom-menu-item-url');
+
         $I->fillField("#custom-menu-item-url", 'https://texttv.nu/');
         $I->fillField("#custom-menu-item-name", 'SVT Text TV');
         $I->wait(1);
-        $I->click('#submit-customlinkdiv'); // Add to Menu
-        $I->wait(1);
+        // Click Add to Menu
+        $I->click('#submit-customlinkdiv');
+        
+        // Give menu a name.
         $I->fillField('#menu-name', 'My new menu changed');
+        
+        // Save the menu.
         $I->click('Save Menu', '#nav-menu-footer');
-        $I->click('Save Menu', '#nav-menu-footer'); // Yes, must click twice or will not save for some reason...
+
         $I->seeLogMessage('Edited menu "My new menu changed"');
         $I->seeLogContext([
             'menu_id' => '2',
@@ -48,10 +54,11 @@ class SimpleMenuLoggerCest
         $I->amOnAdminPage('nav-menus.php');
         $I->click('#menu-to-edit .item-edit');
         $I->waitForElementVisible('#menu-to-edit .item-delete');
+        $I->scrollTo('#menu-to-edit .item-delete');
         $I->click('Remove', '#menu-to-edit');
         $I->wait('1');
         $I->click('Save Menu', '#nav-menu-footer');
-        $I->click('Save Menu', '#nav-menu-footer'); // Yes, must click twice or will not save for some reason...
+
         $I->seeLogMessage('Edited menu "My new menu changed"');
         $I->seeLogContext([
             'menu_id' => '2',
@@ -62,7 +69,6 @@ class SimpleMenuLoggerCest
     
         // Delete menu.
         $I->amOnAdminPage('nav-menus.php');
-        $I->click('Delete Menu');
         $I->click('Delete Menu');
         $I->acceptPopup();
         $I->wait(1);
