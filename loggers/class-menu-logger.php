@@ -8,7 +8,7 @@ use Simple_History\Helpers;
  * Logs WordPress menu edits
  */
 class Menu_Logger extends Logger {
-
+	/** @var string Logger slug */
 	public $slug = 'SimpleMenuLogger';
 
 	/**

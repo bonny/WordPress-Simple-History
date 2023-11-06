@@ -8,6 +8,7 @@ use Simple_History\Helpers;
  * Logs WordPress theme edits
  */
 class Theme_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'SimpleThemeLogger';
 
 	/** @var array<string> When switching themes, this will contain info about the theme we are switching from. */

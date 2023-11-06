@@ -6,7 +6,7 @@ namespace Simple_History\Loggers;
  * Logs changes to wordpress options
  */
 class Options_Logger extends Logger {
-
+	/** @var string Logger slug */
 	public $slug = 'SimpleOptionsLogger';
 
 	/**

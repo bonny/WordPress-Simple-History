@@ -8,6 +8,7 @@ use Simple_History\Helpers;
  * Logs changes to categories and tags and taxonomies
  */
 class Categories_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'SimpleCategoriesLogger';
 
 	/**

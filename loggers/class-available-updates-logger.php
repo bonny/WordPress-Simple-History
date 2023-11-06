@@ -10,6 +10,7 @@ use Simple_History\Log_Initiators;
  * @package SimpleHistory
  */
 class Available_Updates_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'AvailableUpdatesLogger';
 
 	/**

@@ -6,6 +6,7 @@ namespace Simple_History\Loggers;
  * Logger for Beaver Builder
  */
 class Plugin_Beaver_Builder_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'Plugin_BeaverBuilder';
 
 	/**

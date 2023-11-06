@@ -9,6 +9,7 @@ namespace Simple_History\Loggers;
  * @since 2.2
  */
 class Plugin_Enable_Media_Replace_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'PluginEnableMediaReplaceLogger';
 
 	/**

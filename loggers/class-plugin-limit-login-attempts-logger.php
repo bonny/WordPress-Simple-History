@@ -10,6 +10,7 @@ use Simple_History\Log_Initiators;
  * https://sv.wordpress.org/plugins/limit-login-attempts/
  */
 class Plugin_Limit_Login_Attempts_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'Plugin_LimitLoginAttempts';
 
 	/**

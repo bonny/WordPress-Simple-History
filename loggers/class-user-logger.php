@@ -8,6 +8,7 @@ use Simple_History\Helpers;
  * Logs changes to user logins (and logouts).
  */
 class User_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'SimpleUserLogger';
 
 	/** @inheritDoc */

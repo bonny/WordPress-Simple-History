@@ -11,6 +11,7 @@ use Simple_History\Helpers;
  * Requires WP Crontrol 1.9.0 or later.
  */
 class Plugin_WP_Crontrol_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'PluginWPCrontrolLogger';
 
 	/**

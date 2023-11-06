@@ -12,6 +12,7 @@ use Simple_History\Helpers;
  * @since 2.13
  */
 class Plugin_Duplicate_Post_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'Plugin_DuplicatePost';
 
 	/**

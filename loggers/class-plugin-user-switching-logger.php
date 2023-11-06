@@ -11,6 +11,7 @@ use Simple_History\Log_Initiators;
  * @since 2.2
  */
 class Plugin_User_Switching_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'PluginUserSwitchingLogger';
 
 	/**

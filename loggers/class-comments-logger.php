@@ -9,6 +9,7 @@ use Simple_History\Log_Initiators;
  * Logs things related to comments
  */
 class Comments_Logger extends Logger {
+	/** @var string Logger slug */
 	public $slug = 'SimpleCommentsLogger';
 
 	/**

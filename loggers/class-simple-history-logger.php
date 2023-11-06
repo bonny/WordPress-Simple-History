@@ -9,6 +9,7 @@ use Simple_History\Event_Details\Event_Details_Item;
  * Logs changes made on the Simple History settings page.
  */
 class Simple_History_Logger extends Logger {
+	/** @var string Logger slug */
 	protected $slug = 'SimpleHistoryLogger';
 
 	/** @var array<int,array<string,string>> Found changes */

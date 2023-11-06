@@ -8,7 +8,7 @@ use Simple_History\Helpers;
  * Logs media uploads
  */
 class Media_Logger extends Logger {
-
+	/** @var string Logger slug */
 	public $slug = 'SimpleMediaLogger';
 
 	/**
