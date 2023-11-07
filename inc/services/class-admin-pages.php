@@ -19,7 +19,7 @@ class Admin_Pages extends Service {
 	 */
 	public function add_admin_pages() {
 		// Add a history page as a sub-page below the Dashboard menu item.
-		if ( $this->simple_history->setting_show_as_page() ) {
+		if ( Helpers::setting_show_as_page() ) {
 			/**
 			 * Filter to determine if history page should be added to page below dashboard or not
 			 *

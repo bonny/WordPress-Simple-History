@@ -50,7 +50,7 @@ class Network_Menu_Items extends Service {
 		}
 
 		// Setting to show as page must be true.
-		if ( ! $this->simple_history->setting_show_as_page() ) {
+		if ( ! Helpers::setting_show_as_page() ) {
 			return;
 		}
 
@@ -114,7 +114,7 @@ class Network_Menu_Items extends Service {
 		}
 
 		// Setting to show as page must be true.
-		if ( ! $this->simple_history->setting_show_as_page() ) {
+		if ( ! Helpers::setting_show_as_page() ) {
 			return;
 		}
 

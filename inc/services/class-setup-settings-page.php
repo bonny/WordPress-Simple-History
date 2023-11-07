@@ -200,7 +200,7 @@ class Setup_Settings_Page extends Service {
 	 */
 	public function settings_field_where_to_show() {
 		$show_on_dashboard = Helpers::setting_show_on_dashboard();
-		$show_as_page = $this->simple_history->setting_show_as_page();
+		$show_as_page = Helpers::setting_show_as_page();
 		?>
 
 		<input
@@ -367,7 +367,7 @@ class Setup_Settings_Page extends Service {
 		$headline_link_start_elm = '';
 		$headline_link_end_elm = '';
 
-		if ( $this->simple_history->setting_show_as_page() ) {
+		if ( Helpers::setting_show_as_page() ) {
 			$headline_link_target = admin_url( 'index.php?page=simple_history_page' );
 		} else if ( Helpers::setting_show_on_dashboard() ) {
 			$headline_link_target = admin_url( 'index.php' );
@@ -403,7 +403,7 @@ class Setup_Settings_Page extends Service {
 			
 			<?php
 			// Add link back to the log.
-			if ( $this->simple_history->setting_show_as_page() ) {
+			if ( Helpers::setting_show_as_page() ) {
 				?>
 				<a href="<?php echo esc_url( $this->simple_history->get_view_history_page_admin_url() ); ?>" class="sh-PageHeader-rightLink">
 					<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--history"></span>
