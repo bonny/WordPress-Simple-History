@@ -34,7 +34,7 @@ class Admin_Pages extends Service {
 					apply_filters( 'simple_history/admin_location', 'index' ) . '.php',
 					_x( 'Simple History', 'dashboard title name', 'simple-history' ),
 					_x( 'Simple History', 'dashboard menu name', 'simple-history' ),
-					$this->simple_history->get_view_history_capability(),
+					Helpers::get_view_history_capability(),
 					'simple_history_page',
 					array( $this, 'history_page_output' )
 				);

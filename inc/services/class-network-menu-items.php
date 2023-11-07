@@ -55,7 +55,7 @@ class Network_Menu_Items extends Service {
 		}
 
 		// User must have capability to view the history page.
-		if ( ! current_user_can( $this->simple_history->get_view_history_capability() ) ) {
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;
 		}
 
@@ -119,7 +119,7 @@ class Network_Menu_Items extends Service {
 		}
 
 		// User must have capability to view the history page.
-		if ( ! current_user_can( $this->simple_history->get_view_history_capability() ) ) {
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;
 		}
 

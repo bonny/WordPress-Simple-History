@@ -21,7 +21,7 @@ class Dashboard_Widget extends Service {
 	 * and a setting to show dashboard to be set.
 	 */
 	public function add_dashboard_widget() {
-		if ( $this->simple_history->setting_show_on_dashboard() && current_user_can( $this->simple_history->get_view_history_capability() ) ) {
+		if ( $this->simple_history->setting_show_on_dashboard() && current_user_can( Helpers::get_view_history_capability() ) ) {
 			/**
 			 * Filter to determine if history page should be added to page below dashboard or not
 			 *

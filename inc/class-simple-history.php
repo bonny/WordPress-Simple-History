@@ -262,37 +262,11 @@ class Simple_History {
 	 * Default capability is "edit_pages".
 	 *
 	 * @since 2.1.5
+	 * @deprecated 4.8 Use Helpers::get_view_history_capability().
 	 * @return string capability
 	 */
 	public function get_view_history_capability() {
-		$view_history_capability = 'edit_pages';
-
-		/**
-		 * Deprecated, use filter `simple_history/view_history_capability` instead.
-		 */
-		$view_history_capability = apply_filters( 'simple_history_view_history_capability', $view_history_capability );
-
-		/**
-		 * Filter the capability required to view main simple history page, with the activity feed.
-		 * Default capability is "edit_pages".
-		 *
-		 * @example Change the capability required to view the log to "manage options", so only allow admins are allowed to view the history log page.
-		 *
-		 * ```php
-		 *  add_filter(
-		 *      'simple_history/view_history_capability',
-		 *      function ( $capability ) {
-		 *          $capability = 'manage_options';
-		 *          return $capability;
-		 *      }
-		 *  );
-		 * ```
-		 *
-		 * @param string $view_history_capability
-		 */
-		$view_history_capability = apply_filters( 'simple_history/view_history_capability', $view_history_capability );
-
-		return $view_history_capability;
+		return Helpers::get_view_history_capability();
 	}
 
 	/**

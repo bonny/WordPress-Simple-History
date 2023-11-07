@@ -2,6 +2,7 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Helpers;
 use Simple_History\Log_Query;
 
 /**
@@ -40,7 +41,7 @@ class API extends Service {
 		}
 
 		// User must have capability to view the history page.
-		if ( ! current_user_can( $this->simple_history->get_view_history_capability() ) ) {
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			wp_send_json_error(
 				array(
 					'error' => 'CAPABILITY_ERROR',

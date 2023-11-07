@@ -211,7 +211,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 Unreleased
 
-- Moved functions `get_pager_size()`, `get_pager_size_dashboard()`, `user_can_clear_log()`, `clear_log()`, `get_clear_history_interval()` from Simple History class to Helpers class.
+- Moved functions `get_pager_size()`, `get_pager_size_dashboard()`, `user_can_clear_log()`, `clear_log()`, `get_clear_history_interval()`, `get_view_history_capability()` from Simple History class to Helpers class.
 - Remove unused function `filter_option_page_capability()`.
 - Update coding standards to use and follow WP Coding Standards 3.
 
