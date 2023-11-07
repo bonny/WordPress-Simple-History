@@ -275,37 +275,12 @@ class Simple_History {
 	 * but can be modified using filter.
 	 *
 	 * @since 2.1.5
+	 * @deprecated 4.8 Use Helpers::get_view_settings_capability().
 	 * @return string capability
 	 */
 	public function get_view_settings_capability() {
-		$view_settings_capability = 'manage_options';
-
-		/**
-		 * Old filter name, use `simple_history/view_settings_capability` instead.
-		 */
-		$view_settings_capability = apply_filters( 'simple_history_view_settings_capability', $view_settings_capability );
-
-		/**
-		 * Filters the capability required to view the settings page.
-		 *
-		 * @example Change capability required to view the
-		 *
-		 * ```php
-		 *  add_filter(
-		 *      'simple_history/view_settings_capability',
-		 *      function ( $capability ) {
-		 *
-		 *          $capability = 'manage_options';
-		 *          return $capability;
-		 *      }
-		 *  );
-		 * ```
-		 *
-		 * @param string $view_settings_capability
-		 */
-		$view_settings_capability = apply_filters( 'simple_history/view_settings_capability', $view_settings_capability );
-
-		return $view_settings_capability;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_view_settings_capability()' );
+		return Helpers::get_view_settings_capability();
 	}
 
 	/**

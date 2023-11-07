@@ -33,7 +33,7 @@ class Dashboard_Widget extends Service {
 
 			// Show link to settings page in dashboard widget if user can view settings page.
 			$show_dashboard_settings_link_html = '';
-			$show_dashboard_settings_link = current_user_can( $this->simple_history->get_view_settings_capability() );
+			$show_dashboard_settings_link = current_user_can( Helpers::get_view_settings_capability() );
 			if ( $show_dashboard_settings_link ) {
 				$show_dashboard_settings_link_html = sprintf(
 					'<a href="%1$s" title="%2$s" class="sh-Icon sh-Dashboard-settingsLink"></a>',

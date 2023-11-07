@@ -101,7 +101,7 @@ class Setup_Settings_Page extends Service {
 			add_options_page(
 				__( 'Simple History Settings', 'simple-history' ),
 				_x( 'Simple History', 'Options page menu title', 'simple-history' ),
-				$this->simple_history->get_view_settings_capability(),
+				Helpers::get_view_settings_capability(),
 				$this->simple_history::SETTINGS_MENU_SLUG,
 				array( $this, 'settings_page_output' )
 			);

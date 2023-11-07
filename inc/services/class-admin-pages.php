@@ -72,7 +72,7 @@ class Admin_Pages extends Service {
 				
 				<?php
 				// Add link to settings & tools.
-				if ( current_user_can( $this->simple_history->get_view_settings_capability() ) ) {
+				if ( current_user_can( Helpers::get_view_settings_capability() ) ) {
 					?>
 					<a href="<?php echo esc_url( menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false ) ); ?>" class="sh-PageHeader-rightLink">
 						<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--settings"></span>

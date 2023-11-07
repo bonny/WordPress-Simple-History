@@ -970,4 +970,43 @@ class Helpers {
 
 		return $view_history_capability;
 	}
+
+	/**
+	 * Return capability required to view settings.
+	 * Default capability is "manage_options",
+	 * but can be modified using filter.
+	 *
+	 * @since 2.1.5
+	 * @return string capability
+	 */
+	public static function get_view_settings_capability() {
+		$view_settings_capability = 'manage_options';
+
+		/**
+		 * Old filter name, use `simple_history/view_settings_capability` instead.
+		 */
+		$view_settings_capability = apply_filters( 'simple_history_view_settings_capability', $view_settings_capability );
+
+		/**
+		 * Filters the capability required to view the settings page.
+		 *
+		 * @example Change capability required to view the
+		 *
+		 * ```php
+		 *  add_filter(
+		 *      'simple_history/view_settings_capability',
+		 *      function ( $capability ) {
+		 *
+		 *          $capability = 'manage_options';
+		 *          return $capability;
+		 *      }
+		 *  );
+		 * ```
+		 *
+		 * @param string $view_settings_capability
+		 */
+		$view_settings_capability = apply_filters( 'simple_history/view_settings_capability', $view_settings_capability );
+
+		return $view_settings_capability;
+	}
 }

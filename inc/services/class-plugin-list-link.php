@@ -2,6 +2,8 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Helpers;
+
 /**
  * Add a link to the History Settings Page on the Plugins -> Installed Plugins screen.
  */
@@ -28,7 +30,7 @@ class Plugin_List_Link extends Service {
 		}
 
 		// Only add link if user has the right to view the settings page.
-		if ( ! current_user_can( $this->simple_history->get_view_settings_capability() ) ) {
+		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			return $actions;
 		}
 
