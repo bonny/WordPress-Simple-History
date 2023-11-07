@@ -826,4 +826,110 @@ class Helpers {
 
 		return $pager_size;
 	}
+
+	/**
+	 * Check if the current user can clear the log.
+	 *
+	 * @since 2.19
+	 * @return bool
+	 */
+	public static function user_can_clear_log() {
+		/**
+		 * Allows controlling who can manually clear the log.
+		 * When this is true then the "Clear"-button in shown in the settings.
+		 * When this is false then no button is shown.
+		 *
+		 * @example
+		 * ```php
+		 *  // Remove the "Clear log"-button, so a user with admin access can not clear the log
+		 *  // and wipe their mischievous behavior from the log.
+		 *  add_filter(
+		 *      'simple_history/user_can_clear_log',
+		 *      function ( $user_can_clear_log ) {
+		 *          $user_can_clear_log = false;
+		 *          return $user_can_clear_log;
+		 *      }
+		 *  );
+		 * ```
+		 *
+		 * @param bool $allow Whether the current user is allowed to clear the log.
+		*/
+		return apply_filters( 'simple_history/user_can_clear_log', true );
+	}
+
+	/**
+	 * Removes all items from the log.
+	 *
+	 * @return int Number of rows removed.
+	 */
+	public static function clear_log() {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+
+		$simple_history_table = $simple_history->get_events_table_name();
+		$simple_history_contexts_table = $simple_history->get_contexts_table_name();
+
+		// Get number of rows before delete.
+		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$simple_history_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$num_rows = $wpdb->get_var( $sql_num_rows, 0 );
+
+		// Use truncate instead of delete because it's much faster (I think, writing this much later).
+		$sql = "TRUNCATE {$simple_history_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( $sql );
+
+		$sql = "TRUNCATE {$simple_history_contexts_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( $sql );
+
+		self::get_cache_incrementor( true );
+
+		return $num_rows;
+	}
+
+	/**
+	 * How old log entried are allowed to be.
+	 * 0 = don't delete old entries.
+	 *
+	 * @return int Number of days.
+	 */
+	public static function get_clear_history_interval() {
+		$days = 60;
+
+		/**
+		 * Deprecated filter name, use `simple_history/db_purge_days_interval` instead.
+		 * @deprecated
+		 */
+		$days = (int) apply_filters( 'simple_history_db_purge_days_interval', $days );
+
+		/**
+		 * Filter to modify number of days of history to keep.
+		 * Default is 60 days.
+		 *
+		 * @example Keep only the most recent 7 days in the log.
+		 *
+		 * ```php
+		 * add_filter( "simple_history/db_purge_days_interval", function( $days ) {
+		 *      $days = 7;
+		 *      return $days;
+		 *  } );
+		 * ```
+		 *
+		 * @example Expand the log to keep 90 days in the log.
+		 *
+		 * ```php
+		 * add_filter( "simple_history/db_purge_days_interval", function( $days ) {
+		 *      $days = 90;
+		 *      return $days;
+		 *  } );
+		 * ```
+		 *
+		 * @param int $days Number of days of history to keep
+		 */
+		$days = apply_filters( 'simple_history/db_purge_days_interval', $days );
+
+		return $days;
+	}
 }

@@ -113,7 +113,7 @@ class Setup_Settings_Page extends Service {
 	 * Also maybe save some settings before outputting them
 	 */
 	public function add_settings() {
-		$this->simple_history->clear_log_from_url_request();
+		$this->clear_log_from_url_request();
 
 		$settings_section_general_id = $this->simple_history::SETTINGS_SECTION_GENERAL_ID;
 		$settings_menu_slug = $this->simple_history::SETTINGS_MENU_SLUG;
@@ -173,7 +173,7 @@ class Setup_Settings_Page extends Service {
 		register_setting( $settings_general_option_group, 'simple_history_pager_size_dashboard' );
 
 		// Link/button to clear log.
-		if ( $this->simple_history->user_can_clear_log() ) {
+		if ( Helpers::user_can_clear_log() ) {
 			add_settings_field(
 				'simple_history_clear_log',
 				Helpers::get_settings_field_title_output( __( 'Clear log', 'simple-history' ), 'auto-delete' ),
@@ -545,6 +545,45 @@ class Setup_Settings_Page extends Service {
 			);
 
 			call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
+		}
+	}
+
+	/**
+	 * Detect clear log query arg and clear log if it is set and valid.
+	 */
+	public function clear_log_from_url_request() {
+		// Clear the log if clear button was clicked in settings
+		// and redirect user to show message.
+		if (
+			isset( $_GET['simple_history_clear_log_nonce'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['simple_history_clear_log_nonce'] ) ), 'simple_history_clear_log' )
+		) {
+			if ( Helpers::user_can_clear_log() ) {
+				$num_rows_deleted = Helpers::clear_log();
+
+				/**
+				 * Fires after the log has been cleared using
+				 * the "Clear log now" button on the settings page.
+				 *
+				 * @param int $num_rows_deleted Number of rows deleted.
+				 */
+				do_action( 'simple_history/settings/log_cleared', $num_rows_deleted );
+			}
+
+			$msg = __( 'Cleared database', 'simple-history' );
+
+			add_settings_error(
+				'simple_history_settings_clear_log',
+				'simple_history_settings_clear_log',
+				$msg,
+				'updated'
+			);
+
+			set_transient( 'settings_errors', get_settings_errors(), 30 );
+
+			$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
+			wp_redirect( $goback );
+			exit();
 		}
 	}
 }

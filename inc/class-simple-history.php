@@ -338,30 +338,12 @@ class Simple_History {
 	 * Check if the current user can clear the log.
 	 *
 	 * @since 2.19
+	 * @deprecated 4.8 Use Helpers::user_can_clear_log().
 	 * @return bool
 	 */
 	public function user_can_clear_log() {
-		/**
-		 * Allows controlling who can manually clear the log.
-		 * When this is true then the "Clear"-button in shown in the settings.
-		 * When this is false then no button is shown.
-		 *
-		 * @example
-		 * ```php
-		 *  // Remove the "Clear log"-button, so a user with admin access can not clear the log
-		 *  // and wipe their mischievous behavior from the log.
-		 *  add_filter(
-		 *      'simple_history/user_can_clear_log',
-		 *      function ( $user_can_clear_log ) {
-		 *          $user_can_clear_log = false;
-		 *          return $user_can_clear_log;
-		 *      }
-		 *  );
-		 * ```
-		 *
-		 * @param bool $allow Whether the current user is allowed to clear the log.
-		*/
-		return apply_filters( 'simple_history/user_can_clear_log', true );
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::user_can_clear_log()' );
+		return Helpers::user_can_clear_log();
 	}
 
 	/**
@@ -685,45 +667,6 @@ class Simple_History {
 	}
 
 	/**
-	 * Detect clear log query arg and clear log if it is set and valid.
-	 */
-	public function clear_log_from_url_request() {
-		// Clear the log if clear button was clicked in settings
-		// and redirect user to show message.
-		if (
-			isset( $_GET['simple_history_clear_log_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['simple_history_clear_log_nonce'] ) ), 'simple_history_clear_log' )
-		) {
-			if ( $this->user_can_clear_log() ) {
-				$num_rows_deleted = $this->clear_log();
-
-				/**
-				 * Fires after the log has been cleared using
-				 * the "Clear log now" button on the settings page.
-				 *
-				 * @param int $num_rows_deleted Number of rows deleted.
-				 */
-				do_action( 'simple_history/settings/log_cleared', $num_rows_deleted );
-			}
-
-			$msg = __( 'Cleared database', 'simple-history' );
-
-			add_settings_error(
-				'simple_history_settings_clear_log',
-				'simple_history_settings_clear_log',
-				$msg,
-				'updated'
-			);
-
-			set_transient( 'settings_errors', get_settings_errors(), 30 );
-
-			$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
-			wp_redirect( $goback );
-			exit();
-		}
-	}
-
-	/**
 	 * Get setting if plugin should be visible on dashboard.
 	 * Defaults to true
 	 *
@@ -752,74 +695,23 @@ class Simple_History {
 	 * How old log entried are allowed to be.
 	 * 0 = don't delete old entries.
 	 *
+	 * @deprecated 4.8 Use Helpers::get_clear_history_interval().
 	 * @return int Number of days.
 	 */
 	public function get_clear_history_interval() {
-		$days = 60;
-
-		/**
-		 * Deprecated filter name, use `simple_history/db_purge_days_interval` instead.
-		 * @deprecated
-		 */
-		$days = (int) apply_filters( 'simple_history_db_purge_days_interval', $days );
-
-		/**
-		 * Filter to modify number of days of history to keep.
-		 * Default is 60 days.
-		 *
-		 * @example Keep only the most recent 7 days in the log.
-		 *
-		 * ```php
-		 * add_filter( "simple_history/db_purge_days_interval", function( $days ) {
-		 *      $days = 7;
-		 *      return $days;
-		 *  } );
-		 * ```
-		 *
-		 * @example Expand the log to keep 90 days in the log.
-		 *
-		 * ```php
-		 * add_filter( "simple_history/db_purge_days_interval", function( $days ) {
-		 *      $days = 90;
-		 *      return $days;
-		 *  } );
-		 * ```
-		 *
-		 * @param int $days Number of days of history to keep
-		 */
-		$days = apply_filters( 'simple_history/db_purge_days_interval', $days );
-
-		return $days;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_clear_history_interval()' );
+		return Helpers::get_clear_history_interval();
 	}
 
 	/**
 	 * Removes all items from the log.
 	 *
+	 * @deprecated 4.8 Use Helpers::clear_log().
 	 * @return int Number of rows removed.
 	 */
 	public function clear_log() {
-		global $wpdb;
-
-		$simple_history_table = $this->get_events_table_name();
-		$simple_history_contexts_table = $this->get_contexts_table_name();
-
-		// Get number of rows before delete.
-		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$simple_history_table}";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$num_rows = $wpdb->get_var( $sql_num_rows, 0 );
-
-		// Use truncate instead of delete because it's much faster (I think, writing this much later).
-		$sql = "TRUNCATE {$simple_history_table}";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$wpdb->query( $sql );
-
-		$sql = "TRUNCATE {$simple_history_contexts_table}";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$wpdb->query( $sql );
-
-		Helpers::get_cache_incrementor( true );
-
-		return $num_rows;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::clear_log()' );
+		return Helpers::clear_log();
 	}
 
 	/**
