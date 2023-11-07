@@ -1320,34 +1320,13 @@ class Simple_History {
 	/**
 	 * Get number of unique events the last n days.
 	 *
+	 * @deprecated 4.8 Use Helpers::get_num_unique_events_last_n_days().
 	 * @param int $days Number of days to get events for.
 	 * @return int Number of days.
 	 */
 	public function get_unique_events_for_days( $days = 7 ) {
-		global $wpdb;
-		$days = (int) $days;
-		$table_name = $this->get_events_table_name();
-		$cache_key = 'sh_' . md5( __METHOD__ . $days );
-		$numEvents = get_transient( $cache_key );
-
-		if ( false == $numEvents ) {
-			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$sql = $wpdb->prepare(
-				"
-                SELECT count( DISTINCT occasionsID )
-                FROM $table_name
-                WHERE date >= DATE_ADD(CURDATE(), INTERVAL -%d DAY)
-            	",
-				$days
-			);
-			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-			$numEvents = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-			set_transient( $cache_key, $numEvents, HOUR_IN_SECONDS );
-		}
-
-		return $numEvents;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_unique_events_for_days()' );
+		return Helpers::get_unique_events_for_days( $days );
 	}
 
 	/**

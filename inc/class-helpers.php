@@ -1165,4 +1165,39 @@ class Helpers {
 
 		return $dates;
 	}
+
+	/**
+	 * Get number of unique events the last n days.
+	 *
+	 * @param int $days Number of days to get events for.
+	 * @return int Number of days.
+	 */
+	public static function get_unique_events_for_days( $days = 7 ) {
+		global $wpdb;
+		$simple_history = Simple_History::get_instance();
+
+		$days = (int) $days;
+		$table_name = $simple_history->get_events_table_name();
+		$cache_key = 'sh_' . md5( __METHOD__ . $days );
+		$numEvents = get_transient( $cache_key );
+
+		if ( false == $numEvents ) {
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$sql = $wpdb->prepare(
+				"
+                SELECT count( DISTINCT occasionsID )
+                FROM $table_name
+                WHERE date >= DATE_ADD(CURDATE(), INTERVAL -%d DAY)
+            	",
+				$days
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+			$numEvents = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+			set_transient( $cache_key, $numEvents, HOUR_IN_SECONDS );
+		}
+
+		return $numEvents;
+	}
 }
