@@ -595,12 +595,12 @@ class Simple_History {
 	 * Get setting if plugin should be visible on dashboard.
 	 * Defaults to true
 	 *
+	 * @deprecated 4.8 Use Helpers::setting_show_on_dashboard().
 	 * @return bool
 	 */
 	public function setting_show_on_dashboard() {
-		$show_on_dashboard = get_option( 'simple_history_show_on_dashboard', 1 );
-		$show_on_dashboard = apply_filters( 'simple_history_show_on_dashboard', $show_on_dashboard );
-		return (bool) $show_on_dashboard;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::setting_show_on_dashboard()' );
+		return Helpers::setting_show_on_dashboard();
 	}
 
 	/**

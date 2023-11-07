@@ -1031,11 +1031,11 @@ class Helpers {
 			return true;
 		} elseif (
 			$hook == 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ||
-			( $simple_history->setting_show_on_dashboard() && $hook == 'index.php' ) ||
+			( self::setting_show_on_dashboard() && $hook == 'index.php' ) ||
 			( $simple_history->setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page' )
 		) {
 			return true;
-		} elseif ( $current_screen && $current_screen->base == 'dashboard' && $simple_history->setting_show_on_dashboard() ) {
+		} elseif ( $current_screen && $current_screen->base == 'dashboard' && self::setting_show_on_dashboard() ) {
 			return true;
 		}
 
@@ -1060,5 +1060,17 @@ class Helpers {
 		$data_exists = (bool) $wpdb->get_var( $sql_data_exists, 0 );
 
 		return $data_exists;
+	}
+
+	/**
+	 * Get setting if plugin should be visible on dashboard.
+	 * Defaults to true
+	 *
+	 * @return bool
+	 */
+	public static function setting_show_on_dashboard() {
+		$show_on_dashboard = get_option( 'simple_history_show_on_dashboard', 1 );
+		$show_on_dashboard = apply_filters( 'simple_history_show_on_dashboard', $show_on_dashboard );
+		return (bool) $show_on_dashboard;
 	}
 }

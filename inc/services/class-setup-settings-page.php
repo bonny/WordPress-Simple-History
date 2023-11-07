@@ -199,7 +199,7 @@ class Setup_Settings_Page extends Service {
 	 * Settings field for where to show the log, page or dashboard
 	 */
 	public function settings_field_where_to_show() {
-		$show_on_dashboard = $this->simple_history->setting_show_on_dashboard();
+		$show_on_dashboard = Helpers::setting_show_on_dashboard();
 		$show_as_page = $this->simple_history->setting_show_as_page();
 		?>
 
@@ -369,7 +369,7 @@ class Setup_Settings_Page extends Service {
 
 		if ( $this->simple_history->setting_show_as_page() ) {
 			$headline_link_target = admin_url( 'index.php?page=simple_history_page' );
-		} else if ( $this->simple_history->setting_show_on_dashboard() ) {
+		} else if ( Helpers::setting_show_on_dashboard() ) {
 			$headline_link_target = admin_url( 'index.php' );
 		}
 
