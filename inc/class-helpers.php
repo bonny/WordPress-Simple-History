@@ -1041,4 +1041,24 @@ class Helpers {
 
 		return false;
 	}
+
+	/**
+	 * Check if the database has any data, i.e. at least 1 row.
+	 *
+	 * @since 2.1.6
+	 * @return bool True if database is not empty, false if database is empty = contains no data
+	 */
+	public static function db_has_data() {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+
+		$table_name = $simple_history->get_events_table_name();
+
+		$sql_data_exists = "SELECT id AS id_exists FROM {$table_name} LIMIT 1";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$data_exists = (bool) $wpdb->get_var( $sql_data_exists, 0 );
+
+		return $data_exists;
+	}
 }

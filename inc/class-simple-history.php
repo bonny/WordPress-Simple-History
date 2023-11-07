@@ -502,18 +502,12 @@ class Simple_History {
 	 * Check if the database has any data, i.e. at least 1 row.
 	 *
 	 * @since 2.1.6
+	 * @deprecated 4.8 Use Helpers::does_database_have_data().
 	 * @return bool True if database is not empty, false if database is empty = contains no data
 	 */
 	public function does_database_have_data() {
-		global $wpdb;
-
-		$table_name = $this->get_events_table_name();
-
-		$sql_data_exists = "SELECT id AS id_exists FROM {$table_name} LIMIT 1";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$data_exists = (bool) $wpdb->get_var( $sql_data_exists, 0 );
-
-		return $data_exists;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::does_database_have_data()' );
+		return Helpers::db_has_data();
 	}
 
 	/**

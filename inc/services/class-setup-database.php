@@ -2,6 +2,7 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Helpers;
 use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Log_Initiators;
 
@@ -206,7 +207,7 @@ class Setup_Database extends Service {
 		// We detect these by checking for db_version and then running the install stuff again.
 		if ( 4 == (int) $db_version ) {
 			/** @noRector \Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector */
-			if ( ! $this->simple_history->does_database_have_data() ) {
+			if ( ! Helpers::db_has_data() ) {
 				// not ok, decrease db number so installs will run again and hopefully fix things.
 				$db_version = 0;
 			} else {
@@ -224,7 +225,7 @@ class Setup_Database extends Service {
 	 * Not called after only plugin activation.
 	 */
 	public function add_welcome_log_message() {
-		$db_data_exists = $this->simple_history->does_database_have_data();
+		$db_data_exists = Helpers::db_has_data();
 		$plugin_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
 
 		if ( ! $plugin_logger instanceof Plugin_Logger ) {
