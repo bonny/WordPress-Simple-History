@@ -3,6 +3,7 @@
 namespace Simple_History;
 
 use Simple_History\Simple_History;
+use SimpleHistory;
 
 /**
  * Helper functions.
@@ -1008,5 +1009,36 @@ class Helpers {
 		$view_settings_capability = apply_filters( 'simple_history/view_settings_capability', $view_settings_capability );
 
 		return $view_settings_capability;
+	}
+
+	/**
+	 * Check if the current page is any of the pages that belong
+	 * to Simple History.
+	 *
+	 * @param string $hook The current page hook.
+	 * @return bool
+	 */
+	public static function is_on_our_own_pages( $hook = '' ) {
+		$simple_history = Simple_History::get_instance();
+		$current_screen = self::get_current_screen();
+
+		$basePrefix = apply_filters( 'simple_history/admin_location', 'index' );
+		$basePrefix = $basePrefix === 'index' ? 'dashboard' : $basePrefix;
+
+		if ( $current_screen && $current_screen->base == 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ) {
+			return true;
+		} elseif ( $current_screen && $current_screen->base === $basePrefix . '_page_simple_history_page' ) {
+			return true;
+		} elseif (
+			$hook == 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ||
+			( $simple_history->setting_show_on_dashboard() && $hook == 'index.php' ) ||
+			( $simple_history->setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page' )
+		) {
+			return true;
+		} elseif ( $current_screen && $current_screen->base == 'dashboard' && $simple_history->setting_show_on_dashboard() ) {
+			return true;
+		}
+
+		return false;
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Helpers;
 use Simple_History\Simple_History;
 
 /**
@@ -22,7 +23,7 @@ class Scripts_And_Templates extends Service {
 	 * @param string $hook The current admin page.
 	 */
 	public function add_js_templates( $hook ) {
-		if ( $this->simple_history->is_on_our_own_pages() ) {
+		if ( Helpers::is_on_our_own_pages() ) {
 			?>
 			<script type="text/html" id="tmpl-simple-history-base">
 
@@ -136,7 +137,7 @@ class Scripts_And_Templates extends Service {
 	 * @param string $hook The current admin page.
 	 */
 	public function enqueue_admin_scripts( $hook ) {
-		if ( $this->simple_history->is_on_our_own_pages() ) {
+		if ( Helpers::is_on_our_own_pages() ) {
 			add_thickbox();
 
 			wp_enqueue_style(

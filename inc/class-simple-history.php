@@ -198,7 +198,7 @@ class Simple_History {
 	 * @return void
 	 */
 	public function on_admin_head() {
-		if ( $this->is_on_our_own_pages() ) {
+		if ( Helpers::is_on_our_own_pages() ) {
 			/**
 			 * Similar to action WordPress action `admin_head`,
 			 * but only fired from pages with Simple History.
@@ -215,7 +215,7 @@ class Simple_History {
 	 * @return void
 	 */
 	public function on_admin_footer() {
-		if ( $this->is_on_our_own_pages() ) {
+		if ( Helpers::is_on_our_own_pages() ) {
 			/**
 			 * Similar to action WordPress action `admin_footer`,
 			 * but only fired from pages with Simple History.
@@ -490,34 +490,16 @@ class Simple_History {
 	 * Check if the current page is any of the pages that belong
 	 * to Simple History.
 	 *
-	 * @param string $hook The current page hook.
+	 * @deprecated 4.8 Use Helpers::is_on_our_own_pages().
 	 * @return bool
 	 */
-	public function is_on_our_own_pages( $hook = '' ) {
-		$current_screen = Helpers::get_current_screen();
-
-		$basePrefix = apply_filters( 'simple_history/admin_location', 'index' );
-		$basePrefix = $basePrefix === 'index' ? 'dashboard' : $basePrefix;
-
-		if ( $current_screen && $current_screen->base == 'settings_page_' . self::SETTINGS_MENU_SLUG ) {
-			return true;
-		} elseif ( $current_screen && $current_screen->base === $basePrefix . '_page_simple_history_page' ) {
-			return true;
-		} elseif (
-			$hook == 'settings_page_' . self::SETTINGS_MENU_SLUG ||
-			( $this->setting_show_on_dashboard() && $hook == 'index.php' ) ||
-			( $this->setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page' )
-		) {
-			return true;
-		} elseif ( $current_screen && $current_screen->base == 'dashboard' && $this->setting_show_on_dashboard() ) {
-			return true;
-		}
-
-		return false;
+	public function is_on_our_own_pages() {
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::is_on_our_own_pages()' );
+		return Helpers::is_on_our_own_pages();
 	}
 
 	/**
-	 * Check if the database has data/rows
+	 * Check if the database has any data, i.e. at least 1 row.
 	 *
 	 * @since 2.1.6
 	 * @return bool True if database is not empty, false if database is empty = contains no data

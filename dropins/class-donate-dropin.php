@@ -35,7 +35,7 @@ class Donate_Dropin extends Dropin {
 	 * @return string
 	 */
 	public function filter_admin_footer_text( $text ) {
-		if ( $this->simple_history->is_on_our_own_pages() === false ) {
+		if ( Helpers::is_on_our_own_pages() === false ) {
 			return $text;
 		}
 
