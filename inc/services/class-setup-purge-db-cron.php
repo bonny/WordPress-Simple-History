@@ -78,7 +78,7 @@ class Setup_Purge_DB_Cron extends Service {
 			return;
 		}
 
-		$days = $this->simple_history->get_clear_history_interval();
+		$days = Helpers::get_clear_history_interval();
 
 		// Never clear log if days = 0.
 		if ( 0 == $days ) {

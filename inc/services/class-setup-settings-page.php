@@ -331,7 +331,7 @@ class Setup_Settings_Page extends Service {
 		// Append nonce to URL.
 		$clear_link = wp_nonce_url( $clear_link, 'simple_history_clear_log', 'simple_history_clear_log_nonce' );
 
-		$clear_days = $this->simple_history->get_clear_history_interval();
+		$clear_days = Helpers::get_clear_history_interval();
 
 		echo '<p>';
 
