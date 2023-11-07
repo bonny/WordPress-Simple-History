@@ -5,6 +5,7 @@ namespace Simple_History\Dropins;
 use DateTime;
 use DateInterval;
 use DatePeriod;
+use Simple_History\Helpers;
 
 /**
  * Dropin Name: Sidebar with short stats
@@ -158,7 +159,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 						sprintf(
 							// translators: 1 is number of events, 2 is number of days.
 							__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
-							$this->simple_history->get_num_events_last_n_days( $num_days ),
+							Helpers::get_num_events_last_n_days( $num_days ),
 							number_format_i18n( $num_days )
 						),
 						array(

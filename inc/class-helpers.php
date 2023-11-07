@@ -1073,4 +1073,54 @@ class Helpers {
 		$show_on_dashboard = apply_filters( 'simple_history_show_on_dashboard', $show_on_dashboard );
 		return (bool) $show_on_dashboard;
 	}
+
+	/**
+	 * Should simple history be shown as a page
+	 * Defaults to true
+	 *
+	 * @return bool
+	 */
+	public static function setting_show_as_page() {
+		$setting = get_option( 'simple_history_show_as_page', 1 );
+		$setting = apply_filters( 'simple_history_show_as_page', $setting );
+
+		return (bool) $setting;
+	}
+
+	/**
+	 * Get number of events the last n days.
+	 *
+	 * @param int $period_days Number of days to get events for.
+	 * @return int Number of days.
+	 */
+	public static function get_num_events_last_n_days( $period_days = 28 ) {
+		$simple_history = Simple_History::get_instance();
+		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
+
+		$count = get_transient( $transient_key );
+
+		if ( false === $count ) {
+			global $wpdb;
+
+			$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+
+			$sql = sprintf(
+				'
+                    SELECT count(*)
+                    FROM %1$s
+                    WHERE UNIX_TIMESTAMP(date) >= %2$d
+                    AND logger IN %3$s
+                ',
+				$simple_history->get_events_table_name(),
+				strtotime( "-$period_days days" ),
+				$sqlStringLoggersUserCanRead
+			);
+
+			$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+			set_transient( $transient_key, $count, HOUR_IN_SECONDS );
+		}
+
+		return $count;
+	}
 }

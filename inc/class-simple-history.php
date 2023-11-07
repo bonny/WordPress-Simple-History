@@ -607,13 +607,12 @@ class Simple_History {
 	 * Should simple history be shown as a page
 	 * Defaults to true
 	 *
+	 * @deprecated 4.8 Use Helpers::setting_show_as_page().
 	 * @return bool
 	 */
 	public function setting_show_as_page() {
-		$setting = get_option( 'simple_history_show_as_page', 1 );
-		$setting = apply_filters( 'simple_history_show_as_page', $setting );
-
-		return (bool) $setting;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::setting_show_as_page()' );
+		return Helpers::setting_show_as_page();
 	}
 
 	/**
@@ -1197,8 +1196,8 @@ class Simple_History {
 	 * Check which loggers a user has the right to read and return an array
 	 * with all loggers they are allowed to read.
 	 *
-	 * @param int    $user_id Id of user to get loggers for. Defaults to current user id.
-	 * @param string $format format to return loggers in. Default is array. Can also be "sql".
+	 * @param int|null $user_id Id of user to get loggers for. Defaults to current user id.
+	 * @param string   $format format to return loggers in. Default is array. Can also be "sql".
 	 * @return array|string Array or SQL string with loggers that user can read.
 	 */
 	public function get_loggers_that_user_can_read( $user_id = null, $format = 'array' ) {
@@ -1297,37 +1296,13 @@ class Simple_History {
 	/**
 	 * Get number of events the last n days.
 	 *
+	 * @deprecated 4.8 Use Helpers::get_num_events_last_n_days().
 	 * @param int $period_days Number of days to get events for.
 	 * @return int Number of days.
 	 */
 	public function get_num_events_last_n_days( $period_days = 28 ) {
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
-
-		$count = get_transient( $transient_key );
-
-		if ( false === $count ) {
-			global $wpdb;
-
-			$sqlStringLoggersUserCanRead = $this->get_loggers_that_user_can_read( null, 'sql' );
-
-			$sql = sprintf(
-				'
-                    SELECT count(*)
-                    FROM %1$s
-                    WHERE UNIX_TIMESTAMP(date) >= %2$d
-                    AND logger IN %3$s
-                ',
-				$this->get_events_table_name(),
-				strtotime( "-$period_days days" ),
-				$sqlStringLoggersUserCanRead
-			);
-
-			$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-			set_transient( $transient_key, $count, HOUR_IN_SECONDS );
-		}
-
-		return $count;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_num_events_last_n_days()' );
+		return Helpers::get_num_events_last_n_days( $period_days );
 	}
 
 	/**
