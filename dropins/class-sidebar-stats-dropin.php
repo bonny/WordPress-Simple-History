@@ -138,7 +138,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	public function on_sidebar_html() {
 		$num_days = 28;
 
-		$num_events_per_day_for_period = $this->simple_history->get_num_events_per_day_last_n_days( $num_days );
+		$num_events_per_day_for_period = Helpers::get_num_events_per_day_last_n_days( $num_days );
 
 		// Period = all dates, so empty ones don't get lost.
 		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$num_days days" ) );

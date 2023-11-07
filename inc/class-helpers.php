@@ -1123,4 +1123,46 @@ class Helpers {
 
 		return $count;
 	}
+
+	/**
+	 * Get number of events per day the last n days.
+	 *
+	 * @param int $period_days Number of days to get events for.
+	 * @return array Array with date as key and number of events as value.
+	 */
+	public static function get_num_events_per_day_last_n_days( $period_days = 28 ) {
+		$simple_history = Simple_History::get_instance();
+		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
+		$dates = get_transient( $transient_key );
+
+		if ( false === $dates ) {
+			global $wpdb;
+
+			$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+
+			$sql = sprintf(
+				'
+                    SELECT
+                        date_format(date, "%%Y-%%m-%%d") AS yearDate,
+                        count(date) AS count
+                    FROM
+                        %1$s
+                    WHERE
+                        UNIX_TIMESTAMP(date) >= %2$d
+                        AND logger IN (%3$d)
+                    GROUP BY yearDate
+                    ORDER BY yearDate ASC
+                ',
+				$simple_history->get_events_table_name(),
+				strtotime( "-$period_days days" ),
+				$sqlStringLoggersUserCanRead
+			);
+
+			$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+			set_transient( $transient_key, $dates, HOUR_IN_SECONDS );
+		}
+
+		return $dates;
+	}
 }

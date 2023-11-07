@@ -1307,42 +1307,14 @@ class Simple_History {
 
 	/**
 	 * Get number of events per day the last n days.
+	 *
+	 * @deprecated 4.8 Use Helpers::get_num_events_per_day_last_n_days().
 	 * @param int $period_days Number of days to get events for.
 	 * @return array Array with date as key and number of events as value.
 	 */
 	public function get_num_events_per_day_last_n_days( $period_days = 28 ) {
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
-		$dates = get_transient( $transient_key );
-
-		if ( false === $dates ) {
-			global $wpdb;
-
-			$sqlStringLoggersUserCanRead = $this->get_loggers_that_user_can_read( null, 'sql' );
-
-			$sql = sprintf(
-				'
-                    SELECT
-                        date_format(date, "%%Y-%%m-%%d") AS yearDate,
-                        count(date) AS count
-                    FROM
-                        %1$s
-                    WHERE
-                        UNIX_TIMESTAMP(date) >= %2$d
-                        AND logger IN (%3$d)
-                    GROUP BY yearDate
-                    ORDER BY yearDate ASC
-                ',
-				$this->get_events_table_name(),
-				strtotime( "-$period_days days" ),
-				$sqlStringLoggersUserCanRead
-			);
-
-			$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-			set_transient( $transient_key, $dates, HOUR_IN_SECONDS );
-		}
-
-		return $dates;
+		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_num_events_per_day_last_n_days()' );
+		return Helpers::get_num_events_per_day_last_n_days( $period_days );
 	}
 
 	/**
