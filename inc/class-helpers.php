@@ -1019,7 +1019,6 @@ class Helpers {
 	 * @return bool
 	 */
 	public static function is_on_our_own_pages( $hook = '' ) {
-		$simple_history = Simple_History::get_instance();
 		$current_screen = self::get_current_screen();
 
 		$basePrefix = apply_filters( 'simple_history/admin_location', 'index' );
