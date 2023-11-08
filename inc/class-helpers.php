@@ -760,9 +760,6 @@ class Helpers {
 	 * @return string HTML for link to add-ons.
 	 */
 	public static function get_header_add_ons_link() {
-		// TODO: Enable this later when add-ons flow are tested.
-		return '';
-
 		ob_start();
 
 		?>
