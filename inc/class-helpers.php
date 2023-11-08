@@ -1032,7 +1032,7 @@ class Helpers {
 		} elseif (
 			$hook == 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ||
 			( self::setting_show_on_dashboard() && $hook == 'index.php' ) ||
-			( $simple_history->setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page' )
+			( self::setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page' )
 		) {
 			return true;
 		} elseif ( $current_screen && $current_screen->base == 'dashboard' && self::setting_show_on_dashboard() ) {
