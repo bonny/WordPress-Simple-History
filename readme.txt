@@ -211,6 +211,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 Unreleased
 
+- Fix position of navigation bar when admin notice with additional class "inline" is shown. Fixes #408.
 - Fix notice when visiting the "hidden" options page `/wp-admin/options.php`.
 - Moved functions `get_pager_size()`, `get_pager_size_dashboard()`, `user_can_clear_log()`, `clear_log()`, `get_clear_history_interval()`, `get_view_history_capability()`, `get_view_settings_capability()`, `is_on_our_own_pages()`, `does_database_have_data()`, `setting_show_on_dashboard()`, `setting_show_as_page()`, `get_num_events_last_n_days()`, `get_num_events_per_day_last_n_days()`, `get_unique_events_for_days()` from Simple History class to Helpers class.
 - Remove unused function `filter_option_page_capability()`.

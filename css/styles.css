@@ -980,7 +980,7 @@ Modal window with detailss
 }
 
 /**
- * White page header. Used for plugin title, tab navigation, maybe settings to the right.
+ * White page header. Used for plugin title, tab navigation, settings/tools to the right.
  * Based on style uses by core for Site Health and Privacy Policy, to keep things consistent.
  */
 .sh-PageHeader {
@@ -992,6 +992,14 @@ Modal window with detailss
 	flex-wrap: wrap;
 	justify-content: space-between;
 	column-gap: 1rem;
+}
+
+/* 
+When an admin notice with additional class "inline" is added it is shown above the header,
+so add some extra place then to make it look a bit less ugly.
+*/
+.notice + .sh-PageHeader {
+	margin-top: 25px;
 }
 
 .sh-PageHeader-title {
