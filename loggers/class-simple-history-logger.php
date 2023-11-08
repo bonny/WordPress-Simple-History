@@ -86,6 +86,13 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_load_options_page() {
+		// Bail if option_page does not exist in $_POST variable.
+		// This happens when visiting /wp-admin/options.php directly.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! isset( $_POST['option_page'] ) ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( $_POST['option_page'] === $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP ) {
 			// Save all changes.
