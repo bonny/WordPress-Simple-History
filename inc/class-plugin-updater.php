@@ -127,6 +127,7 @@ class Plugin_Updater {
 			|| 200 !== wp_remote_retrieve_response_code( $remote )
 			|| empty( wp_remote_retrieve_body( $remote ) )
 		) {
+			// Cache errors for 10 minutes.
 			set_transient( $this->cache_key, 'error', MINUTE_IN_SECONDS * 10 );
 
 			return false;
@@ -134,8 +135,8 @@ class Plugin_Updater {
 
 		$payload = wp_remote_retrieve_body( $remote );
 
-		// TODO: Increase cache when tested more.
-		set_transient( $this->cache_key, $payload, MINUTE_IN_SECONDS );
+		// Cache response for 1 hour.
+		set_transient( $this->cache_key, $payload, HOUR_IN_SECONDS );
 
 		return json_decode( $payload );
 	}
