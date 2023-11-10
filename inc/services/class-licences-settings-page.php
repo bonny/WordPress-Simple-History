@@ -45,13 +45,10 @@ class Licences_Settings_Page extends Service {
 	 * Add settings tab after plugins has loaded.
 	 */
 	public function on_plugins_loaded() {
-		if ( $this->licences_service->has_add_ons() ) {
-			$this->add_settings_tab();
+		$this->add_settings_tab();
 
-			add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
-		}
+		add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
 	}
-
 
 	/**
 	 * Get user entered license key.
