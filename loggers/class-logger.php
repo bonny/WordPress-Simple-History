@@ -67,6 +67,13 @@ abstract class Logger {
 	public $last_insert_context;
 
 	/**
+	 * Data of last inserted row.
+	 *
+	 * @var array $last_insert_data
+	 */
+	public $last_insert_data;
+
+	/**
 	 * Simple History instance.
 	 *
 	 * @var Simple_History
@@ -1010,7 +1017,7 @@ abstract class Logger {
 	 *
 	 * @param string $message Message to log.
 	 * @param array  $context Context to log.
-	 * @return null
+	 * @return Logger SimpleLogger instance
 	 */
 	public function info( $message, array $context = array() ) {
 		return $this->log( Log_Levels::INFO, $message, $context );
@@ -1297,6 +1304,7 @@ abstract class Logger {
 
 		$this->last_insert_id = $history_inserted_id;
 		$this->last_insert_context = $context;
+		$this->last_insert_data = $data;
 
 		Helpers::get_cache_incrementor( true );
 
