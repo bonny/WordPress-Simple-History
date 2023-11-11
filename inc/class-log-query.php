@@ -740,6 +740,8 @@ class Log_Query {
 			'min_id' => (int) $min_id,
 			'log_rows_count' => $log_rows_count,
 			'log_rows' => $log_rows,
+			// Add sql query to debug.
+			// 'sql' => $sql,
 		);
 
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
