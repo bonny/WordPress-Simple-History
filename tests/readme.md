@@ -52,12 +52,12 @@ To modify installed WordPress version using a web browser, to for example update
 # Restore DB so can browse from localhost:9191 again, perhaps to update the fixture.
 # Note: to update WP you need to temporary disable mu-plugin.php. (Is this still true?)
 
-docker-compose run --rm wp-cli db import /var/www/html/tests/\_data/dump.sql
+docker compose run --rm wp-cli db import /var/www/html/tests/_data/dump.sql
 docker compose run --rm wp-cli option set siteurl http://localhost:9191
 docker compose run --rm wp-cli option set home http://localhost:9191
-# ...do changes...
-# then export sql file again:
-docker-compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
+
+# Make changes and then export sql file again:
+docker compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
 ```
 
 ## Update log
