@@ -13,6 +13,18 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 	 * 
 	 * Then add another login attempt and check for updates since the last above id.
 	 * Currently there is a bug in MariaDB that says "1 new event" even if no new event exists.
+	 * 
+	 * Run test on PHP 7.4 and MariaDB 10.5:
+	 * docker compose run --rm php-cli vendor/bin/codecept run wpunit:test_query
+	 * 
+	 * Run test on PHP 8.1 and MariaDB 10.5:
+	 * PHP_CLI_VERSION=81 PHP_VERSION=8.1 docker compose run --rm php-cli vendor/bin/codecept run wpunit:test_query
+	 * 
+	 * Run test on PHP 8.1 and MySQL 5.5 (should be good):
+	 * PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.5 DB_DATA_DIR=./data/mysql-5.5 docker compose run --rm php-cli vendor/bin/codecept run wpunit:test_query
+	 * 
+	 * Run test on PHP 8.1 and MySQL 5.7 (should fail):
+	 * PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.7 DB_DATA_DIR=./data/mysql-5.7 docker compose run --rm php-cli vendor/bin/codecept run wpunit:test_query
 	 */
 	function test_query() {
 		// Add and set current user to admin user, so user can read all logs.
