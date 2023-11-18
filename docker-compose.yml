@@ -32,8 +32,6 @@ services:
 
   db:
     image: "${DB_IMAGE:-mariadb:10.5}"
-    #image: "${DB_IMAGE:-biarms/mysql:5.5}"
-    #image: "${DB_IMAGE:-biarms/mysql:5.7}"
     container_name: simple-history-database
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     environment:
@@ -46,8 +44,6 @@ services:
       - "${DB_EXPOSE_PORT:-127.0.0.1:}:3306"
     volumes:
       - "${DB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
-      #- "${DB_DATA_DIR:-./data/mysql-5.5}:/var/lib/mysql"
-      #- "${DB_DATA_DIR:-./data/mysql-5.7}:/var/lib/mysql"
 
   chrome:
     image: seleniarm/standalone-chromium:117.0
