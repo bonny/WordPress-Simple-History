@@ -40,8 +40,9 @@ class Log_Query {
 		$sql_user = null;
 		$sql_tmpl = null;
 		$defaults = array(
-
-			// overview | occasions.
+			// overview | occasions | single.
+			// When type is occasions then logRowID, occasionsID, occasionsCount, occasionsCountMaxReturn are required.
+			// TODO: Add default for above required args.
 			'type' => 'overview',
 
 			// Number of posts to show per page. 0 to show all.
@@ -110,6 +111,7 @@ class Log_Query {
 			'users' => null,
 
 			// Can also contain:
+			// logRowID
 			// occasionsCount
 			// occasionsCountMaxReturn
 			// occasionsID.
@@ -226,7 +228,10 @@ class Log_Query {
 				%2$s
 			';
 
+			// Get rows with id lower than logRowID, i.e. previous rows.
 			$where .= ' AND h.id < ' . (int) $args['logRowID'];
+
+			// Get rows with occasionsID equal to occasionsID.
 			$where .= " AND h.occasionsID = '" . esc_sql( $args['occasionsID'] ) . "'";
 
 			if ( isset( $args['occasionsCountMaxReturn'] ) && (int) $args['occasionsCountMaxReturn'] < (int) $args['occasionsCount'] ) {
@@ -741,7 +746,7 @@ class Log_Query {
 			'log_rows_count' => $log_rows_count,
 			'log_rows' => $log_rows,
 			// Add sql query to debug.
-			// 'sql' => $sql,
+			// 'sql' => $sql, // .
 		);
 
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
