@@ -7,7 +7,6 @@ use Simple_History\Simple_History;
 use Simple_History\Log_Query;
 
 class LogQueryTest extends \Codeception\TestCase\WPTestCase {
-
 	/**
 	 * Add n log entries and then query for them.
 	 * 
@@ -43,7 +42,7 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 			"num_new_rows": 1,
         	"num_mysql_queries": 50, (what? why so many??)
 		*/
-		$added_rows_id = [];
+		$added_rows_ids = [];
 		$num_rows_to_add = 10;
 		for ($i = 0; $i < $num_rows_to_add; $i++) {
 			$logger = SimpleLogger()->info(
@@ -53,31 +52,147 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 					'message_num' => $i,
 				]
 			);
-			// sh_d('$logger', $logger->last_insert_context, $logger->last_insert_data, $logger->last_insert_id);
-			$added_rows_id[] = $logger->last_insert_id;
+			$added_rows_ids[] = $logger->last_insert_id;
 		}
 
 		// Now query the log and see what id we get as the latest.
-		$log_query_args = array(
-			'posts_per_page' => 1,
-		);
-		
-		$log_query = new Log_Query();
-		$query_results = $log_query->query( $log_query_args );
-		$first_log_row = $query_results['log_rows'][0];
+		$query_results = (new Log_Query())->query( ['posts_per_page' => 1] );
+		$first_log_row_from_query = $query_results['log_rows'][0];
 
 		// On MariaDB $first_log_row->id is the same as the value in $added_rows_id[0] (the first added row)
 		// but it should be the id from the last added row, i.e. the value in $added_rows_id[9].
-		sh_d('$first_log_row id', $first_log_row->id);
-		sh_d('$added_rows_id[0]', $added_rows_id[0]);
-		sh_d('$added_rows_id[max]', $added_rows_id[$num_rows_to_add-1]);
+		// sh_d('$first_log_row id', $first_log_row_from_query->id);
+		// sh_d('$added_rows_id[0]', $added_rows_ids[0]);
+		// sh_d('$added_rows_id[max]', $added_rows_ids[$num_rows_to_add-1]);
 
 		// $this->markTestIncomplete('This test will fail in MariaDB until bug is fixed.');
 		$this->assertEquals(
-			$added_rows_id[$num_rows_to_add-1], 
-			$first_log_row->id, 
-			'The id of the first row should be the same as the id of the last added row.'
+			$added_rows_ids[$num_rows_to_add-1], 
+			$first_log_row_from_query->id, 
+			'The id of the first row in query result should be the same as the id of the last added row.'
 		);
+
+		// Add more.
+		for ($i = 0; $i < 4; $i++) {
+			$logger = SimpleLogger()->info(
+				'Another test info message ' . $i,
+				[
+					'_occasionsID' => 'my_occasion_id_2',
+					'message_num' => $i,
+				]
+			);
+		}
+
+		$logger = SimpleLogger()->info(
+			'Single message ' . 0,
+			[
+				'_occasionsID' => 'my_occasion_id_3',
+				'message_num' => 0,
+			]
+		);
+
+		
+		$hello_some_messages_message_count = 7;
+		for ($i = 0; $i < $hello_some_messages_message_count; $i++) {
+			$logger = SimpleLogger()->info(
+				'Hello some messages ' . $i,
+				[
+					'_occasionsID' => 'my_occasion_id_5',
+					'message_num' => $i,
+				]
+			);
+		}
+
+		for ($i = 0; $i < 3; $i++) {
+			$logger = SimpleLogger()->info(
+				'Oh such logging things ' . $i,
+				[
+					'_occasionsID' => 'my_occasion_id_6',
+					'message_num' => $i,
+				]
+			);
+			$last_insert_id = $logger->last_insert_id;
+		}
+
+		// Get first result and check that it has 3 subsequentOccasions 
+		// and that the message is 
+		// "Oh such logging things {$i-1}"
+		// and that context contains message_num = {$i-1}.
+		$results = (new Log_Query())->query([
+			'posts_per_page' => 3
+		]);
+
+		$first_log_row_from_query = $results['log_rows'][0];
+		$second_log_row_from_query = $results['log_rows'][1];
+		$third_log_row_from_query = $results['log_rows'][2];
+
+		$this->assertEquals(
+			3,
+			$first_log_row_from_query->subsequentOccasions,
+			'The first log row should have 3 subsequentOccasions.'
+		);
+
+		$this->assertIsNumeric($first_log_row_from_query->subsequentOccasions);
+
+		$this->assertEquals(
+			'Oh such logging things ' . ($i-1),
+			$first_log_row_from_query->message,
+			'The first log row should have the message "Oh such logging things" ' . $i-1
+		);
+
+		$this->assertEquals(
+			$i-1,
+			$first_log_row_from_query->context['message_num'],
+			'The first log row should have the context message_num = ' . ($i-1)
+		);
+
+		// Test second message.
+		$this->assertEquals(
+			$hello_some_messages_message_count,
+			$second_log_row_from_query->subsequentOccasions,
+			"The second log row should have $hello_some_messages_message_count subsequentOccasions."
+		);
+
+		$this->assertIsNumeric($second_log_row_from_query->subsequentOccasions);
+
+		$this->assertEquals(
+			'Hello some messages 6',
+			$second_log_row_from_query->message,
+			'The first log row should have the message "Hello some messages 6"'
+		);
+
+		// Test third message.
+		$this->assertEquals(
+			1,
+			$third_log_row_from_query->subsequentOccasions,
+			'The third log row should have 1 subsequentOccasions.'
+		);
+		
+		$this->assertIsNumeric($third_log_row_from_query->subsequentOccasions);
+
+		$this->assertEquals(
+			'Single message 0',
+			$third_log_row_from_query->message,
+			'The third log row should have the message "Single message 0"'
+		);
+
+
+		// Test occassions query arg.
+		// Based on first, second, third, rows.
+		// When type is occasions then logRowID, occasionsID, occasionsCount, occasionsCountMaxReturn are required.
+		$query_results = (new Log_Query())->query([
+			'type' => 'occasions',
+			'logRowID' => $last_insert_id,
+			'occasionsID' => 'my_occasion_id_6', // The occassions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
+			'occasionsCount' => 3,
+		]);
+
+		// sh_d($last_insert_id);
+		// sh_d($query_results);
+		
+		// sh_d('$second_log_row_from_query', $second_log_row_from_query);exit;
+
+		// exit;
 	}
 
 	 /**
