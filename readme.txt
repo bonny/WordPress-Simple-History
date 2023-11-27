@@ -211,12 +211,17 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 Unreleased
 
+Introducting
+
+- Add support for add-ons. Add-ons are plugins that extends Simple History with new features. The first add-on is [Simple History Extended Settings](https://simple-history.com/add-ons/extended-settings?utm_source=wpadmin) that adds a new settings page with more settings for Simple History.
 - Add `last_insert_data` property to `Logger` class.
 - Fix position of navigation bar when admin notice with additional class "inline" is shown. Fixes [#408](https://github.com/bonny/WordPress-Simple-History/issues/408).
+- Update logotype.
 - Fix notice when visiting the "hidden" options page `/wp-admin/options.php`.
 - Move functions `get_pager_size()`, `get_pager_size_dashboard()`, `user_can_clear_log()`, `clear_log()`, `get_clear_history_interval()`, `get_view_history_capability()`, `get_view_settings_capability()`, `is_on_our_own_pages()`, `does_database_have_data()`, `setting_show_on_dashboard()`, `setting_show_as_page()`, `get_num_events_last_n_days()`, `get_num_events_per_day_last_n_days()`, `get_unique_events_for_days()` from `Simple_History` class to `Helpers` class.
 - Remove unused function `filter_option_page_capability()`.
 - Update coding standards to [WordPressCS 3](https://make.wordpress.org/core/2023/08/21/wordpresscs-3-0-0-is-now-available/).
+- Misc code cleanup and improvements.
 
 ### 4.7.2 (October 2023)
 
