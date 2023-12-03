@@ -209,9 +209,9 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-Unreleased
+### 4.8.0 (December 2023)
 
-Introducting
+🧩 This release contains minor fixes, some code cleanup, and adds [support for add-ons](https://simple-history.com/2023/simple-history-4-8-0-introducing-add-ons/)!
 
 - Add support for add-ons. Add-ons are plugins that extends Simple History with new features. The first add-on is [Simple History Extended Settings](https://simple-history.com/add-ons/extended-settings?utm_source=wpadmin) that adds a new settings page with more settings for Simple History.
 - Add `last_insert_data` property to `Logger` class.
