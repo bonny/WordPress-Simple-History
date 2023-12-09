@@ -14,7 +14,6 @@ class Issue373Cest {
         // Log a 404 error to the 404 test logger,
         // so we have something in the db/log.
         $I->amOnPage('index.php?p=404');
-        $I->makeHtmlSnapshot('404-page');
         $I->seeResponseCodeIs(404);
 
         $I->loginAsAdmin();
@@ -25,7 +24,6 @@ class Issue373Cest {
         $I->amOnAdminPage('options-general.php?page=simple_history_settings_menu_slug&selected-tab=debug');
         $I->dontSee('There has been a critical error on this website.');       
         $I->see('Listing 2 loggers');
-        $I->makeHtmlSnapshot('debug-tab');
 
         // Check that main feed works.
         $I->amGoingTo('Check that the main history feed works');

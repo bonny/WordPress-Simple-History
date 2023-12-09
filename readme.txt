@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Tested up to: 6.4
-Stable tag: 4.7.2
+Stable tag: 4.8.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -209,14 +209,19 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-Unreleased
+### 4.8.0 (December 2023)
 
-- Add `last_insert_data` to logger class. `last_insert_context` and `last_insert_id` did already exist.
-- Fix position of navigation bar when admin notice with additional class "inline" is shown. Fixes #408.
+🧩 This release contains minor fixes, some code cleanup, and adds [support for add-ons](https://simple-history.com/2023/simple-history-4-8-0-introducing-add-ons/)!
+
+- Add support for add-ons. Add-ons are plugins that extends Simple History with new features. The first add-on is [Simple History Extended Settings](https://simple-history.com/add-ons/extended-settings?utm_source=wpadmin) that adds a new settings page with more settings for Simple History.
+- Add `last_insert_data` property to `Logger` class.
+- Fix position of navigation bar when admin notice with additional class "inline" is shown. Fixes [#408](https://github.com/bonny/WordPress-Simple-History/issues/408).
+- Update logotype.
 - Fix notice when visiting the "hidden" options page `/wp-admin/options.php`.
-- Moved functions `get_pager_size()`, `get_pager_size_dashboard()`, `user_can_clear_log()`, `clear_log()`, `get_clear_history_interval()`, `get_view_history_capability()`, `get_view_settings_capability()`, `is_on_our_own_pages()`, `does_database_have_data()`, `setting_show_on_dashboard()`, `setting_show_as_page()`, `get_num_events_last_n_days()`, `get_num_events_per_day_last_n_days()`, `get_unique_events_for_days()` from Simple History class to Helpers class.
+- Move functions `get_pager_size()`, `get_pager_size_dashboard()`, `user_can_clear_log()`, `clear_log()`, `get_clear_history_interval()`, `get_view_history_capability()`, `get_view_settings_capability()`, `is_on_our_own_pages()`, `does_database_have_data()`, `setting_show_on_dashboard()`, `setting_show_as_page()`, `get_num_events_last_n_days()`, `get_num_events_per_day_last_n_days()`, `get_unique_events_for_days()` from `Simple_History` class to `Helpers` class.
 - Remove unused function `filter_option_page_capability()`.
-- Update coding standards to use and follow WP Coding Standards 3.
+- Update coding standards to [WordPressCS 3](https://make.wordpress.org/core/2023/08/21/wordpresscs-3-0-0-is-now-available/).
+- Misc code cleanup and improvements.
 
 ### 4.7.2 (October 2023)
 

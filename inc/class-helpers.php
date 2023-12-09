@@ -3,7 +3,6 @@
 namespace Simple_History;
 
 use Simple_History\Simple_History;
-use SimpleHistory;
 
 /**
  * Helper functions.

@@ -1,0 +1,29 @@
+{
+	"landingPage": "/wp-admin/index.php?page=simple_history_page",
+	"preferredVersions": {
+		"php": "8.2",
+		"wp": "6.4"
+	},
+	"phpExtensionBundles": ["kitchen-sink"],
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		},
+		{
+			"step": "installPlugin",
+			"pluginZipFile": {
+				"resource": "wordpress.org/plugins",
+				"slug": "simple-history"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\ninclude 'wordpress/wp-load.php';\nwp_insert_post(array(\n'import_id' => 5,\n'post_title' => 'Example Post',\n'post_content' => '<!-- wp:paragraph -->\n<p>a normal paragraph</p>\n<!-- /wp:paragraph -->',\n'post_status' => 'publish',\n'post_author' => 1\n));"
+		}
+	]
+}
