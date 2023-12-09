@@ -8,7 +8,6 @@ use Simple_History\Helpers;
  * Queries the Simple History Log.
  */
 class Log_Query {
-
 	/**
 	 * Query the log.
 	 *
@@ -36,102 +35,112 @@ class Log_Query {
 	 * @return array
 	 */
 	public function query( $args ) {
-		$users_in = null;
-		$sql_user = null;
+		global $wpdb;
+
+		/** @var Simple_History Simple History instance. */
+		$simple_history = Simple_History::get_instance();
+
+		/** @var string SQL Template to use. Template used depends on $args['type'].  */
 		$sql_tmpl = null;
-		$defaults = array(
-			// overview | occasions | single.
-			// When type is occasions then logRowID, occasionsID, occasionsCount, occasionsCountMaxReturn are required.
-			// TODO: Add default for above required args.
-			'type' => 'overview',
 
-			// Number of posts to show per page. 0 to show all.
-			'posts_per_page' => 0,
+		$args = wp_parse_args(
+			$args,
+			[
+				// overview | occasions | single.
+				// When type is occasions then logRowID, occasionsID, occasionsCount, occasionsCountMaxReturn are required.
+				// TODO: Add default for above required args.
+				'type' => 'overview',
 
-			// Page to show. 1 = first page.
-			'paged' => 1,
+				// Number of posts to show per page. 0 to show all.
+				'posts_per_page' => 0,
 
-			// Array. Only get posts that are in array.
-			'post__in' => null,
+				// Page to show. 1 = first page.
+				'paged' => 1,
 
-			// array or html.
-			'format' => 'array',
+				// Array. Only get posts that are in array.
+				'post__in' => [],
 
-			// If max_id_first_page is set then only get rows
-			// that have id equal or lower than this, to make.
-			'max_id_first_page' => null,
+				// array or html.
+				'format' => 'array',
 
-			// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id.
-			'since_id' => null,
+				// If max_id_first_page is set then only get rows
+				// that have id equal or lower than this, to make.
+				'max_id_first_page' => null,
 
-			/**
-			 * From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
-			 *
-			 * @var int|string
-			 */
-			'date_from' => null,
+				// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id.
+				'since_id' => null,
 
-			/**
-			 * To date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
-			 *
-			 * @var int|string
-			 */
-		   'date_to' => null,
+				/**
+				 * From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
+				 *
+				 * @var int|string
+				 */
+				'date_from' => null,
 
-			// months in format "Y-m"
-			// array or comma separated.
-			'months' => null,
+				/**
+				* To date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
+				*
+				* @var int|string
+				*/
+			   'date_to' => null,
 
-			// dates in format
-			// "month:2015-06" for june 2015
-			// "lastdays:7" for the last 7 days.
-			'dates' => null,
+				// months in format "Y-m"
+				// array or comma separated.
+				'months' => null,
 
-			/**
-			 * Text to search for.
-			 * Message, logger and level are searched for in main table.
-			 * Values are searched for in context table.
-			 *
-			 * @var string
-			 */
-			'search' => null,
+				// dates in format
+				// "month:2015-06" for june 2015
+				// "lastdays:7" for the last 7 days.
+				'dates' => null,
 
-			// log levels to include. comma separated or as array. defaults to all.
-			'loglevels' => null,
+				/**
+				 * Text to search for.
+				 * Message, logger and level are searched for in main table.
+				 * Values are searched for in context table.
+				 *
+				 * @var string
+				 */
+				'search' => null,
 
-			// loggers to include. comma separated. defaults to all the user can read.
-			'loggers' => null,
+				// log levels to include. comma separated or as array. defaults to all.
+				'loglevels' => null,
 
-			'messages' => null,
+				// loggers to include. comma separated. defaults to all the user can read.
+				'loggers' => null,
 
-			// userID as number.
-			'user' => null,
+				'messages' => null,
 
-			// user ids, comma separated.
-			'users' => null,
+				// userID as number.
+				'user' => null,
+
+				// User ids, comma separated or array.
+				'users' => [],
 
 			// Can also contain:
 			// logRowID
 			// occasionsCount
 			// occasionsCountMaxReturn
 			// occasionsID.
+			]
 		);
-
-		$args = wp_parse_args( $args, $defaults );
 
 		// Create cache key based on args and request and current user.
 		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_get_' . md5( serialize( $_GET ) ) . '_userid_' . get_current_user_id();
 		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
+
+		/** @var array Return value. */
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
 
+		// Return cached value if it exists.
 		if ( false !== $arr_return ) {
 			$arr_return['cached_result'] = true;
 			return $arr_return;
 		}
 
 		/*
-		Subequent occasions query thanks to this Stack Overflow thread:
+		Subequent occasions query thanks to the answer Stack Overflow thread:
 		http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
+
 		Similar questions that I didn't manage to understand, work, or did try:
 		- http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
 		- http://stackoverflow.com/questions/17651868/mysql-group-by-subsequent
@@ -141,14 +150,17 @@ class Log_Query {
 		- http://stackoverflow.com/questions/6602006/complicated-query-with-group-by-and-range-of-prices-in-mysql
 		*/
 
-		global $wpdb;
-		$simple_history = Simple_History::get_instance();
 		$table_name = $simple_history->get_events_table_name();
 		$table_name_contexts = $simple_history->get_contexts_table_name();
 
+		/** @var string Where clause for outer query. */
 		$where = '1 = 1';
-		$limit = '';
+
+		/** @var string Where clause for inner query. */
 		$inner_where = '1 = 1';
+
+		/** @var string Limit clause. */
+		$limit = '';
 
 		if ( 'overview' === $args['type'] || 'single' === $args['type'] ) {
 			// Set variables used by query.
@@ -207,11 +219,9 @@ class Log_Query {
 				%2$s
 			';
 
-			$sh = Simple_History::get_instance();
-
 			// Only include loggers that the current user can view
 			// @TODO: this causes error if user has no access to any logger at all.
-			$sql_loggers_user_can_view = $sh->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
+			$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
 			$inner_where .= " AND logger IN {$sql_loggers_user_can_view}";
 		} elseif ( 'occasions' === $args['type'] ) {
 			// Query template
@@ -253,10 +263,13 @@ class Log_Query {
 			$limit .= sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
 		}
 
-		// Determine where.
-		if ( $args['post__in'] && is_array( $args['post__in'] ) ) {
-			// make sure all vals are integers.
+		// Add post__in where.
+		if ( sizeof( $args['post__in'] ) > 0 ) {
+			// Make sure all vals are integers.
 			$args['post__in'] = array_map( 'intval', $args['post__in'] );
+
+			// Remove empty values.
+			$args['post__in'] = array_filter( $args['post__in'] );
 
 			$inner_where .= sprintf( ' AND id IN (%1$s)', implode( ',', $args['post__in'] ) );
 		}
@@ -568,18 +581,15 @@ class Log_Query {
 			$inner_where .= $sql_loggers;
 		}
 
-		// user, a single userID.
+		// Add where for a single user ID.
 		if ( ! empty( $args['user'] ) && is_numeric( $args['user'] ) ) {
-			$userID = (int) $args['user'];
-			$sql_user = sprintf(
+			$inner_where .= sprintf(
 				'
 				AND id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )
 				',
 				$table_name_contexts, // 1
-				$userID // 2
+				(int) $args['user'], // 2
 			);
-
-			$inner_where .= $sql_user;
 		}
 
 		// If users is array, make it comma separated.
@@ -589,17 +599,16 @@ class Log_Query {
 
 		// Users, comma separated.
 		if ( ! empty( $args['users'] ) && is_string( $args['users'] ) ) {
+			/** @var array User ids. */
 			$users = explode( ',', $args['users'] );
 			$users = array_map( 'intval', $users );
-			$users_in = implode( ',', $users );
-			$sql_user = sprintf(
+			$inner_where .= sprintf(
 				'
 					AND id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )
-					',
+				',
 				$table_name_contexts, // 1
-				$users_in // 2
+				implode( ',', $users ), // 2
 			);
-			$inner_where .= $sql_user;
 		}
 
 		/**
