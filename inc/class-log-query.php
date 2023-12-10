@@ -6,6 +6,9 @@ use Simple_History\Helpers;
 
 /**
  * Queries the Simple History Log.
+ *
+ * Todo
+ * - [ ] Convert $inner_where and $where to arrays, instead of concating.
  */
 class Log_Query {
 	/**
@@ -43,6 +46,7 @@ class Log_Query {
 		/** @var string SQL Template to use. Template used depends on $args['type'].  */
 		$sql_tmpl = null;
 
+		/** @var array Query arguments. */
 		$args = wp_parse_args(
 			$args,
 			[
@@ -137,43 +141,50 @@ class Log_Query {
 			return $arr_return;
 		}
 
-		/*
-		Subequent occasions query thanks to the answer Stack Overflow thread:
-		http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
+		/** @var string Table name for events. */
+		$table_history = $simple_history->get_events_table_name();
 
-		Similar questions that I didn't manage to understand, work, or did try:
-		- http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
-		- http://stackoverflow.com/questions/17651868/mysql-group-by-subsequent
-		- http://stackoverflow.com/questions/4495242/mysql-number-of-subsequent-occurrences
-		- http://stackoverflow.com/questions/20446242/postgresql-group-subsequent-rows
-		- http://stackoverflow.com/questions/17061156/mysql-group-by-range
-		- http://stackoverflow.com/questions/6602006/complicated-query-with-group-by-and-range-of-prices-in-mysql
-		*/
+		/** @var string Table name for contexts. */
+		$table_contexts = $simple_history->get_contexts_table_name();
 
-		$table_name = $simple_history->get_events_table_name();
-		$table_name_contexts = $simple_history->get_contexts_table_name();
+		/** @var array Where clauses for outer query. */
+		$outer_where = [];
 
-		/** @var string Where clause for outer query. */
-		$where = '1 = 1';
-
-		/** @var string Where clause for inner query. */
-		$inner_where = '1 = 1';
+		/** @var array Where clause for inner query. */
+		$inner_where = [];
 
 		/** @var string Limit clause. */
 		$limit = '';
 
 		if ( 'overview' === $args['type'] || 'single' === $args['type'] ) {
+			/*
+			Subequent occasions query thanks to the answer Stack Overflow thread:
+			http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
+
+			Similar questions that I didn't manage to understand, work, or did try:
+			- http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
+			- http://stackoverflow.com/questions/17651868/mysql-group-by-subsequent
+			- http://stackoverflow.com/questions/4495242/mysql-number-of-subsequent-occurrences
+			- http://stackoverflow.com/questions/20446242/postgresql-group-subsequent-rows
+			- http://stackoverflow.com/questions/17061156/mysql-group-by-range
+			- http://stackoverflow.com/questions/6602006/complicated-query-with-group-by-and-range-of-prices-in-mysql
+			*/
 			// Set variables used by query.
 			$sql_set_var = 'SET @a:=NULL, @counter:=1, @groupby:=0';
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql_set_var );
 
-			// Main query
-			// 1 = where.
-			// 2 = limit.
-			// 3 = db name.
-			// 4 = where for inner calc sql query thingie.
-			// 5 = db name contexts.
+			/**
+			 * @var string $sql_tmpl SQL template for overview or single event query.
+			 *
+			 * Template uses number argument to sprintf to insert values.
+			 * Arguments:
+			 * 1 = where clause.
+			 * 2 = limit clause.
+			 * 3 = table name for events.
+			 * 4 = where clause for inner query.
+			 * 5 = table name for contexts.
+			 */
 			$sql_tmpl = '
 				/*NO_SELECT_FOUND_ROWS*/
 				SELECT
@@ -203,16 +214,14 @@ class Log_Query {
 						@a:=occasionsID occasionsIDType
 					FROM %3$s AS h2
 
-					# First/inner where
-					WHERE
-						%4$s
+					# Inner where
+					%4$s
 
 					ORDER BY id DESC, date DESC
 				) AS t ON t.id = h.id
 
-				WHERE
-					# Outer/Second where
-					%1$s
+				# Outer where
+				%1$s
 
 				GROUP BY repeated
 				ORDER BY id DESC, date DESC
@@ -222,7 +231,7 @@ class Log_Query {
 			// Only include loggers that the current user can view
 			// @TODO: this causes error if user has no access to any logger at all.
 			$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
-			$inner_where .= " AND logger IN {$sql_loggers_user_can_view}";
+			$inner_where[] = "logger IN {$sql_loggers_user_can_view}";
 		} elseif ( 'occasions' === $args['type'] ) {
 			// Query template
 			// 1 = where.
@@ -239,10 +248,10 @@ class Log_Query {
 			';
 
 			// Get rows with id lower than logRowID, i.e. previous rows.
-			$where .= ' AND h.id < ' . (int) $args['logRowID'];
+			$outer_where[] = 'h.id < ' . (int) $args['logRowID'];
 
 			// Get rows with occasionsID equal to occasionsID.
-			$where .= " AND h.occasionsID = '" . esc_sql( $args['occasionsID'] ) . "'";
+			$outer_where[] = "h.occasionsID = '" . esc_sql( $args['occasionsID'] ) . "'";
 
 			if ( isset( $args['occasionsCountMaxReturn'] ) && (int) $args['occasionsCountMaxReturn'] < (int) $args['occasionsCount'] ) {
 				// Limit to max nn events if occasionsCountMaxReturn is set.
@@ -252,7 +261,7 @@ class Log_Query {
 				// Regular limit that gets all occasions.
 				$limit = 'LIMIT ' . (int) $args['occasionsCount'];
 			}
-		}// End if().
+		} // End if().
 
 		// Determine limit
 		// Both posts_per_page and paged must be set.
@@ -271,25 +280,23 @@ class Log_Query {
 			// Remove empty values.
 			$args['post__in'] = array_filter( $args['post__in'] );
 
-			$inner_where .= sprintf( ' AND id IN (%1$s)', implode( ',', $args['post__in'] ) );
+			$inner_where[] = sprintf( 'id IN (%1$s)', implode( ',', $args['post__in'] ) );
 		}
 
 		// If max_id_first_page is then then only include rows
 		// with id equal to or earlier.
 		if ( isset( $args['max_id_first_page'] ) && is_numeric( $args['max_id_first_page'] ) ) {
-			$max_id_first_page = (int) $args['max_id_first_page'];
-			$inner_where .= sprintf(
-				' AND id <= %1$d',
-				$max_id_first_page
+			$inner_where[] = sprintf(
+				'id <= %1$d',
+				(int) $args['max_id_first_page']
 			);
 		}
 
 		if ( isset( $args['since_id'] ) && is_numeric( $args['since_id'] ) ) {
-			$since_id = (int) $args['since_id'];
 			// Add where to inner because that's faster.
-			$inner_where .= sprintf(
-				' AND id > %1$d',
-				$since_id
+			$inner_where[] = sprintf(
+				'id > %1$d',
+				(int) $args['since_id'],
 			);
 		}
 
@@ -302,7 +309,7 @@ class Log_Query {
 				$date_from = strtotime( $date_from );
 			}
 
-			$inner_where .= "\n" . sprintf( ' AND date >= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_from ) );
+			$inner_where[] = sprintf( 'date >= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_from ) );
 		}
 
 		if ( ! empty( $args['date_to'] ) ) {
@@ -313,7 +320,7 @@ class Log_Query {
 				$date_to = strtotime( $date_to );
 			}
 
-			$inner_where .= "\n" . sprintf( ' AND date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_to ) );
+			$inner_where[] = sprintf( 'date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_to ) );
 		}
 
 		// If months they translate to $args["months"] because we already have support for that
@@ -363,10 +370,10 @@ class Log_Query {
 
 		// lastdays, as int.
 		if ( ! empty( $args['lastdays'] ) ) {
-			$inner_where .= "\n" . sprintf(
+			$inner_where[] = sprintf(
 				'
 				# lastdays
-				AND date >= DATE(NOW()) - INTERVAL %d DAY
+				date >= DATE(NOW()) - INTERVAL %d DAY
 			',
 				$args['lastdays']
 			);
@@ -382,7 +389,7 @@ class Log_Query {
 
 			$sql_months = "\n" . '
 				# sql_months
-				AND (
+				(
 			';
 
 			foreach ( $arr_months as $one_month ) {
@@ -418,7 +425,7 @@ class Log_Query {
 				)
 			';
 
-			$inner_where .= $sql_months;
+			$inner_where[] = $sql_months;
 		} // End if().
 
 		// Search.
@@ -461,7 +468,7 @@ class Log_Query {
 
 				$str_search_conditions .= "\n" . sprintf(
 					'	id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
-					$table_name_contexts, // 1
+					$table_contexts, // 1
 					'%' . $str_like . '%' // 2
 				);
 			}
@@ -469,7 +476,7 @@ class Log_Query {
 
 			$str_search_conditions .= "\n   ) "; // end OR for contexts.
 
-			$inner_where .= "\n AND \n(\n {$str_search_conditions} \n ) ";
+			$inner_where[] = "\n(\n {$str_search_conditions} \n ) ";
 		}// End if().
 
 		// log levels
@@ -489,9 +496,9 @@ class Log_Query {
 			}
 
 			$sql_loglevels = rtrim( $sql_loglevels, ' ,' );
-			$sql_loglevels = "\n AND level IN ({$sql_loglevels}) ";
+			$sql_loglevels = "level IN ({$sql_loglevels}) ";
 
-			$inner_where .= $sql_loglevels;
+			$inner_where[] = $sql_loglevels;
 		}
 
 		// messages.
@@ -532,7 +539,7 @@ class Log_Query {
 			}
 
 			// Create sql where based on loggers and messages.
-			$sql_messages_where = ' AND (';
+			$sql_messages_where = '(';
 
 			foreach ( $arr_loggers_and_messages as $logger_slug => $logger_messages ) {
 
@@ -558,7 +565,7 @@ class Log_Query {
 			$sql_messages_where = preg_replace( '/OR $/', '', $sql_messages_where );
 
 			$sql_messages_where .= "\n )";
-			$where .= $sql_messages_where;
+			$outer_where[] = $sql_messages_where;
 		} // End if().
 
 		// loggers
@@ -576,18 +583,16 @@ class Log_Query {
 				$sql_loggers .= sprintf( ' "%s", ', esc_sql( $one_logger ) );
 			}
 			$sql_loggers = rtrim( $sql_loggers, ' ,' );
-			$sql_loggers = "\n AND logger IN ({$sql_loggers}) ";
+			$sql_loggers = "logger IN ({$sql_loggers}) ";
 
-			$inner_where .= $sql_loggers;
+			$inner_where[] = $sql_loggers;
 		}
 
 		// Add where for a single user ID.
 		if ( ! empty( $args['user'] ) && is_numeric( $args['user'] ) ) {
-			$inner_where .= sprintf(
-				'
-				AND id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )
-				',
-				$table_name_contexts, // 1
+			$inner_where[] = sprintf(
+				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )',
+				$table_contexts, // 1
 				(int) $args['user'], // 2
 			);
 		}
@@ -602,11 +607,9 @@ class Log_Query {
 			/** @var array User ids. */
 			$users = explode( ',', $args['users'] );
 			$users = array_map( 'intval', $users );
-			$inner_where .= sprintf(
-				'
-					AND id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )
-				',
-				$table_name_contexts, // 1
+			$inner_where[] = sprintf(
+				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )',
+				$table_contexts, // 1
 				implode( ',', $users ), // 2
 			);
 		}
@@ -620,6 +623,14 @@ class Log_Query {
 		 */
 		$sql_tmpl = apply_filters( 'simple_history/log_query_sql_template', $sql_tmpl );
 
+		// Create where string.
+		$outer_where = implode( "\nAND ", $outer_where );
+
+		// Append where to sql template.
+		if ( ! empty( $outer_where ) ) {
+			$outer_where = "\nWHERE {$outer_where}";
+		}
+
 		/**
 		 * Filter the sql template where clause
 		 *
@@ -627,7 +638,7 @@ class Log_Query {
 		 *
 		 * @param string $where
 		 */
-		$where = apply_filters( 'simple_history/log_query_sql_where', $where );
+		$outer_where = apply_filters( 'simple_history/log_query_sql_where', $outer_where );
 
 		/**
 		 * Filter the sql template limit
@@ -637,6 +648,14 @@ class Log_Query {
 		 * @param string $limit
 		 */
 		$limit = apply_filters( 'simple_history/log_query_limit', $limit );
+
+		// Create where string.
+		$inner_where = implode( "\nAND ", $inner_where );
+
+		// Append where to sql template.
+		if ( ! empty( $inner_where ) ) {
+			$inner_where = "\nWHERE {$inner_where}";
+		}
 
 		/**
 		 * Filter the sql template limit
@@ -649,12 +668,14 @@ class Log_Query {
 
 		$sql = sprintf(
 			$sql_tmpl, // sprintf template.
-			$where,  // 1
+			$outer_where,  // 1
 			$limit, // 2
-			$table_name, // 3
+			$table_history, // 3
 			$inner_where, // 4
-			$table_name_contexts // 5
+			$table_contexts // 5
 		);
+
+		// echo $sql;exit;
 
 		/**
 		 * Filter the final sql query
@@ -679,7 +700,7 @@ class Log_Query {
 		if ( empty( $post_ids ) ) {
 			$context_results = array();
 		} else {
-			$sql_context = sprintf( 'SELECT * FROM %2$s WHERE history_id IN (%1$s)', join( ',', $post_ids ), $table_name_contexts );
+			$sql_context = sprintf( 'SELECT * FROM %2$s WHERE history_id IN (%1$s)', join( ',', $post_ids ), $table_contexts );
 			$context_results = $wpdb->get_results( $sql_context ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 
