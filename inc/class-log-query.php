@@ -8,7 +8,11 @@ use Simple_History\Helpers;
  * Queries the Simple History Log.
  *
  * Todo
- * - [ ] Convert $inner_where and $where to arrays, instead of concating.
+ * - [x] Convert $inner_where and $where to arrays, instead of concating.
+ *  - [ ] Should array be array of arrays where each AND clause contains a description? Could be useful for debugging + be a little bit prepared for future support for both "AND" and "OR" clauses.
+ * - Add "prepare args" function.
+ * - Add "get where clause" function that returns the where clause.
+ * - Add "get sql_query" function that returns the sql query.
  */
 class Log_Query {
 	/**
@@ -17,7 +21,7 @@ class Log_Query {
 	 * @param string|array|object $args {
 	 *    Optional. Array or string of arguments for querying the log.
 	 *      @type string $type Type of query. Accepts 'overview', 'occasions', or 'single'. Default 'overview'.
-	 *      @type int $posts_per_page Number of posts to show per page. 0 to show all. Default 0.
+	 *      @type int $posts_per_page Number of posts to show per page. Default is 10.
 	 *      @type int $paged Page to show. 1 = first page. Default 1.
 	 *      @type array $post__in Array. Only get posts that are in array. Default null.
 	 *      @type string $format Array or html. Default 'array'.
@@ -56,7 +60,7 @@ class Log_Query {
 				'type' => 'overview',
 
 				// Number of posts to show per page. 0 to show all.
-				'posts_per_page' => 0,
+				'posts_per_page' => 10,
 
 				// Page to show. 1 = first page.
 				'paged' => 1,
@@ -141,6 +145,9 @@ class Log_Query {
 			return $arr_return;
 		}
 
+		// Parse and prepare args.
+		$args = $this->prepare_args( $args );
+
 		/** @var string Table name for events. */
 		$table_history = $simple_history->get_events_table_name();
 
@@ -169,10 +176,10 @@ class Log_Query {
 			- http://stackoverflow.com/questions/17061156/mysql-group-by-range
 			- http://stackoverflow.com/questions/6602006/complicated-query-with-group-by-and-range-of-prices-in-mysql
 			*/
+
 			// Set variables used by query.
-			$sql_set_var = 'SET @a:=NULL, @counter:=1, @groupby:=0';
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$wpdb->query( $sql_set_var );
+			$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0' );
 
 			/**
 			 * @var string $sql_tmpl SQL template for overview or single event query.
@@ -214,17 +221,19 @@ class Log_Query {
 						@a:=occasionsID occasionsIDType
 					FROM %3$s AS h2
 
-					# Inner where
+					# Inner where.
 					%4$s
 
 					ORDER BY id DESC, date DESC
 				) AS t ON t.id = h.id
 
-				# Outer where
+				# Outer where.
 				%1$s
 
 				GROUP BY repeated
 				ORDER BY id DESC, date DESC
+
+				# Limit clause.
 				%2$s
 			';
 
@@ -253,77 +262,55 @@ class Log_Query {
 			// Get rows with occasionsID equal to occasionsID.
 			$outer_where[] = "h.occasionsID = '" . esc_sql( $args['occasionsID'] ) . "'";
 
-			if ( isset( $args['occasionsCountMaxReturn'] ) && (int) $args['occasionsCountMaxReturn'] < (int) $args['occasionsCount'] ) {
+			if ( isset( $args['occasionsCountMaxReturn'] ) && $args['occasionsCountMaxReturn'] < $args['occasionsCount'] ) {
 				// Limit to max nn events if occasionsCountMaxReturn is set.
 				// Used in gui to prevent to many events returned, that can stall the browser.
-				$limit = 'LIMIT ' . (int) $args['occasionsCountMaxReturn'];
+				$limit = 'LIMIT ' . $args['occasionsCountMaxReturn'];
 			} else {
 				// Regular limit that gets all occasions.
-				$limit = 'LIMIT ' . (int) $args['occasionsCount'];
+				$limit = 'LIMIT ' . $args['occasionsCount'];
 			}
 		} // End if().
 
-		// Determine limit
-		// Both posts_per_page and paged must be set.
-		$is_limit_query = ( is_numeric( $args['posts_per_page'] ) && $args['posts_per_page'] > 0 );
-		$is_limit_query = $is_limit_query && ( is_numeric( $args['paged'] ) && $args['paged'] > 0 );
-		if ( $is_limit_query ) {
-			$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
-			$limit .= sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
-		}
+		// Determine limit.
+		$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
+		$limit = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
 
 		// Add post__in where.
 		if ( sizeof( $args['post__in'] ) > 0 ) {
-			// Make sure all vals are integers.
-			$args['post__in'] = array_map( 'intval', $args['post__in'] );
-
-			// Remove empty values.
-			$args['post__in'] = array_filter( $args['post__in'] );
-
 			$inner_where[] = sprintf( 'id IN (%1$s)', implode( ',', $args['post__in'] ) );
 		}
 
 		// If max_id_first_page is then then only include rows
 		// with id equal to or earlier.
-		if ( isset( $args['max_id_first_page'] ) && is_numeric( $args['max_id_first_page'] ) ) {
+		if ( isset( $args['max_id_first_page'] ) ) {
 			$inner_where[] = sprintf(
 				'id <= %1$d',
-				(int) $args['max_id_first_page']
+				$args['max_id_first_page']
 			);
 		}
 
-		if ( isset( $args['since_id'] ) && is_numeric( $args['since_id'] ) ) {
-			// Add where to inner because that's faster.
+		if ( isset( $args['since_id'] ) ) {
+			// Add clause to inner where because that's faster.
 			$inner_where[] = sprintf(
 				'id > %1$d',
 				(int) $args['since_id'],
 			);
 		}
 
-		// Append date where.
+		// Append date where clause.
+		// If date_from is set it is a timestamp.
 		if ( ! empty( $args['date_from'] ) ) {
-			// date_from=2014-08-01
-			// if date is not numeric assume Y-m-d H:i-format.
-			$date_from = $args['date_from'];
-			if ( ! is_numeric( $date_from ) ) {
-				$date_from = strtotime( $date_from );
-			}
-
-			$inner_where[] = sprintf( 'date >= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_from ) );
+			$inner_where[] = sprintf( 'date >= "%1$s"', gmdate( 'Y-m-d H:i:s', $args['date_from'] ) );
 		}
 
+		// Date to.
+		// If date_to is set it is a timestamp.
 		if ( ! empty( $args['date_to'] ) ) {
-			// date_to=2014-08-01
-			// if date is not numeric assume Y-m-d H:i-format.
-			$date_to = $args['date_to'];
-			if ( ! is_numeric( $date_to ) ) {
-				$date_to = strtotime( $date_to );
-			}
-
-			$inner_where[] = sprintf( 'date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $date_to ) );
+			$inner_where[] = sprintf( 'date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $args['date_to'] ) );
 		}
 
-		// If months they translate to $args["months"] because we already have support for that
+		// If "months" they translate to $args["months"] because we already have support for that
 		// can't use months and dates and the same time.
 		if ( ! empty( $args['dates'] ) ) {
 			if ( is_array( $args['dates'] ) ) {
@@ -368,7 +355,7 @@ class Log_Query {
 			}
 		}
 
-		// lastdays, as int.
+		// Add where clause for "lastdays", as int.
 		if ( ! empty( $args['lastdays'] ) ) {
 			$inner_where[] = sprintf(
 				'
@@ -430,9 +417,8 @@ class Log_Query {
 
 		// Search.
 		if ( ! empty( $args['search'] ) ) {
-			$search_words = $args['search'];
 			$str_search_conditions = '';
-			$arr_search_words = preg_split( '/[\s,]+/', $search_words );
+			$arr_search_words = preg_split( '/[\s,]+/', $args['search'] );
 
 			// create array of all searched words
 			// split both spaces and commas and such.
@@ -479,26 +465,20 @@ class Log_Query {
 			$inner_where[] = "\n(\n {$str_search_conditions} \n ) ";
 		}// End if().
 
-		// log levels
-		// comma separated
-		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loglevel=error,warn.
+		// "loglevels", array with loglevels.
+		// e.g. info, debug, and so on.
 		if ( ! empty( $args['loglevels'] ) ) {
 			$sql_loglevels = '';
 
-			if ( is_array( $args['loglevels'] ) ) {
-				$arr_loglevels = $args['loglevels'];
-			} else {
-				$arr_loglevels = explode( ',', $args['loglevels'] );
-			}
-
-			foreach ( $arr_loglevels as $one_loglevel ) {
+			foreach ( $args['loglevels'] as $one_loglevel ) {
 				$sql_loglevels .= sprintf( ' "%s", ', esc_sql( $one_loglevel ) );
 			}
 
+			// Remove last comma.
 			$sql_loglevels = rtrim( $sql_loglevels, ' ,' );
-			$sql_loglevels = "level IN ({$sql_loglevels}) ";
 
-			$inner_where[] = $sql_loglevels;
+			// Add to where in clause.
+			$inner_where[] = "level IN ({$sql_loglevels})";
 		}
 
 		// messages.
@@ -675,8 +655,6 @@ class Log_Query {
 			$table_contexts // 5
 		);
 
-		// echo $sql;exit;
-
 		/**
 		 * Filter the final sql query
 		 *
@@ -714,7 +692,11 @@ class Log_Query {
 
 		// Remove id from keys, because they are cumbersome when working with JSON.
 		$log_rows = array_values( $log_rows );
+
+		/** @var null|int */
 		$min_id = null;
+
+		/** @var null|int */
 		$max_id = null;
 
 		if ( count( $log_rows ) ) {
@@ -754,21 +736,17 @@ class Log_Query {
 		} // End if().
 
 		// Calc pages.
-		if ( $args['posts_per_page'] ) {
-			$pages_count = Ceil( $total_found_rows / (int) $args['posts_per_page'] );
-		} else {
-			$pages_count = 1;
-		}
+		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
 
 		// Create array to return.
 		// Make all rows a sub key because we want to add some meta info too.
 		$log_rows_count = count( $log_rows );
-		$page_rows_from = ( (int) $args['paged'] * (int) $args['posts_per_page'] ) - (int) $args['posts_per_page'] + 1;
+		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
 		$arr_return = array(
 			'total_row_count' => $total_found_rows,
 			'pages_count' => $pages_count,
-			'page_current' => (int) $args['paged'],
+			'page_current' => $args['paged'],
 			'page_rows_from' => $page_rows_from,
 			'page_rows_to' => $page_rows_to,
 			'max_id' => (int) $max_id,
@@ -782,5 +760,110 @@ class Log_Query {
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
 
 		return $arr_return;
+	}
+
+	/**
+	 * Prepare arguments, i.e. checking that they are valid,
+	 * of the correct type, etc.
+	 *
+	 * @param array $args Argument.
+	 * @return array
+	 * @throws \InvalidArgumentException If invalid type.
+	 */
+	protected function prepare_args( $args ) {
+		// Type must be string and any of "overview", "occasions", "single".
+		if ( ! is_string( $args['type'] ) && ! in_array( $args['type'], [ 'overview', 'occasions', 'single' ], true ) ) {
+			throw new \InvalidArgumentException( 'Invalid type' );
+		}
+
+		// If occasionsCountMaxReturn is set then it must be an integer.
+		if ( isset( $args['occasionsCountMaxReturn'] ) && ! is_numeric( $args['occasionsCountMaxReturn'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid occasionsCountMaxReturn' );
+		} elseif ( isset( $args['occasionsCountMaxReturn'] ) ) {
+			$args['occasionsCountMaxReturn'] = (int) $args['occasionsCountMaxReturn'];
+		}
+
+		// If occasionsCount is set then it must be an integer.
+		if ( isset( $args['occasionsCount'] ) && ! is_numeric( $args['occasionsCount'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid occasionsCount' );
+		} elseif ( isset( $args['occasionsCount'] ) ) {
+			$args['occasionsCount'] = (int) $args['occasionsCount'];
+		}
+
+		// posts_per_page must be set and must be a positive integer.
+		if ( ! isset( $args['posts_per_page'] ) || ! is_numeric( $args['posts_per_page'] ) && $args['posts_per_page'] < 1 ) {
+			throw new \InvalidArgumentException( 'Invalid posts_per_page' );
+		} else {
+			$args['posts_per_page'] = (int) $args['posts_per_page'];
+		}
+
+		// paged must be set and must be a positive integer.
+		if ( ! isset( $args['paged'] ) || ! is_numeric( $args['paged'] ) || $args['paged'] < 1 ) {
+			throw new \InvalidArgumentException( 'Invalid paged' );
+		} else {
+			$args['paged'] = (int) $args['paged'];
+		}
+
+		// "post__in" must be array and must only contain integers.
+		if ( isset( $args['post__in'] ) && ! is_array( $args['post__in'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid post__in' );
+		} elseif ( isset( $args['post__in'] ) ) {
+			$args['post__in'] = array_map( 'intval', $args['post__in'] );
+			$args['post__in'] = array_filter( $args['post__in'] );
+		}
+
+		// "max_id_first_page" must be integer.
+		if ( isset( $args['max_id_first_page'] ) && ! is_numeric( $args['max_id_first_page'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid max_id_first_page' );
+		} elseif ( isset( $args['max_id_first_page'] ) ) {
+			$args['max_id_first_page'] = (int) $args['max_id_first_page'];
+		}
+
+		// "since_id" must be integer.
+		if ( isset( $args['since_id'] ) && ! is_numeric( $args['since_id'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid since_id' );
+		} elseif ( isset( $args['since_id'] ) ) {
+			$args['since_id'] = (int) $args['since_id'];
+		}
+
+		// "date_from" must be timestamp or string. If string then convert to timestamp.
+		if ( isset( $args['date_from'] ) && ! is_numeric( $args['date_from'] ) ) {
+			$args['date_from'] = strtotime( $args['date_from'] );
+		} elseif ( isset( $args['date_from'] ) && is_string( $args['date_from'] ) ) {
+			$args['date_from'] = (int) $args['date_from'];
+		} elseif ( isset( $args['date_from'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid date_from' );
+		}
+
+		// "date_to" must be timestamp or string. If string then convert to timestamp.
+		if ( isset( $args['date_to'] ) && ! is_numeric( $args['date_to'] ) ) {
+			$args['date_to'] = strtotime( $args['date_to'] );
+		} elseif ( isset( $args['date_to'] ) && is_string( $args['date_to'] ) ) {
+			$args['date_to'] = (int) $args['date_to'];
+		} elseif ( isset( $args['date_to'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid date_to' );
+		}
+
+		// "search" must be string.
+		if ( isset( $args['search'] ) && ! is_string( $args['search'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid search' );
+		}
+
+		// "loglevels" must be comma separeated string "info,debug"
+		// or array of log level strings.
+		if ( isset( $args['loglevels'] ) && ! is_string( $args['loglevels'] ) && ! is_array( $args['loglevels'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid loglevels' );
+		} elseif ( isset( $args['loglevels'] ) && is_string( $args['loglevels'] ) ) {
+			$args['loglevels'] = explode( ',', $args['loglevels'] );
+		}
+
+		// Make sure loglevels are trimed, strings, and empty vals removed.
+		if ( isset( $args['loglevels'] ) ) {
+			$args['loglevels'] = array_map( 'trim', $args['loglevels'] );
+			$args['loglevels'] = array_map( 'strval', $args['loglevels'] );
+			$args['loglevels'] = array_filter( $args['loglevels'] );
+		}
+
+		return $args;
 	}
 }
