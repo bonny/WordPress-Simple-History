@@ -34,10 +34,10 @@ class Log_Query {
 	 *      @type array|string $dates Dates in format "month:2015-06" for june 2015 or "lastdays:7" for the last 7 days. Default null.
 	 *      @type string $search Text to search for. Message, logger and level are searched for in main table. Values are searched for in context table. Default null.
 	 *      @type string $loglevels Log levels to include. Comma separated or as array. Defaults to all. Default null.
-	 *      @type string $loggers Loggers to include. Comma separated. Defaults to all the user can read. Default null.
-	 *      @type string $messages Messages to include. Comma separated. Defaults to all. Default null.
-	 *      @type int $user User ID as number. Default null.
-	 *      @type string $users User IDs, comma separated. Default null.
+	 *      @type string $loggers Loggers to include. Comma separated or array. Default null = all the user can read.
+	 *      @type string $messages Messages to include. Array or string with commaa separated in format "LoggerSlug:Message", e.g. "SimplePluginLogger:plugin_activated,SimplePluginLogger:plugin_deactivated". Default null = show all messages.
+	 *      @type int $user Single user ID as number. Default null.
+	 *      @type string $users User IDs, comma separated or array. Default null.
 	 * }
 	 * @return array
 	 */
@@ -122,7 +122,7 @@ class Log_Query {
 				'user' => null,
 
 				// User ids, comma separated or array.
-				'users' => [],
+				'users' => null,
 
 			// Can also contain:
 			// logRowID
@@ -483,50 +483,16 @@ class Log_Query {
 
 		// messages.
 		if ( ! empty( $args['messages'] ) ) {
-			/*
-			$args['messages']:
-			Array
-			(
-				[0] => SimpleCommentsLogger:anon_comment_added,SimpleCommentsLogger:user_comment_added,SimpleCommentsLogger:anon_trackback_added,SimpleCommentsLogger:user_trackback_added,SimpleCommentsLogger:anon_pingback_added,SimpleCommentsLogger:user_pingback_added,SimpleCommentsLogger:comment_edited,SimpleCommentsLogger:trackback_edited,SimpleCommentsLogger:pingback_edited,SimpleCommentsLogger:comment_status_approve,SimpleCommentsLogger:trackback_status_approve,SimpleCommentsLogger:pingback_status_approve,SimpleCommentsLogger:comment_status_hold,SimpleCommentsLogger:trackback_status_hold,SimpleCommentsLogger:pingback_status_hold,SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam,SimpleCommentsLogger:comment_status_trash,SimpleCommentsLogger:trackback_status_trash,SimpleCommentsLogger:pingback_status_trash,SimpleCommentsLogger:comment_untrashed,SimpleCommentsLogger:trackback_untrashed,SimpleCommentsLogger:pingback_untrashed,SimpleCommentsLogger:comment_deleted,SimpleCommentsLogger:trackback_deleted,SimpleCommentsLogger:pingback_deleted
-				[1] => SimpleCommentsLogger:SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam
-			)
-			*/
-
-			// Array with loggers and messages.
-			$arr_loggers_and_messages = array();
-
-			// Transform from received format to our own internal format.
-			foreach ( (array) $args['messages'] as $one_arr_messages_row ) {
-				$arr_row_messages = explode( ',', $one_arr_messages_row );
-
-				/*
-				$one_arr_messages_row:
-				Array
-				(
-					[0] => SimpleCommentsLogger:anon_comment_added
-					[1] => SimpleCommentsLogger:user_comment_added
-					[2] => SimpleCommentsLogger:anon_trackback_added
-				*/
-				foreach ( $arr_row_messages as $one_row_logger_and_message ) {
-					$arr_one_logger_and_message = explode( ':', $one_row_logger_and_message );
-
-					if ( ! isset( $arr_loggers_and_messages[ $arr_one_logger_and_message[0] ] ) ) {
-						$arr_loggers_and_messages[ $arr_one_logger_and_message[0] ] = array();
-					}
-
-					$arr_loggers_and_messages[ $arr_one_logger_and_message[0] ][] = $arr_one_logger_and_message[1];
-				}
-			}
-
 			// Create sql where based on loggers and messages.
 			$sql_messages_where = '(';
 
-			foreach ( $arr_loggers_and_messages as $logger_slug => $logger_messages ) {
-
+			foreach ( $args['messages'] as $logger_slug => $logger_messages ) {
 				$sql_logger_messages_in = '';
+
 				foreach ( $logger_messages as $one_logger_message ) {
 					$sql_logger_messages_in .= sprintf( '"%s",', esc_sql( $one_logger_message ) );
 				}
+
 				$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
 				$sql_logger_messages_in = "\n AND c1.value IN ({$sql_logger_messages_in}) ";
 
@@ -541,56 +507,45 @@ class Log_Query {
 					$sql_logger_messages_in
 				);
 			}
-			// remove last or.
+
+			// Remove last 'OR '.
 			$sql_messages_where = preg_replace( '/OR $/', '', $sql_messages_where );
 
 			$sql_messages_where .= "\n )";
 			$outer_where[] = $sql_messages_where;
 		} // End if().
 
-		// loggers
-		// comma separated
+		// loggers, comma separated or array.
 		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger.
 		if ( ! empty( $args['loggers'] ) ) {
 			$sql_loggers = '';
-			if ( is_array( $args['loggers'] ) ) {
-				$arr_loggers = $args['loggers'];
-			} else {
-				$arr_loggers = explode( ',', $args['loggers'] );
-			}
 
-			foreach ( $arr_loggers as $one_logger ) {
+			foreach ( $args['loggers'] as $one_logger ) {
 				$sql_loggers .= sprintf( ' "%s", ', esc_sql( $one_logger ) );
 			}
-			$sql_loggers = rtrim( $sql_loggers, ' ,' );
-			$sql_loggers = "logger IN ({$sql_loggers}) ";
 
-			$inner_where[] = $sql_loggers;
+			// Remove last comma.
+			$sql_loggers = rtrim( $sql_loggers, ' ,' );
+
+			// Add to where in clause.
+			$inner_where[] = "logger IN ({$sql_loggers}) ";
 		}
 
 		// Add where for a single user ID.
-		if ( ! empty( $args['user'] ) && is_numeric( $args['user'] ) ) {
+		if ( isset( $args['user'] ) ) {
 			$inner_where[] = sprintf(
 				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )',
 				$table_contexts, // 1
-				(int) $args['user'], // 2
+				$args['user'], // 2
 			);
 		}
 
-		// If users is array, make it comma separated.
-		if ( isset( $args['users'] ) && is_array( $args['users'] ) ) {
-			$args['users'] = implode( ',', $args['users'] );
-		}
-
-		// Users, comma separated.
-		if ( ! empty( $args['users'] ) && is_string( $args['users'] ) ) {
-			/** @var array User ids. */
-			$users = explode( ',', $args['users'] );
-			$users = array_map( 'intval', $users );
+		// Users, array with user ids.
+		if ( isset( $args['users'] ) ) {
 			$inner_where[] = sprintf(
 				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )',
 				$table_contexts, // 1
-				implode( ',', $users ), // 2
+				implode( ',', $args['users'] ), // 2
 			);
 		}
 
@@ -604,6 +559,7 @@ class Log_Query {
 		$sql_tmpl = apply_filters( 'simple_history/log_query_sql_template', $sql_tmpl );
 
 		// Create where string.
+		$outer_where_array = $outer_where;
 		$outer_where = implode( "\nAND ", $outer_where );
 
 		// Append where to sql template.
@@ -630,6 +586,7 @@ class Log_Query {
 		$limit = apply_filters( 'simple_history/log_query_limit', $limit );
 
 		// Create where string.
+		$inner_where_array = $inner_where;
 		$inner_where = implode( "\nAND ", $inner_where );
 
 		// Append where to sql template.
@@ -743,7 +700,7 @@ class Log_Query {
 		$log_rows_count = count( $log_rows );
 		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
-		$arr_return = array(
+		$arr_return = [
 			'total_row_count' => $total_found_rows,
 			'pages_count' => $pages_count,
 			'page_current' => $args['paged'],
@@ -755,7 +712,9 @@ class Log_Query {
 			'log_rows' => $log_rows,
 			// Add sql query to debug.
 			// 'sql' => $sql, // .
-		);
+			'outer_where_array' => $outer_where_array,
+			'inner_where_array' => $inner_where_array,
+		];
 
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
 
@@ -829,6 +788,8 @@ class Log_Query {
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
 		if ( isset( $args['date_from'] ) && ! is_numeric( $args['date_from'] ) ) {
 			$args['date_from'] = strtotime( $args['date_from'] );
+		} elseif ( isset( $args['date_from'] ) && is_numeric( $args['date_from'] ) ) {
+			$args['date_from'] = (int) $args['date_from'];
 		} elseif ( isset( $args['date_from'] ) && is_string( $args['date_from'] ) ) {
 			$args['date_from'] = (int) $args['date_from'];
 		} elseif ( isset( $args['date_from'] ) ) {
@@ -862,6 +823,80 @@ class Log_Query {
 			$args['loglevels'] = array_map( 'trim', $args['loglevels'] );
 			$args['loglevels'] = array_map( 'strval', $args['loglevels'] );
 			$args['loglevels'] = array_filter( $args['loglevels'] );
+		}
+
+		// "messages" is string with comma separated loggers and messages,
+		// or array with comma separated loggers and messages.
+		// Array example:
+		// Array
+		// (
+		// [0] => SimpleCommentsLogger:anon_comment_added,SimpleCommentsLogger:user_comment_added,SimpleCommentsLogger:anon_trackback_added,SimpleCommentsLogger:user_trackback_added,SimpleCommentsLogger:anon_pingback_added,SimpleCommentsLogger:user_pingback_added,SimpleCommentsLogger:comment_edited,SimpleCommentsLogger:trackback_edited,SimpleCommentsLogger:pingback_edited,SimpleCommentsLogger:comment_status_approve,SimpleCommentsLogger:trackback_status_approve,SimpleCommentsLogger:pingback_status_approve,SimpleCommentsLogger:comment_status_hold,SimpleCommentsLogger:trackback_status_hold,SimpleCommentsLogger:pingback_status_hold,SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam,SimpleCommentsLogger:comment_status_trash,SimpleCommentsLogger:trackback_status_trash,SimpleCommentsLogger:pingback_status_trash,SimpleCommentsLogger:comment_untrashed,SimpleCommentsLogger:trackback_untrashed,SimpleCommentsLogger:pingback_untrashed,SimpleCommentsLogger:comment_deleted,SimpleCommentsLogger:trackback_deleted,SimpleCommentsLogger:pingback_deleted
+		// [1] => SimpleCommentsLogger:SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam
+		// )
+		if ( isset( $args['messages'] ) && ! is_string( $args['messages'] ) && ! is_array( $args['messages'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid messages' );
+		} elseif ( isset( $args['messages'] ) && is_string( $args['messages'] ) ) {
+			$args['messages'] = explode( ',', $args['messages'] );
+		} elseif ( isset( $args['messages'] ) && is_array( $args['messages'] ) ) {
+			// Turn multi dimensional array into single array with strings.
+			$arr_messages = [];
+			foreach ( $args['messages'] as $one_arr_messages_row ) {
+				$arr_messages = array_merge( $arr_messages, explode( ',', $one_arr_messages_row ) );
+			}
+
+			$args['messages'] = $arr_messages;
+		}
+
+		// Make sure messages are trimed, strings, and empty vals removed.
+		if ( isset( $args['messages'] ) ) {
+			$args['messages'] = array_map( 'trim', $args['messages'] );
+			$args['messages'] = array_map( 'strval', $args['messages'] );
+			$args['messages'] = array_filter( $args['messages'] );
+
+			$arr_loggers_and_messages = [];
+
+			// Transform to format where
+			// - key = logger slug.
+			// - value = array of logger messages..
+			foreach ( $args['messages'] as $one_row_logger_and_message ) {
+				$arr_one_logger_and_message = explode( ':', $one_row_logger_and_message );
+
+				if ( ! isset( $arr_loggers_and_messages[ $arr_one_logger_and_message[0] ] ) ) {
+					$arr_loggers_and_messages[ $arr_one_logger_and_message[0] ] = array();
+				}
+
+				$arr_loggers_and_messages[ $arr_one_logger_and_message[0] ][] = $arr_one_logger_and_message[1];
+			}
+
+			$args['messages'] = $arr_loggers_and_messages;
+		}
+
+		// "loggers", comma separated string or array with strings.
+		// Example format: "AvailableUpdatesLogger,SimpleuserLogger".
+		if ( isset( $args['loggers'] ) && ! is_string( $args['loggers'] ) && ! is_array( $args['loggers'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid loggers' );
+		} elseif ( isset( $args['loggers'] ) && is_string( $args['loggers'] ) ) {
+			$args['loggers'] = explode( ',', $args['loggers'] );
+		}
+
+		// "user" must be integer.
+		if ( isset( $args['user'] ) && ! is_numeric( $args['user'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid user' );
+		} elseif ( isset( $args['user'] ) ) {
+			$args['user'] = (int) $args['user'];
+		}
+
+		// "users" must be comma separated string or array with integers.
+		if ( isset( $args['users'] ) && ! is_string( $args['users'] ) && ! is_array( $args['users'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid users' );
+		} elseif ( isset( $args['users'] ) && is_string( $args['users'] ) ) {
+			$args['users'] = explode( ',', $args['users'] );
+		}
+
+		// Make sure users are integers and remove empty vals.
+		if ( isset( $args['users'] ) ) {
+			$args['users'] = array_map( 'intval', $args['users'] );
+			$args['users'] = array_filter( $args['users'] );
 		}
 
 		return $args;
