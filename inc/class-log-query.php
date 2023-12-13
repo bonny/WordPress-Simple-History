@@ -241,17 +241,33 @@ class Log_Query {
 			// @TODO: this causes error if user has no access to any logger at all.
 			$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
 			$inner_where[] = "logger IN {$sql_loggers_user_can_view}";
+
+			// Add limit clause.
+			$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
+			$limit = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
 		} elseif ( 'occasions' === $args['type'] ) {
-			// Query template
-			// 1 = where.
-			// 2 = limit.
-			// 3 = db name.
+			// Get occasions for a single event.
+			// Args must contain:
+			// - occasionsID: The id to get occassions for
+			// - occasionsCount: The number of occasions to get.
+			// - occasionsCountMaxReturn: The max number of occasions to return, 
+			// 							  if occassionsCount is very large and we do not want to get all occassions.
+
+			/**
+			 * @var string $sql_tmpl SQL template for occasions query.
+			 * Template uses number argument to sprintf to insert values.
+			 * Arguments:
+			 * 1 = where clause.
+			 * 2 = limit clause.
+			 * 3 = table name for events.
+			 */
 			$sql_tmpl = '
 				SELECT h.*,
-					# fake columns that exist in overview query
+					# Fake columns that exist in overview query
 					1 as subsequentOccasions
 				FROM %3$s AS h
-				WHERE %1$s
+				# Where
+				%1$s
 				ORDER BY id DESC
 				%2$s
 			';
@@ -271,10 +287,6 @@ class Log_Query {
 				$limit = 'LIMIT ' . $args['occasionsCount'];
 			}
 		} // End if().
-
-		// Determine limit.
-		$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
-		$limit = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
 
 		// Add post__in where.
 		if ( sizeof( $args['post__in'] ) > 0 ) {
