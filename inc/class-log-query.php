@@ -10,7 +10,7 @@ use Simple_History\Helpers;
  * Todo
  * - [x] Convert $inner_where and $where to arrays, instead of concating.
  *  - [ ] Should array be array of arrays where each AND clause contains a description? Could be useful for debugging + be a little bit prepared for future support for both "AND" and "OR" clauses.
- * - Add "prepare args" function.
+ * - [x] Add "prepare args" function, that checks that args are valid, so that we don't have to do that in the query function.
  * - Add "get where clause" function that returns the where clause.
  * - Add "get sql_query" function that returns the sql query.
  */
@@ -250,8 +250,8 @@ class Log_Query {
 			// Args must contain:
 			// - occasionsID: The id to get occassions for
 			// - occasionsCount: The number of occasions to get.
-			// - occasionsCountMaxReturn: The max number of occasions to return, 
-			// 							  if occassionsCount is very large and we do not want to get all occassions.
+			// - occasionsCountMaxReturn: The max number of occasions to return,
+			// if occassionsCount is very large and we do not want to get all occassions.
 
 			/**
 			 * @var string $sql_tmpl SQL template for occasions query.
@@ -370,10 +370,7 @@ class Log_Query {
 		// Add where clause for "lastdays", as int.
 		if ( ! empty( $args['lastdays'] ) ) {
 			$inner_where[] = sprintf(
-				'
-				# lastdays
-				date >= DATE(NOW()) - INTERVAL %d DAY
-			',
+				'date >= DATE(NOW()) - INTERVAL %d DAY',
 				$args['lastdays']
 			);
 		}
@@ -387,7 +384,6 @@ class Log_Query {
 			}
 
 			$sql_months = "\n" . '
-				# sql_months
 				(
 			';
 
@@ -420,7 +416,6 @@ class Log_Query {
 			$sql_months = rtrim( $sql_months, ' OR ' );
 
 			$sql_months .= '
-				# end sql_months and wrap
 				)
 			';
 
@@ -428,13 +423,13 @@ class Log_Query {
 		} // End if().
 
 		// Search.
-		if ( ! empty( $args['search'] ) ) {
+		if ( isset( $args['search'] ) ) {
 			$str_search_conditions = '';
 			$arr_search_words = preg_split( '/[\s,]+/', $args['search'] );
 
 			// create array of all searched words
 			// split both spaces and commas and such.
-			$arr_sql_like_cols = array( 'message', 'logger', 'level' );
+			$arr_sql_like_cols = [ 'message', 'logger', 'level' ];
 
 			foreach ( $arr_sql_like_cols as $one_col ) {
 				$str_sql_search_words = '';
@@ -452,7 +447,7 @@ class Log_Query {
 				$str_sql_search_words = ltrim( $str_sql_search_words, ' AND ' );
 
 				$str_search_conditions .= "\n" . sprintf(
-					'   OR ( %1$s ) ',
+					' OR ( %1$s ) ',
 					$str_sql_search_words
 				);
 			}
@@ -465,7 +460,7 @@ class Log_Query {
 				$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
 
 				$str_search_conditions .= "\n" . sprintf(
-					'	id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
+					' id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
 					$table_contexts, // 1
 					'%' . $str_like . '%' // 2
 				);
@@ -633,7 +628,7 @@ class Log_Query {
 		 */
 		$sql = apply_filters( 'simple_history/log_query_sql', $sql );
 
-		/** @var array<string,object> */
+		/** @var array<string,object> Log rows matching where queries. */
 		$log_rows = $wpdb->get_results( $sql, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Find total number of rows that we would have gotten without pagination
@@ -658,7 +653,7 @@ class Log_Query {
 
 		foreach ( $context_results as $context_row ) {
 			if ( ! isset( $log_rows[ $context_row->history_id ]->context ) ) {
-				$log_rows[ $context_row->history_id ]->context = array();
+				$log_rows[ $context_row->history_id ]->context = [];
 			}
 
 			$log_rows[ $context_row->history_id ]->context[ $context_row->key ] = $context_row->value;
@@ -673,6 +668,7 @@ class Log_Query {
 		/** @var null|int */
 		$max_id = null;
 
+		// Calculate min and max id.
 		if ( count( $log_rows ) ) {
 			// Max id is simply the id of the first row.
 			$max_id = reset( $log_rows )->id;
@@ -728,9 +724,11 @@ class Log_Query {
 			'log_rows_count' => $log_rows_count,
 			'log_rows' => $log_rows,
 			// Add sql query to debug.
-			// 'sql' => $sql, // .
 			'outer_where_array' => $outer_where_array,
 			'inner_where_array' => $inner_where_array,
+			'sql' => $sql,
+			'sql_context' => $sql_context ?? null,
+			'context_results' => $context_results ?? null,
 		];
 
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
