@@ -688,9 +688,9 @@ class Log_Query {
 					'
 						SELECT id, date, occasionsID
 						FROM %1$s
-						WHERE id <= %2$s
+						WHERE id <= %2$d
 						ORDER BY id DESC
-						LIMIT %3$s
+						LIMIT %3$d
 					',
 					$db_table,
 					$last_row->id,
