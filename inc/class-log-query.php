@@ -641,13 +641,18 @@ class Log_Query {
 		$sql_found_rows = 'SELECT FOUND_ROWS()';
 		$total_found_rows = (int) $wpdb->get_var( $sql_found_rows ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		// Add context.
+		// Add context to log rows.
 		$post_ids = wp_list_pluck( $log_rows, 'id' );
 
 		if ( empty( $post_ids ) ) {
-			$context_results = array();
+			$context_results = [];
 		} else {
-			$sql_context = sprintf( 'SELECT * FROM %2$s WHERE history_id IN (%1$s)', join( ',', $post_ids ), $table_contexts );
+			$sql_context = sprintf(
+				'SELECT history_id, `key`, value FROM %2$s WHERE history_id IN (%1$s)',
+				join( ',', $post_ids ),
+				$table_contexts
+			);
+
 			$context_results = $wpdb->get_results( $sql_context ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 
