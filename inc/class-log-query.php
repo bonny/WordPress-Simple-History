@@ -618,9 +618,6 @@ class Log_Query {
 		// Add context to log rows.
 		$log_rows = $this->add_contexts_to_log_rows( $log_rows );
 
-		// Remove id from keys, because they are cumbersome when working with JSON.
-		$log_rows = array_values( $log_rows );
-
 		[$max_id, $min_id] = $this->get_max_min_ids( $log_rows );
 
 		// Calc pages.
@@ -642,7 +639,8 @@ class Log_Query {
 			'max_id' => (int) $max_id,
 			'min_id' => (int) $min_id,
 			'log_rows_count' => $log_rows_count,
-			'log_rows' => $log_rows,
+			// Remove id from keys, because they are cumbersome when working with JSON.
+			'log_rows' => array_values( $log_rows ),
 			// Add sql query to debug.
 			'outer_where_array' => $outer_where_array,
 			'inner_where_array' => $inner_where_array,
@@ -670,6 +668,10 @@ class Log_Query {
 	 * @return array
 	 */
 	protected function query_occasions( $args ) {
+		$simpe_history = Simple_History::get_instance();
+		$events_table_name = $simpe_history->get_events_table_name();
+		$contexts_table_name = $simpe_history->get_contexts_table_name();
+
 		$args = wp_parse_args(
 			$args,
 			[
@@ -701,13 +703,22 @@ class Log_Query {
 		$sql_statement_template = '
 			SELECT h.*,
 				# Fake columns that exist in overview query
-				1 as subsequentOccasions
+				1 as subsequentOccasions,
+				c1.value AS context_message_key
+			
 			FROM %3$s AS h
+			
+			# Add context message key
+			LEFT OUTER JOIN %4$s AS c1 ON (c1.history_id = h.id AND c1.key = "_message_key")
+			
 			# Where
 			%1$s
+			
 			ORDER BY id DESC
 			%2$s
 		';
+
+		// HERE: context_message_key is not added to query.
 
 		/** @var array Where clauses for outer query. */
 		$outer_where = [];
@@ -740,7 +751,35 @@ class Log_Query {
 			$sql_statement_template, // sprintf template.
 			$outer_where,  // 1
 			$limit, // 2
+			$events_table_name, // 3
+			$contexts_table_name // 4
 		);
+
+		global $wpdb;
+
+		/** @var array<string,object> Log rows matching where queries. */
+		$log_rows = $wpdb->get_results( $sql_query, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		$log_rows = $this->add_contexts_to_log_rows( $log_rows );
+
+		return [
+			// 'total_row_count' => $total_found_rows,
+			// 'pages_count' => $pages_count,
+			// 'page_current' => $args['paged'],
+			// 'page_rows_from' => $page_rows_from,
+			// 'page_rows_to' => $page_rows_to,
+			// 'max_id' => (int) $max_id,
+			// 'min_id' => (int) $min_id,
+			// 'log_rows_count' => sizeof( $log_rows ),
+			// Remove id from keys, because they are cumbersome when working with JSON.
+			'log_rows' => array_values( $log_rows ),
+			// Add sql query to debug.
+			// 'outer_where_array' => $outer_where_array,
+			// 'inner_where_array' => $inner_where_array,
+			'sql' => $sql_query,
+			'sql_context' => $sql_context ?? null,
+			'context_results' => $context_results ?? null,
+		];
 	}
 
 	/**

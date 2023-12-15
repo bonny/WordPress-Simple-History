@@ -209,6 +209,10 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+Unreleased
+
+- IP addresses are now shown on occasions.
+
 ### 4.8.0 (December 2023)
 
 🧩 This release contains minor fixes, some code cleanup, and adds [support for add-ons](https://simple-history.com/2023/simple-history-4-8-0-introducing-add-ons/)!
