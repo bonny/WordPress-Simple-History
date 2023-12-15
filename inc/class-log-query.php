@@ -11,6 +11,7 @@ use Simple_History\Helpers;
  * - [x] Convert $inner_where and $where to arrays, instead of concating.
  *  - [ ] Should array be array of arrays where each AND clause contains a description? Could be useful for debugging + be a little bit prepared for future support for both "AND" and "OR" clauses.
  * - [x] Add "prepare args" function, that checks that args are valid, so that we don't have to do that in the query function.
+ * - [ ] Create functions get_occasions(), get_single_event(), get_overview() that calls query() with correct args.
  * - Add "get where clause" function that returns the where clause.
  * - Add "get sql_query" function that returns the sql query.
  */
@@ -24,7 +25,6 @@ class Log_Query {
 	 *      @type int $posts_per_page Number of posts to show per page. Default is 10.
 	 *      @type int $paged Page to show. 1 = first page. Default 1.
 	 *      @type array $post__in Array. Only get posts that are in array. Default null.
-	 *      @type string $format Array or html. Default 'array'.
 	 *      @type int $max_id_first_page If max_id_first_page is set then only get rows that have id equal or lower than this, to make
 	 *                                      sure that the first page of results is not too large. Default null.
 	 *      @type int $since_id If since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id. Default null.
@@ -40,16 +40,30 @@ class Log_Query {
 	 *      @type string $users User IDs, comma separated or array. Default null.
 	 * }
 	 * @return array
+	 * @throws \InvalidArgumentException If invalid query type.
 	 */
 	public function query( $args ) {
-		global $wpdb;
+		$args = wp_parse_args( $args );
 
-		/** @var Simple_History Simple History instance. */
-		$simple_history = Simple_History::get_instance();
+		// Determine kind of query.
+		$type = $args['type'] ?? 'overview';
 
-		/** @var string SQL Template to use. Template used depends on $args['type'].  */
-		$sql_tmpl = null;
+		if ( $type === 'overview' || $type === 'single' ) {
+			return $this->query_overview( $args );
+		} elseif ( $type === 'occasions' ) {
+			return $this->query_occasions( $args );
+		} else {
+			throw new \InvalidArgumentException( 'Invalid query type' );
+		}
+	}
 
+	/**
+	 * Query overview.
+	 *
+	 * @param string|array|object $args Arguments.
+	 * @return array
+	 */
+	protected function query_overview( $args ) {
 		/** @var array Query arguments. */
 		$args = wp_parse_args(
 			$args,
@@ -67,9 +81,6 @@ class Log_Query {
 
 				// Array. Only get posts that are in array.
 				'post__in' => [],
-
-				// array or html.
-				'format' => 'array',
 
 				// If max_id_first_page is set then only get rows
 				// that have id equal or lower than this, to make.
@@ -132,6 +143,14 @@ class Log_Query {
 			]
 		);
 
+		global $wpdb;
+
+		/** @var Simple_History Simple History instance. */
+		$simple_history = Simple_History::get_instance();
+
+		/** @var string SQL Template to use. Template used depends on $args['type'].  */
+		$sql_tmpl = null;
+
 		// Create cache key based on args and request and current user.
 		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_get_' . md5( serialize( $_GET ) ) . '_userid_' . get_current_user_id();
 		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
@@ -149,10 +168,10 @@ class Log_Query {
 		$args = $this->prepare_args( $args );
 
 		/** @var string Table name for events. */
-		$table_history = $simple_history->get_events_table_name();
+		$events_table_name = $simple_history->get_events_table_name();
 
 		/** @var string Table name for contexts. */
-		$table_contexts = $simple_history->get_contexts_table_name();
+		$contexts_table_name = $simple_history->get_contexts_table_name();
 
 		/** @var array Where clauses for outer query. */
 		$outer_where = [];
@@ -163,130 +182,87 @@ class Log_Query {
 		/** @var string Limit clause. */
 		$limit = '';
 
-		if ( 'overview' === $args['type'] || 'single' === $args['type'] ) {
-			/*
-			Subequent occasions query thanks to the answer Stack Overflow thread:
-			http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
+		/*
+		Subequent occasions query thanks to the answer Stack Overflow thread:
+		http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
 
-			Similar questions that I didn't manage to understand, work, or did try:
-			- http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
-			- http://stackoverflow.com/questions/17651868/mysql-group-by-subsequent
-			- http://stackoverflow.com/questions/4495242/mysql-number-of-subsequent-occurrences
-			- http://stackoverflow.com/questions/20446242/postgresql-group-subsequent-rows
-			- http://stackoverflow.com/questions/17061156/mysql-group-by-range
-			- http://stackoverflow.com/questions/6602006/complicated-query-with-group-by-and-range-of-prices-in-mysql
-			*/
+		Similar questions that I didn't manage to understand, work, or did try:
+		- http://stackoverflow.com/questions/23651176/mysql-query-if-dates-are-subsequent
+		- http://stackoverflow.com/questions/17651868/mysql-group-by-subsequent
+		- http://stackoverflow.com/questions/4495242/mysql-number-of-subsequent-occurrences
+		- http://stackoverflow.com/questions/20446242/postgresql-group-subsequent-rows
+		- http://stackoverflow.com/questions/17061156/mysql-group-by-range
+		- http://stackoverflow.com/questions/6602006/complicated-query-with-group-by-and-range-of-prices-in-mysql
+		*/
 
-			// Set variables used by query.
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0' );
+		// Set variables used by query.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0' );
 
-			/**
-			 * @var string $sql_tmpl SQL template for overview or single event query.
-			 *
-			 * Template uses number argument to sprintf to insert values.
-			 * Arguments:
-			 * 1 = where clause.
-			 * 2 = limit clause.
-			 * 3 = table name for events.
-			 * 4 = where clause for inner query.
-			 * 5 = table name for contexts.
-			 */
-			$sql_tmpl = '
-				/*NO_SELECT_FOUND_ROWS*/
+		/**
+		 * @var string $sql_tmpl SQL template for overview or single event query.
+		 *
+		 * Template uses number argument to sprintf to insert values.
+		 * Arguments:
+		 * 1 = where clause.
+		 * 2 = limit clause.
+		 * 3 = table name for events.
+		 * 4 = where clause for inner query.
+		 * 5 = table name for contexts.
+		 */
+		$sql_tmpl = '
+			/*NO_SELECT_FOUND_ROWS*/
+			SELECT
+				SQL_CALC_FOUND_ROWS
+				h.id,
+				h.logger,
+				h.level,
+				h.date,
+				h.message,
+				h.initiator,
+				h.occasionsID,
+				count(t.repeated) AS subsequentOccasions,
+				t.rep,
+				t.repeated,
+				t.occasionsIDType,
+				c1.value AS context_message_key
+
+			FROM %3$s AS h
+
+			LEFT OUTER JOIN %5$s AS c1 ON (c1.history_id = h.id AND c1.key = "_message_key")
+
+			INNER JOIN (
 				SELECT
-					SQL_CALC_FOUND_ROWS
-					h.id,
-					h.logger,
-					h.level,
-					h.date,
-					h.message,
-					h.initiator,
-					h.occasionsID,
-					count(t.repeated) AS subsequentOccasions,
-					t.rep,
-					t.repeated,
-					t.occasionsIDType,
-					c1.value AS context_message_key
+					id,
+					IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
+					IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
+					@a:=occasionsID occasionsIDType
+				FROM %3$s AS h2
 
-				FROM %3$s AS h
+				# Inner where.
+				%4$s
 
-				LEFT OUTER JOIN %5$s AS c1 ON (c1.history_id = h.id AND c1.key = "_message_key")
-
-				INNER JOIN (
-					SELECT
-						id,
-						IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS rep,
-						IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
-						@a:=occasionsID occasionsIDType
-					FROM %3$s AS h2
-
-					# Inner where.
-					%4$s
-
-					ORDER BY id DESC, date DESC
-				) AS t ON t.id = h.id
-
-				# Outer where.
-				%1$s
-
-				GROUP BY repeated
 				ORDER BY id DESC, date DESC
+			) AS t ON t.id = h.id
 
-				# Limit clause.
-				%2$s
-			';
+			# Outer where.
+			%1$s
 
-			// Only include loggers that the current user can view
-			// @TODO: this causes error if user has no access to any logger at all.
-			$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
-			$inner_where[] = "logger IN {$sql_loggers_user_can_view}";
+			GROUP BY repeated
+			ORDER BY id DESC, date DESC
 
-			// Add limit clause.
-			$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
-			$limit = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
-		} elseif ( 'occasions' === $args['type'] ) {
-			// Get occasions for a single event.
-			// Args must contain:
-			// - occasionsID: The id to get occassions for
-			// - occasionsCount: The number of occasions to get.
-			// - occasionsCountMaxReturn: The max number of occasions to return,
-			// if occassionsCount is very large and we do not want to get all occassions.
+			# Limit clause.
+			%2$s
+		';
 
-			/**
-			 * @var string $sql_tmpl SQL template for occasions query.
-			 * Template uses number argument to sprintf to insert values.
-			 * Arguments:
-			 * 1 = where clause.
-			 * 2 = limit clause.
-			 * 3 = table name for events.
-			 */
-			$sql_tmpl = '
-				SELECT h.*,
-					# Fake columns that exist in overview query
-					1 as subsequentOccasions
-				FROM %3$s AS h
-				# Where
-				%1$s
-				ORDER BY id DESC
-				%2$s
-			';
+		// Only include loggers that the current user can view
+		// @TODO: this causes error if user has no access to any logger at all.
+		$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
+		$inner_where[] = "logger IN {$sql_loggers_user_can_view}";
 
-			// Get rows with id lower than logRowID, i.e. previous rows.
-			$outer_where[] = 'h.id < ' . (int) $args['logRowID'];
-
-			// Get rows with occasionsID equal to occasionsID.
-			$outer_where[] = "h.occasionsID = '" . esc_sql( $args['occasionsID'] ) . "'";
-
-			if ( isset( $args['occasionsCountMaxReturn'] ) && $args['occasionsCountMaxReturn'] < $args['occasionsCount'] ) {
-				// Limit to max nn events if occasionsCountMaxReturn is set.
-				// Used in gui to prevent to many events returned, that can stall the browser.
-				$limit = 'LIMIT ' . $args['occasionsCountMaxReturn'];
-			} else {
-				// Regular limit that gets all occasions.
-				$limit = 'LIMIT ' . $args['occasionsCount'];
-			}
-		} // End if().
+		// Add limit clause.
+		$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
+		$limit = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
 
 		// Add post__in where.
 		if ( sizeof( $args['post__in'] ) > 0 ) {
@@ -294,7 +270,7 @@ class Log_Query {
 		}
 
 		// If max_id_first_page is then then only include rows
-		// with id equal to or earlier.
+		// with id equal to or earlier than this, i.e. older than this.
 		if ( isset( $args['max_id_first_page'] ) ) {
 			$inner_where[] = sprintf(
 				'id <= %1$d',
@@ -302,8 +278,9 @@ class Log_Query {
 			);
 		}
 
+		// Add where clause for since_id,
+		// to include rows with id greater than since_id, i.e. more recent than since_id.
 		if ( isset( $args['since_id'] ) ) {
-			// Add clause to inner where because that's faster.
 			$inner_where[] = sprintf(
 				'id > %1$d',
 				(int) $args['since_id'],
@@ -352,7 +329,7 @@ class Log_Query {
 				)
 			*/
 
-			$args['months'] = array();
+			$args['months'] = [];
 			$args['lastdays'] = 0;
 
 			foreach ( $arr_dates as $one_date ) {
@@ -461,7 +438,7 @@ class Log_Query {
 
 				$str_search_conditions .= "\n" . sprintf(
 					' id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
-					$table_contexts, // 1
+					$contexts_table_name, // 1
 					'%' . $str_like . '%' // 2
 				);
 			}
@@ -542,7 +519,7 @@ class Log_Query {
 		if ( isset( $args['user'] ) ) {
 			$inner_where[] = sprintf(
 				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )',
-				$table_contexts, // 1
+				$contexts_table_name, // 1
 				$args['user'], // 2
 			);
 		}
@@ -551,7 +528,7 @@ class Log_Query {
 		if ( isset( $args['users'] ) ) {
 			$inner_where[] = sprintf(
 				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )',
-				$table_contexts, // 1
+				$contexts_table_name, // 1
 				implode( ',', $args['users'] ), // 2
 			);
 		}
@@ -610,13 +587,14 @@ class Log_Query {
 		 */
 		$inner_where = apply_filters( 'simple_history/log_query_inner_where', $inner_where );
 
+		/** @var string SQL generated from template. */
 		$sql = sprintf(
 			$sql_tmpl, // sprintf template.
 			$outer_where,  // 1
 			$limit, // 2
-			$table_history, // 3
+			$events_table_name, // 3
 			$inner_where, // 4
-			$table_contexts // 5
+			$contexts_table_name // 5
 		);
 
 		/**
@@ -633,86 +611,28 @@ class Log_Query {
 
 		// Find total number of rows that we would have gotten without pagination
 		// This is the number of rows with occasions taken into consideration.
+		// TODO: Remove this and run same query with count(*) before.
 		$sql_found_rows = 'SELECT FOUND_ROWS()';
 		$total_found_rows = (int) $wpdb->get_var( $sql_found_rows ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Add context to log rows.
-		$post_ids = wp_list_pluck( $log_rows, 'id' );
-
-		if ( empty( $post_ids ) ) {
-			$context_results = [];
-		} else {
-			$sql_context = sprintf(
-				'SELECT history_id, `key`, value FROM %2$s WHERE history_id IN (%1$s)',
-				join( ',', $post_ids ),
-				$table_contexts
-			);
-
-			$context_results = $wpdb->get_results( $sql_context ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		}
-
-		foreach ( $context_results as $context_row ) {
-			if ( ! isset( $log_rows[ $context_row->history_id ]->context ) ) {
-				$log_rows[ $context_row->history_id ]->context = [];
-			}
-
-			$log_rows[ $context_row->history_id ]->context[ $context_row->key ] = $context_row->value;
-		}
+		$log_rows = $this->add_contexts_to_log_rows( $log_rows );
 
 		// Remove id from keys, because they are cumbersome when working with JSON.
 		$log_rows = array_values( $log_rows );
 
-		/** @var null|int */
-		$min_id = null;
-
-		/** @var null|int */
-		$max_id = null;
-
-		// Calculate min and max id.
-		if ( count( $log_rows ) ) {
-			// Max id is simply the id of the first row.
-			$max_id = reset( $log_rows )->id;
-
-			// Min id = to find the lowest id we must take occasions into consideration.
-			$last_row = end( $log_rows );
-
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
-
-			if ( $last_row_occasions_count === 0 ) {
-				// Last row did not have any more occasions, so get min_id directly from the row.
-				$min_id = $last_row->id;
-			} else {
-				// Last row did have occasions, so fetch all occasions, and find id of last one.
-				$db_table = $simple_history->get_events_table_name();
-				$sql = sprintf(
-					'
-						SELECT id, date, occasionsID
-						FROM %1$s
-						WHERE id <= %2$d
-						ORDER BY id DESC
-						LIMIT %3$d
-					',
-					$db_table,
-					$last_row->id,
-					$last_row_occasions_count + 1
-				);
-
-				$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-				// the last occasion has the id we consider last in this paged result.
-				$min_id = end( $results )->id;
-			}
-		} // End if().
+		[$max_id, $min_id] = $this->get_max_min_ids( $log_rows );
 
 		// Calc pages.
 		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
 
-		// Create array to return.
-		// Make all rows a sub key because we want to add some meta info too.
+		// Calc pagination info.
 		$log_rows_count = count( $log_rows );
 		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
+
+		// Create array to return.
+		// Add log rows to sub key 'log_rows' because meta info is also added.
 		$arr_return = [
 			'total_row_count' => $total_found_rows,
 			'pages_count' => $pages_count,
@@ -734,6 +654,93 @@ class Log_Query {
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
 
 		return $arr_return;
+	}
+
+	/**
+	 * Get occasions for a single event.
+	 *
+	 * Required args are:
+	 * - occasionsID: The id to get occassions for.
+	 * - occasionsCount: The number of occasions to get.
+	 * - occasionsCountMaxReturn: The max number of occasions to return.
+	 *
+	 * Does not take filters/where into consideration.
+	 *
+	 * @param string|array|object $args Arguments.
+	 * @return array
+	 */
+	protected function query_occasions( $args ) {
+		$args = wp_parse_args(
+			$args,
+			[
+				'type' => 'occasions',
+				'logRowID' => null,
+				'occasionsID' => null,
+				'occasionsCount' => null,
+				'occasionsCountMaxReturn' => null,
+			]
+		);
+
+		$args = $this->prepare_args( $args );
+
+		// Get occasions for a single event.
+		// Args must contain:
+		// - occasionsID: The id to get occassions for
+		// - occasionsCount: The number of occasions to get.
+		// - occasionsCountMaxReturn: The max number of occasions to return,
+		// if occassionsCount is very large and we do not want to get all occassions.
+
+		/**
+		 * @var string $sql_statement_template SQL template for occasions query.
+		 * Template uses number argument to sprintf to insert values.
+		 * Arguments:
+		 * 1 = where clause.
+		 * 2 = limit clause.
+		 * 3 = table name for events.
+		 */
+		$sql_statement_template = '
+			SELECT h.*,
+				# Fake columns that exist in overview query
+				1 as subsequentOccasions
+			FROM %3$s AS h
+			# Where
+			%1$s
+			ORDER BY id DESC
+			%2$s
+		';
+
+		/** @var array Where clauses for outer query. */
+		$outer_where = [];
+
+		// Get rows with id lower than logRowID, i.e. previous rows.
+		$outer_where[] = 'h.id < ' . (int) $args['logRowID'];
+
+		// Get rows with occasionsID equal to occasionsID.
+		$outer_where[] = "h.occasionsID = '" . esc_sql( $args['occasionsID'] ) . "'";
+
+		if ( isset( $args['occasionsCountMaxReturn'] ) && $args['occasionsCountMaxReturn'] < $args['occasionsCount'] ) {
+			// Limit to max nn events if occasionsCountMaxReturn is set.
+			// Used in gui to prevent to many events returned, that can stall the browser.
+			$limit = 'LIMIT ' . $args['occasionsCountMaxReturn'];
+		} else {
+			// Regular limit that gets all occasions.
+			$limit = 'LIMIT ' . $args['occasionsCount'];
+		}
+
+		// Create where string.
+		$outer_where = implode( "\nAND ", $outer_where );
+
+		// Append where to sql template.
+		if ( ! empty( $outer_where ) ) {
+			$outer_where = "\nWHERE {$outer_where}";
+		}
+
+		/** @var string SQL generated from template. */
+		$sql_query = sprintf(
+			$sql_statement_template, // sprintf template.
+			$outer_where,  // 1
+			$limit, // 2
+		);
 	}
 
 	/**
@@ -764,17 +771,17 @@ class Log_Query {
 			$args['occasionsCount'] = (int) $args['occasionsCount'];
 		}
 
-		// posts_per_page must be set and must be a positive integer.
-		if ( ! isset( $args['posts_per_page'] ) || ! is_numeric( $args['posts_per_page'] ) && $args['posts_per_page'] < 1 ) {
+		// If posts_per_page is set then it must be a positive integer.
+		if ( isset( $args['posts_per_page'] ) && ( ! is_numeric( $args['posts_per_page'] ) || $args['posts_per_page'] < 1 ) ) {
 			throw new \InvalidArgumentException( 'Invalid posts_per_page' );
-		} else {
+		} elseif ( isset( $args['posts_per_page'] ) ) {
 			$args['posts_per_page'] = (int) $args['posts_per_page'];
 		}
 
-		// paged must be set and must be a positive integer.
-		if ( ! isset( $args['paged'] ) || ! is_numeric( $args['paged'] ) || $args['paged'] < 1 ) {
+		// paged must be must be a positive integer.
+		if ( isset( $args['paged'] ) && ( ! is_numeric( $args['paged'] ) || $args['paged'] < 1 ) ) {
 			throw new \InvalidArgumentException( 'Invalid paged' );
-		} else {
+		} elseif ( isset( $args['paged'] ) ) {
 			$args['paged'] = (int) $args['paged'];
 		}
 
@@ -915,5 +922,107 @@ class Log_Query {
 		}
 
 		return $args;
+	}
+
+	/**
+	 * Add context to log rows.
+	 *
+	 * @param array $log_rows Log rows to append context to.
+	 * @return array Log rows with context added.
+	 */
+	protected function add_contexts_to_log_rows( $log_rows ) {
+		// Bail if no log rows.
+		if ( sizeof( $log_rows ) === 0 ) {
+			return $log_rows;
+		}
+
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+		$table_contexts = $simple_history->get_contexts_table_name();
+
+		$post_ids = wp_list_pluck( $log_rows, 'id' );
+
+		$sql_context_query = sprintf(
+			'SELECT history_id, `key`, value FROM %2$s WHERE history_id IN (%1$s)',
+			join( ',', $post_ids ),
+			$table_contexts
+		);
+
+		$context_results = $wpdb->get_results( $sql_context_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		foreach ( $context_results as $context_row ) {
+			if ( ! isset( $log_rows[ $context_row->history_id ]->context ) ) {
+				$log_rows[ $context_row->history_id ]->context = [];
+			}
+
+			$log_rows[ $context_row->history_id ]->context[ $context_row->key ] = $context_row->value;
+		}
+
+		return $log_rows;
+	}
+
+	/**
+	 * Get max and min ids for a set of log rows.
+	 *
+	 * @param array $log_rows Log rows.
+	 * @return array<null|int,null|int> Array with max and min id.
+	 */
+	protected function get_max_min_ids( $log_rows ) {
+		/** @var null|int */
+		$min_id = null;
+
+		/** @var null|int */
+		$max_id = null;
+
+		// Bail of no log rows.
+		if ( sizeof( $log_rows ) === 0 ) {
+			return [
+				$max_id,
+				$min_id,
+			];
+		}
+
+		global $wpdb;
+
+		$events_table_name = Simple_History::get_instance()->get_events_table_name();
+
+		// Max id is simply the id of the first/most recent row.
+		$max_id = reset( $log_rows )->id;
+
+		// Min id = to find the lowest id we must take occasions into consideration.
+		$last_row = end( $log_rows );
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$last_row_occasions_count = (int) $last_row->subsequentOccasions - 1;
+
+		if ( $last_row_occasions_count === 0 ) {
+			// Last row did not have any more occasions, so get min_id directly from the row.
+			$min_id = (int) $last_row->id;
+		} else {
+			// Last row did have occasions, so fetch all occasions, and find id of last one.
+			$sql = sprintf(
+				'
+						SELECT id, date, occasionsID
+						FROM %1$s
+						WHERE id <= %2$d
+						ORDER BY id DESC
+						LIMIT %3$d
+					',
+				$events_table_name,
+				$last_row->id,
+				$last_row_occasions_count + 1
+			);
+
+			$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+			// the last occasion has the id we consider last in this paged result.
+			$min_id = (int) end( $results )->id;
+		}
+
+		return [
+			$max_id,
+			$min_id,
+		];
 	}
 }
