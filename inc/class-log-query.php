@@ -14,6 +14,7 @@ use Simple_History\Helpers;
  * - [ ] Create functions get_occasions(), get_single_event(), get_overview() that calls query() with correct args.
  * - Add "get where clause" function that returns the where clause.
  * - Add "get sql_query" function that returns the sql query.
+ * - Occasions should check user permissions, or otherwise it can add any id and the user will have access to it.
  */
 class Log_Query {
 	/**
@@ -70,7 +71,6 @@ class Log_Query {
 			[
 				// overview | occasions | single.
 				// When type is occasions then logRowID, occasionsID, occasionsCount, occasionsCountMaxReturn are required.
-				// TODO: Add default for above required args.
 				'type' => 'overview',
 
 				// Number of posts to show per page. 0 to show all.
@@ -173,12 +173,6 @@ class Log_Query {
 		/** @var string Table name for contexts. */
 		$contexts_table_name = $simple_history->get_contexts_table_name();
 
-		/** @var array Where clauses for outer query. */
-		$outer_where = [];
-
-		/** @var array Where clause for inner query. */
-		$inner_where = [];
-
 		/** @var string Limit clause. */
 		$limit = '';
 
@@ -255,283 +249,13 @@ class Log_Query {
 			%2$s
 		';
 
-		// Only include loggers that the current user can view
-		// @TODO: this causes error if user has no access to any logger at all.
-		$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
-		$inner_where[] = "logger IN {$sql_loggers_user_can_view}";
-
 		// Add limit clause.
 		$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
 		$limit = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
 
-		// Add post__in where.
-		if ( sizeof( $args['post__in'] ) > 0 ) {
-			$inner_where[] = sprintf( 'id IN (%1$s)', implode( ',', $args['post__in'] ) );
-		}
-
-		// If max_id_first_page is then then only include rows
-		// with id equal to or earlier than this, i.e. older than this.
-		if ( isset( $args['max_id_first_page'] ) ) {
-			$inner_where[] = sprintf(
-				'id <= %1$d',
-				$args['max_id_first_page']
-			);
-		}
-
-		// Add where clause for since_id,
-		// to include rows with id greater than since_id, i.e. more recent than since_id.
-		if ( isset( $args['since_id'] ) ) {
-			$inner_where[] = sprintf(
-				'id > %1$d',
-				(int) $args['since_id'],
-			);
-		}
-
-		// Append date where clause.
-		// If date_from is set it is a timestamp.
-		if ( ! empty( $args['date_from'] ) ) {
-			$inner_where[] = sprintf( 'date >= "%1$s"', gmdate( 'Y-m-d H:i:s', $args['date_from'] ) );
-		}
-
-		// Date to.
-		// If date_to is set it is a timestamp.
-		if ( ! empty( $args['date_to'] ) ) {
-			$inner_where[] = sprintf( 'date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $args['date_to'] ) );
-		}
-
-		// If "months" they translate to $args["months"] because we already have support for that
-		// can't use months and dates and the same time.
-		if ( ! empty( $args['dates'] ) ) {
-			if ( is_array( $args['dates'] ) ) {
-				$arr_dates = $args['dates'];
-			} else {
-				$arr_dates = explode( ',', $args['dates'] );
-			}
-
-			/*
-				$arr_dates can be a month:
-
-				Array
-				(
-					[0] => month:2021-11
-				)
-
-				$arr_dates can be a number of days:
-				Array
-				(
-					[0] => lastdays:7
-				)
-
-				$arr_dates can be allDates
-				Array
-				(
-					[0] => allDates
-				)
-			*/
-
-			$args['months'] = [];
-			$args['lastdays'] = 0;
-
-			foreach ( $arr_dates as $one_date ) {
-				if ( strpos( $one_date, 'month:' ) === 0 ) {
-					// If begins with "month:" then strip string and keep only month numbers.
-					$args['months'][] = substr( $one_date, strlen( 'month:' ) );
-					// If begins with "lastdays:" then strip string and keep only number of days.
-				} elseif ( strpos( $one_date, 'lastdays:' ) === 0 ) {
-					// Only keep largest lastdays value.
-					$args['lastdays'] = max( $args['lastdays'], substr( $one_date, strlen( 'lastdays:' ) ) );
-				}
-			}
-		}
-
-		// Add where clause for "lastdays", as int.
-		if ( ! empty( $args['lastdays'] ) ) {
-			$inner_where[] = sprintf(
-				'date >= DATE(NOW()) - INTERVAL %d DAY',
-				$args['lastdays']
-			);
-		}
-
-		// months, in format "Y-m".
-		if ( ! empty( $args['months'] ) ) {
-			if ( is_array( $args['months'] ) ) {
-				$arr_months = $args['months'];
-			} else {
-				$arr_months = explode( ',', $args['months'] );
-			}
-
-			$sql_months = "\n" . '
-				(
-			';
-
-			foreach ( $arr_months as $one_month ) {
-				// beginning of month
-				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08") ) . "\n";
-				// >> 2014-08-01 00:00.
-				$date_month_beginning = strtotime( $one_month );
-
-				// end of month
-				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08 + 1 month") ) . "\n";'
-				// >> 2014-09-01 00:00.
-				$date_month_end = strtotime( "{$one_month} + 1 month" );
-
-				$sql_months .= sprintf(
-					'
-					(
-						date >= "%1$s"
-						AND date <= "%2$s"
-					)
-
-					OR
-					',
-					gmdate( 'Y-m-d H:i:s', $date_month_beginning ), // 1
-					gmdate( 'Y-m-d H:i:s', $date_month_end ) // 2
-				);
-			}
-
-			$sql_months = trim( $sql_months );
-			$sql_months = rtrim( $sql_months, ' OR ' );
-
-			$sql_months .= '
-				)
-			';
-
-			$inner_where[] = $sql_months;
-		} // End if().
-
-		// Search.
-		if ( isset( $args['search'] ) ) {
-			$str_search_conditions = '';
-			$arr_search_words = preg_split( '/[\s,]+/', $args['search'] );
-
-			// create array of all searched words
-			// split both spaces and commas and such.
-			$arr_sql_like_cols = [ 'message', 'logger', 'level' ];
-
-			foreach ( $arr_sql_like_cols as $one_col ) {
-				$str_sql_search_words = '';
-
-				foreach ( $arr_search_words as $one_search_word ) {
-					$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
-
-					$str_sql_search_words .= sprintf(
-						' AND %1$s LIKE "%2$s" ',
-						$one_col,
-						"%{$str_like}%"
-					);
-				}
-
-				$str_sql_search_words = ltrim( $str_sql_search_words, ' AND ' );
-
-				$str_search_conditions .= "\n" . sprintf(
-					' OR ( %1$s ) ',
-					$str_sql_search_words
-				);
-			}
-
-			$str_search_conditions = preg_replace( '/^OR /', ' ', trim( $str_search_conditions ) );
-
-			// Also search contexts.
-			$str_search_conditions .= "\n   OR ( ";
-			foreach ( $arr_search_words as $one_search_word ) {
-				$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
-
-				$str_search_conditions .= "\n" . sprintf(
-					' id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
-					$contexts_table_name, // 1
-					'%' . $str_like . '%' // 2
-				);
-			}
-			$str_search_conditions = preg_replace( '/ AND $/', '', $str_search_conditions );
-
-			$str_search_conditions .= "\n   ) "; // end OR for contexts.
-
-			$inner_where[] = "\n(\n {$str_search_conditions} \n ) ";
-		}// End if().
-
-		// "loglevels", array with loglevels.
-		// e.g. info, debug, and so on.
-		if ( ! empty( $args['loglevels'] ) ) {
-			$sql_loglevels = '';
-
-			foreach ( $args['loglevels'] as $one_loglevel ) {
-				$sql_loglevels .= sprintf( ' "%s", ', esc_sql( $one_loglevel ) );
-			}
-
-			// Remove last comma.
-			$sql_loglevels = rtrim( $sql_loglevels, ' ,' );
-
-			// Add to where in clause.
-			$inner_where[] = "level IN ({$sql_loglevels})";
-		}
-
-		// messages.
-		if ( ! empty( $args['messages'] ) ) {
-			// Create sql where based on loggers and messages.
-			$sql_messages_where = '(';
-
-			foreach ( $args['messages'] as $logger_slug => $logger_messages ) {
-				$sql_logger_messages_in = '';
-
-				foreach ( $logger_messages as $one_logger_message ) {
-					$sql_logger_messages_in .= sprintf( '"%s",', esc_sql( $one_logger_message ) );
-				}
-
-				$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
-				$sql_logger_messages_in = "\n AND c1.value IN ({$sql_logger_messages_in}) ";
-
-				$sql_messages_where .= sprintf(
-					'
-					(
-						h.logger = "%1$s"
-						%2$s
-					)
-					OR ',
-					esc_sql( $logger_slug ),
-					$sql_logger_messages_in
-				);
-			}
-
-			// Remove last 'OR '.
-			$sql_messages_where = preg_replace( '/OR $/', '', $sql_messages_where );
-
-			$sql_messages_where .= "\n )";
-			$outer_where[] = $sql_messages_where;
-		} // End if().
-
-		// loggers, comma separated or array.
-		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger.
-		if ( ! empty( $args['loggers'] ) ) {
-			$sql_loggers = '';
-
-			foreach ( $args['loggers'] as $one_logger ) {
-				$sql_loggers .= sprintf( ' "%s", ', esc_sql( $one_logger ) );
-			}
-
-			// Remove last comma.
-			$sql_loggers = rtrim( $sql_loggers, ' ,' );
-
-			// Add to where in clause.
-			$inner_where[] = "logger IN ({$sql_loggers}) ";
-		}
-
-		// Add where for a single user ID.
-		if ( isset( $args['user'] ) ) {
-			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )',
-				$contexts_table_name, // 1
-				$args['user'], // 2
-			);
-		}
-
-		// Users, array with user ids.
-		if ( isset( $args['users'] ) ) {
-			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )',
-				$contexts_table_name, // 1
-				implode( ',', $args['users'] ), // 2
-			);
-		}
+		// Get inner and outer where depending on type of query.
+		$inner_where = $this->get_inner_where( $args );
+		$outer_where = $this->get_outer_where( $args );
 
 		/**
 		 * Filter the sql template
@@ -668,6 +392,19 @@ class Log_Query {
 	 * @return array
 	 */
 	protected function query_occasions( $args ) {
+		// Create cache key based on args and current user.
+		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_userid_' . get_current_user_id();
+		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
+
+		/** @var array Return value. */
+		$arr_return = wp_cache_get( $cache_key, $cache_group );
+
+		// Return cached value if it exists.
+		if ( false !== $arr_return ) {
+			$arr_return['cached_result'] = true;
+			return $arr_return;
+		}
+
 		$simpe_history = Simple_History::get_instance();
 		$events_table_name = $simpe_history->get_events_table_name();
 		$contexts_table_name = $simpe_history->get_contexts_table_name();
@@ -1054,5 +791,311 @@ class Log_Query {
 			$max_id,
 			$min_id,
 		];
+	}
+
+	/**
+	 * Get inner where clause.
+	 *
+	 * @param array $args Arguments.
+	 * @return array<string> Where clauses.
+	 */
+	protected function get_inner_where( $args ) {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+
+		$contexts_table_name = $simple_history->get_contexts_table_name();
+
+		/** @var array Where clause for inner query. */
+		$inner_where = [];
+
+		// Only include loggers that the current user can view
+		// @TODO: this causes error if user has no access to any logger at all.
+		$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
+		$inner_where[] = "logger IN {$sql_loggers_user_can_view}";
+
+		// Add post__in where.
+		if ( sizeof( $args['post__in'] ) > 0 ) {
+			$inner_where[] = sprintf( 'id IN (%1$s)', implode( ',', $args['post__in'] ) );
+		}
+
+		// If max_id_first_page is then then only include rows
+		// with id equal to or earlier than this, i.e. older than this.
+		if ( isset( $args['max_id_first_page'] ) ) {
+			$inner_where[] = sprintf(
+				'id <= %1$d',
+				$args['max_id_first_page']
+			);
+		}
+
+		// Add where clause for since_id,
+		// to include rows with id greater than since_id, i.e. more recent than since_id.
+		if ( isset( $args['since_id'] ) ) {
+			$inner_where[] = sprintf(
+				'id > %1$d',
+				(int) $args['since_id'],
+			);
+		}
+
+		// Append date where clause.
+		// If date_from is set it is a timestamp.
+		if ( ! empty( $args['date_from'] ) ) {
+			$inner_where[] = sprintf( 'date >= "%1$s"', gmdate( 'Y-m-d H:i:s', $args['date_from'] ) );
+		}
+
+		// Date to.
+		// If date_to is set it is a timestamp.
+		if ( ! empty( $args['date_to'] ) ) {
+			$inner_where[] = sprintf( 'date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $args['date_to'] ) );
+		}
+
+		// If "months" they translate to $args["months"] because we already have support for that
+		// can't use months and dates and the same time.
+		if ( ! empty( $args['dates'] ) ) {
+			if ( is_array( $args['dates'] ) ) {
+				$arr_dates = $args['dates'];
+			} else {
+				$arr_dates = explode( ',', $args['dates'] );
+			}
+
+			/*
+				$arr_dates can be a month:
+
+				Array
+				(
+					[0] => month:2021-11
+				)
+
+				$arr_dates can be a number of days:
+				Array
+				(
+					[0] => lastdays:7
+				)
+
+				$arr_dates can be allDates
+				Array
+				(
+					[0] => allDates
+				)
+			*/
+
+			$args['months'] = [];
+			$args['lastdays'] = 0;
+
+			foreach ( $arr_dates as $one_date ) {
+				if ( strpos( $one_date, 'month:' ) === 0 ) {
+					// If begins with "month:" then strip string and keep only month numbers.
+					$args['months'][] = substr( $one_date, strlen( 'month:' ) );
+					// If begins with "lastdays:" then strip string and keep only number of days.
+				} elseif ( strpos( $one_date, 'lastdays:' ) === 0 ) {
+					// Only keep largest lastdays value.
+					$args['lastdays'] = max( $args['lastdays'], substr( $one_date, strlen( 'lastdays:' ) ) );
+				}
+			}
+		}
+
+		// Add where clause for "lastdays", as int.
+		if ( ! empty( $args['lastdays'] ) ) {
+			$inner_where[] = sprintf(
+				'date >= DATE(NOW()) - INTERVAL %d DAY',
+				$args['lastdays']
+			);
+		}
+
+		// months, in format "Y-m".
+		if ( ! empty( $args['months'] ) ) {
+			if ( is_array( $args['months'] ) ) {
+				$arr_months = $args['months'];
+			} else {
+				$arr_months = explode( ',', $args['months'] );
+			}
+
+			$sql_months = "\n" . '
+				(
+			';
+
+			foreach ( $arr_months as $one_month ) {
+				// beginning of month
+				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08") ) . "\n";
+				// >> 2014-08-01 00:00.
+				$date_month_beginning = strtotime( $one_month );
+
+				// end of month
+				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08 + 1 month") ) . "\n";'
+				// >> 2014-09-01 00:00.
+				$date_month_end = strtotime( "{$one_month} + 1 month" );
+
+				$sql_months .= sprintf(
+					'
+					(
+						date >= "%1$s"
+						AND date <= "%2$s"
+					)
+
+					OR
+					',
+					gmdate( 'Y-m-d H:i:s', $date_month_beginning ), // 1
+					gmdate( 'Y-m-d H:i:s', $date_month_end ) // 2
+				);
+			}
+
+			$sql_months = trim( $sql_months );
+			$sql_months = rtrim( $sql_months, ' OR ' );
+
+			$sql_months .= '
+				)
+			';
+
+			$inner_where[] = $sql_months;
+		} // End if().
+
+		// Search.
+		if ( isset( $args['search'] ) ) {
+			$str_search_conditions = '';
+			$arr_search_words = preg_split( '/[\s,]+/', $args['search'] );
+
+			// create array of all searched words
+			// split both spaces and commas and such.
+			$arr_sql_like_cols = [ 'message', 'logger', 'level' ];
+
+			foreach ( $arr_sql_like_cols as $one_col ) {
+				$str_sql_search_words = '';
+
+				foreach ( $arr_search_words as $one_search_word ) {
+					$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
+
+					$str_sql_search_words .= sprintf(
+						' AND %1$s LIKE "%2$s" ',
+						$one_col,
+						"%{$str_like}%"
+					);
+				}
+
+				$str_sql_search_words = ltrim( $str_sql_search_words, ' AND ' );
+
+				$str_search_conditions .= "\n" . sprintf(
+					' OR ( %1$s ) ',
+					$str_sql_search_words
+				);
+			}
+
+			$str_search_conditions = preg_replace( '/^OR /', ' ', trim( $str_search_conditions ) );
+
+			// Also search contexts.
+			$str_search_conditions .= "\n   OR ( ";
+			foreach ( $arr_search_words as $one_search_word ) {
+				$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
+
+				$str_search_conditions .= "\n" . sprintf(
+					' id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
+					$contexts_table_name, // 1
+					'%' . $str_like . '%' // 2
+				);
+			}
+			$str_search_conditions = preg_replace( '/ AND $/', '', $str_search_conditions );
+
+			$str_search_conditions .= "\n   ) "; // end OR for contexts.
+
+			$inner_where[] = "\n(\n {$str_search_conditions} \n ) ";
+		}// End if().
+
+		// "loglevels", array with loglevels.
+		// e.g. info, debug, and so on.
+		if ( ! empty( $args['loglevels'] ) ) {
+			$sql_loglevels = '';
+
+			foreach ( $args['loglevels'] as $one_loglevel ) {
+				$sql_loglevels .= sprintf( ' "%s", ', esc_sql( $one_loglevel ) );
+			}
+
+			// Remove last comma.
+			$sql_loglevels = rtrim( $sql_loglevels, ' ,' );
+
+			// Add to where in clause.
+			$inner_where[] = "level IN ({$sql_loglevels})";
+		}
+
+		// loggers, comma separated or array.
+		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger.
+		if ( ! empty( $args['loggers'] ) ) {
+			$sql_loggers = '';
+
+			foreach ( $args['loggers'] as $one_logger ) {
+				$sql_loggers .= sprintf( ' "%s", ', esc_sql( $one_logger ) );
+			}
+
+			// Remove last comma.
+			$sql_loggers = rtrim( $sql_loggers, ' ,' );
+
+			// Add to where in clause.
+			$inner_where[] = "logger IN ({$sql_loggers}) ";
+		}
+
+		// Add where for a single user ID.
+		if ( isset( $args['user'] ) ) {
+			$inner_where[] = sprintf(
+				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )',
+				$contexts_table_name, // 1
+				$args['user'], // 2
+			);
+		}
+
+		// Users, array with user ids.
+		if ( isset( $args['users'] ) ) {
+			$inner_where[] = sprintf(
+				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )',
+				$contexts_table_name, // 1
+				implode( ',', $args['users'] ), // 2
+			);
+		}
+
+		return $inner_where;
+	}
+
+	/**
+	 * Get outer where clause.
+	 *
+	 * @param array $args Arguments.
+	 * @return array<string> Where clauses.
+	 */
+	protected function get_outer_where( $args ) {
+		/** @var array Where clauses for outer query. */
+		$outer_where = [];
+
+		// messages.
+		if ( ! empty( $args['messages'] ) ) {
+			// Create sql where based on loggers and messages.
+			$sql_messages_where = '(';
+
+			foreach ( $args['messages'] as $logger_slug => $logger_messages ) {
+				$sql_logger_messages_in = '';
+
+				foreach ( $logger_messages as $one_logger_message ) {
+					$sql_logger_messages_in .= sprintf( '"%s",', esc_sql( $one_logger_message ) );
+				}
+
+				$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
+				$sql_logger_messages_in = "\n AND c1.value IN ({$sql_logger_messages_in}) ";
+
+				$sql_messages_where .= sprintf(
+					'
+					(
+						h.logger = "%1$s"
+						%2$s
+					)
+					OR ',
+					esc_sql( $logger_slug ),
+					$sql_logger_messages_in
+				);
+			}
+
+			// Remove last 'OR '.
+			$sql_messages_where = preg_replace( '/OR $/', '', $sql_messages_where );
+
+			$sql_messages_where .= "\n )";
+			$outer_where[] = $sql_messages_where;
+		} // End if().
+
+		return $outer_where;
 	}
 }
