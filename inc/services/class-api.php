@@ -68,8 +68,6 @@ class API extends Service {
 
 				// Output can be array or HTML.
 				if ( isset( $args['format'] ) && 'html' === $args['format'] ) {
-					$data['log_rows_raw'] = [];
-
 					foreach ( $data['log_rows'] as $key => $oneLogRow ) {
 						$args = [];
 						if ( $type == 'single' ) {
