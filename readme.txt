@@ -212,6 +212,8 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 Unreleased
 
 - IP addresses are now shown on occasions.
+- Remove "rep" column from Log_Query response.
+- 
 
 ### 4.8.0 (December 2023)
 

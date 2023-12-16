@@ -216,7 +216,6 @@ class Log_Query {
 				h.initiator,
 				h.occasionsID,
 				count(t.repeated) AS subsequentOccasions,
-				t.rep,
 				t.repeated,
 				t.occasionsIDType,
 				c1.value AS context_message_key
