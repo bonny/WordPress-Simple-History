@@ -143,16 +143,8 @@ class Log_Query {
 			]
 		);
 
-		global $wpdb;
-
-		/** @var Simple_History Simple History instance. */
-		$simple_history = Simple_History::get_instance();
-
-		/** @var string SQL Template to use. Template used depends on $args['type'].  */
-		$sql_tmpl = null;
-
-		// Create cache key based on args and request and current user.
-		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_get_' . md5( serialize( $_GET ) ) . '_userid_' . get_current_user_id();
+		// Create cache key based on args and current user.
+		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_userid_' . get_current_user_id();
 		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
 
 		/** @var array Return value. */
@@ -163,6 +155,14 @@ class Log_Query {
 			$arr_return['cached_result'] = true;
 			return $arr_return;
 		}
+
+		global $wpdb;
+
+		/** @var Simple_History Simple History instance. */
+		$simple_history = Simple_History::get_instance();
+
+		/** @var string SQL Template to use. Template used depends on $args['type'].  */
+		$sql_tmpl = null;
 
 		// Parse and prepare args.
 		$args = $this->prepare_args( $args );
