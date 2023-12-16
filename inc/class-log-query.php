@@ -8,13 +8,8 @@ use Simple_History\Helpers;
  * Queries the Simple History Log.
  *
  * Todo
- * - [x] Convert $inner_where and $where to arrays, instead of concating.
- *  - [ ] Should array be array of arrays where each AND clause contains a description? Could be useful for debugging + be a little bit prepared for future support for both "AND" and "OR" clauses.
- * - [x] Add "prepare args" function, that checks that args are valid, so that we don't have to do that in the query function.
- * - [ ] Create functions get_occasions(), get_single_event(), get_overview() that calls query() with correct args.
- * - Add "get where clause" function that returns the where clause.
- * - Add "get sql_query" function that returns the sql query.
  * - Occasions should check user permissions, or otherwise it can add any id and the user will have access to it.
+ * - Fix for full group by.
  */
 class Log_Query {
 	/**
@@ -160,9 +155,6 @@ class Log_Query {
 
 		/** @var Simple_History Simple History instance. */
 		$simple_history = Simple_History::get_instance();
-
-		/** @var string SQL Template to use. Template used depends on $args['type'].  */
-		$sql_tmpl = null;
 
 		// Parse and prepare args.
 		$args = $this->prepare_args( $args );
