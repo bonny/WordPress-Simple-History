@@ -701,11 +701,17 @@ class Log_Query {
 		 * 3 = table name for events.
 		 */
 		$sql_statement_template = '
-			SELECT h.*,
-				# Fake columns that exist in overview query
-				1 as subsequentOccasions,
-				c1.value AS context_message_key
-			
+			SELECT 
+				h.id,
+				h.logger,
+				h.level,
+				h.date,
+				h.message,
+				h.initiator,
+				h.occasionsID,
+				c1.value AS context_message_key,
+				# Hard code subsequentOccasions column that exist in overview query
+				1 as subsequentOccasions
 			FROM %3$s AS h
 			
 			# Add context message key
@@ -718,8 +724,6 @@ class Log_Query {
 			%2$s
 		';
 
-		// HERE: context_message_key is not added to query.
-
 		/** @var array Where clauses for outer query. */
 		$outer_where = [];
 
@@ -731,7 +735,7 @@ class Log_Query {
 
 		if ( isset( $args['occasionsCountMaxReturn'] ) && $args['occasionsCountMaxReturn'] < $args['occasionsCount'] ) {
 			// Limit to max nn events if occasionsCountMaxReturn is set.
-			// Used in gui to prevent to many events returned, that can stall the browser.
+			// Used for example in GUI to prevent to many events returned, that can stall the browser.
 			$limit = 'LIMIT ' . $args['occasionsCountMaxReturn'];
 		} else {
 			// Regular limit that gets all occasions.
@@ -763,22 +767,9 @@ class Log_Query {
 		$log_rows = $this->add_contexts_to_log_rows( $log_rows );
 
 		return [
-			// 'total_row_count' => $total_found_rows,
-			// 'pages_count' => $pages_count,
-			// 'page_current' => $args['paged'],
-			// 'page_rows_from' => $page_rows_from,
-			// 'page_rows_to' => $page_rows_to,
-			// 'max_id' => (int) $max_id,
-			// 'min_id' => (int) $min_id,
-			// 'log_rows_count' => sizeof( $log_rows ),
 			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => array_values( $log_rows ),
-			// Add sql query to debug.
-			// 'outer_where_array' => $outer_where_array,
-			// 'inner_where_array' => $inner_where_array,
 			'sql' => $sql_query,
-			'sql_context' => $sql_context ?? null,
-			'context_results' => $context_results ?? null,
 		];
 	}
 
