@@ -935,7 +935,6 @@ class Simple_History {
 				$logRowKeysToShow['occasionsID'],
 				$logRowKeysToShow['subsequentOccasions'],
 				$logRowKeysToShow['repeated'],
-				$logRowKeysToShow['occasionsIDType'],
 				$logRowKeysToShow['context'],
 				$logRowKeysToShow['type']
 			);

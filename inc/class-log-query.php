@@ -217,7 +217,6 @@ class Log_Query {
 				h.occasionsID,
 				count(t.repeated) AS subsequentOccasions,
 				t.repeated,
-				t.occasionsIDType,
 				c1.value AS context_message_key
 
 			FROM %3$s AS h

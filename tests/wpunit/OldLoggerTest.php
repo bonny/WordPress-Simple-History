@@ -65,7 +65,7 @@ class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$expected_object->initiator = 'wp_user';
 
 		$actual = $query_results['log_rows'][0];
-		unset($actual->id, $actual->date, $actual->occasionsID, $actual->subsequentOccasions, $actual->rep, $actual->repeated, $actual->occasionsIDType, $actual->context);
+		unset($actual->id, $actual->date, $actual->occasionsID, $actual->subsequentOccasions, $actual->rep, $actual->repeated, $actual->context);
 
 		$this->assertEquals($expected_object, $actual);
 	}
