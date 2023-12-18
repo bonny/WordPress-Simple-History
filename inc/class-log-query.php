@@ -223,10 +223,9 @@ class Log_Query {
 
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		sh_d('DB_HOST', DB_HOST, 'DB_NAME', DB_NAME);
-		sh_d( '$sql_query_log_rows', $sql_query_log_rows );
 		if ( ! empty( $wpdb->last_error ) ) {
 			sh_d( '$wpdb->last_error', $wpdb->last_error );
+			sh_d( '$sql_query_log_rows', $sql_query_log_rows );
 			exit;
 		}
 

@@ -65,7 +65,7 @@ class API extends Service {
 				$data = $logQuery->query( $args );
 				$data_full_group_by = $logQuery->query_overview_full_group_by( $args );
 
-				sh_d('$data', $data, '$data_full_group_by', $data_full_group_by);exit;
+				// sh_d('$data', $data, '$data_full_group_by', $data_full_group_by);exit;
 
 				$data['api_args'] = $args;
 
