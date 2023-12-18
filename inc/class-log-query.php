@@ -9,7 +9,11 @@ use Simple_History\Helpers;
  *
  * Todo
  * - Occasions should check user permissions, or otherwise it can add any id and the user will have access to it.
- * - Fix for full group by.
+ * - Test if fix for full group is working.
+ * - Finish query_overview_full_group_by() to return same data as query_overview(), and then compare and verify that it returns same data.
+ *  - Also print SQL query and do some EXPLAIN on it in a regular editor. If this works it would be nice to blog about the findings,
+ *    and print benchmarks etc.
+ *
  */
 class Log_Query {
 	/**
@@ -51,6 +55,211 @@ class Log_Query {
 		} else {
 			throw new \InvalidArgumentException( 'Invalid query type' );
 		}
+	}
+
+	/**
+	 * Query history using a query that uses full group by.
+	 *
+	 * @param string|array|object $args Arguments.
+	 * @return array Log rows.
+	 */
+	public function query_overview_full_group_by( $args ) {
+		global $wpdb;
+
+		// Parse and prepare args.
+		$args = $this->prepare_args( $args );
+
+		$Simple_History = Simple_History::get_instance();
+
+		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0' );
+
+		/**
+		 *  @var string SQL statement that will be used for inner join.
+		 *
+		 * Template uses number argument to sprintf to insert values.
+		 * Arguments:
+		 * 1 = table name for events.
+		 * 2 = table name for contexts.
+		 * 2 = where clause.
+		 *
+		 * TODO: Add where for messages. Check that both logger and key are correct.
+		 */
+		$inner_sql_statement_template = '
+			
+		
+			## START INNER_SQL_QUERY_STATEMENT
+			SELECT
+				id,
+				#message,
+				IF(@a=occasionsID,@counter:=@counter+1,@counter:=1) AS repeatCount,
+				IF(@counter=1,@groupby:=@groupby+1,@groupby) AS repeated,
+				@a:=occasionsId,
+				contexts.value as context_message_key
+			FROM %1$s AS h2
+
+			# Join column with message key so its searchable/filterable.
+			LEFT OUTER JOIN %2$s AS contexts ON (contexts.history_id = h2.id AND contexts.key = "_message_key")
+
+			# Where statement.
+			%3$s
+
+			ORDER BY id DESC
+			## END INNER_SQL_QUERY_STATEMENT
+
+
+		';
+
+		$inner_where = $this->get_inner_where( $args );
+		$inner_where_string = empty( $inner_where ) ? '' : "\nWHERE " . implode( "\nAND ", $inner_where );
+
+		$inner_sql_query_statement = sprintf(
+			$inner_sql_statement_template,
+			$Simple_History->get_events_table_name(), // 1
+			$Simple_History->get_contexts_table_name(), // 2
+			$inner_where_string // 3
+		);
+
+		// $inner_query_results = $wpdb->get_results( $inner_sql_query, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// sh_d( '$inner_sql_query', $inner_sql_query );
+		// sh_d( '$inner_query_results', $inner_query_results );
+		// if ( ! empty( $wpdb->last_error ) ) {
+		// sh_d( '$wpdb->last_error', $wpdb->last_error );
+		// exit;
+		// }
+		// exit;
+
+		/**
+		 * @var string SQL statement template used to get IDs of all events.
+		 *
+		 * Template uses number argument to sprintf to insert values.
+		 * Arguments:
+		 * 1 = table name for events.
+		 * 2 = table name for contexts.
+		 * 3 = Inner join SQL query.
+		 * 4 = where clause for outer query.
+		 * 5 = limit clause.
+		 */
+		$sql_statement_max_ids_and_count_template = '
+
+
+			## START SQL_STATEMENT_MAX_IDS_AND_COUNT_TEMPLATE
+			SELECT 
+				max(h.id) as maxId,
+				max(historyWithRepeated.repeatCount) as repeatCount
+			FROM %1$s AS h
+
+			INNER JOIN (
+				%3$s
+			) as historyWithRepeated ON historyWithRepeated.id = h.id
+
+			# Outer where
+			%4$s
+			
+			GROUP BY historyWithRepeated.repeated
+			ORDER by maxId DESC
+
+			# Limit
+			%5$s
+
+
+			## END SQL_STATEMENT_MAX_IDS_AND_COUNT_TEMPLATE
+		';
+
+		$inner_where = $this->get_inner_where( $args );
+		if ( ! empty( $inner_where ) ) {
+			$inner_where_string = "\nWHERE\n" . implode( "\nAND ", $inner_where );
+		}
+
+		$outer_where = $this->get_outer_where( $args );
+		if ( ! empty( $outer_where ) ) {
+			$outer_where_string = "\nWHERE " . implode( "\nAND ", $outer_where );
+		}
+
+		$max_ids_and_count_sql_statement = sprintf(
+			$sql_statement_max_ids_and_count_template,
+			$Simple_History->get_events_table_name(), // 1
+			$Simple_History->get_contexts_table_name(), // 2
+			$inner_sql_query_statement, // 3
+			$outer_where_string, // 4
+			'' // 5
+		);
+
+		/**
+		 * @var string SQL template used to get all events from the ones
+		 *             found in statement sql_statement_max_ids_and_count_template.
+		 *             This final statement gets all columns we finally need.
+		 */
+		$sql_statement_log_rows = '
+
+
+			## START SQL_STATEMENT_LOG_ROWS
+			SELECT
+				simple_history_1.id,
+				simple_history_1.logger,
+				simple_history_1.level,
+				simple_history_1.date,
+				simple_history_1.message,
+				simple_history_1.initiator,
+				simple_history_1.occasionsID,
+				repeatCount
+
+			FROM %1$s AS simple_history_1
+
+			INNER JOIN (
+				%2$s
+			) AS max_ids_and_count ON simple_history_1.id = max_ids_and_count.maxId
+
+			ORDER BY simple_history_1.id DESC
+			## END SQL_STATEMENT_LOG_ROWS
+
+
+		';
+
+		$sql_query_log_rows = sprintf(
+			$sql_statement_log_rows,
+			$Simple_History->get_events_table_name(), // 1
+			$max_ids_and_count_sql_statement // 2
+		);
+
+		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		sh_d('DB_HOST', DB_HOST, 'DB_NAME', DB_NAME);
+		sh_d( '$sql_query_log_rows', $sql_query_log_rows );
+		if ( ! empty( $wpdb->last_error ) ) {
+			sh_d( '$wpdb->last_error', $wpdb->last_error );
+			exit;
+		}
+
+		// Get all ids from $result_ids_and_count.
+		// $max_ids = wp_list_pluck( $result_max_ids_and_count, 'maxId' );
+
+		// Values must be id's.
+		// $max_ids = array_map( 'intval', $max_ids );
+
+		// $sql_statement_max_ids_and_count_template = '
+		// SELECT
+		// *
+		// FROM wp_simple_history
+		// WHERE id IN (%s)
+		// ORDER BY id DESC
+		// ';
+
+		// $sql_query = sprintf(
+		// $sql_statement_max_ids_and_count_template,
+		// implode( ',', $max_ids )
+		// );
+
+		// $result_log_rows = $wpdb->get_results( $sql_query, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		// // sh_d( '$max_ids', $max_ids );
+		// sh_d( '$sql_query', $sql_query );
+
+		$result_log_rows = $this->add_contexts_to_log_rows( $result_log_rows );
+
+		// sh_d( '$result_log_rows', $result_log_rows );
+		// exit;
+
+		return $result_log_rows;
 	}
 
 	/**
@@ -683,6 +892,8 @@ class Log_Query {
 
 	/**
 	 * Add context to log rows.
+	 * Gets all ids from log rows and then fetches context for those ids
+	 * in a single query.
 	 *
 	 * @param array $log_rows Log rows to append context to.
 	 * @return array Log rows with context added.
@@ -805,7 +1016,7 @@ class Log_Query {
 		$inner_where[] = "logger IN {$sql_loggers_user_can_view}";
 
 		// Add post__in where.
-		if ( sizeof( $args['post__in'] ) > 0 ) {
+		if ( isset( $args['post__in'] ) && sizeof( $args['post__in'] ) > 0 ) {
 			$inner_where[] = sprintf( 'id IN (%1$s)', implode( ',', $args['post__in'] ) );
 		}
 
