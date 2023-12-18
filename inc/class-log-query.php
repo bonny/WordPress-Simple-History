@@ -13,7 +13,7 @@ use Simple_History\Helpers;
  * - Finish query_overview_full_group_by() to return same data as query_overview(), and then compare and verify that it returns same data.
  *  - Also print SQL query and do some EXPLAIN on it in a regular editor. If this works it would be nice to blog about the findings,
  *    and print benchmarks etc.
- *
+ * - Get num rows using second query with count(*)
  */
 class Log_Query {
 	/**
@@ -109,8 +109,8 @@ class Log_Query {
 
 		';
 
-		$inner_where = $this->get_inner_where( $args );
-		$inner_where_string = empty( $inner_where ) ? '' : "\nWHERE " . implode( "\nAND ", $inner_where );
+		$inner_where_array = $this->get_inner_where( $args );
+		$inner_where_string = empty( $inner_where_array ) ? '' : "\nWHERE " . implode( "\nAND ", $inner_where_array );
 
 		$inner_sql_query_statement = sprintf(
 			$inner_sql_statement_template,
@@ -145,6 +145,7 @@ class Log_Query {
 			## START SQL_STATEMENT_MAX_IDS_AND_COUNT_TEMPLATE
 			SELECT 
 				max(h.id) as maxId,
+				min(h.id) as minId,
 				max(historyWithRepeated.repeatCount) as repeatCount
 			FROM %1$s AS h
 
@@ -165,14 +166,16 @@ class Log_Query {
 			## END SQL_STATEMENT_MAX_IDS_AND_COUNT_TEMPLATE
 		';
 
-		$inner_where = $this->get_inner_where( $args );
-		if ( ! empty( $inner_where ) ) {
-			$inner_where_string = "\nWHERE\n" . implode( "\nAND ", $inner_where );
+		$inner_where_string = '';
+		$inner_where_array = $this->get_inner_where( $args );
+		if ( ! empty( $inner_where_array ) ) {
+			$inner_where_string = "\nWHERE\n" . implode( "\nAND ", $inner_where_array );
 		}
 
-		$outer_where = $this->get_outer_where( $args );
-		if ( ! empty( $outer_where ) ) {
-			$outer_where_string = "\nWHERE " . implode( "\nAND ", $outer_where );
+		$outer_where_string = '';
+		$outer_where_array = $this->get_outer_where( $args );
+		if ( ! empty( $outer_where_array ) ) {
+			$outer_where_string = "\nWHERE " . implode( "\nAND ", $outer_where_array );
 		}
 
 		$max_ids_and_count_sql_statement = sprintf(
@@ -181,7 +184,7 @@ class Log_Query {
 			$Simple_History->get_contexts_table_name(), // 2
 			$inner_sql_query_statement, // 3
 			$outer_where_string, // 4
-			'' // 5
+			'' // 5 Limit clause.
 		);
 
 		/**
@@ -195,13 +198,16 @@ class Log_Query {
 			## START SQL_STATEMENT_LOG_ROWS
 			SELECT
 				simple_history_1.id,
+				maxId,
+				minId,
 				simple_history_1.logger,
 				simple_history_1.level,
 				simple_history_1.date,
 				simple_history_1.message,
 				simple_history_1.initiator,
 				simple_history_1.occasionsID,
-				repeatCount
+				repeatCount,
+				repeatCount AS subsequentOccasions
 
 			FROM %1$s AS simple_history_1
 
@@ -223,42 +229,68 @@ class Log_Query {
 
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
+		// sh_d( '$sql_query_log_rows', $sql_query_log_rows );exit;
 		if ( ! empty( $wpdb->last_error ) ) {
 			sh_d( '$wpdb->last_error', $wpdb->last_error );
 			sh_d( '$sql_query_log_rows', $sql_query_log_rows );
 			exit;
 		}
 
-		// Get all ids from $result_ids_and_count.
-		// $max_ids = wp_list_pluck( $result_max_ids_and_count, 'maxId' );
-
-		// Values must be id's.
-		// $max_ids = array_map( 'intval', $max_ids );
-
-		// $sql_statement_max_ids_and_count_template = '
-		// SELECT
-		// *
-		// FROM wp_simple_history
-		// WHERE id IN (%s)
-		// ORDER BY id DESC
-		// ';
-
-		// $sql_query = sprintf(
-		// $sql_statement_max_ids_and_count_template,
-		// implode( ',', $max_ids )
-		// );
-
-		// $result_log_rows = $wpdb->get_results( $sql_query, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-		// // sh_d( '$max_ids', $max_ids );
-		// sh_d( '$sql_query', $sql_query );
-
+		// Append context to log rows.
 		$result_log_rows = $this->add_contexts_to_log_rows( $result_log_rows );
 
-		// sh_d( '$result_log_rows', $result_log_rows );
-		// exit;
+		// Re-index array.
+		$result_log_rows = array_values( $result_log_rows );
 
-		return $result_log_rows;
+		#sh_d('$result_log_rows', $result_log_rows);exit;
+
+		// Get max id and min id.
+		// Max id is the id of the first row in the result (i.e. the latest entry).
+		// Min id is the minId value of the last row in the result (i.e. the oldest entry).
+		$min_id = null;
+		$max_id = null;
+		if ( sizeof( $result_log_rows ) > 0 ) {
+			$max_id = $result_log_rows[0]->id;
+			$min_id = $result_log_rows[ count( $result_log_rows ) - 1 ]->minId;
+		}
+
+		// sh_d( '$result_log_rows', $result_log_rows );exit;
+
+		// TODO: This must be calculated 4 realz.
+		$total_found_rows = 999;
+
+		// Calc pages.
+		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
+
+		// Calc pagination info.
+		$log_rows_count = count( $result_log_rows );
+		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
+		$page_rows_to = $page_rows_from + $log_rows_count - 1;
+
+		// Create array to return.
+		// Add log rows to sub key 'log_rows' because meta info is also added.
+		$arr_return = [
+			'total_row_count' => $total_found_rows,
+			'pages_count' => $pages_count,
+			'page_current' => $args['paged'],
+			'page_rows_from' => $page_rows_from,
+			'page_rows_to' => $page_rows_to,
+			'max_id' => (int) $max_id,
+			'min_id' => (int) $min_id,
+			'log_rows_count' => $log_rows_count,
+			// Remove id from keys, because they are cumbersome when working with JSON.
+			'log_rows' => $result_log_rows,
+			// Add sql query to debug.
+			#'outer_where_array' => $outer_where_array,
+			#'inner_where_array' => $inner_where_array,
+			#'sql' => $sql,
+			#'sql_context' => $sql_context ?? null,
+			#'context_results' => $context_results ?? null,
+		];
+
+		wp_cache_set( $cache_key, $arr_return, $cache_group );
+
+		return $arr_return;
 	}
 
 	/**
@@ -564,11 +596,11 @@ class Log_Query {
 			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => array_values( $log_rows ),
 			// Add sql query to debug.
-			'outer_where_array' => $outer_where_array,
-			'inner_where_array' => $inner_where_array,
-			'sql' => $sql,
-			'sql_context' => $sql_context ?? null,
-			'context_results' => $context_results ?? null,
+			#'outer_where_array' => $outer_where_array,
+			#'inner_where_array' => $inner_where_array,
+			#'sql' => $sql,
+			#'sql_context' => $sql_context ?? null,
+			#'context_results' => $context_results ?? null,
 		];
 
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
@@ -924,6 +956,15 @@ class Log_Query {
 			}
 
 			$log_rows[ $context_row->history_id ]->context[ $context_row->key ] = $context_row->value;
+		}
+
+		// Move up _message_key from context row to main row as context_message_key.
+		// This is beacuse that's the way it was before SQL was rewritten
+		// to support FULL_GROUP_BY in December 2023.
+		foreach ( $log_rows as $log_row ) {
+			if ( isset( $log_row->context['_message_key'] ) ) {
+				$log_row->context_message_key = $log_row->context['_message_key'];
+			}
 		}
 
 		return $log_rows;
