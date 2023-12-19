@@ -323,83 +323,8 @@ class Log_Query {
 	 * @return array
 	 */
 	protected function query_overview( $args ) {
-		/** @var array Query arguments. */
-		$args = wp_parse_args(
-			$args,
-			[
-				// overview | occasions | single.
-				// When type is occasions then logRowID, occasionsID, occasionsCount, occasionsCountMaxReturn are required.
-				'type' => 'overview',
-
-				// Number of posts to show per page. 0 to show all.
-				'posts_per_page' => 10,
-
-				// Page to show. 1 = first page.
-				'paged' => 1,
-
-				// Array. Only get posts that are in array.
-				'post__in' => [],
-
-				// If max_id_first_page is set then only get rows
-				// that have id equal or lower than this, to make.
-				'max_id_first_page' => null,
-
-				// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id.
-				'since_id' => null,
-
-				/**
-				 * From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
-				 *
-				 * @var int|string
-				 */
-				'date_from' => null,
-
-				/**
-				* To date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
-				*
-				* @var int|string
-				*/
-			   'date_to' => null,
-
-				// months in format "Y-m"
-				// array or comma separated.
-				'months' => null,
-
-				// dates in format
-				// "month:2015-06" for june 2015
-				// "lastdays:7" for the last 7 days.
-				'dates' => null,
-
-				/**
-				 * Text to search for.
-				 * Message, logger and level are searched for in main table.
-				 * Values are searched for in context table.
-				 *
-				 * @var string
-				 */
-				'search' => null,
-
-				// log levels to include. comma separated or as array. defaults to all.
-				'loglevels' => null,
-
-				// loggers to include. comma separated. defaults to all the user can read.
-				'loggers' => null,
-
-				'messages' => null,
-
-				// userID as number.
-				'user' => null,
-
-				// User ids, comma separated or array.
-				'users' => null,
-
-			// Can also contain:
-			// logRowID
-			// occasionsCount
-			// occasionsCountMaxReturn
-			// occasionsID.
-			]
-		);
+		// Parse and prepare args.
+		$args = $this->prepare_args( $args );
 
 		// Create cache key based on args and current user.
 		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_userid_' . get_current_user_id();
@@ -418,9 +343,6 @@ class Log_Query {
 
 		/** @var Simple_History Simple History instance. */
 		$simple_history = Simple_History::get_instance();
-
-		// Parse and prepare args.
-		$args = $this->prepare_args( $args );
 
 		/** @var string Table name for events. */
 		$events_table_name = $simple_history->get_events_table_name();
@@ -772,6 +694,84 @@ class Log_Query {
 	 * @throws \InvalidArgumentException If invalid type.
 	 */
 	protected function prepare_args( $args ) {
+		/** @var array Query arguments. */
+		$args = wp_parse_args(
+			$args,
+			[
+				// overview | occasions | single.
+				// When type is occasions then logRowID, occasionsID, occasionsCount, occasionsCountMaxReturn are required.
+				'type' => 'overview',
+
+				// Number of posts to show per page. 0 to show all.
+				'posts_per_page' => 10,
+
+				// Page to show. 1 = first page.
+				'paged' => 1,
+
+				// Array. Only get posts that are in array.
+				'post__in' => [],
+
+				// If max_id_first_page is set then only get rows
+				// that have id equal or lower than this, to make.
+				'max_id_first_page' => null,
+
+				// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id.
+				'since_id' => null,
+
+				/**
+				 * From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
+				 *
+				 * @var int|string
+				 */
+				'date_from' => null,
+
+				/**
+				* To date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
+				*
+				* @var int|string
+				*/
+			   'date_to' => null,
+
+				// months in format "Y-m"
+				// array or comma separated.
+				'months' => null,
+
+				// dates in format
+				// "month:2015-06" for june 2015
+				// "lastdays:7" for the last 7 days.
+				'dates' => null,
+
+				/**
+				 * Text to search for.
+				 * Message, logger and level are searched for in main table.
+				 * Values are searched for in context table.
+				 *
+				 * @var string
+				 */
+				'search' => null,
+
+				// log levels to include. comma separated or as array. defaults to all.
+				'loglevels' => null,
+
+				// loggers to include. comma separated. defaults to all the user can read.
+				'loggers' => null,
+
+				'messages' => null,
+
+				// userID as number.
+				'user' => null,
+
+				// User ids, comma separated or array.
+				'users' => null,
+
+			// Can also contain:
+			// logRowID
+			// occasionsCount
+			// occasionsCountMaxReturn
+			// occasionsID.
+			]
+		);
+
 		// Type must be string and any of "overview", "occasions", "single".
 		if ( ! is_string( $args['type'] ) && ! in_array( $args['type'], [ 'overview', 'occasions', 'single' ], true ) ) {
 			throw new \InvalidArgumentException( 'Invalid type' );
