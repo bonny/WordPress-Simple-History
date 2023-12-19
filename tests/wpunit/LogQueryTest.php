@@ -27,7 +27,7 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	function test_query() {
 		// I know this fails.
-		$this->markTestIncomplete('This test will fail in Mysql >5.5 and MariaDB until SQL bug is fixed.');
+		// $this->markTestIncomplete('This test will fail in Mysql >5.5 and MariaDB until SQL bug is fixed.');
 
 		// Add and set current user to admin user, so user can read all logs.
 		$user_id = $this->factory->user->create(
