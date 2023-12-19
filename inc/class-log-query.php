@@ -10,10 +10,12 @@ use Simple_History\Helpers;
  * Todo
  * - Occasions should check user permissions, or otherwise it can add any id and the user will have access to it.
  * - Test if fix for full group is working.
- * - Finish query_overview_full_group_by() to return same data as query_overview(), and then compare and verify that it returns same data.
+ * - [x] Finish query_overview_full_group_by() to return same data as query_overview(), and then compare and verify that it returns same data.
  *  - Also print SQL query and do some EXPLAIN on it in a regular editor. If this works it would be nice to blog about the findings,
  *    and print benchmarks etc.
- * - Get num rows using second query with count(*)
+ * - [x] Get num rows using second query with count(*)
+ * - [ ] Merge together all git commits to one commit with close-##-messages.
+ * - [ ] Test in MySQL 5.5, 5.7, MariaDB 10.4. Tests fail, bad tests or something that isn't working?
  */
 class Log_Query {
 	/**
@@ -242,7 +244,7 @@ class Log_Query {
 		// Re-index array.
 		$result_log_rows = array_values( $result_log_rows );
 
-		#sh_d('$result_log_rows', $result_log_rows);exit;
+		// sh_d('$result_log_rows', $result_log_rows);exit;
 
 		// Get max id and min id.
 		// Max id is the id of the first row in the result (i.e. the latest entry).
@@ -256,8 +258,29 @@ class Log_Query {
 
 		// sh_d( '$result_log_rows', $result_log_rows );exit;
 
-		// TODO: This must be calculated 4 realz.
-		$total_found_rows = 999;
+		// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
+		$sql_statement_log_rows_count = '
+			## START SQL_STATEMENT_LOG_ROWS
+			SELECT
+				count(*) as count
+
+			FROM %1$s AS simple_history_1
+
+			INNER JOIN (
+				%2$s
+			) AS max_ids_and_count ON simple_history_1.id = max_ids_and_count.maxId
+
+			ORDER BY simple_history_1.id DESC
+			## END SQL_STATEMENT_LOG_ROWS
+		';
+
+		$sql_query_log_rows_count = sprintf(
+			$sql_statement_log_rows_count,
+			$Simple_History->get_events_table_name(), // 1
+			$max_ids_and_count_sql_statement // 2
+		);
+
+		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Calc pages.
 		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
@@ -281,11 +304,11 @@ class Log_Query {
 			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => $result_log_rows,
 			// Add sql query to debug.
-			#'outer_where_array' => $outer_where_array,
-			#'inner_where_array' => $inner_where_array,
-			#'sql' => $sql,
-			#'sql_context' => $sql_context ?? null,
-			#'context_results' => $context_results ?? null,
+			// 'outer_where_array' => $outer_where_array,
+			// 'inner_where_array' => $inner_where_array,
+			// 'sql' => $sql,
+			// 'sql_context' => $sql_context ?? null,
+			// 'context_results' => $context_results ?? null,
 		];
 
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
@@ -596,11 +619,11 @@ class Log_Query {
 			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => array_values( $log_rows ),
 			// Add sql query to debug.
-			#'outer_where_array' => $outer_where_array,
-			#'inner_where_array' => $inner_where_array,
-			#'sql' => $sql,
-			#'sql_context' => $sql_context ?? null,
-			#'context_results' => $context_results ?? null,
+			// 'outer_where_array' => $outer_where_array,
+			// 'inner_where_array' => $inner_where_array,
+			// 'sql' => $sql,
+			// 'sql_context' => $sql_context ?? null,
+			// 'context_results' => $context_results ?? null,
 		];
 
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
