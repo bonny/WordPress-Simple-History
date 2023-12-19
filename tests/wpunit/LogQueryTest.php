@@ -278,7 +278,6 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( property_exists( $first_log_row, 'initiator' ) );
 		$this->assertTrue( property_exists( $first_log_row, 'occasionsID' ) );
 		$this->assertTrue( property_exists( $first_log_row, 'subsequentOccasions' ) );
-		$this->assertTrue( property_exists( $first_log_row, 'repeated' ) );
 		$this->assertTrue( property_exists( $first_log_row, 'context' ) );
 	}
 }
