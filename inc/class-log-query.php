@@ -14,8 +14,10 @@ use Simple_History\Helpers;
  *  - Also print SQL query and do some EXPLAIN on it in a regular editor. If this works it would be nice to blog about the findings,
  *    and print benchmarks etc.
  * - [x] Get num rows using second query with count(*)
+ * - [ ] Add limit.
  * - [ ] Merge together all git commits to one commit with close-##-messages.
  * - [ ] Test in MySQL 5.5, 5.7, MariaDB 10.4. Tests fail, bad tests or something that isn't working?
+ * - [ ] Run PHPStan and Rector
  */
 class Log_Query {
 	/**
@@ -65,13 +67,26 @@ class Log_Query {
 	 * @param string|array|object $args Arguments.
 	 * @return array Log rows.
 	 */
-	public function query_overview_full_group_by( $args ) {
-		global $wpdb;
-
+	public function query_overview( $args ) {
 		// Parse and prepare args.
 		$args = $this->prepare_args( $args );
 
+		// Create cache key based on args and current user.
+		$cache_key = md5( __METHOD__ . serialize( $args ) ) . '_userid_' . get_current_user_id();
+		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
+
+		/** @var array Return value. */
+		$arr_return = wp_cache_get( $cache_key, $cache_group );
+
+		// Return cached value if it exists.
+		if ( false !== $arr_return ) {
+			$arr_return['cached_result'] = true;
+			return $arr_return;
+		}
+
 		$Simple_History = Simple_History::get_instance();
+
+		global $wpdb;
 
 		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0' );
 
@@ -120,15 +135,6 @@ class Log_Query {
 			$Simple_History->get_contexts_table_name(), // 2
 			$inner_where_string // 3
 		);
-
-		// $inner_query_results = $wpdb->get_results( $inner_sql_query, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		// sh_d( '$inner_sql_query', $inner_sql_query );
-		// sh_d( '$inner_query_results', $inner_query_results );
-		// if ( ! empty( $wpdb->last_error ) ) {
-		// sh_d( '$wpdb->last_error', $wpdb->last_error );
-		// exit;
-		// }
-		// exit;
 
 		/**
 		 * @var string SQL statement template used to get IDs of all events.
@@ -180,13 +186,20 @@ class Log_Query {
 			$outer_where_string = "\nWHERE " . implode( "\nAND ", $outer_where_array );
 		}
 
+		// Add limit clause.
+		/** @var string Limit clause. */
+		$limit_clause = '';
+
+		$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
+		$limit_clause = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
+
 		$max_ids_and_count_sql_statement = sprintf(
 			$sql_statement_max_ids_and_count_template,
 			$Simple_History->get_events_table_name(), // 1
 			$Simple_History->get_contexts_table_name(), // 2
 			$inner_sql_query_statement, // 3
 			$outer_where_string, // 4
-			'' // 5 Limit clause.
+			$limit_clause // 5 Limit clause.
 		);
 
 		/**
@@ -274,10 +287,22 @@ class Log_Query {
 			## END SQL_STATEMENT_LOG_ROWS
 		';
 
+		// TODO:
+		// create $max_ids_and_count_sql_statement without limit.
+		// Then use that to get count(*).
+		$max_ids_and_count_without_limit_sql_statement = sprintf(
+			$sql_statement_max_ids_and_count_template,
+			$Simple_History->get_events_table_name(), // 1
+			$Simple_History->get_contexts_table_name(), // 2
+			$inner_sql_query_statement, // 3
+			$outer_where_string, // 4
+			'', // 5 Limit clause.
+		);
+
 		$sql_query_log_rows_count = sprintf(
 			$sql_statement_log_rows_count,
 			$Simple_History->get_events_table_name(), // 1
-			$max_ids_and_count_sql_statement // 2
+			$max_ids_and_count_without_limit_sql_statement // 2
 		);
 
 		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -293,7 +318,7 @@ class Log_Query {
 		// Create array to return.
 		// Add log rows to sub key 'log_rows' because meta info is also added.
 		$arr_return = [
-			'total_row_count' => $total_found_rows,
+			'total_row_count' => (int) $total_found_rows,
 			'pages_count' => $pages_count,
 			'page_current' => $args['paged'],
 			'page_rows_from' => $page_rows_from,
@@ -319,10 +344,14 @@ class Log_Query {
 	/**
 	 * Query overview.
 	 *
+	 * @deprecated 4.9.0 Use query_overview() instead.
 	 * @param string|array|object $args Arguments.
 	 * @return array
 	 */
-	protected function query_overview( $args ) {
+	protected function query_overview_not_full_group_by( $args ) {
+		// Mark as deprecated.
+		wp_deprecated_function( __METHOD__, '4.9.0', 'query_overview()' );
+
 		// Parse and prepare args.
 		$args = $this->prepare_args( $args );
 
