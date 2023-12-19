@@ -261,8 +261,6 @@ class Log_Query {
 		// Re-index array.
 		$result_log_rows = array_values( $result_log_rows );
 
-		// sh_d('$result_log_rows', $result_log_rows);exit;
-
 		// Get max id and min id.
 		// Max id is the id of the first row in the result (i.e. the latest entry).
 		// Min id is the minId value of the last row in the result (i.e. the oldest entry).
@@ -272,8 +270,6 @@ class Log_Query {
 			$max_id = $result_log_rows[0]->id;
 			$min_id = $result_log_rows[ count( $result_log_rows ) - 1 ]->minId;
 		}
-
-		// sh_d( '$result_log_rows', $result_log_rows );exit;
 
 		// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
 		$sql_statement_log_rows_count = '
@@ -344,8 +340,6 @@ class Log_Query {
 
 		return $arr_return;
 	}
-
-
 
 	/**
 	 * Get occasions for a single event.
