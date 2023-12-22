@@ -14,10 +14,13 @@ use Simple_History\Helpers;
  *  - Also print SQL query and do some EXPLAIN on it in a regular editor. If this works it would be nice to blog about the findings,
  *    and print benchmarks etc.
  * - [x] Get num rows using second query with count(*)
- * - [ ] Add limit.
+ * - [x] Add limit.
  * - [ ] Merge together all git commits to one commit with close-##-messages.
- * - [ ] Test in MySQL 5.5, 5.7, MariaDB 10.4. Tests fail, bad tests or something that isn't working?
- * - [ ] Run PHPStan and Rector
+ * - [x] Test in MySQL 5.5, 5.7, MariaDB 10.4.
+ * - [ ] Add tests for single event occasions.
+ * - [ ] Add tests for log row notifier.
+ * - [ ] Run PHPStan and Rector.
+ * - [ ] Add support for SQLite.
  */
 class Log_Query {
 	/**
@@ -72,6 +75,139 @@ class Log_Query {
 	 * @return array Log rows.
 	 */
 	public function query_overview( $args ) {
+		$db_engine = $this->get_db_engine();
+
+		if ( $db_engine === 'mysql' ) {
+			// Call usual method.
+			return $this->query_overview_mysql( $args );
+		} else if ( $db_engine === 'sqlite' ) {
+			// Call sqlite method.
+			return $this->query_overview_sqlite( $args );
+		} else {
+			throw new \ErrorException( 'Invalid DB engine' );
+		}
+	}
+
+	/**
+	 * SQLite compatiable version of query_overview_mysql().
+	 * Main difference is that the SQL query is much simplier,
+	 * because it does not support occasions.
+	 *
+	 * @param string|array|object $args Arguments.
+	 * @return array Log rows.
+	 */
+	protected function query_overview_sqlite( $args ) {
+
+		$Simple_History = Simple_History::get_instance();
+
+		global $wpdb;
+
+		$args = $this->prepare_args( $args );
+
+		/**
+		 * @var string SQL template used to get all events from the ones
+		 *             found in statement sql_statement_max_ids_and_count_template.
+		 *             This final statement gets all columns we finally need.
+		 */
+		$sql_statement_log_rows = '
+			SELECT
+				simple_history_1.id,
+				/* maxId, */
+				/* minId, */
+				simple_history_1.logger,
+				simple_history_1.level,
+				simple_history_1.date,
+				simple_history_1.message,
+				simple_history_1.initiator,
+				simple_history_1.occasionsID,
+				1 AS repeatCount,
+				1 AS subsequentOccasions
+			FROM %1$s AS simple_history_1
+			%2$s
+			ORDER BY simple_history_1.id DESC
+			%3$s
+		';
+
+		$inner_where_array = $this->get_inner_where( $args );
+		$inner_where_string = empty( $inner_where_array ) ? '' : "\nWHERE " . implode( "\nAND ", $inner_where_array );
+
+		/** @var int $limit_offset */
+		$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
+
+		/** @var string Limit clause. */
+		$limit_clause = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
+
+		$sql_query_log_rows = sprintf(
+			$sql_statement_log_rows,
+			$Simple_History->get_events_table_name(), // 1
+			$inner_where_string, // 2
+			$limit_clause // 3
+		);
+
+		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( ! empty( $wpdb->last_error ) ) {
+			sh_d( '$wpdb->last_error', $wpdb->last_error );
+			sh_d( '$sql_query_log_rows', $sql_query_log_rows );
+			exit;
+		}
+
+		// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
+		$sql_statement_log_rows_count = '
+			SELECT count(*) as count
+			FROM %1$s AS simple_history_1
+			%2$s
+			ORDER BY simple_history_1.id DESC
+		';
+
+		$sql_query_log_rows_count = sprintf(
+			$sql_statement_log_rows_count,
+			$Simple_History->get_events_table_name(), // 1
+			$inner_where_string, // 2
+		);
+
+		
+		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		// Calc pages.
+		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
+
+		// Calc pagination info.
+		$log_rows_count = count( $result_log_rows );
+		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
+		$page_rows_to = $page_rows_from + $log_rows_count - 1;
+
+		// Create array to return.
+		// Add log rows to sub key 'log_rows' because meta info is also added.
+		$arr_return = [
+			'total_row_count' => (int) $total_found_rows,
+			'pages_count' => $pages_count,
+			'page_current' => $args['paged'],
+			'page_rows_from' => $page_rows_from,
+			'page_rows_to' => $page_rows_to,
+			'max_id' => (int) $max_id,
+			'min_id' => (int) $min_id,
+			'log_rows_count' => $log_rows_count,
+			// Remove id from keys, because they are cumbersome when working with JSON.
+			'log_rows' => $result_log_rows,
+			// Add sql query to debug.
+			// 'outer_where_array' => $outer_where_array,
+			// 'inner_where_array' => $inner_where_array,
+			// 'sql' => $sql,
+			// 'sql_context' => $sql_context ?? null,
+			// 'context_results' => $context_results ?? null,
+		];
+
+		#sh_d( '$arr_return', $arr_return);exit;
+
+		return $arr_return;
+	}
+
+	/**
+	 * @param string|array|object $args Arguments.
+	 * @return array Log rows.
+	 */
+	protected function query_overview_mysql( $args ) {
 		// Parse and prepare args.
 		$args = $this->prepare_args( $args );
 
@@ -178,23 +314,26 @@ class Log_Query {
 			## END SQL_STATEMENT_MAX_IDS_AND_COUNT_TEMPLATE
 		';
 
+		/** @var string Inner where clause, including "where" if has values. */
 		$inner_where_string = '';
+
 		$inner_where_array = $this->get_inner_where( $args );
 		if ( ! empty( $inner_where_array ) ) {
 			$inner_where_string = "\nWHERE\n" . implode( "\nAND ", $inner_where_array );
 		}
 
+		/** @var string Outer where clause, including "where" if has values. */
 		$outer_where_string = '';
+
 		$outer_where_array = $this->get_outer_where( $args );
 		if ( ! empty( $outer_where_array ) ) {
 			$outer_where_string = "\nWHERE " . implode( "\nAND ", $outer_where_array );
 		}
 
-		// Add limit clause.
-		/** @var string Limit clause. */
-		$limit_clause = '';
-
+		/** @var int $limit_offset */
 		$limit_offset = ( $args['paged'] - 1 ) * $args['posts_per_page'];
+
+		/** @var string Limit clause. */
 		$limit_clause = sprintf( 'LIMIT %1$d, %2$d', $limit_offset, $args['posts_per_page'] );
 
 		$max_ids_and_count_sql_statement = sprintf(
@@ -248,7 +387,6 @@ class Log_Query {
 
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		// sh_d( '$sql_query_log_rows', $sql_query_log_rows );exit;
 		if ( ! empty( $wpdb->last_error ) ) {
 			sh_d( '$wpdb->last_error', $wpdb->last_error );
 			sh_d( '$sql_query_log_rows', $sql_query_log_rows );
@@ -858,7 +996,7 @@ class Log_Query {
 
 		$contexts_table_name = $simple_history->get_contexts_table_name();
 
-		/** @var array Where clause for inner query. */
+		/** @var array Where clauses for inner query. */
 		$inner_where = [];
 
 		// Only include loggers that the current user can view
@@ -1149,5 +1287,19 @@ class Log_Query {
 		} // End if().
 
 		return $outer_where;
+	}
+
+	/**
+	 * Get db engine in use.
+	 * Default is "mysql", which supports both MySQL and MariaDB.
+	 * Can also return "sqlite", which means that plugin
+	 * https://wordpress.org/plugins/sqlite-database-integration/ is in use,
+	 * and we need to use SQLite specific SQL at some places.
+	 *
+	 * @return string
+	 */
+	public static function get_db_engine() {
+		$db_engine = defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ? 'sqlite' : 'mysql';
+		return $db_engine;
 	}
 }
