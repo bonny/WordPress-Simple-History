@@ -16,10 +16,11 @@ use Simple_History\Helpers;
  * - [x] Get num rows using second query with count(*)
  * - [x] Add limit.
  * - [x] Test in MySQL 5.5, 5.7, MariaDB 10.4.
+ * - [x] Add support for SQLite.
+ *  - [ ] Add caching to SQLite
  * - [ ] Add tests for single event occasions.
  * - [ ] Add tests for log row notifier.
  * - [ ] Run PHPStan and Rector.
- * - [ ] Add support for SQLite.
  * - [ ] Merge together all git commits to one commit with close-##-messages.
  */
 class Log_Query {
@@ -97,7 +98,6 @@ class Log_Query {
 	 * @return array Log rows.
 	 */
 	protected function query_overview_sqlite( $args ) {
-
 		$Simple_History = Simple_History::get_instance();
 
 		global $wpdb;
@@ -145,7 +145,7 @@ class Log_Query {
 		);
 
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-#sh_d('$result_log_rows', $result_log_rows);exit;
+		// sh_d('$result_log_rows', $result_log_rows);exit;
 		if ( ! empty( $wpdb->last_error ) ) {
 			sh_d( '$wpdb->last_error', $wpdb->last_error );
 			sh_d( '$sql_query_log_rows', $sql_query_log_rows );

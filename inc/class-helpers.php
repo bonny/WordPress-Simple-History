@@ -298,6 +298,25 @@ class Helpers {
 	}
 
 	/**
+	 * Get the cache group for the cache.
+	 * Used by all function that use cache, so they use the
+	 * same cache group, meaning if we invalidate the cache group
+	 * all caches will be cleared/flushed.
+	 *
+	 * @return string
+	 */
+	public static function get_cache_group() {
+		return 'simple-history-' . self::get_cache_incrementor();
+	}
+
+	/**
+	 * Clears the cache.
+	 */
+	public static function clear_cache() {
+		self::get_cache_incrementor( true );
+	}
+
+	/**
 	 * Return a name for a callable.
 	 *
 	 * Examples of return values:
