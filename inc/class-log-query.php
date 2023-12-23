@@ -15,12 +15,12 @@ use Simple_History\Helpers;
  *    and print benchmarks etc.
  * - [x] Get num rows using second query with count(*)
  * - [x] Add limit.
- * - [ ] Merge together all git commits to one commit with close-##-messages.
  * - [x] Test in MySQL 5.5, 5.7, MariaDB 10.4.
  * - [ ] Add tests for single event occasions.
  * - [ ] Add tests for log row notifier.
  * - [ ] Run PHPStan and Rector.
  * - [ ] Add support for SQLite.
+ * - [ ] Merge together all git commits to one commit with close-##-messages.
  */
 class Log_Query {
 	/**
@@ -145,12 +145,18 @@ class Log_Query {
 		);
 
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
+#sh_d('$result_log_rows', $result_log_rows);exit;
 		if ( ! empty( $wpdb->last_error ) ) {
 			sh_d( '$wpdb->last_error', $wpdb->last_error );
 			sh_d( '$sql_query_log_rows', $sql_query_log_rows );
 			exit;
 		}
+
+		// Append context to log rows.
+		$result_log_rows = $this->add_contexts_to_log_rows( $result_log_rows );
+
+		// Re-index array.
+		$result_log_rows = array_values( $result_log_rows );
 
 		// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
 		$sql_statement_log_rows_count = '
@@ -166,7 +172,6 @@ class Log_Query {
 			$inner_where_string, // 2
 		);
 
-		
 		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// Calc pages.
@@ -176,6 +181,16 @@ class Log_Query {
 		$log_rows_count = count( $result_log_rows );
 		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
+
+		// Get maxId and minId.
+		// MaxId is the id of the first row in the result (i.e. the latest entry).
+		// MinId is the id of the last row in the result (i.e. the oldest entry).
+		$min_id = null;
+		$max_id = null;
+		if ( sizeof( $result_log_rows ) > 0 ) {
+			$max_id = $result_log_rows[0]->id;
+			$min_id = $result_log_rows[ count( $result_log_rows ) - 1 ]->id;
+		}
 
 		// Create array to return.
 		// Add log rows to sub key 'log_rows' because meta info is also added.
@@ -198,7 +213,7 @@ class Log_Query {
 			// 'context_results' => $context_results ?? null,
 		];
 
-		#sh_d( '$arr_return', $arr_return);exit;
+		// sh_d( '$arr_return', $arr_return);exit;
 
 		return $arr_return;
 	}
