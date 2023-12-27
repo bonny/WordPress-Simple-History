@@ -132,7 +132,7 @@ class Setup_Purge_DB_Cron extends Service {
 			 */
 			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged );
 
-			Helpers::get_cache_incrementor( true );
+			Helpers::clear_cache();
 		}
 	}
 }

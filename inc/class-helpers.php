@@ -900,7 +900,7 @@ class Helpers {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		self::get_cache_incrementor( true );
+		self::clear_cache();
 
 		return $num_rows;
 	}

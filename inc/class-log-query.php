@@ -17,7 +17,8 @@ use Simple_History\Helpers;
  * - [x] Add limit.
  * - [x] Test in MySQL 5.5, 5.7, MariaDB 10.4.
  * - [x] Add support for SQLite.
- * - [ ] Use get_cache_group
+ * - [x] Use get_cache_group
+ * - [ ] Use clear_cache instead of (true)
  *  - [ ] Add caching to SQLite
  * - [ ] Add tests for single event occasions.
  * - [ ] Add tests for log row notifier.
@@ -75,6 +76,7 @@ class Log_Query {
 	 *
 	 * @param string|array|object $args Arguments.
 	 * @return array Log rows.
+	 * @throws \ErrorException If invalid DB engine.
 	 */
 	public function query_overview( $args ) {
 		$db_engine = $this->get_db_engine();
@@ -146,7 +148,7 @@ class Log_Query {
 		);
 
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		// sh_d('$result_log_rows', $result_log_rows);exit;
+
 		if ( ! empty( $wpdb->last_error ) ) {
 			sh_d( '$wpdb->last_error', $wpdb->last_error );
 			sh_d( '$sql_query_log_rows', $sql_query_log_rows );
@@ -204,17 +206,8 @@ class Log_Query {
 			'max_id' => (int) $max_id,
 			'min_id' => (int) $min_id,
 			'log_rows_count' => $log_rows_count,
-			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => $result_log_rows,
-			// Add sql query to debug.
-			// 'outer_where_array' => $outer_where_array,
-			// 'inner_where_array' => $inner_where_array,
-			// 'sql' => $sql,
-			// 'sql_context' => $sql_context ?? null,
-			// 'context_results' => $context_results ?? null,
 		];
-
-		// sh_d( '$arr_return', $arr_return);exit;
 
 		return $arr_return;
 	}
@@ -482,12 +475,6 @@ class Log_Query {
 			'log_rows_count' => $log_rows_count,
 			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => $result_log_rows,
-			// Add sql query to debug.
-			// 'outer_where_array' => $outer_where_array,
-			// 'inner_where_array' => $inner_where_array,
-			// 'sql' => $sql,
-			// 'sql_context' => $sql_context ?? null,
-			// 'context_results' => $context_results ?? null,
 		];
 
 		wp_cache_set( $cache_key, $arr_return, $cache_group );
