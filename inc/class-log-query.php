@@ -17,6 +17,7 @@ use Simple_History\Helpers;
  * - [x] Add limit.
  * - [x] Test in MySQL 5.5, 5.7, MariaDB 10.4.
  * - [x] Add support for SQLite.
+ * - [ ] Use get_cache_group
  *  - [ ] Add caching to SQLite
  * - [ ] Add tests for single event occasions.
  * - [ ] Add tests for log row notifier.
@@ -228,7 +229,7 @@ class Log_Query {
 
 		// Create cache key based on args and current user.
 		$cache_key = md5( __METHOD__ . serialize( $args ) ) . '_userid_' . get_current_user_id();
-		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
+		$cache_group = Helpers::get_cache_group();
 
 		/** @var array Return value. */
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
@@ -510,7 +511,7 @@ class Log_Query {
 	protected function query_occasions( $args ) {
 		// Create cache key based on args and current user.
 		$cache_key = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_userid_' . get_current_user_id();
-		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
+		$cache_group = Helpers::get_cache_group();
 
 		/** @var array Return value. */
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
