@@ -214,6 +214,7 @@ Unreleased
 - IP addresses are now shown on occasions.
 - Remove columns "rep", "repeated" and "occasionsIDType" from Log_Query response.
 - Add helper functions `get_cache_group()`, `clear_cache()`.
+- Fix stats widget counting due to incorrect loggers included in stats query.
 
 ### 4.8.0 (December 2023)
 

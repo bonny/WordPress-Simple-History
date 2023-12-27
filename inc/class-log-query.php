@@ -1299,7 +1299,7 @@ class Log_Query {
 	 * https://wordpress.org/plugins/sqlite-database-integration/ is in use,
 	 * and we need to use SQLite specific SQL at some places.
 	 *
-	 * @return string
+	 * @return string "mysql" or "sqlite"
 	 */
 	public static function get_db_engine() {
 		$db_engine = defined( 'DB_ENGINE' ) && constant( 'DB_ENGINE' ) === 'sqlite' ? 'sqlite' : 'mysql';
