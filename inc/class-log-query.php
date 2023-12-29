@@ -18,7 +18,8 @@ use Simple_History\Helpers;
  * - [x] Test in MySQL 5.5, 5.7, MariaDB 10.4.
  * - [x] Add support for SQLite.
  * - [x] Use get_cache_group
- * - [ ] Use clear_cache instead of (true)
+ * - [x] Use clear_cache instead of (true)
+ * - [ ] Date filtering is broken (sql where clause missing/not added)
  *  - [ ] Add caching to SQLite
  * - [ ] Add tests for single event occasions.
  * - [ ] Add tests for log row notifier.
@@ -115,8 +116,6 @@ class Log_Query {
 		$sql_statement_log_rows = '
 			SELECT
 				simple_history_1.id,
-				/* maxId, */
-				/* minId, */
 				simple_history_1.logger,
 				simple_history_1.level,
 				simple_history_1.date,
@@ -996,8 +995,8 @@ class Log_Query {
 		global $wpdb;
 
 		$simple_history = Simple_History::get_instance();
-
 		$contexts_table_name = $simple_history->get_contexts_table_name();
+		$db_engine = $this->get_db_engine();
 
 		/** @var array Where clauses for inner query. */
 		$inner_where = [];
@@ -1089,10 +1088,17 @@ class Log_Query {
 
 		// Add where clause for "lastdays", as int.
 		if ( ! empty( $args['lastdays'] ) ) {
-			$inner_where[] = sprintf(
-				'date >= DATE(NOW()) - INTERVAL %d DAY',
-				$args['lastdays']
-			);
+			if ( $db_engine === 'mysql' ) {
+				$inner_where[] = sprintf(
+					'date >= DATE(NOW() - INTERVAL %d DAY)',
+					$args['lastdays']
+				);
+			} elseif ( $db_engine === 'sqlite' ) {
+				$inner_where[] = sprintf(
+					'date >= datetime("now", "-%d days")',
+					$args['lastdays']
+				);
+			}
 		}
 
 		// months, in format "Y-m".
