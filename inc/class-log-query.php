@@ -94,8 +94,8 @@ class Log_Query {
 	}
 
 	/**
-	 * SQLite compatiable version of query_overview_mysql().
-	 * Main difference is that the SQL query is much simplier,
+	 * SQLite compatible version of query_overview_mysql().
+	 * Main difference is that the SQL query is simpler,
 	 * because it does not support occasions.
 	 *
 	 * @param string|array|object $args Arguments.
@@ -788,7 +788,7 @@ class Log_Query {
 			$args['loglevels'] = explode( ',', $args['loglevels'] );
 		}
 
-		// Make sure loglevels are trimed, strings, and empty vals removed.
+		// Make sure loglevels are trimmed, strings, and empty vals removed.
 		if ( isset( $args['loglevels'] ) ) {
 			$args['loglevels'] = array_map( 'trim', $args['loglevels'] );
 			$args['loglevels'] = array_map( 'strval', $args['loglevels'] );
@@ -817,7 +817,7 @@ class Log_Query {
 			$args['messages'] = $arr_messages;
 		}
 
-		// Make sure messages are trimed, strings, and empty vals removed.
+		// Make sure messages are trimmed, strings, and empty vals removed.
 		if ( isset( $args['messages'] ) ) {
 			$args['messages'] = array_map( 'trim', $args['messages'] );
 			$args['messages'] = array_map( 'strval', $args['messages'] );
@@ -910,7 +910,7 @@ class Log_Query {
 		}
 
 		// Move up _message_key from context row to main row as context_message_key.
-		// This is beacuse that's the way it was before SQL was rewritten
+		// This is because that's the way it was before SQL was rewritten
 		// to support FULL_GROUP_BY in December 2023.
 		foreach ( $log_rows as $log_row ) {
 			if ( isset( $log_row->context['_message_key'] ) ) {

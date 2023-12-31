@@ -185,7 +185,7 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 			'type' => 'occasions',
 			// Get history rows with id:s less than this, i.e. get earlier/previous rows.
 			'logRowID' => $first_log_row_from_query->id, 
-			'occasionsID' => $first_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
+			'occasionsID' => $first_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get occasions id..
 			'occasionsCount' => $first_log_row_from_query->subsequentOccasions - 1,
 		]);
 
@@ -199,7 +199,7 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		$query_results = (new Log_Query())->query([
 			'type' => 'occasions',
 			'logRowID' => $second_log_row_from_query->id, 
-			'occasionsID' => $second_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
+			'occasionsID' => $second_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get occasions id..
 			'occasionsCount' => $second_log_row_from_query->subsequentOccasions - 1,
 		]);
 
@@ -213,7 +213,7 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		$query_results = (new Log_Query())->query([
 			'type' => 'occasions',
 			'logRowID' => $third_log_row_from_query->id, 
-			'occasionsID' => $third_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
+			'occasionsID' => $third_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get occasions id.
 			'occasionsCount' => $third_log_row_from_query->subsequentOccasions - 1,
 		]);
 
