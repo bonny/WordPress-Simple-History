@@ -14,7 +14,7 @@ class Sidebar_Settings_Dropin extends Dropin {
 	 * Init
 	 */
 	public function loaded() {
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 7 );
 	}
 
 	/**
