@@ -485,7 +485,7 @@ class Log_Query {
 	 * Get occasions for a single event.
 	 *
 	 * Required args are:
-	 * - occasionsID: The id to get occassions for.
+	 * - occasionsID: The id to get occasions for.
 	 * - occasionsCount: The number of occasions to get.
 	 * - occasionsCountMaxReturn: The max number of occasions to return.
 	 *
@@ -527,10 +527,10 @@ class Log_Query {
 
 		// Get occasions for a single event.
 		// Args must contain:
-		// - occasionsID: The id to get occassions for
+		// - occasionsID: The id to get occasions for
 		// - occasionsCount: The number of occasions to get.
 		// - occasionsCountMaxReturn: The max number of occasions to return,
-		// if occassionsCount is very large and we do not want to get all occassions.
+		// if occasionsCount is very large and we do not want to get all occasions.
 
 		/**
 		 * @var string $sql_statement_template SQL template for occasions query.

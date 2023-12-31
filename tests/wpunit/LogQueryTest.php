@@ -180,40 +180,40 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 
-		// Test occassions query arg. for first returned row.
+		// Test occasions query arg. for first returned row.
 		$query_results = (new Log_Query())->query([
 			'type' => 'occasions',
 			// Get history rows with id:s less than this, i.e. get earlier/previous rows.
 			'logRowID' => $first_log_row_from_query->id, 
-			'occasionsID' => $first_log_row_from_query->occasionsID, // The occassions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
+			'occasionsID' => $first_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
 			'occasionsCount' => $first_log_row_from_query->subsequentOccasions - 1,
 		]);
 
 		$this->assertCount(
 			$oh_such_logging_rows_num_to_add - 1,
 			$query_results['log_rows'],
-			'The number of rows returned when getting occassions should be ' . ($oh_such_logging_rows_num_to_add - 1)
+			'The number of rows returned when getting occasions should be ' . ($oh_such_logging_rows_num_to_add - 1)
 		);
 
-		// Test occassions query arg. for second returned row.
+		// Test occasions query arg. for second returned row.
 		$query_results = (new Log_Query())->query([
 			'type' => 'occasions',
 			'logRowID' => $second_log_row_from_query->id, 
-			'occasionsID' => $second_log_row_from_query->occasionsID, // The occassions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
+			'occasionsID' => $second_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
 			'occasionsCount' => $second_log_row_from_query->subsequentOccasions - 1,
 		]);
 
 		$this->assertCount(
 			$hello_some_messages_message_count - 1,
 			$query_results['log_rows'],
-			'The number of rows returned when getting occassions should be ' . ($hello_some_messages_message_count - 1)
+			'The number of rows returned when getting occasions should be ' . ($hello_some_messages_message_count - 1)
 		);
 
-		// Test occassions query arg. for third returned row.
+		// Test occasions query arg. for third returned row.
 		$query_results = (new Log_Query())->query([
 			'type' => 'occasions',
 			'logRowID' => $third_log_row_from_query->id, 
-			'occasionsID' => $third_log_row_from_query->occasionsID, // The occassions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
+			'occasionsID' => $third_log_row_from_query->occasionsID, // The occasions id is md5:ed so we need to use log query to get the last row, and then get ocassions id..
 			'occasionsCount' => $third_log_row_from_query->subsequentOccasions - 1,
 		]);
 
@@ -221,13 +221,13 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame(
 			"1",
 			$third_log_row_from_query->subsequentOccasions,
-			'The number of rows returned when getting occassions should be 0'
+			'The number of rows returned when getting occasions should be 0'
 		);
 
 		$this->assertCount(
 			0,
 			$query_results['log_rows'],
-			'The number of rows returned when getting occassions should be 0'
+			'The number of rows returned when getting occasions should be 0'
 		);
 	}
 
