@@ -160,10 +160,34 @@ class Simple_History_Logger extends Logger {
 	/**
 	 * Get the log row details for this logger.
 	 *
-	 * @param array $row Log row.
+	 * @param object $row Log row.
 	 * @return Event_Details_Group
 	 */
 	public function get_log_row_details_output( $row ) {
+
+		$message_key = $row->context_message_key;
+
+		if ( $message_key === 'purged_events' ) {
+			// For message "Removed 24318 events that were older than 60 days"
+			// add a text with a link with information on how to modify this.
+			$message = sprintf(
+				/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
+				__( 'The number of days the log is kept can be changed using a filter or an add-on. <a href="%1$s" target="_blank" class="sh-ExternalLink">More info.</a>', 'simple-history' ),
+				esc_url( 'https://simple-history.com/support/change-number-of-days-to-keep-log/?utm_source=wpadmin' )
+			);
+
+			return '<p>' . wp_kses(
+				$message,
+				[
+					'a' => [
+						'href' => [],
+						'target' => [],
+						'class' => [],
+					],
+				]
+			) . '</p>';
+		}
+
 		$event_details_group = ( new Event_Details_Group() )
 			->add_items(
 				[
