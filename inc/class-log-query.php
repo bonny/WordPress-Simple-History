@@ -19,7 +19,7 @@ use Simple_History\Helpers;
  * - [x] Add support for SQLite.
  * - [x] Use get_cache_group
  * - [x] Use clear_cache instead of (true)
- * - [ ] Date filtering is broken (sql where clause missing/not added)
+ * - [x] Date filtering is broken (sql where clause missing/not added)
  *  - [ ] Add caching to SQLite
  * - [ ] Add tests for single event occasions.
  * - [ ] Add tests for log row notifier.
