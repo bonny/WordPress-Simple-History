@@ -1,34 +1,27 @@
 <?php
 
-use SebastianBergmann\RecursionContext\InvalidArgumentException;
-use PHPUnit\Framework\Exception;
-use PHPUnit\Framework\ExpectationFailedException;
-use Simple_History\Simple_History;
 use Simple_History\Log_Query;
 
+/**
+ * Test the Log_Query class.
+ *
+ * This test should run on different versions of MySQL and MariaDB, to make sure it works correctly.
+ * 
+ * Use NPM scripts:
+ * - npm run test:log-query-mysq55
+ * - npm run test:log-query-mysq57
+ * - npm run test:log-query-mariadb105
+ * 
+ * 
+ * @coversDefaultClass Simple_History\Log_Query
+ */
 class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Add n log entries and then query for them.
 	 * 
 	 * Then add another login attempt and check for updates since the last above id.
-	 * Currently there is a bug in MariaDB that says "1 new event" even if no new event exists.
-	 * 
-	 * Run test on PHP 7.4 and MariaDB 10.5:
-	 * docker compose run --rm php-cli vendor/bin/codecept run wpunit:test_query
-	 * 
-	 * Run test on PHP 8.1 and MariaDB 10.5:
-	 * PHP_CLI_VERSION=81 PHP_VERSION=8.1 docker compose run --rm php-cli vendor/bin/codecept run wpunit:test_query
-	 * 
-	 * Run test on PHP 8.1 and MySQL 5.5 (should be good):
-	 * PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.5 DB_DATA_DIR=./data/mysql-5.5 docker compose run --rm php-cli vendor/bin/codecept run wpunit:test_query
-	 * 
-	 * Run test on PHP 8.1 and MySQL 5.7 (should fail):
-	 * PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.7 DB_DATA_DIR=./data/mysql-5.7 docker compose run --rm php-cli vendor/bin/codecept run wpunit:test_query
 	 */
 	function test_query() {
-		// I know this fails.
-		// $this->markTestIncomplete('This test will fail in Mysql >5.5 and MariaDB until SQL bug is fixed.');
-
 		// Add and set current user to admin user, so user can read all logs.
 		$user_id = $this->factory->user->create(
 			array(
@@ -62,13 +55,6 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		$query_results = (new Log_Query())->query( ['posts_per_page' => 1] );
 		$first_log_row_from_query = $query_results['log_rows'][0];
 
-		// On MariaDB $first_log_row->id is the same as the value in $added_rows_id[0] (the first added row)
-		// but it should be the id from the last added row, i.e. the value in $added_rows_id[9].
-		// sh_d('$first_log_row id', $first_log_row_from_query->id);
-		// sh_d('$added_rows_id[0]', $added_rows_ids[0]);
-		// sh_d('$added_rows_id[max]', $added_rows_ids[$num_rows_to_add-1]);
-
-		// $this->markTestIncomplete('This test will fail in MariaDB until bug is fixed.');
 		$this->assertEquals(
 			$added_rows_ids[$num_rows_to_add-1], 
 			$first_log_row_from_query->id, 
@@ -229,6 +215,47 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 			$query_results['log_rows'],
 			'The number of rows returned when getting occasions should be 0'
 		);
+	}
+
+	function test_since_id() {
+		// Add and set current user to admin user, so user can read all logs.
+		$user_id = $this->factory->user->create(
+			array(
+				'role' => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$logger = SimpleLogger()->info(
+			'Test info message 1',
+			[
+				'_occasionsID' => 'my_occasion_id',
+				'message_num' => 1,
+			]
+		);
+
+		$last_insert_id = $logger->last_insert_id;
+
+		// Query log again and use $last_insert_id as since_id.
+		// It should not have any new rows yet.
+		$query_results = (new Log_Query())->query( ['since_id' => $last_insert_id] );
+		$this->assertEmpty($query_results['log_rows'], 'There should be no new rows yet.');
+
+		// Add two new events.
+		for ($i=0; $i<2; $i++) {
+			echo "log $i";
+			$logger = SimpleLogger()->info(
+				'Test info message ' . $i,
+				[
+					'_occasionsID' => 'my_occasion_id_in_loop_' . $i,
+					'message_num' => $i,
+				]
+			);
+		}
+
+		// Test that we get two new rows.
+		$query_results = (new Log_Query())->query( ['since_id' => $last_insert_id] );
+		$this->assertEquals(2, $query_results['total_row_count'], 'There should be two new rows now.');
 	}
 
 	 /**

@@ -20,8 +20,8 @@ use Simple_History\Helpers;
  * - [x] Use get_cache_group
  * - [x] Use clear_cache instead of (true)
  * - [x] Date filtering is broken (sql where clause missing/not added)
- *  - [ ] Add caching to SQLite
- * - [ ] Add tests for single event occasions.
+ * - [x] Add caching to SQLite
+ * - [x] Add tests for single event occasions.
  * - [ ] Add tests for log row notifier.
  * - [ ] Run PHPStan and Rector.
  * - [ ] Merge together all git commits to one commit with close-##-messages.
@@ -102,7 +102,6 @@ class Log_Query {
 	 * @return array Log rows.
 	 */
 	protected function query_overview_sqlite( $args ) {
-
 		$args = $this->prepare_args( $args );
 
 		// Create cache key based on args and current user.
