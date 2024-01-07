@@ -399,7 +399,7 @@ var simple_history = (function ($) {
     },
 
     events: {
-      'click .SimpleHistoryLogitem__occasions a': 'showOccasions',
+      'click .SimpleHistoryLogitem__occasionsLink': 'showOccasions',
       'click .SimpleHistoryLogitem__permalink': 'permalink'
     },
 
