@@ -803,6 +803,7 @@ class Simple_History {
 		$occasions_count = $one_log_row->subsequentOccasions - 1;
 		$occasions_html = '';
 
+		// Add markup for occasions.
 		if ( $occasions_count > 0 ) {
 			$occasions_html = '<div class="SimpleHistoryLogitem__occasions">';
 
@@ -825,6 +826,22 @@ class Simple_History {
 				$occasions_count
 			);
 			$occasions_html .= '</span>';
+
+			// Div with information about add-ons.
+			// TODO: Finalize copy. Make it shorter. Remember that it will be shown many times.
+			// Also only show for failed logins.
+			// $occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
+			// $occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
+			// $occasions_html .= sprintf(
+			// 	/* translators: 1 is link to add-on page */
+			// 	__(
+			// 		'Set number of login attempts to store using the <a href="%1$s" class="sh-ExternalLink" target="_blank">Extended Settings add-on</a>.',
+			// 		'simple-history'
+			// 	),
+			// 	'https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin'
+			// );
+			// $occasions_html .= '</p>';
+			// $occasions_html .= '</div>';
 
 			$occasions_html .= '</div>';
 		}
