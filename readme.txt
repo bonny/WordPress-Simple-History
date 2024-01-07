@@ -164,11 +164,13 @@ If you want to translate Simple History to your language then read about how thi
 Development of this plugin takes place at GitHub. Please join in with feature requests, bug reports, or even pull requests!
 <a href="https://github.com/bonny/WordPress-Simple-History">https://github.com/bonny/WordPress-Simple-History</a>
 
-### Donation
+### Sponsor this project
 
 If you like this plugin please consider donating to support the development.
 
 You can [donate using PayPal](https://www.paypal.me/eskapism) or you can [become a GitHub sponsor](https://github.com/sponsors/bonny).
+
+There is also some [add-ons](https://simple-history.com/add-ons/) that you can buy to support the development of this plugin and get some extra features.
 
 ## Frequently Asked Questions
 
