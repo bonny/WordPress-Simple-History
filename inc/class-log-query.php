@@ -102,11 +102,25 @@ class Log_Query {
 	 * @return array Log rows.
 	 */
 	protected function query_overview_sqlite( $args ) {
-		$Simple_History = Simple_History::get_instance();
+
+		$args = $this->prepare_args( $args );
+
+		// Create cache key based on args and current user.
+		$cache_key = md5( __METHOD__ . serialize( $args ) ) . '_userid_' . get_current_user_id();
+		$cache_group = Helpers::get_cache_group();
+
+		/** @var array|false Return value. */
+		$arr_return = wp_cache_get( $cache_key, $cache_group );
+
+		// Return cached value if it exists.
+		if ( false !== $arr_return ) {
+			$arr_return['cached_result'] = true;
+			return $arr_return;
+		}
 
 		global $wpdb;
 
-		$args = $this->prepare_args( $args );
+		$Simple_History = Simple_History::get_instance();
 
 		/**
 		 * @var string SQL template used to get all events from the ones
@@ -208,6 +222,8 @@ class Log_Query {
 			'log_rows' => $result_log_rows,
 		];
 
+		wp_cache_set( $cache_key, $arr_return, $cache_group );
+
 		return $arr_return;
 	}
 
@@ -223,7 +239,7 @@ class Log_Query {
 		$cache_key = md5( __METHOD__ . serialize( $args ) ) . '_userid_' . get_current_user_id();
 		$cache_group = Helpers::get_cache_group();
 
-		/** @var array Return value. */
+		/** @var array|false Return value. */
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
 
 		// Return cached value if it exists.
@@ -232,9 +248,9 @@ class Log_Query {
 			return $arr_return;
 		}
 
-		$Simple_History = Simple_History::get_instance();
-
 		global $wpdb;
+
+		$Simple_History = Simple_History::get_instance();
 
 		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0' );
 
@@ -433,9 +449,8 @@ class Log_Query {
 			## END SQL_STATEMENT_LOG_ROWS
 		';
 
-		// TODO:
-		// create $max_ids_and_count_sql_statement without limit.
-		// Then use that to get count(*).
+		// Create $max_ids_and_count_sql_statement without limit,
+		// to get count(*).
 		$max_ids_and_count_without_limit_sql_statement = sprintf(
 			$sql_statement_max_ids_and_count_template,
 			$Simple_History->get_events_table_name(), // 1
