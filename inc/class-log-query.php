@@ -22,7 +22,7 @@ use Simple_History\Helpers;
  * - [x] Date filtering is broken (sql where clause missing/not added)
  * - [x] Add caching to SQLite
  * - [x] Add tests for single event occasions.
- * - [ ] Add tests for log row notifier.
+ * - [x] Add tests for log row notifier.
  * - [ ] Run PHPStan and Rector.
  * - [ ] Merge together all git commits to one commit with close-##-messages.
  */
@@ -942,10 +942,10 @@ class Log_Query {
 	 * @return array<null|int,null|int> Array with max and min id.
 	 */
 	protected function get_max_min_ids( $log_rows ) {
-		/** @var null|int */
+		/** @var null|int $min_id */
 		$min_id = null;
 
-		/** @var null|int */
+		/** @var null|int $max_id */
 		$max_id = null;
 
 		// Bail of no log rows.
@@ -1012,7 +1012,6 @@ class Log_Query {
 		$contexts_table_name = $simple_history->get_contexts_table_name();
 		$db_engine = $this->get_db_engine();
 
-		/** @var array Where clauses for inner query. */
 		$inner_where = [];
 
 		// Only include loggers that the current user can view
@@ -1272,7 +1271,6 @@ class Log_Query {
 	 * @return array<string> Where clauses.
 	 */
 	protected function get_outer_where( $args ) {
-		/** @var array Where clauses for outer query. */
 		$outer_where = [];
 
 		// messages.

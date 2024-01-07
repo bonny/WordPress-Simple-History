@@ -62,12 +62,12 @@ if ( ! function_exists( 'sh_d' ) ) {
 	 * sh_d('$_POST', $_POST);
 	 * sh_d('My vars', $varOne, $varTwo, $varXYZ);
 	 *
-	 * @mixed Vars Variables to output.
+	 * @param mixed[] ...$args Variables to output.
 	 */
-	function sh_d() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+	function sh_d( ...$args ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 		$output = '';
 
-		foreach ( func_get_args() as $var ) {
+		foreach ( $args as $var ) {
 			$loopOutput = '';
 			if ( is_bool( $var ) ) {
 				$bool_string = $var ? 'true' : 'false';
