@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b95bc88a23567874b9f29e94eecf7a64",
+    "content-hash": "4c357ca873ffffff2a63276a6d1a1839",
     "packages": [],
     "packages-dev": [
         {
@@ -9893,16 +9893,16 @@
         },
         {
             "name": "wp-cli/wp-cli-bundle",
-            "version": "v2.8.1",
+            "version": "v2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-cli/wp-cli-bundle.git",
-                "reference": "42e9cb9c16831c31ff720ed9dd1604e0f9871695"
+                "reference": "3512737e69e55507172e8dce400e09231ba95919"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-cli/wp-cli-bundle/zipball/42e9cb9c16831c31ff720ed9dd1604e0f9871695",
-                "reference": "42e9cb9c16831c31ff720ed9dd1604e0f9871695",
+                "url": "https://api.github.com/repos/wp-cli/wp-cli-bundle/zipball/3512737e69e55507172e8dce400e09231ba95919",
+                "reference": "3512737e69e55507172e8dce400e09231ba95919",
                 "shasum": ""
             },
             "require": {
@@ -9933,11 +9933,11 @@
                 "wp-cli/shell-command": "^2",
                 "wp-cli/super-admin-command": "^2",
                 "wp-cli/widget-command": "^2",
-                "wp-cli/wp-cli": "^2.8.1"
+                "wp-cli/wp-cli": "^2.9.0"
             },
             "require-dev": {
                 "roave/security-advisories": "dev-latest",
-                "wp-cli/wp-cli-tests": "^3.0.7"
+                "wp-cli/wp-cli-tests": "^4"
             },
             "suggest": {
                 "psy/psysh": "Enhanced `wp shell` functionality"
@@ -9945,7 +9945,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.8.x-dev"
+                    "dev-main": "2.9.x-dev"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -9963,7 +9963,7 @@
                 "issues": "https://github.com/wp-cli/wp-cli-bundle/issues",
                 "source": "https://github.com/wp-cli/wp-cli-bundle"
             },
-            "time": "2023-06-05T07:33:43+00:00"
+            "time": "2023-10-25T09:28:58+00:00"
         },
         {
             "name": "wp-cli/wp-config-transformer",
