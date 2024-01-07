@@ -54,7 +54,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				?>
 
 				<p>
-					<a href="https://simple-history.com/add-ons?utm_source=wpadmin" class="sh-ExternalLink" target="_blank">
+					<a href="https://simple-history.com/add-ons/?utm_source=wpadmin" class="sh-ExternalLink" target="_blank">
 						<?php esc_html_e( 'View add-ons.', 'simple-history' ); ?>
 					</a>
 				</p>
