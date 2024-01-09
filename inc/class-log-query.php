@@ -923,6 +923,12 @@ class Log_Query {
 		// This is because that's the way it was before SQL was rewritten
 		// to support FULL_GROUP_BY in December 2023.
 		foreach ( $log_rows as $log_row ) {
+			if ( isset( $log_row->context_message_key ) ) {
+				continue;
+			}
+			
+			$log_row->context_message_key = null;
+
 			if ( isset( $log_row->context['_message_key'] ) ) {
 				$log_row->context_message_key = $log_row->context['_message_key'];
 			}
