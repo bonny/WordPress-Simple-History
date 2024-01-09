@@ -14,7 +14,7 @@ Simple History shows recent changes made within WordPress, directly on your dash
 
 The plugin works as a log/history/audit log/version history of the most important events that occur in WordPress.
 
-It’s a plugin that is good to have on websites where several people are involved in editing the content.
+It's a plugin that is good to have on websites where several people are involved in editing the content.
 
 Out of the box Simple History has support for:
 
@@ -164,11 +164,13 @@ If you want to translate Simple History to your language then read about how thi
 Development of this plugin takes place at GitHub. Please join in with feature requests, bug reports, or even pull requests!
 <a href="https://github.com/bonny/WordPress-Simple-History">https://github.com/bonny/WordPress-Simple-History</a>
 
-### Donation
+### Sponsor this project
 
 If you like this plugin please consider donating to support the development.
 
 You can [donate using PayPal](https://www.paypal.me/eskapism) or you can [become a GitHub sponsor](https://github.com/sponsors/bonny).
+
+There is also some [add-ons](https://simple-history.com/add-ons/) that you can buy to support the development of this plugin and get some extra features.
 
 ## Frequently Asked Questions
 
@@ -208,6 +210,22 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 ## Changelog
+
+4.9.0 Unreleased
+
+This release comes with improvements to the SQL queries that the plugin use to fetch events. These optimizations enhance query performance and reliability on both MySQL and MariaDB.
+
+Additionally, the plugin now provides support for SQLite databases.
+
+- Added: support for SQLite Database. Tested with the WordPress [SQLite Database Integration](https://wordpress.org/plugins/sqlite-database-integration/) feature plugin. See [Let's make WordPress officially support SQLite](https://make.wordpress.org/core/2022/09/12/lets-make-wordpress-officially-support-sqlite/) and [Help us test the SQLite implementation](https://make.wordpress.org/core/2022/12/20/help-us-test-the-sqlite-implementation/) for more information about the SQLite integration in WordPress and the current status. Fixes [#394](https://github.com/bonny/WordPress-Simple-History/issues/394) and [#411](https://github.com/bonny/WordPress-Simple-History/issues/411).
+- Added: Support for plugin preview button that soon will be available in the WordPress.org plugin directory. This is a very nice way to quickly test plugins in your web browser. Read more in blog post ["Plugin Directory: Preview button revisited"](https://make.wordpress.org/meta/2023/11/22/plugin-directory-preview-button-revisited/) and follow progress in [trac ticket "Add a Preview in Playground button to the plugin directory"](https://meta.trac.wordpress.org/ticket/7251). You can however already test the functionality using this link: [Preview Simple History plugin](https://playground.wordpress.net/?plugin=simple-history&blueprint-url=https://wordpress.org/plugins/wp-json/plugins/v1/plugin/simple-history/blueprint.json).
+- Added: IP addresses are now shown on occasions.
+- Added: Helper functions `get_cache_group()`, `clear_cache()`.
+- Changed: Better support for MariaDB and MySQL 8 by using full group by in the query. Fixes multiple database related errors. Fixes [#397](https://github.com/bonny/WordPress-Simple-History/issues/397), [#409](https://github.com/bonny/WordPress-Simple-History/issues/409), and [#405](https://github.com/bonny/WordPress-Simple-History/issues/405).
+- Changed: Misc code cleanup and improvements and GUI changes.
+- Removed: Usage of `SQL_CALC_FOUND_ROWS` since it's deprecated in MySQL 8.0.17. Also [this should make the query faster](https://stackoverflow.com/a/188682). Fixes [#312](https://github.com/bonny/WordPress-Simple-History/issues/312).
+- Removed: Columns "rep", "repeated" and "occasionsIDType" are removed from return value in `Log_Query()`.
+- Fixed: Stats widget counting could be wrong due to incorrect loggers included in stats query.
 
 ### 4.8.0 (December 2023)
 

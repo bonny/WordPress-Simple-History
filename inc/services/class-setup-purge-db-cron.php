@@ -40,6 +40,7 @@ class Setup_Purge_DB_Cron extends Service {
 	public function maybe_purge_db() {
 		/**
 		 * Day of week today.
+		 *
 		 * @int $current_day_of_week
 		 */
 		$current_day_of_week = (int) gmdate( 'N' );
@@ -67,6 +68,9 @@ class Setup_Purge_DB_Cron extends Service {
 
 	/**
 	 * Removes old entries from the db.
+	 *
+	 * Removes in batches of 100 000 rows.
+	 *
 	 */
 	public function purge_db() {
 		$do_purge_history = true;
@@ -132,7 +136,7 @@ class Setup_Purge_DB_Cron extends Service {
 			 */
 			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged );
 
-			Helpers::get_cache_incrementor( true );
+			Helpers::clear_cache();
 		}
 	}
 }

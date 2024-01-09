@@ -298,6 +298,25 @@ class Helpers {
 	}
 
 	/**
+	 * Get the cache group for the cache.
+	 * Used by all function that use cache, so they use the
+	 * same cache group, meaning if we invalidate the cache group
+	 * all caches will be cleared/flushed.
+	 *
+	 * @return string
+	 */
+	public static function get_cache_group() {
+		return 'simple-history-' . self::get_cache_incrementor();
+	}
+
+	/**
+	 * Clears the cache.
+	 */
+	public static function clear_cache() {
+		self::get_cache_incrementor( true );
+	}
+
+	/**
 	 * Return a name for a callable.
 	 *
 	 * Examples of return values:
@@ -881,7 +900,7 @@ class Helpers {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		self::get_cache_incrementor( true );
+		self::clear_cache();
 
 		return $num_rows;
 	}
@@ -1127,31 +1146,55 @@ class Helpers {
 	 */
 	public static function get_num_events_per_day_last_n_days( $period_days = 28 ) {
 		$simple_history = Simple_History::get_instance();
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
+		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_3' );
 		$dates = get_transient( $transient_key );
 
 		if ( false === $dates ) {
+			/** @var \wpdb $wpdb */
 			global $wpdb;
 
 			$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
-			$sql = sprintf(
-				'
-                    SELECT
-                        date_format(date, "%%Y-%%m-%%d") AS yearDate,
-                        count(date) AS count
-                    FROM
-                        %1$s
-                    WHERE
-                        UNIX_TIMESTAMP(date) >= %2$d
-                        AND logger IN (%3$d)
-                    GROUP BY yearDate
-                    ORDER BY yearDate ASC
-                ',
-				$simple_history->get_events_table_name(),
-				strtotime( "-$period_days days" ),
-				$sqlStringLoggersUserCanRead
-			);
+			$db_engine = Log_Query::get_db_engine();
+
+			if ( $db_engine === 'mysql' ) {
+				$sql = sprintf(
+					'
+						SELECT
+							date_format(date, "%%Y-%%m-%%d") AS yearDate,
+							count(date) AS count
+						FROM
+							%1$s
+						WHERE
+							UNIX_TIMESTAMP(date) >= %2$d
+							AND logger IN %3$s
+						GROUP BY yearDate
+						ORDER BY yearDate ASC
+					',
+					$simple_history->get_events_table_name(),
+					strtotime( "-$period_days days" ),
+					$sqlStringLoggersUserCanRead
+				);
+			} elseif ( $db_engine === 'sqlite' ) {
+				// SQLite does not support date_format() or UNIX_TIMESTAMP so we need to use strftime().
+				$sql = sprintf(
+					'
+						SELECT
+							strftime("%%Y-%%m-%%d", date) AS yearDate,
+							count(date) AS count
+						FROM
+							%1$s
+						WHERE
+							unixepoch(date) >= %2$d
+							AND logger IN %3$s
+						GROUP BY yearDate
+						ORDER BY yearDate ASC
+					',
+					$simple_history->get_events_table_name(),
+					strtotime( "-$period_days days" ),
+					$sqlStringLoggersUserCanRead
+				);
+			}
 
 			$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 

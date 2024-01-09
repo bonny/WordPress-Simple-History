@@ -11,7 +11,7 @@ class APHPVersionTest extends \Codeception\TestCase\WPTestCase {
 		// Output MySQL/MariaDB version.
 		global $wpdb;
 		if ( empty( $wpdb->use_mysqli ) ) {
-			$mysqlVersion = mysql_get_server_info();
+			// $mysqlVersion = mysql_get_server_info();
 		} else {
 			$mysqlVersion = mysqli_get_server_info( $wpdb->dbh );
 		}

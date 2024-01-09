@@ -1306,7 +1306,7 @@ abstract class Logger {
 		$this->last_insert_context = $context;
 		$this->last_insert_data = $data;
 
-		Helpers::get_cache_incrementor( true );
+		Helpers::clear_cache();
 
 		/**
 		 * Fired after an event has been logged.

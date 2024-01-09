@@ -57,7 +57,7 @@ class Quick_Stats extends Dropin {
 		);
 
 		$cache_key = 'quick_stats_users_today_' . md5( serialize( $sql_loggers_in ) );
-		$cache_group = 'simple-history-' . Helpers::get_cache_incrementor();
+		$cache_group = Helpers::get_cache_group();
 		$results_users_today = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false === $results_users_today ) {

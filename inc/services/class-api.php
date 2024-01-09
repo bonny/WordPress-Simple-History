@@ -63,24 +63,39 @@ class API extends Service {
 				$logQuery = new Log_Query();
 
 				$data = $logQuery->query( $args );
+				// $data_full_group_by = $logQuery->query_overview_full_group_by( $args );
+
+				// sh_d('$data', $data, '$data_full_group_by', $data_full_group_by);exit;
 
 				$data['api_args'] = $args;
 
+				// $data['log_rows_full_group_by'] = array_values( $data_full_group_by );
+
 				// Output can be array or HTML.
 				if ( isset( $args['format'] ) && 'html' === $args['format'] ) {
-					$data['log_rows_raw'] = [];
-
 					foreach ( $data['log_rows'] as $key => $oneLogRow ) {
-						$args = [];
+						$format_args = [];
 						if ( $type == 'single' ) {
-							$args['type'] = 'single';
+							$format_args['type'] = 'single';
 						}
 
-						$data['log_rows'][ $key ] = $this->simple_history->get_log_row_html_output( $oneLogRow, $args );
+						$data['log_rows'][ $key ] = $this->simple_history->get_log_row_html_output( $oneLogRow, $format_args );
 					}
 
 					$data['num_queries'] = get_num_queries();
 					$data['cached_result'] = $data['cached_result'] ?? false;
+
+					// Add full group by result.
+					#sh_d( 'data_full_group_by', $data_full_group_by );
+					#exit;
+					// foreach ( $data_full_group_by['log_rows'] as $key => $one_log_row ) {
+					// 	$format_args = [];
+					// 	if ( $type == 'single' ) {
+					// 		$format_args['type'] = 'single';
+					// 	}
+
+					// 	$data['log_rows_full'][ $key ] = $this->simple_history->get_log_row_html_output( $one_log_row, $format_args );
+					// }
 				}
 
 				break;

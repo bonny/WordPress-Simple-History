@@ -97,7 +97,11 @@ if ( sizeof( $table_size_result ) === 0 ) {
 
 echo '</table>';
 
+/**
+ * Number of rows in database
+ */
 $logQuery = new Log_Query();
+
 $rows = $logQuery->query(
 	array(
 		'posts_per_page' => 1,

@@ -90,7 +90,6 @@ class New_Rows_Notifier_Dropin extends Dropin {
 			);
 		}
 
-		// $since_id = isset( $_GET["since_id"] ) ? absint($_GET["since_id"]) : null;
 		$logQueryArgs = $apiArgs;
 
 		$logQuery = new Log_Query();

@@ -341,6 +341,25 @@ class Setup_Settings_Page extends Service {
 				esc_html__( 'Items in the database are automatically removed after %1$s days.', 'simple-history' ),
 				esc_html( $clear_days )
 			);
+			echo '<br>';
+
+			$message = sprintf(
+				/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
+				__( 'The number of days can be changed using a filter or with an add-on. <a href="%1$s" target="_blank" class="sh-ExternalLink">More info.</a>', 'simple-history' ),
+				esc_url( 'https://simple-history.com/support/change-number-of-days-to-keep-log/?utm_source=wpadmin' )
+			);
+
+			echo '<p>' . wp_kses(
+				$message,
+				[
+					'a' => [
+						'href' => [],
+						'target' => [],
+						'class' => [],
+					],
+				]
+			) . '</p>';
+
 		} else {
 			esc_html_e( 'Items in the database are kept forever.', 'simple-history' );
 		}
