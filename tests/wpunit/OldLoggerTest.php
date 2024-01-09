@@ -63,9 +63,11 @@ class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$expected_object->message = 'This is an info message';
 		$expected_object->context_message_key = null;
 		$expected_object->initiator = 'wp_user';
+		$expected_object->subsequentOccasions = "1";
+		$expected_object->repeatCount = "1";
 
 		$actual = $query_results['log_rows'][0];
-		unset($actual->id, $actual->date, $actual->occasionsID, $actual->subsequentOccasions, $actual->rep, $actual->repeated, $actual->context);
+		unset($actual->id, $actual->date, $actual->occasionsID, $actual->context, $actual->maxId, $actual->minId);
 
 		$this->assertEquals($expected_object, $actual);
 	}
