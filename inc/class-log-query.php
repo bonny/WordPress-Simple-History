@@ -926,7 +926,7 @@ class Log_Query {
 			if ( isset( $log_row->context_message_key ) ) {
 				continue;
 			}
-			
+
 			$log_row->context_message_key = null;
 
 			if ( isset( $log_row->context['_message_key'] ) ) {
