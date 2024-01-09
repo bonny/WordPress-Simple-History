@@ -126,7 +126,7 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals(
 			'Oh such logging things ' . ($i-1),
 			$first_log_row_from_query->message,
-			'The first log row should have the message "Oh such logging things" ' . $i-1
+			'The first log row should have the message "Oh such logging things" ' . ($i-1)
 		);
 
 		$this->assertEquals(
