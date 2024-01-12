@@ -211,6 +211,10 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+### n.n.n Unreleased
+
+- Fix missing translation in sidebar. [#417](https://github.com/bonny/WordPress-Simple-History/issues/417).
+
 ### 4.9.0 (January 2024)
 
 This release comes with improvements to the SQL queries that the plugin use to fetch events. These optimizations enhance query performance and reliability on both MySQL and MariaDB. Additionally, the plugin now provides support for SQLite databases.
