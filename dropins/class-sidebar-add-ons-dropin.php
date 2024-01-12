@@ -24,7 +24,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 
 			<h3 class="hndle">
 				<?php esc_html_e( 'Add-ons', 'simple-history' ); ?>
-				<em class="sh-PageHeader-settingsLinkIcon-new">New</em>
+				<em class="sh-PageHeader-settingsLinkIcon-new"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
 			</h3>
 
 			<div class="inside">
