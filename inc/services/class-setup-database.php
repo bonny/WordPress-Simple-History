@@ -15,6 +15,7 @@ class Setup_Database extends Service {
 	 */
 	public function loaded() {
 		// Run at prio 5 so it's run before the loggers etc. are setup.
+		// Todo: Did this change when services were added?
 		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
 	}
 
@@ -54,7 +55,7 @@ class Setup_Database extends Service {
 			// Upgrade db / fix utf for varchars.
 			dbDelta( $sql );
 
-			// Fix UTF-8 for table.
+			// Make sure table is using UTF-8. Early versions did not.
 			$sql = sprintf( 'alter table %1$s charset=utf8;', $table_name );
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $sql );
