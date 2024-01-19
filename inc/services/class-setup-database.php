@@ -251,6 +251,7 @@ class Setup_Database extends Service {
 				'plugin_activated',
 				[
 					'plugin_slug' => 'simple-history',
+				'plugin_name' => 'Simple History',
 					'plugin_title' => '<a href="https://simple-history.com/">Simple History</a>',
 				]
 			);
