@@ -243,6 +243,7 @@ class Setup_Database extends Service {
 					'plugin_url' => 'https://simple-history.com',
 					'plugin_version' => SIMPLE_HISTORY_VERSION,
 					'plugin_author' => 'Pär Thernström',
+				'from_setup_database' => true,
 				]
 			);
 
