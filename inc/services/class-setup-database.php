@@ -232,7 +232,6 @@ class Setup_Database extends Service {
 			return;
 		}
 
-		if ( $plugin_logger instanceof Plugin_Logger ) {
 			// Add plugin installed message.
 			$plugin_logger->info_message(
 				'plugin_installed',
@@ -253,9 +252,9 @@ class Setup_Database extends Service {
 					'plugin_slug' => 'simple-history',
 				'plugin_name' => 'Simple History',
 					'plugin_title' => '<a href="https://simple-history.com/">Simple History</a>',
+				'from_setup_database' => true,
 				]
 			);
-		}
 
 		if ( ! $db_data_exists ) {
 			$welcome_message_1 = __(
