@@ -16,7 +16,18 @@ class Setup_Database extends Service {
 	public function loaded() {
 		// Run at prio 5 so it's run before the loggers etc. are setup.
 		// Todo: Did this change when services were added?
-		add_action( 'after_setup_theme', array( $this, 'check_for_upgrade' ), 5 );
+		add_action( 'after_setup_theme', array( $this, 'run_setup_steps' ), 5 );
+	}
+
+	/**
+	 * Check if plugin version have changed, i.e. has been upgraded
+	 * If upgrade is detected then maybe modify database and so on for that version
+	 */
+	public function run_setup_steps() {
+		$this->setup_new_to_version_1();
+		$this->setup_version_1_to_version_2();
+		$this->setup_version_2_to_version_3();
+		$this->setup_version_3_to_version_4();
 	}
 
 	/**
@@ -35,7 +46,7 @@ class Setup_Database extends Service {
 	 * or it's a first install
 	 * Fix database not using UTF-8.
 	 */
-	private function setup_to_version_1() {
+	private function setup_new_to_version_1() {
 		$db_version = $this->get_db_version();
 
 		// Run step only if previous step was step before this one.
@@ -80,7 +91,7 @@ class Setup_Database extends Service {
 	 * Version 2 added the 'action_description' column,
 	 * but it's not used any more so don't do it.
 	 */
-	private function setup_to_version_2() {
+	private function setup_version_1_to_version_2() {
 		$db_version = $this->get_db_version();
 
 		// Run step only if previous step was step before this one.
@@ -119,7 +130,7 @@ class Setup_Database extends Service {
 	 *
 	 * @since 2.0
 	 */
-	private function setup_to_version_3() {
+	private function setup_version_2_to_version_3() {
 		$db_version = $this->get_db_version();
 
 		// Run step only if previous step was step before this one.
@@ -197,7 +208,7 @@ class Setup_Database extends Service {
 	 *
 	 * @since 2.0
 	 */
-	private function setup_to_version_4() {
+	private function setup_version_3_to_version_4() {
 
 		$db_version = $this->get_db_version();
 
@@ -235,17 +246,6 @@ class Setup_Database extends Service {
 		}
 
 		update_option( 'simple_history_db_version', 4 );
-	}
-
-	/**
-	 * Check if plugin version have changed, i.e. has been upgraded
-	 * If upgrade is detected then maybe modify database and so on for that version
-	 */
-	public function check_for_upgrade() {
-		$this->setup_to_version_1();
-		$this->setup_to_version_2();
-		$this->setup_to_version_3();
-		$this->setup_to_version_4();
 	}
 
 	/**
