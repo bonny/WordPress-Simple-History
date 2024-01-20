@@ -196,8 +196,7 @@ class Setup_Database extends Service {
 
 		// Say welcome, however loggers are not added this early so we need to
 		// use a filter to load it later.
-		add_action( 'simple_history/loggers_loaded', array( $this, 'add_welcome_log_message' ) );
-		error_log( 'xxx' );
+		add_action( 'simple_history/loggers_loaded', array( $this, 'add_welcome_log_messages' ) );
 	}
 
 	/**
@@ -249,12 +248,12 @@ class Setup_Database extends Service {
 	}
 
 	/**
-	 * Greet users to version 2!
+	 * Add welcome messages to the log.
+	 *
+	 * Fired from filter simple_history/loggers_loaded.
 	 * Is only called after database has been upgraded, so only on first install (or upgrade).
-	 * Not called after only plugin activation.
 	 */
-	public function add_welcome_log_message() {
-		$db_data_exists = Helpers::db_has_data();
+	public function add_welcome_log_messages() {
 		$plugin_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
 
 		if ( ! $plugin_logger instanceof Plugin_Logger ) {
@@ -266,7 +265,7 @@ class Setup_Database extends Service {
 		$plugin_logger->info_message(
 			'plugin_installed',
 			[
-				'plugin_name' => 'Simple History FROM SETUP',
+				'plugin_name' => 'Simple History',
 				'plugin_description' =>
 					'Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.',
 				'plugin_url' => 'https://simple-history.com',
@@ -281,42 +280,40 @@ class Setup_Database extends Service {
 			'plugin_activated',
 			[
 				'plugin_slug' => 'simple-history',
-				'plugin_name' => 'Simple History FROM SETUP',
+				'plugin_name' => 'Simple History',
 				'plugin_title' => '<a href="https://simple-history.com/">Simple History</a>',
 				'from_setup_database' => true,
 			]
 		);
 
-		if ( ! $db_data_exists ) {
-			$welcome_message_1 = __(
-				'
+		$welcome_message_1 = __(
+			'
 Welcome to Simple History!
 
 This is the main history feed. It will contain events that this plugin has logged.
 ',
-				'simple-history'
-			);
+			'simple-history'
+		);
 
-			$welcome_message_2 = __(
-				'
+		$welcome_message_2 = __(
+			'
 Because Simple History was only recently installed, this feed does not display many events yet. As long as the plugin remains activated you will soon see detailed information about page edits, plugin updates, users logging in, and much more.
 ',
-				'simple-history'
-			);
+			'simple-history'
+		);
 
-			SimpleLogger()->info(
-				$welcome_message_2,
-				array(
-					'_initiator' => Log_Initiators::WORDPRESS,
-				)
-			);
+		SimpleLogger()->info(
+			$welcome_message_2,
+			array(
+				'_initiator' => Log_Initiators::WORDPRESS,
+			)
+		);
 
-			SimpleLogger()->info(
-				$welcome_message_1,
-				array(
-					'_initiator' => Log_Initiators::WORDPRESS,
-				)
-			);
-		}
+		SimpleLogger()->info(
+			$welcome_message_1,
+			array(
+				'_initiator' => Log_Initiators::WORDPRESS,
+			)
+		);
 	}
 }
