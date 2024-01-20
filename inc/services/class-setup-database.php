@@ -234,24 +234,7 @@ class Setup_Database extends Service {
 			$wpdb->query( $sql );
 		}
 
-			$db_version = 4;
-
-			update_option( 'simple_history_db_version', 4 );
-
-		// Some installs on 2.2.2 got failed installs
-		// We detect these by checking for db_version and then running the install stuff again.
-		if ( 4 == (int) $db_version ) {
-			/** @noRector \Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector */
-			if ( ! Helpers::db_has_data() ) {
-				// not ok, decrease db number so installs will run again and hopefully fix things.
-				$db_version = 0;
-			} else {
-				// all looks ok, upgrade to db version 5, so this part is not done again.
-				$db_version = 5;
-			}
-
-			update_option( 'simple_history_db_version', $db_version );
-		}
+		update_option( 'simple_history_db_version', 4 );
 	}
 
 	/**
