@@ -76,7 +76,6 @@ define( 'SIMPLE_HISTORY_FILE', __FILE__ );
  */
 define( 'SIMPLE_HISTORY_LICENCES_API_URL', 'https://simple-history.com/wp-json/lsq/v1' );
 
-
 /** Load required files. */
 require_once __DIR__ . '/inc/class-autoloader.php';
 require_once __DIR__ . '/inc/global-helpers.php';
