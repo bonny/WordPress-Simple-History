@@ -4,6 +4,8 @@ namespace Simple_History\Event_Details;
 
 /**
  * Formatter for a group of items.
+ * Outputs items without any name, so just the value.
+ * Useful when manually setting all output.
  */
 class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 	/** @var string */
