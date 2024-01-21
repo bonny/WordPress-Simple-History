@@ -2,7 +2,11 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Helpers;
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Single_Item_Formatter;
+use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
+use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
 use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Log_Initiators;
 
@@ -15,8 +19,9 @@ class Setup_Database extends Service {
 	 */
 	public function loaded() {
 		// Run at prio 5 so it's run before the loggers etc. are setup.
-		// Todo: Did this change when services were added?
 		add_action( 'after_setup_theme', array( $this, 'run_setup_steps' ), 5 );
+
+		add_filter( 'simple_history/row_details_output', [ $this, 'add_row_details_output' ], 10, 2 );
 	}
 
 	/**
@@ -32,9 +37,8 @@ class Setup_Database extends Service {
 
 	/**
 	 * Get the current database version.
-	 * Version 0 = first install or version earlier than 0.4.
 	 *
-	 * @return int The database version.
+	 * @return int The database version. Version 0 = first install or version earlier than 0.4.
 	 */
 	private function get_db_version() {
 		return (int) get_option( 'simple_history_db_version', false );
@@ -271,7 +275,6 @@ class Setup_Database extends Service {
 				'plugin_url' => 'https://simple-history.com',
 				'plugin_version' => SIMPLE_HISTORY_VERSION,
 				'plugin_author' => 'Pär Thernström',
-				'from_setup_database' => true,
 			]
 		);
 
@@ -282,38 +285,60 @@ class Setup_Database extends Service {
 				'plugin_slug' => 'simple-history',
 				'plugin_name' => 'Simple History',
 				'plugin_title' => '<a href="https://simple-history.com/">Simple History</a>',
-				'from_setup_database' => true,
 			]
 		);
 
 		$welcome_message_1 = __(
-			'
-Welcome to Simple History!
-
-This is the main history feed. It will contain events that this plugin has logged.
-',
+			'Welcome to Simple History! This is the event history feed. It will contain events that this plugin has logged.',
 			'simple-history'
-		);
-
-		$welcome_message_2 = __(
-			'
-Because Simple History was only recently installed, this feed does not display many events yet. As long as the plugin remains activated you will soon see detailed information about page edits, plugin updates, users logging in, and much more.
-',
-			'simple-history'
-		);
-
-		SimpleLogger()->info(
-			$welcome_message_2,
-			array(
-				'_initiator' => Log_Initiators::WORDPRESS,
-			)
 		);
 
 		SimpleLogger()->info(
 			$welcome_message_1,
 			array(
 				'_initiator' => Log_Initiators::WORDPRESS,
+				'is_welcome_message' => true,
 			)
 		);
+	}
+
+	/**
+	 * Append longer welcome message to the welcome message.
+	 *
+	 * @param string $html The HTML output.
+	 * @param object $row The row object.
+	 * @return string New HTML output.
+	 */
+	public function add_row_details_output( $html, $row ) {
+		$is_welcome_message = $row->context['is_welcome_message'] ?? false;
+
+		if ( ! $is_welcome_message ) {
+			return $html;
+		}
+
+		$message = '<div class="sh-FeedIntroduction">'
+		. '<p><span class="sh-FeedIntroduction-emoji">🚀</span>'
+		. __( 'Simple History has been successfully installed on your WordPress site and is active and ready to log important changes on your website', 'simple-history' )
+		. '</p>'
+		 . '<p><span class="sh-FeedIntroduction-emoji">✨</span> '
+		. __( 'As your users work on this site, this feed will contain information about their actions. Page edits, attachment uploads, plugin updates, user logins, site settings changes, and much more will show up in this log.', 'simple-history' )
+		. '</p>'
+		. '<p><span class="sh-FeedIntroduction-emoji">👥</span> '
+		. __( "If you have multiple users working on this website, you'll find Simple History especially useful . It logs events from all users, providing a centralized view of what's happening. This makes it easy for you to see and understand the activities of other users on the same website.", 'simple-history' )
+		. '</p>'
+		. '</div>';
+
+		$item_table_row_raw_formatter = ( new Event_Details_Item_RAW_Formatter() )->set_html_output( "<p>{$message}</p>" );
+
+		$welcome_item = ( new Event_Details_Item( 'is_welcome_message' ) )->set_formatter( $item_table_row_raw_formatter );
+
+		$details_group = new Event_Details_Group();
+		$details_group->add_items(
+			[
+				$welcome_item,
+			]
+		);
+
+		return $details_group;
 	}
 }

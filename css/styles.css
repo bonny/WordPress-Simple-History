@@ -1240,3 +1240,37 @@ a.sh-SettingsTabs-link:hover {
 .form-table .sh-LicencesPage-plugin-active {
 	margin-bottom: 1rem;
 }
+
+.sh-FeedIntroduction {
+	background: #f6f7f7;
+	border-radius: 5px;
+	padding: 1em;
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	max-width: 80ch;
+	font-size: 15px;
+}
+
+.sh-FeedIntroduction img {
+	border-radius: 10px;
+	width: 1.25rem;
+	height: auto;
+	line-height: 1;
+	vertical-align: text-bottom;
+}
+
+.sh-FeedIntroduction p {
+	margin: 0;
+	font-size: 1em;
+}
+
+.sh-FeedIntroduction-emoji {
+	display: block;
+	margin-bottom: 0.25em;
+	font-size: 1.25em;
+}
+
+/* .sh-FeedIntroduction-ps {
+	font-size: 13px;
+} */
