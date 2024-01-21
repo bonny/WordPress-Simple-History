@@ -1,5 +1,13 @@
 @import url(icons.css);
 
+/**
+ * Use SuitCSS based classnames.
+ */
+:root {
+	--sh-color-gray: #c3c4c7;
+	--sh-color-green: #3f9349;
+}
+
 /* clearfix */
 .SimpleHistory__cf:before,
 .SimpleHistory__cf:after {
@@ -969,19 +977,11 @@ Modal window with detailss
 	width: auto;
 }
 
-/**
- * SuitCSS based classnames.
- */
 .sh-ExternalLink::after {
 	/* External icon on link */
 	content: "\f504";
 	font-family: dashicons;
 	line-height: 1;
-}
-
-:root {
-	--sh-color-gray: #c3c4c7;
-	--sh-color-green: #3f9349;
 }
 
 /**
