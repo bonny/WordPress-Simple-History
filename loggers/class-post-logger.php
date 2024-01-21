@@ -97,12 +97,13 @@ class Post_Logger extends Logger {
 			return $prepared_post;
 		}
 
-		// $old_post = post with old content and old meta
+		// Post with old content and old meta.
 		$old_post = get_post( $prepared_post->ID );
 
 		$this->old_post_data[ $old_post->ID ] = array(
 			'post_data' => $old_post,
 			'post_meta' => get_post_custom( $old_post->ID ),
+			'post_terms' => wp_get_object_terms( $old_post->ID, get_object_taxonomies( $old_post->post_type ) ),
 		);
 
 		return $prepared_post;
@@ -121,14 +122,18 @@ class Post_Logger extends Logger {
 		$updated_post = get_post( $updated_post->ID );
 		$post_meta = get_post_custom( $updated_post->ID );
 
+		// TODO: Use ?? operator when PHP 5.6 is minimum requirement, i.e. $old_post = $this->old_post_data[ $updated_post->ID ]['post_data'] ?? null;
 		$old_post = isset( $this->old_post_data[ $updated_post->ID ] ) ? $this->old_post_data[ $updated_post->ID ]['post_data'] : null;
 		$old_post_meta = isset( $this->old_post_data[ $updated_post->ID ] ) ? $this->old_post_data[ $updated_post->ID ]['post_meta'] : null;
+		$old_post_terms = isset( $this->old_post_data[ $updated_post->ID ] ) ? $this->old_post_data[ $updated_post->ID ]['post_terms'] : null;
 
 		$args = array(
 			'new_post' => $updated_post,
 			'new_post_meta' => $post_meta,
+			'new_post_terms' => wp_get_object_terms( $updated_post->ID, get_object_taxonomies( $updated_post->post_type ) ),
 			'old_post' => $old_post,
 			'old_post_meta' => $old_post_meta,
+			'old_post_terms' => $old_post_terms,
 			'old_status' => $old_post ? $old_post->post_status : null,
 			'_debug_caller_method' => __METHOD__,
 		);
@@ -249,6 +254,8 @@ class Post_Logger extends Logger {
 	 *
 	 * Can't use the regular filters like "pre_post_update" because custom fields are already written by then.
 	 *
+	 * This functions is not fird when using the block editor, then we use the REST API hooks instead.
+	 *
 	 * @since 2.0.29
 	 */
 	public function on_admin_action_editpost() {
@@ -272,6 +279,7 @@ class Post_Logger extends Logger {
 		$this->old_post_data[ $post_ID ] = array(
 			'post_data' => $prev_post_data,
 			'post_meta' => get_post_custom( $post_ID ),
+			'post_terms' => wp_get_object_terms( $post_ID, get_object_taxonomies( $prev_post_data->post_type ) ),
 		);
 	}
 
@@ -499,6 +507,7 @@ class Post_Logger extends Logger {
 		$new_post_data = array(
 			'post_data' => $post,
 			'post_meta' => $args['new_post_meta'],
+			'post_terms' => $args['new_post_terms'],
 		);
 
 		// Set old status to status from old post with fallback to old_status variable.
@@ -510,6 +519,7 @@ class Post_Logger extends Logger {
 		$old_post_data = array(
 			'post_data' => $old_post,
 			'post_meta' => $old_post_meta,
+			'post_terms' => $args['old_post_terms'] ?? null,
 		);
 
 		// Default to log.
@@ -652,21 +662,24 @@ class Post_Logger extends Logger {
 			return;
 		}
 
-		// $old_post_data_exists = ! empty( $this->old_post_data[ $post->ID ] );
-
+		// TODO: Change to using ?? operator when PHP 5.6 is minimum requirement, i.e. $old_post = $this->old_post_data[ $post->ID ]['post_data'] ?? null;
 		$old_post = null;
 		$old_post_meta = null;
+		$old_post_terms = null;
 
 		if ( ! empty( $this->old_post_data[ $post->ID ] ) ) {
 			$old_post = $this->old_post_data[ $post->ID ]['post_data'];
 			$old_post_meta = $this->old_post_data[ $post->ID ]['post_meta'];
+			$old_post_terms = $this->old_post_data[ $post->ID ]['post_terms'];
 		}
 
 		$args = array(
 			'new_post' => $post,
 			'new_post_meta' => get_post_custom( $post->ID ),
+			'new_post_terms' => wp_get_object_terms( $post->ID, get_object_taxonomies( $post->post_type ) ),
 			'old_post' => $old_post,
 			'old_post_meta' => $old_post_meta,
+			'old_post_terms' => $old_post_terms,
 			'old_status' => $old_status,
 			'_debug_caller_method' => __METHOD__,
 		);
@@ -768,6 +781,7 @@ class Post_Logger extends Logger {
 		// Add post featured thumb data.
 		$context = $this->add_post_thumb_diff( $context, $old_meta, $new_meta );
 
+		// Detect page template changes.
 		// Page template is stored in _wp_page_template.
 		if ( isset( $old_meta['_wp_page_template'][0] ) && isset( $new_meta['_wp_page_template'][0] ) && $old_meta['_wp_page_template'][0] !== $new_meta['_wp_page_template'][0] ) {
 			// Prev page template is different from new page template,
@@ -791,14 +805,14 @@ class Post_Logger extends Logger {
 			unset( $new_meta[ $key_to_ignore ] );
 		}
 
-		// Look for added custom fields.
+		// Look for added custom fields/meta.
 		foreach ( $new_meta as $meta_key => $meta_value ) {
 			if ( ! isset( $old_meta[ $meta_key ] ) ) {
 				$meta_changes['added'][ $meta_key ] = true;
 			}
 		}
 
-		// Look for changed meta.
+		// Look for changed custom fields/meta.
 		foreach ( $old_meta as $meta_key => $meta_value ) {
 			if ( isset( $new_meta[ $meta_key ] ) && json_encode( $old_meta[ $meta_key ] ) !== json_encode( $new_meta[ $meta_key ] ) ) {
 				$meta_changes['changed'][ $meta_key ] = true;
@@ -859,6 +873,14 @@ class Post_Logger extends Logger {
 		// Todo: detect sticky.
 		// Sticky is stored in option:
 		// $sticky_posts = get_option('sticky_posts');.
+
+		// Check for changes in post terms.
+		$old_post_terms = $old_post_data['post_terms'] ?? [];
+		$new_post_terms = $new_post_data['post_terms'] ?? [];
+
+		// Add old and new data to debug.
+		$context['old_post_terms'] = $old_post_terms;
+		$context['new_post_terms'] = $new_post_terms;
 
 		/**
 		 * Filter to control context sent to the diff output.
