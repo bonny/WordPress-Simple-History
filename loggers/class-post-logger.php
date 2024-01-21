@@ -878,9 +878,45 @@ class Post_Logger extends Logger {
 		$old_post_terms = $old_post_data['post_terms'] ?? [];
 		$new_post_terms = $new_post_data['post_terms'] ?? [];
 
-		// Add old and new data to debug.
-		$context['old_post_terms'] = $old_post_terms;
-		$context['new_post_terms'] = $new_post_terms;
+		// Keys to keep for each term: term_id, name, slug, term_taxonomy_id, taxonomy.
+		$term_keys_to_keep = [
+			'term_id',
+			'name',
+			'slug',
+			'term_taxonomy_id',
+			'taxonomy',
+		];
+
+		$old_post_terms = array_map(
+			function ( $term ) use ( $term_keys_to_keep ) {
+				return array_intersect_key( (array) $term, array_flip( $term_keys_to_keep ) );
+			},
+			$old_post_terms
+		);
+
+		$new_post_terms = array_map(
+			function ( $term ) use ( $term_keys_to_keep ) {
+				return array_intersect_key( (array) $term, array_flip( $term_keys_to_keep ) );
+			},
+			$new_post_terms
+		);
+
+		// Detect added and removed terms.
+		$term_changes = [
+			// Added = exists in new but not in old.
+			'added' => [],
+			// Removed = exists in old but not in new.
+			'removed' => [],
+		];
+
+		$term_changes['added'] = array_values( array_udiff( $new_post_terms, $old_post_terms, [ $this, 'compare_terms' ] ) );
+		$term_changes['removed'] = array_values( array_udiff( $old_post_terms, $new_post_terms, [ $this, 'compare_terms' ] ) );
+
+		// Add old and new terms to context.
+		// $context['post_prev_terms'] = $old_post_terms;
+		// $context['post_new_terms'] = $new_post_terms;
+		$context['post_terms_added'] = $term_changes['added'];
+		$context['post_terms_removed'] = $term_changes['removed'];
 
 		/**
 		 * Filter to control context sent to the diff output.
@@ -896,6 +932,10 @@ class Post_Logger extends Logger {
 		 * @since 2.36.0
 		 */
 		return apply_filters( 'simple_history/post_logger/context', $context, $old_data, $new_data, $old_meta, $new_meta );
+	}
+
+	private function compare_terms( $a, $b ) {
+		return $a['term_id'] <=> $b['term_id'];
 	}
 
 	/**
@@ -1183,6 +1223,8 @@ class Post_Logger extends Logger {
 										)
 									)
 								);
+							} elseif ( 'terms' == $key_to_diff ) {
+								$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, $key_to_diff );
 							} else {
 								$has_diff_values = true;
 
@@ -1373,6 +1415,54 @@ class Post_Logger extends Logger {
 	 */
 	protected function add_keys_to_diff( $arr_keys_to_diff ) {
 		return apply_filters( 'simple_history/post_logger/keys_to_diff', $arr_keys_to_diff );
+	}
+
+	/**
+	 * Get the HTML output for context that contains modified post meta.
+	 *
+	 * @param array  $context Context that may contains prev- and new thumb ids.
+	 * @param string $key_to_diff Key to diff.
+	 * @return string HTML to be used in keyvale table.
+	 */
+	private function get_log_row_details_output_for_post_terms( $context = [], $key_to_diff = '' ) {
+		/*
+		[
+			{
+				"term_id": 7,
+				"name": "A new category",
+				"slug": "a-new-category",
+				"term_taxonomy_id": 7,
+				"taxonomy": "category"
+			},
+		*/
+		$post_terms_added = $context['post_terms_added'] ?? [];
+		$post_terms_removed = $context['post_terms_removed'] ?? [];
+
+		$label = __( 'Taxonomies', 'simple-history' );
+
+		$message = __(
+			'Changed from "{prev_page_template_name}" to "{new_page_template_name}"',
+			'simple-history'
+		);
+
+		$diff_table_output = sprintf(
+			'<tr>
+				<td>%1$s</td>
+				<td>%2$s</td>
+			</tr>',
+			$this->label_for( $key_to_diff, $label, $context ),
+			helpers::interpolate(
+				$message,
+				array(
+					'prev_page_template' => '<code>' . esc_html( $prev_page_template ) . '</code>',
+					'new_page_template' => '<code>' . esc_html( $new_page_template ) . '</code>',
+					'prev_page_template_name' => esc_html( $prev_page_template_name ),
+					'new_page_template_name' => esc_html( $new_page_template_name ),
+				)
+			)
+		);
+
+		return $diff_table_output;
 	}
 
 	/**
