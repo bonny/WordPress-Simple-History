@@ -214,7 +214,9 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 ### n.n.n Unreleased
 
 - Fix missing translation in sidebar. [#417](https://github.com/bonny/WordPress-Simple-History/issues/417).
-- Fix 'Activated plugin "{plugin_name}"' message after db install.
+- Fix 'Activated plugin "{plugin_name}"' message after first install.
+- Fix duplicated plugin installed and activated messages after first install. [#317](https://github.com/bonny/WordPress-Simple-History/issues/317).
+- Show a better and nicer message after install. [#418](https://github.com/bonny/WordPress-Simple-History/issues/418).
 
 ### 4.9.0 (January 2024)
 
