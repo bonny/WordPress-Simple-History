@@ -117,7 +117,6 @@ class Simple_History {
 	 */
 	private function get_services() {
 		return [
-			Services\Language_Loader::class,
 			Services\Setup_Database::class,
 			Services\Scripts_And_Templates::class,
 			Services\Admin_Pages::class,
