@@ -742,13 +742,15 @@ class Simple_History {
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
+		// Get logger for row.
 		// Fallback to SimpleLogger if no logger exists for row.
 		$logger = $this->get_instantiated_logger_by_slug( $row_logger );
+
 		if ( $logger === false ) {
 			$logger = $this->get_instantiated_logger_by_slug( 'Simple_Logger' );
 		}
 
-		// Bail if no logger found.
+		// Bail if no logger found. Can happen when user has disabled all loggers via filter.
 		if ( $logger === false ) {
 			return new Event_Details_Simple_Container();
 		}
@@ -833,12 +835,12 @@ class Simple_History {
 			// $occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 			// $occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
 			// $occasions_html .= sprintf(
-			// 	/* translators: 1 is link to add-on page */
-			// 	__(
-			// 		'Set number of login attempts to store using the <a href="%1$s" class="sh-ExternalLink" target="_blank">Extended Settings add-on</a>.',
-			// 		'simple-history'
-			// 	),
-			// 	'https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin'
+			// * translators: 1 is link to add-on page */
+			// __(
+			// 'Set number of login attempts to store using the <a href="%1$s" class="sh-ExternalLink" target="_blank">Extended Settings add-on</a>.',
+			// 'simple-history'
+			// ),
+			// 'https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin'
 			// );
 			// $occasions_html .= '</p>';
 			// $occasions_html .= '</div>';
