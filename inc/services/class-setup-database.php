@@ -3,10 +3,8 @@
 namespace Simple_History\Services;
 
 use Simple_History\Event_Details\Event_Details_Group;
-use Simple_History\Event_Details\Event_Details_Group_Single_Item_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
-use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
 use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Log_Initiators;
 
@@ -354,7 +352,7 @@ class Setup_Database extends Service {
 			sprintf(
 				/* translators: 1 %s is a link to the add-ons page */
 				__(
-					'Add more features to Simple History using <a href="%1$s" target="_blank">add-ons</a>.',
+					'Extend Simple History with more features using <a href="%1$s" target="_blank">add-ons</a>.',
 					'simple-history'
 				),
 				esc_url( 'https://simple-history.com/add-ons/?utm_source=wpadmin' )
