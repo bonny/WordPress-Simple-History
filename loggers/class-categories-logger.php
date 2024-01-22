@@ -100,6 +100,7 @@ class Categories_Logger extends Logger {
 		$this->info_message(
 			'edited_term',
 			array(
+				'_occasionsID' => self::class . '/' . __FUNCTION__ . '/term_edited',
 				'term_id' => $term_id,
 				'from_term_name' => $from_term_name,
 				'from_term_taxonomy' => $from_term_taxonomy,
@@ -125,7 +126,6 @@ class Categories_Logger extends Logger {
 	 * @param string $taxonomy Taxonomy slug.
 	 */
 	public function on_created_term( $term_id = null, $tt_id = null, $taxonomy = null ) {
-
 		$term = get_term_by( 'id', $term_id, $taxonomy );
 
 		if ( ! $term ) {
@@ -145,6 +145,7 @@ class Categories_Logger extends Logger {
 		$this->info_message(
 			'created_term',
 			array(
+				'_occasionsID' => self::class . '/' . __FUNCTION__ . '/term_created',
 				'term_id' => $term_id,
 				'term_name' => $term_name,
 				'term_taxonomy' => $term_taxonomy,
@@ -179,6 +180,7 @@ class Categories_Logger extends Logger {
 		$this->info_message(
 			'deleted_term',
 			array(
+				'_occasionsID' => self::class . '/' . __FUNCTION__ . '/term_deleted',
 				'term_id' => $term_id,
 				'term_name' => $term_name,
 				'term_taxonomy' => $term_taxonomy,
