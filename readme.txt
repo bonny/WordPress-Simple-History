@@ -213,6 +213,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### n.n.n Unreleased
 
+- Add logging of terms (custom taxonomies and built in tags and categories supproted) added or removed to a post.
 - Group terms that are added, removed, or modified. [#398](https://github.com/bonny/WordPress-Simple-History/issues/398).
 - Remove load_plugin_textdomain() since it's not required for plugins that are translated via https://translate.wordpress.org/. [#419](https://github.com/bonny/WordPress-Simple-History/issues/419).
 - Fix missing translation in sidebar. [#417](https://github.com/bonny/WordPress-Simple-History/issues/417).

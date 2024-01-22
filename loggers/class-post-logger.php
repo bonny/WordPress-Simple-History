@@ -1223,8 +1223,6 @@ class Post_Logger extends Logger {
 										)
 									)
 								);
-							} elseif ( 'terms' == $key_to_diff ) {
-								$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, $key_to_diff );
 							} else {
 								$has_diff_values = true;
 
@@ -1290,6 +1288,10 @@ class Post_Logger extends Logger {
 				</p>
 			";
 			*/
+
+			// Changed terms.
+			$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, 'added' );
+			$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, 'removed' );
 
 			// Changed post thumb/featured image.
 			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
@@ -1421,46 +1423,56 @@ class Post_Logger extends Logger {
 	 * Get the HTML output for context that contains modified post meta.
 	 *
 	 * @param array  $context Context that may contains prev- and new thumb ids.
-	 * @param string $key_to_diff Key to diff.
+	 * @param string $type Type of meta change, "added" or "removed".
 	 * @return string HTML to be used in keyvale table.
 	 */
-	private function get_log_row_details_output_for_post_terms( $context = [], $key_to_diff = '' ) {
-		/*
-		[
-			{
-				"term_id": 7,
-				"name": "A new category",
-				"slug": "a-new-category",
-				"term_taxonomy_id": 7,
-				"taxonomy": "category"
-			},
-		*/
-		$post_terms_added = $context['post_terms_added'] ?? [];
-		$post_terms_removed = $context['post_terms_removed'] ?? [];
+	private function get_log_row_details_output_for_post_terms( $context = [], $type = 'added' ) {
+		$post_terms = json_decode( $context[ "post_terms_{$type}" ] ?? '' ) ?? null;
 
-		$label = __( 'Taxonomies', 'simple-history' );
+		// Bail if no terms.
+		if ( $post_terms === null || sizeof( $post_terms ) === 0 ) {
+			return '';
+		}
 
-		$message = __(
-			'Changed from "{prev_page_template_name}" to "{new_page_template_name}"',
-			'simple-history'
-		);
+		if ( $type === 'added' ) {
+			$label = _n(
+				'Added term',
+				'Added terms',
+				sizeof( $post_terms ),
+				'simple-history'
+			);
+		} else if ( $type === 'removed' ) {
+			$label = _n(
+				'Removed term',
+				'Removed terms',
+				sizeof( $post_terms ),
+				'simple-history'
+			);
+		}
 
-		$diff_table_output = sprintf(
-			'<tr>
-				<td>%1$s</td>
-				<td>%2$s</td>
-			</tr>',
-			$this->label_for( $key_to_diff, $label, $context ),
-			helpers::interpolate(
-				$message,
-				array(
-					'prev_page_template' => '<code>' . esc_html( $prev_page_template ) . '</code>',
-					'new_page_template' => '<code>' . esc_html( $new_page_template ) . '</code>',
-					'prev_page_template_name' => esc_html( $prev_page_template_name ),
-					'new_page_template_name' => esc_html( $new_page_template_name ),
-				)
-			)
-		);
+		$terms_values = [];
+		foreach ( $post_terms as $term ) {
+			$taxonomy_name = get_taxonomy( $term->taxonomy )->labels->singular_name ?? '';
+			$terms_values[] = sprintf(
+				'%1$s (%2$s)',
+				$term->name,
+				$taxonomy_name,
+			);
+		}
+
+			$term_added_values_as_comma_separated_list = wp_sprintf(
+				'%l',
+				$terms_values
+			);
+
+			$diff_table_output = sprintf(
+				'<tr>
+					<td>%1$s</td>
+					<td>%2$s</td>
+				</tr>',
+				esc_html( $label ),
+				esc_html( $term_added_values_as_comma_separated_list ),
+			);
 
 		return $diff_table_output;
 	}
