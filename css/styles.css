@@ -1260,15 +1260,17 @@ a.sh-SettingsTabs-link:hover {
 	vertical-align: text-bottom;
 }
 
-.sh-FeedIntroduction p {
+.sh-FeedIntroduction-row {
+	display: flex;
+	gap: 1em;
 	margin: 0;
 	font-size: 1em;
 }
 
 .sh-FeedIntroduction-emoji {
 	display: block;
-	margin-bottom: 0.25em;
-	font-size: 1.25em;
+	font-size: 1.5em;
+	line-height: 1;
 }
 
 /* .sh-FeedIntroduction-ps {

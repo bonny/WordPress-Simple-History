@@ -316,19 +316,55 @@ class Setup_Database extends Service {
 			return $html;
 		}
 
-		$message = '<div class="sh-FeedIntroduction">'
-		. '<p><span class="sh-FeedIntroduction-emoji">🚀</span>'
-		. __( 'Simple History has been successfully installed on your WordPress site and is active and ready to log important changes on your website', 'simple-history' )
-		. '</p>'
-		 . '<p><span class="sh-FeedIntroduction-emoji">✨</span> '
-		. __( 'As your users work on this site, this feed will contain information about their actions. Page edits, attachment uploads, plugin updates, user logins, site settings changes, and much more will show up in this log.', 'simple-history' )
-		. '</p>'
-		. '<p><span class="sh-FeedIntroduction-emoji">👥</span> '
-		. __( "If you have multiple users working on this website, you'll find Simple History especially useful . It logs events from all users, providing a centralized view of what's happening. This makes it easy for you to see and understand the activities of other users on the same website.", 'simple-history' )
-		. '</p>'
-		. '</div>';
+		/**
+		 * Placeholders:
+		 * 1: Emoji
+		 * 2: Message
+		 */
+		$row_template = '
+			<div class="sh-FeedIntroduction-row">
+				<div><span class="sh-FeedIntroduction-emoji">%1$s</span></div>
+				<div>%2$s</div>
+			</div>
+		';
 
-		$item_table_row_raw_formatter = ( new Event_Details_Item_RAW_Formatter() )->set_html_output( "<p>{$message}</p>" );
+		$message = '<div class="sh-FeedIntroduction">';
+
+		$message .= sprintf(
+			$row_template,
+			'🚀',
+			__( 'Simple History has been successfully installed on your WordPress site and is active and ready to log important changes on your website', 'simple-history' )
+		);
+
+		$message .= sprintf(
+			$row_template,
+			'📝',
+			__( 'As your users work on this site, this feed will contain information about their actions. Page edits, attachment uploads, plugin updates, user logins, site settings changes, and much more will show up in this log.', 'simple-history' )
+		);
+
+		$message .= sprintf(
+			$row_template,
+			'👥',
+			__( "If you have multiple users working on this website, you'll find Simple History especially useful . It logs events from all users, providing a centralized view of what's happening. This makes it easy for you to see and understand the activities of other users on the same website.", 'simple-history' )
+		);
+
+		$message .= sprintf(
+			$row_template,
+			'🌟',
+			sprintf(
+				/* translators: 1 %s is a link to the add-ons page */
+				__(
+					'Add more features to Simple History using <a href="%1$s" target="_blank">add-ons</a>.',
+					'simple-history'
+				),
+				esc_url( 'https://simple-history.com/add-ons/?utm_source=wpadmin' )
+			)
+		);
+
+		// Close sh-FeedIntroduction.
+		$message .= '</div>';
+
+		$item_table_row_raw_formatter = ( new Event_Details_Item_RAW_Formatter() )->set_html_output( $message );
 
 		$welcome_item = ( new Event_Details_Item( 'is_welcome_message' ) )->set_formatter( $item_table_row_raw_formatter );
 
