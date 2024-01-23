@@ -83,10 +83,10 @@ class Post_Logger extends Logger {
 	 *
 	 * Here we can get the old post object.
 	 *
-	 * @param stdClass        $prepared_post An object representing a single post prepared
+	 * @param \stdClass        $prepared_post An object representing a single post prepared
 	 *                                       for inserting or updating the database, i.e. the new updated post.
-	 * @param WP_REST_Request $request       Request object.
-	 * @return stdClass $prepared_post
+	 * @param \WP_REST_Request $request       Request object.
+	 * @return \stdClass $prepared_post
 	 */
 	public function on_rest_pre_insert( $prepared_post, $request ) {
 		// $prepared_post = stdClass Object with new and modified content.
@@ -114,9 +114,9 @@ class Post_Logger extends Logger {
 	 *
 	 * Here we get the updated post, after it is updated in the db.
 	 *
-	 * @param WP_Post         $updated_post     Inserted or updated post object.
-	 * @param WP_REST_Request $request  Request object.
-	 * @param bool            $creating True when creating a post, false when updating.
+	 * @param \WP_Post         $updated_post     Inserted or updated post object.
+	 * @param \WP_REST_Request $request  Request object.
+	 * @param bool             $creating True when creating a post, false when updating.
 	 */
 	public function on_rest_after_insert( $updated_post, $request, $creating ) {
 		$updated_post = get_post( $updated_post->ID );
@@ -645,9 +645,9 @@ class Post_Logger extends Logger {
 	 * because when always enabled it catches a lots of edits made by plugins during cron jobs etc,
 	 * which by definition is not wrong, but perhaps not wanted/annoying.
 	 *
-	 * @param string  $new_status One of auto-draft, inherit, draft, pending, publish, future.
-	 * @param string  $old_status Same as above.
-	 * @param WP_Post $post New updated post.
+	 * @param string   $new_status One of auto-draft, inherit, draft, pending, publish, future.
+	 * @param string   $old_status Same as above.
+	 * @param \WP_Post $post New updated post.
 	 */
 	public function on_transition_post_status( $new_status, $old_status, $post ) {
 		$isRestApiRequest = defined( 'REST_REQUEST' ) && REST_REQUEST;
@@ -1427,6 +1427,11 @@ class Post_Logger extends Logger {
 	 * @return string HTML to be used in keyvale table.
 	 */
 	private function get_log_row_details_output_for_post_terms( $context = [], $type = 'added' ) {
+		// Bail if type is not added or removed.
+		if ( ! in_array( $type, [ 'added', 'removed' ], true ) ) {
+			return '';
+		}
+
 		$post_terms = json_decode( $context[ "post_terms_{$type}" ] ?? '' ) ?? null;
 
 		// Bail if no terms.
@@ -1460,19 +1465,19 @@ class Post_Logger extends Logger {
 			);
 		}
 
-			$term_added_values_as_comma_separated_list = wp_sprintf(
-				'%l',
-				$terms_values
-			);
+		$term_added_values_as_comma_separated_list = wp_sprintf(
+			'%l',
+			$terms_values
+		);
 
-			$diff_table_output = sprintf(
-				'<tr>
-					<td>%1$s</td>
-					<td>%2$s</td>
-				</tr>',
-				esc_html( $label ),
-				esc_html( $term_added_values_as_comma_separated_list ),
-			);
+		$diff_table_output = sprintf(
+			'<tr>
+				<td>%1$s</td>
+				<td>%2$s</td>
+			</tr>',
+			esc_html( $label ),
+			esc_html( $term_added_values_as_comma_separated_list ),
+		);
 
 		return $diff_table_output;
 	}
