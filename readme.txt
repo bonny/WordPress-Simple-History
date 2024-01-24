@@ -211,15 +211,28 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### n.n.n Unreleased
+### 4.10.0 (January 2024)
+
+This version introduces new features and improvements, including an enhanced first experience for new users. For more details and screenshots, check out the [release post](https://simple-history.com/2024/simple-history-4-10-0/).
+
+**Added**
 
 - Add logging of terms (custom taxonomies and built in tags and categories supported) added or removed to a post. [#214](https://github.com/bonny/WordPress-Simple-History/issues/214).
-- Group terms that are added, removed, or modified. [#398](https://github.com/bonny/WordPress-Simple-History/issues/398).
-- Remove load_plugin_textdomain() since it's not required for plugins that are translated via https://translate.wordpress.org/. [#419](https://github.com/bonny/WordPress-Simple-History/issues/419).
-- Fix missing translation in sidebar. [#417](https://github.com/bonny/WordPress-Simple-History/issues/417).
-- Fix 'Activated plugin "{plugin_name}"' message after first install.
-- Fix duplicated plugin installed and activated messages after first install. [#317](https://github.com/bonny/WordPress-Simple-History/issues/317).
-- Show a better and nicer message after install. [#418](https://github.com/bonny/WordPress-Simple-History/issues/418).
+
+**Improved**
+
+- Terms that are added, removed, or modified are now grouped. [#398](https://github.com/bonny/WordPress-Simple-History/issues/398).
+- Show a more user-friendly and informative welcome message after installation. [#418](https://github.com/bonny/WordPress-Simple-History/issues/418).
+
+**Fixed**
+
+- Missing translation in sidebar. [#417](https://github.com/bonny/WordPress-Simple-History/issues/417).
+- 'Activated plugin "{plugin_name}"' message after first install.
+- Duplicated plugin installed and activated messages after first install. [#317](https://github.com/bonny/WordPress-Simple-History/issues/317).
+
+**Removed**
+
+- Remove usage of [load_plugin_textdomain()](https://developer.wordpress.org/reference/functions/load_plugin_textdomain/) since it's not required for plugins that are translated via https://translate.wordpress.org/. [#419](https://github.com/bonny/WordPress-Simple-History/issues/419).
 
 ### 4.9.0 (January 2024)
 
