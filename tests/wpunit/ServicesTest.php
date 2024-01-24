@@ -22,7 +22,6 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 
 		$expected_slugs = [
 			'AddOns_Licences',
-			'Language_Loader',
 			'Setup_Database',
 			'Scripts_And_Templates',
 			'Admin_Pages',
