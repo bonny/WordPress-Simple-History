@@ -5,17 +5,6 @@ namespace Simple_History\Loggers;
 use Simple_History\Helpers;
 
 /**
- * Todo/@HERE
- * - [ ] install and test with ACF again
- *   - Install 5.7.13 and then each save or preview results in 2 or 3 adds to the log.
- *   - The second save saves all the post meta. So it's technically two saves but not for the user.
- *  Both requests have the same HTTP_X_WP_NONCE
- * - [ ] test REST API update from curl or similar
- * - [ ] test REST API from Android/Ios-apps
- * - [ ] Save auto-saves? Not done by user but still done...
- */
-
-/**
  * Logs changes to posts and pages, including custom post types
  */
 class Post_Logger extends Logger {
@@ -122,10 +111,9 @@ class Post_Logger extends Logger {
 		$updated_post = get_post( $updated_post->ID );
 		$post_meta = get_post_custom( $updated_post->ID );
 
-		// TODO: Use ?? operator when PHP 5.6 is minimum requirement, i.e. $old_post = $this->old_post_data[ $updated_post->ID ]['post_data'] ?? null;
-		$old_post = isset( $this->old_post_data[ $updated_post->ID ] ) ? $this->old_post_data[ $updated_post->ID ]['post_data'] : null;
-		$old_post_meta = isset( $this->old_post_data[ $updated_post->ID ] ) ? $this->old_post_data[ $updated_post->ID ]['post_meta'] : null;
-		$old_post_terms = isset( $this->old_post_data[ $updated_post->ID ] ) ? $this->old_post_data[ $updated_post->ID ]['post_terms'] : null;
+		$old_post = $this->old_post_data[ $updated_post->ID ]['post_data'] ?? null;
+		$old_post_meta = $this->old_post_data[ $updated_post->ID ]['post_meta'] ?? null;
+		$old_post_terms = $this->old_post_data[ $updated_post->ID ]['post_terms'] ?? null;
 
 		$args = array(
 			'new_post' => $updated_post,
@@ -662,16 +650,9 @@ class Post_Logger extends Logger {
 			return;
 		}
 
-		// TODO: Change to using ?? operator when PHP 5.6 is minimum requirement, i.e. $old_post = $this->old_post_data[ $post->ID ]['post_data'] ?? null;
-		$old_post = null;
-		$old_post_meta = null;
-		$old_post_terms = null;
-
-		if ( ! empty( $this->old_post_data[ $post->ID ] ) ) {
-			$old_post = $this->old_post_data[ $post->ID ]['post_data'];
-			$old_post_meta = $this->old_post_data[ $post->ID ]['post_meta'];
-			$old_post_terms = $this->old_post_data[ $post->ID ]['post_terms'];
-		}
+		$old_post = $this->old_post_data[ $post->ID ]['post_data'] ?? null;
+		$old_post_meta = $this->old_post_data[ $post->ID ]['post_meta'] ?? null;
+		$old_post_terms = $this->old_post_data[ $post->ID ]['post_terms'] ?? null;
 
 		$args = array(
 			'new_post' => $post,
@@ -913,8 +894,6 @@ class Post_Logger extends Logger {
 		$term_changes['removed'] = array_values( array_udiff( $old_post_terms, $new_post_terms, [ $this, 'compare_terms' ] ) );
 
 		// Add old and new terms to context.
-		// $context['post_prev_terms'] = $old_post_terms;
-		// $context['post_new_terms'] = $new_post_terms;
 		$context['post_terms_added'] = $term_changes['added'];
 		$context['post_terms_removed'] = $term_changes['removed'];
 
