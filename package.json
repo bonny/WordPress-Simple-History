@@ -1,7 +1,7 @@
 {
   "name": "simple-history",
   "version": "4.10.0",
-  "description": "WordPress audit log plugin",
+  "description": "WordPress audit log and history plugin with nice GUI",
   "author": "Pär Thernström",
   "license": "GPL",
   "devDependencies": {
