@@ -215,7 +215,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### Unreleased (february 2024)
 
+Major version because CSV export has changed format?
+
 - Better support for detecting and displaying changes to user roles, including showing the adding or removal of multiple roles. Tested with plugins https://wordpress.org/plugins/members/ and https://wordpress.org/plugins/multiple-roles/. [#424](https://github.com/bonny/WordPress-Simple-History/issues/424).
+
+- User role(s) are included in the CSV and JSON exports. [#423](https://github.com/bonny/WordPress-Simple-History/issues/423).
 
 ### 4.10.0 (January 2024)
 

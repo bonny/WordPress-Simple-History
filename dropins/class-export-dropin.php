@@ -108,6 +108,11 @@ class Export_Dropin extends Dropin {
 						$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
 						$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
 
+						// User roles, at time of export.
+						$user = get_user_by( 'email', $user_email );
+						$user_roles = $user->roles ?? array();
+						$user_roles_comma_separated = implode( ', ', $user_roles );
+
 						fputcsv(
 							$fp,
 							array(
@@ -118,6 +123,7 @@ class Export_Dropin extends Dropin {
 								$this->esc_csv_field( $one_row->context_message_key ),
 								$this->esc_csv_field( $user_email ),
 								$this->esc_csv_field( $user_login ),
+								$this->esc_csv_field( $user_roles_comma_separated ),
 								$this->esc_csv_field( $header_output ),
 								$this->esc_csv_field( $message_output ),
 								// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
