@@ -58,6 +58,11 @@ class User_Logger extends Logger {
 					'User destroys all login sessions for a user',
 					'simple-history'
 				),
+				'user_role_updated' => _x(
+					'Changed role for user "{edited_user_login}" to "{new_role}" from "{old_role}"',
+					'User updates the role for a user',
+					'simple-history'
+				),
 				'user_admin_email_confirm_correct_clicked' => _x(
 					'Verified that administration email for website is correct',
 					'User clicks confirm admin email on admin email confirm screen',
@@ -134,6 +139,9 @@ class User_Logger extends Logger {
 						_x( 'User profile updates', 'User logger: search', 'simple-history' ) => array(
 							'user_updated_profile',
 						),
+						_x( 'User role changes', 'User logger: search', 'simple-history' ) => array(
+							'user_role_updated',
+						),
 						_x( 'User deletions', 'User logger: search', 'simple-history' ) => array(
 							'user_deleted',
 						),
@@ -188,6 +196,8 @@ class User_Logger extends Logger {
 		// Commit changes to user profile. Run on hook with higher prio, so other plugins,
 		// for example the "Members" plugin for roles, can modify user data before we commit.
 		add_action( 'profile_update', [ $this, 'on_profile_update_commit' ], 50, 1 );
+
+		add_action( 'set_user_role', array( $this, 'on_set_user_role_on_admin_overview_screen' ), 10, 3 );
 
 		// Administration email verification-screen.
 		add_action( 'login_form_confirm_admin_email', array( $this, 'on_action_login_form_confirm_admin_email' ) );
@@ -258,6 +268,43 @@ class User_Logger extends Logger {
 			)
 		);
 	}
+
+	/**
+	 * Fires after the user's role has changed,
+	 * used when quick editing a user on the user admin overview screen.
+	 *
+	 * @param int      $user_id   The user ID.
+	 * @param string   $role      The new role.
+	 * @param string[] $old_roles An array of the user's previous roles.
+	 */
+	public function on_set_user_role_on_admin_overview_screen( $user_id, $role, $old_roles ) {
+		$current_screen = helpers::get_current_screen();
+
+		// Bail if we are not on the users screen.
+		if ( $current_screen->id !== 'users' ) {
+			return;
+		}
+
+		$changed_user = get_user_by( 'ID', $user_id );
+
+		if ( ! is_array( $old_roles ) ) {
+			$old_roles = array();
+		}
+
+		$old_role = (string) reset( $old_roles );
+
+		$this->notice_message(
+			'user_role_updated',
+			array(
+				'edited_user_id' => $user_id,
+				'edited_user_email' => $changed_user->user_email,
+				'edited_user_login' => $changed_user->user_login,
+				'new_role' => $role,
+				'old_role' => $old_role,
+			)
+		);
+	}
+
 
 	/**
 	 * Log when user confirms that admin email is correct.
