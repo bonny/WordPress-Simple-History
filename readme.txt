@@ -34,6 +34,8 @@ Out of the box Simple History has support for:
 
 - **User logins** – see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
 
+- **User edits** – see when a user is added, updated or removed, and get detailed information about the changes made to the user.
+
 - **Failed user logins** – see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
 
 - **Menu edits**
@@ -210,6 +212,10 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 ## Changelog
+
+### Unreleased (february 2024)
+
+- Better support for detecting and displaying changes to user roles, including showing the adding or removal of multiple roles. Tested with plugins https://wordpress.org/plugins/members/ and https://wordpress.org/plugins/multiple-roles/. [#424](https://github.com/bonny/WordPress-Simple-History/issues/424).
 
 ### 4.10.0 (January 2024)
 
