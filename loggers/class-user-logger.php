@@ -188,7 +188,6 @@ class User_Logger extends Logger {
 		// Commit changes to user profile. Run on hook with higher prio, so other plugins,
 		// for example the "Members" plugin for roles, can modify user data before we commit.
 		add_action( 'profile_update', [ $this, 'on_profile_update_commit' ], 50, 1 );
-		add_action( 'user_register', [ $this, 'on_profile_update_commit' ], 50, 1 );
 
 		// Administration email verification-screen.
 		add_action( 'login_form_confirm_admin_email', array( $this, 'on_action_login_form_confirm_admin_email' ) );
@@ -333,7 +332,7 @@ class User_Logger extends Logger {
 	 * @param array    $userdata The raw array of data passed to wp_insert_user().
 	 */
 	public function on_pre_insert_user_data_collect( $data, $update, $user_id, $userdata = array() ) {
-		// Bail if this is not a user update.
+		// Bail if this is not a user update, i.e. only collect for user edits.
 		if ( ! $update ) {
 			return $data;
 		}
