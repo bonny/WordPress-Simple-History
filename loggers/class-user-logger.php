@@ -290,15 +290,16 @@ class User_Logger extends Logger {
 		$user = get_user_by( 'ID', $user_id );
 
 		// Get new roles, to detect changes.
-		$new_roles = $user->roles;
-		$context['user_new_roles'] = $new_roles;
+		$context['user_new_roles'] = (array) $user->roles;
 
-		$added_roles = array_values( array_diff( $context['user_new_roles'], $context['user_prev_roles'] ) );
+		$prev_roles = $context['user_prev_roles'] ?? [];
+
+		$added_roles = array_values( array_diff( $context['user_new_roles'], $prev_roles ) );
 		if ( $added_roles ) {
 			$context['user_added_roles'] = $added_roles;
 		}
 
-		$removed_roles = array_values( array_diff( $context['user_prev_roles'], $context['user_new_roles'] ) );
+		$removed_roles = array_values( array_diff( $prev_roles, $context['user_new_roles'] ) );
 		if ( $removed_roles ) {
 			$context['user_removed_roles'] = $removed_roles;
 		}
@@ -401,7 +402,7 @@ class User_Logger extends Logger {
 				$context[ "user_new_{$one_diff_key}" ] = $one_diff_vals['new'];
 		}
 
-		$context['user_prev_roles'] = $user_before_update->roles;
+		$context['user_prev_roles'] = (array) $user_before_update->roles;
 
 		// Store in private var to retrieve in later hook.
 		$this->user_profile_update_modified_context = $context;
