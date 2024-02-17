@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, log, changes, changelog, audit, audit log, event log, user tracking, trail, pages, attachments, users, dashboard, admin, syslog, feed, activity, stream, audit trail, brute-force
 Tested up to: 6.4
-Stable tag: 4.10.0
+Stable tag: 4.11.0
 
 View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
 
@@ -213,7 +213,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased (february 2024)
+### 4.11.0 (unreleased february 2024)
 
 Major version because CSV export has changed format?
 
