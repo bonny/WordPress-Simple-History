@@ -213,15 +213,15 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### 4.11.0 (unreleased february 2024)
+### 4.11.0 (february 2024)
 
-Major version because CSV export has changed format?
+This version introduces improved user role support and enhanced export functionality. For more details and screenshots, check out the [release post](https://simple-history.com/2024/simple-history-4-11-0/).
 
-- Better support for detecting and displaying changes to user roles, including showing the adding or removal of multiple roles. Tested with plugins https://wordpress.org/plugins/members/ and https://wordpress.org/plugins/multiple-roles/. [#424](https://github.com/bonny/WordPress-Simple-History/issues/424).
+**Added**
 
-- User role(s) are included in the CSV and JSON exports. [#423](https://github.com/bonny/WordPress-Simple-History/issues/423).
-
-- Add date with current timezone to CSV export, in addition the the existing GMT date. [#422](https://github.com/bonny/WordPress-Simple-History/issues/422).
+- Improved support for detecting and displaying changes to user role(s), including showing the adding and removal of multiple roles. This improvement is tested with the [Member](https://wordpress.org/plugins/members/) plugin and the [Multiple Roles](https://wordpress.org/plugins/multiple-roles/) plugin. [#424](https://github.com/bonny/WordPress-Simple-History/issues/424).
+- Column with user role(s) are included in the CSV and JSON exports. [#423](https://github.com/bonny/WordPress-Simple-History/issues/423).
+- Column with event date based on current timezone added to CSV export, in addition the the existing GMT date. [#422](https://github.com/bonny/WordPress-Simple-History/issues/422).
 
 ### 4.10.0 (January 2024)
 
