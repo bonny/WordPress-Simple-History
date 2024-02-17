@@ -913,6 +913,12 @@ class Post_Logger extends Logger {
 		return apply_filters( 'simple_history/post_logger/context', $context, $old_data, $new_data, $old_meta, $new_meta );
 	}
 
+	/**
+	 * Compare function for terms to check terms by id.
+	 *
+	 * @param array $a Term A.
+	 * @param array $b Term B.
+	 */
 	private function compare_terms( $a, $b ) {
 		return $a['term_id'] <=> $b['term_id'];
 	}
