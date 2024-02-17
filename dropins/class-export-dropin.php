@@ -113,10 +113,14 @@ class Export_Dropin extends Dropin {
 						$user_roles = $user->roles ?? array();
 						$user_roles_comma_separated = implode( ', ', $user_roles );
 
+						// Date local time.
+						$date_local = wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
+
 						fputcsv(
 							$fp,
 							array(
 								$this->esc_csv_field( $one_row->date ),
+								$this->esc_csv_field( $date_local ),
 								$this->esc_csv_field( $one_row->logger ),
 								$this->esc_csv_field( $one_row->level ),
 								$this->esc_csv_field( $one_row->initiator ),

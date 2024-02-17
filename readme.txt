@@ -221,6 +221,8 @@ Major version because CSV export has changed format?
 
 - User role(s) are included in the CSV and JSON exports. [#423](https://github.com/bonny/WordPress-Simple-History/issues/423).
 
+- Add date with current timezone to CSV export, in addition the the existing GMT date. [#422](https://github.com/bonny/WordPress-Simple-History/issues/422).
+
 ### 4.10.0 (January 2024)
 
 This version introduces new features and improvements, including an enhanced first experience for new users. For more details and screenshots, check out the [release post](https://simple-history.com/2024/simple-history-4-10-0/).
