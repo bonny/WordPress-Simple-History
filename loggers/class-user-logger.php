@@ -403,7 +403,7 @@ class User_Logger extends Logger {
 
 		$context['user_prev_roles'] = $user_before_update->roles;
 
-		// Store in private var to retrive in later hook.
+		// Store in private var to retrieve in later hook.
 		$this->user_profile_update_modified_context = $context;
 
 		return $data;
