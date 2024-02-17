@@ -43,8 +43,8 @@ class Translations_Logger extends Logger {
 	 * Called when a translation is updated.
 	 * This is called from the upgrader_process_complete hook.
 	 *
-	 * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
-	 * @param array        $options  Array of bulk item update arguments.
+	 * @param \WP_Upgrader|\Language_Pack_Upgrader $upgrader The WP_Upgrader instance.
+	 * @param array                                $options  Array of bulk item update arguments.
 	 */
 	public function on_upgrader_process_complete( $upgrader, $options ) {
 

@@ -914,7 +914,6 @@ abstract class Logger {
 	 *
 	 * @param string $message key from get_info messages array.
 	 * @param array  $context Context to log.
-	 * @return null
 	 */
 	public function critical_message( $message, array $context = array() ) {
 		if ( ! isset( $this->messages[ $message ]['untranslated_text'] ) ) {
@@ -933,7 +932,6 @@ abstract class Logger {
 	 *
 	 * @param string $message Message to log.
 	 * @param array  $context Context to log.
-	 * @return null
 	 */
 	public function error( $message, array $context = array() ) {
 		return $this->log( Log_Levels::ERROR, $message, $context );

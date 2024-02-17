@@ -507,7 +507,7 @@ class Comments_Logger extends Logger {
 		}
 
 		// since 2.5.5: no more logging of spam comments.
-		if ( isset( $comment_approved ) && 'spam' === $comment_approved ) {
+		if ( 'spam' === $comment_approved ) {
 			return;
 		}
 

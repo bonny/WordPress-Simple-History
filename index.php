@@ -71,8 +71,6 @@ define( 'SIMPLE_HISTORY_FILE', __FILE__ );
  * The API URL to check for updates.
  * This should be unique to this plugin and point to a remote server
  * running the Lemon Squeezy plugin.
- *
- * @var string
  */
 define( 'SIMPLE_HISTORY_LICENCES_API_URL', 'https://simple-history.com/wp-json/lsq/v1' );
 

@@ -534,10 +534,10 @@ class Setup_Settings_Page extends Service {
 				} else {
 					echo esc_html(
 						sprintf(
-							'Function not found for sub tab "%1$s".',
+							/* translators: %s is the slug of the sub tab */
+							__( 'Function not found for sub tab "%1$s".', 'simple-history' ),
 							$active_sub_tab['slug']
-						),
-						'simple-history-plus'
+						)
 					);
 				}
 			}

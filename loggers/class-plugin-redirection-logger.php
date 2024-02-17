@@ -326,7 +326,7 @@ class Plugin_Redirection_Logger extends Logger {
 	/**
 	 * Log when a Redirection is added.
 	 *
-	 * @param WP_REST_Request $req Request.
+	 * @param \WP_REST_Request $req Request.
 	 */
 	protected function log_redirection_add( $req ) {
 		$action_data = $req->get_param( 'action_data' );
@@ -346,7 +346,7 @@ class Plugin_Redirection_Logger extends Logger {
 	/**
 	 * Log when a Redirection is changed.
 	 *
-	 * @param WP_REST_Request $req Request.
+	 * @param \WP_REST_Request $req Request.
 	 */
 	protected function log_redirection_edit( $req ) {
 		$action_data = $req->get_param( 'action_data' );

@@ -162,7 +162,7 @@ class RSS_Dropin extends Dropin {
 		/**
 		 * Filters the text for the RSS enable checkbox.
 		 *
-		 * @var string $rss_section_title
+		 * @var string $enable_rss_text
 		 */
 		$enable_rss_text = apply_filters(
 			'simple_history/feeds/enable_feeds_checkbox_text',
@@ -487,7 +487,7 @@ class RSS_Dropin extends Dropin {
 		/**
 		 * Fires after the RSS address has been output.
 		 *
-		 * @param RSS_Dropin $this
+		 * @param RSS_Dropin $instance
 		 */
 		do_action( 'simple_history/feeds/after_address', $this );
 	}

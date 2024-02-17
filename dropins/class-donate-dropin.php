@@ -21,7 +21,7 @@ class Donate_Dropin extends Dropin {
 	public function loaded() {
 		// Prio 50 so it's added after the built in settings.
 		add_action( 'admin_menu', array( $this, 'add_settings' ), 50 );
-		add_action( 'plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2 );
+		add_filter( 'plugin_row_meta', array( $this, 'action_plugin_row_meta' ), 10, 2 );
 		add_filter( 'admin_footer_text', array( $this, 'filter_admin_footer_text' ), 10, 1 );
 	}
 

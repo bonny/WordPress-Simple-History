@@ -96,7 +96,7 @@ class Available_Updates_Logger extends Logger {
 		}
 
 		// is WP core update available?
-		if ( 'upgrade' == $updates->updates[0]->response ) {
+		if ( isset( $updates->updates[0]->response ) && 'upgrade' == $updates->updates[0]->response ) {
 			$this->notice_message(
 				'core_update_available',
 				array(

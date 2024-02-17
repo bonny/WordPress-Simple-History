@@ -3,11 +3,11 @@
 namespace Simple_History;
 
 /**
- * @var Setup_Settings_Page $this
+ * @var Services\Setup_Settings_Page $this
  */
 defined( 'ABSPATH' ) || die();
 
-$pager_size = $this->simple_history->get_pager_size();
+$pager_size = Helpers::get_pager_size();
 
 /**
  * Filter the pager size setting for the settings page

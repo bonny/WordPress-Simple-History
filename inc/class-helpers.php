@@ -1157,6 +1157,8 @@ class Helpers {
 
 			$db_engine = Log_Query::get_db_engine();
 
+			$sql = null;
+
 			if ( $db_engine === 'mysql' ) {
 				$sql = sprintf(
 					'
