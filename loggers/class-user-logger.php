@@ -39,7 +39,7 @@ class User_Logger extends Logger {
 					'simple-history'
 				),
 				'user_created' => __(
-					'Created user {created_user_login} ({created_user_email}) with role {created_user_role}',
+					'Created user {created_user_login} ({created_user_email})',
 					'simple-history'
 				),
 				'user_deleted' => __( 'Deleted user {deleted_user_login} ({deleted_user_email})', 'simple-history' ),
@@ -646,7 +646,7 @@ class User_Logger extends Logger {
 
 				// User that is viewing the log is the same as the edited user.
 				$msg = __(
-					'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}',
+					'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a>',
 					'simple-history'
 				);
 
@@ -741,11 +741,12 @@ class User_Logger extends Logger {
 		// So at this time we can't get the role of the user, if on a subsite.
 		// Use value from $_POST instead.
 		if ( is_multisite() ) {
-      // PHPCS:ignore WordPress.Security.NonceVerification.Missing
+      		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
 			$role = sanitize_title( wp_unslash( $_POST['role'] ?? '' ) );
+			$roles = array( $role );
 		} elseif ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
 			// Single site, get role from user object.
-			$role = $wp_user_added->roles[0];
+			$roles = $wp_user_added->roles;
 		}
 
 		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
@@ -755,10 +756,10 @@ class User_Logger extends Logger {
 			'created_user_id' => $wp_user_added->ID,
 			'created_user_email' => $wp_user_added->user_email,
 			'created_user_login' => $wp_user_added->user_login,
-			'created_user_role' => $role,
 			'created_user_first_name' => $wp_user_added->first_name,
 			'created_user_last_name' => $wp_user_added->last_name,
 			'created_user_url' => $wp_user_added->user_url,
+			'created_user_roles' => $roles,
 			'send_user_notification' => $send_user_notification,
 			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
 		);
@@ -1035,6 +1036,9 @@ class User_Logger extends Logger {
 		} elseif ( 'user_created' == $message_key ) {
 			// Show fields for created users.
 			$arr_user_keys_to_show_diff_for = array(
+				'created_user_roles' => array(
+					'title' => _x( 'Role', 'User logger', 'simple-history' ),
+				),
 				'created_user_first_name' => array(
 					'title' => _x( 'First name', 'User logger', 'simple-history' ),
 				),
@@ -1075,6 +1079,17 @@ class User_Logger extends Logger {
 								)
 							);
 						}
+					} else if ( 'created_user_roles' == $key ) {
+						$added_roles = json_decode( $context['created_user_roles'] );
+						$diff_table_output .= sprintf(
+							'<tr>
+                                <td>%1$s</td>
+                                <td>%2$s</td>
+                            </tr>',
+							$val['title'],
+							wp_sprintf_l( '%l', $added_roles )
+						);
+
 					} else {
 						$diff_table_output .= sprintf(
 							'<tr>
@@ -1087,9 +1102,9 @@ class User_Logger extends Logger {
 								esc_html( $context[ $key ] ) // 1
 							)
 						);
-					}// End if().
-				}// End if().
-			}// End foreach().
+					} // End if().
+				} // End if().
+			} // End foreach().
 		} // End if().
 
 		// Common for both modified and added users.
