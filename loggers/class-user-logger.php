@@ -644,11 +644,17 @@ class User_Logger extends Logger {
 			if ( $wp_user ) {
 				$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
 
-				// User that is viewing the log is the same as the edited user.
 				$msg = __(
-					'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a>',
+					'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_roles}',
 					'simple-history'
 				);
+
+				if ( isset( $context['created_user_role'] ) ) {
+					// Fallback to old message, that does not support multiple roles. Changed in 4.11.0 to support multiple roles.
+					$context['created_user_roles'] = $context['created_user_role'];
+				} else {
+					$context['created_user_roles'] = isset( $context['created_user_roles'] ) ? wp_sprintf_l( '%l', json_decode( $context['created_user_roles'] ) ) : '';
+				}
 
 				$output = helpers::interpolate(
 					$msg,
