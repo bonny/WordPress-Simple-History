@@ -258,6 +258,11 @@ class Export_Dropin extends Dropin {
 	 * @return string
 	 */
 	public function esc_csv_field( $field ) {
+		// Bail if not string.
+		if ( ! is_string( $field ) ) {
+			return '';
+		}
+
 		$active_content_triggers = array( '=', '+', '-', '@' );
 
 		if ( in_array( substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
