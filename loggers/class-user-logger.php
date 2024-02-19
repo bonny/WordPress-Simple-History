@@ -39,7 +39,7 @@ class User_Logger extends Logger {
 					'simple-history'
 				),
 				'user_created' => __(
-					'Created user {created_user_login} ({created_user_email})',
+					'Created user {created_user_login} ({created_user_email}) with role {created_user_role}',
 					'simple-history'
 				),
 				'user_deleted' => __( 'Deleted user {deleted_user_login} ({deleted_user_email})', 'simple-history' ),
@@ -342,12 +342,14 @@ class User_Logger extends Logger {
 
 		$added_roles = array_values( array_diff( $context['user_new_roles'], $prev_roles ) );
 		if ( $added_roles ) {
-			$context['user_added_roles'] = $added_roles;
+			// Comma separated list of added roles.
+			$context['user_added_roles'] = implode( ', ', $added_roles );
 		}
 
 		$removed_roles = array_values( array_diff( $prev_roles, $context['user_new_roles'] ) );
 		if ( $removed_roles ) {
-			$context['user_removed_roles'] = $removed_roles;
+			// Comma separated list of removed roles.
+			$context['user_removed_roles'] = implode( ', ', $removed_roles );
 		}
 
 		// Remove keys used for diff.
@@ -569,20 +571,13 @@ class User_Logger extends Logger {
 	 *                           Default null, for no reassignment.
 	 */
 	public function onDeleteUser( $user_id, $reassign ) {
-
 		$wp_user_to_delete = get_userdata( $user_id );
-
-		// wp_user->roles (array) - the roles the user is part of.
-		$role = null;
-		if ( is_array( $wp_user_to_delete->roles ) && ! empty( $wp_user_to_delete->roles[0] ) ) {
-			$role = $wp_user_to_delete->roles[0];
-		}
 
 		$context = array(
 			'deleted_user_id' => $wp_user_to_delete->ID,
 			'deleted_user_email' => $wp_user_to_delete->user_email,
 			'deleted_user_login' => $wp_user_to_delete->user_login,
-			'deleted_user_role' => $role,
+			'deleted_user_role' => implode( ', ', $wp_user_to_delete->roles ),
 			'reassign_user_id' => $reassign,
 			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
 		);
@@ -639,22 +634,13 @@ class User_Logger extends Logger {
 			// A user was created. Create link of username that goes to user profile.
 			$wp_user = get_user_by( 'id', $context['created_user_id'] );
 
-			// If edited_user_id and _user_id is the same then a user edited their own profile
-			// Note: it's not the same thing as the currently logged in user (but.. it can be!).
 			if ( $wp_user ) {
 				$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
 
 				$msg = __(
-					'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_roles}',
+					'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}',
 					'simple-history'
 				);
-
-				if ( isset( $context['created_user_role'] ) ) {
-					// Fallback to old message, that does not support multiple roles. Changed in 4.11.0 to support multiple roles.
-					$context['created_user_roles'] = $context['created_user_role'];
-				} else {
-					$context['created_user_roles'] = isset( $context['created_user_roles'] ) ? wp_sprintf_l( '%l', json_decode( $context['created_user_roles'] ) ) : '';
-				}
 
 				$output = helpers::interpolate(
 					$msg,
@@ -765,7 +751,7 @@ class User_Logger extends Logger {
 			'created_user_first_name' => $wp_user_added->first_name,
 			'created_user_last_name' => $wp_user_added->last_name,
 			'created_user_url' => $wp_user_added->user_url,
-			'created_user_roles' => $roles,
+			'created_user_role' => implode( ', ', $roles ),
 			'send_user_notification' => $send_user_notification,
 			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
 		);
@@ -1042,7 +1028,7 @@ class User_Logger extends Logger {
 		} elseif ( 'user_created' == $message_key ) {
 			// Show fields for created users.
 			$arr_user_keys_to_show_diff_for = array(
-				'created_user_roles' => array(
+				'created_user_role' => array(
 					'title' => _x( 'Role', 'User logger', 'simple-history' ),
 				),
 				'created_user_first_name' => array(
@@ -1085,17 +1071,6 @@ class User_Logger extends Logger {
 								)
 							);
 						}
-					} else if ( 'created_user_roles' == $key ) {
-						$added_roles = json_decode( $context['created_user_roles'] );
-						$diff_table_output .= sprintf(
-							'<tr>
-                                <td>%1$s</td>
-                                <td>%2$s</td>
-                            </tr>',
-							$val['title'],
-							wp_sprintf_l( '%l', $added_roles )
-						);
-
 					} else {
 						$diff_table_output .= sprintf(
 							'<tr>
@@ -1115,7 +1090,6 @@ class User_Logger extends Logger {
 
 		// Common for both modified and added users.
 		if ( isset( $context['user_added_roles'] ) ) {
-			$added_roles = json_decode( $context['user_added_roles'] );
 			$diff_table_output .= sprintf(
 				'
 					<tr>
@@ -1123,13 +1097,12 @@ class User_Logger extends Logger {
 						<td>%2$s</td>
 					</tr>
 				',
-				_n( 'Role added', 'Roles added', count( $added_roles ), 'simple-history' ),
-				wp_sprintf_l( '%l', $added_roles )
+				__( 'Role added', 'simple-history' ),
+				esc_html( $context['user_added_roles'] )
 			);
 		}
 
 		if ( isset( $context['user_removed_roles'] ) ) {
-			$added_roles = json_decode( $context['user_removed_roles'] );
 			$diff_table_output .= sprintf(
 				'
 					<tr>
@@ -1137,8 +1110,8 @@ class User_Logger extends Logger {
 						<td>%2$s</td>
 					</tr>
 				',
-				_n( 'Role removed', 'Roles removed', count( $added_roles ), 'simple-history' ),
-				wp_sprintf_l( '%l', $added_roles )
+				__( 'Role removed', 'simple-history' ),
+				esc_html( $context['user_removed_roles'] )
 			);
 		}
 
