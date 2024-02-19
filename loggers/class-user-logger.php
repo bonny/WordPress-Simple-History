@@ -12,7 +12,7 @@ class User_Logger extends Logger {
 	/** @var string Logger slug */
 	public $slug = 'SimpleUserLogger';
 
-	/** @var array Context for modified user. */
+	/** @var array<id,array> Context for modified user. */
 	private $user_profile_update_modified_context = [];
 
 	/** @inheritDoc */
@@ -332,11 +332,13 @@ class User_Logger extends Logger {
 	 * @param int $user_id ID of the user that was created or updated.
 	 */
 	public function on_profile_update_commit( $user_id ) {
-		$context = $this->user_profile_update_modified_context;
+		$context = $this->user_profile_update_modified_context[ $user_id ] ?? null;
+
 		// Bail if we don't have any context.
 		if ( ! $context ) {
 			return;
 		}
+
 		$user = get_user_by( 'ID', $user_id );
 
 		// Get new roles, to detect changes.
@@ -456,8 +458,8 @@ class User_Logger extends Logger {
 
 		$context['user_prev_roles'] = (array) $user_before_update->roles;
 
-		// Store in private var to retrieve in later hook.
-		$this->user_profile_update_modified_context = $context;
+		// Store in private var to retrieve in commit function.
+		$this->user_profile_update_modified_context[ $user_id ] = $context;
 
 		return $data;
 	}
