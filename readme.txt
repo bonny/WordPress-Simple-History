@@ -223,6 +223,10 @@ This version introduces improved user role support and enhanced export functiona
 - Column with user role(s) are included in the CSV and JSON exports. [#423](https://github.com/bonny/WordPress-Simple-History/issues/423).
 - Column with event date based on current timezone added to CSV export, in addition the the existing GMT date. [#422](https://github.com/bonny/WordPress-Simple-History/issues/422).
 
+**Fixed**
+
+- Ensure only strings are escaped in csv export. [#426](https://github.com/bonny/WordPress-Simple-History/issues/426).
+
 ### 4.10.0 (January 2024)
 
 This version introduces new features and improvements, including an enhanced first experience for new users. For more details and screenshots, check out the [release post](https://simple-history.com/2024/simple-history-4-10-0/).
