@@ -57,6 +57,7 @@ services:
 
   php-cli:
     image: dockette/ci:php${PHP_CLI_VERSION:-74}
+    init: true
     container_name: simple-history-php-cli
     environment:
       WORDPRESS_DB_HOST: db
