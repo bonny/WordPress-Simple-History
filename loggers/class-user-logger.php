@@ -333,6 +333,10 @@ class User_Logger extends Logger {
 	 */
 	public function on_profile_update_commit( $user_id ) {
 		$context = $this->user_profile_update_modified_context;
+		// Bail if we don't have any context.
+		if ( ! $context ) {
+			return;
+		}
 		$user = get_user_by( 'ID', $user_id );
 
 		// Get new roles, to detect changes.
