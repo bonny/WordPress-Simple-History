@@ -11,8 +11,6 @@ class Theme_Logger extends Logger {
 	/** @var string Logger slug */
 	public $slug = 'SimpleThemeLogger';
 
-	/** @var array<string> When switching themes, this will contain info about the theme we are switching from. */
-	private ?array $prev_theme_data = null;
 
 	/**
 	 * Used to collect information about a theme before it is deleted.
@@ -95,10 +93,10 @@ class Theme_Logger extends Logger {
 		 * Fires after the theme is switched.
 		 *
 		 * @param string   $new_name  Name of the new theme.
-		 * @param WP_Theme $new_theme WP_Theme instance of the new theme.
+		 * @param \WP_Theme $new_theme WP_Theme instance of the new theme.
+		 * @param \WP_Theme $old_theme WP_Theme instance of the old theme.
 		 */
-		add_action( 'switch_theme', array( $this, 'on_switch_theme' ), 10, 2 );
-		add_action( 'load-themes.php', array( $this, 'on_page_load_themes' ) );
+		add_action( 'switch_theme', array( $this, 'on_switch_theme' ), 10, 3 );
 
 		add_action( 'customize_save', array( $this, 'on_action_customize_save' ) );
 
@@ -414,53 +412,20 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
-	 * When a new theme is about to get switched to
-	 * we save info about the old one
-	 *
-	 * Request looks like:
-	 *  Array
-	 *  (
-	 *    [action] => activate
-	 *    [stylesheet] => wp-theme-bonny-starter
-	 *    [_wpnonce] => ...
-	 *  )
-	 *
-	 * @return void
-	 */
-	public function on_page_load_themes() {
-
-		if ( ! isset( $_GET['action'] ) || $_GET['action'] != 'activate' ) {
-			return;
-		}
-
-		// Get current theme / the theme we are switching from.
-		$current_theme = wp_get_theme();
-
-		if ( ! is_a( $current_theme, 'WP_Theme' ) ) {
-			return;
-		}
-
-		$this->prev_theme_data = array(
-			'name' => $current_theme->name,
-			'version' => $current_theme->version,
-		);
-	}
-
-	/**
 	 * @param string    $new_name  Name of the new theme.
 	 * @param \WP_Theme $new_theme WP_Theme instance of the new theme.
+	 * @param \WP_Theme $old_theme WP_Theme instance of the old theme.
 	 * @return void
 	 */
-	public function on_switch_theme( $new_name, $new_theme ) {
-		$prev_theme_data = $this->prev_theme_data;
+	public function on_switch_theme( $new_name, $new_theme, $old_theme ) {
 
 		$this->info_message(
 			'theme_switched',
 			array(
 				'theme_name' => $new_name,
 				'theme_version' => $new_theme->version,
-				'prev_theme_name' => $prev_theme_data['name'],
-				'prev_theme_version' => $prev_theme_data['version'],
+				'prev_theme_name' => $old_theme->name ?? null,
+				'prev_theme_version' => $old_theme->version ?? null,
 			)
 		);
 	}
