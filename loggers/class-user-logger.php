@@ -12,7 +12,7 @@ class User_Logger extends Logger {
 	/** @var string Logger slug */
 	public $slug = 'SimpleUserLogger';
 
-	/** @var array<id,array> Context for modified user. */
+	/** @var array<int,array> Context for modified user. */
 	private $user_profile_update_modified_context = [];
 
 	/** @inheritDoc */
@@ -732,7 +732,9 @@ class User_Logger extends Logger {
 		}
 
 		$wp_user_added = get_userdata( $user_id );
+
 		$role = '';
+		$roles = [];
 
 		// On a subsite of a multisite network,
 		// newly created users have no roles or caps until they are added to a blog.
