@@ -1288,7 +1288,7 @@ class Log_Query {
 				}
 
 				$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
-				$sql_logger_messages_in = "\n AND c1.value IN ({$sql_logger_messages_in}) ";
+				$sql_logger_messages_in = "\n AND context_message_key IN ({$sql_logger_messages_in}) ";
 
 				$sql_messages_where .= sprintf(
 					'

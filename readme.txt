@@ -215,8 +215,9 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ### n.n.n. (unreleased)
 
-- Fix for php notice when user has no roles. [Fix #429](https://github.com/bonny/WordPress-Simple-History/issues/429).
-- Fix for logging theme switch if done via WP CLI. 
+- Fix for message type search/filter not working. [#428](https://github.com/bonny/WordPress-Simple-History/issues/428)
+- Fix for php notice when user has no roles. [#429](https://github.com/bonny/WordPress-Simple-History/issues/429).
+- Fix for logging theme switch if done via WP CLI.
 
 ### 4.11.0 (february 2024)
 
