@@ -213,7 +213,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### 4.12.0 (februari 2024)
+### 4.12.0 (Februari 2024)
 
 **Added**
 
@@ -224,7 +224,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 - Message type search/filter not working. [#428](https://github.com/bonny/WordPress-Simple-History/issues/428)
 - PHP notice when user has no roles. [#429](https://github.com/bonny/WordPress-Simple-History/issues/429).
 
-### 4.11.0 (february 2024)
+### 4.11.0 (February 2024)
 
 This version introduces improved user role support and enhanced export functionality. For more details and screenshots, check out the [release post](https://simple-history.com/2024/simple-history-4-11-0/).
 
