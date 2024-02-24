@@ -11,7 +11,6 @@ class Theme_Logger extends Logger {
 	/** @var string Logger slug */
 	public $slug = 'SimpleThemeLogger';
 
-
 	/**
 	 * Used to collect information about a theme before it is deleted.
 	 * Theme info is stored with css file as the key.

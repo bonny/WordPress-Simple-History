@@ -213,6 +213,10 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+### n.n.n. (unreleased)
+
+- Fix for logging theme switch if done via WP CLI. 
+
 ### 4.11.0 (february 2024)
 
 This version introduces improved user role support and enhanced export functionality. For more details and screenshots, check out the [release post](https://simple-history.com/2024/simple-history-4-11-0/).
