@@ -1240,4 +1240,13 @@ class Helpers {
 
 		return $numEvents;
 	}
+
+	/**
+	 * Check if the current request is a request made from WP CLI.
+	 *
+	 * @return bool
+	 */
+	public static function is_wp_cli() {
+		return defined( 'WP_CLI' ) && WP_CLI;
+	}
 }
