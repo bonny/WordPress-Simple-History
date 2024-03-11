@@ -695,7 +695,7 @@ class Plugin_Logger extends Logger {
 	 *
 	 * @param \Plugin_Upgrader $plugin_upgrader_instance Plugin_Upgrader instance. In other contexts, $this, might
 	 *                                                  be a Theme_Upgrader or Core_Upgrade instance.
-	 * @param array           $arr_data                 Array of bulk item update data.
+	 * @param array            $arr_data                 Array of bulk item update data.
 	 */
 	public function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
 		// Can't use get_plugins() here to get version of plugins updated from
