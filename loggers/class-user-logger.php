@@ -15,6 +15,11 @@ class User_Logger extends Logger {
 	/** @var array<int,array> Context for modified user. */
 	private $user_profile_update_modified_context = [];
 
+	/** @var array Detected WP Cli Changes */
+	private $wp_cli_changes = [
+		'user_roles_added' => [],
+	];
+
 	/** @inheritDoc */
 	public function get_info() {
 
@@ -61,6 +66,11 @@ class User_Logger extends Logger {
 				'user_role_updated' => _x(
 					'Changed role for user "{edited_user_login}" to "{new_role}" from "{old_role}"',
 					'User updates the role for a user',
+					'simple-history'
+				),
+				'user_role_added' => _x(
+					'Added role(s) "{roles}" to user "{edited_user_login}"',
+					'A role is added to a user',
 					'simple-history'
 				),
 				'user_admin_email_confirm_correct_clicked' => _x(
@@ -166,6 +176,97 @@ class User_Logger extends Logger {
 
 		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
 		add_action( 'wp_delete_application_password', array( $this, 'on_action_wp_delete_application_password' ), 10, 2 );
+
+		$this->add_wp_cli_hooks();
+	}
+
+	/**
+	 * Adds hooks for WP CLI.
+	 */
+	private function add_wp_cli_hooks() {
+		if ( ! Helpers::is_wp_cli() ) {
+			return;
+		}
+
+		// Add hooks to collect changes.
+		\WP_CLI::add_hook( 'before_invoke:user add-role', [ $this, 'on_wp_cli_before_invoke_user_add_role_collect' ] );
+
+		// Commit changes when the command has run.
+		\WP_CLI::add_hook( 'after_invoke:user add-role', [ $this, 'on_wp_cli_after_invoke_user_add_role_commit_changes' ] );
+
+		// To detect the full WP CLI command that was run.
+		// TODO: If this works then move to a more general place.
+		// \WP_CLI::add_hook( 'before_run_command', $args, $assoc_args, $options );
+	}
+
+	/**
+	 * Collect user add role changes.
+	 */
+	public function on_wp_cli_before_invoke_user_add_role_collect() {
+		echo "before_invoke:user add-role\n";
+		add_action( 'add_user_role', [ $this, 'on_wp_cli_add_user_role_collect' ], 10, 2 );
+	}
+
+	/**
+	 * Commit changes when functions has run.
+	 */
+	public function on_wp_cli_after_invoke_user_add_role_commit_changes() {
+		echo "after_invoke:user add-role\n";
+
+		// Keyed by user id. Roles as array.
+		$user_roles_added = $this->wp_cli_changes['user_roles_added'];
+
+		foreach ( $user_roles_added as $user_id => $roles ) {
+			$user = get_user_by( 'ID', $user_id );
+
+			$context = [
+				'roles' => implode( ', ', $roles ),
+				'edited_user_id' => $user_id,
+				'edited_user_email' => $user->user_email,
+				'edited_user_login' => $user->user_login,
+			];
+
+			$this->info_message( 'user_role_added', $context );
+		}
+	}
+
+	public function on_wp_cli_add_user_role_commit( $user_id, $role ) {
+	}
+
+	/**
+	 * From WP_CLI this filter is only called when a user role is actually added,
+	 * it is not fired if the user already has the role.
+	 *
+	 * The filter will be called multiple times if multiple roles are added at the same time.
+	 *
+	 * @param mixed $user_id The user ID.
+	 * @param mixed $role The new role.
+	 */
+	public function on_wp_cli_add_user_role_collect( $user_id, $role ) {
+		// Bail if not WP CLI.
+		// Not needed, only fired when WP CLI is used.
+		// if ( ! Helpers::is_wp_cli() ) {
+		// return;
+		// }
+
+		if ( ! isset( $this->wp_cli_changes['user_roles_added'][ $user_id ] ) ) {
+			$this->wp_cli_changes['user_roles_added'][ $user_id ] = [];
+		}
+
+		$this->wp_cli_changes['user_roles_added'][ $user_id ][] = $role;
+		/*
+		$user = get_user_by( 'ID', $user_id );
+
+		$this->info_message(
+			'user_role_updated',
+			array(
+				'edited_user_id' => $user_id,
+				'edited_user_email' => $user->user_email,
+				'edited_user_login' => $user->user_login,
+				'new_role' => $role,
+				'old_role' => '',
+			)
+		); */
 	}
 
 	/**
