@@ -213,6 +213,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
+### unreleased
+
+- Add support for logging when adding or removing user roles via WP-CLI. [WP-CLI 2.10.0 added "Support for adding and removing of multiple user roles"](https://make.wordpress.org/cli/2024/02/08/wp-cli-v2-10-0-release-notes/) and now Simple History supports logging of these events.
+  [#431](https://github.com/bonny/WordPress-Simple-History/issues/431).
+
 ### 4.12.0 (Februari 2024)
 
 **Added**
