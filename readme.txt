@@ -134,12 +134,9 @@ that must be it."_
 
 If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by using the function `SimpleLogger()` like this:
 
-`
-
+```
 <?php
-
 if ( function_exists("SimpleLogger") ) {
-
 		// Most basic example: just add some information to the log
 		SimpleLogger()->info("This is a message sent to the log");
 
@@ -147,19 +144,17 @@ if ( function_exists("SimpleLogger") ) {
 		SimpleLogger()->info("User admin edited page 'About our company'");
 		SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
 		SimpleLogger()->debug("Ok, cron job is running!");
-
 }
 ?>
-
-`
+```
 
 See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/) and how to [query the log](https://simple-history.com/docs/query-api/), and more.
 
-### Translations/Languages
+### Add-ons available
 
-So far Simple History is translated to 17 languages: Chinese (China), Danish, Dutch, Dutch (Belgium), English (US), French (France), German, German (Switzerland), Korean, Polish, Portuguese (Brazil), Russian, Spanish (Colombia), Spanish (Mexico), Spanish (Spain), Spanish (Venezuela), and Swedish.
+**WooCommerce Logger**: Enhance your site's tracking with comprehensive logs for WooCommerce orders, products, settings, and coupons. [Read more](https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin).
 
-If you want to translate Simple History to your language then read about how this is done over at the [Polyglots handbook](https://make.wordpress.org/polyglots/handbook/rosetta/theme-plugin-directories/#translating-themes-plugins).
+**Extended Settings**: Extend the settings of Simple History with more options and settings. [Read more](https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin).
 
 ### Contribute at GitHub
 
@@ -213,10 +208,11 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### unreleased
+### Unreleased
 
-- Add support for logging when adding or removing user roles via WP-CLI. [WP-CLI 2.10.0 added "Support for adding and removing of multiple user roles"](https://make.wordpress.org/cli/2024/02/08/wp-cli-v2-10-0-release-notes/) and now Simple History supports logging of these events.
-  [#431](https://github.com/bonny/WordPress-Simple-History/issues/431).
+🚀 Introducing the WooCommerce Logger Add-On: Enhance your site's tracking with comprehensive logs for WooCommerce orders, products, settings, and coupons. Learn more in our [release post](https://simple-history.com/2024/woocommerce-logger-add-on-released/?utm_source=wpadmin).
+
+- Add support for logging when adding or removing user roles via WP-CLI. [WP-CLI 2.10.0 added "Support for adding and removing of multiple user roles"](https://make.wordpress.org/cli/2024/02/08/wp-cli-v2-10-0-release-notes/) and now Simple History supports logging of these events. [#431](https://github.com/bonny/WordPress-Simple-History/issues/431).
 
 ### 4.12.0 (Februari 2024)
 
