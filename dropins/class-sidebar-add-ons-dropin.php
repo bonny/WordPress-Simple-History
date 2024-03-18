@@ -46,8 +46,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				</a>
 
 				<p>
-					Log detailed information about many things that happens in your WooCommerce shop:
-					Order edits, Product modifications, Coupon changes, WooCommerce settings adjustments, Email templates updates.
+					<?php esc_html_e( 'Log detailed information about many things that happens in your WooCommerce shop: Order edits, Product modifications, Coupon changes, WooCommerce settings adjustments, Email templates updates.', 'simple-history' ); ?>
 				</p>
 			
 				<p>
