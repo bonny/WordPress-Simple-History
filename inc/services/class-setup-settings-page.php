@@ -228,6 +228,10 @@ class Setup_Settings_Page extends Service {
 	
 		<p><strong>name suggestions</strong></p>
 
+		<p>Verbose logging mode
+		<p>Verbose logging details mode
+		<p>Verbose details mode
+		<p>Verbose context details mode
 		<p>"Activate Verbose Logging"
 		<p>"Enable Detailed Debug Mode"
 		<p>"Activate Detailed Logging"
