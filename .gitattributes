@@ -13,7 +13,6 @@
 /.gitignore export-ignore
 /.nvmrc export-ignore
 /.prettierrc export-ignore
-/.stylelintrc export-ignore
 /.typos.toml export-ignore
 /.valetphprc export-ignore
 /CHANGELOG.md export-ignore

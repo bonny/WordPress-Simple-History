@@ -16,7 +16,6 @@
 .gitattributes
 .nvmrc
 .prettierrc
-.stylelintrc
 code.md
 codeception.dist.yml
 composer.json
