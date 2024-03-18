@@ -12,9 +12,9 @@ class Setup_Settings_Page extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		add_action( 'after_setup_theme', array( $this, 'add_default_settings_tabs' ) );
-		add_action( 'admin_menu', array( $this, 'add_settings' ), 10 );
-		add_action( 'admin_menu', array( $this, 'add_admin_pages' ) );
+		add_action( 'after_setup_theme', [ $this, 'add_default_settings_tabs' ] );
+		add_action( 'admin_menu', [ $this, 'add_settings' ], 10 );
+		add_action( 'admin_menu', [ $this, 'add_admin_pages' ] );
 	}
 
 	/**
@@ -46,7 +46,6 @@ class Setup_Settings_Page extends Service {
 		if ( Helpers::dev_mode_is_enabled() ) {
 			$this->simple_history->register_settings_tab(
 				[
-
 					'slug' => 'log',
 					'name' => __( 'Log (dev)', 'simple-history' ),
 					'order' => 5,
@@ -172,6 +171,26 @@ class Setup_Settings_Page extends Service {
 		// Nonces for number of items inputs.
 		register_setting( $settings_general_option_group, 'simple_history_pager_size_dashboard' );
 
+		// Checkbox for debug setting that logs extra much info.
+		register_setting(
+			$settings_general_option_group,
+			'simple_history_debug',
+			[
+				'sanitize_callback' => [
+					Helpers::class,
+					'sanitize_checkbox_input',
+				],
+			]
+		);
+
+		add_settings_field(
+			'simple_history_debug',
+			Helpers::get_settings_field_title_output( __( 'Verbose Logging', 'simple-history' ), 'bug_report' ),
+			[ $this, 'settings_field_debug' ],
+			$settings_menu_slug,
+			$settings_section_general_id
+		);
+
 		// Link/button to clear log.
 		if ( Helpers::user_can_clear_log() ) {
 			add_settings_field(
@@ -193,6 +212,45 @@ class Setup_Settings_Page extends Service {
 		 * Can be used to output content before the general settings section.
 		 */
 		do_action( 'simple_history/settings_page/general_section_output' );
+	}
+
+	/**
+	 * Settings field for debug setting.
+	 */
+	public function settings_field_debug() {
+		$debug = false;
+		?>
+	
+		<input
+			<?php checked( $debug ); ?>
+			type="checkbox" value="1" name="simple_history_debug" id="simple_history_debug" class="simple_history_debug" />
+		<label for="simple_history_debug"><?php esc_html_e( 'Enable debug mode', 'simple-history' ); ?></label>
+	
+		<p><strong>name suggestions</strong></p>
+
+		<p>"Activate Verbose Logging"
+		<p>"Enable Detailed Debug Mode"
+		<p>"Activate Detailed Logging"
+		<p>"Enable Logging with More Details"
+		<p>"Turn On Detailed Insight Logging"
+		<p>"Enable Comprehensive Details Logging"
+		<p>"Activate High-Detail Logging Mode"
+
+		<p>Add detailed debug information to event contexts"
+
+		<p>When this checkbox is checked the following extra information is added to each logged event:
+
+			<p>$_GET
+			<p>$_POST
+			<p>$_SERVER
+			<p>current_filter
+			<p>possible list of filters that got us where we are
+			<p>wp_debug_backtrace_summary
+			<p>Using the information above it should be easier to find the answer to for example support forum threads where the user asks "what plugin did remove this post" and it turns out it was some plugin that did something using wp cron.
+
+			<p>Hide under a feature flag to test it on some sites before going live with it.
+
+		<?php
 	}
 
 	/**
