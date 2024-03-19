@@ -13,8 +13,8 @@ use Simple_History\Helpers;
 class Debug_Dropin extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
-		// Bail if Simple History debug mode is not active.
-		if ( false === Helpers::log_debug_is_enabled() ) {
+		// Bail if no debug mode is active.
+		if ( ! Helpers::log_debug_is_enabled() && ! Helpers::detective_mode_is_enabled() ) {
 			return;
 		}
 
@@ -50,6 +50,7 @@ class Debug_Dropin extends Dropin {
 		$context['_debug_is_admin'] = json_encode( is_admin() );
 		$context['_debug_is_ajax'] = json_encode( defined( 'DOING_AJAX' ) && DOING_AJAX );
 		$context['_debug_is_doing_cron'] = json_encode( defined( 'DOING_CRON' ) && DOING_CRON );
+		$context['_debug_is_wp_cli'] = json_encode( defined( 'WP_CLI' ) && WP_CLI );
 		$context['_debug_is_multisite'] = is_multisite();
 
 		global $wp_current_filter;
