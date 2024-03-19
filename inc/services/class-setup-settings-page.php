@@ -108,8 +108,9 @@ class Setup_Settings_Page extends Service {
 	}
 
 	/**
-	 * Add setting sections and settings for the settings page
-	 * Also maybe save some settings before outputting them
+	 * Add setting sections and settings for the settings page.
+	 *
+	 * Also save some settings before outputting them.
 	 */
 	public function add_settings() {
 		$this->clear_log_from_url_request();
@@ -174,7 +175,7 @@ class Setup_Settings_Page extends Service {
 		// Checkbox for debug setting that logs extra much info.
 		register_setting(
 			$settings_general_option_group,
-			'simple_history_debug',
+			'simple_history_detective_mode_enabled',
 			[
 				'sanitize_callback' => [
 					Helpers::class,
@@ -185,8 +186,8 @@ class Setup_Settings_Page extends Service {
 
 		add_settings_field(
 			'simple_history_debug',
-			Helpers::get_settings_field_title_output( __( 'Verbose Logging', 'simple-history' ), 'bug_report' ),
-			[ $this, 'settings_field_debug' ],
+			Helpers::get_settings_field_title_output( __( 'Detective mode', 'simple-history' ), 'mystery' ),
+			[ $this, 'settings_field_detective_mode' ],
 			$settings_menu_slug,
 			$settings_section_general_id
 		);
@@ -217,43 +218,23 @@ class Setup_Settings_Page extends Service {
 	/**
 	 * Settings field for debug setting.
 	 */
-	public function settings_field_debug() {
-		$debug = false;
+	public function settings_field_detective_mode() {
+		$detective_mode_enabled = Helpers::detective_mode_is_enabled();
 		?>
 	
-		<input
-			<?php checked( $debug ); ?>
-			type="checkbox" value="1" name="simple_history_debug" id="simple_history_debug" class="simple_history_debug" />
-		<label for="simple_history_debug"><?php esc_html_e( 'Enable debug mode', 'simple-history' ); ?></label>
+		<label>
+			<input <?php checked( $detective_mode_enabled ); ?> type="checkbox" value="1" name="simple_history_detective_mode_enabled" />
+			<?php esc_html_e( 'Enable detective mode', 'simple-history' ); ?>
+		</label>
 	
-		<p><strong>name suggestions</strong></p>
+		<p class="description">When enabled, this adds detailed debug information to each logged event.</p>
 
-		<p>Verbose logging mode
-		<p>Verbose logging details mode
-		<p>Verbose details mode
-		<p>Verbose context details mode
-		<p>"Activate Verbose Logging"
-		<p>"Enable Detailed Debug Mode"
-		<p>"Activate Detailed Logging"
-		<p>"Enable Logging with More Details"
-		<p>"Turn On Detailed Insight Logging"
-		<p>"Enable Comprehensive Details Logging"
-		<p>"Activate High-Detail Logging Mode"
+		<p class="description">This information includes information like the current <code>$_GET</code>, <code>$_POST</code>, current filter name, name of any cron job running, and more.</p>
 
-		<p>Add detailed debug information to event contexts"
-
-		<p>When this checkbox is checked the following extra information is added to each logged event:
-
-			<p>$_GET
-			<p>$_POST
-			<p>$_SERVER
-			<p>current_filter
-			<p>possible list of filters that got us where we are
-			<p>wp_debug_backtrace_summary
-			<p>Using the information above it should be easier to find the answer to for example support forum threads where the user asks "what plugin did remove this post" and it turns out it was some plugin that did something using wp cron.
-
-			<p>Hide under a feature flag to test it on some sites before going live with it.
-
+		<p class="description">
+			<a href="https://simple-history.com/support/detective-mode/?utm_source=wpadmin" target="_blank" class="sh-ExternalLink">
+				<?php esc_html_e( 'Read more about detective mode', 'simple-history' ); ?>
+			</a>
 		<?php
 	}
 
