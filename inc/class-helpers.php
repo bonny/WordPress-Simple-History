@@ -1102,6 +1102,20 @@ class Helpers {
 	}
 
 	/**
+	 * Returns true if Detective Mode is active.
+	 *
+	 * Default is false.
+	 *
+	 * @return bool
+	 */
+	public static function detective_mode_is_enabled() {
+		return (bool) apply_filters(
+			'simple_history/detective_mode_enabled',
+			get_option( 'simple_history_detective_mode_enabled', 0 )
+		);
+	}
+
+	/**
 	 * Get number of events the last n days.
 	 *
 	 * @param int $period_days Number of days to get events for.
