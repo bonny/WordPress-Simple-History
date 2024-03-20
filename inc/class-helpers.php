@@ -541,8 +541,8 @@ class Helpers {
 	}
 
 	/**
-	 * Check if Simple History dev mode is enabled.
 	 * Used by the developer of the plugin to test things.
+	 * Check if Simple History dev mode is enabled.
 	 *
 	 * @return bool True if dev mode is enabled.
 	 */
