@@ -143,6 +143,13 @@ class Debug_Dropin extends Dropin {
 			'is_multisite' => is_multisite(),
 		];
 
+		// TODO: Detect name of any current runnin cron job.
+
+		// Command line arguments. Used by for example WP-CLI.
+		if ( isset( $GLOBALS['argv'] ) ) {
+			$detective_mode_data['command_line_arguments'] = implode( ' ', $GLOBALS['argv'] );
+		}
+
 		// Add all detective mode data to context, with a prefix.
 		foreach ( $detective_mode_data as $key => $value ) {
 			$context[ $context_key_prefix . $key ] = $value;
