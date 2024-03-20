@@ -20,5 +20,6 @@
   - SCRIPT_NAME
   - PHP_SELF
 Good to test hacker-ish things
-
+- Limit size of things added, just in case something H-U-G-E is added.
+- 
 
