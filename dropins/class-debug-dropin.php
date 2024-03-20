@@ -103,6 +103,7 @@ class Debug_Dropin extends Dropin {
 		global $wp_current_filter;
 
 		$context_key_prefix = 'detective_mode_';
+		$detective_mode_data = [];
 
 		// Keys from $_SERVER to add to context.
 		$arr_server_keys_to_add = [
