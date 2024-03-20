@@ -172,26 +172,6 @@ class Setup_Settings_Page extends Service {
 		// Nonces for number of items inputs.
 		register_setting( $settings_general_option_group, 'simple_history_pager_size_dashboard' );
 
-		// Checkbox for debug setting that logs extra much info.
-		register_setting(
-			$settings_general_option_group,
-			'simple_history_detective_mode_enabled',
-			[
-				'sanitize_callback' => [
-					Helpers::class,
-					'sanitize_checkbox_input',
-				],
-			]
-		);
-
-		add_settings_field(
-			'simple_history_debug',
-			Helpers::get_settings_field_title_output( __( 'Detective mode', 'simple-history' ), 'mystery' ),
-			[ $this, 'settings_field_detective_mode' ],
-			$settings_menu_slug,
-			$settings_section_general_id
-		);
-
 		// Link/button to clear log.
 		if ( Helpers::user_can_clear_log() ) {
 			add_settings_field(
@@ -210,32 +190,9 @@ class Setup_Settings_Page extends Service {
 	public function settings_section_output() {
 		/**
 		 * Fires before the general settings section output.
-		 * Can be used to output content before the general settings section.
+		 * Can be used to output content in the general settings section.
 		 */
 		do_action( 'simple_history/settings_page/general_section_output' );
-	}
-
-	/**
-	 * Settings field for debug setting.
-	 */
-	public function settings_field_detective_mode() {
-		$detective_mode_enabled = Helpers::detective_mode_is_enabled();
-		?>
-	
-		<label>
-			<input <?php checked( $detective_mode_enabled ); ?> type="checkbox" value="1" name="simple_history_detective_mode_enabled" />
-			<?php esc_html_e( 'Enable detective mode', 'simple-history' ); ?>
-		</label>
-	
-		<p class="description">When enabled, this adds detailed debug information to each logged event.</p>
-
-		<p class="description">This information includes information like the current <code>$_GET</code>, <code>$_POST</code>, current filter name, name of any cron job running, and more.</p>
-
-		<p class="description">
-			<a href="https://simple-history.com/support/detective-mode/?utm_source=wpadmin" target="_blank" class="sh-ExternalLink">
-				<?php esc_html_e( 'Read more about detective mode', 'simple-history' ); ?>
-			</a>
-		<?php
 	}
 
 	/**
