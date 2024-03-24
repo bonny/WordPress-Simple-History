@@ -141,6 +141,7 @@ class Debug_Dropin extends Dropin {
 			'doing_cron' => json_encode( defined( 'DOING_CRON' ) && DOING_CRON ),
 			'wp_cli' => json_encode( defined( 'WP_CLI' ) && WP_CLI ),
 			'is_multisite' => is_multisite(),
+			'php_sapi_name' => php_sapi_name(),
 		];
 
 		// TODO: Detect name of any current runnin cron job.
