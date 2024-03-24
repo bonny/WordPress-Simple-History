@@ -75,7 +75,7 @@ class Debug_Dropin extends Dropin {
 		<p class="description">
 			<?php
 			echo wp_kses(
-				__( 'This information includes information like the current <code>$_GET</code>, <code>$_POST</code>, current filter name, name of any cron job running, and more.', 'simple-history' ),
+				__( 'This information includes information like the current <code>$_GET</code>, <code>$_POST</code>, current filter name, and more.', 'simple-history' ),
 				[
 					'code' => [],
 				]
@@ -138,10 +138,6 @@ class Debug_Dropin extends Dropin {
 			$post_raw = str_replace( '&pwd=' . $posted_data['pwd'], '&pwd=***', $post_raw );
 			$posted_data['pwd'] = '***';
 		}
-
-		// global $wp_filter; // Stores all of the filters and actions.
-		// global $wp_filters; // Stores the number of times each filter was triggered.
-		// global $wp_actions; // Stores the number of times each action was triggered.
 
 		$detective_mode_data += [
 			'get' => $_GET,
