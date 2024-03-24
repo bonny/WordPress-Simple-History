@@ -110,6 +110,7 @@ class Debug_Dropin extends Dropin {
 			'HTTP_HOST',
 			'REQUEST_URI',
 			'REQUEST_METHOD',
+			'CONTENT_TYPE',
 			'SCRIPT_FILENAME',
 			'SCRIPT_NAME',
 			'PHP_SELF',
@@ -127,19 +128,32 @@ class Debug_Dropin extends Dropin {
 			}
 		}
 
+		// Copy of posted data, because we may remove sensitive data.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$posted_data = $_POST;
+		$post_raw = file_get_contents( 'php://input' );
+
+		// Remove sensitive data, like user password.
+		if ( did_filter( 'wp_authenticate_user' ) !== 0 && isset( $posted_data['pwd'] ) ) {
+			$post_raw = str_replace( '&pwd=' . $posted_data['pwd'], '&pwd=***', $post_raw );
+			$posted_data['pwd'] = '***';
+		}
+
+		// global $wp_filter; // Stores all of the filters and actions.
+		// global $wp_filters; // Stores the number of times each filter was triggered.
+		// global $wp_actions; // Stores the number of times each action was triggered.
+
 		$detective_mode_data += [
 			'get' => $_GET,
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			'post' => $_POST,
-			'http_raw_post_data' => Helpers::json_encode( file_get_contents( 'php://input' ) ),
-			'files' => Helpers::json_encode( $_FILES ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			'current_filter_array' => $wp_current_filter,
-			'current_filter' => current_filter(),
-			'wp_debug_backtrace_summary' => wp_debug_backtrace_summary( null, 0, false ),
-			'is_admin' => json_encode( is_admin() ),
-			'doing_ajax' => json_encode( defined( 'DOING_AJAX' ) && DOING_AJAX ),
-			'doing_cron' => json_encode( defined( 'DOING_CRON' ) && DOING_CRON ),
-			'wp_cli' => json_encode( defined( 'WP_CLI' ) && WP_CLI ),
+			'post' => $posted_data,
+			'post_raw' => $post_raw,
+			'files' => $_FILES, // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			'current_filter' => implode( ', ', $wp_current_filter ?? [] ),
+			'debug_backtrace' => wp_debug_backtrace_summary( null, 0, true ),
+			'is_admin' => is_admin(),
+			'doing_ajax' => defined( 'DOING_AJAX' ) && DOING_AJAX,
+			'doing_cron' => defined( 'DOING_CRON' ) && DOING_CRON,
+			'wp_cli' => defined( 'WP_CLI' ) && WP_CLI,
 			'is_multisite' => is_multisite(),
 			'php_sapi_name' => php_sapi_name(),
 		];
