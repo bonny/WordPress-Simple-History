@@ -127,15 +127,23 @@ class Debug_Dropin extends Dropin {
 			}
 		}
 
+		// Copy of posted data, because we may remove sensitive data.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$posted_data = $_POST;
+
+		// Remove sensitive data, like user password.
+		if ( did_filter( 'wp_authenticate_user' ) !== 0 && isset( $posted_data['pwd'] ) ) {
+			$posted_data['pwd'] = '*** (hidden by Simple History)';
+		}
+
 		$detective_mode_data += [
 			'get' => $_GET,
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			'post' => $_POST,
+			'post' => $posted_data,
 			'http_raw_post_data' => Helpers::json_encode( file_get_contents( 'php://input' ) ),
 			'files' => Helpers::json_encode( $_FILES ), // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			'current_filter_array' => $wp_current_filter,
-			'current_filter' => current_filter(),
+			'current_filter_array' => $wp_current_filter ?? null,
 			'wp_debug_backtrace_summary' => wp_debug_backtrace_summary( null, 0, false ),
+			'wp_debug_backtrace_summary_pretty' => wp_debug_backtrace_summary( null, 0, true ),
 			'is_admin' => json_encode( is_admin() ),
 			'doing_ajax' => json_encode( defined( 'DOING_AJAX' ) && DOING_AJAX ),
 			'doing_cron' => json_encode( defined( 'DOING_CRON' ) && DOING_CRON ),
