@@ -17,7 +17,7 @@ class Simple_History_Logger extends Logger {
 
 	/**
 	 * Get info about this logger.
-	 *
+	 * k
 	 * @return array
 	 */
 	public function get_info() {
@@ -210,6 +210,10 @@ class Simple_History_Logger extends Logger {
 					new Event_Details_Item(
 						[ 'enable_rss_feed' ],
 						__( 'RSS feed enabled', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'detective_mode_enabled' ],
+						__( 'Detective Mode enabled', 'simple-history' ),
 					),
 				]
 			)
