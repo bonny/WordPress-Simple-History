@@ -208,7 +208,7 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased
+### Unreleased probably 4.14.0 (xyz 2024)
 
 - Added Detective Mode, to help users find what plugin or theme is causing a specific event or action to be logged or happen. Great for debugging. It's a new feature that can be enabled in the settings. [Read more](https://simple-history.com/2024/introducing-detective-mode/?utm_source=wpadmin). Useful for admins, developers, forensics detectives, security experts, and more.
 - Remove check for older php versions in `helpers::json_encode`.
