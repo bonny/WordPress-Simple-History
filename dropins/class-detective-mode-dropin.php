@@ -67,20 +67,20 @@ class Detective_Mode_Dropin extends Dropin {
 			<input <?php checked( $detective_mode_enabled ); ?> type="checkbox" value="1" name="simple_history_detective_mode_enabled" />
 			<?php esc_html_e( 'Enable detective mode', 'simple-history' ); ?>
 		</label>
-	
-		<p class="description">
-			<?php esc_html_e( 'When enabled, this adds detailed debug information to each logged event.', 'simple-history' ); ?>
-		</p>
-
+		
 		<p class="description">
 			<?php
 			echo wp_kses(
-				__( 'This information includes information like the current <code>$_GET</code>, <code>$_POST</code>, current filter name, and more.', 'simple-history' ),
+				__( 'When enabled, Detective Mode captures in-depth data for each event, including the current <code>$_GET</code>, <code>$_POST</code> values, the current filter name, and much more.', 'simple-history' ),
 				[
 					'code' => [],
 				]
 			);
 			?>
+		</p>
+
+		<p class="description">
+			<?php esc_html_e( 'While particularly useful for developers and administrators seeking to understand complex interactions or resolve issues, please note that enabling this feature may increase the volume of logged data.', 'simple-history' ); ?>
 		</p>
 
 		<p class="description">
