@@ -17,7 +17,7 @@ class Simple_History_Logger extends Logger {
 
 	/**
 	 * Get info about this logger.
-	 * k
+	 *
 	 * @return array
 	 */
 	public function get_info() {
