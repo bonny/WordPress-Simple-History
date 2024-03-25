@@ -8,7 +8,7 @@ use Simple_History\Helpers;
  * Dropin Name: Debug
  * Dropin Description: Add some extra info to each logged context when SIMPLE_HISTORY_LOG_DEBUG is set and true, or when Detective mode is enabled.
  */
-class Debug_Dropin extends Dropin {
+class Detective_Mode_Dropin extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
 		$this->register_settings();
@@ -153,8 +153,6 @@ class Debug_Dropin extends Dropin {
 			'is_multisite' => is_multisite(),
 			'php_sapi_name' => php_sapi_name(),
 		];
-
-		// TODO: Detect name of any current runnin cron job.
 
 		// Command line arguments. Used by for example WP-CLI.
 		if ( isset( $GLOBALS['argv'] ) ) {

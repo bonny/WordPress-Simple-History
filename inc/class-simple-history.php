@@ -422,7 +422,7 @@ class Simple_History {
 	 */
 	public function get_core_dropins() {
 		$dropins = array(
-			Dropins\Debug_Dropin::class,
+			Dropins\Detective_Mode_Dropin::class,
 			Dropins\Donate_Dropin::class,
 			Dropins\Export_Dropin::class,
 			Dropins\Filter_Dropin::class,
