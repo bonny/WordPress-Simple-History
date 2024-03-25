@@ -1165,6 +1165,22 @@ class Log_Query {
 
 		// Search.
 		if ( isset( $args['search'] ) ) {
+			/*
+			// Here: Search for a string in the log messages with support for translated message.
+			// https://github.com/bonny/WordPress-Simple-History/issues/277
+			// Get loggers that user can read, using function get_loggers_that_user_can_read().
+			$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();
+			sh_d('$loggers_user_can_read', $loggers_user_can_read);
+			- Get a list of all loggers that a user has access to: `$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();`
+			- For each logger
+			- Check all messages
+				- If translated_text contains the word searched for
+				- get the message_key for the found message, i.e. `user_login_failed`
+				- include the message_key in the search
+				- replace the search to only contain that message key?
+
+			Should work, but needs some testing. It will not be perfect. But search never is 🤷 
+			*/
 			$str_search_conditions = '';
 			$arr_search_words = preg_split( '/[\s,]+/', $args['search'] );
 
