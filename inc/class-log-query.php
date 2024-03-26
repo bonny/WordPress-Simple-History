@@ -1002,6 +1002,70 @@ class Log_Query {
 	}
 
 	/**
+	 * Find logger and translated message that matches search string.
+	 * The search string in split into words and all words must be found in the translated text.
+	 * The message can contain more text/words than the words in the search string, and partial matches
+	 * are fine.
+	 *
+	 * Swedish examples:
+	 *
+	 * Search phrase "tillägg uppdaterade":
+	 * - Should match logger "SimplePluginLogger", message key "plugin_updated", message "uppdaterade tillägget ”{plugin_name}” till {plugin_version} från {plugin_prev_version}"
+	 * - Should match logger "SimplePluginLogger", message key "plugin_bulk_updated", message "uppdaterade tillägget ”{plugin_name}” till {plugin_version} från {plugin_prev_version}"
+	 *
+	 * Search phrase "misslyckades logga in":
+	 * - Should match logger "SimpleUserLogger", message key "user_login_failed", message "misslyckades att logga in med användarnamnet ”{login}” (felaktigt lösenord angavs)"
+	 * - Should match logger "SimpleUserLogger", message key "user_unknown_login_failed", message "misslyckades att logga in med användarnamnet ”{failed_username}” (användarnamnet finns inte)"
+	 *
+	 * @param string $searchstring Search string, for example "misslyckades logga in".
+	 * @return array<int,array> Array with logger and message that matched search string.
+	 */
+	protected function match_logger_messages_with_search( $searchstring ) {
+		// $searchstring is for example "misslyckades logga in".
+		$searchstring = strtolower( $searchstring );
+
+		/** @var array<int,array<int,array>> Array with found logger, message key, translated message, and untranslated message. */
+		$found_matches = [];
+
+		$Simple_History = Simple_History::get_instance();
+		$loggers_user_can_read = $Simple_History->get_loggers_that_user_can_read();
+
+		foreach ( $loggers_user_can_read as $one_logger ) {
+			$one_logger_slug = $one_logger['instance']->slug;
+			$one_logger_name = $one_logger['name'];
+
+			/** @var array<string,array> */
+			$logger_instance_messages = $one_logger['instance']->messages;
+
+			foreach ( $logger_instance_messages as $one_message_key => $one_message ) {
+				$translated_text = strtolower( $one_message['translated_text'] );
+
+				// Check if every word in search string exists in translated text.
+				$all_words_found = true;
+				$words = explode( ' ', $searchstring );
+				foreach ( $words as $one_word ) {
+					if ( strpos( $translated_text, $one_word ) === false ) {
+						$all_words_found = false;
+						break;
+					}
+				}
+
+				if ( $all_words_found ) {
+					$found_matches[] = [
+						'logger_name' => $one_logger_name,
+						'logger_slug' => $one_logger_slug,
+						'message_key' => $one_message_key,
+						'translated_text' => $translated_text,
+						'untranslated_text' => strtolower( $one_message['untranslated_text'] ),
+					];
+				}
+			}
+		}
+
+		return $found_matches;
+	}
+
+	/**
 	 * Get inner where clause.
 	 *
 	 * @param array $args Arguments.
@@ -1169,6 +1233,9 @@ class Log_Query {
 			// Here: Search for a string in the log messages with support for translated message.
 			// https://github.com/bonny/WordPress-Simple-History/issues/277
 			// Get loggers that user can read, using function get_loggers_that_user_can_read().
+			Example call:
+			http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=html&posts_per_page=20&paged=1&search=Misslyckades
+
 			$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();
 			sh_d('$loggers_user_can_read', $loggers_user_can_read);
 			- Get a list of all loggers that a user has access to: `$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();`
@@ -1179,8 +1246,12 @@ class Log_Query {
 				- include the message_key in the search
 				- replace the search to only contain that message key?
 
-			Should work, but needs some testing. It will not be perfect. But search never is 🤷 
+			Should work, but needs some testing. It will not be perfect. But search never is 🤷
 			*/
+			$logger_messages_with_search_string_matches = $this->match_logger_messages_with_search( $args['search'] );
+			sh_d( '$logger_messages_with_search_string_matches', $logger_messages_with_search_string_matches );
+			exit;
+
 			$str_search_conditions = '';
 			$arr_search_words = preg_split( '/[\s,]+/', $args['search'] );
 
