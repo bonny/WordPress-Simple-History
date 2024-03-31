@@ -249,7 +249,7 @@ class Log_Query {
 
 		$Simple_History = Simple_History::get_instance();
 
-		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0' );
+		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0, SQL_BIG_SELECTS=1' );
 
 		/**
 		 *  @var string SQL statement that will be used for inner join.
