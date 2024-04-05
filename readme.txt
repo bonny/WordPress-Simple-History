@@ -208,12 +208,12 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 ## Changelog
 
-### Unreleased probably 4.14.0 (xyz 2024)
+### 4.14.0 (April 2024)
 
-- Search for localized strings [#277](https://github.com/bonny/WordPress-Simple-History/issues/277)
-- Add SQL_BIG_SELECTS=1 to SQL queries to avoid error message `The SELECT would examine more than MAX_JOIN_SIZE rows; check your WHERE and use SET SQL_BIG_SELECTS=1 or SET MAX_JOIN_SIZE=# if the SELECT is okay` on low end hosting providers. Fixes [#435](https://github.com/bonny/WordPress-Simple-History/issues/435)
-- Added Detective Mode, to help users find what plugin or theme is causing a specific event or action to be logged or happen. Great for debugging. It's a new feature that can be enabled in the settings. [Read more](https://simple-history.com/2024/introducing-detective-mode/?utm_source=wpadmin). Useful for admins, developers, forensics detectives, security experts, and more.
-- Remove check for older php versions in `helpers::json_encode`.
+- Add [**Detective Mode**](https://simple-history.com/support/detective-mode/), a new feature aimed to help users find what plugin or theme is causing a specific event or action to be logged or happen. Great for debugging. This new feature can be enabled in the settings. [Read more](https://simple-history.com/2024/introducing-detective-mode/?utm_source=wpadmin). Useful for admins, developers, forensics detectives, security experts, and more.
+- Add support for searching for localized logger message strings. [#277](https://github.com/bonny/WordPress-Simple-History/issues/277)
+- Add fix for SQL `MAX_JOIN_SIZE` related error message, that could happen on low end hosting providers or shared hosting providers. [#435](https://github.com/bonny/WordPress-Simple-History/issues/435)
+- Remove check for older PHP versions in `helpers::json_encode`.
 - Tested on WordPress 6.5
 
 ### 4.13.0 (March 2024)
