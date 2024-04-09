@@ -260,7 +260,7 @@ class User_Logger extends Logger {
 	}
 
 	/**
-	 * Collect chnages when user role is removed via WP CLI.
+	 * Collect changes when user role is removed via WP CLI.
 	 *
 	 * @param mixed $user_id User id.
 	 * @param mixed $role   Role that was removed.
