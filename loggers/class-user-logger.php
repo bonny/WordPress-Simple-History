@@ -259,6 +259,12 @@ class User_Logger extends Logger {
 		}
 	}
 
+	/**
+	 * Collect chnages when user role is removed via WP CLI.
+	 *
+	 * @param mixed $user_id User id.
+	 * @param mixed $role   Role that was removed.
+	 */
 	public function on_wp_cli_remove_user_role_collect( $user_id, $role ) {
 		if ( ! isset( $this->wp_cli_changes['user_roles_removed'][ $user_id ] ) ) {
 			$this->wp_cli_changes['user_roles_removed'][ $user_id ] = [];
