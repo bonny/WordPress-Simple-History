@@ -98,7 +98,7 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 
 ### What users say 💬
 
-[300+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) speak to the reliability of this plugin.
+🌟 [300+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) speak to the reliability of this plugin. 🌟
 
 - _"So far the best and most comprehensive logging plugin"_ - [@herrschuessler](https://wordpress.org/support/topic/so-far-the-best-and-most-comprehensive-logging-plugin/)
 
@@ -142,8 +142,7 @@ that must be it."_
 
 If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by using the function `SimpleLogger()` like this:
 
-```
-<?php
+```php
 if ( function_exists("SimpleLogger") ) {
 		// Most basic example: just add some information to the log
 		SimpleLogger()->info("This is a message sent to the log");
@@ -158,26 +157,26 @@ if ( function_exists("SimpleLogger") ) {
 
 See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/) and how to [query the log](https://simple-history.com/docs/query-api/), and more.
 
-### Extend the plugin functionality with Add-ons
+### 🔆 Extend the plugin functionality with Add-ons
 
 Powerful add-ons are available to extend the functionality of Simple History even further:
 
-**WooCommerce Logger**: Enhance your site's tracking with comprehensive logs for WooCommerce orders, products, settings, and coupons. [Read more](https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin).
+**[WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin)**  
+Enhance your site's tracking with comprehensive logs for WooCommerce orders, products, settings, and coupons.
 
-**Extended Settings**: Extend the settings of Simple History with more options and settings. [Read more](https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin).
+**[Extended Settings](https://simple-history.com/add-ons/extended-settings/)**  
+Extend the settings of Simple History with more options and settings.
 
-### Contribute at GitHub
+**[Developer tools](https://simple-history.com/add-ons/developer-tools/) (coming soon)**  
+Log sent emails, HTTP API requests, cron jobs, and more.
 
-Development of this plugin takes place at GitHub. Please join in with feature requests, bug reports, or even pull requests!
-<a href="https://github.com/bonny/WordPress-Simple-History">https://github.com/bonny/WordPress-Simple-History</a>
+### 💚 Sponsor this project
 
-### Sponsor this project
+If you like this plugin please consider donating to support the development. The plugin has been free for the last 10 years and will continue to be free.
 
-If you like this plugin please consider donating to support the development.
-
-You can [donate using PayPal](https://www.paypal.me/eskapism) or you can [become a GitHub sponsor](https://github.com/sponsors/bonny).
-
-There is also some [add-ons](https://simple-history.com/add-ons/) that you can buy to support the development of this plugin and get some extra features.
+- [Donate using PayPal](https://www.paypal.me/eskapism)
+- [Become a GitHub sponsor](https://github.com/sponsors/bonny).
+- [Add-ons that you can buy to support the development](https://simple-history.com/add-ons/) (and get some extra features!).
 
 ## Frequently Asked Questions
 
