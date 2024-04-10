@@ -1,4 +1,4 @@
-# Simple History – user activity log, audit tool
+# Simple History – Track, Log, and Audit WordPress Changes
 
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
@@ -6,7 +6,7 @@ Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.5
 Stable tag: 4.14.0
 
-View changes made by users within WordPress. See who created a page, uploaded an attachment or approved an comment, and more.
+View changes made by users within WordPress. See who created a page, uploaded an attachment or approved a comment, and more.
 
 ## Description
 
@@ -19,6 +19,8 @@ The plugin works as a audit log of the most important events that occur in WordP
 It's a plugin that is good to have on websites where several people are involved in editing the content.
 
 No coding is required to use the plugin. Just install it and it will start logging events.
+
+### ✨ Simple History Features
 
 Out of the box Simple History has support for:
 
@@ -52,9 +54,9 @@ Out of the box Simple History has support for:
 
 - **User Data Erasure Requests** – see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
-### Support for third party plugins
+#### Build in logging for third party plugins
 
-Simple History comes with built in support for the following plugins:
+Simple History comes with built in support for many plugins:
 
 - **Jetpack** – The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the company behind the WordPress.com service) that lets you supercharge your website by adding a lot of extra functions.
   In Simple History you will see what Jetpack modules that are activated and deactivated.
@@ -81,7 +83,9 @@ Simple History comes with built in support for the following plugins:
 
 - **Beaver Builder** – The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website. Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
-Plugin authors can add support for Simple History in their plugins using the [logging API](https://simple-history.com/docs/logging-api/). Plugins that have support for Simple History includes:
+Is your plugin missing? No problem – plugin authors can add support for Simple History in their plugins using the [logging API](https://simple-history.com/docs/logging-api/).
+
+#### Plugins that have support for Simple History includes:
 
 - [Connections Business Directory](https://wordpress.org/plugins/connections/)
 - [Simple History Beaver Builder Add-On](https://wordpress.org/plugins/extended-simple-history-for-beaver-builder/)
@@ -92,7 +96,7 @@ Plugin authors can add support for Simple History in their plugins using the [lo
 - [Loginpetze](https://wordpress.org/plugins/loginpetze/)
 - [Authorizer](https://wordpress.org/plugins/authorizer/)
 
-### What users say
+### What users say 💬
 
 [300+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) speak to the reliability of this plugin.
 
@@ -154,7 +158,9 @@ if ( function_exists("SimpleLogger") ) {
 
 See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/) and how to [query the log](https://simple-history.com/docs/query-api/), and more.
 
-### Add-ons available
+### Extend the plugin functionality with Add-ons
+
+Powerful add-ons are available to extend the functionality of Simple History even further:
 
 **WooCommerce Logger**: Enhance your site's tracking with comprehensive logs for WooCommerce orders, products, settings, and coupons. [Read more](https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin).
 
@@ -175,10 +181,46 @@ There is also some [add-ons](https://simple-history.com/add-ons/) that you can b
 
 ## Frequently Asked Questions
 
-= Do I need to write code to use the plugin? =
+= Is the plugin free? =
+
+Yes! It has been free for the last 10 years and will continue to be free. There are some add-ons that you can buy to support the development of this plugin and get some extra features. [View add-ons](https://simple-history.com/add-ons/).
+
+= How do I view the log? =
+
+You can view the log on the dashboard or on a separate page in the admin area.
+
+= Can I see the log in the front end? =
+
+No, the log is only available in the admin area.
+
+= Do I need to have coding skills to use the plugin? =
 
 No, you don't need to write any code to use the plugin.
 Just install the plugin and it will start collecting data.
+
+= Where is the log stored? =
+
+The log is stored in the database used by WordPress.
+
+= Can I export the log? =
+
+Yes, you can export the log to a CSV or JSON file.
+
+= Is my theme supported? =
+
+Yes, the plugin works with all themes.
+
+= Is my plugin supported? =
+
+The plugin comes with built in support for many plugins and support for Simple History can be added to any plugin using the Logging API.
+
+= Will my website slow down because of this plugin? =
+
+No, the plugin is very lightweight and will not slow down your website.
+
+= Who can view the log? =
+
+How much information that is shown in the log depends on the user role of the user viewing the log. Admins can see everything, while editors can only see events related to posts and pages.
 
 = Is it possible to exclude users from the log? =
 
