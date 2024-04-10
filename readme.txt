@@ -58,30 +58,23 @@ Out of the box Simple History has support for:
 
 Simple History comes with built in support for many plugins:
 
-- **Jetpack** – The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the company behind the WordPress.com service) that lets you supercharge your website by adding a lot of extra functions.
-  In Simple History you will see what Jetpack modules that are activated and deactivated.
+- **Jetpack** – See what Jetpack modules that are activated and deactivated.
 
-- **Advanced Custom Fields (ACF)** – [ACF](https://www.advancedcustomfields.com/) adds fields to your posts and pages.
-  Simple History will log changes made to the field groups and the fields inside field groups. Your will see when both field groups and fields are created and modified.
+- **Advanced Custom Fields (ACF)** – See when field groups and fields are created and modified.
 
-- **User Switching** – The [User Switching plugin](https://wordpress.org/plugins/user-switching/) allows you to quickly swap between user accounts in WordPress at the click of a button.
-  Simple History will log each user switch being made.
+- **User Switching** – See each user switch being made.
 
-- **WP Crontrol** – The [WP Crontrol plugin](https://wordpress.org/plugins/wp-crontrol/) enables you to view and control what's happening in the WP-Cron system.
-  Simple History will log when cron events are added, edited, deleted, paused, resumed, and manually ran, and when cron schedules are added and deleted.
+- **WP Crontrol** – See when cron events are added, edited, deleted, paused, resumed, and manually ran, and when cron schedules are added and deleted.
 
-- **Enable Media Replace** – The [Enable Media Replace plugin](https://wordpress.org/plugins/enable-media-replace/) allows you to replace a file in your media library by uploading a new file in its place.
-  Simple history will log details about the file being replaced and details about the new file.
+- **Enable Media Replace** – See details about the file being replaced and details about the new file.
 
-- **Limit Login Attempts** – The plugin [Limit Login Attempts](https://wordpress.org/plugins/limit-login-attempts/) is old
-  and has not been updated for 4 years. However it still has +1 million installs, so many users will benefit from
-  Simple History logging login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
+- **Limit Login Attempts** – See login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
 
-- **Redirection** – The [redirection plugin](https://wordpress.org/plugins/redirection/) manages url redirections, using a nice GUI. Simple History will log redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
+- **Redirection** – See redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
 
-- **Duplicate Post** – The plugin [Duplicate Post](https://wordpress.org/plugins/duplicate-post/) allows users to clone posts of any type. Simple History will log when a clone of a post or page is done.
+- **Duplicate Post** –See when a clone of a post or page is done.
 
-- **Beaver Builder** – The plugin [Beaver Build](https://wordpress.org/plugins/beaver-builder-lite-version/) is a page builder for WordPress that adds a flexible drag and drop page builder to the front end of your WordPress website. Simple History will log when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
+- **Beaver Builder** – See when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
 Is your plugin missing? No problem – plugin authors can add support for Simple History in their plugins using the [logging API](https://simple-history.com/docs/logging-api/).
 
@@ -177,6 +170,11 @@ If you like this plugin please consider donating to support the development. The
 - [Donate using PayPal](https://www.paypal.me/eskapism)
 - [Become a GitHub sponsor](https://github.com/sponsors/bonny).
 - [Add-ons that you can buy to support the development](https://simple-history.com/add-ons/) (and get some extra features!).
+
+**Notworthy sponsors**
+
+- [TextTV.nu](https://texttv.nu) - Sveriges bästa text-tv på webben
+- [Brottsplatskartan.se](https://brottsplatskartan.se) - Sveriges största brottsplatskarta
 
 ## Frequently Asked Questions
 
