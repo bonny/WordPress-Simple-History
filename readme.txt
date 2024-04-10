@@ -10,11 +10,15 @@ View changes made by users within WordPress. See who created a page, uploaded an
 
 ## Description
 
+> _"So far the best and most comprehensive logging plugin"_ - [@herrschuessler](https://wordpress.org/support/topic/so-far-the-best-and-most-comprehensive-logging-plugin/)
+
 Simple History shows recent changes made within WordPress, directly on your dashboard or on a separate page.
 
-The plugin works as a log/history/audit log/version history of the most important events that occur in WordPress.
+The plugin works as a audit log of the most important events that occur in WordPress.
 
 It's a plugin that is good to have on websites where several people are involved in editing the content.
+
+No coding is required to use the plugin. Just install it and it will start logging events.
 
 Out of the box Simple History has support for:
 
@@ -50,7 +54,7 @@ Out of the box Simple History has support for:
 
 ### Support for third party plugins
 
-By default Simple History comes with built in support for the following plugins:
+Simple History comes with built in support for the following plugins:
 
 - **Jetpack** – The [Jetpack plugin](https://wordpress.org/plugins/jetpack/) is a plugin from Automattic (the company behind the WordPress.com service) that lets you supercharge your website by adding a lot of extra functions.
   In Simple History you will see what Jetpack modules that are activated and deactivated.
