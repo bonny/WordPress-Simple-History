@@ -171,9 +171,10 @@ There is also some [add-ons](https://simple-history.com/add-ons/) that you can b
 
 ## Frequently Asked Questions
 
-= Can I add my own events to the log? =
+= Do I need to write code to use the plugin? =
 
-Yes. See the [Developer Documentation](https://simple-history.com/docs/).
+No, you don't need to write any code to use the plugin.
+Just install the plugin and it will start collecting data.
 
 = Is it possible to exclude users from the log? =
 
