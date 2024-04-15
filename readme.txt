@@ -6,7 +6,8 @@ Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.5
 Stable tag: 4.14.0
 
-View changes made by users within WordPress. See who created a page, uploaded an attachment or approved a comment, and more.
+Easily track and view the changes made on your WordPress site, providing a comprehensive audit trail of user activities.
+See who created a page, uploaded an attachment or approved a comment, and more.
 
 ## Description
 
@@ -110,6 +111,10 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 - _"The best free history plugin ever"_ - [abazeed](https://wordpress.org/support/topic/the-best-free-history-plugin-ever/)
 
 - _"It is a standard plugin for all of our sites"_ - [Mr Tibbs](https://wordpress.org/support/topic/it-is-a-standard-plugin-for-all-of-our-sites/)
+
+## Getting Started
+
+After installation, Simple History automatically starts logging activities. Access the history log through the dashboard widget or via the 'Simple History' page in the dashboard menu.
 
 ### RSS feed with changes
 
@@ -225,11 +230,15 @@ Yes, you exclude users by role or email using the filter [`simple_history/log/do
 
 See the [hooks documentation](https://simple-history.com/docs/hooks/) for more info.
 
-= For how long are events stored? =
+= For how long are the history kept? =
 
-Events in the log are stored for 60 days by default. Events older than this will be removed.
+By default, logs are stored for 60 days. This duration can be adjusted in the settings.
 
 This can be modified using the filter [`simple_history/db_purge_days_interval`](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) or using the [Simple History Extended Settings add-on](https://simple-history.com/add-ons/extended-settings?utm_source=wpadmin).
+
+= Can I track changes made by specific users? =
+
+Yes, Simple History allows you to filter the history by user names, making it easy to monitor individual activities.
 
 ## Screenshots
 
