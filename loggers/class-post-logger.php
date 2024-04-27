@@ -1069,11 +1069,23 @@ class Post_Logger extends Logger {
 			$has_diff_values = false;
 
 			foreach ( $context as $key => $val ) {
+
+				// Skip some context keys.
+				$keys_to_skip = [];
+
+				// Skip post author because we manually output the change already.
+				$keys_to_skip = [ 'post_author/user_login', 'post_author/user_email', 'post_author/display_name' ];
+
 				if ( strpos( $key, 'post_prev_' ) !== false ) {
 					// Old value exists, new value must also exist for diff to be calculates.
 					$key_to_diff = substr( $key, strlen( 'post_prev_' ) );
 
 					$key_for_new_val = "post_new_{$key_to_diff}";
+
+					// Skip some keys.
+					if ( in_array( $key_to_diff, $keys_to_skip, true ) ) {
+						continue;
+					}
 
 					if ( isset( $context[ $key_for_new_val ] ) ) {
 						$post_old_value = $context[ $key ];
