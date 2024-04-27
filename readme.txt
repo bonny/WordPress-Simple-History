@@ -263,6 +263,7 @@ Yes, Simple History allows you to filter the history by user names, making it ea
 
 ### Unreleased
 
+- Make the file edits logger (that logs changes files in themes and plugins) work again. [#437](https://github.com/bonny/WordPress-Simple-History/pull/437)
 - Update WordPress Coding Standards to latest version. [#436](https://github.com/bonny/WordPress-Simple-History/issues/436)
 
 ### 4.14.0 (April 2024)
