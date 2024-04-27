@@ -18,15 +18,25 @@ class Post_Logger extends Logger {
 	 * [post_id] => [post_data, post_meta].
 	 *               post_data = WP_Post object, post_meta = post meta array.
 	 *
-	 * @var array
+	 * @var array<int, array>
 	 */
-	protected $old_post_data = array();
+	protected $old_post_data = [];
 
 	/**
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
+		// Save old/prev post values before post is updated.
+		add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost_save_prev_post' ) );
+
+		// Run quick edit changes old post save with prio 0 to run before WordPress core does its thing, which is at prio 1.
+		add_action( 'wp_ajax_inline-save', array( $this, 'on_admin_action_editpost_save_prev_post' ), 0 );
+
+		// Save prev post for bulk edit.
+		// Bulk edit does not use ajax (like quick edit does). Instead it's a regular GET request to edit.php.
+		// wp function bulk_edit_posts() takes care of making changes.
+		add_action( 'admin_action_edit', array( $this, 'on_admin_action_edit_save_prev_post' ) );
+
 		add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 10, 3 );
 		add_action( 'delete_post', array( $this, 'on_delete_post' ) );
 		add_action( 'untrash_post', array( $this, 'on_untrash_post' ) );
@@ -86,14 +96,7 @@ class Post_Logger extends Logger {
 			return $prepared_post;
 		}
 
-		// Post with old content and old meta.
-		$old_post = get_post( $prepared_post->ID );
-
-		$this->old_post_data[ $old_post->ID ] = array(
-			'post_data' => $old_post,
-			'post_meta' => get_post_custom( $old_post->ID ),
-			'post_terms' => wp_get_object_terms( $old_post->ID, get_object_taxonomies( $old_post->post_type ) ),
-		);
+		$this->save_prev_post_data( $prepared_post->ID );
 
 		return $prepared_post;
 	}
@@ -236,6 +239,44 @@ class Post_Logger extends Logger {
 	}
 
 	/**
+	 * Fired when posts are saved in the admin area using bulk edit.
+	 */
+	public function on_admin_action_edit_save_prev_post() {
+		global $pagenow;
+
+		if ( $pagenow !== 'edit.php' ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$post_ids = array_map( 'intval', (array) ( $_GET['post'] ?? [] ) );
+
+		foreach ( $post_ids as $one_post_id ) {
+			$this->save_prev_post_data( $one_post_id );
+		}
+	}
+
+	/**
+	 * Save old info about a post that is going to be edited.
+	 * Needed to later compare old data with new data, to detect differences.
+	 *
+	 * @param mixed $post_ID Post ID.
+	 */
+	protected function save_prev_post_data( $post_ID ) {
+		$prev_post_data = get_post( $post_ID );
+
+		if ( ! $prev_post_data instanceof \WP_Post ) {
+			return;
+		}
+
+		$this->old_post_data[ $post_ID ] = [
+			'post_data' => $prev_post_data,
+			'post_meta' => get_post_custom( $post_ID ),
+			'post_terms' => wp_get_object_terms( $post_ID, get_object_taxonomies( $prev_post_data->post_type ) ),
+		];
+	}
+
+	/**
 	 * Get and store old info about a post that is going to be edited.
 	 * Needed to later compare old data with new data, to detect differences.
 	 * This function is called on edit screen but before post edits are saved.
@@ -246,7 +287,7 @@ class Post_Logger extends Logger {
 	 *
 	 * @since 2.0.29
 	 */
-	public function on_admin_action_editpost() {
+	public function on_admin_action_editpost_save_prev_post() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$post_ID = isset( $_POST['post_ID'] ) ? (int) $_POST['post_ID'] : 0;
 
@@ -258,17 +299,7 @@ class Post_Logger extends Logger {
 			return;
 		}
 
-		$prev_post_data = get_post( $post_ID );
-
-		if ( ! $prev_post_data instanceof \WP_Post ) {
-			return;
-		}
-
-		$this->old_post_data[ $post_ID ] = array(
-			'post_data' => $prev_post_data,
-			'post_meta' => get_post_custom( $post_ID ),
-			'post_terms' => wp_get_object_terms( $post_ID, get_object_taxonomies( $prev_post_data->post_type ) ),
-		);
+		$this->save_prev_post_data( $post_ID );
 	}
 
 	/**
