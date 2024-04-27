@@ -61,12 +61,12 @@ class File_Edits_Logger extends Logger {
 	 */
 	public function on_load_plugin_editor() {
 
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return;
-        }
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-        if ( isset( $_POST['plugin'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
+		if ( isset( $_POST['plugin'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$file = wp_unslash( $_POST['file'] ?? null );
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -93,7 +93,7 @@ class File_Edits_Logger extends Logger {
 				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
 			);
 
-            $this->info_message( 'plugin_file_edited', $context );
+			$this->info_message( 'plugin_file_edited', $context );
 		}// End if().
 	}
 
@@ -108,13 +108,13 @@ class File_Edits_Logger extends Logger {
 	 */
 	public function on_load_theme_editor() {
 
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return;
-        }
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
 		// Only continue if method is post and action is update.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-        if ( isset( $_POST['theme'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
+		if ( isset( $_POST['theme'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
 			/*
 			POST data is like
 				array(8)
@@ -166,7 +166,7 @@ class File_Edits_Logger extends Logger {
 				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$file",
 			);
 
-            $this->info_message( 'theme_file_edited', $context );
+			$this->info_message( 'theme_file_edited', $context );
 		}
 	}
 
