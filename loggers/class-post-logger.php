@@ -1400,7 +1400,7 @@ class Post_Logger extends Logger {
 	}
 
 	/**
-	 * Add diff for post thumb/post featured image
+	 * Add diff for post thumb/post featured image.
 	 *
 	 * @param array $context Context.
 	 * @param array $old_meta Old meta.
@@ -1533,6 +1533,7 @@ class Post_Logger extends Logger {
 
 			$new_attached_file = get_attached_file( $new_thumb_id );
 			$new_thumb_src = wp_get_attachment_image_src( $new_thumb_id, 'small' );
+
 			if ( file_exists( $prev_attached_file ) && $prev_thumb_src ) {
 				$prev_thumb_html = sprintf(
 					'
@@ -1563,7 +1564,7 @@ class Post_Logger extends Logger {
 				);
 			} else {
 				// Fallback if image does not exist.
-				$prev_thumb_html = sprintf( '<div>%1$s</div>', esc_html( $post_new_thumb_title ) );
+				$new_thumb_html = sprintf( '<div>%1$s</div>', esc_html( $post_new_thumb_title ) );
 			}
 
 			$out .= sprintf(
