@@ -47,8 +47,8 @@ class File_Edits_Logger extends Logger {
 	 * Called when logger is loaded
 	 */
 	public function loaded() {
-		add_action( 'load-theme-editor.php', array( $this, 'on_load_theme_editor' ), 10, 1 );
-		add_action( 'load-plugin-editor.php', array( $this, 'on_load_plugin_editor' ), 10, 1 );
+		add_action( 'admin_init', array( $this, 'on_load_theme_editor' ), 10, 1 );
+		add_action( 'admin_init', array( $this, 'on_load_plugin_editor' ), 10, 1 );
 	}
 
 	/**
@@ -60,8 +60,13 @@ class File_Edits_Logger extends Logger {
 	 * - log failed edits that result in error and plugin deactivation
 	 */
 	public function on_load_plugin_editor() {
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( isset( $_POST['action'] ) ) {
+		if ( isset( $_POST['plugin'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$file = wp_unslash( $_POST['file'] ?? null );
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -88,49 +93,7 @@ class File_Edits_Logger extends Logger {
 				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
 			);
 
-			$loggerInstance = $this;
-			add_filter(
-				'wp_redirect',
-				function ( $location, $status ) use ( $context, $loggerInstance ) {
-					$locationParsed = parse_url( $location );
-
-					if ( $locationParsed === false || empty( $locationParsed['query'] ) ) {
-						return $location;
-					}
-
-					parse_str( $locationParsed['query'], $queryStringParsed );
-
-					if ( empty( $queryStringParsed ) ) {
-						return $location;
-					}
-
-					// If query string "a=te" exists or "liveupdate=1" then plugin file was updated.
-					$teIsSet = isset( $queryStringParsed['a'] ) && $queryStringParsed['a'] === 'te';
-					$liveUpdateIsSet = isset( $queryStringParsed['liveupdate'] ) && $queryStringParsed['liveupdate'] === '1';
-					if ( $teIsSet || $liveUpdateIsSet ) {
-						// File was updated.
-						$loggerInstance->info_message( 'plugin_file_edited', $context );
-					}
-
-					return $location;
-
-					// location when successful edit to non-active plugin
-					// http://wp-playground.dev/wp/wp-admin/plugin-editor.php?file=akismet/akismet.php&plugin=akismet/akismet.php&a=te&scrollto=0
-					// locations when activated plugin edited successfully
-					// plugin-editor.php?file=akismet%2Fakismet.php&plugin=akismet%2Fakismet.php&liveupdate=1&scrollto=0&networkwide&_wpnonce=b3f399fe94
-					// plugin-editor.php?file=akismet%2Fakismet.php&phperror=1&_error_nonce=63511c266d
-					// http://wp-playground.dev/wp/wp-admin/plugin-editor.php?file=akismet/akismet.php&plugin=akismet/akismet.php&a=te&scrollto=0
-					// locations when editing active plugin and error occurs
-					// plugin-editor.php?file=akismet%2Fakismet.php&plugin=akismet%2Fakismet.php&liveupdate=1&scrollto=0&networkwide&_wpnonce=b3f399fe94
-					// plugin-editor.php?file=akismet%2Fakismet.php&phperror=1&_error_nonce=63511c266d
-					// locations when error edit is fixed and saved and plugin is activated again
-					// plugin-editor.php?file=akismet%2Fakismet.php&plugin=akismet%2Fakismet.php&liveupdate=1&scrollto=0&networkwide&_wpnonce=b3f399fe94
-					// plugin-editor.php?file=akismet%2Fakismet.php&phperror=1&_error_nonce=63511c266d
-					// http://wp-playground.dev/wp/wp-admin/plugin-editor.php?file=akismet/akismet.php&plugin=akismet/akismet.php&a=te&scrollto=0.
-				},
-				10,
-				2
-			);
+			$this->info_message( 'plugin_file_edited', $context );
 		}// End if().
 	}
 
@@ -144,16 +107,21 @@ class File_Edits_Logger extends Logger {
 	 * so we hook onto that to save the edit.
 	 */
 	public function on_load_theme_editor() {
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		// Only continue if method is post and action is update.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( isset( $_POST['action'] ) && $_POST['action'] === 'update' ) {
+		if ( isset( $_POST['theme'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
 			/*
 			POST data is like
 				array(8)
 					'_wpnonce' => string(10) "9b5e46634f"
 					'_wp_http_referer' => string(88) "/wp/wp-admin/theme-editor.php?file=style.css&theme=twentyfifteen&scrollto=0&upda…"
 					'newcontent' => string(104366) "/* Theme Name: Twenty Fifteen Theme URI: https://wordpress.org/themes/twentyfift…"
-					'action' => string(6) "update"
+					'action' => string(6) "edit-theme-plugin-file"
 					'file' => string(9) "style.css"
 					'theme' => string(13) "twentyfifteen"
 					'scrollto' => string(3) "638"
@@ -198,34 +166,7 @@ class File_Edits_Logger extends Logger {
 				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$file",
 			);
 
-			// Hook into wp_redirect
-			// This hook is only added when we know a POST is done from theme-editor.php.
-			$loggerInstance = $this;
-			add_filter(
-				'wp_redirect',
-				function ( $location, $status ) use ( $context, $loggerInstance ) {
-					$locationParsed = parse_url( $location );
-
-					if ( $locationParsed === false || empty( $locationParsed['query'] ) ) {
-						return $location;
-					}
-
-					parse_str( $locationParsed['query'], $queryStringParsed );
-
-					if ( empty( $queryStringParsed ) ) {
-						return $location;
-					}
-
-					if ( isset( $queryStringParsed['updated'] ) && $queryStringParsed['updated'] ) {
-						// File was updated.
-						$loggerInstance->info_message( 'theme_file_edited', $context );
-					}
-
-					return $location;
-				},
-				10,
-				2
-			);
+			$this->info_message( 'theme_file_edited', $context );
 		}
 	}
 
