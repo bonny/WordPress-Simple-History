@@ -6,8 +6,7 @@ Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.5
 Stable tag: 4.15.1
 
-Easily track and view the changes made on your WordPress site, providing a comprehensive audit trail of user activities.
-See who created a page, uploaded an attachment or approved a comment, and more.
+Track changes and user activities on your WordPress site. See who created a page, uploaded an attachment, and more, for a complete audit trail.
 
 ## Description
 
