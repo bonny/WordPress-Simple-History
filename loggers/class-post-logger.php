@@ -4,8 +4,9 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
 
+
 /**
- * Logs changes to posts and pages, including custom post types
+ * Logs changes to posts and pages, including custom post types.
  */
 class Post_Logger extends Logger {
 	/** @var string Logger slug */
@@ -23,6 +24,39 @@ class Post_Logger extends Logger {
 	protected $old_post_data = [];
 
 	/**
+	 * Get array with information about this logger.
+	 *
+	 * @return array
+	 */
+	public function get_info() {
+		return [
+			'name'        => __( 'Post Logger', 'simple-history' ),
+			'description' => __( 'Logs the creation and modification of posts and pages', 'simple-history' ),
+			'capability'  => 'edit_pages',
+			'messages'    => array(
+				'post_created'  => __( 'Created {post_type} "{post_title}"', 'simple-history' ),
+				'post_updated'  => __( 'Updated {post_type} "{post_title}"', 'simple-history' ),
+				'post_restored' => __( 'Restored {post_type} "{post_title}" from trash', 'simple-history' ),
+				'post_deleted'  => __( 'Deleted {post_type} "{post_title}"', 'simple-history' ),
+				'post_trashed'  => __( 'Moved {post_type} "{post_title}" to the trash', 'simple-history' ),
+			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Posts & Pages', 'Post logger: search', 'simple-history' ),
+					'label_all' => _x( 'All posts & pages activity', 'Post logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Posts created', 'Post logger: search', 'simple-history' ) => array( 'post_created' ),
+						_x( 'Posts updated', 'Post logger: search', 'simple-history' ) => array( 'post_updated' ),
+						_x( 'Posts trashed', 'Post logger: search', 'simple-history' ) => array( 'post_trashed' ),
+						_x( 'Posts deleted', 'Post logger: search', 'simple-history' ) => array( 'post_deleted' ),
+						_x( 'Posts restored', 'Post logger: search', 'simple-history' ) => array( 'post_restored' ),
+					),
+				),
+			),
+		];
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function loaded() {
@@ -37,7 +71,12 @@ class Post_Logger extends Logger {
 		// wp function bulk_edit_posts() takes care of making changes.
 		add_action( 'admin_action_edit', array( $this, 'on_admin_action_edit_save_prev_post' ) );
 
+		// Detect regular post edits.
 		add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 10, 3 );
+
+		// Detect posts changing status from future to publish.
+		add_action( 'transition_post_status', array( $this, 'on_transition_post_status_future' ), 10, 3 );
+
 		add_action( 'delete_post', array( $this, 'on_delete_post' ) );
 		add_action( 'untrash_post', array( $this, 'on_untrash_post' ) );
 
@@ -201,41 +240,6 @@ class Post_Logger extends Logger {
 				$this->info_message( 'post_trashed', $context );
 			}
 		} // End if().
-	}
-
-	/**
-	 * Get array with information about this logger.
-	 *
-	 * @return array
-	 */
-	public function get_info() {
-		$arr_info = array(
-			'name'        => __( 'Post Logger', 'simple-history' ),
-			'description' => __( 'Logs the creation and modification of posts and pages', 'simple-history' ),
-			'capability'  => 'edit_pages',
-			'messages'    => array(
-				'post_created'  => __( 'Created {post_type} "{post_title}"', 'simple-history' ),
-				'post_updated'  => __( 'Updated {post_type} "{post_title}"', 'simple-history' ),
-				'post_restored' => __( 'Restored {post_type} "{post_title}" from trash', 'simple-history' ),
-				'post_deleted'  => __( 'Deleted {post_type} "{post_title}"', 'simple-history' ),
-				'post_trashed'  => __( 'Moved {post_type} "{post_title}" to the trash', 'simple-history' ),
-			),
-			'labels'      => array(
-				'search' => array(
-					'label'     => _x( 'Posts & Pages', 'Post logger: search', 'simple-history' ),
-					'label_all' => _x( 'All posts & pages activity', 'Post logger: search', 'simple-history' ),
-					'options'   => array(
-						_x( 'Posts created', 'Post logger: search', 'simple-history' ) => array( 'post_created' ),
-						_x( 'Posts updated', 'Post logger: search', 'simple-history' ) => array( 'post_updated' ),
-						_x( 'Posts trashed', 'Post logger: search', 'simple-history' ) => array( 'post_trashed' ),
-						_x( 'Posts deleted', 'Post logger: search', 'simple-history' ) => array( 'post_deleted' ),
-						_x( 'Posts restored', 'Post logger: search', 'simple-history' ) => array( 'post_restored' ),
-					),
-				),
-			),
-		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -566,6 +570,13 @@ class Post_Logger extends Logger {
 			$ok_to_log = true;
 		}
 
+		// When a post is transitioned from future to publish, it's done by a cron job,
+		// and is_admin() is false. It's called from filter "publish_future_post".
+		// Logging is done from another function, we just make double sure to not log it here.
+		if ( did_action( 'publish_future_post' ) ) {
+			$ok_to_log = false;
+		}
+
 		// Don't log revisions.
 		if ( wp_is_post_revision( $post ) ) {
 			$ok_to_log = false;
@@ -651,6 +662,29 @@ class Post_Logger extends Logger {
 
 			$this->info_message( 'post_updated', $context );
 		} // End if().
+	}
+
+	/**
+	 * When a post is transitioned from future to publish, it's done by a cron job,
+	 * and is_admin() is false. It's called from filter "publish_future_post" however, so we can check for that.
+	 *
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Old status.
+	 * @param \WP_Post $post Post object.
+	 */
+	public function on_transition_post_status_future( $new_status, $old_status, $post ) {
+		if ( did_action( 'publish_future_post' ) ) {
+			$this->info_message(
+				'post_updated',
+				[
+					'post_id' => $post->ID,
+					'post_type' => get_post_type( $post ),
+					'post_title' => get_the_title( $post ),
+					'post_prev_status' => $old_status,
+					'post_new_status' => $new_status,
+				]
+			);
+		}
 	}
 
 	/**

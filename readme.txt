@@ -266,6 +266,7 @@ Yes, Simple History allows you to filter the history by user names, making it ea
 - Make the file edits logger (that logs changes files in themes and plugins) work again. [#437](https://github.com/bonny/WordPress-Simple-History/pull/437)
 - Update WordPress Coding Standards to latest version. [#436](https://github.com/bonny/WordPress-Simple-History/issues/436)
 - Fix: Show prev featured image when removing image from post. Prev the fields was empty. So confusing.
+- Add logging of post status changes from future to publish. This is done using a WP-Cron job and was missing before. [#343](https://github.com/bonny/WordPress-Simple-History/issues/343)
 - Stop context keys post_author/user_login', 'post_author/user_email', 'post_author/display_name' because author change is already shown. The context keys are still available to see in the context data table.
 
 ### 4.14.0 (April 2024)
