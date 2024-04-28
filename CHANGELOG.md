@@ -1,5 +1,16 @@
 # Changelog for 2023 an earlier
 
+### 4.12.0 (Februari 2024)
+
+**Added**
+
+- Theme activation/switch done via WP CLI (e.g. `wp theme activate twentytwentyone`) is now logged.
+
+**Fixed**
+
+- Message type search/filter not working. [#428](https://github.com/bonny/WordPress-Simple-History/issues/428)
+- PHP notice when user has no roles. [#429](https://github.com/bonny/WordPress-Simple-History/issues/429).
+
 ### 4.11.0 (February 2024)
 
 This version introduces improved user role support and enhanced export functionality. For more details and screenshots, check out the [release post](https://simple-history.com/2024/simple-history-4-11-0/).

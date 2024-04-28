@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.5
-Stable tag: 4.15.0
+Stable tag: 4.14.0
 
 Easily track and view the changes made on your WordPress site, providing a comprehensive audit trail of user activities.
 See who created a page, uploaded an attachment or approved a comment, and more.
@@ -261,7 +261,7 @@ Yes, Simple History allows you to filter the history by user names, making it ea
 
 ## Changelog
 
-### Unreleased
+### 4.15.0 (April 2024)
 
 - Make the file edits logger (that logs changes files in themes and plugins) work again. [#437](https://github.com/bonny/WordPress-Simple-History/pull/437)
 - Update WordPress Coding Standards to latest version. [#436](https://github.com/bonny/WordPress-Simple-History/issues/436)
@@ -288,16 +288,5 @@ Yes, Simple History allows you to filter the history by user names, making it ea
 - Show a message for users with WooCommerce installed and activated, informing them about the new WooCommerce Logger Add-On.
 
 View the [release post to see screenshots of the new features](https://simple-history.com/2024/simple-history-4-13/).
-
-### 4.12.0 (Februari 2024)
-
-**Added**
-
-- Theme activation/switch done via WP CLI (e.g. `wp theme activate twentytwentyone`) is now logged.
-
-**Fixed**
-
-- Message type search/filter not working. [#428](https://github.com/bonny/WordPress-Simple-History/issues/428)
-- PHP notice when user has no roles. [#429](https://github.com/bonny/WordPress-Simple-History/issues/429).
 
 [Changelog for previous versions.](CHANGELOG.md)
