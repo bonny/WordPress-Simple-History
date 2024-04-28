@@ -166,7 +166,7 @@ class Licences_Settings_Page extends Service {
 	 * Output fields to enter licence key for each plus plugin.
 	 *
 	 * The user only enter the license key on the main site?
-	 * Is it beacuse it's one the main site that the license key is used to update the plugin?
+	 * Is it because it's one the main site that the license key is used to update the plugin?
 	 * If license was entered on each subsite, which key would the main site actually use to update the plugin?
 	 *
 	 * Problem: A user has only the WooCommerce plugin and the Simple History WooCommerce logger addon installed on a subsite,
