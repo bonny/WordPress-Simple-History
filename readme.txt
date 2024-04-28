@@ -261,17 +261,27 @@ Yes, Simple History allows you to filter the history by user names, making it ea
 
 ## Changelog
 
-### Unreleased
+### 4.15.0 (April 2024)
 
-- Make the file edits logger (that logs changes files in themes and plugins) work again. [#437](https://github.com/bonny/WordPress-Simple-History/pull/437)
+This release contains a new feature that logs when scheduled blog posts or site pages automatically publish themselves at any time in the future. It also contains the regular bug fixes and improvements. [View the release post](https://simple-history.com/2024/simple-history-4-15-0/?utm_source=wpadmin).
+
+**Added**
+
+- Log when post status changes from future to publish, i.e. when scheduled blog posts or site pages automatically publish themselves at any time in the future. [#343](https://github.com/bonny/WordPress-Simple-History/issues/343)
+
+**Fixed**
+
+- Log theme file edits and plugin file edits again. [#437](https://github.com/bonny/WordPress-Simple-History/pull/437)
+- Show previous featured image when removing a featured image from a post. Before this change the fields was empty. So confusing.
+- Cleanup the edited post event output by remove context keys `post_author/user_login`, `post_author/user_email`, `post_author/display_name` from post edited events, because author change is already shown as plain text. The context keys are still available to see in the context data table.
+
+**Updated**
+
 - Update WordPress Coding Standards to latest version. [#436](https://github.com/bonny/WordPress-Simple-History/issues/436)
-- Fix: Show prev featured image when removing image from post. Prev the fields was empty. So confusing.
-- Add logging of post status changes from future to publish. This is done using a WP-Cron job and was missing before. [#343](https://github.com/bonny/WordPress-Simple-History/issues/343)
-- Stop context keys post_author/user_login', 'post_author/user_email', 'post_author/display_name' because author change is already shown. The context keys are still available to see in the context data table.
 
 ### 4.14.0 (April 2024)
 
-🕵️‍♀️ This version introduces a new Detective Mode. Many users use Simple History to catch changes made by users and plugins, but sometimes it can be hard to tell exactly what plugin that was responsible for a specific action. Detective Mode has been crated to help users find the responsible plugin, hook, URL, or function used to trigger a specific action. [View screenshots and more information](https://simple-history.com/2024/simple-history-4-14-0-introducing-detective-mode/?utm_source=wpadmin).
+🕵️‍♀️ This version introduces a new Detective Mode. Many users use Simple History to catch changes made by users and plugins, but sometimes it can be hard to tell exactly what plugin that was responsible for a specific action. Detective Mode has been created to help users find the responsible plugin, hook, URL, or function used to trigger a specific action. [View screenshots and more information](https://simple-history.com/2024/simple-history-4-14-0-introducing-detective-mode/?utm_source=wpadmin).
 
 - Add [**Detective Mode**](https://simple-history.com/support/detective-mode/), a new feature aimed to help users find what plugin or theme is causing a specific event or action to be logged or happen. Great for debugging. This new feature can be enabled in the settings. [Read more](https://simple-history.com/2024/simple-history-4-14-0-introducing-detective-mode/?utm_source=wpadmin). Useful for admins, developers, forensics detectives, security experts, and more.
 - Add support for searching for localized logger message strings. [#277](https://github.com/bonny/WordPress-Simple-History/issues/277)
@@ -288,16 +298,5 @@ Yes, Simple History allows you to filter the history by user names, making it ea
 - Show a message for users with WooCommerce installed and activated, informing them about the new WooCommerce Logger Add-On.
 
 View the [release post to see screenshots of the new features](https://simple-history.com/2024/simple-history-4-13/).
-
-### 4.12.0 (Februari 2024)
-
-**Added**
-
-- Theme activation/switch done via WP CLI (e.g. `wp theme activate twentytwentyone`) is now logged.
-
-**Fixed**
-
-- Message type search/filter not working. [#428](https://github.com/bonny/WordPress-Simple-History/issues/428)
-- PHP notice when user has no roles. [#429](https://github.com/bonny/WordPress-Simple-History/issues/429).
 
 [Changelog for previous versions.](CHANGELOG.md)
