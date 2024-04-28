@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.5
-Stable tag: 4.14.0
+Stable tag: 4.15.0
 
 Easily track and view the changes made on your WordPress site, providing a comprehensive audit trail of user activities.
 See who created a page, uploaded an attachment or approved a comment, and more.
