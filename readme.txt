@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.5
-Stable tag: 4.14.0
+Stable tag: 4.15.1
 
 Easily track and view the changes made on your WordPress site, providing a comprehensive audit trail of user activities.
 See who created a page, uploaded an attachment or approved a comment, and more.
@@ -261,7 +261,7 @@ Yes, Simple History allows you to filter the history by user names, making it ea
 
 ## Changelog
 
-### 4.15.0 (April 2024)
+### 4.15.1 (April 2024)
 
 This release contains a new feature that logs when scheduled blog posts or site pages automatically publish themselves at any time in the future. It also contains the regular bug fixes and improvements. [View the release post](https://simple-history.com/2024/simple-history-4-15-0/?utm_source=wpadmin).
 
@@ -278,6 +278,10 @@ This release contains a new feature that logs when scheduled blog posts or site 
 **Updated**
 
 - Update WordPress Coding Standards to latest version. [#436](https://github.com/bonny/WordPress-Simple-History/issues/436)
+
+### 4.15.0 (April 2024)
+
+Was never released. Skipped to 4.15.1. Something went wrong with tagging.
 
 ### 4.14.0 (April 2024)
 
