@@ -175,10 +175,10 @@ If you like this plugin please consider donating to support the development. The
 - [Become a GitHub sponsor](https://github.com/sponsors/bonny).
 - [Add-ons that you can buy to support the development](https://simple-history.com/add-ons/) (and get some extra features!).
 
-**Notworthy sponsors**
+**Noteworthy sponsors**
 
-- [TextTV.nu](https://texttv.nu) - Sveriges bästa text-tv på webben
-- [Brottsplatskartan.se](https://brottsplatskartan.se) - Sveriges största brottsplatskarta
+- [TextTV.nu](https://texttv.nu) - Swedish teletext on the web
+- [Brottsplatskartan.se](https://brottsplatskartan.se) - Swedish police reports on a map
 
 ## Frequently Asked Questions
 
