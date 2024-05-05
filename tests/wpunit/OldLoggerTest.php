@@ -76,6 +76,7 @@ class OldLoggerTest extends \Codeception\TestCase\WPTestCase {
 	public function test_that_logger_can_access_slug() {
 		$simple_history = Simple_History::get_instance();		
 		$logger = $simple_history->get_instantiated_logger_by_slug('SimpleHistoryLogger');
+		$this->setExpectedDeprecated('Simple_History\Loggers\Logger::__get');
 		$this->assertEquals('SimpleHistoryLogger', $logger->slug);
 	}
 }
