@@ -260,6 +260,10 @@ Yes, Simple History allows you to filter the history by user names, making it ea
 
 ## Changelog
 
+### Unreleased
+
+- Update testing framework wp-browser to 3.5.
+
 ### 4.15.1 (April 2024)
 
 This release contains a new feature that logs when scheduled blog posts or site pages automatically publish themselves at any time in the future. It also contains the regular bug fixes and improvements. [View the release post](https://simple-history.com/2024/simple-history-4-15-0/?utm_source=wpadmin).
