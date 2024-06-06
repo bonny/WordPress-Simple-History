@@ -88,6 +88,7 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 - [AJAX Login and Registration modal popup + inline form](https://wordpress.org/plugins/ajax-login-and-registration-modal-popup/)
 - [Loginpetze](https://wordpress.org/plugins/loginpetze/)
 - [Authorizer](https://wordpress.org/plugins/authorizer/)
+- [Ad Inserter](https://wordpress.org/plugins/ad-inserter/)
 
 ### What users say 💬
 
