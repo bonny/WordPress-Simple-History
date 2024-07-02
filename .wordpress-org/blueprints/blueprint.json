@@ -2,7 +2,7 @@
 	"landingPage": "/wp-admin/index.php?page=simple_history_page",
 	"preferredVersions": {
 		"php": "8.2",
-		"wp": "6.4"
+		"wp": "6.5"
 	},
 	"phpExtensionBundles": ["kitchen-sink"],
 	"steps": [
@@ -23,7 +23,7 @@
 		},
 		{
 			"step": "runPHP",
-			"code": "<?php\ninclude 'wordpress/wp-load.php';\nwp_insert_post(array(\n'import_id' => 5,\n'post_title' => 'Example Post',\n'post_content' => '<!-- wp:paragraph -->\n<p>a normal paragraph</p>\n<!-- /wp:paragraph -->',\n'post_status' => 'publish',\n'post_author' => 1\n));"
+			"code": "<?php require_once 'wordpress/wp-load.php'; wp_insert_post(array('import_id' => 5,'post_title' => 'Example Post','post_content' => '<!-- wp:paragraph --><p>a normal paragraph</p><!-- /wp:paragraph -->','post_status' => 'publish','post_author' => 1));"
 		}
 	]
 }
