@@ -6,25 +6,6 @@ use Simple_History\Helpers;
 
 /**
  * Queries the Simple History Log.
- *
- * Todo
- * - Occasions should check user permissions, or otherwise it can add any id and the user will have access to it.
- * - Test if fix for full group is working.
- * - [x] Finish query_overview_full_group_by() to return same data as query_overview(), and then compare and verify that it returns same data.
- *  - Also print SQL query and do some EXPLAIN on it in a regular editor. If this works it would be nice to blog about the findings,
- *    and print benchmarks etc.
- * - [x] Get num rows using second query with count(*)
- * - [x] Add limit.
- * - [x] Test in MySQL 5.5, 5.7, MariaDB 10.4.
- * - [x] Add support for SQLite.
- * - [x] Use get_cache_group
- * - [x] Use clear_cache instead of (true)
- * - [x] Date filtering is broken (sql where clause missing/not added)
- * - [x] Add caching to SQLite
- * - [x] Add tests for single event occasions.
- * - [x] Add tests for log row notifier.
- * - [ ] Run PHPStan and Rector.
- * - [ ] Merge together all git commits to one commit with close-##-messages.
  */
 class Log_Query {
 	/**
