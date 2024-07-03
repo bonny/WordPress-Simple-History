@@ -48,10 +48,28 @@ echo wp_kses(
 );
 
 /**
+ * Database info.
+ */
+echo '<h3>' . esc_html_x( 'Database', 'debug dropin', 'simple-history' ) . '</h3>';
+
+echo '<h4>' . esc_html_x( 'Database engine', 'debug dropin', 'simple-history' ) . '</h4>';
+
+echo wp_kses(
+	sprintf(
+		/* translators: %1$s database engine name, %2$s database engine version. */
+		__( 'Database engine used to perform queries: <code>%1$s</code>.', 'simple-history' ),
+		Log_Query::get_db_engine()
+	),
+	[
+		'code' => [],
+	]
+);
+
+/**
  * Size of database in both number or rows and table size
  */
 
-echo '<h3>' . esc_html_x( 'Database size', 'debug dropin', 'simple-history' ) . '</h3>';
+echo '<h4>' . esc_html_x( 'Database size', 'debug dropin', 'simple-history' ) . '</h4>';
 
 $table_size_result = Helpers::get_db_table_stats();
 
