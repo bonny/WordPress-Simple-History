@@ -10,6 +10,8 @@ namespace Simple_History;
  *      events_table_name:string,
  *      simple_history_instance:Simple_History,
  *      wpdb:\wpdb
+ * 		plugins:array,
+ *  	dropins:array
  * } $args
  */
 
@@ -399,8 +401,6 @@ echo '<h2>' . esc_html_x( 'Plugins', 'debug dropin', 'simple-history' ) . '</h2>
 
 echo '<p>' . esc_html_x( 'As returned from get_plugins().', 'debug dropin', 'simple-history' ) . '</p>';
 
-$all_plugins = get_plugins();
-
 echo "<table class='widefat striped'>";
 printf(
 	'<thead>
@@ -416,7 +416,7 @@ printf(
 	esc_html_x( 'Active', 'debug dropin', 'simple-history' )
 );
 
-foreach ( $all_plugins as $pluginFilePath => $onePlugin ) {
+foreach ( $args['plugins'] as $pluginFilePath => $onePlugin ) {
 	$isPluginActive = Helpers::is_plugin_active( $pluginFilePath );
 
 	printf(
@@ -435,3 +435,40 @@ foreach ( $all_plugins as $pluginFilePath => $onePlugin ) {
 }
 
 echo '</table>';
+
+// WordPress drop-ins.
+echo '<h2>' . esc_html_x( 'WordPress drop-ins', 'debug dropin', 'simple-history' ) . '</h2>';
+
+echo '<p>' . esc_html_x( 'As returned from get_dropins().', 'debug dropin', 'simple-history' ) . '</p>';
+
+if ( count( $args['dropins'] ) === 0 ) {
+	echo '<p>' . esc_html_x( 'No drop-ins found.', 'debug dropin', 'simple-history' ) . '</p>';
+} else {
+	echo "<table class='widefat striped'>";
+	printf(
+		'<thead>
+			<tr>
+				<th>%1$s</th>
+				<th>%2$s</th>
+			</tr>
+		</thead>
+		',
+		esc_html_x( 'Drop-in name', 'debug dropin', 'simple-history' ),
+		esc_html_x( 'Drop-in filename', 'debug dropin', 'simple-history' )
+	);
+
+	foreach ( $args['dropins'] as $dropinFilename => $dropinInfo ) {
+		printf(
+			'
+			<tr>
+				<td><strong>%1$s</strong></td>
+				<td>%2$s</td>
+			</tr>
+			',
+			esc_html( $dropinInfo['Name'] ),
+			esc_html( $dropinFilename )
+		);
+	}
+
+	echo '</table>';
+}
