@@ -242,6 +242,16 @@ This can be modified using the filter [`simple_history/db_purge_days_interval`](
 
 Yes, Simple History allows you to filter the history by user names, making it easy to monitor individual activities.
 
+= Is this plugin GDRP compliant? =
+
+Since GDRP is such a complex topic and since [WordPress plugins are not allowed to imply that they provide legal compliance](https://make.wordpress.org/plugins/2018/04/12/legal-compliance-added-to-guidelines/) we can not simply just say that the plugin is GDPR compliant.
+
+GDPR is very much about how you use the data and how you inform your users about what data you collect and how you use it. No site is the same and the usage together with the plugin can be very different from site to site. So you should always make sure that you are compliant with GDPR when using the plugin.
+
+That said, the plugin does not use Google Fonts, does not set cookies, uses no local storage, and by default the ip addresses are anonymized. The plugin is however a plugin that logs events and that can contain personal data, so you should always make sure that you are compliant with GDPR when using the plugin.
+
+Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq-frequently-asked-questions/#is-the-plugin-GDPR-complient).
+
 ## Screenshots
 
 1. The log view + it also shows the filter function in use - the log only shows event that
