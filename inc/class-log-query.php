@@ -1324,8 +1324,7 @@ class Log_Query {
 	 * @return string "mysql" or "sqlite"
 	 */
 	public static function get_db_engine() {
-		$db_engine = defined( 'DB_ENGINE' ) && constant( 'DB_ENGINE' ) === 'sqlite' ? 'sqlite' : 'mysql';
-		return $db_engine;
+		return defined( 'DB_ENGINE' ) && constant( 'DB_ENGINE' ) === 'sqlite' ? 'sqlite' : 'mysql';
 	}
 
 	/**
