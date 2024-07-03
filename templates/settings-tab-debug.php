@@ -10,8 +10,9 @@ namespace Simple_History;
  *      events_table_name:string,
  *      simple_history_instance:Simple_History,
  *      wpdb:\wpdb
- * 		plugins:array,
- *  	dropins:array
+ *      plugins:array,
+ *      dropins:array
+ *      tables_info:array
  * } $args
  */
 
@@ -24,9 +25,7 @@ defined( 'ABSPATH' ) || die();
  * are not moved with the rest of the database, but the options table are and that
  * confuses Simple History.
  */
-$tables_info = Helpers::required_tables_exist();
-
-foreach ( $tables_info as $table_info ) {
+foreach ( $args['tables_info'] as $table_info ) {
 	if ( ! $table_info['table_exists'] ) {
 		echo '<div class="notice notice-error">';
 		echo '<p>';
@@ -73,8 +72,6 @@ echo wp_kses(
 
 echo '<h4>' . esc_html_x( 'Database size', 'debug dropin', 'simple-history' ) . '</h4>';
 
-$table_size_result = Helpers::get_db_table_stats();
-
 echo "<table class='widefat striped'>";
 printf(
 	'<thead>
@@ -90,12 +87,12 @@ printf(
 	esc_html_x( 'Rows', 'debug dropin', 'simple-history' )
 );
 
-if ( sizeof( $table_size_result ) === 0 ) {
+if ( sizeof( $args['table_size_result'] ) === 0 ) {
 	echo '<tr><td colspan="3">';
 	echo esc_html_x( 'No tables found.', 'debug dropin', 'simple-history' );
 	echo '</td></tr>';
 } else {
-	foreach ( $table_size_result as $one_table ) {
+	foreach ( $args['table_size_result'] as $one_table ) {
 		/* translators: %s size in mb. */
 		$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table->size_in_mb );
 
