@@ -13,6 +13,8 @@ namespace Simple_History;
  *      plugins:array,
  *      dropins:array
  *      tables_info:array
+ *      table_size_result:array
+ *      db_engine:string
  * } $args
  */
 
@@ -59,7 +61,7 @@ echo wp_kses(
 	sprintf(
 		/* translators: %1$s database engine name, %2$s database engine version. */
 		__( 'Database engine used to perform queries: <code>%1$s</code>.', 'simple-history' ),
-		Log_Query::get_db_engine()
+		$args['db_engine']
 	),
 	[
 		'code' => [],
@@ -117,13 +119,7 @@ echo '</table>';
 /**
  * Number of rows in database
  */
-$logQuery = new Log_Query();
-
-$rows = $logQuery->query(
-	array(
-		'posts_per_page' => 1,
-	)
-);
+$rows = ( new Log_Query() )->query( [ 'posts_per_page' => 1 ] );
 
 // This is the number of rows with occasions taken into consideration.
 $total_accassions_rows_count = $rows['total_row_count'];

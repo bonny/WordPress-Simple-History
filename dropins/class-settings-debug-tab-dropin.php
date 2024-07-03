@@ -3,6 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
+use Simple_History\Log_Query;
 
 /**
  * Dropin Name: Settings debug
@@ -42,6 +43,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 				'dropins' => get_dropins(),
 				'tables_info' => Helpers::required_tables_exist(),
 				'table_size_result' => Helpers::get_db_table_stats(),
+				'db_engine' => Log_Query::get_db_engine(),
 			)
 		);
 	}
