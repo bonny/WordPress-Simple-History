@@ -90,6 +90,7 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 - [Authorizer](https://wordpress.org/plugins/authorizer/)
 - [Ad Inserter](https://wordpress.org/plugins/ad-inserter/)
 - [FV Player Pro](https://foliovision.com/player/features/sharing/video-downloading-with-simple-history#integration-with-simple-history)
+- [Login Me Now](https://wordpress.org/plugins/login-me-now/)
 
 ### What users say 💬
 
