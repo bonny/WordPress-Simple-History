@@ -182,6 +182,7 @@ class User_Logger extends Logger {
 
 		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
 		add_action( 'wp_delete_application_password', array( $this, 'on_action_wp_delete_application_password' ), 10, 2 );
+		// TODO: there is also an action "wp_update_application_password". Used by rest api and fired when a user updates app password there.
 
 		$this->add_wp_cli_hooks();
 	}
