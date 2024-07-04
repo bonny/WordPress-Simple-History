@@ -481,7 +481,16 @@ class Plugin_ACF_Logger extends Logger {
 	public function keep_only_acf_stuff_in_array( $arr, $all_fields ) {
 		$new_arr = array();
 
+		if ( ! is_array( $arr ) ) {
+			return $new_arr;
+		}
+
 		foreach ( $arr as $key => $val ) {
+			// Bail if not a string.
+			if ( ! is_string( $key ) || ! is_string( $val ) ) {
+				continue;
+			}
+
 			// Don't keep keys that begin with underscore "_".
 			if ( strpos( $key, '_' ) === 0 ) {
 				continue;

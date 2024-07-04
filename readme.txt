@@ -282,7 +282,8 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Throw exception if log query has any db errors. This should help with debugging since the message often is visible in the log, instead of just dying silently. [#438](https://github.com/bonny/WordPress-Simple-History/issues/438)
 - Log when a plugin failed to update and add reason/error message to the context. [#345](https://github.com/bonny/WordPress-Simple-History/issues/345)
 - Refactoring and code cleanup.
-- Add support for ANSI_MODE in MySQL/MariaDB. [#334](https://github.com/bonny/WordPress-Simple-History/issues/334)
+- Add support for ANSI_QUOTES in MySQL/MariaDB. [#334](https://github.com/bonny/WordPress-Simple-History/issues/334)
+- Fix a possible strpos()-warning in the ACF logger. [#440](https://github.com/bonny/WordPress-Simple-History/issues/440)
 
 ### 4.15.1 (April 2024)
 
