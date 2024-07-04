@@ -276,6 +276,9 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 ### Unreleased
 
 - Update testing framework wp-browser to 3.5.
+- Add used db engine to debug page. Simple History supports bort MySQL, MariaDB, and SQLite.
+- Show [Must Use Plugins](https://developer.wordpress.org/advanced-administration/plugins/mu-plugins/) on the debug page.
+- Add support for showing table size and number of rows for SQLite databases on the debug page.
 
 ### 4.15.1 (April 2024)
 
