@@ -143,7 +143,15 @@ class Log_Query {
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( ! empty( $wpdb->last_error ) ) {
-			exit;
+			throw new \Exception(
+				esc_html(
+					sprintf(
+						/* translators: %s: error message */
+						__( 'Error when performing query: %s', 'simple-history' ),
+						$wpdb->last_error
+					)
+				)
+			);
 		}
 
 		// Append context to log rows.
@@ -208,6 +216,7 @@ class Log_Query {
 	/**
 	 * @param string|array|object $args Arguments.
 	 * @return array Log rows.
+	 * @throws \Exception If error when performing query.
 	 */
 	protected function query_overview_mysql( $args ) {
 		// Parse and prepare args.
@@ -390,7 +399,15 @@ class Log_Query {
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( ! empty( $wpdb->last_error ) ) {
-			exit;
+			throw new \Exception(
+				esc_html(
+					sprintf(
+						/* translators: %s: error message */
+						__( 'Error when performing query: %s', 'simple-history' ),
+						$wpdb->last_error
+					)
+				)
+			);
 		}
 
 		// Append context to log rows.

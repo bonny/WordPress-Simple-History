@@ -279,6 +279,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Add used db engine to debug page. Simple History supports bort MySQL, MariaDB, and SQLite.
 - Show [Must Use Plugins](https://developer.wordpress.org/advanced-administration/plugins/mu-plugins/) on the debug page.
 - Add support for showing table size and number of rows for SQLite databases on the debug page.
+- Throw exception if log query has any db errors. This should help with debugging since the message often is visible in the log, instead of just dying silently. [#438](https://github.com/bonny/WordPress-Simple-History/issues/438)
 
 ### 4.15.1 (April 2024)
 
