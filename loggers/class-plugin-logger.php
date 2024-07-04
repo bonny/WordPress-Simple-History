@@ -177,7 +177,6 @@ class Plugin_Logger extends Logger {
 		// Fires after the upgrades has done it's thing.
 		// Check hook extra for upgrader initiator.
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2 );
-		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_log_single_plugin_install' ), 10, 2 );
 
 		// Ajax function to get info from GitHub repo. Used by "View plugin info"-link for plugin installs.
 		add_action( 'wp_ajax_SimplePluginLogger_GetGitHubPluginInfo', array( $this, 'ajax_GetGitHubPluginInfo' ) );
@@ -758,107 +757,9 @@ class Plugin_Logger extends Logger {
 			return;
 		}
 
-			// Single plugin install.
-		if ( isset( $arr_data['action'] ) && 'install' == $arr_data['action'] && ! $plugin_upgrader_instance->bulk ) {
-			$upgrader_skin_options = isset( $plugin_upgrader_instance->skin->options ) && is_array( $plugin_upgrader_instance->skin->options ) ? $plugin_upgrader_instance->skin->options : array();
-			$upgrader_skin_result  = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
-			$new_plugin_data       = $plugin_upgrader_instance->new_plugin_data ?? array();
-			$plugin_slug           = $upgrader_skin_result['destination_name'] ?? '';
+		$this->on_upgrader_process_complete_log_single_plugin_install( $plugin_upgrader_instance, $arr_data );
 
-			$context = array(
-				'plugin_slug'         => $plugin_slug,
-				'plugin_name'         => $new_plugin_data['Name'] ?? '',
-				'plugin_url'          => $new_plugin_data['PluginURI'] ?? '',
-				'plugin_version'      => $new_plugin_data['Version'] ?? '',
-				'plugin_author'       => $new_plugin_data['Author'] ?? '',
-				'plugin_requires_wp'  => $new_plugin_data['RequiresWP'] ?? '',
-				'plugin_requires_php' => $new_plugin_data['RequiresPHP'] ?? '',
-			);
-
-			/*
-			Detect install plugin from wordpress.org
-				- options[type] = "web"
-				- options[api] contains all we need
-
-			Detect install from upload ZIP
-				- options[type] = "upload"
-
-			Also: plugins hosted at GitHub have a de-facto standard field of "GitHub Plugin URI"
-			*/
-			$install_source = 'web';
-			if ( isset( $upgrader_skin_options['type'] ) ) {
-				$install_source = (string) $upgrader_skin_options['type'];
-			}
-
-			$context['plugin_install_source'] = $install_source;
-
-			// If uploaded plugin store name of ZIP.
-
-			/*
-			_debug_files
-			{
-			"pluginzip": {
-			"name": "WPThumb-master.zip",
-			"type": "application\/zip",
-			"tmp_name": "\/Applications\/MAMP\/tmp\/php\/phpnThImc",
-			"error": 0,
-			"size": 2394625
-			}
-			}
-			*/
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			if ( 'upload' == $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$plugin_upload_name            = sanitize_text_field( $_FILES['pluginzip']['name'] );
-				$context['plugin_upload_name'] = $plugin_upload_name;
-			}
-
-			if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
-				// Add errors
-				// Errors is in original wp admin language.
-				$context['error_messages'] = Helpers::json_encode( $plugin_upgrader_instance->skin->result->errors );
-				$context['error_data']     = Helpers::json_encode( $plugin_upgrader_instance->skin->result->error_data );
-
-				$this->info_message(
-					'plugin_installed_failed',
-					$context
-				);
-			} else {
-				// Plugin was successfully installed
-				// Try to grab more info from the readme
-				// Would be nice to grab a screenshot, but that is difficult since they often are stored remotely.
-				$plugin_destination = $plugin_upgrader_instance->result['destination'] ?? null;
-
-				if ( $plugin_destination ) {
-					$plugin_info = $plugin_upgrader_instance->plugin_info();
-
-					$plugin_data = array();
-					if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin_info ) ) {
-						$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info, true, false );
-					}
-
-					$context['plugin_name']        = $plugin_data['Name'] ?? '';
-					$context['plugin_description'] = $plugin_data['Description'] ?? '';
-					$context['plugin_url']         = $plugin_data['PluginURI'] ?? '';
-					$context['plugin_version']     = $plugin_data['Version'] ?? '';
-					$context['plugin_author']      = $plugin_data['AuthorName'] ?? '';
-
-					// Comment out these to debug plugin installs
-					// $context["debug_plugin_data"] = Helpers::json_encode( $plugin_data );.
-					// $context["debug_plugin_info"] = Helpers::json_encode( $plugin_info );.
-					if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
-						$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
-					}
-				}
-
-				$this->info_message(
-					'plugin_installed',
-					$context
-				);
-			}// End if().
-		} // End if().
-
-			// Single plugin update.
+		// Single plugin update.
 		if ( isset( $arr_data['action'] ) && 'update' == $arr_data['action'] && ! $plugin_upgrader_instance->bulk ) {
 			// No plugin info in instance, so get it ourself.
 			$plugin_data = array();
@@ -1011,12 +912,100 @@ class Plugin_Logger extends Logger {
 	}
 
 	/**
-	 * Log single plugin install.
-	 * 
+	 * Log single, non bulk, plugin install or install failure.
+	 *
 	 * @param \Plugin_Upgrader $plugin_upgrader_instance Plugin_Upgrader instance.
 	 * @param array            $arr_data                 Array of bulk item update data.
 	 */
-	public function on_upgrader_process_complete_log_single_plugin_install( $plugin_upgrader_instance, $arr_data ) {
+	protected function on_upgrader_process_complete_log_single_plugin_install( $plugin_upgrader_instance, $arr_data ) {
+		// Bail if not single plugin install data.
+		if ( ! isset( $arr_data['action'] ) || $arr_data['action'] !== 'install' || $plugin_upgrader_instance->bulk ) {
+			return;
+		}
+
+		$upgrader_skin_options = isset( $plugin_upgrader_instance->skin->options ) && is_array( $plugin_upgrader_instance->skin->options ) ? $plugin_upgrader_instance->skin->options : array();
+		$upgrader_skin_result  = isset( $plugin_upgrader_instance->skin->result ) && is_array( $plugin_upgrader_instance->skin->result ) ? $plugin_upgrader_instance->skin->result : array();
+		$new_plugin_data       = $plugin_upgrader_instance->new_plugin_data ?? array();
+		$plugin_slug           = $upgrader_skin_result['destination_name'] ?? '';
+
+		$context = [
+			'plugin_slug'         => $plugin_slug,
+			'plugin_name'         => $new_plugin_data['Name'] ?? '',
+			'plugin_url'          => $new_plugin_data['PluginURI'] ?? '',
+			'plugin_version'      => $new_plugin_data['Version'] ?? '',
+			'plugin_author'       => $new_plugin_data['Author'] ?? '',
+			'plugin_requires_wp'  => $new_plugin_data['RequiresWP'] ?? '',
+			'plugin_requires_php' => $new_plugin_data['RequiresPHP'] ?? '',
+		];
+
+		/*
+		Detect install plugin from wordpress.org
+			- options[type] = "web"
+			- options[api] contains all we need
+
+		Detect install from upload ZIP
+			- options[type] = "upload"
+
+		Also: plugins hosted at GitHub have a de-facto standard field of "GitHub Plugin URI"
+		*/
+		$install_source = 'web';
+		if ( isset( $upgrader_skin_options['type'] ) ) {
+			$install_source = (string) $upgrader_skin_options['type'];
+		}
+
+		$context['plugin_install_source'] = $install_source;
+
+		// If uploaded plugin store name of ZIP.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( 'upload' == $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$plugin_upload_name            = sanitize_text_field( $_FILES['pluginzip']['name'] );
+			$context['plugin_upload_name'] = $plugin_upload_name;
+		}
+
+		if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
+			// Add errors
+			// Errors is in original wp admin language.
+			$context['error_messages'] = Helpers::json_encode( $plugin_upgrader_instance->skin->result->errors );
+			$context['error_data']     = Helpers::json_encode( $plugin_upgrader_instance->skin->result->error_data );
+
+			$this->info_message(
+				'plugin_installed_failed',
+				$context
+			);
+		} else {
+			// Plugin was successfully installed
+			// Try to grab more info from the readme
+			// Would be nice to grab a screenshot, but that is difficult since they often are stored remotely.
+			$plugin_destination = $plugin_upgrader_instance->result['destination'] ?? null;
+
+			if ( $plugin_destination ) {
+				$plugin_info = $plugin_upgrader_instance->plugin_info();
+
+				$plugin_data = array();
+				if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin_info ) ) {
+					$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_info, true, false );
+				}
+
+				$context['plugin_name']        = $plugin_data['Name'] ?? '';
+				$context['plugin_description'] = $plugin_data['Description'] ?? '';
+				$context['plugin_url']         = $plugin_data['PluginURI'] ?? '';
+				$context['plugin_version']     = $plugin_data['Version'] ?? '';
+				$context['plugin_author']      = $plugin_data['AuthorName'] ?? '';
+
+				// Comment out these to debug plugin installs
+				// $context["debug_plugin_data"] = Helpers::json_encode( $plugin_data );.
+				// $context["debug_plugin_info"] = Helpers::json_encode( $plugin_info );.
+				if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
+					$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
+				}
+			}
+
+			$this->info_message(
+				'plugin_installed',
+				$context
+			);
+		} // End if().
 	}
 
 	/**
