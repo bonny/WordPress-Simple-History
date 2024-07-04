@@ -25,7 +25,17 @@ class Plugin_Logger extends Logger {
 	 *
 	 * @var array $latest_plugin_deactivation_because_of_error_reason
 	 */
-	public $latest_plugin_deactivation_because_of_error_reason = array();
+	public $latest_plugin_deactivation_because_of_error_reason = [];
+
+	/**
+	 * Array with package results.
+	 * The result can contain errors, like if the old plugin could not be removed.
+	 * These errors are not added in the final upgrader class response when using bulk update.
+	 * So this is the only way to get them.
+	 *
+	 * @var array $package_results
+	 */
+	public $package_results = [];
 
 	/**
 	 * Used to collect information about a plugin (using get_plugin_data()) before it is deleted.
@@ -96,6 +106,12 @@ class Plugin_Logger extends Logger {
 					'simple-history'
 				),
 
+				'plugin_bulk_updated_failed' => _x(
+					'Failed to update plugin "{plugin_name}"',
+					'Plugin failed to update in bulk',
+					'simple-history'
+				),
+
 				// Plugin disabled due to some error.
 				'plugin_disabled_because_error' => _x(
 					'Deactivated plugin "{plugin_slug}" because of an error ("{deactivation_reason}").',
@@ -139,6 +155,7 @@ class Plugin_Logger extends Logger {
 						),
 						_x( 'Failed plugin updates', 'Plugin logger: search', 'simple-history' ) => array(
 							'plugin_update_failed',
+							'plugin_bulk_updated_failed',
 						),
 						_x( 'Deleted plugins', 'Plugin logger: search', 'simple-history' ) => array(
 							'plugin_deleted',
@@ -205,6 +222,71 @@ class Plugin_Logger extends Logger {
 		// Since WordPress 4.4 filters exists that are fired before and after plugin deletion.
 		add_action( 'delete_plugin', array( $this, 'on_action_delete_plugin' ), 10, 1 );
 		add_action( 'deleted_plugin', array( $this, 'on_action_deleted_plugin' ), 10, 2 );
+
+		add_filter( 'upgrader_install_package_result', [ $this, 'on_upgrader_install_package_result' ], 10, 2 );
+	}
+
+	/**
+	 * Filters the result of WP_Upgrader::install_package().
+	 * Fired from WP_Upgrader class (or a subclass like Plugin_Upgrader in the run() function.
+	 * Here we can get access to any errors that happen during plugin install/update.
+	 * This hook is fired once for each plugin.
+	 *
+	 * @param array|WP_Error $result     Result from WP_Upgrader::install_package().
+	 * @param array          $hook_extra Extra arguments passed to hooked filters.
+	 */
+	public function on_upgrader_install_package_result( $result, $hook_extra ) {
+		/*
+		$result example:
+
+		WP_Error Object
+		(
+			[errors] => Array
+				(
+					[remove_old_failed] => Array
+						(
+							[0] => Could not remove the old plugin.
+						)
+
+				)
+
+			[error_data] => Array
+				(
+				)
+
+			[additional_data:protected] => Array
+				(
+				)
+
+		)
+
+		$hook_extra example:
+
+		Array
+		(
+			[plugin] => classic-widgets/classic-widgets.php
+			[temp_backup] => Array
+				(
+					[slug] => classic-widgets
+					[src] => /var/www/html/wp-content/plugins
+					[dir] => plugins
+				)
+
+		)
+		*/
+
+		$plugin_main_file_path = $hook_extra['plugin'] ?? null;
+
+		if ( ! $plugin_main_file_path ) {
+			return $result;
+		}
+
+		$this->package_results[ $plugin_main_file_path ] = [
+			'result' => $result,
+			'hook_extra' => $hook_extra,
+		];
+
+		return $result;
 	}
 
 	/**
@@ -427,14 +509,13 @@ class Plugin_Logger extends Logger {
 	}
 
 	/**
-	 * Things
+	 * Detect when a plugin is deactivated due to an error, like if the plugin file has been deleted.
 	 *
 	 * @param string $translation Translation.
 	 * @param string $text Text.
 	 * @param string $domain Domain.
 	 */
 	public function on_gettext_detect_plugin_error_deactivation_reason( $translation, $text, $domain ) {
-
 		global $pagenow;
 
 		// We only act on page plugins.php.
@@ -696,96 +777,142 @@ class Plugin_Logger extends Logger {
 	 * @param array            $arr_data                 Array of bulk item update data.
 	 */
 	public function on_upgrader_process_complete( $plugin_upgrader_instance, $arr_data ) {
-		// Can't use get_plugins() here to get version of plugins updated from
-		// Tested that, and it will get the new version (and that's the correct answer I guess. but too bad for us..).
-
-		/*
-		If an update fails then $plugin_upgrader_instance->skin->result->errors contains something like:
-		Array
-		(
-			[remove_old_failed] => Array
-				(
-					[0] => Could not remove the old plugin.
-				)
-
-		)
-		*/
-
-		/*
-		# Contents of $arr_data in different scenarios
-
-		## WordPress core update
-
-		$arr_data:
-		Array
-		(
-			[action] => update
-			[type] => core
-		)
-
-		# Plugin install
-
-		$arr_data:
-		Array
-		(
-			[type] => plugin
-			[action] => install
-		)
-
-		## Plugin update
-
-		$arr_data:
-		Array
-		(
-			[type] => plugin
-			[action] => install
-		)
-
-		## Bulk actions
-
-		array(
-			'action' => 'update',
-			'type' => 'plugin',
-			'bulk' => true,
-			'plugins' => $plugins,
-		)
-
-		*/
-
 		// Bail if not plugin update data.
 		if ( ! isset( $arr_data['type'] ) || $arr_data['type'] !== 'plugin' ) {
 			return;
 		}
 
 		$this->on_upgrader_process_complete_log_single_plugin_install( $plugin_upgrader_instance, $arr_data );
+		$this->on_upgrader_process_complete_log_single_plugin_update( $plugin_upgrader_instance, $arr_data );
+		$this->on_upgrader_process_complete_log_bulk_plugin_update( $plugin_upgrader_instance, $arr_data );
+	}
 
-		// Single plugin update.
-		if ( isset( $arr_data['action'] ) && 'update' == $arr_data['action'] && ! $plugin_upgrader_instance->bulk ) {
-			// No plugin info in instance, so get it ourself.
-			$plugin_data = array();
-			if ( file_exists( WP_PLUGIN_DIR . '/' . $arr_data['plugin'] ) ) {
-				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data['plugin'], true, false );
-			}
+	/**
+	 * Log single, non bulk, plugin update or update failure.
+	 * Not sure when this happens anymore, I always get bulk results, no matter where I
+	 * update from.
+	 *
+	 * @param \Plugin_Upgrader $plugin_upgrader_instance Plugin_Upgrader instance.
+	 * @param array            $arr_data                 Array of bulk item update data.
+	 */
+	protected function on_upgrader_process_complete_log_single_plugin_update( $plugin_upgrader_instance, $arr_data ) {
+		// Bail if not single plugin non bulk update.
+		if ( ! isset( $arr_data['action'] ) || $arr_data['action'] !== 'update' || $plugin_upgrader_instance->bulk ) {
+			return;
+		}
+
+		// No plugin info in instance, so get it ourself.
+		$plugin_data = [];
+		if ( file_exists( WP_PLUGIN_DIR . '/' . $arr_data['plugin'] ) ) {
+			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data['plugin'], true, false );
+		}
+
+		// autoptimize/autoptimize.php.
+		$plugin_slug = dirname( $arr_data['plugin'] );
+
+		$context = [
+			'plugin_slug'         => $plugin_slug,
+			'request'             => Helpers::json_encode( $_REQUEST ),
+			'plugin_name'         => $plugin_data['Name'],
+			'plugin_title'        => $plugin_data['Title'],
+			'plugin_description'  => $plugin_data['Description'],
+			'plugin_author'       => $plugin_data['Author'],
+			'plugin_version'      => $plugin_data['Version'],
+			'plugin_url'          => $plugin_data['PluginURI'],
+		];
+
+		// update status for plugins are in response
+		// plugin folder + index file = key
+		// use transient to get url and package.
+		$update_plugins = get_site_transient( 'update_plugins' );
+		if ( $update_plugins && isset( $update_plugins->response[ $arr_data['plugin'] ] ) ) {
+			$plugin_update_info = $update_plugins->response[ $arr_data['plugin'] ];
 
 			// autoptimize/autoptimize.php.
-			$plugin_slug = dirname( $arr_data['plugin'] );
+			if ( isset( $plugin_update_info->plugin ) ) {
+				$context['plugin_update_info_plugin'] = $plugin_update_info->plugin;
+			}
 
-			$context = array(
-				'plugin_slug'         => $plugin_slug,
-				'request'             => Helpers::json_encode( $_REQUEST ),
-				'plugin_name'         => $plugin_data['Name'],
-				'plugin_title'        => $plugin_data['Title'],
-				'plugin_description'  => $plugin_data['Description'],
-				'plugin_author'       => $plugin_data['Author'],
-				'plugin_version'      => $plugin_data['Version'],
-				'plugin_url'          => $plugin_data['PluginURI'],
+			// https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip.
+			if ( isset( $plugin_update_info->package ) ) {
+				$context['plugin_update_info_package'] = $plugin_update_info->package;
+			}
+		}
+
+		// To get old version we use our option.
+		$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
+		if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $arr_data['plugin'] ] ) ) {
+			$context['plugin_prev_version'] = $plugins_before_update[ $arr_data['plugin'] ]['Version'];
+		}
+
+		if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
+			// Add errors
+			// Errors is in original wp admin language.
+			$context['error_messages'] = json_encode( $plugin_upgrader_instance->skin->result->errors );
+			$context['error_data']     = json_encode( $plugin_upgrader_instance->skin->result->error_data );
+
+			$this->info_message(
+				'plugin_update_failed',
+				$context
 			);
+		} else {
+			$this->info_message(
+				'plugin_updated',
+				$context
+			);
+		}
+	}
 
-			// update status for plugins are in response
-			// plugin folder + index file = key
-			// use transient to get url and package.
+	/**
+	 * Log bulk plugin update.
+	 *
+	 * @param \Plugin_Upgrader $plugin_upgrader_instance Plugin_Upgrader instance.
+	 * @param array            $arr_data {
+	 *     Array of bulk item update data.
+	 *
+	 *     @type string $action       Type of action. Default 'update'.
+	 *     @type string $type         Type of update process. Accepts 'plugin', 'theme', 'translation', or 'core'.
+	 *     @type bool   $bulk         Whether the update process is a bulk update. Default true.
+	 *     @type array  $plugins      Array of the basename paths of the plugins' main files.
+	 *     @type array  $themes       The theme slugs.
+	 *     @type array  $translations {
+	 *         Array of translations update data.
+	 *
+	 *         @type string $language The locale the translation is for.
+	 *         @type string $type     Type of translation. Accepts 'plugin', 'theme', or 'core'.
+	 *         @type string $slug     Text domain the translation is for. The slug of a theme/plugin or
+	 *                                'default' for core translations.
+	 *         @type string $version  The version of a theme, plugin, or core.
+	 *     }
+	 * }
+	 */
+	protected function on_upgrader_process_complete_log_bulk_plugin_update( $plugin_upgrader_instance, $arr_data ) {
+		// Bail if not bulk plugin update.
+		if ( ! isset( $arr_data['bulk'] ) || ! $arr_data['bulk'] || ! isset( $arr_data['action'] ) || $arr_data['action'] !== 'update' ) {
+			return;
+		}
+
+		$plugins_updated = isset( $arr_data['plugins'] ) ? (array) $arr_data['plugins'] : [];
+
+		/** @var string $plugin_main_file_path Plugin folder and main file, i.e. classic-widgets/classic-widgets.php */
+		foreach ( $plugins_updated as $plugin_main_file_path ) {
+			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_main_file_path, true, false );
+			$plugin_slug = dirname( $plugin_main_file_path );
+
+			$context = [
+				'plugin_main_file_path' => $plugin_main_file_path,
+				'plugin_slug'           => $plugin_slug,
+				'plugin_name'           => $plugin_data['Name'],
+				'plugin_title'          => $plugin_data['Title'],
+				'plugin_description'    => $plugin_data['Description'],
+				'plugin_author'         => $plugin_data['Author'],
+				'plugin_version'        => $plugin_data['Version'],
+				'plugin_url'            => $plugin_data['PluginURI'],
+			];
+
+			// Get url and package.
 			$update_plugins = get_site_transient( 'update_plugins' );
-			if ( $update_plugins && isset( $update_plugins->response[ $arr_data['plugin'] ] ) ) {
+			if ( $update_plugins && isset( $update_plugins->response[ $plugin_main_file_path ] ) ) {
 				/*
 				$update_plugins[plugin_path/slug]:
 				{
@@ -797,9 +924,8 @@ class Plugin_Logger extends Logger {
 					"package": "https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip"
 				}
 				*/
-				// for debug purposes the update_plugins key can be added
-				// $context["update_plugins"] = Helpers::json_encode( $update_plugins );.
-				$plugin_update_info = $update_plugins->response[ $arr_data['plugin'] ];
+
+				$plugin_update_info = $update_plugins->response[ $plugin_main_file_path ];
 
 				// autoptimize/autoptimize.php.
 				if ( isset( $plugin_update_info->plugin ) ) {
@@ -814,101 +940,26 @@ class Plugin_Logger extends Logger {
 
 			// To get old version we use our option.
 			$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
-			if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $arr_data['plugin'] ] ) ) {
-				$context['plugin_prev_version'] = $plugins_before_update[ $arr_data['plugin'] ]['Version'];
+			if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_main_file_path ] ) ) {
+				$context['plugin_prev_version'] = $plugins_before_update[ $plugin_main_file_path ]['Version'];
 			}
 
-			if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
-				// Add errors
-				// Errors is in original wp admin language.
-				$context['error_messages'] = json_encode( $plugin_upgrader_instance->skin->result->errors );
-				$context['error_data']     = json_encode( $plugin_upgrader_instance->skin->result->error_data );
+			$plugin_errors = $this->package_results[ $plugin_main_file_path ]['result']->errors ?? [];
 
-				$this->info_message(
-					'plugin_update_failed',
+			if ( count( $plugin_errors ) > 0 ) {
+				$context['plugin_errors'] = $plugin_errors;
+
+				$this->warning_message(
+					'plugin_bulk_updated_failed',
 					$context
 				);
 			} else {
 				$this->info_message(
-					'plugin_updated',
+					'plugin_bulk_updated',
 					$context
 				);
 			}
 		}
-
-			/**
-			 * For bulk updates $arr_data looks like:
-			 * Array
-			 * (
-			 *     [action] => update
-			 *     [type] => plugin
-			 *     [bulk] => 1
-			 *     [plugins] => Array
-			 *         (
-			 *             [0] => plugin-folder-1/plugin-index.php
-			 *             [1] => my-plugin-folder/my-plugin.php
-			 *         )
-			 * )
-			 */
-		if ( isset( $arr_data['bulk'] ) && $arr_data['bulk'] && isset( $arr_data['action'] ) && 'update' == $arr_data['action'] ) {
-			$plugins_updated = isset( $arr_data['plugins'] ) ? (array) $arr_data['plugins'] : array();
-
-			foreach ( $plugins_updated as $plugin_name ) {
-				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name, true, false );
-
-				$plugin_slug = dirname( $plugin_name );
-
-				$context = array(
-					'plugin_slug'        => $plugin_slug,
-					'plugin_name'        => $plugin_data['Name'],
-					'plugin_title'       => $plugin_data['Title'],
-					'plugin_description' => $plugin_data['Description'],
-					'plugin_author'      => $plugin_data['Author'],
-					'plugin_version'     => $plugin_data['Version'],
-					'plugin_url'         => $plugin_data['PluginURI'],
-				);
-
-				// get url and package.
-				$update_plugins = get_site_transient( 'update_plugins' );
-				if ( $update_plugins && isset( $update_plugins->response[ $plugin_name ] ) ) {
-					/*
-					$update_plugins[plugin_path/slug]:
-					{
-						"id": "8986",
-						"slug": "autoptimize",
-						"plugin": "autoptimize/autoptimize.php",
-						"new_version": "1.9.1",
-						"url": "https://wordpress.org/plugins/autoptimize/",
-						"package": "https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip"
-					}
-					*/
-
-					$plugin_update_info = $update_plugins->response[ $plugin_name ];
-
-					// autoptimize/autoptimize.php.
-					if ( isset( $plugin_update_info->plugin ) ) {
-						$context['plugin_update_info_plugin'] = $plugin_update_info->plugin;
-					}
-
-					// https://downloads.wordpress.org/plugin/autoptimize.1.9.1.zip.
-					if ( isset( $plugin_update_info->package ) ) {
-						$context['plugin_update_info_package'] = $plugin_update_info->package;
-					}
-				}
-
-				// To get old version we use our option
-				// @TODO: this does not always work, why?
-				$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
-				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_name ] ) ) {
-					$context['plugin_prev_version'] = $plugins_before_update[ $plugin_name ]['Version'];
-				}
-
-				$this->info_message(
-					'plugin_bulk_updated',
-					$context
-				);
-			}// End foreach().
-		}// End if().
 	}
 
 	/**
