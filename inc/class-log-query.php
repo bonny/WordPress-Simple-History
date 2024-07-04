@@ -81,6 +81,7 @@ class Log_Query {
 	 *
 	 * @param string|array|object $args Arguments.
 	 * @return array Log rows.
+	 * @throws \Exception If error when performing query.
 	 */
 	protected function query_overview_sqlite( $args ) {
 		$args = $this->prepare_args( $args );
