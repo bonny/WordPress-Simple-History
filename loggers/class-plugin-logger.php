@@ -754,10 +754,6 @@ class Plugin_Logger extends Logger {
 
 		*/
 
-		// To keep track of if something was logged, so wen can output debug info only
-		// only if we did not log anything.
-		$did_log = false;
-
 		if ( isset( $arr_data['type'] ) && 'plugin' == $arr_data['type'] ) {
 			// Single plugin install.
 			if ( isset( $arr_data['action'] ) && 'install' == $arr_data['action'] && ! $plugin_upgrader_instance->bulk ) {
@@ -824,8 +820,6 @@ class Plugin_Logger extends Logger {
 						'plugin_installed_failed',
 						$context
 					);
-
-					$did_log = true;
 				} else {
 					// Plugin was successfully installed
 					// Try to grab more info from the readme
@@ -858,8 +852,6 @@ class Plugin_Logger extends Logger {
 						'plugin_installed',
 						$context
 					);
-
-					$did_log = true;
 				}// End if().
 			} // End if().
 
@@ -932,18 +924,11 @@ class Plugin_Logger extends Logger {
 						'plugin_update_failed',
 						$context
 					);
-
-					$did_log = true;
 				} else {
 					$this->info_message(
 						'plugin_updated',
 						$context
 					);
-
-					// echo "on_upgrader_process_complete";
-					// sf_d( $plugin_upgrader_instance, '$plugin_upgrader_instance' );
-					// sf_d( $arr_data, '$arr_data' );.
-					$did_log = true;
 				}
 			}
 
