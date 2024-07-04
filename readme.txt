@@ -284,6 +284,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Refactoring and code cleanup.
 - Add support for ANSI_QUOTES in MySQL/MariaDB. [#334](https://github.com/bonny/WordPress-Simple-History/issues/334)
 - Fix a possible strpos()-warning in the ACF logger. [#440](https://github.com/bonny/WordPress-Simple-History/issues/440)
+- RSS feed: Add support for filtering by loglevel(s) by appending `?loglevels=warning,notice`. See https://simple-history.com/docs/feeds/ for all available filters. [#443](https://github.com/bonny/WordPress-Simple-History/issues/443)
 
 ### 4.15.1 (April 2024)
 

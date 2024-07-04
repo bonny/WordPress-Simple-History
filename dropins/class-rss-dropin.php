@@ -553,16 +553,18 @@ class RSS_Dropin extends Dropin {
 		$paged = isset( $args['paged'] ) ? (int) $args['paged'] : 1;
 		$date_from = isset( $args['date_from'] ) ? sanitize_text_field( $args['date_from'] ) : '';
 		$date_to = isset( $args['date_to'] ) ? sanitize_text_field( $args['date_to'] ) : '';
-		$loggers = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : array();
-		$messages = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : array();
+		$loggers = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : [];
+		$messages = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : [];
+		$loglevels = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : '';
 
-		$args['posts_per_page'] = $posts_per_page;
-		$args['paged'] = $paged;
-		$args['date_from'] = $date_from;
-		$args['date_to'] = $date_to;
-		$args['loggers'] = $loggers;
-		$args['messages'] = $messages;
-
-		return $args;
+		return [
+			'posts_per_page' => $posts_per_page,
+			'paged' => $paged,
+			'date_from' => $date_from,
+			'date_to' => $date_to,
+			'loggers' => $loggers,
+			'messages' => $messages,
+			'loglevels' => $loglevels,
+		];
 	}
 }
