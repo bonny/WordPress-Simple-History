@@ -184,8 +184,8 @@ class Setup_Database extends Service {
 			'
 				UPDATE %1$s
 				SET
-					logger = "SimpleLogger",
-					level = "info"
+					logger = \'SimpleLogger\',
+					level = \'info\'
 				WHERE logger IS NULL
 			',
 			$table_name

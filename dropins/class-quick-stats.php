@@ -44,11 +44,11 @@ class Quick_Stats extends Dropin {
                 DISTINCT(c.value) AS user_id
                 FROM %3$s AS h
             INNER JOIN %4$s AS c
-            ON c.history_id = h.id AND c.key = "_user_id"
+            ON c.history_id = h.id AND c.key = \'_user_id\'
             WHERE
-                initiator = "wp_user"
+                initiator = \'wp_user\'
                 AND logger IN %1$s
-                AND date > "%2$s"
+                AND date > \'%2$s\'
             ',
 			$sql_loggers_in,
 			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
@@ -70,9 +70,9 @@ class Quick_Stats extends Dropin {
 		// Get number of other sources (not wp_user).
 		$sql_other_sources_where = sprintf(
 			'
-                initiator <> "wp_user"
+                initiator <> \'wp_user\'
                 AND logger IN %1$s
-                AND date > "%2$s"
+                AND date > \'%2$s\'
             ',
 			$sql_loggers_in,
 			gmdate( 'Y-m-d H:i', strtotime( 'today' ) )

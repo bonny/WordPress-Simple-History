@@ -427,8 +427,8 @@ class Helpers {
 					SELECT table_name AS "table_name",
 					round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
 					FROM information_schema.TABLES
-					WHERE table_schema = "%1$s"
-					AND table_name IN ("%2$s", "%3$s");
+					WHERE table_schema = %s
+					AND table_name IN (%s, %s);
 					',
 				DB_NAME, // 1
 				$simple_history->get_events_table_name(), // 2

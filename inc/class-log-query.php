@@ -267,7 +267,7 @@ class Log_Query {
 			FROM %1$s AS h2
 
 			# Join column with message key so its searchable/filterable.
-			LEFT OUTER JOIN %2$s AS contexts ON (contexts.history_id = h2.id AND contexts.key = "_message_key")
+			LEFT OUTER JOIN %2$s AS contexts ON (contexts.history_id = h2.id AND contexts.key = \'_message_key\')
 
 			# Where statement.
 			%3$s
@@ -1114,13 +1114,13 @@ class Log_Query {
 		// Append date where clause.
 		// If date_from is set it is a timestamp.
 		if ( ! empty( $args['date_from'] ) ) {
-			$inner_where[] = sprintf( 'date >= "%1$s"', gmdate( 'Y-m-d H:i:s', $args['date_from'] ) );
+			$inner_where[] = sprintf( 'date >= \'%1$s\'', gmdate( 'Y-m-d H:i:s', $args['date_from'] ) );
 		}
 
 		// Date to.
 		// If date_to is set it is a timestamp.
 		if ( ! empty( $args['date_to'] ) ) {
-			$inner_where[] = sprintf( 'date <= "%1$s"', gmdate( 'Y-m-d H:i:s', $args['date_to'] ) );
+			$inner_where[] = sprintf( 'date <= \'%1$s\'', gmdate( 'Y-m-d H:i:s', $args['date_to'] ) );
 		}
 
 		// If "months" they translate to $args["months"] because we already have support for that
@@ -1239,7 +1239,7 @@ class Log_Query {
 			$sql_loglevels = '';
 
 			foreach ( $args['loglevels'] as $one_loglevel ) {
-				$sql_loglevels .= sprintf( ' "%s", ', esc_sql( $one_loglevel ) );
+				$sql_loglevels .= sprintf( ' \'%s\', ', esc_sql( $one_loglevel ) );
 			}
 
 			// Remove last comma.
@@ -1268,7 +1268,7 @@ class Log_Query {
 		// Add where for a single user ID.
 		if ( isset( $args['user'] ) ) {
 			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value = %2$s )',
+				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_user_id\' AND c.value = %2$s )',
 				$contexts_table_name, // 1
 				$args['user'], // 2
 			);
@@ -1277,7 +1277,7 @@ class Log_Query {
 		// Users, array with user ids.
 		if ( isset( $args['users'] ) ) {
 			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = "_user_id" AND c.value IN (%2$s) )',
+				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_user_id\' AND c.value IN (%2$s) )',
 				$contexts_table_name, // 1
 				implode( ',', $args['users'] ), // 2
 			);
@@ -1304,7 +1304,7 @@ class Log_Query {
 				$sql_logger_messages_in = '';
 
 				foreach ( $logger_messages as $one_logger_message ) {
-					$sql_logger_messages_in .= sprintf( '"%s",', esc_sql( $one_logger_message ) );
+					$sql_logger_messages_in .= sprintf( '\'%s\',', esc_sql( $one_logger_message ) );
 				}
 
 				$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
@@ -1313,7 +1313,7 @@ class Log_Query {
 				$sql_messages_where .= sprintf(
 					'
 					(
-						h.logger = "%1$s"
+						h.logger = \'%1$s\'
 						%2$s
 					)
 					OR ',
@@ -1388,7 +1388,7 @@ class Log_Query {
 				$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
 
 				$str_sql_search_words .= sprintf(
-					' AND %1$s LIKE "%2$s" ',
+					' AND %1$s LIKE \'%2$s\' ',
 					$one_col,
 					"%{$str_like}%"
 				);
@@ -1411,7 +1411,7 @@ class Log_Query {
 			$str_like = esc_sql( $wpdb->esc_like( $one_search_word ) );
 
 			$str_search_conditions .= "\n" . sprintf(
-				' id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE "%2$s" ) AND ',
+				' id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE \'%2$s\' ) AND ',
 				$contexts_table_name, // 1
 				'%' . $str_like . '%' // 2
 			);

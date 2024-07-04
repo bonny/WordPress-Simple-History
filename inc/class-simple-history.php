@@ -1217,7 +1217,7 @@ class Simple_History {
 	 * @return array|string Array or SQL string with loggers that user can read.
 	 */
 	public function get_loggers_that_user_can_read( $user_id = null, $format = 'array' ) {
-		$arr_loggers_user_can_view = array();
+		$arr_loggers_user_can_view = [];
 
 		if ( is_null( $user_id ) ) {
 			$user_id = get_current_user_id();
@@ -1292,7 +1292,7 @@ class Simple_History {
 
 			if ( count( $arr_loggers_user_can_view ) ) {
 				foreach ( $arr_loggers_user_can_view as $one_logger ) {
-					$str_return .= sprintf( '"%1$s", ', esc_sql( $one_logger['instance']->get_slug() ) );
+					$str_return .= sprintf( '\'%1$s\', ', esc_sql( $one_logger['instance']->get_slug() ) );
 				}
 
 				$str_return = rtrim( $str_return, ' ,' );
