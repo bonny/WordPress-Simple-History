@@ -286,6 +286,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Fix a possible strpos()-warning in the ACF logger. [#440](https://github.com/bonny/WordPress-Simple-History/issues/440)
 - RSS feed: Add support for filtering by loglevel(s) by appending `?loglevels=warning,notice`. See https://simple-history.com/docs/feeds/ for all available filters. [#443](https://github.com/bonny/WordPress-Simple-History/issues/443)
 - Log when an admin user changes the way WordPress auto updates, from "automatic updates for all new versions of WordPress" to "automatic updates for maintenance and security releases only", or vice versa. [#449](https://github.com/bonny/WordPress-Simple-History/issues/449)
+- Only log built in WordPress option names in the option screen. Sometimes other options could "sneak in" when they was added using a filter or similar on the same screen.
 
 ### 4.15.1 (April 2024)
 
