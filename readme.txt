@@ -294,6 +294,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Values changed for settings that can be toggled on or off now often say "On" or "Off" instead of "1" or "0".
 - Misc refactoring and code cleanup.
 - Setting "For each post in a feed, include..." now displays "Full text" or "Excerpt".
+- Option logger: modify plain output to include link to option page and make option in cleartext
 
 ### 4.15.1 (April 2024)
 
