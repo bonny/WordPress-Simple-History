@@ -287,6 +287,8 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - RSS feed: Add support for filtering by loglevel(s) by appending `?loglevels=warning,notice`. See https://simple-history.com/docs/feeds/ for all available filters. [#443](https://github.com/bonny/WordPress-Simple-History/issues/443)
 - Log when an admin user changes the way WordPress auto updates, from "automatic updates for all new versions of WordPress" to "automatic updates for maintenance and security releases only", or vice versa. [#449](https://github.com/bonny/WordPress-Simple-History/issues/449)
 - Only log built in WordPress option names in the option screen. Sometimes other options could "sneak in" when they was added using a filter or similar on the same screen.
+- When updating WPLANG option set en_US as the language when the option is empty, previously it was set to an empty string.
+- "Week Starts On" now displays the new and previous weekday as human readable text instead of a number.
 
 ### 4.15.1 (April 2024)
 
