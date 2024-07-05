@@ -111,6 +111,11 @@ class Options_Logger extends Logger {
 			$new_value = '';
 		}
 
+		// Add "option" page manually for permalink screen.
+		if ( $this->is_form_submitted_from_permalink_page() ) {
+			$option_page = 'permalink';
+		}
+
 		$context = [
 			'option' => $option,
 			'old_value' => $old_value,
@@ -380,7 +385,7 @@ class Options_Logger extends Logger {
 	/**
 	 * Modify context for WPLANG option.
 	 * If any value is empty then we set it to "en_US" because that is the default value.
-	 * 
+	 *
 	 * @param array  $context context.
 	 * @param mixed  $old_value old value.
 	 * @param mixed  $new_value new value.
@@ -403,6 +408,13 @@ class Options_Logger extends Logger {
 	/**
 	 * Modify option mailserver_pass to remove the new and old value from the context,
 	 * because we don't want to log the password.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return array Updated context.
 	 */
 	protected function add_context_for_option_mailserver_pass( $context, $old_value, $new_value, $option, $option_page ) {
 		$context['old_value'] = '';
@@ -463,6 +475,13 @@ class Options_Logger extends Logger {
 
 	/**
 	 * Get detailed output for start_of_week option.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @param string $tmpl_row template row.
 	 */
 	protected function get_details_output_for_option_start_of_week( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
 		/** @var \WP_Locale Logger slug */
@@ -601,3 +620,7 @@ class Options_Logger extends Logger {
 		];
 	}
 }
+
+/*
+Many options store values as 0 or 1, but we want to show them as for example "yes" or "no", or "Full text" or "Excerpt".
+*/
