@@ -2,6 +2,8 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Helpers;
+
 /**
  * Logs changes to wordpress options
  */
@@ -132,6 +134,30 @@ class Options_Logger extends Logger {
 		}
 
 		$this->info_message( 'option_updated', $context );
+	}
+
+	/**
+	 * Modify plain output to include link to option page and make option in cleartext.
+	 *
+	 * @param object $row Row data.
+	 */
+	public function get_log_row_plain_text_output( $row ) {
+		$context = $row->context;
+		$message_key = $context['_message_key'] ?? null;
+		$option_page = $context['option_page'] ?? null;
+		$message = $row->message;
+
+		if ( $message_key === 'option_updated' && $option_page ) {
+			// Update message to include link to option page.
+			$context['option_page_link'] = admin_url( "options-{$option_page}.php" );
+			$message = sprintf(
+				__( 'Updated setting "{option}" on the <a href="{option_page_link}">"{option_page}"</a> settings page', 'simple-history' ),
+				$context['option'],
+				$option_page
+			);
+		}
+
+		return Helpers::interpolate( $message, $context, $row );
 	}
 
 	/**
@@ -676,7 +702,10 @@ class Options_Logger extends Logger {
 					'translation' => __( 'Email me whenever a comment is held for moderation', 'simple-history' ),
 					'type' => 'onoff',
 				],
-				'show_avatars' => [ 'translation' => __( 'Show Avatars', 'simple-history' ) ],
+				'show_avatars' => [
+					'translation' => __( 'Show Avatars', 'simple-history' ),
+					'type' => 'onoff',
+				],
 				'avatar_rating' => [ 'translation' => __( 'Maximum Rating', 'simple-history' ) ],
 				'avatar_default' => [ 'translation' => __( 'Default Avatar', 'simple-history' ) ],
 			],
