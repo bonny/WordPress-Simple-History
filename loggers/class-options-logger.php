@@ -724,6 +724,13 @@ class Options_Logger extends Logger {
 	/**
 	 * Many options store values as 0 or 1, but we want to show them as for example "yes" or "no", or "Full text" or "Excerpt".
 	 * 'type' => 'onoff', = Show 0 as "Off" and 1 as "On".
+	 *
+	 * @param string $option_name Option name.
+	 * @param mixed  $new_value New value.
+	 * @param mixed  $old_value Old value.
+	 * @param string $option_custom_output Custom output.
+	 * @param string $tmpl_row Template row.
+	 * @return string Custom output.
 	 */
 	protected function get_output_for_option_with_type_option( $option_name, $new_value, $old_value, $option_custom_output, $tmpl_row ) {
 		$option_info = $this->get_option_info( $option_name );
