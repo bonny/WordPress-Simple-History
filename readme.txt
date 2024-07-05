@@ -290,6 +290,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - When updating WPLANG option set en_US as the language when the option is empty, previously it was set to an empty string.
 - "Week Starts On" now displays the new and previous weekday as human readable text instead of a number.
 - Ensure Post via email SMTP password is not exposed in the log.
+- Use wording "Updated setting..." instead of "Updated option..." in the log when a setting is updated because it's more user friendly to say "setting" instead of "option", since that's the wordings used in the WordPress UI.
 
 ### 4.15.1 (April 2024)
 
