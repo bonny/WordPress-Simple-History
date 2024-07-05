@@ -291,6 +291,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - "Week Starts On" now displays the new and previous weekday as human readable text instead of a number.
 - Ensure Post via email SMTP password is not exposed in the log.
 - Use wording "Updated setting..." instead of "Updated option..." in the log when a setting is updated because it's more user friendly to say "setting" instead of "option", since that's the wordings used in the WordPress UI.
+- Include the settings page in the main log message for each setting updated.
 
 ### 4.15.1 (April 2024)
 
