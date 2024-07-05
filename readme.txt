@@ -289,6 +289,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Only log built in WordPress option names in the option screen. Sometimes other options could "sneak in" when they was added using a filter or similar on the same screen.
 - When updating WPLANG option set en_US as the language when the option is empty, previously it was set to an empty string.
 - "Week Starts On" now displays the new and previous weekday as human readable text instead of a number.
+- Ensure Post via email SMTP password is not exposed in the log.
 
 ### 4.15.1 (April 2024)
 
