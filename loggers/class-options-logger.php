@@ -200,36 +200,6 @@ class Options_Logger extends Logger {
 			}
 		} // End if().
 
-		// If key option_page this was saved from regular settings pages.
-		if ( ! empty( $option_page ) ) {
-			$output .= sprintf(
-				'
-				<tr>
-					<td>%1$s</td>
-					<td><a href="%3$s">%2$s</a></td>
-				</tr>
-				',
-				__( 'Settings page', 'simple-history' ),
-				esc_html( $context['option_page'] ),
-				admin_url( "options-{$option_page}.php" )
-			);
-		}
-
-		// If option = permalink_structure then we did it from permalink page.
-		if ( ! empty( $option ) && ( 'permalink_structure' == $option || 'tag_base' == $option || 'category_base' == $option ) ) {
-			$output .= sprintf(
-				'
-				<tr>
-					<td>%1$s</td>
-					<td><a href="%3$s">%2$s</a></td>
-				</tr>
-				',
-				__( 'Settings page', 'simple-history' ),
-				'permalink',
-				admin_url( 'options-permalink.php' )
-			);
-		}
-
 		$output .= '</table>';
 
 		return $output;
