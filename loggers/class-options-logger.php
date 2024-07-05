@@ -20,7 +20,7 @@ class Options_Logger extends Logger {
 			'description' => __( 'Logs updates to WordPress settings', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(
-				'option_updated' => __( 'Updated setting "{option}"', 'simple-history' ),
+				'option_updated' => __( 'Updated setting "{option}" on the "{option_page}" settings page', 'simple-history' ),
 			),
 			'labels'      => array(
 				'search' => array(
