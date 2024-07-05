@@ -291,7 +291,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Ensure Post via email SMTP password is not exposed in the log.
 - Use wording "Updated setting..." instead of "Updated option..." in the log when a setting is updated because it's more user friendly to say "setting" instead of "option", since that's the wordings used in the WordPress UI.
 - Include the settings page in the main log message for each setting updated.
-- Values changed for settings now say "On" or "Off" instead of "1" or "0".
+- Values changed for settings that can be toggled on or off now often say "On" or "Off" instead of "1" or "0".
 - Misc refactoring and code cleanup.
 - Setting "For each post in a feed, include..." now displays "Full text" or "Excerpt".
 
