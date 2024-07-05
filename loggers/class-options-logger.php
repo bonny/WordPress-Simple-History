@@ -532,7 +532,7 @@ class Options_Logger extends Logger {
 	 */
 	protected function get_details_output_for_option_rss_use_excerpt( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
 		$output = '';
-		
+
 		// 0 full text, 1 excerpt
 		if ( $old_value == 0 ) {
 			$old_value = __( 'Full text', 'simple-history' );
@@ -631,14 +631,32 @@ class Options_Logger extends Logger {
 			'discussion' => [
 				'default_article_visibility' => [ 'translation' => __( 'Default article visibility', 'simple-history' ) ],
 				'default_comment_status' => [ 'translation' => __( 'Allow people to submit comments on new posts', 'simple-history' ) ],
-				'require_name_email' => [ 'translation' => __( 'Comment author must fill out name and email', 'simple-history' ) ],
-				'comment_registration' => [ 'translation' => __( 'Users must be registered and logged in to comment', 'simple-history' ) ],
-				'close_comments_for_old_posts' => [ 'translation' => __( 'Automatically close comments on posts older than', 'simple-history' ) ],
+				'require_name_email' => [
+					'translation' => __( 'Comment author must fill out name and email', 'simple-history' ),
+					'type' => 'onoff',
+				],
+				'comment_registration' => [
+					'translation' => __( 'Users must be registered and logged in to comment', 'simple-history' ),
+					'type' => 'onoff',
+				],
+				'close_comments_for_old_posts' => [
+					'translation' => __( 'Automatically close comments on posts older than', 'simple-history' ),
+					'type' => 'onoff',
+				],
 				'close_comments_days_old' => [ 'translation' => __( 'Days before comments are closed', 'simple-history' ) ],
-				'show_comments_cookies_opt_in' => [ 'translation' => __( 'Show comments cookies opt-in checkbox', 'simple-history' ) ],
-				'thread_comments' => [ 'translation' => __( 'Enable threaded (nested) comments', 'simple-history' ) ],
+				'show_comments_cookies_opt_in' => [
+					'translation' => __( 'Show comments cookies opt-in checkbox', 'simple-history' ),
+					'type' => 'onoff',
+				],
+				'thread_comments' => [
+					'translation' => __( 'Enable threaded (nested) comments', 'simple-history' ),
+					'type' => 'onoff',
+				],
 				'thread_comments_depth' => [ 'translation' => __( 'Max depth for threaded comments', 'simple-history' ) ],
-				'page_comments' => [ 'translation' => __( 'Break comments into pages', 'simple-history' ) ],
+				'page_comments' => [
+					'translation' => __( 'Break comments into pages', 'simple-history' ),
+					'type' => 'onoff',
+				],
 				'comments_per_page' => [ 'translation' => __( 'Top level comments per page', 'simple-history' ) ],
 				'default_comments_page' => [ 'translation' => __( 'Comments should be displayed with the', 'simple-history' ) ],
 				'comment_order' => [ 'translation' => __( 'Comments order', 'simple-history' ) ],
@@ -649,9 +667,15 @@ class Options_Logger extends Logger {
 				'disallowed_keys' => [ 'translation' => __( 'Disallowed Comment Keys', 'simple-history' ) ],
 				'comment_moderation' => [ 'translation' => __( 'Comment must be manually approved', 'simple-history' ) ],
 				'comment_whitelist' => [ 'translation' => __( 'Comment author must have a previously approved comment', 'simple-history' ) ],
-				'comments_notify' => [ 'translation' => __( 'Email me whenever anyone posts a comment', 'simple-history' ) ],
-				'moderation_notify' => [ 'translation' => __( 'Email me whenever a comment is held for moderation', 'simple-history' ) ],
+				'comments_notify' => [
+					'translation' => __( 'Email me whenever anyone posts a comment', 'simple-history' ),
+					'type' => 'onoff',
+				],
 				'comment_notify' => [ 'translation' => __( 'Email me whenever anyone posts a comment', 'simple-history' ) ],
+				'moderation_notify' => [
+					'translation' => __( 'Email me whenever a comment is held for moderation', 'simple-history' ),
+					'type' => 'onoff',
+				],
 				'show_avatars' => [ 'translation' => __( 'Show Avatars', 'simple-history' ) ],
 				'avatar_rating' => [ 'translation' => __( 'Maximum Rating', 'simple-history' ) ],
 				'avatar_default' => [ 'translation' => __( 'Default Avatar', 'simple-history' ) ],
@@ -664,7 +688,10 @@ class Options_Logger extends Logger {
 				'medium_size_h' => [ 'translation' => __( 'Medium size height', 'simple-history' ) ],
 				'large_size_w' => [ 'translation' => __( 'Large size width', 'simple-history' ) ],
 				'large_size_h' => [ 'translation' => __( 'Large size height', 'simple-history' ) ],
-				'uploads_use_yearmonth_folders' => [ 'translation' => __( 'Organize my uploads into month- and year-based folders', 'simple-history' ) ],
+				'uploads_use_yearmonth_folders' => [
+					'translation' => __( 'Organize my uploads into month- and year-based folders', 'simple-history' ),
+					'type' => 'onoff',
+				],
 			],
 			'permalinks' => [
 				'permalink_structure' => [ 'translation' => __( 'Custom Structure', 'simple-history' ) ],
