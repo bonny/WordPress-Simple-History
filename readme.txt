@@ -281,7 +281,6 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Add support for showing table size and number of rows for SQLite databases on the debug page.
 - Throw exception if log query has any db errors. This should help with debugging since the message often is visible in the log, instead of just dying silently. [#438](https://github.com/bonny/WordPress-Simple-History/issues/438)
 - Log when a plugin failed to update and add reason/error message to the context. [#345](https://github.com/bonny/WordPress-Simple-History/issues/345)
-- Refactoring and code cleanup.
 - Add support for ANSI_QUOTES in MySQL/MariaDB. [#334](https://github.com/bonny/WordPress-Simple-History/issues/334)
 - Fix a possible strpos()-warning in the ACF logger. [#440](https://github.com/bonny/WordPress-Simple-History/issues/440)
 - RSS feed: Add support for filtering by loglevel(s) by appending `?loglevels=warning,notice`. See https://simple-history.com/docs/feeds/ for all available filters. [#443](https://github.com/bonny/WordPress-Simple-History/issues/443)
@@ -292,6 +291,9 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Ensure Post via email SMTP password is not exposed in the log.
 - Use wording "Updated setting..." instead of "Updated option..." in the log when a setting is updated because it's more user friendly to say "setting" instead of "option", since that's the wordings used in the WordPress UI.
 - Include the settings page in the main log message for each setting updated.
+- Values changed for settings now say "On" or "Off" instead of "1" or "0".
+- Misc refactoring and code cleanup.
+- Setting "For each post in a feed, include..." now displays "Full text" or "Excerpt".
 
 ### 4.15.1 (April 2024)
 

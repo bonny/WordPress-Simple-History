@@ -521,6 +521,43 @@ class Options_Logger extends Logger {
 	}
 
 	/**
+	 * Get detailed output for start_of_week option.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @param string $tmpl_row template row.
+	 */
+	protected function get_details_output_for_option_rss_use_excerpt( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
+		$output = '';
+		
+		// 0 full text, 1 excerpt
+		if ( $old_value == 0 ) {
+			$old_value = __( 'Full text', 'simple-history' );
+			$new_value = __( 'Excerpt', 'simple-history' );
+		} else {
+			$old_value = __( 'Excerpt', 'simple-history' );
+			$new_value = __( 'Full text', 'simple-history' );
+		}
+
+		$output .= sprintf(
+			$tmpl_row,
+			__( 'New value', 'simple-history' ),
+			esc_html( $new_value )
+		);
+
+		$output .= sprintf(
+			$tmpl_row,
+			__( 'Old value', 'simple-history' ),
+			esc_html( $old_value )
+		);
+
+		return $output;
+	}
+
+	/**
 	 * Get all keys for built in WordPress options.
 	 *
 	 * @return array
@@ -552,7 +589,10 @@ class Options_Logger extends Logger {
 				'site_icon' => [ 'translation' => __( 'Site Icon', 'simple-history' ) ],
 				'admin_email' => [ 'translation' => __( 'Email Address', 'simple-history' ) ],
 				'new_admin_email' => [ 'translation' => __( 'New Email Address', 'simple-history' ) ],
-				'users_can_register' => [ 'translation' => __( 'Membership', 'simple-history' ) ],
+				'users_can_register' => [
+					'translation' => __( 'Membership', 'simple-history' ),
+					'type' => 'onoff',
+				],
 				'default_role' => [ 'translation' => __( 'New User Default Role', 'simple-history' ) ],
 				'timezone_string' => [ 'translation' => __( 'Timezone', 'simple-history' ) ],
 				'date_format' => [ 'translation' => __( 'Date Format', 'simple-history' ) ],
@@ -568,7 +608,10 @@ class Options_Logger extends Logger {
 				'mailserver_login' => [ 'translation' => __( 'Login Name', 'simple-history' ) ],
 				'mailserver_pass' => [ 'translation' => __( 'Password', 'simple-history' ) ],
 				'mailserver_port' => [ 'translation' => __( 'Default Mail Server Port', 'simple-history' ) ],
-				'default_pingback_flag' => [ 'translation' => __( 'Attempt to notify any blogs linked to from the article', 'simple-history' ) ],
+				'default_pingback_flag' => [
+					'translation' => __( 'Attempt to notify any blogs linked to from the article', 'simple-history' ),
+					'type' => 'onoff',
+				],
 				'default_ping_status' => [ 'translation' => __( 'Allow link notifications from other blogs (pingbacks and trackbacks)', 'simple-history' ) ],
 				'default_comment_status' => [ 'translation' => __( 'Allow people to submit comments on new posts', 'simple-history' ) ],
 				'ping_sites' => [ 'translation' => __( 'Update Services', 'simple-history' ) ],
@@ -580,7 +623,10 @@ class Options_Logger extends Logger {
 				'show_on_front' => [ 'translation' => __( 'Front page displays', 'simple-history' ) ],
 				'page_on_front' => [ 'translation' => __( 'Front page', 'simple-history' ) ],
 				'page_for_posts' => [ 'translation' => __( 'Posts page', 'simple-history' ) ],
-				'blog_public' => [ 'translation' => __( 'Discourage search engines from indexing this site', 'simple-history' ) ],
+				'blog_public' => [
+					'translation' => __( 'Discourage search engines from indexing this site', 'simple-history' ),
+					'type' => 'reversed_onoff',
+				],
 			],
 			'discussion' => [
 				'default_article_visibility' => [ 'translation' => __( 'Default article visibility', 'simple-history' ) ],
@@ -628,8 +674,72 @@ class Options_Logger extends Logger {
 			],
 		];
 	}
-}
 
-/*
-Many options store values as 0 or 1, but we want to show them as for example "yes" or "no", or "Full text" or "Excerpt".
-*/
+	/**
+	 * Get option information array.
+	 *
+	 * @param string $option_name Option name.
+	 * @return array|false Option info if found or false if not found.
+	 */
+	protected function get_option_info( $option_name ) {
+		$all_options = $this->get_wordpress_built_in_options();
+
+		// Check for option in all option groups.
+		foreach ( $all_options as $option_group ) {
+			if ( array_key_exists( $option_name, $option_group ) ) {
+				return $option_group[ $option_name ];
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Many options store values as 0 or 1, but we want to show them as for example "yes" or "no", or "Full text" or "Excerpt".
+	 * 'type' => 'onoff', = Show 0 as "Off" and 1 as "On".
+	 */
+	protected function get_output_for_option_with_type_option( $option_name, $new_value, $old_value, $option_custom_output, $tmpl_row ) {
+		$option_info = $this->get_option_info( $option_name );
+		$option_type = $option_info['type'] ?? '';
+
+		if ( ! $option_type ) {
+			return '';
+		}
+
+		$option_custom_output = '';
+
+		switch ( $option_type ) {
+			case 'onoff':
+			case 'reversed_onoff':
+				if ( $option_type === 'onoff' ) {
+					// 1 is on, 0 is off.
+					$true_value = __( 'On', 'simple-history' );
+					$false_value = __( 'Off', 'simple-history' );
+				} elseif ( $option_type === 'reversed_onoff' ) {
+					// 1 is off, 0 is on.
+					// Used on for example "blog_public".
+					$true_value = __( 'Off', 'simple-history' );
+					$false_value = __( 'On', 'simple-history' );
+				}
+
+				$old_value = $old_value ? $true_value : $false_value;
+				$new_value = $new_value ? $true_value : $false_value;
+
+				$option_custom_output = sprintf(
+					$tmpl_row,
+					__( 'New value', 'simple-history' ),
+					esc_html( $new_value )
+				);
+
+				$option_custom_output .= sprintf(
+					$tmpl_row,
+					__( 'Old value', 'simple-history' ),
+					esc_html( $old_value )
+				);
+
+				break;
+		}
+
+		return $option_custom_output;
+	}
+}
