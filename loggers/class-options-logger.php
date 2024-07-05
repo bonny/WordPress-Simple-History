@@ -144,14 +144,22 @@ class Options_Logger extends Logger {
 	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;
 		$message_key = $context['_message_key'] ?? null;
+		$option = $context['option'] ?? null;
 		$option_page = $context['option_page'] ?? null;
 		$message = $row->message;
 
-		if ( $message_key === 'option_updated' && $option_page ) {
-			// Update message to include link to option page.
+		// Update message to include link to option page.
+		if ( $message_key === 'option_updated' && $option_page && $option ) {
+
+			// Show option translated name.
+			$option_info = $this->get_option_info( $option );
+			$option_translation = $option_info['translation'] ?? $option;
+
+			$context['option_translated'] = $option_translation;
 			$context['option_page_link'] = admin_url( "options-{$option_page}.php" );
+
 			$message = sprintf(
-				__( 'Updated setting "{option}" on the <a href="{option_page_link}">"{option_page}"</a> settings page', 'simple-history' ),
+				__( 'Updated setting "{option_translated}" on the <a href="{option_page_link}">{option_page} settings page</a>', 'simple-history' ),
 				$context['option'],
 				$option_page
 			);

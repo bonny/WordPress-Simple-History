@@ -295,6 +295,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Misc refactoring and code cleanup.
 - Setting "For each post in a feed, include..." now displays "Full text" or "Excerpt".
 - Option logger: modify plain output to include link to option page and make option in cleartext
+- Show settings changed in cleartext, so instead of seeing that the "blog_public" settings was changed you can now read that the "Discourage search engines from indexing this site" setting was changed.
 
 ### 4.15.1 (April 2024)
 
