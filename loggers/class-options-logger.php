@@ -171,23 +171,14 @@ class Options_Logger extends Logger {
 
 			if ( method_exists( $this, $methodname ) ) {
 				$option_custom_output = $this->$methodname( $context, $old_value, $new_value, $option, $option_page, $tmpl_row );
+			} else {
+				$option_custom_output = $this->get_output_for_option_with_type_option( $option, $new_value, $old_value, $option_custom_output, $tmpl_row );
 			}
 
 			if ( empty( $option_custom_output ) ) {
-				// all other options or fallback if custom output did not find all it's stuff.
-				$more = __( '&hellip;', 'simple-history' );
-				$trim_length = 250;
-
-				$trimmed_new_value = substr( $new_value, 0, $trim_length );
-				$trimmed_old_value = substr( $old_value, 0, $trim_length );
-
-				if ( strlen( $new_value ) > $trim_length ) {
-					$trimmed_new_value .= $more;
-				}
-
-				if ( strlen( $old_value ) > $trim_length ) {
-					$trimmed_old_value .= $more;
-				}
+				// All other options or fallback if custom output did not find all it's stuff.
+				$trimmed_new_value = $this->excerptify( $new_value );
+				$trimmed_old_value = $this->excerptify( $old_value );
 
 				$output .= sprintf(
 					$tmpl_row,
@@ -208,6 +199,24 @@ class Options_Logger extends Logger {
 		$output .= '</table>';
 
 		return $output;
+	}
+
+	/**
+	 * Create a possible excerpt of a string, with ... appended.
+	 *
+	 * @param string $string String to create excerpt from.
+	 * @param int    $length Length of excerpt.
+	 * @return string Excerpt with ... added if the string was long.
+	 */
+	protected function excerptify( $string, $length = 250 ) {
+		$more = __( '&hellip;', 'simple-history' );
+		$trimmed = substr( $string, 0, $length );
+
+		if ( strlen( $string ) > $length ) {
+			$trimmed .= $more;
+		}
+
+		return $trimmed;
 	}
 
 	/**
