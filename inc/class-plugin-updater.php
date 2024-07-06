@@ -235,6 +235,7 @@ class Plugin_Updater {
 		$remote = $this->request();
 
 		if (
+			// @phpstan-ignore-next-line
 			$remote && $remote->success && ! empty( $remote->update )
 			&& version_compare( $this->version, $remote->update->version, '<' )
 		) {
@@ -242,11 +243,13 @@ class Plugin_Updater {
 			$res->new_version = $remote->update->version;
 			$res->package     = $remote->update->download_link;
 
+			// @phpstan-ignore-next-line
 			$transient->response[ $res->plugin ] = $res;
 		} else {
 			// No update is available for plugin.
 			// Adding the "mock" item to the `no_update` property is required
 			// for the enable/disable auto-updates links to correctly appear in UI.
+			// @phpstan-ignore-next-line.
 			$transient->no_update[ $res->plugin ] = $res;
 		}
 
@@ -258,7 +261,7 @@ class Plugin_Updater {
 	 *
 	 * @see https://developer.wordpress.org/reference/hooks/upgrader_process_complete/
 	 *
-	 * @param WP_Upgrader $upgrader The WP_Upgrader instance.
+	 * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
 	 * @param array       $options Array of bulk item update arguments.
 	 * @return void
 	 */

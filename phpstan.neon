@@ -14,4 +14,4 @@ parameters:
     - tests/phpstan/bootstrap.php
   level: 2
   ignoreErrors:
-    - '#Access to an undefined property object::\$context_message_key.#'
+    # - '#Access to an undefined property object::\$context_message_key.#'
