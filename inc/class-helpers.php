@@ -369,9 +369,11 @@ class Helpers {
 	 * @return array<string, object{table_name: string, size_in_mb: float, num_rows: int}>
 	 */
 	public static function get_db_table_stats_sqlite() {
+		/** @var \wpdb $wpdb */
 		global $wpdb;
 		$simple_history = Simple_History::get_instance();
 
+		/** @var array $events_table_size_result */
 		$events_table_size_result = $wpdb->get_row(
 			$wpdb->prepare(
 				'
@@ -380,9 +382,11 @@ class Helpers {
 					WHERE sqlite_master.tbl_name = "%1$s"
 				',
 				$simple_history->get_events_table_name()
-			)
+			),
+			ARRAY_A
 		);
 
+		/** @var array $contexts_table_size_result */
 		$contexts_table_size_result = $wpdb->get_row(
 			$wpdb->prepare(
 				'
@@ -391,11 +395,12 @@ class Helpers {
 					WHERE sqlite_master.tbl_name = "%1$s"
 				',
 				$simple_history->get_contexts_table_name()
-			)
+			),
+			ARRAY_A
 		);
 
 		// Bail if any of the tables are missing.
-		if ( empty( $events_table_size_result->table_name ) || empty( $contexts_table_size_result->table_name ) ) {
+		if ( empty( $events_table_size_result['table_name'] ) || empty( $contexts_table_size_result['table_name'] ) ) {
 			return [];
 		}
 
@@ -405,8 +410,8 @@ class Helpers {
 		];
 
 		// Get num of rows for each table.
-		$table_size_result['simple_history']->num_rows = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_events_table_name()}" ); // phpcs:ignore
-		$table_size_result['simple_history_contexts']->num_rows = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_contexts_table_name()}" ); // phpcs:ignore
+		$table_size_result['simple_history']['num_rows'] = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_events_table_name()}" ); // phpcs:ignore
+		$table_size_result['simple_history_contexts']['num_rows'] = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_contexts_table_name()}" ); // phpcs:ignore
 
 		return $table_size_result;
 	}
@@ -433,7 +438,8 @@ class Helpers {
 				DB_NAME, // 1
 				$simple_history->get_events_table_name(), // 2
 				$simple_history->get_contexts_table_name() // 3
-			)
+			),
+			ARRAY_A
 		);
 
 		// Bail if not exactly two tables found.
@@ -447,8 +453,8 @@ class Helpers {
 		];
 
 		// Get num of rows for each table.
-		$table_size_result['simple_history']->num_rows = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_events_table_name()}" ); // phpcs:ignore
-		$table_size_result['simple_history_contexts']->num_rows = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_contexts_table_name()}" ); // phpcs:ignore
+		$table_size_result['simple_history']['num_rows'] = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_events_table_name()}" ); // phpcs:ignore
+		$table_size_result['simple_history_contexts']['num_rows'] = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_contexts_table_name()}" ); // phpcs:ignore
 
 		return $table_size_result;
 	}

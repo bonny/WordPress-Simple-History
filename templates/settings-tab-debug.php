@@ -98,10 +98,10 @@ if ( sizeof( $args['table_size_result'] ) === 0 ) {
 } else {
 	foreach ( $args['table_size_result'] as $one_table ) {
 		/* translators: %s size in mb. */
-		$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table->size_in_mb );
+		$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table['size_in_mb'] );
 
 		/* translators: %s number of rows. */
-		$rows = sprintf( _x( '%s rows', 'debug dropin', 'simple-history' ), number_format_i18n( $one_table->num_rows, 0 ) );
+		$rows = sprintf( _x( '%s rows', 'debug dropin', 'simple-history' ), number_format_i18n( $one_table['num_rows'], 0 ) );
 
 		printf(
 			'<tr>
@@ -109,7 +109,7 @@ if ( sizeof( $args['table_size_result'] ) === 0 ) {
 				<td>%2$s</td>
 				<td>%3$s</td>
 			</tr>',
-			esc_html( $one_table->table_name ),
+			esc_html( $one_table['table_name'] ),
 			esc_html( $size ),
 			esc_html( $rows ),
 		);
