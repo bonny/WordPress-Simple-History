@@ -97,9 +97,8 @@ class Options_Logger extends Logger {
 	 * @param mixed  $new_value New value.
 	 */
 	public function on_updated_option( $option, $old_value, $new_value ) {
-		sh_error_log( 'on_updated_option', 'option', $option, 'old_value', $old_value, 'new_value', $new_value, 'request', $_REQUEST );
-
 		$option_page = sanitize_text_field( wp_unslash( $_REQUEST['option_page'] ?? '' ) ); // general | discussion | ...
+
 		if ( ! $this->is_wordpress_built_in_options_page( $option_page ) && ! $this->is_form_submitted_from_permalink_page() ) {
 			return;
 		}
@@ -782,6 +781,9 @@ class Options_Logger extends Logger {
 		switch ( $option_type ) {
 			case 'onoff':
 			case 'reversed_onoff':
+				$true_value = '';
+				$false_value = '';
+
 				if ( $option_type === 'onoff' ) {
 					// 1 is on, 0 is off.
 					$true_value = __( 'On', 'simple-history' );

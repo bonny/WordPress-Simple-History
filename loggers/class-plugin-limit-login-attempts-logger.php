@@ -81,10 +81,10 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 					// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 					'client_type' => sanitize_text_field( wp_unslash( $_POST['client_type'] ) ),
 					'allowed_retries' => sanitize_text_field( wp_unslash( $_POST['allowed_retries'] ) ),
-					'lockout_duration' => sanitize_text_field( wp_unslash( $_POST['lockout_duration'] ) ) * 60,
-					'valid_duration' => sanitize_text_field( wp_unslash( $_POST['valid_duration'] ) ) * 3600,
+					'lockout_duration' => sanitize_text_field( wp_unslash( $_POST['lockout_duration'] ) ) * 60, // @phpstan-ignore-line
+					'valid_duration' => sanitize_text_field( wp_unslash( $_POST['valid_duration'] ) ) * 3600, // @phpstan-ignore-line
 					'allowed_lockouts' => sanitize_text_field( wp_unslash( $_POST['allowed_lockouts'] ) ),
-					'long_duration' => sanitize_text_field( wp_unslash( $_POST['long_duration'] ) ) * 3600,
+					'long_duration' => sanitize_text_field( wp_unslash( $_POST['long_duration'] ) ) * 3600, // @phpstan-ignore-line
 					'email_after' => sanitize_text_field( wp_unslash( $_POST['email_after'] ) ),
 					'cookies' => ( isset( $_POST['cookies'] ) && sanitize_text_field( wp_unslash( $_POST['cookies'] ) ) == '1' ) ? 'yes' : 'no',
 					// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotValidated

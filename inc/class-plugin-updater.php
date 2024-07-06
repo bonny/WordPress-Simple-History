@@ -86,7 +86,7 @@ class Plugin_Updater {
 	/**
 	 * Fetch the update info from the remote server running the Lemon Squeezy plugin.
 	 *
-	 * @return object|bool
+	 * @return object|stdClass|bool
 	 */
 	public function request() {
 		$lsq_license_key = $this->get_license_key();

@@ -20,6 +20,8 @@ namespace Simple_History;
 
 defined( 'ABSPATH' ) || die();
 
+$args = $args ?? [];
+
 /**
  * Check that required tables exists.
  * Some users have had issues with tables not being created after

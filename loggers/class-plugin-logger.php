@@ -2,7 +2,6 @@
 
 namespace Simple_History\Loggers;
 
-use Simple_History\Simple_History;
 use Simple_History\Helpers;
 use Simple_History\Log_Initiators;
 
@@ -232,8 +231,8 @@ class Plugin_Logger extends Logger {
 	 * Here we can get access to any errors that happen during plugin install/update.
 	 * This hook is fired once for each plugin.
 	 *
-	 * @param array|WP_Error $result     Result from WP_Upgrader::install_package().
-	 * @param array          $hook_extra Extra arguments passed to hooked filters.
+	 * @param array|\WP_Error $result     Result from WP_Upgrader::install_package().
+	 * @param array           $hook_extra Extra arguments passed to hooked filters.
 	 */
 	public function on_upgrader_install_package_result( $result, $hook_extra ) {
 		/*

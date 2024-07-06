@@ -21,7 +21,7 @@ class Plugin_ACF_Logger extends Logger {
 	/**
 	 * Will contain field groups and fields, before and after post save.
 	 *
-	 * @var string $old_and_new_field_groups_and_fields
+	 * @var array $old_and_new_field_groups_and_fields
 	 */
 	private array $old_and_new_field_groups_and_fields = array(
 		'fieldGroup'     => array(
@@ -39,7 +39,7 @@ class Plugin_ACF_Logger extends Logger {
 	/**
 	 * Will contain the post data before save, i.e. the previous version of the post.
 	 *
-	 * @var string $old_post_data
+	 * @var array $old_post_data
 	 */
 	private array $old_post_data = array();
 
@@ -108,9 +108,9 @@ class Plugin_ACF_Logger extends Logger {
 	/**
 	 * Fired after a log row is inserted.
 	 *
-	 * @param array                  $context Context.
-	 * @param array                  $data_parent_row Data parent row.
-	 * @param \Simple_History\Logger $simple_history_instance Simple History instance.
+	 * @param array                          $context Context.
+	 * @param array                          $data_parent_row Data parent row.
+	 * @param \Simple_History\Loggers\Logger $simple_history_instance Simple History logger instance.
 	 */
 	public function on_log_inserted( $context, $data_parent_row, $simple_history_instance ) {
 		$message_key = empty( $context['_message_key'] ) ? false : $context['_message_key'];
@@ -788,11 +788,10 @@ class Plugin_ACF_Logger extends Logger {
 	 *
 	 * Called via filter `simple_history/post_logger/post_updated/context`.
 	 *
-	 * @param array   $context Context.
-	 * @param WP_Post $post Post.
+	 * @param array    $context Context.
+	 * @param \WP_Post $post Post.
 	 */
 	public function on_post_updated_context( $context, $post ) {
-
 		// Only act if this is a ACF field group that is saved.
 		if ( $post->post_type !== 'acf-field-group' ) {
 			return $context;
@@ -843,15 +842,14 @@ class Plugin_ACF_Logger extends Logger {
 		$arrHideOnScreenRemoved = array();
 
 		$fieldGroup['new']['hide_on_screen'] = isset( $fieldGroup['new']['hide_on_screen'] ) && is_array( $fieldGroup['new']['hide_on_screen'] ) ? $fieldGroup['new']['hide_on_screen'] : array();
-		/** @phpstan-ignore-next-line */
 		$fieldGroup['old']['hide_on_screen'] = isset( $fieldGroup['old']['hide_on_screen'] ) && is_array( $fieldGroup['old']['hide_on_screen'] ) ? $fieldGroup['old']['hide_on_screen'] : array();
 		$arrhHideOnScreenAdded  = array_diff( $fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen'] );
 		$arrHideOnScreenRemoved = array_diff( $fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen'] );
-		// ddd($arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
+
 		if ( $arrhHideOnScreenAdded !== [] ) {
 				$context['acf_hide_on_screen_added'] = implode( ',', $arrhHideOnScreenAdded );
 		}
-		// dd($fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen']);
+
 		// Act when new or old hide_on_screen is set
 		if ( $arrHideOnScreenRemoved !== [] ) {
 				$context['acf_hide_on_screen_removed'] = implode( ',', $arrHideOnScreenRemoved );
@@ -886,7 +884,6 @@ class Plugin_ACF_Logger extends Logger {
 		}
 
 		// Add modified fields to context.
-		/** @phpstan-ignore-next-line */
 		if ( ! empty( $this->old_and_new_field_groups_and_fields['modifiedFields']['old'] ) && ! empty( $this->old_and_new_field_groups_and_fields['modifiedFields']['new'] ) ) {
 			$modifiedFields = $this->old_and_new_field_groups_and_fields['modifiedFields'];
 
@@ -990,9 +987,9 @@ class Plugin_ACF_Logger extends Logger {
 	 * Called before ACF calls its save_post filter
 	 * Here we save the new fields values and also get the old values so we can compare
 	 *
-	 * @param string  $new_status New status.
-	 * @param string  $old_status Old status.
-	 * @param WP_Post $post Post.
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Old status.
+	 * @param \WP_Post $post Post.
 	 */
 	public function on_transition_post_status( $new_status, $old_status, $post ) {
 		static $isCalled = false;

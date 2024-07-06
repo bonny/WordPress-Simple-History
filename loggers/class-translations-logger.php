@@ -68,7 +68,12 @@ class Translations_Logger extends Logger {
 		$translations = $options['translations'];
 
 		foreach ( $translations as $translation ) {
-			$name = $upgrader->get_name_for_update( (object) $translation );
+			$name = '';
+			
+			// Check that method exists before usage.
+			if ( method_exists( $upgrader, 'get_name_for_update' ) ) {
+				$name = $upgrader->get_name_for_update( (object) $translation );
+			}
 
 			// Name can be empty, this is the case for for example Polylang Pro.
 			// If so then use slug as name, so message won't be empty.
