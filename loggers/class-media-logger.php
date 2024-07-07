@@ -153,7 +153,6 @@ class Media_Logger extends Logger {
 	 * @param object $row Row.
 	 */
 	public function get_log_row_details_output( $row ) {
-
 		$context = $row->context;
 		$message_key = $context['_message_key'];
 		$output = '';
@@ -246,13 +245,33 @@ class Media_Logger extends Logger {
 	}
 
 	/**
+	 * Check if we should log this request.
+	 * We don't want to log requests to the plugin or theme install pages,
+	 * where a ZIP file is uploaded and then deleted.
+	 *
+	 * @return bool
+	 */
+	protected function is_plugin_or_theme_install() {
+		$install_referers = [
+			'/wp-admin/plugin-install.php',
+			'/wp-admin/theme-install.php',
+		];
+
+		return in_array( wp_get_raw_referer(), $install_referers, true );
+	}
+
+	/**
 	 * Called when an attachment is added.
 	 * Fired from filter 'add_attachment'.
-	 * Is not fired when image is added in Block Editor
+	 * It is not fired when image is added in Block Editor.
+	 * It is fired when a plugin is installed using a ZIP file.
 	 *
 	 * @param int $attachment_id Attachment ID.
 	 */
 	public function on_add_attachment( $attachment_id ) {
+		if ( $this->is_plugin_or_theme_install() ) {
+			return;
+		}
 
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
@@ -275,14 +294,9 @@ class Media_Logger extends Logger {
 		$attachment_parent_post_type = $attachment_parent_id ? get_post_type( $attachment_parent_id ) : null;
 
 		if ( $attachment_parent_id ) {
-			$context = array_merge(
-				$context,
-				array(
-					'attachment_parent_id' => $attachment_parent_id,
-					'attachment_parent_title' => $attachment_parent_title,
-					'attachment_parent_post_type' => $attachment_parent_post_type,
-				)
-			);
+			$context['attachment_parent_id'] = $attachment_parent_id;
+			$context['attachment_parent_title'] = $attachment_parent_title;
+			$context['attachment_parent_post_type'] = $attachment_parent_post_type;
 		}
 
 		$this->info_message(
@@ -298,7 +312,6 @@ class Media_Logger extends Logger {
 	 * @param int $attachment_id Attachment ID.
 	 */
 	public function on_edit_attachment( $attachment_id ) {
-
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
@@ -321,6 +334,9 @@ class Media_Logger extends Logger {
 	 * @param int $attachment_id Attachment ID.
 	 */
 	public function on_delete_attachment( $attachment_id ) {
+		if ( $this->is_plugin_or_theme_install() ) {
+			return;
+		}
 
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
