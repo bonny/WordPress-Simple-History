@@ -296,6 +296,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Setting "For each post in a feed, include..." now displays "Full text" or "Excerpt".
 - Option logger: modify plain output to include link to option page and make option in cleartext
 - Show settings changed in cleartext, so instead of seeing that the "blog_public" settings was changed you can now read that the "Discourage search engines from indexing this site" setting was changed.
+- Don't log the uploading and deletion of the ZIP archive when installing a plugin or theme from a ZIP file. [#301](https://github.com/bonny/WordPress-Simple-History/issues/301)
 
 ### 4.15.1 (April 2024)
 
