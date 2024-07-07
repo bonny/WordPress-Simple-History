@@ -1,6 +1,6 @@
 services:
   wordpress:
-    image: wordpress:${WORDPRESS_VERSION:-6.5}-php${PHP_VERSION:-7.4}
+    image: wordpress:${WORDPRESS_VERSION:-6.1}-php${PHP_VERSION:-7.4}
     container_name: simple-history-wordpress
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     user: "33:33"
