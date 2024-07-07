@@ -820,6 +820,11 @@ class Plugin_Logger extends Logger {
 			'plugin_url'          => $plugin_data['PluginURI'],
 		];
 
+		// Add Update URI if it is set. Available since WP 5.8.
+		if ( isset( $plugin_data['UpdateURI'] ) ) {
+			$context['plugin_update_uri'] = $plugin_data['UpdateURI'];
+		}
+
 		// update status for plugins are in response
 		// plugin folder + index file = key
 		// use transient to get url and package.
@@ -909,6 +914,11 @@ class Plugin_Logger extends Logger {
 				'plugin_url'            => $plugin_data['PluginURI'],
 			];
 
+			// Add Update URI if it is set. Available since WP 5.8.
+			if ( isset( $plugin_data['UpdateURI'] ) ) {
+				$context['plugin_update_uri'] = $plugin_data['UpdateURI'];
+			}
+
 			// Get url and package.
 			$update_plugins = get_site_transient( 'update_plugins' );
 			if ( $update_plugins && isset( $update_plugins->response[ $plugin_main_file_path ] ) ) {
@@ -987,6 +997,11 @@ class Plugin_Logger extends Logger {
 			'plugin_requires_wp'  => $new_plugin_data['RequiresWP'] ?? '',
 			'plugin_requires_php' => $new_plugin_data['RequiresPHP'] ?? '',
 		];
+
+		// Add Update URI if it is set. Available since WP 5.8.
+		if ( isset( $new_plugin_data['UpdateURI'] ) ) {
+			$context['plugin_update_uri'] = $new_plugin_data['UpdateURI'];
+		}
 
 		/*
 		Detect install plugin from wordpress.org
