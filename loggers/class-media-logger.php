@@ -3,6 +3,9 @@
 namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
+use Simple_History\Event_Details\Event_Details_Simple_Container;
+use Simple_History\Event_Details\Event_Details_Container_Interface;
+use Simple_History\Event_Details\Event_Details_Group;
 
 /**
  * Logs media uploads
@@ -147,97 +150,109 @@ class Media_Logger extends Logger {
 	}
 
 	/**
+	 * Get details output for created attachments.
+	 *
+	 * @param array  $context Context.
+	 * @param object $row Log row.
+	 * @return string|Event_Details_Container_Interface|Event_Details_Group
+	 */
+	public function get_details_output_for_created_attachment( $context, $row ) {
+		$message_key = $context['_message_key'];
+		$attachment_id = $context['attachment_id'];
+		$attachment_post = get_post( $attachment_id );
+		$attachment_is_available = is_a( $attachment_post, 'WP_Post' );
+
+		// Attachment is created/uploaded = show details with image thumbnail.
+		$attachment_id = $context['attachment_id'];
+		$filetype = wp_check_filetype( $context['attachment_filename'] );
+		$file_url = wp_get_attachment_url( $attachment_id );
+		$edit_link = get_edit_post_link( $attachment_id );
+		$attached_file = get_attached_file( $attachment_id );
+		$message = '';
+		$full_src = false;
+
+		// Is true if attachment is an image. But for example PDFs can have thumbnail images, but they are not considered to be image.
+		$is_image = wp_attachment_is_image( $attachment_id );
+
+		$is_video = strpos( $filetype['type'], 'video/' ) !== false;
+		$is_audio = strpos( $filetype['type'], 'audio/' ) !== false;
+
+		$full_image_width = null;
+		$full_image_height = null;
+
+		if ( $is_image ) {
+			$thumb_src = wp_get_attachment_image_src( $attachment_id, 'medium' );
+			$full_src = wp_get_attachment_image_src( $attachment_id, 'full' );
+
+			$full_image_width = $full_src[1];
+			$full_image_height = $full_src[2];
+
+			// is_image is also true for mime types that WP can't create thumbs for
+			// so we need to check that wp got an resized version.
+			if ( $full_image_width && $full_image_height ) {
+				$context['full_image_width'] = $full_image_width;
+				$context['full_image_height'] = $full_image_height;
+
+				// Only output thumb if file exists
+				// For example images deleted on file system but not in WP cause broken images (rare case, but has happened to me.).
+				if ( file_exists( $attached_file ) && $thumb_src ) {
+					$context['attachment_thumb'] = sprintf( '<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $thumb_src[0] );
+				}
+			}
+		} elseif ( $is_audio ) {
+			$content = sprintf( '[audio src="%1$s"]', $file_url );
+			$context['attachment_thumb'] = do_shortcode( $content );
+		} elseif ( $is_video ) {
+			$content = sprintf( '[video src="%1$s"]', $file_url );
+			$context['attachment_thumb'] = do_shortcode( $content );
+		} elseif ( $attachment_is_available ) {
+			// Use WordPress icon for other media types.
+			$context['attachment_thumb'] = sprintf(
+				'%1$s',
+				wp_get_attachment_image( $attachment_id, array( 350, 500 ), true ) // Placeholder 1.
+			);
+		} // End if().
+
+		$context['attachment_size_format'] = size_format( $row->context['attachment_filesize'] );
+		$context['attachment_filetype_extension'] = strtoupper( $filetype['ext'] );
+
+		if ( ! empty( $context['attachment_thumb'] ) ) {
+			if ( $is_image ) {
+				$message .= "<a class='SimpleHistoryLogitemThumbnailLink' href='" . $edit_link . "'>";
+			}
+
+			$message .= __( '{attachment_thumb}', 'simple-history' );
+
+			if ( $is_image ) {
+				$message .= '</a>';
+			}
+		}
+
+		$message .= "<p class='SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta'>";
+		$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_size_format}', 'simple-history' ) . '</span> ';
+		$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_filetype_extension}', 'simple-history' ) . '</span>';
+
+		if ( $full_image_width && $full_image_height ) {
+			$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{full_image_width} × {full_image_height}', 'simple-history' ) . '</span>';
+		}
+
+		$message .= '</p>';
+
+		return helpers::interpolate( $message, $context, $row );
+	}
+
+	/**
 	 * Get output for detailed log section
 	 *
 	 * @param object $row Row.
 	 */
 	public function get_log_row_details_output( $row ) {
 		$context = $row->context;
-		$message_key = $context['_message_key'];
 		$output = '';
-
-		$attachment_id = $context['attachment_id'];
-		$attachment_post = get_post( $attachment_id );
-		$attachment_is_available = is_a( $attachment_post, 'WP_Post' );
+		$message_key = $context['_message_key'];
 
 		if ( 'attachment_created' == $message_key ) {
-			// Attachment is created/uploaded = show details with image thumbnail.
-			$attachment_id = $context['attachment_id'];
-			$filetype = wp_check_filetype( $context['attachment_filename'] );
-			$file_url = wp_get_attachment_url( $attachment_id );
-			$edit_link = get_edit_post_link( $attachment_id );
-			$attached_file = get_attached_file( $attachment_id );
-			$message = '';
-			$full_src = false;
-
-			// Is true if attachment is an image. But for example PDFs can have thumbnail images, but they are not considered to be image.
-			$is_image = wp_attachment_is_image( $attachment_id );
-
-			$is_video = strpos( $filetype['type'], 'video/' ) !== false;
-			$is_audio = strpos( $filetype['type'], 'audio/' ) !== false;
-
-			$full_image_width = null;
-			$full_image_height = null;
-
-			if ( $is_image ) {
-				$thumb_src = wp_get_attachment_image_src( $attachment_id, 'medium' );
-				$full_src = wp_get_attachment_image_src( $attachment_id, 'full' );
-
-				$full_image_width = $full_src[1];
-				$full_image_height = $full_src[2];
-
-				// is_image is also true for mime types that WP can't create thumbs for
-				// so we need to check that wp got an resized version.
-				if ( $full_image_width && $full_image_height ) {
-					$context['full_image_width'] = $full_image_width;
-					$context['full_image_height'] = $full_image_height;
-
-					// Only output thumb if file exists
-					// For example images deleted on file system but not in WP cause broken images (rare case, but has happened to me.).
-					if ( file_exists( $attached_file ) && $thumb_src ) {
-						$context['attachment_thumb'] = sprintf( '<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $thumb_src[0] );
-					}
-				}
-			} elseif ( $is_audio ) {
-				$content = sprintf( '[audio src="%1$s"]', $file_url );
-				$context['attachment_thumb'] = do_shortcode( $content );
-			} elseif ( $is_video ) {
-				$content = sprintf( '[video src="%1$s"]', $file_url );
-				$context['attachment_thumb'] = do_shortcode( $content );
-			} elseif ( $attachment_is_available ) {
-				// Use WordPress icon for other media types.
-				$context['attachment_thumb'] = sprintf(
-					'%1$s',
-					wp_get_attachment_image( $attachment_id, array( 350, 500 ), true ) // Placeholder 1.
-				);
-			} // End if().
-
-			$context['attachment_size_format'] = size_format( $row->context['attachment_filesize'] );
-			$context['attachment_filetype_extension'] = strtoupper( $filetype['ext'] );
-
-			if ( ! empty( $context['attachment_thumb'] ) ) {
-				if ( $is_image ) {
-					$message .= "<a class='SimpleHistoryLogitemThumbnailLink' href='" . $edit_link . "'>";
-				}
-
-				$message .= __( '{attachment_thumb}', 'simple-history' );
-
-				if ( $is_image ) {
-					$message .= '</a>';
-				}
-			}
-
-			$message .= "<p class='SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta'>";
-			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_size_format}', 'simple-history' ) . '</span> ';
-			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_filetype_extension}', 'simple-history' ) . '</span>';
-
-			if ( $full_image_width && $full_image_height ) {
-				$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{full_image_width} × {full_image_height}', 'simple-history' ) . '</span>';
-			}
-
-			$message .= '</p>';
-
-			$output .= helpers::interpolate( $message, $context, $row );
+			return $this->get_details_output_for_created_attachment( $context, $row );
 		} // End if().
 
 		return $output;
