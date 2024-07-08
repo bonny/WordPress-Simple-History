@@ -5,6 +5,8 @@
  */
 :root {
 	--sh-color-gray: #c3c4c7;
+	/* For dividers and similar, like "Item 1 | Item 2". */
+	--sh-color-gray-2: #a7aaad;
 	--sh-color-green: #3f9349;
 }
 
@@ -285,12 +287,27 @@ Style different log levels.
 	color: rgb(137, 143, 156);
 	margin-top: 0.4em;
 	line-height: 1;
-	/* max-height: 1em; */
+	display: flex;
+	gap: 1rem;
+}
+
+.SimpleHistoryLogitem__occasionsAddOns {
+	position: relative;
+}
+
+.SimpleHistoryLogitem__occasionsAddOns::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -0.5rem;
+	bottom: 0;
+	width: 1px;
+	background-color: var(--sh-color-gray-2);
 }
 
 .SimpleHistoryLogitem__occasionsAddOnsText {
-	margin: 0.4em 0 0 0;
-	line-height: 1;
+	margin: 0;
+	line-height: inherit;
 }
 
 .SimpleHistoryLogitem__details {
@@ -981,7 +998,7 @@ Modal window with detailss
 	/* External icon on link */
 	content: "\f504";
 	font-family: dashicons;
-	line-height: 1;
+	line-height: 0;
 }
 
 /**

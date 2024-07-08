@@ -626,7 +626,7 @@ class Helpers {
 	 * Wrapper around WordPress function is_plugin_active()
 	 * that loads the required files if function does not exist.
 	 *
-	 * @param string $plugin_file_path Path to plugin file, relative to plugins dir.
+	 * @param string $plugin_file_path Path to plugin file, relative to plugins dir. I.e. "simple-history/simple-history.php".
 	 * @return bool True if plugin is active.
 	 */
 	public static function is_plugin_active( $plugin_file_path ) {
