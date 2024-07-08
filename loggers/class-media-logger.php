@@ -54,7 +54,7 @@ class Media_Logger extends Logger {
 	 */
 	public function loaded() {
 		add_action( 'add_attachment', array( $this, 'on_add_attachment' ) );
-		add_action( 'edit_attachment', array( $this, 'on_edit_attachment' ) );
+		add_action( 'attachment_updated', array( $this, 'on_attachment_updated' ) );
 		add_action( 'delete_attachment', array( $this, 'on_delete_attachment' ) );
 		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'on_mw_new_media_object' ), 10, 2 );
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
@@ -306,12 +306,13 @@ class Media_Logger extends Logger {
 	}
 
 	/**
-	 * An attachment is changed
-	 * is this only being called if the title of the attachment is changed?!
+	 * Fires once an existing attachment has been updated.
 	 *
-	 * @param int $attachment_id Attachment ID.
+	 * @param int     $attachment_id      Post ID.
+	 * @param WP_Post $post_after   Post object following the update.
+	 * @param WP_Post $post_before  Post object before the update.
 	 */
-	public function on_edit_attachment( $attachment_id ) {
+	public function on_attachment_updated( $attachment_id, $post_after, $post_before ) {
 		$attachment_post = get_post( $attachment_id );
 		$filename = esc_html( wp_basename( $attachment_post->guid ) );
 		$mime = get_post_mime_type( $attachment_post );
