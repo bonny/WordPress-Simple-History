@@ -537,8 +537,8 @@ class User_Logger extends Logger {
 
 		// Add diff to context.
 		foreach ( $user_data_diff as $one_diff_key => $one_diff_vals ) {
-				$context[ "user_prev_{$one_diff_key}" ] = $one_diff_vals['old'];
-				$context[ "user_new_{$one_diff_key}" ] = $one_diff_vals['new'];
+			$context[ "user_prev_{$one_diff_key}" ] = $one_diff_vals['old'];
+			$context[ "user_new_{$one_diff_key}" ] = $one_diff_vals['new'];
 		}
 
 		$context['user_prev_roles'] = (array) $user_before_update->roles;

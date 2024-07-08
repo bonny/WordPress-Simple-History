@@ -24,7 +24,7 @@ class Media_Logger extends Logger {
 			'capability'  => 'edit_pages',
 			'messages'    => array(
 				'attachment_created' => __( 'Created {post_type} "{attachment_title}"', 'simple-history' ),
-				'attachment_updated' => __( 'Edited {post_type} "{attachment_title}"', 'simple-history' ),
+				'attachment_updated' => __( 'Edited attachment "{attachment_title_new}"', 'simple-history' ),
 				'attachment_deleted' => __( 'Deleted {post_type} "{attachment_title}" ("{attachment_filename}")', 'simple-history' ),
 			),
 			'labels'      => array(
@@ -54,7 +54,7 @@ class Media_Logger extends Logger {
 	 */
 	public function loaded() {
 		add_action( 'add_attachment', array( $this, 'on_add_attachment' ) );
-		add_action( 'attachment_updated', array( $this, 'on_attachment_updated' ) );
+		add_action( 'attachment_updated', array( $this, 'on_attachment_updated' ), 10, 3 );
 		add_action( 'delete_attachment', array( $this, 'on_delete_attachment' ) );
 		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'on_mw_new_media_object' ), 10, 2 );
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
@@ -98,7 +98,6 @@ class Media_Logger extends Logger {
 	 * @param object $row Log row.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
-
 		$message = $row->message;
 		$context = $row->context;
 		$message_key = $context['_message_key'];
@@ -107,10 +106,10 @@ class Media_Logger extends Logger {
 		$attachment_post = get_post( $attachment_id );
 		$attachment_is_available = $attachment_post instanceof \WP_Post;
 
-		// Only link to attachment if it is still available.
+		// Only link to attachment if attachment post is still available.
 		if ( $attachment_is_available ) {
 			if ( 'attachment_updated' == $message_key ) {
-				$message = __( 'Edited {post_type} <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
+				$message = __( 'Edited attachment <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
 			} elseif ( 'attachment_created' == $message_key ) {
 
 				if ( isset( $context['attachment_parent_id'] ) ) {
@@ -134,8 +133,8 @@ class Media_Logger extends Logger {
 				}
 			}
 
-			$context['post_type'] = esc_html( $context['post_type'] );
-			$context['attachment_filename'] = esc_html( $context['attachment_filename'] );
+			$context['post_type'] = esc_html( $context['post_type'] ?? 'attachment' );
+			$context['attachment_filename'] = esc_html( $context['attachment_filename'] ?? '' );
 			$context['edit_link'] = get_edit_post_link( $attachment_id );
 
 			$message = helpers::interpolate( $message, $context, $row );
@@ -308,25 +307,52 @@ class Media_Logger extends Logger {
 	/**
 	 * Fires once an existing attachment has been updated.
 	 *
-	 * @param int     $attachment_id      Post ID.
-	 * @param WP_Post $post_after   Post object following the update.
-	 * @param WP_Post $post_before  Post object before the update.
+	 * @param int      $attachment_id      Post ID.
+	 * @param \WP_Post $post_new   Post object following the update.
+	 * @param \WP_Post $post_prev  Post object before the update.
 	 */
-	public function on_attachment_updated( $attachment_id, $post_after, $post_before ) {
-		$attachment_post = get_post( $attachment_id );
-		$filename = esc_html( wp_basename( $attachment_post->guid ) );
-		$mime = get_post_mime_type( $attachment_post );
+	public function on_attachment_updated( $attachment_id, $post_new, $post_prev ) {
+		if ( ! $post_new instanceof \WP_Post || ! $post_prev instanceof \WP_Post ) {
+			return;
+		}
 
-		$this->info_message(
-			'attachment_updated',
-			array(
-				'post_type' => get_post_type( $attachment_post ),
-				'attachment_id' => $attachment_id,
-				'attachment_title' => get_the_title( $attachment_post ),
-				'attachment_filename' => $filename,
-				'attachment_mime' => $mime,
-			)
-		);
+		// Todo: Alt text is not included here. Is set in post meta field '_wp_attachment_image_alt'.
+
+		$context = [
+			'attachment_id' => $attachment_id,
+			'attachment_title' => $post_new->post_title,
+		];
+
+		// Post name is the slug.
+		if ( $post_new->post_name !== $post_prev->post_name ) {
+			$context['attachment_name_new'] = $post_new->post_name;
+			$context['attachment_name_prev'] = $post_prev->post_name;
+		}
+
+		if ( $post_new->post_title !== $post_prev->post_title ) {
+			$context['attachment_title_new'] = $post_new->post_title;
+			$context['attachment_title_prev'] = $post_prev->post_title;
+		}
+
+		if ( $post_new->post_excerpt !== $post_prev->post_excerpt ) {
+			$context['attachment_excerpt_new'] = $post_new->post_excerpt;
+			$context['attachment_excerpt_prev'] = $post_prev->post_excerpt;
+		}
+
+		if ( $post_new->post_content !== $post_prev->post_content ) {
+			$context['attachment_content_new'] = $post_new->post_content;
+			$context['attachment_content_prev'] = $post_prev->post_content;
+		}
+
+		if ( $post_new->post_author !== $post_prev->post_author ) {
+			$context['attachment_author_new'] = $post_new->post_author;
+			$context['attachment_author_prev'] = $post_prev->post_author;
+		}
+
+		$context['attachment_new'] = $post_new;
+		$context['attachment_prev'] = $post_prev;
+
+		$this->info_message( 'attachment_updated', $context );
 	}
 
 	/**
