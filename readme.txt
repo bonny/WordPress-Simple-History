@@ -275,32 +275,43 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
-- Update testing framework wp-browser to 3.5.
-- Add used db engine to debug page. Simple History supports bort MySQL, MariaDB, and SQLite.
-- Show [Must Use Plugins](https://developer.wordpress.org/advanced-administration/plugins/mu-plugins/) on the debug page.
-- Add support for showing table size and number of rows for SQLite databases on the debug page.
-- Throw exception if log query has any db errors. This should help with debugging since the message often is visible in the log, instead of just dying silently. [#438](https://github.com/bonny/WordPress-Simple-History/issues/438)
-- Log when a plugin failed to update and add reason/error message to the context. [#345](https://github.com/bonny/WordPress-Simple-History/issues/345)
-- Add support for ANSI_QUOTES in MySQL/MariaDB. [#334](https://github.com/bonny/WordPress-Simple-History/issues/334)
-- Fix a possible strpos()-warning in the ACF logger. [#440](https://github.com/bonny/WordPress-Simple-History/issues/440)
-- RSS feed: Add support for filtering by loglevel(s) by appending `?loglevels=warning,notice`. See https://simple-history.com/docs/feeds/ for all available filters. [#443](https://github.com/bonny/WordPress-Simple-History/issues/443)
-- Log when an admin user changes the way WordPress auto updates, from "automatic updates for all new versions of WordPress" to "automatic updates for maintenance and security releases only", or vice versa. [#449](https://github.com/bonny/WordPress-Simple-History/issues/449)
-- Only log built in WordPress option names in the option screen. Sometimes other options could "sneak in" when they was added using a filter or similar on the same screen.
-- When updating WPLANG option set en_US as the language when the option is empty, previously it was set to an empty string.
-- "Week Starts On" now displays the new and previous weekday as human readable text instead of a number.
-- Ensure Post via email SMTP password is not exposed in the log.
-- Use wording "Updated setting..." instead of "Updated option..." in the log when a setting is updated because it's more user friendly to say "setting" instead of "option", since that's the wordings used in the WordPress UI.
-- Include the settings page in the main log message for each setting updated.
-- Values changed for settings that can be toggled on or off now often say "On" or "Off" instead of "1" or "0".
-- Misc refactoring and code cleanup.
-- Setting "For each post in a feed, include..." now displays "Full text" or "Excerpt".
-- Option logger: modify plain output to include link to option page and make option in cleartext
-- Show settings changed in cleartext, so instead of seeing that the "blog_public" settings was changed you can now read that the "Discourage search engines from indexing this site" setting was changed.
+**Added**
+
+- Debug page additions
+  - Display detected db engine to debug page. Can be useful for debugging since Simple History supports MySQL, MariaDB, and SQLite.
+  - Table size and number of rows for SQLite databases are shown on the debug page (they were already shown for MySQL and MariaDB).
+  - Display [Must Use Plugins](https://developer.wordpress.org/advanced-administration/plugins/mu-plugins/) on the debug page.
+- Throw exception if [log query](https://simple-history.com/docs/query-api/) has any db errors instead of just dying silently. This should help with debugging since the message often is visible in the log. [#438](https://github.com/bonny/WordPress-Simple-History/issues/438)
+- Plugin update failures are now logged, with error message added to context. This can happen when a plugin can't remove it's folder. [#345](https://github.com/bonny/WordPress-Simple-History/issues/345)
+- Support for the ANSI_QUOTES mode in MySQL/MariaDB. [#334](https://github.com/bonny/WordPress-Simple-History/issues/334)
+- RSS feed support for filtering by loglevels ( e.g.,`?loglevels=warning,notice`). See https://simple-history.com/docs/feeds/ for all available filters. [#443](https://github.com/bonny/WordPress-Simple-History/issues/443)
+- Log when an admin user changes the way WordPress handles auto updates of core, from "automatic updates for all new versions of WordPress" to "automatic updates for maintenance and security releases only", or vice versa. [#449](https://github.com/bonny/WordPress-Simple-History/issues/449)
+- Add Update URI plugin header, if available, to context for plugin installs or updates. This field was added in [WordPress 5.8](https://make.wordpress.org/core/2021/06/29/introducing-update-uri-plugin-header-in-wordpress-5-8/) so it was really time to add it now :) [#451](https://github.com/bonny/WordPress-Simple-History/issues/451)
+- Add link to the Simple History site history below the "All updates have been completed" message that is shown when plugins or themes are updated. [#453](https://github.com/bonny/WordPress-Simple-History/issues/453)
+- Add title, alternative text, caption, description, and slug to modified attachments. [#310](https://github.com/bonny/WordPress-Simple-History/issues/310)
+- Add a link next to number or failed login attempts. If the [extended settings add-on](https://simple-history.com/add-ons/extended-settings/) is installed the link goes to the settings page for that add-on. If that add-on is not installed the link goes to the website of the add-on.
+
+**Changed**
+
+- Changes to settings screens and logging of their options have gotten a major overhaul and is now much more user friendly and informative:
+
+  - Only built in WordPress options are logged. Previously other options could "sneak in" when they was added using a filter or similar on the same screen.
+  - When updating the site language option (the options `WPLANG`), set "en_US" as the language when the option is empty. Previously it was set to an empty string which what a bit confusing.
+  - "Week Starts On" now displays the new and previous weekday as human readable text instead of a number.
+  - Use wording "Updated setting..." instead of "Updated option..." in the log when a setting is updated because it's more user friendly to say "setting" instead of "option", since that's the wordings used in the WordPress UI.
+  - Include the name of the settings page in the main log message for each setting updated and also include a link to the settings page.
+  - Use "On" or "Off" when display the changed values for settings that can be toggled on or off. Previously "1" or "0" was used.
+  - Setting "For each post in a feed, include..." now displays "Full text" or "Excerpt", instead of "1" or "0".
+  - The "blog_public" settings is now shown as "Discourage search engines from indexing this site" setting was changed.
+
 - Don't log the uploading and deletion of the ZIP archive when installing a plugin or theme from a ZIP file. [#301](https://github.com/bonny/WordPress-Simple-History/issues/301)
-- Add Update URI plugin header, if available, to context. This field was added in [WordPress 5.8](https://make.wordpress.org/core/2021/06/29/introducing-update-uri-plugin-header-in-wordpress-5-8/) so it was really time to add it now :) [#451](https://github.com/bonny/WordPress-Simple-History/issues/451)
-- Add link to linklist below "All updates have been completed" message. [#453](https://github.com/bonny/WordPress-Simple-History/issues/453)
-- Add title, alternative text, caption, description, and slug to modified attachments.
-- Add link next to number or failed login attempts, to add-on to control the number, or to the settings page for the addon, if installed.
+- Update testing framework wp-browser to 3.5.
+- Misc refactoring and code cleanup.
+
+**Fixed**
+
+- Fix a possible strpos()-warning in the ACF logger. [#440](https://github.com/bonny/WordPress-Simple-History/issues/440)
+- Ensure Post via email SMTP password is not exposed in the log.
 
 ### 4.15.1 (April 2024)
 
