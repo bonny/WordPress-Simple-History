@@ -438,6 +438,7 @@ class Simple_History {
 			Dropins\Event_Details_Dev_Dropin::class,
 			Dropins\Quick_Stats::class,
 			Dropins\Sidebar_Add_Ons_Dropin::class,
+			Dropins\Action_Links_Dropin::class,
 		);
 
 		/**

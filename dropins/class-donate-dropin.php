@@ -25,7 +25,6 @@ class Donate_Dropin extends Dropin {
 		add_filter( 'admin_footer_text', array( $this, 'filter_admin_footer_text' ), 10, 1 );
 	}
 
-
 	/**
 	 * Add donate link to the admin footer.
 	 *
