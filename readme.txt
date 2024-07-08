@@ -299,6 +299,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 - Don't log the uploading and deletion of the ZIP archive when installing a plugin or theme from a ZIP file. [#301](https://github.com/bonny/WordPress-Simple-History/issues/301)
 - Add Update URI plugin header, if available, to context. This field was added in [WordPress 5.8](https://make.wordpress.org/core/2021/06/29/introducing-update-uri-plugin-header-in-wordpress-5-8/) so it was really time to add it now :) [#451](https://github.com/bonny/WordPress-Simple-History/issues/451)
 - Add link to linklist below "All updates have been completed" message. [#453](https://github.com/bonny/WordPress-Simple-History/issues/453)
+- Add title, alternative text, caption, description, and slug to modified attachments.
 
 ### 4.15.1 (April 2024)
 
