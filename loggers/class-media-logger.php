@@ -15,6 +15,9 @@ class Media_Logger extends Logger {
 	/** @var string Logger slug */
 	public $slug = 'SimpleMediaLogger';
 
+	/** @var array Array with prev attachment values, before save. */
+	protected array $prev_attachment_values = [];
+
 	/**
 	 * Get array with information about this logger
 	 *
@@ -62,6 +65,31 @@ class Media_Logger extends Logger {
 		add_action( 'delete_attachment', array( $this, 'on_delete_attachment' ) );
 		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'on_mw_new_media_object' ), 10, 2 );
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
+		add_action( 'load-post.php', [ $this, 'on_load_post_store_attachment_alt_text' ] );
+	}
+
+	/**
+	 * Store the previous alt text of an attachment when editing it.
+	 * Fired when loading admin page post.php.
+	 */
+	public function on_load_post_store_attachment_alt_text() {
+		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] ?? '' ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Missing
+		$post_id = $_POST['post_ID'] ?? null;
+		$post_type = $_POST['post_type'] ?? null;
+		$action = $_POST['action'] ?? null;
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Missing
+
+		if ( ! $post_id || 'attachment' !== $post_type || 'editpost' !== $action ) {
+			return;
+		}
+
+		$this->prev_attachment_values[ $post_id ] = [
+			'alt_text' => get_post_meta( $post_id, '_wp_attachment_image_alt', true ),
+		];
 	}
 
 	/**
@@ -256,6 +284,10 @@ class Media_Logger extends Logger {
 						__( 'Title', 'simple-history' ),
 					),
 					new Event_Details_Item(
+						[ 'attachment_alt_text' ],
+						__( 'Alternative text', 'simple-history' ),
+					),
+					new Event_Details_Item(
 						[ 'attachment_excerpt' ],
 						__( 'Caption', 'simple-history' ),
 					),
@@ -362,8 +394,6 @@ class Media_Logger extends Logger {
 			return;
 		}
 
-		// Todo: Alt text is not included here. Is set in post meta field '_wp_attachment_image_alt'.
-
 		$context = [
 			'attachment_id' => $attachment_id,
 			'attachment_title' => $post_new->post_title,
@@ -393,6 +423,12 @@ class Media_Logger extends Logger {
 		if ( $post_new->post_author !== $post_prev->post_author ) {
 			$context['attachment_author_new'] = $post_new->post_author;
 			$context['attachment_author_prev'] = $post_prev->post_author;
+		}
+
+		// Alt text is not included in hook. Is set in post meta field '_wp_attachment_image_alt'.
+		if ( isset( $this->prev_attachment_values[ $attachment_id ]['alt_text'] ) ) {
+			$context['attachment_alt_text_new'] = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+			$context['attachment_alt_text_prev'] = $this->prev_attachment_values[ $attachment_id ]['alt_text'];
 		}
 
 		$context['attachment_new'] = $post_new;
