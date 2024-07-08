@@ -6,6 +6,7 @@ use Simple_History\Helpers;
 use Simple_History\Event_Details\Event_Details_Simple_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
 
 /**
  * Logs media uploads
@@ -152,12 +153,11 @@ class Media_Logger extends Logger {
 	/**
 	 * Get details output for created attachments.
 	 *
-	 * @param array  $context Context.
 	 * @param object $row Log row.
 	 * @return string|Event_Details_Container_Interface|Event_Details_Group
 	 */
-	public function get_details_output_for_created_attachment( $context, $row ) {
-		$message_key = $context['_message_key'];
+	protected function get_details_output_for_created_attachment( $row ) {
+		$context = $row->context;
 		$attachment_id = $context['attachment_id'];
 		$attachment_post = get_post( $attachment_id );
 		$attachment_is_available = is_a( $attachment_post, 'WP_Post' );
@@ -242,20 +242,51 @@ class Media_Logger extends Logger {
 	}
 
 	/**
+	 * Get details output for updated attachments.
+	 *
+	 * @param object $row Log row.
+	 */
+	protected function get_details_output_for_updated_attachment( $row ) {
+		return ( new Event_Details_Group() )
+			->set_title( __( 'Changed values', 'simple-history' ) )
+			->add_items(
+				[
+					new Event_Details_Item(
+						[ 'attachment_title' ],
+						__( 'Title', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'attachment_excerpt' ],
+						__( 'Caption', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'attachment_content' ],
+						__( 'Description', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'attachment_name' ],
+						__( 'Slug', 'simple-history' ),
+					),
+				]
+			);
+	}
+
+	/**
 	 * Get output for detailed log section
 	 *
 	 * @param object $row Row.
+	 * @return string|Event_Details_Container_Interface|Event_Details_Group
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
-		$output = '';
-		$message_key = $context['_message_key'];
+		$message_key = $row->context['_message_key'];
 
 		if ( 'attachment_created' == $message_key ) {
-			return $this->get_details_output_for_created_attachment( $context, $row );
-		} // End if().
+			return $this->get_details_output_for_created_attachment( $row );
+		} else if ( 'attachment_updated' === $message_key ) {
+			return $this->get_details_output_for_updated_attachment( $row );
+		}
 
-		return $output;
+		return;
 	}
 
 	/**
