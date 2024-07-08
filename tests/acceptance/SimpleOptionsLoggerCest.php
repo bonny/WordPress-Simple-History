@@ -15,7 +15,7 @@ class SimpleOptionsLoggerCest
             [
                 'field' => '#blogname',
                 'fill' => 'My new site title',
-                'expected' => 'Updated option "blogname"',
+                'expected' => 'Updated setting "blogname" on the "general" settings page',
                 'expectedContext' => [
                     'option' => 'blogname',
                     'old_value' => 'wp-tests',
@@ -26,7 +26,7 @@ class SimpleOptionsLoggerCest
             [
                 'field' => '#blogdescription',
                 'fill' => 'New site tag',
-                'expected' => 'Updated option "blogdescription"',
+                'expected' => 'Updated setting "blogdescription" on the "general" settings page',
                 'expectedContext' => [
                     'option' => 'blogdescription',
                     'old_value' => 'Just another WordPress site',
@@ -37,7 +37,7 @@ class SimpleOptionsLoggerCest
             [
                 'field' => '#new_admin_email',
                 'fill' => 'par.thernstrom@gmail.com',
-                'expected' => 'Updated option "new_admin_email"',
+                'expected' => 'Updated setting "new_admin_email" on the "general" settings page',
                 'expectedContext' => [
                     'option' => 'new_admin_email',
                     'old_value' => 'test@example.com',
@@ -56,7 +56,7 @@ class SimpleOptionsLoggerCest
         
         $I->checkOption('#users_can_register');
         $I->click("Save Changes");
-        $I->seeLogMessage('Updated option "users_can_register"');
+        $I->seeLogMessage('Updated setting "users_can_register" on the "general" settings page');
         $I->seeLogContext([
             'option' => 'users_can_register',
             'old_value' => '0',
@@ -66,7 +66,7 @@ class SimpleOptionsLoggerCest
 
         $I->selectOption('#default_role', 'Editor');
         $I->click("Save Changes");
-        $I->seeLogMessage('Updated option "default_role"');
+        $I->seeLogMessage('Updated setting "default_role" on the "general" settings page');
         $I->seeLogContext([
             'option' => 'default_role',
             'old_value' => 'subscriber',
@@ -84,15 +84,15 @@ class SimpleOptionsLoggerCest
         $I->fillField('#mailserver_pass', 'mailpass');
         $I->click("Save Changes");
 
-        $I->seeLogMessage('Updated option "mailserver_pass"', 0);
+        $I->seeLogMessage('Updated setting "mailserver_pass" on the "writing" settings page', 0);
         $I->seeLogContext([
             'option_page' => 'writing',
             'option' => 'mailserver_pass',
-            'old_value' => 'password',
-            'new_value' => 'mailpass',
+            'old_value' => '',
+            'new_value' => '',
         ], 0);
 
-        $I->seeLogMessage('Updated option "mailserver_login"', 1);
+        $I->seeLogMessage('Updated setting "mailserver_login" on the "writing" settings page', 1);
         $I->seeLogContext([
             'option_page' => 'writing',
             'option' => 'mailserver_login',
@@ -100,7 +100,7 @@ class SimpleOptionsLoggerCest
             'new_value' => 'login@email.com',
         ], 1);
 
-        $I->seeLogMessage('Updated option "mailserver_url"', 2);
+        $I->seeLogMessage('Updated setting "mailserver_url" on the "writing" settings page', 2);
         $I->seeLogContext([
             'option_page' => 'writing',
             'option' => 'mailserver_url',
@@ -118,7 +118,7 @@ class SimpleOptionsLoggerCest
 
         $I->click('Save Changes');
 
-        $I->seeLogMessage('Updated option "page_on_front"', 0);
+        $I->seeLogMessage('Updated setting "page_on_front" on the "reading" settings page', 0);
         $I->seeLogContext([
             'option_page' => 'reading',
             'option' => 'page_on_front',
@@ -126,7 +126,7 @@ class SimpleOptionsLoggerCest
             'new_value' => '2',
         ], 0);
 
-        $I->seeLogMessage('Updated option "show_on_front"', 1);
+        $I->seeLogMessage('Updated setting "show_on_front" on the "reading" settings page', 1);
         $I->seeLogContext([
             'option_page' => 'reading',
             'option' => 'show_on_front',
@@ -136,7 +136,7 @@ class SimpleOptionsLoggerCest
 
         $I->checkOption('#blog_public');
         $I->click('Save Changes');
-        $I->seeLogMessage('Updated option "blog_public"');
+        $I->seeLogMessage('Updated setting "blog_public" on the "reading" settings page');
         $I->seeLogContext([
             'option' => 'blog_public',
             'old_value' => '1',
@@ -154,18 +154,18 @@ class SimpleOptionsLoggerCest
         $I->amOnAdminPage('options-discussion.php');
         $I->uncheckOption('#default_comment_status');
         $I->click("Save Changes");
-        $I->seeLogMessage('Updated option "default_comment_status"');
+        $I->seeLogMessage('Updated setting "default_comment_status" on the "discussion" settings page');
         $I->seeLogContext([
             'option_page' => 'discussion',
             'option' => 'default_comment_status',
             'old_value' => 'open',
-            'new_value' => 'null',
+            'new_value' => '',
         ]);
 
         $I->amOnAdminPage('options-discussion.php');
         $I->checkOption('#default_comment_status');
         $I->click("Save Changes");
-        $I->seeLogMessage('Updated option "default_comment_status"');
+        $I->seeLogMessage('Updated setting "default_comment_status" on the "discussion" settings page');
         $I->seeLogContext([
             'option_page' => 'discussion',
             'option' => 'default_comment_status',
@@ -176,23 +176,23 @@ class SimpleOptionsLoggerCest
         $I->amOnAdminPage('options-discussion.php');
         $I->uncheckOption('#require_name_email');
         $I->click("Save Changes");
-        $I->seeLogMessage('Updated option "require_name_email"');
+        $I->seeLogMessage('Updated setting "require_name_email" on the "discussion" settings page');
         $I->seeLogContext([
             'option_page' => 'discussion',
             'option' => 'require_name_email',
             'old_value' => '1',
-            'new_value' => 'null',
+            'new_value' => '',
         ]);
 
         $I->amOnAdminPage('options-discussion.php');
         $I->uncheckOption('#show_avatars');
         $I->click("Save Changes");
-        $I->seeLogMessage('Updated option "show_avatars"');
+        $I->seeLogMessage('Updated setting "show_avatars" on the "discussion" settings page');
         $I->seeLogContext([
             'option_page' => 'discussion',
             'option' => 'show_avatars',
             'old_value' => '1',
-            'new_value' => 'null',
+            'new_value' => '',
         ]);       
     }
 }
