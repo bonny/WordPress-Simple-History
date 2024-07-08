@@ -617,7 +617,7 @@ class Simple_History {
 	}
 
 	/**
-	 * How old log entried are allowed to be.
+	 * How old log entries are allowed to be.
 	 * 0 = don't delete old entries.
 	 *
 	 * @deprecated 4.8 Use Helpers::get_clear_history_interval().
