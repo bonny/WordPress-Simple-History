@@ -252,12 +252,12 @@ class Media_Logger extends Logger {
 	 * @return bool
 	 */
 	protected function is_plugin_or_theme_install() {
-		$install_referers = [
+		$install_referrers = [
 			'/wp-admin/plugin-install.php',
 			'/wp-admin/theme-install.php',
 		];
 
-		return in_array( wp_get_raw_referer(), $install_referers, true );
+		return in_array( wp_get_raw_referer(), $install_referrers, true );
 	}
 
 	/**
