@@ -10,11 +10,13 @@ use WP_REST_Server;
  * REST API controller for events.
  */
 class WP_REST_Events_Controller extends WP_REST_Controller {
-	/** @var string */
-	protected $rest_base = 'events';
-
-	/** @var string */
-	protected $namespace = 'simple-history/v1';
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		$this->rest_base = 'events';
+		$this->namespace = 'simple-history/v1';
+	}
 
 	/**
 	 * Register the routes for the objects of the controller.
@@ -76,7 +78,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'description' => __( 'The max number of occasions to return.', 'simple-history' ),
 			'type'        => 'integer',
 		);
-   
+
 		$query_params['per_page'] = array(
 			'description' => __( 'Maximum number of items to be returned in result set.', 'simple-history' ),
 			'type'        => 'integer',
@@ -289,6 +291,42 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		$log_query = new Log_Query();
 		$query_result = $log_query->query();
 
-		return rest_ensure_response( $query_result );
+		foreach ( $query_result['log_rows'] as $event_row ) {
+
+			$data    = $this->prepare_item_for_response( $event_row, $request );
+			$events[] = $this->prepare_response_for_collection( $data );
+		}
+
+		$page        = (int) $query_result['page_current'];
+		$total_posts = (int) $query_result['total_row_count'];
+		$max_pages = (int) $query_result['pages_count'];
+
+		$response = rest_ensure_response( $events );
+
+		$response->header( 'X-WP-Total', (int) $total_posts );
+		$response->header( 'X-WP-TotalPages', (int) $max_pages );
+
+		$request_params = $request->get_query_params();
+		$collection_url = rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) );
+		$base           = add_query_arg( urlencode_deep( $request_params ), $collection_url );
+
+		if ( $page > 1 ) {
+			$prev_page = $page - 1;
+
+			if ( $prev_page > $max_pages ) {
+				$prev_page = $max_pages;
+			}
+
+			$prev_link = add_query_arg( 'page', $prev_page, $base );
+			$response->link_header( 'prev', $prev_link );
+		}
+
+		if ( $max_pages > $page ) {
+			$next_page = $page + 1;
+			$next_link = add_query_arg( 'page', $next_page, $base );
+			$response->link_header( 'next', $next_link );
+		}
+
+		return $response;
 	}
 }
