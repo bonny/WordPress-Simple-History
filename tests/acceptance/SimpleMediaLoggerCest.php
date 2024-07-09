@@ -34,12 +34,18 @@ class SimpleMediaLoggerCest
         $I->seeLogContext([
             'post_type' => 'attachment',
             'attachment_id' => '2',
-            'attachment_title' => 'Image 1',
+            'attachment_title' => 'My image title',
+            'attachment_title_new' => 'My image title',
+            'attachment_title_prev' => 'Image 1',
+            'attachment_alt_text_new' => 'My image alt text',
+            'attachment_alt_text_prev' => '',
+            'attachment_content_new' => 'My image description and content',
+            'attachment_content_prev' => '',
+            'attachment_excerpt_new' => 'My image excerpt and caption',
+            'attachment_excerpt_prev' => '',
             'attachment_mime' => 'image/jpeg',
-            'attachment_name_new' => '',
-            'attachment_name_prev' => '',
         ]);
-        $I->seeLogMessage('Edited attachment "Image 1"');
+        $I->seeLogMessage('Edited attachment "My image title"');
 
         // Delete media.
         $I->amOnAdminPage('upload.php?mode=list');
@@ -48,11 +54,11 @@ class SimpleMediaLoggerCest
         $I->acceptPopup();
         $I->waitForJqueryAjax();
         // Full image name depends on number of uploaded images...
-        $I->seeLogMessageStartsWith('Deleted attachment "Image 1" ("Image-1');
+        $I->seeLogMessageStartsWith('Deleted attachment "My image title" ("Image-1');
         $I->seeLogContext([
             'post_type' => 'attachment',
             'attachment_id' => '2',
-            'attachment_title' => 'Image 1',
+            'attachment_title' => 'My image title',
             'attachment_mime' => 'image/jpeg',
         ]);
     }
