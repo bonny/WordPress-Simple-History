@@ -26,17 +26,20 @@ class SimpleMediaLoggerCest
         $I->amOnAdminPage('upload.php?mode=list');
         $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
         $I->click('Edit');
+        $I->fillField('#title', 'My image title');
         $I->fillField('#attachment_alt', 'My image alt text');
         $I->fillField('#attachment_caption', 'My image excerpt and caption');
         $I->fillField('#attachment_content', 'My image description and content');
         $I->click('Update');
-        $I->seeLogMessage('Edited attachment "Image 1"');
         $I->seeLogContext([
             'post_type' => 'attachment',
             'attachment_id' => '2',
             'attachment_title' => 'Image 1',
             'attachment_mime' => 'image/jpeg',
+            'attachment_name_new' => '',
+            'attachment_name_prev' => '',
         ]);
+        $I->seeLogMessage('Edited attachment "Image 1"');
 
         // Delete media.
         $I->amOnAdminPage('upload.php?mode=list');

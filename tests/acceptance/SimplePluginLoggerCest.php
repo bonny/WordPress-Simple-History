@@ -101,8 +101,7 @@ class SimplePluginLoggerCest
 
         $I->attachFile('#pluginzip', 'limit-login-attempts-reloaded.2.25.5.zip');
         $I->click('Install Now');
-        // Message 0 is "Deleted attachment"
-        $I->seeLogMessage('Installed plugin "Limit Login Attempts Reloaded"', 1);
+        $I->seeLogMessage('Installed plugin "Limit Login Attempts Reloaded"');
         $I->seeLogContext(array(
             'plugin_slug' => 'limit-login-attempts-reloaded',
             'plugin_name' => 'Limit Login Attempts Reloaded',
@@ -114,7 +113,7 @@ class SimplePluginLoggerCest
             'plugin_upload_name' => 'limit-login-attempts-reloaded.2.25.5.zip',
             // 'plugin_description' => 'Block excessive login attempts and protect your site against brute force attacks. Simple, yet powerful tools to improve site performance. <cite>By <a href="https://www.limitloginattempts.com/">Limit Login Attempts Reloaded</a>.</cite>'
             'plugin_url' => '',
-        ), 1);
+        ));
 
         // Not sure how to test:
         // - plugin_updated
