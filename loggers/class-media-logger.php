@@ -31,7 +31,7 @@ class Media_Logger extends Logger {
 			'capability'  => 'edit_pages',
 			'messages'    => array(
 				'attachment_created' => __( 'Created {post_type} "{attachment_title}"', 'simple-history' ),
-				'attachment_updated' => __( 'Edited attachment "{attachment_title_new}"', 'simple-history' ),
+				'attachment_updated' => __( 'Edited attachment "{attachment_title}"', 'simple-history' ),
 				'attachment_deleted' => __( 'Deleted {post_type} "{attachment_title}" ("{attachment_filename}")', 'simple-history' ),
 			),
 			'labels'      => array(
@@ -397,6 +397,8 @@ class Media_Logger extends Logger {
 		$context = [
 			'attachment_id' => $attachment_id,
 			'attachment_title' => $post_new->post_title,
+			'attachment_mime' => $post_new->post_mime_type,
+			'post_type' => $post_new->post_type,
 		];
 
 		// Post name is the slug.
