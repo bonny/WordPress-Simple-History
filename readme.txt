@@ -275,10 +275,11 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### 4.16.0
 
-
-This release contains many new features and improvements, including a new debug page, support for the ANSI_QUOTES mode in MySQL/MariaDB, and more. 
+This release contains many new features and improvements. Especially updates made on the settings screen has gonne through a major overhaul and is now much more user friendly and informative.
 [View the release post for screenshots and more information](https://simple-history.com/2024/simple-history-4-16-0/?utm_source=wpadmin).
 
+🌟 Remember that you can [sponsor this project to keep it free and open source](https://simple-history.com/sponsor/).
+And if you need more features you can buy [add-ons that also get you some extra features](https://simple-history.com/add-ons/). 🌟
 
 **Added**
 
