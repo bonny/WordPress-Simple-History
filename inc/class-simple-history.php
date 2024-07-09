@@ -133,6 +133,7 @@ class Simple_History {
 			Services\AddOns_Licences::class,
 			Services\Licences_Settings_Page::class,
 			Services\Plugin_List_Info::class,
+			Services\REST_API::class,
 		];
 	}
 

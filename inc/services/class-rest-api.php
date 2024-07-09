@@ -1,0 +1,23 @@
+<?php
+
+namespace Simple_History\Services;
+
+use Simple_History\WP_REST_Events_Controller;
+
+/**
+ * Load the Simple History REST API.
+ */
+class REST_API extends Service {
+	/** @inheritDoc */
+	public function loaded() {
+		add_action( 'rest_api_init', [ $this, 'register_routes' ] );
+	}
+
+	/**
+	 * Register the REST API routes.
+	 */
+	public function register_routes() {
+		$rest_api_controller = new WP_REST_Events_Controller();
+		$rest_api_controller->register_routes();
+	}
+}
