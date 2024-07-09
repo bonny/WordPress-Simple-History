@@ -69,7 +69,7 @@ class Options_Logger extends Logger {
 					'blogname' => [ 'translation' => __( 'Site Title', 'simple-history' ) ],
 					'blogdescription' => [ 'translation' => __( 'Tagline', 'simple-history' ) ],
 					'site_icon' => [ 'translation' => __( 'Site Icon', 'simple-history' ) ],
-					'admin_email' => [ 'translation' => __( 'Email Address', 'simple-history' ) ],
+					'admin_email' => [ 'translation' => __( 'Administration Email Address', 'simple-history' ) ],
 					'new_admin_email' => [ 'translation' => __( 'New Email Address', 'simple-history' ) ],
 					'users_can_register' => [
 						'translation' => __( 'Membership', 'simple-history' ),
