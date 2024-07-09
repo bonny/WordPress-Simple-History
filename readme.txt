@@ -286,7 +286,7 @@ And if you need more features you can buy [add-ons that also get you some extra 
 - Debug page additions
   - Display detected db engine to debug page. Can be useful for debugging since Simple History supports MySQL, MariaDB, and SQLite.
   - Table size and number of rows for SQLite databases are shown on the debug page (they were already shown for MySQL and MariaDB).
-  - Display [Must Use Plugins](https://developer.wordpress.org/advanced-administration/plugins/mu-plugins/) on the debug page.
+  - Display [Drop-ins](https://developer.wordpress.org/reference/functions/get_dropins/) on the debug page.
 - Throw exception if [log query](https://simple-history.com/docs/query-api/) has any db errors instead of just dying silently. This should help with debugging since the message often is visible in the log. [#438](https://github.com/bonny/WordPress-Simple-History/issues/438)
 - Plugin update failures are now logged, with error message added to context. This can happen when a plugin can't remove it's folder. [#345](https://github.com/bonny/WordPress-Simple-History/issues/345)
 - Support for the ANSI_QUOTES mode in MySQL/MariaDB. [#334](https://github.com/bonny/WordPress-Simple-History/issues/334)
