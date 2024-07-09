@@ -34,7 +34,7 @@ class Log_Query {
 	 * @return array
 	 * @throws \InvalidArgumentException If invalid query type.
 	 */
-	public function query( $args ) {
+	public function query( $args = [] ) {
 		$args = wp_parse_args( $args );
 
 		// Determine kind of query.
