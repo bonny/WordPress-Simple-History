@@ -273,7 +273,12 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ## Changelog
 
-### Unreleased
+### 4.16.0
+
+
+This release contains many new features and improvements, including a new debug page, support for the ANSI_QUOTES mode in MySQL/MariaDB, and more. 
+[View the release post for screenshots and more information](https://simple-history.com/2024/simple-history-4-16-0/?utm_source=wpadmin).
+
 
 **Added**
 
@@ -312,6 +317,8 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 - Fix a possible strpos()-warning in the ACF logger. [#440](https://github.com/bonny/WordPress-Simple-History/issues/440)
 - Ensure Post via email SMTP password is not exposed in the log.
+
+Pssst! Did you know that you can [sponsor this project](https://github.com/sponsors/bonny) to keep it free and open source? 🌟
 
 ### 4.15.1 (April 2024)
 
