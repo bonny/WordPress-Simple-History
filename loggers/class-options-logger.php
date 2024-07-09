@@ -72,7 +72,7 @@ class Options_Logger extends Logger {
 					'admin_email' => [ 'translation' => __( 'Administration Email Address', 'simple-history' ) ],
 					'new_admin_email' => [ 'translation' => __( 'New Email Address', 'simple-history' ) ],
 					'users_can_register' => [
-						'translation' => __( 'Membership', 'simple-history' ),
+						'translation' => __( 'Anyone can register', 'simple-history' ),
 						'type' => 'onoff',
 					],
 					'default_role' => [ 'translation' => __( 'New User Default Role', 'simple-history' ) ],
