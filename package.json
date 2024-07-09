@@ -49,15 +49,15 @@
     "test:php81": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 npm run test:wpunit && npm run test:functional && npm run test:acceptance",
     "test:php81-mysql55": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.5 DB_DATA_DIR=./data/mysql-5.5 npm run test:wpunit && npm run test:functional && npm run test:acceptance",
     "test:php81-mysql57": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.7 DB_DATA_DIR=./data/mysql-5.7 npm run test:wpunit && npm run test:functional && npm run test:acceptance",
-    "test:wpunit": "docker-compose run --rm php-cli vendor/bin/codecept run wpunit",
-    "test:functional": "docker-compose run --rm php-cli vendor/bin/codecept run functional",
-    "test:acceptance": "docker-compose run --rm php-cli vendor/bin/codecept run acceptance",
+    "test:wpunit": "docker compose run --rm php-cli vendor/bin/codecept run wpunit",
+    "test:functional": "docker compose run --rm php-cli vendor/bin/codecept run functional",
+    "test:acceptance": "docker compose run --rm php-cli vendor/bin/codecept run acceptance",
     "spell-check": "typos",
     "spell-check:write-changes": "typos --write-changes",
     "test:log-query-mysq55": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.5 DB_DATA_DIR=./data/mysql-5.5 npm run test:wpunit-logquery",
     "test:log-query-mysq57": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.7 DB_DATA_DIR=./data/mysql-5.7 npm run test:wpunit-logquery",
     "test:log-query-mariadb105": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=mariadb:10.5 DB_DATA_DIR=./data/mysql npm run test:wpunit-logquery",
-    "test:wpunit-logquery": "docker-compose run --rm php-cli vendor/bin/codecept run wpunit:LogQueryTest"
+    "test:wpunit-logquery": "docker compose run --rm php-cli vendor/bin/codecept run wpunit:LogQueryTest"
   },
   "lint-staged": {
     "*.php": [
