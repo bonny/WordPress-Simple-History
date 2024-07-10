@@ -30,6 +30,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * Register the routes for the objects of the controller.
 	 */
 	public function register_routes() {
+		// GET /wp-json/simple-history/v1/events.
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
@@ -42,6 +43,118 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				],
 				'schema'      => [ $this, 'get_public_item_schema' ],
 			],
+		);
+
+		// GET /wp-json/simple-history/v1/events/<event-id>.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)',
+			[
+				'args' => [
+					'id' => [
+						'description' => __( 'Unique identifier for the post.', 'simple-history' ),
+						'type'        => 'integer',
+					],
+				],
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_item' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					// 'args'                => $get_item_args,
+				),
+			],
+		);
+	}
+
+	/**
+	 * Retrieves a single event.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_item( $request ) {
+		$event = $this->get_single_event( $request['id'] );
+
+		$data     = $this->prepare_item_for_response( $event, $request );
+		$response = rest_ensure_response( $data );
+
+		return $response;
+	}
+
+
+	/**
+	 * Checks if a given request has access to read a post.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
+	 */
+	public function get_item_permissions_check( $request ) {
+		// User must be logged in.
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		// Event must exist.
+		if ( ! $this->event_exists( $request['id'] ) ) {
+			return new WP_Error(
+				'rest_event_invalid_id',
+				__( 'Invalid event ID.', 'simple-history' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$log_event = $this->get_single_event( $request['id'] );
+		if ( $log_event === false ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view this event.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get a single event using the log query API.
+	 *
+	 * @param int $event_id Event ID.
+	 * @return false|object Event data on success, false on failure.
+	 */
+	protected function get_single_event( $event_id ) {
+		$query_result = ( new Log_Query() )->query(
+			[
+				'post__in' => [ $event_id ],
+			]
+		);
+
+		if ( isset( $query_result['log_rows'][0] ) ) {
+			return $query_result['log_rows'][0];
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if a event exists in the database.
+	 *
+	 * @param int $event_id Event ID.
+	 * @return bool True if event exists, false otherwise.
+	 */
+	protected function event_exists( $event_id ) {
+		global $wpdb;
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM %i WHERE id = %d',
+				$this->simple_history->get_events_table_name(),
+				$event_id
+			)
 		);
 	}
 
@@ -379,6 +492,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 */
 	public function get_items( $request ) {
 		$events = [];
+
+		// TODO: pass args.
 		$log_query = new Log_Query();
 		$query_result = $log_query->query();
 
