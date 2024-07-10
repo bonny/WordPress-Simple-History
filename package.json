@@ -11,7 +11,7 @@
     "grunt": "^1.5.2",
     "grunt-contrib-clean": "^2.0.1",
     "grunt-contrib-copy": "^1",
-    "grunt-version": "^2",
+    "grunt-version": "^3",
     "grunt-wp-deploy": "git+https://github.com/johnbillion/grunt-wp-deploy.git#master",
     "grunt-wp-i18n": "^1.0.3",
     "grunt-wp-readme-to-markdown": "^2.1.0",
