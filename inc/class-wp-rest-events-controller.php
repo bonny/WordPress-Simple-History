@@ -179,15 +179,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'enum'        => array( 'overview', 'occasions' ),
 		);
 
-		// Get rows with id lower than logRowID, i.e. previous rows.
-		// $outer_where[] = 'h.id < ' . (int) $args['logRowID'];
 		$query_params['logRowID'] = array(
 			'description' => __( 'Limit result set to rows with id lower than this.', 'simple-history' ),
 			'type'        => 'integer',
 		);
 
-		// Get rows with occasionsID equal to occasionsID.
-		// $outer_where[] = "h.occasionsID = '" . esc_sql( $args['occasionsID'] ) . "'";
 		$query_params['occasionsID'] = array(
 			'description' => __( 'Limit result set to rows with occasionsID equal to this.', 'simple-history' ),
 			'type'        => 'string',
@@ -318,9 +314,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			),
 		);
 
-		// messages
-		// [0] => SimpleCommentsLogger:anon_comment_added,SimpleCommentsLogger:user_comment_added,SimpleCommentsLogger:anon_trackback_added,SimpleCommentsLogger:user_trackback_added,SimpleCommentsLogger:anon_pingback_added,SimpleCommentsLogger:user_pingback_added,SimpleCommentsLogger:comment_edited,SimpleCommentsLogger:trackback_edited,SimpleCommentsLogger:pingback_edited,SimpleCommentsLogger:comment_status_approve,SimpleCommentsLogger:trackback_status_approve,SimpleCommentsLogger:pingback_status_approve,SimpleCommentsLogger:comment_status_hold,SimpleCommentsLogger:trackback_status_hold,SimpleCommentsLogger:pingback_status_hold,SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam,SimpleCommentsLogger:comment_status_trash,SimpleCommentsLogger:trackback_status_trash,SimpleCommentsLogger:pingback_status_trash,SimpleCommentsLogger:comment_untrashed,SimpleCommentsLogger:trackback_untrashed,SimpleCommentsLogger:pingback_untrashed,SimpleCommentsLogger:comment_deleted,SimpleCommentsLogger:trackback_deleted,SimpleCommentsLogger:pingback_deleted
-		// [1] => SimpleCommentsLogger:SimpleCommentsLogger:comment_status_spam,SimpleCommentsLogger:trackback_status_spam,SimpleCommentsLogger:pingback_status_spam
 		$query_params['messages'] = array(
 			'description' => __( 'Limit result set to rows with messages. Format: LoggerSlug:message.', 'simple-history' ),
 			'type'        => 'array',
