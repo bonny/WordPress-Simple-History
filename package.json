@@ -11,13 +11,12 @@
     "grunt": "^1.5.2",
     "grunt-contrib-clean": "^2.0.1",
     "grunt-contrib-copy": "^1",
-    "grunt-pot": "^0.2.1",
     "grunt-version": "^2",
     "grunt-wp-deploy": "git+https://github.com/johnbillion/grunt-wp-deploy.git#master",
     "grunt-wp-i18n": "^1.0.3",
     "grunt-wp-readme-to-markdown": "^2.1.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.1",
+    "lint-staged": "^15.0",
     "load-grunt-tasks": "^5.1.0",
     "prettier": "^2.8.8",
     "pretty-quick": "^3.3.1",
@@ -29,7 +28,6 @@
     }
   },
   "scripts": {
-    "makepot": "grunt makepot",
     "bump:major": "grunt bump:major",
     "bump:minor": "grunt bump:minor",
     "bump:patch": "grunt bump:patch",
