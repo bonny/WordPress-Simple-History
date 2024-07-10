@@ -5,6 +5,7 @@
   "author": "Pär Thernström",
   "license": "GPL",
   "devDependencies": {
+    "@wordpress/scripts": "^28.3.0",
     "gitattributes-globs": "^1",
     "gitignore-globs": "^0.1",
     "grunt": "^1.5.2",
@@ -22,7 +23,6 @@
     "pretty-quick": "^3.3.1",
     "time-grunt": "^1.4.0"
   },
-  "dependencies": {},
   "husky": {
     "hooks": {
       "disabled-pre-commit": "lint-staged && pretty-quick --staged"
@@ -57,7 +57,9 @@
     "test:log-query-mysq55": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.5 DB_DATA_DIR=./data/mysql-5.5 npm run test:wpunit-logquery",
     "test:log-query-mysq57": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.7 DB_DATA_DIR=./data/mysql-5.7 npm run test:wpunit-logquery",
     "test:log-query-mariadb105": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=mariadb:10.5 DB_DATA_DIR=./data/mysql npm run test:wpunit-logquery",
-    "test:wpunit-logquery": "docker compose run --rm php-cli vendor/bin/codecept run wpunit:LogQueryTest"
+    "test:wpunit-logquery": "docker compose run --rm php-cli vendor/bin/codecept run wpunit:LogQueryTest",
+    "start": "wp-scripts start",
+    "build": "wp-scripts build"
   },
   "lint-staged": {
     "*.php": [
