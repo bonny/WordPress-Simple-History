@@ -26,11 +26,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			[
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'get_items' ],
-				'permission_callback' => [ $this, 'get_items_permissions_check' ],
-				'args'                => $this->get_collection_params(),
-			]
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_items' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'args'                => $this->get_collection_params(),
+				],
+				'schema'      => [ $this, 'get_public_item_schema' ],
+			],
 		);
 	}
 
@@ -260,6 +263,99 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Retrieves the post's schema, conforming to JSON Schema.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @return array Item schema data.
+	 */
+	public function get_item_schema() {
+		if ( $this->schema ) {
+			return $this->add_additional_fields_schema( $this->schema );
+		}
+
+		$schema = array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'simple-history-event',
+			'type'       => 'object',
+			'properties' => array(
+				/*
+				"date": "2024-07-09 11:11:26",
+				"id": "15458",
+				"context_message_key": "http_request_made",
+				"initiator": "wp_user",
+				"level": "debug",
+				"logger": "WPHTTPRequestsLogger",
+				"maxId": "15458",
+				"message": "Made {method} request to {base_url}",
+				"minId": "15457",
+				"occasionsID": "030948c733a8d3761ca101419e7c3b61",
+				"subsequentOccasions": "2"
+				*/
+				'date'         => array(
+					'description' => __( "The date the event was added, in the site's timezone.", 'simple-history' ),
+					'type'        => array( 'string', 'null' ),
+					'format'      => 'date-time',
+				),
+				'date_gmt'     => array(
+					'description' => __( 'The date the event was added, as GMT.', 'simple-history' ),
+					'type'        => array( 'string', 'null' ),
+					'format'      => 'date-time',
+				),
+				'id'           => array(
+					'description' => __( 'Unique identifier for the event.', 'simple-history' ),
+					'type'        => 'integer',
+				),
+				'link'         => array(
+					'description' => __( 'URL to the event.', 'simple-history' ),
+					'type'        => 'string',
+					'format'      => 'uri',
+				),
+				'message'   => array(
+					'description' => __( 'The interpolated message of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
+				'message_uninterpolated'    => array(
+					'description' => __( 'The uninterpolated message of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
+				'logger'       => array(
+					'description' => __( 'The logger of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
+				'message_key'   => array(
+					'description' => __( 'The message key of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
+				'loglevel'     => array(
+					'description' => __( 'The log level of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
+				'initiator' => array(
+					'description' => __( 'The initiator of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
+				'occasions_id' => array(
+					'description' => __( 'The occasions ID of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
+				'subsequent_occasions_count' => array(
+					'description' => __( 'The subsequent occasions count of the event.', 'simple-history' ),
+					'type'        => 'integer',
+				),
+				'context' => array(
+					'description' => __( 'The context of the event.', 'simple-history' ),
+					'type'        => 'object',
+				),
+			),
+		);
+
+		$this->schema = $schema;
+
+		return $this->add_additional_fields_schema( $this->schema );
+	}
+
+	/**
 	 * Checks if a given request has access to read posts.
 	 *
 	 * @since 4.7.0
@@ -344,7 +440,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		unset( $item->repeatCount );
 
 		$fields = $this->get_fields_for_response( $request );
-		sh_d('$fields', $fields);exit;
+		// sh_d( '$fields', $fields );
+		// exit;
 
 		return $item;
 	}
