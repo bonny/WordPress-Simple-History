@@ -172,7 +172,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$query_params['context']['default'] = 'view';
 
-		$query_params['type'] = array(
+		$query_params['return_type'] = array(
 			'description' => __( 'Type of result to return.', 'simple-history' ),
 			'type'        => 'string',
 			'default'     => 'overview',
@@ -224,7 +224,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'items'       => array(
 				'type' => 'integer',
 			),
-			'default'     => array(),
+			'default'     => null,
 		);
 
 		// If max_id_first_page is then then only include rows
@@ -343,41 +343,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'type'        => 'integer',
 		);
 
-		// Todo: iso8601 format should be used.
-		// $query_params['after'] = array(
-		// 'description' => __( 'Limit response to posts published after a given ISO8601 compliant date.', 'simple-history' ),
-		// 'type'        => 'string',
-		// 'format'      => 'date-time',
-		// );
-
 		$query_params['offset'] = array(
 			'description' => __( 'Offset the result set by a specific number of items.', 'simple-history' ),
 			'type'        => 'integer',
-		);
-
-		$query_params['order'] = array(
-			'description' => __( 'Order sort attribute ascending or descending.', 'simple-history' ),
-			'type'        => 'string',
-			'default'     => 'desc',
-			'enum'        => array( 'asc', 'desc' ),
-		);
-
-		$query_params['orderby'] = array(
-			'description' => __( 'Sort collection by post attribute.', 'simple-history' ),
-			'type'        => 'string',
-			'default'     => 'date',
-			'enum'        => array(
-				'author',
-				'date',
-				'id',
-				'include',
-				'modified',
-				'parent',
-				'relevance',
-				'slug',
-				'include_slugs',
-				'title',
-			),
 		);
 
 		return $query_params;
@@ -493,9 +461,53 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	public function get_items( $request ) {
 		$events = [];
 
-		// TODO: pass args.
+		// Retrieve the list of registered collection query parameters.
+		$registered = $this->get_collection_params();
+		$args       = [];
+
+		/*
+		 * This array defines mappings between public API query parameters whose
+		 * values are accepted as-passed, and their internal WP_Query parameter
+		 * name equivalents (some are the same). Only values which are also
+		 * present in $registered will be set.
+		 */
+		$parameter_mappings = array(
+			'include'        => 'post__in',
+			'offset'         => 'offset',
+			'page'           => 'paged',
+			'per_page'       => 'posts_per_page',
+			'search'         => 'search',
+			'logRowID'       => 'logRowID',
+			'occasionsID'    => 'occasionsID',
+			'occasionsCount' => 'occasionsCount',
+			'occasionsCountMaxReturn' => 'occasionsCountMaxReturn',
+			'return_type'    => 'return_type',
+			'max_id_first_page' => 'max_id_first_page',
+			'since_id'       => 'since_id',
+			'date_from'      => 'date_from',
+			'date_to'        => 'date_to',
+			'dates'          => 'dates',
+			'lastdays'       => 'lastdays',
+			'months'         => 'months',
+			'loglevels'      => 'loglevels',
+			'loggers'        => 'loggers',
+			'messages'       => 'messages',
+			'users'          => 'users',
+			'user'           => 'user',
+		);
+
+		/*
+		 * For each known parameter which is both registered and present in the request,
+		 * set the parameter's value on the query $args.
+		 */
+		foreach ( $parameter_mappings as $api_param => $wp_param ) {
+			if ( isset( $registered[ $api_param ], $request[ $api_param ] ) ) {
+				$args[ $wp_param ] = $request[ $api_param ];
+			}
+		}
+
 		$log_query = new Log_Query();
-		$query_result = $log_query->query();
+		$query_result = $log_query->query( $args );
 
 		foreach ( $query_result['log_rows'] as $event_row ) {
 			$data     = $this->prepare_item_for_response( $event_row, $request );
