@@ -292,14 +292,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		$query_result = $log_query->query();
 
 		foreach ( $query_result['log_rows'] as $event_row ) {
-
-			$data    = $this->prepare_item_for_response( $event_row, $request );
+			$data     = $this->prepare_item_for_response( $event_row, $request );
 			$events[] = $this->prepare_response_for_collection( $data );
 		}
 
 		$page        = (int) $query_result['page_current'];
 		$total_posts = (int) $query_result['total_row_count'];
-		$max_pages = (int) $query_result['pages_count'];
+		$max_pages   = (int) $query_result['pages_count'];
 
 		$response = rest_ensure_response( $events );
 
@@ -312,11 +311,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( $page > 1 ) {
 			$prev_page = $page - 1;
-
 			if ( $prev_page > $max_pages ) {
 				$prev_page = $max_pages;
 			}
-
 			$prev_link = add_query_arg( 'page', $prev_page, $base );
 			$response->link_header( 'prev', $prev_link );
 		}
@@ -328,5 +325,27 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Prepares a single post output for response.
+	 *
+	 * @since 4.7.0
+	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
+	 *
+	 * @global WP_Post $post Global post object.
+	 *
+	 * @param object          $item    Post object.
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function prepare_item_for_response( $item, $request ) {
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		unset( $item->repeatCount );
+
+		$fields = $this->get_fields_for_response( $request );
+		sh_d('$fields', $fields);exit;
+
+		return $item;
 	}
 }
