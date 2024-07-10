@@ -16,10 +16,7 @@
     "grunt-wp-i18n": "^1.0.3",
     "grunt-wp-readme-to-markdown": "^2.1.0",
     "lint-staged": "^15.0",
-    "load-grunt-tasks": "^5.1.0",
-    "prettier": "^2.8.8",
-    "pretty-quick": "^3.3.1",
-    "time-grunt": "^1.4.0"
+    "load-grunt-tasks": "^5.1.0"
   },
   "scripts": {
     "bump:major": "grunt bump:major",
