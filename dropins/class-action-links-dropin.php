@@ -29,7 +29,7 @@ class Action_Links_Dropin extends Dropin {
 
 		$update_actions['simple_history'] = sprintf(
 			'<a href="%s" target="_parent">%s</a>',
-			self_admin_url( 'admin.php?page=simple_history_page' ),
+			admin_url( 'admin.php?page=simple_history_page' ),
 			__( 'Go to Simple History', 'simple-history' )
 		);
 
