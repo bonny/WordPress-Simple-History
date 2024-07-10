@@ -11,11 +11,19 @@ use WP_REST_Server;
  */
 class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
+	 * Simple History instance.
+	 *
+	 * @var Simple_History
+	 */
+	protected Simple_History $simple_history;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->rest_base = 'events';
 		$this->namespace = 'simple-history/v1';
+		$this->simple_history = Simple_History::get_instance();
 	}
 
 	/**
@@ -279,19 +287,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'title'      => 'simple-history-event',
 			'type'       => 'object',
 			'properties' => array(
-				/*
-				"date": "2024-07-09 11:11:26",
-				"id": "15458",
-				"context_message_key": "http_request_made",
-				"initiator": "wp_user",
-				"level": "debug",
-				"logger": "WPHTTPRequestsLogger",
-				"maxId": "15458",
-				"message": "Made {method} request to {base_url}",
-				"minId": "15457",
-				"occasionsID": "030948c733a8d3761ca101419e7c3b61",
-				"subsequentOccasions": "2"
-				*/
 				'date'         => array(
 					'description' => __( "The date the event was added, in the site's timezone.", 'simple-history' ),
 					'type'        => array( 'string', 'null' ),
@@ -436,13 +431,86 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response Response object.
 	 */
 	public function prepare_item_for_response( $item, $request ) {
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		unset( $item->repeatCount );
+		$data = [];
 
+		/**
+		 * Default Array when no ?_fields= is set.
+		 * (
+		 *  [0] => date
+		 *  [1] => date_gmt
+		 *  [2] => id
+		 *  [3] => link
+		 *  [4] => message
+		 *  [5] => message_uninterpolated
+		 *  [6] => logger
+		 *  [7] => message_key
+		 *  [8] => loglevel
+		 *  [9] => initiator
+		 *  [10] => occasions_id
+		 *  [11] => subsequent_occasions_count
+		 *  [12] => context
+		 *  [13] => _links
+		 * )
+		 */
 		$fields = $this->get_fields_for_response( $request );
-		// sh_d( '$fields', $fields );
+		// print_r( $fields );exit;
 		// exit;
 
-		return $item;
+		if ( rest_is_field_included( 'date', $fields ) ) {
+			$data['date'] = mysql_to_rfc3339( $item->date );
+		}
+
+		if ( rest_is_field_included( 'date_gmt', $fields ) ) {
+			$data['date_gmt'] = mysql_to_rfc3339( get_date_from_gmt( mysql_to_rfc3339( $item->date ) ) );
+		}
+
+		if ( rest_is_field_included( 'message', $fields ) ) {
+			$data['message'] = html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $item ) );
+		}
+
+		if ( rest_is_field_included( 'message_uninterpolated', $fields ) ) {
+			$data['message_uninterpolated'] = $item->message;
+		}
+
+		if ( rest_is_field_included( 'link', $fields ) ) {
+			$data['link'] = $this->simple_history->get_view_history_page_admin_url() . "#item/{$item->id}";
+		}
+
+		if ( rest_is_field_included( 'logger', $fields ) ) {
+			$data['logger'] = $item->logger;
+		}
+
+		if ( rest_is_field_included( 'message_key', $fields ) ) {
+			$data['message_key'] = $item->context_message_key;
+		}
+
+		if ( rest_is_field_included( 'loglevel', $fields ) ) {
+			$data['loglevel'] = $item->level;
+		}
+
+		if ( rest_is_field_included( 'initiator', $fields ) ) {
+			$data['initiator'] = $item->initiator;
+		}
+
+		if ( rest_is_field_included( 'occasions_id', $fields ) ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$data['occasions_id'] = $item->occasionsID;
+		}
+
+		if ( rest_is_field_included( 'subsequent_occasions_count', $fields ) ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$data['subsequent_occasions_count'] = $item->subsequentOccasions;
+		}
+
+		if ( rest_is_field_included( 'context', $fields ) ) {
+			$data['context'] = $item->context;
+		}
+
+		// sh_d($item);exit;
+
+		// Wrap the data in a response object.
+		$response = rest_ensure_response( $data );
+
+		return $response;
 	}
 }
