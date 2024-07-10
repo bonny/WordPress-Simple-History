@@ -453,8 +453,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		 * )
 		 */
 		$fields = $this->get_fields_for_response( $request );
-		// print_r( $fields );exit;
-		// exit;
+
+		if ( rest_is_field_included( 'id', $fields ) ) {
+			$data['id'] = (int) $item->id;
+		}
 
 		if ( rest_is_field_included( 'date', $fields ) ) {
 			$data['date'] = mysql_to_rfc3339( $item->date );
@@ -505,8 +507,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		if ( rest_is_field_included( 'context', $fields ) ) {
 			$data['context'] = $item->context;
 		}
-
-		// sh_d($item);exit;
 
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $data );
