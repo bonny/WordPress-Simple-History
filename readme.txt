@@ -273,6 +273,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ## Changelog
 
+### Unreleased
+
+- Correct URL for "Go to Simple History" link on updated page on multisite.
+
 ### 4.16.0
 
 This release contains many new features and improvements. Especially updates made on the settings screen has gonne through a major overhaul and is now much more user friendly and informative.
