@@ -115,24 +115,7 @@ function MoreFilters() {
 
 			<p>
 				<label className="SimpleHistory__filters__filterLabel">
-					{__("Log levels", "simple-history")}
-				</label>
-				<div style={{ display: "inline-block", xwidth: "310px" }}>
-					<HStack spacing="5">
-						{LOGLEVELS_OPTIONS.map((logLevel) => (
-							<CheckboxControl
-								label={logLevel.label}
-								checked={false}
-								onChange={function noRefCheck() {}}
-							/>
-						))}
-					</HStack>
-				</div>
-			</p>
-
-			<p>
-				<label className="SimpleHistory__filters__filterLabel">
-					Message types:
+					{__("Message types:", "simple-history")}
 				</label>
 				<div style={{ display: "inline-block", width: "310px" }}>
 					<SelectControl
