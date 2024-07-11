@@ -37,14 +37,12 @@ import { useState, useEffect } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { format, dateI18n, getSettings } from "@wordpress/date";
 
-function MoreFilters() {
+function MoreFilters(props) {
+	const { messageTypes, messageTypesSuggestions } = props;
 	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
+	const [selectedMessageTypes, setSelectedMessageTypes] = useState([]);
 
 	const LOGLEVELS_OPTIONS = [
-		// {
-		// 	label: __("All", "simple-history"),
-		// 	value: "",
-		// },
 		{
 			label: __("Info", "simple-history"),
 			value: "info",
@@ -79,8 +77,6 @@ function MoreFilters() {
 		return logLevel.label;
 	});
 
-	console.log("selectedLogLevel", selectedLogLevels);
-
 	return (
 		<div className="">
 			<Flex align="top" gap="0">
@@ -113,6 +109,35 @@ function MoreFilters() {
 				</FlexBlock>
 			</Flex>
 
+			<Flex align="top" gap="0">
+				<FlexItem style={{ margin: "1em 0" }}>
+					<label className="SimpleHistory__filters__filterLabel">
+						{__("Message types", "simple-history")}
+					</label>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						class="SimpleHistory__filters__loglevels__select"
+						style={{
+							width: "310px",
+							backgroundColor: "white",
+						}}
+					>
+						<FormTokenField
+							__experimentalAutoSelectFirstMatch
+							__experimentalExpandOnFocus
+							__experimentalShowHowTo={false}
+							label=""
+							placeholder={__("All message types", "simple-history")}
+							onChange={(nextValue) => {
+								setSelectedMessageTypes(nextValue);
+							}}
+							suggestions={messageTypesSuggestions}
+							value={selectedMessageTypes}
+						/>
+					</div>
+				</FlexBlock>
+			</Flex>
 			<p>
 				<label className="SimpleHistory__filters__filterLabel">
 					{__("Message types:", "simple-history")}
@@ -123,17 +148,7 @@ function MoreFilters() {
 						onBlur={function noRefCheck() {}}
 						onChange={function noRefCheck() {}}
 						onFocus={function noRefCheck() {}}
-						options={[
-							{
-								disabled: true,
-								label: "Select an Option",
-								value: "",
-							},
-							{
-								label: "WordPress updates",
-								value: "wordpress_updates",
-							},
-						]}
+						options={messageTypes}
 					/>
 				</div>
 			</p>
@@ -191,33 +206,35 @@ const DEFAULT_DATE_OPTIONS = [
 	},
 ];
 
+const OPTIONS_LOADING = [
+	{
+		label: __("Loading...", "simple-history"),
+		value: "",
+	},
+];
+
 /**
  * Search component with a search input visible by default.
  * A "Show search options" button is visible where the user can expand the search to show more options/filters.
  */
 function Filters() {
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(true);
-	const [dateOptions, setDateOptions] = useState(DEFAULT_DATE_OPTIONS);
+	const [dateOptions, setDateOptions] = useState(OPTIONS_LOADING);
 	const [selectedDateOption, setSelectedDateOption] = useState();
+	const [messageTypes, setMessageTypes] = useState(OPTIONS_LOADING);
 	const [searchText, setSearchText] = useState("");
+	const [messageTypesSuggestions, setMessageTypesSuggestions] = useState([]);
 
 	// Load search options when component mounts.
 	useEffect(() => {
 		apiFetch({
-			path: addQueryArgs("/simple-history/v1/search-options"),
+			path: addQueryArgs("/simple-history/v1/search-options?locale=user"),
 		}).then((searchOptions) => {
-			setSelectedDateOption(`lastdays:${searchOptions.dates.daysToShow}`);
-
 			// Append result_months and all dates to dateOptions.
-			const monthsOptions = searchOptions.dates.result_months.map((row) => {
-				// Format the date according to the locale
-				const formattedDate = dateI18n("F Y", row.yearMonth);
-
-				return {
-					label: `${formattedDate}`,
-					value: `month:${row.yearMonth}`,
-				};
-			});
+			const monthsOptions = searchOptions.dates.result_months.map((row) => ({
+				label: dateI18n("F Y", row.yearMonth),
+				value: `month:${row.yearMonth}`,
+			}));
 
 			const allDatesOption = {
 				label: __("All dates", "simple-history"),
@@ -229,6 +246,40 @@ function Filters() {
 				...monthsOptions,
 				allDatesOption,
 			]);
+
+			setSelectedDateOption(`lastdays:${searchOptions.dates.daysToShow}`);
+
+			console.log("searchOptions.loggers", searchOptions.loggers);
+			//let messageTypes = setMessageTypes(searchOptions.loggers);
+			let messageTypesSuggestions = [];
+			searchOptions.loggers.map((logger) => {
+				console.log("logger", logger);
+				const search_data = logger.search_data || {};
+				if (!search_data.search) {
+					return;
+				}
+
+				// "WordPress och tilläggsuppdateringar"
+				messageTypesSuggestions.push(search_data.search);
+
+				const subitemPrefix = " – ";
+
+				// "Alla hittade uppdateringar"
+				if (search_data?.search_all?.label) {
+					messageTypesSuggestions.push(
+						subitemPrefix + search_data.search_all.label,
+					);
+				}
+
+				// Each single message.
+				if (search_data?.search_options) {
+					search_data.search_options.forEach((option) => {
+						messageTypesSuggestions.push(subitemPrefix + option.label);
+					});
+				}
+			});
+			console.log("messageTypesSuggestions", messageTypesSuggestions);
+			setMessageTypesSuggestions(messageTypesSuggestions);
 		});
 	}, []);
 
@@ -239,7 +290,9 @@ function Filters() {
 	return (
 		<div>
 			<p>
-				<label className="SimpleHistory__filters__filterLabel">Dates:</label>
+				<label className="SimpleHistory__filters__filterLabel">
+					{__("Dates", "simple-history")}
+				</label>
 				<div style={{ display: "inline-block", width: "310px" }}>
 					<SelectControl
 						options={dateOptions}
@@ -259,7 +312,14 @@ function Filters() {
 					onChange={(event) => setSearchText(event.target.value)}
 				/>
 			</p>
-			{moreOptionsIsExpanded ? <MoreFilters /> : null}
+
+			{moreOptionsIsExpanded ? (
+				<MoreFilters
+					messageTypes={messageTypes}
+					messageTypesSuggestions={messageTypesSuggestions}
+				/>
+			) : null}
+
 			<p class="SimpleHistory__filters__filterSubmitWrap">
 				<button className="button" onClick={function noRefCheck() {}}>
 					{__("Search events", "simple-history")}
