@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\WP_REST_Events_Controller;
+use Simple_History\WP_REST_Searchoptions_Controller;
 
 /**
  * Load the Simple History REST API.
@@ -19,5 +20,8 @@ class REST_API extends Service {
 	public function register_routes() {
 		$rest_api_controller = new WP_REST_Events_Controller();
 		$rest_api_controller->register_routes();
+
+		$search_options_controller = new WP_REST_Searchoptions_Controller();
+		$search_options_controller->register_routes();
 	}
 }
