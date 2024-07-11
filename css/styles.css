@@ -438,7 +438,9 @@ Images/thumbs can be styles nicely
 .SimpleHistoryLogitem__occasionsItems {
 	opacity: 0;
 	max-height: 0;
-	transition: opacity 0.25s ease-out 0.5s, max-height 2s ease-out 0s,
+	transition:
+		opacity 0.25s ease-out 0.5s,
+		max-height 2s ease-out 0s,
 		margin 0.25s 0s ease-out;
 	background-color: white;
 	box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
@@ -511,7 +513,9 @@ i.e. the log is inside a .postbox element.
 }
 
 .sh-Dashboard-settingsLink:focus {
-	box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba(79, 148, 212, 0.8);
+	box-shadow:
+		0 0 0 1px #4f94d4,
+		0 0 2px 1px rgba(79, 148, 212, 0.8);
 	mask-image: none;
 	background-color: transparent;
 	background-image: url(./icons/settings_FILL0_wght400_GRAD0_opsz48.svg);
@@ -524,16 +528,6 @@ i.e. the log is inside a .postbox element.
 #simple_history_dashboard_widget .inside {
 	padding: 0;
 	margin-top: 0;
-}
-
-.postbox .SimpleHistoryQuickStats {
-	margin-left: 13px;
-	margin-right: 13px;
-	font-size: 14px;
-}
-
-.postbox .SimpleHistoryQuickStats p {
-	font-size: 14px;
 }
 
 .postbox .SimpleHistoryLogitems {
@@ -753,7 +747,9 @@ Modal window with detailss
 }
 
 .SimpleHistory-modal__leave-active {
-	transition: all 0.15s 0.15s ease-out, visibility 0s 0.3s;
+	transition:
+		all 0.15s 0.15s ease-out,
+		visibility 0s 0.3s;
 
 	opacity: 0;
 	visibility: hidden;
@@ -890,18 +886,6 @@ Modal window with detailss
 	content: "\f110";
 }
 
-/** quick stats = stats above log gui */
-.SimpleHistoryQuickStats,
-.SimpleHistoryQuickStats p {
-	font-size: 16px;
-}
-
-.SimpleHistoryQuickStats p {
-	line-height: 1;
-	margin-top: 1em;
-	margin-bottom: 1em;
-}
-
 .SimpleHistoryQuickStats a {
 	text-decoration: none;
 }
@@ -971,7 +955,9 @@ Modal window with detailss
 
 .SimpleHistory__diff__contents:focus {
 	outline: 1px solid rgb(0, 115, 170);
-	box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+	box-shadow:
+		0 0 0 1px #5b9dd9,
+		0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 .SimpleHistory__diff.SimpleHistory__diff {
@@ -1098,7 +1084,9 @@ so add some extra place then to make it look a bit less ugly.
 	right: 0.5rem;
 	height: 3px;
 	font-weight: 600;
-	transition: background-color 0.25s ease-in-out, height 0.15s ease-in-out;
+	transition:
+		background-color 0.25s ease-in-out,
+		height 0.15s ease-in-out;
 }
 
 .sh-PageNav-tab:hover::after {

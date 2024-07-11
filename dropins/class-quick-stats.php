@@ -12,13 +12,11 @@ use Simple_History\Helpers;
 class Quick_Stats extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
-		add_action( 'simple_history/history_page/before_gui', array( $this, 'output_quick_stats' ), 5 );
-		add_action( 'simple_history/dashboard/before_gui', array( $this, 'output_quick_stats' ), 5 );
+		add_action( 'simple_history/dropin/stats/before_content', array( $this, 'output_quick_stats' ), 5 );
 	}
 
 	/**
-	 * Quick stats above the log
-	 * Uses filter "simple_history/history_page/before_gui" to output its contents
+	 * Output some simple quick stats.
 	 */
 	public function output_quick_stats() {
 		global $wpdb;
