@@ -32,50 +32,77 @@ import {
 	__experimentalHStack as HStack,
 	CheckboxControl,
 	FormTokenField,
+	BaseControl,
 } from "@wordpress/components";
 import { useState, useEffect } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { format, dateI18n, getSettings } from "@wordpress/date";
 
+const LOGLEVELS_OPTIONS = [
+	{
+		label: __("Info", "simple-history"),
+		value: "info",
+	},
+	{
+		label: __("Warning", "simple-history"),
+		value: "warning",
+	},
+	{
+		label: __("Error", "simple-history"),
+		value: "error",
+	},
+	{
+		label: __("Critical", "simple-history"),
+		value: "critical",
+	},
+	{
+		label: __("Alert", "simple-history"),
+		value: "alert",
+	},
+	{
+		label: __("Emergency", "simple-history"),
+		value: "emergency",
+	},
+	{
+		label: __("Debug", "simple-history"),
+		value: "debug",
+	},
+];
+
 function MoreFilters(props) {
-	const { messageTypes, messageTypesSuggestions } = props;
+	const { messageTypesSuggestions, userSuggestions, setUserSuggestions } =
+		props;
 	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
 	const [selectedMessageTypes, setSelectedMessageTypes] = useState([]);
+	const [selectedUsers, setSelectUsers] = useState([]);
 
-	const LOGLEVELS_OPTIONS = [
-		{
-			label: __("Info", "simple-history"),
-			value: "info",
-		},
-		{
-			label: __("Warning", "simple-history"),
-			value: "warning",
-		},
-		{
-			label: __("Error", "simple-history"),
-			value: "error",
-		},
-		{
-			label: __("Critical", "simple-history"),
-			value: "critical",
-		},
-		{
-			label: __("Alert", "simple-history"),
-			value: "alert",
-		},
-		{
-			label: __("Emergency", "simple-history"),
-			value: "emergency",
-		},
-		{
-			label: __("Debug", "simple-history"),
-			value: "debug",
-		},
-	];
-
+	// Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
+	// This way we can find the original untranslated label.
 	const LOGLEVELS_SUGGESTIONS = LOGLEVELS_OPTIONS.map((logLevel) => {
 		return logLevel.label;
 	});
+
+	const searchUsers = async (searchText) => {
+		if (searchText.length < 2) {
+			return;
+		}
+
+		apiFetch({
+			path: addQueryArgs("/simple-history/v1/search-user", {
+				q: searchText,
+			}),
+		}).then((searchUsersResponse) => {
+			console.log("searchUsersResponse", searchUsersResponse);
+			let userSuggestions = [];
+			searchUsersResponse.map((user) => {
+				userSuggestions.push(`${user.display_name} (${user.user_email})`);
+			});
+			console.log("userSuggestions", userSuggestions);
+			setUserSuggestions(userSuggestions);
+		});
+
+		console.log("searchUsers", searchText);
+	};
 
 	return (
 		<div className="">
@@ -138,43 +165,43 @@ function MoreFilters(props) {
 					</div>
 				</FlexBlock>
 			</Flex>
-			<p>
-				<label className="SimpleHistory__filters__filterLabel">
-					{__("Message types:", "simple-history")}
-				</label>
-				<div style={{ display: "inline-block", width: "310px" }}>
-					<SelectControl
-						style={{ width: "310px" }}
-						onBlur={function noRefCheck() {}}
-						onChange={function noRefCheck() {}}
-						onFocus={function noRefCheck() {}}
-						options={messageTypes}
-					/>
-				</div>
-			</p>
 
-			<p>
-				<label className="SimpleHistory__filters__filterLabel">Users</label>
-				<div style={{ display: "inline-block", width: "310px" }}>
-					<SelectControl
-						style={{ width: "310px" }}
-						onBlur={function noRefCheck() {}}
-						onChange={function noRefCheck() {}}
-						onFocus={function noRefCheck() {}}
-						options={[
-							{
-								disabled: true,
-								label: "Select an Option",
-								value: "",
-							},
-							{
-								label: "User a",
-								value: "",
-							},
-						]}
+			<Flex align="top" gap="0">
+				<FlexItem style={{ margin: "1em 0" }}>
+					<label className="SimpleHistory__filters__filterLabel">
+						{__("Users", "simple-history")}
+					</label>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						class="SimpleHistory__filters__loglevels__select"
+						style={{
+							width: "310px",
+							backgroundColor: "white",
+						}}
+					>
+						<FormTokenField
+							__experimentalAutoSelectFirstMatch
+							__experimentalExpandOnFocus
+							__experimentalShowHowTo={false}
+							label=""
+							placeholder={__("All users", "simple-history")}
+							onChange={(nextValue) => {
+								setSelectUsers(nextValue);
+							}}
+							onInputChange={(value) => {
+								searchUsers(value);
+							}}
+							suggestions={userSuggestions}
+							value={selectedUsers}
+						/>
+					</div>
+					<BaseControl
+						__nextHasNoMarginBottom
+						help="Enter 2 or more characters to search for users."
 					/>
-				</div>
-			</p>
+				</FlexBlock>
+			</Flex>
 		</div>
 	);
 }
@@ -224,11 +251,12 @@ function Filters() {
 	const [messageTypes, setMessageTypes] = useState(OPTIONS_LOADING);
 	const [searchText, setSearchText] = useState("");
 	const [messageTypesSuggestions, setMessageTypesSuggestions] = useState([]);
+	const [userSuggestions, setUserSuggestions] = useState([]);
 
 	// Load search options when component mounts.
 	useEffect(() => {
 		apiFetch({
-			path: addQueryArgs("/simple-history/v1/search-options?locale=user"),
+			path: addQueryArgs("/simple-history/v1/search-options", {}),
 		}).then((searchOptions) => {
 			// Append result_months and all dates to dateOptions.
 			const monthsOptions = searchOptions.dates.result_months.map((row) => ({
@@ -249,11 +277,9 @@ function Filters() {
 
 			setSelectedDateOption(`lastdays:${searchOptions.dates.daysToShow}`);
 
-			console.log("searchOptions.loggers", searchOptions.loggers);
 			//let messageTypes = setMessageTypes(searchOptions.loggers);
 			let messageTypesSuggestions = [];
 			searchOptions.loggers.map((logger) => {
-				console.log("logger", logger);
 				const search_data = logger.search_data || {};
 				if (!search_data.search) {
 					return;
@@ -278,7 +304,6 @@ function Filters() {
 					});
 				}
 			});
-			console.log("messageTypesSuggestions", messageTypesSuggestions);
 			setMessageTypesSuggestions(messageTypesSuggestions);
 		});
 	}, []);
@@ -317,6 +342,8 @@ function Filters() {
 				<MoreFilters
 					messageTypes={messageTypes}
 					messageTypesSuggestions={messageTypesSuggestions}
+					userSuggestions={userSuggestions}
+					setUserSuggestions={setUserSuggestions}
 				/>
 			) : null}
 
@@ -398,9 +425,8 @@ function TestApp() {
 	useEffect(() => {
 		apiFetch({
 			path: addQueryArgs("/simple-history/v1/events", queryParams),
-		}).then((posts) => {
-			console.log(posts);
-			setEvents(posts);
+		}).then((events) => {
+			setEvents(events);
 		});
 	}, []);
 
