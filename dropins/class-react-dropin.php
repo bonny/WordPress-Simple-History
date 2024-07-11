@@ -2,6 +2,8 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Helpers;
+
 /**
  * Loads the new GUI based on React.
  */
@@ -19,6 +21,11 @@ class React_Dropin extends Dropin {
 	 * TODO: Only enqueue on our pages + preload search options.
 	 */
 	public function enqueue_admin_scripts() {
+		// Bail if not a Simple History page.
+		if ( ! Helpers::is_on_our_own_pages() ) {
+			return;
+		}
+
 		$asset_file = include SIMPLE_HISTORY_PATH . 'build/index.asset.php';
 
 		// Load the WP components CSS or some components will be unstyled.
