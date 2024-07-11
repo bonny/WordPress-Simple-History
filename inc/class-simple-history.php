@@ -1231,7 +1231,7 @@ class Simple_History {
 	 *
 	 * @param int|null $user_id Id of user to get loggers for. Defaults to current user id.
 	 * @param string   $format format to return loggers in. Default is array. Can also be "sql".
-	 * @return array|string Array or SQL string with loggers that user can read.
+	 * @return array<\Simple_History\Loggers\Simple_Logger>|string Array or SQL string with loggers that user can read.
 	 */
 	public function get_loggers_that_user_can_read( $user_id = null, $format = 'array' ) {
 		$arr_loggers_user_can_view = [];

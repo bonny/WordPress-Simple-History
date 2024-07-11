@@ -29,8 +29,6 @@ class Filter_Dropin extends Dropin {
 
 	/** Add JS template */
 	public function gui_page_filters() {
-		$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();
-
 		/**
 		 * Filter that determines if search filters should be visible directly on page load
 		 *
@@ -257,6 +255,8 @@ class Filter_Dropin extends Dropin {
 							multiple
 							>
 							<?php
+							$loggers_user_can_read = $this->simple_history->get_loggers_that_user_can_read();
+
 							foreach ( $loggers_user_can_read as $logger ) {
 								$logger_info = $logger['instance']->get_info();
 								$logger_slug = $logger['instance']->get_slug();

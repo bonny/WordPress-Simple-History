@@ -95,8 +95,74 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 
 		$data['dates'] = Helpers::get_data_for_date_filter();
 
+		$data['loggers'] = get_loggers_and_messages();
+
 		$response = rest_ensure_response( $data );
 
 		return $response;
 	}
+}
+
+function get_loggers_and_messages() {
+	$simple_history = Simple_History::get_instance();
+
+	$loggers_and_messages = [];
+	$loggers_user_can_read = $simple_history->get_loggers_that_user_can_read();
+
+	foreach ( $loggers_user_can_read as $logger ) {
+		$logger_info = $logger['instance']->get_info();
+		$logger_slug = $logger['instance']->get_slug();
+		$logger_name = $logger_info['name'];
+		$logger_search_data = [];
+
+		// Get labels for logger.
+		if ( isset( $logger_info['labels']['search'] ) ) {
+
+			$logger_search_data['search'] = $logger_info['labels']['search']['label'];
+
+			// Label all = "All found updates" and so on.
+			if ( ! empty( $logger_info['labels']['search']['label_all'] ) ) {
+				$arr_all_search_messages = [];
+				foreach ( $logger_info['labels']['search']['options'] as $option_messages ) {
+					$arr_all_search_messages = array_merge( $arr_all_search_messages, $option_messages );
+				}
+
+				foreach ( $arr_all_search_messages as $key => $val ) {
+					$arr_all_search_messages[ $key ] = $logger_slug . ':' . $val;
+				}
+
+				// printf( '<option value="%2$s">%1$s</option>', esc_attr( $logger_info['labels']['search']['label_all'] ), esc_attr( implode( ',', $arr_all_search_messages ) ) );
+				$logger_search_data['search_all'] = [
+					'label' => $logger_info['labels']['search']['label_all'],
+					'options' => $arr_all_search_messages,
+				];
+			}
+
+			// For each specific search option.
+			foreach ( $logger_info['labels']['search']['options'] as $option_key => $option_messages ) {
+				foreach ( $option_messages as $key => $val ) {
+					$option_messages[ $key ] = $logger_slug . ':' . $val;
+				}
+
+				// $str_option_messages = implode( ',', $option_messages );
+				// printf(
+				// '<option value="%2$s">%1$s</option>',
+				// esc_attr( $option_key ), // 1
+				// esc_attr( $str_option_messages ) // 2
+				// );
+				$logger_search_data['search_options'][] = [
+					'label' => $option_key,
+					'options' => $option_messages,
+				];
+			}
+		}// End if().
+
+		$loggers_and_messages[] = [
+			'slug'         => $logger_slug,
+			'name'         => $logger_name,
+			'search_data'  => $logger_search_data,
+		];
+	}
+
+	return $loggers_and_messages;
 }
