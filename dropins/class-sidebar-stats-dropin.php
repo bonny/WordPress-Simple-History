@@ -153,6 +153,13 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 			<div class="inside">
 
+				<?php
+				/**
+				 * Fires inside the stats sidebar box, after the headline but before any content.
+				 */
+				do_action( 'simple_history/dropin/stats/before_content' );
+				?>
+
 				<p>
 					<?php
 					echo wp_kses(
