@@ -40,6 +40,11 @@
 	margin-left: 150px; /* same width as the label */
 }
 
+/* Component FormTokenField always adds element for label */
+.SimpleHistory__filters__loglevels__select .components-form-token-field__label {
+	display: none;
+}
+
 @media (max-width: 600px) {
 	.SimpleHistory__filters__filterLabel {
 		display: block;
@@ -154,7 +159,9 @@
 	margin-left: 155px;
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 0.25s ease-in-out, opacity 0.25s ease-in-out,
+	transition:
+		max-height 0.25s ease-in-out,
+		opacity 0.25s ease-in-out,
 		visibility 0s 1s;
 }
 
@@ -163,7 +170,9 @@
 	opacity: 1;
 	max-height: 150px;
 	margin-top: 1em;
-	transition: max-height 0.25s ease-in-out, opacity 0.25s ease-in-out,
+	transition:
+		max-height 0.25s ease-in-out,
+		opacity 0.25s ease-in-out,
 		visibility 0s 0s;
 }
 

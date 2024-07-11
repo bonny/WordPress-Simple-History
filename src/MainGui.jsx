@@ -1,5 +1,5 @@
 import { addQueryArgs } from "@wordpress/url";
-import { __ } from "@wordpress/i18n";
+import { __, _x } from "@wordpress/i18n";
 import {
 	SearchControl,
 	Modal,
@@ -30,17 +30,21 @@ import {
 	FlexBlock,
 	FlexItem,
 	__experimentalHStack as HStack,
+	CheckboxControl,
+	FormTokenField,
 } from "@wordpress/components";
 import { useState, useEffect } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { format, dateI18n, getSettings } from "@wordpress/date";
 
 function MoreFilters() {
+	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
+
 	const LOGLEVELS_OPTIONS = [
-		{
-			label: __("Debug", "simple-history"),
-			value: "debug",
-		},
+		// {
+		// 	label: __("All", "simple-history"),
+		// 	value: "",
+		// },
 		{
 			label: __("Info", "simple-history"),
 			value: "info",
@@ -65,21 +69,64 @@ function MoreFilters() {
 			label: __("Emergency", "simple-history"),
 			value: "emergency",
 		},
+		{
+			label: __("Debug", "simple-history"),
+			value: "debug",
+		},
 	];
+
+	const LOGLEVELS_SUGGESTIONS = LOGLEVELS_OPTIONS.map((logLevel) => {
+		return logLevel.label;
+	});
+
+	console.log("selectedLogLevel", selectedLogLevels);
 
 	return (
 		<div className="">
+			<Flex align="top" gap="0">
+				<FlexItem style={{ margin: "1em 0" }}>
+					<label className="SimpleHistory__filters__filterLabel">
+						{__("Log levels", "simple-history")}
+					</label>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						class="SimpleHistory__filters__loglevels__select"
+						style={{
+							width: "310px",
+							backgroundColor: "white",
+						}}
+					>
+						<FormTokenField
+							__experimentalAutoSelectFirstMatch
+							__experimentalExpandOnFocus
+							__experimentalShowHowTo={false}
+							label=""
+							placeholder={__("All log levels", "simple-history")}
+							onChange={(nextValue) => {
+								setSelectedLogLevels(nextValue);
+							}}
+							suggestions={LOGLEVELS_SUGGESTIONS}
+							value={selectedLogLevels}
+						/>
+					</div>
+				</FlexBlock>
+			</Flex>
+
 			<p>
 				<label className="SimpleHistory__filters__filterLabel">
-					Log levels:
+					{__("Log levels", "simple-history")}
 				</label>
-				<div style={{ display: "inline-block", width: "310px" }}>
-					<SelectControl
-						onBlur={function noRefCheck() {}}
-						onChange={function noRefCheck() {}}
-						onFocus={function noRefCheck() {}}
-						options={LOGLEVELS_OPTIONS}
-					/>
+				<div style={{ display: "inline-block", xwidth: "310px" }}>
+					<HStack spacing="5">
+						{LOGLEVELS_OPTIONS.map((logLevel) => (
+							<CheckboxControl
+								label={logLevel.label}
+								checked={false}
+								onChange={function noRefCheck() {}}
+							/>
+						))}
+					</HStack>
 				</div>
 			</p>
 
@@ -166,9 +213,10 @@ const DEFAULT_DATE_OPTIONS = [
  * A "Show search options" button is visible where the user can expand the search to show more options/filters.
  */
 function Filters() {
-	const [showMoreOptions, setShowMoreOptions] = useState(false);
+	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(true);
 	const [dateOptions, setDateOptions] = useState(DEFAULT_DATE_OPTIONS);
 	const [selectedDateOption, setSelectedDateOption] = useState();
+	const [searchText, setSearchText] = useState("");
 
 	// Load search options when component mounts.
 	useEffect(() => {
@@ -193,17 +241,15 @@ function Filters() {
 				value: "allDates",
 			};
 
-			const newDateOptions = [
+			setDateOptions([
 				...DEFAULT_DATE_OPTIONS,
 				...monthsOptions,
 				allDatesOption,
-			];
-
-			setDateOptions(newDateOptions);
+			]);
 		});
 	}, []);
 
-	const showMoreOrLessText = showMoreOptions
+	const showMoreOrLessText = moreOptionsIsExpanded
 		? __("Collapse search options", "simple-history")
 		: __("Show search options", "simple-history");
 
@@ -226,9 +272,11 @@ function Filters() {
 				<input
 					type="search"
 					className="SimpleHistoryFilterDropin-searchInput"
+					value={searchText}
+					onChange={(event) => setSearchText(event.target.value)}
 				/>
 			</p>
-			{showMoreOptions ? <MoreFilters /> : null}
+			{moreOptionsIsExpanded ? <MoreFilters /> : null}
 			<p class="SimpleHistory__filters__filterSubmitWrap">
 				<button className="button" onClick={function noRefCheck() {}}>
 					{__("Search events", "simple-history")}
@@ -236,7 +284,7 @@ function Filters() {
 
 				<button
 					type="button"
-					onClick={() => setShowMoreOptions(!showMoreOptions)}
+					onClick={() => setMoreOptionsIsExpanded(!moreOptionsIsExpanded)}
 					className="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"
 				>
 					{showMoreOrLessText}
