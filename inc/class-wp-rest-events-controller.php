@@ -21,8 +21,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->rest_base = 'events';
 		$this->namespace = 'simple-history/v1';
+		$this->rest_base = 'events';
 		$this->simple_history = Simple_History::get_instance();
 	}
 
@@ -84,8 +84,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 	/**
 	 * Checks if a given request has access to read a post.
-	 *
-	 * @since 4.7.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return bool|WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
@@ -160,10 +158,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 	/**
 	 * Retrieves the query params for the posts collection.
-	 *
-	 * @since 4.7.0
-	 * @since 5.4.0 The `tax_relation` query parameter was added.
-	 * @since 5.7.0 The `modified_after` and `modified_before` query parameters were added.
 	 *
 	 * @return array Collection parameters.
 	 */
@@ -347,8 +341,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Retrieves the post's schema, conforming to JSON Schema.
 	 *
-	 * @since 4.7.0
-	 *
 	 * @return array Item schema data.
 	 */
 	public function get_item_schema() {
@@ -426,8 +418,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 	/**
 	 * Checks if a given request has access to read posts.
-	 *
-	 * @since 4.7.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
@@ -540,11 +530,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 	/**
 	 * Prepares a single post output for response.
-	 *
-	 * @since 4.7.0
-	 * @since 5.9.0 Renamed `$post` to `$item` to match parent class for PHP 8 named parameter support.
-	 *
-	 * @global WP_Post $post Global post object.
 	 *
 	 * @param object          $item    Post object.
 	 * @param WP_REST_Request $request Request object.
