@@ -244,7 +244,6 @@ function Filters() {
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);
 	const [dateOptions, setDateOptions] = useState(OPTIONS_LOADING);
 	const [selectedDateOption, setSelectedDateOption] = useState();
-	const [messageTypes, setMessageTypes] = useState(OPTIONS_LOADING);
 	const [searchText, setSearchText] = useState("");
 	const [messageTypesSuggestions, setMessageTypesSuggestions] = useState([]);
 	const [userSuggestions, setUserSuggestions] = useState([]);
@@ -366,7 +365,6 @@ function Filters() {
 
 				{moreOptionsIsExpanded ? (
 					<MoreFilters
-						messageTypes={messageTypes}
 						messageTypesSuggestions={messageTypesSuggestions}
 						userSuggestions={userSuggestions}
 						setUserSuggestions={setUserSuggestions}
