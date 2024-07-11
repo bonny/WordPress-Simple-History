@@ -1333,4 +1333,113 @@ class Helpers {
 	public static function is_wp_cli() {
 		return defined( 'WP_CLI' ) && WP_CLI;
 	}
+
+	/**
+	 * Calculates what to show in the date filter dropdown.
+	 * Returns an array with keys and values:
+	 * - "arr_days_and_pages": Array with debug info about how many days and pages to show.
+	 * - "daysToShow": Optimal number of days to show, regarding to number of items in the log, to prevent the initial query from being too slow.
+	 * - "result_months": Array with unique months, so the date dropdown can show only months with events.
+	 *
+	 * @return array
+	 */
+	public static function get_data_for_date_filter() {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+
+		// Start months filter.
+		$table_name = $simple_history->get_events_table_name();
+		$loggers_user_can_read_sql_in = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+
+		// Get unique months.
+		$cache_key = 'sh_filter_unique_months';
+		$result_months = get_transient( $cache_key );
+
+		if ( false === $result_months ) {
+			$sql_dates = sprintf(
+				'
+				SELECT DISTINCT ( date_format(DATE, "%%Y-%%m") ) AS yearMonth
+				FROM %s
+				WHERE logger IN %s
+				ORDER BY yearMonth DESC
+				',
+				$table_name, // 1
+				$loggers_user_can_read_sql_in // 2
+			);
+
+			$result_months = $wpdb->get_results( $sql_dates ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+			set_transient( $cache_key, $result_months, HOUR_IN_SECONDS );
+		}
+
+		$arr_days_and_pages = array();
+
+		// Default month = current month
+		// Mainly for performance reasons, since often
+		// it's not the users intention to view all events,
+		// but just the latest.
+
+		// Determine if we limit the date range by default.
+		$daysToShow = 1;
+
+		// Start with the latest day.
+		$numEvents = self::get_unique_events_for_days( $daysToShow );
+		$numPages = $numEvents / self::get_pager_size();
+
+		$arr_days_and_pages[] = array(
+			'daysToShow' => $daysToShow,
+			'numPages' => $numPages,
+		);
+
+		// Example on my server with lots of brute force attacks (causing log to not load)
+		// 166434 / 15 = 11 000 pages for last 7 days
+		// 1 day = 3051 / 15 = 203 pages = still much but better than 11000 pages!
+		if ( $numPages < 20 ) {
+			// Not that many things the last day. Let's try to expand to 7 days instead.
+			$daysToShow = 7;
+			$numEvents = self::get_unique_events_for_days( $daysToShow );
+			$numPages = $numEvents / self::get_pager_size();
+
+			$arr_days_and_pages[] = array(
+				'daysToShow' => $daysToShow,
+				'numPages' => $numPages,
+			);
+
+			if ( $numPages < 20 ) {
+				// Not that many things the last 7 days. Let's try to expand to 14 days instead.
+				$daysToShow = 14;
+				$numEvents = self::get_unique_events_for_days( $daysToShow );
+				$numPages = $numEvents / self::get_pager_size();
+
+				$arr_days_and_pages[] = array(
+					'daysToShow' => $daysToShow,
+					'numPages' => $numPages,
+				);
+
+				if ( $numPages < 20 ) {
+					// Not many things the last 14 days either. Let try with 30 days.
+					$daysToShow = 30;
+					$numEvents = self::get_unique_events_for_days( $daysToShow );
+					$numPages = $numEvents / self::get_pager_size();
+
+					$arr_days_and_pages[] = array(
+						'daysToShow' => $daysToShow,
+						'numPages' => $numPages,
+					);
+
+					// If 30 days gives a big amount of pages, go back to 14 days.
+					if ( $numPages > 1000 ) {
+						$daysToShow = 14;
+					}
+				}
+			}
+		}// End if().
+
+		return [
+			'arr_days_and_pages' => $arr_days_and_pages,
+			'daysToShow' => $daysToShow,
+			'result_months' => $result_months,
+		];
+	}
 }
