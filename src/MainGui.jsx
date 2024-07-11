@@ -33,27 +33,7 @@ import {
 } from "@wordpress/components";
 import { useState, useEffect } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
-
-console.log("Hello, world from Simple History index.js!");
-
-console.log("Fetching posts from the REST API...");
-apiFetch({ path: "/wp/v2/posts" }).then((posts) => {
-	console.log(posts);
-});
-
-console.log("Fetching events from the REST API...");
-apiFetch({ path: "/simple-history/v1/events" }).then((events) => {
-	console.log(events);
-});
-
-const queryParams = { _fields: ["id", "date", "message"] };
-
-console.log("Fetching events with args");
-apiFetch({ path: addQueryArgs("/simple-history/v1/events", queryParams) }).then(
-	(posts) => {
-		console.log(posts);
-	},
-);
+import { format, dateI18n, getSettings } from "@wordpress/date";
 
 function MoreFilters() {
 	const LOGLEVELS_OPTIONS = [
@@ -154,54 +134,91 @@ function MoreFilters() {
 	);
 }
 
+const DEFAULT_DATE_OPTIONS = [
+	{
+		label: __("Custom date range...", "simple-history"),
+		value: "customRange",
+	},
+	{
+		label: __("Last day", "simple-history"),
+		value: "lastdays:1",
+	},
+	{
+		label: __("Last 7 days", "simple-history"),
+		value: "lastdays:7",
+	},
+	{
+		label: __("Last 14 days", "simple-history"),
+		value: "lastdays:14",
+	},
+	{
+		label: __("Last 30 days", "simple-history"),
+		value: "lastdays:30",
+	},
+	{
+		label: __("Last 60 days", "simple-history"),
+		value: "lastdays:60",
+	},
+];
+
 /**
  * Search component with a search input visible by default.
  * A "Show search options" button is visible where the user can expand the search to show more options/filters.
  */
 function Filters() {
 	const [showMoreOptions, setShowMoreOptions] = useState(false);
+	const [dateOptions, setDateOptions] = useState(DEFAULT_DATE_OPTIONS);
+	const [selectedDateOption, setSelectedDateOption] = useState();
 
-	const datesOptions = [
-		{
-			label: __("Today", "simple-history"),
-			value: "today",
-		},
-		{
-			label: __("Yesterday", "simple-history"),
-			value: "yesterday",
-		},
-		{
-			label: __("Last 7 days", "simple-history"),
-			value: "last_7_days",
-		},
-		{
-			label: __("Last 30 days", "simple-history"),
-			value: "last_30_days",
-		},
-		{
-			label: __("Custom", "simple-history"),
-			value: "custom",
-		},
-	];
+	// Load search options when component mounts.
+	useEffect(() => {
+		apiFetch({
+			path: addQueryArgs("/simple-history/v1/search-options"),
+		}).then((searchOptions) => {
+			setSelectedDateOption(`lastdays:${searchOptions.dates.daysToShow}`);
+
+			// Append result_months and all dates to dateOptions.
+			const monthsOptions = searchOptions.dates.result_months.map((row) => {
+				// Format the date according to the locale
+				const formattedDate = dateI18n("F Y", row.yearMonth);
+
+				return {
+					label: `${formattedDate}`,
+					value: `month:${row.yearMonth}`,
+				};
+			});
+
+			const allDatesOption = {
+				label: __("All dates", "simple-history"),
+				value: "allDates",
+			};
+
+			const newDateOptions = [
+				...DEFAULT_DATE_OPTIONS,
+				...monthsOptions,
+				allDatesOption,
+			];
+
+			setDateOptions(newDateOptions);
+		});
+	}, []);
 
 	const showMoreOrLessText = showMoreOptions
 		? __("Collapse search options", "simple-history")
 		: __("Show search options", "simple-history");
 
 	return (
-		<div style={{}}>
+		<div>
 			<p>
 				<label className="SimpleHistory__filters__filterLabel">Dates:</label>
 				<div style={{ display: "inline-block", width: "310px" }}>
 					<SelectControl
-						options={datesOptions}
-						onBlur={function noRefCheck() {}}
-						onChange={function noRefCheck() {}}
-						onFocus={function noRefCheck() {}}
+						options={dateOptions}
+						value={selectedDateOption}
+						onChange={(value) => setSelectedDateOption(value)}
 					/>
 				</div>
 			</p>
-
 			<p>
 				<label className="SimpleHistory__filters__filterLabel">
 					Containing words:
@@ -211,9 +228,7 @@ function Filters() {
 					className="SimpleHistoryFilterDropin-searchInput"
 				/>
 			</p>
-
 			{showMoreOptions ? <MoreFilters /> : null}
-
 			<p class="SimpleHistory__filters__filterSubmitWrap">
 				<button className="button" onClick={function noRefCheck() {}}>
 					{__("Search events", "simple-history")}
@@ -287,6 +302,7 @@ function EventsList(props) {
 function TestApp() {
 	const [events, setEvents] = useState([]);
 	const [date, setDate] = useState(new Date());
+	const queryParams = { _fields: ["id", "date", "message"] };
 
 	useEffect(() => {
 		apiFetch({
