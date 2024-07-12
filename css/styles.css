@@ -239,8 +239,9 @@ Style different log levels.
 	position: relative;
 	border-radius: 50%;
 	overflow: hidden;
-	/*opacity: .8;*/
 	margin-top: 5px;
+	width: 32px;
+	height: 32px;
 }
 
 .SimpleHistoryLogitem__senderImage img {

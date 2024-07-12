@@ -353,6 +353,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'title'      => 'simple-history-event',
 			'type'       => 'object',
 			'properties' => array(
+				'id'           => array(
+					'description' => __( 'Unique identifier for the event.', 'simple-history' ),
+					'type'        => 'integer',
+				),
 				'date'         => array(
 					'description' => __( "The date the event was added, in the site's timezone.", 'simple-history' ),
 					'type'        => array( 'string', 'null' ),
@@ -362,10 +366,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The date the event was added, as GMT.', 'simple-history' ),
 					'type'        => array( 'string', 'null' ),
 					'format'      => 'date-time',
-				),
-				'id'           => array(
-					'description' => __( 'Unique identifier for the event.', 'simple-history' ),
-					'type'        => 'integer',
 				),
 				'link'         => array(
 					'description' => __( 'URL to the event.', 'simple-history' ),
@@ -388,6 +388,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The logger of the event.', 'simple-history' ),
 					'type'        => 'string',
 				),
+				'via'          => array(
+					'description' => __( 'The via of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
 				'message_key'   => array(
 					'description' => __( 'The message key of the event.', 'simple-history' ),
 					'type'        => 'string',
@@ -399,6 +403,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				'initiator' => array(
 					'description' => __( 'The initiator of the event.', 'simple-history' ),
 					'type'        => 'string',
+				),
+				'initiator_data' => array(
+					'description' => __( 'Details of the initiator.', 'simple-history' ),
+					'type'        => 'object',
 				),
 				'occasions_id' => array(
 					'description' => __( 'The occasions ID of the event.', 'simple-history' ),
@@ -556,6 +564,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['date_gmt'] = mysql_to_rfc3339( get_date_from_gmt( mysql_to_rfc3339( $item->date ) ) );
 		}
 
+		if ( rest_is_field_included( 'via', $fields ) ) {
+			$row_logger = $this->simple_history->get_instantiated_logger_by_slug( $item->logger );
+			$data['via'] = $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '';
+		}
+
 		if ( rest_is_field_included( 'message', $fields ) ) {
 			$message = $this->simple_history->get_log_row_plain_text_output( $item );
 			$message = html_entity_decode( $message );
@@ -590,6 +603,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'initiator', $fields ) ) {
 			$data['initiator'] = $item->initiator;
+		}
+
+		if ( rest_is_field_included( 'initiator_data', $fields ) ) {
+			$context = $item->context;
+			$user_avatar_data = get_avatar_data( $context['_user_id'], [] );
+			$user_avatar_url = $user_avatar_data['url'];
+
+			$user_info = [
+				'user_id' => $context['_user_id'],
+				'user_login' => $context['_user_login'],
+				'user_email' => $context['_user_email'],
+				'user_image'  => $this->simple_history->get_log_row_sender_image_output( $item ),
+				'user_avatar_url' => $user_avatar_url,
+			];
+
+			$data['initiator_data'] = $user_info;
 		}
 
 		if ( rest_is_field_included( 'occasions_id', $fields ) ) {

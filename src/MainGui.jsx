@@ -45,6 +45,7 @@ function MainGui() {
 				"occasions_id",
 				"subsequent_occasions_count",
 				"initiator",
+				'initiator_data',
 				"via",
 			],
 		};

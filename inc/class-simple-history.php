@@ -721,6 +721,7 @@ class Simple_History {
 	 * @return string
 	 */
 	private function get_log_row_sender_image_output( $row ) {
+		/** @var Loggers\Logger $row_logger */
 		$row_logger = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
