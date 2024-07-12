@@ -1,33 +1,8 @@
 import apiFetch from "@wordpress/api-fetch";
-import { Spinner } from "@wordpress/components";
 import { useCallback, useEffect, useState } from "@wordpress/element";
 import { addQueryArgs } from "@wordpress/url";
+import { EventsList } from "./EventsList";
 import { EventsSearchFilters } from "./EventsSearchFilters";
-
-function EventsList(props) {
-	const { events, eventsIsLoading } = props;
-
-	if (eventsIsLoading) {
-		return (
-			<p>
-				<Spinner />
-				Loading...
-			</p>
-		);
-	}
-
-	return (
-		<div>
-			<ul>
-				{events.map((event) => (
-					<li key={event.id}>
-						{event.date} - {event.message}
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
 
 function MainGui() {
 	const [eventsIsLoading, setEventsIsLoading] = useState(true);
