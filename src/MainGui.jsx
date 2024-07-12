@@ -27,6 +27,7 @@ function MainGui() {
 	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
 	const [messageTypesSuggestions, setMessageTypesSuggestions] = useState([]);
 	const [selectedMessageTypes, setSelectedMessageTypes] = useState([]);
+	const [userSuggestions, setUserSuggestions] = useState([]);
 	const [selectedUsers, setSelectUsers] = useState([]);
 
 	const loadEvents = useCallback(async () => {
@@ -35,9 +36,6 @@ function MainGui() {
 			per_page: 5,
 			_fields: ["id", "date", "message"],
 		};
-
-		// console.log("selectedUsers", selectedUsers);
-		// console.log("selectedCustomDateFrom", selectedCustomDateFrom);
 
 		if (enteredSearchText) {
 			eventsQueryParams.search = enteredSearchText;
@@ -70,11 +68,8 @@ function MainGui() {
 		}
 
 		if (selectedMessageTypes.length) {
-			console.log("selectedMessageTypes", selectedMessageTypes);
-			console.log("messageTypesSuggestions", messageTypesSuggestions);
 			let selectedMessageTypesValues = [];
 			selectedMessageTypes.forEach((selectedMessageType) => {
-				console.log("selectedMessageType", selectedMessageType);
 				let messageTypeOption = messageTypesSuggestions.find(
 					(messageTypeOption) => {
 						return (
@@ -83,7 +78,6 @@ function MainGui() {
 					},
 				);
 
-				console.log("messageTypeOption", messageTypeOption);
 				if (messageTypeOption) {
 					selectedMessageTypesValues.push(messageTypeOption);
 				}
@@ -96,14 +90,27 @@ function MainGui() {
 						messsagesString += searchOption + ",";
 					});
 				});
-				console.log('messsagesString', messsagesString);
 				eventsQueryParams.messages = messsagesString;
 			}
-			console.log("selectedMessageTypesValues", selectedMessageTypesValues);
-			// array with translated logger and messages, i.e:
-			// "WordPress och tilläggsuppdateringar hittades"
-			// "- Misslyckade inloggningar av användare"
-			//eventsQueryParams.message_types = selectedMessageTypes;
+		}
+
+		if (selectedUsers.length) {
+			let selectedUsersValues = [];
+			selectedUsers.forEach((selectedUserNameAndEmail) => {
+				let userSuggestion = userSuggestions.find((userSuggestion) => {
+					return (
+						userSuggestion.label.trim() === selectedUserNameAndEmail.trim()
+					);
+				});
+
+				if (userSuggestion) {
+					selectedUsersValues.push(userSuggestion.id);
+				}
+			});
+
+			if (selectedUsersValues.length) {
+				eventsQueryParams.users = selectedUsersValues;
+			}
 		}
 
 		setEventsIsLoading(true);
@@ -167,6 +174,8 @@ function MainGui() {
 				setSelectedCustomDateTo={setSelectedCustomDateTo}
 				messageTypesSuggestions={messageTypesSuggestions}
 				setMessageTypesSuggestions={setMessageTypesSuggestions}
+				userSuggestions={userSuggestions}
+				setUserSuggestions={setUserSuggestions}
 				onReload={handleReload}
 			/>
 

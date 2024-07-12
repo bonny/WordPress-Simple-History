@@ -18,6 +18,7 @@ import { ExpandedFilters } from "./ExpandedFilters";
  */
 export function EventsSearchFilters(props) {
 	const {
+		onReload,
 		selectedLogLevels,
 		setSelectedLogLevels,
 		selectedMessageTypes,
@@ -28,13 +29,14 @@ export function EventsSearchFilters(props) {
 		setSelectedDateOption,
 		enteredSearchText,
 		setEnteredSearchText,
-		onReload,
 		selectedCustomDateFrom,
 		setSelectedCustomDateFrom,
 		selectedCustomDateTo,
 		setSelectedCustomDateTo,
 		messageTypesSuggestions,
 		setMessageTypesSuggestions,
+		userSuggestions,
+		setUserSuggestions,
 	} = props;
 
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);
@@ -144,6 +146,8 @@ export function EventsSearchFilters(props) {
 						setSelectedMessageTypes={setSelectedMessageTypes}
 						selectedUsers={selectedUsers}
 						setSelectUsers={setSelectUsers}
+						userSuggestions={userSuggestions}
+						setUserSuggestions={setUserSuggestions}
 					/>
 				) : null}
 

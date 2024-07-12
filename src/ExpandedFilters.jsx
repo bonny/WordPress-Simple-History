@@ -26,9 +26,9 @@ export function ExpandedFilters(props) {
 		setSelectedMessageTypes,
 		selectedUsers,
 		setSelectUsers,
+		userSuggestions, 
+		setUserSuggestions,
 	} = props;
-
-	const [userSuggestions, setUserSuggestions] = useState([]);
 
 	// Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
 	// This way we can find the original untranslated label.
@@ -48,7 +48,10 @@ export function ExpandedFilters(props) {
 		}).then((searchUsersResponse) => {
 			let userSuggestions = [];
 			searchUsersResponse.map((user) => {
-				userSuggestions.push(`${user.display_name} (${user.user_email})`);
+				userSuggestions.push({
+					label: `${user.display_name} (${user.user_email})`,
+					id: user.ID,
+				});
 			});
 			setUserSuggestions(userSuggestions);
 		});
@@ -144,7 +147,9 @@ export function ExpandedFilters(props) {
 							onInputChange={(value) => {
 								searchUsers(value);
 							}}
-							suggestions={userSuggestions}
+							suggestions={userSuggestions.map((suggestion) => {
+								return suggestion.label;
+							})}
 							value={selectedUsers}
 						/>
 					</div>
