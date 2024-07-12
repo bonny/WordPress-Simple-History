@@ -3,15 +3,24 @@ import { useCallback, useEffect, useState } from "@wordpress/element";
 import { addQueryArgs } from "@wordpress/url";
 import { EventsList } from "./EventsList";
 import { EventsSearchFilters } from "./EventsSearchFilters";
+import { useDebounce } from "@wordpress/compose";
+import { endOfDay, startOfDay, format } from "date-fns";
+import { TIMEZONELESS_FORMAT } from "./constants";
+
+const defaultStartDate = format(startOfDay(new Date()), TIMEZONELESS_FORMAT);
+const defaultEndDate = format(endOfDay(new Date()), TIMEZONELESS_FORMAT);
 
 function MainGui() {
 	const [eventsIsLoading, setEventsIsLoading] = useState(true);
 	const [events, setEvents] = useState([]);
+	const [eventsMeta, setEventsMeta] = useState({});
 	const [eventsReloadTime, setEventsReloadTime] = useState(Date.now());
 
 	const [selectedDateOption, setSelectedDateOption] = useState("");
-	const [selectedCustomDateFrom, setSelectedCustomDateFrom] = useState(null);
-	const [selectedCustomDateTo, setSelectedCustomDateTo] = useState(null);
+	const [selectedCustomDateFrom, setSelectedCustomDateFrom] =
+		useState(defaultStartDate);
+	const [selectedCustomDateTo, setSelectedCustomDateTo] =
+		useState(defaultEndDate);
 	const [enteredSearchText, setEnteredSearchText] = useState("");
 	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
 	const [selectedMessageTypes, setSelectedMessageTypes] = useState([]);
@@ -19,33 +28,62 @@ function MainGui() {
 
 	const loadEvents = useCallback(async () => {
 		// Create query params based on selected filters.
-		const eventsQueryParams = { _fields: ["id", "date", "message"] };
+		let eventsQueryParams = {
+			per_page: 5,
+			_fields: ["id", "date", "message"],
+		};
 
-		console.log("selectedLogLevels", selectedLogLevels);
-		console.log("selectedMessageTypes", selectedMessageTypes);
-		console.log("selectedUsers", selectedUsers);
+		// console.log("enteredSearchText", enteredSearchText);
 		console.log("selectedDateOption", selectedDateOption);
-		console.log("enteredSearchText", enteredSearchText);
+		// console.log("selectedLogLevels", selectedLogLevels);
+		// console.log("selectedMessageTypes", selectedMessageTypes);
+		// console.log("selectedUsers", selectedUsers);
+		// console.log("selectedCustomDateFrom", selectedCustomDateFrom);
+
+		if (enteredSearchText) {
+			eventsQueryParams.search = enteredSearchText;
+		}
+
+		if (selectedDateOption) {
+			if (selectedDateOption === "customRange") {
+				console.log("selectedCustomDateFrom", selectedCustomDateFrom);
+				console.log("selectedCustomDateTo", selectedCustomDateTo);
+				eventsQueryParams.date_from = selectedCustomDateFrom;
+				eventsQueryParams.date_to = selectedCustomDateTo;
+			} else {
+				eventsQueryParams.dates = selectedDateOption;
+			}
+		}
 
 		setEventsIsLoading(true);
-		apiFetch({
+		const eventsResponse = await apiFetch({
 			path: addQueryArgs("/simple-history/v1/events", eventsQueryParams),
-		}).then((events) => {
-			setEvents(events);
-			setEventsIsLoading(false);
+			// Skip parsing to be able to retrieve headers.
+			parse: false,
 		});
+
+		const eventsJson = await eventsResponse.json();
+
+		setEventsMeta({
+			total: eventsResponse.headers.get("X-Wp-Total"),
+			totalPages: eventsResponse.headers.get("X-Wp-Totalpages"),
+			link: eventsResponse.headers.get("Link"),
+		});
+
+		setEvents(eventsJson);
+		setEventsIsLoading(false);
 	}, [
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsers,
-		selectedDateOption,
 		enteredSearchText,
+		selectedDateOption,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 	]);
 
 	useEffect(() => {
-		console.log("loadEvents in useEffect");
+		// console.log("loadEvents in useEffect", loadEvents, eventsReloadTime);
 		loadEvents();
 	}, [loadEvents, eventsReloadTime]);
 
@@ -79,7 +117,11 @@ function MainGui() {
 				onReload={handleReload}
 			/>
 
-			<EventsList events={events} eventsIsLoading={eventsIsLoading} />
+			<EventsList
+				eventsIsLoading={eventsIsLoading}
+				events={events}
+				eventsMeta={eventsMeta}
+			/>
 		</div>
 	);
 }

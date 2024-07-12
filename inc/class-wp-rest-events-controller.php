@@ -234,14 +234,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// Date to in unix timestamp format.
 		$query_params['date_from'] = array(
 			'description' => __( 'Limit result set to rows with date greater than or equal to this unix timestamp.', 'simple-history' ),
-			'type'        => 'integer',
+			'type'        => 'string',
 		);
 
 		// Date to.
 		// If date_to is set it is a timestamp.
 		$query_params['date_to'] = array(
 			'description' => __( 'Limit result set to rows with date less than or equal to this unix timestamp.', 'simple-history' ),
-			'type'        => 'integer',
+			'type'        => 'string',
 		);
 
 		/**

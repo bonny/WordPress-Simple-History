@@ -2,7 +2,7 @@ import { Spinner } from "@wordpress/components";
 import { __ } from "@wordpress/i18n";
 
 export function EventsList(props) {
-	const { events, eventsIsLoading } = props;
+	const { events, eventsIsLoading, eventsMeta } = props;
 
 	if (eventsIsLoading) {
 		return (
@@ -15,6 +15,9 @@ export function EventsList(props) {
 
 	return (
 		<div>
+			<p>
+				Total events: {eventsMeta.total}, Total pages: {eventsMeta.totalPages}
+			</p>
 			<ul>
 				{events.map((event) => (
 					<li key={event.id}>

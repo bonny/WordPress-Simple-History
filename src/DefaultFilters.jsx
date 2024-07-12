@@ -1,13 +1,15 @@
 import {
-	SelectControl,
+	BaseControl,
 	DatePicker,
 	Flex,
 	FlexItem,
-	BaseControl,
+	SelectControl,
 } from "@wordpress/components";
-import { __ } from "@wordpress/i18n";
 import { getSettings } from "@wordpress/date";
-import { useState, useEffect } from "@wordpress/element";
+import { useEffect } from "@wordpress/element";
+import { __ } from "@wordpress/i18n";
+import { endOfDay, format, startOfDay } from "date-fns";
+import { TIMEZONELESS_FORMAT } from "./constants";
 
 export function DefaultFilters(props) {
 	const {
@@ -48,21 +50,31 @@ export function DefaultFilters(props) {
 		return (
 			<Flex justify="start" gap="15">
 				<FlexItem style={{ width: "95px" }}>{/* Empty for space */}</FlexItem>
+
 				<FlexItem>
 					<BaseControl label={__("From date", "simple-history")}>
 						<DatePicker
 							startOfWeek={firstDayOfWeek}
-							onChange={(nextDate) => setSelectedCustomDateFrom(nextDate)}
+							onChange={(nextDate) => {
+								setSelectedCustomDateFrom(
+									format(startOfDay(nextDate), TIMEZONELESS_FORMAT),
+								);
+							}}
 							currentDate={selectedCustomDateFrom}
 							isInvalidDate={isInvalidDate}
 						/>
 					</BaseControl>
 				</FlexItem>
+
 				<FlexItem>
 					<BaseControl label={__("To date", "simple-history")}>
 						<DatePicker
 							startOfWeek={firstDayOfWeek}
-							onChange={(nextDate) => setSelectedCustomDateTo(nextDate)}
+							onChange={(nextDate) => {
+								setSelectedCustomDateTo(
+									format(endOfDay(nextDate), TIMEZONELESS_FORMAT),
+								);
+							}}
 							currentDate={selectedCustomDateTo}
 							isInvalidDate={isInvalidDate}
 						/>
