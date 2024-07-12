@@ -376,6 +376,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The interpolated message of the event.', 'simple-history' ),
 					'type'        => 'string',
 				),
+				'message_html'   => array(
+					'description' => __( 'The interpolated message of the event, with possible markup applied.', 'simple-history' ),
+					'type'        => 'string',
+				),
 				'message_uninterpolated'    => array(
 					'description' => __( 'The uninterpolated message of the event.', 'simple-history' ),
 					'type'        => 'string',
@@ -538,25 +542,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	public function prepare_item_for_response( $item, $request ) {
 		$data = [];
 
-		/**
-		 * Default Array when no ?_fields= is set.
-		 * (
-		 *  [0] => date
-		 *  [1] => date_gmt
-		 *  [2] => id
-		 *  [3] => link
-		 *  [4] => message
-		 *  [5] => message_uninterpolated
-		 *  [6] => logger
-		 *  [7] => message_key
-		 *  [8] => loglevel
-		 *  [9] => initiator
-		 *  [10] => occasions_id
-		 *  [11] => subsequent_occasions_count
-		 *  [12] => context
-		 *  [13] => _links
-		 * )
-		 */
 		$fields = $this->get_fields_for_response( $request );
 
 		if ( rest_is_field_included( 'id', $fields ) ) {
@@ -572,7 +557,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'message', $fields ) ) {
-			$data['message'] = html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $item ) );
+			$message = $this->simple_history->get_log_row_plain_text_output( $item );
+			$message = html_entity_decode( $message );
+			$message = wp_strip_all_tags( $message );
+			$data['message'] = $message;
+		}
+
+		if ( rest_is_field_included( 'message_html', $fields ) ) {
+			$message = $this->simple_history->get_log_row_plain_text_output( $item );
+			$data['message_html'] = $message;
 		}
 
 		if ( rest_is_field_included( 'message_uninterpolated', $fields ) ) {
