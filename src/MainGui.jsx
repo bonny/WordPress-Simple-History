@@ -55,6 +55,7 @@ function MainGui() {
 				setSelectedDateOption={setSelectedDateOption}
 				enteredSearchText={enteredSearchText}
 				setEnteredSearchText={setEnteredSearchText}
+				onReload={handleReload}
 			/>
 
 			<EventsList events={events} eventsIsLoading={eventsIsLoading} />

@@ -1,4 +1,5 @@
 import { Spinner } from "@wordpress/components";
+import { __ } from "@wordpress/i18n";
 
 export function EventsList(props) {
 	const { events, eventsIsLoading } = props;
@@ -7,7 +8,7 @@ export function EventsList(props) {
 		return (
 			<p>
 				<Spinner />
-				Loading...
+				{__("Loading history...", "simple-history")}
 			</p>
 		);
 	}

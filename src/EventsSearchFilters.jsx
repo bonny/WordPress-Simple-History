@@ -1,7 +1,5 @@
 import apiFetch from "@wordpress/api-fetch";
-import {
-    Disabled
-} from "@wordpress/components";
+import { Disabled } from "@wordpress/components";
 import { dateI18n } from "@wordpress/date";
 import { useEffect, useState } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
@@ -26,6 +24,7 @@ export function EventsSearchFilters(props) {
 		setSelectedDateOption,
 		enteredSearchText,
 		setEnteredSearchText,
+		onReload,
 	} = props;
 
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);
@@ -120,7 +119,7 @@ export function EventsSearchFilters(props) {
 				) : null}
 
 				<p class="SimpleHistory__filters__filterSubmitWrap">
-					<button className="button" onClick={function noRefCheck() {}}>
+					<button className="button" onClick={onReload}>
 						{__("Search events", "simple-history")}
 					</button>
 
