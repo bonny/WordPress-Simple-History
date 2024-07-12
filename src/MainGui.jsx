@@ -1,107 +1,31 @@
-import { addQueryArgs } from "@wordpress/url";
-import { __, _x } from "@wordpress/i18n";
+import apiFetch from "@wordpress/api-fetch";
 import {
-	SearchControl,
-	Modal,
-	Icon,
-	SVG,
-	Path,
-	ToggleControl,
-	ExternalLink,
-	DatePicker,
-	CustomSelectControl,
+	BaseControl,
 	Button,
 	Card,
-	CardDivider,
-	CardMedia,
-	CardHeader,
 	CardBody,
+	CardDivider,
 	CardFooter,
-	__experimentalText as Text,
-	__experimentalHeading as Heading,
-	Animate,
-	Notice,
-	Tip,
-	TextHighlight,
-	Spinner,
-	SelectControl,
-	__experimentalVStack as VStack,
+	CardHeader,
+	CardMedia,
+	Disabled,
 	Flex,
 	FlexBlock,
 	FlexItem,
-	__experimentalHStack as HStack,
-	CheckboxControl,
 	FormTokenField,
-	BaseControl,
-	Disabled,
+	__experimentalHeading as Heading,
+	SelectControl,
+	__experimentalText as Text,
 } from "@wordpress/components";
-import { useState, useEffect } from "@wordpress/element";
-import apiFetch from "@wordpress/api-fetch";
-import { format, dateI18n, getSettings } from "@wordpress/date";
-
-const DEFAULT_DATE_OPTIONS = [
-	{
-		label: __("Custom date range...", "simple-history"),
-		value: "customRange",
-	},
-	{
-		label: __("Last day", "simple-history"),
-		value: "lastdays:1",
-	},
-	{
-		label: __("Last 7 days", "simple-history"),
-		value: "lastdays:7",
-	},
-	{
-		label: __("Last 14 days", "simple-history"),
-		value: "lastdays:14",
-	},
-	{
-		label: __("Last 30 days", "simple-history"),
-		value: "lastdays:30",
-	},
-	{
-		label: __("Last 60 days", "simple-history"),
-		value: "lastdays:60",
-	},
-];
-
-const OPTIONS_LOADING = [
-	{
-		label: __("Loading...", "simple-history"),
-		value: "",
-	},
-];
-const LOGLEVELS_OPTIONS = [
-	{
-		label: __("Info", "simple-history"),
-		value: "info",
-	},
-	{
-		label: __("Warning", "simple-history"),
-		value: "warning",
-	},
-	{
-		label: __("Error", "simple-history"),
-		value: "error",
-	},
-	{
-		label: __("Critical", "simple-history"),
-		value: "critical",
-	},
-	{
-		label: __("Alert", "simple-history"),
-		value: "alert",
-	},
-	{
-		label: __("Emergency", "simple-history"),
-		value: "emergency",
-	},
-	{
-		label: __("Debug", "simple-history"),
-		value: "debug",
-	},
-];
+import { dateI18n } from "@wordpress/date";
+import { useEffect, useState } from "@wordpress/element";
+import { __ } from "@wordpress/i18n";
+import { addQueryArgs } from "@wordpress/url";
+import {
+	DEFAULT_DATE_OPTIONS,
+	OPTIONS_LOADING,
+	LOGLEVELS_OPTIONS,
+} from "./constants";
 
 function MoreFilters(props) {
 	const { messageTypesSuggestions, userSuggestions, setUserSuggestions } =
@@ -311,34 +235,12 @@ function Filters() {
 		? __("Collapse search options", "simple-history")
 		: __("Show search options", "simple-history");
 
-	const Loading = () => (
-		<Animate type="loading">
-			{({ className }) => (
-				<div
-					className={className}
-					style={{
-						position: "absolute",
-						top: 0,
-						left: 0,
-					}}
-				>
-					<HStack expanded={false} alignment="center" justify="start">
-						<Spinner />
-						<p>Loading.</p>
-					</HStack>
-				</div>
-			)}
-		</Animate>
-	);
-
 	// Dynamic created <Disabled> elements.
 	let MaybeDisabledTag = searchOptionsIsLoading ? Disabled : React.Fragment;
 
 	return (
 		<MaybeDisabledTag>
 			<div style={{ position: "relative" }}>
-				{searchOptionsIsLoading ? <Loading /> : null}
-
 				<p>
 					<label className="SimpleHistory__filters__filterLabel">
 						{__("Dates", "simple-history")}
