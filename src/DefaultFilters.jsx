@@ -7,7 +7,7 @@ import {
 } from "@wordpress/components";
 import { __ } from "@wordpress/i18n";
 import { getSettings } from "@wordpress/date";
-import { useState } from "@wordpress/element";
+import { useState, useEffect } from "@wordpress/element";
 
 export function DefaultFilters(props) {
 	const {
@@ -22,14 +22,25 @@ export function DefaultFilters(props) {
 		setSelectedCustomDateTo,
 	} = props;
 
+	// Future dates are invalid.
 	const isInvalidDate = (date) => {
-		// Future dates are invalid.
 		if (date > new Date()) {
 			return true;
 		}
 
 		return false;
 	};
+
+	/**
+	 * When dates are changed, make sure that to date is not before from date.
+	 */
+	useEffect(() => {
+		if (selectedCustomDateFrom && selectedCustomDateTo) {
+			if (selectedCustomDateFrom > selectedCustomDateTo) {
+				setSelectedCustomDateTo(selectedCustomDateFrom);
+			}
+		}
+	}, [selectedCustomDateFrom, selectedCustomDateTo]);
 
 	function CustomDateRange() {
 		const firstDayOfWeek = getSettings().l10n.startOfWeek;
