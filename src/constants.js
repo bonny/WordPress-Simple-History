@@ -1,4 +1,4 @@
-import { __ } from "@wordpress/i18n";
+import { __, _x } from "@wordpress/i18n";
 
 export const DEFAULT_DATE_OPTIONS = [
   {
@@ -35,31 +35,31 @@ export const OPTIONS_LOADING = [
 ];
 export const LOGLEVELS_OPTIONS = [
   {
-    label: __("Info", "simple-history"),
+    label: _x("Info", "Log level in gui", "simple-history"),
     value: "info",
   },
   {
-    label: __("Warning", "simple-history"),
+    label: _x("Warning", "Log level in gui", "simple-history"),
     value: "warning",
   },
   {
-    label: __("Error", "simple-history"),
+    label: _x("Error", "Log level in gui", "simple-history"),
     value: "error",
   },
   {
-    label: __("Critical", "simple-history"),
+    label: _x("Critical", "Log level in gui", "simple-history"),
     value: "critical",
   },
   {
-    label: __("Alert", "simple-history"),
+    label: _x("Alert", "Log level in gui", "simple-history"),
     value: "alert",
   },
   {
-    label: __("Emergency", "simple-history"),
+    label: _x("Emergency", "Log level in gui", "simple-history"),
     value: "emergency",
   },
   {
-    label: __("Debug", "simple-history"),
+    label: _x("Debug", "Log level in gui", "simple-history"),
     value: "debug",
   },
 ];

@@ -6,6 +6,7 @@ import { EventsSearchFilters } from "./EventsSearchFilters";
 import { useDebounce } from "@wordpress/compose";
 import { endOfDay, startOfDay, format } from "date-fns";
 import { TIMEZONELESS_FORMAT } from "./constants";
+import { LOGLEVELS_OPTIONS } from "./constants";
 
 const defaultStartDate = format(startOfDay(new Date()), TIMEZONELESS_FORMAT);
 const defaultEndDate = format(endOfDay(new Date()), TIMEZONELESS_FORMAT);
@@ -34,8 +35,7 @@ function MainGui() {
 		};
 
 		// console.log("enteredSearchText", enteredSearchText);
-		console.log("selectedDateOption", selectedDateOption);
-		// console.log("selectedLogLevels", selectedLogLevels);
+		// console.log("selectedDateOption", selectedDateOption);
 		// console.log("selectedMessageTypes", selectedMessageTypes);
 		// console.log("selectedUsers", selectedUsers);
 		// console.log("selectedCustomDateFrom", selectedCustomDateFrom);
@@ -52,6 +52,23 @@ function MainGui() {
 				eventsQueryParams.date_to = selectedCustomDateTo;
 			} else {
 				eventsQueryParams.dates = selectedDateOption;
+			}
+		}
+
+		if (selectedLogLevels.length) {
+			// Values in selectedLogLevels are the labels of the log levels, not the values we can use in the API.
+			// Use the LOGLEVELS_OPTIONS to find the value for the translated label.
+			let selectedLogLevelsValues = [];
+			selectedLogLevels.forEach((selectedLogLevel) => {
+				let logLevelOption = LOGLEVELS_OPTIONS.find(
+					(logLevelOption) => logLevelOption.label === selectedLogLevel,
+				);
+				if (logLevelOption) {
+					selectedLogLevelsValues.push(logLevelOption.value);
+				}
+			});
+			if (selectedLogLevelsValues.length) {
+				eventsQueryParams.loglevels = selectedLogLevelsValues;
 			}
 		}
 
