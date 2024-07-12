@@ -1,6 +1,5 @@
 import apiFetch from "@wordpress/api-fetch";
 import {
-	BaseControl,
 	Button,
 	Card,
 	CardBody,
@@ -9,10 +8,6 @@ import {
 	CardHeader,
 	CardMedia,
 	Disabled,
-	Flex,
-	FlexBlock,
-	FlexItem,
-	FormTokenField,
 	__experimentalHeading as Heading,
 	SelectControl,
 	__experimentalText as Text,
@@ -21,142 +16,44 @@ import { dateI18n } from "@wordpress/date";
 import { useEffect, useState } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { addQueryArgs } from "@wordpress/url";
-import {
-	DEFAULT_DATE_OPTIONS,
-	OPTIONS_LOADING,
-	LOGLEVELS_OPTIONS,
-} from "./constants";
+import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from "./constants";
+import { ExpandedFilters } from "./ExpandedFilters";
 
-function MoreFilters(props) {
-	const { messageTypesSuggestions, userSuggestions, setUserSuggestions } =
-		props;
-	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
-	const [selectedMessageTypes, setSelectedMessageTypes] = useState([]);
-	const [selectedUsers, setSelectUsers] = useState([]);
-
-	// Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
-	// This way we can find the original untranslated label.
-	const LOGLEVELS_SUGGESTIONS = LOGLEVELS_OPTIONS.map((logLevel) => {
-		return logLevel.label;
-	});
-
-	const searchUsers = async (searchText) => {
-		if (searchText.length < 2) {
-			return;
-		}
-
-		apiFetch({
-			path: addQueryArgs("/simple-history/v1/search-user", {
-				q: searchText,
-			}),
-		}).then((searchUsersResponse) => {
-			let userSuggestions = [];
-			searchUsersResponse.map((user) => {
-				userSuggestions.push(`${user.display_name} (${user.user_email})`);
-			});
-			setUserSuggestions(userSuggestions);
-		});
-	};
+function DefaultFilters(props) {
+	const {
+		dateOptions,
+		selectedDateOption,
+		setSelectedDateOption,
+		searchText,
+		setSearchText,
+	} = props;
 
 	return (
-		<div>
-			<Flex align="top" gap="0">
-				<FlexItem style={{ margin: "1em 0" }}>
-					<label className="SimpleHistory__filters__filterLabel">
-						{__("Log levels", "simple-history")}
-					</label>
-				</FlexItem>
-				<FlexBlock>
-					<div
-						class="SimpleHistory__filters__loglevels__select"
-						style={{
-							width: "310px",
-							backgroundColor: "white",
-						}}
-					>
-						<FormTokenField
-							__experimentalAutoSelectFirstMatch
-							__experimentalExpandOnFocus
-							__experimentalShowHowTo={false}
-							label=""
-							placeholder={__("All log levels", "simple-history")}
-							onChange={(nextValue) => {
-								setSelectedLogLevels(nextValue);
-							}}
-							suggestions={LOGLEVELS_SUGGESTIONS}
-							value={selectedLogLevels}
-						/>
-					</div>
-				</FlexBlock>
-			</Flex>
-
-			<Flex align="top" gap="0">
-				<FlexItem style={{ margin: "1em 0" }}>
-					<label className="SimpleHistory__filters__filterLabel">
-						{__("Message types", "simple-history")}
-					</label>
-				</FlexItem>
-				<FlexBlock>
-					<div
-						class="SimpleHistory__filters__loglevels__select"
-						style={{
-							width: "310px",
-							backgroundColor: "white",
-						}}
-					>
-						<FormTokenField
-							__experimentalAutoSelectFirstMatch
-							__experimentalExpandOnFocus
-							__experimentalShowHowTo={false}
-							label=""
-							placeholder={__("All message types", "simple-history")}
-							onChange={(nextValue) => {
-								setSelectedMessageTypes(nextValue);
-							}}
-							suggestions={messageTypesSuggestions}
-							value={selectedMessageTypes}
-						/>
-					</div>
-				</FlexBlock>
-			</Flex>
-
-			<Flex align="top" gap="0">
-				<FlexItem style={{ margin: "1em 0" }}>
-					<label className="SimpleHistory__filters__filterLabel">
-						{__("Users", "simple-history")}
-					</label>
-				</FlexItem>
-				<FlexBlock>
-					<div
-						class="SimpleHistory__filters__loglevels__select"
-						style={{
-							width: "310px",
-							backgroundColor: "white",
-						}}
-					>
-						<FormTokenField
-							__experimentalAutoSelectFirstMatch
-							__experimentalExpandOnFocus
-							__experimentalShowHowTo={false}
-							label=""
-							placeholder={__("All users", "simple-history")}
-							onChange={(nextValue) => {
-								setSelectUsers(nextValue);
-							}}
-							onInputChange={(value) => {
-								searchUsers(value);
-							}}
-							suggestions={userSuggestions}
-							value={selectedUsers}
-						/>
-					</div>
-					<BaseControl
-						__nextHasNoMarginBottom
-						help="Enter 2 or more characters to search for users."
+		<>
+			<p>
+				<label className="SimpleHistory__filters__filterLabel">
+					{__("Dates", "simple-history")}
+				</label>
+				<div style={{ display: "inline-block", width: "310px" }}>
+					<SelectControl
+						options={dateOptions}
+						value={selectedDateOption}
+						onChange={(value) => setSelectedDateOption(value)}
 					/>
-				</FlexBlock>
-			</Flex>
-		</div>
+				</div>
+			</p>
+			<p>
+				<label className="SimpleHistory__filters__filterLabel">
+					Containing words:
+				</label>
+				<input
+					type="search"
+					className="SimpleHistoryFilterDropin-searchInput"
+					value={searchText}
+					onChange={(event) => setSearchText(event.target.value)}
+				/>
+			</p>
+		</>
 	);
 }
 
@@ -164,15 +61,24 @@ function MoreFilters(props) {
  * Search component with a search input visible by default.
  * A "Show search options" button is visible where the user can expand the search to show more options/filters.
  */
-function Filters() {
+function EventsSearchFilters(props) {
+	const {
+		selectedLogLevels,
+		setSelectedLogLevels,
+		selectedMessageTypes,
+		setSelectedMessageTypes,
+		selectedUsers,
+		setSelectUsers,
+		selectedDateOption,
+		setSelectedDateOption,
+		enteredSearchText,
+		setEnteredSearchText,
+	} = props;
+
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);
 	const [dateOptions, setDateOptions] = useState(OPTIONS_LOADING);
-	const [selectedDateOption, setSelectedDateOption] = useState();
-	const [searchText, setSearchText] = useState("");
 	const [messageTypesSuggestions, setMessageTypesSuggestions] = useState([]);
-	const [userSuggestions, setUserSuggestions] = useState([]);
 	const [searchOptionsLoaded, setSearchOptionsLoaded] = useState(false);
-	const searchOptionsIsLoading = !searchOptionsLoaded;
 
 	// Load search options when component mounts.
 	useEffect(() => {
@@ -208,7 +114,7 @@ function Filters() {
 				// "WordPress och tilläggsuppdateringar"
 				messageTypesSuggestions.push(search_data.search);
 
-				const subitemPrefix = " – ";
+				const subitemPrefix = " - ";
 
 				// "Alla hittade uppdateringar"
 				if (search_data?.search_all?.label) {
@@ -226,7 +132,6 @@ function Filters() {
 			});
 
 			setMessageTypesSuggestions(messageTypesSuggestions);
-
 			setSearchOptionsLoaded(true);
 		});
 	}, []);
@@ -235,41 +140,29 @@ function Filters() {
 		? __("Collapse search options", "simple-history")
 		: __("Show search options", "simple-history");
 
-	// Dynamic created <Disabled> elements.
-	let MaybeDisabledTag = searchOptionsIsLoading ? Disabled : React.Fragment;
+	// Dynamic created <Disabled> elements. Used to disable the whole search component while loading.
+	let MaybeDisabledTag = searchOptionsLoaded ? React.Fragment : Disabled;
 
 	return (
 		<MaybeDisabledTag>
-			<div style={{ position: "relative" }}>
-				<p>
-					<label className="SimpleHistory__filters__filterLabel">
-						{__("Dates", "simple-history")}
-					</label>
-					<div style={{ display: "inline-block", width: "310px" }}>
-						<SelectControl
-							options={dateOptions}
-							value={selectedDateOption}
-							onChange={(value) => setSelectedDateOption(value)}
-						/>
-					</div>
-				</p>
-				<p>
-					<label className="SimpleHistory__filters__filterLabel">
-						Containing words:
-					</label>
-					<input
-						type="search"
-						className="SimpleHistoryFilterDropin-searchInput"
-						value={searchText}
-						onChange={(event) => setSearchText(event.target.value)}
-					/>
-				</p>
+			<div>
+				<DefaultFilters
+					dateOptions={dateOptions}
+					selectedDateOption={selectedDateOption}
+					setSelectedDateOption={setSelectedDateOption}
+					searchText={enteredSearchText}
+					setSearchText={setEnteredSearchText}
+				/>
 
 				{moreOptionsIsExpanded ? (
-					<MoreFilters
+					<ExpandedFilters
 						messageTypesSuggestions={messageTypesSuggestions}
-						userSuggestions={userSuggestions}
-						setUserSuggestions={setUserSuggestions}
+						selectedLogLevels={selectedLogLevels}
+						setSelectedLogLevels={setSelectedLogLevels}
+						selectedMessageTypes={selectedMessageTypes}
+						setSelectedMessageTypes={setSelectedMessageTypes}
+						selectedUsers={selectedUsers}
+						setSelectUsers={setSelectUsers}
 					/>
 				) : null}
 
@@ -288,38 +181,6 @@ function Filters() {
 				</p>
 			</div>
 		</MaybeDisabledTag>
-	);
-}
-
-function TestCard() {
-	return (
-		<Card>
-			<React.Fragment>
-				<CardHeader>
-					<Heading>CardHeader</Heading>
-				</CardHeader>
-				<CardBody>
-					<Text>CardBody</Text>
-				</CardBody>
-				<CardBody>
-					<Text>CardBody (before CardDivider)</Text>
-				</CardBody>
-				<CardDivider />
-				<CardBody>
-					<Text>CardBody (after CardDivider)</Text>
-				</CardBody>
-				<CardMedia>
-					<img
-						alt="Card Media"
-						src="https://images.unsplash.com/photo-1566125882500-87e10f726cdc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1867&q=80"
-					/>
-				</CardMedia>
-				<CardFooter>
-					<Text>CardFooter</Text>
-					<Button variant="secondary">Action Button</Button>
-				</CardFooter>
-			</React.Fragment>
-		</Card>
 	);
 }
 
@@ -346,11 +207,17 @@ function EventsList(props) {
 
 function MainGui() {
 	const [events, setEvents] = useState([]);
-	const queryParams = { _fields: ["id", "date", "message"] };
+	const eventsQueryParams = { _fields: ["id", "date", "message"] };
+
+	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
+	const [selectedMessageTypes, setSelectedMessageTypes] = useState([]);
+	const [selectedUsers, setSelectUsers] = useState([]);
+	const [selectedDateOption, setSelectedDateOption] = useState();
+	const [enteredSearchText, setEnteredSearchText] = useState("");
 
 	useEffect(() => {
 		apiFetch({
-			path: addQueryArgs("/simple-history/v1/events", queryParams),
+			path: addQueryArgs("/simple-history/v1/events", eventsQueryParams),
 		}).then((events) => {
 			setEvents(events);
 		});
@@ -358,7 +225,18 @@ function MainGui() {
 
 	return (
 		<div>
-			<Filters />
+			<EventsSearchFilters
+				selectedLogLevels={selectedLogLevels}
+				setSelectedLogLevels={setSelectedLogLevels}
+				selectedMessageTypes={selectedMessageTypes}
+				setSelectedMessageTypes={setSelectedMessageTypes}
+				selectedUsers={selectedUsers}
+				setSelectUsers={setSelectUsers}
+				selectedDateOption={selectedDateOption}
+				setSelectedDateOption={setSelectedDateOption}
+				enteredSearchText={enteredSearchText}
+				setEnteredSearchText={setEnteredSearchText}
+			/>
 			<EventsList events={events} />
 		</div>
 	);
