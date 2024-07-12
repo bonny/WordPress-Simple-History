@@ -55,5 +55,8 @@
     "*.php": [
       "./vendor/bin/phpcs --extensions=php --warning-severity=8 -s"
     ]
+  },
+  "dependencies": {
+    "clsx": "^2.1.1"
   }
 }
