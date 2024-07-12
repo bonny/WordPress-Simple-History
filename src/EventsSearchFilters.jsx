@@ -4,7 +4,11 @@ import { dateI18n } from "@wordpress/date";
 import { useEffect, useState } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { addQueryArgs } from "@wordpress/url";
-import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from "./constants";
+import {
+	DEFAULT_DATE_OPTIONS,
+	OPTIONS_LOADING,
+	SUBITEM_PREFIX,
+} from "./constants";
 import { DefaultFilters } from "./DefaultFilters";
 import { ExpandedFilters } from "./ExpandedFilters";
 
@@ -29,11 +33,12 @@ export function EventsSearchFilters(props) {
 		setSelectedCustomDateFrom,
 		selectedCustomDateTo,
 		setSelectedCustomDateTo,
+		messageTypesSuggestions,
+		setMessageTypesSuggestions,
 	} = props;
 
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);
 	const [dateOptions, setDateOptions] = useState(OPTIONS_LOADING);
-	const [messageTypesSuggestions, setMessageTypesSuggestions] = useState([]);
 	const [searchOptionsLoaded, setSearchOptionsLoaded] = useState(false);
 
 	// Load search options when component mounts.
@@ -60,6 +65,13 @@ export function EventsSearchFilters(props) {
 
 			setSelectedDateOption(`lastdays:${searchOptions.dates.daysToShow}`);
 
+			/**
+			 * Format is object
+			 * {
+			 *  key: "logger:message",
+			 *  label: "WordPress and plugin updates"
+			 * }
+			 */
 			let messageTypesSuggestions = [];
 			searchOptions.loggers.map((logger) => {
 				const search_data = logger.search_data || {};
@@ -68,21 +80,29 @@ export function EventsSearchFilters(props) {
 				}
 
 				// "WordPress och tilläggsuppdateringar"
-				messageTypesSuggestions.push(search_data.search);
-
-				const subitemPrefix = " - ";
+				messageTypesSuggestions.push({
+					label: search_data.search,
+					// key: logger.slug,
+					// search_options: search_data.search
+				});
 
 				// "Alla hittade uppdateringar"
 				if (search_data?.search_all?.label) {
-					messageTypesSuggestions.push(
-						subitemPrefix + search_data.search_all.label,
-					);
+					messageTypesSuggestions.push({
+						label: SUBITEM_PREFIX + search_data.search_all.label,
+						// key: `${logger.slug}:all`,
+						search_options: search_data.search_all.options,
+					});
 				}
 
 				// Each single message.
 				if (search_data?.search_options) {
 					search_data.search_options.forEach((option) => {
-						messageTypesSuggestions.push(subitemPrefix + option.label);
+						messageTypesSuggestions.push({
+							label: SUBITEM_PREFIX + option.label,
+							// key: `${logger.slug}:${option.key}`,
+							search_options: option.options,
+						});
 					});
 				}
 			});
@@ -117,6 +137,7 @@ export function EventsSearchFilters(props) {
 				{moreOptionsIsExpanded ? (
 					<ExpandedFilters
 						messageTypesSuggestions={messageTypesSuggestions}
+						setMessageTypesSuggestions={setMessageTypesSuggestions}
 						selectedLogLevels={selectedLogLevels}
 						setSelectedLogLevels={setSelectedLogLevels}
 						selectedMessageTypes={selectedMessageTypes}

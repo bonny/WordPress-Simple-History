@@ -109,7 +109,9 @@ export function ExpandedFilters(props) {
 							onChange={(nextValue) => {
 								setSelectedMessageTypes(nextValue);
 							}}
-							suggestions={messageTypesSuggestions}
+							suggestions={messageTypesSuggestions.map((suggestion) => {
+								return suggestion.label;
+							})}
 							value={selectedMessageTypes}
 						/>
 					</div>

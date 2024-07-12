@@ -66,3 +66,5 @@ export const LOGLEVELS_OPTIONS = [
 
 // Date in format 2024-07-11T13:20:32, as used by WP DatePicker.
 export const TIMEZONELESS_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+
+export const SUBITEM_PREFIX = " - ";

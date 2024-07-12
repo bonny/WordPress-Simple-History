@@ -7,6 +7,7 @@ import { useDebounce } from "@wordpress/compose";
 import { endOfDay, startOfDay, format } from "date-fns";
 import { TIMEZONELESS_FORMAT } from "./constants";
 import { LOGLEVELS_OPTIONS } from "./constants";
+import { SUBITEM_PREFIX } from "./constants";
 
 const defaultStartDate = format(startOfDay(new Date()), TIMEZONELESS_FORMAT);
 const defaultEndDate = format(endOfDay(new Date()), TIMEZONELESS_FORMAT);
@@ -24,6 +25,7 @@ function MainGui() {
 		useState(defaultEndDate);
 	const [enteredSearchText, setEnteredSearchText] = useState("");
 	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
+	const [messageTypesSuggestions, setMessageTypesSuggestions] = useState([]);
 	const [selectedMessageTypes, setSelectedMessageTypes] = useState([]);
 	const [selectedUsers, setSelectUsers] = useState([]);
 
@@ -34,9 +36,6 @@ function MainGui() {
 			_fields: ["id", "date", "message"],
 		};
 
-		// console.log("enteredSearchText", enteredSearchText);
-		// console.log("selectedDateOption", selectedDateOption);
-		// console.log("selectedMessageTypes", selectedMessageTypes);
 		// console.log("selectedUsers", selectedUsers);
 		// console.log("selectedCustomDateFrom", selectedCustomDateFrom);
 
@@ -46,8 +45,6 @@ function MainGui() {
 
 		if (selectedDateOption) {
 			if (selectedDateOption === "customRange") {
-				console.log("selectedCustomDateFrom", selectedCustomDateFrom);
-				console.log("selectedCustomDateTo", selectedCustomDateTo);
 				eventsQueryParams.date_from = selectedCustomDateFrom;
 				eventsQueryParams.date_to = selectedCustomDateTo;
 			} else {
@@ -70,6 +67,43 @@ function MainGui() {
 			if (selectedLogLevelsValues.length) {
 				eventsQueryParams.loglevels = selectedLogLevelsValues;
 			}
+		}
+
+		if (selectedMessageTypes.length) {
+			console.log("selectedMessageTypes", selectedMessageTypes);
+			console.log("messageTypesSuggestions", messageTypesSuggestions);
+			let selectedMessageTypesValues = [];
+			selectedMessageTypes.forEach((selectedMessageType) => {
+				console.log("selectedMessageType", selectedMessageType);
+				let messageTypeOption = messageTypesSuggestions.find(
+					(messageTypeOption) => {
+						return (
+							messageTypeOption.label.trim() === selectedMessageType.trim()
+						);
+					},
+				);
+
+				console.log("messageTypeOption", messageTypeOption);
+				if (messageTypeOption) {
+					selectedMessageTypesValues.push(messageTypeOption);
+				}
+			});
+
+			if (selectedMessageTypesValues.length) {
+				let messsagesString = "";
+				selectedMessageTypesValues.forEach((selectedMessageTypesValue) => {
+					selectedMessageTypesValue.search_options.forEach((searchOption) => {
+						messsagesString += searchOption + ",";
+					});
+				});
+				console.log('messsagesString', messsagesString);
+				eventsQueryParams.messages = messsagesString;
+			}
+			console.log("selectedMessageTypesValues", selectedMessageTypesValues);
+			// array with translated logger and messages, i.e:
+			// "WordPress och tilläggsuppdateringar hittades"
+			// "- Misslyckade inloggningar av användare"
+			//eventsQueryParams.message_types = selectedMessageTypes;
 		}
 
 		setEventsIsLoading(true);
@@ -131,6 +165,8 @@ function MainGui() {
 				setSelectedCustomDateFrom={setSelectedCustomDateFrom}
 				selectedCustomDateTo={selectedCustomDateTo}
 				setSelectedCustomDateTo={setSelectedCustomDateTo}
+				messageTypesSuggestions={messageTypesSuggestions}
+				setMessageTypesSuggestions={setMessageTypesSuggestions}
 				onReload={handleReload}
 			/>
 
