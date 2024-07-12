@@ -37,11 +37,12 @@ export function EventsSearchFilters(props) {
 		setMessageTypesSuggestions,
 		userSuggestions,
 		setUserSuggestions,
+		searchOptionsLoaded,
+		setSearchOptionsLoaded,
 	} = props;
 
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);
 	const [dateOptions, setDateOptions] = useState(OPTIONS_LOADING);
-	const [searchOptionsLoaded, setSearchOptionsLoaded] = useState(false);
 
 	// Load search options when component mounts.
 	useEffect(() => {

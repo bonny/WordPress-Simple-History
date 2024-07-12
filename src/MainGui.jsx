@@ -18,6 +18,7 @@ function MainGui() {
 	const [eventsMeta, setEventsMeta] = useState({});
 	const [eventsReloadTime, setEventsReloadTime] = useState(Date.now());
 
+	const [searchOptionsLoaded, setSearchOptionsLoaded] = useState(false);
 	const [selectedDateOption, setSelectedDateOption] = useState("");
 	const [selectedCustomDateFrom, setSelectedCustomDateFrom] =
 		useState(defaultStartDate);
@@ -34,7 +35,18 @@ function MainGui() {
 		// Create query params based on selected filters.
 		let eventsQueryParams = {
 			per_page: 5,
-			_fields: ["id", "date", "message"],
+			_fields: [
+				"id",
+				"date",
+				"date_gmt",
+				"message",
+				"message_html",
+				"loglevel",
+				"occasions_id",
+				"subsequent_occasions_count",
+				"initiator",
+				"via",
+			],
 		};
 
 		if (enteredSearchText) {
@@ -113,6 +125,8 @@ function MainGui() {
 			}
 		}
 
+		console.log("loadEvents with query params", eventsQueryParams);
+
 		setEventsIsLoading(true);
 		const eventsResponse = await apiFetch({
 			path: addQueryArgs("/simple-history/v1/events", eventsQueryParams),
@@ -140,10 +154,18 @@ function MainGui() {
 		selectedCustomDateTo,
 	]);
 
+	// Debounce the loadEvents function to avoid multiple calls when user types fast.
+	const debouncedLoadEvents = useDebounce(loadEvents, 500);
+
 	useEffect(() => {
-		// console.log("loadEvents in useEffect", loadEvents, eventsReloadTime);
-		loadEvents();
-	}, [loadEvents, eventsReloadTime]);
+		// Wait for search options to be loaded before loading events,
+		// or the loadEvents will be called twice.
+		if (!searchOptionsLoaded) {
+			return;
+		}
+
+		debouncedLoadEvents();
+	}, [debouncedLoadEvents, searchOptionsLoaded, eventsReloadTime]);
 
 	/**
 	 * Function to set reload time to current time,
@@ -176,6 +198,8 @@ function MainGui() {
 				setMessageTypesSuggestions={setMessageTypesSuggestions}
 				userSuggestions={userSuggestions}
 				setUserSuggestions={setUserSuggestions}
+				searchOptionsLoaded={searchOptionsLoaded}
+				setSearchOptionsLoaded={setSearchOptionsLoaded}
 				onReload={handleReload}
 			/>
 
