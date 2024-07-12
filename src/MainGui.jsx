@@ -9,15 +9,24 @@ function MainGui() {
 	const [events, setEvents] = useState([]);
 	const [eventsReloadTime, setEventsReloadTime] = useState(Date.now());
 
+	const [selectedDateOption, setSelectedDateOption] = useState("");
+	const [selectedCustomDateFrom, setSelectedCustomDateFrom] = useState(null);
+	const [selectedCustomDateTo, setSelectedCustomDateTo] = useState(null);
+	const [enteredSearchText, setEnteredSearchText] = useState("");
 	const [selectedLogLevels, setSelectedLogLevels] = useState([]);
 	const [selectedMessageTypes, setSelectedMessageTypes] = useState([]);
 	const [selectedUsers, setSelectUsers] = useState([]);
-	const [selectedDateOption, setSelectedDateOption] = useState("");
-	const [enteredSearchText, setEnteredSearchText] = useState("");
-
-	const eventsQueryParams = { _fields: ["id", "date", "message"] };
 
 	const loadEvents = useCallback(async () => {
+		// Create query params based on selected filters.
+		const eventsQueryParams = { _fields: ["id", "date", "message"] };
+
+		console.log("selectedLogLevels", selectedLogLevels);
+		console.log("selectedMessageTypes", selectedMessageTypes);
+		console.log("selectedUsers", selectedUsers);
+		console.log("selectedDateOption", selectedDateOption);
+		console.log("enteredSearchText", enteredSearchText);
+
 		setEventsIsLoading(true);
 		apiFetch({
 			path: addQueryArgs("/simple-history/v1/events", eventsQueryParams),
@@ -25,7 +34,15 @@ function MainGui() {
 			setEvents(events);
 			setEventsIsLoading(false);
 		});
-	}, []);
+	}, [
+		selectedLogLevels,
+		selectedMessageTypes,
+		selectedUsers,
+		selectedDateOption,
+		enteredSearchText,
+		selectedCustomDateFrom,
+		selectedCustomDateTo,
+	]);
 
 	useEffect(() => {
 		console.log("loadEvents in useEffect");
@@ -55,6 +72,10 @@ function MainGui() {
 				setSelectedDateOption={setSelectedDateOption}
 				enteredSearchText={enteredSearchText}
 				setEnteredSearchText={setEnteredSearchText}
+				selectedCustomDateFrom={selectedCustomDateFrom}
+				setSelectedCustomDateFrom={setSelectedCustomDateFrom}
+				selectedCustomDateTo={selectedCustomDateTo}
+				setSelectedCustomDateTo={setSelectedCustomDateTo}
 				onReload={handleReload}
 			/>
 

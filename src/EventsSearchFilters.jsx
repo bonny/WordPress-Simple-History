@@ -25,6 +25,10 @@ export function EventsSearchFilters(props) {
 		enteredSearchText,
 		setEnteredSearchText,
 		onReload,
+		selectedCustomDateFrom,
+		setSelectedCustomDateFrom,
+		selectedCustomDateTo,
+		setSelectedCustomDateTo,
 	} = props;
 
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);
@@ -104,6 +108,10 @@ export function EventsSearchFilters(props) {
 					setSelectedDateOption={setSelectedDateOption}
 					searchText={enteredSearchText}
 					setSearchText={setEnteredSearchText}
+					selectedCustomDateFrom={selectedCustomDateFrom}
+					setSelectedCustomDateFrom={setSelectedCustomDateFrom}
+					selectedCustomDateTo={selectedCustomDateTo}
+					setSelectedCustomDateTo={setSelectedCustomDateTo}
 				/>
 
 				{moreOptionsIsExpanded ? (
