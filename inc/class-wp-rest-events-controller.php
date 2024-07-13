@@ -616,6 +616,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				'user_email' => $context['_user_email'],
 				'user_image'  => $this->simple_history->get_log_row_sender_image_output( $item ),
 				'user_avatar_url' => $user_avatar_url,
+				'user_profile_url' => get_edit_user_link( $context['_user_id'] ),
 			];
 
 			$data['initiator_data'] = $user_info;
