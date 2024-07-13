@@ -1,6 +1,9 @@
-import { Spinner } from "@wordpress/components";
-import { __ } from "@wordpress/i18n";
+import { Spinner, Tooltip } from "@wordpress/components";
+import { dateI18n, getSettings as getDateSettings } from "@wordpress/date";
+import { useEffect, useState } from "@wordpress/element";
+import { __, sprintf } from "@wordpress/i18n";
 import { clsx } from "clsx";
+import { intlFormatDistance } from "date-fns";
 
 function EventInitiatorImageWPUser(props) {
 	const { event } = props;
@@ -14,28 +17,154 @@ function EventInitiatorImageWPUser(props) {
 		/>
 	);
 }
+function EventInitiatorImageWebUser(props) {
+	const { event } = props;
+	const { initiator_data } = event;
+
+	return (
+		<img
+			className="SimpleHistoryLogitem__senderImage"
+			src={initiator_data.user_avatar_url}
+			alt=""
+		/>
+	);
+}
+
+/**
+ * Initiator is "other" or "wp" or "wp_cli".
+ * Image is added using CSS.
+ */
+function EventInitiatorImageFromCSS(props) {
+	return <div className="SimpleHistoryLogitem__senderImage"></div>;
+}
 
 function EventInitiatorImage(props) {
 	const { event } = props;
 	const { initiator } = event;
 
-	if (initiator === "wp_user") {
-		return <EventInitiatorImageWPUser event={event} />;
+	switch (initiator) {
+		case "wp_user":
+			return <EventInitiatorImageWPUser event={event} />;
+		case "web_user":
+			return <EventInitiatorImageWebUser event={event} />;
+		case "wp_cli":
+		case "wp":
+		case "other":
+			return <EventInitiatorImageFromCSS event={event} />;
+		default:
+			return <p>Add image for initiator "{initiator}"</p>;
 	}
-
-	return <p>Add image for initiator "{initiator}"</p>;
 }
 
-function EventInitiator(props) {
+/**
+ * Outputs "WordPress" or "John Doe - erik@example.com".
+ */
+function EventInitiatorName(props) {
 	const { event } = props;
 	const { initiator_data } = event;
 
-	console.log("initiator_data", initiator_data);
+	switch (event.initiator) {
+		case "wp_user":
+			return (
+				<>
+					<a href={initiator_data.user_profile_url}>
+						<strong className="SimpleHistoryLogitem__inlineDivided">
+							{initiator_data.user_login}
+						</strong>
+
+						<span className="SimpleHistoryLogitem__inlineDivided">
+							{initiator_data.user_email}
+						</span>
+					</a>
+				</>
+			);
+		case "web_user":
+			return (
+				<>
+					<strong className="SimpleHistoryLogitem__inlineDivided">
+						{__("Anonymous web user", "simple-history")}
+					</strong>
+				</>
+			);
+		case "wp_cli":
+			return (
+				<>
+					<strong className="SimpleHistoryLogitem__inlineDivided">
+						{__("WP-CLI", "simple-history")}
+					</strong>
+				</>
+			);
+		case "wp":
+			return (
+				<>
+					<strong className="SimpleHistoryLogitem__inlineDivided">
+						{__("WordPress", "simple-history")}
+					</strong>
+				</>
+			);
+		case "other":
+			return (
+				<>
+					<strong className="SimpleHistoryLogitem__inlineDivided">
+						{__("Other", "simple-history")}
+					</strong>
+				</>
+			);
+		default:
+			return <p>Add output for initiator "{event.initiator}"</p>;
+	}
+}
+
+function EventDate(props) {
+	const { event } = props;
+
+	const dateSettings = getDateSettings();
+	const dateFormat = dateSettings.formats.datetime;
+	const dateFormatAbbreviated = dateSettings.formats.datetimeAbbreviated;
+
+	const formattedDateFormatAbbreviated = dateI18n(
+		dateFormatAbbreviated,
+		event.date_gmt,
+	);
+
+	const [formattedDateLiveUpdated, setFormattedDateLiveUpdated] = useState(
+		() => {
+			return intlFormatDistance(event.date_gmt, new Date());
+		},
+	);
+
+	useEffect(() => {
+		const intervalId = setInterval(() => {
+			setFormattedDateLiveUpdated(
+				intlFormatDistance(event.date_gmt, new Date()),
+			);
+		}, 1000);
+
+		return () => {
+			clearInterval(intervalId);
+		};
+	}, [event.date_gmt]);
+
+	const tooltipText = sprintf(
+		__("%1$s local time %3$s (%2$s GMT time)", "simple-history"),
+		event.date,
+		event.date_gmt,
+		"\n",
+	);
+
 	return (
-		<p>
-			{event.initiator} - {initiator_data.user_id} - {initiator_data.user_login}{" "}
-			- {initiator_data.user_email}
-		</p>
+		<span className="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided">
+			<Tooltip text={tooltipText} delay={500}>
+				<a href="#">
+					<time
+						datetime={event.date_gmt}
+						className="SimpleHistoryLogitem__when__liveRelative"
+					>
+						{formattedDateFormatAbbreviated} ({formattedDateLiveUpdated})
+					</time>
+				</a>
+			</Tooltip>
+		</span>
 	);
 }
 
@@ -48,16 +177,48 @@ function Event(props) {
 		Method	POST
 	*/
 
-	// TODO: add classes using clsx
-	// SimpleHistoryLogitem SimpleHistoryLogitem--loglevel-debug SimpleHistoryLogitem--logger-WPHTTPRequestsLogger SimpleHistoryLogitem--initiator-wp_user
+	const containerClassNames = clsx(
+		"SimpleHistoryLogitem",
+		`SimpleHistoryLogitem--loglevel-${event.level}`,
+		`SimpleHistoryLogitem--logger-${event.logger}`,
+		`SimpleHistoryLogitem--initiator-${event.initiator}`,
+	);
+
+	const logLevelClassNames = clsx(
+		"SimpleHistoryLogitem--logleveltag",
+		`SimpleHistoryLogitem--logleveltag-${event.loglevel}`,
+	);
 
 	return (
-		<li key={event.id}>
-			<EventInitiatorImage event={event} />
-			<EventInitiator event={event} />
-			{event.date_gmt} - {event.via} - {event.level}
-			<div dangerouslySetInnerHTML={{ __html: event.message_html }} />
-			{event.subsequent_occasions_count} occasions
+		<li key={event.id} className={containerClassNames}>
+			<div className="SimpleHistoryLogitem__firstcol">
+				<EventInitiatorImage event={event} />
+			</div>
+
+			<div className="SimpleHistoryLogitem__secondcol">
+				<div className="SimpleHistoryLogitem__header">
+					<EventInitiatorName event={event} />
+
+					<EventDate event={event} />
+
+					{event.via ? (
+						<span className="SimpleHistoryLogitem__inlineDivided">
+							{event.via}
+						</span>
+					) : null}
+				</div>
+				<div className="SimpleHistoryLogitem__text">
+					<div dangerouslySetInnerHTML={{ __html: event.message_html }} />
+					<span className={logLevelClassNames}>{event.loglevel}</span>
+				</div>
+				<div className="SimpleHistoryLogitem__details">
+					...get details from api response
+				</div>
+
+				<div className="SimpleHistoryLogitem__occasions">
+					{event.subsequent_occasions_count} occasions
+				</div>
+			</div>
 		</li>
 	);
 }
@@ -77,7 +238,7 @@ export function EventsList(props) {
 	}
 
 	return (
-		<div style={{ backgroundColor: "white", padding: "1rem" }}>
+		<div style={{ backgroundColor: "white" }}>
 			<p>
 				Total events: {eventsMeta.total}, Total pages: {eventsMeta.totalPages}
 			</p>

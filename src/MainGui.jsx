@@ -1,13 +1,11 @@
 import apiFetch from "@wordpress/api-fetch";
+import { useDebounce } from "@wordpress/compose";
 import { useCallback, useEffect, useState } from "@wordpress/element";
 import { addQueryArgs } from "@wordpress/url";
+import { endOfDay, format, startOfDay } from "date-fns";
+import { LOGLEVELS_OPTIONS, TIMEZONELESS_FORMAT } from "./constants";
 import { EventsList } from "./EventsList";
 import { EventsSearchFilters } from "./EventsSearchFilters";
-import { useDebounce } from "@wordpress/compose";
-import { endOfDay, startOfDay, format } from "date-fns";
-import { TIMEZONELESS_FORMAT } from "./constants";
-import { LOGLEVELS_OPTIONS } from "./constants";
-import { SUBITEM_PREFIX } from "./constants";
 
 const defaultStartDate = format(startOfDay(new Date()), TIMEZONELESS_FORMAT);
 const defaultEndDate = format(endOfDay(new Date()), TIMEZONELESS_FORMAT);
@@ -45,7 +43,7 @@ function MainGui() {
 				"occasions_id",
 				"subsequent_occasions_count",
 				"initiator",
-				'initiator_data',
+				"initiator_data",
 				"via",
 			],
 		};

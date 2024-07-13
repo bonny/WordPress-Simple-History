@@ -5,7 +5,7 @@ import {
 	FlexItem,
 	SelectControl,
 } from "@wordpress/components";
-import { getSettings } from "@wordpress/date";
+import { getSettings as getDateSettings } from "@wordpress/date";
 import { useEffect } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { endOfDay, format, startOfDay } from "date-fns";
@@ -45,7 +45,7 @@ export function DefaultFilters(props) {
 	}, [selectedCustomDateFrom, selectedCustomDateTo]);
 
 	function CustomDateRange() {
-		const firstDayOfWeek = getSettings().l10n.startOfWeek;
+		const firstDayOfWeek = getDateSettings().l10n.startOfWeek;
 
 		return (
 			<Flex justify="start" gap="15">
