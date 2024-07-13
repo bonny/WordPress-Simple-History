@@ -124,9 +124,8 @@ function MainGui() {
 			}
 		}
 
-		console.log("loadEvents with query params", eventsQueryParams);
-
 		setEventsIsLoading(true);
+
 		const eventsResponse = await apiFetch({
 			path: addQueryArgs("/simple-history/v1/events", eventsQueryParams),
 			// Skip parsing to be able to retrieve headers.

@@ -68,12 +68,9 @@ function EventInitiatorName(props) {
 			return (
 				<>
 					<a href={initiator_data.user_profile_url}>
-						<strong className="SimpleHistoryLogitem__inlineDivided">
-							{initiator_data.user_login}
-						</strong>
-
 						<span className="SimpleHistoryLogitem__inlineDivided">
-							{initiator_data.user_email}
+							<strong>{initiator_data.user_login}</strong>{" "}
+							<span>({initiator_data.user_email})</span>
 						</span>
 					</a>
 				</>
