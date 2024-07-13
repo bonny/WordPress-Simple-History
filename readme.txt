@@ -275,6 +275,9 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
+🚀 This update contains a huge update...that I hope you don't even notice! 🧐
+Read more at the release post.
+
 - Correct URL for "Go to Simple History" link on updated page on multisite.
 - Add action `simple_history/dropin/stats/before_content` that is fired inside the stats sidebar box, after the headline but before any content.
 - Move the "quickstats" text to the top of the stats sidebar box.
