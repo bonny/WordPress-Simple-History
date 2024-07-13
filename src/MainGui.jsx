@@ -39,6 +39,8 @@ function MainGui() {
 				"date_gmt",
 				"message",
 				"message_html",
+				"details_data",
+				"details_html",
 				"loglevel",
 				"occasions_id",
 				"subsequent_occasions_count",

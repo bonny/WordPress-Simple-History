@@ -380,6 +380,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The interpolated message of the event, with possible markup applied.', 'simple-history' ),
 					'type'        => 'string',
 				),
+				'details_html'   => array(
+					'description' => __( 'The details of the event, with possible markup applied.', 'simple-history' ),
+					'type'        => 'string',
+				),
+				'details_data'   => array(
+					'description' => __( 'The details of the event.', 'simple-history' ),
+					'type'        => 'object',
+				),
 				'message_uninterpolated'    => array(
 					'description' => __( 'The uninterpolated message of the event.', 'simple-history' ),
 					'type'        => 'string',
@@ -585,6 +593,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['message_uninterpolated'] = $item->message;
 		}
 
+		if ( rest_is_field_included( 'details_data', $fields ) ) {
+			$data['details_data'] = $this->simple_history->get_log_row_details_output( $item )->to_json();
+		}
+
+		if ( rest_is_field_included( 'details_html', $fields ) ) {
+			$data['details_html'] = $this->simple_history->get_log_row_details_output( $item )->to_html();
+		}
+
 		if ( rest_is_field_included( 'link', $fields ) ) {
 			$data['link'] = $this->simple_history->get_view_history_page_admin_url() . "#item/{$item->id}";
 		}
@@ -607,16 +623,16 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'initiator_data', $fields ) ) {
 			$context = $item->context;
-			$user_avatar_data = get_avatar_data( $context['_user_id'], [] );
-			$user_avatar_url = $user_avatar_data['url'];
+			$user_avatar_data = get_avatar_data( $context['_user_id'] ?? [], [] );
+			$user_avatar_url = $user_avatar_data['url'] ?? '';
 
 			$user_info = [
-				'user_id' => $context['_user_id'],
-				'user_login' => $context['_user_login'],
-				'user_email' => $context['_user_email'],
+				'user_id' => $context['_user_id'] ?? null,
+				'user_login' => $context['_user_login'] ?? null,
+				'user_email' => $context['_user_email'] ?? null,
 				'user_image'  => $this->simple_history->get_log_row_sender_image_output( $item ),
-				'user_avatar_url' => $user_avatar_url,
-				'user_profile_url' => get_edit_user_link( $context['_user_id'] ),
+				'user_avatar_url' => $user_avatar_url ?? null,
+				'user_profile_url' => get_edit_user_link( $context['_user_id'] ?? null ),
 			];
 
 			$data['initiator_data'] = $user_info;

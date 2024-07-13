@@ -165,6 +165,19 @@ function EventDate(props) {
 	);
 }
 
+function EventDetails(props) {
+	const { event } = props;
+	console.log("event", event);
+	const { details_html } = event;
+
+	return (
+		<div
+			className="SimpleHistoryLogitem__details"
+			dangerouslySetInnerHTML={{ __html: details_html }}
+		></div>
+	);
+}
+
 function Event(props) {
 	const { event } = props;
 
@@ -208,9 +221,8 @@ function Event(props) {
 					<div dangerouslySetInnerHTML={{ __html: event.message_html }} />
 					<span className={logLevelClassNames}>{event.loglevel}</span>
 				</div>
-				<div className="SimpleHistoryLogitem__details">
-					...get details from api response
-				</div>
+
+				<EventDetails event={event} />
 
 				<div className="SimpleHistoryLogitem__occasions">
 					{event.subsequent_occasions_count} occasions
