@@ -1,7 +1,7 @@
 import { Spinner, Tooltip } from "@wordpress/components";
 import { dateI18n, getSettings as getDateSettings } from "@wordpress/date";
 import { useEffect, useState } from "@wordpress/element";
-import { __, sprintf } from "@wordpress/i18n";
+import { __, _x, sprintf } from "@wordpress/i18n";
 import { clsx } from "clsx";
 import { intlFormatDistance } from "date-fns";
 
@@ -167,7 +167,6 @@ function EventDate(props) {
 
 function EventDetails(props) {
 	const { event } = props;
-	console.log("event", event);
 	const { details_html } = event;
 
 	return (
@@ -175,6 +174,66 @@ function EventDetails(props) {
 			className="SimpleHistoryLogitem__details"
 			dangerouslySetInnerHTML={{ __html: details_html }}
 		></div>
+	);
+}
+
+function EventVia(props) {
+	const { event } = props;
+	const { via } = event;
+
+	if (!via) {
+		return null;
+	}
+
+	return <span className="SimpleHistoryLogitem__inlineDivided">{via}</span>;
+}
+
+function EventText(props) {
+	const { event } = props;
+
+	const logLevelClassNames = clsx(
+		"SimpleHistoryLogitem--logleveltag",
+		`SimpleHistoryLogitem--logleveltag-${event.loglevel}`,
+	);
+
+	return (
+		<div className="SimpleHistoryLogitem__text">
+			<span dangerouslySetInnerHTML={{ __html: event.message_html }}></span>{" "}
+			<span className={logLevelClassNames}>{event.loglevel}</span>
+		</div>
+	);
+}
+
+function EventHeader(props) {
+	const { event } = props;
+
+	return (
+		<div className="SimpleHistoryLogitem__header">
+			<EventInitiatorName event={event} />
+			<EventDate event={event} />
+			<EventVia event={event} />
+		</div>
+	);
+}
+
+function EventOccasions(props) {
+	const { event } = props;
+
+	return (
+		<>
+			<div className="SimpleHistoryLogitem__occasions">
+				{event.subsequent_occasions_count} occasions
+			</div>
+
+			{/* Old code copied from console: */}
+			<div class="SimpleHistoryLogitem__occasions">
+				<a href="#" class="SimpleHistoryLogitem__occasionsLink">
+					+2 liknande händelser
+				</a>
+				<span class="SimpleHistoryLogitem__occasionsLoading">Laddar in …</span>
+				<span class="SimpleHistoryLogitem__occasionsLoaded">Visar 2 mer</span>
+			</div>
+		</>
 	);
 }
 
@@ -194,11 +253,6 @@ function Event(props) {
 		`SimpleHistoryLogitem--initiator-${event.initiator}`,
 	);
 
-	const logLevelClassNames = clsx(
-		"SimpleHistoryLogitem--logleveltag",
-		`SimpleHistoryLogitem--logleveltag-${event.loglevel}`,
-	);
-
 	return (
 		<li key={event.id} className={containerClassNames}>
 			<div className="SimpleHistoryLogitem__firstcol">
@@ -206,27 +260,10 @@ function Event(props) {
 			</div>
 
 			<div className="SimpleHistoryLogitem__secondcol">
-				<div className="SimpleHistoryLogitem__header">
-					<EventInitiatorName event={event} />
-
-					<EventDate event={event} />
-
-					{event.via ? (
-						<span className="SimpleHistoryLogitem__inlineDivided">
-							{event.via}
-						</span>
-					) : null}
-				</div>
-				<div className="SimpleHistoryLogitem__text">
-					<div dangerouslySetInnerHTML={{ __html: event.message_html }} />
-					<span className={logLevelClassNames}>{event.loglevel}</span>
-				</div>
-
+				<EventHeader event={event} />
+				<EventText event={event} />
 				<EventDetails event={event} />
-
-				<div className="SimpleHistoryLogitem__occasions">
-					{event.subsequent_occasions_count} occasions
-				</div>
+				<EventOccasions event={event} />
 			</div>
 		</li>
 	);
@@ -240,7 +277,12 @@ export function EventsList(props) {
 			<div style={{ backgroundColor: "white", padding: "1rem" }}>
 				<p>
 					<Spinner />
-					{__("Loading history...", "simple-history")}
+
+					{_x(
+						"Loading history...",
+						"Message visible while waiting for log to load from server the first time",
+						"simple-history",
+					)}
 				</p>
 			</div>
 		);
