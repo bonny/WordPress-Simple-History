@@ -1,9 +1,11 @@
 import { Spinner, Tooltip } from "@wordpress/components";
 import { dateI18n, getSettings as getDateSettings } from "@wordpress/date";
 import { useEffect, useState } from "@wordpress/element";
-import { __, _x, sprintf } from "@wordpress/i18n";
+import { __, _x, _n, _nx, sprintf } from "@wordpress/i18n";
 import { clsx } from "clsx";
 import { intlFormatDistance } from "date-fns";
+import { addQueryArgs } from "@wordpress/url";
+import apiFetch from "@wordpress/api-fetch";
 
 function EventInitiatorImageWPUser(props) {
 	const { event } = props;
@@ -218,22 +220,116 @@ function EventHeader(props) {
 
 function EventOccasions(props) {
 	const { event } = props;
+	const { subsequent_occasions_count } = event;
+	const [isLoadingOccasions, setIsLoadingOccasions] = useState(false);
+	const [isShowingOccasions, setIsShowingOccasions] = useState(false);
+	const [occasions, setOccasions] = useState([]);
+
+	// The current event is the only occasion.
+	if (subsequent_occasions_count === 1) {
+		return null;
+	}
+
+	const loadOccasions = async () => {
+		/*
+		Old request data:
+		action: simple_history_api
+		type: occasions
+		format: html
+		logRowID: 18990
+		occasionsID: 6784b67ada1c0e81d8fae41f591a00d3
+		occasionsCount: 225
+		occasionsCountMaxReturn: 15
+		*/
+		console.log(
+			"loadOccasions for event with id, occasions_id, subsequent_occasions_count",
+			event.id,
+			event.occasions_id,
+			subsequent_occasions_count,
+		);
+
+		setIsLoadingOccasions(true);
+
+		let eventsQueryParams = {
+			type: "occasions",
+			logRowID: event.id,
+			occasionsID: event.occasions_id,
+			occasionsCount: subsequent_occasions_count - 1,
+			occasionsCountMaxReturn: 15,
+			per_page: 5,
+			_fields: [
+				"id",
+				"date",
+				"date_gmt",
+				"message",
+				"message_html",
+				"details_data",
+				"details_html",
+				"loglevel",
+				"occasions_id",
+				"subsequent_occasions_count",
+				"initiator",
+				"initiator_data",
+				"via",
+			],
+		};
+
+		const eventsResponse = await apiFetch({
+			path: addQueryArgs("/simple-history/v1/events", eventsQueryParams),
+			// Skip parsing to be able to retrieve headers.
+			parse: false,
+		});
+
+		const responseJson = await eventsResponse.json();
+
+		console.log("eventsResponseJson", responseJson);
+
+		setOccasions(responseJson);
+		setIsLoadingOccasions(false);
+		setIsShowingOccasions(true);
+	};
+
+	console.log("isLoadingOccasions", isLoadingOccasions);
+	console.log("isShowingOccasions", isShowingOccasions);
 
 	return (
-		<>
-			<div className="SimpleHistoryLogitem__occasions">
-				{event.subsequent_occasions_count} occasions
-			</div>
-
-			{/* Old code copied from console: */}
-			<div class="SimpleHistoryLogitem__occasions">
-				<a href="#" class="SimpleHistoryLogitem__occasionsLink">
-					+2 liknande händelser
+		<div class="">
+			{!isShowingOccasions && !isLoadingOccasions ? (
+				<a
+					href="#"
+					class=""
+					onClick={() => {
+						loadOccasions();
+					}}
+				>
+					{sprintf(
+						_n(
+							"+%1$s similar event",
+							"+%1$s similar events",
+							subsequent_occasions_count,
+							"simple-history",
+						),
+						subsequent_occasions_count,
+					)}
 				</a>
-				<span class="SimpleHistoryLogitem__occasionsLoading">Laddar in …</span>
-				<span class="SimpleHistoryLogitem__occasionsLoaded">Visar 2 mer</span>
-			</div>
-		</>
+			) : null}
+
+			{isLoadingOccasions ? (
+				<span class="">{__("Loading...", "simple-history")}</span>
+			) : null}
+
+			{isShowingOccasions ? (
+				<>
+					<span class="">
+						{sprintf(
+							__("Showing %1$s more", "simple-history"),
+							subsequent_occasions_count - 1,
+						)}
+					</span>
+					<EventOccasionsList occasions={occasions} />
+				</>
+			) : null}
+		</div>
 	);
 }
 
@@ -266,6 +362,22 @@ function Event(props) {
 				<EventOccasions event={event} />
 			</div>
 		</li>
+	);
+}
+
+export function EventOccasionsList(props) {
+	console.log("EventOccasionsList", props);
+	const { occasions } = props;
+
+	return (
+		<div>
+			<p>EventOccasionsList output</p>
+			<ul className="SimpleHistoryLogitems">
+				{occasions.map((event) => (
+					<Event key={event.id} event={event} />
+				))}
+			</ul>
+		</div>
 	);
 }
 
