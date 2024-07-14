@@ -645,7 +645,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'subsequent_occasions_count', $fields ) ) {
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$data['subsequent_occasions_count'] = $item->subsequentOccasions;
+			$data['subsequent_occasions_count'] = (int) $item->subsequentOccasions;
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
