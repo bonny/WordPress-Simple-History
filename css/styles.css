@@ -122,9 +122,8 @@
 	/*border-bottom: 1px solid rgb(229, 229, 229);*/
 
 	/* uncomment to show border with log color */
-	/*border-left: 4px solid transparent;*/
-
-	overflow: hidden;
+	/* border-left: 4px solid transparent; */
+	/* overflow: hidden; */
 }
 
 /* add border below items */
@@ -449,7 +448,7 @@ Images/thumbs can be styles nicely
 
 .SimpleHistoryLogitem__occasionsItems.haveOccasionsAdded {
 	opacity: 1;
-	max-height: 2000px;
+	max-height: 3000px;
 	margin-left: -5px;
 	margin-right: -5px;
 }

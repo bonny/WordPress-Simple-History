@@ -224,13 +224,14 @@ function EventOccasions(props) {
 	const [isLoadingOccasions, setIsLoadingOccasions] = useState(false);
 	const [isShowingOccasions, setIsShowingOccasions] = useState(false);
 	const [occasions, setOccasions] = useState([]);
+	const occasionsCountMaxReturn = 15;
 
 	// The current event is the only occasion.
 	if (subsequent_occasions_count === 1) {
 		return null;
 	}
 
-	const loadOccasions = async () => {
+	const loadOccasions = async (evt) => {
 		/*
 		Old request data:
 		action: simple_history_api
@@ -255,7 +256,7 @@ function EventOccasions(props) {
 			logRowID: event.id,
 			occasionsID: event.occasions_id,
 			occasionsCount: subsequent_occasions_count - 1,
-			occasionsCountMaxReturn: 15,
+			occasionsCountMaxReturn: occasionsCountMaxReturn,
 			per_page: 5,
 			_fields: [
 				"id",
@@ -298,8 +299,9 @@ function EventOccasions(props) {
 				<a
 					href="#"
 					class=""
-					onClick={() => {
+					onClick={(evt) => {
 						loadOccasions();
+						evt.preventDefault();
 					}}
 				>
 					{sprintf(
@@ -326,7 +328,14 @@ function EventOccasions(props) {
 							subsequent_occasions_count - 1,
 						)}
 					</span>
-					<EventOccasionsList occasions={occasions} />
+
+					<EventOccasionsList
+						isLoadingOccasions={isLoadingOccasions}
+						isShowingOccasions={isShowingOccasions}
+						occasions={occasions}
+						subsequent_occasions_count={subsequent_occasions_count}
+						occasionsCountMaxReturn={occasionsCountMaxReturn}
+					/>
 				</>
 			) : null}
 		</div>
@@ -366,18 +375,53 @@ function Event(props) {
 }
 
 export function EventOccasionsList(props) {
-	console.log("EventOccasionsList", props);
-	const { occasions } = props;
-	/*
-	<li class="SimpleHistoryLogitem__occasionsItemsWrap"><ul class="SimpleHistoryLogitem__occasionsItems haveOccasionsAdded">
-	*/
+	const {
+		occasions,
+		isLoadingOccasions,
+		isShowingOccasions,
+		subsequent_occasions_count,
+		occasionsCountMaxReturn,
+	} = props;
+
+	const ulClassNames = clsx({
+		SimpleHistoryLogitems: true,
+		SimpleHistoryLogitem__occasionsItems: true,
+		haveOccasionsAdded: isLoadingOccasions === false,
+	});
+
 	return (
-		<div>
-			<p>EventOccasionsList output</p>
-			<ul className="SimpleHistoryLogitems">
+		<div
+			className="SimpleHistoryLogitem__occasionsItemsWrap"
+			style={{
+				marginTop: "1rem",
+				marginLeft: "-4.5rem",
+				marginRight: "-1.5rem",
+			}}
+		>
+			<ul className={ulClassNames}>
 				{occasions.map((event) => (
 					<Event key={event.id} event={event} />
 				))}
+
+				{/* // If occasionsCount is more than occasionsCountMaxReturn then show a message */}
+				{subsequent_occasions_count > occasionsCountMaxReturn ? (
+					<li
+						class="SimpleHistoryLogitem
+					   SimpleHistoryLogitem--occasion
+					   SimpleHistoryLogitem--occasion-tooMany
+					   "
+					>
+						<div class="SimpleHistoryLogitem__firstcol"></div>
+						<div class="SimpleHistoryLogitem__secondcol">
+							<div class="SimpleHistoryLogitem__text">
+								{__(
+									"Sorry, but there are too many similar events to show.",
+									"simple-history",
+								)}
+							</div>
+						</div>
+					</li>
+				) : null}
 			</ul>
 		</div>
 	);
