@@ -52,7 +52,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			[
 				'args' => [
 					'id' => [
-						'description' => __( 'Unique identifier for the post.', 'simple-history' ),
+						'description' => __( 'Unique identifier for the event.', 'simple-history' ),
 						'type'        => 'integer',
 					],
 				],
@@ -166,7 +166,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$query_params['context']['default'] = 'view';
 
-		$query_params['return_type'] = array(
+		$query_params['type'] = array(
 			'description' => __( 'Type of result to return.', 'simple-history' ),
 			'type'        => 'string',
 			'default'     => 'overview',
@@ -357,6 +357,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Unique identifier for the event.', 'simple-history' ),
 					'type'        => 'integer',
 				),
+				'type'    => array(
+					'description' => __( 'Type of result to return.', 'simple-history' ),
+					'type'        => 'string',
+					'enum'        => array( 'overview', 'occasions' ),
+				),
 				'date'         => array(
 					'description' => __( "The date the event was added, in the site's timezone.", 'simple-history' ),
 					'type'        => array( 'string', 'null' ),
@@ -484,7 +489,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'occasionsID'    => 'occasionsID',
 			'occasionsCount' => 'occasionsCount',
 			'occasionsCountMaxReturn' => 'occasionsCountMaxReturn',
-			'return_type'    => 'return_type',
+			'type'           => 'type',
 			'max_id_first_page' => 'max_id_first_page',
 			'since_id'       => 'since_id',
 			'date_from'      => 'date_from',

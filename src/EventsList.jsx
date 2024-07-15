@@ -368,7 +368,9 @@ function Event(props) {
 export function EventOccasionsList(props) {
 	console.log("EventOccasionsList", props);
 	const { occasions } = props;
-
+	/*
+	<li class="SimpleHistoryLogitem__occasionsItemsWrap"><ul class="SimpleHistoryLogitem__occasionsItems haveOccasionsAdded">
+	*/
 	return (
 		<div>
 			<p>EventOccasionsList output</p>
