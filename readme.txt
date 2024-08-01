@@ -3,7 +3,7 @@
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, audit log, event log, user tracking, activity
-Tested up to: 6.5
+Tested up to: 6.6
 Stable tag: 4.16.0
 
 Track changes and user activities on your WordPress site. See who created a page, uploaded an attachment, and more, for a complete audit trail.
@@ -275,6 +275,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
+- Tested on WordPress 6.6.
 - Correct URL for "Go to Simple History" link on updated page on multisite.
 - Add `simple_history/log_query_inner_where_array` as a replacement for filter `simple_history/log_query_inner_where` that got removed in 4.9.0. The new filter is an array filter and can be used to add or modify the where clauses that the log query will use.
 - Add link to Simple History below the "All updates have been completed" message for more cases (it was missing when translations was updated, for example).
