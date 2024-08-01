@@ -307,4 +307,32 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( property_exists( $first_log_row, 'subsequentOccasions' ) );
 		$this->assertTrue( property_exists( $first_log_row, 'context' ) );
 	}
+
+	function test_inner_where_array_filter() {
+		// Add and set current user to admin user, so user can read all logs.
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [
+			'posts_per_page' => 10,
+		] );
+	
+		$this->assertGreaterThan(0, did_filter('simple_history/log_query_inner_where_array', 'Filter should have been called.'));
+		$this->assertEquals(10, $query_results['log_rows_count'], 'There should be 10 log rows.');
+
+		// Add filter that adds where condition so query returns nothing.
+		add_filter('simple_history/log_query_inner_where_array', function($inner_where, $args) {
+			$inner_where[] = "1 = 0";
+			sh_d('$inner_where', $inner_where);
+			return $inner_where;
+		}, 10, 2);
+
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [
+			'posts_per_page' => 11, // change count so cached query is not used.
+		] );
+
+		$this->assertEquals(0, $query_results['log_rows_count'], 'There should be 0 log rows.');
+	}
 }
