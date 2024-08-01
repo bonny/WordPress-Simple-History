@@ -112,7 +112,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
-				array( 'status' => rest_authorization_required_code() )
+				[ 'status' => rest_authorization_required_code() ]
 			);
 		}
 
@@ -157,6 +157,10 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		$data = [
 			'dates' => Helpers::get_data_for_date_filter(),
 			'loggers' => $this->get_loggers_and_messages(),
+			'pager_size' => [
+				'page' => (int) Helpers::get_pager_size(),
+				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
+			],
 		];
 
 		return rest_ensure_response( $data );
