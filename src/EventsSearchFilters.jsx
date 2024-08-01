@@ -39,6 +39,8 @@ export function EventsSearchFilters(props) {
 		setUserSuggestions,
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
+		pagerSize,
+		setPagerSize,
 	} = props;
 
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);
@@ -111,6 +113,9 @@ export function EventsSearchFilters(props) {
 			});
 
 			setMessageTypesSuggestions(messageTypesSuggestions);
+
+			setPagerSize(searchOptions.pager_size);
+
 			setSearchOptionsLoaded(true);
 		});
 	}, []);

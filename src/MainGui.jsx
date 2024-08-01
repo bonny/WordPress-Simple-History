@@ -17,6 +17,7 @@ function MainGui() {
 	const [eventsReloadTime, setEventsReloadTime] = useState(Date.now());
 
 	const [searchOptionsLoaded, setSearchOptionsLoaded] = useState(false);
+	const [pagerSize, setPagerSize] = useState({});
 	const [selectedDateOption, setSelectedDateOption] = useState("");
 	const [selectedCustomDateFrom, setSelectedCustomDateFrom] =
 		useState(defaultStartDate);
@@ -32,7 +33,7 @@ function MainGui() {
 	const loadEvents = useCallback(async () => {
 		// Create query params based on selected filters.
 		let eventsQueryParams = {
-			per_page: 5,
+			per_page: pagerSize.page,
 			_fields: [
 				"id",
 				"date",
@@ -200,6 +201,8 @@ function MainGui() {
 				setUserSuggestions={setUserSuggestions}
 				searchOptionsLoaded={searchOptionsLoaded}
 				setSearchOptionsLoaded={setSearchOptionsLoaded}
+				pagerSize={pagerSize}
+				setPagerSize={setPagerSize}
 				onReload={handleReload}
 			/>
 
