@@ -57,6 +57,7 @@
     ]
   },
   "dependencies": {
+    "@wordpress/icons": "^10.4.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0"
   }
