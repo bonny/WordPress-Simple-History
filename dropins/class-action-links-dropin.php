@@ -13,6 +13,10 @@ class Action_Links_Dropin extends Dropin {
 		add_filter( 'update_bulk_plugins_complete_actions', [ $this, 'add_simple_history_link' ], 10, 1 );
 		add_filter( 'update_plugin_complete_actions', [ $this, 'add_simple_history_link' ], 10, 1 );
 		add_filter( 'install_plugin_complete_actions', [ $this, 'add_simple_history_link' ], 10, 1 );
+		add_filter( 'update_bulk_theme_complete_actions', [ $this, 'add_simple_history_link' ], 10, 1 );
+		add_filter( 'update_translations_complete_actions', [ $this, 'add_simple_history_link' ], 10, 1 );
+		add_filter( 'install_theme_complete_actions', [ $this, 'add_simple_history_link' ], 10, 1 );
+		add_filter( 'update_theme_complete_actions', [ $this, 'add_simple_history_link' ], 10, 1 );
 	}
 
 	/**

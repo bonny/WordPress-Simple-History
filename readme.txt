@@ -276,6 +276,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 ### Unreleased
 
 - Correct URL for "Go to Simple History" link on updated page on multisite.
+- Add link to Simple History below the "All updates have been completed" message for more cases (it was missing when translations was updated, for example).
 
 ### 4.16.0
 
