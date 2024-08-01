@@ -1,11 +1,22 @@
-import { Spinner, Tooltip } from "@wordpress/components";
+import apiFetch from "@wordpress/api-fetch";
+import {
+	Button,
+	__experimentalHStack as HStack,
+	SelectControl,
+	Spinner,
+	Tooltip,
+} from "@wordpress/components";
 import { dateI18n, getSettings as getDateSettings } from "@wordpress/date";
-import { useEffect, useState } from "@wordpress/element";
-import { __, _x, _n, _nx, sprintf } from "@wordpress/i18n";
+import {
+	createInterpolateElement,
+	useEffect,
+	useState,
+} from "@wordpress/element";
+import { __, _n, _x, sprintf } from "@wordpress/i18n";
+import { chevronLeft, chevronRight } from "@wordpress/icons";
+import { addQueryArgs } from "@wordpress/url";
 import { clsx } from "clsx";
 import { intlFormatDistance } from "date-fns";
-import { addQueryArgs } from "@wordpress/url";
-import apiFetch from "@wordpress/api-fetch";
 
 function EventInitiatorImageWPUser(props) {
 	const { event } = props;
@@ -427,6 +438,80 @@ export function EventOccasionsList(props) {
 	);
 }
 
+/**
+ * To give it the same look as other Gutenberg components it's loosely based on the pagination in the font collection component:
+ * - https://github.com/WordPress/gutenberg/pull/63210
+ * - https://github.com/WordPress/gutenberg/blob/trunk/packages/edit-site/src/components/global-styles/font-library-modal/font-collection.js#L140
+ */
+function EventsPagination(props) {
+	const { events, eventsMeta } = props;
+
+	console.log("eventsMeta", eventsMeta);
+
+	const totalPages = parseInt(eventsMeta.totalPages, 10);
+	const page = 1;
+
+	return (
+		<div>
+			pagination... Total events: {eventsMeta.total}, Total pages:{" "}
+			{eventsMeta.totalPages}
+			<HStack
+				spacing={4}
+				justify="center"
+				className="font-library-modal__footer"
+			>
+				<Button
+					label={__("Previous page", 'simple-history')}
+					size="compact"
+					// onClick={() => setPage(page - 1)}
+					disabled={page === 1}
+					accessibleWhenDisabled
+					icon={chevronLeft}
+				/>
+				<HStack
+					justify="flex-start"
+					expanded={false}
+					spacing={2}
+					className="font-library-modal__page-selection"
+				>
+					{createInterpolateElement(
+						sprintf(
+							// translators: %s: Total number of pages.
+							_x("Page <CurrentPageControl /> of %s", "paging"),
+							totalPages,
+						),
+						{
+							CurrentPageControl: (
+								<SelectControl
+									aria-label={__("Current page")}
+									//value={page}
+									options={[...Array(totalPages)].map((e, i) => {
+										return {
+											label: i + 1,
+											value: i + 1,
+										};
+									})}
+									onChange={(newPage) => setPage(parseInt(newPage))}
+									size="compact"
+									__nextHasNoMarginBottom
+								/>
+							),
+						},
+					)}
+				</HStack>
+				<Button
+					label={__("Next page", 'simple-history')}
+					size="compact"
+					// onClick={() => setPage(page + 1)}
+					// disabled={page === totalPages}
+					accessibleWhenDisabled
+					icon={chevronRight}
+				/>
+			</HStack>
+		</div>
+	);
+}
+
 export function EventsList(props) {
 	const { events, eventsIsLoading, eventsMeta } = props;
 
@@ -448,9 +533,7 @@ export function EventsList(props) {
 
 	return (
 		<div style={{ backgroundColor: "white" }}>
-			<p>
-				Total events: {eventsMeta.total}, Total pages: {eventsMeta.totalPages}
-			</p>
+			<EventsPagination events={events} eventsMeta={eventsMeta} />
 
 			<ul className="SimpleHistoryLogitems">
 				{events.map((event) => (
