@@ -26,7 +26,19 @@ class Action_Links_Dropin extends Dropin {
 	 * @return array
 	 */
 	public function add_simple_history_link( $update_actions ) {
-		// Bail early if the current user can't view the history.
+		/**
+		 * Filters whether to show the action link to Simple History.
+		 *
+		 * @since 4.17.0
+		 */
+		$show_link = apply_filters( 'simple_history/show_action_link', true );
+
+		// Bail if filter returns false.
+		if ( $show_link === false ) {
+			return;
+		}
+
+		// Bail if the current user can't view the history.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			return $update_actions;
 		}

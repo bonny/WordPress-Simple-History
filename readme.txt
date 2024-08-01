@@ -277,6 +277,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 - Correct URL for "Go to Simple History" link on updated page on multisite.
 - Add link to Simple History below the "All updates have been completed" message for more cases (it was missing when translations was updated, for example).
+- Add filter `simple_history/show_action_link` that can be used to disable the link to the action that is shown in the log. This can be useful if you want to hide the link to the action for some users or in some cases. Example usage: `add_filter("simple_history/show_action_link", "__return_false");`.
 
 ### 4.16.0
 
