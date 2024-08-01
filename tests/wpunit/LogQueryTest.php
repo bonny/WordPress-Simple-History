@@ -324,7 +324,6 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		// Add filter that adds where condition so query returns nothing.
 		add_filter('simple_history/log_query_inner_where_array', function($inner_where, $args) {
 			$inner_where[] = "1 = 0";
-			sh_d('$inner_where', $inner_where);
 			return $inner_where;
 		}, 10, 2);
 
