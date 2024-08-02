@@ -41,6 +41,8 @@ export function EventsSearchFilters(props) {
 		setSearchOptionsLoaded,
 		pagerSize,
 		setPagerSize,
+		page,
+		setPage,
 	} = props;
 
 	const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = useState(false);

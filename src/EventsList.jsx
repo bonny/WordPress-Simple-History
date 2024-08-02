@@ -444,30 +444,24 @@ export function EventOccasionsList(props) {
  * - https://github.com/WordPress/gutenberg/blob/trunk/packages/edit-site/src/components/global-styles/font-library-modal/font-collection.js#L140
  */
 function EventsPagination(props) {
-	const { events, eventsMeta } = props;
-
-	console.log("eventsMeta", eventsMeta);
-
-	const totalPages = parseInt(eventsMeta.totalPages, 10);
-	const page = 1;
+	const { page, totalPages, onClickPrev, onClickNext } = props;
 
 	return (
 		<div>
-			pagination... Total events: {eventsMeta.total}, Total pages:{" "}
-			{eventsMeta.totalPages}
 			<HStack
 				spacing={4}
 				justify="center"
 				className="font-library-modal__footer"
 			>
 				<Button
-					label={__("Previous page", 'simple-history')}
+					label={__("Previous page", "simple-history")}
 					size="compact"
-					// onClick={() => setPage(page - 1)}
+					onClick={() => setPage(page - 1)}
 					disabled={page === 1}
 					accessibleWhenDisabled
 					icon={chevronLeft}
 				/>
+
 				<HStack
 					justify="flex-start"
 					expanded={false}
@@ -499,11 +493,12 @@ function EventsPagination(props) {
 						},
 					)}
 				</HStack>
+
 				<Button
-					label={__("Next page", 'simple-history')}
+					label={__("Next page", "simple-history")}
 					size="compact"
-					// onClick={() => setPage(page + 1)}
-					// disabled={page === totalPages}
+					onClick={() => setPage(page + 1)}
+					disabled={page === totalPages}
 					accessibleWhenDisabled
 					icon={chevronRight}
 				/>
@@ -513,7 +508,8 @@ function EventsPagination(props) {
 }
 
 export function EventsList(props) {
-	const { events, eventsIsLoading, eventsMeta } = props;
+	const { page, setPage, events, eventsIsLoading, eventsMeta } = props;
+	const totalPages = eventsMeta.totalPages;
 
 	if (eventsIsLoading) {
 		return (
@@ -533,7 +529,7 @@ export function EventsList(props) {
 
 	return (
 		<div style={{ backgroundColor: "white" }}>
-			<EventsPagination events={events} eventsMeta={eventsMeta} />
+			<EventsPagination page={page} totalPages={totalPages} />
 
 			<ul className="SimpleHistoryLogitems">
 				{events.map((event) => (

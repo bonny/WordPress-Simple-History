@@ -15,8 +15,8 @@ function MainGui() {
 	const [events, setEvents] = useState([]);
 	const [eventsMeta, setEventsMeta] = useState({});
 	const [eventsReloadTime, setEventsReloadTime] = useState(Date.now());
-
 	const [searchOptionsLoaded, setSearchOptionsLoaded] = useState(false);
+	const [page, setPage] = useState(1);
 	const [pagerSize, setPagerSize] = useState({});
 	const [selectedDateOption, setSelectedDateOption] = useState("");
 	const [selectedCustomDateFrom, setSelectedCustomDateFrom] =
@@ -33,6 +33,7 @@ function MainGui() {
 	const loadEvents = useCallback(async () => {
 		// Create query params based on selected filters.
 		let eventsQueryParams = {
+			page: page,
 			per_page: pagerSize.page,
 			_fields: [
 				"id",
@@ -138,8 +139,8 @@ function MainGui() {
 		const eventsJson = await eventsResponse.json();
 
 		setEventsMeta({
-			total: eventsResponse.headers.get("X-Wp-Total"),
-			totalPages: eventsResponse.headers.get("X-Wp-Totalpages"),
+			total: parseInt(eventsResponse.headers.get("X-Wp-Total"), 10),
+			totalPages: parseInt(eventsResponse.headers.get("X-Wp-Totalpages"), 10),
 			link: eventsResponse.headers.get("Link"),
 		});
 
@@ -153,6 +154,7 @@ function MainGui() {
 		selectedDateOption,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
+		page,
 	]);
 
 	// Debounce the loadEvents function to avoid multiple calls when user types fast.
@@ -203,6 +205,8 @@ function MainGui() {
 				setSearchOptionsLoaded={setSearchOptionsLoaded}
 				pagerSize={pagerSize}
 				setPagerSize={setPagerSize}
+				page={page}
+				setPage={setPage}
 				onReload={handleReload}
 			/>
 
@@ -210,6 +214,8 @@ function MainGui() {
 				eventsIsLoading={eventsIsLoading}
 				events={events}
 				eventsMeta={eventsMeta}
+				page={page}
+				setPage={setPage}
 			/>
 		</div>
 	);
