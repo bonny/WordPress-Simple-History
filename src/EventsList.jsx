@@ -5,6 +5,7 @@ import {
 	SelectControl,
 	Spinner,
 	Tooltip,
+	__experimentalSpacer as Spacer,
 } from "@wordpress/components";
 import { dateI18n, getSettings as getDateSettings } from "@wordpress/date";
 import {
@@ -444,48 +445,47 @@ export function EventOccasionsList(props) {
  * - https://github.com/WordPress/gutenberg/blob/trunk/packages/edit-site/src/components/global-styles/font-library-modal/font-collection.js#L140
  */
 function EventsPagination(props) {
-	const { page, totalPages, onClickPrev, onClickNext } = props;
+	const { page, totalPages, onClickPrev, onClickNext, onChangePage } = props;
+
+	if (!page || !totalPages) {
+		return null;
+	}
 
 	return (
 		<div>
-			<HStack
-				spacing={4}
-				justify="center"
-				className="font-library-modal__footer"
-			>
+			<HStack spacing={4} justify="center">
 				<Button
 					label={__("Previous page", "simple-history")}
 					size="compact"
-					onClick={() => setPage(page - 1)}
+					onClick={onClickPrev}
 					disabled={page === 1}
 					accessibleWhenDisabled
 					icon={chevronLeft}
 				/>
 
-				<HStack
-					justify="flex-start"
-					expanded={false}
-					spacing={2}
-					className="font-library-modal__page-selection"
-				>
+				<HStack justify="flex-start" expanded={false} spacing={2}>
 					{createInterpolateElement(
 						sprintf(
 							// translators: %s: Total number of pages.
-							_x("Page <CurrentPageControl /> of %s", "paging"),
+							_x(
+								"Page <CurrentPageControl /> of %s",
+								"paging",
+								"simple-history",
+							),
 							totalPages,
 						),
 						{
 							CurrentPageControl: (
 								<SelectControl
-									aria-label={__("Current page")}
-									//value={page}
+									aria-label={__("Current page", "simple-history")}
+									value={page}
 									options={[...Array(totalPages)].map((e, i) => {
 										return {
 											label: i + 1,
 											value: i + 1,
 										};
 									})}
-									onChange={(newPage) => setPage(parseInt(newPage))}
+									onChange={onChangePage}
 									size="compact"
 									__nextHasNoMarginBottom
 								/>
@@ -497,7 +497,7 @@ function EventsPagination(props) {
 				<Button
 					label={__("Next page", "simple-history")}
 					size="compact"
-					onClick={() => setPage(page + 1)}
+					onClick={onClickNext}
 					disabled={page === totalPages}
 					accessibleWhenDisabled
 					icon={chevronRight}
@@ -511,31 +511,41 @@ export function EventsList(props) {
 	const { page, setPage, events, eventsIsLoading, eventsMeta } = props;
 	const totalPages = eventsMeta.totalPages;
 
-	if (eventsIsLoading) {
-		return (
-			<div style={{ backgroundColor: "white", padding: "1rem" }}>
-				<p>
-					<Spinner />
+	const loadingIndicator = eventsIsLoading ? (
+		<div style={{ backgroundColor: "white", padding: "1rem" }}>
+			<p>
+				<Spinner />
 
-					{_x(
-						"Loading history...",
-						"Message visible while waiting for log to load from server the first time",
-						"simple-history",
-					)}
-				</p>
-			</div>
-		);
-	}
+				{_x(
+					"Loading history...",
+					"Message visible while waiting for log to load from server the first time",
+					"simple-history",
+				)}
+			</p>
+		</div>
+	) : null;
 
 	return (
 		<div style={{ backgroundColor: "white" }}>
-			<EventsPagination page={page} totalPages={totalPages} />
+			{loadingIndicator}
 
 			<ul className="SimpleHistoryLogitems">
 				{events.map((event) => (
 					<Event key={event.id} event={event} />
 				))}
 			</ul>
+
+			<Spacer margin={4} />
+
+			<EventsPagination
+				page={page}
+				totalPages={totalPages}
+				onClickPrev={() => setPage(page - 1)}
+				onClickNext={() => setPage(page + 1)}
+				onChangePage={(newPage) => setPage(parseInt(newPage, 10))}
+			/>
+
+			<Spacer paddingBottom={4} />
 		</div>
 	);
 }
