@@ -4,7 +4,6 @@
 // phpcs:disable Squiz.Scope.MethodScope.Missing
 
 use Simple_History\Simple_History;
-use Simple_History\Log_Query;
 
 class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 	// https://phpunit.de/manual/current/en/fixtures.html

@@ -1071,9 +1071,19 @@ class Log_Query {
 	}
 
 	/**
-	 * Get inner where clause.
+	 * Get inner where clause as array where each item in the array is a where clause statement, without the "WHERE" keyword or "AND" keyword.
 	 *
-	 * @param array $args Arguments.
+	 * This function is used by both MySQL and SQLite.
+	 *
+	 * Example of array contents:
+	 *
+	 * Array
+	 * (
+	 *  [0] => logger IN ('AvailableUpdatesLogger', 'FileEditsLogger', 'Plugin_ACF', 'Plugin_BeaverBuilder', 'Plugin_DuplicatePost', 'Plugin_LimitLoginAttempts', 'Plugin_Redirection', 'PluginEnableMediaReplaceLogger', 'PluginUserSwitchingLogger', 'PluginWPCrontrolLogger', 'SH_Jetpack_Logger', 'SH_Privacy_Logger', 'SH_Translations_Logger', 'SimpleCategoriesLogger', 'SimpleCommentsLogger', 'SimpleCoreUpdatesLogger', 'SimpleExportLogger', 'SimpleLogger', 'SimpleMediaLogger', 'SimpleMenuLogger', 'SimpleOptionsLogger', 'SimplePluginLogger', 'SimplePostLogger', 'SimpleThemeLogger', 'SimpleUserLogger', 'SimpleHistoryLogger', 'WPMailLogger', 'WPHTTPRequestsLogger', 'WPCronLogger', 'WooCommerceLogger')
+	 *  [1] => date >= DATE(NOW() - INTERVAL 30 DAY)
+	 * )
+	 *
+	 * @param array $args Query arguments, as passed to query().
 	 * @return array<string> Where clauses.
 	 */
 	protected function get_inner_where( $args ) {
@@ -1084,7 +1094,7 @@ class Log_Query {
 		$inner_where = [];
 
 		// Only include loggers that the current user can view
-		// @TODO: this causes error if user has no access to any logger at all.
+		// TODO: this causes error if user has no access to any logger at all.
 		$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
 		$inner_where[] = "logger IN {$sql_loggers_user_can_view}";
 
@@ -1282,6 +1292,16 @@ class Log_Query {
 				implode( ',', $args['users'] ), // 2
 			);
 		}
+
+		/**
+		 * Filter the default boxes to output in the sidebar
+		 *
+		 * @since 4.17.0
+		 *
+		 * @param array $inner_where The inner where array.
+		 * @param array $args The arguments passed to the query.
+		 */
+		$inner_where = apply_filters( 'simple_history/log_query_inner_where_array', $inner_where, $args );
 
 		return $inner_where;
 	}
