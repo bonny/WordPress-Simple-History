@@ -452,6 +452,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Details of the initiator.', 'simple-history' ),
 					'type'        => 'object',
 				),
+				'ip_addresses' => array(
+					'description' => __( 'The IP addresses of the event.', 'simple-history' ),
+					'type'        => 'array',
+				),
 				'occasions_id' => array(
 					'description' => __( 'The occasions ID of the event.', 'simple-history' ),
 					'type'        => 'string',
@@ -736,6 +740,31 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			];
 
 			$data['initiator_data'] = $user_info;
+		}
+
+		if ( rest_is_field_included( 'ip_addresses', $fields ) ) {
+			// Empty array unless we are ok to include ip addresses.
+			$data['ip_addresses'] = [];
+
+			/** This filter is documented in loggers/class-logger.php */
+			$include_ip_addresses_for_event = apply_filters(
+				'simple_history/row_header_output/display_ip_address',
+				false,
+				$item
+			);
+
+			if ( $include_ip_addresses_for_event ) {
+				// Look for additional ip addresses.
+				$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $item );
+
+				$arr_ip_addresses = array_merge(
+					// Remote addr always exists.
+					[ '_server_remote_addr' => $context['_server_remote_addr'] ],
+					$arr_found_additional_ip_headers
+				);
+
+				$data['ip_addresses'] = $arr_ip_addresses;
+			}
 		}
 
 		if ( rest_is_field_included( 'occasions_id', $fields ) ) {
