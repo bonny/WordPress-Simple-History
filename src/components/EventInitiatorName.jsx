@@ -1,57 +1,57 @@
-import { __ } from "@wordpress/i18n";
+import { __ } from '@wordpress/i18n';
 
 /**
  * Outputs "WordPress" or "John Doe - erik@example.com".
  */
-export function EventInitiatorName(props) {
+export function EventInitiatorName( props ) {
 	const { event } = props;
 	const { initiator_data } = event;
 
-	switch (event.initiator) {
-		case "wp_user":
+	switch ( event.initiator ) {
+		case 'wp_user':
 			return (
 				<>
-					<a href={initiator_data.user_profile_url}>
+					<a href={ initiator_data.user_profile_url }>
 						<span className="SimpleHistoryLogitem__inlineDivided">
-							<strong>{initiator_data.user_login}</strong>{" "}
-							<span>({initiator_data.user_email})</span>
+							<strong>{ initiator_data.user_login }</strong>{ ' ' }
+							<span>({ initiator_data.user_email })</span>
 						</span>
 					</a>
 				</>
 			);
-		case "web_user":
+		case 'web_user':
 			return (
 				<>
 					<strong className="SimpleHistoryLogitem__inlineDivided">
-						{__("Anonymous web user", "simple-history")}
+						{ __( 'Anonymous web user', 'simple-history' ) }
 					</strong>
 				</>
 			);
-		case "wp_cli":
+		case 'wp_cli':
 			return (
 				<>
 					<strong className="SimpleHistoryLogitem__inlineDivided">
-						{__("WP-CLI", "simple-history")}
+						{ __( 'WP-CLI', 'simple-history' ) }
 					</strong>
 				</>
 			);
-		case "wp":
+		case 'wp':
 			return (
 				<>
 					<strong className="SimpleHistoryLogitem__inlineDivided">
-						{__("WordPress", "simple-history")}
+						{ __( 'WordPress', 'simple-history' ) }
 					</strong>
 				</>
 			);
-		case "other":
+		case 'other':
 			return (
 				<>
 					<strong className="SimpleHistoryLogitem__inlineDivided">
-						{__("Other", "simple-history")}
+						{ __( 'Other', 'simple-history' ) }
 					</strong>
 				</>
 			);
 		default:
-			return <p>Add output for initiator "{event.initiator}"</p>;
+			return <p>Add output for initiator "{ event.initiator }"</p>;
 	}
 }

@@ -1,5 +1,5 @@
-import { Button, __experimentalText as Text } from "@wordpress/components";
-import { useEffect, useState } from "@wordpress/element";
+import { Button, __experimentalText as Text } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Checks for new events and notifies the user if there are new events.
@@ -10,38 +10,40 @@ import { useEffect, useState } from "@wordpress/element";
  * We use the REST API instead.
  * same query arg as before but append since_id.
  */
-export function NewEventsNotifier(props) {
+export function NewEventsNotifier( props ) {
 	const { eventsQueryParams, eventsMaxId } = props;
-	const [newEventFound, setNewEventFound] = useState(false);
+	const [ newEventFound, setNewEventFound ] = useState( false );
 
-	useEffect(() => {
+	useEffect( () => {
 		// Bail if no eventsQueryParams or eventsMaxId
-		if (!eventsQueryParams ||  !eventsMaxId ) {
+		if ( ! eventsQueryParams || ! eventsMaxId ) {
 			return;
 		}
 
-		const intervalId = setInterval(() => {
-			console.log("Checking for new events...");
-			console.log("using eventsQueryParams", eventsQueryParams);
-			console.log("using eventsMaxId", eventsMaxId);
+		const intervalId = setInterval( () => {
+			console.log( 'Checking for new events...' );
+			console.log( 'using eventsQueryParams', eventsQueryParams );
+			console.log( 'using eventsMaxId', eventsMaxId );
 
 			const eventsQueryParamsWithSinceId = {
 				...eventsQueryParams,
 				since_id: eventsMaxId,
 			};
-		}, 5000);
+		}, 5000 );
 
 		return () => {
-			console.log("clear timer interval on unmount", eventsQueryParams);
-			clearInterval(intervalId);
+			console.log( 'clear timer interval on unmount', eventsQueryParams );
+			clearInterval( intervalId );
 		};
-	}, [eventsQueryParams, eventsMaxId]);
+	}, [ eventsQueryParams, eventsMaxId ] );
 
 	return (
 		<>
-			{/* <Text>Checking for new events...</Text> */}
+			{ /* <Text>Checking for new events...</Text> */ }
 			<Text>
-				{newEventFound ? <Button icon={update}>1 new event</Button> : null}
+				{ newEventFound ? (
+					<Button icon={ update }>1 new event</Button>
+				) : null }
 			</Text>
 		</>
 	);
