@@ -36,8 +36,7 @@ class IP_Info_Dropin extends Dropin {
 		 *
 		 * @param string $api_key The API key to use. Default is empty string, causing no Map image to be outputted.
 		 */
-		$api_key = apply_filters( 'simple_history/maps_api_key', '' );
-		return $api_key;
+		return apply_filters( 'simple_history/maps_api_key', '' );
 	}
 
 	/**
