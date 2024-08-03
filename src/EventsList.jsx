@@ -1,24 +1,13 @@
-import {
-	Button,
-	DropdownMenu,
-	Flex,
-	FlexItem,
-	__experimentalHStack as HStack,
-	MenuGroup,
-	MenuItem,
-	__experimentalSpacer as Spacer,
-	Spinner,
-	__experimentalText as Text,
-} from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
-import { moreVertical, update } from '@wordpress/icons';
+import { __experimentalSpacer as Spacer } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import { Event } from './components/Event';
 import { EventsPagination } from './components/EventsPagination';
 
 /**
  * Renders a list of events.
+ *
+ * @param {Object} props
  */
 export function EventsList( props ) {
 	const { page, setPage, events, eventsIsLoading, eventsMeta } = props;

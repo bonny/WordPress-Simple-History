@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Disabled } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import {
@@ -41,10 +41,7 @@ export function EventsSearchFilters( props ) {
 		setUserSuggestions,
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
-		pagerSize,
 		setPagerSize,
-		page,
-		setPage,
 	} = props;
 
 	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] =
@@ -86,33 +83,33 @@ export function EventsSearchFilters( props ) {
 			 *  label: "WordPress and plugin updates"
 			 * }
 			 */
-			let messageTypesSuggestions = [];
+			const nextMessageTypesSuggestions = [];
 			searchOptions.loggers.map( ( logger ) => {
-				const search_data = logger.search_data || {};
-				if ( ! search_data.search ) {
+				const searchData = logger.search_data || {};
+				if ( ! searchData.search ) {
 					return;
 				}
 
 				// "WordPress och tilläggsuppdateringar"
-				messageTypesSuggestions.push( {
-					label: search_data.search,
+				nextMessageTypesSuggestions.push( {
+					label: searchData.search,
 					// key: logger.slug,
 					// search_options: search_data.search
 				} );
 
 				// "Alla hittade uppdateringar"
-				if ( search_data?.search_all?.label ) {
-					messageTypesSuggestions.push( {
-						label: SUBITEM_PREFIX + search_data.search_all.label,
+				if ( searchData?.search_all?.label ) {
+					nextMessageTypesSuggestions.push( {
+						label: SUBITEM_PREFIX + searchData.search_all.label,
 						// key: `${logger.slug}:all`,
-						search_options: search_data.search_all.options,
+						search_options: searchData.search_all.options,
 					} );
 				}
 
 				// Each single message.
-				if ( search_data?.search_options ) {
-					search_data.search_options.forEach( ( option ) => {
-						messageTypesSuggestions.push( {
+				if ( searchData?.search_options ) {
+					searchData.search_options.forEach( ( option ) => {
+						nextMessageTypesSuggestions.push( {
 							label: SUBITEM_PREFIX + option.label,
 							// key: `${logger.slug}:${option.key}`,
 							search_options: option.options,
@@ -121,7 +118,7 @@ export function EventsSearchFilters( props ) {
 				}
 			} );
 
-			setMessageTypesSuggestions( messageTypesSuggestions );
+			setMessageTypesSuggestions( nextMessageTypesSuggestions );
 
 			setPagerSize( searchOptions.pager_size );
 
@@ -134,7 +131,7 @@ export function EventsSearchFilters( props ) {
 		: __( 'Show search options', 'simple-history' );
 
 	// Dynamic created <Disabled> elements. Used to disable the whole search component while loading.
-	let MaybeDisabledTag = searchOptionsLoaded ? React.Fragment : Disabled;
+	const MaybeDisabledTag = searchOptionsLoaded ? Fragment : Disabled;
 
 	return (
 		<MaybeDisabledTag>
@@ -168,7 +165,7 @@ export function EventsSearchFilters( props ) {
 					/>
 				) : null }
 
-				<p class="SimpleHistory__filters__filterSubmitWrap">
+				<p className="SimpleHistory__filters__filterSubmitWrap">
 					<button className="button" onClick={ onReload }>
 						{ __( 'Search events', 'simple-history' ) }
 					</button>

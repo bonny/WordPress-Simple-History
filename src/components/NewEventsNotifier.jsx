@@ -19,7 +19,7 @@ import { _n, __, sprintf } from '@wordpress/i18n';
 export function NewEventsNotifier( props ) {
 	const { eventsQueryParams, eventsMaxId, onReload } = props;
 	const [ newEventsCount, setNewEventsCount ] = useState( 0 );
-	console.log( 'newEventsCount is', newEventsCount );
+
 	useEffect( () => {
 		// Bail if no eventsQueryParams or eventsMaxId
 		if ( ! eventsQueryParams || ! eventsMaxId ) {
@@ -27,8 +27,6 @@ export function NewEventsNotifier( props ) {
 		}
 
 		const intervalId = setInterval( async () => {
-			console.log( 'Checking for new events...' );
-
 			const eventsQueryParamsWithSinceId = {
 				...eventsQueryParams,
 				since_id: eventsMaxId,
@@ -36,10 +34,6 @@ export function NewEventsNotifier( props ) {
 				_fields: null,
 			};
 
-			console.log(
-				'eventsQueryParamsWithSinceId',
-				eventsQueryParamsWithSinceId
-			);
 			const eventsResponse = await apiFetch( {
 				path: addQueryArgs(
 					'/simple-history/v1/events/has-updates',
@@ -55,11 +49,10 @@ export function NewEventsNotifier( props ) {
 			if ( responseNewEventsCount > 0 ) {
 				setNewEventsCount( responseNewEventsCount );
 			}
-			console.log( 'responseJson', responseJson );
+			// TODO: should this be customizable with filter? and also be able to disable it?
 		}, 5000 );
 
 		return () => {
-			console.log( 'clear timer interval on unmount', eventsQueryParams );
 			clearInterval( intervalId );
 		};
 	}, [ eventsQueryParams, eventsMaxId, newEventsCount ] );
