@@ -45,6 +45,23 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			],
 		);
 
+		// GET /wp-json/simple-history/v1/events/has-updates.
+		// Same args as /wp-json/simple-history/v1/events but returns only information
+		// if there are new events or not.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/has-updates',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_has_updates' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'args'                => $this->get_collection_params_for_has_updates(),
+				],
+				// 'schema'      => [ $this, 'get_public_item_schema' ],
+			],
+		);
+
 		// GET /wp-json/simple-history/v1/events/<event-id>.
 		register_rest_route(
 			$this->namespace,
@@ -154,6 +171,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				$event_id
 			)
 		);
+	}
+
+	/**
+	 * Retrieves the query params for the posts collection for has_updates.
+	 *
+	 * @return array Collection parameters.
+	 */
+	public function get_collection_params_for_has_updates() {
+		$query_params = $this->get_collection_params();
+
+		// Make since_id required.
+		$query_params['since_id']['required'] = true;
+
+		return $query_params;
 	}
 
 	/**
@@ -461,6 +492,70 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Get update info for a request.
+	 *
+	 * Takes the same args as get_items() but `since_id` param is required.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_has_updates( $request ) {
+		// Retrieve the list of registered collection query parameters.
+		$registered = $this->get_collection_params();
+		$args       = [];
+
+		/*
+		 * This array defines mappings between public API query parameters whose
+		 * values are accepted as-passed, and their internal WP_Query parameter
+		 * name equivalents (some are the same). Only values which are also
+		 * present in $registered will be set.
+		 */
+		$parameter_mappings = array(
+			'include'                 => 'post__in',
+			'offset'                  => 'offset',
+			'page'                    => 'paged',
+			'per_page'                => 'posts_per_page',
+			'search'                  => 'search',
+			'logRowID'                => 'logRowID',
+			'occasionsID'             => 'occasionsID',
+			'occasionsCount'          => 'occasionsCount',
+			'occasionsCountMaxReturn' => 'occasionsCountMaxReturn',
+			'type'                    => 'type',
+			'max_id_first_page'       => 'max_id_first_page',
+			'since_id'                => 'since_id',
+			'date_from'               => 'date_from',
+			'date_to'                 => 'date_to',
+			'dates'                   => 'dates',
+			'lastdays'                => 'lastdays',
+			'months'                  => 'months',
+			'loglevels'               => 'loglevels',
+			'loggers'                 => 'loggers',
+			'messages'                => 'messages',
+			'users'                   => 'users',
+			'user'                    => 'user',
+		);
+
+		/*
+		 * For each known parameter which is both registered and present in the request,
+		 * set the parameter's value on the query $args.
+		 */
+		foreach ( $parameter_mappings as $api_param => $wp_param ) {
+			if ( isset( $registered[ $api_param ], $request[ $api_param ] ) ) {
+				$args[ $wp_param ] = $request[ $api_param ];
+			}
+		}
+
+		$log_query = new Log_Query();
+		$query_result = $log_query->query( $args );
+
+		return rest_ensure_response(
+			[
+				'new_events_count' => $query_result['total_row_count'],
+			]
+		);
+	}
+
+	/**
 	 * Get items.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -480,28 +575,28 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		 * present in $registered will be set.
 		 */
 		$parameter_mappings = array(
-			'include'        => 'post__in',
-			'offset'         => 'offset',
-			'page'           => 'paged',
-			'per_page'       => 'posts_per_page',
-			'search'         => 'search',
-			'logRowID'       => 'logRowID',
-			'occasionsID'    => 'occasionsID',
-			'occasionsCount' => 'occasionsCount',
+			'include'                 => 'post__in',
+			'offset'                  => 'offset',
+			'page'                    => 'paged',
+			'per_page'                => 'posts_per_page',
+			'search'                  => 'search',
+			'logRowID'                => 'logRowID',
+			'occasionsID'             => 'occasionsID',
+			'occasionsCount'          => 'occasionsCount',
 			'occasionsCountMaxReturn' => 'occasionsCountMaxReturn',
-			'type'           => 'type',
-			'max_id_first_page' => 'max_id_first_page',
-			'since_id'       => 'since_id',
-			'date_from'      => 'date_from',
-			'date_to'        => 'date_to',
-			'dates'          => 'dates',
-			'lastdays'       => 'lastdays',
-			'months'         => 'months',
-			'loglevels'      => 'loglevels',
-			'loggers'        => 'loggers',
-			'messages'       => 'messages',
-			'users'          => 'users',
-			'user'           => 'user',
+			'type'                    => 'type',
+			'max_id_first_page'       => 'max_id_first_page',
+			'since_id'                => 'since_id',
+			'date_from'               => 'date_from',
+			'date_to'                 => 'date_to',
+			'dates'                   => 'dates',
+			'lastdays'                => 'lastdays',
+			'months'                  => 'months',
+			'loglevels'               => 'loglevels',
+			'loggers'                 => 'loggers',
+			'messages'                => 'messages',
+			'users'                   => 'users',
+			'user'                    => 'user',
 		);
 
 		/*
