@@ -68,7 +68,6 @@ function MainGui() {
 	 * so that's whats making the reload of events.
 	 */
 	const loadEvents = useCallback( async () => {
-		console.log( 'loadEvents using eventsQueryParams', eventsQueryParams );
 		setEventsIsLoading( true );
 
 		const eventsResponse = await apiFetch( {

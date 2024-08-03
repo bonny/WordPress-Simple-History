@@ -15,6 +15,8 @@ import { ExpandedFilters } from './ExpandedFilters';
 /**
  * Search component with a search input visible by default.
  * A "Show search options" button is visible where the user can expand the search to show more options/filters.
+ *
+ * @param {Object} props
  */
 export function EventsSearchFilters( props ) {
 	const {

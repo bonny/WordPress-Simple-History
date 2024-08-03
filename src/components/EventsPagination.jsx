@@ -11,6 +11,8 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
  * To give it the same look as other Gutenberg components it's loosely based on the pagination in the font collection component:
  * - https://github.com/WordPress/gutenberg/pull/63210
  * - https://github.com/WordPress/gutenberg/blob/trunk/packages/edit-site/src/components/global-styles/font-library-modal/font-collection.js#L140
+ *
+ * @param {Object} props
  */
 export function EventsPagination( props ) {
 	const { page, totalPages, onClickPrev, onClickNext, onChangePage } = props;

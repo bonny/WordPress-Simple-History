@@ -1,21 +1,15 @@
 import {
-	Button,
 	DropdownMenu,
 	Flex,
 	FlexItem,
 	__experimentalHStack as HStack,
 	MenuGroup,
 	MenuItem,
-	__experimentalSpacer as Spacer,
 	Spinner,
 	__experimentalText as Text,
 } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { moreVertical, update } from '@wordpress/icons';
-import { clsx } from 'clsx';
-import { Event } from './Event';
-import { EventsPagination } from './EventsPagination';
+import { moreVertical } from '@wordpress/icons';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
 const PremiumFeatureSuffix = function () {
@@ -36,7 +30,7 @@ const PremiumFeatureSuffix = function () {
 
 const MyDropdownMenu = () => (
 	<DropdownMenu
-		label={ __( 'Actions...', 'simple-history' ) }
+		label={ __( 'Actions…', 'simple-history' ) }
 		icon={ moreVertical }
 	>
 		{ ( { onClose } ) => (
@@ -90,6 +84,8 @@ const MyDropdownMenu = () => (
 
 /**
  * Control bar at the top with number of events, reload button, more actions like export and so on.
+ *
+ * @param {Object} props
  */
 export function EventsControlBar( props ) {
 	const { eventsIsLoading, eventsTotal, eventsQueryParams, eventsMaxId } =
@@ -100,7 +96,7 @@ export function EventsControlBar( props ) {
 			<Spinner />
 
 			{ _x(
-				'Loading ...',
+				'Loading…',
 				'Message visible while waiting for log to load from server the first time',
 				'simple-history'
 			) }
