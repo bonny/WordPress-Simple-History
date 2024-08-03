@@ -49,7 +49,10 @@
     "test:log-query-mariadb105": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=mariadb:10.5 DB_DATA_DIR=./data/mysql npm run test:wpunit-logquery",
     "test:wpunit-logquery": "docker compose run --rm php-cli vendor/bin/codecept run wpunit:LogQueryTest",
     "start": "wp-scripts start",
-    "build": "wp-scripts build"
+    "build": "wp-scripts build",
+    "format": "wp-scripts format",
+    "lint:css": "wp-scripts lint-style",
+    "lint:js": "wp-scripts lint-js"
   },
   "lint-staged": {
     "*.php": [
