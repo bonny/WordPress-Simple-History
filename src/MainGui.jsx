@@ -1,11 +1,13 @@
 import apiFetch from "@wordpress/api-fetch";
 import { useDebounce } from "@wordpress/compose";
-import { useCallback, useEffect, useState } from "@wordpress/element";
+import { useCallback, useEffect, useState, useMemo } from "@wordpress/element";
 import { addQueryArgs } from "@wordpress/url";
 import { endOfDay, format, startOfDay } from "date-fns";
 import { LOGLEVELS_OPTIONS, TIMEZONELESS_FORMAT } from "./constants";
 import { EventsList } from "./EventsList";
 import { EventsSearchFilters } from "./EventsSearchFilters";
+import { EventsControlBar } from "./components/EventsControlBar";
+import { generateAPIQueryParams } from "./functions";
 
 const defaultStartDate = format(startOfDay(new Date()), TIMEZONELESS_FORMAT);
 const defaultEndDate = format(endOfDay(new Date()), TIMEZONELESS_FORMAT);
@@ -15,6 +17,7 @@ function MainGui() {
 	const [events, setEvents] = useState([]);
 	const [eventsMeta, setEventsMeta] = useState({});
 	const [eventsReloadTime, setEventsReloadTime] = useState(Date.now());
+	const [eventsMaxId, setEventsMaxId] = useState();
 	const [searchOptionsLoaded, setSearchOptionsLoaded] = useState(false);
 	const [page, setPage] = useState(1);
 	const [pagerSize, setPagerSize] = useState({});
@@ -30,104 +33,37 @@ function MainGui() {
 	const [userSuggestions, setUserSuggestions] = useState([]);
 	const [selectedUsers, setSelectUsers] = useState([]);
 
+	const eventsQueryParams = useMemo(() => {
+		return generateAPIQueryParams({
+			selectedLogLevels,
+			selectedMessageTypes,
+			selectedUsers,
+			enteredSearchText,
+			selectedDateOption,
+			selectedCustomDateFrom,
+			selectedCustomDateTo,
+			page,
+			pagerSize,
+		});
+	}, [
+		selectedLogLevels,
+		selectedMessageTypes,
+		selectedUsers,
+		enteredSearchText,
+		selectedDateOption,
+		selectedCustomDateFrom,
+		selectedCustomDateTo,
+		page,
+		pagerSize,
+	]);
+
+	/**
+	 * Load events from the REST API.
+	 * A new function is created each time the eventsQueryParams changes,
+	 * so that's whats making the reload of events.
+	 */
 	const loadEvents = useCallback(async () => {
-		// Create query params based on selected filters.
-		let eventsQueryParams = {
-			page: page,
-			per_page: pagerSize.page,
-			_fields: [
-				"id",
-				"date",
-				"date_gmt",
-				"message",
-				"message_html",
-				"details_data",
-				"details_html",
-				"loglevel",
-				"occasions_id",
-				"subsequent_occasions_count",
-				"initiator",
-				"initiator_data",
-				"via",
-			],
-		};
-
-		if (enteredSearchText) {
-			eventsQueryParams.search = enteredSearchText;
-		}
-
-		if (selectedDateOption) {
-			if (selectedDateOption === "customRange") {
-				eventsQueryParams.date_from = selectedCustomDateFrom;
-				eventsQueryParams.date_to = selectedCustomDateTo;
-			} else {
-				eventsQueryParams.dates = selectedDateOption;
-			}
-		}
-
-		if (selectedLogLevels.length) {
-			// Values in selectedLogLevels are the labels of the log levels, not the values we can use in the API.
-			// Use the LOGLEVELS_OPTIONS to find the value for the translated label.
-			let selectedLogLevelsValues = [];
-			selectedLogLevels.forEach((selectedLogLevel) => {
-				let logLevelOption = LOGLEVELS_OPTIONS.find(
-					(logLevelOption) => logLevelOption.label === selectedLogLevel,
-				);
-				if (logLevelOption) {
-					selectedLogLevelsValues.push(logLevelOption.value);
-				}
-			});
-			if (selectedLogLevelsValues.length) {
-				eventsQueryParams.loglevels = selectedLogLevelsValues;
-			}
-		}
-
-		if (selectedMessageTypes.length) {
-			let selectedMessageTypesValues = [];
-			selectedMessageTypes.forEach((selectedMessageType) => {
-				let messageTypeOption = messageTypesSuggestions.find(
-					(messageTypeOption) => {
-						return (
-							messageTypeOption.label.trim() === selectedMessageType.trim()
-						);
-					},
-				);
-
-				if (messageTypeOption) {
-					selectedMessageTypesValues.push(messageTypeOption);
-				}
-			});
-
-			if (selectedMessageTypesValues.length) {
-				let messsagesString = "";
-				selectedMessageTypesValues.forEach((selectedMessageTypesValue) => {
-					selectedMessageTypesValue.search_options.forEach((searchOption) => {
-						messsagesString += searchOption + ",";
-					});
-				});
-				eventsQueryParams.messages = messsagesString;
-			}
-		}
-
-		if (selectedUsers.length) {
-			let selectedUsersValues = [];
-			selectedUsers.forEach((selectedUserNameAndEmail) => {
-				let userSuggestion = userSuggestions.find((userSuggestion) => {
-					return (
-						userSuggestion.label.trim() === selectedUserNameAndEmail.trim()
-					);
-				});
-
-				if (userSuggestion) {
-					selectedUsersValues.push(userSuggestion.id);
-				}
-			});
-
-			if (selectedUsersValues.length) {
-				eventsQueryParams.users = selectedUsersValues;
-			}
-		}
-
+		console.log("loadEvents using eventsQueryParams", eventsQueryParams);
 		setEventsIsLoading(true);
 
 		const eventsResponse = await apiFetch({
@@ -146,20 +82,15 @@ function MainGui() {
 
 		setEvents(eventsJson);
 		setEventsIsLoading(false);
-	}, [
-		selectedLogLevels,
-		selectedMessageTypes,
-		selectedUsers,
-		enteredSearchText,
-		selectedDateOption,
-		selectedCustomDateFrom,
-		selectedCustomDateTo,
-		page,
-	]);
+	}, [eventsQueryParams]);
 
 	// Debounce the loadEvents function to avoid multiple calls when user types fast.
 	const debouncedLoadEvents = useDebounce(loadEvents, 500);
 
+	/**
+	 * Load events when search options are loaded, or when the reload time is changed,
+	 * or when function debouncedLoadEvents is changed due to changes in eventsQueryParams.
+	 */
 	useEffect(() => {
 		// Wait for search options to be loaded before loading events,
 		// or the loadEvents will be called twice.
@@ -169,6 +100,15 @@ function MainGui() {
 
 		debouncedLoadEvents();
 	}, [debouncedLoadEvents, searchOptionsLoaded, eventsReloadTime]);
+
+	// When events are loaded for the fist time, or when reloaded, store the max id.
+	useEffect(() => {
+		if (!events || !events.length || page !== 1) {
+			return;
+		}
+
+		setEventsMaxId(events[0].id);
+	}, [page, events]);
 
 	/**
 	 * Function to set reload time to current time,
@@ -208,6 +148,13 @@ function MainGui() {
 				page={page}
 				setPage={setPage}
 				onReload={handleReload}
+			/>
+
+			<EventsControlBar
+				eventsIsLoading={eventsIsLoading}
+				eventsTotal={eventsMeta.total}
+				eventsMaxId={eventsMaxId}
+				eventsQueryParams={eventsQueryParams}
 			/>
 
 			<EventsList

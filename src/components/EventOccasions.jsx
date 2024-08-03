@@ -1,9 +1,8 @@
 import apiFetch from "@wordpress/api-fetch";
-import {
-	useState
-} from "@wordpress/element";
+import { useState } from "@wordpress/element";
 import { __, _n, sprintf } from "@wordpress/i18n";
 import { addQueryArgs } from "@wordpress/url";
+import { EventOccasionsList } from "./EventOccasionsList";
 
 export function EventOccasions(props) {
 	const { event } = props;
@@ -76,9 +75,6 @@ export function EventOccasions(props) {
 		setIsLoadingOccasions(false);
 		setIsShowingOccasions(true);
 	};
-
-	console.log("isLoadingOccasions", isLoadingOccasions);
-	console.log("isShowingOccasions", isShowingOccasions);
 
 	return (
 		<div class="">

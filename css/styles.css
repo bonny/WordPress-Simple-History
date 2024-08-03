@@ -97,18 +97,23 @@
 }
 */
 
+/** UL with log items */
 .SimpleHistoryLogitems {
 	margin: 0;
 	background: #fff;
 	border: 1px solid rgb(229, 229, 229);
-	opacity: 0;
+	opacity: 1;
 	transition: all 0.25s ease-out;
 }
 
-.SimpleHistory--isLoaded .SimpleHistoryLogitems,
+.SimpleHistoryLogitems.is-loading {
+	opacity: 0.5;
+}
+
+/* .SimpleHistory--isLoaded .SimpleHistoryLogitems,
 .SimpleHistoryGuiExample .SimpleHistoryLogitems {
 	opacity: 1;
-}
+} */
 
 /**
  * Log items

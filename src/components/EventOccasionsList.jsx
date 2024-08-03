@@ -1,5 +1,6 @@
 import { __ } from "@wordpress/i18n";
 import { clsx } from "clsx";
+import { Event } from "./Event";
 
 export function EventOccasionsList(props) {
 	const {
