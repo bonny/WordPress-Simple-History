@@ -1,5 +1,7 @@
 /**
  * Generate api query object based on selected filters.
+ *
+ * @param {Object} props
  */
 export function generateAPIQueryParams( props ) {
 	const {
@@ -15,8 +17,8 @@ export function generateAPIQueryParams( props ) {
 	} = props;
 
 	// Create query params based on selected filters.
-	let eventsQueryParams = {
-		page: page,
+	const eventsQueryParams = {
+		page,
 		per_page: pagerSize.page,
 		_fields: [
 			'id',
@@ -31,6 +33,7 @@ export function generateAPIQueryParams( props ) {
 			'subsequent_occasions_count',
 			'initiator',
 			'initiator_data',
+			'ip_addresses',
 			'via',
 		],
 	};
