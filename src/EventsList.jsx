@@ -31,6 +31,15 @@ export function EventsList( props ) {
 
 	return (
 		<div style={ { backgroundColor: 'white', minHeight: '300px' } }>
+			{ eventsIsLoading === false && events.length === 0 && (
+				<p>
+					{ __(
+						'Your search did not match any history events.',
+						'simple-history'
+					) }
+				</p>
+			) }
+
 			<ul className={ ulClasses }>
 				{ events.map( ( event ) => (
 					<Event key={ event.id } event={ event } />
