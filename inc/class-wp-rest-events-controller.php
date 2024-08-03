@@ -2,6 +2,7 @@
 
 namespace Simple_History;
 
+use stdClass;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
@@ -743,8 +744,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'ip_addresses', $fields ) ) {
-			// Empty array unless we are ok to include ip addresses.
-			$data['ip_addresses'] = [];
+			// Empty object unless we are ok to include ip addresses.
+			$data['ip_addresses'] = new stdClass();
 
 			/** This filter is documented in loggers/class-logger.php */
 			$include_ip_addresses_for_event = apply_filters(
