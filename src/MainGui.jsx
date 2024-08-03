@@ -165,6 +165,7 @@ function MainGui() {
 				eventsTotal={ eventsMeta.total }
 				eventsMaxId={ eventsMaxId }
 				eventsQueryParams={ eventsQueryParams }
+				onReload={ handleReload }
 			/>
 
 			<EventsList

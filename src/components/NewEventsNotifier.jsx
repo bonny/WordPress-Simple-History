@@ -17,9 +17,9 @@ import { _n, __, sprintf } from '@wordpress/i18n';
  * @param {Object} props
  */
 export function NewEventsNotifier( props ) {
-	const { eventsQueryParams, eventsMaxId } = props;
+	const { eventsQueryParams, eventsMaxId, onReload } = props;
 	const [ newEventsCount, setNewEventsCount ] = useState( 0 );
-
+	console.log( 'newEventsCount is', newEventsCount );
 	useEffect( () => {
 		// Bail if no eventsQueryParams or eventsMaxId
 		if ( ! eventsQueryParams || ! eventsMaxId ) {
@@ -50,18 +50,19 @@ export function NewEventsNotifier( props ) {
 			} );
 
 			const responseJson = await eventsResponse.json();
-			const newEventsCount = responseJson.new_events_count;
-			console.log( 'responseJson', responseJson );
-			if ( newEventsCount > 0 ) {
-				setNewEventsCount( newEventsCount );
+			const responseNewEventsCount = responseJson.new_events_count;
+
+			if ( responseNewEventsCount > 0 ) {
+				setNewEventsCount( responseNewEventsCount );
 			}
+			console.log( 'responseJson', responseJson );
 		}, 5000 );
 
 		return () => {
 			console.log( 'clear timer interval on unmount', eventsQueryParams );
 			clearInterval( intervalId );
 		};
-	}, [ eventsQueryParams, eventsMaxId ] );
+	}, [ eventsQueryParams, eventsMaxId, newEventsCount ] );
 
 	const newEventsCountText = sprintf(
 		// translators: %s: number of new events
@@ -69,12 +70,27 @@ export function NewEventsNotifier( props ) {
 		newEventsCount
 	);
 
+	const handleUpdateClick = () => {
+		onReload();
+		setNewEventsCount( 0 );
+	};
+
 	return (
 		<>
 			{ /* <Text>Checking for new events...</Text> */ }
 			<Text>
 				{ newEventsCount > 0 ? (
-					<Button icon={ update }>{ newEventsCountText }</Button>
+					<Button
+						icon={ update }
+						onClick={ handleUpdateClick }
+						label={ __(
+							'Click to load new events',
+							'simple-history'
+						) }
+						showTooltip={ true }
+					>
+						{ newEventsCountText }
+					</Button>
 				) : null }
 			</Text>
 		</>

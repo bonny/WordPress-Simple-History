@@ -88,8 +88,13 @@ const MyDropdownMenu = () => (
  * @param {Object} props
  */
 export function EventsControlBar( props ) {
-	const { eventsIsLoading, eventsTotal, eventsQueryParams, eventsMaxId } =
-		props;
+	const {
+		eventsIsLoading,
+		eventsTotal,
+		eventsQueryParams,
+		eventsMaxId,
+		onReload,
+	} = props;
 
 	const loadingIndicator = eventsIsLoading ? (
 		<Text>
@@ -117,6 +122,7 @@ export function EventsControlBar( props ) {
 						<NewEventsNotifier
 							eventsQueryParams={ eventsQueryParams }
 							eventsMaxId={ eventsMaxId }
+							onReload={ onReload }
 						/>
 
 						{ loadingIndicator }
