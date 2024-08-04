@@ -42,6 +42,8 @@ export function EventsSearchFilters( props ) {
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
 		setPagerSize,
+		mapsApiKey,
+		setMapsApiKey,
 	} = props;
 
 	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] =
@@ -84,7 +86,7 @@ export function EventsSearchFilters( props ) {
 			 * }
 			 */
 			const nextMessageTypesSuggestions = [];
-			searchOptions.loggers.map( ( logger ) => {
+			searchOptions.loggers.forEach( ( logger ) => {
 				const searchData = logger.search_data || {};
 				if ( ! searchData.search ) {
 					return;
@@ -121,10 +123,17 @@ export function EventsSearchFilters( props ) {
 			setMessageTypesSuggestions( nextMessageTypesSuggestions );
 
 			setPagerSize( searchOptions.pager_size );
+			setMapsApiKey( searchOptions.maps_api_key );
 
 			setSearchOptionsLoaded( true );
 		} );
-	}, [] );
+	}, [
+		setMessageTypesSuggestions,
+		setPagerSize,
+		setSearchOptionsLoaded,
+		setSelectedDateOption,
+		setMapsApiKey,
+	] );
 
 	const showMoreOrLessText = moreOptionsIsExpanded
 		? __( 'Collapse search options', 'simple-history' )

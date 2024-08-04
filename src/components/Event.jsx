@@ -7,9 +7,12 @@ import { EventText } from './EventText';
 
 /**
  * Component for a single event in the list of events.
+ *
+ * @param {Object} props
  */
 export function Event( props ) {
 	const { event } = props;
+	const { mapsApiKey } = props;
 
 	/*
 		erik editor par+erik@earthpeople.se 3:09 pm (för 9 minuter sedan)
@@ -31,7 +34,7 @@ export function Event( props ) {
 			</div>
 
 			<div className="SimpleHistoryLogitem__secondcol">
-				<EventHeader event={ event } />
+				<EventHeader event={ event } mapsApiKey={ mapsApiKey } />
 				<EventText event={ event } />
 				<EventDetails event={ event } />
 				<EventOccasions event={ event } />

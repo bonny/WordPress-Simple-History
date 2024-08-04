@@ -10,7 +10,8 @@ import { EventsPagination } from './components/EventsPagination';
  * @param {Object} props
  */
 export function EventsList( props ) {
-	const { page, setPage, events, eventsIsLoading, eventsMeta } = props;
+	const { page, setPage, events, eventsIsLoading, eventsMeta, mapsApiKey } =
+		props;
 	const totalPages = eventsMeta.totalPages;
 
 	const ulClasses = clsx( {
@@ -31,7 +32,11 @@ export function EventsList( props ) {
 
 			<ul className={ ulClasses }>
 				{ events.map( ( event ) => (
-					<Event key={ event.id } event={ event } />
+					<Event
+						key={ event.id }
+						event={ event }
+						mapsApiKey={ mapsApiKey }
+					/>
 				) ) }
 			</ul>
 

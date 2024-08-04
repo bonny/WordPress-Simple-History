@@ -24,6 +24,7 @@ function MainGui() {
 	const [ searchOptionsLoaded, setSearchOptionsLoaded ] = useState( false );
 	const [ page, setPage ] = useState( 1 );
 	const [ pagerSize, setPagerSize ] = useState( {} );
+	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
 	const [ selectedDateOption, setSelectedDateOption ] = useState( '' );
 	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] =
 		useState( defaultStartDate );
@@ -155,6 +156,8 @@ function MainGui() {
 				setSearchOptionsLoaded={ setSearchOptionsLoaded }
 				pagerSize={ pagerSize }
 				setPagerSize={ setPagerSize }
+				mapsApiKey={ mapsApiKey }
+				setMapsApiKey={ setMapsApiKey }
 				page={ page }
 				setPage={ setPage }
 				onReload={ handleReload }
@@ -174,6 +177,7 @@ function MainGui() {
 				eventsMeta={ eventsMeta }
 				page={ page }
 				setPage={ setPage }
+				mapsApiKey={ mapsApiKey }
 			/>
 		</div>
 	);

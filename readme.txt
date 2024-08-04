@@ -280,9 +280,10 @@ Read more at the release post.
 
 -   Add action `simple_history/dropin/stats/before_content` that is fired inside the stats sidebar box, after the headline but before any content.
 -   Move the "quickstats" text to the top of the stats sidebar box.
--   Rewrite main events GUI to use React and WordPress components. The previous implementation was using Backbone and was a bit outdated and hard to maintain.
+-   Rewrite main events GUI to use React and WordPress components. The previous implementation was using Backbone and was a bit outdated and hard to maintain. This new version will make it more easy to add new features and improve the GUI in the future.
 -   The history/event feed now refreshes automatically when filters are modified. Just enter some text and the events will be filtered. Or add some filters and the events will be filtered. No need to press the "Search events" button.
 -   The popup with IP address info now displays the name of the server header where the ip address was found.
+-   Added REST API endpoints to fetch the events log.
 
 ### 4.17.0
 

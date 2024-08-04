@@ -46,7 +46,7 @@ const keysAndValues = [
  * @param {Object} ipAdressProps
  */
 function IPAddressLink( ipAdressProps ) {
-	const { header, ipAddress } = ipAdressProps;
+	const { header, ipAddress, mapsApiKey } = ipAdressProps;
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ isLoadingIpInfo, setIsLoadingIpInfo ] = useState( false );
 	const [ ipInfoResult, setIpInfoResult ] = useState();
@@ -125,10 +125,31 @@ function IPAddressLink( ipAdressProps ) {
 		}
 	);
 
+	const map =
+		mapsApiKey && ! ipInfoResult?.bogon && ipInfoResult?.loc ? (
+			<tr>
+				<td colSpan={ 2 }>
+					<a
+						href={ `https://www.google.com/maps/place/${ ipInfoResult.loc }/@${ ipInfoResult.loc },6z` }
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<img
+							src={ `https://maps.googleapis.com/maps/api/staticmap?center=${ ipInfoResult.loc }&zoom=7&size=350x100&scale=2&sensor=false&key=${ mapsApiKey }` }
+							width="350"
+							height="100"
+							alt="Google Map"
+						/>
+					</a>
+				</td>
+			</tr>
+		) : null;
+
 	const loadedIpInfoText = ipInfoResult ? (
 		<>
 			<table className="SimpleHistoryIpInfoDropin__ipInfoTable">
 				<tbody>
+					{ map }
 					<tr>
 						<td className="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 							{ __( 'IP address:', 'simple-history' ) }
@@ -252,7 +273,7 @@ function IPAddressLink( ipAdressProps ) {
  * @param {Object} props
  */
 export function EventIPAddresses( props ) {
-	const { event } = props;
+	const { event, mapsApiKey } = props;
 	const { ip_addresses: ipAddresses } = event;
 
 	if ( ! ipAddresses ) {
@@ -265,7 +286,7 @@ export function EventIPAddresses( props ) {
 		return null;
 	}
 
-	const text = _n(
+	const ipAddressesLabel = _n(
 		'IP address:',
 		'IP addresses:',
 		ipAddressesCount,
@@ -281,7 +302,9 @@ export function EventIPAddresses( props ) {
 					key={ header }
 					header={ header }
 					ipAddress={ ipAddress }
-				/>
+					mapsApiKey={ mapsApiKey }
+				/>{ ' ' }
+				{ /* Add comma to separate IP addresses, but not after the last one */ }
 				{ loopCount < ipAddressesCount - 1 ? ', ' : '' }
 			</>
 		);
@@ -291,7 +314,7 @@ export function EventIPAddresses( props ) {
 
 	return (
 		<span className="SimpleHistoryLogitem__inlineDivided">
-			{ text } { IPAddressesText }
+			{ ipAddressesLabel } { IPAddressesText }
 		</span>
 	);
 }
