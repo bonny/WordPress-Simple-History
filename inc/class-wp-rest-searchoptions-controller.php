@@ -7,7 +7,8 @@ use WP_REST_Controller;
 use WP_REST_Server;
 
 /**
- * REST API controller for search options.
+ * REST API controller for search options,
+ * i.e. data required for the search options in the admin UI.
  */
 class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	/**
@@ -161,6 +162,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'page' => (int) Helpers::get_pager_size(),
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
 			],
+			'maps_api_key' => apply_filters( 'simple_history/maps_api_key', '' ),
 		];
 
 		return rest_ensure_response( $data );
