@@ -11,7 +11,7 @@ import { EventText } from './EventText';
  * @param {Object} props
  */
 export function Event( props ) {
-	const { event } = props;
+	const { event, variant = 'normal' } = props;
 	const { mapsApiKey } = props;
 
 	/*
@@ -34,10 +34,14 @@ export function Event( props ) {
 			</div>
 
 			<div className="SimpleHistoryLogitem__secondcol">
-				<EventHeader event={ event } mapsApiKey={ mapsApiKey } />
-				<EventText event={ event } />
-				<EventDetails event={ event } />
-				<EventOccasions event={ event } />
+				<EventHeader
+					event={ event }
+					mapsApiKey={ mapsApiKey }
+					eventVariant={ variant }
+				/>
+				<EventText event={ event } eventVariant={ variant } />
+				<EventDetails event={ event } eventVariant={ variant } />
+				<EventOccasions event={ event } eventVariant={ variant } />
 			</div>
 		</li>
 	);

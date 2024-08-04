@@ -9,13 +9,13 @@ import { EventVia } from './EventVia';
  * @param {Object} props
  */
 export function EventHeader( props ) {
-	const { event } = props;
+	const { event, eventVariant } = props;
 	const { mapsApiKey } = props;
 
 	return (
 		<div className="SimpleHistoryLogitem__header">
-			<EventInitiatorName event={ event } />
-			<EventDate event={ event } />
+			<EventInitiatorName event={ event } eventVariant={ eventVariant } />
+			<EventDate event={ event } eventVariant={ eventVariant } />
 			<EventIPAddresses event={ event } mapsApiKey={ mapsApiKey } />
 			<EventVia event={ event } />
 		</div>
