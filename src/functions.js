@@ -1,3 +1,5 @@
+import { LOGLEVELS_OPTIONS } from './constants';
+
 /**
  * Generate api query object based on selected filters.
  *
@@ -54,9 +56,9 @@ export function generateAPIQueryParams( props ) {
 	if ( selectedLogLevels.length ) {
 		// Values in selectedLogLevels are the labels of the log levels, not the values we can use in the API.
 		// Use the LOGLEVELS_OPTIONS to find the value for the translated label.
-		let selectedLogLevelsValues = [];
+		const selectedLogLevelsValues = [];
 		selectedLogLevels.forEach( ( selectedLogLevel ) => {
-			let logLevelOption = LOGLEVELS_OPTIONS.find(
+			const logLevelOption = LOGLEVELS_OPTIONS.find(
 				( logLevelOption ) => logLevelOption.label === selectedLogLevel
 			);
 			if ( logLevelOption ) {
@@ -69,9 +71,9 @@ export function generateAPIQueryParams( props ) {
 	}
 
 	if ( selectedMessageTypes.length ) {
-		let selectedMessageTypesValues = [];
+		const selectedMessageTypesValues = [];
 		selectedMessageTypes.forEach( ( selectedMessageType ) => {
-			let messageTypeOption = messageTypesSuggestions.find(
+			const messageTypeOption = messageTypesSuggestions.find(
 				( messageTypeOption ) => {
 					return (
 						messageTypeOption.label.trim() ===
@@ -101,7 +103,7 @@ export function generateAPIQueryParams( props ) {
 	}
 
 	if ( selectedUsers.length ) {
-		let selectedUsersValues = [];
+		const selectedUsersValues = [];
 		selectedUsers.forEach( ( selectedUserNameAndEmail ) => {
 			let userSuggestion = userSuggestions.find( ( userSuggestion ) => {
 				return (
