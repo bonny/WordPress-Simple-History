@@ -7,9 +7,10 @@ import {
 	MenuItem,
 	Spinner,
 	__experimentalText as Text,
+	Icon,
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { moreVertical } from '@wordpress/icons';
+import { moreVertical, lock, lockSmall } from '@wordpress/icons';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
 const PremiumFeatureSuffix = function () {
@@ -22,9 +23,28 @@ const PremiumFeatureSuffix = function () {
 				borderRadius: '5px',
 				padding: '0.2em 0.5em',
 				opacity: '0.8',
+				lineHeight: 1,
 			} }
 		>
 			{ __( 'Premium', 'simple-history' ) }
+		</span>
+	);
+};
+
+const PremiumFeatureSuffixSmaller = function () {
+	return (
+		<span
+			style={ {
+				color: 'darkgreen',
+				xfontSize: '0.8em',
+				border: '1px solid darkgreen',
+				borderRadius: '5px',
+				xpadding: '0.1em 0.3em',
+				opacity: '0.75',
+				lineHeight: 1,
+			} }
+		>
+			<Icon icon={ lockSmall } />
 		</span>
 	);
 };
@@ -37,16 +57,13 @@ const MyDropdownMenu = () => (
 		{ ( { onClose } ) => (
 			<>
 				<MenuGroup>
-					<MenuItem onClick={ onClose } info="This is info">
+					<MenuItem
+						onClick={ onClose }
+						info="Re-use this search in the future"
+					>
 						Save search
 					</MenuItem>
 					<MenuItem onClick={ onClose }>Copy link to search</MenuItem>
-					<MenuItem
-						onClick={ onClose }
-						suffix={ <PremiumFeatureSuffix /> }
-					>
-						Premium thing
-					</MenuItem>
 				</MenuGroup>
 				<MenuGroup label="Export">
 					<MenuItem
@@ -65,13 +82,13 @@ const MyDropdownMenu = () => (
 				<MenuGroup>
 					<MenuItem
 						onClick={ onClose }
-						suffix={ <PremiumFeatureSuffix /> }
+						suffix={ <PremiumFeatureSuffixSmaller /> }
 					>
-						Add manual event/entry/message
+						Add event manually
 					</MenuItem>
 					<MenuItem
 						onClick={ onClose }
-						suffix={ <PremiumFeatureSuffix /> }
+						suffix={ <PremiumFeatureSuffixSmaller /> }
 					>
 						Send log via email
 					</MenuItem>
