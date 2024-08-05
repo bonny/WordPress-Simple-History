@@ -52,15 +52,28 @@ function MainGui() {
 			pagerSize,
 		} );
 	}, [
+		selectedDateOption,
+		enteredSearchText,
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsers,
-		enteredSearchText,
-		selectedDateOption,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		page,
 		pagerSize,
+	] );
+
+	// Reset page to 1 when filters are modified.
+	useEffect( () => {
+		setPage( 1 );
+	}, [
+		selectedDateOption,
+		enteredSearchText,
+		selectedLogLevels,
+		selectedMessageTypes,
+		selectedUsers,
+		selectedCustomDateFrom,
+		selectedCustomDateTo,
 	] );
 
 	/**
