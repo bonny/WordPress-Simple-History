@@ -2,6 +2,7 @@
 
 namespace Simple_History;
 
+use Simple_History\Services\AddOns_Licences;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
@@ -155,6 +156,10 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response Response object.
 	 */
 	public function get_items( $request ) {
+
+		/** @var AddOns_Licences */
+		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
+
 		$data = [
 			'dates' => Helpers::get_data_for_date_filter(),
 			'loggers' => $this->get_loggers_and_messages(),
@@ -163,6 +168,10 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
 			],
 			'maps_api_key' => apply_filters( 'simple_history/maps_api_key', '' ),
+			'addons' => [
+				'addons' => $addons_service->get_addon_plugins(),
+				'has_extended_settings_add_on' => $addons_service->has_add_on( 'simple-history-extended-settings' ),
+			],
 		];
 
 		return rest_ensure_response( $data );
