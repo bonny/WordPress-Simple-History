@@ -5,6 +5,19 @@ import { addQueryArgs } from '@wordpress/url';
 import { update } from '@wordpress/icons';
 import { _n, __, sprintf } from '@wordpress/i18n';
 
+function setDocumentTitle( newNum ) {
+	let title = document.title;
+
+	// Remove any existing number first or !, like (123) Regular title => Regular title
+	title = title.replace( /^\([\d!]+\) /, '' );
+
+	if ( newNum ) {
+		title = '(' + newNum + ') ' + title;
+	}
+
+	document.title = title;
+}
+
 /**
  * Checks for new events and notifies the user if there are new events.
  *
@@ -62,6 +75,11 @@ export function NewEventsNotifier( props ) {
 		_n( '%s new event', '%s new events', newEventsCount, 'simple-history' ),
 		newEventsCount
 	);
+
+	// Update page title with new events count.
+	useEffect( () => {
+		setDocumentTitle( newEventsCount );
+	}, [ newEventsCount ] );
 
 	const handleUpdateClick = () => {
 		onReload();
