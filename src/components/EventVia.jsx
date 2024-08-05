@@ -1,3 +1,5 @@
+import { EventHeaderItem } from './EventHeaderItem';
+
 export function EventVia( props ) {
 	const { event } = props;
 	const { via } = event;
@@ -6,5 +8,5 @@ export function EventVia( props ) {
 		return null;
 	}
 
-	return <span className="SimpleHistoryLogitem__inlineDivided">{ via }</span>;
+	return <EventHeaderItem>{ via }</EventHeaderItem>;
 }

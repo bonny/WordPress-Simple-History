@@ -1,5 +1,6 @@
-import { __ } from '@wordpress/i18n';
 import { Button, __experimentalText as Text } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { EventHeaderItem } from './EventHeaderItem';
 
 /**
  * Outputs "WordPress" or "John Doe - erik@example.com".
@@ -13,14 +14,14 @@ export function EventInitiatorName( props ) {
 	switch ( event.initiator ) {
 		case 'wp_user':
 			const userDisplay = (
-				<span className="SimpleHistoryLogitem__inlineDivided">
-					<strong>{ initiatorData.user_login }</strong>{ ' ' }
+				<>
+					<strong>{ initiatorData.user_login }</strong>&nbsp;
 					<span>({ initiatorData.user_email })</span>
-				</span>
+				</>
 			);
 
 			return (
-				<>
+				<EventHeaderItem>
 					{ eventVariant === 'modal' ? (
 						<Text>{ userDisplay }</Text>
 					) : (
@@ -31,38 +32,40 @@ export function EventInitiatorName( props ) {
 							{ userDisplay }
 						</Button>
 					) }
-				</>
+				</EventHeaderItem>
 			);
 
 		case 'web_user':
 			return (
-				<strong className="SimpleHistoryLogitem__inlineDivided">
-					{ __( 'Anonymous web user', 'simple-history' ) }
-				</strong>
+				<EventHeaderItem>
+					<strong>
+						{ __( 'Anonymous web user', 'simple-history' ) }
+					</strong>
+				</EventHeaderItem>
 			);
 		case 'wp_cli':
 			return (
-				<strong className="SimpleHistoryLogitem__inlineDivided">
-					{ __( 'WP-CLI', 'simple-history' ) }
-				</strong>
+				<EventHeaderItem>
+					<strong>{ __( 'WP-CLI', 'simple-history' ) }</strong>
+				</EventHeaderItem>
 			);
 		case 'wp':
 			return (
-				<strong className="SimpleHistoryLogitem__inlineDivided">
-					{ __( 'WordPress', 'simple-history' ) }
-				</strong>
+				<EventHeaderItem>
+					<strong>{ __( 'WordPress', 'simple-history' ) }</strong>
+				</EventHeaderItem>
 			);
 		case 'other':
 			return (
-				<strong className="SimpleHistoryLogitem__inlineDivided">
-					{ __( 'Other', 'simple-history' ) }
-				</strong>
+				<EventHeaderItem>
+					<strong>{ __( 'Other', 'simple-history' ) }</strong>
+				</EventHeaderItem>
 			);
 		default:
 			return (
-				<p>
+				<EventHeaderItem>
 					Unknown initiator: <code>{ event.initiator }</code>
-				</p>
+				</EventHeaderItem>
 			);
 	}
 }

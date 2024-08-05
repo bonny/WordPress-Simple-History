@@ -8,6 +8,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { intlFormatDistance } from 'date-fns';
 import { EventInfoModal } from './EventInfoModal';
+import { EventHeaderItem } from './EventHeaderItem';
 
 export function EventDate( props ) {
 	const { event, eventVariant } = props;
@@ -64,7 +65,7 @@ export function EventDate( props ) {
 
 	return (
 		<>
-			<span className="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided">
+			<EventHeaderItem className="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when">
 				<Tooltip text={ tooltipText } delay={ 500 }>
 					{ eventVariant === 'modal' ? (
 						<Text>{ time }</Text>
@@ -74,7 +75,7 @@ export function EventDate( props ) {
 						</Button>
 					) }
 				</Tooltip>
-			</span>
+			</EventHeaderItem>
 
 			{ isModalOpen ? (
 				<EventInfoModal event={ event } closeModal={ closeModal } />

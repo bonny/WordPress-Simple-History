@@ -1,9 +1,9 @@
 import {
-	__experimentalText as Text,
 	Button,
 	ExternalLink,
 	Flex,
 	Popover,
+	__experimentalText as Text,
 } from '@wordpress/components';
 import {
 	createInterpolateElement,
@@ -12,6 +12,7 @@ import {
 } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import { EventHeaderItem } from './EventHeaderItem';
 
 const keysAndValues = [
 	{
@@ -313,8 +314,8 @@ export function EventIPAddresses( props ) {
 	}
 
 	return (
-		<span className="SimpleHistoryLogitem__inlineDivided">
+		<EventHeaderItem>
 			{ ipAddressesLabel } { IPAddressesText }
-		</span>
+		</EventHeaderItem>
 	);
 }

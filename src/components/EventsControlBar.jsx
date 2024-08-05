@@ -3,14 +3,14 @@ import {
 	Flex,
 	FlexItem,
 	__experimentalHStack as HStack,
+	Icon,
 	MenuGroup,
 	MenuItem,
 	Spinner,
 	__experimentalText as Text,
-	Icon,
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { moreVertical, lock, lockSmall } from '@wordpress/icons';
+import { lockSmall, moreVertical } from '@wordpress/icons';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
 const PremiumFeatureSuffix = function () {
@@ -36,7 +36,7 @@ const PremiumFeatureSuffixSmaller = function () {
 		<span
 			style={ {
 				color: 'darkgreen',
-				xfontSize: '0.8em',
+				fontSize: '0.8em',
 				border: '1px solid darkgreen',
 				borderRadius: '5px',
 				xpadding: '0.1em 0.3em',
