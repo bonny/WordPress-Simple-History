@@ -53,6 +53,16 @@ class AddOns_Licences extends Service {
 	}
 
 	/**
+	 * Check if a specific add-on is installed.
+	 *
+	 * @param string $addon_slug For example "simple-history-extended-settings".
+	 * @return bool
+	 */
+	public function has_add_on( $addon_slug ) {
+		return isset( $this->addon_plugins[ $addon_slug ] );
+	}
+
+	/**
 	 * Register plugin updaters for all added add-on-plugins.
 	 */
 	public function init_plugin_updater_for_registered_licence_plugins() {
