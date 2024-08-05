@@ -1495,9 +1495,15 @@ abstract class Logger {
 		if ( ! isset( $context['_server_remote_addr'] ) ) {
 			$remote_addr = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 
-			$remote_addr = Helpers::privacy_anonymize_ip( $remote_addr );
+			$context['_server_remote_addr'] = Helpers::privacy_anonymize_ip( $remote_addr );
 
-			$context['_server_remote_addr'] = $remote_addr;
+			// Fake some headers to test.
+			// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar
+			// $_SERVER['HTTP_CLIENT_IP'] = '216.58.209.99';
+			// $_SERVER['HTTP_X_FORWARDED_FOR'] = '5.35.187.2';
+			// $_SERVER['HTTP_X_FORWARDED'] = '144.63.252.10';
+			// $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'] = '5.35.187.4';
+			// phpcs:enable Squiz.Commenting.InlineComment.InvalidEndChar
 
 			// If web server is behind a load balancer then the ip address will always be the same
 			// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
