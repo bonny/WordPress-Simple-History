@@ -64,87 +64,99 @@ export function EventInfoModal( props ) {
 			<div className="SimpleHistory-modal">
 				<Event event={ event } variant="modal" />
 
-				<p>
-					<Text>
-						{ __(
-							'This is potentially useful information and meta data that a logger has saved.',
-							'simple-history'
-						) }
-					</Text>
-				</p>
+				{ isLoadingContext ? (
+					__( 'Loading event context data…', 'simple-history' )
+				) : (
+					<>
+						<p>
+							<Text>
+								{ __(
+									'This is potentially useful information and meta data that a logger has saved.',
+									'simple-history'
+								) }
+							</Text>
+						</p>
 
-				<h2>{ __( 'Event details', 'simple-history' ) }</h2>
+						<h2>{ __( 'Event details', 'simple-history' ) }</h2>
 
-				<table className="SimpleHistoryLogitem__moreDetailsContext">
-					<thead>
-						<tr>
-							<th>{ __( 'Key', 'simple-history' ) }</th>
-							<th>{ __( 'Value', 'simple-history' ) }</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>id</td>
-							<td>{ loadedEvent.id }</td>
-						</tr>
-						<tr>
-							<td>logger</td>
-							<td>{ loadedEvent.logger }</td>
-						</tr>
-						<tr>
-							<td>level</td>
-							<td>{ loadedEvent.loglevel }</td>
-						</tr>
-						<tr>
-							<td>date</td>
-							<td>{ loadedEvent.date }</td>
-						</tr>
-						<tr>
-							<td>message</td>
-							<td>{ loadedEvent.message }</td>
-						</tr>
-						<tr>
-							<td>message_uninterpolated</td>
-							<td>{ loadedEvent.message_uninterpolated }</td>
-						</tr>
-						<tr>
-							<td>initiator</td>
-							<td>{ loadedEvent.initiator }</td>
-						</tr>
-						<tr>
-							<td>subsequent_occasions_count</td>
-							<td>{ loadedEvent.subsequent_occasions_count }</td>
-						</tr>
-						<tr>
-							<td>via</td>
-							<td>{ loadedEvent.via }</td>
-						</tr>
-					</tbody>
-				</table>
+						<table className="SimpleHistoryLogitem__moreDetailsContext">
+							<thead>
+								<tr>
+									<th>{ __( 'Key', 'simple-history' ) }</th>
+									<th>{ __( 'Value', 'simple-history' ) }</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>id</td>
+									<td>{ loadedEvent.id }</td>
+								</tr>
+								<tr>
+									<td>logger</td>
+									<td>{ loadedEvent.logger }</td>
+								</tr>
+								<tr>
+									<td>level</td>
+									<td>{ loadedEvent.loglevel }</td>
+								</tr>
+								<tr>
+									<td>date</td>
+									<td>{ loadedEvent.date }</td>
+								</tr>
+								<tr>
+									<td>message</td>
+									<td>{ loadedEvent.message }</td>
+								</tr>
+								<tr>
+									<td>message_uninterpolated</td>
+									<td>
+										{ loadedEvent.message_uninterpolated }
+									</td>
+								</tr>
+								<tr>
+									<td>initiator</td>
+									<td>{ loadedEvent.initiator }</td>
+								</tr>
+								<tr>
+									<td>subsequent_occasions_count</td>
+									<td>
+										{
+											loadedEvent.subsequent_occasions_count
+										}
+									</td>
+								</tr>
+								<tr>
+									<td>via</td>
+									<td>{ loadedEvent.via }</td>
+								</tr>
+							</tbody>
+						</table>
 
-				<h2>{ __( 'Event context', 'simple-history' ) }</h2>
+						<h2>{ __( 'Event context', 'simple-history' ) }</h2>
 
-				<table className="SimpleHistoryLogitem__moreDetailsContext">
-					<thead>
-						<tr>
-							<th>{ __( 'Key', 'simple-history' ) }</th>
-							<th>{ __( 'Value', 'simple-history' ) }</th>
-						</tr>
-					</thead>
-					<tbody>
-						{ /* All key, values from context */ }
-						{ Object.entries( loadedEvent.context || {} ).map(
-							( [ key, value ] ) => {
-								return (
-									<tr key={ key }>
-										<td>{ key }</td>
-										<td>{ JSON.stringify( value ) }</td>
-									</tr>
-								);
-							}
-						) }
-					</tbody>
-				</table>
+						<table className="SimpleHistoryLogitem__moreDetailsContext">
+							<thead>
+								<tr>
+									<th>{ __( 'Key', 'simple-history' ) }</th>
+									<th>{ __( 'Value', 'simple-history' ) }</th>
+								</tr>
+							</thead>
+							<tbody>
+								{ /* All key, values from context */ }
+								{ Object.entries(
+									loadedEvent.context || {}
+								).map( ( [ key, value ] ) => {
+									return (
+										<tr key={ key }>
+											<td>{ key }</td>
+											<td>{ JSON.stringify( value ) }</td>
+										</tr>
+									);
+								} ) }
+							</tbody>
+						</table>
+					</>
+				) }
 			</div>
 		</Modal>
 	);
