@@ -806,6 +806,7 @@ Modal window with detailss
 }
 
 .SimpleHistoryLogitem__moreDetailsContext {
+	width: 100%;
 	font-family: monospace;
 	white-space: pre-wrap;
 	font-size: 12px;

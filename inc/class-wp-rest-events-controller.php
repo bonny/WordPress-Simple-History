@@ -126,6 +126,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		$log_event = $this->get_single_event( $request['id'] );
+
 		if ( $log_event === false ) {
 			return new WP_Error(
 				'rest_forbidden_context',

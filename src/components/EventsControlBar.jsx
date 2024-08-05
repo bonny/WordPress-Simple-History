@@ -21,9 +21,10 @@ const PremiumFeatureSuffix = function () {
 				border: '1px solid darkgreen',
 				borderRadius: '5px',
 				padding: '0.2em 0.5em',
+				opacity: '0.8',
 			} }
 		>
-			Premium
+			{ __( 'Premium', 'simple-history' ) }
 		</span>
 	);
 };
@@ -39,9 +40,7 @@ const MyDropdownMenu = () => (
 					<MenuItem onClick={ onClose } info="This is info">
 						Save search
 					</MenuItem>
-					<MenuItem onClick={ onClose } suffix="This is suffix">
-						Copy link to search
-					</MenuItem>
+					<MenuItem onClick={ onClose }>Copy link to search</MenuItem>
 					<MenuItem
 						onClick={ onClose }
 						suffix={ <PremiumFeatureSuffix /> }
