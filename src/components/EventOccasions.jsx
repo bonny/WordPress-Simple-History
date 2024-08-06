@@ -1,10 +1,9 @@
 import apiFetch from '@wordpress/api-fetch';
+import { Button, ExternalLink } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { EventOccasionsList } from './EventOccasionsList';
-import { Button, ExternalLink } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 
 /**
  * Outputs a button that when clicked will load and show similar events.
@@ -95,33 +94,35 @@ export function EventOccasions( props ) {
 
 	const showOcassionsEventsContent = (
 		<>
-			<Button
-				variant="link"
-				onClick={ ( evt ) => {
-					loadOccasions();
-					evt.preventDefault();
-				} }
-			>
-				{ sprintf(
-					/* translators: %s: number of similar events */
-					_n(
-						'+%1$s similar event',
-						'+%1$s similar events',
-						subsequentOccasionsCount,
-						'simple-history'
-					),
-					subsequentOccasionsCount
-				) }
-			</Button>
+			<div className="SimpleHistoryLogitem__occasions">
+				<Button
+					variant="link"
+					onClick={ ( evt ) => {
+						loadOccasions();
+						evt.preventDefault();
+					} }
+				>
+					{ sprintf(
+						/* translators: %s: number of similar events */
+						_n(
+							'+%1$s similar event',
+							'+%1$s similar events',
+							subsequentOccasionsCount,
+							'simple-history'
+						),
+						subsequentOccasionsCount
+					) }
+				</Button>
 
-			{ ocassionsAddonsContent }
+				{ ocassionsAddonsContent }
+			</div>
 		</>
 	);
 
 	return (
 		<div>
 			{ ! isShowingOccasions && ! isLoadingOccasions
-				? { showEventsContent: showOcassionsEventsContent }
+				? showOcassionsEventsContent
 				: null }
 
 			{ isLoadingOccasions ? (
