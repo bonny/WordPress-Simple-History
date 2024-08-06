@@ -6,8 +6,7 @@ export function EventOccasionsList( props ) {
 	const {
 		occasions,
 		isLoadingOccasions,
-		isShowingOccasions,
-		subsequent_occasions_count,
+		subsequent_occasions_count: subsequentOccasionsCount,
 		occasionsCountMaxReturn,
 	} = props;
 
@@ -32,16 +31,11 @@ export function EventOccasionsList( props ) {
 				) ) }
 
 				{ /* // If occasionsCount is more than occasionsCountMaxReturn then show a message */ }
-				{ subsequent_occasions_count > occasionsCountMaxReturn ? (
-					<li
-						class="SimpleHistoryLogitem
-					   SimpleHistoryLogitem--occasion
-					   SimpleHistoryLogitem--occasion-tooMany
-					   "
-					>
-						<div class="SimpleHistoryLogitem__firstcol"></div>
-						<div class="SimpleHistoryLogitem__secondcol">
-							<div class="SimpleHistoryLogitem__text">
+				{ subsequentOccasionsCount > occasionsCountMaxReturn ? (
+					<li className="SimpleHistoryLogitem SimpleHistoryLogitem--occasion SimpleHistoryLogitem--occasion-tooMany">
+						<div className="SimpleHistoryLogitem__firstcol"></div>
+						<div className="SimpleHistoryLogitem__secondcol">
+							<div className="SimpleHistoryLogitem__text">
 								{ __(
 									'Sorry, but there are too many similar events to show.',
 									'simple-history'
