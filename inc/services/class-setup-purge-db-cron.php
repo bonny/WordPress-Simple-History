@@ -11,6 +11,16 @@ class Setup_Purge_DB_Cron extends Service {
 	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'setup_cron' ) );
+
+		// phpcs:disable
+		// Uncomment the next lines to force add the events purged message (without actually purging the db).
+		// add_action(
+		// 	'init',
+		// 	function () {
+		// 		do_action( 'simple_history/db/events_purged', 60, 5000 );
+		// 	}
+		// );
+		// phpcs:enable
 	}
 
 	/**
