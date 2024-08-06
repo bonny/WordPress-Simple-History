@@ -8,6 +8,7 @@ import { TIMEZONELESS_FORMAT } from './constants';
 import { EventsList } from './EventsList';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { generateAPIQueryParams } from './functions';
+import { NewEventsNotifier } from './components/NewEventsNotifier';
 
 const defaultStartDate = format(
 	startOfDay( new Date() ),
@@ -175,11 +176,18 @@ function MainGui() {
 				setPage={ setPage }
 				onReload={ handleReload }
 			/>
+
 			<EventsControlBar
 				eventsIsLoading={ eventsIsLoading }
 				eventsTotal={ eventsMeta.total }
 				eventsMaxId={ eventsMaxId }
 				eventsQueryParams={ eventsQueryParams }
+				onReload={ handleReload }
+			/>
+
+			<NewEventsNotifier
+				eventsQueryParams={ eventsQueryParams }
+				eventsMaxId={ eventsMaxId }
 				onReload={ handleReload }
 			/>
 

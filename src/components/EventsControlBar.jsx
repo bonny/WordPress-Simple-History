@@ -11,7 +11,6 @@ import {
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { lockSmall, moreVertical } from '@wordpress/icons';
-import { NewEventsNotifier } from './NewEventsNotifier';
 
 const PremiumFeatureSuffix = function () {
 	return (
@@ -104,13 +103,7 @@ const MyDropdownMenu = () => (
  * @param {Object} props
  */
 export function EventsControlBar( props ) {
-	const {
-		eventsIsLoading,
-		eventsTotal,
-		eventsQueryParams,
-		eventsMaxId,
-		onReload,
-	} = props;
+	const { eventsIsLoading, eventsTotal } = props;
 
 	const loadingIndicator = eventsIsLoading ? (
 		<Text>
@@ -134,13 +127,6 @@ export function EventsControlBar( props ) {
 				<FlexItem>
 					<HStack spacing={ 2 }>
 						{ eventsCount }
-
-						<NewEventsNotifier
-							eventsQueryParams={ eventsQueryParams }
-							eventsMaxId={ eventsMaxId }
-							onReload={ onReload }
-						/>
-
 						{ loadingIndicator }
 					</HStack>
 				</FlexItem>

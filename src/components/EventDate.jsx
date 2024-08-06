@@ -7,8 +7,8 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { intlFormatDistance } from 'date-fns';
-import { EventInfoModal } from './EventInfoModal';
 import { EventHeaderItem } from './EventHeaderItem';
+import { EventInfoModal } from './EventInfoModal';
 
 export function EventDate( props ) {
 	const { event, eventVariant } = props;

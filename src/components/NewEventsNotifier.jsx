@@ -1,9 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, __experimentalText as Text } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { alignCenter, justifyCenter, update } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
-import { update } from '@wordpress/icons';
-import { _n, __, sprintf } from '@wordpress/i18n';
+import { clsx } from 'clsx';
 
 function setDocumentTitle( newNum ) {
 	let title = document.title;
@@ -87,23 +88,23 @@ export function NewEventsNotifier( props ) {
 	};
 
 	return (
-		<>
-			{ /* <Text>Checking for new events...</Text> */ }
-			<Text>
-				{ newEventsCount > 0 ? (
-					<Button
-						icon={ update }
-						onClick={ handleUpdateClick }
-						label={ __(
-							'Click to load new events',
-							'simple-history'
-						) }
-						showTooltip={ true }
-					>
-						{ newEventsCountText }
-					</Button>
-				) : null }
-			</Text>
-		</>
+		<div
+			className={ clsx( {
+				SimpleHistoryDropin__NewRowsNotifier: true,
+				'SimpleHistoryDropin__NewRowsNotifier--haveNewRows':
+					newEventsCount > 0,
+			} ) }
+		>
+			<Button
+				icon={ update }
+				onClick={ handleUpdateClick }
+				label={ __( 'Click to load new events', 'simple-history' ) }
+				showTooltip={ true }
+				variant="tertiary"
+				style={ { width: '100%', justifyContent: 'center' } }
+			>
+				{ newEventsCountText }
+			</Button>
+		</div>
 	);
 }

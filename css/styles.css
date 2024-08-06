@@ -70,13 +70,8 @@
 		display: -webkit-box;
 		display: -ms-flexbox;
 		display: flex;
-		-ms-flex-wrap: nowrap;
 		flex-wrap: nowrap;
-		-webkit-box-align: start;
-		-ms-flex-align: start;
 		align-items: flex-start;
-		-webkit-box-pack: justify;
-		-ms-flex-pack: justify;
 		justify-content: space-between;
 	}
 }
