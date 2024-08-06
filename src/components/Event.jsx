@@ -46,7 +46,11 @@ export function Event( props ) {
 				/>
 				<EventText event={ event } eventVariant={ variant } />
 				<EventDetails event={ event } eventVariant={ variant } />
-				<EventOccasions event={ event } eventVariant={ variant } />
+				<EventOccasions
+					event={ event }
+					eventVariant={ variant }
+					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				/>
 			</div>
 		</li>
 	);

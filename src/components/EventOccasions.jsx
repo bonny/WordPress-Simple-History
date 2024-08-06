@@ -3,10 +3,16 @@ import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { EventOccasionsList } from './EventOccasionsList';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 
+/**
+ * Outputs a button that when clicked will load and show similar events.
+ *
+ * @param {Object} props
+ */
 export function EventOccasions( props ) {
-	const { event, eventVariant } = props;
+	const { event, eventVariant, hasExtendedSettingsAddOn } = props;
 	const { subsequent_occasions_count: subsequentOccasionsCount } = event;
 	const [ isLoadingOccasions, setIsLoadingOccasions ] = useState( false );
 	const [ isShowingOccasions, setIsShowingOccasions ] = useState( false );
@@ -66,28 +72,57 @@ export function EventOccasions( props ) {
 		setIsShowingOccasions( true );
 	};
 
+	const ocassionsAddonsContent = hasExtendedSettingsAddOn ? (
+		<div className="SimpleHistoryLogitem__occasionsAddOns">
+			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
+				<a href="options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts">
+					{ __(
+						'Configure failed login attempts',
+						'simple-history'
+					) }
+				</a>
+			</p>
+		</div>
+	) : (
+		<div className="SimpleHistoryLogitem__occasionsAddOns">
+			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
+				<ExternalLink href="https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin#limit-number-of-failed-login-attempts">
+					{ __( 'Limit logged login attempts', 'simple-history' ) }
+				</ExternalLink>
+			</p>
+		</div>
+	);
+
+	const showOcassionsEventsContent = (
+		<>
+			<Button
+				variant="link"
+				onClick={ ( evt ) => {
+					loadOccasions();
+					evt.preventDefault();
+				} }
+			>
+				{ sprintf(
+					/* translators: %s: number of similar events */
+					_n(
+						'+%1$s similar event',
+						'+%1$s similar events',
+						subsequentOccasionsCount,
+						'simple-history'
+					),
+					subsequentOccasionsCount
+				) }
+			</Button>
+
+			{ ocassionsAddonsContent }
+		</>
+	);
+
 	return (
 		<div>
-			{ ! isShowingOccasions && ! isLoadingOccasions ? (
-				<Button
-					variant="link"
-					onClick={ ( evt ) => {
-						loadOccasions();
-						evt.preventDefault();
-					} }
-				>
-					{ sprintf(
-						/* translators: %s: number of similar events */
-						_n(
-							'+%1$s similar event',
-							'+%1$s similar events',
-							subsequentOccasionsCount,
-							'simple-history'
-						),
-						subsequentOccasionsCount
-					) }
-				</Button>
-			) : null }
+			{ ! isShowingOccasions && ! isLoadingOccasions
+				? { showEventsContent: showOcassionsEventsContent }
+				: null }
 
 			{ isLoadingOccasions ? (
 				<span>{ __( 'Loading…', 'simple-history' ) }</span>
