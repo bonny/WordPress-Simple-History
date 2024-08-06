@@ -291,7 +291,6 @@ Style different log levels.
 .SimpleHistoryLogitem__occasions {
 	color: rgb(137, 143, 156);
 	margin-top: 0.4em;
-	line-height: 1;
 	display: flex;
 	gap: 1rem;
 }
@@ -300,13 +299,14 @@ Style different log levels.
 	position: relative;
 }
 
+/* Add vertical line | before addons promo text */
 .SimpleHistoryLogitem__occasionsAddOns::after {
 	content: "";
 	position: absolute;
-	top: 0;
-	left: -0.5rem;
-	bottom: 0;
+	top: 4px;
+	bottom: 3px;
 	width: 1px;
+	left: -0.5rem;
 	background-color: var(--sh-color-gray-2);
 }
 
