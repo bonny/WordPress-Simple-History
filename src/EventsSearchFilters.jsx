@@ -42,8 +42,8 @@ export function EventsSearchFilters( props ) {
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
 		setPagerSize,
-		mapsApiKey,
 		setMapsApiKey,
+		setHasExtendedSettingsAddOn,
 	} = props;
 
 	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] =
@@ -125,6 +125,10 @@ export function EventsSearchFilters( props ) {
 			setPagerSize( searchOptions.pager_size );
 			setMapsApiKey( searchOptions.maps_api_key );
 
+			setHasExtendedSettingsAddOn(
+				searchOptions.addons.has_extended_settings_add_on
+			);
+
 			setSearchOptionsLoaded( true );
 		} );
 	}, [
@@ -133,6 +137,7 @@ export function EventsSearchFilters( props ) {
 		setSearchOptionsLoaded,
 		setSelectedDateOption,
 		setMapsApiKey,
+		setHasExtendedSettingsAddOn,
 	] );
 
 	const showMoreOrLessText = moreOptionsIsExpanded
@@ -156,7 +161,6 @@ export function EventsSearchFilters( props ) {
 					selectedCustomDateTo={ selectedCustomDateTo }
 					setSelectedCustomDateTo={ setSelectedCustomDateTo }
 				/>
-
 				{ moreOptionsIsExpanded ? (
 					<ExpandedFilters
 						messageTypesSuggestions={ messageTypesSuggestions }
@@ -173,7 +177,6 @@ export function EventsSearchFilters( props ) {
 						setUserSuggestions={ setUserSuggestions }
 					/>
 				) : null }
-
 				<p className="SimpleHistory__filters__filterSubmitWrap">
 					<button className="button" onClick={ onReload }>
 						{ __( 'Search events', 'simple-history' ) }

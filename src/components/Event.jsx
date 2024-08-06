@@ -11,8 +11,12 @@ import { EventText } from './EventText';
  * @param {Object} props
  */
 export function Event( props ) {
-	const { event, variant = 'normal' } = props;
-	const { mapsApiKey } = props;
+	const {
+		event,
+		variant = 'normal',
+		mapsApiKey,
+		hasExtendedSettingsAddOn,
+	} = props;
 
 	/*
 		erik editor par+erik@earthpeople.se 3:09 pm (för 9 minuter sedan)
@@ -36,8 +40,9 @@ export function Event( props ) {
 			<div className="SimpleHistoryLogitem__secondcol">
 				<EventHeader
 					event={ event }
-					mapsApiKey={ mapsApiKey }
 					eventVariant={ variant }
+					mapsApiKey={ mapsApiKey }
+					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				/>
 				<EventText event={ event } eventVariant={ variant } />
 				<EventDetails event={ event } eventVariant={ variant } />

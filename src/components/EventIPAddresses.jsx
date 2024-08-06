@@ -47,7 +47,8 @@ const keysAndValues = [
  * @param {Object} ipAdressProps
  */
 function IPAddressLink( ipAdressProps ) {
-	const { header, ipAddress, mapsApiKey } = ipAdressProps;
+	const { header, ipAddress, mapsApiKey, hasExtendedSettingsAddOn } =
+		ipAdressProps;
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ isLoadingIpInfo, setIsLoadingIpInfo ] = useState( false );
 	const [ ipInfoResult, setIpInfoResult ] = useState();
@@ -146,8 +147,45 @@ function IPAddressLink( ipAdressProps ) {
 			</tr>
 		) : null;
 
+	const upsellText = hasExtendedSettingsAddOn ? null : (
+		<>
+			<div
+				style={ {
+					display: 'grid',
+					placeItems: 'center',
+					width: '100%',
+					height: 100,
+					// TODO: Path to image.
+					backgroundImage:
+						'url("/wp-content/plugins/simple-history/assets/images/map-img-blur.jpg")',
+					backgroundSize: 'cover',
+					padding: '1rem',
+				} }
+			>
+				<Text>
+					{ createInterpolateElement(
+						__(
+							'See the location of the IP adress on a map with the <a>Extended Settings</a> add-on.',
+							'simple-history'
+						),
+						{
+							a: (
+								<ExternalLink
+									href="https://simple-history.com/add-ons/extended-settings/?utm_source=plugin&utm_medium=link&utm_campaign=ipinfo#GoogleMaps"
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
+						}
+					) }
+				</Text>
+			</div>
+		</>
+	);
+
 	const loadedIpInfoText = ipInfoResult ? (
 		<>
+			{ upsellText }
 			<table className="SimpleHistoryIpInfoDropin__ipInfoTable">
 				<tbody>
 					{ map }
@@ -196,7 +234,6 @@ function IPAddressLink( ipAdressProps ) {
 					} ) }
 				</tbody>
 			</table>
-
 			<Text
 				align="right"
 				isBlock
@@ -274,7 +311,7 @@ function IPAddressLink( ipAdressProps ) {
  * @param {Object} props
  */
 export function EventIPAddresses( props ) {
-	const { event, mapsApiKey } = props;
+	const { event, mapsApiKey, hasExtendedSettingsAddOn } = props;
 	const { ip_addresses: ipAddresses } = event;
 
 	if ( ! ipAddresses ) {
@@ -304,6 +341,7 @@ export function EventIPAddresses( props ) {
 					header={ header }
 					ipAddress={ ipAddress }
 					mapsApiKey={ mapsApiKey }
+					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				/>{ ' ' }
 				{ /* Add comma to separate IP addresses, but not after the last one */ }
 				{ loopCount < ipAddressesCount - 1 ? ', ' : '' }

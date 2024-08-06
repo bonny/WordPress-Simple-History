@@ -25,6 +25,8 @@ function MainGui() {
 	const [ page, setPage ] = useState( 1 );
 	const [ pagerSize, setPagerSize ] = useState( {} );
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
+	const [ hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn ] =
+		useState( false );
 	const [ selectedDateOption, setSelectedDateOption ] = useState( '' );
 	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] =
 		useState( defaultStartDate );
@@ -167,15 +169,12 @@ function MainGui() {
 				setUserSuggestions={ setUserSuggestions }
 				searchOptionsLoaded={ searchOptionsLoaded }
 				setSearchOptionsLoaded={ setSearchOptionsLoaded }
-				pagerSize={ pagerSize }
 				setPagerSize={ setPagerSize }
-				mapsApiKey={ mapsApiKey }
 				setMapsApiKey={ setMapsApiKey }
-				page={ page }
+				setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
 				setPage={ setPage }
 				onReload={ handleReload }
 			/>
-
 			<EventsControlBar
 				eventsIsLoading={ eventsIsLoading }
 				eventsTotal={ eventsMeta.total }
@@ -191,6 +190,7 @@ function MainGui() {
 				page={ page }
 				setPage={ setPage }
 				mapsApiKey={ mapsApiKey }
+				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 			/>
 		</div>
 	);

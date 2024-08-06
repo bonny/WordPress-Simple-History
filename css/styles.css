@@ -374,7 +374,7 @@ Style different log levels.
 .SimpleHistoryLogitem__inlineDivided:before {
 	/* \b7 = middot, \a0 = space */
 	/*content: '\a0\b7\a0\a0';*/
-	content: "\a0\b7\a0";
+	content: "\b7\a0";
 	/* \2022 = bullet */
 	/* content: "\a0\2022\a0"; */
 	/*content: '\a0\a0\2022\a0\a0';*/
