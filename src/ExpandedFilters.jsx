@@ -100,15 +100,20 @@ export function ExpandedFilters( props ) {
 
 	return (
 		<div>
-			<Flex align="top" gap="0">
-				<FlexItem style={ { margin: '1em 0' } }>
-					<label className="SimpleHistory__filters__filterLabel">
+			<Flex
+				align="top"
+				wrap={ true }
+				gap="0"
+				style={ { margin: '0.5em 0' } }
+			>
+				<FlexItem style={ { margin: '.5em 0' } }>
+					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Log levels', 'simple-history' ) }
-					</label>
+					</div>
 				</FlexItem>
 				<FlexBlock>
 					<div
-						class="SimpleHistory__filters__loglevels__select"
+						className="SimpleHistory__filters__loglevels__select"
 						style={ {
 							width: '310px',
 							backgroundColor: 'white',
@@ -118,7 +123,6 @@ export function ExpandedFilters( props ) {
 							__experimentalAutoSelectFirstMatch
 							__experimentalExpandOnFocus
 							__experimentalShowHowTo={ false }
-							label=""
 							placeholder={ __(
 								'All log levels',
 								'simple-history'
@@ -133,15 +137,15 @@ export function ExpandedFilters( props ) {
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0">
-				<FlexItem style={ { margin: '1em 0' } }>
-					<label className="SimpleHistory__filters__filterLabel">
+			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
+				<FlexItem style={ { margin: '.5em 0' } }>
+					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Message types', 'simple-history' ) }
-					</label>
+					</div>
 				</FlexItem>
 				<FlexBlock>
 					<div
-						class="SimpleHistory__filters__loglevels__select"
+						className="SimpleHistory__filters__loglevels__select"
 						style={ {
 							width: '310px',
 							backgroundColor: 'white',
@@ -170,15 +174,15 @@ export function ExpandedFilters( props ) {
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0">
-				<FlexItem style={ { margin: '1em 0' } }>
-					<label className="SimpleHistory__filters__filterLabel">
+			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
+				<FlexItem style={ { margin: '.5em 0' } }>
+					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Users', 'simple-history' ) }
-					</label>
+					</div>
 				</FlexItem>
 				<FlexBlock>
 					<div
-						class="SimpleHistory__filters__loglevels__select"
+						className="SimpleHistory__filters__loglevels__select"
 						style={ {
 							width: '310px',
 							backgroundColor: 'white',

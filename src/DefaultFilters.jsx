@@ -42,7 +42,11 @@ export function DefaultFilters( props ) {
 				setSelectedCustomDateTo( selectedCustomDateFrom );
 			}
 		}
-	}, [ selectedCustomDateFrom, selectedCustomDateTo ] );
+	}, [
+		selectedCustomDateFrom,
+		selectedCustomDateTo,
+		setSelectedCustomDateTo,
+	] );
 
 	function CustomDateRange() {
 		const firstDayOfWeek = getDateSettings().l10n.startOfWeek;
@@ -54,8 +58,10 @@ export function DefaultFilters( props ) {
 				</FlexItem>
 
 				<FlexItem>
+					{ /* eslint-disable-next-line @wordpress/no-base-control-with-label-without-id */ }
 					<BaseControl label={ __( 'From date', 'simple-history' ) }>
 						<DatePicker
+							id="simple-history-datepicker-from"
 							startOfWeek={ firstDayOfWeek }
 							onChange={ ( nextDate ) => {
 								setSelectedCustomDateFrom(
@@ -72,6 +78,7 @@ export function DefaultFilters( props ) {
 				</FlexItem>
 
 				<FlexItem>
+					{ /* eslint-disable-next-line @wordpress/no-base-control-with-label-without-id */ }
 					<BaseControl label={ __( 'To date', 'simple-history' ) }>
 						<DatePicker
 							startOfWeek={ firstDayOfWeek }
@@ -95,9 +102,9 @@ export function DefaultFilters( props ) {
 	return (
 		<>
 			<p>
-				<label className="SimpleHistory__filters__filterLabel">
+				<div className="SimpleHistory__filters__filterLabel">
 					{ __( 'Dates', 'simple-history' ) }
-				</label>
+				</div>
 				<div style={ { display: 'inline-block', width: '310px' } }>
 					<SelectControl
 						options={ dateOptions }
@@ -112,9 +119,9 @@ export function DefaultFilters( props ) {
 			) : null }
 
 			<p>
-				<label className="SimpleHistory__filters__filterLabel">
-					Containing words:
-				</label>
+				<div className="SimpleHistory__filters__filterLabel">
+					Containing words
+				</div>
 				<input
 					type="search"
 					className="SimpleHistoryFilterDropin-searchInput"
