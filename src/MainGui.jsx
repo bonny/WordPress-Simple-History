@@ -39,14 +39,17 @@ function MainGui() {
 		[]
 	);
 	const [ selectedMessageTypes, setSelectedMessageTypes ] = useState( [] );
-	const [ userSuggestions, setUserSuggestions ] = useState( [] );
-	const [ selectedUsers, setSelectUsers ] = useState( [] );
+
+	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
+	// All users that are selected are added here.
+	// This data is used to get user id from the name+email when we send the selected users to the API.
+	const [ selectedUsersWithId, setSelectedUsersWithId ] = useState( [] );
 
 	const eventsQueryParams = useMemo( () => {
 		return generateAPIQueryParams( {
 			selectedLogLevels,
 			selectedMessageTypes,
-			selectedUsers,
+			selectedUsersWithId,
 			enteredSearchText,
 			selectedDateOption,
 			selectedCustomDateFrom,
@@ -59,7 +62,7 @@ function MainGui() {
 		enteredSearchText,
 		selectedLogLevels,
 		selectedMessageTypes,
-		selectedUsers,
+		selectedUsersWithId,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		page,
@@ -74,7 +77,6 @@ function MainGui() {
 		enteredSearchText,
 		selectedLogLevels,
 		selectedMessageTypes,
-		selectedUsers,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 	] );
@@ -154,8 +156,6 @@ function MainGui() {
 				setSelectedLogLevels={ setSelectedLogLevels }
 				selectedMessageTypes={ selectedMessageTypes }
 				setSelectedMessageTypes={ setSelectedMessageTypes }
-				selectedUsers={ selectedUsers }
-				setSelectUsers={ setSelectUsers }
 				selectedDateOption={ selectedDateOption }
 				setSelectedDateOption={ setSelectedDateOption }
 				enteredSearchText={ enteredSearchText }
@@ -166,8 +166,8 @@ function MainGui() {
 				setSelectedCustomDateTo={ setSelectedCustomDateTo }
 				messageTypesSuggestions={ messageTypesSuggestions }
 				setMessageTypesSuggestions={ setMessageTypesSuggestions }
-				userSuggestions={ userSuggestions }
-				setUserSuggestions={ setUserSuggestions }
+				selectedUsersWithId={ selectedUsersWithId }
+				setSelectedUsersWithId={ setSelectedUsersWithId }
 				searchOptionsLoaded={ searchOptionsLoaded }
 				setSearchOptionsLoaded={ setSearchOptionsLoaded }
 				setPagerSize={ setPagerSize }

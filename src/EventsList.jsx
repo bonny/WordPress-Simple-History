@@ -29,7 +29,7 @@ export function EventsList( props ) {
 	return (
 		<div style={ { backgroundColor: 'white', minHeight: '300px' } }>
 			{ eventsIsLoading === false && events.length === 0 && (
-				<p>
+				<p style={ { padding: '1rem' } }>
 					{ __(
 						'Your search did not match any history events.',
 						'simple-history'

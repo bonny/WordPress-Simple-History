@@ -25,8 +25,6 @@ export function EventsSearchFilters( props ) {
 		setSelectedLogLevels,
 		selectedMessageTypes,
 		setSelectedMessageTypes,
-		selectedUsers,
-		setSelectUsers,
 		selectedDateOption,
 		setSelectedDateOption,
 		enteredSearchText,
@@ -37,8 +35,8 @@ export function EventsSearchFilters( props ) {
 		setSelectedCustomDateTo,
 		messageTypesSuggestions,
 		setMessageTypesSuggestions,
-		userSuggestions,
-		setUserSuggestions,
+		selectedUsersWithId,
+		setSelectedUsersWithId,
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
 		setPagerSize,
@@ -171,10 +169,8 @@ export function EventsSearchFilters( props ) {
 						setSelectedLogLevels={ setSelectedLogLevels }
 						selectedMessageTypes={ selectedMessageTypes }
 						setSelectedMessageTypes={ setSelectedMessageTypes }
-						selectedUsers={ selectedUsers }
-						setSelectUsers={ setSelectUsers }
-						userSuggestions={ userSuggestions }
-						setUserSuggestions={ setUserSuggestions }
+						setSelectedUsersWithId={ setSelectedUsersWithId }
+						selectedUsersWithId={ selectedUsersWithId }
 					/>
 				) : null }
 				<p className="SimpleHistory__filters__filterSubmitWrap">

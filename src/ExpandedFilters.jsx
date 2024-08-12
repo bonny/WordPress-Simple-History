@@ -15,7 +15,7 @@ import { LOGLEVELS_OPTIONS } from './constants';
  * More filters that are hidden by default.
  * Includes log levels, message types and users.
  *
- * @param {object} props
+ * @param {Object} props
  */
 export function ExpandedFilters( props ) {
 	const {
@@ -24,11 +24,14 @@ export function ExpandedFilters( props ) {
 		setSelectedLogLevels,
 		selectedMessageTypes,
 		setSelectedMessageTypes,
-		selectedUsers,
-		setSelectUsers,
-		userSuggestions,
-		setUserSuggestions,
+		selectedUsersWithId,
+		setSelectedUsersWithId,
 	} = props;
+
+	// User suggestions is the list of users that are loaded from the API
+	// and that is used to display user suggestions in the FormTokenField component.
+	// userSuggestions is an array of objects with properties "id" (user id) and "value" (name email).
+	const [ userSuggestions, setUserSuggestions ] = useState( [] );
 
 	// Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
 	// This way we can find the original untranslated label.
@@ -46,15 +49,53 @@ export function ExpandedFilters( props ) {
 				q: searchText,
 			} ),
 		} ).then( ( searchUsersResponse ) => {
-			let userSuggestions = [];
-			searchUsersResponse.map( ( user ) => {
-				userSuggestions.push( {
-					label: `${ user.display_name } (${ user.user_email })`,
-					id: user.ID,
+			const userSuggestionsLocal = [];
+
+			searchUsersResponse.forEach( ( user ) => {
+				userSuggestionsLocal.push( {
+					id: user.id,
+					value: user.display_name + ' (' + user.user_email + ')',
 				} );
 			} );
-			setUserSuggestions( userSuggestions );
+
+			setUserSuggestions( userSuggestionsLocal );
 		} );
+	};
+
+	/**
+	 * Fired when user changes the users in the FormTokenField.
+	 *
+	 * From docs:
+	 * "Function to call when the tokens have changed. An array of new tokens is passed to the callback.""
+	 *
+	 * @param {*} nextValues
+	 */
+	const handleUserChange = ( nextValues ) => {
+		// checkValues in an array. The values are:
+		// - a string (the user name and email) when the entry is new.
+		// - an object with the user id and name+email when the entry is already in the list. Keys are "id" and "value".
+		// For new entries we need to replace the string with an object.
+		// For existing entries we don't need to do anything.
+		nextValues.map( ( value, index ) => {
+			if ( typeof value === 'string' ) {
+				// This is a new entry, we need to replace the string with an object.
+				// Find the user suggestion that has the same label as the value.
+				const userSuggestion = userSuggestions.find( ( suggestion ) => {
+					return suggestion.value === value;
+				} );
+
+				if ( userSuggestion ) {
+					nextValues[ index ] = userSuggestion;
+				}
+			} else {
+				// This is an existing entry that already is an object with id and label.
+				// No need to do anything.
+			}
+
+			return value;
+		} );
+
+		setSelectedUsersWithId( nextValues );
 	};
 
 	return (
@@ -149,18 +190,23 @@ export function ExpandedFilters( props ) {
 							__experimentalShowHowTo={ false }
 							label=""
 							placeholder={ __( 'All users', 'simple-history' ) }
-							onChange={ ( nextValue ) => {
-								setSelectUsers( nextValue );
+							onChange={ ( nextValues ) => {
+								handleUserChange( nextValues );
 							} }
 							onInputChange={ ( value ) => {
 								searchUsers( value );
 							} }
+							// Suggestions:
+							// An array of strings to present to the user as suggested tokens.
 							suggestions={ userSuggestions.map(
 								( suggestion ) => {
-									return suggestion.label;
+									return suggestion.value;
 								}
 							) }
-							value={ selectedUsers }
+							// Value:
+							// An array of strings or objects to display as tokens in the field.
+							// If objects are present in the array, they must have a property of value.
+							value={ selectedUsersWithId }
 						/>
 					</div>
 					<BaseControl

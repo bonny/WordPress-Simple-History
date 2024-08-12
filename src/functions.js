@@ -10,6 +10,7 @@ export function generateAPIQueryParams( props ) {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsers,
+		selectedUsersWithId,
 		enteredSearchText,
 		selectedDateOption,
 		selectedCustomDateFrom,
@@ -59,8 +60,10 @@ export function generateAPIQueryParams( props ) {
 		const selectedLogLevelsValues = [];
 		selectedLogLevels.forEach( ( selectedLogLevel ) => {
 			const logLevelOption = LOGLEVELS_OPTIONS.find(
-				( logLevelOption ) => logLevelOption.label === selectedLogLevel
+				( logLevelOptionLocal ) =>
+					logLevelOptionLocal.label === selectedLogLevel
 			);
+
 			if ( logLevelOption ) {
 				selectedLogLevelsValues.push( logLevelOption.value );
 			}
@@ -74,9 +77,9 @@ export function generateAPIQueryParams( props ) {
 		const selectedMessageTypesValues = [];
 		selectedMessageTypes.forEach( ( selectedMessageType ) => {
 			const messageTypeOption = messageTypesSuggestions.find(
-				( messageTypeOption ) => {
+				( messageTypeOptionLocal ) => {
 					return (
-						messageTypeOption.label.trim() ===
+						messageTypeOptionLocal.label.trim() ===
 						selectedMessageType.trim()
 					);
 				}
@@ -102,24 +105,19 @@ export function generateAPIQueryParams( props ) {
 		}
 	}
 
-	if ( selectedUsers.length ) {
-		const selectedUsersValues = [];
-		selectedUsers.forEach( ( selectedUserNameAndEmail ) => {
-			let userSuggestion = userSuggestions.find( ( userSuggestion ) => {
-				return (
-					userSuggestion.label.trim() ===
-					selectedUserNameAndEmail.trim()
-				);
-			} );
-
-			if ( userSuggestion ) {
-				selectedUsersValues.push( userSuggestion.id );
+	// Add selected users ids to query params.
+	// selectedUsers is an array of strings with the user name and email (not id).
+	// ie. ["john doe (john@example.com)", ...]
+	// eventsQueryParams.users should be an array of user ids.
+	if ( selectedUsersWithId.length ) {
+		// Array with user ids.
+		const selectedUsersValues = selectedUsersWithId.map(
+			( selectedUserWithId ) => {
+				return selectedUserWithId.id;
 			}
-		} );
+		);
 
-		if ( selectedUsersValues.length ) {
-			eventsQueryParams.users = selectedUsersValues;
-		}
+		eventsQueryParams.users = selectedUsersValues;
 	}
 
 	return eventsQueryParams;

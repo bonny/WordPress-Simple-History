@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { alignCenter, justifyCenter, update } from '@wordpress/icons';
+import { update } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { clsx } from 'clsx';
 
@@ -44,7 +44,7 @@ export function NewEventsNotifier( props ) {
 			const eventsQueryParamsWithSinceId = {
 				...eventsQueryParams,
 				since_id: eventsMaxId,
-				// Remove any fields that have been added by main api request.
+				// Remove any limitation of fields that have been added by main api request.
 				_fields: null,
 			};
 
