@@ -9,7 +9,6 @@ export function generateAPIQueryParams( props ) {
 	const {
 		selectedLogLevels,
 		selectedMessageTypes,
-		selectedUsers,
 		selectedUsersWithId,
 		enteredSearchText,
 		selectedDateOption,
@@ -73,36 +72,28 @@ export function generateAPIQueryParams( props ) {
 		}
 	}
 
+	// TODO: fix
 	if ( selectedMessageTypes.length ) {
+		console.log(
+			'generateAPIQueryParams selectedMessageTypes',
+			selectedMessageTypes
+		);
+
+		// Array with strings with the message types.
 		const selectedMessageTypesValues = [];
-		selectedMessageTypes.forEach( ( selectedMessageType ) => {
-			const messageTypeOption = messageTypesSuggestions.find(
-				( messageTypeOptionLocal ) => {
-					return (
-						messageTypeOptionLocal.label.trim() ===
-						selectedMessageType.trim()
-					);
+
+		selectedMessageTypes.forEach( ( selectedMessageTypesValue ) => {
+			selectedMessageTypesValue.search_options.forEach(
+				( searchOption ) => {
+					selectedMessageTypesValues.push( searchOption );
 				}
 			);
-
-			if ( messageTypeOption ) {
-				selectedMessageTypesValues.push( messageTypeOption );
-			}
 		} );
 
-		if ( selectedMessageTypesValues.length ) {
-			let messsagesString = '';
-			selectedMessageTypesValues.forEach(
-				( selectedMessageTypesValue ) => {
-					selectedMessageTypesValue.search_options.forEach(
-						( searchOption ) => {
-							messsagesString += searchOption + ',';
-						}
-					);
-				}
-			);
-			eventsQueryParams.messages = messsagesString;
-		}
+		console.log( 'selectedMessageTypesValues', selectedMessageTypesValues );
+		const messsagesString = selectedMessageTypesValues.join( ',' );
+		eventsQueryParams.messages = messsagesString;
+		console.log( 'eventsQueryParams.messages', eventsQueryParams.messages );
 	}
 
 	// Add selected users ids to query params.

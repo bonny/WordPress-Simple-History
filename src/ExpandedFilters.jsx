@@ -98,6 +98,47 @@ export function ExpandedFilters( props ) {
 		setSelectedUsersWithId( nextValues );
 	};
 
+	/**
+	 * Fired when user changes the message types in the FormTokenField.
+	 * Works the same way as handleUserChange.
+	 *
+	 * @param {*} nextValues
+	 */
+	const handleMessageTypesChange = ( nextValues ) => {
+		// setSelectedMessageTypes( nextValues );
+		// messageTypesSuggestions
+		console.log( 'handleMessageTypesChange', nextValues );
+		console.log( 'messageTypesSuggestions', messageTypesSuggestions );
+
+		nextValues.map( ( value, index ) => {
+			if ( typeof value === 'string' ) {
+				// This is a new entry, we need to replace the string with an object.
+				// Find the user suggestion that has the same label as the value.
+				const userSuggestion = messageTypesSuggestions.find(
+					( suggestion ) => {
+						return suggestion.value.trim() === value.trim();
+					}
+				);
+
+				if ( userSuggestion ) {
+					nextValues[ index ] = userSuggestion;
+				}
+			} else {
+				// This is an existing entry that already is an object with id and label.
+				// No need to do anything.
+			}
+
+			return value;
+		} );
+
+		console.log(
+			'handleMessageTypesChange after modification',
+			nextValues
+		);
+
+		setSelectedMessageTypes( nextValues );
+	};
+
 	return (
 		<div>
 			<Flex
@@ -160,12 +201,12 @@ export function ExpandedFilters( props ) {
 								'All message types',
 								'simple-history'
 							) }
-							onChange={ ( nextValue ) => {
-								setSelectedMessageTypes( nextValue );
+							onChange={ ( nextValues ) => {
+								handleMessageTypesChange( nextValues );
 							} }
 							suggestions={ messageTypesSuggestions.map(
 								( suggestion ) => {
-									return suggestion.label;
+									return suggestion.value;
 								}
 							) }
 							value={ selectedMessageTypes }

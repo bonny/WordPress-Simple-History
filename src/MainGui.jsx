@@ -35,9 +35,15 @@ function MainGui() {
 		useState( defaultEndDate );
 	const [ enteredSearchText, setEnteredSearchText ] = useState( '' );
 	const [ selectedLogLevels, setSelectedLogLevels ] = useState( [] );
+
+	// Array with objects that contains message types suggestions, used in the message types select control.
+	// Keys are "slug" for search and "value".
 	const [ messageTypesSuggestions, setMessageTypesSuggestions ] = useState(
 		[]
 	);
+
+	// Array with the selected message types.
+	// Contains the same values as the messageTypesSuggestions array.
 	const [ selectedMessageTypes, setSelectedMessageTypes ] = useState( [] );
 
 	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".

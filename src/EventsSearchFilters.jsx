@@ -77,6 +77,8 @@ export function EventsSearchFilters( props ) {
 			);
 
 			/**
+			 * Generate message types suggestions.
+			 *
 			 * Format is object
 			 * {
 			 *  key: "logger:message",
@@ -86,13 +88,14 @@ export function EventsSearchFilters( props ) {
 			const nextMessageTypesSuggestions = [];
 			searchOptions.loggers.forEach( ( logger ) => {
 				const searchData = logger.search_data || {};
+
 				if ( ! searchData.search ) {
 					return;
 				}
 
 				// "WordPress och tilläggsuppdateringar"
 				nextMessageTypesSuggestions.push( {
-					label: searchData.search,
+					value: searchData.search,
 					// key: logger.slug,
 					// search_options: search_data.search
 				} );
@@ -100,7 +103,7 @@ export function EventsSearchFilters( props ) {
 				// "Alla hittade uppdateringar"
 				if ( searchData?.search_all?.label ) {
 					nextMessageTypesSuggestions.push( {
-						label: SUBITEM_PREFIX + searchData.search_all.label,
+						value: SUBITEM_PREFIX + searchData.search_all.label,
 						// key: `${logger.slug}:all`,
 						search_options: searchData.search_all.options,
 					} );
@@ -110,13 +113,17 @@ export function EventsSearchFilters( props ) {
 				if ( searchData?.search_options ) {
 					searchData.search_options.forEach( ( option ) => {
 						nextMessageTypesSuggestions.push( {
-							label: SUBITEM_PREFIX + option.label,
+							value: SUBITEM_PREFIX + option.label,
 							// key: `${logger.slug}:${option.key}`,
 							search_options: option.options,
 						} );
 					} );
 				}
 			} );
+			console.log(
+				'nextMessageTypesSuggestions',
+				nextMessageTypesSuggestions
+			);
 
 			setMessageTypesSuggestions( nextMessageTypesSuggestions );
 
