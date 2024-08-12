@@ -2,7 +2,7 @@ import { __, _x } from '@wordpress/i18n';
 
 export const DEFAULT_DATE_OPTIONS = [
 	{
-		label: __( 'Custom date range...', 'simple-history' ),
+		label: __( 'Custom date range…', 'simple-history' ),
 		value: 'customRange',
 	},
 	{
@@ -29,7 +29,7 @@ export const DEFAULT_DATE_OPTIONS = [
 
 export const OPTIONS_LOADING = [
 	{
-		label: __( 'Loading...', 'simple-history' ),
+		label: __( 'Loading…', 'simple-history' ),
 		value: '',
 	},
 ];
