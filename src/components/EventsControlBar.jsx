@@ -9,7 +9,7 @@ import {
 	Spinner,
 	__experimentalText as Text,
 } from '@wordpress/components';
-import { __, _x } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { lockSmall, moreVertical } from '@wordpress/icons';
 
 const PremiumFeatureSuffix = function () {
@@ -118,7 +118,13 @@ export function EventsControlBar( props ) {
 	) : null;
 
 	const eventsCount = eventsTotal ? (
-		<Text>{ eventsTotal } events</Text>
+		<Text>
+			{ sprintf(
+				/* translators: %s: number of events */
+				_n( '%s event', '%s events', eventsTotal, 'simple-history' ),
+				eventsTotal
+			) }
+		</Text>
 	) : null;
 
 	return (
