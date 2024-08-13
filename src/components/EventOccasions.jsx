@@ -71,6 +71,7 @@ export function EventOccasions( props ) {
 		setIsShowingOccasions( true );
 	};
 
+	// TODO: only show this for failed login attempts
 	const ocassionsAddonsContent = hasExtendedSettingsAddOn ? (
 		<div className="SimpleHistoryLogitem__occasionsAddOns">
 			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
