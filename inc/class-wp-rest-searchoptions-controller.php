@@ -197,32 +197,30 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			// Get labels for logger.
 			if ( isset( $logger_info['labels']['search'] ) ) {
 
+				// Create array with all search messages for this logger.
+				$arr_all_search_messages  = [];
+
+				foreach ( $logger_info['labels']['search']['options'] ?? [] as $option_messages ) {
+					$arr_all_search_messages = array_merge( $arr_all_search_messages, $option_messages );
+				}
+
+				foreach ( $arr_all_search_messages as $key => $val ) {
+					$arr_all_search_messages[ $key ] = $logger_slug . ':' . $val;
+				}
+
 				// Label for search options, like "Users" or "Post".
 				$logger_search_data['search'] = [
 					'label' => $logger_info['labels']['search']['label'],
-					'options' => [],
+					'options' => $arr_all_search_messages,
 				];
-
-				// All search messages for this logger.
-				$arr_all_search_messages = [];
 
 				// Label all = "All found updates" and so on.
 				if ( ! empty( $logger_info['labels']['search']['label_all'] ) ) {
-					foreach ( $logger_info['labels']['search']['options'] as $option_messages ) {
-						$arr_all_search_messages = array_merge( $arr_all_search_messages, $option_messages );
-					}
-
-					foreach ( $arr_all_search_messages as $key => $val ) {
-						$arr_all_search_messages[ $key ] = $logger_slug . ':' . $val;
-					}
-
 					$logger_search_data['search_all'] = [
 						'label' => $logger_info['labels']['search']['label_all'],
 						'options' => $arr_all_search_messages,
 					];
 				}
-
-				$logger_search_data['search']['options'] = $arr_all_search_messages;
 
 				// For each specific search option.
 				foreach ( $logger_info['labels']['search']['options'] as $option_key => $option_messages ) {
