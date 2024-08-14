@@ -189,11 +189,6 @@ export function ExpandedFilters( props ) {
 							onChange={ ( nextValues ) => {
 								handleMessageTypesChange( nextValues );
 							} }
-							suggestions={ messageTypesSuggestions.map(
-								( suggestion ) => {
-									return suggestion.value;
-								}
-							) }
 							// An array of strings or objects to display as tokens in the field. If objects are present in the array, they must have a property of value.
 							// Transform to remove the prefix, if any.
 							value={ selectedMessageTypes.map( ( value ) => {
@@ -204,6 +199,32 @@ export function ExpandedFilters( props ) {
 								);
 								return value;
 							} ) }
+							suggestions={ messageTypesSuggestions.map(
+								( suggestion ) => {
+									return suggestion.value;
+								}
+							) }
+							/**
+							 * Custom renderer for suggestions.
+							 * props.item is string. Examples:
+							 * item: 'Tillägg'}
+							 * item: ' - All tilläggsaktivitet'
+							 * item: ' - Aktiverade tillägg'
+							 *
+							 * @param {*} props
+							 */
+							__experimentalRenderItem={ ( props ) => {
+								// Items that does not begin with prefix should be modified to use bold text.
+								// Items that begin with prefix should not be modified.
+								if (
+									! props.item.startsWith( SUBITEM_PREFIX )
+								) {
+									return <strong>{ props.item }</strong>;
+								}
+
+								// Unmodified item.
+								return props.item;
+							} }
 						/>
 					</div>
 				</FlexBlock>
