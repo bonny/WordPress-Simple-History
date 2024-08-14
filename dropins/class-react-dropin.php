@@ -10,9 +10,9 @@ use Simple_History\Helpers;
 class React_Dropin extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
-		add_action( 'simple_history/history_page/before_gui', array( $this, 'output_element' ), 1 );
-		add_action( 'simple_history/dashboard/before_gui', array( $this, 'output_element' ), 1 );
-		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'simple_history/history_page/gui_wrap_top', [ $this, 'output_element' ], 1 );
+		add_action( 'simple_history/dashboard/before_gui', [ $this, 'output_element' ], 1 );
+		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'enqueue_admin_scripts' ] );
 	}
 
 	/**
