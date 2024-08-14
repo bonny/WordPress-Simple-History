@@ -95,9 +95,9 @@ export function EventsSearchFilters( props ) {
 
 				// "WordPress och tilläggsuppdateringar"
 				nextMessageTypesSuggestions.push( {
-					value: searchData.search,
+					value: searchData.search.label,
+					search_options: searchData.search.options,
 					// key: logger.slug,
-					// search_options: search_data.search
 				} );
 
 				// "Alla hittade uppdateringar"

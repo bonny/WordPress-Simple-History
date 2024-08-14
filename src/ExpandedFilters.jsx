@@ -105,6 +105,7 @@ export function ExpandedFilters( props ) {
 	 * @param {*} nextValues
 	 */
 	const handleMessageTypesChange = ( nextValues ) => {
+		console.log('handleMessageTypesChange', nextValues);
 		nextValues.map( ( value, index ) => {
 			if ( typeof value === 'string' ) {
 				// This is a new entry, we need to replace the string with an object.
