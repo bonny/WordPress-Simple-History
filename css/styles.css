@@ -1282,3 +1282,189 @@ a.sh-SettingsTabs-link:hover {
 /* .sh-FeedIntroduction-ps {
 	font-size: 13px;
 } */
+
+/* Filters, moved from old filter-dropin.css */
+.SimpleHistory__filters {
+	/* hide by default while log is loading */
+	opacity: 0.5;
+	transition: all 0.25s ease-out;
+}
+
+.SimpleHistory--isLoaded .SimpleHistory__filters {
+	opacity: 1;
+}
+
+.SimpleHistory__filters__form select {
+	/* width: 100%; */
+	width: 310px;
+}
+
+.SimpleHistory__filters__form input[type="text"],
+.SimpleHistory__filters__form input[type="search"] {
+	/* width: 100%; */
+	width: 310px !important;
+}
+
+.SimpleHistory__filters__filter--date,
+.SimpleHistoryFilterDropin-searchInput {
+	width: 310px;
+}
+
+.SimpleHistory__filters__filterLabel {
+	display: inline-block;
+	width: 150px;
+	vertical-align: middle;
+}
+
+.SimpleHistory__filters__filterSubmitWrap {
+	margin-left: 150px; /* same width as the label */
+}
+
+/* Component FormTokenField always adds element for label */
+.SimpleHistory__filters__loglevels__select .components-form-token-field__label {
+	display: none;
+}
+
+@media (max-width: 600px) {
+	.SimpleHistory__filters__filterLabel {
+		display: block;
+		width: auto;
+	}
+
+	.SimpleHistory__filters__filterSubmitWrap {
+		margin-left: 0;
+	}
+}
+
+@media (min-width: 600px) {
+	/* prevent "jump" during page load because of select elm changing to select2 */
+	.SimpleHistoryWrap .SimpleHistory__filters__filterRow {
+		height: 41px;
+		line-height: 41px;
+	}
+
+	.SimpleHistoryWrap
+		.wp-admin
+		select[multiple].SimpleHistory__filters__filter--date {
+		height: 2.25em;
+		overflow: hidden;
+	}
+}
+
+/* always label as blocks on dashboard because we don't know the width because of columns */
+.postbox .SimpleHistory__filters__filterLabel {
+	display: block;
+	width: auto;
+}
+.postbox .SimpleHistory__filters__filterSubmitWrap {
+	margin-left: 0;
+}
+
+/**
+ * Search results in filter
+ */
+.SimpleHistory__filters__userfilter__gravatar,
+.SimpleHistory__filters__userfilter__primary,
+.SimpleHistory__filters__userfilter__secondary {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 1;
+}
+
+.SimpleHistory__filters__userfilter__primary {
+	margin-right: 5px;
+}
+
+.SimpleHistory__filters__userfilter__gravatar {
+	margin-right: 10px;
+}
+
+.SimpleHistoryFilterDropin-showMoreFilters {
+	border: 0;
+	background: none;
+	color: rgb(0, 116, 162);
+	cursor: pointer;
+}
+
+.SimpleHistoryFilterDropin-showMoreFilters:hover {
+	color: rgb(46, 162, 204);
+}
+
+/* more filters are hidden by default */
+.SimpleHistory__filters__moreFilters {
+	display: none;
+	margin-bottom: 20px;
+}
+
+.SimpleHistory__filters.is-showingMoreFilters
+	.SimpleHistoryFilterDropin-showMoreFilters--first {
+	display: none;
+}
+
+.SimpleHistory__filters.is-showingMoreFilters
+	.SimpleHistory__filters__moreFilters {
+	display: block;
+}
+
+.SimpleHistory__filters.is-showingMoreFilters
+	.SimpleHistoryFilterDropin-doFilterButton--first {
+	display: none;
+}
+
+/* dashboard */
+.postbox .SimpleHistory__filters {
+	margin-left: 13px;
+	margin-right: 13px;
+}
+
+/* day filter */
+/* hidden by default, shown by js when selecting "custom range" in dates picker */
+.SimpleHistory__filters__filter--dayValuesWrap {
+	display: block;
+	visibility: hidden;
+	opacity: 0;
+	margin-left: 155px;
+	max-height: 0;
+	overflow: hidden;
+	transition:
+		max-height 0.25s ease-in-out,
+		opacity 0.25s ease-in-out,
+		visibility 0s 1s;
+}
+
+.is-customDateFilterActive .SimpleHistory__filters__filter--dayValuesWrap {
+	visibility: visible;
+	opacity: 1;
+	max-height: 150px;
+	margin-top: 1em;
+	transition:
+		max-height 0.25s ease-in-out,
+		opacity 0.25s ease-in-out,
+		visibility 0s 0s;
+}
+
+.is-customDateFilterActive .SimpleHistory__filters__filterRow--date {
+	line-height: inherit;
+	height: inherit;
+}
+
+.postbox .SimpleHistory__filters__filter--dayValuesWrap {
+	margin-left: 0;
+}
+
+.SimpleHistory__filters__filter--day {
+	display: block;
+}
+
+.SimpleHistory__filters__filter--day select {
+	width: 200px;
+}
+
+.SimpleHistory__filters .select2-selection__choice,
+.SimpleHistory__filters .select2-search--inline {
+	margin-bottom: 0;
+}
+
+.SimpleHistory__filters .select2-results__option {
+	margin: 0;
+}

@@ -76,7 +76,6 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$arr_default_dropins = array(
 			'Donate_Dropin',
 			'Export_Dropin',
-			'Filter_Dropin',
 			'IP_Info_Dropin',
 			'New_Rows_Notifier_Dropin',
 			'RSS_Dropin',

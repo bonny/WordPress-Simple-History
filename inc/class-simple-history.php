@@ -426,7 +426,6 @@ class Simple_History {
 			Dropins\Detective_Mode_Dropin::class,
 			Dropins\Donate_Dropin::class,
 			Dropins\Export_Dropin::class,
-			Dropins\Filter_Dropin::class,
 			Dropins\IP_Info_Dropin::class,
 			Dropins\New_Rows_Notifier_Dropin::class,
 			Dropins\Plugin_Patches_Dropin::class,
