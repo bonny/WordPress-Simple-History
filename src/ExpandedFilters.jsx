@@ -211,19 +211,21 @@ export function ExpandedFilters( props ) {
 							 * item: ' - All tilläggsaktivitet'
 							 * item: ' - Aktiverade tillägg'
 							 *
-							 * @param {*} props
+							 * @param {*} localProps
 							 */
-							__experimentalRenderItem={ ( props ) => {
+							__experimentalRenderItem={ ( localProps ) => {
 								// Items that does not begin with prefix should be modified to use bold text.
 								// Items that begin with prefix should not be modified.
 								if (
-									! props.item.startsWith( SUBITEM_PREFIX )
+									! localProps.item.startsWith(
+										SUBITEM_PREFIX
+									)
 								) {
-									return <strong>{ props.item }</strong>;
+									return <strong>{ localProps.item }</strong>;
 								}
 
 								// Unmodified item.
-								return props.item;
+								return localProps.item;
 							} }
 						/>
 					</div>
