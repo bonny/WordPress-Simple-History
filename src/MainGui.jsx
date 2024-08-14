@@ -199,14 +199,6 @@ function MainGui() {
 				onReload={ handleReload }
 			/>
 
-			<p>
-				Debug
-				<br />
-				eventsMaxId: { eventsMaxId }
-				<br />
-				prevEventsMaxId: { prevEventsMaxId }
-			</p>
-
 			<EventsControlBar
 				eventsIsLoading={ eventsIsLoading }
 				eventsTotal={ eventsMeta.total }
