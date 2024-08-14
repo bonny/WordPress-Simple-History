@@ -1468,3 +1468,30 @@ a.sh-SettingsTabs-link:hover {
 .SimpleHistory__filters .select2-results__option {
 	margin: 0;
 }
+
+/* Old styles moved from new-rows-notifier-dropin.css */
+.SimpleHistoryDropin__NewRowsNotifier {
+	max-height: 0;
+	overflow: hidden;
+	text-align: center;
+	background: white;
+	background: rgba(0, 255, 30, 0.15);
+	transition:
+		max-height 0.5s ease-out,
+		background 0s;
+}
+
+.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
+	max-height: 50px;
+	cursor: pointer;
+}
+
+/* when there is a remote error or server down etc */
+.SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck {
+	max-height: 50px;
+	background: rgb(254, 247, 241);
+}
+
+.SimpleHistoryLogitem--newRowSinceReload {
+	background: rgba(254, 255, 0, 0.1);
+}
