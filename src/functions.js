@@ -24,6 +24,7 @@ export function generateAPIQueryParams( props ) {
 		per_page: pagerSize.page,
 		_fields: [
 			'id',
+			'logger',
 			'date',
 			'date_gmt',
 			'message',

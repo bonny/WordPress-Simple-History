@@ -26,9 +26,9 @@ export function Event( props ) {
 
 	const containerClassNames = clsx(
 		'SimpleHistoryLogitem',
-		`SimpleHistoryLogitem--loglevel-${ event.level }`,
+		`SimpleHistoryLogitem--loglevel-${ event.loglevel }`,
 		`SimpleHistoryLogitem--logger-${ event.logger }`,
-		`SimpleHistoryLogitem--initiator-${ event.initiator }`
+		`SimpleHistoryLogitem--initiator-${ event.initiator }`,
 	);
 
 	return (
