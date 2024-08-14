@@ -9,7 +9,7 @@ import {
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { LOGLEVELS_OPTIONS } from './constants';
+import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from './constants';
 
 /**
  * More filters that are hidden by default.
@@ -105,11 +105,6 @@ export function ExpandedFilters( props ) {
 	 * @param {*} nextValues
 	 */
 	const handleMessageTypesChange = ( nextValues ) => {
-		// setSelectedMessageTypes( nextValues );
-		// messageTypesSuggestions
-		console.log( 'handleMessageTypesChange', nextValues );
-		console.log( 'messageTypesSuggestions', messageTypesSuggestions );
-
 		nextValues.map( ( value, index ) => {
 			if ( typeof value === 'string' ) {
 				// This is a new entry, we need to replace the string with an object.
@@ -131,22 +126,12 @@ export function ExpandedFilters( props ) {
 			return value;
 		} );
 
-		console.log(
-			'handleMessageTypesChange after modification',
-			nextValues
-		);
-
 		setSelectedMessageTypes( nextValues );
 	};
 
 	return (
 		<div>
-			<Flex
-				align="top"
-				wrap={ true }
-				gap="0"
-				style={ { margin: '0.5em 0' } }
-			>
+			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
 				<FlexItem style={ { margin: '.5em 0' } }>
 					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Log levels', 'simple-history' ) }
@@ -209,7 +194,16 @@ export function ExpandedFilters( props ) {
 									return suggestion.value;
 								}
 							) }
-							value={ selectedMessageTypes }
+							// An array of strings or objects to display as tokens in the field. If objects are present in the array, they must have a property of value.
+							// Transform to remove the prefix, if any.
+							value={ selectedMessageTypes.map( ( value ) => {
+								// HERE: remove prefix
+								value.value = value.value.replace(
+									SUBITEM_PREFIX,
+									''
+								);
+								return value;
+							} ) }
 						/>
 					</div>
 				</FlexBlock>
@@ -248,9 +242,6 @@ export function ExpandedFilters( props ) {
 									return suggestion.value;
 								}
 							) }
-							// Value:
-							// An array of strings or objects to display as tokens in the field.
-							// If objects are present in the array, they must have a property of value.
 							value={ selectedUsersWithId }
 						/>
 					</div>
