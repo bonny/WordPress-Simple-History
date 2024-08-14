@@ -11,11 +11,12 @@ import { EventsPagination } from './components/EventsPagination';
  */
 export function EventsList( props ) {
 	const {
+		events,
 		page,
 		setPage,
-		events,
 		eventsIsLoading,
 		eventsMeta,
+		prevEventsMaxId,
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
 	} = props;
@@ -44,6 +45,7 @@ export function EventsList( props ) {
 						event={ event }
 						mapsApiKey={ mapsApiKey }
 						hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+						isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
 					/>
 				) ) }
 			</ul>

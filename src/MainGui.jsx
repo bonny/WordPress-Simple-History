@@ -21,7 +21,13 @@ function MainGui() {
 	const [ events, setEvents ] = useState( [] );
 	const [ eventsMeta, setEventsMeta ] = useState( {} );
 	const [ eventsReloadTime, setEventsReloadTime ] = useState( Date.now() );
+
+	// Store the max id of the events. Used to check for new events.
 	const [ eventsMaxId, setEventsMaxId ] = useState();
+
+	// Store the previous max id of the events. Used to modify events in the list so user can see what events are new.
+	const [ prevEventsMaxId, setPrevEventsMaxId ] = useState();
+
 	const [ searchOptionsLoaded, setSearchOptionsLoaded ] = useState( false );
 	const [ page, setPage ] = useState( 1 );
 	const [ pagerSize, setPagerSize ] = useState( {} );
@@ -115,15 +121,21 @@ function MainGui() {
 			link: eventsResponse.headers.get( 'Link' ),
 		} );
 
+		// To keep track of new events we need to store both old max id and new max id.
+		if ( eventsJson && eventsJson.length && page === 1 ) {
+			setEventsMaxId( eventsJson[ 0 ].id );
+		}
+
 		setEvents( eventsJson );
 		setEventsIsLoading( false );
-	}, [ eventsQueryParams ] );
+	}, [ eventsQueryParams, page ] );
 
 	// Debounce the loadEvents function to avoid multiple calls when user types fast.
 	const debouncedLoadEvents = useDebounce( loadEvents, 500 );
 
 	/**
-	 * Load events when search options are loaded, or when the reload time is changed,
+	 * Load events when search options are loaded,
+	 * when the reload time is changed,
 	 * or when function debouncedLoadEvents is changed due to changes in eventsQueryParams.
 	 */
 	useEffect( () => {
@@ -137,13 +149,13 @@ function MainGui() {
 	}, [ debouncedLoadEvents, searchOptionsLoaded, eventsReloadTime ] );
 
 	// When events are loaded for the fist time, or when reloaded, store the max id.
-	useEffect( () => {
-		if ( ! events || ! events.length || page !== 1 ) {
-			return;
-		}
+	// useEffect( () => {
+	// 	if ( ! events || ! events.length || page !== 1 ) {
+	// 		return;
+	// 	}
 
-		setEventsMaxId( events[ 0 ].id );
-	}, [ page, events ] );
+	// 	setEventsMaxId( events[ 0 ].id );
+	// }, [ page, events ] );
 
 	/**
 	 * Function to set reload time to current time,
@@ -152,8 +164,12 @@ function MainGui() {
 	 * for example for the search button in the search component.
 	 */
 	const handleReload = () => {
+		setPage( 1 );
+		setPrevEventsMaxId( eventsMaxId );
 		setEventsReloadTime( Date.now() );
 	};
+
+	// When fetching new events...
 
 	return (
 		<div>
@@ -183,6 +199,14 @@ function MainGui() {
 				onReload={ handleReload }
 			/>
 
+			<p>
+				Debug
+				<br />
+				eventsMaxId: { eventsMaxId }
+				<br />
+				prevEventsMaxId: { prevEventsMaxId }
+			</p>
+
 			<EventsControlBar
 				eventsIsLoading={ eventsIsLoading }
 				eventsTotal={ eventsMeta.total }
@@ -203,6 +227,8 @@ function MainGui() {
 				eventsMeta={ eventsMeta }
 				page={ page }
 				setPage={ setPage }
+				eventsMaxId={ eventsMaxId }
+				prevEventsMaxId={ prevEventsMaxId }
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 			/>

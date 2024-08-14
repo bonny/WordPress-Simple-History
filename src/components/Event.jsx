@@ -16,19 +16,17 @@ export function Event( props ) {
 		variant = 'normal',
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
+		isNewAfterFetchNewEvents,
 	} = props;
-
-	/*
-		erik editor par+erik@earthpeople.se 3:09 pm (för 9 minuter sedan)
-		Made POST request to http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin-ajax.php felsokning
-		Method	POST
-	*/
 
 	const containerClassNames = clsx(
 		'SimpleHistoryLogitem',
 		`SimpleHistoryLogitem--loglevel-${ event.loglevel }`,
 		`SimpleHistoryLogitem--logger-${ event.logger }`,
 		`SimpleHistoryLogitem--initiator-${ event.initiator }`,
+		{
+			'SimpleHistoryLogitem--newRowSinceReload': isNewAfterFetchNewEvents,
+		}
 	);
 
 	return (
@@ -44,8 +42,11 @@ export function Event( props ) {
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				/>
+
 				<EventText event={ event } eventVariant={ variant } />
+
 				<EventDetails event={ event } eventVariant={ variant } />
+
 				<EventOccasions
 					event={ event }
 					eventVariant={ variant }
