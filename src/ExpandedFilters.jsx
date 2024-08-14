@@ -105,7 +105,6 @@ export function ExpandedFilters( props ) {
 	 * @param {*} nextValues
 	 */
 	const handleMessageTypesChange = ( nextValues ) => {
-		console.log('handleMessageTypesChange', nextValues);
 		nextValues.map( ( value, index ) => {
 			if ( typeof value === 'string' ) {
 				// This is a new entry, we need to replace the string with an object.
@@ -115,7 +114,7 @@ export function ExpandedFilters( props ) {
 						return suggestion.value.trim() === value.trim();
 					}
 				);
-				
+
 				if ( userSuggestion ) {
 					nextValues[ index ] = userSuggestion;
 				}
@@ -123,10 +122,9 @@ export function ExpandedFilters( props ) {
 				// This is an existing entry that already is an object with id and label.
 				// No need to do anything.
 			}
-			
+
 			return value;
 		} );
-
 
 		setSelectedMessageTypes( nextValues );
 	};
