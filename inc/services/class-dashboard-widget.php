@@ -59,13 +59,6 @@ class Dashboard_Widget extends Service {
 	 * Output html for the dashboard widget
 	 */
 	public function dashboard_widget_output() {
-		$pager_size = Helpers::get_pager_size_dashboard();
-
 		do_action( 'simple_history/dashboard/before_gui', $this );
-		?>
-		<div class="SimpleHistoryGui"
-			 data-pager-size='<?php echo esc_attr( $pager_size ); ?>'
-			 ></div>
-		<?php
 	}
 }

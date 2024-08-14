@@ -23,7 +23,6 @@
 	zoom: 1;
 } /* For IE 6/7 (trigger hasLayout) */
 
-.SimpleHistoryGui,
 .SimpleHistoryGuiExample {
 	position: relative;
 	/* must have a height so "loading..." will be visible in dashboard */

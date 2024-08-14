@@ -46,18 +46,7 @@ class Admin_Pages extends Service {
 	 * Output for page with the history.
 	 */
 	public function history_page_output() {
-		$pager_size = Helpers::get_pager_size();
-
-		/**
-		 * Filter the pager size setting for the history page
-		 *
-		 * @since 2.0
-		 *
-		 * @param int $pager_size
-		 */
-		$pager_size = apply_filters( 'simple_history/page_pager_size', $pager_size );
 		?>
-
 		<div class="SimpleHistoryWrap">
 
 			<header class="sh-PageHeader">
@@ -90,7 +79,7 @@ class Admin_Pages extends Service {
 
 				<?php
 				/**
-				 * Fires before the gui div
+				 * Fires before the gui div.
 				 *
 				 * @since 2.0
 				 *
@@ -100,12 +89,19 @@ class Admin_Pages extends Service {
 				?>
 
 				<div class="SimpleHistoryGuiWrap">
-
-					<div class="SimpleHistoryGui" data-pager-size='<?php echo esc_attr( $pager_size ); ?>'>
-					</div>
 					<?php
 					/**
-					 * Fires after the gui div
+					 * Fires at top of the gui div wrap.
+					 *
+					 * @since 5.0
+					 *
+					 * @param Simple_History $instance This class.
+					 */
+					do_action( 'simple_history/history_page/gui_wrap_top', $this->simple_history );
+
+					/**
+					 * Fires after the gui div.
+					 * (Bad name, since it's actually at the bottom of the gui div.)
 					 *
 					 * @since 2.0
 					 *

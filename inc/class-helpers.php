@@ -879,6 +879,15 @@ class Helpers {
 		 */
 		$pager_size = apply_filters( 'simple_history/pager_size', $pager_size );
 
+		/**
+		 * Filter the pager size setting for the history page
+		 *
+		 * @since 2.0
+		 *
+		 * @param int $pager_size
+		 */
+		$pager_size = apply_filters( 'simple_history/page_pager_size', $pager_size );
+
 		return $pager_size;
 	}
 
