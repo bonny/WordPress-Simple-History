@@ -46,16 +46,6 @@ class Setup_Settings_Page extends Service {
 		if ( Helpers::dev_mode_is_enabled() ) {
 			$this->simple_history->register_settings_tab(
 				[
-					'slug' => 'log',
-					'name' => __( 'Log (dev)', 'simple-history' ),
-					'order' => 5,
-					'icon' => 'overview',
-					'function' => [ $this, 'settings_output_log' ],
-				]
-			);
-
-			$this->simple_history->register_settings_tab(
-				[
 					'slug' => 'styles-example',
 					'name' => __( 'Styles example (dev)', 'simple-history' ),
 					'order' => 5,
@@ -64,13 +54,6 @@ class Setup_Settings_Page extends Service {
 				],
 			);
 		}
-	}
-
-	/**
-	 * Output for the log settings tab.
-	 */
-	public function settings_output_log() {
-		include SIMPLE_HISTORY_PATH . 'templates/settings-log.php';
 	}
 
 	/**
