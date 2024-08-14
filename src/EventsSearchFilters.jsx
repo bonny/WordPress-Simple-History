@@ -120,10 +120,6 @@ export function EventsSearchFilters( props ) {
 					} );
 				}
 			} );
-			console.log(
-				'nextMessageTypesSuggestions',
-				nextMessageTypesSuggestions
-			);
 
 			setMessageTypesSuggestions( nextMessageTypesSuggestions );
 

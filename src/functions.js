@@ -74,11 +74,6 @@ export function generateAPIQueryParams( props ) {
 
 	// TODO: fix
 	if ( selectedMessageTypes.length ) {
-		console.log(
-			'generateAPIQueryParams selectedMessageTypes',
-			selectedMessageTypes
-		);
-
 		// Array with strings with the message types.
 		const selectedMessageTypesValues = [];
 
@@ -90,10 +85,8 @@ export function generateAPIQueryParams( props ) {
 			);
 		} );
 
-		console.log( 'selectedMessageTypesValues', selectedMessageTypesValues );
 		const messsagesString = selectedMessageTypesValues.join( ',' );
 		eventsQueryParams.messages = messsagesString;
-		console.log( 'eventsQueryParams.messages', eventsQueryParams.messages );
 	}
 
 	// Add selected users ids to query params.

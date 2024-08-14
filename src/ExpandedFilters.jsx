@@ -115,7 +115,7 @@ export function ExpandedFilters( props ) {
 						return suggestion.value.trim() === value.trim();
 					}
 				);
-
+				
 				if ( userSuggestion ) {
 					nextValues[ index ] = userSuggestion;
 				}
@@ -123,9 +123,10 @@ export function ExpandedFilters( props ) {
 				// This is an existing entry that already is an object with id and label.
 				// No need to do anything.
 			}
-
+			
 			return value;
 		} );
+
 
 		setSelectedMessageTypes( nextValues );
 	};
