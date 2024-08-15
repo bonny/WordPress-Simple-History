@@ -1460,15 +1460,6 @@ a.sh-SettingsTabs-link:hover {
 	width: 200px;
 }
 
-.SimpleHistory__filters .select2-selection__choice,
-.SimpleHistory__filters .select2-search--inline {
-	margin-bottom: 0;
-}
-
-.SimpleHistory__filters .select2-results__option {
-	margin: 0;
-}
-
 /* Old styles moved from new-rows-notifier-dropin.css */
 .SimpleHistoryDropin__NewRowsNotifier {
 	max-height: 0;

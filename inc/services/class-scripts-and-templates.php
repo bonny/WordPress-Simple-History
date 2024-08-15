@@ -154,9 +154,6 @@ class Scripts_And_Templates extends Service {
 				SIMPLE_HISTORY_VERSION
 			);
 
-			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION );
-			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.css', array(), SIMPLE_HISTORY_VERSION );
-
 			// Translations that we use in JavaScript.
 			wp_localize_script(
 				'simple_history_script',
@@ -204,15 +201,6 @@ class Scripts_And_Templates extends Service {
 				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, $user_locale ), array( 'jquery' ), '1.5.2', true );
 			} else {
 				wp_enqueue_script( 'timeago-locale', sprintf( $locale_url_path, 'en' ), array( 'jquery' ), '1.5.2', true );
-			}
-
-			// end add timeago
-			// Load Select2 locale.
-			$locale_url_path = SIMPLE_HISTORY_DIR_URL . 'js/select2/i18n/%s.js';
-			$locale_dir_path = SIMPLE_HISTORY_PATH . 'js/select2/i18n/%s.js';
-
-			if ( file_exists( sprintf( $locale_dir_path, $user_locale ) ) ) {
-				wp_enqueue_script( 'select2-locale', sprintf( $locale_url_path, $user_locale ), array( 'jquery' ), '3.5.1', true );
 			}
 
 			/**

@@ -1,7 +1,6 @@
 [files]
 extend-exclude = [
     "js/timeago/locales/",
-    "js/select2/i18n/",
     "js/Chart.js",
     "js/chart.4.3.0.min.js",
     "tests/wordpress-tests-stubs.php",
