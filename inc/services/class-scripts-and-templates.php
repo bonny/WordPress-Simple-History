@@ -154,14 +154,6 @@ class Scripts_And_Templates extends Service {
 				SIMPLE_HISTORY_VERSION
 			);
 
-			wp_enqueue_script(
-				'simple_history_script',
-				SIMPLE_HISTORY_DIR_URL . 'js/scripts.js',
-				array( 'jquery', 'backbone', 'wp-util' ),
-				SIMPLE_HISTORY_VERSION,
-				true
-			);
-
 			wp_enqueue_script( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.full.min.js', array( 'jquery' ), SIMPLE_HISTORY_VERSION );
 			wp_enqueue_style( 'select2', SIMPLE_HISTORY_DIR_URL . 'js/select2/select2.min.css', array(), SIMPLE_HISTORY_VERSION );
 
