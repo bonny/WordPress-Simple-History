@@ -1486,3 +1486,35 @@ a.sh-SettingsTabs-link:hover {
 .SimpleHistoryLogitem--newRowSinceReload {
 	background: rgba(254, 255, 0, 0.1);
 }
+
+/* Old styles moved from ip-info-dropin.css */
+
+.SimpleHistoryIpInfoDropin__ipInfoTable {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable th,
+.SimpleHistoryIpInfoDropin__ipInfoTable td {
+	vertical-align: top;
+	text-align: left;
+	padding: 5px 5px;
+	border-top: 1px solid #eee;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable tr:first-of-type th,
+.SimpleHistoryIpInfoDropin__ipInfoTable tr:first-of-type td {
+	border-top: 0;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable__mapRow a {
+	display: inline-block;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable__mapRow td {
+	padding: 0;
+}
+
+.SimpleHistoryIpInfoDropin__ipInfoTable__key {
+	white-space: nowrap;
+}
