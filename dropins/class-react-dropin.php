@@ -10,8 +10,8 @@ use Simple_History\Helpers;
 class React_Dropin extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
-		add_action( 'simple_history/history_page/gui_wrap_top', [ $this, 'output_element' ], 1 );
-		add_action( 'simple_history/dashboard/before_gui', [ $this, 'output_element' ], 1 );
+		add_action( 'simple_history/history_page/gui_wrap_top', [ $this, 'output_element_page' ], 1 );
+		add_action( 'simple_history/dashboard/before_gui', [ $this, 'output_element_dashboard' ], 1 );
 		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'enqueue_admin_scripts' ] );
 	}
 
@@ -42,11 +42,20 @@ class React_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output HTML element for React to mount on.
+	 * Output HTML element on the history page for React to mount on.
 	 */
-	public function output_element() {
+	public function output_element_page() {
 		?>
-		<div id="simple-history-react-root"></div>
+		<div id="simple-history-react-root" class="SimpleHistoryReactRoot is-page"></div>
+		<?php
+	}
+
+	/**
+	 * Output HTML element on the dashboard for React to mount on.
+	 */
+	public function output_element_dashboard() {
+		?>
+		<div id="simple-history-react-root is-dashboard" class="SimpleHistoryReactRoot is-dashboard"></div>
 		<?php
 	}
 }
