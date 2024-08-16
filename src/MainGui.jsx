@@ -169,7 +169,13 @@ function MainGui() {
 		setEventsReloadTime( Date.now() );
 	};
 
-	// When fetching new events...
+	// Scroll to top smoothly when going to a new page.
+	useEffect( () => {
+		window.scrollTo( {
+			top: 0,
+			behavior: 'smooth',
+		} );
+	}, [ page ] );
 
 	return (
 		<>
