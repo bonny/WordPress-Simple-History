@@ -285,6 +285,9 @@ Read more at the release post.
 -   The history/event feed now refreshes automatically when filters are modified. Just enter some text and the events will be filtered. Or add some filters and the events will be filtered. No need to press the "Search events" button.
 -   The popup with IP address info now displays the name of the server header where the ip address was found.
 -   Added REST API endpoints to fetch the events log.
+-   Filter dropdown, New_Rows_Notifier_Dropin, removed (moved to React GUI).
+-   Add action `simple_history/history_page/gui_wrap_top`.
+-   Remove metabox with link to settings page, since the settings page is now available in the top menu bar.
 
 ### 4.17.0
 

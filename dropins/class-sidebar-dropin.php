@@ -128,7 +128,6 @@ class Sidebar_Dropin extends Dropin {
 		<div class="SimpleHistory__pageSidebar">
 
 			<div class="metabox-holder">
-
 				<?php
 				/**
 				 * Allows to output HTML in sidebar
