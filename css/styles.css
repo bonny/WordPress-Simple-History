@@ -49,11 +49,9 @@
 }
 
 /* on its own page */
-/*.dashboard_page_simple_history_page .SimpleHistoryLogitemsWrap {*/
 .SimpleHistoryGuiWrap {
 	position: relative;
 	min-height: 200px;
-	background-color: rgba(255, 255, 255, 0.75);
 }
 
 .SimpleHistory--isLoaded .SimpleHistoryGuiWrap {
@@ -1517,4 +1515,15 @@ a.sh-SettingsTabs-link:hover {
 
 .SimpleHistoryIpInfoDropin__ipInfoTable__key {
 	white-space: nowrap;
+}
+
+/* New styles for React */
+.SimpleHistoryReactRoot {
+	flex: 1;
+}
+
+.SimpleHistoryReactRoot.is-page {
+}
+
+.SimpleHistoryReactRoot.is-dashboard {
 }
