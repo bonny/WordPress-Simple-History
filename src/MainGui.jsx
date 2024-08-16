@@ -172,7 +172,7 @@ function MainGui() {
 	// When fetching new events...
 
 	return (
-		<div>
+		<>
 			<EventsSearchFilters
 				selectedLogLevels={ selectedLogLevels }
 				setSelectedLogLevels={ setSelectedLogLevels }
@@ -224,7 +224,7 @@ function MainGui() {
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 			/>
-		</div>
+		</>
 	);
 }
 
