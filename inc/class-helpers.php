@@ -1451,4 +1451,32 @@ class Helpers {
 			'result_months' => $result_months,
 		];
 	}
+
+	/**
+	 * How often the script checks for new rows.
+	 *
+	 * @return int Interval in milliseconds.
+	 */
+	public static function get_new_events_check_interval() {
+		/**
+		 * Filter the interval for how often the script checks for new rows.
+		 *
+		 * Set to 0 to disable the notifier.
+		 *
+		 * @example Change the interval from the default 10000 ms (10 seconds) to a minute (300000 ms).
+		 * // Change the interval from the default 10000 ms (10 seconds) to a minute (300000 ms).
+		 * ```php
+		 * add_filter(
+		 *   'SimpleHistoryNewRowsNotifier/interval',
+		 *   function( $interval ) {
+		 *     $interval = 300000;
+		 *     return $interval;
+		 *   }
+		 * );
+		 * ```
+		 *
+		 * @param int $interval Interval in milliseconds.
+		 */
+		return (int) apply_filters( 'SimpleHistoryNewRowsNotifier/interval', 10000 );
+	}
 }

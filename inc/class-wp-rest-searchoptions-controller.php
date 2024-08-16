@@ -150,13 +150,12 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get items.
+	 * Get items, i.e. get data for search options.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
 	public function get_items( $request ) {
-
 		/** @var AddOns_Licences */
 		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
 
@@ -167,6 +166,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'page' => (int) Helpers::get_pager_size(),
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
 			],
+			'new_events_check_interval' => Helpers::get_new_events_check_interval(),
 			'maps_api_key' => apply_filters( 'simple_history/maps_api_key', '' ),
 			'addons' => [
 				'addons' => $addons_service->get_addon_plugins(),
