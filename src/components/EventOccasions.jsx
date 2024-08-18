@@ -5,6 +5,45 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { EventOccasionsList } from './EventOccasionsList';
 
+function EventOcassionsAddonsContent( props ) {
+	const { event, hasExtendedSettingsAddOn } = props;
+
+	// Bail if the event is not from the SimpleUserLogger.
+	if ( event.logger !== 'SimpleUserLogger' ) {
+		return null;
+	}
+
+	// Bail if the event is not a failed login attempt.
+	if (
+		event.message_key !== 'user_login_failed' &&
+		event.message_key !== 'user_unknown_login_failed'
+	) {
+		return null;
+	}
+
+	return (
+		<div className="SimpleHistoryLogitem__occasionsAddOns">
+			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
+				{ hasExtendedSettingsAddOn ? (
+					<a href="options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts">
+						{ __(
+							'Configure failed login attempts',
+							'simple-history'
+						) }
+					</a>
+				) : (
+					<ExternalLink href="https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin#limit-number-of-failed-login-attempts">
+						{ __(
+							'Limit logged login attempts',
+							'simple-history'
+						) }
+					</ExternalLink>
+				) }
+			</p>
+		</div>
+	);
+}
+
 /**
  * Outputs a button that when clicked will load and show similar events.
  *
@@ -71,28 +110,6 @@ export function EventOccasions( props ) {
 		setIsShowingOccasions( true );
 	};
 
-	// TODO: only show this for failed login attempts
-	const ocassionsAddonsContent = hasExtendedSettingsAddOn ? (
-		<div className="SimpleHistoryLogitem__occasionsAddOns">
-			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
-				<a href="options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts">
-					{ __(
-						'Configure failed login attempts',
-						'simple-history'
-					) }
-				</a>
-			</p>
-		</div>
-	) : (
-		<div className="SimpleHistoryLogitem__occasionsAddOns">
-			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
-				<ExternalLink href="https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin#limit-number-of-failed-login-attempts">
-					{ __( 'Limit logged login attempts', 'simple-history' ) }
-				</ExternalLink>
-			</p>
-		</div>
-	);
-
 	const showOcassionsEventsContent = (
 		<>
 			<div className="SimpleHistoryLogitem__occasions">
@@ -115,7 +132,10 @@ export function EventOccasions( props ) {
 					) }
 				</Button>
 
-				{ ocassionsAddonsContent }
+				<EventOcassionsAddonsContent
+					event={ event }
+					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				/>
 			</div>
 		</>
 	);
