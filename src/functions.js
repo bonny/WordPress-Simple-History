@@ -29,6 +29,7 @@ export function generateAPIQueryParams( props ) {
 			'date_gmt',
 			'message',
 			'message_html',
+			'message_key',
 			'details_data',
 			'details_html',
 			'loglevel',
