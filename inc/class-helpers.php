@@ -1195,6 +1195,20 @@ class Helpers {
 	}
 
 	/**
+	 * Returns true if Experimental Features is active.
+	 *
+	 * Default is false.
+	 *
+	 * @return bool
+	 */
+	public static function experimental_features_is_enabled() {
+		return (bool) apply_filters(
+			'simple_history/experimental_features_enabled',
+			get_option( 'simple_history_experimental_features_enabled', 0 )
+		);
+	}
+
+	/**
 	 * Get number of events the last n days.
 	 *
 	 * @param int $period_days Number of days to get events for.

@@ -424,6 +424,7 @@ class Simple_History {
 	public function get_core_dropins() {
 		$dropins = array(
 			Dropins\Detective_Mode_Dropin::class,
+			Dropins\Experimental_Features_Dropin::class,
 			Dropins\Donate_Dropin::class,
 			Dropins\Export_Dropin::class,
 			Dropins\IP_Info_Dropin::class,
