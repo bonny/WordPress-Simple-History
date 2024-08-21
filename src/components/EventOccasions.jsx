@@ -5,6 +5,13 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { EventOccasionsList } from './EventOccasionsList';
 
+/**
+ * Displays some text for failed login attempts.
+ * If the Extended Settings add-on is active, the text will be a link to the settings page.
+ * If the Extended Settings add-on is not active, the text will be a link to the add-on page.
+ *
+ * @param {Object} props
+ */
 function EventOcassionsAddonsContent( props ) {
 	const { event, hasExtendedSettingsAddOn } = props;
 

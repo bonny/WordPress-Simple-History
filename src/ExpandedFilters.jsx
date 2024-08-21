@@ -192,7 +192,6 @@ export function ExpandedFilters( props ) {
 							// An array of strings or objects to display as tokens in the field. If objects are present in the array, they must have a property of value.
 							// Transform to remove the prefix, if any.
 							value={ selectedMessageTypes.map( ( value ) => {
-								// HERE: remove prefix
 								value.value = value.value.replace(
 									SUBITEM_PREFIX,
 									''

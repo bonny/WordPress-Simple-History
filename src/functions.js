@@ -74,7 +74,6 @@ export function generateAPIQueryParams( props ) {
 		}
 	}
 
-	// TODO: fix
 	if ( selectedMessageTypes.length ) {
 		// Array with strings with the message types.
 		const selectedMessageTypesValues = [];

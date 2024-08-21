@@ -148,15 +148,6 @@ function MainGui() {
 		debouncedLoadEvents();
 	}, [ debouncedLoadEvents, searchOptionsLoaded, eventsReloadTime ] );
 
-	// When events are loaded for the fist time, or when reloaded, store the max id.
-	// useEffect( () => {
-	// 	if ( ! events || ! events.length || page !== 1 ) {
-	// 		return;
-	// 	}
-
-	// 	setEventsMaxId( events[ 0 ].id );
-	// }, [ page, events ] );
-
 	/**
 	 * Function to set reload time to current time,
 	 * which will trigger a reload of the events.
@@ -205,13 +196,15 @@ function MainGui() {
 				onReload={ handleReload }
 			/>
 
-			<EventsControlBar
-				eventsIsLoading={ eventsIsLoading }
-				eventsTotal={ eventsMeta.total }
-				eventsMaxId={ eventsMaxId }
-				eventsQueryParams={ eventsQueryParams }
-				onReload={ handleReload }
-			/>
+			{
+				<EventsControlBar
+					eventsIsLoading={ eventsIsLoading }
+					eventsTotal={ eventsMeta.total }
+					eventsMaxId={ eventsMaxId }
+					eventsQueryParams={ eventsQueryParams }
+					onReload={ handleReload }
+				/>
+			}
 
 			<NewEventsNotifier
 				eventsQueryParams={ eventsQueryParams }
