@@ -9,7 +9,6 @@ vendor
 /.vscode
 workspace.code-workspace
 /.idea
-/build
 
 # Docker related data
 data/
