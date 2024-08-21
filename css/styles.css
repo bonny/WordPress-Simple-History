@@ -93,7 +93,8 @@
 .SimpleHistoryLogitems {
 	margin: 0;
 	background: #fff;
-	border: 1px solid rgb(229, 229, 229);
+	border-top: 1px solid rgb(229, 229, 229);
+	border-bottom: 1px solid rgb(229, 229, 229);
 	opacity: 1;
 	transition: all 0.25s ease-out;
 }
@@ -132,6 +133,10 @@
 	height: 1px;
 	right: 0;
 	background: rgb(229, 229, 229);
+}
+
+.postbox .SimpleHistoryLogitem::before {
+	left: 0;
 }
 
 .SimpleHistoryLogitem:last-of-type:before {
@@ -526,18 +531,6 @@ i.e. the log is inside a .postbox element.
 #simple_history_dashboard_widget .inside {
 	padding: 0;
 	margin-top: 0;
-}
-
-.postbox .SimpleHistoryLogitems {
-	border: none;
-}
-
-.postbox .SimpleHistoryLogitem {
-	padding: 12px 5px 12px 16px;
-}
-
-.postbox .SimpleHistoryLogitem::before {
-	left: 55px;
 }
 
 .postbox .SimpleHistoryLogitem__senderImage {
