@@ -122,7 +122,6 @@ export function EventsSearchFilters( props ) {
 			} );
 
 			setMessageTypesSuggestions( nextMessageTypesSuggestions );
-
 			setPagerSize( searchOptions.pager_size );
 			setMapsApiKey( searchOptions.maps_api_key );
 
@@ -150,7 +149,7 @@ export function EventsSearchFilters( props ) {
 
 	return (
 		<MaybeDisabledTag>
-			<div>
+			<div className="SimpleHistory-filters">
 				<DefaultFilters
 					dateOptions={ dateOptions }
 					selectedDateOption={ selectedDateOption }

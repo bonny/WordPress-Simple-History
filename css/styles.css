@@ -1525,5 +1525,6 @@ a.sh-SettingsTabs-link:hover {
 .SimpleHistoryReactRoot.is-page {
 }
 
-.SimpleHistoryReactRoot.is-dashboard {
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistory-filters {
+	padding: 0 11px;
 }
