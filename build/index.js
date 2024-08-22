@@ -445,7 +445,8 @@ function EventsSearchFilters(props) {
     setSearchOptionsLoaded,
     setPagerSize,
     setMapsApiKey,
-    setHasExtendedSettingsAddOn
+    setHasExtendedSettingsAddOn,
+    setIsExperimentalFeaturesEnabled
   } = props;
   const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(false);
   const [dateOptions, setDateOptions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(_constants__WEBPACK_IMPORTED_MODULE_7__.OPTIONS_LOADING);
@@ -514,6 +515,7 @@ function EventsSearchFilters(props) {
       setPagerSize(searchOptions.pager_size);
       setMapsApiKey(searchOptions.maps_api_key);
       setHasExtendedSettingsAddOn(searchOptions.addons.has_extended_settings_add_on);
+      setIsExperimentalFeaturesEnabled(searchOptions.experimental_features_enabled);
       setSearchOptionsLoaded(true);
     });
   }, [setMessageTypesSuggestions, setPagerSize, setSearchOptionsLoaded, setSelectedDateOption, setMapsApiKey, setHasExtendedSettingsAddOn]);
@@ -841,17 +843,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
 /* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/format.mjs");
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/startOfDay.mjs");
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/endOfDay.mjs");
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/format.mjs");
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/startOfDay.mjs");
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/endOfDay.mjs");
 /* harmony import */ var _components_EventsControlBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/EventsControlBar */ "./src/components/EventsControlBar.jsx");
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 /* harmony import */ var _EventsList__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EventsList */ "./src/EventsList.jsx");
 /* harmony import */ var _EventsSearchFilters__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./EventsSearchFilters */ "./src/EventsSearchFilters.jsx");
 /* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./functions */ "./src/functions.js");
 /* harmony import */ var _components_NewEventsNotifier__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./components/NewEventsNotifier */ "./src/components/NewEventsNotifier.jsx");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_11__);
 
 
 
@@ -864,9 +864,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-const defaultStartDate = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.format)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.startOfDay)(new Date()), _constants__WEBPACK_IMPORTED_MODULE_6__.TIMEZONELESS_FORMAT);
-const defaultEndDate = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.format)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.endOfDay)(new Date()), _constants__WEBPACK_IMPORTED_MODULE_6__.TIMEZONELESS_FORMAT);
+const defaultStartDate = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)((0,date_fns__WEBPACK_IMPORTED_MODULE_12__.startOfDay)(new Date()), _constants__WEBPACK_IMPORTED_MODULE_6__.TIMEZONELESS_FORMAT);
+const defaultEndDate = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.format)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.endOfDay)(new Date()), _constants__WEBPACK_IMPORTED_MODULE_6__.TIMEZONELESS_FORMAT);
 function MainGui() {
   const [eventsIsLoading, setEventsIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(true);
   const [events, setEvents] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
@@ -883,6 +882,7 @@ function MainGui() {
   const [pagerSize, setPagerSize] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)({});
   const [mapsApiKey, setMapsApiKey] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
   const [hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
+  const [isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
   const [selectedDateOption, setSelectedDateOption] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
   const [selectedCustomDateFrom, setSelectedCustomDateFrom] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(defaultStartDate);
   const [selectedCustomDateTo, setSelectedCustomDateTo] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(defaultEndDate);
@@ -983,7 +983,7 @@ function MainGui() {
       behavior: 'smooth'
     });
   }, [page]);
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "In react/js: ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_11__.__)('Add-ons', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsSearchFilters__WEBPACK_IMPORTED_MODULE_8__.EventsSearchFilters, {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsSearchFilters__WEBPACK_IMPORTED_MODULE_8__.EventsSearchFilters, {
     selectedLogLevels: selectedLogLevels,
     setSelectedLogLevels: setSelectedLogLevels,
     selectedMessageTypes: selectedMessageTypes,
@@ -1005,9 +1005,11 @@ function MainGui() {
     setPagerSize: setPagerSize,
     setMapsApiKey: setMapsApiKey,
     setHasExtendedSettingsAddOn: setHasExtendedSettingsAddOn,
+    setIsExperimentalFeaturesEnabled: setIsExperimentalFeaturesEnabled,
     setPage: setPage,
     onReload: handleReload
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_EventsControlBar__WEBPACK_IMPORTED_MODULE_5__.EventsControlBar, {
+    isExperimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
     eventsIsLoading: eventsIsLoading,
     eventsTotal: eventsMeta.total,
     eventsMaxId: eventsMaxId,
@@ -2126,9 +2128,15 @@ const MyDropdownMenu = () => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement
  */
 function EventsControlBar(props) {
   const {
+    isExperimentalFeaturesEnabled,
     eventsIsLoading,
     eventsTotal
   } = props;
+
+  // Only show this component if experimental features are enabled.
+  if (!isExperimentalFeaturesEnabled) {
+    return null;
+  }
   const loadingIndicator = eventsIsLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Spinner, null), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__._x)('Loading…', 'Message visible while waiting for log to load from server the first time', 'simple-history')) : null;
   const eventsCount = eventsTotal ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.sprintf)( /* translators: %s: number of events */
   (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__._n)('%s event', '%s events', eventsTotal, 'simple-history'), eventsTotal)) : null;

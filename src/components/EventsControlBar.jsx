@@ -103,7 +103,13 @@ const MyDropdownMenu = () => (
  * @param {Object} props
  */
 export function EventsControlBar( props ) {
-	const { eventsIsLoading, eventsTotal } = props;
+	const { isExperimentalFeaturesEnabled, eventsIsLoading, eventsTotal } =
+		props;
+
+	// Only show this component if experimental features are enabled.
+	if ( ! isExperimentalFeaturesEnabled ) {
+		return null;
+	}
 
 	const loadingIndicator = eventsIsLoading ? (
 		<Text>

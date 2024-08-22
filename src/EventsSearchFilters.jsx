@@ -42,6 +42,7 @@ export function EventsSearchFilters( props ) {
 		setPagerSize,
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
+		setIsExperimentalFeaturesEnabled,
 	} = props;
 
 	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] =
@@ -127,6 +128,10 @@ export function EventsSearchFilters( props ) {
 
 			setHasExtendedSettingsAddOn(
 				searchOptions.addons.has_extended_settings_add_on
+			);
+
+			setIsExperimentalFeaturesEnabled(
+				searchOptions.experimental_features_enabled
 			);
 
 			setSearchOptionsLoaded( true );

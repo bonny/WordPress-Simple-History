@@ -34,6 +34,8 @@ function MainGui() {
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
 	const [ hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn ] =
 		useState( false );
+	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
+		useState( false );
 	const [ selectedDateOption, setSelectedDateOption ] = useState( '' );
 	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] =
 		useState( defaultStartDate );
@@ -192,19 +194,21 @@ function MainGui() {
 				setPagerSize={ setPagerSize }
 				setMapsApiKey={ setMapsApiKey }
 				setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
+				setIsExperimentalFeaturesEnabled={
+					setIsExperimentalFeaturesEnabled
+				}
 				setPage={ setPage }
 				onReload={ handleReload }
 			/>
 
-			{
-				<EventsControlBar
-					eventsIsLoading={ eventsIsLoading }
-					eventsTotal={ eventsMeta.total }
-					eventsMaxId={ eventsMaxId }
-					eventsQueryParams={ eventsQueryParams }
-					onReload={ handleReload }
-				/>
-			}
+			<EventsControlBar
+				isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
+				eventsIsLoading={ eventsIsLoading }
+				eventsTotal={ eventsMeta.total }
+				eventsMaxId={ eventsMaxId }
+				eventsQueryParams={ eventsQueryParams }
+				onReload={ handleReload }
+			/>
 
 			<NewEventsNotifier
 				eventsQueryParams={ eventsQueryParams }
