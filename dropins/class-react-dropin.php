@@ -46,7 +46,7 @@ class React_Dropin extends Dropin {
 	 */
 	public function output_element_page() {
 		?>
-		<div id="simple-history-react-root" class="SimpleHistoryReactRoot is-page"></div>
+		<div id="simple-history-react-root" class="SimpleHistoryReactRoot is-page">Loading</div>
 		<?php
 	}
 
@@ -55,7 +55,7 @@ class React_Dropin extends Dropin {
 	 */
 	public function output_element_dashboard() {
 		?>
-		<div id="simple-history-react-root" class="SimpleHistoryReactRoot is-dashboard"></div>
+		<div id="simple-history-react-root" class="SimpleHistoryReactRoot is-dashboard">Loading</div>
 		<?php
 	}
 }
