@@ -1144,8 +1144,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/link.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/more-vertical.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/info.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/info.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/more-vertical.js");
 /* harmony import */ var _wordpress_notices__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/notices */ "@wordpress/notices");
 /* harmony import */ var _wordpress_notices__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.mjs");
@@ -1201,23 +1201,18 @@ function CopyLinkMenuItem({
     ref: ref
   }, dynamicCopyText);
 }
-function EventActions(props) {
-  const {
-    event
-  } = props;
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "SimpleHistoryLogitem__actions"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.DropdownMenu, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Actions…', 'simple-history'),
+function ViewEventDetailsMenuItem({
+  event,
+  eventVariant,
+  onClose
+}) {
+  // Don't show the "View event details" menu item if the event is already
+  // displayed in a modal.
+  if (eventVariant === 'modal') {
+    return null;
+  }
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
     icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_15__["default"],
-    popoverProps: {
-      placement: 'left-start',
-      inline: true
-    }
-  }, ({
-    onClose
-  }) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuGroup, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
-    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_16__["default"],
     iconPosition: "left",
     onClick: () => {
       (0,_functions__WEBPACK_IMPORTED_MODULE_7__.navigateToEventPermalink)({
@@ -1225,7 +1220,29 @@ function EventActions(props) {
       });
       onClose();
     }
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('View event details', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CopyLinkMenuItem, {
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('View event details', 'simple-history'));
+}
+function EventActions(props) {
+  const {
+    event
+  } = props;
+  const eventVariant = props.eventVariant;
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistoryLogitem__actions"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.DropdownMenu, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Actions…', 'simple-history'),
+    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_16__["default"],
+    popoverProps: {
+      placement: 'left-start',
+      inline: true
+    }
+  }, ({
+    onClose
+  }) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuGroup, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ViewEventDetailsMenuItem, {
+    event: event,
+    eventVariant: eventVariant,
+    onClose: onClose
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CopyLinkMenuItem, {
     event: event
   })))));
 }
@@ -1289,7 +1306,8 @@ function Event(props) {
     eventVariant: variant,
     hasExtendedSettingsAddOn: hasExtendedSettingsAddOn
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventActions, {
-    event: event
+    event: event,
+    eventVariant: variant
   })));
 }
 

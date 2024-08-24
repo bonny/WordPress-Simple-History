@@ -41,8 +41,30 @@ function CopyLinkMenuItem( { event } ) {
 	);
 }
 
+function ViewEventDetailsMenuItem( { event, eventVariant, onClose } ) {
+	// Don't show the "View event details" menu item if the event is already
+	// displayed in a modal.
+	if ( eventVariant === 'modal' ) {
+		return null;
+	}
+
+	return (
+		<MenuItem
+			icon={ info }
+			iconPosition="left"
+			onClick={ () => {
+				navigateToEventPermalink( { event } );
+				onClose();
+			} }
+		>
+			{ __( 'View event details', 'simple-history' ) }
+		</MenuItem>
+	);
+}
+
 function EventActions( props ) {
 	const { event } = props;
+	const eventVariant = props.eventVariant;
 
 	return (
 		<div className="SimpleHistoryLogitem__actions">
@@ -57,17 +79,11 @@ function EventActions( props ) {
 				{ ( { onClose } ) => (
 					<>
 						<MenuGroup>
-							<MenuItem
-								icon={ info }
-								iconPosition="left"
-								onClick={ () => {
-									navigateToEventPermalink( { event } );
-									onClose();
-								} }
-							>
-								{ __( 'View event details', 'simple-history' ) }
-							</MenuItem>
-
+							<ViewEventDetailsMenuItem
+								event={ event }
+								eventVariant={ eventVariant }
+								onClose={ onClose }
+							/>
 							<CopyLinkMenuItem event={ event } />
 						</MenuGroup>
 					</>
@@ -144,7 +160,7 @@ export function Event( props ) {
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				/>
 
-				<EventActions event={ event } />
+				<EventActions event={ event } eventVariant={ variant } />
 			</div>
 		</li>
 	);
