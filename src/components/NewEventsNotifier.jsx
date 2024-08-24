@@ -48,20 +48,25 @@ export function NewEventsNotifier( props ) {
 				_fields: null,
 			};
 
-			const eventsResponse = await apiFetch( {
-				path: addQueryArgs(
-					'/simple-history/v1/events/has-updates',
-					eventsQueryParamsWithSinceId
-				),
-				// Skip parsing to be able to retrieve headers.
-				parse: false,
-			} );
+			try {
+				const eventsResponse = await apiFetch( {
+					path: addQueryArgs(
+						'/simple-history/v1/events/has-updates',
+						eventsQueryParamsWithSinceId
+					),
+					// Skip parsing to be able to retrieve headers.
+					parse: false,
+				} );
 
-			const responseJson = await eventsResponse.json();
-			const responseNewEventsCount = responseJson.new_events_count;
+				const responseJson = await eventsResponse.json();
+				const responseNewEventsCount = responseJson.new_events_count;
 
-			if ( responseNewEventsCount > 0 ) {
-				setNewEventsCount( responseNewEventsCount );
+				if ( responseNewEventsCount > 0 ) {
+					setNewEventsCount( responseNewEventsCount );
+				}
+			} catch ( error ) {
+				// eslint-disable-next-line no-console
+				console.error( 'Error when checking for new events:', error );
 			}
 			// TODO: should this be customizable with filter? and also be able to disable it?
 		}, 5000 );

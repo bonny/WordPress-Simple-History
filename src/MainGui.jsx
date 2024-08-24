@@ -4,11 +4,31 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import { endOfDay, format, startOfDay } from 'date-fns';
 import { EventsControlBar } from './components/EventsControlBar';
+import { EventsModalIfFragment } from './components/EventsModalIfFragment';
+import { NewEventsNotifier } from './components/NewEventsNotifier';
 import { TIMEZONELESS_FORMAT } from './constants';
 import { EventsList } from './EventsList';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { generateAPIQueryParams } from './functions';
-import { NewEventsNotifier } from './components/NewEventsNotifier';
+
+/**
+ * Fetched an event from the REST API.
+ * Returns array with loading, error, and event.
+ *
+ * @param {*} eventId
+ * @return {Array} [isLoading, error, event]
+ */
+// function useEvent( eventId ) {
+// 	const [ isLoading, setIsLoading ] = useState( true );
+// 	const [ error, setError ] = useState( null );
+// 	const [ event, setEvent ] = useState( null );
+
+// 	useEffect( () => {
+// 		setIsLoading( true );
+// 	}, [ eventId ] );
+
+// 	return [ isLoading, error, event ];
+// }
 
 const defaultStartDate = format(
 	startOfDay( new Date() ),
@@ -103,33 +123,42 @@ function MainGui() {
 	const loadEvents = useCallback( async () => {
 		setEventsIsLoading( true );
 
-		const eventsResponse = await apiFetch( {
-			path: addQueryArgs(
-				'/simple-history/v1/events',
-				eventsQueryParams
-			),
-			// Skip parsing to be able to retrieve headers.
-			parse: false,
-		} );
+		try {
+			const eventsResponse = await apiFetch( {
+				path: addQueryArgs(
+					'/simple-history/v1/events',
+					eventsQueryParams
+				),
+				// Skip parsing to be able to retrieve headers.
+				parse: false,
+			} );
 
-		const eventsJson = await eventsResponse.json();
+			const eventsJson = await eventsResponse.json();
 
-		setEventsMeta( {
-			total: parseInt( eventsResponse.headers.get( 'X-Wp-Total' ), 10 ),
-			totalPages: parseInt(
-				eventsResponse.headers.get( 'X-Wp-Totalpages' ),
-				10
-			),
-			link: eventsResponse.headers.get( 'Link' ),
-		} );
+			setEventsMeta( {
+				total: parseInt(
+					eventsResponse.headers.get( 'X-Wp-Total' ),
+					10
+				),
+				totalPages: parseInt(
+					eventsResponse.headers.get( 'X-Wp-Totalpages' ),
+					10
+				),
+				link: eventsResponse.headers.get( 'Link' ),
+			} );
 
-		// To keep track of new events we need to store both old max id and new max id.
-		if ( eventsJson && eventsJson.length && page === 1 ) {
-			setEventsMaxId( eventsJson[ 0 ].id );
+			// To keep track of new events we need to store both old max id and new max id.
+			if ( eventsJson && eventsJson.length && page === 1 ) {
+				setEventsMaxId( eventsJson[ 0 ].id );
+			}
+
+			setEvents( eventsJson );
+		} catch ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Error loading events:', error );
+		} finally {
+			setEventsIsLoading( false );
 		}
-
-		setEvents( eventsJson );
-		setEventsIsLoading( false );
 	}, [ eventsQueryParams, page ] );
 
 	// Debounce the loadEvents function to avoid multiple calls when user types fast.
@@ -227,6 +256,8 @@ function MainGui() {
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 			/>
+
+			<EventsModalIfFragment />
 		</>
 	);
 }

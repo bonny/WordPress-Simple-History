@@ -215,11 +215,9 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem--loglevel-emergency {
-	border-left-color: #610b0b;
 	border-left-color: #df0101;
 }
 .SimpleHistoryLogitem--logleveltag-emergency {
-	background-color: #610b0b;
 	background-color: #df0101;
 	color: #eee;
 }
@@ -319,6 +317,23 @@ Style different log levels.
 /* make video embeds responsive */
 .SimpleHistoryLogitem__details .wp-video {
 	max-width: 100%;
+}
+
+/* Actions button, dropdown with three dots ⋮ */
+.SimpleHistoryLogitem__actions {
+	position: absolute;
+	opacity: 0;
+	top: 20px;
+	right: 12px;
+}
+
+.SimpleHistoryLogitem:hover {
+	background-color: #fafafa;
+}
+
+.SimpleHistoryLogitem:hover .SimpleHistoryLogitem__actions,
+.SimpleHistoryLogitem--variant-modal .SimpleHistoryLogitem__actions {
+	opacity: 1;
 }
 
 /*.SimpleHistoryLogitem__details .wp-video-shortcode {
@@ -1520,4 +1535,9 @@ a.sh-SettingsTabs-link:hover {
 
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistory-filters {
 	padding: 0 11px;
+}
+
+.SimpleHistory__modal {
+	min-width: 50vw;
+	min-height: 50vh;
 }

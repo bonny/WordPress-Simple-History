@@ -8,7 +8,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { intlFormatDistance } from 'date-fns';
 import { EventHeaderItem } from './EventHeaderItem';
-import { EventInfoModal } from './EventInfoModal';
+import { navigateToEventPermalink } from '../functions';
 
 export function EventDate( props ) {
 	const { event, eventVariant } = props;
@@ -19,10 +19,6 @@ export function EventDate( props ) {
 		dateFormatAbbreviated,
 		event.date_gmt
 	);
-
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const openModal = () => setIsModalOpen( true );
-	const closeModal = () => setIsModalOpen( false );
 
 	const [ formattedDateLiveUpdated, setFormattedDateLiveUpdated ] = useState(
 		() => {
@@ -49,9 +45,8 @@ export function EventDate( props ) {
 		event.date_gmt
 	);
 
-	const handleClick = () => {
-		window.location.href = `#/event/${ event.id }`;
-		openModal();
+	const handleDateClick = () => {
+		navigateToEventPermalink( { event } );
 	};
 
 	const time = (
@@ -70,16 +65,12 @@ export function EventDate( props ) {
 					{ eventVariant === 'modal' ? (
 						<Text>{ time }</Text>
 					) : (
-						<Button variant="link" onClick={ handleClick }>
+						<Button variant="link" onClick={ handleDateClick }>
 							{ time }
 						</Button>
 					) }
 				</Tooltip>
 			</EventHeaderItem>
-
-			{ isModalOpen ? (
-				<EventInfoModal event={ event } closeModal={ closeModal } />
-			) : null }
 		</>
 	);
 }

@@ -6,8 +6,8 @@ import { addQueryArgs } from '@wordpress/url';
 import { Event } from './Event';
 
 export function EventInfoModal( props ) {
-	const { event, closeModal } = props;
-	const [ loadedEvent, setLoadedEvent ] = useState( {} );
+	const { eventId, closeModal = null } = props;
+	const [ loadedEvent, setLoadedEvent ] = useState( null );
 	const [ isLoadingContext, setIsLoadingContext ] = useState( true );
 
 	/**
@@ -25,7 +25,11 @@ export function EventInfoModal( props ) {
 					'subsequent_occasions_count',
 					'initiator_data',
 					'loglevel',
+					'message',
+					'message_html',
 					'message_key',
+					'details_data',
+					'details_html',
 					'message_uninterpolated',
 					'date',
 					'date_gmt',
@@ -40,7 +44,7 @@ export function EventInfoModal( props ) {
 
 			const eventResponse = await apiFetch( {
 				path: addQueryArgs(
-					'/simple-history/v1/events/' + event.id,
+					'/simple-history/v1/events/' + eventId,
 					eventsQueryParams
 				),
 				// Skip parsing to be able to retrieve headers.
@@ -54,20 +58,19 @@ export function EventInfoModal( props ) {
 		};
 
 		loadEventContext();
-	}, [ event ] );
+	}, [ eventId ] );
 
 	return (
 		<Modal
 			title={ __( 'Event details', 'simple-history' ) }
 			onRequestClose={ closeModal }
 		>
-			<div className="SimpleHistory-modal">
-				<Event event={ event } variant="modal" />
-
+			<div className="SimpleHistory__modal">
 				{ isLoadingContext ? (
-					__( 'Loading event context data…', 'simple-history' )
+					__( 'Loading detailed events data…', 'simple-history' )
 				) : (
 					<>
+						<Event event={ loadedEvent } variant="modal" />
 						<p>
 							<Text>
 								{ __(

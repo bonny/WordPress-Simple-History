@@ -1,4 +1,5 @@
 import { LOGLEVELS_OPTIONS } from './constants';
+import { useState, useEffect } from '@wordpress/element';
 
 /**
  * Generate api query object based on selected filters.
@@ -114,3 +115,48 @@ export function generateAPIQueryParams( props ) {
 
 	return eventsQueryParams;
 }
+
+/**
+ * Get permalink for an event.
+ * @param {Object} props
+ * @param {Object} props.event
+ * @return {string} Permalink for event.
+ */
+export function getEventPermalink( { event } ) {
+	return `#simple-history/event/${ event.id }`;
+}
+
+/**
+ * Redirect to event permalink.
+ *
+ * @param {Object} props
+ * @param {Object} props.event
+ */
+export function navigateToEventPermalink( { event } ) {
+	// Pushstate does not trigger hashchange event, so we need to do it manually.
+	window.location.hash = `#simple-history/event/${ event.id }`;
+}
+
+/**
+ * Custom hook to get the URL fragment.
+ *
+ * Based on solution:
+ * https://stackoverflow.com/questions/58442168/why-useeffect-doesnt-run-on-window-location-pathname-changes/58443076#58443076
+ */
+export const useURLFrament = () => {
+	const [ fragment, setFragment ] = useState( window.location.hash );
+
+	const listenToPopstate = () => {
+		setFragment( window.location.hash );
+	};
+
+	useEffect( () => {
+		window.addEventListener( 'popstate', listenToPopstate );
+
+		return () => {
+			window.removeEventListener( 'popstate', listenToPopstate );
+		};
+	}, [] );
+
+	return fragment;
+};
