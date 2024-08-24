@@ -1,26 +1,26 @@
 # Tests
 
-- Tests use [wpbrowser](https://wpbrowser.wptestkit.dev/).
-- Tests are run using Docker.
-- Install required composer dependencies with `$ docker-compose run --rm php-cli composer install`.
-- Copy `dump.sql` to `tests/_data/dump.sql`.
-  - This is the starting database fixture, containing the WordPress state that the tests start from. It's a minimal, starting environment shared by all tests. The file is not included in the repo.
-- Copy `twentysixteen.2.6.zip` and `twentysixteen.2.7.zip` to `tests/_data/twentysixteen.2.6.zip` and `tests/_data/twentysixteen.2.7.zip`.
-- Manually download [Jetpack](https://wordpress.org/plugins/jetpack/) and [WP Crontrol](https://wordpress.org/plugins/wp-crontrol/) and place in `tests/plugins`. The plugins are are used to test that Simple History catches changes in those plugins.
-- Start containers required for testing:
-  `$ docker compose up -d`.
-  This will start **WordPress**, **MariaDB** and a **Headless Chrome** using Selenium.
-- Run _unit_, _acceptance_, and _functional_ tests using PHP 7.4:
-  - `$ docker-compose run --rm php-cli vendor/bin/codecept run wpunit`
-    - Faster tests to test things that does not require so much user input.
-  - `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance`
-    - These are tests that are performed using a Chromium browser, like it was done with users that actually visits the WP admin in a browser and does things. These test are slower but more realistic.
-    - To run a single test run for example
-      `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance SimpleUserLoggerCest:logUserCreated` or to run a single suite
-      `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance SimpleUserLoggerCest`
-  - `❯ docker-compose run --rm php-cli vendor/bin/codecept run functional`
-  - Run single test:
-    - `docker-compose run --rm php-cli vendor/bin/codecept run acceptance FirstCest:visitPluginPage`
+-   Tests use [wpbrowser](https://wpbrowser.wptestkit.dev/).
+-   Tests are run using Docker.
+-   Install required composer dependencies with `$ docker-compose run --rm php-cli composer install`.
+-   Copy `dump.sql` to `tests/_data/dump.sql`.
+    -   This is the starting database fixture, containing the WordPress state that the tests start from. It's a minimal, starting environment shared by all tests. The file is not included in the repo.
+-   Copy `twentysixteen.2.6.zip` and `twentysixteen.2.7.zip` to `tests/_data/twentysixteen.2.6.zip` and `tests/_data/twentysixteen.2.7.zip`.
+-   Manually download [Jetpack](https://wordpress.org/plugins/jetpack/) and [WP Crontrol](https://wordpress.org/plugins/wp-crontrol/) and place in `tests/plugins`. The plugins are are used to test that Simple History catches changes in those plugins.
+-   Start containers required for testing:
+    `$ docker compose up -d`.
+    This will start **WordPress**, **MariaDB** and a **Headless Chrome** using Selenium.
+-   Run _unit_, _acceptance_, and _functional_ tests using PHP 7.4:
+    -   `$ docker-compose run --rm php-cli vendor/bin/codecept run wpunit`
+        -   Faster tests to test things that does not require so much user input.
+    -   `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance`
+        -   These are tests that are performed using a Chromium browser, like it was done with users that actually visits the WP admin in a browser and does things. These test are slower but more realistic.
+        -   To run a single test run for example
+            `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance SimpleUserLoggerCest:logUserCreated` or to run a single suite
+            `$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance SimpleUserLoggerCest`
+    -   `❯ docker-compose run --rm php-cli vendor/bin/codecept run functional`
+    -   Run single test:
+        -   `docker-compose run --rm php-cli vendor/bin/codecept run acceptance FirstCest:visitPluginPage`
 
 ## Run a single test
 
@@ -46,6 +46,8 @@ docker-compose run --rm wp-cli plugin activate simple-history
 docker-compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
 ```
 
+## Modify installation using browser
+
 To modify installed WordPress version using a web browser, to for example update WordPress or update plugins:
 
 ```sh
@@ -56,21 +58,30 @@ docker compose run --rm wp-cli db import /var/www/html/tests/_data/dump.sql
 docker compose run --rm wp-cli option set siteurl http://localhost:9191
 docker compose run --rm wp-cli option set home http://localhost:9191
 
-# Make changes and then export sql file again:
-docker compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
+# Go to http://localhost:9191 and make changes
+# ...
+
+# Then export sql file again:
+docker compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H_%M"`.sql
+
+# Replace the old dump.sql with the new one
 ```
 
 ## Update log
 
 Changes made to the test site and SQL-file.
 
-- June 2023: Misc changes, updated Jetpack, added support for changed classes, added Developer Loggers, and more.
-- 24 june 2022: Added Jetpack 11.0 and WP Crontrol 1.12.1.
-- 18 june 2022: Updated to WordPress 6.0 and updated Akismet + languages + themes.
+-   24 aug 2024: Try to update from WP 6.1 to WP 6.6.
+    -   Update wp using wp cli
+    -   Getting messages during test "Upgrading db". So need to make that change and then export the db again.
+    -
+-   June 2023: Misc changes, updated Jetpack, added support for changed classes, added Developer Loggers, and more.
+-   24 june 2022: Added Jetpack 11.0 and WP Crontrol 1.12.1.
+-   18 june 2022: Updated to WordPress 6.0 and updated Akismet + languages + themes.
 
 ## Clean install of WordPress for tests
 
-- docker compose up
-- wp running on localhost:9191 but it thinks its on port 80 (because thats the internal port)
-- access at http://localhost:9191/wp-login.php
-- ...forgot the rest.. update this next time I need to do it 🤷‍♀️.
+-   docker compose up
+-   wp running on localhost:9191 but it thinks its on port 80 (because thats the internal port)
+-   access at http://localhost:9191/wp-login.php
+-   ...forgot the rest.. update this next time I need to do it 🤷‍♀️.
