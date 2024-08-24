@@ -3,12 +3,15 @@ import {
 	__experimentalText as Text,
 	Tooltip,
 } from '@wordpress/components';
-import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import {
+	dateI18n,
+	getSettings as getDateSettings,
+	humanTimeDiff,
+} from '@wordpress/date';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { intlFormatDistance } from 'date-fns';
-import { EventHeaderItem } from './EventHeaderItem';
 import { navigateToEventPermalink } from '../functions';
+import { EventHeaderItem } from './EventHeaderItem';
 
 export function EventDate( props ) {
 	const { event, eventVariant } = props;
@@ -22,15 +25,13 @@ export function EventDate( props ) {
 
 	const [ formattedDateLiveUpdated, setFormattedDateLiveUpdated ] = useState(
 		() => {
-			return intlFormatDistance( event.date_gmt, new Date() );
+			return humanTimeDiff( event.date_gmt );
 		}
 	);
 
 	useEffect( () => {
 		const intervalId = setInterval( () => {
-			setFormattedDateLiveUpdated(
-				intlFormatDistance( event.date_gmt, new Date() )
-			);
+			setFormattedDateLiveUpdated( humanTimeDiff( event.date_gmt ) );
 		}, 1000 );
 
 		return () => {
@@ -50,12 +51,15 @@ export function EventDate( props ) {
 	};
 
 	const time = (
-		<time
-			dateTime={ event.date_gmt }
-			className="SimpleHistoryLogitem__when__liveRelative"
-		>
-			{ formattedDateFormatAbbreviated } ({ formattedDateLiveUpdated })
-		</time>
+		<>
+			<time
+				dateTime={ event.date_gmt }
+				className="SimpleHistoryLogitem__when__liveRelative"
+			>
+				{ formattedDateFormatAbbreviated } ({ formattedDateLiveUpdated }
+				)
+			</time>
+		</>
 	);
 
 	return (
