@@ -64,7 +64,7 @@ const MyDropdownMenu = () => (
 					</MenuItem>
 					<MenuItem onClick={ onClose }>Copy link to search</MenuItem>
 				</MenuGroup>
-				<MenuGroup label="Export">
+				<MenuGroup label={ __( 'Export', 'simple-history' ) }>
 					<MenuItem
 						onClick={ onClose }
 						suffix={ <PremiumFeatureSuffix /> }

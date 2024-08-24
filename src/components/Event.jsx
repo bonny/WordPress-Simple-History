@@ -1,13 +1,45 @@
-import { DropdownMenu } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { useCopyToClipboard } from '@wordpress/compose';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { copy, info, link, moreVertical, page, send } from '@wordpress/icons';
+import { info, link, moreVertical } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { clsx } from 'clsx';
+import { getEventPermalink, navigateToEventPermalink } from '../functions';
 import { EventDetails } from './EventDetails';
 import { EventHeader } from './EventHeader';
 import { EventInitiatorImage } from './EventInitiator';
 import { EventOccasions } from './EventOccasions';
 import { EventText } from './EventText';
-import { navigateToEventPermalink } from '../functions';
+import { useState } from '@wordpress/element';
+
+function CopyLinkMenuItem( { event } ) {
+	const { createInfoNotice } = useDispatch( noticesStore );
+	const permalink = getEventPermalink( { event } );
+
+	const copyText = __( 'Copy link to event', 'simple-history' );
+	const copiedText = __( 'Link copied to clipboard', 'simple-history' );
+
+	const [ dynamicCopyText, setDynamicCopyText ] = useState( copyText );
+
+	const ref = useCopyToClipboard( permalink, () => {
+		setDynamicCopyText( copiedText );
+		setTimeout( () => {
+			setDynamicCopyText( copyText );
+		}, 2000 );
+
+		// FIXME: A notice would be better but this does not work for some reason.
+		createInfoNotice( 'info', __( 'Copied URL to clipboard.' ), {
+			isDismissible: false,
+		} );
+	} );
+
+	return (
+		<MenuItem icon={ link } iconPosition="left" ref={ ref }>
+			{ dynamicCopyText }
+		</MenuItem>
+	);
+}
 
 function EventActions( props ) {
 	const { event } = props;
@@ -21,26 +53,37 @@ function EventActions( props ) {
 					placement: 'left-start',
 					inline: true,
 				} }
-				controls={ [
-					{
-						title: __( 'View details', 'simple-history' ),
-						icon: info,
-						onClick: () => {
-							navigateToEventPermalink( { event } );
-						},
-					},
+			>
+				{ ( { onClose } ) => (
+					<>
+						<MenuGroup>
+							<MenuItem
+								icon={ info }
+								iconPosition="left"
+								onClick={ () => {
+									navigateToEventPermalink( { event } );
+									onClose();
+								} }
+							>
+								{ __( 'View event details', 'simple-history' ) }
+							</MenuItem>
+
+							<CopyLinkMenuItem event={ event } />
+						</MenuGroup>
+					</>
+				) }
+			</DropdownMenu>
+		</div>
+	);
+}
+/*
+				{ [
+
 					{
 						title: __( 'Copy as text', 'simple-history' ),
 						icon: copy,
 						onClick: () => {
 							navigator.clipboard.writeText( event.message );
-						},
-					},
-					{
-						title: __( 'Copy link', 'simple-history' ),
-						icon: link,
-						onClick: () => {
-							console.log( 'Copy link to event', event );
 						},
 					},
 					{
@@ -51,11 +94,7 @@ function EventActions( props ) {
 						},
 					},
 				] }
-			/>
-		</div>
-	);
-}
-
+				*/
 /**
  * Component for a single event in the list of events.
  *
