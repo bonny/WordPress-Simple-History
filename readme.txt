@@ -289,6 +289,7 @@ Read more at the release post.
 -   Add action `simple_history/history_page/gui_wrap_top`.
 -   Remove metabox with link to settings page, since the settings page is now available in the top menu bar.
 -   Add actions menu for each events. The actions menu is available for each event in the event feed and contains actions that can be performed on the event. For example, you can view the event in the context view, view the event in the context view in a new tab, copy the event to the clipboard, or delete the event. Plugins and add-ons can populate the actions menu with custom actions.
+-   Minimum required WordPress version is now 6.6.
 
 ### 4.17.0
 
