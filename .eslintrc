@@ -1,8 +1,16 @@
 {
+	"env": {
+		"browser": true
+	},
 	"extends": [
 		"plugin:@wordpress/eslint-plugin/recommended"
 	],
 	"rules": {
 		"@wordpress/no-unsafe-wp-apis": "off",
+		"no-alert": "off"
+	},
+	"globals": {
+		"jQuery": true,
+		"simpleHistoryScriptVars": true
 	}
 }

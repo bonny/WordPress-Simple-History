@@ -165,7 +165,7 @@ class Scripts_And_Templates extends Service {
 			// Translations that we use in JavaScript.
 			wp_localize_script(
 				'simple_history_script',
-				'simple_history_script_vars',
+				'simpleHistoryScriptVars',
 				array(
 					'settingsConfirmClearLog' => __( 'Remove all log items?', 'simple-history' ),
 					'pagination' => array(
