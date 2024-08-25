@@ -154,6 +154,14 @@ class Scripts_And_Templates extends Service {
 				SIMPLE_HISTORY_VERSION
 			);
 
+			wp_enqueue_script(
+				'simple_history_script',
+				SIMPLE_HISTORY_DIR_URL . 'js/scripts.js',
+				array( 'jquery', 'backbone', 'wp-util' ),
+				SIMPLE_HISTORY_VERSION,
+				true
+			);
+
 			// Translations that we use in JavaScript.
 			wp_localize_script(
 				'simple_history_script',
