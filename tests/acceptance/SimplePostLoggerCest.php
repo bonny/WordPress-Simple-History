@@ -22,9 +22,18 @@ class SimplePostLoggerCest
         // Close Welcome guide.
         $I->click('.edit-post-welcome-guide button.components-button');
 
+        // Go down in editor frame.
+        $I->switchToIFrame('editor-canvas');
+
+        $I->waitForElement('.wp-block-post-title');
+
         // Edit post and save as draft.
         $I->click('.wp-block-post-title');
         $I->pressKey('.wp-block-post-title', ['H', 'e', 'l', 'l', 'o']);
+        
+        // Go up to parent page from editor frame.
+        $I->switchToIFrame();
+        
         $I->click('Save draft');
         $I->waitForText('Draft saved');
         $I->seeLogMessage('Created page "Hello"');
@@ -35,7 +44,12 @@ class SimplePostLoggerCest
         ]);
 
         // Continue editing the same post.
+        $I->switchToIFrame('editor-canvas');
         $I->pressKey('.wp-block-post-title', [' ', 'w', 'o', 'r', 'l', 'd']);
+
+        // Go up to parent page from editor frame.
+        $I->switchToIFrame();
+
         $I->waitForText('Save draft');
         $I->click('Save draft');
         $I->waitForText('Draft saved');
@@ -48,9 +62,19 @@ class SimplePostLoggerCest
         ]);
 
         // Continue editing the post, adding a block.
+        $I->switchToIFrame('editor-canvas');
         $I->click('button.block-editor-inserter__toggle');
+
+        // Go up because that's where the button is.
+        $I->switchToIFrame();
         $I->click('button.block-editor-block-types-list__item.editor-block-list-item-paragraph');
+
+        // Go down in editor frame.
+        $I->switchToIFrame('editor-canvas');
         $I->type('This is text in paragraph.');
+
+        // Go up to parent page from editor frame.
+        $I->switchToIFrame();
         $I->waitForText('Save draft');
         $I->click('Save draft');
         $I->waitForText('Draft saved');
