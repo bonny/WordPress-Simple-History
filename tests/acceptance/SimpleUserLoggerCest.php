@@ -71,6 +71,8 @@ class SimpleUserLoggerCest
         $I->selectOption('input[name=admin_color]', 'light');
         $I->fillField("#first_name", "Jane");
         $I->fillField("#last_name", "Doe");
+        
+        $I->scrollTo('#comment_shortcuts', 0, -300);
         $I->checkOption('#comment_shortcuts');
         $I->unCheckOption('#admin_bar_front');
         $I->fillField("#url", 'https://texttv.nu');
