@@ -116,6 +116,8 @@ class SimpleUserLoggerCest
         $I->selectOption('input[name=admin_color]', 'light');
         $I->fillField("#first_name", "Annaname");
         $I->fillField("#last_name", "Doeauthor");
+
+        $I->scrollTo('#comment_shortcuts', 0, -300);
         $I->checkOption('#comment_shortcuts');
         $I->unCheckOption('#admin_bar_front');
         $I->fillField("#url", 'https://brottsplatskartan.se');
@@ -149,7 +151,8 @@ class SimpleUserLoggerCest
         $I->fillField("#email", "newuser@example.com");
         $I->uncheckOption('#send_user_notification');
 
-        $I->click('Add New User');
+        $I->scrollTo('#createusersub');
+        $I->click("#createusersub");
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Created user NewUserLogin (newuser@example.com) with role subscriber');
@@ -252,7 +255,6 @@ class SimpleUserLoggerCest
         $I->click('annaauthor');
 
         $I->checkOption('#rich_editing');
-        $I->selectOption('input[name=admin_color]', 'light');
         $I->fillField("#new_application_password_name", "My New App");
 
         $I->click('#do_new_application_password');
@@ -262,35 +264,43 @@ class SimpleUserLoggerCest
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Added application password "My New App" for user "annaauthor"');
+        
+        // Need to submit or next step logUserApplicationPasswordRevoked does not work. Very unclear why.
+        $I->click('#submit');
     }
 
     // user_application_password_deleted
     public function logUserApplicationPasswordRevoked(\Step\Acceptance\Admin $I)
     {
-        $I->haveUserInDatabase('annaauthor', 'author', ['user_pass' => 'password']);
 
+        $I->haveUserInDatabase('rolf', 'author', ['user_pass' => 'password']);
+        $I->makeScreenshot();
         $I->loginAsAdmin();
-
         $I->amOnAdminPage('/users.php');
-        $I->click('annaauthor');
 
-        $I->checkOption('#rich_editing');
-        $I->selectOption('input[name=admin_color]', 'light');
+        $I->click('rolf');
+
         $I->fillField("#new_application_password_name", "My New App");
         $I->click('#do_new_application_password');
         $I->waitForElementVisible('#new-application-password-value');
         $I->see('Your new password for My New App is:');
+        
+        // Are you sure you want to revoke this password? This action cannot be undone.
+        $I->wait(5);
+        $I->scrollTo('table.application-passwords-user', 0, -1000);
+        $I->scrollTo('#the-list', 0, 500);
         $I->click("Revoke");
+        
         $I->acceptPopup();
         $I->waitForText('Application password revoked');
         
         $I->seeLogInitiator('wp_user');
-        $I->seeLogMessage('Revoked application password "My New App" for user "annaauthor"');
+        $I->seeLogMessage('Revoked application password "My New App" for user "rolf"');
         $I->seeLogContext([
             'application_password_name' => 'My New App',
             'edited_user_id' => '2',
-            'edited_user_email' => 'annaauthor@example.com',
-            'edited_user_login' => 'annaauthor'
+            'edited_user_email' => 'rolf@example.com',
+            'edited_user_login' => 'rolf'
         ]);
     }
 }
