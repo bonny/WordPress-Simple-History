@@ -62,8 +62,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	/**
 	 * Get items for search user.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response Response object.
 	 */
 	public function get_items_for_search_user( $request ) {
 		$data = [];
@@ -86,8 +86,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a post.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return bool|WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return bool|\WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
 	 */
 	public function get_item_permissions_check( $request ) {
 		// User must be logged in.
@@ -105,8 +105,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	/**
 	 * Checks if a given request has access to read posts.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return true|\WP_Error True if the request has read access, WP_Error object otherwise.
 	 */
 	public function get_items_permissions_check( $request ) {
 		// User must be logged in.
@@ -124,8 +124,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	/**
 	 * Checks if a given request has access to read posts.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return true|\WP_Error True if the request has read access, WP_Error object otherwise.
 	 */
 	public function get_items_permissions_check_for_search_user( $request ) {
 		// User must be logged in.
@@ -152,8 +152,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	/**
 	 * Get items, i.e. get data for search options.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response Response object.
 	 */
 	public function get_items( $request ) {
 		/** @var AddOns_Licences */
