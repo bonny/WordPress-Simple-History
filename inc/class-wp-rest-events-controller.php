@@ -87,8 +87,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Retrieves a single event.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) {
 		$event = $this->get_single_event( $request['id'] );
@@ -103,8 +103,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Checks if a given request has access to read a post.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return bool|WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return bool|\WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
 	 */
 	public function get_item_permissions_check( $request ) {
 		// User must be logged in.
@@ -481,8 +481,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Checks if a given request has access to read posts.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return true|\WP_Error True if the request has read access, WP_Error object otherwise.
 	 */
 	public function get_items_permissions_check( $request ) {
 		// User must be logged in.
@@ -502,8 +502,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 *
 	 * Takes the same args as get_items() but `since_id` param is required.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response Response object.
 	 */
 	public function get_has_updates( $request ) {
 		// Retrieve the list of registered collection query parameters.
@@ -564,8 +564,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Get items.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response Response object.
 	 */
 	public function get_items( $request ) {
 		$events = [];
@@ -657,12 +657,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Prepares a single post output for response.
 	 *
-	 * @param object          $item    Post object.
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @param object           $item    Post object.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response Response object.
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		$data = [];
+		$context = $item->context;
 
 		$fields = $this->get_fields_for_response( $request );
 
@@ -728,7 +729,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'initiator_data', $fields ) ) {
-			$context = $item->context;
 			$user_avatar_data = get_avatar_data( $context['_user_id'] ?? [], [] );
 			$user_avatar_url = $user_avatar_data['url'] ?? '';
 
@@ -737,7 +737,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				'user_login' => $context['_user_login'] ?? null,
 				'user_email' => $context['_user_email'] ?? null,
 				'user_image'  => $this->simple_history->get_log_row_sender_image_output( $item ),
-				'user_avatar_url' => $user_avatar_url ?? null,
+				'user_avatar_url' => $user_avatar_url,
 				'user_profile_url' => get_edit_user_link( $context['_user_id'] ?? null ),
 			];
 
