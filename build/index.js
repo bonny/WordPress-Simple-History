@@ -1349,10 +1349,27 @@ function EventDate(props) {
   } = props;
   const dateSettings = (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_2__.getSettings)();
   const dateFormatAbbreviated = dateSettings.formats.datetimeAbbreviated;
-  const formattedDateFormatAbbreviated = (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_2__.dateI18n)(dateFormatAbbreviated, event.date_gmt);
+  const dateFormatTime = dateSettings.formats.time;
+
+  // Show date as "Sep 2, 2024 8:36 pm".
+  // If the event is today, show "Today instead".
+  // Today is determined by the date in GMT.
+  const eventDateYMD = (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_2__.date)('Y-m-d', event.date_gmt);
+  const nowDateYMD = (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_2__.date)('Y-m-d');
+  const eventIsToday = eventDateYMD === nowDateYMD;
+  let formattedDateFormatAbbreviated;
+  if (eventIsToday) {
+    formattedDateFormatAbbreviated = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)(
+    // translators: %s is the time, like 8:36 pm.
+    (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Today %s', 'simple-history'), (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_2__.dateI18n)(dateFormatTime, event.date_gmt));
+  } else {
+    formattedDateFormatAbbreviated = (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_2__.dateI18n)(dateFormatAbbreviated, event.date_gmt);
+  }
   const [formattedDateLiveUpdated, setFormattedDateLiveUpdated] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(() => {
     return (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_2__.humanTimeDiff)(event.date_gmt);
   });
+
+  // Update live time every second.
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
     const intervalId = setInterval(() => {
       setFormattedDateLiveUpdated((0,_wordpress_date__WEBPACK_IMPORTED_MODULE_2__.humanTimeDiff)(event.date_gmt));
