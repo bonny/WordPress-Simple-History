@@ -37,3 +37,7 @@ tests/_output/*
 !tests/plugins
 tests/plugins/*
 !tests/plugins/.gitkeep
+
+# Local environment files
+db-export-*.sql
+readme.branch.*.md
