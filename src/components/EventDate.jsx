@@ -7,6 +7,7 @@ import {
 	dateI18n,
 	getSettings as getDateSettings,
 	humanTimeDiff,
+	date,
 } from '@wordpress/date';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -17,11 +18,28 @@ export function EventDate( props ) {
 	const { event, eventVariant } = props;
 	const dateSettings = getDateSettings();
 	const dateFormatAbbreviated = dateSettings.formats.datetimeAbbreviated;
+	const dateFormatTime = dateSettings.formats.time;
 
-	const formattedDateFormatAbbreviated = dateI18n(
-		dateFormatAbbreviated,
-		event.date_gmt
-	);
+	// Show date as "Sep 2, 2024 8:36 pm".
+	// If the event is today, show "Today instead".
+	// Today is determined by the date in GMT.
+	const eventDateYMD = date( 'Y-m-d', event.date_gmt );
+	const nowDateYMD = date( 'Y-m-d' );
+	const eventIsToday = eventDateYMD === nowDateYMD;
+
+	let formattedDateFormatAbbreviated;
+	if ( eventIsToday ) {
+		formattedDateFormatAbbreviated = sprintf(
+			// translators: %s is the time, like 8:36 pm.
+			__( 'Today %s', 'simple-history' ),
+			dateI18n( dateFormatTime, event.date_gmt )
+		);
+	} else {
+		formattedDateFormatAbbreviated = dateI18n(
+			dateFormatAbbreviated,
+			event.date_gmt
+		);
+	}
 
 	const [ formattedDateLiveUpdated, setFormattedDateLiveUpdated ] = useState(
 		() => {
@@ -29,6 +47,7 @@ export function EventDate( props ) {
 		}
 	);
 
+	// Update live time every second.
 	useEffect( () => {
 		const intervalId = setInterval( () => {
 			setFormattedDateLiveUpdated( humanTimeDiff( event.date_gmt ) );
