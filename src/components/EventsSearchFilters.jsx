@@ -8,7 +8,7 @@ import {
 	DEFAULT_DATE_OPTIONS,
 	OPTIONS_LOADING,
 	SUBITEM_PREFIX,
-} from './constants';
+} from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
 

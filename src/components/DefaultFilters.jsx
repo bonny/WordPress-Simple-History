@@ -9,7 +9,7 @@ import { getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { endOfDay, format, startOfDay } from 'date-fns';
-import { TIMEZONELESS_FORMAT } from './constants';
+import { TIMEZONELESS_FORMAT } from '../constants';
 
 export function DefaultFilters( props ) {
 	const {

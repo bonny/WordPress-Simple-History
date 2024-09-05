@@ -1,8 +1,8 @@
 import { __experimentalSpacer as Spacer } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
-import { Event } from './components/Event';
-import { EventsPagination } from './components/EventsPagination';
+import { Event } from './Event';
+import { EventsPagination } from './EventsPagination';
 
 /**
  * Renders a list of events.

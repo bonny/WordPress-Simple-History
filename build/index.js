@@ -244,10 +244,10 @@ const update = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.js
 
 /***/ }),
 
-/***/ "./src/DefaultFilters.jsx":
-/*!********************************!*\
-  !*** ./src/DefaultFilters.jsx ***!
-  \********************************/
+/***/ "./src/components/DefaultFilters.jsx":
+/*!*******************************************!*\
+  !*** ./src/components/DefaultFilters.jsx ***!
+  \*******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -267,7 +267,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/format.mjs");
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/startOfDay.mjs");
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/endOfDay.mjs");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
 
 
 
@@ -356,744 +356,6 @@ function DefaultFilters(props) {
     onChange: event => setSearchText(event.target.value)
   })));
 }
-
-/***/ }),
-
-/***/ "./src/EventsList.jsx":
-/*!****************************!*\
-  !*** ./src/EventsList.jsx ***!
-  \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   EventsList: () => (/* binding */ EventsList)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.mjs");
-/* harmony import */ var _components_Event__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/Event */ "./src/components/Event.jsx");
-/* harmony import */ var _components_EventsPagination__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/EventsPagination */ "./src/components/EventsPagination.jsx");
-
-
-
-
-
-
-
-/**
- * Renders a list of events.
- *
- * @param {Object} props
- */
-function EventsList(props) {
-  const {
-    events,
-    page,
-    setPage,
-    eventsIsLoading,
-    eventsMeta,
-    prevEventsMaxId,
-    mapsApiKey,
-    hasExtendedSettingsAddOn
-  } = props;
-  const totalPages = eventsMeta.totalPages;
-  const ulClasses = (0,clsx__WEBPACK_IMPORTED_MODULE_3__.clsx)({
-    SimpleHistoryLogitems: true,
-    'is-loading': eventsIsLoading
-  });
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      backgroundColor: 'white',
-      minHeight: '300px'
-    }
-  }, eventsIsLoading === false && events.length === 0 && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-    style: {
-      padding: '1rem'
-    }
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Your search did not match any history events.', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", {
-    className: ulClasses
-  }, events.map(event => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_Event__WEBPACK_IMPORTED_MODULE_4__.Event, {
-    key: event.id,
-    event: event,
-    mapsApiKey: mapsApiKey,
-    hasExtendedSettingsAddOn: hasExtendedSettingsAddOn,
-    isNewAfterFetchNewEvents: event.id > prevEventsMaxId
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalSpacer, {
-    margin: 4
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_EventsPagination__WEBPACK_IMPORTED_MODULE_5__.EventsPagination, {
-    page: page,
-    totalPages: totalPages,
-    onClickPrev: () => setPage(page - 1),
-    onClickNext: () => setPage(page + 1),
-    onChangePage: newPage => setPage(parseInt(newPage, 10))
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalSpacer, {
-    paddingBottom: 4
-  }));
-}
-
-/***/ }),
-
-/***/ "./src/EventsSearchFilters.jsx":
-/*!*************************************!*\
-  !*** ./src/EventsSearchFilters.jsx ***!
-  \*************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   EventsSearchFilters: () => (/* binding */ EventsSearchFilters)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_date__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/date */ "@wordpress/date");
-/* harmony import */ var _wordpress_date__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_date__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-/* harmony import */ var _DefaultFilters__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DefaultFilters */ "./src/DefaultFilters.jsx");
-/* harmony import */ var _ExpandedFilters__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ExpandedFilters */ "./src/ExpandedFilters.jsx");
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Search component with a search input visible by default.
- * A "Show search options" button is visible where the user can expand the search to show more options/filters.
- *
- * @param {Object} props
- */
-function EventsSearchFilters(props) {
-  const {
-    onReload,
-    selectedLogLevels,
-    setSelectedLogLevels,
-    selectedMessageTypes,
-    setSelectedMessageTypes,
-    selectedDateOption,
-    setSelectedDateOption,
-    enteredSearchText,
-    setEnteredSearchText,
-    selectedCustomDateFrom,
-    setSelectedCustomDateFrom,
-    selectedCustomDateTo,
-    setSelectedCustomDateTo,
-    messageTypesSuggestions,
-    setMessageTypesSuggestions,
-    selectedUsersWithId,
-    setSelectedUsersWithId,
-    searchOptionsLoaded,
-    setSearchOptionsLoaded,
-    setPagerSize,
-    setMapsApiKey,
-    setHasExtendedSettingsAddOn,
-    setIsExperimentalFeaturesEnabled
-  } = props;
-  const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(false);
-  const [dateOptions, setDateOptions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(_constants__WEBPACK_IMPORTED_MODULE_7__.OPTIONS_LOADING);
-
-  // Load search options when component mounts.
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useEffect)(() => {
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-      path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_6__.addQueryArgs)('/simple-history/v1/search-options', {})
-    }).then(searchOptions => {
-      // Append result_months and all dates to dateOptions.
-      const monthsOptions = searchOptions.dates.result_months.map(row => ({
-        label: (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_3__.dateI18n)('F Y', row.yearMonth),
-        value: `month:${row.yearMonth}`
-      }));
-      const allDatesOption = {
-        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('All dates', 'simple-history'),
-        value: 'allDates'
-      };
-      setDateOptions([..._constants__WEBPACK_IMPORTED_MODULE_7__.DEFAULT_DATE_OPTIONS, ...monthsOptions, allDatesOption]);
-      setSelectedDateOption(`lastdays:${searchOptions.dates.daysToShow}`);
-
-      /**
-       * Generate message types suggestions.
-       *
-       * Format is object
-       * {
-       *  key: "logger:message",
-       *  label: "WordPress and plugin updates"
-       * }
-       */
-      const nextMessageTypesSuggestions = [];
-      searchOptions.loggers.forEach(logger => {
-        const searchData = logger.search_data || {};
-        if (!searchData.search) {
-          return;
-        }
-
-        // "WordPress och tilläggsuppdateringar"
-        nextMessageTypesSuggestions.push({
-          value: searchData.search.label,
-          search_options: searchData.search.options
-          // key: logger.slug,
-        });
-
-        // "Alla hittade uppdateringar"
-        if (searchData?.search_all?.label) {
-          nextMessageTypesSuggestions.push({
-            value: _constants__WEBPACK_IMPORTED_MODULE_7__.SUBITEM_PREFIX + searchData.search_all.label,
-            // key: `${logger.slug}:all`,
-            search_options: searchData.search_all.options
-          });
-        }
-
-        // Each single message.
-        if (searchData?.search_options) {
-          searchData.search_options.forEach(option => {
-            nextMessageTypesSuggestions.push({
-              value: _constants__WEBPACK_IMPORTED_MODULE_7__.SUBITEM_PREFIX + option.label,
-              // key: `${logger.slug}:${option.key}`,
-              search_options: option.options
-            });
-          });
-        }
-      });
-      setMessageTypesSuggestions(nextMessageTypesSuggestions);
-      setPagerSize(searchOptions.pager_size);
-      setMapsApiKey(searchOptions.maps_api_key);
-      setHasExtendedSettingsAddOn(searchOptions.addons.has_extended_settings_add_on);
-      setIsExperimentalFeaturesEnabled(searchOptions.experimental_features_enabled);
-      setSearchOptionsLoaded(true);
-    });
-  }, [setMessageTypesSuggestions, setPagerSize, setSearchOptionsLoaded, setSelectedDateOption, setMapsApiKey, setHasExtendedSettingsAddOn]);
-  const showMoreOrLessText = moreOptionsIsExpanded ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Collapse search options', 'simple-history') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Show search options', 'simple-history');
-
-  // Dynamic created <Disabled> elements. Used to disable the whole search component while loading.
-  const MaybeDisabledTag = searchOptionsLoaded ? _wordpress_element__WEBPACK_IMPORTED_MODULE_4__.Fragment : _wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Disabled;
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MaybeDisabledTag, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "SimpleHistory-filters"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_DefaultFilters__WEBPACK_IMPORTED_MODULE_8__.DefaultFilters, {
-    dateOptions: dateOptions,
-    selectedDateOption: selectedDateOption,
-    setSelectedDateOption: setSelectedDateOption,
-    searchText: enteredSearchText,
-    setSearchText: setEnteredSearchText,
-    selectedCustomDateFrom: selectedCustomDateFrom,
-    setSelectedCustomDateFrom: setSelectedCustomDateFrom,
-    selectedCustomDateTo: selectedCustomDateTo,
-    setSelectedCustomDateTo: setSelectedCustomDateTo
-  }), moreOptionsIsExpanded ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_ExpandedFilters__WEBPACK_IMPORTED_MODULE_9__.ExpandedFilters, {
-    messageTypesSuggestions: messageTypesSuggestions,
-    setMessageTypesSuggestions: setMessageTypesSuggestions,
-    selectedLogLevels: selectedLogLevels,
-    setSelectedLogLevels: setSelectedLogLevels,
-    selectedMessageTypes: selectedMessageTypes,
-    setSelectedMessageTypes: setSelectedMessageTypes,
-    setSelectedUsersWithId: setSelectedUsersWithId,
-    selectedUsersWithId: selectedUsersWithId
-  }) : null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-    className: "SimpleHistory__filters__filterSubmitWrap"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    className: "button",
-    onClick: onReload
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Search events', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    type: "button",
-    onClick: () => setMoreOptionsIsExpanded(!moreOptionsIsExpanded),
-    className: "SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"
-  }, showMoreOrLessText))));
-}
-
-/***/ }),
-
-/***/ "./src/ExpandedFilters.jsx":
-/*!*********************************!*\
-  !*** ./src/ExpandedFilters.jsx ***!
-  \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   ExpandedFilters: () => (/* binding */ ExpandedFilters)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-
-
-
-
-
-
-
-
-/**
- * More filters that are hidden by default.
- * Includes log levels, message types and users.
- *
- * @param {Object} props
- */
-function ExpandedFilters(props) {
-  const {
-    messageTypesSuggestions,
-    selectedLogLevels,
-    setSelectedLogLevels,
-    selectedMessageTypes,
-    setSelectedMessageTypes,
-    selectedUsersWithId,
-    setSelectedUsersWithId
-  } = props;
-
-  // User suggestions is the list of users that are loaded from the API
-  // and that is used to display user suggestions in the FormTokenField component.
-  // userSuggestions is an array of objects with properties "id" (user id) and "value" (name email).
-  const [userSuggestions, setUserSuggestions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
-
-  // Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
-  // This way we can find the original untranslated label.
-  const LOGLEVELS_SUGGESTIONS = _constants__WEBPACK_IMPORTED_MODULE_6__.LOGLEVELS_OPTIONS.map(logLevel => {
-    return logLevel.label;
-  });
-  const searchUsers = async searchText => {
-    if (searchText.length < 2) {
-      return;
-    }
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-      path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_5__.addQueryArgs)('/simple-history/v1/search-user', {
-        q: searchText
-      })
-    }).then(searchUsersResponse => {
-      const userSuggestionsLocal = [];
-      searchUsersResponse.forEach(user => {
-        userSuggestionsLocal.push({
-          id: user.id,
-          value: user.display_name + ' (' + user.user_email + ')'
-        });
-      });
-      setUserSuggestions(userSuggestionsLocal);
-    });
-  };
-
-  /**
-   * Fired when user changes the users in the FormTokenField.
-   *
-   * From docs:
-   * "Function to call when the tokens have changed. An array of new tokens is passed to the callback.""
-   *
-   * @param {*} nextValues
-   */
-  const handleUserChange = nextValues => {
-    // checkValues in an array. The values are:
-    // - a string (the user name and email) when the entry is new.
-    // - an object with the user id and name+email when the entry is already in the list. Keys are "id" and "value".
-    // For new entries we need to replace the string with an object.
-    // For existing entries we don't need to do anything.
-    nextValues.map((value, index) => {
-      if (typeof value === 'string') {
-        // This is a new entry, we need to replace the string with an object.
-        // Find the user suggestion that has the same label as the value.
-        const userSuggestion = userSuggestions.find(suggestion => {
-          return suggestion.value === value;
-        });
-        if (userSuggestion) {
-          nextValues[index] = userSuggestion;
-        }
-      } else {
-        // This is an existing entry that already is an object with id and label.
-        // No need to do anything.
-      }
-      return value;
-    });
-    setSelectedUsersWithId(nextValues);
-  };
-
-  /**
-   * Fired when user changes the message types in the FormTokenField.
-   * Works the same way as handleUserChange.
-   *
-   * @param {*} nextValues
-   */
-  const handleMessageTypesChange = nextValues => {
-    nextValues.map((value, index) => {
-      if (typeof value === 'string') {
-        // This is a new entry, we need to replace the string with an object.
-        // Find the user suggestion that has the same label as the value.
-        const userSuggestion = messageTypesSuggestions.find(suggestion => {
-          return suggestion.value.trim() === value.trim();
-        });
-        if (userSuggestion) {
-          nextValues[index] = userSuggestion;
-        }
-      } else {
-        // This is an existing entry that already is an object with id and label.
-        // No need to do anything.
-      }
-      return value;
-    });
-    setSelectedMessageTypes(nextValues);
-  };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Flex, {
-    align: "top",
-    gap: "0",
-    style: {
-      margin: '0.5em 0'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, {
-    style: {
-      margin: '.5em 0'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "SimpleHistory__filters__filterLabel"
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Log levels', 'simple-history'))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexBlock, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "SimpleHistory__filters__loglevels__select",
-    style: {
-      width: '310px',
-      backgroundColor: 'white'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FormTokenField, {
-    __experimentalAutoSelectFirstMatch: true,
-    __experimentalExpandOnFocus: true,
-    __experimentalShowHowTo: false,
-    placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('All log levels', 'simple-history'),
-    onChange: nextValue => {
-      setSelectedLogLevels(nextValue);
-    },
-    suggestions: LOGLEVELS_SUGGESTIONS,
-    value: selectedLogLevels
-  })))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Flex, {
-    align: "top",
-    gap: "0",
-    style: {
-      margin: '0.5em 0'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, {
-    style: {
-      margin: '.5em 0'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "SimpleHistory__filters__filterLabel"
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Message types', 'simple-history'))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexBlock, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "SimpleHistory__filters__loglevels__select",
-    style: {
-      width: '310px',
-      backgroundColor: 'white'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FormTokenField, {
-    __experimentalAutoSelectFirstMatch: true,
-    __experimentalExpandOnFocus: true,
-    __experimentalShowHowTo: false,
-    label: "",
-    placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('All message types', 'simple-history'),
-    onChange: nextValues => {
-      handleMessageTypesChange(nextValues);
-    }
-    // An array of strings or objects to display as tokens in the field. If objects are present in the array, they must have a property of value.
-    // Transform to remove the prefix, if any.
-    ,
-    value: selectedMessageTypes.map(value => {
-      value.value = value.value.replace(_constants__WEBPACK_IMPORTED_MODULE_6__.SUBITEM_PREFIX, '');
-      return value;
-    }),
-    suggestions: messageTypesSuggestions.map(suggestion => {
-      return suggestion.value;
-    })
-    /**
-     * Custom renderer for suggestions.
-     * props.item is string. Examples:
-     * item: 'Tillägg'}
-     * item: ' - All tilläggsaktivitet'
-     * item: ' - Aktiverade tillägg'
-     *
-     * @param {*} localProps
-     */,
-    __experimentalRenderItem: localProps => {
-      // Items that does not begin with prefix should be modified to use bold text.
-      // Items that begin with prefix should not be modified.
-      if (!localProps.item.startsWith(_constants__WEBPACK_IMPORTED_MODULE_6__.SUBITEM_PREFIX)) {
-        return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, localProps.item);
-      }
-
-      // Unmodified item.
-      return localProps.item;
-    }
-  })))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Flex, {
-    align: "top",
-    gap: "0",
-    style: {
-      margin: '0.5em 0'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, {
-    style: {
-      margin: '.5em 0'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "SimpleHistory__filters__filterLabel"
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Users', 'simple-history'))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexBlock, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "SimpleHistory__filters__loglevels__select",
-    style: {
-      width: '310px',
-      backgroundColor: 'white'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FormTokenField, {
-    __experimentalAutoSelectFirstMatch: true,
-    __experimentalExpandOnFocus: true,
-    __experimentalShowHowTo: false,
-    label: "",
-    placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('All users', 'simple-history'),
-    onChange: nextValues => {
-      handleUserChange(nextValues);
-    },
-    onInputChange: value => {
-      searchUsers(value);
-    }
-    // Suggestions:
-    // An array of strings to present to the user as suggested tokens.
-    ,
-    suggestions: userSuggestions.map(suggestion => {
-      return suggestion.value;
-    }),
-    value: selectedUsersWithId
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.BaseControl, {
-    __nextHasNoMarginBottom: true,
-    help: "Enter 2 or more characters to search for users."
-  }))));
-}
-
-/***/ }),
-
-/***/ "./src/MainGui.jsx":
-/*!*************************!*\
-  !*** ./src/MainGui.jsx ***!
-  \*************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/compose */ "@wordpress/compose");
-/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _components_EventsControlBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/EventsControlBar */ "./src/components/EventsControlBar.jsx");
-/* harmony import */ var _components_EventsModalIfFragment__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/EventsModalIfFragment */ "./src/components/EventsModalIfFragment.jsx");
-/* harmony import */ var _components_NewEventsNotifier__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/NewEventsNotifier */ "./src/components/NewEventsNotifier.jsx");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
-/* harmony import */ var _EventsList__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./EventsList */ "./src/EventsList.jsx");
-/* harmony import */ var _EventsSearchFilters__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./EventsSearchFilters */ "./src/EventsSearchFilters.jsx");
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./functions */ "./src/functions.js");
-
-
-
-
-
-
-
-
-
-
-
-
-function MainGui() {
-  const [eventsIsLoading, setEventsIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(true);
-  const [events, setEvents] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
-  const [eventsMeta, setEventsMeta] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)({});
-  const [eventsReloadTime, setEventsReloadTime] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(Date.now());
-
-  // Store the max id of the events. Used to check for new events.
-  const [eventsMaxId, setEventsMaxId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)();
-
-  // Store the previous max id of the events. Used to modify events in the list so user can see what events are new.
-  const [prevEventsMaxId, setPrevEventsMaxId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)();
-  const [searchOptionsLoaded, setSearchOptionsLoaded] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
-  const [page, setPage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(1);
-  const [pagerSize, setPagerSize] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)({});
-  const [mapsApiKey, setMapsApiKey] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
-  const [hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
-  const [isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
-  const [selectedDateOption, setSelectedDateOption] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
-  const [selectedCustomDateFrom, setSelectedCustomDateFrom] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(_constants__WEBPACK_IMPORTED_MODULE_8__.SEARCH_FILTER_DEFAULT_START_DATE);
-  const [selectedCustomDateTo, setSelectedCustomDateTo] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(_constants__WEBPACK_IMPORTED_MODULE_8__.SEARCH_FILTER_DEFAULT_END_DATE);
-  const [enteredSearchText, setEnteredSearchText] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
-  const [selectedLogLevels, setSelectedLogLevels] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
-
-  // Array with objects that contains message types suggestions, used in the message types select control.
-  // Keys are "slug" for search and "value".
-  const [messageTypesSuggestions, setMessageTypesSuggestions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
-
-  // Array with the selected message types.
-  // Contains the same values as the messageTypesSuggestions array.
-  const [selectedMessageTypes, setSelectedMessageTypes] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
-
-  // Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
-  // All users that are selected are added here.
-  // This data is used to get user id from the name+email when we send the selected users to the API.
-  const [selectedUsersWithId, setSelectedUsersWithId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
-  const eventsQueryParams = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useMemo)(() => {
-    return (0,_functions__WEBPACK_IMPORTED_MODULE_11__.generateAPIQueryParams)({
-      selectedLogLevels,
-      selectedMessageTypes,
-      selectedUsersWithId,
-      enteredSearchText,
-      selectedDateOption,
-      selectedCustomDateFrom,
-      selectedCustomDateTo,
-      page,
-      pagerSize
-    });
-  }, [selectedDateOption, enteredSearchText, selectedLogLevels, selectedMessageTypes, selectedUsersWithId, selectedCustomDateFrom, selectedCustomDateTo, page, pagerSize]);
-
-  // Reset page to 1 when filters are modified.
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
-    setPage(1);
-  }, [selectedDateOption, enteredSearchText, selectedLogLevels, selectedMessageTypes, selectedCustomDateFrom, selectedCustomDateTo]);
-
-  /**
-   * Load events from the REST API.
-   * A new function is created each time the eventsQueryParams changes,
-   * so that's whats making the reload of events.
-   */
-  const loadEvents = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useCallback)(async () => {
-    setEventsIsLoading(true);
-    try {
-      const eventsResponse = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-        path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_4__.addQueryArgs)('/simple-history/v1/events', eventsQueryParams),
-        // Skip parsing to be able to retrieve headers.
-        parse: false
-      });
-      const eventsJson = await eventsResponse.json();
-      setEventsMeta({
-        total: parseInt(eventsResponse.headers.get('X-Wp-Total'), 10),
-        totalPages: parseInt(eventsResponse.headers.get('X-Wp-Totalpages'), 10),
-        link: eventsResponse.headers.get('Link')
-      });
-
-      // To keep track of new events we need to store both old max id and new max id.
-      if (eventsJson && eventsJson.length && page === 1) {
-        setEventsMaxId(eventsJson[0].id);
-      }
-      setEvents(eventsJson);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error loading events:', error);
-    } finally {
-      setEventsIsLoading(false);
-    }
-  }, [eventsQueryParams, page]);
-
-  // Debounce the loadEvents function to avoid multiple calls when user types fast.
-  const debouncedLoadEvents = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__.useDebounce)(loadEvents, 500);
-
-  /**
-   * Load events when search options are loaded,
-   * when the reload time is changed,
-   * or when function debouncedLoadEvents is changed due to changes in eventsQueryParams.
-   */
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
-    // Wait for search options to be loaded before loading events,
-    // or the loadEvents will be called twice.
-    if (!searchOptionsLoaded) {
-      return;
-    }
-    debouncedLoadEvents();
-  }, [debouncedLoadEvents, searchOptionsLoaded, eventsReloadTime]);
-
-  /**
-   * Function to set reload time to current time,
-   * which will trigger a reload of the events.
-   * This is used as a callback function for child components,
-   * for example for the search button in the search component.
-   */
-  const handleReload = () => {
-    setPage(1);
-    setPrevEventsMaxId(eventsMaxId);
-    setEventsReloadTime(Date.now());
-  };
-
-  // Scroll to top smoothly when going to a new page.
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  }, [page]);
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsSearchFilters__WEBPACK_IMPORTED_MODULE_10__.EventsSearchFilters, {
-    selectedLogLevels: selectedLogLevels,
-    setSelectedLogLevels: setSelectedLogLevels,
-    selectedMessageTypes: selectedMessageTypes,
-    setSelectedMessageTypes: setSelectedMessageTypes,
-    selectedDateOption: selectedDateOption,
-    setSelectedDateOption: setSelectedDateOption,
-    enteredSearchText: enteredSearchText,
-    setEnteredSearchText: setEnteredSearchText,
-    selectedCustomDateFrom: selectedCustomDateFrom,
-    setSelectedCustomDateFrom: setSelectedCustomDateFrom,
-    selectedCustomDateTo: selectedCustomDateTo,
-    setSelectedCustomDateTo: setSelectedCustomDateTo,
-    messageTypesSuggestions: messageTypesSuggestions,
-    setMessageTypesSuggestions: setMessageTypesSuggestions,
-    selectedUsersWithId: selectedUsersWithId,
-    setSelectedUsersWithId: setSelectedUsersWithId,
-    searchOptionsLoaded: searchOptionsLoaded,
-    setSearchOptionsLoaded: setSearchOptionsLoaded,
-    setPagerSize: setPagerSize,
-    setMapsApiKey: setMapsApiKey,
-    setHasExtendedSettingsAddOn: setHasExtendedSettingsAddOn,
-    setIsExperimentalFeaturesEnabled: setIsExperimentalFeaturesEnabled,
-    setPage: setPage,
-    onReload: handleReload
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_EventsControlBar__WEBPACK_IMPORTED_MODULE_5__.EventsControlBar, {
-    isExperimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
-    eventsIsLoading: eventsIsLoading,
-    eventsTotal: eventsMeta.total,
-    eventsMaxId: eventsMaxId,
-    eventsQueryParams: eventsQueryParams,
-    onReload: handleReload
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_NewEventsNotifier__WEBPACK_IMPORTED_MODULE_7__.NewEventsNotifier, {
-    eventsQueryParams: eventsQueryParams,
-    eventsMaxId: eventsMaxId,
-    onReload: handleReload
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsList__WEBPACK_IMPORTED_MODULE_9__.EventsList, {
-    eventsIsLoading: eventsIsLoading,
-    events: events,
-    eventsMeta: eventsMeta,
-    page: page,
-    setPage: setPage,
-    eventsMaxId: eventsMaxId,
-    prevEventsMaxId: prevEventsMaxId,
-    mapsApiKey: mapsApiKey,
-    hasExtendedSettingsAddOn: hasExtendedSettingsAddOn
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_EventsModalIfFragment__WEBPACK_IMPORTED_MODULE_6__.EventsModalIfFragment, null));
-}
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (MainGui);
 
 /***/ }),
 
@@ -2346,6 +1608,299 @@ function EventsControlBar(props) {
 
 /***/ }),
 
+/***/ "./src/components/EventsGui.jsx":
+/*!**************************************!*\
+  !*** ./src/components/EventsGui.jsx ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/compose */ "@wordpress/compose");
+/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _EventsControlBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./EventsControlBar */ "./src/components/EventsControlBar.jsx");
+/* harmony import */ var _EventsModalIfFragment__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./EventsModalIfFragment */ "./src/components/EventsModalIfFragment.jsx");
+/* harmony import */ var _NewEventsNotifier__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./NewEventsNotifier */ "./src/components/NewEventsNotifier.jsx");
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+/* harmony import */ var _EventsList__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./EventsList */ "./src/components/EventsList.jsx");
+/* harmony import */ var _EventsSearchFilters__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./EventsSearchFilters */ "./src/components/EventsSearchFilters.jsx");
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../functions */ "./src/functions.js");
+
+
+
+
+
+
+
+
+
+
+
+
+function EventsGui() {
+  const [eventsIsLoading, setEventsIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(true);
+  const [events, setEvents] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
+  const [eventsMeta, setEventsMeta] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)({});
+  const [eventsReloadTime, setEventsReloadTime] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(Date.now());
+
+  // Store the max id of the events. Used to check for new events.
+  const [eventsMaxId, setEventsMaxId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)();
+
+  // Store the previous max id of the events. Used to modify events in the list so user can see what events are new.
+  const [prevEventsMaxId, setPrevEventsMaxId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)();
+  const [searchOptionsLoaded, setSearchOptionsLoaded] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
+  const [page, setPage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(1);
+  const [pagerSize, setPagerSize] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)({});
+  const [mapsApiKey, setMapsApiKey] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
+  const [hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
+  const [isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
+  const [selectedDateOption, setSelectedDateOption] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
+  const [selectedCustomDateFrom, setSelectedCustomDateFrom] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(_constants__WEBPACK_IMPORTED_MODULE_8__.SEARCH_FILTER_DEFAULT_START_DATE);
+  const [selectedCustomDateTo, setSelectedCustomDateTo] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(_constants__WEBPACK_IMPORTED_MODULE_8__.SEARCH_FILTER_DEFAULT_END_DATE);
+  const [enteredSearchText, setEnteredSearchText] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
+  const [selectedLogLevels, setSelectedLogLevels] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
+
+  // Array with objects that contains message types suggestions, used in the message types select control.
+  // Keys are "slug" for search and "value".
+  const [messageTypesSuggestions, setMessageTypesSuggestions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
+
+  // Array with the selected message types.
+  // Contains the same values as the messageTypesSuggestions array.
+  const [selectedMessageTypes, setSelectedMessageTypes] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
+
+  // Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
+  // All users that are selected are added here.
+  // This data is used to get user id from the name+email when we send the selected users to the API.
+  const [selectedUsersWithId, setSelectedUsersWithId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
+  const eventsQueryParams = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useMemo)(() => {
+    return (0,_functions__WEBPACK_IMPORTED_MODULE_11__.generateAPIQueryParams)({
+      selectedLogLevels,
+      selectedMessageTypes,
+      selectedUsersWithId,
+      enteredSearchText,
+      selectedDateOption,
+      selectedCustomDateFrom,
+      selectedCustomDateTo,
+      page,
+      pagerSize
+    });
+  }, [selectedDateOption, enteredSearchText, selectedLogLevels, selectedMessageTypes, selectedUsersWithId, selectedCustomDateFrom, selectedCustomDateTo, page, pagerSize]);
+
+  // Reset page to 1 when filters are modified.
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    setPage(1);
+  }, [selectedDateOption, enteredSearchText, selectedLogLevels, selectedMessageTypes, selectedCustomDateFrom, selectedCustomDateTo]);
+
+  /**
+   * Load events from the REST API.
+   * A new function is created each time the eventsQueryParams changes,
+   * so that's whats making the reload of events.
+   */
+  const loadEvents = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useCallback)(async () => {
+    setEventsIsLoading(true);
+    try {
+      const eventsResponse = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+        path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_4__.addQueryArgs)('/simple-history/v1/events', eventsQueryParams),
+        // Skip parsing to be able to retrieve headers.
+        parse: false
+      });
+      const eventsJson = await eventsResponse.json();
+      setEventsMeta({
+        total: parseInt(eventsResponse.headers.get('X-Wp-Total'), 10),
+        totalPages: parseInt(eventsResponse.headers.get('X-Wp-Totalpages'), 10),
+        link: eventsResponse.headers.get('Link')
+      });
+
+      // To keep track of new events we need to store both old max id and new max id.
+      if (eventsJson && eventsJson.length && page === 1) {
+        setEventsMaxId(eventsJson[0].id);
+      }
+      setEvents(eventsJson);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error loading events:', error);
+    } finally {
+      setEventsIsLoading(false);
+    }
+  }, [eventsQueryParams, page]);
+
+  // Debounce the loadEvents function to avoid multiple calls when user types fast.
+  const debouncedLoadEvents = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__.useDebounce)(loadEvents, 500);
+
+  /**
+   * Load events when search options are loaded,
+   * when the reload time is changed,
+   * or when function debouncedLoadEvents is changed due to changes in eventsQueryParams.
+   */
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    // Wait for search options to be loaded before loading events,
+    // or the loadEvents will be called twice.
+    if (!searchOptionsLoaded) {
+      return;
+    }
+    debouncedLoadEvents();
+  }, [debouncedLoadEvents, searchOptionsLoaded, eventsReloadTime]);
+
+  /**
+   * Function to set reload time to current time,
+   * which will trigger a reload of the events.
+   * This is used as a callback function for child components,
+   * for example for the search button in the search component.
+   */
+  const handleReload = () => {
+    setPage(1);
+    setPrevEventsMaxId(eventsMaxId);
+    setEventsReloadTime(Date.now());
+  };
+
+  // Scroll to top smoothly when going to a new page.
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [page]);
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsSearchFilters__WEBPACK_IMPORTED_MODULE_10__.EventsSearchFilters, {
+    selectedLogLevels: selectedLogLevels,
+    setSelectedLogLevels: setSelectedLogLevels,
+    selectedMessageTypes: selectedMessageTypes,
+    setSelectedMessageTypes: setSelectedMessageTypes,
+    selectedDateOption: selectedDateOption,
+    setSelectedDateOption: setSelectedDateOption,
+    enteredSearchText: enteredSearchText,
+    setEnteredSearchText: setEnteredSearchText,
+    selectedCustomDateFrom: selectedCustomDateFrom,
+    setSelectedCustomDateFrom: setSelectedCustomDateFrom,
+    selectedCustomDateTo: selectedCustomDateTo,
+    setSelectedCustomDateTo: setSelectedCustomDateTo,
+    messageTypesSuggestions: messageTypesSuggestions,
+    setMessageTypesSuggestions: setMessageTypesSuggestions,
+    selectedUsersWithId: selectedUsersWithId,
+    setSelectedUsersWithId: setSelectedUsersWithId,
+    searchOptionsLoaded: searchOptionsLoaded,
+    setSearchOptionsLoaded: setSearchOptionsLoaded,
+    setPagerSize: setPagerSize,
+    setMapsApiKey: setMapsApiKey,
+    setHasExtendedSettingsAddOn: setHasExtendedSettingsAddOn,
+    setIsExperimentalFeaturesEnabled: setIsExperimentalFeaturesEnabled,
+    setPage: setPage,
+    onReload: handleReload
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsControlBar__WEBPACK_IMPORTED_MODULE_5__.EventsControlBar, {
+    isExperimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
+    eventsIsLoading: eventsIsLoading,
+    eventsTotal: eventsMeta.total,
+    eventsMaxId: eventsMaxId,
+    eventsQueryParams: eventsQueryParams,
+    onReload: handleReload
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_NewEventsNotifier__WEBPACK_IMPORTED_MODULE_7__.NewEventsNotifier, {
+    eventsQueryParams: eventsQueryParams,
+    eventsMaxId: eventsMaxId,
+    onReload: handleReload
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsList__WEBPACK_IMPORTED_MODULE_9__.EventsList, {
+    eventsIsLoading: eventsIsLoading,
+    events: events,
+    eventsMeta: eventsMeta,
+    page: page,
+    setPage: setPage,
+    eventsMaxId: eventsMaxId,
+    prevEventsMaxId: prevEventsMaxId,
+    mapsApiKey: mapsApiKey,
+    hasExtendedSettingsAddOn: hasExtendedSettingsAddOn
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsModalIfFragment__WEBPACK_IMPORTED_MODULE_6__.EventsModalIfFragment, null));
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (EventsGui);
+
+/***/ }),
+
+/***/ "./src/components/EventsList.jsx":
+/*!***************************************!*\
+  !*** ./src/components/EventsList.jsx ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   EventsList: () => (/* binding */ EventsList)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.mjs");
+/* harmony import */ var _Event__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Event */ "./src/components/Event.jsx");
+/* harmony import */ var _EventsPagination__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./EventsPagination */ "./src/components/EventsPagination.jsx");
+
+
+
+
+
+
+
+/**
+ * Renders a list of events.
+ *
+ * @param {Object} props
+ */
+function EventsList(props) {
+  const {
+    events,
+    page,
+    setPage,
+    eventsIsLoading,
+    eventsMeta,
+    prevEventsMaxId,
+    mapsApiKey,
+    hasExtendedSettingsAddOn
+  } = props;
+  const totalPages = eventsMeta.totalPages;
+  const ulClasses = (0,clsx__WEBPACK_IMPORTED_MODULE_3__.clsx)({
+    SimpleHistoryLogitems: true,
+    'is-loading': eventsIsLoading
+  });
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      backgroundColor: 'white',
+      minHeight: '300px'
+    }
+  }, eventsIsLoading === false && events.length === 0 && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    style: {
+      padding: '1rem'
+    }
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Your search did not match any history events.', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", {
+    className: ulClasses
+  }, events.map(event => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_Event__WEBPACK_IMPORTED_MODULE_4__.Event, {
+    key: event.id,
+    event: event,
+    mapsApiKey: mapsApiKey,
+    hasExtendedSettingsAddOn: hasExtendedSettingsAddOn,
+    isNewAfterFetchNewEvents: event.id > prevEventsMaxId
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalSpacer, {
+    margin: 4
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsPagination__WEBPACK_IMPORTED_MODULE_5__.EventsPagination, {
+    page: page,
+    totalPages: totalPages,
+    onClickPrev: () => setPage(page - 1),
+    onClickNext: () => setPage(page + 1),
+    onChangePage: newPage => setPage(parseInt(newPage, 10))
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalSpacer, {
+    paddingBottom: 4
+  }));
+}
+
+/***/ }),
+
 /***/ "./src/components/EventsModalIfFragment.jsx":
 /*!**************************************************!*\
   !*** ./src/components/EventsModalIfFragment.jsx ***!
@@ -2487,6 +2042,451 @@ function EventsPagination(props) {
     accessibleWhenDisabled: true,
     icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__["default"]
   })));
+}
+
+/***/ }),
+
+/***/ "./src/components/EventsSearchFilters.jsx":
+/*!************************************************!*\
+  !*** ./src/components/EventsSearchFilters.jsx ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   EventsSearchFilters: () => (/* binding */ EventsSearchFilters)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_date__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/date */ "@wordpress/date");
+/* harmony import */ var _wordpress_date__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_date__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+/* harmony import */ var _DefaultFilters__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DefaultFilters */ "./src/components/DefaultFilters.jsx");
+/* harmony import */ var _ExpandedFilters__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ExpandedFilters */ "./src/components/ExpandedFilters.jsx");
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Search component with a search input visible by default.
+ * A "Show search options" button is visible where the user can expand the search to show more options/filters.
+ *
+ * @param {Object} props
+ */
+function EventsSearchFilters(props) {
+  const {
+    onReload,
+    selectedLogLevels,
+    setSelectedLogLevels,
+    selectedMessageTypes,
+    setSelectedMessageTypes,
+    selectedDateOption,
+    setSelectedDateOption,
+    enteredSearchText,
+    setEnteredSearchText,
+    selectedCustomDateFrom,
+    setSelectedCustomDateFrom,
+    selectedCustomDateTo,
+    setSelectedCustomDateTo,
+    messageTypesSuggestions,
+    setMessageTypesSuggestions,
+    selectedUsersWithId,
+    setSelectedUsersWithId,
+    searchOptionsLoaded,
+    setSearchOptionsLoaded,
+    setPagerSize,
+    setMapsApiKey,
+    setHasExtendedSettingsAddOn,
+    setIsExperimentalFeaturesEnabled
+  } = props;
+  const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(false);
+  const [dateOptions, setDateOptions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(_constants__WEBPACK_IMPORTED_MODULE_7__.OPTIONS_LOADING);
+
+  // Load search options when component mounts.
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useEffect)(() => {
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+      path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_6__.addQueryArgs)('/simple-history/v1/search-options', {})
+    }).then(searchOptions => {
+      // Append result_months and all dates to dateOptions.
+      const monthsOptions = searchOptions.dates.result_months.map(row => ({
+        label: (0,_wordpress_date__WEBPACK_IMPORTED_MODULE_3__.dateI18n)('F Y', row.yearMonth),
+        value: `month:${row.yearMonth}`
+      }));
+      const allDatesOption = {
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('All dates', 'simple-history'),
+        value: 'allDates'
+      };
+      setDateOptions([..._constants__WEBPACK_IMPORTED_MODULE_7__.DEFAULT_DATE_OPTIONS, ...monthsOptions, allDatesOption]);
+      setSelectedDateOption(`lastdays:${searchOptions.dates.daysToShow}`);
+
+      /**
+       * Generate message types suggestions.
+       *
+       * Format is object
+       * {
+       *  key: "logger:message",
+       *  label: "WordPress and plugin updates"
+       * }
+       */
+      const nextMessageTypesSuggestions = [];
+      searchOptions.loggers.forEach(logger => {
+        const searchData = logger.search_data || {};
+        if (!searchData.search) {
+          return;
+        }
+
+        // "WordPress och tilläggsuppdateringar"
+        nextMessageTypesSuggestions.push({
+          value: searchData.search.label,
+          search_options: searchData.search.options
+          // key: logger.slug,
+        });
+
+        // "Alla hittade uppdateringar"
+        if (searchData?.search_all?.label) {
+          nextMessageTypesSuggestions.push({
+            value: _constants__WEBPACK_IMPORTED_MODULE_7__.SUBITEM_PREFIX + searchData.search_all.label,
+            // key: `${logger.slug}:all`,
+            search_options: searchData.search_all.options
+          });
+        }
+
+        // Each single message.
+        if (searchData?.search_options) {
+          searchData.search_options.forEach(option => {
+            nextMessageTypesSuggestions.push({
+              value: _constants__WEBPACK_IMPORTED_MODULE_7__.SUBITEM_PREFIX + option.label,
+              // key: `${logger.slug}:${option.key}`,
+              search_options: option.options
+            });
+          });
+        }
+      });
+      setMessageTypesSuggestions(nextMessageTypesSuggestions);
+      setPagerSize(searchOptions.pager_size);
+      setMapsApiKey(searchOptions.maps_api_key);
+      setHasExtendedSettingsAddOn(searchOptions.addons.has_extended_settings_add_on);
+      setIsExperimentalFeaturesEnabled(searchOptions.experimental_features_enabled);
+      setSearchOptionsLoaded(true);
+    });
+  }, [setMessageTypesSuggestions, setPagerSize, setSearchOptionsLoaded, setSelectedDateOption, setMapsApiKey, setHasExtendedSettingsAddOn]);
+  const showMoreOrLessText = moreOptionsIsExpanded ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Collapse search options', 'simple-history') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Show search options', 'simple-history');
+
+  // Dynamic created <Disabled> elements. Used to disable the whole search component while loading.
+  const MaybeDisabledTag = searchOptionsLoaded ? _wordpress_element__WEBPACK_IMPORTED_MODULE_4__.Fragment : _wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Disabled;
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MaybeDisabledTag, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory-filters"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_DefaultFilters__WEBPACK_IMPORTED_MODULE_8__.DefaultFilters, {
+    dateOptions: dateOptions,
+    selectedDateOption: selectedDateOption,
+    setSelectedDateOption: setSelectedDateOption,
+    searchText: enteredSearchText,
+    setSearchText: setEnteredSearchText,
+    selectedCustomDateFrom: selectedCustomDateFrom,
+    setSelectedCustomDateFrom: setSelectedCustomDateFrom,
+    selectedCustomDateTo: selectedCustomDateTo,
+    setSelectedCustomDateTo: setSelectedCustomDateTo
+  }), moreOptionsIsExpanded ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_ExpandedFilters__WEBPACK_IMPORTED_MODULE_9__.ExpandedFilters, {
+    messageTypesSuggestions: messageTypesSuggestions,
+    setMessageTypesSuggestions: setMessageTypesSuggestions,
+    selectedLogLevels: selectedLogLevels,
+    setSelectedLogLevels: setSelectedLogLevels,
+    selectedMessageTypes: selectedMessageTypes,
+    setSelectedMessageTypes: setSelectedMessageTypes,
+    setSelectedUsersWithId: setSelectedUsersWithId,
+    selectedUsersWithId: selectedUsersWithId
+  }) : null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    className: "SimpleHistory__filters__filterSubmitWrap"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "button",
+    onClick: onReload
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Search events', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    type: "button",
+    onClick: () => setMoreOptionsIsExpanded(!moreOptionsIsExpanded),
+    className: "SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"
+  }, showMoreOrLessText))));
+}
+
+/***/ }),
+
+/***/ "./src/components/ExpandedFilters.jsx":
+/*!********************************************!*\
+  !*** ./src/components/ExpandedFilters.jsx ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ExpandedFilters: () => (/* binding */ ExpandedFilters)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../constants */ "./src/constants.js");
+
+
+
+
+
+
+
+
+/**
+ * More filters that are hidden by default.
+ * Includes log levels, message types and users.
+ *
+ * @param {Object} props
+ */
+function ExpandedFilters(props) {
+  const {
+    messageTypesSuggestions,
+    selectedLogLevels,
+    setSelectedLogLevels,
+    selectedMessageTypes,
+    setSelectedMessageTypes,
+    selectedUsersWithId,
+    setSelectedUsersWithId
+  } = props;
+
+  // User suggestions is the list of users that are loaded from the API
+  // and that is used to display user suggestions in the FormTokenField component.
+  // userSuggestions is an array of objects with properties "id" (user id) and "value" (name email).
+  const [userSuggestions, setUserSuggestions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
+
+  // Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
+  // This way we can find the original untranslated label.
+  const LOGLEVELS_SUGGESTIONS = _constants__WEBPACK_IMPORTED_MODULE_6__.LOGLEVELS_OPTIONS.map(logLevel => {
+    return logLevel.label;
+  });
+  const searchUsers = async searchText => {
+    if (searchText.length < 2) {
+      return;
+    }
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+      path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_5__.addQueryArgs)('/simple-history/v1/search-user', {
+        q: searchText
+      })
+    }).then(searchUsersResponse => {
+      const userSuggestionsLocal = [];
+      searchUsersResponse.forEach(user => {
+        userSuggestionsLocal.push({
+          id: user.id,
+          value: user.display_name + ' (' + user.user_email + ')'
+        });
+      });
+      setUserSuggestions(userSuggestionsLocal);
+    });
+  };
+
+  /**
+   * Fired when user changes the users in the FormTokenField.
+   *
+   * From docs:
+   * "Function to call when the tokens have changed. An array of new tokens is passed to the callback.""
+   *
+   * @param {*} nextValues
+   */
+  const handleUserChange = nextValues => {
+    // checkValues in an array. The values are:
+    // - a string (the user name and email) when the entry is new.
+    // - an object with the user id and name+email when the entry is already in the list. Keys are "id" and "value".
+    // For new entries we need to replace the string with an object.
+    // For existing entries we don't need to do anything.
+    nextValues.map((value, index) => {
+      if (typeof value === 'string') {
+        // This is a new entry, we need to replace the string with an object.
+        // Find the user suggestion that has the same label as the value.
+        const userSuggestion = userSuggestions.find(suggestion => {
+          return suggestion.value === value;
+        });
+        if (userSuggestion) {
+          nextValues[index] = userSuggestion;
+        }
+      } else {
+        // This is an existing entry that already is an object with id and label.
+        // No need to do anything.
+      }
+      return value;
+    });
+    setSelectedUsersWithId(nextValues);
+  };
+
+  /**
+   * Fired when user changes the message types in the FormTokenField.
+   * Works the same way as handleUserChange.
+   *
+   * @param {*} nextValues
+   */
+  const handleMessageTypesChange = nextValues => {
+    nextValues.map((value, index) => {
+      if (typeof value === 'string') {
+        // This is a new entry, we need to replace the string with an object.
+        // Find the user suggestion that has the same label as the value.
+        const userSuggestion = messageTypesSuggestions.find(suggestion => {
+          return suggestion.value.trim() === value.trim();
+        });
+        if (userSuggestion) {
+          nextValues[index] = userSuggestion;
+        }
+      } else {
+        // This is an existing entry that already is an object with id and label.
+        // No need to do anything.
+      }
+      return value;
+    });
+    setSelectedMessageTypes(nextValues);
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Flex, {
+    align: "top",
+    gap: "0",
+    style: {
+      margin: '0.5em 0'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, {
+    style: {
+      margin: '.5em 0'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory__filters__filterLabel"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Log levels', 'simple-history'))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexBlock, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory__filters__loglevels__select",
+    style: {
+      width: '310px',
+      backgroundColor: 'white'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FormTokenField, {
+    __experimentalAutoSelectFirstMatch: true,
+    __experimentalExpandOnFocus: true,
+    __experimentalShowHowTo: false,
+    placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('All log levels', 'simple-history'),
+    onChange: nextValue => {
+      setSelectedLogLevels(nextValue);
+    },
+    suggestions: LOGLEVELS_SUGGESTIONS,
+    value: selectedLogLevels
+  })))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Flex, {
+    align: "top",
+    gap: "0",
+    style: {
+      margin: '0.5em 0'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, {
+    style: {
+      margin: '.5em 0'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory__filters__filterLabel"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Message types', 'simple-history'))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexBlock, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory__filters__loglevels__select",
+    style: {
+      width: '310px',
+      backgroundColor: 'white'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FormTokenField, {
+    __experimentalAutoSelectFirstMatch: true,
+    __experimentalExpandOnFocus: true,
+    __experimentalShowHowTo: false,
+    label: "",
+    placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('All message types', 'simple-history'),
+    onChange: nextValues => {
+      handleMessageTypesChange(nextValues);
+    }
+    // An array of strings or objects to display as tokens in the field. If objects are present in the array, they must have a property of value.
+    // Transform to remove the prefix, if any.
+    ,
+    value: selectedMessageTypes.map(value => {
+      value.value = value.value.replace(_constants__WEBPACK_IMPORTED_MODULE_6__.SUBITEM_PREFIX, '');
+      return value;
+    }),
+    suggestions: messageTypesSuggestions.map(suggestion => {
+      return suggestion.value;
+    })
+    /**
+     * Custom renderer for suggestions.
+     * props.item is string. Examples:
+     * item: 'Tillägg'}
+     * item: ' - All tilläggsaktivitet'
+     * item: ' - Aktiverade tillägg'
+     *
+     * @param {*} localProps
+     */,
+    __experimentalRenderItem: localProps => {
+      // Items that does not begin with prefix should be modified to use bold text.
+      // Items that begin with prefix should not be modified.
+      if (!localProps.item.startsWith(_constants__WEBPACK_IMPORTED_MODULE_6__.SUBITEM_PREFIX)) {
+        return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, localProps.item);
+      }
+
+      // Unmodified item.
+      return localProps.item;
+    }
+  })))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Flex, {
+    align: "top",
+    gap: "0",
+    style: {
+      margin: '0.5em 0'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, {
+    style: {
+      margin: '.5em 0'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory__filters__filterLabel"
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Users', 'simple-history'))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexBlock, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory__filters__loglevels__select",
+    style: {
+      width: '310px',
+      backgroundColor: 'white'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FormTokenField, {
+    __experimentalAutoSelectFirstMatch: true,
+    __experimentalExpandOnFocus: true,
+    __experimentalShowHowTo: false,
+    label: "",
+    placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('All users', 'simple-history'),
+    onChange: nextValues => {
+      handleUserChange(nextValues);
+    },
+    onInputChange: value => {
+      searchUsers(value);
+    }
+    // Suggestions:
+    // An array of strings to present to the user as suggested tokens.
+    ,
+    suggestions: userSuggestions.map(suggestion => {
+      return suggestion.value;
+    }),
+    value: selectedUsersWithId
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.BaseControl, {
+    __nextHasNoMarginBottom: true,
+    help: "Enter 2 or more characters to search for users."
+  }))));
 }
 
 /***/ }),
@@ -8091,7 +8091,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _MainGui__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MainGui */ "./src/MainGui.jsx");
+/* harmony import */ var _components_EventsGui__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/EventsGui */ "./src/components/EventsGui.jsx");
 
 // Entrypoint used by wp-scripts start and build.
 
@@ -8101,9 +8101,9 @@ _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_1___default()(() => {
   const target = document.getElementById('simple-history-react-root');
   if (target) {
     if (_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.createRoot) {
-      (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.createRoot)(target).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_MainGui__WEBPACK_IMPORTED_MODULE_3__["default"], null));
+      (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.createRoot)(target).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_EventsGui__WEBPACK_IMPORTED_MODULE_3__["default"], null));
     } else {
-      (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.render)((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_MainGui__WEBPACK_IMPORTED_MODULE_3__["default"], null), target);
+      (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.render)((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_EventsGui__WEBPACK_IMPORTED_MODULE_3__["default"], null), target);
     }
   }
 });

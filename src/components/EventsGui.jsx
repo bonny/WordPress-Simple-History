@@ -2,18 +2,18 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { EventsControlBar } from './components/EventsControlBar';
-import { EventsModalIfFragment } from './components/EventsModalIfFragment';
-import { NewEventsNotifier } from './components/NewEventsNotifier';
+import { EventsControlBar } from './EventsControlBar';
+import { EventsModalIfFragment } from './EventsModalIfFragment';
+import { NewEventsNotifier } from './NewEventsNotifier';
 import {
 	SEARCH_FILTER_DEFAULT_START_DATE,
 	SEARCH_FILTER_DEFAULT_END_DATE,
-} from './constants';
+} from '../constants';
 import { EventsList } from './EventsList';
 import { EventsSearchFilters } from './EventsSearchFilters';
-import { generateAPIQueryParams } from './functions';
+import { generateAPIQueryParams } from '../functions';
 
-function MainGui() {
+function EventsGui() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ events, setEvents ] = useState( [] );
 	const [ eventsMeta, setEventsMeta ] = useState( {} );
@@ -241,4 +241,4 @@ function MainGui() {
 	);
 }
 
-export default MainGui;
+export default EventsGui;
