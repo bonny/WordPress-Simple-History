@@ -2,11 +2,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { endOfDay, format, startOfDay } from 'date-fns';
 import { EventsControlBar } from './components/EventsControlBar';
 import { EventsModalIfFragment } from './components/EventsModalIfFragment';
 import { NewEventsNotifier } from './components/NewEventsNotifier';
-import { TIMEZONELESS_FORMAT } from './constants';
+import {
+	SEARCH_FILTER_DEFAULT_START_DATE,
+	SEARCH_FILTER_DEFAULT_END_DATE,
+} from './constants';
 import { EventsList } from './EventsList';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { generateAPIQueryParams } from './functions';
@@ -32,10 +34,12 @@ function MainGui() {
 	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
 		useState( false );
 	const [ selectedDateOption, setSelectedDateOption ] = useState( '' );
-	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] =
-		useState( defaultStartDate );
-	const [ selectedCustomDateTo, setSelectedCustomDateTo ] =
-		useState( defaultEndDate );
+	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useState(
+		SEARCH_FILTER_DEFAULT_START_DATE
+	);
+	const [ selectedCustomDateTo, setSelectedCustomDateTo ] = useState(
+		SEARCH_FILTER_DEFAULT_END_DATE
+	);
 	const [ enteredSearchText, setEnteredSearchText ] = useState( '' );
 	const [ selectedLogLevels, setSelectedLogLevels ] = useState( [] );
 

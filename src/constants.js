@@ -1,4 +1,5 @@
 import { __, _x } from '@wordpress/i18n';
+import { endOfDay, format, startOfDay } from 'date-fns';
 
 export const DEFAULT_DATE_OPTIONS = [
 	{
@@ -68,3 +69,12 @@ export const LOGLEVELS_OPTIONS = [
 export const TIMEZONELESS_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
 export const SUBITEM_PREFIX = ' - ';
+
+export const SEARCH_FILTER_DEFAULT_START_DATE = format(
+	startOfDay( new Date() ),
+	TIMEZONELESS_FORMAT
+);
+export const SEARCH_FILTER_DEFAULT_END_DATE = format(
+	endOfDay( new Date() ),
+	TIMEZONELESS_FORMAT
+);
