@@ -903,9 +903,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
 /* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/format.mjs");
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/startOfDay.mjs");
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/endOfDay.mjs");
 /* harmony import */ var _components_EventsControlBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/EventsControlBar */ "./src/components/EventsControlBar.jsx");
 /* harmony import */ var _components_EventsModalIfFragment__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/EventsModalIfFragment */ "./src/components/EventsModalIfFragment.jsx");
 /* harmony import */ var _components_NewEventsNotifier__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/NewEventsNotifier */ "./src/components/NewEventsNotifier.jsx");
@@ -925,29 +922,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-
-/**
- * Fetched an event from the REST API.
- * Returns array with loading, error, and event.
- *
- * @param {*} eventId
- * @return {Array} [isLoading, error, event]
- */
-// function useEvent( eventId ) {
-// 	const [ isLoading, setIsLoading ] = useState( true );
-// 	const [ error, setError ] = useState( null );
-// 	const [ event, setEvent ] = useState( null );
-
-// 	useEffect( () => {
-// 		setIsLoading( true );
-// 	}, [ eventId ] );
-
-// 	return [ isLoading, error, event ];
-// }
-
-const defaultStartDate = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.format)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.startOfDay)(new Date()), _constants__WEBPACK_IMPORTED_MODULE_8__.TIMEZONELESS_FORMAT);
-const defaultEndDate = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.format)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.endOfDay)(new Date()), _constants__WEBPACK_IMPORTED_MODULE_8__.TIMEZONELESS_FORMAT);
 function MainGui() {
   const [eventsIsLoading, setEventsIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(true);
   const [events, setEvents] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
@@ -966,8 +940,8 @@ function MainGui() {
   const [hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
   const [isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
   const [selectedDateOption, setSelectedDateOption] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
-  const [selectedCustomDateFrom, setSelectedCustomDateFrom] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(defaultStartDate);
-  const [selectedCustomDateTo, setSelectedCustomDateTo] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(defaultEndDate);
+  const [selectedCustomDateFrom, setSelectedCustomDateFrom] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(_constants__WEBPACK_IMPORTED_MODULE_8__.SEARCH_FILTER_DEFAULT_START_DATE);
+  const [selectedCustomDateTo, setSelectedCustomDateTo] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(_constants__WEBPACK_IMPORTED_MODULE_8__.SEARCH_FILTER_DEFAULT_END_DATE);
   const [enteredSearchText, setEnteredSearchText] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
   const [selectedLogLevels, setSelectedLogLevels] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
 
@@ -2654,11 +2628,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   DEFAULT_DATE_OPTIONS: () => (/* binding */ DEFAULT_DATE_OPTIONS),
 /* harmony export */   LOGLEVELS_OPTIONS: () => (/* binding */ LOGLEVELS_OPTIONS),
 /* harmony export */   OPTIONS_LOADING: () => (/* binding */ OPTIONS_LOADING),
+/* harmony export */   SEARCH_FILTER_DEFAULT_END_DATE: () => (/* binding */ SEARCH_FILTER_DEFAULT_END_DATE),
+/* harmony export */   SEARCH_FILTER_DEFAULT_START_DATE: () => (/* binding */ SEARCH_FILTER_DEFAULT_START_DATE),
 /* harmony export */   SUBITEM_PREFIX: () => (/* binding */ SUBITEM_PREFIX),
 /* harmony export */   TIMEZONELESS_FORMAT: () => (/* binding */ TIMEZONELESS_FORMAT)
 /* harmony export */ });
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/format.mjs");
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/startOfDay.mjs");
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ "./node_modules/date-fns/endOfDay.mjs");
+
 
 const DEFAULT_DATE_OPTIONS = [{
   label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Custom date range…', 'simple-history'),
@@ -2709,6 +2689,8 @@ const LOGLEVELS_OPTIONS = [{
 // Date in format 2024-07-11T13:20:32, as used by WP DatePicker.
 const TIMEZONELESS_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 const SUBITEM_PREFIX = ' - ';
+const SEARCH_FILTER_DEFAULT_START_DATE = (0,date_fns__WEBPACK_IMPORTED_MODULE_1__.format)((0,date_fns__WEBPACK_IMPORTED_MODULE_2__.startOfDay)(new Date()), TIMEZONELESS_FORMAT);
+const SEARCH_FILTER_DEFAULT_END_DATE = (0,date_fns__WEBPACK_IMPORTED_MODULE_1__.format)((0,date_fns__WEBPACK_IMPORTED_MODULE_3__.endOfDay)(new Date()), TIMEZONELESS_FORMAT);
 
 /***/ }),
 
