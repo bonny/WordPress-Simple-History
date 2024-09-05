@@ -11,31 +11,6 @@ import { EventsList } from './EventsList';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { generateAPIQueryParams } from './functions';
 
-/**
- * Fetched an event from the REST API.
- * Returns array with loading, error, and event.
- *
- * @param {*} eventId
- * @return {Array} [isLoading, error, event]
- */
-// function useEvent( eventId ) {
-// 	const [ isLoading, setIsLoading ] = useState( true );
-// 	const [ error, setError ] = useState( null );
-// 	const [ event, setEvent ] = useState( null );
-
-// 	useEffect( () => {
-// 		setIsLoading( true );
-// 	}, [ eventId ] );
-
-// 	return [ isLoading, error, event ];
-// }
-
-const defaultStartDate = format(
-	startOfDay( new Date() ),
-	TIMEZONELESS_FORMAT
-);
-const defaultEndDate = format( endOfDay( new Date() ), TIMEZONELESS_FORMAT );
-
 function MainGui() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ events, setEvents ] = useState( [] );
