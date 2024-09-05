@@ -33,6 +33,7 @@ function EventsGui() {
 		useState( false );
 	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
 		useState( false );
+	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ selectedDateOption, setSelectedDateOption ] = useState( '' );
 	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useState(
 		SEARCH_FILTER_DEFAULT_START_DATE
@@ -205,6 +206,8 @@ function EventsGui() {
 				setIsExperimentalFeaturesEnabled={
 					setIsExperimentalFeaturesEnabled
 				}
+				eventsAdminPageURL={ eventsAdminPageURL }
+				setEventsAdminPageURL={ setEventsAdminPageURL }
 				setPage={ setPage }
 				onReload={ handleReload }
 			/>

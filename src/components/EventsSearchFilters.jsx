@@ -43,6 +43,7 @@ export function EventsSearchFilters( props ) {
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
 		setIsExperimentalFeaturesEnabled,
+		setEventsAdminPageURL,
 	} = props;
 
 	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] =
@@ -134,6 +135,8 @@ export function EventsSearchFilters( props ) {
 				searchOptions.experimental_features_enabled
 			);
 
+			setEventsAdminPageURL( searchOptions.events_admin_page_url );
+
 			setSearchOptionsLoaded( true );
 		} );
 	}, [
@@ -143,6 +146,8 @@ export function EventsSearchFilters( props ) {
 		setSelectedDateOption,
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
+		setIsExperimentalFeaturesEnabled,
+		setEventsAdminPageURL,
 	] );
 
 	const showMoreOrLessText = moreOptionsIsExpanded
