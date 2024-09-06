@@ -1,6 +1,5 @@
 import { LOGLEVELS_OPTIONS } from './constants';
 import { useState, useEffect } from '@wordpress/element';
-import { getFragment } from '@wordpress/url';
 
 /**
  * Generate api query object based on selected filters.
@@ -48,6 +47,7 @@ export function generateAPIQueryParams( props ) {
 			'initiator_data',
 			'ip_addresses',
 			'via',
+			'permalink',
 		],
 	};
 
@@ -115,25 +115,6 @@ export function generateAPIQueryParams( props ) {
 	}
 
 	return eventsQueryParams;
-}
-
-/**
- * Get permalink for an event.
- * Currently pretty dumb because it assumes we are on the history page.
- *
- * @param {Object} props
- * @param {Object} props.event
- * @return {string} Permalink for event.
- */
-export function getEventPermalink( { event } ) {
-	const url = document.location.href;
-
-	const existingFragment = getFragment( url );
-	const newFragment = `#simple-history/event/${ event.id }`;
-	let newUrl = url.replace( existingFragment, '' );
-	newUrl = newUrl + newFragment;
-
-	return newUrl;
 }
 
 /**
