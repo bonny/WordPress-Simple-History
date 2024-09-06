@@ -318,7 +318,7 @@ Style different log levels.
 .SimpleHistoryLogitem__actions {
 	position: absolute;
 	opacity: 0;
-	top: 20px;
+	top: 0;
 	right: 12px;
 }
 
