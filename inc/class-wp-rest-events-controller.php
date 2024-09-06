@@ -470,6 +470,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The context of the event.', 'simple-history' ),
 					'type'        => 'object',
 				),
+				'permalink' => array(
+					'description' => __( 'The permalink of the event.', 'simple-history' ),
+					'type'        => 'string',
+				),
 			),
 		);
 
@@ -781,6 +785,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
 			$data['context'] = $item->context;
+		}
+
+		if ( rest_is_field_included( 'permalink', $fields ) ) {
+			$data['permalink'] = sprintf(
+				'%s#simple-history/event/%d',
+				$this->simple_history->get_view_history_page_admin_url(),
+				$item->id
+			);
 		}
 
 		// Wrap the data in a response object.
