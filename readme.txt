@@ -275,23 +275,33 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
-🚀 This update contains a huge update...that I hope you don't even notice! 🧐
-Read more at the release post.
+### 5.0.0 (September 2024)
 
--   Add action `simple_history/dropin/stats/before_content` that is fired inside the stats sidebar box, after the headline but before any content.
--   Move the "quickstats" text to the top of the stats sidebar box.
--   Rewrite main events GUI to use React and WordPress components. The previous implementation was using Backbone and was a bit outdated and hard to maintain. This new version will make it more easy to add new features and improve the GUI in the future.
--   Using WordPress components makes the usability and accessibility of the GUI better. Keyboard navigation and screen reader support is improved.
--   The history/event feed now refreshes automatically when filters are modified. Just enter some text and the events will be filtered. Or add some filters and the events will be filtered. No need to press the "Search events" button.
+🚀 This update contains a huge update...that hopefully you won't even notice! 🧐
+[Read more about these changes.](https://simple-history.com/2024/simple-history-4-17-0/?utm_source=wpadmin)
+
+**Changed**
+
+-   Rewrite the main events GUI to use [React](https://react.dev/) and [WordPress components](https://developer.wordpress.org/block-editor/reference-guides/components/). The previous implementation was using [Backbone](https://backbonejs.org/) and was a bit outdated and hard to maintain. This new version will make it more easy to add new features and improve the GUI in the future. Using WordPress components makes the usability and accessibility of the GUI better. Keyboard navigation and screen reader support is improved. It will also be easier to add new features and improve the GUI in the future, for example to add more actions from add-ons.
+-   The event feed now refreshes automatically when filters are modified. Just enter some text and the events will be filtered. Or add some filters and the events will be filtered. No need to press the "Search events" button.
 -   The popup with IP address info now displays the name of the server header where the ip address was found.
--   Added REST API endpoints to fetch the events log.
--   Filter dropdown, New_Rows_Notifier_Dropin, removed (moved to React GUI).
--   Add action `simple_history/history_page/gui_wrap_top`.
--   Remove metabox with link to settings page, since the settings page is now available in the top menu bar.
--   Add actions menu for each events. The actions menu is available for each event in the event feed and contains actions that can be performed on the event. For example, you can view the event in the context view, view the event in the context view in a new tab, copy the event to the clipboard, or delete the event. Plugins and add-ons can populate the actions menu with custom actions.
--   Minimum required WordPress version is now 6.6.
+-   The "quickstats" box is moved to the top of the stats sidebar box.
+-   Minimum required WordPress version is now [WordPress 6.6](https://wordpress.com/blog/2024/07/16/wordpress-6-6/).
 
-### 4.17.0
+**Added**
+
+-   Added REST API endpoints to fetch the events log. This makes it possible to fetch the events log using the WordPress REST API. The REST API endpoints are available at `/simple-history/v1/events` and `/wp-json/simple-history/v1/events/<id>`. The endpoints support filtering, sorting, and pagination. The addition of these endpoints makes it possible for for example admin or tech personel to access the log from other systems or services, for example to build a custom dashboard or to integrate the log with other systems. Not that you need to be authenticated to access the REST API endpoints. This is possible by using [application passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/).
+-   Add actions menu for each events. The actions menu is available for each event in the event feed and contains actions that can be performed on the event. For example, you can view a modal with event details or copy an event permalink. Plugins and add-ons can populate the actions menu with custom actions. Add-ons that add more actions to this menu will be available in the future.
+-   Add action `simple_history/history_page/gui_wrap_top` that is fired at the top of the GUI wrapper on the history page.
+-   Add action `simple_history/dropin/stats/before_content` that is fired inside the stats sidebar box, after the headline but before any content.
+
+**Removed**
+
+-   Filter dropdown, New_Rows_Notifier_Dropin, removed (moved to React GUI).
+-   Remove metabox with link to settings page, since the settings page is now available in the top menu bar.
+-   Many old and unused files and functions have been removed, including js hooks and filters that are no longer used.
+
+### 4.17.0 (August 2024)
 
 🐞 This release contains some small bug fixes and enhancements. The [previous version](https://simple-history.com/2024/simple-history-4-16-0/?utm_source=wpadmin) had more cool new features so check out that one if you haven't already.
 
@@ -304,7 +314,7 @@ Read more at the release post.
 
 🌟 Pssst.... Don't forget that you can [sponsor this project to keep it free and open source](https://simple-history.com/sponsor/). And if you need more features you can buy [add-ons that also get you some extra features](https://simple-history.com/add-ons/). 🌟
 
-### 4.16.0
+### 4.16.0 (July 2024)
 
 This release contains many new features and improvements. Especially updates made on the settings screen has gonne through a major overhaul and is now much more user friendly and informative.
 [View the release post for screenshots and more information](https://simple-history.com/2024/simple-history-4-16-0/?utm_source=wpadmin).
