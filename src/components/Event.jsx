@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { info, link, moreVertical } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { clsx } from 'clsx';
-import { getEventPermalink, navigateToEventPermalink } from '../functions';
+import { navigateToEventPermalink } from '../functions';
 import { EventDetails } from './EventDetails';
 import { EventHeader } from './EventHeader';
 import { EventInitiatorImage } from './EventInitiator';
@@ -15,7 +15,7 @@ import { useState } from '@wordpress/element';
 
 function CopyLinkMenuItem( { event } ) {
 	const { createInfoNotice } = useDispatch( noticesStore );
-	const permalink = getEventPermalink( { event } );
+	const permalink = event.permalink;
 
 	const copyText = __( 'Copy link to event', 'simple-history' );
 	const copiedText = __( 'Link copied to clipboard', 'simple-history' );
