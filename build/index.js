@@ -414,9 +414,7 @@ function CopyLinkMenuItem({
   const {
     createInfoNotice
   } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_3__.useDispatch)(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__.store);
-  const permalink = (0,_functions__WEBPACK_IMPORTED_MODULE_7__.getEventPermalink)({
-    event
-  });
+  const permalink = event.permalink;
   const copyText = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Copy link to event', 'simple-history');
   const copiedText = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Link copied to clipboard', 'simple-history');
   const [dynamicCopyText, setDynamicCopyText] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_13__.useState)(copyText);
@@ -1664,6 +1662,7 @@ function EventsGui() {
   const [mapsApiKey, setMapsApiKey] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
   const [hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
   const [isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
+  const [eventsAdminPageURL, setEventsAdminPageURL] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)();
   const [selectedDateOption, setSelectedDateOption] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)('');
   const [selectedCustomDateFrom, setSelectedCustomDateFrom] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(_constants__WEBPACK_IMPORTED_MODULE_8__.SEARCH_FILTER_DEFAULT_START_DATE);
   const [selectedCustomDateTo, setSelectedCustomDateTo] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(_constants__WEBPACK_IMPORTED_MODULE_8__.SEARCH_FILTER_DEFAULT_END_DATE);
@@ -1793,6 +1792,8 @@ function EventsGui() {
     setMapsApiKey: setMapsApiKey,
     setHasExtendedSettingsAddOn: setHasExtendedSettingsAddOn,
     setIsExperimentalFeaturesEnabled: setIsExperimentalFeaturesEnabled,
+    eventsAdminPageURL: eventsAdminPageURL,
+    setEventsAdminPageURL: setEventsAdminPageURL,
     setPage: setPage,
     onReload: handleReload
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsControlBar__WEBPACK_IMPORTED_MODULE_5__.EventsControlBar, {
@@ -2114,7 +2115,8 @@ function EventsSearchFilters(props) {
     setPagerSize,
     setMapsApiKey,
     setHasExtendedSettingsAddOn,
-    setIsExperimentalFeaturesEnabled
+    setIsExperimentalFeaturesEnabled,
+    setEventsAdminPageURL
   } = props;
   const [moreOptionsIsExpanded, setMoreOptionsIsExpanded] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(false);
   const [dateOptions, setDateOptions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_4__.useState)(_constants__WEBPACK_IMPORTED_MODULE_7__.OPTIONS_LOADING);
@@ -2184,9 +2186,10 @@ function EventsSearchFilters(props) {
       setMapsApiKey(searchOptions.maps_api_key);
       setHasExtendedSettingsAddOn(searchOptions.addons.has_extended_settings_add_on);
       setIsExperimentalFeaturesEnabled(searchOptions.experimental_features_enabled);
+      setEventsAdminPageURL(searchOptions.events_admin_page_url);
       setSearchOptionsLoaded(true);
     });
-  }, [setMessageTypesSuggestions, setPagerSize, setSearchOptionsLoaded, setSelectedDateOption, setMapsApiKey, setHasExtendedSettingsAddOn]);
+  }, [setMessageTypesSuggestions, setPagerSize, setSearchOptionsLoaded, setSelectedDateOption, setMapsApiKey, setHasExtendedSettingsAddOn, setIsExperimentalFeaturesEnabled, setEventsAdminPageURL]);
   const showMoreOrLessText = moreOptionsIsExpanded ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Collapse search options', 'simple-history') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Show search options', 'simple-history');
 
   // Dynamic created <Disabled> elements. Used to disable the whole search component while loading.
@@ -2703,16 +2706,12 @@ const SEARCH_FILTER_DEFAULT_END_DATE = (0,date_fns__WEBPACK_IMPORTED_MODULE_1__.
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   generateAPIQueryParams: () => (/* binding */ generateAPIQueryParams),
-/* harmony export */   getEventPermalink: () => (/* binding */ getEventPermalink),
 /* harmony export */   navigateToEventPermalink: () => (/* binding */ navigateToEventPermalink),
 /* harmony export */   useURLFrament: () => (/* binding */ useURLFrament)
 /* harmony export */ });
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_2__);
-
 
 
 
@@ -2745,7 +2744,7 @@ function generateAPIQueryParams(props) {
   const eventsQueryParams = {
     page,
     per_page: perPage,
-    _fields: ['id', 'logger', 'date', 'date_gmt', 'message', 'message_html', 'message_key', 'details_data', 'details_html', 'loglevel', 'occasions_id', 'subsequent_occasions_count', 'initiator', 'initiator_data', 'ip_addresses', 'via']
+    _fields: ['id', 'logger', 'date', 'date_gmt', 'message', 'message_html', 'message_key', 'details_data', 'details_html', 'loglevel', 'occasions_id', 'subsequent_occasions_count', 'initiator', 'initiator_data', 'ip_addresses', 'via', 'permalink']
   };
   if (enteredSearchText) {
     eventsQueryParams.search = enteredSearchText;
@@ -2796,25 +2795,6 @@ function generateAPIQueryParams(props) {
     eventsQueryParams.users = selectedUsersValues;
   }
   return eventsQueryParams;
-}
-
-/**
- * Get permalink for an event.
- * Currently pretty dumb because it assumes we are on the history page.
- *
- * @param {Object} props
- * @param {Object} props.event
- * @return {string} Permalink for event.
- */
-function getEventPermalink({
-  event
-}) {
-  const url = document.location.href;
-  const existingFragment = (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_2__.getFragment)(url);
-  const newFragment = `#simple-history/event/${event.id}`;
-  let newUrl = url.replace(existingFragment, '');
-  newUrl = newUrl + newFragment;
-  return newUrl;
 }
 
 /**
