@@ -89,7 +89,7 @@ class Post_Logger extends Logger {
 	}
 
 	/**
-	 * Add hooks to catch updates via REST API, i.e. the new Gutenberg editor.
+	 * Add hooks to catch updates via REST API, i.e. from the Gutenberg editor.
 	 */
 	public function add_rest_hooks() {
 		/**
@@ -468,6 +468,8 @@ class Post_Logger extends Logger {
 			'jp_img_sitemap',
 			'jp_sitemap_master',
 			'attachment',
+			// SecuPress logs.
+			'secupress_log_action',
 		);
 
 		/**

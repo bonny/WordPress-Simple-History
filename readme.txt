@@ -287,6 +287,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   The popup with IP address info now displays the name of the server header where the ip address was found.
 -   The "quickstats" box is moved to the top of the stats sidebar box.
 -   Minimum required WordPress version is now [WordPress 6.6](https://wordpress.com/blog/2024/07/16/wordpress-6-6/).
+-   Don't log changes to post type added by [SecuPress](https://wordpress.org/plugins/secupress/) for their logs.
 
 **Added**
 
