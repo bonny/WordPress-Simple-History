@@ -800,7 +800,10 @@ Modal window with detailss
 .SimpleHistory-modal .SimpleHistoryLogitem__moreDetails p {
 	font-size: 14px;
 }
-
+/**
+ * Table with more details.
+ * Shown in modal when event details are shown.
+ */
 .SimpleHistoryLogitem__moreDetailsContext {
 	width: 100%;
 	font-family: monospace;
@@ -813,6 +816,12 @@ Modal window with detailss
 .SimpleHistoryLogitem__moreDetailsContext td {
 	padding: 4px;
 	padding-right: 20px;
+	text-align: left;
+}
+
+.SimpleHistoryLogitem__moreDetailsContext th:first-child,
+.SimpleHistoryLogitem__moreDetailsContext td:first-child {
+	width: 300px;
 }
 
 .SimpleHistoryLogitem__moreDetailsContext tr:nth-child(odd) {
