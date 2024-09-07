@@ -1,9 +1,7 @@
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { info, link, moreVertical } from '@wordpress/icons';
-import { store as noticesStore } from '@wordpress/notices';
 import { clsx } from 'clsx';
 import { navigateToEventPermalink } from '../functions';
 import { EventDetails } from './EventDetails';
@@ -14,9 +12,7 @@ import { EventText } from './EventText';
 import { useState } from '@wordpress/element';
 
 function CopyLinkMenuItem( { event } ) {
-	const { createInfoNotice } = useDispatch( noticesStore );
 	const permalink = event.permalink;
-
 	const copyText = __( 'Copy link to event', 'simple-history' );
 	const copiedText = __( 'Link copied to clipboard', 'simple-history' );
 
@@ -28,10 +24,7 @@ function CopyLinkMenuItem( { event } ) {
 			setDynamicCopyText( copyText );
 		}, 2000 );
 
-		// FIXME: A notice would be better but this does not work for some reason.
-		createInfoNotice( 'info', __( 'Copied URL to clipboard.' ), {
-			isDismissible: false,
-		} );
+		// A notice after copy link would be better but this does not work for some reason.
 	} );
 
 	return (
@@ -41,13 +34,7 @@ function CopyLinkMenuItem( { event } ) {
 	);
 }
 
-function ViewEventDetailsMenuItem( { event, eventVariant, onClose } ) {
-	// Don't show the "View event details" menu item if the event is already
-	// displayed in a modal.
-	if ( eventVariant === 'modal' ) {
-		return null;
-	}
-
+function ViewEventDetailsMenuItem( { event, onClose } ) {
 	return (
 		<MenuItem
 			icon={ info }
@@ -65,6 +52,11 @@ function ViewEventDetailsMenuItem( { event, eventVariant, onClose } ) {
 function EventActions( props ) {
 	const { event } = props;
 	const eventVariant = props.eventVariant;
+
+	// Don't show actions on modal events.
+	if ( eventVariant === 'modal' ) {
+		return null;
+	}
 
 	return (
 		<div className="SimpleHistoryLogitem__actions">
