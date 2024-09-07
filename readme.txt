@@ -297,6 +297,7 @@ A massive update that keeps everything familiar. 🚀
 -   **New Hooks for Developers**:
     -   `simple_history/history_page/gui_wrap_top`: Fired at the top of the history page GUI wrapper.
     -   `simple_history/dropin/stats/before_content`: Fired inside the stats sidebar, after the headline but before the content.
+-   **Experimental Features**: New option on the setting page to enable experimental features.
 
 **Removed**
 
