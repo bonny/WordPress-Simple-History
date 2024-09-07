@@ -375,26 +375,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/compose */ "@wordpress/compose");
 /* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
-/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/link.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/info.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/more-vertical.js");
-/* harmony import */ var _wordpress_notices__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/notices */ "@wordpress/notices");
-/* harmony import */ var _wordpress_notices__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.mjs");
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../functions */ "./src/functions.js");
-/* harmony import */ var _EventDetails__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./EventDetails */ "./src/components/EventDetails.jsx");
-/* harmony import */ var _EventHeader__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./EventHeader */ "./src/components/EventHeader.jsx");
-/* harmony import */ var _EventInitiator__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./EventInitiator */ "./src/components/EventInitiator.jsx");
-/* harmony import */ var _EventOccasions__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./EventOccasions */ "./src/components/EventOccasions.jsx");
-/* harmony import */ var _EventText__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./EventText */ "./src/components/EventText.jsx");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_13__);
-
-
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/link.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/info.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/more-vertical.js");
+/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.mjs");
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../functions */ "./src/functions.js");
+/* harmony import */ var _EventDetails__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./EventDetails */ "./src/components/EventDetails.jsx");
+/* harmony import */ var _EventHeader__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EventHeader */ "./src/components/EventHeader.jsx");
+/* harmony import */ var _EventInitiator__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./EventInitiator */ "./src/components/EventInitiator.jsx");
+/* harmony import */ var _EventOccasions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./EventOccasions */ "./src/components/EventOccasions.jsx");
+/* harmony import */ var _EventText__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./EventText */ "./src/components/EventText.jsx");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_11__);
 
 
 
@@ -411,61 +405,54 @@ __webpack_require__.r(__webpack_exports__);
 function CopyLinkMenuItem({
   event
 }) {
-  const {
-    createInfoNotice
-  } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_3__.useDispatch)(_wordpress_notices__WEBPACK_IMPORTED_MODULE_5__.store);
   const permalink = event.permalink;
-  const copyText = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Copy link to event', 'simple-history');
-  const copiedText = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Link copied to clipboard', 'simple-history');
-  const [dynamicCopyText, setDynamicCopyText] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_13__.useState)(copyText);
+  const copyText = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Copy link to event', 'simple-history');
+  const copiedText = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Link copied to clipboard', 'simple-history');
+  const [dynamicCopyText, setDynamicCopyText] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_11__.useState)(copyText);
   const ref = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_2__.useCopyToClipboard)(permalink, () => {
     setDynamicCopyText(copiedText);
     setTimeout(() => {
       setDynamicCopyText(copyText);
     }, 2000);
 
-    // FIXME: A notice would be better but this does not work for some reason.
-    createInfoNotice('info', (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Copied URL to clipboard.'), {
-      isDismissible: false
-    });
+    // A notice after copy link would be better but this does not work for some reason.
   });
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
-    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_14__["default"],
+    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_12__["default"],
     iconPosition: "left",
     ref: ref
   }, dynamicCopyText);
 }
 function ViewEventDetailsMenuItem({
   event,
-  eventVariant,
   onClose
 }) {
-  // Don't show the "View event details" menu item if the event is already
-  // displayed in a modal.
-  if (eventVariant === 'modal') {
-    return null;
-  }
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.MenuItem, {
-    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_15__["default"],
+    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_13__["default"],
     iconPosition: "left",
     onClick: () => {
-      (0,_functions__WEBPACK_IMPORTED_MODULE_7__.navigateToEventPermalink)({
+      (0,_functions__WEBPACK_IMPORTED_MODULE_5__.navigateToEventPermalink)({
         event
       });
       onClose();
     }
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('View event details', 'simple-history'));
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('View event details', 'simple-history'));
 }
 function EventActions(props) {
   const {
     event
   } = props;
   const eventVariant = props.eventVariant;
+
+  // Don't show actions on modal events.
+  if (eventVariant === 'modal') {
+    return null;
+  }
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "SimpleHistoryLogitem__actions"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.DropdownMenu, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Actions…', 'simple-history'),
-    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_16__["default"],
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Actions…', 'simple-history'),
+    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_14__["default"],
     popoverProps: {
       placement: 'left-start',
       inline: true
@@ -512,7 +499,7 @@ function Event(props) {
     hasExtendedSettingsAddOn,
     isNewAfterFetchNewEvents
   } = props;
-  const containerClassNames = (0,clsx__WEBPACK_IMPORTED_MODULE_6__.clsx)('SimpleHistoryLogitem', `SimpleHistoryLogitem--variant-${variant}`, `SimpleHistoryLogitem--loglevel-${event.loglevel}`, `SimpleHistoryLogitem--logger-${event.logger}`, `SimpleHistoryLogitem--initiator-${event.initiator}`, {
+  const containerClassNames = (0,clsx__WEBPACK_IMPORTED_MODULE_4__.clsx)('SimpleHistoryLogitem', `SimpleHistoryLogitem--variant-${variant}`, `SimpleHistoryLogitem--loglevel-${event.loglevel}`, `SimpleHistoryLogitem--logger-${event.logger}`, `SimpleHistoryLogitem--initiator-${event.initiator}`, {
     'SimpleHistoryLogitem--newRowSinceReload': isNewAfterFetchNewEvents
   });
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
@@ -520,22 +507,22 @@ function Event(props) {
     className: containerClassNames
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "SimpleHistoryLogitem__firstcol"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiator__WEBPACK_IMPORTED_MODULE_10__.EventInitiatorImage, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiator__WEBPACK_IMPORTED_MODULE_8__.EventInitiatorImage, {
     event: event
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "SimpleHistoryLogitem__secondcol"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeader__WEBPACK_IMPORTED_MODULE_9__.EventHeader, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeader__WEBPACK_IMPORTED_MODULE_7__.EventHeader, {
     event: event,
     eventVariant: variant,
     mapsApiKey: mapsApiKey,
     hasExtendedSettingsAddOn: hasExtendedSettingsAddOn
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventText__WEBPACK_IMPORTED_MODULE_12__.EventText, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventText__WEBPACK_IMPORTED_MODULE_10__.EventText, {
     event: event,
     eventVariant: variant
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventDetails__WEBPACK_IMPORTED_MODULE_8__.EventDetails, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventDetails__WEBPACK_IMPORTED_MODULE_6__.EventDetails, {
     event: event,
     eventVariant: variant
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventOccasions__WEBPACK_IMPORTED_MODULE_11__.EventOccasions, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventOccasions__WEBPACK_IMPORTED_MODULE_9__.EventOccasions, {
     event: event,
     eventVariant: variant,
     hasExtendedSettingsAddOn: hasExtendedSettingsAddOn
@@ -4230,16 +4217,6 @@ module.exports = window["wp"]["compose"];
 
 /***/ }),
 
-/***/ "@wordpress/data":
-/*!******************************!*\
-  !*** external ["wp","data"] ***!
-  \******************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["data"];
-
-/***/ }),
-
 /***/ "@wordpress/date":
 /*!******************************!*\
   !*** external ["wp","date"] ***!
@@ -4277,16 +4254,6 @@ module.exports = window["wp"]["element"];
 /***/ ((module) => {
 
 module.exports = window["wp"]["i18n"];
-
-/***/ }),
-
-/***/ "@wordpress/notices":
-/*!*********************************!*\
-  !*** external ["wp","notices"] ***!
-  \*********************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["notices"];
 
 /***/ }),
 
