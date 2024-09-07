@@ -279,11 +279,11 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 A massive update that keeps everything familiar. 🚀
 
-[See what’s changed under the hood.](https://simple-history.com/2024/simple-history-4-17-0/?utm_source=wpadmin)
+[See what’s changed under the hood.](https://simple-history.com/2024/simple-history-5/?utm_source=wpadmin)
 
 **Changed**
 
--   **Event Feed Overhaul**: The event GUI has been entirely rewritten using [React](https://react.dev/) and [WordPress components](https://developer.wordpress.org/block-editor/reference-guides/components/).
+-   **Event Feed Rewrite**: The event GUI has been entirely rewritten using [React](https://react.dev/) and [WordPress components](https://developer.wordpress.org/block-editor/reference-guides/components/).
 -   **Auto-Refreshing Filters**: The event feed now updates automatically when filters are changed.
 -   **IP Address Info Update**: IP address information popup now include the name of the server header where the IP was sourced.
 -   **Quickstats Relocation**: The "quickstats" box has been repositioned to the top of the stats sidebar.
