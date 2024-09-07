@@ -303,6 +303,8 @@ A big update that keeps everything familiar. 🚀
 -   **Settings Metabox**: The metabox linking to the settings page has been removed, as settings are now accessible from the top menu bar.
 -   **Legacy Code Cleanup**: Removed several old and unused files, functions, and JavaScript hooks that are no longer relevant to the current implementation.
 
+🌟 Pssst.... Don't forget that you can [sponsor this project to keep it free and open source](https://simple-history.com/sponsor/).
+
 ### 4.17.0 (August 2024)
 
 🐞 This release contains some small bug fixes and enhancements. The [previous version](https://simple-history.com/2024/simple-history-4-16-0/?utm_source=wpadmin) had more cool new features so check out that one if you haven't already.
