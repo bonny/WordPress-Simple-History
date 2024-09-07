@@ -22,7 +22,6 @@ class Experimental_Features_Dropin extends Dropin {
 	public function register_settings() {
 		$settings_general_option_group = $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP;
 
-		// Checkbox for debug setting that logs extra much info.
 		register_setting(
 			$settings_general_option_group,
 			'simple_history_experimental_features_enabled',
@@ -64,12 +63,13 @@ class Experimental_Features_Dropin extends Dropin {
 		
 		<p class="description">
 			<?php
-			esc_html_e( 'Be the first to try out new features that may (or may not!) make its way to all users.', 'simple-history' );
+			esc_html_e( 'Try out upcoming features that are still in testing.', 'simple-history' );
 			?>
 		</p>
+		
 		<p class="description">
 			<?php
-			esc_html_e( 'Experimental features can be discountinued without notice.', 'simple-history' );
+			esc_html_e( 'Please note that these features may not work as expected and could change or be removed in future updates.', 'simple-history' );
 			?>
 		</p>
 		<?php
