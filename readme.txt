@@ -277,8 +277,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### 5.0.0 (September 2024)
 
-A massive update that keeps everything familiar. 🚀
-
+A big update that keeps everything familiar. 🚀  
 [See what’s changed under the hood.](https://simple-history.com/2024/simple-history-5/?utm_source=wpadmin)
 
 **Changed**
