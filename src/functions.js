@@ -95,8 +95,7 @@ export function generateAPIQueryParams( props ) {
 			);
 		} );
 
-		const messsagesString = selectedMessageTypesValues.join( ',' );
-		eventsQueryParams.messages = messsagesString;
+		eventsQueryParams.messages = selectedMessageTypesValues.join( ',' );
 	}
 
 	// Add selected users ids to query params.
