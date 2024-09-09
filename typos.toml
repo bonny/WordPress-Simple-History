@@ -1,0 +1,6 @@
+# Config for `typos`
+# Check config using:
+# ❯ typos --dump-config -
+
+[files]
+extend-exclude = ["build/*", "js/*"]
