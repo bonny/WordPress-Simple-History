@@ -152,7 +152,7 @@ export function EventInfoModal( props ) {
 									return (
 										<tr key={ key }>
 											<td>{ key }</td>
-											<td>{ JSON.stringify( value ) }</td>
+											<td>{ value }</td>
 										</tr>
 									);
 								} ) }

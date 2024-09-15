@@ -275,6 +275,8 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
+- Better output of JSON data in event details view. #464.
+
 ### 5.0.1 (September 2024)
 
 A minor update to quickly fix an issue with avatars that affected a few people.
