@@ -817,6 +817,7 @@ Modal window with detailss
 	padding: 4px;
 	padding-right: 20px;
 	text-align: left;
+	vertical-align: top;
 }
 
 .SimpleHistoryLogitem__moreDetailsContext th:first-child,
