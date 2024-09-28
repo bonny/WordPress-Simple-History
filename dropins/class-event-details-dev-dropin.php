@@ -236,7 +236,7 @@ class Event_Details_Dev_Dropin extends Dropin {
 				]
 			);
 
-		// Grouop with no added formatter.
+		// Group with no added formatter.
 		// Uses table layout.
 		$event_details_group_three = ( new Event_Details_Group() )
 			->set_title( 'Image information' )
