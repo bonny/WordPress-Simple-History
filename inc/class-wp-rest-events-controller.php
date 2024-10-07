@@ -627,32 +627,37 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$events[] = $this->prepare_response_for_collection( $data );
 		}
 
-		$page        = (int) $query_result['page_current'];
-		$total_posts = (int) $query_result['total_row_count'];
-		$max_pages   = (int) $query_result['pages_count'];
-
-		$response = rest_ensure_response( $events );
-
-		$response->header( 'X-WP-Total', (int) $total_posts );
-		$response->header( 'X-WP-TotalPages', (int) $max_pages );
-
 		$request_params = $request->get_query_params();
 		$collection_url = rest_url( sprintf( '%s/%s', $this->namespace, $this->rest_base ) );
 		$base           = add_query_arg( urlencode_deep( $request_params ), $collection_url );
 
-		if ( $page > 1 ) {
-			$prev_page = $page - 1;
-			if ( $prev_page > $max_pages ) {
-				$prev_page = $max_pages;
-			}
-			$prev_link = add_query_arg( 'page', $prev_page, $base );
-			$response->link_header( 'prev', $prev_link );
-		}
+		$response = rest_ensure_response( $events );
 
-		if ( $max_pages > $page ) {
-			$next_page = $page + 1;
-			$next_link = add_query_arg( 'page', $next_page, $base );
-			$response->link_header( 'next', $next_link );
+		$query_type = $request['type'] ?? 'overview';
+
+		// Add pagination headers to the response for overview and single queries.
+		if ( in_array( $query_type, [ 'overview', 'single' ], true ) ) {
+			$page        = (int) $query_result['page_current'];
+			$total_posts = (int) $query_result['total_row_count'];
+			$max_pages   = (int) $query_result['pages_count'];
+
+			$response->header( 'X-WP-Total', (int) $total_posts );
+			$response->header( 'X-WP-TotalPages', (int) $max_pages );
+
+			if ( $page > 1 ) {
+				$prev_page = $page - 1;
+				if ( $prev_page > $max_pages ) {
+					$prev_page = $max_pages;
+				}
+				$prev_link = add_query_arg( 'page', $prev_page, $base );
+				$response->link_header( 'prev', $prev_link );
+			}
+
+			if ( $max_pages > $page ) {
+				$next_page = $page + 1;
+				$next_link = add_query_arg( 'page', $next_page, $base );
+				$response->link_header( 'next', $next_link );
+			}
 		}
 
 		return $response;
