@@ -2,8 +2,6 @@
 
 namespace Simple_History\Dropins;
 
-use Simple_History\Simple_History;
-
 /**
  * Dropin that displays information about add-ons in the sidebar.
  */
@@ -31,6 +29,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 
 			<h3 class="hndle">
 				<?php esc_html_e( 'Log important WooCommerce changes', 'simple-history' ); ?>
+				<em class="sh-PageHeader-settingsLinkIcon-new"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
 			</h3>
 
 			<div class="inside">
