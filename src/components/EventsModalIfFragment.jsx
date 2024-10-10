@@ -1,6 +1,6 @@
 import { useEffect, useState } from '@wordpress/element';
 import { EventInfoModal } from './EventInfoModal';
-import { useURLFrament } from '../functions.js';
+import { useURLFragment } from '../functions.js';
 
 /**
  * Opens a modal with event details when URL contains a fragment.
@@ -9,7 +9,7 @@ import { useURLFrament } from '../functions.js';
  * Removes the fragment from the URL after the modal is closed.
  */
 export function EventsModalIfFragment() {
-	const fragment = useURLFrament();
+	const fragment = useURLFragment();
 	const [ showModal, setShowModal ] = useState( false );
 	const [ matchedEventId, setMatchedEventId ] = useState( null );
 

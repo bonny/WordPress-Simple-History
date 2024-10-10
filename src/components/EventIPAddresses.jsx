@@ -44,20 +44,20 @@ const keysAndValues = [
 /**
  * Renders a link to an IP address.
  *
- * @param {Object} ipAdressProps
+ * @param {Object} ipAddressProps
  */
-function IPAddressLink( ipAdressProps ) {
+function IPAddressLink( ipAddressProps ) {
 	const { header, ipAddress, mapsApiKey, hasExtendedSettingsAddOn } =
-		ipAdressProps;
+		ipAddressProps;
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ isLoadingIpInfo, setIsLoadingIpInfo ] = useState( false );
 	const [ ipInfoResult, setIpInfoResult ] = useState();
 
-	// The ip adress may be anonymized. In that case we need to change the last ".x" to ".0".
+	// The ip address may be anonymized. In that case we need to change the last ".x" to ".0".
 	// This is because the IP address is anonymized by setting the last octet to "x".
 	// We need to change that to "0" to make the IP address valid.
-	const ipAdressUnanonymized = ipAddress.replace( /\.x$/, '.0' );
-	const ipInfoURL = `https://ipinfo.io/${ ipAdressUnanonymized }`;
+	const ipAddressUnanonymized = ipAddress.replace( /\.x$/, '.0' );
+	const ipInfoURL = `https://ipinfo.io/${ ipAddressUnanonymized }`;
 
 	/**
 	 * Load ip info from ipinfo.io.
@@ -94,7 +94,7 @@ function IPAddressLink( ipAdressProps ) {
 		const isClickOnPopoverArea = clickEvt.target.nodeName !== 'BUTTON';
 
 		// Bail if already showing popover and we click inside the popover.
-		// Seems like the click event is also trigged when clicking anywhere inside the popover,
+		// Seems like the click event is also triggered when clicking anywhere inside the popover,
 		// even though the popover is rendered outside the button.
 		if ( isClickOnPopoverArea ) {
 			return;
@@ -165,7 +165,7 @@ function IPAddressLink( ipAdressProps ) {
 				<Text>
 					{ createInterpolateElement(
 						__(
-							'See the location of the IP adress on a map with the <a>Extended Settings</a> add-on.',
+							'See the location of the IP address on a map with the <a>Extended Settings</a> add-on.',
 							'simple-history'
 						),
 						{
