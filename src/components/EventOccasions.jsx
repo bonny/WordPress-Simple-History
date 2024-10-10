@@ -12,7 +12,7 @@ import { EventOccasionsList } from './EventOccasionsList';
  *
  * @param {Object} props
  */
-function EventOcassionsAddonsContent( props ) {
+function EventOccasionsAddonsContent( props ) {
 	const { event, hasExtendedSettingsAddOn } = props;
 
 	// Bail if the event is not from the SimpleUserLogger.
@@ -117,7 +117,7 @@ export function EventOccasions( props ) {
 		setIsShowingOccasions( true );
 	};
 
-	const showOcassionsEventsContent = (
+	const showOccasionsEventsContent = (
 		<>
 			<div className="SimpleHistoryLogitem__occasions">
 				<Button
@@ -139,7 +139,7 @@ export function EventOccasions( props ) {
 					) }
 				</Button>
 
-				<EventOcassionsAddonsContent
+				<EventOccasionsAddonsContent
 					event={ event }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				/>
@@ -150,7 +150,7 @@ export function EventOccasions( props ) {
 	return (
 		<div>
 			{ ! isShowingOccasions && ! isLoadingOccasions
-				? showOcassionsEventsContent
+				? showOccasionsEventsContent
 				: null }
 
 			{ isLoadingOccasions ? (
