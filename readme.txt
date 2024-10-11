@@ -275,7 +275,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
--   Better output of JSON data in event details view. #464.
+-   Better output of JSON data in event details view. [#464](https://github.com/bonny/WordPress-Simple-History/issues/464)
 -   Add `occasions_id` to the context data modal.
 -   Fix PHP warnings when fetching occasions.
 
