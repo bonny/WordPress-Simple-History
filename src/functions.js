@@ -133,7 +133,7 @@ export function navigateToEventPermalink( { event } ) {
  * Based on solution:
  * https://stackoverflow.com/questions/58442168/why-useeffect-doesnt-run-on-window-location-pathname-changes/58443076#58443076
  */
-export const useURLFrament = () => {
+export const useURLFragment = () => {
 	const [ fragment, setFragment ] = useState( window.location.hash );
 
 	const listenToPopstate = () => {
