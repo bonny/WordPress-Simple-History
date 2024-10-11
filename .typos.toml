@@ -1,13 +1,21 @@
 [files]
 extend-exclude = [
-    "js/timeago/locales/",
-    "js/Chart.js",
-    "js/chart.4.3.0.min.js",
+    ".git/",
+    "build/",
+    "js/*.min.js",
     "tests/wordpress-tests-stubs.php",
 ]
-[default.extend-words]
-referer = "referer"
-reseted = "reseted"
-setted = "setted"
-juli = "juli"
+ignore-hidden = false
 
+[default]
+extend-ignore-re = [
+    '"23 juli"',
+]
+extend-ignore-identifiers-re = [
+    "^on_setted_update_",
+]
+
+[default.extend-identifiers]
+Automattic = "Automattic"
+reseted_lockout_count = "reseted_lockout_count"
+user_password_reseted = "user_password_reseted"
