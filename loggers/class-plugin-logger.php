@@ -177,9 +177,6 @@ class Plugin_Logger extends Logger {
 		 */
 		add_filter( 'upgrader_pre_install', array( $this, 'save_versions_before_update' ), 10, 2 );
 
-		// Clear our transient after an update is done
-		// Removed because something probably changed in core and this was fired earlier than it used to be
-		// add_action( 'delete_site_transient_update_plugins', array( $this, "remove_saved_versions" ) );
 		// Fires after a plugin has been activated.
 		// If a plugin is silently activated (such as during an update),
 		// this hook does not fire.
@@ -747,24 +744,13 @@ class Plugin_Logger extends Logger {
 	 * @param array $hook_extra Default null.
 	 */
 	public function save_versions_before_update( $bool = null, $hook_extra = null ) {
-		$plugins = get_plugins();
-
-		$option_name = $this->get_slug() . '_plugin_info_before_update';
-
-		update_option( $option_name, Helpers::json_encode( $plugins ) );
+		update_option(
+			$this->get_slug() . '_plugin_info_before_update',
+			Helpers::json_encode( get_plugins() ),
+			false
+		);
 
 		return $bool;
-	}
-
-	/**
-	 * when plugin updates are done wp_clean_plugins_cache() is called,
-	 * which in its turn run:
-	 * delete_site_transient( 'update_plugins' );
-	 * do_action( 'delete_site_transient_' . $transient, $transient );
-	 * delete_site_transient_update_plugins
-	 */
-	public function remove_saved_versions() {
-		delete_option( $this->get_slug() . '_plugin_info_before_update' );
 	}
 
 	/**
