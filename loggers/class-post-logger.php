@@ -1062,7 +1062,9 @@ class Post_Logger extends Logger {
 			$context['post_type'] = strtolower( $post_type_obj->labels->singular_name );
 		}
 
-		$context['edit_link'] = get_edit_post_link( $post_id );
+		// Only try to get edit link if post is available. This _may_ fix some issues with edit links in
+		// for example old versions of WPML.
+		$context['edit_link'] = $post_is_available ? get_edit_post_link( $post_id ) : null;
 
 		// If post is not available any longer then we can't link to it, so keep plain message then.
 		// Also keep plain format if user is not allowed to edit post (edit link is empty).
