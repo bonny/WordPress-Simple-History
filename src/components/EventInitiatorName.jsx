@@ -13,9 +13,11 @@ export function EventInitiatorName( props ) {
 
 	switch ( event.initiator ) {
 		case 'wp_user':
+			const nameToDisplay =
+				initiatorData.user_display_name || initiatorData.user_login;
 			const userDisplay = (
 				<>
-					<strong>{ initiatorData.user_login }</strong>&nbsp;
+					<strong>{ nameToDisplay }</strong>&nbsp;
 					<span>({ initiatorData.user_email })</span>
 				</>
 			);

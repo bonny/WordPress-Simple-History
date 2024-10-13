@@ -28,7 +28,7 @@ export function EventInitiatorImageWebUser( props ) {
  * Initiator is "other" or "wp" or "wp_cli".
  * Image is added using CSS.
  */
-export function EventInitiatorImageFromCSS( props ) {
+export function EventInitiatorImageFromCSS() {
 	return <div className="SimpleHistoryLogitem__senderImage"></div>;
 }
 
