@@ -278,6 +278,9 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Better output of JSON data in event details view. [#464](https://github.com/bonny/WordPress-Simple-History/issues/464)
 -   Add `occasions_id` to the context data modal.
 -   Fix PHP warnings when fetching occasions.
+-   Only try to get edit link for a post if `get_post()` returns a post object. This _may_ fix issues with for example old versions of WPML. [#469](https://github.com/bonny/WordPress-Simple-History/issues/469)
+-   Include `user_display_name` in events REST API response.
+-   Display user "display name", with fallback to "username", in the event feed. [#468](https://github.com/bonny/WordPress-Simple-History/issues/468)
 
 ### 5.0.1 (September 2024)
 
