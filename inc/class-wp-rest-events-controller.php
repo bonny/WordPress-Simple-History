@@ -740,6 +740,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		if ( rest_is_field_included( 'initiator_data', $fields ) ) {
 			$user_avatar_data = get_avatar_data( $context['_user_id'] ?? null, [] );
 			$user_avatar_url = $user_avatar_data['url'] ?? '';
+			$user_object = get_user_by( 'id', $context['_user_id'] );
 
 			$user_info = [
 				'user_id' => $context['_user_id'] ?? null,
@@ -748,6 +749,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				'user_image'  => $this->simple_history->get_log_row_sender_image_output( $item ),
 				'user_avatar_url' => $user_avatar_url,
 				'user_profile_url' => get_edit_user_link( $context['_user_id'] ?? null ),
+				'user_display_name' => is_a( $user_object, 'WP_User' ) ? $user_object->display_name : null,
 			];
 
 			$data['initiator_data'] = $user_info;
