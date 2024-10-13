@@ -739,6 +739,7 @@ class Plugin_Logger extends Logger {
 	/**
 	 * Saves info about all installed plugins to an option.
 	 * When we are done logging then we remove the option.
+	 * Fired from filter `upgrader_pre_install`.
 	 *
 	 * @param bool  $bool   Default null.
 	 * @param array $hook_extra Default null.
