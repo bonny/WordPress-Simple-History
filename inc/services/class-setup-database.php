@@ -31,6 +31,7 @@ class Setup_Database extends Service {
 		$this->setup_version_1_to_version_2();
 		$this->setup_version_2_to_version_3();
 		$this->setup_version_3_to_version_4();
+		$this->setup_version_4_to_version_5();
 	}
 
 	/**
@@ -82,7 +83,7 @@ class Setup_Database extends Service {
 
 		$db_version = 1;
 
-		update_option( 'simple_history_db_version', $db_version );
+		update_option( 'simple_history_db_version', $db_version, true );
 
 		// We are not 100% sure that this is a first install,
 		// but it is at least a very old version that is being updated.
@@ -118,11 +119,11 @@ class Setup_Database extends Service {
 			$option_value = get_option( $one_option['name'] );
 			if ( false === ( $option_value ) ) {
 				// Value is not set in db, so set it to a default.
-				update_option( $one_option['name'], $one_option['default_value'] );
+				update_option( $one_option['name'], $one_option['default_value'], true );
 			}
 		}
 
-		update_option( 'simple_history_db_version', 2 );
+		update_option( 'simple_history_db_version', 2, true );
 	}
 
 	/**
@@ -194,7 +195,7 @@ class Setup_Database extends Service {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		update_option( 'simple_history_db_version', 3 );
+		update_option( 'simple_history_db_version', 3, true );
 
 		// Say welcome, however loggers are not added this early so we need to
 		// use a filter to load it later.
@@ -246,7 +247,39 @@ class Setup_Database extends Service {
 			$wpdb->query( $sql );
 		}
 
-		update_option( 'simple_history_db_version', 4 );
+		update_option( 'simple_history_db_version', 4, true );
+	}
+
+	/**
+	 * Uppdate from db version 4 to version 5.
+	 *
+	 * Set default values for simple_history_detective_mode_enabled and simple_history_experimental_features_enabled
+	 * so no additional SQL queries are needed.
+	 */
+	private function setup_version_4_to_version_5() {
+		if ( $this->get_db_version() !== 4 ) {
+			return;
+		}
+
+		// Set default value for simple_history_detective_mode_enabled and simple_history_experimental_features_enabled.
+		$default_values = [
+			'simple_history_detective_mode_enabled' => 0,
+			'simple_history_experimental_features_enabled' => 0,
+		];
+
+		foreach ( $default_values as $option_name => $default_value ) {
+			$option_existing_value = get_option( $option_name );
+			$option_value_to_set = $default_value;
+
+			if ( $option_existing_value !== false ) {
+				$option_value_to_set = $option_existing_value;
+			}
+
+			// Re-set (possibly existing) value, but with autoload set to true.
+			update_option( $option_name, $option_value_to_set, true );
+		}
+
+		update_option( 'simple_history_db_version', 5, true );
 	}
 
 	/**
