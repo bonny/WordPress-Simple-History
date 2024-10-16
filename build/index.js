@@ -798,24 +798,24 @@ const keysAndValues = [{
 /**
  * Renders a link to an IP address.
  *
- * @param {Object} ipAdressProps
+ * @param {Object} ipAddressProps
  */
-function IPAddressLink(ipAdressProps) {
+function IPAddressLink(ipAddressProps) {
   const {
     header,
     ipAddress,
     mapsApiKey,
     hasExtendedSettingsAddOn
-  } = ipAdressProps;
+  } = ipAddressProps;
   const [showPopover, setShowPopover] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(false);
   const [isLoadingIpInfo, setIsLoadingIpInfo] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(false);
   const [ipInfoResult, setIpInfoResult] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)();
 
-  // The ip adress may be anonymized. In that case we need to change the last ".x" to ".0".
+  // The ip address may be anonymized. In that case we need to change the last ".x" to ".0".
   // This is because the IP address is anonymized by setting the last octet to "x".
   // We need to change that to "0" to make the IP address valid.
-  const ipAdressUnanonymized = ipAddress.replace(/\.x$/, '.0');
-  const ipInfoURL = `https://ipinfo.io/${ipAdressUnanonymized}`;
+  const ipAddressUnanonymized = ipAddress.replace(/\.x$/, '.0');
+  const ipInfoURL = `https://ipinfo.io/${ipAddressUnanonymized}`;
 
   /**
    * Load ip info from ipinfo.io.
@@ -849,7 +849,7 @@ function IPAddressLink(ipAdressProps) {
     const isClickOnPopoverArea = clickEvt.target.nodeName !== 'BUTTON';
 
     // Bail if already showing popover and we click inside the popover.
-    // Seems like the click event is also trigged when clicking anywhere inside the popover,
+    // Seems like the click event is also triggered when clicking anywhere inside the popover,
     // even though the popover is rendered outside the button.
     if (isClickOnPopoverArea) {
       return;
@@ -895,7 +895,7 @@ function IPAddressLink(ipAdressProps) {
       backgroundSize: 'cover',
       padding: '1rem'
     }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.createInterpolateElement)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('See the location of the IP adress on a map with the <a>Extended Settings</a> add-on.', 'simple-history'), {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.createInterpolateElement)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('See the location of the IP address on a map with the <a>Extended Settings</a> add-on.', 'simple-history'), {
     a: (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ExternalLink, {
       href: "https://simple-history.com/add-ons/extended-settings/?utm_source=plugin&utm_medium=link&utm_campaign=ipinfo#GoogleMaps",
       target: "_blank",
@@ -1128,7 +1128,7 @@ function EventInitiatorImageWebUser(props) {
  * Initiator is "other" or "wp" or "wp_cli".
  * Image is added using CSS.
  */
-function EventInitiatorImageFromCSS(props) {
+function EventInitiatorImageFromCSS() {
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "SimpleHistoryLogitem__senderImage"
   });
@@ -1199,7 +1199,8 @@ function EventInitiatorName(props) {
   } = event;
   switch (event.initiator) {
     case 'wp_user':
-      const userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, initiatorData.user_login), "\xA0", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, "(", initiatorData.user_email, ")"));
+      const nameToDisplay = initiatorData.user_display_name || initiatorData.user_login;
+      const userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, nameToDisplay), "\xA0", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, "(", initiatorData.user_email, ")"));
       return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_3__.EventHeaderItem, null, eventVariant === 'modal' ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, userDisplay) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
         href: initiatorData.user_profile_url,
         variant: "link"
@@ -1257,7 +1258,7 @@ __webpack_require__.r(__webpack_exports__);
  *
  * @param {Object} props
  */
-function EventOcassionsAddonsContent(props) {
+function EventOccasionsAddonsContent(props) {
   const {
     event,
     hasExtendedSettingsAddOn
@@ -1332,7 +1333,7 @@ function EventOccasions(props) {
     setIsLoadingOccasions(false);
     setIsShowingOccasions(true);
   };
-  const showOcassionsEventsContent = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  const showOccasionsEventsContent = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "SimpleHistoryLogitem__occasions"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
     variant: "link",
@@ -1341,11 +1342,11 @@ function EventOccasions(props) {
       evt.preventDefault();
     }
   }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)( /* translators: %s: number of similar events */
-  (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__._n)('+%1$s similar event', '+%1$s similar events', subsequentOccasionsCount, 'simple-history'), subsequentOccasionsCount)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventOcassionsAddonsContent, {
+  (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__._n)('+%1$s similar event', '+%1$s similar events', subsequentOccasionsCount, 'simple-history'), subsequentOccasionsCount)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventOccasionsAddonsContent, {
     event: event,
     hasExtendedSettingsAddOn: hasExtendedSettingsAddOn
   })));
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, !isShowingOccasions && !isLoadingOccasions ? showOcassionsEventsContent : null, isLoadingOccasions ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Loading…', 'simple-history')) : null, isShowingOccasions ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)( /* translators: %s: number of similar events */
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, !isShowingOccasions && !isLoadingOccasions ? showOccasionsEventsContent : null, isLoadingOccasions ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Loading…', 'simple-history')) : null, isShowingOccasions ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.sprintf)( /* translators: %s: number of similar events */
   (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Showing %1$s more', 'simple-history'), subsequentOccasionsCount - 1)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventOccasionsList__WEBPACK_IMPORTED_MODULE_6__.EventOccasionsList, {
     isLoadingOccasions: isLoadingOccasions,
     isShowingOccasions: isShowingOccasions,
@@ -1917,7 +1918,7 @@ __webpack_require__.r(__webpack_exports__);
  * Removes the fragment from the URL after the modal is closed.
  */
 function EventsModalIfFragment() {
-  const fragment = (0,_functions_js__WEBPACK_IMPORTED_MODULE_3__.useURLFrament)();
+  const fragment = (0,_functions_js__WEBPACK_IMPORTED_MODULE_3__.useURLFragment)();
   const [showModal, setShowModal] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
   const [matchedEventId, setMatchedEventId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
 
@@ -2694,7 +2695,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   generateAPIQueryParams: () => (/* binding */ generateAPIQueryParams),
 /* harmony export */   navigateToEventPermalink: () => (/* binding */ navigateToEventPermalink),
-/* harmony export */   useURLFrament: () => (/* binding */ useURLFrament)
+/* harmony export */   useURLFragment: () => (/* binding */ useURLFragment)
 /* harmony export */ });
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants */ "./src/constants.js");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
@@ -2802,7 +2803,7 @@ function navigateToEventPermalink({
  * Based on solution:
  * https://stackoverflow.com/questions/58442168/why-useeffect-doesnt-run-on-window-location-pathname-changes/58443076#58443076
  */
-const useURLFrament = () => {
+const useURLFragment = () => {
   const [fragment, setFragment] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(window.location.hash);
   const listenToPopstate = () => {
     setFragment(window.location.hash);
