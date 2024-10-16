@@ -4,4 +4,5 @@
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them directly to the author of the plugin at [par.thernstrom@gmail.com](mailto:par.thernstrom@gmail.com).
+Instead, please report them directly to the plugin author at [security@simple-history.com](mailto:security@simple-history.com]).
+
