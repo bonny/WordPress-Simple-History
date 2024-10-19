@@ -120,7 +120,7 @@ export function DefaultFilters( props ) {
 
 			<p>
 				<div className="SimpleHistory__filters__filterLabel">
-					Containing words
+					{ __( 'Containing words', 'simple-history' ) }
 				</div>
 				<input
 					type="search"
