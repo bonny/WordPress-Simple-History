@@ -31,7 +31,7 @@
 		"php-stubs/wp-cli-stubs": "dev-master"
 	},
 	"require": {
-		"php": "^7.4"
+		"php": "^7.4|^8.0"
 	},
 	"authors": [
 		{
