@@ -273,7 +273,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ## Changelog
 
-### Unreleased
+### 5.0.2 (October 2024)
 
 **Added**
 
