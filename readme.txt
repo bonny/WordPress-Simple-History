@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.6
-Stable tag: 5.0.2
+Stable tag: 5.0.3
 
 Track changes and user activities on your WordPress site. See who created a page, uploaded an attachment, and more, for a complete audit trail.
 
@@ -272,6 +272,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 ## Changelog
+
+### 5.0.3 (October 2024)
+
+- Fix for wrong version number in the readme.txt and index.php file, causing the plugin to find updates forever.
 
 ### 5.0.2 (October 2024)
 
