@@ -19,7 +19,6 @@
 		"grunt-wp-deploy": "git+https://github.com/johnbillion/grunt-wp-deploy.git#master",
 		"grunt-wp-i18n": "^1.0.3",
 		"grunt-wp-readme-to-markdown": "^2.1.0",
-		"lint-staged": "^15.0",
 		"load-grunt-tasks": "^5.1.0",
 		"prettier": "npm:wp-prettier@^3.0"
 	},
@@ -57,11 +56,6 @@
 		"format": "wp-scripts format ./src",
 		"lint:css": "wp-scripts lint-style ./src",
 		"lint:js": "wp-scripts lint-js ./src"
-	},
-	"lint-staged": {
-		"*.php": [
-			"./vendor/bin/phpcs --extensions=php --warning-severity=8 -s"
-		]
 	},
 	"dependencies": {
 		"@wordpress/icons": "^10.6.0",
