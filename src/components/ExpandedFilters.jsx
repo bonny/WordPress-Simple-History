@@ -269,7 +269,10 @@ export function ExpandedFilters( props ) {
 					</div>
 					<BaseControl
 						__nextHasNoMarginBottom
-						help="Enter 2 or more characters to search for users."
+						help={ __(
+							'Enter 2 or more characters to search for users.',
+							'simple-history'
+						) }
 					/>
 				</FlexBlock>
 			</Flex>
