@@ -349,7 +349,7 @@ function DefaultFilters(props) {
     onChange: value => setSelectedDateOption(value)
   }))), selectedDateOption === 'customRange' ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CustomDateRange, null) : null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "SimpleHistory__filters__filterLabel"
-  }, "Containing words"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Containing words', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
     type: "search",
     className: "SimpleHistoryFilterDropin-searchInput",
     value: searchText,
@@ -2476,7 +2476,7 @@ function ExpandedFilters(props) {
     value: selectedUsersWithId
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.BaseControl, {
     __nextHasNoMarginBottom: true,
-    help: "Enter 2 or more characters to search for users."
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Enter 2 or more characters to search for users.', 'simple-history')
   }))));
 }
 
