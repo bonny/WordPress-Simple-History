@@ -275,14 +275,23 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
--   Better output of JSON data in event details view. [#464](https://github.com/bonny/WordPress-Simple-History/issues/464)
+**Added**
+
 -   Add `occasions_id` to the context data modal.
--   Fix PHP warnings when fetching occasions.
--   Only try to get edit link for a post if `get_post()` returns a post object. This _may_ fix issues with for example old versions of WPML. [#469](https://github.com/bonny/WordPress-Simple-History/issues/469)
--   Display user "display name", with fallback to "username", in the event feed. This restores how it was displayed in version 4 of the plugin. [#468](https://github.com/bonny/WordPress-Simple-History/issues/468)
 -   Include `user_display_name` in events REST API response.
--   Don't autoload option `SimplePluginLogger_plugin_info_before_update`. [#457](https://github.com/bonny/WordPress-Simple-History/issues/457)
--   Do autoload options `simple_history_detective_mode_enabled`, `simple_history_experimental_features_enabled` and `simple_history_db_version`. Related: https://make.wordpress.org/core/2024/06/18/options-api-disabling-autoload-for-large-options/
+-   Autoload options `simple_history_detective_mode_enabled`, `simple_history_experimental_features_enabled`, and `simple_history_db_version` to improve performance. Related: [Options API: Disabling Autoload for Large Options](https://make.wordpress.org/core/2024/06/18/options-api-disabling-autoload-for-large-options/).
+
+**Changed**
+
+-   Better output of JSON data in event details view. [#464](https://github.com/bonny/WordPress-Simple-History/issues/464)
+
+**Fixed**
+
+-   Display user "display name", with fallback to "username", in the event feed. This restores how it was displayed in version 4 of the plugin. [#468](https://github.com/bonny/WordPress-Simple-History/issues/468)
+-   Disable autoload of option `SimplePluginLogger_plugin_info_before_update`, to improve performance. [#457](https://github.com/bonny/WordPress-Simple-History/issues/457)
+-   Fix PHP warnings when fetching occasions.
+-   Only get edit link for a post if `get_post()` returns a post object. This _may_ fix issues with, for example, old versions of WPML. [#469](https://github.com/bonny/WordPress-Simple-History/issues/469)
+-   Make more strings in the GUI translatable. [#470](https://github.com/bonny/WordPress-Simple-History/issues/470), [#471](https://github.com/bonny/WordPress-Simple-History/issues/471)
 
 ### 5.0.1 (September 2024)
 
