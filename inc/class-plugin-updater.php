@@ -262,7 +262,7 @@ class Plugin_Updater {
 	 * @see https://developer.wordpress.org/reference/hooks/upgrader_process_complete/
 	 *
 	 * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
-	 * @param array       $options Array of bulk item update arguments.
+	 * @param array        $options Array of bulk item update arguments.
 	 * @return void
 	 */
 	public function purge( $upgrader, $options ) {

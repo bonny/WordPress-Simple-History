@@ -69,7 +69,7 @@ class Translations_Logger extends Logger {
 
 		foreach ( $translations as $translation ) {
 			$name = '';
-			
+
 			// Check that method exists before usage.
 			if ( method_exists( $upgrader, 'get_name_for_update' ) ) {
 				$name = $upgrader->get_name_for_update( (object) $translation );
