@@ -439,6 +439,7 @@ class Simple_History {
 			Dropins\Sidebar_Add_Ons_Dropin::class,
 			Dropins\Action_Links_Dropin::class,
 			Dropins\React_Dropin::class,
+			Dropins\Quick_View_Dropin::class,
 		);
 
 		/**

@@ -1102,11 +1102,11 @@ function EventInitiatorImageWPUser(props) {
     event
   } = props;
   const {
-    initiator_data
+    initiator_data: initiatorData
   } = event;
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
     className: "SimpleHistoryLogitem__senderImage",
-    src: initiator_data.user_avatar_url,
+    src: initiatorData.user_avatar_url,
     alt: ""
   });
 }
@@ -1115,11 +1115,11 @@ function EventInitiatorImageWebUser(props) {
     event
   } = props;
   const {
-    initiator_data
+    initiator_data: initiatorData
   } = event;
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
     className: "SimpleHistoryLogitem__senderImage",
-    src: initiator_data.user_avatar_url,
+    src: initiatorData.user_avatar_url,
     alt: ""
   });
 }

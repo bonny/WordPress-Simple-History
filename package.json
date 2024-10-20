@@ -51,7 +51,7 @@
 		"test:log-query-mysq57": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=biarms/mysql:5.7 DB_DATA_DIR=./data/mysql-5.7 npm run test:wpunit-logquery",
 		"test:log-query-mariadb105": "PHP_CLI_VERSION=81 PHP_VERSION=8.1 DB_IMAGE=mariadb:10.5 DB_DATA_DIR=./data/mysql npm run test:wpunit-logquery",
 		"test:wpunit-logquery": "docker compose run --rm php-cli vendor/bin/codecept run wpunit:LogQueryTest",
-		"start": "wp-scripts start",
+		"start": "wp-scripts start src/index.js src/index-admin-bar.js",
 		"build": "wp-scripts build",
 		"format": "wp-scripts format ./src",
 		"lint:css": "wp-scripts lint-style ./src",
@@ -60,6 +60,7 @@
 	"dependencies": {
 		"@wordpress/icons": "^10.6.0",
 		"clsx": "^2.1.1",
-		"date-fns": "^4.1.0"
+		"date-fns": "^4.1.0",
+		"react-intersection-observer": "^9.13.1"
 	}
 }

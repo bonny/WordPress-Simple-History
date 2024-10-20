@@ -1,11 +1,11 @@
 export function EventInitiatorImageWPUser( props ) {
 	const { event } = props;
-	const { initiator_data } = event;
+	const { initiator_data: initiatorData } = event;
 
 	return (
 		<img
 			className="SimpleHistoryLogitem__senderImage"
-			src={ initiator_data.user_avatar_url }
+			src={ initiatorData.user_avatar_url }
 			alt=""
 		/>
 	);
@@ -13,12 +13,12 @@ export function EventInitiatorImageWPUser( props ) {
 
 export function EventInitiatorImageWebUser( props ) {
 	const { event } = props;
-	const { initiator_data } = event;
+	const { initiator_data: initiatorData } = event;
 
 	return (
 		<img
 			className="SimpleHistoryLogitem__senderImage"
-			src={ initiator_data.user_avatar_url }
+			src={ initiatorData.user_avatar_url }
 			alt=""
 		/>
 	);
@@ -46,6 +46,6 @@ export function EventInitiatorImage( props ) {
 		case 'other':
 			return <EventInitiatorImageFromCSS event={ event } />;
 		default:
-			return <p>Add image for initiator "{ initiator }"</p>;
+			return <p>Add image for initiator &quot;{ initiator }&quot;</p>;
 	}
 }
