@@ -81,8 +81,11 @@ export function EventDate( props ) {
 		</>
 	);
 
-	return (
-		<>
+	let output;
+	if ( eventVariant === 'compact' ) {
+		output = <p>{ formattedDateLiveUpdated }</p>;
+	} else {
+		output = (
 			<EventHeaderItem className="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when">
 				<Tooltip text={ tooltipText } delay={ 500 }>
 					{ eventVariant === 'modal' ? (
@@ -94,6 +97,8 @@ export function EventDate( props ) {
 					) }
 				</Tooltip>
 			</EventHeaderItem>
-		</>
-	);
+		);
+	}
+
+	return output;
 }

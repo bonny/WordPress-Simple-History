@@ -8,6 +8,7 @@ import { EventInitiatorName } from './EventInitiatorName';
 import { EventInitiatorImage } from './EventInitiator';
 
 import './style.css';
+
 import clsx from 'clsx';
 
 const CompactEvent = ( props ) => {
@@ -15,9 +16,9 @@ const CompactEvent = ( props ) => {
 
 	return (
 		<MenuBarLiItem href={ event.link }>
-			<EventInitiatorImage event={ event } />
-			<EventDate event={ event } />
-			<EventInitiatorName event={ event } />
+			<EventInitiatorImage event={ event } eventVariant="compact" />
+			<EventDate event={ event } eventVariant="compact" />
+			<EventInitiatorName event={ event } eventVariant="compact" />
 			<p>{ event.message }</p>
 		</MenuBarLiItem>
 	);
@@ -40,9 +41,7 @@ const EventsCompactList = ( props ) => {
 			} }
 		>
 			{ events.map( ( event ) => (
-				<li key={ event.id }>
-					<CompactEvent event={ event } />
-				</li>
+				<CompactEvent key={ event.id } event={ event } />
 			) ) }
 		</ul>
 	);
@@ -129,6 +128,7 @@ const SimpleHistoryMenu = () => {
 				) : (
 					<MenuBarLiItem>
 						{ __( 'Events loaded', 'simple-history' ) }
+						<button>{ __( 'Reload', 'simple-history' ) }</button>
 					</MenuBarLiItem>
 				) }
 
