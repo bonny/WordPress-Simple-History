@@ -78,15 +78,21 @@ function EventDate(props) {
     dateTime: event.date_gmt,
     className: "SimpleHistoryLogitem__when__liveRelative"
   }, formattedDateFormatAbbreviated, " (", formattedDateLiveUpdated, ")"));
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_6__.EventHeaderItem, {
-    className: "SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Tooltip, {
-    text: tooltipText,
-    delay: 500
-  }, eventVariant === 'modal' ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, time) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
-    variant: "link",
-    onClick: handleDateClick
-  }, time))));
+  let output;
+  if (eventVariant === 'compact') {
+    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, formattedDateLiveUpdated);
+  } else {
+    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_6__.EventHeaderItem, {
+      className: "SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Tooltip, {
+      text: tooltipText,
+      delay: 500
+    }, eventVariant === 'modal' ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, time) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+      variant: "link",
+      onClick: handleDateClick
+    }, time)));
+  }
+  return output;
 }
 
 /***/ }),
@@ -246,11 +252,18 @@ function EventInitiatorName(props) {
   switch (event.initiator) {
     case 'wp_user':
       const nameToDisplay = initiatorData.user_display_name || initiatorData.user_login;
-      const userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, nameToDisplay), "\xA0", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, "(", initiatorData.user_email, ")"));
-      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_3__.EventHeaderItem, null, eventVariant === 'modal' ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, userDisplay) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
-        href: initiatorData.user_profile_url,
-        variant: "link"
-      }, userDisplay));
+      let userDisplay;
+      if (eventVariant === 'compact') {
+        userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, nameToDisplay);
+      } else if (eventVariant === 'modal') {
+        userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, userDisplay);
+      } else {
+        userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+          href: initiatorData.user_profile_url,
+          variant: "link"
+        }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, nameToDisplay), "\xA0", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, "(", initiatorData.user_email, ")")));
+      }
+      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_3__.EventHeaderItem, null, userDisplay);
     case 'web_user':
       return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_3__.EventHeaderItem, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Anonymous web user', 'simple-history')));
     case 'wp_cli':
@@ -310,11 +323,14 @@ const CompactEvent = props => {
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, {
     href: event.link
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiator__WEBPACK_IMPORTED_MODULE_7__.EventInitiatorImage, {
-    event: event
+    event: event,
+    eventVariant: "compact"
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventDate__WEBPACK_IMPORTED_MODULE_5__.EventDate, {
-    event: event
+    event: event,
+    eventVariant: "compact"
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiatorName__WEBPACK_IMPORTED_MODULE_6__.EventInitiatorName, {
-    event: event
+    event: event,
+    eventVariant: "compact"
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, event.message));
 };
 const EventsCompactList = props => {
@@ -331,11 +347,10 @@ const EventsCompactList = props => {
     style: {
       backgroundColor: '#4c4c4d'
     }
-  }, events.map(event => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
-    key: event.id
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CompactEvent, {
+  }, events.map(event => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CompactEvent, {
+    key: event.id,
     event: event
-  }))));
+  })));
 };
 const MenuBarLiItem = props => {
   const {
@@ -400,7 +415,7 @@ const SimpleHistoryMenu = () => {
   }, [inView]);
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
     ref: ref
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Loading events…', 'simple-history')) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Events loaded', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventsCompactList, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Loading events…', 'simple-history')) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Events loaded', 'simple-history'), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Reload', 'simple-history'))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventsCompactList, {
     events: events
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, {
     href: "#"
@@ -710,9 +725,7 @@ __webpack_require__.r(__webpack_exports__);
 
 _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_1___default()(() => {
   // Find the admin bar node
-  const adminBarTarget = document.getElementById(
-  // 'simple-history-quick-view-react-root'
-  'wp-admin-bar-simple-history-react-root-group');
+  const adminBarTarget = document.getElementById('wp-admin-bar-simple-history-react-root-group');
   if (adminBarTarget) {
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.createRoot)(adminBarTarget).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_SimpleHistoryMenu__WEBPACK_IMPORTED_MODULE_3__["default"], null));
   }
