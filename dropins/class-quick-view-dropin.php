@@ -2,20 +2,15 @@
 
 namespace Simple_History\Dropins;
 
-use Simple_History\Helpers;
-use Simple_History\Log_Query;
-
 /**
  * Displays the latest events from Simple History in the admin bar using React.
  */
 class Quick_View_Dropin extends Dropin {
 	/** @inheritDoc */
 	public function loaded() {
-		// Add the menu item to the admin bar.
-		add_action( 'admin_bar_menu', [ $this, 'sha_add_simple_history_to_admin_bar' ], 100 );
-
-		add_action( 'wp_enqueue_scripts', [ $this, 'sha_enqueue_scripts' ] );
-		add_action( 'admin_enqueue_scripts', [ $this,'sha_enqueue_scripts' ] );
+		add_action( 'admin_bar_menu', [ $this, 'add_simple_history_to_admin_bar' ], 100 );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'admin_enqueue_scripts', [ $this,'enqueue_scripts' ] );
 	}
 
 	/**
@@ -23,7 +18,7 @@ class Quick_View_Dropin extends Dropin {
 	 *
 	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar instance.
 	 */
-	public function sha_add_simple_history_to_admin_bar( $wp_admin_bar ) {
+	public function add_simple_history_to_admin_bar( $wp_admin_bar ) {
 		if ( ! current_user_can( 'manage_options' ) || ! is_admin_bar_showing() ) {
 			return;
 		}
@@ -59,7 +54,10 @@ class Quick_View_Dropin extends Dropin {
 		);
 	}
 
-	public function sha_enqueue_scripts() {
+	/**
+	 * Enqueue scripts.
+	 */
+	public function enqueue_scripts() {
 		$asset_file = include SIMPLE_HISTORY_PATH . 'build/index-admin-bar.asset.php';
 
 		wp_enqueue_script(
