@@ -1,8 +1,9 @@
-body {
+body,
+* {
 	outline: 2px solid pink;
 }
 
-.ab-sub-wrapper {
+/* .ab-sub-wrapper {
 	position: absolute;
 	top: 100%;
 	left: 0;
@@ -23,4 +24,4 @@ body {
 
 .ab-submenu-item a:hover {
 	color: #fff;
-}
+} */

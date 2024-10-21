@@ -6,7 +6,6 @@ import SimpleHistoryMenu from './components/SimpleHistoryMenu';
 domReady( () => {
 	// Find the admin bar node
 	const adminBarTarget = document.getElementById(
-		// 'simple-history-quick-view-react-root'
 		'wp-admin-bar-simple-history-react-root-group'
 	);
 
