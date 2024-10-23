@@ -17,8 +17,8 @@ const CompactEvent = ( props ) => {
 	return (
 		<MenuBarLiItem href={ event.link }>
 			<EventInitiatorImage event={ event } eventVariant="compact" />
-			<EventDate event={ event } eventVariant="compact" />
 			<EventInitiatorName event={ event } eventVariant="compact" />
+			<EventDate event={ event } eventVariant="compact" />
 			<p>{ event.message }</p>
 		</MenuBarLiItem>
 	);
@@ -26,8 +26,6 @@ const CompactEvent = ( props ) => {
 
 const EventsCompactList = ( props ) => {
 	const { events } = props;
-
-	console.log( 'EventsCompactList', events );
 
 	// Events not loaded yet.
 	if ( events.length === 0 ) {
@@ -160,66 +158,7 @@ const SimpleHistoryMenu = () => {
 
 	*/
 
-	const fetchEntries = () => {
-		if ( isLoaded ) {
-			setIsOpen( ! isOpen );
-			return;
-		}
 
-		apiFetch( {
-			url: sha_ajax_object.ajax_url,
-			method: 'POST',
-			data: {
-				action: 'sha_get_log_entries',
-				nonce: sha_ajax_object.nonce,
-			},
-		} )
-			.then( ( response ) => {
-				if ( response.success ) {
-					setEvents( response.data );
-					setIsLoaded( true );
-					setIsOpen( true );
-				} else {
-					setError( response.data );
-				}
-			} )
-			.catch( ( err ) => {
-				setError( 'An error occurred while fetching log entries.' );
-				console.error( err );
-			} );
-	};
-
-	return (
-		<div>
-			<a
-				href="#"
-				onClick={ ( e ) => {
-					e.preventDefault();
-					fetchEntries();
-				} }
-			>
-				Simple History
-			</a>
-			{ isOpen && (
-				<div className="ab-sub-wrapper">
-					<ul className="ab-submenu">
-						{ events.map( ( entry ) => (
-							<li key={ entry.id } className="ab-submenu-item">
-								<a href={ entry.href }>{ entry.title }</a>
-							</li>
-						) ) }
-					</ul>
-				</div>
-			) }
-			{ error && (
-				<div className="ab-sub-wrapper">
-					<div className="ab-submenu">
-						<div className="ab-submenu-item">{ error }</div>
-					</div>
-				</div>
-			) }
-		</div>
-	);
 };
 
 export default SimpleHistoryMenu;
