@@ -273,9 +273,14 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ## Changelog
 
+### 5.0.n (October 2024)
+
+-   Fix PHP warning when viewing events from anonymous users (for example logged failed logins). [#477](https://github.com/bonny/WordPress-Simple-History/issues/477)
+-   Add tests for REST API endpoints.
+
 ### 5.0.3 (October 2024)
 
-- Fix for wrong version number in the readme.txt and index.php file, causing the plugin to find updates forever.
+-   Fix for wrong version number in the readme.txt and index.php file, causing the plugin to find updates forever.
 
 ### 5.0.2 (October 2024)
 
