@@ -15,21 +15,35 @@ class RestAPITest extends \Codeception\TestCase\WPTestCase {
 	
 
 	public function test_events_endpoint_authorized() {
-		// Create a user
 		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
 		$response = $this->dispatch_request( 'GET', $this->events_endpoint );
         
 		$this->assertEquals( 200, $response->get_status(), 'Status from REST API should be 200 since we are authenticated.' );
-		
-		return;		
-		$this->assertEquals( 200, $response->get_status() );
+    }
 
-        // Check the response data
+	public function test_events_endpoint_authorized_data() {
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		$this->factory->user->create( [ 'role' => 'editor' ] );
+
+		$response = $this->dispatch_request( 
+			'GET', 
+			$this->events_endpoint, [
+				'per_page' => 5,
+			] 
+		);
+        
+        // Check the response data.
         $data = $response->get_data();
-        $this->assertNotEmpty( $data );
-        $this->assertArrayHasKey( 'key', $data );
+		
+        $this->assertNotEmpty( $data, 'REST API data should not be empty.' );
+
+		$this->assertCount( 5, $data, 'REST API data should contain 5 items.' );
+
+		$this->assertStringContainsString( 'Created user', $data[0]['message'], 'First message should contain "created user".' );
     }
 
     // Utility method to dispatch REST API requests
