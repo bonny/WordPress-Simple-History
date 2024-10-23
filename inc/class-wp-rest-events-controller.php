@@ -740,7 +740,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		if ( rest_is_field_included( 'initiator_data', $fields ) ) {
 			$user_avatar_data = get_avatar_data( $context['_user_id'] ?? null, [] );
 			$user_avatar_url = $user_avatar_data['url'] ?? '';
-			$user_object = get_user_by( 'id', $context['_user_id'] );
+			$user_object = get_user_by( 'id', $context['_user_id'] ?? null );
 
 			$user_info = [
 				'user_id' => $context['_user_id'] ?? null,
