@@ -10,9 +10,6 @@ use Simple_History\Helpers;
 class Quick_View_Dropin extends Dropin {
 	/** @inheritDoc */
 	public function loaded() {
-		// Not available yet as it's missing styling.
-		return;
-
 		// Only available as a experimental feature.
 		if ( ! Helpers::experimental_features_is_enabled() ) {
 			return;
