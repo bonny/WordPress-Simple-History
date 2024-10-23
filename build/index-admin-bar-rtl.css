@@ -1,0 +1,71 @@
+/*!**************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/components/SimpleHistoryMenu.scss ***!
+  \**************************************************************************************************************************************************************************************************************************************************************/
+@charset "UTF-8";
+#wpadminbar .quicklinks {
+  --sh-dot-size: 10px;
+  --sh-line-color: white;
+}
+#wpadminbar .quicklinks ul.SimpleHistory-adminBarEventsList {
+  background-color: #4c4c4d;
+  padding: 20px;
+}
+#wpadminbar .quicklinks ul.SimpleHistory-adminBarEventsList *,
+#wpadminbar .quicklinks ul.SimpleHistory-adminBarEventsList *::before,
+#wpadminbar .quicklinks ul.SimpleHistory-adminBarEventsList *::after {
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item {
+  display: flex;
+  margin: 0;
+  padding: calc(var(--sh-dot-size) * 1);
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-dot {
+  flex: 0 0 calc(var(--sh-dot-size) * 3);
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-dot::before {
+  content: "";
+  display: block;
+  background-color: var(--sh-line-color);
+  width: var(--sh-dot-size);
+  height: var(--sh-dot-size);
+  border-radius: 50%;
+  transform: translateX(50%) translateY(90%);
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__senderImage {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__inlineDivided:not(:first-child)::before {
+  content: "· ";
+  color: rgb(137, 143, 156);
+  margin-right: 6px;
+  margin-left: 2px;
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__when {
+  display: flex;
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sh-dot-size);
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-meta {
+  display: flex;
+  align-items: center;
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-message {
+  margin-bottom: var(--sh-dot-size);
+}
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-item::before {
+  content: "";
+  border-right: 1px solid var(--sh-line-color);
+  top: var(--sh-dot-size);
+  margin-bottom: calc(var(--sh-dot-size) * -2) !important;
+}
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-item:hover {
+  background-color: #555555;
+}
