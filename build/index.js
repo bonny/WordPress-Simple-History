@@ -612,19 +612,19 @@ function EventDate(props) {
   }, formattedDateFormatAbbreviated, " (", formattedDateLiveUpdated, ")"));
   let output;
   if (eventVariant === 'compact') {
-    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, formattedDateLiveUpdated);
+    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, formattedDateLiveUpdated);
   } else {
-    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_6__.EventHeaderItem, {
-      className: "SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when"
-    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Tooltip, {
+    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Tooltip, {
       text: tooltipText,
       delay: 500
     }, eventVariant === 'modal' ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, time) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
       variant: "link",
       onClick: handleDateClick
-    }, time)));
+    }, time));
   }
-  return output;
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_6__.EventHeaderItem, {
+    className: "SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when"
+  }, output);
 }
 
 /***/ }),

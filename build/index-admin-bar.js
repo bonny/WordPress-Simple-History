@@ -80,19 +80,19 @@ function EventDate(props) {
   }, formattedDateFormatAbbreviated, " (", formattedDateLiveUpdated, ")"));
   let output;
   if (eventVariant === 'compact') {
-    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, formattedDateLiveUpdated);
+    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, formattedDateLiveUpdated);
   } else {
-    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_6__.EventHeaderItem, {
-      className: "SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when"
-    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Tooltip, {
+    output = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Tooltip, {
       text: tooltipText,
       delay: 500
     }, eventVariant === 'modal' ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, time) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
       variant: "link",
       onClick: handleDateClick
-    }, time)));
+    }, time));
   }
-  return output;
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventHeaderItem__WEBPACK_IMPORTED_MODULE_6__.EventHeaderItem, {
+    className: "SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when"
+  }, output);
 }
 
 /***/ }),
@@ -325,10 +325,10 @@ const CompactEvent = props => {
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiator__WEBPACK_IMPORTED_MODULE_7__.EventInitiatorImage, {
     event: event,
     eventVariant: "compact"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventDate__WEBPACK_IMPORTED_MODULE_5__.EventDate, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiatorName__WEBPACK_IMPORTED_MODULE_6__.EventInitiatorName, {
     event: event,
     eventVariant: "compact"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiatorName__WEBPACK_IMPORTED_MODULE_6__.EventInitiatorName, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventDate__WEBPACK_IMPORTED_MODULE_5__.EventDate, {
     event: event,
     eventVariant: "compact"
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, event.message));
@@ -337,7 +337,6 @@ const EventsCompactList = props => {
   const {
     events
   } = props;
-  console.log('EventsCompactList', events);
 
   // Events not loaded yet.
   if (events.length === 0) {
@@ -440,54 +439,6 @@ const SimpleHistoryMenu = () => {
   	</li>
   	</ul>
   	*/
-
-  const fetchEntries = () => {
-    if (isLoaded) {
-      setIsOpen(!isOpen);
-      return;
-    }
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-      url: sha_ajax_object.ajax_url,
-      method: 'POST',
-      data: {
-        action: 'sha_get_log_entries',
-        nonce: sha_ajax_object.nonce
-      }
-    }).then(response => {
-      if (response.success) {
-        setEvents(response.data);
-        setIsLoaded(true);
-        setIsOpen(true);
-      } else {
-        setError(response.data);
-      }
-    }).catch(err => {
-      setError('An error occurred while fetching log entries.');
-      console.error(err);
-    });
-  };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
-    href: "#",
-    onClick: e => {
-      e.preventDefault();
-      fetchEntries();
-    }
-  }, "Simple History"), isOpen && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "ab-sub-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", {
-    className: "ab-submenu"
-  }, events.map(entry => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
-    key: entry.id,
-    className: "ab-submenu-item"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
-    href: entry.href
-  }, entry.title))))), error && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "ab-sub-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "ab-submenu"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "ab-submenu-item"
-  }, error))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SimpleHistoryMenu);
 
