@@ -1,13 +1,13 @@
 import apiFetch from '@wordpress/api-fetch';
-import { createRoot, useEffect, useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { useInView } from 'react-intersection-observer';
 import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
-import { EventInitiatorImage } from './EventInitiator';
+// import { EventInitiatorImage } from './EventInitiator';
 
-import './style.css';
+import './SimpleHistoryMenu.scss';
 
 import clsx from 'clsx';
 
@@ -15,11 +15,27 @@ const CompactEvent = ( props ) => {
 	const { event } = props;
 
 	return (
-		<MenuBarLiItem href={ event.link }>
-			<EventInitiatorImage event={ event } eventVariant="compact" />
-			<EventInitiatorName event={ event } eventVariant="compact" />
-			<EventDate event={ event } eventVariant="compact" />
-			<p>{ event.message }</p>
+		<MenuBarLiItem
+			href={ event.link }
+			className="SimpleHistory-adminBarEventsList-item"
+		>
+			<div className="SimpleHistory-adminBarEventsList-item-dot"></div>
+			<div className="SimpleHistory-adminBarEventsList-item-content">
+				<div className="SimpleHistory-adminBarEventsList-item-content-meta">
+					{ /* <EventInitiatorImage
+						event={ event }
+						eventVariant="compact"
+					/> */ }
+					<EventInitiatorName
+						event={ event }
+						eventVariant="compact"
+					/>
+					<EventDate event={ event } eventVariant="compact" />
+				</div>
+				<div className="SimpleHistory-adminBarEventsList-item-content-message">
+					<p>{ event.message }</p>
+				</div>
+			</div>
 		</MenuBarLiItem>
 	);
 };
@@ -33,11 +49,7 @@ const EventsCompactList = ( props ) => {
 	}
 
 	return (
-		<ul
-			style={ {
-				backgroundColor: '#4c4c4d',
-			} }
-		>
+		<ul className="SimpleHistory-adminBarEventsList">
 			{ events.map( ( event ) => (
 				<CompactEvent key={ event.id } event={ event } />
 			) ) }
@@ -46,10 +58,11 @@ const EventsCompactList = ( props ) => {
 };
 
 const MenuBarLiItem = ( props ) => {
-	const { children, href } = props;
+	const { children, href, className } = props;
 
 	const divClassNames = clsx( 'ab-item', {
 		'ab-empty-item': ! href,
+		[ className ]: className,
 	} );
 
 	const TagName = href ? 'a' : 'div';
@@ -63,6 +76,7 @@ const MenuBarLiItem = ( props ) => {
 					// Override wp admin bar fixed height of 26px.
 					height: 'auto',
 				} }
+				href={ href }
 			>
 				{ children }
 			</TagName>
@@ -72,13 +86,13 @@ const MenuBarLiItem = ( props ) => {
 
 const SimpleHistoryMenu = () => {
 	// True if Simple History admin bar menu is open/visible.
-	const [ isOpen, setIsOpen ] = useState( false );
+	// const [ isOpen, setIsOpen ] = useState( false );
 	const [ isLoading, setIsLoading ] = useState( false );
-	const [ isLoaded, setIsLoaded ] = useState( false );
+	// const [ isLoaded, setIsLoaded ] = useState( false );
 	const [ events, setEvents ] = useState( [] );
 
 	// https://www.npmjs.com/package/react-intersection-observer
-	const { ref, inView, entry } = useInView( {} );
+	const { ref, inView } = useInView( {} );
 
 	useEffect( () => {
 		// Admin bar submenu not visible yet.
@@ -157,8 +171,6 @@ const SimpleHistoryMenu = () => {
 		</ul>
 
 	*/
-
-
 };
 
 export default SimpleHistoryMenu;

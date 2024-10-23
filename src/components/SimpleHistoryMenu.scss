@@ -1,0 +1,88 @@
+// All css must be inside these selectors to override the default WordPress admin bar styles.
+#wpadminbar .quicklinks {
+	--sh-dot-size: 10px;
+	--sh-line-color: white;
+
+	ul.SimpleHistory-adminBarEventsList {
+		background-color: #4c4c4d;
+		padding: 20px;
+
+		*,
+		*::before,
+		*::after {
+			line-height: 1;
+			padding: 0;
+			margin: 0;
+		}
+	}
+
+	// A element.
+	a.SimpleHistory-adminBarEventsList-item {
+		display: flex;
+		margin: 0;
+		padding: calc(var(--sh-dot-size) * 1);
+
+		.SimpleHistory-adminBarEventsList-item-dot {
+			flex: 0 0 calc(var(--sh-dot-size) * 3);
+		}
+
+		.SimpleHistory-adminBarEventsList-item-dot::before {
+			content: "";
+			display: block;
+			background-color: var(--sh-line-color);
+			width: var(--sh-dot-size);
+			height: var(--sh-dot-size);
+			border-radius: 50%;
+			transform: translateX(-50%) translateY(90%);
+		}
+
+		.SimpleHistoryLogitem__senderImage {
+			width: 20px;
+			height: 20px;
+			border-radius: 10px;
+		}
+
+		.SimpleHistoryLogitem__inlineDivided:not(:first-child)::before {
+			content: "\b7\a0";
+			color: rgb(137, 143, 156);
+			margin-left: 6px;
+			margin-right: 2px;
+		}
+
+		.SimpleHistoryLogitem__inlineDivided:before {
+		}
+
+		.SimpleHistoryLogitem__when {
+			display: flex;
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content {
+			display: flex;
+			flex-direction: column;
+			gap: var(--sh-dot-size);
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content-meta {
+			display: flex;
+			align-items: center;
+			// gap: var(--sh-dot-size);
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content-message {
+			margin-bottom: var(--sh-dot-size);
+		}
+	}
+
+	// Add timeline-line.
+	.SimpleHistory-adminBarEventsList-item::before {
+		content: "";
+		border-left: 1px solid var(--sh-line-color);
+		top: var(--sh-dot-size);
+		margin-bottom: calc(var(--sh-dot-size) * -2) !important;
+	}
+
+	.SimpleHistory-adminBarEventsList-item:hover {
+		background-color: #555555;
+		// color: pink !important;
+	}
+}

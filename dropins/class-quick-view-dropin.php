@@ -76,5 +76,12 @@ class Quick_View_Dropin extends Dropin {
 				'in_footer' => true,
 			]
 		);
+
+		wp_enqueue_style(
+			'simple_history_admin_bar_styles',
+			SIMPLE_HISTORY_DIR_URL . 'build/index-admin-bar.css',
+			[],
+			$asset_file['version']
+		);
 	}
 }

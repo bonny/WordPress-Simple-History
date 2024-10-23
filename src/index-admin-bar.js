@@ -4,6 +4,14 @@ import { createRoot } from '@wordpress/element';
 import SimpleHistoryMenu from './components/SimpleHistoryMenu';
 
 domReady( () => {
+	// Tmp to ease, styling, show the menu in the admin bar without the need to hover.
+	setInterval( () => {
+		const elm = document.querySelector( '#wp-admin-bar-simple-history' );
+		if ( ! elm.classList.contains( 'hover' ) ) {
+			elm.classList.add( 'hover' );
+		}
+	}, 100 );
+
 	// Find the admin bar node
 	const adminBarTarget = document.getElementById(
 		'wp-admin-bar-simple-history-react-root-group'
