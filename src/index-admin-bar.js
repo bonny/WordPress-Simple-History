@@ -1,7 +1,7 @@
 // Entrypoint used by wp-scripts start and build.
 import domReady from '@wordpress/dom-ready';
 import { createRoot } from '@wordpress/element';
-import SimpleHistoryMenu from './components/SimpleHistoryMenu';
+import AdminBarQuickView from './components/AdminBarQuickView';
 
 domReady( () => {
 	// Tmp to ease, styling, show the menu in the admin bar without the need to hover.
@@ -18,6 +18,6 @@ domReady( () => {
 	);
 
 	if ( adminBarTarget ) {
-		createRoot( adminBarTarget ).render( <SimpleHistoryMenu /> );
+		createRoot( adminBarTarget ).render( <AdminBarQuickView /> );
 	}
 } );

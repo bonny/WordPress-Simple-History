@@ -6,8 +6,11 @@ import { __ } from '@wordpress/i18n';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
 // import { EventInitiatorImage } from './EventInitiator';
+import { useSelect } from '@wordpress/data';
+import { store as coreDataStore } from '@wordpress/core-data';
+import { useEntityRecords, useEntityRecord } from '@wordpress/core-data';
 
-import './SimpleHistoryMenu.scss';
+import './AdminBarQuickView.scss';
 
 import clsx from 'clsx';
 
@@ -69,22 +72,14 @@ const MenuBarLiItem = ( props ) => {
 
 	return (
 		<li role="group" id="wp-admin-bar-simple-history-subnode-1">
-			<TagName
-				className={ divClassNames }
-				role="menuitem"
-				style={ {
-					// Override wp admin bar fixed height of 26px.
-					height: 'auto',
-				} }
-				href={ href }
-			>
+			<TagName className={ divClassNames } role="menuitem" href={ href }>
 				{ children }
 			</TagName>
 		</li>
 	);
 };
 
-const SimpleHistoryMenu = () => {
+const AdminBarQuickView = () => {
 	// True if Simple History admin bar menu is open/visible.
 	// const [ isOpen, setIsOpen ] = useState( false );
 	const [ isLoading, setIsLoading ] = useState( false );
@@ -130,6 +125,12 @@ const SimpleHistoryMenu = () => {
 		fetchEntries();
 	}, [ inView ] );
 
+	// Use wp.data to get the site object
+	//const siteData = useSelect( ( select ) => select( 'core' ).getSite() );
+	// https://developer.wordpress.org/news/2024/03/26/how-to-use-wordpress-react-components-for-plugin-pages/#comment-4172
+	const data = useEntityRecord( 'root', 'site' );
+	console.table( data?.record );
+
 	return (
 		<li ref={ ref }>
 			<ul>
@@ -137,16 +138,21 @@ const SimpleHistoryMenu = () => {
 					<MenuBarLiItem>
 						{ __( 'Loading events…', 'simple-history' ) }
 					</MenuBarLiItem>
-				) : (
-					<MenuBarLiItem>
-						{ __( 'Events loaded', 'simple-history' ) }
-						<button>{ __( 'Reload', 'simple-history' ) }</button>
-					</MenuBarLiItem>
-				) }
+				) : null }
 
 				<EventsCompactList events={ events } />
 
-				<MenuBarLiItem href="#">View full history</MenuBarLiItem>
+				<footer className="SimpleHistory-adminBarEventsList-footer">
+					<MenuBarLiItem href="#">View full history</MenuBarLiItem>
+
+					{ ! isLoading ? (
+						<MenuBarLiItem>
+							<button className="button button-small">
+								{ __( 'Reload', 'simple-history' ) }
+							</button>
+						</MenuBarLiItem>
+					) : null }
+				</footer>
 			</ul>
 		</li>
 	);
@@ -173,4 +179,4 @@ const SimpleHistoryMenu = () => {
 	*/
 };
 
-export default SimpleHistoryMenu;
+export default AdminBarQuickView;

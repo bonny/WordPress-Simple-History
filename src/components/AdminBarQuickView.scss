@@ -1,11 +1,41 @@
 // All css must be inside these selectors to override the default WordPress admin bar styles.
 #wpadminbar .quicklinks {
 	--sh-dot-size: 10px;
-	--sh-line-color: white;
+	--sh-line-color: #666;
+
+	#wp-admin-bar-simple-history-react-root-group {
+		padding-bottom: 0;
+
+		// Button styles are the same as the regular
+		// WP css styles, but due to wpadmin * selector
+		// we need to override them here.
+		.button {
+			display: inline-block;
+			text-decoration: none;
+			font-size: 13px;
+			line-height: 2.15384615;
+			min-height: 30px;
+			margin: 0;
+			padding: 0 10px;
+			cursor: pointer;
+			border-width: 1px;
+			border-style: solid;
+			border-radius: 3px;
+			white-space: nowrap;
+			box-sizing: border-box;
+		}
+
+		.button-small {
+			min-height: 26px;
+			line-height: 2.18181818;
+			padding: 0 8px;
+			font-size: 11px;
+		}
+	}
 
 	ul.SimpleHistory-adminBarEventsList {
-		background-color: #4c4c4d;
-		padding: 15px;
+		// background-color: #4c4c4d;
+		padding: 0 15px 15px 15px;
 
 		*,
 		*::before,
@@ -18,6 +48,7 @@
 
 	// A element.
 	a.SimpleHistory-adminBarEventsList-item {
+		height: auto !important;
 		display: flex;
 		margin: 0;
 		padding: calc(var(--sh-dot-size) * 1);
@@ -68,6 +99,10 @@
 			// gap: var(--sh-dot-size);
 		}
 
+		.SimpleHistory-adminBarEventsList-item-content-meta strong {
+			font-weight: normal;
+		}
+
 		.SimpleHistory-adminBarEventsList-item-content-message {
 			margin-bottom: calc(var(--sh-dot-size) / 2);
 		}
@@ -81,8 +116,18 @@
 		margin-bottom: calc(var(--sh-dot-size) * -2) !important;
 	}
 
+	.SimpleHistory-adminBarEventsList
+		> li:last-child
+		.SimpleHistory-adminBarEventsList-item::before {
+		margin-bottom: 0 !important;
+	}
+
 	.SimpleHistory-adminBarEventsList-item:hover {
 		background-color: #555555;
 		// color: pink !important;
 	}
+}
+
+.SimpleHistory-adminBarEventsList-footer {
+	background-color: #3c434a;
 }
