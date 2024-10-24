@@ -1,14 +1,37 @@
 /*!**************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/components/SimpleHistoryMenu.scss ***!
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/components/AdminBarQuickView.scss ***!
   \**************************************************************************************************************************************************************************************************************************************************************/
 @charset "UTF-8";
 #wpadminbar .quicklinks {
   --sh-dot-size: 10px;
-  --sh-line-color: white;
+  --sh-line-color: #666;
+}
+#wpadminbar .quicklinks #wp-admin-bar-simple-history-react-root-group {
+  padding-bottom: 0;
+}
+#wpadminbar .quicklinks #wp-admin-bar-simple-history-react-root-group .button {
+  display: inline-block;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 2.15384615;
+  min-height: 30px;
+  margin: 0;
+  padding: 0 10px;
+  cursor: pointer;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 3px;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+#wpadminbar .quicklinks #wp-admin-bar-simple-history-react-root-group .button-small {
+  min-height: 26px;
+  line-height: 2.18181818;
+  padding: 0 8px;
+  font-size: 11px;
 }
 #wpadminbar .quicklinks ul.SimpleHistory-adminBarEventsList {
-  background-color: #4c4c4d;
-  padding: 15px;
+  padding: 0 15px 15px 15px;
 }
 #wpadminbar .quicklinks ul.SimpleHistory-adminBarEventsList *,
 #wpadminbar .quicklinks ul.SimpleHistory-adminBarEventsList *::before,
@@ -18,6 +41,7 @@
   margin: 0;
 }
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item {
+  height: auto !important;
   display: flex;
   margin: 0;
   padding: calc(var(--sh-dot-size) * 1);
@@ -57,6 +81,9 @@
   display: flex;
   align-items: center;
 }
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-meta strong {
+  font-weight: normal;
+}
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-message {
   margin-bottom: calc(var(--sh-dot-size) / 2);
 }
@@ -66,6 +93,13 @@
   top: var(--sh-dot-size);
   margin-bottom: calc(var(--sh-dot-size) * -2) !important;
 }
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList > li:last-child .SimpleHistory-adminBarEventsList-item::before {
+  margin-bottom: 0 !important;
+}
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-item:hover {
   background-color: #555555;
+}
+
+.SimpleHistory-adminBarEventsList-footer {
+  background-color: #3c434a;
 }
