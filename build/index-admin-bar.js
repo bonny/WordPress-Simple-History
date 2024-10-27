@@ -18,19 +18,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var react_intersection_observer__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! react-intersection-observer */ "./node_modules/react-intersection-observer/dist/index.mjs");
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _EventDate__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./EventDate */ "./src/components/EventDate.jsx");
-/* harmony import */ var _EventInitiatorName__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./EventInitiatorName */ "./src/components/EventInitiatorName.jsx");
-/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
-/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @wordpress/core-data */ "@wordpress/core-data");
-/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var _AdminBarQuickView_scss__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./AdminBarQuickView.scss */ "./src/components/AdminBarQuickView.scss");
-/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.mjs");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.mjs");
+/* harmony import */ var react_intersection_observer__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-intersection-observer */ "./node_modules/react-intersection-observer/dist/index.mjs");
+/* harmony import */ var _EventDate__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./EventDate */ "./src/components/EventDate.jsx");
+/* harmony import */ var _EventInitiatorName__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EventInitiatorName */ "./src/components/EventInitiatorName.jsx");
+/* harmony import */ var _AdminBarQuickView_scss__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./AdminBarQuickView.scss */ "./src/components/AdminBarQuickView.scss");
 
 
 
@@ -39,12 +35,28 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// import { EventInitiatorImage } from './EventInitiator';
 
 
-
-
-
+const EventsCompactListLoadingSkeleton = () => {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", {
+    className: "SimpleHistory-adminBarEventsList SimpleHistory-adminBarEventsList--skeleton"
+  }, [1, 2, 3, 4, 5].map(index => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, {
+    key: index,
+    className: "SimpleHistory-adminBarEventsList-item"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory-adminBarEventsList-item-dot"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory-adminBarEventsList-item-content"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory-adminBarEventsList-item-content-meta"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory-adminBarEventsList-item-content-meta-skeleton"
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory-adminBarEventsList-item-content-message"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "SimpleHistory-adminBarEventsList-item-content-message-skeleton"
+  })))))));
+};
 const CompactEvent = props => {
   const {
     event
@@ -58,10 +70,10 @@ const CompactEvent = props => {
     className: "SimpleHistory-adminBarEventsList-item-content"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "SimpleHistory-adminBarEventsList-item-content-meta"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiatorName__WEBPACK_IMPORTED_MODULE_6__.EventInitiatorName, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventInitiatorName__WEBPACK_IMPORTED_MODULE_7__.EventInitiatorName, {
     event: event,
     eventVariant: "compact"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventDate__WEBPACK_IMPORTED_MODULE_5__.EventDate, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventDate__WEBPACK_IMPORTED_MODULE_6__.EventDate, {
     event: event,
     eventVariant: "compact"
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -70,8 +82,12 @@ const CompactEvent = props => {
 };
 const EventsCompactList = props => {
   const {
-    events
+    events,
+    isLoading
   } = props;
+  if (isLoading) {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventsCompactListLoadingSkeleton, null);
+  }
 
   // Events not loaded yet.
   if (events.length === 0) {
@@ -90,7 +106,7 @@ const MenuBarLiItem = props => {
     href,
     className
   } = props;
-  const divClassNames = (0,clsx__WEBPACK_IMPORTED_MODULE_10__["default"])('ab-item', {
+  const divClassNames = (0,clsx__WEBPACK_IMPORTED_MODULE_5__["default"])('ab-item', {
     'ab-empty-item': !href,
     [className]: className
   });
@@ -105,17 +121,14 @@ const MenuBarLiItem = props => {
   }, children));
 };
 const AdminBarQuickView = () => {
-  // True if Simple History admin bar menu is open/visible.
-  // const [ isOpen, setIsOpen ] = useState( false );
   const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(false);
-  // const [ isLoaded, setIsLoaded ] = useState( false );
   const [events, setEvents] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)([]);
 
   // https://www.npmjs.com/package/react-intersection-observer
   const {
     ref,
     inView
-  } = (0,react_intersection_observer__WEBPACK_IMPORTED_MODULE_11__.useInView)({});
+  } = (0,react_intersection_observer__WEBPACK_IMPORTED_MODULE_9__.useInView)({});
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
     // Admin bar submenu not visible yet.
     if (inView === false) {
@@ -128,7 +141,7 @@ const AdminBarQuickView = () => {
       };
       try {
         const eventsResponse = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-          path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_3__.addQueryArgs)('/simple-history/v1/events', eventsQueryParams),
+          path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_4__.addQueryArgs)('/simple-history/v1/events', eventsQueryParams),
           // Skip parsing to be able to retrieve headers.
           parse: false
         });
@@ -159,14 +172,15 @@ const AdminBarQuickView = () => {
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
     ref: ref
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventsCompactList, {
-    events: events
+    events: events,
+    isLoading: isLoading
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("footer", {
     className: "SimpleHistory-adminBarEventsList-footer"
-  }, isLoading ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Loading…', 'simple-history') : null, !isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+  }, isLoading ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Loading…', 'simple-history') : null, !isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     className: "button button-small"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
     className: "dashicons dashicons-update-alt"
-  }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Reload', 'simple-history')) : null, viewFullHistoryLink)));
+  }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Reload', 'simple-history')) : null, viewFullHistoryLink)));
   /* 
   // Admin bar can't handle multiple lines of text, so we need to use a submenu.
   // We render the react app to the ul items and then we can add li items in the React render.
@@ -186,7 +200,7 @@ const AdminBarQuickView = () => {
   		</div>
   	</li>
   	</ul>
-  	*/
+  */
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminBarQuickView);
 
@@ -638,26 +652,6 @@ module.exports = window["wp"]["apiFetch"];
 /***/ ((module) => {
 
 module.exports = window["wp"]["components"];
-
-/***/ }),
-
-/***/ "@wordpress/core-data":
-/*!**********************************!*\
-  !*** external ["wp","coreData"] ***!
-  \**********************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["coreData"];
-
-/***/ }),
-
-/***/ "@wordpress/data":
-/*!******************************!*\
-  !*** external ["wp","data"] ***!
-  \******************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["data"];
 
 /***/ }),
 
@@ -4862,7 +4856,7 @@ _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_1___default()(() => {
   setInterval(() => {
     const elm = document.querySelector('#wp-admin-bar-simple-history');
     if (!elm.classList.contains('hover')) {
-      elm.classList.add('hover');
+      // elm.classList.add( 'hover' );
     }
   }, 100);
 

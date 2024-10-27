@@ -40,15 +40,32 @@
   padding: 0;
   margin: 0;
 }
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton {
+  --sh-skeleton-bacground-color: currentColor;
+  opacity: 0.1;
+  min-width: 15rem;
+}
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton .SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
+  flex: 1;
+  background-color: var(--sh-skeleton-bacground-color);
+  height: 1rem;
+}
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton .SimpleHistory-adminBarEventsList-item-content-message-skeleton {
+  background-color: var(--sh-skeleton-bacground-color);
+  height: 1rem;
+}
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item {
   height: auto !important;
   display: flex;
   margin: 0;
   padding: calc(var(--sh-dot-size) * 1);
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-dot,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-dot {
   flex: 0 0 calc(var(--sh-dot-size) * 2);
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-dot::before,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-dot::before {
   content: "";
   display: block;
@@ -58,36 +75,46 @@
   border-radius: 50%;
   transform: translateX(50%) translateY(90%);
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__senderImage,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__senderImage {
   width: 20px;
   height: 20px;
   border-radius: 10px;
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__inlineDivided:not(:first-child)::before,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__inlineDivided:not(:first-child)::before {
   content: "· ";
   color: rgb(137, 143, 156);
   margin-right: 6px;
   margin-left: 2px;
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__when,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistoryLogitem__when {
   display: flex;
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: calc(var(--sh-dot-size) / 2);
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-meta,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-meta {
   display: flex;
+  flex: 1;
   align-items: center;
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-meta strong,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-meta strong {
   font-weight: normal;
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-message,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-message {
   margin-bottom: calc(var(--sh-dot-size) / 2);
   white-space: normal;
 }
+#wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-message p,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-message p {
   line-height: 1.2;
 }
