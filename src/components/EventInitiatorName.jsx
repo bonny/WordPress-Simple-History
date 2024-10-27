@@ -21,7 +21,7 @@ export function EventInitiatorName( props ) {
 			if ( eventVariant === 'compact' ) {
 				userDisplay = <strong>{ nameToDisplay }</strong>;
 			} else if ( eventVariant === 'modal' ) {
-				userDisplay = <Text>{ userDisplay }</Text>;
+				userDisplay = <strong>{ nameToDisplay }</strong>;
 			} else {
 				userDisplay = (
 					<Button

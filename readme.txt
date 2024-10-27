@@ -273,6 +273,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ## Changelog
 
+### Unreleased
+
+-   Fix username not always showing in the event details modal.
+
 ### 5.0.4 (October 2024)
 
 -   Fix PHP warning when viewing events from anonymous users (for example logged failed logins). [#477](https://github.com/bonny/WordPress-Simple-History/issues/477)
