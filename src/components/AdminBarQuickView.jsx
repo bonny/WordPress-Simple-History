@@ -128,22 +128,31 @@ const AdminBarQuickView = () => {
 	// Use wp.data to get the site object
 	//const siteData = useSelect( ( select ) => select( 'core' ).getSite() );
 	// https://developer.wordpress.org/news/2024/03/26/how-to-use-wordpress-react-components-for-plugin-pages/#comment-4172
-	const data = useEntityRecord( 'root', 'site' );
-	console.table( data?.record );
+	// const data = useEntityRecord( 'root', 'site' );
+	// console.table( data?.record );
+
+	//const viewHistoryURL = 'index.php?page=simple_history_page';
+	const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
+	const userCanViewHistory = Boolean(
+		Number( window.simpleHistoryAdminBar.currentUserCanViewHistory )
+	);
+	const viewFullHistoryLink = userCanViewHistory ? (
+		<MenuBarLiItem href={ viewHistoryURL }>View full history</MenuBarLiItem>
+	) : null;
 
 	return (
 		<li ref={ ref }>
 			<ul>
+				<EventsCompactList events={ events } />
+
 				{ isLoading ? (
 					<MenuBarLiItem>
 						{ __( 'Loading events…', 'simple-history' ) }
 					</MenuBarLiItem>
 				) : null }
 
-				<EventsCompactList events={ events } />
-
 				<footer className="SimpleHistory-adminBarEventsList-footer">
-					<MenuBarLiItem href="#">View full history</MenuBarLiItem>
+					{ viewFullHistoryLink }
 
 					{ ! isLoading ? (
 						<MenuBarLiItem>
