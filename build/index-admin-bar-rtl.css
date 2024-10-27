@@ -86,6 +86,10 @@
 }
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-message {
   margin-bottom: calc(var(--sh-dot-size) / 2);
+  white-space: normal;
+}
+#wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-message p {
+  line-height: 1.2;
 }
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-item::before {
   content: "";
@@ -99,7 +103,21 @@
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-item:hover {
   background-color: #555555;
 }
-
-.SimpleHistory-adminBarEventsList-footer {
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-footer {
   background-color: #3c434a;
+  display: flex;
+  padding: 0.5rem;
+  justify-content: space-between;
+}
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-footer .button {
+  display: flex !important;
+  gap: 0.25rem;
+  align-items: center;
+}
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-footer .dashicons {
+  line-height: 1;
+}
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-footer .dashicons::before {
+  font-family: dashicons;
+  line-height: 1;
 }

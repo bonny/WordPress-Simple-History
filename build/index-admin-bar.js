@@ -147,19 +147,26 @@ const AdminBarQuickView = () => {
   // Use wp.data to get the site object
   //const siteData = useSelect( ( select ) => select( 'core' ).getSite() );
   // https://developer.wordpress.org/news/2024/03/26/how-to-use-wordpress-react-components-for-plugin-pages/#comment-4172
-  const data = (0,_wordpress_core_data__WEBPACK_IMPORTED_MODULE_8__.useEntityRecord)('root', 'site');
-  console.table(data?.record);
+  // const data = useEntityRecord( 'root', 'site' );
+  // console.table( data?.record );
+
+  //const viewHistoryURL = 'index.php?page=simple_history_page';
+  const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
+  const userCanViewHistory = Boolean(Number(window.simpleHistoryAdminBar.currentUserCanViewHistory));
+  const viewFullHistoryLink = userCanViewHistory ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
+    href: viewHistoryURL
+  }, "View full history") : null;
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
     ref: ref
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Loading events…', 'simple-history')) : null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventsCompactList, {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventsCompactList, {
     events: events
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("footer", {
     className: "SimpleHistory-adminBarEventsList-footer"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, {
-    href: "#"
-  }, "View full history"), !isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+  }, isLoading ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Loading…', 'simple-history') : null, !isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     className: "button button-small"
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Reload', 'simple-history'))) : null)));
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "dashicons dashicons-update-alt"
+  }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Reload', 'simple-history')) : null, viewFullHistoryLink)));
   /* 
   // Admin bar can't handle multiple lines of text, so we need to use a submenu.
   // We render the react app to the ul items and then we can add li items in the React render.
@@ -358,7 +365,7 @@ function EventInitiatorName(props) {
       if (eventVariant === 'compact') {
         userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, nameToDisplay);
       } else if (eventVariant === 'modal') {
-        userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, userDisplay);
+        userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, nameToDisplay);
       } else {
         userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
           href: initiatorData.user_profile_url,

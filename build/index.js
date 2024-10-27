@@ -1210,7 +1210,7 @@ function EventInitiatorName(props) {
       if (eventVariant === 'compact') {
         userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, nameToDisplay);
       } else if (eventVariant === 'modal') {
-        userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, null, userDisplay);
+        userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, nameToDisplay);
       } else {
         userDisplay = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
           href: initiatorData.user_profile_url,
