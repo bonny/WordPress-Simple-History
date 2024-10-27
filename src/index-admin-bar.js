@@ -8,7 +8,7 @@ domReady( () => {
 	setInterval( () => {
 		const elm = document.querySelector( '#wp-admin-bar-simple-history' );
 		if ( ! elm.classList.contains( 'hover' ) ) {
-			elm.classList.add( 'hover' );
+			// elm.classList.add( 'hover' );
 		}
 	}, 100 );
 
