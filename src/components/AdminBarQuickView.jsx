@@ -2,13 +2,37 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
 
 import './AdminBarQuickView.scss';
 
-import clsx from 'clsx';
+const EventsCompactListLoadingSkeleton = () => {
+	return (
+		<>
+			<ul className="SimpleHistory-adminBarEventsList SimpleHistory-adminBarEventsList--skeleton">
+				{ [ 1, 2, 3, 4, 5 ].map( ( index ) => (
+					<MenuBarLiItem
+						key={ index }
+						className="SimpleHistory-adminBarEventsList-item"
+					>
+						<div className="SimpleHistory-adminBarEventsList-item-dot"></div>
+						<div className="SimpleHistory-adminBarEventsList-item-content">
+							<div className="SimpleHistory-adminBarEventsList-item-content-meta">
+								<div className="SimpleHistory-adminBarEventsList-item-content-meta-skeleton"></div>
+							</div>
+							<div className="SimpleHistory-adminBarEventsList-item-content-message">
+								<div className="SimpleHistory-adminBarEventsList-item-content-message-skeleton"></div>
+							</div>
+						</div>
+					</MenuBarLiItem>
+				) ) }
+			</ul>
+		</>
+	);
+};
 
 const CompactEvent = ( props ) => {
 	const { event } = props;
@@ -36,7 +60,11 @@ const CompactEvent = ( props ) => {
 };
 
 const EventsCompactList = ( props ) => {
-	const { events } = props;
+	const { events, isLoading } = props;
+
+	if ( isLoading ) {
+		return <EventsCompactListLoadingSkeleton />;
+	}
 
 	// Events not loaded yet.
 	if ( events.length === 0 ) {
@@ -72,10 +100,7 @@ const MenuBarLiItem = ( props ) => {
 };
 
 const AdminBarQuickView = () => {
-	// True if Simple History admin bar menu is open/visible.
-	// const [ isOpen, setIsOpen ] = useState( false );
 	const [ isLoading, setIsLoading ] = useState( false );
-	// const [ isLoaded, setIsLoaded ] = useState( false );
 	const [ events, setEvents ] = useState( [] );
 
 	// https://www.npmjs.com/package/react-intersection-observer
@@ -135,7 +160,7 @@ const AdminBarQuickView = () => {
 	return (
 		<li ref={ ref }>
 			<ul>
-				<EventsCompactList events={ events } />
+				<EventsCompactList events={ events } isLoading={ isLoading } />
 
 				<footer className="SimpleHistory-adminBarEventsList-footer">
 					{ isLoading ? __( 'Loading…', 'simple-history' ) : null }
@@ -171,7 +196,6 @@ const AdminBarQuickView = () => {
 			</div>
 		</li>
 		</ul>
-
 	*/
 };
 

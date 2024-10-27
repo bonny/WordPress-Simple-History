@@ -46,7 +46,25 @@
 		}
 	}
 
+	.SimpleHistory-adminBarEventsList--skeleton {
+		--sh-skeleton-bacground-color: currentColor;
+		opacity: 0.1;
+		min-width: 15rem;
+
+		.SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
+			flex: 1;
+			background-color: var(--sh-skeleton-bacground-color);
+			height: 1rem;
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content-message-skeleton {
+			background-color: var(--sh-skeleton-bacground-color);
+			height: 1rem;
+		}
+	}
+
 	// A element.
+	div.SimpleHistory-adminBarEventsList-item,
 	a.SimpleHistory-adminBarEventsList-item {
 		height: auto !important;
 		display: flex;
@@ -89,12 +107,14 @@
 
 		.SimpleHistory-adminBarEventsList-item-content {
 			display: flex;
+			flex: 1;
 			flex-direction: column;
 			gap: calc(var(--sh-dot-size) / 2);
 		}
 
 		.SimpleHistory-adminBarEventsList-item-content-meta {
 			display: flex;
+			flex: 1;
 			align-items: center;
 			// gap: var(--sh-dot-size);
 		}
