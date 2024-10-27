@@ -137,7 +137,7 @@ const AdminBarQuickView = () => {
 		Number( window.simpleHistoryAdminBar.currentUserCanViewHistory )
 	);
 	const viewFullHistoryLink = userCanViewHistory ? (
-		<MenuBarLiItem href={ viewHistoryURL }>View full history</MenuBarLiItem>
+		<a href={ viewHistoryURL }>View full history</a>
 	) : null;
 
 	return (
@@ -145,22 +145,17 @@ const AdminBarQuickView = () => {
 			<ul>
 				<EventsCompactList events={ events } />
 
-				{ isLoading ? (
-					<MenuBarLiItem>
-						{ __( 'Loading events…', 'simple-history' ) }
-					</MenuBarLiItem>
-				) : null }
-
 				<footer className="SimpleHistory-adminBarEventsList-footer">
-					{ viewFullHistoryLink }
+					{ isLoading ? __( 'Loading…', 'simple-history' ) : null }
 
 					{ ! isLoading ? (
-						<MenuBarLiItem>
-							<button className="button button-small">
-								{ __( 'Reload', 'simple-history' ) }
-							</button>
-						</MenuBarLiItem>
+						<button className="button button-small">
+							<span className="dashicons dashicons-update-alt"></span>
+							{ __( 'Reload', 'simple-history' ) }
+						</button>
 					) : null }
+
+					{ viewFullHistoryLink }
 				</footer>
 			</ul>
 		</li>

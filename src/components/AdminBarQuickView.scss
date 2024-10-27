@@ -105,6 +105,11 @@
 
 		.SimpleHistory-adminBarEventsList-item-content-message {
 			margin-bottom: calc(var(--sh-dot-size) / 2);
+			white-space: normal;
+
+			p {
+				line-height: 1.2;
+			}
 		}
 	}
 
@@ -126,8 +131,26 @@
 		background-color: #555555;
 		// color: pink !important;
 	}
-}
 
-.SimpleHistory-adminBarEventsList-footer {
-	background-color: #3c434a;
+	.SimpleHistory-adminBarEventsList-footer {
+		background-color: #3c434a;
+		display: flex;
+		padding: 0.5rem;
+		justify-content: space-between;
+
+		.button {
+			display: flex !important;
+			gap: 0.25rem;
+			align-items: center;
+		}
+
+		.dashicons {
+			line-height: 1;
+		}
+
+		.dashicons::before {
+			font-family: dashicons;
+			line-height: 1;
+		}
+	}
 }
