@@ -2,6 +2,7 @@
 
 namespace Simple_History\Dropins;
 
+use Automattic\Jetpack\Search\Helper;
 use Simple_History\Helpers;
 
 /**
@@ -82,6 +83,15 @@ class Quick_View_Dropin extends Dropin {
 			SIMPLE_HISTORY_DIR_URL . 'build/index-admin-bar.css',
 			[],
 			$asset_file['version']
+		);
+
+		wp_localize_script(
+			'simple_history_admin_bar_scripts',
+			'simpleHistoryAdminBar',
+			[
+				'adminPageUrl' => $this->simple_history->get_view_history_page_admin_url(),
+				'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
+			],
 		);
 	}
 }
