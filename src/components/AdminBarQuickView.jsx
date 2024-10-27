@@ -1,14 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { useInView } from 'react-intersection-observer';
-import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
+import { useInView } from 'react-intersection-observer';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
-// import { EventInitiatorImage } from './EventInitiator';
-import { useSelect } from '@wordpress/data';
-import { store as coreDataStore } from '@wordpress/core-data';
-import { useEntityRecords, useEntityRecord } from '@wordpress/core-data';
 
 import './AdminBarQuickView.scss';
 
@@ -25,10 +21,6 @@ const CompactEvent = ( props ) => {
 			<div className="SimpleHistory-adminBarEventsList-item-dot"></div>
 			<div className="SimpleHistory-adminBarEventsList-item-content">
 				<div className="SimpleHistory-adminBarEventsList-item-content-meta">
-					{ /* <EventInitiatorImage
-						event={ event }
-						eventVariant="compact"
-					/> */ }
 					<EventInitiatorName
 						event={ event }
 						eventVariant="compact"
