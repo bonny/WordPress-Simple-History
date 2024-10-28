@@ -123,19 +123,11 @@ const AdminBarQuickView = () => {
 	// Load events when the reloadTime is set or updated.
 	// For example when submenu becomes visible or when reload button is pressed.
 	useEffect( () => {
-		console.log( 'reloadTime', reloadTime );
-
 		if ( reloadTime === null ) {
 			return;
 		}
 
-		// // Admin bar submenu not visible yet.
-		// if ( inView === false ) {
-		// 	return;
-		// }
-
 		async function fetchEntries() {
-			console.log( 'fetchEntries' );
 			setIsLoading( true );
 
 			const eventsQueryParams = {
