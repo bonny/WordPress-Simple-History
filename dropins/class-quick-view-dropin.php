@@ -36,7 +36,7 @@ class Quick_View_Dropin extends Dropin {
 			array(
 				// Id's are prefixed automatically, so no need to prefix them here.
 				'id'    => 'simple-history',
-				'title' => '<span class="ab-icon dashicons-before dashicons-clock"></span> Site History',
+				'title' => 'Simple History',
 				'href'  => $this->simple_history->get_view_history_page_admin_url(),
 				'meta'  => array(
 					'title' => 'View recent site history events',
