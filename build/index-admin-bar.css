@@ -7,6 +7,7 @@
   --sh-line-color: #666;
 }
 #wpadminbar .quicklinks #wp-admin-bar-simple-history-react-root-group {
+  min-width: 25rem;
   padding-bottom: 0;
 }
 #wpadminbar .quicklinks #wp-admin-bar-simple-history-react-root-group .button {
@@ -48,11 +49,13 @@
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton .SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
   flex: 1;
   background-color: var(--sh-skeleton-bacground-color);
-  height: 1rem;
+  height: 1.1rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
 }
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton .SimpleHistory-adminBarEventsList-item-content-message-skeleton {
   background-color: var(--sh-skeleton-bacground-color);
-  height: 1rem;
+  height: 1.3rem;
 }
 #wpadminbar .quicklinks div.SimpleHistory-adminBarEventsList-item,
 #wpadminbar .quicklinks a.SimpleHistory-adminBarEventsList-item {
@@ -130,21 +133,22 @@
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-item:hover {
   background-color: #555555;
 }
-#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-footer {
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-actions {
   background-color: #3c434a;
   display: flex;
   padding: 0.5rem;
   justify-content: space-between;
+  flex-direction: row-reverse;
 }
-#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-footer .button {
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-actions .button {
   display: flex !important;
   gap: 0.25rem;
   align-items: center;
 }
-#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-footer .dashicons {
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-actions .dashicons {
   line-height: 1;
 }
-#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-footer .dashicons::before {
+#wpadminbar .quicklinks .SimpleHistory-adminBarEventsList-actions .dashicons::before {
   font-family: dashicons;
   line-height: 1;
 }

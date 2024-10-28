@@ -123,18 +123,40 @@ const MenuBarLiItem = props => {
 const AdminBarQuickView = () => {
   const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(false);
   const [events, setEvents] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)([]);
+  const [reloadTime, setReloadTime] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(null);
 
   // https://www.npmjs.com/package/react-intersection-observer
   const {
     ref,
     inView
   } = (0,react_intersection_observer__WEBPACK_IMPORTED_MODULE_9__.useInView)({});
+
+  // Load events the first time the submenu becomes visible.
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
-    // Admin bar submenu not visible yet.
     if (inView === false) {
       return;
     }
+    if (reloadTime !== null) {
+      return;
+    }
+    setReloadTime(Date.now());
+  }, [inView, reloadTime]);
+
+  // Load events when the reloadTime is set or updated.
+  // For example when submenu becomes visible or when reload button is pressed.
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
+    console.log('reloadTime', reloadTime);
+    if (reloadTime === null) {
+      return;
+    }
+
+    // // Admin bar submenu not visible yet.
+    // if ( inView === false ) {
+    // 	return;
+    // }
+
     async function fetchEntries() {
+      console.log('fetchEntries');
       setIsLoading(true);
       const eventsQueryParams = {
         per_page: 5
@@ -155,29 +177,25 @@ const AdminBarQuickView = () => {
       }
     }
     fetchEntries();
-  }, [inView]);
-
-  // Use wp.data to get the site object
-  //const siteData = useSelect( ( select ) => select( 'core' ).getSite() );
-  // https://developer.wordpress.org/news/2024/03/26/how-to-use-wordpress-react-components-for-plugin-pages/#comment-4172
-  // const data = useEntityRecord( 'root', 'site' );
-  // console.table( data?.record );
-
-  //const viewHistoryURL = 'index.php?page=simple_history_page';
+  }, [reloadTime]);
   const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
   const userCanViewHistory = Boolean(Number(window.simpleHistoryAdminBar.currentUserCanViewHistory));
   const viewFullHistoryLink = userCanViewHistory ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
     href: viewHistoryURL
   }, "View full history") : null;
+  const handleReloadButtonClick = () => {
+    setReloadTime(Date.now());
+  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
     ref: ref
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventsCompactList, {
     events: events,
     isLoading: isLoading
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("footer", {
-    className: "SimpleHistory-adminBarEventsList-footer"
+    className: "SimpleHistory-adminBarEventsList-actions"
   }, isLoading ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Loading…', 'simple-history') : null, !isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    className: "button button-small"
+    className: "button button-small",
+    onClick: handleReloadButtonClick
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
     className: "dashicons dashicons-update-alt"
   }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Reload', 'simple-history')) : null, viewFullHistoryLink)));
