@@ -102,17 +102,40 @@ const MenuBarLiItem = ( props ) => {
 const AdminBarQuickView = () => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ events, setEvents ] = useState( [] );
+	const [ reloadTime, setReloadTime ] = useState( null );
 
 	// https://www.npmjs.com/package/react-intersection-observer
 	const { ref, inView } = useInView( {} );
 
+	// Load events the first time the submenu becomes visible.
 	useEffect( () => {
-		// Admin bar submenu not visible yet.
 		if ( inView === false ) {
 			return;
 		}
 
+		if ( reloadTime !== null ) {
+			return;
+		}
+
+		setReloadTime( Date.now() );
+	}, [ inView, reloadTime ] );
+
+	// Load events when the reloadTime is set or updated.
+	// For example when submenu becomes visible or when reload button is pressed.
+	useEffect( () => {
+		console.log( 'reloadTime', reloadTime );
+
+		if ( reloadTime === null ) {
+			return;
+		}
+
+		// // Admin bar submenu not visible yet.
+		// if ( inView === false ) {
+		// 	return;
+		// }
+
 		async function fetchEntries() {
+			console.log( 'fetchEntries' );
 			setIsLoading( true );
 
 			const eventsQueryParams = {
@@ -140,15 +163,8 @@ const AdminBarQuickView = () => {
 		}
 
 		fetchEntries();
-	}, [ inView ] );
+	}, [ reloadTime ] );
 
-	// Use wp.data to get the site object
-	//const siteData = useSelect( ( select ) => select( 'core' ).getSite() );
-	// https://developer.wordpress.org/news/2024/03/26/how-to-use-wordpress-react-components-for-plugin-pages/#comment-4172
-	// const data = useEntityRecord( 'root', 'site' );
-	// console.table( data?.record );
-
-	//const viewHistoryURL = 'index.php?page=simple_history_page';
 	const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
 	const userCanViewHistory = Boolean(
 		Number( window.simpleHistoryAdminBar.currentUserCanViewHistory )
@@ -157,16 +173,23 @@ const AdminBarQuickView = () => {
 		<a href={ viewHistoryURL }>View full history</a>
 	) : null;
 
+	const handleReloadButtonClick = () => {
+		setReloadTime( Date.now() );
+	};
+
 	return (
 		<li ref={ ref }>
 			<ul>
 				<EventsCompactList events={ events } isLoading={ isLoading } />
 
-				<footer className="SimpleHistory-adminBarEventsList-footer">
+				<footer className="SimpleHistory-adminBarEventsList-actions">
 					{ isLoading ? __( 'Loading…', 'simple-history' ) : null }
 
 					{ ! isLoading ? (
-						<button className="button button-small">
+						<button
+							className="button button-small"
+							onClick={ handleReloadButtonClick }
+						>
 							<span className="dashicons dashicons-update-alt"></span>
 							{ __( 'Reload', 'simple-history' ) }
 						</button>

@@ -4,6 +4,7 @@
 	--sh-line-color: #666;
 
 	#wp-admin-bar-simple-history-react-root-group {
+		min-width: 25rem;
 		padding-bottom: 0;
 
 		// Button styles are the same as the regular
@@ -54,12 +55,14 @@
 		.SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
 			flex: 1;
 			background-color: var(--sh-skeleton-bacground-color);
-			height: 1rem;
+			height: 1.1rem;
+			margin-top: 0.2rem;
+			margin-bottom: 0.5rem;
 		}
 
 		.SimpleHistory-adminBarEventsList-item-content-message-skeleton {
 			background-color: var(--sh-skeleton-bacground-color);
-			height: 1rem;
+			height: 1.3rem;
 		}
 	}
 
@@ -152,11 +155,12 @@
 		// color: pink !important;
 	}
 
-	.SimpleHistory-adminBarEventsList-footer {
+	.SimpleHistory-adminBarEventsList-actions {
 		background-color: #3c434a;
 		display: flex;
 		padding: 0.5rem;
 		justify-content: space-between;
+		flex-direction: row-reverse;
 
 		.button {
 			display: flex !important;
