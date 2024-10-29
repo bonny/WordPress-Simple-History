@@ -420,7 +420,7 @@ abstract class Logger {
 		$item_permalink = $this->simple_history->get_view_history_page_admin_url();
 
 		if ( ! empty( $row->id ) ) {
-			$item_permalink .= "#item/{$row->id}";
+			$item_permalink .= "#simple-history/event/{$row->id}";
 		}
 
 		// Datetime attribute on <time> element.

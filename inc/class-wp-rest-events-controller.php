@@ -718,7 +718,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'link', $fields ) ) {
-			$data['link'] = $this->simple_history->get_view_history_page_admin_url() . "#item/{$item->id}";
+			$data['link'] = $this->simple_history->get_view_history_page_admin_url() . "#simple-history/event/{$item->id}";
 		}
 
 		if ( rest_is_field_included( 'logger', $fields ) ) {
