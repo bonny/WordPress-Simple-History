@@ -36,7 +36,7 @@ const EventsCompactListLoadingSkeleton = () => {
 
 const CompactEvent = ( props ) => {
 	const { event } = props;
-	
+
 	return (
 		<MenuBarLiItem
 			href={ event.link }
@@ -192,6 +192,8 @@ const AdminBarQuickView = () => {
 							{ __( 'Reload', 'simple-history' ) }
 						</button>
 					) : null }
+
+					<a href="#">{ __( 'Settings', 'simple-history' ) }</a>
 
 					{ viewFullHistoryLink }
 				</footer>
