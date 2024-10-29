@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || die();
 					<strong class="SimpleHistoryLogitem__inlineDivided">Jessie</strong>
 					<span class="SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__headerEmail">admin@example.com</span>
                     <?php // phpcs:ignore Generic.Files.LineLength ?>
-					<span class="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"><a class="" href="http://playground-root.ep/wp-admin/index.php?page=simple_history_page#item/665"><time datetime="2014-08-11T21:08:44+00:00" title="2014-08-11T21:08:44+00:00" class="">1 min ago</time></a></span>
+					<span class="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided"><a class="" href="http://playground-root.ep/wp-admin/index.php?page=simple_history_page#simple-history/event/665"><time datetime="2014-08-11T21:08:44+00:00" title="2014-08-11T21:08:44+00:00" class="">1 min ago</time></a></span>
 				</div>
 
 				<div class="SimpleHistoryLogitem__text">
