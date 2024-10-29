@@ -36,11 +36,12 @@ const EventsCompactListLoadingSkeleton = () => {
 
 const CompactEvent = ( props ) => {
 	const { event } = props;
-
+	
 	return (
 		<MenuBarLiItem
 			href={ event.link }
 			className="SimpleHistory-adminBarEventsList-item"
+			title={ __( 'View event details', 'simple-history' ) }
 		>
 			<div className="SimpleHistory-adminBarEventsList-item-dot"></div>
 			<div className="SimpleHistory-adminBarEventsList-item-content">
@@ -81,7 +82,7 @@ const EventsCompactList = ( props ) => {
 };
 
 const MenuBarLiItem = ( props ) => {
-	const { children, href, className } = props;
+	const { children, href, className, title } = props;
 
 	const divClassNames = clsx( 'ab-item', {
 		'ab-empty-item': ! href,
@@ -92,7 +93,12 @@ const MenuBarLiItem = ( props ) => {
 
 	return (
 		<li role="group" id="wp-admin-bar-simple-history-subnode-1">
-			<TagName className={ divClassNames } role="menuitem" href={ href }>
+			<TagName
+				className={ divClassNames }
+				role="menuitem"
+				href={ href }
+				title={ title }
+			>
 				{ children }
 			</TagName>
 		</li>
