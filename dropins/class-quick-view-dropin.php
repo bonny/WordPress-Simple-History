@@ -27,7 +27,11 @@ class Quick_View_Dropin extends Dropin {
 	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar instance.
 	 */
 	public function add_simple_history_to_admin_bar( $wp_admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) || ! is_admin_bar_showing() ) {
+		if ( ! is_admin_bar_showing() ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
