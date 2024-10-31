@@ -164,6 +164,8 @@ const AdminBarQuickView = () => {
 	}, [ reloadTime ] );
 
 	const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
+	const settingsURL = window.simpleHistoryAdminBar.viewSettingsUrl;
+
 	const userCanViewHistory = Boolean(
 		Number( window.simpleHistoryAdminBar.currentUserCanViewHistory )
 	);
@@ -181,19 +183,18 @@ const AdminBarQuickView = () => {
 				<EventsCompactList events={ events } isLoading={ isLoading } />
 
 				<footer className="SimpleHistory-adminBarEventsList-actions">
-					{ isLoading ? __( 'Loading…', 'simple-history' ) : null }
+					<button
+						className="button button-small"
+						onClick={ handleReloadButtonClick }
+						disabled={ isLoading }
+					>
+						<span className="dashicons dashicons-update-alt"></span>
+						{ __( 'Reload', 'simple-history' ) }
+					</button>
 
-					{ ! isLoading ? (
-						<button
-							className="button button-small"
-							onClick={ handleReloadButtonClick }
-						>
-							<span className="dashicons dashicons-update-alt"></span>
-							{ __( 'Reload', 'simple-history' ) }
-						</button>
-					) : null }
-
-					<a href="#">{ __( 'Settings', 'simple-history' ) }</a>
+					<a href={ settingsURL }>
+						{ __( 'Settings', 'simple-history' ) }
+					</a>
 
 					{ viewFullHistoryLink }
 				</footer>
