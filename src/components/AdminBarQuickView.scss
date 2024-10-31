@@ -55,14 +55,32 @@
 		.SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
 			flex: 1;
 			background-color: var(--sh-skeleton-bacground-color);
-			height: 1.1rem;
-			margin-top: 0.2rem;
-			margin-bottom: 0.5rem;
+			height: 1rem;
+			margin-top: 0.1rem;
+			margin-bottom: 0.2rem;
 		}
 
 		.SimpleHistory-adminBarEventsList-item-content-message-skeleton {
 			background-color: var(--sh-skeleton-bacground-color);
 			height: 1.3rem;
+		}
+
+		li:nth-child(odd) .SimpleHistory-adminBarEventsList-item {
+			.SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
+				max-width: 50%;
+			}
+			.SimpleHistory-adminBarEventsList-item-content-message-skeleton {
+				max-width: 75%;
+			}
+		}
+
+		li:nth-child(even) .SimpleHistory-adminBarEventsList-item {
+			.SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
+				max-width: 60%;
+			}
+			.SimpleHistory-adminBarEventsList-item-content-message-skeleton {
+				max-width: 90%;
+			}
 		}
 	}
 
