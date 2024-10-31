@@ -176,9 +176,9 @@
 	.SimpleHistory-adminBarEventsList-actions {
 		background-color: #3c434a;
 		display: flex;
+		gap: 1rem;
 		padding: 0.5rem;
 		justify-content: space-between;
-		flex-direction: row-reverse;
 
 		.button {
 			display: flex !important;
@@ -194,5 +194,8 @@
 			font-family: dashicons;
 			line-height: 1;
 		}
+	}
+	.SimpleHistory-adminBarEventsList-actions-settings {
+		flex: 1;
 	}
 }
