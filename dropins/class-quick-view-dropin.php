@@ -2,8 +2,8 @@
 
 namespace Simple_History\Dropins;
 
-use Automattic\Jetpack\Search\Helper;
 use Simple_History\Helpers;
+use Simple_History\Simple_History;
 
 /**
  * Displays the latest events from Simple History in the admin bar using React.
