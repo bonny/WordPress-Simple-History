@@ -34,8 +34,6 @@ class Plugin_List_Link extends Service {
 			return $actions;
 		}
 
-		$settings_page_url = menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false );
-
 		if ( empty( $actions ) ) {
 			// Create array if actions is empty (and therefore is assumed to be a string by PHP & results in PHP 7.1+ fatal error due to trying to make array modifications on what's assumed to be a string).
 			$actions = [];
@@ -44,7 +42,7 @@ class Plugin_List_Link extends Service {
 			$actions = [ $actions ];
 		}
 
-		$actions[] = "<a href='$settings_page_url'>" . __( 'Settings', 'simple-history' ) . '</a>';
+		$actions[] = "<a href='" . esc_url( Helpers::get_settings_page_url() ) . "'>" . __( 'Settings', 'simple-history' ) . '</a>';
 
 		return $actions;
 	}

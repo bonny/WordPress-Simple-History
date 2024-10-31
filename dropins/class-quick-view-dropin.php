@@ -90,6 +90,7 @@ class Quick_View_Dropin extends Dropin {
 			'simpleHistoryAdminBar',
 			[
 				'adminPageUrl' => $this->simple_history->get_view_history_page_admin_url(),
+				'viewSettingsUrl' => Helpers::get_settings_page_url(),
 				'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
 			],
 		);

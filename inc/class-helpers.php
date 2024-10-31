@@ -819,13 +819,22 @@ class Helpers {
 	}
 
 	/**
+	 * Get URL for settings page.
+	 *
+	 * @return string URL for settings page, i.e. "/wp-admin/options-general.php?page=simple_history_settings_menu_slug"
+	 */
+	public static function get_settings_page_url() {
+		return menu_page_url( Simple_History::SETTINGS_MENU_SLUG, 0 );
+	}
+
+	/**
 	 * Get URL for a main tab in the settings page.
 	 *
 	 * @param string $tab_slug Slug for the tab.
 	 * @return string URL for the tab, unescaped.
 	 */
 	public static function get_settings_page_tab_url( $tab_slug ) {
-		$settings_base_url = menu_page_url( Simple_History::SETTINGS_MENU_SLUG, 0 );
+		$settings_base_url = self::get_settings_page_url();
 		$settings_tab_url = add_query_arg( 'selected-tab', $tab_slug, $settings_base_url );
 		return $settings_tab_url;
 	}
@@ -837,7 +846,7 @@ class Helpers {
 	 * @return string URL for the sub-tab, unescaped.
 	 */
 	public static function get_settings_page_sub_tab_url( $sub_tab_slug ) {
-		$settings_base_url = menu_page_url( Simple_History::SETTINGS_MENU_SLUG, 0 );
+		$settings_base_url = self::get_settings_page_url();
 		$settings_sub_tab_url = add_query_arg( 'selected-sub-tab', $sub_tab_slug, $settings_base_url );
 		return $settings_sub_tab_url;
 	}
