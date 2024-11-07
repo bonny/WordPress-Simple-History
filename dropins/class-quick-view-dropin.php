@@ -3,7 +3,6 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
 
 /**
  * Displays the latest events from Simple History in the admin bar using React.
@@ -40,11 +39,8 @@ class Quick_View_Dropin extends Dropin {
 			array(
 				// Id's are prefixed automatically, so no need to prefix them here.
 				'id'    => 'simple-history',
-				'title' => 'Simple History',
+				'title' => 'History',
 				'href'  => $this->simple_history->get_view_history_page_admin_url(),
-				'meta'  => array(
-					'title' => 'View recent site history events',
-				),
 			)
 		);
 
@@ -52,7 +48,7 @@ class Quick_View_Dropin extends Dropin {
 			array(
 				'parent' => 'simple-history',
 				'id'     => 'simple-history-react-root-group',
-				'title'  => 'This is group',
+				'title'  => '',
 			),
 		);
 
