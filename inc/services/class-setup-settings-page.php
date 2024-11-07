@@ -132,6 +132,17 @@ class Setup_Settings_Page extends Service {
 			)
 		);
 
+		register_setting(
+			$settings_general_option_group,
+			'simple_history_show_in_admin_bar',
+			array(
+				'sanitize_callback' => array(
+					Helpers::class,
+					'sanitize_checkbox_input',
+				),
+			)
+		);
+
 		add_settings_field(
 			'simple_history_show_where',
 			Helpers::get_settings_field_title_output( __( 'Show history', 'simple-history' ), 'visibility' ),
@@ -184,7 +195,7 @@ class Setup_Settings_Page extends Service {
 	public function settings_field_where_to_show() {
 		$show_on_dashboard = Helpers::setting_show_on_dashboard();
 		$show_as_page = Helpers::setting_show_as_page();
-		$show_in_admin_bar = true; // Helpers::setting_show_in_admin_bar();
+		$show_in_admin_bar = Helpers::setting_show_in_admin_bar();
 		?>
 
 		<input <?php checked( $show_on_dashboard ); ?> type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
