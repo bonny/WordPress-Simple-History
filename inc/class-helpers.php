@@ -1193,6 +1193,18 @@ class Helpers {
 	}
 
 	/**
+	 * Returns true if Simple History can be shown in the admin bar
+	 *
+	 * @return bool
+	 */
+	public static function setting_show_in_admin_bar() {
+		$setting = get_option( 'simple_history_show_in_admin_bar', 1 );
+		$setting = apply_filters( 'simple_history_show_in_admin_bar', $setting );
+
+		return (bool) $setting;
+	}
+
+	/**
 	 * Returns true if Detective Mode is active.
 	 *
 	 * Default is false.
