@@ -184,23 +184,32 @@ class Setup_Settings_Page extends Service {
 	public function settings_field_where_to_show() {
 		$show_on_dashboard = Helpers::setting_show_on_dashboard();
 		$show_as_page = Helpers::setting_show_as_page();
+		$show_in_admin_bar = true; // Helpers::setting_show_in_admin_bar();
 		?>
 
-		<input
-			<?php checked( $show_on_dashboard ); ?>
-			type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
-		<label for="simple_history_show_on_dashboard"><?php esc_html_e( 'on the dashboard', 'simple-history' ); ?></label>
+		<input <?php checked( $show_on_dashboard ); ?> type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
+		<label for="simple_history_show_on_dashboard">
+			<?php esc_html_e( 'on the dashboard', 'simple-history' ); ?>
+		</label>
 
 		<br />
 
-		<input
-			<?php checked( $show_as_page ); ?>
-			type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
+		<input <?php checked( $show_as_page ); ?> type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
 		<label for="simple_history_show_as_page">
 			<?php esc_html_e( 'as a page under the dashboard menu', 'simple-history' ); ?>
 		</label>
+		
+		<br />
 
 		<?php
+		if ( Helpers::experimental_features_is_enabled() ) {
+			?>
+			<input <?php checked( $show_in_admin_bar ); ?> type="checkbox" value="1" name="simple_history_show_in_admin_bar" id="simple_history_show_in_admin_bar" class="simple_history_show_in_admin_bar" />
+			<label for="simple_history_show_in_admin_bar">
+				<?php esc_html_e( 'in the admin bar', 'simple-history' ); ?>
+			</label>
+			<?php
+		}
 	}
 
 	/**
