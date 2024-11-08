@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Disabled } from '@wordpress/components';
+import { Button, Disabled } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -186,19 +186,19 @@ export function EventsSearchFilters( props ) {
 					/>
 				) : null }
 				<p className="SimpleHistory__filters__filterSubmitWrap">
-					<button className="button" onClick={ onReload }>
+					<Button variant="secondary" onClick={ onReload }>
 						{ __( 'Search events', 'simple-history' ) }
-					</button>
+					</Button>
 
-					<button
-						type="button"
+					<Button
+						variant="tertiary"
 						onClick={ () =>
 							setMoreOptionsIsExpanded( ! moreOptionsIsExpanded )
 						}
 						className="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"
 					>
 						{ showMoreOrLessText }
-					</button>
+					</Button>
 				</p>
 			</div>
 		</MaybeDisabledTag>

@@ -1387,14 +1387,7 @@ a.sh-SettingsTabs-link:hover {
 }
 
 .SimpleHistoryFilterDropin-showMoreFilters {
-	border: 0;
-	background: none;
-	color: rgb(0, 116, 162);
-	cursor: pointer;
-}
-
-.SimpleHistoryFilterDropin-showMoreFilters:hover {
-	color: rgb(46, 162, 204);
+	margin-left: 1rem;
 }
 
 /* more filters are hidden by default */
