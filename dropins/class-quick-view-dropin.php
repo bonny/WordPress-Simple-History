@@ -15,6 +15,16 @@ class Quick_View_Dropin extends Dropin {
 			return;
 		}
 
+		// Only available for users with the view history capability.
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+			return;
+		}
+
+		// Only available if settings is true.
+		if ( ! Helpers::setting_show_in_admin_bar() ) {
+			return;
+		}
+
 		add_action( 'admin_bar_menu', [ $this, 'add_simple_history_to_admin_bar' ], 100 );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ $this,'enqueue_scripts' ] );
@@ -27,10 +37,6 @@ class Quick_View_Dropin extends Dropin {
 	 */
 	public function add_simple_history_to_admin_bar( $wp_admin_bar ) {
 		if ( ! is_admin_bar_showing() ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
