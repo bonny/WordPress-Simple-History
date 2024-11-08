@@ -32,6 +32,7 @@ class Setup_Database extends Service {
 		$this->setup_version_2_to_version_3();
 		$this->setup_version_3_to_version_4();
 		$this->setup_version_4_to_version_5();
+		$this->setup_version_5_to_version_6();
 	}
 
 	/**
@@ -290,6 +291,20 @@ class Setup_Database extends Service {
 		}
 
 		update_option( 'simple_history_db_version', 5, true );
+	/**
+	 * Uppdate from db version 5 to version 6.
+	 *
+	 * Set default value for option simple_history_show_in_admin_bar to 1.
+	 */
+	private function setup_version_5_to_version_6() {
+		if ( $this->get_db_version() !== 5 ) {
+			return;
+		}
+
+		// Set default value for simple_history_show_in_admin_bar.
+		update_option( 'simple_history_show_in_admin_bar', 1, true );
+
+		$this->update_db_to_version( 6 );
 	}
 
 	/**
