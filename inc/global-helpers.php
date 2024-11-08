@@ -100,3 +100,21 @@ if ( ! function_exists( 'sh_d' ) ) {
 		echo $output;
 	}
 }
+
+if ( ! function_exists( 'sh_dd' ) ) {
+	/**
+	 * Echoes any number of variables for debug purposes and then die.
+	 *
+	 * Example usage:
+	 *
+	 * sh_dd('Values from $_GET', $_GET);
+	 * sh_dd('$_POST', $_POST);
+	 * sh_dd('My vars', $varOne, $varTwo, $varXYZ);
+	 *
+	 * @param mixed[] ...$args Variables to output.
+	 */
+	function sh_dd( ...$args ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+		sh_d( ...$args );
+		die();
+	}
+}

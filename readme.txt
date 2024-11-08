@@ -277,6 +277,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 -   Fix username not always showing in the event details modal.
 -   Add helper function `get_settings_page_url()`.
+-   Add helper function `sh_dd()`.
 
 ### 5.0.4 (October 2024)
 
