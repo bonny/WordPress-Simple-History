@@ -63,7 +63,8 @@ const CompactEvent = props => {
   } = props;
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(MenuBarLiItem, {
     href: event.link,
-    className: "SimpleHistory-adminBarEventsList-item"
+    className: "SimpleHistory-adminBarEventsList-item",
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('View event details', 'simple-history')
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "SimpleHistory-adminBarEventsList-item-dot"
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -104,7 +105,8 @@ const MenuBarLiItem = props => {
   const {
     children,
     href,
-    className
+    className,
+    title
   } = props;
   const divClassNames = (0,clsx__WEBPACK_IMPORTED_MODULE_5__["default"])('ab-item', {
     'ab-empty-item': !href,
@@ -117,7 +119,8 @@ const MenuBarLiItem = props => {
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TagName, {
     className: divClassNames,
     role: "menuitem",
-    href: href
+    href: href,
+    title: title
   }, children));
 };
 const AdminBarQuickView = () => {
@@ -145,18 +148,10 @@ const AdminBarQuickView = () => {
   // Load events when the reloadTime is set or updated.
   // For example when submenu becomes visible or when reload button is pressed.
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
-    console.log('reloadTime', reloadTime);
     if (reloadTime === null) {
       return;
     }
-
-    // // Admin bar submenu not visible yet.
-    // if ( inView === false ) {
-    // 	return;
-    // }
-
     async function fetchEntries() {
-      console.log('fetchEntries');
       setIsLoading(true);
       const eventsQueryParams = {
         per_page: 5
@@ -179,9 +174,11 @@ const AdminBarQuickView = () => {
     fetchEntries();
   }, [reloadTime]);
   const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
+  const settingsURL = window.simpleHistoryAdminBar.viewSettingsUrl;
   const userCanViewHistory = Boolean(Number(window.simpleHistoryAdminBar.currentUserCanViewHistory));
   const viewFullHistoryLink = userCanViewHistory ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
-    href: viewHistoryURL
+    href: viewHistoryURL,
+    className: "SimpleHistory-adminBarEventsList-actions-settings"
   }, "View full history") : null;
   const handleReloadButtonClick = () => {
     setReloadTime(Date.now());
@@ -193,12 +190,15 @@ const AdminBarQuickView = () => {
     isLoading: isLoading
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("footer", {
     className: "SimpleHistory-adminBarEventsList-actions"
-  }, isLoading ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Loading…', 'simple-history') : null, !isLoading ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    className: "button button-small",
-    onClick: handleReloadButtonClick
+  }, viewFullHistoryLink, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
+    href: settingsURL
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Settings', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "button button-small SimpleHistory-adminBarEventsList-actions-reload",
+    onClick: handleReloadButtonClick,
+    disabled: isLoading
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
     className: "dashicons dashicons-update-alt"
-  }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Reload', 'simple-history')) : null, viewFullHistoryLink)));
+  }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Reload', 'simple-history')))));
   /* 
   // Admin bar can't handle multiple lines of text, so we need to use a submenu.
   // We render the react app to the ul items and then we can add li items in the React render.
