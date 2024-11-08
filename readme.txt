@@ -273,6 +273,15 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ## Changelog
 
+### Unreleased
+
+-   Fix username not always showing in the event details modal.
+-   Add "Admin Bar Quick View" as experimental feature. This new feature adds a "History" link in the admin bar, that when hovered shows the latest events.
+    This is very convenient when you quickly want to check the latest events without leaving the page you are on.
+    (This feature is experimental and can be enabled on the settings page.)
+-   Add helper function `get_settings_page_url()`.
+-   Add helper function `sh_dd()`.
+
 ### 5.0.4 (October 2024)
 
 -   Fix PHP warning when viewing events from anonymous users (for example logged failed logins). [#477](https://github.com/bonny/WordPress-Simple-History/issues/477)

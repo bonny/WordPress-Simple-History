@@ -1,4 +1,4 @@
-import { Button, __experimentalText as Text } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { EventHeaderItem } from './EventHeaderItem';
 
@@ -21,7 +21,7 @@ export function EventInitiatorName( props ) {
 			if ( eventVariant === 'compact' ) {
 				userDisplay = <strong>{ nameToDisplay }</strong>;
 			} else if ( eventVariant === 'modal' ) {
-				userDisplay = <Text>{ userDisplay }</Text>;
+				userDisplay = <strong>{ nameToDisplay }</strong>;
 			} else {
 				userDisplay = (
 					<Button

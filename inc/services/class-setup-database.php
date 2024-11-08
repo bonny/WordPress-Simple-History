@@ -32,6 +32,7 @@ class Setup_Database extends Service {
 		$this->setup_version_2_to_version_3();
 		$this->setup_version_3_to_version_4();
 		$this->setup_version_4_to_version_5();
+		$this->setup_version_5_to_version_6();
 	}
 
 	/**
@@ -41,6 +42,16 @@ class Setup_Database extends Service {
 	 */
 	private function get_db_version() {
 		return (int) get_option( 'simple_history_db_version', false );
+	}
+
+	/**
+	 * Update the database version to a new version.
+	 * This is done by updating the option simple_history_db_version.
+	 *
+	 * @param int $new_version The new version to set.
+	 */
+	private function update_db_to_version( $new_version ) {
+		update_option( 'simple_history_db_version', $new_version, true );
 	}
 
 	/**
@@ -81,12 +92,7 @@ class Setup_Database extends Service {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		$db_version = 1;
-
-		update_option( 'simple_history_db_version', $db_version, true );
-
-		// We are not 100% sure that this is a first install,
-		// but it is at least a very old version that is being updated.
+		$this->update_db_to_version( 1 );
 	}
 
 	/**
@@ -123,7 +129,7 @@ class Setup_Database extends Service {
 			}
 		}
 
-		update_option( 'simple_history_db_version', 2, true );
+		$this->update_db_to_version( 2 );
 	}
 
 	/**
@@ -195,7 +201,7 @@ class Setup_Database extends Service {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		update_option( 'simple_history_db_version', 3, true );
+		$this->update_db_to_version( 3 );
 
 		// Say welcome, however loggers are not added this early so we need to
 		// use a filter to load it later.
@@ -247,7 +253,7 @@ class Setup_Database extends Service {
 			$wpdb->query( $sql );
 		}
 
-		update_option( 'simple_history_db_version', 4, true );
+		$this->update_db_to_version( 4 );
 	}
 
 	/**
@@ -279,7 +285,23 @@ class Setup_Database extends Service {
 			update_option( $option_name, $option_value_to_set, true );
 		}
 
-		update_option( 'simple_history_db_version', 5, true );
+		$this->update_db_to_version( 5 );
+	}
+
+	/**
+	 * Uppdate from db version 5 to version 6.
+	 *
+	 * Set default value for option simple_history_show_in_admin_bar to 1.
+	 */
+	private function setup_version_5_to_version_6() {
+		if ( $this->get_db_version() !== 5 ) {
+			return;
+		}
+
+		// Set default value for simple_history_show_in_admin_bar.
+		update_option( 'simple_history_show_in_admin_bar', 1, true );
+
+		$this->update_db_to_version( 6 );
 	}
 
 	/**

@@ -819,13 +819,25 @@ class Helpers {
 	}
 
 	/**
+	 * Get URL for settings page.
+	 *
+	 * @return string URL for settings page, i.e. "/wp-admin/options-general.php?page=simple_history_settings_menu_slug"
+	 */
+	public static function get_settings_page_url() {
+		// return menu_page_url( Simple_History::SETTINGS_MENU_SLUG, 0 );
+		// menu_page_url() only works within amdin area.
+		// But we want to be able to link to settings page also from front end.
+		return admin_url( 'options-general.php?page=' . Simple_History::SETTINGS_MENU_SLUG );
+	}
+
+	/**
 	 * Get URL for a main tab in the settings page.
 	 *
 	 * @param string $tab_slug Slug for the tab.
 	 * @return string URL for the tab, unescaped.
 	 */
 	public static function get_settings_page_tab_url( $tab_slug ) {
-		$settings_base_url = menu_page_url( Simple_History::SETTINGS_MENU_SLUG, 0 );
+		$settings_base_url = self::get_settings_page_url();
 		$settings_tab_url = add_query_arg( 'selected-tab', $tab_slug, $settings_base_url );
 		return $settings_tab_url;
 	}
@@ -837,7 +849,7 @@ class Helpers {
 	 * @return string URL for the sub-tab, unescaped.
 	 */
 	public static function get_settings_page_sub_tab_url( $sub_tab_slug ) {
-		$settings_base_url = menu_page_url( Simple_History::SETTINGS_MENU_SLUG, 0 );
+		$settings_base_url = self::get_settings_page_url();
 		$settings_sub_tab_url = add_query_arg( 'selected-sub-tab', $sub_tab_slug, $settings_base_url );
 		return $settings_sub_tab_url;
 	}
@@ -1176,6 +1188,18 @@ class Helpers {
 	public static function setting_show_as_page() {
 		$setting = get_option( 'simple_history_show_as_page', 1 );
 		$setting = apply_filters( 'simple_history_show_as_page', $setting );
+
+		return (bool) $setting;
+	}
+
+	/**
+	 * Returns true if Simple History can be shown in the admin bar
+	 *
+	 * @return bool
+	 */
+	public static function setting_show_in_admin_bar() {
+		$setting = get_option( 'simple_history_show_in_admin_bar', 1 );
+		$setting = apply_filters( 'simple_history_show_in_admin_bar', $setting );
 
 		return (bool) $setting;
 	}

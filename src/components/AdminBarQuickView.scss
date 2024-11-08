@@ -1,0 +1,221 @@
+// All css must be inside these selectors to override the default WordPress admin bar styles.
+#wpadminbar .quicklinks {
+	--sh-dot-size: 10px;
+	--sh-line-color: #666;
+
+	#wp-admin-bar-simple-history {
+		> .ab-item {
+			&::before {
+				content: "";
+				padding: 0;
+				width: 18px;
+				height: 32px; // Height of admin bar.
+				// /css/simple-history-logo-icon.svg base64 encoded
+				// background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiBoZWlnaHQ9IjE5NiIgdmlld0JveD0iMCAwIDIyNSAxOTYiIHdpZHRoPSIyMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0iIzAwMCI+PHBhdGggZD0ibTEyNS44MzQgMGMtNTMuNjI0IDAtOTcuMjI4MSA0MS43MDI1LTk4LjM4OTkgODguODE5NmgtMjQuNTI2NzNjLTIuNDcwNTQ2IDAtMy44MTg1NTUgMi44NzA4LTIuMjM0NDIxIDQuNzU4NmwzMy4yMzMxNTEgMzkuNjAyOGMxLjc4NTQgMi4xMjcgNS4wODc1IDIuMDcxIDYuNzk4LS4xMTdsMzAuOTM0NC0zOS41NjM4YzEuNDg4OS0xLjkwNDMuMTI2MS00LjY4MDYtMi4yOTc2LTQuNjgwNmgtMjUuNzQ2M2MxLjE1ODktMzguMjMwNCAzNy41MzAxLTcyLjcyNzkgODIuMjI5NC03Mi43Mjc5IDQ0LjY5OSAwIDgyLjI1OCAzNi42NzE3IDgyLjI1OCA4MS45MDgzIDAgNDUuMjM3LTM2LjgyOSA4MS45MDgtODIuMjU4IDgxLjkwOC0xOS42ODkgMC0zNy43NTg3LTYuODktNTEuOTE5NS0xOC4zNzctMy40MzY1LTIuNzg4LTguNDc5Mi0yLjgxLTExLjYxNDguMzEzLTMuMTc1NCAzLjE2MS0zLjE4NDEgOC4zMzQuMjUyNCAxMS4yMSAxNy4xMDk4IDE0LjMxOSAzOS4xODE5IDIyLjk0NiA2My4yODE5IDIyLjk0NiA1NC4zNTQgMCA5OC40MTgtNDMuODc3IDk4LjQxOC05OCAwLTU0LjEyMzMtNDQuMDY0LTk4LTk4LjQxOC05OHoiLz48cGF0aCBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Im0xMTMuMDA5IDU3LjEwNDRjMC00LjIzMjEgMy40MzEtNy42NjI5IDcuNjYzLTcuNjYyOXM3LjY2MyAzLjQzMDggNy42NjMgNy42NjI5djQ2LjMxNTZsMzQuNjExIDIxLjA3OGMzLjYwOCAyLjE5NyA0LjcxMyA2LjkyNSAyLjQ1MyAxMC40OTQtMi4yMDUgMy40OC02Ljc5MiA0LjU1Mi0xMC4zMTEgMi40MDlsLTQyLjA3OS0yNS42MjZ6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L2c+PC9zdmc+") !important;
+				background-color: currentColor;
+				mask-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiBoZWlnaHQ9IjE5NiIgdmlld0JveD0iMCAwIDIyNSAxOTYiIHdpZHRoPSIyMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0iIzAwMCI+PHBhdGggZD0ibTEyNS44MzQgMGMtNTMuNjI0IDAtOTcuMjI4MSA0MS43MDI1LTk4LjM4OTkgODguODE5NmgtMjQuNTI2NzNjLTIuNDcwNTQ2IDAtMy44MTg1NTUgMi44NzA4LTIuMjM0NDIxIDQuNzU4NmwzMy4yMzMxNTEgMzkuNjAyOGMxLjc4NTQgMi4xMjcgNS4wODc1IDIuMDcxIDYuNzk4LS4xMTdsMzAuOTM0NC0zOS41NjM4YzEuNDg4OS0xLjkwNDMuMTI2MS00LjY4MDYtMi4yOTc2LTQuNjgwNmgtMjUuNzQ2M2MxLjE1ODktMzguMjMwNCAzNy41MzAxLTcyLjcyNzkgODIuMjI5NC03Mi43Mjc5IDQ0LjY5OSAwIDgyLjI1OCAzNi42NzE3IDgyLjI1OCA4MS45MDgzIDAgNDUuMjM3LTM2LjgyOSA4MS45MDgtODIuMjU4IDgxLjkwOC0xOS42ODkgMC0zNy43NTg3LTYuODktNTEuOTE5NS0xOC4zNzctMy40MzY1LTIuNzg4LTguNDc5Mi0yLjgxLTExLjYxNDguMzEzLTMuMTc1NCAzLjE2MS0zLjE4NDEgOC4zMzQuMjUyNCAxMS4yMSAxNy4xMDk4IDE0LjMxOSAzOS4xODE5IDIyLjk0NiA2My4yODE5IDIyLjk0NiA1NC4zNTQgMCA5OC40MTgtNDMuODc3IDk4LjQxOC05OCAwLTU0LjEyMzMtNDQuMDY0LTk4LTk4LjQxOC05OHoiLz48cGF0aCBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Im0xMTMuMDA5IDU3LjEwNDRjMC00LjIzMjEgMy40MzEtNy42NjI5IDcuNjYzLTcuNjYyOXM3LjY2MyAzLjQzMDggNy42NjMgNy42NjI5djQ2LjMxNTZsMzQuNjExIDIxLjA3OGMzLjYwOCAyLjE5NyA0LjcxMyA2LjkyNSAyLjQ1MyAxMC40OTQtMi4yMDUgMy40OC02Ljc5MiA0LjU1Mi0xMC4zMTEgMi40MDlsLTQyLjA3OS0yNS42MjZ6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L2c+PC9zdmc+") !important;
+				//				-webkit-mask-image: url(./icons/settings_FILL0_wght400_GRAD0_opsz48.svg);
+				//				-webkit-mask-size: 100%;
+				mask-size: contain;
+				mask-repeat: no-repeat;
+				mask-position: center;
+			}
+		}
+	}
+
+	#wp-admin-bar-simple-history-react-root-group {
+		min-width: 25rem;
+		padding-bottom: 0;
+
+		// Button styles are the same as the regular
+		// WP css styles, but due to wpadmin * selector
+		// we need to override them here.
+		.button {
+			display: inline-block;
+			text-decoration: none;
+			font-size: 13px;
+			line-height: 2.15384615;
+			min-height: 30px;
+			margin: 0;
+			padding: 0 10px;
+			cursor: pointer;
+			border-width: 1px;
+			border-style: solid;
+			border-radius: 3px;
+			white-space: nowrap;
+			box-sizing: border-box;
+		}
+
+		.button-small {
+			min-height: 26px;
+			line-height: 2.18181818;
+			padding: 0 8px;
+			font-size: 11px;
+		}
+	}
+
+	ul.SimpleHistory-adminBarEventsList {
+		// background-color: #4c4c4d;
+		padding: 0 15px 15px 15px;
+
+		*,
+		*::before,
+		*::after {
+			line-height: 1;
+			padding: 0;
+			margin: 0;
+		}
+	}
+
+	.SimpleHistory-adminBarEventsList--skeleton {
+		--sh-skeleton-background-color: currentColor;
+		opacity: 0.1;
+		min-width: 15rem;
+
+		.SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
+			flex: 1;
+			background-color: var(--sh-skeleton-background-color);
+			height: 1rem;
+			margin-top: 0.1rem;
+			margin-bottom: 0.2rem;
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content-message-skeleton {
+			background-color: var(--sh-skeleton-background-color);
+			height: 1.3rem;
+		}
+
+		li:nth-child(odd) .SimpleHistory-adminBarEventsList-item {
+			.SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
+				max-width: 50%;
+			}
+			.SimpleHistory-adminBarEventsList-item-content-message-skeleton {
+				max-width: 75%;
+			}
+		}
+
+		li:nth-child(even) .SimpleHistory-adminBarEventsList-item {
+			.SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
+				max-width: 60%;
+			}
+			.SimpleHistory-adminBarEventsList-item-content-message-skeleton {
+				max-width: 90%;
+			}
+		}
+	}
+
+	// A element.
+	div.SimpleHistory-adminBarEventsList-item,
+	a.SimpleHistory-adminBarEventsList-item {
+		height: auto !important;
+		display: flex;
+		margin: 0;
+		padding: calc(var(--sh-dot-size) * 1);
+
+		.SimpleHistory-adminBarEventsList-item-dot {
+			flex: 0 0 calc(var(--sh-dot-size) * 2);
+		}
+
+		.SimpleHistory-adminBarEventsList-item-dot::before {
+			content: "";
+			display: block;
+			background-color: var(--sh-line-color);
+			width: var(--sh-dot-size);
+			height: var(--sh-dot-size);
+			border-radius: 50%;
+			transform: translateX(-50%) translateY(90%);
+		}
+
+		.SimpleHistoryLogitem__senderImage {
+			width: 20px;
+			height: 20px;
+			border-radius: 10px;
+		}
+
+		.SimpleHistoryLogitem__inlineDivided:not(:first-child)::before {
+			content: "\b7\a0";
+			color: rgb(137, 143, 156);
+			margin-left: 6px;
+			margin-right: 2px;
+		}
+
+		.SimpleHistoryLogitem__inlineDivided:before {
+		}
+
+		.SimpleHistoryLogitem__when {
+			display: flex;
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			gap: calc(var(--sh-dot-size) / 2);
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content-meta {
+			display: flex;
+			flex: 1;
+			align-items: center;
+			// gap: var(--sh-dot-size);
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content-meta strong {
+			font-weight: normal;
+		}
+
+		.SimpleHistory-adminBarEventsList-item-content-message {
+			margin-bottom: calc(var(--sh-dot-size) / 2);
+			white-space: normal;
+
+			p {
+				line-height: 1.2;
+			}
+		}
+	}
+
+	// Add timeline-line.
+	.SimpleHistory-adminBarEventsList-item::before {
+		content: "";
+		border-left: 1px solid var(--sh-line-color);
+		top: var(--sh-dot-size);
+		margin-bottom: calc(var(--sh-dot-size) * -2) !important;
+	}
+
+	.SimpleHistory-adminBarEventsList
+		> li:last-child
+		.SimpleHistory-adminBarEventsList-item::before {
+		margin-bottom: 0 !important;
+	}
+
+	.SimpleHistory-adminBarEventsList-item:hover {
+		background-color: #555555;
+		// color: pink !important;
+	}
+
+	.SimpleHistory-adminBarEventsList-actions {
+		background-color: #3c434a;
+		display: flex;
+		gap: 1rem;
+		padding: 0.5rem;
+		justify-content: space-between;
+
+		.button {
+			display: flex !important;
+			gap: 0.25rem;
+			align-items: center;
+		}
+
+		.dashicons {
+			line-height: 1;
+		}
+
+		.dashicons::before {
+			font-family: dashicons;
+			line-height: 1;
+		}
+	}
+	.SimpleHistory-adminBarEventsList-actions-settings {
+		flex: 1;
+	}
+}

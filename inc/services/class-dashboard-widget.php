@@ -37,7 +37,7 @@ class Dashboard_Widget extends Service {
 			if ( $show_dashboard_settings_link ) {
 				$show_dashboard_settings_link_html = sprintf(
 					'<a href="%1$s" title="%2$s" class="sh-Icon sh-Dashboard-settingsLink"></a>',
-					esc_url( menu_page_url( $this->simple_history::SETTINGS_MENU_SLUG, false ) ),
+					esc_url( Helpers::get_settings_page_url() ),
 					esc_html__( 'Settings & Tools', 'simple-history' )
 				);
 			}
