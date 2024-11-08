@@ -275,13 +275,14 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
--   Add pagination buttons to first page and last page.
--   Add option to go enter page number to go to.
+-   Use selected wp admin theme colors for colors in links and buttons. [#463](https://github.com/bonny/WordPress-Simple-History/issues/463)
+-   Add pagination buttons to first page and last page. [#479](https://github.com/bonny/WordPress-Simple-History/issues/479)
+-   Add option to go enter page number to go to. [#479](https://github.com/bonny/WordPress-Simple-History/issues/479)
 -   Tested on WordPress 6.7.
 -   Fix username not always showing in the event details modal.
 -   Add "Admin Bar Quick View" as experimental feature. This new feature adds a "History" link in the admin bar, that when hovered shows the latest events.
     This is very convenient when you quickly want to check the latest events without leaving the page you are on.
-    (This feature is experimental and can be enabled on the settings page.)
+    (This feature is experimental and can be enabled on the settings page.) [#476](https://github.com/bonny/WordPress-Simple-History/issues/476)
 -   Add helper function `get_settings_page_url()`.
 -   Add helper function `sh_dd()`.
 
