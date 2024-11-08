@@ -3,7 +3,7 @@
 Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, audit log, event log, user tracking, activity
-Tested up to: 6.6
+Tested up to: 6.7
 Stable tag: 5.0.4
 
 Track changes and user activities on your WordPress site. See who created a page, uploaded an attachment, and more, for a complete audit trail.
@@ -275,6 +275,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
+-   Tested on WordPress 6.7.
 -   Fix username not always showing in the event details modal.
 -   Add "Admin Bar Quick View" as experimental feature. This new feature adds a "History" link in the admin bar, that when hovered shows the latest events.
     This is very convenient when you quickly want to check the latest events without leaving the page you are on.
