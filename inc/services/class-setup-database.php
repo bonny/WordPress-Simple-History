@@ -92,12 +92,7 @@ class Setup_Database extends Service {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		$db_version = 1;
-
-		update_option( 'simple_history_db_version', $db_version, true );
-
-		// We are not 100% sure that this is a first install,
-		// but it is at least a very old version that is being updated.
+		$this->update_db_to_version( 1 );
 	}
 
 	/**
@@ -134,7 +129,7 @@ class Setup_Database extends Service {
 			}
 		}
 
-		update_option( 'simple_history_db_version', 2, true );
+		$this->update_db_to_version( 2 );
 	}
 
 	/**
@@ -206,7 +201,7 @@ class Setup_Database extends Service {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $sql );
 
-		update_option( 'simple_history_db_version', 3, true );
+		$this->update_db_to_version( 3 );
 
 		// Say welcome, however loggers are not added this early so we need to
 		// use a filter to load it later.
@@ -258,7 +253,7 @@ class Setup_Database extends Service {
 			$wpdb->query( $sql );
 		}
 
-		update_option( 'simple_history_db_version', 4, true );
+		$this->update_db_to_version( 4 );
 	}
 
 	/**
@@ -290,7 +285,9 @@ class Setup_Database extends Service {
 			update_option( $option_name, $option_value_to_set, true );
 		}
 
-		update_option( 'simple_history_db_version', 5, true );
+		$this->update_db_to_version( 5 );
+	}
+
 	/**
 	 * Uppdate from db version 5 to version 6.
 	 *
