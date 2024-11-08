@@ -5,7 +5,32 @@ import {
 } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { chevronLeft, chevronRight, handle } from '@wordpress/icons';
+import { chevronLeft, chevronRight } from '@wordpress/icons';
+
+const firstPageIcon = (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		height="24px"
+		viewBox="0 -960 960 960"
+		width="24px"
+		fill="#5f6368"
+	>
+		<path d="M250-250v-460h60v460h-60Zm430-3.85L453.85-480 680-706.15 722.15-664l-184 184 184 184L680-253.85Z" />
+	</svg>
+);
+
+// https://fonts.google.com/icons?selected=Material+Symbols+Outlined:last_page:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=last&icon.size=24&icon.color=%235f6368
+const lastPageIcon = (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		height="24px"
+		viewBox="0 -960 960 960"
+		width="24px"
+		fill="#5f6368"
+	>
+		<path d="M280-253.85 237.85-296l184-184-184-184L280-706.15 506.15-480 280-253.85ZM650-250v-460h60v460h-60Z" />
+	</svg>
+);
 
 /**
  * To give it the same look as other Gutenberg components it's loosely based on the pagination in the font collection component:
@@ -20,31 +45,6 @@ export function EventsPagination( props ) {
 	if ( ! page || ! totalPages ) {
 		return null;
 	}
-
-	const firstPageIcon = (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			height="24px"
-			viewBox="0 -960 960 960"
-			width="24px"
-			fill="#5f6368"
-		>
-			<path d="M250-250v-460h60v460h-60Zm430-3.85L453.85-480 680-706.15 722.15-664l-184 184 184 184L680-253.85Z" />
-		</svg>
-	);
-
-	// https://fonts.google.com/icons?selected=Material+Symbols+Outlined:last_page:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=last&icon.size=24&icon.color=%235f6368
-	const lastPageIcon = (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			height="24px"
-			viewBox="0 -960 960 960"
-			width="24px"
-			fill="#5f6368"
-		>
-			<path d="M280-253.85 237.85-296l184-184-184-184L280-706.15 506.15-480 280-253.85ZM650-250v-460h60v460h-60Z" />
-		</svg>
-	);
 
 	const handleFirstPageClick = () => setPage( 1 );
 	const handlePrevClick = () => setPage( page - 1 );

@@ -275,6 +275,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
+-   Add pagination buttons to first page and last page.
 -   Tested on WordPress 6.7.
 -   Fix username not always showing in the event details modal.
 -   Add "Admin Bar Quick View" as experimental feature. This new feature adds a "History" link in the admin bar, that when hovered shows the latest events.
