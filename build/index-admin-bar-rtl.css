@@ -57,19 +57,19 @@
   margin: 0;
 }
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton {
-  --sh-skeleton-bacground-color: currentColor;
+  --sh-skeleton-background-color: currentColor;
   opacity: 0.1;
   min-width: 15rem;
 }
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton .SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
   flex: 1;
-  background-color: var(--sh-skeleton-bacground-color);
+  background-color: var(--sh-skeleton-background-color);
   height: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.2rem;
 }
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton .SimpleHistory-adminBarEventsList-item-content-message-skeleton {
-  background-color: var(--sh-skeleton-bacground-color);
+  background-color: var(--sh-skeleton-background-color);
   height: 1.3rem;
 }
 #wpadminbar .quicklinks .SimpleHistory-adminBarEventsList--skeleton li:nth-child(odd) .SimpleHistory-adminBarEventsList-item .SimpleHistory-adminBarEventsList-item-content-meta-skeleton {
