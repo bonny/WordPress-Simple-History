@@ -55,11 +55,7 @@ export function EventsList( props ) {
 			<EventsPagination
 				page={ page }
 				totalPages={ totalPages }
-				onClickPrev={ () => setPage( page - 1 ) }
-				onClickNext={ () => setPage( page + 1 ) }
-				onChangePage={ ( newPage ) =>
-					setPage( parseInt( newPage, 10 ) )
-				}
+				setPage={ setPage }
 			/>
 
 			<Spacer paddingBottom={ 4 } />

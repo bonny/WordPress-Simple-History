@@ -5,7 +5,7 @@ import {
 } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { chevronLeft, chevronRight } from '@wordpress/icons';
+import { chevronLeft, chevronRight, handle } from '@wordpress/icons';
 
 /**
  * To give it the same look as other Gutenberg components it's loosely based on the pagination in the font collection component:
@@ -15,19 +15,60 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
  * @param {Object} props
  */
 export function EventsPagination( props ) {
-	const { page, totalPages, onClickPrev, onClickNext, onChangePage } = props;
+	const { page, totalPages, setPage } = props;
 
 	if ( ! page || ! totalPages ) {
 		return null;
 	}
 
+	const firstPageIcon = (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			height="24px"
+			viewBox="0 -960 960 960"
+			width="24px"
+			fill="#5f6368"
+		>
+			<path d="M250-250v-460h60v460h-60Zm430-3.85L453.85-480 680-706.15 722.15-664l-184 184 184 184L680-253.85Z" />
+		</svg>
+	);
+
+	// https://fonts.google.com/icons?selected=Material+Symbols+Outlined:last_page:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=last&icon.size=24&icon.color=%235f6368
+	const lastPageIcon = (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			height="24px"
+			viewBox="0 -960 960 960"
+			width="24px"
+			fill="#5f6368"
+		>
+			<path d="M280-253.85 237.85-296l184-184-184-184L280-706.15 506.15-480 280-253.85ZM650-250v-460h60v460h-60Z" />
+		</svg>
+	);
+
+	const handleFirstPageClick = () => setPage( 1 );
+	const handlePrevClick = () => setPage( page - 1 );
+	const handleNextClick = () => setPage( page + 1 );
+	const handleLastPageClick = () => setPage( totalPages );
+	const handleChangePageClick = ( newPage ) =>
+		setPage( parseInt( newPage, 10 ) );
+
 	return (
 		<div>
 			<HStack spacing={ 4 } justify="center">
 				<Button
+					label={ __( 'First page', 'simple-history' ) }
+					size="compact"
+					onClick={ handleFirstPageClick }
+					disabled={ page === 1 }
+					accessibleWhenDisabled
+					icon={ firstPageIcon }
+				/>
+
+				<Button
 					label={ __( 'Previous page', 'simple-history' ) }
 					size="compact"
-					onClick={ onClickPrev }
+					onClick={ handlePrevClick }
 					disabled={ page === 1 }
 					accessibleWhenDisabled
 					icon={ chevronLeft }
@@ -60,7 +101,7 @@ export function EventsPagination( props ) {
 											};
 										}
 									) }
-									onChange={ onChangePage }
+									onChange={ handleChangePageClick }
 									size="compact"
 									__nextHasNoMarginBottom
 								/>
@@ -72,10 +113,19 @@ export function EventsPagination( props ) {
 				<Button
 					label={ __( 'Next page', 'simple-history' ) }
 					size="compact"
-					onClick={ onClickNext }
+					onClick={ handleNextClick }
 					disabled={ page === totalPages }
 					accessibleWhenDisabled
 					icon={ chevronRight }
+				/>
+
+				<Button
+					label={ __( 'Last page', 'simple-history' ) }
+					size="compact"
+					onClick={ handleLastPageClick }
+					disabled={ page === totalPages }
+					accessibleWhenDisabled
+					icon={ lastPageIcon }
 				/>
 			</HStack>
 		</div>
