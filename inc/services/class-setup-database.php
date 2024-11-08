@@ -44,6 +44,16 @@ class Setup_Database extends Service {
 	}
 
 	/**
+	 * Update the database version to a new version.
+	 * This is done by updating the option simple_history_db_version.
+	 *
+	 * @param int $new_version The new version to set.
+	 */
+	private function update_db_to_version( $new_version ) {
+		update_option( 'simple_history_db_version', $new_version, true );
+	}
+
+	/**
 	 * If no db_version is set then this
 	 * is a version of Simple History < 0.4
 	 * or it's a first install
