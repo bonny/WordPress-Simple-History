@@ -46,7 +46,11 @@ class React_Dropin extends Dropin {
 	 */
 	public function output_element_page() {
 		?>
-		<div id="simple-history-react-root" class="SimpleHistoryReactRoot is-page">Loading</div>
+		<div 
+			id="simple-history-react-root" 
+			class="SimpleHistoryReactRoot is-page"
+			style="<?php echo esc_attr( $this->get_css_style_vars() ); ?>"
+		>Loading</div>
 		<?php
 	}
 
@@ -54,8 +58,64 @@ class React_Dropin extends Dropin {
 	 * Output HTML element on the dashboard for React to mount on.
 	 */
 	public function output_element_dashboard() {
+		$this->get_current_theme_colors();
 		?>
-		<div id="simple-history-react-root" class="SimpleHistoryReactRoot is-dashboard">Loading</div>
+		<div 
+			id="simple-history-react-root" 
+			class="SimpleHistoryReactRoot is-dashboard" 
+			style="<?php echo esc_attr( $this->get_css_style_vars() ); ?>"
+		>Loading</div>
 		<?php
+	}
+
+	/**
+	 * Generate css style attributes to use at the react root element.
+	 * This is to override the Gutenberg colors that are not the same as the admin theme colors.
+	 * For example the blue color in the Gutenberg editor is not the same as the admin theme color.
+	 *
+	 * @return string
+	 */
+	private function get_css_style_vars() {
+		$colors = $this->get_current_theme_colors();
+
+		$css_vars = [
+			'--wp-admin-theme-color' => $colors['link'],
+		];
+
+		$css_vars_string = '';
+		foreach ( $css_vars as $key => $value ) {
+			$css_vars_string .= $key . ':' . $value . ';';
+		}
+
+		return $css_vars_string;
+	}
+
+	/**
+	 * Get the current theme colors.
+	 *
+	 * @return array<string, array<string, string>> An associative array containing the theme colors.
+	 */
+	private function get_current_theme_colors() {
+		$color_scheme = get_user_option( 'admin_color' );
+
+		$colors = [
+			'default' => [
+				'link' => '#0073aa',
+				'link_focus' => '#135e96',
+			],
+			// "modern" is the only one with a different color scheme.
+			'modern' => [
+				'link' => '#3858e9',
+				'link_focus' => '#183ad6',
+			],
+		];
+
+		if ( $color_scheme === 'modern' ) {
+			$colors = $colors['modern'];
+		} else {
+			$colors = $colors['default'];
+		}
+
+		return $colors;
 	}
 }
