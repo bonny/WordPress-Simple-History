@@ -50,8 +50,41 @@ export function EventsPagination( props ) {
 	const handlePrevClick = () => setPage( page - 1 );
 	const handleNextClick = () => setPage( page + 1 );
 	const handleLastPageClick = () => setPage( totalPages );
-	const handleChangePageClick = ( newPage ) =>
-		setPage( parseInt( newPage, 10 ) );
+	const handleChangePageClick = ( nextValue ) => {
+		let pageToGoTo;
+
+		if ( nextValue === 'custom' ) {
+			pageToGoTo = prompt( 'Enter page number', 1 );
+		} else {
+			pageToGoTo = nextValue;
+		}
+
+		pageToGoTo = parseInt( pageToGoTo, 10 );
+
+		// Ensure the page is a number and within the bounds of the total pages.
+		if ( isNaN( pageToGoTo ) ) {
+			pageToGoTo = 1;
+		} else if ( pageToGoTo < 1 ) {
+			pageToGoTo = 1;
+		} else if ( pageToGoTo > totalPages ) {
+			pageToGoTo = totalPages;
+		}
+
+		setPage( pageToGoTo );
+	};
+
+	const selectOptions = [
+		{
+			label: __( '…', 'simple-history' ),
+			value: 'custom',
+		},
+		...[ ...Array( totalPages ) ].map( ( e, i ) => {
+			return {
+				label: i + 1,
+				value: i + 1,
+			};
+		} ),
+	];
 
 	return (
 		<div>
@@ -93,14 +126,7 @@ export function EventsPagination( props ) {
 										'simple-history'
 									) }
 									value={ page }
-									options={ [ ...Array( totalPages ) ].map(
-										( e, i ) => {
-											return {
-												label: i + 1,
-												value: i + 1,
-											};
-										}
-									) }
+									options={ selectOptions }
 									onChange={ handleChangePageClick }
 									size="compact"
 									__nextHasNoMarginBottom
