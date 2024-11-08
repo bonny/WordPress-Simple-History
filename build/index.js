@@ -1893,9 +1893,7 @@ function EventsList(props) {
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_EventsPagination__WEBPACK_IMPORTED_MODULE_5__.EventsPagination, {
     page: page,
     totalPages: totalPages,
-    onClickPrev: () => setPage(page - 1),
-    onClickNext: () => setPage(page + 1),
-    onChangePage: newPage => setPage(parseInt(newPage, 10))
+    setPage: setPage
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalSpacer, {
     paddingBottom: 4
   }));
@@ -1987,6 +1985,26 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const firstPageIcon = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("svg", {
+  xmlns: "http://www.w3.org/2000/svg",
+  height: "24px",
+  viewBox: "0 -960 960 960",
+  width: "24px",
+  fill: "#5f6368"
+}, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("path", {
+  d: "M250-250v-460h60v460h-60Zm430-3.85L453.85-480 680-706.15 722.15-664l-184 184 184 184L680-253.85Z"
+}));
+
+// https://fonts.google.com/icons?selected=Material+Symbols+Outlined:last_page:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=last&icon.size=24&icon.color=%235f6368
+const lastPageIcon = (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("svg", {
+  xmlns: "http://www.w3.org/2000/svg",
+  height: "24px",
+  viewBox: "0 -960 960 960",
+  width: "24px",
+  fill: "#5f6368"
+}, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("path", {
+  d: "M280-253.85 237.85-296l184-184-184-184L280-706.15 506.15-480 280-253.85ZM650-250v-460h60v460h-60Z"
+}));
 
 /**
  * To give it the same look as other Gutenberg components it's loosely based on the pagination in the font collection component:
@@ -1999,20 +2017,57 @@ function EventsPagination(props) {
   const {
     page,
     totalPages,
-    onClickPrev,
-    onClickNext,
-    onChangePage
+    setPage
   } = props;
   if (!page || !totalPages) {
     return null;
   }
+  const handleFirstPageClick = () => setPage(1);
+  const handlePrevClick = () => setPage(page - 1);
+  const handleNextClick = () => setPage(page + 1);
+  const handleLastPageClick = () => setPage(totalPages);
+  const handleChangePageClick = nextValue => {
+    let pageToGoTo;
+    if (nextValue === 'custom') {
+      pageToGoTo = prompt('Enter page number', 1);
+    } else {
+      pageToGoTo = nextValue;
+    }
+    pageToGoTo = parseInt(pageToGoTo, 10);
+
+    // Ensure the page is a number and within the bounds of the total pages.
+    if (isNaN(pageToGoTo)) {
+      pageToGoTo = 1;
+    } else if (pageToGoTo < 1) {
+      pageToGoTo = 1;
+    } else if (pageToGoTo > totalPages) {
+      pageToGoTo = totalPages;
+    }
+    setPage(pageToGoTo);
+  };
+  const selectOptions = [{
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('…', 'simple-history'),
+    value: 'custom'
+  }, ...[...Array(totalPages)].map((e, i) => {
+    return {
+      label: i + 1,
+      value: i + 1
+    };
+  })];
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
     spacing: 4,
     justify: "center"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('First page', 'simple-history'),
+    size: "compact",
+    onClick: handleFirstPageClick,
+    disabled: page === 1,
+    accessibleWhenDisabled: true,
+    icon: firstPageIcon
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Previous page', 'simple-history'),
     size: "compact",
-    onClick: onClickPrev,
+    onClick: handlePrevClick,
     disabled: page === 1,
     accessibleWhenDisabled: true,
     icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_4__["default"]
@@ -2026,23 +2081,25 @@ function EventsPagination(props) {
     CurrentPageControl: (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.SelectControl, {
       "aria-label": (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Current page', 'simple-history'),
       value: page,
-      options: [...Array(totalPages)].map((e, i) => {
-        return {
-          label: i + 1,
-          value: i + 1
-        };
-      }),
-      onChange: onChangePage,
+      options: selectOptions,
+      onChange: handleChangePageClick,
       size: "compact",
       __nextHasNoMarginBottom: true
     })
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Next page', 'simple-history'),
     size: "compact",
-    onClick: onClickNext,
+    onClick: handleNextClick,
     disabled: page === totalPages,
     accessibleWhenDisabled: true,
     icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__["default"]
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)('Last page', 'simple-history'),
+    size: "compact",
+    onClick: handleLastPageClick,
+    disabled: page === totalPages,
+    accessibleWhenDisabled: true,
+    icon: lastPageIcon
   })));
 }
 
@@ -2218,11 +2275,11 @@ function EventsSearchFilters(props) {
     selectedUsersWithId: selectedUsersWithId
   }) : null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
     className: "SimpleHistory__filters__filterSubmitWrap"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    className: "button",
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+    variant: "secondary",
     onClick: onReload
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Search events', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    type: "button",
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_5__.__)('Search events', 'simple-history')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+    variant: "tertiary",
     onClick: () => setMoreOptionsIsExpanded(!moreOptionsIsExpanded),
     className: "SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"
   }, showMoreOrLessText))));
