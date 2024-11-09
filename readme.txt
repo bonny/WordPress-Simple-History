@@ -174,14 +174,10 @@ Log sent emails, HTTP API requests, cron jobs, and more.
 
 If you like this plugin please consider donating to support the development. The plugin has been free for the last 10 years and will continue to be free.
 
--   [Donate using PayPal](https://www.paypal.me/eskapism)
+-   [Donate using PayPal](https://www.paypal.me/eskapism).
 -   [Become a GitHub sponsor](https://github.com/sponsors/bonny).
+-   [Send Bitcoin or Ethereum](https://simple-history.com/donate/).
 -   [Add-ons that you can buy to support the development](https://simple-history.com/add-ons/) (and get some extra features!).
-
-**Noteworthy sponsors**
-
--   [TextTV.nu](https://texttv.nu) - Swedish teletext on the web
--   [Brottsplatskartan.se](https://brottsplatskartan.se) - Swedish police reports on a map
 
 ## Frequently Asked Questions
 
@@ -273,11 +269,17 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ## Changelog
 
+✨ Do you use Simple History a lot?
+[Then sponsor the plugin to keep it free](https://simple-history.com/sponsor/) or
+[add a 5-star review so other users know it's good](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5).
+
 ### 5.1.0 (November 2024)
+
+This release contains some bugfixes 🐞 but also a new experimental Admin Bar Quick View feature. [See the release post for info and  screenshots](https://simple-history.com/2024/simple-history-5-1-0-released-with-new-experimental-feature/).
 
 **Added**
 
--   Add "Admin Bar Quick View" as experimental feature. This new feature adds a "History" link in the admin bar, that when hovered shows the latest events.
+-   Add "Admin Bar Quick View" as experimental feature. This new feature adds a "History" link in the admin bar, that when hovered shows the latest events in a compact timeline format.
     This is very convenient when you quickly want to check the latest events without leaving the page you are on.
     (This feature is experimental and can be enabled on the settings page.) [#476](https://github.com/bonny/WordPress-Simple-History/issues/476)
 -   Add helper function `get_settings_page_url()`.
@@ -356,8 +358,6 @@ A big update that keeps everything familiar. 🚀
 
 -   **Settings Metabox**: The metabox linking to the settings page has been removed, as settings are now accessible from the top menu bar.
 -   **Legacy Code Cleanup**: Removed several old and unused files, functions, and JavaScript hooks that are no longer relevant to the current implementation.
-
-🌟 Pssst.... Don't forget that you can [sponsor this project to keep it free and open source](https://simple-history.com/sponsor/).
 
 ### 4.17.0 (August 2024)
 
