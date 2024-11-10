@@ -1067,6 +1067,8 @@ abstract class Logger {
 	/**
 	 * Logs with an arbitrary level.
 	 *
+	 * This is the function that all other log functions call in the end.
+	 *
 	 * @param mixed  $level The log level. Default "info".
 	 * @param string $message The log message. Default "".
 	 * @param array  $context The log context. Default empty array.
@@ -1175,6 +1177,7 @@ abstract class Logger {
 			$context,
 			$this
 		);
+
 		$context = apply_filters(
 			'simple_history/log_argument/context',
 			$context,
@@ -1182,6 +1185,7 @@ abstract class Logger {
 			$message,
 			$this
 		);
+
 		$level = apply_filters(
 			'simple_history/log_argument/level',
 			$level,
@@ -1189,6 +1193,7 @@ abstract class Logger {
 			$message,
 			$this
 		);
+
 		$message = apply_filters(
 			'simple_history/log_argument/message',
 			$message,
@@ -1321,6 +1326,8 @@ abstract class Logger {
 			$data,
 			$this
 		);
+
+		Helpers::increase_total_logged_events_count();
 
 		return $this;
 	}
