@@ -273,9 +273,14 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 [Then sponsor the plugin to keep it free](https://simple-history.com/sponsor/) or
 [add a 5-star review so other users know it's good](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5).
 
+### Unreleased
+
+-   Add counter with total number of events logged.
+-   Fix Quick View not being activated by deafult after enabling experimental features.
+
 ### 5.1.0 (November 2024)
 
-This release contains some bugfixes 🐞 but also a new experimental Admin Bar Quick View feature. [See the release post for info and  screenshots](https://simple-history.com/2024/simple-history-5-1-0-released-with-new-experimental-feature/).
+This release contains some bugfixes 🐞 but also a new experimental Admin Bar Quick View feature. [See the release post for info and screenshots](https://simple-history.com/2024/simple-history-5-1-0-released-with-new-experimental-feature/).
 
 **Added**
 
