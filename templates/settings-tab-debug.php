@@ -134,6 +134,19 @@ printf(
 );
 echo '</p>';
 
+// Total number of logged events, since installing the plugin or since the
+// feature was added.
+echo '<h4>' . esc_html_x( 'Total number of logged events', 'debug dropin', 'simple-history' ) . '</h4>';
+$total_logged_events_count = Helpers::get_total_logged_events_count();
+echo '<p>';
+printf(
+	/* translators: %d number of logged events. */
+	esc_html_x( '%s logged events since plugin installed.', 'debug dropin', 'simple-history' ),
+	esc_html( number_format_i18n( $total_logged_events_count ) )
+);
+echo "since date [date-from-option-added-in-version-n-n].";
+echo '</p>';
+
 // List services.
 echo '<h3>' . esc_html_x( 'Services', 'debug dropin', 'simple-history' ) . '</h3>';
 
