@@ -132,16 +132,18 @@ class Setup_Settings_Page extends Service {
 			)
 		);
 
-		register_setting(
-			$settings_general_option_group,
-			'simple_history_show_in_admin_bar',
-			array(
-				'sanitize_callback' => array(
-					Helpers::class,
-					'sanitize_checkbox_input',
-				),
-			)
-		);
+		if ( Helpers::experimental_features_is_enabled() ) {
+			register_setting(
+				$settings_general_option_group,
+				'simple_history_show_in_admin_bar',
+				array(
+					'sanitize_callback' => array(
+						Helpers::class,
+						'sanitize_checkbox_input',
+					),
+				)
+			);
+		}
 
 		add_settings_field(
 			'simple_history_show_where',
