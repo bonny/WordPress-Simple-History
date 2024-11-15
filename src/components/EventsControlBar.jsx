@@ -6,8 +6,9 @@ import {
 	Icon,
 	MenuGroup,
 	MenuItem,
+	Slot,
 	Spinner,
-	__experimentalText as Text,
+	__experimentalText as Text
 } from '@wordpress/components';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { lockSmall, moreVertical } from '@wordpress/icons';
@@ -91,6 +92,11 @@ const MyDropdownMenu = () => (
 					>
 						Send log via email
 					</MenuItem>
+
+					<Slot
+						name="SimpleHistorySlotEventsControlBarMenu"
+						fillProps={ { testProp: 'testValue' } }
+					/>
 				</MenuGroup>
 			</>
 		) }
@@ -98,7 +104,9 @@ const MyDropdownMenu = () => (
 );
 
 /**
- * Control bar at the top with number of events, reload button, more actions like export and so on.
+ * Control bar at the top of the events listing
+ * with number of events, reload button, more actions like export,
+ * and so on.
  *
  * @param {Object} props
  */

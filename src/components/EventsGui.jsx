@@ -1,17 +1,18 @@
 import apiFetch from '@wordpress/api-fetch';
+import { SlotFillProvider } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { EventsControlBar } from './EventsControlBar';
-import { EventsModalIfFragment } from './EventsModalIfFragment';
-import { NewEventsNotifier } from './NewEventsNotifier';
 import {
-	SEARCH_FILTER_DEFAULT_START_DATE,
 	SEARCH_FILTER_DEFAULT_END_DATE,
+	SEARCH_FILTER_DEFAULT_START_DATE,
 } from '../constants';
-import { EventsList } from './EventsList';
-import { EventsSearchFilters } from './EventsSearchFilters';
 import { generateAPIQueryParams } from '../functions';
+import { EventsControlBar } from './EventsControlBar';
+import { EventsList } from './EventsList';
+import { EventsModalIfFragment } from './EventsModalIfFragment';
+import { EventsSearchFilters } from './EventsSearchFilters';
+import { NewEventsNotifier } from './NewEventsNotifier';
 
 function EventsGui() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
@@ -180,7 +181,7 @@ function EventsGui() {
 	}, [ page ] );
 
 	return (
-		<>
+		<SlotFillProvider>
 			<EventsSearchFilters
 				selectedLogLevels={ selectedLogLevels }
 				setSelectedLogLevels={ setSelectedLogLevels }
@@ -240,7 +241,7 @@ function EventsGui() {
 			/>
 
 			<EventsModalIfFragment />
-		</>
+		</SlotFillProvider>
 	);
 }
 
