@@ -18,7 +18,13 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Output HTML if WooCommerce plugin is installed and active.
 	 */
 	public function on_sidebar_html_woocommerce() {
+		// Only show if WooCommerce is active.
 		if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+			return;
+		}
+
+		// Don't show if addon is already installed.
+		if ( is_plugin_active( 'simple-history-woocommerce/index.php' ) ) {
 			return;
 		}
 
