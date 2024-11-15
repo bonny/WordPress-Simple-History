@@ -279,6 +279,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Add option with plugin install date. The install date can be seen on the debug page. [#483](https://github.com/bonny/WordPress-Simple-History/issues/483)
 -   Fix Quick View not being activated by deafult after enabling experimental features.
 -   Hide WooCommerce Logger promo if [WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/) is installed.
+-   Add Events Control Bar above events. This bar contains information about number of events, paginations, and actions dropdown with actions that are available for the log.
 
 ### 5.1.0 (November 2024)
 
