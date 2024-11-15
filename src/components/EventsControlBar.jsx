@@ -103,13 +103,7 @@ const MyDropdownMenu = () => (
  * @param {Object} props
  */
 export function EventsControlBar( props ) {
-	const { isExperimentalFeaturesEnabled, eventsIsLoading, eventsTotal } =
-		props;
-
-	// Only show this component if experimental features are enabled.
-	if ( ! isExperimentalFeaturesEnabled ) {
-		return null;
-	}
+	const { eventsIsLoading, eventsTotal } = props;
 
 	const loadingIndicator = eventsIsLoading ? (
 		<Text>
@@ -134,8 +128,13 @@ export function EventsControlBar( props ) {
 	) : null;
 
 	return (
-		<div style={ { background: 'white', padding: '6px 12px' } }>
-			<Flex gap={ 2 } style={ {} }>
+		<div
+			style={ {
+				background: 'white',
+				padding: '6px 12px',
+			} }
+		>
+			<Flex gap={ 2 }>
 				<FlexItem>
 					<HStack spacing={ 2 }>
 						{ eventsCount }
