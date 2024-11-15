@@ -1537,4 +1537,13 @@ class Helpers {
 	public static function get_total_logged_events_count() {
 		return (int) get_option( 'simple_history_total_logged_events_count', 0 );
 	}
+
+	/**
+	 * Get plugin install date as GMT.
+	 *
+	 * @return string|false Date as GMT or false if not set.
+	 */
+	public static function get_plugin_install_date() {
+		return get_option( 'simple_history_install_date_gmt' );
+	}
 }

@@ -33,6 +33,7 @@ class Setup_Database extends Service {
 		$this->setup_version_3_to_version_4();
 		$this->setup_version_4_to_version_5();
 		$this->setup_version_5_to_version_6();
+		$this->setup_version_6_to_version_7();
 	}
 
 	/**
@@ -303,6 +304,22 @@ class Setup_Database extends Service {
 
 		$this->update_db_to_version( 6 );
 	}
+
+	/**
+	 * Update from db version 6 to version 7.
+	 *
+	 * Sets the install date for the plugin.
+	 */
+	private function setup_version_6_to_version_7() {
+		if ( $this->get_db_version() !== 6 ) {
+			return;
+		}
+
+		update_option( 'simple_history_install_date_gmt', gmdate( 'Y-m-d H:i:s' ), false );
+
+		$this->update_db_to_version( 7 );
+	}
+
 
 	/**
 	 * Add welcome messages to the log.
