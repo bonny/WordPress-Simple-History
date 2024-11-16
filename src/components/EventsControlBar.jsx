@@ -12,7 +12,13 @@ import {
 	withFilters,
 } from '@wordpress/components';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
-import { lockSmall, moreVertical } from '@wordpress/icons';
+import {
+	lockSmall,
+	moreVertical,
+	starEmpty,
+	starFilled,
+	unlock,
+} from '@wordpress/icons';
 
 // Based on solution here:
 // https://nickdiego.com/a-primer-on-wordpress-slotfill-technology/
@@ -21,38 +27,53 @@ const EventsControlBarSlotfillsFilter = withFilters( 'SimpleHistory.Settings' )(
 	( props ) => <></>
 );
 
-const PremiumFeatureSuffix = function () {
-	return (
-		<span
-			style={ {
-				color: 'darkgreen',
-				fontSize: '0.8em',
-				border: '1px solid darkgreen',
-				borderRadius: '5px',
-				padding: '0.2em 0.5em',
-				opacity: '0.8',
-				lineHeight: 1,
-			} }
-		>
-			{ __( 'Premium', 'simple-history' ) }
-		</span>
-	);
-};
+const PremiumFeatureSuffix = function ( props ) {
+	const { variant, char = null } = props;
 
-const PremiumFeatureSuffixSmaller = function () {
+	let icon;
+
+	switch ( variant ) {
+		case 'unlocked':
+			icon = starFilled;
+			break;
+		case 'unlocked2':
+			icon = starEmpty;
+			break;
+		case 'unlocked3':
+			icon = unlock;
+			break;
+		case 'locked':
+			icon = lockSmall;
+			break;
+		default:
+			icon = null;
+	}
+
 	return (
 		<span
 			style={ {
+				display: 'flex',
+				alignItems: 'center',
 				color: 'darkgreen',
 				fontSize: '0.8em',
 				border: '1px solid darkgreen',
-				borderRadius: '5px',
-				xpadding: '0.1em 0.3em',
+				borderRadius: '4px',
+				padding: '0 0.5em',
 				opacity: '0.75',
 				lineHeight: 1,
 			} }
 		>
-			<Icon icon={ lockSmall } />
+			<span
+				style={ {
+					padding: '.5em 0',
+				} }
+			>
+				{ __( 'Premium', 'simple-history' ) }
+			</span>
+			{ icon ? <Icon icon={ icon } size={ 20 } /> : null }
+			{ char ? (
+				<span style={ { padding: '0 0 0 .5em' } }>{ char }</span>
+			) : null }
 		</span>
 	);
 };
@@ -65,12 +86,12 @@ const MyDropdownMenu = () => (
 		{ ( { onClose } ) => (
 			<>
 				<MenuGroup>
-					<MenuItem
+					{ /* <MenuItem
 						onClick={ onClose }
 						info="Re-use this search in the future"
 					>
 						Save search
-					</MenuItem>
+					</MenuItem> */ }
 					<MenuItem onClick={ onClose }>Copy link to search</MenuItem>
 				</MenuGroup>
 				<MenuGroup label={ __( 'Export', 'simple-history' ) }>
@@ -78,25 +99,67 @@ const MyDropdownMenu = () => (
 						onClick={ onClose }
 						suffix={ <PremiumFeatureSuffix /> }
 					>
-						Export as CSV...
+						{ __( 'Export as CSV…', 'simple-history' ) }
+					</MenuItem>
+					<MenuItem
+						onClick={ onClose }
+						suffix={ <PremiumFeatureSuffix variant="locked" /> }
+					>
+						{ __( 'Export as CSV…', 'simple-history' ) }
 					</MenuItem>
 					<MenuItem
 						onClick={ onClose }
 						suffix={ <PremiumFeatureSuffix /> }
 					>
-						Export as JSON
+						{ __( 'Export as JSON…', 'simple-history' ) }
+					</MenuItem>
+					<MenuItem
+						onClick={ onClose }
+						suffix={ <PremiumFeatureSuffix variant="unlocked" /> }
+					>
+						{ __( 'Export as JSON…', 'simple-history' ) }
+					</MenuItem>
+					<MenuItem
+						onClick={ onClose }
+						suffix={ <PremiumFeatureSuffix variant="unlocked2" /> }
+					>
+						{ __( 'Export as JSON…', 'simple-history' ) }
+					</MenuItem>
+					<MenuItem
+						onClick={ onClose }
+						suffix={ <PremiumFeatureSuffix variant="unlocked3" /> }
+					>
+						{ __( 'Export as JSON…', 'simple-history' ) }
+					</MenuItem>
+					<MenuItem
+						onClick={ onClose }
+						suffix={ <PremiumFeatureSuffix char="💎" /> }
+					>
+						{ __( 'Export as JSON…', 'simple-history' ) }
+					</MenuItem>
+					<MenuItem
+						onClick={ onClose }
+						suffix={ <PremiumFeatureSuffix char="✨" /> }
+					>
+						{ __( 'Export as JSON…', 'simple-history' ) }
+					</MenuItem>
+					<MenuItem
+						onClick={ onClose }
+						suffix={ <Icon icon={ lockSmall } size={ 20 } /> }
+					>
+						{ __( 'Export as JSON…', 'simple-history' ) }
 					</MenuItem>
 				</MenuGroup>
 				<MenuGroup>
 					<MenuItem
 						onClick={ onClose }
-						suffix={ <PremiumFeatureSuffixSmaller /> }
+						suffix={ <PremiumFeatureSuffix /> }
 					>
 						Add event manually
 					</MenuItem>
 					<MenuItem
 						onClick={ onClose }
-						suffix={ <PremiumFeatureSuffixSmaller /> }
+						suffix={ <PremiumFeatureSuffix /> }
 					>
 						Send log via email
 					</MenuItem>
