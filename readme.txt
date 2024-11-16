@@ -273,6 +273,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 [Then sponsor the plugin to keep it free](https://simple-history.com/sponsor/) or
 [add a 5-star review so other users know it's good](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5).
 
+### Unreleased
+
+-   Always show event item actions.
+
 ### 5.2.0 (November 2024)
 
 Some minor bugfixes but also a new feature in this update. [Read the release post for more info](https://simple-history.com/2024/simple-history-5-2-0-released/).

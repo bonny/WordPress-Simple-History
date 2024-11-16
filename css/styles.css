@@ -317,28 +317,13 @@ Style different log levels.
 /* Actions button, dropdown with three dots ⋮ */
 .SimpleHistoryLogitem__actions {
 	position: absolute;
-	opacity: 0;
-	top: 0;
+	top: 12px;
 	right: 12px;
 }
 
 .SimpleHistoryLogitem:hover {
 	background-color: #fafafa;
 }
-
-.SimpleHistoryLogitem:hover .SimpleHistoryLogitem__actions,
-.SimpleHistoryLogitem--variant-modal .SimpleHistoryLogitem__actions {
-	opacity: 1;
-}
-
-/*.SimpleHistoryLogitem__details .wp-video-shortcode {
-
-}*/
-
-/* table with keys and values */
-/*.SimpleHistoryLogitem__keyValueTable {
-
-}*/
 
 .SimpleHistoryLogitem__keyValueTable th,
 .SimpleHistoryLogitem__keyValueTable td {
