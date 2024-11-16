@@ -1,5 +1,4 @@
 import {
-	createSlotFill,
 	DropdownMenu,
 	Flex,
 	FlexItem,
@@ -15,7 +14,10 @@ import {
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { lockSmall, moreVertical } from '@wordpress/icons';
 
-const AdditionalSettings = withFilters( 'myExamplePlugin.Settings' )(
+// Based on solution here:
+// https://nickdiego.com/a-primer-on-wordpress-slotfill-technology/
+const EventsControlBarSlotfillsFilter = withFilters( 'SimpleHistory.Settings' )(
+	// eslint-disable-next-line no-unused-vars
 	( props ) => <></>
 );
 
@@ -140,7 +142,7 @@ export function EventsControlBar( props ) {
 
 	return (
 		<>
-			<AdditionalSettings exampleProp={ 'hello there' } { ...props } />
+			<EventsControlBarSlotfillsFilter { ...props } />
 			<div
 				style={ {
 					background: 'white',

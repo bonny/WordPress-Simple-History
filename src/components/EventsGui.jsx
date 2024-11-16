@@ -241,10 +241,6 @@ function EventsGui() {
 			/>
 
 			<EventsModalIfFragment />
-
-			<Fill name="SimpleHistorySlotEventsControlBarMenu">
-				This is a fill from the main gui..
-			</Fill>
 		</>
 	);
 }
