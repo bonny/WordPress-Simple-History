@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { SlotFillProvider } from '@wordpress/components';
+import { Fill, SlotFillProvider } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
@@ -181,7 +181,7 @@ function EventsGui() {
 	}, [ page ] );
 
 	return (
-		<SlotFillProvider>
+		<>
 			<EventsSearchFilters
 				selectedLogLevels={ selectedLogLevels }
 				setSelectedLogLevels={ setSelectedLogLevels }
@@ -241,7 +241,11 @@ function EventsGui() {
 			/>
 
 			<EventsModalIfFragment />
-		</SlotFillProvider>
+
+			<Fill name="SimpleHistorySlotEventsControlBarMenu">
+				This is a fill from the main gui..
+			</Fill>
+		</>
 	);
 }
 

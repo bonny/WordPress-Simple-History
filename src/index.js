@@ -2,15 +2,21 @@
 import domReady from '@wordpress/dom-ready';
 import { createRoot, render } from '@wordpress/element';
 import EventsGui from './components/EventsGui';
+import { SlotFillProvider } from '@wordpress/components';
 
 domReady( () => {
 	const target = document.getElementById( 'simple-history-react-root' );
 
 	if ( target ) {
 		if ( createRoot ) {
-			createRoot( target ).render( <EventsGui /> );
-		} else {
-			render( <EventsGui />, target );
+			createRoot( target ).render(
+				<SlotFillProvider>
+					<EventsGui />
+				</SlotFillProvider>
+			);
 		}
+		//  else {
+		// 	render( <EventsGui />, target );
+		// }
 	}
 } );

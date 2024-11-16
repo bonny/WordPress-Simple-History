@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { createSlotFill, Fill, SlotFillProvider } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -8,6 +9,10 @@ import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
 
 import './AdminBarQuickView.scss';
+
+const { Fill: Filly, Slot: Slotty } = createSlotFill( 'Toolbar' );
+
+const ToolbarItem = () => <Filly>My item in Quick View</Filly>;
 
 const EventsCompactListLoadingSkeleton = () => {
 	return (
@@ -184,6 +189,7 @@ const AdminBarQuickView = () => {
 
 	return (
 		<li ref={ ref }>
+			<ToolbarItem />
 			<ul>
 				<EventsCompactList events={ events } isLoading={ isLoading } />
 
@@ -204,6 +210,10 @@ const AdminBarQuickView = () => {
 					</button>
 				</footer>
 			</ul>
+
+			<Fill name="SimpleHistorySlotEventsControlBarMenu">
+				This is a fill from the quick view..
+			</Fill>
 		</li>
 	);
 	/* 

@@ -1,4 +1,5 @@
 import {
+	createSlotFill,
 	DropdownMenu,
 	Flex,
 	FlexItem,
@@ -8,10 +9,15 @@ import {
 	MenuItem,
 	Slot,
 	Spinner,
-	__experimentalText as Text
+	__experimentalText as Text,
+	withFilters,
 } from '@wordpress/components';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { lockSmall, moreVertical } from '@wordpress/icons';
+
+const AdditionalSettings = withFilters( 'myExamplePlugin.Settings' )(
+	( props ) => <></>
+);
 
 const PremiumFeatureSuffix = function () {
 	return (
@@ -93,10 +99,7 @@ const MyDropdownMenu = () => (
 						Send log via email
 					</MenuItem>
 
-					<Slot
-						name="SimpleHistorySlotEventsControlBarMenu"
-						fillProps={ { testProp: 'testValue' } }
-					/>
+					<Slot name="SimpleHistorySlotEventsControlBarMenu" />
 				</MenuGroup>
 			</>
 		) }
@@ -136,24 +139,26 @@ export function EventsControlBar( props ) {
 	) : null;
 
 	return (
-		<div
-			style={ {
-				background: 'white',
-				padding: '6px 12px',
-			} }
-		>
-			<Flex gap={ 2 }>
-				<FlexItem>
-					<HStack spacing={ 2 }>
-						{ eventsCount }
-						{ loadingIndicator }
-					</HStack>
-				</FlexItem>
-
-				<FlexItem>
-					<MyDropdownMenu />
-				</FlexItem>
-			</Flex>
-		</div>
+		<>
+			<AdditionalSettings exampleProp={ 'hello there' } { ...props } />
+			<div
+				style={ {
+					background: 'white',
+					padding: '6px 12px',
+				} }
+			>
+				<Flex gap={ 2 }>
+					<FlexItem>
+						<HStack spacing={ 2 }>
+							{ eventsCount }
+							{ loadingIndicator }
+						</HStack>
+					</FlexItem>
+					<FlexItem>
+						<MyDropdownMenu />
+					</FlexItem>
+				</Flex>
+			</div>
+		</>
 	);
 }
