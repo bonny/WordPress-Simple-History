@@ -32,11 +32,9 @@ class Licences_Settings_Page extends Service {
 
 		// Add settings tab.
 		// Run on prio 20 so it runs after add ons have done their loaded actions.
-		// For now only if any add-ons are installed.
-		// TODO: Always show this in the future, when add-ons system are tested.
 		add_action(
-			'plugins_loaded',
-			[ $this, 'on_plugins_loaded' ],
+			'init',
+			[ $this, 'on_init_add_settings' ],
 			20
 		);
 	}
@@ -44,7 +42,7 @@ class Licences_Settings_Page extends Service {
 	/**
 	 * Add settings tab after plugins has loaded.
 	 */
-	public function on_plugins_loaded() {
+	public function on_init_add_settings() {
 		$this->add_settings_tab();
 
 		add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );

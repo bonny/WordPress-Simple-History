@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.7
-Stable tag: 5.1.0
+Stable tag: 5.2.0
 
 Track changes and user activities on your WordPress site. See who created a page, uploaded an attachment, and more, for a complete audit trail.
 
@@ -273,11 +273,14 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 [Then sponsor the plugin to keep it free](https://simple-history.com/sponsor/) or
 [add a 5-star review so other users know it's good](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5).
 
-### Unreleased
+### 5.2.0 (November 2024)
+
+Some minor bugfixes but also a new feature in this update. [Read the release post for more info](https://simple-history.com/2024/simple-history-5-2-0-released/).
 
 -   Add counter with total number of events logged. The value of this can be seen on the debug page. [#483](https://github.com/bonny/WordPress-Simple-History/issues/483)
 -   Add option with plugin install date. The install date can be seen on the debug page. [#483](https://github.com/bonny/WordPress-Simple-History/issues/483)
--   Fix Quick View not being activated by deafult after enabling experimental features.
+-   Fix notice `Function _load_textdomain_just_in_time was called incorrectly`.
+-   Fix Quick View not being activated by default after enabling experimental features.
 -   Hide WooCommerce Logger promo if [WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/) is installed.
 -   Add Events Control Bar above events. This bar contains information about number of events, paginations, and actions dropdown with actions that are available for the log.
 -   Add Slot `SimpleHistorySlotEventsControlBarMenu`.
