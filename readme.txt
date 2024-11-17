@@ -277,6 +277,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 -   Always show event item actions.
 -   Split the event date and time tooltip into two lines.
+-   Include date_gmt in event context modal.
 
 ### 5.2.0 (November 2024)
 
