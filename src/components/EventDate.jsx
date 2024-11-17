@@ -58,11 +58,19 @@ export function EventDate( props ) {
 		};
 	}, [ event.date_gmt ] );
 
-	const tooltipText = sprintf(
-		/* translators: 1: date in local time, 2: date in GMT time */
-		__( '%1$s local time (%2$s GMT time)', 'simple-history' ),
-		event.date,
-		event.date_gmt
+	const tooltipText = (
+		<>
+			{
+				/* translators: 1: date in local time */
+				sprintf( __( `%1$s local time`, 'simple-history' ), event.date )
+			}
+			<br />
+			{ sprintf(
+				/* translators: 1: date in GMT time */
+				__( `%1$s GMT time`, 'simple-history' ),
+				event.date_gmt
+			) }
+		</>
 	);
 
 	const handleDateClick = () => {
@@ -70,15 +78,12 @@ export function EventDate( props ) {
 	};
 
 	const time = (
-		<>
-			<time
-				dateTime={ event.date_gmt }
-				className="SimpleHistoryLogitem__when__liveRelative"
-			>
-				{ formattedDateFormatAbbreviated } ({ formattedDateLiveUpdated }
-				)
-			</time>
-		</>
+		<time
+			dateTime={ event.date_gmt }
+			className="SimpleHistoryLogitem__when__liveRelative"
+		>
+			{ formattedDateFormatAbbreviated } ({ formattedDateLiveUpdated })
+		</time>
 	);
 
 	let output;
