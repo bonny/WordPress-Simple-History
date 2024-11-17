@@ -144,6 +144,7 @@ function MyDropdownMenu( props ) {
 			<DropdownMenu
 				label={ __( 'Actions…', 'simple-history' ) }
 				icon={ moreVertical }
+				// text={ __( 'Actions', 'simple-history' ) }
 			>
 				{ ( { onClose } ) => (
 					<>
