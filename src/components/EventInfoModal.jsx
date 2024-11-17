@@ -107,6 +107,10 @@ export function EventInfoModal( props ) {
 									<td>{ loadedEvent.date }</td>
 								</tr>
 								<tr>
+									<td>date_gmt</td>
+									<td>{ loadedEvent.date_gmt }</td>
+								</tr>
+								<tr>
 									<td>message</td>
 									<td>{ loadedEvent.message }</td>
 								</tr>
