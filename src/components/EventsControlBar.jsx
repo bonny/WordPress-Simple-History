@@ -23,6 +23,7 @@ import {
 	unlock,
 } from '@wordpress/icons';
 import { useState } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 
 // Based on solution here:
 // https://nickdiego.com/a-primer-on-wordpress-slotfill-technology/
@@ -153,6 +154,7 @@ function MyDropdownMenu( props ) {
 								Copy link to search
 							</MenuItem>
 						</MenuGroup>
+
 						<PremiumAddonsPromoMenuGroup
 							handleOnClickPremiumFeature={
 								handleOnClickPremiumFeature
@@ -169,6 +171,15 @@ function MyDropdownMenu( props ) {
 
 function PremiumAddonsPromoMenuGroup( props ) {
 	const { handleOnClickPremiumFeature, onClose } = props;
+
+	const showPremiumAddonsMenuGroup = applyFilters(
+		'SimpleHistory.showPremiumAddonsMenuGroup',
+		true
+	);
+
+	if ( showPremiumAddonsMenuGroup === false ) {
+		return null;
+	}
 
 	const handleClickExport = () => {
 		onClose();
