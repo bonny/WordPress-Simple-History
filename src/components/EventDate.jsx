@@ -60,10 +60,11 @@ export function EventDate( props ) {
 
 	const tooltipText = (
 		<>
-			{
+			{ sprintf(
 				/* translators: 1: date in local time */
-				sprintf( __( `%1$s local time`, 'simple-history' ), event.date )
-			}
+				__( `%1$s website local time`, 'simple-history' ),
+				event.date
+			) }
 			<br />
 			{ sprintf(
 				/* translators: 1: date in GMT time */
