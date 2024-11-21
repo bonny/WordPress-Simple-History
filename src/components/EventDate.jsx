@@ -19,6 +19,7 @@ export function EventDate( props ) {
 	const dateSettings = getDateSettings();
 	const dateFormatAbbreviated = dateSettings.formats.datetimeAbbreviated;
 	const dateFormatTime = dateSettings.formats.time;
+	const timezoneString = dateSettings.timezone.string;
 
 	// Show date as "Sep 2, 2024 8:36 pm".
 	// If the event is today, show "Today instead".
@@ -61,9 +62,10 @@ export function EventDate( props ) {
 	const tooltipText = (
 		<>
 			{ sprintf(
-				/* translators: 1: date in local time */
-				__( `%1$s website local time`, 'simple-history' ),
-				event.date
+				/* translators: 1: date in local time, 2: timezone string */
+				__( `%1$s website local time (%2$s)`, 'simple-history' ),
+				event.date,
+				timezoneString
 			) }
 			<br />
 			{ sprintf(
