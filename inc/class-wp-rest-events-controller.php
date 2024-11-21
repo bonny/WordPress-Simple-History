@@ -680,13 +680,17 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['id'] = (int) $item->id;
 		}
 
+		// date is the GTM date when the event was created.
+		// So on my local computer with timezone stockholm an event was added when my computer
+		// said "21 nov 2024 16:25" and the date in the
+		// database is "2024-11-21 15:24:00".
 		if ( rest_is_field_included( 'date', $fields ) ) {
-			$data['date'] = mysql_to_rfc3339( $item->date );
+			// Given a date in UTC or GMT timezone, returns that date in the timezone of the site.
+			$data['date'] = get_date_from_gmt( $item->date );
 		}
 
 		if ( rest_is_field_included( 'date_gmt', $fields ) ) {
-			// HERE: This does not look good. Wrong item field and strange function calls.
-			$data['date_gmt'] = mysql_to_rfc3339( get_date_from_gmt( mysql_to_rfc3339( $item->date ) ) );
+			$data['date_gmt'] = $item->date;
 		}
 
 		if ( rest_is_field_included( 'via', $fields ) ) {
