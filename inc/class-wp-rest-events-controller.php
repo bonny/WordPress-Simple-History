@@ -685,6 +685,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'date_gmt', $fields ) ) {
+			// HERE: This does not look good. Wrong item field and strange function calls.
 			$data['date_gmt'] = mysql_to_rfc3339( get_date_from_gmt( mysql_to_rfc3339( $item->date ) ) );
 		}
 
