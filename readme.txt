@@ -276,8 +276,11 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 ### Unreleased
 
 -   Split the event date and time tooltip into two lines.
-
+-   Use correct date fields from API response in the GUI datetime tooltip.
 -   Include date_gmt in event context modal.
+-   Date field in REST API response is not rename to date_local, to make it more clear that it's the website local date and time of the event.
+-   Append website timezone to datetime tooltip.
+
 ### 5.2.0 (November 2024)
 
 Some minor bugfixes but also a new feature in this update. [Read the release post for more info](https://simple-history.com/2024/simple-history-5-2-0-released/).

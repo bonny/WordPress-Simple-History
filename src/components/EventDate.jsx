@@ -64,7 +64,7 @@ export function EventDate( props ) {
 			{ sprintf(
 				/* translators: 1: date in local time, 2: timezone string */
 				__( `%1$s website local time (%2$s)`, 'simple-history' ),
-				event.date,
+				event.date_local,
 				timezoneString
 			) }
 			<br />
