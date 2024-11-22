@@ -24,7 +24,7 @@ export function EventDate( props ) {
 	// Show date as "Sep 2, 2024 8:36 pm".
 	// If the event is today, show "Today instead".
 	// Today is determined by the date in GMT.
-	const eventDateYMD = date( 'Y-m-d', event.date_gmt );
+	const eventDateYMD = date( 'Y-m-d', event.date_local );
 	const nowDateYMD = date( 'Y-m-d' );
 	const eventIsToday = eventDateYMD === nowDateYMD;
 
@@ -33,31 +33,31 @@ export function EventDate( props ) {
 		formattedDateFormatAbbreviated = sprintf(
 			// translators: %s is the time, like 8:36 pm.
 			__( 'Today %s', 'simple-history' ),
-			dateI18n( dateFormatTime, event.date_gmt )
+			dateI18n( dateFormatTime, event.date_local )
 		);
 	} else {
 		formattedDateFormatAbbreviated = dateI18n(
 			dateFormatAbbreviated,
-			event.date_gmt
+			event.date_local
 		);
 	}
 
 	const [ formattedDateLiveUpdated, setFormattedDateLiveUpdated ] = useState(
 		() => {
-			return humanTimeDiff( event.date_gmt );
+			return humanTimeDiff( event.date_local );
 		}
 	);
 
 	// Update live time every second.
 	useEffect( () => {
 		const intervalId = setInterval( () => {
-			setFormattedDateLiveUpdated( humanTimeDiff( event.date_gmt ) );
+			setFormattedDateLiveUpdated( humanTimeDiff( event.date_local ) );
 		}, 1000 );
 
 		return () => {
 			clearInterval( intervalId );
 		};
-	}, [ event.date_gmt ] );
+	}, [ event.date_local ] );
 
 	const tooltipText = (
 		<>
