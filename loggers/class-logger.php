@@ -1206,9 +1206,9 @@ abstract class Logger {
 		 * Store date as GMT date, i.e. not local date/time
 		 *
 		 * @see http://www.skyverge.com/blog/down-the-rabbit-hole-wordpress-and-timezones/
-		 * @string $localtime
+		 * @var string $date_gmt Date in GMT format.
 		 */
-		$localtime = current_time( 'mysql', 1 );
+		$date_gmt = current_time( 'mysql', 1 );
 
 		/**
 		 * Main table data row array.
@@ -1218,7 +1218,7 @@ abstract class Logger {
 		$data = array(
 			'logger' => $this->get_slug(),
 			'level' => $level,
-			'date' => $localtime,
+			'date' => $date_gmt,
 			'message' => $message,
 		);
 
