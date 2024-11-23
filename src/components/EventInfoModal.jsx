@@ -31,7 +31,7 @@ export function EventInfoModal( props ) {
 					'details_data',
 					'details_html',
 					'message_uninterpolated',
-					'date',
+					'date_local',
 					'date_gmt',
 					'message',
 					'context',
@@ -103,8 +103,12 @@ export function EventInfoModal( props ) {
 									<td>{ loadedEvent.loglevel }</td>
 								</tr>
 								<tr>
-									<td>date</td>
-									<td>{ loadedEvent.date }</td>
+									<td>date_local</td>
+									<td>{ loadedEvent.date_local }</td>
+								</tr>
+								<tr>
+									<td>date_gmt</td>
+									<td>{ loadedEvent.date_gmt }</td>
 								</tr>
 								<tr>
 									<td>message</td>

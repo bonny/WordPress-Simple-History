@@ -33,7 +33,7 @@ export function generateAPIQueryParams( props ) {
 		_fields: [
 			'id',
 			'logger',
-			'date',
+			'date_local',
 			'date_gmt',
 			'message',
 			'message_html',
