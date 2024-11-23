@@ -22,15 +22,13 @@ export function EventDate( props ) {
 	const wpTimezoneString = dateSettings.timezone.string;
 	const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	const eventDateTimeInGMTTimeZone = event.date_gmt + '+0000';
-
-	// Show date as "Sep 2, 2024 8:36 pm".
-	// If the event is today, show "Today instead".
-	// Today is determined by the date in GMT.
 	const eventDateYMD = date( 'Y-m-d', eventDateTimeInGMTTimeZone );
 	const eventIsToday = eventDateYMD === date( 'Y-m-d', undefined, 'GMT' );
 
 	let formattedDateFormatAbbreviated;
 
+	// Show date as "Sep 2, 2024 8:36 pm".
+	// If the event is today, show "Today H:i" instead.
 	if ( eventIsToday ) {
 		formattedDateFormatAbbreviated = sprintf(
 			// translators: %s is the time, like 8:36 pm.
