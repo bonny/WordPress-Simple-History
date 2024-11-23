@@ -1142,6 +1142,8 @@ class Helpers {
 			return true;
 		} elseif ( $current_screen && $current_screen->base == 'dashboard' && self::setting_show_on_dashboard() ) {
 			return true;
+		} elseif ( $current_screen && $current_screen->base == 'toplevel_page_simple_history_admin_page' ) {
+			return true;
 		}
 
 		return false;
