@@ -275,11 +275,12 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
+-   The time of each event is now shown in the user's local time zone, as reported by the web browser. This makes it easier to understand when an event happened for users in different time zones.
 -   Split the event date and time tooltip into two lines.
 -   Use correct date fields from API response in the GUI datetime tooltip.
 -   Include date_gmt in event context modal.
--   Date field in REST API response is not rename to date_local, to make it more clear that it's the website local date and time of the event.
--   Append website timezone to datetime tooltip.
+-   Date field in REST API response is now rename to date_local, to make it more clear that it's the website local date and time of the event.
+-   Show more information about the event date and time in the datetime tooltip.
 
 ### 5.2.0 (November 2024)
 
