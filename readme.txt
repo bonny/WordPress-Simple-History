@@ -275,6 +275,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
+-   New events are checked every 30 seconds instead of the previosly 5 seconds. This should make the plugin use less resources and be more gentle on the server.
 -   The time of each event is now shown in the user's local time zone, as reported by the web browser. This makes it easier to understand when an event happened for users in different time zones.
 -   Split the event date and time tooltip into two lines.
 -   Use correct date fields from API response in the GUI datetime tooltip.
