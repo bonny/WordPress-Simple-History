@@ -273,15 +273,16 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 [Then sponsor the plugin to keep it free](https://simple-history.com/sponsor/) or
 [add a 5-star review so other users know it's good](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5).
 
-### Unreleased
+### 5.3.0 (November 2024)
 
--   New events are checked every 30 seconds instead of the previosly 5 seconds. This should make the plugin use less resources and be more gentle on the server.
--   The time of each event is now shown in the user's local time zone, as reported by the web browser. This makes it easier to understand when an event happened for users in different time zones.
--   Split the event date and time tooltip into two lines.
--   Use correct date fields from API response in the GUI datetime tooltip.
--   Include date_gmt in event context modal.
--   Date field in REST API response is now rename to date_local, to make it more clear that it's the website local date and time of the event.
--   Show more information about the event date and time in the datetime tooltip.
+⏱️ This release includes a performance improvement and an enhancement that makes it easier for users in different time zones to understand when an event occurred.
+[Read the release post for more info](https://simple-history.com/2024/simple-history-5-3-0-released/).
+
+-   Changed the interval for checking new events from 5 seconds to 30 seconds. This reduces resource usage and is more server-friendly. [#489](https://github.com/bonny/WordPress-Simple-History/issues/489)
+-   Event times are now displayed in the user's local time zone, as reported by the web browser, making it easier to understand when an event occurred for users in different time zones. [#488](https://github.com/bonny/WordPress-Simple-History/issues/488)
+-   Enhanced the datetime tooltip to show more information about the event date and time, including accurate local and GMT values.
+-   Renamed the date field in the REST API response to `date_local` to clarify that it represents the website's local date and time of the event.
+-   Added the `date_gmt` field to the event context modal.
 
 ### 5.2.0 (November 2024)
 
