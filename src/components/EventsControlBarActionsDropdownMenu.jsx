@@ -138,9 +138,16 @@ export function EventsControlBarActionsDropdownMenu() {
 							handleOnClickPremiumFeature={
 								handleOnClickPremiumFeature
 							}
-							onClose={ onClose }
+							onCloseDropdownMenu={ onClose }
 						/>
-						<Slot name="SimpleHistorySlotEventsControlBarMenu" />
+
+						<Slot
+							name="SimpleHistorySlotEventsControlBarMenu"
+							fillProps={ {
+								onClose,
+								yo: 'lo',
+							} }
+						/>
 					</>
 				) }
 			</DropdownMenu>
