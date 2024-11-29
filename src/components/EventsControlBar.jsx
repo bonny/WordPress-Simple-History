@@ -35,7 +35,7 @@ const EventsControlBarSlotfillsFilter = withFilters( 'SimpleHistory.Settings' )(
  * @param {Object} props
  */
 export function EventsControlBar( props ) {
-	const { eventsIsLoading, eventsTotal } = props;
+	const { eventsIsLoading, eventsTotal, eventsQueryParams } = props;
 
 	const loadingIndicator = eventsIsLoading ? (
 		<Text>
@@ -76,8 +76,11 @@ export function EventsControlBar( props ) {
 							{ loadingIndicator }
 						</HStack>
 					</FlexItem>
+
 					<FlexItem>
-						<EventsControlBarActionsDropdownMenu />
+						<EventsControlBarActionsDropdownMenu
+							eventsQueryParams={ eventsQueryParams }
+						/>
 					</FlexItem>
 				</Flex>
 			</div>
