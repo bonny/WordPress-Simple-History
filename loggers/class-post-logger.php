@@ -4,7 +4,6 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
 
-
 /**
  * Logs changes to posts and pages, including custom post types.
  */
@@ -112,7 +111,38 @@ class Post_Logger extends Logger {
 
 			// Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API.".
 			add_filter( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
+
+			// Rest delete is fired "immediately after a single post is deleted or trashed via the REST API".
+			add_filter( "rest_delete_{$post_type->name}", array( $this, 'on_rest_delete' ), 10, 3 );
+
 		}
+	}
+
+	/**
+	 * Fired after a single post is deleted or trashed via the REST API.
+	 *
+	 * @param \WP_Post          $post     The deleted or trashed post.
+	 * @param \WP_REST_Response $response The response data.
+	 * @param \WP_REST_Request  $request  The request sent to the API.
+
+	 */
+	public function on_rest_delete( $post, $response, $request ) {
+		if ( ! $post instanceof \WP_Post ) {
+			return;
+		}
+
+		if ( ! $this->ok_to_log_post_posttype( $post ) ) {
+			return;
+		}
+
+		$this->info_message(
+			'post_trashed',
+			[
+				'post_id' => $post->ID,
+				'post_type' => $post->post_type,
+				'post_title' => $post->post_title,
+			]
+		);
 	}
 
 	/**

@@ -273,6 +273,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 [Then sponsor the plugin to keep it free](https://simple-history.com/sponsor/) or
 [add a 5-star review so other users know it's good](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5).
 
+### Unreleased
+
+-   Log when a post or page is moved to trash using the Gutenberg editor. [#491](https://github.com/bonny/WordPress-Simple-History/issues/491)
+
 ### 5.3.0 (November 2024)
 
 ⏱️ This release includes a performance improvement and an enhancement that makes it easier for users in different time zones to understand when an event occurred.
