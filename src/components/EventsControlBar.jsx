@@ -80,6 +80,7 @@ export function EventsControlBar( props ) {
 					<FlexItem>
 						<EventsControlBarActionsDropdownMenu
 							eventsQueryParams={ eventsQueryParams }
+							eventsTotal={ eventsTotal }
 						/>
 					</FlexItem>
 				</Flex>

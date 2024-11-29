@@ -12,7 +12,7 @@ import { PremiumFeaturesUnlockModal } from './PremiumFeaturesUnlockModal';
  * @param {Object} props
  */
 export function EventsControlBarActionsDropdownMenu( props ) {
-	const { eventsQueryParams } = props;
+	const { eventsQueryParams, eventsTotal } = props;
 
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ premiumFeatureDescription, setPremiumFeatureDescription ] =
@@ -67,9 +67,8 @@ export function EventsControlBarActionsDropdownMenu( props ) {
 							name="SimpleHistorySlotEventsControlBarMenu"
 							fillProps={ {
 								onClose,
-								yo: 'lo',
-								xxx: 'yyy',
 								eventsQueryParams,
+								eventsTotal,
 							} }
 						/>
 					</>
