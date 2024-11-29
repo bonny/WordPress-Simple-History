@@ -11,11 +11,16 @@ import {
 import { useState } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, unlock } from '@wordpress/icons';
+import {
+	moreVertical,
+	moreHorizontal,
+	moreHorizontalMobile,
+	unlock,
+} from '@wordpress/icons';
 import { PremiumFeatureSuffix } from './PremiumFeatureSuffix';
 
 function PremiumAddonsPromoMenuGroup( props ) {
-	const { handleOnClickPremiumFeature, onClose } = props;
+	const { handleOnClickPremiumFeature, onCloseDropdownMenu } = props;
 
 	const showPremiumAddonsMenuGroup = applyFilters(
 		'SimpleHistory.showPremiumAddonsMenuGroup',
@@ -27,14 +32,14 @@ function PremiumAddonsPromoMenuGroup( props ) {
 	}
 
 	const handleClickExport = () => {
-		onClose();
+		onCloseDropdownMenu();
 		handleOnClickPremiumFeature( {
 			featureDescription: 'Export as CSV',
 		} );
 	};
 
 	const handleClickAddEventManually = () => {
-		onClose();
+		onCloseDropdownMenu();
 		handleOnClickPremiumFeature( {
 			featureDescription: 'Add event manually',
 		} );
@@ -49,6 +54,7 @@ function PremiumAddonsPromoMenuGroup( props ) {
 			>
 				{ __( 'Export results…', 'simple-history' ) }
 			</MenuItem>
+
 			<MenuItem
 				onClick={ handleClickAddEventManually }
 				suffix={ <PremiumFeatureSuffix /> }
@@ -58,6 +64,53 @@ function PremiumAddonsPromoMenuGroup( props ) {
 		</MenuGroup>
 	);
 }
+
+/**
+ * Modal that is shown when you click on a premium feature.
+ *
+ * @param {Object} props
+ */
+const UnlockModal = ( props ) => {
+	const { premiumFeatureDescription, handleModalClose } = props;
+
+	const handleOpenPremiumLink = () => {
+		// Open URL in new tab.
+		window.open( 'https://simple-history.com/premium/?utm_source=wpadmin' );
+		handleModalClose();
+	};
+
+	return (
+		<Modal
+			icon={ <Icon icon={ unlock } /> }
+			title="Unlock premium feature"
+			onRequestClose={ handleModalClose }
+		>
+			{ premiumFeatureDescription }
+
+			<p>
+				This is a very nice premium feature that you can get by
+				upgrading to Simple History Premium.
+			</p>
+
+			<p>Features include:</p>
+			<ul>
+				<li>Export as CSV</li>
+				<li>Export as JSON</li>
+				<li>Custom log clear interval</li>
+			</ul>
+
+			<HStack spacing={ 3 }>
+				<Button variant="primary" onClick={ handleOpenPremiumLink }>
+					Upgrade to premium
+				</Button>
+
+				<Button variant="tertiary" onClick={ handleModalClose }>
+					Maybe later
+				</Button>
+			</HStack>
+		</Modal>
+	);
+};
 
 /**
  * Dropdown menu with information about the actions you can do with the events.
@@ -78,52 +131,24 @@ export function EventsControlBarActionsDropdownMenu() {
 		setIsModalOpen( false );
 	};
 
-	const handleOpenPremiumLink = () => {
-		// Open URL in new tab.
-		window.open( 'https://simple-history.com/premium/?utm_source=wpadmin' );
-		setIsModalOpen( false );
-	};
-
 	return (
 		<>
 			{ isModalOpen ? (
-				<Modal
-					icon={ <Icon icon={ unlock } /> }
-					title="Unlock premium feature"
-					onRequestClose={ handleModalClose }
-				>
-					{ premiumFeatureDescription }
-
-					<p>
-						This is a very nice premium feature that you can get by
-						upgrading to Simple History Premium.
-					</p>
-
-					<p>Features include:</p>
-					<ul>
-						<li>Export as CSV</li>
-						<li>Export as JSON</li>
-						<li>Custom log clear interval</li>
-					</ul>
-
-					<HStack spacing={ 3 }>
-						<Button
-							variant="primary"
-							onClick={ handleOpenPremiumLink }
-						>
-							Upgrade to premium
-						</Button>
-
-						<Button variant="tertiary" onClick={ handleModalClose }>
-							Maybe later
-						</Button>
-					</HStack>
-				</Modal>
+				<UnlockModal
+					premiumFeatureDescription={ premiumFeatureDescription }
+					handleModalClose={ handleModalClose }
+				/>
 			) : null }
 
 			<DropdownMenu
-				label={ __( 'Actions…', 'simple-history' ) }
-				icon={ moreVertical }
+				label={ __(
+					'Actions (Export & other tools)',
+					'simple-history'
+				) }
+				icon={ moreVertical } // or moreHorizontal or moreHorizontalMobile
+				toggleProps={ {
+					iconPosition: 'right',
+				} }
 				// text={ __( 'Actions', 'simple-history' ) }
 			>
 				{ ( { onClose } ) => (
