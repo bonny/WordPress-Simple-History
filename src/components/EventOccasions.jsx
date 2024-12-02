@@ -86,7 +86,7 @@ export function EventOccasions( props ) {
 			per_page: 5,
 			_fields: [
 				'id',
-				'date',
+				'date_local',
 				'date_gmt',
 				'message',
 				'message_html',

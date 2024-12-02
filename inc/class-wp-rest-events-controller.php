@@ -395,7 +395,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'type'        => 'string',
 					'enum'        => array( 'overview', 'occasions' ),
 				),
-				'date'         => array(
+				'date_local'         => array(
 					'description' => __( "The date the event was added, in the site's timezone.", 'simple-history' ),
 					'type'        => array( 'string', 'null' ),
 					'format'      => 'date-time',
@@ -680,12 +680,17 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['id'] = (int) $item->id;
 		}
 
-		if ( rest_is_field_included( 'date', $fields ) ) {
-			$data['date'] = mysql_to_rfc3339( $item->date );
+		// `date` column in database is the GTM date when the event was created.
+		// So on my local computer with timezone stockholm an event was added when my computer
+		// said "21 nov 2024 16:25" and the date in the
+		// database is "2024-11-21 15:24:00".
+		if ( rest_is_field_included( 'date_local', $fields ) ) {
+			// Given a date in UTC or GMT timezone, returns that date in the timezone of the site.
+			$data['date_local'] = get_date_from_gmt( $item->date );
 		}
 
 		if ( rest_is_field_included( 'date_gmt', $fields ) ) {
-			$data['date_gmt'] = mysql_to_rfc3339( get_date_from_gmt( mysql_to_rfc3339( $item->date ) ) );
+			$data['date_gmt'] = $item->date;
 		}
 
 		if ( rest_is_field_included( 'via', $fields ) ) {

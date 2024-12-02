@@ -4,7 +4,7 @@ Contributors: eskapism
 Donate link: https://www.paypal.me/eskapism
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.7
-Stable tag: 5.2.0
+Stable tag: 5.3.0
 
 Track changes and user activities on your WordPress site. See who created a page, uploaded an attachment, and more, for a complete audit trail.
 
@@ -276,8 +276,18 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 ### Unreleased
 
 -   Always show event item actions.
--   Split the event date and time tooltip into two lines.
--   Include date_gmt in event context modal.
+-   Log when a post or page is moved to trash using the Gutenberg editor. [#491](https://github.com/bonny/WordPress-Simple-History/issues/491)
+
+### 5.3.0 (November 2024)
+
+⏱️ This release includes a performance improvement and an enhancement that makes it easier for users in different time zones to understand when an event occurred.
+[Read the release post for more info](https://simple-history.com/2024/simple-history-5-3-0-released/).
+
+-   Changed the interval for checking new events from 5 seconds to 30 seconds. This reduces resource usage and is more server-friendly. [#489](https://github.com/bonny/WordPress-Simple-History/issues/489)
+-   Event times are now displayed in the user's local time zone, as reported by the web browser, making it easier to understand when an event occurred for users in different time zones. [#488](https://github.com/bonny/WordPress-Simple-History/issues/488)
+-   Enhanced the datetime tooltip to show more information about the event date and time, including accurate local and GMT values.
+-   Renamed the date field in the REST API response to `date_local` to clarify that it represents the website's local date and time of the event.
+-   Added the `date_gmt` field to the event context modal.
 
 ### 5.2.0 (November 2024)
 

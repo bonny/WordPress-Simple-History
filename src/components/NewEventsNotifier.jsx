@@ -6,6 +6,9 @@ import { update } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { clsx } from 'clsx';
 
+// How often to check for new events, in milliseconds.
+const UPDATE_CHECK_INTERVAL = 30000;
+
 function setDocumentTitle( newNum ) {
 	let title = document.title;
 
@@ -69,7 +72,7 @@ export function NewEventsNotifier( props ) {
 				console.error( 'Error when checking for new events:', error );
 			}
 			// TODO: should this be customizable with filter? and also be able to disable it?
-		}, 5000 );
+		}, UPDATE_CHECK_INTERVAL );
 
 		return () => {
 			clearInterval( intervalId );
