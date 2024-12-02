@@ -1134,7 +1134,7 @@ class User_Logger extends Logger {
 					'title' => _x( 'Website', 'User logger', 'simple-history' ),
 				),
 				'send_user_notification' => array(
-					'title' => _x( 'User notification email sent', 'User logger', 'simple-history' ),
+					'title' => _x( 'Send notification', 'User logger', 'simple-history' ),
 				),
 			);
 
@@ -1142,8 +1142,9 @@ class User_Logger extends Logger {
 				if ( isset( $context[ $key ] ) && trim( $context[ $key ] ) ) {
 					if ( 'send_user_notification' == $key ) {
 						if ( (int) $context[ $key ] == 1 ) {
+							// The checkbox for notification was checked.
 							$sent_status = _x(
-								'Yes, email with account details was sent',
+								'Checked',
 								'User logger',
 								'simple-history'
 							);
@@ -1157,7 +1158,7 @@ class User_Logger extends Logger {
                                     <td>%1$s</td>
                                     <td>%2$s</td>
                                 </tr>',
-								_x( 'Notification', 'User logger', 'simple-history' ),
+								$val['title'],
 								sprintf(
 									'<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>',
 									esc_html( $sent_status ) // 1
