@@ -277,6 +277,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 -   Always show event item actions.
 -   Log when a post or page is moved to trash using the Gutenberg editor. [#491](https://github.com/bonny/WordPress-Simple-History/issues/491)
+-   Change copy when creating user and sending password with email [#493](https://github.com/bonny/WordPress-Simple-History/issues/493)
 
 ### 5.3.0 (November 2024)
 
