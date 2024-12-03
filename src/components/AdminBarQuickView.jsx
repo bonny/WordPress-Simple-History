@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
+import RefreshImage from '../../css/icons/refresh_24dp_5F6368_FILL0_wght400_GRAD0_opsz48.svg';
 
 import './AdminBarQuickView.scss';
 
@@ -182,27 +183,35 @@ const AdminBarQuickView = () => {
 		setReloadTime( Date.now() );
 	};
 
+	const reloadButton = (
+		<button
+			className="SimpleHistory-adminBarEventsList-actions-reload"
+			onClick={ handleReloadButtonClick }
+			disabled={ isLoading }
+			icon={ RefreshImage }
+		>
+			<img src={ RefreshImage } alt="" />
+			{ __( 'Reload', 'simple-history' ) }
+		</button>
+	);
+
+	const settingsLink = (
+		<a href={ settingsURL }>{ __( 'Settings', 'simple-history' ) }</a>
+	);
+
 	return (
 		<li ref={ ref }>
 			<ul>
+				<div className="SimpleHistory-adminBarEventsList-actions">
+					{ reloadButton }
+				</div>
+
 				<EventsCompactList events={ events } isLoading={ isLoading } />
 
-				<footer className="SimpleHistory-adminBarEventsList-actions">
+				<div className="SimpleHistory-adminBarEventsList-actions">
 					{ viewFullHistoryLink }
-
-					<a href={ settingsURL }>
-						{ __( 'Settings', 'simple-history' ) }
-					</a>
-
-					<button
-						className="button button-small SimpleHistory-adminBarEventsList-actions-reload"
-						onClick={ handleReloadButtonClick }
-						disabled={ isLoading }
-					>
-						<span className="dashicons dashicons-update-alt"></span>
-						{ __( 'Reload', 'simple-history' ) }
-					</button>
-				</footer>
+					{ settingsLink }
+				</div>
 			</ul>
 		</li>
 	);
