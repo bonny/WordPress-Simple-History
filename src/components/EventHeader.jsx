@@ -9,7 +9,8 @@ import { EventVia } from './EventVia';
  * @param {Object} props
  */
 export function EventHeader( props ) {
-	const { event, eventVariant, hasExtendedSettingsAddOn } = props;
+	const { event, eventVariant, hasExtendedSettingsAddOn, hasPremiumAddOn } =
+		props;
 	const { mapsApiKey } = props;
 
 	return (
@@ -20,6 +21,7 @@ export function EventHeader( props ) {
 				event={ event }
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				hasPremiumAddOn={ hasPremiumAddOn }
 			/>
 			<EventVia event={ event } />
 		</div>

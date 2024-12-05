@@ -47,8 +47,7 @@ const keysAndValues = [
  * @param {Object} ipAddressProps
  */
 function IPAddressLink( ipAddressProps ) {
-	const { header, ipAddress, mapsApiKey, hasExtendedSettingsAddOn } =
-		ipAddressProps;
+	const { header, ipAddress, mapsApiKey, hasPremiumAddOn } = ipAddressProps;
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ isLoadingIpInfo, setIsLoadingIpInfo ] = useState( false );
 	const [ ipInfoResult, setIpInfoResult ] = useState();
@@ -147,7 +146,7 @@ function IPAddressLink( ipAddressProps ) {
 			</tr>
 		) : null;
 
-	const upsellText = hasExtendedSettingsAddOn ? null : (
+	const upsellText = hasPremiumAddOn ? null : (
 		<>
 			<div
 				style={ {
@@ -165,13 +164,13 @@ function IPAddressLink( ipAddressProps ) {
 				<Text>
 					{ createInterpolateElement(
 						__(
-							'See the location of the IP address on a map with the <a>Extended Settings</a> add-on.',
+							'See the location of the IP address on a map with <a>Simple History Premium</a> add-on.',
 							'simple-history'
 						),
 						{
 							a: (
 								<ExternalLink
-									href="https://simple-history.com/add-ons/extended-settings/?utm_source=plugin&utm_medium=link&utm_campaign=ipinfo#GoogleMaps"
+									href="https://simple-history.com/add-ons/premium/?utm_source=plugin&utm_medium=link&utm_campaign=ipinfo#GoogleMaps"
 									target="_blank"
 									rel="noopener noreferrer"
 								/>
@@ -311,7 +310,8 @@ function IPAddressLink( ipAddressProps ) {
  * @param {Object} props
  */
 export function EventIPAddresses( props ) {
-	const { event, mapsApiKey, hasExtendedSettingsAddOn } = props;
+	const { event, mapsApiKey, hasExtendedSettingsAddOn, hasPremiumAddOn } =
+		props;
 	const { ip_addresses: ipAddresses } = event;
 
 	if ( ! ipAddresses ) {
@@ -341,7 +341,7 @@ export function EventIPAddresses( props ) {
 					header={ header }
 					ipAddress={ ipAddress }
 					mapsApiKey={ mapsApiKey }
-					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+					hasPremiumAddOn={ hasPremiumAddOn }
 				/>{ ' ' }
 				{ /* Add comma to separate IP addresses, but not after the last one */ }
 				{ loopCount < ipAddressesCount - 1 ? ', ' : '' }

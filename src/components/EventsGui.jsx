@@ -32,6 +32,7 @@ function EventsGui() {
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
 	const [ hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn ] =
 		useState( false );
+	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
 	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
@@ -204,6 +205,7 @@ function EventsGui() {
 				setPagerSize={ setPagerSize }
 				setMapsApiKey={ setMapsApiKey }
 				setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
+				setHasPremiumAddOn={ setHasPremiumAddOn }
 				setIsExperimentalFeaturesEnabled={
 					setIsExperimentalFeaturesEnabled
 				}
@@ -238,6 +240,7 @@ function EventsGui() {
 				prevEventsMaxId={ prevEventsMaxId }
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				hasPremiumAddOn={ hasPremiumAddOn }
 			/>
 
 			<EventsModalIfFragment />

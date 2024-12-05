@@ -837,11 +837,23 @@ class Simple_History {
 			// Div with information about add-ons that can limit the number of login attempts stored.
 			// Only show for SimpleUserLogger and login failed events and if the add-on is not active.
 			$logger = $one_log_row->logger;
+
 			$is_simple_history_extended_settings_active = Helpers::is_plugin_active( 'simple-history-extended-settings/index.php' );
+			$is_simple_history_premium_active = Helpers::is_plugin_active( 'simple-history-extended-settings/index.php' );
+
 			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
 
 				if ( $is_simple_history_extended_settings_active ) {
 					// Show link to extended settings settings page if extended settings plugin is active.
+					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
+					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
+					$occasions_html .= '<a href="' . admin_url( 'options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts' ) . '">';
+					$occasions_html .= __( 'Configure failed login attempts', 'simple-history' );
+					$occasions_html .= '</a>';
+					$occasions_html .= '</p>';
+					$occasions_html .= '</div>';
+				} elseif ( $is_simple_history_premium_active ) {
+					// Show link to premium settings page if extended settings plugin is active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
 					$occasions_html .= '<a href="' . admin_url( 'options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts' ) . '">';

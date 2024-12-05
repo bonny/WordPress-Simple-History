@@ -8,6 +8,7 @@ import { EventOccasionsList } from './EventOccasionsList';
 /**
  * Displays some text for failed login attempts.
  * If the Extended Settings add-on is active, the text will be a link to the settings page.
+ * If the Premium add-on is active, the text will be a link to the settings page.
  * If the Extended Settings add-on is not active, the text will be a link to the add-on page.
  *
  * @param {Object} props

@@ -114,6 +114,7 @@ export function Event( props ) {
 		variant = 'normal',
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
+		hasPremiumAddOn,
 		isNewAfterFetchNewEvents,
 	} = props;
 
@@ -140,6 +141,7 @@ export function Event( props ) {
 					eventVariant={ variant }
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+					hasPremiumAddOn={ hasPremiumAddOn }
 				/>
 
 				<EventText event={ event } eventVariant={ variant } />
@@ -150,6 +152,7 @@ export function Event( props ) {
 					event={ event }
 					eventVariant={ variant }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+					hasPremiumAddOn={ hasPremiumAddOn }
 				/>
 
 				<EventActions event={ event } eventVariant={ variant } />

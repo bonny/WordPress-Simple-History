@@ -85,7 +85,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				/*
 				<ul>
 					<li>
-						<strong><?php esc_html_e( 'Extended Settings:', 'simple-history' ); ?></strong>
+						<strong><?php esc_html_e( 'Premium:', 'simple-history' ); ?></strong>
 						<?php esc_html_e( 'Control number of days to keep the log, limit number of login attempts logged, store full IP-addresses, and a bonus JSON feed!', 'simple-history' ); ?>
 					</li>
 

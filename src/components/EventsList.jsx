@@ -19,6 +19,7 @@ export function EventsList( props ) {
 		prevEventsMaxId,
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
+		hasPremiumAddOn,
 	} = props;
 	const totalPages = eventsMeta.totalPages;
 
@@ -45,6 +46,7 @@ export function EventsList( props ) {
 						event={ event }
 						mapsApiKey={ mapsApiKey }
 						hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+						hasPremiumAddOn={ hasPremiumAddOn }
 						isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
 					/>
 				) ) }
