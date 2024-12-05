@@ -310,8 +310,7 @@ function IPAddressLink( ipAddressProps ) {
  * @param {Object} props
  */
 export function EventIPAddresses( props ) {
-	const { event, mapsApiKey, hasExtendedSettingsAddOn, hasPremiumAddOn } =
-		props;
+	const { event, mapsApiKey, hasPremiumAddOn } = props;
 	const { ip_addresses: ipAddresses } = event;
 
 	if ( ! ipAddresses ) {

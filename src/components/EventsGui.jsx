@@ -1,5 +1,4 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Fill, SlotFillProvider } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
