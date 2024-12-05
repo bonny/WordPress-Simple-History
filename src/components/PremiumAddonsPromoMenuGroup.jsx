@@ -45,7 +45,7 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 				suffix={ <PremiumFeatureSuffix /> }
 				info={ __( 'CSV and JSON supported', 'simple-history' ) }
 			>
-				{ __( '📤 Export results…', 'simple-history' ) }
+				{ __( 'Export results…', 'simple-history' ) }
 			</MenuItem>
 
 			<MenuItem
@@ -56,7 +56,7 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 					'simple-history'
 				) }
 			>
-				{ __( '📣 Add event manually', 'simple-history' ) }
+				{ __( 'Add event manually', 'simple-history' ) }
 			</MenuItem>
 		</MenuGroup>
 	);
