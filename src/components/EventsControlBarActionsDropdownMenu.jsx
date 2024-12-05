@@ -50,11 +50,11 @@ export function EventsControlBarActionsDropdownMenu( props ) {
 			>
 				{ ( { onClose } ) => (
 					<>
-						<MenuGroup>
+						{ /* <MenuGroup>
 							<MenuItem onClick={ onClose }>
 								Copy link to search
 							</MenuItem>
-						</MenuGroup>
+						</MenuGroup> */ }
 
 						<PremiumAddonsPromoMenuGroup
 							handleOnClickPremiumFeature={
