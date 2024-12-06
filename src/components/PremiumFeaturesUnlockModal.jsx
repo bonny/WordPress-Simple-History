@@ -49,7 +49,6 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 		'<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#78A75A"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>';
 
 	const liStyles = {
-		listStyle: 'none',
 		backgroundImage: `url(${ CheckboxImage })`,
 		backgroundSize: '1.5rem',
 		lineHeight: '1.5rem',
@@ -88,7 +87,6 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 					listStyleType: 'none',
 				} }
 			>
-				<li style={ liStyles }>Hide premium upgrade banners image:</li>
 				<li style={ liStyles }>Export as CSV and JSON</li>
 				<li style={ liStyles }>
 					Option to set number of days to keep the log
@@ -103,6 +101,8 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 					Show a map of where a failed login attempt happened
 				</li>
 				<li style={ liStyles }>Control what messages to log</li>
+				<li style={ liStyles }>Remove premium upgrade banners</li>
+				<li style={ liStyles }>Remove review and donate banners</li>
 			</ul>
 
 			<Spacer margin={ 10 } />
