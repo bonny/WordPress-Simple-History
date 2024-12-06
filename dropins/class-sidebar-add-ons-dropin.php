@@ -28,7 +28,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
-		$woocommerce_logger_url = 'https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin';
+		$woocommerce_logger_url = 'https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin&utm_content=wc-logger-sidebar';
 
 		?>
 		<div class="postbox">
@@ -103,7 +103,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				?>
 
 				<p>
-					<a href="https://simple-history.com/add-ons/?utm_source=wpadmin" class="sh-ExternalLink" target="_blank">
+					<a href="https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=addons-sidebar" class="sh-ExternalLink" target="_blank">
 						<?php esc_html_e( 'View add-ons.', 'simple-history' ); ?>
 					</a>
 				</p>

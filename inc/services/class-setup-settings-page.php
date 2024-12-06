@@ -351,7 +351,7 @@ class Setup_Settings_Page extends Service {
 			$message = sprintf(
 				/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
 				__( 'The number of days can be changed using a filter or with an add-on. <a href="%1$s" target="_blank" class="sh-ExternalLink">More info.</a>', 'simple-history' ),
-				esc_url( 'https://simple-history.com/support/change-number-of-days-to-keep-log/?utm_source=wpadmin' )
+				esc_url( 'https://simple-history.com/support/change-number-of-days-to-keep-log/?utm_source=wpadmin&utm_content=purge-interval' )
 			);
 
 			echo '<p>' . wp_kses(
