@@ -7,11 +7,12 @@ import {
 	__experimentalSpacer as Spacer,
 } from '@wordpress/components';
 import { SVG } from '@wordpress/primitives';
-import { unlock } from '@wordpress/icons';
-import RefreshImage from '../../css/icons/refresh_24dp_5F6368_FILL0_wght400_GRAD0_opsz48.svg';
+import CheckboxImage from '../../css/icons/check_circle_24dp_3F9349_FILL0_wght400_GRAD0_opsz24.svg';
+import { lineDashed } from '@wordpress/icons';
 
 // Icon = Workspace Premium
 // https://fonts.google.com/icons?selected=Material+Symbols+Outlined:workspace_premium:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=medal&icon.size=24&icon.color=%235f6368
+// workspace_premium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg
 const modalIcon = (
 	<SVG
 		xmlns="http://www.w3.org/2000/svg"
@@ -44,6 +45,19 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 		handleModalClose();
 	};
 
+	const svgTxt =
+		'<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#78A75A"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>';
+
+	const liStyles = {
+		listStyle: 'none',
+		backgroundImage: `url(${ CheckboxImage })`,
+		backgroundSize: '1.5rem',
+		lineHeight: '1.5rem',
+		backgroundRepeat: 'no-repeat',
+		backgroundPosition: 'center left',
+		paddingLeft: '30px',
+	};
+
 	return (
 		<Modal
 			icon={ <Icon icon={ modalIcon } /> }
@@ -71,16 +85,24 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 			<ul
 				style={ {
 					listStyle: 'disc',
-					marginLeft: '1.5rem',
+					listStyleType: 'none',
 				} }
 			>
-				<li>Hide premium upgrade banners</li>
-				<li>Export as CSV and JSON</li>
-				<li>Option to set number of days to keep the log</li>
-				<li>Limit number of failed login attempts that are logged</li>
-				<li>Control how to store IP Addresses (anonymized or not)</li>
-				<li>Show a map of where a failed login attempt happened</li>
-				<li>Control what messages to log</li>
+				<li style={ liStyles }>Hide premium upgrade banners image:</li>
+				<li style={ liStyles }>Export as CSV and JSON</li>
+				<li style={ liStyles }>
+					Option to set number of days to keep the log
+				</li>
+				<li style={ liStyles }>
+					Limit number of failed login attempts that are logged
+				</li>
+				<li style={ liStyles }>
+					Control how to store IP Addresses (anonymized or not)
+				</li>
+				<li style={ liStyles }>
+					Show a map of where a failed login attempt happened
+				</li>
+				<li style={ liStyles }>Control what messages to log</li>
 			</ul>
 
 			<Spacer margin={ 10 } />

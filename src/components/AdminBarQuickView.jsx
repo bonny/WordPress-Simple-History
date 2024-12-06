@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
-
+import RefreshImage from '../../css/icons/refresh_24dp_5F6368_FILL0_wght400_GRAD0_opsz48.svg';
 import './AdminBarQuickView.scss';
 
 const EventsCompactListLoadingSkeleton = () => {

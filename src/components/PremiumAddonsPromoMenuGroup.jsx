@@ -37,8 +37,7 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 							padding: '1rem 2rem',
 						} }
 					>
-						<strong>Export results</strong> as CSV is a premium
-						feature.
+						<strong>Export results</strong> is a premium feature.
 					</p>
 
 					<p>
