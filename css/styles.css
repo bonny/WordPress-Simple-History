@@ -1048,6 +1048,34 @@ so add some extra place then to make it look a bit less ugly.
 	margin-left: 0.1em;
 }
 
+.sh-PremiumFeatureBadge {
+	display: inline-flex;
+	align-items: center;
+	color: darkgreen;
+	font-size: 0.8em;
+	font-weight: normal;
+	font-style: normal;
+	border: 1px solid darkgreen;
+	border-radius: 4px;
+	padding: 0.25em 0.5em;
+	opacity: 0.75;
+	line-height: 1;
+	margin: 0px 0px 0px 1em;
+}
+
+.sh-PremiumFeaturesPostbox-featuresList {
+	list-style: none;
+	margin: 0;
+}
+.sh-PremiumFeaturesPostbox-featuresList-item {
+	background-image: url(./icons/check_circle_24dp_3F9349_FILL0_wght400_GRAD0_opsz24.svg);
+	background-size: 1.5rem;
+	line-height: 1.5rem;
+	background-repeat: no-repeat;
+	background-position: center left;
+	padding-left: 30px;
+}
+
 .sh-Page-content {
 	margin: 0 1rem;
 }

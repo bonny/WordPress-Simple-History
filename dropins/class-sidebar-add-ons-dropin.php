@@ -2,6 +2,8 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Helpers;
+
 /**
  * Dropin that displays information about add-ons in the sidebar.
  */
@@ -10,8 +12,53 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Add actions when dropin is loaded.
 	 */
 	public function loaded() {
+		// add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_general_message' ], 5 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce' ], 5 );
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html' ], 5 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo' ], 5 );
+	}
+
+	/**
+	 * Output HTML if premium add-on is not installed.
+	 */
+	public function on_sidebar_html_premium_promo() {
+		// Don't show if addon is already installed.
+		if ( Helpers::is_plugin_active( 'simple-history-premium/index.php' ) ) {
+			return;
+		}
+
+		$premium_url = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=premium-sidebar';
+
+		?>
+		<div class="postbox sh-PremiumFeaturesPostbox">
+
+			<h3 class="hndle">
+				<?php esc_html_e( 'Get more out of Simple History', 'simple-history' ); ?>
+				<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
+			</h3>
+
+			<div class="inside">
+
+				<p>Get Simple History Premium and unlock these features:</p>
+
+				<ul class="sh-PremiumFeaturesPostbox-featuresList">
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Export search results as CSV and JSON</li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Option to set number of days to keep the log</li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Limit number of failed login attempts that are logged</li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Control how to store IP Addresses (anonymized or not)</li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Show a map of where a failed login attempt happened</li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Control what messages to log</li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Remove premium upgrade banners</li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Remove review and donate banners</li>
+				</ul>
+				
+					<p>
+					<a href="<?php echo esc_url( $premium_url ); ?>" class="sh-ExternalLink" target="_blank">
+						<?php esc_html_e( 'View Premium add-on.', 'simple-history' ); ?>
+					</a>
+				</p>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -19,12 +66,12 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public function on_sidebar_html_woocommerce() {
 		// Only show if WooCommerce is active.
-		if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+		if ( ! Helpers::is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 			return;
 		}
 
 		// Don't show if addon is already installed.
-		if ( is_plugin_active( 'simple-history-woocommerce/index.php' ) ) {
+		if ( Helpers::is_plugin_active( 'simple-history-woocommerce/index.php' ) ) {
 			return;
 		}
 
@@ -67,7 +114,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	/**
 	 * Output HTML for a general add-ons box in the sidebar.
 	 */
-	public function on_sidebar_html() {
+	public function on_sidebar_html_general_message() {
 		?>
 		<div class="postbox">
 
