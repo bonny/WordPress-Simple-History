@@ -17,10 +17,12 @@ export function EventsControlBarActionsDropdownMenu( props ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ premiumFeatureDescription, setPremiumFeatureDescription ] =
 		useState( '' );
+	const [ premiumFeatureTitle, setPremiumFeatureTitle ] = useState( '' );
 
 	const handleOnClickPremiumFeature = ( localProps ) => {
-		const { featureDescription = '' } = localProps;
+		const { featureDescription = '', featureTitle = '' } = localProps;
 		setIsModalOpen( true );
+		setPremiumFeatureTitle( featureTitle );
 		setPremiumFeatureDescription( featureDescription );
 	};
 
@@ -32,6 +34,7 @@ export function EventsControlBarActionsDropdownMenu( props ) {
 		<>
 			{ isModalOpen ? (
 				<PremiumFeaturesUnlockModal
+					premiumFeatureModalTitle={ premiumFeatureTitle }
 					premiumFeatureDescription={ premiumFeatureDescription }
 					handleModalClose={ handleModalClose }
 				/>

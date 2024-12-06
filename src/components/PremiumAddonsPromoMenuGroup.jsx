@@ -27,14 +27,34 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 	const handleClickExport = () => {
 		onCloseDropdownMenu();
 		handleOnClickPremiumFeature( {
-			featureDescription: 'Export filtered events as CSV',
+			featureTitle: 'Export results',
+			featureDescription: (
+				<>
+					<p
+						style={ {
+							backgroundColor: 'rgb(251 246 126)',
+							fontSize: '1.1rem',
+							padding: '1rem 2rem',
+						} }
+					>
+						<strong>Export results</strong> as CSV is a premium
+						feature.
+					</p>
+
+					<p>
+						The export function supports CSV and JSON and gives you
+						a downloaded file of the current search result.
+					</p>
+				</>
+			),
 		} );
 	};
 
 	const handleClickAddEventManually = () => {
 		onCloseDropdownMenu();
 		handleOnClickPremiumFeature( {
-			featureDescription: 'Add event manually!',
+			featureTitle: 'Add event manually',
+			featureDescription: 'Add event manually is a premium feature!',
 		} );
 	};
 
