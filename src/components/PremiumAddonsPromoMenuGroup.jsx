@@ -53,7 +53,26 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		onCloseDropdownMenu();
 		handleOnClickPremiumFeature( {
 			featureTitle: 'Add event manually',
-			featureDescription: 'Add event manually is a premium feature!',
+			// 'Add event manually is a premium feature!',
+			featureDescription: (
+				<>
+					<p
+						style={ {
+							backgroundColor: 'rgb(251 246 126)',
+							fontSize: '1.1rem',
+							padding: '1rem 2rem',
+						} }
+					>
+						<strong>Add event manually</strong> is a premium
+						feature.
+					</p>
+
+					<p>
+						This feature allows you to broadcast messages to log
+						viewers.
+					</p>
+				</>
+			),
 		} );
 	};
 
