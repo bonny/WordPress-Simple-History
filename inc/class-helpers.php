@@ -1546,4 +1546,30 @@ class Helpers {
 	public static function get_plugin_install_date() {
 		return get_option( 'simple_history_install_date_gmt' );
 	}
+
+	/**
+	 * Escape a string to be used in a CSV context, by adding an apostrophe if field
+	 * begins with '=', '+', '-', or '@'.
+	 *
+	 * Function taken from the Jetpack Plugin, Copyright Automattic.
+	 *
+	 * @see https://www.drupal.org/project/webform/issues/3157877#:~:text=At%20present%2C%20the%20best%20defence%20strategy%20we%20are%20aware%20of%20is%20prefixing%20cells%20that%20start%20with%20%E2%80%98%3D%E2%80%99%20%2C%20%27%2B%27%20or%20%27%2D%27%20with%20an%20apostrophe.
+	 * @see https://github.com/Automattic/jetpack/blob/d4068d52c35a30edc01b9356a4764132aeb532fd/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L1854
+	 * @param string $field - the CSV field.
+	 * @return string CSV field with escaped characters.
+	 */
+	public static function esc_csv_field( $field ) {
+		// Bail if not string.
+		if ( ! is_string( $field ) ) {
+			return '';
+		}
+
+		$active_content_triggers = array( '=', '+', '-', '@' );
+
+		if ( in_array( substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
+			$field = "'" . $field;
+		}
+
+		return $field;
+	}
 }
