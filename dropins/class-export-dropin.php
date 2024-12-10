@@ -243,78 +243,23 @@ class Export {
 				set_time_limit( 30 );
 
 				if ( 'csv' == $export_format ) {
-					$header_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
-					$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
-
-					$message_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
-
-					$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
-					$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
-
-					// User roles, at time of export.
-					$user = get_user_by( 'email', $user_email );
-					$user_roles = $user->roles ?? array();
-					$user_roles_comma_separated = implode( ', ', $user_roles );
-
-					// Date local time.
-					$date_local = wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
-
-					fputcsv(
-						$fp,
-						array(
-							Helpers::esc_csv_field( $one_row->date ),
-							Helpers::esc_csv_field( $date_local ),
-							Helpers::esc_csv_field( $one_row->logger ),
-							Helpers::esc_csv_field( $one_row->level ),
-							Helpers::esc_csv_field( $one_row->initiator ),
-							Helpers::esc_csv_field( $one_row->context_message_key ),
-							Helpers::esc_csv_field( $user_email ),
-							Helpers::esc_csv_field( $user_login ),
-							Helpers::esc_csv_field( $user_roles_comma_separated ),
-							Helpers::esc_csv_field( $header_output ),
-							Helpers::esc_csv_field( $message_output ),
-							// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-							Helpers::esc_csv_field( $one_row->subsequentOccasions ),
-						)
-					);
+					$this->output_csv_row( $fp, $one_row );
 				} elseif ( 'json' == $export_format ) {
-					// If not first loop then add a comma between all json objects.
-					if ( $row_loop == 0 ) {
-						$comma = "\n";
-					} else {
-						$comma = ",\n";
-					}
-
-					$json_row = $comma . Helpers::json_encode( $one_row );
-					fwrite( $fp, $json_row );
+					$this->output_json_row( $fp, $one_row, $row_loop );
 				} elseif ( 'html' == $export_format ) {
-					$html = sprintf(
-						'
-						<li>
-							<div>%1$s</div>
-							<div>%2$s</div>
-							<div>%3$s</div>
-						</li>
-						',
-						$this->simple_history->get_log_row_header_output( $one_row ),
-						$this->simple_history->get_log_row_plain_text_output( $one_row ),
-						$this->simple_history->get_log_row_details_output( $one_row )
-					);
-
-					fwrite( $fp, $html );
-				}// End if().
+					$this->output_html_row( $fp, $one_row );
+				}
 
 				$row_loop++;
-			}// End foreach().
+			}
 
 			flush();
 
-			// Fetch next page
-			// @TODO: must take into consideration that new items can be added while we do the fetch.
+			// Fetch next page.
 			$page_current++;
 			$query_args['paged'] = $page_current;
 			$query_result = $query->query( $query_args );
-		} // End while().
+		}
 
 		if ( 'json' == $export_format ) {
 			$json_row = ']';
@@ -330,6 +275,82 @@ class Export {
 		exit;
 	}
 
+	/**
+	 * Output a CSV row.
+	 *
+	 * @param resource $fp File pointer.
+	 * @param object   $one_row Log row.
+	 */
+	protected function output_csv_row( $fp, $one_row ) {
+		$header_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+		$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
+
+		$message_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+
+		$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
+		$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
+
+		$user = get_user_by( 'email', $user_email );
+		$user_roles = $user->roles ?? array();
+		$user_roles_comma_separated = implode( ', ', $user_roles );
+
+		$date_local = wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
+
+		fputcsv(
+			$fp,
+			array(
+				Helpers::esc_csv_field( $one_row->date ),
+				Helpers::esc_csv_field( $date_local ),
+				Helpers::esc_csv_field( $one_row->logger ),
+				Helpers::esc_csv_field( $one_row->level ),
+				Helpers::esc_csv_field( $one_row->initiator ),
+				Helpers::esc_csv_field( $one_row->context_message_key ),
+				Helpers::esc_csv_field( $user_email ),
+				Helpers::esc_csv_field( $user_login ),
+				Helpers::esc_csv_field( $user_roles_comma_separated ),
+				Helpers::esc_csv_field( $header_output ),
+				Helpers::esc_csv_field( $message_output ),
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				Helpers::esc_csv_field( $one_row->subsequentOccasions ),
+			)
+		);
+	}
+
+	/**
+	 * Output a JSON row.
+	 *
+	 * @param resource $fp File pointer.
+	 * @param object   $one_row Log row.
+	 * @param int      $row_loop Row loop counter.
+	 */
+	protected function output_json_row( $fp, $one_row, $row_loop ) {
+		$comma = $row_loop == 0 ? "\n" : ",\n";
+		$json_row = $comma . Helpers::json_encode( $one_row );
+		fwrite( $fp, $json_row );
+	}
+
+	/**
+	 * Output an HTML row.
+	 *
+	 * @param resource $fp File pointer.
+	 * @param object   $one_row Log row.
+	 */
+	protected function output_html_row( $fp, $one_row ) {
+		$html = sprintf(
+			'
+			<li>
+				<div>%1$s</div>
+				<div>%2$s</div>
+				<div>%3$s</div>
+			</li>
+			',
+			$this->simple_history->get_log_row_header_output( $one_row ),
+			$this->simple_history->get_log_row_plain_text_output( $one_row ),
+			$this->simple_history->get_log_row_details_output( $one_row )
+		);
+
+		fwrite( $fp, $html );
+	}
 
 	/**
 	 * Save export to local file.
