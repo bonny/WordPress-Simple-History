@@ -3,6 +3,7 @@ namespace Simple_History\Dropins;
 
 use Simple_History\Log_Query;
 use Simple_History\Helpers;
+use Simple_History\Simple_History;
 
 /**
  * Dropin Name: Export
@@ -25,167 +26,35 @@ class Export_Dropin extends Dropin {
 			)
 		);
 
-		add_action( 'init', array( $this, 'downloadExport' ) );
+		add_action( 'init', array( $this, 'download_export' ) );
 	}
 
 	/**
 	 * Download export file.
 	 */
-	public function downloadExport() {
-		if ( isset( $_POST['simple-history-action'] ) && $_POST['simple-history-action'] === 'export-history' ) {
-			// Will die if nonce not valid.
-			check_admin_referer( self::class . '-action-export' );
+	public function download_export() {
+		$action = sanitize_key( wp_unslash( $_POST['simple-history-action'] ?? '' ) );
 
-			$export_format = sanitize_text_field( wp_unslash( $_POST['format'] ?? 'json' ) );
+		// Bail if not export action.
+		if ( $action !== 'export-history' ) {
+			return;
+		}
 
-			// Disable relative time output in header.
-			add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
-			add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
+		// Will die if nonce not valid.
+		check_admin_referer( self::class . '-action-export' );
 
-			// Don't use "You" if event is initiated by the same user that does the export.
-			add_filter( 'simple_history/header_initiator_use_you', '__return_false' );
+		$export_format = sanitize_text_field( wp_unslash( $_POST['format'] ?? 'json' ) );
 
-			$query = new Log_Query();
-
-			$query_args = array(
+		$export = new Export();
+		$export->set_query_args(
+			[
 				'paged' => 1,
+				// 3000 is batch size.
 				'posts_per_page' => 3000,
-			);
-
-			$events = $query->query( $query_args );
-
-			// $events->total_row_count;
-			$pages_count = $events['pages_count'];
-			$page_current = $events['page_current'];
-
-			$fp = fopen( 'php://output', 'w' );
-
-			$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
-
-			if ( 'csv' == $export_format ) {
-				$filename = 'simple-history-export-' . time() . '.csv';
-				header( 'Content-Type: text/plain' );
-				header( sprintf( $attachment_header_template, $filename ) );
-			} elseif ( 'json' == $export_format ) {
-				$filename = 'simple-history-export-' . time() . '.json';
-				header( 'Content-Type: application/json' );
-				header( sprintf( $attachment_header_template, $filename ) );
-			} elseif ( 'html' == $export_format ) {
-				$filename = 'simple-history-export-' . time() . '.html';
-				header( 'Content-Type: text/html' );
-			}
-
-			// Some formats need to output some stuff before the actual loops.
-			if ( 'json' == $export_format ) {
-				$json_row = '[';
-				fwrite( $fp, $json_row );
-			} elseif ( 'html' == $export_format ) {
-				$html = sprintf(
-					'
-				<!doctype html>
-				<meta charset="utf-8">
-				<title>Simple History export</title>
-				<ul>
-				'
-				);
-				fwrite( $fp, $html );
-			}
-
-			// Paginate through all pages and all their rows.
-			$row_loop = 0;
-			while ( $page_current <= $pages_count + 1 ) {
-
-				foreach ( $events['log_rows'] as $one_row ) {
-
-					set_time_limit( 30 );
-
-					if ( 'csv' == $export_format ) {
-						$header_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
-						$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
-
-						$message_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
-
-						$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
-						$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
-
-						// User roles, at time of export.
-						$user = get_user_by( 'email', $user_email );
-						$user_roles = $user->roles ?? array();
-						$user_roles_comma_separated = implode( ', ', $user_roles );
-
-						// Date local time.
-						$date_local = wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
-
-						fputcsv(
-							$fp,
-							array(
-								Helpers::esc_csv_field( $one_row->date ),
-								Helpers::esc_csv_field( $date_local ),
-								Helpers::esc_csv_field( $one_row->logger ),
-								Helpers::esc_csv_field( $one_row->level ),
-								Helpers::esc_csv_field( $one_row->initiator ),
-								Helpers::esc_csv_field( $one_row->context_message_key ),
-								Helpers::esc_csv_field( $user_email ),
-								Helpers::esc_csv_field( $user_login ),
-								Helpers::esc_csv_field( $user_roles_comma_separated ),
-								Helpers::esc_csv_field( $header_output ),
-								Helpers::esc_csv_field( $message_output ),
-								// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-								Helpers::esc_csv_field( $one_row->subsequentOccasions ),
-							)
-						);
-					} elseif ( 'json' == $export_format ) {
-						// If not first loop then add a comma between all json objects.
-						if ( $row_loop == 0 ) {
-							$comma = "\n";
-						} else {
-							$comma = ",\n";
-						}
-
-						$json_row = $comma . Helpers::json_encode( $one_row );
-						fwrite( $fp, $json_row );
-					} elseif ( 'html' == $export_format ) {
-						$html = sprintf(
-							'
-							<li>
-								<div>%1$s</div>
-								<div>%2$s</div>
-								<div>%3$s</div>
-							</li>
-							',
-							$this->simple_history->get_log_row_header_output( $one_row ),
-							$this->simple_history->get_log_row_plain_text_output( $one_row ),
-							$this->simple_history->get_log_row_details_output( $one_row )
-						);
-
-						fwrite( $fp, $html );
-					}// End if().
-
-					$row_loop++;
-				}// End foreach().
-
-				flush();
-
-				// Fetch next page
-				// @TODO: must take into consideration that new items can be added while we do the fetch.
-				$page_current++;
-				$query_args['paged'] = $page_current;
-				$events = $query->query( $query_args );
-			}// End while().
-
-			if ( 'json' == $export_format ) {
-				$json_row = ']';
-				fwrite( $fp, $json_row );
-			} elseif ( 'html' == $export_format ) {
-				$html = sprintf( '</ul>' );
-				fwrite( $fp, $html );
-			}
-
-			fclose( $fp );
-			flush();
-
-			exit;
-		}// End if().
+			]
+		);
+		$export->set_download_format( $export_format );
+		$export->download();
 	}
 
 	/**
@@ -251,5 +120,219 @@ class Export_Dropin extends Dropin {
 		</div>
 
 		<?php
+	}
+}
+
+/**
+ * Class to contain logic for exporting events.
+ */
+class Export {
+	/** @var array $query_args Query arguments. Will be passed to log query class. */
+	protected $query_args = [];
+
+	/** @var string $format Export format. "json", "csv", or "html".  */
+	protected $format = 'json';
+
+	/** @var Simple_History $simple_history Simple History instance. */
+	protected $simple_history;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		$this->simple_history = Simple_History::get_instance();
+	}
+
+	/**
+	 * Set the query arguments.
+	 *
+	 * @param array $args Query arguments.
+	 * @return self Chainable method.
+	 */
+	public function set_query_args( $args ) {
+		$this->query_args = $args;
+
+		return $this;
+	}
+
+	/**
+	 * Set the export format.
+	 *
+	 * @param string $format Export format. "csv", "json", or "html.
+	 * @return self Chainable method.
+	 */
+	public function set_download_format( $format ) {
+		$this->format = $format;
+
+		return $this;
+	}
+
+	/**
+	 * Add hooks that modify the output of the events.
+	 */
+	protected function add_hooks() {
+		// Disable relative time output in header.
+		add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
+		add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
+
+		// Don't use "You" if event is initiated by the same user that does the export.
+		add_filter( 'simple_history/header_initiator_use_you', '__return_false' );
+	}
+
+	/**
+	 * Download events that match query args.
+	 *
+	 * Events are fetched in batches, with each batch being output to the export file.
+	 *
+	 * The export file is output to the browser and then the script exits.
+	 *
+	 * @return never
+	 */
+	public function download() {
+		$this->add_hooks();
+
+		$export_format = $this->format;
+
+		$query = new Log_Query();
+		$query_result = $query->query( $this->query_args );
+
+		$pages_count = $query_result['pages_count'];
+		$page_current = $query_result['page_current'];
+
+		$fp = fopen( 'php://output', 'w' );
+
+		$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
+
+		if ( 'csv' == $export_format ) {
+			$filename = 'simple-history-export-' . time() . '.csv';
+			header( 'Content-Type: text/plain' );
+			header( sprintf( $attachment_header_template, $filename ) );
+		} elseif ( 'json' == $export_format ) {
+			$filename = 'simple-history-export-' . time() . '.json';
+			header( 'Content-Type: application/json' );
+			header( sprintf( $attachment_header_template, $filename ) );
+		} elseif ( 'html' == $export_format ) {
+			$filename = 'simple-history-export-' . time() . '.html';
+			header( 'Content-Type: text/html' );
+			header( sprintf( $attachment_header_template, $filename ) );
+		}
+
+		// Some formats need to output some stuff before the actual loops.
+		if ( 'json' == $export_format ) {
+			$json_row = '[';
+			fwrite( $fp, $json_row );
+		} elseif ( 'html' == $export_format ) {
+			$html = sprintf(
+				'
+			<!doctype html>
+			<meta charset="utf-8">
+			<title>Simple History export</title>
+			<ul>
+			'
+			);
+			fwrite( $fp, $html );
+		}
+
+		// Paginate through all pages and all their rows.
+		$row_loop = 0;
+		while ( $page_current <= $pages_count + 1 ) {
+
+			foreach ( $query_result['log_rows'] as $one_row ) {
+
+				set_time_limit( 30 );
+
+				if ( 'csv' == $export_format ) {
+					$header_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+					$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
+
+					$message_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+
+					$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
+					$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
+
+					// User roles, at time of export.
+					$user = get_user_by( 'email', $user_email );
+					$user_roles = $user->roles ?? array();
+					$user_roles_comma_separated = implode( ', ', $user_roles );
+
+					// Date local time.
+					$date_local = wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
+
+					fputcsv(
+						$fp,
+						array(
+							Helpers::esc_csv_field( $one_row->date ),
+							Helpers::esc_csv_field( $date_local ),
+							Helpers::esc_csv_field( $one_row->logger ),
+							Helpers::esc_csv_field( $one_row->level ),
+							Helpers::esc_csv_field( $one_row->initiator ),
+							Helpers::esc_csv_field( $one_row->context_message_key ),
+							Helpers::esc_csv_field( $user_email ),
+							Helpers::esc_csv_field( $user_login ),
+							Helpers::esc_csv_field( $user_roles_comma_separated ),
+							Helpers::esc_csv_field( $header_output ),
+							Helpers::esc_csv_field( $message_output ),
+							// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							Helpers::esc_csv_field( $one_row->subsequentOccasions ),
+						)
+					);
+				} elseif ( 'json' == $export_format ) {
+					// If not first loop then add a comma between all json objects.
+					if ( $row_loop == 0 ) {
+						$comma = "\n";
+					} else {
+						$comma = ",\n";
+					}
+
+					$json_row = $comma . Helpers::json_encode( $one_row );
+					fwrite( $fp, $json_row );
+				} elseif ( 'html' == $export_format ) {
+					$html = sprintf(
+						'
+						<li>
+							<div>%1$s</div>
+							<div>%2$s</div>
+							<div>%3$s</div>
+						</li>
+						',
+						$this->simple_history->get_log_row_header_output( $one_row ),
+						$this->simple_history->get_log_row_plain_text_output( $one_row ),
+						$this->simple_history->get_log_row_details_output( $one_row )
+					);
+
+					fwrite( $fp, $html );
+				}// End if().
+
+				$row_loop++;
+			}// End foreach().
+
+			flush();
+
+			// Fetch next page
+			// @TODO: must take into consideration that new items can be added while we do the fetch.
+			$page_current++;
+			$query_args['paged'] = $page_current;
+			$query_result = $query->query( $query_args );
+		} // End while().
+
+		if ( 'json' == $export_format ) {
+			$json_row = ']';
+			fwrite( $fp, $json_row );
+		} elseif ( 'html' == $export_format ) {
+			$html = sprintf( '</ul>' );
+			fwrite( $fp, $html );
+		}
+
+		fclose( $fp );
+		flush();
+
+		exit;
+	}
+
+
+	/**
+	 * Save export to local file.
+	 */
+	public function save() {
 	}
 }
