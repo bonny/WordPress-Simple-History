@@ -26,7 +26,6 @@ class Export_Dropin extends Dropin {
 			)
 		);
 
-		// Change this to only fire on the export page.
 		add_action( 'load-settings_page_simple_history_settings_menu_slug', array( $this, 'download_export' ) );
 	}
 
