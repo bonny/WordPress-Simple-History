@@ -279,6 +279,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Log when a post or page is moved to trash using the Gutenberg editor. [#491](https://github.com/bonny/WordPress-Simple-History/issues/491)
 -   Change copy when creating user and sending password with email [#493](https://github.com/bonny/WordPress-Simple-History/issues/493)
 -   Quick view: move up reload button to above event list.
+-   Add HTML to export formats. Exporting to HTML will give you an unstyled HTML file that you can open in a web browser and view the contents.
 
 ### 5.3.0 (November 2024)
 

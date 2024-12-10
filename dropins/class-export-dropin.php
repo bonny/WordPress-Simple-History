@@ -229,6 +229,13 @@ class Export_Dropin extends Dropin {
 				</p>
 
 				<p>
+					<label>
+						<input type="radio" name="format" value="html">
+						<?php echo esc_html_x( 'HTML', 'Export dropin: export format', 'simple-history' ); ?>
+					</label>
+				</p>
+
+				<p>
 					<button type="submit" class="button button-primary">
 						<?php echo esc_html_x( 'Download Export File', 'Export dropin: submit button', 'simple-history' ); ?>
 					</button>
