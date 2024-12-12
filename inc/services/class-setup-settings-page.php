@@ -347,29 +347,22 @@ class Setup_Settings_Page extends Service {
 				esc_html( $clear_days )
 			);
 			echo '<br>';
-
-			$message = sprintf(
-				/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
-				__( 'The number of days can be changed using a filter or with an add-on. <a href="%1$s" target="_blank" class="sh-ExternalLink">More info.</a>', 'simple-history' ),
-				esc_url( 'https://simple-history.com/support/change-number-of-days-to-keep-log/?utm_source=wpadmin&utm_content=purge-interval' )
-			);
-
-			echo '<p>' . wp_kses(
-				$message,
-				[
-					'a' => [
-						'href' => [],
-						'target' => [],
-						'class' => [],
-					],
-				]
-			) . '</p>';
-
 		} else {
 			esc_html_e( 'Items in the database are kept forever.', 'simple-history' );
 		}
 
 		echo '</p>';
+
+		// View premium upsell if premium is not active.
+		if ( ! Helpers::is_plugin_active( 'simple-history-premium/index.php' ) ) {
+			?>
+			<p>
+				<a href="https://simple-history.com/premium/?utm_source=wpadmin&utm_content=purge-interval" target="_blank" class="sh-ExternalLink">
+					<?php esc_html_e( 'Upgrade to Simple History Premium to set this to any number of days.', 'simple-history' ); ?>
+				</a>
+			</p>
+			<?php
+		}
 
 		printf(
 			'<p><a class="button js-SimpleHistory-Settings-ClearLog" href="%2$s">%1$s</a></p>',
