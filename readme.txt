@@ -280,6 +280,15 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Change copy when creating user and sending password with email [#493](https://github.com/bonny/WordPress-Simple-History/issues/493)
 -   Quick view: move up reload button to above event list.
 -   Add HTML to export formats. Exporting to HTML will give you an unstyled HTML file that you can open in a web browser and view the contents.
+-   WP-CLI commands moved from dropin folder and namespace to services folder and namespace.
+
+✨ New WP-CLI commands for interacting with the events log.
+
+-   `wp simple-history db stats` to get stats.
+-   `wp simple-history db clear` to clear the events database.
+-   `wp simple-history event list` to list events (this is the same as the previous `wp simple-history list` command).
+-   `wp simple-history event get` to get details about a single event.
+-   `wp simple-history event search` to search events.
 
 ### 5.3.0 (November 2024)
 

@@ -134,6 +134,7 @@ class Simple_History {
 			Services\Licences_Settings_Page::class,
 			Services\Plugin_List_Info::class,
 			Services\REST_API::class,
+			Services\WP_CLI_Commands::class,
 		];
 	}
 
@@ -433,7 +434,6 @@ class Simple_History {
 			Dropins\Settings_Debug_Tab_Dropin::class,
 			Dropins\Sidebar_Stats_Dropin::class,
 			Dropins\Sidebar_Dropin::class,
-			Dropins\WP_CLI_Dropin::class,
 			Dropins\Event_Details_Dev_Dropin::class,
 			Dropins\Quick_Stats::class,
 			Dropins\Sidebar_Add_Ons_Dropin::class,
