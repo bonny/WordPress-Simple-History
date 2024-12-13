@@ -269,9 +269,11 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ## Changelog
 
-✨ Do you use Simple History a lot?
-[Then sponsor the plugin to keep it free](https://simple-history.com/sponsor/) or
-[add a 5-star review so other users know it's good](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5).
+✨ If you find Simple History useful ✨
+
+-   [Sponsor the plugin to keep it free.](https://simple-history.com/sponsor/)
+-   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
+-   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme').
 
 ### Unreleased
 
@@ -284,11 +286,11 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ✨ New WP-CLI commands for interacting with the events log.
 
--   `wp simple-history db stats` to get stats.
--   `wp simple-history db clear` to clear the events database.
 -   `wp simple-history event list` to list events (this is the same as the previous `wp simple-history list` command).
 -   `wp simple-history event get` to get details about a single event.
 -   `wp simple-history event search` to search events.
+-   `wp simple-history db stats` to get stats.
+-   `wp simple-history db clear` to clear the events database.
 
 ### 5.3.0 (November 2024)
 
