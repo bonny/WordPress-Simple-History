@@ -37,23 +37,21 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			</h3>
 
 			<div class="inside">
-
-				<p>Get Simple History Premium and unlock these features:</p>
+				<p><?php echo esc_html__( 'Get Simple History Premium and unlock these features:', 'simple-history' ); ?></p>
 
 				<ul class="sh-PremiumFeaturesPostbox-featuresList">
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Export search results as CSV and JSON</li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Option to set number of days to keep the log</li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Limit number of failed login attempts that are logged</li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Control how to store IP Addresses (anonymized or not)</li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Show a map of where a failed login attempt happened</li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Control what messages to log</li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Remove premium upgrade banners</li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item">Remove review and donate banners</li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Export search results as CSV and JSON', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Option to set number of days to keep the log', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Limit number of failed login attempts that are logged', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Control how to store IP Addresses (anonymized or not)', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Show a map of where a failed login attempt happened', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Control what messages to log', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Remove banners (like this one!)', 'simple-history' ); ?></li>
 				</ul>
-				
-					<p>
+
+				<p>
 					<a href="<?php echo esc_url( $premium_url ); ?>" class="sh-ExternalLink" target="_blank">
-						<?php esc_html_e( 'View Premium add-on.', 'simple-history' ); ?>
+						<?php esc_html_e( 'Learn about Premium', 'simple-history' ); ?>
 					</a>
 				</p>
 			</div>
