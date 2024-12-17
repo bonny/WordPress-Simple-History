@@ -218,9 +218,7 @@ function EventsGui() {
 				isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
 				eventsIsLoading={ eventsIsLoading }
 				eventsTotal={ eventsMeta.total }
-				eventsMaxId={ eventsMaxId }
 				eventsQueryParams={ eventsQueryParams }
-				onReload={ handleReload }
 			/>
 
 			<NewEventsNotifier
