@@ -12,8 +12,9 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Add actions when dropin is loaded.
 	 */
 	public function loaded() {
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce' ], 5 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce_promo' ], 5 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo' ], 5 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_debug_and_monitor_promo' ], 5 );
 	}
 
 	/**
@@ -61,7 +62,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	/**
 	 * Output HTML if WooCommerce plugin is installed and active.
 	 */
-	public function on_sidebar_html_woocommerce() {
+	public function on_sidebar_html_woocommerce_promo() {
 		// Only show if WooCommerce is active.
 		if ( ! Helpers::is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 			return;
@@ -90,7 +91,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 						class="" 
 						src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>assets/images/woocommerce-logger-product-edit.png" 
 						alt=""
-						style="max-width: 100%;height: auto;"
+						style="max-width: 100%; height: auto;"
 					/>
 				</a>
 
@@ -101,6 +102,47 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				<p>
 					<a href="<?php echo esc_url( $woocommerce_logger_url ); ?>" class="sh-ExternalLink" target="_blank">
 						<?php esc_html_e( 'View WooCommerce add-on.', 'simple-history' ); ?>
+					</a>
+				</p>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output HTML with promo about Debug and Monitor add-on.
+	 */
+	public function on_sidebar_html_debug_and_monitor_promo() {
+		// Don't show if addon is already installed.
+		if ( Helpers::is_plugin_active( 'simple-history-debug-and-monitor/index.php' ) ) {
+			// return;
+		}
+
+		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wpadmin&utm_content=debug-monitor-sidebar';
+
+		?>
+		<div class="postbox">
+
+			<h3 class="hndle">
+				<?php esc_html_e( 'Debug & Monitor', 'simple-history' ); ?>
+				<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Add-on', 'simple-history' ); ?></em>
+			</h3>
+
+			<div class="inside">
+				<p><?php esc_html_e( 'Keep track of important WordPress activities with the Debug & Monitor add-on:', 'simple-history' ); ?></p>
+		
+				<ul class="sh-PremiumFeaturesPostbox-featuresList">
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Email sending', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'HTTP API requests', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'REST API activity', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'WP cron jobs', 'simple-history' ); ?></li>
+				</ul>
+
+				<p><?php esc_html_e( "Great for developers who need to debug issues and for site owners who want to understand what's happening behind the scenes.", 'simple-history' ); ?></p>
+
+				<p>
+					<a href="<?php echo esc_url( $debug_and_monitor_url ); ?>" class="sh-ExternalLink" target="_blank">
+						<?php esc_html_e( 'Learn more about Debug & Monitor', 'simple-history' ); ?>
 					</a>
 				</p>
 			</div>
