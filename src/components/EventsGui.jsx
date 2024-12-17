@@ -1,6 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
+import { Notice } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	SEARCH_FILTER_DEFAULT_END_DATE,
@@ -13,8 +15,48 @@ import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
+function FetchEventsErrorMessage( props ) {
+	const { eventsLoadingHasErrors, eventsLoadingErrorDetails, onReload } =
+		props;
+
+	if ( ! eventsLoadingHasErrors ) {
+		return null;
+	}
+
+	return (
+		<Notice
+			status="warning"
+			isDismissible={ false }
+			actions={ [
+				{
+					label: __( 'Try again', 'simple-history' ),
+					onClick: () => {
+						onReload();
+					},
+				},
+			] }
+		>
+			<p>
+				{ __(
+					'Error loading events. Please try again later.',
+					'simple-history'
+				) }
+			</p>
+			<p>{ __( 'Details:', 'simple-history' ) }</p>
+			<pre>{ JSON.stringify( eventsLoadingErrorDetails, null, 2 ) }</pre>
+		</Notice>
+	);
+}
+
 function EventsGui() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
+	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
+		useState( false );
+	const [ eventsLoadingErrorDetails, setEventsLoadingErrorDetails ] =
+		useState( {
+			errorCode: undefined,
+			errorMessage: undefined,
+		} );
 	const [ events, setEvents ] = useState( [] );
 	const [ eventsMeta, setEventsMeta ] = useState( {} );
 	const [ eventsReloadTime, setEventsReloadTime ] = useState( Date.now() );
@@ -100,6 +142,8 @@ function EventsGui() {
 	 * Load events from the REST API.
 	 * A new function is created each time the eventsQueryParams changes,
 	 * so that's whats making the reload of events.
+	 *
+	 * TODO: Move this to a hook.
 	 */
 	const loadEvents = useCallback( async () => {
 		setEventsIsLoading( true );
@@ -110,7 +154,6 @@ function EventsGui() {
 					'/simple-history/v1/events',
 					eventsQueryParams
 				),
-				// Skip parsing to be able to retrieve headers.
 				parse: false,
 			} );
 
@@ -135,8 +178,29 @@ function EventsGui() {
 
 			setEvents( eventsJson );
 		} catch ( error ) {
-			// eslint-disable-next-line no-console
 			console.error( 'Error loading events:', error );
+
+			setEventsLoadingHasErrors( true );
+
+			const errorDetails = {
+				code: error.status, // Example number "500".
+				statusText: error.statusText, // Example "Internal Server Error".
+				bodyJson: null,
+				bodyText: null,
+			};
+
+			const contentType = error.headers.get( 'Content-Type' );
+			if ( contentType && contentType.includes( 'application/json' ) ) {
+				const errorJson = await error.json();
+				console.error( 'Error response JSON:', errorJson );
+				errorDetails.bodyJson = errorJson;
+			} else {
+				const errorText = await error.text();
+				console.error( 'Error response text:', errorText );
+				errorDetails.bodyText = errorText;
+			}
+
+			setEventsLoadingErrorDetails( errorDetails );
 		} finally {
 			setEventsIsLoading( false );
 		}
@@ -225,6 +289,14 @@ function EventsGui() {
 				eventsQueryParams={ eventsQueryParams }
 				eventsMaxId={ eventsMaxId }
 				onReload={ handleReload }
+			/>
+
+			<FetchEventsErrorMessage
+				eventsQueryParams={ eventsQueryParams }
+				eventsMaxId={ eventsMaxId }
+				onReload={ handleReload }
+				eventsLoadingHasErrors={ eventsLoadingHasErrors }
+				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>
 
 			<EventsList
