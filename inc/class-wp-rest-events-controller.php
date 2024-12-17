@@ -574,6 +574,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	public function get_items( $request ) {
 		$events = [];
 
+		// Debug: return error.
+		// return new WP_Error( 'simple_history_error', 'Something went wrong 🤷', array( 'status' => 500 ) );
+
 		// Retrieve the list of registered collection query parameters.
 		$registered = $this->get_collection_params();
 		$args       = [];
