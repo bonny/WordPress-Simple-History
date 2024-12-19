@@ -1,8 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Notice, __experimentalText as Text } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	SEARCH_FILTER_DEFAULT_END_DATE,
@@ -13,77 +11,9 @@ import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
+import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
+import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 import { NewEventsNotifier } from './NewEventsNotifier';
-
-function FetchEventsNoResultsMessage( props ) {
-	const { eventsIsLoading, events, eventsMeta, page } = props;
-
-	// Bail if loading.
-	if ( eventsIsLoading ) {
-		return null;
-	}
-
-	// Bail if there are events.
-	if ( events.length && events.length > 0 ) {
-		return null;
-	}
-
-	return (
-		<div
-			style={ {
-				margin: '1rem',
-			} }
-		>
-			<Notice status="warning" isDismissible={ false }>
-				<Text as="p">
-					{ __(
-						'Your search did not match any history events.',
-						'simple-history'
-					) }
-				</Text>
-			</Notice>
-		</div>
-	);
-}
-
-function FetchEventsErrorMessage( props ) {
-	const { eventsLoadingHasErrors, eventsLoadingErrorDetails } = props;
-
-	if ( ! eventsLoadingHasErrors ) {
-		return null;
-	}
-
-	return (
-		<div
-			style={ {
-				margin: '1rem',
-			} }
-		>
-			<Notice status="warning" isDismissible={ false }>
-				<Text>
-					{ __(
-						'There was an error loading the events. Please try again later.',
-						'simple-history'
-					) }
-				</Text>
-
-				<details>
-					<summary
-						style={ {
-							marginTop: '.5rem',
-						} }
-					>
-						{ __( 'View error details', 'simple-history' ) }
-					</summary>
-
-					<pre>
-						{ JSON.stringify( eventsLoadingErrorDetails, null, 2 ) }
-					</pre>
-				</details>
-			</Notice>
-		</div>
-	);
-}
 
 function EventsGui() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
@@ -312,14 +242,9 @@ function EventsGui() {
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
 				events={ events }
-				eventsMeta={ eventsMeta }
-				page={ page }
 			/>
 
 			<FetchEventsErrorMessage
-				eventsQueryParams={ eventsQueryParams }
-				eventsMaxId={ eventsMaxId }
-				onReload={ handleReload }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>
