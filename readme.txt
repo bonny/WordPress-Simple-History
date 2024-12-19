@@ -284,6 +284,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Add HTML to export formats. Exporting to HTML will give you an unstyled HTML file that you can open in a web browser and view the contents.
 -   WP-CLI commands moved from dropin folder and namespace to services folder and namespace.
 -   Admin Bar Quick View enabled by default.
+-   Show error message when log could not be loaded. Any error message from server will be displayed. This hopefully makes it easier to understand why the log is not loading and can assist in troubleshooting.
 
 ✨ New WP-CLI commands for interacting with the events log.
 

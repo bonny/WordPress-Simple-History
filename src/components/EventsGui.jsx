@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Notice } from '@wordpress/components';
+import { Notice, __experimentalText as Text } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,35 +16,41 @@ import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
 function FetchEventsErrorMessage( props ) {
-	const { eventsLoadingHasErrors, eventsLoadingErrorDetails, onReload } =
-		props;
+	const { eventsLoadingHasErrors, eventsLoadingErrorDetails } = props;
 
 	if ( ! eventsLoadingHasErrors ) {
 		return null;
 	}
 
 	return (
-		<Notice
-			status="warning"
-			isDismissible={ false }
-			actions={ [
-				{
-					label: __( 'Try again', 'simple-history' ),
-					onClick: () => {
-						onReload();
-					},
-				},
-			] }
+		<div
+			style={ {
+				margin: '1rem',
+			} }
 		>
-			<p>
-				{ __(
-					'Error loading events. Please try again later.',
-					'simple-history'
-				) }
-			</p>
-			<p>{ __( 'Details:', 'simple-history' ) }</p>
-			<pre>{ JSON.stringify( eventsLoadingErrorDetails, null, 2 ) }</pre>
-		</Notice>
+			<Notice status="warning" isDismissible={ false }>
+				<Text>
+					{ __(
+						'There was an error loading the events. Please try again later.',
+						'simple-history'
+					) }
+				</Text>
+
+				<details>
+					<summary
+						style={ {
+							marginTop: '.5rem',
+						} }
+					>
+						{ __( 'View error details', 'simple-history' ) }
+					</summary>
+
+					<pre>
+						{ JSON.stringify( eventsLoadingErrorDetails, null, 2 ) }
+					</pre>
+				</details>
+			</Notice>
+		</div>
 	);
 }
 
@@ -278,6 +284,14 @@ function EventsGui() {
 				onReload={ handleReload }
 			/>
 
+			<FetchEventsErrorMessage
+				eventsQueryParams={ eventsQueryParams }
+				eventsMaxId={ eventsMaxId }
+				onReload={ handleReload }
+				eventsLoadingHasErrors={ eventsLoadingHasErrors }
+				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+			/>
+
 			<EventsControlBar
 				isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
 				eventsIsLoading={ eventsIsLoading }
@@ -289,14 +303,6 @@ function EventsGui() {
 				eventsQueryParams={ eventsQueryParams }
 				eventsMaxId={ eventsMaxId }
 				onReload={ handleReload }
-			/>
-
-			<FetchEventsErrorMessage
-				eventsQueryParams={ eventsQueryParams }
-				eventsMaxId={ eventsMaxId }
-				onReload={ handleReload }
-				eventsLoadingHasErrors={ eventsLoadingHasErrors }
-				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>
 
 			<EventsList
