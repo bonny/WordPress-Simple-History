@@ -15,6 +15,37 @@ import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
+function FetchEventsNoResultsMessage( props ) {
+	const { eventsIsLoading, events, eventsMeta, page } = props;
+
+	// Bail if loading.
+	if ( eventsIsLoading ) {
+		return null;
+	}
+
+	// Bail if there are events.
+	if ( events.length && events.length > 0 ) {
+		return null;
+	}
+
+	return (
+		<div
+			style={ {
+				margin: '1rem',
+			} }
+		>
+			<Notice status="warning" isDismissible={ false }>
+				<Text as="p">
+					{ __(
+						'Your search did not match any history events.',
+						'simple-history'
+					) }
+				</Text>
+			</Notice>
+		</div>
+	);
+}
+
 function FetchEventsErrorMessage( props ) {
 	const { eventsLoadingHasErrors, eventsLoadingErrorDetails } = props;
 
@@ -184,8 +215,6 @@ function EventsGui() {
 
 			setEvents( eventsJson );
 		} catch ( error ) {
-			console.error( 'Error loading events:', error );
-
 			setEventsLoadingHasErrors( true );
 
 			const errorDetails = {
@@ -197,13 +226,9 @@ function EventsGui() {
 
 			const contentType = error.headers.get( 'Content-Type' );
 			if ( contentType && contentType.includes( 'application/json' ) ) {
-				const errorJson = await error.json();
-				console.error( 'Error response JSON:', errorJson );
-				errorDetails.bodyJson = errorJson;
+				errorDetails.bodyJson = await error.json();
 			} else {
-				const errorText = await error.text();
-				console.error( 'Error response text:', errorText );
-				errorDetails.bodyText = errorText;
+				errorDetails.bodyText = await error.text();
 			}
 
 			setEventsLoadingErrorDetails( errorDetails );
@@ -282,6 +307,13 @@ function EventsGui() {
 				setEventsAdminPageURL={ setEventsAdminPageURL }
 				setPage={ setPage }
 				onReload={ handleReload }
+			/>
+
+			<FetchEventsNoResultsMessage
+				eventsIsLoading={ eventsIsLoading }
+				events={ events }
+				eventsMeta={ eventsMeta }
+				page={ page }
 			/>
 
 			<FetchEventsErrorMessage
