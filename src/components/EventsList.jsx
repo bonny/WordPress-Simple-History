@@ -27,11 +27,6 @@ export function EventsList( props ) {
 	} = props;
 	const totalPages = eventsMeta.totalPages;
 
-	const ulClasses = clsx( {
-		SimpleHistoryLogitems: true,
-		'is-loading': eventsIsLoading,
-	} );
-
 	return (
 		<div
 			style={ {
@@ -52,18 +47,14 @@ export function EventsList( props ) {
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>
 
-			<ul className={ ulClasses }>
-				{ events.map( ( event ) => (
-					<Event
-						key={ event.id }
-						event={ event }
-						mapsApiKey={ mapsApiKey }
-						hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-						hasPremiumAddOn={ hasPremiumAddOn }
-						isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
-					/>
-				) ) }
-			</ul>
+			<EventsListItemsList
+				eventsIsLoading={ eventsIsLoading }
+				events={ events }
+				prevEventsMaxId={ prevEventsMaxId }
+				mapsApiKey={ mapsApiKey }
+				hasPremiumAddOn={ hasPremiumAddOn }
+				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+			/>
 
 			<Spacer margin={ 4 } />
 
@@ -75,5 +66,41 @@ export function EventsList( props ) {
 
 			<Spacer paddingBottom={ 4 } />
 		</div>
+	);
+}
+
+function EventsListItemsList( props ) {
+	const {
+		events,
+		prevEventsMaxId,
+		mapsApiKey,
+		hasExtendedSettingsAddOn,
+		hasPremiumAddOn,
+		eventsIsLoading,
+	} = props;
+
+	// Bail if no events.
+	if ( ! events || events.length === 0 ) {
+		return null;
+	}
+
+	const ulClasses = clsx( {
+		SimpleHistoryLogitems: true,
+		'is-loading': eventsIsLoading,
+	} );
+
+	return (
+		<ul className={ ulClasses }>
+			{ events.map( ( event ) => (
+				<Event
+					key={ event.id }
+					event={ event }
+					mapsApiKey={ mapsApiKey }
+					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+					hasPremiumAddOn={ hasPremiumAddOn }
+					isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
+				/>
+			) ) }
+		</ul>
 	);
 }
