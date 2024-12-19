@@ -37,7 +37,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			</h3>
 
 			<div class="inside">
-				<p><?php echo esc_html__( 'Get Simple History Premium and unlock these features:', 'simple-history' ); ?></p>
+				<p><?php echo esc_html__( 'Unlock more features with Simple History Premium:', 'simple-history' ); ?></p>
 
 				<ul class="sh-PremiumFeaturesPostbox-featuresList">
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Export search results as CSV and JSON', 'simple-history' ); ?></li>
@@ -129,7 +129,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			</h3>
 
 			<div class="inside">
-				<p><?php esc_html_e( 'Keep track of important WordPress activities with the Debug & Monitor add-on:', 'simple-history' ); ?></p>
+				<p><?php esc_html_e( 'Keep track of WordPress activities with the Debug & Monitor add-on:', 'simple-history' ); ?></p>
 		
 				<ul class="sh-PremiumFeaturesPostbox-featuresList">
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Email sending', 'simple-history' ); ?></li>

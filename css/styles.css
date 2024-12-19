@@ -1063,6 +1063,10 @@ so add some extra place then to make it look a bit less ugly.
 	margin: 0px 0px 0px 1em;
 }
 
+.sh-PremiumFeaturesPostbox {
+	text-wrap-style: pretty;
+}
+
 .sh-PremiumFeaturesPostbox-featuresList {
 	list-style: none;
 	margin: 0;
@@ -1071,7 +1075,6 @@ so add some extra place then to make it look a bit less ugly.
 	margin-top: 0.5rem;
 	padding-left: 30px;
 	line-height: 1.2rem;
-	text-wrap-style: pretty;
 	background-image: url(./icons/check_circle_24dp_3F9349_FILL0_wght400_GRAD0_opsz24.svg);
 	background-size: 1.1rem;
 	background-repeat: no-repeat;
