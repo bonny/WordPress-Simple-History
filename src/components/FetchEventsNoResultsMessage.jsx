@@ -27,6 +27,13 @@ export function FetchEventsNoResultsMessage( props ) {
 						'simple-history'
 					) }
 				</Text>
+
+				<Text as="p">
+					{ __(
+						'Try different search options or clear the search.',
+						'simple-history'
+					) }
+				</Text>
 			</Notice>
 		</div>
 	);

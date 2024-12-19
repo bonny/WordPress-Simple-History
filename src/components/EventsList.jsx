@@ -3,6 +3,8 @@ import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import { Event } from './Event';
 import { EventsPagination } from './EventsPagination';
+import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
+import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 
 /**
  * Renders a list of events.
@@ -20,6 +22,8 @@ export function EventsList( props ) {
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		eventsLoadingHasErrors,
+		eventsLoadingErrorDetails,
 	} = props;
 	const totalPages = eventsMeta.totalPages;
 
@@ -29,15 +33,24 @@ export function EventsList( props ) {
 	} );
 
 	return (
-		<div style={ { backgroundColor: 'white', minHeight: '300px' } }>
-			{ eventsIsLoading === false && events.length === 0 && (
-				<p style={ { padding: '1rem' } }>
-					{ __(
-						'Your search did not match any history events.',
-						'simple-history'
-					) }
-				</p>
-			) }
+		<div
+			style={ {
+				backgroundColor: 'white',
+				minHeight: '300px',
+				display: 'flex',
+				flexDirection: 'column',
+				marginTop: '1rem',
+			} }
+		>
+			<FetchEventsNoResultsMessage
+				eventsIsLoading={ eventsIsLoading }
+				events={ events }
+			/>
+
+			<FetchEventsErrorMessage
+				eventsLoadingHasErrors={ eventsLoadingHasErrors }
+				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+			/>
 
 			<ul className={ ulClasses }>
 				{ events.map( ( event ) => (

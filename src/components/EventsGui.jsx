@@ -11,8 +11,6 @@ import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
-import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
-import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
 function EventsGui() {
@@ -239,16 +237,6 @@ function EventsGui() {
 				onReload={ handleReload }
 			/>
 
-			<FetchEventsNoResultsMessage
-				eventsIsLoading={ eventsIsLoading }
-				events={ events }
-			/>
-
-			<FetchEventsErrorMessage
-				eventsLoadingHasErrors={ eventsLoadingHasErrors }
-				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-			/>
-
 			<EventsControlBar
 				isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
 				eventsIsLoading={ eventsIsLoading }
@@ -273,6 +261,8 @@ function EventsGui() {
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				hasPremiumAddOn={ hasPremiumAddOn }
+				eventsLoadingHasErrors={ eventsLoadingHasErrors }
+				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>
 
 			<EventsModalIfFragment />
