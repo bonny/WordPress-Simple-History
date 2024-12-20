@@ -34,7 +34,6 @@ export function EventsList( props ) {
 				minHeight: '300px',
 				display: 'flex',
 				flexDirection: 'column',
-				marginTop: '1rem',
 			} }
 		>
 			<FetchEventsNoResultsMessage
