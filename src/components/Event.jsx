@@ -1,7 +1,8 @@
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { info, link, moreVertical } from '@wordpress/icons';
+import { info, link, moreHorizontalMobile } from '@wordpress/icons';
 import { clsx } from 'clsx';
 import { navigateToEventPermalink } from '../functions';
 import { EventDetails } from './EventDetails';
@@ -9,7 +10,6 @@ import { EventHeader } from './EventHeader';
 import { EventInitiatorImage } from './EventInitiator';
 import { EventOccasions } from './EventOccasions';
 import { EventText } from './EventText';
-import { useState } from '@wordpress/element';
 
 function CopyLinkMenuItem( { event } ) {
 	const permalink = event.permalink;
@@ -62,7 +62,7 @@ function EventActions( props ) {
 		<div className="SimpleHistoryLogitem__actions">
 			<DropdownMenu
 				label={ __( 'Actions…', 'simple-history' ) }
-				icon={ moreVertical }
+				icon={ moreHorizontalMobile }
 				popoverProps={ {
 					placement: 'left-start',
 					inline: true,

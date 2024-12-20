@@ -1,7 +1,7 @@
-import { DropdownMenu, MenuGroup, MenuItem, Slot } from '@wordpress/components';
+import { DropdownMenu, Slot } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { moreVertical } from '@wordpress/icons';
+import { moreHorizontalMobile } from '@wordpress/icons';
 import { PremiumAddonsPromoMenuGroup } from './PremiumAddonsPromoMenuGroup';
 import { PremiumFeaturesUnlockModal } from './PremiumFeaturesUnlockModal';
 
@@ -45,7 +45,7 @@ export function EventsControlBarActionsDropdownMenu( props ) {
 					'Actions (Export & other tools)',
 					'simple-history'
 				) }
-				icon={ moreVertical } // or moreHorizontal or moreHorizontalMobile
+				icon={ moreHorizontalMobile } // or moreHorizontal or moreHorizontalMobile
 				toggleProps={ {
 					iconPosition: 'right',
 				} }
