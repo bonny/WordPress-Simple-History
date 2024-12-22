@@ -7,6 +7,73 @@ import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 
 /**
+ * Random function from https://stackoverflow.com/a/7228322
+ *
+ * @param {number} min
+ * @param {number} max
+ * @returns {number} Random number between min and max.
+ */
+function randomIntFromInterval( min, max ) {
+	return Math.floor( Math.random() * ( max - min + 1 ) + min );
+}
+
+function SkeletonEventsItem( props ) {
+	const { index } = props;
+
+	const isOdd = index % 2 === 0;
+
+	const headerStyles = {
+		backgroundColor: 'var(--sh-color-gray-4)',
+		width: randomIntFromInterval( 40, 50 ) + '%',
+		height: '1rem',
+	};
+
+	const textStyles = {
+		backgroundColor: 'var(--sh-color-gray-4)',
+		width: randomIntFromInterval( 55, 75 ) + '%',
+		height: '1.25rem',
+	};
+
+	const detailsStyles = {
+		backgroundColor: 'var(--sh-color-gray-4)',
+		width: randomIntFromInterval( 50, 60 ) + '%',
+		height: '3rem',
+	};
+
+	return (
+		<li
+			key={ index }
+			className="SimpleHistoryLogitem SimpleHistoryLogitem--variant-normal SimpleHistoryLogitem--loglevel-debug SimpleHistoryLogitem--logger-WPHTTPRequestsLogger SimpleHistoryLogitem--initiator-wp_user"
+		>
+			<div
+				className="SimpleHistoryLogitem__firstcol"
+				style={ {
+					width: 32,
+					height: 32,
+					borderRadius: '50%',
+					backgroundColor: 'var(--sh-color-gray-4)',
+				} }
+			></div>
+
+			<div className="SimpleHistoryLogitem__secondcol">
+				<div
+					className="SimpleHistoryLogitem__header"
+					style={ headerStyles }
+				></div>
+				<div
+					className="SimpleHistoryLogitem__text"
+					style={ textStyles }
+				></div>
+				<div
+					className="SimpleHistoryLogitem__details"
+					style={ detailsStyles }
+				></div>
+			</div>
+		</li>
+	);
+}
+
+/**
  * Render a skeleton list of events while the real events are loading.
  * Only shown when events are loading and there are no events, i.e for the first page load.
  *
@@ -27,50 +94,7 @@ function FetchEventsSkeleton( props ) {
 			<ul class="SimpleHistoryLogitems">
 				{ Array.from( { length: skeletonRowsCount } ).map(
 					( _, index ) => (
-						<li
-							key={ index }
-							className="SimpleHistoryLogitem SimpleHistoryLogitem--variant-normal SimpleHistoryLogitem--loglevel-debug SimpleHistoryLogitem--logger-WPHTTPRequestsLogger SimpleHistoryLogitem--initiator-wp_user"
-						>
-							<div
-								className="SimpleHistoryLogitem__firstcol"
-								style={ {
-									width: 32,
-									height: 32,
-									borderRadius: '50%',
-									backgroundColor: 'var(--sh-color-gray-4)',
-								} }
-							></div>
-
-							<div className="SimpleHistoryLogitem__secondcol">
-								<div
-									className="SimpleHistoryLogitem__header"
-									style={ {
-										backgroundColor:
-											'var(--sh-color-gray-4)',
-										width: '40%',
-										height: '1rem',
-									} }
-								></div>
-								<div
-									className="SimpleHistoryLogitem__text"
-									style={ {
-										backgroundColor:
-											'var(--sh-color-gray-4)',
-										width: '60%',
-										height: '1.25rem',
-									} }
-								></div>
-								<div
-									className="SimpleHistoryLogitem__details"
-									style={ {
-										backgroundColor:
-											'var(--sh-color-gray-4)',
-										width: '45%',
-										height: '3rem',
-									} }
-								></div>
-							</div>
-						</li>
+						<SkeletonEventsItem index={ index } />
 					)
 				) }
 			</ul>
