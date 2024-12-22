@@ -7,6 +7,10 @@
 	--sh-color-gray: #c3c4c7;
 	/* For dividers and similar, like "Item 1 | Item 2". */
 	--sh-color-gray-2: #a7aaad;
+	/* For smaller meta header text */
+	--sh-color-gray-3: rgb(137, 143, 156);
+	/* For discrete elements like skeleton loading background */
+	--sh-color-gray-4: #ededed;
 	--sh-color-green: #3f9349;
 }
 
@@ -256,7 +260,7 @@ Style different log levels.
 .SimpleHistoryLogitem__header,
 /*.SimpleHistoryLogitem__header time,*/
 .SimpleHistoryLogitem__headerEmail {
-	color: rgb(137, 143, 156);
+	color: var(--sh-color-gray-3);
 }
 
 .SimpleHistoryLogitem__text,
@@ -279,7 +283,7 @@ Style different log levels.
 }
 
 .SimpleHistoryLogitem__occasions {
-	color: rgb(137, 143, 156);
+	color: var(--sh-color-gray-3);
 	margin-top: 0.4em;
 	display: flex;
 	gap: 1rem;
@@ -366,7 +370,7 @@ Style different log levels.
 .SimpleHistoryLogitem__inlineDivided:before {
 	/* \b7 = middot, \a0 = space */
 	content: "\b7\a0";
-	color: rgb(137, 143, 156);
+	color: var(--sh-color-gray-3);
 }
 
 .SimpleHistoryLogitem__inlineDivided:first-child:before {
