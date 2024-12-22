@@ -285,6 +285,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   WP-CLI commands moved from dropin folder and namespace to services folder and namespace.
 -   Admin Bar Quick View enabled by default.
 -   Show error message when log could not be loaded. Any error message from server will be displayed. This hopefully makes it easier to understand why the log is not loading and can assist in troubleshooting.
+-   Add loading skeleton for events log.
 
 ✨ New WP-CLI commands for interacting with the events log.
 
