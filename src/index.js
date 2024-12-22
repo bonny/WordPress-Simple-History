@@ -1,16 +1,8 @@
 // Entrypoint used by wp-scripts start and build.
-import {
-	Flex,
-	FlexItem,
-	__experimentalHStack as HStack,
-	Spinner,
-	__experimentalText as Text,
-	withFilters,
-} from '@wordpress/components';
+import { SlotFillProvider, withFilters } from '@wordpress/components';
 import domReady from '@wordpress/dom-ready';
-import { createRoot, render } from '@wordpress/element';
-import EventsGui from './components/EventsGui';
-import { SlotFillProvider } from '@wordpress/components';
+import { createRoot } from '@wordpress/element';
+import EventsGUI from './components/EventsGui';
 import { EmptyFilteredComponent } from './EmptyFilteredComponent';
 
 // Filter that can be used by other plugins as a gateway to add content to different areas of
@@ -31,7 +23,7 @@ domReady( () => {
 			createRoot( target ).render(
 				<SlotFillProvider>
 					<EventsControlBarSlotfillsFilter />
-					<EventsGui />
+					<EventsGUI />
 				</SlotFillProvider>
 			);
 		}
