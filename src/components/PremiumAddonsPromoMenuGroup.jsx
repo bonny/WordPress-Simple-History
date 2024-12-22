@@ -87,7 +87,7 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 				{ __( 'Export results…', 'simple-history' ) }
 			</MenuItem>
 
-			<MenuItem
+			{ /* <MenuItem
 				onClick={ handleClickAddEventManually }
 				suffix={ <PremiumFeatureSuffix /> }
 				info={ __(
@@ -96,7 +96,7 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 				) }
 			>
 				{ __( 'Add event manually', 'simple-history' ) }
-			</MenuItem>
+			</MenuItem> */ }
 		</MenuGroup>
 	);
 }
