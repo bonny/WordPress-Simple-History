@@ -15,6 +15,7 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 
 	// Filter to show/hide the premium addons menu group.
 	// Makes it possible to hide the group from external code.
+	// If the result of running this filter is false, the group is not shown.
 	const showPremiumAddonsMenuGroup = applyFilters(
 		'SimpleHistory.showPremiumAddonsMenuGroup',
 		true

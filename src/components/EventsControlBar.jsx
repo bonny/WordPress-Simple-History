@@ -10,24 +10,6 @@ import { _n, _x, sprintf } from '@wordpress/i18n';
 import { EventsControlBarActionsDropdownMenu } from './EventsControlBarActionsDropdownMenu';
 
 /**
- * This will no be rendered/called if there is a filter in use,
- * unless the filter calls the component.
- *
- * @param {Object} props
- */
-const EmptyFilterComponent = ( props ) => {
-	console.log( 'EmptyFilterComponent, props', props );
-	return <></>;
-};
-
-// Based on solution here:
-// https://nickdiego.com/a-primer-on-wordpress-slotfill-technology/
-// Filter can only be called one time.
-const EventsControlBarSlotfillsFilter = withFilters( 'SimpleHistory.Settings' )(
-	EmptyFilterComponent
-);
-
-/**
  * Control bar at the top of the events listing
  * with number of events, reload button, more actions like export,
  * and so on.
@@ -61,8 +43,6 @@ export function EventsControlBar( props ) {
 
 	return (
 		<>
-			<EventsControlBarSlotfillsFilter { ...props } />
-
 			<div
 				style={ {
 					background: 'white',
