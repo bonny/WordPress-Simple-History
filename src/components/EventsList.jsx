@@ -5,17 +5,7 @@ import { Event } from './Event';
 import { EventsPagination } from './EventsPagination';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
-
-/**
- * Random function from https://stackoverflow.com/a/7228322
- *
- * @param {number} min
- * @param {number} max
- * @returns {number} Random number between min and max.
- */
-function randomIntFromInterval( min, max ) {
-	return Math.floor( Math.random() * ( max - min + 1 ) + min );
-}
+import { randomIntFromInterval } from '../functions.js';
 
 function SkeletonEventsItem( props ) {
 	const { index } = props;
