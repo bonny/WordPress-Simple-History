@@ -2,7 +2,6 @@
 import domReady from '@wordpress/dom-ready';
 import { createRoot } from '@wordpress/element';
 import AdminBarQuickView from './components/AdminBarQuickView';
-import { SlotFillProvider } from '@wordpress/components';
 
 domReady( () => {
 	// Tmp to ease, styling, show the menu in the admin bar without the need to hover.
@@ -19,10 +18,6 @@ domReady( () => {
 	);
 
 	if ( adminBarTarget ) {
-		createRoot( adminBarTarget ).render(
-			<SlotFillProvider>
-				<AdminBarQuickView />
-			</SlotFillProvider>
-		);
+		createRoot( adminBarTarget ).render( <AdminBarQuickView /> );
 	}
 } );
