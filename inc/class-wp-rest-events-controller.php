@@ -572,6 +572,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response Response object.
 	 */
 	public function get_items( $request ) {
+		// Tmp slow requests to test slow response.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// sleep( 3 );
+
 		$events = [];
 
 		// Debug: return error.
