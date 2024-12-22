@@ -142,18 +142,19 @@ that must be it."_
 
 If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by using the function `SimpleLogger()` like this:
 
-```php
+`
 if ( function_exists("SimpleLogger") ) {
-		// Most basic example: just add some information to the log
-		SimpleLogger()->info("This is a message sent to the log");
+// Most basic example: just add some information to the log
+SimpleLogger()->info("This is a message sent to the log");
 
-		// A bit more advanced: log events with different severities
-		SimpleLogger()->info("User admin edited page 'About our company'");
-		SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
-		SimpleLogger()->debug("Ok, cron job is running!");
+    	// A bit more advanced: log events with different severities
+    	SimpleLogger()->info("User admin edited page 'About our company'");
+    	SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
+    	SimpleLogger()->debug("Ok, cron job is running!");
+
 }
 ?>
-```
+`
 
 See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/) and how to [query the log](https://simple-history.com/docs/query-api/), and more.
 
