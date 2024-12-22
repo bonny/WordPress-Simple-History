@@ -214,15 +214,12 @@ class Setup_Settings_Page extends Service {
 		
 		<br />
 
+		<input <?php checked( $show_in_admin_bar ); ?> type="checkbox" value="1" name="simple_history_show_in_admin_bar" id="simple_history_show_in_admin_bar" class="simple_history_show_in_admin_bar" />
+		<label for="simple_history_show_in_admin_bar">
+			<?php esc_html_e( 'in the admin bar', 'simple-history' ); ?>
+		</label>
+
 		<?php
-		if ( Helpers::experimental_features_is_enabled() ) {
-			?>
-			<input <?php checked( $show_in_admin_bar ); ?> type="checkbox" value="1" name="simple_history_show_in_admin_bar" id="simple_history_show_in_admin_bar" class="simple_history_show_in_admin_bar" />
-			<label for="simple_history_show_in_admin_bar">
-				<?php esc_html_e( 'in the admin bar', 'simple-history' ); ?>
-			</label>
-			<?php
-		}
 	}
 
 	/**
