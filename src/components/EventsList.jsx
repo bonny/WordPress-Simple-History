@@ -7,7 +7,79 @@ import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 
 /**
- * Renders a list of events.
+ * Render a skeleton list of events while the real events are loading.
+ * Only shown when events are loading and there are no events, i.e for the first page load.
+ *
+ * @param {*} props
+ * @returns
+ */
+function FetchEventsSkeleton( props ) {
+	const { eventsIsLoading, events, pagerSize } = props;
+
+	if ( ! eventsIsLoading || events.length > 0 ) {
+		return null;
+	}
+
+	const skeletonRowsCount = pagerSize.page ?? 0;
+
+	return (
+		<div>
+			<ul class="SimpleHistoryLogitems">
+				{ Array.from( { length: skeletonRowsCount } ).map(
+					( _, index ) => (
+						<li
+							key={ index }
+							className="SimpleHistoryLogitem SimpleHistoryLogitem--variant-normal SimpleHistoryLogitem--loglevel-debug SimpleHistoryLogitem--logger-WPHTTPRequestsLogger SimpleHistoryLogitem--initiator-wp_user"
+						>
+							<div
+								className="SimpleHistoryLogitem__firstcol"
+								style={ {
+									width: 32,
+									height: 32,
+									borderRadius: '50%',
+									backgroundColor: 'var(--sh-color-gray-4)',
+								} }
+							></div>
+
+							<div className="SimpleHistoryLogitem__secondcol">
+								<div
+									className="SimpleHistoryLogitem__header"
+									style={ {
+										backgroundColor:
+											'var(--sh-color-gray-4)',
+										width: '40%',
+										height: '1rem',
+									} }
+								></div>
+								<div
+									className="SimpleHistoryLogitem__text"
+									style={ {
+										backgroundColor:
+											'var(--sh-color-gray-4)',
+										width: '60%',
+										height: '1.25rem',
+									} }
+								></div>
+								<div
+									className="SimpleHistoryLogitem__details"
+									style={ {
+										backgroundColor:
+											'var(--sh-color-gray-4)',
+										width: '45%',
+										height: '3rem',
+									} }
+								></div>
+							</div>
+						</li>
+					)
+				) }
+			</ul>
+		</div>
+	);
+}
+
+/**
+ * Renders the main list of events.
  *
  * @param {Object} props
  */
@@ -15,6 +87,7 @@ export function EventsList( props ) {
 	const {
 		events,
 		page,
+		pagerSize,
 		setPage,
 		eventsIsLoading,
 		eventsMeta,
@@ -36,6 +109,12 @@ export function EventsList( props ) {
 				flexDirection: 'column',
 			} }
 		>
+			<FetchEventsSkeleton
+				eventsIsLoading={ eventsIsLoading }
+				pagerSize={ pagerSize }
+				events={ events }
+			/>
+
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
 				events={ events }

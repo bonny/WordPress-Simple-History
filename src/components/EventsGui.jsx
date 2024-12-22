@@ -13,7 +13,7 @@ import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
-function EventsGui() {
+function EventsGUI() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
 		useState( false );
@@ -255,6 +255,7 @@ function EventsGui() {
 				events={ events }
 				eventsMeta={ eventsMeta }
 				page={ page }
+				pagerSize={ pagerSize }
 				setPage={ setPage }
 				eventsMaxId={ eventsMaxId }
 				prevEventsMaxId={ prevEventsMaxId }
@@ -270,4 +271,4 @@ function EventsGui() {
 	);
 }
 
-export default EventsGui;
+export default EventsGUI;
