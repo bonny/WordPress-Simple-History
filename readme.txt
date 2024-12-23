@@ -287,10 +287,12 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Enable Admin Bar History Quick View by default.
 -   Show error message when log could not be loaded. Any error message from server will be displayed. This hopefully makes it easier to understand why the log is not loading and can assist in troubleshooting.
 -   Add loading skeleton for events log.
+-   Fix php notice when logging found plugin updates if another plugin used an invalid plugin slug (e.g., "myplugin" instead of "myplugin/myplugin.php") [#497](https://github.com/bonny/WordPress-Simple-History/pull/497)
+-   Fix for error message `widget_setting_too_many_options` when saving a widget in a classic theme with `Classic Widgets` plugin installed. [#498](https://github.com/bonny/WordPress-Simple-History/issues/498)
 
 ✨ New WP-CLI commands for interacting with the events log.
 
--   `wp simple-history event list` to list events (this is the same as the previous `wp simple-history list` command).
+-   `wp simple-history event list` to list events (this is a alias to the existing `wp simple-history list` command).
 -   `wp simple-history event get` to get details about a single event.
 -   `wp simple-history event search` to search events.
 -   `wp simple-history db stats` to get stats.

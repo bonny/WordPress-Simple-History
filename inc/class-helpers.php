@@ -1523,9 +1523,18 @@ class Helpers {
 	 * Used to keep track of how many events have been logged since the plugin was installed.
 	 */
 	public static function increase_total_logged_events_count() {
-		$logged_events_counter = self::get_total_logged_events_count();
-		$logged_events_counter++;
-		update_option( 'simple_history_total_logged_events_count', $logged_events_counter, false );
+		// Don't log when updating widgets,
+		// because it causes error "widget_setting_too_many_options".
+		// Bug report: https://github.com/bonny/WordPress-Simple-History/issues/498.
+		if ( doing_action( 'wp_ajax_update-widget' ) ) {
+			return;
+		}
+
+		update_option(
+			'simple_history_total_logged_events_count',
+			self::get_total_logged_events_count() + 1,
+			false
+		);
 	}
 
 	/**
