@@ -142,7 +142,7 @@ class Available_Updates_Logger extends Logger {
 			$file = WP_PLUGIN_DIR . '/' . $key;
 
 			// Continue with next plugin if plugin file did not exist.
-			if ( ! file_exists( $file ) ) {
+			if ( ! is_file( $file ) ) {
 				continue;
 			}
 
