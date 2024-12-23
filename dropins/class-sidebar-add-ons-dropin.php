@@ -31,13 +31,15 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 
-			<h3 class="hndle">
+			<!-- <h3 class="hndle">
 				<?php esc_html_e( 'Get more out of Simple History', 'simple-history' ); ?>
 				<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
-			</h3>
+			</h3> -->
 
 			<div class="inside">
-				<p><?php echo esc_html__( 'Unlock more features with Simple History Premium:', 'simple-history' ); ?></p>
+				<h3 class="sh-PremiumFeaturesPostbox-title">
+					<?php echo esc_html__( 'Unlock more features with Simple History Premium!', 'simple-history' ); ?>
+				</h3>
 
 				<ul class="sh-PremiumFeaturesPostbox-featuresList">
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Export search results as CSV and JSON', 'simple-history' ); ?></li>
@@ -50,8 +52,8 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				</ul>
 
 				<p>
-					<a href="<?php echo esc_url( $premium_url ); ?>" class="sh-ExternalLink" target="_blank">
-						<?php esc_html_e( 'Learn about Premium', 'simple-history' ); ?>
+					<a href="<?php echo esc_url( $premium_url ); ?>" target="_blank" class="sh-PremiumFeaturesPostbox-button">
+						<?php esc_html_e( 'Upgrade to Premium', 'simple-history' ); ?>
 					</a>
 				</p>
 			</div>

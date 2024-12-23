@@ -12,6 +12,7 @@
 	/* For discrete elements like skeleton loading background */
 	--sh-color-gray-4: #ededed;
 	--sh-color-green: #3f9349;
+	--sh-color-green-2: darkgreen;
 }
 
 /* clearfix */
@@ -1042,9 +1043,9 @@ so add some extra place then to make it look a bit less ugly.
 	display: inline-block;
 	text-transform: uppercase;
 	font-size: 0.8em;
-	background: green;
+	background: var(--sh-color-green);
 	text-decoration: underline;
-	text-decoration-color: green;
+	text-decoration-color: var(--sh-color-green-2);
 	padding: 3px 4px;
 	line-height: 1;
 	border-radius: 3px;
@@ -1055,11 +1056,13 @@ so add some extra place then to make it look a bit less ugly.
 .sh-PremiumFeatureBadge {
 	display: inline-flex;
 	align-items: center;
-	color: darkgreen;
+	background-color: var(--sh-color-green-2);
+	color: white;
+	text-transform: uppercase;
 	font-size: 0.8em;
 	font-weight: normal;
 	font-style: normal;
-	border: 1px solid darkgreen;
+	border: 1px solid var(--sh-color-green-2);
 	border-radius: 4px;
 	padding: 0.25em 0.5em;
 	opacity: 0.75;
@@ -1069,11 +1072,29 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-PremiumFeaturesPostbox {
 	text-wrap-style: pretty;
+	padding: 1rem;
+}
+
+.sh-PremiumFeaturesPostbox-button {
+	display: inline-block;
+	background-color: var(--sh-color-green);
+	color: white;
+	text-decoration: none;
+	padding: 0.75em 1.25em;
+	border-radius: 4px;
+	display: block;
+	text-align: center;
+	transition: background-color 0.25s ease-out;
+}
+
+.sh-PremiumFeaturesPostbox-button:hover {
+	color: white;
+	background-color: var(--sh-color-green-2);
 }
 
 .sh-PremiumFeaturesPostbox-featuresList {
 	list-style: none;
-	margin: 0;
+	margin: 1.5rem 0 1.5rem 0;
 }
 .sh-PremiumFeaturesPostbox-featuresList-item {
 	margin-top: 0.5rem;
