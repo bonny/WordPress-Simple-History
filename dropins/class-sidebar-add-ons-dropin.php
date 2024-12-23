@@ -31,11 +31,6 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 
-			<!-- <h3 class="hndle">
-				<?php esc_html_e( 'Get more out of Simple History', 'simple-history' ); ?>
-				<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
-			</h3> -->
-
 			<div class="inside">
 				<h3 class="sh-PremiumFeaturesPostbox-title">
 					<?php echo esc_html__( 'Unlock more features with Simple History Premium!', 'simple-history' ); ?>
@@ -117,7 +112,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	public function on_sidebar_html_debug_and_monitor_promo() {
 		// Don't show if addon is already installed.
 		if ( Helpers::is_plugin_active( 'simple-history-debug-and-monitor/index.php' ) ) {
-			// return;
+			return;
 		}
 
 		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wpadmin&utm_content=debug-monitor-sidebar';
