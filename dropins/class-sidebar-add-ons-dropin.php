@@ -22,7 +22,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public function on_sidebar_html_premium_promo() {
 		// Don't show if addon is already installed.
-		if ( Helpers::is_plugin_active( 'simple-history-premium/index.php' ) ) {
+		if ( Helpers::is_plugin_active( 'simple-history-premium/simple-history-premium.php' ) ) {
 			return;
 		}
 

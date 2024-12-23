@@ -839,7 +839,7 @@ class Simple_History {
 			$logger = $one_log_row->logger;
 
 			$is_simple_history_extended_settings_active = Helpers::is_plugin_active( 'simple-history-extended-settings/index.php' );
-			$is_simple_history_premium_active = Helpers::is_plugin_active( 'simple-history-premium/index.php' );
+			$is_simple_history_premium_active = Helpers::is_plugin_active( 'simple-history-premium/simple-history-premium.php' );
 
 			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
 
