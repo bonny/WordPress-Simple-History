@@ -1044,7 +1044,7 @@ so add some extra place then to make it look a bit less ugly.
 	text-transform: uppercase;
 	font-size: 0.8em;
 	background: var(--sh-color-green);
-	text-decoration: underline;
+	text-decoration: none;
 	text-decoration-color: var(--sh-color-green-2);
 	padding: 3px 4px;
 	line-height: 1;

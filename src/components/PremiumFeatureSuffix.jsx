@@ -34,7 +34,9 @@ export const PremiumFeatureSuffix = function ( props ) {
 			style={ {
 				display: 'flex',
 				alignItems: 'center',
-				color: 'darkgreen',
+				color: '#fff',
+				backgroundColor: 'var(--sh-color-green-2)',
+				textTransform: 'uppercase',
 				fontSize: '0.8em',
 				border: '1px solid darkgreen',
 				borderRadius: '4px',
