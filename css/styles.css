@@ -1087,6 +1087,8 @@ so add some extra place then to make it look a bit less ugly.
 	transition: background-color 0.25s ease-out;
 }
 
+.sh-PremiumFeaturesPostbox-button:active,
+.sh-PremiumFeaturesPostbox-button:focus,
 .sh-PremiumFeaturesPostbox-button:hover {
 	color: white;
 	background-color: var(--sh-color-green-2);
