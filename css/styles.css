@@ -1081,7 +1081,7 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-PremiumFeaturesPostbox-title {
 	color: #1d2327;
-	font-size: 1.4em;
+	font-size: 1.5em;
 	margin: 0 0 1em 0;
 }
 
@@ -1091,7 +1091,7 @@ so add some extra place then to make it look a bit less ugly.
 	color: white;
 	text-decoration: none;
 	padding: 0.75em 1.25em;
-	border-radius: 4px;
+	border-radius: 10px;
 	display: block;
 	text-align: center;
 	transition: background-color 0.25s ease-out;
@@ -1109,6 +1109,7 @@ so add some extra place then to make it look a bit less ugly.
 	margin: 1.5rem 0 1.5rem 0;
 }
 .sh-PremiumFeaturesPostbox-featuresList-item {
+	font-size: 0.9rem;
 	margin-top: 0.5rem;
 	padding-left: 30px;
 	line-height: 1.2rem;
