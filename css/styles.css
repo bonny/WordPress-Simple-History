@@ -1067,12 +1067,22 @@ so add some extra place then to make it look a bit less ugly.
 	padding: 0.25em 0.5em;
 	opacity: 0.75;
 	line-height: 1;
-	margin: 0px 0px 0px 1em;
+	margin: 0;
 }
 
 .sh-PremiumFeaturesPostbox {
 	text-wrap-style: pretty;
 	padding: 1rem;
+}
+
+.sh-PremiumFeaturesPostbox-preTitleFeaturesBadge {
+	margin: 0 0 0.5rem 0;
+}
+
+.sh-PremiumFeaturesPostbox-title {
+	color: #1d2327;
+	font-size: 1.4em;
+	margin: 0 0 1em 0;
 }
 
 .sh-PremiumFeaturesPostbox-button {

@@ -32,6 +32,8 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		<div class="postbox sh-PremiumFeaturesPostbox">
 
 			<div class="inside">
+				<p class="sh-PremiumFeaturesPostbox-preTitleFeaturesBadge"><em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em></p>
+
 				<h3 class="sh-PremiumFeaturesPostbox-title">
 					<?php echo esc_html__( 'Unlock more features with Simple History Premium!', 'simple-history' ); ?>
 				</h3>
