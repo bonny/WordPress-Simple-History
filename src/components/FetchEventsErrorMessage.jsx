@@ -36,7 +36,7 @@ export function FetchEventsErrorMessage( props ) {
 					) }
 				</Text>
 
-				<details open>
+				<details>
 					<summary
 						style={ {
 							marginTop: '.5rem',
