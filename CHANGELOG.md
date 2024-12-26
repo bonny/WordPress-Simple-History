@@ -1,4 +1,4 @@
-# Changelog for 2023 an earlier
+# Changelog for 2023 and earlier
 
 ### 4.12.0 (Februari 2024)
 
