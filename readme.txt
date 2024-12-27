@@ -276,27 +276,35 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme').
 
-### Unreleased
+### 5.4.0 (December 2024)
 
--   Always show event item actions.
--   Log when a post or page is moved to trash using the Gutenberg editor. [#491](https://github.com/bonny/WordPress-Simple-History/issues/491)
--   Change copy when creating user and sending password with email [#493](https://github.com/bonny/WordPress-Simple-History/issues/493)
--   Quick view: move up reload button to above event list.
--   Add HTML to export formats. Exporting to HTML will give you an unstyled HTML file that you can open in a web browser and view the contents.
--   WP-CLI commands moved from dropin folder and namespace to services folder and namespace.
--   Enable Admin Bar History Quick View by default.
--   Show error message when log could not be loaded. Any error message from server will be displayed. This hopefully makes it easier to understand why the log is not loading and can assist in troubleshooting.
--   Add loading skeleton for events log.
--   Fix php notice when logging found plugin updates if another plugin used an invalid plugin slug (e.g., "myplugin" instead of "myplugin/myplugin.php") [#497](https://github.com/bonny/WordPress-Simple-History/pull/497)
--   Fix for error message `widget_setting_too_many_options` when saving a widget in a classic theme with `Classic Widgets` plugin installed. [#498](https://github.com/bonny/WordPress-Simple-History/issues/498)
+⚡ This release contains new features and improvements.
+[Read the release post for more details](https://simple-history.com/2024/simple-history-5-4-0/).
 
-✨ New WP-CLI commands for interacting with the events log.
+**Added**
 
--   `wp simple-history event list` to list events (this is a alias to the existing `wp simple-history list` command).
--   `wp simple-history event get` to get details about a single event.
--   `wp simple-history event search` to search events.
--   `wp simple-history db stats` to get stats.
--   `wp simple-history db clear` to clear the events database.
+-   Enable [Admin Bar History Quick View](https://simple-history.com/features/admin-bar-quick-view/) by default - making it easier to check the latest events without leaving your current page.
+-   New [WP-CLI commands for interacting with the events log](https://simple-history.com/features/wp-cli-commands/):
+    -   `wp simple-history event list` to list events (alias to existing `wp simple-history list` command).
+    -   `wp simple-history event get` to get details about a single event.
+    -   `wp simple-history event search` to search events.
+    -   `wp simple-history db stats` to get stats.
+    -   `wp simple-history db clear` to clear the events database.
+-   HTML export format support - exports an unstyled HTML file viewable in web browsers.
+-   Loading skeleton for events log.
+-   Error message display when log fails to load, showing server error messages for easier troubleshooting.
+
+**Changed**
+
+-   Always show event item actions to make them more discoverable - no more need to hover to see available actions.
+-   Move Quick View reload button above event list.
+-   More accurate logging when creating users - now shows if "Send the new user an email about their account" was checked instead of assuming the email was sent [#493](https://github.com/bonny/WordPress-Simple-History/issues/493)
+-   Log when posts/pages are moved to trash using Gutenberg editor. [#491](https://github.com/bonny/WordPress-Simple-History/issues/491)
+
+**Fixed**
+
+-   Fix PHP notice when logging found plugin updates with invalid plugin slugs. [#497](https://github.com/bonny/WordPress-Simple-History/pull/497)
+-   Fix error message `widget_setting_too_many_options` when saving widgets in classic theme with Classic Widgets plugin. [#498](https://github.com/bonny/WordPress-Simple-History/issues/498)
 
 ### 5.3.0 (November 2024)
 
