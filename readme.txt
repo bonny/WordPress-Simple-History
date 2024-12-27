@@ -292,6 +292,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
     -   `wp simple-history db clear` to clear the events database.
 -   HTML export format support - exports an unstyled HTML file viewable in web browsers.
 -   Loading skeleton for events log.
+-   Show a nicer message when no results found.
 -   Error message display when log fails to load, showing server error messages for easier troubleshooting.
 
 **Changed**
