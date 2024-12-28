@@ -27,6 +27,7 @@ export function EventsList( props ) {
 		eventsLoadingHasErrors,
 		eventsLoadingErrorDetails,
 	} = props;
+
 	const totalPages = eventsMeta.totalPages;
 
 	return (
@@ -94,6 +95,7 @@ function EventsListItemsList( props ) {
 	const ulClasses = clsx( {
 		SimpleHistoryLogitems: true,
 		'is-loading': eventsIsLoading,
+		'is-loaded': ! eventsIsLoading,
 	} );
 
 	return (
