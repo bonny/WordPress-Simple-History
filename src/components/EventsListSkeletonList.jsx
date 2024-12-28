@@ -5,7 +5,7 @@ import { EventListSkeletonEventsItem } from './EventListSkeletonEventsItem';
  * Only shown when events are loading and there are no events, i.e for the first page load.
  *
  * @param {*} props
- * @returns
+ * @return {null|*} Nothing or the skeleton list.
  */
 export function EventsListSkeletonList( props ) {
 	const { eventsIsLoading, events, pagerSize } = props;
@@ -18,10 +18,13 @@ export function EventsListSkeletonList( props ) {
 
 	return (
 		<div>
-			<ul class="SimpleHistoryLogitems">
+			<ul className="SimpleHistoryLogitems">
 				{ Array.from( { length: skeletonRowsCount } ).map(
 					( _, index ) => (
-						<EventListSkeletonEventsItem index={ index } />
+						<EventListSkeletonEventsItem
+							key={ index }
+							index={ index }
+						/>
 					)
 				) }
 			</ul>
