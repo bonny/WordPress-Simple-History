@@ -8,7 +8,9 @@ class WPCliCest {
         $I->seeInShellOutput('6.6.1');
 
         $I->cli('--allow-root simple-history');
-        $I->seeInShellOutput('usage: wp simple-history list [--format=<format>] [--count=<count>]');
+        $I->seeInShellOutput('usage: wp simple-history db <command>
+   or: wp simple-history event <command>
+   or: wp simple-history list [--format=<format>] [--count=<count>]');
         
         $I->haveUserInDatabase(
             'luca', 
