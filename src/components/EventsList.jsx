@@ -1,11 +1,10 @@
 import { __experimentalSpacer as Spacer } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import { Event } from './Event';
+import { EventsListSkeletonList } from './EventsListSkeletonList.jsx';
 import { EventsPagination } from './EventsPagination';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
-import { EventsListSkeletonList } from './EventsListSkeletonList.jsx';
 
 /**
  * Renders the main list of events.
