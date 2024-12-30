@@ -8,6 +8,7 @@
 /tests
 /vendor
 /examples
+/src
 
 .distignore
 .gitignore
@@ -30,4 +31,3 @@ README.md
 docker-compose.yml
 rector.php
 phpstan.neon
-
