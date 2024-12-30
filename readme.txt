@@ -274,7 +274,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 -   [Sponsor the plugin to keep it free.](https://simple-history.com/sponsor/)
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
--   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme').
+-   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
 ### 5.4.0 (December 2024)
 
