@@ -1,5 +1,6 @@
 name: Deploy Tag to WordPress.org
 on:
+  workflow_dispatch:
   push:
     tags:
       # Semver (https://semver.org/) release pattern.
