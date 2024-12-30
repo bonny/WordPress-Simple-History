@@ -278,18 +278,14 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
-### 5.4.1 (December 2024)
-
--   Internal version to fix automatic GitHub to SVN deploy issue.
-
-### 5.4.0 (December 2024)
+### 5.4.2 (December 2024)
 
 ⚡ This release contains new features and improvements.
 [Read the release post for more details](https://simple-history.com/2024/simple-history-5-4-0/).
 
 **Added**
 
--   Enable [Admin Bar History Quick View](https://simple-history.com/features/admin-bar-quick-view/) by default - making it easier to check the latest events without leaving your current page.
+-   Enable [Admin Bar History Quick View](https://simple-history.com/2024/simple-history-5-1-0-released-with-new-experimental-feature/#:~:text=Try%20out%20our%20latest%20upcoming%20feature%3A%20the%20Admin%20Bar%20Quick%20View) by default - making it easier to check the latest events without leaving your current page.
 -   New [WP-CLI commands for interacting with the events log](https://simple-history.com/features/wp-cli-commands/):
     -   `wp simple-history event list` to list events (alias to existing `wp simple-history list` command).
     -   `wp simple-history event get` to get details about a single event.
@@ -312,6 +308,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 -   Fix PHP notice when logging found plugin updates with invalid plugin slugs. [#497](https://github.com/bonny/WordPress-Simple-History/pull/497)
 -   Fix error message `widget_setting_too_many_options` when saving widgets in classic theme with Classic Widgets plugin. [#498](https://github.com/bonny/WordPress-Simple-History/issues/498)
+
+### 5.4.0 & 5.4.1 (December 2024)
+
+-   Internal versions to fix and test automatic deploy issues.
 
 ### 5.3.0 (November 2024)
 
