@@ -278,6 +278,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
+### Unreleased
+
+-   Don't output CSS and JS for _Admin Bar Quick View_ if admin bar is not visible. [#510](https://github.com/bonny/WordPress-Simple-History/issues/510)
+
 ### 5.4.3 (December 2024)
 
 -   Fix for _Admin Bar Quick View_ setting not being saved correctly.

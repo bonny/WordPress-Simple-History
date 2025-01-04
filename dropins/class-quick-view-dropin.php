@@ -20,6 +20,13 @@ class Quick_View_Dropin extends Dropin {
 			return;
 		}
 
+		// Check that admin bar is actually shown.
+		// CSS and JS will be added to the HTML even if the admin bar is not shown,
+		// which is wrong.
+		if ( ! is_admin_bar_showing() ) {
+			return;
+		}
+
 		add_action( 'admin_bar_menu', [ $this, 'add_simple_history_to_admin_bar' ], 100 );
 
 		// Quick View is available both in the admin and on the front end,
@@ -34,10 +41,6 @@ class Quick_View_Dropin extends Dropin {
 	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar instance.
 	 */
 	public function add_simple_history_to_admin_bar( $wp_admin_bar ) {
-		if ( ! is_admin_bar_showing() ) {
-			return;
-		}
-
 		// Add the main menu item.
 		$wp_admin_bar->add_node(
 			array(
