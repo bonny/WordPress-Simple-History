@@ -51,7 +51,7 @@ class Admin_Pages extends Service {
 
 			<header class="sh-PageHeader">
 				<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-					<img width="1102" height="196" class="sh-PageHeader-logo" src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
+					<img width="1100" height="156" class="sh-PageHeader-logo" src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
 				</h1>
 
 				<?php
