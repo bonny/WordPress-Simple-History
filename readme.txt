@@ -281,6 +281,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 ### Unreleased
 
 -   Don't output CSS and JS for _Admin Bar Quick View_ if admin bar is not visible. [#510](https://github.com/bonny/WordPress-Simple-History/issues/510)
+-   Only load events from the last 7 days in the _Admin Bar Quick View_.
 
 ### 5.4.3 (December 2024)
 

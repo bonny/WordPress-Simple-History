@@ -138,6 +138,7 @@ const AdminBarQuickView = () => {
 
 			const eventsQueryParams = {
 				per_page: 5,
+				dates: 'lastdays:7',
 			};
 
 			try {
@@ -202,6 +203,14 @@ const AdminBarQuickView = () => {
 			<ul>
 				<div className="SimpleHistory-adminBarEventsList-actions">
 					{ reloadButton }
+				</div>
+
+				<div
+					style={ {
+						margin: '1em 1em 0 1em',
+					} }
+				>
+					{ __( 'Events from the last 7 days', 'simple-history' ) }
 				</div>
 
 				<EventsCompactList events={ events } isLoading={ isLoading } />
