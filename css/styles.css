@@ -145,8 +145,8 @@
 
 /*
 Style different log levels.
+Tag = the pill with the log level.
 */
-
 .SimpleHistoryLogitem--logleveltag {
 	display: inline-block;
 	background-color: rgba(238, 238, 238, 1);
@@ -158,65 +158,40 @@ Style different log levels.
 	line-height: 1;
 }
 
-.SimpleHistoryLogitem--loglevel-debug {
-	border-left-color: #cef6d8;
-}
 .SimpleHistoryLogitem--logleveltag-debug {
 	background-color: #cef6d8;
 	color: #111;
 }
 
-.SimpleHistoryLogitem--loglevel-info {
-	border-left-color: white;
-}
 .SimpleHistoryLogitem--logleveltag-info {
 	display: none;
 }
 
-.SimpleHistoryLogitem--loglevel-notice {
-	border-left-color: #ffffe0;
-	border-left-color: rgb(219, 219, 183);
-}
 .SimpleHistoryLogitem--logleveltag-notice {
 	background-color: rgb(219, 219, 183);
 	color: #111;
 }
 
-.SimpleHistoryLogitem--loglevel-warning {
-	border-left-color: #f7d358;
-}
 .SimpleHistoryLogitem--logleveltag-warning {
 	background-color: #f7d358;
 	color: #111;
 }
 
-.SimpleHistoryLogitem--loglevel-error {
-	border-left-color: #f79f81;
-}
 .SimpleHistoryLogitem--logleveltag-error {
 	background-color: #f79f81;
 	color: #000;
 }
 
-.SimpleHistoryLogitem--loglevel-critical {
-	border-left-color: #fa5858;
-}
 .SimpleHistoryLogitem--logleveltag-critical {
 	background-color: #fa5858;
 	color: #fff;
 }
 
-.SimpleHistoryLogitem--loglevel-alert {
-	border-left-color: rgb(199, 69, 69);
-}
 .SimpleHistoryLogitem--logleveltag-alert {
 	background-color: rgb(199, 69, 69);
 	color: #eee;
 }
 
-.SimpleHistoryLogitem--loglevel-emergency {
-	border-left-color: #df0101;
-}
 .SimpleHistoryLogitem--logleveltag-emergency {
 	background-color: #df0101;
 	color: #eee;
