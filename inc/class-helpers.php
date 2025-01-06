@@ -1581,4 +1581,19 @@ class Helpers {
 
 		return $field;
 	}
+	/**
+	 * Check if premium add-on is active.
+	 *
+	 * @return bool True if premium add-on is active, false otherwise.
+	 */
+	public static function is_premium_add_on_active() {
+		return self::is_plugin_active( 'simple-history-premium/simple-history-premium.php' );
+	}
+
+	/**
+	 * Check if Extended Settings add-on is active.
+	 */
+	public static function is_extended_settings_add_on_active() {
+		return self::is_plugin_active( 'simple-history-extended-settings/index.php' );
+	}
 }
