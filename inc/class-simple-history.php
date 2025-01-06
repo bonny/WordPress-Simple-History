@@ -838,8 +838,8 @@ class Simple_History {
 			// Only show for SimpleUserLogger and login failed events and if the add-on is not active.
 			$logger = $one_log_row->logger;
 
-			$is_simple_history_extended_settings_active = Helpers::is_plugin_active( 'simple-history-extended-settings/index.php' );
-			$is_simple_history_premium_active = Helpers::is_plugin_active( 'simple-history-premium/simple-history-premium.php' );
+			$is_simple_history_extended_settings_active = Helpers::is_extended_settings_add_on_active();
+			$is_simple_history_premium_active = Helpers::is_premium_add_on_active();
 
 			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
 

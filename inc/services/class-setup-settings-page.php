@@ -348,8 +348,8 @@ class Setup_Settings_Page extends Service {
 
 		echo '</p>';
 
-		// View premium upsell if premium is not active.
-		if ( ! Helpers::is_plugin_active( 'simple-history-premium/simple-history-premium.php' ) ) {
+		// View Premium add-on information, if not already installed.
+		if ( ! Helpers::show_promo_boxes() ) {
 			?>
 			<p>
 				<a href="https://simple-history.com/premium/?utm_source=wpadmin&utm_content=purge-interval" target="_blank" class="sh-ExternalLink">

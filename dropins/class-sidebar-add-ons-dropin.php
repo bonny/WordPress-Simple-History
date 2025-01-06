@@ -22,6 +22,11 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Output HTML with promo about sale.
 	 */
 	public function on_sidebar_html_sale_promo() {
+		// Hide if Premium is installed.
+		if ( Helpers::is_premium_add_on_active() ) {
+			return;
+		}
+
 		?>
 		<!-- 
 		Insert promo:
@@ -29,7 +34,6 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		Link to: https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=new-year-sale-sidebar
 		-->
 		<div class="postbox">
-
 			<div class="inside" style="background-color: #FFCEE4; padding: 1rem; margin-top: 0;">
 				<p style="margin: 0; font-size: 1rem; font-weight: bold;">
 					<?php esc_html_e( 'Our New Year’s Sale is Here – 50% Off All Add-Ons 🙀', 'simple-history' ); ?>
@@ -57,7 +61,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public function on_sidebar_html_premium_promo() {
 		// Don't show if addon is already installed.
-		if ( Helpers::is_plugin_active( 'simple-history-premium/simple-history-premium.php' ) ) {
+		if ( Helpers::is_premium_add_on_active() ) {
 			return;
 		}
 
