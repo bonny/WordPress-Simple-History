@@ -12,7 +12,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Add actions when dropin is loaded.
 	 */
 	public function loaded() {
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce_promo' ], 5 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce_promo' ], 7 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo' ], 5 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_debug_and_monitor_promo' ], 5 );
 	}
