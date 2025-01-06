@@ -12,9 +12,44 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Add actions when dropin is loaded.
 	 */
 	public function loaded() {
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce_promo' ], 7 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_sale_promo' ], 4 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo' ], 5 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_debug_and_monitor_promo' ], 5 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce_promo' ], 7 );
+	}
+
+	/**
+	 * Output HTML with promo about sale.
+	 */
+	public function on_sidebar_html_sale_promo() {
+		?>
+		<!-- 
+		Insert promo:
+		"Our New Year’s Sale is Here – 50% Off All Add-Ons 🙀".
+		Link to: https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=new-year-sale-sidebar
+		-->
+		<div class="postbox">
+
+			<div class="inside" style="background-color: #FFCEE4; padding: 1rem; margin-top: 0;">
+				<p style="margin: 0; font-size: 1rem; font-weight: bold;">
+					<?php esc_html_e( 'Our New Year’s Sale is Here – 50% Off All Add-Ons 🙀', 'simple-history' ); ?>
+				</p>
+
+				<p>Hurry - this sale ends January 31.</p>
+				
+				<p>
+					<a 
+						class="sh-PremiumFeaturesPostbox-button"
+						href="https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=new-year-sale-sidebar" 
+						target="_blank"
+						>
+						<?php esc_html_e( 'Get Add-Ons Now', 'simple-history' ); ?>
+					</a>
+				</p>
+			</div>
+
+		</div>
+		<?php
 	}
 
 	/**
