@@ -1581,6 +1581,26 @@ class Helpers {
 
 		return $field;
 	}
+
+	/**
+	 * Determine if promo boxes should be shown.
+	 *
+	 * @return bool True if promo boxes should be shown, false otherwise.
+	 */
+	public static function show_promo_boxes() {
+		// Hide if Premium add-on is active.
+		if ( self::is_premium_add_on_active() ) {
+			return false;
+		}
+
+		// Hide if Extended Settings is active.
+		if ( self::is_extended_settings_add_on_active() ) {
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Check if premium add-on is active.
 	 *
