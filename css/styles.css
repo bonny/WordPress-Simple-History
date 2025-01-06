@@ -13,6 +13,15 @@
 	--sh-color-gray-4: #ededed;
 	--sh-color-green: #3f9349;
 	--sh-color-green-2: darkgreen;
+	/* New colors from Figma document 2025 */
+	--sh-color-blue: #004cff;
+	--sh-color-black: #000000;
+	--sh-color-green-mint: #12e2a3;
+	--sh-color-green-light: #b0f4e6;
+	--sh-color-cream: #fcf9ec;
+	--sh-color-pink-light: #ffcee4;
+	--sh-color-pink: #fb90b7;
+	--sh-color-yellow: #fcc72c;
 }
 
 /* clearfix */
