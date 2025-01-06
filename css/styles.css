@@ -1078,7 +1078,7 @@ so add some extra place then to make it look a bit less ugly.
 .sh-PremiumFeaturesPostbox-button:focus,
 .sh-PremiumFeaturesPostbox-button:hover {
 	color: white;
-	background-color: var(--sh-color-black);
+	/* background-color: var(--sh-color-black); */
 }
 
 .sh-PremiumFeaturesPostbox-featuresList {
