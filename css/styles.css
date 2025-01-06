@@ -13,15 +13,21 @@
 	--sh-color-gray-4: #ededed;
 	--sh-color-green: #3f9349;
 	--sh-color-green-2: darkgreen;
-	/* New colors from Figma document 2025 */
-	--sh-color-blue: #004cff;
+
+	/* Colors from Figma document 2025 */
 	--sh-color-black: #000000;
+	--sh-color-black-2: #666666;
+	--sh-color-white: #ffffff;
+	--sh-color-blue: #004cff;
 	--sh-color-green-mint: #12e2a3;
 	--sh-color-green-light: #b0f4e6;
 	--sh-color-cream: #fcf9ec;
 	--sh-color-pink-light: #ffcee4;
 	--sh-color-pink: #fb90b7;
 	--sh-color-yellow: #fcc72c;
+
+	/* Font sizes */
+	--sh-font-size-small: 0.75rem;
 }
 
 /* clearfix */
@@ -1022,31 +1028,16 @@ so add some extra place then to make it look a bit less ugly.
 	--icon-size: 25px;
 }
 
-.sh-PageHeader-settingsLinkIcon-new {
-	font-style: normal;
-	display: inline-block;
-	text-transform: uppercase;
-	font-size: 0.8em;
-	background: var(--sh-color-green);
-	text-decoration: none;
-	text-decoration-color: var(--sh-color-green-2);
-	padding: 3px 4px;
-	line-height: 1;
-	border-radius: 3px;
-	color: #eee;
-	margin-left: 0.1em;
-}
-
 .sh-PremiumFeatureBadge {
 	display: inline-flex;
 	align-items: center;
-	background-color: var(--sh-color-green-2);
-	color: white;
+	background-color: var(--sh-color-green-mint);
+	color: var(--sh-color-black);
 	text-transform: uppercase;
 	font-size: 0.8em;
 	font-weight: normal;
 	font-style: normal;
-	border: 1px solid var(--sh-color-green-2);
+	/* border: 1px solid var(--sh-color-green-2); */
 	border-radius: 4px;
 	padding: 0.25em 0.5em;
 	opacity: 0.75;
@@ -1055,8 +1046,10 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-PremiumFeaturesPostbox {
+	--box-bg-color: var(--sh-color-white);
 	text-wrap-style: pretty;
 	padding: 1rem;
+	background-color: var(--box-bg-color);
 }
 
 .sh-PremiumFeaturesPostbox-preTitleFeaturesBadge {
@@ -1071,7 +1064,7 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-PremiumFeaturesPostbox-button {
 	display: inline-block;
-	background-color: var(--sh-color-green);
+	background-color: var(--sh-color-blue);
 	color: white;
 	text-decoration: none;
 	padding: 0.75em 1.25em;
@@ -1085,7 +1078,7 @@ so add some extra place then to make it look a bit less ugly.
 .sh-PremiumFeaturesPostbox-button:focus,
 .sh-PremiumFeaturesPostbox-button:hover {
 	color: white;
-	background-color: var(--sh-color-green-2);
+	background-color: var(--sh-color-black);
 }
 
 .sh-PremiumFeaturesPostbox-featuresList {

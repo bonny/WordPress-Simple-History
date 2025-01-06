@@ -863,11 +863,14 @@ class Helpers {
 		ob_start();
 
 		?>
-		<a href="https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=nav-header" class="sh-PageHeader-rightLink" target="_blank">
-			<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
-			<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
-			<em class="sh-PageHeader-settingsLinkIcon-new"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
-		</a>
+		<div class="sh-PageHeader-rightLink">
+			<a href="https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=nav-header" target="_blank">
+				<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
+				<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
+			</a>
+
+			<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
+		</div>
 		<?php
 
 		return ob_get_clean();
