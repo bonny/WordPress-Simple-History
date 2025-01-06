@@ -265,7 +265,7 @@ class RSS_Dropin extends Dropin {
 					/**
 					 * Filters the arguments passed to `SimpleHistoryLogQuery()` when fetching the RSS feed
 					 *
-					 * @example Change number of posts to retreieve in RSS feed.
+					 * @example Change number of posts to retrieve in RSS feed.
 					 *
 					 * // This example changes the number of posts in the RSS feed to 50 from the default 10.
 					 *
@@ -278,7 +278,7 @@ class RSS_Dropin extends Dropin {
 					 *     }
 					 * );
 					 *
-					 * @example Change number of posts to retreieve in RSS feed.
+					 * @example Change number of posts to retrieve in RSS feed.
 					 *
 					 * // This example changes the number of posts in the RSS feed to 20 from the default 10.
 					 *
