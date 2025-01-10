@@ -87,7 +87,7 @@ class Setup_Settings_Page extends Service {
 				_x( 'Simple History', 'Options page menu title', 'simple-history' ),
 				Helpers::get_view_settings_capability(),
 				Simple_History::SETTINGS_MENU_SLUG,
-				array( $this, 'settings_page_output' )
+				array( $this, 'settings_page_output_redirect' )
 			);
 
 			// New location: placed at WP Admin › Simple History › Settings.
@@ -101,6 +101,21 @@ class Setup_Settings_Page extends Service {
 			);
 
 		}
+	}
+
+	/**
+	 * Redirects old settings page to new settings page.
+	 */
+	public function settings_page_output_redirect() {
+		wp_redirect(
+			add_query_arg(
+				[
+					'page' => 'simple_history_settings_page',
+					'simple_history_redirected_from_tools_menu' => '1',
+				],
+				admin_url( 'admin.php' )
+			)
+		);
 	}
 
 	/**
