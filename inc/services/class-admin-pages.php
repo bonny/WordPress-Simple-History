@@ -126,7 +126,16 @@ class Admin_Pages extends Service {
 	 * at /wp-admin/index.php?page=simple_history_page
 	 */
 	public function history_page_output_redirect_to_main_page() {
-		wp_redirect( admin_url( 'admin.php?page=' . $this->simple_history::MENU_PAGE_SLUG ) );
+		wp_redirect(
+			add_query_arg(
+				[
+					'page' => $this->simple_history::MENU_PAGE_SLUG,
+					'simple_history_redirected_from_dashboard_menu' => '1',
+				],
+				admin_url( 'admin.php' )
+			)
+		);
+
 		exit;
 	}
 
