@@ -171,6 +171,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			'addons' => [
 				'addons' => $addons_service->get_addon_plugins(),
 				'has_extended_settings_add_on' => $addons_service->has_add_on( 'simple-history-extended-settings' ),
+				'has_premium_add_on' => $addons_service->has_add_on( 'simple-history-premium' ),
 			],
 			'experimental_features_enabled' => Helpers::experimental_features_is_enabled(),
 			'events_admin_page_url' => $this->simple_history->get_view_history_page_admin_url(),

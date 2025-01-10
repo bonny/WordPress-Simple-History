@@ -265,7 +265,7 @@ class RSS_Dropin extends Dropin {
 					/**
 					 * Filters the arguments passed to `SimpleHistoryLogQuery()` when fetching the RSS feed
 					 *
-					 * @example Change number of posts to retreieve in RSS feed.
+					 * @example Change number of posts to retrieve in RSS feed.
 					 *
 					 * // This example changes the number of posts in the RSS feed to 50 from the default 10.
 					 *
@@ -278,7 +278,7 @@ class RSS_Dropin extends Dropin {
 					 *     }
 					 * );
 					 *
-					 * @example Change number of posts to retreieve in RSS feed.
+					 * @example Change number of posts to retrieve in RSS feed.
 					 *
 					 * // This example changes the number of posts in the RSS feed to 20 from the default 10.
 					 *
@@ -472,7 +472,7 @@ class RSS_Dropin extends Dropin {
 			sprintf(
 				/* translators: %s is a link to the documentation */
 				__( 'Query parameters can be used to control what to include in the feed. <a href="%1$s" class="sh-ExternalLink" target="_blank">View documentation</a>.', 'simple-history' ),
-				'https://simple-history.com/docs/feeds/?utm_source=wpadmin'
+				'https://simple-history.com/docs/feeds/?utm_source=wpadmin&utm_content=rss-feed-params'
 			),
 			[
 				'a' => [

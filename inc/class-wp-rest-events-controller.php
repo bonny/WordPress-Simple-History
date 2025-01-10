@@ -572,7 +572,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response Response object.
 	 */
 	public function get_items( $request ) {
+		// Tmp slow requests to test slow response.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// sleep( 3 );
+
 		$events = [];
+
+		// Debug: return error.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// return new WP_Error( 'simple_history_error', 'Something went wrong 🤷', array( 'status' => 500 ) );
 
 		// Retrieve the list of registered collection query parameters.
 		$registered = $this->get_collection_params();

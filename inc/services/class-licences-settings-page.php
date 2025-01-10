@@ -133,7 +133,7 @@ class Licences_Settings_Page extends Service {
 
 			<p>
 				<?php
-				$link_url = 'https://simple-history.com/add-ons?utm_source=wpadmin';
+				$link_url = 'https://simple-history.com/add-ons?utm_source=wpadmin&utm_content=licences-settings';
 				$link_text = 'simple-history.com/add-ons';
 
 				echo wp_kses(

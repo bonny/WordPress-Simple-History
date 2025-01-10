@@ -134,6 +134,7 @@ class Simple_History {
 			Services\Licences_Settings_Page::class,
 			Services\Plugin_List_Info::class,
 			Services\REST_API::class,
+			Services\WP_CLI_Commands::class,
 		];
 	}
 
@@ -433,7 +434,6 @@ class Simple_History {
 			Dropins\Settings_Debug_Tab_Dropin::class,
 			Dropins\Sidebar_Stats_Dropin::class,
 			Dropins\Sidebar_Dropin::class,
-			Dropins\WP_CLI_Dropin::class,
 			Dropins\Event_Details_Dev_Dropin::class,
 			Dropins\Quick_Stats::class,
 			Dropins\Sidebar_Add_Ons_Dropin::class,
@@ -837,7 +837,10 @@ class Simple_History {
 			// Div with information about add-ons that can limit the number of login attempts stored.
 			// Only show for SimpleUserLogger and login failed events and if the add-on is not active.
 			$logger = $one_log_row->logger;
-			$is_simple_history_extended_settings_active = Helpers::is_plugin_active( 'simple-history-extended-settings/index.php' );
+
+			$is_simple_history_extended_settings_active = Helpers::is_extended_settings_add_on_active();
+			$is_simple_history_premium_active = Helpers::is_premium_add_on_active();
+
 			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
 
 				if ( $is_simple_history_extended_settings_active ) {
@@ -849,11 +852,20 @@ class Simple_History {
 					$occasions_html .= '</a>';
 					$occasions_html .= '</p>';
 					$occasions_html .= '</div>';
+				} elseif ( $is_simple_history_premium_active ) {
+					// Show link to premium settings page if extended settings plugin is active.
+					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
+					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
+					$occasions_html .= '<a href="' . admin_url( 'options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts' ) . '">';
+					$occasions_html .= __( 'Configure failed login attempts', 'simple-history' );
+					$occasions_html .= '</a>';
+					$occasions_html .= '</p>';
+					$occasions_html .= '</div>';
 				} else {
 					// Show link to add-on if extended settings plugin is not active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
-					$occasions_html .= '<a href="https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin#limit-number-of-failed-login-attempts" class="sh-ExternalLink" target="_blank">';
+					$occasions_html .= '<a href="https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin&utm_content=login-occassions#limit-number-of-failed-login-attempts" class="sh-ExternalLink" target="_blank">';
 					$occasions_html .= __( 'Limit logged login attempts', 'simple-history' );
 					$occasions_html .= '</a>';
 					$occasions_html .= '</p>';

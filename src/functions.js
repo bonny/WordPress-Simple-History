@@ -150,3 +150,14 @@ export const useURLFragment = () => {
 
 	return fragment;
 };
+
+/**
+ * Random function from https://stackoverflow.com/a/7228322
+ *
+ * @param {number} min
+ * @param {number} max
+ * @returns {number} Random number between min and max.
+ */
+export function randomIntFromInterval( min, max ) {
+	return Math.floor( Math.random() * ( max - min + 1 ) + min );
+}

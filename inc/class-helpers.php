@@ -863,11 +863,14 @@ class Helpers {
 		ob_start();
 
 		?>
-		<a href="https://simple-history.com/add-ons/?utm_source=wpadmin" class="sh-PageHeader-rightLink" target="_blank">
-			<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
-			<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
-			<em class="sh-PageHeader-settingsLinkIcon-new"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
-		</a>
+		<div class="sh-PageHeader-rightLink">
+			<a href="https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=nav-header" target="_blank">
+				<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
+				<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
+			</a>
+
+			<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
+		</div>
 		<?php
 
 		return ob_get_clean();
@@ -1525,9 +1528,18 @@ class Helpers {
 	 * Used to keep track of how many events have been logged since the plugin was installed.
 	 */
 	public static function increase_total_logged_events_count() {
-		$logged_events_counter = self::get_total_logged_events_count();
-		$logged_events_counter++;
-		update_option( 'simple_history_total_logged_events_count', $logged_events_counter, false );
+		// Don't log when updating widgets,
+		// because it causes error "widget_setting_too_many_options".
+		// Bug report: https://github.com/bonny/WordPress-Simple-History/issues/498.
+		if ( doing_action( 'wp_ajax_update-widget' ) ) {
+			return;
+		}
+
+		update_option(
+			'simple_history_total_logged_events_count',
+			self::get_total_logged_events_count() + 1,
+			false
+		);
 	}
 
 	/**
@@ -1547,5 +1559,66 @@ class Helpers {
 	 */
 	public static function get_plugin_install_date() {
 		return get_option( 'simple_history_install_date_gmt' );
+	}
+
+	/**
+	 * Escape a string to be used in a CSV context, by adding an apostrophe if field
+	 * begins with '=', '+', '-', or '@'.
+	 *
+	 * Function taken from the Jetpack Plugin, Copyright Automattic.
+	 *
+	 * @see https://www.drupal.org/project/webform/issues/3157877#:~:text=At%20present%2C%20the%20best%20defence%20strategy%20we%20are%20aware%20of%20is%20prefixing%20cells%20that%20start%20with%20%E2%80%98%3D%E2%80%99%20%2C%20%27%2B%27%20or%20%27%2D%27%20with%20an%20apostrophe.
+	 * @see https://github.com/Automattic/jetpack/blob/d4068d52c35a30edc01b9356a4764132aeb532fd/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L1854
+	 * @param string $field - the CSV field.
+	 * @return string CSV field with escaped characters.
+	 */
+	public static function esc_csv_field( $field ) {
+		// Bail if not string.
+		if ( ! is_string( $field ) ) {
+			return '';
+		}
+
+		$active_content_triggers = array( '=', '+', '-', '@' );
+
+		if ( in_array( substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
+			$field = "'" . $field;
+		}
+
+		return $field;
+	}
+
+	/**
+	 * Determine if promo boxes should be shown.
+	 *
+	 * @return bool True if promo boxes should be shown, false otherwise.
+	 */
+	public static function show_promo_boxes() {
+		// Hide if Premium add-on is active.
+		if ( self::is_premium_add_on_active() ) {
+			return false;
+		}
+
+		// Hide if Extended Settings is active.
+		if ( self::is_extended_settings_add_on_active() ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if premium add-on is active.
+	 *
+	 * @return bool True if premium add-on is active, false otherwise.
+	 */
+	public static function is_premium_add_on_active() {
+		return self::is_plugin_active( 'simple-history-premium/simple-history-premium.php' );
+	}
+
+	/**
+	 * Check if Extended Settings add-on is active.
+	 */
+	public static function is_extended_settings_add_on_active() {
+		return self::is_plugin_active( 'simple-history-extended-settings/index.php' );
 	}
 }

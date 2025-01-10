@@ -132,18 +132,16 @@ class Setup_Settings_Page extends Service {
 			)
 		);
 
-		if ( Helpers::experimental_features_is_enabled() ) {
-			register_setting(
-				$settings_general_option_group,
-				'simple_history_show_in_admin_bar',
-				array(
-					'sanitize_callback' => array(
-						Helpers::class,
-						'sanitize_checkbox_input',
-					),
-				)
-			);
-		}
+		register_setting(
+			$settings_general_option_group,
+			'simple_history_show_in_admin_bar',
+			array(
+				'sanitize_callback' => array(
+					Helpers::class,
+					'sanitize_checkbox_input',
+				),
+			)
+		);
 
 		add_settings_field(
 			'simple_history_show_where',
@@ -214,15 +212,12 @@ class Setup_Settings_Page extends Service {
 		
 		<br />
 
+		<input <?php checked( $show_in_admin_bar ); ?> type="checkbox" value="1" name="simple_history_show_in_admin_bar" id="simple_history_show_in_admin_bar" class="simple_history_show_in_admin_bar" />
+		<label for="simple_history_show_in_admin_bar">
+			<?php esc_html_e( 'in the admin bar', 'simple-history' ); ?>
+		</label>
+
 		<?php
-		if ( Helpers::experimental_features_is_enabled() ) {
-			?>
-			<input <?php checked( $show_in_admin_bar ); ?> type="checkbox" value="1" name="simple_history_show_in_admin_bar" id="simple_history_show_in_admin_bar" class="simple_history_show_in_admin_bar" />
-			<label for="simple_history_show_in_admin_bar">
-				<?php esc_html_e( 'in the admin bar', 'simple-history' ); ?>
-			</label>
-			<?php
-		}
 	}
 
 	/**
@@ -347,29 +342,22 @@ class Setup_Settings_Page extends Service {
 				esc_html( $clear_days )
 			);
 			echo '<br>';
-
-			$message = sprintf(
-				/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
-				__( 'The number of days can be changed using a filter or with an add-on. <a href="%1$s" target="_blank" class="sh-ExternalLink">More info.</a>', 'simple-history' ),
-				esc_url( 'https://simple-history.com/support/change-number-of-days-to-keep-log/?utm_source=wpadmin' )
-			);
-
-			echo '<p>' . wp_kses(
-				$message,
-				[
-					'a' => [
-						'href' => [],
-						'target' => [],
-						'class' => [],
-					],
-				]
-			) . '</p>';
-
 		} else {
 			esc_html_e( 'Items in the database are kept forever.', 'simple-history' );
 		}
 
 		echo '</p>';
+
+		// View Premium add-on information, if not already installed.
+		if ( ! Helpers::show_promo_boxes() ) {
+			?>
+			<p>
+				<a href="https://simple-history.com/premium/?utm_source=wpadmin&utm_content=purge-interval" target="_blank" class="sh-ExternalLink">
+					<?php esc_html_e( 'Upgrade to Simple History Premium to set this to any number of days.', 'simple-history' ); ?>
+				</a>
+			</p>
+			<?php
+		}
 
 		printf(
 			'<p><a class="button js-SimpleHistory-Settings-ClearLog" href="%2$s">%1$s</a></p>',

@@ -11,8 +11,12 @@ class GUICest {
 
                 $I->see( 'Simple History' );
                
+                // Wait for items to be loaded, or it will catch the skeleton loading items.
+                $I->waitForElement( '.SimpleHistoryLogitems.is-loaded' );
+
                 $I->waitForElement( '.SimpleHistoryLogitem__text' );
-                $I->see('Logged in', '.SimpleHistoryLogitem__text');
+
+                $I->see('Logged in', '.SimpleHistoryLogitem__text' );
 
                 // Search filters, unexpanded and expanded.
                 $I->dontSee('Log levels');

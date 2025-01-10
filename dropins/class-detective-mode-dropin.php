@@ -84,7 +84,7 @@ class Detective_Mode_Dropin extends Dropin {
 		</p>
 
 		<p class="description">
-			<a href="https://simple-history.com/support/detective-mode/?utm_source=wpadmin" target="_blank" class="sh-ExternalLink">
+			<a href="https://simple-history.com/support/detective-mode/?utm_source=wpadmin&utm_content=detective-mode" target="_blank" class="sh-ExternalLink">
 				<?php esc_html_e( 'Read more about detective mode', 'simple-history' ); ?>
 			</a>
 		</p>

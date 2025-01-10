@@ -1,24 +1,31 @@
 <?php
 
-namespace Simple_History\Dropins;
+namespace Simple_History\Services;
 
-use Simple_History\Log_Initiators;
 use Simple_History\Simple_History;
-use Simple_History\Log_Query;
+use Simple_History\Log_Initiators;
 use WP_CLI;
+use WP_CLI_Command;
+use WP_CLI\Utils;
+use Simple_History\Log_Query;
 
 /**
- * WP CLI commands for Simple History.
+ * WP CLI command that search the history.
  */
-class WP_CLI_Commands {
-	/** @var Simple_History */
+class WP_CLI_List_Command extends WP_CLI_Command {
+
+	/**
+	 * Simple_History instance.
+	 *
+	 * @var Simple_History
+	 */
 	private $simple_history;
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		 $this->simple_history = Simple_History::get_instance();
+		$this->simple_history = Simple_History::get_instance();
 	}
 
 	/**

@@ -2,6 +2,7 @@
 #wpadminbar .quicklinks {
 	--sh-dot-size: 10px;
 	--sh-line-color: #666;
+	--sh-text-color: rgba(240, 246, 252, 0.7);
 
 	#wp-admin-bar-simple-history {
 		> .ab-item {
@@ -30,7 +31,7 @@
 		// Button styles are the same as the regular
 		// WP css styles, but due to wpadmin * selector
 		// we need to override them here.
-		.button {
+		button {
 			display: inline-block;
 			text-decoration: none;
 			font-size: 13px;
@@ -44,6 +45,12 @@
 			border-radius: 3px;
 			white-space: nowrap;
 			box-sizing: border-box;
+			display: flex;
+			align-items: center;
+			gap: 0.25rem;
+			background-color: transparent;
+			color: var(--sh-text-color);
+			border-color: transparent;
 		}
 
 		.button-small {
@@ -204,16 +211,25 @@
 			display: flex !important;
 			gap: 0.25rem;
 			align-items: center;
+			background-color: transparent;
+			border-color: transparent;
+			color: rgba(240, 246, 252, 0.7);
 		}
 
-		.dashicons {
+		.SimpleHistory-adminBarEventsList-actions-reload img {
 			line-height: 1;
+			width: 20px;
+			height: 20px;
 		}
 
-		.dashicons::before {
-			font-family: dashicons;
-			line-height: 1;
-		}
+		// .dashicons {
+		// 	line-height: 1;
+		// }
+
+		// .dashicons::before {
+		// 	font-family: dashicons;
+		// 	line-height: 1;
+		// }
 	}
 	.SimpleHistory-adminBarEventsList-actions-settings {
 		flex: 1;

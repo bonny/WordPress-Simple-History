@@ -8,6 +8,7 @@ import { EventOccasionsList } from './EventOccasionsList';
 /**
  * Displays some text for failed login attempts.
  * If the Extended Settings add-on is active, the text will be a link to the settings page.
+ * If the Premium add-on is active, the text will be a link to the settings page.
  * If the Extended Settings add-on is not active, the text will be a link to the add-on page.
  *
  * @param {Object} props
@@ -39,9 +40,9 @@ function EventOccasionsAddonsContent( props ) {
 						) }
 					</a>
 				) : (
-					<ExternalLink href="https://simple-history.com/add-ons/extended-settings/?utm_source=wpadmin#limit-number-of-failed-login-attempts">
+					<ExternalLink href="https://simple-history.com/add-ons/premium/?utm_source=wpadmin#limit-number-of-failed-login-attempts">
 						{ __(
-							'Limit logged login attempts',
+							'Limit logged login attempts (Premium)',
 							'simple-history'
 						) }
 					</ExternalLink>

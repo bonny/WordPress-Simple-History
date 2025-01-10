@@ -2,19 +2,26 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { EventsControlBar } from './EventsControlBar';
-import { EventsModalIfFragment } from './EventsModalIfFragment';
-import { NewEventsNotifier } from './NewEventsNotifier';
 import {
-	SEARCH_FILTER_DEFAULT_START_DATE,
 	SEARCH_FILTER_DEFAULT_END_DATE,
+	SEARCH_FILTER_DEFAULT_START_DATE,
 } from '../constants';
-import { EventsList } from './EventsList';
-import { EventsSearchFilters } from './EventsSearchFilters';
 import { generateAPIQueryParams } from '../functions';
+import { EventsControlBar } from './EventsControlBar';
+import { EventsList } from './EventsList';
+import { EventsModalIfFragment } from './EventsModalIfFragment';
+import { EventsSearchFilters } from './EventsSearchFilters';
+import { NewEventsNotifier } from './NewEventsNotifier';
 
-function EventsGui() {
+function EventsGUI() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
+	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
+		useState( false );
+	const [ eventsLoadingErrorDetails, setEventsLoadingErrorDetails ] =
+		useState( {
+			errorCode: undefined,
+			errorMessage: undefined,
+		} );
 	const [ events, setEvents ] = useState( [] );
 	const [ eventsMeta, setEventsMeta ] = useState( {} );
 	const [ eventsReloadTime, setEventsReloadTime ] = useState( Date.now() );
@@ -31,6 +38,7 @@ function EventsGui() {
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
 	const [ hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn ] =
 		useState( false );
+	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
 	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
@@ -99,6 +107,8 @@ function EventsGui() {
 	 * Load events from the REST API.
 	 * A new function is created each time the eventsQueryParams changes,
 	 * so that's whats making the reload of events.
+	 *
+	 * TODO: Move this to a hook.
 	 */
 	const loadEvents = useCallback( async () => {
 		setEventsIsLoading( true );
@@ -109,7 +119,6 @@ function EventsGui() {
 					'/simple-history/v1/events',
 					eventsQueryParams
 				),
-				// Skip parsing to be able to retrieve headers.
 				parse: false,
 			} );
 
@@ -134,8 +143,23 @@ function EventsGui() {
 
 			setEvents( eventsJson );
 		} catch ( error ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Error loading events:', error );
+			setEventsLoadingHasErrors( true );
+
+			const errorDetails = {
+				code: error.status, // Example number "500".
+				statusText: error.statusText, // Example "Internal Server Error".
+				bodyJson: null,
+				bodyText: null,
+			};
+
+			const contentType = error.headers.get( 'Content-Type' );
+			if ( contentType && contentType.includes( 'application/json' ) ) {
+				errorDetails.bodyJson = await error.json();
+			} else {
+				errorDetails.bodyText = await error.text();
+			}
+
+			setEventsLoadingErrorDetails( errorDetails );
 		} finally {
 			setEventsIsLoading( false );
 		}
@@ -203,6 +227,7 @@ function EventsGui() {
 				setPagerSize={ setPagerSize }
 				setMapsApiKey={ setMapsApiKey }
 				setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
+				setHasPremiumAddOn={ setHasPremiumAddOn }
 				setIsExperimentalFeaturesEnabled={
 					setIsExperimentalFeaturesEnabled
 				}
@@ -216,9 +241,7 @@ function EventsGui() {
 				isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
 				eventsIsLoading={ eventsIsLoading }
 				eventsTotal={ eventsMeta.total }
-				eventsMaxId={ eventsMaxId }
 				eventsQueryParams={ eventsQueryParams }
-				onReload={ handleReload }
 			/>
 
 			<NewEventsNotifier
@@ -232,11 +255,15 @@ function EventsGui() {
 				events={ events }
 				eventsMeta={ eventsMeta }
 				page={ page }
+				pagerSize={ pagerSize }
 				setPage={ setPage }
 				eventsMaxId={ eventsMaxId }
 				prevEventsMaxId={ prevEventsMaxId }
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				hasPremiumAddOn={ hasPremiumAddOn }
+				eventsLoadingHasErrors={ eventsLoadingHasErrors }
+				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>
 
 			<EventsModalIfFragment />
@@ -244,4 +271,4 @@ function EventsGui() {
 	);
 }
 
-export default EventsGui;
+export default EventsGUI;

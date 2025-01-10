@@ -1235,7 +1235,7 @@ class Plugin_Logger extends Logger {
 
 				// Add link with more info about the plugin
 				// If plugin_install_source = web then it should be a wordpress.org-plugin
-				// If plugin_github_url is set then it's a zip from a github thingie
+				// If plugin_github_url is set then it's a zip from github
 				// so use link to that.
 				$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 

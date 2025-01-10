@@ -43,7 +43,7 @@
 		Also see example XML:
 		https://github.com/WordPress/WordPress-Coding-Standards/blob/develop/phpcs.xml.dist.sample
 	-->
-	<config name="minimum_supported_wp_version" value="6.1"/>
+	<config name="minimum_wp_version" value="6.2"/>
 
 	<rule ref="Generic.Commenting.DocComment.MissingShort">
 		<!-- Temporarily disabled until https://github.com/WordPress/WordPress-Coding-Standards/issues/403 is fixed. -->

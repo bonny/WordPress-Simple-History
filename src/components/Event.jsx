@@ -1,7 +1,8 @@
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem, Slot } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { info, link, moreVertical } from '@wordpress/icons';
+import { info, link, moreHorizontalMobile } from '@wordpress/icons';
 import { clsx } from 'clsx';
 import { navigateToEventPermalink } from '../functions';
 import { EventDetails } from './EventDetails';
@@ -9,7 +10,6 @@ import { EventHeader } from './EventHeader';
 import { EventInitiatorImage } from './EventInitiator';
 import { EventOccasions } from './EventOccasions';
 import { EventText } from './EventText';
-import { useState } from '@wordpress/element';
 
 function CopyLinkMenuItem( { event } ) {
 	const permalink = event.permalink;
@@ -49,7 +49,13 @@ function ViewEventDetailsMenuItem( { event, onClose } ) {
 	);
 }
 
-function EventActions( props ) {
+/**
+ * The button with three dots that opens a dropdown with actions for the event.
+ *
+ * @param {Object} props
+ * @return {Object} React element
+ */
+function EventActionsButton( props ) {
 	const { event } = props;
 	const eventVariant = props.eventVariant;
 
@@ -62,7 +68,7 @@ function EventActions( props ) {
 		<div className="SimpleHistoryLogitem__actions">
 			<DropdownMenu
 				label={ __( 'Actions…', 'simple-history' ) }
-				icon={ moreVertical }
+				icon={ moreHorizontalMobile }
 				popoverProps={ {
 					placement: 'left-start',
 					inline: true,
@@ -76,8 +82,18 @@ function EventActions( props ) {
 								eventVariant={ eventVariant }
 								onClose={ onClose }
 							/>
+
 							<CopyLinkMenuItem event={ event } />
 						</MenuGroup>
+
+						<Slot
+							name="SimpleHistorySlotEventActionsMenu"
+							fillProps={ {
+								onClose,
+								event,
+								eventVariant,
+							} }
+						/>
 					</>
 				) }
 			</DropdownMenu>
@@ -114,6 +130,7 @@ export function Event( props ) {
 		variant = 'normal',
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
+		hasPremiumAddOn,
 		isNewAfterFetchNewEvents,
 	} = props;
 
@@ -140,6 +157,7 @@ export function Event( props ) {
 					eventVariant={ variant }
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+					hasPremiumAddOn={ hasPremiumAddOn }
 				/>
 
 				<EventText event={ event } eventVariant={ variant } />
@@ -150,9 +168,10 @@ export function Event( props ) {
 					event={ event }
 					eventVariant={ variant }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+					hasPremiumAddOn={ hasPremiumAddOn }
 				/>
 
-				<EventActions event={ event } eventVariant={ variant } />
+				<EventActionsButton event={ event } eventVariant={ variant } />
 			</div>
 		</li>
 	);

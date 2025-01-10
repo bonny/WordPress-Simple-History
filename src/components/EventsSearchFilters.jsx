@@ -42,6 +42,7 @@ export function EventsSearchFilters( props ) {
 		setPagerSize,
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
+		setHasPremiumAddOn,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 	} = props;
@@ -131,6 +132,8 @@ export function EventsSearchFilters( props ) {
 				searchOptions.addons.has_extended_settings_add_on
 			);
 
+			setHasPremiumAddOn( searchOptions.addons.has_premium_add_on );
+
 			setIsExperimentalFeaturesEnabled(
 				searchOptions.experimental_features_enabled
 			);
@@ -146,6 +149,7 @@ export function EventsSearchFilters( props ) {
 		setSelectedDateOption,
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
+		setHasPremiumAddOn,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 	] );
