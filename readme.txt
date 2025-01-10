@@ -281,6 +281,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 ### Unreleased
 
 -   Add slotfill `SimpleHistorySlotEventActionsMenu`.
+-   Add Simple History to admin bar instead of sub-admin menu. Simple History is located at dashboard, in the tools menu and have multiple sub-tabs. This is a path forward to make Simple History more accessible and easier to find and not being hidden or scattered at different places in the admin area.
 
 ### 5.4.4 (January 2025)
 
