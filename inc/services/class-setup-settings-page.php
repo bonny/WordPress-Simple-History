@@ -380,7 +380,7 @@ class Setup_Settings_Page extends Service {
 		$headline_link_end_elm = '';
 
 		if ( Helpers::setting_show_as_page() ) {
-			$headline_link_target = admin_url( 'index.php?page=simple_history_page' );
+			$headline_link_target = $this->simple_history->get_view_history_page_admin_url();
 		} else if ( Helpers::setting_show_on_dashboard() ) {
 			$headline_link_target = admin_url( 'index.php' );
 		}

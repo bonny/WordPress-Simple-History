@@ -1130,22 +1130,23 @@ class Helpers {
 	public static function is_on_our_own_pages( $hook = '' ) {
 		$current_screen = self::get_current_screen();
 
-		$basePrefix = apply_filters( 'simple_history/admin_location', 'index' );
+		$basePrefix = 'admin';
 		$basePrefix = $basePrefix === 'index' ? 'dashboard' : $basePrefix;
-
+		// sh_dd( '$current_screen->base', $current_screen->base );
 		if ( $current_screen && $current_screen->base == 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ) {
-			return true;
-		} elseif ( $current_screen && $current_screen->base === $basePrefix . '_page_simple_history_page' ) {
+			// Base is "settings_page_simple_history_settings_menu_slug".
+			// Applies for settings page and settings page tabs.
 			return true;
 		} elseif (
 			$hook == 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ||
 			( self::setting_show_on_dashboard() && $hook == 'index.php' ) ||
 			( self::setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page' )
 		) {
-			return true;
+			// return true;
 		} elseif ( $current_screen && $current_screen->base == 'dashboard' && self::setting_show_on_dashboard() ) {
 			return true;
-		} elseif ( $current_screen && $current_screen->base == 'toplevel_page_simple_history_admin_page' ) {
+		} elseif ( $current_screen && $current_screen->base == 'toplevel_page_' . Simple_History::MENU_PAGE_SLUG ) {
+			// New main menu menu.
 			return true;
 		}
 

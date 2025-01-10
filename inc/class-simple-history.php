@@ -60,6 +60,9 @@ class Simple_History {
 	/** @var string $plugin_basename */
 	public $plugin_basename = SIMPLE_HISTORY_BASENAME;
 
+	/** Slug for the admin menu main page. */
+	public const MENU_PAGE_SLUG = 'simple_history_admin_menu_page';
+
 	/** Slug for the settings menu */
 	public const SETTINGS_MENU_SLUG = 'simple_history_settings_menu_slug';
 
@@ -1436,6 +1439,6 @@ class Simple_History {
 	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
 	 */
 	public function get_view_history_page_admin_url() {
-		return admin_url( apply_filters( 'simple_history/admin_location', 'index' ) . '.php?page=simple_history_page' );
+		return menu_page_url( self::MENU_PAGE_SLUG, false );
 	}
 }
