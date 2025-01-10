@@ -68,7 +68,6 @@ class Export_Dropin extends Dropin {
 	 */
 	public function output_export_page() {
 		?>
-
 		<div class="wrap">
 			<?php
 			echo wp_kses(

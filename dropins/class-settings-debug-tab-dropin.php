@@ -2,6 +2,7 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Simple_History;
 use Simple_History\Helpers;
 use Simple_History\Log_Query;
 
@@ -14,21 +15,28 @@ use Simple_History\Log_Query;
 class Settings_Debug_Tab_Dropin extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
-		$this->simple_history->register_settings_tab(
-			array(
-				'slug' => 'debug',
-				'name' => __( 'Debug', 'simple-history' ),
-				'order' => 10,
-				'icon' => 'build',
-				'function' => array( $this, 'output' ),
-			)
+		add_action( 'admin_menu', array( $this, 'add_submenu' ) );
+	}
+
+	/**
+	 * Add submenu page for debug.
+	 */
+	public function add_submenu() {
+		add_submenu_page(
+			Simple_History::MENU_PAGE_SLUG,
+			__( 'Debug', 'simple-history' ),
+			__( 'Debug', 'simple-history' ),
+			'manage_options',
+			'simple_history_debug',
+			array( $this, 'output_debug_page' ),
+			50
 		);
 	}
 
 	/**
 	 * Output the tab.
 	 */
-	public function output() {
+	public function output_debug_page() {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/settings-tab-debug.php',
 			false,
