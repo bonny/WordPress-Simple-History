@@ -2,6 +2,8 @@
 
 namespace Simple_History;
 
+use Simple_History\Services\Admin_Pages;
+
 /**
  * @var array{
  *      instantiated_loggers:array,
@@ -21,6 +23,10 @@ namespace Simple_History;
 defined( 'ABSPATH' ) || die();
 
 $args = $args ?? [];
+
+
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo Admin_Pages::header_output();
 
 ?>
 <div class="wrap">

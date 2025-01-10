@@ -731,7 +731,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'link', $fields ) ) {
-			$data['link'] = $this->simple_history->get_view_history_page_admin_url() . "#simple-history/event/{$item->id}";
+			$data['link'] = Simple_History::get_view_history_page_admin_url() . "#simple-history/event/{$item->id}";
 		}
 
 		if ( rest_is_field_included( 'logger', $fields ) ) {
@@ -810,7 +810,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		if ( rest_is_field_included( 'permalink', $fields ) ) {
 			$data['permalink'] = sprintf(
 				'%s#simple-history/event/%d',
-				$this->simple_history->get_view_history_page_admin_url(),
+				Simple_History::get_view_history_page_admin_url(),
 				$item->id
 			);
 		}

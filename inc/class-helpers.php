@@ -827,7 +827,7 @@ class Helpers {
 	public static function get_settings_page_url() {
 		// Can not use `menu_page_url()` because it only works within the admin area.
 		// But we want to be able to link to settings page also from front end.
-		return admin_url( 'admin.php?page=' . Simple_History::SETTINGS_MENU_SLUG );
+		return admin_url( 'admin.php?page=simple_history_settings_page' );
 	}
 
 	/**

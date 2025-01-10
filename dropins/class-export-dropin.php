@@ -4,6 +4,7 @@ namespace Simple_History\Dropins;
 use Simple_History\Simple_History;
 use Simple_History\Export;
 use Simple_History\Helpers;
+use Simple_History\Services\Admin_Pages;
 
 /**
  * Dropin Name: Export
@@ -67,7 +68,10 @@ class Export_Dropin extends Dropin {
 	 * Output for the export tab on the settings page.
 	 */
 	public function output_export_page() {
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Admin_Pages::header_output();
 		?>
+
 		<div class="wrap">
 			<?php
 			echo wp_kses(
@@ -123,7 +127,6 @@ class Export_Dropin extends Dropin {
 			</form>
 		
 		</div>
-
 		<?php
 	}
 }

@@ -145,32 +145,10 @@ class Admin_Pages extends Service {
 	public function history_page_output() {
 		?>
 		<div class="SimpleHistoryWrap">
-
-			<header class="sh-PageHeader">
-				<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-					<img width="1100" height="156" class="sh-PageHeader-logo" src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
-				</h1>
-
-				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo Helpers::get_header_add_ons_link();
-				?>
-				
-				<?php
-				// Add link to settings.
-				if ( current_user_can( Helpers::get_view_settings_capability() ) ) {
-					?>
-					<a href="<?php echo esc_url( Helpers::get_settings_page_url() ); ?>" class="sh-PageHeader-rightLink">
-						<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--settings"></span>
-						<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Settings', 'simple-history' ); ?></span>
-					</a>
-					<?php
-				}
-				?>
-			</header>
-
-			<?php // WordPress will add notices after element with class .wp-header-end. ?>
-			<hr class="wp-header-end">
+			<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo self::header_output();
+			?>
 
 			<div class="wrap">
 
@@ -212,5 +190,71 @@ class Admin_Pages extends Service {
 
 		</div>
 		<?php
+	}
+
+	/**
+	 * Output the common header HTML.
+	 *
+	 * @param string $main_nav_html The main navigation HTML.
+	 * @param string $sub_nav_html The sub navigation HTML.
+	 */
+	public static function header_output( $main_nav_html = '', $sub_nav_html = '' ) {
+		ob_start();
+
+		// Wrap link around title if we have somewhere to go.
+		$headline_link_target = null;
+		$headline_link_start_elm = '';
+		$headline_link_end_elm = '';
+
+		if ( Helpers::setting_show_as_page() ) {
+			$headline_link_target = Simple_History::get_view_history_page_admin_url();
+		} else if ( Helpers::setting_show_on_dashboard() ) {
+			$headline_link_target = admin_url( 'index.php' );
+		}
+
+		if ( ! is_null( $headline_link_target ) ) {
+			$headline_link_start_elm = sprintf(
+				'<a href="%1$s" class="sh-PageHeader-titleLink">',
+				esc_url( $headline_link_target )
+			);
+			$headline_link_end_elm = '</a>';
+		}
+
+		$allowed_link_html = [
+			'a' => [
+				'href' => 1,
+				'class' => 1,
+			],
+		];
+
+		?>
+		<header class="sh-PageHeader">
+			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
+				<?php echo wp_kses( $headline_link_start_elm, $allowed_link_html ); ?>          
+				<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
+				<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
+			</h1>
+			
+			<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo Helpers::get_header_add_ons_link();
+
+			// Output main nav and subnav.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $main_nav_html;
+			?>
+		</header>
+
+		<?php
+		// Output sub nav items.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $sub_nav_html;
+
+		// WordPress will add notices after element with class .wp-header-end.
+		?>
+		<hr class="wp-header-end">
+		<?php
+
+		return ob_get_clean();
 	}
 }

@@ -394,103 +394,32 @@ class Setup_Settings_Page extends Service {
 		);
 	}
 
+
 	/**
 	 * Output HTML for the settings page.
 	 * Called from add_options_page.
 	 */
 	public function settings_page_output() {
-		$arr_settings_tabs = $this->simple_history->get_settings_tabs();
-		$arr_settings_tabs_sub = $this->simple_history->get_settings_tabs( 'sub' );
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Admin_Pages::header_output(
+			self::get_main_nav_html(),
+			self::get_subnav_html()
+		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
 
-		// Wrap link around title if we have somewhere to go.
-		$headline_link_target = null;
-		$headline_link_start_elm = '';
-		$headline_link_end_elm = '';
+	public static function get_subnav_html() {
+		ob_start();
 
-		if ( Helpers::setting_show_as_page() ) {
-			$headline_link_target = $this->simple_history->get_view_history_page_admin_url();
-		} else if ( Helpers::setting_show_on_dashboard() ) {
-			$headline_link_target = admin_url( 'index.php' );
-		}
+		$simple_history = Simple_History::get_instance();
 
-		if ( ! is_null( $headline_link_target ) ) {
-			$headline_link_start_elm = sprintf(
-				'<a href="%1$s" class="sh-PageHeader-titleLink">',
-				esc_url( $headline_link_target )
-			);
-			$headline_link_end_elm = '</a>';
-		}
+		$arr_settings_tabs = $simple_history->get_settings_tabs();
+		$arr_settings_tabs_sub = $simple_history->get_settings_tabs( 'sub' );
 
-		$allowed_link_html = [
-			'a' => [
-				'href' => 1,
-				'class' => 1,
-			],
-		];
-
-		?>
-		<header class="sh-PageHeader">
-			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-				<?php echo wp_kses( $headline_link_start_elm, $allowed_link_html ); ?>			
-				<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
-				<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
-			</h1>
-			
-			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo Helpers::get_header_add_ons_link();
-			?>
-			
-			<?php
-			// Add link back to the log.
-			if ( Helpers::setting_show_as_page() ) {
-				?>
-				<a href="<?php echo esc_url( $this->simple_history->get_view_history_page_admin_url() ); ?>" class="sh-PageHeader-rightLink">
-					<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--history"></span>
-					<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Back to event log', 'simple-history' ); ?></span>
-				</a>
-				<?php
-			}
-
-			?>
-			<nav class="sh-PageNav">
-				<?php
-				$active_tab = sanitize_text_field( wp_unslash( $_GET['selected-tab'] ?? 'settings' ) );
-
-				foreach ( $arr_settings_tabs as $one_tab ) {
-					$tab_slug = $one_tab['slug'];
-
-					$icon_html = '';
-					if ( ! is_null( $one_tab['icon'] ?? null ) ) {
-						$icon_html = sprintf(
-							'<span class="sh-PageNav-icon sh-Icon--%1$s"></span>',
-							esc_attr( $one_tab['icon'] )
-						);
-					}
-
-					$icon_html_allowed_html = [
-						'span' => [
-							'class' => [],
-						],
-					];
-
-					printf(
-						'<a href="%3$s" class="sh-PageNav-tab %4$s">%5$s%1$s</a>',
-						esc_html( $one_tab['name'] ), // 1
-						esc_html( $tab_slug ), // 2
-						esc_url( Helpers::get_settings_page_tab_url( $tab_slug ) ), // 3
-						$active_tab == $tab_slug ? 'is-active' : '', // 4
-						wp_kses( $icon_html, $icon_html_allowed_html ) // 5
-					);
-				}
-				?>
-			</nav>
-		</header>
-
-		<?php
 		// Begin subnav.
 		$sub_tab_found = false;
 		$active_sub_tab = sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ?? '' ) );
+		$active_tab = self::get_active_tab_slug();
 
 		// Get sub tabs for currently active tab.
 		$subtabs_for_active_tab = wp_filter_object_list(
@@ -586,6 +515,57 @@ class Setup_Settings_Page extends Service {
 
 			call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
 		}
+
+		return ob_get_clean();
+	}
+
+	public static function get_active_tab_slug() {
+		return sanitize_text_field( wp_unslash( $_GET['selected-tab'] ?? 'settings' ) );
+	}
+
+	public static function get_main_nav_html() {
+		ob_start();
+
+		$simple_history = Simple_History::get_instance();
+
+		$arr_settings_tabs = $simple_history->get_settings_tabs()
+
+		?>
+		<nav class="sh-PageNav">
+			<?php
+			$active_tab = self::get_active_tab_slug();
+
+			foreach ( $arr_settings_tabs as $one_tab ) {
+				$tab_slug = $one_tab['slug'];
+
+				$icon_html = '';
+				if ( ! is_null( $one_tab['icon'] ?? null ) ) {
+					$icon_html = sprintf(
+						'<span class="sh-PageNav-icon sh-Icon--%1$s"></span>',
+						esc_attr( $one_tab['icon'] )
+					);
+				}
+
+				$icon_html_allowed_html = [
+					'span' => [
+						'class' => [],
+					],
+				];
+
+				printf(
+					'<a href="%3$s" class="sh-PageNav-tab %4$s">%5$s%1$s</a>',
+					esc_html( $one_tab['name'] ), // 1
+					esc_html( $tab_slug ), // 2
+					esc_url( Helpers::get_settings_page_tab_url( $tab_slug ) ), // 3
+					$active_tab == $tab_slug ? 'is-active' : '', // 4
+					wp_kses( $icon_html, $icon_html_allowed_html ) // 5
+				);
+			}
+			?>
+		</nav>
+		<?php
+
+		return ob_get_clean();
 	}
 
 	/**
