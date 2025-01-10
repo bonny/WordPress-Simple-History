@@ -825,10 +825,9 @@ class Helpers {
 	 * @return string URL for settings page, i.e. "/wp-admin/options-general.php?page=simple_history_settings_menu_slug"
 	 */
 	public static function get_settings_page_url() {
-		// return menu_page_url( Simple_History::SETTINGS_MENU_SLUG, 0 );
-		// menu_page_url() only works within amdin area.
+		// Can not use `menu_page_url()` because it only works within the admin area.
 		// But we want to be able to link to settings page also from front end.
-		return admin_url( 'options-general.php?page=' . Simple_History::SETTINGS_MENU_SLUG );
+		return admin_url( 'admin.php?page=' . Simple_History::SETTINGS_MENU_SLUG );
 	}
 
 	/**
