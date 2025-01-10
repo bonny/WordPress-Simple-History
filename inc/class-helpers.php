@@ -191,6 +191,7 @@ class Helpers {
 	public static function get_current_screen() {
 		if ( function_exists( 'get_current_screen' ) ) {
 			$current_screen = get_current_screen();
+
 			if ( $current_screen instanceof \WP_Screen ) {
 				return $current_screen;
 			}
@@ -1130,10 +1131,14 @@ class Helpers {
 	public static function is_on_our_own_pages( $hook = '' ) {
 		$current_screen = self::get_current_screen();
 
-		$basePrefix = 'admin';
-		$basePrefix = $basePrefix === 'index' ? 'dashboard' : $basePrefix;
+		// sh_dd( '$current_screen', $current_screen );
 
-		if ( $current_screen && $current_screen->base === 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ) {
+		// Seems like subpages to main admin page have bases that begin with "simple-history_page_".
+		$begins_with_simple_history = $current_screen && str_starts_with( $current_screen->base, 'simple-history_page_' );
+
+		if ( $begins_with_simple_history ) {
+			return true;
+		} elseif ( $current_screen && $current_screen->base === 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ) {
 			// Base is "settings_page_simple_history_settings_menu_slug".
 			// Applies for settings page and settings page tabs.
 			return true;

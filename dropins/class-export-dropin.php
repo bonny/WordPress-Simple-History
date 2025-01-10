@@ -1,9 +1,9 @@
 <?php
 namespace Simple_History\Dropins;
 
+use Simple_History\Simple_History;
 use Simple_History\Export;
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
 
 /**
  * Dropin Name: Export
@@ -16,17 +16,23 @@ class Export_Dropin extends Dropin {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		$this->simple_history->register_settings_tab(
-			array(
-				'slug' => 'export',
-				'name' => _x( 'Export', 'Export dropin: Tab name on settings page', 'simple-history' ),
-				'icon' => 'download',
-				'order' => 50,
-				'function' => array( $this, 'output' ),
-			)
-		);
+		add_action( 'admin_menu', array( $this, 'add_submenu' ) );
+		add_action( 'load-simple-history_page_simple_history_export_history', array( $this, 'download_export' ) );
+	}
 
-		add_action( 'load-settings_page_simple_history_settings_menu_slug', array( $this, 'download_export' ) );
+	/**
+	 * Add submenu page for export
+	 */
+	public function add_submenu() {
+		add_submenu_page(
+			Simple_History::MENU_PAGE_SLUG,
+			__( 'Export', 'simple-history' ),
+			__( 'Export', 'simple-history' ),
+			'manage_options',
+			'simple_history_export_history',
+			array( $this, 'output_export_page' ),
+			50
+		);
 	}
 
 	/**
@@ -60,7 +66,7 @@ class Export_Dropin extends Dropin {
 	/**
 	 * Output for the export tab on the settings page.
 	 */
-	public function output() {
+	public function output_export_page() {
 		?>
 
 		<div class="wrap">
@@ -85,15 +91,15 @@ class Export_Dropin extends Dropin {
 
 				<p>
 					<label>
-						<input type="radio" name="format" value="json" checked>
-						<?php echo esc_html_x( 'JSON', 'Export dropin: export format', 'simple-history' ); ?>
+						<input type="radio" name="format" value="csv" checked>
+						<?php echo esc_html_x( 'CSV', 'Export dropin: export format', 'simple-history' ); ?>
 					</label>
 				</p>
 
 				<p>
 					<label>
-						<input type="radio" name="format" value="csv">
-						<?php echo esc_html_x( 'CSV', 'Export dropin: export format', 'simple-history' ); ?>
+						<input type="radio" name="format" value="json">
+						<?php echo esc_html_x( 'JSON', 'Export dropin: export format', 'simple-history' ); ?>
 					</label>
 				</p>
 
