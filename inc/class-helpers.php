@@ -1132,20 +1132,17 @@ class Helpers {
 
 		$basePrefix = 'admin';
 		$basePrefix = $basePrefix === 'index' ? 'dashboard' : $basePrefix;
-		// sh_dd( '$current_screen->base', $current_screen->base );
-		if ( $current_screen && $current_screen->base == 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ) {
+
+		if ( $current_screen && $current_screen->base === 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ) {
 			// Base is "settings_page_simple_history_settings_menu_slug".
 			// Applies for settings page and settings page tabs.
 			return true;
-		} elseif (
-			$hook == 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ||
-			( self::setting_show_on_dashboard() && $hook == 'index.php' ) ||
-			( self::setting_show_as_page() && $hook == $basePrefix . '_page_simple_history_page' )
-		) {
-			// return true;
-		} elseif ( $current_screen && $current_screen->base == 'dashboard' && self::setting_show_on_dashboard() ) {
+		} elseif ( $current_screen && $current_screen->base === 'simple-history_page_simple_history_settings_page' ) {
+			// History page below main admin page, ie. WP Admin › Simple History › Settings.
 			return true;
-		} elseif ( $current_screen && $current_screen->base == 'toplevel_page_' . Simple_History::MENU_PAGE_SLUG ) {
+		} elseif ( $current_screen && $current_screen->base === 'dashboard' && self::setting_show_on_dashboard() ) {
+			return true;
+		} elseif ( $current_screen && $current_screen->base === 'toplevel_page_' . Simple_History::MENU_PAGE_SLUG ) {
 			// New main menu menu.
 			return true;
 		}

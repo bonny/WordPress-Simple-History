@@ -2,6 +2,7 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Simple_History;
 use Simple_History\Helpers;
 
 /**
@@ -12,9 +13,9 @@ class Setup_Settings_Page extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
+		add_action( 'admin_menu', [ $this, 'add_admin_pages' ] );
 		add_action( 'after_setup_theme', [ $this, 'add_default_settings_tabs' ] );
 		add_action( 'admin_menu', [ $this, 'add_settings' ], 10 );
-		add_action( 'admin_menu', [ $this, 'add_admin_pages' ] );
 	}
 
 	/**
@@ -71,7 +72,7 @@ class Setup_Settings_Page extends Service {
 	}
 
 	/**
-	 * Add options menu page for settings.
+	 * Add options/settings menu page for settings.
 	 */
 	public function add_admin_pages() {
 		// Add a settings page.
@@ -80,13 +81,25 @@ class Setup_Settings_Page extends Service {
 		$show_settings_page = apply_filters( 'simple_history/show_settings_page', $show_settings_page );
 
 		if ( $show_settings_page ) {
+			// Old location: placed at WP Admin › Settings › Simple History.
 			add_options_page(
 				__( 'Simple History Settings', 'simple-history' ),
 				_x( 'Simple History', 'Options page menu title', 'simple-history' ),
 				Helpers::get_view_settings_capability(),
-				$this->simple_history::SETTINGS_MENU_SLUG,
+				Simple_History::SETTINGS_MENU_SLUG,
 				array( $this, 'settings_page_output' )
 			);
+
+			// New location: placed at WP Admin › Simple History › Settings.
+			add_submenu_page(
+				Simple_History::MENU_PAGE_SLUG,
+				_x( 'Simple History Settings', 'settings title name', 'simple-history' ),
+				_x( 'Settings', 'settings menu name', 'simple-history' ),
+				Helpers::get_view_settings_capability(),
+				'simple_history_settings_page',
+				array( $this, 'settings_page_output' )
+			);
+
 		}
 	}
 
