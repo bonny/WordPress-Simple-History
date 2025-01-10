@@ -278,6 +278,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
+### Unreleased
+
+-   Add slotfill `SimpleHistorySlotEventActionsMenu`.
+
 ### 5.4.4 (January 2025)
 
 First release of 2025! 🎉

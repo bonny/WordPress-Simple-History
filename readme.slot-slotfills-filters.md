@@ -8,6 +8,34 @@ Then other code can use the `addFilter` function to add filters to the slotfill.
 
 (I would like to to use fills directly without the need for the empty component and the HOC, but I have not managed to do that yet.)
 
+## Available slots in core plugin
+
+### Event control bar
+
+```jsx
+<Slot
+	name="SimpleHistorySlotEventsControlBarMenu"
+	fillProps={ {
+		onClose,
+		eventsQueryParams,
+		eventsTotal,
+	} }
+/>
+```
+
+### Event actions menu
+
+```jsx
+<Slot
+	name="SimpleHistorySlotEventActionsMenu"
+	fillProps={ {
+		onClose,
+		event,
+		eventVariant,
+	} }
+/>
+```
+
 ## Example
 
 This slot called `SimpleHistorySlotEventsControlBarMenu` is added in the core plugin:
@@ -57,6 +85,7 @@ addFilter(
 
 /**
  * Add premium features to the control bar events menu.
+ * Only use slots beacuse the filtered component is placed in the root.
  *
  * @param {Function} FilteredComponent
  */

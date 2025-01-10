@@ -4,7 +4,6 @@ import {
 	__experimentalHStack as HStack,
 	Spinner,
 	__experimentalText as Text,
-	withFilters,
 } from '@wordpress/components';
 import { _n, _x, sprintf } from '@wordpress/i18n';
 import { EventsControlBarActionsDropdownMenu } from './EventsControlBarActionsDropdownMenu';

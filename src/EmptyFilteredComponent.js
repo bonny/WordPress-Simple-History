@@ -4,6 +4,7 @@
  *
  * @param {Object} props
  */
+// eslint-disable-next-line no-unused-vars
 export const EmptyFilteredComponent = ( props ) => {
 	return <></>;
 };

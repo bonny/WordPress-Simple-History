@@ -34,6 +34,11 @@ const EventsCompactListLoadingSkeleton = () => {
 	);
 };
 
+/**
+ * One compact event for the compact event list in the admin bar.
+ * @param {Object} props
+ * @return {Object} React element
+ */
 const CompactEvent = ( props ) => {
 	const { event } = props;
 

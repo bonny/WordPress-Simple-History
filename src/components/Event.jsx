@@ -1,4 +1,4 @@
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem, Slot } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -49,7 +49,13 @@ function ViewEventDetailsMenuItem( { event, onClose } ) {
 	);
 }
 
-function EventActions( props ) {
+/**
+ * The button with three dots that opens a dropdown with actions for the event.
+ *
+ * @param {Object} props
+ * @return {Object} React element
+ */
+function EventActionsButton( props ) {
 	const { event } = props;
 	const eventVariant = props.eventVariant;
 
@@ -76,8 +82,18 @@ function EventActions( props ) {
 								eventVariant={ eventVariant }
 								onClose={ onClose }
 							/>
+
 							<CopyLinkMenuItem event={ event } />
 						</MenuGroup>
+
+						<Slot
+							name="SimpleHistorySlotEventActionsMenu"
+							fillProps={ {
+								onClose,
+								event,
+								eventVariant,
+							} }
+						/>
 					</>
 				) }
 			</DropdownMenu>
@@ -155,7 +171,7 @@ export function Event( props ) {
 					hasPremiumAddOn={ hasPremiumAddOn }
 				/>
 
-				<EventActions event={ event } eventVariant={ variant } />
+				<EventActionsButton event={ event } eventVariant={ variant } />
 			</div>
 		</li>
 	);
