@@ -148,12 +148,12 @@ class Admin_Pages extends Service {
 				?>
 				
 				<?php
-				// Add link to settings & tools.
+				// Add link to settings.
 				if ( current_user_can( Helpers::get_view_settings_capability() ) ) {
 					?>
 					<a href="<?php echo esc_url( Helpers::get_settings_page_url() ); ?>" class="sh-PageHeader-rightLink">
 						<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--settings"></span>
-						<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Settings & Tools', 'simple-history' ); ?></span>
+						<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Settings', 'simple-history' ); ?></span>
 					</a>
 					<?php
 				}
