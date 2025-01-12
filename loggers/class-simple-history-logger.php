@@ -4,6 +4,7 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Helpers;
 
 /**
  * Logs changes made on the Simple History settings page.
@@ -169,11 +170,23 @@ class Simple_History_Logger extends Logger {
 		if ( $message_key === 'purged_events' ) {
 			// For message "Removed 24318 events that were older than 60 days"
 			// add a text with a link with information on how to modify this.
-			$message = sprintf(
+			// If they already have the plugin, show message with link to settings page.
+
+			$is_premium_or_extended_settings_enabled = Helpers::is_extended_settings_add_on_active() || Helpers::is_premium_add_on_active();
+
+			if ( $is_premium_or_extended_settings_enabled ) {
+				$message = sprintf(
+					/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
+					__( '<a href="%1$s">Set number of days the log is kept.</a>', 'simple-history' ),
+					esc_url( Helpers::get_settings_page_url() )
+				);
+			} else {
+				$message = sprintf(
 				/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
-				__( '<a href="%1$s" target="_blank" class="sh-ExternalLink">Get Premium to set number of days the log is kept.</a>', 'simple-history' ),
-				esc_url( 'https://simple-history.com/premium/?utm_source=wpadmin&utm_content=premium-purged-events' )
-			);
+					__( '<a href="%1$s" target="_blank" class="sh-ExternalLink">Get Premium to set number of days the log is kept.</a>', 'simple-history' ),
+					esc_url( 'https://simple-history.com/premium/?utm_source=wpadmin&utm_content=premium-purged-events' )
+				);
+			}
 
 			return '<p>' . wp_kses(
 				$message,
