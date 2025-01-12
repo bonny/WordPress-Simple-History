@@ -111,7 +111,7 @@ class Setup_Settings_Page extends Service {
 			add_query_arg(
 				[
 					'page' => 'simple_history_settings_page',
-					'simple_history_redirected_from_tools_menu' => '1',
+					'simple_history_redirected_from_settings_menu' => '1',
 				],
 				admin_url( 'admin.php' )
 			)
@@ -408,6 +408,11 @@ class Setup_Settings_Page extends Service {
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
+	/**
+	 * Get HTML for the sub navigation.
+	 *
+	 * @return string
+	 */
 	public static function get_subnav_html() {
 		ob_start();
 
@@ -519,10 +524,20 @@ class Setup_Settings_Page extends Service {
 		return ob_get_clean();
 	}
 
+	/**
+	 * Get the slug of the active tab.
+	 *
+	 * @return string
+	 */
 	public static function get_active_tab_slug() {
 		return sanitize_text_field( wp_unslash( $_GET['selected-tab'] ?? 'settings' ) );
 	}
 
+	/**
+	 * Get HTML for the main navigation.
+	 *
+	 * @return string
+	 */
 	public static function get_main_nav_html() {
 		ob_start();
 

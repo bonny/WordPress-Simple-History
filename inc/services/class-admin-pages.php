@@ -154,6 +154,54 @@ class Admin_Pages extends Service {
 	}
 
 	/**
+	 * Detect when user is redirected from the old Simple History log page
+	 * below the dashboard menu item or from the Settings › Simple History page
+	 * and display a notice that the main page now is directly in the main admin nav.
+	 */
+	public static function get_old_menu_page_location_redirect_notice() {
+		$redirected_from_dashboard_menu = filter_input( INPUT_GET, 'simple_history_redirected_from_dashboard_menu', FILTER_VALIDATE_BOOLEAN );
+		$redirected_from_settings_menu = filter_input( INPUT_GET, 'simple_history_redirected_from_settings_menu', FILTER_VALIDATE_BOOLEAN );
+
+		if ( ! $redirected_from_dashboard_menu && ! $redirected_from_settings_menu ) {
+			return '';
+		}
+
+		$allowed_html = [
+			'a' => [
+				'href' => 1,
+			],
+		];
+
+		$message = __( 'Hey there! Simple History has a new location.', 'simple-history' );
+
+		$icon_svg_contents = file_get_contents( SIMPLE_HISTORY_PATH . 'css/icons/moving_24dp_FILL0_wght400_GRAD0_opsz48.svg' );
+
+		return sprintf(
+			'
+			<div class="">
+				<div style="%3$s">%2$s</div>
+				<p style="%4$s">
+					%1$s
+				</p>
+			</div>
+			',
+			wp_kses( $message, $allowed_html ),
+			$icon_svg_contents,
+			'
+				color: var(--sh-color-pink);
+    			transform: translate(45px, 30px) scale(3.5) rotate(-115deg);
+    			transform-origin: left;
+    			z-index: 999;
+			    position: relative;
+			', // 3
+			'
+				margin: -15px 0 50px 70px;
+				font-size: 1.4rem;
+			' // 4
+		);
+	}
+
+	/**
 	 * Output the common header HTML.
 	 *
 	 * @param string $main_nav_html The main navigation HTML.
@@ -207,14 +255,18 @@ class Admin_Pages extends Service {
 		</header>
 
 		<?php
-		// Output sub nav items.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $sub_nav_html;
-
 		// WordPress will add notices after element with class .wp-header-end.
 		?>
 		<hr class="wp-header-end">
 		<?php
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo self::get_old_menu_page_location_redirect_notice();
+
+		// Output sub nav items.
+		// Todo: this contains the full html output so it should not be in this header function.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $sub_nav_html;
 
 		return ob_get_clean();
 	}
