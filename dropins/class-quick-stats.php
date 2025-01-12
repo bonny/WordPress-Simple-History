@@ -37,15 +37,23 @@ class Quick_Stats extends Dropin {
 	}
 
 	/**
-	 * Output some simple quick stats.
+	 * Get the SQL for the loggers that the current user is allowed to read.
+	 *
+	 * @return string
 	 */
-	public function output_quick_stats() {
+	protected function get_sql_loggers_in() {
+		return $this->simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
+	}
+
+	/**
+	 * Get the number of users that have done something today.
+	 *
+	 * @return int
+	 */
+	protected function get_num_users_today() {
 		global $wpdb;
 
-		$num_events_today = $this->get_num_events_today();
-
-		// Get sql query for where to read only loggers current user is allowed to read/view.
-		$sql_loggers_in = $this->simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
+		$sql_loggers_in = $this->get_sql_loggers_in();
 
 		// Get number of users today, i.e. events with wp_user as initiator.
 		$sql_users_today = sprintf(
@@ -76,6 +84,22 @@ class Quick_Stats extends Dropin {
 		}
 
 		$count_users_today = is_countable( $results_users_today ) ? count( $results_users_today ) : 0;
+
+		return $count_users_today;
+	}
+
+	/**
+	 * Output some simple quick stats.
+	 */
+	public function output_quick_stats() {
+		global $wpdb;
+
+		$num_events_today = $this->get_num_events_today();
+
+		// Get sql query for where to read only loggers current user is allowed to read/view.
+		$sql_loggers_in = $this->get_sql_loggers_in();
+
+		$count_users_today = $this->get_num_users_today();
 
 		// Get number of other sources (not wp_user).
 		$sql_other_sources_where = sprintf(
