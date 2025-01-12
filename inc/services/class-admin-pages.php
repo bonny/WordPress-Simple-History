@@ -51,46 +51,6 @@ class Admin_Pages extends Service {
 			$menu_slug,
 			array( $this, 'history_page_output' )
 		);
-
-		// Add a settings page.
-		// add_submenu_page(
-		// $menu_slug,
-		// _x( 'Simple History Settings', 'settings title name', 'simple-history' ),
-		// _x( 'Settings', 'settings menu name', 'simple-history' ),
-		// Helpers::get_view_settings_capability(),
-		// 'simple_history_settings_page',
-		// array( $this, 'settings_page_output' )
-		// );
-
-		// Add Tools page.
-		// add_submenu_page(
-		// $menu_slug,
-		// _x( 'Simple History Tools', 'tools title name', 'simple-history' ),
-		// _x( 'Tools', 'tools menu name', 'simple-history' ),
-		// Helpers::get_view_settings_capability(),
-		// 'simple_history_tools_page',
-		// array( $this, 'tools_page_output' )
-		// );
-
-		// Add a export page.
-		// add_submenu_page(
-		// $menu_slug,
-		// _x( 'Simple History Export', 'export title name', 'simple-history' ),
-		// _x( 'Export', 'export menu name', 'simple-history' ),
-		// Helpers::get_view_settings_capability(),
-		// 'simple_history_export_page',
-		// array( $this, 'export_page_output' )
-		// );
-
-		// Add a debug page.
-		// add_submenu_page(
-		// $menu_slug,
-		// _x( 'Simple History Debug', 'debug title name', 'simple-history' ),
-		// _x( 'Debug', 'debug menu name', 'simple-history' ),
-		// Helpers::get_view_settings_capability(),
-		// 'simple_history_debug_page',
-		// array( $this, 'debug_page_output' )
-		// );
 	}
 
 	/**
