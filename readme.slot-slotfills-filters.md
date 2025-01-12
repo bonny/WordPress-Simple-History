@@ -85,7 +85,7 @@ addFilter(
 
 /**
  * Add premium features to the control bar events menu.
- * Only use slots beacuse the filtered component is placed in the root.
+ * Only use slots because the filtered component is placed in the root.
  *
  * @param {Function} FilteredComponent
  */
