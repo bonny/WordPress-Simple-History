@@ -42,7 +42,7 @@ class Quick_Stats extends Dropin {
 	public function output_quick_stats() {
 		global $wpdb;
 
-		$total_row_count = $this->get_num_events_today();
+		$num_events_today = $this->get_num_events_today();
 
 		// Get sql query for where to read only loggers current user is allowed to read/view.
 		$sql_loggers_in = $this->simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
@@ -121,7 +121,7 @@ class Quick_Stats extends Dropin {
 				$msg_tmpl = '';
 
 				// No results today at all.
-				if ( $total_row_count == 0 ) {
+				if ( $num_events_today == 0 ) {
 					$msg_tmpl = __( 'No events today so far.', 'simple-history' );
 				} else {
 					/*
@@ -138,54 +138,54 @@ class Quick_Stats extends Dropin {
 
 					// A single event existed and was from a user
 					// 1 event today from 1 user.
-					if ( $total_row_count == 1 && $count_users_today == 1 ) {
+					if ( $num_events_today == 1 && $count_users_today == 1 ) {
 						$msg_tmpl .= __( 'One event today from one user.', 'simple-history' );
 					}
 
 					// A single event existed and was from another source
 					// 1 event today from 1 source.
-					if ( $total_row_count == 1 && ! $count_users_today ) {
+					if ( $num_events_today == 1 && ! $count_users_today ) {
 						$msg_tmpl .= __( 'One event today from one source.', 'simple-history' );
 					}
 
 					// Multiple events from a single user
 					// 3 events today from one user.
-					if ( $total_row_count > 1 && $count_users_today == 1 && ! $count_other_sources ) {
+					if ( $num_events_today > 1 && $count_users_today == 1 && ! $count_other_sources ) {
 						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user.', 'simple-history' );
 					}
 
 					// Multiple events from only users
 					// 2 events today from 2 users.
-					if ( $total_row_count > 1 && $count_users_today == $total_row_count ) {
+					if ( $num_events_today > 1 && $count_users_today == $num_events_today ) {
 						// translators: 1 is number of events. 2 is number of users.
 						$msg_tmpl .= __( '%1$d events today from %2$d users.', 'simple-history' );
 					}
 
 					// Multiple events from 1 single user and 1 single other source
 					// 2 events today from 1 user and 1 other source.
-					if ( $total_row_count && 1 == $count_users_today && 1 == $count_other_sources ) {
+					if ( $num_events_today && 1 == $count_users_today && 1 == $count_other_sources ) {
 						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and one other source.', 'simple-history' );
 					}
 
 					// Multiple events from multiple users but from only 1 single other source
 					// 3 events today from 2 users and 1 other source.
-					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
+					if ( $num_events_today > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
 						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and one other source.', 'simple-history' );
 					}
 
 					// Multiple events from 1 user but from multiple  other source
 					// 3 events today from 1 user and 2 other sources.
-					if ( $total_row_count > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
+					if ( $num_events_today > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
 						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and %3$d other sources.', 'simple-history' );
 					}
 
 					// Multiple events from multiple user and from multiple other sources
 					// 4 events today from 2 users and 2 other sources.
-					if ( $total_row_count > 1 && $count_users_today > 1 && $count_other_sources > 1 ) {
+					if ( $num_events_today > 1 && $count_users_today > 1 && $count_other_sources > 1 ) {
 						// translators: 1 is number of events, 2 is number of users, 3 is number of other sources.
 						$msg_tmpl .= __( '%1$s events today from %2$d users and %3$d other sources.', 'simple-history' );
 					}
