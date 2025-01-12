@@ -194,12 +194,14 @@ class Quick_Stats extends Dropin {
 			return '';
 		}
 
-		return sprintf(
+		$final_msg = sprintf(
 			esc_html( $msg_tmpl ),
 			esc_html( $num_events_today ), // 1
 			esc_html( $num_users_with_events_today ), // 2
 			esc_html( $num_other_sources_today ) // 3
 		);
+
+		return "<p>$final_msg</p>";
 	}
 
 	/**
@@ -209,7 +211,7 @@ class Quick_Stats extends Dropin {
 		$msg = $this->get_stats_message();
 		?>
 		<div class="SimpleHistoryQuickStats">
-			<?php echo esc_html( $msg ); ?>
+			<?php echo wp_kses_post( $msg ); ?>
 		</div>
 		<?php
 	}
