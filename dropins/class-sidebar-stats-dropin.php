@@ -150,10 +150,13 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output HTML for sidebar.
+	 * Get data for chart.
+	 *
+	 * @param int $num_days Number of days to get data for.
+	 * @return string HTML.
 	 */
-	public function on_sidebar_html() {
-		$num_days = 28;
+	protected function get_chart_data( $num_days ) {
+		ob_start();
 
 		$num_events_per_day_for_period = Helpers::get_num_events_per_day_last_n_days( $num_days );
 
@@ -161,7 +164,83 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$num_days days" ) );
 		$period_end_date = DateTime::createFromFormat( 'U', time() );
 		$interval = DateInterval::createFromDateString( '1 day' );
+
 		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
+
+		?>
+		<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
+		<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
+			<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"></canvas>
+		</div>
+
+		<p class="SimpleHistory_SidebarChart_ChartDescription" style="font-style: italic; color: #777; text-align: center;">
+			<?php esc_html_e( 'Number of events per day.', 'simple-history' ); ?>
+		</p>
+
+		<?php
+		$arr_labels = array();
+		$arr_labels_to_datetime = array();
+		$arr_dataset_data = array();
+
+		foreach ( $period as $dt ) {
+			$datef = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
+			$str_date = date_i18n( $datef, $dt->getTimestamp() );
+			$str_date_ymd = gmdate( 'Y-m-d', $dt->getTimestamp() );
+
+			// Get data for this day, if exist
+			// Day in object is in format '2014-09-07'.
+			$yearDate = $dt->format( 'Y-m-d' );
+			$day_data = wp_filter_object_list(
+				$num_events_per_day_for_period,
+				array(
+					'yearDate' => $yearDate,
+				)
+			);
+
+			$arr_labels[] = $str_date;
+
+			$arr_labels_to_datetime[] = array(
+				'label' => $str_date,
+				'date' => $str_date_ymd,
+			);
+
+			if ( $day_data ) {
+				$day_data = reset( $day_data );
+				$arr_dataset_data[] = $day_data->count;
+			} else {
+				$arr_dataset_data[] = 0;
+			}
+		}
+
+		?>
+		<input
+			type="hidden"
+			class="SimpleHistory_SidebarChart_ChartLabels"
+			value="<?php echo esc_attr( json_encode( $arr_labels ) ); ?>"
+			/>
+
+		<input
+			type="hidden"
+			class="SimpleHistory_SidebarChart_ChartLabelsToDates"
+			value="<?php echo esc_attr( json_encode( $arr_labels_to_datetime ) ); ?>"
+			/>
+
+		<input
+			type="hidden"
+			class="SimpleHistory_SidebarChart_ChartDatasetData"
+			value="<?php echo esc_attr( json_encode( $arr_dataset_data ) ); ?>"
+			/>
+
+		<?php
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Output HTML for sidebar.
+	 */
+	public function on_sidebar_html() {
+		$num_days = 28;
 
 		?>
 		<div class="postbox">
@@ -183,71 +262,10 @@ class Sidebar_Stats_Dropin extends Dropin {
 						'b' => array(),
 					)
 				);
+
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $this->get_chart_data( $num_days );
 				?>
-
-				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
-				<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
-					<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"></canvas>
-				</div>
-
-				<p class="SimpleHistory_SidebarChart_ChartDescription" style="font-style: italic; color: #777; text-align: center;">
-					<?php esc_html_e( 'Number of events per day.', 'simple-history' ); ?>
-				</p>
-
-				<?php
-				$arr_labels = array();
-				$arr_labels_to_datetime = array();
-				$arr_dataset_data = array();
-
-				foreach ( $period as $dt ) {
-					$datef = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
-					$str_date = date_i18n( $datef, $dt->getTimestamp() );
-					$str_date_ymd = gmdate( 'Y-m-d', $dt->getTimestamp() );
-
-					// Get data for this day, if exist
-					// Day in object is in format '2014-09-07'.
-					$yearDate = $dt->format( 'Y-m-d' );
-					$day_data = wp_filter_object_list(
-						$num_events_per_day_for_period,
-						array(
-							'yearDate' => $yearDate,
-						)
-					);
-
-					$arr_labels[] = $str_date;
-
-					$arr_labels_to_datetime[] = array(
-						'label' => $str_date,
-						'date' => $str_date_ymd,
-					);
-
-					if ( $day_data ) {
-						$day_data = reset( $day_data );
-						$arr_dataset_data[] = $day_data->count;
-					} else {
-						$arr_dataset_data[] = 0;
-					}
-				}
-
-				?>
-				<input
-					type="hidden"
-					class="SimpleHistory_SidebarChart_ChartLabels"
-					value="<?php echo esc_attr( json_encode( $arr_labels ) ); ?>"
-					/>
-
-				<input
-					type="hidden"
-					class="SimpleHistory_SidebarChart_ChartLabelsToDates"
-					value="<?php echo esc_attr( json_encode( $arr_labels_to_datetime ) ); ?>"
-					/>
-
-				<input
-					type="hidden"
-					class="SimpleHistory_SidebarChart_ChartDatasetData"
-					value="<?php echo esc_attr( json_encode( $arr_dataset_data ) ); ?>"
-					/>
-
 			</div>
 		</div>
 		<?php
