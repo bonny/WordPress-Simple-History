@@ -2,6 +2,7 @@
 
 namespace Simple_History\Dropins;
 
+use InvalidArgumentException;
 use Simple_History\Dropins\Dropin;
 use Simple_History\Log_Query;
 use Simple_History\Helpers;
@@ -16,12 +17,14 @@ class Quick_Stats extends Dropin {
 	}
 
 	/**
-	 * Output some simple quick stats.
+	 * Get the number of events today.
+	 * Uses log_query so it respects the user's permissions,
+	 * meaning that the number of events is the number
+	 * of events that the current user is allowed to see.
+	 *
+	 * @return int
 	 */
-	public function output_quick_stats() {
-		global $wpdb;
-
-		// Get number of events today.
+	protected function get_num_events_today() {
 		$logQuery = new Log_Query();
 		$logResults = $logQuery->query(
 			array(
@@ -30,7 +33,16 @@ class Quick_Stats extends Dropin {
 			)
 		);
 
-		$total_row_count = (int) $logResults['total_row_count'];
+		return (int) $logResults['total_row_count'];
+	}
+
+	/**
+	 * Output some simple quick stats.
+	 */
+	public function output_quick_stats() {
+		global $wpdb;
+
+		$total_row_count = $this->get_num_events_today();
 
 		// Get sql query for where to read only loggers current user is allowed to read/view.
 		$sql_loggers_in = $this->simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
