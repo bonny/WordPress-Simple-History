@@ -129,6 +129,12 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		</script>
 
+		<style>
+			.SimpleHistory_SidebarChart_ChartDescription {
+				margin-bottom: 0;
+			}
+		</style>
+
 		<?php
 	}
 
@@ -243,11 +249,11 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$num_days = 28;
 
 		?>
-		<div class="postbox">
-
-			<h3 class="hndle"><?php esc_html_e( 'Stats', 'simple-history' ); ?></h3>
-
+		<div class="postbox sh-PremiumFeaturesPostbox">			
 			<div class="inside">
+				<h3 class="sh-PremiumFeaturesPostbox-title">
+					<?php esc_html_e( 'Stats & Insights', 'simple-history' ); ?>
+				</h3>
 
 				<?php
 				/**
