@@ -26,6 +26,7 @@ class Quick_Stats extends Dropin {
 	 */
 	protected function get_num_events_today() {
 		$logQuery = new Log_Query();
+
 		$logResults = $logQuery->query(
 			array(
 				'posts_per_page' => 1,
@@ -89,19 +90,16 @@ class Quick_Stats extends Dropin {
 	}
 
 	/**
-	 * Output some simple quick stats.
+	 * Get number of other sources (not wp_user).
+	 *
+	 * @return int Number of other sources.
 	 */
-	public function output_quick_stats() {
+	protected function get_other_sources_count() {
 		global $wpdb;
 
-		$num_events_today = $this->get_num_events_today();
-
-		// Get sql query for where to read only loggers current user is allowed to read/view.
+		$cache_group = Helpers::get_cache_group();
 		$sql_loggers_in = $this->get_sql_loggers_in();
 
-		$count_users_today = $this->get_num_users_today();
-
-		// Get number of other sources (not wp_user).
 		$sql_other_sources_where = sprintf(
 			'
                 initiator <> \'wp_user\'
@@ -138,6 +136,25 @@ class Quick_Stats extends Dropin {
 		}
 
 		$count_other_sources = is_countable( $results_other_sources_today ) ? count( $results_other_sources_today ) : 0;
+
+		return $count_other_sources;
+	}
+
+	/**
+	 * Output some simple quick stats.
+	 */
+	public function output_quick_stats() {
+		global $wpdb;
+
+		$cache_group = Helpers::get_cache_group();
+
+		$num_events_today = $this->get_num_events_today();
+		$num_users_with_events_today = $this->get_num_users_today();
+
+		// Get sql query for where to read only loggers current user is allowed to read/view.
+		$sql_loggers_in = $this->get_sql_loggers_in();
+
+		$count_other_sources = $this->get_other_sources_count();
 		?>
 		<div class="SimpleHistoryQuickStats">
 			<p>
@@ -162,54 +179,54 @@ class Quick_Stats extends Dropin {
 
 					// A single event existed and was from a user
 					// 1 event today from 1 user.
-					if ( $num_events_today == 1 && $count_users_today == 1 ) {
+					if ( $num_events_today == 1 && $num_users_with_events_today == 1 ) {
 						$msg_tmpl .= __( 'One event today from one user.', 'simple-history' );
 					}
 
 					// A single event existed and was from another source
 					// 1 event today from 1 source.
-					if ( $num_events_today == 1 && ! $count_users_today ) {
+					if ( $num_events_today == 1 && ! $num_users_with_events_today ) {
 						$msg_tmpl .= __( 'One event today from one source.', 'simple-history' );
 					}
 
 					// Multiple events from a single user
 					// 3 events today from one user.
-					if ( $num_events_today > 1 && $count_users_today == 1 && ! $count_other_sources ) {
+					if ( $num_events_today > 1 && $num_users_with_events_today == 1 && ! $count_other_sources ) {
 						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user.', 'simple-history' );
 					}
 
 					// Multiple events from only users
 					// 2 events today from 2 users.
-					if ( $num_events_today > 1 && $count_users_today == $num_events_today ) {
+					if ( $num_events_today > 1 && $num_users_with_events_today == $num_events_today ) {
 						// translators: 1 is number of events. 2 is number of users.
 						$msg_tmpl .= __( '%1$d events today from %2$d users.', 'simple-history' );
 					}
 
 					// Multiple events from 1 single user and 1 single other source
 					// 2 events today from 1 user and 1 other source.
-					if ( $num_events_today && 1 == $count_users_today && 1 == $count_other_sources ) {
+					if ( $num_events_today && 1 == $num_users_with_events_today && 1 == $count_other_sources ) {
 						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and one other source.', 'simple-history' );
 					}
 
 					// Multiple events from multiple users but from only 1 single other source
 					// 3 events today from 2 users and 1 other source.
-					if ( $num_events_today > 1 && $count_users_today > 1 && $count_other_sources == 1 ) {
+					if ( $num_events_today > 1 && $num_users_with_events_today > 1 && $count_other_sources == 1 ) {
 						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and one other source.', 'simple-history' );
 					}
 
 					// Multiple events from 1 user but from multiple  other source
 					// 3 events today from 1 user and 2 other sources.
-					if ( $num_events_today > 1 && 1 == $count_users_today && $count_other_sources > 1 ) {
+					if ( $num_events_today > 1 && 1 == $num_users_with_events_today && $count_other_sources > 1 ) {
 						// translators: 1 is number of events.
 						$msg_tmpl .= __( '%1$d events today from one user and %3$d other sources.', 'simple-history' );
 					}
 
 					// Multiple events from multiple user and from multiple other sources
 					// 4 events today from 2 users and 2 other sources.
-					if ( $num_events_today > 1 && $count_users_today > 1 && $count_other_sources > 1 ) {
+					if ( $num_events_today > 1 && $num_users_with_events_today > 1 && $count_other_sources > 1 ) {
 						// translators: 1 is number of events, 2 is number of users, 3 is number of other sources.
 						$msg_tmpl .= __( '%1$s events today from %2$d users and %3$d other sources.', 'simple-history' );
 					}
@@ -219,8 +236,8 @@ class Quick_Stats extends Dropin {
 				if ( $msg_tmpl !== '' ) {
 					printf(
 						esc_html( $msg_tmpl ),
-						(int) $logResults['total_row_count'], // 1
-						esc_html( $count_users_today ), // 2
+						esc_html( $num_events_today ), // 1
+						esc_html( $num_users_with_events_today ), // 2
 						esc_html( $count_other_sources ) // 3
 					);
 				}
