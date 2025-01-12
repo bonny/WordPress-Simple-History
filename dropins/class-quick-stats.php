@@ -165,21 +165,27 @@ class Quick_Stats extends Dropin {
 			$msg_tmpl = __( 'One event today from one source.', 'simple-history' );
 		} elseif ( $num_events_today > 1 && $num_users_with_events_today == 1 && ! $num_other_sources_today ) {
 			// Multiple events from a single user.
+			/* translators: %1$d: number of events */
 			$msg_tmpl = __( '%1$d events today from one user.', 'simple-history' );
 		} elseif ( $num_events_today > 1 && $num_users_with_events_today == $num_events_today ) {
 			// Multiple events from only users.
+			/* translators: %1$d: number of events, %2$d: number of users */
 			$msg_tmpl = __( '%1$d events today from %2$d users.', 'simple-history' );
 		} elseif ( $num_events_today && 1 == $num_users_with_events_today && 1 == $num_other_sources_today ) {
 			// Multiple events from 1 single user and 1 single other source.
+			/* translators: %1$d: number of events */
 			$msg_tmpl = __( '%1$d events today from one user and one other source.', 'simple-history' );
 		} elseif ( $num_events_today > 1 && $num_users_with_events_today > 1 && $num_other_sources_today == 1 ) {
-			// Multiple events from multiple users but from only 1 single other source
+			// Multiple events from multiple users but from only 1 single other source.
+			/* translators: %1$d: number of events */
 			$msg_tmpl = __( '%1$d events today from one user and one other source.', 'simple-history' );
 		} elseif ( $num_events_today > 1 && 1 == $num_users_with_events_today && $num_other_sources_today > 1 ) {
 			// Multiple events from 1 user but from multiple other sources.
+			/* translators: %1$d: number of events, %3$d: number of other sources */
 			$msg_tmpl = __( '%1$d events today from one user and %3$d other sources.', 'simple-history' );
 		} elseif ( $num_events_today > 1 && $num_users_with_events_today > 1 && $num_other_sources_today > 1 ) {
-			// Multiple events from multiple user and from multiple other sources
+			// Multiple events from multiple user and from multiple other sources.
+			/* translators: %1$s: number of events, %2$d: number of users, %3$d: number of other sources */
 			$msg_tmpl = __( '%1$s events today from %2$d users and %3$d other sources.', 'simple-history' );
 		}
 
