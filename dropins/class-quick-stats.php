@@ -146,12 +146,13 @@ class Quick_Stats extends Dropin {
 	/**
 	 * Get the template message for the quick stats.
 	 *
-	 * @param int $num_events_today Number of events today.
-	 * @param int $num_users_with_events_today Number of users with events today.
-	 * @param int $num_other_sources_today Number of other sources today.
 	 * @return string The message.
 	 */
-	protected function get_stats_message( $num_events_today, $num_users_with_events_today, $num_other_sources_today ) {
+	protected function get_stats_message() {
+		$num_events_today = $this->get_num_events_today();
+		$num_users_with_events_today = $this->get_num_users_today();
+		$num_other_sources_today = $this->get_other_sources_count();
+
 		$msg_tmpl = '';
 
 		// No results today at all.
@@ -205,12 +206,7 @@ class Quick_Stats extends Dropin {
 	 * Output some simple quick stats.
 	 */
 	public function output_quick_stats() {
-		$num_events_today = $this->get_num_events_today();
-		$num_users_with_events_today = $this->get_num_users_today();
-		$num_other_sources_today = $this->get_other_sources_count();
-
-		$msg = $this->get_stats_message( $num_events_today, $num_users_with_events_today, $num_other_sources_today );
-
+		$msg = $this->get_stats_message();
 		?>
 		<div class="SimpleHistoryQuickStats">
 			<?php echo esc_html( $msg ); ?>
