@@ -543,7 +543,7 @@ class Setup_Settings_Page extends Service {
 
 		$simple_history = Simple_History::get_instance();
 
-		$arr_settings_tabs = $simple_history->get_settings_tabs()
+		$arr_settings_tabs = $simple_history->get_settings_tabs();
 
 		?>
 		<nav class="sh-PageNav">
