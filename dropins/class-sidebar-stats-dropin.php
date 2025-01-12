@@ -133,6 +133,23 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
+	 * Get text for stats, i.e. "X events have been logged the last Y days."
+	 *
+	 * @param int $num_days Number of days to get stats for.
+	 * @return string HTML, contains tags for bold and paragraph.
+	 */
+	protected function get_events_in_last_days_stats_text( $num_days ) {
+		$msg = sprintf(
+			// translators: 1 is number of events, 2 is number of days.
+			__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
+			Helpers::get_num_events_last_n_days( $num_days ),
+			number_format_i18n( $num_days )
+		);
+
+		return '<p>' . $msg . '</p>';
+	}
+
+	/**
 	 * Output HTML for sidebar.
 	 */
 	public function on_sidebar_html() {
@@ -158,23 +175,15 @@ class Sidebar_Stats_Dropin extends Dropin {
 				 * Fires inside the stats sidebar box, after the headline but before any content.
 				 */
 				do_action( 'simple_history/dropin/stats/before_content' );
-				?>
 
-				<p>
-					<?php
-					echo wp_kses(
-						sprintf(
-							// translators: 1 is number of events, 2 is number of days.
-							__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
-							Helpers::get_num_events_last_n_days( $num_days ),
-							number_format_i18n( $num_days )
-						),
-						array(
-							'b' => array(),
-						)
-					);
-					?>
-				</p>
+				echo wp_kses(
+					$this->get_events_in_last_days_stats_text( $num_days ),
+					array(
+						'p' => array(),
+						'b' => array(),
+					)
+				);
+				?>
 
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
 				<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
