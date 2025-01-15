@@ -376,6 +376,8 @@ class Setup_Settings_Page extends Service {
 			self::get_subnav_html()
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		// TODO: in the above more than the header is outputted. Should be refactored to only output header.
 	}
 
 	/**

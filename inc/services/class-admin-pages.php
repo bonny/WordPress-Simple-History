@@ -260,6 +260,8 @@ class Admin_Pages extends Service {
 		</header>
 
 		<?php
+		settings_errors();
+
 		// WordPress will add notices after element with class .wp-header-end.
 		?>
 		<hr class="wp-header-end">
