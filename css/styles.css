@@ -980,7 +980,7 @@ Modal window with detailss
  * Based on style uses by core for Site Health and Privacy Policy, to keep things consistent.
  */
 .sh-PageHeader {
-	margin: 0 0 2rem -20px;
+	margin: 0 0 0 -20px;
 	padding: 1.5rem;
 	background: #fff;
 	border-bottom: 1px solid var(--sh-color-gray);
@@ -1203,11 +1203,8 @@ so add some extra place then to make it look a bit less ugly.
 
 /** Subtabs on settings page */
 .sh-SettingsTabs {
-	/* --color-link-hover: #3f9349; */
-	/* background-color: #f8f8f8; */
 	border-bottom: 1px solid rgb(206, 206, 206);
 	margin-bottom: 0;
-	margin-top: -1.5rem;
 	margin-left: -2.5em;
 	padding-left: 2.5em;
 }

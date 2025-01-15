@@ -172,11 +172,11 @@ class Admin_Pages extends Service {
 			],
 		];
 
-		$message = __( 'Hey there! Simple History has a new location.', 'simple-history' );
+		$message = __( 'Hey there! Simple History has moved to the top level of the menu for easier access.', 'simple-history' );
 
 		$icon_svg_contents = file_get_contents( SIMPLE_HISTORY_PATH . 'css/icons/moving_24dp_FILL0_wght400_GRAD0_opsz48.svg' );
 
-		return sprintf(
+		$message = sprintf(
 			'
 			<div class="">
 				<div style="%3$s">%2$s</div>
@@ -188,16 +188,22 @@ class Admin_Pages extends Service {
 			wp_kses( $message, $allowed_html ),
 			$icon_svg_contents,
 			'
+				float: left;
 				color: var(--sh-color-pink);
-    			transform: translate(45px, 30px) scale(3.5) rotate(-115deg);
-    			transform-origin: left;
+    			transform: scale(1.5) rotate(-115deg) translate(0.3rem, -0.1rem);
     			z-index: 999;
-			    position: relative;
-			', // 3
-			'
-				margin: -15px 0 50px 70px;
-				font-size: 1.4rem;
-			' // 4
+				margin-inline: .75rem;
+			', // 3 icon styles
+			'' // 4 text styles
+		);
+
+		return wp_get_admin_notice(
+			$message,
+			[
+				'type' => 'warning',
+				'is_dismissible' => false,
+				'is_inline' => true,
+			]
 		);
 	}
 
