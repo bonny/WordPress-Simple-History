@@ -22,16 +22,6 @@ class Setup_Settings_Page extends Service {
 	 * Adds default tabs to settings
 	 */
 	public function add_default_settings_tabs() {
-		// Add default settings tabs.
-		$this->simple_history->register_settings_tab(
-			[
-				'slug' => 'settings',
-				'name' => __( 'Settings', 'simple-history' ),
-				'icon' => 'settings',
-				'order' => 100,
-			]
-		);
-
 		// Add sub tabs.
 		$this->simple_history->register_settings_tab(
 			[
