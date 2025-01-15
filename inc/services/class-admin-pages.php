@@ -26,15 +26,13 @@ class Admin_Pages extends Service {
 	 *  - Statistics/Reports (in the future).
 	 */
 	public function add_main_admin_pages() {
-		$menu_slug = $this->simple_history::MENU_PAGE_SLUG;
-
 		// Add History page as a main menu item, at the root.
 		// For example Jetpack adds itself at prio 3. We add it at prio 3.5 to be below Jetpack but above posts.
 		add_menu_page(
 			_x( 'History', 'dashboard title name', 'simple-history' ),
 			_x( 'Simple History', 'dashboard menu name', 'simple-history' ),
 			Helpers::get_view_history_capability(),
-			$menu_slug,
+			$this->simple_history::MENU_PAGE_SLUG,
 			array( $this, 'history_page_output' ),
 			// Logo SVG image is same as in AdminBarQuickView.scss.
 			'data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiBoZWlnaHQ9IjE1MiIgdmlld0JveD0iMCAwIDE1OSAxNTIiIHdpZHRoPSIxNTkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0iIzAwMCI+PHBhdGggZD0ibTExMS40NTYgNS45MDI4N2MtMzguMjMtMTUuNzE0OC04MS41NzkxIDEuMzM3MDItOTYuMjYxNCAzNC43MDAwM2wtMTIuMDkzNzQtNC45NzEyYy0xLjc2MTM2LS43MjQtMy41NjY1MTcuOTM0NS0yLjk5MjE4MSAyLjc0OTFsNi42NTY0OTEgMzUuODUxYy42NDczMSAyLjA0NTEgMy4wMTgxNiAyLjk3MjIgNC44ODA5MyAxLjkwODZsMjguMjk1MS0yMS40NTE1YzEuNjIxNC0uOTI1OCAxLjQ2NjItMy4zMTExLS4yNjE4LTQuMDIxNGwtMTIuOTYzMy01LjMyODZjMTIuMDY3Mi0yNy4wMDcyIDQ4LjE0MTItNDEuMDI0NzggODAuMDA4OS0yNy45MjU0IDMxLjg2OCAxMy4wOTk0IDQ3Ljg2MyA1MC4zMzgyIDM0LjU2MiA4Mi42OTY1LTEzLjMwMSAzMi4zNTgtNTAuMzQwNiA0Ny43OTctODIuNzI5NCAzNC40ODQtMTQuMDM2NS01Ljc3LTI0Ljg5MzUtMTUuOTk0LTMxLjYxMTgtMjguMzYxLTEuNjMwNC0zLjAwMS01LjIxOS00LjQ5NS04LjM3MjUtMy4xOC0zLjE5MzYgMS4zMzEtNC43MjA2IDUuMDI4LTMuMTE2MyA4LjA5MiA3Ljk4OCAxNS4yNTcgMjEuMTg3NSAyNy44OTcgMzguMzY5MSAzNC45NTkgMzguNzUxNiAxNS45MjkgODMuMDY3OS0yLjU0MyA5OC45ODE5LTQxLjI1OCAxNS45MTQtMzguNzE1Mi0yLjYtODMuMDE0MS00MS4zNTItOTguOTQzMTN6Ii8+PHBhdGggY2xpcC1ydWxlPSJldmVub2RkIiBkPSJtNzMuNjkzOSA0Ni44NDM5YzAtMy4wMTg5IDIuMzg5Ni01LjQ2NjIgNS4zMzc0LTUuNDY2MnM1LjMzNzQgMi40NDczIDUuMzM3NCA1LjQ2NjN2MzMuMDM4NWwyNC4xMDgzIDE1LjAzNThjMi41MTMgMS41NjczIDMuMjgyIDQuOTQwNSAxLjcwOCA3LjQ4NTctMS41MzYgMi40ODMtNC43MzEgMy4yNDgtNy4xODIgMS43MTlsLTI5LjMwOTEtMTguMjh6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L2c+PC9zdmc+',
@@ -44,12 +42,13 @@ class Admin_Pages extends Service {
 		// Add a history page.
 		add_submenu_page(
 			// Use same name as main menu item, so it looks like a sub-page.
-			$menu_slug,
+			$this->simple_history::MENU_PAGE_SLUG,
 			_x( 'Event Log - Simple History', 'dashboard title name', 'simple-history' ),
 			_x( 'Event Log', 'dashboard menu name', 'simple-history' ),
 			Helpers::get_view_history_capability(),
-			$menu_slug,
-			array( $this, 'history_page_output' )
+			$this->simple_history::MENU_PAGE_SLUG,
+			array( $this, 'history_page_output' ),
+			10
 		);
 	}
 

@@ -24,7 +24,6 @@ defined( 'ABSPATH' ) || die();
 
 $args = $args ?? [];
 
-
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo Admin_Pages::header_output();
 

@@ -1130,8 +1130,6 @@ class Helpers {
 	public static function is_on_our_own_pages( $hook = '' ) {
 		$current_screen = self::get_current_screen();
 
-		// sh_dd( '$current_screen', $current_screen );
-
 		// Seems like subpages to main admin page have bases that begin with "simple-history_page_".
 		$begins_with_simple_history = $current_screen && str_starts_with( $current_screen->base, 'simple-history_page_' );
 
