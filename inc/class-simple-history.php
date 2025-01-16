@@ -1441,6 +1441,8 @@ class Simple_History {
 	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
 	 */
 	public static function get_view_history_page_admin_url() {
-		return menu_page_url( self::MENU_PAGE_SLUG, false );
+		// Can not use `menu_page_url()` because it only works within the admin area.
+		// But we want to be able to link to history page also from front end.
+		return admin_url( 'admin.php?page=' . self::MENU_PAGE_SLUG );
 	}
 }
