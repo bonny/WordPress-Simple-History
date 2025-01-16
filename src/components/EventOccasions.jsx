@@ -33,7 +33,7 @@ function EventOccasionsAddonsContent( props ) {
 		<div className="SimpleHistoryLogitem__occasionsAddOns">
 			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
 				{ hasExtendedSettingsAddOn ? (
-					<a href="options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts">
+					<a href="admin.php?page=simple_history_admin_menu_page&selected-sub-tab=failed-login-attempts">
 						{ __(
 							'Configure failed login attempts',
 							'simple-history'

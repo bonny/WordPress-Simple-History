@@ -822,7 +822,7 @@ class Helpers {
 	/**
 	 * Get URL for settings page.
 	 *
-	 * @return string URL for settings page, i.e. "/wp-admin/options-general.php?page=simple_history_settings_menu_slug"
+	 * @return string URL for settings page, i.e. "/wp-admin/admin.php?page=simple_history_admin_menu_page"
 	 */
 	public static function get_settings_page_url() {
 		// Can not use `menu_page_url()` because it only works within the admin area.

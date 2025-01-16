@@ -848,11 +848,12 @@ class Simple_History {
 
 			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
 
+				// TODO: the admin-url links below should get the URL using functions.
 				if ( $is_simple_history_extended_settings_active ) {
 					// Show link to extended settings settings page if extended settings plugin is active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
-					$occasions_html .= '<a href="' . admin_url( 'options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts' ) . '">';
+					$occasions_html .= '<a href="' . admin_url( 'admin.php?page=simple_history_admin_menu_page&selected-sub-tab=failed-login-attempts' ) . '">';
 					$occasions_html .= __( 'Configure failed login attempts', 'simple-history' );
 					$occasions_html .= '</a>';
 					$occasions_html .= '</p>';
@@ -861,7 +862,7 @@ class Simple_History {
 					// Show link to premium settings page if extended settings plugin is active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
-					$occasions_html .= '<a href="' . admin_url( 'options-general.php?page=simple_history_settings_menu_slug&selected-sub-tab=failed-login-attempts' ) . '">';
+					$occasions_html .= '<a href="' . admin_url( 'admin.php?page=simple_history_admin_menu_page&selected-sub-tab=failed-login-attempts' ) . '">';
 					$occasions_html .= __( 'Configure failed login attempts', 'simple-history' );
 					$occasions_html .= '</a>';
 					$occasions_html .= '</p>';
