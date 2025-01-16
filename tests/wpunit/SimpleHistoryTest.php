@@ -91,9 +91,6 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$sh = Simple_History::get_instance();
 		$settings_tabs = $sh->get_settings_tabs();
 		$arr_default_settings = array(
-			'settings',
-			'export',
-			'debug',
 			// Added by dropin test
 			'dropin_example_tab_slug',
 			'tests_dropin_settings_tab_slug',
