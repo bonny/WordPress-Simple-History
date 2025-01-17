@@ -21,7 +21,7 @@ class Admin extends \AcceptanceTester
     {
         $I = $this;
         $I->loginAsAdmin();
-        $I->amOnAdminPage('admin.php?page=simple_history_admin_menu_page');
+        $I->amOnAdminPage('admin.php?page=simple_history_settings_page');
     }
 
     public function loginAsToHistoryPage(string $username, string $password)

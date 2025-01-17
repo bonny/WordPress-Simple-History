@@ -7,7 +7,7 @@ class GUICest {
                 $I->haveUserInDatabase('erik', 'editor', ['user_pass' => 'password']);
 
                 $I->loginAsAdmin();
-                $I->amOnAdminPage( 'index.php?page=simple_history_page' );
+                $I->amOnAdminPage( 'admin.php?page=simple_history_admin_menu_page' );
 
                 $I->see( 'Simple History' );
                

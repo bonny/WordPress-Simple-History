@@ -6,7 +6,6 @@ use \Step\Acceptance\Admin;
  */
 class SimpleHistoryLoggerCest
 {
-
     public function _before(Admin $I) {
         $I->loginAsAdmin();        
         $I->loginAsAdminToHistorySettingsPage();
