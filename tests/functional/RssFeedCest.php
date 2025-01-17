@@ -7,7 +7,7 @@
 class RssFeedCest {
     public function _before( FunctionalTester $I ) {
         $I->loginAsAdmin();
-        $I->amOnAdminPage('options-general.php?page=simple_history_settings_menu_slug');
+        $I->amOnAdminPage('admin.php?page=simple_history_settings_page');
     }
 
 	public function test_can_get_see_rss_settings( FunctionalTester $I ) {
