@@ -278,14 +278,26 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
-### Unreleased
+### 5.5.0 (January 2025)
 
--   Add slotfill `SimpleHistorySlotEventActionsMenu`.
--   Add Simple History to admin bar instead of sub-admin menu. Simple History is located at dashboard, in the tools menu and have multiple sub-tabs. This is a path forward to make Simple History more accessible and easier to find and not being hidden or scattered at different places in the admin area. For example on the settings page there was tools like export and debug.
--   Deprecate filter `simple_history/admin_location` because event log page can't be moved since it has sub-pages now.
--   Users with Premium add-on get a link to the settings page from the events cleared text.
--   Don't show premium info below clear log button if premium add-on is installed.
--   Misc internal code fixes and enhancements.
+**Added**
+
+-   Added Simple History to the top level of the admin bar for improved accessibility and visibility. Previously, the plugin was located in the dashboard menu, the settings menu, and contained tools like export and debug scattered across sub-tabs. This change centralizes these tools, making them easier to find and use.
+-   Introduced a link to the settings page for users with the Premium add-on, shown in the "events cleared" text. [#486](https://github.com/bonny/WordPress-Simple-History/issues/486)
+-   Added slotfill `SimpleHistorySlotEventActionsMenu` to enable future extensions and customizations. [#499](https://github.com/bonny/WordPress-Simple-History/issues/499)
+
+**Deprecated**
+
+-   Deprecated the filter `simple_history/admin_location` since the event log page now includes sub-pages and cannot be moved.
+
+**Changed**
+
+-   Updated icons next to menu titles to improve visual clarity and consistency.
+
+**Fixed**
+
+-   Resolved an issue where premium info was displayed below the "clear log" button even when the Premium add-on was installed.
+-   Various internal code enhancements and optimizations.
 
 ### 5.4.4 (January 2025)
 
