@@ -278,9 +278,9 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
-### Unreleased
+### 5.5.1 (January 2025)
 
--   Fix redirect from old settings page to new settings page and from old event log page to new event log page.
+-   Fix the redirect from old settings page to new settings page and from old event log page to new event log page now always working when there was for example a WordPress update notice.
 
 ### 5.5.0 (January 2025)
 
