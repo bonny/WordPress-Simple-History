@@ -86,17 +86,26 @@ class Admin_Pages extends Service {
 	 * at /wp-admin/index.php?page=simple_history_page
 	 */
 	public function history_page_output_redirect_to_main_page() {
-		wp_redirect(
-			add_query_arg(
-				[
-					'page' => $this->simple_history::MENU_PAGE_SLUG,
-					'simple_history_redirected_from_dashboard_menu' => '1',
-				],
-				admin_url( 'admin.php' )
-			)
+		$redirect_to_url = add_query_arg(
+			[
+				'page' => $this->simple_history::MENU_PAGE_SLUG,
+				'simple_history_redirected_from_dashboard_menu' => '1',
+			],
+			admin_url( 'admin.php' )
 		);
 
-		exit;
+		if ( headers_sent() ) {
+			// Decode the URL to prevent double encoding of ampersands.
+			$js_url = html_entity_decode( esc_url( $redirect_to_url ) );
+			?>
+			<script>
+				window.location = <?php echo wp_json_encode( $js_url ); ?>;
+			</script>
+			<?php
+		} else {
+			wp_redirect( $redirect_to_url );
+			exit;
+		}
 	}
 
 	/**

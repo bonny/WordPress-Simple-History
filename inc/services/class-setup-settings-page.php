@@ -77,15 +77,26 @@ class Setup_Settings_Page extends Service {
 	 * Redirects old settings page to new settings page.
 	 */
 	public function settings_page_output_redirect() {
-		wp_redirect(
-			add_query_arg(
-				[
-					'page' => 'simple_history_settings_page',
-					'simple_history_redirected_from_settings_menu' => '1',
-				],
-				admin_url( 'admin.php' )
-			)
+		$redirect_to_url = add_query_arg(
+			[
+				'page' => 'simple_history_settings_page',
+				'simple_history_redirected_from_settings_menu' => '1',
+			],
+			admin_url( 'admin.php' )
 		);
+
+		if ( headers_sent() ) {
+			// Decode the URL to prevent double encoding of ampersands.
+			$js_url = html_entity_decode( esc_url( $redirect_to_url ) );
+			?>
+			<script>
+				window.location = <?php echo wp_json_encode( $js_url ); ?>;
+			</script>
+			<?php
+		} else {
+			wp_redirect( $redirect_to_url );
+			exit;
+		}
 	}
 
 	/**
