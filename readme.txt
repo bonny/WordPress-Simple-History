@@ -280,7 +280,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### 5.5.1 (January 2025)
 
--   Fix the redirect from old settings page to new settings page and from old event log page to new event log page now always working when there was for example a WordPress update notice.
+-   Fix the redirect from old settings page to new settings page and from old event log page to new event log page not always working when there was for example a WordPress update notice.
 
 ### 5.5.0 (January 2025)
 
