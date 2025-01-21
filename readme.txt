@@ -278,6 +278,12 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
+### Unreleased
+
+-   Add filter `simple_history/show_admin_menu_page`.
+-   Add filter `simple_history/show_in_admin_bar`.
+-   Decrease the icon size in the admin bar and main menu, to match the size of other icons. Props @hjalle.
+
 ### 5.5.1 (January 2025)
 
 -   Fix the redirect from old settings page to new settings page and from old event log page to new event log page not always working when there was for example a WordPress update notice.
