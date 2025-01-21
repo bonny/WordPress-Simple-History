@@ -1206,6 +1206,13 @@ class Helpers {
 		$setting = get_option( 'simple_history_show_in_admin_bar', 1 );
 		$setting = apply_filters( 'simple_history_show_in_admin_bar', $setting );
 
+		/**
+		 * Filter if Simple History should be shown in the admin bar.
+		 *
+		 * @since 5.5.1
+		 */
+		$setting = apply_filters( 'simple_history/show_in_admin_bar', $setting );
+
 		return (bool) $setting;
 	}
 
