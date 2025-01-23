@@ -1185,14 +1185,43 @@ class Helpers {
 	}
 
 	/**
-	 * Should simple history be shown as a page
-	 * Defaults to true
+	 * Should Simple History be shown as a page inside the dashboard menu.
+	 *
+	 * Defaults to true.
 	 *
 	 * @return bool
 	 */
 	public static function setting_show_as_page() {
 		$setting = get_option( 'simple_history_show_as_page', 1 );
 		$setting = apply_filters( 'simple_history_show_as_page', $setting );
+
+		return (bool) $setting;
+	}
+
+	/**
+	 * Should Simple History be shown as a page in the main menu, at top level,
+	 * next to pages, tools, settings, etc.
+	 *
+	 * Defaults to true.
+	 *
+	 * @return bool
+	 */
+	public static function setting_show_as_menu_page() {
+		$setting = get_option( 'simple_history_show_as_menu_page' );
+
+		// If it does not exist, then set to default value 1 and set it.
+		// So the option can auto-load.
+		if ( false === $setting ) {
+			$setting = 1;
+			update_option( 'simple_history_show_as_menu_page', $setting, true );
+		}
+
+		/**
+		 * Filter if Simple History should be shown as a page in the main admin menu.
+		 *
+		 * @since 5.5.2
+		 */
+		$setting = apply_filters( 'simple_history/show_admin_menu_page', $setting );
 
 		return (bool) $setting;
 	}
@@ -1215,6 +1244,7 @@ class Helpers {
 
 		return (bool) $setting;
 	}
+
 
 	/**
 	 * Returns true if Detective Mode is active.
