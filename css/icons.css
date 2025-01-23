@@ -169,3 +169,7 @@
 .sh-Icon--moving {
 	background-image: url(./icons/moving_24dp_FILL0_wght400_GRAD0_opsz48.svg);
 }
+
+.sh-Icon--visibility_lock {
+	background-image: url(./icons/visibility_lock_48dp__FILL0_wght400_GRAD0_opsz48.svg);
+}
