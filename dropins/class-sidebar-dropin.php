@@ -68,7 +68,7 @@ class Sidebar_Dropin extends Dropin {
 				</div>
 			</div>
 			',
-			_x( 'Support', 'Sidebar box', 'simple-history' ), // 1
+			_x( 'Need help?', 'Sidebar box', 'simple-history' ), // 1
 			sprintf(
 				// translators: 1 is a link to the support forum.
 				_x( '<a href="%1$s">Visit the support forum</a> if you need help or have questions.', 'Sidebar box', 'simple-history' ),
