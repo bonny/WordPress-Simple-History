@@ -18,19 +18,13 @@ class Stealth_Mode extends Service {
 	 * Fired from the 'init' hook, with prio 9 so it runs before for example admin bar setup.
 	 */
 	public function initialize() {
-		// define( 'SIMPLE_HISTORY_STEALTH_MODE_ENABLE', true );
-		define( 'SIMPLE_HISTORY_STEALTH_MODE_EMAILS', 'x@earthpeople.se,xpar@earthpeople.se,par.thernstrom@gmail.com' );
-
-		// sh_dd( 'is_gui_visible_to_user: ', self::is_gui_visible_to_user() );
 		// If Stealth Mode is not enabled then there is no need to do anything.
 		if ( ! self::is_stealth_mode_enabled() ) {
-			// sh_dd( 'Stealth Mode is not enabled, return early' );
 			return;
 		}
 
 		// If Stealth Mode is enabled, but the current user is allowed to see the GUI, then return early.
 		if ( self::is_gui_visible_to_user() ) {
-			// sh_dd( 'Stealth Mode is enabled, but user is allowed to see GUI, return early' );
 			return;
 		}
 
@@ -42,8 +36,6 @@ class Stealth_Mode extends Service {
 	 * Add hooks and filters to hide GUI.
 	 */
 	protected function add_hide_gui_hooks() {
-		// sh_dd( 'Stealth Mode enabled and user not allowed to view GUI, so hide/disable GUI' );
-
 		// Hide dashbord widget.
 		add_filter( 'simple_history/show_on_dashboard', '__return_false' );
 
@@ -100,8 +92,8 @@ class Stealth_Mode extends Service {
 	 */
 	public static function is_user_email_allowed_in_stealth_mode( $user_email ) {
 		// Get allowed emails from constant into an array.
-		$allowed_emails = defined( 'SIMPLE_HISTORY_STEALTH_MODE_EMAILS' )
-		? explode( ',', \SIMPLE_HISTORY_STEALTH_MODE_EMAILS )
+		$allowed_emails = defined( 'SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS' )
+		? explode( ',', \SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS )
 		: [];
 
 		// Clean entries and remove empty values.
@@ -188,16 +180,14 @@ class Stealth_Mode extends Service {
 	public static function is_stealth_mode_enabled() {
 		// Full Stealth Mode takes precedence.
 		if ( self::is_full_stealth_mode_enabled() ) {
-			// sh_d( 'full stealth mode enabled via constant' );
 			return true;
 		}
 
 		// Check if email-based Stealth Mode is enabled.
 		$emails_from_constant = [];
 
-		if ( defined( 'SIMPLE_HISTORY_STEALTH_MODE_EMAILS' ) ) {
-			// sh_d( 'stealth mode enabled via emails constant' );
-			$emails_from_constant = explode( ',', \SIMPLE_HISTORY_STEALTH_MODE_EMAILS );
+		if ( defined( 'SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS' ) ) {
+			$emails_from_constant = explode( ',', \SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS );
 			$emails_from_constant = array_filter( array_map( 'trim', $emails_from_constant ) );
 		}
 
