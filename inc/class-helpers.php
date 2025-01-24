@@ -1227,6 +1227,38 @@ class Helpers {
 	}
 
 	/**
+	 * Returns the location of the main simple history menu page.
+	 * Valid locations are:
+	 * - 'top' = Below dashboard and Jetpack and similar top level menu items.
+	 * - 'bottom' = Below settings and similar bottom level menu items.
+	 *
+	 * Defaults to 'top'.
+	 *
+	 * @return string Location of the main menu page.
+	 */
+	public static function setting_menu_page_location() {
+		$option_slug = 'simple_history_menu_page_location';
+		$setting = get_option( $option_slug );
+
+		// If it does not exist, then default so the option can auto-load.
+		if ( false === $setting ) {
+			$setting = 'top';
+			update_option( $option_slug, $setting, true );
+		}
+
+		/**
+		 * Filter to control the placement of Simple History in the Admin Menu.
+		 *
+		 * @since 5.5.2
+		 *
+		 * @param string $setting Either 'top' for placement below dashboard or 'bottom' for placement below settings.
+		 */
+		$setting = apply_filters( 'simple_history/admin_menu_location', $setting );
+
+		return $setting;
+	}
+
+	/**
 	 * Returns true if Simple History can be shown in the admin bar
 	 *
 	 * @return bool

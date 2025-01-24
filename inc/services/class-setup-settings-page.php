@@ -147,6 +147,7 @@ class Setup_Settings_Page extends Service {
 			)
 		);
 
+		// Setting for showing in admin bar.
 		register_setting(
 			$settings_general_option_group,
 			'simple_history_show_in_admin_bar',
@@ -158,6 +159,16 @@ class Setup_Settings_Page extends Service {
 			)
 		);
 
+		// Setting for menu page location.
+		register_setting(
+			$settings_general_option_group,
+			'simple_history_menu_page_location',
+			array(
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+
+		// Output for where to show history, in dashboard, admin bar.
 		add_settings_field(
 			'simple_history_show_where',
 			Helpers::get_settings_field_title_output( __( 'Show history', 'simple-history' ), 'visibility' ),
@@ -173,7 +184,8 @@ class Setup_Settings_Page extends Service {
 			$settings_menu_slug,
 			$settings_section_general_id
 		);
-		// Number if items to show on the history page.
+
+		// Output for number if items to show on the history page.
 		add_settings_field(
 			'simple_history_number_of_items',
 			Helpers::get_settings_field_title_output( __( 'Items per page', 'simple-history' ), 'filter_list' ),
@@ -215,34 +227,36 @@ class Setup_Settings_Page extends Service {
 	 * Settings field output for menu page location
 	 */
 	public function settings_field_menu_page_location() {
-		$show_as_menu_page = Helpers::setting_show_as_menu_page();
+		$location = Helpers::setting_menu_page_location();
+		$option_slug = 'simple_history_menu_page_location';
 		?>
 
 		<fieldset>
 			<label>
 				<input 
-					type="radio" 
-					name="menu_location" 
-					value="Top of menu" 
-					<?php // checked( $days_to_keep_log_type === 'keep_forever' ); ?> 
+					type="radio"
+					name="<?php echo esc_attr( $option_slug ); ?>"
+					value="top"
+					<?php checked( $location === 'top' ); ?>
 				/>
-				At top (below Dashboard)
+				<?php esc_html_e( 'Top of menu', 'simple-history' ); ?>
 			</label>
 
 			<br />
 
 			<label>
 				<input 
-					type="radio" 
-					name="menu_location" 
-					value="Bottom of menu" 
-					<?php // checked( $days_to_keep_log_type === 'keep_forever' ); ?> 
+					type="radio"
+					name="<?php echo esc_attr( $option_slug ); ?>"
+					value="bottom"
+					<?php checked( $location === 'bottom' ); ?>
 				/>
-				At bottom (below Settings)
+				<?php esc_html_e( 'Bottom of menu', 'simple-history' ); ?>
 			</label>
 		</fieldset>
 		<?php
 	}
+
 	/**
 	 * Settings field for where to show the log, page or dashboard
 	 */

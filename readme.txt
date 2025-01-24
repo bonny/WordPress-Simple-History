@@ -282,6 +282,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 -   Add filter `simple_history/show_admin_menu_page`.
 -   Add filter `simple_history/show_in_admin_bar`.
+-   Add filter `simple_history/admin_menu_location`.
 -   Decrease the icon size in the admin bar and main menu, to match the size of other icons. Props @hjalle.
 -   Add helper function `setting_show_as_menu_page()`.
 
