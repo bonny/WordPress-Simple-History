@@ -135,6 +135,7 @@ class Setup_Settings_Page extends Service {
 			)
 		);
 
+		// Setting for showing as page under dashboard.
 		register_setting(
 			$settings_general_option_group,
 			'simple_history_show_as_page',
