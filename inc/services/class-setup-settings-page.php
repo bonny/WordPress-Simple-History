@@ -166,6 +166,13 @@ class Setup_Settings_Page extends Service {
 			$settings_section_general_id
 		);
 
+		add_settings_field(
+			'simple_history_menu_page_location',
+			Helpers::get_settings_field_title_output( __( 'Menu page location', 'simple-history' ), 'overview' ),
+			array( $this, 'settings_field_menu_page_location' ),
+			$settings_menu_slug,
+			$settings_section_general_id
+		);
 		// Number if items to show on the history page.
 		add_settings_field(
 			'simple_history_number_of_items',
@@ -204,6 +211,38 @@ class Setup_Settings_Page extends Service {
 		do_action( 'simple_history/settings_page/general_section_output' );
 	}
 
+	/**
+	 * Settings field output for menu page location
+	 */
+	public function settings_field_menu_page_location() {
+		$show_as_menu_page = Helpers::setting_show_as_menu_page();
+		?>
+
+		<fieldset>
+			<label>
+				<input 
+					type="radio" 
+					name="menu_location" 
+					value="Top of menu" 
+					<?php // checked( $days_to_keep_log_type === 'keep_forever' ); ?> 
+				/>
+				At top (below Dashboard)
+			</label>
+
+			<br />
+
+			<label>
+				<input 
+					type="radio" 
+					name="menu_location" 
+					value="Bottom of menu" 
+					<?php // checked( $days_to_keep_log_type === 'keep_forever' ); ?> 
+				/>
+				At bottom (below Settings)
+			</label>
+		</fieldset>
+		<?php
+	}
 	/**
 	 * Settings field for where to show the log, page or dashboard
 	 */
