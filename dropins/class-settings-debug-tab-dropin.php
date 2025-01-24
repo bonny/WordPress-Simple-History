@@ -22,6 +22,10 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 	 * Add submenu page for debug.
 	 */
 	public function add_submenu() {
+		if ( ! Helpers::setting_show_as_menu_page() ) {
+			return;
+		}
+
 		add_submenu_page(
 			Simple_History::MENU_PAGE_SLUG,
 			__( 'Debug', 'simple-history' ),

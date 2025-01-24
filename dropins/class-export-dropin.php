@@ -25,6 +25,10 @@ class Export_Dropin extends Dropin {
 	 * Add submenu page for export
 	 */
 	public function add_submenu() {
+		if ( ! Helpers::setting_show_as_menu_page() ) {
+			return;
+		}
+
 		add_submenu_page(
 			Simple_History::MENU_PAGE_SLUG,
 			__( 'Export', 'simple-history' ),

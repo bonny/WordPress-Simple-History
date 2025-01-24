@@ -50,6 +50,11 @@ class Setup_Settings_Page extends Service {
 		$show_settings_page = apply_filters( 'simple_history_show_settings_page', $show_settings_page );
 		$show_settings_page = apply_filters( 'simple_history/show_settings_page', $show_settings_page );
 
+		// Can't show settings page if user can't view main menu item.
+		if ( ! Helpers::setting_show_as_menu_page() ) {
+			return;
+		}
+
 		if ( $show_settings_page ) {
 			// Old location: placed at WP Admin › Settings › Simple History.
 			add_options_page(
