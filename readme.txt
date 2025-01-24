@@ -288,8 +288,12 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Add helper function `setting_show_as_menu_page()`.
 -   Fix for `simple_history/show_action_link` when being used and returning false then the other action links was not shown.
 -   Add support for **Stealth Mode**. When enabled, Simple History will not show up anywhere in the GUI.
+    -   Enable _Full Stealth Mode_ by adding `define("SIMPLE_HISTORY_STEALTH_MODE", true);` to for example your `wp-config.php`.
+    -   Enable _Partial Stealth Mode_ by adding `define("SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS", "jane@example.com,john@example.com");` to for example your `wp-config.php`.
     -   This will hide Simple History from places like the dashboard, the admin menu, the admin bar, and the plugin list.
+    -   Even if the current user is an admin, they will not see Simple History anywhere.
     -   Useful for web agencies and similar, who has sites where they want to log events but not show the log to any users except users they specify.
+    -   When using Stealth Mode the log is still available via the RSS feed, the REST-API, and via the WP-CLI commands.
 
 ### 5.5.1 (January 2025)
 
