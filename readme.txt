@@ -283,8 +283,10 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Add filter `simple_history/show_admin_menu_page`.
 -   Add filter `simple_history/show_in_admin_bar`.
 -   Add filter `simple_history/admin_menu_location`.
+-   Add filter `simple_history/show_on_dashboard` (same as `simple_history_show_dashboard_widget`, but with correct naming convention).
 -   Decrease the icon size in the admin bar and main menu, to match the size of other icons. Props @hjalle.
 -   Add helper function `setting_show_as_menu_page()`.
+-   Fix for `simple_history/show_action_link` when being used and returning false then the other action links was not shown.
 
 ### 5.5.1 (January 2025)
 

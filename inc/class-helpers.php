@@ -1180,7 +1180,16 @@ class Helpers {
 	 */
 	public static function setting_show_on_dashboard() {
 		$show_on_dashboard = get_option( 'simple_history_show_on_dashboard', 1 );
+
 		$show_on_dashboard = apply_filters( 'simple_history_show_on_dashboard', $show_on_dashboard );
+
+		/**
+		 * Filter if Simple History should be shown on the dashboard.
+		 *
+		 * @param int $show_on_dashboard If 1 then show on dashboard, if 0 then do not show on dashboard.
+		 */
+		$show_on_dashboard = apply_filters( 'simple_history/show_on_dashboard', $show_on_dashboard );
+
 		return (bool) $show_on_dashboard;
 	}
 
