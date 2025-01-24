@@ -287,6 +287,9 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 -   Decrease the icon size in the admin bar and main menu, to match the size of other icons. Props @hjalle.
 -   Add helper function `setting_show_as_menu_page()`.
 -   Fix for `simple_history/show_action_link` when being used and returning false then the other action links was not shown.
+-   Add support for **Stealth Mode**. When enabled, Simple History will not show up anywhere in the GUI.
+    -   This will hide Simple History from places like the dashboard, the admin menu, the admin bar, and the plugin list.
+    -   Useful for web agencies and similar, who has sites where they want to log events but not show the log to any users except users they specify.
 
 ### 5.5.1 (January 2025)
 
