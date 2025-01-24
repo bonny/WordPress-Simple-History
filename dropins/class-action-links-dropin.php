@@ -35,7 +35,7 @@ class Action_Links_Dropin extends Dropin {
 
 		// Bail if filter returns false.
 		if ( $show_link === false ) {
-			return;
+			return $update_actions;
 		}
 
 		// Bail if the current user can't view the history.
@@ -45,7 +45,7 @@ class Action_Links_Dropin extends Dropin {
 
 		$update_actions['simple_history'] = sprintf(
 			'<a href="%s" target="_parent">%s</a>',
-			admin_url( 'admin.php?page=simple_history_page' ),
+			admin_url( 'admin.php?page=simple_history_admin_menu_page' ),
 			__( 'Go to Simple History', 'simple-history' )
 		);
 
