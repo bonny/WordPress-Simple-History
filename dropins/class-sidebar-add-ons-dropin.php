@@ -27,6 +27,11 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
+		// Hide if date is after January 31 2025.
+		if ( time() > strtotime( '2025-01-31' ) ) {
+			return;
+		}
+
 		?>
 		<!-- 
 		Insert promo:
