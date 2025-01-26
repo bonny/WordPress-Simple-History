@@ -21,26 +21,18 @@ class Sidebar_Dropin extends Dropin {
 	 */
 	public function default_sidebar_contents() {
 		// Box about donation.
-		$headline = _x( 'Donate to support development', 'Sidebar box', 'simple-history' );
+		$headline = _x( 'Support our work', 'Sidebar box', 'simple-history' );
 
-		$bodyDonate = sprintf(
-			// translators: 1 is a link to the donate page.
-			_x( 'If you like and use Simple History you should <a href="%1$s">donate to keep this plugin free</a>.', 'Sidebar box', 'simple-history' ),
-			'https://eskapism.se/sida/donate/'
-		);
-
-		$bodyGithubSponsors = sprintf(
-			// translators: 1 is a link to the GitHub sponsors page.
-			_x( 'You can also <a href="%1$s">sponsor me at Github</a>.', 'Sidebar box', 'simple-history' ),
-			'https://github.com/sponsors/bonny/'
-		);
+		$donate_first_para = _x( "We're continually working to improve Simple History, adding new features to make it even more useful for you. If you'd like to support our efforts, consider making a contribution. 🙌", 'Sidebar box', 'simple-history' );
+		$donate_second_para = _x( 'Donate to support development', 'Sidebar box', 'simple-history' );
+		$donate_link = 'https://simple-history.com/sponsor/';
 
 		$boxDonate = '
 			<div class="postbox">
-				<h3 class="hndle">' . $headline . '</h3>
+				<h3 class="hndle">' . esc_html( $headline ) . '</h3>
 				<div class="inside">
-					<p>' . $bodyDonate . '</p>
-					<p>' . $bodyGithubSponsors . '</p>
+					<p>' . esc_html( $donate_first_para ) . '</p>
+					<p><a target="_blank" class="sh-ExternalLink" href="' . esc_url( $donate_link ) . '">' . esc_html( $donate_second_para ) . '</a></p>
 				</div>
 			</div>
 		';
@@ -76,7 +68,7 @@ class Sidebar_Dropin extends Dropin {
 				</div>
 			</div>
 			',
-			_x( 'Support', 'Sidebar box', 'simple-history' ), // 1
+			_x( 'Need help?', 'Sidebar box', 'simple-history' ), // 1
 			sprintf(
 				// translators: 1 is a link to the support forum.
 				_x( '<a href="%1$s">Visit the support forum</a> if you need help or have questions.', 'Sidebar box', 'simple-history' ),

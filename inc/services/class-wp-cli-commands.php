@@ -49,5 +49,11 @@ class WP_CLI_Commands extends Service {
 			'simple-history event',
 			WP_CLI_Get_Command::class,
 		);
+
+		// Add command `wp stealth-mode status`.
+		WP_CLI::add_command(
+			'simple-history stealth-mode',
+			WP_CLI_Stealth_Mode_Command::class,
+		);
 	}
 }

@@ -141,6 +141,7 @@ class Simple_History {
 			Services\Plugin_List_Info::class,
 			Services\REST_API::class,
 			Services\WP_CLI_Commands::class,
+			Services\Stealth_Mode::class,
 		];
 	}
 
@@ -341,7 +342,7 @@ class Simple_History {
 	/**
 	 * Get an instantiated service by its class name.
 	 *
-	 * @param string $service_classname Class name of service to get.
+	 * @param string $service_classname Full class name of service to get. Example: AddOns_Licences::class.
 	 * @return Service|null Found service or null if no service found.
 	 */
 	public function get_service( $service_classname ) {

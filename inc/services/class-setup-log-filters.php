@@ -2,8 +2,6 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Simple_History;
-
 /**
  * Class that setups logging using WP hooks.
  */

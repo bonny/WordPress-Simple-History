@@ -11,6 +11,15 @@ use Simple_History\Simple_History;
 class Quick_View_Dropin extends Dropin {
 	/** @inheritDoc */
 	public function loaded() {
+		// Init the plugin at prio so it's easy to modify on init, without having to use a lower prio.
+		add_action( 'init', [ $this, 'initialize' ], 20 );
+	}
+
+	/**
+	 * Initialize the dropin.
+	 * Fired from the 'init' hook.
+	 */
+	public function initialize() {
 		// Only available for users with the view history capability.
 		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;

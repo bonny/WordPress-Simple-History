@@ -84,7 +84,7 @@ class React_Dropin extends Dropin {
 
 		$css_vars_string = '';
 		foreach ( $css_vars as $key => $value ) {
-			$css_vars_string .= $key . ':' . $value . ';';
+			$css_vars_string = $css_vars_string . $key . ':' . $value . ';';
 		}
 
 		return $css_vars_string;
@@ -93,7 +93,7 @@ class React_Dropin extends Dropin {
 	/**
 	 * Get the current theme colors.
 	 *
-	 * @return array<string, array<string, string>> An associative array containing the theme colors.
+	 * @return array<string, string>> An associative array containing the theme colors.
 	 */
 	private function get_current_theme_colors() {
 		$color_scheme = get_user_option( 'admin_color' );
