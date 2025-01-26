@@ -51,5 +51,11 @@ class WPCliCest {
         $I->seeInShellOutput('info');
         $I->seeInShellOutput('WP-CLI');
     }
-}
 
+    public function test_stealth_mode( FunctionalTester $I ) {
+        $I->cli('--allow-root simple-history stealth-mode status');
+
+        $I->seeInShellOutput('Full Stealth Mode	Disabled');
+        $I->seeInShellOutput('Partial Stealth Mode	Disabled');
+    }
+}

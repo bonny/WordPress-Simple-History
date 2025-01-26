@@ -295,6 +295,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
     -   Useful for web agencies and similar, who has sites where they want to log events but not show the log to any users except users they specify.
     -   When using Stealth Mode the log is still available via the RSS feed, the REST-API, and via the WP-CLI commands.
     -   Stealh Mode status in shown on the debug page.
+    -   Add wp-cli command `simple-history stealth-mode status` to get status of Stealh Mode using wp-cli.
 
 ### 5.5.1 (January 2025)
 
