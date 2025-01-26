@@ -294,6 +294,7 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
     -   Even if the current user is an admin, they will not see Simple History anywhere.
     -   Useful for web agencies and similar, who has sites where they want to log events but not show the log to any users except users they specify.
     -   When using Stealth Mode the log is still available via the RSS feed, the REST-API, and via the WP-CLI commands.
+    -   Stealh Mode status in shown on the debug page.
 
 ### 5.5.1 (January 2025)
 
