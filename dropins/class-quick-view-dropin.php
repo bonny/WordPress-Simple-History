@@ -11,7 +11,8 @@ use Simple_History\Simple_History;
 class Quick_View_Dropin extends Dropin {
 	/** @inheritDoc */
 	public function loaded() {
-		add_action( 'init', [ $this, 'initialize' ], 10 );
+		// Init the plugin at prio so it's easy to modify on init, without having to use a lower prio.
+		add_action( 'init', [ $this, 'initialize' ], 20 );
 	}
 
 	/**
