@@ -280,22 +280,26 @@ Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq
 
 ### Unreleased
 
--   Add filter `simple_history/show_admin_menu_page`.
--   Add filter `simple_history/show_in_admin_bar`.
+This version adds an option to the settings page to control the location of the menu page (at top or bottom). It also adds support for **Stealth Mode**.
+When enabled Simple History will be hidden from places like the dashboard, the admin menu, the admin bar, and the plugin list.
+Read the [release post](https://simple-history.com/2025/simple-history-5-6-released-with-stealth-mode/) for more details and examples how to use this feature.
+
+**Added**
+
+-   Add support for **Stealth Mode**. When enabled (programmatically using a constant or filters) Simple History will be hidden from places like the dashboard, the admin menu, the admin bar, and the plugin list. [#401](https://github.com/bonny/WordPress-Simple-History/issues/401)
+-   Add option to set menu page location to settings page. [#525](https://github.com/bonny/WordPress-Simple-History/issues/525)
+-   Add WP-CLI command `simple-history stealth-mode status` to get status of Stealh Mode using WP-CLI.
+-   Add filter `simple_history/show_admin_menu_page` to
 -   Add filter `simple_history/admin_menu_location`.
--   Add filter `simple_history/show_on_dashboard` (same as `simple_history_show_dashboard_widget`, but with correct naming convention).
+-   Add filters `simple_history/show_in_admin_bar` and `simple_history/show_on_dashboard`, that work the same way as `simple_history_show_in_admin_bar` and `simple_history_show_dashboard_widget`, but with correct naming convention.
+
+**Improved**
+
 -   Decrease the icon size in the admin bar and main menu, to match the size of other icons. Props @hjalle.
--   Add helper function `setting_show_as_menu_page()`.
+
+**Fixed**
+
 -   Fix for `simple_history/show_action_link` when being used and returning false then the other action links was not shown.
--   Add support for **Stealth Mode**. When enabled, Simple History will not show up anywhere in the GUI.
-    -   Enable _Full Stealth Mode_ by adding `define("SIMPLE_HISTORY_STEALTH_MODE", true);` to for example your `wp-config.php`.
-    -   Enable _Partial Stealth Mode_ by adding `define("SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS", "jane@example.com,john@example.com");` to for example your `wp-config.php`.
-    -   This will hide Simple History from places like the dashboard, the admin menu, the admin bar, and the plugin list.
-    -   Even if the current user is an admin, they will not see Simple History anywhere.
-    -   Useful for web agencies and similar, who has sites where they want to log events but not show the log to any users except users they specify.
-    -   When using Stealth Mode the log is still available via the RSS feed, the REST-API, and via the WP-CLI commands.
-    -   Stealh Mode status in shown on the debug page.
-    -   Add wp-cli command `simple-history stealth-mode status` to get status of Stealh Mode using wp-cli.
 
 ### 5.5.1 (January 2025)
 
