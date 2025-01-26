@@ -10,12 +10,12 @@ class Stealth_Mode extends Service {
 	 * Called when service is loaded.
 	 */
 	public function loaded() {
-		add_action( 'init', [ $this, 'initialize' ], 9 );
+		add_action( 'init', [ $this, 'initialize' ], 10 );
 	}
 
 	/**
 	 * Init Stealh Mode.
-	 * Fired from the 'init' hook, with prio 9 so it runs before for example admin bar setup.
+	 * Fired from the 'init' hook, with prio 10.
 	 */
 	public function initialize() {
 		// If Stealth Mode is not enabled then there is no need to do anything.
@@ -83,18 +83,15 @@ class Stealth_Mode extends Service {
 	}
 
 	/**
-	 * Check if the current user's email is allowed based on Stealth Mode settings.
+	 * Get allowed email addresses from constant and filter.
 	 *
-	 * Supports exact email matches and wildcard domain matches (e.g., "@example.com").
-	 *
-	 * @param string $user_email The user's email to check.
-	 * @return bool True if the user's email is allowed, false otherwise.
+	 * @return array Array of allowed email addresses.
 	 */
-	public static function is_user_email_allowed_in_stealth_mode( $user_email ) {
+	public static function get_allowed_email_addresses() {
 		// Get allowed emails from constant into an array.
 		$allowed_emails = defined( 'SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS' )
-		? explode( ',', \SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS )
-		: [];
+			? explode( ',', \SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS )
+			: [];
 
 		// Clean entries and remove empty values.
 		$allowed_emails = array_filter( array_map( 'trim', $allowed_emails ) );
@@ -108,7 +105,19 @@ class Stealth_Mode extends Service {
 		 * @since 1.0.0
 		 * @param array $allowed_emails List of allowed emails or wildcard domains.
 		 */
-		$allowed_emails = apply_filters( 'simple_history/stealth_mode_allowed_emails', $allowed_emails );
+		return apply_filters( 'simple_history/stealth_mode_allowed_emails', $allowed_emails );
+	}
+
+	/**
+	 * Check if the current user's email is allowed based on Stealth Mode settings.
+	 *
+	 * Supports exact email matches and wildcard domain matches (e.g., "@example.com").
+	 *
+	 * @param string $user_email The user's email to check.
+	 * @return bool True if the user's email is allowed, false otherwise.
+	 */
+	public static function is_user_email_allowed_in_stealth_mode( $user_email ) {
+		$allowed_emails = self::get_allowed_email_addresses();
 
 		// Check for exact email match.
 		if ( in_array( $user_email, $allowed_emails, true ) ) {
@@ -129,7 +138,6 @@ class Stealth_Mode extends Service {
 		// No match found.
 		return false;
 	}
-
 
 	/**
 	 * Check if the GUI is visible to the current user in Stealth Mode.
