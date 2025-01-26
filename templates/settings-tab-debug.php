@@ -14,11 +14,11 @@ defined( 'ABSPATH' ) || die();
  *      instantiated_services:array,
  *      events_table_name:string,
  *      simple_history_instance: Simple_History,
- *      wpdb:\wpdb
+ *      wpdb:\wpdb,
  *      plugins:array,
- *      dropins:array
- *      tables_info:array
- *      table_size_result:array
+ *      dropins:array,
+ *      tables_info:array,
+ *      table_size_result:array,
  *      db_engine:string
  * } $args
  */
