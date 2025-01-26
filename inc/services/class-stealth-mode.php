@@ -36,7 +36,7 @@ class Stealth_Mode extends Service {
 	 * Add hooks and filters to hide GUI.
 	 */
 	protected function add_hide_gui_hooks() {
-		// Hide dashbord widget.
+		// Hide dashboard widget.
 		add_filter( 'simple_history/show_on_dashboard', '__return_false' );
 
 		// Hide admin menu bar.
@@ -45,7 +45,7 @@ class Stealth_Mode extends Service {
 		// Hide main menu page.
 		add_filter( 'simple_history/show_admin_menu_page', '__return_false' );
 
-		// Hide in network meny (The menu list below "My websites" in the admin bar).
+		// Hide in network menu (The menu list below "My websites" in the admin bar).
 		add_filter( 'simple_history/add_admin_bar_menu_item', '__return_false' );
 		add_filter( 'simple_history/add_admin_bar_network_menu_item', '__return_false' );
 
