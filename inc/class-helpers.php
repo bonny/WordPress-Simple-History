@@ -1216,21 +1216,12 @@ class Helpers {
 	 * @return bool
 	 */
 	public static function setting_show_as_menu_page() {
-		$setting = get_option( 'simple_history_show_as_menu_page' );
-
-		// If it does not exist, then set to default value 1 and set it.
-		// So the option can auto-load.
-		if ( false === $setting ) {
-			$setting = 1;
-			update_option( 'simple_history_show_as_menu_page', $setting, true );
-		}
-
 		/**
 		 * Filter if Simple History should be shown as a page in the main admin menu.
 		 *
 		 * @since 5.5.2
 		 */
-		$setting = apply_filters( 'simple_history/show_admin_menu_page', $setting );
+		$setting = apply_filters( 'simple_history/show_admin_menu_page', true );
 
 		return (bool) $setting;
 	}

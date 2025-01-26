@@ -26,17 +26,6 @@ class Admin_Pages extends Service {
 	 *  - Statistics/Reports (in the future).
 	 */
 	public function add_main_admin_pages() {
-		/**
-		 * Filter to determine if history page should be added to the main admin menu.
-		 *
-		 * @since 5.5.2
-		 *
-		 * @param bool $show_dashboard_page Show the page or not
-		 */
-
-		// Todo: Move to function, and use when adding subpages too
-		// or they can be visited manually by going to for example
-		// /wp-admin/admin.php?page=simple_history_export_history.
 		if ( ! Helpers::setting_show_as_menu_page() ) {
 			return;
 		}
