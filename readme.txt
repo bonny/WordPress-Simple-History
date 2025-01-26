@@ -336,4 +336,4 @@ First release of 2025! 🎉
 -   Style some admin boxes to match new design.
 -   Misc other internal improvements.
 
-[Changelog for previous versions.](CHANGELOG.md)
+[Changelog for previous versions.](https://github.com/bonny/WordPress-Simple-History/blob/main/CHANGELOG.md)
