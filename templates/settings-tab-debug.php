@@ -3,6 +3,9 @@
 namespace Simple_History;
 
 use Simple_History\Services\Admin_Pages;
+use Simple_History\Services\Stealth_Mode;
+
+defined( 'ABSPATH' ) || die();
 
 /**
  * @var array{
@@ -10,7 +13,7 @@ use Simple_History\Services\Admin_Pages;
  *      instantiated_dropins:array,
  *      instantiated_services:array,
  *      events_table_name:string,
- *      simple_history_instance:Simple_History,
+ *      simple_history_instance: Simple_History,
  *      wpdb:\wpdb
  *      plugins:array,
  *      dropins:array
@@ -19,9 +22,6 @@ use Simple_History\Services\Admin_Pages;
  *      db_engine:string
  * } $args
  */
-
-defined( 'ABSPATH' ) || die();
-
 $args = $args ?? [];
 
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -164,6 +164,31 @@ echo Admin_Pages::header_output();
 		echo '</p>';
 	}
 
+	// Output Stealh Mode status if Full or Partial Stealth Mode is enabled.
+	/** @var Stealth_Mode|null $stealh_mode_service */
+	$stealh_mode_service = $args['simple_history_instance']->get_service( Stealth_Mode::class );
+	if ( $stealh_mode_service !== null ) {
+		$is_full_stealth_mode_enabled = $stealh_mode_service::is_full_stealth_mode_enabled();
+		$is_stealth_mode_enabled = $stealh_mode_service::is_stealth_mode_enabled();
+
+		if ( $is_full_stealth_mode_enabled || $is_stealth_mode_enabled ) {
+
+			echo '<h3>' . esc_html_x( 'Stealth Mode', 'debug dropin', 'simple-history' ) . '</h3>';
+
+			if ( $is_full_stealth_mode_enabled ) {
+				echo '<p>';
+				echo esc_html_x( 'Full Stealth Mode is enabled.', 'debug dropin', 'simple-history' );
+				echo '</p>';
+			} else if ( $is_stealth_mode_enabled ) {
+				echo '<p>';
+				echo esc_html_x( 'Partial Stealth Mode is enabled.', 'debug dropin', 'simple-history' );
+				echo '</p>';
+
+				$stealth_mode_allowed_emails = $stealh_mode_service::get_allowed_email_addresses();
+				sh_d( '$stealth_mode_allowed_emails', $stealth_mode_allowed_emails );
+			}
+		}
+	}
 
 	// List services.
 	echo '<h3>' . esc_html_x( 'Services', 'debug dropin', 'simple-history' ) . '</h3>';
