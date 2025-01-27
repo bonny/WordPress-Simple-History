@@ -919,22 +919,13 @@ Modal window with detailss
 	max-height: 11em;
 	overflow: hidden;
 	position: relative;
+	/* https://github.com/bonny/WordPress-Simple-History/issues/530 */
+	scrollbar-gutter: stable both-edges;
 }
 
 .SimpleHistory__diff__contents--noContentsCrop {
 	max-height: none;
 }
-
-/* fade out that indicate more content */
-/*.SimpleHistory__diff__contents:after {
-	content: "";
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	height: 30px;
-	background: linear-gradient(transparent, white);
-}*/
 
 .SimpleHistory__diff__contents:hover,
 .SimpleHistory__diff__contents:focus {
