@@ -22,6 +22,16 @@ It's a plugin that is good to have on websites where several people are involved
 
 No coding is required to use the plugin. Just install it and it will start logging events.
 
+### Example scenarios
+
+Keep track of what other people are doing:
+_"Has someone done anything today? Ah, Sarah uploaded
+the new press release and created an article for it. Great! Now I don't have to do that."_
+
+Or for debug purposes:
+_"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughty-plugin-x',
+that must be it."_
+
 ### ✨ Simple History Features
 
 Out of the box Simple History has support for:
@@ -148,34 +158,16 @@ The activity log remains accessible via the REST API, WP-CLI, and RSS feed, ensu
 
 Stealth Mode is enabled using a constant or filter, allowing you to customize who can access the logs while keeping the plugin hidden in the admin interface.
 
-### Example scenarios
+### 📝 Add your own events to the log using the API
 
-Keep track of what other people are doing:
-_"Has someone done anything today? Ah, Sarah uploaded
-the new press release and created an article for it. Great! Now I don't have to do that."_
+Theme and plugin developers can log custom events in Simple History using the `simple_history_log` filter:
 
-Or for debug purposes:
-_"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughty-plugin-x',
-that must be it."_
+`apply_filters(
+  'simple_history_log',
+  'This is a logged message'
+);`
 
-### API so you can add your own events to the audit log
-
-If you are a theme or plugin developer and would like to add your own things/events to Simple History you can do that by using the function `SimpleLogger()` like this:
-
-`
-if ( function_exists("SimpleLogger") ) {
-// Most basic example: just add some information to the log
-SimpleLogger()->info("This is a message sent to the log");
-
-    	// A bit more advanced: log events with different severities
-    	SimpleLogger()->info("User admin edited page 'About our company'");
-    	SimpleLogger()->warning("User 'Jessie' deleted user 'Kim'");
-    	SimpleLogger()->debug("Ok, cron job is running!");
-
-}
-`
-
-See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/) and how to [query the log](https://simple-history.com/docs/query-api/), and more.
+See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/), [query the log](https://simple-history.com/docs/query-api/), and more.
 
 ### 🔆 Extend the plugin functionality with Add-ons
 
