@@ -1,7 +1,7 @@
 # Simple History – Track, Log, and Audit WordPress Changes
 
 Contributors: eskapism
-Donate link: https://www.paypal.me/eskapism
+Donate link: https://simple-history.com/sponsor/
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.7
 Stable tag: 5.6.0
