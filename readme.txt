@@ -1,6 +1,6 @@
 # Simple History – Track, Log, and Audit WordPress Changes
 
-Contributors: eskapism
+Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.7
@@ -124,11 +124,29 @@ After installation, Simple History automatically starts logging activities. Acce
 
 Using the optional password protected **RSS feed** you can keep track of the changes made on your website using your favorite RSS reader.
 
-### Comes with WP-CLI commands
+### WP-CLI commands for automation
 
-For those of you who like to work with the command line there are also some WP-CLI commands available.
+[Multiple WP-CLI commands exists](https://simple-history.com/features/wp-cli-commands/), to view and search the log, and to view more information about a specific event.
 
--   `wp simple-history list` – List the latest logged events.
+WP-CLI support is perfect for system administrators and agencies managing multiple WordPress sites. Using WP-CLI commands they can automate log monitoring, create reports, or integrate with existing DevOps tools.
+
+Example commands:
+
+-   `wp simple-history event list` – List the latest logged events.
+-   `wp simple-history event search` – Search for events.
+
+### Stealth Mode – Hide Simple History from the WordPress Admin
+
+[Stealth Mode](https://simple-history.com/features/stealth-mode/) allows Simple History to run completely in the background, hidden from the WordPress admin interface. This is ideal for agencies, developers, and administrators who want to track user activity discreetly without exposing the logs to other users.
+
+There are two modes:
+
+-   **Full Stealth Mode** – Completely hides Simple History from everyone.
+-   **Partial Stealth Mode** – Hides the plugin but allows selected users to access the logs.
+
+The activity log remains accessible via the REST API, WP-CLI, and RSS feed, ensuring administrators can still retrieve logs when needed.
+
+Stealth Mode is enabled using a constant or filter, allowing you to customize who can access the logs while keeping the plugin hidden in the admin interface.
 
 ### Example scenarios
 
@@ -155,7 +173,6 @@ SimpleLogger()->info("This is a message sent to the log");
     	SimpleLogger()->debug("Ok, cron job is running!");
 
 }
-?>
 `
 
 See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/) and how to [query the log](https://simple-history.com/docs/query-api/), and more.
