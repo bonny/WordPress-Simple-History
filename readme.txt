@@ -127,7 +127,7 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 
 ## Getting Started
 
-After installation, Simple History automatically starts logging activities. Access the history log through the dashboard widget or via the 'Simple History' page in the dashboard menu.
+After installation, Simple History automatically starts logging activities. Access the history log through the dashboard widget or via the 'Simple History' page.
 
 ### RSS feed with changes
 
@@ -172,14 +172,22 @@ See the [documentation](https://simple-history.com/docs/) for examples on how to
 
 Powerful add-ons are available to extend the functionality of Simple History even further:
 
+**[Simple History Premium](https://simple-history.com/add-ons/premium/)** – Extend Simple History with new premium features and configuration options:
+
+-   **Log Retention** – Specify how many days logs should be kept before they are deleted. You can also choose to keep them forever!
+-   **Export Search Results** – Easily export your search results in CSV or JSON format for further analysis or use in other tools.
+-   **Failed User Logins** – Disable the logging of failed login attempts.
+-   **Control IP Address Anonymization** – Choose whether to log full IP addresses or anonymize them for privacy, making it easier to comply with GDPR regulations.
+-   **Show the location of login attempts on Google Maps** – Identify the origins of brute force attacks and other suspicious activity.
+-   **Message Control** – Manage logging by enabling or disabling specific loggers and their messages.
+-   **Remove Banners** – Focus on what matters by hiding promotional banners.
+-   **New Future Features** – We’re continuously adding new features to Simple History Premium, inspired by user feedback and our goal to be your favorite audit log plugin!
+
 **[WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin)**  
 Enhance your site's tracking with comprehensive logs for WooCommerce orders, products, settings, and coupons.
 
-**[Extended Settings](https://simple-history.com/add-ons/extended-settings/)**  
-Extend the settings of Simple History with more options and settings.
-
-**[Developer tools](https://simple-history.com/add-ons/developer-tools/) (coming soon)**  
-Log sent emails, HTTP API requests, cron jobs, and more.
+**[Debug and Monitor](https://simple-history.com/add-ons/debug-and-monitor/)**  
+With this add-on you can debug requests and monitor outgoing requests and e-mails. Useful for developers and support personel, but also useful for all users that are curious about what’s happening on their WordPress installation.
 
 ### 💚 Sponsor this project
 
