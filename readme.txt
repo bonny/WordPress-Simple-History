@@ -105,11 +105,9 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 -   [FV Player Pro](https://foliovision.com/player/features/sharing/video-downloading-with-simple-history#integration-with-simple-history)
 -   [Login Me Now](https://wordpress.org/plugins/login-me-now/)
 
-### What users say 💬
+### 💬 What users say
 
 🌟 [300+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) speak to the reliability of this plugin. 🌟
-
--   _"So far the best and most comprehensive logging plugin"_ - [@herrschuessler](https://wordpress.org/support/topic/so-far-the-best-and-most-comprehensive-logging-plugin/)
 
 -   _"The best history plugin I’ve found"_ – [Rich Mehta](https://wordpress.org/support/topic/the-best-history-plugin-ive-found/)
 
