@@ -168,35 +168,41 @@ Theme and plugin developers can log custom events in Simple History using the `s
 
 See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/), [query the log](https://simple-history.com/docs/query-api/), and more.
 
-### 🔆 Extend the plugin functionality with Add-ons
+### 🔆 Extend with Add-ons
 
-Powerful add-ons are available to extend the functionality of Simple History even further:
+Take your activity logging to the next level with add-ons that enhance tracking, security, and customization.
 
-**[Simple History Premium](https://simple-history.com/add-ons/premium/)** – Extend Simple History with new premium features and configuration options:
+#### [Simple History Premium](https://simple-history.com/add-ons/premium/)
 
--   **Log Retention** – Specify how many days logs should be kept before they are deleted. You can also choose to keep them forever!
--   **Export Search Results** – Easily export your search results in CSV or JSON format for further analysis or use in other tools.
--   **Failed User Logins** – Disable the logging of failed login attempts.
--   **Control IP Address Anonymization** – Choose whether to log full IP addresses or anonymize them for privacy, making it easier to comply with GDPR regulations.
--   **Show the location of login attempts on Google Maps** – Identify the origins of brute force attacks and other suspicious activity.
--   **Message Control** – Manage logging by enabling or disabling specific loggers and their messages.
--   **Remove Banners** – Focus on what matters by hiding promotional banners.
--   **New Future Features** – We’re continuously adding new features to Simple History Premium, inspired by user feedback and our goal to be your favorite audit log plugin!
+Unlock advanced features and customization options:
 
-**[WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin)**  
-Enhance your site's tracking with comprehensive logs for WooCommerce orders, products, settings, and coupons.
+-   **Log Retention** – Control how long logs are stored, from a few days to forever.
+-   **Export Search Results** – Download logs in CSV or JSON format for deeper analysis.
+-   **Failed User Logins** – Disable or limit logging of failed login attempts to reduce noise.
+-   **IP Address Anonymization** – Choose whether to store full IPs or anonymize them for privacy compliance (e.g., GDPR).
+-   **Login Location Lookup** – View the location of a specific login attempt on Google Maps to identify suspicious activity.
+-   **Logger Control** – Enable or disable specific loggers to manage what type of events are recorded.
+-   **Ad-Free Experience** – Remove promotional banners for a distraction-free workflow.
 
-**[Debug and Monitor](https://simple-history.com/add-ons/debug-and-monitor/)**  
-With this add-on you can debug requests and monitor outgoing requests and e-mails. Useful for developers and support personel, but also useful for all users that are curious about what’s happening on their WordPress installation.
+#### [WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin)
+
+Track WooCommerce activity with detailed logs for:
+
+✔️ Orders, refunds, and stock changes  
+✔️ Product updates and pricing adjustments  
+✔️ Settings modifications and coupon usage
+
+#### [Debug and Monitor](https://simple-history.com/add-ons/debug-and-monitor/)
+
+Gain deeper insights into your site’s background activity:
+
+🛠️ Monitor outgoing requests and emails  
+🔍 Debug HTTP API calls and server communication  
+👨‍💻 Essential for developers, support teams, and anyone curious about what’s happening under the hood
 
 ### 💚 Sponsor this project
 
-If you like this plugin please consider donating to support the development. The plugin has been free for the last 10 years and will continue to be free.
-
--   [Donate using PayPal](https://www.paypal.me/eskapism).
--   [Become a GitHub sponsor](https://github.com/sponsors/bonny).
--   [Send Bitcoin or Ethereum](https://simple-history.com/donate/).
--   [Add-ons that you can buy to support the development](https://simple-history.com/add-ons/) (and get some extra features!).
+If you like this plugin please consider [donating to support the development of the free plugin](https://simple-history.com/donate). The plugin has been free for the last 10 years and will continue to be free.
 
 ## Frequently Asked Questions
 
@@ -206,11 +212,7 @@ Yes! It has been free for the last 10 years and will continue to be free. There 
 
 = How do I view the log? =
 
-You can view the log on the dashboard or on a separate page in the admin area.
-
-= Can I see the log in the front end? =
-
-No, the log is only available in the admin area.
+You can view the log on the dashboard, in the admin bar menu, or on a separate page in the admin area.
 
 = Do I need to have coding skills to use the plugin? =
 
