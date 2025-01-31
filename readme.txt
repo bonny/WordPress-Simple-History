@@ -206,68 +206,76 @@ If you like this plugin please consider [donating to support the development of 
 
 ## Frequently Asked Questions
 
-= Is the plugin free? =
+### Is the plugin free?
 
-Yes! It has been free for the last 10 years and will continue to be free. There are some add-ons that you can buy to support the development of this plugin and get some extra features. [View add-ons](https://simple-history.com/add-ons/).
+Yes! Simple History has been free for over 10 years and will remain free. To support development and unlock extra features, you can purchase add-ons. [View add-ons](https://simple-history.com/add-ons/).
 
-= How do I view the log? =
+### How do I view the log?
 
-You can view the log on the dashboard, in the admin bar menu, or on a separate page in the admin area.
+You can access the log in multiple ways:
 
-= Do I need to have coding skills to use the plugin? =
+-   The **dashboard** widget
+-   The **admin bar menu**
+-   A **dedicated log page** in the WordPress admin area
 
-No, you don't need to write any code to use the plugin.
-Just install the plugin and it will start collecting data.
+### Do I need coding skills to use the plugin?
 
-= Where is the log stored? =
+No! Just install and activate the plugin, and it will start collecting activity logs automatically.
 
-The log is stored in the database used by WordPress.
+### Where is the log stored?
 
-= Can I export the log? =
+The log is stored in your WordPress database.
 
-Yes, you can export the log to a CSV or JSON file.
+### Can I export the log?
 
-= Is my theme supported? =
+Yes, you can export logs in **CSV** or **JSON** format for further analysis.
 
-Yes, the plugin works with all themes.
+### Is it compatible with other plugins?
 
-= Is my plugin supported? =
+Yes! Simple History supports many popular plugins out of the box. Additionally, developers can integrate it with any plugin using the [Logging API](https://simple-history.com/docs/logging-api/).
 
-The plugin comes with built in support for many plugins and support for Simple History can be added to any plugin using the Logging API.
+### Will this plugin slow down my website?
 
-= Will my website slow down because of this plugin? =
+No, Simple History is lightweight and optimized for performance. Most logging occurs in the WordPress admin area when a WordPress user performs an action.  
+By default, nothing is logged on the front end of your site, ensuring that visitor experience and page speed remain unaffected.
 
-No, the plugin is very lightweight and will not slow down your website.
+### Who can view the log?
 
-= Who can view the log? =
+Access to the log depends on the user’s role:
 
-How much information that is shown in the log depends on the user role of the user viewing the log. Admins can see everything, while editors can only see events related to posts and pages.
+-   **Administrators** can view all logged events.
+-   **Editors** can see events related to posts and pages.
 
-= Is it possible to exclude users from the log? =
+### Can I exclude certain users from being logged?
 
-Yes, you exclude users by role or email using the filter [`simple_history/log/do_log`](https://simple-history.com/docs/hooks/).
+Yes, you can exclude users based on **role** or **email** using the [`simple_history/log/do_log`](https://simple-history.com/docs/hooks/) filter.
 
-See the [hooks documentation](https://simple-history.com/docs/hooks/) for more info.
+For more details, check the [hooks documentation](https://simple-history.com/docs/hooks/).
 
-= For how long are the history kept? =
+### How long is the history kept?
 
-By default, logs are stored for 60 days. This duration can be adjusted in the settings.
+By default, logs are stored for **60 days**. You can change this in the settings.
 
-This can be modified using the filter [`simple_history/db_purge_days_interval`](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) or using the [Simple History Extended Settings add-on](https://simple-history.com/add-ons/extended-settings?utm_source=wpadmin).
+You can also adjust the retention period using the [`simple_history/db_purge_days_interval`](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) filter or the [Extended Settings add-on](https://simple-history.com/add-ons/extended-settings?utm_source=wpadmin).
 
-= Can I track changes made by specific users? =
+### Can I track changes made by specific users?
 
-Yes, Simple History allows you to filter the history by user names, making it easy to monitor individual activities.
+Yes! You can **filter logs by username**, making it easy to track individual activity.
 
-= Is this plugin GDRP compliant? =
+### Is this plugin GDPR compliant?
 
-Since GDRP is such a complex topic and since [WordPress plugins are not allowed to imply that they provide legal compliance](https://make.wordpress.org/plugins/2018/04/12/legal-compliance-added-to-guidelines/) we can not simply just say that the plugin is GDPR compliant.
+GDPR compliance depends on **how you use the plugin** and how you handle collected data. WordPress guidelines prohibit plugins from making legal compliance claims, so you should review your site's data policies to ensure compliance.
 
-GDPR is very much about how you use the data and how you inform your users about what data you collect and how you use it. No site is the same and the usage together with the plugin can be very different from site to site. So you should always make sure that you are compliant with GDPR when using the plugin.
+That said, Simple History follows **privacy-friendly practices**:
 
-That said, the plugin does not use Google Fonts, does not set cookies, uses no local storage, and by default the ip addresses are anonymized. The plugin is however a plugin that logs events and that can contain personal data, so you should always make sure that you are compliant with GDPR when using the plugin.
+-   ❌ No Google Fonts
+-   ❌ No cookies
+-   ❌ No local storage
+-   ✅ IP addresses are anonymized by default
 
-Read more at the [FAQ on the plugin website](https://simple-history.com/docs/faq-frequently-asked-questions/#is-the-plugin-GDPR-complient).
+Since the plugin logs events (which may contain personal data), it’s **your responsibility** to ensure GDPR compliance based on your site's usage.
+
+For more information, see the full [GDPR FAQ](https://simple-history.com/docs/faq-frequently-asked-questions/#is-the-plugin-GDPR-complient).
 
 ## Screenshots
 
