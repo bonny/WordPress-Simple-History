@@ -16,7 +16,7 @@ Track changes and user activities on your WordPress site. See who created a page
 
 Simple History shows recent changes made within WordPress, directly on your dashboard or on a separate page.
 
-The plugin works as a audit log of the most important events that occur in WordPress.
+The plugin acts as an audit log of the most important events that occur in WordPress.
 
 It's a plugin that is good to have on websites where several people are involved in editing the content.
 
@@ -67,11 +67,11 @@ Out of the box Simple History has support for:
 
 -   **User Data Erasure Requests** – see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
-#### Build in logging for third party plugins
+#### Built-in logging for third-party plugins
 
 Simple History comes with built in support for many plugins:
 
--   **Jetpack** – See what Jetpack modules that are activated and deactivated.
+-   **Jetpack** – See which Jetpack modules are activated and deactivated.
 
 -   **Advanced Custom Fields (ACF)** – See when field groups and fields are created and modified.
 
@@ -135,7 +135,7 @@ Using the optional password protected **RSS feed** you can keep track of the cha
 
 ### WP-CLI commands for automation
 
-[Multiple WP-CLI commands exists](https://simple-history.com/features/wp-cli-commands/), to view and search the log, and to view more information about a specific event.
+[Multiple WP-CLI commands exist](https://simple-history.com/features/wp-cli-commands/), to view and search the log, and to view more information about a specific event.
 
 WP-CLI support is perfect for system administrators and agencies managing multiple WordPress sites. Using WP-CLI commands they can automate log monitoring, create reports, or integrate with existing DevOps tools.
 
@@ -311,7 +311,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 ### 5.6.0 (January 2025)
 
 🔝 This version adds an option to the settings page to control the location of the menu page (at top or bottom).
-🫣 It also adds support for **Stealth Mode**: When enabled Simple History will be hidden from places like the dashboard, the admin menu, the admin bar, and the plugin list.
+🫣 It also adds support for **Stealth Mode**: When enabled, Simple History will be hidden from places like the dashboard, the admin menu, the admin bar, and the plugin list.
 👉 Read the [release post](https://simple-history.com/2025/simple-history-5-6-released-with-stealth-mode/) for more details and examples how to use this feature.
 
 **Added**
