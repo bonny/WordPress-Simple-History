@@ -236,8 +236,9 @@ Yes! Simple History supports many popular plugins out of the box. Additionally, 
 
 ### Will this plugin slow down my website?
 
-No, Simple History is lightweight and optimized for performance. Most logging occurs in the WordPress admin area when a WordPress user performs an action.  
-By default, nothing is logged on the front end of your site, ensuring that visitor experience and page speed remain unaffected.
+No, Simple History is lightweight and optimized for performance. Most logging occurs in the WordPress admin area when a WordPress user performs an action.
+
+By default, nothing is logged on the front end, ensuring visitors experience no impact on performance.
 
 ### Who can view the log?
 
