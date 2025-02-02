@@ -172,9 +172,13 @@ class Export {
 
 		$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
 		$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
+		$user_roles = [];
 
-		$user = get_user_by( 'email', $user_email );
-		$user_roles = $user->roles ?? array();
+		if ( $user_email ) {
+			$user = get_user_by( 'email', $user_email );
+			$user_roles = $user->roles ?? array();
+		}
+
 		$user_roles_comma_separated = implode( ', ', $user_roles );
 
 		$date_local = wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
