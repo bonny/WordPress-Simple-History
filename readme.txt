@@ -311,7 +311,11 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   Fix WordPress error notice when exporting event with no user email.
 -   Improve usability for Quick View/post revision info by modifying hover styles to not make scrollbar "jump". [#530](https://github.com/bonny/WordPress-Simple-History/issues/530)
 
-### Unreleased
+### 5.6.1 (January 2025)
+
+🚀 This release fixes incomplete exports due to an error in pagination logic.
+It also improves the post Quick Diff view by preventing scrollbar jumping on hover states.
+A small but very nice improvement! [See the difference in the release post.](https://simple-history.com/2025/simple-history-5-6-1-released/)
 
 **Fixed**
 
