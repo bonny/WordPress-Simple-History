@@ -75,7 +75,10 @@ class Export {
 		$export_format = $this->format;
 
 		$query = new Log_Query();
-		$query_result = $query->query( $this->query_args );
+
+		$download_query_args = $this->query_args;
+
+		$query_result = $query->query( $download_query_args );
 
 		$pages_count = $query_result['pages_count'];
 		$page_current = $query_result['page_current'];
@@ -137,8 +140,8 @@ class Export {
 
 			// Fetch next page.
 			$page_current++;
-			$query_args['paged'] = $page_current;
-			$query_result = $query->query( $query_args );
+			$download_query_args['paged'] = $page_current;
+			$query_result = $query->query( $download_query_args );
 		}
 
 		if ( 'json' == $export_format ) {
