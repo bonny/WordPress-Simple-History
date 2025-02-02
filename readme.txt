@@ -307,6 +307,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ### Unreleased
 
+-   Fix export regression, causing not all events to be exported.
 -   Improve hover styles on Quick View/post revision info. [#530](https://github.com/bonny/WordPress-Simple-History/issues/530)
 
 ### 5.6.0 (January 2025)
