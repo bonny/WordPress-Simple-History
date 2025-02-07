@@ -1020,10 +1020,13 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-PremiumFeatureBadge {
+	--sh-badge-text-color: var(--sh-color-black);
+	--sh-badge-background-color: var(--sh-color-green-mint);
+
+	color: var(--sh-badge-text-color);
+	background-color: var(--sh-badge-background-color);
 	display: inline-flex;
 	align-items: center;
-	background-color: var(--sh-color-green-mint);
-	color: var(--sh-color-black);
 	text-transform: uppercase;
 	font-size: 0.8em;
 	font-weight: normal;
@@ -1085,6 +1088,14 @@ so add some extra place then to make it look a bit less ugly.
 	background-size: 1.1rem;
 	background-repeat: no-repeat;
 	background-position: 0px 1px;
+}
+
+.sh-PremiumFeaturesPostbox-featuresList-item-discrete {
+	display: block;
+	margin-top: 0.2rem;
+	font-size: var(--sh-font-size-small);
+	line-height: 1.4;
+	font-style: normal;
 }
 
 .sh-Page-content {
