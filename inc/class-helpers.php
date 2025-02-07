@@ -1131,11 +1131,10 @@ class Helpers {
 	 */
 	public static function is_on_our_own_pages() {
 		$current_screen = self::get_current_screen();
-
 		// Seems like subpages to main admin page have bases that begin with "simple-history_page_".
-		$begins_with_simple_history = $current_screen && str_starts_with( $current_screen->base, 'simple-history_page_' );
+		$screen_base_begins_with_simple_history = $current_screen && str_starts_with( $current_screen->base, 'simple-history_page_' );
 
-		if ( $begins_with_simple_history ) {
+		if ( $screen_base_begins_with_simple_history ) {
 			return true;
 		} elseif ( $current_screen && $current_screen->base === 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ) {
 			// Base is "settings_page_simple_history_settings_menu_slug".
