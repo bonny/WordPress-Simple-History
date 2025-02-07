@@ -83,8 +83,18 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				</h3>
 
 				<ul class="sh-PremiumFeaturesPostbox-featuresList">
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">
+						<?php esc_html_e( 'Stealth Mode', 'simple-history' ); ?>
+						<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">
+							<strong><?php esc_html_e( 'New!', 'simple-history' ); ?></strong>
+						</span>
+						<em class="sh-PremiumFeaturesPostbox-featuresList-item-discrete">
+							<?php esc_html_e( 'Allow only specified users to see Simple History in the WordPress admin.', 'simple-history' ); ?>
+						</em>
+					</li>
+
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Export search results as CSV and JSON', 'simple-history' ); ?></li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Customize log retention by setting the number of days to keep logs.', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Customize log retention by setting the number of days to keep logs', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Limit number of failed login attempts that are logged', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Control how to store IP Addresses – anonymized or not', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'View a map of where failed login attempts happened', 'simple-history' ); ?></li>
