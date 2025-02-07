@@ -1124,10 +1124,12 @@ class Helpers {
 	 * Check if the current page is any of the pages that belong
 	 * to Simple History.
 	 *
-	 * @param string $hook The current page hook.
+	 * Since it uses current_screen() is must be called
+	 * after the 'admin_menu' action has been fired.
+	 *
 	 * @return bool
 	 */
-	public static function is_on_our_own_pages( $hook = '' ) {
+	public static function is_on_our_own_pages() {
 		$current_screen = self::get_current_screen();
 
 		// Seems like subpages to main admin page have bases that begin with "simple-history_page_".
