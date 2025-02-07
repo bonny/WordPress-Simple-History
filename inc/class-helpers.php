@@ -868,8 +868,6 @@ class Helpers {
 				<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
 				<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
 			</a>
-
-			<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'New', 'simple-history' ); ?></em>
 		</div>
 		<?php
 
