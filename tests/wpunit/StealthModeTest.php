@@ -124,4 +124,14 @@ class StealthModeTest extends \Codeception\TestCase\WPTestCase {
 		wp_set_current_user( $user_id );
 		$this->assertTrue( $this->stealth_mode_service->is_gui_visible_to_user(), 'Admin user with email jane@organization.org should see log' );
 	}
+
+	/**
+	 * Dummy function to set const so Inteliphense does not show undefined constant error.
+	 * 
+	 * Does not run because it does not begin with test_.
+	 */
+	function set_const() {
+		define( 'SIMPLE_HISTORY_STEALTH_MODE_ENABLE', true);
+		define( 'SIMPLE_HISTORY_STEALTH_MODE_ALLOWED_EMAILS', '@example.com');
+	}
 }
