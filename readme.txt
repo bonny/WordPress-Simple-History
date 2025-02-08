@@ -125,15 +125,15 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 
 -   _"It is a standard plugin for all of our sites"_ - [Mr Tibbs](https://wordpress.org/support/topic/it-is-a-standard-plugin-for-all-of-our-sites/)
 
-## Getting Started
+### 🚀 Zero-Config Activity Tracking
 
-After installation, Simple History automatically starts logging activities. Access the history log through the dashboard widget or via the 'Simple History' page.
+Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
 
-### RSS feed with changes
+### 📡 RSS feed with changes
 
 Using the optional password protected **RSS feed** you can keep track of the changes made on your website using your favorite RSS reader.
 
-### WP-CLI commands for automation
+### 🤖 WP-CLI commands for automation
 
 [Multiple WP-CLI commands exist](https://simple-history.com/features/wp-cli-commands/), to view and search the log, and to view more information about a specific event.
 
@@ -144,7 +144,7 @@ Example commands:
 -   `wp simple-history event list` – List the latest logged events.
 -   `wp simple-history event search` – Search for events.
 
-### Stealth Mode – Hide Simple History from the WordPress Admin
+### 🥷 Stealth Mode – Hide Simple History from the WordPress Admin
 
 [Stealth Mode](https://simple-history.com/features/stealth-mode/) allows Simple History to run completely in the background, hidden from the WordPress admin interface. This is ideal for agencies, developers, and administrators who want to track user activity discreetly without exposing the logs to other users.
 
