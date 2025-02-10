@@ -309,6 +309,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 -   Misc internal improvements and changes.
 -   Based on user feedback the Admin Bar Quick View is not enabled by default. It can still be enabled in the settings page.
+-   Improve logic for determine if the current admin page belongs to Simple History or not. Improves compatibility with translation plugins. [#531](https://github.com/bonny/WordPress-Simple-History/issues/531)
 
 ### 5.6.1 (January 2025)
 

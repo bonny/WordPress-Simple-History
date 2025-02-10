@@ -1129,10 +1129,26 @@ class Helpers {
 	 */
 	public static function is_on_our_own_pages() {
 		$current_screen = self::get_current_screen();
+
+		/**
+		 * Pagenow and plugin page example output:
+		 * $pagenow = admin.php
+		 * $plugin_page = simple_history_admin_menu_page (main menu page)
+		 * $plugin_page = simple_history_settings_page (settings page)
+		 * $plugin_page = simple_history_export_history
+		 */
+		global $plugin_page;
+
 		// Seems like subpages to main admin page have bases that begin with "simple-history_page_".
 		$screen_base_begins_with_simple_history = $current_screen && str_starts_with( $current_screen->base, 'simple-history_page_' );
 
-		if ( $screen_base_begins_with_simple_history ) {
+		// If main menu item is translated (for example in LocoTranslate) then the base is different, because it does not use the slugs
+		// is is based on the actual menu name!
+		$plugin_page_contains_simple_history = isset( $plugin_page ) && str_starts_with( $plugin_page, 'simple_history_' );
+
+		if ( $plugin_page_contains_simple_history ) {
+			return true;
+		} elseif ( $screen_base_begins_with_simple_history ) {
 			return true;
 		} elseif ( $current_screen && $current_screen->base === 'settings_page_' . Simple_History::SETTINGS_MENU_SLUG ) {
 			// Base is "settings_page_simple_history_settings_menu_slug".
