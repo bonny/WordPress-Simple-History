@@ -300,7 +300,7 @@ class Setup_Database extends Service {
 		}
 
 		// Set default value for simple_history_show_in_admin_bar.
-		update_option( 'simple_history_show_in_admin_bar', 1, true );
+		update_option( 'simple_history_show_in_admin_bar', 0, true );
 
 		$this->update_db_to_version( 6 );
 	}
