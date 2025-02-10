@@ -8,7 +8,7 @@ use WP_CLI;
 use WP_CLI_Command;
 
 /**
- * WP CLI command that search the history.
+ * WP CLI commands for managing Stealth Mode.
  */
 class WP_CLI_Stealth_Mode_Command extends WP_CLI_Command {
 	/**

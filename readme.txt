@@ -307,7 +307,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ### Unreleased
 
--   Remove unused hook param from helper function is_on_our_own_pages().
+-   Misc internal improvements and changes.
 
 ### 5.6.1 (January 2025)
 
