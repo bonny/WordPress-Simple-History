@@ -56,15 +56,6 @@ class Setup_Settings_Page extends Service {
 		}
 
 		if ( $show_settings_page ) {
-			// Old location: placed at WP Admin › Settings › Simple History.
-			add_options_page(
-				__( 'Simple History Settings', 'simple-history' ),
-				_x( 'Simple History', 'Options page menu title', 'simple-history' ),
-				Helpers::get_view_settings_capability(),
-				Simple_History::SETTINGS_MENU_SLUG,
-				array( $this, 'settings_page_output_redirect' )
-			);
-
 			// New location: placed at WP Admin › Simple History › Settings.
 			add_submenu_page(
 				Simple_History::MENU_PAGE_SLUG,
@@ -75,32 +66,6 @@ class Setup_Settings_Page extends Service {
 				array( $this, 'settings_page_output' )
 			);
 
-		}
-	}
-
-	/**
-	 * Redirects old settings page to new settings page.
-	 */
-	public function settings_page_output_redirect() {
-		$redirect_to_url = add_query_arg(
-			[
-				'page' => 'simple_history_settings_page',
-				'simple_history_redirected_from_settings_menu' => '1',
-			],
-			admin_url( 'admin.php' )
-		);
-
-		if ( headers_sent() ) {
-			// Decode the URL to prevent double encoding of ampersands.
-			$js_url = html_entity_decode( esc_url( $redirect_to_url ) );
-			?>
-			<script>
-				window.location = <?php echo wp_json_encode( $js_url ); ?>;
-			</script>
-			<?php
-		} else {
-			wp_redirect( $redirect_to_url );
-			exit;
 		}
 	}
 

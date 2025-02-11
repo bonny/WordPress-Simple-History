@@ -11,7 +11,6 @@ use Simple_History\Simple_History;
 class Admin_Pages extends Service {
 	/** @inheritdoc */
 	public function loaded() {
-		add_action( 'admin_menu', array( $this, 'add_dashboard_subpage' ) );
 		add_action( 'admin_menu', array( $this, 'add_main_admin_pages' ) );
 	}
 
@@ -32,6 +31,7 @@ class Admin_Pages extends Service {
 
 		$admin_page_location = Helpers::setting_menu_page_location();
 		$admin_page_position = '';
+
 		switch ( $admin_page_location ) {
 			case 'bottom':
 				$admin_page_position = 80;
@@ -61,8 +61,8 @@ class Admin_Pages extends Service {
 		);
 
 		// Add a history page.
+		// Uses same name as main menu item, so it looks like a sub-page.
 		add_submenu_page(
-			// Use same name as main menu item, so it looks like a sub-page.
 			$this->simple_history::MENU_PAGE_SLUG,
 			_x( 'Event Log - Simple History', 'dashboard title name', 'simple-history' ),
 			_x( 'Event Log', 'dashboard menu name', 'simple-history' ),
@@ -71,67 +71,6 @@ class Admin_Pages extends Service {
 			array( $this, 'history_page_output' ),
 			10
 		);
-	}
-
-	/**
-	 * Add dashboard admin page.
-	 */
-	public function add_dashboard_subpage() {
-		if ( Helpers::setting_show_as_page() ) {
-			/**
-			 * Filter to determine if history page should be added to page below dashboard.
-			 *
-			 * @since 2.0.23
-			 *
-			 * @param bool $show_dashboard_page Show the page or not
-			 */
-			$show_dashboard_page = apply_filters( 'simple_history/show_dashboard_page', true );
-
-			// Can't show it if we have disabled the main page because then we can't redirect anywhere.
-			if ( ! Helpers::setting_show_as_menu_page() ) {
-				return;
-			}
-
-			// Add a history page as a sub-page below the Dashboard menu item.
-			// This only redirects to the new admin menu page.
-			if ( $show_dashboard_page ) {
-				add_submenu_page(
-					apply_filters( 'simple_history/admin_location', 'index' ) . '.php',
-					_x( 'Simple History', 'dashboard title name', 'simple-history' ),
-					_x( 'Simple History', 'dashboard menu name', 'simple-history' ),
-					Helpers::get_view_history_capability(),
-					'simple_history_page',
-					array( $this, 'history_page_output_redirect_to_main_page' )
-				);
-			}
-		}
-	}
-
-	/**
-	 * Redirect to main page when user visits the old main log page
-	 * at /wp-admin/index.php?page=simple_history_page
-	 */
-	public function history_page_output_redirect_to_main_page() {
-		$redirect_to_url = add_query_arg(
-			[
-				'page' => $this->simple_history::MENU_PAGE_SLUG,
-				'simple_history_redirected_from_dashboard_menu' => '1',
-			],
-			admin_url( 'admin.php' )
-		);
-
-		if ( headers_sent() ) {
-			// Decode the URL to prevent double encoding of ampersands.
-			$js_url = html_entity_decode( esc_url( $redirect_to_url ) );
-			?>
-			<script>
-				window.location = <?php echo wp_json_encode( $js_url ); ?>;
-			</script>
-			<?php
-		} else {
-			wp_redirect( $redirect_to_url );
-			exit;
-		}
 	}
 
 	/**
@@ -185,60 +124,6 @@ class Admin_Pages extends Service {
 
 		</div>
 		<?php
-	}
-
-	/**
-	 * Detect when user is redirected from the old Simple History log page
-	 * below the dashboard menu item or from the Settings › Simple History page
-	 * and display a notice that the main page now is directly in the main admin nav.
-	 */
-	public static function get_old_menu_page_location_redirect_notice() {
-		$redirected_from_dashboard_menu = filter_input( INPUT_GET, 'simple_history_redirected_from_dashboard_menu', FILTER_VALIDATE_BOOLEAN );
-		$redirected_from_settings_menu = filter_input( INPUT_GET, 'simple_history_redirected_from_settings_menu', FILTER_VALIDATE_BOOLEAN );
-
-		if ( ! $redirected_from_dashboard_menu && ! $redirected_from_settings_menu ) {
-			return '';
-		}
-
-		$allowed_html = [
-			'a' => [
-				'href' => 1,
-			],
-		];
-
-		$message = __( 'Hey there! Simple History has moved to the top level of the menu for easier access.', 'simple-history' );
-
-		$icon_svg_contents = file_get_contents( SIMPLE_HISTORY_PATH . 'css/icons/moving_24dp_FILL0_wght400_GRAD0_opsz48.svg' );
-
-		$message = sprintf(
-			'
-			<div class="">
-				<div style="%3$s">%2$s</div>
-				<p style="%4$s">
-					%1$s
-				</p>
-			</div>
-			',
-			wp_kses( $message, $allowed_html ),
-			$icon_svg_contents,
-			'
-				float: left;
-				color: var(--sh-color-pink);
-    			transform: scale(1.5) rotate(-115deg) translate(0.3rem, -0.1rem);
-    			z-index: 999;
-				margin-inline: .75rem;
-			', // 3 icon styles
-			'' // 4 text styles
-		);
-
-		return wp_get_admin_notice(
-			$message,
-			[
-				'type' => 'warning',
-				'is_dismissible' => false,
-				'is_inline' => true,
-			]
-		);
 	}
 
 	/**
@@ -301,9 +186,6 @@ class Admin_Pages extends Service {
 		?>
 		<hr class="wp-header-end">
 		<?php
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo self::get_old_menu_page_location_redirect_notice();
 
 		// Output sub nav items.
 		// Todo: this contains the full html output so it should not be in this header function.
