@@ -141,7 +141,7 @@ class Admin_Pages extends Service {
 		$headline_link_end_elm = '';
 
 		if ( Helpers::setting_show_as_page() ) {
-			$headline_link_target = Simple_History::get_view_history_page_admin_url();
+			$headline_link_target = Helpers::get_history_admin_url();
 		} else if ( Helpers::setting_show_on_dashboard() ) {
 			$headline_link_target = admin_url( 'index.php' );
 		}

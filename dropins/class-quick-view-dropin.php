@@ -57,7 +57,7 @@ class Quick_View_Dropin extends Dropin {
 				// Id's are prefixed automatically, so no need to prefix them here.
 				'id'    => 'simple-history',
 				'title' => 'History',
-				'href'  => Simple_History::get_view_history_page_admin_url(),
+				'href'  => Helpers::get_history_admin_url(),
 			)
 		);
 
@@ -106,7 +106,7 @@ class Quick_View_Dropin extends Dropin {
 			'simple_history_admin_bar_scripts',
 			'simpleHistoryAdminBar',
 			[
-				'adminPageUrl' => Simple_History::get_view_history_page_admin_url(),
+				'adminPageUrl' => Helpers::get_history_admin_url(),
 				'viewSettingsUrl' => Helpers::get_settings_page_url(),
 				'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
 			],

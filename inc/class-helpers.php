@@ -822,7 +822,7 @@ class Helpers {
 	/**
 	 * Get URL for settings page.
 	 *
-	 * @return string URL for settings page, i.e. "/wp-admin/admin.php?page=simple_history_admin_menu_page"
+	 * @return string URL for settings page, i.e. "/wp-admin/admin.php?page=<main-menu-page-slug>"
 	 */
 	public static function get_settings_page_url() {
 		// Can not use `menu_page_url()` because it only works within the admin area.
@@ -1133,7 +1133,7 @@ class Helpers {
 		/**
 		 * Pagenow and plugin page example output:
 		 * $pagenow = admin.php
-		 * $plugin_page = simple_history_admin_menu_page (main menu page)
+		 * $plugin_page = simple_history_<admin-menu-page-slug> (main menu page, same as Simple_History::MENU_PAGE_SLUG)
 		 * $plugin_page = simple_history_settings_page (settings page)
 		 * $plugin_page = simple_history_export_history
 		 */
@@ -1704,5 +1704,16 @@ class Helpers {
 	 */
 	public static function is_extended_settings_add_on_active() {
 		return self::is_plugin_active( 'simple-history-extended-settings/index.php' );
+	}
+
+	/**
+	 * Get the URL to the admin page where user views the history feed.
+	 *
+	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
+	 */
+	public static function get_history_admin_url() {
+		// Can not use `menu_page_url()` because it only works within the admin area.
+		// But we want to be able to link to history page also from front end.
+		return admin_url( 'admin.php?page=' . Simple_History::MENU_PAGE_SLUG );
 	}
 }

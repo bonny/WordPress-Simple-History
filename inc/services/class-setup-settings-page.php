@@ -358,7 +358,7 @@ class Setup_Settings_Page extends Service {
 	 */
 	public function settings_field_clear_log() {
 		// Get base URL to current page.
-		// Will be like "/wordpress/wp-admin/admin.php?page=simple_history_admin_menu_page&".
+		// Will be like "/wordpress/wp-admin/admin.php?page=<main-menu-page-slug>".
 		$clear_link = add_query_arg( '', '' );
 
 		// Append nonce to URL.

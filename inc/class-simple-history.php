@@ -60,6 +60,11 @@ class Simple_History {
 	/** @var string $plugin_basename */
 	public $plugin_basename = SIMPLE_HISTORY_BASENAME;
 
+	// TODO: Name these const better, and use the consts everywhere.
+	// Document where and how they are used.
+	// simple_history_settings_page
+	// also add functions for things like admin_page() usage.
+
 	/** Slug for the admin menu main page. */
 	public const MENU_PAGE_SLUG = 'simple_history_admin_menu_page';
 
@@ -849,6 +854,10 @@ class Simple_History {
 
 			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
 
+				// TODO: Add function to get this.
+				// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_settings_page&selected-sub-tab=failed-login-attempts
+				$ƒailed_login_attempts_settings_page_url = Helpers::get_history_admin_url();
+
 				// TODO: the admin-url links below should get the URL using functions.
 				if ( $is_simple_history_extended_settings_active ) {
 					// Show link to extended settings settings page if extended settings plugin is active.
@@ -1435,16 +1444,5 @@ class Simple_History {
 		}
 
 		return call_user_func_array( array( $this, $method_name_to_call ), $arguments );
-	}
-
-	/**
-	 * Get the URL to the admin page where user views the history feed.
-	 *
-	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
-	 */
-	public static function get_view_history_page_admin_url() {
-		// Can not use `menu_page_url()` because it only works within the admin area.
-		// But we want to be able to link to history page also from front end.
-		return admin_url( 'admin.php?page=' . self::MENU_PAGE_SLUG );
 	}
 }

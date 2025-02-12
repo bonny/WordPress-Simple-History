@@ -17,7 +17,7 @@ class FunctionsTest extends \Codeception\TestCase\WPTestCase {
 	function test_class_functions() {
 		$this->assertEquals(
 			'http://localhost:8080/wp-admin/admin.php?page=simple_history_admin_menu_page', 
-			Simple_History::get_view_history_page_admin_url()
+			Helpers::get_history_admin_url()
 		);
 	}
 }

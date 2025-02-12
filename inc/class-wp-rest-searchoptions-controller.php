@@ -8,8 +8,9 @@ use WP_REST_Controller;
 use WP_REST_Server;
 
 /**
- * REST API controller for search options,
+ * REST API controller for retrieving search options,
  * i.e. data required for the search options in the admin UI.
+ * It does not search anything. A better name would be nice.
  */
 class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	/**
@@ -174,7 +175,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'has_premium_add_on' => $addons_service->has_add_on( 'simple-history-premium' ),
 			],
 			'experimental_features_enabled' => Helpers::experimental_features_is_enabled(),
-			'events_admin_page_url' => Simple_History::get_view_history_page_admin_url(),
+			'events_admin_page_url' => Helpers::get_history_admin_url(),
 		];
 
 		return rest_ensure_response( $data );

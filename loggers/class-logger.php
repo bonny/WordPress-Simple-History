@@ -417,7 +417,7 @@ abstract class Logger {
 			);
 		}
 
-		$item_permalink = Simple_History::get_view_history_page_admin_url();
+		$item_permalink = Helpers::get_history_admin_url();
 
 		if ( ! empty( $row->id ) ) {
 			$item_permalink .= "#simple-history/event/{$row->id}";

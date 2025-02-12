@@ -3,6 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
+use Simple_History\Simple_History;
 
 /**
  * Add link to Simple History to the list of action links available following bulk plugin updates, single plugin installation, and single plugin updates.
@@ -45,7 +46,7 @@ class Action_Links_Dropin extends Dropin {
 
 		$update_actions['simple_history'] = sprintf(
 			'<a href="%s" target="_parent">%s</a>',
-			admin_url( 'admin.php?page=simple_history_admin_menu_page' ),
+			Helpers::get_history_admin_url(),
 			__( 'Go to Simple History', 'simple-history' )
 		);
 
