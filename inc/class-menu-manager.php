@@ -81,7 +81,7 @@ class Menu_Manager {
 	private function add_top_level_menu_page( Menu_Page $page, $position = 'top' ) {
 		$menu_position = $position === 'bottom' ? 100 : 3;
 
-		$hookname = add_menu_page(
+		$hook_suffix = add_menu_page(
 			$page->get_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
@@ -91,7 +91,7 @@ class Menu_Manager {
 			$menu_position
 		);
 
-		$page->set_hook_name( $hookname );
+		$page->set_hook_suffix( $hook_suffix );
 
 		// Add any child pages.
 		foreach ( $this->get_child_pages( $page ) as $child_page ) {
@@ -105,7 +105,7 @@ class Menu_Manager {
 	 * @param Menu_Page $page Page to add.
 	 */
 	private function add_dashboard_page( Menu_Page $page ) {
-		$hookname = add_dashboard_page(
+		$hook_suffix = add_dashboard_page(
 			$page->get_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
@@ -113,7 +113,7 @@ class Menu_Manager {
 			[ $page, 'render' ]
 		);
 
-		$page->set_hook_name( $hookname );
+		$page->set_hook_suffix( $hook_suffix );
 	}
 
 	/**
@@ -122,7 +122,7 @@ class Menu_Manager {
 	 * @param Menu_Page $page Page to add.
 	 */
 	private function add_settings_page( Menu_Page $page ) {
-		$hookname = add_options_page(
+		$hook_suffix = add_options_page(
 			$page->get_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
@@ -130,7 +130,7 @@ class Menu_Manager {
 			[ $page, 'render' ]
 		);
 
-		$page->set_hook_name( $hookname );
+		$page->set_hook_suffix( $hook_suffix );
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Menu_Manager {
 	 * @param Menu_Page $page Page to add.
 	 */
 	private function add_tools_page( Menu_Page $page ) {
-		$hookname = add_management_page(
+		$hook_suffix = add_management_page(
 			$page->get_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
@@ -147,7 +147,7 @@ class Menu_Manager {
 			[ $page, 'render' ]
 		);
 
-		$page->set_hook_name( $hookname );
+		$page->set_hook_suffix( $hook_suffix );
 	}
 
 	/**
@@ -162,7 +162,7 @@ class Menu_Manager {
 			return;
 		}
 
-		$hookname = add_submenu_page(
+		$hook_suffix = add_submenu_page(
 			$parent->get_menu_slug(),
 			$page->get_title(),
 			$page->get_menu_title(),
@@ -171,7 +171,7 @@ class Menu_Manager {
 			[ $page, 'render' ]
 		);
 
-		$page->set_hook_name( $hookname );
+		$page->set_hook_suffix( $hook_suffix );
 	}
 
 	/**

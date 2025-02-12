@@ -33,8 +33,8 @@ class Menu_Page {
 	/** @var string Location in admin menu. One of 'menu_top', 'menu_bottom', 'dashboard', 'settings', 'tools'. */
 	private $location = 'menu_top';
 
-	/** @var string Hook name/page ID returned by add_menu_page() etc. */
-	private $hook_name = '';
+	/** @var string Hook suffix/page ID returned by add_menu_page() etc. */
+	private $hook_suffix = '';
 
 	/**
 	 * Set the page title.
@@ -208,21 +208,21 @@ class Menu_Page {
 	}
 
 	/**
-	 * Set the hook name returned by add_menu_page() etc.
+	 * Set the hook suffix returned by add_menu_page() etc.
 	 *
-	 * @param string $hook_name Hook name.
+	 * @param string $hook_suffix Hook suffix.
 	 */
-	public function set_hook_name( $hook_name ) {
-		$this->hook_name = $hook_name;
+	public function set_hook_suffix( $hook_suffix ) {
+		$this->hook_suffix = $hook_suffix;
 	}
 
 	/**
-	 * Get the hook name for this page.
+	 * Get the hook suffix for this page.
 	 *
 	 * @return string
 	 */
-	public function get_hook_name() {
-		return $this->hook_name;
+	public function get_hook_suffix() {
+		return $this->hook_suffix;
 	}
 
 	/**
