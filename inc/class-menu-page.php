@@ -48,13 +48,19 @@ class Menu_Page {
 	}
 
 	/**
-	 * Set the menu title.
+	 * Set the menu title and optionally generate a slug from it.
 	 *
 	 * @param string $menu_title Menu title.
-	 * @return self
+	 * @return self Chainable method.
 	 */
 	public function menu_title( $menu_title ) {
 		$this->menu_title = $menu_title;
+
+		// If no slug is set, generate one from the title
+		if ( empty( $this->menu_slug ) ) {
+			$this->menu_slug( null );
+		}
+
 		return $this;
 	}
 
@@ -62,7 +68,7 @@ class Menu_Page {
 	 * Set required capability.
 	 *
 	 * @param string $capability Required capability.
-	 * @return self
+	 * @return self Chainable method.
 	 */
 	public function capability( $capability ) {
 		$this->capability = $capability;
@@ -71,12 +77,24 @@ class Menu_Page {
 
 	/**
 	 * Set menu slug.
+	 * If not provided, will generate one based on the menu title.
 	 *
-	 * @param string $menu_slug Menu slug.
-	 * @return self
+	 * @param string|null $menu_slug Menu slug. If null, will auto-generate from menu title.
+	 * @return self Chainable method.
 	 */
-	public function menu_slug( $menu_slug ) {
-		$this->menu_slug = $menu_slug;
+	public function menu_slug( $menu_slug = null ) {
+		if ( $menu_slug === null && ! empty( $this->menu_title ) ) {
+			// Generate slug from menu title if not provided
+			$menu_slug = $this->generate_menu_slug( $this->menu_title );
+		} elseif ( $menu_slug === null && ! empty( $this->title ) ) {
+			// Use page title as fallback if menu title is not set
+			$menu_slug = $this->generate_menu_slug( $this->title );
+		} elseif ( $menu_slug === null ) {
+			// Generate a unique fallback slug if no menu title or page title exists yet
+			$menu_slug = 'simple-history-' . uniqid();
+		}
+
+		$this->menu_slug = $this->sanitize_menu_slug( $menu_slug );
 		return $this;
 	}
 
@@ -84,7 +102,7 @@ class Menu_Page {
 	 * Set render callback.
 	 *
 	 * @param callable|string|array $callback Callback function/method.
-	 * @return self
+	 * @return self Chainable method.
 	 */
 	public function callback( $callback ) {
 		$this->callback = $callback;
@@ -95,7 +113,7 @@ class Menu_Page {
 	 * Set menu icon.
 	 *
 	 * @param string $icon Icon name or URL.
-	 * @return self
+	 * @return self Chainable method.
 	 */
 	public function icon( $icon ) {
 		$this->icon = $icon;
@@ -106,7 +124,7 @@ class Menu_Page {
 	 * Set menu order.
 	 *
 	 * @param int $order Order number.
-	 * @return self
+	 * @return self Chainable method.
 	 */
 	public function order( $order ) {
 		$this->order = $order;
@@ -117,7 +135,7 @@ class Menu_Page {
 	 * Set parent page.
 	 *
 	 * @param Menu_Page $parent Parent page.
-	 * @return self
+	 * @return self Chainable method.
 	 */
 	public function parent( Menu_Page $parent ) {
 		$this->parent = $parent;
@@ -128,7 +146,7 @@ class Menu_Page {
 	 * Set menu location.
 	 *
 	 * @param string $location Location in admin menu.
-	 * @return self
+	 * @return self Chainable method.
 	 */
 	public function location( $location ) {
 		$this->location = $location;
@@ -138,7 +156,7 @@ class Menu_Page {
 	/**
 	 * Get page title.
 	 *
-	 * @return string
+	 * @return string The page title.
 	 */
 	public function get_title() {
 		return $this->title;
@@ -147,7 +165,7 @@ class Menu_Page {
 	/**
 	 * Get menu title.
 	 *
-	 * @return string
+	 * @return string The menu title.
 	 */
 	public function get_menu_title() {
 		return $this->menu_title;
@@ -156,7 +174,7 @@ class Menu_Page {
 	/**
 	 * Get required capability.
 	 *
-	 * @return string
+	 * @return string The required capability.
 	 */
 	public function get_capability() {
 		return $this->capability;
@@ -165,7 +183,7 @@ class Menu_Page {
 	/**
 	 * Get menu slug.
 	 *
-	 * @return string
+	 * @return string The menu slug.
 	 */
 	public function get_menu_slug() {
 		return $this->menu_slug;
@@ -174,7 +192,7 @@ class Menu_Page {
 	/**
 	 * Get icon.
 	 *
-	 * @return string
+	 * @return string The icon name or URL.
 	 */
 	public function get_icon() {
 		return $this->icon;
@@ -183,7 +201,7 @@ class Menu_Page {
 	/**
 	 * Get order.
 	 *
-	 * @return int
+	 * @return int The menu order.
 	 */
 	public function get_order() {
 		return $this->order;
@@ -192,7 +210,7 @@ class Menu_Page {
 	/**
 	 * Get parent page.
 	 *
-	 * @return Menu_Page|null
+	 * @return Menu_Page|null The parent page or null if no parent.
 	 */
 	public function get_parent() {
 		return $this->parent;
@@ -201,7 +219,7 @@ class Menu_Page {
 	/**
 	 * Get menu location.
 	 *
-	 * @return string
+	 * @return string The menu location.
 	 */
 	public function get_location() {
 		return $this->location;
@@ -219,7 +237,7 @@ class Menu_Page {
 	/**
 	 * Get the hook suffix for this page.
 	 *
-	 * @return string
+	 * @return string The hook suffix.
 	 */
 	public function get_hook_suffix() {
 		return $this->hook_suffix;
@@ -234,5 +252,51 @@ class Menu_Page {
 		} elseif ( is_string( $this->callback ) ) {
 			echo wp_kses_post( $this->callback );
 		}
+	}
+
+	/**
+	 * Generate a menu slug from a string.
+	 *
+	 * @param string $string String to generate slug from.
+	 * @return string The generated slug.
+	 */
+	private function generate_menu_slug( $string ) {
+		// Convert to lowercase and replace spaces with dashes
+		$slug = strtolower( $string );
+		$slug = str_replace( ' ', '-', $slug );
+
+		// Remove any character that isn't a letter, number, or dash
+		$slug = preg_replace( '/[^a-z0-9\-]/', '', $slug );
+
+		// Remove multiple consecutive dashes
+		$slug = preg_replace( '/-+/', '-', $slug );
+
+		// Trim dashes from beginning and end
+		$slug = trim( $slug, '-' );
+
+		// Ensure slug starts with 'simple-history-'
+		if ( ! str_starts_with( $slug, 'simple-history-' ) ) {
+			$slug = 'simple-history-' . $slug;
+		}
+
+		return $slug;
+	}
+
+	/**
+	 * Sanitize a menu slug.
+	 *
+	 * @param string $slug Slug to sanitize.
+	 * @return string The sanitized slug.
+	 */
+	private function sanitize_menu_slug( $slug ) {
+		// Use WordPress's sanitize_key function as base
+		$slug = sanitize_key( $slug );
+
+		// Ensure slug starts with 'simple-history-'
+		if ( ! str_starts_with( $slug, 'simple-history-' ) ) {
+			$slug = 'simple-history-' . $slug;
+		}
+
+		return $slug;
 	}
 }
