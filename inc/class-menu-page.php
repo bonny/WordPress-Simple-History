@@ -44,6 +44,7 @@ class Menu_Page {
 	 */
 	public function title( $title ) {
 		$this->title = $title;
+
 		return $this;
 	}
 
@@ -56,7 +57,7 @@ class Menu_Page {
 	public function menu_title( $menu_title ) {
 		$this->menu_title = $menu_title;
 
-		// If no slug is set, generate one from the title
+		// If no slug is set, generate one from the title.
 		if ( empty( $this->menu_slug ) ) {
 			$this->menu_slug( null );
 		}
@@ -72,6 +73,7 @@ class Menu_Page {
 	 */
 	public function capability( $capability ) {
 		$this->capability = $capability;
+
 		return $this;
 	}
 
@@ -84,17 +86,18 @@ class Menu_Page {
 	 */
 	public function menu_slug( $menu_slug = null ) {
 		if ( $menu_slug === null && ! empty( $this->menu_title ) ) {
-			// Generate slug from menu title if not provided
+			// Generate slug from menu title if not provided.
 			$menu_slug = $this->generate_menu_slug( $this->menu_title );
 		} elseif ( $menu_slug === null && ! empty( $this->title ) ) {
-			// Use page title as fallback if menu title is not set
+			// Use page title as fallback if menu title is not set.
 			$menu_slug = $this->generate_menu_slug( $this->title );
 		} elseif ( $menu_slug === null ) {
-			// Generate a unique fallback slug if no menu title or page title exists yet
+			// Generate a unique fallback slug if no menu title or page title exists yet.
 			$menu_slug = 'simple-history-' . uniqid();
 		}
 
 		$this->menu_slug = $this->sanitize_menu_slug( $menu_slug );
+
 		return $this;
 	}
 
@@ -106,6 +109,7 @@ class Menu_Page {
 	 */
 	public function callback( $callback ) {
 		$this->callback = $callback;
+
 		return $this;
 	}
 
@@ -117,6 +121,7 @@ class Menu_Page {
 	 */
 	public function icon( $icon ) {
 		$this->icon = $icon;
+
 		return $this;
 	}
 
@@ -128,6 +133,7 @@ class Menu_Page {
 	 */
 	public function order( $order ) {
 		$this->order = $order;
+
 		return $this;
 	}
 
@@ -139,6 +145,7 @@ class Menu_Page {
 	 */
 	public function parent( Menu_Page $parent ) {
 		$this->parent = $parent;
+
 		return $this;
 	}
 
@@ -150,6 +157,7 @@ class Menu_Page {
 	 */
 	public function location( $location ) {
 		$this->location = $location;
+
 		return $this;
 	}
 
@@ -261,20 +269,20 @@ class Menu_Page {
 	 * @return string The generated slug.
 	 */
 	private function generate_menu_slug( $string ) {
-		// Convert to lowercase and replace spaces with dashes
+		// Convert to lowercase and replace spaces with dashes.
 		$slug = strtolower( $string );
 		$slug = str_replace( ' ', '-', $slug );
 
-		// Remove any character that isn't a letter, number, or dash
+		// Remove any character that isn't a letter, number, or dash.
 		$slug = preg_replace( '/[^a-z0-9\-]/', '', $slug );
 
-		// Remove multiple consecutive dashes
+		// Remove multiple consecutive dashes.
 		$slug = preg_replace( '/-+/', '-', $slug );
 
-		// Trim dashes from beginning and end
+		// Trim dashes from beginning and end.
 		$slug = trim( $slug, '-' );
 
-		// Ensure slug starts with 'simple-history-'
+		// Ensure slug starts with 'simple-history-'.
 		if ( ! str_starts_with( $slug, 'simple-history-' ) ) {
 			$slug = 'simple-history-' . $slug;
 		}
@@ -289,10 +297,10 @@ class Menu_Page {
 	 * @return string The sanitized slug.
 	 */
 	private function sanitize_menu_slug( $slug ) {
-		// Use WordPress's sanitize_key function as base
+		// Use WordPress's sanitize_key function as base.
 		$slug = sanitize_key( $slug );
 
-		// Ensure slug starts with 'simple-history-'
+		// Ensure slug starts with 'simple-history-'.
 		if ( ! str_starts_with( $slug, 'simple-history-' ) ) {
 			$slug = 'simple-history-' . $slug;
 		}
