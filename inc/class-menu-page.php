@@ -27,7 +27,7 @@ class Menu_Page {
 	/** @var int Order among sibling menu items. */
 	private $order = 10;
 
-	/** @var Menu_Page|null Parent page if this is a submenu item. */
+	/** @var Menu_Page|string|null Parent page if this is a submenu item. */
 	private $parent = null;
 
 	/** @var string Location in admin menu. One of 'menu_top', 'menu_bottom', 'dashboard', 'settings', 'tools'. */
@@ -35,6 +35,9 @@ class Menu_Page {
 
 	/** @var string Hook suffix/page ID returned by add_menu_page() etc. */
 	private $hook_suffix = '';
+
+	/** @var Menu_Manager|null Reference to menu manager instance. */
+	private $menu_manager = null;
 
 	/**
 	 * Set the page title.
@@ -140,13 +143,61 @@ class Menu_Page {
 	/**
 	 * Set parent page.
 	 *
-	 * @param Menu_Page $parent Parent page.
+	 * @param Menu_Page|string $parent Parent page object or menu slug.
 	 * @return self Chainable method.
+	 * @throws \InvalidArgumentException If parent is not a Menu_Page object or string.
 	 */
-	public function parent( Menu_Page $parent ) {
-		$this->parent = $parent;
+	public function parent( $parent ) {
+		if ( ! $parent instanceof Menu_Page && ! is_string( $parent ) ) {
+			throw new \InvalidArgumentException( 'Parent must be a Menu_Page object or a menu slug string.' );
+		}
+
+		// If string then get the actual menu page instance from the manager.
+		if ( is_string( $parent ) && $this->menu_manager ) {
+			$parent_page = $this->menu_manager->get_page( $parent );
+
+			if ( ! $parent_page ) {
+				throw new \InvalidArgumentException(
+					sprintf(
+						'Parent page with slug "%s" not found.',
+						$parent
+					)
+				);
+			}
+
+			$this->parent = $parent_page;
+		} else {
+			$this->parent = $parent;
+		}
 
 		return $this;
+	}
+
+	/**
+	 * Get parent page.
+	 *
+	 * @return Menu_Page|string|null The parent page object, menu slug, or null if no parent.
+	 */
+	public function get_parent() {
+		return $this->parent;
+	}
+
+	/**
+	 * Get parent page menu slug.
+	 *
+	 * @return string|null The parent page menu slug or null if no parent.
+	 */
+	public function get_parent_menu_slug() {
+		if ( empty( $this->parent ) ) {
+			return null;
+		}
+
+		if ( $this->parent instanceof Menu_Page ) {
+			return $this->parent->get_menu_slug();
+		}
+
+		// If parent is a string then it's already a menu slug.
+		return $this->parent;
 	}
 
 	/**
@@ -213,15 +264,6 @@ class Menu_Page {
 	 */
 	public function get_order() {
 		return $this->order;
-	}
-
-	/**
-	 * Get parent page.
-	 *
-	 * @return Menu_Page|null The parent page or null if no parent.
-	 */
-	public function get_parent() {
-		return $this->parent;
 	}
 
 	/**
@@ -306,5 +348,18 @@ class Menu_Page {
 		}
 
 		return $slug;
+	}
+
+	/**
+	 * Set the menu manager instance.
+	 * Used to lookup parent pages by slug.
+	 *
+	 * @param Menu_Manager $menu_manager Menu manager instance.
+	 * @return self Chainable method.
+	 */
+	public function set_menu_manager( Menu_Manager $menu_manager ) {
+		$this->menu_manager = $menu_manager;
+
+		return $this;
 	}
 }

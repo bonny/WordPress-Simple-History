@@ -16,6 +16,9 @@ class Menu_Manager {
 	 * @return self
 	 */
 	public function add_page( Menu_Page $page ) {
+		// Set reference to this menu manager instance so page can lookup parent pages.
+		$page->set_menu_manager( $this );
+
 		$this->pages[ $page->get_menu_slug() ] = $page;
 		return $this;
 	}
