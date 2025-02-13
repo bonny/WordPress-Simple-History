@@ -5,7 +5,8 @@ It uses PHP, HTML, CSS, React.
 ## PHP code
 
 -   Must work on PHP 7.4 and later.
--   Uses WordPress coding standards.
+-   Uses [WordPress coding standards](https://github.com/WordPress/WordPress-Coding-Standards).
+-   Comments end with a period.
 
 ## CSS
 
