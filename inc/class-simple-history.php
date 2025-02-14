@@ -147,6 +147,7 @@ class Simple_History {
 			Services\REST_API::class,
 			Services\WP_CLI_Commands::class,
 			Services\Stealth_Mode::class,
+			Services\Menu_Service::class,
 		];
 	}
 
