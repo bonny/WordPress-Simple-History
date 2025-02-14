@@ -196,28 +196,40 @@ class Setup_Settings_Page extends Service {
 		$option_slug = 'simple_history_menu_page_location';
 		?>
 
+		<?php
+		$location_options = [
+			[
+				'slug' => 'top',
+				'text' => __( 'Top of main menu', 'simple-history' ),
+			],
+			[
+				'slug' => 'bottom',
+				'text' => __( 'Bottom of main menu', 'simple-history' ),
+			],
+			[
+				'slug' => 'inside_dashboard',
+				'text' => __( 'Inside dashboard menu item', 'simple-history' ),
+			],
+			[
+				'slug' => 'inside_tools',
+				'text' => __( 'Inside tools menu item', 'simple-history' ),
+			],
+		];
+		?>
 		<fieldset>
-			<label>
-				<input 
-					type="radio"
-					name="<?php echo esc_attr( $option_slug ); ?>"
-					value="top"
-					<?php checked( $location === 'top' ); ?>
-				/>
-				<?php esc_html_e( 'Top of menu', 'simple-history' ); ?>
-			</label>
-
-			<br />
-
-			<label>
-				<input 
-					type="radio"
-					name="<?php echo esc_attr( $option_slug ); ?>"
-					value="bottom"
-					<?php checked( $location === 'bottom' ); ?>
-				/>
-				<?php esc_html_e( 'Bottom of menu', 'simple-history' ); ?>
-			</label>
+			<?php foreach ( $location_options as $option ) { ?>
+				<label>
+					<input 
+						type="radio"
+						name="<?php echo esc_attr( $option_slug ); ?>"
+						value="<?php echo esc_attr( $option['slug'] ); ?>"
+						<?php checked( $location === $option['slug'] ); ?>
+					/>
+					
+					<?php echo esc_html( $option['text'] ); ?>
+				</label>
+				<br />
+			<?php } ?>
 		</fieldset>
 		<?php
 	}
