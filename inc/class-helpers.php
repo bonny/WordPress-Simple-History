@@ -1145,8 +1145,10 @@ class Helpers {
 		// If main menu item is translated (for example in LocoTranslate) then the base is different, because it does not use the slugs
 		// is is based on the actual menu name!
 		$plugin_page_contains_simple_history = isset( $plugin_page ) && str_starts_with( $plugin_page, 'simple_history_' );
+		$plugin_page_contains_simple_history_2 = isset( $plugin_page ) && str_starts_with( $plugin_page, 'simple-history-' );
+		$plugin_page_is_main_page = isset( $plugin_page ) && $plugin_page === 'simple-history';
 
-		if ( $plugin_page_contains_simple_history ) {
+		if ( $plugin_page_contains_simple_history || $plugin_page_contains_simple_history_2 || $plugin_page_is_main_page ) {
 			return true;
 		} elseif ( $screen_base_begins_with_simple_history ) {
 			return true;
