@@ -6,20 +6,27 @@ use Simple_History\Helpers;
 use Simple_History\Simple_History;
 use Simple_History\Menu_Manager;
 
-
 /**
  * Service class that handles menu registration and organization.
  */
 class Menu_Service extends Service {
-	/** @var Menu_Manager */
+	/** @var Menu_Manager Menu manager instance. */
 	private $menu_manager;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param Simple_History $simple_history Simple History instance.
+	 */
 	public function __construct( $simple_history ) {
 		$this->simple_history = $simple_history;
-
 		$this->menu_manager = new Menu_Manager();
 	}
 
+	/**
+	 * Called when service is loaded.
+	 * Adds required filters and actions.
+	 */
 	public function loaded() {
 		// Register the pages early.
 		add_action( 'init', [ $this, 'register_pages' ], 10 );
