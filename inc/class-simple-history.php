@@ -1446,4 +1446,20 @@ class Simple_History {
 
 		return call_user_func_array( array( $this, $method_name_to_call ), $arguments );
 	}
+
+	/**
+	 * Get the menu manager class from the menu_service class instance.
+	 *
+	 * @return Menu_Manager|null Menu manager instance or null if menu service is not available.
+	 */
+	public function get_menu_manager() {
+		/** @var Services\Menu_Service $menu_service */
+		$menu_service = $this->get_service( Services\Menu_Service::class );
+
+		if ( $menu_service === null ) {
+			return;
+		}
+
+		return $menu_service->get_menu_manager();
+	}
 }

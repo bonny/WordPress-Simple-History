@@ -1243,9 +1243,12 @@ class Helpers {
 
 	/**
 	 * Returns the location of the main simple history menu page.
+	 *
 	 * Valid locations are:
 	 * - 'top' = Below dashboard and Jetpack and similar top level menu items.
 	 * - 'bottom' = Below settings and similar bottom level menu items.
+	 * - 'inside_tools' = Inside the tools menu.
+	 * - 'inside_dashboard' = Inside the settings menu.
 	 *
 	 * Defaults to 'top'.
 	 *

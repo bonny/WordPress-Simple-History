@@ -6,7 +6,7 @@ namespace Simple_History;
  * Menu manager class that handles registration and organization of admin menu pages.
  */
 class Menu_Manager {
-	/** @var array<string,Menu_Page> Array of all registered menu pages. Key = menu slug. */
+	/** @var array<int,Menu_Page> Array of all registered menu pages. */
 	private $pages = [];
 
 	/**
@@ -19,7 +19,8 @@ class Menu_Manager {
 		// Set reference to this menu manager instance so page can lookup parent pages.
 		$page->set_menu_manager( $this );
 
-		$this->pages[ $page->get_menu_slug() ] = $page;
+		$this->pages[] = $page;
+
 		return $this;
 	}
 
@@ -55,8 +56,13 @@ class Menu_Manager {
 	 */
 	public function register_pages() {
 		foreach ( $this->pages as $page ) {
-			$location = $page->get_location();
+			// sh_error_log( '-----' );
+			// sh_error_log( 'register pages register one page' );
+			// sh_error_log( 'page name: ' . $page->get_page_title() );
+			// sh_error_log( 'page slug: ' . $page->get_menu_slug() );
+			// sh_error_log( 'page location: ' . $page->get_location() );
 
+			$location = $page->get_location();
 			switch ( $location ) {
 				case 'menu_top':
 					$this->add_top_level_menu_page( $page );
@@ -72,6 +78,10 @@ class Menu_Manager {
 					break;
 				case 'tools':
 					$this->add_tools_page( $page );
+					break;
+				case 'submenu':
+				case 'submenu_default':
+					$this->add_submenu_page( $page );
 					break;
 				default:
 					// Handle sub-pages that have parent set but no explicit location.
@@ -89,10 +99,10 @@ class Menu_Manager {
 	 * @param string    $position 'top' or 'bottom', determines menu position.
 	 */
 	private function add_top_level_menu_page( Menu_Page $page, $position = 'top' ) {
-		$menu_position = $position === 'bottom' ? 100 : 3;
+		$menu_position = $position === 'bottom' ? 80 : 3.5;
 
 		$hook_suffix = add_menu_page(
-			$page->get_title(),
+			$page->get_page_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
 			$page->get_menu_slug(),
@@ -102,11 +112,6 @@ class Menu_Manager {
 		);
 
 		$page->set_hook_suffix( $hook_suffix );
-
-		// Add any child pages.
-		foreach ( $this->get_child_pages( $page ) as $child_page ) {
-			$this->add_submenu_page( $child_page );
-		}
 	}
 
 	/**
@@ -116,7 +121,7 @@ class Menu_Manager {
 	 */
 	private function add_dashboard_page( Menu_Page $page ) {
 		$hook_suffix = add_dashboard_page(
-			$page->get_title(),
+			$page->get_page_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
 			$page->get_menu_slug(),
@@ -133,7 +138,7 @@ class Menu_Manager {
 	 */
 	private function add_settings_page( Menu_Page $page ) {
 		$hook_suffix = add_options_page(
-			$page->get_title(),
+			$page->get_page_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
 			$page->get_menu_slug(),
@@ -150,7 +155,7 @@ class Menu_Manager {
 	 */
 	private function add_tools_page( Menu_Page $page ) {
 		$hook_suffix = add_management_page(
-			$page->get_title(),
+			$page->get_page_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
 			$page->get_menu_slug(),
@@ -172,13 +177,23 @@ class Menu_Manager {
 			return;
 		}
 
+		if ( $page->get_location() === 'submenu_default' ) {
+			$menu_slug = $parent->get_menu_slug();
+		} else {
+			$menu_slug = $page->get_menu_slug();
+		}
+
+		sh_error_log( '$menu_slug: ' . $menu_slug );
+
+		// Use parent hook suffix to add sub-menu page
+		// that will be the first selected item in the submenu.
 		$hook_suffix = add_submenu_page(
 			$parent->get_menu_slug(),
-			$page->get_title(),
+			$page->get_page_title(),
 			$page->get_menu_title(),
 			$page->get_capability(),
-			$page->get_menu_slug(),
-			[ $page, 'render' ]
+			$menu_slug,
+			[ $page, 'render' ],
 		);
 
 		$page->set_hook_suffix( $hook_suffix );

@@ -7,7 +7,7 @@ namespace Simple_History;
  */
 class Menu_Page {
 	/** @var string Page title shown in browser title. */
-	private $title = '';
+	private $page_title = '';
 
 	/** @var string Menu title shown in admin menu. */
 	private $menu_title = '';
@@ -30,8 +30,8 @@ class Menu_Page {
 	/** @var Menu_Page|string|null Parent page if this is a submenu item. */
 	private $parent = null;
 
-	/** @var string Location in admin menu. One of 'menu_top', 'menu_bottom', 'dashboard', 'settings', 'tools'. */
-	private $location = 'menu_top';
+	/** @var string|null Location in admin menu. One of 'menu_top', 'menu_bottom', 'dashboard', 'settings', 'tools'. */
+	private $location = null;
 
 	/** @var string Hook suffix/page ID returned by add_menu_page() etc. */
 	private $hook_suffix = '';
@@ -39,14 +39,43 @@ class Menu_Page {
 	/** @var Menu_Manager|null Reference to menu manager instance. */
 	private $menu_manager = null;
 
+	/** @var array<Menu_Page> Array of submenu pages. */
+	private $submenu_pages = [];
+
+	/**
+	 * Locations where WordPress menus can be added.
+	 *
+	 * WordPress menus are added with these functions:
+	 *
+	 * add_menu_page()
+	 * add_submenu_page()
+	 * add_management_page()
+	 * add_options_page()
+	 * add_dashboard_page()
+	 *
+	 * so lets use that naming convention here to.
+	 *
+	 * @var array<string> WordPress menu locations.
+	 */
+	private $wordpress_locations = [
+		'menu_top',
+		'menu_bottom',
+		'submenu',
+		'submenu_default',
+		'dashboard',
+		'management', // Management = "tools".
+		'options',
+	];
+
+
 	/**
 	 * Set the page title.
 	 *
-	 * @param string $title Page title.
+	 * @param string $page_title Page title.
 	 * @return self
 	 */
-	public function set_title( $title ) {
-		$this->title = $title;
+	public function set_page_title( $page_title ) {
+		$this->page_title = $page_title;
 
 		return $this;
 	}
@@ -59,11 +88,6 @@ class Menu_Page {
 	 */
 	public function set_menu_title( $menu_title ) {
 		$this->menu_title = $menu_title;
-
-		// If no slug is set, generate one from the title.
-		if ( empty( $this->menu_slug ) ) {
-			$this->set_menu_slug( null );
-		}
 
 		return $this;
 	}
@@ -91,14 +115,13 @@ class Menu_Page {
 		if ( $menu_slug === null && ! empty( $this->menu_title ) ) {
 			// Generate slug from menu title if not provided.
 			$menu_slug = $this->generate_menu_slug( $this->menu_title );
-		} elseif ( $menu_slug === null && ! empty( $this->title ) ) {
+		} elseif ( $menu_slug === null && ! empty( $this->page_title ) ) {
 			// Use page title as fallback if menu title is not set.
-			$menu_slug = $this->generate_menu_slug( $this->title );
+			$menu_slug = $this->generate_menu_slug( $this->page_title );
 		} elseif ( $menu_slug === null ) {
 			// Generate a unique fallback slug if no menu title or page title exists yet.
 			$menu_slug = 'simple-history-' . uniqid();
 		}
-
 		$this->menu_slug = $this->sanitize_menu_slug( $menu_slug );
 
 		return $this;
@@ -154,7 +177,7 @@ class Menu_Page {
 
 		// If string then get the actual menu page instance from the manager.
 		if ( is_string( $parent ) && $this->menu_manager ) {
-			$parent_page = $this->menu_manager->get_page( $parent );
+			$parent_page = $this->menu_manager->get_page_by_slug( $parent );
 
 			if ( ! $parent_page ) {
 				throw new \InvalidArgumentException(
@@ -203,10 +226,39 @@ class Menu_Page {
 	/**
 	 * Set menu location.
 	 *
+	 * WordPress location can be:
+	 * - 'menu_top'
+	 * - 'top' (same as 'menu_top')
+	 * - 'menu_bottom'
+	 * - 'bottom' (same as 'menu_bottom')
+	 * - 'dashboard'
+	 * - 'inside_dashboard', (same as 'dashboard')
+	 * - 'management' (= tools)
+	 * - 'inside_tools' (same as management)
+	 * - 'options'
+	 * - 'submenu'
+	 * - 'submenu_default' (submenu with same slug as parent, to be used as default)
+	 *
 	 * @param string $location Location in admin menu.
 	 * @return self Chainable method.
 	 */
 	public function set_location( $location ) {
+		// Normalize location.
+		if ( in_array( $location, $this->wordpress_locations, true ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			// Use WordPress location names as-is.
+		} elseif ( 'top' === $location ) {
+			$location = 'menu_top';
+		} elseif ( 'bottom' === $location ) {
+			$location = 'menu_bottom';
+		} elseif ( 'inside_dashboard' === $location ) {
+			$location = 'dashboard';
+		} elseif ( 'inside_tools' === $location ) {
+			$location = 'management';
+		} else {
+			// Default to 'menu_top' if location is not recognized.
+			$location = 'menu_top';
+		}
+
 		$this->location = $location;
 
 		return $this;
@@ -217,8 +269,8 @@ class Menu_Page {
 	 *
 	 * @return string The page title.
 	 */
-	public function get_title() {
-		return $this->title;
+	public function get_page_title() {
+		return $this->page_title;
 	}
 
 	/**
@@ -305,6 +357,35 @@ class Menu_Page {
 	}
 
 	/**
+	 * Add a submenu page to this page.
+	 * Sets the parent of the submenu page to this page.
+	 *
+	 * @param Menu_Page $submenu_page Page to add as submenu.
+	 * @return Menu_Page The added submenu page.
+	 */
+	public function add_submenu( Menu_Page $submenu_page ) {
+		$submenu_page->set_parent( $this );
+		$this->submenu_pages[] = $submenu_page;
+
+		// Pass menu manager reference if we have one.
+		if ( $this->menu_manager ) {
+			$submenu_page->set_menu_manager( $this->menu_manager );
+			$this->menu_manager->add_page( $submenu_page );
+		}
+
+		return $submenu_page;
+	}
+
+	/**
+	 * Get all submenu pages added to this page.
+	 *
+	 * @return array<Menu_Page> Array of submenu pages.
+	 */
+	public function get_submenu_pages() {
+		return $this->submenu_pages;
+	}
+
+	/**
 	 * Generate a menu slug from a string.
 	 *
 	 * @param string $string String to generate slug from.
@@ -342,8 +423,8 @@ class Menu_Page {
 		// Use WordPress's sanitize_key function as base.
 		$slug = sanitize_key( $slug );
 
-		// Ensure slug starts with 'simple-history-'.
-		if ( ! str_starts_with( $slug, 'simple-history-' ) ) {
+		// Ensure slug starts with 'simple-history'.
+		if ( ! str_starts_with( $slug, 'simple-history' ) ) {
 			$slug = 'simple-history-' . $slug;
 		}
 
