@@ -246,6 +246,7 @@ class Menu_Page {
 	 * - 'inside_dashboard', (same as 'dashboard')
 	 * - 'management' (= tools)
 	 * - 'inside_tools' (same as management)
+	 * - 'tools' (same as 'management')
 	 * - 'options'
 	 * - 'settings' (same as 'options')
 	 * - 'submenu'
@@ -265,6 +266,8 @@ class Menu_Page {
 		} elseif ( 'inside_dashboard' === $location ) {
 			$location = 'dashboard';
 		} elseif ( 'inside_tools' === $location ) {
+			$location = 'management';
+		} elseif ( 'tools' === $location ) {
 			$location = 'management';
 		} elseif ( 'settings' === $location ) {
 			$location = 'options';
