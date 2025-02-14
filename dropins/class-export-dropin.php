@@ -4,6 +4,7 @@ namespace Simple_History\Dropins;
 use Simple_History\Simple_History;
 use Simple_History\Export;
 use Simple_History\Helpers;
+use Simple_History\Menu_Page;
 use Simple_History\Services\Admin_Pages;
 
 /**
@@ -41,6 +42,32 @@ class Export_Dropin extends Dropin {
 			array( $this, 'output_export_page' ),
 			50
 		);
+
+		// Add page using new menu manager.
+		$admin_page_location = Helpers::get_menu_page_location();
+		$menu_manager = $this->simple_history->get_menu_manager();
+
+		$export_menu_page = ( new Menu_Page() )
+			->set_page_title( _x( 'SHExport', 'dashboard title name', 'simple-history' ) )
+			->set_menu_title( _x( 'SHExport', 'dashboard menu name', 'simple-history' ) )
+			->set_menu_slug( self::MENU_SLUG )
+			->set_capability( 'manage_options' )
+			->set_callback( [ $this, 'output_export_page' ] )
+			->set_menu_manager( $menu_manager );
+
+		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
+			$export_menu_page
+				->set_menu_title( _x( 'Export', 'settings menu name', 'simple-history' ) )
+				->set_parent( 'simple-history' )
+				->set_location( 'submenu' );
+		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
+			$export_menu_page
+				->set_menu_title( _x( 'Simple History export', 'settings menu name', 'simple-history' ) )
+				->set_location( 'tools' );
+		}
+
+		$menu_manager->add_page( $export_menu_page );
 	}
 
 	/**
