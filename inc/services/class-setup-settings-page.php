@@ -46,8 +46,7 @@ class Setup_Settings_Page extends Service {
 	 */
 	public function add_admin_pages() {
 		// Add a settings page.
-		$show_settings_page = true;
-		$show_settings_page = apply_filters( 'simple_history_show_settings_page', $show_settings_page );
+		$show_settings_page = apply_filters( 'simple_history_show_settings_page', true );
 		$show_settings_page = apply_filters( 'simple_history/show_settings_page', $show_settings_page );
 
 		// Can't show settings page if user can't view main menu item.
@@ -55,18 +54,19 @@ class Setup_Settings_Page extends Service {
 			return;
 		}
 
-		if ( $show_settings_page ) {
-			// New location: placed at WP Admin › Simple History › Settings.
-			add_submenu_page(
-				Simple_History::MENU_PAGE_SLUG,
-				_x( 'Simple History Settings', 'settings title name', 'simple-history' ),
-				_x( 'Settings', 'settings menu name', 'simple-history' ),
-				Helpers::get_view_settings_capability(),
-				'simple_history_settings_page',
-				array( $this, 'settings_page_output' )
-			);
-
+		if ( ! $show_settings_page ) {
+			return;
 		}
+
+		// New location: placed at WP Admin › Simple History › Settings.
+		add_submenu_page(
+			Simple_History::MENU_PAGE_SLUG,
+			_x( 'Simple History Settings', 'settings title name', 'simple-history' ),
+			_x( 'Settings', 'settings menu name', 'simple-history' ),
+			Helpers::get_view_settings_capability(),
+			'simple_history_settings_page',
+			array( $this, 'settings_page_output' )
+		);
 	}
 
 	/**
@@ -194,9 +194,7 @@ class Setup_Settings_Page extends Service {
 	public function settings_field_menu_page_location() {
 		$location = Helpers::get_menu_page_location();
 		$option_slug = 'simple_history_menu_page_location';
-		?>
 
-		<?php
 		$location_options = [
 			[
 				'slug' => 'top',
