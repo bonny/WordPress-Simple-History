@@ -6,7 +6,7 @@ namespace Simple_History;
  * Menu manager class that handles registration and organization of admin menu pages.
  */
 class Menu_Manager {
-	/** @var array<string,Menu_Page> Array of all registered menu pages. */
+	/** @var array<string,Menu_Page> Array of all registered menu pages. Key = menu slug. */
 	private $pages = [];
 
 	/**

@@ -45,7 +45,7 @@ class Menu_Page {
 	 * @param string $title Page title.
 	 * @return self
 	 */
-	public function title( $title ) {
+	public function set_title( $title ) {
 		$this->title = $title;
 
 		return $this;
@@ -57,12 +57,12 @@ class Menu_Page {
 	 * @param string $menu_title Menu title.
 	 * @return self Chainable method.
 	 */
-	public function menu_title( $menu_title ) {
+	public function set_menu_title( $menu_title ) {
 		$this->menu_title = $menu_title;
 
 		// If no slug is set, generate one from the title.
 		if ( empty( $this->menu_slug ) ) {
-			$this->menu_slug( null );
+			$this->set_menu_slug( null );
 		}
 
 		return $this;
@@ -74,7 +74,7 @@ class Menu_Page {
 	 * @param string $capability Required capability.
 	 * @return self Chainable method.
 	 */
-	public function capability( $capability ) {
+	public function set_capability( $capability ) {
 		$this->capability = $capability;
 
 		return $this;
@@ -87,7 +87,7 @@ class Menu_Page {
 	 * @param string|null $menu_slug Menu slug. If null, will auto-generate from menu title.
 	 * @return self Chainable method.
 	 */
-	public function menu_slug( $menu_slug = null ) {
+	public function set_menu_slug( $menu_slug = null ) {
 		if ( $menu_slug === null && ! empty( $this->menu_title ) ) {
 			// Generate slug from menu title if not provided.
 			$menu_slug = $this->generate_menu_slug( $this->menu_title );
@@ -110,7 +110,7 @@ class Menu_Page {
 	 * @param callable|string|array $callback Callback function/method.
 	 * @return self Chainable method.
 	 */
-	public function callback( $callback ) {
+	public function set_callback( $callback ) {
 		$this->callback = $callback;
 
 		return $this;
@@ -122,7 +122,7 @@ class Menu_Page {
 	 * @param string $icon Icon name or URL.
 	 * @return self Chainable method.
 	 */
-	public function icon( $icon ) {
+	public function set_icon( $icon ) {
 		$this->icon = $icon;
 
 		return $this;
@@ -134,7 +134,7 @@ class Menu_Page {
 	 * @param int $order Order number.
 	 * @return self Chainable method.
 	 */
-	public function order( $order ) {
+	public function set_order( $order ) {
 		$this->order = $order;
 
 		return $this;
@@ -147,7 +147,7 @@ class Menu_Page {
 	 * @return self Chainable method.
 	 * @throws \InvalidArgumentException If parent is not a Menu_Page object or string.
 	 */
-	public function parent( $parent ) {
+	public function set_parent( $parent ) {
 		if ( ! $parent instanceof Menu_Page && ! is_string( $parent ) ) {
 			throw new \InvalidArgumentException( 'Parent must be a Menu_Page object or a menu slug string.' );
 		}
@@ -206,7 +206,7 @@ class Menu_Page {
 	 * @param string $location Location in admin menu.
 	 * @return self Chainable method.
 	 */
-	public function location( $location ) {
+	public function set_location( $location ) {
 		$this->location = $location;
 
 		return $this;
