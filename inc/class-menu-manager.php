@@ -56,12 +56,6 @@ class Menu_Manager {
 	 */
 	public function register_pages() {
 		foreach ( $this->pages as $page ) {
-			// sh_error_log( '-----' );
-			// sh_error_log( 'register pages register one page' );
-			// sh_error_log( 'page name: ' . $page->get_page_title() );
-			// sh_error_log( 'page slug: ' . $page->get_menu_slug() );
-			// sh_error_log( 'page location: ' . $page->get_location() );
-
 			$location = $page->get_location();
 
 			switch ( $location ) {
@@ -100,6 +94,8 @@ class Menu_Manager {
 	 * @param string    $position 'top' or 'bottom', determines menu position.
 	 */
 	private function add_top_level_menu_page( Menu_Page $page, $position = 'top' ) {
+		// Add History page as a main menu item, at the root.
+		// For example Jetpack adds itself at prio 3. We add it at prio 3.5 to be below Jetpack but above posts.
 		$menu_position = $position === 'bottom' ? 80 : 3.5;
 
 		$hook_suffix = add_menu_page(
@@ -222,5 +218,20 @@ class Menu_Manager {
 		);
 
 		return $children;
+	}
+
+	/**
+	 * Return all slugs for all pages.
+	 *
+	 * @return array<string> Array of all slugs for all pages.
+	 */
+	public function get_all_slugs() {
+		$slugs = [];
+
+		foreach ( $this->get_pages() as $page ) {
+			$slugs[] = $page->get_menu_slug();
+		}
+
+		return $slugs;
 	}
 }

@@ -15,33 +15,23 @@ use Simple_History\Services\Admin_Pages;
  */
 class Export_Dropin extends Dropin {
 	/** @var string Slug for the export menu. */
-	const MENU_SLUG = 'simple-history-export-history';
+	const MENU_SLUG = 'simple_history_export_history';
 
 	/**
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		add_action( 'admin_menu', array( $this, 'add_submenu' ) );
+		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_init', array( $this, 'download_export' ) );
 	}
 
 	/**
 	 * Add submenu page for export
 	 */
-	public function add_submenu() {
+	public function add_menu() {
 		if ( ! Helpers::setting_show_as_menu_page() ) {
 			return;
 		}
-
-		add_submenu_page(
-			Simple_History::MENU_PAGE_SLUG,
-			__( 'Export', 'simple-history' ),
-			__( 'Export', 'simple-history' ),
-			'manage_options',
-			'simple_history_export_history',
-			array( $this, 'output_export_page' ),
-			50
-		);
 
 		// Add page using new menu manager.
 		$admin_page_location = Helpers::get_menu_page_location();
@@ -57,7 +47,7 @@ class Export_Dropin extends Dropin {
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
 			$export_menu_page
 				->set_menu_title( _x( 'Export', 'settings menu name', 'simple-history' ) )
-				->set_parent( 'simple-history' )
+				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
 		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.

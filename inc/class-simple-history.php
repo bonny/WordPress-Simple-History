@@ -68,8 +68,11 @@ class Simple_History {
 	/** Slug for the admin menu main page. */
 	public const MENU_PAGE_SLUG = 'simple_history_admin_menu_page';
 
+	/** Slug for the view events subpage_default page */
+	public const VIEW_EVENTS_PAGE_SLUG = 'simple_history_view_events_page';
+
 	/** Slug for the settings menu */
-	public const SETTINGS_MENU_PAGE_SLUG = 'simple_history_settings_menu_page';
+	public const SETTINGS_MENU_PAGE_SLUG = 'simple_history_settings_page';
 
 	/** Slug for the settings menu */
 	public const SETTINGS_MENU_SLUG = 'simple_history_settings_menu_slug';
@@ -1450,15 +1453,11 @@ class Simple_History {
 	/**
 	 * Get the menu manager class from the menu_service class instance.
 	 *
-	 * @return Menu_Manager|null Menu manager instance or null if menu service is not available.
+	 * @return Menu_Manager Menu manager instance or null if menu service is not available.
 	 */
 	public function get_menu_manager() {
 		/** @var Services\Menu_Service $menu_service */
 		$menu_service = $this->get_service( Services\Menu_Service::class );
-
-		if ( $menu_service === null ) {
-			return;
-		}
 
 		return $menu_service->get_menu_manager();
 	}

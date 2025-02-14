@@ -105,23 +105,17 @@ class Menu_Page {
 
 	/**
 	 * Set menu slug.
-	 * If not provided, will generate one based on the menu title.
 	 *
 	 * @param string|null $menu_slug Menu slug. If null, will auto-generate from menu title.
 	 * @return self Chainable method.
 	 */
 	public function set_menu_slug( $menu_slug = null ) {
-		if ( $menu_slug === null && ! empty( $this->menu_title ) ) {
-			// Generate slug from menu title if not provided.
-			$menu_slug = $this->generate_menu_slug( $this->menu_title );
-		} elseif ( $menu_slug === null && ! empty( $this->page_title ) ) {
-			// Use page title as fallback if menu title is not set.
-			$menu_slug = $this->generate_menu_slug( $this->page_title );
-		} elseif ( $menu_slug === null ) {
-			// Generate a unique fallback slug if no menu title or page title exists yet.
+		if ( $menu_slug === null ) {
+			// Generate a unique fallback.
 			$menu_slug = 'simple-history-' . uniqid();
 		}
-		$this->menu_slug = $this->sanitize_menu_slug( $menu_slug );
+
+		$this->menu_slug = sanitize_text_field( $menu_slug );
 
 		return $this;
 	}
@@ -193,8 +187,9 @@ class Menu_Page {
 			if ( ! $parent_page ) {
 				throw new \InvalidArgumentException(
 					sprintf(
-						'Parent page with slug "%s" not found.',
-						esc_html( $parent )
+						'Parent page with slug "%s" not found. All existing page slugs: %s',
+						esc_html( $parent ),
+						esc_html( implode( ',', $this->menu_manager->get_all_slugs() ) )
 					)
 				);
 			}
