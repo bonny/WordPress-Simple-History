@@ -29,9 +29,16 @@ class Menu_Manager {
 	 * @param string $slug Page slug.
 	 * @return Menu_Page|null Menu page if found, null if not found.
 	 */
-	public function get_page( $slug ) {
-		return $this->pages[ $slug ] ?? null;
+	public function get_page_by_slug( $slug ) {
+		foreach ( $this->pages as $page ) {
+			if ( $page->get_menu_slug() === $slug ) {
+				return $page;
+			}
+		}
+
+		return null;
 	}
+
 
 	/**
 	 * Get all registered pages.
