@@ -192,7 +192,7 @@ class Setup_Settings_Page extends Service {
 	 * Settings field output for menu page location
 	 */
 	public function settings_field_menu_page_location() {
-		$location = Helpers::setting_menu_page_location();
+		$location = Helpers::get_setting_menu_page_location();
 		$option_slug = 'simple_history_menu_page_location';
 		?>
 

@@ -29,7 +29,7 @@ class Admin_Pages extends Service {
 			return;
 		}
 
-		$admin_page_location = Helpers::setting_menu_page_location();
+		$admin_page_location = Helpers::get_setting_menu_page_location();
 		$admin_page_position = '';
 
 		switch ( $admin_page_location ) {

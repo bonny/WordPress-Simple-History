@@ -1251,7 +1251,7 @@ class Helpers {
 	 *
 	 * @return string Location of the main menu page.
 	 */
-	public static function setting_menu_page_location() {
+	public static function get_setting_menu_page_location() {
 		$option_slug = 'simple_history_menu_page_location';
 		$setting = get_option( $option_slug );
 
