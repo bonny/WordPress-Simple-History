@@ -63,6 +63,7 @@ class Menu_Manager {
 			// sh_error_log( 'page location: ' . $page->get_location() );
 
 			$location = $page->get_location();
+
 			switch ( $location ) {
 				case 'menu_top':
 					$this->add_top_level_menu_page( $page );
@@ -73,10 +74,10 @@ class Menu_Manager {
 				case 'dashboard':
 					$this->add_dashboard_page( $page );
 					break;
-				case 'settings':
-					$this->add_settings_page( $page );
+				case 'options':
+					$this->add_options_page( $page );
 					break;
-				case 'tools':
+				case 'management':
 					$this->add_tools_page( $page );
 					break;
 				case 'submenu':
@@ -136,7 +137,7 @@ class Menu_Manager {
 	 *
 	 * @param Menu_Page $page Page to add.
 	 */
-	private function add_settings_page( Menu_Page $page ) {
+	private function add_options_page( Menu_Page $page ) {
 		$hook_suffix = add_options_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
@@ -182,8 +183,6 @@ class Menu_Manager {
 		} else {
 			$menu_slug = $page->get_menu_slug();
 		}
-
-		sh_error_log( '$menu_slug: ' . $menu_slug );
 
 		// Use parent hook suffix to add sub-menu page
 		// that will be the first selected item in the submenu.

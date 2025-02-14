@@ -39,13 +39,16 @@ class Admin_Pages extends Service {
 			->set_menu_slug( 'simple-history' )
 			->set_capability( Helpers::get_view_history_capability() )
 			->set_icon( $logo_icon )
-			->set_location( $admin_page_location );
+			->set_location( $admin_page_location )
+			->set_callback( [ $this, 'history_page_output' ] );
 
-		$menu_manager->add_page( $main_log_page );
-
-		// Add "Event log" page that is the first submenu item.
-		// Only add if location is menu_top or menu_bottom.
+		// if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+			// Add callback to main log page if inside dashboard or tools.
+			// $main_log_page->set_callback( [ $this, 'history_page_output' ] );
+		// } else
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
+			// Add "Event log" page that is the first submenu item.
+			// Only add if location is menu_top or menu_bottom.
 			$main_log_page->add_submenu(
 				( new Menu_Page() )
 					->set_page_title( _x( 'Event Log - Simple History', 'dashboard title name', 'simple-history' ) )
@@ -56,6 +59,8 @@ class Admin_Pages extends Service {
 					->set_location( 'submenu_default' )
 			);
 		}
+
+		$menu_manager->add_page( $main_log_page );
 
 		// PREV CODE, NOT USING MENU MANAGER.
 

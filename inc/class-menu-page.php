@@ -67,7 +67,6 @@ class Menu_Page {
 		'options',
 	];
 
-
 	/**
 	 * Set the page title.
 	 *
@@ -175,8 +174,20 @@ class Menu_Page {
 			throw new \InvalidArgumentException( 'Parent must be a Menu_Page object or a menu slug string.' );
 		}
 
-		// If string then get the actual menu page instance from the manager.
-		if ( is_string( $parent ) && $this->menu_manager ) {
+		// If $parents is menu page object then use it directly.
+		if ( $parent instanceof Menu_Page ) {
+			$this->parent = $parent;
+
+			return $this;
+		}
+
+		// If string then get the actual menu page instance from the menu manager.
+		if ( is_string( $parent ) ) {
+			// Throw if menu_manager not set.
+			if ( ! $this->menu_manager ) {
+				throw new \InvalidArgumentException( 'Parent menu slug requires a menu manager instance.' );
+			}
+
 			$parent_page = $this->menu_manager->get_page_by_slug( $parent );
 
 			if ( ! $parent_page ) {
@@ -236,6 +247,7 @@ class Menu_Page {
 	 * - 'management' (= tools)
 	 * - 'inside_tools' (same as management)
 	 * - 'options'
+	 * - 'settings' (same as 'options')
 	 * - 'submenu'
 	 * - 'submenu_default' (submenu with same slug as parent, to be used as default)
 	 *
@@ -254,6 +266,8 @@ class Menu_Page {
 			$location = 'dashboard';
 		} elseif ( 'inside_tools' === $location ) {
 			$location = 'management';
+		} elseif ( 'settings' === $location ) {
+			$location = 'options';
 		} else {
 			// Default to 'menu_top' if location is not recognized.
 			$location = 'menu_top';

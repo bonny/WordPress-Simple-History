@@ -4,6 +4,8 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
+use Simple_History\Menu_Manager;
+use Simple_History\Menu_page;
 
 /**
  * Setup settings page.
@@ -67,6 +69,31 @@ class Setup_Settings_Page extends Service {
 			'simple_history_settings_page',
 			array( $this, 'settings_page_output' )
 		);
+
+		// Add a settings page using new menu manager.
+		$admin_page_location = Helpers::get_menu_page_location();
+		$menu_manager = $this->simple_history->get_menu_manager();
+
+		$settings_menu_page = ( new Menu_Page() )
+				->set_page_title( _x( 'Simple History Settings', 'settings title name', 'simple-history' ) )
+				->set_menu_slug( 'simple-history-settings-page' )
+				->set_capability( Helpers::get_view_settings_capability() )
+				->set_callback( [ $this, 'settings_page_output' ] )
+				->set_menu_manager( $menu_manager );
+
+		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
+			$settings_menu_page
+				->set_menu_title( _x( 'Settings', 'settings menu name', 'simple-history' ) )
+				->set_parent( 'simple-history' )
+				->set_location( 'submenu' );
+		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
+			$settings_menu_page
+				->set_menu_title( _x( 'Simple History', 'settings menu name', 'simple-history' ) )
+				->set_location( 'settings' );
+		}
+
+		$menu_manager->add_page( $settings_menu_page );
 	}
 
 	/**
