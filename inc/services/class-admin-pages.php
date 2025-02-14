@@ -91,15 +91,15 @@ class Admin_Pages extends Service {
 
 		// Add a history page.
 		// Uses same name as main menu item, so it looks like a sub-page.
-		// add_submenu_page(
-		// $this->simple_history::MENU_PAGE_SLUG,
-		// _x( 'Event Log - Simple History', 'dashboard title name', 'simple-history' ),
-		// _x( 'Event Log', 'dashboard menu name', 'simple-history' ),
-		// Helpers::get_view_history_capability(),
-		// $this->simple_history::MENU_PAGE_SLUG,
-		// array( $this, 'history_page_output' ),
-		// 10
-		// );
+		add_submenu_page(
+			$this->simple_history::MENU_PAGE_SLUG,
+			_x( 'Event Log - Simple History', 'dashboard title name', 'simple-history' ),
+			_x( 'Event Log', 'dashboard menu name', 'simple-history' ),
+			Helpers::get_view_history_capability(),
+			$this->simple_history::MENU_PAGE_SLUG,
+			array( $this, 'history_page_output' ),
+			10
+		);
 	}
 
 	/**
