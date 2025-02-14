@@ -160,7 +160,7 @@ class Menu_Page {
 				throw new \InvalidArgumentException(
 					sprintf(
 						'Parent page with slug "%s" not found.',
-						$parent
+						esc_html( $parent )
 					)
 				);
 			}
