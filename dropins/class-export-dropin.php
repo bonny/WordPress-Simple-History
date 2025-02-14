@@ -13,12 +13,15 @@ use Simple_History\Services\Admin_Pages;
  * Author: Pär Thernström
  */
 class Export_Dropin extends Dropin {
+	/** @var string Slug for the export menu. */
+	const MENU_SLUG = 'simple-history-export-history';
+
 	/**
 	 * @inheritdoc
 	 */
 	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_submenu' ) );
-		add_action( 'load-simple-history_page_simple_history_export_history', array( $this, 'download_export' ) );
+		add_action( 'admin_init', array( $this, 'download_export' ) );
 	}
 
 	/**
@@ -44,7 +47,13 @@ class Export_Dropin extends Dropin {
 	 * Download export file.
 	 */
 	public function download_export() {
+		$page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
 		$action = sanitize_key( wp_unslash( $_POST['simple-history-action'] ?? '' ) );
+
+		// Bail of not correct page.
+		if ( $page !== self::MENU_SLUG ) {
+			return;
+		}
 
 		// Bail if not export action.
 		if ( $action !== 'export-history' ) {
