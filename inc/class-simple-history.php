@@ -60,18 +60,20 @@ class Simple_History {
 	/** @var string $plugin_basename */
 	public $plugin_basename = SIMPLE_HISTORY_BASENAME;
 
-	// TODO: Name these const better, and use the consts everywhere.
-	// Document where and how they are used.
-	// simple_history_settings_page
-	// also add functions for things like admin_page() usage.
-
 	/** Slug for the admin menu main page. */
 	public const MENU_PAGE_SLUG = 'simple_history_admin_menu_page';
 
 	/** Slug for the view events subpage_default page */
 	public const VIEW_EVENTS_PAGE_SLUG = 'simple_history_view_events_page';
 
-	/** Slug for the settings menu */
+	/**
+	 * Settings page menu slug used in WordPress admin.
+	 *
+	 * This constant defines the unique identifier (slug) used for the Simple History
+	 * settings page in the WordPress admin menu.
+	 *
+	 * @var string
+	 */
 	public const SETTINGS_MENU_PAGE_SLUG = 'simple_history_settings_page';
 
 	/** Slug for the settings menu */
