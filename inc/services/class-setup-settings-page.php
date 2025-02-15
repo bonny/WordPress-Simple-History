@@ -18,6 +18,59 @@ class Setup_Settings_Page extends Service {
 		add_action( 'admin_menu', [ $this, 'add_admin_pages' ] );
 		add_action( 'after_setup_theme', [ $this, 'add_default_settings_tabs' ] );
 		add_action( 'admin_menu', [ $this, 'add_settings' ], 10 );
+		add_action( 'admin_page_access_denied', [ $this, 'on_admin_page_access_denied' ] );
+	}
+
+	/**
+	 * If users changes setting from showing main page on dashboard or tools to top level
+	 * menu item, user will get an error due to the fact that the setting screen they are
+	 * trying to access is not registered anymore. This function will redirect the user to
+	 * the new location of the settings page.
+	 *
+	 * We use hook 'admin_page_access_denied' because that's right above where the error
+	 * "Sorry, you are not allowed to access this page." is thrown.
+	 */
+	public function on_admin_page_access_denied() {
+		$menu_page_location = Helpers::get_menu_page_location();
+
+		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/options-general.php?page=simple_history_settings_page
+		$wp_referer = wp_get_referer();
+
+		// simple_history_settings_page
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
+
+		// simple_history_settings_page
+		$settings_menu_page_slug = Simple_History::SETTINGS_MENU_PAGE_SLUG;
+
+		// Get the currently registered settings page URL.
+		$current_settings_url = menu_page_url( $settings_menu_page_slug, false );
+
+		// Get the currently requested URL.
+		$current_request_url = sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
+
+		// Return early if required args are missing.
+		if ( ! $current_request_url || ! $wp_referer || ! $page ) {
+			return;
+		}
+
+		// Return early if current page is not trying to access our settings page.
+		if ( $page !== $settings_menu_page_slug ) {
+			return;
+		}
+
+		// Return early if referer is same as the current settings URL.
+		if ( $wp_referer === $current_settings_url ) {
+			return;
+		}
+
+		// Pass on ?settings-updated if exists in requested URL.
+		if ( isset( $_GET['settings-updated'] ) ) {
+			$current_settings_url = add_query_arg( 'settings-updated', 'true', $current_settings_url );
+		}
+
+		// All conditions met, redirect to correct settings page URL.
+		wp_safe_redirect( $current_settings_url );
+		exit;
 	}
 
 	/**
