@@ -875,8 +875,21 @@ Modal window with detailss
 	content: "\f110";
 }
 
+.SimpleHistoryQuickStats {
+	font-size: var(--sh-font-size-medium);
+}
+
 .SimpleHistoryQuickStats a {
 	text-decoration: none;
+}
+
+/**
+ * span is used as tooltip.
+ */
+.SimpleHistoryQuickStats--totalLoggedEvents span {
+	text-decoration: dotted underline;
+	text-underline-offset: 2px;
+	cursor: help;
 }
 
 /* if not hits when using filter function + if ajax error */

@@ -201,7 +201,7 @@ class Quick_Stats extends Dropin {
 			esc_html( $num_other_sources_today ) // 3
 		);
 
-		return "<p>$final_msg</p>";
+		return "<p class='SimpleHistoryQuickStats'>$final_msg</p>";
 	}
 
 	/**
@@ -209,10 +209,6 @@ class Quick_Stats extends Dropin {
 	 */
 	public function output_quick_stats() {
 		$msg = $this->get_stats_message();
-		?>
-		<div class="SimpleHistoryQuickStats">
-			<?php echo wp_kses_post( $msg ); ?>
-		</div>
-		<?php
+		echo wp_kses_post( $msg );
 	}
 }
