@@ -27,7 +27,7 @@ class Menu_Page {
 	/** @var int Order among sibling menu items. */
 	private $order = 10;
 
-	/** @var Menu_Page|string|null Parent page if this is a submenu item. */
+	/** @var Menu_Page|null Parent page if this is a submenu item. */
 	private $parent = null;
 
 	/** @var string|null Location in admin menu. One of 'menu_top', 'menu_bottom', 'dashboard', 'settings', 'tools'. */
@@ -161,7 +161,6 @@ class Menu_Page {
 	 *
 	 * @param Menu_Page|string $parent Parent page object or menu slug.
 	 * @return self Chainable method.
-	 * @throws \InvalidArgumentException If parent is not a Menu_Page object or string.
 	 */
 	public function set_parent( $parent ) {
 		if ( ! $parent instanceof Menu_Page && ! is_string( $parent ) ) {
@@ -205,7 +204,7 @@ class Menu_Page {
 	/**
 	 * Get parent page.
 	 *
-	 * @return Menu_Page|string|null The parent page object, menu slug, or null if no parent.
+	 * @return Menu_Page|null The parent page object or null if no parent.
 	 */
 	public function get_parent() {
 		return $this->parent;
@@ -221,12 +220,7 @@ class Menu_Page {
 			return null;
 		}
 
-		if ( $this->parent instanceof Menu_Page ) {
-			return $this->parent->get_menu_slug();
-		}
-
-		// If parent is a string then it's already a menu slug.
-		return $this->parent;
+		return $this->parent->get_menu_slug();
 	}
 
 	/**
