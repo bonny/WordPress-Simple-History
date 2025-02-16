@@ -7,6 +7,7 @@ import { EventOccasionsList } from './EventOccasionsList';
 
 /**
  * Displays some text for failed login attempts.
+ *
  * If the Extended Settings add-on is active, the text will be a link to the settings page.
  * If the Premium add-on is active, the text will be a link to the settings page.
  * If the Extended Settings add-on is not active, the text will be a link to the add-on page.
@@ -14,7 +15,12 @@ import { EventOccasionsList } from './EventOccasionsList';
  * @param {Object} props
  */
 function EventOccasionsAddonsContent( props ) {
-	const { event, hasExtendedSettingsAddOn } = props;
+	const {
+		event,
+		hasExtendedSettingsAddOn,
+		hasPremiumAddOn,
+		eventsSettingsPageURL,
+	} = props;
 
 	// Bail if the event is not from the SimpleUserLogger.
 	if ( event.logger !== 'SimpleUserLogger' ) {
@@ -29,24 +35,26 @@ function EventOccasionsAddonsContent( props ) {
 		return null;
 	}
 
+	const configureLoginAttemptsLinkDependingOnAddOns =
+		hasExtendedSettingsAddOn || hasPremiumAddOn ? (
+			<a
+				href={ `${ eventsSettingsPageURL }&selected-sub-tab=failed-login-attempts` }
+			>
+				{ __( 'Configure failed login attempts', 'simple-history' ) }
+			</a>
+		) : (
+			<ExternalLink href="https://simple-history.com/add-ons/premium/?utm_source=wpadmin#limit-number-of-failed-login-attempts">
+				{ __(
+					'Limit logged login attempts (Premium)',
+					'simple-history'
+				) }
+			</ExternalLink>
+		);
+
 	return (
 		<div className="SimpleHistoryLogitem__occasionsAddOns">
 			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
-				{ hasExtendedSettingsAddOn ? (
-					<a href="admin.php?page=simple_history_admin_menu_page&selected-sub-tab=failed-login-attempts">
-						{ __(
-							'Configure failed login attempts',
-							'simple-history'
-						) }
-					</a>
-				) : (
-					<ExternalLink href="https://simple-history.com/add-ons/premium/?utm_source=wpadmin#limit-number-of-failed-login-attempts">
-						{ __(
-							'Limit logged login attempts (Premium)',
-							'simple-history'
-						) }
-					</ExternalLink>
-				) }
+				{ configureLoginAttemptsLinkDependingOnAddOns }
 			</p>
 		</div>
 	);
@@ -58,7 +66,13 @@ function EventOccasionsAddonsContent( props ) {
  * @param {Object} props
  */
 export function EventOccasions( props ) {
-	const { event, eventVariant, hasExtendedSettingsAddOn } = props;
+	const {
+		event,
+		eventVariant,
+		hasExtendedSettingsAddOn,
+		hasPremiumAddOn,
+		eventsSettingsPageURL,
+	} = props;
 	const { subsequent_occasions_count: subsequentOccasionsCount } = event;
 	const [ isLoadingOccasions, setIsLoadingOccasions ] = useState( false );
 	const [ isShowingOccasions, setIsShowingOccasions ] = useState( false );
@@ -142,7 +156,9 @@ export function EventOccasions( props ) {
 
 				<EventOccasionsAddonsContent
 					event={ event }
+					eventsSettingsPageURL={ eventsSettingsPageURL }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+					hasPremiumAddOn={ hasPremiumAddOn }
 				/>
 			</div>
 		</>

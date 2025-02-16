@@ -307,6 +307,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ### Unreleased
 
+-   Show correct limit login attempts link for premium users for failed login attempts.
 -   Misc internal improvements and changes.
 -   Based on user feedback the Admin Bar Quick View is not enabled by default. It can still be enabled in the settings page.
 -   Removed old menu items for the plugin, that redirected to the new menu oage, is now removed from the admin menu and the dashboard menu. The plugin at the moment only available in the main menu.
