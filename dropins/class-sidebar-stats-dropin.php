@@ -154,6 +154,23 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		return '<p class="SimpleHistoryQuickStats">' . $msg . '</p>';
 	}
+
+	/**
+	 * Get text for stats, i.e. "X events have been logged since plugin install."
+	 *
+	 * @return string HTML, contains tags for bold, paragraph, and span.
+	 */
+	protected function get_events_since_plugin_install_stats_text() {
+		$total_events = Helpers::get_total_logged_events_count();
+
+		$msg = sprintf(
+			// translators: 1 is number of events, 2 is description of when the plugin was installed.
+			__( '<b>%1$s events</b> have been logged since Simple History <span title="%2$s">was installed</span>.', 'simple-history' ),
+			number_format_i18n( $total_events ),
+			__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
+		);
+
+		return '<p class="SimpleHistoryQuickStats SimpleHistoryQuickStats--totalLoggedEvents">' . $msg . '</p>';
 	}
 
 	/**
@@ -265,8 +282,24 @@ class Sidebar_Stats_Dropin extends Dropin {
 				echo wp_kses(
 					$this->get_events_in_last_days_stats_text( $num_days ),
 					array(
-						'p' => array(),
+						'p' => array(
+							'class' => array(),
+						),
 						'b' => array(),
+					)
+				);
+
+				// Output total number of events logged since plugin install.
+				echo wp_kses(
+					$this->get_events_since_plugin_install_stats_text(),
+					array(
+						'p' => array(
+							'class' => array(),
+						),
+						'b' => array(),
+						'span' => array(
+							'title' => array(),
+						),
 					)
 				);
 
