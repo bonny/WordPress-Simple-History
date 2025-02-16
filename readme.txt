@@ -307,6 +307,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ### Unreleased
 
+-   Format number of events in Stats & Insights.
 -   Show correct limit login attempts link for premium users for failed login attempts.
 -   Misc internal improvements and changes.
 -   Based on user feedback the Admin Bar Quick View is not enabled by default. It can still be enabled in the settings page.
