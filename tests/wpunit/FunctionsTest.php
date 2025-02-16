@@ -1,7 +1,7 @@
 <?php
 
 use Simple_History\Simple_History;
-use Simple_History\Log_Query;
+use Simple_History\Helpers;
 
 class FunctionsTest extends \Codeception\TestCase\WPTestCase {
 	private $simple_history;
