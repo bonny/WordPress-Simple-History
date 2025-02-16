@@ -176,6 +176,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			],
 			'experimental_features_enabled' => Helpers::experimental_features_is_enabled(),
 			'events_admin_page_url' => Helpers::get_history_admin_url(),
+			'settings_page_url' => Helpers::get_settings_page_url(),
 		];
 
 		return rest_ensure_response( $data );
