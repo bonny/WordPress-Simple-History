@@ -862,14 +862,14 @@ class Simple_History {
 
 				// TODO: Add function to get this.
 				// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_settings_page&selected-sub-tab=failed-login-attempts
-				$ƒailed_login_attempts_settings_page_url = Helpers::get_history_admin_url();
+				$ƒailed_login_attempts_settings_page_url = Helpers::get_settings_page_tab_url( 'failed-login-attempts' );
 
 				// TODO: the admin-url links below should get the URL using functions.
 				if ( $is_simple_history_extended_settings_active ) {
 					// Show link to extended settings settings page if extended settings plugin is active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
-					$occasions_html .= '<a href="' . admin_url( 'admin.php?page=simple_history_admin_menu_page&selected-sub-tab=failed-login-attempts' ) . '">';
+					$occasions_html .= '<a href="' . esc_url( $ƒailed_login_attempts_settings_page_url ) . '">';
 					$occasions_html .= __( 'Configure failed login attempts', 'simple-history' );
 					$occasions_html .= '</a>';
 					$occasions_html .= '</p>';
@@ -878,7 +878,7 @@ class Simple_History {
 					// Show link to premium settings page if extended settings plugin is active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
-					$occasions_html .= '<a href="' . admin_url( 'admin.php?page=simple_history_admin_menu_page&selected-sub-tab=failed-login-attempts' ) . '">';
+					$occasions_html .= '<a href="' . esc_url( $ƒailed_login_attempts_settings_page_url ) . '">';
 					$occasions_html .= __( 'Configure failed login attempts', 'simple-history' );
 					$occasions_html .= '</a>';
 					$occasions_html .= '</p>';
