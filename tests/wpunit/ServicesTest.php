@@ -40,6 +40,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Plugin_List_Info',
 			'REST_API',
 			'Stealth_Mode',
+			'Menu_Service',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);
