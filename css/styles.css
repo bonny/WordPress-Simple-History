@@ -28,6 +28,7 @@
 
 	/* Font sizes */
 	--sh-font-size-small: 0.75rem;
+	--sh-font-size-medium: 0.9rem;
 }
 
 /* clearfix */
@@ -1080,7 +1081,7 @@ so add some extra place then to make it look a bit less ugly.
 	margin: 1.5rem 0 1.5rem 0;
 }
 .sh-PremiumFeaturesPostbox-featuresList-item {
-	font-size: 0.9rem;
+	font-size: var(--sh-font-size-medium);
 	margin-top: 0.5rem;
 	padding-left: 30px;
 	line-height: 1.2rem;
