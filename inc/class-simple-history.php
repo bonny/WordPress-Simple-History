@@ -76,7 +76,7 @@ class Simple_History {
 	 */
 	public const SETTINGS_MENU_PAGE_SLUG = 'simple_history_settings_page';
 
-	/** Slug for the settings menu */
+	/** Slug for the settings menu. Is this the slug for options groups? */
 	public const SETTINGS_MENU_SLUG = 'simple_history_settings_menu_slug';
 
 	/** Slug for the settings menu */
