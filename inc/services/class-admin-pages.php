@@ -168,12 +168,23 @@ class Admin_Pages extends Service {
 		</header>
 
 		<?php
-		settings_errors();
+		$menu_page_location = Helpers::get_menu_page_location();
+		$output_settings_errors = in_array( $menu_page_location, [ 'top', 'bottom' ], true );
 
-		// WordPress will add notices after element with class .wp-header-end.
-		?>
-		<hr class="wp-header-end">
-		<?php
+		// Output settings errors.
+		// When Simple History settings is placed in the WordPress settings menu
+		// we do NOT need to output settings errors here, but when
+		// Simple History settings is placed as a top level menu we need to output
+		// settings errors here manually.
+		if ( $output_settings_errors ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			settings_errors();
+
+			// WordPress will add notices after element with class .wp-header-end.
+			?>
+			<hr class="wp-header-end">
+			<?php
+		}
 
 		// Output sub nav items.
 		// Todo: this contains the full html output so it should not be in this header function.
