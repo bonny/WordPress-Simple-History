@@ -132,6 +132,7 @@ export function Event( props ) {
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		isNewAfterFetchNewEvents,
+		eventsSettingsPageURL,
 	} = props;
 
 	const containerClassNames = clsx(
@@ -169,6 +170,7 @@ export function Event( props ) {
 					eventVariant={ variant }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					eventsSettingsPageURL={ eventsSettingsPageURL }
 				/>
 
 				<EventActionsButton event={ event } eventVariant={ variant } />

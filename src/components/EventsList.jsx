@@ -23,6 +23,7 @@ export function EventsList( props ) {
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		eventsSettingsPageURL,
 		eventsLoadingHasErrors,
 		eventsLoadingErrorDetails,
 	} = props;
@@ -61,6 +62,7 @@ export function EventsList( props ) {
 				mapsApiKey={ mapsApiKey }
 				hasPremiumAddOn={ hasPremiumAddOn }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				eventsSettingsPageURL={ eventsSettingsPageURL }
 			/>
 
 			<Spacer margin={ 4 } />
@@ -84,6 +86,7 @@ function EventsListItemsList( props ) {
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		eventsIsLoading,
+		eventsSettingsPageURL,
 	} = props;
 
 	// Bail if no events.
@@ -106,6 +109,7 @@ function EventsListItemsList( props ) {
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					eventsSettingsPageURL={ eventsSettingsPageURL }
 					isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
 				/>
 			) ) }

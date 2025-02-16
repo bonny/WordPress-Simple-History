@@ -42,6 +42,7 @@ function EventsGUI() {
 	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
+	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ selectedDateOption, setSelectedDateOption ] = useState( '' );
 	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useState(
 		SEARCH_FILTER_DEFAULT_START_DATE
@@ -233,6 +234,7 @@ function EventsGUI() {
 				}
 				eventsAdminPageURL={ eventsAdminPageURL }
 				setEventsAdminPageURL={ setEventsAdminPageURL }
+				setEventsSettingsPageURL={ setSettingsPageURL }
 				setPage={ setPage }
 				onReload={ handleReload }
 			/>
@@ -262,6 +264,7 @@ function EventsGUI() {
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				hasPremiumAddOn={ hasPremiumAddOn }
+				eventsSettingsPageURL={ settingsPageURL }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>

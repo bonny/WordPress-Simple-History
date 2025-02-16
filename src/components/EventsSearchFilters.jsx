@@ -45,6 +45,7 @@ export function EventsSearchFilters( props ) {
 		setHasPremiumAddOn,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
+		setEventsSettingsPageURL,
 	} = props;
 
 	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] =
@@ -139,6 +140,7 @@ export function EventsSearchFilters( props ) {
 			);
 
 			setEventsAdminPageURL( searchOptions.events_admin_page_url );
+			setEventsSettingsPageURL( searchOptions.settings_page_url );
 
 			setSearchOptionsLoaded( true );
 		} );
@@ -152,6 +154,7 @@ export function EventsSearchFilters( props ) {
 		setHasPremiumAddOn,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
+		setEventsSettingsPageURL,
 	] );
 
 	const showMoreOrLessText = moreOptionsIsExpanded
