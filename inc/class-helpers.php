@@ -822,12 +822,18 @@ class Helpers {
 	/**
 	 * Get URL for settings page.
 	 *
-	 * @return string URL for settings page, i.e. "/wp-admin/admin.php?page=<main-menu-page-slug>"
+	 * @return string URL for settings page, i.e. "/wp-admin/admin.php?page=<main-menu-page-slug>" or empty string if page not found.
 	 */
 	public static function get_settings_page_url() {
+		$settings_menu = Simple_History::get_instance()->get_menu_manager()->get_page_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
+
+		if ( ! $settings_menu instanceof \Simple_History\Menu_Page ) {
+			return '';
+		}
+
 		// Can not use `menu_page_url()` because it only works within the admin area.
 		// But we want to be able to link to settings page also from front end.
-		return admin_url( 'admin.php?page=simple_history_settings_page' );
+		return $settings_menu->get_url();
 	}
 
 	/**
