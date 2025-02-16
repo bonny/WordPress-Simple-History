@@ -860,11 +860,8 @@ class Simple_History {
 
 			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
 
-				// TODO: Add function to get this.
-				// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_settings_page&selected-sub-tab=failed-login-attempts
 				$ƒailed_login_attempts_settings_page_url = Helpers::get_settings_page_tab_url( 'failed-login-attempts' );
 
-				// TODO: the admin-url links below should get the URL using functions.
 				if ( $is_simple_history_extended_settings_active ) {
 					// Show link to extended settings settings page if extended settings plugin is active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
