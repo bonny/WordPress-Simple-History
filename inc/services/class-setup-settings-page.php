@@ -31,19 +31,12 @@ class Setup_Settings_Page extends Service {
 	 * "Sorry, you are not allowed to access this page." is thrown.
 	 */
 	public function on_admin_page_access_denied() {
-		$menu_page_location = Helpers::get_menu_page_location();
-
-		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/options-general.php?page=simple_history_settings_page
 		$wp_referer = wp_get_referer();
-
-		// simple_history_settings_page
 		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
-
-		// simple_history_settings_page
 		$settings_menu_page_slug = Simple_History::SETTINGS_MENU_PAGE_SLUG;
 
 		// Get the currently registered settings page URL.
-		$current_settings_url = menu_page_url( $settings_menu_page_slug, false );
+		$current_settings_url = Menu_Page::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 
 		// Get the currently requested URL.
 		$current_request_url = sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );
