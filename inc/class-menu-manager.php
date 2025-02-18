@@ -71,7 +71,7 @@ class Menu_Manager {
 				case 'options':
 					$this->add_options_page( $page );
 					break;
-				case 'management':
+				case 'tools':
 					$this->add_tools_page( $page );
 					break;
 				case 'submenu':

@@ -63,8 +63,8 @@ class Menu_Page {
 		'submenu',
 		'submenu_default',
 		'dashboard',
-		'management', // Management = "tools".
-		'options',
+		'tools', // Management = "tools".
+		'options', // Options = "settings".
 	];
 
 	/**
@@ -161,6 +161,7 @@ class Menu_Page {
 	 *
 	 * @param Menu_Page|string $parent Parent page object or menu slug.
 	 * @return self Chainable method.
+	 * @throws \InvalidArgumentException If parent is not a Menu_Page object or string.
 	 */
 	public function set_parent( $parent ) {
 		if ( ! $parent instanceof Menu_Page && ! is_string( $parent ) ) {
@@ -255,9 +256,9 @@ class Menu_Page {
 		} elseif ( 'inside_dashboard' === $location ) {
 			$location = 'dashboard';
 		} elseif ( 'inside_tools' === $location ) {
-			$location = 'management';
-		} elseif ( 'tools' === $location ) {
-			$location = 'management';
+			$location = 'tools';
+		} elseif ( 'management' === $location ) {
+			$location = 'tools';
 		} elseif ( 'settings' === $location ) {
 			$location = 'options';
 		} else {
