@@ -353,7 +353,8 @@ class Menu_Page {
 	}
 
 	/**
-	 * Render the page contents.
+	 * Render the page contents,
+	 * by calling the callback function.
 	 */
 	public function render() {
 		if ( is_callable( $this->callback ) ) {

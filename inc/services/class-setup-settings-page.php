@@ -594,11 +594,7 @@ class Setup_Settings_Page extends Service {
 				wp_die( esc_html__( 'No valid callback found', 'simple-history' ) );
 			}
 
-			$args = array(
-				'arr_active_tab' => $arr_active_tab,
-			);
-
-			call_user_func_array( $arr_active_tab['function'], array_values( $args ) );
+			call_user_func_array( $arr_active_tab['function'], [] );
 		}
 
 		return ob_get_clean();

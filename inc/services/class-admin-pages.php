@@ -123,6 +123,16 @@ class Admin_Pages extends Service {
 	 * @param string $sub_nav_html The sub navigation HTML.
 	 */
 	public static function header_output( $main_nav_html = '', $sub_nav_html = '' ) {
+		// Bail if functions has already been called.
+		// This is useful for child pages that do not need to care about the header status
+		// or the callback status.
+		if ( did_action( 'simple_history/admin_page/header_output' ) ) {
+			return;
+		}
+
+		// Fire action to mark that this function has been called.
+		do_action( 'simple_history/admin_page/header_output' );
+
 		ob_start();
 
 		// Wrap link around title if we have somewhere to go.
@@ -202,6 +212,12 @@ class Admin_Pages extends Service {
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $main_subnav_sub_tabs_html_output;
+
+		// Run callback function for selected tab or sub-tab.
+		$selected_sub_tab_page = $menu_manager->get_page_by_slug( $menu_manager::get_current_sub_tab_slug() );
+		if ( $selected_sub_tab_page !== null ) {
+			$selected_sub_tab_page->render();
+		}
 
 		return ob_get_clean();
 	}
