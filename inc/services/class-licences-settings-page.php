@@ -5,6 +5,9 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 use Simple_History\Services\AddOns_Licences;
 use Simple_History\AddOn_Plugin;
+use Simple_History\Menu_Manager;
+use Simple_History\Menu_Page;
+use Simple_History\Simple_History;
 
 /**
  * Settings page for licences.
@@ -37,14 +40,15 @@ class Licences_Settings_Page extends Service {
 			[ $this, 'on_init_add_settings' ],
 			20
 		);
+
+		// Add menu page.
+		add_action( 'admin_menu', [ $this, 'add_settings_menu_tab' ], 15 );
 	}
 
 	/**
 	 * Add settings tab after plugins has loaded.
 	 */
 	public function on_init_add_settings() {
-		$this->add_settings_tab();
-
 		add_action( 'admin_menu', array( $this, 'register_and_add_settings' ) );
 	}
 
@@ -71,16 +75,32 @@ class Licences_Settings_Page extends Service {
 	 * Add license settings tab,
 	 * as a subtab to main settings tab.
 	 */
-	public function add_settings_tab() {
-		$this->simple_history->register_settings_tab(
-			[
-				'parent_slug' => 'settings',
-				'slug' => 'general_settings_subtab_licenses',
-				'name' => __( 'Licences', 'simple-history' ),
-				'order' => 20,
-				'function' => [ $this, 'settings_output_licenses' ],
-			]
-		);
+	public function add_settings_menu_tab() {
+		// $this->simple_history->register_settings_tab(
+		// [
+		// 'parent_slug' => 'settings',
+		// 'slug' => 'general_settings_subtab_licenses',
+		// 'name' => __( 'Licences', 'simple-history' ),
+		// 'order' => 20,
+		// 'function' => [ $this, 'settings_output_licenses' ],
+		// ]
+		// );
+
+		// Add settings page using new Menu Manager and Menu Page classes.
+		$menu_manager = $this->simple_history->get_menu_manager();
+
+		// general_settings_subtab_settings_general must exist
+		// so make sure to run at later prio than that.
+
+		$licenses_settings_menu_page = ( new Menu_Page() )
+			->set_page_title( __( 'Licences', 'simple-history' ) )
+			->set_menu_title( __( 'Licences', 'simple-history' ) )
+			->set_menu_slug( 'general_settings_subtab_licenses' )
+			->set_callback( [ $this, 'settings_output_licenses' ] )
+			->set_menu_manager( $menu_manager )
+			->set_parent( 'general_settings_subtab_general_new' );
+
+		$menu_manager->add_page( $licenses_settings_menu_page );
 	}
 
 	/**
