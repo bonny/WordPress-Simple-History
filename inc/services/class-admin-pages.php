@@ -214,9 +214,12 @@ class Admin_Pages extends Service {
 		echo $main_subnav_sub_tabs_html_output;
 
 		// Run callback function for selected tab or sub-tab.
+		$selected_main_tab = $menu_manager->get_page_by_slug( $menu_manager::get_current_tab_slug() );
 		$selected_sub_tab_page = $menu_manager->get_page_by_slug( $menu_manager::get_current_sub_tab_slug() );
 		if ( $selected_sub_tab_page !== null ) {
 			$selected_sub_tab_page->render();
+		} elseif ( $selected_main_tab !== null ) {
+			$selected_main_tab->render();
 		}
 
 		return ob_get_clean();
