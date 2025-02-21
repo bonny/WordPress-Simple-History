@@ -33,7 +33,7 @@ class Menu_Service extends Service {
 
 		// Register menus late in admin_menu so other plugins can modify their menus first.
 		add_action( 'admin_menu', [ $this, 'register_admin_menus' ], 100 );
-		add_action( 'admin_menu', [ $this, 'redirect_menu_pages' ], 200 );
+		add_action( 'current_screen', [ $this, 'redirect_menu_pages' ] );
 	}
 
 	/**

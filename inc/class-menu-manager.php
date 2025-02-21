@@ -272,8 +272,22 @@ class Menu_Manager {
 
 		// $current_screen->parent_base = 'tools' for pages inside tools.
 		// $current_screen->parent_base => 'options-general' for pages inside settings.
+		// [base] => tools_page_simple-history-tools-one sometimes too??
+
 		$screen_parent_bases_with_submenus = [ 'tools', 'options-general' ];
 		$screen_parent_base = $current_screen->parent_base;
+
+		// If $screen_parent_base does not contain $screen_parent_bases_with_submenus check for
+		// base that begins with tools_page_ or settings_page_.
+		if ( ! in_array( $screen_parent_base, $screen_parent_bases_with_submenus, true ) ) {
+			$screen_base = $current_screen->base;
+			if ( str_starts_with( $screen_base, 'tools_page_' ) ) {
+				$screen_parent_base = 'tools';
+			} elseif ( str_starts_with( $screen_base, 'settings_page_' ) ) {
+				$screen_parent_base = 'options-general';
+			}
+		}
+
 		$screen_base = $current_screen->base;
 		$can_contain_submenus = in_array( $screen_parent_base, $screen_parent_bases_with_submenus, true );
 
@@ -433,10 +447,62 @@ class Menu_Manager {
 		$selected_tab = $this::get_current_tab_slug();
 
 		// Bail if no selected tab.
-		if ( empty( $selected_tab ) ) {
+		if ( $selected_tab ) {
+			$this->redirect_to_first_sub_tab( $selected_tab );
+		} else {
+			$this->redirect_to_first_main_tab();
+		}
+	}
+
+	/**
+	 * Redirect to first main tab, if page is set to redirect to first on load.
+	 * Only redirect if no sub-tab is selected.
+	 */
+	protected function redirect_to_first_main_tab() {
+		// Ensure we only act on our own pages.
+		if ( ! Helpers::is_on_our_own_pages() ) {
 			return;
 		}
 
+		$selected_tab = $this::get_current_tab_slug();
+		$selected_sub_tab = $this::get_current_sub_tab_slug();
+
+		// Only act on main page, so no sub-tab or tab must be selected.
+		if ( ! empty( $selected_tab ) || ! empty( $selected_sub_tab ) ) {
+			return;
+		}
+
+		// sh_dd( 'yes, act' );
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? null ) );
+		$current_menu_page = $this->get_page_by_slug( $page );
+
+		$redirect_to_first_child_on_load = $current_menu_page->get_redirect_to_first_child_on_load();
+
+		if ( ! $redirect_to_first_child_on_load ) {
+			return;
+		}
+
+		// Get first tab to redirect to.
+		$main_tabs = $this->get_main_tabs_for_page_with_tabs();
+
+		if ( empty( $main_tabs ) ) {
+			return;
+		}
+
+		$first_main_tab = reset( $main_tabs );
+
+		$first_main_tab_url = $first_main_tab->get_url();
+		wp_redirect( $first_main_tab_url );
+		exit;
+	}
+
+	/**
+	 * Redirect to first child page of selected tab,
+	 * if page is set to redirect to first child on load.
+	 *
+	 * @param string $selected_tab The selected tab.
+	 */
+	protected function redirect_to_first_sub_tab( $selected_tab ) {
 		// Get page object for selected tab.
 		$selected_tab_menu_page = $this->get_page_by_slug( $selected_tab );
 
