@@ -151,6 +151,10 @@ class Admin_Pages extends Service {
 			],
 		];
 
+		$menu_manager = Simple_History::get_instance()->get_menu_manager();
+		$main_subnav_html_output = $menu_manager->get_main_subnav_html_output();
+		$main_subnav_sub_tabs_html_output = $menu_manager->get_main_main_subnav_sub_tabs_html_output()
+
 		?>
 		<header class="sh-PageHeader">
 			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
@@ -166,6 +170,9 @@ class Admin_Pages extends Service {
 			// Output main nav and subnav.
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $main_nav_html;
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $main_subnav_html_output;
 			?>
 		</header>
 
@@ -192,6 +199,9 @@ class Admin_Pages extends Service {
 		// Todo: this contains the full html output so it should not be in this header function.
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $sub_nav_html;
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $main_subnav_sub_tabs_html_output;
 
 		return ob_get_clean();
 	}
