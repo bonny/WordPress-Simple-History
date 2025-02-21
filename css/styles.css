@@ -1125,6 +1125,11 @@ so add some extra place then to make it look a bit less ugly.
 	gap: 2rem;
 }
 
+/* If only one page then we hide the tabs. */
+.sh-PageNav--count-1 {
+	/* display: none; */
+}
+
 .sh-PageNav-tab {
 	display: block;
 	position: relative;

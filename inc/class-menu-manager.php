@@ -367,9 +367,11 @@ class Menu_Manager {
 		// Output main nav link list with all sub menu pages.
 		$submenu_pages = $this->get_main_tabs_for_page_with_tabs();
 
+		$num_pages_class = 'sh-PageNav--count-' . count( $submenu_pages );
+
 		ob_start();
 		?>
-		<nav class="sh-PageNav">
+		<nav class="sh-PageNav <?php echo esc_attr( $num_pages_class ); ?>">
 			<?php
 			foreach ( $submenu_pages as $one_submenu_page ) {
 				$is_current_tab = $one_submenu_page->is_current_tab();
