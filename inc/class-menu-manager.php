@@ -261,4 +261,151 @@ class Menu_Manager {
 	public static function get_current_sub_tab_slug() {
 		return sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ?? '' ) );
 	}
+
+	/**
+	 * Get menu pages that are subpages to a tools, dashboard or options page.
+	 * I.e. the pages that are to be shown as main tabs.
+	 */
+	public function get_main_tabs_for_page_with_tabs() {
+		// Get the page for this menu.
+		$current_screen = get_current_screen();
+
+		// $current_screen->parent_base = 'tools' for pages inside tools.
+		// $current_screen->parent_base => 'options-general' for pages inside settings.
+		$screen_parent_bases_with_submenus = [ 'tools', 'options-general' ];
+		$screen_parent_base = $current_screen->parent_base;
+		$screen_base = $current_screen->base;
+		$can_contain_submenus = in_array( $screen_parent_base, $screen_parent_bases_with_submenus, true );
+
+		if ( ! $can_contain_submenus ) {
+			return [];
+		}
+
+		// Find menu_pages that are children of this page.
+		// For settings pages, find pages with slug settings_page_<menu_page_slug>.
+		// For tools pages, find pages with slug tools_page_<menu_page_slug>.
+		$submenu_pages = [];
+
+		$submenu_pages = array_filter(
+			$this->get_pages(),
+			function ( $menu_page ) use ( $screen_base, $screen_parent_base ) {
+				$base_prefix = '';
+				if ( $screen_parent_base === 'tools' ) {
+					$base_prefix = 'tools_page_';
+				} elseif ( $screen_parent_base === 'options-general' ) {
+					$base_prefix = 'settings_page_';
+				}
+
+				$page_is_submenu_of_current_base = false;
+				$parent_page = $menu_page->get_parent();
+
+				if ( ! $parent_page ) {
+					return false;
+				}
+
+				// Check for tools_page_<menu_page_slug> or settings_page_<menu_page_slug>.
+				if ( $screen_base === $base_prefix . $parent_page->get_menu_slug() ) {
+					$page_is_submenu_of_current_base = true;
+				}
+
+				if ( $page_is_submenu_of_current_base ) {
+					return true;
+				}
+			}
+		);
+
+		return $submenu_pages;
+	}
+
+	/**
+	 * Output main nav link list with all sub menu pages.
+	 *
+	 * @return string
+	 */
+	public function get_main_subnav_html_output() {
+		// Output main nav link list with all sub menu pages.
+		$submenu_pages = $this->get_main_tabs_for_page_with_tabs();
+
+		ob_start();
+		?>
+		<nav class="sh-PageNav">
+			<?php
+			foreach ( $submenu_pages as $one_submenu_page ) {
+				$is_current_tab = $one_submenu_page->is_current_tab();
+
+				$icon_html = '';
+				if ( ! empty( $one_submenu_page->get_icon() ) ) {
+					$icon_html = sprintf(
+						'<span class="sh-PageNav-icon sh-Icon--%1$s"></span>',
+						esc_attr( $one_submenu_page->get_icon() )
+					);
+				}
+
+				$is_active_class = $is_current_tab ? 'is-active' : '';
+				?>
+				<a href="<?php echo esc_url( $one_submenu_page->get_url() ); ?>" class="sh-PageNav-tab <?php echo esc_attr( $is_active_class ); ?>">
+					<?php
+					echo wp_kses(
+						$icon_html,
+						[
+							'span' => [
+								'class' => [],
+							],
+						]
+					);
+					?>
+					<?php echo esc_html( $one_submenu_page->get_menu_title() ); ?>
+				</a>
+				<?php
+			}
+			?>
+		</nav>
+		<?php
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Output sub nav tabs for the selected tab.
+	 *
+	 * @return string HTML output of sub nav tabs.
+	 */
+	public function get_main_main_subnav_sub_tabs_html_output() {
+		ob_start();
+
+		// Output child pages/sub-sub tabs to the selected tab.
+		$selected_tab_page = $this->get_page_by_slug( $this::get_current_tab_slug() );
+
+		if ( ! $selected_tab_page ) {
+			return '';
+		}
+
+		$child_pages = $selected_tab_page->get_children();
+
+		if ( ! empty( $child_pages ) ) {
+			?>
+			<nav class="sh-SettingsTabs">
+				<ul class="sh-SettingsTabs-tabs">
+				<?php
+				foreach ( $child_pages as $child_page ) {
+					$is_current_sub_tab = $child_page->is_current_sub_tab();
+					$is_active_class = $is_current_sub_tab ? 'is-active' : '';
+					?>
+					<li class="sh-SettingsTabs-tab">
+						<a href="<?php echo esc_url( $child_page->get_url() ); ?>" class="sh-SettingsTabs-link <?php echo esc_attr( $is_active_class ); ?>">
+						<?php
+						echo esc_html( $child_page->get_menu_title() );
+						?>
+						</a>
+					</li>
+					<?php
+				}
+				?>
+				</ul>
+			</nav>
+			<?php
+		}
+
+		return ob_get_clean();
+	}
 }

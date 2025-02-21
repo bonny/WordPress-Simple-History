@@ -117,6 +117,8 @@ class Admin_Pages extends Service {
 	/**
 	 * Output the common header HTML.
 	 *
+	 * Output this before the .wrap div.
+	 *
 	 * @param string $main_nav_html The main navigation HTML.
 	 * @param string $sub_nav_html The sub navigation HTML.
 	 */
