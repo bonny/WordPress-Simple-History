@@ -463,8 +463,49 @@ class Menu_Page {
 			return admin_url( 'options-general.php?page=' . $this->menu_slug );
 		}
 
+		// If location is empty and parent exists and also has empty location
+		// then add as a sub-sub-tab to parent.
+		if ( empty( $this->location ) && $this->parent && empty( $this->parent->get_location() ) ) {
+			return add_query_arg(
+				[
+					'selected-sub-tab' => $this->menu_slug,
+				],
+				$this->parent->get_url()
+			);
+		}
+
+		// If location is empty the add as tab to parent.
+		if ( empty( $this->location ) && $this->parent ) {
+			return add_query_arg(
+				[
+					'selected-tab' => $this->menu_slug,
+				],
+				$this->parent->get_url()
+			);
+		}
+
 		// Fallback to use WP function if no special case.
 		return menu_page_url( $this->menu_slug, false );
+	}
+
+	/**
+	 * Determine if current URL is the selected main tab for this page.
+	 *
+	 * @uses $_SERVER['REQUEST_URI']
+	 * @uses $_GET['selected-tab']
+	 */
+	public function is_current_tab() {
+		return $this->menu_slug === Menu_Manager::get_current_tab_slug();
+	}
+
+	/**
+	 * Determine if current URL is the selected sub tab for this page.
+	 *
+	 * @uses $_SERVER['REQUEST_URI']
+	 * @uses $_GET['selected-tab']
+	 */
+	public function is_current_sub_tab() {
+		return $this->menu_slug === Menu_Manager::get_current_sub_tab_slug();
 	}
 
 	/**
@@ -485,5 +526,21 @@ class Menu_Page {
 		}
 
 		return $page->get_url();
+	}
+
+	/**
+	 * Get all children to this page.
+	 * I.e. get all children that have this page as the parent page.
+	 */
+	public function get_children() {
+		$child_pages = [];
+
+		foreach ( $this->menu_manager->get_pages() as $page ) {
+			if ( $page->get_parent() === $this ) {
+				$child_pages[] = $page;
+			}
+		}
+
+		return $child_pages;
 	}
 }

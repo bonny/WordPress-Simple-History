@@ -81,7 +81,16 @@ class Menu_Manager {
 				default:
 					// Handle sub-pages that have parent set but no explicit location.
 					if ( $page->get_parent() ) {
-						$this->add_submenu_page( $page );
+						$parents_where_children_becomes_tabs = [ 'tools', 'dashboard', 'options' ];
+						$parent_location = $page->get_parent()->get_location();
+
+						// If parent of a page is "tools", "dashboard", or "options"
+						// Then it can not be added using wp default functions
+						// it can only be added as a simple history tab and then subtab.
+						// So check that parent is not in $non_wp_locations.
+						if ( ! in_array( $parent_location, $parents_where_children_becomes_tabs, true ) ) {
+							$this->add_submenu_page( $page );
+						}
 					}
 			}
 		}
@@ -233,5 +242,23 @@ class Menu_Manager {
 		}
 
 		return $slugs;
+	}
+
+	/**
+	 * Get the slug of current tab.
+	 *
+	 * @return string The current tab. Empty string if not set.
+	 */
+	public static function get_current_tab_slug() {
+		return sanitize_text_field( wp_unslash( $_GET['selected-tab'] ?? '' ) );
+	}
+
+	/**
+	 * Get the slug of the current sub-tab.
+	 *
+	 * @return string The current sub-tab. Empty string if not set.
+	 */
+	public static function get_current_sub_tab_slug() {
+		return sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ?? '' ) );
 	}
 }
