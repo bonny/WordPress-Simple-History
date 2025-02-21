@@ -4,7 +4,6 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
-use Simple_History\Menu_Manager;
 use Simple_History\Menu_page;
 
 /**
@@ -16,7 +15,7 @@ class Setup_Settings_Page extends Service {
 	 */
 	public function loaded() {
 		add_action( 'admin_menu', [ $this, 'add_admin_pages' ] );
-		add_action( 'after_setup_theme', [ $this, 'add_default_settings_tabs' ] );
+		add_action( 'admin_menu', [ $this, 'add_default_settings_tabs' ] );
 		add_action( 'admin_menu', [ $this, 'add_settings' ], 10 );
 		add_action( 'admin_page_access_denied', [ $this, 'on_admin_page_access_denied' ] );
 	}
@@ -70,16 +69,47 @@ class Setup_Settings_Page extends Service {
 	 * Adds default tabs to settings
 	 */
 	public function add_default_settings_tabs() {
-		// Add sub tabs.
-		$this->simple_history->register_settings_tab(
-			[
-				'parent_slug' => 'settings',
-				'slug' => 'general_settings_subtab_general',
-				'name' => __( 'General', 'simple-history' ),
-				'order' => 100,
-				'function' => [ $this, 'settings_output_general' ],
-			]
-		);
+		// Add sub tabs, using old method.
+		// $this->simple_history->register_settings_tab(
+		// [
+		// 'parent_slug' => 'settings',
+		// 'slug' => 'general_settings_subtab_general',
+		// 'name' => __( 'General', 'simple-history' ),
+		// 'order' => 100,
+		// 'function' => [ $this, 'settings_output_general' ],
+		// ]
+		// );
+
+		// Register using new method using Menu_Manager and Menu_Page.
+		// This is the tab at <simple history settings location> » General.
+		$menu_manager = $this->simple_history->get_menu_manager();
+
+		$settings_menu_page_main_tab = ( new Menu_page() )
+			->set_menu_title( __( 'Settings', 'simple-history' ) )
+			->set_page_title( __( 'Settings', 'simple-history' ) )
+			->set_icon( 'settings' )
+			->set_menu_manager( $menu_manager )
+			->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG )
+			->set_callback( [ $this, 'settings_output_general' ] )
+			->set_redirect_to_first_child_on_load()
+			->set_menu_slug( 'general_settings_subtab_general_new' );
+
+		$menu_manager->add_page( $settings_menu_page_main_tab );
+
+		// In settings page is in options page then add subtab for general settings.
+		// so user will come to Settings » Simple History » Settings (tab) » General (subtab).
+		$admin_page_location = Helpers::get_menu_page_location();
+		// if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+			$general_settings_menu_page = ( new Menu_page() )
+				->set_menu_title( __( 'General', 'simple-history' ) )
+				->set_page_title( __( 'General settings', 'simple-history' ) )
+				->set_menu_manager( $menu_manager )
+				->set_parent( $settings_menu_page_main_tab )
+				->set_callback( [ $this, 'settings_output_general' ] )
+				->set_menu_slug( 'general_settings_subtab_settings_general' );
+
+			$menu_manager->add_page( $general_settings_menu_page );
+		// }
 	}
 
 	/**
@@ -117,7 +147,9 @@ class Setup_Settings_Page extends Service {
 				->set_callback( [ $this, 'settings_page_output' ] )
 				->set_menu_manager( $menu_manager );
 
+		// Different setting depending on where main page is shown.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
+			// Add as a subpage to the main page if location is top or bottom in the main menu.
 			$settings_menu_page
 				->set_menu_title( _x( 'Settings', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
@@ -126,7 +158,14 @@ class Setup_Settings_Page extends Service {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
 			$settings_menu_page
 				->set_menu_title( _x( 'Simple History', 'settings menu name', 'simple-history' ) )
-				->set_location( 'settings' );
+				->set_location( 'settings' )
+				->set_redirect_to_first_child_on_load();
+
+				// TODO: If inside settings then add a subpage with name "General"
+				// This will be the first selected page when going to Settings » Simple History
+				// resulting in user being at Settings » Simple History » Settings with a first selected tab
+				// of "General".
+				// $general_settings_menu_page =
 		}
 
 		$menu_manager->add_page( $settings_menu_page );
@@ -587,11 +626,14 @@ class Setup_Settings_Page extends Service {
 					'slug' => $active_tab,
 				)
 			);
+
 			$arr_active_tab = current( $arr_active_tab );
 
 			// We must have found an active tab and it must have a callable function.
 			if ( ! $arr_active_tab || ! is_callable( $arr_active_tab['function'] ) ) {
-				wp_die( esc_html__( 'No valid callback found', 'simple-history' ) );
+				// esc_html__( 'Get subnav html: No valid callback found', 'simple-history' );
+				_doing_it_wrong( __METHOD__, 'Get subnav html: No valid callback found', '5.7.0' );
+				return '';
 			}
 
 			call_user_func_array( $arr_active_tab['function'], [] );

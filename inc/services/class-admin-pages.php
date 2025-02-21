@@ -45,6 +45,7 @@ class Admin_Pages extends Service {
 
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
 			// Add "Event log" page that is the first submenu item.
+			// It becomes the first selected because it's the first item?
 			// Only add if location is menu_top or menu_bottom.
 			$main_log_page->add_submenu(
 				( new Menu_Page() )
@@ -162,9 +163,6 @@ class Admin_Pages extends Service {
 		];
 
 		$menu_manager = Simple_History::get_instance()->get_menu_manager();
-
-		// If current page has children and they are allowed to be selected on load.
-		// select_first_child_on_load
 
 		$main_subnav_html_output = $menu_manager->get_main_subnav_html_output();
 		$main_subnav_sub_tabs_html_output = $menu_manager->get_main_main_subnav_sub_tabs_html_output();
