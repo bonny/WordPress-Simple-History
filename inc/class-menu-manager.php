@@ -472,7 +472,6 @@ class Menu_Manager {
 			return;
 		}
 
-		// sh_dd( 'yes, act' );
 		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? null ) );
 		$current_menu_page = $this->get_page_by_slug( $page );
 
@@ -492,7 +491,8 @@ class Menu_Manager {
 		$first_main_tab = reset( $main_tabs );
 
 		$first_main_tab_url = $first_main_tab->get_url();
-		wp_redirect( $first_main_tab_url );
+		wp_safe_redirect( $first_main_tab_url );
+
 		exit;
 	}
 
@@ -519,7 +519,7 @@ class Menu_Manager {
 			return;
 		}
 
-		wp_redirect( $first_child_page_url );
+		wp_safe_redirect( $first_child_page_url );
 
 		exit;
 	}
