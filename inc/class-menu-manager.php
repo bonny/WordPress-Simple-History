@@ -408,4 +408,53 @@ class Menu_Manager {
 
 		return ob_get_clean();
 	}
+
+	/**
+	 * Check if current request is for a menu page that should be redirected to its first child.
+	 */
+	public function redirect_menu_pages() {
+		// Check if current request is for a request to any of our pages.
+		// If so, redirect to the first child page.
+		$all_menu_pages_slugs = $this->get_all_slugs();
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
+
+		// Bail if page is not among our pages.
+		if ( ! in_array( $page, $all_menu_pages_slugs, true ) ) {
+			return;
+		}
+
+		// Bail if we are on a sub-tab already.
+		$selected_sub_tab = $this::get_current_sub_tab_slug();
+		if ( ! empty( $selected_sub_tab ) ) {
+			return;
+		}
+
+		// Get selected tab.
+		$selected_tab = $this::get_current_tab_slug();
+
+		// Bail if no selected tab.
+		if ( empty( $selected_tab ) ) {
+			return;
+		}
+
+		// Get page object for selected tab.
+		$selected_tab_menu_page = $this->get_page_by_slug( $selected_tab );
+
+		// Bail if page should not be redirected to first child on load.
+		if ( ! $selected_tab_menu_page instanceof Menu_page || ! $selected_tab_menu_page->get_redirect_to_first_child_on_load() ) {
+			return;
+		}
+
+		// If we get here we are go for a redirect.
+		$first_child_page = $selected_tab_menu_page->get_children()[0] ?? null;
+		$first_child_page_url = $first_child_page ? $first_child_page->get_url() : '';
+
+		if ( ! $first_child_page_url ) {
+			return;
+		}
+
+		wp_redirect( $first_child_page_url );
+
+		exit;
+	}
 }

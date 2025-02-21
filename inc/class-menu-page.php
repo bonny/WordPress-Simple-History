@@ -42,6 +42,9 @@ class Menu_Page {
 	/** @var array<Menu_Page> Array of submenu pages. */
 	private $submenu_pages = [];
 
+	/** @var bool If true, go to first child page when this page is loaded. */
+	private $redirect_to_first_child_on_load = false;
+
 	/**
 	 * Locations where WordPress menus can be added.
 	 *
@@ -543,5 +546,26 @@ class Menu_Page {
 		}
 
 		return $child_pages;
+	}
+
+	/**
+	 * For pages with children, calling this lets the
+	 * first child be selected when the parent page is loaded.
+	 *
+	 * So when visiting for example
+	 * /wp-admin/tools.php?page=simple-history-tools-one&selected-tab=simple-history-tools-one-sub-settings
+	 * It will go directly to
+	 * http://wordpress-stable-docker-mariadb.test:8282/wp-admin/tools.php?page=simple-history-tools-one&selected-tab=simple-history-tools-one-sub-settings&selected-sub-tab=simple-history-tools-one-sub-settings-general
+	 */
+	public function set_redirect_to_first_child_on_load() {
+		$this->redirect_to_first_child_on_load = true;
+		return $this;
+	}
+
+	/**
+	 * Get if this page should redirect to first child on load.
+	 */
+	public function get_redirect_to_first_child_on_load() {
+		return $this->redirect_to_first_child_on_load;
 	}
 }

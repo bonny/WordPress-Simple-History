@@ -162,8 +162,12 @@ class Admin_Pages extends Service {
 		];
 
 		$menu_manager = Simple_History::get_instance()->get_menu_manager();
+
+		// If current page has children and they are allowed to be selected on load.
+		// select_first_child_on_load
+
 		$main_subnav_html_output = $menu_manager->get_main_subnav_html_output();
-		$main_subnav_sub_tabs_html_output = $menu_manager->get_main_main_subnav_sub_tabs_html_output()
+		$main_subnav_sub_tabs_html_output = $menu_manager->get_main_main_subnav_sub_tabs_html_output();
 
 		?>
 		<header class="sh-PageHeader">
@@ -216,6 +220,7 @@ class Admin_Pages extends Service {
 		// Run callback function for selected tab or sub-tab.
 		$selected_main_tab = $menu_manager->get_page_by_slug( $menu_manager::get_current_tab_slug() );
 		$selected_sub_tab_page = $menu_manager->get_page_by_slug( $menu_manager::get_current_sub_tab_slug() );
+
 		if ( $selected_sub_tab_page !== null ) {
 			$selected_sub_tab_page->render();
 		} elseif ( $selected_main_tab !== null ) {

@@ -33,6 +33,7 @@ class Menu_Service extends Service {
 
 		// Register menus late in admin_menu so other plugins can modify their menus first.
 		add_action( 'admin_menu', [ $this, 'register_admin_menus' ], 100 );
+		add_action( 'admin_menu', [ $this, 'redirect_menu_pages' ], 200 );
 	}
 
 	/**
@@ -49,5 +50,14 @@ class Menu_Service extends Service {
 	 */
 	public function get_menu_manager() {
 		return $this->menu_manager;
+	}
+
+	/**
+	 * Checks if current request is for a menu page
+	 * that should be redirected to it's first child.
+	 * This is usually used to select the first sub-tab.
+	 */
+	public function redirect_menu_pages() {
+		$this->menu_manager->redirect_menu_pages();
 	}
 }

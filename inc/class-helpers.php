@@ -1127,7 +1127,6 @@ class Helpers {
 	 * @return bool
 	 */
 	public static function is_on_our_own_pages() {
-
 		// Check if we are on an admin page with Simple History content.
 		// All Simple History admin pages have a ?page=simple_history_... query arg.
 		// where page is the slug of the registered page.
