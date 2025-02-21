@@ -80,7 +80,7 @@ class Setup_Settings_Page extends Service {
 		// ]
 		// );
 
-		// Register using new method using Menu_Manager and Menu_Page.
+		// Register tab using new method using Menu_Manager and Menu_Page.
 		// This is the tab at <simple history settings location> » General.
 		$menu_manager = $this->simple_history->get_menu_manager();
 
@@ -153,6 +153,7 @@ class Setup_Settings_Page extends Service {
 			$settings_menu_page
 				->set_menu_title( _x( 'Settings', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
+				->set_redirect_to_first_child_on_load()
 				->set_location( 'submenu' );
 		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
