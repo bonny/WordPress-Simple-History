@@ -267,25 +267,21 @@ class Menu_Manager {
 	 * I.e. the pages that are to be shown as main tabs.
 	 */
 	public function get_main_tabs_for_page_with_tabs() {
-
 		$menu_page_location = Helpers::get_menu_page_location();
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
 
 		$current_menu_page_root = $this->get_page_by_slug( $page );
-		// sh_dd( '$current_menu_page_root', $current_menu_page_root );
 
 		// Skip if menu page object has it's location at top level, i.e. menu_bottom or menu_top.
 		if ( in_array( $current_menu_page_root->get_location(), [ 'menu_top', 'menu_bottom' ], true ) ) {
 			return [];
 		}
 
-		// if "top" or "bottom" then use "Event Log" sub menu item or we will get too many tabs.
+		// If "top" or "bottom" then use "Event Log" sub menu item or we will get too many tabs.
 		if ( in_array( $menu_page_location, [ 'top', 'bottom' ] ) ) {
 			if ( $page === Simple_History::MENU_PAGE_SLUG ) {
 				$page = Simple_History::VIEW_EVENTS_PAGE_SLUG;
 			}
-		} else {
-
 		}
 
 		// Should this now just be the childs of any page? Just as long as it has childs..
@@ -417,13 +413,14 @@ class Menu_Manager {
 		ob_start();
 
 		// Output child pages/sub-sub tabs to the selected tab.
-		$selected_tab_page = $this->get_page_by_slug( $this::get_current_tab_slug() );
+		$selected_tab_menu_page = $this->get_page_by_slug( $this::get_current_tab_slug() );
 
-		if ( ! $selected_tab_page ) {
+		// Bail if no menu found for selected tab.
+		if ( ! $selected_tab_menu_page ) {
 			return '';
 		}
 
-		$child_pages = $selected_tab_page->get_children();
+		$child_pages = $selected_tab_menu_page->get_children();
 
 		if ( ! empty( $child_pages ) ) {
 			?>
@@ -433,8 +430,9 @@ class Menu_Manager {
 				foreach ( $child_pages as $child_page ) {
 					$is_current_sub_tab = $child_page->is_current_sub_tab();
 					$is_active_class = $is_current_sub_tab ? 'is-active' : '';
+					$class_page_prio = $child_page->get_order() ? 'sh-SettingsTabs-tab--prio-' . $child_page->get_order() : '';
 					?>
-					<li class="sh-SettingsTabs-tab">
+					<li class="sh-SettingsTabs-tab <?php echo esc_attr( $class_page_prio ); ?>">
 						<a href="<?php echo esc_url( $child_page->get_url() ); ?>" class="sh-SettingsTabs-link <?php echo esc_attr( $is_active_class ); ?>">
 						<?php
 						echo esc_html( $child_page->get_menu_title() );
