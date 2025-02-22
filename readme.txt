@@ -315,6 +315,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   Improve logic for determine if the current admin page belongs to Simple History or not. Improves compatibility with translation plugins. [#531](https://github.com/bonny/WordPress-Simple-History/issues/531)
 -   Deprecate function `register_settings_tab()`, `get_main_nav_html()`, `get_subnav_html()`, `get_settings_tabs()`.
 -   Improve location of settings errors.
+-   Update menu settings name from "Menu page location" to "History Menu Position".
 
 ### 5.6.1 (January 2025)
 
