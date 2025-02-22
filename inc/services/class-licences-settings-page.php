@@ -85,6 +85,7 @@ class Licences_Settings_Page extends Service {
 			->set_menu_slug( 'general_settings_subtab_licenses' )
 			->set_callback( [ $this, 'settings_output_licenses' ] )
 			->set_menu_manager( $menu_manager )
+			->set_order( 50 ) // After general settings and premium settings.
 			->set_parent( 'general_settings_subtab_general_new' );
 
 		$menu_manager->add_page( $licenses_settings_menu_page );
