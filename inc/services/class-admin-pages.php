@@ -189,14 +189,21 @@ class Admin_Pages extends Service {
 		</header>
 
 		<?php
-		$menu_page_location = Helpers::get_menu_page_location();
-		$output_settings_errors = in_array( $menu_page_location, [ 'top', 'bottom' ], true );
 
-		// Output settings errors.
+		// Output sub nav items.
+		// Todo: this contains the full html output so it should not be in this header function.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $sub_nav_html;
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $main_subnav_sub_tabs_html_output;
+
+		// Output settings errors, below sub nav html but before main content.
 		// When Simple History settings is placed in the WordPress settings menu
 		// we do NOT need to output settings errors here, but when
 		// Simple History settings is placed as a top level menu we need to output
 		// settings errors here manually.
+		$output_settings_errors = in_array( Helpers::get_menu_page_location(), [ 'top', 'bottom' ], true );
 		if ( $output_settings_errors ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			settings_errors();
@@ -206,14 +213,6 @@ class Admin_Pages extends Service {
 			<hr class="wp-header-end">
 			<?php
 		}
-
-		// Output sub nav items.
-		// Todo: this contains the full html output so it should not be in this header function.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $sub_nav_html;
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $main_subnav_sub_tabs_html_output;
 
 		// Run callback function for selected tab or sub-tab.
 		$selected_main_tab = $menu_manager->get_page_by_slug( $menu_manager::get_current_tab_slug() );
