@@ -199,7 +199,7 @@ class Menu_Page {
 		if ( is_string( $parent ) ) {
 			// Throw if menu_manager not set.
 			if ( ! $this->menu_manager ) {
-				throw new \InvalidArgumentException( 'Parent menu slug requires a menu manager instance.' );
+				throw new \InvalidArgumentException( 'Parent menu slug requires a menu manager instance. Menu with slug "' . esc_html( $this->menu_slug ) . '" tried to set parent to "' . esc_html( $parent ) . '".' );
 			}
 
 			$parent_page = $this->menu_manager->get_page_by_slug( $parent );
