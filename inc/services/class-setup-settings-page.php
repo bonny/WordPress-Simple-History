@@ -69,17 +69,6 @@ class Setup_Settings_Page extends Service {
 	 * Adds default tabs to settings
 	 */
 	public function add_default_settings_tabs() {
-		// Add sub tabs, using old method.
-		// $this->simple_history->register_settings_tab(
-		// [
-		// 'parent_slug' => 'settings',
-		// 'slug' => 'general_settings_subtab_general',
-		// 'name' => __( 'General', 'simple-history' ),
-		// 'order' => 100,
-		// 'function' => [ $this, 'settings_output_general' ],
-		// ]
-		// );
-
 		// Register tab using new method using Menu_Manager and Menu_Page.
 		// This is the tab at <simple history settings location> » General.
 		$menu_manager = $this->simple_history->get_menu_manager();
@@ -98,7 +87,7 @@ class Setup_Settings_Page extends Service {
 
 		// In settings page is in options page then add subtab for general settings.
 		// so user will come to Settings » Simple History » Settings (tab) » General (subtab).
-		$admin_page_location = Helpers::get_menu_page_location();
+		// $admin_page_location = Helpers::get_menu_page_location();
 		// if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			$general_settings_menu_page = ( new Menu_page() )
 				->set_menu_title( __( 'General', 'simple-history' ) )
