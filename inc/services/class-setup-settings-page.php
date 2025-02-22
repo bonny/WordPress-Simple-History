@@ -507,7 +507,6 @@ class Setup_Settings_Page extends Service {
 		echo Admin_Pages::header_output();
 	}
 
-
 	/**
 	 * Get HTML for the main navigation.
 	 *
@@ -665,7 +664,6 @@ class Setup_Settings_Page extends Service {
 
 			// We must have found an active tab and it must have a callable function.
 			if ( ! $arr_active_tab || ! is_callable( $arr_active_tab['function'] ) ) {
-				// esc_html__( 'Get subnav html: No valid callback found', 'simple-history' );
 				_doing_it_wrong( __METHOD__, 'Get subnav html: No valid callback found', '5.7.0' );
 				return '';
 			}
