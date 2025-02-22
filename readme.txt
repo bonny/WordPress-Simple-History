@@ -313,6 +313,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   Based on user feedback the Admin Bar Quick View is not enabled by default. It can still be enabled in the settings page.
 -   Removed old menu items for the plugin, that redirected to the new menu oage, is now removed from the admin menu and the dashboard menu. The plugin at the moment only available in the main menu.
 -   Improve logic for determine if the current admin page belongs to Simple History or not. Improves compatibility with translation plugins. [#531](https://github.com/bonny/WordPress-Simple-History/issues/531)
+-   Deprecate function `register_settings_tab()`, `get_main_nav_html()`, `get_subnav_html()`, `get_settings_tabs()`.
 
 ### 5.6.1 (January 2025)
 

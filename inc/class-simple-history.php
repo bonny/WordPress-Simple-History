@@ -553,7 +553,7 @@ class Simple_History {
 
 		$menu_manager = $this->get_menu_manager();
 
-		// Create new Menu_Page instance using method chaining pattern
+		// Create new Menu_Page instance using method chaining pattern.
 		$menu_page = ( new Menu_Page() )
 			->set_page_title( $arr_tab_settings['name'] )
 			->set_menu_title( $arr_tab_settings['name'] )
@@ -562,12 +562,12 @@ class Simple_History {
 			->set_order( $arr_tab_settings['order'] ?? 10 )
 			->set_menu_manager( $menu_manager );
 
-		// Set icon if provided
+		// Set icon if provided.
 		if ( ! empty( $arr_tab_settings['icon'] ) ) {
 			$menu_page->set_icon( $arr_tab_settings['icon'] );
 		}
 
-		// Set parent if provided
+		// Set parent if provided.
 		if ( ! empty( $arr_tab_settings['parent_slug'] ) ) {
 			$menu_page->set_parent( $arr_tab_settings['parent_slug'] );
 		}
@@ -578,6 +578,8 @@ class Simple_History {
 	/**
 	 * Get the registered settings tabs.
 	 *
+	 * @deprecated 5.7.0 Use Menu_Page class instead. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.
+	 *
 	 * The tabs are ordered by the order key, where higher number means earlier output,
 	 * i.e. the tab is outputted more to the left in the settings page.
 	 *
@@ -587,6 +589,12 @@ class Simple_History {
 	 * @return array
 	 */
 	public function get_settings_tabs( $type = 'top' ) {
+		_deprecated_function(
+			__METHOD__,
+			'5.7.0',
+			'Menu_Page class. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.'
+		);
+
 		// Sort by order, where higher number means earlier output.
 		usort(
 			$this->arr_settings_tabs,

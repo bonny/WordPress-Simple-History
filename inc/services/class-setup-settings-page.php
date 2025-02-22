@@ -509,20 +509,75 @@ class Setup_Settings_Page extends Service {
 	public function settings_page_output() {
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Admin_Pages::header_output(
-			self::get_main_nav_html(),
-			self::get_subnav_html()
+			// self::get_main_nav_html(),
+			// self::get_subnav_html()
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// TODO: in the above more than the header is outputted. Should be refactored to only output header.
 	}
 
+
+	/**
+	 * Get HTML for the main navigation.
+	 *
+	 * @deprecated 5.7.0 No longer used.
+	 * @return string
+	 */
+	public static function get_main_nav_html() {
+		ob_start();
+
+		$simple_history = Simple_History::get_instance();
+
+		$arr_settings_tabs = $simple_history->get_settings_tabs();
+
+		?>
+		<nav class="sh-PageNav">
+			<?php
+			$active_tab = self::get_active_tab_slug();
+
+			foreach ( $arr_settings_tabs as $one_tab ) {
+				$tab_slug = $one_tab['slug'];
+
+				$icon_html = '';
+				if ( ! is_null( $one_tab['icon'] ?? null ) ) {
+					$icon_html = sprintf(
+						'<span class="sh-PageNav-icon sh-Icon--%1$s"></span>',
+						esc_attr( $one_tab['icon'] )
+					);
+				}
+
+				$icon_html_allowed_html = [
+					'span' => [
+						'class' => [],
+					],
+				];
+
+				printf(
+					'<a href="%3$s" class="sh-PageNav-tab %4$s">%5$s%1$s</a>',
+					esc_html( $one_tab['name'] ), // 1
+					esc_html( $tab_slug ), // 2
+					esc_url( Helpers::get_settings_page_tab_url( $tab_slug ) ), // 3
+					$active_tab == $tab_slug ? 'is-active' : '', // 4
+					wp_kses( $icon_html, $icon_html_allowed_html ) // 5
+				);
+			}
+			?>
+		</nav>
+		<?php
+
+		return ob_get_clean();
+	}
+
+
 	/**
 	 * Get HTML for the sub navigation.
 	 *
+	 * @deprecated 5.7.0 No longer used.
 	 * @return string
 	 */
 	public static function get_subnav_html() {
+
 		ob_start();
 
 		$simple_history = Simple_History::get_instance();
@@ -639,56 +694,6 @@ class Setup_Settings_Page extends Service {
 	 */
 	public static function get_active_tab_slug() {
 		return sanitize_text_field( wp_unslash( $_GET['selected-tab'] ?? 'settings' ) );
-	}
-
-	/**
-	 * Get HTML for the main navigation.
-	 *
-	 * @return string
-	 */
-	public static function get_main_nav_html() {
-		ob_start();
-
-		$simple_history = Simple_History::get_instance();
-
-		$arr_settings_tabs = $simple_history->get_settings_tabs();
-
-		?>
-		<nav class="sh-PageNav">
-			<?php
-			$active_tab = self::get_active_tab_slug();
-
-			foreach ( $arr_settings_tabs as $one_tab ) {
-				$tab_slug = $one_tab['slug'];
-
-				$icon_html = '';
-				if ( ! is_null( $one_tab['icon'] ?? null ) ) {
-					$icon_html = sprintf(
-						'<span class="sh-PageNav-icon sh-Icon--%1$s"></span>',
-						esc_attr( $one_tab['icon'] )
-					);
-				}
-
-				$icon_html_allowed_html = [
-					'span' => [
-						'class' => [],
-					],
-				];
-
-				printf(
-					'<a href="%3$s" class="sh-PageNav-tab %4$s">%5$s%1$s</a>',
-					esc_html( $one_tab['name'] ), // 1
-					esc_html( $tab_slug ), // 2
-					esc_url( Helpers::get_settings_page_tab_url( $tab_slug ) ), // 3
-					$active_tab == $tab_slug ? 'is-active' : '', // 4
-					wp_kses( $icon_html, $icon_html_allowed_html ) // 5
-				);
-			}
-			?>
-		</nav>
-		<?php
-
-		return ob_get_clean();
 	}
 
 	/**
