@@ -50,7 +50,7 @@ class Export_Dropin extends Dropin {
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
 		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
-			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
+			// If main page is shown as child to tools or dashboard then export page is shown as a tab on the settings page.
 			$export_menu_page
 				->set_menu_title( _x( 'Simple History export', 'settings menu name', 'simple-history' ) )
 				->set_location( 'tools' );
