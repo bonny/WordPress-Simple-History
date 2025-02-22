@@ -589,11 +589,11 @@ class Simple_History {
 	 * @return array
 	 */
 	public function get_settings_tabs( $type = 'top' ) {
-		_deprecated_function(
-			__METHOD__,
-			'5.7.0',
-			'Menu_Page class. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.'
-		);
+		// _deprecated_function(
+		// __METHOD__,
+		// '5.7.0',
+		// 'Menu_Page class. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.'
+		// );
 
 		// Sort by order, where higher number means earlier output.
 		usort(
