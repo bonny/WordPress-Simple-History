@@ -532,6 +532,7 @@ class Simple_History {
 	/**
 	 * Register a settings tab.
 	 *
+	 * @deprecated 5.7.0 Use Menu_Page class instead. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.
 	 * @param array $arr_tab_settings {
 	 *     An array of default site sign-up variables.
 	 *
@@ -544,19 +545,34 @@ class Simple_History {
 	 * }
 	 */
 	public function register_settings_tab( $arr_tab_settings ) {
-		$arr_tab_settings = wp_parse_args(
-			$arr_tab_settings,
-			[
-				'slug' => null,
-				'parent_slug' => null,
-				'name' => null,
-				'icon' => null,
-				'function' => null,
-				'order' => 10,
-			]
+		_deprecated_function(
+			__METHOD__,
+			'5.7.0',
+			'Menu_Page class. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.'
 		);
 
-		$this->arr_settings_tabs[] = $arr_tab_settings;
+		$menu_manager = $this->get_menu_manager();
+
+		// Create new Menu_Page instance using method chaining pattern
+		$menu_page = ( new Menu_Page() )
+			->set_page_title( $arr_tab_settings['name'] )
+			->set_menu_title( $arr_tab_settings['name'] )
+			->set_menu_slug( $arr_tab_settings['slug'] )
+			->set_callback( $arr_tab_settings['function'] )
+			->set_order( $arr_tab_settings['order'] ?? 10 )
+			->set_menu_manager( $menu_manager );
+
+		// Set icon if provided
+		if ( ! empty( $arr_tab_settings['icon'] ) ) {
+			$menu_page->set_icon( $arr_tab_settings['icon'] );
+		}
+
+		// Set parent if provided
+		if ( ! empty( $arr_tab_settings['parent_slug'] ) ) {
+			$menu_page->set_parent( $arr_tab_settings['parent_slug'] );
+		}
+
+		$menu_manager->add_page( $menu_page );
 	}
 
 	/**
@@ -1362,7 +1378,7 @@ class Simple_History {
 	 *
 	 * @deprecated 4.8 Use Helpers::get_num_events_last_n_days().
 	 * @param int $period_days Number of days to get events for.
-	 * @return int Number of days.
+	 * @return int
 	 */
 	public function get_num_events_last_n_days( $period_days = 28 ) {
 		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_num_events_last_n_days()' );
