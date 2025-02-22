@@ -1127,7 +1127,7 @@ so add some extra place then to make it look a bit less ugly.
 
 /* If only one page then we hide the tabs. */
 .sh-PageNav--count-1 {
-	/* display: none; */
+	opacity: 0.5;
 }
 
 .sh-PageNav-tab {
