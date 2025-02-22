@@ -42,8 +42,10 @@ class Export_Dropin extends Dropin {
 			->set_menu_slug( self::MENU_SLUG )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_export_page' ] )
+			->set_icon( 'download' )
 			->set_menu_manager( $menu_manager );
 
+		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
 			$export_menu_page
 				->set_menu_title( _x( 'Export', 'settings menu name', 'simple-history' ) )
@@ -52,8 +54,8 @@ class Export_Dropin extends Dropin {
 		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then export page is shown as a tab on the settings page.
 			$export_menu_page
-				->set_menu_title( _x( 'Simple History export', 'settings menu name', 'simple-history' ) )
-				->set_location( 'tools' );
+				->set_menu_title( _x( 'Export', 'settings menu name', 'simple-history' ) )
+				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 		}
 
 		$menu_manager->add_page( $export_menu_page );

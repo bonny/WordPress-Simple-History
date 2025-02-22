@@ -7,7 +7,9 @@ use Simple_History\Services\AddOns_Licences;
 use Simple_History\AddOn_Plugin;
 use Simple_History\Menu_Manager;
 use Simple_History\Menu_Page;
+use Simple_History\Services\Setup_Settings_Page as ServicesSetup_Settings_Page;
 use Simple_History\Simple_History;
+use Simple_History\Services\Setup_Settings_Page;
 
 /**
  * Settings page for licences.
@@ -86,7 +88,7 @@ class Licences_Settings_Page extends Service {
 			->set_callback( [ $this, 'settings_output_licenses' ] )
 			->set_menu_manager( $menu_manager )
 			->set_order( 50 ) // After general settings and premium settings.
-			->set_parent( 'general_settings_subtab_general_new' );
+			->set_parent( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG );
 
 		$menu_manager->add_page( $licenses_settings_menu_page );
 	}

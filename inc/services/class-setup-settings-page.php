@@ -10,6 +10,8 @@ use Simple_History\Menu_page;
  * Setup settings page.
  */
 class Setup_Settings_Page extends Service {
+	public const SETTINGS_GENERAL_SUBTAB_SLUG = 'general_settings_subtab_general_new';
+
 	/**
 	 * @inheritdoc
 	 */
@@ -81,14 +83,14 @@ class Setup_Settings_Page extends Service {
 			->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG )
 			->set_callback( [ $this, 'settings_output_general' ] )
 			->set_redirect_to_first_child_on_load()
-			->set_menu_slug( 'general_settings_subtab_general_new' );
+			->set_menu_slug( self::SETTINGS_GENERAL_SUBTAB_SLUG );
 
 		$menu_manager->add_page( $settings_menu_page_main_tab );
 
 		// In settings page is in options page then add subtab for general settings.
 		// so user will come to Settings » Simple History » Settings (tab) » General (subtab).
 		// $admin_page_location = Helpers::get_menu_page_location();
-		// if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+		// if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {.
 			$general_settings_menu_page = ( new Menu_page() )
 				->set_menu_title( __( 'General', 'simple-history' ) )
 				->set_page_title( __( 'General settings', 'simple-history' ) )
