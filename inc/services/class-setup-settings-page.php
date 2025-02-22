@@ -504,13 +504,7 @@ class Setup_Settings_Page extends Service {
 	 */
 	public function settings_page_output() {
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Admin_Pages::header_output(
-			// self::get_main_nav_html(),
-			// self::get_subnav_html()
-		);
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-
-		// TODO: in the above more than the header is outputted. Should be refactored to only output header.
+		echo Admin_Pages::header_output();
 	}
 
 
