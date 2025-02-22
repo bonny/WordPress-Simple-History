@@ -238,7 +238,7 @@ class Setup_Settings_Page extends Service {
 
 		add_settings_field(
 			'simple_history_menu_page_location',
-			Helpers::get_settings_field_title_output( __( 'Menu page location', 'simple-history' ), 'overview' ),
+			Helpers::get_settings_field_title_output( __( 'History Menu Position', 'simple-history' ), 'overview' ),
 			array( $this, 'settings_field_menu_page_location' ),
 			$settings_menu_slug,
 			$settings_section_general_id
