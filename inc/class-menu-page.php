@@ -41,7 +41,7 @@ class Menu_Page {
 	/** @var string Dashicon name or URL to icon. */
 	private $icon = '';
 
-	/** @var int Order among sibling menu items. */
+	/** @var int Order among sibling menu items. Smaller means higher up (but means more to left is shown inline). */
 	private $order = 10;
 
 	/** @var Menu_Page|null Parent page if this is a submenu item. */
@@ -561,6 +561,14 @@ class Menu_Page {
 				$child_pages[] = $page;
 			}
 		}
+
+		// Sort child pages by order, small to large.
+		usort(
+			$child_pages,
+			function ( $a, $b ) {
+				return $a->get_order() - $b->get_order();
+			}
+		);
 
 		return $child_pages;
 	}

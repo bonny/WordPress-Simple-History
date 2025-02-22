@@ -620,7 +620,6 @@ class Setup_Settings_Page extends Service {
 							$is_active = $active_sub_tab === $one_sub_tab['slug'];
 							$is_active_class = $is_active ? 'is-active' : '';
 							$plug_settings_tab_url = Helpers::get_settings_page_sub_tab_url( $one_sub_tab['slug'] );
-
 							?>
 							<li class="sh-SettingsTabs-tab">
 								<a class="sh-SettingsTabs-link <?php echo esc_attr( $is_active_class ); ?>" href="<?php echo esc_url( $plug_settings_tab_url ); ?>">
