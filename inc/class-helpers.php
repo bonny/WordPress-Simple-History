@@ -836,9 +836,12 @@ class Helpers {
 	 * @return string URL for the tab, unescaped.
 	 */
 	public static function get_settings_page_tab_url( $tab_slug ) {
-		$settings_base_url = self::get_settings_page_url();
-		$settings_tab_url = add_query_arg( 'selected-tab', $tab_slug, $settings_base_url );
-		return $settings_tab_url;
+		return add_query_arg(
+			[
+				'selected-tab' => $tab_slug,
+			],
+			self::get_settings_page_url()
+		);
 	}
 
 	/**
@@ -848,9 +851,12 @@ class Helpers {
 	 * @return string URL for the sub-tab, unescaped.
 	 */
 	public static function get_settings_page_sub_tab_url( $sub_tab_slug ) {
-		$settings_base_url = self::get_settings_page_url();
-		$settings_sub_tab_url = add_query_arg( 'selected-sub-tab', $sub_tab_slug, $settings_base_url );
-		return $settings_sub_tab_url;
+		return add_query_arg(
+			[
+				'selected-sub-tab' => $sub_tab_slug,
+			],
+			self::get_settings_page_url()
+		);
 	}
 
 	/**
