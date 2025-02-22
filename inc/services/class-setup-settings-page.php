@@ -152,12 +152,6 @@ class Setup_Settings_Page extends Service {
 				->set_menu_title( _x( 'Simple History', 'settings menu name', 'simple-history' ) )
 				->set_location( 'settings' )
 				->set_redirect_to_first_child_on_load();
-
-				// TODO: If inside settings then add a subpage with name "General"
-				// This will be the first selected page when going to Settings » Simple History
-				// resulting in user being at Settings » Simple History » Settings with a first selected tab
-				// of "General".
-				// $general_settings_menu_page =
 		}
 
 		$menu_manager->add_page( $settings_menu_page );
@@ -238,7 +232,7 @@ class Setup_Settings_Page extends Service {
 
 		add_settings_field(
 			'simple_history_menu_page_location',
-			Helpers::get_settings_field_title_output( __( 'History Menu Position', 'simple-history' ), 'overview' ),
+			Helpers::get_settings_field_title_output( __( 'History menu position', 'simple-history' ), 'overview' ),
 			array( $this, 'settings_field_menu_page_location' ),
 			$settings_menu_slug,
 			$settings_section_general_id
