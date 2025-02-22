@@ -6,7 +6,8 @@ It uses PHP, HTML, CSS, React.
 
 -   Must work on PHP 7.4 and later.
 -   Uses [WordPress coding standards](https://github.com/WordPress/WordPress-Coding-Standards).
--   Comments end with a period.
+-   Code comments end with a period. Example:
+    -   `// This is a comment.`
 
 ## CSS
 
