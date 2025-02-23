@@ -36,8 +36,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			->set_menu_slug( 'simple_history_debug' )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_debug_page' ] )
-			->set_icon( 'troubleshoot' )
-			->set_menu_manager( $menu_manager );
+			->set_icon( 'troubleshoot' );
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {

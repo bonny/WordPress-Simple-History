@@ -42,8 +42,7 @@ class Export_Dropin extends Dropin {
 			->set_menu_slug( self::MENU_SLUG )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_export_page' ] )
-			->set_icon( 'download' )
-			->set_menu_manager( $menu_manager );
+			->set_icon( 'download' );
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
