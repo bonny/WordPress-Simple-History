@@ -326,7 +326,7 @@ class Setup_Settings_Page extends Service {
 	public function settings_field_where_to_show() {
 		$show_on_dashboard = Helpers::setting_show_on_dashboard();
 		$show_in_admin_bar = Helpers::setting_show_in_admin_bar();
-		$show_as_page_below_dashboard = Helpers::setting_show_as_page();
+		// $show_as_page_below_dashboard = Helpers::setting_show_as_page();
 		?>
 
 		<input <?php checked( $show_on_dashboard ); ?> type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
@@ -334,12 +334,17 @@ class Setup_Settings_Page extends Service {
 			<?php esc_html_e( 'on the dashboard', 'simple-history' ); ?>
 		</label>
 
-		<br />
-
+		
+		<?php
+		/**
+		 <br />
 		<input <?php checked( $show_as_page_below_dashboard ); ?> type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
 		<label for="simple_history_show_as_page">
 			<?php esc_html_e( 'as a page under the dashboard menu', 'simple-history' ); ?>
 		</label>
+		<?php
+		 */
+		?>
 		
 		<br />
 

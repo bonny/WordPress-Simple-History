@@ -316,6 +316,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   Deprecate function `register_settings_tab()`, `get_main_nav_html()`, `get_subnav_html()`, `get_settings_tabs()`.
 -   Improve location of settings errors.
 -   Update menu settings name from "Menu page location" to "History Menu Position".
+-   Remove setting "Show history: as a page under the dashboard menu", since the history menu now can be set to multiple locations.
 
 ### 5.6.1 (January 2025)
 

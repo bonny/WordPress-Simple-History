@@ -141,13 +141,9 @@ class Admin_Pages extends Service {
 		$headline_link_start_elm = '';
 		$headline_link_end_elm = '';
 
-		if ( Helpers::setting_show_as_page() ) {
-			$headline_link_target = Helpers::get_history_admin_url();
-		} else if ( Helpers::setting_show_on_dashboard() ) {
-			$headline_link_target = admin_url( 'index.php' );
-		}
+		$headline_link_target = Menu_Page::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG );
 
-		if ( ! is_null( $headline_link_target ) ) {
+		if ( ! empty( $headline_link_target ) ) {
 			$headline_link_start_elm = sprintf(
 				'<a href="%1$s" class="sh-PageHeader-titleLink">',
 				esc_url( $headline_link_target )

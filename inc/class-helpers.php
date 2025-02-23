@@ -1199,6 +1199,7 @@ class Helpers {
 	 *
 	 * Defaults to true.
 	 *
+	 * @deprected 5.7.0
 	 * @return bool
 	 */
 	public static function setting_show_as_page() {
@@ -1702,6 +1703,19 @@ class Helpers {
 	public static function get_history_admin_url() {
 		// Can not use `menu_page_url()` because it only works within the admin area.
 		// But we want to be able to link to history page also from front end.
-		return admin_url( 'admin.php?page=' . Simple_History::MENU_PAGE_SLUG );
+		// return Menu_Page::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG );.
+		$history_page_location = self::get_menu_page_location();
+		// should get_menu_page_location() be called get_history_menu_page_location() instead?
+
+		if ( in_array( $history_page_location, array( 'top', 'bottom' ), true ) ) {
+			return admin_url( 'admin.php?page=' . Simple_History::MENU_PAGE_SLUG );
+		} elseif ( 'inside_tools' === $history_page_location ) {
+			return admin_url( 'tools.php?page=' . Simple_History::MENU_PAGE_SLUG );
+		} elseif ( 'inside_dashboard' === $history_page_location ) {
+			return admin_url( 'index.php?page=' . Simple_History::MENU_PAGE_SLUG );
+		} else {
+			// Fallback if no match found.
+			return admin_url( 'admin.php?page=' . Simple_History::MENU_PAGE_SLUG );
+		}
 	}
 }
