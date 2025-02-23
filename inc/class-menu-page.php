@@ -5,8 +5,6 @@ namespace Simple_History;
 /**
  * Class that represents a menu page in the WordPress admin.
  *
- * Class that represents a menu page in the WordPress admin.
- *
  * Example usage:
  *
  * ```php
@@ -17,6 +15,10 @@ namespace Simple_History;
  *     ->set_menu_title('Licenses')
  *     ->set_menu_slug('settings-licenses')
  *     ->set_callback([$this, 'render_licenses'])
+ *     ->set_location('settings')
+ *     ->set_capability('manage_options')
+ *     ->set_icon('dashicons-tickets')
+ *     ->set_order(20)
  *     ->set_parent('settings');
  *
  * $menu_manager->add_page($licenses_page);
@@ -86,6 +88,14 @@ class Menu_Page {
 		'tools', // Management = "tools".
 		'options', // Options = "settings".
 	];
+
+	/**
+	 * Constructor that adds menu manager instance.
+	 */
+	public function __construct() {
+		$simple_history = Simple_History::get_instance();
+		$this->menu_manager = $simple_history->get_menu_manager();
+	}
 
 	/**
 	 * Set the page title.
