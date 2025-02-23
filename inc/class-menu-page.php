@@ -600,4 +600,16 @@ class Menu_Page {
 	public function get_redirect_to_first_child_on_load() {
 		return $this->redirect_to_first_child_on_load;
 	}
+
+	/**
+	 * Add menu page to Menu Manager.
+	 *
+	 * @return self Chainable method.
+	 */
+	public function add_to_menu_manager() {
+		$this->menu_manager->add_page( $this );
+
+		return $this;
+	}
+	// $menu_manager->add_page( $settings_page );
 }
