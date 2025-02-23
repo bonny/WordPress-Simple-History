@@ -79,7 +79,6 @@ class Setup_Settings_Page extends Service {
 			->set_menu_title( __( 'Settings', 'simple-history' ) )
 			->set_page_title( __( 'Settings', 'simple-history' ) )
 			->set_icon( 'settings' )
-			->set_menu_manager( $menu_manager )
 			->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG )
 			->set_callback( [ $this, 'settings_output_general' ] )
 			->set_redirect_to_first_child_on_load()
@@ -94,7 +93,6 @@ class Setup_Settings_Page extends Service {
 			$general_settings_menu_page = ( new Menu_page() )
 				->set_menu_title( __( 'General', 'simple-history' ) )
 				->set_page_title( __( 'General settings', 'simple-history' ) )
-				->set_menu_manager( $menu_manager )
 				->set_parent( $settings_menu_page_main_tab )
 				->set_callback( [ $this, 'settings_output_general' ] )
 				->set_menu_slug( 'general_settings_subtab_settings_general' );
@@ -135,8 +133,7 @@ class Setup_Settings_Page extends Service {
 				->set_page_title( _x( 'Simple History Settings', 'settings title name', 'simple-history' ) )
 				->set_menu_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG )
 				->set_capability( Helpers::get_view_settings_capability() )
-				->set_callback( [ $this, 'settings_page_output' ] )
-				->set_menu_manager( $menu_manager );
+				->set_callback( [ $this, 'settings_page_output' ] );
 
 		// Different setting depending on where main page is shown.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {

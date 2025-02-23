@@ -403,13 +403,10 @@ class Menu_Page {
 	 */
 	public function add_submenu( Menu_Page $submenu_page ) {
 		$submenu_page->set_parent( $this );
+
 		$this->submenu_pages[] = $submenu_page;
 
-		// Pass menu manager reference if we have one.
-		if ( $this->menu_manager ) {
-			$submenu_page->set_menu_manager( $this->menu_manager );
-			$this->menu_manager->add_page( $submenu_page );
-		}
+		$this->menu_manager->add_page( $submenu_page );
 
 		return $submenu_page;
 	}

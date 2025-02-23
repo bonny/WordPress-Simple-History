@@ -559,8 +559,7 @@ class Simple_History {
 			->set_menu_title( $arr_tab_settings['name'] )
 			->set_menu_slug( $arr_tab_settings['slug'] )
 			->set_callback( $arr_tab_settings['function'] )
-			->set_order( $arr_tab_settings['order'] ?? 10 )
-			->set_menu_manager( $menu_manager );
+			->set_order( $arr_tab_settings['order'] ?? 10 );
 
 		// Set icon if provided.
 		if ( ! empty( $arr_tab_settings['icon'] ) ) {
