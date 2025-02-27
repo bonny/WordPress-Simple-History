@@ -54,6 +54,9 @@ class Stealth_Mode extends Service {
 
 		// Hide from the "Go to Simple History" link that is shown after plugin updates.
 		add_filter( 'simple_history/show_action_link', '__return_false' );
+
+		// Remove pages from Menu_Manager.
+		add_filter( 'simple_history/menu_manager/get_pages', '__return_empty_array' );
 	}
 
 	/**
