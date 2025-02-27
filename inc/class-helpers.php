@@ -4,6 +4,7 @@ namespace Simple_History;
 
 use Simple_History\Simple_History;
 use Simple_History\Menu_Page;
+use Simple_History\Services\Setup_Settings_Page;
 
 /**
  * Helper functions.
@@ -853,6 +854,7 @@ class Helpers {
 	public static function get_settings_page_sub_tab_url( $sub_tab_slug ) {
 		return add_query_arg(
 			[
+				'selected-tab'  => Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG,
 				'selected-sub-tab' => $sub_tab_slug,
 			],
 			self::get_settings_page_url()
