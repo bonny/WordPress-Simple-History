@@ -42,6 +42,11 @@ class Setup_Settings_Page extends Service {
 		// This is the action name used in add-ons.
 		$action_to_trigger = 'load-settings_page_' . Simple_History::SETTINGS_MENU_SLUG;
 
+		// Bail if action already fired.
+		if ( did_action( $action_to_trigger ) ) {
+			return;
+		}
+
 		/**
 		 * Fires on admin_init to trigger actions for old add-ons.
 		 */
