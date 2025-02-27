@@ -13,6 +13,7 @@ use Simple_History\Services\Service;
 use Simple_History\Event_Details\Event_Details_Simple_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Services\Setup_Settings_Page;
 
 /**
  * Main class for Simple History.
@@ -551,25 +552,40 @@ class Simple_History {
 			'Menu_Page class. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.'
 		);
 
-		// Create new Menu_Page instance using method chaining pattern.
-		$menu_page = ( new Menu_Page() )
-			->set_page_title( $arr_tab_settings['name'] )
-			->set_menu_title( $arr_tab_settings['name'] )
-			->set_menu_slug( $arr_tab_settings['slug'] )
-			->set_callback( $arr_tab_settings['function'] )
-			->set_order( $arr_tab_settings['order'] ?? 10 );
+		// This is called early from add-ons, while the new menu manager expects
+		// registration to be called on menu_manager hook.
+		// Also we want to call it after Simple History core has done its init stuff.
+		add_action(
+			'admin_menu',
+			function () use ( $arr_tab_settings ) {
+				// Create new Menu_Page instance using method chaining pattern.
+				$menu_page = ( new Menu_Page() )
+				->set_page_title( $arr_tab_settings['name'] )
+				->set_menu_title( $arr_tab_settings['name'] )
+				->set_menu_slug( $arr_tab_settings['slug'] )
+				->set_callback( $arr_tab_settings['function'] )
+				->set_order( $arr_tab_settings['order'] ?? 10 );
 
-		// Set icon if provided.
-		if ( ! empty( $arr_tab_settings['icon'] ) ) {
-			$menu_page->set_icon( $arr_tab_settings['icon'] );
-		}
+				// Set icon if provided.
+				if ( ! empty( $arr_tab_settings['icon'] ) ) {
+					$menu_page->set_icon( $arr_tab_settings['icon'] );
+				}
 
-		// Set parent if provided.
-		if ( ! empty( $arr_tab_settings['parent_slug'] ) ) {
-			$menu_page->set_parent( $arr_tab_settings['parent_slug'] );
-		}
+				// Set parent if provided.
+				$parent_slug = $arr_tab_settings['parent_slug'] ?? null;
+				if ( $parent_slug ) {
+					if ( $parent_slug === 'settings' ) {
+						// In premium and extended settings parent was always "settings".
+						$parent_slug = Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG;
+					}
 
-		$menu_page->add();
+					$menu_page->set_parent( $parent_slug );
+				}
+
+				$menu_page->add();
+			},
+			20
+		);
 	}
 
 	/**
