@@ -551,8 +551,6 @@ class Simple_History {
 			'Menu_Page class. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.'
 		);
 
-		$menu_manager = $this->get_menu_manager();
-
 		// Create new Menu_Page instance using method chaining pattern.
 		$menu_page = ( new Menu_Page() )
 			->set_page_title( $arr_tab_settings['name'] )
@@ -571,7 +569,7 @@ class Simple_History {
 			$menu_page->set_parent( $arr_tab_settings['parent_slug'] );
 		}
 
-		$menu_manager->add_page( $menu_page );
+		$menu_page->add();
 	}
 
 	/**

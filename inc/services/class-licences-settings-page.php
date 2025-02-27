@@ -86,15 +86,14 @@ class Licences_Settings_Page extends Service {
 			return;
 		}
 
-		$licenses_settings_menu_page = ( new Menu_Page() )
+		( new Menu_Page() )
 			->set_page_title( __( 'Licences', 'simple-history' ) )
 			->set_menu_title( __( 'Licences', 'simple-history' ) )
 			->set_menu_slug( 'general_settings_subtab_licenses' )
 			->set_callback( [ $this, 'settings_output_licenses' ] )
 			->set_order( 50 ) // After general settings and premium settings.
-			->set_parent( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG );
-
-		$menu_manager->add_page( $licenses_settings_menu_page );
+			->set_parent( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG )
+			->add();
 	}
 
 	/**

@@ -98,7 +98,6 @@ class Setup_Settings_Page extends Service {
 
 		// Add a settings page using new menu manager.
 		$admin_page_location = Helpers::get_menu_page_location();
-		$menu_manager = $this->simple_history->get_menu_manager();
 
 		$settings_menu_page = ( new Menu_Page() )
 				->set_page_title( _x( 'Simple History Settings', 'settings title name', 'simple-history' ) )
@@ -122,7 +121,7 @@ class Setup_Settings_Page extends Service {
 				->set_redirect_to_first_child_on_load();
 		}
 
-		$menu_manager->add_page( $settings_menu_page );
+		$settings_menu_page->add();
 	}
 
 	/**

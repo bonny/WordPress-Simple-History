@@ -35,7 +35,6 @@ class Export_Dropin extends Dropin {
 
 		// Add page using new menu manager.
 		$admin_page_location = Helpers::get_menu_page_location();
-		$menu_manager = $this->simple_history->get_menu_manager();
 
 		$export_menu_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Simple History Export', 'dashboard title name', 'simple-history' ) )
@@ -57,7 +56,7 @@ class Export_Dropin extends Dropin {
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 		}
 
-		$menu_manager->add_page( $export_menu_page );
+		$export_menu_page->add();
 	}
 
 	/**

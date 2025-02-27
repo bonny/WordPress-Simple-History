@@ -29,7 +29,6 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 
 		// Add using new menu_manager.
 		$admin_page_location = Helpers::get_menu_page_location();
-		$menu_manager = $this->simple_history->get_menu_manager();
 
 		$debug_menu_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Simple History Debug', 'dashboard title name', 'simple-history' ) )
@@ -50,7 +49,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 		}
 
-		$menu_manager->add_page( $debug_menu_page );
+		$debug_menu_page->add();
 	}
 
 	/**
