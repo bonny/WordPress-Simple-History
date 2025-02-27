@@ -22,6 +22,30 @@ class Setup_Settings_Page extends Service {
 
 		add_action( 'admin_menu', [ $this, 'add_settings' ], 10 );
 		add_action( 'admin_page_access_denied', [ $this, 'on_admin_page_access_denied' ] );
+
+		add_action( 'admin_init', [ $this, 'trigger_actions_for_old_add_ons' ] );
+	}
+
+	/**
+	 * Trigger actions for old version of Simple History Extended Settings
+	 * and Simple History Premium.
+	 */
+	public function trigger_actions_for_old_add_ons() {
+		// Only trigger if selected-sub-tab=message-control.
+		$menu_manager = $this->simple_history->get_menu_manager();
+		$subtab_slug = $menu_manager->get_current_sub_tab_slug();
+
+		if ( $subtab_slug !== 'message-control' ) {
+			return;
+		}
+
+		// This is the action name used in add-ons.
+		$action_to_trigger = 'load-settings_page_' . Simple_History::SETTINGS_MENU_SLUG;
+
+		/**
+		 * Fires on admin_init to trigger actions for old add-ons.
+		 */
+		do_action( $action_to_trigger );
 	}
 
 	/**
