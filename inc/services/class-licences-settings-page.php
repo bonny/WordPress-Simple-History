@@ -81,6 +81,11 @@ class Licences_Settings_Page extends Service {
 		// Add settings page using new Menu Manager and Menu Page classes.
 		$menu_manager = $this->simple_history->get_menu_manager();
 
+		// Bail if parent settings page does not exists (due to Stealth Mode or similar).
+		if ( ! $menu_manager->page_exists( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG ) ) {
+			return;
+		}
+
 		$licenses_settings_menu_page = ( new Menu_Page() )
 			->set_page_title( __( 'Licences', 'simple-history' ) )
 			->set_menu_title( __( 'Licences', 'simple-history' ) )

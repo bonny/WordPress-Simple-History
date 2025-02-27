@@ -16,8 +16,9 @@ class Setup_Settings_Page extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		add_action( 'admin_menu', [ $this, 'add_admin_pages' ] );
-		add_action( 'admin_menu', [ $this, 'add_default_settings_tabs' ] );
+		add_action( 'admin_menu', [ $this, 'add_settings_admin_page' ] );
+		add_action( 'admin_menu', [ $this, 'add_settings_tabs' ] );
+
 		add_action( 'admin_menu', [ $this, 'add_settings' ], 10 );
 		add_action( 'admin_page_access_denied', [ $this, 'on_admin_page_access_denied' ] );
 	}
@@ -68,40 +69,6 @@ class Setup_Settings_Page extends Service {
 	}
 
 	/**
-	 * Adds default tabs to settings
-	 */
-	public function add_default_settings_tabs() {
-		// Register tab using new method using Menu_Manager and Menu_Page.
-		// This is the tab at <simple history settings location> » General.
-		$menu_manager = $this->simple_history->get_menu_manager();
-
-		$settings_menu_page_main_tab = ( new Menu_page() )
-			->set_menu_title( __( 'Settings', 'simple-history' ) )
-			->set_page_title( __( 'Settings', 'simple-history' ) )
-			->set_icon( 'settings' )
-			->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG )
-			->set_callback( [ $this, 'settings_output_general' ] )
-			->set_redirect_to_first_child_on_load()
-			->set_menu_slug( self::SETTINGS_GENERAL_SUBTAB_SLUG );
-
-		$menu_manager->add_page( $settings_menu_page_main_tab );
-
-		// In settings page is in options page then add subtab for general settings.
-		// so user will come to Settings » Simple History » Settings (tab) » General (subtab).
-		// $admin_page_location = Helpers::get_menu_page_location();
-		// if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {.
-			$general_settings_menu_page = ( new Menu_page() )
-				->set_menu_title( __( 'General', 'simple-history' ) )
-				->set_page_title( __( 'General settings', 'simple-history' ) )
-				->set_parent( $settings_menu_page_main_tab )
-				->set_callback( [ $this, 'settings_output_general' ] )
-				->set_menu_slug( 'general_settings_subtab_settings_general' );
-
-			$menu_manager->add_page( $general_settings_menu_page );
-		// }
-	}
-
-	/**
 	 * Output for the general settings tab.
 	 */
 	public function settings_output_general() {
@@ -109,9 +76,13 @@ class Setup_Settings_Page extends Service {
 	}
 
 	/**
-	 * Add options/settings menu page for settings.
+	 * Add menu page for settings.
+	 *
+	 * Added as one of:
+	 * - inside Simple History main menu item
+	 * - as it's own menu item under Settings.
 	 */
-	public function add_admin_pages() {
+	public function add_settings_admin_page() {
 		// Add a settings page.
 		$show_settings_page = apply_filters( 'simple_history_show_settings_page', true );
 		$show_settings_page = apply_filters( 'simple_history/show_settings_page', $show_settings_page );
@@ -152,6 +123,43 @@ class Setup_Settings_Page extends Service {
 		}
 
 		$menu_manager->add_page( $settings_menu_page );
+	}
+
+	/**
+	 * Adds tabs to settings.
+	 */
+	public function add_settings_tabs() {
+		$menu_manager = $this->simple_history->get_menu_manager();
+
+		// Bail if parent settings page does not exists (due to Stealth Mode or similar).
+		if ( ! $menu_manager->page_exists( Simple_History::SETTINGS_MENU_PAGE_SLUG ) ) {
+			return;
+		}
+
+		// Register tab using new method using Menu_Manager and Menu_Page.
+		// This is the tab at <simple history settings location> » General.
+
+		$settings_menu_page_main_tab = ( new Menu_page() )
+			->set_menu_title( __( 'Settings', 'simple-history' ) )
+			->set_page_title( __( 'Settings', 'simple-history' ) )
+			->set_menu_slug( self::SETTINGS_GENERAL_SUBTAB_SLUG )
+			->set_icon( 'settings' )
+			->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG )
+			->set_callback( [ $this, 'settings_output_general' ] )
+			->set_redirect_to_first_child_on_load();
+
+		$menu_manager->add_page( $settings_menu_page_main_tab );
+
+		// In settings page is in options page then add subtab for general settings.
+		// so user will come to Settings » Simple History » Settings (tab) » General (subtab).
+		$general_settings_menu_page = ( new Menu_page() )
+			->set_menu_title( __( 'General', 'simple-history' ) )
+			->set_page_title( __( 'General settings', 'simple-history' ) )
+			->set_parent( $settings_menu_page_main_tab )
+			->set_callback( [ $this, 'settings_output_general' ] )
+			->set_menu_slug( 'general_settings_subtab_settings_general' );
+
+		$menu_manager->add_page( $general_settings_menu_page );
 	}
 
 	/**
