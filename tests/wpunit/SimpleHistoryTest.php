@@ -92,8 +92,9 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 		$settings_tabs = $sh->get_settings_tabs();
 		$arr_default_settings = array(
 			// Added by dropin test
-			'dropin_example_tab_slug',
-			'tests_dropin_settings_tab_slug',
+			// 'dropin_example_tab_slug',
+			// 'tests_dropin_settings_tab_slug',
+			// Should be empty since we don't use this anymore, we use menu manager.
 		);
 		
 		$loaded_settings_slugs = wp_list_pluck( $settings_tabs, 'slug' );
