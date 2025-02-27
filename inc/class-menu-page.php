@@ -617,10 +617,9 @@ class Menu_Page {
 	 *
 	 * @return self Chainable method.
 	 */
-	public function add_to_menu_manager() {
+	public function add() {
 		$this->menu_manager->add_page( $this );
 
 		return $this;
 	}
-	// $menu_manager->add_page( $settings_page );
 }
