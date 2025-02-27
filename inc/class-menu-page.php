@@ -191,14 +191,20 @@ class Menu_Page {
 	 *
 	 * @param Menu_Page|string $parent Parent page object or menu slug.
 	 * @return self Chainable method.
-	 * @throws \InvalidArgumentException If parent is not a Menu_Page object or string.
 	 */
 	public function set_parent( $parent ) {
 		if ( ! $parent instanceof Menu_Page && ! is_string( $parent ) ) {
-			throw new \InvalidArgumentException( 'Parent must be a Menu_Page object or a menu slug string.' );
+			error_log(
+				sprintf(
+					'Parent must be a Menu_Page object or a menu slug string. Current page slug: "%s", Invalid parent: "%s".',
+					esc_html( $this->get_menu_slug() ),
+					esc_html( print_r( $parent, true ) )
+				)
+			);
+
+			return $this;
 		}
 
-		// If $parents is menu page object then use it directly.
 		if ( $parent instanceof Menu_Page ) {
 			$this->parent = $parent;
 
@@ -207,21 +213,26 @@ class Menu_Page {
 
 		// If string then get the actual menu page instance from the menu manager.
 		if ( is_string( $parent ) ) {
-			// Throw if menu_manager not set.
+			// Log error if menu_manager not set.
 			if ( ! $this->menu_manager ) {
-				throw new \InvalidArgumentException( 'Parent menu slug requires a menu manager instance. Menu with slug "' . esc_html( $this->menu_slug ) . '" tried to set parent to "' . esc_html( $parent ) . '".' );
+				error_log( 'Parent menu slug requires a menu manager instance. Menu with slug "' . esc_html( $this->menu_slug ) . '" tried to set parent to "' . esc_html( $parent ) . '".' );
+
+				return $this;
 			}
 
 			$parent_page = $this->menu_manager->get_page_by_slug( $parent );
 
 			if ( ! $parent_page ) {
-				throw new \InvalidArgumentException(
+				error_log(
 					sprintf(
-						'Parent page with slug "%s" not found. All existing page slugs: %s',
+						'Parent page with slug "%s" not found. Current page slug: %s. All existing page slugs: %s',
 						esc_html( $parent ),
+						esc_html( $this->menu_slug ),
 						esc_html( implode( ',', $this->menu_manager->get_all_slugs() ) )
 					)
 				);
+
+				return $this;
 			}
 
 			$this->parent = $parent_page;
