@@ -10,7 +10,7 @@ use Simple_History\Menu_Page;
  * Setup settings page.
  */
 class Setup_Settings_Page extends Service {
-	public const SETTINGS_GENERAL_SUBTAB_SLUG = 'general_settings_subtab_general_new';
+	public const SETTINGS_GENERAL_SUBTAB_SLUG = 'general_settings_subtab_general';
 
 	/**
 	 * @inheritdoc
@@ -575,7 +575,6 @@ class Setup_Settings_Page extends Service {
 	 * @return string
 	 */
 	public static function get_subnav_html() {
-
 		ob_start();
 
 		$simple_history = Simple_History::get_instance();
