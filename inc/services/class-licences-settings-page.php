@@ -203,7 +203,7 @@ class Licences_Settings_Page extends Service {
 	 */
 	private function output_licence_key_fields_for_plugin( $plus_plugin ) {
 		$license_key = $plus_plugin->get_license_key();
-		$form_post_url = Menu_Page::get_admin_url_by_slug( 'general_settings_subtab_licenses' );
+		$form_post_url = Menu_Manager::get_admin_url_by_slug( 'general_settings_subtab_licenses' );
 
 		// Check for posted form for this plugin.
 		$form_success_message = null;

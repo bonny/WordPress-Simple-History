@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
+use Simple_History\Menu_Manager;
 use Simple_History\Simple_History;
 use Simple_History\Menu_Page;
 
@@ -136,7 +137,7 @@ class Admin_Pages extends Service {
 		$headline_link_start_elm = '';
 		$headline_link_end_elm = '';
 
-		$headline_link_target = Menu_Page::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG );
+		$headline_link_target = Menu_Manager::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG );
 
 		if ( ! empty( $headline_link_target ) ) {
 			$headline_link_start_elm = sprintf(

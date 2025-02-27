@@ -827,7 +827,7 @@ class Helpers {
 	 * @return string URL for settings page, i.e. "/wp-admin/admin.php?page=<main-menu-page-slug>" or empty string if page not found.
 	 */
 	public static function get_settings_page_url() {
-		return Menu_Page::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
+		return Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 	}
 
 	/**
@@ -1705,9 +1705,9 @@ class Helpers {
 	public static function get_history_admin_url() {
 		// Can not use `menu_page_url()` because it only works within the admin area.
 		// But we want to be able to link to history page also from front end.
-		// return Menu_Page::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG );.
+
 		$history_page_location = self::get_menu_page_location();
-		// should get_menu_page_location() be called get_history_menu_page_location() instead?
+		// TODO: should get_menu_page_location() be called get_history_menu_page_location() instead?
 
 		if ( in_array( $history_page_location, array( 'top', 'bottom' ), true ) ) {
 			return admin_url( 'admin.php?page=' . Simple_History::MENU_PAGE_SLUG );

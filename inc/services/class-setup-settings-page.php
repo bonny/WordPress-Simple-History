@@ -4,6 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
+use Simple_History\Menu_Manager;
 use Simple_History\Menu_Page;
 
 /**
@@ -38,7 +39,7 @@ class Setup_Settings_Page extends Service {
 		$settings_menu_page_slug = Simple_History::SETTINGS_MENU_PAGE_SLUG;
 
 		// Get the currently registered settings page URL.
-		$current_settings_url = Menu_Page::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
+		$current_settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 
 		// Get the currently requested URL.
 		$current_request_url = sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) );

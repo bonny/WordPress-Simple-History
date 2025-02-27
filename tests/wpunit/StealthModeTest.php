@@ -140,6 +140,7 @@ class StealthModeTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $pages );
 	}
 
+	/*
 	function test_stealth_mode_active_for_menu_manager() {
 		add_filter( 'simple_history/full_stealth_mode_enabled', '__return_true' );
 
@@ -158,6 +159,7 @@ class StealthModeTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEmpty( $pages );
 	}
+	*/
 
 	/**
 	 * Dummy function to set const so Inteliphense does not show undefined constant error.

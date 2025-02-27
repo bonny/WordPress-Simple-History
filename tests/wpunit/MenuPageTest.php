@@ -92,13 +92,13 @@ class MenuPageTest extends \Codeception\TestCase\WPTestCase {
 		
 		$this->assertEquals(
 			'',
-			Menu_Page::get_admin_url_by_slug('non-existent-slug')
+			Menu_Manager::get_admin_url_by_slug('non-existent-slug')
 		);
 		
 		// Can't test actual URL since Simple_History instance is not available in tests
 		$this->assertEquals(
 			'',
-			Menu_Page::get_admin_url_by_slug('simple-history-settings') 
+			Menu_Manager::get_admin_url_by_slug('simple-history-settings') 
 		);
 	}
 }

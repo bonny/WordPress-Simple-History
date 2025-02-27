@@ -548,26 +548,6 @@ class Menu_Page {
 	}
 
 	/**
-	 * Get admin URL for a menu page by its slug.
-	 *
-	 * Example usage:
-	 * $settings_url = Menu_Page::get_admin_url_by_slug(Simple_History::SETTINGS_MENU_PAGE_SLUG);
-	 *
-	 * @param string $page_slug The slug of the menu page to get URL for.
-	 * @return string Full admin URL or empty string if page not found.
-	 */
-	public static function get_admin_url_by_slug( string $page_slug ): string {
-		$menu_manager = Simple_History::get_instance()->get_menu_manager();
-		$page = $menu_manager->get_page_by_slug( $page_slug );
-
-		if ( ! $page instanceof self ) {
-			return '';
-		}
-
-		return $page->get_url();
-	}
-
-	/**
 	 * Get all children to this page.
 	 * I.e. get all children that have this page as the parent page.
 	 */
