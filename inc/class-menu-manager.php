@@ -547,4 +547,15 @@ class Menu_Manager {
 
 		exit;
 	}
+
+	/**
+	 * Check if a page with slug $slug exists.
+	 *
+	 * @param string $slug The slug to check for.
+	 * @return bool True if page exists, false otherwise.
+	 */
+	public function page_exists( $slug ) {
+		$page = $this->get_page_by_slug( $slug );
+		return $page !== null;
+	}
 }
