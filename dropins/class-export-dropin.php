@@ -115,6 +115,7 @@ class Export_Dropin extends Dropin {
 				)
 			);
 			?>
+			
 			<p><?php echo esc_html_x( 'The export function will export the full history.', 'Export dropin: introtext', 'simple-history' ); ?></p>
 
 			<form method="post">

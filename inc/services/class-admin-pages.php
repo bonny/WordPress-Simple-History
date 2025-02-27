@@ -195,7 +195,9 @@ class Admin_Pages extends Service {
 		// we do NOT need to output settings errors here, but when
 		// Simple History settings is placed as a top level menu we need to output
 		// settings errors here manually.
-		$output_settings_errors = in_array( Helpers::get_menu_page_location(), [ 'top', 'bottom' ], true );
+		// $output_settings_errors = in_array( Helpers::get_menu_page_location(), [ 'top', 'bottom' ], true );.
+		$output_settings_errors = true;
+
 		if ( $output_settings_errors ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			settings_errors();
