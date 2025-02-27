@@ -44,7 +44,17 @@ class Menu_Manager {
 	 * @return array<string,Menu_Page>
 	 */
 	public function get_pages() {
-		return $this->pages;
+		$pages = $this->pages;
+
+		/**
+		 * Filter pages returned.
+		 *
+		 * @param array<string,Menu_Page> $this->pages Array of all registered menu pages.
+		 * @return array<string,Menu_Page> Filtered array of all registered menu pages.
+		 */
+		$pages = apply_filters( 'simple_history/menu_manager/get_pages', $pages );
+
+		return $pages;
 	}
 
 	/**
@@ -52,7 +62,7 @@ class Menu_Manager {
 	 * Called during admin_menu.
 	 */
 	public function register_pages() {
-		foreach ( $this->pages as $page ) {
+		foreach ( $this->get_pages() as $page ) {
 			$location = $page->get_location();
 
 			switch ( $location ) {
