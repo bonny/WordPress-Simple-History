@@ -1,5 +1,6 @@
 <?php
 
+use Simple_History\Menu_Page;
 use Simple_History\Simple_History;
 use Simple_History\Services;
 
@@ -105,24 +106,57 @@ class StealthModeTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( $this->stealth_mode_service->is_gui_visible_to_user(), 'Non-admin user with email not in allowed list should not see GUI' );
 
 		// Admin user with domain ending with @example.com should see log.
-		$user_id = $this->factory->user->create(  [ 'user_email' => 'testuser@example.com' ] );
+		$user_id = $this->factory->user->create(  [ 'user_email' => 'testuser@example.com', 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 		$this->assertTrue( $this->stealth_mode_service->is_gui_visible_to_user(), 'Admin user with email ending with @example.com should see GUI' );
 
 		// Admin user with domain ending with @anotherdomain.org should see log.
-		$user_id = $this->factory->user->create(  [ 'user_email' => 'anothertestuser@anotherdomain.org' ] );
+		$user_id = $this->factory->user->create(  [ 'user_email' => 'anothertestuser@anotherdomain.org', 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 		$this->assertTrue( $this->stealth_mode_service->is_gui_visible_to_user(), 'Admin user with email ending with @anotherdomain.org should see GUI' );
 
 		// Admin user with email ending with @organization should not see log.
-		$user_id = $this->factory->user->create(  [ 'user_email' => 'user@organization.org' ] );
+		$user_id = $this->factory->user->create(  [ 'user_email' => 'user@organization.org', 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 		$this->assertFalse( $this->stealth_mode_service->is_gui_visible_to_user(), 'Admin user with email ending with @organization.org should not see GUI' );
 
 		// Admin user jane@organization should see log.
-		$user_id = $this->factory->user->create(  [ 'user_email' => 'jane@organization.org' ] );
+		$user_id = $this->factory->user->create(  [ 'user_email' => 'jane@organization.org', 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 		$this->assertTrue( $this->stealth_mode_service->is_gui_visible_to_user(), 'Admin user with email jane@organization.org should see log' );
+	}
+
+	/**
+	 * When stealth mode is not active, menu manager should return pages.
+	 */
+	function test_stealth_mode_inactive_for_menu_manager() {
+		// Admin user jane@organization should be able to get pages.
+		$user_id = $this->factory->user->create(  [ 'user_email' => 'jane@organization.org', 'role' => 'administrator'  ] );
+		wp_set_current_user( $user_id );
+
+		$menu_manager = $this->simple_history->get_menu_manager();
+		$pages = $menu_manager->get_pages();
+
+		$this->assertNotEmpty( $pages );
+	}
+
+	function test_stealth_mode_active_for_menu_manager() {
+		add_filter( 'simple_history/full_stealth_mode_enabled', '__return_true' );
+
+		// Admin user jane@organization should not be able to get pages, because stealth mode is active.
+		$user_id = $this->factory->user->create(  [ 'user_email' => 'jane@organization.org', 'role' => 'administrator'  ] );
+		wp_set_current_user( $user_id );
+
+		$menu_manager = $this->simple_history->get_menu_manager();
+		$pages = $menu_manager->get_pages();
+
+		// Page slugs.
+		$slugs = array_map( function( $page ) {
+			return $page->get_menu_slug();
+		}, $pages );
+		sh_dd('$slugs', $slugs);
+
+		$this->assertEmpty( $pages );
 	}
 
 	/**
