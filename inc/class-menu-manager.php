@@ -49,8 +49,7 @@ class Menu_Manager {
 		/**
 		 * Filter pages returned.
 		 *
-		 * @param array<string,Menu_Page> $this->pages Array of all registered menu pages.
-		 * @return array<string,Menu_Page> Filtered array of all registered menu pages.
+		 * @param array<int,Menu_Page> $pages Array of all registered menu pages.
 		 */
 		$pages = apply_filters( 'simple_history/menu_manager/get_pages', $pages );
 
@@ -541,7 +540,7 @@ class Menu_Manager {
 		$selected_tab_menu_page = $this->get_page_by_slug( $selected_tab );
 
 		// Bail if page should not be redirected to first child on load.
-		if ( ! $selected_tab_menu_page instanceof Menu_page || ! $selected_tab_menu_page->get_redirect_to_first_child_on_load() ) {
+		if ( ! $selected_tab_menu_page instanceof Menu_Page || ! $selected_tab_menu_page->get_redirect_to_first_child_on_load() ) {
 			return;
 		}
 

@@ -4,7 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
-use Simple_History\Menu_page;
+use Simple_History\Menu_Page;
 
 /**
  * Setup settings page.
@@ -139,7 +139,7 @@ class Setup_Settings_Page extends Service {
 		// Register tab using new method using Menu_Manager and Menu_Page.
 		// This is the tab at <simple history settings location> » General.
 
-		$settings_menu_page_main_tab = ( new Menu_page() )
+		$settings_menu_page_main_tab = ( new Menu_Page() )
 			->set_menu_title( __( 'Settings', 'simple-history' ) )
 			->set_page_title( __( 'Settings', 'simple-history' ) )
 			->set_menu_slug( self::SETTINGS_GENERAL_SUBTAB_SLUG )
@@ -152,7 +152,7 @@ class Setup_Settings_Page extends Service {
 
 		// In settings page is in options page then add subtab for general settings.
 		// so user will come to Settings » Simple History » Settings (tab) » General (subtab).
-		$general_settings_menu_page = ( new Menu_page() )
+		$general_settings_menu_page = ( new Menu_Page() )
 			->set_menu_title( __( 'General', 'simple-history' ) )
 			->set_page_title( __( 'General settings', 'simple-history' ) )
 			->set_parent( $settings_menu_page_main_tab )
