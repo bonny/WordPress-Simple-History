@@ -1201,7 +1201,7 @@ class Helpers {
 	 *
 	 * Defaults to true.
 	 *
-	 * @deprected 5.7.0
+	 * @deprecated 5.7.0
 	 * @return bool
 	 */
 	public static function setting_show_as_page() {

@@ -290,7 +290,7 @@ class Menu_Manager {
 			}
 		}
 
-		// Should this now just be the childs of any page? Just as long as it has childs..
+		// Should this now just be the children of any page? Just as long as it has children.
 		$current_menu_page_root = $this->get_page_by_slug( $page );
 
 		$current_menu_page_root_children = $current_menu_page_root->get_children();
