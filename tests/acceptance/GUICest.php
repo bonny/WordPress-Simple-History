@@ -37,8 +37,8 @@ class GUICest {
                 $I->see('Visit the support forum');
                 $I->see('Donate to support development');
 
+                // Erik editor
                 $I->loginAs('erik', 'password'); 
-                
                 $I->amOnAdminPage( 'index.php?page=simple_history_page' );
                 $I->see( 'Simple History' );
 	}
