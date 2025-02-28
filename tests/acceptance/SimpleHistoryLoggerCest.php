@@ -23,7 +23,6 @@ class SimpleHistoryLoggerCest
     
     public function it_can_log_show_history(Admin $I) {
         $I->uncheckOption('#simple_history_show_on_dashboard');
-        $I->uncheckOption('#simple_history_show_as_page');
         $I->click('Save Changes');
 
         $I->seeLogMessage('Modified settings');
