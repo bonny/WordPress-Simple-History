@@ -107,6 +107,7 @@ export function DefaultFilters( props ) {
 				</div>
 				<div style={ { display: 'inline-block', width: '310px' } }>
 					<SelectControl
+						__nextHasNoMarginBottom
 						options={ dateOptions }
 						value={ selectedDateOption }
 						onChange={ ( value ) => setSelectedDateOption( value ) }

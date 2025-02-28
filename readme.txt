@@ -307,6 +307,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ### Unreleased
 
+-   Fix warning for [deprecated bottom styles in SelectControl component](https://make.wordpress.org/core/2024/10/18/editor-components-updates-in-wordpress-6-7/#bottom-margin-styles-are-deprecated). "Bottom margin styles for wp.components.SelectControl is deprecated since version 6.7 and will be removed in version 7.0. Note: Set the `__nextHasNoMarginBottom` prop to true to start opting into the new styles, which will become the default in a future version."
 -   Format number of events in Stats & Insights.
 -   Show correct limit login attempts link for premium users for failed login attempts.
 -   Misc internal improvements and changes.
