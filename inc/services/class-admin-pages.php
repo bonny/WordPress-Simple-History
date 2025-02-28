@@ -14,6 +14,7 @@ class Admin_Pages extends Service {
 	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_main_admin_pages' ) );
+		add_action( 'admin_page_access_denied', [ $this, 'on_admin_page_access_denied_redirect_prev_menu_location' ] );
 	}
 
 	/**
@@ -219,5 +220,27 @@ class Admin_Pages extends Service {
 		}
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * When user visits the classic log page under Dashboard the URL is:
+	 * /wp-admin/index.php?page=simple_history_page
+	 * But after changing to main menu the URL is different.
+	 * Detect access to the old classic URL and redirect to a new page,
+	 * so bookmarks and old links still work.
+	 */
+	public function on_admin_page_access_denied_redirect_prev_menu_location() {
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
+		$pagenow = $GLOBALS['pagenow'] ?? '';
+
+		// Bail if not correct page.
+		if ( $page !== 'simple_history_page' && $pagenow !== 'index.php' ) {
+			return;
+		}
+
+		// Redirect to current event logs page location.
+		wp_safe_redirect( Menu_Manager::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG ) );
+
+		exit;
 	}
 }
