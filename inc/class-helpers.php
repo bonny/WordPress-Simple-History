@@ -1255,10 +1255,15 @@ class Helpers {
 
 		/**
 		 * Filter to control the placement of Simple History in the Admin Menu.
+		 * Valid locations:
+		 * - 'top' for placement close to dashboard at top of main menu
+		 * - 'bottom' for placement near below settings
+		 * - 'inside_tools' for placement inside the tools menu
+		 * - 'inside_dashboard' for placement inside the dashboard menu
 		 *
 		 * @since 5.5.2
 		 *
-		 * @param string $setting Either 'top' for placement below dashboard or 'bottom' for placement below settings.
+		 * @param string $setting Location slug.
 		 */
 		$setting = apply_filters( 'simple_history/admin_menu_location', $setting );
 
