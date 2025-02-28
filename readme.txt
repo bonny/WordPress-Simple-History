@@ -305,27 +305,29 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
-### 5.7.0
+### 5.7.0 (February 2025)
 
-[View the release post for more info and screenshots.](https://simple-history.com/2025/simple-history-5-7-0-released/)
+🔄 This release adds more menu location options and some other smaller improvements to the interface and internal code.
+[Read the release post](https://simple-history.com/2025/simple-history-5-7-0-released/) for more details and screenshots.
 
 **Added**
 
 -   Add new menu location options "Inside dashboard menu item" and "Inside tools menu item" (in addition to the available "Top of main menu" and "Bottom of main menu").
     -   The "Inside dashboard menu item" option will add the main history log page to the Dashboard page, while the settings page for the plugin will be located under the Settings menu item. This is pretty much the same location as before the 5.5.0 update.
     -   The location can be set using filter `simple_history/admin_menu_location`.
+-   Total number of events logged since install in now shown in the [Stats & Insights box](https://simple-history.com/features/stats-insights/).
 
 **Changed**
 
 -   Enhancement: Format number of events in Stats & Insights.
--   Update menu settings name from "Menu page location" to "History Menu Position".
+-   Update menu settings name from "Menu page location" to "History menu position".
 -   Improve location of settings errors.
 -   Improve logic for determine if the current admin page belongs to Simple History or not. Improves compatibility with translation plugins. [#531](https://github.com/bonny/WordPress-Simple-History/issues/531)
 
 **Fixed**
 
 -   Fix warning for [deprecated bottom styles in SelectControl component](https://make.wordpress.org/core/2024/10/18/editor-components-updates-in-wordpress-6-7/#bottom-margin-styles-are-deprecated).
--   Show correct limit login attempts link for premium users for failed login attempts.
+-   Show correct [limit login attempts link](https://simple-history.com/add-ons/premium/#limit-failed-logins) for [premium](https://simple-history.com/add-ons/premium/) users.
 -   Remove setting "Show history: as a page under the dashboard menu", since the history menu now can be set to multiple locations.
 
 **Other**
