@@ -571,16 +571,15 @@ class Simple_History {
 					$menu_page->set_icon( $arr_tab_settings['icon'] );
 				}
 
-				// Set parent if provided.
+				// Set parent.
 				$parent_slug = $arr_tab_settings['parent_slug'] ?? null;
-				if ( $parent_slug ) {
-					if ( $parent_slug === 'settings' ) {
-						// In premium and extended settings parent was always "settings".
-						$parent_slug = Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG;
-					}
 
-					$menu_page->set_parent( $parent_slug );
+				if ( $parent_slug === null || $parent_slug === 'settings' ) {
+					// In premium and extended settings parent was always "settings".
+					$parent_slug = Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG;
 				}
+
+				$menu_page->set_parent( $parent_slug );
 
 				$menu_page->add();
 			},
