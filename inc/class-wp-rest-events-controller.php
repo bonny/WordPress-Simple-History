@@ -42,6 +42,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'permission_callback' => [ $this, 'get_items_permissions_check' ],
 					'args'                => $this->get_collection_params(),
 				],
+				'schema'      => [ $this, 'get_public_item_schema' ],
+			],
+		);
+
+		// POST /wp-json/simple-history/v1/events.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
+			[
 				[
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => [ $this, 'create_item' ],
