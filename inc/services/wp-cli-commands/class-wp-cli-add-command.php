@@ -59,13 +59,7 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 		$note = $assoc_args['note'] ?? '';
 		$level = $assoc_args['level'] ?? 'info';
 
-		WP_CLI::debug( 'Message to log: ' . $message );
-		WP_CLI::debug( 'Note: ' . $note );
-		WP_CLI::debug( 'Log level: ' . $level );
-
-
 		// Get the instantiated logger.
-		// $event_logger = $simple_history->get_instantiated_logger_by_slug( $event_row->logger );
 		$manual_events_logger = $simple_history->get_instantiated_logger_by_slug( 'ManualEventsLogger' );
 
 		$context = [
@@ -80,17 +74,10 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 			WP_CLI::error( 'Invalid log level specified.' );
 		}
 
-		WP_CLI::debug( 'Context array: ' . print_r( $context, true ) );
-
 		$method = $level . '_message';
 
-		WP_CLI::debug( 'Calling method: ' . $method );
+		$manual_events_logger->$method( 'added_manual_event', $context);
 
-		$manual_events_logger->$method( 'added_manual_event', array_merge( $context, array(
-			'message' => $message,
-		) ) );
-
-		WP_CLI::debug( 'Logger method called successfully' );
 		WP_CLI::success( 'Event logged successfully.' );
 	}
 }
