@@ -24,15 +24,18 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 	 * : Additional note or details about the event.
 	 *
 	 * [--level=<level>]
-	 * : Log level. One of: debug, info, warning, error, emergency.
+	 * : Log level. One of: emergency, alert, critical, error, warning, notice, info, debug.
 	 * ---
 	 * default: info
 	 * options:
-	 *   - debug
-	 *   - info
-	 *   - warning
-	 *   - error
 	 *   - emergency
+	 *   - alert
+	 *   - critical
+	 *   - error
+	 *   - warning
+	 *   - notice
+	 *   - info
+	 *   - debug
 	 * ---
 	 *
 	 * ## EXAMPLES
