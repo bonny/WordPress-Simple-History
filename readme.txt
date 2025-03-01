@@ -308,6 +308,11 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 ### Unreleased
 
 -   Add support for custom entry logger via WP-CLI and REST API. manage_options required. all wp-cli users can do it.
+-   Examples:
+    -   `$ http POST http://wordpress-stable-docker-mariadb.test:8282/wp-json/simple-history/v1/events message='Deploy successful' level=notice note='Deploy id: OKL-473-IYE. Source: GitHub actions.' --auth par:"aNJa wq10 ba8u nauU xRJM oYeY"`
+    -   `❯ http POST http://wordpress-stable-docker-mariadb.test:8282/wp-json/simple-history/v1/events message='Hello from REST API' --auth par:"aNJa bq10 Xa8u nnuU xRJM oYeA"`
+    -   `❯ docker compose run --rm wpcli_mariadb simple-history event add "The website will be updated to a new theme next monday. /The web dev team" --level=notice`
+    -   `❯ docker compose run --rm wpcli_mariadb simple-history event add "Watch out for email phishing attempts" --level=warning --note='At the moment there are many of our users who recieve emails that says they come from our IT-department. Do not click on any links in email that you get!'`
 
 ### 5.7.0 (February 2025)
 
