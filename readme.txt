@@ -307,7 +307,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ### Unreleased
 
--   Add support for custom entry logger via WP-CLI and REST API.
+-   Add support for custom entry logger via WP-CLI and REST API. manage_options required. all wp-cli users can do it.
 
 ### 5.7.0 (February 2025)
 
