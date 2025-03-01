@@ -859,15 +859,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error True if user can create items, WP_Error object otherwise.
 	 */
 	public function create_item_permissions_check( $request ) {
-		if ( ! is_user_logged_in() ) {
-			return new WP_Error(
-				'rest_forbidden',
-				__( 'Sorry, you must be logged in to log events.', 'simple-history' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
-
-		return true;
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
