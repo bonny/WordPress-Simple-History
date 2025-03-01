@@ -305,6 +305,10 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
+### Unreleased
+
+-   Add support for custom entry logger via WP-CLI and REST API.
+
 ### 5.7.0 (February 2025)
 
 🔄 This release adds more menu location options and some other smaller improvements to the interface and internal code.
