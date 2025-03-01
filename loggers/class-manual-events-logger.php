@@ -23,7 +23,7 @@ class Manual_Events_Logger extends Logger {
 			'description' => \__( 'Logs manually added events', 'simple-history' ),
 			'capability' => 'edit_posts',
 			'messages' => [
-				'manual_event_added' => \__( '{message}', 'simple-history' ),
+				'added_manual_event' => \__( 'Added manual message: {message}', 'simple-history' ),
 			],
 			'labels' => [
 				'search' => [
@@ -35,13 +35,6 @@ class Manual_Events_Logger extends Logger {
 				],
 			],
 		];
-	}
-
-	/**
-	 * Called when logger is loaded.
-	 */
-	public function loaded() {
-		// No hooks needed for manual events
 	}
 
 	/**

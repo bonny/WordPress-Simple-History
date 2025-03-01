@@ -13,20 +13,6 @@ use WP_CLI_Command;
  */
 class WP_CLI_Add_Command extends WP_CLI_Command {
 	/**
-	 * Simple History instance.
-	 *
-	 * @var Simple_History
-	 */
-	private $simple_history;
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		$this->simple_history = Simple_History::get_instance();
-	}
-
-	/**
 	 * Add a new event to the log.
 	 *
 	 * ## OPTIONS
@@ -60,24 +46,51 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 	 * @param array $args Command arguments.
 	 * @param array $assoc_args Command options.
 	 */
-	public function __invoke( $args, $assoc_args ) {
+	public function add( $args, $assoc_args ) {
+
+		/**
+		 * Simple History instance.
+		 *
+		 * @var Simple_History
+		 */
+		$simple_history = Simple_History::get_instance();
+
 		$message = $args[0];
 		$note = $assoc_args['note'] ?? '';
 		$level = $assoc_args['level'] ?? 'info';
 
-		$logger = new Manual_Events_Logger( $this->simple_history );
-		$context = array(
-			'note' => $note,
-		);
+		WP_CLI::debug( 'Message to log: ' . $message );
+		WP_CLI::debug( 'Note: ' . $note );
+		WP_CLI::debug( 'Log level: ' . $level );
+
+
+		// Get the instantiated logger.
+		// $event_logger = $simple_history->get_instantiated_logger_by_slug( $event_row->logger );
+		$manual_events_logger = $simple_history->get_instantiated_logger_by_slug( 'ManualEventsLogger' );
+
+		$context = [
+			'message' => $message,
+		];
+
+		if ( ! empty( $note ) ) {
+			$context['note'] = $note;
+		}
 
 		if ( ! Log_Levels::is_valid_level( $level ) ) {
 			WP_CLI::error( 'Invalid log level specified.' );
 		}
 
+		WP_CLI::debug( 'Context array: ' . print_r( $context, true ) );
+
 		$method = $level . '_message';
-		$logger->$method( 'manual_event_added', array_merge( $context, array(
+
+		WP_CLI::debug( 'Calling method: ' . $method );
+
+		$manual_events_logger->$method( 'added_manual_event', array_merge( $context, array(
 			'message' => $message,
 		) ) );
+
+		WP_CLI::debug( 'Logger method called successfully' );
 		WP_CLI::success( 'Event logged successfully.' );
 	}
-} 
+}
