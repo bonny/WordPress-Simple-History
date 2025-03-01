@@ -16,6 +16,7 @@ Simple History automatically logs various actions in WordPress and displays them
 - [Overview](architecture/overview.md) - High-level architecture of the plugin
 - [Core Components](architecture/core-components.md) - Details about the main plugin components
 - [Event System](architecture/event-system.md) - How events are logged and processed
+- [Event Details](architecture/event-details.md) - Event details formatting and display system
 - [Services](architecture/services.md) - Service-based architecture details
 
 ### Folder Structure
