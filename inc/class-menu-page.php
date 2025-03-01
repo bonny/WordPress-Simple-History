@@ -494,9 +494,6 @@ class Menu_Page {
 	 * Return URL to a menu page.
 	 */
 	public function get_url() {
-		// Some URL:s can't be generated with `menu_page_url()` since it only works within the admin area.
-		// But we want to be able to link to for example settings page also from front end.
-
 		// If settings page.
 		if ( 'options' === $this->location ) {
 			return admin_url( 'options-general.php?page=' . $this->menu_slug );
@@ -513,7 +510,7 @@ class Menu_Page {
 			);
 		}
 
-		// If location is empty the add as tab to parent.
+		// If location is empty then add as tab to parent.
 		if ( empty( $this->location ) && $this->parent ) {
 			return add_query_arg(
 				[

@@ -822,46 +822,6 @@ class Helpers {
 	}
 
 	/**
-	 * Get URL for settings page.
-	 *
-	 * @return string URL for settings page, i.e. "/wp-admin/admin.php?page=<main-menu-page-slug>" or empty string if page not found.
-	 */
-	public static function get_settings_page_url() {
-		return Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
-	}
-
-	/**
-	 * Get URL for a main tab in the settings page.
-	 *
-	 * @param string $tab_slug Slug for the tab.
-	 * @return string URL for the tab, unescaped.
-	 */
-	public static function get_settings_page_tab_url( $tab_slug ) {
-		return add_query_arg(
-			[
-				'selected-tab' => $tab_slug,
-			],
-			self::get_settings_page_url()
-		);
-	}
-
-	/**
-	 * Get URL for a sub-tab in the settings page.
-	 *
-	 * @param string $sub_tab_slug Slug for the sub-tab.
-	 * @return string URL for the sub-tab, unescaped.
-	 */
-	public static function get_settings_page_sub_tab_url( $sub_tab_slug ) {
-		return add_query_arg(
-			[
-				'selected-tab'  => Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG,
-				'selected-sub-tab' => $sub_tab_slug,
-			],
-			self::get_settings_page_url()
-		);
-	}
-
-	/**
 	 *  Add link to add-ons.
 	 *
 	 * @return string HTML for link to add-ons.
@@ -1201,7 +1161,7 @@ class Helpers {
 	 *
 	 * Defaults to true.
 	 *
-	 * @deprected 5.7.0
+	 * @deprecated 5.7.0
 	 * @return bool
 	 */
 	public static function setting_show_as_page() {
@@ -1705,14 +1665,15 @@ class Helpers {
 	/**
 	 * Get the URL to the admin page where user views the history feed.
 	 *
+	 * Can not use `menu_page_url()` because it only works within the admin area.
+	 * But we want to be able to link to history page also from front end.
+	 *
+	 * Calls to this from the Admin Bar Quick View also happens before menu is registered.
+	 *
 	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
 	 */
 	public static function get_history_admin_url() {
-		// Can not use `menu_page_url()` because it only works within the admin area.
-		// But we want to be able to link to history page also from front end.
-
 		$history_page_location = self::get_menu_page_location();
-		// TODO: should get_menu_page_location() be called get_history_menu_page_location() instead?
 
 		if ( in_array( $history_page_location, array( 'top', 'bottom' ), true ) ) {
 			return admin_url( 'admin.php?page=' . Simple_History::MENU_PAGE_SLUG );
@@ -1724,5 +1685,57 @@ class Helpers {
 			// Fallback if no match found.
 			return admin_url( 'admin.php?page=' . Simple_History::MENU_PAGE_SLUG );
 		}
+	}
+
+	/**
+	 * Get URL for settings page.
+	 *
+	 * Uses the same menu location logic as the main history page.
+	 *
+	 * @return string URL for settings page.
+	 */
+	public static function get_settings_page_url() {
+		$history_page_location = self::get_menu_page_location();
+
+		if ( in_array( $history_page_location, array( 'top', 'bottom' ), true ) ) {
+			return admin_url( 'admin.php?page=' . Simple_History::SETTINGS_MENU_PAGE_SLUG );
+		} elseif ( in_array( $history_page_location, array( 'inside_tools', 'inside_dashboard' ), true ) ) {
+			return admin_url( 'options-general.php?page=' . Simple_History::SETTINGS_MENU_PAGE_SLUG );
+		} else {
+			// Fallback if no match found.
+			return admin_url( 'admin.php?page=' . Simple_History::SETTINGS_MENU_PAGE_SLUG );
+		}
+	}
+
+
+	/**
+	 * Get URL for a main tab in the settings page.
+	 *
+	 * @param string $tab_slug Slug for the tab.
+	 * @return string URL for the tab, unescaped.
+	 */
+	public static function get_settings_page_tab_url( $tab_slug ) {
+		return add_query_arg(
+			[
+				'selected-tab' => $tab_slug,
+			],
+			self::get_settings_page_url()
+		);
+	}
+
+	/**
+	 * Get URL for a sub-tab in the settings page.
+	 *
+	 * @param string $sub_tab_slug Slug for the sub-tab.
+	 * @return string URL for the sub-tab, unescaped.
+	 */
+	public static function get_settings_page_sub_tab_url( $sub_tab_slug ) {
+		return add_query_arg(
+			[
+				'selected-tab'  => Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG,
+				'selected-sub-tab' => $sub_tab_slug,
+			],
+			self::get_settings_page_url()
+		);
 	}
 }
