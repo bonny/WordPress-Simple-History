@@ -2,8 +2,12 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Simple_Container;
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Group_Inline_Formatter;
 use Simple_History\Log_Levels;
 
 /**
@@ -49,10 +53,11 @@ class Custom_Entry_Logger extends Logger {
 	}
 
 	/**
-	 * Get the log row details output.
+	 * Get the log row details output,
+	 * display the message note in the details area, if it exists.
 	 *
 	 * @param object $row Log row.
-	 * @return Event_Details_Container_Interface
+	 * @return Event_Details_Container_Interface|null
 	 */
 	public function get_log_row_details_output( $row ) {
 		$context = $row->context;
@@ -63,11 +68,21 @@ class Custom_Entry_Logger extends Logger {
 			return null;
 		}
 
+		$event_details_group = new Event_Details_Group();
+
 		// Add note if it exists.
 		if ( ! empty( $context['note'] ) ) {
-			return new Event_Details_Simple_Container( $context['note'] );
+			// Create a group for the note.
+
+			$event_details_group->add_item(
+				new Event_Details_Item(
+					'note',
+					__( 'Entry notes', 'simple-history' ),
+				)
+			);
+
 		}
 
-		return null;
+		return $event_details_group;
 	}
 }
