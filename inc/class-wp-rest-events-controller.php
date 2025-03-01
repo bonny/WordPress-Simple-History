@@ -42,6 +42,28 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'permission_callback' => [ $this, 'get_items_permissions_check' ],
 					'args'                => $this->get_collection_params(),
 				],
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'create_item' ],
+					'permission_callback' => [ $this, 'create_item_permissions_check' ],
+					'args'                => array(
+						'message' => array(
+							'required' => true,
+							'type' => 'string',
+							'description' => 'Short message to log',
+						),
+						'details' => array(
+							'type' => 'string',
+							'description' => 'Longer message with more details',
+						),
+						'level' => array(
+							'type' => 'string',
+							'enum' => array( 'debug', 'info', 'warning', 'error', 'emergency' ),
+							'default' => 'info',
+							'description' => 'Log level',
+						),
+					),
+				],
 				'schema'      => [ $this, 'get_public_item_schema' ],
 			],
 		);
@@ -819,5 +841,63 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		$response = rest_ensure_response( $data );
 
 		return $response;
+	}
+
+	/**
+	 * Check if current user can create items.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return bool|WP_Error True if user can create items, WP_Error object otherwise.
+	 */
+	public function create_item_permissions_check( $request ) {
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you must be logged in to log events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Create one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function create_item( $request ) {
+		$message = $request->get_param( 'message' );
+		$details = $request->get_param( 'details' );
+		$level = $request->get_param( 'level' );
+
+		$logger = new Simple_Logger( $this->simple_history );
+		$context = array();
+
+		if ( $details ) {
+			$context['_occasionstext'] = $details;
+		}
+
+		$method = $level;
+		if ( method_exists( $logger, $method ) ) {
+			$logger->$method( $message, $context );
+
+			return new WP_REST_Response(
+				array(
+					'message' => 'Event logged successfully',
+					'data' => array(
+						'status' => 201,
+					),
+				),
+				201
+			);
+		}
+
+		return new WP_Error(
+			'rest_invalid_log_level',
+			__( 'Invalid log level specified.', 'simple-history' ),
+			array( 'status' => 400 )
+		);
 	}
 }
