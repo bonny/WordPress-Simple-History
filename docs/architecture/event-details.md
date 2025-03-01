@@ -144,24 +144,119 @@ $container = new Event_Details_Simple_Container('<p>Basic event details</p>');
 echo $container->to_html();
 ```
 
-### 2. Complex Container with Groups
+### 2. Complex Container with Groups and Formatters
 
 ```php
+// Create items for the group
+$event_group = [
+    new Event_Details_Item(
+        ['show_on_dashboard'],
+        __('Show on dashboard', 'simple-history')
+    ),
+    new Event_Details_Item(
+        ['show_as_page'],
+        __('Show as a page', 'simple-history')
+    ),
+    new Event_Details_Item(
+        ['pager_size'],
+        __('Items on page', 'simple-history')
+    )
+];
+
+// Create a group with inline formatter
+$event_details_group_inline = new Event_Details_Group();
+$event_details_group_inline->set_formatter(new Event_Details_Group_Inline_Formatter());
+$event_details_group_inline->add_items($event_group);
+$event_details_group_inline->set_title(__('Inline group with changes', 'simple-history'));
+
+// Add group to container
 $container = new Event_Details_Container();
-$group = new Event_Details_Group();
-$group->set_title('Changes');
-$group->add_item(new Event_Details_Item('title', 'Post Title'));
-$container->add_group($group);
+$container->add_group($event_details_group_inline);
 ```
 
-### 3. Context-Based Details
+### 3. Using Raw Formatters
+
+```php
+// Create a raw formatter with custom HTML and JSON output
+$item_raw_formatter = new Event_Details_Item_Table_Row_RAW_Formatter();
+$item_raw_formatter->set_html_output('This is some <strong>RAW HTML</strong> output');
+$item_raw_formatter->set_json_output([
+    'raw_row_1' => 'Raw json row 1',
+    'raw_row_2' => 'Raw json row 2'
+]);
+
+// Create item with raw formatter
+$raw_item = new Event_Details_Item('version', 'Version');
+$raw_item->set_formatter($item_raw_formatter);
+```
+
+### 4. Context-Based Details with Multiple Value Formats
 
 ```php
 $container = new Event_Details_Container();
 $container->set_context([
-    'post_title_new' => 'New Title',
-    'post_title_prev' => 'Old Title'
+    // New/Previous format with _new/_prev suffix
+    'show_on_dashboard_prev' => '0',
+    'show_on_dashboard_new' => '1',
+    
+    // Direct value format
+    'plugin_name' => 'Plugin Dependencies',
+    'plugin_version' => '1.14.3',
+    
+    // Separate keys for values
+    'post_prev_post_title' => 'About the company',
+    'post_new_post_title' => 'About us'
 ]);
+
+// Add items that use different context formats
+$container->add_items([
+    // Using new/prev suffix format
+    new Event_Details_Item(
+        ['show_on_dashboard'],
+        'Show on dashboard'
+    ),
+    
+    // Using direct value
+    new Event_Details_Item(
+        'plugin_name',
+        'Plugin name'
+    ),
+    
+    // Using separate keys
+    new Event_Details_Item(
+        ['post_new_post_title', 'post_prev_post_title'],
+        'Post title'
+    )
+]);
+```
+
+### 5. Working with Different Group Formatters
+
+```php
+// Create items
+$items = [
+    new Event_Details_Item('title', 'Page title'),
+    new Event_Details_Item('content', 'Page content')
+];
+
+// Inline formatter (items in a paragraph)
+$inline_group = new Event_Details_Group();
+$inline_group->set_formatter(new Event_Details_Group_Inline_Formatter());
+$inline_group->add_items($items);
+
+// Table formatter (items in table rows)
+$table_group = new Event_Details_Group();
+$table_group->set_formatter(new Event_Details_Group_Table_Formatter());
+$table_group->add_items($items);
+
+// Diff table formatter (shows differences)
+$diff_group = new Event_Details_Group();
+$diff_group->set_formatter(new Event_Details_Group_Diff_Table_Formatter());
+$diff_group->add_items($items);
+
+// Add all groups to container
+$container = new Event_Details_Container();
+$container->add_groups([$inline_group, $table_group, $diff_group]);
 ```
 
 ## Best Practices
