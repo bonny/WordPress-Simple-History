@@ -3,7 +3,8 @@
 namespace Simple_History\Services\WP_CLI_Commands;
 
 use Simple_History\Simple_History;
-use Simple_History\Loggers\Simple_Logger;
+use Simple_History\Loggers\Manual_Events_Logger;
+use Simple_History\Log_Levels;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -64,19 +65,19 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 		$note = $assoc_args['note'] ?? '';
 		$level = $assoc_args['level'] ?? 'info';
 
-		$logger = new Simple_Logger( $this->simple_history );
-		$context = array();
+		$logger = new Manual_Events_Logger( $this->simple_history );
+		$context = array(
+			'note' => $note,
+		);
 
-		if ( $note ) {
-			$context['note'] = $note;
-		}
-
-		$method = $level;
-		if ( method_exists( $logger, $method ) ) {
-			$logger->$method( $message, $context );
-			WP_CLI::success( 'Event logged successfully.' );
-		} else {
+		if ( ! Log_Levels::is_valid_level( $level ) ) {
 			WP_CLI::error( 'Invalid log level specified.' );
 		}
+
+		$method = $level . '_message';
+		$logger->$method( 'manual_event_added', array_merge( $context, array(
+			'message' => $message,
+		) ) );
+		WP_CLI::success( 'Event logged successfully.' );
 	}
 } 
