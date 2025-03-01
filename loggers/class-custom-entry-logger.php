@@ -32,7 +32,7 @@ class Custom_Entry_Logger extends Logger {
 		$arr_info = array(
 			'name'        => _x( 'Custom Entry Logger', 'Logger: Custom Entry', 'simple-history' ),
 			'description' => _x( 'Logs custom entries added through WP-CLI or REST API', 'Logger: Custom Entry', 'simple-history' ),
-			'capability'  => 'edit_posts',
+			'capability'  => 'edit_pages',
 			'messages'    => array(
 				'custom_entry_added' => _x( 'Added a custom entry: {message}', 'Logger: Custom Entry', 'simple-history' ),
 			),
