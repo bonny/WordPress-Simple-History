@@ -3,7 +3,7 @@
 namespace Simple_History\Services\WP_CLI_Commands;
 
 use Simple_History\Simple_History;
-use Simple_History\Loggers\Manual_Events_Logger;
+use Simple_History\Loggers\Custom_Entry_Logger;
 use Simple_History\Log_Levels;
 use WP_CLI;
 use WP_CLI_Command;
@@ -38,7 +38,7 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Add a simple info message
-	 *     $ wp simple-history event add "User profile updated"
+	 *     $ wp simple-history event add "Deployed a new version of the website"
 	 *
 	 *     # Add a warning with a note
 	 *     $ wp simple-history event add "Failed login attempt" --level=warning --note="IP: 192.168.1.1"
@@ -47,12 +47,7 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Command options.
 	 */
 	public function add( $args, $assoc_args ) {
-
-		/**
-		 * Simple History instance.
-		 *
-		 * @var Simple_History
-		 */
+		/** @var Simple_History $simple_history */
 		$simple_history = Simple_History::get_instance();
 
 		$message = $args[0];
@@ -60,7 +55,7 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 		$level = $assoc_args['level'] ?? 'info';
 
 		// Get the instantiated logger.
-		$manual_events_logger = $simple_history->get_instantiated_logger_by_slug( 'ManualEventsLogger' );
+		$custom_entry_logger = $simple_history->get_instantiated_logger_by_slug( 'CustomEntryLogger' );
 
 		$context = [
 			'message' => $message,
@@ -76,7 +71,7 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 
 		$method = $level . '_message';
 
-		$manual_events_logger->$method( 'added_manual_event', $context);
+		$custom_entry_logger->$method( 'custom_entry_added', $context );
 
 		WP_CLI::success( 'Event logged successfully.' );
 	}
