@@ -61,13 +61,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 							'type' => 'string',
 							'description' => 'Short message to log',
 						),
-						'details' => array(
+						'note' => array(
 							'type' => 'string',
-							'description' => 'Longer message with more details',
+							'description' => 'Additional note or details about the event',
 						),
 						'level' => array(
 							'type' => 'string',
-							'enum' => array( 'debug', 'info', 'warning', 'error', 'emergency' ),
+							'enum' => array( 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug' ),
 							'default' => 'info',
 							'description' => 'Log level',
 						),
@@ -878,35 +878,45 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 */
 	public function create_item( $request ) {
 		$message = $request->get_param( 'message' );
-		$details = $request->get_param( 'details' );
-		$level = $request->get_param( 'level' );
+		$note = $request->get_param( 'note' );
+		$level = $request->get_param( 'level' ) ?? 'info';
 
-		$logger = new Simple_Logger( $this->simple_history );
-		$context = array();
-
-		if ( $details ) {
-			$context['_occasionstext'] = $details;
-		}
-
-		$method = $level;
-		if ( method_exists( $logger, $method ) ) {
-			$logger->$method( $message, $context );
-
-			return new WP_REST_Response(
-				array(
-					'message' => 'Event logged successfully',
-					'data' => array(
-						'status' => 201,
-					),
-				),
-				201
+		if ( ! Log_Levels::is_valid_level( $level ) ) {
+			return new WP_Error(
+				'rest_invalid_log_level',
+				__( 'Invalid log level specified.', 'simple-history' ),
+				array( 'status' => 400 )
 			);
 		}
 
-		return new WP_Error(
-			'rest_invalid_log_level',
-			__( 'Invalid log level specified.', 'simple-history' ),
-			array( 'status' => 400 )
+		$logger = $this->simple_history->get_instantiated_logger_by_slug( 'CustomEntryLogger' );
+		if ( ! $logger ) {
+			return new WP_Error(
+				'rest_logger_not_found',
+				__( 'Custom entry logger could not be initialized.', 'simple-history' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$context = [
+			'message' => $message,
+		];
+
+		if ( ! empty( $note ) ) {
+			$context['note'] = $note;
+		}
+
+		$method = $level . '_message';
+		$logger->$method( 'custom_entry_added', $context );
+
+		return new \WP_REST_Response(
+			array(
+				'message' => 'Event logged successfully',
+				'data' => array(
+					'status' => 201,
+				),
+			),
+			201
 		);
 	}
 }
