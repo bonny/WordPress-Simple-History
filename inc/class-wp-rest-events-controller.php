@@ -855,7 +855,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Check if current user can create items.
 	 *
-	 * @param WP_REST_Request $request Request object.
+	 * @param \WP_REST_Request $request Request object.
 	 * @return bool|WP_Error True if user can create items, WP_Error object otherwise.
 	 */
 	public function create_item_permissions_check( $request ) {
@@ -865,8 +865,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Create one item from the collection.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
 		$message = $request->get_param( 'message' );
