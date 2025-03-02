@@ -87,6 +87,7 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 					listStyleType: 'none',
 				} }
 			>
+				<li style={ liStyles }>Stealth Mode GUI</li>
 				<li style={ liStyles }>Export as CSV and JSON</li>
 				<li style={ liStyles }>
 					Option to set number of days to keep the log

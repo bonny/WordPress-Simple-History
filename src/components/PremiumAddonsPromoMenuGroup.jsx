@@ -25,23 +25,28 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		return null;
 	}
 
-	const handleClickExport = () => {
+	const handleClickExportPromo = () => {
 		onCloseDropdownMenu();
+
 		handleOnClickPremiumFeature( {
 			featureTitle: 'Export results',
 			featureDescription: (
 				<>
 					<p
 						style={ {
-							backgroundColor: 'rgb(251 246 126)',
-							fontSize: '1.1rem',
+							backgroundColor: 'var(--sh-color-yellow)',
+							fontSize: 'var(--sh-font-size-large)',
 							padding: '1rem 2rem',
 						} }
 					>
 						<strong>Export results</strong> is a premium feature.
 					</p>
 
-					<p>
+					<p
+						style={ {
+							fontSize: 'var(--sh-font-size-large)',
+						} }
+					>
 						The export function supports CSV and JSON and gives you
 						a downloaded file of the current search result.
 					</p>
@@ -50,27 +55,32 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		} );
 	};
 
-	const handleClickAddEventManually = () => {
+	const handleClickAddEventManuallyPromo = () => {
 		onCloseDropdownMenu();
+
 		handleOnClickPremiumFeature( {
-			featureTitle: 'Add event manually',
-			// 'Add event manually is a premium feature!',
+			featureTitle: 'Create log entry',
 			featureDescription: (
 				<>
 					<p
 						style={ {
-							backgroundColor: 'rgb(251 246 126)',
+							backgroundColor: 'var(--sh-color-yellow)',
 							fontSize: '1.1rem',
 							padding: '1rem 2rem',
 						} }
 					>
-						<strong>Add event manually</strong> is a premium
+						<strong>Create log entry manually</strong> is a premium
 						feature.
 					</p>
 
-					<p>
-						This feature allows you to broadcast messages to log
-						viewers.
+					<p style={ { fontSize: 'var(--sh-font-size-large)' } }>
+						This feature allows you to manually add custom events to
+						the activity log, using a simple GUI.
+					</p>
+
+					<p style={ { fontSize: 'var(--sh-font-size-large)' } }>
+						Only administrators can add events, but all users who
+						can view the log can see the added entries.
 					</p>
 				</>
 			),
@@ -80,23 +90,23 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 	return (
 		<MenuGroup>
 			<MenuItem
-				onClick={ handleClickExport }
+				onClick={ handleClickExportPromo }
 				suffix={ <PremiumFeatureSuffix /> }
 				info={ __( 'CSV and JSON supported', 'simple-history' ) }
 			>
 				{ __( 'Export results…', 'simple-history' ) }
 			</MenuItem>
 
-			{ /* <MenuItem
-				onClick={ handleClickAddEventManually }
+			<MenuItem
+				onClick={ handleClickAddEventManuallyPromo }
 				suffix={ <PremiumFeatureSuffix /> }
 				info={ __(
-					'Broadcast messages to log viewers',
+					'Manually add custom events to the activity log',
 					'simple-history'
 				) }
 			>
-				{ __( 'Add event manually', 'simple-history' ) }
-			</MenuItem> */ }
+				{ __( 'Create log entry…', 'simple-history' ) }
+			</MenuItem>
 		</MenuGroup>
 	);
 }
