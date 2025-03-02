@@ -8,7 +8,6 @@ import {
 } from '@wordpress/components';
 import { SVG } from '@wordpress/primitives';
 import CheckboxImage from '../../css/icons/check_circle_24dp_3F9349_FILL0_wght400_GRAD0_opsz24.svg';
-import { lineDashed } from '@wordpress/icons';
 
 // Icon = Workspace Premium
 // https://fonts.google.com/icons?selected=Material+Symbols+Outlined:workspace_premium:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=medal&icon.size=24&icon.color=%235f6368
@@ -44,9 +43,6 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 		);
 		handleModalClose();
 	};
-
-	const svgTxt =
-		'<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#78A75A"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>';
 
 	const liStyles = {
 		backgroundImage: `url(${ CheckboxImage })`,
