@@ -194,11 +194,11 @@ Track WooCommerce activity with detailed logs for:
 
 #### [Debug and Monitor](https://simple-history.com/add-ons/debug-and-monitor/)
 
-Gain deeper insights into your site’s background activity:
+Gain deeper insights into your site's background activity:
 
 🛠️ Monitor outgoing requests and emails  
 🔍 Debug HTTP API calls and server communication  
-👨‍💻 Essential for developers, support teams, and anyone curious about what’s happening under the hood
+👨‍💻 Essential for developers, support teams, and anyone curious about what's happening under the hood
 
 ### 💚 Sponsor this project
 
@@ -242,7 +242,7 @@ By default, nothing is logged on the front end, ensuring visitors experience no 
 
 ### Who can view the log?
 
-Access to the log depends on the user’s role:
+Access to the log depends on the user's role:
 
 -   **Administrators** can view all logged events.
 -   **Editors** can see events related to posts and pages.
@@ -274,7 +274,7 @@ That said, Simple History follows **privacy-friendly practices**:
 -   ❌ No local storage
 -   ✅ IP addresses are anonymized by default
 
-Since the plugin logs events (which may contain personal data), it’s **your responsibility** to ensure GDPR compliance based on your site's usage.
+Since the plugin logs events (which may contain personal data), it's **your responsibility** to ensure GDPR compliance based on your site's usage.
 
 For more information, see the full [GDPR FAQ](https://simple-history.com/docs/faq-frequently-asked-questions/#is-the-plugin-GDPR-complient).
 
@@ -304,6 +304,10 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   [Sponsor the plugin to keep it free.](https://simple-history.com/sponsor/)
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
+
+### Unreleased
+
+-   Added logging of admin page access denied events. When a user attempts to access an admin page they don't have permission for, this is now logged in the User Logger.
 
 ### 5.7.0 (February 2025)
 
