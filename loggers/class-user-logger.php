@@ -94,6 +94,11 @@ class User_Logger extends Logger {
 					'User revoke application password',
 					'simple-history'
 				),
+				'user_admin_page_access_denied' => _x(
+					'Was denied access to admin page "{admin_page}"',
+					'User was denied access to an admin page',
+					'simple-history'
+				),
 			),
 			'labels'      => array(
 				'search' => array(
@@ -129,7 +134,9 @@ class User_Logger extends Logger {
 						_x( 'User application password deletion', 'User logger: search', 'simple-history' ) => array(
 							'user_application_password_revoked',
 						),
-
+						_x( 'Admin page access denied', 'User logger: search', 'simple-history' ) => array(
+							'user_admin_page_access_denied',
+						),
 					),
 				),
 
@@ -183,6 +190,9 @@ class User_Logger extends Logger {
 		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
 		add_action( 'wp_delete_application_password', array( $this, 'on_action_wp_delete_application_password' ), 10, 2 );
 		// TODO: there is also an action "wp_update_application_password". Used by rest api and fired when a user updates app password there.
+
+		// Admin page access denied.
+		add_action( 'admin_page_access_denied', array( $this, 'on_admin_page_access_denied' ), 10 );
 
 		$this->add_wp_cli_hooks();
 	}
@@ -1214,5 +1224,30 @@ class User_Logger extends Logger {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Fires when a user is denied access to an admin page due to insufficient capabilities.
+	 */
+	public function on_admin_page_access_denied() {
+		$admin_page = '';
+
+		$admin_page = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
+
+		// Get the current admin page file.
+		$pagenow = $GLOBALS['pagenow'] ?? '';
+
+		// Construct full page path.
+		$full_page = $pagenow;
+		if ( $admin_page ) {
+			$full_page .= '?page=' . $admin_page;
+		}
+
+		$this->info_message(
+			'user_admin_page_access_denied',
+			[
+				'admin_page' => $full_page,
+			]
+		);
 	}
 }
