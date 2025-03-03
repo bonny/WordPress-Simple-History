@@ -29,6 +29,7 @@
 	/* Font sizes */
 	--sh-font-size-small: 0.75rem;
 	--sh-font-size-medium: 0.9rem;
+	--sh-font-size-large: 1.1rem;
 }
 
 /* clearfix */

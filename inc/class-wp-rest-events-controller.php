@@ -46,6 +46,37 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			],
 		);
 
+		// POST /wp-json/simple-history/v1/events.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'create_item' ],
+					'permission_callback' => [ $this, 'create_item_permissions_check' ],
+					'args'                => array(
+						'message' => array(
+							'required' => true,
+							'type' => 'string',
+							'description' => 'Short message to log',
+						),
+						'note' => array(
+							'type' => 'string',
+							'description' => 'Additional note or details about the event',
+						),
+						'level' => array(
+							'type' => 'string',
+							'enum' => array( 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug' ),
+							'default' => 'info',
+							'description' => 'Log level',
+						),
+					),
+				],
+				'schema'      => [ $this, 'get_public_item_schema' ],
+			],
+		);
+
 		// GET /wp-json/simple-history/v1/events/has-updates.
 		// Same args as /wp-json/simple-history/v1/events but returns only information
 		// if there are new events or not.
@@ -819,5 +850,65 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		$response = rest_ensure_response( $data );
 
 		return $response;
+	}
+
+	/**
+	 * Check if current user can create items.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return bool|WP_Error True if user can create items, WP_Error object otherwise.
+	 */
+	public function create_item_permissions_check( $request ) {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Create one item from the collection.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function create_item( $request ) {
+		$message = $request->get_param( 'message' );
+		$note = $request->get_param( 'note' );
+		$level = $request->get_param( 'level' ) ?? 'info';
+
+		if ( ! Log_Levels::is_valid_level( $level ) ) {
+			return new WP_Error(
+				'rest_invalid_log_level',
+				__( 'Invalid log level specified.', 'simple-history' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$logger = $this->simple_history->get_instantiated_logger_by_slug( 'CustomEntryLogger' );
+		if ( ! $logger ) {
+			return new WP_Error(
+				'rest_logger_not_found',
+				__( 'Custom entry logger could not be initialized.', 'simple-history' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$context = [
+			'message' => $message,
+		];
+
+		if ( ! empty( $note ) ) {
+			$context['note'] = $note;
+		}
+
+		$method = $level . '_message';
+		$logger->$method( 'custom_entry_added', $context );
+
+		return new \WP_REST_Response(
+			array(
+				'message' => 'Event logged successfully',
+				'data' => array(
+					'status' => 201,
+				),
+			),
+			201
+		);
 	}
 }

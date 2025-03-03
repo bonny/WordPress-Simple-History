@@ -422,6 +422,7 @@ class Simple_History {
 			Loggers\Theme_Logger::class,
 			Loggers\User_Logger::class,
 			Loggers\Simple_History_Logger::class,
+			Loggers\Custom_Entry_Logger::class,
 		);
 
 		/**

@@ -30,29 +30,8 @@ export const PremiumFeatureSuffix = function ( props ) {
 	}
 
 	return (
-		<span
-			style={ {
-				display: 'flex',
-				alignItems: 'center',
-				color: '#fff',
-				backgroundColor: 'var(--sh-color-green-2)',
-				textTransform: 'uppercase',
-				fontSize: '0.8em',
-				border: '1px solid darkgreen',
-				borderRadius: '4px',
-				padding: '0 0.5em',
-				opacity: '0.75',
-				lineHeight: 1,
-				margin: '0 0 0 1em',
-			} }
-		>
-			<span
-				style={ {
-					padding: '.5em 0',
-				} }
-			>
-				{ __( 'Premium', 'simple-history' ) }
-			</span>
+		<span className="sh-PremiumFeatureBadge">
+			{ __( 'Premium', 'simple-history' ) }
 
 			{ icon ? <Icon icon={ icon } size={ 20 } /> : null }
 

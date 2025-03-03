@@ -98,4 +98,26 @@ class Log_Levels {
 
 		return $str_translated;
 	}
+
+	/**
+	 * Check if a string is a valid log level.
+	 *
+	 * @since 4.0.0
+	 * @param string $level Level to check.
+	 * @return bool True if valid log level, false otherwise.
+	 */
+	public static function is_valid_level( $level ) {
+		$valid_levels = array(
+			self::EMERGENCY,
+			self::ALERT,
+			self::CRITICAL,
+			self::ERROR,
+			self::WARNING,
+			self::NOTICE,
+			self::INFO,
+			self::DEBUG,
+		);
+
+		return in_array( strtolower( $level ), $valid_levels, true );
+	}
 }
