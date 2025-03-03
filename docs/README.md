@@ -34,6 +34,11 @@ Simple History automatically logs various actions in WordPress and displays them
 - [Hooks Reference](development/hooks-reference.md) - Available filters and actions
 - [Best Practices](development/best-practices.md) - Development guidelines
 
+### API Reference
+- [REST API](rest-api.md) - REST API endpoints and usage
+- [Logging API](development/logging-api.md) - How to log custom events
+- [Query API](development/query-api.md) - How to query the log
+
 ## Requirements
 
 - WordPress 6.6 or newer
