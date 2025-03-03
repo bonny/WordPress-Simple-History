@@ -9,6 +9,7 @@
 /vendor
 /examples
 /src
+/docs
 
 .distignore
 .gitignore

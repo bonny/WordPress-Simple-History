@@ -4,7 +4,7 @@
 /examples/ export-ignore
 /tests/ export-ignore
 /img/ export-ignore
-
+/docs/ export-ignore
 /.distignore export-ignore
 /.env.testing export-ignore
 /.editorconfig export-ignore
