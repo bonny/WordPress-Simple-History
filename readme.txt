@@ -305,7 +305,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
 
-### Unreleased
+### 5.8.0 (March 2025)
 
 🔍 This release adds support for custom log entries and also adds logging when a user gets an access denied message when trying to view an admin page that they do not have access to.
 [Read the release post](https://simple-history.com/2025/simple-history-5-8-0-released/) for more details and screenshots.
