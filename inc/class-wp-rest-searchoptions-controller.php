@@ -228,7 +228,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				}
 
 				// For each specific search option.
-				foreach ( $logger_info['labels']['search']['options'] as $option_key => $option_messages ) {
+				$labels_search_options = $logger_info['labels']['search']['options'] ?? [];
+				foreach ( $labels_search_options as $option_key => $option_messages ) {
 					foreach ( $option_messages as $key => $val ) {
 						$option_messages[ $key ] = $logger_slug . ':' . $val;
 					}

@@ -309,13 +309,14 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 See the release post for more details: [Simple History 5.8.0 released](https://simple-history.com/2025/simple-history-5-8-0-released/)
 
+-   Fix rare options key missing error when retrieving logger search options.
 -   Add logging of admin page access denied events. When a user attempts to access an admin page they don't have permission for, this is now logged in the User Logger.
 -   Add new `Custom_Entry_Logger` logger that adds support for custom entries to be added via WP-CLI and REST API.
     -   Only administrators (users with `manage_options` capability) can add custom log entries using the REST API.
     -   Users with access to WP-CLI can add custom log entries.
     -   See the release post for examples and screenshots of how to use custom entries.
     -   (There is also an option in the Premium add-on to add custom entries via the UI.).
-  
+
 ### 5.7.0 (February 2025)
 
 🔄 This release adds more menu location options and some other smaller improvements to the interface and internal code.
