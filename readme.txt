@@ -307,7 +307,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ### Unreleased
 
-🔍 This release adds custom log entries support and improves access restriction logging.
+🔍 This release adds support for custom log entries and also adds logging when a user gets an access denied message when trying to view an admin page that they do not have access to.
 [Read the release post](https://simple-history.com/2025/simple-history-5-8-0-released/) for more details and screenshots.
 
 **Added**
