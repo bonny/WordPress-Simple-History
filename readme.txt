@@ -67,6 +67,8 @@ Out of the box Simple History has support for:
 
 -   **User Data Erasure Requests** – see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
+-   **admin page access denied** – see when a user tries to access an admin page they don't have permission to access.
+
 #### Built-in logging for third-party plugins
 
 Simple History comes with built in support for many plugins:
@@ -142,7 +144,10 @@ WP-CLI support is perfect for system administrators and agencies managing multip
 Example commands:
 
 -   `wp simple-history event list` – List the latest logged events.
+-   `simple-history event get` – Get more information about a specific event.
+-   `wp simple-history event add` – Add a custom event to the log.
 -   `wp simple-history event search` – Search for events.
+-   `wp simple-history stealth-mode` – See Stealth Mode status.
 
 ### 🥷 Stealth Mode – Hide Simple History from the WordPress Admin
 
@@ -176,6 +181,8 @@ Take your activity logging to the next level with add-ons that enhance tracking,
 
 Unlock advanced features and customization options:
 
+-   **Custom Log Entries** – Add custom log entries using a UI. Document important changes by creating custom log entries for team actions, content updates, or system changes that aren't automatically tracked.
+-   **Stealth Mode** – Hide Simple History from the WordPress admin for discreet tracking. Allows only specified users to see Simple History in the WordPress admin.
 -   **Log Retention** – Control how long logs are stored, from a few days to forever.
 -   **Export Search Results** – Download logs in CSV or JSON format for deeper analysis.
 -   **Failed User Logins** – Disable or limit logging of failed login attempts to reduce noise.
