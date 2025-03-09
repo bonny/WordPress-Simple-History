@@ -8,6 +8,7 @@ import {
 } from '@wordpress/components';
 import { SVG } from '@wordpress/primitives';
 import CheckboxImage from '../../css/icons/check_circle_24dp_3F9349_FILL0_wght400_GRAD0_opsz24.svg';
+import { __ } from '@wordpress/i18n';
 
 // Icon = Workspace Premium
 // https://fonts.google.com/icons?selected=Material+Symbols+Outlined:workspace_premium:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=medal&icon.size=24&icon.color=%235f6368
@@ -74,7 +75,10 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 					fontSize: '1rem',
 				} }
 			>
-				Simple History Premium also includes:
+				{ __(
+					'Simple History Premium also includes:',
+					'simple-history'
+				) }
 			</p>
 
 			<ul
@@ -83,24 +87,54 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 					listStyleType: 'none',
 				} }
 			>
-				<li style={ liStyles }>Add events manually using a GUI</li>
-				<li style={ liStyles }>Stealth Mode GUI</li>
-				<li style={ liStyles }>Export as CSV and JSON</li>
 				<li style={ liStyles }>
-					Option to set number of days to keep the log
+					{ __(
+						'Add events manually using a GUI',
+						'simple-history'
+					) }
 				</li>
 				<li style={ liStyles }>
-					Limit number of failed login attempts that are logged
+					{ __( 'Stealth Mode GUI', 'simple-history' ) }
 				</li>
 				<li style={ liStyles }>
-					Control how to store IP Addresses (anonymized or not)
+					{ __( 'Export as CSV and JSON', 'simple-history' ) }
 				</li>
 				<li style={ liStyles }>
-					Show a map of where a failed login attempt happened
+					{ __(
+						'Option to set number of days to keep the log',
+						'simple-history'
+					) }
 				</li>
-				<li style={ liStyles }>Control what messages to log</li>
-				<li style={ liStyles }>Remove premium upgrade banners</li>
-				<li style={ liStyles }>Remove review and donate banners</li>
+				<li style={ liStyles }>
+					{ __(
+						'Limit number of failed login attempts that are logged',
+						'simple-history'
+					) }
+				</li>
+				<li style={ liStyles }>
+					{ __(
+						'Control how to store IP Addresses (anonymized or not)',
+						'simple-history'
+					) }
+				</li>
+				<li style={ liStyles }>
+					{ __(
+						'Show a map of where a failed login attempt happened',
+						'simple-history'
+					) }
+				</li>
+				<li style={ liStyles }>
+					{ __( 'Control what messages to log', 'simple-history' ) }
+				</li>
+				<li style={ liStyles }>
+					{ __( 'Remove premium upgrade banners', 'simple-history' ) }
+				</li>
+				<li style={ liStyles }>
+					{ __(
+						'Remove review and donate banners',
+						'simple-history'
+					) }
+				</li>
 			</ul>
 
 			<Spacer margin={ 10 } />
@@ -113,11 +147,11 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 						backgroundColor: 'var(--sh-color-green)',
 					} }
 				>
-					Upgrade to premium
+					{ __( 'Upgrade to premium', 'simple-history' ) }
 				</Button>
 
 				<Button variant="tertiary" onClick={ handleModalClose }>
-					Maybe later
+					{ __( 'Maybe later', 'simple-history' ) }
 				</Button>
 			</HStack>
 		</Modal>
