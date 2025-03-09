@@ -2,6 +2,7 @@ import { MenuGroup, MenuItem } from '@wordpress/components';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { PremiumFeatureSuffix } from './PremiumFeatureSuffix';
+import { useUserHasCapability } from '../hooks/useUserHasCapability';
 
 /**
  * Menu group with premium features menu items that are promoted.
@@ -12,6 +13,9 @@ import { PremiumFeatureSuffix } from './PremiumFeatureSuffix';
  */
 export function PremiumAddonsPromoMenuGroup( props ) {
 	const { handleOnClickPremiumFeature, onCloseDropdownMenu } = props;
+
+	const userHasManageOptionsCapability =
+		useUserHasCapability( 'manage_options' );
 
 	// Filter to show/hide the premium addons menu group.
 	// Makes it possible to hide the group from external code.
@@ -87,6 +91,21 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		} );
 	};
 
+	// Show the "Create log entry…" menu item only if the user has the
+	// "manage_options" capability.
+	const customManualEntriesPrompMenuItem = userHasManageOptionsCapability ? (
+		<MenuItem
+			onClick={ handleClickAddEventManuallyPromo }
+			suffix={ <PremiumFeatureSuffix /> }
+			info={ __(
+				'Manually add custom events to the activity log',
+				'simple-history'
+			) }
+		>
+			{ __( 'Create log entry…', 'simple-history' ) }
+		</MenuItem>
+	) : null;
+
 	return (
 		<MenuGroup>
 			<MenuItem
@@ -97,16 +116,7 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 				{ __( 'Export results…', 'simple-history' ) }
 			</MenuItem>
 
-			<MenuItem
-				onClick={ handleClickAddEventManuallyPromo }
-				suffix={ <PremiumFeatureSuffix /> }
-				info={ __(
-					'Manually add custom events to the activity log',
-					'simple-history'
-				) }
-			>
-				{ __( 'Create log entry…', 'simple-history' ) }
-			</MenuItem>
+			{ customManualEntriesPrompMenuItem }
 		</MenuGroup>
 	);
 }
