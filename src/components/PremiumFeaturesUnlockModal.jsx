@@ -83,6 +83,7 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 					listStyleType: 'none',
 				} }
 			>
+				<li style={ liStyles }>Add events manually using a GUI</li>
 				<li style={ liStyles }>Stealth Mode GUI</li>
 				<li style={ liStyles }>Export as CSV and JSON</li>
 				<li style={ liStyles }>
