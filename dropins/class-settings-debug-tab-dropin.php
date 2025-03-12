@@ -6,10 +6,11 @@ use Simple_History\Simple_History;
 use Simple_History\Helpers;
 use Simple_History\Log_Query;
 use Simple_History\Menu_Page;
+use Simple_History\Services\Admin_Pages;
 
 /**
  * Dropin Name: Settings debug
- * Dropin Description: Adds a tab with debug information
+ * Dropin Description: Adds a tab with Help & Support and Debug information.
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
@@ -30,37 +31,41 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 		// Add using new menu_manager.
 		$admin_page_location = Helpers::get_menu_page_location();
 
+		// Main "Help & Support" page.
 		$debug_menu_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Simple History Help & Support', 'dashboard title name', 'simple-history' ) )
 			->set_menu_slug( 'simple_history_debug' )
+			->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
 			->set_capability( 'manage_options' )
-			->set_callback( [ $this, 'output_debug_page' ] )
+			->set_callback( [ $this, 'output_help_and_support_page' ] )
 			->set_icon( 'troubleshoot' )
 			->set_redirect_to_first_child_on_load();
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
 			$debug_menu_page
-				->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
-				->set_parent( Simple_History::MENU_PAGE_SLUG );
+				->set_parent( Simple_History::MENU_PAGE_SLUG )
+				->set_location( 'submenu' );
 		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
 			$debug_menu_page
-				->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 		}
 
-		// Add Help & Support tab.
+		$debug_menu_page->add();
+
+		// Add first "Support" tab.
 		$help_tab = ( new Menu_Page() )
-			->set_page_title( _x( 'Help & Support', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
+			->set_page_title( _x( 'Support', 'dashboard title name', 'simple-history' ) )
+			->set_menu_title( _x( 'Support', 'settings menu name', 'simple-history' ) )
 			->set_menu_slug( 'simple_history_help_support' )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_help_page' ] )
 			->set_order( 10 )
-			->set_parent( $debug_menu_page );
+			->set_parent( $debug_menu_page )
+			->add();
 
-		// Add Debug tab.
+		// Add second "Debug" tab.
 		$debug_tab = ( new Menu_Page() )
 			->set_page_title( _x( 'Debug', 'dashboard title name', 'simple-history' ) )
 			->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
@@ -68,11 +73,16 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_debug_page' ] )
 			->set_order( 20 )
-			->set_parent( $debug_menu_page );
+			->set_parent( $debug_menu_page )
+			->add();
+	}
 
-		$debug_menu_page->add();
-		$help_tab->add();
-		$debug_tab->add();
+	/**
+	 * Output the help and support page.
+	 */
+	public function output_help_and_support_page() {
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Admin_Pages::header_output();
 	}
 
 	/**
