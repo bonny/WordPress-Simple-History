@@ -167,7 +167,6 @@ class Setup_Settings_Page extends Service {
 
 		// Register tab using new method using Menu_Manager and Menu_Page.
 		// This is the tab at <simple history settings location> » General.
-
 		$settings_menu_page_main_tab = ( new Menu_Page() )
 			->set_menu_title( __( 'Settings', 'simple-history' ) )
 			->set_page_title( __( 'Settings', 'simple-history' ) )
@@ -175,9 +174,8 @@ class Setup_Settings_Page extends Service {
 			->set_icon( 'settings' )
 			->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG )
 			->set_callback( [ $this, 'settings_output_general' ] )
-			->set_redirect_to_first_child_on_load();
-
-		$menu_manager->add_page( $settings_menu_page_main_tab );
+			->set_redirect_to_first_child_on_load()
+			->add();
 
 		// In settings page is in options page then add subtab for general settings.
 		// so user will come to Settings » Simple History » Settings (tab) » General (subtab).
@@ -186,9 +184,8 @@ class Setup_Settings_Page extends Service {
 			->set_page_title( __( 'General settings', 'simple-history' ) )
 			->set_parent( $settings_menu_page_main_tab )
 			->set_callback( [ $this, 'settings_output_general' ] )
-			->set_menu_slug( 'general_settings_subtab_settings_general' );
-
-		$menu_manager->add_page( $general_settings_menu_page );
+			->set_menu_slug( 'general_settings_subtab_settings_general' )
+			->add();
 	}
 
 	/**
