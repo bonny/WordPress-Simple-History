@@ -35,7 +35,8 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			->set_menu_slug( 'simple_history_debug' )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_debug_page' ] )
-			->set_icon( 'troubleshoot' );
+			->set_icon( 'troubleshoot' )
+			->set_redirect_to_first_child_on_load();
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
@@ -49,11 +50,44 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 		}
 
+		// Add Help & Support tab.
+		$help_tab = ( new Menu_Page() )
+			->set_page_title( _x( 'Help & Support', 'dashboard title name', 'simple-history' ) )
+			->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
+			->set_menu_slug( 'simple_history_help_support' )
+			->set_capability( 'manage_options' )
+			->set_callback( [ $this, 'output_help_page' ] )
+			->set_order( 10 )
+			->set_parent( $debug_menu_page );
+
+		// Add Debug tab.
+		$debug_tab = ( new Menu_Page() )
+			->set_page_title( _x( 'Debug', 'dashboard title name', 'simple-history' ) )
+			->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
+			->set_menu_slug( 'simple_history_debug_tab' )
+			->set_capability( 'manage_options' )
+			->set_callback( [ $this, 'output_debug_page' ] )
+			->set_order( 20 )
+			->set_parent( $debug_menu_page );
+
 		$debug_menu_page->add();
+		$help_tab->add();
+		$debug_tab->add();
 	}
 
 	/**
-	 * Output the tab.
+	 * Output the help tab content.
+	 */
+	public function output_help_page() {
+		load_template(
+			SIMPLE_HISTORY_PATH . 'templates/settings-tab-help.php',
+			false,
+			array()
+		);
+	}
+
+	/**
+	 * Output the debug tab content.
 	 */
 	public function output_debug_page() {
 		load_template(
