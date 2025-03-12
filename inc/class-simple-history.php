@@ -443,12 +443,11 @@ class Simple_History {
 	 * @return array
 	 */
 	public function get_core_dropins() {
-		$dropins = array();
+		$dropins = [];
 		$dropins_dir = SIMPLE_HISTORY_PATH . 'dropins';
 		$dropin_files = glob( $dropins_dir . '/*.php' );
 
 		foreach ( $dropin_files as $file ) {
-
 			// Skip dropin main class that other classes depend on.
 			if ( basename( $file ) === 'class-dropin.php' ) {
 				continue;
@@ -471,8 +470,6 @@ class Simple_History {
 
 			$dropins[] = $class_name;
 		}
-
-		// sh_dd( '$dropins', $dropins );
 
 		/**
 		 * Filter the array with class names of core dropins.
