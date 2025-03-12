@@ -19,9 +19,8 @@ namespace Simple_History;
  *     ->set_capability('manage_options')
  *     ->set_icon('dashicons-tickets')
  *     ->set_order(20)
- *     ->set_parent('settings');
- *
- * $menu_manager->add_page($licenses_page);
+ *     ->set_parent('settings')
+ *     ->add();
  * ```
  */
 class Menu_Page {
@@ -189,44 +188,44 @@ class Menu_Page {
 	/**
 	 * Set parent page.
 	 *
-	 * @param Menu_Page|string $parent Parent page object or menu slug.
+	 * @param Menu_Page|string $parent_instance_or_string Parent page object or menu slug.
 	 * @return self Chainable method.
 	 */
-	public function set_parent( $parent ) {
-		if ( ! $parent instanceof Menu_Page && ! is_string( $parent ) ) {
+	public function set_parent( $parent_instance_or_string ) {
+		if ( ! $parent_instance_or_string instanceof Menu_Page && ! is_string( $parent_instance_or_string ) ) {
 			error_log(
 				sprintf(
 					'Parent must be a Menu_Page object or a menu slug string. Current page slug: "%s", Invalid parent: "%s".',
 					esc_html( $this->get_menu_slug() ),
-					esc_html( print_r( $parent, true ) )
+					esc_html( print_r( $parent_instance_or_string, true ) )
 				)
 			);
 
 			return $this;
 		}
 
-		if ( $parent instanceof Menu_Page ) {
-			$this->parent = $parent;
+		if ( $parent_instance_or_string instanceof Menu_Page ) {
+			$this->parent = $parent_instance_or_string;
 
 			return $this;
 		}
 
 		// If string then get the actual menu page instance from the menu manager.
-		if ( is_string( $parent ) ) {
+		if ( is_string( $parent_instance_or_string ) ) {
 			// Log error if menu_manager not set.
 			if ( ! $this->menu_manager ) {
-				error_log( 'Parent menu slug requires a menu manager instance. Menu with slug "' . esc_html( $this->menu_slug ) . '" tried to set parent to "' . esc_html( $parent ) . '".' );
+				error_log( 'Parent menu slug requires a menu manager instance. Menu with slug "' . esc_html( $this->menu_slug ) . '" tried to set parent to "' . esc_html( $parent_instance_or_string ) . '".' );
 
 				return $this;
 			}
 
-			$parent_page = $this->menu_manager->get_page_by_slug( $parent );
+			$parent_page = $this->menu_manager->get_page_by_slug( $parent_instance_or_string );
 
 			if ( ! $parent_page ) {
 				error_log(
 					sprintf(
 						'Parent page with slug "%s" not found. Current page slug: %s. All existing page slugs: %s',
-						esc_html( $parent ),
+						esc_html( $parent_instance_or_string ),
 						esc_html( $this->menu_slug ),
 						esc_html( implode( ',', $this->menu_manager->get_all_slugs() ) )
 					)
@@ -237,7 +236,7 @@ class Menu_Page {
 
 			$this->parent = $parent_page;
 		} else {
-			$this->parent = $parent;
+			$this->parent = $parent_instance_or_string;
 		}
 
 		return $this;
