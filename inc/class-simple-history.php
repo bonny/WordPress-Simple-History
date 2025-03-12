@@ -443,23 +443,36 @@ class Simple_History {
 	 * @return array
 	 */
 	public function get_core_dropins() {
-		$dropins = array(
-			Dropins\Detective_Mode_Dropin::class,
-			Dropins\Experimental_Features_Dropin::class,
-			Dropins\Donate_Dropin::class,
-			Dropins\Export_Dropin::class,
-			Dropins\IP_Info_Dropin::class,
-			Dropins\Plugin_Patches_Dropin::class,
-			Dropins\RSS_Dropin::class,
-			Dropins\Settings_Debug_Tab_Dropin::class,
-			Dropins\Sidebar_Stats_Dropin::class,
-			Dropins\Sidebar_Dropin::class,
-			Dropins\Quick_Stats::class,
-			Dropins\Sidebar_Add_Ons_Dropin::class,
-			Dropins\Action_Links_Dropin::class,
-			Dropins\React_Dropin::class,
-			Dropins\Quick_View_Dropin::class,
-		);
+		$dropins = array();
+		$dropins_dir = SIMPLE_HISTORY_PATH . 'dropins';
+		$dropin_files = glob( $dropins_dir . '/*.php' );
+
+		foreach ( $dropin_files as $file ) {
+
+			// Skip dropin main class that other classes depend on.
+			if ( basename( $file ) === 'class-dropin.php' ) {
+				continue;
+			}
+
+			// Skip non-class files.
+			if ( strpos( basename( $file ), 'class-' ) !== 0 ) {
+				continue;
+			}
+
+			// Convert filename to class name.
+			// e.g. class-quick-stats.php -> Quick_Stats.
+			$class_name = str_replace( 'class-', '', basename( $file, '.php' ) );
+			$class_name = str_replace( '-', '_', $class_name );
+			$class_name = str_replace( 'dropin', 'Dropin', $class_name );
+			$class_name = ucwords( $class_name, '_' );
+
+			// Add full namespace.
+			$class_name = "Simple_History\\Dropins\\{$class_name}";
+
+			$dropins[] = $class_name;
+		}
+
+		// sh_dd( '$dropins', $dropins );
 
 		/**
 		 * Filter the array with class names of core dropins.
