@@ -87,8 +87,8 @@ class Menu_Manager {
 				default:
 					// Handle sub-pages that have parent set but no explicit location.
 					if ( $page->get_parent() ) {
-						$parents_where_children_becomes_tabs = [ 'tools', 'dashboard', 'options' ];
 						$parent_location = $page->get_parent()->get_location();
+						$parents_where_children_becomes_tabs = [ 'tools', 'dashboard', 'options' ];
 
 						// If parent of a page is "tools", "dashboard", or "options"
 						// Then it can not be added using wp default functions
@@ -472,6 +472,7 @@ class Menu_Manager {
 
 		// Bail if we are on a sub-tab already.
 		$selected_sub_tab = $this::get_current_sub_tab_slug();
+
 		if ( ! empty( $selected_sub_tab ) ) {
 			return;
 		}
@@ -479,7 +480,6 @@ class Menu_Manager {
 		// Get selected tab.
 		$selected_tab = $this::get_current_tab_slug();
 
-		// Bail if no selected tab.
 		if ( $selected_tab ) {
 			$this->redirect_to_first_sub_tab( $selected_tab );
 		} else {
@@ -508,8 +508,14 @@ class Menu_Manager {
 		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? null ) );
 		$current_menu_page = $this->get_page_by_slug( $page );
 
+		// Bail if page is not a Menu_Page instance.
+		if ( ! $current_menu_page instanceof Menu_Page ) {
+			return;
+		}
+
 		$redirect_to_first_child_on_load = $current_menu_page->get_redirect_to_first_child_on_load();
 
+		// Bail if no redirect is wanted.
 		if ( ! $redirect_to_first_child_on_load ) {
 			return;
 		}
@@ -517,13 +523,34 @@ class Menu_Manager {
 		// Get first tab to redirect to.
 		$main_tabs = $this->get_main_tabs_for_page_with_tabs();
 
+		// Main tab slugs.
+		$main_tabs_slugs = array_map(
+			function ( $tab ) {
+				return $tab->get_menu_slug();
+			},
+			$main_tabs
+		);
+
+		// sh_dd( '$main_tabs_slugs', $main_tabs_slugs );
+
 		if ( empty( $main_tabs ) ) {
 			return;
 		}
 
 		$first_main_tab = reset( $main_tabs );
 
+		// sh_d( '$first_main_tab->slug', $first_main_tab->get_menu_slug() );
+		// sh_d( '$first_main_tab->location()', $first_main_tab->get_location() );
+		// sh_d( '$first_main_tab->parent()->slug', $first_main_tab->get_parent()->get_menu_slug() );
+		// sh_d( '$first_main_tab->parent()->location()', $first_main_tab->get_parent()->get_location() );
+
+		// This URL is wrong for debug page.
+		// Becomes: http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_admin_menu_page&selected-tab=simple_history_debug&selected-sub-tab=simple_history_help_support.
+		// So something is wrong in get_url ethod.
 		$first_main_tab_url = $first_main_tab->get_url();
+		// sh_dd( '$first_main_tab_url', $first_main_tab_url );
+
+		// Redirect to first main tab.
 		wp_safe_redirect( $first_main_tab_url );
 
 		exit;
