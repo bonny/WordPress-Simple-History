@@ -31,7 +31,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 		$admin_page_location = Helpers::get_menu_page_location();
 
 		$debug_menu_page = ( new Menu_Page() )
-			->set_page_title( _x( 'Simple History Debug', 'dashboard title name', 'simple-history' ) )
+			->set_page_title( _x( 'Simple History Help & Support', 'dashboard title name', 'simple-history' ) )
 			->set_menu_slug( 'simple_history_debug' )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_debug_page' ] )
@@ -40,12 +40,12 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
 			$debug_menu_page
-				->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
+				->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::MENU_PAGE_SLUG );
 		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
 			$debug_menu_page
-				->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
+				->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 		}
 
