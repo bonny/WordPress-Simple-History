@@ -137,6 +137,7 @@ class Simple_History {
 			Services\Setup_Database::class,
 			Services\Scripts_And_Templates::class,
 			Services\Admin_Pages::class,
+			Services\Admin_Page_Premium_Promo::class,
 			Services\Setup_Settings_Page::class,
 			Services\Loggers_Loader::class,
 			Services\Dropins_Loader::class,
