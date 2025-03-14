@@ -12,7 +12,7 @@ use Simple_History\Log_Levels;
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
-class Rss_Dropin extends Dropin {
+class RSS_Dropin extends Dropin {
 	/**
 	 * @inheritdoc
 	 */
