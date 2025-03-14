@@ -317,7 +317,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   Add reload button when the events cannot be loaded. Often this error is due to an expired nonce due to no activity in the admin for a while.
 -   Find dropins in dropins folder automatically.
 -   Rename debug page to "Help & Support".
--   Add review notice to encourage users to [leave a review](https://wordpress.org/support/plugin/simple-history/reviews/#new-post) if more than 500 events have been logged.
+-   Add review notice to encourage users to [leave a review](https://wordpress.org/support/plugin/simple-history/reviews/#new-post) if more than 500 events have been logged. It will also only be shown for admins and only on pages that belong to Simple History.
 
 ### 5.8.0 (March 2025)
 
