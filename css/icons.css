@@ -173,3 +173,7 @@
 .sh-Icon--visibility_lock {
 	background-image: url(./icons/visibility_lock_48dp__FILL0_wght400_GRAD0_opsz48.svg);
 }
+
+.sh-Icon--help {
+	background-image: url(./icons/help_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg);
+}
