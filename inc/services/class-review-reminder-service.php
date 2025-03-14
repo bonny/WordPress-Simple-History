@@ -78,15 +78,21 @@ class Review_Reminder_Service extends Service {
 			esc_html( number_format_i18n( $total_events ) )
 		);
 
+		$message = sprintf(
+			'<p>%s</p>',
+			$message
+		);
+
 		$rate_text = esc_html__( 'Rate Simple History', 'simple-history' );
 		$maybe_later_text = esc_html__( 'Maybe Later', 'simple-history' );
 
 		$actions = sprintf(
 			'<p>
-				<a href="https://wordpress.org/support/plugin/simple-history/reviews/#new-post" class="button button-primary" target="_blank" rel="noopener noreferrer">
+				<a href="https://wordpress.org/support/plugin/simple-history/reviews/#new-post" class="button" target="_blank" rel="noopener noreferrer">
 					%1$s
 				</a>
-				<button type="button" class="button button-secondary dismiss-review-notice">
+				&nbsp;
+				<button type="button" class="button button-link simple-history-review-notice-dismiss-button">
 					%2$s
 				</button>
 			</p>',
@@ -97,6 +103,7 @@ class Review_Reminder_Service extends Service {
 		wp_admin_notice(
 			wp_kses_post( $message . $actions ),
 			array(
+				'paragraph_wrap' => false,
 				'type' => 'info',
 				'dismissible' => true,
 				'class' => 'simple-history-review-notice',

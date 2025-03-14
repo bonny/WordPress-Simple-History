@@ -1,40 +1,32 @@
 /* global simpleHistoryReviewNotice */
 
 jQuery( document ).ready( function ( $ ) {
-	// Handle click on "Maybe Later" button.
-	$( '.simple-history-review-notice .dismiss-review-notice' ).on(
-		'click',
-		function ( e ) {
-			e.preventDefault();
-			dismissNotice();
-		}
-	);
+	const $dismissButton = $( '.simple-history-review-notice-dismiss-button' );
 
-	// Handle click on WordPress native dismiss button.
-	$( document ).on(
-		'click',
-		'.simple-history-review-notice .notice-dismiss',
-		function () {
-			dismissNotice();
-		}
-	);
+	// Handle click on "Maybe Later" button.
+	$dismissButton.on( 'click', function ( e ) {
+		e.preventDefault();
+		dismissNotice();
+	} );
 
 	/**
 	 * Send AJAX request to dismiss the notice.
 	 */
 	function dismissNotice() {
+		const $notice = $dismissButton.closest( '.notice' );
+
 		$.post( simpleHistoryReviewNotice.ajaxurl, {
 			action: simpleHistoryReviewNotice.action,
 			nonce: simpleHistoryReviewNotice.nonce,
 		} )
 			.done( function ( response ) {
 				if ( response.success ) {
-					$( '.simple-history-review-notice' ).fadeOut();
+					$notice.fadeOut();
 				}
 			} )
 			.fail( function () {
 				// If AJAX call fails, at least hide the notice for current page view.
-				$( '.simple-history-review-notice' ).fadeOut();
+				$notice.fadeOut();
 			} );
 	}
 } );
