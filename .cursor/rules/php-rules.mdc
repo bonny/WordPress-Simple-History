@@ -1,0 +1,9 @@
+---
+description: How to write and format PHP files
+globs: *.php
+alwaysApply: false
+---
+
+- Target PHP 7.4 an up.
+- Do not use colons for if/else statements or foreach statements.
+- 
