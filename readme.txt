@@ -91,7 +91,7 @@ Simple History comes with built in support for many plugins:
 
 -   **Beaver Builder** – See when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
 
-Is your plugin missing? No problem – plugin authors can add support for Simple History in their plugins using the [logging API](https://simple-history.com/docs/logging-api/).
+Is your plugin missing? No problem – plugin authors can add support for Simple History in their plugins using the [logging API](https://simple-history.com/docs/logging-api/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=logging-api).
 
 #### Plugins that have support for Simple History includes:
 
@@ -137,7 +137,7 @@ Using the optional password protected **RSS feed** you can keep track of the cha
 
 ### 🤖 WP-CLI commands for automation
 
-[Multiple WP-CLI commands exist](https://simple-history.com/features/wp-cli-commands/), to view and search the log, and to view more information about a specific event.
+[Multiple WP-CLI commands exist](https://simple-history.com/features/wp-cli-commands/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=wp-cli), to view and search the log, and to view more information about a specific event.
 
 WP-CLI support is perfect for system administrators and agencies managing multiple WordPress sites. Using WP-CLI commands they can automate log monitoring, create reports, or integrate with existing DevOps tools.
 
@@ -151,7 +151,7 @@ Example commands:
 
 ### 🥷 Stealth Mode – Hide Simple History from the WordPress Admin
 
-[Stealth Mode](https://simple-history.com/features/stealth-mode/) allows Simple History to run completely in the background, hidden from the WordPress admin interface. This is ideal for agencies, developers, and administrators who want to track user activity discreetly without exposing the logs to other users.
+[Stealth Mode](https://simple-history.com/features/stealth-mode/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stealth-mode) allows Simple History to run completely in the background, hidden from the WordPress admin interface. This is ideal for agencies, developers, and administrators who want to track user activity discreetly without exposing the logs to other users.
 
 There are two modes:
 
@@ -171,13 +171,13 @@ Theme and plugin developers can log custom events in Simple History using the `s
   'This is a logged message'
 );`
 
-See the [documentation](https://simple-history.com/docs/) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/), [query the log](https://simple-history.com/docs/query-api/), and more.
+See the [documentation](https://simple-history.com/docs/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=docs) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=logging-api), [query the log](https://simple-history.com/docs/query-api/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=query-api), and more.
 
 ### 🔆 Extend with Add-ons
 
 Take your activity logging to the next level with add-ons that enhance tracking, security, and customization.
 
-#### [Simple History Premium](https://simple-history.com/add-ons/premium/)
+#### [Simple History Premium](https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=premium-addon)
 
 Unlock advanced features and customization options:
 
@@ -191,7 +191,7 @@ Unlock advanced features and customization options:
 -   **Logger Control** – Enable or disable specific loggers to manage what type of events are recorded.
 -   **Ad-Free Experience** – Remove promotional banners for a distraction-free workflow.
 
-#### [WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin)
+#### [WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=woo-addon)
 
 Track WooCommerce activity with detailed logs for:
 
@@ -199,7 +199,7 @@ Track WooCommerce activity with detailed logs for:
 ✔️ Product updates and pricing adjustments  
 ✔️ Settings modifications and coupon usage
 
-#### [Debug and Monitor](https://simple-history.com/add-ons/debug-and-monitor/)
+#### [Debug and Monitor](https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=debug-addon)
 
 Gain deeper insights into your site's background activity:
 
@@ -209,13 +209,13 @@ Gain deeper insights into your site's background activity:
 
 ### 💚 Sponsor this project
 
-If you like this plugin please consider [donating to support the development of the free plugin](https://simple-history.com/donate). The plugin has been free for the last 10 years and will continue to be free.
+If you like this plugin please consider [donating to support the development of the free plugin](https://simple-history.com/donate/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=donate). The plugin has been free for the last 10 years and will continue to be free.
 
 ## Frequently Asked Questions
 
 ### Is the plugin free?
 
-Yes! Simple History has been free for over 10 years and will remain free. To support development and unlock extra features, you can purchase add-ons. [View add-ons](https://simple-history.com/add-ons/).
+Yes! Simple History has been free for over 10 years and will remain free. To support development and unlock extra features, you can purchase add-ons. [View add-ons](https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=faq-addons).
 
 ### How do I view the log?
 
@@ -239,7 +239,7 @@ Yes, you can export logs in **CSV** or **JSON** format for further analysis.
 
 ### Is it compatible with other plugins?
 
-Yes! Simple History supports many popular plugins out of the box. Additionally, developers can integrate it with any plugin using the [Logging API](https://simple-history.com/docs/logging-api/).
+Yes! Simple History supports many popular plugins out of the box. Additionally, developers can integrate it with any plugin using the [Logging API](https://simple-history.com/docs/logging-api/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=faq-api).
 
 ### Will this plugin slow down my website?
 
@@ -308,9 +308,9 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ✨ If you find Simple History useful ✨
 
--   [Sponsor the plugin to keep it free.](https://simple-history.com/sponsor/)
+-   [Sponsor the plugin to keep it free.](https://simple-history.com/sponsor/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=sponsor_upsell&utm_content=readme)
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
--   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=readme).
+-   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=readme).
 
 ### Unreleased
 

@@ -40,7 +40,7 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 	const handleOpenPremiumLink = () => {
 		// Open URL in new tab.
 		window.open(
-			'https://simple-history.com/premium/?utm_source=wpadmin&utm_content=premium-feature-modal'
+			'https://simple-history.com/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=premium-feature-modal'
 		);
 		handleModalClose();
 	};

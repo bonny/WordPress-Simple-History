@@ -16,8 +16,10 @@ export function FetchEventsErrorMessage( props ) {
 	const supportURL = addQueryArgs(
 		'https://simple-history.com/support/load-events-error/',
 		{
-			utm_source: 'wpadmin',
-			utm_content: 'fech-events-error-message',
+			utm_source: 'wordpress_admin',
+			utm_medium: 'Simple_History',
+			utm_campaign: 'premium_upsell',
+			utm_content: 'fetch-events-error',
 			error: JSON.stringify( eventsLoadingErrorDetails ),
 		}
 	);

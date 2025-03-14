@@ -520,7 +520,7 @@ class Setup_Settings_Page extends Service {
 		if ( Helpers::show_promo_boxes() ) {
 			?>
 			<p>
-				<a href="https://simple-history.com/premium/?utm_source=wpadmin&utm_content=purge-interval" target="_blank" class="sh-ExternalLink">
+				<a href="https://simple-history.com/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=purge-settings" target="_blank" class="sh-ExternalLink">
 					<?php esc_html_e( 'Upgrade to Simple History Premium to set this to any number of days.', 'simple-history' ); ?>
 				</a>
 			</p>

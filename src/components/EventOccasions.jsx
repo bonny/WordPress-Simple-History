@@ -43,7 +43,7 @@ function EventOccasionsAddonsContent( props ) {
 				{ __( 'Configure failed login attempts', 'simple-history' ) }
 			</a>
 		) : (
-			<ExternalLink href="https://simple-history.com/add-ons/premium/?utm_source=wpadmin#limit-number-of-failed-login-attempts">
+			<ExternalLink href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=login-attempts-limit#limit-number-of-failed-login-attempts">
 				{ __(
 					'Limit logged login attempts (Premium)',
 					'simple-history'

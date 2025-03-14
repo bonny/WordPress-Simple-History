@@ -170,7 +170,7 @@ function IPAddressLink( ipAddressProps ) {
 						{
 							a: (
 								<ExternalLink
-									href="https://simple-history.com/add-ons/premium/?utm_source=plugin&utm_medium=link&utm_campaign=ipinfo#GoogleMaps"
+									href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=ip-maps-feature#GoogleMaps"
 									target="_blank"
 									rel="noopener noreferrer"
 								/>
