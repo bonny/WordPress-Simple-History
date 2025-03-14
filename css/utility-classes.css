@@ -116,3 +116,12 @@
 .sh-m-0 {
 	margin: 0px;
 }
+
+.sh-grid {
+	display: grid;
+	gap: 1rem;
+}
+
+.sh-grid-cols-1\/2 {
+	grid-template-columns: 1fr 1fr;
+}
