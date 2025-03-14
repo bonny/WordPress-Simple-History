@@ -133,7 +133,8 @@ class Setup_Settings_Page extends Service {
 				->set_page_title( _x( 'Simple History Settings', 'settings title name', 'simple-history' ) )
 				->set_menu_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG )
 				->set_capability( Helpers::get_view_settings_capability() )
-				->set_callback( [ $this, 'settings_page_output' ] );
+				->set_callback( [ $this, 'settings_page_output' ] )
+				->set_redirect_to_first_child_on_load();
 
 		// Different setting depending on where main page is shown.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
@@ -141,14 +142,12 @@ class Setup_Settings_Page extends Service {
 			$settings_menu_page
 				->set_menu_title( _x( 'Settings', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
-				->set_redirect_to_first_child_on_load()
 				->set_location( 'submenu' );
 		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
 			$settings_menu_page
 				->set_menu_title( _x( 'Simple History', 'settings menu name', 'simple-history' ) )
-				->set_location( 'settings' )
-				->set_redirect_to_first_child_on_load();
+				->set_location( 'settings' );
 		}
 
 		$settings_menu_page->add();
@@ -167,6 +166,7 @@ class Setup_Settings_Page extends Service {
 
 		// Register tab using new method using Menu_Manager and Menu_Page.
 		// This is the tab at <simple history settings location> » General.
+		// This will be hidden when there is only one tab.
 		$settings_menu_page_main_tab = ( new Menu_Page() )
 			->set_menu_title( __( 'Settings', 'simple-history' ) )
 			->set_page_title( __( 'Settings', 'simple-history' ) )
@@ -179,7 +179,8 @@ class Setup_Settings_Page extends Service {
 
 		// In settings page is in options page then add subtab for general settings.
 		// so user will come to Settings » Simple History » Settings (tab) » General (subtab).
-		$general_settings_menu_page = ( new Menu_Page() )
+		// This is the first tab under the settings page added above.
+		( new Menu_Page() )
 			->set_menu_title( __( 'General', 'simple-history' ) )
 			->set_page_title( __( 'General settings', 'simple-history' ) )
 			->set_parent( $settings_menu_page_main_tab )

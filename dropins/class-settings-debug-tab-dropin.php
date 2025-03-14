@@ -15,9 +15,14 @@ use Simple_History\Services\Admin_Pages;
  * Author: Pär Thernström
  */
 class Settings_Debug_Tab_Dropin extends Dropin {
+	public const SUPPORT_PAGE_SLUG = 'simple_history_help_support';
+	public const SUPPORT_PAGE_GENERAL_TAB_SLUG = 'simple_history_help_support_general';
+	public const SUPPORT_PAGE_DEBUG_TAB_SLUG = 'simple_history_help_support_debug';
+
 	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		add_action( 'admin_menu', array( $this, 'add_tabs' ) );
 	}
 
 	/**
@@ -34,11 +39,10 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 		// Main "Help & Support" page.
 		$debug_menu_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Simple History Help & Support', 'dashboard title name', 'simple-history' ) )
-			->set_menu_slug( 'simple_history_debug' )
+			->set_menu_slug( self::SUPPORT_PAGE_SLUG )
 			->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
-			->set_capability( 'manage_options' )
-			->set_callback( [ $this, 'output_help_and_support_page' ] )
 			->set_icon( 'troubleshoot' )
+			->set_callback( [ $this, 'output_help_and_support_page' ] )
 			->set_redirect_to_first_child_on_load();
 
 		// Set different options depending on location.
@@ -53,28 +57,78 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 		}
 
 		$debug_menu_page->add();
+	}
 
-		// Add first "Support" tab.
-		$help_tab = ( new Menu_Page() )
-			->set_page_title( _x( 'Support', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'Support', 'settings menu name', 'simple-history' ) )
-			->set_menu_slug( 'simple_history_help_support' )
-			->set_capability( 'manage_options' )
-			->set_callback( [ $this, 'output_help_page' ] )
-			->set_order( 10 )
-			->set_parent( $debug_menu_page )
-			->add();
+	public function add_tabs() {
+		$menu_manager = $this->simple_history->get_menu_manager();
 
-		// Add second "Debug" tab.
-		$debug_tab = ( new Menu_Page() )
-			->set_page_title( _x( 'Debug', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
-			->set_menu_slug( 'simple_history_debug_tab' )
-			->set_capability( 'manage_options' )
-			->set_callback( [ $this, 'output_debug_page' ] )
-			->set_order( 20 )
-			->set_parent( $debug_menu_page )
-			->add();
+		// Bail if parent settings page does not exists (due to Stealth Mode or similar).
+		if ( ! $menu_manager->page_exists( Simple_History::SETTINGS_MENU_PAGE_SLUG ) ) {
+			return;
+		}
+
+		$admin_page_location = Helpers::get_menu_page_location();
+
+		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
+			// THIS WORKS.
+		
+			// Add first "Support" tab.
+			// This tab is not needed when inside tools or dashboard.
+			// User will be redirected to the next, first child tab.
+			$help_main_tab = ( new Menu_Page() )
+				->set_menu_title( _x( 'Support', 'settings menu name', 'simple-history' ) )
+				->set_page_title( _x( 'Support', 'dashboard title name', 'simple-history' ) )
+				->set_menu_slug( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )
+				->set_icon( 'settings' )
+				->set_parent( self::SUPPORT_PAGE_SLUG )
+				->set_callback( [ $this, 'output_help_page' ] )
+				->set_order( 10 )
+				->set_redirect_to_first_child_on_load()
+				->add();
+
+			// Add first tab, this is the tab that will be shown first
+			// and the tab that user will be redirected to from the main tab above.
+			( new Menu_Page() )
+				->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
+				->set_page_title( _x( 'Help & Support', 'dashboard title name', 'simple-history' ) )
+				->set_menu_slug( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )
+				->set_parent( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )
+				->set_callback( [ $this, 'output_help_page' ] )
+				->add();	
+
+			// Add second "Debug" tab.
+			( new Menu_Page() )
+				->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
+				->set_page_title( _x( 'Debug', 'dashboard title name', 'simple-history' ) )
+				->set_menu_slug( self::SUPPORT_PAGE_DEBUG_TAB_SLUG )
+				->set_callback( [ $this, 'output_debug_page' ] )
+				->set_parent( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )
+				->set_order( 20 )
+				->add();
+		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+			// Add first "Support" sub tab.
+			// User will be redirected to the next, first child tab.
+			( new Menu_Page() )
+				->set_menu_title( _x( 'Support', 'settings menu name', 'simple-history' ) )
+				->set_page_title( _x( 'Support', 'dashboard title name', 'simple-history' ) )
+				->set_menu_slug( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )
+				->set_icon( 'settings' )
+				->set_parent( self::SUPPORT_PAGE_SLUG )
+				->set_callback( [ $this, 'output_help_page' ] )
+				->set_order( 10 )
+				->set_redirect_to_first_child_on_load()
+				->add();
+			
+			// Add second "Debug" tab.
+			( new Menu_Page() )
+				->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
+				->set_page_title( _x( 'Debug', 'dashboard title name', 'simple-history' ) )
+				->set_menu_slug( self::SUPPORT_PAGE_DEBUG_TAB_SLUG )
+				->set_callback( [ $this, 'output_debug_page' ] )
+				->set_parent( self::SUPPORT_PAGE_SLUG )
+				->set_order( 20 )
+				->add();
+		}
 	}
 
 	/**

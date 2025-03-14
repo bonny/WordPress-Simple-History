@@ -369,6 +369,15 @@ class Menu_Manager {
 		// Output main nav link list with all sub menu pages.
 		$submenu_pages = $this->get_main_tabs_for_page_with_tabs();
 
+		// Debug slugs of pages.
+		// $submenu_pages_slugs = array_map(
+		// 	function ( $page ) {
+		// 		return $page->get_menu_slug();
+		// 	},
+		// 	$submenu_pages
+		// );
+		// sh_dd( '$submenu_pages_slugs', $submenu_pages_slugs );
+
 		$num_pages_class = 'sh-PageNav--count-' . count( $submenu_pages );
 
 		ob_start();
@@ -507,7 +516,7 @@ class Menu_Manager {
 
 		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? null ) );
 		$current_menu_page = $this->get_page_by_slug( $page );
-
+		
 		// Bail if page is not a Menu_Page instance.
 		if ( ! $current_menu_page instanceof Menu_Page ) {
 			return;
@@ -524,14 +533,14 @@ class Menu_Manager {
 		$main_tabs = $this->get_main_tabs_for_page_with_tabs();
 
 		// Main tab slugs.
-		$main_tabs_slugs = array_map(
-			function ( $tab ) {
-				return $tab->get_menu_slug();
-			},
-			$main_tabs
-		);
+		// $main_tabs_slugs = array_map(
+		// 	function ( $tab ) {
+		// 		return $tab->get_menu_slug();
+		// 	},
+		// 	$main_tabs
+		// );
 
-		// sh_dd( '$main_tabs_slugs', $main_tabs_slugs );
+		#sh_dd( '$main_tabs_slugs', $main_tabs_slugs );
 
 		if ( empty( $main_tabs ) ) {
 			return;
