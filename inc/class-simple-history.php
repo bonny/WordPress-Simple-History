@@ -155,6 +155,7 @@ class Simple_History {
 			Services\WP_CLI_Commands::class,
 			Services\Stealth_Mode::class,
 			Services\Menu_Service::class,
+			Services\Review_Reminder_Service::class,
 		];
 	}
 
