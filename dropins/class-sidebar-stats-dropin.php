@@ -15,7 +15,7 @@ use Simple_History\Helpers;
 class Sidebar_Stats_Dropin extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 5 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 4 );
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_admin_enqueue_scripts' ) );
 		add_action( 'simple_history/admin_footer', array( $this, 'on_admin_footer' ) );
 	}

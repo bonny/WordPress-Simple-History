@@ -314,6 +314,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 
 ### Unreleased
 
+-   Add reload button when the events cannot be loaded. Often this error is due to an expired nonce due to no activity in the admin for a while.
 -   Find dropins in dropins folder automatically.
 -   Rename debug page to "Help & Support".
 
