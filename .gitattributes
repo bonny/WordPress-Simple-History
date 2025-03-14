@@ -5,6 +5,7 @@
 /tests/ export-ignore
 /img/ export-ignore
 /docs/ export-ignore
+/.cursor/ export-ignore
 /.distignore export-ignore
 /.env.testing export-ignore
 /.editorconfig export-ignore
