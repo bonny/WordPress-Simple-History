@@ -9,7 +9,7 @@ use Simple_History\Helpers;
  */
 class Review_Reminder_Service extends Service {
 	/** Minimum number of logged items before showing notice */
-	const MINIMUM_LOGGED_ITEMS = 100;
+	const MINIMUM_LOGGED_ITEMS = 1000;
 
 	/** Action name for dismissing notice */
 	const DISMISS_NOTICE_ACTION = 'simple_history_dismiss_review_notice';
@@ -17,8 +17,8 @@ class Review_Reminder_Service extends Service {
 	/** Nonce name for dismissing notice */
 	const DISMISS_NOTICE_NONCE = 'simple_history_dismiss_review_notice_nonce';
 
-	/** Option name for storing dismissal state */
-	const OPTION_NAME = 'simple_history_review_notice_dismissed';
+	/** User meta key for storing dismissal state */
+	const USER_META_KEY = 'simple_history_review_notice_dismissed';
 
 	/**
 	 * Called when service is loaded.
@@ -43,7 +43,7 @@ class Review_Reminder_Service extends Service {
 		}
 
 		add_action( 'admin_notices', array( $this, 'maybe_show_review_notice' ) );
-		add_action( 'wp_ajax_' . self::DISMISS_NOTICE_ACTION, array( $this, 'handle_dismiss_notice' ) );
+		add_action( 'wp_ajax_' . self::DISMISS_NOTICE_ACTION, array( $this, 'handle_ajax_dismiss_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
@@ -51,13 +51,14 @@ class Review_Reminder_Service extends Service {
 	 * Check if we should show the review notice and show it if conditions are met.
 	 */
 	public function maybe_show_review_notice() {
-		// Don't show if already dismissed.
-		if ( get_option( self::OPTION_NAME ) ) {
+		// Don't show if already dismissed by this user.
+		if ( get_user_meta( get_current_user_id(), self::USER_META_KEY, true ) ) {
 			return;
 		}
 
 		// Don't show if not enough events logged.
 		$total_events = Helpers::get_total_logged_events_count();
+
 		if ( $total_events < self::MINIMUM_LOGGED_ITEMS ) {
 			return;
 		}
@@ -72,15 +73,25 @@ class Review_Reminder_Service extends Service {
 	 */
 	private function output_notice( $total_events ) {
 		$message = sprintf(
-			/* translators: %d: number of logged events */
-			esc_html__( 'Thank you for using Simple History! You\'ve logged over %d events - that\'s awesome! If you find this plugin useful, would you mind taking a moment to rate it on WordPress.org? It really helps to keep the plugin growing and improving.', 'simple-history' ),
+			/* translators: %s: number of logged events */
+			esc_html__( 'Thank you for using Simple History! You\'ve logged over %s events - that\'s awesome! If you find this plugin useful, would you mind taking a moment to rate it on WordPress.org? It really helps to keep the plugin growing and improving.', 'simple-history' ),
 			esc_html( number_format_i18n( $total_events ) )
 		);
 
+		$rate_text = esc_html__( 'Rate Simple History', 'simple-history' );
+		$maybe_later_text = esc_html__( 'Maybe Later', 'simple-history' );
+
 		$actions = sprintf(
-			'<p><a href="https://wordpress.org/support/plugin/simple-history/reviews/#new-post" class="button button-primary" target="_blank" rel="noopener noreferrer">%1$s</a> <button type="button" class="button button-secondary dismiss-review-notice">%2$s</button></p>',
-			esc_html__( 'Rate Simple History', 'simple-history' ),
-			esc_html__( 'Maybe Later', 'simple-history' )
+			'<p>
+				<a href="https://wordpress.org/support/plugin/simple-history/reviews/#new-post" class="button button-primary" target="_blank" rel="noopener noreferrer">
+					%1$s
+				</a>
+				<button type="button" class="button button-secondary dismiss-review-notice">
+					%2$s
+				</button>
+			</p>',
+			$rate_text,
+			$maybe_later_text
 		);
 
 		wp_admin_notice(
@@ -96,7 +107,7 @@ class Review_Reminder_Service extends Service {
 	/**
 	 * Handle AJAX request to dismiss the notice.
 	 */
-	public function handle_dismiss_notice() {
+	public function handle_ajax_dismiss_notice() {
 		// Verify nonce.
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::DISMISS_NOTICE_NONCE ) ) {
 			wp_send_json_error( 'Invalid nonce' );
@@ -107,8 +118,8 @@ class Review_Reminder_Service extends Service {
 			wp_send_json_error( 'Permission denied' );
 		}
 
-		// Store dismissal in options.
-		update_option( self::OPTION_NAME, true, false );
+		// Store dismissal in user meta.
+		update_user_meta( get_current_user_id(), self::USER_META_KEY, true );
 
 		wp_send_json_success();
 	}
@@ -118,7 +129,7 @@ class Review_Reminder_Service extends Service {
 	 */
 	public function enqueue_scripts() {
 		// Only enqueue if notice should be shown.
-		if ( get_option( self::OPTION_NAME ) ) {
+		if ( get_user_meta( get_current_user_id(), self::USER_META_KEY, true ) ) {
 			return;
 		}
 
