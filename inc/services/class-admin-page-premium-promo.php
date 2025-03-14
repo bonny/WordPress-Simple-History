@@ -83,9 +83,9 @@ class Admin_Page_Premium_Promo extends Service {
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_featues_postbox_html();
+					echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_features_postbox_html();
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_featues_postbox_html();
+					echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_features_postbox_html();
 					?>
 				</div>
 				

@@ -1137,7 +1137,7 @@ add_filter('simple_history/admin_location', function ($location) {
 
 -   Fixed: No longer assume that the ajaxurl don't already contains query params. Should fix problems with third party plugins like [WPML](https://wpml.org/).
 -   Fixed: Notice if context key did not exist. Should fix https://github.com/bonny/WordPress-Simple-History/issues/100.
--   Fixed: Name and title on dashboard and settings page were not translateable. Fixes https://wordpress.org/support/topic/dashboard-max-length-of-content.
+-   Fixed: Name and title on dashboard and settings page were not translatable. Fixes https://wordpress.org/support/topic/dashboard-max-length-of-content.
 -   Fixed: Typo when user resets password.
 -   Added: Filter `simple_history/row_header_date_output`.
 -   Added: Filter `simple_history/log/inserted`.
@@ -1409,7 +1409,7 @@ add_filter('simple_history/admin_location', function ($location) {
 = 2.0.14 (January 2015) =
 
 -   Added: Danish translation added. Thanks [ThomasDK81](https://github.com/ThomasDK81)!
--   Misc translation fixes, for example the log levels where not translateable (it may be a good idea to keep the original English ones however because they are the ones that are common in other software).
+-   Misc translation fixes, for example the log levels where not translatable (it may be a good idea to keep the original English ones however because they are the ones that are common in other software).
 
 = 2.0.13 (January 2015) =
 
@@ -1612,7 +1612,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 -   Added: Option to clear the database of log items.
 -   Changed: No longer stored translated history items in the log. This makes the history work even if/when you switch language of WordPress.
 -   Fixed: if for example a post was edited several times and during these edits it changed name, it would end up at different occasions. Now it's correctly stored as one event with several occasions.
--   Some more items are translateable
+-   Some more items are translatable
 
 = 1.0.3 =
 

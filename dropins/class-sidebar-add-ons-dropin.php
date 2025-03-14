@@ -70,6 +70,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo self::get_premium_features_postbox_html();
 	}
 
@@ -87,7 +88,8 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
-		echo self::get_woocommerce_logger_featues_postbox_html();
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo self::get_woocommerce_logger_features_postbox_html();
 	}
 
 	/**
@@ -100,10 +102,15 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		}
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo self::get_debug_and_monitor_featues_postbox_html();
+		echo self::get_debug_and_monitor_features_postbox_html();
 	}
 
-	public static function get_debug_and_monitor_featues_postbox_html() {
+	/**
+	 * Get HTML for Debug and Monitor add-on promo.
+	 *
+	 * @return string HTML
+	 */
+	public static function get_debug_and_monitor_features_postbox_html() {
 
 		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wpadmin&utm_content=debug-monitor-sidebar';
 
@@ -144,6 +151,11 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		return ob_get_clean();
 	}
 
+	/**
+	 * Get HTML for Premium add-on promo.
+	 *
+	 * @return string HTML
+	 */
 	public static function get_premium_features_postbox_html() {
 		$premium_url = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=premium-sidebar';
 
@@ -204,7 +216,12 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		return ob_get_clean();
 	}
 
-	public static function get_woocommerce_logger_featues_postbox_html() {
+	/**
+	 * Get HTML for WooCommerce Logger add-on promo.
+	 *
+	 * @return string HTML
+	 */
+	public static function get_woocommerce_logger_features_postbox_html() {
 		$woocommerce_logger_url = 'https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin&utm_content=wc-logger-sidebar';
 
 		ob_start();

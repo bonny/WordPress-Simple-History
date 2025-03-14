@@ -47,7 +47,7 @@ $faq_items = [
 		'question' => 'Who is the "other" user that sometimes is responsible for logged events?',
 	],
 	[
-		'question' => 'Is the plugin GDPR complient?',
+		'question' => 'Is the plugin GDPR compliant?',
 	],
 	[
 		'question' => 'My question in not answered in this FAQ',
@@ -145,9 +145,9 @@ $faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_featues_postbox_html();
+		echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_features_postbox_html();
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_featues_postbox_html();
+		echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_features_postbox_html();
 		?>
 	</div>
 
