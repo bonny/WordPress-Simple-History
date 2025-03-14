@@ -6,6 +6,12 @@ use Simple_History\Helpers;
 
 /**
  * Service for showing review reminder notice.
+ *
+ * To show message again after clicking "Maybe later" button, we need to remove the user meta.
+ *
+ * Can be done using WP-CLI:
+ *
+ * `$ docker compose run --rm wpcli_mariadb user meta delete <user_id> simple_history_review_notice_dismissed`
  */
 class Review_Reminder_Service extends Service {
 	/** Minimum number of logged items before showing notice */
