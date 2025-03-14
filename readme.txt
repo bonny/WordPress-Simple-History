@@ -315,6 +315,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 ### Unreleased
 
 -   Find dropins in dropins folder automatically.
+-   Rename debug page to "Help & Support".
 
 ### 5.8.0 (March 2025)
 
