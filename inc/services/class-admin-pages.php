@@ -73,7 +73,7 @@ class Admin_Pages extends Service {
 		$admin_page_location = Helpers::get_menu_page_location();
 
 		$upsell_page = ( new Menu_Page() )
-			->set_page_title( _x( 'Get more features with Simple History Premium', 'dashboard title name', 'simple-history' ) )
+			->set_page_title( _x( 'Get more features with Simple History add-ons', 'promo upsell page title', 'simple-history' ) )
 			->set_menu_slug( 'simple_history_promo_upsell' )
 			->set_callback( [ $this, 'promo_upsell_page_output' ] )
 			->set_icon( 'workspace_premium' )
