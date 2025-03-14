@@ -39,7 +39,6 @@ class Export_Dropin extends Dropin {
 		$export_menu_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Simple History Export', 'dashboard title name', 'simple-history' ) )
 			->set_menu_slug( self::MENU_SLUG )
-			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_export_page' ] )
 			->set_icon( 'download' );
 
