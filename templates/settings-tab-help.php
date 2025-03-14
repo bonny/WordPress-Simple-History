@@ -7,6 +7,8 @@
 
 namespace Simple_History;
 
+defined( 'ABSPATH' ) || die();
+
 ?>
 
 <div class="wrap">
