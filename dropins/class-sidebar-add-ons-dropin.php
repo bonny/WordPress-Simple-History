@@ -70,8 +70,76 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
+		echo self::get_premium_features_postbox_html();
+	}
+
+	/**
+	 * Output HTML if WooCommerce plugin is installed and active.
+	 */
+	public function on_sidebar_html_woocommerce_promo() {
+		// Only show if WooCommerce is active.
+		if ( ! Helpers::is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+			return;
+		}
+
+		// Don't show if addon is already installed.
+		if ( Helpers::is_plugin_active( 'simple-history-woocommerce/index.php' ) ) {
+			return;
+		}
+
+		echo self::get_woocommerce_logger_postbox_html();
+	}
+
+	/**
+	 * Output HTML with promo about Debug and Monitor add-on.
+	 */
+	public function on_sidebar_html_debug_and_monitor_promo() {
+		// Don't show if addon is already installed.
+		if ( Helpers::is_plugin_active( 'simple-history-debug-and-monitor/index.php' ) ) {
+			return;
+		}
+
+		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wpadmin&utm_content=debug-monitor-sidebar';
+
+		?>
+		<div class="postbox sh-PremiumFeaturesPostbox">
+			<div class="inside">
+
+				<p class="sh-PremiumFeaturesPostbox-preTitleFeaturesBadge"><em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Add-on', 'simple-history' ); ?></em></p>
+
+				<h3 class="sh-PremiumFeaturesPostbox-title">
+					<?php esc_html_e( 'Debug & Monitor', 'simple-history' ); ?>
+				</h3>
+
+				<p><?php esc_html_e( 'Keep track of WordPress activities with the Debug & Monitor add-on:', 'simple-history' ); ?></p>
+		
+				<ul class="sh-PremiumFeaturesPostbox-featuresList">
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Email sending', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'HTTP API requests', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'REST API activity', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'WP cron jobs', 'simple-history' ); ?></li>
+				</ul>
+
+				<p><?php esc_html_e( "Great for developers who need to debug issues and for site owners who want to understand what's happening behind the scenes.", 'simple-history' ); ?></p>
+
+				<p style="margin-bottom: .25rem;">
+					<a href="<?php echo esc_url( $debug_and_monitor_url ); ?>" target="_blank" class="sh-PremiumFeaturesPostbox-button">
+						<?php esc_html_e( 'Buy Debug & Monitor', 'simple-history' ); ?>
+					</a>
+				</p>
+
+				<p style="margin: 0; text-align: center; font-size: var(--sh-font-size-small); color: var(--sh-color-black-2);">
+					<?php esc_html_e( 'Only $29 for 5 sites!', 'simple-history' ); ?>
+				</p>
+			</div>
+		</div>
+		<?php
+	}
+
+	public static function get_premium_features_postbox_html() {
 		$premium_url = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=premium-sidebar';
 
+		ob_start();
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox" style="--box-bg-color: var(--sh-color-cream);">
 
@@ -124,24 +192,15 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			</div>
 		</div>
 		<?php
+
+		return ob_get_clean();
 	}
 
-	/**
-	 * Output HTML if WooCommerce plugin is installed and active.
-	 */
-	public function on_sidebar_html_woocommerce_promo() {
-		// Only show if WooCommerce is active.
-		if ( ! Helpers::is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
-			return;
-		}
-
-		// Don't show if addon is already installed.
-		if ( Helpers::is_plugin_active( 'simple-history-woocommerce/index.php' ) ) {
-			return;
-		}
-
+	public static function get_woocommerce_logger_postbox_html() {
 		$woocommerce_logger_url = 'https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin&utm_content=wc-logger-sidebar';
 
+		ob_start();
+		
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
@@ -170,51 +229,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			</div>
 		</div>
 		<?php
-	}
 
-	/**
-	 * Output HTML with promo about Debug and Monitor add-on.
-	 */
-	public function on_sidebar_html_debug_and_monitor_promo() {
-		// Don't show if addon is already installed.
-		if ( Helpers::is_plugin_active( 'simple-history-debug-and-monitor/index.php' ) ) {
-			return;
-		}
-
-		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wpadmin&utm_content=debug-monitor-sidebar';
-
-		?>
-		<div class="postbox sh-PremiumFeaturesPostbox">
-			<div class="inside">
-
-				<p class="sh-PremiumFeaturesPostbox-preTitleFeaturesBadge"><em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Add-on', 'simple-history' ); ?></em></p>
-
-				<h3 class="sh-PremiumFeaturesPostbox-title">
-					<?php esc_html_e( 'Debug & Monitor', 'simple-history' ); ?>
-				</h3>
-
-				<p><?php esc_html_e( 'Keep track of WordPress activities with the Debug & Monitor add-on:', 'simple-history' ); ?></p>
-		
-				<ul class="sh-PremiumFeaturesPostbox-featuresList">
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Email sending', 'simple-history' ); ?></li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'HTTP API requests', 'simple-history' ); ?></li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'REST API activity', 'simple-history' ); ?></li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'WP cron jobs', 'simple-history' ); ?></li>
-				</ul>
-
-				<p><?php esc_html_e( "Great for developers who need to debug issues and for site owners who want to understand what's happening behind the scenes.", 'simple-history' ); ?></p>
-
-				<p style="margin-bottom: .25rem;">
-					<a href="<?php echo esc_url( $debug_and_monitor_url ); ?>" target="_blank" class="sh-PremiumFeaturesPostbox-button">
-						<?php esc_html_e( 'Buy Debug & Monitor', 'simple-history' ); ?>
-					</a>
-				</p>
-
-				<p style="margin: 0; text-align: center; font-size: var(--sh-font-size-small); color: var(--sh-color-black-2);">
-					<?php esc_html_e( 'Only $29 for 5 sites!', 'simple-history' ); ?>
-				</p>
-			</div>
-		</div>
-		<?php
+		return ob_get_clean();
 	}
 }
