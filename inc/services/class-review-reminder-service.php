@@ -51,6 +51,11 @@ class Review_Reminder_Service extends Service {
 	 * Check if we should show the review notice and show it if conditions are met.
 	 */
 	public function maybe_show_review_notice() {
+		// Only show on Simple History pages.
+		if ( ! Helpers::is_on_our_own_pages() ) {
+			return;
+		}
+
 		// Don't show if already dismissed by this user.
 		if ( get_user_meta( get_current_user_id(), self::USER_META_KEY, true ) ) {
 			return;
