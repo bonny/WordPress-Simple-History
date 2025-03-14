@@ -1,0 +1,106 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Services in Simple History
+
+Services are classes that provide specific functionality to Simple History. Follow these guidelines when creating new services:
+
+## Basic Structure
+
+- Extend the `Simple_History\Services\Service` base class
+- Use proper namespace: `namespace Simple_History\Services;`
+- Name the class with a descriptive suffix `_Service` (e.g., `Review_Reminder_Service`)
+- Place service files in `inc/services/` directory with prefix `class-` (e.g., `class-review-reminder-service.php`)
+
+## Service Registration
+
+- Register the service in `Simple_History::get_services()` method
+- Services are automatically loaded and initialized
+
+## Best Practices
+
+### Initialization
+
+```php
+public function loaded() {
+    // Use admin_init for admin-only services
+    add_action('admin_init', array($this, 'init'));
+}
+
+public function init() {
+    // 1. Check capabilities first
+    if (!current_user_can('required_capability')) {
+        return;
+    }
+
+    // 2. Check function availability if using modern WordPress features
+    if (!function_exists('required_function')) {
+        return;
+    }
+
+    // 3. Add hooks and initialize functionality
+    add_action('hook_name', array($this, 'method_name'));
+}
+```
+
+### Constants and Properties
+
+- Define service-specific constants at the top of the class
+- Use descriptive constant names prefixed with service context
+- Make constants private unless needed externally
+
+### Security
+
+- Always verify capabilities before performing actions
+- Use nonces for form submissions and AJAX requests
+- Sanitize inputs and escape outputs
+- Follow WordPress coding standards for security
+
+### Admin Notices
+
+- Use `wp_admin_notice()` for WordPress 6.4+
+- Implement proper dismissal handling
+- Only load scripts when needed
+- Use proper notice types: 'info', 'success', 'warning', 'error'
+
+### Example Service Structure
+
+```php
+namespace Simple_History\Services;
+
+class Example_Service extends Service {
+    /** Service-specific constants */
+    private const OPTION_NAME = 'simple_history_example_option';
+    private const NONCE_ACTION = 'simple_history_example_nonce';
+
+    public function loaded() {
+        add_action('admin_init', array($this, 'init'));
+    }
+
+    public function init() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // Add hooks and initialize functionality
+    }
+
+    // Additional methods...
+}
+```
+
+## Common Service Types
+
+1. **Admin Services**: Handle admin UI, settings pages, notices
+2. **Feature Services**: Implement specific plugin features
+3. **Integration Services**: Connect with external systems or WordPress features
+4. **Utility Services**: Provide shared functionality for other services
+
+## Testing
+
+- Ensure early returns work as expected
+- Test with different user roles and capabilities
+- Verify proper functioning on both old and new WordPress versions
+- Check for proper cleanup on deactivation if needed
