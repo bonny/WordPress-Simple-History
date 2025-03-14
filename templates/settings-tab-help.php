@@ -14,44 +14,44 @@ defined( 'ABSPATH' ) || die();
 // FAQ items from https://simple-history.com/docs/faq-frequently-asked-questions/.
 $faq_items = [
 	[
-		'question' => 'How do I control what is logged?'
+		'question' => 'How do I control what is logged?',
 	],
 	[
-		'question' => 'Can I log when a user does something on my website, like visits a page?'
+		'question' => 'Can I log when a user does something on my website, like visits a page?',
 	],
 	[
-		'question' => 'Can we track things that happen on the frontend of our website?'
+		'question' => 'Can we track things that happen on the frontend of our website?',
 	],
 	[
-		'question' => 'Can the RSS feed show more than 10 items?'
+		'question' => 'Can the RSS feed show more than 10 items?',
 	],
 	[
-		'question' => 'Can the log be shown on the front of my website?'
+		'question' => 'Can the log be shown on the front of my website?',
 	],
 	[
-		'question' => 'How do I clear the log?'
+		'question' => 'How do I clear the log?',
 	],
 	[
-		'question' => 'Can I keep items longer than 60 days?'
+		'question' => 'Can I keep items longer than 60 days?',
 	],
 	[
-		'question' => 'How do I see more details about an event?'
+		'question' => 'How do I see more details about an event?',
 	],
 	[
-		'question' => 'How can I see the IP address of an event?'
+		'question' => 'How can I see the IP address of an event?',
 	],
 	[
-		'question' => 'Why is the IP address always end with a zero (0)'
+		'question' => 'Why is the IP address always end with a zero (0)',
 	],
 	[
-		'question' => 'Who is the "other" user that sometimes is responsible for logged events?'
+		'question' => 'Who is the "other" user that sometimes is responsible for logged events?',
 	],
 	[
-		'question' => 'Is the plugin GDPR complient?'
+		'question' => 'Is the plugin GDPR complient?',
 	],
 	[
-		'question' => 'My question in not answered in this FAQ'
-	]
+		'question' => 'My question in not answered in this FAQ',
+	],
 ];
 $faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 
@@ -120,11 +120,11 @@ $faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 				<h3 class="sh-PremiumFeaturesPostbox-title"><?php echo esc_html_x( 'Frequently Asked Questions', 'help page section title', 'simple-history' ); ?></h3>
 				
 				<ul>
-					<?php 
+					<?php
 					$faq_num_items_to_show = 5;
-					
+
 					for ( $i = 0; $i < $faq_num_items_to_show; $i++ ) {
-						$faq_item = $faq_items[$i];
+						$faq_item = $faq_items[ $i ];
 						?>
 						<li>
 							<a href="<?php echo esc_url( $faq_url ); ?>"><?php echo esc_html( $faq_item['question'] ); ?></a>
@@ -140,10 +140,14 @@ $faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 	</div>
 
 	<!-- Grid with premium features.	 -->
-	<div class="sh-grid sh-grid-cols-1/2">
+	<div class="sh-grid sh-grid-cols-1/3">
 		<?php
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
-		echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_postbox_html();
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_featues_postbox_html();
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_featues_postbox_html();
 		?>
 	</div>
 
