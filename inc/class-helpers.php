@@ -103,7 +103,7 @@ class Helpers {
 			$r .= "</thead>\n";
 		}
 
-		$r .= "<tbody>\n$diff</div>\n</tbody>\n";
+		$r .= "<tbody>\n$diff\n</tbody>\n";
 		$r .= '</table>';
 
 		$r .= '</div>';

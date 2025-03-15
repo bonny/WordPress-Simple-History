@@ -319,6 +319,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   Rename debug page to "Help & Support".
 -   Add review notice to encourage users to [leave a review](https://wordpress.org/support/plugin/simple-history/reviews/#new-post) if more than 500 events have been logged. It will also only be shown for admins and only on pages that belong to Simple History.
 -   Handle boolean and non-string inputs in footer text
+-   Diff output: Fix tbody closing tag by removing unnecessary div
 
 ### 5.8.0 (March 2025)
 
