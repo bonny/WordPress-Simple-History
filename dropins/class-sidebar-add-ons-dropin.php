@@ -111,9 +111,9 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * @return string HTML
 	 */
 	public static function get_debug_and_monitor_features_postbox_html() {
-
 		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wpadmin&utm_content=debug-monitor-sidebar';
 
+		ob_start();
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
@@ -225,7 +225,6 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		$woocommerce_logger_url = 'https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin&utm_content=wc-logger-sidebar';
 
 		ob_start();
-
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
