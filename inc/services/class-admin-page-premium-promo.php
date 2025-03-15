@@ -89,7 +89,6 @@ class Admin_Page_Premium_Promo extends Service {
 					?>
 				</div>
 				
-			</div>
 		</div>
 		<?php
 	}
