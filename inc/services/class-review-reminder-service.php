@@ -48,6 +48,11 @@ class Review_Reminder_Service extends Service {
 			return;
 		}
 
+		// Hide if premium add-on-is active.
+		if ( Helpers::is_premium_add_on_active() ) {
+			return;
+		}
+
 		add_action( 'admin_notices', array( $this, 'maybe_show_review_notice' ) );
 		add_action( 'wp_ajax_' . self::DISMISS_NOTICE_ACTION, array( $this, 'handle_ajax_dismiss_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -94,21 +99,31 @@ class Review_Reminder_Service extends Service {
 			$message
 		);
 
-		$rate_text = esc_html__( 'Rate Simple History', 'simple-history' );
+		$rate_text = esc_html__( "Sure, you're worth it", 'simple-history' );
 		$maybe_later_text = esc_html__( 'Maybe Later', 'simple-history' );
+		$already_rated_text = esc_html__( 'I already did!', 'simple-history' );
 
 		$actions = sprintf(
 			'<p>
-				<a href="https://wordpress.org/support/plugin/simple-history/reviews/#new-post" class="button" target="_blank" rel="noopener noreferrer">
+				<a 
+					href="https://wordpress.org/support/plugin/simple-history/reviews/#new-post" 
+					class="button simple-history-review-notice-cta-button" 
+					target="_blank" 
+					rel="noopener noreferrer">
 					%1$s
 				</a>
 				&nbsp;
 				<button type="button" class="button button-link simple-history-review-notice-dismiss-button">
 					%2$s
 				</button>
+				&nbsp;
+				<button type="button" class="button button-link simple-history-review-notice-dismiss-button">
+					%3$s
+				</button>
 			</p>',
 			$rate_text,
-			$maybe_later_text
+			$maybe_later_text,
+			$already_rated_text
 		);
 
 		wp_admin_notice(
