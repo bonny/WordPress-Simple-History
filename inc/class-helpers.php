@@ -813,6 +813,12 @@ class Helpers {
 			$title = self::get_settings_section_title_output( $title );
 		}
 
+		/**
+		 * In WP 6.7 after section is not always outputted.
+		 * See track tickets:
+		 * https://core.trac.wordpress.org/ticket/62746
+		 * https://core.trac.wordpress.org/changeset/59564
+		 */
 		$args = [
 			'before_section' => '<div class="sh-SettingsPage-settingsSection-wrap">',
 			'after_section' => '</div>',
