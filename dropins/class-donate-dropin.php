@@ -30,7 +30,7 @@ class Donate_Dropin extends Dropin {
 	 *
 	 * Called from filter 'admin_footer_text'.
 	 *
-	 * @param string $text Admin footer text.
+	 * @param string|bool $text Admin footer text. Can be false apparantly beacuse it was once.
 	 * @return string
 	 */
 	public function filter_admin_footer_text( $text ) {
@@ -42,7 +42,22 @@ class Donate_Dropin extends Dropin {
 			return $text;
 		}
 
-		$text .= ' | ' . sprintf(
+		if ( is_bool( $text ) ) {
+			$text = '';
+		}
+
+		// Bail if not string beacuse have no idea what's going on then.
+		if ( ! is_string( $text ) ) {
+			return $text;
+		}
+
+		// Add divider if text is not empty.
+		$divider = '';
+		if ( ! empty( $text ) ) {
+			$divider = ' | ';
+		}
+
+		$text .= $divider . sprintf(
 			/* translators: 1 is a link to the WordPress.org plugin review page for Simple History. */
 			__( 'Consider giving Simple History <a href="%1$s" target="_blank">a nice review at WordPress.org</a> if you find it useful.', 'simple-history' ),
 			'https://wordpress.org/support/plugin/simple-history/reviews/?filter=5#new-post',
