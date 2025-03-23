@@ -225,6 +225,10 @@ You can access the log in multiple ways:
 -   The **admin bar menu**
 -   A **dedicated log page** in the WordPress admin area
 
+### Can I change where the History menu appears in WordPress admin?
+
+Yes! You can customize the menu position in the plugin settings. Choose between showing Simple History at the top or bottom of the main menu, or inside the dashboard menu or tools menu.
+
 ### Do I need coding skills to use the plugin?
 
 No! Just install and activate the plugin, and it will start collecting activity logs automatically.
