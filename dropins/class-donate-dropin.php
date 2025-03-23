@@ -101,6 +101,22 @@ class Donate_Dropin extends Dropin {
 			array( $this, 'settings_section_output' ),
 			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page.
 		);
+
+		// Add a dummy settings field, required to make the after_section-html be output due to bug in do_settings_sections().
+		add_settings_field(
+			'simple_history_settings_field_donate',
+			'',
+			'__return_empty_string',
+			Simple_History::SETTINGS_MENU_SLUG,
+			'simple_history_settings_section_donate'
+		);
+	}
+
+	/**
+	 * Output settings field HTML.
+	 */
+	public function settings_field_output() {
+		echo '';
 	}
 
 	/**
