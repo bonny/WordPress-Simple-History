@@ -56,38 +56,38 @@ class Admin_Page_Premium_Promo extends Service {
 	public function promo_upsell_page_output() {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Admin_Pages::header_output();
+		
 		?>
+		<div class="wrap">
+			<?php
+			echo wp_kses(
+				Helpers::get_settings_section_title_output(
+					__( 'Get more features with Simple History Premium', 'simple-history' ),
+					'workspace_premium'
+				),
+				[
+					'span' => [
+						'class' => [],
+					],
+				]
+			);
+			?>
 
-			<div class="wrap">
+			<p>
+				<?php esc_html_e( 'Simple History add-ons give you more features to your WordPress site.', 'simple-history' ); ?>	
+			</p>
+
+			<!-- Grid with premium features.	 -->
+			<div class="sh-grid sh-grid-cols-1/3">
 				<?php
-				echo wp_kses(
-					Helpers::get_settings_section_title_output(
-						__( 'Get more features with Simple History Premium', 'simple-history' ),
-						'workspace_premium'
-					),
-					[
-						'span' => [
-							'class' => [],
-						],
-					]
-				);
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_features_postbox_html();
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_features_postbox_html();
 				?>
-
-				<p>
-					<?php esc_html_e( 'Simple History add-ons give you more features to your WordPress site.', 'simple-history' ); ?>	
-				</p>
-
-				<!-- Grid with premium features.	 -->
-				<div class="sh-grid sh-grid-cols-1/3">
-					<?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_features_postbox_html();
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_features_postbox_html();
-					?>
-				</div>
+			</div>
 				
 		</div>
 		<?php
