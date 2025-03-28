@@ -39,7 +39,7 @@ class AddOn_Plugin {
 	 * Will be used to check that the entered licence key is for this product.
 	 * For example History PLUS has id 105282.
 	 *
-	 * @var int;
+	 * @var int
 	 */
 	public $product_id;
 

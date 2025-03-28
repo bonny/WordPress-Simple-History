@@ -18,6 +18,7 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function loaded() {
 		if ( ! function_exists( 'get_editable_roles' ) ) {
+			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . '/wp-admin/includes/user.php';
 		}
 
@@ -292,7 +293,7 @@ class RSS_Dropin extends Dropin {
 					 * );
 					 *
 					 * @param array $args SimpleHistoryLogQuery arguments.
-					 * @return array.
+					 * @return array
 					 */
 					$args = apply_filters( 'simple_history/rss_feed_args', $args );
 

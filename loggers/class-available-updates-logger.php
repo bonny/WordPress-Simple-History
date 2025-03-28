@@ -88,6 +88,7 @@ class Available_Updates_Logger extends Logger {
 		$new_wp_core_version = $updates->updates[0]->current; // The new WP core version.
 
 		// Some plugins can mess with version, so get fresh from the version file.
+		/** @phpstan-ignore requireOnce.fileNotFound */
 		require_once ABSPATH . WPINC . '/version.php';
 
 		// If found version is same version as we have logged about before then don't continue.
@@ -133,6 +134,7 @@ class Available_Updates_Logger extends Logger {
 
 		// File needed plugin API.
 		if ( ! function_exists( 'get_plugin_data' ) ) {
+			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 

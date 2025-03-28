@@ -53,6 +53,7 @@ class Helpers {
 		$args = wp_parse_args( $args, $defaults );
 
 		if ( ! class_exists( 'WP_Text_Diff_Renderer_Table' ) ) {
+			/** @phpstan-ignore require.fileNotFound */
 			require ABSPATH . WPINC . '/wp-diff.php';
 		}
 
@@ -634,6 +635,7 @@ class Helpers {
 	 */
 	public static function is_plugin_active( $plugin_file_path ) {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
+			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
