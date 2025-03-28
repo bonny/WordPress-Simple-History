@@ -15,3 +15,5 @@ parameters:
   level: 2
   ignoreErrors:
     # - '#Access to an undefined property object::\$context_message_key.#'
+includes:
+	- phar://phpstan.phar/conf/bleedingEdge.neon
