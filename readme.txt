@@ -323,7 +323,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 **Added**
 
 -   Add reload button when events fail to load (typically due to an expired nonce from admin inactivity).
--   Add review notice for admins after 500+ logged events to encourage [leaving a review](https://wordpress.org/support/plugin/simple-history/reviews/#new-post). (It keeps me motivated, you know.)
+-   Add review notice for admins after many events has been logged to encourage [leaving a review](https://wordpress.org/support/plugin/simple-history/reviews/#new-post). (It keeps me motivated, you know.) It will only be shown on the admin pages that belong to Simple History.
 
 **Changed**
 

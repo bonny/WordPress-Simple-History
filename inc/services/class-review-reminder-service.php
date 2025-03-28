@@ -48,6 +48,12 @@ class Review_Reminder_Service extends Service {
 			return;
 		}
 
+		// Don't show on dashboard.
+		global $pagenow;
+		if ( $pagenow == 'index.php' ) {
+			return;
+		}
+
 		// Hide if premium add-on-is active.
 		if ( Helpers::is_premium_add_on_active() ) {
 			return;
