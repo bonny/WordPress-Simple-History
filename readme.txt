@@ -316,24 +316,24 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=readme).
 
-### 5.8.1 (Unreleased)
+### 5.8.1 (march 2025)
 
 🔧 This release adds several UI improvements and internal enhancements to make Simple History more user-friendly and robust.
 
 **Added**
 
 -   Add reload button when events fail to load (typically due to an expired nonce from admin inactivity).
--   Add review notice for admins after 500+ logged events to encourage [leaving a review](https://wordpress.org/support/plugin/simple-history/reviews/#new-post).
+-   Add review notice for admins after 500+ logged events to encourage [leaving a review](https://wordpress.org/support/plugin/simple-history/reviews/#new-post). (It keeps me motivated, you know.)
 
 **Changed**
 
 -   Rename debug page to "Help & Support" for better clarity.
 -   Improve dropin loading by automatically finding dropins in the dropins folder.
--   Enhance footer text handling to properly manage boolean and non-string inputs.
 
 **Fixed**
 
--   Remove unnecessary div element in diff output for cleaner code.
+-   Remove unnecessary div element in diff output.
+-   Enhance footer text handling to properly manage boolean and non-string inputs.
 
 ### 5.8.0 (March 2025)
 
