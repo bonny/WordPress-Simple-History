@@ -846,6 +846,17 @@ class Post_Logger extends Logger {
 			// https://wordpress.stackexchange.com/questions/20904/the-encloseme-meta-key-conundrum
 			'_encloseme',
 		);
+        
+        /**
+		 * Modify the array with custom field keys to ignore
+		 *
+		 * @param  array $arr_meta_keys_to_ignore Array with custom field keys to ignore.
+		 * @param  array $context                 Array with context.
+		 * @return array                          Filtered array with custom field keys to ignore.
+         *
+         * @since 5.8.1
+		 */
+        $arr_meta_keys_to_ignore = apply_filters( 'simple_history/post_logger/meta_keys_to_ignore', $arr_meta_keys_to_ignore, $context );
 
 		$meta_changes = array(
 			'added' => array(),
