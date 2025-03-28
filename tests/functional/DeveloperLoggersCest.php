@@ -1,4 +1,5 @@
 <?php
+use \Step\Acceptance\Admin;
 
 class DeveloperLoggerCest {
     public function _before( FunctionalTester $I ) {
@@ -11,8 +12,8 @@ class DeveloperLoggerCest {
         $I->canSeePluginActivated('developer-loggers-for-simple-history');
     }
 
-    public function test_that_developer_loggers_settings_tab_exist( FunctionalTester $I ) {
-        $I->amOnAdminPage('admin.php?page=simple_history_debug');
+    public function test_that_developer_loggers_settings_tab_exist( FunctionalTester $I, Admin $admin ) {
+        $admin->loginAsAdminToHistorySettingsPage();
         $I->canSee('Developer loggers');
     }
 
