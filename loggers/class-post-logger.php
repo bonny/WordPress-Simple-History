@@ -1438,7 +1438,7 @@ class Post_Logger extends Logger {
 	 * @return string
 	 */
 	protected function label_for( $key, $label, $context ) {
-		return ( 'simple_history/post_logger/label_for_key', $label, $key, $context );
+		return apply_filters( 'simple_history/post_logger/label_for_key', $label, $key, $context );
 	}
 
 	/**
