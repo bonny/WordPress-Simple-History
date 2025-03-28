@@ -19,6 +19,9 @@ use Simple_History\Services\Setup_Settings_Page;
  * Main class for Simple History.
  *
  * This is used to init the plugin.
+ *
+ * @method bool registerSettingsTab(array $arr_tab_settings) Register a new tab in the settings.
+ * @method string get_avatar(...$args) Get avatar image. Moved to Helpers class.
  */
 class Simple_History {
 	public const NAME = 'Simple History';
@@ -614,12 +617,6 @@ class Simple_History {
 	 * @return array
 	 */
 	public function get_settings_tabs( $type = 'top' ) {
-		// _deprecated_function(
-		// __METHOD__,
-		// '5.7.0',
-		// 'Menu_Page class. See Message_Control_Module or Failed_Login_Attempts_Settings_Module for examples.'
-		// );
-
 		// Sort by order, where higher number means earlier output.
 		usort(
 			$this->arr_settings_tabs,
