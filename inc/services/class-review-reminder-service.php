@@ -15,7 +15,7 @@ use Simple_History\Helpers;
  */
 class Review_Reminder_Service extends Service {
 	/** Minimum number of logged items before showing notice */
-	const MINIMUM_LOGGED_ITEMS = 500;
+	const MINIMUM_LOGGED_ITEMS = 1000;
 
 	/** Action name for dismissing notice */
 	const DISMISS_NOTICE_ACTION = 'simple_history_dismiss_review_notice';
