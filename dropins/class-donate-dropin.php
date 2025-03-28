@@ -30,7 +30,7 @@ class Donate_Dropin extends Dropin {
 	 *
 	 * Called from filter 'admin_footer_text'.
 	 *
-	 * @param string|bool $text Admin footer text. Can be false apparantly beacuse it was once.
+	 * @param string|bool $text Admin footer text. Can be false apparently because it was once.
 	 * @return string
 	 */
 	public function filter_admin_footer_text( $text ) {
@@ -46,7 +46,7 @@ class Donate_Dropin extends Dropin {
 			$text = '';
 		}
 
-		// Bail if not string beacuse have no idea what's going on then.
+		// Bail if not string because have no idea what's going on then.
 		if ( ! is_string( $text ) ) {
 			return $text;
 		}
