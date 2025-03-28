@@ -21,7 +21,9 @@ class Issue373Cest {
         $I->activatePlugin('issue-373-disable-core-loggers');
 
         $I->amGoingTo('See if any loggers are active on the debug tab');
-        $I->amOnAdminPage('admin.php?page=simple_history_debug');
+        
+        // Go to debug tab/Help & Support » Debug
+        $I->amOnAdminPage('admin.php?page=simple_history_help_support&selected-tab=simple_history_help_support_general&selected-sub-tab=simple_history_help_support_debug');
         $I->dontSee('There has been a critical error on this website.');       
         $I->see('Listing 2 loggers');
 
