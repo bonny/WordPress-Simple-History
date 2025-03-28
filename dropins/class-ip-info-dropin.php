@@ -7,7 +7,7 @@ namespace Simple_History\Dropins;
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
-class Ip_Info_Dropin extends Dropin {
+class IP_Info_Dropin extends Dropin {
 	/**
 	 * @inheritdoc
 	 */
