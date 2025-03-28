@@ -21,6 +21,8 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 		$actual_slugs = array_map(fn (Service $service) => $service->get_slug(), $services);
 
 		$expected_slugs = [
+			'Admin_Page_Premium_Promo',
+			'Review_Reminder_Service',
 			'AddOns_Licences',
 			'Setup_Database',
 			'Scripts_And_Templates',
