@@ -185,7 +185,7 @@ class Review_Reminder_Service extends Service {
 			'simple-history-review-notice',
 			plugins_url( 'js/review-notice.js', dirname( __DIR__ ) ),
 			array( 'jquery' ),
-			$this->simple_history->get_version(),
+			SIMPLE_HISTORY_VERSION,
 			true
 		);
 
