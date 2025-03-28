@@ -243,13 +243,11 @@ class Plugin_Updater {
 			$res->new_version = $remote->update->version;
 			$res->package     = $remote->update->download_link;
 
-			// @phpstan-ignore-next-line
 			$transient->response[ $res->plugin ] = $res;
 		} else {
 			// No update is available for plugin.
 			// Adding the "mock" item to the `no_update` property is required
 			// for the enable/disable auto-updates links to correctly appear in UI.
-			// @phpstan-ignore-next-line.
 			$transient->no_update[ $res->plugin ] = $res;
 		}
 
