@@ -316,6 +316,10 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=readme).
 
+### Unreleased
+
+-   Add compatibility with WordPress down to version 6.3 (from 6.6 previously). This makes it possible for users on older versions of WordPress to use the plugin. This was possible thanks to the great https://github.com/johnbillion/wp-compat library.
+
 ### 5.8.1 (march 2025)
 
 🔧 This release adds several UI improvements and internal enhancements to make Simple History more user-friendly and robust.
