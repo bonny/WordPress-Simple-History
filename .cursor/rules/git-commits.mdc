@@ -4,3 +4,4 @@ globs:
 alwaysApply: true
 ---
 Write short GIT commit messages.
+Don't end commits with a dot (.).
