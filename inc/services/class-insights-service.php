@@ -81,6 +81,197 @@ class Insights_Service extends Service {
 
 		return array_slice( $logged_in_users, 0, $limit );
 	}
+
+	/**
+	 * Get total number of events for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Total number of events, or false if invalid dates.
+	 */
+	public function get_total_events( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history
+				WHERE 
+					date >= FROM_UNIXTIME(%d)
+					AND date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get total number of unique users involved in events for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Total number of unique users, or false if invalid dates.
+	 */
+	public function get_total_users( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(DISTINCT c.value)
+				FROM 
+					{$wpdb->prefix}simple_history_contexts c
+				JOIN 
+					{$wpdb->prefix}simple_history h ON h.id = c.history_id
+				WHERE 
+					c.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get the last user edit action.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return object|false Last edit action details, or false if invalid dates or no actions found.
+	 */
+	public function get_last_edit_action( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		$last_action = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT 
+					h.*,
+					c.value as user_id,
+					u.display_name
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				LEFT JOIN 
+					{$wpdb->users} u ON u.ID = CAST(c.value AS UNSIGNED)
+				WHERE 
+					c.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+				ORDER BY 
+					h.date DESC
+				LIMIT 1",
+				$date_from,
+				$date_to
+			)
+		);
+
+		return $last_action;
+	}
+
+	/**
+	 * Output the dashboard stats section.
+	 *
+	 * @param int    $total_events Total number of events.
+	 * @param int    $total_users  Total number of users.
+	 * @param object $last_edit    Last edit action details.
+	 */
+	private function output_dashboard_stats( $total_events, $total_users, $last_edit ) {
+		?>
+		<div class="sh-InsightsDashboard-stats">
+			<div class="sh-InsightsDashboard-stat">
+				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total Events', 'simple-history' ); ?></span>
+				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
+			</div>
+			<div class="sh-InsightsDashboard-stat">
+				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Active Users', 'simple-history' ); ?></span>
+				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_users ) ); ?></span>
+			</div>
+			<?php if ( $last_edit ) { ?>
+				<div class="sh-InsightsDashboard-stat">
+					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Last Action', 'simple-history' ); ?></span>
+					<span class="sh-InsightsDashboard-statValue">
+						<?php
+						printf(
+							/* translators: 1: user's display name, 2: time ago */
+							esc_html__( '%1$s, %2$s ago', 'simple-history' ),
+							esc_html( $last_edit->display_name ),
+							esc_html( human_time_diff( strtotime( $last_edit->date ) ) )
+						);
+						?>
+					</span>
+				</div>
+			<?php } ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the date range section.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 */
+	private function output_date_range( $date_from, $date_to ) {
+		?>
+		<p class="sh-InsightsDashboard-dateRange">
+			<?php
+			echo esc_html(
+				sprintf(
+					/* translators: 1: Start date, 2: End date */
+					__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
+					gmdate( get_option( 'date_format' ), $date_from ),
+					gmdate( get_option( 'date_format' ), $date_to )
+				)
+			);
+			?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Output the date filters section.
+	 */
+	private function output_date_filters() {
+		?>
+		<div class="sh-InsightsDashboard-filters">
+			<div class="sh-InsightsDashboard-dateFilters">
+				<span class="sh-InsightsDashboard-dateFilters-label"><?php echo esc_html_x( 'Time period:', 'insights date filter label', 'simple-history' ); ?></span>
+				<a href="<?php echo esc_url( add_query_arg( 'period', '1h' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '1h' ? 'is-active' : ''; ?>">
+					<?php echo esc_html_x( '1H', 'insights date filter 1 hour', 'simple-history' ); ?>
+				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'period', '24h' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '24h' ? 'is-active' : ''; ?>">
+					<?php echo esc_html_x( '24H', 'insights date filter 24 hours', 'simple-history' ); ?>
+				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'period', '7d' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '7d' ? 'is-active' : ''; ?>">
+					<?php echo esc_html_x( '7D', 'insights date filter 7 days', 'simple-history' ); ?>
+				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'period', '14d' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '14d' ? 'is-active' : ''; ?>">
+					<?php echo esc_html_x( '14D', 'insights date filter 14 days', 'simple-history' ); ?>
+				</a>
+				<a href="<?php echo esc_url( add_query_arg( 'period', '1m' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '1m' ? 'is-active' : ''; ?>">
+					<?php echo esc_html_x( '1M', 'insights date filter 1 month', 'simple-history' ); ?>
+				</a>
+			</div>
+		</div>
+		<?php
+	}
+
 	/**
 	 * Output the insights page content.
 	 */
@@ -115,6 +306,9 @@ class Insights_Service extends Service {
 		$date_to = $defaults['date_to'];
 
 		// Get insights data.
+		$total_events = $this->get_total_events( $date_from, $date_to );
+		$total_users = $this->get_total_users( $date_from, $date_to );
+		$last_edit = $this->get_last_edit_action( $date_from, $date_to );
 		$top_users = $this->get_top_users( $date_from, $date_to, 10 );
 		$activity_overview = $this->get_activity_overview( $date_from, $date_to );
 		$common_actions = $this->get_most_common_actions( $date_from, $date_to, 10 );
@@ -187,18 +381,11 @@ class Insights_Service extends Service {
 					?>
 				</h1>
 
-				<p class="sh-InsightsDashboard-dateRange">
-					<?php
-					echo esc_html(
-						sprintf(
-						/* translators: 1: Start date, 2: End date */
-							__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
-							gmdate( get_option( 'date_format' ), $date_from ),
-							gmdate( get_option( 'date_format' ), $date_to )
-						)
-					);
-					?>
-				</p>
+				<?php
+				$this->output_dashboard_stats( $total_events, $total_users, $last_edit );
+				$this->output_date_range( $date_from, $date_to );
+				$this->output_date_filters();
+				?>
 
 				<div class="sh-InsightsDashboard">
 					<div class="sh-InsightsDashboard-section">

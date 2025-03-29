@@ -315,4 +315,33 @@
     .sh-InsightsDashboard-calendarDayCount {
         font-size: 10px;
     }
+}
+
+.sh-InsightsDashboard-stats {
+	display: flex;
+	gap: 2rem;
+	margin-bottom: 2rem;
+	background: #fff;
+	padding: 1.5rem;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+.sh-InsightsDashboard-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.sh-InsightsDashboard-statLabel {
+	font-size: 0.875rem;
+	color: #50575e;
+	text-transform: uppercase;
+	font-weight: 600;
+}
+
+.sh-InsightsDashboard-statValue {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #1d2327;
 } 
