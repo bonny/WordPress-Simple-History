@@ -193,4 +193,102 @@
         width: 100%;
         margin-right: 0;
     }
+}
+
+/* Calendar styles */
+.sh-InsightsDashboard-calendar {
+    width: 100%;
+    padding: 20px;
+}
+
+.sh-InsightsDashboard-calendarMonth {
+    width: 100%;
+}
+
+.sh-InsightsDashboard-calendarTitle {
+    margin: 0 0 20px;
+    font-size: 1.2em;
+    color: #23282d;
+    text-align: center;
+}
+
+.sh-InsightsDashboard-calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.sh-InsightsDashboard-calendarHeader {
+    padding: 10px;
+    text-align: center;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.sh-InsightsDashboard-calendarDay {
+    aspect-ratio: 1;
+    padding: 8px;
+    background-color: #f0f0f1;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.sh-InsightsDashboard-calendarDay--empty {
+    background-color: transparent;
+}
+
+.sh-InsightsDashboard-calendarDay--outOfRange {
+    background-color: #f0f0f1;
+    opacity: 0.5;
+}
+
+.sh-InsightsDashboard-calendarDay--outOfRange .sh-InsightsDashboard-calendarDayNumber {
+    color: #646970;
+}
+
+.sh-InsightsDashboard-calendarDay--low {
+    background-color: #e6f3ff;
+}
+
+.sh-InsightsDashboard-calendarDay--medium {
+    background-color: #b3d9ff;
+}
+
+.sh-InsightsDashboard-calendarDay--high {
+    background-color: #80bfff;
+}
+
+.sh-InsightsDashboard-calendarDayNumber {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.sh-InsightsDashboard-calendarDayCount {
+    font-size: 12px;
+    color: #50575e;
+    margin-top: 4px;
+}
+
+/* Responsive calendar adjustments */
+@media screen and (max-width: 782px) {
+    .sh-InsightsDashboard-calendarGrid {
+        gap: 2px;
+    }
+
+    .sh-InsightsDashboard-calendarDay {
+        padding: 4px;
+    }
+
+    .sh-InsightsDashboard-calendarDayNumber {
+        font-size: 12px;
+    }
+
+    .sh-InsightsDashboard-calendarDayCount {
+        font-size: 10px;
+    }
 } 

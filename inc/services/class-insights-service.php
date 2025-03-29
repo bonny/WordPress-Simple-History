@@ -270,6 +270,13 @@ class Insights_Service extends Service {
 						<canvas id="peakDaysChart" class="sh-InsightsDashboard-chart"></canvas>
 					</div>
 				</div>
+
+				<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
+					<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
+					<div class="sh-InsightsDashboard-content">
+						<?php $this->output_activity_calendar( $date_from, $date_to, $activity_overview ); ?>
+					</div>
+				</div>
 			</div>
 		</div>
 		<?php
@@ -492,5 +499,110 @@ class Insights_Service extends Service {
 		$logger_name = str_replace( ' Logger', '', $logger_name );
 
 		return trim( $logger_name );
+	}
+
+	/**
+	 * Output the activity calendar view.
+	 *
+	 * @param int   $date_from         Start date as Unix timestamp.
+	 * @param int   $date_to           End date as Unix timestamp.
+	 * @param array $activity_overview Array of activity data by date.
+	 */
+	private function output_activity_calendar( $date_from, $date_to, $activity_overview ) {
+		?>
+		<div class="sh-InsightsDashboard-calendar">
+			<?php
+			// Get the first and last day of the date range.
+			$start_date = new \DateTime( gmdate( 'Y-m-d', $date_from ) );
+			$end_date = new \DateTime( gmdate( 'Y-m-d', $date_to ) );
+
+			// Get the first and last day of the month.
+			$first_day_of_month = clone $start_date;
+			$first_day_of_month->modify( 'first day of this month' );
+			$last_day_of_month = clone $start_date;
+			$last_day_of_month->modify( 'last day of this month' );
+
+			$current_date = clone $first_day_of_month;
+			$start_weekday = (int) $first_day_of_month->format( 'w' );
+
+			// Create array of dates with their event counts.
+			$date_counts = array();
+			foreach ( $activity_overview as $day ) {
+				$date_counts[ $day->date ] = (int) $day->count;
+			}
+
+			// Get month name.
+			$month_name = $start_date->format( 'F Y' );
+			?>
+			<div class="sh-InsightsDashboard-calendarMonth">
+				<h3 class="sh-InsightsDashboard-calendarTitle"><?php echo esc_html( $month_name ); ?></h3>
+				<div class="sh-InsightsDashboard-calendarGrid">
+					<?php
+					// Output weekday headers.
+					$weekdays = array(
+						__( 'Sun', 'simple-history' ),
+						__( 'Mon', 'simple-history' ),
+						__( 'Tue', 'simple-history' ),
+						__( 'Wed', 'simple-history' ),
+						__( 'Thu', 'simple-history' ),
+						__( 'Fri', 'simple-history' ),
+						__( 'Sat', 'simple-history' ),
+					);
+					foreach ( $weekdays as $weekday ) {
+						echo '<div class="sh-InsightsDashboard-calendarHeader">' . esc_html( $weekday ) . '</div>';
+					}
+
+					// Add empty cells for days before the start of the month.
+					for ( $i = 0; $i < $start_weekday; $i++ ) {
+						echo '<div class="sh-InsightsDashboard-calendarDay sh-InsightsDashboard-calendarDay--empty"></div>';
+					}
+
+					// Output calendar days.
+					while ( $current_date <= $last_day_of_month ) {
+						$date_str = $current_date->format( 'Y-m-d' );
+						$count = isset( $date_counts[ $date_str ] ) ? $date_counts[ $date_str ] : 0;
+						$is_in_range = $current_date >= $start_date && $current_date <= $end_date;
+
+						$classes = array( 'sh-InsightsDashboard-calendarDay' );
+
+						if ( ! $is_in_range ) {
+							$classes[] = 'sh-InsightsDashboard-calendarDay--outOfRange';
+						} elseif ( $count > 0 ) {
+							if ( $count < 10 ) {
+								$classes[] = 'sh-InsightsDashboard-calendarDay--low';
+							} elseif ( $count < 50 ) {
+								$classes[] = 'sh-InsightsDashboard-calendarDay--medium';
+							} else {
+								$classes[] = 'sh-InsightsDashboard-calendarDay--high';
+							}
+						}
+
+						$title = $is_in_range ?
+							/* translators: %d: number of events */
+							sprintf( _n( '%d event', '%d events', $count, 'simple-history' ), $count ) :
+							__( 'Outside selected date range', 'simple-history' );
+						?>
+						<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" 
+							title="<?php echo esc_attr( $title ); ?>">
+							<span class="sh-InsightsDashboard-calendarDayNumber"><?php echo esc_html( $current_date->format( 'j' ) ); ?></span>
+							<?php if ( $is_in_range ) : ?>
+								<span class="sh-InsightsDashboard-calendarDayCount"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
+							<?php endif; ?>
+						</div>
+						<?php
+						$current_date->modify( '+1 day' );
+					}
+
+					// Add empty cells for days after the end of the month to complete the grid.
+					$end_weekday = (int) $last_day_of_month->format( 'w' );
+					$remaining_days = 6 - $end_weekday;
+					for ( $i = 0; $i < $remaining_days; $i++ ) {
+						echo '<div class="sh-InsightsDashboard-calendarDay sh-InsightsDashboard-calendarDay--empty"></div>';
+					}
+					?>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 }
