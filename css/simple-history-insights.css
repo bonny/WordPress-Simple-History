@@ -47,4 +47,49 @@
     .sh-InsightsDashboard {
         grid-template-columns: 1fr;
     }
+}
+
+.sh-InsightsDashboard-userList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sh-InsightsDashboard-userItem {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.sh-InsightsDashboard-userItem:last-child {
+    border-bottom: none;
+}
+
+.sh-InsightsDashboard-userItem img {
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.sh-InsightsDashboard-userInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sh-InsightsDashboard-userRole {
+    color: #646970;
+    font-size: 12px;
+}
+
+.sh-InsightsDashboard-userSessions {
+    color: #2271b1;
+    font-size: 12px;
+}
+
+.sh-InsightsDashboard-dateRange {
+    text-align: center;
+    color: #646970;
+    font-style: italic;
+    margin: 0 0 20px;
 } 

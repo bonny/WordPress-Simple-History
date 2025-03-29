@@ -6,6 +6,7 @@ use Simple_History\Helpers;
 use Simple_History\Simple_History;
 use Simple_History\Menu_Page;
 use Simple_History\Services\Service;
+use WP_Session_Tokens;
 
 /**
  * Service class that handles insights functionality.
@@ -47,6 +48,29 @@ class Insights_Service extends Service {
 	}
 
 	/**
+	 * Get currently logged in users.
+	 *
+	 * @return array Array of currently logged in users with their last activity.
+	 */
+	public function get_logged_in_users() {
+		$logged_in_users = [];
+		$all_users = get_users();
+
+		foreach ( $all_users as $user ) {
+			$sessions = WP_Session_Tokens::get_instance( $user->ID );
+
+			if ( $sessions->get_all() ) {
+				$logged_in_users[] = [
+					'user' => $user,
+					'sessions' => count( $sessions->get_all() ),
+				];
+			}
+		}
+
+		return $logged_in_users;
+	}
+
+	/**
 	 * Output the insights page content.
 	 */
 	public function output_page() {
@@ -74,11 +98,24 @@ class Insights_Service extends Service {
 			true
 		);
 
+		// Get date range for the last 7 days.
+		$defaults = $this->get_default_date_range();
+
 		// Get insights data.
-		$top_users = $this->get_top_users( 10 );
-		$activity_overview = $this->get_activity_overview( 30 );
-		$common_actions = $this->get_most_common_actions( 10 );
-		$peak_times = $this->get_peak_activity_times();
+		$top_users = $this->get_top_users( $defaults['date_from'], $defaults['date_to'], 10 );
+		$activity_overview = $this->get_activity_overview( $defaults['date_from'], $defaults['date_to'] );
+		$common_actions = $this->get_most_common_actions( $defaults['date_from'], $defaults['date_to'], 10 );
+		$peak_times = $this->get_peak_activity_times( $defaults['date_from'], $defaults['date_to'] );
+		$logged_in_users = $this->get_logged_in_users();
+
+		// Format logger names for common actions.
+		$formatted_common_actions = array_map(
+			function ( $action ) {
+				$action->logger = $this->format_logger_name( $action->logger );
+				return $action;
+			},
+			$common_actions
+		);
 
 		// Pass data to JavaScript.
 		wp_localize_script(
@@ -87,8 +124,12 @@ class Insights_Service extends Service {
 			[
 				'topUsers' => $top_users,
 				'activityOverview' => $activity_overview,
-				'commonActions' => $common_actions,
+				'commonActions' => $formatted_common_actions,
 				'peakTimes' => $peak_times,
+				'dateRange' => [
+					'from' => gmdate( 'Y-m-d', $defaults['date_from'] ),
+					'to' => gmdate( 'Y-m-d', $defaults['date_to'] ),
+				],
 				'strings' => [
 					'topUsers' => __( 'Top Users', 'simple-history' ),
 					'activityOverview' => __( 'Activity Overview', 'simple-history' ),
@@ -98,14 +139,70 @@ class Insights_Service extends Service {
 					'users' => __( 'Users', 'simple-history' ),
 					'events' => __( 'Events', 'simple-history' ),
 					'time' => __( 'Time', 'simple-history' ),
+					'dateRange' => sprintf(
+						/* translators: 1: Start date, 2: End date */
+						__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
+						gmdate( get_option( 'date_format' ), $defaults['date_from'] ),
+						gmdate( get_option( 'date_format' ), $defaults['date_to'] )
+					),
 				],
 			]
 		);
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html_x( 'Simple History Insights', 'insights page headline', 'simple-history' ); ?></h1>
+			
+			<p class="sh-InsightsDashboard-dateRange">
+				<?php
+				echo esc_html(
+					sprintf(
+					/* translators: 1: Start date, 2: End date */
+						__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
+						gmdate( get_option( 'date_format' ), $defaults['date_from'] ),
+						gmdate( get_option( 'date_format' ), $defaults['date_to'] )
+					)
+				);
+				?>
+			</p>
 
 			<div class="sh-InsightsDashboard">
+				<div class="sh-InsightsDashboard-section">
+					<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
+					<div class="sh-InsightsDashboard-content">
+						<div class="sh-InsightsDashboard-activeUsers">
+							<?php if ( $logged_in_users ) : ?>
+								<ul class="sh-InsightsDashboard-userList">
+									<?php foreach ( $logged_in_users as $user_data ) : ?>
+										<li class="sh-InsightsDashboard-userItem">
+											<?php
+											$user = $user_data['user'];
+											echo get_avatar( $user->ID, 32 );
+											?>
+											<div class="sh-InsightsDashboard-userInfo">
+												<strong><?php echo esc_html( $user->display_name ); ?></strong>
+												<span class="sh-InsightsDashboard-userRole">
+													<?php echo esc_html( implode( ', ', $user->roles ) ); ?>
+												</span>
+												<span class="sh-InsightsDashboard-userSessions">
+													<?php
+													printf(
+														/* translators: %d: number of active sessions */
+														esc_html( _n( '%d active session', '%d active sessions', $user_data['sessions'], 'simple-history' ) ),
+														esc_html( $user_data['sessions'] )
+													);
+													?>
+												</span>
+											</div>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+							<?php else : ?>
+								<p><?php esc_html_e( 'No users are currently logged in.', 'simple-history' ); ?></p>
+							<?php endif; ?>
+						</div>
+					</div>
+				</div>
+
 				<div class="sh-InsightsDashboard-section">
 					<h2><?php echo esc_html_x( 'Top Users', 'insights section title', 'simple-history' ); ?></h2>
 					<div class="sh-InsightsDashboard-content">
@@ -139,115 +236,177 @@ class Insights_Service extends Service {
 	}
 
 	/**
+	 * Get default date range.
+	 *
+	 * @return array {
+	 *     Array of timestamps for the default date range (last 7 days).
+	 *
+	 *     @type int $date_from Unix timestamp for start date (7 days ago).
+	 *     @type int $date_to   Unix timestamp for end date (current time).
+	 * }
+	 */
+	private function get_default_date_range() {
+		return [
+			'date_from' => strtotime( '-7 days' ),
+			'date_to' => time(),
+		];
+	}
+
+	/**
 	 * Get top users by activity count.
 	 *
-	 * @param int $limit Number of users to return.
+	 * @param int $date_from  Required. Start date as Unix timestamp.
+	 * @param int $date_to    Required. End date as Unix timestamp.
+	 * @param int $limit      Optional. Number of users to return. Default 10.
 	 * @return array Array of users with their activity counts.
 	 */
-	public function get_top_users( $limit = 10 ) {
+	public function get_top_users( $date_from, $date_to, $limit = 10 ) {
 		global $wpdb;
 
-		$sql = $wpdb->prepare(
-			"SELECT 
-                c.value as user_id,
-                COUNT(*) as count,
-                u.display_name
-            FROM 
-                {$wpdb->prefix}simple_history_contexts c
-            JOIN 
-                {$wpdb->prefix}simple_history h ON h.id = c.history_id
-            LEFT JOIN 
-                {$wpdb->users} u ON u.ID = CAST(c.value AS UNSIGNED)
-            WHERE 
-                c.key = '_user_id'
-            GROUP BY 
-                c.value
-            ORDER BY 
-                count DESC
-            LIMIT %d",
-			$limit
-		);
+		if ( ! $date_from || ! $date_to ) {
+			$defaults = $this->get_default_date_range();
+			$date_from = $date_from ? $date_from : $defaults['date_from'];
+			$date_to = $date_to ? $date_to : $defaults['date_to'];
+		}
 
-		return $wpdb->get_results( $sql );
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					c.value as user_id,
+					COUNT(*) as count,
+					u.display_name
+				FROM 
+					{$wpdb->prefix}simple_history_contexts c
+				JOIN 
+					{$wpdb->prefix}simple_history h ON h.id = c.history_id
+				LEFT JOIN 
+					{$wpdb->users} u ON u.ID = CAST(c.value AS UNSIGNED)
+				WHERE 
+					c.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+				GROUP BY 
+					c.value
+				ORDER BY 
+					count DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
 	}
 
 	/**
 	 * Get activity overview by date.
 	 *
-	 * @param int $days Number of days to look back.
-	 * @return array Array of dates with their activity counts.
+	 * @param int $date_from  Required. Start date as Unix timestamp.
+	 * @param int $date_to    Required. End date as Unix timestamp.
+	 * @return array Array of dates with their activity counts. Dates are in MySQL format (YYYY-MM-DD).
 	 */
-	public function get_activity_overview( $days = 30 ) {
+	public function get_activity_overview( $date_from, $date_to ) {
 		global $wpdb;
 
-		$sql = $wpdb->prepare(
-			"SELECT 
-                DATE(date) as date,
-                COUNT(*) as count
-            FROM 
-                {$wpdb->prefix}simple_history
-            WHERE 
-                date >= DATE_SUB(NOW(), INTERVAL %d DAY)
-            GROUP BY 
-                DATE(date)
-            ORDER BY 
-                date ASC",
-			$days
-		);
+		if ( ! $date_from || ! $date_to ) {
+			$defaults = $this->get_default_date_range();
+			$date_from = $date_from ? $date_from : $defaults['date_from'];
+			$date_to = $date_to ? $date_to : $defaults['date_to'];
+		}
 
-		return $wpdb->get_results( $sql );
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					DATE(date) as date,
+					COUNT(*) as count
+				FROM 
+					{$wpdb->prefix}simple_history
+				WHERE 
+					date >= FROM_UNIXTIME(%d)
+					AND date <= FROM_UNIXTIME(%d)
+				GROUP BY 
+					DATE(date)
+				ORDER BY 
+					date ASC",
+				$date_from,
+				$date_to
+			)
+		);
 	}
 
 	/**
 	 * Get most common actions.
 	 *
-	 * @param int $limit Number of actions to return.
+	 * @param int $date_from  Required. Start date as Unix timestamp.
+	 * @param int $date_to    Required. End date as Unix timestamp.
+	 * @param int $limit      Optional. Number of actions to return. Default 10.
 	 * @return array Array of actions with their counts.
 	 */
-	public function get_most_common_actions( $limit = 10 ) {
+	public function get_most_common_actions( $date_from, $date_to, $limit = 10 ) {
 		global $wpdb;
 
-		$sql = $wpdb->prepare(
-			"SELECT 
-                logger,
-                level,
-                COUNT(*) as count
-            FROM 
-                {$wpdb->prefix}simple_history
-            GROUP BY 
-                logger, level
-            ORDER BY 
-                count DESC
-            LIMIT %d",
-			$limit
-		);
+		if ( ! $date_from || ! $date_to ) {
+			$defaults = $this->get_default_date_range();
+			$date_from = $date_from ? $date_from : $defaults['date_from'];
+			$date_to = $date_to ? $date_to : $defaults['date_to'];
+		}
 
-		return $wpdb->get_results( $sql );
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					logger,
+					level,
+					COUNT(*) as count
+				FROM 
+					{$wpdb->prefix}simple_history
+				WHERE 
+					date >= FROM_UNIXTIME(%d)
+					AND date <= FROM_UNIXTIME(%d)
+				GROUP BY 
+					logger, level
+				ORDER BY 
+					count DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
 	}
 
 	/**
 	 * Get peak activity times.
 	 *
-	 * @return array Array of hours with their activity counts.
+	 * @param int $date_from  Required. Start date as Unix timestamp.
+	 * @param int $date_to    Required. End date as Unix timestamp.
+	 * @return array Array of hours (0-23) with their activity counts.
 	 */
-	public function get_peak_activity_times() {
+	public function get_peak_activity_times( $date_from, $date_to ) {
 		global $wpdb;
 
-		$table_name = $this->simple_history->get_events_table_name();
+		if ( ! $date_from || ! $date_to ) {
+			$defaults = $this->get_default_date_range();
+			$date_from = $date_from ? $date_from : $defaults['date_from'];
+			$date_to = $date_to ? $date_to : $defaults['date_to'];
+		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$sql = "SELECT 
-            HOUR(date) as hour,
-            COUNT(*) as count
-        FROM 
-            {$table_name}
-        GROUP BY 
-            HOUR(date)
-        ORDER BY 
-            hour ASC";
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		return $wpdb->get_results( $sql );
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					HOUR(date) as hour,
+					COUNT(*) as count
+				FROM 
+					{$wpdb->prefix}simple_history
+				WHERE 
+					date >= FROM_UNIXTIME(%d)
+					AND date <= FROM_UNIXTIME(%d)
+				GROUP BY 
+					HOUR(date)
+				ORDER BY 
+					hour ASC",
+				$date_from,
+				$date_to
+			)
+		);
 	}
 
 	/**
