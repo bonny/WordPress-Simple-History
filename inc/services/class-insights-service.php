@@ -185,13 +185,19 @@ class Insights_Service extends Service {
 					<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
 					<div class="sh-InsightsDashboard-content">
 						<div class="sh-InsightsDashboard-activeUsers">
-							<?php if ( $logged_in_users ) { ?>
+							<?php
+							if ( $logged_in_users ) {
+								?>
 								<ul class="sh-InsightsDashboard-userList">
-									<?php foreach ( $logged_in_users as $user_data ) { ?>
+									<?php
+									foreach ( $logged_in_users as $user_data ) {
+
+										?>
 										<li class="sh-InsightsDashboard-userItem">
 											<?php
 											$user = $user_data['user'];
-											echo get_avatar( $user->ID, 32 );
+											// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+											echo Helpers::get_avatar( $user->user_email, 32 );
 											?>
 											<div class="sh-InsightsDashboard-userInfo">
 												<strong><?php echo esc_html( $user->display_name ); ?></strong>
@@ -207,13 +213,63 @@ class Insights_Service extends Service {
 													);
 													?>
 												</span>
+
+												<?php if ( ! empty( $user_data['sessions'] ) ) : ?>
+
+													<div class="sh-InsightsDashboard-userSessions-details">
+														<?php foreach ( $user_data['sessions'] as $session ) : ?>
+															<div class="sh-InsightsDashboard-userSession">
+																<span class="sh-InsightsDashboard-userLastLogin">
+																	<?php
+																	$login_time = date_i18n( 'F d, Y H:i A', $session['login'] );
+																	printf(
+																		/* translators: %s: login date and time */
+																		esc_html__( 'Login: %s', 'simple-history' ),
+																		esc_html( $login_time )
+																	);
+																	?>
+																</span>
+																
+																<span class="sh-InsightsDashboard-userExpiration">
+																	<?php
+																	$expiration_time = date_i18n( 'F d, Y H:i A', $session['expiration'] );
+																	printf(
+																		/* translators: %s: session expiration date and time */
+																		esc_html__( 'Expires: %s', 'simple-history' ),
+																		esc_html( $expiration_time )
+																	);
+																	?>
+																</span>
+																
+																<?php if ( ! empty( $session['ip'] ) ) : ?>
+																	<span class="sh-InsightsDashboard-userIP">
+																		<?php
+																		printf(
+																			/* translators: %s: IP address */
+																			esc_html__( 'IP: %s', 'simple-history' ),
+																			esc_html( $session['ip'] )
+																		);
+																		?>
+																	</span>
+																<?php endif; ?>
+															</div>
+														<?php endforeach; ?>
+													</div>
+												<?php endif; ?>
+
 											</div>
 										</li>
-									<?php } ?>
+										<?php
+									}
+									?>
 								</ul>
-							<?php } else { ?>
+								<?php
+							} else {
+								?>
 								<p><?php esc_html_e( 'No users are currently logged in.', 'simple-history' ); ?></p>
-							<?php } ?>
+								<?php
+							}
+							?>
 						</div>
 					</div>
 				</div>
