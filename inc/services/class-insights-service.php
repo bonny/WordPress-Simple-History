@@ -271,7 +271,7 @@ class Insights_Service extends Service {
 					</div>
 				</div>
 
-				<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
+				<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--extraWide">
 					<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
 					<div class="sh-InsightsDashboard-content">
 						<?php $this->output_activity_calendar( $date_from, $date_to, $activity_overview ); ?>

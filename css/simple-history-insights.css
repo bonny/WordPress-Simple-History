@@ -1,6 +1,6 @@
 .sh-InsightsDashboard {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     padding: 20px 0;
 }
@@ -15,7 +15,11 @@
 
 .sh-InsightsDashboard-section--wide {
     grid-column: span 2;
-    order: -1;
+}
+
+.sh-InsightsDashboard-section--extraWide {
+    grid-column: span 2;
+    grid-row: span 2;
 }
 
 .sh-InsightsDashboard-section h2 {
@@ -85,13 +89,26 @@
 }
 
 /* Responsive adjustments */
+@media screen and (max-width: 1200px) {
+    .sh-InsightsDashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sh-InsightsDashboard-section--extraWide {
+        grid-column: span 2;
+        grid-row: span 1;
+    }
+}
+
 @media screen and (max-width: 782px) {
     .sh-InsightsDashboard {
         grid-template-columns: 1fr;
     }
 
-    .sh-InsightsDashboard-section--wide {
+    .sh-InsightsDashboard-section--wide,
+    .sh-InsightsDashboard-section--extraWide {
         grid-column: span 1;
+        grid-row: span 1;
     }
 
     .sh-InsightsDashboard-content--sideBySide {
@@ -198,11 +215,17 @@
 /* Calendar styles */
 .sh-InsightsDashboard-calendar {
     width: 100%;
+    height: 100%;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .sh-InsightsDashboard-calendarMonth {
     width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .sh-InsightsDashboard-calendarTitle {
@@ -215,7 +238,9 @@
 .sh-InsightsDashboard-calendarGrid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
+    gap: 8px;
+    flex: 1;
+    align-items: start;
 }
 
 .sh-InsightsDashboard-calendarHeader {
@@ -227,7 +252,7 @@
 
 .sh-InsightsDashboard-calendarDay {
     aspect-ratio: 1;
-    padding: 8px;
+    padding: 12px;
     background-color: #f0f0f1;
     border-radius: 4px;
     display: flex;
@@ -235,6 +260,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    font-size: 16px;
 }
 
 .sh-InsightsDashboard-calendarDay--empty {
