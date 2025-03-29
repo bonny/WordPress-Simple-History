@@ -17,7 +17,7 @@ class Setup_Settings_Page extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		add_action( 'admin_menu', [ $this, 'add_settings_admin_page' ] );
+		add_action( 'admin_menu', [ $this, 'add_settings_admin_page' ], 40 );
 		add_action( 'admin_menu', [ $this, 'add_settings_tabs' ] );
 
 		add_action( 'admin_menu', [ $this, 'add_settings' ], 10 );
