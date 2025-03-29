@@ -376,6 +376,216 @@ class Insights_Service extends Service {
 	}
 
 	/**
+	 * Output the currently logged in users section.
+	 *
+	 * @param array $logged_in_users Array of currently logged in users.
+	 */
+	private function output_logged_in_users_section( $logged_in_users ) {
+		?>
+		<div class="sh-InsightsDashboard-section">
+			<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
+			<div class="sh-InsightsDashboard-content">
+				<div class="sh-InsightsDashboard-activeUsers">
+					<?php
+					if ( $logged_in_users ) {
+						?>
+						<ul class="sh-InsightsDashboard-userList">
+							<?php
+							foreach ( $logged_in_users as $user_data ) {
+								?>
+								<li class="sh-InsightsDashboard-userItem">
+									<?php
+									$user = $user_data['user'];
+									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									echo Helpers::get_avatar( $user->user_email, 32 );
+									?>
+									<div class="sh-InsightsDashboard-userInfo">
+										<strong><?php echo esc_html( $user->display_name ); ?></strong>
+										<span class="sh-InsightsDashboard-userRole">
+											<?php echo esc_html( implode( ', ', $user->roles ) ); ?>
+										</span>
+										<span class="sh-InsightsDashboard-userSessions">
+											<?php
+											printf(
+												/* translators: %d: number of active sessions */
+												esc_html( _n( '%d active session', '%d active sessions', $user_data['sessions_count'], 'simple-history' ) ),
+												esc_html( $user_data['sessions_count'] )
+											);
+											?>
+										</span>
+
+										<?php if ( ! empty( $user_data['sessions'] ) ) : ?>
+											<div class="sh-InsightsDashboard-userSessions-details">
+												<?php foreach ( $user_data['sessions'] as $session ) : ?>
+													<div class="sh-InsightsDashboard-userSession">
+														<span class="sh-InsightsDashboard-userLastLogin">
+															<?php
+															$login_time = date_i18n( 'F d, Y H:i A', $session['login'] );
+															printf(
+																/* translators: %s: login date and time */
+																esc_html__( 'Login: %s', 'simple-history' ),
+																esc_html( $login_time )
+															);
+															?>
+														</span>
+														
+														<span class="sh-InsightsDashboard-userExpiration">
+															<?php
+															$expiration_time = date_i18n( 'F d, Y H:i A', $session['expiration'] );
+															printf(
+																/* translators: %s: session expiration date and time */
+																esc_html__( 'Expires: %s', 'simple-history' ),
+																esc_html( $expiration_time )
+															);
+															?>
+														</span>
+														
+														<?php if ( ! empty( $session['ip'] ) ) : ?>
+															<span class="sh-InsightsDashboard-userIP">
+																<?php
+																printf(
+																	/* translators: %s: IP address */
+																	esc_html__( 'IP: %s', 'simple-history' ),
+																	esc_html( $session['ip'] )
+																);
+																?>
+															</span>
+														<?php endif; ?>
+													</div>
+												<?php endforeach; ?>
+											</div>
+										<?php endif; ?>
+									</div>
+								</li>
+								<?php
+							}
+							?>
+						</ul>
+						<?php
+					} else {
+						?>
+						<p><?php esc_html_e( 'No users are currently logged in.', 'simple-history' ); ?></p>
+						<?php
+					}
+					?>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the top users section.
+	 *
+	 * @param array $top_users Array of top users data.
+	 */
+	private function output_top_users_section( $top_users ) {
+		?>
+		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
+			<h2><?php echo esc_html_x( 'Top Users', 'insights section title', 'simple-history' ); ?></h2>
+			<div class="sh-InsightsDashboard-content sh-InsightsDashboard-content--sideBySide">
+				<div class="sh-InsightsDashboard-chartContainer">
+					<canvas id="topUsersChart" class="sh-InsightsDashboard-chart"></canvas>
+				</div>
+				<?php if ( $top_users && count( $top_users ) > 0 ) { ?>
+					<div class="sh-InsightsDashboard-tableContainer">
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th><?php echo esc_html_x( 'User', 'insights table header', 'simple-history' ); ?></th>
+									<th><?php echo esc_html_x( 'Actions', 'insights table header', 'simple-history' ); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $top_users as $user ) { ?>
+									<tr>
+										<td>
+										<?php
+											/* translators: %s: user ID number */
+											echo esc_html( $user->display_name ? $user->display_name : sprintf( __( 'User ID %s', 'simple-history' ), $user->user_id ) );
+										?>
+										</td>
+										<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
+									</tr>
+								<?php } ?>
+							</tbody>
+						</table>
+					</div>
+				<?php } ?>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output a chart section.
+	 *
+	 * @param string $title      Section title.
+	 * @param string $chart_id   HTML ID for the chart canvas.
+	 * @param string $css_class  Optional. Additional CSS class for the section.
+	 */
+	private function output_chart_section( $title, $chart_id, $css_class = '' ) {
+		$section_class = 'sh-InsightsDashboard-section';
+		if ( $css_class ) {
+			$section_class .= ' ' . $css_class;
+		}
+		?>
+		<div class="<?php echo esc_attr( $section_class ); ?>">
+			<h2><?php echo esc_html( $title ); ?></h2>
+			<div class="sh-InsightsDashboard-content">
+				<canvas id="<?php echo esc_attr( $chart_id ); ?>" class="sh-InsightsDashboard-chart"></canvas>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the main insights dashboard content.
+	 *
+	 * @param array $data      Insights data array.
+	 * @param int   $date_from Start date as Unix timestamp.
+	 * @param int   $date_to   End date as Unix timestamp.
+	 */
+	private function output_dashboard_content( $data, $date_from, $date_to ) {
+		?>
+		<div class="sh-InsightsDashboard">
+			<?php
+			$this->output_logged_in_users_section( $data['logged_in_users'] );
+			$this->output_top_users_section( $data['top_users'] );
+
+			// Output chart sections.
+			$this->output_chart_section(
+				_x( 'Activity Overview', 'insights section title', 'simple-history' ),
+				'activityChart'
+			);
+
+			$this->output_chart_section(
+				_x( 'Most Common Actions', 'insights section title', 'simple-history' ),
+				'actionsChart'
+			);
+
+			$this->output_chart_section(
+				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
+				'peakTimesChart'
+			);
+
+			$this->output_chart_section(
+				_x( 'Peak Activity Days', 'insights section title', 'simple-history' ),
+				'peakDaysChart'
+			);
+			?>
+
+			<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--extraWide">
+				<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
+				<div class="sh-InsightsDashboard-content">
+					<?php $this->output_activity_calendar( $date_from, $date_to, $data['activity_overview'] ); ?>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Output the insights page content.
 	 */
 	public function output_page() {
@@ -418,171 +628,8 @@ class Insights_Service extends Service {
 				$this->output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
 				$this->output_date_range( $date_from, $date_to );
 				$this->output_date_filters();
+				$this->output_dashboard_content( $data, $date_from, $date_to );
 				?>
-
-				<div class="sh-InsightsDashboard">
-					<div class="sh-InsightsDashboard-section">
-						<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
-						<div class="sh-InsightsDashboard-content">
-							<div class="sh-InsightsDashboard-activeUsers">
-								<?php
-								if ( $data['logged_in_users'] ) {
-									?>
-									<ul class="sh-InsightsDashboard-userList">
-										<?php
-										foreach ( $data['logged_in_users'] as $user_data ) {
-
-											?>
-											<li class="sh-InsightsDashboard-userItem">
-												<?php
-												$user = $user_data['user'];
-												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-												echo Helpers::get_avatar( $user->user_email, 32 );
-												?>
-												<div class="sh-InsightsDashboard-userInfo">
-													<strong><?php echo esc_html( $user->display_name ); ?></strong>
-													<span class="sh-InsightsDashboard-userRole">
-														<?php echo esc_html( implode( ', ', $user->roles ) ); ?>
-													</span>
-													<span class="sh-InsightsDashboard-userSessions">
-														<?php
-														printf(
-															/* translators: %d: number of active sessions */
-															esc_html( _n( '%d active session', '%d active sessions', $user_data['sessions_count'], 'simple-history' ) ),
-															esc_html( $user_data['sessions_count'] )
-														);
-														?>
-													</span>
-
-													<?php if ( ! empty( $user_data['sessions'] ) ) : ?>
-
-														<div class="sh-InsightsDashboard-userSessions-details">
-															<?php foreach ( $user_data['sessions'] as $session ) : ?>
-																<div class="sh-InsightsDashboard-userSession">
-																	<span class="sh-InsightsDashboard-userLastLogin">
-																		<?php
-																		$login_time = date_i18n( 'F d, Y H:i A', $session['login'] );
-																		printf(
-																			/* translators: %s: login date and time */
-																			esc_html__( 'Login: %s', 'simple-history' ),
-																			esc_html( $login_time )
-																		);
-																		?>
-																	</span>
-																	
-																	<span class="sh-InsightsDashboard-userExpiration">
-																		<?php
-																		$expiration_time = date_i18n( 'F d, Y H:i A', $session['expiration'] );
-																		printf(
-																			/* translators: %s: session expiration date and time */
-																			esc_html__( 'Expires: %s', 'simple-history' ),
-																			esc_html( $expiration_time )
-																		);
-																		?>
-																	</span>
-																	
-																	<?php if ( ! empty( $session['ip'] ) ) : ?>
-																		<span class="sh-InsightsDashboard-userIP">
-																			<?php
-																			printf(
-																				/* translators: %s: IP address */
-																				esc_html__( 'IP: %s', 'simple-history' ),
-																				esc_html( $session['ip'] )
-																			);
-																			?>
-																		</span>
-																	<?php endif; ?>
-																</div>
-															<?php endforeach; ?>
-														</div>
-													<?php endif; ?>
-
-												</div>
-											</li>
-											<?php
-										}
-										?>
-									</ul>
-									<?php
-								} else {
-									?>
-									<p><?php esc_html_e( 'No users are currently logged in.', 'simple-history' ); ?></p>
-									<?php
-								}
-								?>
-							</div>
-						</div>
-					</div>
-
-					<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
-						<h2><?php echo esc_html_x( 'Top Users', 'insights section title', 'simple-history' ); ?></h2>
-						<div class="sh-InsightsDashboard-content sh-InsightsDashboard-content--sideBySide">
-							<div class="sh-InsightsDashboard-chartContainer">
-								<canvas id="topUsersChart" class="sh-InsightsDashboard-chart"></canvas>
-							</div>
-							<?php if ( $data['top_users'] && count( $data['top_users'] ) > 0 ) { ?>
-								<div class="sh-InsightsDashboard-tableContainer">
-									<table class="widefat striped">
-										<thead>
-											<tr>
-												<th><?php echo esc_html_x( 'User', 'insights table header', 'simple-history' ); ?></th>
-												<th><?php echo esc_html_x( 'Actions', 'insights table header', 'simple-history' ); ?></th>
-											</tr>
-										</thead>
-										<tbody>
-											<?php foreach ( $data['top_users'] as $user ) { ?>
-												<tr>
-													<td>
-													<?php
-														/* translators: %s: user ID number */
-														echo esc_html( $user->display_name ? $user->display_name : sprintf( __( 'User ID %s', 'simple-history' ), $user->user_id ) );
-													?>
-													</td>
-													<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
-												</tr>
-											<?php } ?>
-										</tbody>
-									</table>
-								</div>
-							<?php } ?>
-						</div>
-					</div>
-
-					<div class="sh-InsightsDashboard-section">
-						<h2><?php echo esc_html_x( 'Activity Overview', 'insights section title', 'simple-history' ); ?></h2>
-						<div class="sh-InsightsDashboard-content">
-							<canvas id="activityChart" class="sh-InsightsDashboard-chart"></canvas>
-						</div>
-					</div>
-
-					<div class="sh-InsightsDashboard-section">
-						<h2><?php echo esc_html_x( 'Most Common Actions', 'insights section title', 'simple-history' ); ?></h2>
-						<div class="sh-InsightsDashboard-content">
-							<canvas id="actionsChart" class="sh-InsightsDashboard-chart"></canvas>
-						</div>
-					</div>
-
-					<div class="sh-InsightsDashboard-section">
-						<h2><?php echo esc_html_x( 'Peak Activity Times', 'insights section title', 'simple-history' ); ?></h2>
-						<div class="sh-InsightsDashboard-content">
-							<canvas id="peakTimesChart" class="sh-InsightsDashboard-chart"></canvas>
-						</div>
-					</div>
-
-					<div class="sh-InsightsDashboard-section">
-						<h2><?php echo esc_html_x( 'Peak Activity Days', 'insights section title', 'simple-history' ); ?></h2>
-						<div class="sh-InsightsDashboard-content">
-							<canvas id="peakDaysChart" class="sh-InsightsDashboard-chart"></canvas>
-						</div>
-					</div>
-
-					<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section">
-						<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
-						<div class="sh-InsightsDashboard-content">
-							<?php $this->output_activity_calendar( $date_from, $date_to, $data['activity_overview'] ); ?>
-						</div>
-					</div>
-				</div>
 			</div>
 		<?php
 	}
