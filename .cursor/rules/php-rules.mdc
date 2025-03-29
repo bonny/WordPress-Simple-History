@@ -14,5 +14,5 @@ alwaysApply: false
   ```php
   <?php
   foreach ( $top_users as $user ) {
-  ?>
+    ?>
   ```
