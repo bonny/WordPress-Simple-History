@@ -3,7 +3,6 @@
 namespace Simple_History;
 
 use Simple_History\Simple_History;
-use Simple_History\Menu_Page;
 use Simple_History\Services\Setup_Settings_Page;
 
 /**

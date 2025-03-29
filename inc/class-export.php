@@ -2,6 +2,8 @@
 
 namespace Simple_History;
 
+use Simple_History\Compat;
+
 /**
  * Class to contain logic for exporting events.
  *
@@ -181,7 +183,7 @@ class Export {
 
 		$user_roles_comma_separated = implode( ', ', $user_roles );
 
-		$date_local = wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
+		$date_local = Compat::wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
 
 		fputcsv(
 			$fp,
