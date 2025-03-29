@@ -6,6 +6,7 @@ use stdClass;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
+use Simple_History\Compat;
 
 /**
  * REST API controller for events.
@@ -715,7 +716,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$fields = $this->get_fields_for_response( $request );
 
-		if ( rest_is_field_included( 'id', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'id', $fields ) ) {
 			$data['id'] = (int) $item->id;
 		}
 
@@ -723,65 +724,65 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// So on my local computer with timezone stockholm an event was added when my computer
 		// said "21 nov 2024 16:25" and the date in the
 		// database is "2024-11-21 15:24:00".
-		if ( rest_is_field_included( 'date_local', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'date_local', $fields ) ) {
 			// Given a date in UTC or GMT timezone, returns that date in the timezone of the site.
 			$data['date_local'] = get_date_from_gmt( $item->date );
 		}
 
-		if ( rest_is_field_included( 'date_gmt', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'date_gmt', $fields ) ) {
 			$data['date_gmt'] = $item->date;
 		}
 
-		if ( rest_is_field_included( 'via', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'via', $fields ) ) {
 			$row_logger = $this->simple_history->get_instantiated_logger_by_slug( $item->logger );
 			$data['via'] = $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '';
 		}
 
-		if ( rest_is_field_included( 'message', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'message', $fields ) ) {
 			$message = $this->simple_history->get_log_row_plain_text_output( $item );
 			$message = html_entity_decode( $message );
 			$message = wp_strip_all_tags( $message );
 			$data['message'] = $message;
 		}
 
-		if ( rest_is_field_included( 'message_html', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'message_html', $fields ) ) {
 			$message = $this->simple_history->get_log_row_plain_text_output( $item );
 			$data['message_html'] = $message;
 		}
 
-		if ( rest_is_field_included( 'message_uninterpolated', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'message_uninterpolated', $fields ) ) {
 			$data['message_uninterpolated'] = $item->message;
 		}
 
-		if ( rest_is_field_included( 'details_data', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'details_data', $fields ) ) {
 			$data['details_data'] = $this->simple_history->get_log_row_details_output( $item )->to_json();
 		}
 
-		if ( rest_is_field_included( 'details_html', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'details_html', $fields ) ) {
 			$data['details_html'] = $this->simple_history->get_log_row_details_output( $item )->to_html();
 		}
 
-		if ( rest_is_field_included( 'link', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'link', $fields ) ) {
 			$data['link'] = Helpers::get_history_admin_url() . "#simple-history/event/{$item->id}";
 		}
 
-		if ( rest_is_field_included( 'logger', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'logger', $fields ) ) {
 			$data['logger'] = $item->logger;
 		}
 
-		if ( rest_is_field_included( 'message_key', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'message_key', $fields ) ) {
 			$data['message_key'] = $item->context_message_key;
 		}
 
-		if ( rest_is_field_included( 'loglevel', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'loglevel', $fields ) ) {
 			$data['loglevel'] = $item->level;
 		}
 
-		if ( rest_is_field_included( 'initiator', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'initiator', $fields ) ) {
 			$data['initiator'] = $item->initiator;
 		}
 
-		if ( rest_is_field_included( 'initiator_data', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'initiator_data', $fields ) ) {
 			$user_avatar_data = get_avatar_data( $context['_user_id'] ?? null, [] );
 			$user_avatar_url = $user_avatar_data['url'] ?? '';
 			$user_object = get_user_by( 'id', $context['_user_id'] ?? null );
@@ -799,7 +800,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['initiator_data'] = $user_info;
 		}
 
-		if ( rest_is_field_included( 'ip_addresses', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'ip_addresses', $fields ) ) {
 			// Empty object unless we are ok to include ip addresses.
 			$data['ip_addresses'] = new stdClass();
 
@@ -824,21 +825,21 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			}
 		}
 
-		if ( rest_is_field_included( 'occasions_id', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'occasions_id', $fields ) ) {
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$data['occasions_id'] = $item->occasionsID;
 		}
 
-		if ( rest_is_field_included( 'subsequent_occasions_count', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'subsequent_occasions_count', $fields ) ) {
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$data['subsequent_occasions_count'] = (int) $item->subsequentOccasions;
 		}
 
-		if ( rest_is_field_included( 'context', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'context', $fields ) ) {
 			$data['context'] = $item->context;
 		}
 
-		if ( rest_is_field_included( 'permalink', $fields ) ) {
+		if ( Compat::rest_is_field_included( 'permalink', $fields ) ) {
 			$data['permalink'] = sprintf(
 				'%s#simple-history/event/%d',
 				Helpers::get_history_admin_url(),
