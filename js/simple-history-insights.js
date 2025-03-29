@@ -1,0 +1,181 @@
+/* global Chart, simpleHistoryInsights */
+jQuery( function () {
+	'use strict';
+
+	// Set default Chart.js options
+	Chart.defaults.font.family =
+		'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif';
+	Chart.defaults.color = '#666';
+	Chart.defaults.plugins.legend.position = 'bottom';
+
+	// Top Users Chart
+	function initTopUsersChart() {
+		const ctx = document
+			.getElementById( 'topUsersChart' )
+			.getContext( '2d' );
+		const data = simpleHistoryInsights.topUsers.map( ( user ) => ( {
+			label: user.display_name || `User ID ${ user.user_id }`,
+			value: parseInt( user.count, 10 ),
+		} ) );
+
+		new Chart( ctx, {
+			type: 'bar',
+			data: {
+				labels: data.map( ( item ) => item.label ),
+				datasets: [
+					{
+						label: simpleHistoryInsights.strings.actions,
+						data: data.map( ( item ) => item.value ),
+						backgroundColor: 'rgba(54, 162, 235, 0.8)',
+						borderColor: 'rgba(54, 162, 235, 1)',
+						borderWidth: 1,
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					y: {
+						beginAtZero: true,
+						ticks: {
+							precision: 0,
+						},
+					},
+				},
+			},
+		} );
+	}
+
+	// Activity Overview Chart
+	function initActivityChart() {
+		const ctx = document
+			.getElementById( 'activityChart' )
+			.getContext( '2d' );
+		const data = simpleHistoryInsights.activityOverview.map( ( item ) => ( {
+			date: new Date( item.date ).toLocaleDateString(),
+			count: parseInt( item.count, 10 ),
+		} ) );
+
+		new Chart( ctx, {
+			type: 'line',
+			data: {
+				labels: data.map( ( item ) => item.date ),
+				datasets: [
+					{
+						label: simpleHistoryInsights.strings.events,
+						data: data.map( ( item ) => item.count ),
+						borderColor: 'rgba(75, 192, 192, 1)',
+						backgroundColor: 'rgba(75, 192, 192, 0.2)',
+						tension: 0.4,
+						fill: true,
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					y: {
+						beginAtZero: true,
+						ticks: {
+							precision: 0,
+						},
+					},
+				},
+			},
+		} );
+	}
+
+	// Most Common Actions Chart
+	function initActionsChart() {
+		const ctx = document
+			.getElementById( 'actionsChart' )
+			.getContext( '2d' );
+		const data = simpleHistoryInsights.commonActions.map( ( action ) => ( {
+			label: action.logger,
+			value: parseInt( action.count, 10 ),
+		} ) );
+
+		new Chart( ctx, {
+			type: 'doughnut',
+			data: {
+				labels: data.map( ( item ) => item.label ),
+				datasets: [
+					{
+						data: data.map( ( item ) => item.value ),
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.8)',
+							'rgba(54, 162, 235, 0.8)',
+							'rgba(255, 206, 86, 0.8)',
+							'rgba(75, 192, 192, 0.8)',
+							'rgba(153, 102, 255, 0.8)',
+							'rgba(255, 159, 64, 0.8)',
+							'rgba(255, 99, 132, 0.8)',
+							'rgba(54, 162, 235, 0.8)',
+							'rgba(255, 206, 86, 0.8)',
+							'rgba(75, 192, 192, 0.8)',
+						],
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+			},
+		} );
+	}
+
+	// Peak Activity Times Chart
+	function initPeakTimesChart() {
+		const ctx = document
+			.getElementById( 'peakTimesChart' )
+			.getContext( '2d' );
+		const data = simpleHistoryInsights.peakTimes.map( ( time ) => ( {
+			hour: time.hour,
+			count: parseInt( time.count, 10 ),
+		} ) );
+
+		new Chart( ctx, {
+			type: 'bar',
+			data: {
+				labels: data.map( ( item ) => `${ item.hour }:00` ),
+				datasets: [
+					{
+						label: simpleHistoryInsights.strings.events,
+						data: data.map( ( item ) => item.count ),
+						backgroundColor: 'rgba(153, 102, 255, 0.8)',
+						borderColor: 'rgba(153, 102, 255, 1)',
+						borderWidth: 1,
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					y: {
+						beginAtZero: true,
+						ticks: {
+							precision: 0,
+						},
+					},
+				},
+			},
+		} );
+	}
+
+	// Initialize all charts
+	if ( document.getElementById( 'topUsersChart' ) ) {
+		initTopUsersChart();
+	}
+	if ( document.getElementById( 'activityChart' ) ) {
+		initActivityChart();
+	}
+	if ( document.getElementById( 'actionsChart' ) ) {
+		initActionsChart();
+	}
+	if ( document.getElementById( 'peakTimesChart' ) ) {
+		initPeakTimesChart();
+	}
+} );

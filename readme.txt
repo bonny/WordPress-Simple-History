@@ -319,6 +319,7 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 ### Unreleased
 
 -   Add compatibility with WordPress down to version 6.3 (from 6.6 previously). This makes it possible for users on older versions of WordPress to use the plugin. This was possible thanks to the great https://github.com/johnbillion/wp-compat library.
+-   Auto discover and load services + add support for external services.
 
 ### 5.8.1 (march 2025)
 
