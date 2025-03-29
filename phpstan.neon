@@ -17,6 +17,6 @@ parameters:
     # - '#Access to an undefined property object::\$context_message_key.#'
   WPCompat:
     pluginFile: index.php
-    requiresAtLeast: '5.3'
+    requiresAtLeast: '5.0'
 includes:
 	- phar://phpstan.phar/conf/bleedingEdge.neon
