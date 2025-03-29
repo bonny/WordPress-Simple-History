@@ -273,10 +273,9 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Output the insights page content.
+	 * Enqueue required scripts and styles for the insights page.
 	 */
-	public function output_page() {
-		// Enqueue Chart.js and our custom scripts.
+	private function enqueue_scripts_and_styles() {
 		wp_enqueue_style(
 			'simple-history-insights',
 			SIMPLE_HISTORY_DIR_URL . 'css/simple-history-insights.css',
@@ -299,42 +298,57 @@ class Insights_Service extends Service {
 			SIMPLE_HISTORY_VERSION,
 			true
 		);
+	}
 
-		// Get date range for the last 7 days.
-		$defaults = $this->get_default_date_range();
-		$date_from = $defaults['date_from'];
-		$date_to = $defaults['date_to'];
-
-		// Get insights data.
-		$total_events = $this->get_total_events( $date_from, $date_to );
-		$total_users = $this->get_total_users( $date_from, $date_to );
-		$last_edit = $this->get_last_edit_action( $date_from, $date_to );
-		$top_users = $this->get_top_users( $date_from, $date_to, 10 );
-		$activity_overview = $this->get_activity_overview( $date_from, $date_to );
-		$common_actions = $this->get_most_common_actions( $date_from, $date_to, 10 );
-		$peak_times = $this->get_peak_activity_times( $date_from, $date_to );
-		$peak_days = $this->get_peak_days( $date_from, $date_to );
-		$logged_in_users = $this->get_logged_in_users();
+	/**
+	 * Prepare data for the insights page.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return array Array of prepared data for the insights page.
+	 */
+	private function prepare_insights_data( $date_from, $date_to ) {
+		$data = [
+			'total_events' => $this->get_total_events( $date_from, $date_to ),
+			'total_users' => $this->get_total_users( $date_from, $date_to ),
+			'last_edit' => $this->get_last_edit_action( $date_from, $date_to ),
+			'top_users' => $this->get_top_users( $date_from, $date_to, 10 ),
+			'activity_overview' => $this->get_activity_overview( $date_from, $date_to ),
+			'common_actions' => $this->get_most_common_actions( $date_from, $date_to, 10 ),
+			'peak_times' => $this->get_peak_activity_times( $date_from, $date_to ),
+			'peak_days' => $this->get_peak_days( $date_from, $date_to ),
+			'logged_in_users' => $this->get_logged_in_users(),
+		];
 
 		// Format logger names for common actions.
-		$formatted_common_actions = array_map(
+		$data['formatted_common_actions'] = array_map(
 			function ( $action ) {
 				$action->logger = $this->format_logger_name( $action->logger );
 				return $action;
 			},
-			$common_actions ? $common_actions : []
+			$data['common_actions'] ? $data['common_actions'] : []
 		);
 
-		// Pass data to JavaScript.
+		return $data;
+	}
+
+	/**
+	 * Localize script data for the insights page.
+	 *
+	 * @param array $data     Insights data array.
+	 * @param int   $date_from Start date as Unix timestamp.
+	 * @param int   $date_to   End date as Unix timestamp.
+	 */
+	private function localize_script_data( $data, $date_from, $date_to ) {
 		wp_localize_script(
 			'simple-history-insights',
 			'simpleHistoryInsights',
 			[
-				'topUsers' => $top_users ? $top_users : [],
-				'activityOverview' => $activity_overview ? $activity_overview : [],
-				'commonActions' => $formatted_common_actions,
-				'peakTimes' => $peak_times ? $peak_times : [],
-				'peakDays' => $peak_days ? $peak_days : [],
+				'topUsers' => $data['top_users'] ? $data['top_users'] : [],
+				'activityOverview' => $data['activity_overview'] ? $data['activity_overview'] : [],
+				'commonActions' => $data['formatted_common_actions'],
+				'peakTimes' => $data['peak_times'] ? $data['peak_times'] : [],
+				'peakDays' => $data['peak_days'] ? $data['peak_days'] : [],
 				'dateRange' => [
 					'from' => gmdate( 'Y-m-d', $date_from ),
 					'to' => gmdate( 'Y-m-d', $date_to ),
@@ -359,6 +373,25 @@ class Insights_Service extends Service {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Output the insights page content.
+	 */
+	public function output_page() {
+		// Enqueue required scripts and styles.
+		$this->enqueue_scripts_and_styles();
+
+		// Get date range for the last 7 days.
+		$defaults = $this->get_default_date_range();
+		$date_from = $defaults['date_from'];
+		$date_to = $defaults['date_to'];
+
+		// Prepare insights data.
+		$data = $this->prepare_insights_data( $date_from, $date_to );
+
+		// Localize script data.
+		$this->localize_script_data( $data, $date_from, $date_to );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Admin_Pages::header_output();
@@ -382,7 +415,7 @@ class Insights_Service extends Service {
 				</h1>
 
 				<?php
-				$this->output_dashboard_stats( $total_events, $total_users, $last_edit );
+				$this->output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
 				$this->output_date_range( $date_from, $date_to );
 				$this->output_date_filters();
 				?>
@@ -393,11 +426,11 @@ class Insights_Service extends Service {
 						<div class="sh-InsightsDashboard-content">
 							<div class="sh-InsightsDashboard-activeUsers">
 								<?php
-								if ( $logged_in_users ) {
+								if ( $data['logged_in_users'] ) {
 									?>
 									<ul class="sh-InsightsDashboard-userList">
 										<?php
-										foreach ( $logged_in_users as $user_data ) {
+										foreach ( $data['logged_in_users'] as $user_data ) {
 
 											?>
 											<li class="sh-InsightsDashboard-userItem">
@@ -415,7 +448,7 @@ class Insights_Service extends Service {
 														<?php
 														printf(
 															/* translators: %d: number of active sessions */
-															esc_html( _n( '%d active session', '%d active sessions', $user_data['sessions'], 'simple-history' ) ),
+															esc_html( _n( '%d active session', '%d active sessions', $user_data['sessions_count'], 'simple-history' ) ),
 															esc_html( $user_data['sessions_count'] )
 														);
 														?>
@@ -487,7 +520,7 @@ class Insights_Service extends Service {
 							<div class="sh-InsightsDashboard-chartContainer">
 								<canvas id="topUsersChart" class="sh-InsightsDashboard-chart"></canvas>
 							</div>
-							<?php if ( $top_users && count( $top_users ) > 0 ) { ?>
+							<?php if ( $data['top_users'] && count( $data['top_users'] ) > 0 ) { ?>
 								<div class="sh-InsightsDashboard-tableContainer">
 									<table class="widefat striped">
 										<thead>
@@ -497,7 +530,7 @@ class Insights_Service extends Service {
 											</tr>
 										</thead>
 										<tbody>
-											<?php foreach ( $top_users as $user ) { ?>
+											<?php foreach ( $data['top_users'] as $user ) { ?>
 												<tr>
 													<td>
 													<?php
@@ -543,10 +576,10 @@ class Insights_Service extends Service {
 						</div>
 					</div>
 
-					<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--extraWide">
+					<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section">
 						<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
 						<div class="sh-InsightsDashboard-content">
-							<?php $this->output_activity_calendar( $date_from, $date_to, $activity_overview ); ?>
+							<?php $this->output_activity_calendar( $date_from, $date_to, $data['activity_overview'] ); ?>
 						</div>
 					</div>
 				</div>
