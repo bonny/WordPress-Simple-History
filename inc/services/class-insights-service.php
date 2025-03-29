@@ -100,12 +100,15 @@ class Insights_Service extends Service {
 
 		// Get date range for the last 7 days.
 		$defaults = $this->get_default_date_range();
+		$date_from = $defaults['date_from'];
+		$date_to = $defaults['date_to'];
 
 		// Get insights data.
-		$top_users = $this->get_top_users( $defaults['date_from'], $defaults['date_to'], 10 );
-		$activity_overview = $this->get_activity_overview( $defaults['date_from'], $defaults['date_to'] );
-		$common_actions = $this->get_most_common_actions( $defaults['date_from'], $defaults['date_to'], 10 );
-		$peak_times = $this->get_peak_activity_times( $defaults['date_from'], $defaults['date_to'] );
+		$top_users = $this->get_top_users( $date_from, $date_to, 10 );
+		$activity_overview = $this->get_activity_overview( $date_from, $date_to );
+		$common_actions = $this->get_most_common_actions( $date_from, $date_to, 10 );
+		$peak_times = $this->get_peak_activity_times( $date_from, $date_to );
+		$peak_days = $this->get_peak_days( $date_from, $date_to );
 		$logged_in_users = $this->get_logged_in_users();
 
 		// Format logger names for common actions.
@@ -114,7 +117,7 @@ class Insights_Service extends Service {
 				$action->logger = $this->format_logger_name( $action->logger );
 				return $action;
 			},
-			$common_actions
+			$common_actions ? $common_actions : []
 		);
 
 		// Pass data to JavaScript.
@@ -122,28 +125,31 @@ class Insights_Service extends Service {
 			'simple-history-insights',
 			'simpleHistoryInsights',
 			[
-				'topUsers' => $top_users,
-				'activityOverview' => $activity_overview,
+				'topUsers' => $top_users ? $top_users : [],
+				'activityOverview' => $activity_overview ? $activity_overview : [],
 				'commonActions' => $formatted_common_actions,
-				'peakTimes' => $peak_times,
+				'peakTimes' => $peak_times ? $peak_times : [],
+				'peakDays' => $peak_days ? $peak_days : [],
 				'dateRange' => [
-					'from' => gmdate( 'Y-m-d', $defaults['date_from'] ),
-					'to' => gmdate( 'Y-m-d', $defaults['date_to'] ),
+					'from' => gmdate( 'Y-m-d', $date_from ),
+					'to' => gmdate( 'Y-m-d', $date_to ),
 				],
 				'strings' => [
 					'topUsers' => __( 'Top Users', 'simple-history' ),
 					'activityOverview' => __( 'Activity Overview', 'simple-history' ),
 					'commonActions' => __( 'Most Common Actions', 'simple-history' ),
 					'peakTimes' => __( 'Peak Activity Times', 'simple-history' ),
+					'peakDays' => __( 'Peak Activity Days', 'simple-history' ),
 					'actions' => __( 'Actions', 'simple-history' ),
 					'users' => __( 'Users', 'simple-history' ),
 					'events' => __( 'Events', 'simple-history' ),
 					'time' => __( 'Time', 'simple-history' ),
+					'day' => __( 'Day', 'simple-history' ),
 					'dateRange' => sprintf(
 						/* translators: 1: Start date, 2: End date */
 						__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
-						gmdate( get_option( 'date_format' ), $defaults['date_from'] ),
-						gmdate( get_option( 'date_format' ), $defaults['date_to'] )
+						gmdate( get_option( 'date_format' ), $date_from ),
+						gmdate( get_option( 'date_format' ), $date_to )
 					),
 				],
 			]
@@ -158,8 +164,8 @@ class Insights_Service extends Service {
 					sprintf(
 					/* translators: 1: Start date, 2: End date */
 						__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
-						gmdate( get_option( 'date_format' ), $defaults['date_from'] ),
-						gmdate( get_option( 'date_format' ), $defaults['date_to'] )
+						gmdate( get_option( 'date_format' ), $date_from ),
+						gmdate( get_option( 'date_format' ), $date_to )
 					)
 				);
 				?>
@@ -230,6 +236,13 @@ class Insights_Service extends Service {
 						<canvas id="peakTimesChart" class="sh-InsightsDashboard-chart"></canvas>
 					</div>
 				</div>
+
+				<div class="sh-InsightsDashboard-section">
+					<h2><?php echo esc_html_x( 'Peak Activity Days', 'insights section title', 'simple-history' ); ?></h2>
+					<div class="sh-InsightsDashboard-content">
+						<canvas id="peakDaysChart" class="sh-InsightsDashboard-chart"></canvas>
+					</div>
+				</div>
 			</div>
 		</div>
 		<?php
@@ -258,15 +271,13 @@ class Insights_Service extends Service {
 	 * @param int $date_from  Required. Start date as Unix timestamp.
 	 * @param int $date_to    Required. End date as Unix timestamp.
 	 * @param int $limit      Optional. Number of users to return. Default 10.
-	 * @return array Array of users with their activity counts.
+	 * @return array|false Array of users with their activity counts, or false if invalid dates.
 	 */
 	public function get_top_users( $date_from, $date_to, $limit = 10 ) {
 		global $wpdb;
 
 		if ( ! $date_from || ! $date_to ) {
-			$defaults = $this->get_default_date_range();
-			$date_from = $date_from ? $date_from : $defaults['date_from'];
-			$date_to = $date_to ? $date_to : $defaults['date_to'];
+			return false;
 		}
 
 		return $wpdb->get_results(
@@ -302,15 +313,13 @@ class Insights_Service extends Service {
 	 *
 	 * @param int $date_from  Required. Start date as Unix timestamp.
 	 * @param int $date_to    Required. End date as Unix timestamp.
-	 * @return array Array of dates with their activity counts. Dates are in MySQL format (YYYY-MM-DD).
+	 * @return array|false Array of dates with their activity counts, or false if invalid dates. Dates are in MySQL format (YYYY-MM-DD).
 	 */
 	public function get_activity_overview( $date_from, $date_to ) {
 		global $wpdb;
 
 		if ( ! $date_from || ! $date_to ) {
-			$defaults = $this->get_default_date_range();
-			$date_from = $date_from ? $date_from : $defaults['date_from'];
-			$date_to = $date_to ? $date_to : $defaults['date_to'];
+			return false;
 		}
 
 		return $wpdb->get_results(
@@ -339,15 +348,13 @@ class Insights_Service extends Service {
 	 * @param int $date_from  Required. Start date as Unix timestamp.
 	 * @param int $date_to    Required. End date as Unix timestamp.
 	 * @param int $limit      Optional. Number of actions to return. Default 10.
-	 * @return array Array of actions with their counts.
+	 * @return array|false Array of actions with their counts, or false if invalid dates.
 	 */
 	public function get_most_common_actions( $date_from, $date_to, $limit = 10 ) {
 		global $wpdb;
 
 		if ( ! $date_from || ! $date_to ) {
-			$defaults = $this->get_default_date_range();
-			$date_from = $date_from ? $date_from : $defaults['date_from'];
-			$date_to = $date_to ? $date_to : $defaults['date_to'];
+			return false;
 		}
 
 		return $wpdb->get_results(
@@ -378,15 +385,13 @@ class Insights_Service extends Service {
 	 *
 	 * @param int $date_from  Required. Start date as Unix timestamp.
 	 * @param int $date_to    Required. End date as Unix timestamp.
-	 * @return array Array of hours (0-23) with their activity counts.
+	 * @return array|false Array of hours (0-23) with their activity counts, or false if invalid dates.
 	 */
 	public function get_peak_activity_times( $date_from, $date_to ) {
 		global $wpdb;
 
 		if ( ! $date_from || ! $date_to ) {
-			$defaults = $this->get_default_date_range();
-			$date_from = $date_from ? $date_from : $defaults['date_from'];
-			$date_to = $date_to ? $date_to : $defaults['date_to'];
+			return false;
 		}
 
 		return $wpdb->get_results(
@@ -403,6 +408,40 @@ class Insights_Service extends Service {
 					HOUR(date)
 				ORDER BY 
 					hour ASC",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get peak days of the week.
+	 *
+	 * @param int $date_from  Required. Start date as Unix timestamp.
+	 * @param int $date_to    Required. End date as Unix timestamp.
+	 * @return array|false Array of weekdays (0-6, Sunday-Saturday) with their activity counts, or false if invalid dates.
+	 */
+	public function get_peak_days( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					DAYOFWEEK(date) - 1 as day,
+					COUNT(*) as count
+				FROM 
+					{$wpdb->prefix}simple_history
+				WHERE 
+					date >= FROM_UNIXTIME(%d)
+					AND date <= FROM_UNIXTIME(%d)
+				GROUP BY 
+					DAYOFWEEK(date)
+				ORDER BY 
+					day ASC",
 				$date_from,
 				$date_to
 			)

@@ -1,6 +1,6 @@
 /* global Chart, simpleHistoryInsights */
 jQuery( function () {
-	'use strict';
+	( 'use strict' );
 
 	// Set default Chart.js options
 	Chart.defaults.font.family =
@@ -165,6 +165,54 @@ jQuery( function () {
 		} );
 	}
 
+	// Peak Activity Days Chart
+	function initPeakDaysChart() {
+		const ctx = document
+			.getElementById( 'peakDaysChart' )
+			.getContext( '2d' );
+		const dayNames = [
+			'Sunday',
+			'Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+			'Saturday',
+		];
+		const data = simpleHistoryInsights.peakDays.map( ( day ) => ( {
+			day: dayNames[ parseInt( day.day, 10 ) ],
+			count: parseInt( day.count, 10 ),
+		} ) );
+
+		new Chart( ctx, {
+			type: 'bar',
+			data: {
+				labels: data.map( ( item ) => item.day ),
+				datasets: [
+					{
+						label: simpleHistoryInsights.strings.events,
+						data: data.map( ( item ) => item.count ),
+						backgroundColor: 'rgba(255, 159, 64, 0.8)',
+						borderColor: 'rgba(255, 159, 64, 1)',
+						borderWidth: 1,
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					y: {
+						beginAtZero: true,
+						ticks: {
+							precision: 0,
+						},
+					},
+				},
+			},
+		} );
+	}
+
 	// Initialize all charts
 	if ( document.getElementById( 'topUsersChart' ) ) {
 		initTopUsersChart();
@@ -177,5 +225,8 @@ jQuery( function () {
 	}
 	if ( document.getElementById( 'peakTimesChart' ) ) {
 		initPeakTimesChart();
+	}
+	if ( document.getElementById( 'peakDaysChart' ) ) {
+		initPeakDaysChart();
 	}
 } );
