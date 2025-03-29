@@ -13,6 +13,11 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
+.sh-InsightsDashboard-section--wide {
+    grid-column: span 2;
+    order: -1;
+}
+
 .sh-InsightsDashboard-section h2 {
     margin-top: 0;
     padding-bottom: 15px;
@@ -24,15 +29,52 @@
 .sh-InsightsDashboard-content {
     min-height: 300px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
     padding: 20px 0;
+}
+
+.sh-InsightsDashboard-content--sideBySide {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 40px;
+    width: 100%;
+}
+
+.sh-InsightsDashboard-chartContainer,
+.sh-InsightsDashboard-tableContainer {
+    flex: 1;
+    width: 100%;
+    max-width: 50%;
+    align-self: flex-start;
 }
 
 /* Loading state */
 .sh-InsightsDashboard-loading {
     color: #666;
     font-style: italic;
+}
+
+/* Top Users Table */
+.sh-InsightsDashboard-content table {
+    margin-top: 0;
+    width: 100%;
+}
+
+.sh-InsightsDashboard-content table th {
+    text-align: left;
+    padding: 8px;
+    font-weight: 600;
+}
+
+.sh-InsightsDashboard-content table td {
+    padding: 8px;
+}
+
+.sh-InsightsDashboard-content table td:last-child {
+    text-align: right;
 }
 
 /* Chart containers */
@@ -46,6 +88,20 @@
 @media screen and (max-width: 782px) {
     .sh-InsightsDashboard {
         grid-template-columns: 1fr;
+    }
+
+    .sh-InsightsDashboard-section--wide {
+        grid-column: span 1;
+    }
+
+    .sh-InsightsDashboard-content--sideBySide {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .sh-InsightsDashboard-chartContainer,
+    .sh-InsightsDashboard-tableContainer {
+        max-width: 100%;
     }
 }
 

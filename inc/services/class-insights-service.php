@@ -209,10 +209,37 @@ class Insights_Service extends Service {
 					</div>
 				</div>
 
-				<div class="sh-InsightsDashboard-section">
+				<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
 					<h2><?php echo esc_html_x( 'Top Users', 'insights section title', 'simple-history' ); ?></h2>
-					<div class="sh-InsightsDashboard-content">
-						<canvas id="topUsersChart" class="sh-InsightsDashboard-chart"></canvas>
+					<div class="sh-InsightsDashboard-content sh-InsightsDashboard-content--sideBySide">
+						<div class="sh-InsightsDashboard-chartContainer">
+							<canvas id="topUsersChart" class="sh-InsightsDashboard-chart"></canvas>
+						</div>
+						<?php if ( $top_users && count( $top_users ) > 0 ) : ?>
+							<div class="sh-InsightsDashboard-tableContainer">
+								<table class="widefat striped">
+									<thead>
+										<tr>
+											<th><?php echo esc_html_x( 'User', 'insights table header', 'simple-history' ); ?></th>
+											<th><?php echo esc_html_x( 'Actions', 'insights table header', 'simple-history' ); ?></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ( $top_users as $user ) : ?>
+											<tr>
+												<td>
+												<?php
+													/* translators: %s: user ID number */
+													echo esc_html( $user->display_name ? $user->display_name : sprintf( __( 'User ID %s', 'simple-history' ), $user->user_id ) );
+												?>
+												</td>
+												<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+								</table>
+							</div>
+						<?php endif; ?>
 					</div>
 				</div>
 
