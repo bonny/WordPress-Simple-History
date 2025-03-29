@@ -97,6 +97,8 @@
 		<properties>
 			<property name="customEscapingFunctions" type="array">
 				<element value="esc_xml"/>
+				<!-- Can't get this to work. Related issue: https://github.com/WordPress/WordPress-Coding-Standards/issues/1176 -->
+				<element value="\Simple_History\Compat::esc_xml"/>
 			</property>
 		</properties>
 	</rule>

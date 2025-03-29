@@ -62,6 +62,5 @@ class WP_CLI_Commands extends Service {
 			'simple-history stealth-mode',
 			WP_CLI_Stealth_Mode_Command::class,
 		);
-
 	}
 }

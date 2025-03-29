@@ -56,7 +56,7 @@ class Admin_Page_Premium_Promo extends Service {
 	public function promo_upsell_page_output() {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Admin_Pages::header_output();
-		
+
 		?>
 		<div class="wrap">
 			<?php

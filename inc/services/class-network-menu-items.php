@@ -50,11 +50,6 @@ class Network_Menu_Items extends Service {
 			return;
 		}
 
-		// Setting to show as page must be true.
-		// if ( ! Helpers::setting_show_as_page() ) {
-		// return;
-		// }
-
 		// User must have capability to view the history page.
 		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;
