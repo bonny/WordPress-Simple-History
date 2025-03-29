@@ -38,13 +38,13 @@ class Review_Reminder_Service extends Service {
 	 * Initialize the service after WordPress is fully loaded.
 	 */
 	public function init() {
-		// Only proceed if user can manage options.
-		if ( ! current_user_can( 'manage_options' ) ) {
+		// Only proceed if wp_admin_notice function exists (WordPress 6.4+).
+		if ( ! function_exists( 'wp_admin_notice' ) ) {
 			return;
 		}
 
-		// Only proceed if wp_admin_notice function exists (WordPress 6.4+).
-		if ( ! function_exists( 'wp_admin_notice' ) ) {
+		// Only proceed if user can manage options.
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
@@ -131,6 +131,11 @@ class Review_Reminder_Service extends Service {
 			$maybe_later_text,
 			$already_rated_text
 		);
+
+		// Bail if function does not exist, ie. WordPress < 6.4.
+		if ( ! function_exists( 'wp_admin_notice' ) ) {
+			return;
+		}
 
 		wp_admin_notice(
 			wp_kses_post( $message . $actions ),
