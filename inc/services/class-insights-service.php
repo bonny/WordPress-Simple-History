@@ -57,6 +57,7 @@ class Insights_Service extends Service {
 	/**
 	 * Get currently logged in users.
 	 *
+	 * @param int $limit Optional. Limit the number of users returned. Default is 10.
 	 * @return array Array of currently logged in users with their last activity.
 	 */
 	public function get_logged_in_users( $limit = 10 ) {
@@ -591,6 +592,29 @@ class Insights_Service extends Service {
 	}
 
 	/**
+	 * Output the page title section.
+	 */
+	private function output_page_title() {
+		?>
+		<h1>
+			<?php
+			echo wp_kses(
+				Helpers::get_settings_section_title_output(
+					__( 'Insights', 'simple-history' ),
+					'troubleshoot'
+				),
+				[
+					'span' => [
+						'class' => [],
+					],
+				]
+			);
+			?>
+		</h1>
+		<?php
+	}
+
+	/**
 	 * Output the insights page content.
 	 */
 	public function output_page() {
@@ -613,26 +637,11 @@ class Insights_Service extends Service {
 		?>
 
 			<div class="wrap sh-Page-content">
-				<h1>
-					<?php
-					echo wp_kses(
-						Helpers::get_settings_section_title_output(
-							__( 'Insights', 'simple-history' ),
-							'troubleshoot'
-						),
-						[
-							'span' => [
-								'class' => [],
-							],
-						]
-					);
-					?>
-				</h1>
-
 				<?php
-				$this->output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
-				$this->output_date_range( $date_from, $date_to );
+				$this->output_page_title();
 				$this->output_date_filters();
+				$this->output_date_range( $date_from, $date_to );
+				$this->output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
 				$this->output_dashboard_content( $data, $date_from, $date_to );
 				?>
 			</div>

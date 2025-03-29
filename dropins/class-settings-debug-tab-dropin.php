@@ -21,7 +21,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 
 	/** @inheritdoc */
 	public function loaded() {
-		add_action( 'admin_menu', array( $this, 'add_menu' ), 40 );
+		add_action( 'admin_menu', array( $this, 'add_menu' ), 10 );
 		add_action( 'admin_menu', array( $this, 'add_tabs' ) );
 	}
 
