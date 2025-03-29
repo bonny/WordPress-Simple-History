@@ -53,15 +53,23 @@ class Insights_Service extends Service {
 	 * @return array Array of currently logged in users with their last activity.
 	 */
 	public function get_logged_in_users() {
+		global $wpdb;
 		$logged_in_users = [];
-		$all_users = get_users();
 
-		foreach ( $all_users as $user ) {
-			$sessions = WP_Session_Tokens::get_instance( $user->ID );
+		// Query session tokens directly from user meta table.
+		$users_with_session_tokens = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s AND meta_value != ''",
+				'session_tokens'
+			)
+		);
+
+		foreach ( $users_with_session_tokens as $one_user_id ) {
+			$sessions = WP_Session_Tokens::get_instance( $one_user_id );
 
 			if ( $sessions->get_all() ) {
 				$logged_in_users[] = [
-					'user' => $user,
+					'user' => get_userdata( $one_user_id ),
 					'sessions' => count( $sessions->get_all() ),
 				];
 			}
