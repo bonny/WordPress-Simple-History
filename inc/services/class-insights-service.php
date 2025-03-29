@@ -17,7 +17,7 @@ class Insights_Service extends Service {
 	 * Called when service is loaded.
 	 */
 	public function loaded() {
-		add_action( 'admin_menu', [ $this, 'add_menu' ], 20 );
+		add_action( 'admin_menu', [ $this, 'add_menu' ], 15 );
 	}
 
 	/**
@@ -36,9 +36,10 @@ class Insights_Service extends Service {
 		}
 
 		// Add Insights page as a submenu item.
+		$new_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'New', 'simple-history' ) . '</span>';
 		$insights_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Insights - Simple History', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'Insights', 'dashboard menu name', 'simple-history' ) )
+			->set_menu_title( _x( 'Insights', 'dashboard menu name', 'simple-history' ) . ' ' . $new_text )
 			->set_menu_slug( 'simple_history_insights_page' )
 			->set_capability( Helpers::get_view_history_capability() )
 			->set_callback( [ $this, 'output_page' ] )
