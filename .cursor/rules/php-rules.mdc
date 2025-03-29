@@ -5,5 +5,7 @@ alwaysApply: false
 ---
 
 - Target PHP 7.4 an up.
+- Use WordPress coding standards. This include:
+	- no short ternary operators (use standard conditionals).
 - Do not use colons for if/else statements or foreach statements.
 - Use short array syntax.
