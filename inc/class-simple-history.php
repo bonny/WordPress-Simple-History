@@ -40,6 +40,9 @@ class Simple_History {
 	/** @var Array with external dropins to load. */
 	private array $external_dropins = [];
 
+	/** @var Array with external services to load. */
+	private array $external_services = [];
+
 	/** @var array Array with all instantiated loggers. */
 	private array $instantiated_loggers = [];
 
@@ -136,39 +139,84 @@ class Simple_History {
 	 * @return array<string> Array with classnames.
 	 */
 	private function get_services() {
-		return [
-			Services\Setup_Database::class,
-			Services\Scripts_And_Templates::class,
-			Services\Admin_Pages::class,
-			Services\Admin_Page_Premium_Promo::class,
-			Services\Setup_Settings_Page::class,
-			Services\Loggers_Loader::class,
-			Services\Dropins_Loader::class,
-			Services\Setup_Log_Filters::class,
-			Services\Setup_Pause_Resume_Actions::class,
-			Services\Setup_Purge_DB_Cron::class,
-			Services\API::class,
-			Services\Dashboard_Widget::class,
-			Services\Network_Menu_Items::class,
-			Services\Plugin_List_Link::class,
-			Services\AddOns_Licences::class,
-			Services\Licences_Settings_Page::class,
-			Services\Plugin_List_Info::class,
-			Services\REST_API::class,
-			Services\WP_CLI_Commands::class,
-			Services\Stealth_Mode::class,
-			Services\Menu_Service::class,
-			Services\Review_Reminder_Service::class,
-		];
+		$services = [];
+		$services_dir = SIMPLE_HISTORY_PATH . 'inc/services';
+		$service_files = glob( $services_dir . '/*.php' );
+
+		foreach ( $service_files as $file ) {
+			// Skip service main class that other classes depend on.
+			if ( basename( $file ) === 'class-service.php' ) {
+				continue;
+			}
+
+			// Skip non-class files.
+			if ( strpos( basename( $file ), 'class-' ) !== 0 ) {
+				continue;
+			}
+
+			// Convert filename to class name.
+			// e.g. class-admin-pages.php -> Admin_Pages.
+			$class_name = str_replace( 'class-', '', basename( $file, '.php' ) );
+			$class_name = str_replace( '-', '_', $class_name );
+			$class_name = ucwords( $class_name, '_' );
+
+			// Add full namespace.
+			$class_name = "Simple_History\\Services\\{$class_name}";
+
+			$services[] = $class_name;
+		}
+
+		/**
+		 * Filter the array with class names of core services.
+		 *
+		 * @since 4.0
+		 *
+		 * @param array $services Array with class names.
+		 */
+		$services = apply_filters( 'simple_history/core_services', $services );
+
+		return $services;
 	}
 
 	/**
 	 * Load services that are required for Simple History to work.
 	 */
 	private function load_services() {
-		foreach ( $this->get_services() as $service_classname ) {
+		$services_to_load = $this->get_services();
+
+		/**
+		 * Fires after the list of services to load are populated.
+		 * Can be used to register custom services.
+		 *
+		 * @since 4.0
+		 *
+		 * @param Simple_History $instance Simple History instance.
+		 */
+		do_action( 'simple_history/add_custom_service', $this );
+
+		$services_to_load = array_merge( $services_to_load, $this->get_external_services() );
+
+		/**
+		 * Filter the array with service classnames to instantiate.
+		 *
+		 * @since 4.0
+		 *
+		 * @param array $services_to_load Array with service class names.
+		 */
+		$services_to_load = apply_filters( 'simple_history/services_to_load', $services_to_load );
+
+		foreach ( $services_to_load as $service_classname ) {
 			$this->load_service( $service_classname );
 		}
+
+		/**
+		 * Fires after all services are loaded.
+		 *
+		 * @since 4.0
+		 *
+		 * @param Simple_History $instance Simple History instance.
+		 */
+		do_action( 'simple_history/services/loaded', $this );
 	}
 
 	/**
@@ -178,6 +226,33 @@ class Simple_History {
 	 */
 	private function load_service( $service_classname ) {
 		if ( ! class_exists( $service_classname ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				sprintf(
+					esc_html(
+						// translators: 1: service class name.
+						__( 'A service was not found. Classname was "%1$s".', 'simple-history' )
+					),
+					esc_html( $service_classname ),
+				),
+				'4.0'
+			);
+			return;
+		}
+
+		// Verify that service extends base Service class.
+		if ( ! is_subclass_of( $service_classname, Service::class ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				sprintf(
+					esc_html(
+						// translators: 1: service class name.
+						__( 'A service must extend the Service base class. Classname was "%1$s".', 'simple-history' )
+					),
+					esc_html( $service_classname ),
+				),
+				'4.0'
+			);
 			return;
 		}
 
@@ -1505,5 +1580,25 @@ class Simple_History {
 		$menu_service = $this->get_service( Services\Menu_Service::class );
 
 		return $menu_service->get_menu_manager();
+	}
+
+	/**
+	 * Register an external service so Simple History knows about it.
+	 * Does not load the service, so file with service class must be loaded already.
+	 *
+	 * @since 4.0
+	 * @param string $serviceClassName Class name of service to register.
+	 */
+	public function register_service( $serviceClassName ) {
+		$this->external_services[] = $serviceClassName;
+	}
+
+	/**
+	 * Get array with classnames of all external services.
+	 *
+	 * @return array
+	 */
+	public function get_external_services() {
+		return $this->external_services;
 	}
 }
