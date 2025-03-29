@@ -52,7 +52,7 @@ class Insights_Service extends Service {
 	 *
 	 * @return array Array of currently logged in users with their last activity.
 	 */
-	public function get_logged_in_users() {
+	public function get_logged_in_users( $limit = 10 ) {
 		global $wpdb;
 		$logged_in_users = [];
 
@@ -67,17 +67,18 @@ class Insights_Service extends Service {
 		foreach ( $users_with_session_tokens as $one_user_id ) {
 			$sessions = WP_Session_Tokens::get_instance( $one_user_id );
 
-			if ( $sessions->get_all() ) {
+			$all_user_sessions = $sessions->get_all();
+			if ( $all_user_sessions ) {
 				$logged_in_users[] = [
 					'user' => get_userdata( $one_user_id ),
-					'sessions' => count( $sessions->get_all() ),
+					'sessions_count' => count( $all_user_sessions ),
+					'sessions' => $all_user_sessions,
 				];
 			}
 		}
 
-		return $logged_in_users;
+		return array_slice( $logged_in_users, 0, $limit );
 	}
-
 	/**
 	 * Output the insights page content.
 	 */
@@ -184,9 +185,9 @@ class Insights_Service extends Service {
 					<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
 					<div class="sh-InsightsDashboard-content">
 						<div class="sh-InsightsDashboard-activeUsers">
-							<?php if ( $logged_in_users ) : ?>
+							<?php if ( $logged_in_users ) { ?>
 								<ul class="sh-InsightsDashboard-userList">
-									<?php foreach ( $logged_in_users as $user_data ) : ?>
+									<?php foreach ( $logged_in_users as $user_data ) { ?>
 										<li class="sh-InsightsDashboard-userItem">
 											<?php
 											$user = $user_data['user'];
@@ -202,17 +203,17 @@ class Insights_Service extends Service {
 													printf(
 														/* translators: %d: number of active sessions */
 														esc_html( _n( '%d active session', '%d active sessions', $user_data['sessions'], 'simple-history' ) ),
-														esc_html( $user_data['sessions'] )
+														esc_html( $user_data['sessions_count'] )
 													);
 													?>
 												</span>
 											</div>
 										</li>
-									<?php endforeach; ?>
+									<?php } ?>
 								</ul>
-							<?php else : ?>
+							<?php } else { ?>
 								<p><?php esc_html_e( 'No users are currently logged in.', 'simple-history' ); ?></p>
-							<?php endif; ?>
+							<?php } ?>
 						</div>
 					</div>
 				</div>
@@ -223,7 +224,7 @@ class Insights_Service extends Service {
 						<div class="sh-InsightsDashboard-chartContainer">
 							<canvas id="topUsersChart" class="sh-InsightsDashboard-chart"></canvas>
 						</div>
-						<?php if ( $top_users && count( $top_users ) > 0 ) : ?>
+						<?php if ( $top_users && count( $top_users ) > 0 ) { ?>
 							<div class="sh-InsightsDashboard-tableContainer">
 								<table class="widefat striped">
 									<thead>
@@ -233,7 +234,7 @@ class Insights_Service extends Service {
 										</tr>
 									</thead>
 									<tbody>
-										<?php foreach ( $top_users as $user ) : ?>
+										<?php foreach ( $top_users as $user ) { ?>
 											<tr>
 												<td>
 												<?php
@@ -243,11 +244,11 @@ class Insights_Service extends Service {
 												</td>
 												<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
 											</tr>
-										<?php endforeach; ?>
+										<?php } ?>
 									</tbody>
 								</table>
 							</div>
-						<?php endif; ?>
+						<?php } ?>
 					</div>
 				</div>
 
@@ -593,9 +594,9 @@ class Insights_Service extends Service {
 						<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" 
 							title="<?php echo esc_attr( $title ); ?>">
 							<span class="sh-InsightsDashboard-calendarDayNumber"><?php echo esc_html( $current_date->format( 'j' ) ); ?></span>
-							<?php if ( $is_in_range ) : ?>
+							<?php if ( $is_in_range ) { ?>
 								<span class="sh-InsightsDashboard-calendarDayCount"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
-							<?php endif; ?>
+							<?php } ?>
 						</div>
 						<?php
 						$current_date->modify( '+1 day' );
