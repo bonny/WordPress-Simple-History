@@ -88,47 +88,6 @@ jQuery( function () {
 		} );
 	}
 
-	// Most Common Actions Chart
-	function initActionsChart() {
-		const ctx = document
-			.getElementById( 'actionsChart' )
-			.getContext( '2d' );
-		const data = simpleHistoryInsights.data.topActions.map(
-			( action ) => ( {
-				label: action.logger,
-				value: parseInt( action.count, 10 ),
-			} )
-		);
-
-		new Chart( ctx, {
-			type: 'doughnut',
-			data: {
-				labels: data.map( ( item ) => item.label ),
-				datasets: [
-					{
-						data: data.map( ( item ) => item.value ),
-						backgroundColor: [
-							'rgba(255, 99, 132, 0.8)',
-							'rgba(54, 162, 235, 0.8)',
-							'rgba(255, 206, 86, 0.8)',
-							'rgba(75, 192, 192, 0.8)',
-							'rgba(153, 102, 255, 0.8)',
-							'rgba(255, 159, 64, 0.8)',
-							'rgba(255, 99, 132, 0.8)',
-							'rgba(54, 162, 235, 0.8)',
-							'rgba(255, 206, 86, 0.8)',
-							'rgba(75, 192, 192, 0.8)',
-						],
-					},
-				],
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-			},
-		} );
-	}
-
 	// Peak Activity Times Chart
 	function initPeakTimesChart() {
 		const ctx = document
@@ -222,9 +181,6 @@ jQuery( function () {
 	}
 	if ( document.getElementById( 'activityChart' ) ) {
 		initActivityChart();
-	}
-	if ( document.getElementById( 'actionsChart' ) ) {
-		initActionsChart();
 	}
 	if ( document.getElementById( 'peakTimesChart' ) ) {
 		initPeakTimesChart();

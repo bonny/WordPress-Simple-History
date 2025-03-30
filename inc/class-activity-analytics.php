@@ -220,44 +220,6 @@ class Activity_Analytics {
 	}
 
 	/**
-	 * Get most common actions.
-	 *
-	 * @param int $date_from  Required. Start date as Unix timestamp.
-	 * @param int $date_to    Required. End date as Unix timestamp.
-	 * @param int $limit      Optional. Number of actions to return. Default 10.
-	 * @return array|false Array of actions with their counts, or false if invalid dates.
-	 */
-	public function get_most_common_actions( $date_from, $date_to, $limit = 10 ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-					logger,
-					level,
-					COUNT(*) as count
-				FROM 
-					{$wpdb->prefix}simple_history
-				WHERE 
-					date >= FROM_UNIXTIME(%d)
-					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					logger, level
-				ORDER BY 
-					count DESC
-				LIMIT %d",
-				$date_from,
-				$date_to,
-				$limit
-			)
-		);
-	}
-
-	/**
 	 * Get peak activity times.
 	 *
 	 * @param int $date_from  Required. Start date as Unix timestamp.

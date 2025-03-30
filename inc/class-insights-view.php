@@ -497,11 +497,6 @@ class Insights_View {
 			);
 
 			self::output_chart_section(
-				_x( 'Most Common Actions', 'insights section title', 'simple-history' ),
-				'actionsChart'
-			);
-
-			self::output_chart_section(
 				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
 				'peakTimesChart'
 			);

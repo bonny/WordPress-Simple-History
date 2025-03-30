@@ -479,7 +479,6 @@ class Insights_Service extends Service {
 			'last_edit' => $this->stats->get_last_edit_action( $date_from, $date_to ),
 			'top_users' => $this->stats->get_top_users( $date_from, $date_to, 10 ),
 			'activity_overview' => $this->stats->get_activity_overview( $date_from, $date_to ),
-			'common_actions' => $this->stats->get_most_common_actions( $date_from, $date_to, 10 ),
 			'peak_times' => $this->stats->get_peak_activity_times( $date_from, $date_to ),
 			'peak_days' => $this->stats->get_peak_days( $date_from, $date_to ),
 			'logged_in_users' => $this->stats->get_logged_in_users(),
@@ -500,15 +499,6 @@ class Insights_Service extends Service {
 				'plugin_deletions' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
 			],
 		];
-
-		// Format logger names for common actions.
-		$data['formatted_common_actions'] = array_map(
-			function ( $action ) {
-				$action->logger = $this->stats->format_logger_name( $action->logger );
-				return $action;
-			},
-			$data['common_actions'] ? $data['common_actions'] : []
-		);
 
 		// Format top users data for the chart.
 		$data['formatted_top_users'] = array_map(
@@ -539,7 +529,6 @@ class Insights_Service extends Service {
 			[
 				'data' => [
 					'activityOverview' => $data['activity_overview'] ? $data['activity_overview'] : [],
-					'topActions' => $data['common_actions'] ? $data['common_actions'] : [],
 					'topUsers' => $data['formatted_top_users'] ? $data['formatted_top_users'] : [],
 					'peakTimes' => $data['peak_times'] ? $data['peak_times'] : [],
 					'peakDays' => $data['peak_days'] ? $data['peak_days'] : [],
