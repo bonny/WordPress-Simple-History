@@ -13,8 +13,8 @@ jQuery( function () {
 		const ctx = document
 			.getElementById( 'topUsersChart' )
 			.getContext( '2d' );
-		const data = simpleHistoryInsights.topUsers.map( ( user ) => ( {
-			label: user.display_name || `User ID ${ user.user_id }`,
+		const data = simpleHistoryInsights.data.topUsers.map( ( user ) => ( {
+			label: user.name,
 			value: parseInt( user.count, 10 ),
 		} ) );
 
@@ -52,23 +52,24 @@ jQuery( function () {
 		const ctx = document
 			.getElementById( 'activityChart' )
 			.getContext( '2d' );
-		const data = simpleHistoryInsights.activityOverview.map( ( item ) => ( {
-			date: new Date( item.date ).toLocaleDateString(),
-			count: parseInt( item.count, 10 ),
-		} ) );
+		const data = simpleHistoryInsights.data.activityOverview.map(
+			( item ) => ( {
+				date: new Date( item.date ).toLocaleDateString(),
+				count: parseInt( item.count, 10 ),
+			} )
+		);
 
 		new Chart( ctx, {
-			type: 'line',
+			type: 'bar',
 			data: {
 				labels: data.map( ( item ) => item.date ),
 				datasets: [
 					{
 						label: simpleHistoryInsights.strings.events,
 						data: data.map( ( item ) => item.count ),
+						backgroundColor: 'rgba(75, 192, 192, 0.8)',
 						borderColor: 'rgba(75, 192, 192, 1)',
-						backgroundColor: 'rgba(75, 192, 192, 0.2)',
-						tension: 0.4,
-						fill: true,
+						borderWidth: 1,
 					},
 				],
 			},
@@ -92,10 +93,12 @@ jQuery( function () {
 		const ctx = document
 			.getElementById( 'actionsChart' )
 			.getContext( '2d' );
-		const data = simpleHistoryInsights.commonActions.map( ( action ) => ( {
-			label: action.logger,
-			value: parseInt( action.count, 10 ),
-		} ) );
+		const data = simpleHistoryInsights.data.topActions.map(
+			( action ) => ( {
+				label: action.logger,
+				value: parseInt( action.count, 10 ),
+			} )
+		);
 
 		new Chart( ctx, {
 			type: 'doughnut',
@@ -131,7 +134,7 @@ jQuery( function () {
 		const ctx = document
 			.getElementById( 'peakTimesChart' )
 			.getContext( '2d' );
-		const data = simpleHistoryInsights.peakTimes.map( ( time ) => ( {
+		const data = simpleHistoryInsights.data.peakTimes.map( ( time ) => ( {
 			hour: time.hour,
 			count: parseInt( time.count, 10 ),
 		} ) );
@@ -179,7 +182,7 @@ jQuery( function () {
 			'Friday',
 			'Saturday',
 		];
-		const data = simpleHistoryInsights.peakDays.map( ( day ) => ( {
+		const data = simpleHistoryInsights.data.peakDays.map( ( day ) => ( {
 			day: dayNames[ parseInt( day.day, 10 ) ],
 			count: parseInt( day.count, 10 ),
 		} ) );

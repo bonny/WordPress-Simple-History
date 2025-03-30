@@ -1,172 +1,40 @@
 <?php
 
-namespace Simple_History\Services;
+namespace Simple_History;
 
-use WP_Session_Tokens;
 use Simple_History\Helpers;
-use Simple_History\Menu_Page;
-use Simple_History\Simple_History;
-use Simple_History\Services\Service;
-use Simple_History\Activity_Analytics;
-use Simple_History\Services\Admin_Pages;
-use Simple_History\Insights_View;
 
 /**
- * Service class that handles insights functionality.
+ * Class that handles view/output logic for the insights page.
  */
-class Insights_Service extends Service {
+class Insights_View {
 	/**
-	 * Stats instance.
-	 *
-	 * @var Activity_Analytics
+	 * Output the page title section.
 	 */
-	private $stats;
-
-	/**
-	 * Called when service is loaded.
-	 */
-	public function loaded() {
-		// Only enable for users with experimental features enabled.
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return;
-		}
-
-		$this->stats = new Activity_Analytics();
-		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
-	}
-
-	/**
-	 * Add insights menu item.
-	 */
-	public function add_menu() {
-		if ( ! Helpers::setting_show_as_menu_page() ) {
-			return;
-		}
-
-		$admin_page_location = Helpers::get_menu_page_location();
-
-		// Only add if location is menu_top or menu_bottom.
-		if ( ! in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
-			return;
-		}
-
-		// Add Insights page as a submenu item.
-		$new_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'New', 'simple-history' ) . '</span>';
-		$insights_page = ( new Menu_Page() )
-			->set_page_title( _x( 'Insights - Simple History', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'Insights', 'dashboard menu name', 'simple-history' ) . ' ' . $new_text )
-			->set_menu_slug( 'simple_history_insights_page' )
-			->set_capability( 'manage_options' )
-			->set_callback( [ $this, 'output_page' ] )
-			->set_parent( Simple_History::MENU_PAGE_SLUG )
-			->set_location( 'submenu' );
-
-		$insights_page->add();
-	}
-
-	/**
-	 * Get date range based on period parameter.
-	 *
-	 * @return array {
-	 *     Array of timestamps for the selected date range.
-	 *
-	 *     @type int $date_from Unix timestamp for start date.
-	 *     @type int $date_to   Unix timestamp for end date.
-	 * }
-	 */
-	private function get_selected_date_range() {
-		$period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '7d';
-		$date_to = time();
-
-		switch ( $period ) {
-			case '1h':
-				$date_from = strtotime( '-1 hour' );
-				break;
-			case '24h':
-				$date_from = strtotime( '-24 hours' );
-				break;
-			case '14d':
-				$date_from = strtotime( '-14 days' );
-				break;
-			case '1m':
-				$date_from = strtotime( '-1 month' );
-				break;
-			case '7d':
-			default:
-				$date_from = strtotime( '-7 days' );
-				break;
-		}
-
-		return [
-			'date_from' => $date_from,
-			'date_to' => $date_to,
-		];
-	}
-
-	/**
-	 * Output the dashboard stats section.
-	 *
-	 * @param int    $total_events Total number of events.
-	 * @param int    $total_users  Total number of users.
-	 * @param object $last_edit    Last edit action details.
-	 */
-	private function output_dashboard_stats( $total_events, $total_users, $last_edit ) {
+	public static function output_page_title() {
 		?>
-		<div class="sh-InsightsDashboard-stats">
-			<div class="sh-InsightsDashboard-stat">
-				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total Events', 'simple-history' ); ?></span>
-				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
-			</div>
-			<div class="sh-InsightsDashboard-stat">
-				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Active Users', 'simple-history' ); ?></span>
-				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_users ) ); ?></span>
-			</div>
-			<?php if ( $last_edit ) { ?>
-				<div class="sh-InsightsDashboard-stat">
-					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Last Action', 'simple-history' ); ?></span>
-					<span class="sh-InsightsDashboard-statValue">
-						<?php
-						printf(
-							/* translators: 1: user's display name, 2: time ago */
-							esc_html__( '%1$s, %2$s ago', 'simple-history' ),
-							esc_html( $last_edit->display_name ),
-							esc_html( human_time_diff( strtotime( $last_edit->date ) ) )
-						);
-						?>
-					</span>
-				</div>
-			<?php } ?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output the date range section.
-	 *
-	 * @param int $date_from Start date as Unix timestamp.
-	 * @param int $date_to   End date as Unix timestamp.
-	 */
-	private function output_date_range( $date_from, $date_to ) {
-		?>
-		<p class="sh-InsightsDashboard-dateRange">
+		<h1>
 			<?php
-			echo esc_html(
-				sprintf(
-					/* translators: 1: Start date, 2: End date */
-					__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
-					gmdate( get_option( 'date_format' ), $date_from ),
-					gmdate( get_option( 'date_format' ), $date_to )
-				)
+			echo wp_kses(
+				Helpers::get_settings_section_title_output(
+					__( 'Insights', 'simple-history' ),
+					'troubleshoot'
+				),
+				[
+					'span' => [
+						'class' => [],
+					],
+				]
 			);
 			?>
-		</p>
+		</h1>
 		<?php
 	}
 
 	/**
 	 * Output the date filters section.
 	 */
-	private function output_date_filters() {
+	public static function output_date_filters() {
 		$current_period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '7d';
 		$current_page = menu_page_url( 'simple_history_insights_page', false );
 
@@ -218,39 +86,71 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Enqueue required scripts and styles for the insights page.
+	 * Output the date range section.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
 	 */
-	private function enqueue_scripts_and_styles() {
-		wp_enqueue_script(
-			'simple-history-insights',
-			SIMPLE_HISTORY_DIR_URL . 'js/simple-history-insights.js',
-			[ 'wp-element', 'wp-components', 'wp-i18n', 'wp-api-fetch', 'chartjs' ],
-			SIMPLE_HISTORY_VERSION,
-			true
-		);
-
-		wp_enqueue_style(
-			'simple-history-insights',
-			SIMPLE_HISTORY_DIR_URL . 'css/simple-history-insights.css',
-			[],
-			SIMPLE_HISTORY_VERSION
-		);
-
-		wp_enqueue_script(
-			'chartjs',
-			'https://cdn.jsdelivr.net/npm/chart.js',
-			[],
-			'4.4.1',
-			true
-		);
+	public static function output_date_range( $date_from, $date_to ) {
+		?>
+		<p class="sh-InsightsDashboard-dateRange">
+			<?php
+			echo esc_html(
+				sprintf(
+					/* translators: 1: Start date, 2: End date */
+					__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
+					gmdate( get_option( 'date_format' ), $date_from ),
+					gmdate( get_option( 'date_format' ), $date_to )
+				)
+			);
+			?>
+		</p>
+		<?php
 	}
 
 	/**
-	 * Output the currently logged in users section.
+	 * Output the dashboard stats section.
+	 *
+	 * @param int    $total_events Total number of events.
+	 * @param int    $total_users  Total number of users.
+	 * @param object $last_edit    Last edit action details.
+	 */
+	public static function output_dashboard_stats( $total_events, $total_users, $last_edit ) {
+		?>
+		<div class="sh-InsightsDashboard-stats">
+			<div class="sh-InsightsDashboard-stat">
+				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total Events', 'simple-history' ); ?></span>
+				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
+			</div>
+			<div class="sh-InsightsDashboard-stat">
+				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Active Users', 'simple-history' ); ?></span>
+				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_users ) ); ?></span>
+			</div>
+			<?php if ( $last_edit ) { ?>
+				<div class="sh-InsightsDashboard-stat">
+					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Last Action', 'simple-history' ); ?></span>
+					<span class="sh-InsightsDashboard-statValue">
+						<?php
+						printf(
+							/* translators: 1: user's display name, 2: time ago */
+							esc_html__( '%1$s, %2$s ago', 'simple-history' ),
+							esc_html( $last_edit->display_name ),
+							esc_html( human_time_diff( strtotime( $last_edit->date ) ) )
+						);
+						?>
+					</span>
+				</div>
+			<?php } ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the logged in users section.
 	 *
 	 * @param array $logged_in_users Array of currently logged in users.
 	 */
-	private function output_logged_in_users_section( $logged_in_users ) {
+	public static function output_logged_in_users_section( $logged_in_users ) {
 		?>
 		<div class="sh-InsightsDashboard-section">
 			<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
@@ -349,7 +249,7 @@ class Insights_Service extends Service {
 	 *
 	 * @param array $top_users Array of top users data.
 	 */
-	private function output_top_users_section( $top_users ) {
+	public static function output_top_users_section( $top_users ) {
 		?>
 		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
 			<h2><?php echo esc_html_x( 'Top Users', 'insights section title', 'simple-history' ); ?></h2>
@@ -394,7 +294,7 @@ class Insights_Service extends Service {
 	 * @param string $chart_id   HTML ID for the chart canvas.
 	 * @param string $css_class  Optional. Additional CSS class for the section.
 	 */
-	private function output_chart_section( $title, $chart_id, $css_class = '' ) {
+	public static function output_chart_section( $title, $chart_id, $css_class = '' ) {
 		$section_class = 'sh-InsightsDashboard-section';
 		if ( $css_class ) {
 			$section_class .= ' ' . $css_class;
@@ -410,110 +310,13 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Output the main insights dashboard content.
-	 *
-	 * @param array $data      Insights data array.
-	 * @param int   $date_from Start date as Unix timestamp.
-	 * @param int   $date_to   End date as Unix timestamp.
-	 */
-	private function output_dashboard_content( $data, $date_from, $date_to ) {
-		?>
-		<div class="sh-InsightsDashboard">
-			<?php
-			$this->output_logged_in_users_section( $data['logged_in_users'] );
-			$this->output_top_users_section( $data['top_users'] );
-
-			// Output chart sections.
-			$this->output_chart_section(
-				_x( 'Activity Overview', 'insights section title', 'simple-history' ),
-				'activityChart'
-			);
-
-			$this->output_chart_section(
-				_x( 'Most Common Actions', 'insights section title', 'simple-history' ),
-				'actionsChart'
-			);
-
-			$this->output_chart_section(
-				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
-				'peakTimesChart'
-			);
-
-			$this->output_chart_section(
-				_x( 'Peak Activity Days', 'insights section title', 'simple-history' ),
-				'peakDaysChart'
-			);
-			?>
-
-			<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--extraWide">
-				<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
-				<div class="sh-InsightsDashboard-content">
-					<?php $this->output_activity_calendar( $date_from, $date_to, $data['activity_overview'] ); ?>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output the page title section.
-	 */
-	private function output_page_title() {
-		?>
-		<h1>
-			<?php
-			echo wp_kses(
-				Helpers::get_settings_section_title_output(
-					__( 'Insights', 'simple-history' ),
-					'troubleshoot'
-				),
-				[
-					'span' => [
-						'class' => [],
-					],
-				]
-			);
-			?>
-		</h1>
-		<?php
-	}
-
-	/**
-	 * Output the insights page.
-	 */
-	public function output_page() {
-		$date_range = $this->get_selected_date_range();
-		$date_from = $date_range['date_from'];
-		$date_to = $date_range['date_to'];
-
-		$data = $this->prepare_insights_data( $date_from, $date_to );
-
-		$this->enqueue_scripts_and_styles();
-		$this->localize_script_data( $data, $date_from, $date_to );
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Admin_Pages::header_output();
-		?>
-		<div class="wrap sh-Page-content">
-			<?php
-			Insights_View::output_page_title();
-			Insights_View::output_date_filters();
-			Insights_View::output_date_range( $date_from, $date_to );
-			Insights_View::output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
-			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
-			?>
-		</div>
-		<?php
-	}
-
-	/**
 	 * Output the activity calendar view.
 	 *
 	 * @param int   $date_from         Start date as Unix timestamp.
 	 * @param int   $date_to           End date as Unix timestamp.
 	 * @param array $activity_overview Array of activity data by date.
 	 */
-	private function output_activity_calendar( $date_from, $date_to, $activity_overview ) {
+	public static function output_activity_calendar( $date_from, $date_to, $activity_overview ) {
 		?>
 		<div class="sh-InsightsDashboard-calendar">
 			<?php
@@ -612,87 +415,48 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Prepare data for the insights page.
-	 *
-	 * @param int $date_from Start date as Unix timestamp.
-	 * @param int $date_to   End date as Unix timestamp.
-	 * @return array Array of prepared data for the insights page.
-	 */
-	private function prepare_insights_data( $date_from, $date_to ) {
-		$data = [
-			'total_events' => $this->stats->get_total_events( $date_from, $date_to ),
-			'total_users' => $this->stats->get_total_users( $date_from, $date_to ),
-			'last_edit' => $this->stats->get_last_edit_action( $date_from, $date_to ),
-			'top_users' => $this->stats->get_top_users( $date_from, $date_to, 10 ),
-			'activity_overview' => $this->stats->get_activity_overview( $date_from, $date_to ),
-			'common_actions' => $this->stats->get_most_common_actions( $date_from, $date_to, 10 ),
-			'peak_times' => $this->stats->get_peak_activity_times( $date_from, $date_to ),
-			'peak_days' => $this->stats->get_peak_days( $date_from, $date_to ),
-			'logged_in_users' => $this->stats->get_logged_in_users(),
-		];
-
-		// Format logger names for common actions.
-		$data['formatted_common_actions'] = array_map(
-			function ( $action ) {
-				$action->logger = $this->stats->format_logger_name( $action->logger );
-				return $action;
-			},
-			$data['common_actions'] ? $data['common_actions'] : []
-		);
-
-		// Format top users data for the chart.
-		$data['formatted_top_users'] = array_map(
-			function ( $user ) {
-				return [
-					/* translators: %s: numeric user ID */
-					'name' => $user->display_name ? $user->display_name : sprintf( __( 'User ID %s', 'simple-history' ), $user->user_id ),
-					'count' => (int) $user->count,
-				];
-			},
-			$data['top_users'] ? $data['top_users'] : []
-		);
-
-		return $data;
-	}
-
-	/**
-	 * Localize script data.
+	 * Output the main insights dashboard content.
 	 *
 	 * @param array $data      Insights data array.
 	 * @param int   $date_from Start date as Unix timestamp.
 	 * @param int   $date_to   End date as Unix timestamp.
 	 */
-	private function localize_script_data( $data, $date_from, $date_to ) {
-		wp_localize_script(
-			'simple-history-insights',
-			'simpleHistoryInsights',
-			[
-				'data' => [
-					'activityOverview' => $data['activity_overview'] ? $data['activity_overview'] : [],
-					'topActions' => $data['common_actions'] ? $data['common_actions'] : [],
-					'topUsers' => $data['formatted_top_users'] ? $data['formatted_top_users'] : [],
-					'peakTimes' => $data['peak_times'] ? $data['peak_times'] : [],
-					'peakDays' => $data['peak_days'] ? $data['peak_days'] : [],
-				],
-				'dateRange' => [
-					'from' => $date_from,
-					'to' => $date_to,
-				],
-				'strings' => [
-					'events' => __( 'Events', 'simple-history' ),
-					'actions' => __( 'Actions', 'simple-history' ),
-					'users' => __( 'Users', 'simple-history' ),
-					'weekdays' => [
-						__( 'Sunday', 'simple-history' ),
-						__( 'Monday', 'simple-history' ),
-						__( 'Tuesday', 'simple-history' ),
-						__( 'Wednesday', 'simple-history' ),
-						__( 'Thursday', 'simple-history' ),
-						__( 'Friday', 'simple-history' ),
-						__( 'Saturday', 'simple-history' ),
-					],
-				],
-			]
-		);
+	public static function output_dashboard_content( $data, $date_from, $date_to ) {
+		?>
+		<div class="sh-InsightsDashboard">
+			<?php
+			self::output_logged_in_users_section( $data['logged_in_users'] );
+			self::output_top_users_section( $data['top_users'] );
+
+			// Output chart sections.
+			self::output_chart_section(
+				_x( 'Activity Overview', 'insights section title', 'simple-history' ),
+				'activityChart'
+			);
+
+			self::output_chart_section(
+				_x( 'Most Common Actions', 'insights section title', 'simple-history' ),
+				'actionsChart'
+			);
+
+			self::output_chart_section(
+				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
+				'peakTimesChart'
+			);
+
+			self::output_chart_section(
+				_x( 'Peak Activity Days', 'insights section title', 'simple-history' ),
+				'peakDaysChart'
+			);
+			?>
+
+			<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--extraWide">
+				<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
+				<div class="sh-InsightsDashboard-content">
+					<?php self::output_activity_calendar( $date_from, $date_to, $data['activity_overview'] ); ?>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 }
