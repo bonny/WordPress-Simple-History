@@ -246,196 +246,6 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Output the currently logged in users section.
-	 *
-	 * @param array $logged_in_users Array of currently logged in users.
-	 */
-	private function output_logged_in_users_section( $logged_in_users ) {
-		?>
-		<div class="sh-InsightsDashboard-section">
-			<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
-			<div class="sh-InsightsDashboard-content">
-				<div class="sh-InsightsDashboard-activeUsers">
-					<?php
-					if ( $logged_in_users ) {
-						?>
-						<ul class="sh-InsightsDashboard-userList">
-							<?php
-							foreach ( $logged_in_users as $user_data ) {
-								?>
-								<li class="sh-InsightsDashboard-userItem">
-									<?php
-									$user = $user_data['user'];
-									// Try to get the full user data if we only have the ID.
-									$wp_user = get_user_by( 'id', $user->user_id );
-									if ( $wp_user ) {
-										// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-										echo Helpers::get_avatar( $wp_user->user_email, 32 );
-									}
-									?>
-									<div class="sh-InsightsDashboard-userInfo">
-										<strong><?php echo esc_html( $user->display_name ); ?></strong>
-										<span class="sh-InsightsDashboard-userRole">
-											<?php echo esc_html( implode( ', ', $user->roles ) ); ?>
-										</span>
-										<span class="sh-InsightsDashboard-userSessions">
-											<?php
-											printf(
-												/* translators: %d: number of active sessions */
-												esc_html( _n( '%d active session', '%d active sessions', $user_data['sessions_count'], 'simple-history' ) ),
-												esc_html( $user_data['sessions_count'] )
-											);
-											?>
-										</span>
-
-										<?php if ( ! empty( $user_data['sessions'] ) ) : ?>
-											<div class="sh-InsightsDashboard-userSessions-details">
-												<?php foreach ( $user_data['sessions'] as $session ) : ?>
-													<div class="sh-InsightsDashboard-userSession">
-														<span class="sh-InsightsDashboard-userLastLogin">
-															<?php
-															$login_time = date_i18n( 'F d, Y H:i A', $session['login'] );
-															printf(
-																/* translators: %s: login date and time */
-																esc_html__( 'Login: %s', 'simple-history' ),
-																esc_html( $login_time )
-															);
-															?>
-														</span>
-														
-														<span class="sh-InsightsDashboard-userExpiration">
-															<?php
-															$expiration_time = date_i18n( 'F d, Y H:i A', $session['expiration'] );
-															printf(
-																/* translators: %s: session expiration date and time */
-																esc_html__( 'Expires: %s', 'simple-history' ),
-																esc_html( $expiration_time )
-															);
-															?>
-														</span>
-														
-														<?php if ( ! empty( $session['ip'] ) ) : ?>
-															<span class="sh-InsightsDashboard-userIP">
-																<?php
-																printf(
-																	/* translators: %s: IP address */
-																	esc_html__( 'IP: %s', 'simple-history' ),
-																	esc_html( $session['ip'] )
-																);
-																?>
-															</span>
-														<?php endif; ?>
-													</div>
-												<?php endforeach; ?>
-											</div>
-										<?php endif; ?>
-									</div>
-								</li>
-								<?php
-							}
-							?>
-						</ul>
-						<?php
-					} else {
-						?>
-						<p><?php esc_html_e( 'No users are currently logged in.', 'simple-history' ); ?></p>
-						<?php
-					}
-					?>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output the user activity statistics section.
-	 *
-	 * @param array $user_stats Array of user statistics.
-	 */
-	private function output_user_activity_stats( $user_stats ) {
-		?>
-		<div class="sh-InsightsDashboard-section">
-			<h2><?php echo esc_html_x( 'User Activity Statistics', 'insights section title', 'simple-history' ); ?></h2>
-			<div class="sh-InsightsDashboard-content">
-				<div class="sh-InsightsDashboard-stats">
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Failed Logins', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['failed_logins'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Successful Logins', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['successful_logins'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users Added', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_added'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users Updated', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_updated'] ) ); ?></span>
-					</div>
-				</div>
-
-				<?php if ( ! empty( $user_stats['top_users'] ) ) : ?>
-					<div class="sh-InsightsDashboard-topUsers">
-						<h3><?php esc_html_e( 'Most Active Users', 'simple-history' ); ?></h3>
-						<table class="widefat striped">
-							<thead>
-								<tr>
-									<th><?php esc_html_e( 'User', 'simple-history' ); ?></th>
-									<th><?php esc_html_e( 'Actions', 'simple-history' ); ?></th>
-									<th><?php esc_html_e( 'Last Active', 'simple-history' ); ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php foreach ( $user_stats['top_users'] as $user ) : ?>
-									<tr>
-										<td class="sh-InsightsDashboard-userCell">
-											<?php
-											// Try to get the full user data if we only have the ID.
-											$wp_user = get_user_by( 'id', $user->user_id );
-											if ( $wp_user ) {
-												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-												echo Helpers::get_avatar( $wp_user->user_email, 24 );
-											}
-											?>
-											<span class="sh-InsightsDashboard-userName">
-												<?php
-												if ( $wp_user && $wp_user->display_name ) {
-													echo esc_html( $wp_user->display_name );
-												} else {
-													/* translators: %s: numeric user ID */
-													printf( esc_html__( 'User ID %s', 'simple-history' ), esc_html( $user->user_id ) );
-												}
-												?>
-											</span>
-										</td>
-										<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
-										<td>
-											<?php
-											// Get the user's most recent activity time from the history table.
-											$last_activity = $this->stats->get_user_last_activity( $user->user_id );
-											if ( $last_activity ) {
-												/* translators: %s: human readable time difference */
-												printf( esc_html__( '%s ago', 'simple-history' ), esc_html( human_time_diff( strtotime( $last_activity ) ) ) );
-											} else {
-												echo '—';
-											}
-											?>
-										</td>
-									</tr>
-								<?php endforeach; ?>
-							</tbody>
-						</table>
-					</div>
-				<?php endif; ?>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
 	 * Output the insights page.
 	 */
 	public function output_page() {
@@ -458,7 +268,6 @@ class Insights_Service extends Service {
 			Insights_View::output_date_range( $date_from, $date_to );
 			Insights_View::output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
 			$this->output_wordpress_stats( $data['wordpress_stats'] );
-			$this->output_user_activity_stats( $data['user_stats'] );
 			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
 			?>
 		</div>
@@ -498,6 +307,8 @@ class Insights_Service extends Service {
 				'plugin_installs' => $this->stats->get_plugin_installs( $date_from, $date_to ),
 				'plugin_deletions' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
 			],
+			// Add stats object for user activity lookups.
+			'stats' => $this->stats,
 		];
 
 		// Format top users data for the chart.

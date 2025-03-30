@@ -419,11 +419,12 @@ class Insights_View {
 	}
 
 	/**
-	 * Output the user statistics section.
+	 * Output the user activity statistics section.
 	 *
-	 * @param array $user_stats Array of user statistics.
+	 * @param array  $user_stats Array of user statistics.
+	 * @param object $stats Stats object for getting user activity.
 	 */
-	public static function output_user_stats_section( $user_stats ) {
+	public static function output_user_stats_section( $user_stats, $stats ) {
 		?>
 		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
 			<h2><?php echo esc_html_x( 'User Activity Statistics', 'insights section title', 'simple-history' ); ?></h2>
@@ -473,7 +474,62 @@ class Insights_View {
 					</div>
 					<?php
 				}
-				?>
+
+				// Display top users table if available
+				if ( ! empty( $user_stats['top_users'] ) ) :
+					?>
+					<div class="sh-InsightsDashboard-topUsers">
+						<h3><?php esc_html_e( 'Most Active Users', 'simple-history' ); ?></h3>
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th><?php esc_html_e( 'User', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'Actions', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'Last Active', 'simple-history' ); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $user_stats['top_users'] as $user ) : ?>
+									<tr>
+										<td class="sh-InsightsDashboard-userCell">
+											<?php
+											// Try to get the full user data if we only have the ID.
+											$wp_user = get_user_by( 'id', $user->user_id );
+											if ( $wp_user ) {
+												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+												echo Helpers::get_avatar( $wp_user->user_email, 24 );
+											}
+											?>
+											<span class="sh-InsightsDashboard-userName">
+												<?php
+												if ( $wp_user && $wp_user->display_name ) {
+													echo esc_html( $wp_user->display_name );
+												} else {
+													/* translators: %s: numeric user ID */
+													printf( esc_html__( 'User ID %s', 'simple-history' ), esc_html( $user->user_id ) );
+												}
+												?>
+											</span>
+										</td>
+										<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
+										<td>
+											<?php
+											// Get the user's most recent activity time from the history table.
+											$last_activity = $stats->get_user_last_activity( $user->user_id );
+											if ( $last_activity ) {
+												/* translators: %s: human readable time difference */
+												printf( esc_html__( '%s ago', 'simple-history' ), esc_html( human_time_diff( strtotime( $last_activity ) ) ) );
+											} else {
+												echo '—';
+											}
+											?>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php
@@ -491,7 +547,7 @@ class Insights_View {
 		<div class="sh-InsightsDashboard">
 			<?php
 			self::output_logged_in_users_section( $data['logged_in_users'] );
-			self::output_user_stats_section( $data['user_stats'] );
+			self::output_user_stats_section( $data['user_stats'], $data['stats'] );
 			self::output_top_users_section( $data['top_users'] );
 
 			// Output chart sections.
