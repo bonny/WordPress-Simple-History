@@ -551,4 +551,146 @@ class Activity_Analytics {
 			)
 		);
 	}
+
+	/**
+	 * Get number of WordPress core updates for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of core updates, or false if invalid dates.
+	 */
+	public function get_wordpress_core_updates( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleCoreUpdatesLogger'
+					AND c.key = '_message_key'
+					AND (
+						c.value = 'core_updated'
+						OR c.value = 'core_auto_updated'
+					)
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of plugin updates for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin updates, or false if invalid dates.
+	 */
+	public function get_plugin_updates( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimplePluginLogger'
+					AND c.key = '_message_key'
+					AND (
+						c.value = 'plugin_updated'
+						OR c.value = 'plugin_bulk_updated'
+					)
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of plugin installations for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin installations, or false if invalid dates.
+	 */
+	public function get_plugin_installs( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimplePluginLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'plugin_installed'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of plugin deletions for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin deletions, or false if invalid dates.
+	 */
+	public function get_plugin_deletions( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimplePluginLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'plugin_deleted'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
 }

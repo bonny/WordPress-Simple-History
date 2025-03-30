@@ -457,6 +457,7 @@ class Insights_Service extends Service {
 			Insights_View::output_date_filters();
 			Insights_View::output_date_range( $date_from, $date_to );
 			Insights_View::output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
+			$this->output_wordpress_stats( $data['wordpress_stats'] );
 			$this->output_user_activity_stats( $data['user_stats'] );
 			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
 			?>
@@ -490,6 +491,13 @@ class Insights_Service extends Service {
 				'users_updated' => $this->stats->get_users_updated( $date_from, $date_to ),
 				'successful_logins' => $this->stats->get_successful_logins( $date_from, $date_to ),
 				'top_users' => $this->stats->get_top_users( $date_from, $date_to, 10 ),
+			],
+			// Add WordPress core and plugin statistics.
+			'wordpress_stats' => [
+				'core_updates' => $this->stats->get_wordpress_core_updates( $date_from, $date_to ),
+				'plugin_updates' => $this->stats->get_plugin_updates( $date_from, $date_to ),
+				'plugin_installs' => $this->stats->get_plugin_installs( $date_from, $date_to ),
+				'plugin_deletions' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
 			],
 		];
 
@@ -556,5 +564,38 @@ class Insights_Service extends Service {
 				],
 			]
 		);
+	}
+
+	/**
+	 * Output the WordPress core and plugins statistics section.
+	 *
+	 * @param array $wordpress_stats Array of WordPress statistics.
+	 */
+	private function output_wordpress_stats( $wordpress_stats ) {
+		?>
+		<div class="sh-InsightsDashboard-section">
+			<h2><?php echo esc_html_x( 'WordPress Core and Plugins', 'insights section title', 'simple-history' ); ?></h2>
+			<div class="sh-InsightsDashboard-content">
+				<div class="sh-InsightsDashboard-stats">
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Core Updates', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['core_updates'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugin Updates', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_updates'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Installed', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_installs'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Deleted', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_deletions'] ) ); ?></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 }
