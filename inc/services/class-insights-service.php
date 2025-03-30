@@ -200,19 +200,41 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Get default date range.
+	 * Get date range based on period parameter.
 	 *
 	 * @return array {
-	 *     Array of timestamps for the default date range (last 7 days).
+	 *     Array of timestamps for the selected date range.
 	 *
-	 *     @type int $date_from Unix timestamp for start date (7 days ago).
-	 *     @type int $date_to   Unix timestamp for end date (current time).
+	 *     @type int $date_from Unix timestamp for start date.
+	 *     @type int $date_to   Unix timestamp for end date.
 	 * }
 	 */
-	private function get_default_date_range() {
+	private function get_selected_date_range() {
+		$period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '7d';
+		$date_to = time();
+
+		switch ( $period ) {
+			case '1h':
+				$date_from = strtotime( '-1 hour' );
+				break;
+			case '24h':
+				$date_from = strtotime( '-24 hours' );
+				break;
+			case '14d':
+				$date_from = strtotime( '-14 days' );
+				break;
+			case '1m':
+				$date_from = strtotime( '-1 month' );
+				break;
+			case '7d':
+			default:
+				$date_from = strtotime( '-7 days' );
+				break;
+		}
+
 		return [
-			'date_from' => strtotime( '-7 days' ),
-			'date_to' => time(),
+			'date_from' => $date_from,
+			'date_to' => $date_to,
 		];
 	}
 
@@ -280,25 +302,51 @@ class Insights_Service extends Service {
 	 * Output the date filters section.
 	 */
 	private function output_date_filters() {
+		$current_period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '7d';
+		$current_page = menu_page_url( 'simple_history_insights_page', false );
+
+		// Define the time periods.
+		$time_periods = array(
+			'1h'  => array(
+				'label' => _x( '1 Hour', 'insights date filter 1 hour', 'simple-history' ),
+				'short_label' => _x( '1H', 'insights date filter 1 hour short', 'simple-history' ),
+			),
+			'24h' => array(
+				'label' => _x( '24 Hours', 'insights date filter 24 hours', 'simple-history' ),
+				'short_label' => _x( '24H', 'insights date filter 24 hours short', 'simple-history' ),
+			),
+			'7d'  => array(
+				'label' => _x( '7 Days', 'insights date filter 7 days', 'simple-history' ),
+				'short_label' => _x( '7D', 'insights date filter 7 days short', 'simple-history' ),
+			),
+			'14d' => array(
+				'label' => _x( '14 Days', 'insights date filter 14 days', 'simple-history' ),
+				'short_label' => _x( '14D', 'insights date filter 14 days short', 'simple-history' ),
+			),
+			'1m'  => array(
+				'label' => _x( '1 Month', 'insights date filter 1 month', 'simple-history' ),
+				'short_label' => _x( '1M', 'insights date filter 1 month short', 'simple-history' ),
+			),
+		);
 		?>
-		<div class="sh-InsightsDashboard-filters">
+		<div class="sh-InsightsDashboard-filters" role="navigation" aria-label="<?php esc_attr_e( 'Time period navigation', 'simple-history' ); ?>">
 			<div class="sh-InsightsDashboard-dateFilters">
-				<span class="sh-InsightsDashboard-dateFilters-label"><?php echo esc_html_x( 'Time period:', 'insights date filter label', 'simple-history' ); ?></span>
-				<a href="<?php echo esc_url( add_query_arg( 'period', '1h' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '1h' ? 'is-active' : ''; ?>">
-					<?php echo esc_html_x( '1H', 'insights date filter 1 hour', 'simple-history' ); ?>
-				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'period', '24h' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '24h' ? 'is-active' : ''; ?>">
-					<?php echo esc_html_x( '24H', 'insights date filter 24 hours', 'simple-history' ); ?>
-				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'period', '7d' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '7d' ? 'is-active' : ''; ?>">
-					<?php echo esc_html_x( '7D', 'insights date filter 7 days', 'simple-history' ); ?>
-				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'period', '14d' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '14d' ? 'is-active' : ''; ?>">
-					<?php echo esc_html_x( '14D', 'insights date filter 14 days', 'simple-history' ); ?>
-				</a>
-				<a href="<?php echo esc_url( add_query_arg( 'period', '1m' ) ); ?>" class="sh-InsightsDashboard-dateFilter <?php echo isset( $_GET['period'] ) && $_GET['period'] === '1m' ? 'is-active' : ''; ?>">
-					<?php echo esc_html_x( '1M', 'insights date filter 1 month', 'simple-history' ); ?>
-				</a>
+				<span class="sh-InsightsDashboard-dateFilters-label" id="timeperiod-label">
+					<?php echo esc_html_x( 'Time period:', 'insights date filter label', 'simple-history' ); ?>
+				</span>
+				<div class="sh-InsightsDashboard-dateFilters-buttons" role="group" aria-labelledby="timeperiod-label">
+					<?php foreach ( $time_periods as $period => $labels ) : ?>
+						<a 
+							href="<?php echo esc_url( add_query_arg( 'period', $period, $current_page ) ); ?>" 
+							class="sh-InsightsDashboard-dateFilter <?php echo $current_period === $period ? 'is-active' : ''; ?>"
+							<?php echo $current_period === $period ? 'aria-current="page"' : ''; ?>
+							title="<?php echo esc_attr( $labels['label'] ); ?>"
+						>
+							<span class="screen-reader-text"><?php echo esc_html( $labels['label'] ); ?></span>
+							<span aria-hidden="true"><?php echo esc_html( $labels['short_label'] ); ?></span>
+						</a>
+					<?php endforeach; ?>
+				</div>
 			</div>
 		</div>
 		<?php
@@ -615,10 +663,10 @@ class Insights_Service extends Service {
 		// Enqueue required scripts and styles.
 		$this->enqueue_scripts_and_styles();
 
-		// Get date range for the last 7 days.
-		$defaults = $this->get_default_date_range();
-		$date_from = $defaults['date_from'];
-		$date_to = $defaults['date_to'];
+		// Get date range based on selected period.
+		$date_range = $this->get_selected_date_range();
+		$date_from = $date_range['date_from'];
+		$date_to = $date_range['date_to'];
 
 		// Prepare insights data.
 		$data = $this->prepare_insights_data( $date_from, $date_to );
