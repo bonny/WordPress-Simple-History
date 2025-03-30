@@ -343,4 +343,68 @@
 	font-size: 1.25rem;
 	font-weight: 600;
 	color: #1d2327;
+}
+
+.sh-InsightsDashboard-filters {
+    margin: 12px 0 20px;
+    padding: 8px 0;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.sh-InsightsDashboard-dateFilters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sh-InsightsDashboard-dateFilters-label {
+    color: #1d2327;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.sh-InsightsDashboard-dateFilter {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 2.15384615;
+    min-height: 30px;
+    margin: 0;
+    padding: 0 10px;
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    background: #f6f7f7;
+    border-color: #dcdcde;
+    color: #2c3338;
+    vertical-align: top;
+}
+
+.sh-InsightsDashboard-dateFilter:hover {
+    background: #f0f0f1;
+    border-color: #c5c5c5;
+    color: #135e96;
+}
+
+.sh-InsightsDashboard-dateFilter.is-active {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+    text-decoration: none;
+}
+
+.sh-InsightsDashboard-dateFilter.is-active:hover {
+    background: #135e96;
+    border-color: #135e96;
+    color: #fff;
+}
+
+/* Add spacing between filters and content */
+.sh-InsightsDashboard-dateRange {
+    margin-top: 1em;
+    color: #646970;
+    font-size: 13px;
 } 
