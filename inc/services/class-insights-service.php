@@ -2,13 +2,13 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Helpers;
-use Simple_History\Simple_History;
-use Simple_History\Menu_Page;
-use Simple_History\Services\Service;
 use WP_Session_Tokens;
-use Simple_History\Services\Admin_Pages;
+use Simple_History\Helpers;
+use Simple_History\Menu_Page;
+use Simple_History\Simple_History;
+use Simple_History\Services\Service;
 use Simple_History\Activity_Analytics;
+use Simple_History\Services\Admin_Pages;
 
 /**
  * Service class that handles insights functionality.
@@ -61,142 +61,6 @@ class Insights_Service extends Service {
 			->set_location( 'submenu' );
 
 		$insights_page->add();
-	}
-
-	/**
-	 * Get currently logged in users.
-	 *
-	 * @param int $limit Optional. Limit the number of users returned. Default is 10.
-	 * @return array Array of currently logged in users with their last activity.
-	 */
-	public function get_logged_in_users( $limit = 10 ) {
-		global $wpdb;
-		$logged_in_users = [];
-
-		// Query session tokens directly from user meta table.
-		$users_with_session_tokens = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s AND meta_value != ''",
-				'session_tokens'
-			)
-		);
-
-		foreach ( $users_with_session_tokens as $one_user_id ) {
-			$sessions = WP_Session_Tokens::get_instance( $one_user_id );
-
-			$all_user_sessions = $sessions->get_all();
-			if ( $all_user_sessions ) {
-				$logged_in_users[] = [
-					'user' => get_userdata( $one_user_id ),
-					'sessions_count' => count( $all_user_sessions ),
-					'sessions' => $all_user_sessions,
-				];
-			}
-		}
-
-		return array_slice( $logged_in_users, 0, $limit );
-	}
-
-	/**
-	 * Get total number of events for a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Total number of events, or false if invalid dates.
-	 */
-	public function get_total_events( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history
-				WHERE 
-					date >= FROM_UNIXTIME(%d)
-					AND date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
-	}
-
-	/**
-	 * Get total number of unique users involved in events for a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Total number of unique users, or false if invalid dates.
-	 */
-	public function get_total_users( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(DISTINCT c.value)
-				FROM 
-					{$wpdb->prefix}simple_history_contexts c
-				JOIN 
-					{$wpdb->prefix}simple_history h ON h.id = c.history_id
-				WHERE 
-					c.key = '_user_id'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
-	}
-
-	/**
-	 * Get the last user edit action.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return object|false Last edit action details, or false if invalid dates or no actions found.
-	 */
-	public function get_last_edit_action( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		$last_action = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT 
-					h.*,
-					c.value as user_id,
-					u.display_name
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				LEFT JOIN 
-					{$wpdb->users} u ON u.ID = CAST(c.value AS UNSIGNED)
-				WHERE 
-					c.key = '_user_id'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)
-				ORDER BY 
-					h.date DESC
-				LIMIT 1",
-				$date_from,
-				$date_to
-			)
-		);
-
-		return $last_action;
 	}
 
 	/**
