@@ -266,8 +266,12 @@ class Insights_Service extends Service {
 								<li class="sh-InsightsDashboard-userItem">
 									<?php
 									$user = $user_data['user'];
-									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									echo Helpers::get_avatar( $user->user_email, 32 );
+									// Try to get the full user data if we only have the ID.
+									$wp_user = get_user_by( 'id', $user->user_id );
+									if ( $wp_user ) {
+										// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+										echo Helpers::get_avatar( $wp_user->user_email, 32 );
+									}
 									?>
 									<div class="sh-InsightsDashboard-userInfo">
 										<strong><?php echo esc_html( $user->display_name ); ?></strong>
@@ -345,65 +349,87 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Output the top users section.
+	 * Output the user activity statistics section.
 	 *
-	 * @param array $top_users Array of top users data.
+	 * @param array $user_stats Array of user statistics.
 	 */
-	private function output_top_users_section( $top_users ) {
+	private function output_user_activity_stats( $user_stats ) {
 		?>
-		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
-			<h2><?php echo esc_html_x( 'Top Users', 'insights section title', 'simple-history' ); ?></h2>
-			<div class="sh-InsightsDashboard-content sh-InsightsDashboard-content--sideBySide">
-				<div class="sh-InsightsDashboard-chartContainer">
-					<canvas id="topUsersChart" class="sh-InsightsDashboard-chart"></canvas>
+		<div class="sh-InsightsDashboard-section">
+			<h2><?php echo esc_html_x( 'User Activity Statistics', 'insights section title', 'simple-history' ); ?></h2>
+			<div class="sh-InsightsDashboard-content">
+				<div class="sh-InsightsDashboard-stats">
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Failed Logins', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['failed_logins'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Successful Logins', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['successful_logins'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users Added', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_added'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users Updated', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_updated'] ) ); ?></span>
+					</div>
 				</div>
-				<?php if ( $top_users && count( $top_users ) > 0 ) { ?>
-					<div class="sh-InsightsDashboard-tableContainer">
+
+				<?php if ( ! empty( $user_stats['top_users'] ) ) : ?>
+					<div class="sh-InsightsDashboard-topUsers">
+						<h3><?php esc_html_e( 'Most Active Users', 'simple-history' ); ?></h3>
 						<table class="widefat striped">
 							<thead>
 								<tr>
-									<th><?php echo esc_html_x( 'User', 'insights table header', 'simple-history' ); ?></th>
-									<th><?php echo esc_html_x( 'Actions', 'insights table header', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'User', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'Actions', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'Last Active', 'simple-history' ); ?></th>
 								</tr>
 							</thead>
 							<tbody>
-								<?php foreach ( $top_users as $user ) { ?>
+								<?php foreach ( $user_stats['top_users'] as $user ) : ?>
 									<tr>
-										<td>
-										<?php
-											/* translators: %s: user ID number */
-											echo esc_html( $user->display_name ? $user->display_name : sprintf( __( 'User ID %s', 'simple-history' ), $user->user_id ) );
-										?>
+										<td class="sh-InsightsDashboard-userCell">
+											<?php
+											// Try to get the full user data if we only have the ID.
+											$wp_user = get_user_by( 'id', $user->user_id );
+											if ( $wp_user ) {
+												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+												echo Helpers::get_avatar( $wp_user->user_email, 24 );
+											}
+											?>
+											<span class="sh-InsightsDashboard-userName">
+												<?php
+												if ( $wp_user && $wp_user->display_name ) {
+													echo esc_html( $wp_user->display_name );
+												} else {
+													/* translators: %s: numeric user ID */
+													printf( esc_html__( 'User ID %s', 'simple-history' ), esc_html( $user->user_id ) );
+												}
+												?>
+											</span>
 										</td>
 										<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
+										<td>
+											<?php
+											// Get the user's most recent activity time from the history table.
+											$last_activity = $this->stats->get_user_last_activity( $user->user_id );
+											if ( $last_activity ) {
+												/* translators: %s: human readable time difference */
+												printf( esc_html__( '%s ago', 'simple-history' ), esc_html( human_time_diff( strtotime( $last_activity ) ) ) );
+											} else {
+												echo '—';
+											}
+											?>
+										</td>
 									</tr>
-								<?php } ?>
+								<?php endforeach; ?>
 							</tbody>
 						</table>
 					</div>
-				<?php } ?>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output a chart section.
-	 *
-	 * @param string $title      Section title.
-	 * @param string $chart_id   HTML ID for the chart canvas.
-	 * @param string $css_class  Optional. Additional CSS class for the section.
-	 */
-	private function output_chart_section( $title, $chart_id, $css_class = '' ) {
-		$section_class = 'sh-InsightsDashboard-section';
-		if ( $css_class ) {
-			$section_class .= ' ' . $css_class;
-		}
-		?>
-		<div class="<?php echo esc_attr( $section_class ); ?>">
-			<h2><?php echo esc_html( $title ); ?></h2>
-			<div class="sh-InsightsDashboard-content">
-				<canvas id="<?php echo esc_attr( $chart_id ); ?>" class="sh-InsightsDashboard-chart"></canvas>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php
@@ -431,113 +457,9 @@ class Insights_Service extends Service {
 			Insights_View::output_date_filters();
 			Insights_View::output_date_range( $date_from, $date_to );
 			Insights_View::output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
+			$this->output_user_activity_stats( $data['user_stats'] );
 			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
 			?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output the activity calendar view.
-	 *
-	 * @param int   $date_from         Start date as Unix timestamp.
-	 * @param int   $date_to           End date as Unix timestamp.
-	 * @param array $activity_overview Array of activity data by date.
-	 */
-	private function output_activity_calendar( $date_from, $date_to, $activity_overview ) {
-		?>
-		<div class="sh-InsightsDashboard-calendar">
-			<?php
-			// Get the first and last day of the date range.
-			$start_date = new \DateTime( gmdate( 'Y-m-d', $date_from ) );
-			$end_date = new \DateTime( gmdate( 'Y-m-d', $date_to ) );
-
-			// Get the first and last day of the month.
-			$first_day_of_month = clone $start_date;
-			$first_day_of_month->modify( 'first day of this month' );
-			$last_day_of_month = clone $start_date;
-			$last_day_of_month->modify( 'last day of this month' );
-
-			$current_date = clone $first_day_of_month;
-			$start_weekday = (int) $first_day_of_month->format( 'w' );
-
-			// Create array of dates with their event counts.
-			$date_counts = array();
-			foreach ( $activity_overview as $day ) {
-				$date_counts[ $day->date ] = (int) $day->count;
-			}
-
-			// Get month name.
-			$month_name = $start_date->format( 'F Y' );
-			?>
-			<div class="sh-InsightsDashboard-calendarMonth">
-				<h3 class="sh-InsightsDashboard-calendarTitle"><?php echo esc_html( $month_name ); ?></h3>
-				<div class="sh-InsightsDashboard-calendarGrid">
-					<?php
-					// Output weekday headers.
-					$weekdays = array(
-						__( 'Sun', 'simple-history' ),
-						__( 'Mon', 'simple-history' ),
-						__( 'Tue', 'simple-history' ),
-						__( 'Wed', 'simple-history' ),
-						__( 'Thu', 'simple-history' ),
-						__( 'Fri', 'simple-history' ),
-						__( 'Sat', 'simple-history' ),
-					);
-					foreach ( $weekdays as $weekday ) {
-						echo '<div class="sh-InsightsDashboard-calendarHeader">' . esc_html( $weekday ) . '</div>';
-					}
-
-					// Add empty cells for days before the start of the month.
-					for ( $i = 0; $i < $start_weekday; $i++ ) {
-						echo '<div class="sh-InsightsDashboard-calendarDay sh-InsightsDashboard-calendarDay--empty"></div>';
-					}
-
-					// Output calendar days.
-					while ( $current_date <= $last_day_of_month ) {
-						$date_str = $current_date->format( 'Y-m-d' );
-						$count = isset( $date_counts[ $date_str ] ) ? $date_counts[ $date_str ] : 0;
-						$is_in_range = $current_date >= $start_date && $current_date <= $end_date;
-
-						$classes = array( 'sh-InsightsDashboard-calendarDay' );
-
-						if ( ! $is_in_range ) {
-							$classes[] = 'sh-InsightsDashboard-calendarDay--outOfRange';
-						} elseif ( $count > 0 ) {
-							if ( $count < 10 ) {
-								$classes[] = 'sh-InsightsDashboard-calendarDay--low';
-							} elseif ( $count < 50 ) {
-								$classes[] = 'sh-InsightsDashboard-calendarDay--medium';
-							} else {
-								$classes[] = 'sh-InsightsDashboard-calendarDay--high';
-							}
-						}
-
-						$title = $is_in_range ?
-							/* translators: %d: number of events */
-							sprintf( _n( '%d event', '%d events', $count, 'simple-history' ), $count ) :
-							__( 'Outside selected date range', 'simple-history' );
-						?>
-						<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" 
-							title="<?php echo esc_attr( $title ); ?>">
-							<span class="sh-InsightsDashboard-calendarDayNumber"><?php echo esc_html( $current_date->format( 'j' ) ); ?></span>
-							<?php if ( $is_in_range ) { ?>
-								<span class="sh-InsightsDashboard-calendarDayCount"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
-							<?php } ?>
-						</div>
-						<?php
-						$current_date->modify( '+1 day' );
-					}
-
-					// Add empty cells for days after the end of the month to complete the grid.
-					$end_weekday = (int) $last_day_of_month->format( 'w' );
-					$remaining_days = 6 - $end_weekday;
-					for ( $i = 0; $i < $remaining_days; $i++ ) {
-						echo '<div class="sh-InsightsDashboard-calendarDay sh-InsightsDashboard-calendarDay--empty"></div>';
-					}
-					?>
-				</div>
-			</div>
 		</div>
 		<?php
 	}
@@ -567,6 +489,7 @@ class Insights_Service extends Service {
 				'users_removed' => $this->stats->get_users_removed( $date_from, $date_to ),
 				'users_updated' => $this->stats->get_users_updated( $date_from, $date_to ),
 				'successful_logins' => $this->stats->get_successful_logins( $date_from, $date_to ),
+				'top_users' => $this->stats->get_top_users( $date_from, $date_to, 10 ),
 			],
 		];
 
