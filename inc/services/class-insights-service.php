@@ -8,11 +8,19 @@ use Simple_History\Menu_Page;
 use Simple_History\Services\Service;
 use WP_Session_Tokens;
 use Simple_History\Services\Admin_Pages;
+use Simple_History\Insights_Stats;
 
 /**
  * Service class that handles insights functionality.
  */
 class Insights_Service extends Service {
+	/**
+	 * Stats instance.
+	 *
+	 * @var Insights_Stats
+	 */
+	private $stats;
+
 	/**
 	 * Called when service is loaded.
 	 */
@@ -22,6 +30,7 @@ class Insights_Service extends Service {
 			return;
 		}
 
+		$this->stats = new Insights_Stats();
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
 	}
 
@@ -46,7 +55,7 @@ class Insights_Service extends Service {
 			->set_page_title( _x( 'Insights - Simple History', 'dashboard title name', 'simple-history' ) )
 			->set_menu_title( _x( 'Insights', 'dashboard menu name', 'simple-history' ) . ' ' . $new_text )
 			->set_menu_slug( 'simple_history_insights_page' )
-			->set_capability( Helpers::get_view_history_capability() )
+			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_page' ] )
 			->set_parent( Simple_History::MENU_PAGE_SLUG )
 			->set_location( 'submenu' );
@@ -191,6 +200,23 @@ class Insights_Service extends Service {
 	}
 
 	/**
+	 * Get default date range.
+	 *
+	 * @return array {
+	 *     Array of timestamps for the default date range (last 7 days).
+	 *
+	 *     @type int $date_from Unix timestamp for start date (7 days ago).
+	 *     @type int $date_to   Unix timestamp for end date (current time).
+	 * }
+	 */
+	private function get_default_date_range() {
+		return [
+			'date_from' => strtotime( '-7 days' ),
+			'date_to' => time(),
+		];
+	}
+
+	/**
 	 * Output the dashboard stats section.
 	 *
 	 * @param int    $total_events Total number of events.
@@ -304,38 +330,6 @@ class Insights_Service extends Service {
 			SIMPLE_HISTORY_VERSION,
 			true
 		);
-	}
-
-	/**
-	 * Prepare data for the insights page.
-	 *
-	 * @param int $date_from Start date as Unix timestamp.
-	 * @param int $date_to   End date as Unix timestamp.
-	 * @return array Array of prepared data for the insights page.
-	 */
-	private function prepare_insights_data( $date_from, $date_to ) {
-		$data = [
-			'total_events' => $this->get_total_events( $date_from, $date_to ),
-			'total_users' => $this->get_total_users( $date_from, $date_to ),
-			'last_edit' => $this->get_last_edit_action( $date_from, $date_to ),
-			'top_users' => $this->get_top_users( $date_from, $date_to, 10 ),
-			'activity_overview' => $this->get_activity_overview( $date_from, $date_to ),
-			'common_actions' => $this->get_most_common_actions( $date_from, $date_to, 10 ),
-			'peak_times' => $this->get_peak_activity_times( $date_from, $date_to ),
-			'peak_days' => $this->get_peak_days( $date_from, $date_to ),
-			'logged_in_users' => $this->get_logged_in_users(),
-		];
-
-		// Format logger names for common actions.
-		$data['formatted_common_actions'] = array_map(
-			function ( $action ) {
-				$action->logger = $this->format_logger_name( $action->logger );
-				return $action;
-			},
-			$data['common_actions'] ? $data['common_actions'] : []
-		);
-
-		return $data;
 	}
 
 	/**
@@ -649,225 +643,6 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Get default date range.
-	 *
-	 * @return array {
-	 *     Array of timestamps for the default date range (last 7 days).
-	 *
-	 *     @type int $date_from Unix timestamp for start date (7 days ago).
-	 *     @type int $date_to   Unix timestamp for end date (current time).
-	 * }
-	 */
-	private function get_default_date_range() {
-		return [
-			'date_from' => strtotime( '-7 days' ),
-			'date_to' => time(),
-		];
-	}
-
-	/**
-	 * Get top users by activity count.
-	 *
-	 * @param int $date_from  Required. Start date as Unix timestamp.
-	 * @param int $date_to    Required. End date as Unix timestamp.
-	 * @param int $limit      Optional. Number of users to return. Default 10.
-	 * @return array|false Array of users with their activity counts, or false if invalid dates.
-	 */
-	public function get_top_users( $date_from, $date_to, $limit = 10 ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-					c.value as user_id,
-					COUNT(*) as count,
-					u.display_name
-				FROM 
-					{$wpdb->prefix}simple_history_contexts c
-				JOIN 
-					{$wpdb->prefix}simple_history h ON h.id = c.history_id
-				LEFT JOIN 
-					{$wpdb->users} u ON u.ID = CAST(c.value AS UNSIGNED)
-				WHERE 
-					c.key = '_user_id'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					c.value
-				ORDER BY 
-					count DESC
-				LIMIT %d",
-				$date_from,
-				$date_to,
-				$limit
-			)
-		);
-	}
-
-	/**
-	 * Get activity overview by date.
-	 *
-	 * @param int $date_from  Required. Start date as Unix timestamp.
-	 * @param int $date_to    Required. End date as Unix timestamp.
-	 * @return array|false Array of dates with their activity counts, or false if invalid dates. Dates are in MySQL format (YYYY-MM-DD).
-	 */
-	public function get_activity_overview( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-					DATE(date) as date,
-					COUNT(*) as count
-				FROM 
-					{$wpdb->prefix}simple_history
-				WHERE 
-					date >= FROM_UNIXTIME(%d)
-					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					DATE(date)
-				ORDER BY 
-					date ASC",
-				$date_from,
-				$date_to
-			)
-		);
-	}
-
-	/**
-	 * Get most common actions.
-	 *
-	 * @param int $date_from  Required. Start date as Unix timestamp.
-	 * @param int $date_to    Required. End date as Unix timestamp.
-	 * @param int $limit      Optional. Number of actions to return. Default 10.
-	 * @return array|false Array of actions with their counts, or false if invalid dates.
-	 */
-	public function get_most_common_actions( $date_from, $date_to, $limit = 10 ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-					logger,
-					level,
-					COUNT(*) as count
-				FROM 
-					{$wpdb->prefix}simple_history
-				WHERE 
-					date >= FROM_UNIXTIME(%d)
-					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					logger, level
-				ORDER BY 
-					count DESC
-				LIMIT %d",
-				$date_from,
-				$date_to,
-				$limit
-			)
-		);
-	}
-
-	/**
-	 * Get peak activity times.
-	 *
-	 * @param int $date_from  Required. Start date as Unix timestamp.
-	 * @param int $date_to    Required. End date as Unix timestamp.
-	 * @return array|false Array of hours (0-23) with their activity counts, or false if invalid dates.
-	 */
-	public function get_peak_activity_times( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-					HOUR(date) as hour,
-					COUNT(*) as count
-				FROM 
-					{$wpdb->prefix}simple_history
-				WHERE 
-					date >= FROM_UNIXTIME(%d)
-					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					HOUR(date)
-				ORDER BY 
-					hour ASC",
-				$date_from,
-				$date_to
-			)
-		);
-	}
-
-	/**
-	 * Get peak days of the week.
-	 *
-	 * @param int $date_from  Required. Start date as Unix timestamp.
-	 * @param int $date_to    Required. End date as Unix timestamp.
-	 * @return array|false Array of weekdays (0-6, Sunday-Saturday) with their activity counts, or false if invalid dates.
-	 */
-	public function get_peak_days( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-					DAYOFWEEK(date) - 1 as day,
-					COUNT(*) as count
-				FROM 
-					{$wpdb->prefix}simple_history
-				WHERE 
-					date >= FROM_UNIXTIME(%d)
-					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					DAYOFWEEK(date)
-				ORDER BY 
-					day ASC",
-				$date_from,
-				$date_to
-			)
-		);
-	}
-
-	/**
-	 * Format logger name for display.
-	 *
-	 * @param string $logger_name Raw logger name.
-	 * @return string Formatted logger name.
-	 */
-	public function format_logger_name( $logger_name ) {
-		// Remove namespace if present.
-		$logger_name = str_replace( 'SimpleHistory\\Loggers\\', '', $logger_name );
-
-		// Convert CamelCase to spaces.
-		$logger_name = preg_replace( '/(?<!^)[A-Z]/', ' $0', $logger_name );
-
-		// Remove "Logger" suffix if present.
-		$logger_name = str_replace( ' Logger', '', $logger_name );
-
-		return trim( $logger_name );
-	}
-
-	/**
 	 * Output the activity calendar view.
 	 *
 	 * @param int   $date_from         Start date as Unix timestamp.
@@ -970,5 +745,37 @@ class Insights_Service extends Service {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Prepare data for the insights page.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return array Array of prepared data for the insights page.
+	 */
+	private function prepare_insights_data( $date_from, $date_to ) {
+		$data = [
+			'total_events' => $this->stats->get_total_events( $date_from, $date_to ),
+			'total_users' => $this->stats->get_total_users( $date_from, $date_to ),
+			'last_edit' => $this->stats->get_last_edit_action( $date_from, $date_to ),
+			'top_users' => $this->stats->get_top_users( $date_from, $date_to, 10 ),
+			'activity_overview' => $this->stats->get_activity_overview( $date_from, $date_to ),
+			'common_actions' => $this->stats->get_most_common_actions( $date_from, $date_to, 10 ),
+			'peak_times' => $this->stats->get_peak_activity_times( $date_from, $date_to ),
+			'peak_days' => $this->stats->get_peak_days( $date_from, $date_to ),
+			'logged_in_users' => $this->stats->get_logged_in_users(),
+		];
+
+		// Format logger names for common actions.
+		$data['formatted_common_actions'] = array_map(
+			function ( $action ) {
+				$action->logger = $this->stats->format_logger_name( $action->logger );
+				return $action;
+			},
+			$data['common_actions'] ? $data['common_actions'] : []
+		);
+
+		return $data;
 	}
 }
