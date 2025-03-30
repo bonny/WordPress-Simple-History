@@ -368,12 +368,10 @@ class Activity_Analytics {
 					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
 				WHERE 
 					h.logger = 'SimpleUserLogger'
+					AND c.key = '_message_key'
 					AND (
-						c.key = 'message_key'
-						AND (
-							c.value = 'user_login_failed'
-							OR c.value = 'user_unknown_login_failed'
-						)
+						c.value = 'user_login_failed'
+						OR c.value = 'user_unknown_login_failed'
 					)
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)",
@@ -407,7 +405,7 @@ class Activity_Analytics {
 					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
 				WHERE 
 					h.logger = 'SimpleUserLogger'
-					AND c.key = 'message_key'
+					AND c.key = '_message_key'
 					AND c.value = 'user_created'
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)",
@@ -441,7 +439,7 @@ class Activity_Analytics {
 					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
 				WHERE 
 					h.logger = 'SimpleUserLogger'
-					AND c.key = 'message_key'
+					AND c.key = '_message_key'
 					AND c.value = 'user_deleted'
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)",
@@ -475,7 +473,7 @@ class Activity_Analytics {
 					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
 				WHERE 
 					h.logger = 'SimpleUserLogger'
-					AND c.key = 'message_key'
+					AND c.key = '_message_key'
 					AND c.value = 'user_updated_profile'
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)",
@@ -509,7 +507,7 @@ class Activity_Analytics {
 					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
 				WHERE 
 					h.logger = 'SimpleUserLogger'
-					AND c.key = 'message_key'
+					AND c.key = '_message_key'
 					AND (
 						c.value = 'user_logged_in'
 						OR c.value = 'user_unknown_logged_in'
