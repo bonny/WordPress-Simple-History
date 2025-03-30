@@ -7,7 +7,7 @@ use WP_Session_Tokens;
 /**
  * Class that handles stats functionality for Simple History insights.
  */
-class Insights_Stats {
+class Activity_Analytics {
 	/**
 	 * Get currently logged in users.
 	 *

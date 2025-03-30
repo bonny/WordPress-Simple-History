@@ -8,7 +8,7 @@ use Simple_History\Menu_Page;
 use Simple_History\Services\Service;
 use WP_Session_Tokens;
 use Simple_History\Services\Admin_Pages;
-use Simple_History\Insights_Stats;
+use Simple_History\Activity_Analytics;
 
 /**
  * Service class that handles insights functionality.
@@ -17,7 +17,7 @@ class Insights_Service extends Service {
 	/**
 	 * Stats instance.
 	 *
-	 * @var Insights_Stats
+	 * @var Activity_Analytics
 	 */
 	private $stats;
 
@@ -30,7 +30,7 @@ class Insights_Service extends Service {
 			return;
 		}
 
-		$this->stats = new Insights_Stats();
+		$this->stats = new Activity_Analytics();
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
 	}
 
