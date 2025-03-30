@@ -343,4 +343,182 @@ class Activity_Analytics {
 
 		return trim( $logger_name );
 	}
+
+	/**
+	 * Get number of failed logins for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of failed logins, or false if invalid dates.
+	 */
+	public function get_failed_logins( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND (
+						c.key = 'message_key'
+						AND (
+							c.value = 'user_login_failed'
+							OR c.value = 'user_unknown_login_failed'
+						)
+					)
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of users added for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of users added, or false if invalid dates.
+	 */
+	public function get_users_added( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key = 'message_key'
+					AND c.value = 'user_created'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of users removed for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of users removed, or false if invalid dates.
+	 */
+	public function get_users_removed( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key = 'message_key'
+					AND c.value = 'user_deleted'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of users updated for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of users updated, or false if invalid dates.
+	 */
+	public function get_users_updated( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key = 'message_key'
+					AND c.value = 'user_updated_profile'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of successful logins for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of successful logins, or false if invalid dates.
+	 */
+	public function get_successful_logins( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key = 'message_key'
+					AND (
+						c.value = 'user_logged_in'
+						OR c.value = 'user_unknown_logged_in'
+					)
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
 }

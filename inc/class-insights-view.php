@@ -415,6 +415,67 @@ class Insights_View {
 	}
 
 	/**
+	 * Output the user statistics section.
+	 *
+	 * @param array $user_stats Array of user statistics.
+	 */
+	public static function output_user_stats_section( $user_stats ) {
+		?>
+		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
+			<h2><?php echo esc_html_x( 'User Activity Statistics', 'insights section title', 'simple-history' ); ?></h2>
+			<div class="sh-InsightsDashboard-content">
+				<div class="sh-InsightsDashboard-stats">
+					<!-- Login Activity -->
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Successful Logins', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['successful_logins'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Failed Logins', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['failed_logins'] ) ); ?></span>
+					</div>
+
+					<!-- User Management -->
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users Added', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_added'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users Removed', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_removed'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Profile Updates', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_updated'] ) ); ?></span>
+					</div>
+				</div>
+
+				<?php
+				// Calculate login success rate if there were any login attempts.
+				$total_login_attempts = $user_stats['successful_logins'] + $user_stats['failed_logins'];
+				if ( $total_login_attempts > 0 ) {
+					$success_rate = round( ( $user_stats['successful_logins'] / $total_login_attempts ) * 100 );
+					?>
+					<div class="sh-InsightsDashboard-extraStats">
+						<p>
+							<?php
+							printf(
+								/* translators: %d: login success rate percentage */
+								esc_html__( 'Login Success Rate: %d%%', 'simple-history' ),
+								esc_html( $success_rate )
+							);
+							?>
+						</p>
+					</div>
+					<?php
+				}
+				?>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Output the main insights dashboard content.
 	 *
 	 * @param array $data      Insights data array.
@@ -426,6 +487,7 @@ class Insights_View {
 		<div class="sh-InsightsDashboard">
 			<?php
 			self::output_logged_in_users_section( $data['logged_in_users'] );
+			self::output_user_stats_section( $data['user_stats'] );
 			self::output_top_users_section( $data['top_users'] );
 
 			// Output chart sections.

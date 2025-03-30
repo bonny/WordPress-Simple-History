@@ -410,75 +410,6 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Output the main insights dashboard content.
-	 *
-	 * @param array $data      Insights data array.
-	 * @param int   $date_from Start date as Unix timestamp.
-	 * @param int   $date_to   End date as Unix timestamp.
-	 */
-	private function output_dashboard_content( $data, $date_from, $date_to ) {
-		?>
-		<div class="sh-InsightsDashboard">
-			<?php
-			$this->output_logged_in_users_section( $data['logged_in_users'] );
-			$this->output_top_users_section( $data['top_users'] );
-
-			// Output chart sections.
-			$this->output_chart_section(
-				_x( 'Activity Overview', 'insights section title', 'simple-history' ),
-				'activityChart'
-			);
-
-			$this->output_chart_section(
-				_x( 'Most Common Actions', 'insights section title', 'simple-history' ),
-				'actionsChart'
-			);
-
-			$this->output_chart_section(
-				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
-				'peakTimesChart'
-			);
-
-			$this->output_chart_section(
-				_x( 'Peak Activity Days', 'insights section title', 'simple-history' ),
-				'peakDaysChart'
-			);
-			?>
-
-			<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--extraWide">
-				<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
-				<div class="sh-InsightsDashboard-content">
-					<?php $this->output_activity_calendar( $date_from, $date_to, $data['activity_overview'] ); ?>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output the page title section.
-	 */
-	private function output_page_title() {
-		?>
-		<h1>
-			<?php
-			echo wp_kses(
-				Helpers::get_settings_section_title_output(
-					__( 'Insights', 'simple-history' ),
-					'troubleshoot'
-				),
-				[
-					'span' => [
-						'class' => [],
-					],
-				]
-			);
-			?>
-		</h1>
-		<?php
-	}
-
-	/**
 	 * Output the insights page.
 	 */
 	public function output_page() {
@@ -629,6 +560,14 @@ class Insights_Service extends Service {
 			'peak_times' => $this->stats->get_peak_activity_times( $date_from, $date_to ),
 			'peak_days' => $this->stats->get_peak_days( $date_from, $date_to ),
 			'logged_in_users' => $this->stats->get_logged_in_users(),
+			// Add new user statistics.
+			'user_stats' => [
+				'failed_logins' => $this->stats->get_failed_logins( $date_from, $date_to ),
+				'users_added' => $this->stats->get_users_added( $date_from, $date_to ),
+				'users_removed' => $this->stats->get_users_removed( $date_from, $date_to ),
+				'users_updated' => $this->stats->get_users_updated( $date_from, $date_to ),
+				'successful_logins' => $this->stats->get_successful_logins( $date_from, $date_to ),
+			],
 		];
 
 		// Format logger names for common actions.
