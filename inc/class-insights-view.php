@@ -119,6 +119,10 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard-stats">
 			<div class="sh-InsightsDashboard-stat">
+				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total Events Since Install', 'simple-history' ); ?></span>
+				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( Helpers::get_total_logged_events_count() ) ); ?></span>
+			</div>
+			<div class="sh-InsightsDashboard-stat">
 				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total Events', 'simple-history' ); ?></span>
 				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
 			</div>
