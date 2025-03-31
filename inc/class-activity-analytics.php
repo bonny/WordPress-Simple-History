@@ -295,32 +295,12 @@ class Activity_Analytics {
 	 * @return int|false Number of failed logins, or false if invalid dates.
 	 */
 	public function get_failed_logins( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimpleUserLogger'
-					AND c.key = '_message_key'
-					AND (
-						c.value = 'user_login_failed'
-						OR c.value = 'user_unknown_login_failed'
-					)
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
+		return $this->get_stats_for_logger_and_values(
+			'SimpleUserLogger',
+			'_message_key',
+			[ 'user_login_failed', 'user_unknown_login_failed' ],
+			$date_from,
+			$date_to
 		);
 	}
 
@@ -365,32 +345,12 @@ class Activity_Analytics {
 	 * @return int|false Number of successful logins, or false if invalid dates.
 	 */
 	public function get_successful_logins( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimpleUserLogger'
-					AND c.key = '_message_key'
-					AND (
-						c.value = 'user_logged_in'
-						OR c.value = 'user_unknown_logged_in'
-					)
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
+		return $this->get_stats_for_logger_and_values(
+			'SimpleUserLogger',
+			'_message_key',
+			[ 'user_logged_in', 'user_unknown_logged_in' ],
+			$date_from,
+			$date_to
 		);
 	}
 
@@ -434,32 +394,12 @@ class Activity_Analytics {
 	 * @return int|false Number of core updates, or false if invalid dates.
 	 */
 	public function get_wordpress_core_updates( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimpleCoreUpdatesLogger'
-					AND c.key = '_message_key'
-					AND (
-						c.value = 'core_updated'
-						OR c.value = 'core_auto_updated'
-					)
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
+		return $this->get_stats_for_logger_and_values(
+			'SimpleCoreUpdatesLogger',
+			'_message_key',
+			[ 'core_updated', 'core_auto_updated' ],
+			$date_from,
+			$date_to
 		);
 	}
 
@@ -471,32 +411,12 @@ class Activity_Analytics {
 	 * @return int|false Number of plugin updates, or false if invalid dates.
 	 */
 	public function get_plugin_updates( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimplePluginLogger'
-					AND c.key = '_message_key'
-					AND (
-						c.value = 'plugin_updated'
-						OR c.value = 'plugin_bulk_updated'
-					)
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
+		return $this->get_stats_for_logger_and_values(
+			'SimplePluginLogger',
+			'_message_key',
+			[ 'plugin_updated', 'plugin_bulk_updated' ],
+			$date_from,
+			$date_to
 		);
 	}
 
@@ -679,6 +599,53 @@ class Activity_Analytics {
 				$message_value,
 				$date_from,
 				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get stats for a specific logger and multiple message values.
+	 *
+	 * @param string   $logger_slug    The logger slug (e.g. 'SimpleMediaLogger').
+	 * @param string   $message_key    The context key to match (e.g. '_message_key').
+	 * @param string[] $message_values Array of values to match for the message key.
+	 * @param int      $date_from      Required. Start date as Unix timestamp.
+	 * @param int      $date_to        Required. End date as Unix timestamp.
+	 * @return int|false Number of matching events, or false if invalid dates.
+	 */
+	protected function get_stats_for_logger_and_values( $logger_slug, $message_key, $message_values, $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		// Build the OR conditions for message values
+		$placeholders = array_fill( 0, count( $message_values ), '%s' );
+		$value_placeholders = implode( ' OR c.value = ', $placeholders );
+
+		// Prepare the query parameters
+		$query_params = array_merge(
+			[ $logger_slug, $message_key ],
+			$message_values,
+			[ $date_from, $date_to ]
+		);
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = %s
+					AND c.key = %s
+					AND (c.value = {$value_placeholders})
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$query_params
 			)
 		);
 	}
