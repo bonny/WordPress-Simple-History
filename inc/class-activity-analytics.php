@@ -351,30 +351,7 @@ class Activity_Analytics {
 	 * @return int|false Number of users added, or false if invalid dates.
 	 */
 	public function get_users_added( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimpleUserLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'user_created'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_created', $date_from, $date_to );
 	}
 
 	/**
@@ -385,30 +362,7 @@ class Activity_Analytics {
 	 * @return int|false Number of users removed, or false if invalid dates.
 	 */
 	public function get_users_removed( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimpleUserLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'user_deleted'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_deleted', $date_from, $date_to );
 	}
 
 	/**
@@ -419,30 +373,7 @@ class Activity_Analytics {
 	 * @return int|false Number of users updated, or false if invalid dates.
 	 */
 	public function get_users_updated( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimpleUserLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'user_updated_profile'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_updated_profile', $date_from, $date_to );
 	}
 
 	/**
@@ -596,30 +527,7 @@ class Activity_Analytics {
 	 * @return int|false Number of plugin installations, or false if invalid dates.
 	 */
 	public function get_plugin_installs( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimplePluginLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'plugin_installed'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimplePluginLogger', '_message_key', 'plugin_installed', $date_from, $date_to );
 	}
 
 	/**
@@ -630,30 +538,7 @@ class Activity_Analytics {
 	 * @return int|false Number of plugin deletions, or false if invalid dates.
 	 */
 	public function get_plugin_deletions( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimplePluginLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'plugin_deleted'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimplePluginLogger', '_message_key', 'plugin_deleted', $date_from, $date_to );
 	}
 
 	/**
@@ -674,30 +559,7 @@ class Activity_Analytics {
 	 * @return int|false Number of posts and pages created, or false if invalid dates.
 	 */
 	public function get_posts_pages_created( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimplePostLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'post_created'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimplePostLogger', '_message_key', 'post_created', $date_from, $date_to );
 	}
 
 	/**
@@ -708,30 +570,7 @@ class Activity_Analytics {
 	 * @return int|false Number of posts and pages updated, or false if invalid dates.
 	 */
 	public function get_posts_pages_updated( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimplePostLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'post_updated'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimplePostLogger', '_message_key', 'post_updated', $date_from, $date_to );
 	}
 
 	/**
@@ -742,30 +581,7 @@ class Activity_Analytics {
 	 * @return int|false Number of posts and pages deleted, or false if invalid dates.
 	 */
 	public function get_posts_pages_deleted( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimplePostLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'post_deleted'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimplePostLogger', '_message_key', 'post_deleted', $date_from, $date_to );
 	}
 
 	/**
@@ -821,30 +637,7 @@ class Activity_Analytics {
 	 * @return int|false Number of media uploads, or false if invalid dates.
 	 */
 	public function get_media_uploads( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimpleMediaLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'attachment_created'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_created', $date_from, $date_to );
 	}
 
 	/**
@@ -855,30 +648,7 @@ class Activity_Analytics {
 	 * @return int|false Number of media edits, or false if invalid dates.
 	 */
 	public function get_media_edits( $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = 'SimpleMediaLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'attachment_updated'
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$date_from,
-				$date_to
-			)
-		);
+		return $this->get_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_updated', $date_from, $date_to );
 	}
 
 	/**
@@ -889,6 +659,20 @@ class Activity_Analytics {
 	 * @return int|false Number of media deletions, or false if invalid dates.
 	 */
 	public function get_media_deletions( $date_from, $date_to ) {
+		return $this->get_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_deleted', $date_from, $date_to );
+	}
+
+	/**
+	 * Get stats for a specific logger and message value.
+	 *
+	 * @param string $logger_slug   The logger slug (e.g. 'SimpleMediaLogger').
+	 * @param string $message_key   The context key to match (e.g. '_message_key').
+	 * @param string $message_value The value to match for the message key.
+	 * @param int    $date_from     Required. Start date as Unix timestamp.
+	 * @param int    $date_to       Required. End date as Unix timestamp.
+	 * @return int|false Number of matching events, or false if invalid dates.
+	 */
+	protected function get_stats_for_logger_and_value( $logger_slug, $message_key, $message_value, $date_from, $date_to ) {
 		global $wpdb;
 
 		if ( ! $date_from || ! $date_to ) {
@@ -904,11 +688,14 @@ class Activity_Analytics {
 				JOIN 
 					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
 				WHERE 
-					h.logger = 'SimpleMediaLogger'
-					AND c.key = '_message_key'
-					AND c.value = 'attachment_deleted'
+					h.logger = %s
+					AND c.key = %s
+					AND c.value = %s
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)",
+				$logger_slug,
+				$message_key,
+				$message_value,
 				$date_from,
 				$date_to
 			)
