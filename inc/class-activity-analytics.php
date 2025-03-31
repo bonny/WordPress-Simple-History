@@ -812,4 +812,106 @@ class Activity_Analytics {
 			)
 		);
 	}
+
+	/**
+	 * Get number of media uploads in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of media uploads, or false if invalid dates.
+	 */
+	public function get_media_uploads( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleMediaLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'attachment_created'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of media edits in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of media edits, or false if invalid dates.
+	 */
+	public function get_media_edits( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleMediaLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'attachment_updated'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of media deletions in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of media deletions, or false if invalid dates.
+	 */
+	public function get_media_deletions( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleMediaLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'attachment_deleted'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
 }

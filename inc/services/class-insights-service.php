@@ -313,6 +313,12 @@ class Insights_Service extends Service {
 				'deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
 				'most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to, 5 ),
 			],
+			// Add media statistics.
+			'media_stats' => [
+				'uploads' => $this->stats->get_media_uploads( $date_from, $date_to ),
+				'edits' => $this->stats->get_media_edits( $date_from, $date_to ),
+				'deletions' => $this->stats->get_media_deletions( $date_from, $date_to ),
+			],
 			// Add stats object for user activity lookups.
 			'stats' => $this->stats,
 		];

@@ -587,6 +587,35 @@ class Insights_View {
 	}
 
 	/**
+	 * Output the media statistics section.
+	 *
+	 * @param array $media_stats Array of media statistics.
+	 */
+	public static function output_media_stats_section( $media_stats ) {
+		?>
+		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
+			<h2><?php echo esc_html_x( 'Media Activity', 'insights section title', 'simple-history' ); ?></h2>
+			<div class="sh-InsightsDashboard-content">
+				<div class="sh-InsightsDashboard-stats">
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Uploads', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['uploads'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Edits', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['edits'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['deletions'] ) ); ?></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Output the main insights dashboard content.
 	 *
 	 * @param array $data      Insights data array.
@@ -600,6 +629,7 @@ class Insights_View {
 			self::output_logged_in_users_section( $data['logged_in_users'] );
 			self::output_user_stats_section( $data['user_stats'], $data['stats'] );
 			self::output_posts_pages_stats_section( $data['posts_pages_stats'] );
+			self::output_media_stats_section( $data['media_stats'] );
 			self::output_top_users_section( $data['user_stats']['top_users'] );
 
 			// Output chart sections.
