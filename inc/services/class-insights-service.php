@@ -286,7 +286,6 @@ class Insights_Service extends Service {
 			'total_events' => $this->stats->get_total_events( $date_from, $date_to ),
 			'total_users' => $this->stats->get_total_users( $date_from, $date_to ),
 			'last_edit' => $this->stats->get_last_edit_action( $date_from, $date_to ),
-			'top_users' => $this->stats->get_top_users( $date_from, $date_to, 10 ),
 			'activity_overview' => $this->stats->get_activity_overview( $date_from, $date_to ),
 			'peak_times' => $this->stats->get_peak_activity_times( $date_from, $date_to ),
 			'peak_days' => $this->stats->get_peak_days( $date_from, $date_to ),
@@ -320,7 +319,7 @@ class Insights_Service extends Service {
 					'count' => (int) $user->count,
 				];
 			},
-			$data['top_users'] ? $data['top_users'] : []
+			$data['user_stats']['top_users'] ? $data['user_stats']['top_users'] : []
 		);
 
 		return $data;
