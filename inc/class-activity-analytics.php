@@ -288,25 +288,6 @@ class Activity_Analytics {
 	}
 
 	/**
-	 * Format logger name for display.
-	 *
-	 * @param string $logger_name Raw logger name.
-	 * @return string Formatted logger name.
-	 */
-	public function format_logger_name( $logger_name ) {
-		// Remove namespace if present.
-		$logger_name = str_replace( 'SimpleHistory\\Loggers\\', '', $logger_name );
-
-		// Convert CamelCase to spaces.
-		$logger_name = preg_replace( '/(?<!^)[A-Z]/', ' $0', $logger_name );
-
-		// Remove "Logger" suffix if present.
-		$logger_name = str_replace( ' Logger', '', $logger_name );
-
-		return trim( $logger_name );
-	}
-
-	/**
 	 * Get number of failed logins for a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
