@@ -564,6 +564,28 @@ class Activity_Analytics {
 	}
 
 	/**
+	 * Get number of plugin activations for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin activations, or false if invalid dates.
+	 */
+	public function get_plugin_activations( $date_from, $date_to ) {
+		return $this->get_stats_for_logger_and_value( 'SimplePluginLogger', '_message_key', 'plugin_activated', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of plugin deactivations for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin deactivations, or false if invalid dates.
+	 */
+	public function get_plugin_deactivations( $date_from, $date_to ) {
+		return $this->get_stats_for_logger_and_value( 'SimplePluginLogger', '_message_key', 'plugin_deactivated', $date_from, $date_to );
+	}
+
+	/**
 	 * Get stats for a specific logger and message value.
 	 *
 	 * @param string $logger_slug   The logger slug (e.g. 'SimpleMediaLogger').

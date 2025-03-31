@@ -305,6 +305,8 @@ class Insights_Service extends Service {
 				'plugin_updates' => $this->stats->get_plugin_updates( $date_from, $date_to ),
 				'plugin_installs' => $this->stats->get_plugin_installs( $date_from, $date_to ),
 				'plugin_deletions' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
+				'plugin_activations' => $this->stats->get_plugin_activations( $date_from, $date_to ),
+				'plugin_deactivations' => $this->stats->get_plugin_deactivations( $date_from, $date_to ),
 			],
 			// Add posts and pages statistics.
 			'posts_pages_stats' => [
@@ -404,6 +406,14 @@ class Insights_Service extends Service {
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Deleted', 'simple-history' ); ?></span>
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_deletions'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Activated', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_activations'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Deactivated', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_deactivations'] ) ); ?></span>
 					</div>
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Available Plugin Updates', 'simple-history' ); ?></span>
