@@ -306,6 +306,13 @@ class Insights_Service extends Service {
 				'plugin_installs' => $this->stats->get_plugin_installs( $date_from, $date_to ),
 				'plugin_deletions' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
 			],
+			// Add posts and pages statistics.
+			'posts_pages_stats' => [
+				'created' => $this->stats->get_posts_pages_created( $date_from, $date_to ),
+				'updated' => $this->stats->get_posts_pages_updated( $date_from, $date_to ),
+				'deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
+				'most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to, 5 ),
+			],
 			// Add stats object for user activity lookups.
 			'stats' => $this->stats,
 		];

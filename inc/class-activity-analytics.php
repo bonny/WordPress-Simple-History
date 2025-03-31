@@ -665,4 +665,151 @@ class Activity_Analytics {
 		$update_data = wp_get_update_data();
 		return isset( $update_data['counts']['plugins'] ) ? (int) $update_data['counts']['plugins'] : 0;
 	}
+
+	/**
+	 * Get number of posts and pages created in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of posts and pages created, or false if invalid dates.
+	 */
+	public function get_posts_pages_created( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimplePostLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'post_created'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of posts and pages updated in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of posts and pages updated, or false if invalid dates.
+	 */
+	public function get_posts_pages_updated( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimplePostLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'post_updated'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get number of posts and pages deleted in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of posts and pages deleted, or false if invalid dates.
+	 */
+	public function get_posts_pages_deleted( $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 
+					COUNT(*)
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimplePostLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'post_deleted'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)",
+				$date_from,
+				$date_to
+			)
+		);
+	}
+
+	/**
+	 * Get most edited posts and pages in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @param int $limit     Optional. Number of posts to return. Default 5.
+	 * @return array|false Array of most edited posts with their edit counts, or false if invalid dates.
+	 */
+	public function get_most_edited_posts( $date_from, $date_to, $limit = 5 ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					c2.value as post_title,
+					COUNT(*) as edit_count
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				WHERE 
+					h.logger = 'SimplePostLogger'
+					AND c.key = '_message_key'
+					AND c.value = 'post_updated'
+					AND c2.key = 'post_title'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+				GROUP BY 
+					c2.value
+				ORDER BY 
+					edit_count DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
 }

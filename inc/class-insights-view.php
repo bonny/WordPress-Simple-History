@@ -536,6 +536,57 @@ class Insights_View {
 	}
 
 	/**
+	 * Output the posts and pages statistics section.
+	 *
+	 * @param array $posts_pages_stats Array of posts and pages statistics.
+	 */
+	public static function output_posts_pages_stats_section( $posts_pages_stats ) {
+		?>
+		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
+			<h2><?php echo esc_html_x( 'Posts and Pages Activity', 'insights section title', 'simple-history' ); ?></h2>
+			<div class="sh-InsightsDashboard-content">
+				<div class="sh-InsightsDashboard-stats">
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Created', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['created'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updated', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['updated'] ) ); ?></span>
+					</div>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deleted', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['deleted'] ) ); ?></span>
+					</div>
+				</div>
+
+				<?php if ( ! empty( $posts_pages_stats['most_edited'] ) ) : ?>
+					<div class="sh-InsightsDashboard-mostEdited">
+						<h3><?php esc_html_e( 'Most Edited Posts and Pages', 'simple-history' ); ?></h3>
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th><?php esc_html_e( 'Title', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'Edit Count', 'simple-history' ); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $posts_pages_stats['most_edited'] as $post ) : ?>
+									<tr>
+										<td><?php echo esc_html( $post->post_title ); ?></td>
+										<td><?php echo esc_html( number_format_i18n( $post->edit_count ) ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Output the main insights dashboard content.
 	 *
 	 * @param array $data      Insights data array.
@@ -548,6 +599,7 @@ class Insights_View {
 			<?php
 			self::output_logged_in_users_section( $data['logged_in_users'] );
 			self::output_user_stats_section( $data['user_stats'], $data['stats'] );
+			self::output_posts_pages_stats_section( $data['posts_pages_stats'] );
 			self::output_top_users_section( $data['user_stats']['top_users'] );
 
 			// Output chart sections.
