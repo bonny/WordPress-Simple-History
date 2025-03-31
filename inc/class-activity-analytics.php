@@ -655,4 +655,14 @@ class Activity_Analytics {
 			)
 		);
 	}
+
+	/**
+	 * Get number of available plugin updates.
+	 *
+	 * @return int Number of available plugin updates.
+	 */
+	public function get_available_plugin_updates() {
+		$update_data = wp_get_update_data();
+		return isset( $update_data['counts']['plugins'] ) ? (int) $update_data['counts']['plugins'] : 0;
+	}
 }
