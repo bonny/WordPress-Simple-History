@@ -619,43 +619,114 @@ class Insights_View {
 	 * Output the WordPress core and plugins statistics section.
 	 *
 	 * @param array              $wordpress_stats Array of WordPress statistics.
-	 * @param Activity_Analytics $stats Stats instance.
+	 * @param Activity_Analytics $stats          Stats instance.
+	 * @param int                $date_from      Start date as Unix timestamp.
+	 * @param int                $date_to        End date as Unix timestamp.
 	 */
-	public static function output_wordpress_stats( $wordpress_stats, $stats ) {
+	public static function output_wordpress_stats( $wordpress_stats, $stats, $date_from, $date_to ) {
 		?>
 		<div class="sh-InsightsDashboard-section">
-			<h2><?php echo esc_html_x( 'WordPress Core and Plugins', 'insights section title', 'simple-history' ); ?></h2>
+			<h2><?php esc_html_e( 'WordPress Core and Plugins', 'simple-history' ); ?></h2>
+
 			<div class="sh-InsightsDashboard-content">
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Core Updates', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['core_updates'] ) ); ?></span>
+						<div class="sh-InsightsDashboard-statNumber"><?php echo esc_html( $wordpress_stats['core_updates'] ); ?></div>
+						<div class="sh-InsightsDashboard-statDescription"><?php esc_html_e( 'Core Updates', 'simple-history' ); ?></div>
 					</div>
+
 					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugin Updates', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_updates'] ) ); ?></span>
+						<div class="sh-InsightsDashboard-statNumber"><?php echo esc_html( $wordpress_stats['plugin_updates'] ); ?></div>
+						<div class="sh-InsightsDashboard-statDescription"><?php esc_html_e( 'Plugin Updates', 'simple-history' ); ?></div>
 					</div>
+
 					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Installed', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_installs'] ) ); ?></span>
+						<div class="sh-InsightsDashboard-statNumber"><?php echo esc_html( $wordpress_stats['plugin_installs'] ); ?></div>
+						<div class="sh-InsightsDashboard-statDescription"><?php esc_html_e( 'Installed Plugins', 'simple-history' ); ?></div>
 					</div>
+
 					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Deleted', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_deletions'] ) ); ?></span>
+						<div class="sh-InsightsDashboard-statNumber"><?php echo esc_html( $wordpress_stats['plugin_deletions'] ); ?></div>
+						<div class="sh-InsightsDashboard-statDescription"><?php esc_html_e( 'Deleted Plugins', 'simple-history' ); ?></div>
 					</div>
+
 					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Activated', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_activations'] ) ); ?></span>
+						<div class="sh-InsightsDashboard-statNumber"><?php echo esc_html( $wordpress_stats['plugin_activations'] ); ?></div>
+						<div class="sh-InsightsDashboard-statDescription"><?php esc_html_e( 'Activated Plugins', 'simple-history' ); ?></div>
 					</div>
+
 					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Deactivated', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_deactivations'] ) ); ?></span>
+						<div class="sh-InsightsDashboard-statNumber"><?php echo esc_html( $wordpress_stats['plugin_deactivations'] ); ?></div>
+						<div class="sh-InsightsDashboard-statDescription"><?php esc_html_e( 'Deactivated Plugins', 'simple-history' ); ?></div>
 					</div>
+
 					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Available Plugin Updates', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $stats->get_available_plugin_updates() ) ); ?></span>
+						<div class="sh-InsightsDashboard-statNumber"><?php echo esc_html( $stats->get_available_plugin_updates() ); ?></div>
+						<div class="sh-InsightsDashboard-statDescription"><?php esc_html_e( 'Available Updates', 'simple-history' ); ?></div>
 					</div>
 				</div>
+
+				<?php
+				$output_plugin_table = function ( $title, $action_type, $date_from, $date_to ) use ( $stats ) {
+					$plugins = $stats->get_plugin_details( $action_type, $date_from, $date_to );
+					if ( empty( $plugins ) ) {
+						return;
+					}
+					?>
+					<div class="sh-InsightsDashboard-pluginTable">
+						<h3><?php echo esc_html( $title ); ?></h3>
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th><?php esc_html_e( 'Plugin Name', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'Version', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'Date', 'simple-history' ); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $plugins as $plugin ) : ?>
+									<tr>
+										<td><?php echo esc_html( $plugin['name'] ); ?></td>
+										<td><?php echo esc_html( $plugin['version'] ); ?></td>
+										<td><?php echo esc_html( $plugin['date'] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+					<?php
+				};
+
+				$output_plugin_table( __( 'Recently Updated Plugins', 'simple-history' ), 'updated', $date_from, $date_to );
+				$output_plugin_table( __( 'Recently Deleted Plugins', 'simple-history' ), 'deleted', $date_from, $date_to );
+				$output_plugin_table( __( 'Recently Activated Plugins', 'simple-history' ), 'activated', $date_from, $date_to );
+				$output_plugin_table( __( 'Recently Deactivated Plugins', 'simple-history' ), 'deactivated', $date_from, $date_to );
+
+				$plugins_with_updates = $stats->get_plugins_with_updates();
+		if ( ! empty( $plugins_with_updates ) ) :
+			?>
+					<div class="sh-InsightsDashboard-pluginTable">
+						<h3><?php esc_html_e( 'Plugins with Updates Available', 'simple-history' ); ?></h3>
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th><?php esc_html_e( 'Plugin Name', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'Current Version', 'simple-history' ); ?></th>
+									<th><?php esc_html_e( 'New Version', 'simple-history' ); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+						<?php foreach ( $plugins_with_updates as $plugin ) : ?>
+									<tr>
+										<td><?php echo esc_html( $plugin['name'] ); ?></td>
+										<td><?php echo esc_html( $plugin['current_version'] ); ?></td>
+										<td><?php echo esc_html( $plugin['new_version'] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php

@@ -153,7 +153,7 @@ class Insights_Service extends Service {
 			Insights_View::output_date_filters();
 			Insights_View::output_date_range( $date_from, $date_to );
 			Insights_View::output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
-			$this->output_wordpress_stats( $data['wordpress_stats'] );
+			Insights_View::output_wordpress_stats( $data['wordpress_stats'], $this->stats, $date_from, $date_to );
 			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
 			?>
 		</div>
@@ -264,50 +264,5 @@ class Insights_Service extends Service {
 				],
 			]
 		);
-	}
-
-	/**
-	 * Output the WordPress core and plugins statistics section.
-	 *
-	 * @param array $wordpress_stats Array of WordPress statistics.
-	 */
-	private function output_wordpress_stats( $wordpress_stats ) {
-		?>
-		<div class="sh-InsightsDashboard-section">
-			<h2><?php echo esc_html_x( 'WordPress Core and Plugins', 'insights section title', 'simple-history' ); ?></h2>
-			<div class="sh-InsightsDashboard-content">
-				<div class="sh-InsightsDashboard-stats">
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Core Updates', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['core_updates'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugin Updates', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_updates'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Installed', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_installs'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Deleted', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_deletions'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Activated', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_activations'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugins Deactivated', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $wordpress_stats['plugin_deactivations'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Available Plugin Updates', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $this->stats->get_available_plugin_updates() ) ); ?></span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php
 	}
 }

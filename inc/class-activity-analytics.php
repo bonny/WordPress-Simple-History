@@ -453,6 +453,111 @@ class Activity_Analytics {
 	}
 
 	/**
+	 * Get details of plugins based on action type.
+	 *
+	 * @param string $action_type Type of action ('updated', 'deleted', 'activated', 'deactivated').
+	 * @param int    $date_from   Start date as Unix timestamp.
+	 * @param int    $date_to     End date as Unix timestamp.
+	 * @param int    $limit       Optional. Number of plugins to return. Default 5.
+	 * @return array Array of plugin details.
+	 */
+	public function get_plugin_details( $action_type, $date_from, $date_to, $limit = 5 ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return array();
+		}
+
+		$message_key = '';
+		switch ( $action_type ) {
+			case 'updated':
+				$message_key = 'plugin_updated';
+				break;
+			case 'deleted':
+				$message_key = 'plugin_deleted';
+				break;
+			case 'activated':
+				$message_key = 'plugin_activated';
+				break;
+			case 'deactivated':
+				$message_key = 'plugin_deactivated';
+				break;
+			default:
+				return array();
+		}
+
+		// Get plugin details from the database with date range filtering.
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date,
+					c1.value as plugin_name,
+					c2.value as plugin_version
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c1 ON h.id = c1.history_id
+				LEFT JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				WHERE 
+					h.logger = %s
+					AND c.key = '_message_key'
+					AND c.value = %s
+					AND c1.key = %s
+					AND c2.key = %s
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+				ORDER BY 
+					h.date DESC
+				LIMIT %d",
+				'SimplePluginLogger',
+				$message_key,
+				'plugin_name',
+				'plugin_version',
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+
+		$plugins = array();
+		foreach ( $results as $result ) {
+			$plugins[] = array(
+				'name' => $result->plugin_name,
+				'version' => $result->plugin_version,
+				'date' => human_time_diff( strtotime( $result->date ), time() ) . ' ago',
+			);
+		}
+
+		return $plugins;
+	}
+
+	/**
+	 * Get list of plugins that have updates available.
+	 *
+	 * @return array Array of plugins with updates.
+	 */
+	public function get_plugins_with_updates() {
+		$plugins = array();
+		$update_plugins = get_site_transient( 'update_plugins' );
+
+		if ( ! empty( $update_plugins->response ) ) {
+			foreach ( $update_plugins->response as $plugin_file => $plugin_data ) {
+				$plugin_info = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
+				$plugins[] = array(
+					'name' => $plugin_info['Name'],
+					'current_version' => $plugin_info['Version'],
+					'new_version' => $plugin_data->new_version,
+				);
+			}
+		}
+
+		return $plugins;
+	}
+
+	/**
 	 * Get number of posts and pages created in a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
