@@ -468,59 +468,67 @@ class Activity_Analytics {
 			return array();
 		}
 
-		$message_key = '';
+		$message_keys = array();
 		switch ( $action_type ) {
 			case 'updated':
-				$message_key = 'plugin_updated';
+				$message_keys = array( 'plugin_updated', 'plugin_bulk_updated' );
 				break;
 			case 'deleted':
-				$message_key = 'plugin_deleted';
+				$message_keys = array( 'plugin_deleted' );
 				break;
 			case 'activated':
-				$message_key = 'plugin_activated';
+				$message_keys = array( 'plugin_activated' );
 				break;
 			case 'deactivated':
-				$message_key = 'plugin_deactivated';
+				$message_keys = array( 'plugin_deactivated' );
 				break;
 			default:
 				return array();
 		}
 
-		// Get plugin details from the database with date range filtering.
-		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-					h.date,
-					c1.value as plugin_name,
-					c2.value as plugin_version
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c1 ON h.id = c1.history_id
-				LEFT JOIN 
-					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
-				WHERE 
-					h.logger = %s
-					AND c.key = '_message_key'
-					AND c.value = %s
-					AND c1.key = %s
-					AND c2.key = %s
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)
-				ORDER BY 
-					h.date DESC
-				LIMIT %d",
-				'SimplePluginLogger',
-				$message_key,
-				'plugin_name',
-				'plugin_version',
-				$date_from,
-				$date_to,
-				$limit
+		// Prepare the query parts for safe execution.
+		$where_in = implode( ',', array_fill( 0, count( $message_keys ), '%s' ) );
+		$sql = $wpdb->prepare(
+			"SELECT 
+				h.date,
+				c1.value as plugin_name,
+				c2.value as plugin_version
+			FROM 
+				{$wpdb->prefix}simple_history h
+			JOIN 
+				{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+			JOIN 
+				{$wpdb->prefix}simple_history_contexts c1 ON h.id = c1.history_id
+			LEFT JOIN 
+				{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+			WHERE 
+				h.logger = %s
+				AND c.key = %s
+				AND c1.key = %s
+				AND c2.key = %s
+				AND h.date >= FROM_UNIXTIME(%d)
+				AND h.date <= FROM_UNIXTIME(%d)",
+			'SimplePluginLogger',
+			'_message_key',
+			'plugin_name',
+			'plugin_version',
+			$date_from,
+			$date_to
+		);
+
+		// Add the IN clause and limit safely.
+		$sql .= " AND c.value IN ($where_in) ORDER BY h.date DESC LIMIT %d";
+
+		// Prepare the complete query with all parameters.
+		$query = $wpdb->prepare(
+			$sql,
+			array_merge(
+				$message_keys,
+				array( $limit )
 			)
 		);
+
+		$results = $wpdb->get_results( $query );
 
 		$plugins = array();
 		foreach ( $results as $result ) {
