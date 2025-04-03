@@ -441,4 +441,20 @@
 	color: #666;
 	font-style: italic;
 	padding: 1rem 0;
+}
+
+.sh-InsightsDashboard-dateRangeContainer {
+    background-color: #f0f6fc;
+    border: 1px solid #c3d9ec;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.sh-InsightsDashboard-dateRangeHeading {
+    color: #1d2327;
+    font-size: 1.3em;
+    margin: 0;
+    font-weight: 600;
 } 

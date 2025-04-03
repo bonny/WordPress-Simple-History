@@ -93,18 +93,20 @@ class Insights_View {
 	 */
 	public static function output_date_range( $date_from, $date_to ) {
 		?>
-		<p class="sh-InsightsDashboard-dateRange">
-			<?php
-			echo esc_html(
-				sprintf(
-					/* translators: 1: Start date, 2: End date */
-					__( 'Data shown for period: %1$s to %2$s', 'simple-history' ),
-					gmdate( get_option( 'date_format' ), $date_from ),
-					gmdate( get_option( 'date_format' ), $date_to )
-				)
-			);
-			?>
-		</p>
+		<div class="sh-InsightsDashboard-dateRangeContainer">
+			<h2 class="sh-InsightsDashboard-dateRangeHeading">
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: 1: Start date, 2: End date */
+						__( 'Showing data for period: %1$s to %2$s', 'simple-history' ),
+						wp_date( get_option( 'date_format' ), $date_from ),
+						wp_date( get_option( 'date_format' ), $date_to )
+					)
+				);
+				?>
+			</h2>
+		</div>
 		<?php
 	}
 
