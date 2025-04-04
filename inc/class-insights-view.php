@@ -341,13 +341,19 @@ class Insights_View {
 	 * @param string $css_class  Optional. Additional CSS class for the section.
 	 */
 	public static function output_chart_section( $title, $chart_id, $css_class = '' ) {
-		$section_class = 'sh-InsightsDashboard-section';
+		$section_class = 'sh-InsightsDashboard-card';
 		if ( $css_class ) {
 			$section_class .= ' ' . $css_class;
 		}
 		?>
 		<div class="<?php echo esc_attr( $section_class ); ?>">
-			<h2><?php echo esc_html( $title ); ?></h2>
+			<h2
+				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				style="--sh-badge-background-color: var(--sh-color-green-light);"
+			>
+				<?php echo esc_html( $title ); ?>
+			</h2>
+
 			<div class="sh-InsightsDashboard-content">
 				<canvas id="<?php echo esc_attr( $chart_id ); ?>" class="sh-InsightsDashboard-chart"></canvas>
 			</div>
@@ -854,6 +860,16 @@ class Insights_View {
 			// self::output_activity_calendar_section( $date_from, $date_to, $data['activity_overview_by_date'] );
 			// self::output_dashboard_overview_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
 
+			self::output_chart_section(
+				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
+				'peakTimesChart'
+			);
+
+			self::output_chart_section(
+				_x( 'Peak Activity Days', 'insights section title', 'simple-history' ),
+				'peakDaysChart'
+			);
+
 			self::output_plugin_stats( $data['wordpress_stats'], $data['stats'], $date_from, $date_to );
 
 			// self::output_logged_in_users_section( $data['logged_in_users'] );
@@ -867,16 +883,6 @@ class Insights_View {
 			// _x( 'Activity Overview', 'insights section title', 'simple-history' ),
 			// 'activityChart'
 			// );
-
-			self::output_chart_section(
-				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
-				'peakTimesChart'
-			);
-
-			self::output_chart_section(
-				_x( 'Peak Activity Days', 'insights section title', 'simple-history' ),
-				'peakDaysChart'
-			);
 			?>
 		</div>
 		<?php

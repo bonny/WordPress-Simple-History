@@ -113,6 +113,11 @@ jQuery( function () {
 				],
 			},
 			options: {
+				plugins: {
+					legend: {
+						display: false,
+					},
+				},
 				responsive: true,
 				maintainAspectRatio: false,
 				scales: {
@@ -163,6 +168,11 @@ jQuery( function () {
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: false,
+					},
+				},
 				scales: {
 					y: {
 						beginAtZero: true,
@@ -176,7 +186,7 @@ jQuery( function () {
 	}
 
 	// Events Overview Chart,
-	// a sparkline chart of number of events per day.
+	// a sparkline-ish chart of number of events per day.
 	function initEventsOverviewChart() {
 		const ctx = document
 			.getElementById( 'eventsOverviewChart' )
@@ -220,9 +230,6 @@ jQuery( function () {
 						},
 						ticks: {
 							display: false,
-							align: 'inner',
-							maxRotation: 0,
-							// maxTicksLimit: 2,
 						},
 					},
 					y: {
@@ -230,7 +237,7 @@ jQuery( function () {
 							display: false,
 						},
 						ticks: {
-							display: false,
+							display: true,
 						},
 					},
 				},
