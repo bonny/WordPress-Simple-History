@@ -24,7 +24,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 * Enqueue scripts.
 	 */
 	public function on_admin_enqueue_scripts() {
-		wp_enqueue_script( 'simple_history_chart.js', SIMPLE_HISTORY_DIR_URL . 'js/chart.4.3.0.min.js', array( 'jquery' ), '4.3.0', true );
+		wp_enqueue_script( 'simple_history_chart.js', SIMPLE_HISTORY_DIR_URL . 'js/chart.4.4.8.min.js', array( 'jquery' ), '4.4.0', true );
 	}
 
 	/**
