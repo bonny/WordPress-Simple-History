@@ -216,8 +216,10 @@ class Insights_Service extends Service {
 		$data['formatted_top_users'] = array_map(
 			function ( $user ) {
 				return [
+					'id' => $user->user_id,
 					/* translators: %s: numeric user ID */
-					'name' => $user->display_name ? $user->display_name : sprintf( __( 'User ID %s', 'simple-history' ), $user->user_id ),
+					'display_name' => $user->display_name,
+					'avatar' => get_avatar_url( $user->user_id ),
 					'count' => (int) $user->count,
 				];
 			},

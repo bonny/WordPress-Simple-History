@@ -8,45 +8,6 @@ jQuery( function () {
 	Chart.defaults.color = '#666';
 	Chart.defaults.plugins.legend.position = 'bottom';
 
-	// Top Users Chart
-	function initTopUsersChart() {
-		const ctx = document
-			.getElementById( 'topUsersChart' )
-			.getContext( '2d' );
-		const data = simpleHistoryInsights.data.topUsers.map( ( user ) => ( {
-			label: user.name,
-			value: parseInt( user.count, 10 ),
-		} ) );
-
-		new Chart( ctx, {
-			type: 'bar',
-			data: {
-				labels: data.map( ( item ) => item.label ),
-				datasets: [
-					{
-						label: simpleHistoryInsights.strings.actions,
-						data: data.map( ( item ) => item.value ),
-						backgroundColor: 'rgba(54, 162, 235, 0.8)',
-						borderColor: 'rgba(54, 162, 235, 1)',
-						borderWidth: 1,
-					},
-				],
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				scales: {
-					y: {
-						beginAtZero: true,
-						ticks: {
-							precision: 0,
-						},
-					},
-				},
-			},
-		} );
-	}
-
 	// Activity Overview Chart
 	function initActivityChart() {
 		const ctx = document
@@ -137,6 +98,7 @@ jQuery( function () {
 		const ctx = document
 			.getElementById( 'peakDaysChart' )
 			.getContext( '2d' );
+
 		const dayNames = [
 			'Sunday',
 			'Monday',
@@ -146,6 +108,7 @@ jQuery( function () {
 			'Friday',
 			'Saturday',
 		];
+
 		const data = simpleHistoryInsights.data.peakDays.map( ( day ) => ( {
 			day: dayNames[ parseInt( day.day, 10 ) ],
 			count: parseInt( day.count, 10 ),
@@ -245,11 +208,7 @@ jQuery( function () {
 		} );
 	}
 
-	// Initialize all charts
-	if ( document.getElementById( 'topUsersChart' ) ) {
-		initTopUsersChart();
-	}
-
+	// Initialize charts.
 	if ( document.getElementById( 'activityChart' ) ) {
 		initActivityChart();
 	}

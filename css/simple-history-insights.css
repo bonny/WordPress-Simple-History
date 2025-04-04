@@ -126,6 +126,7 @@
 }
 
 .sh-InsightsDashboard-userList {
+	display: flex;
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -133,18 +134,21 @@
 
 .sh-InsightsDashboard-userItem {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	padding: 12px;
-	border-bottom: 1px solid #f0f0f1;
+    margin-left: -12px;
 }
 
-.sh-InsightsDashboard-userItem:last-child {
-	border-bottom: none;
+.sh-InsightsDashboard-userItem:first-child {
+	margin-left: 0;
 }
 
-.sh-InsightsDashboard-userItem img {
-	border-radius: 50%;
-	margin-right: 12px;
+/* User data hidden until hover. */
+.sh-InsightsDashboard-userData {
+    position: absolute;
+	opacity: 0;
+	flex-direction: column;
+	align-items: center;
 }
 
 .sh-InsightsDashboard-userInfo {
@@ -152,6 +156,14 @@
 	flex-direction: column;
 	gap: 4px;
 }
+
+.sh-InsightsDashboard-userAvatar {
+	border-radius: 50%;
+    border: 2px solid var(--sh-color-white);
+	width: var(--sh-spacing-xxxxlarge);
+	height: var(--sh-spacing-xxlarge);
+}
+
 
 .sh-InsightsDashboard-userRole {
 	color: #646970;
@@ -344,7 +356,7 @@
 	/* border-radius: var(--sh-border-radius);
 	box-shadow: var(--sh-shadow-elevation-medium);
     line-height: 1; */
-    margin-bottom: var(--sh-spacing-large);
+	margin-bottom: var(--sh-spacing-large);
 }
 
 .sh-InsightsDashboard-stats:last-child {
@@ -477,3 +489,4 @@
 	display: flex;
 	justify-content: space-between;
 }
+

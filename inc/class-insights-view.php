@@ -200,7 +200,7 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard-section">
 			<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
-			<div class="sh-InsightsDashboard-content">
+
 				<div class="sh-InsightsDashboard-activeUsers">
 					<?php
 					if ( $logged_in_users ) {
@@ -285,25 +285,62 @@ class Insights_View {
 					}
 					?>
 				</div>
-			</div>
 		</div>
 		<?php
 	}
 
 	/**
-	 * Output the top users section.
+	 * Output the top users section,
+	 * i.e. users with most actions performed, no matter what action.
 	 *
 	 * @param array $top_users Array of top users data.
 	 */
 	public static function output_top_users_section( $top_users ) {
 		?>
-		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
-			<h2><?php echo esc_html_x( 'Top Users', 'insights section title', 'simple-history' ); ?></h2>
-			<div class="sh-InsightsDashboard-content sh-InsightsDashboard-content--sideBySide">
-				<div class="sh-InsightsDashboard-chartContainer">
-					<canvas id="topUsersChart" class="sh-InsightsDashboard-chart"></canvas>
+		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
+			
+			<h2 
+				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				style="--sh-badge-background-color: var(--sh-color-green-light);"
+			>
+				<?php echo esc_html_x( 'Top Users', 'insights section title', 'simple-history' ); ?>
+			</h2>
+
+			<div class="sh-InsightsDashboard-stat">
+				<div class="sh-InsightsDashboard-statLabel">Most active users</div>
+				<div class="sh-InsightsDashboard-statValue">
+					<?php
+					// Output a nice list of users with avatars.
+					if ( $top_users && count( $top_users ) > 0 ) {
+						?>
+						<ul class="sh-InsightsDashboard-userList">
+							<?php
+							foreach ( $top_users as $user ) {
+								?>
+								<li class="sh-InsightsDashboard-userItem">
+									<img 
+										src="<?php echo esc_url( $user['avatar'] ); ?>" 
+										alt="<?php echo esc_attr( $user['display_name'] ); ?>" 
+										class="sh-InsightsDashboard-userAvatar">
+									<span class="sh-InsightsDashboard-userData">
+										<span class="sh-InsightsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
+										<span class="sh-InsightsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
+									</span>
+								</li>
+								<?php
+							}
+							?>
+						</ul>
+						<?php
+					}
+					?>
 				</div>
-				<?php if ( $top_users && count( $top_users ) > 0 ) { ?>
+			</div>
+
+			<div class="sh-InsightsDashboard-content sh-InsightsDashboard-content--sideBySide">				
+				<?php
+				if ( $top_users && count( $top_users ) > 0 ) {
+					?>
 					<div class="sh-InsightsDashboard-tableContainer">
 						<table class="widefat striped">
 							<thead>
@@ -318,16 +355,18 @@ class Insights_View {
 										<td>
 										<?php
 											/* translators: %s: user ID number */
-											echo esc_html( $user->display_name ? $user->display_name : sprintf( __( 'User ID %s', 'simple-history' ), $user->user_id ) );
+											echo esc_html( $user['display_name'] );
 										?>
 										</td>
-										<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
+										<td><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?></td>
 									</tr>
 								<?php } ?>
 							</tbody>
 						</table>
 					</div>
-				<?php } ?>
+					<?php
+				}
+				?>
 			</div>
 		</div>
 		<?php
@@ -479,7 +518,7 @@ class Insights_View {
 				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge"	 
 				style="--sh-badge-background-color: var(--sh-color-pink);"
 			>
-				<?php echo esc_html_x( 'User activity', 'insights section title', 'simple-history' ); ?>
+				<?php echo esc_html_x( 'User profile activity', 'insights section title', 'simple-history' ); ?>
 			</h2>
 
 			<div class="sh-InsightsDashboard-content">
@@ -548,7 +587,8 @@ class Insights_View {
 							<td class="sh-InsightsDashboard-userCell">
 								<?php
 								// Try to get the full user data if we only have the ID.
-								$wp_user = get_user_by( 'id', $user->user_id );
+								$wp_user = get_user_by( 'id', $user['id'] );
+
 								if ( $wp_user ) {
 									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 									echo Helpers::get_avatar( $wp_user->user_email, 24 );
@@ -876,7 +916,7 @@ class Insights_View {
 			self::output_user_stats_section( $data['user_stats'], $data['stats'] );
 			self::output_posts_pages_stats_section( $data['posts_pages_stats'] );
 			self::output_media_stats_section( $data['media_stats'] );
-			self::output_top_users_section( $data['user_stats']['top_users'] );
+			self::output_top_users_section( $data['formatted_top_users'] );
 
 			// Output chart sections.
 			// self::output_chart_section(

@@ -143,7 +143,8 @@ class Activity_Analytics {
 	}
 
 	/**
-	 * Get top users by activity count.
+	 * Get top users by activity count,
+	 * i.e. users with most actions performed, no matter what action.
 	 *
 	 * @param int $date_from  Required. Start date as Unix timestamp.
 	 * @param int $date_to    Required. End date as Unix timestamp.
