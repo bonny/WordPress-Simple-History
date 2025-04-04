@@ -28,6 +28,8 @@ class Insights_View {
 			);
 			?>
 		</h1>
+
+		<p>(Note: This is still an experimental feature and things may change.)</p>
 		<?php
 	}
 
@@ -516,61 +518,74 @@ class Insights_View {
 				}
 
 				// Display top users table if available.
-				if ( ! empty( $user_stats['top_users'] ) ) :
-					?>
-					<div class="sh-InsightsDashboard-topUsers">
-						<h3><?php esc_html_e( 'Most Active Users', 'simple-history' ); ?></h3>
-						<table class="widefat striped">
-							<thead>
-								<tr>
-									<th><?php esc_html_e( 'User', 'simple-history' ); ?></th>
-									<th><?php esc_html_e( 'Actions', 'simple-history' ); ?></th>
-									<th><?php esc_html_e( 'Last Active', 'simple-history' ); ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php foreach ( $user_stats['top_users'] as $user ) : ?>
-									<tr>
-										<td class="sh-InsightsDashboard-userCell">
-											<?php
-											// Try to get the full user data if we only have the ID.
-											$wp_user = get_user_by( 'id', $user->user_id );
-											if ( $wp_user ) {
-												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-												echo Helpers::get_avatar( $wp_user->user_email, 24 );
-											}
-											?>
-											<span class="sh-InsightsDashboard-userName">
-												<?php
-												if ( $wp_user && $wp_user->display_name ) {
-													echo esc_html( $wp_user->display_name );
-												} else {
-													/* translators: %s: numeric user ID */
-													printf( esc_html__( 'User ID %s', 'simple-history' ), esc_html( $user->user_id ) );
-												}
-												?>
-											</span>
-										</td>
-										<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
-										<td>
-											<?php
-											// Get the user's most recent activity time from the history table.
-											$last_activity = $stats->get_user_last_activity( $user->user_id );
-											if ( $last_activity ) {
-												/* translators: %s: human readable time difference */
-												printf( esc_html__( '%s ago', 'simple-history' ), esc_html( human_time_diff( strtotime( $last_activity ) ) ) );
-											} else {
-												echo '—';
-											}
-											?>
-										</td>
-									</tr>
-								<?php endforeach; ?>
-							</tbody>
-						</table>
-					</div>
-				<?php endif; ?>
+				// self::output_top_users_table( $user_stats['top_users'], $stats );
+				?>
 			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the top users table.
+	 *
+	 * @param array  $top_users Array of top users data.
+	 * @param object $stats     Stats instance for getting user activity.
+	 */
+	public static function output_top_users_table( $top_users, $stats ) {
+		if ( empty( $top_users ) ) {
+			return;
+		}
+		?>
+		<div class="sh-InsightsDashboard-topUsers">
+			<h3><?php esc_html_e( 'Most Active Users', 'simple-history' ); ?></h3>
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'User', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Actions', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Last Active', 'simple-history' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $top_users as $user ) : ?>
+						<tr>
+							<td class="sh-InsightsDashboard-userCell">
+								<?php
+								// Try to get the full user data if we only have the ID.
+								$wp_user = get_user_by( 'id', $user->user_id );
+								if ( $wp_user ) {
+									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									echo Helpers::get_avatar( $wp_user->user_email, 24 );
+								}
+								?>
+								<span class="sh-InsightsDashboard-userName">
+									<?php
+									if ( $wp_user && $wp_user->display_name ) {
+										echo esc_html( $wp_user->display_name );
+									} else {
+										/* translators: %s: numeric user ID */
+										printf( esc_html__( 'User ID %s', 'simple-history' ), esc_html( $user->user_id ) );
+									}
+									?>
+								</span>
+							</td>
+							<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
+							<td>
+								<?php
+								// Get the user's most recent activity time from the history table.
+								$last_activity = $stats->get_user_last_activity( $user->user_id );
+								if ( $last_activity ) {
+									/* translators: %s: human readable time difference */
+									printf( esc_html__( '%s ago', 'simple-history' ), esc_html( human_time_diff( strtotime( $last_activity ) ) ) );
+								} else {
+									echo '—';
+								}
+								?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
 		</div>
 		<?php
 	}
