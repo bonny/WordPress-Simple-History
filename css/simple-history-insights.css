@@ -58,7 +58,7 @@
 .sh-InsightsDashboard-tableContainer {
 	flex: 1;
 	width: 100%;
-	max-width: 50%;
+	/* max-width: 50%; */
 	align-self: flex-start;
 }
 
@@ -84,6 +84,7 @@
 	padding: 8px;
 }
 
+.sh-InsightsDashboard-content table th:last-child,
 .sh-InsightsDashboard-content table td:last-child {
 	text-align: right;
 }
@@ -194,6 +195,7 @@
 	width: var(--sh-avatar-size);
 	height: var(--sh-avatar-size);
 	transition: transform 0.1s ease-in-out;
+	vertical-align: middle;
 }
 
 .sh-InsightsDashboard-userRole {
@@ -369,6 +371,10 @@
 
 .sh-InsightsDashboard-card--wide {
 	grid-column: span 4;
+}
+
+.sh-InsightsDashboard-card--full {
+	grid-column: 1 / -1;
 }
 
 .sh-InsightsDashboard-cardTitle {

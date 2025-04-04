@@ -514,6 +514,9 @@ class Activity_Analytics {
 			case 'deactivated':
 				$message_keys = array( 'plugin_deactivated' );
 				break;
+			case 'installed':
+				$message_keys = array( 'plugin_installed' );
+				break;
 			default:
 				return array();
 		}
@@ -567,7 +570,11 @@ class Activity_Analytics {
 			$plugins[] = array(
 				'name' => $result->plugin_name,
 				'version' => $result->plugin_version,
-				'date' => human_time_diff( strtotime( $result->date ), time() ) . ' ago',
+				'when' => sprintf(
+					/* translators: %s last modified date and time in human time diff-format */
+					__( '%1$s ago', 'simple-history' ),
+					human_time_diff( strtotime( $result->date ), time() )
+				),
 			);
 		}
 
@@ -643,13 +650,15 @@ class Activity_Analytics {
 
 	/**
 	 * Get most edited posts and pages in a given period.
+	 * An edits post = message key is any of:
+	 * post_created, post_updated, post_restored, post_deleted, post_trashed
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
 	 * @param int $date_to   Required. End date as Unix timestamp.
 	 * @param int $limit     Optional. Number of posts to return. Default 5.
 	 * @return array|false Array of most edited posts with their edit counts, or false if invalid dates.
 	 */
-	public function get_most_edited_posts( $date_from, $date_to, $limit = 5 ) {
+	public function get_most_edited_posts( $date_from, $date_to, $limit = 10 ) {
 		global $wpdb;
 
 		if ( ! $date_from || ! $date_to ) {
@@ -660,6 +669,7 @@ class Activity_Analytics {
 			$wpdb->prepare(
 				"SELECT 
 					c2.value as post_title,
+					c3.value as post_id,
 					COUNT(*) as edit_count
 				FROM 
 					{$wpdb->prefix}simple_history h
@@ -667,15 +677,18 @@ class Activity_Analytics {
 					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
 				JOIN 
 					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
 				WHERE 
 					h.logger = 'SimplePostLogger'
 					AND c.key = '_message_key'
-					AND c.value = 'post_updated'
+					AND c.value IN ('post_created', 'post_updated', 'post_restored', 'post_deleted', 'post_trashed')
 					AND c2.key = 'post_title'
+					AND c3.key = 'post_id'
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)
 				GROUP BY 
-					c2.value
+					c2.value, c3.value
 				ORDER BY 
 					edit_count DESC
 				LIMIT %d",
