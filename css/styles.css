@@ -33,7 +33,7 @@
 	--sh-font-size-xlarge: 1.3rem;
 	--sh-font-size-xxlarge: 1.5rem;
 	--sh-font-size-xxxlarge: 2rem;
-	
+
 	/* Spacing */
 	--sh-spacing-small: 0.5rem;
 	--sh-spacing-medium: 1rem;
@@ -56,6 +56,12 @@
 	  0.4px 0.6px 0.8px -1px hsl(var(--sh-shadow-color) / 0.38),
 	  1.2px 1.5px 2px -2px hsl(var(--sh-shadow-color) / 0.35),
 	  2.9px 3.8px 5px -3px hsl(var(--sh-shadow-color) / 0.31);
+	--sh-shadow-elevation-high:
+	  0.1px 0.2px 0.2px hsl(var(--sh-shadow-color) / 0.45),
+	  0.6px 0.8px 1px -0.5px hsl(var(--sh-shadow-color) / 0.42),
+	  1.8px 2.3px 3px -1px hsl(var(--sh-shadow-color) / 0.38),
+	  3.5px 4.5px 6px -1.5px hsl(var(--sh-shadow-color) / 0.35),
+	  6px 8px 10px -2px hsl(var(--sh-shadow-color) / 0.32);
 }
 
 /* clearfix */

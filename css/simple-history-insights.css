@@ -1,4 +1,8 @@
 .sh-InsightsDashboard {
+	--sh-avatar-size: var(--sh-font-size-xxxlarge);
+}
+
+.sh-InsightsDashboard {
 	display: grid;
 	grid-template-columns: repeat(8, 1fr);
 	gap: var(--sh-spacing-large);
@@ -133,10 +137,14 @@
 }
 
 .sh-InsightsDashboard-userItem {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-    margin-left: -12px;
+	position: relative;
+	margin-left: -12px;
+	margin-bottom: 0;
+}
+
+.sh-InsightsDashboard-userName {
+	font-size: var(--sh-font-size-medium);
+	font-weight: 600;
 }
 
 .sh-InsightsDashboard-userItem:first-child {
@@ -145,25 +153,48 @@
 
 /* User data hidden until hover. */
 .sh-InsightsDashboard-userData {
-    position: absolute;
+	position: absolute;
+	top: var(--sh-avatar-size);
+	/* left: 0; */
 	opacity: 0;
+	transform: translateX(-50%);
+	left: 50%;
+	white-space: nowrap;
+	z-index: 5;
+	transition: opacity 0.3s ease-in-out;
+	background: var(--sh-color-yellow);
+	border-radius: var(--sh-border-radius);
+	box-shadow: var(--sh-shadow-elevation-high);
+	padding: var(--sh-spacing-medium);
+	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: flex-start;
+	font-size: var(--sh-font-size-medium);
+	pointer-events: none;
+}
+
+.sh-InsightsDashboard-userItem:hover .sh-InsightsDashboard-userAvatar {
+	transform: scale(1.15);
+}
+
+.sh-InsightsDashboard-userItem:hover .sh-InsightsDashboard-userData {
+	pointer-events: auto;
+	opacity: 1;
 }
 
 .sh-InsightsDashboard-userInfo {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	gap: 4px;
 }
 
 .sh-InsightsDashboard-userAvatar {
 	border-radius: 50%;
-    border: 2px solid var(--sh-color-white);
-	width: var(--sh-spacing-xxxxlarge);
-	height: var(--sh-spacing-xxlarge);
+	border: 2px solid var(--sh-color-white);
+	width: var(--sh-avatar-size);
+	height: var(--sh-avatar-size);
+	transition: transform 0.1s ease-in-out;
 }
-
 
 .sh-InsightsDashboard-userRole {
 	color: #646970;
@@ -489,4 +520,3 @@
 	display: flex;
 	justify-content: space-between;
 }
-

@@ -114,17 +114,25 @@ class Insights_View {
 	 * for a period with a bar chart of number of events per day.
 	 *
 	 * @param int   $total_events Total number of events.
+	 * @param array $top_users Array of top users data.
 	 * @param array $activity_overview Array of activity data by date.
 	 * @param int   $date_from Start date as Unix timestamp.
 	 * @param int   $date_to   End date as Unix timestamp.
 	 */
-	public static function output_events_overview( $total_events, $activity_overview, $date_from, $date_to ) {
+	public static function output_events_overview( $total_events, $top_users, $activity_overview, $date_from, $date_to ) {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
-			<div class="sh-InsightsDashboard-stat">
-				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Events', 'simple-history' ); ?></span>
-				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
-			</div>
+			<div class="sh-InsightsDashboard-dateRange">
+				<div class="sh-InsightsDashboard-stat">
+					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Events', 'simple-history' ); ?></span>
+					<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
+				</div>
+
+				<div class="sh-InsightsDashboard-stat">
+					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Top Users', 'simple-history' ); ?></span>
+					<span class="sh-InsightsDashboard-statValue"><?php self::output_top_users_avatar_list( $top_users ); ?></span>
+				</div>
+			</div>		
 
 			<div class="sh-InsightsDashboard-smallChartContainer">
 				<canvas id="eventsOverviewChart" class="sh-InsightsDashboard-chart"></canvas>
@@ -143,50 +151,6 @@ class Insights_View {
 				</span>
 			</div>
 
-		</div>
-		<?php
-	}
-
-
-	/**
-	 * Output the dashboard overview stats section.
-	 *
-	 * @param int    $total_events Total number of events.
-	 * @param int    $total_users  Total number of users.
-	 * @param object $last_edit    Last edit action details.
-	 */
-	public static function output_dashboard_overview_stats( $total_events, $total_users, $last_edit ) {
-		?>
-		<div class="sh-InsightsDashboard-stats">
-			<div class="sh-InsightsDashboard-stat">
-				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Events', 'simple-history' ); ?></span>
-				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
-			</div>
-	
-			<div class="sh-InsightsDashboard-stat">
-				<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users', 'simple-history' ); ?></span>
-				<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_users ) ); ?></span>
-			</div>
-	
-			<?php
-			if ( $last_edit ) {
-				?>
-				<div class="sh-InsightsDashboard-stat">
-					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Last Action', 'simple-history' ); ?></span>
-					<span class="sh-InsightsDashboard-statValue">
-						<?php
-						printf(
-							/* translators: 1: user's display name, 2: time ago */
-							esc_html__( '%1$s, %2$s ago', 'simple-history' ),
-							esc_html( $last_edit->display_name ),
-							esc_html( human_time_diff( strtotime( $last_edit->date ) ) )
-						);
-						?>
-					</span>
-				</div>
-				<?php
-			}
-			?>
 		</div>
 		<?php
 	}
@@ -290,15 +254,13 @@ class Insights_View {
 	}
 
 	/**
-	 * Output the top users section,
-	 * i.e. users with most actions performed, no matter what action.
+	 * Output the top users section.
 	 *
 	 * @param array $top_users Array of top users data.
 	 */
 	public static function output_top_users_section( $top_users ) {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
-			
 			<h2 
 				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
@@ -312,26 +274,7 @@ class Insights_View {
 					<?php
 					// Output a nice list of users with avatars.
 					if ( $top_users && count( $top_users ) > 0 ) {
-						?>
-						<ul class="sh-InsightsDashboard-userList">
-							<?php
-							foreach ( $top_users as $user ) {
-								?>
-								<li class="sh-InsightsDashboard-userItem">
-									<img 
-										src="<?php echo esc_url( $user['avatar'] ); ?>" 
-										alt="<?php echo esc_attr( $user['display_name'] ); ?>" 
-										class="sh-InsightsDashboard-userAvatar">
-									<span class="sh-InsightsDashboard-userData">
-										<span class="sh-InsightsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
-										<span class="sh-InsightsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
-									</span>
-								</li>
-								<?php
-							}
-							?>
-						</ul>
-						<?php
+						self::output_top_users_avatar_list( $top_users );
 					}
 					?>
 				</div>
@@ -340,34 +283,72 @@ class Insights_View {
 			<div class="sh-InsightsDashboard-content sh-InsightsDashboard-content--sideBySide">				
 				<?php
 				if ( $top_users && count( $top_users ) > 0 ) {
-					?>
-					<div class="sh-InsightsDashboard-tableContainer">
-						<table class="widefat striped">
-							<thead>
-								<tr>
-									<th><?php echo esc_html_x( 'User', 'insights table header', 'simple-history' ); ?></th>
-									<th><?php echo esc_html_x( 'Actions', 'insights table header', 'simple-history' ); ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php foreach ( $top_users as $user ) { ?>
-									<tr>
-										<td>
-										<?php
-											/* translators: %s: user ID number */
-											echo esc_html( $user['display_name'] );
-										?>
-										</td>
-										<td><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?></td>
-									</tr>
-								<?php } ?>
-							</tbody>
-						</table>
-					</div>
-					<?php
+					self::output_top_users_table( $top_users );
 				}
 				?>
 			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the avatar list of top users.
+	 *
+	 * @param array $top_users Array of top users data.
+	 */
+	public static function output_top_users_avatar_list( $top_users ) {
+		?>
+		<ul class="sh-InsightsDashboard-userList">
+			<?php
+			foreach ( $top_users as $user ) {
+				?>
+				<li class="sh-InsightsDashboard-userItem">
+					<img 
+						src="<?php echo esc_url( $user['avatar'] ); ?>" 
+						alt="<?php echo esc_attr( $user['display_name'] ); ?>" 
+						class="sh-InsightsDashboard-userAvatar"
+					>
+					<span class="sh-InsightsDashboard-userData">
+						<span class="sh-InsightsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
+						<span class="sh-InsightsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
+					</span>
+				</li>
+				<?php
+			}
+			?>
+		</ul>
+		<?php
+	}
+
+	/**
+	 * Output the table of top users.
+	 *
+	 * @param array $top_users Array of top users data.
+	 */
+	public static function output_top_users_table( $top_users ) {
+		?>
+		<div class="sh-InsightsDashboard-tableContainer">
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php echo esc_html_x( 'User', 'insights table header', 'simple-history' ); ?></th>
+						<th><?php echo esc_html_x( 'Actions', 'insights table header', 'simple-history' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $top_users as $user ) { ?>
+						<tr>
+							<td>
+							<?php
+								/* translators: %s: user ID number */
+								echo esc_html( $user['display_name'] );
+							?>
+							</td>
+							<td><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?></td>
+						</tr>
+					<?php } ?>
+				</tbody>
+			</table>
 		</div>
 		<?php
 	}
@@ -556,72 +537,6 @@ class Insights_View {
 				// self::output_top_users_table( $user_stats['top_users'], $stats );
 				?>
 			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output the top users table.
-	 *
-	 * @param array  $top_users Array of top users data.
-	 * @param object $stats     Stats instance for getting user activity.
-	 */
-	public static function output_top_users_table( $top_users, $stats ) {
-		if ( empty( $top_users ) ) {
-			return;
-		}
-		?>
-		<div class="sh-InsightsDashboard-topUsers">
-			<h3><?php esc_html_e( 'Most Active Users', 'simple-history' ); ?></h3>
-			<table class="widefat striped">
-				<thead>
-					<tr>
-						<th><?php esc_html_e( 'User', 'simple-history' ); ?></th>
-						<th><?php esc_html_e( 'Actions', 'simple-history' ); ?></th>
-						<th><?php esc_html_e( 'Last Active', 'simple-history' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ( $top_users as $user ) : ?>
-						<tr>
-							<td class="sh-InsightsDashboard-userCell">
-								<?php
-								// Try to get the full user data if we only have the ID.
-								$wp_user = get_user_by( 'id', $user['id'] );
-
-								if ( $wp_user ) {
-									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									echo Helpers::get_avatar( $wp_user->user_email, 24 );
-								}
-								?>
-								<span class="sh-InsightsDashboard-userName">
-									<?php
-									if ( $wp_user && $wp_user->display_name ) {
-										echo esc_html( $wp_user->display_name );
-									} else {
-										/* translators: %s: numeric user ID */
-										printf( esc_html__( 'User ID %s', 'simple-history' ), esc_html( $user->user_id ) );
-									}
-									?>
-								</span>
-							</td>
-							<td><?php echo esc_html( number_format_i18n( $user->count ) ); ?></td>
-							<td>
-								<?php
-								// Get the user's most recent activity time from the history table.
-								$last_activity = $stats->get_user_last_activity( $user->user_id );
-								if ( $last_activity ) {
-									/* translators: %s: human readable time difference */
-									printf( esc_html__( '%s ago', 'simple-history' ), esc_html( human_time_diff( strtotime( $last_activity ) ) ) );
-								} else {
-									echo '—';
-								}
-								?>
-							</td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
 		</div>
 		<?php
 	}
@@ -895,10 +810,9 @@ class Insights_View {
 		<div class="sh-InsightsDashboard">
 			<?php
 
-			self::output_events_overview( $data['total_events'], $data['activity_overview_by_date'], $date_from, $date_to );
+			self::output_events_overview( $data['total_events'], $data['formatted_top_users'], $data['activity_overview_by_date'], $date_from, $date_to );
 
 			// self::output_activity_calendar_section( $date_from, $date_to, $data['activity_overview_by_date'] );
-			// self::output_dashboard_overview_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
 
 			self::output_chart_section(
 				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
