@@ -630,6 +630,17 @@ class Activity_Analytics {
 	}
 
 	/**
+	 * Get number of posts and pages trashed in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of posts and pages trashed, or false if invalid dates.
+	 */
+	public function get_posts_pages_trashed( $date_from, $date_to ) {
+		return $this->get_stats_for_logger_and_value( 'SimplePostLogger', '_message_key', 'post_trashed', $date_from, $date_to );
+	}
+
+	/**
 	 * Get most edited posts and pages in a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.

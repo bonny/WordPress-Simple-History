@@ -468,8 +468,11 @@ class Insights_View {
 	 */
 	public static function output_user_stats_section( $user_stats, $stats ) {
 		?>
-		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
-			<h2 class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge">
+		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
+			<h2 
+				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge"	 
+				style="--sh-badge-background-color: var(--sh-color-pink);"
+			>
 				<?php echo esc_html_x( 'User activity', 'insights section title', 'simple-history' ); ?>
 			</h2>
 
@@ -584,18 +587,33 @@ class Insights_View {
 	 */
 	public static function output_posts_pages_stats_section( $posts_pages_stats ) {
 		?>
-		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
-			<h2><?php echo esc_html_x( 'Posts and Pages Activity', 'insights section title', 'simple-history' ); ?></h2>
+		<div class="sh-InsightsDashboard-card">
+			<h2 
+				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				style="--sh-badge-background-color: var(--sh-color-yellow);"
+			>
+				<?php echo esc_html_x( 'Posts & Pages Activity', 'insights section title', 'simple-history' ); ?>
+			</h2>
+
 			<div class="sh-InsightsDashboard-content">
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Created', 'simple-history' ); ?></span>
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['created'] ) ); ?></span>
 					</div>
+
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updated', 'simple-history' ); ?></span>
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['updated'] ) ); ?></span>
 					</div>
+				</div>
+
+				<div class="sh-InsightsDashboard-stats">
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Trashed', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['trashed'] ) ); ?></span>
+					</div>
+
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deleted', 'simple-history' ); ?></span>
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['deleted'] ) ); ?></span>
@@ -653,8 +671,14 @@ class Insights_View {
 	 */
 	public static function output_media_stats_section( $media_stats ) {
 		?>
-		<div class="sh-InsightsDashboard-section">
-			<h2><?php echo esc_html_x( 'Media', 'insights section title', 'simple-history' ); ?></h2>
+		<div class="sh-InsightsDashboard-card">
+			<h2 
+				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				style="--sh-badge-background-color: var(--sh-color-green-light);"
+			>
+				<?php echo esc_html_x( 'Media', 'insights section title', 'simple-history' ); ?>
+			</h2>
+			
 			<div class="sh-InsightsDashboard-content">
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">

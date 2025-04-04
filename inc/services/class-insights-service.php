@@ -199,6 +199,7 @@ class Insights_Service extends Service {
 				'created' => $this->stats->get_posts_pages_created( $date_from, $date_to ),
 				'updated' => $this->stats->get_posts_pages_updated( $date_from, $date_to ),
 				'deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
+				'trashed' => $this->stats->get_posts_pages_trashed( $date_from, $date_to ),
 				'most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to, 5 ),
 			],
 			// Add media statistics.
