@@ -98,7 +98,7 @@ class Insights_View {
 				echo esc_html(
 					sprintf(
 						/* translators: 1: Start date, 2: End date */
-						__( 'Showing summary data for period %1$s to %2$s', 'simple-history' ),
+						__( 'Summary and stats for period %1$s to %2$s', 'simple-history' ),
 						wp_date( get_option( 'date_format' ), $date_from ),
 						wp_date( get_option( 'date_format' ), $date_to )
 					)
@@ -469,54 +469,41 @@ class Insights_View {
 	public static function output_user_stats_section( $user_stats, $stats ) {
 		?>
 		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
-			<h2><?php echo esc_html_x( 'User Activity Statistics', 'insights section title', 'simple-history' ); ?></h2>
+			<h2 class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge">
+				<?php echo esc_html_x( 'User activity', 'insights section title', 'simple-history' ); ?>
+			</h2>
+
 			<div class="sh-InsightsDashboard-content">
 				<div class="sh-InsightsDashboard-stats">
-					<!-- Login Activity -->
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Successful Logins', 'simple-history' ); ?></span>
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['successful_logins'] ) ); ?></span>
 					</div>
+
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Failed Logins', 'simple-history' ); ?></span>
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['failed_logins'] ) ); ?></span>
 					</div>
 
-					<!-- User Management -->
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users Added', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_added'] ) ); ?></span>
-					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users Removed', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_removed'] ) ); ?></span>
-					</div>
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Profile Updates', 'simple-history' ); ?></span>
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_updated'] ) ); ?></span>
 					</div>
 				</div>
 
-				<?php
-				// Calculate login success rate if there were any login attempts.
-				$total_login_attempts = $user_stats['successful_logins'] + $user_stats['failed_logins'];
-				if ( $total_login_attempts > 0 ) {
-					$success_rate = round( ( $user_stats['successful_logins'] / $total_login_attempts ) * 100 );
-					?>
-					<div class="sh-InsightsDashboard-extraStats">
-						<p>
-							<?php
-							printf(
-								/* translators: %d: login success rate percentage */
-								esc_html__( 'Login Success Rate: %d%%', 'simple-history' ),
-								esc_html( $success_rate )
-							);
-							?>
-						</p>
+				<div class="sh-InsightsDashboard-stats">
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Added users', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_added'] ) ); ?></span>
 					</div>
-					<?php
-				}
 
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Removed Users', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_removed'] ) ); ?></span>
+					</div>
+				</div>
+
+				<?php
 				// Display top users table if available.
 				// self::output_top_users_table( $user_stats['top_users'], $stats );
 				?>
@@ -615,28 +602,46 @@ class Insights_View {
 					</div>
 				</div>
 
-				<?php if ( ! empty( $posts_pages_stats['most_edited'] ) ) : ?>
-					<div class="sh-InsightsDashboard-mostEdited">
-						<h3><?php esc_html_e( 'Most Edited Posts and Pages', 'simple-history' ); ?></h3>
-						<table class="widefat striped">
-							<thead>
-								<tr>
-									<th><?php esc_html_e( 'Title', 'simple-history' ); ?></th>
-									<th><?php esc_html_e( 'Edit Count', 'simple-history' ); ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php foreach ( $posts_pages_stats['most_edited'] as $post ) : ?>
-									<tr>
-										<td><?php echo esc_html( $post->post_title ); ?></td>
-										<td><?php echo esc_html( number_format_i18n( $post->edit_count ) ); ?></td>
-									</tr>
-								<?php endforeach; ?>
-							</tbody>
-						</table>
-					</div>
-				<?php endif; ?>
+
+				<?php
+				// self::output_most_edited_posts_table( $posts_pages_stats['most_edited'] );
+				?>
+
 			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the table showing most edited posts and pages.
+	 *
+	 * @param array $most_edited Array of most edited posts data.
+	 */
+	public static function output_most_edited_posts_table( $most_edited ) {
+		// Bail if no data.
+		if ( empty( $most_edited ) ) {
+			return;
+		}
+
+		?>
+		<div class="sh-InsightsDashboard-mostEdited">
+			<h3><?php esc_html_e( 'Most Edited Posts and Pages', 'simple-history' ); ?></h3>
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Title', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Edit Count', 'simple-history' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $most_edited as $post ) : ?>
+						<tr>
+							<td><?php echo esc_html( $post->post_title ); ?></td>
+							<td><?php echo esc_html( number_format_i18n( $post->edit_count ) ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
 		</div>
 		<?php
 	}
@@ -762,11 +767,6 @@ class Insights_View {
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'WordPress Updates', 'simple-history' ); ?></div>
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['core_updates'] ); ?></div>
 				</div> -->
-
-				<div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updated', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_updates'] ); ?></div>
-				</div>
 				
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Installed', 'simple-history' ); ?></div>
@@ -778,6 +778,13 @@ class Insights_View {
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_activations'] ); ?></div>
 				</div>
 
+				<div class="sh-InsightsDashboard-stat">
+					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updated', 'simple-history' ); ?></div>
+					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_updates'] ); ?></div>
+				</div>
+			</div>
+
+			<div class="sh-InsightsDashboard-stats">
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deactivated', 'simple-history' ); ?></div>
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_deactivations'] ); ?></div>

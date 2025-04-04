@@ -27,14 +27,6 @@
 	grid-row: span 2;
 }
 
-.sh-InsightsDashboard-section h2 {
-	margin-top: 0;
-	padding-bottom: 15px;
-	border-bottom: 1px solid #eee;
-	font-size: 1.2em;
-	color: #23282d;
-}
-
 .sh-InsightsDashboard-content {
 	display: flex;
 	flex-direction: column;
