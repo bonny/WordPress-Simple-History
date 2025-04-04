@@ -187,19 +187,21 @@ class Activity_Analytics {
 
 	/**
 	 * Get activity overview by date.
+	 * Includes empty days, so the chart is complete.
 	 *
 	 * @param int $date_from  Required. Start date as Unix timestamp.
 	 * @param int $date_to    Required. End date as Unix timestamp.
 	 * @return array|false Array of dates with their activity counts, or false if invalid dates. Dates are in MySQL format (YYYY-MM-DD).
 	 */
-	public function get_activity_overview( $date_from, $date_to ) {
+	public function get_activity_overview_by_date( $date_from, $date_to ) {
 		global $wpdb;
 
 		if ( ! $date_from || ! $date_to ) {
 			return false;
 		}
 
-		return $wpdb->get_results(
+		// Get the activity data from database.
+		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
 					DATE(date) as date,
@@ -217,6 +219,35 @@ class Activity_Analytics {
 				$date_to
 			)
 		);
+
+		// Convert results to associative array with date as key.
+		$activity_by_date = array();
+		foreach ( $results as $row ) {
+			$activity_by_date[ $row->date ] = $row;
+		}
+
+		// Create a complete date range with all days.
+		$complete_range = array();
+		$current_date = new \DateTime( '@' . $date_from );
+		$end_date = new \DateTime( '@' . $date_to );
+
+		while ( $current_date <= $end_date ) {
+			$date_str = $current_date->format( 'Y-m-d' );
+
+			if ( isset( $activity_by_date[ $date_str ] ) ) {
+				$complete_range[] = $activity_by_date[ $date_str ];
+			} else {
+				// Add empty day with zero count.
+				$empty_day = new \stdClass();
+				$empty_day->date = $date_str;
+				$empty_day->count = 0;
+				$complete_range[] = $empty_day;
+			}
+
+			$current_date->modify( '+1 day' );
+		}
+
+		return $complete_range;
 	}
 
 	/**

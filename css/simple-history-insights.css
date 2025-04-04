@@ -1,411 +1,433 @@
 .sh-InsightsDashboard {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    padding: 20px 0;
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	gap: var(--sh-spacing-large);
+	/* padding: var(--sh-spacing-large); */
+}
+
+/* Default span is 2, so 4 cols fits. */
+.sh-InsightsDashboard > * {
+	grid-column: span 2;
 }
 
 .sh-InsightsDashboard-section {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 20px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .sh-InsightsDashboard-section--wide {
-    grid-column: span 2;
+	grid-column: span 4;
 }
 
 .sh-InsightsDashboard-section--extraWide {
-    grid-column: span 2;
-    grid-row: span 2;
+	grid-column: span 2;
+	grid-row: span 2;
 }
 
 .sh-InsightsDashboard-section h2 {
-    margin-top: 0;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    font-size: 1.2em;
-    color: #23282d;
+	margin-top: 0;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #eee;
+	font-size: 1.2em;
+	color: #23282d;
 }
 
 .sh-InsightsDashboard-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: 20px 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	padding: 20px 0;
 }
 
 .sh-InsightsDashboard-content--sideBySide {
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 40px;
-    width: 100%;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: flex-start;
+	gap: 40px;
+	width: 100%;
+}
+
+/* Smaller sparkline-ish chart container. */
+.sh-InsightsDashboard-smallChartContainer {
+	width: 100%;
+	height: 100px;
+	margin-top: var(--sh-spacing-large);
 }
 
 .sh-InsightsDashboard-chartContainer,
 .sh-InsightsDashboard-tableContainer {
-    flex: 1;
-    width: 100%;
-    max-width: 50%;
-    align-self: flex-start;
+	flex: 1;
+	width: 100%;
+	max-width: 50%;
+	align-self: flex-start;
 }
 
 /* Loading state */
 .sh-InsightsDashboard-loading {
-    color: #666;
-    font-style: italic;
+	color: #666;
+	font-style: italic;
 }
 
 /* Top Users Table */
 .sh-InsightsDashboard-content table {
-    margin-top: 0;
-    width: 100%;
+	margin-top: 0;
+	width: 100%;
 }
 
 .sh-InsightsDashboard-content table th {
-    text-align: left;
-    padding: 8px;
-    font-weight: 600;
+	text-align: left;
+	padding: 8px;
+	font-weight: 600;
 }
 
 .sh-InsightsDashboard-content table td {
-    padding: 8px;
+	padding: 8px;
 }
 
 .sh-InsightsDashboard-content table td:last-child {
-    text-align: right;
+	text-align: right;
 }
 
 /* Chart containers */
 .sh-InsightsDashboard-chart {
-    width: 100%;
-    height: 100%;
-    min-height: 250px;
+	width: 100%;
+	height: 100%;
+	/* min-height: 250px; */
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 1200px) {
-    .sh-InsightsDashboard {
-        grid-template-columns: repeat(2, 1fr);
-    }
+	.sh-InsightsDashboard {
+		grid-template-columns: repeat(2, 1fr);
+	}
 
-    .sh-InsightsDashboard-section--extraWide {
-        grid-column: span 2;
-        grid-row: span 1;
-    }
+	.sh-InsightsDashboard-section--extraWide {
+		grid-column: span 2;
+		grid-row: span 1;
+	}
 }
 
 @media screen and (max-width: 782px) {
-    .sh-InsightsDashboard {
-        grid-template-columns: 1fr;
-    }
+	.sh-InsightsDashboard {
+		grid-template-columns: 1fr;
+	}
 
-    .sh-InsightsDashboard-section--wide,
-    .sh-InsightsDashboard-section--extraWide {
-        grid-column: span 1;
-        grid-row: span 1;
-    }
+	.sh-InsightsDashboard-section--wide,
+	.sh-InsightsDashboard-section--extraWide {
+		grid-column: span 1;
+		grid-row: span 1;
+	}
 
-    .sh-InsightsDashboard-content--sideBySide {
-        flex-direction: column;
-        gap: 20px;
-    }
+	.sh-InsightsDashboard-content--sideBySide {
+		flex-direction: column;
+		gap: 20px;
+	}
 
-    .sh-InsightsDashboard-chartContainer,
-    .sh-InsightsDashboard-tableContainer {
-        max-width: 100%;
-    }
+	.sh-InsightsDashboard-chartContainer,
+	.sh-InsightsDashboard-tableContainer {
+		max-width: 100%;
+	}
 }
 
 .sh-InsightsDashboard-userList {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
 .sh-InsightsDashboard-userItem {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    border-bottom: 1px solid #f0f0f1;
+	display: flex;
+	align-items: center;
+	padding: 12px;
+	border-bottom: 1px solid #f0f0f1;
 }
 
 .sh-InsightsDashboard-userItem:last-child {
-    border-bottom: none;
+	border-bottom: none;
 }
 
 .sh-InsightsDashboard-userItem img {
-    border-radius: 50%;
-    margin-right: 12px;
+	border-radius: 50%;
+	margin-right: 12px;
 }
 
 .sh-InsightsDashboard-userInfo {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }
 
 .sh-InsightsDashboard-userRole {
-    color: #646970;
-    font-size: 12px;
+	color: #646970;
+	font-size: 12px;
 }
 
 .sh-InsightsDashboard-userSessions {
-    color: #2271b1;
-    font-size: 12px;
-}
-
-.sh-InsightsDashboard-dateRange {
-    color: #646970;
-    margin: 0 0 20px;
+	color: #2271b1;
+	font-size: 12px;
 }
 
 .sh-InsightsChartContainer {
-    position: relative;
-    height: 300px;
-    margin-bottom: 2rem;
+	position: relative;
+	height: 300px;
+	margin-bottom: 2rem;
 }
 
 .sh-InsightsChartContainer--half {
-    width: calc(50% - 1rem);
-    display: inline-block;
-    margin-right: 1rem;
+	width: calc(50% - 1rem);
+	display: inline-block;
+	margin-right: 1rem;
 }
 
 .sh-InsightsChartContainer--half:last-child {
-    margin-right: 0;
+	margin-right: 0;
 }
 
 .sh-InsightsChartContainer canvas {
-    width: 100% !important;
-    height: 100% !important;
+	width: 100% !important;
+	height: 100% !important;
 }
 
 .sh-InsightsDateRange {
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+	margin-bottom: 2rem;
+	padding: 1rem;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
 }
 
 .sh-InsightsDateRange-text {
-    margin: 0;
-    font-size: 1.1em;
+	margin: 0;
+	font-size: 1.1em;
 }
 
 .sh-InsightsChartContainer--peakDays {
-    margin-top: 2rem;
+	margin-top: 2rem;
 }
 
 @media (max-width: 782px) {
-    .sh-InsightsChartContainer--half {
-        width: 100%;
-        margin-right: 0;
-    }
+	.sh-InsightsChartContainer--half {
+		width: 100%;
+		margin-right: 0;
+	}
 }
 
 /* Calendar styles */
 .sh-InsightsDashboard-calendar {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 .sh-InsightsDashboard-calendarMonth {
-    width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+	width: 100%;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
 }
 
 .sh-InsightsDashboard-calendarTitle {
-    margin: 0 0 20px;
-    font-size: 1.2em;
-    color: #23282d;
-    text-align: center;
+	margin: 0 0 20px;
+	font-size: 1.2em;
+	color: #23282d;
+	text-align: center;
 }
 
 .sh-InsightsDashboard-calendarGrid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-    flex: 1;
-    align-items: start;
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 8px;
+	flex: 1;
+	align-items: start;
 }
 
 .sh-InsightsDashboard-calendarHeader {
-    padding: 10px;
-    text-align: center;
-    font-weight: 600;
-    color: #1d2327;
-}
-
-.sh-InsightsDashboard-calendarDay {
-    aspect-ratio: 1;
-    padding: 12px;
-    background-color: #f0f0f1;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    font-size: 16px;
-}
-
-.sh-InsightsDashboard-calendarDay--empty {
-    background-color: transparent;
-}
-
-.sh-InsightsDashboard-calendarDay--outOfRange {
-    background-color: #f0f0f1;
-    opacity: 0.5;
-}
-
-.sh-InsightsDashboard-calendarDay--outOfRange .sh-InsightsDashboard-calendarDayNumber {
-    color: #646970;
-}
-
-.sh-InsightsDashboard-calendarDay--low {
-    background-color: #e6f3ff;
-}
-
-.sh-InsightsDashboard-calendarDay--medium {
-    background-color: #b3d9ff;
-}
-
-.sh-InsightsDashboard-calendarDay--high {
-    background-color: #80bfff;
-}
-
-.sh-InsightsDashboard-calendarDayNumber {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1d2327;
-}
-
-.sh-InsightsDashboard-calendarDayCount {
-    font-size: 12px;
-    color: #50575e;
-    margin-top: 4px;
-}
-
-/* Responsive calendar adjustments */
-@media screen and (max-width: 782px) {
-    .sh-InsightsDashboard-calendarGrid {
-        gap: 2px;
-    }
-
-    .sh-InsightsDashboard-calendarDay {
-        padding: 4px;
-    }
-
-    .sh-InsightsDashboard-calendarDayNumber {
-        font-size: 12px;
-    }
-
-    .sh-InsightsDashboard-calendarDayCount {
-        font-size: 10px;
-    }
-}
-
-.sh-InsightsDashboard-stats {
-	display: flex;
-	gap: 2rem;
-	margin-bottom: 2rem;
-	background: #fff;
-	padding: 1.5rem;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-}
-
-.sh-InsightsDashboard-stat {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-}
-
-.sh-InsightsDashboard-statLabel {
-	font-size: 0.875rem;
-	color: #50575e;
-	text-transform: uppercase;
-	font-weight: 600;
-}
-
-.sh-InsightsDashboard-statValue {
-	font-size: 1.25rem;
+	padding: 10px;
+	text-align: center;
 	font-weight: 600;
 	color: #1d2327;
 }
 
+.sh-InsightsDashboard-calendarDay {
+	aspect-ratio: 1;
+	padding: 12px;
+	background-color: #f0f0f1;
+	border-radius: 4px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	font-size: 16px;
+}
+
+.sh-InsightsDashboard-calendarDay--empty {
+	background-color: transparent;
+}
+
+.sh-InsightsDashboard-calendarDay--outOfRange {
+	background-color: #f0f0f1;
+	opacity: 0.5;
+}
+
+.sh-InsightsDashboard-calendarDay--outOfRange
+	.sh-InsightsDashboard-calendarDayNumber {
+	color: #646970;
+}
+
+.sh-InsightsDashboard-calendarDay--low {
+	background-color: #e6f3ff;
+}
+
+.sh-InsightsDashboard-calendarDay--medium {
+	background-color: #b3d9ff;
+}
+
+.sh-InsightsDashboard-calendarDay--high {
+	background-color: #80bfff;
+}
+
+.sh-InsightsDashboard-calendarDayNumber {
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sh-InsightsDashboard-calendarDayCount {
+	font-size: 12px;
+	color: #50575e;
+	margin-top: 4px;
+}
+
+/* Responsive calendar adjustments */
+@media screen and (max-width: 782px) {
+	.sh-InsightsDashboard-calendarGrid {
+		gap: 2px;
+	}
+
+	.sh-InsightsDashboard-calendarDay {
+		padding: 4px;
+	}
+
+	.sh-InsightsDashboard-calendarDayNumber {
+		font-size: 12px;
+	}
+
+	.sh-InsightsDashboard-calendarDayCount {
+		font-size: 10px;
+	}
+}
+
+/* The white box/card that will contains charts and stats. */
+.sh-InsightsDashboard-card {
+	padding: var(--sh-spacing-large);
+	background: var(--sh-color-white);
+	border-radius: var(--sh-border-radius);
+	box-shadow: var(--sh-shadow-elevation-medium);
+	line-height: 1;
+}
+
+.sh-InsightsDashboard-card--wide {
+	grid-column: span 4;
+}
+
+.sh-InsightsDashboard-cardTitle {
+	margin-bottom: var(--sh-spacing-large);
+	font-size: var(--sh-font-size-medium);
+}
+
+/* Container for mulitple stats numbers and charts. */
+.sh-InsightsDashboard-stats {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: var(--sh-spacing-xxlarge);
+	/* margin-bottom: var(--sh-spacing-large); */
+	/* padding: var(--sh-spacing-large); */
+	/* background: var(--sh-color-white); */
+	/* border-radius: var(--sh-border-radius);
+	box-shadow: var(--sh-shadow-elevation-medium);
+    line-height: 1; */
+}
+
+/* Container around a label and a value. */
+.sh-InsightsDashboard-stat {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-small);
+}
+
+.sh-InsightsDashboard-statLabel {
+	font-size: var(--sh-font-size-medium);
+	color: var(--sh-color-black-2);
+}
+
+.sh-InsightsDashboard-statValue {
+	color: var(--sh-color-black);
+	font-size: var(--sh-font-size-xxxlarge);
+	font-weight: normal;
+	line-height: 1;
+}
+
 .sh-InsightsDashboard-filters {
-    margin: 12px 0 20px;
-    padding: 8px 0;
-    border-bottom: 1px solid #dcdcde;
+	margin: 12px 0 20px;
+	padding: 8px 0;
+	border-bottom: 1px solid #dcdcde;
 }
 
 .sh-InsightsDashboard-dateFilters {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .sh-InsightsDashboard-dateFilters-label {
-    color: #1d2327;
-    font-size: 13px;
-    font-weight: 500;
+	color: #1d2327;
+	font-size: 13px;
+	font-weight: 500;
 }
 
 .sh-InsightsDashboard-dateFilter {
-    display: inline-block;
-    text-decoration: none;
-    font-size: 13px;
-    line-height: 2.15384615;
-    min-height: 30px;
-    margin: 0;
-    padding: 0 10px;
-    cursor: pointer;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 3px;
-    white-space: nowrap;
-    box-sizing: border-box;
-    background: #f6f7f7;
-    border-color: #dcdcde;
-    color: #2c3338;
-    vertical-align: top;
+	display: inline-block;
+	text-decoration: none;
+	font-size: 13px;
+	line-height: 2.15384615;
+	min-height: 30px;
+	margin: 0;
+	padding: 0 10px;
+	cursor: pointer;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 3px;
+	white-space: nowrap;
+	box-sizing: border-box;
+	background: #f6f7f7;
+	border-color: #dcdcde;
+	color: #2c3338;
+	vertical-align: top;
 }
 
 .sh-InsightsDashboard-dateFilter:hover {
-    background: #f0f0f1;
-    border-color: #c5c5c5;
-    color: #135e96;
+	background: #f0f0f1;
+	border-color: #c5c5c5;
+	color: #135e96;
 }
 
 .sh-InsightsDashboard-dateFilter.is-active {
-    background: #2271b1;
-    border-color: #2271b1;
-    color: #fff;
-    text-decoration: none;
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	text-decoration: none;
 }
 
 .sh-InsightsDashboard-dateFilter.is-active:hover {
-    background: #135e96;
-    border-color: #135e96;
-    color: #fff;
-}
-
-/* Add spacing between filters and content */
-.sh-InsightsDashboard-dateRange {
-    margin-top: 1em;
-    color: #646970;
-    font-size: 13px;
+	background: #135e96;
+	border-color: #135e96;
+	color: #fff;
 }
 
 /* Plugin tables */
@@ -444,17 +466,17 @@
 }
 
 .sh-InsightsDashboard-dateRangeContainer {
-    background-color: #f0f6fc;
-    border: 1px solid #c3d9ec;
-    border-radius: 4px;
-    padding: 16px 20px;
-    margin: 20px 0;
-    text-align: center;
+	margin-block: var(--sh-spacing-large);
 }
 
 .sh-InsightsDashboard-dateRangeHeading {
-    color: #1d2327;
-    font-size: 1.3em;
-    margin: 0;
-    font-weight: 600;
-} 
+	color: var(--sh-color-black);
+	font-size: var(--sh-font-size-large);
+	margin: 0;
+	font-weight: 600;
+}
+
+.sh-InsightsDashboard-dateRange {
+	display: flex;
+	justify-content: space-between;
+}

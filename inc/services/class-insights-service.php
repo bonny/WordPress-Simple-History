@@ -32,6 +32,7 @@ class Insights_Service extends Service {
 		}
 
 		$this->stats = new Activity_Analytics();
+
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
 	}
 
@@ -65,7 +66,7 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Get date range based on period parameter.
+	 * Get date range based on period query string parameter.
 	 *
 	 * @return array {
 	 *     Array of timestamps for the selected date range.
@@ -75,7 +76,7 @@ class Insights_Service extends Service {
 	 * }
 	 */
 	private function get_selected_date_range() {
-		$period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '7d';
+		$period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '1m';
 		$date_to = time();
 
 		switch ( $period ) {
@@ -92,8 +93,10 @@ class Insights_Service extends Service {
 				$date_from = strtotime( '-1 month' );
 				break;
 			case '7d':
-			default:
 				$date_from = strtotime( '-7 days' );
+				break;
+			default:
+				$date_from = strtotime( '-1 month' );
 				break;
 		}
 
@@ -110,7 +113,7 @@ class Insights_Service extends Service {
 		wp_enqueue_script(
 			'simple-history-insights',
 			SIMPLE_HISTORY_DIR_URL . 'js/simple-history-insights.js',
-			[ 'wp-element', 'wp-components', 'wp-i18n', 'wp-api-fetch', 'chartjs' ],
+			[ 'wp-element', 'wp-components', 'wp-i18n', 'wp-api-fetch' ],
 			SIMPLE_HISTORY_VERSION,
 			true
 		);
@@ -122,22 +125,20 @@ class Insights_Service extends Service {
 			SIMPLE_HISTORY_VERSION
 		);
 
-		wp_enqueue_script(
-			'chartjs',
-			'https://cdn.jsdelivr.net/npm/chart.js',
-			[],
-			'4.4.1',
-			true
-		);
+		// wp_enqueue_script(
+		// 'chartjs',
+		// 'https://cdn.jsdelivr.net/npm/chart.js@4.4.8',
+		// [],
+		// '4.4.8',
+		// true
+		// );
 	}
 
 	/**
 	 * Output the insights page.
 	 */
 	public function output_page() {
-		$date_range = $this->get_selected_date_range();
-		$date_from = $date_range['date_from'];
-		$date_to = $date_range['date_to'];
+		[ 'date_from' => $date_from, 'date_to' => $date_to ] = $this->get_selected_date_range();
 
 		$data = $this->prepare_insights_data( $date_from, $date_to );
 
@@ -146,14 +147,13 @@ class Insights_Service extends Service {
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Admin_Pages::header_output();
+
 		?>
 		<div class="wrap sh-Page-content">
 			<?php
 			Insights_View::output_page_title();
 			Insights_View::output_date_filters();
 			Insights_View::output_date_range( $date_from, $date_to );
-			Insights_View::output_dashboard_stats( $data['total_events'], $data['total_users'], $data['last_edit'] );
-			Insights_View::output_wordpress_stats( $data['wordpress_stats'], $this->stats, $date_from, $date_to );
 			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
 			?>
 		</div>
@@ -172,7 +172,7 @@ class Insights_Service extends Service {
 			'total_events' => $this->stats->get_total_events( $date_from, $date_to ),
 			'total_users' => $this->stats->get_total_users( $date_from, $date_to ),
 			'last_edit' => $this->stats->get_last_edit_action( $date_from, $date_to ),
-			'activity_overview' => $this->stats->get_activity_overview( $date_from, $date_to ),
+			'activity_overview_by_date' => $this->stats->get_activity_overview_by_date( $date_from, $date_to ),
 			'peak_times' => $this->stats->get_peak_activity_times( $date_from, $date_to ),
 			'peak_days' => $this->stats->get_peak_days( $date_from, $date_to ),
 			'logged_in_users' => $this->stats->get_logged_in_users(),
@@ -239,7 +239,7 @@ class Insights_Service extends Service {
 			'simpleHistoryInsights',
 			[
 				'data' => [
-					'activityOverview' => $data['activity_overview'] ? $data['activity_overview'] : [],
+					'activityOverview' => $data['activity_overview_by_date'] ? $data['activity_overview_by_date'] : [],
 					'topUsers' => $data['formatted_top_users'] ? $data['formatted_top_users'] : [],
 					'peakTimes' => $data['peak_times'] ? $data['peak_times'] : [],
 					'peakDays' => $data['peak_days'] ? $data['peak_days'] : [],

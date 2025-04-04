@@ -175,16 +175,86 @@ jQuery( function () {
 		} );
 	}
 
+	// Events Overview Chart,
+	// a sparkline chart of number of events per day.
+	function initEventsOverviewChart() {
+		const ctx = document
+			.getElementById( 'eventsOverviewChart' )
+			.getContext( '2d' );
+
+		const data = simpleHistoryInsights.data.activityOverview.map(
+			( item ) => ( {
+				date: wp.date.dateI18n(
+					wp.date.__experimentalGetSettings().formats.date,
+					item.date
+				),
+				count: parseInt( item.count, 10 ),
+			} )
+		);
+
+		new Chart( ctx, {
+			type: 'bar',
+			data: {
+				labels: data.map( ( item ) => item.date ),
+				datasets: [
+					{
+						label: simpleHistoryInsights.strings.events,
+						data: data.map( ( item ) => item.count ),
+						barPercentage: 0.99,
+						categoryPercentage: 1,
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: false,
+					},
+				},
+				scales: {
+					x: {
+						grid: {
+							display: false,
+						},
+						ticks: {
+							display: false,
+							align: 'inner',
+							maxRotation: 0,
+							// maxTicksLimit: 2,
+						},
+					},
+					y: {
+						grid: {
+							display: false,
+						},
+						ticks: {
+							display: false,
+						},
+					},
+				},
+			},
+		} );
+	}
+
 	// Initialize all charts
 	if ( document.getElementById( 'topUsersChart' ) ) {
 		initTopUsersChart();
 	}
+
 	if ( document.getElementById( 'activityChart' ) ) {
 		initActivityChart();
 	}
+
+	if ( document.getElementById( 'eventsOverviewChart' ) ) {
+		initEventsOverviewChart();
+	}
+
 	if ( document.getElementById( 'peakTimesChart' ) ) {
 		initPeakTimesChart();
 	}
+
 	if ( document.getElementById( 'peakDaysChart' ) ) {
 		initPeakDaysChart();
 	}
