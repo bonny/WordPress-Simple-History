@@ -59,7 +59,20 @@ class Insights_View {
 				'label' => _x( '1 Month', 'insights date filter 1 month', 'simple-history' ),
 				'short_label' => _x( '1M', 'insights date filter 1 month short', 'simple-history' ),
 			),
+			'3m'  => array(
+				'label' => _x( '3 Months', 'insights date filter 3 months', 'simple-history' ),
+				'short_label' => _x( '3M', 'insights date filter 3 months short', 'simple-history' ),
+			),
+			'6m'  => array(
+				'label' => _x( '6 Months', 'insights date filter 6 months', 'simple-history' ),
+				'short_label' => _x( '6M', 'insights date filter 6 months short', 'simple-history' ),
+			),
+			'12m' => array(
+				'label' => _x( '12 Months', 'insights date filter 12 months', 'simple-history' ),
+				'short_label' => _x( '12M', 'insights date filter 12 months short', 'simple-history' ),
+			),
 		);
+
 		?>
 		<div class="sh-InsightsDashboard-filters" role="navigation" aria-label="<?php esc_attr_e( 'Time period navigation', 'simple-history' ); ?>">
 			<div class="sh-InsightsDashboard-dateFilters">
@@ -98,7 +111,7 @@ class Insights_View {
 				echo esc_html(
 					sprintf(
 						/* translators: 1: Start date, 2: End date */
-						__( 'Summary and stats for period %1$s to %2$s', 'simple-history' ),
+						__( 'Summary and stats for %1$s to %2$s', 'simple-history' ),
 						wp_date( get_option( 'date_format' ), $date_from ),
 						wp_date( get_option( 'date_format' ), $date_to )
 					)

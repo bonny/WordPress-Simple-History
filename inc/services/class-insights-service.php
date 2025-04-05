@@ -95,6 +95,15 @@ class Insights_Service extends Service {
 			case '7d':
 				$date_from = strtotime( '-7 days' );
 				break;
+			case '3m':
+				$date_from = strtotime( '-3 months' );
+				break;
+			case '6m':
+				$date_from = strtotime( '-6 months' );
+				break;
+			case '12m':
+				$date_from = strtotime( '-12 months' );
+				break;
 			default:
 				$date_from = strtotime( '-1 month' );
 				break;
