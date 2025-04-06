@@ -1,7 +1,7 @@
 # Simple History – Track, Log, and Audit WordPress Changes
 
 Contributors: eskapism, wpsimplehistory
-Donate link: https://simple-history.com/sponsor/
+Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.7
 Stable tag: 5.8.1
@@ -14,7 +14,7 @@ Track changes and user activities on your WordPress site. See who created a page
 
 > _"So far the best and most comprehensive logging plugin"_ - [@herrschuessler](https://wordpress.org/support/topic/so-far-the-best-and-most-comprehensive-logging-plugin/)
 
-Simple History shows recent changes made within WordPress, directly on your dashboard or on a separate page.
+Simple History shows recent changes made within WordPress, directly on your dashboard, on a separate page, or in the admin bar.
 
 The plugin acts as an audit log of the most important events that occur in WordPress.
 
@@ -95,7 +95,6 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 
 #### Plugins that have support for Simple History includes:
 
--   [Connections Business Directory](https://wordpress.org/plugins/connections/)
 -   [Simple History Beaver Builder Add-On](https://wordpress.org/plugins/extended-simple-history-for-beaver-builder/)
 -   [WP-Optimize – Cache, Clean, Compress.](https://wordpress.org/plugins/wp-optimize/)
 -   [Add Customer for WooCommerce](https://wordpress.org/plugins/add-customer-for-woocommerce/)
@@ -209,7 +208,7 @@ Gain deeper insights into your site's background activity:
 
 ### 💚 Sponsor this project
 
-If you like this plugin please consider [donating to support the development of the free plugin](https://simple-history.com/donate/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_sponsor_footer). The plugin has been free for the last 10 years and will continue to be free.
+If you like this plugin please consider [sponsoring the development of the free plugin](https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_sponsor_footer). The plugin has been free for the last 10 years and will continue to be free.
 
 ## Frequently Asked Questions
 
@@ -266,9 +265,9 @@ For more details, check the [hooks documentation](https://simple-history.com/doc
 
 ### How long is the history kept?
 
-By default, logs are stored for **60 days**. You can change this in the settings.
+By default, logs are stored for **60 days**.
 
-You can also adjust the retention period using the [`simple_history/db_purge_days_interval`](https://simple-history.com/docs/hooks/#simplehistorydbpurgedaysinterval) filter or the [Extended Settings add-on](https://simple-history.com/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_extended_settings).
+Upgrade to [Simple History Premium](https://simple-history.com/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) to change this using a GUI.
 
 ### Can I track changes made by specific users?
 
@@ -287,7 +286,7 @@ That said, Simple History follows **privacy-friendly practices**:
 
 Since the plugin logs events (which may contain personal data), it's **your responsibility** to ensure GDPR compliance based on your site's usage.
 
-For more information, see the full [GDPR FAQ](https://simple-history.com/docs/faq-frequently-asked-questions/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_gdpr_faq#is-the-plugin-GDPR-complient).
+For more information, see our support page [GDPR and Privacy: How Your Data is Stored in Simple History](https://simple-history.com/support/gdpr-and-privacy/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_gdpr_support).
 
 ## Screenshots
 
