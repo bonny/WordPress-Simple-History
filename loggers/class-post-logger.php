@@ -847,6 +847,17 @@ class Post_Logger extends Logger {
 			'_encloseme',
 		);
 
+		/**
+		 * Filters the array with custom field keys to ignore.
+		 *
+		 * @param  array $arr_meta_keys_to_ignore Array with custom field keys to ignore.
+		 * @param  array $context                 Array with context.
+		 * @return array                          Filtered array with custom field keys to ignore.
+		 *
+		 * @since 5.8.2
+		 */
+		$arr_meta_keys_to_ignore = apply_filters( 'simple_history/post_logger/meta_keys_to_ignore', $arr_meta_keys_to_ignore, $context );
+
 		$meta_changes = array(
 			'added' => array(),
 			'removed' => array(),
@@ -1427,6 +1438,14 @@ class Post_Logger extends Logger {
 	 * @return string
 	 */
 	protected function label_for( $key, $label, $context ) {
+		/**
+		 * Filters the label for a key.
+		 *
+		 * @param string $label Label.
+		 * @param string $key Key.
+		 * @param array  $context Context.
+		 * @return string
+		 */
 		return apply_filters( 'simple_history/post_logger/label_for_key', $label, $key, $context );
 	}
 
@@ -1512,6 +1531,12 @@ class Post_Logger extends Logger {
 	 * @return array
 	 */
 	protected function add_keys_to_diff( $arr_keys_to_diff ) {
+		/**
+		 * Filters the keys to diff.
+		 *
+		 * @param array $arr_keys_to_diff Array with keys to diff.
+		 * @return array
+		 */
 		return apply_filters( 'simple_history/post_logger/keys_to_diff', $arr_keys_to_diff );
 	}
 

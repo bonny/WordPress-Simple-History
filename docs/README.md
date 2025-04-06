@@ -41,7 +41,7 @@ Simple History automatically logs various actions in WordPress and displays them
 
 ## Requirements
 
-- WordPress 6.6 or newer
+- WordPress 6.3 or newer
 - PHP 7.4 or newer
 
 ## Support
