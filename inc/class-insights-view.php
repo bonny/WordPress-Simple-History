@@ -29,7 +29,9 @@ class Insights_View {
 			?>
 		</h1>
 
-		<p>(Note: This is still an experimental feature and things may change.)</p>
+		<p>
+			<mark>Note: This is an experimental beta feature and things may change. It is free during beta period.</mark>
+		</p>
 		<?php
 	}
 
