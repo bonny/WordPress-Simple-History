@@ -319,6 +319,8 @@ For more information, see the full [GDPR FAQ](https://simple-history.com/docs/fa
 ### Unreleased
 
 -   Add compatibility with WordPress down to version 6.3 (from 6.6 previously). This makes it possible for users on older versions of WordPress to use the plugin. This was possible thanks to the great https://github.com/johnbillion/wp-compat library.
+-   Mask more password related fields when using [Detective Mode](https://simple-history.com/support/detective-mode/). [#546](https://github.com/bonny/WordPress-Simple-History/issues/546)
+-   Remove raw post data from Detective Mode data, since it may contain sensitive data that is difficult to clean.
 
 ### 5.8.1 (march 2025)
 

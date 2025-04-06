@@ -62,6 +62,7 @@ class Detective_Mode_Dropin extends Dropin {
 	 */
 	public function settings_field_detective_mode() {
 		$detective_mode_enabled = Helpers::detective_mode_is_enabled();
+
 		?>
 		<label>
 			<input <?php checked( $detective_mode_enabled ); ?> type="checkbox" value="1" name="simple_history_detective_mode_enabled" />
@@ -85,7 +86,7 @@ class Detective_Mode_Dropin extends Dropin {
 
 		<p class="description">
 			<a href="https://simple-history.com/support/detective-mode/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=detective-mode-help" target="_blank" class="sh-ExternalLink">
-				<?php esc_html_e( 'Read more about detective mode', 'simple-history' ); ?>
+			<?php esc_html_e( 'Read more about detective mode', 'simple-history' ); ?>
 			</a>
 		</p>
 		<?php
@@ -130,28 +131,30 @@ class Detective_Mode_Dropin extends Dropin {
 
 		// Copy of posted data, because we may remove sensitive data.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$posted_data = $_POST;
-		$post_raw = file_get_contents( 'php://input' );
+		$get_data = $_GET;
 
-		// Remove sensitive data, like user password.
-		if ( did_filter( 'wp_authenticate_user' ) !== 0 && isset( $posted_data['pwd'] ) ) {
-			$post_raw = str_replace( '&pwd=' . $posted_data['pwd'], '&pwd=***', $post_raw );
-			$posted_data['pwd'] = '***';
-		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$post_data = $_POST;
+
+		// $post_raw_data = file_get_contents( 'php://input' );
+
+		$get_data = $this->mask_sensitive_data( $get_data );
+		$post_data = $this->mask_sensitive_data( $post_data );
+		// $post_raw_data = $this->remove_sensitive_data( $post_raw_data );
 
 		$detective_mode_data += [
-			'get' => $_GET,
-			'post' => $posted_data,
-			'post_raw' => $post_raw,
+			'get' => $get_data,
+			'post' => $post_data,
+			// 'post_raw' => $post_raw_data,
 			'files' => $_FILES, // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			'current_filter' => implode( ', ', $wp_current_filter ?? [] ),
-			'debug_backtrace' => wp_debug_backtrace_summary( null, 0, true ),
-			'is_admin' => is_admin(),
-			'doing_ajax' => defined( 'DOING_AJAX' ) && DOING_AJAX,
-			'doing_cron' => defined( 'DOING_CRON' ) && DOING_CRON,
-			'wp_cli' => defined( 'WP_CLI' ) && WP_CLI,
-			'is_multisite' => is_multisite(),
-			'php_sapi_name' => php_sapi_name(),
+		'current_filter' => implode( ', ', $wp_current_filter ?? [] ),
+		'debug_backtrace' => wp_debug_backtrace_summary( null, 0, true ),
+		'is_admin' => is_admin(),
+		'doing_ajax' => defined( 'DOING_AJAX' ) && DOING_AJAX,
+		'doing_cron' => defined( 'DOING_CRON' ) && DOING_CRON,
+		'wp_cli' => defined( 'WP_CLI' ) && WP_CLI,
+		'is_multisite' => is_multisite(),
+		'php_sapi_name' => php_sapi_name(),
 		];
 
 		// Command line arguments. Used by for example WP-CLI.
@@ -165,5 +168,51 @@ class Detective_Mode_Dropin extends Dropin {
 		}
 
 		return $context;
+	}
+
+	/**
+	 * Remove sensitive data from post data, like passwords.
+	 *
+	 * @param array $data Data to remove sensitive data from, probably GET or POST data.
+	 * @return array Data with sensitive data removed.
+	 */
+	protected function mask_sensitive_data( $data ) {
+		// Mask fields that begin with these strings.
+		// So for example:
+		// - "pass" will mask "password" and "password_2".
+		// - "confirm_pass" will mask "confirm_password" but also "confirm_password_2".
+		$fields_to_mask = [
+			'pwd',
+			'pass',
+			'confirm_pass',
+			'new_application_pass',
+			'user_pwd',
+			'user_password',
+			'user_pass',
+		];
+
+		foreach ( $fields_to_mask as $field ) {
+			$data = $this->mask_field_that_begin_with( $data, $field );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Mask fields that begin with a certain string.
+	 *
+	 * @param array  $data Data to mask, probably GET or POST data.
+	 * @param string $field_name_to_mask String to mask. Lowercase.
+	 * @return array Data with sensitive data masked.
+	 */
+	protected function mask_field_that_begin_with( $data, $field_name_to_mask ) {
+		foreach ( $data as $key => $value ) {
+			$data_key_lowercase = strtolower( $key );
+			if ( str_starts_with( $data_key_lowercase, $field_name_to_mask ) ) {
+				$data[ $key ] = '<removed by Simple History>';
+			}
+		}
+
+		return $data;
 	}
 }
