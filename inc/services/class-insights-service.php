@@ -7,7 +7,7 @@ use Simple_History\Helpers;
 use Simple_History\Menu_Page;
 use Simple_History\Simple_History;
 use Simple_History\Services\Service;
-use Simple_History\Activity_Analytics;
+use Simple_History\Events_Stats;
 use Simple_History\Services\Admin_Pages;
 use Simple_History\Insights_View;
 
@@ -18,7 +18,7 @@ class Insights_Service extends Service {
 	/**
 	 * Stats instance.
 	 *
-	 * @var Activity_Analytics
+	 * @var Events_Stats
 	 */
 	private $stats;
 
@@ -31,7 +31,7 @@ class Insights_Service extends Service {
 			return;
 		}
 
-		$this->stats = new Activity_Analytics();
+		$this->stats = new Events_Stats();
 
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
 	}

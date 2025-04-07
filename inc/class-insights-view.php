@@ -711,11 +711,11 @@ class Insights_View {
 	/**
 	 * Output a plugin table section.
 	 *
-	 * @param string             $title Title of the table section.
-	 * @param string             $action_type Type of plugin action to show.
-	 * @param int                $date_from Start date as Unix timestamp.
-	 * @param int                $date_to End date as Unix timestamp.
-	 * @param Activity_Analytics $stats Stats instance.
+	 * @param string       $title Title of the table section.
+	 * @param string       $action_type Type of plugin action to show.
+	 * @param int          $date_from Start date as Unix timestamp.
+	 * @param int          $date_to End date as Unix timestamp.
+	 * @param Events_Stats $stats Stats instance.
 	 */
 	public static function output_plugin_table( $title, $action_type, $date_from, $date_to, $stats ) {
 		$plugins = $stats->get_plugin_details( $action_type, $date_from, $date_to );
@@ -791,10 +791,10 @@ class Insights_View {
 	/**
 	 * Output the WordPress core and plugins statistics section.
 	 *
-	 * @param array              $wordpress_stats Array of WordPress statistics.
-	 * @param Activity_Analytics $stats          Stats instance.
-	 * @param int                $date_from      Start date as Unix timestamp.
-	 * @param int                $date_to        End date as Unix timestamp.
+	 * @param array        $wordpress_stats Array of WordPress statistics.
+	 * @param Events_Stats $stats          Stats instance.
+	 * @param int          $date_from      Start date as Unix timestamp.
+	 * @param int          $date_to        End date as Unix timestamp.
 	 */
 	public static function output_plugin_stats( $wordpress_stats, $stats, $date_from, $date_to ) {
 		?>

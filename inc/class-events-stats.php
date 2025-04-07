@@ -7,7 +7,7 @@ use WP_Session_Tokens;
 /**
  * Class that handles stats functionality for Simple History insights.
  */
-class Activity_Analytics {
+class Events_Stats {
 	/**
 	 * Get currently logged in users.
 	 *
@@ -811,11 +811,11 @@ class Activity_Analytics {
 			return false;
 		}
 
-		// Build the OR conditions for message values
+		// Build the OR conditions for message values.
 		$placeholders = array_fill( 0, count( $message_values ), '%s' );
 		$value_placeholders = implode( ' OR c.value = ', $placeholders );
 
-		// Prepare the query parameters
+		// Prepare the query parameters.
 		$query_params = array_merge(
 			[ $logger_slug, $message_key ],
 			$message_values,
