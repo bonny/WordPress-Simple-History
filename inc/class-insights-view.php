@@ -376,9 +376,13 @@ class Insights_View {
 		?>
 		<ul class="sh-InsightsDashboard-userList">
 			<?php
+			$loop_count = 0;
+			$user_count = count( $top_users );
 			foreach ( $top_users as $user ) {
+				// Set z-index to reverse order, so first user is on top.
+				$style = 'z-index: ' . ( $user_count - $loop_count ) . ';';
 				?>
-				<li class="sh-InsightsDashboard-userItem">
+				<li class="sh-InsightsDashboard-userItem" style="<?php echo esc_attr( $style ); ?>">
 					<img 
 						src="<?php echo esc_url( $user['avatar'] ); ?>" 
 						alt="<?php echo esc_attr( $user['display_name'] ); ?>" 
@@ -390,6 +394,8 @@ class Insights_View {
 					</span>
 				</li>
 				<?php
+
+				$loop_count++;
 			}
 			?>
 		</ul>
