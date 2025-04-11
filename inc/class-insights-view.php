@@ -621,29 +621,29 @@ class Insights_View {
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Logins', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['logins_successful'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_successful'] ) ); ?></span>
 					</div>
 
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Failed logins', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['logins_failed'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_failed'] ) ); ?></span>
 					</div>
 
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Profile updates', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_updated'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_profiles_updated'] ) ); ?></span>
 					</div>
 				</div>
 
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Added users', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_added'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_added'] ) ); ?></span>
 					</div>
 
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Removed users', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['users_removed'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_removed'] ) ); ?></span>
 					</div>
 				</div>
 
@@ -668,32 +668,31 @@ class Insights_View {
 				class="sh-InsightsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-yellow);"
 			>
-				<?php echo esc_html_x( 'Posts & Pages Activity', 'insights section title', 'simple-history' ); ?>
+				<?php echo esc_html_x( 'Posts & pages activity', 'insights section title', 'simple-history' ); ?>
 			</h2>
 
 			<div class="sh-InsightsDashboard-content">
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Created', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['created'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_created'] ) ); ?></span>
 					</div>
 
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updated', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['updated'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_updated'] ) ); ?></span>
 					</div>
 
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Trashed', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['trashed'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_trashed'] ) ); ?></span>
 					</div>
 
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deleted', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['deleted'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_deleted'] ) ); ?></span>
 					</div>
 				</div>
-
 			</div>
 		</div>
 		<?php
@@ -718,15 +717,15 @@ class Insights_View {
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Uploads', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['uploads'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_uploaded'] ) ); ?></span>
 					</div>
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Edits', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['edits'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_edited'] ) ); ?></span>
 					</div>
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['deletions'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_deleted'] ) ); ?></span>
 					</div>
 				</div>
 			</div>
@@ -828,11 +827,6 @@ class Insights_View {
 			<h2 class="sh-InsightsDashboard-cardTitle"><?php esc_html_e( 'Plugins', 'simple-history' ); ?></h2>
 
 			<div class="sh-InsightsDashboard-stats">
-				<!-- <div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'WordPress Updates', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['core_updates'] ); ?></div>
-				</div> -->
-				
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Installations', 'simple-history' ); ?></div>
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_installs'] ); ?></div>
@@ -859,20 +853,6 @@ class Insights_View {
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></div>
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_deletions'] ); ?></div>
 				</div>
-
-				<!-- <div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Plugin Updates Found', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $stats->get_available_plugin_updates() ); ?></div>
-				</div> -->			
-
-				<?php
-				// Output various plugin tables.
-				// self::output_plugin_table( __( 'Recently Updated Plugins', 'simple-history' ), 'updated', $date_from, $date_to, $stats );
-				// self::output_plugin_table( __( 'Recently Deleted Plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $stats );
-				// self::output_plugin_table( __( 'Recently Activated Plugins', 'simple-history' ), 'activated', $date_from, $date_to, $stats );
-				// self::output_plugin_table( __( 'Recently Deactivated Plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $stats );
-				// self::output_plugins_with_updates_table( $stats );
-				?>
 			</div>
 		</div>
 		<?php
@@ -889,8 +869,15 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard">
 			<?php
-
-			self::output_events_overview( $data['total_events'], $data['user_stats'], $data['formatted_top_users'], $data['activity_overview_by_date'], $date_from, $date_to );
+			// Display top users table if available.
+			self::output_events_overview(
+				$data['total_events'],
+				$data['user_stats'],
+				$data['formatted_top_users'],
+				$data['activity_overview_by_date'],
+				$date_from,
+				$date_to
+			);
 
 			self::output_chart_section(
 				_x( 'Peak activity times', 'insights section title', 'simple-history' ),
@@ -902,23 +889,41 @@ class Insights_View {
 				'peakDaysChart'
 			);
 
-			self::output_plugin_stats( $data['wordpress_stats'], $data['stats'], $date_from, $date_to );
+			if ( isset( $data['wordpress_stats'] ) ) {
+				self::output_plugin_stats( $data['wordpress_stats'], $data['stats'], $date_from, $date_to );
+			}
 
-			self::output_user_stats_section( $data['user_stats'], $data['stats'] );
-			self::output_posts_pages_stats_section( $data['posts_pages_stats'] );
-			self::output_media_stats_section( $data['media_stats'] );
-			self::output_top_users_section( $data['formatted_top_users'] );
-			self::output_top_posts_and_pages_section( $data['posts_pages_stats']['most_edited'] );
+			if ( isset( $data['user_stats'] ) ) {
+				self::output_user_stats_section( $data['user_stats'], $data['stats'] );
+			}
+
+			if ( isset( $data['posts_pages_stats'] ) ) {
+				self::output_posts_pages_stats_section( $data['posts_pages_stats'] );
+			}
+
+			if ( isset( $data['media_stats'] ) ) {
+				self::output_media_stats_section( $data['media_stats'] );
+			}
+
+			if ( isset( $data['formatted_top_users'] ) ) {
+				self::output_top_users_section( $data['formatted_top_users'] );
+			}
+
+			if ( isset( $data['posts_pages_stats']['most_edited'] ) ) {
+				self::output_top_posts_and_pages_section( $data['posts_pages_stats']['most_edited'] );
+			}
 
 			?>
 			<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--full">
 				<h2 class="sh-InsightsDashboard-cardTitle"><?php esc_html_e( 'Plugins details', 'simple-history' ); ?></h2>
 
 				<?php
-				self::output_plugin_table( __( 'Installed plugins', 'simple-history' ), 'installed', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $data['stats'] );
+				if ( isset( $data['stats'] ) ) {
+					self::output_plugin_table( __( 'Installed plugins', 'simple-history' ), 'installed', $date_from, $date_to, $data['stats'] );
+					self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $data['stats'] );
+					self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $data['stats'] );
+					self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $data['stats'] );
+				}
 				?>
 			</div>
 
