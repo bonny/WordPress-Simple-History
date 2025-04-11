@@ -8,6 +8,9 @@ It uses PHP, HTML, CSS, React.
 -   Uses [WordPress coding standards](https://github.com/WordPress/WordPress-Coding-Standards).
 -   Code comments end with a period. Example:
     -   `// This is a comment.`
+-   Use `if` statements without colons.
+-   Use early returns if possible.
+-   Use short array syntax.
 
 ## CSS
 
