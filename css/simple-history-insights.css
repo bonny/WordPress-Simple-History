@@ -420,9 +420,8 @@
 }
 
 .sh-InsightsDashboard-filters {
-	margin: 12px 0 20px;
-	padding: 8px 0;
-	border-bottom: 1px solid #dcdcde;
+	display: flex;
+	justify-content: space-between;
 }
 
 .sh-InsightsDashboard-dateFilters {

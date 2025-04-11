@@ -17,8 +17,7 @@ class Insights_View {
 			<?php
 			echo wp_kses(
 				Helpers::get_settings_section_title_output(
-					__( 'Insights (summaries and analytics)', 'simple-history' ),
-					'troubleshoot'
+					__( 'Stats & Summaries', 'simple-history' ),
 				),
 				[
 					'span' => [
@@ -28,17 +27,16 @@ class Insights_View {
 			);
 			?>
 		</h1>
-
-		<p>
-			<mark>Note: This is an experimental beta feature and things may change. It is free during beta period.</mark>
-		</p>
 		<?php
 	}
 
 	/**
-	 * Output the date filters section.
+	 * Output the date filters section and the date range.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
 	 */
-	public static function output_date_filters() {
+	public static function output_filters( $date_from, $date_to ) {
 		$current_period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '1m';
 		$current_page = menu_page_url( 'simple_history_insights_page', false );
 
@@ -77,24 +75,46 @@ class Insights_View {
 
 		?>
 		<div class="sh-InsightsDashboard-filters" role="navigation" aria-label="<?php esc_attr_e( 'Time period navigation', 'simple-history' ); ?>">
+
+			<?php
+			self::output_date_range( $date_from, $date_to );
+			?>
+	
 			<div class="sh-InsightsDashboard-dateFilters">
-				<span class="sh-InsightsDashboard-dateFilters-label" id="timeperiod-label">
-					<?php echo esc_html_x( 'Time period:', 'insights date filter label', 'simple-history' ); ?>
-				</span>
-				<div class="sh-InsightsDashboard-dateFilters-buttons" role="group" aria-labelledby="timeperiod-label">
-					<?php foreach ( $time_periods as $period => $labels ) : ?>
-						<a 
-							href="<?php echo esc_url( add_query_arg( 'period', $period, $current_page ) ); ?>" 
-							class="sh-InsightsDashboard-dateFilter <?php echo $current_period === $period ? 'is-active' : ''; ?>"
-							<?php echo $current_period === $period ? 'aria-current="page"' : ''; ?>
-							title="<?php echo esc_attr( $labels['label'] ); ?>"
-						>
-							<span class="screen-reader-text"><?php echo esc_html( $labels['label'] ); ?></span>
-							<span aria-hidden="true"><?php echo esc_html( $labels['short_label'] ); ?></span>
-						</a>
-					<?php endforeach; ?>
-				</div>
+				<form method="get" action="<?php echo esc_url( $current_page ); ?>">
+					<?php
+					// Add any existing query parameters except 'period'.
+					foreach ( $_GET as $key => $value ) {
+						if ( in_array( $key, array( 'period', 'page' ) ) ) {
+							continue;
+						}
+
+						echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">';
+					}
+
+					// Add page parameter (so we return to the same page).
+					echo '<input type="hidden" name="page" value="simple_history_insights_page">';
+
+					?>
+					<select 
+						name="period" 
+						id="period-select" 
+						class="sh-InsightsDashboard-dateSelect" 
+						onchange="this.form.submit()"
+						aria-label="<?php esc_attr_e( 'Select time period', 'simple-history' ); ?>"
+					>
+						<?php foreach ( $time_periods as $period => $labels ) : ?>
+							<option 
+								value="<?php echo esc_attr( $period ); ?>" 
+								<?php selected( $current_period, $period ); ?>
+							>
+								<?php echo esc_html( $labels['label'] ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</form>
 			</div>
+
 		</div>
 		<?php
 	}
@@ -113,7 +133,7 @@ class Insights_View {
 				echo esc_html(
 					sprintf(
 						/* translators: 1: Start date, 2: End date */
-						__( 'Summary and stats for %1$s to %2$s', 'simple-history' ),
+						__( '%1$s - %2$s', 'simple-history' ),
 						wp_date( get_option( 'date_format' ), $date_from ),
 						wp_date( get_option( 'date_format' ), $date_to )
 					)

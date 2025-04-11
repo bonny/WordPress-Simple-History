@@ -54,8 +54,8 @@ class Insights_Service extends Service {
 		// Add Insights page as a submenu item.
 		$new_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'Beta', 'simple-history' ) . '</span>';
 		$insights_page = ( new Menu_Page() )
-			->set_page_title( _x( 'Insights - Simple History', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'Insights', 'dashboard menu name', 'simple-history' ) . ' ' . $new_text )
+			->set_page_title( _x( 'Stats & Summaries - Simple History', 'dashboard title name', 'simple-history' ) )
+			->set_menu_title( _x( 'Stats & Summaries', 'dashboard menu name', 'simple-history' ) . ' ' . $new_text )
 			->set_menu_slug( 'simple_history_insights_page' )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_page' ] )
@@ -161,8 +161,7 @@ class Insights_Service extends Service {
 		<div class="wrap sh-Page-content">
 			<?php
 			Insights_View::output_page_title();
-			Insights_View::output_date_filters();
-			Insights_View::output_date_range( $date_from, $date_to );
+			Insights_View::output_filters( $date_from, $date_to );
 			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
 			?>
 		</div>
