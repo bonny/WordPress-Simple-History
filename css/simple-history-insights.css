@@ -32,11 +32,11 @@
 }
 
 .sh-InsightsDashboard-content {
-	display: flex;
+	/* display: flex;
 	flex-direction: column;
 	align-items: flex-start;
 	justify-content: flex-start;
-	padding: 20px 0;
+	padding: 20px 0; */
 }
 
 .sh-InsightsDashboard-content--sideBySide {
@@ -49,6 +49,8 @@
 
 /* Smaller sparkline-ish chart container. */
 .sh-InsightsDashboard-chartContainer {
+	height: 200px;
+	/* margin-top: var(--sh-spacing-xxlarge); */
 	/* width: 100%;
 	height: 100px;
 	margin-top: var(--sh-spacing-large); */
@@ -541,4 +543,8 @@
 .sh-InsightsDashboard-dateRange {
 	display: flex;
 	justify-content: space-between;
+
+	+ .sh-InsightsDashboard-dateRange {
+		margin-top: var(--sh-spacing-large);
+	}
 }
