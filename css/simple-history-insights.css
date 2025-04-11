@@ -378,8 +378,21 @@
 }
 
 .sh-InsightsDashboard-cardTitle {
-	margin-bottom: var(--sh-spacing-large);
+	--sh-badge-text-color: var(--sh-color-black);
+	--sh-badge-background-color: var(--sh-color-green-mint);
+	color: var(--sh-badge-text-color);
+	background-color: var(--sh-badge-background-color);
+	display: inline-flex;
+	align-items: center;
 	font-size: var(--sh-font-size-medium);
+	font-weight: 500;
+	font-style: normal;
+	border-radius: 4px;
+	padding: 0.25em 0.5em;
+	opacity: 0.75;
+	line-height: 1;
+	margin: 0;
+	margin-bottom: var(--sh-spacing-large);
 }
 
 /* Container for mulitple stats numbers and charts. */
@@ -422,6 +435,9 @@
 .sh-InsightsDashboard-filters {
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
+	margin-top: var(--sh-spacing-xxlarge);
+	margin-bottom: var(--sh-spacing-large);
 }
 
 .sh-InsightsDashboard-dateFilters {
@@ -510,15 +526,8 @@
 	padding: 1rem 0;
 }
 
-.sh-InsightsDashboard-dateRangeContainer {
-	margin-block: var(--sh-spacing-large);
-}
-
 .sh-InsightsDashboard-dateRangeHeading {
-	color: var(--sh-color-black);
-	font-size: var(--sh-font-size-large);
 	margin: 0;
-	font-weight: 600;
 }
 
 .sh-InsightsDashboard-dateRange {
