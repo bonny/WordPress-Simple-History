@@ -160,7 +160,6 @@ class Insights_View {
 	 * @param int   $date_to   End date as Unix timestamp.
 	 */
 	public static function output_events_overview( $total_events, $user_stats, $top_users, $activity_overview, $date_from, $date_to ) {
-		sh_d( '$user_stats', $user_stats );
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide sh-InsightsDashboard-card--tall">
 			<div class="sh-InsightsDashboard-dateRange">
@@ -816,12 +815,12 @@ class Insights_View {
 	/**
 	 * Output the WordPress core and plugins statistics section.
 	 *
-	 * @param array        $wordpress_stats Array of WordPress statistics.
+	 * @param array        $plugin_stats Array of WordPress statistics.
 	 * @param Events_Stats $stats          Stats instance.
 	 * @param int          $date_from      Start date as Unix timestamp.
 	 * @param int          $date_to        End date as Unix timestamp.
 	 */
-	public static function output_plugin_stats( $wordpress_stats, $stats, $date_from, $date_to ) {
+	public static function output_plugin_stats( $plugin_stats, $stats, $date_from, $date_to ) {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
 			<h2 class="sh-InsightsDashboard-cardTitle"><?php esc_html_e( 'Plugins', 'simple-history' ); ?></h2>
@@ -829,29 +828,29 @@ class Insights_View {
 			<div class="sh-InsightsDashboard-stats">
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Installations', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_installs'] ); ?></div>
+					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_installs_completed'] ); ?></div>
 				</div>
 
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Activations', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_activations'] ); ?></div>
+					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_activations_completed'] ); ?></div>
 				</div>
 
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updates', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_updates'] ); ?></div>
+					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_completed'] ); ?></div>
 				</div>
 			</div>
 
 			<div class="sh-InsightsDashboard-stats">
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deactivations', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_deactivations'] ); ?></div>
+					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deactivations_completed'] ); ?></div>
 				</div>
 
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $wordpress_stats['plugin_deletions'] ); ?></div>
+					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deletions_completed'] ); ?></div>
 				</div>
 			</div>
 		</div>
@@ -869,12 +868,12 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard">
 			<?php
-			// Display top users table if available.
+			// Display overview section.
 			self::output_events_overview(
-				$data['total_events'],
+				$data['overview_total_events'],
 				$data['user_stats'],
-				$data['formatted_top_users'],
-				$data['activity_overview_by_date'],
+				$data['user_rankings_formatted'],
+				$data['overview_activity_by_date'],
 				$date_from,
 				$date_to
 			);
@@ -889,41 +888,27 @@ class Insights_View {
 				'peakDaysChart'
 			);
 
-			if ( isset( $data['wordpress_stats'] ) ) {
-				self::output_plugin_stats( $data['wordpress_stats'], $data['stats'], $date_from, $date_to );
-			}
+			self::output_plugin_stats( $data['plugin_stats'], $data['stats'], $date_from, $date_to );
 
-			if ( isset( $data['user_stats'] ) ) {
 				self::output_user_stats_section( $data['user_stats'], $data['stats'] );
-			}
 
-			if ( isset( $data['posts_pages_stats'] ) ) {
-				self::output_posts_pages_stats_section( $data['posts_pages_stats'] );
-			}
+				self::output_posts_pages_stats_section( $data['content_stats'] );
 
-			if ( isset( $data['media_stats'] ) ) {
 				self::output_media_stats_section( $data['media_stats'] );
-			}
 
-			if ( isset( $data['formatted_top_users'] ) ) {
-				self::output_top_users_section( $data['formatted_top_users'] );
-			}
+				self::output_top_users_section( $data['user_rankings_formatted'] );
 
-			if ( isset( $data['posts_pages_stats']['most_edited'] ) ) {
-				self::output_top_posts_and_pages_section( $data['posts_pages_stats']['most_edited'] );
-			}
+				self::output_top_posts_and_pages_section( $data['content_stats']['content_items_most_edited'] );
 
 			?>
 			<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--full">
 				<h2 class="sh-InsightsDashboard-cardTitle"><?php esc_html_e( 'Plugins details', 'simple-history' ); ?></h2>
 
 				<?php
-				if ( isset( $data['stats'] ) ) {
-					self::output_plugin_table( __( 'Installed plugins', 'simple-history' ), 'installed', $date_from, $date_to, $data['stats'] );
-					self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $data['stats'] );
-					self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $data['stats'] );
-					self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $data['stats'] );
-				}
+				self::output_plugin_table( __( 'Installed plugins', 'simple-history' ), 'installed', $date_from, $date_to, $data['stats'] );
+				self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $data['stats'] );
+				self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $data['stats'] );
+				self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $data['stats'] );
 				?>
 			</div>
 
