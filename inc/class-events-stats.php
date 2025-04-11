@@ -436,6 +436,23 @@ class Events_Stats {
 	}
 
 	/**
+	 * Get number of WordPress core updates found for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of core updates found, or false if invalid dates.
+	 */
+	public function get_wordpress_core_updates_found( $date_from, $date_to ) {
+		return $this->get_stats_for_logger_and_value(
+			'AvailableUpdatesLogger',
+			'_message_key',
+			'core_update_available',
+			$date_from,
+			$date_to
+		);
+	}
+
+	/**
 	 * Get number of plugin updates for a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
