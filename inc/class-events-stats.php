@@ -772,6 +772,23 @@ class Events_Stats {
 	}
 
 	/**
+	 * Get number of plugin updates found for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin updates found, or false if invalid dates.
+	 */
+	public function get_plugin_updates_found( $date_from, $date_to ) {
+		return $this->get_stats_for_logger_and_value(
+			'AvailableUpdatesLogger',
+			'_message_key',
+			'plugin_update_available',
+			$date_from,
+			$date_to
+		);
+	}
+
+	/**
 	 * Get stats for a specific logger and message value.
 	 *
 	 * @param string $logger_slug   The logger slug (e.g. 'SimpleMediaLogger').

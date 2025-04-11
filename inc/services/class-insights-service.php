@@ -209,6 +209,7 @@ class Insights_Service extends Service {
 			'plugin_deletions_completed' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
 			'plugin_activations_completed' => $this->stats->get_plugin_activations( $date_from, $date_to ),
 			'plugin_deactivations_completed' => $this->stats->get_plugin_deactivations( $date_from, $date_to ),
+			'plugin_updates_found' => $this->stats->get_plugin_updates_found( $date_from, $date_to ),
 		];
 
 		// Get WordPress core statistics.

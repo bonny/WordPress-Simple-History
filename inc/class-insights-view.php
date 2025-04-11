@@ -837,7 +837,12 @@ class Insights_View {
 				</div>
 
 				<div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updates', 'simple-history' ); ?></div>
+					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updates found', 'simple-history' ); ?></div>
+					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_found'] ); ?></div>
+				</div>
+
+				<div class="sh-InsightsDashboard-stat">
+					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updates done', 'simple-history' ); ?></div>
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_completed'] ); ?></div>
 				</div>
 			</div>
