@@ -200,7 +200,9 @@ class Insights_Service extends Service {
 			'user_profiles_updated' => $this->stats->get_user_updated_count( $date_from, $date_to ),
 			'user_accounts_added' => $this->stats->get_user_added_count( $date_from, $date_to ),
 			'user_accounts_removed' => $this->stats->get_user_removed_count( $date_from, $date_to ),
+			'total_count' => 0, // Will be calculated below.
 		];
+		$user_stats['total_count'] = array_sum( array_filter( array_values( $user_stats ), 'is_numeric' ) );
 
 		// Get WordPress and plugin statistics.
 		$plugin_stats = [
@@ -210,13 +212,17 @@ class Insights_Service extends Service {
 			'plugin_activations_completed' => $this->stats->get_plugin_activations( $date_from, $date_to ),
 			'plugin_deactivations_completed' => $this->stats->get_plugin_deactivations( $date_from, $date_to ),
 			'plugin_updates_found' => $this->stats->get_plugin_updates_found( $date_from, $date_to ),
+			'total_count' => 0, // Will be calculated below.
 		];
+		$plugin_stats['total_count'] = array_sum( array_filter( array_values( $plugin_stats ), 'is_numeric' ) );
 
 		// Get WordPress core statistics.
 		$wordpress_stats = [
 			'wordpress_core_updates_found' => $this->stats->get_wordpress_core_updates_found( $date_from, $date_to ),
 			'wordpress_core_updates_completed' => $this->stats->get_wordpress_core_updates( $date_from, $date_to ),
+			'total_count' => 0, // Will be calculated below.
 		];
+		$wordpress_stats['total_count'] = array_sum( array_filter( array_values( $wordpress_stats ), 'is_numeric' ) );
 
 		// Get posts and pages statistics.
 		$posts_pages_stats = [
@@ -225,14 +231,29 @@ class Insights_Service extends Service {
 			'content_items_deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
 			'content_items_trashed' => $this->stats->get_posts_pages_trashed( $date_from, $date_to ),
 			'content_items_most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to ),
+			'total_count' => 0, // Will be calculated below.
 		];
+		// Don't include most_edited in total since it's an array of items.
+		$posts_pages_stats['total_count'] = array_sum(
+			array_filter(
+				[
+					$posts_pages_stats['content_items_created'],
+					$posts_pages_stats['content_items_updated'],
+					$posts_pages_stats['content_items_deleted'],
+					$posts_pages_stats['content_items_trashed'],
+				],
+				'is_numeric'
+			)
+		);
 
 		// Get media statistics.
 		$media_stats = [
 			'media_files_uploaded' => $this->stats->get_media_uploads( $date_from, $date_to ),
 			'media_files_edited' => $this->stats->get_media_edits( $date_from, $date_to ),
 			'media_files_deleted' => $this->stats->get_media_deletions( $date_from, $date_to ),
+			'total_count' => 0, // Will be calculated below.
 		];
+		$media_stats['total_count'] = array_sum( array_filter( array_values( $media_stats ), 'is_numeric' ) );
 
 		// Get top users.
 		$top_users = $this->stats->get_top_users( $date_from, $date_to );
@@ -252,6 +273,7 @@ class Insights_Service extends Service {
 			'media_stats' => $media_stats,
 			'user_rankings' => $top_users,
 			'user_rankings_formatted' => $formatted_top_users,
+			'user_total_count' => $this->stats->get_total_users( $date_from, $date_to ),
 		];
 	}
 
