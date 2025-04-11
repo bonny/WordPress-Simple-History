@@ -195,37 +195,42 @@ class Insights_Service extends Service {
 
 		// Get user statistics.
 		$user_stats = [
-			'logins_successful' => $this->stats->get_successful_logins_count( $date_from, $date_to ),
-			'logins_failed' => $this->stats->get_failed_logins_count( $date_from, $date_to ),
-			'users_updated' => $this->stats->get_user_updated_count( $date_from, $date_to ),
-			'users_added' => $this->stats->get_user_added_count( $date_from, $date_to ),
-			'users_removed' => $this->stats->get_user_removed_count( $date_from, $date_to ),
+			'user_logins_successful' => $this->stats->get_successful_logins_count( $date_from, $date_to ),
+			'user_logins_failed' => $this->stats->get_failed_logins_count( $date_from, $date_to ),
+			'user_profiles_updated' => $this->stats->get_user_updated_count( $date_from, $date_to ),
+			'user_accounts_added' => $this->stats->get_user_added_count( $date_from, $date_to ),
+			'user_accounts_removed' => $this->stats->get_user_removed_count( $date_from, $date_to ),
 		];
 
 		// Get WordPress and plugin statistics.
+		$plugin_stats = [
+			'plugin_updates_completed' => $this->stats->get_plugin_updates( $date_from, $date_to ),
+			'plugin_installs_completed' => $this->stats->get_plugin_installs( $date_from, $date_to ),
+			'plugin_deletions_completed' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
+			'plugin_activations_completed' => $this->stats->get_plugin_activations( $date_from, $date_to ),
+			'plugin_deactivations_completed' => $this->stats->get_plugin_deactivations( $date_from, $date_to ),
+		];
+
+		// Get WordPress core statistics.
 		$wordpress_stats = [
-			'core_updates' => $this->stats->get_wordpress_core_updates( $date_from, $date_to ),
-			'plugin_updates' => $this->stats->get_plugin_updates( $date_from, $date_to ),
-			'plugin_installs' => $this->stats->get_plugin_installs( $date_from, $date_to ),
-			'plugin_deletions' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
-			'plugin_activations' => $this->stats->get_plugin_activations( $date_from, $date_to ),
-			'plugin_deactivations' => $this->stats->get_plugin_deactivations( $date_from, $date_to ),
+			'wordpress_core_updates_found' => $this->stats->get_wordpress_core_updates_found( $date_from, $date_to ),
+			'wordpress_core_updates_completed' => $this->stats->get_wordpress_core_updates( $date_from, $date_to ),
 		];
 
 		// Get posts and pages statistics.
 		$posts_pages_stats = [
-			'created' => $this->stats->get_posts_pages_created( $date_from, $date_to ),
-			'updated' => $this->stats->get_posts_pages_updated( $date_from, $date_to ),
-			'deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
-			'trashed' => $this->stats->get_posts_pages_trashed( $date_from, $date_to ),
-			'most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to ),
+			'content_items_created' => $this->stats->get_posts_pages_created( $date_from, $date_to ),
+			'content_items_updated' => $this->stats->get_posts_pages_updated( $date_from, $date_to ),
+			'content_items_deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
+			'content_items_trashed' => $this->stats->get_posts_pages_trashed( $date_from, $date_to ),
+			'content_items_most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to ),
 		];
 
 		// Get media statistics.
 		$media_stats = [
-			'uploads' => $this->stats->get_media_uploads( $date_from, $date_to ),
-			'edits' => $this->stats->get_media_edits( $date_from, $date_to ),
-			'deletions' => $this->stats->get_media_deletions( $date_from, $date_to ),
+			'media_files_uploaded' => $this->stats->get_media_uploads( $date_from, $date_to ),
+			'media_files_edited' => $this->stats->get_media_edits( $date_from, $date_to ),
+			'media_files_deleted' => $this->stats->get_media_deletions( $date_from, $date_to ),
 		];
 
 		// Get top users.
@@ -234,17 +239,18 @@ class Insights_Service extends Service {
 
 		return [
 			'stats' => $this->stats,
-			'total_events' => $total_events,
-			'activity_overview_by_date' => $activity_overview_by_date,
-			'peak_activity_times' => $peak_activity_times,
-			'peak_days' => $peak_days,
-			'logged_in_users' => $logged_in_users,
+			'overview_total_events' => $total_events,
+			'overview_activity_by_date' => $activity_overview_by_date,
+			'overview_peak_times' => $peak_activity_times,
+			'overview_peak_days' => $peak_days,
+			'overview_logged_in_users' => $logged_in_users,
 			'user_stats' => $user_stats,
+			'plugin_stats' => $plugin_stats,
 			'wordpress_stats' => $wordpress_stats,
-			'posts_pages_stats' => $posts_pages_stats,
+			'content_stats' => $posts_pages_stats,
 			'media_stats' => $media_stats,
-			'top_users' => $top_users,
-			'formatted_top_users' => $formatted_top_users,
+			'user_rankings' => $top_users,
+			'user_rankings_formatted' => $formatted_top_users,
 		];
 	}
 
@@ -282,10 +288,10 @@ class Insights_Service extends Service {
 			'simpleHistoryInsights',
 			[
 				'data' => [
-					'activityOverview' => $data['activity_overview_by_date'] ? $data['activity_overview_by_date'] : [],
-					'topUsers' => $data['formatted_top_users'] ? $data['formatted_top_users'] : [],
-					'peakTimes' => $data['peak_activity_times'] ? $data['peak_activity_times'] : [],
-					'peakDays' => $data['peak_days'] ? $data['peak_days'] : [],
+					'activityOverview' => $data['overview_activity_by_date'] ? $data['overview_activity_by_date'] : [],
+					'topUsers' => $data['user_rankings_formatted'] ? $data['user_rankings_formatted'] : [],
+					'peakTimes' => $data['overview_peak_times'] ? $data['overview_peak_times'] : [],
+					'peakDays' => $data['overview_peak_days'] ? $data['overview_peak_days'] : [],
 				],
 				'dateRange' => [
 					'from' => $date_from,
