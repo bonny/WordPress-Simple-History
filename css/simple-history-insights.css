@@ -373,6 +373,10 @@
 	grid-column: span 4;
 }
 
+.sh-InsightsDashboard-card--tall {
+	grid-row: span 2;
+}
+
 .sh-InsightsDashboard-card--full {
 	grid-column: 1 / -1;
 }
@@ -430,6 +434,10 @@
 	font-size: var(--sh-font-size-xxxlarge);
 	font-weight: normal;
 	line-height: 1;
+}
+
+.sh-InsightsDashboard-statValue--large {
+	font-size: calc(var(--sh-font-size-xxxlarge) * 1.5);
 }
 
 .sh-InsightsDashboard-filters {

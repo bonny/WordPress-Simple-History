@@ -156,11 +156,11 @@ class Insights_View {
 	 */
 	public static function output_events_overview( $total_events, $top_users, $activity_overview, $date_from, $date_to ) {
 		?>
-		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
+		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide sh-InsightsDashboard-card--tall">
 			<div class="sh-InsightsDashboard-dateRange">
 				<div class="sh-InsightsDashboard-stat">
 					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total events', 'simple-history' ); ?></span>
-					<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
+					<span class="sh-InsightsDashboard-statValue sh-InsightsDashboard-statValue--large"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
 				</div>
 
 				<div class="sh-InsightsDashboard-stat">
