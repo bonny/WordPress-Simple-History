@@ -152,16 +152,23 @@ class Insights_View {
 	 * number of events for the selected date range, without giving away
 	 * too much information.
 	 *
-	 * @param int   $total_events Total number of events.
-	 * @param array $user_stats Array of user statistics.
-	 * @param array $top_users Array of top users data.
-	 * @param array $activity_overview Array of activity data by date.
+	 * @param array $data Array with stats data.
 	 * @param int   $date_from Start date as Unix timestamp.
 	 * @param int   $date_to   End date as Unix timestamp.
 	 */
-	public static function output_events_overview( $total_events, $user_stats, $top_users, $activity_overview, $date_from, $date_to ) {
+	public static function output_events_overview( $data, $date_from, $date_to ) {
+		$total_events = $data['overview_total_events'];
+		$user_stats = $data['user_stats'];
+		$top_users = $data['user_rankings_formatted'];
+		$activity_overview = $data['overview_activity_by_date'];
+		$user_total_count = $data['user_total_count'];
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide sh-InsightsDashboard-card--tall">
+
+			<h2 class="sh-InsightsDashboard-cardTitle" style="--sh-badge-background-color: var(--sh-color-green-light);">
+				<?php esc_html_e( 'Summary', 'simple-history' ); ?>
+			</h2>
+
 			<div class="sh-InsightsDashboard-dateRange">
 				<div class="sh-InsightsDashboard-stat">
 					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total events', 'simple-history' ); ?></span>
@@ -169,13 +176,65 @@ class Insights_View {
 				</div>
 
 				<div class="sh-InsightsDashboard-stat">
+					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total users', 'simple-history' ); ?></span>
+					<span class="sh-InsightsDashboard-statValue sh-InsightsDashboard-statValue--large"><?php echo esc_html( number_format_i18n( $user_total_count ) ); ?></span>
+				</div>
+
+				<div class="sh-InsightsDashboard-stat">
 					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users with most events', 'simple-history' ); ?></span>
 					<span class="sh-InsightsDashboard-statValue"><?php self::output_top_users_avatar_list( $top_users ); ?></span>
 				</div>
 			</div>		
+			
+			<div class="sh-InsightsDashboard-dateRange">
+				<?php
+				// Output totals for:
+				// - User profile activity
+				// - Plugins
+				// - Posts & pages activity
+				// - Media
+				// Output summary stats for key categories.
+				$categories = array(
+					array(
+						'label' => __( 'User activity actions', 'simple-history' ),
+						'value' => number_format_i18n( $user_stats['total_count'] ),
+					),
+					array(
+						'label' => __( 'Content actions', 'simple-history' ),
+						'value' => number_format_i18n( $data['content_stats']['total_count'] ),
+					),
+					array(
+						'label' => __( 'Plugin actions', 'simple-history' ),
+						'value' => number_format_i18n( $data['plugin_stats']['total_count'] ),
+					),
+					array(
+						'label' => __( 'Media actions', 'simple-history' ),
+						'value' => number_format_i18n( $data['media_stats']['total_count'] ),
+					),
+				);
 
-			<div class="sh-InsightsDashboard-chartContainer">
-				<canvas id="eventsOverviewChart" class="sh-InsightsDashboard-chart"></canvas>
+				foreach ( $categories as $category ) {
+					?>
+					<div class="sh-InsightsDashboard-stat">
+						<span class="sh-InsightsDashboard-statLabel"><?php echo esc_html( $category['label'] ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( $category['value'] ); ?></span>
+					</div>
+					<?php
+				}
+				?>
+			</div>
+	
+
+			<div class="sh-InsightsDashboard-stat">
+				<div class="sh-InsightsDashboard-statLabel">
+					<?php esc_html_e( 'Activity by date', 'simple-history' ); ?>
+				</div>
+
+				<span class="sh-InsightsDashboard-statValue">
+					<div class="sh-InsightsDashboard-chartContainer">
+						<canvas id="eventsOverviewChart" class="sh-InsightsDashboard-chart"></canvas>
+					</div>
+				</span>
 			</div>
 
 			<div class="sh-InsightsDashboard-dateRange">
@@ -875,10 +934,7 @@ class Insights_View {
 			<?php
 			// Display overview section.
 			self::output_events_overview(
-				$data['overview_total_events'],
-				$data['user_stats'],
-				$data['user_rankings_formatted'],
-				$data['overview_activity_by_date'],
+				$data,
 				$date_from,
 				$date_to
 			);
