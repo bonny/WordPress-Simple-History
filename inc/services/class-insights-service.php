@@ -149,7 +149,7 @@ class Insights_Service extends Service {
 	public function output_page() {
 		[ 'date_from' => $date_from, 'date_to' => $date_to ] = $this->get_selected_date_range();
 
-		$data = $this->prepare_insights_data( $date_from, $date_to );
+		$data = $this->init_stats( $date_from, $date_to );
 
 		$this->enqueue_scripts_and_styles();
 		$this->localize_script_data( $data, $date_from, $date_to );
@@ -169,59 +169,93 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Prepare data for the insights page.
+	 * Initialize statistics data.
 	 *
-	 * @param int $date_from Start date as Unix timestamp.
-	 * @param int $date_to   End date as Unix timestamp.
-	 * @return array Array of prepared data for the insights page.
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @return array Array of statistics data.
 	 */
-	private function prepare_insights_data( $date_from, $date_to ) {
-		$data = [
-			'total_events' => $this->stats->get_total_events( $date_from, $date_to ),
-			'total_users' => $this->stats->get_total_users( $date_from, $date_to ),
-			'last_edit' => $this->stats->get_last_edit_action( $date_from, $date_to ),
-			'activity_overview_by_date' => $this->stats->get_activity_overview_by_date( $date_from, $date_to ),
-			'peak_times' => $this->stats->get_peak_activity_times( $date_from, $date_to ),
-			'peak_days' => $this->stats->get_peak_days( $date_from, $date_to ),
-			'logged_in_users' => $this->stats->get_logged_in_users(),
-			// Add new user statistics.
-			'user_stats' => [
-				'failed_logins' => $this->stats->get_failed_logins( $date_from, $date_to ),
-				'users_added' => $this->stats->get_users_added( $date_from, $date_to ),
-				'users_removed' => $this->stats->get_users_removed( $date_from, $date_to ),
-				'users_updated' => $this->stats->get_users_updated( $date_from, $date_to ),
-				'successful_logins' => $this->stats->get_successful_logins( $date_from, $date_to ),
-				'top_users' => $this->stats->get_top_users( $date_from, $date_to, 10 ),
-			],
-			// Add WordPress core and plugin statistics.
-			'wordpress_stats' => [
-				'core_updates' => $this->stats->get_wordpress_core_updates( $date_from, $date_to ),
-				'plugin_updates' => $this->stats->get_plugin_updates( $date_from, $date_to ),
-				'plugin_installs' => $this->stats->get_plugin_installs( $date_from, $date_to ),
-				'plugin_deletions' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
-				'plugin_activations' => $this->stats->get_plugin_activations( $date_from, $date_to ),
-				'plugin_deactivations' => $this->stats->get_plugin_deactivations( $date_from, $date_to ),
-			],
-			// Add posts and pages statistics.
-			'posts_pages_stats' => [
-				'created' => $this->stats->get_posts_pages_created( $date_from, $date_to ),
-				'updated' => $this->stats->get_posts_pages_updated( $date_from, $date_to ),
-				'deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
-				'trashed' => $this->stats->get_posts_pages_trashed( $date_from, $date_to ),
-				'most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to, 10 ),
-			],
-			// Add media statistics.
-			'media_stats' => [
-				'uploads' => $this->stats->get_media_uploads( $date_from, $date_to ),
-				'edits' => $this->stats->get_media_edits( $date_from, $date_to ),
-				'deletions' => $this->stats->get_media_deletions( $date_from, $date_to ),
-			],
-			// Add stats object for user activity lookups.
-			'stats' => $this->stats,
+	public function init_stats( $date_from, $date_to ) {
+		$this->stats = new Events_Stats();
+
+		// Get total number of events.
+		$total_events = $this->stats->get_total_events( $date_from, $date_to );
+
+		// Get activity overview by date.
+		$activity_overview_by_date = $this->stats->get_activity_overview_by_date( $date_from, $date_to );
+
+		// Get peak activity times.
+		$peak_activity_times = $this->stats->get_peak_activity_times( $date_from, $date_to );
+
+		// Get peak days.
+		$peak_days = $this->stats->get_peak_days( $date_from, $date_to );
+
+		// Get logged in users.
+		$logged_in_users = $this->stats->get_logged_in_users();
+
+		// Get user statistics.
+		$user_stats = [
+			'logins_successful' => $this->stats->get_successful_logins_count( $date_from, $date_to ),
+			'logins_failed' => $this->stats->get_failed_logins_count( $date_from, $date_to ),
+			'users_updated' => $this->stats->get_user_updated_count( $date_from, $date_to ),
+			'users_added' => $this->stats->get_user_added_count( $date_from, $date_to ),
+			'users_removed' => $this->stats->get_user_removed_count( $date_from, $date_to ),
 		];
 
-		// Format top users data for the chart.
-		$data['formatted_top_users'] = array_map(
+		// Get WordPress and plugin statistics.
+		$wordpress_stats = [
+			'core_updates' => $this->stats->get_wordpress_core_updates( $date_from, $date_to ),
+			'plugin_updates' => $this->stats->get_plugin_updates( $date_from, $date_to ),
+			'plugin_installs' => $this->stats->get_plugin_installs( $date_from, $date_to ),
+			'plugin_deletions' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
+			'plugin_activations' => $this->stats->get_plugin_activations( $date_from, $date_to ),
+			'plugin_deactivations' => $this->stats->get_plugin_deactivations( $date_from, $date_to ),
+		];
+
+		// Get posts and pages statistics.
+		$posts_pages_stats = [
+			'created' => $this->stats->get_posts_pages_created( $date_from, $date_to ),
+			'updated' => $this->stats->get_posts_pages_updated( $date_from, $date_to ),
+			'deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
+			'trashed' => $this->stats->get_posts_pages_trashed( $date_from, $date_to ),
+			'most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to ),
+		];
+
+		// Get media statistics.
+		$media_stats = [
+			'uploads' => $this->stats->get_media_uploads( $date_from, $date_to ),
+			'edits' => $this->stats->get_media_edits( $date_from, $date_to ),
+			'deletions' => $this->stats->get_media_deletions( $date_from, $date_to ),
+		];
+
+		// Get top users.
+		$top_users = $this->stats->get_top_users( $date_from, $date_to );
+		$formatted_top_users = $this->format_top_users_data( $top_users );
+
+		return [
+			'stats' => $this->stats,
+			'total_events' => $total_events,
+			'activity_overview_by_date' => $activity_overview_by_date,
+			'peak_activity_times' => $peak_activity_times,
+			'peak_days' => $peak_days,
+			'logged_in_users' => $logged_in_users,
+			'user_stats' => $user_stats,
+			'wordpress_stats' => $wordpress_stats,
+			'posts_pages_stats' => $posts_pages_stats,
+			'media_stats' => $media_stats,
+			'top_users' => $top_users,
+			'formatted_top_users' => $formatted_top_users,
+		];
+	}
+
+	/**
+	 * Format top users data for the chart.
+	 *
+	 * @param array $top_users Array of top users.
+	 * @return array Formatted top users data.
+	 */
+	private function format_top_users_data( $top_users ) {
+		return array_map(
 			function ( $user ) {
 				return [
 					'id' => $user->user_id,
@@ -231,10 +265,8 @@ class Insights_Service extends Service {
 					'count' => (int) $user->count,
 				];
 			},
-			$data['user_stats']['top_users'] ? $data['user_stats']['top_users'] : []
+			$top_users ? $top_users : []
 		);
-
-		return $data;
 	}
 
 	/**
@@ -252,7 +284,7 @@ class Insights_Service extends Service {
 				'data' => [
 					'activityOverview' => $data['activity_overview_by_date'] ? $data['activity_overview_by_date'] : [],
 					'topUsers' => $data['formatted_top_users'] ? $data['formatted_top_users'] : [],
-					'peakTimes' => $data['peak_times'] ? $data['peak_times'] : [],
+					'peakTimes' => $data['peak_activity_times'] ? $data['peak_activity_times'] : [],
 					'peakDays' => $data['peak_days'] ? $data['peak_days'] : [],
 				],
 				'dateRange' => [

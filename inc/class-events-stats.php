@@ -326,7 +326,7 @@ class Events_Stats {
 	 * @param int $date_to   Required. End date as Unix timestamp.
 	 * @return int|false Number of failed logins, or false if invalid dates.
 	 */
-	public function get_failed_logins( $date_from, $date_to ) {
+	public function get_failed_logins_count( $date_from, $date_to ) {
 		return $this->get_stats_for_logger_and_values(
 			'SimpleUserLogger',
 			'_message_key',
@@ -343,7 +343,7 @@ class Events_Stats {
 	 * @param int $date_to   Required. End date as Unix timestamp.
 	 * @return int|false Number of users added, or false if invalid dates.
 	 */
-	public function get_users_added( $date_from, $date_to ) {
+	public function get_user_added_count( $date_from, $date_to ) {
 		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_created', $date_from, $date_to );
 	}
 
@@ -354,7 +354,7 @@ class Events_Stats {
 	 * @param int $date_to   Required. End date as Unix timestamp.
 	 * @return int|false Number of users removed, or false if invalid dates.
 	 */
-	public function get_users_removed( $date_from, $date_to ) {
+	public function get_user_removed_count( $date_from, $date_to ) {
 		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_deleted', $date_from, $date_to );
 	}
 
@@ -365,7 +365,7 @@ class Events_Stats {
 	 * @param int $date_to   Required. End date as Unix timestamp.
 	 * @return int|false Number of users updated, or false if invalid dates.
 	 */
-	public function get_users_updated( $date_from, $date_to ) {
+	public function get_user_updated_count( $date_from, $date_to ) {
 		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_updated_profile', $date_from, $date_to );
 	}
 
@@ -376,7 +376,7 @@ class Events_Stats {
 	 * @param int $date_to   Required. End date as Unix timestamp.
 	 * @return int|false Number of successful logins, or false if invalid dates.
 	 */
-	public function get_successful_logins( $date_from, $date_to ) {
+	public function get_successful_logins_count( $date_from, $date_to ) {
 		return $this->get_stats_for_logger_and_values(
 			'SimpleUserLogger',
 			'_message_key',
@@ -839,5 +839,24 @@ class Events_Stats {
 				$query_params
 			)
 		);
+	}
+
+	/**
+	 * Get user activity statistics.
+	 * 
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @return array Array of user activity stats.
+	 */
+	public function get_user_stats( $date_from, $date_to ) {
+		$stats = [
+			'logins_successful' => $this->get_successful_logins_count( $date_from, $date_to ),
+			'logins_failed' => $this->get_failed_logins_count( $date_from, $date_to ),
+			'users_updated' => $this->get_user_updated_count( $date_from, $date_to ),
+			'users_added' => $this->get_user_added_count( $date_from, $date_to ),
+			'users_removed' => $this->get_user_removed_count( $date_from, $date_to ),
+		];
+
+		return $stats;
 	}
 }

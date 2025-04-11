@@ -148,13 +148,19 @@ class Insights_View {
 	 * Output the events overview section that show the total number of events
 	 * for a period with a bar chart of number of events per day.
 	 *
+	 * This is the largest card on the dashboard. Shows the summary of the
+	 * number of events for the selected date range, without giving away
+	 * too much information.
+	 *
 	 * @param int   $total_events Total number of events.
+	 * @param array $user_stats Array of user statistics.
 	 * @param array $top_users Array of top users data.
 	 * @param array $activity_overview Array of activity data by date.
 	 * @param int   $date_from Start date as Unix timestamp.
 	 * @param int   $date_to   End date as Unix timestamp.
 	 */
-	public static function output_events_overview( $total_events, $top_users, $activity_overview, $date_from, $date_to ) {
+	public static function output_events_overview( $total_events, $user_stats, $top_users, $activity_overview, $date_from, $date_to ) {
+		sh_d( '$user_stats', $user_stats );
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide sh-InsightsDashboard-card--tall">
 			<div class="sh-InsightsDashboard-dateRange">
@@ -169,7 +175,7 @@ class Insights_View {
 				</div>
 			</div>		
 
-			<div class="sh-InsightsDashboard-smallChartContainer">
+			<div class="sh-InsightsDashboard-chartContainer">
 				<canvas id="eventsOverviewChart" class="sh-InsightsDashboard-chart"></canvas>
 			</div>
 
@@ -615,12 +621,12 @@ class Insights_View {
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Logins', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['successful_logins'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['logins_successful'] ) ); ?></span>
 					</div>
 
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Failed logins', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['failed_logins'] ) ); ?></span>
+						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['logins_failed'] ) ); ?></span>
 					</div>
 
 					<div class="sh-InsightsDashboard-stat">
@@ -884,7 +890,7 @@ class Insights_View {
 		<div class="sh-InsightsDashboard">
 			<?php
 
-			self::output_events_overview( $data['total_events'], $data['formatted_top_users'], $data['activity_overview_by_date'], $date_from, $date_to );
+			self::output_events_overview( $data['total_events'], $data['user_stats'], $data['formatted_top_users'], $data['activity_overview_by_date'], $date_from, $date_to );
 
 			self::output_chart_section(
 				_x( 'Peak activity times', 'insights section title', 'simple-history' ),
