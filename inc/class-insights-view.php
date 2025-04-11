@@ -297,7 +297,7 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				class="sh-InsightsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
 				<?php echo esc_html_x( 'User activity', 'insights section title', 'simple-history' ); ?>
@@ -335,7 +335,7 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				class="sh-InsightsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
 				<?php echo esc_html_x( 'Most edited posts and pages', 'insights section title', 'simple-history' ); ?>
@@ -477,7 +477,7 @@ class Insights_View {
 		?>
 		<div class="<?php echo esc_attr( $section_class ); ?>">
 			<h2
-				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				class="sh-InsightsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
 				<?php echo esc_html( $title ); ?>
@@ -605,7 +605,7 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge"	 
+				class="sh-InsightsDashboard-cardTitle"	 
 				style="--sh-badge-background-color: var(--sh-color-pink);"
 			>
 				<?php echo esc_html_x( 'User profile activity', 'insights section title', 'simple-history' ); ?>
@@ -659,7 +659,7 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				class="sh-InsightsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-yellow);"
 			>
 				<?php echo esc_html_x( 'Posts & Pages Activity', 'insights section title', 'simple-history' ); ?>
@@ -702,7 +702,7 @@ class Insights_View {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge" 
+				class="sh-InsightsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
 				<?php echo esc_html_x( 'Media', 'insights section title', 'simple-history' ); ?>
@@ -819,7 +819,7 @@ class Insights_View {
 	public static function output_plugin_stats( $wordpress_stats, $stats, $date_from, $date_to ) {
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
-			<h2 class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge"><?php esc_html_e( 'Plugins', 'simple-history' ); ?></h2>
+			<h2 class="sh-InsightsDashboard-cardTitle"><?php esc_html_e( 'Plugins', 'simple-history' ); ?></h2>
 
 			<div class="sh-InsightsDashboard-stats">
 				<!-- <div class="sh-InsightsDashboard-stat">
@@ -887,12 +887,12 @@ class Insights_View {
 			self::output_events_overview( $data['total_events'], $data['formatted_top_users'], $data['activity_overview_by_date'], $date_from, $date_to );
 
 			self::output_chart_section(
-				_x( 'Peak Activity Times', 'insights section title', 'simple-history' ),
+				_x( 'Peak activity times', 'insights section title', 'simple-history' ),
 				'peakTimesChart'
 			);
 
 			self::output_chart_section(
-				_x( 'Peak Activity Days', 'insights section title', 'simple-history' ),
+				_x( 'Peak activity days', 'insights section title', 'simple-history' ),
 				'peakDaysChart'
 			);
 
@@ -906,13 +906,13 @@ class Insights_View {
 
 			?>
 			<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--full">
-				<h2 class="sh-InsightsDashboard-cardTitle sh-PremiumFeatureBadge"><?php esc_html_e( 'Plugins details', 'simple-history' ); ?></h2>
+				<h2 class="sh-InsightsDashboard-cardTitle"><?php esc_html_e( 'Plugins details', 'simple-history' ); ?></h2>
 
 				<?php
-				self::output_plugin_table( __( 'Installed Plugins', 'simple-history' ), 'installed', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Activated Plugins', 'simple-history' ), 'activated', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Deactivated Plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Deleted Plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $data['stats'] );
+				self::output_plugin_table( __( 'Installed plugins', 'simple-history' ), 'installed', $date_from, $date_to, $data['stats'] );
+				self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $data['stats'] );
+				self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $data['stats'] );
+				self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $data['stats'] );
 				?>
 			</div>
 
@@ -930,7 +930,7 @@ class Insights_View {
 	public static function output_activity_calendar_section( $date_from, $date_to, $activity_overview_by_date ) {
 		?>
 		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
-			<h2><?php echo esc_html_x( 'Activity Calendar', 'insights section title', 'simple-history' ); ?></h2>
+			<h2><?php echo esc_html_x( 'Activity calendar', 'insights section title', 'simple-history' ); ?></h2>
 			<div class="sh-InsightsDashboard-content">
 				<?php self::output_activity_calendar( $date_from, $date_to, $activity_overview_by_date ); ?>
 			</div>
