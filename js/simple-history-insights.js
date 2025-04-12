@@ -88,6 +88,13 @@ jQuery( function () {
 							precision: 0,
 						},
 					},
+					x: {
+						ticks: {
+							font: {
+								size: 10,
+							},
+						},
+					},
 				},
 			},
 		} );
@@ -141,6 +148,13 @@ jQuery( function () {
 						beginAtZero: true,
 						ticks: {
 							precision: 0,
+						},
+					},
+					x: {
+						ticks: {
+							font: {
+								size: 10,
+							},
 						},
 					},
 				},
