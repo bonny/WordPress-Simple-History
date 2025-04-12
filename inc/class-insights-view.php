@@ -1048,6 +1048,7 @@ class Insights_View {
 	 */
 	public static function output_plugins_with_updates_table( $stats ) {
 		$plugins_with_updates = $stats->get_plugins_with_updates();
+
 		if ( empty( $plugins_with_updates ) ) {
 			return;
 		}
@@ -1182,17 +1183,6 @@ class Insights_View {
 			self::output_top_posts_and_pages_section( $data['content_stats']['content_items_most_edited'] );
 
 			?>
-			<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--full">
-				<h2 class="sh-InsightsDashboard-cardTitle"><?php esc_html_e( 'Plugins details', 'simple-history' ); ?></h2>
-
-				<?php
-				self::output_plugin_table( __( 'Installed plugins', 'simple-history' ), 'installed', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $data['stats'] );
-				self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $data['stats'] );
-				?>
-			</div>
-
 		</div>
 		<?php
 	}
