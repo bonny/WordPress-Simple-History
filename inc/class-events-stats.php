@@ -856,9 +856,10 @@ class Events_Stats {
 			return false;
 		}
 
-		$results = $wpdb->get_results(
+		// First query: Get matching history entries.
+		$history_results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT 
+				"SELECT DISTINCT 
 					h.*
 				FROM 
 					{$wpdb->prefix}simple_history h
@@ -880,7 +881,46 @@ class Events_Stats {
 			)
 		);
 
-		return $results;
+		if ( empty( $history_results ) ) {
+			return array();
+		}
+
+		// Get all history IDs.
+		$history_ids = wp_list_pluck( $history_results, 'id' );
+		$history_ids_placeholders = implode( ',', array_fill( 0, count( $history_ids ), '%d' ) );
+
+		// Second query: Get all context data for these history entries.
+		$context_results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					history_id,
+					`key`,
+					value
+				FROM 
+					{$wpdb->prefix}simple_history_contexts 
+				WHERE 
+					history_id IN ($history_ids_placeholders)",
+				$history_ids
+			)
+		);
+
+		// Combine the results.
+		$context_by_history_id = array();
+		foreach ( $context_results as $context ) {
+			if ( ! isset( $context_by_history_id[ $context->history_id ] ) ) {
+				$context_by_history_id[ $context->history_id ] = array();
+			}
+			$context_by_history_id[ $context->history_id ][ $context->key ] = $context->value;
+		}
+
+		// Add context data to history entries.
+		foreach ( $history_results as $history ) {
+			$history->context = isset( $context_by_history_id[ $history->id ] ) 
+				? $context_by_history_id[ $history->id ] 
+				: array();
+		}
+
+		return $history_results;
 	}
 
 	/**
