@@ -1028,7 +1028,8 @@ class Insights_View {
 	 * @param Events_Stats $stats Stats instance.
 	 */
 	public static function output_plugin_table( $title, $action_type, $date_from, $date_to, $stats ) {
-		$plugins = $stats->get_plugin_details( $action_type, $date_from, $date_to );
+		// Show up to 50 entries for better overview.
+		$plugins = $stats->get_plugin_details( $action_type, $date_from, $date_to, 50 );
 
 		self::output_details_table(
 			$title,
