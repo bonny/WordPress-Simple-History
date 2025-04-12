@@ -1195,8 +1195,8 @@ class Insights_View {
 			__( 'Media uploads', 'simple-history' ),
 			[
 				__( 'File', 'simple-history' ),
-				__( 'Uploaded by', 'simple-history' ),
-				__( 'Date', 'simple-history' ),
+				__( 'User', 'simple-history' ),
+				__( 'When', 'simple-history' ),
 			],
 			$uploads,
 			function ( $upload ) {
@@ -1230,8 +1230,8 @@ class Insights_View {
 			__( 'Media edits', 'simple-history' ),
 			[
 				__( 'Title', 'simple-history' ),
-				__( 'Edited by', 'simple-history' ),
-				__( 'Date', 'simple-history' ),
+				__( 'User', 'simple-history' ),
+				__( 'When', 'simple-history' ),
 			],
 			$edits,
 			function ( $edit ) {
@@ -1265,8 +1265,8 @@ class Insights_View {
 			__( 'Media deletions', 'simple-history' ),
 			[
 				__( 'File', 'simple-history' ),
-				__( 'Deleted by', 'simple-history' ),
-				__( 'Date', 'simple-history' ),
+				__( 'User', 'simple-history' ),
+				__( 'When', 'simple-history' ),
 			],
 			$deletions,
 			function ( $deletion ) {
