@@ -504,7 +504,7 @@ class Events_Stats {
 	/**
 	 * Get details of plugins based on action type.
 	 *
-	 * @param string $action_type Type of action ('updated', 'deleted', 'activated', 'deactivated').
+	 * @param string $action_type Type of action ('updated', 'deleted', 'activated', 'deactivated', 'plugin_update_available').
 	 * @param int    $date_from   Start date as Unix timestamp.
 	 * @param int    $date_to     End date as Unix timestamp.
 	 * @param int    $limit       Optional. Number of plugins to return. Default 5.
@@ -518,6 +518,8 @@ class Events_Stats {
 		}
 
 		$message_keys = array();
+		$logger_slug = 'SimplePluginLogger';
+
 		switch ( $action_type ) {
 			case 'updated':
 				$message_keys = array( 'plugin_updated', 'plugin_bulk_updated' );
@@ -533,6 +535,10 @@ class Events_Stats {
 				break;
 			case 'installed':
 				$message_keys = array( 'plugin_installed' );
+				break;
+			case 'plugin_update_available':
+				$message_keys = array( 'plugin_update_available' );
+				$logger_slug = 'AvailableUpdatesLogger';
 				break;
 			default:
 				return array();
@@ -560,7 +566,7 @@ class Events_Stats {
 				AND c2.key = %s
 				AND h.date >= FROM_UNIXTIME(%d)
 				AND h.date <= FROM_UNIXTIME(%d)",
-			'SimplePluginLogger',
+			$logger_slug,
 			'_message_key',
 			'plugin_name',
 			'plugin_version',

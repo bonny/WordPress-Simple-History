@@ -751,36 +751,46 @@ class Insights_View {
 		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
 			<h3><?php echo esc_html( $title ); ?></h3>
 
-			<table class="widefat striped">
-				<thead>
-					<tr>
-						<?php
-						foreach ( $headers as $header ) {
-							?>
-							<th><?php echo esc_html( $header ); ?></th>
-							<?php
-						}
-						?>
-					</tr>
-				</thead>
-				<tbody>
-					<?php
-					foreach ( $data as $item ) {
-						?>
+			<?php
+			if ( empty( $data ) ) {
+				?>
+				<p><?php esc_html_e( 'No plugins found.', 'simple-history' ); ?></p>
+				<?php
+			} else {
+				?>
+				<table class="widefat striped">
+					<thead>
 						<tr>
 							<?php
-							foreach ( $row_callback( $item ) as $cell ) {
+							foreach ( $headers as $header ) {
 								?>
-								<td><?php echo wp_kses_post( $cell ); ?></td>
+								<th><?php echo esc_html( $header ); ?></th>
 								<?php
 							}
 							?>
 						</tr>
+					</thead>
+					<tbody>
 						<?php
-					}
-					?>
-				</tbody>
-			</table>
+						foreach ( $data as $item ) {
+							?>
+							<tr>
+								<?php
+								foreach ( $row_callback( $item ) as $cell ) {
+									?>
+									<td><?php echo wp_kses_post( $cell ); ?></td>
+									<?php
+								}
+								?>
+							</tr>
+							<?php
+						}
+						?>
+					</tbody>
+				</table>
+				<?php
+			}
+			?>
 		</div>
 		<?php
 	}
@@ -1020,15 +1030,10 @@ class Insights_View {
 	public static function output_plugin_table( $title, $action_type, $date_from, $date_to, $stats ) {
 		$plugins = $stats->get_plugin_details( $action_type, $date_from, $date_to );
 
-		if ( empty( $plugins ) ) {
-			echo '<p>' . esc_html__( 'No plugins found.', 'simple-history' ) . '</p>';
-			return;
-		}
-
 		self::output_details_table(
 			$title,
 			[
-				__( 'Plugin Name', 'simple-history' ),
+				__( 'Name', 'simple-history' ),
 				__( 'Event date', 'simple-history' ),
 			],
 			$plugins,
@@ -1036,36 +1041,6 @@ class Insights_View {
 				return [
 					esc_html( $plugin['name'] ),
 					esc_html( $plugin['when'] ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of plugins that have updates available.
-	 *
-	 * @param object $stats Stats instance.
-	 */
-	public static function output_plugins_with_updates_table( $stats ) {
-		$plugins_with_updates = $stats->get_plugins_with_updates();
-
-		if ( empty( $plugins_with_updates ) ) {
-			return;
-		}
-
-		self::output_details_table(
-			__( 'Plugins with Updates Available', 'simple-history' ),
-			[
-				__( 'Plugin Name', 'simple-history' ),
-				__( 'Current Version', 'simple-history' ),
-				__( 'New Version', 'simple-history' ),
-			],
-			$plugins_with_updates,
-			function ( $plugin ) {
-				return [
-					esc_html( $plugin['name'] ),
-					esc_html( $plugin['current_version'] ),
-					esc_html( $plugin['new_version'] ),
 				];
 			}
 		);
@@ -1134,7 +1109,7 @@ class Insights_View {
 					self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $stats );
 					self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $stats );
 					self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $stats );
-					self::output_plugins_with_updates_table( $stats );
+					self::output_plugin_table( __( 'Updates found for plugins', 'simple-history' ), 'plugin_update_available', $date_from, $date_to, $stats );
 					?>
 				</div>
 			</details>
