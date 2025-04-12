@@ -519,6 +519,8 @@ class Events_Stats {
 
 		$message_keys = array();
 		$logger_slug = 'SimplePluginLogger';
+		$name_key = 'plugin_name';
+		$version_key = 'plugin_version';
 
 		switch ( $action_type ) {
 			case 'updated':
@@ -539,6 +541,8 @@ class Events_Stats {
 			case 'plugin_update_available':
 				$message_keys = array( 'plugin_update_available' );
 				$logger_slug = 'AvailableUpdatesLogger';
+				$name_key = 'plugin_name';
+				$version_key = 'plugin_new_version';
 				break;
 			default:
 				return array();
@@ -568,8 +572,8 @@ class Events_Stats {
 				AND h.date <= FROM_UNIXTIME(%d)",
 			$logger_slug,
 			'_message_key',
-			'plugin_name',
-			'plugin_version',
+			$name_key,
+			$version_key,
 			$date_from,
 			$date_to
 		);
