@@ -246,7 +246,13 @@ class Insights_Service extends Service {
 			)
 		);
 
-		// Get media statistics.
+		// Get detailed content stats.
+		$detailed_content_stats = $this->stats->get_detailed_content_stats( $date_from, $date_to );
+		if ( $detailed_content_stats ) {
+			$posts_pages_stats = array_merge( $posts_pages_stats, $detailed_content_stats );
+		}
+
+		// Get media statistics for the period.
 		$media_stats = [
 			'media_files_uploaded' => $this->stats->get_media_uploads( $date_from, $date_to ),
 			'media_files_edited' => $this->stats->get_media_edits( $date_from, $date_to ),
