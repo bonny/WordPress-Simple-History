@@ -213,6 +213,7 @@ class Insights_View {
 					),
 				);
 
+				/*
 				foreach ( $categories as $category ) {
 					?>
 					<div class="sh-InsightsDashboard-stat">
@@ -221,6 +222,8 @@ class Insights_View {
 					</div>
 					<?php
 				}
+
+				*/
 				?>
 			</div>
 	
