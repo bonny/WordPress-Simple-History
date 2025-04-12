@@ -978,9 +978,160 @@ class Insights_View {
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_deleted'] ) ); ?></span>
 					</div>
 				</div>
+
+				<details>
+					<summary>
+						<?php esc_html_e( 'Show details', 'simple-history' ); ?>
+					</summary>
+
+					<p>
+						<?php esc_html_e( 'Showing max 50 events, ordered by date.', 'simple-history' ); ?>
+					</p>
+
+					<div class="" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+						<?php
+						self::output_content_created_table( $posts_pages_stats['content_items_created_details'] ?? [] );
+						self::output_content_updated_table( $posts_pages_stats['content_items_updated_details'] ?? [] );
+						self::output_content_trashed_table( $posts_pages_stats['content_items_trashed_details'] ?? [] );
+						self::output_content_deleted_table( $posts_pages_stats['content_items_deleted_details'] ?? [] );
+						?>
+					</div>
+				</details>
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Output a table of created content items.
+	 *
+	 * @param array $created_items Array of created content items.
+	 */
+	public static function output_content_created_table( $created_items ) {
+		self::output_details_table(
+			__( 'Created content', 'simple-history' ),
+			[
+				__( 'Title', 'simple-history' ),
+				__( 'Type', 'simple-history' ),
+				__( 'Created by', 'simple-history' ),
+				__( 'Date', 'simple-history' ),
+			],
+			$created_items,
+			function ( $item ) {
+				$created_by = get_userdata( $item->created_by_id );
+				$created_by_avatar = get_avatar_url( $item->created_by_id );
+				return [
+					esc_html( $item->post_title ),
+					esc_html( $item->post_type ),
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $created_by_avatar ),
+						esc_attr( $created_by->user_login ),
+						esc_html( $created_by->display_name )
+					),
+					esc_html( $item->created_date ),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output a table of updated content items.
+	 *
+	 * @param array $updated_items Array of updated content items.
+	 */
+	public static function output_content_updated_table( $updated_items ) {
+		self::output_details_table(
+			__( 'Updated content', 'simple-history' ),
+			[
+				__( 'Title', 'simple-history' ),
+				__( 'Type', 'simple-history' ),
+				__( 'Updated by', 'simple-history' ),
+				__( 'Date', 'simple-history' ),
+			],
+			$updated_items,
+			function ( $item ) {
+				$updated_by = get_userdata( $item->updated_by_id );
+				$updated_by_avatar = get_avatar_url( $item->updated_by_id );
+				return [
+					esc_html( $item->post_title ),
+					esc_html( $item->post_type ),
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $updated_by_avatar ),
+						esc_attr( $updated_by->user_login ),
+						esc_html( $updated_by->display_name )
+					),
+					esc_html( $item->updated_date ),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output a table of trashed content items.
+	 *
+	 * @param array $trashed_items Array of trashed content items.
+	 */
+	public static function output_content_trashed_table( $trashed_items ) {
+		self::output_details_table(
+			__( 'Trashed content', 'simple-history' ),
+			[
+				__( 'Title', 'simple-history' ),
+				__( 'Type', 'simple-history' ),
+				__( 'Trashed by', 'simple-history' ),
+				__( 'Date', 'simple-history' ),
+			],
+			$trashed_items,
+			function ( $item ) {
+				$trashed_by = get_userdata( $item->trashed_by_id );
+				$trashed_by_avatar = get_avatar_url( $item->trashed_by_id );
+				return [
+					esc_html( $item->post_title ),
+					esc_html( $item->post_type ),
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $trashed_by_avatar ),
+						esc_attr( $trashed_by->user_login ),
+						esc_html( $trashed_by->display_name )
+					),
+					esc_html( $item->trashed_date ),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output a table of deleted content items.
+	 *
+	 * @param array $deleted_items Array of deleted content items.
+	 */
+	public static function output_content_deleted_table( $deleted_items ) {
+		self::output_details_table(
+			__( 'Deleted content', 'simple-history' ),
+			[
+				__( 'Title', 'simple-history' ),
+				__( 'Type', 'simple-history' ),
+				__( 'Deleted by', 'simple-history' ),
+				__( 'Date', 'simple-history' ),
+			],
+			$deleted_items,
+			function ( $item ) {
+				$deleted_by = get_userdata( $item->deleted_by_id );
+				$deleted_by_avatar = get_avatar_url( $item->deleted_by_id );
+				return [
+					esc_html( $item->post_title ),
+					esc_html( $item->post_type ),
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $deleted_by_avatar ),
+						esc_attr( $deleted_by->user_login ),
+						esc_html( $deleted_by->display_name )
+					),
+					esc_html( $item->deleted_date ),
+				];
+			}
+		);
 	}
 
 	/**
