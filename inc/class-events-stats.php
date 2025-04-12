@@ -903,7 +903,7 @@ class Events_Stats {
 	 * @param bool $include_ip Optional. Whether to include IP addresses. Default false.
 	 * @return array Array of detailed user activity stats.
 	 */
-	public function get_detailed_user_stats( $date_from, $date_to, $limit = 10, $include_ip = false ) {
+	public function get_detailed_user_stats( $date_from, $date_to, $limit = 50, $include_ip = false ) {
 		if ( ! $date_from || ! $date_to ) {
 			return false;
 		}

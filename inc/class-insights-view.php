@@ -103,14 +103,18 @@ class Insights_View {
 						onchange="this.form.submit()"
 						aria-label="<?php esc_attr_e( 'Select time period', 'simple-history' ); ?>"
 					>
-						<?php foreach ( $time_periods as $period => $labels ) : ?>
+						<?php
+						foreach ( $time_periods as $period => $labels ) {
+							?>
 							<option 
 								value="<?php echo esc_attr( $period ); ?>" 
 								<?php selected( $current_period, $period ); ?>
 							>
 								<?php echo esc_html( $labels['label'] ); ?>
 							</option>
-						<?php endforeach; ?>
+							<?php
+						}
+						?>
 					</select>
 				</form>
 			</div>
@@ -665,10 +669,10 @@ class Insights_View {
 	/**
 	 * Output the user activity statistics section.
 	 *
-	 * @param array  $user_stats Array of user statistics.
-	 * @param object $stats Stats object for getting user activity.
+	 * @param array $data Array of insights data.
 	 */
-	public static function output_user_stats_section( $user_stats, $stats ) {
+	public static function output_user_stats_section( $data ) {
+		$user_stats = $data['user_stats'];
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
 			<h2 
@@ -679,9 +683,10 @@ class Insights_View {
 			</h2>
 
 			<div class="sh-InsightsDashboard-content">
+
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Logins', 'simple-history' ); ?></span>
+						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Successful logins', 'simple-history' ); ?></span>
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_successful'] ) ); ?></span>
 					</div>
 
@@ -708,11 +713,225 @@ class Insights_View {
 					</div>
 				</div>
 
-				<?php
-				// Display top users table if available.
-				// self::output_top_users_table( $user_stats['top_users'], $stats );
-				?>
+				<details>
+					<summary>
+						<?php esc_html_e( 'Show details', 'simple-history' ); ?>
+					</summary>
+
+					<p>
+						<?php esc_html_e( 'Showing max 50 events, ordered by count.', 'simple-history' ); ?>
+					</p>
+
+					<div class="" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+						<?php
+						self::output_user_successful_logins_table( $data['user_stats_details']['successful_logins'] );
+						self::output_user_failed_logins_table( $data['user_stats_details']['failed_logins'] );
+						self::output_user_profile_updates_table( $data['user_stats_details']['profile_updates'] );
+						self::output_user_added_table( $data['user_stats_details']['added_users'] );
+						self::output_user_removed_table( $data['user_stats_details']['removed_users'] );
+						?>
+					</div>
+				</details>
+
 			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output a table of users with successful logins.
+	 *
+	 * @param array $successful_logins Array of successful login details.
+	 */
+	public static function output_user_successful_logins_table( $successful_logins ) {
+		?>
+		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
+			<h3><?php esc_html_e( 'Users with successful logins', 'simple-history' ); ?></h3>
+
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'User', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Number of logins', 'simple-history' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					foreach ( $successful_logins as $login ) {
+						$user_avatar = get_avatar_url( $login->user_id );
+						?>
+						<tr>
+							<td>
+								<img src="<?php echo esc_url( $user_avatar ); ?>" alt="<?php echo esc_attr( $login->user_login ); ?>" class="sh-InsightsDashboard-userAvatar">
+								<?php echo esc_html( $login->user_login ); ?>
+							</td>
+							<td><?php echo esc_html( $login->login_count ); ?></td>
+						</tr>
+						<?php
+					}
+					?>
+				</tbody>
+			</table>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output a table of users with failed logins.
+	 *
+	 * @param array $failed_logins Array of failed login details.
+	 */
+	public static function output_user_failed_logins_table( $failed_logins ) {
+		?>
+		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
+			<h3><?php esc_html_e( 'Accounts with failed logins', 'simple-history' ); ?></h3>
+
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Account', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Number of failed logins', 'simple-history' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					foreach ( $failed_logins as $login ) {
+						?>
+						<tr>
+							<td><?php echo esc_html( $login->attempted_username ); ?></td>
+							<td><?php echo esc_html( $login->failed_count ); ?></td>
+						</tr>
+						<?php
+					}
+					?>
+				</tbody>
+			</table>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output a table of user profile updates.
+	 *
+	 * @param array $profile_updates Array of profile update details.
+	 */
+	public static function output_user_profile_updates_table( $profile_updates ) {
+		?>
+		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
+			<h3><?php esc_html_e( 'User profile updates', 'simple-history' ); ?></h3>
+
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'User', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Updates', 'simple-history' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					foreach ( $profile_updates as $update ) {
+						$user_avatar = get_avatar_url( $update->user_id );
+						?>
+						<tr>
+							<td>
+								<img src="<?php echo esc_url( $user_avatar ); ?>" alt="<?php echo esc_attr( $update->user_login ); ?>" class="sh-InsightsDashboard-userAvatar">
+								<?php echo esc_html( $update->user_login ); ?>
+							</td>
+							<td><?php echo esc_html( $update->update_count ); ?></td>
+						</tr>
+						<?php
+					}
+					?>
+				</tbody>
+			</table>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output a table of added users.
+	 *
+	 * @param array $added_users Array of added user details.
+	 */
+	public static function output_user_added_table( $added_users ) {
+		?>
+		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
+			<h3><?php esc_html_e( 'Added users', 'simple-history' ); ?></h3>
+
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Added user', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Role', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Added by', 'simple-history' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					foreach ( $added_users as $user ) {
+						$user_avatar = get_avatar_url( $user->user_id );
+						$added_by = get_userdata( $user->added_by_id );
+						$added_by_avatar = get_avatar_url( $user->added_by_id );
+						?>
+						<tr>
+							<td>
+								<img src="<?php echo esc_url( $user_avatar ); ?>" alt="<?php echo esc_attr( $user->user_login ); ?>" class="sh-InsightsDashboard-userAvatar">
+								<?php echo esc_html( $user->user_login ); ?>
+							</td>
+							<td><?php echo esc_html( $user->user_role ); ?></td>
+							<td>
+								<img src="<?php echo esc_url( $added_by_avatar ); ?>" alt="<?php echo esc_attr( $added_by->user_login ); ?>" class="sh-InsightsDashboard-userAvatar">
+								<?php echo esc_html( $added_by->display_name ); ?>
+							</td>
+						</tr>
+						<?php
+					}
+					?>
+				</tbody>
+			</table>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output a table of removed users.
+	 *
+	 * @param array $removed_users Array of removed user details.
+	 */
+	public static function output_user_removed_table( $removed_users ) {
+		?>
+		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
+			<h3><?php esc_html_e( 'Removed users', 'simple-history' ); ?></h3>
+
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Removed user', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Email', 'simple-history' ); ?></th>
+						<th><?php esc_html_e( 'Removed by', 'simple-history' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					foreach ( $removed_users as $user ) {
+						$removed_by = get_userdata( $user->removed_by_id );
+						$removed_by_avatar = get_avatar_url( $user->removed_by_id );
+						?>
+						<tr>
+							<td>
+								<?php echo esc_html( $user->user_login ); ?>
+							</td>
+							<td><?php echo esc_html( $user->user_email ); ?></td>
+							<td>
+								<img src="<?php echo esc_url( $removed_by_avatar ); ?>" alt="<?php echo esc_attr( $removed_by->user_login ); ?>" class="sh-InsightsDashboard-userAvatar">
+								<?php echo esc_html( $removed_by->display_name ); ?>
+							</td>
+						</tr>
+						<?php
+					}
+					?>
+				</tbody>
+			</table>
 		</div>
 		<?php
 	}
@@ -954,15 +1173,15 @@ class Insights_View {
 
 			self::output_plugin_stats( $data['plugin_stats'], $data['stats'], $date_from, $date_to );
 
-				self::output_user_stats_section( $data['user_stats'], $data['stats'] );
+			self::output_user_stats_section( $data );
 
-				self::output_posts_pages_stats_section( $data['content_stats'] );
+			self::output_posts_pages_stats_section( $data['content_stats'] );
 
-				self::output_media_stats_section( $data['media_stats'] );
+			self::output_media_stats_section( $data['media_stats'] );
 
-				self::output_top_users_section( $data['user_rankings_formatted'] );
+			self::output_top_users_section( $data['user_rankings_formatted'] );
 
-				self::output_top_posts_and_pages_section( $data['content_stats']['content_items_most_edited'] );
+			self::output_top_posts_and_pages_section( $data['content_stats']['content_items_most_edited'] );
 
 			?>
 			<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--full">
