@@ -859,30 +859,28 @@ class Events_Stats {
 		$placeholders = array_fill( 0, count( $message_values ), '%s' );
 		$value_placeholders = implode( ' OR c.value = ', $placeholders );
 
-		// Prepare the query parameters.
-		$query_params = array_merge(
-			[ $logger_slug, $message_key ],
-			$message_values,
-			[ $date_from, $date_to ]
-		);
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = %s
-					AND c.key = %s
-					AND (c.value = {$value_placeholders})
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$query_params
+		// Build the complete query with proper placeholders.
+		$sql = $wpdb->prepare(
+			"SELECT 
+				COUNT(*)
+			FROM 
+				{$wpdb->prefix}simple_history h
+			JOIN 
+				{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+			WHERE 
+				h.logger = %s
+				AND c.key = %s
+				AND (c.value = {$value_placeholders})
+				AND h.date >= FROM_UNIXTIME(%d)
+				AND h.date <= FROM_UNIXTIME(%d)",
+			array_merge(
+				[ $logger_slug, $message_key ],
+				$message_values,
+				[ $date_from, $date_to ]
 			)
 		);
+
+		return (int) $wpdb->get_var( $sql );
 	}
 
 	/**
@@ -909,7 +907,7 @@ class Events_Stats {
 	 *
 	 * @param int  $date_from Start date timestamp.
 	 * @param int  $date_to End date timestamp.
-	 * @param int  $limit Optional. Number of entries per section. Default 10.
+	 * @param int  $limit Optional. Number of entries per section. Default 50.
 	 * @param bool $include_ip Optional. Whether to include IP addresses. Default false.
 	 * @return array Array of detailed user activity stats.
 	 */
@@ -1214,6 +1212,243 @@ class Events_Stats {
 						WHERE c_msg.history_id = h.id 
 						AND c_msg.key = '_message_key'
 						AND c_msg.value = 'user_deleted'
+					)
+				ORDER BY 
+					h.date DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get detailed content item statistics.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Optional. Number of entries per section. Default 50.
+	 * @return array Array of detailed content item stats.
+	 */
+	public function get_detailed_content_stats( $date_from, $date_to, $limit = 50 ) {
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return array(
+			'content_items_created_details' => $this->get_content_created_details( $date_from, $date_to, $limit ),
+			'content_items_updated_details' => $this->get_content_updated_details( $date_from, $date_to, $limit ),
+			'content_items_trashed_details' => $this->get_content_trashed_details( $date_from, $date_to, $limit ),
+			'content_items_deleted_details' => $this->get_content_deleted_details( $date_from, $date_to, $limit ),
+		);
+	}
+
+	/**
+	 * Get detailed statistics about created content items.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Number of entries to return.
+	 * @return array Array of created content details.
+	 */
+	protected function get_content_created_details( $date_from, $date_to, $limit ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date as created_date,
+					c.value as post_id,
+					c2.value as post_title,
+					c3.value as post_type,
+					c4.value as created_by_id
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c4 ON h.id = c4.history_id
+				WHERE 
+					h.logger = 'SimplePostLogger'
+					AND c.key = 'post_id'
+					AND c2.key = 'post_title'
+					AND c3.key = 'post_type'
+					AND c4.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value = 'post_created'
+					)
+				ORDER BY 
+					h.date DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get detailed statistics about updated content items.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Number of entries to return.
+	 * @return array Array of updated content details.
+	 */
+	protected function get_content_updated_details( $date_from, $date_to, $limit ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date as updated_date,
+					c.value as post_id,
+					c2.value as post_title,
+					c3.value as post_type,
+					c4.value as updated_by_id
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c4 ON h.id = c4.history_id
+				WHERE 
+					h.logger = 'SimplePostLogger'
+					AND c.key = 'post_id'
+					AND c2.key = 'post_title'
+					AND c3.key = 'post_type'
+					AND c4.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value = 'post_updated'
+					)
+				ORDER BY 
+					h.date DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get detailed statistics about trashed content items.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Number of entries to return.
+	 * @return array Array of trashed content details.
+	 */
+	protected function get_content_trashed_details( $date_from, $date_to, $limit ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date as trashed_date,
+					c.value as post_id,
+					c2.value as post_title,
+					c3.value as post_type,
+					c4.value as trashed_by_id
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c4 ON h.id = c4.history_id
+				WHERE 
+					h.logger = 'SimplePostLogger'
+					AND c.key = 'post_id'
+					AND c2.key = 'post_title'
+					AND c3.key = 'post_type'
+					AND c4.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value = 'post_trashed'
+					)
+				ORDER BY 
+					h.date DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get detailed statistics about deleted content items.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Number of entries to return.
+	 * @return array Array of deleted content details.
+	 */
+	protected function get_content_deleted_details( $date_from, $date_to, $limit ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date as deleted_date,
+					c.value as post_id,
+					c2.value as post_title,
+					c3.value as post_type,
+					c4.value as deleted_by_id
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c4 ON h.id = c4.history_id
+				WHERE 
+					h.logger = 'SimplePostLogger'
+					AND c.key = 'post_id'
+					AND c2.key = 'post_title'
+					AND c3.key = 'post_type'
+					AND c4.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value = 'post_deleted'
 					)
 				ORDER BY 
 					h.date DESC
