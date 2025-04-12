@@ -261,6 +261,12 @@ class Insights_Service extends Service {
 		];
 		$media_stats['total_count'] = array_sum( array_filter( array_values( $media_stats ), 'is_numeric' ) );
 
+		$media_stats_details = [
+			'media_files_uploaded_details' => $this->stats->get_media_uploaded_details( $date_from, $date_to ),
+			'media_files_edited_details' => $this->stats->get_media_edited_details( $date_from, $date_to ),
+			'media_files_deleted_details' => $this->stats->get_media_deleted_details( $date_from, $date_to ),
+		];
+
 		// Get top users.
 		$top_users = $this->stats->get_top_users( $date_from, $date_to );
 		$formatted_top_users = $this->format_top_users_data( $top_users );
@@ -277,6 +283,7 @@ class Insights_Service extends Service {
 			'wordpress_stats' => $wordpress_stats,
 			'content_stats' => $posts_pages_stats,
 			'media_stats' => $media_stats,
+			'media_stats_details' => $media_stats_details,
 			'user_rankings' => $top_users,
 			'user_rankings_formatted' => $formatted_top_users,
 			'user_total_count' => $this->stats->get_total_users( $date_from, $date_to ),

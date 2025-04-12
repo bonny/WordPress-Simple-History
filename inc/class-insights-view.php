@@ -1150,6 +1150,7 @@ class Insights_View {
 			</h2>
 			
 			<div class="sh-InsightsDashboard-content">
+				
 				<div class="sh-InsightsDashboard-stats">
 					<div class="sh-InsightsDashboard-stat">
 						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Uploads', 'simple-history' ); ?></span>
@@ -1164,9 +1165,96 @@ class Insights_View {
 						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_deleted'] ) ); ?></span>
 					</div>
 				</div>
+
+				<details>
+					<summary>
+						<?php esc_html_e( 'Show media details', 'simple-history' ); ?>
+					</summary>
+					
+					<div class="" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+						<?php
+						self::output_media_uploads_table( $media_stats['media_stats_details']['media_files_uploaded_details'] ?? [] );
+						self::output_media_edits_table( $media_stats['media_stats_details']['media_files_edited_details'] ?? [] );
+						self::output_media_deletions_table( $media_stats['media_stats_details']['media_files_deleted_details'] ?? [] );
+						?>
+					</div>
+				</details>
+
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Output the media uploads table.
+	 *
+	 * @param array $uploads Array of media upload events.
+	 */
+	public static function output_media_uploads_table( $uploads ) {
+		self::output_details_table(
+			__( 'Media uploads', 'simple-history' ),
+			[
+				__( 'File', 'simple-history' ),
+				__( 'Uploaded by', 'simple-history' ),
+				__( 'Date', 'simple-history' ),
+			],
+			$uploads,
+			function ( $upload ) {
+				return [
+					esc_html( $upload->file ),
+					esc_html( $upload->uploaded_by ),
+					esc_html( $upload->date ),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output the media edits table.
+	 *
+	 * @param array $edits Array of media edit events.
+	 */
+	public static function output_media_edits_table( $edits ) {
+		self::output_details_table(
+			__( 'Media edits', 'simple-history' ),
+			[
+				__( 'File', 'simple-history' ),
+				__( 'Edited by', 'simple-history' ),
+				__( 'Date', 'simple-history' ),
+			],
+			$edits,
+			function ( $edit ) {
+				return [
+					esc_html( $edit->file ),
+					esc_html( $edit->edited_by ),
+					esc_html( $edit->date ),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output the media deletions table.
+	 *
+	 * @param array $deletions Array of media deletion events.
+	 */
+	public static function output_media_deletions_table( $deletions ) {
+		self::output_details_table(
+			__( 'Media deletions', 'simple-history' ),
+			[
+				__( 'File', 'simple-history' ),
+				__( 'Deleted by', 'simple-history' ),
+				__( 'Date', 'simple-history' ),
+			],
+			$deletions,
+			function ( $deletion ) {
+				return [
+					esc_html( $deletion->file ),
+					esc_html( $deletion->deleted_by ),
+					esc_html( $deletion->date ),
+				];
+			}
+		);
 	}
 
 	/**
@@ -1303,7 +1391,12 @@ class Insights_View {
 
 			self::output_posts_pages_stats_section( $data['content_stats'] );
 
-			self::output_media_stats_section( $data['media_stats'] );
+			// Merge media stats with details for complete data.
+			$media_stats = array_merge(
+				$data['media_stats'],
+				[ 'media_stats_details' => $data['media_stats_details'] ]
+			);
+			self::output_media_stats_section( $media_stats );
 
 			self::output_top_users_section( $data['user_rankings_formatted'] );
 

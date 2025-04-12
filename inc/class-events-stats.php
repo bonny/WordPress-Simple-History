@@ -839,6 +839,51 @@ class Events_Stats {
 	}
 
 	/**
+	 * Get detailed stats for a specific logger and message value.
+	 * It returns an array of events matching the logger and message value.
+	 *
+	 * @param string $logger_slug   The logger slug (e.g. 'SimpleMediaLogger').
+	 * @param string $message_key   The context key to match (e.g. '_message_key').
+	 * @param string $message_value The value to match for the message key.
+	 * @param int    $date_from     Required. Start date as Unix timestamp.
+	 * @param int    $date_to       Required. End date as Unix timestamp.
+	 * @return array|false Array of detailed event data, or false if invalid dates.
+	 */
+	protected function get_detailed_stats_for_logger_and_value( $logger_slug, $message_key, $message_value, $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.*
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = %s
+					AND c.key = %s
+					AND c.value = %s
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+				ORDER BY 
+					h.date DESC",
+				$logger_slug,
+				$message_key,
+				$message_value,
+				$date_from,
+				$date_to
+			)
+		);
+
+		return $results;
+	}
+
+	/**
 	 * Get stats for a specific logger and multiple message values.
 	 *
 	 * @param string   $logger_slug    The logger slug (e.g. 'SimpleMediaLogger').
@@ -1458,5 +1503,38 @@ class Events_Stats {
 				$limit
 			)
 		);
+	}
+
+	/**
+	 * Get detailed information about media uploads.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return array|false Array of detailed media upload events, or false if invalid dates.
+	 */
+	public function get_media_uploaded_details( $date_from, $date_to ) {
+		return $this->get_detailed_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_created', $date_from, $date_to );
+	}
+
+	/**
+	 * Get detailed information about media edits.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return array|false Array of detailed media edit events, or false if invalid dates.
+	 */
+	public function get_media_edited_details( $date_from, $date_to ) {
+		return $this->get_detailed_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_updated', $date_from, $date_to );
+	}
+
+	/**
+	 * Get detailed information about media deletions.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return array|false Array of detailed media deletion events, or false if invalid dates.
+	 */
+	public function get_media_deleted_details( $date_from, $date_to ) {
+		return $this->get_detailed_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_deleted', $date_from, $date_to );
 	}
 }
