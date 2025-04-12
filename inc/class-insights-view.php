@@ -739,160 +739,14 @@ class Insights_View {
 	}
 
 	/**
-	 * Output a table of users with successful logins.
-	 *
-	 * @param array $successful_logins Array of successful login details.
-	 */
-	public static function output_user_successful_logins_table( $successful_logins ) {
-		self::output_user_table(
-			__( 'Users with successful logins', 'simple-history' ),
-			[
-				__( 'User', 'simple-history' ),
-				__( 'Number of logins', 'simple-history' ),
-			],
-			$successful_logins,
-			function ( $login ) {
-				$user_avatar = get_avatar_url( $login->user_id );
-				return [
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
-						esc_url( $user_avatar ),
-						esc_attr( $login->user_login ),
-						esc_html( $login->user_login )
-					),
-					esc_html( $login->login_count ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of users with failed logins.
-	 *
-	 * @param array $failed_logins Array of failed login details.
-	 */
-	public static function output_user_failed_logins_table( $failed_logins ) {
-		self::output_user_table(
-			__( 'Accounts with failed logins', 'simple-history' ),
-			[
-				__( 'Account', 'simple-history' ),
-				__( 'Number of failed logins', 'simple-history' ),
-			],
-			$failed_logins,
-			function ( $login ) {
-				return [
-					esc_html( $login->attempted_username ),
-					esc_html( $login->failed_count ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of user profile updates.
-	 *
-	 * @param array $profile_updates Array of profile update details.
-	 */
-	public static function output_user_profile_updates_table( $profile_updates ) {
-		self::output_user_table(
-			__( 'User profile updates', 'simple-history' ),
-			[
-				__( 'User', 'simple-history' ),
-				__( 'Updates', 'simple-history' ),
-			],
-			$profile_updates,
-			function ( $update ) {
-				$user_avatar = get_avatar_url( $update->user_id );
-				return [
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
-						esc_url( $user_avatar ),
-						esc_attr( $update->user_login ),
-						esc_html( $update->user_login )
-					),
-					esc_html( $update->update_count ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of added users.
-	 *
-	 * @param array $added_users Array of added user details.
-	 */
-	public static function output_user_added_table( $added_users ) {
-		self::output_user_table(
-			__( 'Added users', 'simple-history' ),
-			[
-				__( 'Added user', 'simple-history' ),
-				__( 'Role', 'simple-history' ),
-				__( 'Added by', 'simple-history' ),
-			],
-			$added_users,
-			function ( $user ) {
-				$user_avatar = get_avatar_url( $user->user_id );
-				$added_by = get_userdata( $user->added_by_id );
-				$added_by_avatar = get_avatar_url( $user->added_by_id );
-				return [
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
-						esc_url( $user_avatar ),
-						esc_attr( $user->user_login ),
-						esc_html( $user->user_login )
-					),
-					esc_html( $user->user_role ),
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
-						esc_url( $added_by_avatar ),
-						esc_attr( $added_by->user_login ),
-						esc_html( $added_by->display_name )
-					),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of removed users.
-	 *
-	 * @param array $removed_users Array of removed user details.
-	 */
-	public static function output_user_removed_table( $removed_users ) {
-		self::output_user_table(
-			__( 'Removed users', 'simple-history' ),
-			[
-				__( 'Removed user', 'simple-history' ),
-				__( 'Email', 'simple-history' ),
-				__( 'Removed by', 'simple-history' ),
-			],
-			$removed_users,
-			function ( $user ) {
-				$removed_by = get_userdata( $user->removed_by_id );
-				$removed_by_avatar = get_avatar_url( $user->removed_by_id );
-				return [
-					esc_html( $user->user_login ),
-					esc_html( $user->user_email ),
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
-						esc_url( $removed_by_avatar ),
-						esc_attr( $removed_by->user_login ),
-						esc_html( $removed_by->display_name )
-					),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Helper function to output a user table with consistent structure.
+	 * Helper function to output a table with consistent structure.
 	 *
 	 * @param string   $title Table title.
 	 * @param array    $headers Array of column headers.
 	 * @param array    $data Array of data to display.
 	 * @param callable $row_callback Callback function to format each row's data.
 	 */
-	private static function output_user_table( $title, $headers, $data, $row_callback ) {
+	private static function output_details_table( $title, $headers, $data, $row_callback ) {
 		?>
 		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
 			<h3><?php echo esc_html( $title ); ?></h3>
@@ -929,6 +783,152 @@ class Insights_View {
 			</table>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Output a table of users with successful logins.
+	 *
+	 * @param array $successful_logins Array of successful login details.
+	 */
+	public static function output_user_successful_logins_table( $successful_logins ) {
+		self::output_details_table(
+			__( 'Users with successful logins', 'simple-history' ),
+			[
+				__( 'User', 'simple-history' ),
+				__( 'Number of logins', 'simple-history' ),
+			],
+			$successful_logins,
+			function ( $login ) {
+				$user_avatar = get_avatar_url( $login->user_id );
+				return [
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $user_avatar ),
+						esc_attr( $login->user_login ),
+						esc_html( $login->user_login )
+					),
+					esc_html( $login->login_count ),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output a table of users with failed logins.
+	 *
+	 * @param array $failed_logins Array of failed login details.
+	 */
+	public static function output_user_failed_logins_table( $failed_logins ) {
+		self::output_details_table(
+			__( 'Accounts with failed logins', 'simple-history' ),
+			[
+				__( 'Account', 'simple-history' ),
+				__( 'Number of failed logins', 'simple-history' ),
+			],
+			$failed_logins,
+			function ( $login ) {
+				return [
+					esc_html( $login->attempted_username ),
+					esc_html( $login->failed_count ),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output a table of user profile updates.
+	 *
+	 * @param array $profile_updates Array of profile update details.
+	 */
+	public static function output_user_profile_updates_table( $profile_updates ) {
+		self::output_details_table(
+			__( 'User profile updates', 'simple-history' ),
+			[
+				__( 'User', 'simple-history' ),
+				__( 'Updates', 'simple-history' ),
+			],
+			$profile_updates,
+			function ( $update ) {
+				$user_avatar = get_avatar_url( $update->user_id );
+				return [
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $user_avatar ),
+						esc_attr( $update->user_login ),
+						esc_html( $update->user_login )
+					),
+					esc_html( $update->update_count ),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output a table of added users.
+	 *
+	 * @param array $added_users Array of added user details.
+	 */
+	public static function output_user_added_table( $added_users ) {
+		self::output_details_table(
+			__( 'Added users', 'simple-history' ),
+			[
+				__( 'Added user', 'simple-history' ),
+				__( 'Role', 'simple-history' ),
+				__( 'Added by', 'simple-history' ),
+			],
+			$added_users,
+			function ( $user ) {
+				$user_avatar = get_avatar_url( $user->user_id );
+				$added_by = get_userdata( $user->added_by_id );
+				$added_by_avatar = get_avatar_url( $user->added_by_id );
+				return [
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $user_avatar ),
+						esc_attr( $user->user_login ),
+						esc_html( $user->user_login )
+					),
+					esc_html( $user->user_role ),
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $added_by_avatar ),
+						esc_attr( $added_by->user_login ),
+						esc_html( $added_by->display_name )
+					),
+				];
+			}
+		);
+	}
+
+	/**
+	 * Output a table of removed users.
+	 *
+	 * @param array $removed_users Array of removed user details.
+	 */
+	public static function output_user_removed_table( $removed_users ) {
+		self::output_details_table(
+			__( 'Removed users', 'simple-history' ),
+			[
+				__( 'Removed user', 'simple-history' ),
+				__( 'Email', 'simple-history' ),
+				__( 'Removed by', 'simple-history' ),
+			],
+			$removed_users,
+			function ( $user ) {
+				$removed_by = get_userdata( $user->removed_by_id );
+				$removed_by_avatar = get_avatar_url( $user->removed_by_id );
+				return [
+					esc_html( $user->user_login ),
+					esc_html( $user->user_email ),
+					sprintf(
+						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						esc_url( $removed_by_avatar ),
+						esc_attr( $removed_by->user_login ),
+						esc_html( $removed_by->display_name )
+					),
+				];
+			}
+		);
 	}
 
 	/**
@@ -1021,36 +1021,24 @@ class Insights_View {
 		$plugins = $stats->get_plugin_details( $action_type, $date_from, $date_to );
 
 		if ( empty( $plugins ) ) {
-			echo '<p>Error: No plugins found for action type: ' . esc_html( $action_type ) . '</p>';
-
+			echo '<p>' . esc_html__( 'No plugins found.', 'simple-history' ) . '</p>';
 			return;
 		}
-		?>
-		<div class="sh-InsightsDashboard-pluginTable">
-			<h3><?php echo esc_html( $title ); ?></h3>
 
-			<table class="widefat striped">
-				<thead>
-					<tr>
-						<th><?php esc_html_e( 'Plugin Name', 'simple-history' ); ?></th>
-						<th><?php esc_html_e( 'Event date', 'simple-history' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php
-					foreach ( $plugins as $plugin ) {
-						?>
-						<tr>
-							<td><?php echo esc_html( $plugin['name'] ); ?></td>
-							<td><?php echo esc_html( $plugin['when'] ); ?></td>
-						</tr>
-						<?php
-					}
-					?>
-				</tbody>
-			</table>
-		</div>
-		<?php
+		self::output_details_table(
+			$title,
+			[
+				__( 'Plugin Name', 'simple-history' ),
+				__( 'Event date', 'simple-history' ),
+			],
+			$plugins,
+			function ( $plugin ) {
+				return [
+					esc_html( $plugin['name'] ),
+					esc_html( $plugin['when'] ),
+				];
+			}
+		);
 	}
 
 	/**
@@ -1063,29 +1051,23 @@ class Insights_View {
 		if ( empty( $plugins_with_updates ) ) {
 			return;
 		}
-		?>
-		<div class="sh-InsightsDashboard-pluginTable">
-			<h3><?php esc_html_e( 'Plugins with Updates Available', 'simple-history' ); ?></h3>
-			<table class="widefat striped">
-				<thead>
-					<tr>
-						<th><?php esc_html_e( 'Plugin Name', 'simple-history' ); ?></th>
-						<th><?php esc_html_e( 'Current Version', 'simple-history' ); ?></th>
-						<th><?php esc_html_e( 'New Version', 'simple-history' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ( $plugins_with_updates as $plugin ) : ?>
-						<tr>
-							<td><?php echo esc_html( $plugin['name'] ); ?></td>
-							<td><?php echo esc_html( $plugin['current_version'] ); ?></td>
-							<td><?php echo esc_html( $plugin['new_version'] ); ?></td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
-		</div>
-		<?php
+
+		self::output_details_table(
+			__( 'Plugins with Updates Available', 'simple-history' ),
+			[
+				__( 'Plugin Name', 'simple-history' ),
+				__( 'Current Version', 'simple-history' ),
+				__( 'New Version', 'simple-history' ),
+			],
+			$plugins_with_updates,
+			function ( $plugin ) {
+				return [
+					esc_html( $plugin['name'] ),
+					esc_html( $plugin['current_version'] ),
+					esc_html( $plugin['new_version'] ),
+				];
+			}
+		);
 	}
 
 	/**
@@ -1134,6 +1116,27 @@ class Insights_View {
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deletions_completed'] ); ?></div>
 				</div>
 			</div>
+
+			<details>
+				<summary>
+					<?php esc_html_e( 'Show details', 'simple-history' ); ?>
+				</summary>
+
+				<p>
+					<?php esc_html_e( 'Showing max 50 events, ordered by date.', 'simple-history' ); ?>
+				</p>
+
+				<div class="" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+					<?php
+					// Output tables for each plugin action type.
+					self::output_plugin_table( __( 'Installed plugins', 'simple-history' ), 'installed', $date_from, $date_to, $stats );
+					self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $stats );
+					self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $stats );
+					self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $stats );
+					self::output_plugins_with_updates_table( $stats );
+					?>
+				</div>
+			</details>
 		</div>
 		<?php
 	}
