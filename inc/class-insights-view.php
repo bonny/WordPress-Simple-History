@@ -1204,13 +1204,17 @@ class Insights_View {
 				$user_id = isset( $upload->context['_user_id'] ) ? $upload->context['_user_id'] : 0;
 				$user = get_user_by( 'id', $user_id );
 				$user_name = $user ? $user->display_name : __( 'Unknown user', 'simple-history' );
-				$date = isset( $upload->date ) ? $upload->date : '';
+				$date = isset( $upload->date ) ? strtotime( $upload->date ) : '';
 				$attachment_filename = isset( $upload->context['attachment_filename'] ) ? $upload->context['attachment_filename'] : __( 'Unknown file', 'simple-history' );
 
 				return [
 					esc_html( $attachment_filename ),
 					esc_html( $user_name ),
-					esc_html( $date ),
+					sprintf(
+						/* translators: %s last modified date and time in human time diff-format */
+						__( '%1$s ago', 'simple-history' ),
+						human_time_diff( $date, time() )
+					),
 				];
 			}
 		);
@@ -1235,13 +1239,17 @@ class Insights_View {
 				$user_id = isset( $edit->context['_user_id'] ) ? $edit->context['_user_id'] : 0;
 				$user = get_user_by( 'id', $user_id );
 				$user_name = $user ? $user->display_name : __( 'Unknown user', 'simple-history' );
-				$date = isset( $edit->date ) ? $edit->date : '';
+				$date = isset( $edit->date ) ? strtotime( $edit->date ) : '';
 				$attachment_title = isset( $edit->context['attachment_title'] ) ? $edit->context['attachment_title'] : __( 'Unknown title', 'simple-history' );
 
 				return [
 					esc_html( $attachment_title ),
 					esc_html( $user_name ),
-					esc_html( $date ),
+					sprintf(
+						/* translators: %s last modified date and time in human time diff-format */
+						__( '%1$s ago', 'simple-history' ),
+						human_time_diff( $date, time() )
+					),
 				];
 			}
 		);
@@ -1266,14 +1274,17 @@ class Insights_View {
 				$user_id = isset( $deletion->context['_user_id'] ) ? $deletion->context['_user_id'] : 0;
 				$user = get_user_by( 'id', $user_id );
 				$user_name = $user ? $user->display_name : __( 'Unknown user', 'simple-history' );
-				$date = isset( $deletion->date ) ? $deletion->date : '';
-				$attachment_title = isset( $deletion->context['attachment_title'] ) ? $deletion->context['attachment_title'] : __( 'Unknown title', 'simple-history' );
+				$date = isset( $deletion->date ) ? strtotime( $deletion->date ) : '';
 				$attachment_filename = isset( $deletion->context['attachment_filename'] ) ? $deletion->context['attachment_filename'] : __( 'Unknown file', 'simple-history' );
 
 				return [
 					esc_html( $attachment_filename ),
 					esc_html( $user_name ),
-					esc_html( $date ),
+					sprintf(
+						/* translators: %s last modified date and time in human time diff-format */
+						__( '%1$s ago', 'simple-history' ),
+						human_time_diff( $date, time() )
+					),
 				];
 			}
 		);
