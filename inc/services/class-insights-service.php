@@ -274,6 +274,7 @@ class Insights_Service extends Service {
 			'user_rankings' => $top_users,
 			'user_rankings_formatted' => $formatted_top_users,
 			'user_total_count' => $this->stats->get_total_users( $date_from, $date_to ),
+			'user_stats_details' => $this->stats->get_detailed_user_stats( $date_from, $date_to ),
 		];
 	}
 

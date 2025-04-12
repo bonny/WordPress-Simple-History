@@ -893,4 +893,325 @@ class Events_Stats {
 
 		return $stats;
 	}
+
+	/**
+	 * Get detailed user activity statistics.
+	 *
+	 * @param int  $date_from Start date timestamp.
+	 * @param int  $date_to End date timestamp.
+	 * @param int  $limit Optional. Number of entries per section. Default 10.
+	 * @param bool $include_ip Optional. Whether to include IP addresses. Default false.
+	 * @return array Array of detailed user activity stats.
+	 */
+	public function get_detailed_user_stats( $date_from, $date_to, $limit = 10, $include_ip = false ) {
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		return array(
+			'successful_logins' => $this->get_successful_logins_details( $date_from, $date_to, $limit ),
+			'failed_logins' => $this->get_failed_logins_details( $date_from, $date_to, $limit, $include_ip ),
+			'profile_updates' => $this->get_profile_updates_details( $date_from, $date_to, $limit ),
+			'added_users' => $this->get_added_users_details( $date_from, $date_to, $limit ),
+			'removed_users' => $this->get_removed_users_details( $date_from, $date_to, $limit ),
+		);
+	}
+
+	/**
+	 * Get detailed successful login statistics.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Number of entries to return.
+	 * @return array Array of successful login details.
+	 */
+	protected function get_successful_logins_details( $date_from, $date_to, $limit ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date,
+					c.value as user_id,
+					c2.value as user_login,
+					c3.value as user_email,
+					COUNT(*) as login_count
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key = '_user_id'
+					AND c2.key = 'user_login'
+					AND c3.key = 'user_email'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value IN ('user_logged_in', 'user_unknown_logged_in')
+					)
+				GROUP BY 
+					c.value
+				ORDER BY 
+					login_count DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get detailed failed login statistics.
+	 *
+	 * @param int  $date_from Start date timestamp.
+	 * @param int  $date_to End date timestamp.
+	 * @param int  $limit Number of entries to return.
+	 * @param bool $include_ip Whether to include IP addresses.
+	 * @return array Array of failed login details.
+	 */
+	protected function get_failed_logins_details( $date_from, $date_to, $limit, $include_ip ) {
+		global $wpdb;
+
+		if ( $include_ip ) {
+			return $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT 
+						h.date,
+						c.value as attempted_username,
+						c2.value as ip_address,
+						COUNT(*) as failed_count
+					FROM 
+						{$wpdb->prefix}simple_history h
+					JOIN 
+						{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+					LEFT JOIN 
+						{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id AND c2.key = 'server_remote_addr'
+					WHERE 
+						h.logger = 'SimpleUserLogger'
+						AND c.key IN ('login', 'failed_username')
+						AND h.date >= FROM_UNIXTIME(%d)
+						AND h.date <= FROM_UNIXTIME(%d)
+						AND EXISTS (
+							SELECT 1 
+							FROM {$wpdb->prefix}simple_history_contexts c_msg 
+							WHERE c_msg.history_id = h.id 
+							AND c_msg.key = '_message_key'
+							AND c_msg.value IN ('user_login_failed', 'user_unknown_login_failed')
+						)
+					GROUP BY 
+						c.value
+					ORDER BY 
+						failed_count DESC
+					LIMIT %d",
+					$date_from,
+					$date_to,
+					$limit
+				)
+			);
+		}
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date,
+					c.value as attempted_username,
+					COUNT(*) as failed_count
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key IN ('login', 'failed_username')
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value IN ('user_login_failed', 'user_unknown_login_failed')
+					)
+				GROUP BY 
+					c.value
+				ORDER BY 
+					failed_count DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get detailed profile update statistics.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Number of entries to return.
+	 * @return array Array of profile update details.
+	 */
+	protected function get_profile_updates_details( $date_from, $date_to, $limit ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date,
+					c.value as user_id,
+					c2.value as user_login,
+					c3.value as user_email,
+					COUNT(*) as update_count
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key = '_user_id'
+					AND c2.key = 'edited_user_login' 
+					AND c3.key = 'edited_user_email'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value = 'user_updated_profile'
+					)
+				GROUP BY 
+					c.value
+				ORDER BY 
+					update_count DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get detailed statistics about added users.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Number of entries to return.
+	 * @return array Array of added user details.
+	 */
+	protected function get_added_users_details( $date_from, $date_to, $limit ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date,
+					c.value as user_id,
+					c2.value as user_login,
+					c3.value as user_email,
+					c4.value as user_role,
+					c5.value as added_by_id
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c4 ON h.id = c4.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c5 ON h.id = c5.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key = 'created_user_id'
+					AND c2.key = 'created_user_login'
+					AND c3.key = 'created_user_email'
+					AND c4.key = 'created_user_role'
+					AND c5.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value = 'user_created'
+					)
+				ORDER BY 
+					h.date DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
+
+	/**
+	 * Get detailed statistics about removed users.
+	 *
+	 * @param int $date_from Start date timestamp.
+	 * @param int $date_to End date timestamp.
+	 * @param int $limit Number of entries to return.
+	 * @return array Array of removed user details.
+	 */
+	protected function get_removed_users_details( $date_from, $date_to, $limit ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					h.date,
+					c.value as user_login,
+					c2.value as user_email,
+					c3.value as removed_by_id
+				FROM 
+					{$wpdb->prefix}simple_history h
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c2 ON h.id = c2.history_id
+				JOIN 
+					{$wpdb->prefix}simple_history_contexts c3 ON h.id = c3.history_id
+				WHERE 
+					h.logger = 'SimpleUserLogger'
+					AND c.key = 'deleted_user_login'
+					AND c2.key = 'deleted_user_email'
+					AND c3.key = '_user_id'
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+					AND EXISTS (
+						SELECT 1 
+						FROM {$wpdb->prefix}simple_history_contexts c_msg 
+						WHERE c_msg.history_id = h.id 
+						AND c_msg.key = '_message_key'
+						AND c_msg.value = 'user_deleted'
+					)
+				ORDER BY 
+					h.date DESC
+				LIMIT %d",
+				$date_from,
+				$date_to,
+				$limit
+			)
+		);
+	}
 }
