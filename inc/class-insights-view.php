@@ -1206,9 +1206,24 @@ class Insights_View {
 				$user_name = $user ? $user->display_name : __( 'Unknown user', 'simple-history' );
 				$date = isset( $upload->date ) ? strtotime( $upload->date ) : '';
 				$attachment_filename = isset( $upload->context['attachment_filename'] ) ? $upload->context['attachment_filename'] : __( 'Unknown file', 'simple-history' );
+				$attachment_id = isset( $upload->context['attachment_id'] ) ? $upload->context['attachment_id'] : 0;
+
+				// Get thumbnail if it's an image.
+				$thumbnail_html = '';
+				if ( $attachment_id ) {
+					$thumbnail_html = wp_get_attachment_image(
+						$attachment_id,
+						[ 40, 40 ],
+						true,
+						[
+							'class' => 'sh-InsightsDashboard-mediaThumb',
+							'style' => 'margin-right: 10px; vertical-align: middle;',
+						]
+					);
+				}
 
 				return [
-					esc_html( $attachment_filename ),
+					$thumbnail_html . esc_html( $attachment_filename ),
 					esc_html( $user_name ),
 					sprintf(
 						/* translators: %s last modified date and time in human time diff-format */
