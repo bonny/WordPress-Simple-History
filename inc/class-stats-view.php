@@ -5,9 +5,9 @@ namespace Simple_History;
 use Simple_History\Helpers;
 
 /**
- * Class that handles view/output logic for the insights page.
+ * Class that handles view/output logic for the stats page.
  */
-class Insights_View {
+class Stats_View {
 	/**
 	 * Output the page title section.
 	 */

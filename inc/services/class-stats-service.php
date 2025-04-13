@@ -9,12 +9,12 @@ use Simple_History\Simple_History;
 use Simple_History\Services\Service;
 use Simple_History\Events_Stats;
 use Simple_History\Services\Admin_Pages;
-use Simple_History\Insights_View;
+use Simple_History\Stats_View;
 
 /**
- * Service class that handles insights functionality.
+ * Service class that handles stats functionality.
  */
-class Insights_Service extends Service {
+class Stats_Service extends Service {
 	/**
 	 * Stats instance.
 	 *
@@ -37,7 +37,7 @@ class Insights_Service extends Service {
 	}
 
 	/**
-	 * Add insights menu item.
+	 * Add stats menu item.
 	 */
 	public function add_menu() {
 		if ( ! Helpers::setting_show_as_menu_page() ) {
@@ -51,7 +51,7 @@ class Insights_Service extends Service {
 			return;
 		}
 
-		// Add Insights page as a submenu item.
+		// Add stats page as a submenu item.
 		$new_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'Beta', 'simple-history' ) . '</span>';
 		$insights_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Stats & Summaries - Simple History', 'dashboard title name', 'simple-history' ) )
@@ -162,13 +162,13 @@ class Insights_Service extends Service {
 			<?php
 
 			do_action( 'simple_history/stats/before_page_title' );
-			Insights_View::output_page_title();
+			Stats_View::output_page_title();
 
 			do_action( 'simple_history/stats/before_filters' );
-			Insights_View::output_filters( $date_from, $date_to );
+			Stats_View::output_filters( $date_from, $date_to );
 
 			do_action( 'simple_history/stats/before_dashboard_content' );
-			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
+			Stats_View::output_dashboard_content( $data, $date_from, $date_to );
 
 			do_action( 'simple_history/stats/after_dashboard_content' );
 			?>
