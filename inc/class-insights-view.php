@@ -362,9 +362,10 @@ class Insights_View {
 	/**
 	 * Output the top users section.
 	 *
-	 * @param array $top_users Array of top users data.
+	 * @param array $data Array of insights data.
 	 */
-	public static function output_top_users_section( $top_users ) {
+	public static function output_top_users_section( $data ) {
+		$top_users = $data['user_rankings_formatted'];
 		?>
 		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
 			<h2 
@@ -374,25 +375,46 @@ class Insights_View {
 				<?php echo esc_html_x( 'User activity', 'insights section title', 'simple-history' ); ?>
 			</h2>
 
-			<div class="sh-InsightsDashboard-stat">
-				<div class="sh-InsightsDashboard-statLabel">Most active users</div>
-				<div class="sh-InsightsDashboard-statValue">
-					<?php
-					// Output a nice list of users with avatars.
-					if ( $top_users && count( $top_users ) > 0 ) {
-						self::output_top_users_avatar_list( $top_users );
-					}
-					?>
+			<div class="sh-InsightsDashboard-content">
+
+				<div class="sh-InsightsDashboard-stats">
+					<div class="sh-InsightsDashboard-stat">
+						<div class="sh-InsightsDashboard-statLabel"><?php echo esc_html_x( 'Most active users overview', 'insights section title', 'simple-history' ); ?></div>
+						<div class="sh-InsightsDashboard-statValue">
+						<?php
+						// Output a nice list of users with avatars.
+						if ( $top_users && count( $top_users ) > 0 ) {
+							self::output_top_users_avatar_list( $top_users );
+						}
+						?>
+					</div>
 				</div>
 			</div>
 
-			<div class="sh-InsightsDashboard-content">
+			<details>
+				<summary>
+					<?php echo esc_html_x( 'Most active users details', 'insights section title', 'simple-history' ); ?>
+				</summary>
+				<p><?php esc_html_e( 'No matter event type.', 'simple-history' ); ?></p>
 				<?php
 				if ( $top_users && count( $top_users ) > 0 ) {
 					self::output_top_users_table( $top_users );
 				}
 				?>
-			</div>
+			</details>
+
+			<details>
+				<summary>
+					<?php echo esc_html_x( 'Most edited posts and pages', 'insights section title', 'simple-history' ); ?>
+				</summary>
+				<p>Events can be page created, updated, deleted, trashed or restored.</p>
+				<?php
+				if ( isset( $data['content_stats']['content_items_most_edited'] ) && count( $data['content_stats']['content_items_most_edited'] ) > 0 ) {
+					self::output_top_posts_and_pages_table( $data['content_stats']['content_items_most_edited'] );
+				}
+				?>
+			</details>
+		
 		</div>
 		<?php
 	}
@@ -1441,9 +1463,7 @@ class Insights_View {
 
 			self::output_media_stats_section( $data['media_stats'], $data['media_stats_details'] );
 
-			self::output_top_users_section( $data['user_rankings_formatted'] );
-
-			self::output_top_posts_and_pages_section( $data['content_stats']['content_items_most_edited'] );
+			self::output_top_users_section( $data );
 
 			?>
 		</div>
