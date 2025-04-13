@@ -9,6 +9,44 @@ use WP_Session_Tokens;
  */
 class Events_Stats {
 	/**
+	 * Base method for getting event counts by logger and message value.
+	 * This replaces both get_stats_for_logger_and_value() and get_stats_for_logger_and_values().
+	 *
+	 * @param string       $logger_slug    The logger slug (e.g. 'SimpleMediaLogger').
+	 * @param string|array $message_value  The value(s) to match against.
+	 * @param int          $date_from      Start timestamp.
+	 * @param int          $date_to        End timestamp.
+	 * @return int Count of matching events.
+	 */
+	protected function get_event_count( $logger_slug, $message_value, $date_from, $date_to ) {
+		global $wpdb;
+
+		// Convert single value to array for consistent handling.
+		$values = (array) $message_value;
+
+		// Create placeholders for the IN clause.
+		$value_placeholders = implode( ',', array_fill( 0, count( $values ), '%s' ) );
+
+		$sql = $wpdb->prepare(
+			"SELECT COUNT(DISTINCT h.id)
+			FROM {$wpdb->prefix}simple_history h
+			JOIN {$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+			WHERE h.logger = %s
+			AND c.key = '_message_key'
+			AND c.value IN ($value_placeholders)
+			AND h.date >= FROM_UNIXTIME(%d)
+			AND h.date <= FROM_UNIXTIME(%d)",
+			array_merge(
+				[ $logger_slug ],
+				$values,
+				[ $date_from, $date_to ]
+			)
+		);
+
+		return (int) $wpdb->get_var( $sql );
+	}
+
+	/**
 	 * Get currently logged in users.
 	 *
 	 * @param int $limit Optional. Limit the number of users returned. Default is 10.
@@ -327,13 +365,7 @@ class Events_Stats {
 	 * @return int|false Number of failed logins, or false if invalid dates.
 	 */
 	public function get_failed_logins_count( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_values(
-			'SimpleUserLogger',
-			'_message_key',
-			[ 'user_login_failed', 'user_unknown_login_failed' ],
-			$date_from,
-			$date_to
-		);
+		return $this->get_event_count( 'SimpleUserLogger', [ 'user_login_failed', 'user_unknown_login_failed' ], $date_from, $date_to );
 	}
 
 	/**
@@ -344,7 +376,7 @@ class Events_Stats {
 	 * @return int|false Number of users added, or false if invalid dates.
 	 */
 	public function get_user_added_count( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_created', $date_from, $date_to );
+		return $this->get_event_count( 'SimpleUserLogger', 'user_created', $date_from, $date_to );
 	}
 
 	/**
@@ -355,7 +387,7 @@ class Events_Stats {
 	 * @return int|false Number of users removed, or false if invalid dates.
 	 */
 	public function get_user_removed_count( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_deleted', $date_from, $date_to );
+		return $this->get_event_count( 'SimpleUserLogger', 'user_deleted', $date_from, $date_to );
 	}
 
 	/**
@@ -366,7 +398,7 @@ class Events_Stats {
 	 * @return int|false Number of users updated, or false if invalid dates.
 	 */
 	public function get_user_updated_count( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimpleUserLogger', '_message_key', 'user_updated_profile', $date_from, $date_to );
+		return $this->get_event_count( 'SimpleUserLogger', 'user_updated_profile', $date_from, $date_to );
 	}
 
 	/**
@@ -377,13 +409,7 @@ class Events_Stats {
 	 * @return int|false Number of successful logins, or false if invalid dates.
 	 */
 	public function get_successful_logins_count( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_values(
-			'SimpleUserLogger',
-			'_message_key',
-			[ 'user_logged_in', 'user_unknown_logged_in' ],
-			$date_from,
-			$date_to
-		);
+		return $this->get_event_count( 'SimpleUserLogger', [ 'user_logged_in', 'user_unknown_logged_in' ], $date_from, $date_to );
 	}
 
 	/**
@@ -426,13 +452,7 @@ class Events_Stats {
 	 * @return int|false Number of core updates, or false if invalid dates.
 	 */
 	public function get_wordpress_core_updates( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_values(
-			'SimpleCoreUpdatesLogger',
-			'_message_key',
-			[ 'core_updated', 'core_auto_updated' ],
-			$date_from,
-			$date_to
-		);
+		return $this->get_event_count( 'SimpleCoreUpdatesLogger', [ 'core_updated', 'core_auto_updated' ], $date_from, $date_to );
 	}
 
 	/**
@@ -443,13 +463,7 @@ class Events_Stats {
 	 * @return int|false Number of core updates found, or false if invalid dates.
 	 */
 	public function get_wordpress_core_updates_found( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value(
-			'AvailableUpdatesLogger',
-			'_message_key',
-			'core_update_available',
-			$date_from,
-			$date_to
-		);
+		return $this->get_event_count( 'AvailableUpdatesLogger', 'core_update_available', $date_from, $date_to );
 	}
 
 	/**
@@ -460,13 +474,7 @@ class Events_Stats {
 	 * @return int|false Number of plugin updates, or false if invalid dates.
 	 */
 	public function get_plugin_updates( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_values(
-			'SimplePluginLogger',
-			'_message_key',
-			[ 'plugin_updated', 'plugin_bulk_updated' ],
-			$date_from,
-			$date_to
-		);
+		return $this->get_event_count( 'SimplePluginLogger', [ 'plugin_updated', 'plugin_bulk_updated' ], $date_from, $date_to );
 	}
 
 	/**
@@ -477,7 +485,7 @@ class Events_Stats {
 	 * @return int|false Number of plugin installations, or false if invalid dates.
 	 */
 	public function get_plugin_installs( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimplePluginLogger', '_message_key', 'plugin_installed', $date_from, $date_to );
+		return $this->get_event_count( 'SimplePluginLogger', 'plugin_installed', $date_from, $date_to );
 	}
 
 	/**
@@ -488,7 +496,7 @@ class Events_Stats {
 	 * @return int|false Number of plugin deletions, or false if invalid dates.
 	 */
 	public function get_plugin_deletions( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimplePluginLogger', '_message_key', 'plugin_deleted', $date_from, $date_to );
+		return $this->get_event_count( 'SimplePluginLogger', 'plugin_deleted', $date_from, $date_to );
 	}
 
 	/**
@@ -639,7 +647,7 @@ class Events_Stats {
 	 * @return int|false Number of posts and pages created, or false if invalid dates.
 	 */
 	public function get_posts_pages_created( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimplePostLogger', '_message_key', 'post_created', $date_from, $date_to );
+		return $this->get_event_count( 'SimplePostLogger', 'post_created', $date_from, $date_to );
 	}
 
 	/**
@@ -650,7 +658,7 @@ class Events_Stats {
 	 * @return int|false Number of posts and pages updated, or false if invalid dates.
 	 */
 	public function get_posts_pages_updated( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimplePostLogger', '_message_key', 'post_updated', $date_from, $date_to );
+		return $this->get_event_count( 'SimplePostLogger', 'post_updated', $date_from, $date_to );
 	}
 
 	/**
@@ -661,7 +669,7 @@ class Events_Stats {
 	 * @return int|false Number of posts and pages deleted, or false if invalid dates.
 	 */
 	public function get_posts_pages_deleted( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimplePostLogger', '_message_key', 'post_deleted', $date_from, $date_to );
+		return $this->get_event_count( 'SimplePostLogger', 'post_deleted', $date_from, $date_to );
 	}
 
 	/**
@@ -672,7 +680,7 @@ class Events_Stats {
 	 * @return int|false Number of posts and pages trashed, or false if invalid dates.
 	 */
 	public function get_posts_pages_trashed( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimplePostLogger', '_message_key', 'post_trashed', $date_from, $date_to );
+		return $this->get_event_count( 'SimplePostLogger', 'post_trashed', $date_from, $date_to );
 	}
 
 	/**
@@ -734,7 +742,18 @@ class Events_Stats {
 	 * @return int|false Number of media uploads, or false if invalid dates.
 	 */
 	public function get_media_uploads( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_created', $date_from, $date_to );
+		return $this->get_event_count( 'SimpleMediaLogger', 'attachment_created', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of media uploads count in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of media uploads, or false if invalid dates.
+	 */
+	public function get_media_uploads_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleMediaLogger', 'attachment_created', $date_from, $date_to );
 	}
 
 	/**
@@ -745,7 +764,18 @@ class Events_Stats {
 	 * @return int|false Number of media edits, or false if invalid dates.
 	 */
 	public function get_media_edits( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_updated', $date_from, $date_to );
+		return $this->get_event_count( 'SimpleMediaLogger', 'attachment_updated', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of media edits count in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of media edits, or false if invalid dates.
+	 */
+	public function get_media_edits_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleMediaLogger', 'attachment_updated', $date_from, $date_to );
 	}
 
 	/**
@@ -756,7 +786,51 @@ class Events_Stats {
 	 * @return int|false Number of media deletions, or false if invalid dates.
 	 */
 	public function get_media_deletions( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_deleted', $date_from, $date_to );
+		return $this->get_event_count( 'SimpleMediaLogger', 'attachment_deleted', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of media deletions count in a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of media deletions, or false if invalid dates.
+	 */
+	public function get_media_deletions_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleMediaLogger', 'attachment_deleted', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of plugin updates for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin updates, or false if invalid dates.
+	 */
+	public function get_plugin_updates_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimplePluginLogger', [ 'plugin_updated', 'plugin_bulk_updated' ], $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of plugin installations for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin installations, or false if invalid dates.
+	 */
+	public function get_plugin_installs_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimplePluginLogger', 'plugin_installed', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of plugin deletions for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin deletions, or false if invalid dates.
+	 */
+	public function get_plugin_deletions_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimplePluginLogger', 'plugin_deleted', $date_from, $date_to );
 	}
 
 	/**
@@ -767,7 +841,18 @@ class Events_Stats {
 	 * @return int|false Number of plugin activations, or false if invalid dates.
 	 */
 	public function get_plugin_activations( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimplePluginLogger', '_message_key', 'plugin_activated', $date_from, $date_to );
+		return $this->get_event_count( 'SimplePluginLogger', 'plugin_activated', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of plugin activations count for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin activations, or false if invalid dates.
+	 */
+	public function get_plugin_activations_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimplePluginLogger', 'plugin_activated', $date_from, $date_to );
 	}
 
 	/**
@@ -778,7 +863,18 @@ class Events_Stats {
 	 * @return int|false Number of plugin deactivations, or false if invalid dates.
 	 */
 	public function get_plugin_deactivations( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value( 'SimplePluginLogger', '_message_key', 'plugin_deactivated', $date_from, $date_to );
+		return $this->get_event_count( 'SimplePluginLogger', 'plugin_deactivated', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of plugin deactivations count for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin deactivations, or false if invalid dates.
+	 */
+	public function get_plugin_deactivations_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimplePluginLogger', 'plugin_deactivated', $date_from, $date_to );
 	}
 
 	/**
@@ -789,183 +885,40 @@ class Events_Stats {
 	 * @return int|false Number of plugin updates found, or false if invalid dates.
 	 */
 	public function get_plugin_updates_found( $date_from, $date_to ) {
-		return $this->get_stats_for_logger_and_value(
-			'AvailableUpdatesLogger',
-			'_message_key',
-			'plugin_update_available',
-			$date_from,
-			$date_to
-		);
+		return $this->get_event_count( 'AvailableUpdatesLogger', 'plugin_update_available', $date_from, $date_to );
 	}
 
 	/**
-	 * Get stats for a specific logger and message value.
+	 * Get number of plugin updates found count for a given period.
 	 *
-	 * @param string $logger_slug   The logger slug (e.g. 'SimpleMediaLogger').
-	 * @param string $message_key   The context key to match (e.g. '_message_key').
-	 * @param string $message_value The value to match for the message key.
-	 * @param int    $date_from     Required. Start date as Unix timestamp.
-	 * @param int    $date_to       Required. End date as Unix timestamp.
-	 * @return int|false Number of matching events, or false if invalid dates.
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of plugin updates found, or false if invalid dates.
 	 */
-	protected function get_stats_for_logger_and_value( $logger_slug, $message_key, $message_value, $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					COUNT(*)
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = %s
-					AND c.key = %s
-					AND c.value = %s
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)",
-				$logger_slug,
-				$message_key,
-				$message_value,
-				$date_from,
-				$date_to
-			)
-		);
+	public function get_plugin_updates_found_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'AvailableUpdatesLogger', 'plugin_update_available', $date_from, $date_to );
 	}
 
 	/**
-	 * Get detailed stats for a specific logger and message value.
-	 * It returns an array of events matching the logger and message value.
+	 * Get number of WordPress core updates for a given period.
 	 *
-	 * @param string $logger_slug   The logger slug (e.g. 'SimpleMediaLogger').
-	 * @param string $message_key   The context key to match (e.g. '_message_key').
-	 * @param string $message_value The value to match for the message key.
-	 * @param int    $date_from     Required. Start date as Unix timestamp.
-	 * @param int    $date_to       Required. End date as Unix timestamp.
-	 * @return array|false Array of detailed event data, or false if invalid dates.
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of core updates, or false if invalid dates.
 	 */
-	protected function get_detailed_stats_for_logger_and_value( $logger_slug, $message_key, $message_value, $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		// First query: Get matching history entries.
-		$history_results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT DISTINCT 
-					h.*
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					h.logger = %s
-					AND c.key = %s
-					AND c.value = %s
-					AND h.date >= FROM_UNIXTIME(%d)
-					AND h.date <= FROM_UNIXTIME(%d)
-				ORDER BY 
-					h.date DESC",
-				$logger_slug,
-				$message_key,
-				$message_value,
-				$date_from,
-				$date_to
-			)
-		);
-
-		if ( empty( $history_results ) ) {
-			return array();
-		}
-
-		// Get all history IDs.
-		$history_ids = wp_list_pluck( $history_results, 'id' );
-		$history_ids_placeholders = implode( ',', array_fill( 0, count( $history_ids ), '%d' ) );
-
-		// Second query: Get all context data for these history entries.
-		$context_results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-					history_id,
-					`key`,
-					value
-				FROM 
-					{$wpdb->prefix}simple_history_contexts 
-				WHERE 
-					history_id IN ($history_ids_placeholders)",
-				$history_ids
-			)
-		);
-
-		// Combine the results.
-		$context_by_history_id = array();
-		foreach ( $context_results as $context ) {
-			if ( ! isset( $context_by_history_id[ $context->history_id ] ) ) {
-				$context_by_history_id[ $context->history_id ] = array();
-			}
-			$context_by_history_id[ $context->history_id ][ $context->key ] = $context->value;
-		}
-
-		// Add context data to history entries.
-		foreach ( $history_results as $history ) {
-			$history->context = isset( $context_by_history_id[ $history->id ] ) 
-				? $context_by_history_id[ $history->id ] 
-				: array();
-		}
-
-		return $history_results;
+	public function get_wordpress_core_updates_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleCoreUpdatesLogger', [ 'core_updated', 'core_auto_updated' ], $date_from, $date_to );
 	}
 
 	/**
-	 * Get stats for a specific logger and multiple message values.
+	 * Get number of WordPress core updates found for a given period.
 	 *
-	 * @param string   $logger_slug    The logger slug (e.g. 'SimpleMediaLogger').
-	 * @param string   $message_key    The context key to match (e.g. '_message_key').
-	 * @param string[] $message_values Array of values to match for the message key.
-	 * @param int      $date_from      Required. Start date as Unix timestamp.
-	 * @param int      $date_to        Required. End date as Unix timestamp.
-	 * @return int|false Number of matching events, or false if invalid dates.
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of core updates found, or false if invalid dates.
 	 */
-	protected function get_stats_for_logger_and_values( $logger_slug, $message_key, $message_values, $date_from, $date_to ) {
-		global $wpdb;
-
-		if ( ! $date_from || ! $date_to ) {
-			return false;
-		}
-
-		// Build the OR conditions for message values.
-		$placeholders = array_fill( 0, count( $message_values ), '%s' );
-		$value_placeholders = implode( ' OR c.value = ', $placeholders );
-
-		// Build the complete query with proper placeholders.
-		$sql = $wpdb->prepare(
-			"SELECT 
-				COUNT(*)
-			FROM 
-				{$wpdb->prefix}simple_history h
-			JOIN 
-				{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-			WHERE 
-				h.logger = %s
-				AND c.key = %s
-				AND (c.value = {$value_placeholders})
-				AND h.date >= FROM_UNIXTIME(%d)
-				AND h.date <= FROM_UNIXTIME(%d)",
-			array_merge(
-				[ $logger_slug, $message_key ],
-				$message_values,
-				[ $date_from, $date_to ]
-			)
-		);
-
-		return (int) $wpdb->get_var( $sql );
+	public function get_wordpress_core_updates_found_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'AvailableUpdatesLogger', 'core_update_available', $date_from, $date_to );
 	}
 
 	/**
@@ -1576,5 +1529,89 @@ class Events_Stats {
 	 */
 	public function get_media_deleted_details( $date_from, $date_to ) {
 		return $this->get_detailed_stats_for_logger_and_value( 'SimpleMediaLogger', '_message_key', 'attachment_deleted', $date_from, $date_to );
+	}
+
+	/**
+	 * Get detailed stats for a specific logger and message key value.
+	 *
+	 * @param string $logger_slug The logger slug (e.g. 'SimpleMediaLogger').
+	 * @param string $key The context key to match (e.g. '_message_key').
+	 * @param string $value The value to match against.
+	 * @param int    $date_from Start timestamp.
+	 * @param int    $date_to End timestamp.
+	 * @return array Array of detailed stats.
+	 */
+	protected function get_detailed_stats_for_logger_and_value( $logger_slug, $message_key, $message_value, $date_from, $date_to ) {
+		global $wpdb;
+
+		if ( ! $date_from || ! $date_to ) {
+			return false;
+		}
+
+		// First query: Get matching history entries.
+		$history_results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DISTINCT 
+						h.*
+					FROM 
+						{$wpdb->prefix}simple_history h
+					JOIN 
+						{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+					WHERE 
+						h.logger = %s
+						AND c.key = %s
+						AND c.value = %s
+						AND h.date >= FROM_UNIXTIME(%d)
+						AND h.date <= FROM_UNIXTIME(%d)
+					ORDER BY 
+						h.date DESC",
+				$logger_slug,
+				$message_key,
+				$message_value,
+				$date_from,
+				$date_to
+			)
+		);
+
+		if ( empty( $history_results ) ) {
+			return array();
+		}
+
+		// Get all history IDs.
+		$history_ids = wp_list_pluck( $history_results, 'id' );
+		$history_ids_placeholders = implode( ',', array_fill( 0, count( $history_ids ), '%d' ) );
+
+		// Second query: Get all context data for these history entries.
+		$context_results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+						history_id,
+						`key`,
+						value
+					FROM 
+						{$wpdb->prefix}simple_history_contexts 
+					WHERE 
+						history_id IN ($history_ids_placeholders)",
+				$history_ids
+			)
+		);
+
+		// Combine the results.
+		$context_by_history_id = array();
+		foreach ( $context_results as $context ) {
+			if ( ! isset( $context_by_history_id[ $context->history_id ] ) ) {
+				$context_by_history_id[ $context->history_id ] = array();
+			}
+			$context_by_history_id[ $context->history_id ][ $context->key ] = $context->value;
+		}
+
+		// Add context data to history entries.
+		foreach ( $history_results as $history ) {
+			$history->context = isset( $context_by_history_id[ $history->id ] )
+				? $context_by_history_id[ $history->id ]
+				: array();
+		}
+
+		return $history_results;
 	}
 }

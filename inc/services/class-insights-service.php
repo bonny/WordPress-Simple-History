@@ -206,20 +206,20 @@ class Insights_Service extends Service {
 
 		// Get WordPress and plugin statistics.
 		$plugin_stats = [
-			'plugin_updates_completed' => $this->stats->get_plugin_updates( $date_from, $date_to ),
-			'plugin_installs_completed' => $this->stats->get_plugin_installs( $date_from, $date_to ),
-			'plugin_deletions_completed' => $this->stats->get_plugin_deletions( $date_from, $date_to ),
-			'plugin_activations_completed' => $this->stats->get_plugin_activations( $date_from, $date_to ),
-			'plugin_deactivations_completed' => $this->stats->get_plugin_deactivations( $date_from, $date_to ),
-			'plugin_updates_found' => $this->stats->get_plugin_updates_found( $date_from, $date_to ),
-			'total_count' => 0, // Will be calculated below.
+			'plugin_updates_completed' => $this->stats->get_plugin_updates_count( $date_from, $date_to ),
+			'plugin_installs_completed' => $this->stats->get_plugin_installs_count( $date_from, $date_to ),
+			'plugin_deletions_completed' => $this->stats->get_plugin_deletions_count( $date_from, $date_to ),
+			'plugin_activations_completed' => $this->stats->get_plugin_activations_count( $date_from, $date_to ),
+			'plugin_deactivations_completed' => $this->stats->get_plugin_deactivations_count( $date_from, $date_to ),
+			'plugin_updates_found' => $this->stats->get_plugin_updates_found_count( $date_from, $date_to ),
+			'total_count' => 0, // Initialize total count that will be summed up later.
 		];
 		$plugin_stats['total_count'] = array_sum( array_filter( array_values( $plugin_stats ), 'is_numeric' ) );
 
 		// Get WordPress core statistics.
 		$wordpress_stats = [
-			'wordpress_core_updates_found' => $this->stats->get_wordpress_core_updates_found( $date_from, $date_to ),
-			'wordpress_core_updates_completed' => $this->stats->get_wordpress_core_updates( $date_from, $date_to ),
+			'wordpress_core_updates_found' => $this->stats->get_wordpress_core_updates_found_count( $date_from, $date_to ),
+			'wordpress_core_updates_completed' => $this->stats->get_wordpress_core_updates_count( $date_from, $date_to ),
 			'total_count' => 0, // Will be calculated below.
 		];
 		$wordpress_stats['total_count'] = array_sum( array_filter( array_values( $wordpress_stats ), 'is_numeric' ) );
@@ -254,9 +254,9 @@ class Insights_Service extends Service {
 
 		// Get media statistics for the period.
 		$media_stats = [
-			'media_files_uploaded' => $this->stats->get_media_uploads( $date_from, $date_to ),
-			'media_files_edited' => $this->stats->get_media_edits( $date_from, $date_to ),
-			'media_files_deleted' => $this->stats->get_media_deletions( $date_from, $date_to ),
+			'media_files_uploaded' => $this->stats->get_media_uploads_count( $date_from, $date_to ),
+			'media_files_edited' => $this->stats->get_media_edits_count( $date_from, $date_to ),
+			'media_files_deleted' => $this->stats->get_media_deletions_count( $date_from, $date_to ),
 			'total_count' => 0, // Will be calculated below.
 		];
 		$media_stats['total_count'] = array_sum( array_filter( array_values( $media_stats ), 'is_numeric' ) );
