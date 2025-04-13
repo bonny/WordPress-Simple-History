@@ -160,9 +160,17 @@ class Insights_Service extends Service {
 		?>
 		<div class="wrap sh-Page-content">
 			<?php
+
+			do_action( 'simple_history/stats/before_page_title' );
 			Insights_View::output_page_title();
+
+			do_action( 'simple_history/stats/before_filters' );
 			Insights_View::output_filters( $date_from, $date_to );
+
+			do_action( 'simple_history/stats/before_dashboard_content' );
 			Insights_View::output_dashboard_content( $data, $date_from, $date_to );
+
+			do_action( 'simple_history/stats/after_dashboard_content' );
 			?>
 		</div>
 		<?php
