@@ -56,7 +56,7 @@ class Stats_Service extends Service {
 		$insights_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Stats & Summaries - Simple History', 'dashboard title name', 'simple-history' ) )
 			->set_menu_title( _x( 'Stats & Summaries', 'dashboard menu name', 'simple-history' ) . ' ' . $new_text )
-			->set_menu_slug( 'simple_history_insights_page' )
+			->set_menu_slug( 'simple_history_stats_page' )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_page' ] )
 			->set_parent( Simple_History::MENU_PAGE_SLUG )
@@ -120,16 +120,16 @@ class Stats_Service extends Service {
 	 */
 	private function enqueue_scripts_and_styles() {
 		wp_enqueue_script(
-			'simple-history-insights',
-			SIMPLE_HISTORY_DIR_URL . 'js/simple-history-insights.js',
+			'simple-history-stats',
+			SIMPLE_HISTORY_DIR_URL . 'js/simple-history-stats.js',
 			[ 'wp-element', 'wp-components', 'wp-i18n', 'wp-api-fetch' ],
 			SIMPLE_HISTORY_VERSION,
 			true
 		);
 
 		wp_enqueue_style(
-			'simple-history-insights',
-			SIMPLE_HISTORY_DIR_URL . 'css/simple-history-insights.css',
+			'simple-history-stats',
+			SIMPLE_HISTORY_DIR_URL . 'css/simple-history-stats.css',
 			[],
 			SIMPLE_HISTORY_VERSION
 		);
@@ -329,8 +329,8 @@ class Stats_Service extends Service {
 	 */
 	private function localize_script_data( $data, $date_from, $date_to ) {
 		wp_localize_script(
-			'simple-history-insights',
-			'simpleHistoryInsights',
+			'simple-history-stats',
+			'simpleHistoryStats',
 			[
 				'data' => [
 					'activityOverview' => $data['overview_activity_by_date'] ? $data['overview_activity_by_date'] : [],

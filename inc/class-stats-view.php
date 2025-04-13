@@ -38,68 +38,60 @@ class Stats_View {
 	 */
 	public static function output_filters( $date_from, $date_to ) {
 		$current_period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '1m';
-		$current_page = menu_page_url( 'simple_history_insights_page', false );
+		$current_page = menu_page_url( 'simple_history_stats_page', false );
 
 		// Define the time periods.
 		$time_periods = array(
-
 			'24h' => array(
-				'label' => _x( '24 Hours', 'insights date filter 24 hours', 'simple-history' ),
-				'short_label' => _x( '24H', 'insights date filter 24 hours short', 'simple-history' ),
+				'label' => _x( '24 Hours', 'stats date filter 24 hours', 'simple-history' ),
+				'short_label' => _x( '24H', 'stats date filter 24 hours short', 'simple-history' ),
 			),
 			'7d'  => array(
-				'label' => _x( '7 Days', 'insights date filter 7 days', 'simple-history' ),
-				'short_label' => _x( '7D', 'insights date filter 7 days short', 'simple-history' ),
+				'label' => _x( '7 Days', 'stats date filter 7 days', 'simple-history' ),
+				'short_label' => _x( '7D', 'stats date filter 7 days short', 'simple-history' ),
 			),
 			'14d' => array(
-				'label' => _x( '14 Days', 'insights date filter 14 days', 'simple-history' ),
-				'short_label' => _x( '14D', 'insights date filter 14 days short', 'simple-history' ),
+				'label' => _x( '14 Days', 'stats date filter 14 days', 'simple-history' ),
+				'short_label' => _x( '14D', 'stats date filter 14 days short', 'simple-history' ),
 			),
 			'1m'  => array(
-				'label' => _x( '1 Month', 'insights date filter 1 month', 'simple-history' ),
-				'short_label' => _x( '1M', 'insights date filter 1 month short', 'simple-history' ),
+				'label' => _x( '1 Month', 'stats date filter 1 month', 'simple-history' ),
+				'short_label' => _x( '1M', 'stats date filter 1 month short', 'simple-history' ),
 			),
 			'3m'  => array(
-				'label' => _x( '3 Months', 'insights date filter 3 months', 'simple-history' ),
-				'short_label' => _x( '3M', 'insights date filter 3 months short', 'simple-history' ),
+				'label' => _x( '3 Months', 'stats date filter 3 months', 'simple-history' ),
+				'short_label' => _x( '3M', 'stats date filter 3 months short', 'simple-history' ),
 			),
 			'6m'  => array(
-				'label' => _x( '6 Months', 'insights date filter 6 months', 'simple-history' ),
-				'short_label' => _x( '6M', 'insights date filter 6 months short', 'simple-history' ),
+				'label' => _x( '6 Months', 'stats date filter 6 months', 'simple-history' ),
+				'short_label' => _x( '6M', 'stats date filter 6 months short', 'simple-history' ),
 			),
 			'12m' => array(
-				'label' => _x( '12 Months', 'insights date filter 12 months', 'simple-history' ),
-				'short_label' => _x( '12M', 'insights date filter 12 months short', 'simple-history' ),
+				'label' => _x( '12 Months', 'stats date filter 12 months', 'simple-history' ),
+				'short_label' => _x( '12M', 'stats date filter 12 months short', 'simple-history' ),
 			),
 		);
 
 		?>
-		<div class="sh-InsightsDashboard-filters" role="navigation" aria-label="<?php esc_attr_e( 'Time period navigation', 'simple-history' ); ?>">
-
+		<div class="sh-StatsDashboard-filters" role="navigation" aria-label="<?php esc_attr_e( 'Time period navigation', 'simple-history' ); ?>">
 			<?php
 			self::output_date_range( $date_from, $date_to );
 			?>
-	
-			<div class="sh-InsightsDashboard-dateFilters">
+			<div class="sh-StatsDashboard-dateFilters">
 				<form method="get" action="<?php echo esc_url( $current_page ); ?>">
 					<?php
-					// Add any existing query parameters except 'period'.
 					foreach ( $_GET as $key => $value ) {
 						if ( in_array( $key, array( 'period', 'page' ) ) ) {
 							continue;
 						}
-
 						echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">';
 					}
-
-					// Add page parameter (so we return to the same page).
-					echo '<input type="hidden" name="page" value="simple_history_insights_page">';
-
+					echo '<input type="hidden" name="page" value="simple_history_stats_page">';
 					?>
 					<select 
 						name="period" 
 						id="period-select" 
-						class="sh-InsightsDashboard-dateSelect" 
+						class="sh-StatsDashboard-dateSelect" 
 						onchange="this.form.submit()"
 						aria-label="<?php esc_attr_e( 'Select time period', 'simple-history' ); ?>"
 					>
@@ -118,7 +110,6 @@ class Stats_View {
 					</select>
 				</form>
 			</div>
-
 		</div>
 		<?php
 	}
@@ -131,8 +122,8 @@ class Stats_View {
 	 */
 	public static function output_date_range( $date_from, $date_to ) {
 		?>
-		<div class="sh-InsightsDashboard-dateRangeContainer">
-			<h2 class="sh-InsightsDashboard-dateRangeHeading">
+		<div class="sh-StatsDashboard-dateRangeContainer">
+			<h2 class="sh-StatsDashboard-dateRangeHeading">
 				<?php
 				echo esc_html(
 					sprintf(
@@ -167,37 +158,34 @@ class Stats_View {
 		$activity_overview = $data['overview_activity_by_date'];
 		$user_total_count = $data['user_total_count'];
 		?>
-		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide sh-InsightsDashboard-card--tall">
+		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide sh-StatsDashboard-card--tall">
 
-			<h2 class="sh-InsightsDashboard-cardTitle" style="--sh-badge-background-color: var(--sh-color-green-light);">
+			<h2 class="sh-StatsDashboard-cardTitle" style="--sh-badge-background-color: var(--sh-color-green-light);">
 				<?php esc_html_e( 'Summary', 'simple-history' ); ?>
 			</h2>
 
-			<div class="sh-InsightsDashboard-dateRange">
-				<div class="sh-InsightsDashboard-stat">
-					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total events', 'simple-history' ); ?></span>
-					<span class="sh-InsightsDashboard-statValue sh-InsightsDashboard-statValue--large"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
+			<div class="sh-StatsDashboard-dateRange">
+				<div class="sh-StatsDashboard-stat">
+					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Total events', 'simple-history' ); ?></span>
+					<span class="sh-StatsDashboard-statValue sh-StatsDashboard-statValue--large"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
 				</div>
 
-				<div class="sh-InsightsDashboard-stat">
-					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Total users', 'simple-history' ); ?></span>
-					<span class="sh-InsightsDashboard-statValue sh-InsightsDashboard-statValue--large"><?php echo esc_html( number_format_i18n( $user_total_count ) ); ?></span>
+				<div class="sh-StatsDashboard-stat">
+					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Total users', 'simple-history' ); ?></span>
+					<span class="sh-StatsDashboard-statValue sh-StatsDashboard-statValue--large"><?php echo esc_html( number_format_i18n( $user_total_count ) ); ?></span>
 				</div>
 
-				<div class="sh-InsightsDashboard-stat">
-					<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Users with most events', 'simple-history' ); ?></span>
-					<span class="sh-InsightsDashboard-statValue"><?php self::output_top_users_avatar_list( $top_users ); ?></span>
+				<div class="sh-StatsDashboard-stat">
+					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Users with most events', 'simple-history' ); ?></span>
+					<span class="sh-StatsDashboard-statValue"><?php self::output_top_users_avatar_list( $top_users ); ?></span>
 				</div>
 			</div>		
 			
-			<div class="sh-InsightsDashboard-dateRange">
+			<div class="sh-StatsDashboard-dateRange">
 				<?php
-				// Output totals for:
-				// - User profile activity
-				// - Plugins
-				// - Posts & pages activity
-				// - Media
-				// Output summary stats for key categories.
+				/*
+				 * Output stats for each category.
+				 */
 				$categories = array(
 					array(
 						'label' => __( 'User activity actions', 'simple-history' ),
@@ -217,40 +205,37 @@ class Stats_View {
 					),
 				);
 
-				/*
 				foreach ( $categories as $category ) {
 					?>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php echo esc_html( $category['label'] ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( $category['value'] ); ?></span>
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php echo esc_html( $category['label'] ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( $category['value'] ); ?></span>
 					</div>
 					<?php
 				}
-
-				*/
 				?>
 			</div>
 	
 
-			<div class="sh-InsightsDashboard-stat">
-				<div class="sh-InsightsDashboard-statLabel">
+			<div class="sh-StatsDashboard-stat">
+				<div class="sh-StatsDashboard-statLabel">
 					<?php esc_html_e( 'Activity by date', 'simple-history' ); ?>
 				</div>
 
-				<span class="sh-InsightsDashboard-statValue">
-					<div class="sh-InsightsDashboard-chartContainer">
-						<canvas id="eventsOverviewChart" class="sh-InsightsDashboard-chart"></canvas>
+				<span class="sh-StatsDashboard-statValue">
+					<div class="sh-StatsDashboard-chartContainer">
+						<canvas id="eventsOverviewChart" class="sh-StatsDashboard-chart"></canvas>
 					</div>
 				</span>
 			</div>
 
-			<div class="sh-InsightsDashboard-dateRange">
-				<span class="sh-InsightsDashboard-dateRangeValue">
+			<div class="sh-StatsDashboard-dateRange">
+				<span class="sh-StatsDashboard-dateRangeValue">
 					<?php
 					echo esc_html( wp_date( get_option( 'date_format' ), $date_from ) );
 					?>
 				</span>
-				<span class="sh-InsightsDashboard-dateRangeValue">
+				<span class="sh-StatsDashboard-dateRangeValue">
 					<?php
 					echo esc_html( wp_date( get_option( 'date_format' ), $date_to ) );
 					?>
@@ -268,29 +253,29 @@ class Stats_View {
 	 */
 	public static function output_logged_in_users_section( $logged_in_users ) {
 		?>
-		<div class="sh-InsightsDashboard-section">
-			<h2><?php echo esc_html_x( 'Currently Logged In Users', 'insights section title', 'simple-history' ); ?></h2>
+		<div class="sh-StatsDashboard-section">
+			<h2><?php echo esc_html_x( 'Currently Logged In Users', 'stats section title', 'simple-history' ); ?></h2>
 
-				<div class="sh-InsightsDashboard-activeUsers">
+				<div class="sh-StatsDashboard-activeUsers">
 					<?php
 					if ( $logged_in_users ) {
 						?>
-						<ul class="sh-InsightsDashboard-userList">
+						<ul class="sh-StatsDashboard-userList">
 							<?php
 							foreach ( $logged_in_users as $user_data ) {
 								?>
-								<li class="sh-InsightsDashboard-userItem">
+								<li class="sh-StatsDashboard-userItem">
 									<?php
 									$user = $user_data['user'];
 									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 									echo Helpers::get_avatar( $user->user_email, 32 );
 									?>
-									<div class="sh-InsightsDashboard-userInfo">
+									<div class="sh-StatsDashboard-userInfo">
 										<strong><?php echo esc_html( $user->display_name ); ?></strong>
-										<span class="sh-InsightsDashboard-userRole">
+										<span class="sh-StatsDashboard-userRole">
 											<?php echo esc_html( implode( ', ', $user->roles ) ); ?>
 										</span>
-										<span class="sh-InsightsDashboard-userSessions">
+										<span class="sh-StatsDashboard-userSessions">
 											<?php
 											printf(
 												/* translators: %d: number of active sessions */
@@ -301,10 +286,10 @@ class Stats_View {
 										</span>
 
 										<?php if ( ! empty( $user_data['sessions'] ) ) : ?>
-											<div class="sh-InsightsDashboard-userSessions-details">
+											<div class="sh-StatsDashboard-userSessions-details">
 												<?php foreach ( $user_data['sessions'] as $session ) : ?>
-													<div class="sh-InsightsDashboard-userSession">
-														<span class="sh-InsightsDashboard-userLastLogin">
+													<div class="sh-StatsDashboard-userSession">
+														<span class="sh-StatsDashboard-userLastLogin">
 															<?php
 															$login_time = date_i18n( 'F d, Y H:i A', $session['login'] );
 															printf(
@@ -315,7 +300,7 @@ class Stats_View {
 															?>
 														</span>
 														
-														<span class="sh-InsightsDashboard-userExpiration">
+														<span class="sh-StatsDashboard-userExpiration">
 															<?php
 															$expiration_time = date_i18n( 'F d, Y H:i A', $session['expiration'] );
 															printf(
@@ -327,7 +312,7 @@ class Stats_View {
 														</span>
 														
 														<?php if ( ! empty( $session['ip'] ) ) : ?>
-															<span class="sh-InsightsDashboard-userIP">
+															<span class="sh-StatsDashboard-userIP">
 																<?php
 																printf(
 																	/* translators: %s: IP address */
@@ -367,20 +352,20 @@ class Stats_View {
 	public static function output_top_users_section( $data ) {
 		$top_users = $data['user_rankings_formatted'];
 		?>
-		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
+		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle" 
+				class="sh-StatsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
-				<?php echo esc_html_x( 'User activity', 'insights section title', 'simple-history' ); ?>
+				<?php echo esc_html_x( 'User activity', 'stats section title', 'simple-history' ); ?>
 			</h2>
 
-			<div class="sh-InsightsDashboard-content">
+			<div class="sh-StatsDashboard-content">
 
-				<div class="sh-InsightsDashboard-stats">
-					<div class="sh-InsightsDashboard-stat">
-						<div class="sh-InsightsDashboard-statLabel"><?php echo esc_html_x( 'Most active users overview', 'insights section title', 'simple-history' ); ?></div>
-						<div class="sh-InsightsDashboard-statValue">
+				<div class="sh-StatsDashboard-stats">
+					<div class="sh-StatsDashboard-stat">
+						<div class="sh-StatsDashboard-statLabel"><?php echo esc_html_x( 'Most active users overview', 'stats section title', 'simple-history' ); ?></div>
+						<div class="sh-StatsDashboard-statValue">
 						<?php
 						// Output a nice list of users with avatars.
 						if ( $top_users && count( $top_users ) > 0 ) {
@@ -391,9 +376,9 @@ class Stats_View {
 				</div>
 			</div>
 
-			<details class="sh-InsightsDashboard-details">
+			<details class="sh-StatsDashboard-details">
 				<summary>
-					<?php echo esc_html_x( 'Most active users details', 'insights section title', 'simple-history' ); ?>
+					<?php echo esc_html_x( 'Most active users details', 'stats section title', 'simple-history' ); ?>
 				</summary>
 				<p><?php esc_html_e( 'No matter event type.', 'simple-history' ); ?></p>
 				<?php
@@ -403,9 +388,9 @@ class Stats_View {
 				?>
 			</details>
 
-			<details class="sh-InsightsDashboard-details">
+			<details class="sh-StatsDashboard-details">
 				<summary>
-					<?php echo esc_html_x( 'Most edited posts and pages', 'insights section title', 'simple-history' ); ?>
+					<?php echo esc_html_x( 'Most edited posts and pages', 'stats section title', 'simple-history' ); ?>
 				</summary>
 				<p>Events can be page created, updated, deleted, trashed or restored.</p>
 				<?php
@@ -426,17 +411,17 @@ class Stats_View {
 	 */
 	public static function output_top_posts_and_pages_section( $top_posts_and_pages ) {
 		?>
-		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
+		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle" 
+				class="sh-StatsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
-				<?php echo esc_html_x( 'Most edited posts and pages', 'insights section title', 'simple-history' ); ?>
+				<?php echo esc_html_x( 'Most edited posts and pages', 'stats section title', 'simple-history' ); ?>
 			</h2>
 
 			<p>Events can be page created, updated, deleted, trashed or restored.</p>
 
-			<div class="sh-InsightsDashboard-content">
+			<div class="sh-StatsDashboard-content">
 				<?php
 				if ( $top_posts_and_pages && count( $top_posts_and_pages ) > 0 ) {
 					self::output_top_posts_and_pages_table( $top_posts_and_pages );
@@ -454,12 +439,12 @@ class Stats_View {
 	 */
 	public static function output_top_posts_and_pages_table( $top_posts_and_pages ) {
 		?>
-		<div class="sh-InsightsDashboard-tableContainer">
+		<div class="sh-StatsDashboard-tableContainer">
 			<table class="widefat striped">
 				<thead>
 					<tr>
-						<th><?php echo esc_html_x( 'Post', 'insights table header', 'simple-history' ); ?></th>
-						<th><?php echo esc_html_x( 'Number of events', 'insights table header', 'simple-history' ); ?></th>
+						<th><?php echo esc_html_x( 'Post', 'stats table header', 'simple-history' ); ?></th>
+						<th><?php echo esc_html_x( 'Number of events', 'stats table header', 'simple-history' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -487,7 +472,7 @@ class Stats_View {
 	 */
 	public static function output_top_users_avatar_list( $top_users ) {
 		?>
-		<ul class="sh-InsightsDashboard-userList">
+		<ul class="sh-StatsDashboard-userList">
 			<?php
 			$loop_count = 0;
 			$user_count = count( $top_users );
@@ -495,15 +480,15 @@ class Stats_View {
 				// Set z-index to reverse order, so first user is on top.
 				$style = 'z-index: ' . ( $user_count - $loop_count ) . ';';
 				?>
-				<li class="sh-InsightsDashboard-userItem" style="<?php echo esc_attr( $style ); ?>">
+				<li class="sh-StatsDashboard-userItem" style="<?php echo esc_attr( $style ); ?>">
 					<img 
 						src="<?php echo esc_url( $user['avatar'] ); ?>" 
 						alt="<?php echo esc_attr( $user['display_name'] ); ?>" 
-						class="sh-InsightsDashboard-userAvatar"
+						class="sh-StatsDashboard-userAvatar"
 					>
-					<span class="sh-InsightsDashboard-userData">
-						<span class="sh-InsightsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
-						<span class="sh-InsightsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
+					<span class="sh-StatsDashboard-userData">
+						<span class="sh-StatsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
+						<span class="sh-StatsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
 					</span>
 				</li>
 				<?php
@@ -522,12 +507,12 @@ class Stats_View {
 	 */
 	public static function output_top_users_table( $top_users ) {
 		?>
-		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
+		<div class="sh-StatsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
 			<table class="widefat striped">
 				<thead>
 					<tr>
-						<th><?php echo esc_html_x( 'User', 'insights table header', 'simple-history' ); ?></th>
-						<th><?php echo esc_html_x( 'Events', 'insights table header', 'simple-history' ); ?></th>
+						<th><?php echo esc_html_x( 'User', 'stats table header', 'simple-history' ); ?></th>
+						<th><?php echo esc_html_x( 'Events', 'stats table header', 'simple-history' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -537,7 +522,7 @@ class Stats_View {
 								<img 
 										src="<?php echo esc_url( $user['avatar'] ); ?>" 
 										alt="<?php echo esc_attr( $user['display_name'] ); ?>" 
-										class="sh-InsightsDashboard-userAvatar"
+										class="sh-StatsDashboard-userAvatar"
 									>
 								<?php
 								/* translators: %s: user ID number */
@@ -563,21 +548,21 @@ class Stats_View {
 	 * @param string $css_class  Optional. Additional CSS class for the section.
 	 */
 	public static function output_chart_section( $title, $chart_id, $css_class = '' ) {
-		$section_class = 'sh-InsightsDashboard-card';
+		$section_class = 'sh-StatsDashboard-card';
 		if ( $css_class ) {
 			$section_class .= ' ' . $css_class;
 		}
 		?>
 		<div class="<?php echo esc_attr( $section_class ); ?>">
 			<h2
-				class="sh-InsightsDashboard-cardTitle" 
+				class="sh-StatsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
 				<?php echo esc_html( $title ); ?>
 			</h2>
 
-			<div class="sh-InsightsDashboard-content">
-				<canvas id="<?php echo esc_attr( $chart_id ); ?>" class="sh-InsightsDashboard-chart"></canvas>
+			<div class="sh-StatsDashboard-content">
+				<canvas id="<?php echo esc_attr( $chart_id ); ?>" class="sh-StatsDashboard-chart"></canvas>
 			</div>
 		</div>
 		<?php
@@ -592,7 +577,7 @@ class Stats_View {
 	 */
 	public static function output_activity_calendar( $date_from, $date_to, $activity_overview ) {
 		?>
-		<div class="sh-InsightsDashboard-calendar">
+		<div class="sh-StatsDashboard-calendar">
 			<?php
 			// Get the first and last day of the date range.
 			$start_date = new \DateTime( gmdate( 'Y-m-d', $date_from ) );
@@ -616,9 +601,9 @@ class Stats_View {
 			// Get month name.
 			$month_name = $start_date->format( 'F Y' );
 			?>
-			<div class="sh-InsightsDashboard-calendarMonth">
-				<h3 class="sh-InsightsDashboard-calendarTitle"><?php echo esc_html( $month_name ); ?></h3>
-				<div class="sh-InsightsDashboard-calendarGrid">
+			<div class="sh-StatsDashboard-calendarMonth">
+				<h3 class="sh-StatsDashboard-calendarTitle"><?php echo esc_html( $month_name ); ?></h3>
+				<div class="sh-StatsDashboard-calendarGrid">
 					<?php
 					// Output weekday headers.
 					$weekdays = array(
@@ -631,12 +616,12 @@ class Stats_View {
 						__( 'Sat', 'simple-history' ),
 					);
 					foreach ( $weekdays as $weekday ) {
-						echo '<div class="sh-InsightsDashboard-calendarHeader">' . esc_html( $weekday ) . '</div>';
+						echo '<div class="sh-StatsDashboard-calendarHeader">' . esc_html( $weekday ) . '</div>';
 					}
 
 					// Add empty cells for days before the start of the month.
 					for ( $i = 0; $i < $start_weekday; $i++ ) {
-						echo '<div class="sh-InsightsDashboard-calendarDay sh-InsightsDashboard-calendarDay--empty"></div>';
+						echo '<div class="sh-StatsDashboard-calendarDay sh-StatsDashboard-calendarDay--empty"></div>';
 					}
 
 					// Output calendar days.
@@ -645,17 +630,17 @@ class Stats_View {
 						$count = isset( $date_counts[ $date_str ] ) ? $date_counts[ $date_str ] : 0;
 						$is_in_range = $current_date >= $start_date && $current_date <= $end_date;
 
-						$classes = array( 'sh-InsightsDashboard-calendarDay' );
+						$classes = array( 'sh-StatsDashboard-calendarDay' );
 
 						if ( ! $is_in_range ) {
-							$classes[] = 'sh-InsightsDashboard-calendarDay--outOfRange';
+							$classes[] = 'sh-StatsDashboard-calendarDay--outOfRange';
 						} elseif ( $count > 0 ) {
 							if ( $count < 10 ) {
-								$classes[] = 'sh-InsightsDashboard-calendarDay--low';
+								$classes[] = 'sh-StatsDashboard-calendarDay--low';
 							} elseif ( $count < 50 ) {
-								$classes[] = 'sh-InsightsDashboard-calendarDay--medium';
+								$classes[] = 'sh-StatsDashboard-calendarDay--medium';
 							} else {
-								$classes[] = 'sh-InsightsDashboard-calendarDay--high';
+								$classes[] = 'sh-StatsDashboard-calendarDay--high';
 							}
 						}
 
@@ -666,9 +651,9 @@ class Stats_View {
 						?>
 						<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" 
 							title="<?php echo esc_attr( $title ); ?>">
-							<span class="sh-InsightsDashboard-calendarDayNumber"><?php echo esc_html( $current_date->format( 'j' ) ); ?></span>
+							<span class="sh-StatsDashboard-calendarDayNumber"><?php echo esc_html( $current_date->format( 'j' ) ); ?></span>
 							<?php if ( $is_in_range ) { ?>
-								<span class="sh-InsightsDashboard-calendarDayCount"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
+								<span class="sh-StatsDashboard-calendarDayCount"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
 							<?php } ?>
 						</div>
 						<?php
@@ -679,7 +664,7 @@ class Stats_View {
 					$end_weekday = (int) $last_day_of_month->format( 'w' );
 					$remaining_days = 6 - $end_weekday;
 					for ( $i = 0; $i < $remaining_days; $i++ ) {
-						echo '<div class="sh-InsightsDashboard-calendarDay sh-InsightsDashboard-calendarDay--empty"></div>';
+						echo '<div class="sh-StatsDashboard-calendarDay sh-StatsDashboard-calendarDay--empty"></div>';
 					}
 					?>
 				</div>
@@ -696,46 +681,46 @@ class Stats_View {
 	public static function output_user_stats_section( $data ) {
 		$user_stats = $data['user_stats'];
 		?>
-		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
+		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle"	 
+				class="sh-StatsDashboard-cardTitle"	 
 				style="--sh-badge-background-color: var(--sh-color-pink);"
 			>
-				<?php echo esc_html_x( 'User profile activity', 'insights section title', 'simple-history' ); ?>
+				<?php echo esc_html_x( 'User profile activity', 'stats section title', 'simple-history' ); ?>
 			</h2>
 
-			<div class="sh-InsightsDashboard-content">
+			<div class="sh-StatsDashboard-content">
 
-				<div class="sh-InsightsDashboard-stats">
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Successful logins', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_successful'] ) ); ?></span>
+				<div class="sh-StatsDashboard-stats">
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Successful logins', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_successful'] ) ); ?></span>
 					</div>
 
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Failed logins', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_failed'] ) ); ?></span>
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Failed logins', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_failed'] ) ); ?></span>
 					</div>
 
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Profile updates', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_profiles_updated'] ) ); ?></span>
-					</div>
-				</div>
-
-				<div class="sh-InsightsDashboard-stats">
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Added users', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_added'] ) ); ?></span>
-					</div>
-
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Removed users', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_removed'] ) ); ?></span>
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Profile updates', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_profiles_updated'] ) ); ?></span>
 					</div>
 				</div>
 
-				<details class="sh-InsightsDashboard-details">
+				<div class="sh-StatsDashboard-stats">
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Added users', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_added'] ) ); ?></span>
+					</div>
+
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Removed users', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_removed'] ) ); ?></span>
+					</div>
+				</div>
+
+				<details class="sh-StatsDashboard-details">
 					<summary>
 						<?php esc_html_e( 'Show details', 'simple-history' ); ?>
 					</summary>
@@ -770,7 +755,7 @@ class Stats_View {
 	 */
 	private static function output_details_table( $title, $headers, $data, $row_callback ) {
 		?>
-		<div class="sh-InsightsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
+		<div class="sh-StatsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
 			<h3><?php echo esc_html( $title ); ?></h3>
 
 			<?php
@@ -834,7 +819,7 @@ class Stats_View {
 				$user_avatar = get_avatar_url( $login->user_id );
 				return [
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $user_avatar ),
 						esc_attr( $login->user_login ),
 						esc_html( $login->user_login )
@@ -884,7 +869,7 @@ class Stats_View {
 				$user_avatar = get_avatar_url( $update->user_id );
 				return [
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $user_avatar ),
 						esc_attr( $update->user_login ),
 						esc_html( $update->user_login )
@@ -915,14 +900,14 @@ class Stats_View {
 				$added_by_avatar = get_avatar_url( $user->added_by_id );
 				return [
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $user_avatar ),
 						esc_attr( $user->user_login ),
 						esc_html( $user->user_login )
 					),
 					esc_html( $user->user_role ),
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $added_by_avatar ),
 						esc_attr( $added_by->user_login ),
 						esc_html( $added_by->display_name )
@@ -953,7 +938,7 @@ class Stats_View {
 					esc_html( $user->user_login ),
 					esc_html( $user->user_email ),
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $removed_by_avatar ),
 						esc_attr( $removed_by->user_login ),
 						esc_html( $removed_by->display_name )
@@ -970,38 +955,38 @@ class Stats_View {
 	 */
 	public static function output_posts_pages_stats_section( $posts_pages_stats ) {
 		?>
-		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
+		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle" 
+				class="sh-StatsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-yellow);"
 			>
-				<?php echo esc_html_x( 'Posts & pages activity', 'insights section title', 'simple-history' ); ?>
+				<?php echo esc_html_x( 'Posts & pages activity', 'stats section title', 'simple-history' ); ?>
 			</h2>
 
-			<div class="sh-InsightsDashboard-content">
-				<div class="sh-InsightsDashboard-stats">
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Created', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_created'] ) ); ?></span>
+			<div class="sh-StatsDashboard-content">
+				<div class="sh-StatsDashboard-stats">
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Created', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_created'] ) ); ?></span>
 					</div>
 
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updated', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_updated'] ) ); ?></span>
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Updated', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_updated'] ) ); ?></span>
 					</div>
 
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Trashed', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_trashed'] ) ); ?></span>
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Trashed', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_trashed'] ) ); ?></span>
 					</div>
 
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deleted', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_deleted'] ) ); ?></span>
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Deleted', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_deleted'] ) ); ?></span>
 					</div>
 				</div>
 
-				<details class="sh-InsightsDashboard-details">
+				<details class="sh-StatsDashboard-details">
 					<summary>
 						<?php esc_html_e( 'Show details', 'simple-history' ); ?>
 					</summary>
@@ -1046,7 +1031,7 @@ class Stats_View {
 					esc_html( $item->post_title ),
 					esc_html( $item->post_type ),
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $created_by_avatar ),
 						esc_attr( $created_by->user_login ),
 						esc_html( $created_by->display_name )
@@ -1079,7 +1064,7 @@ class Stats_View {
 					esc_html( $item->post_title ),
 					esc_html( $item->post_type ),
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $updated_by_avatar ),
 						esc_attr( $updated_by->user_login ),
 						esc_html( $updated_by->display_name )
@@ -1112,7 +1097,7 @@ class Stats_View {
 					esc_html( $item->post_title ),
 					esc_html( $item->post_type ),
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $trashed_by_avatar ),
 						esc_attr( $trashed_by->user_login ),
 						esc_html( $trashed_by->display_name )
@@ -1145,7 +1130,7 @@ class Stats_View {
 					esc_html( $item->post_title ),
 					esc_html( $item->post_type ),
 					sprintf(
-						'<img src="%s" alt="%s" class="sh-InsightsDashboard-userAvatar">%s',
+						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
 						esc_url( $deleted_by_avatar ),
 						esc_attr( $deleted_by->user_login ),
 						esc_html( $deleted_by->display_name )
@@ -1160,35 +1145,36 @@ class Stats_View {
 	 * Output the media statistics section.
 	 *
 	 * @param array $media_stats Array of media statistics.
+	 * @param array $media_stats_details Array of detailed media statistics.
 	 */
 	public static function output_media_stats_section( $media_stats, $media_stats_details ) {
 		?>
-		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
+		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
 			<h2 
-				class="sh-InsightsDashboard-cardTitle" 
+				class="sh-StatsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
-				<?php echo esc_html_x( 'Media', 'insights section title', 'simple-history' ); ?>
+				<?php echo esc_html_x( 'Media', 'stats section title', 'simple-history' ); ?>
 			</h2>
 			
-			<div class="sh-InsightsDashboard-content">
+			<div class="sh-StatsDashboard-content">
 				
-				<div class="sh-InsightsDashboard-stats">
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Uploads', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_uploaded'] ) ); ?></span>
+				<div class="sh-StatsDashboard-stats">
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Uploads', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_uploaded'] ) ); ?></span>
 					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Edits', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_edited'] ) ); ?></span>
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Edits', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_edited'] ) ); ?></span>
 					</div>
-					<div class="sh-InsightsDashboard-stat">
-						<span class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></span>
-						<span class="sh-InsightsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_deleted'] ) ); ?></span>
+					<div class="sh-StatsDashboard-stat">
+						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></span>
+						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_deleted'] ) ); ?></span>
 					</div>
 				</div>
 
-				<details class="sh-InsightsDashboard-details">
+				<details class="sh-StatsDashboard-details">
 					<summary>
 						<?php esc_html_e( 'Show media details', 'simple-history' ); ?>
 					</summary>
@@ -1238,7 +1224,7 @@ class Stats_View {
 						[ 40, 40 ],
 						true,
 						[
-							'class' => 'sh-InsightsDashboard-mediaThumb',
+							'class' => 'sh-StatsDashboard-mediaThumb',
 							'style' => 'margin-right: 10px; vertical-align: middle;',
 						]
 					);
@@ -1366,42 +1352,42 @@ class Stats_View {
 	 */
 	public static function output_plugin_stats( $plugin_stats, $stats, $date_from, $date_to ) {
 		?>
-		<div class="sh-InsightsDashboard-card sh-InsightsDashboard-card--wide">
-			<h2 class="sh-InsightsDashboard-cardTitle"><?php esc_html_e( 'Plugins', 'simple-history' ); ?></h2>
+		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
+			<h2 class="sh-StatsDashboard-cardTitle"><?php esc_html_e( 'Plugins', 'simple-history' ); ?></h2>
 
-			<div class="sh-InsightsDashboard-stats">
-				<div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Installations', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_installs_completed'] ); ?></div>
+			<div class="sh-StatsDashboard-stats">
+				<div class="sh-StatsDashboard-stat">
+					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Installations', 'simple-history' ); ?></div>
+					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_installs_completed'] ); ?></div>
 				</div>
 
-				<div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Activations', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_activations_completed'] ); ?></div>
+				<div class="sh-StatsDashboard-stat">
+					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Activations', 'simple-history' ); ?></div>
+					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_activations_completed'] ); ?></div>
 				</div>
 
-				<div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updates found', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_found'] ); ?></div>
+				<div class="sh-StatsDashboard-stat">
+					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Updates found', 'simple-history' ); ?></div>
+					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_found'] ); ?></div>
 				</div>
 
-				<div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updates done', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_completed'] ); ?></div>
+				<div class="sh-StatsDashboard-stat">
+					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Updates done', 'simple-history' ); ?></div>
+					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_completed'] ); ?></div>
 				</div>
 
-				<div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deactivations', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deactivations_completed'] ); ?></div>
+				<div class="sh-StatsDashboard-stat">
+					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Deactivations', 'simple-history' ); ?></div>
+					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deactivations_completed'] ); ?></div>
 				</div>
 
-				<div class="sh-InsightsDashboard-stat">
-					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></div>
-					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deletions_completed'] ); ?></div>
+				<div class="sh-StatsDashboard-stat">
+					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></div>
+					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deletions_completed'] ); ?></div>
 				</div>
 			</div>
 
-			<details class="sh-InsightsDashboard-details">
+			<details class="sh-StatsDashboard-details">
 				<summary>
 					<?php esc_html_e( 'Show details', 'simple-history' ); ?>
 				</summary>
@@ -1434,7 +1420,7 @@ class Stats_View {
 	 */
 	public static function output_dashboard_content( $data, $date_from, $date_to ) {
 		?>
-		<div class="sh-InsightsDashboard">
+		<div class="sh-StatsDashboard">
 			<?php
 			// Display overview section.
 			self::output_events_overview(
@@ -1444,12 +1430,12 @@ class Stats_View {
 			);
 
 			self::output_chart_section(
-				_x( 'Peak activity times', 'insights section title', 'simple-history' ),
+				_x( 'Peak activity times', 'stats section title', 'simple-history' ),
 				'peakTimesChart'
 			);
 
 			self::output_chart_section(
-				_x( 'Peak activity days', 'insights section title', 'simple-history' ),
+				_x( 'Peak activity days', 'stats section title', 'simple-history' ),
 				'peakDaysChart'
 			);
 
@@ -1477,9 +1463,9 @@ class Stats_View {
 	 */
 	public static function output_activity_calendar_section( $date_from, $date_to, $activity_overview_by_date ) {
 		?>
-		<div class="sh-InsightsDashboard-section sh-InsightsDashboard-section--wide">
-			<h2><?php echo esc_html_x( 'Activity calendar', 'insights section title', 'simple-history' ); ?></h2>
-			<div class="sh-InsightsDashboard-content">
+		<div class="sh-StatsDashboard-section sh-StatsDashboard-section--wide">
+			<h2><?php echo esc_html_x( 'Activity calendar', 'stats section title', 'simple-history' ); ?></h2>
+			<div class="sh-StatsDashboard-content">
 				<?php self::output_activity_calendar( $date_from, $date_to, $activity_overview_by_date ); ?>
 			</div>
 		</div>
