@@ -1,4 +1,4 @@
-/* global Chart, simpleHistoryInsights */
+/* global Chart, simpleHistoryStats */
 jQuery( function () {
 	( 'use strict' );
 
@@ -13,7 +13,7 @@ jQuery( function () {
 		const ctx = document
 			.getElementById( 'activityChart' )
 			.getContext( '2d' );
-		const data = simpleHistoryInsights.data.activityOverview.map(
+		const data = simpleHistoryStats.data.activityOverview.map(
 			( item ) => ( {
 				date: new Date( item.date ).toLocaleDateString(),
 				count: parseInt( item.count, 10 ),
@@ -26,7 +26,7 @@ jQuery( function () {
 				labels: data.map( ( item ) => item.date ),
 				datasets: [
 					{
-						label: simpleHistoryInsights.strings.events,
+						label: simpleHistoryStats.strings.events,
 						data: data.map( ( item ) => item.count ),
 						backgroundColor: 'rgba(75, 192, 192, 0.8)',
 						borderColor: 'rgba(75, 192, 192, 1)',
@@ -54,7 +54,7 @@ jQuery( function () {
 		const ctx = document
 			.getElementById( 'peakTimesChart' )
 			.getContext( '2d' );
-		const data = simpleHistoryInsights.data.peakTimes.map( ( time ) => ( {
+		const data = simpleHistoryStats.data.peakTimes.map( ( time ) => ( {
 			hour: time.hour,
 			count: parseInt( time.count, 10 ),
 		} ) );
@@ -65,7 +65,7 @@ jQuery( function () {
 				labels: data.map( ( item ) => `${ item.hour }:00` ),
 				datasets: [
 					{
-						label: simpleHistoryInsights.strings.events,
+						label: simpleHistoryStats.strings.events,
 						data: data.map( ( item ) => item.count ),
 						backgroundColor: 'rgba(153, 102, 255, 0.8)',
 						borderColor: 'rgba(153, 102, 255, 1)',
@@ -116,7 +116,7 @@ jQuery( function () {
 			'Saturday',
 		];
 
-		const data = simpleHistoryInsights.data.peakDays.map( ( day ) => ( {
+		const data = simpleHistoryStats.data.peakDays.map( ( day ) => ( {
 			day: dayNames[ parseInt( day.day, 10 ) ],
 			count: parseInt( day.count, 10 ),
 		} ) );
@@ -127,7 +127,7 @@ jQuery( function () {
 				labels: data.map( ( item ) => item.day ),
 				datasets: [
 					{
-						label: simpleHistoryInsights.strings.events,
+						label: simpleHistoryStats.strings.events,
 						data: data.map( ( item ) => item.count ),
 						backgroundColor: 'rgba(255, 159, 64, 0.8)',
 						borderColor: 'rgba(255, 159, 64, 1)',
@@ -169,7 +169,7 @@ jQuery( function () {
 			.getElementById( 'eventsOverviewChart' )
 			.getContext( '2d' );
 
-		const data = simpleHistoryInsights.data.activityOverview.map(
+		const data = simpleHistoryStats.data.activityOverview.map(
 			( item ) => ( {
 				date: wp.date.dateI18n(
 					wp.date.__experimentalGetSettings().formats.date,
@@ -185,7 +185,7 @@ jQuery( function () {
 				labels: data.map( ( item ) => item.date ),
 				datasets: [
 					{
-						label: simpleHistoryInsights.strings.events,
+						label: simpleHistoryStats.strings.events,
 						data: data.map( ( item ) => item.count ),
 						barPercentage: 0.99,
 						categoryPercentage: 1,
