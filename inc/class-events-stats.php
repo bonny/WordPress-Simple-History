@@ -402,7 +402,7 @@ class Events_Stats {
 	}
 
 	/**
-	 * Get number of successful logins for a given period.
+	 * Get successful logins count in a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
 	 * @param int $date_to   Required. End date as Unix timestamp.
@@ -410,38 +410,6 @@ class Events_Stats {
 	 */
 	public function get_successful_logins_count( $date_from, $date_to ) {
 		return $this->get_event_count( 'SimpleUserLogger', [ 'user_logged_in', 'user_unknown_logged_in' ], $date_from, $date_to );
-	}
-
-	/**
-	 * Get user's last activity time.
-	 *
-	 * @param int $user_id User ID to get last activity for.
-	 * @return string|false MySQL datetime string of last activity, or false if no activity found.
-	 */
-	public function get_user_last_activity( $user_id ) {
-		global $wpdb;
-
-		if ( ! $user_id ) {
-			return false;
-		}
-
-		return $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT 
-					h.date
-				FROM 
-					{$wpdb->prefix}simple_history h
-				JOIN 
-					{$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-				WHERE 
-					c.key = '_user_id'
-					AND c.value = %s
-				ORDER BY 
-					h.date DESC
-				LIMIT 1",
-				$user_id
-			)
-		);
 	}
 
 	/**
@@ -779,7 +747,7 @@ class Events_Stats {
 	}
 
 	/**
-	 * Get number of plugin updates for a given period.
+	 * Get plugin updates count in a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
 	 * @param int $date_to   Required. End date as Unix timestamp.
