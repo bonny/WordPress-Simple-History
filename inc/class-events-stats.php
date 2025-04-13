@@ -746,7 +746,7 @@ class Events_Stats {
 	}
 
 	/**
-	 * Get number of media uploads count in a given period.
+	 * Get media uploads count in a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
 	 * @param int $date_to   Required. End date as Unix timestamp.
@@ -757,18 +757,7 @@ class Events_Stats {
 	}
 
 	/**
-	 * Get number of media edits in a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Number of media edits, or false if invalid dates.
-	 */
-	public function get_media_edits( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimpleMediaLogger', 'attachment_updated', $date_from, $date_to );
-	}
-
-	/**
-	 * Get number of media edits count in a given period.
+	 * Get media edits count in a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
 	 * @param int $date_to   Required. End date as Unix timestamp.
@@ -779,18 +768,7 @@ class Events_Stats {
 	}
 
 	/**
-	 * Get number of media deletions in a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Number of media deletions, or false if invalid dates.
-	 */
-	public function get_media_deletions( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimpleMediaLogger', 'attachment_deleted', $date_from, $date_to );
-	}
-
-	/**
-	 * Get number of media deletions count in a given period.
+	 * Get media deletions count in a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
 	 * @param int $date_to   Required. End date as Unix timestamp.
@@ -1534,11 +1512,11 @@ class Events_Stats {
 	/**
 	 * Get detailed stats for a specific logger and message key value.
 	 *
-	 * @param string $logger_slug The logger slug (e.g. 'SimpleMediaLogger').
-	 * @param string $key The context key to match (e.g. '_message_key').
-	 * @param string $value The value to match against.
-	 * @param int    $date_from Start timestamp.
-	 * @param int    $date_to End timestamp.
+	 * @param string $logger_slug  The logger slug (e.g. 'SimpleMediaLogger').
+	 * @param string $message_key  The context key to match (e.g. '_message_key').
+	 * @param string $message_value The value to match against.
+	 * @param int    $date_from    Start timestamp.
+	 * @param int    $date_to      End timestamp.
 	 * @return array Array of detailed stats.
 	 */
 	protected function get_detailed_stats_for_logger_and_value( $logger_slug, $message_key, $message_value, $date_from, $date_to ) {
