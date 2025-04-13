@@ -541,7 +541,7 @@
 	}
 }
 
-.sh-InsightsDashboard-details {
+.sh-InsightsDashboard-details summary {
 	padding: var(--sh-spacing-small);
 	padding-left: 0;
 	cursor: pointer;
