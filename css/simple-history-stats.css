@@ -6,7 +6,6 @@
 	display: grid;
 	grid-template-columns: repeat(8, 1fr);
 	gap: var(--sh-spacing-large);
-	/* padding: var(--sh-spacing-large); */
 }
 
 /* Default span is 2, so 4 cols fits. */
@@ -32,11 +31,7 @@
 }
 
 .sh-StatsDashboard-content {
-	/* display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	justify-content: flex-start;
-	padding: 20px 0; */
+	/* Empty rule block - can be removed if no other properties needed */
 }
 
 .sh-StatsDashboard-content--sideBySide {
@@ -50,18 +45,11 @@
 /* Smaller sparkline-ish chart container. */
 .sh-StatsDashboard-chartContainer {
 	height: 200px;
-	/* margin-top: var(--sh-spacing-xxlarge); */
-	/* width: 100%;
-	height: 100px;
-	margin-top: var(--sh-spacing-large); */
 }
 
 .sh-StatsDashboard-chartContainer,
 .sh-StatsDashboard-tableContainer {
-	/* flex: 1;
-	width: 100%; */
-	/* max-width: 50%; */
-	/* align-self: flex-start; */
+	/* Empty rule block - can be removed if no other properties needed */
 }
 
 /* Loading state */
@@ -102,10 +90,7 @@
 		grid-template-columns: repeat(2, 1fr);
 	}
 
-	.sh-StatsDashboard-section--extraWide {
-		grid-column: span 2;
-		grid-row: span 1;
-	}
+	/* Remove unused extraWide section */
 }
 
 @media screen and (max-width: 782px) {
@@ -113,12 +98,12 @@
 		grid-template-columns: 1fr;
 	}
 
-	.sh-StatsDashboard-section--wide,
-	.sh-StatsDashboard-section--extraWide {
+	.sh-StatsDashboard-section--wide {
 		grid-column: span 1;
 		grid-row: span 1;
 	}
 
+	/* Consolidate media queries and remove duplicate rules */
 	.sh-StatsDashboard-content--sideBySide {
 		flex-direction: column;
 		gap: 20px;
