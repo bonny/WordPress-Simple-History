@@ -117,6 +117,212 @@
 	margin: 0px;
 }
 
+/* Display */
+.sh-flex {
+	display: flex;
+}
+
+/* Justify Content */
+.sh-justify-between {
+	justify-content: space-between;
+}
+.sh-justify-start {
+	justify-content: flex-start;
+}
+.sh-justify-end {
+	justify-content: flex-end;
+}
+.sh-justify-center {
+	justify-content: center;
+}
+.sh-justify-around {
+	justify-content: space-around;
+}
+.sh-justify-evenly {
+	justify-content: space-evenly;
+}
+
+/* Margin */
+.sh-m-small {
+	margin: var(--sh-spacing-small);
+}
+.sh-m-medium {
+	margin: var(--sh-spacing-medium);
+}
+.sh-m-large {
+	margin: var(--sh-spacing-large);
+}
+.sh-m-xlarge {
+	margin: var(--sh-spacing-xlarge);
+}
+.sh-m-xxlarge {
+	margin: var(--sh-spacing-xxlarge);
+}
+.sh-m-xxxlarge {
+	margin: var(--sh-spacing-xxxlarge);
+}
+
+/* Margin X-axis (left and right) */
+.sh-mx-0 {
+	margin-left: 0px;
+	margin-right: 0px;
+}
+.sh-mx-small {
+	margin-left: var(--sh-spacing-small);
+	margin-right: var(--sh-spacing-small);
+}
+.sh-mx-medium {
+	margin-left: var(--sh-spacing-medium);
+	margin-right: var(--sh-spacing-medium);
+}
+.sh-mx-large {
+	margin-left: var(--sh-spacing-large);
+	margin-right: var(--sh-spacing-large);
+}
+.sh-mx-xlarge {
+	margin-left: var(--sh-spacing-xlarge);
+	margin-right: var(--sh-spacing-xlarge);
+}
+.sh-mx-xxlarge {
+	margin-left: var(--sh-spacing-xxlarge);
+	margin-right: var(--sh-spacing-xxlarge);
+}
+.sh-mx-xxxlarge {
+	margin-left: var(--sh-spacing-xxxlarge);
+	margin-right: var(--sh-spacing-xxxlarge);
+}
+
+/* Margin Y-axis (top and bottom) */
+.sh-my-0 {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+.sh-my-small {
+	margin-top: var(--sh-spacing-small);
+	margin-bottom: var(--sh-spacing-small);
+}
+.sh-my-medium {
+	margin-top: var(--sh-spacing-medium);
+	margin-bottom: var(--sh-spacing-medium);
+}
+.sh-my-large {
+	margin-top: var(--sh-spacing-large);
+	margin-bottom: var(--sh-spacing-large);
+}
+.sh-my-xlarge {
+	margin-top: var(--sh-spacing-xlarge);
+	margin-bottom: var(--sh-spacing-xlarge);
+}
+.sh-my-xxlarge {
+	margin-top: var(--sh-spacing-xxlarge);
+	margin-bottom: var(--sh-spacing-xxlarge);
+}
+.sh-my-xxxlarge {
+	margin-top: var(--sh-spacing-xxxlarge);
+	margin-bottom: var(--sh-spacing-xxxlarge);
+}
+
+/* Individual margin sides */
+.sh-mt-0 {
+	margin-top: 0px;
+}
+.sh-mt-small {
+	margin-top: var(--sh-spacing-small);
+}
+.sh-mt-medium {
+	margin-top: var(--sh-spacing-medium);
+}
+.sh-mt-large {
+	margin-top: var(--sh-spacing-large);
+}
+.sh-mt-xlarge {
+	margin-top: var(--sh-spacing-xlarge);
+}
+.sh-mt-xxlarge {
+	margin-top: var(--sh-spacing-xxlarge);
+}
+.sh-mt-xxxlarge {
+	margin-top: var(--sh-spacing-xxxlarge);
+}
+
+.sh-mb-0 {
+	margin-bottom: 0px;
+}
+.sh-mb-small {
+	margin-bottom: var(--sh-spacing-small);
+}
+.sh-mb-medium {
+	margin-bottom: var(--sh-spacing-medium);
+}
+.sh-mb-large {
+	margin-bottom: var(--sh-spacing-large);
+}
+.sh-mb-xlarge {
+	margin-bottom: var(--sh-spacing-xlarge);
+}
+.sh-mb-xxlarge {
+	margin-bottom: var(--sh-spacing-xxlarge);
+}
+.sh-mb-xxxlarge {
+	margin-bottom: var(--sh-spacing-xxxlarge);
+}
+
+.sh-ml-0 {
+	margin-left: 0px;
+}
+.sh-ml-small {
+	margin-left: var(--sh-spacing-small);
+}
+.sh-ml-medium {
+	margin-left: var(--sh-spacing-medium);
+}
+.sh-ml-large {
+	margin-left: var(--sh-spacing-large);
+}
+.sh-ml-xlarge {
+	margin-left: var(--sh-spacing-xlarge);
+}
+.sh-ml-xxlarge {
+	margin-left: var(--sh-spacing-xxlarge);
+}
+.sh-ml-xxxlarge {
+	margin-left: var(--sh-spacing-xxxlarge);
+}
+
+.sh-mr-0 {
+	margin-right: 0px;
+}
+.sh-mr-small {
+	margin-right: var(--sh-spacing-small);
+}
+.sh-mr-medium {
+	margin-right: var(--sh-spacing-medium);
+}
+.sh-mr-large {
+	margin-right: var(--sh-spacing-large);
+}
+.sh-mr-xlarge {
+	margin-right: var(--sh-spacing-xlarge);
+}
+.sh-mr-xxlarge {
+	margin-right: var(--sh-spacing-xxlarge);
+}
+.sh-mr-xxxlarge {
+	margin-right: var(--sh-spacing-xxxlarge);
+}
+
+/* Auto margins */
+.sh-mx-auto {
+	margin-left: auto;
+	margin-right: auto;
+}
+.sh-ml-auto {
+	margin-left: auto;
+}
+.sh-mr-auto {
+	margin-right: auto;
+}
+
 /* Grid for large screens */
 @media only screen and (min-width: 960px) {
 	.sh-grid {

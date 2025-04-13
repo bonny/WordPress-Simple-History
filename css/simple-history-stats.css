@@ -485,15 +485,6 @@
 	margin: 0;
 }
 
-.sh-StatsDashboard-dateRange {
-	display: flex;
-	justify-content: space-between;
-
-	+ .sh-StatsDashboard-dateRange {
-		margin-top: var(--sh-spacing-large);
-	}
-}
-
 .sh-StatsDashboard-details summary {
 	padding: var(--sh-spacing-small);
 	padding-left: 0;

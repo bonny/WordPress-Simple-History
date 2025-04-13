@@ -164,7 +164,7 @@ class Stats_View {
 				<?php esc_html_e( 'Summary', 'simple-history' ); ?>
 			</h2>
 
-			<div class="sh-StatsDashboard-dateRange">
+			<div class="sh-flex sh-justify-between sh-mb-large">
 				<div class="sh-StatsDashboard-stat">
 					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Total events', 'simple-history' ); ?></span>
 					<span class="sh-StatsDashboard-statValue sh-StatsDashboard-statValue--large"><?php echo esc_html( number_format_i18n( $total_events ) ); ?></span>
@@ -181,14 +181,14 @@ class Stats_View {
 				</div>
 			</div>		
 			
-			<div class="sh-StatsDashboard-dateRange">
+			<div class="sh-flex sh-justify-between sh-mb-large">
 				<?php
 				/*
 				 * Output stats for each category.
 				 */
 				$categories = array(
 					array(
-						'label' => __( 'User activity actions', 'simple-history' ),
+						'label' => __( 'User profile actions', 'simple-history' ),
 						'value' => number_format_i18n( $user_stats['total_count'] ),
 					),
 					array(
@@ -229,13 +229,13 @@ class Stats_View {
 				</span>
 			</div>
 
-			<div class="sh-StatsDashboard-dateRange">
-				<span class="sh-StatsDashboard-dateRangeValue">
+			<div class="sh-flex sh-justify-between">
+				<span>
 					<?php
 					echo esc_html( wp_date( get_option( 'date_format' ), $date_from ) );
 					?>
 				</span>
-				<span class="sh-StatsDashboard-dateRangeValue">
+				<span>
 					<?php
 					echo esc_html( wp_date( get_option( 'date_format' ), $date_to ) );
 					?>
