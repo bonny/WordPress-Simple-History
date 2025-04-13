@@ -391,7 +391,7 @@ class Insights_View {
 				</div>
 			</div>
 
-			<details>
+			<details class="sh-InsightsDashboard-details">
 				<summary>
 					<?php echo esc_html_x( 'Most active users details', 'insights section title', 'simple-history' ); ?>
 				</summary>
@@ -403,7 +403,7 @@ class Insights_View {
 				?>
 			</details>
 
-			<details>
+			<details class="sh-InsightsDashboard-details">
 				<summary>
 					<?php echo esc_html_x( 'Most edited posts and pages', 'insights section title', 'simple-history' ); ?>
 				</summary>
@@ -735,7 +735,7 @@ class Insights_View {
 					</div>
 				</div>
 
-				<details>
+				<details class="sh-InsightsDashboard-details">
 					<summary>
 						<?php esc_html_e( 'Show details', 'simple-history' ); ?>
 					</summary>
@@ -1001,7 +1001,7 @@ class Insights_View {
 					</div>
 				</div>
 
-				<details>
+				<details class="sh-InsightsDashboard-details">
 					<summary>
 						<?php esc_html_e( 'Show details', 'simple-history' ); ?>
 					</summary>
@@ -1188,7 +1188,7 @@ class Insights_View {
 					</div>
 				</div>
 
-				<details>
+				<details class="sh-InsightsDashboard-details">
 					<summary>
 						<?php esc_html_e( 'Show media details', 'simple-history' ); ?>
 					</summary>
@@ -1389,9 +1389,7 @@ class Insights_View {
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Updates done', 'simple-history' ); ?></div>
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_completed'] ); ?></div>
 				</div>
-			</div>
 
-			<div class="sh-InsightsDashboard-stats">
 				<div class="sh-InsightsDashboard-stat">
 					<div class="sh-InsightsDashboard-statLabel"><?php esc_html_e( 'Deactivations', 'simple-history' ); ?></div>
 					<div class="sh-InsightsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deactivations_completed'] ); ?></div>
@@ -1403,7 +1401,7 @@ class Insights_View {
 				</div>
 			</div>
 
-			<details>
+			<details class="sh-InsightsDashboard-details">
 				<summary>
 					<?php esc_html_e( 'Show details', 'simple-history' ); ?>
 				</summary>

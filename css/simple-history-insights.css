@@ -93,9 +93,7 @@
 
 /* Chart containers */
 .sh-InsightsDashboard-chart {
-	width: 100%;
-	height: 100%;
-	/* min-height: 250px; */
+	height: 125px;
 }
 
 /* Responsive adjustments */
@@ -405,13 +403,7 @@
 .sh-InsightsDashboard-stats {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
-	gap: var(--sh-spacing-xxlarge);
-	/* margin-bottom: var(--sh-spacing-large); */
-	/* padding: var(--sh-spacing-large); */
-	/* background: var(--sh-color-white); */
-	/* border-radius: var(--sh-border-radius);
-	box-shadow: var(--sh-shadow-elevation-medium);
-    line-height: 1; */
+	gap: var(--sh-spacing-large);
 	margin-bottom: var(--sh-spacing-large);
 }
 
@@ -547,4 +539,10 @@
 	+ .sh-InsightsDashboard-dateRange {
 		margin-top: var(--sh-spacing-large);
 	}
+}
+
+.sh-InsightsDashboard-details {
+	padding: var(--sh-spacing-small);
+	padding-left: 0;
+	cursor: pointer;
 }
