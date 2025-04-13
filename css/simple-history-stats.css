@@ -208,27 +208,6 @@
 	font-size: 12px;
 }
 
-.sh-InsightsChartContainer {
-	position: relative;
-	height: 300px;
-	margin-bottom: 2rem;
-}
-
-.sh-InsightsChartContainer--half {
-	width: calc(50% - 1rem);
-	display: inline-block;
-	margin-right: 1rem;
-}
-
-.sh-InsightsChartContainer--half:last-child {
-	margin-right: 0;
-}
-
-.sh-InsightsChartContainer canvas {
-	width: 100% !important;
-	height: 100% !important;
-}
-
 .sh-InsightsDateRange {
 	margin-bottom: 2rem;
 	padding: 1rem;
@@ -240,17 +219,6 @@
 .sh-InsightsDateRange-text {
 	margin: 0;
 	font-size: 1.1em;
-}
-
-.sh-InsightsChartContainer--peakDays {
-	margin-top: 2rem;
-}
-
-@media (max-width: 782px) {
-	.sh-InsightsChartContainer--half {
-		width: 100%;
-		margin-right: 0;
-	}
 }
 
 /* Calendar styles */
