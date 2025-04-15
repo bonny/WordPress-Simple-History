@@ -2,7 +2,6 @@
 
 namespace Simple_History\Services;
 
-use WP_Session_Tokens;
 use Simple_History\Helpers;
 use Simple_History\Menu_Page;
 use Simple_History\Simple_History;

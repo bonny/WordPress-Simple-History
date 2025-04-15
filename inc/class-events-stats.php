@@ -868,25 +868,6 @@ class Events_Stats {
 	}
 
 	/**
-	 * Get user activity statistics.
-	 *
-	 * @param int $date_from Start date timestamp.
-	 * @param int $date_to End date timestamp.
-	 * @return array Array of user activity stats.
-	 */
-	public function get_user_stats( $date_from, $date_to ) {
-		$stats = [
-			'user_logins_successful' => $this->get_successful_logins_count( $date_from, $date_to ),
-			'user_logins_failed' => $this->get_failed_logins_count( $date_from, $date_to ),
-			'user_profiles_updated' => $this->get_user_updated_count( $date_from, $date_to ),
-			'user_accounts_added' => $this->get_user_added_count( $date_from, $date_to ),
-			'user_accounts_removed' => $this->get_user_removed_count( $date_from, $date_to ),
-		];
-
-		return $stats;
-	}
-
-	/**
 	 * Get detailed user activity statistics.
 	 *
 	 * @param int  $date_from Start date timestamp.
