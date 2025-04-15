@@ -132,14 +132,6 @@ class Stats_Service extends Service {
 			[],
 			SIMPLE_HISTORY_VERSION
 		);
-
-		// wp_enqueue_script(
-		// 'chartjs',
-		// 'https://cdn.jsdelivr.net/npm/chart.js@4.4.8',
-		// [],
-		// '4.4.8',
-		// true
-		// );
 	}
 
 	/**
