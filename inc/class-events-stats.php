@@ -413,17 +413,6 @@ class Events_Stats {
 	}
 
 	/**
-	 * Get number of WordPress core updates for a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Number of core updates, or false if invalid dates.
-	 */
-	public function get_wordpress_core_updates( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimpleCoreUpdatesLogger', [ 'core_updated', 'core_auto_updated' ], $date_from, $date_to );
-	}
-
-	/**
 	 * Get number of WordPress core updates found for a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
@@ -432,39 +421,6 @@ class Events_Stats {
 	 */
 	public function get_wordpress_core_updates_found( $date_from, $date_to ) {
 		return $this->get_event_count( 'AvailableUpdatesLogger', 'core_update_available', $date_from, $date_to );
-	}
-
-	/**
-	 * Get number of plugin updates for a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Number of plugin updates, or false if invalid dates.
-	 */
-	public function get_plugin_updates( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimplePluginLogger', [ 'plugin_updated', 'plugin_bulk_updated' ], $date_from, $date_to );
-	}
-
-	/**
-	 * Get number of plugin installations for a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Number of plugin installations, or false if invalid dates.
-	 */
-	public function get_plugin_installs( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimplePluginLogger', 'plugin_installed', $date_from, $date_to );
-	}
-
-	/**
-	 * Get number of plugin deletions for a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Number of plugin deletions, or false if invalid dates.
-	 */
-	public function get_plugin_deletions( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimplePluginLogger', 'plugin_deleted', $date_from, $date_to );
 	}
 
 	/**
@@ -780,17 +736,6 @@ class Events_Stats {
 	}
 
 	/**
-	 * Get number of plugin activations for a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Number of plugin activations, or false if invalid dates.
-	 */
-	public function get_plugin_activations( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimplePluginLogger', 'plugin_activated', $date_from, $date_to );
-	}
-
-	/**
 	 * Get number of plugin activations count for a given period.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
@@ -799,17 +744,6 @@ class Events_Stats {
 	 */
 	public function get_plugin_activations_count( $date_from, $date_to ) {
 		return $this->get_event_count( 'SimplePluginLogger', 'plugin_activated', $date_from, $date_to );
-	}
-
-	/**
-	 * Get number of plugin deactivations for a given period.
-	 *
-	 * @param int $date_from Required. Start date as Unix timestamp.
-	 * @param int $date_to   Required. End date as Unix timestamp.
-	 * @return int|false Number of plugin deactivations, or false if invalid dates.
-	 */
-	public function get_plugin_deactivations( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimplePluginLogger', 'plugin_deactivated', $date_from, $date_to );
 	}
 
 	/**
