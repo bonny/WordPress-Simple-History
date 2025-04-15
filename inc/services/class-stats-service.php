@@ -33,6 +33,15 @@ class Stats_Service extends Service {
 		$this->stats = new Events_Stats();
 
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
+
+		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_simple_history_admin_enqueue_scripts' ) );
+	}
+
+	/**
+	 * Enqueue scripts and styles for the insights page.
+	 */
+	public function on_simple_history_admin_enqueue_scripts() {
+		$this->enqueue_scripts_and_styles();
 	}
 
 	/**
@@ -142,7 +151,6 @@ class Stats_Service extends Service {
 
 		$data = $this->init_stats( $date_from, $date_to );
 
-		$this->enqueue_scripts_and_styles();
 		$this->localize_script_data( $data, $date_from, $date_to );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
