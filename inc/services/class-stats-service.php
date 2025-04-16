@@ -25,11 +25,6 @@ class Stats_Service extends Service {
 	 * Called when service is loaded.
 	 */
 	public function loaded() {
-		// Only enable for users with experimental features enabled.
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return;
-		}
-
 		$this->stats = new Events_Stats();
 
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
