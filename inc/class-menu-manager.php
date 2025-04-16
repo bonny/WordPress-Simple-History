@@ -399,7 +399,16 @@ class Menu_Manager {
 						]
 					);
 					?>
-					<?php echo esc_html( $one_submenu_page->get_menu_title() ); ?>
+					<?php
+					echo wp_kses(
+						$one_submenu_page->get_menu_title(),
+						[
+							'span' => [
+								'class' => [],
+							],
+						]
+					);
+					?>
 				</a>
 				<?php
 			}
