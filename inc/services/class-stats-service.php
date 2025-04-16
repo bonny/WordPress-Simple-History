@@ -29,16 +29,8 @@ class Stats_Service extends Service {
 
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
 
-		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_simple_history_admin_enqueue_scripts' ) );
-
+		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		add_action( 'simple_history/stats/output_page_contents', [ $this, 'output_page_contents' ] );
-	}
-
-	/**
-	 * Enqueue scripts and styles for the insights page.
-	 */
-	public function on_simple_history_admin_enqueue_scripts() {
-		$this->enqueue_scripts_and_styles();
 	}
 
 	/**
@@ -129,7 +121,7 @@ class Stats_Service extends Service {
 	/**
 	 * Enqueue required scripts and styles for the insights page.
 	 */
-	private function enqueue_scripts_and_styles() {
+	public function enqueue_scripts_and_styles() {
 		wp_enqueue_script(
 			'simple-history-stats',
 			SIMPLE_HISTORY_DIR_URL . 'js/simple-history-stats.js',
@@ -166,26 +158,12 @@ class Stats_Service extends Service {
 
 		$this->localize_script_data( $data, $date_from, $date_to );
 
-		[ 'date_from' => $date_from, 'date_to' => $date_to ] = $this->get_selected_date_range();
-
-		$data = $this->init_stats( $date_from, $date_to );
-
-		$this->localize_script_data( $data, $date_from, $date_to );
-
 		?>
 		<div class="wrap sh-Page-content">
 			<?php
-
-			do_action( 'simple_history/stats/before_page_title' );
 			Stats_View::output_page_title();
-
-			do_action( 'simple_history/stats/before_filters' );
-			Stats_View::output_filters( $date_from, $date_to );
-
-			do_action( 'simple_history/stats/before_dashboard_content' );
+			Stats_View::output_date_range( $date_from, $date_to );
 			Stats_View::output_dashboard_content( $data, $date_from, $date_to );
-
-			do_action( 'simple_history/stats/after_dashboard_content' );
 			?>
 		</div>
 		<?php

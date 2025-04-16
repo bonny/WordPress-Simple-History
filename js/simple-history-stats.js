@@ -1,6 +1,9 @@
 /* global Chart, simpleHistoryStats */
+
 jQuery( function () {
 	( 'use strict' );
+
+	return;
 
 	// Activity Overview Chart
 	function initActivityChart() {

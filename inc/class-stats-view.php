@@ -31,90 +31,6 @@ class Stats_View {
 	}
 
 	/**
-	 * Output the date filters section and the date range.
-	 *
-	 * @param int $date_from Start date as Unix timestamp.
-	 * @param int $date_to   End date as Unix timestamp.
-	 */
-	public static function output_filters( $date_from, $date_to ) {
-		$current_period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '1m';
-		$current_page = menu_page_url( 'simple_history_stats_page', false );
-
-		// Define the time periods.
-		$time_periods = array(
-			'24h' => array(
-				'label' => _x( '24 Hours', 'stats date filter 24 hours', 'simple-history' ),
-				'short_label' => _x( '24H', 'stats date filter 24 hours short', 'simple-history' ),
-			),
-			'7d'  => array(
-				'label' => _x( '7 Days', 'stats date filter 7 days', 'simple-history' ),
-				'short_label' => _x( '7D', 'stats date filter 7 days short', 'simple-history' ),
-			),
-			'14d' => array(
-				'label' => _x( '14 Days', 'stats date filter 14 days', 'simple-history' ),
-				'short_label' => _x( '14D', 'stats date filter 14 days short', 'simple-history' ),
-			),
-			'1m'  => array(
-				'label' => _x( '1 Month', 'stats date filter 1 month', 'simple-history' ),
-				'short_label' => _x( '1M', 'stats date filter 1 month short', 'simple-history' ),
-			),
-			'3m'  => array(
-				'label' => _x( '3 Months', 'stats date filter 3 months', 'simple-history' ),
-				'short_label' => _x( '3M', 'stats date filter 3 months short', 'simple-history' ),
-			),
-			'6m'  => array(
-				'label' => _x( '6 Months', 'stats date filter 6 months', 'simple-history' ),
-				'short_label' => _x( '6M', 'stats date filter 6 months short', 'simple-history' ),
-			),
-			'12m' => array(
-				'label' => _x( '12 Months', 'stats date filter 12 months', 'simple-history' ),
-				'short_label' => _x( '12M', 'stats date filter 12 months short', 'simple-history' ),
-			),
-		);
-
-		?>
-		<div class="sh-StatsDashboard-filters" role="navigation" aria-label="<?php esc_attr_e( 'Time period navigation', 'simple-history' ); ?>">
-			<?php
-			self::output_date_range( $date_from, $date_to );
-			?>
-			<div class="sh-StatsDashboard-dateFilters">
-				<form method="get" action="<?php echo esc_url( $current_page ); ?>">
-					<?php
-					foreach ( $_GET as $key => $value ) {
-						if ( in_array( $key, array( 'period', 'page' ) ) ) {
-							continue;
-						}
-						echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">';
-					}
-					echo '<input type="hidden" name="page" value="simple_history_stats_page">';
-					?>
-					<select 
-						name="period" 
-						id="period-select" 
-						class="sh-StatsDashboard-dateSelect" 
-						onchange="this.form.submit()"
-						aria-label="<?php esc_attr_e( 'Select time period', 'simple-history' ); ?>"
-					>
-						<?php
-						foreach ( $time_periods as $period => $labels ) {
-							?>
-							<option 
-								value="<?php echo esc_attr( $period ); ?>" 
-								<?php selected( $current_period, $period ); ?>
-							>
-								<?php echo esc_html( $labels['label'] ); ?>
-							</option>
-							<?php
-						}
-						?>
-					</select>
-				</form>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
 	 * Output the date range section.
 	 *
 	 * @param int $date_from Start date as Unix timestamp.
@@ -340,66 +256,6 @@ class Stats_View {
 					}
 					?>
 				</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output the top users section.
-	 *
-	 * @param array $data Array of insights data.
-	 */
-	public static function output_top_users_section( $data ) {
-		$top_users = $data['user_rankings_formatted'];
-		?>
-		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
-			<h2 
-				class="sh-StatsDashboard-cardTitle" 
-				style="--sh-badge-background-color: var(--sh-color-green-light);"
-			>
-				<?php echo esc_html_x( 'User activity', 'stats section title', 'simple-history' ); ?>
-			</h2>
-
-			<div class="sh-StatsDashboard-content">
-
-				<div class="sh-StatsDashboard-stats">
-					<div class="sh-StatsDashboard-stat">
-						<div class="sh-StatsDashboard-statLabel"><?php echo esc_html_x( 'Most active users overview', 'stats section title', 'simple-history' ); ?></div>
-						<div class="sh-StatsDashboard-statValue">
-						<?php
-						// Output a nice list of users with avatars.
-						if ( $top_users && count( $top_users ) > 0 ) {
-							self::output_top_users_avatar_list( $top_users );
-						}
-						?>
-					</div>
-				</div>
-			</div>
-
-			<details class="sh-StatsDashboard-details">
-				<summary>
-					<?php echo esc_html_x( 'Most active users details', 'stats section title', 'simple-history' ); ?>
-				</summary>
-				<p><?php esc_html_e( 'No matter event type.', 'simple-history' ); ?></p>
-				<?php
-				if ( $top_users && count( $top_users ) > 0 ) {
-					self::output_top_users_table( $top_users );
-				}
-				?>
-			</details>
-
-			<details class="sh-StatsDashboard-details">
-				<summary>
-					<?php echo esc_html_x( 'Most edited posts and pages', 'stats section title', 'simple-history' ); ?>
-				</summary>
-				<p>Events can be page created, updated, deleted, trashed or restored.</p>
-				<?php
-				if ( isset( $data['content_stats']['content_items_most_edited'] ) && count( $data['content_stats']['content_items_most_edited'] ) > 0 ) {
-					self::output_top_posts_and_pages_table( $data['content_stats']['content_items_most_edited'] );
-				}
-				?>
-			</details>
-		
 		</div>
 		<?php
 	}
@@ -719,27 +575,6 @@ class Stats_View {
 						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_removed'] ) ); ?></span>
 					</div>
 				</div>
-
-				<details class="sh-StatsDashboard-details">
-					<summary>
-						<?php esc_html_e( 'Show details', 'simple-history' ); ?>
-					</summary>
-
-					<p>
-						<?php esc_html_e( 'Showing max 50 events, ordered by count.', 'simple-history' ); ?>
-					</p>
-
-					<div class="" style="display: flex; gap: 2rem; flex-wrap: wrap;">
-						<?php
-						self::output_user_successful_logins_table( $data['user_stats_details']['successful_logins'] );
-						self::output_user_failed_logins_table( $data['user_stats_details']['failed_logins'] );
-						self::output_user_profile_updates_table( $data['user_stats_details']['profile_updates'] );
-						self::output_user_added_table( $data['user_stats_details']['added_users'] );
-						self::output_user_removed_table( $data['user_stats_details']['removed_users'] );
-						?>
-					</div>
-				</details>
-
 			</div>
 		</div>
 		<?php
@@ -985,25 +820,6 @@ class Stats_View {
 						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_deleted'] ) ); ?></span>
 					</div>
 				</div>
-
-				<details class="sh-StatsDashboard-details">
-					<summary>
-						<?php esc_html_e( 'Show details', 'simple-history' ); ?>
-					</summary>
-
-					<p>
-						<?php esc_html_e( 'Showing max 50 events, ordered by date.', 'simple-history' ); ?>
-					</p>
-
-					<div class="" style="display: flex; gap: 2rem; flex-wrap: wrap;">
-						<?php
-						self::output_content_created_table( $posts_pages_stats['content_items_created_details'] ?? [] );
-						self::output_content_updated_table( $posts_pages_stats['content_items_updated_details'] ?? [] );
-						self::output_content_trashed_table( $posts_pages_stats['content_items_trashed_details'] ?? [] );
-						self::output_content_deleted_table( $posts_pages_stats['content_items_deleted_details'] ?? [] );
-						?>
-					</div>
-				</details>
 			</div>
 		</div>
 		<?php
@@ -1173,21 +989,6 @@ class Stats_View {
 						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_deleted'] ) ); ?></span>
 					</div>
 				</div>
-
-				<details class="sh-StatsDashboard-details">
-					<summary>
-						<?php esc_html_e( 'Show media details', 'simple-history' ); ?>
-					</summary>
-					
-					<div class="" style="display: flex; gap: 2rem; flex-wrap: wrap;">
-						<?php
-						self::output_media_uploads_table( $media_stats_details['media_files_uploaded_details'] ?? [] );
-						self::output_media_edits_table( $media_stats_details['media_files_edited_details'] ?? [] );
-						self::output_media_deletions_table( $media_stats_details['media_files_deleted_details'] ?? [] );
-						?>
-					</div>
-				</details>
-
 			</div>
 		</div>
 		<?php
@@ -1386,27 +1187,6 @@ class Stats_View {
 					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deletions_completed'] ); ?></div>
 				</div>
 			</div>
-
-			<details class="sh-StatsDashboard-details">
-				<summary>
-					<?php esc_html_e( 'Show details', 'simple-history' ); ?>
-				</summary>
-
-				<p>
-					<?php esc_html_e( 'Showing max 50 events, ordered by date.', 'simple-history' ); ?>
-				</p>
-
-				<div class="" style="display: flex; gap: 2rem; flex-wrap: wrap;">
-					<?php
-					// Output tables for each plugin action type.
-					self::output_plugin_table( __( 'Installed plugins', 'simple-history' ), 'installed', $date_from, $date_to, $stats );
-					self::output_plugin_table( __( 'Activated plugins', 'simple-history' ), 'activated', $date_from, $date_to, $stats );
-					self::output_plugin_table( __( 'Deactivated plugins', 'simple-history' ), 'deactivated', $date_from, $date_to, $stats );
-					self::output_plugin_table( __( 'Deleted plugins', 'simple-history' ), 'deleted', $date_from, $date_to, $stats );
-					self::output_plugin_table( __( 'Updates found for plugins', 'simple-history' ), 'plugin_update_available', $date_from, $date_to, $stats );
-					?>
-				</div>
-			</details>
 		</div>
 		<?php
 	}
@@ -1422,13 +1202,15 @@ class Stats_View {
 		?>
 		<div class="sh-StatsDashboard">
 			<?php
-			// Display overview section.
+
+			// Big box with numbers and one beautiful chart.
 			self::output_events_overview(
 				$data,
 				$date_from,
 				$date_to
 			);
 
+			// Colorful charts.
 			self::output_chart_section(
 				_x( 'Peak activity times', 'stats section title', 'simple-history' ),
 				'peakTimesChart'
@@ -1439,15 +1221,11 @@ class Stats_View {
 				'peakDaysChart'
 			);
 
+			// Boxes with numbers.
 			self::output_plugin_stats( $data['plugin_stats'], $data['stats'], $date_from, $date_to );
-
 			self::output_user_stats_section( $data );
-
 			self::output_posts_pages_stats_section( $data['content_stats'] );
-
 			self::output_media_stats_section( $data['media_stats'], $data['media_stats_details'] );
-
-			self::output_top_users_section( $data );
 
 			?>
 		</div>
