@@ -30,6 +30,8 @@ class Stats_Service extends Service {
 		add_action( 'admin_menu', [ $this, 'add_menu' ], 10 );
 
 		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'on_simple_history_admin_enqueue_scripts' ) );
+
+		add_action( 'simple_history/stats/output_page_contents', [ $this, 'output_page_contents' ] );
 	}
 
 	/**
@@ -148,14 +150,27 @@ class Stats_Service extends Service {
 	 * Output the insights page.
 	 */
 	public function output_page() {
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Admin_Pages::header_output();
+
+		do_action( 'simple_history/stats/output_page_contents' );
+	}
+
+	/**
+	 * Output stats page contents with basic information + information about premium features.
+	 */
+	public function output_page_contents() {
 		[ 'date_from' => $date_from, 'date_to' => $date_to ] = $this->get_selected_date_range();
 
 		$data = $this->init_stats( $date_from, $date_to );
 
 		$this->localize_script_data( $data, $date_from, $date_to );
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Admin_Pages::header_output();
+		[ 'date_from' => $date_from, 'date_to' => $date_to ] = $this->get_selected_date_range();
+
+		$data = $this->init_stats( $date_from, $date_to );
+
+		$this->localize_script_data( $data, $date_from, $date_to );
 
 		?>
 		<div class="wrap sh-Page-content">

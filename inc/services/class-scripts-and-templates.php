@@ -89,6 +89,5 @@ class Scripts_And_Templates extends Service {
 		 * @param Simple_History $instance The Simple_History instance.
 		 */
 		do_action( 'simple_history/enqueue_admin_scripts', $this->simple_history );
-	
 	}
 }
