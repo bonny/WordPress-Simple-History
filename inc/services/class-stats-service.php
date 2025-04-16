@@ -51,7 +51,7 @@ class Stats_Service extends Service {
 
 		$admin_page_location = Helpers::get_menu_page_location();
 
-		$new_badge_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'Beta', 'simple-history' ) . '</span>';
+		$new_badge_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'New', 'simple-history' ) . '</span>';
 
 		// Create insights page.
 		$insights_page = ( new Menu_Page() )
