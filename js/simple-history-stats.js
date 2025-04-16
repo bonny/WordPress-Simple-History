@@ -2,12 +2,6 @@
 jQuery( function () {
 	( 'use strict' );
 
-	// Set default Chart.js options
-	Chart.defaults.font.family =
-		'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif';
-	Chart.defaults.color = '#666';
-	Chart.defaults.plugins.legend.position = 'bottom';
-
 	// Activity Overview Chart
 	function initActivityChart() {
 		const ctx = document
