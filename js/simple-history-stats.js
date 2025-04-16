@@ -1,59 +1,23 @@
 /* global Chart, simpleHistoryStats */
 
 jQuery( function () {
-	( 'use strict' );
+	'use strict';
 
-	return;
-
-	// Activity Overview Chart
-	function initActivityChart() {
-		const ctx = document
-			.getElementById( 'activityChart' )
-			.getContext( '2d' );
-		const data = simpleHistoryStats.data.activityOverview.map(
-			( item ) => ( {
-				date: new Date( item.date ).toLocaleDateString(),
-				count: parseInt( item.count, 10 ),
-			} )
-		);
-
-		new Chart( ctx, {
-			type: 'bar',
-			data: {
-				labels: data.map( ( item ) => item.date ),
-				datasets: [
-					{
-						label: simpleHistoryStats.strings.events,
-						data: data.map( ( item ) => item.count ),
-						backgroundColor: 'rgba(75, 192, 192, 0.8)',
-						borderColor: 'rgba(75, 192, 192, 1)',
-						borderWidth: 1,
-					},
-				],
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				scales: {
-					y: {
-						beginAtZero: true,
-						ticks: {
-							precision: 0,
-						},
-					},
-				},
-			},
-		} );
+	// Helper function to generate random integers.
+	function getRandomInt( min, max ) {
+		return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
 	}
 
-	// Peak Activity Times Chart
+	// Peak Activity Times Chart.
 	function initPeakTimesChart() {
 		const ctx = document
 			.getElementById( 'peakTimesChart' )
 			.getContext( '2d' );
-		const data = simpleHistoryStats.data.peakTimes.map( ( time ) => ( {
-			hour: time.hour,
-			count: parseInt( time.count, 10 ),
+
+		// Generate 24 hours of random data.
+		const data = Array.from( { length: 24 }, ( _, hour ) => ( {
+			hour,
+			count: getRandomInt( 10, 100 ),
 		} ) );
 
 		new Chart( ctx, {
@@ -62,7 +26,7 @@ jQuery( function () {
 				labels: data.map( ( item ) => `${ item.hour }:00` ),
 				datasets: [
 					{
-						label: simpleHistoryStats.strings.events,
+						label: 'Events',
 						data: data.map( ( item ) => item.count ),
 						backgroundColor: 'rgba(153, 102, 255, 0.8)',
 						borderColor: 'rgba(153, 102, 255, 1)',
@@ -97,7 +61,7 @@ jQuery( function () {
 		} );
 	}
 
-	// Peak Activity Days Chart
+	// Peak Activity Days Chart.
 	function initPeakDaysChart() {
 		const ctx = document
 			.getElementById( 'peakDaysChart' )
@@ -113,9 +77,10 @@ jQuery( function () {
 			'Saturday',
 		];
 
-		const data = simpleHistoryStats.data.peakDays.map( ( day ) => ( {
-			day: dayNames[ parseInt( day.day, 10 ) ],
-			count: parseInt( day.count, 10 ),
+		// Generate random data for each day.
+		const data = dayNames.map( ( day ) => ( {
+			day,
+			count: getRandomInt( 50, 200 ),
 		} ) );
 
 		new Chart( ctx, {
@@ -124,7 +89,7 @@ jQuery( function () {
 				labels: data.map( ( item ) => item.day ),
 				datasets: [
 					{
-						label: simpleHistoryStats.strings.events,
+						label: 'Events',
 						data: data.map( ( item ) => item.count ),
 						backgroundColor: 'rgba(255, 159, 64, 0.8)',
 						borderColor: 'rgba(255, 159, 64, 1)',
@@ -220,10 +185,6 @@ jQuery( function () {
 	}
 
 	// Initialize charts.
-	if ( document.getElementById( 'activityChart' ) ) {
-		initActivityChart();
-	}
-
 	if ( document.getElementById( 'eventsOverviewChart' ) ) {
 		initEventsOverviewChart();
 	}

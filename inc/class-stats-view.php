@@ -132,7 +132,6 @@ class Stats_View {
 				?>
 			</div>
 	
-
 			<div class="sh-StatsDashboard-stat">
 				<div class="sh-StatsDashboard-statLabel">
 					<?php esc_html_e( 'Activity by date', 'simple-history' ); ?>
@@ -418,7 +417,7 @@ class Stats_View {
 			</h2>
 
 			<div class="sh-StatsDashboard-content">
-				<canvas id="<?php echo esc_attr( $chart_id ); ?>" class="sh-StatsDashboard-chart"></canvas>
+				<canvas id="<?php echo esc_attr( $chart_id ); ?>" class="sh-StatsDashboard-chart is-blurred"></canvas>
 			</div>
 		</div>
 		<?php

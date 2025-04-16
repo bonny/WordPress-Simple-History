@@ -84,6 +84,11 @@
 	height: 125px;
 }
 
+.sh-StatsDashboard-chart.is-blurred {
+	filter: blur(5px);
+	pointer-events: none;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 1200px) {
 	.sh-StatsDashboard {
