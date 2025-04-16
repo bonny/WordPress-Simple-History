@@ -49,21 +49,27 @@ class Stats_Service extends Service {
 
 		$admin_page_location = Helpers::get_menu_page_location();
 
-		// Only add if location is menu_top or menu_bottom.
-		if ( ! in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
-			return;
-		}
+		$new_badge_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'Beta', 'simple-history' ) . '</span>';
 
-		// Add stats page as a submenu item.
-		$new_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'Beta', 'simple-history' ) . '</span>';
+		// Create insights page.
 		$insights_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Stats & Summaries - Simple History', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'Stats & Summaries', 'dashboard menu name', 'simple-history' ) . ' ' . $new_text )
+			->set_menu_title( _x( 'Stats & Summaries', 'dashboard menu name', 'simple-history' ) . ' ' . $new_badge_text )
 			->set_menu_slug( 'simple_history_stats_page' )
 			->set_capability( 'manage_options' )
-			->set_callback( [ $this, 'output_page' ] )
-			->set_parent( Simple_History::MENU_PAGE_SLUG )
-			->set_location( 'submenu' );
+			->set_callback( [ $this, 'output_page' ] );
+
+		// Set different options depending on location.
+		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
+			// Add as a submenu to the main page if location is top or bottom in the main menu.
+			$insights_page
+				->set_parent( Simple_History::MENU_PAGE_SLUG )
+				->set_location( 'submenu' );
+		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
+			$insights_page
+				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
+		}
 
 		$insights_page->add();
 	}
