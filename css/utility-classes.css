@@ -114,7 +114,7 @@
 }
 
 .sh-m-0 {
-	margin: 0px;
+	margin: 0;
 }
 
 /* Display */
@@ -164,8 +164,8 @@
 
 /* Margin X-axis (left and right) */
 .sh-mx-0 {
-	margin-left: 0px;
-	margin-right: 0px;
+	margin-left: 0;
+	margin-right: 0;
 }
 .sh-mx-small {
 	margin-left: var(--sh-spacing-small);
@@ -194,8 +194,8 @@
 
 /* Margin Y-axis (top and bottom) */
 .sh-my-0 {
-	margin-top: 0px;
-	margin-bottom: 0px;
+	margin-top: 0;
+	margin-bottom: 0;
 }
 .sh-my-small {
 	margin-top: var(--sh-spacing-small);
@@ -224,7 +224,7 @@
 
 /* Individual margin sides */
 .sh-mt-0 {
-	margin-top: 0px;
+	margin-top: 0;
 }
 .sh-mt-small {
 	margin-top: var(--sh-spacing-small);
@@ -246,7 +246,7 @@
 }
 
 .sh-mb-0 {
-	margin-bottom: 0px;
+	margin-bottom: 0;
 }
 .sh-mb-small {
 	margin-bottom: var(--sh-spacing-small);
@@ -268,7 +268,7 @@
 }
 
 .sh-ml-0 {
-	margin-left: 0px;
+	margin-left: 0;
 }
 .sh-ml-small {
 	margin-left: var(--sh-spacing-small);
@@ -290,7 +290,7 @@
 }
 
 .sh-mr-0 {
-	margin-right: 0px;
+	margin-right: 0;
 }
 .sh-mr-small {
 	margin-right: var(--sh-spacing-small);

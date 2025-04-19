@@ -433,6 +433,11 @@ class Stats_View {
 				<?php echo esc_html( $title ); ?>
 			</h2>
 
+			<p class="sh-mt-0">
+				This is an example chart and does not contain real data.
+				<a target="_blank" href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-charts">Premium users</a> get real data.
+			</p>
+
 			<div class="sh-StatsDashboard-content">
 				<canvas id="<?php echo esc_attr( $chart_id ); ?>" class="sh-StatsDashboard-chart is-blurred"></canvas>
 			</div>
