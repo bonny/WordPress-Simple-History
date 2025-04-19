@@ -2,6 +2,7 @@
  * Fonts from Google Fonts/Material Symbols.
  * https://fonts.google.com/icons
  * Use optical size 48 when downloading.
+ * Set fill to currentColor to use it as a text color.
  */
 
 .sh-Icon {
@@ -176,4 +177,7 @@
 
 .sh-Icon--help {
 	background-image: url(./icons/help_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg);
+}
+.sh-Icon-lock {
+	background-image: url(./icons/lock_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
 }
