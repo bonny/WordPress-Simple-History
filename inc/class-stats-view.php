@@ -400,19 +400,15 @@ class Stats_View {
 	 *
 	 * @param string $title      Section title.
 	 * @param string $chart_id   HTML ID for the chart canvas.
-	 * @param string $css_class  Optional. Additional CSS class for the section.
 	 */
-	public static function output_chart_section( $title, $chart_id, $css_class = '' ) {
-		$section_class = 'sh-StatsDashboard-card';
-		if ( $css_class ) {
-			$section_class .= ' ' . $css_class;
-		}
+	public static function output_chart_section( $title, $chart_id ) {
 		?>
-		<div class="<?php echo esc_attr( $section_class ); ?>">
+		<div class="sh-StatsDashboard-card">
 			<h2
-				class="sh-StatsDashboard-cardTitle" 
-				style="--sh-badge-background-color: var(--sh-color-green-light);"
+			class="sh-StatsDashboard-cardTitle" 
+			style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
+				<span class="sh-Icon sh-Icon-lock"></span>
 				<?php echo esc_html( $title ); ?>
 			</h2>
 
