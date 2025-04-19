@@ -5,7 +5,9 @@ jQuery( function () {
 
 	// Helper function to generate random integers.
 	function getRandomInt( min, max ) {
-		return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
+		// Square the random number to bias towards lower values
+		const skewedRandom = Math.random() * Math.random();
+		return Math.floor( skewedRandom * ( max - min + 1 ) ) + min;
 	}
 
 	// Peak Activity Times Chart.
@@ -15,10 +17,13 @@ jQuery( function () {
 			.getContext( '2d' );
 
 		// Generate 24 hours of random data.
-		const data = Array.from( { length: 24 }, ( _, hour ) => ( {
-			hour,
-			count: getRandomInt( 10, 100 ),
-		} ) );
+		const generateTimeData = () =>
+			Array.from( { length: 24 }, ( _, hour ) => ( {
+				hour,
+				count: getRandomInt( 10, 100 ),
+			} ) );
+
+		const data = generateTimeData();
 
 		new Chart( ctx, {
 			type: 'bar',
@@ -39,9 +44,13 @@ jQuery( function () {
 					legend: {
 						display: false,
 					},
+					tooltip: {
+						enabled: false,
+					},
 				},
 				responsive: true,
 				maintainAspectRatio: false,
+				animation: false,
 				scales: {
 					y: {
 						beginAtZero: true,
@@ -78,10 +87,13 @@ jQuery( function () {
 		];
 
 		// Generate random data for each day.
-		const data = dayNames.map( ( day ) => ( {
-			day,
-			count: getRandomInt( 50, 200 ),
-		} ) );
+		const generateDayData = () =>
+			dayNames.map( ( day ) => ( {
+				day,
+				count: getRandomInt( 50, 200 ),
+			} ) );
+
+		const data = generateDayData();
 
 		new Chart( ctx, {
 			type: 'bar',
@@ -104,7 +116,11 @@ jQuery( function () {
 					legend: {
 						display: false,
 					},
+					tooltip: {
+						enabled: false,
+					},
 				},
+				animation: false,
 				scales: {
 					y: {
 						beginAtZero: true,
@@ -160,6 +176,9 @@ jQuery( function () {
 				plugins: {
 					legend: {
 						display: false,
+					},
+					tooltip: {
+						enabled: false,
 					},
 				},
 				scales: {
