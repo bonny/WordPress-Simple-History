@@ -50,7 +50,7 @@ jQuery( function () {
 				},
 				responsive: true,
 				maintainAspectRatio: false,
-				animation: false,
+
 				scales: {
 					y: {
 						beginAtZero: true,
@@ -120,7 +120,7 @@ jQuery( function () {
 						enabled: false,
 					},
 				},
-				animation: false,
+
 				scales: {
 					y: {
 						beginAtZero: true,
@@ -178,7 +178,21 @@ jQuery( function () {
 						display: false,
 					},
 					tooltip: {
-						enabled: false,
+						enabled: true,
+						mode: 'index',
+						intersect: false,
+						callbacks: {
+							title(tooltipItems) {
+								return tooltipItems[ 0 ].label;
+							},
+							label(context) {
+								return (
+									simpleHistoryStats.strings.events +
+									': ' +
+									context.parsed.y
+								);
+							},
+						},
 					},
 				},
 				scales: {
