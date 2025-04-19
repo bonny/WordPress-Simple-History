@@ -551,50 +551,34 @@ class Stats_View {
 	}
 
 	/**
-	 * Output the user activity statistics section.
+	 * Output a generic stats box section.
 	 *
-	 * @param array $data Array of insights data.
+	 * @param string $title Card title.
+	 * @param array  $stats Array of stats, each containing 'label' and 'value'.
+	 * @param string $color_var CSS variable name for the color.
 	 */
-	public static function output_user_stats_section( $data ) {
-		$user_stats = $data['user_stats'];
+	public static function output_stats_box_section( $title, $stats, $color_var ) {
 		?>
 		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
 			<h2 
-				class="sh-StatsDashboard-cardTitle"	 
-				style="--sh-badge-background-color: var(--sh-color-pink);"
+				class="sh-StatsDashboard-cardTitle" 
+				style="
+					--sh-badge-background-color: var(<?php echo esc_attr( $color_var ); ?>);
+					--sh-icon-size: 14px;
+				"
 			>
-				<?php echo esc_html_x( 'User profile activity', 'stats section title', 'simple-history' ); ?>
+				<span class="sh-Icon sh-Icon-lock"></span>
+				<?php echo esc_html( $title ); ?>
 			</h2>
-
+			
 			<div class="sh-StatsDashboard-content">
-
-				<div class="sh-StatsDashboard-stats">
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Successful logins', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_successful'] ) ); ?></span>
-					</div>
-
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Failed logins', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_logins_failed'] ) ); ?></span>
-					</div>
-
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Profile updates', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_profiles_updated'] ) ); ?></span>
-					</div>
-				</div>
-
-				<div class="sh-StatsDashboard-stats">
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Added users', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_added'] ) ); ?></span>
-					</div>
-
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Removed users', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $user_stats['user_accounts_removed'] ) ); ?></span>
-					</div>
+				<div class="sh-StatsDashboard-stats is-blurred">
+					<?php foreach ( $stats as $stat ) { ?>
+						<div class="sh-StatsDashboard-stat">
+							<span class="sh-StatsDashboard-statLabel"><?php echo esc_html( $stat['label'] ); ?></span>
+							<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $stat['value'] ) ); ?></span>
+						</div>
+					<?php } ?>
 				</div>
 			</div>
 		</div>
@@ -602,614 +586,131 @@ class Stats_View {
 	}
 
 	/**
-	 * Helper function to output a table with consistent structure.
-	 *
-	 * @param string   $title Table title.
-	 * @param array    $headers Array of column headers.
-	 * @param array    $data Array of data to display.
-	 * @param callable $row_callback Callback function to format each row's data.
+	 * Output the plugin statistics section.
 	 */
-	private static function output_details_table( $title, $headers, $data, $row_callback ) {
-		?>
-		<div class="sh-StatsDashboard-tableContainer" style="--sh-avatar-size: 20px;">
-			<h3><?php echo esc_html( $title ); ?></h3>
-
-			<?php
-			if ( empty( $data ) ) {
-				?>
-				<p><?php esc_html_e( 'No plugins found.', 'simple-history' ); ?></p>
-				<?php
-			} else {
-				?>
-				<table class="widefat striped">
-					<thead>
-						<tr>
-							<?php
-							foreach ( $headers as $header ) {
-								?>
-								<th><?php echo esc_html( $header ); ?></th>
-								<?php
-							}
-							?>
-						</tr>
-					</thead>
-					<tbody>
-						<?php
-						foreach ( $data as $item ) {
-							?>
-							<tr>
-								<?php
-								foreach ( $row_callback( $item ) as $cell ) {
-									?>
-									<td><?php echo wp_kses_post( $cell ); ?></td>
-									<?php
-								}
-								?>
-							</tr>
-							<?php
-						}
-						?>
-					</tbody>
-				</table>
-				<?php
-			}
-			?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output a table of users with successful logins.
-	 *
-	 * @param array $successful_logins Array of successful login details.
-	 */
-	public static function output_user_successful_logins_table( $successful_logins ) {
-		self::output_details_table(
-			__( 'Users with successful logins', 'simple-history' ),
+	public static function output_plugin_stats() {
+		$stats_data = [
 			[
-				__( 'User', 'simple-history' ),
-				__( 'Number of logins', 'simple-history' ),
+				'label' => __( 'Installations', 'simple-history' ),
+				'value' => 42,
 			],
-			$successful_logins,
-			function ( $login ) {
-				$user_avatar = get_avatar_url( $login->user_id );
-				return [
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $user_avatar ),
-						esc_attr( $login->user_login ),
-						esc_html( $login->user_login )
-					),
-					esc_html( $login->login_count ),
-				];
-			}
+			[
+				'label' => __( 'Activations', 'simple-history' ),
+				'value' => 156,
+			],
+			[
+				'label' => __( 'Updates found', 'simple-history' ),
+				'value' => 23,
+			],
+			[
+				'label' => __( 'Updates done', 'simple-history' ),
+				'value' => 18,
+			],
+			[
+				'label' => __( 'Deactivations', 'simple-history' ),
+				'value' => 12,
+			],
+			[
+				'label' => __( 'Deletions', 'simple-history' ),
+				'value' => 8,
+			],
+		];
+
+		self::output_stats_box_section(
+			__( 'Plugins', 'simple-history' ),
+			$stats_data,
+			'--sh-color-green-mint'
 		);
 	}
 
 	/**
-	 * Output a table of users with failed logins.
-	 *
-	 * @param array $failed_logins Array of failed login details.
+	 * Output the user activity statistics section.
 	 */
-	public static function output_user_failed_logins_table( $failed_logins ) {
-		self::output_details_table(
-			__( 'Accounts with failed logins', 'simple-history' ),
+	public static function output_user_stats_section() {
+		$stats_data = [
 			[
-				__( 'Account', 'simple-history' ),
-				__( 'Number of failed logins', 'simple-history' ),
+				'label' => __( 'Successful logins', 'simple-history' ),
+				'value' => 245,
 			],
-			$failed_logins,
-			function ( $login ) {
-				return [
-					esc_html( $login->attempted_username ),
-					esc_html( $login->failed_count ),
-				];
-			}
-		);
-	}
+			[
+				'label' => __( 'Failed logins', 'simple-history' ),
+				'value' => 32,
+			],
+			[
+				'label' => __( 'Profile updates', 'simple-history' ),
+				'value' => 18,
+			],
+			[
+				'label' => __( 'Added users', 'simple-history' ),
+				'value' => 5,
+			],
+			[
+				'label' => __( 'Removed users', 'simple-history' ),
+				'value' => 2,
+			],
+		];
 
-	/**
-	 * Output a table of user profile updates.
-	 *
-	 * @param array $profile_updates Array of profile update details.
-	 */
-	public static function output_user_profile_updates_table( $profile_updates ) {
-		self::output_details_table(
-			__( 'User profile updates', 'simple-history' ),
-			[
-				__( 'User', 'simple-history' ),
-				__( 'Updates', 'simple-history' ),
-			],
-			$profile_updates,
-			function ( $update ) {
-				$user_avatar = get_avatar_url( $update->user_id );
-				return [
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $user_avatar ),
-						esc_attr( $update->user_login ),
-						esc_html( $update->user_login )
-					),
-					esc_html( $update->update_count ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of added users.
-	 *
-	 * @param array $added_users Array of added user details.
-	 */
-	public static function output_user_added_table( $added_users ) {
-		self::output_details_table(
-			__( 'Added users', 'simple-history' ),
-			[
-				__( 'Added user', 'simple-history' ),
-				__( 'Role', 'simple-history' ),
-				__( 'Added by', 'simple-history' ),
-			],
-			$added_users,
-			function ( $user ) {
-				$user_avatar = get_avatar_url( $user->user_id );
-				$added_by = get_userdata( $user->added_by_id );
-				$added_by_avatar = get_avatar_url( $user->added_by_id );
-				return [
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $user_avatar ),
-						esc_attr( $user->user_login ),
-						esc_html( $user->user_login )
-					),
-					esc_html( $user->user_role ),
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $added_by_avatar ),
-						esc_attr( $added_by->user_login ),
-						esc_html( $added_by->display_name )
-					),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of removed users.
-	 *
-	 * @param array $removed_users Array of removed user details.
-	 */
-	public static function output_user_removed_table( $removed_users ) {
-		self::output_details_table(
-			__( 'Removed users', 'simple-history' ),
-			[
-				__( 'Removed user', 'simple-history' ),
-				__( 'Email', 'simple-history' ),
-				__( 'Removed by', 'simple-history' ),
-			],
-			$removed_users,
-			function ( $user ) {
-				$removed_by = get_userdata( $user->removed_by_id );
-				$removed_by_avatar = get_avatar_url( $user->removed_by_id );
-				return [
-					esc_html( $user->user_login ),
-					esc_html( $user->user_email ),
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $removed_by_avatar ),
-						esc_attr( $removed_by->user_login ),
-						esc_html( $removed_by->display_name )
-					),
-				];
-			}
+		self::output_stats_box_section(
+			_x( 'User profile activity', 'stats section title', 'simple-history' ),
+			$stats_data,
+			'--sh-color-pink'
 		);
 	}
 
 	/**
 	 * Output the posts and pages statistics section.
-	 *
-	 * @param array $posts_pages_stats Array of posts and pages statistics.
 	 */
-	public static function output_posts_pages_stats_section( $posts_pages_stats ) {
-		?>
-		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
-			<h2 
-				class="sh-StatsDashboard-cardTitle" 
-				style="--sh-badge-background-color: var(--sh-color-yellow);"
-			>
-				<?php echo esc_html_x( 'Posts & pages activity', 'stats section title', 'simple-history' ); ?>
-			</h2>
-
-			<div class="sh-StatsDashboard-content">
-				<div class="sh-StatsDashboard-stats">
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Created', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_created'] ) ); ?></span>
-					</div>
-
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Updated', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_updated'] ) ); ?></span>
-					</div>
-
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Trashed', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_trashed'] ) ); ?></span>
-					</div>
-
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Deleted', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $posts_pages_stats['content_items_deleted'] ) ); ?></span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output a table of created content items.
-	 *
-	 * @param array $created_items Array of created content items.
-	 */
-	public static function output_content_created_table( $created_items ) {
-		self::output_details_table(
-			__( 'Created content', 'simple-history' ),
+	public static function output_posts_pages_stats_section() {
+		$stats_data = [
 			[
-				__( 'Title', 'simple-history' ),
-				__( 'Type', 'simple-history' ),
-				__( 'Created by', 'simple-history' ),
-				__( 'Date', 'simple-history' ),
+				'label' => __( 'Created', 'simple-history' ),
+				'value' => 67,
 			],
-			$created_items,
-			function ( $item ) {
-				$created_by = get_userdata( $item->created_by_id );
-				$created_by_avatar = get_avatar_url( $item->created_by_id );
-				return [
-					esc_html( $item->post_title ),
-					esc_html( $item->post_type ),
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $created_by_avatar ),
-						esc_attr( $created_by->user_login ),
-						esc_html( $created_by->display_name )
-					),
-					esc_html( $item->created_date ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of updated content items.
-	 *
-	 * @param array $updated_items Array of updated content items.
-	 */
-	public static function output_content_updated_table( $updated_items ) {
-		self::output_details_table(
-			__( 'Updated content', 'simple-history' ),
 			[
-				__( 'Title', 'simple-history' ),
-				__( 'Type', 'simple-history' ),
-				__( 'Updated by', 'simple-history' ),
-				__( 'Date', 'simple-history' ),
+				'label' => __( 'Updated', 'simple-history' ),
+				'value' => 342,
 			],
-			$updated_items,
-			function ( $item ) {
-				$updated_by = get_userdata( $item->updated_by_id );
-				$updated_by_avatar = get_avatar_url( $item->updated_by_id );
-				return [
-					esc_html( $item->post_title ),
-					esc_html( $item->post_type ),
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $updated_by_avatar ),
-						esc_attr( $updated_by->user_login ),
-						esc_html( $updated_by->display_name )
-					),
-					esc_html( $item->updated_date ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of trashed content items.
-	 *
-	 * @param array $trashed_items Array of trashed content items.
-	 */
-	public static function output_content_trashed_table( $trashed_items ) {
-		self::output_details_table(
-			__( 'Trashed content', 'simple-history' ),
 			[
-				__( 'Title', 'simple-history' ),
-				__( 'Type', 'simple-history' ),
-				__( 'Trashed by', 'simple-history' ),
-				__( 'Date', 'simple-history' ),
+				'label' => __( 'Trashed', 'simple-history' ),
+				'value' => 15,
 			],
-			$trashed_items,
-			function ( $item ) {
-				$trashed_by = get_userdata( $item->trashed_by_id );
-				$trashed_by_avatar = get_avatar_url( $item->trashed_by_id );
-				return [
-					esc_html( $item->post_title ),
-					esc_html( $item->post_type ),
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $trashed_by_avatar ),
-						esc_attr( $trashed_by->user_login ),
-						esc_html( $trashed_by->display_name )
-					),
-					esc_html( $item->trashed_date ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output a table of deleted content items.
-	 *
-	 * @param array $deleted_items Array of deleted content items.
-	 */
-	public static function output_content_deleted_table( $deleted_items ) {
-		self::output_details_table(
-			__( 'Deleted content', 'simple-history' ),
 			[
-				__( 'Title', 'simple-history' ),
-				__( 'Type', 'simple-history' ),
-				__( 'Deleted by', 'simple-history' ),
-				__( 'Date', 'simple-history' ),
+				'label' => __( 'Deleted', 'simple-history' ),
+				'value' => 8,
 			],
-			$deleted_items,
-			function ( $item ) {
-				$deleted_by = get_userdata( $item->deleted_by_id );
-				$deleted_by_avatar = get_avatar_url( $item->deleted_by_id );
-				return [
-					esc_html( $item->post_title ),
-					esc_html( $item->post_type ),
-					sprintf(
-						'<img src="%s" alt="%s" class="sh-StatsDashboard-userAvatar">%s',
-						esc_url( $deleted_by_avatar ),
-						esc_attr( $deleted_by->user_login ),
-						esc_html( $deleted_by->display_name )
-					),
-					esc_html( $item->deleted_date ),
-				];
-			}
+		];
+
+		self::output_stats_box_section(
+			_x( 'Posts & pages activity', 'stats section title', 'simple-history' ),
+			$stats_data,
+			'--sh-color-yellow'
 		);
 	}
 
 	/**
 	 * Output the media statistics section.
-	 *
-	 * @param array $media_stats Array of media statistics.
-	 * @param array $media_stats_details Array of detailed media statistics.
 	 */
-	public static function output_media_stats_section( $media_stats, $media_stats_details ) {
-		?>
-		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
-			<h2 
-				class="sh-StatsDashboard-cardTitle" 
-				style="--sh-badge-background-color: var(--sh-color-green-light);"
-			>
-				<?php echo esc_html_x( 'Media', 'stats section title', 'simple-history' ); ?>
-			</h2>
-			
-			<div class="sh-StatsDashboard-content">
-				
-				<div class="sh-StatsDashboard-stats">
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Uploads', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_uploaded'] ) ); ?></span>
-					</div>
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Edits', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_edited'] ) ); ?></span>
-					</div>
-					<div class="sh-StatsDashboard-stat">
-						<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></span>
-						<span class="sh-StatsDashboard-statValue"><?php echo esc_html( number_format_i18n( $media_stats['media_files_deleted'] ) ); ?></span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Output the media uploads table.
-	 *
-	 * @param array $uploads Array of media upload events.
-	 */
-	public static function output_media_uploads_table( $uploads ) {
-		self::output_details_table(
-			__( 'Media uploads', 'simple-history' ),
+	public static function output_media_stats_section() {
+		$stats_data = [
 			[
-				__( 'File', 'simple-history' ),
-				__( 'User', 'simple-history' ),
-				__( 'When', 'simple-history' ),
+				'label' => __( 'Uploads', 'simple-history' ),
+				'value' => 128,
 			],
-			$uploads,
-			function ( $upload ) {
-				// Get the user who performed the action.
-				$user_id = isset( $upload->context['_user_id'] ) ? $upload->context['_user_id'] : 0;
-				$user = get_user_by( 'id', $user_id );
-				$user_name = $user ? $user->display_name : __( 'Unknown user', 'simple-history' );
-				$date = isset( $upload->date ) ? strtotime( $upload->date ) : '';
-				$attachment_filename = isset( $upload->context['attachment_filename'] ) ? $upload->context['attachment_filename'] : __( 'Unknown file', 'simple-history' );
-				$attachment_id = isset( $upload->context['attachment_id'] ) ? $upload->context['attachment_id'] : 0;
-
-				// Get thumbnail if it's an image.
-				$thumbnail_html = '';
-				if ( $attachment_id ) {
-					$thumbnail_html = wp_get_attachment_image(
-						$attachment_id,
-						[ 40, 40 ],
-						true,
-						[
-							'class' => 'sh-StatsDashboard-mediaThumb',
-							'style' => 'margin-right: 10px; vertical-align: middle;',
-						]
-					);
-				}
-
-				return [
-					$thumbnail_html . esc_html( $attachment_filename ),
-					esc_html( $user_name ),
-					sprintf(
-						/* translators: %s last modified date and time in human time diff-format */
-						__( '%1$s ago', 'simple-history' ),
-						human_time_diff( $date, time() )
-					),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output the media edits table.
-	 *
-	 * @param array $edits Array of media edit events.
-	 */
-	public static function output_media_edits_table( $edits ) {
-		self::output_details_table(
-			__( 'Media edits', 'simple-history' ),
 			[
-				__( 'Title', 'simple-history' ),
-				__( 'User', 'simple-history' ),
-				__( 'When', 'simple-history' ),
+				'label' => __( 'Edits', 'simple-history' ),
+				'value' => 45,
 			],
-			$edits,
-			function ( $edit ) {
-				// Get the user who performed the action.
-				$user_id = isset( $edit->context['_user_id'] ) ? $edit->context['_user_id'] : 0;
-				$user = get_user_by( 'id', $user_id );
-				$user_name = $user ? $user->display_name : __( 'Unknown user', 'simple-history' );
-				$date = isset( $edit->date ) ? strtotime( $edit->date ) : '';
-				$attachment_title = isset( $edit->context['attachment_title'] ) ? $edit->context['attachment_title'] : __( 'Unknown title', 'simple-history' );
-
-				return [
-					esc_html( $attachment_title ),
-					esc_html( $user_name ),
-					sprintf(
-						/* translators: %s last modified date and time in human time diff-format */
-						__( '%1$s ago', 'simple-history' ),
-						human_time_diff( $date, time() )
-					),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output the media deletions table.
-	 *
-	 * @param array $deletions Array of media deletion events.
-	 */
-	public static function output_media_deletions_table( $deletions ) {
-		self::output_details_table(
-			__( 'Media deletions', 'simple-history' ),
 			[
-				__( 'File', 'simple-history' ),
-				__( 'User', 'simple-history' ),
-				__( 'When', 'simple-history' ),
+				'label' => __( 'Deletions', 'simple-history' ),
+				'value' => 23,
 			],
-			$deletions,
-			function ( $deletion ) {
-				// Get the user who performed the action.
-				$user_id = isset( $deletion->context['_user_id'] ) ? $deletion->context['_user_id'] : 0;
-				$user = get_user_by( 'id', $user_id );
-				$user_name = $user ? $user->display_name : __( 'Unknown user', 'simple-history' );
-				$date = isset( $deletion->date ) ? strtotime( $deletion->date ) : '';
-				$attachment_filename = isset( $deletion->context['attachment_filename'] ) ? $deletion->context['attachment_filename'] : __( 'Unknown file', 'simple-history' );
+		];
 
-				return [
-					esc_html( $attachment_filename ),
-					esc_html( $user_name ),
-					sprintf(
-						/* translators: %s last modified date and time in human time diff-format */
-						__( '%1$s ago', 'simple-history' ),
-						human_time_diff( $date, time() )
-					),
-				];
-			}
+		self::output_stats_box_section(
+			_x( 'Media', 'stats section title', 'simple-history' ),
+			$stats_data,
+			'--sh-color-green-light'
 		);
-	}
-
-	/**
-	 * Output a plugin table section.
-	 *
-	 * @param string       $title Title of the table section.
-	 * @param string       $action_type Type of plugin action to show.
-	 * @param int          $date_from Start date as Unix timestamp.
-	 * @param int          $date_to End date as Unix timestamp.
-	 * @param Events_Stats $stats Stats instance.
-	 */
-	public static function output_plugin_table( $title, $action_type, $date_from, $date_to, $stats ) {
-		// Show up to 50 entries for better overview.
-		$plugins = $stats->get_plugin_details( $action_type, $date_from, $date_to, 50 );
-
-		self::output_details_table(
-			$title,
-			[
-				__( 'Name', 'simple-history' ),
-				__( 'Event date', 'simple-history' ),
-			],
-			$plugins,
-			function ( $plugin ) {
-				return [
-					esc_html( $plugin['name'] ),
-					esc_html( $plugin['when'] ),
-				];
-			}
-		);
-	}
-
-	/**
-	 * Output the WordPress core and plugins statistics section.
-	 *
-	 * @param array        $plugin_stats Array of WordPress statistics.
-	 * @param Events_Stats $stats          Stats instance.
-	 * @param int          $date_from      Start date as Unix timestamp.
-	 * @param int          $date_to        End date as Unix timestamp.
-	 */
-	public static function output_plugin_stats( $plugin_stats, $stats, $date_from, $date_to ) {
-		?>
-		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
-			<h2 class="sh-StatsDashboard-cardTitle"><?php esc_html_e( 'Plugins', 'simple-history' ); ?></h2>
-
-			<div class="sh-StatsDashboard-stats">
-				<div class="sh-StatsDashboard-stat">
-					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Installations', 'simple-history' ); ?></div>
-					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_installs_completed'] ); ?></div>
-				</div>
-
-				<div class="sh-StatsDashboard-stat">
-					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Activations', 'simple-history' ); ?></div>
-					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_activations_completed'] ); ?></div>
-				</div>
-
-				<div class="sh-StatsDashboard-stat">
-					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Updates found', 'simple-history' ); ?></div>
-					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_found'] ); ?></div>
-				</div>
-
-				<div class="sh-StatsDashboard-stat">
-					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Updates done', 'simple-history' ); ?></div>
-					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_updates_completed'] ); ?></div>
-				</div>
-
-				<div class="sh-StatsDashboard-stat">
-					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Deactivations', 'simple-history' ); ?></div>
-					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deactivations_completed'] ); ?></div>
-				</div>
-
-				<div class="sh-StatsDashboard-stat">
-					<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Deletions', 'simple-history' ); ?></div>
-					<div class="sh-StatsDashboard-statValue"><?php echo esc_html( $plugin_stats['plugin_deletions_completed'] ); ?></div>
-				</div>
-			</div>
-		</div>
-		<?php
 	}
 
 	/**
@@ -1243,11 +744,10 @@ class Stats_View {
 			);
 
 			// Boxes with numbers.
-			self::output_plugin_stats( $data['plugin_stats'], $data['stats'], $date_from, $date_to );
-			self::output_user_stats_section( $data );
-			self::output_posts_pages_stats_section( $data['content_stats'] );
-			self::output_media_stats_section( $data['media_stats'], $data['media_stats_details'] );
-
+			self::output_plugin_stats();
+			self::output_user_stats_section();
+			self::output_posts_pages_stats_section();
+			self::output_media_stats_section();
 			?>
 		</div>
 		<?php

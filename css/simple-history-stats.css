@@ -377,6 +377,10 @@
 	margin-bottom: 0;
 }
 
+.sh-StatsDashboard-stats.is-blurred {
+	filter: blur(6px);
+}
+
 /* Container around a label and a value. */
 .sh-StatsDashboard-stat {
 	display: flex;
