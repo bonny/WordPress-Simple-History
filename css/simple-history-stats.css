@@ -85,8 +85,12 @@
 }
 
 .sh-StatsDashboard-chart.is-blurred {
-	filter: blur(5px);
-	pointer-events: none;
+	filter: blur(4px);
+	transition: filter 0.3s ease-in-out;
+	/* pointer-events: none; */
+}
+.sh-StatsDashboard-chart.is-blurred:hover {
+	filter: blur(0px);
 }
 
 /* Responsive adjustments */
@@ -357,6 +361,10 @@
 	margin-bottom: var(--sh-spacing-large);
 }
 
+.sh-StatsDashboard-cardTitle .sh-Icon {
+	margin-right: 0.5em;
+}
+
 /* Container for mulitple stats numbers and charts. */
 .sh-StatsDashboard-stats {
 	display: grid;
@@ -486,12 +494,36 @@
 	padding: 1rem 0;
 }
 
-.sh-StatsDashboard-dateRangeHeading {
-	margin: 0;
-}
-
 .sh-StatsDashboard-details summary {
 	padding: var(--sh-spacing-small);
 	padding-left: 0;
 	cursor: pointer;
+}
+
+.sh-StatsDashboard-dateRangeContainer {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-medium);
+	margin-top: var(--sh-spacing-xxlarge);
+	margin-bottom: var(--sh-spacing-medium);
+}
+
+.sh-StatsDashboard-dateRangeControls {
+	transition: opacity 0.1s ease-in-out;
+	/* opacity: 0.5; */
+}
+
+.sh-StatsDashboard-dateRangeControls select {
+}
+
+.sh-StatsDashboard-dateRangeControls:hover {
+	/* opacity: 1; */
+}
+
+.sh-StatsDashboard-dateRangeHeading {
+	margin: 0;
+}
+
+.sh-StatsDashboard-dateRangeControls-description {
+	margin-top: var(--sh-spacing-small);
 }

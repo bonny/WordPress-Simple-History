@@ -51,6 +51,24 @@ class Stats_View {
 				);
 				?>
 			</h2>
+
+			<div class="sh-StatsDashboard-dateRangeControls">
+				<select>
+					<option disabled>Today</option>
+					<option disabled>Last 7 days</option>
+					<option selected>Last 30 days</option>
+					<option disabled>Last 3 months</option>
+					<option disabled>Last 6 months</option>
+					<option disabled>Last year</option>
+					<option disabled>All time</option>
+				</select>
+
+				<div class="sh-StatsDashboard-dateRangeControls-description">
+					<span class="sh-Icon sh-Icon-lock"></span>
+					<span><a target="_blank" rel="noopener noreferrer" href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-date-ranges">Upgrade to Premium</a> to get access to more date ranges.</span>
+				</div>
+			</div>
+
 		</div>
 		<?php
 	}
@@ -406,7 +424,10 @@ class Stats_View {
 		<div class="sh-StatsDashboard-card">
 			<h2
 			class="sh-StatsDashboard-cardTitle" 
-			style="--sh-badge-background-color: var(--sh-color-green-light);"
+			style="
+					--sh-badge-background-color: var(--sh-color-green-light);
+					--sh-icon-size: 14px;
+				"
 			>
 				<span class="sh-Icon sh-Icon-lock"></span>
 				<?php echo esc_html( $title ); ?>

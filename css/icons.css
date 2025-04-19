@@ -6,7 +6,7 @@
  */
 
 .sh-Icon {
-	--icon-size: 20px;
+	--icon-size: var(--sh-icon-size, 20px);
 	width: var(--icon-size);
 	height: var(--icon-size);
 	display: inline-block;

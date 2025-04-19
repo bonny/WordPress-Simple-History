@@ -1063,7 +1063,7 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-PageHeader-settingsLinkIcon {
-	--icon-size: 25px;
+	--sh-icon-size: 25px;
 }
 
 .sh-PremiumFeatureBadge {
@@ -1216,9 +1216,9 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-SettingsPage-settingsSection-icon {
-	--icon-size: 24px;
-	width: var(--icon-size);
-	height: var(--icon-size);
+	--sh-icon-size: 24px;
+	width: var(--sh-icon-size);
+	height: var(--sh-icon-size);
 	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
@@ -1229,9 +1229,9 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-SettingsPage-settingsField-icon {
-	--icon-size: 20px;
-	width: var(--icon-size);
-	height: var(--icon-size);
+	--sh-icon-size: 20px;
+	width: var(--sh-icon-size);
+	height: var(--sh-icon-size);
 	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
@@ -1243,9 +1243,9 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-PageNav-icon {
-	--icon-size: 20px;
-	width: var(--icon-size);
-	height: var(--icon-size);
+	--sh-icon-size: 20px;
+	width: var(--sh-icon-size);
+	height: var(--sh-icon-size);
 	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
