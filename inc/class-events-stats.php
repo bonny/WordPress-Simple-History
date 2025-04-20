@@ -494,7 +494,7 @@ class Events_Stats {
 				$version_key = 'plugin_new_version';
 				break;
 			default:
-				return array();
+				return [];
 		}
 
 		// Prepare the query parts for safe execution.
@@ -849,7 +849,7 @@ class Events_Stats {
 	 * @param int $limit Number of entries to return.
 	 * @return array Array of successful login details.
 	 */
-	protected function get_successful_logins_details( $date_from, $date_to, $limit ) {
+	public function get_successful_logins_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
 		return $wpdb->get_results(
@@ -903,7 +903,7 @@ class Events_Stats {
 	 * @param bool $include_ip Whether to include IP addresses.
 	 * @return array Array of failed login details.
 	 */
-	protected function get_failed_logins_details( $date_from, $date_to, $limit, $include_ip ) {
+	public function get_failed_logins_details( $date_from, $date_to, $limit, $include_ip ) {
 		global $wpdb;
 
 		if ( $include_ip ) {
@@ -986,7 +986,7 @@ class Events_Stats {
 	 * @param int $limit Number of entries to return.
 	 * @return array Array of profile update details.
 	 */
-	protected function get_profile_updates_details( $date_from, $date_to, $limit ) {
+	public function get_profile_updates_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
 		return $wpdb->get_results(
@@ -1039,7 +1039,7 @@ class Events_Stats {
 	 * @param int $limit Number of entries to return.
 	 * @return array Array of added user details.
 	 */
-	protected function get_added_users_details( $date_from, $date_to, $limit ) {
+	public function get_added_users_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
 		return $wpdb->get_results(
@@ -1097,7 +1097,7 @@ class Events_Stats {
 	 * @param int $limit Number of entries to return.
 	 * @return array Array of removed user details.
 	 */
-	protected function get_removed_users_details( $date_from, $date_to, $limit ) {
+	public function get_removed_users_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
 		return $wpdb->get_results(
