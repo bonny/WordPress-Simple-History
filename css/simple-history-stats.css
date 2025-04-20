@@ -379,6 +379,11 @@
 
 .sh-StatsDashboard-stats.is-blurred {
 	filter: blur(6px);
+	transition: filter 0.3s ease-in-out;
+}
+
+.sh-StatsDashboard-stats.is-blurred:hover {
+	filter: blur(0);
 }
 
 /* Container around a label and a value. */
