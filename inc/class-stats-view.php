@@ -9,6 +9,17 @@ use Simple_History\Helpers;
  */
 class Stats_View {
 	/**
+	 * Generate a random number within a specified range.
+	 *
+	 * @param int $min Minimum value.
+	 * @param int $max Maximum value.
+	 * @return int Random number between min and max.
+	 */
+	private static function get_random_stat( $min, $max ) {
+		return rand( $min, $max );
+	}
+
+	/**
 	 * Output the page title section.
 	 */
 	public static function output_page_title() {
@@ -592,27 +603,27 @@ class Stats_View {
 		$stats_data = [
 			[
 				'label' => __( 'Installations', 'simple-history' ),
-				'value' => 42,
+				'value' => self::get_random_stat( 10, 25 ),
 			],
 			[
 				'label' => __( 'Activations', 'simple-history' ),
-				'value' => 156,
+				'value' => self::get_random_stat( 20, 40 ),
 			],
 			[
 				'label' => __( 'Updates found', 'simple-history' ),
-				'value' => 23,
+				'value' => self::get_random_stat( 25, 45 ),
 			],
 			[
 				'label' => __( 'Updates done', 'simple-history' ),
-				'value' => 18,
+				'value' => self::get_random_stat( 20, 35 ),
 			],
 			[
 				'label' => __( 'Deactivations', 'simple-history' ),
-				'value' => 12,
+				'value' => self::get_random_stat( 5, 15 ),
 			],
 			[
 				'label' => __( 'Deletions', 'simple-history' ),
-				'value' => 8,
+				'value' => self::get_random_stat( 1, 8 ),
 			],
 		];
 
@@ -630,23 +641,23 @@ class Stats_View {
 		$stats_data = [
 			[
 				'label' => __( 'Successful logins', 'simple-history' ),
-				'value' => 245,
+				'value' => self::get_random_stat( 80, 150 ),
 			],
 			[
 				'label' => __( 'Failed logins', 'simple-history' ),
-				'value' => 32,
+				'value' => self::get_random_stat( 10, 30 ),
 			],
 			[
 				'label' => __( 'Profile updates', 'simple-history' ),
-				'value' => 18,
+				'value' => self::get_random_stat( 8, 20 ),
 			],
 			[
 				'label' => __( 'Added users', 'simple-history' ),
-				'value' => 5,
+				'value' => self::get_random_stat( 1, 5 ),
 			],
 			[
 				'label' => __( 'Removed users', 'simple-history' ),
-				'value' => 2,
+				'value' => self::get_random_stat( 0, 3 ),
 			],
 		];
 
@@ -664,19 +675,19 @@ class Stats_View {
 		$stats_data = [
 			[
 				'label' => __( 'Created', 'simple-history' ),
-				'value' => 67,
+				'value' => self::get_random_stat( 30, 60 ),
 			],
 			[
 				'label' => __( 'Updated', 'simple-history' ),
-				'value' => 342,
+				'value' => self::get_random_stat( 150, 250 ),
 			],
 			[
 				'label' => __( 'Trashed', 'simple-history' ),
-				'value' => 15,
+				'value' => self::get_random_stat( 8, 20 ),
 			],
 			[
 				'label' => __( 'Deleted', 'simple-history' ),
-				'value' => 8,
+				'value' => self::get_random_stat( 3, 10 ),
 			],
 		];
 
@@ -694,15 +705,15 @@ class Stats_View {
 		$stats_data = [
 			[
 				'label' => __( 'Uploads', 'simple-history' ),
-				'value' => 128,
+				'value' => self::get_random_stat( 50, 100 ),
 			],
 			[
 				'label' => __( 'Edits', 'simple-history' ),
-				'value' => 45,
+				'value' => self::get_random_stat( 15, 35 ),
 			],
 			[
 				'label' => __( 'Deletions', 'simple-history' ),
-				'value' => 23,
+				'value' => self::get_random_stat( 5, 15 ),
 			],
 		];
 
@@ -743,7 +754,7 @@ class Stats_View {
 				'peakDaysChart'
 			);
 
-			// Boxes with numbers.
+			// Boxes with stats numbers.
 			self::output_plugin_stats();
 			self::output_user_stats_section();
 			self::output_posts_pages_stats_section();
