@@ -182,10 +182,10 @@ jQuery( function () {
 						mode: 'index',
 						intersect: false,
 						callbacks: {
-							title(tooltipItems) {
+							title( tooltipItems ) {
 								return tooltipItems[ 0 ].label;
 							},
-							label(context) {
+							label( context ) {
 								return (
 									simpleHistoryStats.strings.events +
 									': ' +
