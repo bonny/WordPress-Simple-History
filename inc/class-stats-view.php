@@ -100,13 +100,22 @@ class Stats_View {
 		$total_events = $data['overview_total_events'];
 		$user_stats = $data['user_stats'];
 		$top_users = $data['user_rankings_formatted'];
-		$activity_overview = $data['overview_activity_by_date'];
 		$user_total_count = $data['user_total_count'];
+
+		$sitename = get_bloginfo( 'name' );
 		?>
 		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide sh-StatsDashboard-card--tall">
 
 			<h2 class="sh-StatsDashboard-cardTitle" style="--sh-badge-background-color: var(--sh-color-green-light);">
-				<?php esc_html_e( 'Summary', 'simple-history' ); ?>
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: %s: site name */
+						__( 'Summary for %s', 'simple-history' ),
+						$sitename
+					)
+				);
+				?>
 			</h2>
 
 			<div class="sh-flex sh-justify-between sh-mb-large">
@@ -445,8 +454,8 @@ class Stats_View {
 			</h2>
 
 			<p class="sh-mt-0">
-				This is an example chart and does not contain real data.
-				<a target="_blank" href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-charts">Premium users</a> get real data.
+				Premium users get access to charts with detailed stats.
+				<a target="_blank" href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-charts">Upgrade to Premium</a>.
 			</p>
 
 			<div class="sh-StatsDashboard-content">
@@ -568,7 +577,7 @@ class Stats_View {
 	 * @param array  $stats Array of stats, each containing 'label' and 'value'.
 	 * @param string $color_var CSS variable name for the color.
 	 */
-	public static function output_stats_box_section( $title, $stats, $color_var ) {
+	public static function output_stats_box_section( $title, $stats, $color_var, $description_text = '' ) {
 		?>
 		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
 			<h2 
@@ -581,6 +590,16 @@ class Stats_View {
 				<span class="sh-Icon sh-Icon-lock"></span>
 				<?php echo esc_html( $title ); ?>
 			</h2>
+
+			<?php
+			if ( $description_text ) {
+				?>
+				<p class="sh-mt-0 sh-mb-large">
+					<?php echo esc_html( $description_text ); ?>
+				</p>
+				<?php
+			}
+			?>
 			
 			<div class="sh-StatsDashboard-content">
 				<div class="sh-StatsDashboard-stats is-blurred">
@@ -630,7 +649,8 @@ class Stats_View {
 		self::output_stats_box_section(
 			__( 'Plugins', 'simple-history' ),
 			$stats_data,
-			'--sh-color-green-mint'
+			'--sh-color-green-mint',
+			'Premium users get quick overview of vital plugin numbers, like installations, activations, updates, deactivations and deletions.'
 		);
 	}
 
@@ -664,7 +684,8 @@ class Stats_View {
 		self::output_stats_box_section(
 			_x( 'User profile activity', 'stats section title', 'simple-history' ),
 			$stats_data,
-			'--sh-color-pink'
+			'--sh-color-pink',
+			'Premium users get detailed stats on user profile activity, like successful logins, failed logins, profile updates, added users and removed users.'
 		);
 	}
 
@@ -694,7 +715,8 @@ class Stats_View {
 		self::output_stats_box_section(
 			_x( 'Posts & pages activity', 'stats section title', 'simple-history' ),
 			$stats_data,
-			'--sh-color-yellow'
+			'--sh-color-yellow',
+			'Premium users get detailed stats on posts and pages activity, like created, updated, trashed and deleted.'
 		);
 	}
 
@@ -720,7 +742,8 @@ class Stats_View {
 		self::output_stats_box_section(
 			_x( 'Media', 'stats section title', 'simple-history' ),
 			$stats_data,
-			'--sh-color-green-light'
+			'--sh-color-green-light',
+			'Premium users get detailed stats on media activity, like uploads, edits and deletions.'
 		);
 	}
 

@@ -86,11 +86,6 @@
 
 .sh-StatsDashboard-chart.is-blurred {
 	filter: blur(4px);
-	transition: filter 0.3s ease-in-out;
-	/* pointer-events: none; */
-}
-.sh-StatsDashboard-chart.is-blurred:hover {
-	filter: blur(0px);
 }
 
 /* Responsive adjustments */
@@ -351,7 +346,7 @@
 	display: inline-flex;
 	align-items: center;
 	font-size: var(--sh-font-size-medium);
-	font-weight: 500;
+	font-weight: 600;
 	font-style: normal;
 	border-radius: 4px;
 	padding: 0.25em 0.5em;
@@ -359,6 +354,10 @@
 	line-height: 1;
 	margin: 0;
 	margin-bottom: var(--sh-spacing-large);
+}
+
+.sh-StatsDashboard-card--tall .sh-StatsDashboard-cardTitle {
+	font-size: var(--sh-font-size-large);
 }
 
 .sh-StatsDashboard-cardTitle .sh-Icon {
@@ -379,11 +378,6 @@
 
 .sh-StatsDashboard-stats.is-blurred {
 	filter: blur(6px);
-	transition: filter 0.3s ease-in-out;
-}
-
-.sh-StatsDashboard-stats.is-blurred:hover {
-	filter: blur(0);
 }
 
 /* Container around a label and a value. */
