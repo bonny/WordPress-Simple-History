@@ -196,7 +196,7 @@ class Events_Stats {
 			return false;
 		}
 
-		return $wpdb->get_results(
+		$users = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
 					c.value as user_id,
@@ -221,6 +221,23 @@ class Events_Stats {
 				$date_to,
 				$limit
 			)
+		);
+
+		if ( ! $users ) {
+			return [];
+		}
+
+		// Format user data with avatars and proper types
+		return array_map(
+			function ( $user ) {
+				return [
+					'id'           => $user->user_id,
+					'display_name' => $user->display_name,
+					'avatar'       => get_avatar_url( $user->user_id ),
+					'count'        => (int) $user->count,
+				];
+			},
+			$users
 		);
 	}
 
